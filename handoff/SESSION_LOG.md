@@ -6,6 +6,64 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-04 — Handoff SOP folder activated
+
+### Completed
+
+- PR #54 was created and merged.
+- The permanent repo-native handoff folder is now active.
+- The folder contains:
+  - handoff/README.md
+  - handoff/CURRENT_STATE.md
+  - handoff/SESSION_LOG.md
+  - handoff/templates/session-update-template.md
+- Latest base after PR #54:
+  7518d2fc4a181472b4dafd1969a41d96eec2ec3
+
+### Operating rule now active
+
+Every future GPT session must update handoff/SESSION_LOG.md before ending.
+
+Every future GPT session must update handoff/CURRENT_STATE.md when any of these change:
+- current base SHA
+- active stage
+- PR state
+- QA verdict
+- next safe action
+- major operating rule
+- prototype/reference decision
+- data-honesty rule
+- environment lesson
+
+### Current next safe action
+
+Start PR-K2A only after verifying live base:
+
+```bash
+git fetch origin
+git switch base/approved-thru-437
+git pull --ff-only origin base/approved-thru-437
+git rev-parse HEAD
+git status --short
+```
+
+Expected base:
+7518d2fc4a181472b4dafd1969a41d96eec2ec3
+
+Then create:
+feat/desktop-pr-k2a-worksheet-profile-contract
+
+K2A must be helper/contract only.
+
+### Do not start yet with
+
+- worksheet UI rewrite
+- Me / Progress aggregation
+- Mistake Intelligence claims
+- AI solution fallback
+- DesktopWorksheetsPage edits
+- WorksheetReady edits
+
 ## 2026-05-03 — Post K1C / Pre K2A checkpoint
 
 ### Completed in this session

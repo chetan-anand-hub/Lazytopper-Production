@@ -1,6 +1,6 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-03
+Last updated: 2026-05-04
 
 ## Current GitHub checkpoint
 
@@ -16,10 +16,28 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-5a1bab9badb451b95d1d00a344421d5965f691c3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3
 ```
 
-This is the merge commit after docs PR #53.
+This is the merge commit after PR #54, which added the permanent handoff SOP folder.
+
+### Handoff SOP PR #54
+
+Status: merged.
+
+Purpose:
+- Created the permanent repo-native handoff folder.
+- Added handoff/README.md.
+- Added handoff/CURRENT_STATE.md.
+- Added handoff/SESSION_LOG.md.
+- Added handoff/templates/session-update-template.md.
+- Established the operating rule that every future GPT session must update the handoff folder incrementally before ending.
+
+Merge commit:
+7518d2fc4a181472b4dafd1969a41d96eec2ec3
+
+Head SHA:
+b1bdabeb89caf564e548b9d17b8dd90dbc727962
 
 ## Recently completed
 
@@ -58,9 +76,13 @@ This is the merge commit after docs PR #53.
 
 **PR-K2A — Worksheet profile-save contract/helper.**
 
+K2A has not started yet.
+
 Do not start with UI changes.
 
 K2A should first add a small service/contract for signed-in worksheet profile saving and worksheet activity events.
+
+The current worksheet save is still local-only. Signed-in worksheet profile-save must exist before product UI claims saved profile progress, Mistake Intelligence, or Me / Progress updates.
 
 Likely allowed files:
 - `lazytopper/src/services/worksheetProfileService.ts`
