@@ -7,6 +7,7 @@ import { BackToParent } from "../../components/desktop/l2/BackToParent";
 import { MistakeIntelligencePanel } from "../../components/desktop/l2/MistakeIntelligencePanel";
 import {
   buildDesktopCheckPath,
+  buildDesktopPracticePath,
   buildDesktopWorksheetPath,
 } from "../../lib/desktop/navigation";
 import {
@@ -827,10 +828,48 @@ export default function DesktopWorksheetsPage() {
     | "failed"
   >("idle");
   const [saveMessage, setSaveMessage] = React.useState<string | null>(null);
+  const [learnerLoopStatus, setLearnerLoopStatus] = React.useState<
+    "idle" | "attempt-started"
+  >("idle");
 
   React.useEffect(() => {
     setSavedCount(countSavedWorksheets());
   }, []);
+
+
+  const learnerLoopTopicKey =
+    paperScope === "topic" ? topicKey : mainGenerationTopicKeys[0];
+
+  const learnerLoopReturnTo = buildDesktopWorksheetPath({
+    scope: paperScope,
+    subject,
+    stream,
+    topic: paperScope === "topic" ? topicKey : undefined,
+    topics: paperScope === "multi-topic" ? mainGenerationTopicKeys : undefined,
+    mistakeAware,
+    source: "worksheet",
+    returnTo: "/practice/worksheets",
+  });
+
+  const learnerLoopCheckPath = buildDesktopCheckPath(learnerLoopTopicKey, {
+    source: "worksheet",
+    returnTo: learnerLoopReturnTo,
+  });
+
+  const learnerLoopPracticePath = buildDesktopPracticePath({
+    scope: learnerLoopTopicKey ? "topic" : paperScope,
+    subject,
+    stream,
+    topic: learnerLoopTopicKey,
+    topics: learnerLoopTopicKey
+      ? undefined
+      : paperScope === "multi-topic"
+        ? mainGenerationTopicKeys
+        : undefined,
+    mode: "practice-set",
+    source: "worksheet",
+    returnTo: learnerLoopReturnTo,
+  });
 
   async function handleSave() {
     if (generationBlockerMessage) {
@@ -2073,6 +2112,88 @@ export default function DesktopWorksheetsPage() {
                   Couldn&rsquo;t save — local or profile save failed.
                 </p>
               ) : null}
+
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 14,
+                  borderRadius: 12,
+                  border: `1px solid ${BORDER}`,
+                  background: PILL_BG,
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 800, color: TEXT_FG, marginBottom: 4 }}>
+                  Learner loop
+                </div>
+                <div style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5, marginBottom: 10 }}>
+                  Attempt first, check through the real Check &amp; Improve flow, then practice similar questions.
+                  Attempt activity is not progress, mastery, grading, or Mistake Intelligence.
+                </div>
+
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLearnerLoopStatus("attempt-started");
+                      setError(null);
+                      setInfo("Attempt this worksheet on your own first. Nothing is graded or counted as progress until you use Check & Improve.");
+                    }}
+                    style={{
+                      border: `1px solid ${BORDER}`,
+                      background: CARD_BG,
+                      color: TEXT_FG,
+                      borderRadius: 999,
+                      padding: "7px 11px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontFamily: FONT_BODY,
+                    }}
+                  >
+                    Attempt this worksheet
+                  </button>
+
+                  <Link
+                    to={learnerLoopCheckPath}
+                    style={{
+                      border: `1px solid ${PRIMARY_GREEN}`,
+                      background: PRIMARY_GREEN_SOFT,
+                      color: PRIMARY_GREEN_FG,
+                      borderRadius: 999,
+                      padding: "7px 11px",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      fontFamily: FONT_BODY,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Check my answer
+                  </Link>
+
+                  <Link
+                    to={learnerLoopPracticePath}
+                    style={{
+                      border: `1px solid ${BORDER}`,
+                      background: CARD_BG,
+                      color: TEXT_FG,
+                      borderRadius: 999,
+                      padding: "7px 11px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      fontFamily: FONT_BODY,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Practice similar questions
+                  </Link>
+                </div>
+
+                {learnerLoopStatus === "attempt-started" ? (
+                  <div style={{ marginTop: 10, fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+                    Attempt started locally. Use Check my answer when you are ready for real grading.
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <p
