@@ -13,6 +13,10 @@ import {
   saveWorksheet,
   countSavedWorksheets,
 } from "../../lib/desktop/savedWorksheets";
+import {
+  saveWorksheetToProfile,
+  // recordWorksheetActivity, // K2C follow-up
+} from "../../services/worksheetProfileService";
 import type { SavedSectionFilter } from "../../lib/desktop/savedWorksheets";
 import { generatePracticeQuestions } from "../../data/predictionDataService";
 import type {
@@ -52,9 +56,15 @@ import type { DesktopMistakeInsight } from "../../lib/desktop/mistakeData";
  *     genuinely has fewer matching unique questions.
  *   - Full-subject worksheet generation: same aggregator across every
  *     topic in the active subject + (Science) stream filter.
- *   - Save worksheet: persists the current plan to localStorage via
- *     `lib/desktop/savedWorksheets.ts`. The CTA copy honestly says
- *     "Saved on this device".
+ *   - Save worksheet:
+ *       - Signed-out: persists the current plan to localStorage only (device-only, not portable).
+ *       - Signed-in: attempts to save to your profile via worksheetProfileService (cloud sync if available, local fallback if not).
+ *     The CTA copy and status are always honest:
+ *       - "Saved to your profile" (profile-saved)
+ *       - "Saved locally. Profile sync is unavailable right now." (local-only)
+ *       - "Saved on this device" (skipped-signed-out)
+ *       - "Couldn’t save — local or profile save failed." (failed)
+ *     Saving a worksheet does NOT count as progress, mastery, or Mistake Intelligence.
  *   - Mistake-aware mini-section: reads the user's actual mistake log
  *     written by the existing Check & Improve flow (mistakeLogService —
  *     `lazytopper.mistakeLogs.v1:<uid>`). When at least one entry exists,
@@ -66,7 +76,9 @@ import type { DesktopMistakeInsight } from "../../lib/desktop/mistakeData";
  *     and returnTo=current desktop worksheet path.
  *
  * What is HONESTLY not real:
- *   - Cloud sync of saved worksheets (none — purely local).
+ *   - Saved worksheets are still not progress, mastery, score, or
+ *     Mistake Intelligence. Signed-in profile save can sync when available;
+ *     signed-out saves remain purely local/device-only.
  *   - Mistake-aware mini-section when the learner has not graded any
  *     answers yet — toggle stays disabled with a clear unlock message.
  *
@@ -806,17 +818,25 @@ export default function DesktopWorksheetsPage() {
 
   // ── Saved worksheets (local only) ─────────────────────────────────────
   const [savedCount, setSavedCount] = React.useState<number>(0);
-  const [saveStatus, setSaveStatus] =
-    React.useState<"idle" | "saved" | "failed">("idle");
+  const [saveStatus, setSaveStatus] = React.useState<
+    | "idle"
+    | "saved-device"
+    | "saved-profile"
+    | "saved-local-only"
+    | "skipped-signed-out"
+    | "failed"
+  >("idle");
+  const [saveMessage, setSaveMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setSavedCount(countSavedWorksheets());
   }, []);
 
-  function handleSave() {
+  async function handleSave() {
     if (generationBlockerMessage) {
       setError(generationBlockerMessage);
       setSaveStatus("failed");
+      setSaveMessage(null);
       return;
     }
     const sectionsForSave: SavedSectionFilter =
@@ -827,33 +847,94 @@ export default function DesktopWorksheetsPage() {
       return `${previewTopicLabel} · ${presetOrCustom}`;
     })();
 
-    const record = saveWorksheet({
-      label:        savedLabel,
-      subject,
-      stream,
-      scope:        paperScope,
-      // MAIN scope keys only — the mistake-focus add-on is recorded
-      // separately so the saved entry honestly distinguishes
-      // "what the user picked" from "what the add-on injected".
-      topicKeys:    mainGenerationTopicKeys,
-      topicLabel:   previewTopicLabel,
-      sections:     sectionsForSave,
-      difficulty:   effectiveDifficulty,
-      count:        effectiveCount,
-      mistakeAware,
-      mistakeFocusTopicKey:   mistakeMiniTopicKey,
-      mistakeFocusTopicLabel: mistakeMiniTopicLabel,
-    });
-    if (record) {
-      setSaveStatus("saved");
+    // If signed in, use profile save helper
+    if (user && user.uid) {
+      // Build SavedWorksheetDraft (K2A contract)
+      const draft = {
+        worksheetId: `sw-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        savedAt: new Date().toISOString(),
+        label: savedLabel,
+        subject,
+        stream,
+        scope: paperScope,
+        topicKey: paperScope === "topic"
+          ? mainGenerationTopicKeys[0]
+          : mainGenerationTopicKeys,
+        sectionFilter: sectionsForSave,
+        difficulty: effectiveDifficulty,
+        questionCount: effectiveCount,
+        mistakeFocusTopicKey: mistakeMiniTopicKey ?? undefined,
+      };
+      try {
+        const result = await saveWorksheetToProfile(user.uid, draft);
+        if (result.status === "profile-saved") {
+          setSaveStatus("saved-profile");
+          setSaveMessage("Saved to your profile.");
+        } else if (result.status === "local-only") {
+          setSaveStatus("saved-local-only");
+          setSaveMessage("Saved locally. Profile sync is unavailable right now.");
+        } else if (result.status === "skipped-signed-out") {
+          // Fallback to device-only save
+          const record = saveWorksheet({
+            label: savedLabel,
+            subject,
+            stream,
+            scope: paperScope,
+            topicKeys: mainGenerationTopicKeys,
+            topicLabel: previewTopicLabel,
+            sections: sectionsForSave,
+            difficulty: effectiveDifficulty,
+            count: effectiveCount,
+            mistakeAware,
+            mistakeFocusTopicKey: mistakeMiniTopicKey,
+            mistakeFocusTopicLabel: mistakeMiniTopicLabel,
+          });
+          if (record) {
+            setSaveStatus("saved-device");
+            setSaveMessage("Saved on this device.");
+          } else {
+            setSaveStatus("failed");
+            setSaveMessage("Couldn’t save — local or profile save failed.");
+          }
+        } else {
+          setSaveStatus("failed");
+          setSaveMessage("Couldn’t save — local or profile save failed.");
+        }
+        setSavedCount(countSavedWorksheets());
+        setError(null);
+        setInfo(null);
+        window.setTimeout(() => setSaveStatus((s) => (s !== "idle" ? "idle" : s)), 4000);
+      } catch (e) {
+        setSaveStatus("failed");
+        setSaveMessage("Couldn’t save — local or profile save failed.");
+      }
+    } else {
+      // Signed out: device-only save
+      const record = saveWorksheet({
+        label: savedLabel,
+        subject,
+        stream,
+        scope: paperScope,
+        topicKeys: mainGenerationTopicKeys,
+        topicLabel: previewTopicLabel,
+        sections: sectionsForSave,
+        difficulty: effectiveDifficulty,
+        count: effectiveCount,
+        mistakeAware,
+        mistakeFocusTopicKey: mistakeMiniTopicKey,
+        mistakeFocusTopicLabel: mistakeMiniTopicLabel,
+      });
+      if (record) {
+        setSaveStatus("saved-device");
+        setSaveMessage("Saved on this device.");
+      } else {
+        setSaveStatus("failed");
+        setSaveMessage("Couldn’t save — local or profile save failed.");
+      }
       setSavedCount(countSavedWorksheets());
       setError(null);
       setInfo(null);
-      // Clear the "Saved" badge after a short window so the user can save
-      // another variant and still see fresh feedback.
-      window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 4000);
-    } else {
-      setSaveStatus("failed");
+      window.setTimeout(() => setSaveStatus((s) => (s !== "idle" ? "idle" : s)), 4000);
     }
   }
 
@@ -1885,18 +1966,40 @@ export default function DesktopWorksheetsPage() {
                   type="button"
                   onClick={handleSave}
                   disabled={!!generationBlockerMessage}
-                  title={generationBlockerMessage ?? "Saved on this device"}
+                  title={generationBlockerMessage ?? (saveMessage || "Save worksheet")}
                   style={{
                     appearance: "none",
                     WebkitAppearance: "none",
                     flex: "1 1 180px",
                     height: 40,
                     borderRadius: 10,
-                    border: `1px solid ${saveStatus === "saved" ? PRIMARY_GREEN : BORDER}`,
-                    background: saveStatus === "saved" ? PRIMARY_GREEN_SOFT : CARD_BG,
-                    color: saveStatus === "saved"
-                      ? PRIMARY_GREEN_FG
-                      : (generationBlockerMessage ? DISABLED_FG : TEXT_FG),
+                    border: `1px solid ${
+                      saveStatus === "saved-profile"
+                        ? PRIMARY_GREEN
+                        : saveStatus === "saved-local-only"
+                        ? ACCENT_BORDER
+                        : saveStatus === "saved-device"
+                        ? BORDER
+                        : BORDER
+                    }`,
+                    background:
+                      saveStatus === "saved-profile"
+                        ? PRIMARY_GREEN_SOFT
+                        : saveStatus === "saved-local-only"
+                        ? ACCENT_BG
+                        : saveStatus === "saved-device"
+                        ? CARD_BG
+                        : CARD_BG,
+                    color:
+                      saveStatus === "saved-profile"
+                        ? PRIMARY_GREEN_FG
+                        : saveStatus === "saved-local-only"
+                        ? ACCENT_FG
+                        : saveStatus === "saved-device"
+                        ? TEXT_FG
+                        : generationBlockerMessage
+                        ? DISABLED_FG
+                        : TEXT_FG,
                     fontFamily: FONT_BODY,
                     fontWeight: 600,
                     fontSize: 13,
@@ -1909,7 +2012,13 @@ export default function DesktopWorksheetsPage() {
                   }}
                 >
                   <IconSave />
-                  {saveStatus === "saved" ? "Saved on this device" : "Save worksheet"}
+                  {saveStatus === "saved-profile"
+                    ? "Saved to your profile"
+                    : saveStatus === "saved-local-only"
+                    ? "Saved locally (profile sync unavailable)"
+                    : saveStatus === "saved-device"
+                    ? "Saved on this device"
+                    : "Save worksheet"}
                 </button>
 
                 <Link
@@ -1944,15 +2053,24 @@ export default function DesktopWorksheetsPage() {
                   lineHeight: 1.5,
                 }}
               >
-                {savedCount > 0
+                {saveStatus === "saved-profile"
+                  ? "Saved to your profile. "
+                  : saveStatus === "saved-local-only"
+                  ? "Saved locally. Profile sync is unavailable right now. "
+                  : saveStatus === "saved-device"
+                  ? "Saved on this device. "
+                  : saveStatus === "failed"
+                  ? "Couldn’t save — local or profile save failed. "
+                  : savedCount > 0
                   ? `${savedCount} worksheet${savedCount === 1 ? "" : "s"} saved on this device. `
+                  : user && user.uid
+                  ? "Saving a worksheet attempts to sync to your profile (if signed in). This does not count as progress or mastery."
                   : "Save worksheet stores the plan locally on this device only. "}
-                Upload your answers takes you to Check &amp; Improve with this
-                topic pre-selected.
+                Upload your answers takes you to Check &amp; Improve with this topic pre-selected.
               </p>
               {saveStatus === "failed" ? (
                 <p style={{ margin: 0, fontSize: 12, color: DANGER_FG, lineHeight: 1.5 }}>
-                  Couldn&rsquo;t save — local storage may be full or unavailable.
+                  Couldn&rsquo;t save — local or profile save failed.
                 </p>
               ) : null}
             </div>

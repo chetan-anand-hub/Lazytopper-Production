@@ -6,7 +6,74 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
-## 2026-05-05T02:32:56Z — PR-K2A repair: profile-saved status honesty
+## 2026-05-05T11:25:06Z — PR-K2B repair: save copy and handoff state
+
+### Work completed
+- Repaired signed-in idle save copy so it no longer says device-only.
+- Updated DesktopWorksheetsPage comments to reflect signed-in profile save plus signed-out device save.
+- Repaired NEXT_ACTION.md stale K2A base/branch instructions.
+- Repaired CURRENT_STATE.md stale “K2A has not started” section.
+- Updated K2B audit doc with repair note.
+
+### Data-honesty audit
+- No progress claim introduced.
+- No mastery claim introduced.
+- No Mistake Intelligence claim introduced.
+- Signed-out copy remains device-only.
+- Signed-in copy says profile sync only when available.
+
+### Next safe action
+- Re-run validation.
+- Push repair to PR #60.
+- Re-audit before merge.
+
+
+
+## 2026-05-05T12:45:00Z — PR-K2B: wire worksheet save to profile
+
+Timestamp:
+- UTC: 2026-05-05T12:45:00Z
+- Local/user time if known: not recorded in Codespaces
+
+### Starting state
+- Base branch: base/approved-thru-437
+- Active branch: feat/desktop-pr-k2b-wire-worksheet-profile-save
+- Current task/stage: PR-K2B — wire worksheet save to profile
+
+### Work completed
+- Wired desktop worksheet “Save worksheet” to K2A profile save helper for signed-in users.
+- Preserved device-only save for signed-out users.
+- Mapped K2A statuses to honest UI copy (profile-saved, local-only, skipped-signed-out, failed).
+- No progress/mastery/Me/Mistake Intelligence claims.
+- Added audit doc: docs/audits/pr-k2b-worksheet-profile-save-wiring.md
+- Updated handoff/CURRENT_STATE.md and handoff/NEXT_ACTION.md
+
+### GitHub evidence
+- PR: (pending)
+- Changed files:
+  - lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx
+  - docs/audits/pr-k2b-worksheet-profile-save-wiring.md
+  - handoff/SESSION_LOG.md
+  - handoff/CURRENT_STATE.md
+  - handoff/NEXT_ACTION.md
+
+### Validation evidence
+- TypeScript: pending
+- Production build: pending
+- Build verifier: pending
+
+### Manual/browser QA evidence
+- Signed-out: Save worksheet → “Saved on this device.”
+- Signed-in: Save worksheet → “Saved to your profile.” or “Saved locally. Profile sync is unavailable right now.”
+- No progress/mastery/Me/Mistake Intelligence claims in UI.
+
+### Known limitations
+- Profile worksheet count not shown (K2C follow-up).
+- Activity event not yet wired (K2C follow-up).
+
+### Next safe action
+- Validate build and typecheck.
+- Open draft PR for review.
 
 Timestamp:
 - UTC: 2026-05-05T02:32:56Z

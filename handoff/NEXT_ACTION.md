@@ -1,8 +1,7 @@
 # LazyTopper Next Action
 
 Timestamp:
-Use current UTC timestamp from:
-`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+2026-05-05T11:25:06Z
 
 ## Current base
 
@@ -10,78 +9,41 @@ Active branch:
 base/approved-thru-437
 
 Latest confirmed base:
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
+913d889d40d3dc1078f908c674c05b61dafe486d
+
+## Current PR
+
+PR #60 — PR-K2B: wire worksheet save to profile
+
+Branch:
+feat/desktop-pr-k2b-wire-worksheet-profile-save
+
+Status:
+Open draft / repair in progress.
 
 ## Next safe action
 
-PR-K2A — Worksheet profile-save contract/helper.
+Repair and re-audit PR #60.
 
-## What K2A must do
+Merge only after GPT audit returns PASS.
 
-K2A should add a small service/contract for signed-in worksheet profile saving and worksheet activity events.
+## K2B scope
 
-It should create the foundation for trial users to have worksheet activity associated with profile before later PRs connect Me / Progress and Mistake Intelligence.
+K2B wires desktop worksheet save to the K2A profile-save helper for signed-in users while preserving device-only save for signed-out users.
 
-## What K2A must not do
+## K2B data-honesty rules
 
-Do not start with UI changes.
+- Signed-out save remains “Saved on this device.”
+- Signed-in profile save may say “Saved to your profile” only after helper returns profile-saved.
+- local-only must be labelled honestly.
+- failed save must not pretend success.
+- saved worksheet is not progress.
+- saved worksheet is not mastery.
+- saved worksheet is not Mistake Intelligence.
+- do not show profile count unless reading actual profile/local profile cache.
 
-Do not claim:
-- saved progress
-- mastery
-- Mistake Intelligence
-- Me / Progress update
-- checked answer
-- mistake logged
-- AI grading
-- AI-generated solution availability
+## After K2B merge
 
-## Likely allowed files for K2A
+Verify the new base SHA first.
 
-- lazytopper/src/services/worksheetProfileService.ts
-- docs/audits/pr-k2a-worksheet-profile-save-contract.md
-
-## Forbidden files for K2A unless explicitly re-approved
-
-- lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx
-- lazytopper/src/pages/app/WorksheetReady.tsx
-- lazytopper/src/pages/desktop/DesktopMePage.tsx
-- lazytopper/src/pages/desktop/DesktopPracticePage.tsx
-- question banks
-- worksheet generator
-- mistake services
-- package files
-- UI surfaces
-
-## Required K2A state separation
-
-- worksheet_generated
-- worksheet_saved
-- worksheet_attempt_started
-- worksheet_attempted
-- worksheet_check_started
-- answer_checked
-- mistake_logged
-
-## K2A data-honesty doctrine
-
-- generated is not progress
-- saved is not mastery
-- attempted is not checked
-- checked is not mistake logged unless real mistake log exists
-- Mistake Intelligence only from saved checked evidence
-- Me / Progress aggregation is later, not K2A
-
-## Required first commands for next implementation session
-
-git fetch origin
-git switch base/approved-thru-437
-git pull --ff-only origin base/approved-thru-437
-git rev-parse HEAD
-git status --short
-
-Expected base:
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
-
-Then create:
-feat/desktop-pr-k2a-worksheet-profile-contract
+Then start PR-K2C only after K2B is merged and handoff is updated.
