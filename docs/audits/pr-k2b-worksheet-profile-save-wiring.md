@@ -64,3 +64,11 @@ Depends on K2A’s worksheetProfileService.ts, specifically:
 - Profile-saved worksheet count in UI (only after honest cache/profile read is implemented).
 - Activity event (recordWorksheetActivity) if not implemented here.
 - Broader worksheet library/profile sync.
+
+
+## Repair Note
+
+This repair clarifies idle save copy:
+- signed-in idle copy says saving attempts profile sync when available and does not count as progress or mastery
+- signed-out idle copy remains device-only/local-only
+- file comments were updated so future maintainers do not treat all worksheet saves as local-only after K2B

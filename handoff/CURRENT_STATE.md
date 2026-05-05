@@ -102,30 +102,21 @@ Every future GPT session must update the handoff folder incrementally, including
 
 ## Current next stage
 
-**PR-K2A — Worksheet profile-save contract/helper.**
+**PR-K2B — Wire worksheet save to profile.**
 
-K2A has not started yet.
+Status:
+PR #60 is open draft and under audit/repair.
 
-Do not start with UI changes.
+K2A / PR #58 is merged.
 
-K2A should first add a small service/contract for signed-in worksheet profile saving and worksheet activity events.
+Next safe action:
+- repair K2B copy and handoff state
+- re-run validation
+- push repair to PR #60
+- request GPT audit
+- merge only after PASS
 
-The current worksheet save is still local-only. Signed-in worksheet profile-save must exist before product UI claims saved profile progress, Mistake Intelligence, or Me / Progress updates.
-
-Likely allowed files:
-- `lazytopper/src/services/worksheetProfileService.ts`
-- `docs/audits/pr-k2a-worksheet-profile-save-contract.md`
-
-K2A should not touch:
-- `DesktopWorksheetsPage.tsx`
-- `WorksheetReady.tsx`
-- `DesktopMePage.tsx`
-- `DesktopPracticePage.tsx`
-- UI surfaces
-- question banks
-- worksheet generator
-- mistake services
-- package files
+Do not start K2C until K2B is merged and the new base SHA is verified.
 
 ## K2A pre-audit finding
 

@@ -1,8 +1,7 @@
-
 # LazyTopper Next Action
 
 Timestamp:
-2026-05-05T12:45:00Z
+2026-05-05T11:25:06Z
 
 ## Current base
 
@@ -12,59 +11,39 @@ base/approved-thru-437
 Latest confirmed base:
 913d889d40d3dc1078f908c674c05b61dafe486d
 
+## Current PR
+
+PR #60 — PR-K2B: wire worksheet save to profile
+
+Branch:
+feat/desktop-pr-k2b-wire-worksheet-profile-save
+
+Status:
+Open draft / repair in progress.
+
 ## Next safe action
 
-PR-K2B — Wire worksheet save to profile (desktop):
-- Validate typecheck, production build, and build verifier.
-- Open draft PR for review.
-- Provide QA evidence for signed-in and signed-out save paths.
-- Do not claim progress/mastery/Me/Mistake Intelligence.
-- Do not show profile count unless reading actual profile/local profile cache.
+Repair and re-audit PR #60.
 
-## What K2B must do
-- Wire desktop worksheet “Save worksheet” to K2A profile save helper for signed-in users.
-- Preserve device-only save for signed-out users.
-- Map K2A statuses to honest UI copy (profile-saved, local-only, skipped-signed-out, failed).
-- Add audit doc and update handoff.
+Merge only after GPT audit returns PASS.
 
-## What K2B must not do
-- Do not touch forbidden files (see PR spec).
-- Do not claim progress/mastery/Me/Mistake Intelligence.
-- Do not show profile count unless reading actual profile/local profile cache.
+## K2B scope
 
-## Allowed files for K2B
-- lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx
-- docs/audits/pr-k2b-worksheet-profile-save-wiring.md
-- handoff/SESSION_LOG.md
-- handoff/CURRENT_STATE.md
-- handoff/NEXT_ACTION.md
+K2B wires desktop worksheet save to the K2A profile-save helper for signed-in users while preserving device-only save for signed-out users.
 
-## Forbidden files for K2B
-- See PR spec for full list.
-- worksheet_attempted
-- worksheet_check_started
-- answer_checked
-- mistake_logged
+## K2B data-honesty rules
 
-## K2A data-honesty doctrine
+- Signed-out save remains “Saved on this device.”
+- Signed-in profile save may say “Saved to your profile” only after helper returns profile-saved.
+- local-only must be labelled honestly.
+- failed save must not pretend success.
+- saved worksheet is not progress.
+- saved worksheet is not mastery.
+- saved worksheet is not Mistake Intelligence.
+- do not show profile count unless reading actual profile/local profile cache.
 
-- generated is not progress
-- saved is not mastery
-- attempted is not checked
-- checked is not mistake logged unless real mistake log exists
-- Mistake Intelligence only from saved checked evidence
-- Me / Progress aggregation is later, not K2A
+## After K2B merge
 
-## Required first commands for next implementation session
+Verify the new base SHA first.
 
-git fetch origin
-git switch base/approved-thru-437
-git pull --ff-only origin base/approved-thru-437
-git rev-parse HEAD
-git status --short
-
-Expected base:
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
-
-Then create:
-feat/desktop-pr-k2a-worksheet-profile-contract
+Then start PR-K2C only after K2B is merged and handoff is updated.

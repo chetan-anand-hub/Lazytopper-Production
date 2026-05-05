@@ -56,9 +56,15 @@ import type { DesktopMistakeInsight } from "../../lib/desktop/mistakeData";
  *     genuinely has fewer matching unique questions.
  *   - Full-subject worksheet generation: same aggregator across every
  *     topic in the active subject + (Science) stream filter.
- *   - Save worksheet: persists the current plan to localStorage via
- *     `lib/desktop/savedWorksheets.ts`. The CTA copy honestly says
- *     "Saved on this device".
+ *   - Save worksheet:
+ *       - Signed-out: persists the current plan to localStorage only (device-only, not portable).
+ *       - Signed-in: attempts to save to your profile via worksheetProfileService (cloud sync if available, local fallback if not).
+ *     The CTA copy and status are always honest:
+ *       - "Saved to your profile" (profile-saved)
+ *       - "Saved locally. Profile sync is unavailable right now." (local-only)
+ *       - "Saved on this device" (skipped-signed-out)
+ *       - "Couldn’t save — local or profile save failed." (failed)
+ *     Saving a worksheet does NOT count as progress, mastery, or Mistake Intelligence.
  *   - Mistake-aware mini-section: reads the user's actual mistake log
  *     written by the existing Check & Improve flow (mistakeLogService —
  *     `lazytopper.mistakeLogs.v1:<uid>`). When at least one entry exists,
@@ -70,7 +76,9 @@ import type { DesktopMistakeInsight } from "../../lib/desktop/mistakeData";
  *     and returnTo=current desktop worksheet path.
  *
  * What is HONESTLY not real:
- *   - Cloud sync of saved worksheets (none — purely local).
+ *   - Saved worksheets are still not progress, mastery, score, or
+ *     Mistake Intelligence. Signed-in profile save can sync when available;
+ *     signed-out saves remain purely local/device-only.
  *   - Mistake-aware mini-section when the learner has not graded any
  *     answers yet — toggle stays disabled with a clear unlock message.
  *
@@ -2055,6 +2063,8 @@ export default function DesktopWorksheetsPage() {
                   ? "Couldn’t save — local or profile save failed. "
                   : savedCount > 0
                   ? `${savedCount} worksheet${savedCount === 1 ? "" : "s"} saved on this device. `
+                  : user && user.uid
+                  ? "Saving a worksheet attempts to sync to your profile (if signed in). This does not count as progress or mastery."
                   : "Save worksheet stores the plan locally on this device only. "}
                 Upload your answers takes you to Check &amp; Improve with this topic pre-selected.
               </p>
