@@ -17,10 +17,10 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-913d889d40d3dc1078f908c674c05b61dafe486d
+47d53aa9baa5f106dc349a35cb739f8e52e5d240
 ```
 
-Current stage: PR-K2B — wire worksheet save to profile (in progress)
+Current stage: Ready for PR-K2C - worksheet learner loop entry points
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
@@ -102,25 +102,31 @@ Every future GPT session must update the handoff folder incrementally, including
 
 ## Current next stage
 
-**PR-K2B — Wire worksheet save to profile.**
+**PR-K2C - Worksheet learner loop entry points.**
 
 Status:
-PR #60 is open draft and under audit/repair.
-
 K2A / PR #58 is merged.
+K2B / PR #60 is merged.
+No K2C PR is open yet.
+
+Goal:
+Generate worksheet -> attempt -> check my answer -> see mistakes -> practice similar questions.
+
+Rules:
+- Check & Improve remains the real grading path.
+- Attempt is not checked.
+- Check-start is not answer-checked.
+- Saved/attempted worksheet is not progress.
+- Saved/attempted worksheet is not mastery.
+- Saved/attempted worksheet is not Mistake Intelligence.
+- No fake grading, score, mistakes, progress, mastery, or solution content.
 
 Next safe action:
-- repair K2B copy and handoff state
-- re-run validation
-- push repair to PR #60
-- request GPT audit
-- merge only after PASS
+Start PR-K2C from base 47d53aa9baa5f106dc349a35cb739f8e52e5d240.
 
-Do not start K2C until K2B is merged and the new base SHA is verified.
+## Historical K2A pre-audit finding
 
-## K2A pre-audit finding
-
-Current worksheet save is local-only.
+Historical note from pre-K2A: worksheet save was local-only before K2A/K2B.
 
 Existing helper:
 ```

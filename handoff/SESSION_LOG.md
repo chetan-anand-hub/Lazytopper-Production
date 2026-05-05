@@ -6,6 +6,69 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-05T00:00:00Z - Post-K2B handoff refresh
+
+Timestamp:
+- UTC: 2026-05-05T00:00:00Z
+- Local/user time if known: not recorded in Codespaces
+
+### Starting state
+
+- Base branch: base/approved-thru-437
+- Base SHA: 47d53aa9baa5f106dc349a35cb739f8e52e5d240
+- Active PRs: none for K2C yet
+- Current task/stage: post-K2B handoff refresh before K2C
+
+### Work completed
+
+- Marked K2A and K2B as merged in handoff.
+- Set PR-K2C as the next safe action.
+- Updated roadmap and README base references.
+- Added decision-log entry that K2C is next.
+
+### GitHub evidence
+
+- PR: docs-only handoff refresh to be opened
+- Base SHA: 47d53aa9baa5f106dc349a35cb739f8e52e5d240
+- Changed files: handoff docs only
+
+### Validation evidence
+
+- Docs-only change.
+- Build not required.
+- Changed-file scope must be handoff files only.
+
+### Data-honesty audit
+
+- Fake mastery: not introduced
+- Fake score: not introduced
+- Fake progress: not introduced
+- Fake Mistake Intelligence: not introduced
+- Fake saved history: not introduced
+- Hidden persistence: not introduced
+
+### Decisions made
+
+- K2C should not start from stale handoff.
+- Handoff refresh is separated from K2C implementation.
+
+### Session learnings
+
+- K2B merged successfully, but handoff still described it as open/in progress.
+- Future sessions should verify GitHub state and handoff freshness before starting a new stage.
+
+### Next safe action
+
+- Open and merge this docs-only handoff refresh PR.
+- Then start PR-K2C from the refreshed base.
+
+### What the next GPT session must verify first
+
+- This docs-only handoff PR is merged.
+- New base SHA after handoff refresh.
+- K2C branch does not already exist.
+
+
 ## 2026-05-05T11:25:06Z — PR-K2B repair: save copy and handoff state
 
 ### Work completed

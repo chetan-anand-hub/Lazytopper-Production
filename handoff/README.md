@@ -36,7 +36,7 @@ base/approved-thru-437
 
 Current confirmed base:
 ```
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
+47d53aa9baa5f106dc349a35cb739f8e52e5d240
 ```
 
 ## Current activation status
