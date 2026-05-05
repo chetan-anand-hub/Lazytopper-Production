@@ -1,5 +1,16 @@
 # LazyTopper Decision Log
 
+## 2026-05-05T00:00:00Z - K2A and K2B are merged; K2C is next
+
+Decision:
+PR-K2A and PR-K2B are complete. The next implementation stage is PR-K2C.
+
+Implication:
+Future sessions must not treat K2A or K2B as pending. K2C should build worksheet learner-loop entry points using real Check & Improve for grading, while preserving no-fake-data rules.
+
+Current base:
+47d53aa9baa5f106dc349a35cb739f8e52e5d240
+
 This file records permanent or semi-permanent project decisions that future GPT sessions must not rediscover from scratch.
 
 Newest decisions should be added at the top with UTC timestamp.

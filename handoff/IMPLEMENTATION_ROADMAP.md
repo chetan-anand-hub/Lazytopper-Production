@@ -3,10 +3,10 @@
 This roadmap preserves the staged implementation plan from the current post-K1C / pre-K2A checkpoint onward.
 
 Current base:
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
+47d53aa9baa5f106dc349a35cb739f8e52e5d240
 
 Current stage:
-PR-K2A — Worksheet profile-save contract/helper
+Ready for PR-K2C - Worksheet learner loop entry points
 
 ## Roadmap rule
 
