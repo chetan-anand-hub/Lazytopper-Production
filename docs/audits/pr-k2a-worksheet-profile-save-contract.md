@@ -1,10 +1,23 @@
-# PR-K2A Audit: Worksheet Profile Save Contract
+# PR-K2A Audit: Worksheet Profile Save Contract (REPAIRED)
 
-**Timestamp:** 2026-05-05T11:00:00Z UTC
+**Timestamp:** 2026-05-05T12:30:00Z UTC
 
 **Branch:** `feat/desktop-pr-k2a-worksheet-profile-contract`
 
 **Base:** `8ff9a33be8345f201d54d91fdfe21f221093d537` (origin/base/approved-thru-437)
+
+---
+
+## Repair Summary
+
+**Repaired:** 2026-05-05T12:30:00Z UTC
+
+Original PR-K2A contract was improved to fix:
+1. **Do not require authClient.currentUser before local writes** — Accept any uid; let Firestore rules decide
+2. **Make local write success honest** — writeLocalJson returns boolean with read-back verification
+3. **Independent write attempts** — Try both local and Firestore; don't skip Firestore if local fails
+4. **Null record for skipped** — Return record: null for skipped-signed-out so K2B can distinguish
+5. **Detailed result shape** — Include localCacheSaved, firestoreAttempted, firestorePath, errorMessage for debugging
 
 ---
 
@@ -58,7 +71,43 @@ K2C (learner loop) will wire the full journey and add progress tracking later.
 
 ---
 
-## New Service Contract
+## Repair Details (2026-05-05)
+
+### What Was Fixed
+
+**1. Do not require authClient.currentUser check before local writes**
+- **Before:** Service checked authClient.currentUser and rejected if not authenticated
+- **After:** Service accepts `uid: string | null | undefined` and only checks if uid is truthy
+- **Why:** Firestore rules will enforce auth; local cache write is safe to attempt regardless
+- **Impact:** Caller has more control; can pass null uid and get skipped-signed-out transparently
+
+**2. Make local write success honest**
+- **Before:** writeLocalJson() silently ignored errors; no feedback on success
+- **After:** writeLocalJson() returns boolean; reads back written data to verify
+- **Why:** Caller must know if local cache actually succeeded; cannot assume true
+- **Impact:** localCacheSaved field is now trustworthy; K2B can offer exact feedback
+
+**3. Do not skip Firestore only because localStorage failed**
+- **Before:** If local write failed, Firestore attempt was skipped entirely
+- **After:** Attempts both local and Firestore independently; tries Firestore even if local fails
+- **Why:** Firestore write might still succeed; don't lose the chance by early exit
+- **Impact:** Resilience improved; if localStorage fails but Firestore succeeds, result is "profile-saved" not "failed"
+
+**4. Return null record for skipped-signed-out**
+- **Before:** Returned a record object even when skipped
+- **After:** Returns record: null when uid is missing/empty
+- **Why:** K2B must distinguish "skipped because no uid" from "successfully saved"; null is unambiguous
+- **Impact:** K2B can safely check `if (result.record !== null)` to know if data persisted
+
+**5. Provide detailed result shape with diagnostics**
+- **Before:** Returned simple `{ status, record }`
+- **After:** Returns `{ status, id, record, localCacheSaved, firestoreAttempted, firestorePath, errorMessage }`
+- **Why:** K2B UI needs to explain what happened; callers need error details for debugging
+- **Impact:** K2B can show "Saved locally; will sync when online" based on exact fields
+
+---
+
+## Current Service Contract
 
 ### Types
 
@@ -139,23 +188,22 @@ interface ActivityEventRecord extends ActivityEventDraft {
 ### Public Exports
 
 #### Worksheet Save Contract
-- `saveWorksheetToProfile(uid: string, draft: SavedWorksheetDraft)` → `{ status: WriteStatus, record: SavedWorksheetRecord }`
+- `saveWorksheetToProfile(uid: string | null | undefined, draft: SavedWorksheetDraft)` → `SavedWorksheetWriteResult`
 - `listLocalProfileSavedWorksheets(uid: string)` → `SavedWorksheetRecord[]`
 
 #### Activity Event Contract
-- `recordWorksheetActivity(uid: string, draft: ActivityEventDraft)` → `{ status: WriteStatus, record: ActivityEventRecord }`
+- `recordWorksheetActivity(uid: string | null | undefined, draft: ActivityEventDraft)` → `ActivityEventWriteResult`
 - `listLocalWorksheetActivity(uid: string)` → `ActivityEventRecord[]`
 
 #### Optional Hydration
-- `hydrateProfileFromCloud(uid: string)` → `Promise<void>` — optional one-time cloud fetch (called on sign-in)
+- `hydrateProfileFromCloud(uid: string | null | undefined)` → `Promise<void>` — optional one-time cloud fetch (called on sign-in)
 
 #### Type Exports (re-exportable for callers)
 - `WriteStatus`
 - `WorksheetActivityKind`
-- `SavedWorksheetDraft`
-- `SavedWorksheetRecord`
-- `ActivityEventDraft`
-- `ActivityEventRecord`
+- `SavedWorksheetDraft`, `SavedWorksheetRecord`
+- `ActivityEventDraft`, `ActivityEventRecord`
+- `SavedWorksheetWriteResult`, `ActivityEventWriteResult`
 
 ---
 
@@ -192,17 +240,52 @@ learnerProfiles/{uid}/worksheetActivity/{activityId}    → ActivityEventRecord
 
 All K2A functions return honest `WriteStatus`:
 
-| Status | Meaning | Next Action |
-|--------|---------|-------------|
-| **profile-saved** | Written to localStorage AND Firestore | Profile synced; safe to proceed |
-| **local-only** | Written to localStorage; Firestore skipped/failed | Cache works; user can work offline; will sync when cloud returns |
-| **skipped-signed-out** | User not authenticated | Expected for signed-out users; K2A gracefully no-ops |
-| **failed** | Both localStorage and Firestore write failed | Rare; quota exceeded or severe error |
+| Status | Meaning | Record | Next Action |
+|--------|---------|--------|-------------|
+| **profile-saved** | Written to localStorage AND Firestore | Record object | Profile synced; safe to proceed |
+| **local-only** | Written to localStorage; Firestore skipped/failed | Record object | Cache works; will sync when Firestore available |
+| **skipped-signed-out** | No uid provided | NULL | Expected for unsigned-out calls; K2B checks record !== null |
+| **failed** | Both localStorage and Firestore writes failed | null or record | Rare; quota exceeded or severe error; log errorMessage |
 
-**Caller responsibility:**
-- UI can display status for transparency (e.g. "Saved on this device" vs "Saved to profile")
-- Caller should not hide failures or pretend success
-- Caller should not make progress/mastery claims on save status alone
+---
+
+## Result Shape: SavedWorksheetWriteResult / ActivityEventWriteResult
+
+Both functions return a detailed result object:
+
+```typescript
+interface SavedWorksheetWriteResult {
+  status: WriteStatus                           // One of the 4 statuses
+  id: string                                    // System-assigned ID
+  record: SavedWorksheetRecord | null           // Record object (null if skipped)
+  localCacheSaved: boolean                      // Whether localStorage write succeeded
+  firestoreAttempted: boolean                   // Whether Firestore write was tried
+  firestorePath?: string                        // Path to Firestore doc (if attempted)
+  errorMessage?: string                         // Diagnostic error message
+}
+```
+
+**Key fields for K2B:**
+- `status` — tells UI what happened (profile-saved, local-only, skipped, failed)
+- `record` — null if skipped-signed-out (distinguishes from saved)
+- `localCacheSaved` — whether data persists locally even if cloud failed
+- `errorMessage` — debugging info if write failed
+
+**Example interpretation:**
+```
+status: "local-only", record: SavedWorksheetRecord, localCacheSaved: true
+→ Data saved locally but Firestore unavailable; safe to show "Saved locally; will sync when online"
+
+status: "skipped-signed-out", record: null, localCacheSaved: false
+→ No uid provided; K2B should fall back to device-only save instead
+
+status: "failed", record: null, errorMessage: "..."
+→ Both local and Firestore failed; show error to user with errorMessage detail
+```
+
+---
+
+## Caller Responsibility (K2B)
 
 ---
 
@@ -262,7 +345,9 @@ K2A explicitly does **not**:
 ## Use Pattern Example
 
 ```typescript
-// When user saves a worksheet
+// When user saves a worksheet (signed-in)
+const uid = currentUser.uid || null;  // Might be null if signed-out
+
 const draft: SavedWorksheetDraft = {
   worksheetId: "ws-1234567890",
   savedAt: new Date().toISOString(),
@@ -276,19 +361,31 @@ const draft: SavedWorksheetDraft = {
   questionCount: 10,
 };
 
-const { status, record } = await saveWorksheetToProfile(currentUid, draft);
+const result = await saveWorksheetToProfile(uid, draft);
 
-if (status === "skipped-signed-out") {
-  // User not signed in; caller should handle local-only save instead
-} else if (status === "profile-saved") {
-  // Show success toast: "Saved to your profile"
-} else if (status === "local-only") {
-  // Show caution toast: "Saved locally. Will sync when online."
-} else if (status === "failed") {
-  // Show error toast: "Failed to save. Try again."
+// Check exact status + record to determine UI behavior
+if (result.status === "skipped-signed-out" && result.record === null) {
+  // No uid; K2B should use device-only save (existing fallback)
+  // Do NOT fall through to cloud save
+} else if (result.status === "profile-saved") {
+  // Show success: "Saved to profile"
+} else if (result.status === "local-only") {
+  // Show info: "Saved locally. Will sync when online."
+} else if (result.status === "failed") {
+  // Show error: use result.errorMessage for details
 }
 
-// When user opens worksheet for attempt
+// For debugging, can inspect details
+console.log({
+  status: result.status,
+  recordId: result.record?.id,
+  localCacheSaved: result.localCacheSaved,
+  firestoreAttempted: result.firestoreAttempted,
+  firestorePath: result.firestorePath,
+  errorMessage: result.errorMessage,
+});
+
+// When user opens worksheet for attempt (still signed-in)
 const actDraft: ActivityEventDraft = {
   eventId: "act-1234567890",
   kind: "worksheet_attempt_started",
@@ -296,19 +393,9 @@ const actDraft: ActivityEventDraft = {
   worksheetId: "ws-1234567890",
 };
 
-await recordWorksheetActivity(currentUid, actDraft);
-
-// Later, when user submits attempt
-const attemptedDraft: ActivityEventDraft = {
-  eventId: "act-1234567891",
-  kind: "worksheet_attempted",
-  occurredAt: new Date().toISOString(),
-  worksheetId: "ws-1234567890",
-  context: { questionCount: 10, answersSubmitted: 10 },
-};
-
-await recordWorksheetActivity(currentUid, attemptedDraft);
-// No progress updated. No mastery claimed. Activity recorded as-is.
+const actResult = await recordWorksheetActivity(uid, actDraft);
+// Same pattern: check status + record to interpret result
+// Never auto-increment progress based on activity kind alone
 ```
 
 ---

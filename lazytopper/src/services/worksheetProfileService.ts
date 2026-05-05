@@ -1,5 +1,5 @@
 /**
- * Worksheet Profile Save Service (K2A contract/helper)
+ * Worksheet Profile Save Service (K2A contract/helper) — REPAIRED
  *
  * This service provides a typed contract for signed-in worksheet profile saving
  * and worksheet activity event recording. It bridges local-only worksheet saves
@@ -8,8 +8,9 @@
  * Design principles:
  * - Data honesty: persists exactly what happened, no claims of progress/mastery
  * - Local-first: write to localStorage first, then attempt Firestore
- * - Graceful degradation: returns honest status if cloud fails
+ * - Graceful degradation: returns honest status + detailed outcome metadata
  * - State separation: activity states are kept distinct and honest
+ * - Independent attempts: try Firestore even if local fails (Firestore rules decide auth)
  *
  * Local storage keys:
  *   lazytopper.profile.savedWorksheets.v1:{uid}
@@ -20,10 +21,10 @@
  *   learnerProfiles/{uid}/worksheetActivity/{activityId}
  *
  * Return statuses are always honest:
- *   profile-saved:     Successfully persisted to both local + Firestore
- *   local-only:        Successfully persisted locally only (Firestore unavailable)
- *   skipped-signed-out: User is not authenticated; skipped entirely
- *   failed:            Both local and Firestore writes failed
+ *   profile-saved:      Successfully persisted to both local + Firestore
+ *   local-only:         Successfully persisted locally only (Firestore unavailable/failed)
+ *   skipped-signed-out:  No uid provided; skipped entirely (record returned as null)
+ *   failed:             Both local and Firestore writes failed
  */
 
 import {
@@ -36,7 +37,6 @@ import {
   limit,
 } from "firebase/firestore";
 import { authClient, firestoreDb } from "./firebaseClient";
-import { type Auth } from "firebase/auth";
 
 const LOCAL_SAVED_WORKSHEETS_PREFIX = "lazytopper.profile.savedWorksheets.v1";
 const LOCAL_ACTIVITY_PREFIX = "lazytopper.worksheetActivity.v1";
@@ -51,14 +51,60 @@ const MAX_LOCAL_ENTRIES = 500;
  *
  * - profile-saved: Written to both local cache and Firestore successfully
  * - local-only: Written to local cache; Firestore write skipped or failed
- * - skipped-signed-out: User is not authenticated; operation skipped
- * - failed: Both local write and Firestore write failed (rare)
+ * - skipped-signed-out: No uid provided; operation skipped entirely (record is null)
+ * - failed: Both local write and Firestore write failed
  */
 export type WriteStatus =
   | "profile-saved"
   | "local-only"
   | "skipped-signed-out"
   | "failed";
+
+// ============================================================================
+// Types: Write Results (Detailed Outcome)
+// ============================================================================
+
+/**
+ * Detailed result of a saved worksheet write operation.
+ * Includes status, record (or null for skipped), and diagnostic metadata.
+ */
+export interface SavedWorksheetWriteResult {
+  /** Honest write status */
+  status: WriteStatus;
+  /** System-assigned ID for this saved worksheet */
+  id: string;
+  /** The persisted record (null if skipped-signed-out) */
+  record: SavedWorksheetRecord | null;
+  /** Whether write to local cache succeeded */
+  localCacheSaved: boolean;
+  /** Whether Firestore write was attempted */
+  firestoreAttempted: boolean;
+  /** Firestore path if attempted (e.g. "learnerProfiles/{uid}/savedWorksheets/{id}") */
+  firestorePath?: string;
+  /** Error message if write failed (for debugging) */
+  errorMessage?: string;
+}
+
+/**
+ * Detailed result of an activity event write operation.
+ * Includes status, record (or null for skipped), and diagnostic metadata.
+ */
+export interface ActivityEventWriteResult {
+  /** Honest write status */
+  status: WriteStatus;
+  /** System-assigned ID for this activity event */
+  id: string;
+  /** The persisted record (null if skipped-signed-out) */
+  record: ActivityEventRecord | null;
+  /** Whether write to local cache succeeded */
+  localCacheSaved: boolean;
+  /** Whether Firestore write was attempted */
+  firestoreAttempted: boolean;
+  /** Firestore path if attempted (e.g. "learnerProfiles/{uid}/worksheetActivity/{id}") */
+  firestorePath?: string;
+  /** Error message if write failed (for debugging) */
+  errorMessage?: string;
+}
 
 // ============================================================================
 // Types: Worksheet Activity
@@ -198,22 +244,22 @@ function readLocalJson<T>(key: string): T[] {
   }
 }
 
-function writeLocalJson<T>(key: string, entries: T[]): void {
-  if (!isBrowser()) return;
+function writeLocalJson<T>(key: string, entries: T[]): boolean {
+  if (!isBrowser()) return false;
   try {
-    localStorage.setItem(key, JSON.stringify(entries.slice(0, MAX_LOCAL_ENTRIES)));
+    const toWrite = entries.slice(0, MAX_LOCAL_ENTRIES);
+    localStorage.setItem(key, JSON.stringify(toWrite));
+
+    // Verify write succeeded by reading back
+    const readBack = localStorage.getItem(key);
+    if (!readBack) return false;
+
+    const parsed = JSON.parse(readBack);
+    return Array.isArray(parsed) ? true : false;
   } catch {
-    // localStorage quota exceeded or SSR — silently ignore
+    // localStorage quota exceeded, SSR, or parse error — write failed
+    return false;
   }
-}
-
-// ============================================================================
-// Current User Check
-// ============================================================================
-
-function getCurrentUid(auth: Auth | null): string | null {
-  if (!auth) return null;
-  return auth.currentUser?.uid || null;
 }
 
 // ============================================================================
@@ -222,28 +268,29 @@ function getCurrentUid(auth: Auth | null): string | null {
 
 /**
  * Save a generated worksheet to the signed-in user's profile.
- * Returns honest status about where it was persisted.
+ * Returns detailed outcome including status, record (or null), and diagnostics.
  *
  * Behaviour:
- * 1. If user is not signed in: returns "skipped-signed-out"
- * 2. Always write to localStorage first (local cache)
- * 3. If Firestore is configured and accessible: write there too
+ * 1. If uid is missing/falsy: returns skipped-signed-out (record: null)
+ * 2. Always attempt write to localStorage first (local cache)
+ * 3. Then attempt write to Firestore if configured and uid exists
  * 4. Return status reflecting what actually succeeded
+ *
+ * K2B can distinguish saved from skipped by checking record !== null.
  */
 export async function saveWorksheetToProfile(
-  uid: string,
+  uid: string | null | undefined,
   draft: SavedWorksheetDraft
-): Promise<{ status: WriteStatus; record: SavedWorksheetRecord }> {
-  // Check if user is actually authenticated
-  const currentUid = getCurrentUid(authClient);
-  if (!currentUid || currentUid !== uid) {
+): Promise<SavedWorksheetWriteResult> {
+  // If no uid, cannot save to profile
+  if (!uid || typeof uid !== "string" || uid.trim().length === 0) {
     return {
       status: "skipped-signed-out",
-      record: {
-        id: draft.worksheetId,
-        persistedAt: new Date().toISOString(),
-        ...draft,
-      },
+      id: draft.worksheetId,
+      record: null,
+      localCacheSaved: false,
+      firestoreAttempted: false,
+      errorMessage: "No uid provided",
     };
   }
 
@@ -253,39 +300,82 @@ export async function saveWorksheetToProfile(
     ...draft,
   };
 
-  // Always write to local cache first
-  let localSuccess = false;
+  // Attempt local write
+  let localCacheSaved = false;
+  let localError: string | undefined;
   try {
     const existing = listLocalProfileSavedWorksheets(uid);
     const updated = [record, ...existing];
-    writeLocalJson(localSavedWorksheetsKey(uid), updated);
-    localSuccess = true;
-  } catch {
-    // Local write failed — will return "failed" if Firestore also fails
+    localCacheSaved = writeLocalJson(localSavedWorksheetsKey(uid), updated);
+    if (!localCacheSaved) {
+      localError = "localStorage write failed or verify failed";
+    }
+  } catch (err) {
+    localError = String(err);
   }
 
-  // Attempt Firestore write (fire-and-forget)
+  // Attempt Firestore write (independent of local success)
+  let firestoreAttempted = false;
+  let firestorePath = "";
   let firestoreSuccess = false;
-  if (firestoreDb && localSuccess) {
+  let firestoreError: string | undefined;
+
+  if (firestoreDb && uid) {
+    firestoreAttempted = true;
+    firestorePath = `learnerProfiles/${uid}/savedWorksheets/${record.id}`;
     try {
-      await setDoc(
-        doc(firestoreDb, "learnerProfiles", uid, "savedWorksheets", record.id),
-        record
-      );
+      await setDoc(doc(firestoreDb, "learnerProfiles", uid, "savedWorksheets", record.id), record);
       firestoreSuccess = true;
-    } catch {
-      // Firestore write failed — local copy remains the source of truth
+    } catch (err) {
+      firestoreError = String(err);
     }
   }
 
-  // Return honest status
-  if (!localSuccess) {
-    return { status: "failed", record };
+  // Determine overall status
+  if (localCacheSaved && firestoreSuccess) {
+    return {
+      status: "profile-saved",
+      id: record.id,
+      record,
+      localCacheSaved: true,
+      firestoreAttempted: true,
+      firestorePath,
+    };
   }
-  if (firestoreSuccess) {
-    return { status: "profile-saved", record };
+
+  if (localCacheSaved && !firestoreAttempted) {
+    return {
+      status: "local-only",
+      id: record.id,
+      record,
+      localCacheSaved: true,
+      firestoreAttempted: false,
+      errorMessage: "Firestore not configured",
+    };
   }
-  return { status: "local-only", record };
+
+  if (localCacheSaved && firestoreAttempted && !firestoreSuccess) {
+    return {
+      status: "local-only",
+      id: record.id,
+      record,
+      localCacheSaved: true,
+      firestoreAttempted: true,
+      firestorePath,
+      errorMessage: firestoreError,
+    };
+  }
+
+  // Both failed or local failed
+  return {
+    status: "failed",
+    id: record.id,
+    record: localCacheSaved ? record : null,
+    localCacheSaved,
+    firestoreAttempted,
+    firestorePath: firestoreAttempted ? firestorePath : undefined,
+    errorMessage: localError || firestoreError || "Unknown error",
+  };
 }
 
 /**
@@ -302,12 +392,12 @@ export function listLocalProfileSavedWorksheets(uid: string): SavedWorksheetReco
 
 /**
  * Record a worksheet activity event for the signed-in user.
- * Returns honest status about where it was persisted.
+ * Returns detailed outcome including status, record (or null), and diagnostics.
  *
  * Behaviour:
- * 1. If user is not signed in: returns "skipped-signed-out"
- * 2. Always write to localStorage first (local cache)
- * 3. If Firestore is configured and accessible: write there too
+ * 1. If uid is missing/falsy: returns skipped-signed-out (record: null)
+ * 2. Always attempt write to localStorage first (local cache)
+ * 3. Then attempt write to Firestore if configured and uid exists
  * 4. Return status reflecting what actually succeeded
  *
  * Data honesty:
@@ -316,19 +406,18 @@ export function listLocalProfileSavedWorksheets(uid: string): SavedWorksheetReco
  * - Activity requires separate Me/Progress aggregation (not in K2A)
  */
 export async function recordWorksheetActivity(
-  uid: string,
+  uid: string | null | undefined,
   draft: ActivityEventDraft
-): Promise<{ status: WriteStatus; record: ActivityEventRecord }> {
-  // Check if user is actually authenticated
-  const currentUid = getCurrentUid(authClient);
-  if (!currentUid || currentUid !== uid) {
+): Promise<ActivityEventWriteResult> {
+  // If no uid, cannot record to profile
+  if (!uid || typeof uid !== "string" || uid.trim().length === 0) {
     return {
       status: "skipped-signed-out",
-      record: {
-        id: draft.eventId,
-        persistedAt: new Date().toISOString(),
-        ...draft,
-      },
+      id: draft.eventId,
+      record: null,
+      localCacheSaved: false,
+      firestoreAttempted: false,
+      errorMessage: "No uid provided",
     };
   }
 
@@ -338,39 +427,82 @@ export async function recordWorksheetActivity(
     ...draft,
   };
 
-  // Always write to local cache first
-  let localSuccess = false;
+  // Attempt local write
+  let localCacheSaved = false;
+  let localError: string | undefined;
   try {
     const existing = listLocalWorksheetActivity(uid);
     const updated = [record, ...existing];
-    writeLocalJson(localActivityKey(uid), updated);
-    localSuccess = true;
-  } catch {
-    // Local write failed — will return "failed" if Firestore also fails
+    localCacheSaved = writeLocalJson(localActivityKey(uid), updated);
+    if (!localCacheSaved) {
+      localError = "localStorage write failed or verify failed";
+    }
+  } catch (err) {
+    localError = String(err);
   }
 
-  // Attempt Firestore write (fire-and-forget)
+  // Attempt Firestore write (independent of local success)
+  let firestoreAttempted = false;
+  let firestorePath = "";
   let firestoreSuccess = false;
-  if (firestoreDb && localSuccess) {
+  let firestoreError: string | undefined;
+
+  if (firestoreDb && uid) {
+    firestoreAttempted = true;
+    firestorePath = `learnerProfiles/${uid}/worksheetActivity/${record.id}`;
     try {
-      await setDoc(
-        doc(firestoreDb, "learnerProfiles", uid, "worksheetActivity", record.id),
-        record
-      );
+      await setDoc(doc(firestoreDb, "learnerProfiles", uid, "worksheetActivity", record.id), record);
       firestoreSuccess = true;
-    } catch {
-      // Firestore write failed — local copy remains the source of truth
+    } catch (err) {
+      firestoreError = String(err);
     }
   }
 
-  // Return honest status
-  if (!localSuccess) {
-    return { status: "failed", record };
+  // Determine overall status
+  if (localCacheSaved && firestoreSuccess) {
+    return {
+      status: "profile-saved",
+      id: record.id,
+      record,
+      localCacheSaved: true,
+      firestoreAttempted: true,
+      firestorePath,
+    };
   }
-  if (firestoreSuccess) {
-    return { status: "profile-saved", record };
+
+  if (localCacheSaved && !firestoreAttempted) {
+    return {
+      status: "local-only",
+      id: record.id,
+      record,
+      localCacheSaved: true,
+      firestoreAttempted: false,
+      errorMessage: "Firestore not configured",
+    };
   }
-  return { status: "local-only", record };
+
+  if (localCacheSaved && firestoreAttempted && !firestoreSuccess) {
+    return {
+      status: "local-only",
+      id: record.id,
+      record,
+      localCacheSaved: true,
+      firestoreAttempted: true,
+      firestorePath,
+      errorMessage: firestoreError,
+    };
+  }
+
+  // Both failed or local failed
+  return {
+    status: "failed",
+    id: record.id,
+    record: localCacheSaved ? record : null,
+    localCacheSaved,
+    firestoreAttempted,
+    firestorePath: firestoreAttempted ? firestorePath : undefined,
+    errorMessage: localError || firestoreError || "Unknown error",
+  };
 }
 
 /**
@@ -392,8 +524,9 @@ export function listLocalWorksheetActivity(uid: string): ActivityEventRecord[] {
  *
  * Called by sign-in flows to seed local cache with cloud history if needed.
  */
-export async function hydrateProfileFromCloud(uid: string): Promise<void> {
+export async function hydrateProfileFromCloud(uid: string | null | undefined): Promise<void> {
   if (!firestoreDb) return;
+  if (!uid || typeof uid !== "string" || uid.trim().length === 0) return;
   if (!authClient?.currentUser || authClient.currentUser.uid !== uid) return;
 
   // If we already have local data, trust it and skip hydration
