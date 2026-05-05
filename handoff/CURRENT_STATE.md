@@ -1,6 +1,7 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-04
+Last updated: 2026-05-05
+
 
 ## Current GitHub checkpoint
 
@@ -16,10 +17,10 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
+913d889d40d3dc1078f908c674c05b61dafe486d
 ```
 
-This is the latest base before the current docs handoff expansion.
+Current stage: PR-K2B — wire worksheet save to profile (in progress)
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action

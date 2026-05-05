@@ -1,8 +1,8 @@
+
 # LazyTopper Next Action
 
 Timestamp:
-Use current UTC timestamp from:
-`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+2026-05-05T12:45:00Z
 
 ## Current base
 
@@ -10,54 +10,37 @@ Active branch:
 base/approved-thru-437
 
 Latest confirmed base:
-82995d6c7d4ab4bd516076b95ce8aa61cca298a0
+913d889d40d3dc1078f908c674c05b61dafe486d
 
 ## Next safe action
 
-PR-K2A — Worksheet profile-save contract/helper.
+PR-K2B — Wire worksheet save to profile (desktop):
+- Validate typecheck, production build, and build verifier.
+- Open draft PR for review.
+- Provide QA evidence for signed-in and signed-out save paths.
+- Do not claim progress/mastery/Me/Mistake Intelligence.
+- Do not show profile count unless reading actual profile/local profile cache.
 
-## What K2A must do
+## What K2B must do
+- Wire desktop worksheet “Save worksheet” to K2A profile save helper for signed-in users.
+- Preserve device-only save for signed-out users.
+- Map K2A statuses to honest UI copy (profile-saved, local-only, skipped-signed-out, failed).
+- Add audit doc and update handoff.
 
-K2A should add a small service/contract for signed-in worksheet profile saving and worksheet activity events.
+## What K2B must not do
+- Do not touch forbidden files (see PR spec).
+- Do not claim progress/mastery/Me/Mistake Intelligence.
+- Do not show profile count unless reading actual profile/local profile cache.
 
-It should create the foundation for trial users to have worksheet activity associated with profile before later PRs connect Me / Progress and Mistake Intelligence.
-
-## What K2A must not do
-
-Do not start with UI changes.
-
-Do not claim:
-- saved progress
-- mastery
-- Mistake Intelligence
-- Me / Progress update
-- checked answer
-- mistake logged
-- AI grading
-- AI-generated solution availability
-
-## Likely allowed files for K2A
-
-- lazytopper/src/services/worksheetProfileService.ts
-- docs/audits/pr-k2a-worksheet-profile-save-contract.md
-
-## Forbidden files for K2A unless explicitly re-approved
-
+## Allowed files for K2B
 - lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx
-- lazytopper/src/pages/app/WorksheetReady.tsx
-- lazytopper/src/pages/desktop/DesktopMePage.tsx
-- lazytopper/src/pages/desktop/DesktopPracticePage.tsx
-- question banks
-- worksheet generator
-- mistake services
-- package files
-- UI surfaces
+- docs/audits/pr-k2b-worksheet-profile-save-wiring.md
+- handoff/SESSION_LOG.md
+- handoff/CURRENT_STATE.md
+- handoff/NEXT_ACTION.md
 
-## Required K2A state separation
-
-- worksheet_generated
-- worksheet_saved
-- worksheet_attempt_started
+## Forbidden files for K2B
+- See PR spec for full list.
 - worksheet_attempted
 - worksheet_check_started
 - answer_checked
