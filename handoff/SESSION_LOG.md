@@ -6,6 +6,87 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-05T02:32:56Z — PR-K2A repair: profile-saved status honesty
+
+Timestamp:
+- UTC: 2026-05-05T02:32:56Z
+- Local/user time if known: not recorded in Codespaces
+
+### Starting state
+
+- Base branch: base/approved-thru-437
+- Active branch: feat/desktop-pr-k2a-worksheet-profile-contract
+- Current task/stage: PR-K2A repair after audit HOLD
+
+### Work completed
+
+- Repaired `saveWorksheetToProfile()` and `recordWorksheetActivity()` so Firestore/profile success returns `profile-saved` even if local cache write fails.
+- Preserved `localCacheSaved` as the independent signal for whether local fallback succeeded.
+- Updated K2A audit doc to clarify status semantics.
+- No UI files or product surfaces touched.
+
+### GitHub evidence
+
+- PR: #58
+- Changed files remain expected:
+  - lazytopper/src/services/worksheetProfileService.ts
+  - docs/audits/pr-k2a-worksheet-profile-save-contract.md
+  - handoff/SESSION_LOG.md
+
+### Validation evidence
+
+- TypeScript: pending in this terminal run
+- Production build: pending in this terminal run
+- Build verifier: pending in this terminal run
+- Changed-file scope: pending in this terminal run
+
+### QA evidence
+
+- Browser Agent: not required
+- Manual QA: not required
+- Preview URL: not applicable
+- Verdict: non-visual repair
+
+### Data-honesty audit
+
+- Fake mastery: not introduced
+- Fake score: not introduced
+- Fake progress: not introduced
+- Fake Mistake Intelligence: not introduced
+- Fake saved history: not introduced
+- Hidden persistence: not introduced
+- Status honesty: repaired so profile/cloud success is not reported as failed
+
+### Decisions made
+
+- `profile-saved` means Firestore/profile persistence succeeded.
+- `localCacheSaved` is the separate local-cache outcome.
+- `failed` means neither local cache nor profile/cloud persistence succeeded.
+
+### Session learnings
+
+- Independent write attempts require independent status semantics.
+- A local cache failure must not hide a successful profile/cloud save.
+
+### Known issues / follow-ups
+
+- PR #58 must be re-audited after this repair commit.
+- K2B remains the next implementation step only after K2A merge.
+
+### Next safe action
+
+- Run validation.
+- Commit and push this repair.
+- Re-audit PR #58.
+
+### What the next GPT session must verify first
+
+- PR #58 head SHA.
+- Changed files.
+- Validation evidence.
+- That Firestore success with local cache failure returns `profile-saved`, not `failed`.
+
+
 ## 2026-05-05T12:35:00Z UTC — PR-K2A: Contract repair and detailed result shape
 
 **Timestamp:** 2026-05-05T12:35:00Z UTC / 2026-05-05 18:05 IST

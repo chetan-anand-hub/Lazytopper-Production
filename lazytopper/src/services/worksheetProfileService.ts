@@ -21,7 +21,7 @@
  *   learnerProfiles/{uid}/worksheetActivity/{activityId}
  *
  * Return statuses are always honest:
- *   profile-saved:      Successfully persisted to both local + Firestore
+ *   profile-saved:      Successfully persisted to Firestore/profile; localCacheSaved reports local cache outcome
  *   local-only:         Successfully persisted locally only (Firestore unavailable/failed)
  *   skipped-signed-out:  No uid provided; skipped entirely (record returned as null)
  *   failed:             Both local and Firestore writes failed
@@ -49,7 +49,7 @@ const MAX_LOCAL_ENTRIES = 500;
 /**
  * Honest status of a save or activity record operation.
  *
- * - profile-saved: Written to both local cache and Firestore successfully
+ * - profile-saved: Written to Firestore/profile successfully; localCacheSaved reports local cache outcome
  * - local-only: Written to local cache; Firestore write skipped or failed
  * - skipped-signed-out: No uid provided; operation skipped entirely (record is null)
  * - failed: Both local write and Firestore write failed
@@ -331,15 +331,18 @@ export async function saveWorksheetToProfile(
     }
   }
 
-  // Determine overall status
-  if (localCacheSaved && firestoreSuccess) {
+  // Determine overall status.
+  // Firestore/profile success is the source of truth for "profile-saved";
+  // localCacheSaved separately reports whether the local cache also succeeded.
+  if (firestoreSuccess) {
     return {
       status: "profile-saved",
       id: record.id,
       record,
-      localCacheSaved: true,
+      localCacheSaved,
       firestoreAttempted: true,
       firestorePath,
+      errorMessage: localCacheSaved ? undefined : localError,
     };
   }
 
@@ -366,11 +369,11 @@ export async function saveWorksheetToProfile(
     };
   }
 
-  // Both failed or local failed
+  // Neither local cache nor Firestore/profile persistence succeeded.
   return {
     status: "failed",
     id: record.id,
-    record: localCacheSaved ? record : null,
+    record: null,
     localCacheSaved,
     firestoreAttempted,
     firestorePath: firestoreAttempted ? firestorePath : undefined,
@@ -458,15 +461,18 @@ export async function recordWorksheetActivity(
     }
   }
 
-  // Determine overall status
-  if (localCacheSaved && firestoreSuccess) {
+  // Determine overall status.
+  // Firestore/profile success is the source of truth for "profile-saved";
+  // localCacheSaved separately reports whether the local cache also succeeded.
+  if (firestoreSuccess) {
     return {
       status: "profile-saved",
       id: record.id,
       record,
-      localCacheSaved: true,
+      localCacheSaved,
       firestoreAttempted: true,
       firestorePath,
+      errorMessage: localCacheSaved ? undefined : localError,
     };
   }
 
@@ -493,11 +499,11 @@ export async function recordWorksheetActivity(
     };
   }
 
-  // Both failed or local failed
+  // Neither local cache nor Firestore/profile persistence succeeded.
   return {
     status: "failed",
     id: record.id,
-    record: localCacheSaved ? record : null,
+    record: null,
     localCacheSaved,
     firestoreAttempted,
     firestorePath: firestoreAttempted ? firestorePath : undefined,

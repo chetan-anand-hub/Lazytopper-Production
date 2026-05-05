@@ -73,6 +73,17 @@ K2C (learner loop) will wire the full journey and add progress tracking later.
 
 ## Repair Details (2026-05-05)
 
+### Additional repair — Firestore success with local cache failure
+
+The service now treats Firestore/profile success as a successful `profile-saved` outcome even when the local cache write fails.
+
+This means:
+- `profile-saved` means the profile/cloud write succeeded.
+- `localCacheSaved` independently tells whether local cache also succeeded.
+- `local-only` means local cache succeeded but Firestore was unavailable or failed.
+- `failed` means neither local cache nor Firestore/profile persistence succeeded.
+
+
 ### What Was Fixed
 
 **1. Do not require authClient.currentUser check before local writes**
@@ -117,7 +128,7 @@ Honest outcome of a save operation:
 type WriteStatus = "profile-saved" | "local-only" | "skipped-signed-out" | "failed"
 ```
 
-- **profile-saved**: Written to both localStorage and Firestore successfully
+- **profile-saved**: Firestore/profile save succeeded; `localCacheSaved` reports whether local cache also succeeded
 - **local-only**: Written to localStorage; Firestore write unavailable or failed
 - **skipped-signed-out**: User not authenticated; operation skipped entirely
 - **failed**: Both localStorage and Firestore writes failed (rare; quota exceeded)
@@ -242,7 +253,7 @@ All K2A functions return honest `WriteStatus`:
 
 | Status | Meaning | Record | Next Action |
 |--------|---------|--------|-------------|
-| **profile-saved** | Written to localStorage AND Firestore | Record object | Profile synced; safe to proceed |
+| **profile-saved** | Firestore/profile save succeeded | Record object | Profile synced; check `localCacheSaved` for local cache outcome |
 | **local-only** | Written to localStorage; Firestore skipped/failed | Record object | Cache works; will sync when Firestore available |
 | **skipped-signed-out** | No uid provided | NULL | Expected for unsigned-out calls; K2B checks record !== null |
 | **failed** | Both localStorage and Firestore writes failed | null or record | Rare; quota exceeded or severe error; log errorMessage |
