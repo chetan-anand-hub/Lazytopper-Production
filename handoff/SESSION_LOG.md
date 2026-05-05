@@ -6,6 +6,42 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-05T13:43:24Z - PR-K2C worksheet learner loop entry points
+
+### Starting state
+- Base branch: base/approved-thru-437
+- Base SHA: 048ef9eac2b6d80c497029391612246a77304a62
+- Active branch: feat/desktop-pr-k2c-worksheet-learner-loop
+- Current task/stage: PR-K2C
+
+### Work completed
+- Added worksheet learner-loop entry points.
+- Added Attempt this worksheet, Check my answer, and Practice similar questions actions.
+- Check my answer routes through real Check & Improve with source=worksheet and returnTo.
+- Practice similar questions routes through the existing practice path.
+- Added K2C audit doc and updated handoff state.
+- Optional activity recording was intentionally skipped to keep K2C narrow.
+
+### Data-honesty audit
+- Fake mastery: not introduced
+- Fake score: not introduced
+- Fake progress: not introduced
+- Fake Mistake Intelligence: not introduced
+- Fake checked answer: not introduced
+- Fake mistake log: not introduced
+- Hidden persistence: not introduced
+
+### Session learnings
+- K2C keeps Check & Improve as the only grading path.
+- Worksheet attempt UI is useful guidance but must not be represented as progress or mastery.
+
+### Next safe action
+- Validate.
+- Open draft PR.
+- Generate public QA URL.
+- Audit before merge.
+
+
 ## 2026-05-05T00:00:00Z - Post-K2B handoff refresh
 
 Timestamp:

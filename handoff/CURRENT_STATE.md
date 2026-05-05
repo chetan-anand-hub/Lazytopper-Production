@@ -20,7 +20,7 @@ Latest confirmed merged checkpoint:
 47d53aa9baa5f106dc349a35cb739f8e52e5d240
 ```
 
-Current stage: Ready for PR-K2C - worksheet learner loop entry points
+Current stage: PR-K2C - worksheet learner loop entry points (in progress)
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
@@ -107,7 +107,7 @@ Every future GPT session must update the handoff folder incrementally, including
 Status:
 K2A / PR #58 is merged.
 K2B / PR #60 is merged.
-No K2C PR is open yet.
+K2C branch/PR is in progress.
 
 Goal:
 Generate worksheet -> attempt -> check my answer -> see mistakes -> practice similar questions.
