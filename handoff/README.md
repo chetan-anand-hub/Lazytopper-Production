@@ -34,10 +34,13 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Current confirmed base:
+Latest verified live base after PR #64:
 ```
-d9d0d5df1e9de45df4e555b186903070e7b0e873
+bbd4d457a2349cf34b8ab335e45123f8b306868c
 ```
+
+Important:
+The live base can advance after docs-only handoff PRs. Future sessions must verify `origin/base/approved-thru-437` directly before implementation.
 
 ## Operating model (post-K2C)
 
@@ -113,7 +116,7 @@ Before ending a GPT session:
 2. Update `handoff/CURRENT_STATE.md` if material state changed.
 3. Create a docs-only PR for handoff updates, unless the update is intentionally deferred and clearly stated.
 4. Tell the next GPT session to read the GitHub handoff folder first.
-5. Provide the current base SHA (d9d0d5df1e9de45df4e555b186903070e7b0e873), active branch, open PRs, and next safe action.
+5. Provide the last verified live base SHA, active branch, open PRs, and next safe action. If a docs-only handoff PR just merged, explicitly state that the live base must be re-verified.
 6. Do not rely on ChatGPT memory as handoff.
 
 **GitHub is source of truth.**
@@ -186,7 +189,7 @@ git status --short
    - `handoff/templates/session-update-template.md`
 
 2. **Verify GitHub:**
-   - current base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
+   - current live base SHA from GitHub
    - PR states
    - changed files
    - draft/merged state
@@ -194,7 +197,7 @@ git status --short
 
 3. **Confirm current stage.**
 
-4. **Create clean branch** from `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873).
+4. **Create clean branch** from `origin/base/approved-thru-437` after verifying the live SHA.
 
 5. **Keep changed-file scope narrow.**
 
@@ -212,7 +215,7 @@ git status --short
 
 8. **GPT audits:**
    - GitHub PR state
-   - base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
+   - base SHA verified live from GitHub
    - head SHA
    - changed files
    - source diff

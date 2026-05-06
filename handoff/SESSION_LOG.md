@@ -6,6 +6,75 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-06T04:32:03Z - PR #64 merged; final post-K2C handoff stabilization
+
+### Starting state
+- Base branch: base/approved-thru-437
+- Live base after PR #64: bbd4d457a2349cf34b8ab335e45123f8b306868c
+- Current task/stage: final handoff stabilization before Vercel/Codex setup verification
+
+### Work completed
+- Recorded PR #64 merge and new live base.
+- Clarified that K2C is complete and K2D has not started.
+- Removed stale instruction to finish/merge the already-merged post-K2C handoff repair PR.
+- Stabilized handoff wording so future docs-only PRs do not create an infinite base-staleness loop.
+- Reconfirmed Codex as preferred executor and Vercel as preferred preview provider.
+- Reconfirmed contaminated Replit main must not be used.
+
+### GitHub evidence
+- PR #62 / K2C: merged
+- PR #62 head SHA: 1cbc1d74243801cd1a5f68345547779ba6e4813d
+- PR #62 merge commit: d9d0d5df1e9de45df4e555b186903070e7b0e873
+- PR #64 / docs-only post-K2C handoff repair: merged
+- PR #64 head SHA: 3a6f7f097e84e130e2cb5e8be2ca4cc011bd8dbc
+- PR #64 merge commit: bbd4d457a2349cf34b8ab335e45123f8b306868c
+
+### Validation evidence
+- Docs-only handoff update.
+- Product build not required.
+- Changed-file scope must remain docs/handoff only.
+
+### QA evidence
+- Browser QA not required for docs-only update.
+- K2C Browser QA already recorded as PASS.
+
+### Data-honesty audit
+- Fake mastery: not introduced
+- Fake score: not introduced
+- Fake progress: not introduced
+- Fake Mistake Intelligence: not introduced
+- Fake checked answer: not introduced
+- Fake mistake log: not introduced
+- Hidden persistence: not introduced
+
+### Decisions made
+- Next implementation is not K2D yet.
+- First complete Vercel/Codex setup verification.
+- Then start PR-K2D after live base verification.
+- Future sessions must verify live GitHub base because docs-only handoff PRs can advance the base after recorded checkpoints.
+
+### Session learnings
+- A handoff repair PR merge itself advances the base, so handoff must separate product checkpoint from latest live handoff checkpoint.
+- The handoff should say when to verify live GitHub rather than relying only on hard-coded SHAs.
+- Fresh GPT audit is useful and should be used again after this stabilization.
+
+### Next safe action
+1. Merge this small docs-only stabilization PR.
+2. Re-run the fresh GPT handoff-readiness audit.
+3. If HANDOFF READY, resume Vercel setup and Codex workflow.
+4. Start PR-K2D only after Vercel/Codex setup verification and live base check.
+
+### What the next GPT session must verify first
+- Live `origin/base/approved-thru-437` SHA.
+- PR #62 remains merged.
+- PR #64 remains merged.
+- This stabilization PR is merged if applicable.
+- Vercel setup status.
+- `/app/` deployment status.
+- K2D has not started.
+
+---
+
 
 ## 2026-05-06T00:00:00Z - Post-K2C handoff repair, PR #62 merged
 

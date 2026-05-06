@@ -19,7 +19,23 @@ Current base:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 # LazyTopper Decision Log
 
-## 2026-05-05T00:00:00Z - K2A and K2B are merged; K2C is next
+## 2026-05-06T04:32:03Z - PR #64 merged; Vercel/Codex verification is next
+
+Decision:
+The docs-only post-K2C handoff repair PR #64 is merged.
+
+Evidence:
+- PR #64 head SHA: 3a6f7f097e84e130e2cb5e8be2ca4cc011bd8dbc
+- PR #64 merge commit: bbd4d457a2349cf34b8ab335e45123f8b306868c
+- PR #62 / K2C merge commit: d9d0d5df1e9de45df4e555b186903070e7b0e873
+
+Implication:
+K2C is complete. The next safe action is Vercel/Codex setup verification before PR-K2D. Future sessions must verify live `origin/base/approved-thru-437` before starting implementation because docs-only handoff PRs can advance the base after the last recorded checkpoint.
+
+Supersedes:
+Any older instruction saying to finish/merge the post-K2C handoff repair PR.
+
+## 2026-05-05T00:00:00Z - K2A and K2B are merged; K2C is next (historical, superseded)
 
 Decision:
 PR-K2A and PR-K2B are complete. The next implementation stage is PR-K2C.

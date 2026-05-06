@@ -2,11 +2,14 @@
 
 This roadmap preserves the staged implementation plan from the current post-K1C / pre-K2A checkpoint onward.
 
-Current base:
+Latest verified live base after PR #64:
+bbd4d457a2349cf34b8ab335e45123f8b306868c
+
+Product checkpoint after PR #62 / K2C merge:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 
 Current stage:
-Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.
+Vercel-Codex setup verification before PR-K2D. K2D has not started.
 
 ## Roadmap rule
 
