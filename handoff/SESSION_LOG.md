@@ -1,3 +1,14 @@
+## 2026-05-06T17:57:20Z - PR #69 K2D cache-version repair
+
+- Applied `CACHE_VERSION = v3` to all step-solution hashes, not only objective questions.
+- This globally bypasses older generated cache entries from the pre-provenance/pre-honesty prompt path.
+- Replaced remaining internal prompt wording with board-style guide language.
+- Preserved PR #69 as a draft K2D implementation pending GPT/user audit.
+- Check & Improve remains the only real grading path.
+- No fake progress, mastery, score, checked answer, mistake logs, Mistake Intelligence, or hidden persistence added.
+
+---
+
 ## 2026-05-06T15:00:31Z - PR #69 clean repair on current base
 
 - Rebuilt PR #69 branch from current verified base `93add323809ae3d17f6fc4f1bc627c9efa7c13cd`.

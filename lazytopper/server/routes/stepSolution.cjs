@@ -31,9 +31,9 @@ function withProvenance(solution, source, extras = {}) {
 }
 
 function computeQuestionHash(question, marks, isObjective) {
-  // Only apply the version prefix for MCQ/objective questions. Multi-mark questions
-  // keep their original hash format so their cached entries remain valid.
-  const prefix = isObjective ? CACHE_VERSION + '|' : '';
+  // Apply cache versioning to all question types so K2D bypasses older
+  // cached generated responses from pre-provenance/pre-honesty prompt wording.
+  const prefix = CACHE_VERSION + '|';
   return crypto.createHash('sha256').update(prefix + question + '|' + marks).digest('hex');
 }
 
@@ -197,7 +197,7 @@ function createStepSolutionRoute(deps) {
         'You must respond ONLY with valid JSON, no markdown fences.';
 
       const mathsExample =
-        'CBSE MARKING SCHEME FORMAT EXAMPLES (Maths):\n' +
+        'CBSE board-style answer guide examples (Maths):\n' +
         '--- Example: 3-mark question "Solve 2x\u00b2 \u2212 5x + 3 = 0 using quadratic formula" ---\n' +
         'Step 1: desc="Writing the quadratic formula", working="For ax\u00b2 + bx + c = 0, x = (\u2212b \u00b1 \u221a(b\u00b2\u22124ac)) / 2a. Here a = 2, b = \u22125, c = 3", marks=0.5\n' +
         'Step 2: desc="Computing the discriminant", working="D = b\u00b2 \u2212 4ac = (\u22125)\u00b2 \u2212 4(2)(3) = 25 \u2212 24 = 1", marks=1\n' +
@@ -209,7 +209,7 @@ function createStepSolutionRoute(deps) {
         'Step 3: desc="Stating the answer", working="\u2234 The 10th term of the AP is 47.", marks=0.5\n';
 
       const scienceExample =
-        'CBSE MARKING SCHEME FORMAT EXAMPLES (Science):\n' +
+        'CBSE board-style answer guide examples (Science):\n' +
         '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n' +
         'Step 1: desc="Writing reactants and products", working="Fe + CuSO\u2084 \u2192 FeSO\u2084 + Cu", marks=0.5\n' +
         'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO\u2084(aq) \u2192 FeSO\u2084(aq) + Cu(s)", marks=1\n' +
@@ -237,7 +237,7 @@ function createStepSolutionRoute(deps) {
         '\n\nKNOWN ANSWER (use this to build your detailed solution \u2014 expand on this, don\'t just repeat it):\n' +
         (existingAnswer ? 'Answer: ' + existingAnswer + '\n' : '') +
         (existingExplanation ? 'Explanation: ' + existingExplanation + '\n' : '') +
-        'IMPORTANT: Your solution must EXPAND on this answer to create a full, self-explanatory CBSE marking scheme solution.\n' +
+        'IMPORTANT: Your solution must EXPAND on this answer to create a full, self-explanatory board-style solution guide.\n' +
         'Show the complete working/derivation that leads to this answer. A student reading your solution should LEARN how to solve this type of question.\n'
       ) : '';
 
@@ -261,7 +261,7 @@ function createStepSolutionRoute(deps) {
         '  "commonMistakes": ["specific mistake that loses marks in CBSE board evaluation"],\n' +
         '  "examTip": "specific board exam writing tip for this type of question"\n' +
         '}\n\n' +
-        'STRICT CBSE MARKING SCHEME RULES:\n' +
+        'BOARD-STYLE SCORING GUIDE RULES:\n' +
         '1. The marks of all steps MUST sum to EXACTLY ' + marks + '\n' +
         (isObj ? '2. For MCQ/Objective: only 1 scored step + 1 explanatory step (marks=0)\n' :
         '2. Use HALF MARKS (0.5) \u2014 CBSE marking schemes use \u00bd marks extensively for setup steps (writing given/formula) and final answer steps\n') +

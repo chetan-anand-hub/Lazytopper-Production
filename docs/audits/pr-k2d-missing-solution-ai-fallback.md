@@ -61,3 +61,10 @@ Current base before PR #69:
 
 Status:
 Draft implementation pending GPT/user audit, required pnpm validation evidence, and Vercel preview QA.
+
+
+## Global cache-version repair
+
+`CACHE_VERSION` is now applied to all step-solution question hashes, not only objective/MCQ questions.
+
+This means K2D bypasses older cached generated outputs for all question types, including multi-mark questions, so stale generated responses from the previous overclaiming prompt path are not reused.
