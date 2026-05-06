@@ -63,7 +63,7 @@ For K2 onward, use product-native specs and QA gates. Use Level 1/2 references f
 ### AI fallback solution
 
 Status:
-Future K2D / K2C depending final naming.
+Future PR-K2D.
 
 Observation:
 A student should not feel a solution availability gap. If stored solution is missing, product should generate a board-style solution through AI, matching the stored solution format.

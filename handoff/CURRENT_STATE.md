@@ -15,12 +15,17 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest confirmed merged checkpoint:
+Latest verified live base after PR #64 merge:
+```
+bbd4d457a2349cf34b8ab335e45123f8b306868c
+```
+
+Product checkpoint after PR #62 / K2C merge:
 ```
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
 
-Current stage: Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.
+Current stage: Vercel-Codex setup verification before PR-K2D. K2D has not started.
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
@@ -131,9 +136,13 @@ K2C preserved:
 - No fake grading, score, mistakes, progress, mastery, or solution content.
 
 Next safe action:
-1. Finish and merge this docs-only post-K2C handoff repair PR.
-2. Complete Vercel setup and verify `/app/` deployment from base d9d0d5df1e9de45df4e555b186903070e7b0e873.
-3. Start PR-K2D only after live base verification.
+1. Complete Vercel setup and verify `/app/` deployment from live `base/approved-thru-437`.
+2. Confirm Vercel production branch is `base/approved-thru-437`.
+3. Confirm preview URLs work for future PR branches.
+4. Start PR-K2D only after live base verification.
+
+Base rule:
+The last verified live base after PR #64 is `bbd4d457a2349cf34b8ab335e45123f8b306868c`. If another docs-only handoff PR merges after this note, the live base will advance again; future sessions must verify `origin/base/approved-thru-437` directly before implementation.
 
 ## Historical K2A pre-audit finding
 

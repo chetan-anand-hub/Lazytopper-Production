@@ -1,8 +1,30 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-05-03
+Last updated: 2026-05-06
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
+
+## Current post-K2C checkpoint
+
+Current verified handoff base after PR #64 merge: `bbd4d457a2349cf34b8ab335e45123f8b306868c`.
+
+Product checkpoint after PR-K2C / PR #62 merge: `d9d0d5df1e9de45df4e555b186903070e7b0e873`.
+
+PR-K2C / PR #62 is merged:
+- final head SHA: `1cbc1d74243801cd1a5f68345547779ba6e4813d`
+- merge commit SHA: `d9d0d5df1e9de45df4e555b186903070e7b0e873`
+- Browser QA: `PASS`
+
+PR #64 is merged:
+- final head SHA: `3a6f7f097e84e130e2cb5e8be2ca4cc011bd8dbc`
+- merge commit SHA: `bbd4d457a2349cf34b8ab335e45123f8b306868c`
+- purpose: docs-only post-K2C handoff repair
+
+Current stage:
+Vercel/Codex setup verification before PR-K2D. K2D has not started.
+
+Next safe action:
+Finish Vercel setup, verify `/app/` loads from `base/approved-thru-437`, confirm future PR previews are available, then start PR-K2D after live base verification.
 
 ## Product source of truth
 
