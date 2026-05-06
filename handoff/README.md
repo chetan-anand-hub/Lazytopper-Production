@@ -136,22 +136,34 @@ git status --short
 - data-honesty reviewer
 - GitHub diff reviewer
 
+**Codex:**
+- preferred implementation executor going forward
+- creates clean branches from `origin/base/approved-thru-437`
+- makes scoped code/doc edits
+- opens draft PRs
+- reports changed files, validation evidence, PR URL, and preview URL when relevant
+- must not merge PRs
+
+**Vercel:**
+- preferred public preview provider
+- provides stable PR preview URLs for Browser Agent QA
+- app is served under `/app/`, so root `/` may 404 depending deployment settings
+
 **Codespaces terminal:**
-- default implementation method
-- branch creation
-- file edits
-- validation
-- PR creation
+- fallback repair/manual executor
+- useful for docs-only cleanup, emergency branch repair, and validation commands
+- not preferred for Browser Agent QA because forwarded URLs can be unreliable
 
 **Browser Agent:**
 - visual and click QA only
 - not source of truth
 - must be grounded back to GitHub diff and validation
+- should use Vercel preview URLs when available
 
-**Codex:**
-- installed and signed in
-- not the main executor yet
-- can be used only when explicitly approved, usually for read-only review, risk checking, or test suggestion
+**Replit:**
+- not trusted as source of truth
+- contaminated Replit main must not be used for implementation
+- fresh Replit import may be used only if proven clean by branch/head/diff checks
 
 **GitHub:**
 - final source of truth
