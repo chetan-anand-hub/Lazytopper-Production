@@ -1,3 +1,26 @@
+## 2026-05-06T12:00:00Z - PR #66 merged; Vercel production setup verified
+
+Decision:
+PR #66 / Vercel SPA rewrite config is merged. Vercel production setup is now verified. K2D has not started.
+
+Details:
+- PR URL: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/66
+- Final head: 4b37d099447903951d6a44bd623b580a86c330e0
+- Merge commit: fe065fb0d9eb10d134d2baaa29b1010a54007966
+- Vercel production deploy source branch: base/approved-thru-437
+- Vercel production deploy source commit: fe065fb0d9eb10d134d2baaa29b1010a54007966
+- Production deployment status: PASS / Ready
+- Production app route: PASS
+- Root redirect: PASS
+- Clerk login/auth return: PASS after PR #66
+- Production QA Browser Agent URL: https://lazytopper-production-desktop.vercel.app/app/
+- QA rule: Browser Agent should use Vercel production/preview URLs with /app/ appended. Do not use the bare root URL except when specifically testing the root redirect.
+
+Implication:
+- K2D has not started. Next safe action: confirm future PR branches generate usable Vercel Preview URLs with /app/ appended for Browser Agent QA, then begin PR-K2D planning only after live base verification.
+
+Current base:
+fe065fb0d9eb10d134d2baaa29b1010a54007966
 ## 2026-05-06T00:00:00Z - PR-K2C / PR #62 merged; post-K2C handoff repair
 
 Decision:

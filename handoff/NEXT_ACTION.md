@@ -8,8 +8,8 @@ Timestamp:
 Active branch:
 base/approved-thru-437
 
-Latest verified base after PR #64 merge:
-bbd4d457a2349cf34b8ab335e45123f8b306868c
+Latest verified base after PR #66 merge:
+fe065fb0d9eb10d134d2baaa29b1010a54007966
 
 Product checkpoint after PR #62 / K2C merge:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
@@ -18,15 +18,12 @@ d9d0d5df1e9de45df4e555b186903070e7b0e873
 
 K2A / PR #58: merged.
 K2B / PR #60: merged.
-Current stage: Vercel-Codex setup verification before PR-K2D. K2D has not started.
+Current stage: Vercel production setup verified. K2D has not started.
 
 ## Next safe action
 
-1. Complete Vercel setup.
-2. Set/confirm Vercel production branch is base/approved-thru-437.
-3. Verify the deployed /app/ route loads from the current live base.
-4. Verify future PRs produce Vercel preview URLs usable by Browser Agent.
-5. Start PR-K2D only after live base verification.
+1. Confirm future PR branches generate usable Vercel Preview URLs with /app/ appended for Browser Agent QA.
+2. Begin PR-K2D planning only after live base verification.
 
 ## K2D rules
 

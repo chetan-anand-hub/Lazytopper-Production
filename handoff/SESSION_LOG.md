@@ -1,3 +1,57 @@
+## 2026-05-06T12:00:00Z - Vercel production setup verified, PR #66 merged
+
+### Starting state
+- Base branch: base/approved-thru-437
+- Live base after PR #66: fe065fb0d9eb10d134d2baaa29b1010a54007966
+- Current task/stage: Vercel production setup verification before K2D
+
+### Work completed
+- Recorded PR #66 merge and new live base.
+- Verified Vercel production deploy from base/approved-thru-437 at fe065fb0d9eb10d134d2baaa29b1010a54007966.
+- Production QA Browser Agent URL: https://lazytopper-production-desktop.vercel.app/app/
+- / redirects to /app/
+- /app/ loads LazyTopper
+- /app/login and Clerk auth return work without Vercel 404
+- Browser Agent QA rule: use Vercel production/preview URLs with /app/ appended.
+- Updated current stage, next safe action, and K2D status in all handoff/docs files.
+
+### GitHub evidence
+- PR #66: merged
+- PR #66 head SHA: 4b37d099447903951d6a44bd623b580a86c330e0
+- PR #66 merge commit: fe065fb0d9eb10d134d2baaa29b1010a54007966
+
+### Validation evidence
+- Docs-only handoff update.
+- Product build not required.
+- Changed-file scope is handoff/docs only.
+
+### QA evidence
+- Vercel production deploy source branch: base/approved-thru-437
+- Vercel production deploy source commit: fe065fb0d9eb10d134d2baaa29b1010a54007966
+- Production deployment status: PASS / Ready
+- Production app route: PASS
+- Root redirect: PASS
+- Clerk login/auth return: PASS after PR #66
+- Production QA Browser Agent URL: https://lazytopper-production-desktop.vercel.app/app/
+
+### Data-honesty audit
+- Fake mastery: not introduced
+- Fake score: not introduced
+- Fake progress: not introduced
+- Fake Mistake Intelligence: not introduced
+- Fake checked answer: not introduced
+- Fake mistake log: not introduced
+- Hidden persistence: not introduced
+
+### Decisions made
+- Vercel production setup is now verified. K2D has not started.
+- Next safe action: confirm future PR branches generate usable Vercel Preview URLs with /app/ appended for Browser Agent QA, then begin PR-K2D planning only after live base verification.
+
+### Session learnings
+- Vercel production deploy from base/approved-thru-437 at fe065fb0d9eb10d134d2baaa29b1010a54007966 is now the source of truth for Browser Agent QA.
+- Browser Agent should use Vercel production/preview URLs with /app/ appended.
+- Do not use the bare root URL except when specifically testing the root redirect.
+- K2D must not start until Vercel Preview URL behavior is confirmed for future PRs.
 # LazyTopper Session Log
 
 This log must be updated incrementally by every GPT session.

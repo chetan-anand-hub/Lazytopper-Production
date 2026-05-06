@@ -34,20 +34,21 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #64:
+Latest verified live base after PR #66:
 ```
-bbd4d457a2349cf34b8ab335e45123f8b306868c
+fe065fb0d9eb10d134d2baaa29b1010a54007966
 ```
 
 Important:
 The live base can advance after docs-only handoff PRs. Future sessions must verify `origin/base/approved-thru-437` directly before implementation.
 
-## Operating model (post-K2C)
+## Operating model (post-Vercel production setup)
 
 - GitHub is the source of truth.
 - Codex is the preferred executor going forward.
 - Vercel is the preferred preview provider.
-- Browser Agent QA on Vercel preview when available.
+- Browser Agent QA on Vercel production/preview URLs with /app/ appended.
+- Do not use the bare root URL except when specifically testing the root redirect.
 - Replit only for fresh clean import/preview workspace if proven clean.
 - Contaminated Replit main must not be used.
 
