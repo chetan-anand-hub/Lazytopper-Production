@@ -1,3 +1,15 @@
+## 2026-05-06T13:08:53Z - Codex dry-run for Vercel preview workflow verification
+
+- This is a Codex dry-run to verify GitHub repository readability.
+- Verified branch preparation from `base/approved-thru-437` using commit `517e717cc3c6b73dc94601a29c5eb9f5db7d5621` as current verified base in this environment.
+- Verified ability to make a docs-only scoped change limited to `handoff/SESSION_LOG.md`.
+- Verified ability to open a draft PR targeting `base/approved-thru-437`.
+- Vercel should generate a Preview URL for the PR.
+- Browser Agent QA should use the Vercel preview URL with `/app/` appended.
+- K2D has not started.
+
+---
+
 ## 2026-05-06T12:00:00Z - Vercel production setup verified, PR #66 merged
 
 ### Starting state
