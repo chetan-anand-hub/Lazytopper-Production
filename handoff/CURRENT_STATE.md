@@ -15,9 +15,9 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #64 merge:
+Latest verified live base after PR #66 merge:
 ```
-bbd4d457a2349cf34b8ab335e45123f8b306868c
+fe065fb0d9eb10d134d2baaa29b1010a54007966
 ```
 
 Product checkpoint after PR #62 / K2C merge:
@@ -25,7 +25,7 @@ Product checkpoint after PR #62 / K2C merge:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
 
-Current stage: Vercel-Codex setup verification before PR-K2D. K2D has not started.
+Current stage: Vercel production setup verified. K2D has not started.
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
@@ -40,7 +40,7 @@ Open issues now live in `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
 
 This file continues to preserve existing K1B / K1C / K2A content.
 
-### Handoff SOP PR #54
+### Handoff SOP PR #54 (historical)
 
 Status: merged.
 

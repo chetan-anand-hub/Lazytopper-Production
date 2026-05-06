@@ -2,14 +2,14 @@
 
 This roadmap preserves the staged implementation plan from the current post-K1C / pre-K2A checkpoint onward.
 
-Latest verified live base after PR #64:
-bbd4d457a2349cf34b8ab335e45123f8b306868c
+Latest verified live base after PR #66:
+fe065fb0d9eb10d134d2baaa29b1010a54007966
 
 Product checkpoint after PR #62 / K2C merge:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 
 Current stage:
-Vercel-Codex setup verification before PR-K2D. K2D has not started.
+Vercel production setup verified. K2D has not started.
 
 ## Roadmap rule
 
