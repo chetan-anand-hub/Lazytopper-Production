@@ -17,10 +17,10 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-47d53aa9baa5f106dc349a35cb739f8e52e5d240
+d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
 
-Current stage: PR-K2C - worksheet learner loop entry points (in progress)
+Current stage: Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
@@ -102,18 +102,27 @@ Every future GPT session must update the handoff folder incrementally, including
 
 ## Current next stage
 
-**PR-K2C - Worksheet learner loop entry points.**
+**Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.**
 
 Status:
-K2A / PR #58 is merged.
-K2B / PR #60 is merged.
-K2C branch/PR is in progress.
+- K2A / PR #58 is merged.
+- K2B / PR #60 is merged.
+- Post-K2B handoff refresh / PR #61 is merged.
+- K2C / PR #62 is merged.
 
-Goal:
-Generate worksheet -> attempt -> check my answer -> see mistakes -> practice similar questions.
+K2C merge evidence:
+- PR: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/62
+- Final head SHA: 1cbc1d74243801cd1a5f68345547779ba6e4813d
+- Merge commit: d9d0d5df1e9de45df4e555b186903070e7b0e873
+- Browser QA: PASS
 
-Rules:
+K2C completed:
+Generate worksheet -> attempt this worksheet -> check my answer -> practice similar questions.
+
+K2C preserved:
 - Check & Improve remains the real grading path.
+- source=worksheet is preserved.
+- returnTo is preserved.
 - Attempt is not checked.
 - Check-start is not answer-checked.
 - Saved/attempted worksheet is not progress.
@@ -122,7 +131,9 @@ Rules:
 - No fake grading, score, mistakes, progress, mastery, or solution content.
 
 Next safe action:
-Start PR-K2C from base 47d53aa9baa5f106dc349a35cb739f8e52e5d240.
+1. Finish and merge this docs-only post-K2C handoff repair PR.
+2. Complete Vercel setup and verify `/app/` deployment from base d9d0d5df1e9de45df4e555b186903070e7b0e873.
+3. Start PR-K2D only after live base verification.
 
 ## Historical K2A pre-audit finding
 
@@ -164,8 +175,16 @@ Rules:
 
 ## Current execution method
 
-Use Codespaces terminal-controlled method.
+Preferred implementation executor:
+- Codex on clean GitHub branches.
 
-Do not use Codex as primary executor yet.
+Preferred preview provider:
+- Vercel PR previews for Browser Agent QA.
 
-Codex may be used later for read-only review / risk checking only when explicitly approved.
+Fallbacks:
+- Codespaces terminal can be used for manual repair or emergency docs-only work.
+- Fresh Replit import can be used only if proven clean.
+- The contaminated Replit main workspace must not be used for implementation.
+
+Permanent rule:
+GitHub origin remains the source of truth. Do not trust local Replit, Codespaces, Codex, or preview state unless it is verified against GitHub branch/head/diff.

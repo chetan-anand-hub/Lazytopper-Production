@@ -36,8 +36,17 @@ base/approved-thru-437
 
 Current confirmed base:
 ```
-47d53aa9baa5f106dc349a35cb739f8e52e5d240
+d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
+
+## Operating model (post-K2C)
+
+- GitHub is the source of truth.
+- Codex is the preferred executor going forward.
+- Vercel is the preferred preview provider.
+- Browser Agent QA on Vercel preview when available.
+- Replit only for fresh clean import/preview workspace if proven clean.
+- Contaminated Replit main must not be used.
 
 ## Current activation status
 
@@ -104,7 +113,7 @@ Before ending a GPT session:
 2. Update `handoff/CURRENT_STATE.md` if material state changed.
 3. Create a docs-only PR for handoff updates, unless the update is intentionally deferred and clearly stated.
 4. Tell the next GPT session to read the GitHub handoff folder first.
-5. Provide the current base SHA, active branch, open PRs, and next safe action.
+5. Provide the current base SHA (d9d0d5df1e9de45df4e555b186903070e7b0e873), active branch, open PRs, and next safe action.
 6. Do not rely on ChatGPT memory as handoff.
 
 **GitHub is source of truth.**
@@ -127,22 +136,34 @@ git status --short
 - data-honesty reviewer
 - GitHub diff reviewer
 
+**Codex:**
+- preferred implementation executor going forward
+- creates clean branches from `origin/base/approved-thru-437`
+- makes scoped code/doc edits
+- opens draft PRs
+- reports changed files, validation evidence, PR URL, and preview URL when relevant
+- must not merge PRs
+
+**Vercel:**
+- preferred public preview provider
+- provides stable PR preview URLs for Browser Agent QA
+- app is served under `/app/`, so root `/` may 404 depending deployment settings
+
 **Codespaces terminal:**
-- default implementation method
-- branch creation
-- file edits
-- validation
-- PR creation
+- fallback repair/manual executor
+- useful for docs-only cleanup, emergency branch repair, and validation commands
+- not preferred for Browser Agent QA because forwarded URLs can be unreliable
 
 **Browser Agent:**
 - visual and click QA only
 - not source of truth
 - must be grounded back to GitHub diff and validation
+- should use Vercel preview URLs when available
 
-**Codex:**
-- installed and signed in
-- not the main executor yet
-- can be used only when explicitly approved, usually for read-only review, risk checking, or test suggestion
+**Replit:**
+- not trusted as source of truth
+- contaminated Replit main must not be used for implementation
+- fresh Replit import may be used only if proven clean by branch/head/diff checks
 
 **GitHub:**
 - final source of truth
@@ -165,7 +186,7 @@ git status --short
    - `handoff/templates/session-update-template.md`
 
 2. **Verify GitHub:**
-   - current base SHA
+   - current base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
    - PR states
    - changed files
    - draft/merged state
@@ -173,7 +194,7 @@ git status --short
 
 3. **Confirm current stage.**
 
-4. **Create clean branch** from `origin/base/approved-thru-437`.
+4. **Create clean branch** from `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873).
 
 5. **Keep changed-file scope narrow.**
 
@@ -191,7 +212,7 @@ git status --short
 
 8. **GPT audits:**
    - GitHub PR state
-   - base SHA
+   - base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
    - head SHA
    - changed files
    - source diff

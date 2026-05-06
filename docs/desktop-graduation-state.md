@@ -8,7 +8,7 @@ This document is the durable handoff and operating-rule document for LazyTopper 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base after PR-K1C / PR #52 merge: `02fba1e140a70b717a9f5ae959955296693ea6e9`
+- Current confirmed product base after PR-K2C / PR #62 merge: `d9d0d5df1e9de45df4e555b186903070e7b0e873`
 - Previous confirmed product base after PR-K1B / PR #51 merge: `4e083ecf0a7e47f166ac916e91abddb7e3a1fc81`
 - Previous confirmed product base after PR-K1A / PR #49 merge: `7104cb132979b0e2b3686c4c7f823cc06fe84907`
 - Previous confirmed product base after PR-K0 / PR #48 merge: `408d9eebbba70c423d76b6209e64622ce6c8f4da`
@@ -68,7 +68,7 @@ This update brings the desktop graduation / K-series state current through PR-K1
 - PR-K1B follow-up note:
   - Browser Agent could not reliably test some Codespaces alias / mismatch URLs because Codespaces forwarding produced access / certificate / gateway errors. This was classified as preview-access limitation, not product failure.
   - User manually verified the Practice hub loaded from the Codespaces preview.
-- PR-K1C / PR #52 is merged at `02fba1e140a70b717a9f5ae959955296693ea6e9`.
+- PR-K2C / PR #62 is merged at `d9d0d5df1e9de45df4e555b186903070e7b0e873`.
 - PR-K1C changed:
   - `lazytopper/src/App.tsx`
   - `lazytopper/.gitignore`
@@ -220,7 +220,7 @@ At the start of every LazyTopper desktop task:
 
 1. Read this file from GitHub, not from stale Replit local state.
 2. Verify live GitHub state directly:
-   - current `base/approved-thru-437` SHA
+  - current `base/approved-thru-437` SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
    - PR states
    - draft status
    - merged status
@@ -766,8 +766,8 @@ Every implementation task must end in GitHub, not just a Replit checkpoint.
 
 For every implementation task:
 
-1. Start from a fresh isolated clone or clean branch from the latest `origin/base/approved-thru-437` unless the task explicitly pins a SHA.
-2. Verify the latest base SHA directly from GitHub before coding.
+1. Start from a fresh isolated clone or clean branch from the latest `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873) unless the task explicitly pins a SHA.
+2. Verify the latest base SHA (d9d0d5df1e9de45df4e555b186903070e7b0e873) directly from GitHub before coding.
 3. Create a task-specific feature branch.
 4. Inspect the exact corresponding file in `topic-focus-lite` and include the Locked Prototype Parity Rule mapping in the implementation prompt and PR report.
 5. Search the product repo for existing real functionality before building new logic.
@@ -800,34 +800,34 @@ Use Replit background tasks for implementation work. Background tasks must work 
 
 Do not click `Apply changes to main version` for PR branch work unless the task is explicitly to sync/reset Replit main.
 
-Before deploying or publishing from Replit, run a dedicated sync/reset task so Replit main exactly matches GitHub `origin/base/approved-thru-437`. Publishing from stale Replit main is unsafe.
+Before deploying or publishing from Replit, run a dedicated sync/reset task so Replit main exactly matches GitHub `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873). Publishing from stale Replit main is unsafe.
 
 ### Replit main / main-repl rebase warning
 
-During PR-C2, a system-triggered rebase onto `main-repl/main` polluted the PR branch with unrelated files because `main-repl/main` was behind `base/approved-thru-437`. The branch had to be repaired by rewinding to the clean PR head and reapplying only the intended file.
+During PR-C2, a system-triggered rebase onto `main-repl/main` polluted the PR branch with unrelated files because `main-repl/main` was behind `base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873). The branch had to be repaired by rewinding to the clean PR head and reapplying only the intended file.
 
 Durable rule:
 
 - Do not rebase PR branches onto Replit main or `main-repl/main`.
 - Replit main is not source of truth.
-- PR branches should be based on latest `origin/base/approved-thru-437`, unless a task explicitly pins a SHA.
-- If a Replit system step tries to rebase onto main and pollutes the branch, stop immediately, create a backup branch, restore the clean PR/base lineage, and verify final GitHub diff against `origin/base/approved-thru-437`.
+- PR branches should be based on latest `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873), unless a task explicitly pins a SHA.
+- If a Replit system step tries to rebase onto main and pollutes the branch, stop immediately, create a backup branch, restore the clean PR/base lineage, and verify final GitHub diff against `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873).
 - Screenshot artifacts must not be committed unless explicitly requested.
 - Replit's automatic checkpoint commits may add `.agents/`, `screenshots/`, `opengraph.jpg`, or other non-product files to the local branch. These must not be pushed. Verify the GitHub PR file list still shows only the intended product/docs files before requesting an audit.
 
 ### Replit main stale-workspace warning
 
-Replit main is occasionally far behind `origin/base/approved-thru-437` (for example, after a sequence of feature merges has happened entirely through GitHub). When Replit main is stale:
+Replit main is occasionally far behind `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873) (for example, after a sequence of feature merges has happened entirely through GitHub). When Replit main is stale:
 
 - Publishing from Replit will ship stale code and is unsafe.
 - A Replit Deployment from a feature-branch container will deploy the current container's working directory, not stale main, but it will still overwrite the live deployment slot. Use this only when the user has explicitly approved overwriting production.
-- The safe path is to first run a Replit main sync/reset task so Replit main exactly matches `origin/base/approved-thru-437`, then publish.
+- The safe path is to first run a Replit main sync/reset task so Replit main exactly matches `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873), then publish.
 
 ## Replit main sync/reset checkpoint
 
 Use this only when explicitly requested, usually after a stable checkpoint or before publish.
 
-Purpose: make Replit main exactly match GitHub `origin/base/approved-thru-437`.
+Purpose: make Replit main exactly match GitHub `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873).
 
 Required behavior:
 
@@ -837,12 +837,12 @@ Required behavior:
 4. Show current local branch and HEAD.
 5. Show local status and untracked files.
 6. Fetch origin.
-7. Show `origin/base/approved-thru-437` SHA.
+7. Show `origin/base/approved-thru-437` SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873.
 8. List local-only/untracked files before deleting anything.
 9. Stop if any local-only file looks like valuable product work.
 10. Hard reset only after the user approves or the prompt explicitly authorizes it.
 11. Clean stale artifacts only after listing them.
-12. Confirm local HEAD equals `origin/base/approved-thru-437`.
+12. Confirm local HEAD equals `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873).
 13. Run build, verifier, and typecheck.
 14. Return confirmation that Replit main is ready for preview/publish.
 
