@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
-import { MathText } from "../question/MathText";
+import { MathText } from "../question/MathText"
+import { SolutionSourceNotice } from "../question/SolutionSourceNotice";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
 import { SolutionChecker } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";
@@ -360,6 +361,7 @@ export function PracticeQuestionCard({
           )}
           {solutionData && (
             <div>
+              <SolutionSourceNotice solution={solutionData} />
               {solutionData.steps.map((step) => (
                 <div key={step.stepNumber} style={{
                   display: "flex", gap: 10, marginBottom: 8,

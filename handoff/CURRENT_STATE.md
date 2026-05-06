@@ -1,5 +1,31 @@
 # LazyTopper Current Handoff State
 
+## Current PR-K2D checkpoint
+
+Timestamp: 2026-05-06T15:00:31Z
+
+Latest verified live base before PR #69:
+`93add323809ae3d17f6fc4f1bc627c9efa7c13cd`
+
+Current PR:
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/69
+
+Current stage:
+PR-K2D draft implementation is in progress and must remain DRAFT pending GPT/user audit.
+
+Vercel QA URL for PR #69:
+`https://lazytopper-productio-git-82ec9f-chetan-anands-projects-1c1a72c8.vercel.app/app/`
+
+Current audit requirements before merge:
+- GitHub diff review
+- required pnpm validation logs
+- Vercel preview QA with `/app/`
+- data-honesty audit
+- confirmation that generated solutions are labelled as generated/unverified
+- confirmation that Check & Improve remains the only real grading path
+
+Historical sections below may mention earlier K2D-not-started or Vercel-setup state. Treat this checkpoint as the current source of truth.
+
 Last updated: 2026-05-05
 
 

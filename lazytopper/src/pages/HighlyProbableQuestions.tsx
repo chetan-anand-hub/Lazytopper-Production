@@ -39,6 +39,7 @@ import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterId, ChapterMeta } from "../engine/smartLearningTypes";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
+import { SolutionSourceNotice } from "../components/question/SolutionSourceNotice";
 import { SolutionChecker } from "../components/question/SolutionChecker";
 
 import {
@@ -2082,6 +2083,7 @@ const HighlyProbableQuestions: React.FC = () => {
 
                                 {solutionData[q.id] && (
                                   <div>
+                                    <SolutionSourceNotice solution={solutionData[q.id]} />
                                     {solutionData[q.id].steps.map((step) => (
                                       <div
                                         key={step.stepNumber}

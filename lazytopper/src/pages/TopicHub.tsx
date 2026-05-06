@@ -18,6 +18,7 @@ import { recordDetour, recordLearnEngagement } from "../services/guidedJourneySe
 import { useAuth } from "../context/AuthContext";
 import { fetchStepSolution, type StepSolutionResponse, type CheckSolutionResponse } from "../ai/aiClient";
 import { SolutionChecker } from "../components/question/SolutionChecker";
+import { SolutionSourceNotice } from "../components/question/SolutionSourceNotice";
 import { VisualExplainer } from "../components/VisualExplainer";
 import { getVisualConceptForQuestion } from "../data/questionVisualMap";
 import { getVisualsForTopicKey } from "../data/visualConceptRegistry";
@@ -1595,6 +1596,8 @@ export default function TopicHub() {
                           {quizSolutionError}
                         </div>
                       )}
+
+                      {quizSolution && <SolutionSourceNotice solution={quizSolution} />}
 
                       {quizSolution && quizSolution.steps.map((step, si) => (
                         <div key={si} style={{ display: "flex", gap: 10, marginBottom: 8, padding: "8px 10px", background: "var(--bg-card)", borderRadius: 8, border: "1px solid var(--bg-card-border)" }}>

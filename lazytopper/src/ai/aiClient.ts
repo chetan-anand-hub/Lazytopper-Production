@@ -161,6 +161,13 @@ export interface StepSolutionResponse {
   steps: StepSolutionStep[];
   commonMistakes?: string[];
   examTip?: string;
+  solutionSource?: "stored" | "ai_generated" | "answer_fallback" | "cache" | "stub";
+  isGenerated?: boolean;
+  isVerifiedOfficial?: boolean;
+  studentFacingLabel?: string;
+  studentFacingNotice?: string;
+  provider?: string;
+  model?: string;
 }
 
 function buildLocalSolution(
@@ -207,6 +214,10 @@ function buildLocalSolution(
     examTip: isObjective
       ? "For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank."
       : "Write each step on a new line. Method marks are awarded even if the final answer has a calculation error.",
+    solutionSource: "stored",
+    isGenerated: false,
+    isVerifiedOfficial: false,
+    studentFacingLabel: "Stored board-style solution",
   };
 }
 

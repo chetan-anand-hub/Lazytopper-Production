@@ -18,7 +18,17 @@ function getPool() {
 }
 
 // Increment this when the prompt structure changes to automatically bypass stale cache entries.
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
+function withProvenance(solution, source, extras = {}) {
+  const base = {
+    stored: { isGenerated: false, studentFacingLabel: 'Stored board-style solution' },
+    ai_generated: { isGenerated: true, studentFacingLabel: 'AI-generated board-style solution', studentFacingNotice: 'Use this as guidance. It is not an official CBSE marking scheme or verified database solution.' },
+    answer_fallback: { isGenerated: true, studentFacingLabel: 'Generated from available answer', studentFacingNotice: 'Generated from the available answer/explanation. Review with your teacher if accuracy matters.' },
+    cache: { isGenerated: true, studentFacingLabel: 'AI-generated board-style solution', studentFacingNotice: 'Use this as guidance. It is not an official CBSE marking scheme or verified database solution.' },
+    stub: { isGenerated: true, studentFacingLabel: 'Sample solution structure', studentFacingNotice: 'This is a generated sample structure for guidance, not an official marking scheme.' },
+  }[source];
+  return { ...solution, solutionSource: source, isVerifiedOfficial: false, ...base, ...extras };
+}
 
 function computeQuestionHash(question, marks, isObjective) {
   // Only apply the version prefix for MCQ/objective questions. Multi-mark questions
@@ -156,35 +166,34 @@ function createStepSolutionRoute(deps) {
 
     if (isStubMode()) {
       if (prewrittenSteps.length > 0) {
-        return sendJson(res, 200, buildFromPrewrittenSteps(prewrittenSteps, finalAnswer, marks, qType, section, isObjectiveType));
+        return sendJson(res, 200, withProvenance(buildFromPrewrittenSteps(prewrittenSteps, finalAnswer, marks, qType, section, isObjectiveType), 'stored'));
       }
       if (existingAnswer || existingExplanation) {
-        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+        return sendJson(res, 200, withProvenance(buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject), 'answer_fallback'));
       }
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
+      return sendJson(res, 200, withProvenance(buildStubStepSolution(question, marks, subject, qType, section), 'stub'));
     }
 
     const questionHash = computeQuestionHash(question, marks, isObjectiveType(qType, section));
 
     // Short-circuit: pre-written steps from the question bank — no AI call needed.
     if (prewrittenSteps.length > 0) {
-      const solution = buildFromPrewrittenSteps(prewrittenSteps, finalAnswer, marks, qType, section, isObjectiveType);
+      const solution = withProvenance(buildFromPrewrittenSteps(prewrittenSteps, finalAnswer, marks, qType, section, isObjectiveType), 'stored');
       void saveSolution(questionHash, solution);
       return sendJson(res, 200, solution);
     }
 
     const cached = await getCachedSolution(questionHash);
     if (cached) {
-      return sendJson(res, 200, cached);
+      return sendJson(res, 200, cached.solutionSource ? cached : withProvenance(cached, 'cache'));
     }
 
     try {
       const isMaths = /math/i.test(subject);
       const systemPrompt =
-        'You are a CBSE Class 10 board exam evaluator who authors the OFFICIAL marking scheme for ' +
+        'You are an expert CBSE Class 10 tutor creating a board-style solution guide for ' +
         subject + ' (Subject Code: ' + (isMaths ? '041' : '086') + '). ' +
-        'You have access to CBSE marking scheme PDFs from 2020-2025 and follow their EXACT format. ' +
-        'You produce step-by-step solutions identical to what CBSE publishes in their official marking scheme documents. ' +
+        'Use exam-writing style and NCERT-aligned guidance. Do not claim this is an official CBSE marking scheme. ' +
         'You must respond ONLY with valid JSON, no markdown fences.';
 
       const mathsExample =
@@ -233,7 +242,7 @@ function createStepSolutionRoute(deps) {
       ) : '';
 
       const userPrompt =
-        'Generate the OFFICIAL CBSE board marking scheme solution for this Class 10 question.\n\n' +
+        'Generate a CBSE Class 10 board-style step-by-step solution guide for this question.\n\n' +
         'Question: ' + question + '\n' +
         'Total marks: ' + marks + '\n' +
         'Subject: ' + subject + '\n' +
@@ -289,9 +298,9 @@ function createStepSolutionRoute(deps) {
 
         if (steps.length === 0) {
           if (existingAnswer || existingExplanation) {
-            return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+            return sendJson(res, 200, withProvenance(buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject), 'answer_fallback'));
           }
-          return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
+          return sendJson(res, 200, withProvenance(buildStubStepSolution(question, marks, subject, qType, section), 'stub'));
         }
 
         const maxSteps = Math.floor(marks / 0.5);
@@ -364,14 +373,14 @@ function createStepSolutionRoute(deps) {
           }
         }
 
-        const response = {
+        const response = withProvenance({
           totalMarks: marks,
           steps,
           commonMistakes: Array.isArray(parsed.commonMistakes) ? parsed.commonMistakes.map(String) : [],
           examTip: String(parsed.examTip || '').trim() || undefined,
           provider: ACTIVE_PROVIDER,
           model: GEMINI_MODEL,
-        };
+        }, 'ai_generated', { provider: ACTIVE_PROVIDER, model: GEMINI_MODEL });
 
         if (!skipCache) await saveSolution(questionHash, response);
 
@@ -379,15 +388,15 @@ function createStepSolutionRoute(deps) {
       }
 
       if (existingAnswer || existingExplanation) {
-        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+            return sendJson(res, 200, withProvenance(buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject), 'answer_fallback'));
       }
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
+          return sendJson(res, 200, withProvenance(buildStubStepSolution(question, marks, subject, qType, section), 'stub'));
     } catch (err) {
       console.error('[step-solution]', err);
       if (existingAnswer || existingExplanation) {
-        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+        return sendJson(res, 200, withProvenance(buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject), 'answer_fallback'));
       }
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
+      return sendJson(res, 200, withProvenance(buildStubStepSolution(question, marks, subject, qType, section), 'stub'));
     }
   }
 
