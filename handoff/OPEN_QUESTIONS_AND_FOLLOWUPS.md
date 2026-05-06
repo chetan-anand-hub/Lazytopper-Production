@@ -1,3 +1,13 @@
+## 2026-05-06T00:00:00Z - K2D normalization after K2C
+
+Status:
+K2D is the next stage after post-K2C handoff repair and Vercel-Codex setup.
+
+Observation:
+K2D = Missing solution AI fallback. It must distinguish generated AI solution from stored verified solution. It must not claim official CBSE answer unless verified.
+
+Action:
+Do not start K2D until Vercel setup is complete and /app/ deployment is verified on base d9d0d5df1e9de45df4e555b186903070e7b0e873.
 # LazyTopper Open Questions and Follow-ups
 
 This file tracks unresolved items so they do not get buried in session logs.

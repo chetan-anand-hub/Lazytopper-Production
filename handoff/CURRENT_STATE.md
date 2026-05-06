@@ -17,10 +17,10 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-47d53aa9baa5f106dc349a35cb739f8e52e5d240
+d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
 
-Current stage: PR-K2C - worksheet learner loop entry points (in progress)
+Current stage: Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
@@ -122,7 +122,7 @@ Rules:
 - No fake grading, score, mistakes, progress, mastery, or solution content.
 
 Next safe action:
-Start PR-K2C from base 47d53aa9baa5f106dc349a35cb739f8e52e5d240.
+Start PR-K2D only after Vercel setup is complete and /app/ deployment is verified on base d9d0d5df1e9de45df4e555b186903070e7b0e873.
 
 ## Historical K2A pre-audit finding
 

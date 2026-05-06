@@ -3,10 +3,10 @@
 This roadmap preserves the staged implementation plan from the current post-K1C / pre-K2A checkpoint onward.
 
 Current base:
-47d53aa9baa5f106dc349a35cb739f8e52e5d240
+d9d0d5df1e9de45df4e555b186903070e7b0e873
 
 Current stage:
-Ready for PR-K2C - Worksheet learner loop entry points
+Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.
 
 ## Roadmap rule
 
@@ -46,7 +46,7 @@ Required checks:
 - git status --short
 
 Exit gate:
-Base SHA matches latest handoff and GitHub.
+Base SHA matches latest handoff and GitHub (d9d0d5df1e9de45df4e555b186903070e7b0e873).
 
 QA:
 None.
@@ -168,7 +168,7 @@ Requires K2A and preferably K2B.
 ## PR-K2D — Missing solution AI fallback
 
 Purpose:
-If stored solution is missing, provide an AI-generated board-style solution with uniform format.
+If stored solution is missing, provide an AI-generated board-style solution with uniform format. It must distinguish generated AI solution from stored verified solution. It must not claim official CBSE answer unless verified.
 
 Likely files:
 - solution helper/service

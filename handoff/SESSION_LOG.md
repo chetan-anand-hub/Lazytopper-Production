@@ -6,7 +6,66 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
-## 2026-05-05T13:43:24Z - PR-K2C worksheet learner loop entry points
+
+## 2026-05-06T00:00:00Z - Post-K2C handoff repair, PR #62 merged
+
+### Starting state
+- Base branch: base/approved-thru-437
+- Base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
+- Active branch: docs/post-k2c-handoff-repair
+- Current task/stage: Post-K2C handoff repair / Vercel-Codex setup
+
+### Work completed
+- Marked PR-K2C / PR #62 as merged.
+- PR URL: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/62
+- Final head: 1cbc1d74243801cd1a5f68345547779ba6e4813d
+- Merge commit: d9d0d5df1e9de45df4e555b186903070e7b0e873
+- Browser QA: PASS
+- Changed files: 5
+- Updated all handoff and docs base SHA references.
+- Set current stage to post-K2C handoff repair / Vercel-Codex setup.
+- Set next safe action: finish and merge this docs-only handoff repair PR, then complete Vercel setup and verify /app/ deployment, then start PR-K2D only after live base verification.
+- Normalized K2D requirements and rules.
+- Updated operating model: GitHub source of truth, Codex preferred executor, Vercel preferred preview, Replit only if clean, contaminated Replit main forbidden.
+
+### GitHub evidence
+- PR: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/62
+- Base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
+- Head SHA: 1cbc1d74243801cd1a5f68345547779ba6e4813d
+- Changed files: 5 (see PR)
+
+### Validation evidence
+- Docs-only change.
+- Build not required.
+- Changed-file scope is handoff/docs only.
+
+### Data-honesty audit
+- Fake mastery: not introduced
+- Fake score: not introduced
+- Fake progress: not introduced
+- Fake Mistake Intelligence: not introduced
+- Fake checked answer: not introduced
+- Fake mistake log: not introduced
+- Hidden persistence: not introduced
+
+### Decisions made
+- PR-K2C is merged and handoff is now current.
+- Vercel setup and /app/ verification are required before K2D.
+- Codex is preferred executor, Vercel is preferred preview, Replit only if clean.
+
+### Session learnings
+- Replit main became polluted with local ghost/checkpoint commits and subrepl branches/remotes; do not use contaminated Replit main for implementation.
+- Fresh Replit import may be used only if proven clean.
+- Prefer Codex as implementation executor.
+- Prefer Vercel PR previews for Browser Agent QA.
+- GitHub remains source of truth.
+- Vercel setup is in progress; root URL may 404 because the app is served under /app/.
+- Need to finish Vercel production branch setup to base/approved-thru-437 and verify /app/ before relying on Vercel previews.
+
+### Next safe action
+- Finish and merge this docs-only handoff repair PR.
+- Complete Vercel setup and verify /app/ deployment.
+- Start PR-K2D only after live base verification.
 
 ### Starting state
 - Base branch: base/approved-thru-437

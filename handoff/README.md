@@ -36,8 +36,17 @@ base/approved-thru-437
 
 Current confirmed base:
 ```
-47d53aa9baa5f106dc349a35cb739f8e52e5d240
+d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
+
+## Operating model (post-K2C)
+
+- GitHub is the source of truth.
+- Codex is the preferred executor going forward.
+- Vercel is the preferred preview provider.
+- Browser Agent QA on Vercel preview when available.
+- Replit only for fresh clean import/preview workspace if proven clean.
+- Contaminated Replit main must not be used.
 
 ## Current activation status
 
@@ -104,7 +113,7 @@ Before ending a GPT session:
 2. Update `handoff/CURRENT_STATE.md` if material state changed.
 3. Create a docs-only PR for handoff updates, unless the update is intentionally deferred and clearly stated.
 4. Tell the next GPT session to read the GitHub handoff folder first.
-5. Provide the current base SHA, active branch, open PRs, and next safe action.
+5. Provide the current base SHA (d9d0d5df1e9de45df4e555b186903070e7b0e873), active branch, open PRs, and next safe action.
 6. Do not rely on ChatGPT memory as handoff.
 
 **GitHub is source of truth.**
@@ -165,7 +174,7 @@ git status --short
    - `handoff/templates/session-update-template.md`
 
 2. **Verify GitHub:**
-   - current base SHA
+   - current base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
    - PR states
    - changed files
    - draft/merged state
@@ -173,7 +182,7 @@ git status --short
 
 3. **Confirm current stage.**
 
-4. **Create clean branch** from `origin/base/approved-thru-437`.
+4. **Create clean branch** from `origin/base/approved-thru-437` (SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873).
 
 5. **Keep changed-file scope narrow.**
 
@@ -191,7 +200,7 @@ git status --short
 
 8. **GPT audits:**
    - GitHub PR state
-   - base SHA
+   - base SHA: d9d0d5df1e9de45df4e555b186903070e7b0e873
    - head SHA
    - changed files
    - source diff
