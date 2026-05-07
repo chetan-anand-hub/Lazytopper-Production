@@ -1,11 +1,44 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-05-06
+Last updated: 2026-05-07
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
 
-## Current post-K2C checkpoint
+## Current post-K2E checkpoint
 
+Current verified handoff base after PR #70 merge: `807ca666fd414fc5ce37778ade34479d46013544`.
+
+PR #70 / K2E trial entitlement audit is merged:
+- final head SHA: `b9d152c44a9dbe317f4cc09a705477aaa7a04e99`
+- merge commit SHA: `807ca666fd414fc5ce37778ade34479d46013544`
+- purpose: docs-only trial entitlement audit
+- result: docs-only PASS WITH FOLLOW-UP
+
+Manual 7-day trial entitlement QA passed:
+- Browser Agent auth-blocked by magic-link inbox access limitation
+- Manual human QA substituted after signing in with real magic link
+- Trial unlock functionality confirmed working
+- Trial entitlement not the blocker
+
+New product follow-up identified:
+- Practice and HPQ pages render in old-format design
+- They function correctly but lack Level-3 / desktop design grammar parity
+- Visual/design parity issue now flagged as pre-graduation follow-up
+- Likely implementation: PR-K2F or equivalent, after fresh handoff audit
+
+PR #69 / K2D status:
+- Remains open and draft
+- Behind current base after PR #70 merge
+- Must be updated/rebased before merge consideration
+- Does not count as merged; do not proceed with K2D-dependent work without explicit rebase/update
+
+Next safe action:
+- Complete and merge this docs-only handoff repair PR
+- Fresh GPT session must read all handoff files and verify live GitHub state
+- Do not start implementation until PR #69 state and Practice/HPQ visual grammar issue are reviewed
+- Next likely implementation planning target: Level-3 design grammar alignment for Practice and HPQ old-format surfaces
+
+## Current post-K2C checkpoint (historical)
 
 Current verified handoff base after PR #66 merge: `fe065fb0d9eb10d134d2baaa29b1010a54007966`.
 

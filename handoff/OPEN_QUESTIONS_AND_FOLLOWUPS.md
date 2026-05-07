@@ -14,6 +14,28 @@ This file tracks unresolved items so they do not get buried in session logs.
 
 Newest items should be added at the top with UTC timestamp.
 
+## 2026-05-07 — Practice and HPQ Level-3 design grammar alignment
+
+Status:
+Active follow-up before desktop graduation sign-off.
+
+Observation:
+During manual 7-day trial QA, Practice and HPQ old-format pages were confirmed functional but visually outdated. They do not echo the Level-3 / desktop design grammar of the overall LazyTopper site. While functionally correct, this visual/design parity gap is a key item for pre-graduation review.
+
+Action:
+Plan a future scoped PR (likely PR-K2F or equivalent) to align Practice and HPQ surfaces with the upgraded Level-3 desktop design grammar. Do not block trial entitlement. Add to implementation roadmap for post-K2E stage.
+
+## 2026-05-07 — Browser Agent cannot complete magic-link auth without inbox access
+
+Status:
+Permanent QA caution for trial entitlement testing.
+
+Observation:
+Browser Agent could not automate the magic-link email login flow because it lacks access to the email inbox. This blocked Browser Agent from completing full trial entitlement QA for trial/expired/premium states. Manual human QA substituted successfully after signing in with a real magic link.
+
+Action:
+For future Browser Agent trial entitlement testing, either: (1) set up a passwordless or test-account-based QA flow for Browser Agent, or (2) document that manual QA is required for magic-link-gated trial testing.
+
 ## Active follow-ups after K1B / K1C / handoff setup
 
 ### K1B Practice query polish
