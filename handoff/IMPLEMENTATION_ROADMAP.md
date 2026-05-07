@@ -1,15 +1,15 @@
 # LazyTopper Implementation Roadmap
 
-This roadmap preserves the staged implementation plan from the current post-K1C / pre-K2A checkpoint onward.
+This roadmap preserves the staged implementation plan from the current post-K2E / pre-K2F checkpoint onward.
 
-Latest verified live base after PR #66:
-fe065fb0d9eb10d134d2baaa29b1010a54007966
+Latest verified live base after PR #70:
+807ca666fd414fc5ce37778ade34479d46013544
 
 Product checkpoint after PR #62 / K2C merge:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 
 Current stage:
-Vercel production setup verified. K2D has not started.
+Post-K2E trial entitlement audit. PR #69/K2D remains draft and behind current base. Next candidate stage is Practice/HPQ Level-3 design grammar alignment (likely PR-K2F or equivalent).
 
 ## Roadmap rule
 
@@ -49,7 +49,7 @@ Required checks:
 - git status --short
 
 Exit gate:
-Base SHA matches latest handoff and GitHub (d9d0d5df1e9de45df4e555b186903070e7b0e873).
+Base SHA matches latest handoff and GitHub (807ca666fd414fc5ce37778ade34479d46013544).
 
 QA:
 None.
@@ -202,6 +202,42 @@ Browser QA required if visible.
 
 Dependency:
 After K2C or alongside it only if scope remains small.
+
+## PR-K2F — Practice and HPQ Level-3 design grammar alignment
+
+Purpose:
+Update Practice and HPQ old-format surfaces to match the Level-3 / desktop design grammar of the overall LazyTopper site. These pages function correctly but lack visual/design parity with the updated desktop experience.
+
+Likely files:
+- DesktopPracticePage.tsx
+- HPQ related components
+- styling/design system alignment
+- docs/audits note
+
+Forbidden:
+- logic changes
+- question bank changes
+- data model changes
+- grading behaviorchanges
+- fake data introduction
+
+Data-honesty gates:
+- preserve all existing behavior
+- no logic change
+- no new fake data
+
+Exit gate:
+- Practice page matches desktop design grammar
+- HPQ page matches desktop design grammar
+- functional equivalence verified
+- visual/design audit passes
+- no logic regressions
+
+QA:
+Visual QA and functional regression testing required.
+
+Dependency:
+After K2C. May run in parallel with K2D if scope stays clean.
 
 ## PR-K3 — Check & Improve source-context integration
 

@@ -1,3 +1,25 @@
+## 2026-05-07T08:00:00Z - Manual QA substitutes for Browser Agent on magic-link auth; Practice/HPQ design grammar issue identified
+
+Decision:
+Manual 7-day trial entitlement QA may substitute for Browser Agent when Browser Agent cannot complete auth due to email magic-link inbox access limitation. Trial entitlement is considered manually verified for this K2E checkpoint. Practice and HPQ old-format surfaces require Level-3 / desktop design grammar alignment before final desktop graduation sign-off. PR #69/K2D remains draft and must not be treated as merged.
+
+Details:
+- PR #70 / K2E trial entitlement audit merged at 807ca666fd414fc5ce37778ade34479d46013544
+- Manual 7-day trial QA passed after magic-link login
+- Browser Agent couldn't automate magic-link login; no inbox access
+- Trial unlock itself is functioning correctly and is not a blocker
+- New product issue: Practice and HPQ pages render in older format, lack updated Level-3 desktop design grammar
+- This is classified as visual/design parity issue, not data-honesty failure
+- PR #69/K2D remains open, draft, and behind current base
+
+Implication:
+- For future trial entitlement testing: consider passwordless/test account for Browser Agent, or use manual QA.
+- Practice/HPQ design grammar alignment is now an explicit pre-graduation follow-up.
+- PR #69 must be rebased and re-evaluated before merge decision.
+
+Current base:
+807ca666fd414fc5ce37778ade34479d46013544
+
 ## 2026-05-06T12:00:00Z - PR #66 merged; Vercel production setup verified
 
 Decision:

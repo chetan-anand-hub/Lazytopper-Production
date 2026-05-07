@@ -15,9 +15,9 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #66 merge:
+Latest verified live base after PR #70 merge:
 ```
-fe065fb0d9eb10d134d2baaa29b1010a54007966
+807ca666fd414fc5ce37778ade34479d46013544
 ```
 
 Product checkpoint after PR #62 / K2C merge:
@@ -25,7 +25,16 @@ Product checkpoint after PR #62 / K2C merge:
 d9d0d5df1e9de45df4e555b186903070e7b0e873
 ```
 
-Current stage: Vercel production setup verified. K2D has not started.
+Current stage: Post-K2E handoff repair / pre-Level-3 visual grammar alignment for Practice and HPQ.
+
+**Current status summary:**
+- PR #70 / K2E trial entitlement audit is merged (SHA: 807ca666fd414fc5ce37778ade34479d46013544).
+- Manual 7-day trial entitlement QA passed.
+- Browser Agent trial QA was auth-blocked due to magic-link inbox access limitation; manual QA substituted.
+- Trial unlock itself is functioning correctly and is not the current blocker.
+- PR #69 / K2D remains open, draft, and behind current base; must be updated/rebased before merge.
+- **New product issue discovered**: Practice and HPQ pages still open in old-format design. They function but do not echo the Level-3 / desktop design grammar of the overall site. This is now a key follow-up before desktop graduation sign-off.
+- Next safe action: merge this docs-only handoff repair, then in a fresh GPT session read all handoff files and verify live GitHub state. Plan Level-3 visual grammar alignment for Practice and HPQ old-format surfaces.
 
 This handoff expansion now includes:
 - `handoff/NEXT_ACTION.md` for immediate next action
