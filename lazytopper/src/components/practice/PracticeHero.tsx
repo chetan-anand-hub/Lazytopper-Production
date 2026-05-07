@@ -13,11 +13,12 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, canonicalTo
   return (
     <section
       style={{
-        borderRadius: 16,
-        padding: "20px 18px 22px",
-        background: "linear-gradient(135deg, #22c55e 0%, #3b82f6 100%)",
-        color: "var(--text)",
-        boxShadow: "0 4px 0 rgba(70,163,2,0.3)",
+        borderRadius: 14,
+        padding: "24px",
+        background: "#ffffff",
+        color: "hsl(220, 25%, 12%)",
+        border: "1px solid hsl(220, 18%, 90%)",
+        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
         marginBottom: 18,
       }}
     >
@@ -26,7 +27,8 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, canonicalTo
           fontSize: "0.7rem",
           letterSpacing: "0.22em",
           textTransform: "uppercase",
-          opacity: 0.85,
+          color: "hsl(152, 55%, 32%)",
+          fontWeight: 800,
           marginBottom: 6,
         }}
       >
@@ -35,10 +37,12 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, canonicalTo
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <h1
           style={{
+            fontFamily: "var(--font-display)",
             fontSize: "2rem",
             lineHeight: 1.15,
-            fontWeight: 650,
-            marginBottom: 6,
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+            margin: "0 0 6px",
           }}
         >
           {title}
@@ -53,30 +57,31 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, canonicalTo
                 gap: 5,
                 padding: "4px 12px",
                 borderRadius: 999,
-                backgroundColor: levelInfo.bgColor,
-                color: levelInfo.color,
+                backgroundColor: levelInfo.bgColor || "hsl(152, 55%, 95%)",
+                color: levelInfo.color || "hsl(152, 55%, 28%)",
                 fontSize: "0.75rem",
                 fontWeight: 700,
                 whiteSpace: "nowrap",
               }}
             >
-              {levelInfo.emoji} {levelInfo.label}
+              {levelInfo.label}
             </span>
           );
         })()}
       </div>
       <p
         style={{
-          fontSize: "0.9rem",
+          fontSize: "0.94rem",
           lineHeight: 1.6,
-          opacity: 0.96,
-          maxWidth: 640,
+          color: "hsl(220, 15%, 42%)",
+          maxWidth: 760,
+          margin: 0,
         }}
       >
-        Auto-generated{" "}
-        <strong>{questionCount}</strong> questions adapted to your progress.
-        Solve on paper first, then self-assess with{" "}
-        <strong>"Got it"</strong> or <strong>"Need practice"</strong>.
+        Board-style practice set with <strong>{questionCount}</strong> questions
+        generated from available LazyTopper question sources. Attempt on paper
+        first, then compare your steps and self-assess. Use Check &amp; Improve
+        for real grading.
       </p>
     </section>
   );

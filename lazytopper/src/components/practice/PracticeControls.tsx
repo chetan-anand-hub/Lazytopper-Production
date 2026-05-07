@@ -36,11 +36,17 @@ export function PracticeControls({
         className="practice-controls-root"
         style={{
           display: "flex", flexWrap: "wrap", gap: 10,
-          alignItems: "center", justifyContent: "space-between", marginBottom: 14,
+          alignItems: "center", justifyContent: "space-between",
+          marginBottom: 18,
+          padding: "14px",
+          borderRadius: 14,
+          background: "#ffffff",
+          border: "1px solid hsl(220, 18%, 90%)",
+          boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
         }}
       >
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginRight: 4 }}>
+          <span style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", marginRight: 4, fontWeight: 700 }}>
             Difficulty:
           </span>
           {(["All", "Easy", "Medium", "Hard"] as DifficultyChoice[]).map((level) => {
@@ -52,11 +58,11 @@ export function PracticeControls({
                 onClick={() => onSetDifficulty(level)}
                 style={{
                   borderRadius: 999, padding: "4px 10px",
-                  border: active ? "1px solid rgba(28,176,246,0.85)" : "1px solid var(--bg-card-border)",
-                  backgroundColor: active ? "#3b82f6" : "var(--bg-card)",
-                  color: active ? "#f9fafb" : "var(--text)",
+                  border: active ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 90%)",
+                  backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
+                  color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 25%, 12%)",
                   fontSize: "0.75rem", cursor: "pointer",
-                  boxShadow: active ? "0 6px 16px rgba(28,176,246,0.3)" : "none",
+                  fontWeight: active ? 700 : 600,
                 }}
               >
                 {level === "All" ? "All levels" : level}
@@ -66,14 +72,16 @@ export function PracticeControls({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Type:</span>
+          <span style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", fontWeight: 700 }}>Type:</span>
           <select
             value={sectionFilter}
             onChange={(e) => onSetSectionFilter(e.target.value)}
             style={{
-              borderRadius: 999, border: "1px solid var(--bg-card-border)",
+              borderRadius: 10, border: "1px solid hsl(220, 18%, 90%)",
               padding: "4px 10px", fontSize: "0.78rem",
-              background: "var(--bg-card)", color: "var(--text)", cursor: "pointer",
+              background: "#ffffff", color: "hsl(220, 25%, 12%)", cursor: "pointer",
+              width: "auto",
+              margin: 0,
             }}
           >
             <option value="ALL">All</option>
@@ -86,7 +94,7 @@ export function PracticeControls({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <label style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+          <label style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", fontWeight: 700, margin: 0 }}>
             Questions:{" "}
             <input
               type="number"
@@ -99,10 +107,12 @@ export function PracticeControls({
                 )
               }
               style={{
-                width: 56, borderRadius: 999,
-                border: "1px solid var(--bg-card-border)", padding: "3px 8px",
+                width: 58, borderRadius: 10,
+                border: "1px solid hsl(220, 18%, 90%)", padding: "3px 8px",
                 fontSize: "0.78rem", marginLeft: 4,
-                background: "var(--bg)", color: "var(--text)",
+                background: "#ffffff", color: "hsl(220, 25%, 12%)",
+                marginTop: 0,
+                marginBottom: 0,
               }}
             />
           </label>
@@ -110,11 +120,12 @@ export function PracticeControls({
             type="button"
             onClick={onRegenerate}
             style={{
-              borderRadius: 999, padding: "5px 12px",
-              border: "1px solid rgba(88,204,2,0.8)",
-              backgroundColor: "#22c55e", color: "#052e16",
+              borderRadius: 10, padding: "7px 12px",
+              border: "1px solid hsl(152, 55%, 45%)",
+              backgroundColor: "hsl(152, 55%, 45%)", color: "#ffffff",
               fontSize: "0.78rem", cursor: "pointer",
               display: "inline-flex", alignItems: "center", gap: 6,
+              fontWeight: 700,
             }}
           >
             Regenerate set
@@ -125,13 +136,14 @@ export function PracticeControls({
               onClick={onCopyLink}
               title="Copy a shareable link to this exact question set"
               style={{
-                borderRadius: 999, padding: "5px 12px",
-                border: linkCopied ? "1px solid rgba(34,197,94,0.8)" : "1px solid rgba(99,102,241,0.7)",
-                backgroundColor: "var(--bg-card)",
-                color: linkCopied ? "#4ade80" : "#818cf8",
+                borderRadius: 10, padding: "7px 12px",
+                border: linkCopied ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 82%)",
+                backgroundColor: linkCopied ? "hsl(152, 55%, 95%)" : "#ffffff",
+                color: linkCopied ? "hsl(152, 55%, 28%)" : "hsl(220, 25%, 12%)",
                 fontSize: "0.78rem", cursor: "pointer",
                 display: "inline-flex", alignItems: "center", gap: 5,
                 transition: "color 0.2s, border-color 0.2s",
+                fontWeight: 600,
               }}
             >
               {linkCopied ? (
@@ -157,11 +169,12 @@ export function PracticeControls({
                   : "Download printable worksheet (PDF)"
               }
               style={{
-                borderRadius: 999, padding: "5px 12px",
-                border: "1px solid rgba(99,102,241,0.7)",
-                backgroundColor: "var(--bg-card)", color: "#818cf8",
+                borderRadius: 10, padding: "7px 12px",
+                border: "1px solid hsl(220, 18%, 82%)",
+                backgroundColor: "#ffffff", color: "hsl(220, 25%, 12%)",
                 fontSize: "0.78rem", cursor: "pointer",
                 display: "inline-flex", alignItems: "center", gap: 5,
+                fontWeight: 600,
               }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
