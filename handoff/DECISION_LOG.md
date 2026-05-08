@@ -1,3 +1,46 @@
+## 2026-05-08T15:37:18Z - PR #72 HPQ prediction-first execution doctrine
+
+Decision:
+HPQ is prediction-first, not a generic Practice mode page. Competency questions belong inside predicted topic-wise stacks, not in a separate top-level exam-format mode.
+
+Details:
+- HPQ should lead with predicted/high-probability topic stacks.
+- Competency visibility may appear as stack counts and question labels.
+- Do not add a main exam-format switch to HPQ.
+- Do not surface internal prediction rationale, raw confidence percentages, or guaranteed-style claims to students.
+
+Implication:
+Future HPQ work should reinforce prediction-first revision, not convert HPQ into a generic filtering/practice surface.
+
+## 2026-05-08T15:37:18Z - PR #72 HPQ execution-loop data honesty
+
+Decision:
+Add to mock remains planning-only until an actual graded mock flow exists. Check my answer and Show steps / Show logic are mutually exclusive per question. MCQ / Assertion-Reason wrong clicks do not log Mistake Intelligence in PR #72.
+
+Details:
+- Check my answer is the real checking path for non-MCQ HPQ questions.
+- Show steps and Show logic are learning support only.
+- Add to mock means local basket/planning only.
+- MCQ clicks are immediate feedback only and are not saved as real mistake evidence.
+- Mistake Intelligence remains fed only by real checked/grading evidence.
+
+Implication:
+Do not claim progress, mastery, score, mock grading, profile save, or Mistake Intelligence from HPQ solution reveal, MCQ clicks, or basket actions.
+
+## 2026-05-08T15:37:18Z - Student-facing API errors are forbidden
+
+Decision:
+Raw API/server errors must not be shown to students. HPQ step-solution UI should render student-safe fallback copy and keep technical details to developer logging only.
+
+Details:
+- Do not render strings such as `AI API request failed`, `API request failed`, `server error`, `fetch failed`, endpoint names, or stack traces.
+- Local HPQ step-solution QA requires both frontend and backend gateway.
+- Vite proxies `/api` to `API_SERVER_PORT`; local QA uses port `8080`.
+- If `dev:gateway` is not running, `/api/step-solution` fails with `ECONNREFUSED`.
+
+Implication:
+Future QA must start the gateway when testing step-solution paths locally and must audit student-facing error copy.
+
 ## 2026-05-07T08:00:00Z - Manual QA substitutes for Browser Agent on magic-link auth; Practice/HPQ design grammar issue identified
 
 Decision:

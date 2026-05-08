@@ -349,6 +349,9 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // (/topic-hub, /topic-hub/*), /check-improve, and /me are explicitly
   // NOT shell-wrapped in this phase.
   if (pathname === "/exam-trends") return true;
+  // PR-K2F repair — HPQ uses the desktop shell at desktop width while mobile
+  // continues through the existing legacy route surface.
+  if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
   // Desktop Phase 4 — Topic Hub route family.
   // Matches the bare launcher "/topic-hub" and any deep variant such as
   // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and

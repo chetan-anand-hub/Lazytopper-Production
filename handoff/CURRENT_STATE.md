@@ -1,7 +1,6 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-05
-
+Last updated: 2026-05-08
 
 ## Current GitHub checkpoint
 
@@ -15,194 +14,104 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #70 merge:
+Live base verified during PR #72 finalisation:
 ```
-807ca666fd414fc5ce37778ade34479d46013544
-```
-
-Product checkpoint after PR #62 / K2C merge:
-```
-d9d0d5df1e9de45df4e555b186903070e7b0e873
+24ac85f61752d1560ea29b26849bda4bb9b60c66
 ```
 
-Current stage: Post-K2E handoff repair / pre-Level-3 visual grammar alignment for Practice and HPQ.
-
-**Current status summary:**
-- PR #70 / K2E trial entitlement audit is merged (SHA: 807ca666fd414fc5ce37778ade34479d46013544).
-- Manual 7-day trial entitlement QA passed.
-- Browser Agent trial QA was auth-blocked due to magic-link inbox access limitation; manual QA substituted.
-- Trial unlock itself is functioning correctly and is not the current blocker.
-- PR #69 / K2D remains open, draft, and behind current base; must be updated/rebased before merge.
-- **New product issue discovered**: Practice and HPQ pages still open in old-format design. They function but do not echo the Level-3 / desktop design grammar of the overall site. This is now a key follow-up before desktop graduation sign-off.
-- Next safe action: merge this docs-only handoff repair, then in a fresh GPT session read all handoff files and verify live GitHub state. Plan Level-3 visual grammar alignment for Practice and HPQ old-format surfaces.
-
-This handoff expansion now includes:
-- `handoff/NEXT_ACTION.md` for immediate next action
-- `handoff/IMPLEMENTATION_ROADMAP.md` for the full staged implementation sequence
-- `handoff/DECISION_LOG.md` for permanent decisions
-- `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md` for unresolved issues
-
-The full roadmap now lives in `handoff/IMPLEMENTATION_ROADMAP.md`.
-The immediate action now lives in `handoff/NEXT_ACTION.md`.
-Permanent decisions now live in `handoff/DECISION_LOG.md`.
-Open issues now live in `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
-
-This file continues to preserve existing K1B / K1C / K2A content.
-
-### Handoff SOP PR #54 (historical)
-
-Status: merged.
-
-Purpose:
-- Created the permanent repo-native handoff folder.
-- Added handoff/README.md.
-- Added handoff/CURRENT_STATE.md.
-- Added handoff/SESSION_LOG.md.
-- Added handoff/templates/session-update-template.md.
-- Established the operating rule that every future GPT session must update the handoff folder incrementally before ending.
-
-Merge commit:
-7518d2fc4a181472b4dafd1969a41d96eec2ec3d
-
-Head SHA:
-b1bdabeb89caf564e548b9d17b8dd90dbc727962
-
-## Handoff folder status
-
-Status:
-Active and mandatory.
-
-Activated by:
-PR #54 — docs: add handoff SOP folder.
-
-Activation merge commit:
-7518d2fc4a181472b4dafd1969a41d96eec2ec3d
-
-Rule:
-Every future GPT session must update the handoff folder incrementally, including timestamped session learnings.
-
-## Recently completed
-
-### PR-K1B / PR #51
-
-**Status:** merged.
-
-**Purpose:**
-- Practice context propagation and copy polish.
-- Preserved K1A Quick Practice Level-3 loop.
-- Removed student-facing technical "Learning Signal" wording from normal Practice UI.
-- Improved signed-out full Practice fallback copy.
-- Browser QA verdict: PASS WITH FOLLOW-UP.
-
-### PR-K1C / PR #52
-
-**Status:** merged.
-
-**Purpose:**
-- Restored public landing connectivity.
-- Signed-out `/app/` and `/app/welcome` show Welcome landing, not cockpit.
-- Start trial and Login CTAs route to real Clerk login.
-- Desktop Practice / Check / Me routes preserved.
-- Browser QA verdict: PASS WITH FOLLOW-UP.
-
-### Docs PR #53
-
-**Status:** merged.
-
-**Purpose:**
-- Updated `docs/desktop-graduation-state.md` after K1B and K1C.
-- Added permanent Codespaces preview / QA rule.
-- Recorded next stage as K2A.
-
-## Current next stage
-
-**Post-K2C handoff repair / Vercel-Codex setup. K2D has not started.**
-
-Status:
-- K2A / PR #58 is merged.
-- K2B / PR #60 is merged.
-- Post-K2B handoff refresh / PR #61 is merged.
-- K2C / PR #62 is merged.
-
-K2C merge evidence:
-- PR: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/62
-- Final head SHA: 1cbc1d74243801cd1a5f68345547779ba6e4813d
-- Merge commit: d9d0d5df1e9de45df4e555b186903070e7b0e873
-- Browser QA: PASS
-
-K2C completed:
-Generate worksheet -> attempt this worksheet -> check my answer -> practice similar questions.
-
-K2C preserved:
-- Check & Improve remains the real grading path.
-- source=worksheet is preserved.
-- returnTo is preserved.
-- Attempt is not checked.
-- Check-start is not answer-checked.
-- Saved/attempted worksheet is not progress.
-- Saved/attempted worksheet is not mastery.
-- Saved/attempted worksheet is not Mistake Intelligence.
-- No fake grading, score, mistakes, progress, mastery, or solution content.
-
-Next safe action:
-1. Complete Vercel setup and verify `/app/` deployment from live `base/approved-thru-437`.
-2. Confirm Vercel production branch is `base/approved-thru-437`.
-3. Confirm preview URLs work for future PR branches.
-4. Start PR-K2D only after live base verification.
-
-Base rule:
-The last verified live base after PR #64 is `bbd4d457a2349cf34b8ab335e45123f8b306868c`. If another docs-only handoff PR merges after this note, the live base will advance again; future sessions must verify `origin/base/approved-thru-437` directly before implementation.
-
-## Historical K2A pre-audit finding
-
-Historical note from pre-K2A: worksheet save was local-only before K2A/K2B.
-
-Existing helper:
+Merge-base for PR #72 branch against live base:
 ```
-lazytopper/src/lib/desktop/savedWorksheets.ts
+24ac85f61752d1560ea29b26849bda4bb9b60c66
 ```
 
-Current behaviour:
-- saves to localStorage
-- capped at 50 entries
-- no backend
-- no cloud sync
-- no auth coupling
-- UI must label it "Saved on this device"
+Current implementation branch:
+```
+feat/desktop-pr-k2f-practice-hpq-visual-grammar
+```
 
-This is honest but insufficient for the 7-day trial promise. Signed-in users need worksheet activity associated with profile before Me / Progress and Mistake Intelligence can become meaningful.
+Open PR:
+```
+PR #72
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
+```
 
-## K2A doctrine
+Current stage:
+PR-K2F / PR #72 is open and being updated with Practice + HPQ Level-3 visual grammar alignment. Local repair has passed source validation and local screenshot audit by the product owner, and is pending commit/push, Vercel preview, Browser Agent QA, and final GPT audit.
 
-Separate states:
-- `worksheet_generated`
-- `worksheet_saved`
-- `worksheet_attempt_started`
-- `worksheet_attempted`
-- `worksheet_check_started`
-- `answer_checked`
-- `mistake_logged`
+## Recent checkpoints
 
-Rules:
-- generated is not progress
-- saved is not mastery
-- attempted is not checked
-- checked is not mistake logged unless real mistake log exists
-- Mistake Intelligence only from saved checked evidence
-- Me / Progress aggregation is later, not K2A
+- PR #70 / K2E trial entitlement audit is merged at `807ca666fd414fc5ce37778ade34479d46013544`.
+- PR #71 / post-K2E handoff repair is merged at `24ac85f61752d1560ea29b26849bda4bb9b60c66`.
+- Manual 7-day trial entitlement QA passed. Browser Agent trial QA remains auth-limited by magic-link inbox access. Trial entitlement is not the current blocker.
+- PR #69 / K2D remains separate and must not be merged blindly. It must not be cherry-picked or absorbed into PR #72 without explicit owner approval.
 
-## Current execution method
+## PR #72 local repair summary
 
-Preferred implementation executor:
-- Codex on clean GitHub branches.
+Practice visual grammar from the earlier PR #72 commit is preserved.
 
-Preferred preview provider:
-- Vercel PR previews for Browser Agent QA.
+HPQ repair completed locally:
+- HPQ moved into the desktop shell.
+- Old HPQ top chrome / JourneyStrip is hidden on desktop.
+- HPQ now has a concise prediction-first hero.
+- Maths / Science toggle has strong active state.
+- Filters are lighter and live behind Refine predictions near Question stacks.
+- Competency visibility is integrated as stack and question labels, not as a separate practice mode.
+- Mock basket is state-aware and planning-only.
+- HPQ self-check UI was removed.
+- Check my answer is primary for non-MCQ questions.
+- MCQ / Assertion-Reason option selection renders only when structured options exist.
+- Show logic / Show steps are separated from grading.
+- Check panel and steps panel are mutually exclusive per question.
+- Objective questions use Solution logic and suppress inflated step marks.
+- Duplicate answer-only objective solution rows are hidden.
+- Default Reference answer is removed from non-MCQ and objective cards.
+- Why this question and raw prediction rationale are removed from student cards.
+- Raw prediction certainty and guaranteed-style wording are not shown.
+- Topic Hub back navigation returns to Predicted Questions.
+- SolutionChecker was restyled to match desktop grammar.
+- Raw AI/API/server errors are not rendered to students.
 
-Fallbacks:
-- Codespaces terminal can be used for manual repair or emergency docs-only work.
-- Fresh Replit import can be used only if proven clean.
-- The contaminated Replit main workspace must not be used for implementation.
+## Data honesty preserved
 
-Permanent rule:
-GitHub origin remains the source of truth. Do not trust local Replit, Codespaces, Codex, or preview state unless it is verified against GitHub branch/head/diff.
+- No fake progress.
+- No fake mastery.
+- No fake score.
+- No fake weak area.
+- No fake Mistake Intelligence.
+- No fake checked answer.
+- No fake official CBSE answer.
+- No fake mock grading.
+- Add to mock remains basket / planning only.
+- Mistake logs remain only through the real checking path.
+- Me / Progress remain dependent on saved real evidence.
+
+## Local API / gateway learning
+
+- Frontend Vite proxies `/api` to `API_SERVER_PORT`; local QA uses port `8080`.
+- If `dev:gateway` is not running, `/api/step-solution` fails with `ECONNREFUSED`.
+- Running `npx --yes pnpm@10.23.0 run dev:gateway` with `PORT=8080` starts the LazyTopper AI server.
+- Without `DATABASE_URL` and provider API keys, cache/generation is limited or stubbed.
+- When the gateway runs, solution logic can return.
+- Student-facing raw API text such as `AI API request failed` must never be rendered.
+
+## Science MCQ option audit
+
+Codex read-only audit found:
+- Science MCQ / AssertionReason total: 29
+- With structured `options` / `aROptions`: 14
+- With `correctOption`: 14
+- Missing structured options examples: `mnm-hpq-101`, `lp-hpq-101`, `sci-cre-hpq-1`, `sci-abs-hpq-1`, `2026-MNM-01b`, `sci-light-hpq-1`
+
+Follow-up:
+A separate data-only HPQ MCQ normalization PR is needed. Do not invent options in UI.
+
+## Current next safe action
+
+1. Push the PR #72 repair commit.
+2. Wait for Vercel preview.
+3. Use the Vercel preview URL with `/app/`.
+4. Run Browser Agent QA for guest and signed-in states that do not require magic-link inbox access.
+5. Use manual QA for authenticated trial-only flows if Browser Agent lacks inbox access.
+6. GPT owner audits GitHub diff, validation, Vercel QA, Browser QA, and screenshots before merge.
+
+Do not claim PR #72 is merged or merge-ready until those checks pass.

@@ -1,3 +1,58 @@
+## 2026-05-08 - PR #72 Vercel / Browser QA pending
+
+Status:
+Active follow-up before PR #72 merge.
+
+Observation:
+PR #72 local repair has passed source validation and local product-owner screenshot audit, but the updated branch still needs Vercel preview deployment and Browser Agent QA on `/app/`.
+
+Action:
+After push, wait for Vercel preview, test the preview URL with `/app/`, run Browser Agent QA for guest and signed-in visual states that do not require inbox access, and use manual QA for magic-link-gated trial states if needed.
+
+## 2026-05-08 - Science / Maths HPQ MCQ structured options normalization
+
+Status:
+Future data-only PR.
+
+Observation:
+Codex read-only Science audit found 29 Science MCQ / AssertionReason items. Structured `options` / `aROptions` exist for 14, and `correctOption` exists for 14. Missing structured option examples include `mnm-hpq-101`, `lp-hpq-101`, `sci-cre-hpq-1`, `sci-abs-hpq-1`, `2026-MNM-01b`, and `sci-light-hpq-1`.
+
+Action:
+Create a separate data-only normalization PR for Science and Maths MCQ / Assertion-Reason structured options. Do not invent options in UI and do not modify grading/checking APIs.
+
+## 2026-05-08 - Local gateway and env requirements for HPQ step-solution QA
+
+Status:
+Document for future QA.
+
+Observation:
+Frontend Vite proxies `/api` to `API_SERVER_PORT`, using `8080` locally. If `dev:gateway` is not running, `/api/step-solution` fails with `ECONNREFUSED`. Running `npx --yes pnpm@10.23.0 run dev:gateway` with `PORT=8080` starts the LazyTopper AI server. Without `DATABASE_URL` and provider API keys, cache/generation may be limited or stubbed.
+
+Action:
+Future local QA for HPQ solution logic must start both frontend and backend gateway and must not treat missing local env as production proof.
+
+## 2026-05-08 - Mock grading to Mistake Intelligence and Me / Progress
+
+Status:
+Future product work.
+
+Observation:
+PR #72 keeps Add to mock as basket/planning-only. Actual written-and-graded mocks should eventually feed Mistake Intelligence and Me / Progress through real saved grading evidence.
+
+Action:
+Plan a later evidence-path PR for mock grading output to Mistake Intelligence and Me / Progress. Do not claim this in PR #72.
+
+## 2026-05-08 - PR #69 / K2D remains separate
+
+Status:
+Still draft/open/not merged unless live GitHub verification later says otherwise.
+
+Observation:
+PR #69 / K2D remains separate from PR #72 and must not be merged blindly. PR #72 must not cherry-pick or absorb K2D code unless explicitly approved.
+
+Action:
+Verify live GitHub state before acting on PR #69. Rebase/update and audit separately if it is revived.
+
 ## 2026-05-06T00:00:00Z - K2D normalization after K2C
 
 Status:

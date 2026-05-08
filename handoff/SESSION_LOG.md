@@ -1,3 +1,100 @@
+## 2026-05-08T15:37:18Z - PR #72 final HPQ + Practice repair, handoff update, pending Vercel QA
+
+### Starting state
+- Branch: `feat/desktop-pr-k2f-practice-hpq-visual-grammar`
+- Starting HEAD before local repair commit: `7f7e7eea8fce886f113700e1373f93761ddb9bb5`
+- Base branch: `base/approved-thru-437`
+- Base SHA verified: `24ac85f61752d1560ea29b26849bda4bb9b60c66`
+- Merge-base: `24ac85f61752d1560ea29b26849bda4bb9b60c66`
+- PR: PR #72, https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
+
+### Work completed
+- Preserved earlier PR #72 Practice visual grammar pass.
+- Moved HPQ into desktop shell and hid old HPQ chrome on desktop.
+- Reworked HPQ into a prediction-first surface with concise hero, stronger Maths / Science toggle, lighter Refine predictions filters, and integrated competency labels/counts.
+- Made mock basket state-aware and planning-only.
+- Removed HPQ self-check as the main mechanism.
+- Added Check my answer primary path for non-MCQ questions through existing SolutionChecker.
+- Rendered MCQ / Assertion-Reason clickable options only when structured options exist.
+- Kept Show logic / Show steps separate from grading.
+- Made Check panel and steps panel mutually exclusive per question.
+- Changed objective panels to Solution logic and removed inflated objective marks.
+- Hid duplicate answer-only objective solution rows while preserving explanation rows.
+- Removed default Reference answer and Why this question disclosure from student cards.
+- Removed raw prediction certainty and guaranteed-style wording from default UI.
+- Restyled SolutionChecker to calmer desktop grammar.
+- Fixed Topic Hub return navigation back to Predicted Questions.
+- Replaced raw AI/API error rendering with student-safe fallback copy.
+
+### Files changed
+- `lazytopper/src/App.tsx`
+- `lazytopper/src/components/question/SolutionChecker.tsx`
+- `lazytopper/src/pages/HighlyProbableQuestions.tsx`
+- `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
+- `handoff/CURRENT_STATE.md`
+- `handoff/NEXT_ACTION.md`
+- `handoff/IMPLEMENTATION_ROADMAP.md`
+- `handoff/DECISION_LOG.md`
+- `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`
+- `handoff/SESSION_LOG.md`
+
+### Local validation results
+- TypeScript passed: `npx --yes pnpm@10.23.0 --filter lazytopper exec tsc --noEmit`.
+- Production build passed with existing Vite large-chunk warning: `NODE_ENV=production BASE_PATH=/app/ npx --yes pnpm@10.23.0 --filter lazytopper run build`.
+- Build verifier passed: `8 passed, 0 failed`.
+- `git diff --check` passed.
+- Raw API error grep found no `AI API request failed` or `API request failed` in `HighlyProbableQuestions.tsx`.
+- Quick-mark/local-demo grep found no `local-demo-user` or `recordHpqAttempt` in `HighlyProbableQuestions.tsx`.
+
+### Local UI QA findings
+- HPQ hero is concise and prediction-first.
+- Maths / Science active state is visibly green.
+- Refine predictions keeps filters out of the hero.
+- Non-MCQ Check my answer and Show steps are mutually exclusive.
+- MCQ / Assertion-Reason option feedback remains click-only and does not log Mistake Intelligence.
+- Objective Solution logic hides duplicate answer-only rows.
+- Topic Hub return context goes back to Predicted Questions.
+- Mock basket is empty/non-empty state-aware and planning-only.
+
+### API / gateway finding
+- Vite proxies `/api` to `API_SERVER_PORT`, using `8080` locally.
+- Without `dev:gateway`, `/api/step-solution` fails with `ECONNREFUSED`.
+- `npx --yes pnpm@10.23.0 run dev:gateway` with `PORT=8080` starts the LazyTopper AI server.
+- Without `DATABASE_URL` and provider API keys, cache/generation is limited or stubbed.
+- Student-facing raw `AI API request failed` copy must never be rendered.
+
+### Science MCQ option audit
+- Science MCQ / AssertionReason total found by Codex audit: 29.
+- Structured `options` / `aROptions` present: 14.
+- `correctOption` present: 14.
+- Missing structured options examples: `mnm-hpq-101`, `lp-hpq-101`, `sci-cre-hpq-1`, `sci-abs-hpq-1`, `2026-MNM-01b`, `sci-light-hpq-1`.
+- Follow-up needed: separate data-only HPQ MCQ normalization PR.
+- Do not invent options in UI.
+
+### Data-honesty audit
+- Fake progress: not introduced.
+- Fake mastery: not introduced.
+- Fake score: not introduced.
+- Fake weak area: not introduced.
+- Fake Mistake Intelligence: not introduced.
+- Fake checked answer: not introduced.
+- Fake mock grading: not introduced.
+- Official/guaranteed CBSE claims: not introduced.
+- Add to mock remains basket/planning only.
+
+### Next safe action
+1. Commit and push the PR #72 repair branch after validation.
+2. Wait for Vercel preview.
+3. Use Vercel preview URL with `/app/`.
+4. Run Browser Agent QA where auth does not require inbox access.
+5. Use manual QA for magic-link-gated trial states if needed.
+6. GPT owner audits GitHub diff, validation, Vercel QA, Browser QA, and screenshots before merge.
+
+Explicit status:
+PR #72 is not merged. Vercel QA and Browser Agent QA are pending.
+
+---
+
 ## 2026-05-07T08:00:00Z - Post-K2E handoff repair / PR #70 merged verification
 
 ### Starting state

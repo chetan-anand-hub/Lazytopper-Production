@@ -401,17 +401,17 @@ export function SolutionChecker({
     <div style={{
       marginTop: 12,
       padding: "14px 16px",
-      borderRadius: 14,
-      border: "1px solid rgba(206,130,255,0.3)",
-      background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.04))",
+      borderRadius: 12,
+      border: "1px solid hsl(220, 18%, 90%)",
+      background: "#ffffff",
+      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-        <span style={{ fontSize: "1.1rem" }}>📝</span>
-        <strong style={{ fontSize: "0.87rem", color: "#c4b5fd" }}>
-          Check My Answer
+        <strong style={{ fontSize: "0.87rem", color: "hsl(220, 25%, 12%)" }}>
+          Check my answer
         </strong>
-        <span style={{ fontSize: "0.72rem", color: "#c4b5fd", opacity: 0.8 }}>
-          Get teacher-style feedback
+        <span style={{ fontSize: "0.72rem", color: "hsl(220, 15%, 42%)" }}>
+          Upload or type your working
         </span>
       </div>
 
@@ -432,9 +432,9 @@ export function SolutionChecker({
             width: "100%",
             padding: "22px 14px",
             borderRadius: 12,
-            border: "2px dashed rgba(168,85,247,0.4)",
-            background: "var(--bg-card)",
-            color: "#c4b5fd",
+            border: "2px dashed hsl(220, 18%, 82%)",
+            background: "hsl(210, 33%, 96%)",
+            color: "hsl(220, 25%, 12%)",
             fontSize: "0.85rem",
             fontWeight: 600,
             cursor: "pointer",
@@ -444,7 +444,6 @@ export function SolutionChecker({
             gap: 7,
           }}
         >
-          <span style={{ fontSize: "2rem" }}>📸</span>
           <span>Upload a photo or PDF of your answer</span>
           <span style={{ fontSize: "0.7rem", fontWeight: 400, opacity: 0.8 }}>
             JPG · PNG · PDF &nbsp;|&nbsp; Max 3 MB image, 5 MB PDF
@@ -480,10 +479,9 @@ export function SolutionChecker({
       {isPdf && fileName && !result && (
         <div style={{
           display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
-          borderRadius: 10, background: "var(--bg-card)",
-          border: "1px solid rgba(168,85,247,0.3)", marginBottom: 10,
+          borderRadius: 10, background: "hsl(210, 33%, 96%)",
+          border: "1px solid hsl(220, 18%, 90%)", marginBottom: 10,
         }}>
-          <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>📄</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {fileName}
@@ -511,7 +509,7 @@ export function SolutionChecker({
             onClick={() => setShowTextInput((v) => !v)}
             style={{
               background: "none", border: "none", cursor: "pointer",
-              fontSize: "0.72rem", color: "#c4b5fd", opacity: 0.85,
+              fontSize: "0.72rem", color: "hsl(152, 55%, 35%)",
               fontWeight: 500, padding: "0", display: "flex", alignItems: "center", gap: 4,
             }}
           >
@@ -527,7 +525,7 @@ export function SolutionChecker({
               style={{
                 marginTop: 6, width: "100%", boxSizing: "border-box",
                 padding: "8px 10px", borderRadius: 8,
-                border: "1px solid rgba(168,85,247,0.3)",
+                border: "1px solid hsl(220, 18%, 82%)",
                 background: "var(--bg-card)", color: "var(--text)",
                 fontSize: "0.8rem", lineHeight: 1.5, resize: "vertical",
                 outline: "none",
@@ -545,16 +543,16 @@ export function SolutionChecker({
           disabled={loading}
           style={{
             marginTop: 10, width: "100%", padding: "11px 14px",
-            borderRadius: 10, border: "none",
+            borderRadius: 10, border: "1px solid hsl(152, 55%, 45%)",
             background: loading
-              ? "linear-gradient(135deg, #a78bfa, #8b5cf6)"
-              : "linear-gradient(135deg, #7c3aed, #6d28d9)",
+              ? "hsl(152, 30%, 62%)"
+              : "hsl(152, 55%, 45%)",
             color: "white", fontSize: "0.84rem", fontWeight: 700,
             cursor: loading ? "not-allowed" : "pointer",
             opacity: loading ? 0.8 : 1,
           }}
         >
-          {loading ? "Evaluating your answer..." : "Check My Answer"}
+          {loading ? "Checking your answer..." : "Check my answer"}
         </button>
       )}
 
@@ -577,19 +575,19 @@ export function SolutionChecker({
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               gap: 8, padding: "6px 10px", marginBottom: 8,
-              borderRadius: 8, background: "rgba(168,85,247,0.06)",
-              border: "1px solid rgba(168,85,247,0.2)",
+              borderRadius: 8, background: "hsl(210, 33%, 96%)",
+              border: "1px solid hsl(220, 18%, 90%)",
             }}>
-              <span style={{ fontSize: "0.72rem", color: "#a78bfa", fontWeight: 600 }}>
-                📋 Showing your previous check result
+              <span style={{ fontSize: "0.72rem", color: "hsl(220, 15%, 42%)", fontWeight: 600 }}>
+                Showing your previous check result
               </span>
               <button
                 type="button"
                 onClick={handleRecheck}
                 style={{
                   flexShrink: 0, padding: "3px 10px", borderRadius: 999,
-                  border: "1px solid rgba(168,85,247,0.4)",
-                  background: "rgba(168,85,247,0.1)", color: "#c4b5fd",
+                  border: "1px solid hsl(152, 55%, 45%)",
+                  background: "hsl(152, 55%, 95%)", color: "hsl(152, 55%, 28%)",
                   fontSize: "0.71rem", fontWeight: 700, cursor: "pointer",
                 }}
               >
@@ -618,14 +616,14 @@ export function SolutionChecker({
               <div style={{ fontSize: "0.87rem", fontWeight: 700, color: scoreColor }}>
                 {result.percentage}%
                 {" — "}
-                {isPerfect ? "🎉 Perfect score!" : result.percentage >= 80 ? "Excellent!" : result.percentage >= 50 ? "Good effort!" : "Needs improvement"}
+                {isPerfect ? "Full marks" : result.percentage >= 80 ? "Strong answer" : result.percentage >= 50 ? "Partly correct" : "Needs correction"}
               </div>
               {!isPerfect && totalMistakes > 0 && (
                 <MistakeSummaryLine summary={result.mistakeSummary} />
               )}
               {isPerfect && (
                 <div style={{ fontSize: "0.74rem", color: "#22c55e", marginTop: 2 }}>
-                  Full marks — outstanding work!
+                  Full marks on this check.
                 </div>
               )}
             </div>
@@ -640,11 +638,11 @@ export function SolutionChecker({
           {result.teacherNote && (
             <div style={{
               marginTop: 10, padding: "12px 14px",
-              borderRadius: 10, background: "rgba(168,85,247,0.06)",
-              border: "1px solid rgba(168,85,247,0.2)",
+              borderRadius: 10, background: "hsl(210, 33%, 96%)",
+              border: "1px solid hsl(220, 18%, 90%)",
             }}>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#a78bfa", marginBottom: 5, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>✏️</span> Teacher's Note
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "hsl(220, 25%, 12%)", marginBottom: 5, display: "flex", alignItems: "center", gap: 6 }}>
+                Examiner note
               </div>
               <div style={{ fontSize: "0.78rem", color: "var(--text)", lineHeight: 1.6 }}>
                 {result.teacherNote}
@@ -821,8 +819,8 @@ export function SolutionChecker({
               onClick={handleClear}
               style={{
                 marginTop: 8, width: "100%", padding: "8px 12px",
-                borderRadius: 8, border: "1px solid rgba(206,130,255,0.3)",
-                background: "var(--bg-card)", color: "#c4b5fd",
+                borderRadius: 8, border: "1px solid hsl(220, 18%, 82%)",
+                background: "#ffffff", color: "hsl(220, 25%, 12%)",
                 fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
               }}
             >
