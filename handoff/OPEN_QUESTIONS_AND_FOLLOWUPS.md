@@ -1,3 +1,113 @@
+## 2026-05-08 - PR #72 final GPT audit pending
+
+Status:
+Active before PR #72 review/merge.
+
+Observation:
+PR #72 has Vercel preview evidence and manual authenticated HPQ QA recorded, but final GPT owner audit of the GitHub diff and scope is still pending.
+
+Action:
+Owner should audit PR #72 diff, validation, QA evidence, and changed-file scope before marking ready for review or merge.
+
+## 2026-05-08 - PR #72 HPQ Browser QA auth/paywall blocked; manual QA substituted
+
+Status:
+Recorded QA limitation.
+
+Observation:
+Browser Agent verified Practice visual grammar, but HPQ / Exam Trends Browser QA was blocked by the Premium Feature interstitial in guest state. Browser Agent cannot complete magic-link authenticated QA. Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+
+Action:
+Treat HPQ Browser QA as inconclusive due to auth/paywall limitation, not as product failure. Preserve manual QA evidence in handoff and proceed to final GPT audit.
+
+## 2026-05-08 - Practice Level-3 detail finalisation after PR #72
+
+Status:
+Next implementation stage after PR #72 merge.
+
+Observation:
+PR #72 handles broad Practice + HPQ visual grammar alignment. Practice still needs a detail pass focused on execution/detail states, CTA hierarchy, question interaction, option interactivity if needed, source/return behavior, responsive polish, and honest unavailable states.
+
+Action:
+Start Practice detail finalisation after PR #72 is merged and base advancement is verified.
+
+## 2026-05-08 - Mock pages Level-3 detail finalisation after Practice details
+
+Status:
+Post-Practice follow-up.
+
+Observation:
+Mock builder / mock attempt / mock review pages need Level-3 desktop grammar and clear lifecycle wording.
+
+Action:
+Run Mock page detail finalisation after Practice detail stage. Do not claim mock performance feeds Mistake Intelligence until real graded mock evidence exists.
+
+## 2026-05-08 - HPQ question / solution quality later
+
+Status:
+Deferred until after Practice and Mock detail stages unless the product owner reprioritises.
+
+Observation:
+Manual authenticated QA found remaining HPQ question, solution, diagram, and completeness issues. These are content/data/quality issues, not PR #72 visual grammar issues.
+
+Action:
+Sequence this as audit report first, then data-only structured options normalization, then solution/diagram/cache quality repair.
+
+## 2026-05-08 - PR #72 Vercel / Browser QA state
+
+Status:
+Active follow-up before PR #72 merge.
+
+Observation:
+PR #72 has a Vercel preview at `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/`. Browser Agent verified Practice visual grammar but could not complete HPQ / Exam Trends QA because guest state hit the Premium Feature interstitial. Product owner manually verified authenticated HPQ on preview.
+
+Action:
+Proceed to final GPT owner audit. Do not claim PR #72 is merge-ready until that audit passes.
+
+## 2026-05-08 - Science / Maths HPQ MCQ structured options normalization
+
+Status:
+Future data-only PR.
+
+Observation:
+Codex read-only Science audit found 29 Science MCQ / AssertionReason items. Structured `options` / `aROptions` exist for 14, and `correctOption` exists for 14. Missing structured option examples include `mnm-hpq-101`, `lp-hpq-101`, `sci-cre-hpq-1`, `sci-abs-hpq-1`, `2026-MNM-01b`, and `sci-light-hpq-1`.
+
+Action:
+Create a separate data-only normalization PR for Science and Maths MCQ / Assertion-Reason structured options. Do not invent options in UI and do not modify grading/checking APIs.
+
+## 2026-05-08 - Local gateway and env requirements for HPQ step-solution QA
+
+Status:
+Document for future QA.
+
+Observation:
+Frontend Vite proxies `/api` to `API_SERVER_PORT`, using `8080` locally. If `dev:gateway` is not running, `/api/step-solution` fails with `ECONNREFUSED`. Running `npx --yes pnpm@10.23.0 run dev:gateway` with `PORT=8080` starts the LazyTopper AI server. Without `DATABASE_URL` and provider API keys, cache/generation may be limited or stubbed.
+
+Action:
+Future local QA for HPQ solution logic must start both frontend and backend gateway and must not treat missing local env as production proof.
+
+## 2026-05-08 - Mock grading to Mistake Intelligence and Me / Progress
+
+Status:
+Future product work.
+
+Observation:
+PR #72 keeps Add to mock as basket/planning-only. Actual written-and-graded mocks should eventually feed Mistake Intelligence and Me / Progress through real saved grading evidence.
+
+Action:
+Plan a later evidence-path PR for mock grading output to Mistake Intelligence and Me / Progress. Do not claim this in PR #72.
+
+## 2026-05-08 - PR #69 / K2D remains separate
+
+Status:
+Still draft/open/not merged unless live GitHub verification later says otherwise.
+
+Observation:
+PR #69 / K2D remains separate from PR #72 and must not be merged blindly. PR #72 must not cherry-pick or absorb K2D code unless explicitly approved.
+
+Action:
+Verify live GitHub state before acting on PR #69. Rebase/update and audit separately if it is revived.
+
 ## 2026-05-06T00:00:00Z - K2D normalization after K2C
 
 Status:

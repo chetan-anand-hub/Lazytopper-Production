@@ -21,13 +21,6 @@ import {
   getHighlyProbableQuestions,
 } from "../data/highlyProbableQuestions";
 
-import {
-  // NEW: to mirror TopicHub's Mark Yield + topic metadata
-  type TopicContentConfig,
-  getTopicContent,
-  buildGenericTopicConfig,
-} from "../data/class10ContentConfig";
-
 import { useCurrentURL } from "../utils/useCurrentURL";
 import {
   buildTrendsUrl,
@@ -35,8 +28,6 @@ import {
   buildTopicHubUrl,
 } from "../utils/buildUrl";
 
-import { useSmartLearning } from "../engine/smartLearningStore";
-import type { ChapterId, ChapterMeta } from "../engine/smartLearningTypes";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
 import { SolutionChecker } from "../components/question/SolutionChecker";
@@ -45,17 +36,10 @@ import {
   fetchStepSolution,
   type StepSolutionResponse,
 } from "../ai/aiClient";
-import { buildBankHealthReport } from "../prediction/bankHealth";
-import { buildTopicKeySources } from "../prediction/buildTopicKeySources";
 import JourneyStrip from "../components/ux/JourneyStrip";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import { useIsDesktop } from "../hooks/useIsDesktop";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { lazy, Suspense } from "react";
-import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
-const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
-
-// NEW: same normalisation constant as TopicHub
-const MAX_BOARD_WEIGHTAGE_FOR_CLASS10 = 14;
 
 // ---------- Local types / helpers ----------
 
@@ -84,12 +68,12 @@ const tierMeta: Record<
     "must-crack": {
       label: "Must-crack",
       emoji: "",
-      blurb: "Shows up almost every year. Start here first.",
+      blurb: "High-priority board-style stack. Start here first.",
     },
     "high-roi": {
       label: "High-ROI",
       emoji: "",
-      blurb: "Big marks for the time you invest - do after must-crack.",
+      blurb: "Strong revision value for the time you invest.",
     },
     "good-to-do": {
       label: "Good-to-do",
@@ -113,40 +97,240 @@ function normaliseSubject(raw: string | null | undefined): HPQSubject {
   return "Maths";
 }
 
-function normaliseTopicKey(raw: string | null | undefined): string {
-  return String(raw || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-/**
- * Best-effort chapterId for this HPQ bucket.
- * Prefer an explicit bucket.chapterId if present, otherwise derive from
- * grade + subject + topic.
- */
-function getChapterIdForBucket(
-  bucket: HPQTopicBucket,
-  grade: string,
-  subjectKey: HPQSubject
-): ChapterId {
-  const explicit = (bucket as any).chapterId as ChapterId | undefined;
-  if (explicit) return explicit;
-
-  const safeSubject = bucket.subject ?? subjectKey;
-  const topicKey =
-    (bucket as any).topicKey ||
-    bucket.topic?.replace(/\s+/g, "-").toLowerCase() ||
-    "generic";
-
-  return `${grade}-${safeSubject}-${topicKey}` as ChapterId;
-}
-
 const COMPETENCY_TYPES = new Set(["CaseBased", "AssertionReason", "SourceBased"]);
 
 function isCompetencyQuestion(q: HPQQuestion): boolean {
   return COMPETENCY_TYPES.has(q.type || "");
+}
+
+function getCompetencyLabel(q: HPQQuestion): string | undefined {
+  if (q.type === "CaseBased") return "Case-based";
+  if (q.type === "AssertionReason" || q.kind === "assertion-reason") {
+    return "Assertion–Reason";
+  }
+  if (q.type === "SourceBased") return "Source-based";
+  return undefined;
+}
+
+interface HpqOption {
+  label: string;
+  text: string;
+}
+
+function addHpqReturnContext(url: string, returnTo: string): string {
+  const params = new URLSearchParams({
+    source: "hpq",
+    returnTo,
+  });
+  return `${url}${url.includes("?") ? "&" : "?"}${params.toString()}`;
+}
+
+function getQuestionOptions(q: HPQQuestion): HpqOption[] {
+  const arOptions = (q as any).aROptions;
+  if (Array.isArray(arOptions) && arOptions.length > 0) {
+    return arOptions
+      .filter((opt) => opt && (opt.label || opt.text))
+      .map((opt, index) => ({
+        label: String(opt.label || String.fromCharCode(65 + index)).trim(),
+        text: String(opt.text || "").trim(),
+      }));
+  }
+
+  const options = (q as any).options;
+  if (Array.isArray(options) && options.length > 0) {
+    return options
+      .filter((opt) => opt != null && String(opt).trim().length > 0)
+      .map((opt, index) => ({
+        label: String.fromCharCode(65 + index),
+        text: String(opt).trim(),
+      }));
+  }
+
+  return [];
+}
+
+function getCorrectOptionLabel(q: HPQQuestion, options: HpqOption[]): string | undefined {
+  const explicit = String((q as any).correctOption || "").trim();
+  if (explicit) return explicit.toUpperCase();
+
+  const answer = String(q.answer || q.finalAnswer || "").trim();
+  if (!answer) return undefined;
+
+  const exactLabel = options.find((opt) => answer.toUpperCase() === opt.label.toUpperCase());
+  if (exactLabel) return exactLabel.label;
+
+  const exactText = options.find((opt) => answer.toLowerCase() === opt.text.toLowerCase());
+  if (exactText) return exactText.label;
+
+  const containedText = options.find((opt) => {
+    const optionText = opt.text.toLowerCase();
+    const answerText = answer.toLowerCase();
+    return answerText.includes(optionText) || optionText.includes(answerText);
+  });
+  return containedText?.label;
+}
+
+function extractAnswerOnlyOptionLetter(raw: unknown): string | undefined {
+  const value = String(raw || "")
+    .replace(/[`*_]/g, "")
+    .trim();
+  if (!value) return undefined;
+
+  const match = value.match(
+    /^(?:(?:the\s+)?correct\s+)?(?:ans(?:wer)?\s*(?:is|:|-)?\s*)?(?:option\s*)?[\(\[]?\s*([A-Z])\s*[\)\].:]?$/i
+  );
+  return match?.[1]?.toUpperCase();
+}
+
+function getCorrectOptionLetterCandidates(
+  q: HPQQuestion,
+  correctOptionLabel: string | undefined
+): Set<string> {
+  const candidates = new Set<string>();
+  [
+    correctOptionLabel,
+    (q as any).correctOption,
+    q.answer,
+    q.finalAnswer,
+  ].forEach((value) => {
+    const letter = extractAnswerOnlyOptionLetter(value);
+    if (letter) candidates.add(letter);
+  });
+  return candidates;
+}
+
+function isGenericAnswerStepLabel(raw: unknown): boolean {
+  const label = String(raw || "").trim().toLowerCase();
+  return (
+    label.length === 0 ||
+    label === "answer" ||
+    label === "correct answer" ||
+    label === "correct option" ||
+    label === "final answer" ||
+    /^step\s+\d+$/.test(label)
+  );
+}
+
+function isDuplicateObjectiveAnswerStep(
+  step: StepSolutionResponse["steps"][number],
+  correctLetters: Set<string>
+): boolean {
+  if (correctLetters.size === 0) return false;
+
+  const workingLetter = extractAnswerOnlyOptionLetter(step.working);
+  const descriptionLetter = extractAnswerOnlyOptionLetter(step.description);
+
+  if (workingLetter && correctLetters.has(workingLetter)) {
+    return (
+      isGenericAnswerStepLabel(step.description) ||
+      descriptionLetter === workingLetter
+    );
+  }
+
+  if (descriptionLetter && correctLetters.has(descriptionLetter)) {
+    const working = String(step.working || "").trim();
+    return !working || extractAnswerOnlyOptionLetter(working) === descriptionLetter;
+  }
+
+  return false;
+}
+
+function getVisibleSolutionSteps(
+  solution: StepSolutionResponse | undefined,
+  q: HPQQuestion,
+  correctOptionLabel: string | undefined,
+  isObjective: boolean
+): StepSolutionResponse["steps"] {
+  if (!solution) return [];
+  if (!isObjective) return solution.steps;
+
+  const correctLetters = getCorrectOptionLetterCandidates(q, correctOptionLabel);
+  return solution.steps.filter(
+    (step) => !isDuplicateObjectiveAnswerStep(step, correctLetters)
+  );
+}
+
+function isObjectiveQuestion(q: HPQQuestion, options: HpqOption[]): boolean {
+  return (
+    options.length > 0 ||
+    q.section === "A" ||
+    q.marks === 1 ||
+    q.type === "MCQ" ||
+    q.type === "AssertionReason" ||
+    q.kind === "assertion-reason"
+  );
+}
+
+function getSolutionUnavailableCopy(isObjective: boolean): string {
+  return isObjective
+    ? "Solution logic is unavailable right now. Try the correct answer feedback or revise this topic."
+    : "Step solution is unavailable right now. Try Check my answer or Revise topic.";
+}
+
+function FilterRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+      }}
+    >
+      <span
+        style={{
+          minWidth: 110,
+          fontSize: "0.74rem",
+          fontWeight: 800,
+          color: "hsl(220, 15%, 42%)",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+        }}
+      >
+        {label}
+      </span>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        borderRadius: 999,
+        padding: "5px 11px",
+        border: active
+          ? "1px solid hsl(152, 55%, 45%)"
+          : "1px solid hsl(220, 18%, 90%)",
+        background: active ? "hsl(152, 55%, 95%)" : "#ffffff",
+        color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
+        fontSize: "0.76rem",
+        fontWeight: active ? 700 : 600,
+        cursor: "pointer",
+      }}
+    >
+      {children}
+    </button>
+  );
 }
 
 type CompetencyFilter = "all" | "competency";
@@ -156,6 +340,7 @@ type CompetencyFilter = "all" | "competency";
 const HighlyProbableQuestions: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isDesktop = useIsDesktop();
   const [searchParams, setSearchParams] = useSearchParams();
   const { grade: gradeParam, subject } = useParams<"grade" | "subject">();
 
@@ -163,14 +348,6 @@ const HighlyProbableQuestions: React.FC = () => {
   const grade = gradeParam || searchParams.get("grade") || "10";
   const subjectParam = subject || searchParams.get("subject");
   const subjectKey: HPQSubject = normaliseSubject(subjectParam);
-
-  // Smart Learning Engine
-  const {
-    recordHpqAttempt,
-    // NEW: read stats + match score
-    getStatsForChapter,
-    getMatchScoreForChapter,
-  } = useSmartLearning();
 
   // Capture current URL for back-navigation state.
   const currentURL = useCurrentURL();
@@ -201,13 +378,12 @@ const HighlyProbableQuestions: React.FC = () => {
 
   // Basket state
   const [basket, setBasket] = useState<BasketItem[]>([]);
-  const [hpqFeedback, setHpqFeedback] = useState<
-    Record<string, "correct" | "incorrect">
-  >({});
   // Per-chapter expand/collapse state: topic -> expanded?
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>(
     {}
   );
+  const [answerCheckOpen, setAnswerCheckOpen] = useState<Record<string, boolean>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   // If the route subject changes (Maths <-> Science), React Router may reuse the
   // same component instance. Reset local UI state here to prevent filter/state
@@ -219,12 +395,13 @@ const HighlyProbableQuestions: React.FC = () => {
     setShowAdvancedFilters(false);
     setCompetencyFilter("all");
     setExpandedTopics({});
-    setHpqFeedback({});
     setTopicFilter("all");
     setSolutionData({});
     setSolutionLoading({});
     setSolutionError({});
     setSolutionOpen({});
+    setAnswerCheckOpen({});
+    setSelectedOptions({});
     // Ensure URL query doesn't carry stale filters across subjects.
     setSearchParams(new URLSearchParams());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -234,21 +411,6 @@ const HighlyProbableQuestions: React.FC = () => {
   const [solutionLoading, setSolutionLoading] = useState<Record<string, boolean>>({});
   const [solutionError, setSolutionError] = useState<Record<string, string | undefined>>({});
   const [solutionOpen, setSolutionOpen] = useState<Record<string, "solve" | "explain" | undefined>>({});
-
-  const [conceptDrawerOpen, setConceptDrawerOpen] = useState(false);
-  const [conceptDrawerContext, setConceptDrawerContext] = useState<ConceptTeachContext | null>(null);
-
-  const openConceptDrawer = (bucket: HPQTopicBucket, q: HPQQuestion) => {
-    setConceptDrawerContext({
-      topicKey: q.subtopic || q.concept || bucket.topic,
-      subject: subjectKey,
-      questionText: q.question,
-      marks: q.marks,
-      subtopic: q.subtopic,
-      concept: q.concept,
-    });
-    setConceptDrawerOpen(true);
-  };
 
   const isInBasket = React.useCallback(
     (id: string) => basket.some((item) => item.id === id),
@@ -287,27 +449,6 @@ const HighlyProbableQuestions: React.FC = () => {
     [subjectKey]
   );
 
-  const bankHealthSummaryForSubject = useMemo(() => {
-    const topicKeySources = buildTopicKeySources().filter(
-      (entry) => normaliseSubject(String(entry.subject)) === subjectKey
-    );
-
-    const canonicalQuestions = subjectBuckets.flatMap((bucket) => {
-      const bucketTopicKey = (bucket as any).topicKey || normaliseTopicKey(bucket.topic);
-      const bucketSubject = bucket.subject ?? subjectKey;
-      return bucket.questions.map((question) => ({
-        ...question,
-        subject: bucketSubject,
-        topicKey: (question as any).topicKey || bucketTopicKey,
-      }));
-    });
-
-    return buildBankHealthReport({
-      questions: canonicalQuestions as any,
-      topicKeySources: topicKeySources as any,
-    }).summary;
-  }, [subjectBuckets, subjectKey]);
-
   // Topic options for dropdown (for current subject)
   const topicOptions = useMemo(
     () =>
@@ -321,132 +462,6 @@ const HighlyProbableQuestions: React.FC = () => {
   const currentTopicKey: string | undefined =
     (topicFilter !== "all" ? topicFilter : topicParam) || undefined;
 
-  const bucketForStats: HPQTopicBucket | undefined = useMemo(() => {
-    if (!currentTopicKey) return undefined;
-    const target = currentTopicKey.toLowerCase();
-    return subjectBuckets.find(
-      (b) => b.topic.toLowerCase() === target
-    );
-  }, [subjectBuckets, currentTopicKey]);
-
-  // Build ChapterMeta + stats only if we have a matching bucket
-  const {
-    chapterMetaForStats,
-    totalAttemptsForStats,
-    accuracyPercentForStats,
-    matchScoreForStats,
-    matchLabelForStats,
-  } = useMemo(() => {
-    if (!bucketForStats) {
-      return {
-        chapterMetaForStats: undefined,
-        totalAttemptsForStats: 0,
-        accuracyPercentForStats: undefined as number | undefined,
-        matchScoreForStats: undefined as number | undefined,
-        matchLabelForStats: undefined as string | undefined,
-      };
-    }
-
-    const chapterIdForTopic = getChapterIdForBucket(
-      bucketForStats,
-      grade,
-      subjectKey
-    );
-
-    const stats = getStatsForChapter(chapterIdForTopic);
-    const totalAttempts = stats?.totalQuestionsAttempted ?? 0;
-
-    if (!stats || totalAttempts === 0) {
-      return {
-        chapterMetaForStats: undefined,
-        totalAttemptsForStats: 0,
-        accuracyPercentForStats: undefined,
-        matchScoreForStats: undefined,
-        matchLabelForStats: undefined,
-      };
-    }
-
-    const accuracyPercent = Math.round(
-      (stats.totalQuestionsCorrect / totalAttempts) * 100
-    );
-
-    // Use content config to enrich ChapterMeta
-    const rawTopicKey =
-      currentTopicKey || (bucketForStats as any).topicKey || bucketForStats.topic;
-
-    const rawConfig =
-      (getTopicContent(subjectKey as any, rawTopicKey) as
-        | TopicContentConfig
-        | undefined) ?? undefined;
-
-    const topicConfig: TopicContentConfig =
-      rawConfig ??
-      buildGenericTopicConfig({
-        subjectKey: subjectKey as any,
-        topicKey: rawTopicKey,
-        topicName: bucketForStats.topic,
-      });
-
-    const displayName: string =
-      (topicConfig as any).displayName ||
-      (topicConfig as any).title ||
-      bucketForStats.topic;
-
-    const boardWeightage: number =
-      (topicConfig as any).weightagePercent ??
-      (topicConfig as any).approxWeightage ??
-      0;
-
-    const chapterMeta: ChapterMeta = {
-      id: chapterIdForTopic,
-      grade,
-      subject: subjectKey as any,
-      topicKey:
-        (topicConfig as any).topicKey ||
-        rawTopicKey,
-      name: displayName,
-      boardWeightage,
-      tier:
-        ((topicConfig as any).tier as
-          | "must-crack"
-          | "high-roi"
-          | "good-to-do") || "high-roi",
-      difficultyMix: (topicConfig as any).difficultyMix,
-      relatedChapterIds: (topicConfig as any).relatedChapterIds,
-    };
-
-    const matchScore = getMatchScoreForChapter(
-      chapterMeta,
-      MAX_BOARD_WEIGHTAGE_FOR_CLASS10
-    );
-
-    let matchLabel: string | undefined;
-    if (matchScore !== undefined) {
-      if (matchScore >= 75) {
-        matchLabel = "high match score";
-      } else if (matchScore >= 40) {
-        matchLabel = "medium match score";
-      } else {
-        matchLabel = "low match score";
-      }
-    }
-
-    return {
-      chapterMetaForStats: chapterMeta,
-      totalAttemptsForStats: totalAttempts,
-      accuracyPercentForStats: accuracyPercent,
-      matchScoreForStats: matchScore,
-      matchLabelForStats: matchLabel,
-    };
-  }, [
-    bucketForStats,
-    currentTopicKey,
-    grade,
-    subjectKey,
-    getStatsForChapter,
-    getMatchScoreForChapter,
-  ]);
-
   // Handlers
 
   const handleSubjectToggle = (next: HPQSubject) => {
@@ -455,12 +470,13 @@ const HighlyProbableQuestions: React.FC = () => {
     setDifficultyFilter("all");
     setCompetencyFilter("all");
     setExpandedTopics({});
-    setHpqFeedback({});
+    setAnswerCheckOpen({});
+    setSelectedOptions({});
     setTopicFilter("all");
     setSearchParams(new URLSearchParams());
 
     navigate(`/highly-probable/${grade}/${next}`, {
-      state: { back: currentURL, backLabel: "Back to Predicted Q's" },
+      state: { back: currentURL, backLabel: "Back to Predicted Questions" },
       replace: true,
     });
   };
@@ -475,9 +491,14 @@ const HighlyProbableQuestions: React.FC = () => {
     navigate(buildMockBuilderUrl(grade, subjectKey), {
       state: {
         back: currentURL,
-        backLabel: "Back to Predicted Q's",
+        backLabel: "Back to Predicted Questions",
       },
     });
+  };
+
+  const handleClearBasket = () => {
+    setBasket([]);
+    persistBasket([]);
   };
 
   const handleOpenTopicHubFromBucket = (bucket: HPQTopicBucket) => {
@@ -485,12 +506,16 @@ const HighlyProbableQuestions: React.FC = () => {
       topic: bucket.topic,
       subject: subjectKey,
     });
-    navigate(
+    const topicHubUrl = addHpqReturnContext(
       buildTopicHubUrl(grade, subjectKey, bucket.topic),
+      currentURL
+    );
+    navigate(
+      topicHubUrl,
       {
         state: {
           back: currentURL,
-          backLabel: "Back to Predicted Q's",
+          backLabel: "Back to Predicted Questions",
         },
       }
     );
@@ -545,6 +570,20 @@ const HighlyProbableQuestions: React.FC = () => {
     });
   };
 
+  const handleToggleAnswerCheck = (qId: string) => {
+    const shouldOpen = !answerCheckOpen[qId];
+    setAnswerCheckOpen((prev) => ({
+      ...prev,
+      [qId]: shouldOpen,
+    }));
+    if (shouldOpen) {
+      setSolutionOpen((prev) => ({
+        ...prev,
+        [qId]: undefined,
+      }));
+    }
+  };
+
   const handleInlineSolution = async (
     bucket: HPQTopicBucket,
     q: HPQQuestion,
@@ -557,6 +596,9 @@ const HighlyProbableQuestions: React.FC = () => {
       return;
     }
     setSolutionOpen((prev) => ({ ...prev, [qId]: mode }));
+    setAnswerCheckOpen((prev) => (
+      prev[qId] ? { ...prev, [qId]: false } : prev
+    ));
 
     if (solutionData[qId]) return;
 
@@ -577,6 +619,7 @@ const HighlyProbableQuestions: React.FC = () => {
       });
       setSolutionData((prev) => ({ ...prev, [qId]: result }));
     } catch (err: any) {
+      console.warn("HPQ step solution unavailable", err);
       setSolutionError((prev) => ({
         ...prev,
         [qId]: err?.message || "Failed to load solution",
@@ -604,57 +647,13 @@ const HighlyProbableQuestions: React.FC = () => {
       topicKey,
       topicName,
       backPath,
-      backLabel: "Back to Predicted Q's",
+      backLabel: "Back to Predicted Questions",
       subtopicHint: q.subtopic || q.concept || bucket.topic,
       focusBankIds: q.id ? [q.id] : undefined,
       recommendedCount,
       difficultyPreset: "All",
       source: "hpq_similar",
     });
-  };
-
-
-  // Smart Learning: log HPQ attempts (correct / incorrect)
-  const handleMarkHpqAttempt = async (
-    bucket: HPQTopicBucket,
-    q: HPQQuestion,
-    wasCorrect: boolean
-  ) => {
-    try {
-      const chapterId = getChapterIdForBucket(bucket, grade, subjectKey);
-      const marks = q.marks ?? 0;
-
-      recordHpqAttempt({
-        chapterId,
-        questionId: q.id,
-        isCorrect: wasCorrect,
-        marks,
-        difficulty: q.difficulty,
-        section: q.section,
-        source: "hpq-quick-mark",
-        userId: "local-demo-user", // until we wire real auth/profile
-        grade, // e.g. "10"
-        subject: subjectKey, // "Maths" | "Science"
-        timeTakenSeconds: 30, // rough default; we can improve later
-        attemptedAt: new Date().toISOString(),
-      });
-      setHpqFeedback((prev) => ({
-        ...prev,
-        [q.id]: wasCorrect ? "correct" : "incorrect",
-      }));
-      try {
-        const gam = await import("../utils/gamification");
-        gam.incrementDailyGoal();
-        if (wasCorrect) {
-          gam.awardXP(10);
-          gam.showXPToast(10);
-          gam.triggerSparkle(window.innerWidth / 2, window.innerHeight / 2);
-        }
-      } catch {}
-    } catch (err) {
-      // Fail silently for now - Smart Learning is a bonus layer, not critical path.
-      console.error("Failed to record HPQ attempt", err);
-    }
   };
 
   const totalBasketMarks = useMemo(
@@ -770,6 +769,7 @@ const HighlyProbableQuestions: React.FC = () => {
 
   const renderQuestionMetaChips = (q: HPQQuestion) => {
     const chips: React.ReactNode[] = [];
+    const competencyLabel = getCompetencyLabel(q);
 
     if (q.section) {
       chips.push(
@@ -778,9 +778,11 @@ const HighlyProbableQuestions: React.FC = () => {
           style={{
             borderRadius: 999,
             padding: "3px 8px",
-            backgroundColor: "#eef2ff",
-            border: "1px solid rgba(88,204,2,0.4)",
+            backgroundColor: "hsl(210, 33%, 96%)",
+            border: "1px solid hsl(220, 18%, 90%)",
             fontSize: "0.7rem",
+            color: "hsl(220, 15%, 42%)",
+            fontWeight: 700,
           }}
         >
           Section {q.section}
@@ -795,9 +797,11 @@ const HighlyProbableQuestions: React.FC = () => {
           style={{
             borderRadius: 999,
             padding: "3px 8px",
-            backgroundColor: "#ecfeff",
-            border: "1px solid rgba(28,176,246,0.4)",
+            backgroundColor: "hsl(215, 75%, 95%)",
+            border: "1px solid hsl(215, 65%, 84%)",
             fontSize: "0.7rem",
+            color: "hsl(215, 65%, 32%)",
+            fontWeight: 700,
           }}
         >
           {q.marks} mark{q.marks === 1 ? "" : "s"}
@@ -805,39 +809,21 @@ const HighlyProbableQuestions: React.FC = () => {
       );
     }
 
-    if (q.likelihood) {
-      chips.push(
-        <span
-          key="prob"
-          style={{
-            borderRadius: 999,
-            padding: "3px 8px",
-            backgroundColor: "#f5f3ff",
-            border: "1px solid rgba(206,130,255,0.4)",
-            fontSize: "0.7rem",
-            color: "#4c1d95",
-          }}
-        >
-          {q.likelihood} chance
-        </span>
-      );
-    }
-
-    if (isCompetencyQuestion(q)) {
+    if (competencyLabel) {
       chips.push(
         <span
           key="competency"
           style={{
             borderRadius: 999,
             padding: "3px 8px",
-            backgroundColor: "rgba(245,158,11,0.1)",
-            border: "1px solid rgba(255,150,0,0.4)",
+            backgroundColor: "hsl(43, 90%, 94%)",
+            border: "1px solid hsl(38, 75%, 78%)",
             fontSize: "0.7rem",
-            color: "#f59e0b",
-            fontWeight: 600,
+            color: "hsl(35, 80%, 35%)",
+            fontWeight: 700,
           }}
         >
-          {q.type === "CaseBased" ? "Case-Based" : q.type === "SourceBased" ? "Source-Based" : "Assertion-Reasoning"}
+          {competencyLabel}
         </span>
       );
     }
@@ -861,296 +847,144 @@ const HighlyProbableQuestions: React.FC = () => {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        background:
-          "linear-gradient(180deg, rgba(34,197,94,0.08) 0%, var(--bg-card) 100%)",
-        paddingBottom: "80px",
-      }}
+        "--bg": "hsl(210, 40%, 98%)",
+        "--bg-card": "#ffffff",
+        "--bg-card-border": "hsl(220, 18%, 90%)",
+        "--text": "hsl(220, 25%, 12%)",
+        "--text-muted": "hsl(220, 15%, 42%)",
+        minHeight: isDesktop ? "100%" : "100vh",
+        background: isDesktop ? "transparent" : "hsl(210, 40%, 98%)",
+        color: "hsl(220, 25%, 12%)",
+        paddingBottom: isDesktop ? "48px" : "80px",
+      } as React.CSSProperties}
     >
       <div
         style={{
-          maxWidth: "1120px",
+          maxWidth: "1280px",
           margin: "0 auto",
-          padding: "16px 16px 32px",
+          padding: isDesktop
+            ? "28px clamp(20px, 4vw, 32px) 56px"
+            : "24px clamp(16px, 4vw, 32px) 48px",
         }}
       >
-        <ReturnContextBar
-          backTo={back || buildTrendsUrl(grade, subjectKey)}
-          backLabel={backLabel}
-          currentLabel="Predicted Q's"
-          quickLinks={[
-            { label: "Trends", to: buildTrendsUrl(grade, subjectKey) },
-            { label: "Chapter Hub", to: buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : "") },
-            { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
-          ]}
-        />
-        <JourneyStrip
-          current="hpq"
-          grade={grade}
-          subject={subjectKey}
-          topic={currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : undefined}
-        />
+        {isDesktop ? (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 18,
+              fontSize: "0.8rem",
+              color: "hsl(220, 15%, 42%)",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => navigate(back || buildTrendsUrl(grade, subjectKey))}
+              style={{
+                border: "1px solid hsl(220, 18%, 90%)",
+                background: "#ffffff",
+                color: "hsl(220, 25%, 12%)",
+                borderRadius: 8,
+                padding: "7px 11px",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Back to Exam Trends
+            </button>
+            <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>
+              Predicted Questions
+            </span>
+            <span>Class {grade} - {subjectKey}</span>
+          </div>
+        ) : (
+          <>
+            <ReturnContextBar
+              backTo={back || buildTrendsUrl(grade, subjectKey)}
+              backLabel={backLabel}
+              currentLabel="Predicted Q's"
+              quickLinks={[
+                { label: "Trends", to: buildTrendsUrl(grade, subjectKey) },
+                { label: "Chapter Hub", to: addHpqReturnContext(buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : ""), currentURL) },
+                { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
+              ]}
+            />
+            <JourneyStrip
+              current="hpq"
+              grade={grade}
+              subject={subjectKey}
+              topic={currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : undefined}
+            />
+          </>
+        )}
 
         {/* Hero: HPQ hub */}
         <section
           style={{
-            borderRadius: 32,
-            padding: "24px 24px 24px 28px",
-            background:
-              "linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card) 20%, #1cb0f6 65%, #22c1c3 100%)",
-            color: "var(--text)",
-            boxShadow: "0 24px 60px rgba(88,204,2,0.3)",
+            borderRadius: 14,
+            padding: "24px",
+            background: "#ffffff",
+            color: "hsl(220, 25%, 12%)",
+            border: "1px solid hsl(220, 18%, 90%)",
+            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
             display: "flex",
             flexDirection: "row",
+            flexWrap: "wrap",
             alignItems: "stretch",
             justifyContent: "space-between",
             gap: 24,
           }}
         >
-          <div style={{ maxWidth: 640 }}>
+          <div style={{ flex: "1 1 560px", maxWidth: 720 }}>
             <div
-              style={{
-                fontSize: "0.7rem",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                opacity: 0.85,
-                marginBottom: 8,
-              }}
+            style={{
+              fontSize: "0.7rem",
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: "hsl(152, 55%, 32%)",
+              fontWeight: 800,
+              marginBottom: 8,
+            }}
             >
               Class {grade} - {subjectKey} - Predicted Questions
             </div>
             <h1
-              style={{
-                fontSize: "2.1rem",
-                lineHeight: 1.15,
-                fontWeight: 650,
-                marginBottom: 10,
-              }}
-            >
-              Predicted Questions Hub
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "2.1rem",
+              lineHeight: 1.15,
+              fontWeight: 600,
+              letterSpacing: "-0.01em",
+              marginBottom: 10,
+            }}
+          >
+              Predicted Questions
             </h1>
             <p
-              style={{
-                fontSize: "0.95rem",
-                lineHeight: 1.6,
-                opacity: 0.96,
-              }}
-            >
-              Questions most likely to appear based on 10 years of CBSE pattern
-              analysis. Use these for focused revision — switch between{" "}
-              <strong>Maths</strong> and{" "}
-              <strong>Science</strong>, then send questions into your mock paper.
+            style={{
+              fontSize: "0.95rem",
+              lineHeight: 1.6,
+              color: "hsl(220, 15%, 42%)",
+              maxWidth: 760,
+              margin: "0 0 6px",
+            }}
+          >
+              High-probability board questions selected through LazyTopper's exam-pattern analysis.
+              <br />
+              Use these topic-wise stacks for focused 2027 revision.
             </p>
-            <p
-              style={{
-                fontSize: "0.78rem",
-                lineHeight: 1.5,
-                opacity: 0.75,
-                fontStyle: "italic",
-                marginTop: 6,
-              }}
-            >
-              Disclaimer: These are data-driven predictions, not guaranteed exam
-              questions. Likelihood scores reflect historical patterns and should
-              guide — not replace — thorough preparation.
-            </p>
-
             <div
               style={{
-                marginTop: 16,
-                display: "flex",
-                gap: 8,
-                flexWrap: "wrap",
-                alignItems: "center",
+                fontSize: "0.76rem",
+                color: "hsl(220, 15%, 42%)",
+                lineHeight: 1.45,
               }}
             >
-              <span
-                style={{
-                  borderRadius: 999,
-                  border: "1px solid var(--bg-card-border)",
-                  background: "var(--bg-card)",
-                  color: "var(--text-muted)",
-                  fontSize: "0.75rem",
-                  padding: "6px 12px",
-                }}
-              >
-                {showAdvancedFilters ? "Advanced filters on" : "Simple mode"}
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowAdvancedFilters((prev) => !prev)}
-                style={{
-                  borderRadius: 999,
-                  padding: "6px 14px",
-                  border: "1px solid var(--bg-card-border)",
-                  background: "var(--bg-card)",
-                  color: "var(--text-muted)",
-                  fontSize: "0.75rem",
-                  cursor: "pointer",
-                }}
-              >
-                {showAdvancedFilters ? "Hide advanced filters" : "Show advanced filters"}
-              </button>
+              Predictions guide revision - they do not replace full chapter preparation.
             </div>
-
-            {showAdvancedFilters && (
-              <>
-                {/* Tier filter row */}
-                <div
-                  style={{
-                    marginTop: 10,
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {(
-                    [
-                      { id: "all", label: "All tiers" },
-                      { id: "must-crack", label: "Must-crack" },
-                      { id: "high-roi", label: "High-ROI" },
-                      { id: "good-to-do", label: "Good-to-do" },
-                    ] as { id: TierFilter; label: string }[]
-                  ).map((item) => {
-                    const active = tierFilter === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setTierFilter(item.id)}
-                        style={{
-                          borderRadius: 999,
-                          padding: "6px 14px",
-                          border: active
-                            ? "1px solid var(--bg-card)"
-                            : "1px solid var(--bg-card)",
-                          background: active
-                            ? "var(--bg-card)"
-                            : "var(--bg-card)",
-                          color: active ? "var(--text)" : "var(--text-muted)",
-                          fontSize: "0.75rem",
-                          fontWeight: active ? 600 : 500,
-                          cursor: "pointer",
-                          boxShadow: active
-                            ? "0 6px 18px var(--bg-card)"
-                            : "none",
-                          transition: "all 0.15s ease-out",
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Difficulty filter row */}
-                <div
-                  style={{
-                    marginTop: 10,
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                    fontSize: "0.78rem",
-                  }}
-                >
-                  {(
-                    [
-                      { id: "all", label: "All levels" },
-                      { id: "Easy", label: "Easy focus" },
-                      { id: "Medium", label: "Medium focus" },
-                      { id: "Hard", label: "Hard focus" },
-                    ] as { id: DifficultyFilter; label: string }[]
-                  ).map((item) => {
-                    const active = difficultyFilter === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setDifficultyFilter(item.id)}
-                        style={{
-                          borderRadius: 999,
-                          padding: "5px 11px",
-                          border: active
-                            ? "1px solid var(--text-muted)"
-                            : "1px solid var(--bg-card)",
-                          background: active
-                            ? "var(--bg-card)"
-                            : "transparent",
-                          color: active ? "var(--text)" : "var(--text-muted)",
-                          cursor: "pointer",
-                          transition: "all 0.15s ease-out",
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 10,
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                    fontSize: "0.78rem",
-                  }}
-                >
-                  {(
-                    [
-                      { id: "all", label: "All questions" },
-                      { id: "competency", label: "Competency-Based Only" },
-                    ] as { id: CompetencyFilter; label: string }[]
-                  ).map((item) => {
-                    const active = competencyFilter === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setCompetencyFilter(item.id)}
-                        style={{
-                          borderRadius: 999,
-                          padding: "5px 11px",
-                          border: active
-                            ? "1px solid rgba(255,150,0,0.4)"
-                            : "1px solid var(--bg-card)",
-                          background: active
-                            ? "rgba(245,158,11,0.12)"
-                            : "transparent",
-                          color: active ? "#f59e0b" : "var(--text-muted)",
-                          fontWeight: active ? 600 : 400,
-                          cursor: "pointer",
-                          transition: "all 0.15s ease-out",
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Clear all filters inline action */}
-                <div
-                  style={{
-                    marginTop: 8,
-                    fontSize: "0.78rem",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  <button
-                    onClick={handleClearAllFilters}
-                    style={{
-                      borderRadius: 999,
-                      padding: "4px 10px",
-                      border: "1px dashed var(--bg-card-border)",
-                      background: "var(--bg-card)",
-                      color: "var(--text-muted)",
-                      cursor: "pointer",
-                      fontSize: "0.78rem",
-                    }}
-                  >
-                    Clear all filters
-                  </button>
-                </div>
-              </>
-            )}
           </div>
 
           {/* Subject + stream toggles + basket summary */}
@@ -1161,6 +995,7 @@ const HighlyProbableQuestions: React.FC = () => {
               justifyContent: "space-between",
               alignItems: "flex-end",
               gap: 12,
+              flex: "1 1 260px",
             }}
           >
             {/* Subject toggle pill */}
@@ -1169,7 +1004,8 @@ const HighlyProbableQuestions: React.FC = () => {
                 alignSelf: "flex-end",
                 borderRadius: 999,
                 padding: 4,
-                background: "#58cc02",
+                background: "hsl(210, 33%, 96%)",
+                border: "1px solid hsl(220, 18%, 90%)",
                 display: "inline-flex",
                 gap: 4,
               }}
@@ -1179,18 +1015,19 @@ const HighlyProbableQuestions: React.FC = () => {
                 return (
                   <button
                     key={subj}
+                    aria-pressed={active}
                     onClick={() => handleSubjectToggle(subj)}
                     style={{
                       padding: "6px 16px",
                       borderRadius: 999,
                       border: "none",
                       fontSize: "0.8rem",
-                      fontWeight: 600,
+                      fontWeight: active ? 800 : 600,
                       cursor: "pointer",
-                      background: active ? "var(--bg-card)" : "transparent",
-                      color: active ? "var(--text)" : "var(--text-muted)",
+                      background: active ? "hsl(152, 55%, 42%)" : "transparent",
+                      color: active ? "#ffffff" : "hsl(220, 15%, 42%)",
                       boxShadow: active
-                        ? "0 6px 16px rgba(88,204,2,0.25)"
+                        ? "0 8px 18px rgba(22, 163, 74, 0.22)"
                         : "none",
                       transition: "all 0.15s ease-out",
                     }}
@@ -1200,85 +1037,16 @@ const HighlyProbableQuestions: React.FC = () => {
                 );
               })}
             </div>
-
-            {/* Stream filter - only for Science (advanced mode) */}
-            {subjectKey === "Science" && showAdvancedFilters && (
-              <div
-                style={{
-                  marginTop: 10,
-                  padding: "10px 12px",
-                  borderRadius: 999,
-                  background: "rgba(88,204,2,0.4)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 4,
-                  minWidth: 230,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "0.7rem",
-                    letterSpacing: "0.15em",
-                    textTransform: "uppercase",
-                    color: "#cbd5f5",
-                    opacity: 0.9,
-                  }}
-                >
-                  Streams
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 6,
-                    marginTop: 4,
-                  }}
-                >
-                  {(
-                    [
-                      { id: "all", label: "All streams" },
-                      { id: "Physics", label: "Physics" },
-                      { id: "Chemistry", label: "Chemistry" },
-                      { id: "Biology", label: "Biology" },
-                    ] as { id: StreamFilterKey; label: string }[]
-                  ).map((stream) => {
-                    const active = activeStream === stream.id;
-                    return (
-                      <button
-                        key={stream.id}
-                        onClick={() => handleStreamToggle(stream.id)}
-                        style={{
-                          borderRadius: 999,
-                          padding: "4px 10px",
-                          fontSize: "0.75rem",
-                          border: active
-                            ? "1px solid var(--text-muted)"
-                            : "1px solid var(--bg-card)",
-                          background: active
-                            ? "var(--bg-card)"
-                            : "transparent",
-                          color: active ? "var(--text)" : "var(--text-muted)",
-                          cursor: "pointer",
-                          transition: "all 0.15s ease-out",
-                        }}
-                      >
-                        {stream.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {/* Basket summary */}
             <div
               style={{
                 marginTop: 12,
-                padding: "8px 10px",
-                borderRadius: 16,
-                background: "var(--bg-card)",
+                padding: "12px 14px",
+                borderRadius: 12,
+                background: "hsl(210, 33%, 96%)",
+                border: "1px solid hsl(220, 18%, 90%)",
                 fontSize: "0.75rem",
-                color: "var(--text-muted)",
+                color: "hsl(220, 15%, 42%)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 4,
@@ -1288,31 +1056,78 @@ const HighlyProbableQuestions: React.FC = () => {
               <div>
                 Mock basket:{" "}
                 <strong>
-                  {basket.length} Q - {totalBasketMarks} marks
+                  {basket.length} Q · {totalBasketMarks} marks
                 </strong>
               </div>
-              <button
-                onClick={handleOpenMockBuilder}
-                style={{
-                  marginTop: 2,
-                  borderRadius: 999,
-                  padding: "4px 10px",
-                  border: "1px solid var(--text)",
-                  background: "var(--bg-card)",
-                  color: "var(--text)",
-                  fontSize: "0.7rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                Open mock builder
-              </button>
+              {basket.length === 0 ? (
+                <div
+                  style={{
+                    maxWidth: 220,
+                    textAlign: "right",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Select questions or stacks to build a mock.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    justifyContent: "flex-end",
+                    marginTop: 2,
+                  }}
+                >
+                  <button
+                    onClick={handleOpenMockBuilder}
+                    style={{
+                      borderRadius: 999,
+                      padding: "4px 10px",
+                      border: "1px solid hsl(152, 55%, 45%)",
+                      background: "hsl(152, 55%, 45%)",
+                      color: "#ffffff",
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Build mock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClearBasket}
+                    style={{
+                      borderRadius: 999,
+                      padding: "4px 10px",
+                      border: "1px solid hsl(220, 18%, 82%)",
+                      background: "#ffffff",
+                      color: "hsl(220, 15%, 42%)",
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>
 
         {/* Topic dropdown row (under hero) */}
-        <section style={{ marginTop: 24, marginBottom: 8 }}>
+        <section
+          style={{
+            marginTop: 18,
+            marginBottom: 16,
+            borderRadius: 14,
+            padding: 18,
+            background: "#ffffff",
+            border: "1px solid hsl(220, 18%, 90%)",
+            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -1325,94 +1140,54 @@ const HighlyProbableQuestions: React.FC = () => {
             <div style={{ flex: 1, minWidth: 260 }}>
               <h2
                 style={{
+                  fontFamily: "var(--font-display)",
                   fontSize: "1.25rem",
-                  fontWeight: 650,
-                  color: "var(--text)",
+                  fontWeight: 600,
+                  color: "hsl(220, 25%, 12%)",
+                  letterSpacing: "-0.01em",
                   marginBottom: 4,
                 }}
               >
-                Class {grade} {subjectKey} - Predicted Questions
+                Question stacks
               </h2>
               <p
                 style={{
                   fontSize: "0.8rem",
-                  color: "var(--text-muted)",
+                  color: "hsl(220, 15%, 42%)",
+                  lineHeight: 1.55,
                 }}
               >
-                Each card = one chapter. Inside you get a mini{" "}
-                <strong>predicted question stack</strong>: quick MCQs, ARs, short/long,
-                case-based - exactly the pattern that keeps repeating in boards.
+                {topicFilter === "all"
+                  ? "Showing all predicted questions across all topics."
+                  : `Showing predicted questions for ${topicFilter}.`}
               </p>
-
-              {/* NEW: mirrored mini stats snippet (TopicHub-style) */}
-              {chapterMetaForStats &&
-                totalAttemptsForStats > 0 && (
-                  <div
-                    style={{
-                      marginTop: 8,
-                      borderRadius: 16,
-                      padding: "8px 12px",
-                      background:
-                        "linear-gradient(90deg, rgba(88,204,2,0.94), rgba(28,176,246,0.9))",
-                      color: "var(--text-muted)",
-                      fontSize: "0.8rem",
-                      display: "flex",
-                      flexWrap: "wrap",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 600,
-                      }}
-                    >
-                      Your {chapterMetaForStats.name} stats:
-                    </span>
-
-                    <span>{totalAttemptsForStats} Q attempted</span>
-
-                    {typeof accuracyPercentForStats === "number" && (
-                      <span>{accuracyPercentForStats}% correct</span>
-                    )}
-
-                    {typeof matchScoreForStats === "number" &&
-                      matchLabelForStats && (
-                        <span>
-                          {matchLabelForStats} ({matchScoreForStats}%)
-                        </span>
-                      )}
-                  </div>
-                )}
-
-              <div
-                style={{
-                  marginTop: 8,
-                  borderRadius: 14,
-                  padding: "8px 12px",
-                  background: "var(--bg-card)",
-                  color: "var(--text)",
-                  fontSize: "0.78rem",
-                  display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>Bank health:</span>
-                <span>{bankHealthSummaryForSubject.okCoverageCount} topics covered</span>
-                <span>{bankHealthSummaryForSubject.lowCoverageCount} low coverage</span>
-                <span>{bankHealthSummaryForSubject.zeroCoverageCount} missing</span>
-              </div>
             </div>
 
-            <div style={{ minWidth: 260 }}>
+            <div style={{ minWidth: 260, display: "flex", flexDirection: "column", gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => setShowAdvancedFilters((prev) => !prev)}
+                style={{
+                  alignSelf: "flex-start",
+                  borderRadius: 999,
+                  padding: "6px 12px",
+                  border: "1px solid hsl(220, 18%, 90%)",
+                  background: showAdvancedFilters ? "hsl(152, 55%, 95%)" : "#ffffff",
+                  color: showAdvancedFilters ? "hsl(152, 55%, 28%)" : "hsl(220, 25%, 12%)",
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                {showAdvancedFilters ? "Hide filters" : "Refine predictions"}
+              </button>
               <label
                 style={{
                   display: "block",
                   fontSize: "0.78rem",
-                  color: "var(--text-muted)",
+                  color: "hsl(220, 15%, 42%)",
                   marginBottom: 4,
+                  fontWeight: 700,
                 }}
               >
                 Topic:
@@ -1431,13 +1206,15 @@ const HighlyProbableQuestions: React.FC = () => {
                 }}
                 style={{
                   width: "100%",
-                  borderRadius: 999,
-                  border: "1px solid var(--bg-card-border)",
+                  borderRadius: 10,
+                  border: "1px solid hsl(220, 18%, 90%)",
                   padding: "8px 14px",
                   fontSize: "0.85rem",
                   outline: "none",
-                  backgroundColor: "var(--bg-card)",
-                  boxShadow: "0 8px 18px var(--bg-card-border)",
+                  backgroundColor: "#ffffff",
+                  color: "hsl(220, 25%, 12%)",
+                  boxShadow: "none",
+                  margin: 0,
                 }}
               >
                 <option value="all">All topics</option>
@@ -1449,6 +1226,125 @@ const HighlyProbableQuestions: React.FC = () => {
               </select>
             </div>
           </div>
+
+          {showAdvancedFilters && (
+            <div
+              style={{
+                marginTop: 14,
+                paddingTop: 14,
+                borderTop: "1px solid hsl(220, 18%, 90%)",
+                display: "grid",
+                gap: 10,
+              }}
+            >
+              <FilterRow label="Priority">
+                {(
+                  [
+                    { id: "all", label: "All" },
+                    { id: "must-crack", label: "Must-crack" },
+                    { id: "high-roi", label: "High-ROI" },
+                    { id: "good-to-do", label: "Good-to-do" },
+                  ] as { id: TierFilter; label: string }[]
+                ).map((item) => {
+                  const active = tierFilter === item.id;
+                  return (
+                    <FilterChip
+                      key={item.id}
+                      active={active}
+                      onClick={() => setTierFilter(item.id)}
+                    >
+                      {item.label}
+                    </FilterChip>
+                  );
+                })}
+              </FilterRow>
+
+              <FilterRow label="Focus">
+                {(
+                  [
+                    { id: "all", label: "All" },
+                    { id: "competency", label: "Competency-heavy" },
+                  ] as { id: CompetencyFilter; label: string }[]
+                ).map((item) => {
+                  const active = competencyFilter === item.id;
+                  return (
+                    <FilterChip
+                      key={item.id}
+                      active={active}
+                      onClick={() => setCompetencyFilter(item.id)}
+                    >
+                      {item.label}
+                    </FilterChip>
+                  );
+                })}
+              </FilterRow>
+
+              <FilterRow label="Difficulty">
+                {(
+                  [
+                    { id: "all", label: "All" },
+                    { id: "Easy", label: "Easy" },
+                    { id: "Medium", label: "Medium" },
+                    { id: "Hard", label: "Hard" },
+                  ] as { id: DifficultyFilter; label: string }[]
+                ).map((item) => {
+                  const active = difficultyFilter === item.id;
+                  return (
+                    <FilterChip
+                      key={item.id}
+                      active={active}
+                      onClick={() => setDifficultyFilter(item.id)}
+                    >
+                      {item.label}
+                    </FilterChip>
+                  );
+                })}
+              </FilterRow>
+
+              {subjectKey === "Science" && (
+                <FilterRow label="Science stream">
+                  {(
+                    [
+                      { id: "all", label: "All" },
+                      { id: "Physics", label: "Physics" },
+                      { id: "Chemistry", label: "Chemistry" },
+                      { id: "Biology", label: "Biology" },
+                    ] as { id: StreamFilterKey; label: string }[]
+                  ).map((stream) => {
+                    const active = activeStream === stream.id;
+                    return (
+                      <FilterChip
+                        key={stream.id}
+                        active={active}
+                        onClick={() => handleStreamToggle(stream.id)}
+                      >
+                        {stream.label}
+                      </FilterChip>
+                    );
+                  })}
+                </FilterRow>
+              )}
+
+              <div>
+                <button
+                  type="button"
+                  onClick={handleClearAllFilters}
+                  style={{
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    border: "1px dashed hsl(220, 18%, 82%)",
+                    background: "#ffffff",
+                    color: "hsl(220, 15%, 42%)",
+                    cursor: "pointer",
+                    fontSize: "0.76rem",
+                    fontWeight: 700,
+                  }}
+                >
+                  Clear filters
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* HPQ topic list */}
@@ -1456,12 +1352,15 @@ const HighlyProbableQuestions: React.FC = () => {
           <p
             style={{
               fontSize: "0.82rem",
-              color: "var(--text-muted)",
-              padding: "8px 4px",
+              color: "hsl(220, 15%, 42%)",
+              padding: "18px",
+              background: "#ffffff",
+              border: "1px solid hsl(220, 18%, 90%)",
+              borderRadius: 14,
             }}
           >
             Nothing visible with the current filters. Try switching back to{" "}
-            <strong>All tiers / All levels / All streams / All topics</strong>{" "}
+            <strong>All priority / All difficulty / All streams / All topics</strong>{" "}
             or just click{" "}
             <button
               type="button"
@@ -1497,6 +1396,14 @@ const HighlyProbableQuestions: React.FC = () => {
                   (sum, q) => sum + (q.marks ?? 0),
                   0
                 );
+                const competencyQuestionCount =
+                  bucket.questions.filter(isCompetencyQuestion).length;
+                const stackBlurb =
+                  tier === "must-crack"
+                    ? "High-priority predicted stack for 2027 board revision."
+                    : tier === "high-roi"
+                      ? "High-value predicted stack for focused 2027 revision."
+                      : "Useful predicted stack for completing topic coverage.";
                 const isScience =
                   (bucket.subject ?? subjectKey) === "Science";
                 const streamLabel =
@@ -1504,26 +1411,19 @@ const HighlyProbableQuestions: React.FC = () => {
                 const expanded =
                   expandedTopics[bucket.topic] ??
                   (topicFilter !== "all" ? true : index === 0);
+                const stackInBasket =
+                  bucket.questions.length > 0 &&
+                  bucket.questions.every((q) => isInBasket(q.id));
 
                 return (
                   <div
                     key={`${bucket.topic}-${bucket.subject ?? subjectKey}`}
                     style={{
-                      borderRadius: 22,
-                      padding: "16px 18px 12px",
-                      backgroundColor: "var(--bg-card)",
-                      border:
-                        tier === "must-crack"
-                          ? "1px solid rgba(255,75,75,0.6)"
-                          : tier === "high-roi"
-                          ? "1px solid rgba(28,176,246,0.5)"
-                          : "1px solid var(--bg-card)",
-                      boxShadow:
-                        tier === "must-crack"
-                          ? "0 14px 30px rgba(255,75,75,0.2)"
-                          : tier === "high-roi"
-                          ? "0 14px 30px rgba(28,176,246,0.25)"
-                          : "0 10px 24px var(--bg-card)",
+                      borderRadius: 14,
+                      padding: "20px",
+                      backgroundColor: "#ffffff",
+                      border: "1px solid hsl(220, 18%, 90%)",
+                      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
                     }}
                   >
                     {/* Header row */}
@@ -1532,23 +1432,27 @@ const HighlyProbableQuestions: React.FC = () => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
+                        flexWrap: "wrap",
                         gap: 14,
                       }}
                     >
-                      <div style={{ flex: 1 }}>
+                      <div style={{ flex: "1 1 520px", minWidth: 0 }}>
                         <div
                           style={{
                             display: "flex",
                             alignItems: "center",
+                            flexWrap: "wrap",
                             gap: 8,
-                            marginBottom: 4,
+                            marginBottom: 8,
                           }}
                         >
                           <h3
                             style={{
-                              fontSize: "1rem",
-                              fontWeight: 650,
-                              color: "var(--text)",
+                              fontFamily: "var(--font-display)",
+                              fontSize: "1.12rem",
+                              fontWeight: 600,
+                              color: "hsl(220, 25%, 12%)",
+                              margin: 0,
                             }}
                           >
                             {bucket.topic}
@@ -1563,21 +1467,53 @@ const HighlyProbableQuestions: React.FC = () => {
                               fontSize: "0.75rem",
                               backgroundColor:
                                 tier === "must-crack"
-                                  ? "rgba(239,68,68,0.15)"
+                                  ? "hsl(0, 80%, 96%)"
                                   : tier === "high-roi"
-                                  ? "rgba(99,102,241,0.15)"
-                                  : "#e0f2fe",
+                                  ? "hsl(215, 75%, 95%)"
+                                  : "hsl(210, 33%, 96%)",
                               color:
                                 tier === "must-crack"
-                                  ? "#b91c1c"
+                                  ? "hsl(0, 65%, 42%)"
                                   : tier === "high-roi"
-                                  ? "#3730a3"
-                                  : "#0369a1",
+                                  ? "hsl(215, 65%, 32%)"
+                                  : "hsl(220, 15%, 42%)",
+                              border: "1px solid hsl(220, 18%, 90%)",
+                              fontWeight: 700,
                             }}
                           >
-                            <span>{tMeta.emoji}</span>
                             <span>{tMeta.label}</span>
                           </span>
+
+                          <span
+                            style={{
+                              borderRadius: 999,
+                              padding: "4px 10px",
+                              fontSize: "0.75rem",
+                              backgroundColor: "hsl(210, 33%, 96%)",
+                              border: "1px solid hsl(220, 18%, 90%)",
+                              color: "hsl(220, 15%, 42%)",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {totalQuestions} Q - {totalMarks} marks
+                          </span>
+
+                          {competencyQuestionCount > 0 && (
+                            <span
+                              style={{
+                                borderRadius: 999,
+                                padding: "4px 10px",
+                                fontSize: "0.75rem",
+                                backgroundColor: "hsl(43, 90%, 94%)",
+                                border: "1px solid hsl(38, 75%, 78%)",
+                                color: "hsl(35, 80%, 35%)",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {competencyQuestionCount} competency Q
+                              {competencyQuestionCount === 1 ? "" : "s"}
+                            </span>
+                          )}
 
                           <button
                             type="button"
@@ -1590,12 +1526,13 @@ const HighlyProbableQuestions: React.FC = () => {
                             style={{
                               marginLeft: 8,
                               borderRadius: 999,
-                              border: "none",
-                              padding: "2px 8px",
+                              border: "1px solid hsl(220, 18%, 90%)",
+                              padding: "4px 10px",
                               fontSize: "0.75rem",
                               cursor: "pointer",
-                              backgroundColor: "var(--bg-card)",
-                              color: "var(--text)",
+                              backgroundColor: "hsl(210, 33%, 96%)",
+                              color: "hsl(220, 25%, 12%)",
+                              fontWeight: 700,
                             }}
                             aria-label={expanded ? "Collapse chapter" : "Expand chapter"}
                           >
@@ -1607,9 +1544,10 @@ const HighlyProbableQuestions: React.FC = () => {
                                 borderRadius: 999,
                                 padding: "3px 9px",
                                 fontSize: "0.7rem",
-                                backgroundColor: "#ecfeff",
-                                border: "1px solid rgba(28,176,246,0.4)",
-                                color: "#0369a1",
+                                backgroundColor: "hsl(215, 75%, 95%)",
+                                border: "1px solid hsl(215, 65%, 84%)",
+                                color: "hsl(215, 65%, 32%)",
+                                fontWeight: 700,
                               }}
                             >
                               {streamLabel}
@@ -1620,14 +1558,16 @@ const HighlyProbableQuestions: React.FC = () => {
                         <p
                           style={{
                             fontSize: "0.83rem",
-                            color: "var(--text-muted)",
-                            marginBottom: 4,
+                            color: "hsl(220, 15%, 42%)",
+                            margin: "0 0 8px",
+                            lineHeight: 1.55,
+                            maxWidth: 760,
                           }}
                         >
-                          {tMeta.blurb} - This stack has{" "}
-                          <strong>{totalQuestions} Q</strong> (~
-                          {totalMarks} marks) in board-style formats
-                          (MCQs/AR/short/case-based).
+                          {stackBlurb}
+                          {competencyQuestionCount > 0
+                            ? ` Includes ${competencyQuestionCount} competency-style question${competencyQuestionCount === 1 ? "" : "s"}.`
+                            : ""}
                         </p>
                         <div
                           style={{
@@ -1642,18 +1582,22 @@ const HighlyProbableQuestions: React.FC = () => {
                             onClick={() =>
                               handleAddTopicStackToBasket(bucket)
                             }
+                            disabled={stackInBasket}
                             style={{
                               borderRadius: 999,
-                              padding: "4px 10px",
+                              padding: "6px 11px",
                               border:
-                                "1px solid rgba(88,204,2,0.5)",
-                              background: "rgba(88,204,2,0.1)",
+                                "1px solid hsl(152, 55%, 45%)",
+                              background: stackInBasket
+                                ? "hsl(152, 55%, 95%)"
+                                : "hsl(152, 55%, 45%)",
                               fontSize: "0.75rem",
-                              color: "#22c55e",
-                              cursor: "pointer",
+                              color: stackInBasket ? "hsl(152, 55%, 28%)" : "#ffffff",
+                              cursor: stackInBasket ? "default" : "pointer",
+                              fontWeight: 700,
                             }}
                           >
-                            Add full stack to mock
+                            {stackInBasket ? "Stack in mock" : "Add stack to mock"}
                           </button>
 
                           <button
@@ -1663,52 +1607,20 @@ const HighlyProbableQuestions: React.FC = () => {
                             }
                             style={{
                               borderRadius: 999,
-                              padding: "4px 10px",
+                              padding: "6px 11px",
                               border:
-                                "1px solid var(--bg-card)",
-                              background: "var(--bg-card)",
+                                "1px solid hsl(220, 18%, 90%)",
+                              background: "#ffffff",
                               fontSize: "0.75rem",
-                              color: "var(--text-muted)",
+                              color: "hsl(220, 25%, 12%)",
                               cursor: "pointer",
+                              fontWeight: 700,
                             }}
                           >
-                            Revise full topic in Chapter Hub
+                            Revise topic
                           </button>
                         </div>
 
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: "0.78rem",
-                          color: "var(--text-muted)",
-                          textAlign: "right",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        Subject:{" "}
-                        <span
-                          style={{
-                            fontWeight: 600,
-                            color: "var(--text)",
-                          }}
-                        >
-                          {bucket.subject ?? subjectKey}
-                        </span>
-                        {isScience && streamLabel && (
-                          <>
-                            <br />
-                            Stream:{" "}
-                            <span
-                              style={{
-                                fontWeight: 600,
-                                color: "var(--text)",
-                              }}
-                            >
-                              {streamLabel}
-                            </span>
-                          </>
-                        )}
                       </div>
                     </div>
 
@@ -1717,34 +1629,46 @@ const HighlyProbableQuestions: React.FC = () => {
                       <div
                         style={{
                           marginTop: 10,
-                          paddingTop: 8,
-                          borderTop: "1px dashed var(--bg-card-border)",
+                          paddingTop: 12,
+                          borderTop: "1px solid hsl(220, 18%, 90%)",
                           display: "flex",
                           flexDirection: "column",
-                          gap: 8,
+                          gap: 10,
                         }}
                       >
                         {bucket.questions.map((q) => {
-                        const feedback = hpqFeedback[q.id];
+                        const questionOptions = getQuestionOptions(q);
+                        const correctOptionLabel = getCorrectOptionLabel(q, questionOptions);
+                        const selectedOption = selectedOptions[q.id];
+                        const hasOptions = questionOptions.length > 0;
+                        const isObjective = isObjectiveQuestion(q, questionOptions);
+                        const canCheckAnswer = !isObjective;
+                        const solution = solutionData[q.id];
+                        const visibleSolutionSteps = getVisibleSolutionSteps(
+                          solution,
+                          q,
+                          correctOptionLabel,
+                          isObjective
+                        );
                         return (
                         <div
                           key={q.id}
                           style={{
-                            borderRadius: 16,
-                            padding: "8px 10px",
-                            backgroundColor:
-                              "var(--bg-card)",
-                            border:
-                              "1px solid var(--bg-card)",
+                            borderRadius: 12,
+                            padding: "16px",
+                            backgroundColor: "#ffffff",
+                            border: "1px solid hsl(220, 18%, 90%)",
+                            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.03)",
                           }}
                         >
                           {renderQuestionMetaChips(q)}
                           <div
                             style={{
-                              fontSize: "0.85rem",
-                              color: "var(--text)",
-                              marginBottom: 4,
-                              lineHeight: 1.35,
+                              fontSize: "0.95rem",
+                              color: "hsl(220, 25%, 12%)",
+                              marginBottom: 8,
+                              lineHeight: 1.6,
+                              fontWeight: 500,
                             }}
                           >
                             {/*
@@ -1757,7 +1681,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             (q as any).type === "AssertionReason" ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                 <div style={{ fontWeight: 600 }}>
-                                  <MathText text={q.question || "Assertion-Reason: refer to assertion and reason below."} />
+                                  <MathText text={q.question || "Assertion–Reason: refer to assertion and reason below."} />
                                 </div>
                                 {q.assertion && (
                                   <div>
@@ -1769,42 +1693,9 @@ const HighlyProbableQuestions: React.FC = () => {
                                     <strong>Reason:</strong> <MathText text={q.reason} />
                                   </div>
                                 )}
-                                {/* Render AR options if present */}
-                                {(q as any).aROptions?.length ? (
-                                  <div style={{ marginTop: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-                                    {(q as any).aROptions.map((opt: any) => (
-                                      <div key={opt.label} style={{ fontSize: "0.8rem", color: "var(--text)" }}>
-                                        <strong>{opt.label}.</strong> {opt.text}
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : null}
                               </div>
                             ) : (
                               <MathText text={q.question} />
-                            )}
-
-                            {Array.isArray((q as any).options) && (q as any).options.length > 0 && !(q as any).aROptions?.length && (
-                              <div style={{ marginTop: 6, paddingLeft: 4 }}>
-                                {((q as any).options as string[]).map((opt: string, oi: number) => (
-                                  <div
-                                    key={oi}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "baseline",
-                                      gap: 8,
-                                      padding: "3px 0",
-                                      fontSize: "0.84rem",
-                                      color: "var(--text)",
-                                    }}
-                                  >
-                                    <span style={{ fontWeight: 600, color: "var(--text-muted)", minWidth: 20 }}>
-                                      {String.fromCharCode(65 + oi)}.
-                                    </span>
-                                    <MathText text={opt} />
-                                  </div>
-                                ))}
-                              </div>
                             )}
                           </div>
                           <QuestionVisualAid
@@ -1814,175 +1705,182 @@ const HighlyProbableQuestions: React.FC = () => {
                             kind={q.type}
                             marks={q.marks}
                           />
-                          {(q.confidenceBand || q.confidenceRationale) && (
+                          {hasOptions && (
                             <div
                               style={{
-                                marginTop: 6,
-                                marginBottom: 6,
-                                padding: "6px 8px",
-                                borderRadius: 8,
-                                border: "1px solid var(--bg-card-border)",
-                                background: "var(--bg-card)",
-                                fontSize: "0.75rem",
-                                color: "var(--text)",
+                                marginTop: 10,
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                                gap: 8,
                               }}
-                              title={q.confidenceRationale || ""}
                             >
-                              <strong style={{ textTransform: "capitalize" }}>
-                                Likelihood: {q.confidenceBand || "medium"}
-                              </strong>
-                              {q.confidenceScore != null && (
-                                <span> (~{Math.round(q.confidenceScore * 100)}%)</span>
-                              )}
-                              {q.confidenceRationale ? (
-                                <div style={{ marginTop: 2 }}>{q.confidenceRationale}</div>
-                              ) : null}
-                              <div style={{ marginTop: 2, fontSize: "0.68rem", color: "var(--text-muted)", fontStyle: "italic" }}>
-                                Based on pattern analysis — not a guarantee
-                              </div>
+                              {questionOptions.map((opt) => {
+                                const isSelected = selectedOption === opt.label;
+                                const isCorrect = correctOptionLabel === opt.label;
+                                const showCorrect = Boolean(selectedOption && isCorrect);
+                                const showWrong = Boolean(correctOptionLabel && selectedOption && isSelected && !isCorrect);
+                                return (
+                                  <button
+                                    key={opt.label}
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedOptions((prev) => ({
+                                        ...prev,
+                                        [q.id]: opt.label,
+                                      }))
+                                    }
+                                    style={{
+                                      minHeight: 42,
+                                      display: "flex",
+                                      alignItems: "flex-start",
+                                      gap: 10,
+                                      textAlign: "left",
+                                      borderRadius: 10,
+                                      border: showCorrect
+                                        ? "1px solid hsl(152, 55%, 45%)"
+                                        : showWrong
+                                          ? "1px solid hsl(0, 70%, 50%)"
+                                          : isSelected
+                                            ? "1px solid hsl(220, 25%, 12%)"
+                                            : "1px solid hsl(220, 18%, 90%)",
+                                      background: showCorrect
+                                        ? "hsl(152, 55%, 95%)"
+                                        : showWrong
+                                          ? "hsl(0, 80%, 96%)"
+                                          : "#ffffff",
+                                      color: "hsl(220, 25%, 12%)",
+                                      padding: "9px 11px",
+                                      cursor: "pointer",
+                                      fontSize: "0.82rem",
+                                      lineHeight: 1.45,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        minWidth: 24,
+                                        height: 24,
+                                        borderRadius: 999,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        background: showCorrect
+                                          ? "hsl(152, 55%, 45%)"
+                                          : showWrong
+                                            ? "hsl(0, 70%, 50%)"
+                                            : "hsl(210, 33%, 96%)",
+                                        color: showCorrect || showWrong ? "#ffffff" : "hsl(220, 15%, 42%)",
+                                        fontWeight: 800,
+                                        fontSize: "0.72rem",
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      {opt.label}
+                                    </span>
+                                    <span style={{ minWidth: 0 }}>
+                                      <MathText text={opt.text} />
+                                    </span>
+                                  </button>
+                                );
+                              })}
                             </div>
                           )}
-
-                          {q.answer && (
+                          {selectedOption && hasOptions && (
                             <div
                               style={{
+                                marginTop: 8,
                                 fontSize: "0.8rem",
-                                color: "var(--text-muted)",
-                                marginTop: 2,
+                                fontWeight: 700,
+                                color:
+                                  selectedOption === correctOptionLabel
+                                    ? "hsl(152, 55%, 30%)"
+                                    : "hsl(0, 70%, 42%)",
                               }}
                             >
-                              <span style={{ fontWeight: 500 }}>Ans:</span>{" "}
-                              {q.answer}
+                              {selectedOption === correctOptionLabel
+                                ? "Correct"
+                                : correctOptionLabel
+                                  ? `Correct answer: ${correctOptionLabel}`
+                                  : "Show logic to review the answer"}
                             </div>
                           )}
-
-                          {q.pastBoardYear && (
-                            <div
-                              style={{
-                                fontSize: "0.7rem",
-                                color: "var(--text-muted)",
-                                marginTop: 2,
-                              }}
-                            >
-                              Pattern seen in:{" "}
-                              <strong>{q.pastBoardYear}</strong>
-                            </div>
-                          )}
-
-                          {/* Smart Learning quick-feedback row */}
                           <div
                             style={{
-                              marginTop: 6,
+                              marginTop: 12,
+                              paddingTop: 12,
+                              borderTop: "1px solid hsl(220, 18%, 90%)",
                               display: "flex",
                               flexWrap: "wrap",
-                              gap: 6,
-                              alignItems: "center",
+                              gap: 10,
+                              alignItems: "flex-start",
                               justifyContent: "space-between",
                             }}
                           >
                             <div
                               style={{
                                 display: "flex",
-                                flexWrap: "wrap",
-                                gap: 6,
-                                fontSize: "0.75rem",
-                                color: "var(--text-muted)",
-                              }}
-                            >
-                              <span>How did this feel?</span>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleMarkHpqAttempt(bucket, q, true)
-                                }
-                                style={{
-                                  borderRadius: 999,
-                                  padding: "3px 9px",
-                                  border:
-                                    feedback === "correct"
-                                      ? "1px solid #16a34a"
-                                      : "1px solid rgba(88,204,2,0.5)",
-                                  backgroundColor:
-                                    feedback === "correct"
-                                      ? "#16a34a"
-                                      : "#ecfdf3",
-                                  fontSize: "0.75rem",
-                                  color:
-                                    feedback === "correct"
-                                      ? "#ecfdf3"
-                                      : "#166534",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                I got this right
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleMarkHpqAttempt(bucket, q, false)
-                                }
-                                style={{
-                                  borderRadius: 999,
-                                  padding: "3px 9px",
-                                  border:
-                                    feedback === "incorrect"
-                                      ? "1px solid #ea580c"
-                                      : "1px solid rgba(255,150,0,0.6)",
-                                  backgroundColor:
-                                    feedback === "incorrect"
-                                      ? "#ea580c"
-                                      : "rgba(245,158,11,0.08)",
-                                  fontSize: "0.75rem",
-                                  color:
-                                    feedback === "incorrect"
-                                      ? "#f59e0b"
-                                      : "#f59e0b",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                I need more practice
-                              </button>
-                            </div>
-
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                gap: 6,
+                                justifyContent: "space-between",
+                                gap: 8,
                                 flexWrap: "wrap",
                                 alignItems: "center",
+                                width: "100%",
                               }}
                             >
+                               {canCheckAnswer && (
+                                 <button
+                                   type="button"
+                                  onClick={() => handleToggleAnswerCheck(q.id)}
+                                  style={{
+                                    borderRadius: 8,
+                                    border: "1px solid hsl(152, 55%, 45%)",
+                                    padding: "8px 14px",
+                                    fontSize: "0.78rem",
+                                    background: answerCheckOpen[q.id]
+                                      ? "hsl(152, 55%, 95%)"
+                                      : "hsl(152, 55%, 45%)",
+                                    color: answerCheckOpen[q.id] ? "hsl(152, 55%, 28%)" : "#ffffff",
+                                    cursor: "pointer",
+                                    fontWeight: 800,
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {answerCheckOpen[q.id] ? "Hide check" : "Check my answer"}
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleInlineSolution(bucket, q, "solve")}
                                 style={{
-                                  borderRadius: 999,
-                                  border: solutionOpen[q.id]
-                                    ? "1px solid #1cb0f6"
-                                    : "1px solid rgba(28,176,246,0.5)",
-                                  padding: "4px 10px",
-                                  fontSize: "0.75rem",
+                                  borderRadius: 8,
+                                  border: "1px solid hsl(220, 18%, 82%)",
+                                  padding: "8px 12px",
+                                  fontSize: "0.78rem",
                                   background: solutionOpen[q.id]
-                                    ? "rgba(59,130,246,0.1)"
-                                    : "rgba(59,130,246,0.08)",
-                                  color: "#1cb0f6",
+                                    ? "hsl(152, 55%, 95%)"
+                                    : "#ffffff",
+                                  color: solutionOpen[q.id] ? "hsl(152, 55%, 28%)" : "hsl(220, 25%, 12%)",
                                   cursor: "pointer",
-                                  fontWeight: solutionOpen[q.id] ? 600 : 400,
+                                  fontWeight: 700,
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {solutionOpen[q.id] ? "Hide Solution" : "Step-by-Step Solution"}
+                                {solutionOpen[q.id]
+                                  ? isObjective
+                                    ? "Hide logic"
+                                    : "Hide steps"
+                                  : isObjective
+                                    ? "Show logic"
+                                    : "Show steps"}
                               </button>
                               <button
                                 onClick={() => handleMoreLikeThisPractice(bucket, q)}
                                 style={{
-                                  borderRadius: 999,
-                                  border: "1px solid rgba(28,176,246,0.5)",
-                                  padding: "4px 10px",
-                                  fontSize: "0.75rem",
-                                  background: "rgba(28,176,246,0.06)",
-                                  color: "#1cb0f6",
+                                  borderRadius: 8,
+                                  border: "1px solid hsl(220, 18%, 82%)",
+                                  padding: "8px 12px",
+                                  fontSize: "0.78rem",
+                                  background: "#ffffff",
+                                  color: "hsl(220, 25%, 12%)",
                                   cursor: "pointer",
+                                  fontWeight: 700,
                                   whiteSpace: "nowrap",
                                 }}
                               >
@@ -1996,33 +1894,54 @@ const HighlyProbableQuestions: React.FC = () => {
                                 }}
                                 disabled={isInBasket(q.id)}
                                 style={{
-                                  borderRadius: 999,
+                                  borderRadius: 8,
                                   border: isInBasket(q.id)
-                                    ? "1px solid rgba(88,204,2,0.8)"
-                                    : "1px solid var(--bg-card)",
-                                  padding: "4px 10px",
-                                  fontSize: "0.75rem",
+                                    ? "1px solid hsl(152, 55%, 45%)"
+                                    : "1px solid hsl(220, 18%, 82%)",
+                                  padding: "8px 12px",
+                                  fontSize: "0.78rem",
                                   background: isInBasket(q.id)
-                                    ? "rgba(88,204,2,0.06)"
-                                    : "var(--bg-card)",
-                                  color: isInBasket(q.id) ? "#818cf8" : "var(--text)",
+                                    ? "hsl(152, 55%, 95%)"
+                                    : "#ffffff",
+                                  color: isInBasket(q.id) ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
                                   cursor: isInBasket(q.id) ? "default" : "pointer",
-                                  opacity: isInBasket(q.id) ? 0.95 : 1,
+                                  opacity: isInBasket(q.id) ? 0.95 : 0.9,
+                                  fontWeight: 600,
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {isInBasket(q.id) ? "Added to mock" : "Add to mock"}
+                                {isInBasket(q.id) ? "In mock" : "Add to mock"}
                               </button>
                             </div>
+
+                            {answerCheckOpen[q.id] && canCheckAnswer && (
+                              <div
+                                style={{
+                                  width: "100%",
+                                  marginTop: 10,
+                                }}
+                              >
+                                <SolutionChecker
+                                  question={q.question}
+                                  marks={q.marks ?? 0}
+                                  subject={bucket.subject ?? subjectKey}
+                                  topic={bucket.topic}
+                                  questionId={q.id ? String(q.id) : undefined}
+                                  solutionSteps={q.solutionSteps}
+                                  finalAnswer={q.finalAnswer}
+                                />
+                              </div>
+                            )}
 
                             {solutionOpen[q.id] && (
                               <div
                                 style={{
                                   marginTop: 10,
+                                  width: "100%",
                                   padding: "14px 16px",
-                                  border: "1px solid rgba(28,176,246,0.5)",
-                                  borderRadius: 10,
-                                  background: "linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%)",
+                                  border: "1px solid hsl(215, 65%, 84%)",
+                                  borderRadius: 12,
+                                  background: "hsl(215, 75%, 97%)",
                                 }}
                               >
                                 <div
@@ -2037,13 +1956,13 @@ const HighlyProbableQuestions: React.FC = () => {
                                     style={{
                                       fontSize: "0.85rem",
                                       fontWeight: 700,
-                                      color: "var(--color-light-blue)",
+                                      color: "hsl(215, 65%, 32%)",
                                     }}
                                   >
-                                    Step-by-Step Solution
-                                    {solutionData[q.id] && (
+                                    {isObjective ? "Solution logic" : "Solution steps"}
+                                    {solution && !isObjective && (
                                       <span style={{ fontWeight: 400, color: "var(--text-muted)", marginLeft: 8 }}>
-                                        ({solutionData[q.id].totalMarks} marks)
+                                        ({solution.totalMarks} marks)
                                       </span>
                                     )}
                                   </span>
@@ -2070,37 +1989,53 @@ const HighlyProbableQuestions: React.FC = () => {
 
                                 {solutionLoading[q.id] && (
                                   <div style={{ fontSize: "0.82rem", color: "#1cb0f6", padding: "8px 0" }}>
-                                    Loading step-by-step solution...
+                                    {isObjective ? "Loading solution logic..." : "Loading step-by-step solution..."}
                                   </div>
                                 )}
 
                                 {solutionError[q.id] && (
                                   <div style={{ fontSize: "0.82rem", color: "#ef4444", padding: "8px 0" }}>
-                                    {solutionError[q.id]}
+                                    {getSolutionUnavailableCopy(isObjective)}
                                   </div>
                                 )}
 
-                                {solutionData[q.id] && (
+                                {solution && (
                                   <div>
-                                    {solutionData[q.id].steps.map((step) => (
+                                    {isObjective && visibleSolutionSteps.length === 0 && (
                                       <div
-                                        key={step.stepNumber}
                                         style={{
-                                          display: "flex",
-                                          gap: 10,
                                           marginBottom: 8,
-                                          padding: "8px 10px",
-                                          background: "var(--bg-card)",
-                                          borderRadius: 8,
-                                          border: "1px solid var(--bg-card-border)",
+                                          padding: "10px 12px",
+                                          background: "#ffffff",
+                                          borderRadius: 10,
+                                          border: "1px solid hsl(220, 18%, 90%)",
+                                          fontSize: "0.78rem",
+                                          color: "hsl(220, 15%, 42%)",
+                                          lineHeight: 1.5,
                                         }}
+                                      >
+                                        Correct answer shown above. Use Revise topic for the concept explanation.
+                                      </div>
+                                    )}
+                                    {visibleSolutionSteps.map((step, index) => (
+                                      <div
+                                        key={`${step.stepNumber}-${index}`}
+                                        style={{
+                                            display: "flex",
+                                            gap: 10,
+                                            marginBottom: 8,
+                                            padding: "10px 12px",
+                                            background: "#ffffff",
+                                            borderRadius: 10,
+                                            border: "1px solid hsl(220, 18%, 90%)",
+                                          }}
                                       >
                                         <div
                                           style={{
                                             minWidth: 28,
                                             height: 28,
-                                            borderRadius: "50%",
-                                            background: "#1e40af",
+                                            borderRadius: 8,
+                                            background: "hsl(152, 55%, 45%)",
                                             color: "#ffffff",
                                             display: "flex",
                                             alignItems: "center",
@@ -2110,73 +2045,87 @@ const HighlyProbableQuestions: React.FC = () => {
                                             flexShrink: 0,
                                           }}
                                         >
-                                          {step.stepNumber}
+                                          {index + 1}
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                          <div
-                                            style={{
-                                              fontSize: "0.8rem",
-                                              fontWeight: 600,
-                                              color: "var(--text)",
-                                              marginBottom: 2,
-                                            }}
-                                          >
-                                            <MathText text={step.description} />
-                                            <span
+                                          {isObjective ? (
+                                            <div
                                               style={{
-                                                marginLeft: 8,
-                                                fontSize: "0.7rem",
-                                                fontWeight: 700,
-                                                color: step.marks === 0 ? "var(--text-muted)" : "var(--color-light-blue)",
-                                                background: step.marks === 0 ? "var(--bg-card)" : "#dbeafe",
-                                                borderRadius: 999,
-                                                padding: "1px 7px",
+                                                fontSize: "0.78rem",
+                                                color: "hsl(220, 15%, 42%)",
+                                                lineHeight: 1.5,
                                               }}
                                             >
-                                              {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
-                                            </span>
-                                          </div>
-                                          <div
-                                            style={{
-                                              fontSize: "0.78rem",
-                                              color: "var(--text-muted)",
-                                              lineHeight: 1.5,
-                                            }}
-                                          >
-                                            <MathText text={step.working} />
-                                          </div>
+                                              <MathText text={step.working} />
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <div
+                                                style={{
+                                                  fontSize: "0.8rem",
+                                                  fontWeight: 700,
+                                                  color: "hsl(220, 25%, 12%)",
+                                                  marginBottom: 2,
+                                                }}
+                                              >
+                                                <MathText text={step.description} />
+                                                <span
+                                                  style={{
+                                                    marginLeft: 8,
+                                                    fontSize: "0.7rem",
+                                                    fontWeight: 700,
+                                                    color: step.marks === 0 ? "hsl(220, 15%, 42%)" : "hsl(215, 65%, 32%)",
+                                                    background: step.marks === 0 ? "hsl(210, 33%, 96%)" : "hsl(215, 75%, 95%)",
+                                                    borderRadius: 999,
+                                                    padding: "1px 7px",
+                                                  }}
+                                                >
+                                                  {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "1/2 mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)} 1/2 marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
+                                                </span>
+                                              </div>
+                                              <div
+                                                style={{
+                                                  fontSize: "0.78rem",
+                                                  color: "hsl(220, 15%, 42%)",
+                                                  lineHeight: 1.5,
+                                                }}
+                                              >
+                                                <MathText text={step.working} />
+                                              </div>
+                                            </>
+                                          )}
                                         </div>
                                       </div>
                                     ))}
 
-                                    {solutionData[q.id].commonMistakes &&
-                                      solutionData[q.id].commonMistakes!.length > 0 && (
+                                    {!isObjective && solution.commonMistakes &&
+                                      solution.commonMistakes.length > 0 && (
                                         <div
                                           style={{
                                             marginTop: 8,
                                             padding: "8px 10px",
-                                            background: "rgba(239,68,68,0.08)",
-                                            borderRadius: 8,
-                                            border: "1px solid rgba(239,68,68,0.2)",
+                                            background: "#ffffff",
+                                            borderRadius: 10,
+                                            border: "1px solid hsl(220, 18%, 90%)",
                                           }}
                                         >
                                           <div
                                             style={{
                                               fontSize: "0.75rem",
                                               fontWeight: 700,
-                                              color: "#991b1b",
+                                              color: "hsl(220, 15%, 42%)",
                                               marginBottom: 4,
                                             }}
                                           >
-                                            Common Mistakes
+                                            Examiner notes
                                           </div>
-                                          {solutionData[q.id].commonMistakes!.map(
+                                          {solution.commonMistakes.map(
                                             (m, i) => (
                                               <div
                                                 key={i}
                                                 style={{
                                                   fontSize: "0.75rem",
-                                                  color: "#7f1d1d",
+                                                  color: "hsl(220, 15%, 42%)",
                                                   marginBottom: 2,
                                                 }}
                                               >
@@ -2187,54 +2136,40 @@ const HighlyProbableQuestions: React.FC = () => {
                                         </div>
                                       )}
 
-                                    {solutionData[q.id].examTip && (
+                                    {!isObjective && solution.examTip && (
                                       <div
                                         style={{
                                           marginTop: 8,
                                           padding: "8px 10px",
-                                          background: "rgba(34,197,94,0.08)",
-                                          borderRadius: 8,
-                                          border: "1px solid rgba(34,197,94,0.2)",
+                                          background: "#ffffff",
+                                          borderRadius: 10,
+                                          border: "1px solid hsl(220, 18%, 90%)",
                                           fontSize: "0.75rem",
-                                          color: "#22c55e",
+                                          color: "hsl(220, 15%, 42%)",
                                         }}
                                       >
-                                        <strong>Exam Tip:</strong>{" "}
-                                        {solutionData[q.id].examTip}
+                                        <strong>Marking note:</strong>{" "}
+                                        {solution.examTip}
                                       </div>
                                     )}
 
                                     <button
-                                      onClick={() => openConceptDrawer(bucket, q)}
+                                      onClick={() => handleOpenTopicHubFromBucket(bucket)}
                                       style={{
-                                        marginTop: 12,
-                                        width: "100%",
-                                        padding: "10px 14px",
-                                        borderRadius: 10,
-                                        border: "1px solid rgba(206,130,255,0.3)",
-                                        background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.08))",
-                                        color: "#6d28d9",
-                                        fontSize: "0.82rem",
-                                        fontWeight: 600,
+                                        marginTop: 10,
+                                        padding: 0,
+                                        border: "none",
+                                        background: "transparent",
+                                        color: "hsl(215, 65%, 32%)",
+                                        fontSize: "0.78rem",
+                                        fontWeight: 700,
                                         cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: 8,
+                                        textDecoration: "underline",
+                                        textUnderlineOffset: 3,
                                       }}
                                     >
-                                      <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
-                                      Teach me this concept
+                                      Revise this topic in Topic Hub
                                     </button>
-                                    <SolutionChecker
-                                      question={q.question}
-                                      marks={q.marks ?? 0}
-                                      subject={bucket.subject ?? subjectKey}
-                                      topic={bucket.topic}
-                                      questionId={q.id ? String(q.id) : undefined}
-                                      solutionSteps={q.solutionSteps}
-                                      finalAnswer={q.finalAnswer}
-                                    />
                                   </div>
                                 )}
                               </div>
@@ -2253,16 +2188,6 @@ const HighlyProbableQuestions: React.FC = () => {
           </section>
         )}
       </div>
-
-      {conceptDrawerContext && (
-        <Suspense fallback={null}>
-          <ConceptTeachDrawer
-            open={conceptDrawerOpen}
-            onClose={() => setConceptDrawerOpen(false)}
-            context={conceptDrawerContext}
-          />
-        </Suspense>
-      )}
     </div>
   );
 };

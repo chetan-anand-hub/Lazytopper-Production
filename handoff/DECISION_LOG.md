@@ -1,3 +1,76 @@
+## 2026-05-08T18:33:03Z - Manual authenticated QA may substitute for Browser Agent when HPQ preview is gated
+
+Decision:
+Manual authenticated QA may substitute for Browser Agent when the premium/trial gate blocks HPQ preview and Browser Agent cannot complete magic-link email authentication.
+
+Details:
+- Browser Agent saw the Premium Feature interstitial for HPQ / Exam Trends in guest state.
+- Browser Agent cannot access the user's authenticated trial session or magic-link inbox.
+- Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+- Manual QA must include screenshots or explicit QA evidence and be recorded in handoff.
+- This substitution does not remove the need for final GPT GitHub diff audit.
+
+Implication:
+Classify HPQ Browser Agent QA as inconclusive due to auth/paywall limitation, not as a product failure, when manual authenticated QA covers the gated HPQ preview.
+
+## 2026-05-08T18:33:03Z - Post-PR #72 sequence is Practice details, Mock pages, then question/solution quality
+
+Decision:
+After PR #72 merges, the next product sequence is Practice Level-3 detail finalisation, then Mock pages Level-3 detail finalisation, then HPQ question/solution quality work.
+
+Details:
+- PR #72 should not expand into question-bank or solution-quality repair.
+- Practice detail pass happens next after merge.
+- Mock page detail pass follows Practice.
+- HPQ question/solution quality begins only after Practice and Mock Level-3 surfaces are finalised, unless the product owner explicitly reprioritises.
+- Science/Maths structured MCQ options normalization remains later data-quality work.
+
+Implication:
+Do not start question-bank, diagram, solution-cache, or MCQ data normalization work before Practice and Mock pages unless the product owner changes priority.
+
+## 2026-05-08T15:37:18Z - PR #72 HPQ prediction-first execution doctrine
+
+Decision:
+HPQ is prediction-first, not a generic Practice mode page. Competency questions belong inside predicted topic-wise stacks, not in a separate top-level exam-format mode.
+
+Details:
+- HPQ should lead with predicted/high-probability topic stacks.
+- Competency visibility may appear as stack counts and question labels.
+- Do not add a main exam-format switch to HPQ.
+- Do not surface internal prediction rationale, raw confidence percentages, or guaranteed-style claims to students.
+
+Implication:
+Future HPQ work should reinforce prediction-first revision, not convert HPQ into a generic filtering/practice surface.
+
+## 2026-05-08T15:37:18Z - PR #72 HPQ execution-loop data honesty
+
+Decision:
+Add to mock remains planning-only until an actual graded mock flow exists. Check my answer and Show steps / Show logic are mutually exclusive per question. MCQ / Assertion-Reason wrong clicks do not log Mistake Intelligence in PR #72.
+
+Details:
+- Check my answer is the real checking path for non-MCQ HPQ questions.
+- Show steps and Show logic are learning support only.
+- Add to mock means local basket/planning only.
+- MCQ clicks are immediate feedback only and are not saved as real mistake evidence.
+- Mistake Intelligence remains fed only by real checked/grading evidence.
+
+Implication:
+Do not claim progress, mastery, score, mock grading, profile save, or Mistake Intelligence from HPQ solution reveal, MCQ clicks, or basket actions.
+
+## 2026-05-08T15:37:18Z - Student-facing API errors are forbidden
+
+Decision:
+Raw API/server errors must not be shown to students. HPQ step-solution UI should render student-safe fallback copy and keep technical details to developer logging only.
+
+Details:
+- Do not render strings such as `AI API request failed`, `API request failed`, `server error`, `fetch failed`, endpoint names, or stack traces.
+- Local HPQ step-solution QA requires both frontend and backend gateway.
+- Vite proxies `/api` to `API_SERVER_PORT`; local QA uses port `8080`.
+- If `dev:gateway` is not running, `/api/step-solution` fails with `ECONNREFUSED`.
+
+Implication:
+Future QA must start the gateway when testing step-solution paths locally and must audit student-facing error copy.
+
 ## 2026-05-07T08:00:00Z - Manual QA substitutes for Browser Agent on magic-link auth; Practice/HPQ design grammar issue identified
 
 Decision:

@@ -1,3 +1,159 @@
+## 2026-05-08T18:33:03Z - PR #72 manual authenticated HPQ QA recorded; post-merge sequence revised
+
+### Starting state
+- Branch: `feat/desktop-pr-k2f-practice-hpq-visual-grammar`
+- PR: PR #72, https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
+- Head SHA before docs update: `4c331ee22b1d625e118999c07354a13cf1102d9e`
+- Base branch: `base/approved-thru-437`
+- Base SHA verified: `24ac85f61752d1560ea29b26849bda4bb9b60c66`
+
+### Preview URL
+- Vercel preview: `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/`
+- Manual HPQ Maths route checked by product owner: `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/highly-probable/10/Maths`
+- Corresponding Science HPQ route was also checked.
+
+### Browser Agent QA result
+- Practice visual grammar passed.
+- HPQ / Exam Trends QA is inconclusive because the guest Browser Agent hit the Premium Feature interstitial.
+- Browser Agent cannot complete magic-link email authentication or access the user's authenticated trial session.
+- This is an auth/paywall limitation, not a product failure.
+
+### Manual authenticated HPQ QA result
+- Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+- The preview showed the new HPQ design, not old production HPQ.
+- HPQ rendered inside desktop shell.
+- Hero showed `Predicted Questions`.
+- Strong selected Maths / Science state appeared.
+- `Refine predictions` was present.
+- Topic stacks rendered with priority, marks, and competency count.
+- Empty mock basket was state-aware and planning-only.
+- Non-empty mock basket showed Build mock / Clear after adding stack/question.
+- Non-MCQ `Check my answer` opened the real checker panel.
+- `Show steps` and `Check my answer` were mutually exclusive per question.
+- Objective / Assertion-Reason option feedback worked where structured options exist.
+- Objective panel said `Solution logic`.
+- No inflated objective marks were observed.
+- Duplicate answer-only logic row was removed.
+- Raw `AI API request failed` was no longer shown.
+- Science HPQ followed the same new visual grammar.
+- Topic Hub return behavior was visually checked earlier and should remain pending final audit if not rechecked in this update.
+
+### Remaining issue classification
+- Remaining HPQ issues are question-bank / solution-quality / structured-option completeness issues.
+- Science/Maths MCQ structured option normalization remains a later data-only follow-up.
+- Solution / diagram quality and cache coverage remain later work.
+- Do not expand PR #72 into question-bank or solution-quality repair.
+
+### Revised next sequence
+1. PR #72 final GPT owner audit.
+2. If audit passes, PR #72 review/merge as appropriate.
+3. Verify `base/approved-thru-437` advanced to PR #72 merge commit after merge.
+4. Practice Level-3 detail finalisation.
+5. Mock pages Level-3 detail finalisation.
+6. HPQ question / solution quality work.
+
+Explicit note:
+Do not start question/solution quality work before Practice and Mock pages unless the product owner reprioritises.
+
+---
+
+## 2026-05-08T15:37:18Z - PR #72 final HPQ + Practice repair, handoff update, pending Vercel QA
+
+### Starting state
+- Branch: `feat/desktop-pr-k2f-practice-hpq-visual-grammar`
+- Starting HEAD before local repair commit: `7f7e7eea8fce886f113700e1373f93761ddb9bb5`
+- Base branch: `base/approved-thru-437`
+- Base SHA verified: `24ac85f61752d1560ea29b26849bda4bb9b60c66`
+- Merge-base: `24ac85f61752d1560ea29b26849bda4bb9b60c66`
+- PR: PR #72, https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
+
+### Work completed
+- Preserved earlier PR #72 Practice visual grammar pass.
+- Moved HPQ into desktop shell and hid old HPQ chrome on desktop.
+- Reworked HPQ into a prediction-first surface with concise hero, stronger Maths / Science toggle, lighter Refine predictions filters, and integrated competency labels/counts.
+- Made mock basket state-aware and planning-only.
+- Removed HPQ self-check as the main mechanism.
+- Added Check my answer primary path for non-MCQ questions through existing SolutionChecker.
+- Rendered MCQ / Assertion-Reason clickable options only when structured options exist.
+- Kept Show logic / Show steps separate from grading.
+- Made Check panel and steps panel mutually exclusive per question.
+- Changed objective panels to Solution logic and removed inflated objective marks.
+- Hid duplicate answer-only objective solution rows while preserving explanation rows.
+- Removed default Reference answer and Why this question disclosure from student cards.
+- Removed raw prediction certainty and guaranteed-style wording from default UI.
+- Restyled SolutionChecker to calmer desktop grammar.
+- Fixed Topic Hub return navigation back to Predicted Questions.
+- Replaced raw AI/API error rendering with student-safe fallback copy.
+
+### Files changed
+- `lazytopper/src/App.tsx`
+- `lazytopper/src/components/question/SolutionChecker.tsx`
+- `lazytopper/src/pages/HighlyProbableQuestions.tsx`
+- `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
+- `handoff/CURRENT_STATE.md`
+- `handoff/NEXT_ACTION.md`
+- `handoff/IMPLEMENTATION_ROADMAP.md`
+- `handoff/DECISION_LOG.md`
+- `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`
+- `handoff/SESSION_LOG.md`
+
+### Local validation results
+- TypeScript passed: `npx --yes pnpm@10.23.0 --filter lazytopper exec tsc --noEmit`.
+- Production build passed with existing Vite large-chunk warning: `NODE_ENV=production BASE_PATH=/app/ npx --yes pnpm@10.23.0 --filter lazytopper run build`.
+- Build verifier passed: `8 passed, 0 failed`.
+- `git diff --check` passed.
+- Raw API error grep found no `AI API request failed` or `API request failed` in `HighlyProbableQuestions.tsx`.
+- Quick-mark/local-demo grep found no `local-demo-user` or `recordHpqAttempt` in `HighlyProbableQuestions.tsx`.
+
+### Local UI QA findings
+- HPQ hero is concise and prediction-first.
+- Maths / Science active state is visibly green.
+- Refine predictions keeps filters out of the hero.
+- Non-MCQ Check my answer and Show steps are mutually exclusive.
+- MCQ / Assertion-Reason option feedback remains click-only and does not log Mistake Intelligence.
+- Objective Solution logic hides duplicate answer-only rows.
+- Topic Hub return context goes back to Predicted Questions.
+- Mock basket is empty/non-empty state-aware and planning-only.
+
+### API / gateway finding
+- Vite proxies `/api` to `API_SERVER_PORT`, using `8080` locally.
+- Without `dev:gateway`, `/api/step-solution` fails with `ECONNREFUSED`.
+- `npx --yes pnpm@10.23.0 run dev:gateway` with `PORT=8080` starts the LazyTopper AI server.
+- Without `DATABASE_URL` and provider API keys, cache/generation is limited or stubbed.
+- Student-facing raw `AI API request failed` copy must never be rendered.
+
+### Science MCQ option audit
+- Science MCQ / AssertionReason total found by Codex audit: 29.
+- Structured `options` / `aROptions` present: 14.
+- `correctOption` present: 14.
+- Missing structured options examples: `mnm-hpq-101`, `lp-hpq-101`, `sci-cre-hpq-1`, `sci-abs-hpq-1`, `2026-MNM-01b`, `sci-light-hpq-1`.
+- Follow-up needed: separate data-only HPQ MCQ normalization PR.
+- Do not invent options in UI.
+
+### Data-honesty audit
+- Fake progress: not introduced.
+- Fake mastery: not introduced.
+- Fake score: not introduced.
+- Fake weak area: not introduced.
+- Fake Mistake Intelligence: not introduced.
+- Fake checked answer: not introduced.
+- Fake mock grading: not introduced.
+- Official/guaranteed CBSE claims: not introduced.
+- Add to mock remains basket/planning only.
+
+### Next safe action
+1. Commit and push the PR #72 repair branch after validation.
+2. Wait for Vercel preview.
+3. Use Vercel preview URL with `/app/`.
+4. Run Browser Agent QA where auth does not require inbox access.
+5. Use manual QA for magic-link-gated trial states if needed.
+6. GPT owner audits GitHub diff, validation, Vercel QA, Browser QA, and screenshots before merge.
+
+Explicit status:
+PR #72 is not merged. Vercel QA and Browser Agent QA are pending.
+
+---
+
 ## 2026-05-07T08:00:00Z - Post-K2E handoff repair / PR #70 merged verification
 
 ### Starting state

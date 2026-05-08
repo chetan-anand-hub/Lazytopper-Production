@@ -17,6 +17,15 @@ const REPORT_TYPES = [
   "Other",
 ] as const;
 
+const TEXT_FG = "hsl(220, 25%, 12%)";
+const TEXT_MUTED = "hsl(220, 15%, 42%)";
+const BORDER = "hsl(220, 18%, 90%)";
+const CARD_BG = "#ffffff";
+const SURFACE_SOFT = "hsl(210, 33%, 96%)";
+const PRIMARY_GREEN = "hsl(152, 55%, 45%)";
+const PRIMARY_GREEN_SOFT = "hsl(152, 55%, 95%)";
+const PRIMARY_GREEN_FG = "hsl(152, 55%, 28%)";
+
 export interface PracticeQuestionCardProps {
   q: PracticeQuestion;
   idx: number;
@@ -40,10 +49,10 @@ export interface PracticeQuestionCardProps {
   onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
-const DIFFICULTY_BADGE: Record<string, { emoji: string; color: string; bg: string; border: string }> = {
-  Easy:   { emoji: "🟢", color: "#22c55e", bg: "rgba(34,197,94,0.08)",   border: "1px solid rgba(34,197,94,0.25)"   },
-  Medium: { emoji: "🟡", color: "#f59e0b", bg: "rgba(245,158,11,0.08)",  border: "1px solid rgba(245,158,11,0.25)"  },
-  Hard:   { emoji: "🔴", color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "1px solid rgba(239,68,68,0.25)"   },
+const DIFFICULTY_BADGE: Record<string, { color: string; bg: string; border: string }> = {
+  Easy:   { color: "hsl(152, 60%, 30%)", bg: "hsl(152, 55%, 95%)", border: "1px solid hsl(152, 55%, 80%)" },
+  Medium: { color: "hsl(35, 80%, 35%)", bg: "hsl(43, 90%, 94%)",  border: "1px solid hsl(38, 75%, 78%)" },
+  Hard:   { color: "hsl(0, 65%, 42%)",  bg: "hsl(0, 80%, 96%)",   border: "1px solid hsl(0, 70%, 86%)" },
 };
 
 export function PracticeQuestionCard({
@@ -160,12 +169,12 @@ export function PracticeQuestionCard({
           const isSelected = selected === oi;
           const isCorrect = !!result && oi === correctIdx;
           const isWrongChoice = result === "wrong" && isSelected;
-          let bg = "transparent";
-          let border = "1px solid transparent";
-          let optColor = "var(--text)";
-          if (isCorrect) { bg = "rgba(34,197,94,0.08)"; border = "1px solid rgba(34,197,94,0.3)"; optColor = "#22c55e"; }
-          else if (isWrongChoice) { bg = "rgba(239,68,68,0.08)"; border = "1px solid rgba(239,68,68,0.3)"; optColor = "#ef4444"; }
-          else if (isSelected && !result) { bg = "rgba(59,130,246,0.08)"; border = "1px solid rgba(59,130,246,0.4)"; }
+          let bg = CARD_BG;
+          let border = `1px solid ${BORDER}`;
+          let optColor = TEXT_FG;
+          if (isCorrect) { bg = PRIMARY_GREEN_SOFT; border = "1px solid hsl(152, 55%, 75%)"; optColor = PRIMARY_GREEN_FG; }
+          else if (isWrongChoice) { bg = "hsl(0, 80%, 96%)"; border = "1px solid hsl(0, 70%, 86%)"; optColor = "hsl(0, 65%, 42%)"; }
+          else if (isSelected && !result) { bg = "hsl(215, 75%, 95%)"; border = "1px solid hsl(215, 65%, 80%)"; }
           return (
             <button
               key={oi}
@@ -173,13 +182,13 @@ export function PracticeQuestionCard({
               onClick={() => handleMcqClick(oi)}
               style={{
                 display: "flex", alignItems: "baseline", gap: 8,
-                padding: "8px 12px", fontSize: "0.88rem", color: optColor,
-                background: bg, border, borderRadius: 12,
+                padding: "9px 12px", fontSize: "0.88rem", color: optColor,
+                background: bg, border, borderRadius: 10,
                 cursor: result ? "default" : "pointer",
                 width: "100%", textAlign: "left", marginBottom: 4, transition: "all 0.15s",
               }}
             >
-              <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "var(--color-success)" : isWrongChoice ? "var(--color-error)" : "var(--text-muted)" }}>
+              <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? PRIMARY_GREEN_FG : isWrongChoice ? "hsl(0, 65%, 42%)" : TEXT_MUTED }}>
                 {isCorrect ? "\u2713" : isWrongChoice ? "\u2717" : String.fromCharCode(65 + oi) + "."}
               </span>
               <MathText text={opt} />
@@ -190,8 +199,8 @@ export function PracticeQuestionCard({
           <div style={{
             marginTop: 6, padding: "8px 12px", borderRadius: 10,
             fontSize: "0.82rem", fontWeight: 700,
-            background: result === "correct" ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-            color: result === "correct" ? "var(--color-success)" : "var(--color-error)",
+            background: result === "correct" ? PRIMARY_GREEN_SOFT : "hsl(0, 80%, 96%)",
+            color: result === "correct" ? PRIMARY_GREEN_FG : "hsl(0, 65%, 42%)",
             display: "flex", alignItems: "center", gap: 8,
           }}>
             {result === "correct" ? (
@@ -220,22 +229,24 @@ export function PracticeQuestionCard({
       data-question-id={String(q.id)}
       onClick={() => onSetActiveQuestion(String(q.id))}
       style={{
-        borderRadius: 18, padding: "14px 16px 12px",
-        backgroundColor: "var(--bg-card)",
-        border: "1px solid var(--bg-card-border)",
-        boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
+        borderRadius: 14, padding: "18px 18px 16px",
+        backgroundColor: CARD_BG,
+        border: `1px solid ${isOpen ? "hsl(152, 55%, 75%)" : BORDER}`,
+        boxShadow: isOpen
+          ? "0 8px 24px -18px rgba(15, 23, 42, 0.28)"
+          : "0 1px 2px rgba(15, 23, 42, 0.04)",
       }}
     >
       <header style={{
         display: "flex", justifyContent: "space-between",
-        alignItems: "flex-start", marginBottom: 6, gap: 8,
+        alignItems: "flex-start", marginBottom: 10, gap: 8,
       }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", marginBottom: 6 }}>
-          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+          <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, fontWeight: 600 }}>
             <span style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 22, height: 22, borderRadius: 999,
-              backgroundColor: "var(--bg-card)", color: "var(--text)",
+              width: 24, height: 24, borderRadius: 8,
+              backgroundColor: SURFACE_SOFT, color: TEXT_FG,
               fontSize: "0.75rem", fontWeight: 600, marginRight: 8,
             }}>{idx + 1}</span>
             <span>{q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}</span>
@@ -248,7 +259,7 @@ export function PracticeQuestionCard({
               border: DIFFICULTY_BADGE[q.difficulty].border,
               color: DIFFICULTY_BADGE[q.difficulty].color,
             }}>
-              {DIFFICULTY_BADGE[q.difficulty].emoji} {q.difficulty}
+              {q.difficulty}
             </span>
           )}
           {(q.format === "Assertion-Reasoning" || /^Assertion\s*\(A\)/i.test(q.questionText)) && (
@@ -264,8 +275,8 @@ export function PracticeQuestionCard({
       </header>
 
       <p style={{
-        fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.6,
-        whiteSpace: "pre-wrap", marginBottom: 8,
+        fontSize: "0.95rem", color: TEXT_FG, lineHeight: 1.7,
+        whiteSpace: "pre-wrap", marginBottom: 12,
       }}>
         <MathText text={q.questionText} />
       </p>
@@ -281,7 +292,7 @@ export function PracticeQuestionCard({
 
       <div style={{
         display: "flex", flexWrap: "wrap", gap: 8,
-        alignItems: "center", marginBottom: 8,
+        alignItems: "center", marginBottom: 10,
       }}>
         <button
           data-testid="practice-mentor-cta"
@@ -291,12 +302,13 @@ export function PracticeQuestionCard({
             onToggleAnswer(q.id, q);
           }}
           style={{
-            borderRadius: 999, padding: "5px 12px",
-            border: "1px solid rgba(59,130,246,0.3)",
-            backgroundColor: "rgba(59,130,246,0.06)",
-            fontSize: "0.78rem", color: "var(--color-info)",
+            borderRadius: 10, padding: "7px 12px",
+            border: isOpen ? `1px solid ${PRIMARY_GREEN}` : `1px solid ${BORDER}`,
+            backgroundColor: isOpen ? PRIMARY_GREEN_SOFT : CARD_BG,
+            fontSize: "0.78rem", color: isOpen ? PRIMARY_GREEN_FG : TEXT_FG,
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
+            fontWeight: 700,
           }}
         >
           <span>{isOpen ? "Hide solution" : "Step-by-Step Solution"}</span>
@@ -308,12 +320,13 @@ export function PracticeQuestionCard({
             setShowChecker((v) => !v);
           }}
           style={{
-            borderRadius: 999, padding: "5px 12px",
-            border: "1px solid rgba(206,130,255,0.3)",
-            backgroundColor: showChecker ? "rgba(206,130,255,0.14)" : "rgba(206,130,255,0.06)",
-            fontSize: "0.78rem", color: "var(--color-violet)",
+            borderRadius: 10, padding: "7px 12px",
+            border: showChecker ? "1px solid hsl(215, 65%, 80%)" : `1px solid ${BORDER}`,
+            backgroundColor: showChecker ? "hsl(215, 75%, 95%)" : CARD_BG,
+            fontSize: "0.78rem", color: showChecker ? "hsl(215, 65%, 32%)" : TEXT_FG,
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
+            fontWeight: 700,
           }}
         >
           <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
@@ -337,13 +350,13 @@ export function PracticeQuestionCard({
         <div
           ref={stepSolutionRef}
           style={{
-            marginTop: 10, padding: "12px 14px",
-            background: "var(--bg-card)", borderRadius: 12,
-            border: "1px solid var(--bg-card-border)",
+            marginTop: 12, padding: "14px",
+            background: SURFACE_SOFT, borderRadius: 12,
+            border: `1px solid ${BORDER}`,
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <strong style={{ fontSize: "0.82rem", color: "var(--text)" }}>
+            <strong style={{ fontSize: "0.84rem", color: TEXT_FG }}>
               Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
             </strong>
           </div>
@@ -363,28 +376,28 @@ export function PracticeQuestionCard({
               {solutionData.steps.map((step) => (
                 <div key={step.stepNumber} style={{
                   display: "flex", gap: 10, marginBottom: 8,
-                  padding: "8px 10px", background: "var(--bg-card)",
-                  borderRadius: 8, border: "1px solid var(--bg-card-border)",
+                  padding: "10px 12px", background: CARD_BG,
+                  borderRadius: 10, border: `1px solid ${BORDER}`,
                 }}>
                   <div style={{
-                    minWidth: 28, height: 28, borderRadius: "50%",
-                    background: "rgba(59,130,246,0.8)", color: "var(--text)",
+                    minWidth: 28, height: 28, borderRadius: 8,
+                    background: PRIMARY_GREEN, color: "#ffffff",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: "0.75rem", fontWeight: 700, flexShrink: 0,
                   }}>{step.stepNumber}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>
+                    <div style={{ fontSize: "0.82rem", fontWeight: 700, color: TEXT_FG, marginBottom: 2 }}>
                       <MathText text={step.description} />
                       <span style={{
                         marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
-                        color: step.marks === 0 ? "var(--text-muted)" : "var(--color-light-blue)",
-                        background: step.marks === 0 ? "var(--bg-card)" : "rgba(59,130,246,0.1)",
+                        color: step.marks === 0 ? TEXT_MUTED : "hsl(215, 65%, 32%)",
+                        background: step.marks === 0 ? SURFACE_SOFT : "hsl(215, 75%, 95%)",
                         borderRadius: 999, padding: "1px 7px",
                       }}>
                         {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "\u00BD mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}\u00BD marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
                       </span>
                     </div>
-                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
+                    <div style={{ fontSize: "0.8rem", color: TEXT_MUTED, lineHeight: 1.55 }}>
                       <MathText text={step.working} />
                     </div>
                   </div>
@@ -420,14 +433,13 @@ export function PracticeQuestionCard({
                 onClick={() => onOpenConceptDrawer(q)}
                 style={{
                   marginTop: 12, width: "100%", padding: "10px 14px",
-                  borderRadius: 10, border: "1px solid rgba(206,130,255,0.3)",
-                  background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.08))",
-                  color: "var(--color-violet)", fontSize: "0.82rem", fontWeight: 600,
+                  borderRadius: 10, border: "1px solid hsl(215, 65%, 80%)",
+                  background: "hsl(215, 75%, 95%)",
+                  color: "hsl(215, 65%, 32%)", fontSize: "0.82rem", fontWeight: 700,
                   cursor: "pointer", display: "flex", alignItems: "center",
                   justifyContent: "center", gap: 8,
                 }}
               >
-                <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
                 Teach me this concept
               </button>
               {matchedVisual && (
@@ -437,9 +449,9 @@ export function PracticeQuestionCard({
                     onClick={() => setShowVisual((v) => !v)}
                     style={{
                       width: "100%", padding: "10px 14px",
-                      borderRadius: 10, border: "1px solid rgba(59,130,246,0.3)",
-                      background: "linear-gradient(135deg, rgba(59,130,246,0.06), rgba(59,130,246,0.10))",
-                      color: "var(--color-light-blue)", fontSize: "0.82rem", fontWeight: 600,
+                      borderRadius: 10, border: `1px solid ${BORDER}`,
+                      background: CARD_BG,
+                      color: TEXT_FG, fontSize: "0.82rem", fontWeight: 700,
                       cursor: "pointer", display: "flex", alignItems: "center",
                       justifyContent: "center", gap: 8,
                     }}
@@ -472,19 +484,20 @@ export function PracticeQuestionCard({
       {isOpen && !selfAssessment && (
         <div style={{
           display: "flex", gap: 8, marginTop: 10,
-          padding: "10px 0 2px", borderTop: "1px solid rgba(0,0,0,0.08)",
+          padding: "12px 0 2px", borderTop: `1px solid ${BORDER}`,
+          flexWrap: "wrap",
         }}>
-          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", alignSelf: "center" }}>
-            How did you do?
+          <span style={{ fontSize: "0.78rem", color: TEXT_MUTED, alignSelf: "center", fontWeight: 700 }}>
+            Mark your attempt:
           </span>
           <button
             type="button"
             onClick={() => onSelfAssessGotIt(q, idx)}
             style={{
-              borderRadius: 999, padding: "4px 14px",
-              border: "1px solid rgba(34,197,94,0.3)",
-              backgroundColor: "rgba(34,197,94,0.08)",
-              fontSize: "0.76rem", color: "var(--color-success)",
+              borderRadius: 999, padding: "5px 14px",
+              border: "1px solid hsl(152, 55%, 75%)",
+              backgroundColor: PRIMARY_GREEN_SOFT,
+              fontSize: "0.76rem", color: PRIMARY_GREEN_FG,
               cursor: "pointer", fontWeight: 700,
             }}
           >
@@ -494,10 +507,10 @@ export function PracticeQuestionCard({
             type="button"
             onClick={() => onSelfAssessNeedPractice(q, idx)}
             style={{
-              borderRadius: 999, padding: "4px 14px",
-              border: "1px solid rgba(239,68,68,0.3)",
-              backgroundColor: "rgba(239,68,68,0.08)",
-              fontSize: "0.76rem", color: "var(--color-error)",
+              borderRadius: 999, padding: "5px 14px",
+              border: "1px solid hsl(0, 70%, 86%)",
+              backgroundColor: "hsl(0, 80%, 96%)",
+              fontSize: "0.76rem", color: "hsl(0, 65%, 42%)",
               cursor: "pointer", fontWeight: 700,
             }}
           >
@@ -508,7 +521,7 @@ export function PracticeQuestionCard({
       {selfAssessment && (
         <div style={{
           marginTop: 8, fontSize: "0.76rem", fontWeight: 600,
-          color: selfAssessment === "got_it" ? "var(--color-success)" : "var(--color-error)",
+          color: selfAssessment === "got_it" ? PRIMARY_GREEN_FG : "hsl(0, 65%, 42%)",
           display: "flex", alignItems: "center", gap: 6,
         }}>
           {selfAssessment === "got_it" ? (
@@ -529,11 +542,11 @@ export function PracticeQuestionCard({
 
       {isOpen && reportState === "done" && (
         <div style={{
-          marginTop: 10, fontSize: "0.75rem", color: "var(--text-muted)",
-          padding: "6px 10px", background: "rgba(34,197,94,0.06)",
-          border: "1px solid rgba(34,197,94,0.2)", borderRadius: 8,
+          marginTop: 10, fontSize: "0.75rem", color: PRIMARY_GREEN_FG,
+          padding: "6px 10px", background: PRIMARY_GREEN_SOFT,
+          border: "1px solid hsl(152, 55%, 80%)", borderRadius: 8,
         }}>
-          ✓ Thanks — we'll review it.
+          Thanks - we'll review it.
         </div>
       )}
 
@@ -545,20 +558,20 @@ export function PracticeQuestionCard({
               onClick={() => setReportState("open")}
               style={{
                 background: "none", border: "none", padding: 0,
-                fontSize: "0.73rem", color: "var(--text-muted)",
+                fontSize: "0.73rem", color: TEXT_MUTED,
                 cursor: "pointer", textDecoration: "underline",
                 textDecorationStyle: "dotted",
               }}
             >
-              ⚑ Report issue
+              Report issue
             </button>
           )}
 
           {(reportState === "open" || reportState === "submitting" || reportState === "error") && (
             <div style={{
               padding: "10px 12px", borderRadius: 10,
-              border: "1px solid rgba(255,255,255,0.1)",
-              background: "rgba(255,255,255,0.03)",
+              border: `1px solid ${BORDER}`,
+              background: SURFACE_SOFT,
               display: "flex", flexDirection: "column", gap: 8,
             }}>
               <select
@@ -566,8 +579,8 @@ export function PracticeQuestionCard({
                 onChange={(e) => setReportType(e.target.value)}
                 disabled={reportState === "submitting"}
                 style={{
-                  background: "rgba(0,0,0,0.3)", color: "var(--text)",
-                  border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6,
+                  background: CARD_BG, color: TEXT_FG,
+                  border: `1px solid ${BORDER}`, borderRadius: 8,
                   padding: "5px 8px", fontSize: "0.78rem", cursor: "pointer",
                 }}
               >
@@ -584,8 +597,8 @@ export function PracticeQuestionCard({
                 onChange={(e) => setReportComment(e.target.value)}
                 disabled={reportState === "submitting"}
                 style={{
-                  background: "rgba(0,0,0,0.3)", color: "var(--text)",
-                  border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6,
+                  background: CARD_BG, color: TEXT_FG,
+                  border: `1px solid ${BORDER}`, borderRadius: 8,
                   padding: "5px 8px", fontSize: "0.78rem",
                   outline: "none",
                 }}
@@ -605,9 +618,9 @@ export function PracticeQuestionCard({
                   style={{
                     padding: "5px 14px", borderRadius: 6, fontSize: "0.78rem",
                     fontWeight: 600, cursor: reportState === "submitting" ? "not-allowed" : "pointer",
-                    background: "rgba(239,68,68,0.12)",
-                    border: "1px solid rgba(239,68,68,0.3)",
-                    color: "var(--color-error)",
+                    background: "hsl(0, 80%, 96%)",
+                    border: "1px solid hsl(0, 70%, 86%)",
+                    color: "hsl(0, 65%, 42%)",
                     opacity: reportState === "submitting" ? 0.6 : 1,
                   }}
                 >
@@ -619,7 +632,7 @@ export function PracticeQuestionCard({
                   disabled={reportState === "submitting"}
                   style={{
                     background: "none", border: "none", padding: 0,
-                    fontSize: "0.73rem", color: "var(--text-muted)",
+                    fontSize: "0.73rem", color: TEXT_MUTED,
                     cursor: "pointer", textDecoration: "underline",
                   }}
                 >

@@ -572,15 +572,24 @@ function TopicNotFound({ rawSlug }: { rawSlug: string }) {
 function BackToParent({
   subject,
   explicitReturnTo,
+  explicitBackLabel,
+  source,
 }: {
   subject: DesktopSubject | null;
   explicitReturnTo: string | null;
+  explicitBackLabel?: string | null;
+  source?: string | null;
 }) {
-  const target = explicitReturnTo && explicitReturnTo.length > 0
-    ? explicitReturnTo
-    : "/exam-trends";
-  const label = explicitReturnTo
-    ? "Back"
+  const safeReturnTo =
+    explicitReturnTo &&
+    explicitReturnTo.startsWith("/") &&
+    !explicitReturnTo.startsWith("//") &&
+    !/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(explicitReturnTo)
+      ? explicitReturnTo
+      : null;
+  const target = safeReturnTo || "/exam-trends";
+  const label = safeReturnTo
+    ? explicitBackLabel || (source === "hpq" ? "Back to Predicted Questions" : "Back")
     : subject
       ? `Back to ${subject} on Exam Trends`
       : "Back to Exam Trends";
@@ -2182,6 +2191,7 @@ export default function DesktopTopicHubPage() {
   }>();
 
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || {};
 
   const topicSlug = useMemo(
     () =>
@@ -2204,7 +2214,12 @@ export default function DesktopTopicHubPage() {
   // request is already in-flight from a different surface (we still default
   // to the current Topic Hub URL otherwise).
   const currentUrl = useMemo(() => `${location.pathname}${location.search}`, [location.pathname, location.search]);
-  const explicitReturnTo = queryParams.get("returnTo");
+  const querySource = queryParams.get("source");
+  const explicitReturnTo = queryParams.get("returnTo") || navState.back || null;
+  const explicitBackLabel =
+    querySource === "hpq"
+      ? "Back to Predicted Questions"
+      : navState.backLabel || null;
   const returnTo = explicitReturnTo && explicitReturnTo.length > 0 ? explicitReturnTo : currentUrl;
   const routeContext: DesktopRouteContext = useMemo(
     () => ({ source: "topicHub", returnTo }),
@@ -2336,7 +2351,12 @@ export default function DesktopTopicHubPage() {
       }}
     >
       <div style={{ marginBottom: 16 }}>
-        <BackToParent subject={backSubject} explicitReturnTo={explicitReturnTo} />
+        <BackToParent
+          subject={backSubject}
+          explicitReturnTo={explicitReturnTo}
+          explicitBackLabel={explicitBackLabel}
+          source={querySource}
+        />
       </div>
 
       {/* Two-column desktop layout collapses to single column under ~960px */}

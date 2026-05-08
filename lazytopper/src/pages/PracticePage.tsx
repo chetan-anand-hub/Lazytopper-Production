@@ -789,15 +789,22 @@ const packTopicKey = useMemo(() => {
     <div
       className="dark-page"
       style={{
+        "--bg": "hsl(210, 40%, 98%)",
+        "--bg-card": "#ffffff",
+        "--bg-card-border": "hsl(220, 18%, 90%)",
+        "--text": "hsl(220, 25%, 12%)",
+        "--text-muted": "hsl(220, 15%, 42%)",
         minHeight: "100vh",
+        background: "hsl(210, 40%, 98%)",
+        color: "hsl(220, 25%, 12%)",
         paddingBottom: "80px",
-      }}
+      } as React.CSSProperties}
     >
       <div
         style={{
-          maxWidth: "1120px",
+          maxWidth: "1180px",
           margin: "0 auto",
-          padding: "16px 16px 32px",
+          padding: "24px clamp(16px, 4vw, 32px) 48px",
         }}
       >
         <ReturnContextBar
@@ -838,61 +845,68 @@ const packTopicKey = useMemo(() => {
           const isResume = !!resumeInfo;
           const isDone = doneToday && !resumeInfo;
           const missionLabel = isDone
-            ? "Today's Mission complete — great work!"
+            ? "Today's Mission complete"
             : isResume
-            ? `Resume Today's Mission — ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
-            : "Start Today's Mission — 4 segments, ~30 min";
-          const missionBg = isDone
-            ? "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)"
+            ? `Resume Today's Mission - ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
+            : "Start Today's Mission - 4 segments, about 30 min";
+          const missionTone = isDone
+            ? { bg: "hsl(152, 55%, 95%)", fg: "hsl(152, 60%, 30%)", border: "hsl(152, 55%, 80%)" }
             : isResume
-            ? "linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)"
-            : "linear-gradient(90deg, #6366f1 0%, #22c55e 100%)";
+            ? { bg: "hsl(43, 90%, 94%)", fg: "hsl(35, 80%, 35%)", border: "hsl(38, 75%, 78%)" }
+            : { bg: "hsl(212, 70%, 95%)", fg: "hsl(212, 65%, 32%)", border: "hsl(212, 70%, 85%)" };
           return (
-            <div style={{ marginBottom: 14 }}>
+            <section
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: 10,
+                marginBottom: 18,
+              }}
+            >
               {showMission && (
                 <button
                   onClick={() => navigate(`/daily-mission/${grade}/${subjectKey}`, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } })}
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
-                    width: "100%", padding: "12px 16px", borderRadius: 12, border: "none",
-                    background: missionBg, color: "#fff", fontSize: 13, fontWeight: 600,
-                    cursor: "pointer", marginBottom: 10, gap: 8,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                    width: "100%", minHeight: 74, padding: "14px 16px", borderRadius: 12,
+                    border: `1px solid ${missionTone.border}`,
+                    background: missionTone.bg, color: missionTone.fg, fontSize: 13, fontWeight: 700,
+                    cursor: "pointer", gap: 12, textAlign: "left",
                     fontFamily: "'Inter', sans-serif",
                   }}
                 >
-                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 18 }}>{isResume ? "▶️" : "🎯"}</span>
-                    {missionLabel}
+                  <span style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <span style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      Daily mission
+                    </span>
+                    <span>{missionLabel}</span>
                   </span>
-                  <span style={{ opacity: 0.85, fontSize: 16 }}>→</span>
+                  <span style={{ fontSize: 12, fontWeight: 800 }}>Open</span>
                 </button>
               )}
-              <div style={{ display: "flex", gap: 8 }}>
-                {[
-                  { icon: "✏️", label: "Quick Practice", sub: "Topic questions", href: null as string | null },
-                  { icon: "📝", label: "Mock Test", sub: "Full exam paper", href: `/exam-simulation/${grade}/${subjectKey}` },
-                  { icon: "🔮", label: "Predicted Q's", sub: "HPQ for board", href: `/highly-probable/${grade}/${subjectKey}` },
-                ].map(({ icon, label, sub, href }) => (
+              {[
+                { label: "Quick Practice", sub: "Adjust this set", href: null as string | null },
+                { label: "Mock Test", sub: "Full exam paper", href: `/exam-simulation/${grade}/${subjectKey}` },
+                { label: "Predicted Q's", sub: "HPQ for this subject", href: `/highly-probable/${grade}/${subjectKey}` },
+              ].map(({ label, sub, href }) => (
                   <button
                     key={label}
                     onClick={() => { if (href) navigate(href, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } }); else document.querySelector<HTMLElement>(".practice-controls-root")?.scrollIntoView({ behavior: "smooth" }); }}
                     style={{
-                      flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-                      gap: 3, padding: "10px 6px", borderRadius: 10,
-                      border: "1.5px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.05)", color: "var(--text)",
-                      fontSize: 11, fontWeight: 600, cursor: "pointer",
-                      fontFamily: "'Inter', sans-serif", textAlign: "center",
+                      minHeight: 74, display: "flex", flexDirection: "column", alignItems: "flex-start",
+                      justifyContent: "center", gap: 3, padding: "14px 16px", borderRadius: 12,
+                      border: "1px solid hsl(220, 18%, 90%)",
+                      background: "#ffffff", color: "hsl(220, 25%, 12%)",
+                      fontSize: 12, fontWeight: 700, cursor: "pointer",
+                      fontFamily: "'Inter', sans-serif", textAlign: "left",
+                      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
                     }}
                   >
-                    <span style={{ fontSize: 20 }}>{icon}</span>
                     <span>{label}</span>
-                    <span style={{ fontSize: 10, opacity: 0.6, fontWeight: 400 }}>{sub}</span>
+                    <span style={{ fontSize: 11, color: "hsl(220, 15%, 42%)", fontWeight: 500 }}>{sub}</span>
                   </button>
                 ))}
-              </div>
-            </div>
+            </section>
           );
         })()}
 
@@ -914,16 +928,15 @@ const packTopicKey = useMemo(() => {
           const displayTopic = topicLabel || rawTopicParam;
           return (
             <div style={{
-              margin: "0 0 10px 0", padding: "10px 14px",
-              borderRadius: 10, background: "rgba(99,102,241,0.08)",
-              border: "1px solid rgba(99,102,241,0.25)",
+              margin: "0 0 14px 0", padding: "12px 14px",
+              borderRadius: 12, background: "hsl(215, 75%, 95%)",
+              border: "1px solid hsl(215, 65%, 84%)",
               display: "flex", alignItems: "center", gap: 10,
             }}>
-              <span style={{ fontSize: 16 }}>🎯</span>
               <div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1" }}>Targeted session</span>
-                <span style={{ fontSize: 12, color: "var(--text)", fontWeight: 500 }}>
-                  {" — focusing on "}
+                <span style={{ fontSize: 12, fontWeight: 800, color: "hsl(215, 65%, 32%)" }}>Targeted session</span>
+                <span style={{ fontSize: 12, color: "hsl(220, 25%, 12%)", fontWeight: 500 }}>
+                  {" - focusing on "}
                   <strong>{displayTopic}</strong>
                   {mistakeLabel ? ` (${mistakeLabel} mistakes)` : ""}
                 </span>
@@ -966,6 +979,58 @@ const packTopicKey = useMemo(() => {
             boardWritingTip={whyBoardWritingTip}
           />
         )}
+
+        <section
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            gap: 14,
+            flexWrap: "wrap",
+            margin: "18px 0 12px",
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.25rem",
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
+                color: "hsl(220, 25%, 12%)",
+                margin: 0,
+              }}
+            >
+              Practice workspace
+            </h2>
+            <p
+              style={{
+                margin: "4px 0 0",
+                color: "hsl(220, 15%, 42%)",
+                fontSize: "0.84rem",
+                lineHeight: 1.5,
+              }}
+            >
+              Attempt first, then open the solution. Saved or attempted work is
+              not counted as progress unless checked.
+            </p>
+          </div>
+          {filteredQuestions.length > 0 && (
+            <span
+              style={{
+                borderRadius: 999,
+                border: "1px solid hsl(220, 18%, 90%)",
+                background: "#ffffff",
+                color: "hsl(220, 15%, 42%)",
+                padding: "5px 10px",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+              }}
+            >
+              {filteredQuestions.length} visible question{filteredQuestions.length === 1 ? "" : "s"}
+            </span>
+          )}
+        </section>
 
         <PracticeQuestionList
           isLoading={isLoading}
@@ -1068,32 +1133,40 @@ const packTopicKey = useMemo(() => {
   const topicK = canonicalTopicKey || topicParam;
   const nextActions = [];
   if (accuracy < 60) {
-    nextActions.push({ label: "Retry with easier questions", icon: "🔄", action: () => { setDifficulty("Easy"); regenerateQuestions(); } });
+    nextActions.push({ label: "Retry with easier questions", icon: "Retry", action: () => { setDifficulty("Easy"); regenerateQuestions(); } });
   }
-  nextActions.push({ label: "Chapter Test", icon: "📝", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
-  nextActions.push({ label: "Predicted Questions", icon: "🎯", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
-  nextActions.push({ label: "Study this chapter", icon: "📚", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  nextActions.push({ label: "Chapter Test", icon: "Test", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  nextActions.push({ label: "Predicted Questions", icon: "HPQ", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  nextActions.push({ label: "Study this chapter", icon: "Hub", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   return (
-    <div className="glass-card" style={{ marginTop: 20, borderRadius: 16, padding: "20px 18px" }}>
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <div style={{ fontSize: 32, marginBottom: 6 }}>{accuracy >= 80 ? "🎉" : accuracy >= 50 ? "👍" : "💪"}</div>
-        <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>
-          Practice Complete — {correctCount}/{questions.length} correct ({accuracy}%)
+    <div style={{
+      marginTop: 20,
+      borderRadius: 14,
+      padding: "20px 18px",
+      background: "#ffffff",
+      border: "1px solid hsl(220, 18%, 90%)",
+      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+    }}>
+      <div style={{ marginBottom: 16 }}>
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 600, color: "hsl(220, 25%, 12%)", margin: "0 0 4px" }}>
+          Self-check complete - {correctCount}/{questions.length} marked correct or got it ({accuracy}%)
         </h3>
-        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
-          {accuracy >= 80 ? "Great job! Ready for the next challenge?" : accuracy >= 50 ? "Good effort! Keep practising to improve." : "Keep going — practice makes perfect!"}
+        <p style={{ fontSize: "0.84rem", color: "hsl(220, 15%, 42%)", margin: 0, lineHeight: 1.5 }}>
+          This is a practice self-check, not a graded score. Use Check &amp; Improve for real grading before counting progress.
         </p>
       </div>
-      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+      <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "hsl(220, 15%, 42%)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
         What should I do next?
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {nextActions.map((a) => (
-          <button key={a.label} onClick={a.action} className="glass-card" style={{
-            display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12,
-            color: "var(--text)", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", textAlign: "left",
+          <button key={a.label} onClick={a.action} style={{
+            display: "flex", alignItems: "center", gap: 10, padding: "11px 12px", borderRadius: 10,
+            border: "1px solid hsl(220, 18%, 90%)",
+            background: "hsl(210, 33%, 96%)",
+            color: "hsl(220, 25%, 12%)", fontSize: "0.86rem", fontWeight: 700, cursor: "pointer", textAlign: "left",
           }}>
-            <span style={{ fontSize: 18 }}>{a.icon}</span>
+            <span style={{ fontSize: 11, color: "hsl(220, 15%, 42%)", minWidth: 34, fontWeight: 800 }}>{a.icon}</span>
             {a.label}
           </button>
         ))}
