@@ -1,3 +1,33 @@
+## 2026-05-08T18:33:03Z - Manual authenticated QA may substitute for Browser Agent when HPQ preview is gated
+
+Decision:
+Manual authenticated QA may substitute for Browser Agent when the premium/trial gate blocks HPQ preview and Browser Agent cannot complete magic-link email authentication.
+
+Details:
+- Browser Agent saw the Premium Feature interstitial for HPQ / Exam Trends in guest state.
+- Browser Agent cannot access the user's authenticated trial session or magic-link inbox.
+- Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+- Manual QA must include screenshots or explicit QA evidence and be recorded in handoff.
+- This substitution does not remove the need for final GPT GitHub diff audit.
+
+Implication:
+Classify HPQ Browser Agent QA as inconclusive due to auth/paywall limitation, not as a product failure, when manual authenticated QA covers the gated HPQ preview.
+
+## 2026-05-08T18:33:03Z - Post-PR #72 sequence is Practice details, Mock pages, then question/solution quality
+
+Decision:
+After PR #72 merges, the next product sequence is Practice Level-3 detail finalisation, then Mock pages Level-3 detail finalisation, then HPQ question/solution quality work.
+
+Details:
+- PR #72 should not expand into question-bank or solution-quality repair.
+- Practice detail pass happens next after merge.
+- Mock page detail pass follows Practice.
+- HPQ question/solution quality begins only after Practice and Mock Level-3 surfaces are finalised, unless the product owner explicitly reprioritises.
+- Science/Maths structured MCQ options normalization remains later data-quality work.
+
+Implication:
+Do not start question-bank, diagram, solution-cache, or MCQ data normalization work before Practice and Mock pages unless the product owner changes priority.
+
 ## 2026-05-08T15:37:18Z - PR #72 HPQ prediction-first execution doctrine
 
 Decision:

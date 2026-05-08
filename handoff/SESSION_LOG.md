@@ -1,3 +1,62 @@
+## 2026-05-08T18:33:03Z - PR #72 manual authenticated HPQ QA recorded; post-merge sequence revised
+
+### Starting state
+- Branch: `feat/desktop-pr-k2f-practice-hpq-visual-grammar`
+- PR: PR #72, https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
+- Head SHA before docs update: `4c331ee22b1d625e118999c07354a13cf1102d9e`
+- Base branch: `base/approved-thru-437`
+- Base SHA verified: `24ac85f61752d1560ea29b26849bda4bb9b60c66`
+
+### Preview URL
+- Vercel preview: `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/`
+- Manual HPQ Maths route checked by product owner: `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/highly-probable/10/Maths`
+- Corresponding Science HPQ route was also checked.
+
+### Browser Agent QA result
+- Practice visual grammar passed.
+- HPQ / Exam Trends QA is inconclusive because the guest Browser Agent hit the Premium Feature interstitial.
+- Browser Agent cannot complete magic-link email authentication or access the user's authenticated trial session.
+- This is an auth/paywall limitation, not a product failure.
+
+### Manual authenticated HPQ QA result
+- Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+- The preview showed the new HPQ design, not old production HPQ.
+- HPQ rendered inside desktop shell.
+- Hero showed `Predicted Questions`.
+- Strong selected Maths / Science state appeared.
+- `Refine predictions` was present.
+- Topic stacks rendered with priority, marks, and competency count.
+- Empty mock basket was state-aware and planning-only.
+- Non-empty mock basket showed Build mock / Clear after adding stack/question.
+- Non-MCQ `Check my answer` opened the real checker panel.
+- `Show steps` and `Check my answer` were mutually exclusive per question.
+- Objective / Assertion-Reason option feedback worked where structured options exist.
+- Objective panel said `Solution logic`.
+- No inflated objective marks were observed.
+- Duplicate answer-only logic row was removed.
+- Raw `AI API request failed` was no longer shown.
+- Science HPQ followed the same new visual grammar.
+- Topic Hub return behavior was visually checked earlier and should remain pending final audit if not rechecked in this update.
+
+### Remaining issue classification
+- Remaining HPQ issues are question-bank / solution-quality / structured-option completeness issues.
+- Science/Maths MCQ structured option normalization remains a later data-only follow-up.
+- Solution / diagram quality and cache coverage remain later work.
+- Do not expand PR #72 into question-bank or solution-quality repair.
+
+### Revised next sequence
+1. PR #72 final GPT owner audit.
+2. If audit passes, PR #72 review/merge as appropriate.
+3. Verify `base/approved-thru-437` advanced to PR #72 merge commit after merge.
+4. Practice Level-3 detail finalisation.
+5. Mock pages Level-3 detail finalisation.
+6. HPQ question / solution quality work.
+
+Explicit note:
+Do not start question/solution quality work before Practice and Mock pages unless the product owner reprioritises.
+
+---
+
 ## 2026-05-08T15:37:18Z - PR #72 final HPQ + Practice repair, handoff update, pending Vercel QA
 
 ### Starting state

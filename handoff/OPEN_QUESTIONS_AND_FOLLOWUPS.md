@@ -1,13 +1,68 @@
-## 2026-05-08 - PR #72 Vercel / Browser QA pending
+## 2026-05-08 - PR #72 final GPT audit pending
+
+Status:
+Active before PR #72 review/merge.
+
+Observation:
+PR #72 has Vercel preview evidence and manual authenticated HPQ QA recorded, but final GPT owner audit of the GitHub diff and scope is still pending.
+
+Action:
+Owner should audit PR #72 diff, validation, QA evidence, and changed-file scope before marking ready for review or merge.
+
+## 2026-05-08 - PR #72 HPQ Browser QA auth/paywall blocked; manual QA substituted
+
+Status:
+Recorded QA limitation.
+
+Observation:
+Browser Agent verified Practice visual grammar, but HPQ / Exam Trends Browser QA was blocked by the Premium Feature interstitial in guest state. Browser Agent cannot complete magic-link authenticated QA. Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+
+Action:
+Treat HPQ Browser QA as inconclusive due to auth/paywall limitation, not as product failure. Preserve manual QA evidence in handoff and proceed to final GPT audit.
+
+## 2026-05-08 - Practice Level-3 detail finalisation after PR #72
+
+Status:
+Next implementation stage after PR #72 merge.
+
+Observation:
+PR #72 handles broad Practice + HPQ visual grammar alignment. Practice still needs a detail pass focused on execution/detail states, CTA hierarchy, question interaction, option interactivity if needed, source/return behavior, responsive polish, and honest unavailable states.
+
+Action:
+Start Practice detail finalisation after PR #72 is merged and base advancement is verified.
+
+## 2026-05-08 - Mock pages Level-3 detail finalisation after Practice details
+
+Status:
+Post-Practice follow-up.
+
+Observation:
+Mock builder / mock attempt / mock review pages need Level-3 desktop grammar and clear lifecycle wording.
+
+Action:
+Run Mock page detail finalisation after Practice detail stage. Do not claim mock performance feeds Mistake Intelligence until real graded mock evidence exists.
+
+## 2026-05-08 - HPQ question / solution quality later
+
+Status:
+Deferred until after Practice and Mock detail stages unless the product owner reprioritises.
+
+Observation:
+Manual authenticated QA found remaining HPQ question, solution, diagram, and completeness issues. These are content/data/quality issues, not PR #72 visual grammar issues.
+
+Action:
+Sequence this as audit report first, then data-only structured options normalization, then solution/diagram/cache quality repair.
+
+## 2026-05-08 - PR #72 Vercel / Browser QA state
 
 Status:
 Active follow-up before PR #72 merge.
 
 Observation:
-PR #72 local repair has passed source validation and local product-owner screenshot audit, but the updated branch still needs Vercel preview deployment and Browser Agent QA on `/app/`.
+PR #72 has a Vercel preview at `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/`. Browser Agent verified Practice visual grammar but could not complete HPQ / Exam Trends QA because guest state hit the Premium Feature interstitial. Product owner manually verified authenticated HPQ on preview.
 
 Action:
-After push, wait for Vercel preview, test the preview URL with `/app/`, run Browser Agent QA for guest and signed-in visual states that do not require inbox access, and use manual QA for magic-link-gated trial states if needed.
+Proceed to final GPT owner audit. Do not claim PR #72 is merge-ready until that audit passes.
 
 ## 2026-05-08 - Science / Maths HPQ MCQ structured options normalization
 

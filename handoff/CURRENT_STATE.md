@@ -1,6 +1,6 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 ## Current GitHub checkpoint
 
@@ -36,7 +36,12 @@ https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
 ```
 
 Current stage:
-PR-K2F / PR #72 is open and being updated with Practice + HPQ Level-3 visual grammar alignment. Local repair has passed source validation and local screenshot audit by the product owner, and is pending commit/push, Vercel preview, Browser Agent QA, and final GPT audit.
+PR-K2F / PR #72 is open/draft and unmerged. Practice + HPQ Level-3 visual grammar alignment is implemented on the PR branch. Vercel preview and manual authenticated HPQ QA are recorded. Final GPT owner audit is still pending; do not mark PR #72 ready for review or merge-ready until that audit is complete.
+
+PR #72 head verified before this handoff update:
+```
+4c331ee22b1d625e118999c07354a13cf1102d9e
+```
 
 ## Recent checkpoints
 
@@ -105,13 +110,55 @@ Codex read-only audit found:
 Follow-up:
 A separate data-only HPQ MCQ normalization PR is needed. Do not invent options in UI.
 
+## PR #72 QA status
+
+Vercel preview used:
+```
+https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/
+```
+
+Browser Agent QA:
+- Practice visual QA passed with no data-honesty violations observed.
+- HPQ and Exam Trends were blocked by the Premium Feature interstitial in guest state.
+- Browser Agent could not complete magic-link authenticated QA.
+- HPQ Browser Agent QA is therefore inconclusive due to auth/paywall limitation, not a product failure.
+
+Manual authenticated HPQ QA:
+- Product owner manually verified HPQ on the Vercel preview while signed in / trial-unlocked.
+- Maths route verified: `https://lazytopper-production-desktop-ja96piv2q.vercel.app/app/highly-probable/10/Maths`.
+- Corresponding Science route was also checked.
+- Preview showed the new HPQ design, not old production HPQ.
+- HPQ renders inside desktop shell.
+- Hero shows `Predicted Questions`.
+- Selected Maths / Science state is strong and visible.
+- `Refine predictions` is present.
+- Topic stacks render with priority, marks, and competency count.
+- Empty mock basket is state-aware and planning-only.
+- Non-empty mock basket shows Build mock / Clear after adding stack or question.
+- Non-MCQ `Check my answer` opens the real checker panel.
+- `Show steps` and `Check my answer` are mutually exclusive per question.
+- Objective / Assertion-Reason option click feedback works where structured options exist.
+- Objective panel says `Solution logic`.
+- No inflated objective marks observed.
+- Duplicate answer-only logic row was removed.
+- Raw `AI API request failed` is no longer shown.
+- Topic Hub return behavior was visually checked earlier and remains pending final audit if not rechecked in this QA update.
+- Science HPQ follows the same new visual grammar.
+
+Remaining issue classification:
+- Remaining HPQ issues are question-bank, solution-quality, diagram-quality, cache-completeness, and structured-option completeness issues.
+- These are deferred to later question/solution quality work.
+- Do not expand PR #72 into question-bank or solution-quality repair.
+
 ## Current next safe action
 
-1. Push the PR #72 repair commit.
-2. Wait for Vercel preview.
-3. Use the Vercel preview URL with `/app/`.
-4. Run Browser Agent QA for guest and signed-in states that do not require magic-link inbox access.
-5. Use manual QA for authenticated trial-only flows if Browser Agent lacks inbox access.
-6. GPT owner audits GitHub diff, validation, Vercel QA, Browser QA, and screenshots before merge.
+1. GPT owner performs final GitHub diff audit for PR #72.
+2. Confirm PR #72 changed-file scope remains allowed.
+3. Confirm Vercel preview and manual authenticated HPQ QA evidence are recorded.
+4. If final audit passes, mark PR #72 ready for review / merge as appropriate.
+5. After merge, verify `base/approved-thru-437` advanced to the PR #72 merge commit.
+6. Start next stage: finalise Level-3 details of Practice page.
+7. Then finalise Level-3 details of Mock pages.
+8. Only after Practice and Mock detail stages, start HPQ question/solution quality work.
 
 Do not claim PR #72 is merged or merge-ready until those checks pass.

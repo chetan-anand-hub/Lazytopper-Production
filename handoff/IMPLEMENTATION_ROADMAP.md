@@ -14,7 +14,7 @@ feat/desktop-pr-k2f-practice-hpq-visual-grammar
 ```
 
 Current stage:
-PR-K2F / PR #72 is in progress. It updates Practice and HPQ old-format surfaces to match LazyTopper's Level-3 desktop visual grammar while preserving data honesty.
+PR-K2F / PR #72 is in progress. It updates Practice and HPQ old-format surfaces to match LazyTopper's Level-3 desktop visual grammar while preserving data honesty. Vercel preview manual authenticated HPQ QA is recorded; final GPT owner audit is pending.
 
 ## Roadmap rule
 
@@ -32,7 +32,7 @@ Before each implementation stage:
 ## PR-K2F / PR #72 - Practice and HPQ Level-3 visual grammar alignment
 
 Status:
-Open and being updated. Not merged.
+Open/draft and unmerged. Vercel preview manual authenticated HPQ QA is recorded; final GPT audit is pending.
 
 PR:
 ```
@@ -69,6 +69,76 @@ Exit gate:
 - Vercel preview works at `/app/`.
 - Browser Agent QA or documented manual QA covers visible flows.
 - GPT owner audits before merge.
+
+QA note:
+- Browser Agent verified Practice visual grammar.
+- HPQ and Exam Trends Browser QA was inconclusive because the guest Browser Agent hit the Premium Feature interstitial and cannot complete magic-link authenticated QA.
+- Product owner manually verified HPQ while signed in / trial-unlocked on the Vercel preview.
+- Remaining issues are question-bank / solution-quality / structured-option completeness, not PR #72 visual grammar.
+
+## PR-K2G - Practice Level-3 detail finalisation
+
+Purpose:
+Finish remaining Practice page details after broad visual grammar alignment.
+
+Scope:
+- Practice execution/detail states
+- CTA hierarchy
+- MCQ / option interaction clarity if needed
+- source / return behavior
+- responsive polish
+- honest unavailable states
+
+Forbidden:
+- fake progress
+- fake mastery
+- fake score
+- fake Mistake Intelligence
+- broad question-bank edits
+- package/config changes
+
+Exit gate:
+- Practice learner flow is visually and behaviorally consistent with Level-3 desktop grammar.
+- Data-honesty copy remains accurate.
+- Validation and visual QA pass.
+
+## PR-K2H - Mock pages Level-3 detail finalisation
+
+Purpose:
+Bring mock builder / mock attempt / mock review into Level-3 desktop grammar and clarify the real mock lifecycle.
+
+Scope:
+- mock page UI/UX
+- basket-to-mock clarity
+- attempt / review flow
+- future graded-evidence wording
+
+Forbidden:
+- fake mock grading
+- fake score
+- fake Mistake Intelligence
+- fake Me / Progress updates
+
+Rule:
+Every mock a student writes and gets graded on LazyTopper must eventually integrate with Mistake Intelligence and Me / Progress only through real graded evidence. Until that path is real, copy must not imply it.
+
+Exit gate:
+- Mock pages match desktop grammar.
+- Mock lifecycle copy is honest.
+- No fake graded evidence is introduced.
+
+## PR-K2I or later - HPQ Question + Solution Quality
+
+Purpose:
+Audit and improve HPQ question bank completeness, structured MCQ options, solution steps, diagrams, and cache coverage.
+
+Order:
+1. Audit report first.
+2. Data-only structured options normalization.
+3. Solution / diagram / cache quality repair.
+
+Rule:
+Do not begin this before Practice and Mock detail stages unless the product owner explicitly changes priority.
 
 ## Post-K2F follow-ups
 
