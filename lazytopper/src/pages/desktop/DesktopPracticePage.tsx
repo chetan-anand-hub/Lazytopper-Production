@@ -2553,14 +2553,7 @@ export default function DesktopPracticePage() {
                       currentQuickPracticeIndex >= quickPracticePanel.questions.length - 1;
 
                     return (
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns:
-                            "minmax(0, 1.6fr) minmax(260px, 0.8fr)",
-                          gap: 14,
-                        }}
-                      >
+                      <div className="lt-practice-quick-grid">
                         <article
                           style={{
                             background: PILL_BG,
@@ -3878,6 +3871,16 @@ export default function DesktopPracticePage() {
           @media (min-width: 768px) {
             .lt-practice-blueprint-grid {
               grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+          }
+          .lt-practice-quick-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 14px;
+          }
+          @media (min-width: 768px) {
+            .lt-practice-quick-grid {
+              grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
             }
           }
         `}</style>

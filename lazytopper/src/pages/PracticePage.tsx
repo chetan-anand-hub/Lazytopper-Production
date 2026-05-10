@@ -126,9 +126,31 @@ const PracticePage: React.FC = () => {
      (subjectKeyStr ? subjectKeyStr.charAt(0).toUpperCase() + subjectKeyStr.slice(1) : "Subject"))
   );
   const back: string | undefined = navState.back;
+  const qpSource = qp.get("source");
+  const safeReturnTo = useMemo(() => {
+    const rawReturnTo = qp.get("returnTo");
+    if (!rawReturnTo) return null;
+    let decoded = rawReturnTo;
+    try {
+      decoded = decodeURIComponent(rawReturnTo);
+    } catch {
+      decoded = rawReturnTo;
+    }
+    if (!decoded.startsWith("/") || decoded.startsWith("//")) return null;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(decoded)) return null;
+    return decoded;
+  }, [qp]);
+  const practiceBackTo = useMemo(() => {
+    if (safeReturnTo) return safeReturnTo;
+    if (back && typeof back === "string") return back;
+    if (qpSource === "trends") return "/exam-trends";
+    return "/practice-hub";
+  }, [safeReturnTo, back, qpSource]);
   const backLabel: string =
     navState.backLabel ||
-    (back && typeof back === "string" && back.includes("/trends")
+    (practiceBackTo.includes("/practice-hub")
+      ? "Back to Practice"
+      : practiceBackTo.includes("/exam-trends") || practiceBackTo.includes("/trends")
       ? "Back to trends"
       : "Back");
 
@@ -786,7 +808,7 @@ const packTopicKey = useMemo(() => {
         }}
       >
         <ReturnContextBar
-          backTo={back || `/trends/${grade}/${subjectKey}`}
+          backTo={practiceBackTo}
           backLabel={backLabel}
           currentLabel="Practice"
           quickLinks={[
