@@ -26,10 +26,7 @@ import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
-import {
-  generatePracticeQuestions,
-  type PracticeQuestion,
-} from "../../data/predictionDataService";
+import { type PracticeQuestion } from "../../data/predictionDataService";
 import {
   getHighlyProbableQuestions,
   type HPQTopicBucket,
@@ -360,14 +357,6 @@ interface PrimaryCardProps {
   external?: boolean; // honest "Premium" / "Sign-in" lock chip
   lockChip?: string;
   /**
-   * PR-C2.1 — when provided, the CTA invokes this handler instead of
-   * routing to `to`. Used by Quick Practice to reveal an in-page panel
-   * with real generated questions (no immediate hand-off to the legacy
-   * /practice/:grade/:subject UI). The card is still considered enabled
-   * iff `to` resolves (i.e. the scope is valid).
-   */
-  customClick?: () => void;
-  /**
    * Optional honest sub-line shown beneath the CTA, e.g. "Opens the
    * existing worksheet builder with this scope." Helps the learner know
    * whether the next click is locked-prototype parity or a hand-off to
@@ -387,17 +376,12 @@ function PrimaryCard({
   extra,
   onActivate,
   lockChip,
-  customClick,
   honestNote,
 }: PrimaryCardProps) {
   const [hover, setHover] = useState(false);
   const disabled = !to;
   const handleClick = () => {
     if (!to) return;
-    if (customClick) {
-      customClick();
-      return;
-    }
     if (onActivate) onActivate(to);
   };
   const cardStyle: React.CSSProperties = {
@@ -1551,33 +1535,6 @@ function buildTopicKeyCandidates(rawSlug: string): string[] {
 }
 
 /**
- * Try each candidate topic-key against the production practice generator
- * and return the first non-empty pool together with the key that matched.
- * Honest no-data: returns `{ questions: [], matchedKey: null }` — never a
- * synthetic / fabricated set.
- */
-function fetchRealQuickPractice(
-  subject: DesktopSubject,
-  rawSlug: string,
-  count = 5,
-): { questions: PracticeQuestion[]; matchedKey: string | null; triedKeys: string[] } {
-  const candidates = buildTopicKeyCandidates(rawSlug);
-  for (const key of candidates) {
-    const pool = generatePracticeQuestions({
-      subject,
-      topicKey: key,
-      count,
-      difficulty: "All",
-      allowRepeats: false,
-    });
-    if (pool.length > 0) {
-      return { questions: pool, matchedKey: key, triedKeys: candidates };
-    }
-  }
-  return { questions: [], matchedKey: null, triedKeys: candidates };
-}
-
-/**
  * Locate a real Highly-Probable-Questions bucket for a given desktop topic
  * slug, by matching the bucket's `topic` (display name) against the slug's
  * canonical / alias / normalized forms. Returns `null` when no bucket
@@ -1742,12 +1699,11 @@ export default function DesktopPracticePage() {
   const [mockWeakArea, setMockWeakArea] = useState(false);
   const [drillTargeted, setDrillTargeted] = useState(false);
 
-  // PR-C2.1 — In-page Quick Practice panel state. `null` means the panel is
-  // not visible. The panel reveals only after the learner explicitly clicks
-  // the "Start quick practice" CTA — so the first interaction stays in the
-  // hub instead of immediately landing on the legacy /practice/:grade/:subject
-  // engine. Question data is real (`generatePracticeQuestions`) or honest
-  // empty — never fabricated.
+  // PR-C2.1 legacy in-page Quick Practice panel state. K2G routes the primary
+  // "Start quick practice" CTA directly to the full Practice workspace, so
+  // this remains null during the normal hub flow. If a future entry point
+  // reuses the panel, question data must stay real (`generatePracticeQuestions`)
+  // or honest empty - never fabricated.
   interface QuickPracticePanelState {
     subject: DesktopSubject;
     scopeKind: DesktopPaperScope;
@@ -1934,67 +1890,6 @@ export default function DesktopPracticePage() {
         : null,
     [hpqBuckets, scope.scope, scope.topicSlug],
   );
-
-  // PR-C2.1 — Quick Practice in-page panel handler. Resolves the scope to a
-  // single starter topic (single-topic, first of a multi-mix, or first
-  // catalogue topic of the subject for full-subject), then runs the real
-  // production generator (`generatePracticeQuestions`). Reveals the panel
-  // with up to 5 real questions or an honest empty state. Never navigates
-  // away — the legacy /practice/:grade/:subject engine remains as the
-  // secondary "Continue in full practice engine" CTA inside the panel.
-  const handleStartQuickPractice = () => {
-    if (!validScope) return;
-    resetQuickPracticeRunState();
-    let sourceTopicSlug: string | null = null;
-    let sourceTopicName: string | null = null;
-    let scopeLabel = "";
-
-    if (scope.scope === "topic" && scope.topicSlug) {
-      sourceTopicSlug = scope.topicSlug;
-      sourceTopicName = selectedTopic?.name ?? null;
-      scopeLabel = `${scope.subject}${
-        scope.subject === "Science" && scope.stream !== "All" ? ` ${scope.stream}` : ""
-      } — ${sourceTopicName ?? sourceTopicSlug}`;
-    } else if (scope.scope === "multi-topic" && scope.selectedTopicSlugs.length) {
-      sourceTopicSlug = scope.selectedTopicSlugs[0];
-      sourceTopicName = desktopTopicBySlug(sourceTopicSlug)?.name ?? null;
-      scopeLabel = `${scope.subject} — ${displayDesktopTopicNames(scope.selectedTopicSlugs).join(
-        " + ",
-      )} (showing first topic)`;
-    } else if (scope.scope === "full-subject") {
-      sourceTopicSlug = topics[0]?.slug ?? null;
-      sourceTopicName = topics[0]?.name ?? null;
-      scopeLabel = `${scope.subject}${
-        scope.subject === "Science" && scope.stream !== "All" ? ` ${scope.stream}` : ""
-      } full subject (showing first starter topic)`;
-    }
-
-    if (!sourceTopicSlug) {
-      setQuickPracticePanel({
-        subject: scope.subject,
-        scopeKind: scope.scope,
-        scopeLabel: scopeLabel || `${scope.subject} — pick a topic to seed practice`,
-        sourceTopicSlug: null,
-        sourceTopicName: null,
-        matchedKey: null,
-        triedKeys: [],
-        questions: [],
-      });
-      return;
-    }
-
-    const result = fetchRealQuickPractice(scope.subject, sourceTopicSlug, 5);
-    setQuickPracticePanel({
-      subject: scope.subject,
-      scopeKind: scope.scope,
-      scopeLabel,
-      sourceTopicSlug,
-      sourceTopicName,
-      matchedKey: result.matchedKey,
-      triedKeys: result.triedKeys,
-      questions: result.questions,
-    });
-  };
 
   // Reset the Quick Practice panel whenever scope changes — stale questions
   // for a different topic would be misleading.
@@ -2346,14 +2241,13 @@ export default function DesktopPracticePage() {
                 <PrimaryCard
                   icon={<IconLayers />}
                   title="Quick Practice"
-                  desc="A short, focused set of real questions for your scope, shown in-page."
+                  desc="A short, focused set of real questions in the full Practice workspace."
                   preview={previewLine("practice-set")}
                   cta="Start quick practice"
                   to={quickPracticePath}
                   disabledHint="Pick a scope above first"
                   onActivate={(to) => navigate(to)}
-                  customClick={handleStartQuickPractice}
-                  honestNote="Reveals an in-page panel with real generated questions. The full /practice engine is offered as a secondary continue link."
+                  honestNote="Opens the full Practice workspace with this scope."
                 />
                 <PrimaryCard
                   icon={<IconClipboard />}
@@ -2442,12 +2336,11 @@ export default function DesktopPracticePage() {
               </div>
             </section>
 
-            {/* PR-C2.1 — Generated quick practice (in-page) ────────────────
-                Reveals only after the learner clicks "Start quick practice".
+            {/* PR-C2.1 legacy generated quick practice panel.
+                K2G's main Start quick practice CTA bypasses this panel.
                 Renders real questions from the production unified bank via
                 generatePracticeQuestions, or an honest empty state when no
-                pool matches. Provides "Continue in full practice engine" as
-                the secondary CTA — the page never auto-navigates. */}
+                pool matches if a future entry point opts into it. */}
             {quickPracticePanel ? (
               <section
                 aria-label="Generated quick practice"
@@ -3575,9 +3468,8 @@ export default function DesktopPracticePage() {
                 Previously called "Sample preview" with fabricated Section A/B/C
                 chips that implied a paper layout. The chips are removed and the
                 copy makes clear these are reference points (study cues), not
-                generated questions. Real generated questions live in the
-                "Generated quick practice" panel and the Predicted-questions
-                tabs above. */}
+                generated questions. Real generated questions now open in the
+                full Practice workspace or the Predicted-questions tabs above. */}
             {samplePreview && samplePreview.highlights.length > 0 ? (
               <section
                 style={{

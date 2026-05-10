@@ -107,7 +107,7 @@ export function PracticeQuestionCard({
         setReportState("error");
       }
     } catch {
-      setReportError("Network error — please try again");
+      setReportError("Network error - please try again");
       setReportState("error");
     }
   }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid, getToken, reportedKey]);
@@ -254,7 +254,7 @@ export function PracticeQuestionCard({
       data-question-id={String(q.id)}
       onClick={() => onSetActiveQuestion(String(q.id))}
       style={{
-        borderRadius: 14, padding: "18px 18px 16px",
+        borderRadius: 16, padding: "20px",
         backgroundColor: CARD_BG,
         border: `1px solid ${isOpen ? "hsl(152, 55%, 75%)" : BORDER}`,
         boxShadow: isOpen
@@ -266,20 +266,43 @@ export function PracticeQuestionCard({
         display: "flex", justifyContent: "space-between",
         alignItems: "flex-start", marginBottom: 10, gap: 8,
       }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", marginBottom: 6 }}>
-          <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, fontWeight: 600 }}>
-            <span style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 24, height: 24, borderRadius: 8,
-              backgroundColor: SURFACE_SOFT, color: TEXT_FG,
-              fontSize: "0.75rem", fontWeight: 600, marginRight: 8,
-            }}>{idx + 1}</span>
-            <span>{q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}</span>
-            <TimeGuideChip marks={q.marks} section={q.section || ""} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
+          <div style={{
+            fontSize: "0.68rem",
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: TEXT_MUTED,
+            fontWeight: 800,
+          }}>
+            Question {idx + 1}
           </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+            <span style={{
+              padding: "3px 8px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700,
+              background: SURFACE_SOFT, border: `1px solid ${BORDER}`, color: TEXT_FG,
+            }}>
+              {q.marks} mark{q.marks !== 1 ? "s" : ""}
+            </span>
+            {q.section && (
+              <span style={{
+                padding: "3px 8px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700,
+                background: SURFACE_SOFT, border: `1px solid ${BORDER}`, color: TEXT_MUTED,
+              }}>
+                Section {q.section}
+              </span>
+            )}
+            {q.format && (
+              <span style={{
+                padding: "3px 8px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700,
+                background: SURFACE_SOFT, border: `1px solid ${BORDER}`, color: TEXT_MUTED,
+              }}>
+                {q.format}
+              </span>
+            )}
+            <TimeGuideChip marks={q.marks} section={q.section || ""} />
           {difficultyFilter === "All" && q.difficulty && DIFFICULTY_BADGE[q.difficulty] && (
             <span style={{
-              padding: "2px 8px", borderRadius: 999, fontSize: "0.68rem", fontWeight: 700,
+              padding: "3px 8px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700,
               background: DIFFICULTY_BADGE[q.difficulty].bg,
               border: DIFFICULTY_BADGE[q.difficulty].border,
               color: DIFFICULTY_BADGE[q.difficulty].color,
@@ -289,19 +312,20 @@ export function PracticeQuestionCard({
           )}
           {(q.format === "Assertion-Reasoning" || /^Assertion\s*\(A\)/i.test(q.questionText)) && (
             <span style={{
-              padding: "2px 8px", borderRadius: 999, fontSize: "0.68rem", fontWeight: 700,
+              padding: "3px 8px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700,
               background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)",
               color: "var(--color-warning)",
             }}>
               Assertion & Reasoning
             </span>
           )}
+          </div>
         </div>
       </header>
 
       <p style={{
-        fontSize: "0.95rem", color: TEXT_FG, lineHeight: 1.7,
-        whiteSpace: "pre-wrap", marginBottom: 12,
+        fontSize: "1rem", color: TEXT_FG, lineHeight: 1.72,
+        whiteSpace: "pre-wrap", margin: "4px 0 14px",
       }}>
         <MathText text={q.questionText} />
       </p>

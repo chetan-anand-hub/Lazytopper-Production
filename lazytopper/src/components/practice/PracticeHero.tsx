@@ -72,10 +72,8 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, questionCou
           margin: 0,
         }}
       >
-        Board-style practice set with <strong>{questionCount}</strong> questions
-        generated from available LazyTopper question sources. Choose the scope,
-        solve freely, then decide whether to check your answer, compare steps,
-        or get concept help.
+        Board-style practice set. Solve freely, then choose Check my answer or
+        Compare steps. {questionCount} question{questionCount === 1 ? "" : "s"} in this set.
       </p>
     </section>
   );

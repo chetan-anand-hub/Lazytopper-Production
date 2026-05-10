@@ -13,8 +13,6 @@ import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
 import { lazy, Suspense } from "react";
 import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
-import JourneyStrip from "../components/ux/JourneyStrip";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
 import type { PracticeSectionFilter } from "../navigation/practiceNavigation";
 import {
   getQuestionFamiliesForTopic,
@@ -33,7 +31,6 @@ import type {
 } from "../data/contentStrategy/types";
 import type { StudentMentorIntent } from "../types/studentMentorIntent";
 import { recordDetour } from "../services/guidedJourneyService";
-import { isMissionCompletedToday, getMissionResumeInfo } from "../services/dailyMissionService";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -807,108 +804,40 @@ const packTopicKey = useMemo(() => {
           padding: "24px clamp(16px, 4vw, 32px) 48px",
         }}
       >
-        <ReturnContextBar
-          backTo={practiceBackTo}
-          backLabel={backLabel}
-          currentLabel="Practice"
-          quickLinks={[
-            { label: "Chapters", to: `/trends/${grade}/${subjectKey}` },
-            {
-              label: "Chapter Hub",
-              to:
-                canonicalTopicKey && topicParam.toLowerCase() !== "generic"
-                  ? `/topic-hub/${grade}/${subjectKey}/${encodeURIComponent(canonicalTopicKey)}`
-                  : `/topic-hub/${grade}/${subjectKey}`,
-            },
-            {
-              label: "Predicted Q's",
-              to:
-                canonicalTopicKey && topicParam.toLowerCase() !== "generic"
-                  ? `/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(canonicalTopicKey)}`
-                  : `/highly-probable/${grade}/${subjectKey}`,
-            },
-            { label: "Focused practice", to: "/weak-area-practice" },
-          ]}
-        />
-        <JourneyStrip
-          current="practice"
-          grade={grade}
-          subject={subjectKey}
-          topic={topicParam.toLowerCase() !== "generic" ? topicLabel : undefined}
-        />
-
-        {(() => {
-          const missionSubject = subjectKey as "Maths" | "Science";
-          const resumeInfo = getMissionResumeInfo(missionSubject);
-          const doneToday = isMissionCompletedToday(missionSubject);
-          const showMission = true;
-          const isResume = !!resumeInfo;
-          const isDone = doneToday && !resumeInfo;
-          const missionLabel = isDone
-            ? "Today's Mission complete"
-            : isResume
-            ? `Resume Today's Mission - ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
-            : "Start Today's Mission - 4 segments, about 30 min";
-          const missionTone = isDone
-            ? { bg: "hsl(152, 55%, 95%)", fg: "hsl(152, 60%, 30%)", border: "hsl(152, 55%, 80%)" }
-            : isResume
-            ? { bg: "hsl(43, 90%, 94%)", fg: "hsl(35, 80%, 35%)", border: "hsl(38, 75%, 78%)" }
-            : { bg: "hsl(212, 70%, 95%)", fg: "hsl(212, 65%, 32%)", border: "hsl(212, 70%, 85%)" };
-          return (
-            <section
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: 10,
-                marginBottom: 18,
-              }}
-            >
-              {showMission && (
-                <button
-                  onClick={() => navigate(`/daily-mission/${grade}/${subjectKey}`, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } })}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    width: "100%", minHeight: 74, padding: "14px 16px", borderRadius: 12,
-                    border: `1px solid ${missionTone.border}`,
-                    background: missionTone.bg, color: missionTone.fg, fontSize: 13, fontWeight: 700,
-                    cursor: "pointer", gap: 12, textAlign: "left",
-                    fontFamily: "'Inter', sans-serif",
-                  }}
-                >
-                  <span style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    <span style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                      Daily mission
-                    </span>
-                    <span>{missionLabel}</span>
-                  </span>
-                  <span style={{ fontSize: 12, fontWeight: 800 }}>Open</span>
-                </button>
-              )}
-              {[
-                { label: "Quick Practice", sub: "Adjust this set", href: null as string | null },
-                { label: "Mock Test", sub: "Full exam paper", href: `/exam-simulation/${grade}/${subjectKey}` },
-                { label: "Predicted Q's", sub: "HPQ for this subject", href: `/highly-probable/${grade}/${subjectKey}` },
-              ].map(({ label, sub, href }) => (
-                  <button
-                    key={label}
-                    onClick={() => { if (href) navigate(href, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } }); else document.querySelector<HTMLElement>(".practice-controls-root")?.scrollIntoView({ behavior: "smooth" }); }}
-                    style={{
-                      minHeight: 74, display: "flex", flexDirection: "column", alignItems: "flex-start",
-                      justifyContent: "center", gap: 3, padding: "14px 16px", borderRadius: 12,
-                      border: "1px solid hsl(220, 18%, 90%)",
-                      background: "#ffffff", color: "hsl(220, 25%, 12%)",
-                      fontSize: 12, fontWeight: 700, cursor: "pointer",
-                      fontFamily: "'Inter', sans-serif", textAlign: "left",
-                      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-                    }}
-                  >
-                    <span>{label}</span>
-                    <span style={{ fontSize: 11, color: "hsl(220, 15%, 42%)", fontWeight: 500 }}>{sub}</span>
-                  </button>
-                ))}
-            </section>
-          );
-        })()}
+        <nav
+          aria-label="Practice context"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 18,
+            fontSize: "0.8rem",
+            color: "hsl(220, 15%, 42%)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => navigate(practiceBackTo)}
+            style={{
+              border: "1px solid hsl(220, 18%, 90%)",
+              background: "#ffffff",
+              color: "hsl(220, 25%, 12%)",
+              borderRadius: 8,
+              padding: "7px 11px",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+            }}
+          >
+            {backLabel}
+          </button>
+          <span aria-hidden="true">/</span>
+          <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>Practice</span>
+          <span aria-hidden="true">/</span>
+          <span>Class {grade} - {subjectTitle}</span>
+        </nav>
 
         <PracticeHero
           grade={grade}
