@@ -103,7 +103,7 @@ export function PracticeQuestionCard({
         try { sessionStorage.setItem(reportedKey, "1"); } catch (_) {}
         setReportState("done");
       } else {
-        setReportError(json.error || "Failed to submit report");
+        setReportError("We could not submit that report right now. Please try again.");
         setReportState("error");
       }
     } catch {
@@ -136,9 +136,18 @@ export function PracticeQuestionCard({
       questionText: q.questionText,
     });
   }, [q.id, q.questionText, subjectKey, topicLabel, q.marks]);
+
+  const hasStructuredOptions = Array.isArray(q.options) && q.options.length > 0;
+  const isObjectiveQuestion =
+    q.format === "MCQ" ||
+    q.format === "Assertion-Reasoning" ||
+    /^Assertion\s*\(A\)/i.test(q.questionText) ||
+    /\b(?:choose the correct|which of the following|mcq)\b/i.test(q.questionText);
+  const showOptionlessObjectiveNote = isObjectiveQuestion && !hasStructuredOptions;
+
   const renderMcqOptions = () => {
-    if (!Array.isArray(q.options) || q.options.length === 0) return null;
-    const opts = q.options;
+    if (!hasStructuredOptions) return null;
+    const opts = q.options ?? [];
     const qId = String(q.id);
     const selected = mcqSelection;
     const result = mcqResult;
@@ -164,7 +173,10 @@ export function PracticeQuestionCard({
       }
     };
     return (
-      <div style={{ marginBottom: 10, paddingLeft: 4 }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, fontWeight: 600, marginBottom: 8 }}>
+          Select an option for local practice feedback. Not graded or saved to Me / Progress.
+        </div>
         {opts.map((opt: string, oi: number) => {
           const isSelected = selected === oi;
           const isCorrect = !!result && oi === correctIdx;
@@ -179,13 +191,15 @@ export function PracticeQuestionCard({
             <button
               key={oi}
               type="button"
+              aria-pressed={isSelected}
               onClick={() => handleMcqClick(oi)}
               style={{
-                display: "flex", alignItems: "baseline", gap: 8,
-                padding: "9px 12px", fontSize: "0.88rem", color: optColor,
+                display: "flex", alignItems: "baseline", gap: 10,
+                padding: "10px 12px", fontSize: "0.9rem", color: optColor,
                 background: bg, border, borderRadius: 10,
                 cursor: result ? "default" : "pointer",
-                width: "100%", textAlign: "left", marginBottom: 4, transition: "all 0.15s",
+                width: "100%", textAlign: "left", marginBottom: 6, transition: "all 0.15s",
+                boxShadow: isSelected ? "0 1px 2px rgba(15, 23, 42, 0.06)" : "none",
               }}
             >
               <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? PRIMARY_GREEN_FG : isWrongChoice ? "hsl(0, 65%, 42%)" : TEXT_MUTED }}>
@@ -195,6 +209,17 @@ export function PracticeQuestionCard({
             </button>
           );
         })}
+        {selected !== undefined && !result && correctIdx < 0 && (
+          <div style={{
+            marginTop: 6, padding: "8px 12px", borderRadius: 10,
+            fontSize: "0.8rem", fontWeight: 600,
+            background: "hsl(215, 75%, 95%)",
+            color: "hsl(215, 65%, 32%)",
+            border: "1px solid hsl(215, 65%, 84%)",
+          }}>
+            Option marked for this session. Use Check my answer or compare steps when you want feedback.
+          </div>
+        )}
         {result && (
           <div style={{
             marginTop: 6, padding: "8px 12px", borderRadius: 10,
@@ -206,14 +231,14 @@ export function PracticeQuestionCard({
             {result === "correct" ? (
               <>
                 <CorrectBurst visible={true} size={24} />
-                Correct! Well done.
+                Local practice feedback: correct.
               </>
             ) : (
               <>
                 <WrongShake visible={true}>
-                  <span style={{ fontSize: 20 }}>✗</span>
+                  <span style={{ fontSize: 20 }}>{"\u2717"}</span>
                 </WrongShake>
-                {`Incorrect. The correct answer is ${String.fromCharCode(65 + correctIdx)}.`}
+                {`Local practice feedback: answer ${String.fromCharCode(65 + correctIdx)} fits the stored key.`}
               </>
             )}
           </div>
@@ -283,6 +308,28 @@ export function PracticeQuestionCard({
 
       {renderMcqOptions()}
 
+      {showOptionlessObjectiveNote && (
+        <div style={{
+          margin: "0 0 12px",
+          padding: "9px 12px",
+          borderRadius: 10,
+          background: "hsl(215, 75%, 95%)",
+          border: "1px solid hsl(215, 65%, 84%)",
+          color: "hsl(215, 65%, 32%)",
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          lineHeight: 1.45,
+        }}>
+          Structured options are not available for this question. Try it independently, then check your answer or compare steps.
+        </div>
+      )}
+
+      {!hasStructuredOptions && !showOptionlessObjectiveNote && (
+        <div style={{ margin: "0 0 12px", color: TEXT_MUTED, fontSize: "0.8rem", lineHeight: 1.45 }}>
+          Work it out on paper first. Use Check my answer for real feedback, or compare with the step solution.
+        </div>
+      )}
+
       <QuestionVisualAid
         subject={subjectKey}
         topicKey={topicLabel}
@@ -294,6 +341,27 @@ export function PracticeQuestionCard({
         display: "flex", flexWrap: "wrap", gap: 8,
         alignItems: "center", marginBottom: 10,
       }}>
+        {!hasStructuredOptions && (
+          <button
+            type="button"
+            onClick={() => {
+              onSetActiveQuestion(String(q.id));
+              setShowChecker((v) => !v);
+            }}
+            style={{
+              borderRadius: 10, padding: "8px 14px",
+              border: showChecker ? `1px solid ${PRIMARY_GREEN}` : "1px solid transparent",
+              backgroundColor: showChecker ? PRIMARY_GREEN_SOFT : PRIMARY_GREEN,
+              fontSize: "0.8rem", color: showChecker ? PRIMARY_GREEN_FG : "#ffffff",
+              cursor: "pointer", display: "inline-flex",
+              alignItems: "center", gap: 6,
+              fontWeight: 800,
+              boxShadow: showChecker ? "none" : "0 6px 16px -12px rgba(21, 128, 61, 0.65)",
+            }}
+          >
+            <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
+          </button>
+        )}
         <button
           data-testid="practice-mentor-cta"
           type="button"
@@ -302,35 +370,37 @@ export function PracticeQuestionCard({
             onToggleAnswer(q.id, q);
           }}
           style={{
-            borderRadius: 10, padding: "7px 12px",
-            border: isOpen ? `1px solid ${PRIMARY_GREEN}` : `1px solid ${BORDER}`,
-            backgroundColor: isOpen ? PRIMARY_GREEN_SOFT : CARD_BG,
-            fontSize: "0.78rem", color: isOpen ? PRIMARY_GREEN_FG : TEXT_FG,
+            borderRadius: 10, padding: "8px 12px",
+            border: isOpen ? "1px solid hsl(215, 65%, 80%)" : `1px solid ${BORDER}`,
+            backgroundColor: isOpen ? "hsl(215, 75%, 95%)" : CARD_BG,
+            fontSize: "0.78rem", color: isOpen ? "hsl(215, 65%, 32%)" : TEXT_FG,
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
             fontWeight: 700,
           }}
         >
-          <span>{isOpen ? "Hide solution" : "Step-by-Step Solution"}</span>
+          <span>{isOpen ? "Hide steps" : "Compare steps"}</span>
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            onSetActiveQuestion(String(q.id));
-            setShowChecker((v) => !v);
-          }}
-          style={{
-            borderRadius: 10, padding: "7px 12px",
-            border: showChecker ? "1px solid hsl(215, 65%, 80%)" : `1px solid ${BORDER}`,
-            backgroundColor: showChecker ? "hsl(215, 75%, 95%)" : CARD_BG,
-            fontSize: "0.78rem", color: showChecker ? "hsl(215, 65%, 32%)" : TEXT_FG,
-            cursor: "pointer", display: "inline-flex",
-            alignItems: "center", gap: 6,
-            fontWeight: 700,
-          }}
-        >
-          <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
-        </button>
+        {hasStructuredOptions && (
+          <button
+            type="button"
+            onClick={() => {
+              onSetActiveQuestion(String(q.id));
+              setShowChecker((v) => !v);
+            }}
+            style={{
+              borderRadius: 10, padding: "8px 12px",
+              border: showChecker ? "1px solid hsl(215, 65%, 80%)" : `1px solid ${BORDER}`,
+              backgroundColor: showChecker ? "hsl(215, 75%, 95%)" : CARD_BG,
+              fontSize: "0.78rem", color: showChecker ? "hsl(215, 65%, 32%)" : TEXT_FG,
+              cursor: "pointer", display: "inline-flex",
+              alignItems: "center", gap: 6,
+              fontWeight: 700,
+            }}
+          >
+            <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
+          </button>
+        )}
       </div>
 
       {showChecker && (
@@ -357,13 +427,16 @@ export function PracticeQuestionCard({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <strong style={{ fontSize: "0.84rem", color: TEXT_FG }}>
-              Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
+              Step-by-step solution for comparison ({q.marks} {q.marks === 1 ? "mark" : "marks"})
             </strong>
+          </div>
+          <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, marginBottom: 8, lineHeight: 1.45 }}>
+            Use these steps to compare your work. This is help, not grading.
           </div>
 
           {solutionLoading && (
             <div style={{ fontSize: "0.82rem", color: "var(--color-info)", padding: "8px 0" }}>
-              Loading step-by-step solution...
+              Preparing comparison steps...
             </div>
           )}
           {solutionError && (
@@ -457,7 +530,7 @@ export function PracticeQuestionCard({
                     }}
                   >
                     <span style={{ fontSize: "1rem" }}>{showVisual ? "\u25B2" : "\u25BC"}</span>
-                    {showVisual ? "Hide Visual Explainer" : `See Visual: ${matchedVisual.title}`}
+                    {showVisual ? "Hide visual help" : `Visual help: ${matchedVisual.title}`}
                   </button>
                   {showVisual && (
                     <div style={{ marginTop: 8 }}>
@@ -488,7 +561,7 @@ export function PracticeQuestionCard({
           flexWrap: "wrap",
         }}>
           <span style={{ fontSize: "0.78rem", color: TEXT_MUTED, alignSelf: "center", fontWeight: 700 }}>
-            Mark your attempt:
+            Local note:
           </span>
           <button
             type="button"
@@ -501,40 +574,40 @@ export function PracticeQuestionCard({
               cursor: "pointer", fontWeight: 700,
             }}
           >
-            Got it
+            I understand this
           </button>
           <button
             type="button"
             onClick={() => onSelfAssessNeedPractice(q, idx)}
             style={{
               borderRadius: 999, padding: "5px 14px",
-              border: "1px solid hsl(0, 70%, 86%)",
-              backgroundColor: "hsl(0, 80%, 96%)",
-              fontSize: "0.76rem", color: "hsl(0, 65%, 42%)",
+              border: "1px solid hsl(38, 75%, 78%)",
+              backgroundColor: "hsl(43, 90%, 94%)",
+              fontSize: "0.76rem", color: "hsl(35, 80%, 35%)",
               cursor: "pointer", fontWeight: 700,
             }}
           >
-            Need practice
+            Review again in this set
           </button>
         </div>
       )}
       {selfAssessment && (
         <div style={{
           marginTop: 8, fontSize: "0.76rem", fontWeight: 600,
-          color: selfAssessment === "got_it" ? PRIMARY_GREEN_FG : "hsl(0, 65%, 42%)",
+          color: selfAssessment === "got_it" ? PRIMARY_GREEN_FG : "hsl(35, 80%, 35%)",
           display: "flex", alignItems: "center", gap: 6,
         }}>
           {selfAssessment === "got_it" ? (
             <>
               <CorrectBurst visible={true} size={20} />
-              ✓ Marked as understood
+              Marked by you for this session
             </>
           ) : (
             <>
               <WrongShake visible={true}>
-                <span style={{ fontSize: 16 }}>↻</span>
+                <span style={{ fontSize: 16 }}>{"\u21BB"}</span>
               </WrongShake>
-              Follow-up queued
+              Marked to review again in this set
             </>
           )}
         </div>

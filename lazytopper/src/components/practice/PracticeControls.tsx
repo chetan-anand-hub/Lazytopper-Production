@@ -47,7 +47,7 @@ export function PracticeControls({
       >
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           <span style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", marginRight: 4, fontWeight: 700 }}>
-            Difficulty:
+            Question level:
           </span>
           {(["All", "Easy", "Medium", "Hard"] as DifficultyChoice[]).map((level) => {
             const active = difficulty === level;
@@ -128,7 +128,7 @@ export function PracticeControls({
               fontWeight: 700,
             }}
           >
-            Regenerate set
+            Build new set
           </button>
           {onCopyLink && hasQuestions && (
             <button

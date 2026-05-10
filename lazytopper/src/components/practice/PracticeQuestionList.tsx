@@ -1,8 +1,7 @@
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
-import { SessionProgressBar } from "./SessionProgressBar";
-type SessionStats = { total: number; gotIt: number; needPractice: number; accuracy: number };
+import { SessionProgressBar, type SessionStats } from "./SessionProgressBar";
 
 export interface PracticeQuestionListProps {
   isLoading: boolean;
@@ -59,7 +58,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
             Preparing your questions...
           </p>
           <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-            Picking the best questions based on your topic and difficulty level.
+            Building a board-style set from your selected scope.
           </p>
         </div>
       )}
