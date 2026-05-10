@@ -799,9 +799,9 @@ const packTopicKey = useMemo(() => {
     >
       <div
         style={{
-          maxWidth: "1180px",
+          maxWidth: "1280px",
           margin: "0 auto",
-          padding: "24px clamp(16px, 4vw, 32px) 48px",
+          padding: "28px clamp(20px, 4vw, 32px) 56px",
         }}
       >
         <nav
@@ -948,9 +948,9 @@ const packTopicKey = useMemo(() => {
               style={{
                 borderRadius: 999,
                 border: "1px solid hsl(220, 18%, 90%)",
-                background: "#ffffff",
+                background: "hsl(210, 33%, 96%)",
                 color: "hsl(220, 15%, 42%)",
-                padding: "5px 10px",
+                padding: "4px 10px",
                 fontSize: "0.75rem",
                 fontWeight: 700,
               }}

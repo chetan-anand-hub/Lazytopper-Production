@@ -14,7 +14,7 @@ export function SessionProgressBar({ stats }: { stats: SessionStats }) {
   return (
     <div
       style={{
-        marginTop: 16, padding: "12px 16px", borderRadius: 16,
+        marginTop: 16, padding: "12px 16px", borderRadius: 14,
         background: "#ffffff",
         border: "1px solid hsl(220, 18%, 90%)",
         boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",

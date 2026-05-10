@@ -16,6 +16,9 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, questionCou
         color: "hsl(220, 25%, 12%)",
         border: "1px solid hsl(220, 18%, 90%)",
         boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
         marginBottom: 18,
       }}
     >
@@ -26,7 +29,7 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, questionCou
           textTransform: "uppercase",
           color: "hsl(152, 55%, 32%)",
           fontWeight: 800,
-          marginBottom: 6,
+          marginBottom: 0,
         }}
       >
         Class {grade} - {subjectKey} - Practice
@@ -35,11 +38,11 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, questionCou
         <h1
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: "2rem",
+            fontSize: "2.1rem",
             lineHeight: 1.15,
             fontWeight: 600,
             letterSpacing: "-0.01em",
-            margin: "0 0 6px",
+            margin: 0,
           }}
         >
           {title}
@@ -53,6 +56,7 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, questionCou
               padding: "4px 12px",
               borderRadius: 999,
               backgroundColor: "hsl(152, 55%, 95%)",
+              border: "1px solid hsl(152, 55%, 80%)",
               color: "hsl(152, 55%, 28%)",
               fontSize: "0.75rem",
               fontWeight: 700,

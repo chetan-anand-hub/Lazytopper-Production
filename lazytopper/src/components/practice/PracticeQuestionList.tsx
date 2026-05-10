@@ -47,9 +47,10 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
           style={{
             padding: "32px 16px",
             textAlign: "center",
-            borderRadius: 16,
-            background: "var(--bg)",
+            borderRadius: 14,
+            background: "#ffffff",
             border: "1px solid var(--bg-card-border)",
+            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
             marginBottom: 12,
           }}
         >
@@ -74,9 +75,10 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
           style={{
             padding: "32px 16px",
             textAlign: "center",
-            borderRadius: 16,
-            background: "var(--bg)",
+            borderRadius: 14,
+            background: "#ffffff",
             border: "1px solid var(--bg-card-border)",
+            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
           }}
         >
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>{"\uD83D\uDD0D"}</div>
@@ -91,8 +93,8 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               href={`/topic-hub/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
-                background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
-                color: "#22c55e", fontSize: "0.82rem", fontWeight: 600,
+                background: "hsl(152, 55%, 45%)", border: "1px solid hsl(152, 55%, 45%)",
+                color: "#ffffff", fontSize: "0.82rem", fontWeight: 700,
                 textDecoration: "none", display: "block",
               }}
             >
@@ -102,8 +104,8 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               href={`/trends/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
-                background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
-                color: "#3b82f6", fontSize: "0.82rem", fontWeight: 600,
+                background: "#ffffff", border: "1px solid hsl(220, 18%, 90%)",
+                color: "hsl(220, 25%, 12%)", fontSize: "0.82rem", fontWeight: 700,
                 textDecoration: "none", display: "block",
               }}
             >
@@ -113,8 +115,8 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               href={`/highly-probable/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
-                background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)",
-                color: "#c084fc", fontSize: "0.82rem", fontWeight: 600,
+                background: "#ffffff", border: "1px solid hsl(220, 18%, 90%)",
+                color: "hsl(220, 25%, 12%)", fontSize: "0.82rem", fontWeight: 700,
                 textDecoration: "none", display: "block",
               }}
             >
