@@ -141,6 +141,21 @@ export function PracticeQuestionCard({
     }, 120);
   }, [isOpen, q, onSetActiveQuestion, onToggleAnswer]);
 
+  const handleToggleCheck = useCallback(() => {
+    const newShow = !showChecker;
+    if (newShow && isOpen) {
+      onToggleAnswer(q.id, q); // close steps when opening check
+    }
+    setShowChecker(newShow);
+  }, [showChecker, isOpen, q, onToggleAnswer]);
+
+  const handleToggleSteps = useCallback(() => {
+    if (!isOpen) {
+      setShowChecker(false); // close check when opening steps
+    }
+    onToggleAnswer(q.id, q);
+  }, [isOpen, showChecker, q, onToggleAnswer]);
+
   const matchedVisual = useMemo(() => {
     return getVisualConceptForQuestion({
       id: String(q.id),
@@ -414,7 +429,7 @@ export function PracticeQuestionCard({
             type="button"
             onClick={() => {
               onSetActiveQuestion(String(q.id));
-              setShowChecker((v) => !v);
+              handleToggleCheck();
             }}
             style={{
               borderRadius: 8, padding: "8px 14px",
@@ -426,7 +441,7 @@ export function PracticeQuestionCard({
               fontWeight: 800,
             }}
           >
-            <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
+            <span>{showChecker ? "Hide check" : "Check my answer"}</span>
           </button>
         )}
         <button
@@ -434,7 +449,7 @@ export function PracticeQuestionCard({
           type="button"
           onClick={() => {
             onSetActiveQuestion(String(q.id));
-            onToggleAnswer(q.id, q);
+            handleToggleSteps();
           }}
           style={{
             borderRadius: 8, padding: "8px 12px",
@@ -446,14 +461,14 @@ export function PracticeQuestionCard({
             fontWeight: 700,
           }}
         >
-          <span>{isOpen ? "Hide steps" : "Compare steps"}</span>
+          <span>{isOpen ? "Hide steps" : "Show steps"}</span>
         </button>
         {hasStructuredOptions && (
           <button
             type="button"
             onClick={() => {
               onSetActiveQuestion(String(q.id));
-              setShowChecker((v) => !v);
+              handleToggleCheck();
             }}
             style={{
               borderRadius: 8, padding: "8px 12px",
@@ -465,7 +480,7 @@ export function PracticeQuestionCard({
               fontWeight: 700,
             }}
           >
-            <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
+            <span>{showChecker ? "Hide check" : "Check my answer"}</span>
           </button>
         )}
       </div>
@@ -497,7 +512,7 @@ export function PracticeQuestionCard({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <strong style={{ fontSize: "0.85rem", color: MARKS_BLUE_FG }}>
-              Step-by-step solution for comparison ({q.marks} {q.marks === 1 ? "mark" : "marks"})
+              Solution steps
             </strong>
           </div>
           <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, marginBottom: 8, lineHeight: 1.45 }}>
@@ -587,7 +602,7 @@ export function PracticeQuestionCard({
                   textUnderlineOffset: 3,
                 }}
               >
-                Teach me this concept
+                Revise this topic
               </button>
               {matchedVisual && (
                 <div style={{ marginTop: 8 }}>
