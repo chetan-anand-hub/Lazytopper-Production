@@ -350,6 +350,9 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // PR-K2F repair — HPQ uses the desktop shell at desktop width while mobile
   // continues through the existing legacy route surface.
   if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
+  // Full Practice route family — render /practice/:grade/:subject inside the
+  // upgraded desktop shell at desktop width while preserving worksheets.
+  if (/^\/practice\/(?!worksheets\/)[^\/]+\/[^\/]+$/.test(pathname)) return true;
   // Desktop Phase 4 — Topic Hub route family.
   // Matches the bare launcher "/topic-hub" and any deep variant such as
   // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and
