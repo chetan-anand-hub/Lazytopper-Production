@@ -35,67 +35,132 @@ export function PracticeControls({
       <section
         className="practice-controls-root"
         style={{
-          display: "flex", flexWrap: "wrap", gap: 10,
-          alignItems: "center", justifyContent: "space-between",
+          display: "flex", flexDirection: "column", gap: 14,
           marginBottom: 18,
-          padding: "14px",
+          padding: 18,
           borderRadius: 14,
           background: "#ffffff",
           border: "1px solid hsl(220, 18%, 90%)",
           boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
         }}
       >
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", marginRight: 4, fontWeight: 700 }}>
-            Difficulty:
-          </span>
-          {(["All", "Easy", "Medium", "Hard"] as DifficultyChoice[]).map((level) => {
-            const active = difficulty === level;
-            return (
-              <button
-                key={level}
-                type="button"
-                onClick={() => onSetDifficulty(level)}
-                style={{
-                  borderRadius: 999, padding: "4px 10px",
-                  border: active ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 90%)",
-                  backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
-                  color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 25%, 12%)",
-                  fontSize: "0.75rem", cursor: "pointer",
-                  fontWeight: active ? 700 : 600,
-                }}
-              >
-                {level === "All" ? "All levels" : level}
-              </button>
-            );
-          })}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 16,
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.12rem",
+                fontWeight: 600,
+                color: "hsl(220, 25%, 12%)",
+                letterSpacing: "-0.01em",
+                margin: "0 0 4px",
+              }}
+            >
+              Build this set
+            </h2>
+            <p style={{ margin: 0, fontSize: "0.8rem", color: "hsl(220, 15%, 42%)", lineHeight: 1.55 }}>
+              Adjust level, type, and count without leaving the workspace.
+            </p>
+          </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", fontWeight: 700 }}>Type:</span>
-          <select
-            value={sectionFilter}
-            onChange={(e) => onSetSectionFilter(e.target.value)}
-            style={{
-              borderRadius: 10, border: "1px solid hsl(220, 18%, 90%)",
-              padding: "4px 10px", fontSize: "0.78rem",
-              background: "#ffffff", color: "hsl(220, 25%, 12%)", cursor: "pointer",
-              width: "auto",
-              margin: 0,
-            }}
-          >
-            <option value="ALL">All</option>
-            <option value="A">A (1m)</option>
-            <option value="B">B (2m)</option>
-            <option value="C">C (3m)</option>
-            <option value="D">D (5m)</option>
-            <option value="E">E (Case, 4m)</option>
-          </select>
-        </div>
+        <div
+          style={{
+            paddingTop: 14,
+            borderTop: "1px solid hsl(220, 18%, 90%)",
+            display: "grid",
+            gap: 10,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{
+              minWidth: 110,
+              fontSize: "0.74rem",
+              fontWeight: 800,
+              color: "hsl(220, 15%, 42%)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}>
+              Question level
+            </span>
+            {(["All", "Easy", "Medium", "Hard"] as DifficultyChoice[]).map((level) => {
+              const active = difficulty === level;
+              return (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => onSetDifficulty(level)}
+                  style={{
+                    borderRadius: 999,
+                    padding: "5px 11px",
+                    border: active ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 90%)",
+                    backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
+                    color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
+                    fontSize: "0.76rem",
+                    cursor: "pointer",
+                    fontWeight: active ? 700 : 600,
+                  }}
+                >
+                  {level === "All" ? "All levels" : level}
+                </button>
+              );
+            })}
+          </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <label style={{ fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", fontWeight: 700, margin: 0 }}>
-            Questions:{" "}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{
+              minWidth: 110,
+              fontSize: "0.74rem",
+              fontWeight: 800,
+              color: "hsl(220, 15%, 42%)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}>
+              Type
+            </span>
+            <select
+              value={sectionFilter}
+              onChange={(e) => onSetSectionFilter(e.target.value)}
+              style={{
+                borderRadius: 10,
+                border: "1px solid hsl(220, 18%, 90%)",
+                padding: "8px 14px",
+                fontSize: "0.85rem",
+                background: "#ffffff",
+                color: "hsl(220, 25%, 12%)",
+                cursor: "pointer",
+                width: "auto",
+                margin: 0,
+              }}
+            >
+              <option value="ALL">All</option>
+              <option value="A">A (1m)</option>
+              <option value="B">B (2m)</option>
+              <option value="C">C (3m)</option>
+              <option value="D">D (5m)</option>
+              <option value="E">E (Case, 4m)</option>
+            </select>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{
+              minWidth: 110,
+              fontSize: "0.74rem",
+              fontWeight: 800,
+              color: "hsl(220, 15%, 42%)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}>
+              Questions
+            </span>
             <input
               type="number"
               min={MIN_QUESTION_COUNT}
@@ -108,35 +173,34 @@ export function PracticeControls({
               }
               style={{
                 width: 58, borderRadius: 10,
-                border: "1px solid hsl(220, 18%, 90%)", padding: "3px 8px",
-                fontSize: "0.78rem", marginLeft: 4,
+                border: "1px solid hsl(220, 18%, 90%)", padding: "7px 10px",
+                fontSize: "0.85rem",
                 background: "#ffffff", color: "hsl(220, 25%, 12%)",
                 marginTop: 0,
                 marginBottom: 0,
               }}
             />
-          </label>
-          <button
-            type="button"
-            onClick={onRegenerate}
-            style={{
-              borderRadius: 10, padding: "7px 12px",
-              border: "1px solid hsl(152, 55%, 45%)",
-              backgroundColor: "hsl(152, 55%, 45%)", color: "#ffffff",
-              fontSize: "0.78rem", cursor: "pointer",
-              display: "inline-flex", alignItems: "center", gap: 6,
-              fontWeight: 700,
-            }}
-          >
-            Regenerate set
-          </button>
-          {onCopyLink && hasQuestions && (
+            <button
+              type="button"
+              onClick={onRegenerate}
+              style={{
+                borderRadius: 8, padding: "8px 14px",
+                border: "1px solid hsl(152, 55%, 45%)",
+                backgroundColor: "hsl(152, 55%, 45%)", color: "#ffffff",
+                fontSize: "0.78rem", cursor: "pointer",
+                display: "inline-flex", alignItems: "center", gap: 6,
+                fontWeight: 800,
+              }}
+            >
+              Build new set
+            </button>
+            {onCopyLink && hasQuestions && (
             <button
               type="button"
               onClick={onCopyLink}
               title="Copy a shareable link to this exact question set"
               style={{
-                borderRadius: 10, padding: "7px 12px",
+                borderRadius: 8, padding: "8px 12px",
                 border: linkCopied ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 82%)",
                 backgroundColor: linkCopied ? "hsl(152, 55%, 95%)" : "#ffffff",
                 color: linkCopied ? "hsl(152, 55%, 28%)" : "hsl(220, 25%, 12%)",
@@ -158,8 +222,8 @@ export function PracticeControls({
               )}
               {linkCopied ? "Link copied!" : "Copy link"}
             </button>
-          )}
-          {onDownloadWorksheet && hasQuestions && (
+            )}
+            {onDownloadWorksheet && hasQuestions && (
             <button
               type="button"
               onClick={onDownloadWorksheet}
@@ -169,7 +233,7 @@ export function PracticeControls({
                   : "Download printable worksheet (PDF)"
               }
               style={{
-                borderRadius: 10, padding: "7px 12px",
+                borderRadius: 8, padding: "8px 12px",
                 border: "1px solid hsl(220, 18%, 82%)",
                 backgroundColor: "#ffffff", color: "hsl(220, 25%, 12%)",
                 fontSize: "0.78rem", cursor: "pointer",
@@ -186,7 +250,8 @@ export function PracticeControls({
                 ? `Download PDF (first ${WORKSHEET_MAX_QUESTIONS})`
                 : "Download PDF"}
             </button>
-          )}
+            )}
+          </div>
         </div>
       </section>
 

@@ -5,7 +5,6 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { usePracticeLimit } from "../components/auth/PracticeLimitGate";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
-import { PredictionCore } from "../data/predictionCore";
 import {
   resolveTopicDisplayName,
   resolveTopicKey as resolveCanonicalTopicKey,
@@ -14,10 +13,7 @@ import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
 import { lazy, Suspense } from "react";
 import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
-import JourneyStrip from "../components/ux/JourneyStrip";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
 import type { PracticeSectionFilter } from "../navigation/practiceNavigation";
-import { recordQuizResult, type QuizResult } from "../services/masteryLevelService";
 import {
   getQuestionFamiliesForTopic,
   getQuestionMeta,
@@ -28,25 +24,13 @@ import {
 import { trackUxEvent } from "../services/uxTelemetry";
 import {
   computeAdaptiveDifficultyMix,
-  createSessionTracker,
-  recordSelfAssessment,
-  getSessionStats,
-  findFollowUpQuestion,
-  markFollowUpInjected,
   getWrongConceptsForTopic,
-  type PracticeSessionTracker,
 } from "../services/adaptivePracticeEngine";
-import {
-  upsertNodeProgress,
-  loadTopicMasterySnapshot,
-  saveTopicMasterySnapshot,
-} from "../services/topicHubMastery";
 import type {
   QuestionFamilyOverlay,
 } from "../data/contentStrategy/types";
 import type { StudentMentorIntent } from "../types/studentMentorIntent";
-import { recordDetour, recordPracticeInPhase } from "../services/guidedJourneyService";
-import { isMissionCompletedToday, getMissionResumeInfo } from "../services/dailyMissionService";
+import { recordDetour } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -64,7 +48,6 @@ import {
   parsePositiveInt,
   parseFocusBankIds,
   parseBooleanFlag,
-  mapUnifiedQuestionToPractice,
 } from "../components/practice/practiceQuestionBuilder";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
@@ -140,9 +123,31 @@ const PracticePage: React.FC = () => {
      (subjectKeyStr ? subjectKeyStr.charAt(0).toUpperCase() + subjectKeyStr.slice(1) : "Subject"))
   );
   const back: string | undefined = navState.back;
+  const qpSource = qp.get("source");
+  const safeReturnTo = useMemo(() => {
+    const rawReturnTo = qp.get("returnTo");
+    if (!rawReturnTo) return null;
+    let decoded = rawReturnTo;
+    try {
+      decoded = decodeURIComponent(rawReturnTo);
+    } catch {
+      decoded = rawReturnTo;
+    }
+    if (!decoded.startsWith("/") || decoded.startsWith("//")) return null;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(decoded)) return null;
+    return decoded;
+  }, [qp]);
+  const practiceBackTo = useMemo(() => {
+    if (safeReturnTo) return safeReturnTo;
+    if (back && typeof back === "string") return back;
+    if (qpSource === "trends") return "/exam-trends";
+    return "/practice-hub";
+  }, [safeReturnTo, back, qpSource]);
   const backLabel: string =
     navState.backLabel ||
-    (back && typeof back === "string" && back.includes("/trends")
+    (practiceBackTo.includes("/practice-hub")
+      ? "Back to Practice"
+      : practiceBackTo.includes("/exam-trends") || practiceBackTo.includes("/trends")
       ? "Back to trends"
       : "Back");
 
@@ -266,9 +271,6 @@ useEffect(() => {
   >({});
   const [regenerationKey, setRegenerationKey] = useState<number>(0);
   const previousQuestionKeys = useRef<Set<string>>(new Set());
-  const [sessionTracker, setSessionTracker] = useState<PracticeSessionTracker>(
-    () => createSessionTracker(topicParam)
-  );
   const [selfAssessments, setSelfAssessments] = useState<Record<string, "got_it" | "need_practice">>({});
   const [mcqSelections, setMcqSelections] = useState<Record<string, number>>({});
   const [mcqResults, setMcqResults] = useState<Record<string, "correct" | "wrong">>({});
@@ -421,29 +423,6 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
     }
   }, [canonicalTopicKey, topicParam, topicLabel, authUserForJourney?.uid]);
 
-  const practiceSessionMasteryRef = useRef(false);
-  useEffect(() => {
-    if (questions.length === 0) { practiceSessionMasteryRef.current = false; return; }
-    const answeredCount = Object.keys(mcqResults).length + Object.keys(selfAssessments).length;
-    if (answeredCount < questions.length || practiceSessionMasteryRef.current) return;
-    practiceSessionMasteryRef.current = true;
-
-    const mcqTotal = Object.keys(mcqResults).length;
-    const mcqCorrectCount = Object.values(mcqResults).filter((r) => r === "correct").length;
-    const nonMcqTotal = Object.keys(selfAssessments).length;
-    const nonMcqCorrectCount = Object.values(selfAssessments).filter((r) => r === "got_it").length;
-    const chapterId = `${grade}-${subjectKey}-${canonicalTopicKey || topicParam}`;
-    const result: QuizResult = {
-      totalQuestions: questions.length,
-      correctAnswers: mcqCorrectCount + nonMcqCorrectCount,
-      mcqCount: mcqTotal,
-      mcqCorrect: mcqCorrectCount,
-      nonMcqCount: nonMcqTotal,
-      nonMcqCorrect: nonMcqCorrectCount,
-    };
-    recordQuizResult(chapterId, result, false);
-  }, [questions, mcqResults, selfAssessments, grade, subjectKey, canonicalTopicKey, topicParam]);
-
 const packTopicKey = useMemo(() => {
   const explicitFromState = navState.topicKey;
   return resolvePracticePackKey({
@@ -518,7 +497,6 @@ const packTopicKey = useMemo(() => {
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
-          setSessionTracker(createSessionTracker(canonicalTopicKey || topicParam));
         }
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : "";
@@ -680,8 +658,11 @@ const packTopicKey = useMemo(() => {
           finalAnswer: q.finalAnswer || undefined,
         });
         setPracticeSolutionData((prev) => ({ ...prev, [id]: result }));
-      } catch (err: unknown) {
-        setPracticeSolutionError((prev) => ({ ...prev, [id]: err instanceof Error ? err.message : "Failed to load solution" }));
+      } catch {
+        setPracticeSolutionError((prev) => ({
+          ...prev,
+          [id]: "Solution steps are unavailable right now. You can still check your work or try again.",
+        }));
       } finally {
         setPracticeSolutionLoading((prev) => ({ ...prev, [id]: false }));
       }
@@ -777,6 +758,22 @@ const packTopicKey = useMemo(() => {
     return idx >= 0 ? idx + 1 : null;
   }, [filteredQuestions, activeQuestion]);
 
+  const sessionStats = useMemo(() => {
+    const attemptedIds = new Set<string>([
+      ...Object.keys(mcqSelections),
+      ...Object.keys(selfAssessments),
+    ]);
+    const localMcqAnswered = Object.keys(mcqSelections).length;
+    return {
+      total: questions.length,
+      attemptedInSet: attemptedIds.size,
+      markedUnderstood: Object.values(selfAssessments).filter((r) => r === "got_it").length,
+      needsAnotherLook: Object.values(selfAssessments).filter((r) => r === "need_practice").length,
+      localMcqAnswered,
+      localMcqCorrect: Object.values(mcqResults).filter((r) => r === "correct").length,
+    };
+  }, [questions.length, mcqSelections, selfAssessments, mcqResults]);
+
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
     [getQuestionStrategyDetails, activeQuestion]
@@ -802,120 +799,51 @@ const packTopicKey = useMemo(() => {
     >
       <div
         style={{
-          maxWidth: "1180px",
+          maxWidth: "1280px",
           margin: "0 auto",
-          padding: "24px clamp(16px, 4vw, 32px) 48px",
+          padding: "28px clamp(20px, 4vw, 32px) 56px",
         }}
       >
-        <ReturnContextBar
-          backTo={back || `/trends/${grade}/${subjectKey}`}
-          backLabel={backLabel}
-          currentLabel="Practice"
-          quickLinks={[
-            { label: "Chapters", to: `/trends/${grade}/${subjectKey}` },
-            {
-              label: "Chapter Hub",
-              to:
-                canonicalTopicKey && topicParam.toLowerCase() !== "generic"
-                  ? `/topic-hub/${grade}/${subjectKey}/${encodeURIComponent(canonicalTopicKey)}`
-                  : `/topic-hub/${grade}/${subjectKey}`,
-            },
-            {
-              label: "Predicted Q's",
-              to:
-                canonicalTopicKey && topicParam.toLowerCase() !== "generic"
-                  ? `/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(canonicalTopicKey)}`
-                  : `/highly-probable/${grade}/${subjectKey}`,
-            },
-            { label: "Fix Weak Areas", to: "/weak-area-practice" },
-          ]}
-        />
-        <JourneyStrip
-          current="practice"
-          grade={grade}
-          subject={subjectKey}
-          topic={topicParam.toLowerCase() !== "generic" ? topicLabel : undefined}
-        />
-
-        {(() => {
-          const missionSubject = subjectKey as "Maths" | "Science";
-          const resumeInfo = getMissionResumeInfo(missionSubject);
-          const doneToday = isMissionCompletedToday(missionSubject);
-          const showMission = true;
-          const isResume = !!resumeInfo;
-          const isDone = doneToday && !resumeInfo;
-          const missionLabel = isDone
-            ? "Today's Mission complete"
-            : isResume
-            ? `Resume Today's Mission - ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
-            : "Start Today's Mission - 4 segments, about 30 min";
-          const missionTone = isDone
-            ? { bg: "hsl(152, 55%, 95%)", fg: "hsl(152, 60%, 30%)", border: "hsl(152, 55%, 80%)" }
-            : isResume
-            ? { bg: "hsl(43, 90%, 94%)", fg: "hsl(35, 80%, 35%)", border: "hsl(38, 75%, 78%)" }
-            : { bg: "hsl(212, 70%, 95%)", fg: "hsl(212, 65%, 32%)", border: "hsl(212, 70%, 85%)" };
-          return (
-            <section
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: 10,
-                marginBottom: 18,
-              }}
-            >
-              {showMission && (
-                <button
-                  onClick={() => navigate(`/daily-mission/${grade}/${subjectKey}`, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } })}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    width: "100%", minHeight: 74, padding: "14px 16px", borderRadius: 12,
-                    border: `1px solid ${missionTone.border}`,
-                    background: missionTone.bg, color: missionTone.fg, fontSize: 13, fontWeight: 700,
-                    cursor: "pointer", gap: 12, textAlign: "left",
-                    fontFamily: "'Inter', sans-serif",
-                  }}
-                >
-                  <span style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    <span style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                      Daily mission
-                    </span>
-                    <span>{missionLabel}</span>
-                  </span>
-                  <span style={{ fontSize: 12, fontWeight: 800 }}>Open</span>
-                </button>
-              )}
-              {[
-                { label: "Quick Practice", sub: "Adjust this set", href: null as string | null },
-                { label: "Mock Test", sub: "Full exam paper", href: `/exam-simulation/${grade}/${subjectKey}` },
-                { label: "Predicted Q's", sub: "HPQ for this subject", href: `/highly-probable/${grade}/${subjectKey}` },
-              ].map(({ label, sub, href }) => (
-                  <button
-                    key={label}
-                    onClick={() => { if (href) navigate(href, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } }); else document.querySelector<HTMLElement>(".practice-controls-root")?.scrollIntoView({ behavior: "smooth" }); }}
-                    style={{
-                      minHeight: 74, display: "flex", flexDirection: "column", alignItems: "flex-start",
-                      justifyContent: "center", gap: 3, padding: "14px 16px", borderRadius: 12,
-                      border: "1px solid hsl(220, 18%, 90%)",
-                      background: "#ffffff", color: "hsl(220, 25%, 12%)",
-                      fontSize: 12, fontWeight: 700, cursor: "pointer",
-                      fontFamily: "'Inter', sans-serif", textAlign: "left",
-                      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-                    }}
-                  >
-                    <span>{label}</span>
-                    <span style={{ fontSize: 11, color: "hsl(220, 15%, 42%)", fontWeight: 500 }}>{sub}</span>
-                  </button>
-                ))}
-            </section>
-          );
-        })()}
+        <nav
+          aria-label="Practice context"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 18,
+            fontSize: "0.8rem",
+            color: "hsl(220, 15%, 42%)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => navigate(practiceBackTo)}
+            style={{
+              border: "1px solid hsl(220, 18%, 90%)",
+              background: "#ffffff",
+              color: "hsl(220, 25%, 12%)",
+              borderRadius: 8,
+              padding: "7px 11px",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+            }}
+          >
+            {backLabel}
+          </button>
+          <span aria-hidden="true">/</span>
+          <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>Practice</span>
+          <span aria-hidden="true">/</span>
+          <span>Class {grade} - {subjectTitle}</span>
+        </nav>
 
         <PracticeHero
           grade={grade}
           subjectKey={subjectKey}
           title={title}
           topicParam={topicParam}
-          canonicalTopicKey={canonicalTopicKey || topicParam}
           questionCount={questionCount}
         />
 
@@ -1011,8 +939,8 @@ const packTopicKey = useMemo(() => {
                 lineHeight: 1.5,
               }}
             >
-              Attempt first, then open the solution. Saved or attempted work is
-              not counted as progress unless checked.
+              Solve in your own order. Check my answer gives real feedback;
+              step solutions are for comparison and learning.
             </p>
           </div>
           {filteredQuestions.length > 0 && (
@@ -1020,9 +948,9 @@ const packTopicKey = useMemo(() => {
               style={{
                 borderRadius: 999,
                 border: "1px solid hsl(220, 18%, 90%)",
-                background: "#ffffff",
+                background: "hsl(210, 33%, 96%)",
                 color: "hsl(220, 15%, 42%)",
-                padding: "5px 10px",
+                padding: "4px 10px",
                 fontSize: "0.75rem",
                 fontWeight: 700,
               }}
@@ -1047,94 +975,30 @@ const packTopicKey = useMemo(() => {
           practiceSolutionLoading={practiceSolutionLoading}
           practiceSolutionError={practiceSolutionError}
           practiceSolutionData={practiceSolutionData}
-          sessionStats={getSessionStats(sessionTracker)}
+          sessionStats={sessionStats}
           onSetActiveQuestion={setActiveQuestionId}
           onToggleAnswer={handleToggleAnswer}
           onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
           onSelfAssessGotIt={(question) => {
-            const concept = String(question.subtopic ?? "");
-            const diff = String(question.difficulty ?? "Medium");
             setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
             recordQuestionAnswered();
-            try {
-              if (localStorage.getItem(FIRST_PRACTICE_KEY) === "started") {
-                trackUxEvent("first_practice_complete", "practice", {});
-                localStorage.setItem(FIRST_PRACTICE_KEY, "complete");
-              }
-            } catch {}
-            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
-            setSessionTracker((prev) => recordSelfAssessment(prev, question.id, "got_it", concept, diff));
-            const topicK = canonicalTopicKey || topicParam;
-            const snap = loadTopicMasterySnapshot(topicK);
-            const nodeId = concept || question.id;
-            const updated = upsertNodeProgress(snap, nodeId, { score: 100, status: "correct" });
-            saveTopicMasterySnapshot(updated, topicK);
           }}
-          onSelfAssessNeedPractice={(question, idx) => {
-            const concept = String(question.subtopic ?? "");
-            const diff = String(question.difficulty ?? "Medium");
+          onSelfAssessNeedPractice={(question) => {
             setSelfAssessments((prev) => ({ ...prev, [question.id]: "need_practice" }));
             recordQuestionAnswered();
-            try {
-              if (localStorage.getItem(FIRST_PRACTICE_KEY) === "started") {
-                trackUxEvent("first_practice_complete", "practice", {});
-                localStorage.setItem(FIRST_PRACTICE_KEY, "complete");
-              }
-            } catch {}
-            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
-            const nextTracker = recordSelfAssessment(sessionTracker, question.id, "need_practice", concept, diff);
-            const pendingFollowUp = nextTracker.followUpQueue.find(
-              (f) => f.sourceQuestionId === question.id && f.injectedAtIndex === -1
-            );
-            if (pendingFollowUp) {
-              const currentIds = new Set(questions.map((fq) => String(fq.id)));
-              const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
-                canonicalTopicKey || topicParam, undefined
-              );
-              const followUp = findFollowUpQuestion(
-                allCandidates, currentIds,
-                pendingFollowUp.conceptKey, pendingFollowUp.difficulty,
-              );
-              if (followUp) {
-                const sourceIdx = questions.findIndex((fq) => String(fq.id) === question.id);
-                const insertAt = sourceIdx >= 0
-                  ? Math.min(sourceIdx + 2, questions.length)
-                  : Math.min(idx + 2, questions.length);
-                const mapped = mapUnifiedQuestionToPractice(followUp as unknown as Record<string, unknown>, `followup-${question.id}`);
-                setQuestions((prev) => {
-                  const copy = [...prev];
-                  copy.splice(insertAt, 0, mapped);
-                  return copy;
-                });
-                setSessionTracker(markFollowUpInjected(nextTracker, question.id, insertAt));
-              } else {
-                setSessionTracker(nextTracker);
-              }
-            } else {
-              setSessionTracker(nextTracker);
-            }
-            const topicK = canonicalTopicKey || topicParam;
-            const snap = loadTopicMasterySnapshot(topicK);
-            const nodeId = concept || question.id;
-            const updated = upsertNodeProgress(snap, nodeId, { score: 20, status: "incorrect" });
-            saveTopicMasterySnapshot(updated, topicK);
           }}
           onOpenConceptDrawer={openConceptDrawer}
           onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
 
 {(() => {
-  const answeredCount = Object.keys(mcqResults).length + Object.keys(selfAssessments).length;
-  const allDone = questions.length > 0 && answeredCount >= questions.length;
+  const allDone = questions.length > 0 && sessionStats.attemptedInSet >= questions.length;
   if (!allDone) return null;
-  const correctCount = Object.values(mcqResults).filter((r) => r === "correct").length + Object.values(selfAssessments).filter((r) => r === "got_it").length;
-  const accuracy = Math.round((correctCount / questions.length) * 100);
   const topicK = canonicalTopicKey || topicParam;
-  const nextActions = [];
-  if (accuracy < 60) {
-    nextActions.push({ label: "Retry with easier questions", icon: "Retry", action: () => { setDifficulty("Easy"); regenerateQuestions(); } });
-  }
+  const nextActions = [
+    { label: "Build a fresh set", icon: "New", action: () => regenerateQuestions() },
+  ];
   nextActions.push({ label: "Chapter Test", icon: "Test", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Predicted Questions", icon: "HPQ", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Study this chapter", icon: "Hub", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
@@ -1149,10 +1013,10 @@ const packTopicKey = useMemo(() => {
     }}>
       <div style={{ marginBottom: 16 }}>
         <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 600, color: "hsl(220, 25%, 12%)", margin: "0 0 4px" }}>
-          Self-check complete - {correctCount}/{questions.length} marked correct or got it ({accuracy}%)
+          Set notes complete - {sessionStats.attemptedInSet}/{questions.length} attempted in this set
         </h3>
         <p style={{ fontSize: "0.84rem", color: "hsl(220, 15%, 42%)", margin: 0, lineHeight: 1.5 }}>
-          This is a practice self-check, not a graded score. Use Check &amp; Improve for real grading before counting progress.
+          This session only. These notes are not graded and are not saved to Me / Progress. Use Check my answer where you want real feedback.
         </p>
       </div>
       <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "hsl(220, 15%, 42%)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>

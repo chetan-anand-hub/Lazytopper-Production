@@ -30,9 +30,8 @@ import { DesktopShell } from "./components/desktop/DesktopShell";
 
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
-// Desktop Phase 2 — locked desktop baseline Practice page (rendered inside
-// DesktopShell at /practice-hub when viewport is >=1024px). Mobile width
-// keeps rendering the existing PracticeHome (mobile chrome) unchanged.
+// Desktop Phase 2 — locked Practice hub surface. PR #73 repair keeps this
+// same scope-builder experience available at mobile width too.
 const DesktopPracticePage = lazy(() => import("./pages/desktop/DesktopPracticePage"));
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -73,7 +72,6 @@ const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 
 // Mobile baseline pages (#437 — real implementations)
 const Intent            = lazy(() => import("./pages/app/Intent"));
-const PracticeHome      = lazy(() => import("./pages/app/PracticeHome"));
 const Worksheets        = lazy(() => import("./pages/app/Worksheets"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
 const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
@@ -352,6 +350,9 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // PR-K2F repair — HPQ uses the desktop shell at desktop width while mobile
   // continues through the existing legacy route surface.
   if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
+  // Full Practice route family — render /practice/:grade/:subject inside the
+  // upgraded desktop shell at desktop width while preserving worksheets.
+  if (/^\/practice\/(?!worksheets\/)[^\/]+\/[^\/]+$/.test(pathname)) return true;
   // Desktop Phase 4 — Topic Hub route family.
   // Matches the bare launcher "/topic-hub" and any deep variant such as
   // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and
@@ -831,17 +832,11 @@ export default function App() {
           <Route path="/intent" element={withRouteSuspense(<Intent />)} />
 
           {/* Practice hub — named /practice-hub to avoid ambiguity with /practice/:grade/:subject.
-              Desktop Phase 2: at desktop width (>=1024px) this renders the locked
-              DesktopPracticePage inside DesktopShell (the conditional shell wrap is
-              applied below). At mobile width, the existing mobile PracticeHome
-              renders unchanged. */}
+              PR #73 repair: render the PR-K2G scope-builder hub at every width
+              so mobile does not fall back to the old PracticeHome surface. */}
           <Route
             path="/practice-hub"
-            element={
-              isDesktop
-                ? withRouteSuspense(<DesktopPracticePage />)
-                : withRouteSuspense(<PracticeHome />)
-            }
+            element={withRouteSuspense(<DesktopPracticePage />)}
           />
 
           {/* Worksheets flow — ready must be before the parent to avoid partial match.
