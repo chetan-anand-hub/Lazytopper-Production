@@ -1,18 +1,26 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-05-07
+Last updated: 2026-05-12
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
 
-## Current post-K2E checkpoint
+## Current post-PR #73 checkpoint
 
-Current verified handoff base after PR #70 merge: `807ca666fd414fc5ce37778ade34479d46013544`.
+Current verified handoff base after PR #73 merge: `39861a455dd9728dea70924e8e9dea6575bf1208`.
 
-PR #70 / K2E trial entitlement audit is merged:
-- final head SHA: `b9d152c44a9dbe317f4cc09a705477aaa7a04e99`
-- merge commit SHA: `807ca666fd414fc5ce37778ade34479d46013544`
-- purpose: docs-only trial entitlement audit
-- result: docs-only PASS WITH FOLLOW-UP
+PR #73 / K2G is merged:
+- final head SHA: `54638b25c6cf2ca88c1f336a91712e2d1d0108ad`
+- merge commit SHA: `39861a455dd9728dea70924e8e9dea6575bf1208`
+- purpose: Practice Level-3 detail finalisation closeout for Practice Hub / full Practice / DesktopShell / CTA polish
+- result: visual/shell/routing/CTA closeout only, not graded evidence or Mistake Intelligence completion
+
+Manual Browser/owner visual QA broadly accepted.
+PR #73 is closed/merged and should remain closed.
+
+Next safe action:
+- Complete this docs-only handoff update.
+- Then start PR-K2H planning/implementation after fresh live base verification of `origin/base/approved-thru-437`.
+- Do not start PR-K2H from stale branches or unverified bases.
 
 Manual 7-day trial entitlement QA passed:
 - Browser Agent auth-blocked by magic-link inbox access limitation

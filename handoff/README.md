@@ -34,9 +34,9 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #66:
+Latest verified live base after PR #73 merge:
 ```
-fe065fb0d9eb10d134d2baaa29b1010a54007966
+39861a455dd9728dea70924e8e9dea6575bf1208
 ```
 
 Important:
@@ -57,7 +57,7 @@ The live base can advance after docs-only handoff PRs. Future sessions must veri
 The handoff folder became active after PR #54 merged into base/approved-thru-437.
 
 Current activation merge commit:
-7518d2fc4a181472b4dafd1969a41d96eec2ec3d
+39861a455dd9728dea70924e8e9dea6575bf1208
 
 From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
 

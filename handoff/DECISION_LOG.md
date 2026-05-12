@@ -1,3 +1,20 @@
+## 2026-05-12T08:16:56Z - PR #73 merged; K2G closeout and K2H graded evidence separation
+
+Decision:
+PR #73 is merged into `base/approved-thru-437` as a Practice visual/shell/routing/CTA closeout only. Practice evidence, Mistake Intelligence, and graded answer bridge work must be handled in a separate PR-K2H stage.
+
+Details:
+- PR #73 final head: `54638b25c6cf2ca88c1f336a91712e2d1d0108ad`
+- Merge commit / new base SHA: `39861a455dd9728dea70924e8e9dea6575bf1208`
+- Completed scope: Practice Hub entry, direct full Practice routing, DesktopShell full Practice rendering, HPQ-like visual grammar, CTA mutual exclusion, local-only session honesty.
+- Not completed: graded Practice evidence, Mistake Intelligence bridge, saved answer quality, filters, solution-quality audit.
+- Manual Browser/owner visual QA broadly accepted.
+
+Implication:
+- PR-K2H must be the next active implementation stage.
+- Practice local MCQ clicks, self-assessment, and Show steps remain learning support, not saved evidence.
+- Do not treat PR #73 as the full graded evidence completion.
+
 ## 2026-05-08T18:33:03Z - Manual authenticated QA may substitute for Browser Agent when HPQ preview is gated
 
 Decision:

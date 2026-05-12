@@ -1,20 +1,20 @@
 # LazyTopper Implementation Roadmap
 
-This roadmap preserves the staged implementation plan from the current PR-K2F checkpoint onward.
+This roadmap preserves the staged implementation plan after PR #73 merge.
 
 Latest verified live base:
 ```
 base/approved-thru-437
-24ac85f61752d1560ea29b26849bda4bb9b60c66
-```
-
-Current implementation branch:
-```
-feat/desktop-pr-k2f-practice-hpq-visual-grammar
+39861a455dd9728dea70924e8e9dea6575bf1208
 ```
 
 Current stage:
-PR-K2F / PR #72 is in progress. It updates Practice and HPQ old-format surfaces to match LazyTopper's Level-3 desktop visual grammar while preserving data honesty. Vercel preview manual authenticated HPQ QA is recorded; final GPT owner audit is pending.
+PR #73 is merged. The next implementation stage is PR-K2H: Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair.
+
+Current implementation branch:
+```
+None (docs-only handoff update)
+```
 
 ## Roadmap rule
 
@@ -32,11 +32,11 @@ Before each implementation stage:
 ## PR-K2F / PR #72 - Practice and HPQ Level-3 visual grammar alignment
 
 Status:
-Open/draft and unmerged. Vercel preview manual authenticated HPQ QA is recorded; final GPT audit is pending.
+Completed and merged. PR #73 is now part of the live base.
 
 PR:
 ```
-https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/73
 ```
 
 Purpose:
