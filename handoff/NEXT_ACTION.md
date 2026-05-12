@@ -13,10 +13,17 @@ This is a docs-only handoff update after PR #73 merge.
 ## Next immediate action
 
 1. Merge this docs-only PR #74 after audit.
-2. Verify `origin/base/approved-thru-437` advances to `39861a455dd9728dea70924e8e9dea6575bf1208` after the docs PR merge.
+2. After PR #74 merges, verify the new `origin/base/approved-thru-437` SHA. It should be a new docs-PR merge commit descended from `39861a455dd9728dea70924e8e9dea6575bf1208`; record that new SHA before starting PR-K2H.
 3. Start PR-K2H from a fresh verified base.
 4. Keep PR-K2H scope strictly to Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair.
 5. Do not start PR-K2H from stale branches or unverified base SHAs.
+
+## PR #69 / K2D separation rule
+
+PR #69 / K2D remains separate from this handoff sequence.
+- Do not merge PR #69 blindly or automatically.
+- Do not absorb K2D into PR-K2H without explicit audit and product owner approval.
+- Each PR must be audited and validated independently before merge.
 
 ## Next sequence
 

@@ -210,7 +210,7 @@ Status:
 Still separate and not merged.
 
 Rule:
-Do not cherry-pick or absorb PR #69/K2D code into PR #72 unless explicitly approved.
+Do not cherry-pick or absorb PR #69/K2D code into other PRs without explicit audit and product owner approval. Each PR must be validated independently before merge. Do not blindly merge PR #69.
 
 ### Mock grading to Mistake Intelligence
 
