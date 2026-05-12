@@ -42,6 +42,18 @@ Latest verified live base after PR #73 merge:
 Important:
 The live base can advance after docs-only handoff PRs. Future sessions must verify `origin/base/approved-thru-437` directly before implementation.
 
+## Current activation status
+
+The handoff folder became active after PR #54 merged into base/approved-thru-437.
+
+Current activation merge commit:
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
+
+Latest verified live base after PR #73 merge:
+39861a455dd9728dea70924e8e9dea6575bf1208
+
+From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
+
 ## Operating model (post-Vercel production setup)
 
 - GitHub is the source of truth.
@@ -51,15 +63,6 @@ The live base can advance after docs-only handoff PRs. Future sessions must veri
 - Do not use the bare root URL except when specifically testing the root redirect.
 - Replit only for fresh clean import/preview workspace if proven clean.
 - Contaminated Replit main must not be used.
-
-## Current activation status
-
-The handoff folder became active after PR #54 merged into base/approved-thru-437.
-
-Current activation merge commit:
-39861a455dd9728dea70924e8e9dea6575bf1208
-
-From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
 
 ## Timestamp rule
 
