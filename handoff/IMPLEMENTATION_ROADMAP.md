@@ -1,20 +1,20 @@
 # LazyTopper Implementation Roadmap
 
-This roadmap preserves the staged implementation plan from the current PR-K2F checkpoint onward.
+This roadmap preserves the staged implementation plan after PR #73 merge.
 
 Latest verified live base:
 ```
 base/approved-thru-437
-24ac85f61752d1560ea29b26849bda4bb9b60c66
-```
-
-Current implementation branch:
-```
-feat/desktop-pr-k2f-practice-hpq-visual-grammar
+39861a455dd9728dea70924e8e9dea6575bf1208
 ```
 
 Current stage:
-PR-K2F / PR #72 is in progress. It updates Practice and HPQ old-format surfaces to match LazyTopper's Level-3 desktop visual grammar while preserving data honesty. Vercel preview manual authenticated HPQ QA is recorded; final GPT owner audit is pending.
+PR #73 is merged. The next implementation stage is PR-K2H: Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair.
+
+Current implementation branch:
+```
+None (docs-only handoff update)
+```
 
 ## Roadmap rule
 
@@ -32,7 +32,7 @@ Before each implementation stage:
 ## PR-K2F / PR #72 - Practice and HPQ Level-3 visual grammar alignment
 
 Status:
-Open/draft and unmerged. Vercel preview manual authenticated HPQ QA is recorded; final GPT audit is pending.
+Completed and merged.
 
 PR:
 ```
@@ -76,33 +76,75 @@ QA note:
 - Product owner manually verified HPQ while signed in / trial-unlocked on the Vercel preview.
 - Remaining issues are question-bank / solution-quality / structured-option completeness, not PR #72 visual grammar.
 
-## PR-K2G - Practice Level-3 detail finalisation
+## PR-K2G / PR #73 - Practice visual/shell/routing/CTA closeout
 
-Purpose:
-Finish remaining Practice page details after broad visual grammar alignment.
+Status:
+Merged.
+
+Final head:
+`54638b25c6cf2ca88c1f336a91712e2d1d0108ad`
+
+Merge commit / base:
+`39861a455dd9728dea70924e8e9dea6575bf1208`
 
 Scope:
-- Practice execution/detail states
-- CTA hierarchy
-- MCQ / option interaction clarity if needed
-- source / return behavior
-- responsive polish
-- honest unavailable states
+- Practice Hub improved as a Level-3 entry surface.
+- Start quick practice now routes directly to full Practice.
+- Inline generated quick-practice detour removed from normal flow.
+- Full Practice now renders in DesktopShell at desktop width.
+- Practice visual grammar moved closer to HPQ/upgraded desktop pages.
+- Back/returnTo from Practice Hub to full Practice fixed.
+- Mobile/narrow Practice Hub no longer falls back to old legacy PracticeHome.
+- CTA labels/panels polished:
+  - Check my answer
+  - Show steps
+  - Hide check
+  - Hide steps
+  - Check and Steps are mutually exclusive.
+- Session notes are local-only and explicitly not saved to Me / Progress.
+- No fake progress/mastery/score/Mistake Intelligence was added.
+
+Not full graded evidence completion:
+- PR-K2G is a visual and UX closeout only.
+- It does not implement the Practice graded evidence path.
+- It does not connect Practice to Mistake Intelligence or Me / Progress from local Practice interactions.
+
+Exit gate:
+- Manual Browser/owner visual QA accepted.
+- Documentation and handoff updated.
+- No product-code work is included in this docs-only stage.
+
+## PR-K2H - Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair
+
+Purpose:
+Make Practice a true Level-3 execution surface that chooses scope, attempts, checks/grades, and saves evidence honestly.
+
+Scope:
+- Audit existing Practice engines and question-generation code.
+- Audit the Check & Improve / SolutionChecker grading path.
+- Design the Practice evidence model.
+- MCQ auto-check only when structured answer key exists.
+- Written grading through typed/uploaded answer checker.
+- Mistake logs only from real checked/graded results.
+- No local attempts or Show steps as saved evidence.
+- Fix step-mark totals or hide uncertain step marks.
+- Add richer section/type/competency filters.
+- Dedupe and improve question tags.
+- Preserve student agency: checking encouraged, not forced unless explicitly needed for grading.
 
 Forbidden:
 - fake progress
 - fake mastery
 - fake score
-- fake Mistake Intelligence
-- broad question-bank edits
-- package/config changes
+- fake Mistake Intelligence from local-only interactions
+- broad question-bank edits unless explicitly scoped in later work
 
 Exit gate:
-- Practice learner flow is visually and behaviorally consistent with Level-3 desktop grammar.
-- Data-honesty copy remains accurate.
+- Practice evidence is honest and grounded in real checked/graded results.
+- Grading and Mistake Intelligence paths are separate from local-only practice interaction.
 - Validation and visual QA pass.
 
-## PR-K2H - Mock pages Level-3 detail finalisation
+## PR-K2I - Mock pages Level-3 detail finalisation
 
 Purpose:
 Bring mock builder / mock attempt / mock review into Level-3 desktop grammar and clarify the real mock lifecycle.
@@ -127,7 +169,7 @@ Exit gate:
 - Mock lifecycle copy is honest.
 - No fake graded evidence is introduced.
 
-## PR-K2I or later - HPQ Question + Solution Quality
+## PR-K2J or later - HPQ Question + Solution Quality
 
 Purpose:
 Audit and improve HPQ question bank completeness, structured MCQ options, solution steps, diagrams, and cache coverage.
@@ -168,7 +210,7 @@ Status:
 Still separate and not merged.
 
 Rule:
-Do not cherry-pick or absorb PR #69/K2D code into PR #72 unless explicitly approved.
+Do not cherry-pick or absorb PR #69/K2D code into other PRs without explicit audit and product owner approval. Each PR must be validated independently before merge. Do not blindly merge PR #69.
 
 ### Mock grading to Mistake Intelligence
 

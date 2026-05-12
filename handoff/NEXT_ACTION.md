@@ -1,98 +1,34 @@
 # LazyTopper Next Action
 
 Timestamp:
-2026-05-08T18:33:03Z
-
-## Current branch and PR
-
-Branch:
-```
-feat/desktop-pr-k2f-practice-hpq-visual-grammar
-```
-
-PR:
-```
-PR #72
-https://github.com/chetan-anand-hub/Lazytopper-Production/pull/72
-```
-
-Base:
-```
-base/approved-thru-437
-24ac85f61752d1560ea29b26849bda4bb9b60c66
-```
-
-Current PR #72 head before this docs update:
-```
-4c331ee22b1d625e118999c07354a13cf1102d9e
-```
+2026-05-12T08:16:56Z
 
 ## Current state
 
-PR-K2F / PR #72 is open/draft and unmerged. It contains the Practice + HPQ visual grammar alignment and HPQ execution-loop repair.
-
-Vercel preview manual authenticated HPQ QA has been recorded. Browser Agent verified Practice visual grammar, but HPQ / Exam Trends Browser QA was inconclusive because the guest Browser Agent hit the Premium Feature interstitial and cannot complete magic-link authenticated QA.
-
-Final GPT owner audit is still pending. Do not mark PR #72 ready for review or merge-ready until the owner explicitly completes that audit.
+This is a docs-only handoff update after PR #73 merge.
+- PR #73 is merged into `base/approved-thru-437`.
+- Live base: `39861a455dd9728dea70924e8e9dea6575bf1208`.
+- No active implementation PR is present in this handoff state.
 
 ## Next immediate action
 
-1. GPT owner performs final GitHub diff audit for PR #72.
-2. Confirm PR #72 changed-file scope remains allowed.
-3. Confirm Vercel preview and manual authenticated HPQ QA evidence are recorded.
-4. If final audit passes, mark PR #72 ready for review / merge as appropriate.
-5. After merge, verify `base/approved-thru-437` advanced to the PR #72 merge commit.
+1. Merge this docs-only PR #74 after audit.
+2. After PR #74 merges, verify the new `origin/base/approved-thru-437` SHA. It should be a new docs-PR merge commit descended from `39861a455dd9728dea70924e8e9dea6575bf1208`; record that new SHA before starting PR-K2H.
+3. Start PR-K2H from a fresh verified base.
+4. Keep PR-K2H scope strictly to Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair.
+5. Do not start PR-K2H from stale branches or unverified base SHAs.
 
-## Required post-PR #72 sequence
+## PR #69 / K2D separation rule
 
-1. PR #72 merge.
-2. Practice Level-3 detail finalisation.
-3. Mock pages Level-3 detail finalisation.
-4. HPQ question / solution quality work.
+PR #69 / K2D remains separate from this handoff sequence.
+- Do not merge PR #69 blindly or automatically.
+- Do not absorb K2D into PR-K2H without explicit audit and product owner approval.
+- Each PR must be audited and validated independently before merge.
 
-## Next implementation stages
+## Next sequence
 
-### Practice detail stage
-
-Finalise Level-3 details of the Practice page after PR #72 merge.
-
-Focus:
-- learner flow
-- CTA clarity
-- question interaction
-- MCQ / option interactivity if needed
-- source / return behavior
-- visual consistency
-- honest unavailable states
-
-Preserve:
-- no fake progress
-- no fake mastery
-- no fake score
-- no fake Mistake Intelligence
-
-### Mock page detail stage
-
-Finalise Level-3 details of Mock builder / mock attempt / mock review pages after the Practice detail stage.
-
-Rules:
-- Do not claim mock performance feeds Mistake Intelligence until real graded mock evidence exists.
-- Future graded mocks must integrate with Mistake Intelligence and Me / Progress only through real graded evidence.
-
-### HPQ question / solution quality stage
-
-Start only after Practice and Mock page Level-3 details are finalised, unless the product owner explicitly reprioritises.
-
-Order:
-1. Data/content audit first.
-2. Data-only structured MCQ options normalization.
-3. Solution / diagram / cache quality repair.
-
-## Guardrails
-
-- Do not claim PR #72 is merged until GitHub shows it merged.
-- Do not claim final GPT audit has passed until the owner completes it.
-- Do not expand PR #72 into question-bank or solution-quality repair.
-- Do not invent MCQ options in UI.
-- Do not claim Add to mock updates progress, scores, profile, or Mistake Intelligence.
-- Do not show raw API/server error text to students.
+A. PR #74 docs-only handoff update
+B. PR-K2H Practice graded evidence / Mistake Intelligence / advanced filters / solution quality
+C. Mock pages Level-3 detail finalisation
+D. HPQ question-bank / solution / diagram / structured-option quality
+E. broader final polish / production-readiness sweep

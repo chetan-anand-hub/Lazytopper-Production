@@ -1,3 +1,64 @@
+## 2026-05-12T08:16:56Z - PR #73 merge recorded; docs-only handoff update before PR-K2H
+
+### Starting state
+- Branch: `docs/post-pr-73-k2g-handoff-update`
+- Base branch: `base/approved-thru-437`
+- Base SHA verified: `39861a455dd9728dea70924e8e9dea6575bf1208`
+- Live PR state verified from GitHub: PR #73 merged into `base/approved-thru-437`
+
+### Work completed
+- Verified GitHub PR #73 live metadata and merge state.
+- Confirmed PR #73 merge commit / new base SHA: `39861a455dd9728dea70924e8e9dea6575bf1208`.
+- Confirmed PR #73 final head before merge: `54638b25c6cf2ca88c1f336a91712e2d1d0108ad`.
+- Updated docs/handoff files only; no product code changed.
+- Recorded the immediate next stage as PR-K2H: Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair.
+
+### GitHub evidence
+- PR: PR #73
+- State: merged
+- Head SHA: `54638b25c6cf2ca88c1f336a91712e2d1d0108ad`
+- Base SHA: `39861a455dd9728dea70924e8e9dea6575bf1208`
+- Merge commit SHA: `39861a455dd9728dea70924e8e9dea6575bf1208`
+- Changed files count: 8
+
+### Validation evidence
+- TypeScript: not applicable for docs-only update
+- Production build: not applicable for docs-only update
+- Build verifier: not applicable for docs-only update
+- Changed-file scope: docs/handoff only
+
+### QA evidence
+- Manual Browser/owner visual QA broadly accepted for PR #73.
+- No product code was changed in this docs-only update.
+- Next stage is PR-K2H after base verification.
+
+### Data-honesty audit
+- PR #73 was classified as visual/shell/routing/CTA closeout, not graded evidence completion.
+- Practice local MCQ clicks, self-assessment, and Show steps are not saved evidence.
+- Real evidence still requires actual checking/grading.
+
+### Decisions made
+- PR #73 is merged and K2G is complete as a visual/shell/CTA closeout.
+- Practice evidence/Mistake Intelligence must be addressed in PR-K2H.
+- This session does not implement product code.
+
+### Session learnings
+- GitHub live PR metadata is the source of truth for merge status and base SHA.
+- Docs-only handoff updates must be recorded immediately after a merge and before starting the next implementation stage.
+- PR-K2H must begin from a freshly verified base after this docs-only update merges.
+
+### Next safe action
+- Merge this docs-only handoff update.
+- Verify `origin/base/approved-thru-437` remains `39861a455dd9728dea70924e8e9dea6575bf1208`.
+- Start PR-K2H from that verified base.
+
+### What the next GPT session must verify first
+- `git fetch origin`
+- `git rev-parse origin/base/approved-thru-437`
+- `git status --short`
+- PR #73 merge state on GitHub
+- no active implementation branch from stale PR #72 or PR #69 contexts
+
 ## 2026-05-08T18:33:03Z - PR #72 manual authenticated HPQ QA recorded; post-merge sequence revised
 
 ### Starting state

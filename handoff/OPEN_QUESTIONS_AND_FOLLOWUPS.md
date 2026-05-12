@@ -1,3 +1,27 @@
+## 2026-05-12 - PR #73 merged; start PR-K2H follow-ups
+
+Status:
+Active follow-up for PR-K2H planning and implementation.
+
+Observation:
+PR #73 is merged. The next active work is PR-K2H, focused on Practice graded evidence, Mistake Intelligence bridge, advanced filters, and solution-quality repair.
+
+Action:
+- Practice should become a true graded evidence loop.
+- Practice should connect checked/graded answers to Mistake Intelligence and Me / Progress only from real checked evidence.
+- Advanced filters are needed for:
+  - Section A/B/C/D/E
+  - marks
+  - MCQ/assertion/case-based/short/long
+  - all/mixed/competency-based
+- The “All” filter should not be assumed to guarantee broad section coverage.
+- Duplicate/repetitive tags need cleanup.
+- Step-mark display should avoid overcounting uncertain step marks.
+- The solution panel should remain clean and not become theory clutter.
+- Topic Hub revision links need stronger routing/UX.
+- Copy/download behaviors may need later verification.
+- Hidden AI top-up/API errors must stay student-safe and should be audited later.
+
 ## 2026-05-08 - PR #72 final GPT audit pending
 
 Status:
