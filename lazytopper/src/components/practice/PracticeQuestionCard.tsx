@@ -208,8 +208,19 @@ export function PracticeQuestionCard({
     };
     return (
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, fontWeight: 600, marginBottom: 8 }}>
-          Select an option for local practice feedback. Not graded or saved to Me / Progress.
+        <div style={{
+          fontSize: "0.76rem", color: TEXT_MUTED, fontWeight: 600, marginBottom: 8,
+          display: "flex", alignItems: "center", gap: 6,
+        }}>
+          <span style={{
+            display: "inline-block", width: 14, height: 14, borderRadius: 999,
+            background: "hsl(215, 75%, 95%)", border: "1px solid hsl(215, 65%, 84%)",
+            color: "hsl(215, 65%, 32%)", fontSize: "0.62rem", fontWeight: 700,
+            textAlign: "center", lineHeight: 1,
+          }}>
+            S
+          </span>
+          Option click feedback — session-only, not saved or graded.
         </div>
         <div
           style={{
@@ -356,7 +367,13 @@ export function PracticeQuestionCard({
             )}
             {q.format && (
               <span style={metaChipStyle(AMBER_SOFT, `1px solid ${AMBER_BORDER}`, AMBER_FG)}>
-                {q.format}
+                {q.format === "Assertion-Reasoning"
+                  ? "Assertion & Reasoning"
+                  : q.format === "VSA"
+                  ? "Very Short Answer"
+                  : q.format === "MCQ"
+                  ? "Multiple Choice"
+                  : q.format}
               </span>
             )}
             <TimeGuideChip marks={q.marks} section={q.section || ""} />
@@ -367,11 +384,6 @@ export function PracticeQuestionCard({
               DIFFICULTY_BADGE[q.difficulty].color,
             )}>
               {q.difficulty}
-            </span>
-          )}
-          {(q.format === "Assertion-Reasoning" || /^Assertion\s*\(A\)/i.test(q.questionText)) && (
-            <span style={metaChipStyle(AMBER_SOFT, `1px solid ${AMBER_BORDER}`, AMBER_FG)}>
-              Assertion & Reasoning
             </span>
           )}
           </div>
@@ -512,11 +524,11 @@ export function PracticeQuestionCard({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <strong style={{ fontSize: "0.85rem", color: MARKS_BLUE_FG }}>
-              Solution steps
+              Solution steps (for comparison)
             </strong>
           </div>
           <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, marginBottom: 8, lineHeight: 1.45 }}>
-            Use these steps to compare your work. This is help, not grading.
+            Compare your working with these steps. This is learning help only — not grading, not saved to Me / Progress.
           </div>
 
           {solutionLoading && (
