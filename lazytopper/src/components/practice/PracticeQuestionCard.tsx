@@ -250,14 +250,6 @@ export function PracticeQuestionCard({
           fontSize: "0.76rem", color: TEXT_MUTED, fontWeight: 600, marginBottom: 8,
           display: "flex", alignItems: "center", gap: 6,
         }}>
-          <span style={{
-            display: "inline-block", width: 14, height: 14, borderRadius: 999,
-            background: "hsl(215, 75%, 95%)", border: "1px solid hsl(215, 65%, 84%)",
-            color: "hsl(215, 65%, 32%)", fontSize: "0.62rem", fontWeight: 700,
-            textAlign: "center", lineHeight: 1,
-          }}>
-            S
-          </span>
           Choose an answer.
         </div>
         <div
