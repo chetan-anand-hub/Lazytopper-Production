@@ -75,6 +75,15 @@ function metaChipStyle(background: string, border: string, color: string) {
   };
 }
 
+
+function formatStepMarkLabel(marks: number): string {
+  const rounded = Math.round(Number(marks) * 2) / 2;
+  if (!Number.isFinite(rounded) || rounded <= 0) return "";
+  if (rounded === 0.5) return "\u00BD mark";
+  if (rounded % 1 === 0.5) return `${Math.floor(rounded)}\u00BD marks`;
+  return `${rounded} ${rounded === 1 ? "mark" : "marks"}`;
+}
+
 export function PracticeQuestionCard({
   q, idx, subjectKey, topicLabel,
   isOpen, selfAssessment, solutionLoading, solutionError, solutionData,
@@ -179,6 +188,40 @@ export function PracticeQuestionCard({
     /^Assertion\s*\(A\)/i.test(q.questionText) ||
     /\b(?:choose the correct|which of the following|mcq)\b/i.test(q.questionText);
   const showOptionlessObjectiveNote = isObjectiveQuestion && !hasStructuredOptions;
+
+  const questionTotalMarks =
+    typeof q.marks === "number" && q.marks > 0
+      ? q.marks
+      : Number(solutionData?.totalMarks || 0);
+
+  const stepMarkTotal =
+    solutionData?.steps?.reduce((sum, step) => {
+      const value = Number(step.marks);
+      return sum + (Number.isFinite(value) ? value : 0);
+    }, 0) ?? 0;
+
+  const stepMarksAreNumeric =
+    !!solutionData?.steps?.length &&
+    solutionData.steps.every((step) => {
+      const value = Number(step.marks);
+      return Number.isFinite(value) && value >= 0;
+    });
+
+  const isWrittenStepMarkCandidate =
+    !!solutionData?.steps?.length &&
+    !isObjectiveQuestion &&
+    questionTotalMarks > 1;
+
+  const hasSafeStepMarks =
+    isWrittenStepMarkCandidate &&
+    stepMarksAreNumeric &&
+    stepMarkTotal > 0 &&
+    Math.abs(stepMarkTotal - questionTotalMarks) <= 0.01;
+
+  const hasUnsafeWrittenStepMarks =
+    isWrittenStepMarkCandidate &&
+    stepMarkTotal > 0 &&
+    !hasSafeStepMarks;
 
   const renderMcqOptions = () => {
     if (!hasStructuredOptions) return null;
@@ -558,8 +601,25 @@ export function PracticeQuestionCard({
             </strong>
           </div>
           <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, marginBottom: 8, lineHeight: 1.45 }}>
-            Compare your working with these steps. This is learning help, not grading.
+            {hasSafeStepMarks
+              ? "Use this CBSE-style marking guide to compare your written answer. This is not grading of your work."
+              : "Compare your working with these steps. This is learning help, not grading."}
           </div>
+          {hasUnsafeWrittenStepMarks && (
+            <div style={{
+              marginBottom: 8,
+              padding: "7px 10px",
+              borderRadius: 9,
+              background: AMBER_SOFT,
+              border: `1px solid ${AMBER_BORDER}`,
+              color: AMBER_FG,
+              fontSize: "0.74rem",
+              fontWeight: 700,
+              lineHeight: 1.4,
+            }}>
+              Step marks are hidden because this solution is a guide, not a verified marking split.
+            </div>
+          )}
 
           {solutionLoading && (
             <div style={{ fontSize: "0.82rem", color: "var(--color-info)", padding: "8px 0" }}>
@@ -588,6 +648,20 @@ export function PracticeQuestionCard({
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "0.8rem", fontWeight: 700, color: TEXT_FG, marginBottom: 2 }}>
                       <MathText text={step.description} />
+                      {hasSafeStepMarks && Number(step.marks) > 0 && (
+                        <span style={{
+                          marginLeft: 8,
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: MARKS_BLUE_FG,
+                          background: MARKS_BLUE_SOFT,
+                          border: `1px solid ${MARKS_BLUE_BORDER}`,
+                          borderRadius: 999,
+                          padding: "1px 7px",
+                        }}>
+                          {formatStepMarkLabel(Number(step.marks))}
+                        </span>
+                      )}
                     </div>
                     <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, lineHeight: 1.5 }}>
                       <MathText text={step.working} />
