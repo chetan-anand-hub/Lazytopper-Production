@@ -619,17 +619,23 @@ export function SolutionChecker({
             <div style={{
               display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", marginBottom: 10,
               borderRadius: 8, fontSize: "0.71rem", fontWeight: 600,
-              ...(logStatus === "saved"
+              ...(logStatus === "saved" || logStatus === "no-mistakes"
                 ? {
                     background: "rgba(34,197,94,0.08)",
                     border: "1px solid rgba(34,197,94,0.2)",
                     color: "hsl(152, 55%, 28%)",
                   }
-                : logStatus === "local-only"
+                : logStatus === "local-only" || logStatus === "cached" || logStatus === "pending"
                 ? {
                     background: "hsl(215, 75%, 95%)",
                     border: "1px solid hsl(215, 65%, 84%)",
                     color: "hsl(215, 65%, 32%)",
+                  }
+                : logStatus === "saving"
+                ? {
+                    background: "hsl(43, 90%, 94%)",
+                    border: "1px solid hsl(38, 75%, 78%)",
+                    color: "hsl(35, 80%, 35%)",
                   }
                 : {
                     background: "rgba(239,68,68,0.08)",
