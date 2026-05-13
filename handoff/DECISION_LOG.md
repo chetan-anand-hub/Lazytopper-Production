@@ -1,3 +1,31 @@
+## 2026-05-13T14:49:10Z - PR #75 merged; PR-K2H-1 checked-evidence doctrine
+
+Decision:
+PR #75 is merged into `base/approved-thru-437` as PR-K2H-1. It hardens Practice checked-evidence states while preserving PR #73 Practice Level-3 visuals. PR #75 is closed/merged and must not be reopened.
+
+Details:
+- PR #75 title: `PR-K2H-1: Harden Practice checked-evidence states`
+- PR #75 URL: `https://github.com/chetan-anand-hub/Lazytopper-Production/pull/75`
+- Final PR head: `1745ca6f93a73b245f8024a3663318fe9aa0d5f6`
+- Merge commit / new base SHA: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`
+- Changed files: 3
+- Commits: 5
+- Completed: checked-answer evidence state hardening, improved SolutionChecker status labels, safer Practice footer/session copy, removal of student-hostile MCQ copy, removal of the MCQ "S" session badge, trusted MCQ click handling as a real answer attempt, wrong trusted MCQ mistake-history logging for eligible signed-in non-local-session learners, and safe CBSE-style step-mark chips for written multi-mark Practice Show Steps when step marks match total question marks.
+- Product PR exclusions: no HPQ files, no TopicHub files, no server/API/package/data/env/docs changes.
+
+Data-honesty doctrine:
+- MCQ click is a real answer attempt when a trusted key exists.
+- Wrong trusted MCQ can feed Mistake Intelligence as objective-question mistake evidence.
+- Correct MCQ durable attempt history is still deferred until a broader attempt-log model exists.
+- Show Steps is model answer / CBSE-style marking guide, not grading of the student's actual work.
+- Check my answer is actual answer checking and richer evidence.
+- No fake progress, mastery, score, weak areas, or Mistake Intelligence were added.
+- Signed-in trial users should receive full feature access during the 7-day trial.
+
+Implication:
+- Next sequence is docs-only handoff update, then PR-K2H-2 route/context repair, PR-K2H-3 durable MCQ answer-attempt model, PR-K2H-4 advanced Practice filters and selection quality, sign-in/trial enforcement pass, Mock Level-3 detail finalisation, HPQ quality work, then broader production-readiness polish.
+- PR #69 / K2D remains separate. Do not merge blindly and do not absorb into K2H without explicit audit and owner approval.
+
 ## 2026-05-12T08:16:56Z - PR #73 merged; K2G closeout and K2H graded evidence separation
 
 Decision:

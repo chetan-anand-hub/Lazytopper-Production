@@ -34,13 +34,33 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #73 merge:
+Latest verified live base after PR #75 merge:
 ```
-39861a455dd9728dea70924e8e9dea6575bf1208
+38f5a56a9a02964b1c6cf49fbd72013da11179ca
 ```
 
 Important:
 The live base can advance after docs-only handoff PRs. Future sessions must verify `origin/base/approved-thru-437` directly before implementation.
+
+Current handoff checkpoint after PR #75:
+- PR #75 / PR-K2H-1 is merged into `base/approved-thru-437`.
+- PR #75 title: `PR-K2H-1: Harden Practice checked-evidence states`.
+- Final PR head: `1745ca6f93a73b245f8024a3663318fe9aa0d5f6`.
+- Merge commit / new base SHA: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`.
+- Changed files: 3.
+- Commits: 5.
+- PR #75 is closed/merged and must not be reopened.
+
+Next implementation sequence after this docs-only handoff update:
+A. PR-K2H-2 route/context repair for HPQ Build Mock back navigation and TopicHub Board Essentials concept-aware Practice routing.
+B. PR-K2H-3 durable MCQ answer-attempt model.
+C. PR-K2H-4 advanced Practice filters and selection quality.
+D. Sign-in/trial enforcement pass for learning surfaces.
+E. Mock pages Level-3 detail finalisation.
+F. HPQ question-bank / solution / diagram / structured-option quality.
+G. Broader final polish / production-readiness sweep.
+
+PR #69 / K2D remains separate. Do not merge it blindly or absorb it into K2H without explicit audit and owner approval.
 
 ## Current activation status
 
@@ -49,8 +69,8 @@ The handoff folder became active after PR #54 merged into base/approved-thru-437
 Current activation merge commit:
 7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 
-Latest verified live base after PR #73 merge:
-39861a455dd9728dea70924e8e9dea6575bf1208
+Latest verified live base after PR #75 merge:
+38f5a56a9a02964b1c6cf49fbd72013da11179ca
 
 From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
 
@@ -237,14 +257,14 @@ git status --short
 
 ## Handoff file map
 
-- `README.md` — SOP and operating model
-- `CURRENT_STATE.md` — latest checkpoint
-- `NEXT_ACTION.md` — immediate next task
-- `IMPLEMENTATION_ROADMAP.md` — full staged implementation sequence
-- `DECISION_LOG.md` — permanent decisions
-- `OPEN_QUESTIONS_AND_FOLLOWUPS.md` — unresolved issues
-- `SESSION_LOG.md` — timestamped session diary
-- `templates/session-update-template.md` — update template
+- `README.md` - SOP and operating model
+- `CURRENT_STATE.md` - latest checkpoint
+- `NEXT_ACTION.md` - immediate next task
+- `IMPLEMENTATION_ROADMAP.md` - full staged implementation sequence
+- `DECISION_LOG.md` - permanent decisions
+- `OPEN_QUESTIONS_AND_FOLLOWUPS.md` - unresolved issues
+- `SESSION_LOG.md` - timestamped session diary
+- `templates/session-update-template.md` - update template
 
 ## Preview and QA rule
 
@@ -260,7 +280,7 @@ Fallback:
 If Browser Agent cannot access Codespaces preview due to certificate, port, forwarding, login, or safe-browsing restrictions, record:
 
 ```
-INCONCLUSIVE — preview access limitation
+INCONCLUSIVE - preview access limitation
 ```
 
 Do not treat that as product failure unless the LazyTopper app itself loads and fails.
@@ -283,7 +303,10 @@ The product must never claim these unless the real data path exists:
 Also include:
 - generated/saved worksheet activity is not mastery
 - worksheet attempted is not checked
-- checked answer is not mistake logged unless the real Check & Improve path logs it
+- checked answer is not mistake logged unless a real checked-evidence path logs it
+- trusted wrong MCQ can feed Mistake Intelligence as objective-question mistake evidence after PR #75
+- correct MCQ durable attempt history remains deferred until a broader attempt-log model exists
+- Show Steps is a model answer / marking guide, not grading of the student's actual work
 - Mistake Intelligence and Me / Progress must be based on saved checked evidence only
 
 ## Mandatory update moments

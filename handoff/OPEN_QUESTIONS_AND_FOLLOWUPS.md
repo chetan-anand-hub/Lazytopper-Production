@@ -1,26 +1,50 @@
-## 2026-05-12 - PR #73 merged; start PR-K2H follow-ups
+## 2026-05-13 - PR #75 merged; post-K2H-1 follow-ups
 
 Status:
-Active follow-up for PR-K2H planning and implementation.
+Active follow-ups after PR-K2H-1 / PR #75 merge.
 
 Observation:
-PR #73 is merged. The next active work is PR-K2H, focused on Practice graded evidence, Mistake Intelligence bridge, advanced filters, and solution-quality repair.
+PR #75 hardened Practice checked-evidence states and allowed trusted wrong MCQ attempts to feed existing mistake-history evidence for eligible signed-in non-local-session learners. It did not add a broad durable attempt-log model, advanced Practice filters, route/context repairs, sign-in/trial enforcement audit, Mock detail finalisation, or HPQ quality repair.
 
 Action:
-- Practice should become a true graded evidence loop.
-- Practice should connect checked/graded answers to Mistake Intelligence and Me / Progress only from real checked evidence.
-- Advanced filters are needed for:
-  - Section A/B/C/D/E
-  - marks
-  - MCQ/assertion/case-based/short/long
-  - all/mixed/competency-based
-- The “All” filter should not be assumed to guarantee broad section coverage.
-- Duplicate/repetitive tags need cleanup.
-- Step-mark display should avoid overcounting uncertain step marks.
-- The solution panel should remain clean and not become theory clutter.
-- Topic Hub revision links need stronger routing/UX.
-- Copy/download behaviors may need later verification.
-- Hidden AI top-up/API errors must stay student-safe and should be audited later.
+- Durable answer-attempt model for correct and wrong MCQ attempts.
+- Advanced Practice filters: Section A/B/C/D/E, marks, type/family, competency, difficulty, count.
+- HPQ -> Build mock -> Back should return to HPQ, not old Exam Trends.
+- TopicHub Board Essentials -> Practise this should open context-aware Practice for that exact concept/focus, not generic topic Practice.
+- Sign-in/trial enforcement pass across learning surfaces so Firestore-backed Me / Progress and Mistake Intelligence can work reliably.
+- Verify generated step-solution cache / `step_solutions` behavior on deployed environment.
+- Mock Level-3 detail finalisation.
+- HPQ question-bank / solution / diagram / structured-option quality.
+
+Data-honesty rules:
+- MCQ click is a real answer attempt.
+- Wrong trusted MCQ can feed Mistake Intelligence as objective-question mistake evidence.
+- Correct MCQ durable attempt history remains deferred until a broader attempt-log model exists.
+- Show Steps is model answer / CBSE-style marking guide, not grading of the student's actual work.
+- Check my answer is actual answer checking and richer evidence.
+- No fake progress, mastery, score, weak areas, or Mistake Intelligence should be introduced.
+
+PR #69 / K2D warning:
+PR #69 / K2D remains separate. Do not merge blindly. Do not absorb into K2H without explicit audit and owner approval.
+
+## 2026-05-12 - PR #73 K2H follow-up seed; superseded by PR #75
+
+Status:
+Historical follow-up seed. Current active implementation after PR #75 / PR-K2H-1 is PR-K2H-2 route/context repair.
+
+Observation:
+PR #75 / PR-K2H-1 is merged. Next active implementation is PR-K2H-2 route/context repair. PR #75 completed the first checked-evidence hardening slice, but durable Practice evidence, routing, filtering, sign-in/trial, step-solution, Mock, and HPQ quality follow-ups remain.
+
+Action:
+- PR-K2H-2 route/context repair:
+  - HPQ Build Mock back navigation should return to HPQ, not old Exam Trends.
+  - TopicHub Board Essentials -> Practise this should open context-aware Practice for that exact concept/focus, not generic topic Practice.
+- Durable MCQ answer-attempt model for correct and wrong attempts.
+- Advanced Practice filters: Section A/B/C/D/E, marks, type/family, competency, difficulty, count.
+- Sign-in/trial enforcement pass across learning surfaces.
+- Verify generated step-solution cache / `step_solutions` behavior on deployed environment.
+- Mock Level-3 detail finalisation.
+- HPQ question-bank / solution / diagram / structured-option quality.
 
 ## 2026-05-08 - PR #72 final GPT audit pending
 
