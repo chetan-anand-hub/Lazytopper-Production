@@ -1,3 +1,97 @@
+## 2026-05-13T14:49:10Z - PR #75 merge recorded; docs-only handoff update before PR-K2H-2
+
+### Starting state
+- Branch: `docs/post-pr-75-k2h-1-handoff-update`
+- Base branch: `base/approved-thru-437`
+- Base SHA verified: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`
+- Live PR state verified from GitHub: PR #75 merged into `base/approved-thru-437`
+- Local task scope: docs-only handoff update
+
+### GitHub evidence
+- PR: PR #75
+- URL: `https://github.com/chetan-anand-hub/Lazytopper-Production/pull/75`
+- Title: `PR-K2H-1: Harden Practice checked-evidence states`
+- State: `MERGED`
+- Base ref: `base/approved-thru-437`
+- Head ref: `feat/desktop-pr-k2h-1-practice-checked-evidence`
+- Final head SHA: `1745ca6f93a73b245f8024a3663318fe9aa0d5f6`
+- Merge commit / new base SHA: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`
+- Changed files count: 3
+- Commits count: 5
+
+### Work completed
+- Updated docs/handoff files only; no product code changed.
+- Recorded PR #75 closed/merged state and the new verified base checkpoint.
+- Recorded what PR #75 completed:
+  - preserved PR #73 Practice Level-3 visuals
+  - hardened checked-answer evidence states
+  - improved SolutionChecker status labels across shared checker usage
+  - removed student-hostile MCQ copy such as "local practice feedback" and "stored key"
+  - removed the small MCQ "S" session badge
+  - treated MCQ option click as a real answer attempt where a trusted key exists
+  - logged wrong trusted MCQ attempts through the existing mistake-history path for signed-in non-local-session learners
+  - preserved typed/uploaded Check my answer as the richer checked-answer path
+  - updated Practice footer/session copy so it no longer says "not saved to Me / Progress"
+  - restored safe CBSE-style step-mark chips for written multi-mark Practice Show Steps when returned step marks match total question marks
+  - hid step-mark chips for MCQ/objective and 1-mark questions
+  - hid unsafe step splits with guide-only warning
+  - did not touch HPQ, TopicHub, server/API/package/data/env/docs in the product PR
+- Recorded the next recommended sequence:
+  A. Docs-only handoff update after PR #75 merge.
+  B. PR-K2H-2 route/context repair for HPQ Build Mock back navigation and TopicHub Board Essentials concept-aware Practice routing.
+  C. PR-K2H-3 durable MCQ answer-attempt model.
+  D. PR-K2H-4 advanced Practice filters and selection quality.
+  E. Sign-in/trial enforcement pass for learning surfaces.
+  F. Mock pages Level-3 detail finalisation.
+  G. HPQ question-bank / solution / diagram / structured-option quality.
+  H. Broader final polish / production-readiness sweep.
+
+### Data-honesty audit
+- MCQ click is a real answer attempt when a trusted key exists.
+- Wrong trusted MCQ can feed Mistake Intelligence as objective-question mistake evidence.
+- Correct MCQ durable attempt history remains deferred until a broader attempt-log model exists.
+- Show Steps is model answer / CBSE-style marking guide, not grading of the student's actual work.
+- Check my answer is actual answer checking and richer evidence.
+- No fake progress/mastery/score/weak areas/Mistake Intelligence were added.
+- Signed-in trial users should receive full feature access during the 7-day trial.
+
+### Known follow-ups
+- Durable answer-attempt model for correct and wrong MCQ attempts.
+- Advanced Practice filters: Section A/B/C/D/E, marks, type/family, competency, difficulty, count.
+- HPQ -> Build mock -> Back should return to HPQ, not old Exam Trends.
+- TopicHub Board Essentials -> Practise this should open context-aware Practice for that exact concept/focus, not generic topic Practice.
+- Sign-in/trial enforcement pass across learning surfaces so Firestore-backed Me / Progress and Mistake Intelligence can work reliably.
+- Verify generated step-solution cache / `step_solutions` behavior on deployed environment.
+- Mock Level-3 detail finalisation.
+- HPQ question-bank / solution / diagram / structured-option quality.
+
+### PR #69 / K2D warning
+- PR #69 / K2D remains separate.
+- Do not merge blindly.
+- Do not absorb into K2H without explicit audit and owner approval.
+
+### Branch hygiene
+- Current branch is `docs/post-pr-75-k2h-1-handoff-update`.
+- This session intentionally edited docs/handoff files only.
+- Do not commit or push until the local diff is reviewed.
+
+### Validation evidence
+- `git diff --check`: PASS.
+- Working-tree changed files are docs/handoff only.
+- `git diff --name-only origin/base/approved-thru-437...HEAD`: empty because this docs-only work is intentionally uncommitted pending diff review.
+- Build not run because this is a docs-only update and no code files changed.
+
+### Session learnings
+- GitHub live PR metadata matched the supplied PR #75 facts exactly.
+- `origin/base/approved-thru-437` advanced to `38f5a56a9a02964b1c6cf49fbd72013da11179ca` after fetch.
+- PR-K2H should now continue as smaller follow-up slices rather than treating PR #75 as complete Practice evidence architecture.
+- Wrong trusted MCQ evidence and typed/uploaded answer checking are different evidence paths; future docs and UI should keep that distinction clear.
+
+### Next safe action
+- Review this docs-only diff.
+- If the diff is accepted, create the docs-only handoff PR.
+- Start PR-K2H-2 route/context repair only after fresh live base verification.
+
 ## 2026-05-12T08:16:56Z - PR #73 merge recorded; docs-only handoff update before PR-K2H
 
 ### Starting state
@@ -47,10 +141,13 @@
 - Docs-only handoff updates must be recorded immediately after a merge and before starting the next implementation stage.
 - PR-K2H must begin from a freshly verified base after this docs-only update merges.
 
-### Next safe action
+### Historical next safe action at the time
 - Merge this docs-only handoff update.
 - Verify `origin/base/approved-thru-437` remains `39861a455dd9728dea70924e8e9dea6575bf1208`.
 - Start PR-K2H from that verified base.
+
+Historical note:
+This PR #73 entry is superseded by the later PR #75 merge. After PR #75 merge, current base checkpoint is `38f5a56a9a02964b1c6cf49fbd72013da11179ca`.
 
 ### What the next GPT session must verify first
 - `git fetch origin`

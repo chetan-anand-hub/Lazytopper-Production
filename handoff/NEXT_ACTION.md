@@ -1,34 +1,50 @@
 # LazyTopper Next Action
 
 Timestamp:
-2026-05-12T08:16:56Z
+2026-05-13T14:49:10Z UTC / 2026-05-13 20:19 IST
 
-## Current state
+## Current State
 
-This is a docs-only handoff update after PR #73 merge.
-- PR #73 is merged into `base/approved-thru-437`.
-- Live base: `39861a455dd9728dea70924e8e9dea6575bf1208`.
-- No active implementation PR is present in this handoff state.
+This is a docs-only handoff update after PR #75 merge.
+- PR #75 is merged into `base/approved-thru-437`.
+- PR #75 is closed/merged and must not be reopened.
+- Live base: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`.
+- Final PR #75 head: `1745ca6f93a73b245f8024a3663318fe9aa0d5f6`.
+- No product implementation PR is active in this handoff update.
 
-## Next immediate action
+## Next Immediate Action
 
-1. Merge this docs-only PR #74 after audit.
-2. After PR #74 merges, verify the new `origin/base/approved-thru-437` SHA. It should be a new docs-PR merge commit descended from `39861a455dd9728dea70924e8e9dea6575bf1208`; record that new SHA before starting PR-K2H.
-3. Start PR-K2H from a fresh verified base.
-4. Keep PR-K2H scope strictly to Practice graded evidence + Mistake Intelligence bridge + advanced filters + solution-quality repair.
-5. Do not start PR-K2H from stale branches or unverified base SHAs.
+1. Merge this docs-only handoff PR after audit.
+2. After merge, verify the new `origin/base/approved-thru-437` SHA.
+3. Start PR-K2H-2 route/context repair from a fresh verified base.
+4. Do not start implementation from stale local branches.
 
-## PR #69 / K2D separation rule
+## Next Implementation Sequence
+
+A. Docs-only handoff update after PR #75 merge.
+B. PR-K2H-2 route/context repair:
+   - HPQ Build Mock back navigation.
+   - TopicHub Board Essentials concept-aware Practice routing.
+C. PR-K2H-3 durable MCQ answer-attempt model.
+D. PR-K2H-4 advanced Practice filters and selection quality.
+E. Sign-in/trial enforcement pass for learning surfaces.
+F. Mock pages Level-3 detail finalisation.
+G. HPQ question-bank / solution / diagram / structured-option quality.
+H. Broader final polish / production-readiness sweep.
+
+## Data-Honesty Guardrails
+
+- MCQ click is a real answer attempt when a trusted key exists.
+- Wrong trusted MCQ can feed Mistake Intelligence as objective-question mistake evidence.
+- Correct MCQ durable attempt history is deferred until a broader attempt-log model exists.
+- Show Steps is a model answer / CBSE-style marking guide, not grading of the student's actual work.
+- Check my answer remains the richer actual-answer-checking path.
+- Do not add fake progress, mastery, score, weak areas, or Mistake Intelligence.
+- Signed-in trial users should receive full feature access during the 7-day trial.
+
+## PR #69 / K2D Separation Rule
 
 PR #69 / K2D remains separate from this handoff sequence.
 - Do not merge PR #69 blindly or automatically.
-- Do not absorb K2D into PR-K2H without explicit audit and product owner approval.
+- Do not absorb K2D into K2H without explicit audit and product owner approval.
 - Each PR must be audited and validated independently before merge.
-
-## Next sequence
-
-A. PR #74 docs-only handoff update
-B. PR-K2H Practice graded evidence / Mistake Intelligence / advanced filters / solution quality
-C. Mock pages Level-3 detail finalisation
-D. HPQ question-bank / solution / diagram / structured-option quality
-E. broader final polish / production-readiness sweep

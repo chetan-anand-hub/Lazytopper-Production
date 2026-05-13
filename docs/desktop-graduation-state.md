@@ -1,50 +1,77 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-05-12
+Last updated: 2026-05-13T14:49:10Z UTC / 2026-05-13 20:19 IST
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
 
-## Current post-PR #73 checkpoint
+## Current post-PR #75 checkpoint
 
-Current verified handoff base after PR #73 merge: `39861a455dd9728dea70924e8e9dea6575bf1208`.
+Current verified handoff base after PR #75 merge: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`.
 
-PR #73 / K2G is merged:
-- final head SHA: `54638b25c6cf2ca88c1f336a91712e2d1d0108ad`
-- merge commit SHA: `39861a455dd9728dea70924e8e9dea6575bf1208`
-- purpose: Practice Level-3 detail finalisation closeout for Practice Hub / full Practice / DesktopShell / CTA polish
-- result: visual/shell/routing/CTA closeout only, not graded evidence or Mistake Intelligence completion
+PR #75 / PR-K2H-1 is merged:
+- title: `PR-K2H-1: Harden Practice checked-evidence states`
+- PR: `https://github.com/chetan-anand-hub/Lazytopper-Production/pull/75`
+- final head SHA: `1745ca6f93a73b245f8024a3663318fe9aa0d5f6`
+- merge commit SHA: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`
+- changed files: 3
+- commits: 5
+- result: Practice checked-evidence states hardened without broad attempt-history, HPQ, TopicHub, server/API, package, data, env, or docs changes in the product PR
 
-Manual Browser/owner visual QA broadly accepted.
-PR #73 is closed/merged and should remain closed.
+PR #75 is closed/merged and should remain closed.
 
-Next safe action:
-- Complete this docs-only handoff update.
-- Then start PR-K2H planning/implementation after fresh live base verification of `origin/base/approved-thru-437`.
-- Do not start PR-K2H from stale branches or unverified bases.
+What PR #75 completed:
+- Preserved PR #73 Practice Level-3 visuals.
+- Hardened checked-answer evidence states.
+- Improved SolutionChecker status labels across shared checker usage.
+- Removed student-hostile MCQ copy such as "local practice feedback" and "stored key."
+- Removed the small MCQ "S" session badge.
+- Treated MCQ option click as a real answer attempt where a trusted key exists.
+- Logged wrong trusted MCQ attempts through the existing mistake-history path for signed-in non-local-session learners.
+- Preserved typed/uploaded Check my answer as the richer checked-answer path.
+- Updated Practice footer/session copy so it no longer says "not saved to Me / Progress."
+- Restored safe CBSE-style step-mark chips for written multi-mark Practice Show Steps when returned step marks match total question marks.
+- Hid step-mark chips for MCQ/objective and 1-mark questions.
+- Hid unsafe step splits with guide-only warning.
+- Did not touch HPQ files.
+- Did not touch TopicHub files.
+- Did not touch server/API/package/data/env/docs in the product PR.
 
-Manual 7-day trial entitlement QA passed:
-- Browser Agent auth-blocked by magic-link inbox access limitation
-- Manual human QA substituted after signing in with real magic link
-- Trial unlock functionality confirmed working
-- Trial entitlement not the blocker
+Data-honesty doctrine after PR #75:
+- MCQ click is a real answer attempt.
+- Wrong trusted MCQ can feed Mistake Intelligence as objective-question mistake evidence.
+- Correct MCQ durable attempt history is still deferred until a broader attempt-log model exists.
+- Show Steps is model answer / CBSE-style marking guide, not grading of the student's actual work.
+- Check my answer is actual answer checking and richer evidence.
+- No fake progress/mastery/score/weak areas/Mistake Intelligence were added.
+- Signed-in trial users should receive full feature access during the 7-day trial.
 
-New product follow-up identified:
-- Practice and HPQ pages render in old-format design
-- They function correctly but lack Level-3 / desktop design grammar parity
-- Visual/design parity issue now flagged as pre-graduation follow-up
-- Likely implementation: PR-K2F or equivalent, after fresh handoff audit
+Known follow-ups after PR #75:
+- Durable answer-attempt model for correct and wrong MCQ attempts.
+- Advanced Practice filters: Section A/B/C/D/E, marks, type/family, competency, difficulty, count.
+- HPQ -> Build mock -> Back should return to HPQ, not old Exam Trends.
+- TopicHub Board Essentials -> Practise this should open context-aware Practice for that exact concept/focus, not generic topic Practice.
+- Sign-in/trial enforcement pass across learning surfaces so Firestore-backed Me / Progress and Mistake Intelligence can work reliably.
+- Verify generated step-solution cache / `step_solutions` behavior on deployed environment.
+- Mock Level-3 detail finalisation.
+- HPQ question-bank / solution / diagram / structured-option quality.
+
+Next recommended sequence:
+A. Docs-only handoff update after PR #75 merge.
+B. PR-K2H-2 route/context repair:
+   - HPQ Build Mock back navigation.
+   - TopicHub Board Essentials concept-aware Practice routing.
+C. PR-K2H-3 durable MCQ answer-attempt model.
+D. PR-K2H-4 advanced Practice filters and selection quality.
+E. Sign-in/trial enforcement pass for learning surfaces.
+F. Mock pages Level-3 detail finalisation.
+G. HPQ question-bank / solution / diagram / structured-option quality.
+H. Broader final polish / production-readiness sweep.
 
 PR #69 / K2D status:
-- Remains open and draft
-- Behind current base after PR #70 merge
-- Must be updated/rebased before merge consideration
-- Does not count as merged; do not proceed with K2D-dependent work without explicit rebase/update
-
-Next safe action:
-- Complete and merge this docs-only handoff repair PR
-- Fresh GPT session must read all handoff files and verify live GitHub state
-- Do not start implementation until PR #69 state and Practice/HPQ visual grammar issue are reviewed
-- Next likely implementation planning target: Level-3 design grammar alignment for Practice and HPQ old-format surfaces
+- Remains separate.
+- Do not merge blindly.
+- Do not absorb into K2H without explicit audit and owner approval.
+- Verify live GitHub state before acting on PR #69.
 
 ## Current post-K2C checkpoint (historical)
 
