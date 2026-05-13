@@ -22,12 +22,12 @@ export function SessionProgressBar({ stats }: { stats: SessionStats }) {
         alignItems: "center", fontSize: "0.8rem",
       }}
     >
-      <span style={{ fontWeight: 700, color: "var(--text)" }}>Local practice notes</span>
+      <span style={{ fontWeight: 700, color: "var(--text)" }}>This practice set</span>
       <span style={{ color: "hsl(220, 15%, 42%)" }}>
         This session only
       </span>
       <span style={{ color: "hsl(220, 25%, 12%)" }}>
-        {stats.attemptedInSet}/{stats.total} attempted in this set
+        {stats.attemptedInSet}/{stats.total} tried
       </span>
       {stats.markedUnderstood > 0 && (
         <span style={{ color: "hsl(152, 55%, 28%)" }}>
@@ -41,11 +41,11 @@ export function SessionProgressBar({ stats }: { stats: SessionStats }) {
       )}
       {stats.localMcqAnswered > 0 && (
         <span style={{ color: "hsl(215, 65%, 32%)" }}>
-          MCQ feedback: {stats.localMcqCorrect}/{stats.localMcqAnswered}
+          MCQ answers: {stats.localMcqCorrect}/{stats.localMcqAnswered}
         </span>
       )}
       <span style={{ color: "hsl(220, 15%, 42%)" }}>
-        Not graded. Not saved to Me / Progress.
+        Checked answers and mistakes help build your practice history.
       </span>
     </div>
   );

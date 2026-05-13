@@ -9,6 +9,7 @@ import { CorrectBurst, WrongShake } from "../celebrations";
 import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
 import { VisualExplainer } from "../VisualExplainer";
 import { useAuth } from "../../context/AuthContext";
+import { logMistakes } from "../../services/mistakeLogService";
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -72,6 +73,15 @@ function metaChipStyle(background: string, border: string, color: string) {
     color,
     lineHeight: 1.2,
   };
+}
+
+
+function formatStepMarkLabel(marks: number): string {
+  const rounded = Math.round(Number(marks) * 2) / 2;
+  if (!Number.isFinite(rounded) || rounded <= 0) return "";
+  if (rounded === 0.5) return "\u00BD mark";
+  if (rounded % 1 === 0.5) return `${Math.floor(rounded)}\u00BD marks`;
+  return `${rounded} ${rounded === 1 ? "mark" : "marks"}`;
 }
 
 export function PracticeQuestionCard({
@@ -179,6 +189,40 @@ export function PracticeQuestionCard({
     /\b(?:choose the correct|which of the following|mcq)\b/i.test(q.questionText);
   const showOptionlessObjectiveNote = isObjectiveQuestion && !hasStructuredOptions;
 
+  const questionTotalMarks =
+    typeof q.marks === "number" && q.marks > 0
+      ? q.marks
+      : Number(solutionData?.totalMarks || 0);
+
+  const stepMarkTotal =
+    solutionData?.steps?.reduce((sum, step) => {
+      const value = Number(step.marks);
+      return sum + (Number.isFinite(value) ? value : 0);
+    }, 0) ?? 0;
+
+  const stepMarksAreNumeric =
+    !!solutionData?.steps?.length &&
+    solutionData.steps.every((step) => {
+      const value = Number(step.marks);
+      return Number.isFinite(value) && value >= 0;
+    });
+
+  const isWrittenStepMarkCandidate =
+    !!solutionData?.steps?.length &&
+    !isObjectiveQuestion &&
+    questionTotalMarks > 1;
+
+  const hasSafeStepMarks =
+    isWrittenStepMarkCandidate &&
+    stepMarksAreNumeric &&
+    stepMarkTotal > 0 &&
+    Math.abs(stepMarkTotal - questionTotalMarks) <= 0.01;
+
+  const hasUnsafeWrittenStepMarks =
+    isWrittenStepMarkCandidate &&
+    stepMarkTotal > 0 &&
+    !hasSafeStepMarks;
+
   const renderMcqOptions = () => {
     if (!hasStructuredOptions) return null;
     const opts = q.options ?? [];
@@ -203,13 +247,53 @@ export function PracticeQuestionCard({
       if (result) return;
       onMcqSelect(qId, oi);
       if (correctIdx >= 0) {
-        onMcqResult(qId, oi === correctIdx ? "correct" : "wrong");
+        const resultStatus = oi === correctIdx ? "correct" : "wrong";
+        onMcqResult(qId, resultStatus);
+
+        // MCQ option click is a real answer attempt. When the correct answer key is trusted
+        // and the signed-in learner gets it wrong, record objective-question mistake
+        // evidence using the existing mistake history path. Correct attempts do not
+        // have a durable answer-attempt store yet, so they remain visible in-session
+        // until a broader attempt-log model is added.
+        if (
+          resultStatus === "wrong" &&
+          user?.uid &&
+          !(user as { isLocalSession?: boolean }).isLocalSession
+        ) {
+          const marksLost = typeof q.marks === "number" && q.marks > 0 ? q.marks : 1;
+          logMistakes(user.uid, {
+            timestamp: new Date().toISOString(),
+            questionText: q.questionText,
+            topic: topicLabel,
+            subject: subjectKey,
+            totalMarks: marksLost,
+            marksLost,
+            mistakeCounts: {
+              conceptual: 1,
+              calculation: 0,
+              silly: 0,
+              presentation: 0,
+            },
+            stepDetails: [
+              {
+                stepNumber: 1,
+                mistakeType: "conceptual",
+                marksDeducted: marksLost,
+              },
+            ],
+          }).catch(() => {
+            // Keep MCQ feedback student-safe; saved history can recover on next checked answer.
+          });
+        }
       }
     };
     return (
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, fontWeight: 600, marginBottom: 8 }}>
-          Select an option for local practice feedback. Not graded or saved to Me / Progress.
+        <div style={{
+          fontSize: "0.76rem", color: TEXT_MUTED, fontWeight: 600, marginBottom: 8,
+          display: "flex", alignItems: "center", gap: 6,
+        }}>
+          Choose an answer.
         </div>
         <div
           style={{
@@ -302,14 +386,14 @@ export function PracticeQuestionCard({
             {result === "correct" ? (
               <>
                 <CorrectBurst visible={true} size={24} />
-                Local practice feedback: correct.
+                Correct.
               </>
             ) : (
               <>
                 <WrongShake visible={true}>
                   <span style={{ fontSize: 20 }}>{"\u2717"}</span>
                 </WrongShake>
-                {`Local practice feedback: answer ${String.fromCharCode(65 + correctIdx)} fits the stored key.`}
+                {`Not quite - ${String.fromCharCode(65 + correctIdx)} is the correct answer.`}
               </>
             )}
           </div>
@@ -356,7 +440,13 @@ export function PracticeQuestionCard({
             )}
             {q.format && (
               <span style={metaChipStyle(AMBER_SOFT, `1px solid ${AMBER_BORDER}`, AMBER_FG)}>
-                {q.format}
+                {q.format === "Assertion-Reasoning"
+                  ? "Assertion & Reasoning"
+                  : q.format === "VSA"
+                  ? "Very Short Answer"
+                  : q.format === "MCQ"
+                  ? "Multiple Choice"
+                  : q.format}
               </span>
             )}
             <TimeGuideChip marks={q.marks} section={q.section || ""} />
@@ -367,11 +457,6 @@ export function PracticeQuestionCard({
               DIFFICULTY_BADGE[q.difficulty].color,
             )}>
               {q.difficulty}
-            </span>
-          )}
-          {(q.format === "Assertion-Reasoning" || /^Assertion\s*\(A\)/i.test(q.questionText)) && (
-            <span style={metaChipStyle(AMBER_SOFT, `1px solid ${AMBER_BORDER}`, AMBER_FG)}>
-              Assertion & Reasoning
             </span>
           )}
           </div>
@@ -512,12 +597,29 @@ export function PracticeQuestionCard({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <strong style={{ fontSize: "0.85rem", color: MARKS_BLUE_FG }}>
-              Solution steps
+              Solution steps (for comparison)
             </strong>
           </div>
           <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, marginBottom: 8, lineHeight: 1.45 }}>
-            Use these steps to compare your work. This is help, not grading.
+            {hasSafeStepMarks
+              ? "Use this CBSE-style marking guide to compare your written answer. This is not grading of your work."
+              : "Compare your working with these steps. This is learning help, not grading."}
           </div>
+          {hasUnsafeWrittenStepMarks && (
+            <div style={{
+              marginBottom: 8,
+              padding: "7px 10px",
+              borderRadius: 9,
+              background: AMBER_SOFT,
+              border: `1px solid ${AMBER_BORDER}`,
+              color: AMBER_FG,
+              fontSize: "0.74rem",
+              fontWeight: 700,
+              lineHeight: 1.4,
+            }}>
+              Step marks are hidden because this solution is a guide, not a verified marking split.
+            </div>
+          )}
 
           {solutionLoading && (
             <div style={{ fontSize: "0.82rem", color: "var(--color-info)", padding: "8px 0" }}>
@@ -546,14 +648,20 @@ export function PracticeQuestionCard({
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "0.8rem", fontWeight: 700, color: TEXT_FG, marginBottom: 2 }}>
                       <MathText text={step.description} />
-                      <span style={{
-                        marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
-                        color: step.marks === 0 ? TEXT_MUTED : "hsl(215, 65%, 32%)",
-                        background: step.marks === 0 ? SURFACE_SOFT : "hsl(215, 75%, 95%)",
-                        borderRadius: 999, padding: "1px 7px",
-                      }}>
-                        {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "\u00BD mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}\u00BD marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
-                      </span>
+                      {hasSafeStepMarks && Number(step.marks) > 0 && (
+                        <span style={{
+                          marginLeft: 8,
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: MARKS_BLUE_FG,
+                          background: MARKS_BLUE_SOFT,
+                          border: `1px solid ${MARKS_BLUE_BORDER}`,
+                          borderRadius: 999,
+                          padding: "1px 7px",
+                        }}>
+                          {formatStepMarkLabel(Number(step.marks))}
+                        </span>
+                      )}
                     </div>
                     <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, lineHeight: 1.5 }}>
                       <MathText text={step.working} />
@@ -583,7 +691,7 @@ export function PracticeQuestionCard({
                   background: CARD_BG, borderRadius: 10, border: `1px solid ${BORDER}`,
                   fontSize: "0.75rem", color: TEXT_MUTED,
                 }}>
-                  <strong>Marking note:</strong> {solutionData.examTip}
+                  <strong>Exam tip:</strong> {solutionData.examTip}
                 </div>
               )}
 

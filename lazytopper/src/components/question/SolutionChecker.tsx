@@ -213,6 +213,7 @@ export function SolutionChecker({
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logStatus, setLogStatus] = useState<"pending" | "saving" | "saved" | "unavailable" | "local-only" | "no-mistakes" | "cached">("pending");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [insightData, setInsightData] = useState<MistakeInsights | null>(null);
   const [insightTrend, setInsightTrend] = useState<MistakeTrend | null>(null);
@@ -224,6 +225,7 @@ export function SolutionChecker({
     if (saved) {
       setResult(saved);
       setIsFromCache(true);
+      setLogStatus("cached");
       onResult?.(saved);
     }
   }, [questionId]);
@@ -301,6 +303,7 @@ export function SolutionChecker({
 
     setLoading(true);
     setError(null);
+    setLogStatus("pending");
 
     try {
       const response = await checkSolutionImage({
@@ -326,30 +329,44 @@ export function SolutionChecker({
           response.mistakeSummary.calculation +
           response.mistakeSummary.silly +
           response.mistakeSummary.presentation;
-        if (user?.uid && !user.isLocalSession && mistakeCount > 0) {
-          const marksLost = response.totalMarks - response.marksAwarded;
-          logMistakes(user.uid, {
-            timestamp: new Date().toISOString(),
-            questionText: question,
-            topic,
-            subject,
-            totalMarks: response.totalMarks,
-            marksLost,
-            mistakeCounts: response.mistakeSummary,
-            stepDetails: response.annotatedSteps
-              .filter((s) => s.mistakeType != null)
-              .map((s) => ({
-                stepNumber: s.stepNumber,
-                mistakeType: String(s.mistakeType),
-                marksDeducted: s.marksDeducted,
-              })),
-          }).catch(() => {});
+
+        // Determine logging status
+        if (user?.isLocalSession) {
+          setLogStatus("local-only");
+        } else if (user?.uid) {
+          if (mistakeCount > 0) {
+            setLogStatus("saving");
+            logMistakes(user.uid, {
+              timestamp: new Date().toISOString(),
+              questionText: question,
+              topic,
+              subject,
+              totalMarks: response.totalMarks,
+              marksLost: response.totalMarks - response.marksAwarded,
+              mistakeCounts: response.mistakeSummary,
+              stepDetails: response.annotatedSteps
+                .filter((s) => s.mistakeType != null)
+                .map((s) => ({
+                  stepNumber: s.stepNumber,
+                  mistakeType: String(s.mistakeType),
+                  marksDeducted: s.marksDeducted,
+                })),
+            })
+              .then(() => setLogStatus("saved"))
+              .catch(() => setLogStatus("unavailable"));
+          } else {
+            setLogStatus("no-mistakes");
+          }
+        } else {
+          setLogStatus("local-only");
         }
       } else {
         setError(response.error || "Could not evaluate. Try a clearer image or type your answer.");
+        setLogStatus("unavailable");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to check solution");
+      setLogStatus("unavailable");
     } finally {
       setLoading(false);
     }
@@ -363,6 +380,7 @@ export function SolutionChecker({
     setResult(null);
     setIsFromCache(false);
     setError(null);
+    setLogStatus("pending");
     setTextAnswer("");
     setShowTextInput(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -372,6 +390,7 @@ export function SolutionChecker({
     setResult(null);
     setIsFromCache(false);
     setError(null);
+    setLogStatus("pending");
     setImagePreview(null);
     setImageBase64(null);
     setFileName(null);
@@ -595,6 +614,61 @@ export function SolutionChecker({
               </button>
             </div>
           )}
+          {/* Evidence state label */}
+          {result && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", marginBottom: 10,
+              borderRadius: 8, fontSize: "0.71rem", fontWeight: 600,
+              ...(logStatus === "saved" || logStatus === "no-mistakes"
+                ? {
+                    background: "rgba(34,197,94,0.08)",
+                    border: "1px solid rgba(34,197,94,0.2)",
+                    color: "hsl(152, 55%, 28%)",
+                  }
+                : logStatus === "local-only" || logStatus === "cached" || logStatus === "pending"
+                ? {
+                    background: "hsl(215, 75%, 95%)",
+                    border: "1px solid hsl(215, 65%, 84%)",
+                    color: "hsl(215, 65%, 32%)",
+                  }
+                : logStatus === "saving"
+                ? {
+                    background: "hsl(43, 90%, 94%)",
+                    border: "1px solid hsl(38, 75%, 78%)",
+                    color: "hsl(35, 80%, 35%)",
+                  }
+                : {
+                    background: "rgba(239,68,68,0.08)",
+                    border: "1px solid rgba(239,68,68,0.2)",
+                    color: "#ef4444",
+                  }),
+            }}>
+              <span style={{ fontSize: "0.8rem" }}>
+                {logStatus === "saved"
+                  ? "✓"
+                  : logStatus === "local-only"
+                  ? "○"
+                  : logStatus === "no-mistakes"
+                  ? "✓"
+                  : logStatus === "cached"
+                  ? "○"
+                  : "!"}
+              </span>
+              <span>
+                {logStatus === "saved"
+                  ? "Checked and saved to mistake history."
+                  : logStatus === "no-mistakes"
+                  ? "Checked — no mistakes found to save."
+                  : logStatus === "local-only"
+                  ? "Checked locally — not saved. Sign in to save mistake history."
+                  : logStatus === "saving"
+                  ? "Saving to mistake history..."
+                  : logStatus === "cached"
+                  ? "Previous check result loaded from this device — not newly saved."
+                  : "Checked — save to mistake history unavailable right now."}
+              </span>
+            </div>
+          )}
           {/* Score banner */}
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
@@ -630,9 +704,27 @@ export function SolutionChecker({
           </div>
 
           {/* Annotated steps */}
-          {result.annotatedSteps.map((step) => (
-            <AnnotatedStepCard key={step.stepNumber} step={step} />
-          ))}
+          {result.annotatedSteps && result.annotatedSteps.length > 0 && (
+            <>
+              {marks === 1 && Array.isArray(result.annotatedSteps) && result.annotatedSteps.some(s => (s.marksAwarded ?? 0) > 0.5) && (
+                <div style={{
+                  marginBottom: 10, padding: "8px 10px",
+                  borderRadius: 8,
+                  background: "hsl(43, 90%, 94%)",
+                  border: "1px solid hsl(38, 75%, 78%)",
+                  color: "hsl(35, 80%, 35%)",
+                  fontSize: "0.74rem",
+                  fontWeight: 600,
+                  lineHeight: 1.4,
+                }}>
+                  This is a 1-mark question. Step marks shown are AI guidance only, not official marking.
+                </div>
+              )}
+              {result.annotatedSteps.map((step) => (
+                <AnnotatedStepCard key={step.stepNumber} step={step} />
+              ))}
+            </>
+          )}
 
           {/* Teacher's Note */}
           {result.teacherNote && (
