@@ -997,12 +997,12 @@ function BoardEssentialsPanel({
   topic,
   boardEssentials,
   isSamplePreview,
-  practiceHref,
+  routeContext,
 }: {
   topic: DesktopTopicSummary;
   boardEssentials: BoardConcept[];
   isSamplePreview: boolean;
-  practiceHref: string;
+  routeContext: DesktopRouteContext;
 }) {
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? boardEssentials : boardEssentials.slice(0, 3);
@@ -1021,8 +1021,9 @@ function BoardEssentialsPanel({
         {visible.map((concept, idx) => (
           <BoardConceptRow
             key={`${concept.name}-${idx}`}
+            topic={topic}
             concept={concept}
-            practiceHref={practiceHref}
+            routeContext={routeContext}
           />
         ))}
       </div>
@@ -1048,12 +1049,25 @@ function BoardEssentialsPanel({
 }
 
 function BoardConceptRow({
+  topic,
   concept,
-  practiceHref,
+  routeContext,
 }: {
+  topic: DesktopTopicSummary;
   concept: BoardConcept;
-  practiceHref: string;
+  routeContext: DesktopRouteContext;
 }) {
+  const conceptPracticeHref = buildDesktopPracticePath({
+    scope: "topic",
+    subject: topic.subject,
+    stream: topic.stream,
+    topic: topic.slug,
+    mode: "practice-set",
+    focus: concept.name,
+    subtopicHint: concept.oneLineUse || concept.name,
+    ...routeContext,
+  });
+
   return (
     <div
       style={{
@@ -1101,7 +1115,7 @@ function BoardConceptRow({
       </div>
       <div style={{ alignSelf: "center" }}>
         <ButtonLink
-          to={practiceHref}
+          to={conceptPracticeHref}
           variant="outline"
           icon={<IconDumbbell />}
           title={`Practise this concept on ${concept.name}`}
@@ -2397,7 +2411,7 @@ export default function DesktopTopicHubPage() {
             topic={topic}
             boardEssentials={actionable.boardEssentials}
             isSamplePreview={actionable.isSamplePreview}
-            practiceHref={practiceHref}
+            routeContext={routeContext}
           />
 
           <HowBoardsUseItPanel

@@ -23,7 +23,6 @@ import {
 
 import { useCurrentURL } from "../utils/useCurrentURL";
 import {
-  buildTrendsUrl,
   buildMockBuilderUrl,
   buildTopicHubUrl,
 } from "../utils/buildUrl";
@@ -60,6 +59,7 @@ interface BasketItem {
 }
 
 const MOCK_BASKET_KEY = "lazyTopperMockBasket_v1";
+const EXAM_TRENDS_PATH = "/exam-trends";
 
 const tierMeta: Record<
   HPQTier,
@@ -123,6 +123,61 @@ function addHpqReturnContext(url: string, returnTo: string): string {
     returnTo,
   });
   return `${url}${url.includes("?") ? "&" : "?"}${params.toString()}`;
+}
+
+
+type HpqBackSource = "practice" | "trends" | "topicHub" | "home" | string;
+
+function isSafeInternalPath(path: string | null | undefined): path is string {
+  if (!path) return false;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith("/")) return false;
+  if (trimmed.startsWith("//")) return false;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+  return true;
+}
+
+function resolveHpqBackTarget({
+  source,
+  queryReturnTo,
+  stateBack,
+  stateBackLabel,
+}: {
+  source: HpqBackSource | null | undefined;
+  queryReturnTo: string | null | undefined;
+  stateBack: string | null | undefined;
+  stateBackLabel?: string | null;
+}): { target: string; label: string } {
+  const safeQueryReturnTo = isSafeInternalPath(queryReturnTo) ? queryReturnTo : null;
+  const safeStateBack = isSafeInternalPath(stateBack) ? stateBack : null;
+  const normalizedSource = String(source || "").trim();
+
+  const sourceLabel = (() => {
+    if (normalizedSource === "practice" || normalizedSource === "hpq_similar") return "Back to Practice";
+    if (normalizedSource === "trends") return "Back to Exam Trends";
+    if (normalizedSource === "topicHub") return "Back to Topic Hub";
+    if (normalizedSource === "home") return "Back to Home";
+    if (stateBackLabel) return stateBackLabel;
+    return "Back";
+  })();
+
+  if (safeQueryReturnTo) return { target: safeQueryReturnTo, label: sourceLabel };
+  if (safeStateBack) return { target: safeStateBack, label: stateBackLabel || sourceLabel };
+
+  if (normalizedSource === "practice" || normalizedSource === "hpq_similar") {
+    return { target: "/practice-hub", label: "Back to Practice" };
+  }
+  if (normalizedSource === "home") {
+    return { target: "/", label: "Back to Home" };
+  }
+  if (normalizedSource === "topicHub") {
+    return { target: EXAM_TRENDS_PATH, label: "Back to Exam Trends" };
+  }
+  if (normalizedSource === "trends") {
+    return { target: EXAM_TRENDS_PATH, label: "Back to Exam Trends" };
+  }
+
+  return { target: EXAM_TRENDS_PATH, label: "Back" };
 }
 
 function getQuestionOptions(q: HPQQuestion): HpqOption[] {
@@ -353,11 +408,18 @@ const HighlyProbableQuestions: React.FC = () => {
   const currentURL = useCurrentURL();
   const navState = (location.state as any) || {};
   const back: string | undefined = navState.back;
-  const backLabel: string =
-    navState.backLabel ||
-    (back && back.includes("/study-plan")
-      ? "Back to study plan"
-      : "Back to trends");
+  const hpqSource = searchParams.get("source");
+  const hpqReturnTo = searchParams.get("returnTo");
+  const hpqBack = useMemo(
+    () =>
+      resolveHpqBackTarget({
+        source: hpqSource,
+        queryReturnTo: hpqReturnTo,
+        stateBack: back,
+        stateBackLabel: navState.backLabel,
+      }),
+    [hpqSource, hpqReturnTo, back, navState.backLabel]
+  );
 
   // State for stream, tier, difficulty filters
   const [activeStream, setActiveStream] = useState<StreamFilterKey>("all");
@@ -881,7 +943,7 @@ const HighlyProbableQuestions: React.FC = () => {
           >
             <button
               type="button"
-              onClick={() => navigate(back || buildTrendsUrl(grade, subjectKey))}
+              onClick={() => navigate(hpqBack.target)}
               style={{
                 border: "1px solid hsl(220, 18%, 90%)",
                 background: "#ffffff",
@@ -893,7 +955,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 cursor: "pointer",
               }}
             >
-              Back to Exam Trends
+              {hpqBack.label}
             </button>
             <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>
               Predicted Questions
@@ -903,11 +965,11 @@ const HighlyProbableQuestions: React.FC = () => {
         ) : (
           <>
             <ReturnContextBar
-              backTo={back || buildTrendsUrl(grade, subjectKey)}
-              backLabel={backLabel}
+              backTo={hpqBack.target}
+              backLabel={hpqBack.label}
               currentLabel="Predicted Q's"
               quickLinks={[
-                { label: "Trends", to: buildTrendsUrl(grade, subjectKey) },
+                { label: "Trends", to: EXAM_TRENDS_PATH },
                 { label: "Chapter Hub", to: addHpqReturnContext(buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : ""), currentURL) },
                 { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
               ]}
