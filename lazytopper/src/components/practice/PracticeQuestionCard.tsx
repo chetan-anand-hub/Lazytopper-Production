@@ -9,6 +9,7 @@ import { CorrectBurst, WrongShake } from "../celebrations";
 import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
 import { VisualExplainer } from "../VisualExplainer";
 import { useAuth } from "../../context/AuthContext";
+import { logMistakes } from "../../services/mistakeLogService";
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -203,7 +204,44 @@ export function PracticeQuestionCard({
       if (result) return;
       onMcqSelect(qId, oi);
       if (correctIdx >= 0) {
-        onMcqResult(qId, oi === correctIdx ? "correct" : "wrong");
+        const resultStatus = oi === correctIdx ? "correct" : "wrong";
+        onMcqResult(qId, resultStatus);
+
+        // MCQ option click is a real answer attempt. When the correct answer key is trusted
+        // and the signed-in learner gets it wrong, record objective-question mistake
+        // evidence using the existing mistake history path. Correct attempts do not
+        // have a durable answer-attempt store yet, so they remain visible in-session
+        // until a broader attempt-log model is added.
+        if (
+          resultStatus === "wrong" &&
+          user?.uid &&
+          !(user as { isLocalSession?: boolean }).isLocalSession
+        ) {
+          const marksLost = typeof q.marks === "number" && q.marks > 0 ? q.marks : 1;
+          logMistakes(user.uid, {
+            timestamp: new Date().toISOString(),
+            questionText: q.questionText,
+            topic: topicLabel,
+            subject: subjectKey,
+            totalMarks: marksLost,
+            marksLost,
+            mistakeCounts: {
+              conceptual: 1,
+              calculation: 0,
+              silly: 0,
+              presentation: 0,
+            },
+            stepDetails: [
+              {
+                stepNumber: 1,
+                mistakeType: "conceptual",
+                marksDeducted: marksLost,
+              },
+            ],
+          }).catch(() => {
+            // Keep MCQ feedback student-safe; saved history can recover on next checked answer.
+          });
+        }
       }
     };
     return (
@@ -220,7 +258,7 @@ export function PracticeQuestionCard({
           }}>
             S
           </span>
-          Option click feedback — session-only, not saved or graded.
+          Choose an answer.
         </div>
         <div
           style={{
@@ -313,14 +351,14 @@ export function PracticeQuestionCard({
             {result === "correct" ? (
               <>
                 <CorrectBurst visible={true} size={24} />
-                Local practice feedback: correct.
+                Correct.
               </>
             ) : (
               <>
                 <WrongShake visible={true}>
                   <span style={{ fontSize: 20 }}>{"\u2717"}</span>
                 </WrongShake>
-                {`Local practice feedback: answer ${String.fromCharCode(65 + correctIdx)} fits the stored key.`}
+                {`Not quite - ${String.fromCharCode(65 + correctIdx)} is the correct answer.`}
               </>
             )}
           </div>
@@ -528,7 +566,7 @@ export function PracticeQuestionCard({
             </strong>
           </div>
           <div style={{ fontSize: "0.76rem", color: TEXT_MUTED, marginBottom: 8, lineHeight: 1.45 }}>
-            Compare your working with these steps. This is learning help only — not grading, not saved to Me / Progress.
+            Compare your working with these steps. This is learning help, not grading.
           </div>
 
           {solutionLoading && (
@@ -558,14 +596,6 @@ export function PracticeQuestionCard({
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "0.8rem", fontWeight: 700, color: TEXT_FG, marginBottom: 2 }}>
                       <MathText text={step.description} />
-                      <span style={{
-                        marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
-                        color: step.marks === 0 ? TEXT_MUTED : "hsl(215, 65%, 32%)",
-                        background: step.marks === 0 ? SURFACE_SOFT : "hsl(215, 75%, 95%)",
-                        borderRadius: 999, padding: "1px 7px",
-                      }}>
-                        {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "\u00BD mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}\u00BD marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
-                      </span>
                     </div>
                     <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, lineHeight: 1.5 }}>
                       <MathText text={step.working} />
@@ -595,7 +625,7 @@ export function PracticeQuestionCard({
                   background: CARD_BG, borderRadius: 10, border: `1px solid ${BORDER}`,
                   fontSize: "0.75rem", color: TEXT_MUTED,
                 }}>
-                  <strong>Marking note:</strong> {solutionData.examTip}
+                  <strong>Exam tip:</strong> {solutionData.examTip}
                 </div>
               )}
 
