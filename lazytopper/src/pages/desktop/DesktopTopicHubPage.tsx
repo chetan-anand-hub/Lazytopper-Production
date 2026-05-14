@@ -2224,9 +2224,8 @@ export default function DesktopTopicHubPage() {
     [topic],
   );
 
-  // Build current URL for returnTo. Honour an explicit returnTo only if the
-  // request is already in-flight from a different surface (we still default
-  // to the current Topic Hub URL otherwise).
+  // Child CTAs from Topic Hub must return to this exact Topic Hub URL. The
+  // explicit returnTo remains only for Topic Hub's own Back button.
   const currentUrl = useMemo(() => `${location.pathname}${location.search}`, [location.pathname, location.search]);
   const querySource = queryParams.get("source");
   const explicitReturnTo = queryParams.get("returnTo") || navState.back || null;
@@ -2234,10 +2233,9 @@ export default function DesktopTopicHubPage() {
     querySource === "hpq"
       ? "Back to Predicted Questions"
       : navState.backLabel || null;
-  const returnTo = explicitReturnTo && explicitReturnTo.length > 0 ? explicitReturnTo : currentUrl;
   const routeContext: DesktopRouteContext = useMemo(
-    () => ({ source: "topicHub", returnTo }),
-    [returnTo],
+    () => ({ source: "topicHub", returnTo: currentUrl }),
+    [currentUrl],
   );
 
   // Signed-out sign-in CTAs in the mistake panels must preserve the current

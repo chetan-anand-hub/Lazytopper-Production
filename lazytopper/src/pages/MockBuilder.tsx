@@ -18,7 +18,6 @@ import {
 } from "../data/predictedQuestionsScience";
 
 import {
-  buildTrendsUrl,
   buildHPQUrl,
   buildStudyPlanUrl,
 } from "../utils/buildUrl";
@@ -130,6 +129,17 @@ function normaliseSubject(raw: string | null | undefined): SubjectKey {
   return "Maths";
 }
 
+function isSafeInternalPath(path: string | null | undefined): path is string {
+  if (!path) return false;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith("/")) return false;
+  if (trimmed.startsWith("//")) return false;
+  if (trimmed.startsWith("/\\")) return false;
+  if (trimmed.startsWith("\\")) return false;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+  return true;
+}
+
 const MockBuilder: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -145,6 +155,13 @@ const MockBuilder: React.FC = () => {
 
   // optional tag in query, like "study-plan", "hpq"
   const fromParam = searchParams.get("from") || undefined;
+  const sourceParam = searchParams.get("source") || undefined;
+  const safeBackToParam = isSafeInternalPath(searchParams.get("backTo"))
+    ? searchParams.get("backTo") || undefined
+    : undefined;
+  const safeReturnToParam = isSafeInternalPath(searchParams.get("returnTo"))
+    ? searchParams.get("returnTo") || undefined
+    : undefined;
 
   // Optional filters coming from Trends / TopicHub / HPQ
   const chapterKeyParam = searchParams.get("chapterKey") || undefined;
@@ -176,10 +193,18 @@ const MockBuilder: React.FC = () => {
     backLabel = "Back to study plan";
   } else if (navState.back && navState.back.includes("/highly-probable")) {
     backLabel = "Back to Predicted Q's";
+  } else if (safeBackToParam && safeBackToParam.includes("/highly-probable")) {
+    backLabel = "Back to Predicted Q's";
   } else if (fromPath && fromPath.includes("/study-plan")) {
     backLabel = "Back to study plan";
   } else if (fromPath && fromPath.includes("/highly-probable")) {
     backLabel = "Back to Predicted Q's";
+  } else if (sourceParam === "practice") {
+    backLabel = "Back to Practice";
+  } else if (sourceParam === "trends") {
+    backLabel = "Back to Exam Trends";
+  } else if (sourceParam === "topicHub") {
+    backLabel = "Back to Topic Hub";
   } else if (fromTag === "study-plan") {
     backLabel = "Back to study plan";
   } else if (fromTag === "hpq" || fromTag === "highly-probable") {
@@ -195,6 +220,10 @@ const MockBuilder: React.FC = () => {
       navigate(navState.back);
       return;
     }
+    if (safeBackToParam) {
+      navigate(safeBackToParam);
+      return;
+    }
     // Legacy explicit overrides
     if (navState.backTo) {
       if (navState.backToState) {
@@ -208,6 +237,10 @@ const MockBuilder: React.FC = () => {
       navigate(fromPath);
       return;
     }
+    if (safeReturnToParam) {
+      navigate(safeReturnToParam);
+      return;
+    }
     // Tag-based fallback
     if (fromTag === "study-plan") {
       navigate(buildStudyPlanUrl(grade, subjectKey));
@@ -217,8 +250,8 @@ const MockBuilder: React.FC = () => {
       navigate(buildHPQUrl(grade, subjectKey));
       return;
     }
-    // Default: trends page
-    navigate(buildTrendsUrl(grade, subjectKey));
+    // Default: modern Exam Trends route
+    navigate("/exam-trends");
   };
 
   const [openSectionId, setOpenSectionId] = useState<PaperSectionId | null>(
