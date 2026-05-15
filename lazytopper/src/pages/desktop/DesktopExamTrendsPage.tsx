@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import {
   buildDesktopPracticePath,
@@ -769,9 +769,11 @@ function TopicCard({
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function DesktopExamTrendsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [subject, setSubject] = useState<DesktopSubject>("Maths");
   const [stream, setStream] = useState<DesktopStream>("All");
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
+  const currentExamTrendsUrl = `${location.pathname}${location.search}`;
 
   // When the subject changes from Science → Maths the stream must reset to "All"
   // so the (disabled) stream toggle does not appear pre-selected on Physics
@@ -811,7 +813,7 @@ export default function DesktopExamTrendsPage() {
         topic: topic.slug,
         mode: "practice-set",
         source: "trends",
-        returnTo: "/exam-trends",
+        returnTo: currentExamTrendsUrl,
       }),
     );
   };
@@ -824,7 +826,7 @@ export default function DesktopExamTrendsPage() {
         stream: topic.subject === "Science" ? topic.stream : undefined,
         topic: topic.slug,
         source: "trends",
-        returnTo: "/exam-trends",
+        returnTo: currentExamTrendsUrl,
       }),
     );
   };
@@ -833,7 +835,7 @@ export default function DesktopExamTrendsPage() {
     const params = new URLSearchParams();
     params.set("topic", topic.slug);
     params.set("source", "trends");
-    params.set("returnTo", "/exam-trends");
+    params.set("returnTo", currentExamTrendsUrl);
     navigate(`/highly-probable/10/${topic.subject}?${params.toString()}`);
   };
 
@@ -841,7 +843,7 @@ export default function DesktopExamTrendsPage() {
     navigate(
       buildDesktopTopicHubPath(topic.slug, {
         source: "trends",
-        returnTo: "/exam-trends",
+        returnTo: currentExamTrendsUrl,
       }),
     );
   };
@@ -856,7 +858,7 @@ export default function DesktopExamTrendsPage() {
         topics: selectedSlugs,
         mode: "practice-set",
         source: "trends",
-        returnTo: "/exam-trends",
+        returnTo: currentExamTrendsUrl,
       }),
     );
   };
@@ -870,7 +872,7 @@ export default function DesktopExamTrendsPage() {
         stream: subject === "Science" ? stream : undefined,
         topics: selectedSlugs,
         source: "trends",
-        returnTo: "/exam-trends",
+        returnTo: currentExamTrendsUrl,
       }),
     );
   };
@@ -880,7 +882,7 @@ export default function DesktopExamTrendsPage() {
     const params = new URLSearchParams();
     params.set("topics", selectedSlugs.join(","));
     params.set("source", "trends");
-    params.set("returnTo", "/exam-trends");
+    params.set("returnTo", currentExamTrendsUrl);
     navigate(`/highly-probable/10/${subject}?${params.toString()}`);
   };
 
@@ -889,7 +891,7 @@ export default function DesktopExamTrendsPage() {
     if (selectedSlugs.length > 0) params.set("topics", selectedSlugs.join(","));
     if (subject === "Science" && stream !== "All") params.set("stream", stream);
     params.set("source", "trends");
-    params.set("returnTo", "/exam-trends");
+    params.set("returnTo", currentExamTrendsUrl);
     navigate(`/mock-builder/10/${subject}?${params.toString()}`);
   };
 

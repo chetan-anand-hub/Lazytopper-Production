@@ -17,6 +17,8 @@ export interface DesktopPracticePathInput extends DesktopRouteContext {
   topics?: string[];
   mode?: DesktopPracticeMode;
   mistake?: string;
+  focus?: string;
+  subtopicHint?: string;
 }
 
 export interface DesktopWorksheetPathInput extends DesktopRouteContext {
@@ -51,6 +53,8 @@ export const buildDesktopPracticePath = (input: DesktopPracticePathInput): strin
   addScope(params, input);
   if (input.mode) params.set("mode", input.mode);
   if (input.mistake) params.set("mistake", input.mistake);
+  if (input.focus) params.set("focus", input.focus);
+  if (input.subtopicHint) params.set("subtopicHint", input.subtopicHint);
   addContext(params, input);
   return withQuery("/practice-hub", params);
 };

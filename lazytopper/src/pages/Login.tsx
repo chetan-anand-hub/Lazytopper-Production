@@ -7,6 +7,17 @@ import { getLoginPrompt } from "../lib/desktop/loginPrompts";
 
 type LocationState = { from?: string };
 
+function isSafeInternalPath(path: string | null | undefined): path is string {
+  if (!path) return false;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith("/")) return false;
+  if (trimmed.startsWith("//")) return false;
+  if (trimmed.startsWith("/\\")) return false;
+  if (trimmed.startsWith("\\")) return false;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+  return true;
+}
+
 /**
  * Login page (`/login`).
  *
@@ -96,9 +107,9 @@ export default function Login() {
   //      app shell.
   const nextPath = useMemo(() => {
     const explicitRedirect = searchParams.get("redirect");
-    if (explicitRedirect) return explicitRedirect;
+    if (explicitRedirect) return isSafeInternalPath(explicitRedirect) ? explicitRedirect : "/";
     const st = (location.state || {}) as LocationState;
-    if (st.from) return st.from;
+    if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
     const hasProfile = !!window.localStorage.getItem("lazytopper.profile.v2");
     return hasProfile ? "/dashboard" : "/onboarding";
   }, [location.state, searchParams]);
@@ -128,11 +139,15 @@ export default function Login() {
 
   // Visual tokens — kept inline so this file is self-contained and
   // matches the rest of the production page styling convention.
-  const cardBg = isLight ? "rgba(0,0,0,0.03)" : "var(--bg-card)";
-  const cardBorder = isLight ? "1px solid rgba(0,0,0,0.06)" : "1px solid var(--bg-card-border)";
-  const dividerLine = isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)";
-  const accentChipBg = isLight ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.10)";
-  const neutralChipBg = isLight ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.04)";
+  const navy = "#071a2d";
+  const navyMuted = "#52616f";
+  const green = "#22c55e";
+  const rightPanelBg = "#f7f8f4";
+  const cardBg = isLight ? "#ffffff" : "var(--bg-card)";
+  const cardBorder = "1px solid rgba(7,26,45,0.12)";
+  const dividerLine = "rgba(7,26,45,0.12)";
+  const accentChipBg = "rgba(34,197,94,0.12)";
+  const neutralChipBg = "rgba(255,255,255,0.10)";
 
   // Brand mark used in both layouts.
   const brandMark = (size: number, fontSize: number) => (
@@ -140,19 +155,19 @@ export default function Login() {
       style={{
         width: size,
         height: size,
-        borderRadius: Math.round(size * 0.28),
-        background: "linear-gradient(135deg, #22c55e, #3b82f6)",
+        borderRadius: Math.round(size * 0.22),
+        background: green,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "var(--text)",
+        color: "#06281b",
         fontWeight: 900,
         fontSize,
-        boxShadow: "0 0 30px rgba(34,197,94,0.3)",
+        boxShadow: "0 16px 34px rgba(34,197,94,0.24)",
         flexShrink: 0,
       }}
     >
-      LT
+      L
     </div>
   );
 
@@ -167,11 +182,9 @@ export default function Login() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "48px 56px",
-        background: isLight
-          ? "linear-gradient(160deg, rgba(34,197,94,0.06), rgba(59,130,246,0.04))"
-          : "linear-gradient(160deg, rgba(34,197,94,0.10), rgba(59,130,246,0.06))",
-        borderRight: cardBorder,
+        padding: "56px clamp(40px, 5vw, 72px)",
+        background: navy,
+        borderRight: "none",
         minWidth: 0,
         overflow: "hidden",
       }}
@@ -184,7 +197,7 @@ export default function Login() {
           alignItems: "center",
           gap: 12,
           textDecoration: "none",
-          color: "var(--text)",
+          color: "#f8fafc",
           alignSelf: "flex-start",
         }}
       >
@@ -201,16 +214,16 @@ export default function Login() {
         </span>
       </Link>
 
-      <div style={{ maxWidth: 480, display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ maxWidth: 560, display: "flex", flexDirection: "column", gap: 18 }}>
         <h1
           style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: "2.25rem",
-            fontWeight: 800,
+            fontFamily: "'Fraunces', 'Source Serif Pro', Georgia, 'Times New Roman', serif",
+            fontSize: "clamp(2.6rem, 4.8vw, 4.55rem)",
+            fontWeight: 650,
             margin: 0,
-            lineHeight: 1.15,
-            color: "var(--text)",
-            letterSpacing: "-0.02em",
+            lineHeight: 1.02,
+            color: "#f8fafc",
+            letterSpacing: 0,
           }}
         >
           A calm cockpit for CBSE Class 10.
@@ -218,7 +231,7 @@ export default function Login() {
         <p
           style={{
             fontSize: "1rem",
-            color: "var(--text-muted)",
+            color: "#cbd5e1",
             margin: 0,
             lineHeight: 1.55,
           }}
@@ -234,7 +247,7 @@ export default function Login() {
               padding: "6px 12px",
               borderRadius: 999,
               background: accentChipBg,
-              color: "#22c55e",
+              color: "#bbf7d0",
               border: "1px solid rgba(34,197,94,0.25)",
               fontSize: "0.78rem",
               fontWeight: 800,
@@ -250,8 +263,8 @@ export default function Login() {
               padding: "6px 12px",
               borderRadius: 999,
               background: neutralChipBg,
-              color: "var(--text)",
-              border: cardBorder,
+              color: "#e5edf3",
+              border: "1px solid rgba(255,255,255,0.16)",
               fontSize: "0.78rem",
               fontWeight: 700,
             }}
@@ -265,8 +278,8 @@ export default function Login() {
               padding: "6px 12px",
               borderRadius: 999,
               background: neutralChipBg,
-              color: "var(--text)",
-              border: cardBorder,
+              color: "#e5edf3",
+              border: "1px solid rgba(255,255,255,0.16)",
               fontSize: "0.78rem",
               fontWeight: 700,
             }}
@@ -279,7 +292,7 @@ export default function Login() {
       <div
         style={{
           fontSize: "0.75rem",
-          color: "var(--text-muted)",
+          color: "#9fb0c0",
           letterSpacing: "0.04em",
         }}
       >
@@ -297,7 +310,8 @@ export default function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: isDesktop ? "48px 40px" : "32px 16px",
+        padding: isDesktop ? "56px clamp(32px, 5vw, 72px)" : "32px 16px",
+        background: rightPanelBg,
         minWidth: 0,
       }}
     >
@@ -325,7 +339,7 @@ export default function Login() {
               alignItems: "center",
               gap: 10,
               textDecoration: "none",
-              color: "var(--text)",
+              color: navy,
               alignSelf: "flex-start",
             }}
           >
@@ -341,7 +355,7 @@ export default function Login() {
               >
                 LazyTopper
               </span>
-              <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+              <span style={{ fontSize: "0.78rem", color: navyMuted }}>
                 CBSE Class 10 Board Exam Prep
               </span>
             </div>
@@ -358,11 +372,11 @@ export default function Login() {
               fontWeight: 800,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#22c55e",
+              color: navy,
               padding: "4px 10px",
               borderRadius: 999,
-              background: accentChipBg,
-              border: "1px solid rgba(34,197,94,0.25)",
+              background: "#eaf4ea",
+              border: "1px solid rgba(7,26,45,0.10)",
             }}
           >
             {prompt.chip}
@@ -372,7 +386,7 @@ export default function Login() {
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: isDesktop ? "1.75rem" : "1.4rem",
               fontWeight: 800,
-              color: "var(--text)",
+              color: navy,
               margin: 0,
               lineHeight: 1.2,
               letterSpacing: "-0.01em",
@@ -383,7 +397,7 @@ export default function Login() {
           <p
             style={{
               fontSize: "0.92rem",
-              color: "var(--text-muted)",
+              color: navyMuted,
               margin: 0,
               lineHeight: 1.5,
             }}
@@ -401,11 +415,11 @@ export default function Login() {
             signUpUrl={import.meta.env.BASE_URL + "sign-up"}
             appearance={{
               variables: {
-                colorPrimary: "#22c55e",
-                colorBackground: isLight ? "#ffffff" : "#0a0a0a",
-                colorText: isLight ? "#111111" : "#ffffff",
-                colorInputBackground: isLight ? "rgba(0,0,0,0.04)" : "var(--bg-card)",
-                colorInputText: isLight ? "#111111" : "#ffffff",
+                colorPrimary: navy,
+                colorBackground: "#ffffff",
+                colorText: navy,
+                colorInputBackground: "#ffffff",
+                colorInputText: navy,
                 borderRadius: "12px",
               },
               elements: {
@@ -414,22 +428,22 @@ export default function Login() {
                 headerTitle: { display: "none" },
                 headerSubtitle: { display: "none" },
                 socialButtonsBlockButton: {
-                  background: isLight ? "rgba(0,0,0,0.05)" : "var(--bg-card)",
-                  border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid var(--bg-card-border)",
-                  color: isLight ? "#111111" : "var(--text)",
+                  background: "#ffffff",
+                  border: "1px solid rgba(7,26,45,0.14)",
+                  color: navy,
                   borderRadius: "14px",
                   fontWeight: 800,
                 },
                 formButtonPrimary: {
-                  background: "#22c55e",
-                  color: "var(--text)",
+                  background: navy,
+                  color: "#ffffff",
                   fontWeight: 800,
                   borderRadius: "14px",
-                  boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+                  boxShadow: "0 16px 28px rgba(7,26,45,0.20)",
                 },
-                footerActionLink: { color: "#22c55e" },
+                footerActionLink: { color: navy },
                 dividerLine: { background: dividerLine },
-                dividerText: { color: "var(--text-muted)" },
+                dividerText: { color: navyMuted },
               },
             }}
           />
@@ -440,7 +454,7 @@ export default function Login() {
             display: "flex",
             alignItems: "center",
             gap: 12,
-            color: "var(--text-muted)",
+            color: navyMuted,
             fontSize: "0.82rem",
           }}
         >
@@ -454,9 +468,9 @@ export default function Login() {
           onClick={handleGuest}
           style={{
             width: "100%",
-            border: "1px solid rgba(34,197,94,0.35)",
-            background: accentChipBg,
-            color: "#22c55e",
+            border: "1px solid rgba(7,26,45,0.16)",
+            background: "#ffffff",
+            color: navy,
             fontSize: "0.92rem",
             fontWeight: 800,
             cursor: "pointer",
@@ -470,24 +484,26 @@ export default function Login() {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "column",
+            justifyContent: "center",
             alignItems: "center",
-            gap: 12,
+            gap: 8,
             fontSize: "0.78rem",
-            color: "var(--text-muted)",
+            color: navyMuted,
+            textAlign: "center",
           }}
         >
           <Link
             to="/"
             style={{
-              color: "var(--text-muted)",
+              color: navyMuted,
               textDecoration: "none",
               fontWeight: 700,
             }}
           >
             {isStartTrial ? "← Back to landing" : "← Back to home"}
           </Link>
-          <span style={{ textAlign: "right", lineHeight: 1.4 }}>
+          <span style={{ lineHeight: 1.4 }}>
             By signing in, you agree to our Terms of Service
           </span>
         </div>
@@ -502,8 +518,8 @@ export default function Login() {
         width: "100%",
         display: "flex",
         flexDirection: isDesktop ? "row" : "column",
-        background: "var(--bg)",
-        color: "var(--text)",
+        background: rightPanelBg,
+        color: navy,
       }}
     >
       {leftPanel}

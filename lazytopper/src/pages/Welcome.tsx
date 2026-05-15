@@ -89,12 +89,10 @@ export default function Welcome() {
   };
 
   const onStartTrial = () => {
-    // Existing onboarding redirect chain is preserved by Login.tsx —
-    // it will still route through onboarding / profile gates after auth.
     if (user) {
-      navigate("/onboarding");
+      navigate("/");
     } else {
-      goLogin("start-trial", "/onboarding");
+      goLogin("start-trial", "/");
     }
   };
 
@@ -102,7 +100,7 @@ export default function Welcome() {
 
   const onStartFresh = () => {
     clearLandingMemory();
-    goLogin("start-trial", "/onboarding");
+    goLogin("start-trial", "/");
   };
 
   const scrollTo = (id: string) => {
@@ -272,7 +270,7 @@ export default function Welcome() {
               </button>
               <button
                 type="button"
-                onClick={() => goLogin("start-trial", "/onboarding")}
+                onClick={() => goLogin("start-trial", "/")}
                 style={{
                   background: PRIMARY_GREEN,
                   color: "#000",
@@ -389,7 +387,7 @@ export default function Welcome() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate("/trends/10/Maths")}
+                  onClick={() => navigate("/")}
                   style={{
                     height: 48,
                     padding: "0 20px",
@@ -1129,7 +1127,7 @@ export default function Welcome() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/trends/10/Maths")}
+                onClick={() => navigate("/exam-trends")}
                 style={{
                   height: 48,
                   padding: "0 20px",

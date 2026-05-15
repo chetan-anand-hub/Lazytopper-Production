@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/HighlyProbableQuestions.tsx
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   useNavigate,
   useSearchParams,
@@ -22,11 +22,7 @@ import {
 } from "../data/highlyProbableQuestions";
 
 import { useCurrentURL } from "../utils/useCurrentURL";
-import {
-  buildTrendsUrl,
-  buildMockBuilderUrl,
-  buildTopicHubUrl,
-} from "../utils/buildUrl";
+import { buildTopicHubUrl } from "../utils/buildUrl";
 
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
@@ -60,6 +56,7 @@ interface BasketItem {
 }
 
 const MOCK_BASKET_KEY = "lazyTopperMockBasket_v1";
+const EXAM_TRENDS_PATH = "/exam-trends";
 
 const tierMeta: Record<
   HPQTier,
@@ -123,6 +120,102 @@ function addHpqReturnContext(url: string, returnTo: string): string {
     returnTo,
   });
   return `${url}${url.includes("?") ? "&" : "?"}${params.toString()}`;
+}
+
+
+type HpqBackSource = "practice" | "trends" | "topicHub" | "home" | string;
+
+function isSafeInternalPath(path: string | null | undefined): path is string {
+  if (!path) return false;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith("/")) return false;
+  if (trimmed.startsWith("//")) return false;
+  if (trimmed.startsWith("/\\")) return false;
+  if (trimmed.startsWith("\\")) return false;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+  return true;
+}
+
+function topicMatchTokens(rawTopic: string): Set<string> {
+  const tokens = [
+    rawTopic,
+    normalizeTopicSlug(rawTopic),
+    resolveCanonicalTopicKey(rawTopic),
+    ...getRuntimeTopicCandidates(rawTopic),
+  ];
+  const out = new Set<string>();
+  tokens.forEach((token) => {
+    const trimmed = String(token || "").trim();
+    if (!trimmed) return;
+    out.add(trimmed.toLowerCase());
+    out.add(normalizeTopicSlug(trimmed).toLowerCase());
+    out.add(resolveCanonicalTopicKey(trimmed).toLowerCase());
+  });
+  return out;
+}
+
+function topicsMatch(left: string, right: string): boolean {
+  const leftTokens = topicMatchTokens(left);
+  const rightTokens = topicMatchTokens(right);
+  for (const token of leftTokens) {
+    if (rightTokens.has(token)) return true;
+  }
+  return false;
+}
+
+function resolveTopicFilterValue(
+  rawTopic: string | null | undefined,
+  topicOptions: string[],
+): TopicFilter {
+  const trimmed = String(rawTopic || "").trim();
+  if (!trimmed) return "all";
+  const exact = topicOptions.find((topic) => topic.toLowerCase() === trimmed.toLowerCase());
+  if (exact) return exact;
+  const matched = topicOptions.find((topic) => topicsMatch(trimmed, topic));
+  return matched || trimmed;
+}
+
+function resolveHpqBackTarget({
+  source,
+  queryReturnTo,
+  stateBack,
+  stateBackLabel,
+}: {
+  source: HpqBackSource | null | undefined;
+  queryReturnTo: string | null | undefined;
+  stateBack: string | null | undefined;
+  stateBackLabel?: string | null;
+}): { target: string; label: string } {
+  const safeQueryReturnTo = isSafeInternalPath(queryReturnTo) ? queryReturnTo : null;
+  const safeStateBack = isSafeInternalPath(stateBack) ? stateBack : null;
+  const normalizedSource = String(source || "").trim();
+
+  const sourceLabel = (() => {
+    if (normalizedSource === "practice" || normalizedSource === "hpq_similar") return "Back to Practice";
+    if (normalizedSource === "trends") return "Back to Exam Trends";
+    if (normalizedSource === "topicHub") return "Back to Topic Hub";
+    if (normalizedSource === "home") return "Back to Home";
+    if (stateBackLabel) return stateBackLabel;
+    return "Back";
+  })();
+
+  if (safeQueryReturnTo) return { target: safeQueryReturnTo, label: sourceLabel };
+  if (safeStateBack) return { target: safeStateBack, label: stateBackLabel || sourceLabel };
+
+  if (normalizedSource === "practice" || normalizedSource === "hpq_similar") {
+    return { target: "/practice-hub", label: "Back to Practice" };
+  }
+  if (normalizedSource === "home") {
+    return { target: "/", label: "Back to Home" };
+  }
+  if (normalizedSource === "topicHub") {
+    return { target: EXAM_TRENDS_PATH, label: "Back to Exam Trends" };
+  }
+  if (normalizedSource === "trends") {
+    return { target: EXAM_TRENDS_PATH, label: "Back to Exam Trends" };
+  }
+
+  return { target: EXAM_TRENDS_PATH, label: "Back" };
 }
 
 function getQuestionOptions(q: HPQQuestion): HpqOption[] {
@@ -353,11 +446,18 @@ const HighlyProbableQuestions: React.FC = () => {
   const currentURL = useCurrentURL();
   const navState = (location.state as any) || {};
   const back: string | undefined = navState.back;
-  const backLabel: string =
-    navState.backLabel ||
-    (back && back.includes("/study-plan")
-      ? "Back to study plan"
-      : "Back to trends");
+  const hpqSource = searchParams.get("source");
+  const hpqReturnTo = searchParams.get("returnTo");
+  const hpqBack = useMemo(
+    () =>
+      resolveHpqBackTarget({
+        source: hpqSource,
+        queryReturnTo: hpqReturnTo,
+        stateBack: back,
+        stateBackLabel: navState.backLabel,
+      }),
+    [hpqSource, hpqReturnTo, back, navState.backLabel]
+  );
 
   // State for stream, tier, difficulty filters
   const [activeStream, setActiveStream] = useState<StreamFilterKey>("all");
@@ -372,10 +472,6 @@ const HighlyProbableQuestions: React.FC = () => {
   const initialTopic: TopicFilter = (topicParam as TopicFilter) || "all";
   const [topicFilter, setTopicFilter] = useState<TopicFilter>(initialTopic);
 
-  useEffect(() => {
-    setTopicFilter((topicParam as TopicFilter) || "all");
-  }, [topicParam]);
-
   // Basket state
   const [basket, setBasket] = useState<BasketItem[]>([]);
   // Per-chapter expand/collapse state: topic -> expanded?
@@ -384,11 +480,14 @@ const HighlyProbableQuestions: React.FC = () => {
   );
   const [answerCheckOpen, setAnswerCheckOpen] = useState<Record<string, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const previousSubjectKeyRef = useRef(subjectKey);
 
   // If the route subject changes (Maths <-> Science), React Router may reuse the
   // same component instance. Reset local UI state here to prevent filter/state
   // leakage across subjects.
   useEffect(() => {
+    if (previousSubjectKeyRef.current === subjectKey) return;
+    previousSubjectKeyRef.current = subjectKey;
     setActiveStream("all");
     setTierFilter("all");
     setDifficultyFilter("all");
@@ -402,8 +501,6 @@ const HighlyProbableQuestions: React.FC = () => {
     setSolutionOpen({});
     setAnswerCheckOpen({});
     setSelectedOptions({});
-    // Ensure URL query doesn't carry stale filters across subjects.
-    setSearchParams(new URLSearchParams());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectKey]);
 
@@ -458,6 +555,15 @@ const HighlyProbableQuestions: React.FC = () => {
     [subjectBuckets]
   );
 
+  const resolvedTopicFilter = useMemo(
+    () => resolveTopicFilterValue(topicParam, topicOptions),
+    [topicParam, topicOptions]
+  );
+
+  useEffect(() => {
+    setTopicFilter(resolvedTopicFilter);
+  }, [resolvedTopicFilter]);
+
   // NEW: derive "current topic" & its bucket for stats snippet
   const currentTopicKey: string | undefined =
     (topicFilter !== "all" ? topicFilter : topicParam) || undefined;
@@ -488,7 +594,11 @@ const HighlyProbableQuestions: React.FC = () => {
   const handleOpenMockBuilder = () => {
     // save basket and open mock builder with grade & subject in path
     persistBasket(basket);
-    navigate(buildMockBuilderUrl(grade, subjectKey), {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("from", "hpq");
+    params.set("backTo", currentURL);
+    const query = params.toString();
+    navigate(`/mock-builder/${encodeURIComponent(grade)}/${encodeURIComponent(subjectKey)}${query ? `?${query}` : ""}`, {
       state: {
         back: currentURL,
         backLabel: "Back to Predicted Questions",
@@ -678,20 +788,7 @@ const HighlyProbableQuestions: React.FC = () => {
     let buckets = subjectBuckets;
 
     if (topicFilter !== "all") {
-      const candidates = new Set(getRuntimeTopicCandidates(topicFilter).map(c => c.toLowerCase()));
-      const canonicalFilter = resolveCanonicalTopicKey(topicFilter).toLowerCase();
-      const normalizedFilter = normalizeTopicSlug(topicFilter).toLowerCase();
-      candidates.add(canonicalFilter);
-      candidates.add(normalizedFilter);
-      candidates.add(topicFilter.toLowerCase());
-      buckets = buckets.filter((b) => {
-        const bucketNorm = normalizeTopicSlug(b.topic).toLowerCase();
-        const bucketCanon = resolveCanonicalTopicKey(b.topic).toLowerCase();
-        return candidates.has(b.topic.toLowerCase()) ||
-               candidates.has(bucketNorm) ||
-               candidates.has(bucketCanon) ||
-               canonicalFilter === bucketCanon;
-      });
+      buckets = buckets.filter((bucket) => topicsMatch(topicFilter, bucket.topic));
     }
 
     // Stream filter - only for Science
@@ -881,7 +978,7 @@ const HighlyProbableQuestions: React.FC = () => {
           >
             <button
               type="button"
-              onClick={() => navigate(back || buildTrendsUrl(grade, subjectKey))}
+              onClick={() => navigate(hpqBack.target)}
               style={{
                 border: "1px solid hsl(220, 18%, 90%)",
                 background: "#ffffff",
@@ -893,7 +990,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 cursor: "pointer",
               }}
             >
-              Back to Exam Trends
+              {hpqBack.label}
             </button>
             <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>
               Predicted Questions
@@ -903,11 +1000,11 @@ const HighlyProbableQuestions: React.FC = () => {
         ) : (
           <>
             <ReturnContextBar
-              backTo={back || buildTrendsUrl(grade, subjectKey)}
-              backLabel={backLabel}
+              backTo={hpqBack.target}
+              backLabel={hpqBack.label}
               currentLabel="Predicted Q's"
               quickLinks={[
-                { label: "Trends", to: buildTrendsUrl(grade, subjectKey) },
+                { label: "Trends", to: EXAM_TRENDS_PATH },
                 { label: "Chapter Hub", to: addHpqReturnContext(buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : ""), currentURL) },
                 { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
               ]}
@@ -985,6 +1082,25 @@ const HighlyProbableQuestions: React.FC = () => {
             >
               Predictions guide revision - they do not replace full chapter preparation.
             </div>
+            {topicFilter !== "all" ? (
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginTop: 12,
+                  borderRadius: 999,
+                  padding: "6px 12px",
+                  background: "hsl(152, 55%, 95%)",
+                  border: "1px solid hsl(152, 45%, 78%)",
+                  color: "hsl(152, 60%, 28%)",
+                  fontSize: "0.78rem",
+                  fontWeight: 800,
+                }}
+              >
+                Scoped topic: {topicFilter}
+              </div>
+            ) : null}
           </div>
 
           {/* Subject + stream toggles + basket summary */}
@@ -1218,6 +1334,9 @@ const HighlyProbableQuestions: React.FC = () => {
                 }}
               >
                 <option value="all">All topics</option>
+                {topicFilter !== "all" && !topicOptions.includes(topicFilter) ? (
+                  <option value={topicFilter}>{topicFilter}</option>
+                ) : null}
                 {topicOptions.map((topic) => (
                   <option key={topic} value={topic}>
                     {topic}

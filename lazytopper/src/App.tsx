@@ -508,6 +508,8 @@ export default function App() {
   };
 
   const location = useLocation();
+  const isAuthRoute =
+    location.pathname === "/login" || location.pathname.startsWith("/login/");
   useEffect(() => {
     const match = location.pathname.match(/\/(\d+)\/(Maths|Science)/i);
     if (match) {
@@ -533,7 +535,7 @@ export default function App() {
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
-      {!(isDesktop && isDesktopShellRoute(location.pathname, !!user)) && (
+      {!isAuthRoute && !(isDesktop && isDesktopShellRoute(location.pathname, !!user)) && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
@@ -638,13 +640,17 @@ export default function App() {
       </div>
       )}
       {/* Command palette overlay */}
-      <CommandPalette
-        isOpen={isPaletteOpen}
-        onClose={() => setPaletteOpen(false)}
-        onSelect={handleCommandSelect}
-      />
-      <TrialBanner />
-      <BreakReminder />
+      {!isAuthRoute && (
+        <>
+          <CommandPalette
+            isOpen={isPaletteOpen}
+            onClose={() => setPaletteOpen(false)}
+            onSelect={handleCommandSelect}
+          />
+          <TrialBanner />
+          <BreakReminder />
+        </>
+      )}
       <ErrorBoundary level="global">
       {(() => {
         const useDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);

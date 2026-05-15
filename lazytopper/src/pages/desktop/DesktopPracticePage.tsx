@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import {
@@ -319,7 +319,14 @@ interface BackInfo {
 
 function resolveBack(returnTo: string | null, source: string | null): BackInfo {
   // Whitelist returnTo so we never follow off-site URLs.
-  if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+  if (
+    returnTo &&
+    returnTo.startsWith("/") &&
+    !returnTo.startsWith("//") &&
+    !returnTo.startsWith("/\\") &&
+    !returnTo.startsWith("\\") &&
+    !/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(returnTo)
+  ) {
     const key = (source ?? "home") as DesktopActionSource;
     return {
       to: returnTo,
@@ -1601,10 +1608,19 @@ function getQuickPracticeSolutionParts(question: PracticeQuestion): string[] {
 
 export default function DesktopPracticePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [params] = useSearchParams();
   const { user } = useAuth();
   const { grade, subject } = useSubjectContext();
   const isSignedIn = !!user;
+  const currentPracticeUrl = useMemo(
+    () => `${location.pathname}${location.search}`,
+    [location.pathname, location.search],
+  );
+  const returnTo = currentPracticeUrl || RETURN_TO;
+  const sourceParam = params.get("source");
+  const focusParam = (params.get("focus") || "").trim();
+  const subtopicHintParam = (params.get("subtopicHint") || "").trim();
 
   // Map the legacy subject string from useSubjectContext onto the
   // L2 DesktopSubject union. Default to "Maths" when uncertain — this only
@@ -1916,13 +1932,13 @@ export default function DesktopPracticePage() {
     if (params.topic) sp.set("topic", params.topic);
     if (params.timed) sp.set("timed", "1");
     sp.set("source", SOURCE);
-    sp.set("returnTo", RETURN_TO);
+    sp.set("returnTo", returnTo);
     return withQuery(`/practice/${grade}/${scope.subject}`, sp);
   };
   const buildPredictedPath = (): string => {
     const sp = new URLSearchParams();
     sp.set("source", SOURCE);
-    sp.set("returnTo", RETURN_TO);
+    sp.set("returnTo", returnTo);
     if (scope.scope === "topic" && scope.topicSlug) sp.set("topic", scope.topicSlug);
     if (scope.scope === "multi-topic" && scope.selectedTopicSlugs.length)
       sp.set("topics", scope.selectedTopicSlugs.join(","));
@@ -1931,7 +1947,7 @@ export default function DesktopPracticePage() {
   const buildExamSimulationPath = (mistakeMini?: boolean): string => {
     const sp = new URLSearchParams();
     sp.set("source", SOURCE);
-    sp.set("returnTo", RETURN_TO);
+    sp.set("returnTo", returnTo);
     sp.set("subject", scope.subject);
     if (mistakeMini) sp.set("mistakeMini", "1");
     return withQuery(`/exam-simulation`, sp);
@@ -1939,7 +1955,7 @@ export default function DesktopPracticePage() {
   const buildChapterTestPath = (topicSlug: string): string => {
     const sp = new URLSearchParams();
     sp.set("source", SOURCE);
-    sp.set("returnTo", RETURN_TO);
+    sp.set("returnTo", returnTo);
     return withQuery(
       `/chapter-test/${grade}/${scope.subject}/${encodeURIComponent(topicSlug)}`,
       sp,
@@ -1948,7 +1964,7 @@ export default function DesktopPracticePage() {
   const buildMockBuilderPath = (mistakeMini?: boolean): string => {
     const sp = new URLSearchParams();
     sp.set("source", SOURCE);
-    sp.set("returnTo", RETURN_TO);
+    sp.set("returnTo", returnTo);
     if (mistakeMini) sp.set("mistakeMini", "1");
     return withQuery(`/mock-builder/${grade}/${scope.subject}`, sp);
   };
@@ -1956,7 +1972,7 @@ export default function DesktopPracticePage() {
   // Worksheet path — uses the real L2 helper that already targets
   // /practice/worksheets and forwards scope to that page.
   const worksheetPath = useMemo(() => {
-    const baseCtx = { source: SOURCE, returnTo: RETURN_TO };
+    const baseCtx = { source: SOURCE, returnTo };
     if (scope.scope === "topic" && scope.topicSlug) {
       return buildDesktopWorksheetPath({
         scope: "topic",
@@ -1987,7 +2003,7 @@ export default function DesktopPracticePage() {
       });
     }
     return null;
-  }, [scope, worksheetMistakeMini]);
+  }, [scope, worksheetMistakeMini, returnTo]);
 
   // ── Card ROUTING with login fallbacks (PR-LANDING reasons) ─────────────
   const quickPracticePath: string | null = !validScope
@@ -2036,22 +2052,22 @@ export default function DesktopPracticePage() {
   const checkLinkPath = isSignedIn
     ? buildDesktopCheckPath(scope.topicSlug ?? undefined, {
         source: SOURCE,
-        returnTo: RETURN_TO,
+        returnTo,
       })
     : loginUrl(
         "open-check",
         buildDesktopCheckPath(scope.topicSlug ?? undefined, {
           source: SOURCE,
-          returnTo: RETURN_TO,
+          returnTo,
         }),
       );
   const meLinkPath = isSignedIn
-    ? buildDesktopMePath({ source: SOURCE, returnTo: RETURN_TO })
-    : loginUrl("open-progress", buildDesktopMePath({ source: SOURCE, returnTo: RETURN_TO }));
+    ? buildDesktopMePath({ source: SOURCE, returnTo })
+    : loginUrl("open-progress", buildDesktopMePath({ source: SOURCE, returnTo }));
 
   // Mistake-aware-worksheet target for the right-rail panel — auth-aware.
   const mistakeAwareWorksheetPath = (() => {
-    const baseCtx = { source: SOURCE, returnTo: RETURN_TO };
+    const baseCtx = { source: SOURCE, returnTo };
     const target = scope.topicSlug
       ? buildDesktopWorksheetPath({
           scope: "topic",
@@ -2080,7 +2096,12 @@ export default function DesktopPracticePage() {
 
   // ── Preview lines ─────────────────────────────────────────────────────
   const selectedNames = displayDesktopTopicNames(scope.selectedTopicSlugs);
+  const topicHubFocusContext =
+    sourceParam === "topicHub" && (focusParam.length > 0 || subtopicHintParam.length > 0);
   const previewLine = (mode: "practice-set" | "worksheet" | "predicted" | "full-mock" | "timed" | "chapter-test" | "practice-paper"): string => {
+    if (mode === "practice-set" && topicHubFocusContext && focusParam) {
+      return `practice set from ${selectedTopic?.name ?? scope.subject} - focus: ${focusParam}`;
+    }
     if (mode === "full-mock") {
       return `Full ${scope.subject} mock · 80 marks · Sections A–E${
         mockWeakArea && buckets.topRow ? ` · + weak-area mini-section (${buckets.topRow.label.toLowerCase()})` : ""
@@ -2140,6 +2161,9 @@ export default function DesktopPracticePage() {
     { label: `Scope: ${scopeChipLabel}`, tone: "neutral" },
     { label: `Mode: ${modeChipLabel}`, tone: "info" },
   ];
+  if (topicHubFocusContext && focusParam) {
+    chips.push({ label: `Focus: ${focusParam}`, tone: "info" });
+  }
 
   // ── ScopeBuilder summary (parity with prototype) ─────────────────────
   const scopeSummary = (() => {
@@ -2199,6 +2223,51 @@ export default function DesktopPracticePage() {
           subtitle="Pick a scope, then choose what to do."
           chips={chips}
         />
+
+        {topicHubFocusContext ? (
+          <section
+            style={{
+              background: CARD_BG,
+              border: `1px solid ${PRIMARY_GREEN_RING}`,
+              borderRadius: 14,
+              padding: "14px 16px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+            aria-label="Topic Hub focus context"
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: PRIMARY_GREEN_DARK,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              Focused from Topic Hub
+            </div>
+            <div style={{ fontSize: 13.5, color: TEXT_FG, lineHeight: 1.5 }}>
+              Practice scope: <strong>{selectedTopic?.name ?? scope.subject}</strong>
+              {focusParam ? (
+                <>
+                  {" "}
+                  - Focus: <strong>{focusParam}</strong>
+                </>
+              ) : null}
+              {subtopicHintParam ? (
+                <>
+                  <br />
+                  Hint: {subtopicHintParam}
+                </>
+              ) : null}
+            </div>
+            <div style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+              We'll use this context where matching questions exist; exact concept-level filtering is not claimed here.
+            </div>
+          </section>
+        ) : null}
 
         <PracticeScopeBuilder
           value={scope}
