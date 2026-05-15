@@ -12,7 +12,7 @@
  * Reasons mirror the canonical list documented in the QA addendum:
  *   start-trial, login, save-worksheet, upload-answers, grade-answer,
  *   open-progress, mistake-aware, mistake-aware-worksheet,
- *   start-full-mock, open-check.
+ *   start-full-mock, open-check, start-practice, check-answer.
  *
  * Unrecognised reasons fall back to the `login` copy so stale links
  * never produce empty headlines.
@@ -34,14 +34,21 @@ const PROMPTS: Record<string, LoginPrompt> = {
     chip: "Free trial",
     headline: "Sign in / Start trial",
     subCopy:
-      "Start your free trial to unlock saved attempts and mistake-aware practice.",
+      "Start your free trial to save attempts, keep progress connected, and power Mistake Intelligence.",
     ctaLabel: "Start free trial",
   },
   "login": {
     chip: "Welcome back",
     headline: "Welcome back",
-    subCopy: "Sign in to pick up where you left off.",
+    subCopy: "Sign in to pick up your saved attempts, progress, and recommendations.",
     ctaLabel: "Resume LazyTopper",
+  },
+  "start-practice": {
+    chip: "Practice",
+    headline: "Sign in / Start practice",
+    subCopy:
+      "Sign in to save practice attempts and connect mistakes to Mistake Intelligence.",
+    ctaLabel: "Start practice",
   },
   "save-worksheet": {
     chip: "Save worksheet",
@@ -63,6 +70,13 @@ const PROMPTS: Record<string, LoginPrompt> = {
     subCopy:
       "Sign in to receive feedback and a mistake tag.",
     ctaLabel: "Grade & continue",
+  },
+  "check-answer": {
+    chip: "Check & Improve",
+    headline: "Check your answer",
+    subCopy:
+      "Sign in so checked answers can be saved as evidence for Mistake Intelligence.",
+    ctaLabel: "Check answer",
   },
   "open-progress": {
     chip: "Me · Progress",
@@ -106,9 +120,11 @@ export const DEFAULT_LOGIN_REASON = "login";
 export const KNOWN_LOGIN_REASONS: ReadonlyArray<string> = [
   "start-trial",
   "login",
+  "start-practice",
   "save-worksheet",
   "upload-answers",
   "grade-answer",
+  "check-answer",
   "open-progress",
   "mistake-aware",
   "mistake-aware-worksheet",

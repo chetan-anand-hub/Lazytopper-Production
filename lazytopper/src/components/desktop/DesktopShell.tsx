@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useSubscription } from "../../hooks/useSubscription";
 import { MistakeIntelCard } from "./MistakeIntelCard";
 
 /**
@@ -54,6 +55,17 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    to: "/exam-trends",
+    label: "Exam Trends",
+    // TrendingUp
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </svg>
+    ),
+  },
+  {
     to: "/practice-hub",
     label: "Practice",
     // Dumbbell
@@ -64,17 +76,6 @@ const NAV_ITEMS: NavItem[] = [
         <path d="m21.5 21.5-1.4-1.4" />
         <path d="M3.9 3.9 2.5 2.5" />
         <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z" />
-      </svg>
-    ),
-  },
-  {
-    to: "/exam-trends",
-    label: "Exam Trends",
-    // TrendingUp
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-        <polyline points="16 7 22 7 22 13" />
       </svg>
     ),
   },
@@ -112,13 +113,65 @@ interface DesktopShellProps {
 }
 
 export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { tier, isTrialActive, isTrialExpired, daysLeftInTrial } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   const initials = user
     ? (user.displayName || user.email || "S").charAt(0).toUpperCase()
     : null;
+  const identityLabel = user?.displayName || user?.email || "Student";
+  const identitySubLabel = user?.email || user?.phoneNumber || "Signed in account";
+  const returnTo = `${location.pathname}${location.search}${location.hash}`;
+  const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
+
+  let accountStatusLabel = "Free account";
+  let accountStatusDetail = "No active trial is recorded for this account.";
+  let accountStatusColor = "hsl(220, 15%, 45%)";
+  let accountStatusBg = "hsl(215, 28%, 95%)";
+  let accountStatusBorder = "hsl(215, 25%, 90%)";
+
+  if (tier === "premium") {
+    accountStatusLabel = "Premium active";
+    accountStatusDetail = "Full access is active on this account.";
+    accountStatusColor = "hsl(152, 55%, 28%)";
+    accountStatusBg = "hsla(152,55%,45%,0.12)";
+    accountStatusBorder = "hsla(152,55%,45%,0.25)";
+  } else if (isTrialActive) {
+    accountStatusLabel = daysLeftInTrial <= 1
+      ? "Trial ends today"
+      : `Trial active - ${daysLeftInTrial} days left`;
+    accountStatusDetail = "Your 7-day trial is tied to this account.";
+    accountStatusColor = daysLeftInTrial <= 2 ? "hsl(32, 95%, 38%)" : "hsl(152, 55%, 30%)";
+    accountStatusBg = daysLeftInTrial <= 2 ? "hsla(32,95%,50%,0.12)" : "hsla(152,55%,45%,0.12)";
+    accountStatusBorder = daysLeftInTrial <= 2 ? "hsla(32,95%,50%,0.28)" : "hsla(152,55%,45%,0.25)";
+  } else if (isTrialExpired) {
+    accountStatusLabel = "Trial ended - Choose plan";
+    accountStatusDetail = "Choose a plan to continue premium tools.";
+    accountStatusColor = "hsl(0, 72%, 45%)";
+    accountStatusBg = "hsla(0,72%,50%,0.10)";
+    accountStatusBorder = "hsla(0,72%,50%,0.22)";
+  }
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, [accountOpen]);
+
+  const handleLogout = async () => {
+    setAccountOpen(false);
+    navigate("/", { replace: true });
+    await logout();
+  };
 
   // ── LOCKED DESKTOP BASELINE LIGHT THEME ─────────────────────────
   // Source: chetan-anand-hub/lazytopper-desktop-view-e1fc5df7/src/index.css
@@ -323,30 +376,163 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
               </svg>
             </button>
 
-            {/* Identity / login — kept visually secondary so it doesn't dominate */}
+            {/* Identity / login - kept visually secondary so it doesn't dominate */}
             {user ? (
-              <button
-                type="button"
-                onClick={() => navigate("/profile")}
-                title={user.displayName || user.email || "Your profile"}
-                aria-label="Your profile"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
-                  display: "grid",
-                  placeItems: "center",
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
-              >
-                {initials}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isTrialExpired && tier !== "premium") {
+                      navigate(manageSubscriptionUrl);
+                    } else {
+                      setAccountOpen(true);
+                    }
+                  }}
+                  title={accountStatusDetail}
+                  style={{
+                    border: `1px solid ${accountStatusBorder}`,
+                    background: accountStatusBg,
+                    color: accountStatusColor,
+                    borderRadius: 999,
+                    padding: "6px 10px",
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {accountStatusLabel}
+                </button>
+                <div ref={accountMenuRef} style={{ position: "relative" }}>
+                  <button
+                    type="button"
+                    onClick={() => setAccountOpen((open) => !open)}
+                    title={identityLabel}
+                    aria-label="Open account menu"
+                    aria-haspopup="menu"
+                    aria-expanded={accountOpen}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
+                      display: "grid",
+                      placeItems: "center",
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  >
+                    {initials}
+                  </button>
+                  {accountOpen && (
+                    <div
+                      role="menu"
+                      aria-label="Account menu"
+                      style={{
+                        position: "absolute",
+                        right: 0,
+                        top: 44,
+                        width: 260,
+                        background: SURFACE_CARD,
+                        border: `1px solid ${SURFACE_BORDER}`,
+                        borderRadius: 8,
+                        boxShadow: "0 18px 40px rgba(15,23,42,0.16)",
+                        padding: 12,
+                        zIndex: 50,
+                      }}
+                    >
+                      <div style={{ padding: "4px 4px 10px", borderBottom: `1px solid ${SURFACE_BORDER}` }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: SURFACE_TEXT, overflowWrap: "anywhere" }}>
+                          {identityLabel}
+                        </div>
+                        <div style={{ marginTop: 3, fontSize: 12, color: SURFACE_TEXT_MUTED, overflowWrap: "anywhere" }}>
+                          {identitySubLabel}
+                        </div>
+                        <div
+                          style={{
+                            marginTop: 10,
+                            border: `1px solid ${accountStatusBorder}`,
+                            background: accountStatusBg,
+                            color: accountStatusColor,
+                            borderRadius: 8,
+                            padding: "8px 10px",
+                            fontSize: 12,
+                            fontWeight: 700,
+                          }}
+                        >
+                          <div>{accountStatusLabel}</div>
+                          <div style={{ marginTop: 2, fontWeight: 500, color: SURFACE_TEXT_MUTED }}>
+                            {accountStatusDetail}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 10 }}>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setAccountOpen(false);
+                            navigate("/me");
+                          }}
+                          style={{
+                            textAlign: "left",
+                            background: "transparent",
+                            border: "none",
+                            borderRadius: 6,
+                            padding: "9px 8px",
+                            color: SURFACE_TEXT,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Me / Progress
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setAccountOpen(false);
+                            navigate(manageSubscriptionUrl);
+                          }}
+                          style={{
+                            textAlign: "left",
+                            background: "transparent",
+                            border: "none",
+                            borderRadius: 6,
+                            padding: "9px 8px",
+                            color: SURFACE_TEXT,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Manage subscription
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={handleLogout}
+                          style={{
+                            textAlign: "left",
+                            background: "transparent",
+                            border: "none",
+                            borderRadius: 6,
+                            padding: "9px 8px",
+                            color: "hsl(0, 72%, 45%)",
+                            fontWeight: 700,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Log out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : !location.pathname.startsWith("/login") ? (
               <button
                 type="button"

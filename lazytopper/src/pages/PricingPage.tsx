@@ -20,21 +20,24 @@ function saveWaitlistEntry(entry: WaitlistEntry): void {
 }
 
 const FREE_FEATURES = [
-  { label: "Exam Trends & Weightage", included: true },
-  { label: "10 practice questions/day", included: true },
-  { label: "1 mock paper/week", included: true },
+  { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
+  { label: "Practice picker and limited practice", included: true },
+  { label: "Limited worksheet generation", included: true },
   { label: "Basic topic insights", included: true },
-  { label: "Unlimited practice", included: false },
-  { label: "AI Tutor (Ravi Sir)", included: false },
-  { label: "Predicted questions", included: false },
-  { label: "Full mock tests", included: false },
-  { label: "Smart study planner", included: false },
-  { label: "Parent dashboard", included: false },
-  { label: "Weak area analysis", included: false },
-  { label: "Exam simulation", included: false },
+  { label: "Solution Checker / Check & Improve", included: false },
+  { label: "Deep Mistake Intelligence", included: false },
+  { label: "Full mocks and predicted-question execution", included: false },
+  { label: "Richer Me / Progress recommendations", included: false },
 ];
 
-const PREMIUM_FEATURES = FREE_FEATURES.map(f => ({ ...f, included: true }));
+const PREMIUM_FEATURES = [
+  { label: "Everything in Basic", included: true },
+  { label: "Solution Checker / Check & Improve access", included: true },
+  { label: "Mistake Intelligence from checked evidence", included: true },
+  { label: "Full mocks and predicted-question execution", included: true },
+  { label: "Richer Me / Progress recommendations", included: true },
+  { label: "Stronger practice and worksheet quotas", included: true },
+];
 
 const BOARDS_COMING = [
   { name: "ICSE Board", icon: "🏛️" },
@@ -49,7 +52,7 @@ export default function PricingPage() {
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
 
   const handleStartTrial = () => {
-    navigate("/login", { state: { from: "/pricing", startTrial: true } });
+    navigate(`/login?reason=start-trial&redirect=${encodeURIComponent("/pricing")}`);
   };
 
   const handleWaitlistSubmit = (e: React.FormEvent) => {
@@ -72,10 +75,12 @@ export default function PricingPage() {
 
         <div style={{ textAlign: "center", marginTop: 24, marginBottom: 32 }}>
           <h1 className="font-display" style={{ fontSize: "1.8rem", fontWeight: 900, color: "var(--text)", marginBottom: 8 }}>
-            Simple, Student-Friendly Pricing
+            Simple, Student-Friendly Plans
           </h1>
           <p style={{ fontSize: "0.95rem", color: "var(--text-muted)", maxWidth: 500, margin: "0 auto" }}>
-            Start free. Upgrade when you're ready to unlock the full power of AI-driven exam prep.
+            Browse first, sign in for a 7-day trial, and choose Premium when
+            you need checked answers, deeper Mistake Intelligence, and full
+            mock workflows. Payment checkout is not automated in this build.
           </p>
         </div>
 
@@ -87,14 +92,14 @@ export default function PricingPage() {
             border: "1px solid var(--bg-card-border)",
           }}>
             <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-              Free
+              Basic
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
               <span style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--text)" }}>₹0</span>
               <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>/forever</span>
             </div>
             <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 20 }}>
-              Get started with essential exam prep tools
+              Browse the product and use limited learning tools without paid access.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {FREE_FEATURES.map(f => (
@@ -118,7 +123,7 @@ export default function PricingPage() {
                 cursor: "pointer",
               }}
             >
-              Get Started Free
+              Start free
             </button>
           </div>
 
@@ -135,17 +140,17 @@ export default function PricingPage() {
               padding: "4px 12px", borderRadius: 999,
               textTransform: "uppercase", letterSpacing: 0.5,
             }}>
-              Most Popular
+              Premium
             </div>
             <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#22c55e", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
               Premium
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
-              <span style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--text)" }}>₹149</span>
-              <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>/month</span>
+              <span style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--text)" }}>Manual</span>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}> activation</span>
             </div>
             <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 20 }}>
-              Everything you need to top the boards
+              Premium access is activated manually until checkout is connected.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {PREMIUM_FEATURES.map(f => (
@@ -165,10 +170,10 @@ export default function PricingPage() {
                 cursor: "pointer",
               }}
             >
-              Start 7-Day Free Trial
+              Start trial / request activation
             </button>
             <p style={{ textAlign: "center", fontSize: "0.72rem", color: "var(--text-muted)", marginTop: 8 }}>
-              No credit card required. Cancel anytime.
+              No credit card required for the trial. Premium is not activated automatically.
             </p>
           </div>
         </div>
@@ -184,9 +189,9 @@ export default function PricingPage() {
           </h2>
           <div style={{ textAlign: "left", maxWidth: 600, margin: "16px auto 0", display: "flex", flexDirection: "column", gap: 14 }}>
             {[
-              { q: "Is the free plan really free?", a: "Yes! You get exam trends, 10 questions/day, and 1 mock test/week forever. No hidden charges." },
-              { q: "What happens after the trial ends?", a: "You keep using the free plan. Nothing is charged automatically — you choose when to upgrade." },
-              { q: "Can I cancel Premium anytime?", a: "Absolutely. Cancel anytime from your profile. No questions asked." },
+              { q: "Is Basic really free?", a: "Yes. Basic keeps browse-first access and limited practice tools available without paid activation." },
+              { q: "What happens after the trial ends?", a: "You keep using the free plan. Nothing is charged automatically; you choose when to upgrade." },
+              { q: "Can I pay here?", a: "Not yet. Payment checkout is not connected in this build, so Premium activation stays manual." },
               { q: "Is this only for CBSE Class 10?", a: "Currently yes. We're expanding to ICSE, State Boards, and Class 12 soon!" },
             ].map(faq => (
               <div key={faq.q} style={{

@@ -38,7 +38,7 @@ export function TrialBanner() {
               Trial ended
             </span>
             <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-              — Upgrade to keep your streak, mastery data & practice history
+              - Choose a plan to keep premium tools available
             </span>
           </div>
           <button
@@ -51,7 +51,7 @@ export function TrialBanner() {
               whiteSpace: "nowrap",
             }}
           >
-            Upgrade Now
+            Choose plan
           </button>
         </div>
         <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} featureLabel="Full Access" />
@@ -79,10 +79,10 @@ export function TrialBanner() {
   let subMessage: string | null = null;
   if (isLastDay) {
     message = "Last day!";
-    subMessage = "Upgrade to keep your streak and mastery data";
+    subMessage = "Choose a plan to keep premium tools available";
   } else if (isDay6) {
     message = "1 day left!";
-    subMessage = "Don't lose your progress";
+    subMessage = "Choose a plan before trial access ends";
   } else {
     message = `Day ${currentDay} of ${TRIAL_DAYS} — Free Trial`;
   }
@@ -135,7 +135,7 @@ export function TrialBanner() {
               whiteSpace: "nowrap", opacity: 0.9,
             }}
           >
-            Upgrade
+            Choose plan
           </button>
         ) : (
           <button
@@ -148,7 +148,7 @@ export function TrialBanner() {
               textDecoration: "underline", textUnderlineOffset: 2,
             }}
           >
-            Upgrade
+            Choose plan
           </button>
         )}
 

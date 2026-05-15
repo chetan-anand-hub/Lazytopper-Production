@@ -42,7 +42,8 @@ function isSafeInternalPath(path: string | null | undefined): path is string {
  *     no explicit `redirect` is supplied AND there is no
  *     `location.state.from`, we still send returning users to
  *     `/dashboard` and first-time-visitors to `/onboarding`.
- *   - Guest "Explore as Guest" affordance is preserved.
+ *   - Real-app guest access is not exposed from Login; deterministic
+ *     local/e2e auth remains owned by AuthContext.
  *
  * Reason-aware copy:
  *   1. Read `reason` from URLSearchParams (e.g. `save-worksheet`).
@@ -57,7 +58,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user, continueLocalSession } = useAuth();
+  const { user } = useAuth();
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -128,14 +129,6 @@ export default function Login() {
       navigate(nextPath, { replace: true });
     }
   }, [user, nextPath, navigate, reason]);
-
-  const handleGuest = () => {
-    trackUxEvent("login_guest_explore", "login", {
-      reason: reason ?? "unspecified",
-    });
-    continueLocalSession();
-    navigate(nextPath, { replace: true });
-  };
 
   // Visual tokens — kept inline so this file is self-contained and
   // matches the rest of the production page styling convention.
@@ -236,8 +229,9 @@ export default function Login() {
             lineHeight: 1.55,
           }}
         >
-          Practice, worksheets, predicted papers and full 80-mark mocks — all
-          powered by your own mistakes. No timetables. No noise.
+          Sign in so LazyTopper can save your attempts, connect checked
+          mistakes to Mistake Intelligence, and keep progress tied to your
+          Gmail or phone account. Your 7-day free trial starts when you sign in.
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
           <span
@@ -254,7 +248,7 @@ export default function Login() {
               letterSpacing: "0.01em",
             }}
           >
-            Mistake-aware
+            Saved attempts
           </span>
           <span
             style={{
@@ -269,7 +263,7 @@ export default function Login() {
               fontWeight: 700,
             }}
           >
-            80-mark mocks
+            Mistake Intelligence
           </span>
           <span
             style={{
@@ -284,7 +278,7 @@ export default function Login() {
               fontWeight: 700,
             }}
           >
-            Topic combinations
+            7-day trial
           </span>
         </div>
       </div>
@@ -451,35 +445,19 @@ export default function Login() {
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
+            border: "1px solid rgba(7,26,45,0.10)",
+            background: "#ffffff",
+            borderRadius: 14,
+            padding: "12px 14px",
             color: navyMuted,
             fontSize: "0.82rem",
+            lineHeight: 1.45,
           }}
         >
-          <div style={{ flex: 1, height: 1, background: dividerLine }} />
-          <span>or</span>
-          <div style={{ flex: 1, height: 1, background: dividerLine }} />
+          Sign in with Gmail or phone if enabled. Your attempts, checked
+          answers, progress, and Mistake Intelligence stay connected to this
+          account.
         </div>
-
-        <button
-          type="button"
-          onClick={handleGuest}
-          style={{
-            width: "100%",
-            border: "1px solid rgba(7,26,45,0.16)",
-            background: "#ffffff",
-            color: navy,
-            fontSize: "0.92rem",
-            fontWeight: 800,
-            cursor: "pointer",
-            padding: "12px 16px",
-            borderRadius: 14,
-          }}
-        >
-          Explore as Guest →
-        </button>
 
         <div
           style={{
