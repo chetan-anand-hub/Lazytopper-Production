@@ -1,4 +1,5 @@
 import type React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -11,15 +12,36 @@ const MUTED = "#49627f";
 const BORDER = "rgba(7, 26, 61, 0.12)";
 const CARD = "rgba(255, 255, 255, 0.92)";
 const SHADOW = "0 22px 70px rgba(7, 26, 61, 0.13)";
+const DESKTOP_STAGE_WIDTH = 1600;
+const DESKTOP_STAGE_HEIGHT = 900;
+
+function getDesktopStageScale() {
+  if (typeof window === "undefined" || window.innerWidth < 1180) {
+    return 1;
+  }
+
+  return Number(Math.min(window.innerWidth / DESKTOP_STAGE_WIDTH, window.innerHeight / DESKTOP_STAGE_HEIGHT).toFixed(4));
+}
 
 export default function Welcome() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [stageScale, setStageScale] = useState(getDesktopStageScale);
 
   const signInUrl = "/login?reason=login&redirect=%2F";
   const onExplore = () => {
     navigate(user ? "/" : "/browse");
   };
+
+  useEffect(() => {
+    const updateStageScale = () => {
+      setStageScale(getDesktopStageScale());
+    };
+
+    updateStageScale();
+    window.addEventListener("resize", updateStageScale);
+    return () => window.removeEventListener("resize", updateStageScale);
+  }, []);
 
   return (
     <main className="lt-frozen-landing" aria-label="LazyTopper public landing">
@@ -56,6 +78,11 @@ export default function Welcome() {
               position: relative;
               min-height: 100vh;
               padding: 24px clamp(20px, 3vw, 48px) 28px;
+            }
+
+            .lt-landing-stage {
+              position: relative;
+              z-index: 2;
             }
 
             .lt-landing-viewport:after {
@@ -766,6 +793,8 @@ export default function Welcome() {
                 height: 100svh;
                 min-height: 0;
                 overflow: hidden;
+                display: grid;
+                place-items: center;
                 background:
                   radial-gradient(circle at 50% 34%, rgba(22,185,106,0.16) 0, rgba(22,185,106,0) 24%),
                   radial-gradient(circle at 15% 20%, rgba(125,220,255,0.24) 0, rgba(125,220,255,0) 18%),
@@ -774,21 +803,58 @@ export default function Welcome() {
               }
 
               .lt-landing-viewport {
-                width: min(1560px, calc(100vw - 24px));
-                max-width: 100%;
-                margin: 0 auto;
-                height: 100%;
+                width: var(--lt-stage-width);
+                height: var(--lt-stage-height);
+                max-width: 100vw;
+                margin: 0;
                 min-height: 0;
+                overflow: hidden;
+                padding: 0;
+              }
+
+              .lt-landing-viewport:before,
+              .lt-landing-viewport:after {
+                display: none;
+              }
+
+              .lt-landing-stage {
+                position: absolute;
+                inset: 0 auto auto 0;
+                width: ${DESKTOP_STAGE_WIDTH}px;
+                height: ${DESKTOP_STAGE_HEIGHT}px;
                 overflow: hidden;
                 display: grid;
                 grid-template-rows: auto auto minmax(0, 1fr) auto auto;
                 gap: 0;
-                padding: 16px clamp(14px, 1.65vw, 28px) 12px;
+                padding: 16px 28px 12px;
+                transform: scale(var(--lt-stage-scale));
+                transform-origin: top left;
               }
 
-              .lt-landing-viewport:before {
+              .lt-landing-stage:before {
+                content: "";
+                position: absolute;
                 inset: 86px 0 auto;
                 height: 430px;
+                pointer-events: none;
+                background:
+                  radial-gradient(circle at 10% 50%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+                  radial-gradient(circle at 14% 34%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+                  radial-gradient(circle at 88% 40%, rgba(255,255,255,0.85) 0 2px, transparent 3px),
+                  radial-gradient(circle at 92% 58%, rgba(255,255,255,0.8) 0 2px, transparent 3px);
+                opacity: 0.86;
+              }
+
+              .lt-landing-stage:after {
+                content: "";
+                position: absolute;
+                z-index: 1;
+                left: 0;
+                right: 0;
+                bottom: -2px;
+                height: 18px;
+                pointer-events: none;
+                background: linear-gradient(180deg, rgba(5,23,51,0), #051733 45%, #051733 100%);
               }
 
               .lt-landing-header {
@@ -829,7 +895,7 @@ export default function Welcome() {
               }
 
               .lt-title {
-                font-size: clamp(42px, 3.35vw, 50px);
+                font-size: 50px;
                 line-height: 0.98;
               }
 
@@ -880,7 +946,7 @@ export default function Welcome() {
                 width: 100%;
                 min-width: 0;
                 grid-template-columns: repeat(4, minmax(0, 1fr));
-                gap: clamp(12px, 1.35vw, 20px);
+                gap: 20px;
               }
 
               .lt-stage {
@@ -951,7 +1017,7 @@ export default function Welcome() {
               }
 
               .lt-story-card {
-                height: clamp(270px, 33svh, 302px);
+                height: 302px;
                 min-height: 0;
                 min-width: 0;
                 width: 100%;
@@ -1381,78 +1447,89 @@ export default function Welcome() {
         }}
       />
 
-      <div className="lt-landing-viewport">
-        <header className="lt-landing-header">
-          <div className="lt-brand" aria-label="LazyTopper">
-            <SparkleIcon size={38} />
-            <span>LazyTopper</span>
-          </div>
+      <div
+        className="lt-landing-viewport"
+        style={
+          {
+            "--lt-stage-scale": stageScale,
+            "--lt-stage-width": `${DESKTOP_STAGE_WIDTH * stageScale}px`,
+            "--lt-stage-height": `${DESKTOP_STAGE_HEIGHT * stageScale}px`,
+          } as React.CSSProperties
+        }
+      >
+        <div className="lt-landing-stage">
+          <header className="lt-landing-header">
+            <div className="lt-brand" aria-label="LazyTopper">
+              <SparkleIcon size={38} />
+              <span>LazyTopper</span>
+            </div>
 
-          <button
-            type="button"
-            className="lt-signin"
-            onClick={() => navigate(signInUrl)}
-          >
-            <UserIcon size={25} />
-            <span className="lt-signin-text">Sign in</span>
-            <ArrowIcon size={23} />
-          </button>
-        </header>
+            <button
+              type="button"
+              className="lt-signin"
+              onClick={() => navigate(signInUrl)}
+            >
+              <UserIcon size={25} />
+              <span className="lt-signin-text">Sign in</span>
+              <ArrowIcon size={23} />
+            </button>
+          </header>
 
-        <section className="lt-hero">
-          <div className="lt-title-wrap">
-            <h1 className="lt-title">
-              Study smarter for{" "}
-              <span className="lt-title-accent">CBSE Class 10</span>
-            </h1>
-            <span className="lt-head-sparkle" aria-hidden="true">
-              <SparkleIcon size={33} />
-            </span>
-          </div>
+          <section className="lt-hero">
+            <div className="lt-title-wrap">
+              <h1 className="lt-title">
+                Study smarter for{" "}
+                <span className="lt-title-accent">CBSE Class 10</span>
+              </h1>
+              <span className="lt-head-sparkle" aria-hidden="true">
+                <SparkleIcon size={33} />
+              </span>
+            </div>
 
-          <button type="button" className="lt-explore" onClick={onExplore}>
-            <SparkleIcon size={30} />
-            <span>Explore LazyTopper</span>
-            <ArrowIcon size={28} />
-          </button>
-        </section>
+            <button type="button" className="lt-explore" onClick={onExplore}>
+              <SparkleIcon size={30} />
+              <span>Explore LazyTopper</span>
+              <ArrowIcon size={28} />
+            </button>
+          </section>
 
-        <section className="lt-story" aria-label="LazyTopper product loop preview">
-          <StoryLines />
-          <div className="lt-story-rail">
-            <StoryStage
-              number="1"
-              title="Exam Trends"
-              subtitle="See what matters"
-              card={<ExamTrendsCard />}
-            />
-            <FlowArrow />
-            <StoryStage
-              number="2"
-              title="Practice"
-              subtitle="Practice with intent"
-              card={<PracticeCard />}
-            />
-            <FlowArrow />
-            <StoryStage
-              number="3"
-              title="Check & Improve"
-              subtitle="Learn from mistakes"
-              card={<CheckImproveCard />}
-            />
-            <FlowArrow />
-            <StoryStage
-              number="4"
-              title="Me / Progress"
-              subtitle="Track your progress"
-              card={<ProgressCard />}
-            />
-          </div>
+          <section className="lt-story" aria-label="LazyTopper product loop preview">
+            <StoryLines />
+            <div className="lt-story-rail">
+              <StoryStage
+                number="1"
+                title="Exam Trends"
+                subtitle="See what matters"
+                card={<ExamTrendsCard />}
+              />
+              <FlowArrow />
+              <StoryStage
+                number="2"
+                title="Practice"
+                subtitle="Practice with intent"
+                card={<PracticeCard />}
+              />
+              <FlowArrow />
+              <StoryStage
+                number="3"
+                title="Check & Improve"
+                subtitle="Learn from mistakes"
+                card={<CheckImproveCard />}
+              />
+              <FlowArrow />
+              <StoryStage
+                number="4"
+                title="Me / Progress"
+                subtitle="Track your progress"
+                card={<ProgressCard />}
+              />
+            </div>
 
-          <MistakeIntelligenceLayer />
-        </section>
+            <MistakeIntelligenceLayer />
+          </section>
 
-        <BenefitRow />
+          <BenefitRow />
+        </div>
       </div>
     </main>
   );
