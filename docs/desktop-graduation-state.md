@@ -1,14 +1,181 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-05-16T02:31:24Z UTC / 2026-05-16 08:01 IST
+Last updated: 2026-05-16T18:55:00Z UTC / 2026-05-17 00:25 IST
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
 
-## Current post-PR #78 checkpoint
+## Current post-PR #80 checkpoint
+
+Current verified handoff base after PR #80 merge: `018c95b11f5168d27fb93bb3a2cae3859b682627`.
+
+PR #80 is already merged. Current base is the PR #80 merge commit. Frozen landing page implementation is now complete and should not be redesigned casually. Explore-first product behavior is now implemented through `/browse`. Login visual parity remains pending and is the recommended next implementation PR. No open implementation PR should be assumed unless live GitHub says so. Future implementation must start from `018c95b11f5168d27fb93bb3a2cae3859b682627` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
+
+PR #80 / PR-K2H-4: Frozen landing page and explore-first entry
+Status: MERGED
+Merged at: 2026-05-16T18:43:48Z
+Base before merge: 18e6e111884b05795882da75ba4c65f034d9d4e9
+Head branch: feat/desktop-pr-k2h-4-frozen-landing-explore-entry
+Head SHA: 045ffa00a3894405f67a5ceda778f313c693fa0f
+Merge commit / new base checkpoint: 018c95b11f5168d27fb93bb3a2cae3859b682627
+Changed files: 3
+Changed files:
+- lazytopper/src/App.tsx
+- lazytopper/src/components/desktop/DesktopShell.tsx
+- lazytopper/src/pages/Welcome.tsx
+
+Scope:
+- Implemented the frozen public landing page in production.
+- Replaced the old dark/text-heavy landing page with the final visual storyboard landing.
+- Final landing has one primary CTA: Explore.
+- CTA is placed centrally below the four product cards and above the Mistake Intelligence section.
+- Top-right Sign in remains for existing users.
+- Removed Start free trial as the landing CTA.
+- No Explore as Guest on landing.
+- No landing sidebar/app chrome.
+- Four-card story preserved: Exam Trends -> Practice -> Check & Improve -> Me / Progress.
+- Step captions removed: See what matters / Practice with intent / Learn from mistakes / Track your progress.
+- Attempts and Insights pills removed.
+- Card internals simplified so cards read as landing previews, not full dashboards.
+- Blue arrows aligned with card bodies.
+- Mistake Intelligence title/tagline preserved and visible: Mistake Intelligence / Turns mistakes into mastery.
+- Bottom benefit strip preserved and visible: CBSE Class 10 Focused; Smart Practice That Adapts; Mistake Intelligence That Improves; Your Progress, Always Saved; Climb Higher, Every Day.
+- Added signed-out Explore-first browse entry through `/browse`.
+- Explore opens `/app/browse` and does not open Login.
+- `/browse` shows product cockpit/shell without creating a guest user/session.
+- Existing real action gates/login behavior remain intact.
+- Preserved PR #77 route-context behavior.
+- Preserved PR #78 auth/session/account/logout/profile/pricing behavior.
+- Login visual polish was intentionally not included.
+
+Validation recorded:
+- TypeScript passed.
+- Production build passed with NODE_ENV=production BASE_PATH=/app/.
+- Build verifier passed: 8 passed, 0 failed.
+- git diff --check passed.
+- Vercel QA passed.
+- No Login, Pricing, DesktopHome, Practice, HPQ, Mock, TopicHub, docs/handoff, package, server, env, or data files changed in PR #80.
+
+PR #80 QA result: PASS.
+
+Owner-approved final landing design decisions:
+- Landing is a visual explanation page, not a feature-store banner.
+- Landing has one primary action only: Explore.
+- Explore CTA sits after the four-card story and before Mistake Intelligence.
+- Story order is intentional: Study smarter for CBSE Class 10 -> Exam Trends / Practice / Check & Improve / Me / Progress -> Explore -> Mistake Intelligence -> benefit strip.
+- This placement reduced top cramping and made the CTA feel like the natural next step after understanding the product.
+- No Start free trial CTA on public landing.
+- Trial begins only after a user signs in through a real action gate.
+- No guest mode or guest session.
+- Browse mode is for product inspection only.
+- Real learning actions must still require auth/trial gate where already implemented.
+- The landing should not be redesigned again unless owner explicitly reopens landing design.
+- Future changes to Welcome.tsx should be small fixes only unless owner explicitly approves a landing redesign.
+
+Final browser/Vercel QA:
+- `/app/` signed out shows final landing.
+- No scroll/overflow on tested desktop view.
+- No white band.
+- Four cards visible in one row.
+- CTA says Explore and sits below cards / above MI.
+- Explore opens `/app/browse`.
+- Sign in opens login route.
+- Vercel QA passed before merge.
+
+## Updated product doctrine after PR #80
+
+Browse-first / action-gated doctrine:
+- LazyTopper is browse-first and action-gated.
+- Public landing explains product visually.
+- Explore lets a student inspect the product cockpit without sign-in.
+- Browsing must not create a fake guest learner.
+- Real learning actions must route through auth/trial gate as appropriate.
+- Signing in is required to save attempts, progress, mistakes, checked answers, and Mistake Intelligence.
+
+Landing doctrine:
+- Public landing is now frozen from PR #80.
+- Do not use multiple landing CTAs.
+- Do not add Start free trial on landing.
+- Do not add Explore as Guest on landing.
+- Primary CTA text is Explore.
+- Top-right Sign in remains for existing users.
+- Landing should stay clean, visual, premium, and not text-heavy.
+- Landing tells this visual story: Exam Trends -> Practice -> Check & Improve -> Me / Progress -> Mistake Intelligence.
+
+Auth doctrine:
+- No real-app guest mode.
+- No fake local session.
+- No fake user.
+- No storing credentials.
+- Clerk auth remains for now.
+- Future Login PR must preserve real Clerk auth and safe redirect handling unless owner explicitly approves a larger auth strategy change.
+
+Payment doctrine:
+- Payment gateway remains deferred.
+- No fake premium.
+- No fake payment.
+- No client-side premium activation from normal UI.
+- Manual activation language remains acceptable for now.
+
+Practice doctrine:
+- Practice Level-3 visual design from PR #73 remains approved/frozen.
+- Do not redesign Practice during unrelated PRs.
+- MCQ durable evidence and MI bridge remain future work.
+- Show Steps is learning help, not grading.
+- Check My Answer is the real checking/evidence path.
+
+Navigation doctrine:
+- Use source and returnTo for parent-aware navigation.
+- Preserve PR #77 route-context behavior.
+- Do not hard-code all back navigation to Exam Trends.
+- Do not route to old `/trends/:grade/:subject` unless intentionally preserving a legacy route.
+
+## Remaining follow-ups after PR #80
+
+1. Login visual parity / auth gate polish - recommended next implementation PR. Current login is functional but not visually aligned with final landing / Lovable prototype. Future Login PR must keep real Clerk auth, no guest mode, reason/redirect handling, safe redirects, Explore/sign-in funnel behavior, improve visual match to calm split login, address visible development-mode/public auth polish where possible, and avoid payment/pricing/practice/HPQ changes.
+2. Clerk friction / auth strategy remains an open product question. Observed flow can include LazyTopper login -> Google account chooser -> Clerk consent/continuation screen -> product. Short-term: polish Login around Clerk. Long-term: evaluate whether Clerk should remain or whether direct Firebase/Google/phone OTP is better for launch. Do not remove Clerk without a dedicated auth architecture PR.
+3. Home/cockpit card order follow-up. Owner noted logical learning order should be Exam Trends -> Practice -> Worksheets -> Check & Improve. Sidebar already better reflects the learning order. Home cards may still need reordering in DesktopHome in a future PR. Do not mix with Login PR unless explicitly approved.
+4. Pricing visual redesign remains pending. Pricing is functionally safer after PR #78 but visually not aligned with final product grammar. Payment gateway remains parked until later pre-launch stage.
+5. Continue where you left off route repair remains pending. It can still route to TopicHub "Topic not found." Future small PR may hide the card when saved topic is not curated, route to Practice Hub/Exam Trends, or map to safe topic slug.
+6. `/profile` direct-reference cleanup remains pending. PR #78 protects `/profile` via redirect/login handling, but future route-hardening can replace direct `/profile` references with `/me` where appropriate.
+7. Payment gateway / GPay / UPI QR / Razorpay/Cashfree is deferred. Must be server/admin verified. Normal client UI must never mark premium directly.
+
+## Next action after this docs update
+
+1. Verify PR #80 merge commit is the live base: `018c95b11f5168d27fb93bb3a2cae3859b682627`.
+2. Complete this docs-only handoff update.
+3. After docs merge, start PR-K2H-5 - Login visual parity + auth gate polish.
+
+Recommended PR-K2H-5 scope:
+- `lazytopper/src/pages/Login.tsx`
+- `lazytopper/src/lib/desktop/loginPrompts.ts`
+- Optional only if proven necessary: small Login-only style/helper file if already existing and safe.
+
+PR-K2H-5 must not touch:
+- `lazytopper/src/pages/Welcome.tsx`
+- `lazytopper/src/App.tsx`
+- `lazytopper/src/components/desktop/DesktopShell.tsx`
+- `lazytopper/src/pages/desktop/DesktopHome.tsx`
+- `lazytopper/src/pages/PricingPage.tsx`
+- Practice
+- HPQ
+- Mock
+- TopicHub
+- docs/handoff
+- package/server/env/data
+
+PR-K2H-5 goals:
+- Visually align Login with final landing and Lovable prototype login gate.
+- Maintain real Clerk SignIn.
+- Remove/avoid any guest CTA.
+- Preserve reason/redirect handling.
+- Preserve safe redirect behavior.
+- Keep explanation of why login matters: saving attempts, progress, mistakes, and powering Mistake Intelligence.
+- Do not change auth provider architecture in this PR.
+- Record Clerk friction / development-mode branding as a launch-readiness follow-up if not solvable only in UI.
+
+## Previous post-PR #78 checkpoint
 
 Current verified handoff base after PR #78 merge: `0addba3f0208c7610d02ab1b1753923fdf0790db`.
-
-PR #77 is already merged. PR #78 is already merged. No open implementation PR should be assumed unless live GitHub says so. Future implementation must start from `0addba3f0208c7610d02ab1b1753923fdf0790db` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
 
 PR #78 / PR-K2H-3: Auth/session shell hardening
 Status: MERGED
@@ -104,11 +271,13 @@ Navigation doctrine:
 - Do not hard-code all back navigation to Exam Trends.
 - Do not route to old /trends/:grade/:subject unless intentionally preserving a legacy route.
 
-## Frozen landing page design target
+## Historical frozen landing page design target before PR #80
 
-Frozen landing page choices:
+Superseded by PR #80 implementation. Current doctrine is the PR #80 frozen landing: one primary CTA text `Explore`, CTA placed below the four cards and above Mistake Intelligence, no Start free trial, no Explore as Guest, and no casual landing redesign without owner approval.
+
+Historical frozen landing page choices before implementation:
 - No left sidebar on landing.
-- One primary CTA only: Explore LazyTopper.
+- One primary CTA only: Explore LazyTopper. Historical note: PR #80 final CTA text is `Explore`.
 - Top-right secondary CTA: Sign in.
 - Hero headline: Study smarter for CBSE Class 10.
 - Visual storyboard over wall of text.
@@ -118,10 +287,10 @@ Frozen landing page choices:
 - Final composition uses layout/style/color/CTA/sign-in treatment from final option and card content/story richness from option 7.
 - Landing must stay in sync with overall LazyTopper design grammar: deep navy, soft white, green accent, elegant cards, calm premium CBSE Class 10 study cockpit.
 
-Likely next landing PR:
+Historical landing implementation PR:
 PR-K2H-4 or equivalent:
-- Implement frozen landing redesign.
-- Primary CTA Explore LazyTopper opens browse-mode product cockpit.
+- Implement frozen landing redesign. Completed by PR #80.
+- Primary CTA opens browse-mode product cockpit. PR #80 final CTA text is `Explore`.
 - Top-right Sign in for existing students.
 - Do not create multiple landing CTAs into product actions.
 - Action gates appear inside product when student tries to use Practice, Check & Improve, HPQ, worksheet, mock, save/progress.

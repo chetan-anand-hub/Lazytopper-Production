@@ -1,3 +1,28 @@
+## 2026-05-16 - PR #80 follow-ups after frozen landing merge
+
+Status:
+Active follow-ups after PR-K2H-4 / PR #80 merge.
+
+Observation:
+PR #80 passed QA and implemented the frozen landing page plus Explore-first `/browse` entry. Landing should not be redesigned casually. The next highest-priority visible gap is Login visual parity / auth gate polish.
+
+Action:
+- Login visual parity / auth gate polish is the recommended next implementation PR. It must keep real Clerk auth, no guest mode, reason/redirect handling, safe redirects, Explore/sign-in funnel behavior, and improve visual match to the calm split login prototype. Do not alter payment/pricing/practice/HPQ in the same PR.
+- Clerk friction / auth strategy remains an open product question. Observed flow can include LazyTopper login -> Google account chooser -> Clerk consent/continuation screen -> product. Short-term: polish Login around Clerk. Long-term: evaluate whether Clerk should remain or whether direct Firebase/Google/phone OTP is better for launch. Do not remove Clerk without a dedicated auth architecture PR.
+- Home/cockpit card order follow-up remains. Owner noted logical learning order should be Exam Trends -> Practice -> Worksheets -> Check & Improve. Sidebar already better reflects the learning order. Home cards may still need reordering in DesktopHome in a future PR. Do not mix with Login PR unless explicitly approved.
+- Pricing visual redesign remains pending. Pricing is functionally safer after PR #78 but visually not aligned with final product grammar.
+- Continue where you left off route repair remains pending. It can still route to TopicHub "Topic not found." Future small PR may hide the card when saved topic is not curated, route to Practice Hub/Exam Trends, or map to safe topic slug.
+- `/profile` direct-reference cleanup remains pending. PR #78 protects `/profile` via redirect/login handling, but future route-hardening can replace direct `/profile` references with `/me` where appropriate.
+- Payment gateway / GPay / UPI QR / Razorpay/Cashfree is deferred and must be server/admin verified. Normal client UI must never mark premium directly.
+
+Landing doctrine after PR #80:
+- Public landing is frozen.
+- One primary CTA only: Explore.
+- No Start free trial on landing.
+- No Explore as Guest on landing.
+- Explore opens browse mode for product inspection only; it must not create a fake guest learner.
+- Real actions remain action-gated through auth/trial gate where already implemented.
+
 ## 2026-05-16 - PR #78 QA follow-ups and frozen landing target
 
 Status:
@@ -13,9 +38,10 @@ Action:
 - Remaining direct `/profile` references can be cleaned later; PR #78 protects them through `/profile` -> `/me` redirect.
 - Payment gateway is parked. Future payment activation must be server/admin verified; client UI must never mark premium directly.
 
-Frozen landing page target:
+Historical frozen landing page target before PR #80:
+- Superseded by PR #80 implementation. Current doctrine is one primary CTA text `Explore`, CTA below the four cards and above Mistake Intelligence, no Start free trial, no Explore as Guest, and no casual redesign unless owner explicitly reopens landing design.
 - No left sidebar on landing.
-- One primary CTA only: Explore LazyTopper.
+- One primary CTA only: Explore LazyTopper. Historical note: PR #80 final CTA text is `Explore`.
 - Top-right secondary CTA: Sign in.
 - Hero headline: Study smarter for CBSE Class 10.
 - Visual storyboard over wall of text.

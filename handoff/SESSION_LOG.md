@@ -1,3 +1,77 @@
+## 2026-05-16T18:55:00Z - PR #80 merge recorded; docs-only handoff update before PR-K2H-5
+
+### Starting state
+- Branch: `docs/post-pr-80-k2h-4-handoff-update`
+- Base branch: `base/approved-thru-437`
+- Required base SHA: `018c95b11f5168d27fb93bb3a2cae3859b682627`
+- Base SHA verified: `018c95b11f5168d27fb93bb3a2cae3859b682627`
+- Local task scope: docs-only handoff update
+
+### GitHub evidence
+- PR: PR #80
+- Title: `PR-K2H-4: Frozen landing page and explore-first entry`
+- State: `MERGED`
+- Merged at: `2026-05-16T18:43:48Z`
+- Base before merge: `18e6e111884b05795882da75ba4c65f034d9d4e9`
+- Head branch: `feat/desktop-pr-k2h-4-frozen-landing-explore-entry`
+- Final head SHA: `045ffa00a3894405f67a5ceda778f313c693fa0f`
+- Merge commit / new base SHA: `018c95b11f5168d27fb93bb3a2cae3859b682627`
+- Changed files count: 3
+- Changed files: `lazytopper/src/App.tsx`, `lazytopper/src/components/desktop/DesktopShell.tsx`, `lazytopper/src/pages/Welcome.tsx`
+- Additions/deletions: +2162 / -1294
+
+### Work completed
+- Updated docs/handoff files only; no product code changed.
+- Recorded that PR #80 is merged and the new verified base checkpoint is `018c95b11f5168d27fb93bb3a2cae3859b682627`.
+- Recorded PR #80 scope, validation, QA result, changed files, and owner-approved final landing design decisions.
+- Recorded frozen landing doctrine, Explore-first browse/action-gated doctrine, auth/payment/practice/navigation doctrines, and remaining follow-ups.
+- Updated next recommended implementation to PR-K2H-5 - Login visual parity + auth gate polish.
+
+### PR #80 validation recorded
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Build verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- Vercel QA passed.
+- No Login, Pricing, DesktopHome, Practice, HPQ, Mock, TopicHub, docs/handoff, package, server, env, or data files changed in PR #80.
+
+### PR #80 QA result
+PASS.
+
+Final landing QA/design decisions:
+- `/app/` signed out shows final landing.
+- No scroll/overflow on tested desktop view.
+- No white band.
+- Four cards visible in one row.
+- CTA says Explore and sits below cards / above MI.
+- Explore opens `/app/browse`.
+- Sign in opens login route.
+- Landing has one primary action only: Explore.
+- Trial begins only after a user signs in through a real action gate.
+- No guest mode or guest session.
+- Browse mode is for product inspection only.
+- The landing should not be redesigned again unless owner explicitly reopens landing design.
+
+### Follow-ups
+- Login visual parity / auth gate polish - recommended next implementation PR.
+- Clerk friction / auth strategy question.
+- Home/cockpit card order follow-up.
+- Pricing visual redesign.
+- Continue where you left off route repair.
+- `/profile` direct-reference cleanup.
+- Payment gateway / GPay / UPI QR / Razorpay/Cashfree deferred until server/admin verified activation work.
+
+### Session learnings
+- The final public landing is now product doctrine, not an open design target.
+- Explore-first browse mode and no-guest-mode can coexist: browse inspection is allowed, but real learning actions remain auth/trial gated.
+- CTA placement after the four-card story and before Mistake Intelligence is owner-approved and should not be casually moved.
+- Login polish is now the next visible funnel gap, but it must preserve real Clerk auth and the PR #80 funnel.
+
+### Next safe action
+- Review this docs-only diff.
+- Do not commit or push until GPT audits the docs diff.
+- After docs merge, start PR-K2H-5 - Login visual parity + auth gate polish from the live base.
+
 ## 2026-05-16T02:31:24Z - PR #78 merge recorded; docs-only handoff update before next owner-choice PR
 
 ### Starting state
