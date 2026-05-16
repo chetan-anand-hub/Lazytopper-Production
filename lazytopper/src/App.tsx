@@ -336,6 +336,9 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // "/" shell-wraps only when signed in (hasSession), so signed-out Welcome landing
   // remains public (not wrapped in DesktopShell).
   if (pathname === "/" && hasSession) return true;
+  // "/browse" is the public Explore-first cockpit entry. It intentionally
+  // shell-wraps at desktop width without creating a guest user or fake auth.
+  if (pathname === "/browse") return true;
   // "/welcome" is always a public landing page, never shell-wrapped.
   if (pathname === "/welcome") return false;
   // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
@@ -509,6 +512,8 @@ export default function App() {
   const location = useLocation();
   const isAuthRoute =
     location.pathname === "/login" || location.pathname.startsWith("/login/");
+  const isPublicLandingRoute =
+    location.pathname === "/welcome" || (location.pathname === "/" && !user);
   const shouldUseDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
   const pricingUrl = (source: string) => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
@@ -539,7 +544,7 @@ export default function App() {
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
-      {!isAuthRoute && !shouldUseDesktopShell && (
+      {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
@@ -644,7 +649,7 @@ export default function App() {
       </div>
       )}
       {/* Command palette overlay */}
-      {!isAuthRoute && (
+      {!isAuthRoute && !isPublicLandingRoute && (
         <>
           <CommandPalette
             isOpen={isPaletteOpen}
@@ -666,6 +671,14 @@ export default function App() {
               (shell-wrapped above), mobile → HomeRedirect. */}
           <Route path="/" element={<RootEntry />} />
           <Route path="/welcome" element={<Welcome />} />
+          <Route
+            path="/browse"
+            element={
+              user
+                ? <Navigate to="/" replace />
+                : withRouteSuspense(<DesktopHome />)
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
           <Route path="/sign-up" element={<SignUpPage />} />
