@@ -1,5 +1,3 @@
-import type React from "react";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -12,36 +10,15 @@ const MUTED = "#49627f";
 const BORDER = "rgba(7, 26, 61, 0.12)";
 const CARD = "rgba(255, 255, 255, 0.92)";
 const SHADOW = "0 22px 70px rgba(7, 26, 61, 0.13)";
-const DESKTOP_STAGE_WIDTH = 1600;
-const DESKTOP_STAGE_HEIGHT = 900;
-
-function getDesktopStageScale() {
-  if (typeof window === "undefined" || window.innerWidth < 1180) {
-    return 1;
-  }
-
-  return Number(Math.min(window.innerWidth / DESKTOP_STAGE_WIDTH, window.innerHeight / DESKTOP_STAGE_HEIGHT).toFixed(4));
-}
 
 export default function Welcome() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [stageScale, setStageScale] = useState(getDesktopStageScale);
 
   const signInUrl = "/login?reason=login&redirect=%2F";
   const onExplore = () => {
     navigate(user ? "/" : "/browse");
   };
-
-  useEffect(() => {
-    const updateStageScale = () => {
-      setStageScale(getDesktopStageScale());
-    };
-
-    updateStageScale();
-    window.addEventListener("resize", updateStageScale);
-    return () => window.removeEventListener("resize", updateStageScale);
-  }, []);
 
   return (
     <main className="lt-frozen-landing" aria-label="LazyTopper public landing">
@@ -156,11 +133,11 @@ export default function Welcome() {
             }
 
             .lt-signin {
-              height: 54px;
-              padding: 0 26px;
+              height: 50px;
+              padding: 0 22px;
               border-radius: 13px;
-              gap: 14px;
-              font-size: 17px;
+              gap: 12px;
+              font-size: 16px;
               font-weight: 700;
             }
 
@@ -216,18 +193,28 @@ export default function Welcome() {
             }
 
             .lt-explore {
-              margin-top: 22px;
-              min-width: 360px;
-              height: 56px;
-              border-radius: 21px;
-              gap: 20px;
-              font-size: 22px;
+              margin-top: 0;
+              min-width: 244px;
+              height: 52px;
+              border-radius: 19px;
+              gap: 16px;
+              font-size: 21px;
               font-weight: 800;
               box-shadow:
                 0 20px 44px rgba(7, 26, 61, 0.25),
                 0 0 0 5px rgba(22,185,106,0.12),
                 0 0 34px rgba(22,185,106,0.38),
                 inset 0 0 0 1px rgba(255,255,255,0.16);
+            }
+
+            .lt-post-card-cta {
+              position: relative;
+              z-index: 5;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 100%;
+              margin: 24px auto 0;
             }
 
             .lt-story {
@@ -256,7 +243,7 @@ export default function Welcome() {
             .lt-stage {
               display: flex;
               flex-direction: column;
-              gap: 14px;
+              gap: 16px;
               min-width: 0;
             }
 
@@ -264,7 +251,7 @@ export default function Welcome() {
               display: flex;
               align-items: center;
               gap: 12px;
-              min-height: 46px;
+              min-height: 38px;
               padding-left: 46px;
               text-align: left;
             }
@@ -288,13 +275,6 @@ export default function Welcome() {
               font-size: 19px;
               font-weight: 700;
               line-height: 1.05;
-            }
-
-            .lt-stage-sub {
-              margin-top: 4px;
-              color: #1f5cc6;
-              font-size: 13px;
-              font-weight: 600;
             }
 
             .lt-flow-arrow {
@@ -617,9 +597,8 @@ export default function Welcome() {
               min-height: 154px;
               margin-top: -10px;
               display: grid;
-              grid-template-columns: minmax(220px, 1fr) 340px minmax(220px, 1fr);
-              align-items: center;
-              gap: 20px;
+              grid-template-columns: 1fr;
+              place-items: center;
               color: #fff;
             }
 
@@ -689,30 +668,6 @@ export default function Welcome() {
               color: #31f294;
               font-size: 15px;
               font-weight: 800;
-            }
-
-            .lt-mi-pill {
-              position: relative;
-              z-index: 3;
-              display: inline-flex;
-              align-items: center;
-              gap: 14px;
-              width: min(100%, 235px);
-              min-height: 78px;
-              border-radius: 24px;
-              padding: 14px 20px;
-              background: rgba(8, 25, 54, 0.82);
-              border: 1px solid rgba(255,255,255,0.28);
-              box-shadow: 0 18px 40px rgba(0,0,0,0.28), inset 0 0 28px rgba(125,220,255,0.10);
-              backdrop-filter: blur(16px);
-            }
-
-            .lt-mi-pill.left {
-              justify-self: end;
-            }
-
-            .lt-mi-pill.right {
-              justify-self: start;
             }
 
             .lt-benefits {
@@ -793,8 +748,6 @@ export default function Welcome() {
                 height: 100svh;
                 min-height: 0;
                 overflow: hidden;
-                display: grid;
-                place-items: center;
                 background:
                   radial-gradient(circle at 50% 34%, rgba(22,185,106,0.16) 0, rgba(22,185,106,0) 24%),
                   radial-gradient(circle at 15% 20%, rgba(125,220,255,0.24) 0, rgba(125,220,255,0) 18%),
@@ -803,58 +756,25 @@ export default function Welcome() {
               }
 
               .lt-landing-viewport {
-                width: var(--lt-stage-width);
-                height: var(--lt-stage-height);
-                max-width: 100vw;
-                margin: 0;
+                width: min(1600px, calc(100vw - clamp(24px, 3.2vw, 54px)));
+                max-width: 100%;
+                margin: 0 auto;
+                height: 100%;
                 min-height: 0;
-                overflow: hidden;
-                padding: 0;
-              }
-
-              .lt-landing-viewport:before,
-              .lt-landing-viewport:after {
-                display: none;
-              }
-
-              .lt-landing-stage {
-                position: absolute;
-                inset: 0 auto auto 0;
-                width: ${DESKTOP_STAGE_WIDTH}px;
-                height: ${DESKTOP_STAGE_HEIGHT}px;
                 overflow: hidden;
                 display: grid;
                 grid-template-rows: auto auto minmax(0, 1fr) auto auto;
                 gap: 0;
-                padding: 16px 28px 12px;
-                transform: scale(var(--lt-stage-scale));
-                transform-origin: top left;
+                padding: clamp(13px, 1.7svh, 18px) 0 clamp(12px, 1.6svh, 18px);
               }
 
-              .lt-landing-stage:before {
-                content: "";
-                position: absolute;
+              .lt-landing-viewport:before {
                 inset: 86px 0 auto;
                 height: 430px;
-                pointer-events: none;
-                background:
-                  radial-gradient(circle at 10% 50%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
-                  radial-gradient(circle at 14% 34%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
-                  radial-gradient(circle at 88% 40%, rgba(255,255,255,0.85) 0 2px, transparent 3px),
-                  radial-gradient(circle at 92% 58%, rgba(255,255,255,0.8) 0 2px, transparent 3px);
-                opacity: 0.86;
               }
 
-              .lt-landing-stage:after {
-                content: "";
-                position: absolute;
-                z-index: 1;
-                left: 0;
-                right: 0;
-                bottom: -2px;
-                height: 18px;
-                pointer-events: none;
-                background: linear-gradient(180deg, rgba(5,23,51,0), #051733 45%, #051733 100%);
+              .lt-landing-stage {
+                display: contents;
               }
 
               .lt-landing-header {
@@ -873,16 +793,16 @@ export default function Welcome() {
               }
 
               .lt-signin {
-                height: 46px;
-                padding: 0 21px;
+                height: 42px;
+                padding: 0 18px;
                 border-radius: 12px;
-                gap: 11px;
-                font-size: 16px;
+                gap: 9px;
+                font-size: 15px;
               }
 
               .lt-signin svg {
-                width: 21px;
-                height: 21px;
+                width: 19px;
+                height: 19px;
               }
 
               .lt-hero {
@@ -891,11 +811,11 @@ export default function Welcome() {
               }
 
               .lt-title-wrap {
-                margin-top: -2px;
+                margin-top: -6px;
               }
 
               .lt-title {
-                font-size: 50px;
+                font-size: 45px;
                 line-height: 0.98;
               }
 
@@ -915,24 +835,23 @@ export default function Welcome() {
               }
 
               .lt-explore {
-                margin-top: 12px;
-                min-width: 330px;
-                height: 52px;
+                min-width: 214px;
+                height: 46px;
                 border-radius: 18px;
-                gap: 16px;
-                font-size: 20px;
+                gap: 13px;
+                font-size: 19px;
               }
 
               .lt-explore svg {
-                width: 25px;
-                height: 25px;
+                width: 23px;
+                height: 23px;
               }
 
               .lt-story {
                 width: 100%;
                 max-width: 100%;
                 min-height: 0;
-                margin-top: 2px;
+                margin-top: clamp(76px, 8.4svh, 96px);
                 overflow: visible;
               }
 
@@ -950,7 +869,7 @@ export default function Welcome() {
               }
 
               .lt-stage {
-                gap: 8px;
+                gap: 12px;
                 min-width: 0;
               }
 
@@ -971,7 +890,7 @@ export default function Welcome() {
               }
 
               .lt-stage-heading {
-                min-height: 34px;
+                min-height: 30px;
                 gap: 8px;
                 padding-left: 38px;
               }
@@ -987,17 +906,12 @@ export default function Welcome() {
                 line-height: 1;
               }
 
-              .lt-stage-sub {
-                margin-top: 2px;
-                font-size: 11px;
-              }
-
               .lt-flow-arrow {
                 position: absolute;
                 z-index: 4;
                 width: 38px;
                 height: 38px;
-                top: 76px;
+                top: clamp(153px, 17.6svh, 183px);
                 left: auto;
                 transform: translateX(-50%);
                 margin-top: 0;
@@ -1017,7 +931,7 @@ export default function Welcome() {
               }
 
               .lt-story-card {
-                height: 302px;
+                height: clamp(246px, 29svh, 306px);
                 min-height: 0;
                 min-width: 0;
                 width: 100%;
@@ -1025,6 +939,10 @@ export default function Welcome() {
                 overflow: hidden;
                 border-radius: 16px;
                 padding: 12px 13px;
+              }
+
+              .lt-post-card-cta {
+                margin-top: clamp(10px, 1.4svh, 16px);
               }
 
               .lt-card-top {
@@ -1057,21 +975,21 @@ export default function Welcome() {
               }
 
               .lt-mini-grid {
-                grid-template-columns: 30px repeat(9, 10px);
-                gap: 4px;
-                margin-top: 6px;
+                grid-template-columns: 28px repeat(9, 9px);
+                gap: 3px;
+                margin-top: 5px;
                 font-size: 9px;
               }
 
               .lt-dot {
-                width: 10px;
-                height: 10px;
+                width: 9px;
+                height: 9px;
                 border-radius: 3px;
               }
 
               .lt-card-action {
-                height: 30px;
-                margin-top: 6px;
+                height: 28px;
+                margin-top: 5px;
                 border-radius: 8px;
                 gap: 14px;
                 font-size: 11px;
@@ -1084,9 +1002,9 @@ export default function Welcome() {
               }
 
               .lt-option {
-                min-height: 27px;
+                min-height: 25px;
                 margin-top: 4px;
-                padding: 5px 7px;
+                padding: 4px 7px;
                 border-radius: 8px;
                 gap: 7px;
                 font-size: 10.4px;
@@ -1099,8 +1017,8 @@ export default function Welcome() {
               }
 
               .lt-practice-footer {
-                height: 30px;
-                margin-top: 8px;
+                height: 28px;
+                margin-top: 6px;
                 border-radius: 8px;
                 padding: 0 10px;
                 font-size: 11px;
@@ -1122,10 +1040,10 @@ export default function Welcome() {
               .lt-explanation {
                 grid-template-columns: 48px minmax(0, 1fr);
                 gap: 8px;
-                padding: 8px;
+                padding: 7px;
                 border-radius: 9px;
                 font-size: 10.8px;
-                line-height: 1.35;
+                line-height: 1.28;
               }
 
               .lt-lungs {
@@ -1140,15 +1058,15 @@ export default function Welcome() {
               }
 
               .lt-wrong-list {
-                margin-top: 7px;
-                padding: 7px 9px;
+                margin-top: 5px;
+                padding: 6px 8px;
                 font-size: 10.4px;
-                line-height: 1.35;
+                line-height: 1.25;
               }
 
               .lt-next-question {
-                height: 30px;
-                margin-top: 7px;
+                height: 28px;
+                margin-top: 5px;
                 border-radius: 8px;
                 gap: 14px;
                 font-size: 11px;
@@ -1156,8 +1074,8 @@ export default function Welcome() {
 
               .lt-progress-card {
                 grid-template-columns: 78px minmax(0, 1fr);
-                min-height: 86px;
-                padding: 10px;
+                min-height: 78px;
+                padding: 9px;
                 border-radius: 10px;
                 gap: 8px;
               }
@@ -1183,11 +1101,11 @@ export default function Welcome() {
 
               .lt-strength-grid {
                 gap: 5px;
-                margin-top: 8px;
+                margin-top: 6px;
               }
 
               .lt-strength-tile {
-                min-height: 39px;
+                min-height: 34px;
                 border-radius: 8px;
                 font-size: 9.5px;
               }
@@ -1197,33 +1115,34 @@ export default function Welcome() {
               }
 
               .lt-chart {
-                height: 52px;
-                margin-top: 6px;
+                height: 42px;
+                margin-top: 5px;
                 border-radius: 8px;
               }
 
               .lt-mi-area {
                 width: 100%;
                 max-width: 1500px;
-                min-height: 118px;
-                margin: -30px auto 0;
-                grid-template-columns: minmax(190px, 1fr) 360px minmax(190px, 1fr);
-                gap: 14px;
+                z-index: 4;
+                min-height: clamp(112px, 12svh, 138px);
+                margin: clamp(14px, 1.8svh, 22px) auto 0;
+                grid-template-columns: 1fr;
               }
 
               .lt-connector-glow {
-                top: 50px;
-                height: 46px;
+                top: 54px;
+                height: 38px;
                 filter: blur(8px);
               }
 
               .lt-connector-lines {
-                top: 12px;
-                height: 112px;
+                top: 22px;
+                height: 94px;
               }
 
               .lt-mi-hub {
                 gap: 7px;
+                z-index: 6;
               }
 
               .lt-brain-orbit {
@@ -1241,8 +1160,11 @@ export default function Welcome() {
               }
 
               .lt-mi-title {
+                position: relative;
+                z-index: 7;
                 gap: 8px;
                 font-size: 20px;
+                text-shadow: 0 2px 12px rgba(5, 23, 51, 0.46);
               }
 
               .lt-mi-title svg {
@@ -1251,39 +1173,20 @@ export default function Welcome() {
               }
 
               .lt-mi-subtitle {
+                position: relative;
+                z-index: 7;
                 margin-top: -4px;
                 font-size: 13px;
-              }
-
-              .lt-mi-pill {
-                width: min(100%, 198px);
-                min-height: 54px;
-                gap: 10px;
-                border-radius: 18px;
-                padding: 9px 13px;
-              }
-
-              .lt-mi-pill svg {
-                width: 30px;
-                height: 30px;
-              }
-
-              .lt-mi-pill > div > div:first-child {
-                font-size: 14px !important;
-              }
-
-              .lt-mi-pill > div > div:last-child {
-                margin-top: 2px !important;
-                font-size: 11px;
-                line-height: 1.25 !important;
+                text-shadow: 0 2px 12px rgba(5, 23, 51, 0.50);
               }
 
               .lt-benefits {
                 width: 100%;
                 max-width: 1260px;
-                margin: 0 auto 0;
+                margin: 0 auto clamp(26px, 3.4svh, 46px);
+                z-index: 2;
                 gap: 10px;
-                padding: 7px 16px;
+                padding: 6px 14px;
                 border-radius: 18px;
                 background: rgba(5, 23, 51, 0.42);
                 border: 1px solid rgba(255,255,255,0.16);
@@ -1292,8 +1195,8 @@ export default function Welcome() {
               }
 
               .lt-benefit {
-                min-height: 38px;
-                grid-template-columns: 28px minmax(0, 1fr);
+                min-height: 34px;
+                grid-template-columns: 26px minmax(0, 1fr);
                 gap: 7px;
               }
 
@@ -1303,18 +1206,345 @@ export default function Welcome() {
               }
 
               .lt-benefit-icon {
+                width: 26px;
+                height: 26px;
+              }
+
+              .lt-benefit-icon svg {
+                width: 25px;
+                height: 25px;
+              }
+
+              .lt-benefit-text {
+                font-size: 11.8px;
+                line-height: 1.22;
+              }
+            }
+
+            @media (min-width: 1700px) {
+              .lt-landing-viewport {
+                width: min(1720px, calc(100vw - 72px));
+              }
+
+              .lt-story-rail {
+                gap: 24px;
+              }
+
+              .lt-mi-area {
+                max-width: 1580px;
+                margin-top: clamp(20px, 2svh, 28px);
+              }
+
+              .lt-benefits {
+                margin-bottom: clamp(48px, 5.4svh, 66px);
+              }
+            }
+
+            @media (min-width: 1180px) and (max-height: 800px) {
+              .lt-landing-viewport {
+                padding-top: 10px;
+              }
+
+              .lt-landing-header {
+                min-height: 42px;
+              }
+
+              .lt-brand {
+                font-size: 21px;
+              }
+
+              .lt-brand svg {
                 width: 28px;
                 height: 28px;
               }
 
+              .lt-signin {
+                height: 40px;
+                padding: 0 17px;
+              }
+
+              .lt-title {
+                font-size: 40px;
+              }
+
+              .lt-explore {
+                min-width: 196px;
+                height: 40px;
+                font-size: 17px;
+              }
+
+              .lt-story {
+                margin-top: clamp(54px, 7svh, 66px);
+              }
+
+              .lt-story-card {
+                height: clamp(224px, 29svh, 242px);
+                padding: 10px 12px;
+              }
+
+              .lt-post-card-cta {
+                margin-top: 8px;
+              }
+
+              .lt-stage-heading {
+                min-height: 27px;
+              }
+
+              .lt-question {
+                margin: 6px 0 5px;
+                font-size: 11.6px;
+              }
+
+              .lt-option {
+                min-height: 23px;
+                margin-top: 3px;
+                padding: 3px 7px;
+              }
+
+              .lt-practice-footer,
+              .lt-next-question,
+              .lt-card-action {
+                height: 26px;
+              }
+
+              .lt-wrong-list,
+              .lt-chart {
+                display: none;
+              }
+
+              .lt-progress-card {
+                min-height: 74px;
+              }
+
+              .lt-strength-tile {
+                min-height: 32px;
+              }
+
+              .lt-mi-area {
+                margin-top: 8px;
+                min-height: 104px;
+              }
+
+              .lt-benefits {
+                margin-bottom: clamp(24px, 3.2svh, 34px);
+              }
+
+              .lt-flow-arrow {
+                top: 139px;
+              }
+            }
+
+            @media (min-width: 1180px) and (max-height: 700px) {
+              .lt-landing-viewport {
+                padding-top: 8px;
+                padding-bottom: 7px;
+              }
+
+              .lt-landing-header {
+                min-height: 38px;
+              }
+
+              .lt-brand {
+                font-size: 20px;
+              }
+
+              .lt-brand svg {
+                width: 26px;
+                height: 26px;
+              }
+
+              .lt-signin {
+                height: 38px;
+                padding: 0 17px;
+                font-size: 15px;
+              }
+
+              .lt-title-wrap {
+                margin-top: -6px;
+              }
+
+              .lt-title {
+                font-size: 38px;
+              }
+
+              .lt-title-accent:after {
+                bottom: -3px;
+                height: 5px;
+              }
+
+              .lt-head-sparkle {
+                right: -28px;
+              }
+
+              .lt-explore {
+                min-width: 178px;
+                height: 40px;
+                border-radius: 15px;
+                gap: 12px;
+                font-size: 16px;
+              }
+
+              .lt-explore svg {
+                width: 21px;
+                height: 21px;
+              }
+
+              .lt-story {
+                margin-top: clamp(44px, 6.2svh, 52px);
+              }
+
+              .lt-stage {
+                gap: 8px;
+              }
+
+              .lt-stage-heading {
+                min-height: 24px;
+                padding-left: 32px;
+              }
+
+              .lt-stage-number {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+              }
+
+              .lt-stage-title {
+                font-size: 15px;
+              }
+
+              .lt-story-card {
+                height: clamp(202px, 31svh, 216px);
+                padding: 8px 10px;
+              }
+
+              .lt-post-card-cta {
+                margin-top: 6px;
+              }
+
+              .lt-card-top {
+                margin-bottom: 5px;
+              }
+
+              .lt-topic-row {
+                margin: 3px 0;
+              }
+
+              .lt-mini-grid,
+              .lt-card-action,
+              .lt-next-question {
+                display: none;
+              }
+
+              .lt-question {
+                margin: 4px 0;
+                font-size: 11px;
+                line-height: 1.24;
+              }
+
+              .lt-option {
+                min-height: 21px;
+                margin-top: 2px;
+                font-size: 10px;
+              }
+
+              .lt-practice-footer {
+                height: 24px;
+                margin-top: 4px;
+              }
+
+              .lt-answer-line {
+                margin-bottom: 4px;
+              }
+
+              .lt-answer-box {
+                min-height: 24px;
+                padding: 4px 7px;
+              }
+
+              .lt-explanation {
+                padding: 6px;
+                line-height: 1.22;
+              }
+
+              .lt-lungs {
+                width: 40px;
+                height: 40px;
+              }
+
+              .lt-lungs svg {
+                width: 29px;
+                height: 29px;
+              }
+
+              .lt-progress-card {
+                min-height: 66px;
+                padding: 7px;
+              }
+
+              .lt-ring {
+                width: 58px;
+                height: 58px;
+              }
+
+              .lt-strength-grid {
+                margin-top: 5px;
+              }
+
+              .lt-strength-tile {
+                min-height: 28px;
+              }
+
+              .lt-mi-area {
+                min-height: 100px;
+                margin-top: 5px;
+              }
+
+              .lt-benefits {
+                margin-bottom: clamp(18px, 3svh, 24px);
+              }
+
+              .lt-flow-arrow {
+                top: 128px;
+              }
+
+              .lt-brain-orbit {
+                width: 54px;
+                height: 54px;
+              }
+
+              .lt-brain-orbit svg {
+                width: 35px;
+                height: 35px;
+              }
+
+              .lt-mi-title {
+                font-size: 18px;
+              }
+
+              .lt-mi-subtitle {
+                font-size: 12px;
+              }
+
+              .lt-benefits {
+                padding: 4px 10px;
+                border-radius: 14px;
+              }
+
+              .lt-benefit {
+                min-height: 28px;
+                grid-template-columns: 22px minmax(0, 1fr);
+                gap: 5px;
+              }
+
+              .lt-benefit-icon,
               .lt-benefit-icon svg {
-                width: 27px;
-                height: 27px;
+                width: 22px;
+                height: 22px;
               }
 
               .lt-benefit-text {
-                font-size: 12px;
-                line-height: 1.22;
+                font-size: 10.8px;
+                line-height: 1.14;
               }
             }
 
@@ -1402,12 +1632,6 @@ export default function Welcome() {
                 margin-top: 28px;
               }
 
-              .lt-mi-pill,
-              .lt-mi-pill.left,
-              .lt-mi-pill.right {
-                justify-self: center;
-              }
-
               .lt-connector-lines,
               .lt-connector-glow {
                 display: none;
@@ -1447,16 +1671,7 @@ export default function Welcome() {
         }}
       />
 
-      <div
-        className="lt-landing-viewport"
-        style={
-          {
-            "--lt-stage-scale": stageScale,
-            "--lt-stage-width": `${DESKTOP_STAGE_WIDTH * stageScale}px`,
-            "--lt-stage-height": `${DESKTOP_STAGE_HEIGHT * stageScale}px`,
-          } as React.CSSProperties
-        }
-      >
+      <div className="lt-landing-viewport">
         <div className="lt-landing-stage">
           <header className="lt-landing-header">
             <div className="lt-brand" aria-label="LazyTopper">
@@ -1485,12 +1700,6 @@ export default function Welcome() {
                 <SparkleIcon size={33} />
               </span>
             </div>
-
-            <button type="button" className="lt-explore" onClick={onExplore}>
-              <SparkleIcon size={30} />
-              <span>Explore LazyTopper</span>
-              <ArrowIcon size={28} />
-            </button>
           </section>
 
           <section className="lt-story" aria-label="LazyTopper product loop preview">
@@ -1499,30 +1708,34 @@ export default function Welcome() {
               <StoryStage
                 number="1"
                 title="Exam Trends"
-                subtitle="See what matters"
                 card={<ExamTrendsCard />}
               />
               <FlowArrow />
               <StoryStage
                 number="2"
                 title="Practice"
-                subtitle="Practice with intent"
                 card={<PracticeCard />}
               />
               <FlowArrow />
               <StoryStage
                 number="3"
                 title="Check & Improve"
-                subtitle="Learn from mistakes"
                 card={<CheckImproveCard />}
               />
               <FlowArrow />
               <StoryStage
                 number="4"
                 title="Me / Progress"
-                subtitle="Track your progress"
                 card={<ProgressCard />}
               />
+            </div>
+
+            <div className="lt-post-card-cta">
+              <button type="button" className="lt-explore" onClick={onExplore}>
+                <SparkleIcon size={30} />
+                <span>Explore</span>
+                <ArrowIcon size={28} />
+              </button>
             </div>
 
             <MistakeIntelligenceLayer />
@@ -1538,12 +1751,10 @@ export default function Welcome() {
 function StoryStage({
   number,
   title,
-  subtitle,
   card,
 }: {
   number: string;
   title: string;
-  subtitle: string;
   card: React.ReactNode;
 }) {
   return (
@@ -1552,7 +1763,6 @@ function StoryStage({
         <span className="lt-stage-number">{number}</span>
         <div>
           <div className="lt-stage-title">{title}</div>
-          <div className="lt-stage-sub">{subtitle}</div>
         </div>
       </div>
       {card}
@@ -1675,12 +1885,6 @@ function ExamTrendsCard() {
           )),
         ])}
       </div>
-
-      <div className="lt-card-action">
-        <TrendIcon size={17} color={NAVY} />
-        <span>View full trends</span>
-        <ArrowIcon size={18} />
-      </div>
     </div>
   );
 }
@@ -1690,7 +1894,6 @@ function PracticeCard() {
     "Lungs -> Alveoli -> Blood -> Heart",
     "Lungs -> Blood -> Heart -> Alveoli",
     "Blood -> Lungs -> Heart -> Alveoli",
-    "Alveoli -> Lungs -> Blood -> Heart",
   ];
 
   return (
@@ -1753,17 +1956,6 @@ function CheckImproveCard() {
         </div>
       </div>
 
-      <div className="lt-wrong-list">
-        <strong style={{ color: NAVY }}>Why other options are wrong</strong>
-        <div>A&nbsp; Skips blood circulation.</div>
-        <div>C&nbsp; Reverses the pathway.</div>
-        <div>D&nbsp; Starts from the wrong point.</div>
-      </div>
-
-      <div className="lt-next-question">
-        <span>Next question</span>
-        <ArrowIcon size={17} />
-      </div>
     </div>
   );
 }
@@ -1824,12 +2016,6 @@ function ProgressCard() {
           This month
         </div>
       </div>
-
-      <div className="lt-card-action">
-        <UserCheckIcon size={18} />
-        <span>View full dashboard</span>
-        <ArrowIcon size={18} />
-      </div>
     </div>
   );
 }
@@ -1845,14 +2031,6 @@ function MistakeIntelligenceLayer() {
         <path d="M1500 112 C1210 120 1070 100 896 96 C818 94 794 96 750 92" stroke="rgba(125,220,255,0.74)" strokeWidth="3" />
       </svg>
 
-      <div className="lt-mi-pill left">
-        <AttemptIcon size={36} />
-        <div>
-          <div style={{ fontSize: 17, fontWeight: 800 }}>Attempts</div>
-          <div style={{ marginTop: 4, lineHeight: 1.35 }}>Every question you try</div>
-        </div>
-      </div>
-
       <div className="lt-mi-hub">
         <div className="lt-brain-orbit">
           <BrainIcon size={58} />
@@ -1863,14 +2041,6 @@ function MistakeIntelligenceLayer() {
           <SparkleIcon size={24} />
         </div>
         <div className="lt-mi-subtitle">Turns mistakes into mastery</div>
-      </div>
-
-      <div className="lt-mi-pill right">
-        <InsightsIcon size={36} />
-        <div>
-          <div style={{ fontSize: 17, fontWeight: 800 }}>Insights</div>
-          <div style={{ marginTop: 4, lineHeight: 1.35 }}>Personalised just for you</div>
-        </div>
       </div>
     </section>
   );
@@ -1983,16 +2153,6 @@ function LungsIcon({ size = 44 }: { size?: number }) {
   );
 }
 
-function UserCheckIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="m16 11 2 2 4-4" />
-    </svg>
-  );
-}
-
 function BrainIcon({ size = 48 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -2002,30 +2162,6 @@ function BrainIcon({ size = 48 }: { size?: number }) {
       <path d="M33 17c-4 0-6 2-6 6" />
       <path d="M16 32c3-1 5-3 6-6" />
       <path d="M32 32c-3-1-5-3-6-6" />
-    </svg>
-  );
-}
-
-function AttemptIcon({ size = 32 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="#7dffcb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 7h12v7H5z" />
-      <path d="M5 18h12v7H5z" />
-      <path d="M21 10h6" />
-      <path d="m25 6 4 4-4 4" />
-      <path d="M21 21h6" />
-      <path d="m25 17 4 4-4 4" />
-    </svg>
-  );
-}
-
-function InsightsIcon({ size = 32 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="#7dffcb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M7 24V13h4v11H7z" />
-      <path d="M14 24V8h4v16h-4z" />
-      <path d="M21 24V17h4v7h-4z" />
-      <path d="M5 26h22" />
     </svg>
   );
 }
