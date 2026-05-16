@@ -1,3 +1,32 @@
+## 2026-05-16T18:55:00Z - PR #80 merged; frozen landing and Explore-first doctrine locked
+
+Decision:
+PR #80 is merged into `base/approved-thru-437` as PR-K2H-4. It implements the frozen public landing page and Explore-first browse entry. The landing is now frozen and should not be redesigned casually.
+
+Details:
+- PR #80 title: `PR-K2H-4: Frozen landing page and explore-first entry`
+- Merged at: `2026-05-16T18:43:48Z`
+- Base before merge: `18e6e111884b05795882da75ba4c65f034d9d4e9`
+- Head branch: `feat/desktop-pr-k2h-4-frozen-landing-explore-entry`
+- Final PR head: `045ffa00a3894405f67a5ceda778f313c693fa0f`
+- Merge commit / new base SHA: `018c95b11f5168d27fb93bb3a2cae3859b682627`
+- Changed files: 3
+- Changed files: `lazytopper/src/App.tsx`, `lazytopper/src/components/desktop/DesktopShell.tsx`, `lazytopper/src/pages/Welcome.tsx`
+- QA result: PASS
+
+Doctrine:
+- Public landing is now frozen from PR #80.
+- Landing has one primary action only: Explore.
+- Explore CTA sits after the four-card story and before Mistake Intelligence.
+- No Start free trial CTA on public landing.
+- No Explore as Guest on landing.
+- Browse mode is for product inspection only and must not create a fake guest learner.
+- Real learning actions must still require auth/trial gate where already implemented.
+- Future changes to `Welcome.tsx` should be small fixes only unless owner explicitly approves a landing redesign.
+
+Implication:
+Next implementation should be PR-K2H-5 - Login visual parity + auth gate polish. It must preserve real Clerk auth, no guest mode, reason/redirect handling, safe redirects, and the PR #80 Explore/sign-in funnel. Future implementation must start from `018c95b11f5168d27fb93bb3a2cae3859b682627` or whatever live GitHub later confirms.
+
 ## 2026-05-16T02:31:24Z - PR #78 merged; auth/session doctrine and next owner choice
 
 Decision:

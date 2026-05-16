@@ -1,20 +1,116 @@
 # LazyTopper Implementation Roadmap
 
-This roadmap preserves the staged implementation plan after PR #78 merge.
+This roadmap preserves the staged implementation plan after PR #80 merge.
 
 Latest verified live base:
 ```
 base/approved-thru-437
-0addba3f0208c7610d02ab1b1753923fdf0790db
+018c95b11f5168d27fb93bb3a2cae3859b682627
 ```
 
 Current stage:
-PR #77 is merged. PR #78 / PR-K2H-3 is merged. Next active implementation should be chosen by the owner from Login visual parity polish, frozen landing page redesign, or Home continue-card route repair.
+PR #80 / PR-K2H-4 is merged. Frozen landing page and Explore-first `/browse` entry are complete. Next active implementation should be PR-K2H-5 - Login visual parity + auth gate polish.
 
 Current implementation branch:
 ```
 None. Create the next implementation branch fresh from the live verified base after this docs-only handoff update merges.
 ```
+
+## PR-K2H-4 / PR #80 - Frozen landing page and explore-first entry
+
+Status:
+Merged.
+
+PR:
+```
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/80
+```
+
+Merged at:
+`2026-05-16T18:43:48Z`
+
+Base before merge:
+`18e6e111884b05795882da75ba4c65f034d9d4e9`
+
+Head branch:
+`feat/desktop-pr-k2h-4-frozen-landing-explore-entry`
+
+Final head:
+`045ffa00a3894405f67a5ceda778f313c693fa0f`
+
+Merge commit / new base:
+`018c95b11f5168d27fb93bb3a2cae3859b682627`
+
+Changed files:
+3
+
+Changed files list:
+- `lazytopper/src/App.tsx`
+- `lazytopper/src/components/desktop/DesktopShell.tsx`
+- `lazytopper/src/pages/Welcome.tsx`
+
+Completed:
+- Implemented the frozen public landing page in production.
+- Replaced the old dark/text-heavy landing page with the final visual storyboard landing.
+- Final landing has one primary CTA: Explore.
+- CTA is placed centrally below the four product cards and above the Mistake Intelligence section.
+- Top-right Sign in remains for existing users.
+- Removed Start free trial as the landing CTA.
+- No Explore as Guest on landing.
+- No landing sidebar/app chrome.
+- Four-card story preserved: Exam Trends -> Practice -> Check & Improve -> Me / Progress.
+- Step captions, Attempts pill, and Insights pill removed.
+- Card internals simplified so cards read as landing previews.
+- Blue arrows aligned with card bodies.
+- Mistake Intelligence title/tagline and bottom benefit strip preserved and visible.
+- Added signed-out Explore-first browse entry through `/browse`.
+- Explore opens `/app/browse` and does not open Login.
+- `/browse` shows product cockpit/shell without creating a guest user/session.
+- Existing real action gates/login behavior remain intact.
+- Preserved PR #77 route-context behavior and PR #78 auth/session/account/logout/profile/pricing behavior.
+- Login visual polish intentionally not included.
+
+Validation:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Build verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- Vercel QA passed.
+- No Login, Pricing, DesktopHome, Practice, HPQ, Mock, TopicHub, docs/handoff, package, server, env, or data files changed in PR #80.
+
+QA result:
+PASS.
+
+Doctrine:
+- Public landing is frozen from PR #80.
+- Do not redesign `Welcome.tsx` unless owner explicitly reopens landing design.
+- Landing has one primary CTA only: Explore.
+- Browse mode is for product inspection only and must not create a fake guest learner.
+
+## PR-K2H-5 - Login visual parity + auth gate polish
+
+Status:
+Recommended next implementation PR after this docs-only update.
+
+Allowed likely scope:
+- `lazytopper/src/pages/Login.tsx`
+- `lazytopper/src/lib/desktop/loginPrompts.ts`
+- Optional only if proven necessary: small Login-only style/helper file if already existing and safe.
+
+Forbidden unless owner explicitly changes scope:
+- `Welcome.tsx`, `App.tsx`, `DesktopShell.tsx`, `DesktopHome.tsx`, `PricingPage.tsx`
+- Practice, HPQ, Mock, TopicHub
+- docs/handoff
+- package/server/env/data
+
+Goals:
+- Visually align Login with final landing and Lovable prototype login gate.
+- Maintain real Clerk SignIn.
+- Remove/avoid any guest CTA.
+- Preserve reason/redirect handling and safe redirects.
+- Keep explanation of why login matters: saving attempts, progress, mistakes, and powering Mistake Intelligence.
+- Do not change auth provider architecture in this PR.
+- Record Clerk friction / development-mode branding as a launch-readiness follow-up if not solvable only in UI.
 
 ## PR-K2H-3 / PR #78 - Auth/session shell hardening
 
@@ -75,7 +171,7 @@ Follow-ups:
 - Remaining direct `/profile` reference cleanup.
 - Payment gateway deferred until verified payment/admin activation work.
 
-## Next owner-choice implementation options after PR #78
+## Historical owner-choice implementation options after PR #78
 
 Option A - Login visual parity polish:
 - Make Login visually match Lovable prototype more closely.
@@ -83,7 +179,7 @@ Option A - Login visual parity polish:
 - Clean the right Clerk/auth panel so it feels calm and integrated.
 
 Option B - Frozen landing page redesign:
-- Implement final frozen landing design with one primary CTA: Explore LazyTopper.
+- Historical option completed by PR #80. Final public landing now uses one primary CTA: Explore.
 - Keep top-right Sign in for existing students.
 - Explain the product visually without a wall of text.
 - Preserve browse-first/action-gated doctrine.

@@ -1,6 +1,6 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-16T02:31:24Z UTC / 2026-05-16 08:01 IST
+Last updated: 2026-05-16T18:55:00Z UTC / 2026-05-17 00:25 IST
 
 ## Current GitHub Checkpoint
 
@@ -14,15 +14,82 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Live base verified after PR #78 merge:
+Live base verified after PR #80 merge:
 ```
-0addba3f0208c7610d02ab1b1753923fdf0790db
+018c95b11f5168d27fb93bb3a2cae3859b682627
 ```
 
-PR #77 is already merged. PR #78 is already merged. No active product implementation branch is recorded in this handoff state. The next implementation branch must be created fresh from `0addba3f0208c7610d02ab1b1753923fdf0790db` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
+PR #80 is already merged. No active product implementation branch is recorded in this handoff state. The next implementation branch must be created fresh from `018c95b11f5168d27fb93bb3a2cae3859b682627` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
 
 Current stage:
-Docs-only handoff update after PR #78 merge. No product implementation is included in this handoff update.
+Docs-only handoff update after PR #80 merge. No product implementation is included in this handoff update.
+
+## PR #80 Merged State
+
+PR:
+```
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/80
+```
+
+Title:
+```
+PR-K2H-4: Frozen landing page and explore-first entry
+```
+
+Live GitHub verification:
+- state: `MERGED`
+- merged at: `2026-05-16T18:43:48Z`
+- base before merge: `18e6e111884b05795882da75ba4c65f034d9d4e9`
+- head branch: `feat/desktop-pr-k2h-4-frozen-landing-explore-entry`
+- final PR head: `045ffa00a3894405f67a5ceda778f313c693fa0f`
+- merge commit / new base SHA: `018c95b11f5168d27fb93bb3a2cae3859b682627`
+- changed files: 3
+
+Changed files:
+- `lazytopper/src/App.tsx`
+- `lazytopper/src/components/desktop/DesktopShell.tsx`
+- `lazytopper/src/pages/Welcome.tsx`
+
+Scope:
+- Implemented the frozen public landing page in production.
+- Replaced the old dark/text-heavy landing page with the final visual storyboard landing.
+- Final landing has one primary CTA: Explore.
+- CTA is placed centrally below the four product cards and above the Mistake Intelligence section.
+- Top-right Sign in remains for existing users.
+- Removed Start free trial as the landing CTA.
+- No Explore as Guest on landing.
+- No landing sidebar/app chrome.
+- Four-card story preserved: Exam Trends -> Practice -> Check & Improve -> Me / Progress.
+- Step captions, Attempts pill, and Insights pill were removed.
+- Card internals simplified so cards read as landing previews, not full dashboards.
+- Blue arrows aligned with card bodies.
+- Mistake Intelligence title/tagline and bottom benefit strip are preserved and visible.
+- Added signed-out Explore-first browse entry through `/browse`.
+- Explore opens `/app/browse` and does not open Login.
+- `/browse` shows product cockpit/shell without creating a guest user/session.
+- Existing real action gates/login behavior remain intact.
+- Preserved PR #77 route-context behavior and PR #78 auth/session/account/logout/profile/pricing behavior.
+- Login visual polish was intentionally not included.
+
+Validation recorded:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Build verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- Vercel QA passed.
+- No Login, Pricing, DesktopHome, Practice, HPQ, Mock, TopicHub, docs/handoff, package, server, env, or data files changed in PR #80.
+
+QA result:
+PASS.
+
+Owner-approved landing decisions:
+- Public landing is now frozen from PR #80 and should not be redesigned again unless owner explicitly reopens landing design.
+- Landing is a visual explanation page, not a feature-store banner.
+- Landing has one primary action only: Explore.
+- Explore CTA sits after the four-card story and before Mistake Intelligence.
+- Browse mode is for product inspection only and must not create a fake guest learner.
+- Real learning actions must still require auth/trial gate where already implemented.
+- Future changes to `Welcome.tsx` should be small fixes only unless owner explicitly approves a landing redesign.
 
 ## PR #78 Merged State
 
@@ -81,8 +148,12 @@ Follow-ups:
 ## Locked Product Doctrine
 
 - LazyTopper is browse-first and action-gated.
-- Final funnel: Landing page -> Explore LazyTopper -> browse-mode product cockpit -> inspect surfaces -> real action -> login/trial gate -> sign in -> 7-day trial starts -> intended action continues.
+- Final funnel: Landing page -> Explore -> browse-mode product cockpit -> inspect surfaces -> real action -> login/trial gate -> sign in -> 7-day trial starts -> intended action continues.
+- Public landing is frozen from PR #80.
+- Public landing must use one primary CTA only: Explore.
+- Do not add Start free trial or Explore as Guest on landing.
 - No real-app guest mode.
+- No fake local session or fake user.
 - Every real learner should authenticate before real learning actions.
 - Sign-in is needed to save attempts, mistakes, progress, and power Mistake Intelligence.
 - Do not store credentials, passwords, OTPs, Google tokens, Clerk tokens, or secrets.
@@ -95,6 +166,31 @@ Follow-ups:
 - Check My Answer is the real checking/evidence path.
 - Use source and returnTo for parent-aware navigation; preserve PR #77 route-context behavior.
 - Do not hard-code all back navigation to Exam Trends or route to old `/trends/:grade/:subject` unless intentionally preserving a legacy route.
+
+## Active Follow-ups After PR #80
+
+- Login visual parity / auth gate polish - recommended next implementation PR.
+- Clerk friction / auth strategy remains an open product question.
+- Home/cockpit card order follow-up: owner noted learning order should be Exam Trends -> Practice -> Worksheets -> Check & Improve.
+- Pricing visual redesign remains pending.
+- Continue where you left off route repair remains pending.
+- `/profile` direct-reference cleanup remains pending.
+- Payment gateway / GPay / UPI QR / Razorpay/Cashfree is deferred and must be server/admin verified.
+
+## Next Recommended Implementation
+
+PR-K2H-5 - Login visual parity + auth gate polish.
+
+Allowed likely scope:
+- `lazytopper/src/pages/Login.tsx`
+- `lazytopper/src/lib/desktop/loginPrompts.ts`
+- Optional only if proven necessary: small Login-only style/helper file if already existing and safe.
+
+Forbidden for PR-K2H-5 unless owner explicitly changes scope:
+- `Welcome.tsx`, `App.tsx`, `DesktopShell.tsx`, `DesktopHome.tsx`, `PricingPage.tsx`
+- Practice, HPQ, Mock, TopicHub
+- docs/handoff
+- package/server/env/data
 
 ## PR #75 Merged State
 
