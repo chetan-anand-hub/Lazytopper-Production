@@ -33,6 +33,13 @@ export default function Welcome() {
               box-sizing: border-box;
             }
 
+            html:has(.lt-frozen-landing),
+            body:has(.lt-frozen-landing),
+            #root:has(.lt-frozen-landing),
+            #root > div:has(.lt-frozen-landing) {
+              background: #051733;
+            }
+
             .lt-frozen-landing {
               min-height: 100vh;
               overflow-x: hidden;
@@ -49,6 +56,18 @@ export default function Welcome() {
               position: relative;
               min-height: 100vh;
               padding: 24px clamp(20px, 3vw, 48px) 28px;
+            }
+
+            .lt-landing-viewport:after {
+              content: "";
+              position: absolute;
+              z-index: 1;
+              left: 0;
+              right: 0;
+              bottom: -2px;
+              height: 18px;
+              pointer-events: none;
+              background: linear-gradient(180deg, rgba(5,23,51,0), #051733 45%, #051733 100%);
             }
 
             .lt-landing-viewport:before {
