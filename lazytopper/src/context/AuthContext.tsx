@@ -12,6 +12,7 @@ import { activateTrial, hydrateSubscriptionFromCloud } from "../services/subscri
 import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
+import { ensureLearnerAccountMetadata } from "../services/learnerAccountService";
 
 export type AuthUser = {
   uid: string;
@@ -172,7 +173,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const uid = user?.uid || null;
     setActiveProgressUser(uid);
-    if (!uid || user?.isLocalSession) return;
+    if (!user || !uid || user.isLocalSession) return;
+    const activeUser = user;
 
     let cancelled = false;
 
@@ -197,6 +199,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await Promise.allSettled([
         restoreFromDB(uid),
+        ensureLearnerAccountMetadata({
+          uid,
+          email: activeUser.email,
+          phoneNumber: activeUser.phoneNumber,
+          displayName: activeUser.displayName,
+          authProvider: activeUser.phoneNumber && !activeUser.email ? "clerk-phone" : activeUser.email ? "clerk-email" : "clerk",
+        }),
         ensureLearnerCloudBaseline(uid),
         ensureLearnerProgressBaseline(uid),
         hydrateLocalProgressFromCloud(uid),
@@ -212,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [user?.uid, user?.isLocalSession]);
+  }, [user?.uid, user?.email, user?.phoneNumber, user?.displayName, user?.isLocalSession]);
 
   const signInWithGoogleHandler = async () => {
     clerk.openSignIn({});

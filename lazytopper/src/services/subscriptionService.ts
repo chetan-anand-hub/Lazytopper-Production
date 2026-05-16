@@ -121,6 +121,8 @@ export function activateTrial(uid: string): SubscriptionStatus {
 }
 
 export function activatePremium(uid: string): SubscriptionStatus {
+  // Payment/admin-only helper. Normal client UI must route to pricing and
+  // must not call this directly unless a verified payment/admin path exists.
   const existing = loadSubscription(uid);
   const status: SubscriptionStatus = {
     ...existing,

@@ -1,5 +1,6 @@
 import { getPremiumFeatureList } from "../services/featureGates";
 import { useSubscription } from "../hooks/useSubscription";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -8,19 +9,17 @@ interface UpgradeModalProps {
 }
 
 export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps) {
-  const { isTrialExpired, daysLeftInTrial, isTrialActive, startTrial, upgradeToPremium, tier } = useSubscription();
+  const { isTrialExpired, daysLeftInTrial, isTrialActive, tier } = useSubscription();
+  const navigate = useNavigate();
+  const location = useLocation();
   const premiumFeatures = getPremiumFeatureList();
 
   if (!open) return null;
 
   const handleUpgrade = () => {
-    if (tier === "free" && !isTrialExpired) {
-      startTrial();
-    } else {
-      upgradeToPremium();
-    }
     onClose();
-    window.location.reload();
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    navigate(`/pricing?source=upgrade-modal&returnTo=${encodeURIComponent(returnTo)}`);
   };
 
   return (
@@ -55,11 +54,11 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🔓</div>
           <h2 style={{ fontSize: "1.3rem", fontWeight: 900, margin: "0 0 6px", color: "#1a1a2e" }}>
-            Unlock Full Access
+            Choose a Plan
           </h2>
           {featureLabel && (
             <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
-              <strong>{featureLabel}</strong> is a premium feature
+              <strong>{featureLabel}</strong> needs an active plan
             </p>
           )}
         </div>
@@ -117,9 +116,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
             textTransform: "uppercase", letterSpacing: "0.5px",
           }}
         >
-          {tier === "free" && !isTrialExpired
-            ? "Start 7-Day Free Trial"
-            : "Upgrade to Premium"}
+          {tier === "free" && !isTrialExpired ? "View Plans" : "Choose Plan"}
         </button>
 
         <p style={{
@@ -127,8 +124,8 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
           marginTop: 10,
         }}>
           {tier === "free" && !isTrialExpired
-            ? "Full access for 7 days. No credit card required."
-            : "Unlock all features instantly."}
+            ? "Your 7-day trial starts when you sign in. No credit card is required."
+            : "Payment is not completed inside this modal."}
         </p>
       </div>
     </div>

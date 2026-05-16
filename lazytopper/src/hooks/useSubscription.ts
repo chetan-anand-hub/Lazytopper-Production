@@ -19,6 +19,7 @@ export interface UseSubscriptionResult {
   daysLeftInTrial: number;
   status: SubscriptionStatus;
   startTrial: () => void;
+  /** Payment/admin-only. Client upgrade UI should navigate to pricing. */
   upgradeToPremium: () => void;
 }
 
@@ -34,7 +35,10 @@ export function useSubscription(): UseSubscriptionResult {
     if (!uid) return;
     let cancelled = false;
     hydrateSubscriptionFromCloud(uid).then((cloud) => {
-      if (!cancelled) setStatus(cloud);
+      const resolved = cloud.tier === "premium" || cloud.trialStartDate
+        ? cloud
+        : activateTrial(uid);
+      if (!cancelled) setStatus(resolved);
     }).catch(() => {});
     return () => { cancelled = true; };
   }, [uid]);

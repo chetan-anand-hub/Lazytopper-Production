@@ -46,7 +46,6 @@ const PracticePage = lazy(() => import("./pages/PracticePage"));
 const DailyMixPage = lazy(() => import("./pages/DailyMixPage"));
 const DailyMissionPage = lazy(() => import("./pages/DailyMissionPage"));
 const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
-const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
@@ -475,10 +474,10 @@ export default function App() {
         navigate(`/mentor/${g}/${s}`);
         break;
       case 'navigateToStats':
-        navigate('/profile');
+        navigate('/me');
         break;
       case 'navigateToProfile':
-        navigate('/profile');
+        navigate('/me');
         break;
       case 'navigateToWeeklyWrap':
         navigate('/weekly-wrapped');
@@ -510,6 +509,11 @@ export default function App() {
   const location = useLocation();
   const isAuthRoute =
     location.pathname === "/login" || location.pathname.startsWith("/login/");
+  const shouldUseDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
+  const pricingUrl = (source: string) => {
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return `/pricing?source=${encodeURIComponent(source)}&returnTo=${encodeURIComponent(returnTo)}`;
+  };
   useEffect(() => {
     const match = location.pathname.match(/\/(\d+)\/(Maths|Science)/i);
     if (match) {
@@ -535,7 +539,7 @@ export default function App() {
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
-      {!isAuthRoute && !(isDesktop && isDesktopShellRoute(location.pathname, !!user)) && (
+      {!isAuthRoute && !shouldUseDesktopShell && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
@@ -563,7 +567,7 @@ export default function App() {
           {user && isTrialExpired && !isPremium && (
             <button
               type="button"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate(pricingUrl("global-header"))}
               style={{
                 display: "flex", alignItems: "center", gap: 4,
                 background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)",
@@ -572,7 +576,7 @@ export default function App() {
                 cursor: "pointer",
               }}
             >
-              Upgrade
+              Choose plan
             </button>
           )}
           {user && headerStreak > 0 && (
@@ -605,7 +609,7 @@ export default function App() {
           {user ? (
             <button
               type="button"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate("/me")}
               title="Your Profile"
               style={{
                 width: 34, height: 34, borderRadius: "50%",
@@ -647,13 +651,12 @@ export default function App() {
             onClose={() => setPaletteOpen(false)}
             onSelect={handleCommandSelect}
           />
-          <TrialBanner />
+          {!isDesktop && <TrialBanner />}
           <BreakReminder />
         </>
       )}
       <ErrorBoundary level="global">
       {(() => {
-        const useDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
         const routesEl = (
         <Routes>
           {/* Core Routes */}
@@ -817,10 +820,7 @@ export default function App() {
           />
 
           {/* Student Profile & Growth Journey */}
-          <Route
-            path="/profile"
-            element={<RequireAuth>{withRouteSuspense(<ProfilePage />)}</RequireAuth>}
-          />
+          <Route path="/profile" element={<Navigate to="/me" replace />} />
 
           {/* Settings */}
           <Route
@@ -878,7 +878,7 @@ export default function App() {
 
           {/* ── #438 — Mobile destination repairs ────────────────────────
                These replace the previous broken redirects/missing routes.
-               Desktop routes (/trends, /topic-hub/:grade/:subject, /profile)
+               Desktop routes (/trends, /topic-hub/:grade/:subject, /me)
                are untouched — they remain separate from these mobile screens. */}
 
           {/* Exam Trends — desktop Phase 3: at desktop width (>=1024px) this
@@ -921,9 +921,11 @@ export default function App() {
           <Route
             path="/me"
             element={
-              isDesktop
-                ? withRouteSuspense(<DesktopMePage />)
-                : withRouteSuspense(<MobileMe />)
+              <RequireAuth>
+                {isDesktop
+                  ? withRouteSuspense(<DesktopMePage />)
+                  : withRouteSuspense(<MobileMe />)}
+              </RequireAuth>
             }
           />
 
@@ -936,7 +938,7 @@ export default function App() {
         // DesktopShell at desktop width. Other routes (auth, admin, deep
         // params) and all mobile widths fall through to the legacy
         // paddingBottom:60px container so nothing already shipped regresses.
-        if (useDesktopShell) {
+        if (shouldUseDesktopShell) {
           return (
             <DesktopShell onOpenSearch={() => setPaletteOpen(true)}>
               {routesEl}
