@@ -1,3 +1,76 @@
+## 2026-05-16T02:31:24Z - PR #78 merge recorded; docs-only handoff update before next owner-choice PR
+
+### Starting state
+- Branch: `docs/post-pr-78-k2h-3-handoff-update`
+- Base branch: `base/approved-thru-437`
+- Required base SHA: `0addba3f0208c7610d02ab1b1753923fdf0790db`
+- Base SHA verified: `0addba3f0208c7610d02ab1b1753923fdf0790db`
+- Local task scope: docs-only handoff update
+
+### GitHub evidence
+- PR: PR #78
+- Title: `PR-K2H-3: Auth/session shell hardening`
+- State: `MERGED`
+- Merged at: `2026-05-16T02:26:54Z`
+- Base before merge: `0ed0871f3166e647fb5b3e36fb0c1e543df0c145`
+- Head branch: `feat/desktop-pr-k2h-3-auth-session-shell-hardening`
+- Final head SHA: `2067fa5079161c8a888398683d35c3bac59429b0`
+- Merge commit / new base SHA: `0addba3f0208c7610d02ab1b1753923fdf0790db`
+- Changed files count: 11
+- Additions/deletions: +388 / -146
+
+### Work completed
+- Updated docs/handoff files only; no product code changed.
+- Recorded that PR #77 is already merged and PR #78 is already merged.
+- Recorded the new verified base checkpoint.
+- Recorded PR #78 scope, validation, QA result, and follow-ups.
+- Recorded locked product doctrines for browse-first/action-gated flow, authentication, payment, Practice, and navigation.
+- Recorded the frozen landing page design target.
+- Updated next recommended implementation options and sequence.
+
+### PR #78 validation recorded
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Build verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- No package/server/data/env/docs/handoff files changed in product PR.
+- PR #77 route-context files were not touched.
+
+### PR #78 QA result
+PASS WITH FOLLOW-UP.
+
+Passed:
+- Login removed visible guest button.
+- Login showed real Clerk auth and no search/header/sidebar chrome.
+- Login left panel explained saved attempts, Mistake Intelligence, and 7-day trial.
+- Sidebar order changed correctly.
+- Account menu showed identity/trial status/Me/Manage subscription/Log out.
+- Me / Progress opened `/me`, not old `/profile`.
+- Manage subscription opened pricing with source/returnTo.
+- Logout returned to public landing.
+- `/profile` no longer opened old profile page.
+- Trial ribbon removed.
+- Pricing no longer claims automated checkout/premium activation.
+- PR #77 regression paths looked okay.
+
+### Follow-ups
+- Login visual parity polish.
+- Pricing visual redesign.
+- Home "Continue where you left off" route/content repair.
+- Remaining direct `/profile` reference cleanup.
+- Payment gateway deferred until verified payment/admin activation work.
+
+### Session learnings
+- GitHub live state must win over docs and memory, especially after rapid PR merges.
+- Login can be functionally correct with real Clerk auth while still needing visual parity polish.
+- Pricing honesty and payment activation are separate concerns; honest manual activation is acceptable until verified payment work exists.
+- PR #77 route-context behavior is a preservation constraint for future route repairs.
+
+### Next safe action
+- Review this docs-only diff.
+- Do not commit or push until GPT audits the docs diff.
+- After docs, owner chooses the next implementation PR from Login visual parity polish, frozen landing page redesign, or Home continue-card route repair.
+
 ## 2026-05-13T14:49:10Z - PR #75 merge recorded; docs-only handoff update before PR-K2H-2
 
 ### Starting state

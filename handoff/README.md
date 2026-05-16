@@ -34,31 +34,30 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Latest verified live base after PR #75 merge:
+Latest verified live base after PR #78 merge:
 ```
-38f5a56a9a02964b1c6cf49fbd72013da11179ca
+0addba3f0208c7610d02ab1b1753923fdf0790db
 ```
 
 Important:
 The live base can advance after docs-only handoff PRs. Future sessions must verify `origin/base/approved-thru-437` directly before implementation.
 
-Current handoff checkpoint after PR #75:
-- PR #75 / PR-K2H-1 is merged into `base/approved-thru-437`.
-- PR #75 title: `PR-K2H-1: Harden Practice checked-evidence states`.
-- Final PR head: `1745ca6f93a73b245f8024a3663318fe9aa0d5f6`.
-- Merge commit / new base SHA: `38f5a56a9a02964b1c6cf49fbd72013da11179ca`.
-- Changed files: 3.
-- Commits: 5.
-- PR #75 is closed/merged and must not be reopened.
+Current handoff checkpoint after PR #78:
+- PR #77 is already merged.
+- PR #78 / PR-K2H-3 is merged into `base/approved-thru-437`.
+- PR #78 title: `PR-K2H-3: Auth/session shell hardening`.
+- Final PR head: `2067fa5079161c8a888398683d35c3bac59429b0`.
+- Merge commit / new base SHA: `0addba3f0208c7610d02ab1b1753923fdf0790db`.
+- Changed files: 11.
+- PR #78 QA result: PASS WITH FOLLOW-UP.
+- No open implementation PR should be assumed unless live GitHub says so.
 
-Next implementation sequence after this docs-only handoff update:
-A. PR-K2H-2 route/context repair for HPQ Build Mock back navigation and TopicHub Board Essentials concept-aware Practice routing.
-B. PR-K2H-3 durable MCQ answer-attempt model.
-C. PR-K2H-4 advanced Practice filters and selection quality.
-D. Sign-in/trial enforcement pass for learning surfaces.
-E. Mock pages Level-3 detail finalisation.
-F. HPQ question-bank / solution / diagram / structured-option quality.
-G. Broader final polish / production-readiness sweep.
+Next implementation sequence after this docs-only handoff update should be chosen by the owner:
+A. Login visual parity polish while preserving real Clerk auth and K2H-3 behavior.
+B. Frozen landing page redesign with Explore LazyTopper browse-first entry.
+C. Home continue-card route repair for saved topics that route to TopicHub "Topic not found."
+D. Pricing visual redesign before paid launch.
+E. Payment gateway/manual UPI/payment activation near launch with verified server/admin activation only.
 
 PR #69 / K2D remains separate. Do not merge it blindly or absorb it into K2H without explicit audit and owner approval.
 
@@ -69,8 +68,8 @@ The handoff folder became active after PR #54 merged into base/approved-thru-437
 Current activation merge commit:
 7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 
-Latest verified live base after PR #75 merge:
-38f5a56a9a02964b1c6cf49fbd72013da11179ca
+Latest verified live base after PR #78 merge:
+0addba3f0208c7610d02ab1b1753923fdf0790db
 
 From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
 

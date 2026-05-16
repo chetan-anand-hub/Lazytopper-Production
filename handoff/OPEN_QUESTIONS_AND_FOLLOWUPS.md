@@ -1,3 +1,30 @@
+## 2026-05-16 - PR #78 QA follow-ups and frozen landing target
+
+Status:
+Active follow-ups after PR-K2H-3 / PR #78 merge.
+
+Observation:
+PR #78 passed QA with follow-up. Login/auth/session behavior is safer and functionally correct, but visual and route/content polish remains.
+
+Action:
+- Login visual parity remains a follow-up. The right-side Clerk/auth panel should be polished while preserving real Clerk auth, reason/redirect behavior, split layout, and no guest CTA.
+- Pricing visual redesign remains a follow-up. Pricing is honest but not yet aligned with final LazyTopper product/landing design grammar.
+- Home "Continue where you left off" can route to TopicHub "Topic not found"; hide the card when the saved topic is not curated, route to Practice Hub/Exam Trends, or map to a safe topic slug.
+- Remaining direct `/profile` references can be cleaned later; PR #78 protects them through `/profile` -> `/me` redirect.
+- Payment gateway is parked. Future payment activation must be server/admin verified; client UI must never mark premium directly.
+
+Frozen landing page target:
+- No left sidebar on landing.
+- One primary CTA only: Explore LazyTopper.
+- Top-right secondary CTA: Sign in.
+- Hero headline: Study smarter for CBSE Class 10.
+- Visual storyboard over wall of text.
+- Product loop shown visually: Exam Trends -> Practice -> Check & Improve -> Mistake Intelligence -> Me / Progress.
+- Mistake Intelligence is the emotional/product centerpiece.
+- Me / Progress is shown as the connected dashboard.
+- Final composition uses layout/style/color/CTA/sign-in treatment from final option and card content/story richness from option 7.
+- Landing must stay in sync with overall LazyTopper design grammar: deep navy, soft white, green accent, elegant cards, calm premium CBSE Class 10 study cockpit.
+
 ## 2026-05-13 - PR #75 merged; post-K2H-1 follow-ups
 
 Status:

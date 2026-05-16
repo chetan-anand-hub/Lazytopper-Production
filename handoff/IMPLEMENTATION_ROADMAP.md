@@ -1,20 +1,104 @@
 # LazyTopper Implementation Roadmap
 
-This roadmap preserves the staged implementation plan after PR #75 merge.
+This roadmap preserves the staged implementation plan after PR #78 merge.
 
 Latest verified live base:
 ```
 base/approved-thru-437
-38f5a56a9a02964b1c6cf49fbd72013da11179ca
+0addba3f0208c7610d02ab1b1753923fdf0790db
 ```
 
 Current stage:
-PR #75 / PR-K2H-1 is merged. Next active implementation: PR-K2H-2 route/context repair.
+PR #77 is merged. PR #78 / PR-K2H-3 is merged. Next active implementation should be chosen by the owner from Login visual parity polish, frozen landing page redesign, or Home continue-card route repair.
 
 Current implementation branch:
 ```
 None. Create the next implementation branch fresh from the live verified base after this docs-only handoff update merges.
 ```
+
+## PR-K2H-3 / PR #78 - Auth/session shell hardening
+
+Status:
+Merged.
+
+PR:
+```
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/78
+```
+
+Merged at:
+`2026-05-16T02:26:54Z`
+
+Base before merge:
+`0ed0871f3166e647fb5b3e36fb0c1e543df0c145`
+
+Final head:
+`2067fa5079161c8a888398683d35c3bac59429b0`
+
+Merge commit / new base:
+`0addba3f0208c7610d02ab1b1753923fdf0790db`
+
+Changed files:
+11
+
+Completed:
+- Removed visible real-app guest mode from Login.
+- Preserved real Clerk authentication and prototype-style split Login gate functionally.
+- Strengthened Login copy around saved attempts, Mistake Intelligence, progress, and 7-day trial.
+- Added DesktopShell account menu with identity, trial/premium state, Me / Progress, Manage subscription, and Log out.
+- Logout returns the student to public landing.
+- Redirected `/profile` to `/me`.
+- Removed desktop full-width trial ribbon in favor of compact shell/account status.
+- Routed Upgrade / Manage subscription to `/pricing` with source and returnTo.
+- Removed normal client-side fake premium activation from upgrade UI.
+- Added safe learner account metadata sync without storing credentials.
+- Reordered desktop sidebar to Home -> Exam Trends -> Practice -> Check & Improve -> Me / Progress.
+- Payment gateway integration is intentionally deferred.
+- Pricing page is honest about manual activation / no automated checkout.
+- PR #77 HPQ/Practice/Mock route-context files were not touched.
+
+Validation:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Build verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- No package/server/data/env/docs/handoff files changed in product PR.
+- PR #77 route-context files were not touched.
+
+QA result:
+PASS WITH FOLLOW-UP.
+
+Follow-ups:
+- Login visual parity polish.
+- Pricing visual redesign.
+- Home "Continue where you left off" route/content repair.
+- Remaining direct `/profile` reference cleanup.
+- Payment gateway deferred until verified payment/admin activation work.
+
+## Next owner-choice implementation options after PR #78
+
+Option A - Login visual parity polish:
+- Make Login visually match Lovable prototype more closely.
+- Keep real Clerk auth, split layout, reason/redirect, no guest CTA, and K2H-3 auth/session behavior.
+- Clean the right Clerk/auth panel so it feels calm and integrated.
+
+Option B - Frozen landing page redesign:
+- Implement final frozen landing design with one primary CTA: Explore LazyTopper.
+- Keep top-right Sign in for existing students.
+- Explain the product visually without a wall of text.
+- Preserve browse-first/action-gated doctrine.
+
+Option C - Home continue-card route repair:
+- Fix "Continue where you left off" leading to TopicHub Topic not found.
+- Use a safe topic slug or fallback to Practice Hub/Exam Trends.
+- Do not disturb PR #77 navigation chain.
+
+Preferred sequence:
+1. Login visual parity polish.
+2. Frozen landing page redesign.
+3. Home continue-card route repair as a small PR if it becomes annoying during QA.
+4. Pricing visual redesign before paid launch.
+5. Payment gateway/manual UPI/payment activation near launch.
 
 ## Roadmap rule
 
