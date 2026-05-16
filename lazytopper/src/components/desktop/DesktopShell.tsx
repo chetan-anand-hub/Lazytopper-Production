@@ -127,6 +127,8 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
   const identitySubLabel = user?.email || user?.phoneNumber || "Signed in account";
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
+  const homePath = user ? "/" : "/browse";
+  const signedOutLoginUrl = `/login?reason=login&redirect=${encodeURIComponent(returnTo || "/")}`;
 
   let accountStatusLabel = "Free account";
   let accountStatusDetail = "No active trial is recorded for this account.";
@@ -209,7 +211,7 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
       >
         {/* Brand */}
         <Link
-          to="/"
+          to={homePath}
           style={{
             padding: "24px",
             display: "flex",
@@ -259,7 +261,7 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
           {NAV_ITEMS.map((n) => (
             <NavLink
               key={n.to}
-              to={n.to}
+              to={!user && n.to === "/" ? "/browse" : n.to}
               end={n.end}
               style={({ isActive }) => ({
                 display: "flex",
@@ -536,7 +538,7 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
             ) : !location.pathname.startsWith("/login") ? (
               <button
                 type="button"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate(signedOutLoginUrl)}
                 style={{
                   background: SURFACE_CARD,
                   border: `1px solid ${SURFACE_BORDER}`,

@@ -1,1367 +1,2220 @@
-import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import {
-  readLandingMemory,
-  hasMeaningfulMemory,
-  resolveResumeRoute,
-  clearLandingMemory,
-} from "../lib/desktop/landingMemory";
 
-/**
- * Public landing page (`/welcome`).
- *
- * Reference (final desktop prototype):
- *   chetan-anand-hub/topic-focus-lite — src/pages/PublicLanding.tsx
- *
- * Section parity (visual translation only — production uses inline
- * styles + inline SVG, NOT shadcn / Tailwind / lucide-react):
- *
- *   1. Header bar          — logo, anchor nav, Log in + Start free trial CTAs.
- *   2. Hero                — chip, headline, sub-copy, primary + secondary CTA,
- *                            fine-print line.
- *   3. Welcome-back panel  — right-rail; renders only when real memory
- *                            exists (no faked attempts). Resume + Start fresh.
- *   4. Today's loop card   — right-rail; explicitly labelled "Sample preview".
- *   5. Why                 — 3 feature cards.
- *   6. Core loop           — 5 numbered steps.
- *   7. Inside the cockpit  — 6-row list + sidebar preview (inline SVG).
- *
- * Memory / resume:
- *   `hasMeaningfulMemory`, `memory`, `clearMemory`, and the resume
- *   target are computed from REAL production storage by
- *   `lib/desktop/landingMemory.ts`. No new persistence is introduced
- *   and no sample data is ever surfaced as the learner's own.
- *
- * Routes:
- *   All login CTAs target the production routes `/login?reason=...&redirect=...`
- *   — NOT the prototype's `/app/login`. Real Clerk auth is preserved.
- *
- * Mobile parity:
- *   `Welcome.tsx` is also rendered when the unauthenticated mobile
- *   `HomeRedirect` lands at `/`. The page uses inline media queries
- *   (`<style>` tag) so sections stack at narrow widths, the header
- *   anchor nav hides, CTAs go full-width, and font sizes shrink — no
- *   regression vs. the previous mobile single-card layout.
- */
-
-const PRIMARY_GREEN = "#22c55e";
-const PRIMARY_GREEN_GLOW = "rgba(34,197,94,0.3)";
+const NAVY = "#071a3d";
+const NAVY_2 = "#092858";
+const GREEN = "#16b96a";
+const GREEN_DARK = "#0b8f50";
+const TEXT = "#071a3d";
+const MUTED = "#49627f";
+const BORDER = "rgba(7, 26, 61, 0.12)";
+const CARD = "rgba(255, 255, 255, 0.92)";
+const SHADOW = "0 22px 70px rgba(7, 26, 61, 0.13)";
 
 export default function Welcome() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Snapshot real memory once per render. Reading is cheap and the
-  // landing page is not interactive enough to warrant subscribing.
-  const memory = useMemo(() => readLandingMemory(), []);
-  const hasMemory = hasMeaningfulMemory(memory);
-  const resumeRoute = useMemo(() => resolveResumeRoute(memory), [memory]);
-
-  const continueLine = (() => {
-    if (!memory) return "Continue where you left off";
-    if (memory.lastAttempt) {
-      return `Continue from ${memory.lastAttempt.topicLabel}`;
-    }
-    if (memory.subject) {
-      return `Continue from ${memory.subject}`;
-    }
-    return "Continue where you left off";
-  })();
-
-  const lastSavedLine = (() => {
-    if (memory?.lastAttempt) {
-      const when = formatRelativeDate(memory.lastAttempt.savedAt);
-      return `Last saved: ${memory.lastAttempt.subject} · ${memory.lastAttempt.topicLabel}${
-        when ? ` · ${when}` : ""
-      }`;
-    }
-    if (memory?.subject) {
-      const grade = memory.grade ? `Class ${memory.grade}` : "Last focus";
-      return `${grade} · ${memory.subject}`;
-    }
-    return "Continue where you left off";
-  })();
-
-  const goLogin = (reason: string, redirect: string) => {
-    const qs = `?reason=${encodeURIComponent(reason)}&redirect=${encodeURIComponent(redirect)}`;
-    navigate(`/login${qs}`);
-  };
-
-  const onStartTrial = () => {
-    if (user) {
-      navigate("/");
-    } else {
-      goLogin("start-trial", "/");
-    }
-  };
-
-  const onResume = () => goLogin("login", resumeRoute);
-
-  const onStartFresh = () => {
-    clearLandingMemory();
-    goLogin("start-trial", "/");
-  };
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const signInUrl = "/login?reason=login&redirect=%2F";
+  const onExplore = () => {
+    navigate(user ? "/" : "/browse");
   };
 
   return (
-    <div
-      className="dark-page"
-      style={{
-        minHeight: "100vh",
-        fontFamily: "'Inter', sans-serif",
-        background: "var(--bg)",
-        color: "var(--text)",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <main className="lt-frozen-landing" aria-label="LazyTopper public landing">
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
-        .lt-landing { box-sizing: border-box; }
-        .lt-landing * { box-sizing: border-box; }
-        .lt-landing .font-display { font-family: 'Space Grotesk', sans-serif; }
+            @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
-        .lt-landing .anchor-nav { display: none; }
-        .lt-landing .hero-grid { display: flex; flex-direction: column; gap: 24px; }
-        .lt-landing .hero-headline { font-size: 36px; line-height: 1.1; }
-        .lt-landing .hero-sub { font-size: 15px; }
-        .lt-landing .why-grid,
-        .lt-landing .loop-grid,
-        .lt-landing .cockpit-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-        .lt-landing .header-cta-trial-text { display: none; }
+            .lt-frozen-landing,
+            .lt-frozen-landing * {
+              box-sizing: border-box;
+            }
 
-        @media (min-width: 768px) {
-          .lt-landing .anchor-nav { display: flex; }
-          .lt-landing .hero-headline { font-size: 48px; }
-          .lt-landing .hero-sub { font-size: 17px; }
-          .lt-landing .why-grid { grid-template-columns: repeat(3, 1fr); }
-          .lt-landing .loop-grid { grid-template-columns: repeat(5, 1fr); }
-          .lt-landing .cockpit-grid { grid-template-columns: 1.2fr 1fr; align-items: start; }
-          .lt-landing .header-cta-trial-text { display: inline; }
-        }
-        @media (min-width: 1024px) {
-          .lt-landing .hero-grid { display: grid; grid-template-columns: 7fr 5fr; gap: 40px; align-items: center; }
-          .lt-landing .hero-headline { font-size: 56px; }
-        }
-      ` ,
+            html:has(.lt-frozen-landing),
+            body:has(.lt-frozen-landing),
+            #root:has(.lt-frozen-landing),
+            #root > div:has(.lt-frozen-landing) {
+              background: #051733;
+            }
+
+            .lt-frozen-landing {
+              min-height: 100vh;
+              overflow-x: hidden;
+              color: ${TEXT};
+              font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              background:
+                radial-gradient(circle at 50% 39%, rgba(22,185,106,0.16) 0, rgba(22,185,106,0) 25%),
+                radial-gradient(circle at 15% 23%, rgba(125,220,255,0.26) 0, rgba(125,220,255,0) 20%),
+                radial-gradient(circle at 86% 25%, rgba(125,220,255,0.20) 0, rgba(125,220,255,0) 22%),
+                linear-gradient(180deg, #fbfdff 0%, #f7fbff 56%, #0a2a55 82%, #051733 100%);
+            }
+
+            .lt-landing-viewport {
+              position: relative;
+              min-height: 100vh;
+              padding: 24px clamp(20px, 3vw, 48px) 28px;
+            }
+
+            .lt-landing-stage {
+              position: relative;
+              z-index: 2;
+            }
+
+            .lt-landing-viewport:after {
+              content: "";
+              position: absolute;
+              z-index: 1;
+              left: 0;
+              right: 0;
+              bottom: -2px;
+              height: 18px;
+              pointer-events: none;
+              background: linear-gradient(180deg, rgba(5,23,51,0), #051733 45%, #051733 100%);
+            }
+
+            .lt-landing-viewport:before {
+              content: "";
+              position: absolute;
+              inset: 120px 0 auto;
+              height: 520px;
+              pointer-events: none;
+              background:
+                radial-gradient(circle at 10% 50%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+                radial-gradient(circle at 14% 34%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+                radial-gradient(circle at 88% 40%, rgba(255,255,255,0.85) 0 2px, transparent 3px),
+                radial-gradient(circle at 92% 58%, rgba(255,255,255,0.8) 0 2px, transparent 3px);
+              opacity: 0.86;
+            }
+
+            .lt-landing-header {
+              position: relative;
+              z-index: 3;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 20px;
+              max-width: 1540px;
+              margin: 0 auto;
+            }
+
+            .lt-brand {
+              display: inline-flex;
+              align-items: center;
+              gap: 12px;
+              font-weight: 800;
+              font-size: 25px;
+              color: ${NAVY};
+            }
+
+            .lt-brand svg {
+              color: ${GREEN};
+            }
+
+            .lt-signin,
+            .lt-explore {
+              appearance: none;
+              border: 0;
+              cursor: pointer;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              color: #fff;
+              background: linear-gradient(180deg, ${NAVY_2}, ${NAVY});
+              box-shadow: 0 16px 34px rgba(7, 26, 61, 0.25), inset 0 0 0 1px rgba(255,255,255,0.14);
+              transition: transform 160ms ease, box-shadow 160ms ease;
+            }
+
+            .lt-signin:hover,
+            .lt-explore:hover {
+              transform: translateY(-1px);
+              box-shadow: 0 20px 38px rgba(7, 26, 61, 0.30), inset 0 0 0 1px rgba(255,255,255,0.18);
+            }
+
+            .lt-signin {
+              height: 50px;
+              padding: 0 22px;
+              border-radius: 13px;
+              gap: 12px;
+              font-size: 16px;
+              font-weight: 700;
+            }
+
+            .lt-hero {
+              position: relative;
+              z-index: 2;
+              max-width: 1540px;
+              margin: 0 auto;
+              text-align: center;
+              padding-top: 2px;
+            }
+
+            .lt-title-wrap {
+              position: relative;
+              display: block;
+              width: fit-content;
+              max-width: 100%;
+              margin: 2px auto 0;
+            }
+
+            .lt-title {
+              margin: 0;
+              color: ${NAVY};
+              font-family: 'Fraunces', Georgia, serif;
+              font-size: 56px;
+              line-height: 1.02;
+              letter-spacing: 0;
+              font-weight: 700;
+            }
+
+            .lt-title-accent {
+              position: relative;
+              color: ${GREEN_DARK};
+              white-space: nowrap;
+            }
+
+            .lt-title-accent:after {
+              content: "";
+              position: absolute;
+              left: 2%;
+              right: 2%;
+              bottom: -5px;
+              height: 8px;
+              border-radius: 999px;
+              background: linear-gradient(90deg, rgba(22,185,106,0), rgba(22,185,106,0.55), rgba(22,185,106,0));
+            }
+
+            .lt-head-sparkle {
+              position: absolute;
+              right: -44px;
+              top: -4px;
+              color: ${GREEN};
+            }
+
+            .lt-explore {
+              margin-top: 0;
+              min-width: 244px;
+              height: 52px;
+              border-radius: 19px;
+              gap: 16px;
+              font-size: 21px;
+              font-weight: 800;
+              box-shadow:
+                0 20px 44px rgba(7, 26, 61, 0.25),
+                0 0 0 5px rgba(22,185,106,0.12),
+                0 0 34px rgba(22,185,106,0.38),
+                inset 0 0 0 1px rgba(255,255,255,0.16);
+            }
+
+            .lt-post-card-cta {
+              position: relative;
+              z-index: 5;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 100%;
+              margin: 24px auto 0;
+            }
+
+            .lt-story {
+              position: relative;
+              z-index: 2;
+              max-width: 1560px;
+              margin: 4px auto 0;
+            }
+
+            .lt-story-bg-lines {
+              position: absolute;
+              inset: -56px -24px 0;
+              pointer-events: none;
+              opacity: 0.82;
+            }
+
+            .lt-story-rail {
+              position: relative;
+              z-index: 2;
+              display: grid;
+              grid-template-columns: minmax(210px,1fr) 42px minmax(210px,1fr) 42px minmax(210px,1fr) 42px minmax(210px,1fr);
+              gap: 18px;
+              align-items: start;
+            }
+
+            .lt-stage {
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+              min-width: 0;
+            }
+
+            .lt-stage-heading {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              min-height: 38px;
+              padding-left: 46px;
+              text-align: left;
+            }
+
+            .lt-stage-number {
+              display: grid;
+              place-items: center;
+              width: 36px;
+              height: 36px;
+              border-radius: 50%;
+              flex: 0 0 auto;
+              background: #c9f4df;
+              color: ${NAVY};
+              font-weight: 800;
+              font-size: 16px;
+              box-shadow: 0 8px 20px rgba(22,185,106,0.18);
+            }
+
+            .lt-stage-title {
+              font-family: 'Fraunces', Georgia, serif;
+              font-size: 19px;
+              font-weight: 700;
+              line-height: 1.05;
+            }
+
+            .lt-flow-arrow {
+              width: 42px;
+              height: 42px;
+              border-radius: 50%;
+              display: grid;
+              place-items: center;
+              color: #fff;
+              background: radial-gradient(circle at 35% 28%, #1a65d4, ${NAVY});
+              box-shadow: 0 12px 24px rgba(7,26,61,0.25), 0 0 0 5px rgba(255,255,255,0.74);
+              align-self: center;
+              margin-top: 56px;
+            }
+
+            .lt-story-card {
+              min-height: 335px;
+              border-radius: 19px;
+              background: ${CARD};
+              border: 1px solid ${BORDER};
+              box-shadow: ${SHADOW};
+              padding: 17px;
+              text-align: left;
+              backdrop-filter: blur(16px);
+            }
+
+            .lt-card-top {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 10px;
+              margin-bottom: 14px;
+              font-size: 12px;
+              font-weight: 800;
+              color: ${NAVY};
+            }
+
+            .lt-chip {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 22px;
+              height: 22px;
+              border-radius: 7px;
+              background: #e8f5ff;
+              color: #2361dd;
+              font-weight: 800;
+              font-size: 12px;
+            }
+
+            .lt-topic-row {
+              display: grid;
+              grid-template-columns: 24px minmax(0, 1fr) 40px;
+              align-items: center;
+              gap: 8px;
+              margin: 8px 0;
+              font-size: 12px;
+              color: ${NAVY};
+            }
+
+            .lt-progress-track {
+              display: block;
+              height: 4px;
+              border-radius: 999px;
+              background: #e7edf4;
+              overflow: hidden;
+              margin-top: 5px;
+            }
+
+            .lt-progress-fill {
+              height: 100%;
+              border-radius: inherit;
+            }
+
+            .lt-mini-grid {
+              display: grid;
+              grid-template-columns: 38px repeat(9, 14px);
+              gap: 6px;
+              align-items: center;
+              margin-top: 10px;
+              color: #60718c;
+              font-size: 10px;
+            }
+
+            .lt-dot {
+              width: 14px;
+              height: 14px;
+              border-radius: 4px;
+              background: #d9f5e7;
+            }
+
+            .lt-card-action {
+              height: 38px;
+              margin-top: 10px;
+              border-radius: 9px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 22px;
+              color: ${NAVY};
+              background: #eef5ff;
+              border: 1px solid #d8e4f5;
+              font-weight: 800;
+              font-size: 12px;
+            }
+
+            .lt-question {
+              color: ${NAVY};
+              font-weight: 800;
+              line-height: 1.45;
+              font-size: 13px;
+              margin: 14px 0 10px;
+            }
+
+            .lt-option {
+              min-height: 34px;
+              border-radius: 9px;
+              border: 1px solid #dce5ef;
+              background: #fbfdff;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 8px 10px;
+              margin-top: 7px;
+              color: #405270;
+              font-size: 11px;
+              font-weight: 600;
+            }
+
+            .lt-option.correct {
+              border-color: rgba(22,185,106,0.55);
+              background: rgba(22,185,106,0.08);
+              color: ${NAVY};
+            }
+
+            .lt-option-letter {
+              width: 22px;
+              height: 22px;
+              display: grid;
+              place-items: center;
+              border-radius: 50%;
+              border: 1px solid #d5dfec;
+              color: #52627d;
+              font-weight: 800;
+              font-size: 11px;
+            }
+
+            .lt-option.correct .lt-option-letter {
+              background: ${GREEN};
+              border-color: ${GREEN};
+              color: #fff;
+            }
+
+            .lt-practice-footer,
+            .lt-check-pill-row {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 10px;
+            }
+
+            .lt-practice-footer {
+              height: 38px;
+              margin-top: 14px;
+              border-radius: 9px;
+              background: #f4f8fd;
+              border: 1px solid #dce5ef;
+              padding: 0 12px;
+              color: ${NAVY};
+              font-size: 12px;
+              font-weight: 800;
+            }
+
+            .lt-answer-line {
+              display: grid;
+              grid-template-columns: 92px minmax(0, 1fr);
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 10px;
+              font-size: 12px;
+              font-weight: 800;
+            }
+
+            .lt-answer-box {
+              min-height: 34px;
+              border-radius: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 6px 10px;
+              font-size: 11px;
+              font-weight: 700;
+            }
+
+            .lt-answer-box.good {
+              border: 1px solid rgba(22,185,106,0.48);
+              background: rgba(22,185,106,0.08);
+              color: ${NAVY};
+            }
+
+            .lt-answer-box.bad {
+              border: 1px solid rgba(239,68,68,0.34);
+              background: rgba(239,68,68,0.06);
+              color: ${NAVY};
+            }
+
+            .lt-explanation {
+              display: grid;
+              grid-template-columns: 78px minmax(0, 1fr);
+              gap: 12px;
+              padding: 10px;
+              border-radius: 10px;
+              border: 1px solid #dfe7f1;
+              background: #fbfdff;
+              color: #405270;
+              font-size: 12px;
+              line-height: 1.45;
+            }
+
+            .lt-lungs {
+              width: 64px;
+              height: 64px;
+              border-radius: 18px;
+              background: radial-gradient(circle at 50% 45%, #ffd5d5 0, #ffd5d5 34%, #fff2f2 35%, #fff 100%);
+              display: grid;
+              place-items: center;
+              color: #e4667f;
+            }
+
+            .lt-wrong-list {
+              margin-top: 9px;
+              border-radius: 10px;
+              border: 1px solid #dfe7f1;
+              background: #fbfdff;
+              padding: 10px 12px;
+              font-size: 11px;
+              color: #52627d;
+              line-height: 1.45;
+            }
+
+            .lt-next-question {
+              height: 36px;
+              border-radius: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 18px;
+              margin-top: 10px;
+              background: rgba(22,185,106,0.11);
+              border: 1px solid rgba(22,185,106,0.42);
+              color: ${GREEN_DARK};
+              font-size: 12px;
+              font-weight: 800;
+            }
+
+            .lt-progress-card {
+              background: linear-gradient(135deg, ${NAVY}, #04285f);
+              color: #fff;
+              border-radius: 12px;
+              padding: 14px;
+              display: grid;
+              grid-template-columns: 105px minmax(0, 1fr);
+              gap: 12px;
+              min-height: 108px;
+              box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10);
+            }
+
+            .lt-ring {
+              width: 86px;
+              height: 86px;
+              border-radius: 50%;
+              display: grid;
+              place-items: center;
+              background:
+                radial-gradient(circle at center, ${NAVY} 0 47%, transparent 48%),
+                conic-gradient(${GREEN} 0 76%, rgba(255,255,255,0.24) 76% 100%);
+              margin: auto;
+              text-align: center;
+            }
+
+            .lt-stat-row {
+              display: grid;
+              grid-template-columns: 1fr 46px;
+              gap: 8px;
+              margin: 10px 0;
+              font-size: 13px;
+              font-weight: 700;
+            }
+
+            .lt-strength-grid {
+              display: grid;
+              grid-template-columns: repeat(4, minmax(0,1fr));
+              gap: 8px;
+              margin-top: 12px;
+            }
+
+            .lt-strength-tile {
+              min-height: 54px;
+              border-radius: 9px;
+              display: grid;
+              place-items: center;
+              text-align: center;
+              font-size: 11px;
+              font-weight: 800;
+            }
+
+            .lt-chart {
+              margin-top: 10px;
+              height: 86px;
+              border-radius: 10px;
+              border: 1px solid #dfe7f1;
+              background: #fbfdff;
+              position: relative;
+              overflow: hidden;
+            }
+
+            .lt-mi-area {
+              position: relative;
+              z-index: 2;
+              min-height: 154px;
+              margin-top: -10px;
+              display: grid;
+              grid-template-columns: 1fr;
+              place-items: center;
+              color: #fff;
+            }
+
+            .lt-connector-glow {
+              position: absolute;
+              left: 4%;
+              right: 4%;
+              top: 84px;
+              height: 74px;
+              pointer-events: none;
+              background:
+                radial-gradient(ellipse at center, rgba(22,185,106,0.40), rgba(22,185,106,0) 50%),
+                linear-gradient(90deg, rgba(22,185,106,0), rgba(22,185,106,0.95), rgba(125,220,255,0.95), rgba(22,185,106,0));
+              filter: blur(9px);
+              opacity: 0.78;
+            }
+
+            .lt-connector-lines {
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 38px;
+              height: 140px;
+              pointer-events: none;
+              opacity: 0.9;
+            }
+
+            .lt-mi-hub {
+              position: relative;
+              z-index: 3;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 12px;
+            }
+
+            .lt-brain-orbit {
+              width: 86px;
+              height: 86px;
+              border-radius: 50%;
+              display: grid;
+              place-items: center;
+              color: #dffff0;
+              background:
+                radial-gradient(circle at center, rgba(22,185,106,0.25) 0 42%, rgba(11,143,80,0.12) 43% 61%, transparent 62%),
+                rgba(7,26,61,0.42);
+              border: 2px solid rgba(171,255,215,0.74);
+              box-shadow:
+                0 0 0 12px rgba(22,185,106,0.10),
+                0 0 48px rgba(22,185,106,0.78),
+                inset 0 0 28px rgba(22,185,106,0.34);
+            }
+
+            .lt-mi-title {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 12px;
+              color: #fff;
+              font-size: 24px;
+              font-weight: 800;
+              white-space: nowrap;
+            }
+
+            .lt-mi-subtitle {
+              margin-top: -6px;
+              color: #31f294;
+              font-size: 15px;
+              font-weight: 800;
+            }
+
+            .lt-benefits {
+              position: relative;
+              z-index: 3;
+              max-width: 1320px;
+              margin: 0 auto;
+              color: #fff;
+              display: grid;
+              grid-template-columns: repeat(5, minmax(0,1fr));
+              align-items: center;
+              gap: 22px;
+              padding: 8px 0 0;
+            }
+
+            .lt-benefit {
+              min-height: 68px;
+              display: grid;
+              grid-template-columns: 44px minmax(0,1fr);
+              align-items: center;
+              gap: 12px;
+              position: relative;
+            }
+
+            .lt-benefit + .lt-benefit:before {
+              content: "";
+              position: absolute;
+              left: -12px;
+              height: 50px;
+              width: 1px;
+              background: rgba(255,255,255,0.36);
+            }
+
+            .lt-benefit-icon {
+              width: 42px;
+              height: 42px;
+              display: grid;
+              place-items: center;
+              color: #fff;
+            }
+
+            .lt-benefit-text {
+              font-size: 15px;
+              line-height: 1.45;
+              font-weight: 500;
+            }
+
+            @media (min-width: 1180px) {
+              .lt-story-rail {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+              }
+
+              .lt-flow-arrow {
+                display: grid;
+              }
+            }
+
+            @media (min-width: 1180px) {
+              html,
+              body,
+              #root,
+              #root > div {
+                height: 100vh;
+                height: 100svh;
+                min-height: 0;
+                overflow: hidden;
+                background: #051733;
+              }
+
+              #root > div {
+                padding-bottom: 0 !important;
+              }
+
+              .lt-frozen-landing {
+                width: 100%;
+                max-width: 100vw;
+                height: 100vh;
+                height: 100svh;
+                min-height: 0;
+                overflow: hidden;
+                background:
+                  radial-gradient(circle at 50% 34%, rgba(22,185,106,0.16) 0, rgba(22,185,106,0) 24%),
+                  radial-gradient(circle at 15% 20%, rgba(125,220,255,0.24) 0, rgba(125,220,255,0) 18%),
+                  radial-gradient(circle at 86% 22%, rgba(125,220,255,0.18) 0, rgba(125,220,255,0) 20%),
+                  linear-gradient(180deg, #fbfdff 0%, #f8fbff 56%, #0a2a55 80%, #051733 100%);
+              }
+
+              .lt-landing-viewport {
+                width: min(1600px, calc(100vw - clamp(24px, 3.2vw, 54px)));
+                max-width: 100%;
+                margin: 0 auto;
+                height: 100%;
+                min-height: 0;
+                overflow: hidden;
+                display: grid;
+                grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+                gap: 0;
+                padding: clamp(13px, 1.7svh, 18px) 0 clamp(12px, 1.6svh, 18px);
+              }
+
+              .lt-landing-viewport:before {
+                inset: 86px 0 auto;
+                height: 430px;
+              }
+
+              .lt-landing-stage {
+                display: contents;
+              }
+
+              .lt-landing-header {
+                width: 100%;
+                min-height: 46px;
+              }
+
+              .lt-brand {
+                gap: 10px;
+                font-size: 22px;
+              }
+
+              .lt-brand svg {
+                width: 30px;
+                height: 30px;
+              }
+
+              .lt-signin {
+                height: 42px;
+                padding: 0 18px;
+                border-radius: 12px;
+                gap: 9px;
+                font-size: 15px;
+              }
+
+              .lt-signin svg {
+                width: 19px;
+                height: 19px;
+              }
+
+              .lt-hero {
+                width: 100%;
+                padding-top: 0;
+              }
+
+              .lt-title-wrap {
+                margin-top: -6px;
+              }
+
+              .lt-title {
+                font-size: 45px;
+                line-height: 0.98;
+              }
+
+              .lt-title-accent:after {
+                bottom: -4px;
+                height: 6px;
+              }
+
+              .lt-head-sparkle {
+                right: -34px;
+                top: -3px;
+              }
+
+              .lt-head-sparkle svg {
+                width: 27px;
+                height: 27px;
+              }
+
+              .lt-explore {
+                min-width: 214px;
+                height: 46px;
+                border-radius: 18px;
+                gap: 13px;
+                font-size: 19px;
+              }
+
+              .lt-explore svg {
+                width: 23px;
+                height: 23px;
+              }
+
+              .lt-story {
+                width: 100%;
+                max-width: 100%;
+                min-height: 0;
+                margin-top: clamp(76px, 8.4svh, 96px);
+                overflow: visible;
+              }
+
+              .lt-story-bg-lines {
+                inset: -36px 0 -22px;
+                width: 100%;
+                opacity: 0.74;
+              }
+
+              .lt-story-rail {
+                width: 100%;
+                min-width: 0;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 20px;
+              }
+
+              .lt-stage {
+                gap: 12px;
+                min-width: 0;
+              }
+
+              .lt-story-rail > .lt-stage:nth-child(1) {
+                grid-column: 1;
+              }
+
+              .lt-story-rail > .lt-stage:nth-child(3) {
+                grid-column: 2;
+              }
+
+              .lt-story-rail > .lt-stage:nth-child(5) {
+                grid-column: 3;
+              }
+
+              .lt-story-rail > .lt-stage:nth-child(7) {
+                grid-column: 4;
+              }
+
+              .lt-stage-heading {
+                min-height: 30px;
+                gap: 8px;
+                padding-left: 38px;
+              }
+
+              .lt-stage-number {
+                width: 28px;
+                height: 28px;
+                font-size: 13px;
+              }
+
+              .lt-stage-title {
+                font-size: 16.5px;
+                line-height: 1;
+              }
+
+              .lt-flow-arrow {
+                position: absolute;
+                z-index: 4;
+                width: 38px;
+                height: 38px;
+                top: clamp(153px, 17.6svh, 183px);
+                left: auto;
+                transform: translateX(-50%);
+                margin-top: 0;
+                box-shadow: 0 10px 20px rgba(7,26,61,0.23), 0 0 0 4px rgba(255,255,255,0.76);
+              }
+
+              .lt-flow-arrow:nth-child(2) {
+                left: 25%;
+              }
+
+              .lt-flow-arrow:nth-child(4) {
+                left: 50%;
+              }
+
+              .lt-flow-arrow:nth-child(6) {
+                left: 75%;
+              }
+
+              .lt-story-card {
+                height: clamp(246px, 29svh, 306px);
+                min-height: 0;
+                min-width: 0;
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+                border-radius: 16px;
+                padding: 12px 13px;
+              }
+
+              .lt-post-card-cta {
+                margin-top: clamp(10px, 1.4svh, 16px);
+              }
+
+              .lt-card-top {
+                margin-bottom: 8px;
+                font-size: 11px;
+              }
+
+              .lt-card-top svg {
+                width: 16px;
+                height: 16px;
+              }
+
+              .lt-chip {
+                min-width: 20px;
+                height: 20px;
+                border-radius: 6px;
+                font-size: 11px;
+              }
+
+              .lt-topic-row {
+                grid-template-columns: 22px minmax(0, 1fr) 34px;
+                gap: 6px;
+                margin: 5px 0;
+                font-size: 11px;
+              }
+
+              .lt-progress-track {
+                height: 3px;
+                margin-top: 3px;
+              }
+
+              .lt-mini-grid {
+                grid-template-columns: 28px repeat(9, 9px);
+                gap: 3px;
+                margin-top: 5px;
+                font-size: 9px;
+              }
+
+              .lt-dot {
+                width: 9px;
+                height: 9px;
+                border-radius: 3px;
+              }
+
+              .lt-card-action {
+                height: 28px;
+                margin-top: 5px;
+                border-radius: 8px;
+                gap: 14px;
+                font-size: 11px;
+              }
+
+              .lt-question {
+                margin: 8px 0 7px;
+                font-size: 12.2px;
+                line-height: 1.3;
+              }
+
+              .lt-option {
+                min-height: 25px;
+                margin-top: 4px;
+                padding: 4px 7px;
+                border-radius: 8px;
+                gap: 7px;
+                font-size: 10.4px;
+              }
+
+              .lt-option-letter {
+                width: 19px;
+                height: 19px;
+                font-size: 10px;
+              }
+
+              .lt-practice-footer {
+                height: 28px;
+                margin-top: 6px;
+                border-radius: 8px;
+                padding: 0 10px;
+                font-size: 11px;
+              }
+
+              .lt-answer-line {
+                grid-template-columns: 78px minmax(0, 1fr);
+                margin-bottom: 6px;
+                gap: 6px;
+                font-size: 11px;
+              }
+
+              .lt-answer-box {
+                min-height: 28px;
+                padding: 5px 8px;
+                font-size: 10.5px;
+              }
+
+              .lt-explanation {
+                grid-template-columns: 48px minmax(0, 1fr);
+                gap: 8px;
+                padding: 7px;
+                border-radius: 9px;
+                font-size: 10.8px;
+                line-height: 1.28;
+              }
+
+              .lt-lungs {
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+              }
+
+              .lt-lungs svg {
+                width: 34px;
+                height: 34px;
+              }
+
+              .lt-wrong-list {
+                margin-top: 5px;
+                padding: 6px 8px;
+                font-size: 10.4px;
+                line-height: 1.25;
+              }
+
+              .lt-next-question {
+                height: 28px;
+                margin-top: 5px;
+                border-radius: 8px;
+                gap: 14px;
+                font-size: 11px;
+              }
+
+              .lt-progress-card {
+                grid-template-columns: 78px minmax(0, 1fr);
+                min-height: 78px;
+                padding: 9px;
+                border-radius: 10px;
+                gap: 8px;
+              }
+
+              .lt-ring {
+                width: 66px;
+                height: 66px;
+              }
+
+              .lt-ring div div:first-child {
+                font-size: 18px !important;
+              }
+
+              .lt-ring div div:last-child {
+                font-size: 9px !important;
+              }
+
+              .lt-stat-row {
+                grid-template-columns: 1fr 38px;
+                margin: 5px 0;
+                font-size: 11px;
+              }
+
+              .lt-strength-grid {
+                gap: 5px;
+                margin-top: 6px;
+              }
+
+              .lt-strength-tile {
+                min-height: 34px;
+                border-radius: 8px;
+                font-size: 9.5px;
+              }
+
+              .lt-strength-tile strong {
+                font-size: 12px !important;
+              }
+
+              .lt-chart {
+                height: 42px;
+                margin-top: 5px;
+                border-radius: 8px;
+              }
+
+              .lt-mi-area {
+                width: 100%;
+                max-width: 1500px;
+                z-index: 4;
+                min-height: clamp(112px, 12svh, 138px);
+                margin: clamp(14px, 1.8svh, 22px) auto 0;
+                grid-template-columns: 1fr;
+              }
+
+              .lt-connector-glow {
+                top: 54px;
+                height: 38px;
+                filter: blur(8px);
+              }
+
+              .lt-connector-lines {
+                top: 22px;
+                height: 94px;
+              }
+
+              .lt-mi-hub {
+                gap: 7px;
+                z-index: 6;
+              }
+
+              .lt-brain-orbit {
+                width: 64px;
+                height: 64px;
+                box-shadow:
+                  0 0 0 9px rgba(22,185,106,0.10),
+                  0 0 38px rgba(22,185,106,0.72),
+                  inset 0 0 23px rgba(22,185,106,0.34);
+              }
+
+              .lt-brain-orbit svg {
+                width: 42px;
+                height: 42px;
+              }
+
+              .lt-mi-title {
+                position: relative;
+                z-index: 7;
+                gap: 8px;
+                font-size: 20px;
+                text-shadow: 0 2px 12px rgba(5, 23, 51, 0.46);
+              }
+
+              .lt-mi-title svg {
+                width: 18px;
+                height: 18px;
+              }
+
+              .lt-mi-subtitle {
+                position: relative;
+                z-index: 7;
+                margin-top: -4px;
+                font-size: 13px;
+                text-shadow: 0 2px 12px rgba(5, 23, 51, 0.50);
+              }
+
+              .lt-benefits {
+                width: 100%;
+                max-width: 1260px;
+                margin: 0 auto clamp(26px, 3.4svh, 46px);
+                z-index: 2;
+                gap: 10px;
+                padding: 6px 14px;
+                border-radius: 18px;
+                background: rgba(5, 23, 51, 0.42);
+                border: 1px solid rgba(255,255,255,0.16);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 -14px 44px rgba(48,242,148,0.08);
+                backdrop-filter: blur(10px);
+              }
+
+              .lt-benefit {
+                min-height: 34px;
+                grid-template-columns: 26px minmax(0, 1fr);
+                gap: 7px;
+              }
+
+              .lt-benefit + .lt-benefit:before {
+                left: -8px;
+                height: 30px;
+              }
+
+              .lt-benefit-icon {
+                width: 26px;
+                height: 26px;
+              }
+
+              .lt-benefit-icon svg {
+                width: 25px;
+                height: 25px;
+              }
+
+              .lt-benefit-text {
+                font-size: 11.8px;
+                line-height: 1.22;
+              }
+            }
+
+            @media (min-width: 1700px) {
+              .lt-landing-viewport {
+                width: min(1720px, calc(100vw - 72px));
+              }
+
+              .lt-story-rail {
+                gap: 24px;
+              }
+
+              .lt-mi-area {
+                max-width: 1580px;
+                margin-top: clamp(20px, 2svh, 28px);
+              }
+
+              .lt-benefits {
+                margin-bottom: clamp(48px, 5.4svh, 66px);
+              }
+            }
+
+            @media (min-width: 1180px) and (max-height: 800px) {
+              .lt-landing-viewport {
+                padding-top: 10px;
+              }
+
+              .lt-landing-header {
+                min-height: 42px;
+              }
+
+              .lt-brand {
+                font-size: 21px;
+              }
+
+              .lt-brand svg {
+                width: 28px;
+                height: 28px;
+              }
+
+              .lt-signin {
+                height: 40px;
+                padding: 0 17px;
+              }
+
+              .lt-title {
+                font-size: 40px;
+              }
+
+              .lt-explore {
+                min-width: 196px;
+                height: 40px;
+                font-size: 17px;
+              }
+
+              .lt-story {
+                margin-top: clamp(54px, 7svh, 66px);
+              }
+
+              .lt-story-card {
+                height: clamp(224px, 29svh, 242px);
+                padding: 10px 12px;
+              }
+
+              .lt-post-card-cta {
+                margin-top: 8px;
+              }
+
+              .lt-stage-heading {
+                min-height: 27px;
+              }
+
+              .lt-question {
+                margin: 6px 0 5px;
+                font-size: 11.6px;
+              }
+
+              .lt-option {
+                min-height: 23px;
+                margin-top: 3px;
+                padding: 3px 7px;
+              }
+
+              .lt-practice-footer,
+              .lt-next-question,
+              .lt-card-action {
+                height: 26px;
+              }
+
+              .lt-wrong-list,
+              .lt-chart {
+                display: none;
+              }
+
+              .lt-progress-card {
+                min-height: 74px;
+              }
+
+              .lt-strength-tile {
+                min-height: 32px;
+              }
+
+              .lt-mi-area {
+                margin-top: 8px;
+                min-height: 104px;
+              }
+
+              .lt-benefits {
+                margin-bottom: clamp(24px, 3.2svh, 34px);
+              }
+
+              .lt-flow-arrow {
+                top: 139px;
+              }
+            }
+
+            @media (min-width: 1180px) and (max-height: 700px) {
+              .lt-landing-viewport {
+                padding-top: 8px;
+                padding-bottom: 7px;
+              }
+
+              .lt-landing-header {
+                min-height: 38px;
+              }
+
+              .lt-brand {
+                font-size: 20px;
+              }
+
+              .lt-brand svg {
+                width: 26px;
+                height: 26px;
+              }
+
+              .lt-signin {
+                height: 38px;
+                padding: 0 17px;
+                font-size: 15px;
+              }
+
+              .lt-title-wrap {
+                margin-top: -6px;
+              }
+
+              .lt-title {
+                font-size: 38px;
+              }
+
+              .lt-title-accent:after {
+                bottom: -3px;
+                height: 5px;
+              }
+
+              .lt-head-sparkle {
+                right: -28px;
+              }
+
+              .lt-explore {
+                min-width: 178px;
+                height: 40px;
+                border-radius: 15px;
+                gap: 12px;
+                font-size: 16px;
+              }
+
+              .lt-explore svg {
+                width: 21px;
+                height: 21px;
+              }
+
+              .lt-story {
+                margin-top: clamp(44px, 6.2svh, 52px);
+              }
+
+              .lt-stage {
+                gap: 8px;
+              }
+
+              .lt-stage-heading {
+                min-height: 24px;
+                padding-left: 32px;
+              }
+
+              .lt-stage-number {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+              }
+
+              .lt-stage-title {
+                font-size: 15px;
+              }
+
+              .lt-story-card {
+                height: clamp(202px, 31svh, 216px);
+                padding: 8px 10px;
+              }
+
+              .lt-post-card-cta {
+                margin-top: 6px;
+              }
+
+              .lt-card-top {
+                margin-bottom: 5px;
+              }
+
+              .lt-topic-row {
+                margin: 3px 0;
+              }
+
+              .lt-mini-grid,
+              .lt-card-action,
+              .lt-next-question {
+                display: none;
+              }
+
+              .lt-question {
+                margin: 4px 0;
+                font-size: 11px;
+                line-height: 1.24;
+              }
+
+              .lt-option {
+                min-height: 21px;
+                margin-top: 2px;
+                font-size: 10px;
+              }
+
+              .lt-practice-footer {
+                height: 24px;
+                margin-top: 4px;
+              }
+
+              .lt-answer-line {
+                margin-bottom: 4px;
+              }
+
+              .lt-answer-box {
+                min-height: 24px;
+                padding: 4px 7px;
+              }
+
+              .lt-explanation {
+                padding: 6px;
+                line-height: 1.22;
+              }
+
+              .lt-lungs {
+                width: 40px;
+                height: 40px;
+              }
+
+              .lt-lungs svg {
+                width: 29px;
+                height: 29px;
+              }
+
+              .lt-progress-card {
+                min-height: 66px;
+                padding: 7px;
+              }
+
+              .lt-ring {
+                width: 58px;
+                height: 58px;
+              }
+
+              .lt-strength-grid {
+                margin-top: 5px;
+              }
+
+              .lt-strength-tile {
+                min-height: 28px;
+              }
+
+              .lt-mi-area {
+                min-height: 100px;
+                margin-top: 5px;
+              }
+
+              .lt-benefits {
+                margin-bottom: clamp(18px, 3svh, 24px);
+              }
+
+              .lt-flow-arrow {
+                top: 128px;
+              }
+
+              .lt-brain-orbit {
+                width: 54px;
+                height: 54px;
+              }
+
+              .lt-brain-orbit svg {
+                width: 35px;
+                height: 35px;
+              }
+
+              .lt-mi-title {
+                font-size: 18px;
+              }
+
+              .lt-mi-subtitle {
+                font-size: 12px;
+              }
+
+              .lt-benefits {
+                padding: 4px 10px;
+                border-radius: 14px;
+              }
+
+              .lt-benefit {
+                min-height: 28px;
+                grid-template-columns: 22px minmax(0, 1fr);
+                gap: 5px;
+              }
+
+              .lt-benefit-icon,
+              .lt-benefit-icon svg {
+                width: 22px;
+                height: 22px;
+              }
+
+              .lt-benefit-text {
+                font-size: 10.8px;
+                line-height: 1.14;
+              }
+            }
+
+            @media (max-width: 1179px) {
+              .lt-title {
+                font-size: 52px;
+              }
+
+              .lt-story-rail {
+                grid-template-columns: repeat(2, minmax(270px, 1fr));
+              }
+
+              .lt-flow-arrow {
+                display: none;
+              }
+
+              .lt-stage-heading {
+                padding-left: 0;
+              }
+
+              .lt-story-card {
+                min-height: 360px;
+              }
+
+              .lt-benefits {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+              }
+
+              .lt-benefit + .lt-benefit:before {
+                display: none;
+              }
+            }
+
+            @media (max-width: 860px) {
+              .lt-landing-viewport {
+                padding: 18px 16px 28px;
+              }
+
+              .lt-brand {
+                font-size: 21px;
+              }
+
+              .lt-signin {
+                height: 46px;
+                padding: 0 16px;
+                font-size: 15px;
+                gap: 8px;
+              }
+
+              .lt-title {
+                font-size: 42px;
+                line-height: 1.08;
+              }
+
+              .lt-title-accent {
+                display: inline-block;
+              }
+
+              .lt-head-sparkle {
+                display: none;
+              }
+
+              .lt-explore {
+                min-width: 0;
+                width: min(100%, 340px);
+                height: 54px;
+                font-size: 18px;
+              }
+
+              .lt-story {
+                margin-top: 24px;
+              }
+
+              .lt-story-bg-lines {
+                display: none;
+              }
+
+              .lt-story-rail {
+                grid-template-columns: 1fr;
+              }
+
+              .lt-mi-area {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 28px;
+              }
+
+              .lt-connector-lines,
+              .lt-connector-glow {
+                display: none;
+              }
+
+              .lt-benefits {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin-top: 14px;
+              }
+            }
+
+            @media (max-width: 520px) {
+              .lt-landing-header {
+                align-items: flex-start;
+              }
+
+              .lt-brand {
+                gap: 8px;
+                font-size: 18px;
+              }
+
+              .lt-title {
+                font-size: 34px;
+              }
+
+              .lt-strength-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+              }
+
+              .lt-progress-card {
+                grid-template-columns: 1fr;
+              }
+
+            }
+          `,
         }}
       />
 
-      <div className="lt-landing" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {/* ── 1. Header ──────────────────────────────────────────────── */}
-        <header
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 30,
-            borderBottom: "1px solid var(--bg-card)",
-            background: "rgba(0,0,0,0.55)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 1120,
-              margin: "0 auto",
-              padding: "12px 20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 16,
-            }}
-          >
-            <a
-              href="/welcome"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate("/welcome");
-              }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                textDecoration: "none",
-                color: "inherit",
-              }}
-            >
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 10,
-                  background: `linear-gradient(135deg, ${PRIMARY_GREEN}, #3b82f6)`,
-                  color: "#000",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 900,
-                  fontSize: 14,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  boxShadow: `0 0 20px ${PRIMARY_GREEN_GLOW}`,
-                }}
-              >
-                L
-              </div>
-              <span
-                className="font-display"
-                style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.01em" }}
-              >
-                LazyTopper
-              </span>
-            </a>
-
-            <nav
-              className="anchor-nav"
-              style={{
-                alignItems: "center",
-                gap: 24,
-                fontSize: 14,
-                color: "var(--text-muted)",
-              }}
-            >
-              {[
-                ["why", "Why"],
-                ["loop", "How it works"],
-                ["cockpit", "The cockpit"],
-                ["trial", "Trial"],
-              ].map(([id, label]) => (
-                <a
-                  key={id}
-                  href={`#${id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollTo(id);
-                  }}
-                  style={{
-                    color: "inherit",
-                    textDecoration: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  {label}
-                </a>
-              ))}
-            </nav>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button
-                type="button"
-                onClick={() => goLogin("login", "/")}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--text)",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                  borderRadius: 10,
-                }}
-              >
-                Log in
-              </button>
-              <button
-                type="button"
-                onClick={() => goLogin("start-trial", "/")}
-                style={{
-                  background: PRIMARY_GREEN,
-                  color: "#000",
-                  border: "none",
-                  fontSize: 14,
-                  fontWeight: 800,
-                  padding: "8px 14px",
-                  cursor: "pointer",
-                  borderRadius: 10,
-                  boxShadow: `0 0 20px ${PRIMARY_GREEN_GLOW}`,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                }}
-              >
-                <span className="header-cta-trial-text">Start free trial</span>
-                <span aria-hidden style={{ display: "inline-flex" }}>
-                  <ArrowRightIcon size={14} />
-                </span>
-              </button>
+      <div className="lt-landing-viewport">
+        <div className="lt-landing-stage">
+          <header className="lt-landing-header">
+            <div className="lt-brand" aria-label="LazyTopper">
+              <SparkleIcon size={38} />
+              <span>LazyTopper</span>
             </div>
-          </div>
-        </header>
 
-        {/* ── 2. Hero + 3. Welcome-back panel + 4. Today's loop card ── */}
-        <section
-          style={{
-            borderBottom: "1px solid var(--bg-card)",
-          }}
-        >
-          <div
-            className="hero-grid"
-            style={{
-              maxWidth: 1120,
-              margin: "0 auto",
-              padding: "56px 20px 64px",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "6px 12px",
-                  borderRadius: 999,
-                  background: "rgba(34,197,94,0.12)",
-                  color: PRIMARY_GREEN,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  marginBottom: 18,
-                  border: "1px solid rgba(34,197,94,0.25)",
-                }}
-              >
-                <SparklesIcon size={14} />
-                CBSE Class 10 · Maths &amp; Science
-              </div>
-              <h1
-                className="font-display hero-headline"
-                style={{
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  marginBottom: 18,
-                }}
-              >
-                Know what matters. Practise what helps.{" "}
-                <span style={{ color: PRIMARY_GREEN }}>
-                  Fix what costs marks.
-                </span>
+            <button
+              type="button"
+              className="lt-signin"
+              onClick={() => navigate(signInUrl)}
+            >
+              <UserIcon size={25} />
+              <span className="lt-signin-text">Sign in</span>
+              <ArrowIcon size={23} />
+            </button>
+          </header>
+
+          <section className="lt-hero">
+            <div className="lt-title-wrap">
+              <h1 className="lt-title">
+                Study smarter for{" "}
+                <span className="lt-title-accent">CBSE Class 10</span>
               </h1>
-              <p
-                className="hero-sub"
-                style={{
-                  color: "var(--text-muted)",
-                  lineHeight: 1.55,
-                  maxWidth: 560,
-                  marginBottom: 26,
-                }}
-              >
-                LazyTopper is your action companion for the boards. Pick a
-                topic, generate a worksheet, attempt a full 80-mark mock, or
-                check your own answers. Every mistake quietly powers your
-                next practice — no rigid timetable, ever.
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 12,
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={onStartTrial}
-                  style={{
-                    height: 48,
-                    padding: "0 20px",
-                    borderRadius: 12,
-                    border: "none",
-                    background: PRIMARY_GREEN,
-                    color: "#000",
-                    fontWeight: 800,
-                    fontSize: 16,
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    cursor: "pointer",
-                    boxShadow: `0 0 28px ${PRIMARY_GREEN_GLOW}`,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  Start free trial <ArrowRightIcon size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate("/")}
-                  style={{
-                    height: 48,
-                    padding: "0 20px",
-                    borderRadius: 12,
-                    border: "1px solid var(--bg-card)",
-                    background: "transparent",
-                    color: "var(--text)",
-                    fontWeight: 700,
-                    fontSize: 16,
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    cursor: "pointer",
-                  }}
-                >
-                  Explore the cockpit
-                </button>
-              </div>
-              <div
-                style={{
-                  marginTop: 18,
-                  fontSize: 12,
-                  color: "var(--text-muted)",
-                }}
-              >
-                Free trial unlocks personalised practice. No card. No
-                timetable. Cancel anytime.
-              </div>
+              <span className="lt-head-sparkle" aria-hidden="true">
+                <SparkleIcon size={33} />
+              </span>
+            </div>
+          </section>
+
+          <section className="lt-story" aria-label="LazyTopper product loop preview">
+            <StoryLines />
+            <div className="lt-story-rail">
+              <StoryStage
+                number="1"
+                title="Exam Trends"
+                card={<ExamTrendsCard />}
+              />
+              <FlowArrow />
+              <StoryStage
+                number="2"
+                title="Practice"
+                card={<PracticeCard />}
+              />
+              <FlowArrow />
+              <StoryStage
+                number="3"
+                title="Check & Improve"
+                card={<CheckImproveCard />}
+              />
+              <FlowArrow />
+              <StoryStage
+                number="4"
+                title="Me / Progress"
+                card={<ProgressCard />}
+              />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {/* 3. Welcome-back panel — real-data-only */}
-              {hasMemory && memory && (
-                <div
-                  style={{
-                    border: `1px solid rgba(34,197,94,0.35)`,
-                    background:
-                      "linear-gradient(180deg, rgba(34,197,94,0.10), rgba(34,197,94,0.04))",
-                    borderRadius: 16,
-                    padding: 18,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 12,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
-                        background: PRIMARY_GREEN,
-                        color: "#000",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <RotateLeftIcon size={16} />
-                    </div>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: "var(--text)",
-                        }}
-                      >
-                        Welcome back
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "var(--text-muted)",
-                          marginTop: 2,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {continueLine}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: "var(--text-muted)",
-                          marginTop: 4,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {lastSavedLine}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: 8,
-                          marginTop: 12,
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={onResume}
-                          style={{
-                            height: 32,
-                            padding: "0 12px",
-                            borderRadius: 10,
-                            border: "none",
-                            background: PRIMARY_GREEN,
-                            color: "#000",
-                            fontWeight: 700,
-                            fontSize: 13,
-                            cursor: "pointer",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 6,
-                            fontFamily: "'Space Grotesk', sans-serif",
-                          }}
-                        >
-                          Resume <ArrowRightIcon size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={onStartFresh}
-                          style={{
-                            height: 32,
-                            padding: "0 12px",
-                            borderRadius: 10,
-                            border: "1px solid var(--bg-card)",
-                            background: "transparent",
-                            color: "var(--text)",
-                            fontWeight: 600,
-                            fontSize: 13,
-                            cursor: "pointer",
-                            fontFamily: "'Space Grotesk', sans-serif",
-                          }}
-                        >
-                          Start fresh
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. Today's loop preview card — sample preview */}
-              <div
-                style={{
-                  border: "1px solid var(--bg-card)",
-                  background: "var(--bg-card)",
-                  borderRadius: 16,
-                  padding: 20,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    color: "var(--text-muted)",
-                    marginBottom: 12,
-                  }}
-                >
-                  Today’s loop
-                </div>
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: 10,
-                    padding: 14,
-                    fontSize: 14,
-                    marginBottom: 14,
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: "var(--text)" }}>
-                    Trigonometry · 7/10
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: "var(--text-muted)",
-                      marginTop: 4,
-                    }}
-                  >
-                    Main issue: sign error in identity proof.
-                  </div>
-                </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "var(--text-muted)",
-                    marginBottom: 8,
-                  }}
-                >
-                  Suggested next, optional:
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  <Chip variant="accent">Targeted drill</Chip>
-                  <Chip>Mistake-aware worksheet</Chip>
-                  <Chip>Add weak-area to mock</Chip>
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "var(--text-muted)",
-                    borderTop: "1px solid var(--bg-card)",
-                    paddingTop: 10,
-                    marginTop: 14,
-                  }}
-                >
-                  Sample preview.
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── 5. Why ───────────────────────────────────────────────── */}
-        <section
-          id="why"
-          style={{ borderBottom: "1px solid var(--bg-card)" }}
-        >
-          <div
-            style={{
-              maxWidth: 1120,
-              margin: "0 auto",
-              padding: "64px 20px",
-            }}
-          >
-            <div style={{ maxWidth: 640 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "var(--text-muted)",
-                }}
-              >
-                Why LazyTopper
-              </div>
-              <h2
-                className="font-display"
-                style={{
-                  fontSize: 32,
-                  fontWeight: 700,
-                  marginTop: 8,
-                  letterSpacing: "-0.01em",
-                  lineHeight: 1.15,
-                }}
-              >
-                A connected exam cockpit, not a shop of tools.
-              </h2>
-              <p
-                style={{
-                  marginTop: 12,
-                  color: "var(--text-muted)",
-                  lineHeight: 1.55,
-                }}
-              >
-                Most apps give you locked timetables or unrelated tools.
-                LazyTopper gives you one calm cockpit where every action —
-                practice, worksheet, mock, predicted questions, answer check
-                — feeds into one mistake-aware loop.
-              </p>
-            </div>
-            <div className="why-grid" style={{ marginTop: 32 }}>
-              {[
-                {
-                  icon: <TargetIcon size={20} />,
-                  title: "Intent-first",
-                  body:
-                    "Pick what you want to do now. Subject → topic(s) → action → result. No fixed path.",
-                },
-                {
-                  icon: <BrainIcon size={20} />,
-                  title: "Mistake-aware",
-                  body:
-                    "Every saved attempt updates your weak areas. Drills, worksheets, and mocks adapt accordingly.",
-                },
-                {
-                  icon: <ClipboardIcon size={20} />,
-                  title: "Full board prep",
-                  body:
-                    "Single-topic, multi-topic, or full 80-mark mocks for Maths or Science. Predicted questions included.",
-                },
-              ].map((card) => (
-                <div
-                  key={card.title}
-                  style={{
-                    border: "1px solid var(--bg-card)",
-                    background: "var(--bg-card)",
-                    borderRadius: 16,
-                    padding: 22,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 10,
-                      background: "rgba(34,197,94,0.12)",
-                      color: PRIMARY_GREEN,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 16,
-                    }}
-                  >
-                    {card.icon}
-                  </div>
-                  <div
-                    className="font-display"
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 700,
-                      marginBottom: 6,
-                    }}
-                  >
-                    {card.title}
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      color: "var(--text-muted)",
-                      lineHeight: 1.55,
-                    }}
-                  >
-                    {card.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── 6. Core loop ─────────────────────────────────────────── */}
-        <section
-          id="loop"
-          style={{
-            borderBottom: "1px solid var(--bg-card)",
-            background: "rgba(255,255,255,0.02)",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 1120,
-              margin: "0 auto",
-              padding: "64px 20px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 11,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                color: "var(--text-muted)",
-              }}
-            >
-              The core loop
-            </div>
-            <h2
-              className="font-display"
-              style={{
-                fontSize: 32,
-                fontWeight: 700,
-                marginTop: 8,
-                letterSpacing: "-0.01em",
-                lineHeight: 1.15,
-              }}
-            >
-              Subject → Topic(s) → Action → Result → Mistake insight →
-              Optional next.
-            </h2>
-            <ol
-              className="loop-grid"
-              style={{
-                listStyle: "none",
-                padding: 0,
-                margin: "32px 0 0",
-              }}
-            >
-              {[
-                {
-                  n: "1",
-                  t: "Pick scope",
-                  d: "Single topic, multi-topic combination, or full subject.",
-                },
-                {
-                  n: "2",
-                  t: "Choose action",
-                  d: "Practice, worksheet, predicted, timed, or full mock.",
-                },
-                {
-                  n: "3",
-                  t: "Attempt",
-                  d: "On-screen or upload your handwritten answers.",
-                },
-                {
-                  n: "4",
-                  t: "Result + mistake",
-                  d: "Score plus a clear mistake insight tagged by type.",
-                },
-                {
-                  n: "5",
-                  t: "Optional next",
-                  d: "Targeted drill, mistake-aware worksheet, or weak-area mock.",
-                },
-              ].map((s) => (
-                <li
-                  key={s.n}
-                  style={{
-                    border: "1px solid var(--bg-card)",
-                    background: "var(--bg-card)",
-                    borderRadius: 14,
-                    padding: 18,
-                  }}
-                >
-                  <div
-                    className="font-display"
-                    style={{
-                      color: PRIMARY_GREEN,
-                      fontSize: 22,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {s.n}
-                  </div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      marginTop: 4,
-                      fontSize: 14,
-                    }}
-                  >
-                    {s.t}
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "var(--text-muted)",
-                      marginTop: 4,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {s.d}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* ── 7. Inside the cockpit ────────────────────────────────── */}
-        <section
-          id="cockpit"
-          style={{ borderBottom: "1px solid var(--bg-card)" }}
-        >
-          <div
-            className="cockpit-grid"
-            style={{
-              maxWidth: 1120,
-              margin: "0 auto",
-              padding: "64px 20px",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  fontSize: 11,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "var(--text-muted)",
-                }}
-              >
-                Inside the cockpit
-              </div>
-              <h2
-                className="font-display"
-                style={{
-                  fontSize: 32,
-                  fontWeight: 700,
-                  marginTop: 8,
-                  letterSpacing: "-0.01em",
-                  lineHeight: 1.15,
-                }}
-              >
-                One quiet workspace for the whole board year.
-              </h2>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  margin: "24px 0 0",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                }}
-              >
-                {[
-                  [
-                    "Home",
-                    "Your latest attempt and a soft set of next-action suggestions.",
-                  ],
-                  [
-                    "Practice",
-                    "Quick practice, worksheets, predicted questions, and full 80-mark mocks across any scope.",
-                  ],
-                  [
-                    "Worksheet",
-                    "Single-topic, multi-topic, or full-subject worksheets with sections A–E.",
-                  ],
-                  [
-                    "Exam Trends",
-                    "Tiered topic cards and multi-topic actions.",
-                  ],
-                  [
-                    "Check & Improve",
-                    "Paste an answer, get feedback and a mistake tag.",
-                  ],
-                  [
-                    "Me / Progress",
-                    "Visual dashboard of saved attempts, mistake mix, and weak areas.",
-                  ],
-                ].map(([k, v]) => (
-                  <li
-                    key={k}
-                    style={{
-                      display: "flex",
-                      gap: 12,
-                      fontSize: 14,
-                      lineHeight: 1.55,
-                    }}
-                  >
-                    <span
-                      aria-hidden
-                      style={{
-                        color: PRIMARY_GREEN,
-                        flexShrink: 0,
-                        marginTop: 2,
-                      }}
-                    >
-                      <BookIcon size={16} />
-                    </span>
-                    <div>
-                      <span style={{ fontWeight: 700 }}>{k}</span>{" "}
-                      <span style={{ color: "var(--text-muted)" }}>— {v}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Sidebar preview — translated to inline SVG-ish layout. */}
-            <div
-              style={{
-                border: "1px solid var(--bg-card)",
-                background: "var(--bg-card)",
-                borderRadius: 16,
-                padding: 8,
-              }}
-            >
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 12,
-                  padding: 18,
-                  fontSize: 12,
-                  lineHeight: 1.55,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 10,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    color: "var(--text-muted)",
-                    marginBottom: 10,
-                  }}
-                >
-                  Preview · Sidebar
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                  }}
-                >
-                  {[
-                    "Home",
-                    "Practice",
-                    "Exam Trends",
-                    "Check & Improve",
-                    "Me / Progress",
-                  ].map((label, i) => (
-                    <div
-                      key={label}
-                      style={{
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        background: i === 1 ? PRIMARY_GREEN : "transparent",
-                        color: i === 1 ? "#000" : "var(--text-muted)",
-                        fontWeight: i === 1 ? 700 : 500,
-                        fontSize: 13,
-                      }}
-                    >
-                      {label}
-                    </div>
-                  ))}
-                </div>
-                <div
-                  style={{
-                    marginTop: 16,
-                    paddingTop: 14,
-                    borderTop: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.12em",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    Current focus
-                  </div>
-                  <div
-                    style={{
-                      color: "var(--text)",
-                      fontSize: 14,
-                      marginTop: 4,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {memory?.subject ?? "Maths"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    {memory?.lastAttempt?.topicLabel ?? "Trigonometry"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Trial CTA strip ──────────────────────────────────────── */}
-        <section id="trial" style={{ borderBottom: "1px solid var(--bg-card)" }}>
-          <div
-            style={{
-              maxWidth: 720,
-              margin: "0 auto",
-              padding: "64px 20px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "6px 12px",
-                borderRadius: 999,
-                background: "rgba(255,255,255,0.06)",
-                color: "var(--text-muted)",
-                fontSize: 12,
-                fontWeight: 600,
-                marginBottom: 16,
-                border: "1px solid var(--bg-card)",
-              }}
-            >
-              <GradCapIcon size={14} /> Free trial
-            </div>
-            <h2
-              className="font-display"
-              style={{
-                fontSize: 36,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                lineHeight: 1.15,
-              }}
-            >
-              Try the cockpit, end-to-end.
-            </h2>
-            <p
-              style={{
-                color: "var(--text-muted)",
-                marginTop: 12,
-                lineHeight: 1.55,
-              }}
-            >
-              The trial unlocks saved attempts, mistake intelligence,
-              mistake-aware worksheets, and full 80-mark mocks for Maths
-              and Science.
-            </p>
-            <div
-              style={{
-                marginTop: 24,
-                display: "flex",
-                justifyContent: "center",
-                gap: 12,
-                flexWrap: "wrap",
-              }}
-            >
-              <button
-                type="button"
-                onClick={onStartTrial}
-                style={{
-                  height: 48,
-                  padding: "0 20px",
-                  borderRadius: 12,
-                  border: "none",
-                  background: PRIMARY_GREEN,
-                  color: "#000",
-                  fontWeight: 800,
-                  fontSize: 16,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  cursor: "pointer",
-                  boxShadow: `0 0 28px ${PRIMARY_GREEN_GLOW}`,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                Start free trial <ArrowRightIcon size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/exam-trends")}
-                style={{
-                  height: 48,
-                  padding: "0 20px",
-                  borderRadius: 12,
-                  border: "1px solid var(--bg-card)",
-                  background: "transparent",
-                  color: "var(--text)",
-                  fontWeight: 700,
-                  fontSize: 16,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  cursor: "pointer",
-                }}
-              >
-                Browse exam trends
+            <div className="lt-post-card-cta">
+              <button type="button" className="lt-explore" onClick={onExplore}>
+                <SparkleIcon size={30} />
+                <span>Explore</span>
+                <ArrowIcon size={28} />
               </button>
             </div>
-          </div>
-        </section>
 
-        <footer
-          style={{
-            padding: "32px 20px",
-            textAlign: "center",
-            fontSize: 12,
-            color: "var(--text-muted)",
-          }}
-        >
-          © {new Date().getFullYear()} LazyTopper
-        </footer>
+            <MistakeIntelligenceLayer />
+          </section>
+
+          <BenefitRow />
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function StoryStage({
+  number,
+  title,
+  card,
+}: {
+  number: string;
+  title: string;
+  card: React.ReactNode;
+}) {
+  return (
+    <article className="lt-stage">
+      <div className="lt-stage-heading">
+        <span className="lt-stage-number">{number}</span>
+        <div>
+          <div className="lt-stage-title">{title}</div>
+        </div>
+      </div>
+      {card}
+    </article>
+  );
+}
+
+function FlowArrow() {
+  return (
+    <div className="lt-flow-arrow" aria-hidden="true">
+      <ArrowIcon size={27} />
+    </div>
+  );
+}
+
+function StoryLines() {
+  return (
+    <svg className="lt-story-bg-lines" viewBox="0 0 1500 620" fill="none" aria-hidden="true">
+      <path
+        d="M85 250 C85 40 245 35 265 92 C286 153 365 117 375 190"
+        stroke="url(#lineA)"
+        strokeWidth="2"
+      />
+      <path
+        d="M1416 250 C1416 40 1254 35 1235 92 C1214 153 1134 117 1125 190"
+        stroke="url(#lineA)"
+        strokeWidth="2"
+      />
+      <path
+        d="M82 250 V395 C82 438 115 468 160 468 H435 C520 468 552 505 640 505 H862 C950 505 982 468 1065 468 H1340 C1384 468 1418 438 1418 395 V250"
+        stroke="url(#lineB)"
+        strokeWidth="3"
+        filter="url(#glow)"
+      />
+      {[
+        [85, 250],
+        [160, 468],
+        [435, 468],
+        [640, 505],
+        [862, 505],
+        [1065, 468],
+        [1340, 468],
+        [1418, 250],
+      ].map(([cx, cy]) => (
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="8" fill="#20f3a2" stroke="#fff" strokeWidth="3" />
+      ))}
+      <defs>
+        <linearGradient id="lineA" x1="0" y1="0" x2="1500" y2="0">
+          <stop stopColor="#7ddcff" stopOpacity="0" />
+          <stop offset="0.45" stopColor="#9cf5dc" />
+          <stop offset="1" stopColor="#7ddcff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="lineB" x1="0" y1="0" x2="1500" y2="0">
+          <stop stopColor="#20f3a2" />
+          <stop offset="0.45" stopColor="#9cf5dc" />
+          <stop offset="0.55" stopColor="#7ddcff" />
+          <stop offset="1" stopColor="#20f3a2" />
+        </linearGradient>
+        <filter id="glow" x="-40" y="-40" width="1580" height="700">
+          <feGaussianBlur stdDeviation="5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
+function ExamTrendsCard() {
+  const topics = [
+    ["M", "Real Numbers", "92%", "#3b82f6", "92%"],
+    ["S", "Life Processes", "88%", "#16b96a", "88%"],
+    ["E", "First Flight", "75%", "#f59e0b", "75%"],
+    ["M", "Quadratic Eq.", "68%", "#fb923c", "68%"],
+  ];
+  const years = ["2024", "2023", "2022", "2021", "2020"];
+
+  return (
+    <div className="lt-story-card">
+      <div className="lt-card-top">
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <TrendIcon size={18} color={GREEN} /> Top scoring topics
+        </span>
+      </div>
+      {topics.map(([initial, label, value, color, width]) => (
+        <div className="lt-topic-row" key={label}>
+          <span className="lt-chip" style={{ color, background: `${color}18` }}>
+            {initial}
+          </span>
+          <span style={{ minWidth: 0 }}>
+            <span>{label}</span>
+            <span className="lt-progress-track">
+              <span className="lt-progress-fill" style={{ width, background: color }} />
+            </span>
+          </span>
+          <strong>{value}</strong>
+        </div>
+      ))}
+
+      <div style={{ marginTop: 18, fontWeight: 800, fontSize: 13 }}>Last 5 years pattern</div>
+      <div style={{ marginTop: 4, color: MUTED, fontSize: 11 }}>Weightage by chapter</div>
+      <div className="lt-mini-grid">
+        {years.flatMap((year, row) => [
+          <span key={`${year}-label`}>{year}</span>,
+          ...Array.from({ length: 9 }, (_, col) => (
+            <span
+              key={`${year}-${col}`}
+              className="lt-dot"
+              style={{
+                background:
+                  col + row > 8
+                    ? "rgba(59,130,246,0.34)"
+                    : col % 3 === 0
+                      ? "rgba(22,185,106,0.42)"
+                      : "rgba(22,185,106,0.18)",
+              }}
+            />
+          )),
+        ])}
       </div>
     </div>
   );
 }
 
-// ── Tiny inline SVG icon set (no lucide-react). ──────────────────────────
-function ArrowRightIcon({ size = 16 }: { size?: number }) {
+function PracticeCard() {
+  const options = [
+    "Lungs -> Alveoli -> Blood -> Heart",
+    "Lungs -> Blood -> Heart -> Alveoli",
+    "Blood -> Lungs -> Heart -> Alveoli",
+  ];
+
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="13 6 19 12 13 18" />
+    <div className="lt-story-card">
+      <div className="lt-card-top">
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <LayersIcon size={18} color={GREEN} /> Science - Life Processes
+        </span>
+        <BookmarkIcon size={18} />
+      </div>
+      <p className="lt-question">
+        Select the correct pathway for the transport of oxygen in human body.
+      </p>
+      {options.map((option, index) => (
+        <div key={option} className={`lt-option ${index === 1 ? "correct" : ""}`}>
+          <span className="lt-option-letter">{String.fromCharCode(65 + index)}</span>
+          <span>{option}</span>
+        </div>
+      ))}
+      <div className="lt-practice-footer">
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+          <TimerIcon size={17} /> 08:34
+        </span>
+        <span>12 / 20</span>
+      </div>
+    </div>
+  );
+}
+
+function CheckImproveCard() {
+  return (
+    <div className="lt-story-card">
+      <div className="lt-answer-line">
+        <span>Correct answer</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+          <span className="lt-option-letter" style={{ background: "#c8f4dc", borderColor: "#c8f4dc", color: GREEN_DARK }}>
+            B
+          </span>
+        </span>
+      </div>
+      <div className="lt-answer-box good">
+        <CheckIcon size={16} color={GREEN_DARK} />
+        <span>Lungs -&gt; Blood -&gt; Heart -&gt; Alveoli</span>
+      </div>
+      <div className="lt-answer-line" style={{ marginTop: 10 }}>
+        <span>Your answer</span>
+        <span className="lt-option-letter" style={{ background: "#ffe2e2", borderColor: "#ffe2e2", color: "#ef4444" }}>
+          A
+        </span>
+      </div>
+      <div className="lt-answer-box bad">Lungs -&gt; Alveoli -&gt; Blood -&gt; Heart</div>
+
+      <div style={{ marginTop: 12, fontWeight: 800, fontSize: 12 }}>Explanation</div>
+      <div className="lt-explanation">
+        <div className="lt-lungs">
+          <LungsIcon size={48} />
+        </div>
+        <div>
+          Oxygen from the lungs diffuses into the blood in the alveoli and is carried to the heart.
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+function ProgressCard() {
+  const strengths = [
+    ["Maths", "82%", "#dcfce7", GREEN_DARK],
+    ["Science", "75%", "#dbeafe", "#2563eb"],
+    ["English", "70%", "#ede9fe", "#6d28d9"],
+    ["SST", "68%", "#ffedd5", "#c2410c"],
+  ] as const;
+
+  return (
+    <div className="lt-story-card">
+      <div className="lt-progress-card">
+        <div className="lt-ring">
+          <div>
+            <div style={{ fontSize: 23, fontWeight: 800 }}>76%</div>
+            <div style={{ color: "#40f398", fontSize: 11, fontWeight: 800 }}>Strong!</div>
+          </div>
+        </div>
+        <div style={{ alignSelf: "center" }}>
+          <div style={{ fontWeight: 800, marginBottom: 10 }}>Overall Progress</div>
+          <div className="lt-stat-row">
+            <span>Mocks</span>
+            <span>12</span>
+          </div>
+          <div className="lt-stat-row">
+            <span>Accuracy</span>
+            <span>78%</span>
+          </div>
+          <div className="lt-stat-row">
+            <span>Rank</span>
+            <span>Top 12%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 13, fontWeight: 800, fontSize: 13 }}>Subject-wise strength</div>
+      <div className="lt-strength-grid">
+        {strengths.map(([label, value, bg, color]) => (
+          <div className="lt-strength-tile" key={label} style={{ background: bg, color }}>
+            <span>{label}</span>
+            <strong style={{ fontSize: 15 }}>{value}</strong>
+          </div>
+        ))}
+      </div>
+
+      <div className="lt-chart">
+        <svg width="100%" height="100%" viewBox="0 0 280 86" fill="none" preserveAspectRatio="none">
+          <path d="M18 64 C48 48 55 55 72 57 C96 61 97 43 121 47 C145 52 151 35 174 39 C199 43 203 55 222 44 C244 33 251 33 262 22" stroke={GREEN} strokeWidth="3" fill="none" />
+          <circle cx="262" cy="22" r="4" fill="#fff" stroke={GREEN} strokeWidth="3" />
+        </svg>
+        <div style={{ position: "absolute", right: 15, top: 25, color: GREEN, fontWeight: 900, fontSize: 18 }}>
+          +18%
+        </div>
+        <div style={{ position: "absolute", right: 15, top: 48, color: MUTED, fontSize: 11 }}>
+          This month
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MistakeIntelligenceLayer() {
+  return (
+    <section className="lt-mi-area" aria-label="Mistake Intelligence product loop">
+      <div className="lt-connector-glow" aria-hidden="true" />
+      <svg className="lt-connector-lines" viewBox="0 0 1500 160" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 78 C310 90 445 78 610 78 C675 78 690 78 750 78" stroke="rgba(48,242,148,0.82)" strokeWidth="4" />
+        <path d="M1500 78 C1190 90 1055 78 890 78 C825 78 810 78 750 78" stroke="rgba(48,242,148,0.82)" strokeWidth="4" />
+        <path d="M0 112 C290 120 430 100 604 96 C682 94 706 96 750 92" stroke="rgba(125,220,255,0.74)" strokeWidth="3" />
+        <path d="M1500 112 C1210 120 1070 100 896 96 C818 94 794 96 750 92" stroke="rgba(125,220,255,0.74)" strokeWidth="3" />
+      </svg>
+
+      <div className="lt-mi-hub">
+        <div className="lt-brain-orbit">
+          <BrainIcon size={58} />
+        </div>
+        <div className="lt-mi-title">
+          <SparkleIcon size={24} />
+          <span>Mistake Intelligence</span>
+          <SparkleIcon size={24} />
+        </div>
+        <div className="lt-mi-subtitle">Turns mistakes into mastery</div>
+      </div>
+    </section>
+  );
+}
+
+function BenefitRow() {
+  const benefits = [
+    ["CBSE Class 10", "Focused", <ShieldIcon size={42} />],
+    ["Smart Practice", "That Adapts", <TargetIcon size={42} />],
+    ["Mistake Intelligence", "That Improves", <SparkClusterIcon size={42} />],
+    ["Your Progress,", "Always Saved", <LockIcon size={42} />],
+    ["Climb Higher,", "Every Day", <TrophyIcon size={42} />],
+  ] as const;
+
+  return (
+    <section className="lt-benefits" aria-label="LazyTopper benefits">
+      {benefits.map(([line1, line2, icon]) => (
+        <div className="lt-benefit" key={`${line1}-${line2}`}>
+          <span className="lt-benefit-icon">{icon}</span>
+          <span className="lt-benefit-text">
+            {line1}
+            <br />
+            {line2}
+          </span>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function ArrowIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
     </svg>
   );
 }
 
-function SparklesIcon({ size = 14 }: { size?: number }) {
+function SparkleIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M12 2l1.7 4.4L18 8l-4.3 1.6L12 14l-1.7-4.4L6 8l4.3-1.6L12 2z" />
-      <path d="M19 14l.9 2.2L22 17l-2.1.8L19 20l-.9-2.2L16 17l2.1-.8L19 14z" />
-      <path d="M5 16l.6 1.5L7 18l-1.4.5L5 20l-.6-1.5L3 18l1.4-.5L5 16z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" />
+      <path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z" />
     </svg>
   );
 }
 
-function RotateLeftIcon({ size = 16 }: { size?: number }) {
+function UserIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polyline points="3 7 3 12 8 12" />
-      <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3 9" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
     </svg>
   );
 }
 
-function TargetIcon({ size = 18 }: { size?: number }) {
+function TrendIcon({ size = 18, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="12" r="5" />
-      <circle cx="12" cy="12" r="1.5" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 17 9 11l4 4 7-8" />
+      <path d="M14 7h6v6" />
     </svg>
   );
 }
 
-function BrainIcon({ size = 18 }: { size?: number }) {
+function LayersIcon({ size = 20, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3V4z" />
-      <path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3V4z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m12 3 8 4-8 4-8-4 8-4z" />
+      <path d="m4 12 8 4 8-4" />
+      <path d="m4 17 8 4 8-4" />
     </svg>
   );
 }
 
-function ClipboardIcon({ size = 18 }: { size?: number }) {
+function BookmarkIcon({ size = 18 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <rect x="6" y="4" width="12" height="16" rx="2" />
-      <path d="M9 4h6v3H9z" />
-      <polyline points="9 13 11 15 15 11" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#6b7b94" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 4h12v17l-6-4-6 4V4z" />
     </svg>
   );
 }
 
-function BookIcon({ size = 16 }: { size?: number }) {
+function TimerIcon({ size = 18 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z" />
-      <path d="M4 17a3 3 0 0 1 3-3h12" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l3 2" />
+      <path d="M9 2h6" />
     </svg>
   );
 }
 
-function GradCapIcon({ size = 14 }: { size?: number }) {
+function CheckIcon({ size = 16, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M2 9l10-5 10 5-10 5L2 9z" />
-      <path d="M6 11v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m5 12 4 4L19 6" />
     </svg>
   );
 }
 
-function Chip({
-  children,
-  variant = "neutral",
-}: {
-  children: React.ReactNode;
-  variant?: "neutral" | "accent";
-}) {
-  const isAccent = variant === "accent";
+function LungsIcon({ size = 44 }: { size?: number }) {
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 4,
-        padding: "4px 10px",
-        borderRadius: 999,
-        fontSize: 11,
-        fontWeight: 600,
-        background: isAccent ? "rgba(34,197,94,0.12)" : "rgba(255,255,255,0.06)",
-        color: isAccent ? PRIMARY_GREEN : "var(--text-muted)",
-        border: isAccent
-          ? "1px solid rgba(34,197,94,0.25)"
-          : "1px solid var(--bg-card)",
-      }}
-    >
-      {children}
-    </span>
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M24 8v30" />
+      <path d="M24 22c-6-9-11-10-15-7-4 3-5 13-4 21 0 2 2 3 4 2 7-4 9-10 10-18" fill="rgba(228,102,127,0.22)" />
+      <path d="M24 22c6-9 11-10 15-7 4 3 5 13 4 21 0 2-2 3-4 2-7-4-9-10-10-18" fill="rgba(228,102,127,0.22)" />
+    </svg>
   );
 }
 
-function formatRelativeDate(iso: string): string | null {
-  try {
-    const then = new Date(iso).getTime();
-    if (!Number.isFinite(then)) return null;
-    const diffMs = Date.now() - then;
-    const day = 24 * 60 * 60 * 1000;
-    if (diffMs < day) return "today";
-    if (diffMs < 2 * day) return "yesterday";
-    const days = Math.floor(diffMs / day);
-    if (days < 7) return `${days}d ago`;
-    if (days < 30) return `${Math.floor(days / 7)}w ago`;
-    if (days < 365) return `${Math.floor(days / 30)}mo ago`;
-    return `${Math.floor(days / 365)}y ago`;
-  } catch {
-    return null;
-  }
+function BrainIcon({ size = 48 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 8c-5 0-8 3-8 7-4 1-7 5-7 10 0 6 5 10 11 10 1 4 4 6 8 6V8z" />
+      <path d="M28 8c5 0 8 3 8 7 4 1 7 5 7 10 0 6-5 10-11 10-1 4-4 6-8 6V8z" />
+      <path d="M15 17c4 0 6 2 6 6" />
+      <path d="M33 17c-4 0-6 2-6 6" />
+      <path d="M16 32c3-1 5-3 6-6" />
+      <path d="M32 32c-3-1-5-3-6-6" />
+    </svg>
+  );
+}
+
+function ShieldIcon({ size = 38 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="#35f2a0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 4 33 9v10c0 8-5 14-13 17C12 33 7 27 7 19V9l13-5z" />
+      <path d="m14 20 4 4 8-10" />
+    </svg>
+  );
+}
+
+function TargetIcon({ size = 38 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="20" cy="20" r="14" />
+      <circle cx="20" cy="20" r="8" />
+      <circle cx="20" cy="20" r="2" />
+      <path d="m29 11 5-5" />
+      <path d="M31 6h3v3" />
+    </svg>
+  );
+}
+
+function SparkClusterIcon({ size = 38 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="#35f2a0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 4l2 7 7 2-7 2-2 7-2-7-7-2 7-2 2-7z" />
+      <path d="M10 24l1 4 4 1-4 1-1 4-1-4-4-1 4-1 1-4z" />
+      <path d="M31 24l1 4 4 1-4 1-1 4-1-4-4-1 4-1 1-4z" />
+    </svg>
+  );
+}
+
+function LockIcon({ size = 38 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="9" y="17" width="22" height="17" rx="3" />
+      <path d="M14 17v-5a6 6 0 0 1 12 0v5" />
+      <path d="M20 24v4" />
+    </svg>
+  );
+}
+
+function TrophyIcon({ size = 38 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 6h16v6c0 8-3 12-8 12s-8-4-8-12V6z" />
+      <path d="M12 10H6c0 6 3 10 8 11" />
+      <path d="M28 10h6c0 6-3 10-8 11" />
+      <path d="M20 24v7" />
+      <path d="M14 34h12" />
+    </svg>
+  );
 }
