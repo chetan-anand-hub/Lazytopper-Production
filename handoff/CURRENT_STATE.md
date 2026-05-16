@@ -1,6 +1,6 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-13T14:49:10Z UTC / 2026-05-13 20:19 IST
+Last updated: 2026-05-16T02:31:24Z UTC / 2026-05-16 08:01 IST
 
 ## Current GitHub Checkpoint
 
@@ -14,15 +14,87 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Live base verified after PR #75 merge:
+Live base verified after PR #78 merge:
 ```
-38f5a56a9a02964b1c6cf49fbd72013da11179ca
+0addba3f0208c7610d02ab1b1753923fdf0790db
 ```
 
-No active product implementation branch is recorded in this handoff state. The next implementation branch must be created fresh from the live verified base.
+PR #77 is already merged. PR #78 is already merged. No active product implementation branch is recorded in this handoff state. The next implementation branch must be created fresh from `0addba3f0208c7610d02ab1b1753923fdf0790db` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
 
 Current stage:
-Docs-only handoff update after PR #75 merge. No product implementation is included in this handoff update.
+Docs-only handoff update after PR #78 merge. No product implementation is included in this handoff update.
+
+## PR #78 Merged State
+
+PR:
+```
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/78
+```
+
+Title:
+```
+PR-K2H-3: Auth/session shell hardening
+```
+
+Live GitHub verification:
+- state: `MERGED`
+- merged at: `2026-05-16T02:26:54Z`
+- base before merge: `0ed0871f3166e647fb5b3e36fb0c1e543df0c145`
+- final PR head: `2067fa5079161c8a888398683d35c3bac59429b0`
+- merge commit / new base SHA: `0addba3f0208c7610d02ab1b1753923fdf0790db`
+- changed files: 11
+
+Scope:
+- Removed visible real-app guest mode from Login.
+- Preserved real Clerk authentication and prototype-style split Login gate functionally.
+- Strengthened Login copy around saved attempts, Mistake Intelligence, progress, and 7-day trial.
+- Added DesktopShell account menu with identity, trial/premium state, Me / Progress, Manage subscription, and Log out.
+- Logout returns the student to public landing.
+- Redirected `/profile` to `/me`.
+- Removed desktop full-width trial ribbon in favor of compact shell/account status.
+- Routed Upgrade / Manage subscription to `/pricing` with source and returnTo.
+- Removed normal client-side fake premium activation from upgrade UI.
+- Added safe learner account metadata sync without storing credentials.
+- Reordered desktop sidebar to Home -> Exam Trends -> Practice -> Check & Improve -> Me / Progress.
+- Payment gateway integration is intentionally deferred.
+- Pricing page is honest about manual activation / no automated checkout.
+- PR #77 HPQ/Practice/Mock route-context files were not touched.
+
+Validation recorded:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Build verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- No package/server/data/env/docs/handoff files changed in product PR.
+- PR #77 route-context files were not touched.
+
+QA result:
+PASS WITH FOLLOW-UP.
+
+Follow-ups:
+- Login visual parity polish.
+- Pricing visual redesign.
+- Home "Continue where you left off" route/content repair.
+- Remaining direct `/profile` reference cleanup.
+- Payment gateway deferred until verified server/admin activation work.
+
+## Locked Product Doctrine
+
+- LazyTopper is browse-first and action-gated.
+- Final funnel: Landing page -> Explore LazyTopper -> browse-mode product cockpit -> inspect surfaces -> real action -> login/trial gate -> sign in -> 7-day trial starts -> intended action continues.
+- No real-app guest mode.
+- Every real learner should authenticate before real learning actions.
+- Sign-in is needed to save attempts, mistakes, progress, and power Mistake Intelligence.
+- Do not store credentials, passwords, OTPs, Google tokens, Clerk tokens, or secrets.
+- Safe account metadata may include uid, email, phone, display name, auth provider, createdAt, lastLoginAt, updatedAt.
+- Payment gateway is deferred; manual activation language is acceptable for now.
+- No fake premium, fake payment, or client-side premium activation from normal UI.
+- Practice Level-3 visual design from PR #73 remains approved/frozen.
+- MCQ clicks are real attempts conceptually, but durable MCQ evidence/Mistake Intelligence bridge is a future careful PR.
+- Show Steps is learning help, not grading.
+- Check My Answer is the real checking/evidence path.
+- Use source and returnTo for parent-aware navigation; preserve PR #77 route-context behavior.
+- Do not hard-code all back navigation to Exam Trends or route to old `/trends/:grade/:subject` unless intentionally preserving a legacy route.
 
 ## PR #75 Merged State
 
@@ -85,7 +157,7 @@ PR #75 is closed/merged and must not be reopened.
 - Mock Level-3 detail finalisation.
 - HPQ question-bank / solution / diagram / structured-option quality.
 
-## Next Recommended Sequence
+## Historical Next Recommended Sequence After PR #75
 
 A. Docs-only handoff update after PR #75 merge.
 B. PR-K2H-2 route/context repair:

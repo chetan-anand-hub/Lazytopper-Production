@@ -1,3 +1,31 @@
+## 2026-05-16T02:31:24Z - PR #78 merged; auth/session doctrine and next owner choice
+
+Decision:
+PR #78 is merged into `base/approved-thru-437` as PR-K2H-3. It hardens the auth/session shell and pricing honesty while preserving real Clerk authentication. PR #77 is already merged. No open implementation PR should be assumed unless live GitHub says so.
+
+Details:
+- PR #78 title: `PR-K2H-3: Auth/session shell hardening`
+- Merged at: `2026-05-16T02:26:54Z`
+- Base before merge: `0ed0871f3166e647fb5b3e36fb0c1e543df0c145`
+- Final PR head: `2067fa5079161c8a888398683d35c3bac59429b0`
+- Merge commit / new base SHA: `0addba3f0208c7610d02ab1b1753923fdf0790db`
+- Changed files: 11
+- QA result: PASS WITH FOLLOW-UP
+
+Doctrine:
+- LazyTopper is browse-first and action-gated.
+- No real-app guest mode.
+- Every real learner should authenticate before real learning actions.
+- Sign-in is needed to save attempts, mistakes, progress, and power Mistake Intelligence.
+- Do not store credentials, passwords, OTPs, Google tokens, Clerk tokens, or secrets.
+- Payment gateway is deferred.
+- No fake premium, fake payment, or normal client-side premium activation.
+- Practice Level-3 visual design from PR #73 remains approved/frozen.
+- Use source and returnTo for parent-aware navigation and preserve PR #77 route-context behavior.
+
+Implication:
+Next implementation should be chosen by the owner from Login visual parity polish, frozen landing page redesign, or Home continue-card route repair. Future implementation must start from `0addba3f0208c7610d02ab1b1753923fdf0790db` or whatever live GitHub later confirms.
+
 ## 2026-05-13T14:49:10Z - PR #75 merged; PR-K2H-1 checked-evidence doctrine
 
 Decision:
