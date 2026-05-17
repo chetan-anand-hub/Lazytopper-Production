@@ -20,8 +20,6 @@ function isSafeInternalPath(path: string | null | undefined): path is string {
 }
 
 const LOGIN_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap');
-
   .lt-login-page,
   .lt-login-page * {
     box-sizing: border-box;
