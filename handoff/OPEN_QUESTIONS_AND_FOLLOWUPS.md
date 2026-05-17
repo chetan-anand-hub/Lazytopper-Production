@@ -1,3 +1,32 @@
+## 2026-05-17 - PR #82 Login polish follow-ups and PR-K2H-6 next stage
+
+Status:
+Active follow-ups after PR-K2H-5 / PR #82 merge.
+
+Observation:
+PR #82 passed validation and owner Vercel preview QA for the production Login gate. Login now better aligns with the frozen landing and Lovable/topic-focus-lite LoginGate visual/composition direction while preserving real Clerk SignIn, reason-aware prompts, redirect priority, safe redirects, no guest CTA, and no app shell/sidebar/bottom nav.
+
+Action:
+- Production launch still requires Clerk production instance / `pk_live` env configuration. Do not treat `unsafe_disableDevelopmentModeWarnings` as a substitute for production Clerk configuration.
+- Before public launch, capture a Vercel/production Login screenshot with production Clerk config.
+- External Google/Clerk continuation screens remain outside app UI control and should not be described as fixed by app UI polish.
+- PR-K2H-6 is the recommended next implementation stage: Home/cockpit learning order + Continue repair.
+- K2H-6 should make Home/browse cockpit order match Exam Trends -> Practice -> Worksheets -> Check & Improve.
+- K2H-6 should repair "Continue where you left off" so it never routes to TopicHub "Topic not found"; if the topic is not curated, hide the continue card or route safely to Practice Hub / Exam Trends with honest state.
+- Do not touch landing, Login, pricing, Practice internals, HPQ, or TopicHub content unless a future K2H-6 prompt explicitly scopes it.
+- Do not start PR-K2H-6 until this docs-only handoff update is merged.
+- Future product prompts must use `base/approved-thru-437 @ 11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
+
+Parked PRs:
+- PR #69 solution provenance / student notices remains open draft and must not be mixed.
+- PR #17 diagnostic categories remains open draft preservation-only and must not be mixed.
+- Old mobile PRs #1/#2 remain outside the desktop K2H lane unless separately audited.
+
+Operating model:
+- Codex should be used for code edits, local validation, screenshots, source diff/report only.
+- Owner will use VS Code PowerShell for commit, push, and PR creation/update unless explicitly overridden.
+- GPT remains prompt writer, source/PR auditor, and merge recommender.
+
 ## 2026-05-16 - PR #80 follow-ups after frozen landing merge
 
 Status:

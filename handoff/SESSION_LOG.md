@@ -1,3 +1,59 @@
+## 2026-05-17T12:20:00Z - PR #82 merge recorded; docs-only handoff update before PR-K2H-6
+
+### Starting state
+- Branch: `docs/post-pr-82-k2h-5-handoff-update`
+- Base branch: `base/approved-thru-437`
+- Required base SHA: `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`
+- Base SHA verified: `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`
+- Local task scope: docs-only handoff update
+
+### GitHub evidence
+- PR: PR #82
+- Title: `PR-K2H-5: Login visual parity + auth gate polish`
+- State: `MERGED`
+- Merged at: `2026-05-17T12:15:42Z`
+- Previous checkpoint before merge: `283355dec5ced04bbe72976f5f068593e0900799`
+- Final head SHA: `06ba3cd74c93cf0c47fd44a4957e72b97a782765`
+- Merge commit / new base SHA: `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`
+- Changed files count: 2
+- Changed files: `lazytopper/src/pages/Login.tsx`, `lazytopper/src/lib/desktop/loginPrompts.ts`
+
+### Work completed
+- Updated docs/handoff files only; no product code changed.
+- Recorded that PR #82 is merged and the new verified base checkpoint is `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
+- Recorded PR #82 scope, changed files, validation, QA result, Clerk Development mode handling, and launch follow-ups.
+- Recorded that Login now better aligns with the frozen landing and Lovable/topic-focus-lite LoginGate visual/composition direction while preserving real Clerk auth.
+- Updated next recommended implementation to PR-K2H-6 - Home/cockpit learning order + Continue repair.
+- Recorded operating model: Codex for edits/validation/screenshots/diff/report, owner for VS Code PowerShell commit/push/PR unless explicitly overridden, GPT for prompt/audit/merge recommendation.
+
+### PR #82 validation recorded
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Production verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- Allowed-file check passed.
+- Forbidden-file guard produced no output.
+
+### PR #82 QA result
+PASS.
+
+Visual QA recorded:
+- Local screenshots existed for 1440x900, 1366x768, and 390x844.
+- Owner Vercel preview QA confirmed Development mode not visible, Clerk visible/usable, no guest CTA, no app chrome/nav, reason copy variants correct, and Back link safe.
+- Owner did not manually verify every viewport on Vercel; local screenshot evidence covered viewport confidence.
+
+### Follow-ups
+- Production launch still requires Clerk production instance / `pk_live` env configuration.
+- Do not treat `unsafe_disableDevelopmentModeWarnings` as a substitute for production Clerk configuration.
+- Before public launch, capture Vercel/production Login screenshot with production Clerk config.
+- External Google/Clerk continuation screens remain outside app UI control.
+- PR #69, PR #17, and old mobile PRs #1/#2 remain parked and must not be mixed.
+
+### Next safe action
+- Review this docs-only diff.
+- Do not commit or push until GPT audits the docs diff.
+- After this docs-only update is merged, start PR-K2H-6 from `base/approved-thru-437 @ 11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
+
 ## 2026-05-16T18:55:00Z - PR #80 merge recorded; docs-only handoff update before PR-K2H-5
 
 ### Starting state

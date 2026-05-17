@@ -1,59 +1,41 @@
 # LazyTopper Next Action
 
 Timestamp:
-2026-05-16T18:55:00Z UTC / 2026-05-17 00:25 IST
+2026-05-17T12:20:00Z UTC / 2026-05-17 17:50 IST
 
 ## Current State
 
-This is a docs-only handoff update after PR #80 merge.
-- PR #80 / PR-K2H-4 is merged into `base/approved-thru-437`.
-- Live base: `018c95b11f5168d27fb93bb3a2cae3859b682627`.
-- Final PR #80 head: `045ffa00a3894405f67a5ceda778f313c693fa0f`.
-- PR #80 QA result: PASS.
-- Frozen landing page implementation is complete and should not be redesigned casually.
-- Explore-first product inspection is implemented through `/browse`.
+This is a docs-only handoff update after PR #82 merge.
+- PR #82 / PR-K2H-5 is merged into `base/approved-thru-437`.
+- Live base: `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
+- Previous checkpoint before PR #82: `283355dec5ced04bbe72976f5f068593e0900799`.
+- Final PR #82 head: `06ba3cd74c93cf0c47fd44a4957e72b97a782765`.
+- PR #82 QA result: PASS.
+- Login visual parity + auth gate polish is complete.
+- Frozen landing page implementation remains frozen and should not be redesigned casually.
+- Explore-first product inspection remains implemented through `/browse`.
 - No product implementation PR is active in this handoff update.
 - No open implementation PR should be assumed unless live GitHub says so.
 
 ## Next Immediate Action
 
-1. Verify PR #80 merge commit is the live base: `018c95b11f5168d27fb93bb3a2cae3859b682627`.
+1. Verify PR #82 merge commit is the live base: `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
 2. Complete this docs-only handoff update.
 3. Audit the local docs diff before any commit/push.
-4. After docs merge, start PR-K2H-5 - Login visual parity + auth gate polish.
+4. After docs merge, start PR-K2H-6 - Home/cockpit learning order + Continue repair.
 5. Do not start implementation from stale local branches.
 
 ## Recommended Next Implementation PR
 
-PR-K2H-5 - Login visual parity + auth gate polish.
+PR-K2H-6 - Home/cockpit learning order + Continue repair.
 
-Allowed likely scope:
-- `lazytopper/src/pages/Login.tsx`
-- `lazytopper/src/lib/desktop/loginPrompts.ts`
-- Optional only if proven necessary: small Login-only style/helper file if already existing and safe.
-
-Forbidden unless owner explicitly changes scope:
-- `lazytopper/src/pages/Welcome.tsx`
-- `lazytopper/src/App.tsx`
-- `lazytopper/src/components/desktop/DesktopShell.tsx`
-- `lazytopper/src/pages/desktop/DesktopHome.tsx`
-- `lazytopper/src/pages/PricingPage.tsx`
-- Practice
-- HPQ
-- Mock
-- TopicHub
-- docs/handoff
-- package/server/env/data
-
-PR-K2H-5 goals:
-- Visually align Login with final landing and Lovable prototype login gate.
-- Maintain real Clerk SignIn.
-- Remove/avoid any guest CTA.
-- Preserve reason/redirect handling.
-- Preserve safe redirect behavior.
-- Keep explanation of why login matters: saving attempts, progress, mistakes, and powering Mistake Intelligence.
-- Do not change auth provider architecture in this PR.
-- Record Clerk friction / development-mode branding as a launch-readiness follow-up if not solvable only in UI.
+PR-K2H-6 goals:
+- Make Home/browse cockpit order match the learning loop: Exam Trends -> Practice -> Worksheets -> Check & Improve.
+- Repair "Continue where you left off" so it never routes to TopicHub "Topic not found."
+- If the saved topic is not curated, hide the continue card or route safely to Practice Hub / Exam Trends with honest state.
+- Do not touch landing, Login, pricing, Practice internals, HPQ, or TopicHub content unless a future K2H-6 prompt explicitly scopes it.
+- Do not start PR-K2H-6 until this docs-only handoff update is merged.
+- Future product prompts must use `base/approved-thru-437 @ 11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
 
 ## Data-Honesty Guardrails
 
@@ -73,12 +55,21 @@ PR-K2H-5 goals:
 
 ## Active Follow-ups
 
-- Clerk friction / auth strategy remains an open product question.
+- Production launch still requires Clerk production instance / `pk_live` env configuration.
+- Do not treat `unsafe_disableDevelopmentModeWarnings` as a substitute for production Clerk configuration.
+- Before public launch, capture Vercel/production Login screenshot with production Clerk config.
+- External Google/Clerk continuation screens remain outside app UI control.
 - Home card order: owner noted learning order should be Exam Trends -> Practice -> Worksheets -> Check & Improve.
-- Pricing visual redesign remains pending.
 - Continue where you left off route repair remains pending.
+- Pricing visual redesign remains pending.
 - `/profile` direct-reference cleanup remains pending.
 - Payment gateway / GPay / UPI QR / Razorpay/Cashfree is deferred and must be server/admin verified.
+
+## Operating Model
+
+- Codex should be used for code edits, local validation, screenshots, source diff/report only.
+- Owner will use VS Code PowerShell for commit, push, and PR creation/update unless explicitly overridden.
+- GPT remains prompt writer, source/PR auditor, and merge recommender.
 
 ## PR #69 / K2D Separation Rule
 

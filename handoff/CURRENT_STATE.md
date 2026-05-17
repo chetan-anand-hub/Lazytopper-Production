@@ -1,6 +1,6 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-16T18:55:00Z UTC / 2026-05-17 00:25 IST
+Last updated: 2026-05-17T12:20:00Z UTC / 2026-05-17 17:50 IST
 
 ## Current GitHub Checkpoint
 
@@ -14,15 +14,83 @@ Active integration branch:
 base/approved-thru-437
 ```
 
-Live base verified after PR #80 merge:
+Live base verified after PR #82 merge:
 ```
-018c95b11f5168d27fb93bb3a2cae3859b682627
+11aac1bc8bce67e6b2d67e540b4295491c0b78e0
 ```
 
-PR #80 is already merged. No active product implementation branch is recorded in this handoff state. The next implementation branch must be created fresh from `018c95b11f5168d27fb93bb3a2cae3859b682627` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
+PR #82 is already merged. No active product implementation branch is recorded in this handoff state. The next implementation branch must be created fresh from `11aac1bc8bce67e6b2d67e540b4295491c0b78e0` or whatever live GitHub later confirms. GitHub live state always wins over docs and memory.
 
 Current stage:
-Docs-only handoff update after PR #80 merge. No product implementation is included in this handoff update.
+Docs-only handoff update after PR #82 merge. No product implementation is included in this handoff update.
+
+## PR #82 Merged State
+
+PR:
+```
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/82
+```
+
+Title:
+```
+PR-K2H-5: Login visual parity + auth gate polish
+```
+
+Live GitHub verification:
+- state: `MERGED`
+- merged at: `2026-05-17T12:15:42Z`
+- previous checkpoint before PR #82: `283355dec5ced04bbe72976f5f068593e0900799`
+- final PR head: `06ba3cd74c93cf0c47fd44a4957e72b97a782765`
+- merge commit / new base SHA: `11aac1bc8bce67e6b2d67e540b4295491c0b78e0`
+- changed files: 2
+
+Changed files:
+- `lazytopper/src/pages/Login.tsx`
+- `lazytopper/src/lib/desktop/loginPrompts.ts`
+
+Scope:
+- Polished the production Login gate into a calmer LazyTopper auth composition aligned with the frozen landing and the Lovable/topic-focus-lite LoginGate visual direction.
+- Refined the left brand/value panel, right reason-aware gate, Clerk frame, helper copy, desktop rhythm, and mobile/narrow layout.
+- Kept Login production-real-auth, not prototype fake auth.
+- Preserved real Clerk SignIn.
+- Preserved BASE_PATH / Clerk path behavior: `path={import.meta.env.BASE_URL + "login"}` and `signUpUrl={import.meta.env.BASE_URL + "sign-up"}`.
+- Preserved reason-aware Login prompting through `getLoginPrompt(reason)`.
+- Preserved unknown reason fallback.
+- Preserved redirect priority: `?redirect`, then `location.state.from`, then profile/onboarding fallback.
+- Strengthened safe redirects by rejecting empty redirect query values and backslash-containing paths.
+- Kept Login standalone with no app shell, sidebar, header, or bottom nav.
+- Kept no guest CTA.
+- Removed visible Clerk Development mode warning using Clerk-supported `unsafe_disableDevelopmentModeWarnings` inside the Clerk appearance options.
+- Did not use a Clerk DOM hack.
+- Did not hide required provider, legal, or security UI.
+
+Validation recorded:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Production verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- Allowed-file check passed.
+- Forbidden-file guard produced no output.
+
+QA result:
+PASS.
+
+Visual QA recorded:
+- Local screenshots existed for 1440x900, 1366x768, and 390x844.
+- Owner checked Vercel preview Login key items:
+  - Development mode strip not visible.
+  - Clerk widget visible and usable.
+  - No Continue as Guest / Explore as Guest / Skip sign-in CTA.
+  - No app sidebar/header/bottom nav on Login.
+  - Reason copy changed correctly for login, start-trial, grade-answer, and mistake-aware.
+  - Back link returned safely to landing/home.
+- Owner did not manually verify every desktop/mobile viewport on Vercel; local screenshot evidence covered viewport confidence.
+
+Follow-ups:
+- Production launch still requires Clerk production instance configuration / `pk_live` key.
+- Do not treat `unsafe_disableDevelopmentModeWarnings` as a substitute for proper Clerk production configuration.
+- Before public launch, capture Vercel/production Login screenshot with production Clerk config.
+- External Google/Clerk continuation screens remain outside app UI control.
 
 ## PR #80 Merged State
 
@@ -167,30 +235,39 @@ Follow-ups:
 - Use source and returnTo for parent-aware navigation; preserve PR #77 route-context behavior.
 - Do not hard-code all back navigation to Exam Trends or route to old `/trends/:grade/:subject` unless intentionally preserving a legacy route.
 
-## Active Follow-ups After PR #80
+## Active Follow-ups After PR #82
 
-- Login visual parity / auth gate polish - recommended next implementation PR.
-- Clerk friction / auth strategy remains an open product question.
+- Production launch still requires Clerk production instance / `pk_live` env configuration.
+- Vercel/production Login screenshot audit with production Clerk config is required before public release.
+- External Google/Clerk continuation screens remain outside app UI control.
 - Home/cockpit card order follow-up: owner noted learning order should be Exam Trends -> Practice -> Worksheets -> Check & Improve.
+- Continue where you left off route repair remains pending and should not route to TopicHub "Topic not found."
 - Pricing visual redesign remains pending.
-- Continue where you left off route repair remains pending.
 - `/profile` direct-reference cleanup remains pending.
 - Payment gateway / GPay / UPI QR / Razorpay/Cashfree is deferred and must be server/admin verified.
+- Parked PR #69 solution provenance / student notices remains open draft and must not be mixed.
+- Parked PR #17 diagnostic categories remains open draft preservation-only and must not be mixed.
+- Old mobile PRs #1/#2 remain outside the desktop K2H lane unless separately audited.
 
 ## Next Recommended Implementation
 
-PR-K2H-5 - Login visual parity + auth gate polish.
+PR-K2H-6 - Home/cockpit learning order + Continue repair.
 
-Allowed likely scope:
-- `lazytopper/src/pages/Login.tsx`
-- `lazytopper/src/lib/desktop/loginPrompts.ts`
-- Optional only if proven necessary: small Login-only style/helper file if already existing and safe.
+Recommended objective:
+- Make Home/browse cockpit order match the learning loop: Exam Trends -> Practice -> Worksheets -> Check & Improve.
+- Repair "Continue where you left off" so it never routes to TopicHub "Topic not found."
+- If the saved topic is not curated, hide the continue card or route safely to Practice Hub / Exam Trends with honest state.
 
-Forbidden for PR-K2H-5 unless owner explicitly changes scope:
-- `Welcome.tsx`, `App.tsx`, `DesktopShell.tsx`, `DesktopHome.tsx`, `PricingPage.tsx`
-- Practice, HPQ, Mock, TopicHub
-- docs/handoff
-- package/server/env/data
+Do not touch landing, Login, pricing, Practice internals, HPQ, or TopicHub content unless a future K2H-6 prompt explicitly scopes it.
+
+Do not start PR-K2H-6 until this docs-only handoff update is merged. Future product prompts must use:
+`base/approved-thru-437 @ 11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
+
+## Operating Model Update
+
+- Codex should be used for code edits, local validation, screenshots, source diff/report only.
+- Owner will use VS Code PowerShell for commit, push, and PR creation/update unless explicitly overridden.
+- GPT remains prompt writer, source/PR auditor, and merge recommender.
 
 ## PR #75 Merged State
 
