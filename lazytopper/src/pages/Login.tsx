@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { SignIn } from "@clerk/react";
 import { useAuth } from "../context/AuthContext";
@@ -14,45 +14,553 @@ function isSafeInternalPath(path: string | null | undefined): path is string {
   if (trimmed.startsWith("//")) return false;
   if (trimmed.startsWith("/\\")) return false;
   if (trimmed.startsWith("\\")) return false;
+  if (trimmed.includes("\\")) return false;
   if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
   return true;
 }
 
+const LOGIN_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap');
+
+  .lt-login-page,
+  .lt-login-page * {
+    box-sizing: border-box;
+  }
+
+  html:has(.lt-login-page),
+  body:has(.lt-login-page),
+  #root:has(.lt-login-page),
+  #root > div:has(.lt-login-page) {
+    background: var(--lt-login-bg);
+  }
+
+  #root > div:has(.lt-login-page) {
+    padding-bottom: 0 !important;
+  }
+
+  #root:has(.lt-login-page) > div[style*="position: fixed"][style*="bottom: 0px"] {
+    display: none !important;
+  }
+
+  .lt-login-page {
+    --lt-navy: #071a3d;
+    --lt-navy-2: #092858;
+    --lt-green: #16b96a;
+    --lt-green-dark: #0b8f50;
+    --lt-ink: #071a3d;
+    --lt-muted: #49627f;
+    --lt-soft: #f6fbff;
+    --lt-line: rgba(7, 26, 61, 0.12);
+    --lt-card: rgba(255, 255, 255, 0.94);
+    --lt-login-bg: #f7fbff;
+
+    min-height: 100vh;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(460px, 0.95fr);
+    overflow-x: hidden;
+    color: var(--lt-ink);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 71% 21%, rgba(22, 185, 106, 0.12) 0, rgba(22, 185, 106, 0) 24%),
+      radial-gradient(circle at 18% 26%, rgba(125, 220, 255, 0.20) 0, rgba(125, 220, 255, 0) 23%),
+      linear-gradient(180deg, #fbfdff 0%, #f6fbff 62%, #eef7ff 100%);
+  }
+
+  .lt-login-page[data-login-theme="dark"] {
+    --lt-ink: #f8fafc;
+    --lt-muted: #b8c6d8;
+    --lt-soft: #0b203a;
+    --lt-card: rgba(10, 31, 55, 0.92);
+    --lt-line: rgba(255, 255, 255, 0.14);
+    --lt-login-bg: #051733;
+    background:
+      radial-gradient(circle at 71% 21%, rgba(22, 185, 106, 0.12) 0, rgba(22, 185, 106, 0) 24%),
+      linear-gradient(180deg, #071a3d 0%, #051733 100%);
+  }
+
+  .lt-login-brand-panel {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 44px;
+    padding: 42px 56px 36px;
+    overflow: hidden;
+    color: #f8fafc;
+    background:
+      radial-gradient(circle at 22% 24%, rgba(53, 242, 160, 0.18) 0, rgba(53, 242, 160, 0) 22%),
+      radial-gradient(circle at 82% 33%, rgba(125, 220, 255, 0.18) 0, rgba(125, 220, 255, 0) 24%),
+      linear-gradient(145deg, #082958 0%, #071a3d 54%, #051733 100%);
+  }
+
+  .lt-login-brand-panel:after {
+    content: "";
+    position: absolute;
+    left: 56px;
+    right: 56px;
+    bottom: 118px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(53, 242, 160, 0), rgba(53, 242, 160, 0.55), rgba(125, 220, 255, 0));
+    opacity: 0.72;
+  }
+
+  .lt-login-home-link,
+  .lt-login-mobile-brand,
+  .lt-login-back-link {
+    text-decoration: none;
+  }
+
+  .lt-login-home-link {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: flex-start;
+    color: #f8fafc;
+  }
+
+  .lt-login-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    background: var(--lt-green);
+    color: #06281b;
+    font-weight: 900;
+    box-shadow: 0 18px 38px rgba(22, 185, 106, 0.28);
+  }
+
+  .lt-login-wordmark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .lt-login-promise {
+    position: relative;
+    z-index: 1;
+    max-width: 610px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .lt-login-kicker {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: #dffff0;
+    background: rgba(22, 185, 106, 0.13);
+    border: 1px solid rgba(53, 242, 160, 0.24);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lt-login-title {
+    margin: 0;
+    color: #ffffff;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 3.7rem;
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: 0;
+    max-width: 650px;
+  }
+
+  .lt-login-lede {
+    max-width: 560px;
+    margin: 0;
+    color: #d8e4ef;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  .lt-login-benefits {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    max-width: 580px;
+    margin-top: 8px;
+  }
+
+  .lt-login-benefit {
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.08);
+    color: #edf7ff;
+    font-size: 0.84rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .lt-login-benefit-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--lt-green);
+    box-shadow: 0 0 0 5px rgba(22, 185, 106, 0.14);
+  }
+
+  .lt-login-loop {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #adc1d5;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .lt-login-loop span {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .lt-login-loop strong {
+    color: #dffff0;
+    font-weight: 900;
+  }
+
+  .lt-login-auth-panel {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 34px 48px;
+  }
+
+  .lt-login-gate {
+    width: 100%;
+    max-width: 470px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lt-login-mobile-brand {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    color: var(--lt-ink);
+  }
+
+  .lt-login-mobile-brand-sub {
+    display: block;
+    margin-top: 2px;
+    color: var(--lt-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .lt-login-prompt {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .lt-login-reason-chip {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 11px;
+    border-radius: 999px;
+    color: var(--lt-green-dark);
+    background: rgba(22, 185, 106, 0.12);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lt-login-heading {
+    margin: 0;
+    color: var(--lt-ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .lt-login-subcopy {
+    margin: 0;
+    color: var(--lt-muted);
+    font-size: 0.96rem;
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  .lt-login-clerk-frame {
+    width: 100%;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid var(--lt-line);
+    background: var(--lt-card);
+    box-shadow: 0 24px 80px rgba(7, 26, 61, 0.12);
+    backdrop-filter: blur(18px);
+  }
+
+  .lt-login-clerk-frame > div {
+    width: 100%;
+  }
+
+  .lt-login-helper {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 11px;
+    align-items: start;
+    padding: 13px 14px;
+    border-radius: 14px;
+    color: var(--lt-muted);
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--lt-line);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-helper {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .lt-login-helper-icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    color: #06281b;
+    background: #c9f4df;
+    font-weight: 900;
+  }
+
+  .lt-login-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    color: var(--lt-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .lt-login-back-link {
+    color: var(--lt-muted);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .lt-login-terms {
+    text-align: right;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 1180px) {
+    .lt-login-page {
+      grid-template-columns: minmax(0, 0.95fr) minmax(430px, 1.05fr);
+    }
+
+    .lt-login-brand-panel {
+      padding: 38px 40px 34px;
+    }
+
+    .lt-login-brand-panel:after {
+      left: 40px;
+      right: 40px;
+    }
+
+    .lt-login-title {
+      font-size: 3.05rem;
+    }
+
+    .lt-login-auth-panel {
+      padding: 36px 34px;
+    }
+  }
+
+  @media (min-width: 1024px) and (max-height: 820px) {
+    .lt-login-brand-panel {
+      gap: 28px;
+      padding-top: 30px;
+      padding-bottom: 26px;
+    }
+
+    .lt-login-brand-panel:after {
+      bottom: 92px;
+    }
+
+    .lt-login-promise {
+      gap: 13px;
+    }
+
+    .lt-login-title {
+      font-size: 3rem;
+    }
+
+    .lt-login-lede {
+      font-size: 0.95rem;
+      line-height: 1.48;
+    }
+
+    .lt-login-benefit {
+      min-height: 44px;
+      padding: 8px 11px;
+      font-size: 0.8rem;
+    }
+
+    .lt-login-loop span {
+      min-height: 28px;
+    }
+
+    .lt-login-auth-panel {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    .lt-login-gate {
+      gap: 12px;
+    }
+
+    .lt-login-heading {
+      font-size: 1.72rem;
+    }
+
+    .lt-login-subcopy {
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .lt-login-clerk-frame {
+      padding: 10px;
+    }
+
+    .lt-login-helper {
+      padding: 10px 12px;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .lt-login-page {
+      min-height: 100svh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(125, 220, 255, 0.22) 0, rgba(125, 220, 255, 0) 28%),
+        radial-gradient(circle at 86% 20%, rgba(22, 185, 106, 0.14) 0, rgba(22, 185, 106, 0) 28%),
+        linear-gradient(180deg, #fbfdff 0%, #eef7ff 100%);
+    }
+
+    .lt-login-page[data-login-theme="dark"] {
+      background: linear-gradient(180deg, #071a3d 0%, #051733 100%);
+    }
+
+    .lt-login-brand-panel {
+      display: none;
+    }
+
+    .lt-login-auth-panel {
+      width: 100%;
+      padding: 0;
+      align-items: center;
+    }
+
+    .lt-login-gate {
+      max-width: 500px;
+      gap: 16px;
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--lt-line);
+      background: var(--lt-card);
+      box-shadow: 0 22px 70px rgba(7, 26, 61, 0.13);
+      backdrop-filter: blur(18px);
+    }
+
+    .lt-login-mobile-brand {
+      display: inline-flex;
+    }
+
+    .lt-login-heading {
+      font-size: 1.55rem;
+    }
+
+    .lt-login-subcopy {
+      font-size: 0.92rem;
+    }
+
+    .lt-login-clerk-frame {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .lt-login-page {
+      padding: 14px;
+    }
+
+    .lt-login-gate {
+      padding: 20px 16px;
+      border-radius: 18px;
+    }
+
+    .lt-login-foot {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .lt-login-terms {
+      text-align: center;
+    }
+  }
+`;
+
 /**
  * Login page (`/login`).
  *
- * Reference (final desktop prototype):
- *   chetan-anand-hub/topic-focus-lite — src/pages/LoginGate.tsx
- *   (`?reason=...&redirect=...` URL contract + reason-aware copy +
- *   two-panel cockpit-style layout at desktop width).
- *
- * PR-I2 visual parity:
- *   - At >=1024px we render the prototype's two-panel LoginGate shape:
- *     a calm brand/value panel on the left, the Clerk sign-in card on
- *     the right.
- *   - Below 1024px we collapse to a single-panel sign-in card so the
- *     existing mobile login experience continues to work without
- *     horizontal overflow.
- *
- * Production responsibilities preserved unchanged:
- *   - Real Clerk `<SignIn>` widget drives the actual auth flow. We do
- *     NOT modify the Clerk invocation — only the surrounding layout
- *     and the post-auth redirect resolution.
- *   - Existing onboarding / profile redirect chain is preserved: when
- *     no explicit `redirect` is supplied AND there is no
- *     `location.state.from`, we still send returning users to
- *     `/dashboard` and first-time-visitors to `/onboarding`.
- *   - Real-app guest access is not exposed from Login; deterministic
- *     local/e2e auth remains owned by AuthContext.
- *
- * Reason-aware copy:
- *   1. Read `reason` from URLSearchParams (e.g. `save-worksheet`).
- *   2. Read `redirect` from URLSearchParams (e.g. `/practice/worksheets`).
- *   3. Fall back to `location.state.from` for the redirect target when
- *      the query param is absent (preserves existing RequireAuth links).
- *   4. Render a reason-distinct chip + headline + sub-copy via the
- *      pure mapping in `lib/desktop/loginPrompts.ts`.
- *   5. Unrecognised / missing reasons fall back to the `login` copy.
+ * Production responsibilities preserved:
+ * - Real Clerk `<SignIn>` widget drives the auth flow.
+ * - Redirect priority stays `?redirect`, `location.state.from`, then
+ *   profile/onboarding fallback.
+ * - The page stays standalone, without DesktopShell/sidebar chrome.
+ * - No guest CTA or fake trial activation is exposed from Login.
  */
 export default function Login() {
   const navigate = useNavigate();
@@ -64,11 +572,6 @@ export default function Login() {
     () => document.documentElement.getAttribute("data-theme") === "light"
   );
 
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-    return window.matchMedia("(min-width: 1024px)").matches;
-  });
-
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsLight(document.documentElement.getAttribute("data-theme") === "light");
@@ -77,41 +580,19 @@ export default function Login() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    setIsDesktop(mq.matches);
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    // Older Safari fallback.
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
-
-  // Reason → prompt copy. Unknown / missing reasons fall back to "login".
   const reason = searchParams.get("reason");
   const isStartTrial = reason === "start-trial";
   const prompt = useMemo(() => getLoginPrompt(reason), [reason]);
 
-  // Resolve post-auth navigation target.
-  //
-  // Priority:
-  //   1. ?redirect=... query param (PR-LANDING reason-aware contract)
-  //   2. location.state.from (existing RequireAuth + Welcome behaviour)
-  //   3. existing default — "/dashboard" if a profile already exists,
-  //      otherwise "/onboarding". This preserves the production
-  //      onboarding / profile redirect chain so first-time visitors
-  //      still complete the existing intake flow before landing on the
-  //      app shell.
   const nextPath = useMemo(() => {
-    const explicitRedirect = searchParams.get("redirect");
-    if (explicitRedirect) return isSafeInternalPath(explicitRedirect) ? explicitRedirect : "/";
+    if (searchParams.has("redirect")) {
+      const explicitRedirect = searchParams.get("redirect");
+      return isSafeInternalPath(explicitRedirect) ? explicitRedirect : "/";
+    }
     const st = (location.state || {}) as LocationState;
     if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
-    const hasProfile = !!window.localStorage.getItem("lazytopper.profile.v2");
+    const hasProfile =
+      typeof window !== "undefined" && !!window.localStorage.getItem("lazytopper.profile.v2");
     return hasProfile ? "/dashboard" : "/onboarding";
   }, [location.state, searchParams]);
 
@@ -130,378 +611,179 @@ export default function Login() {
     }
   }, [user, nextPath, navigate, reason]);
 
-  // Visual tokens — kept inline so this file is self-contained and
-  // matches the rest of the production page styling convention.
-  const navy = "#071a2d";
-  const navyMuted = "#52616f";
-  const green = "#22c55e";
-  const rightPanelBg = "#f7f8f4";
-  const cardBg = isLight ? "#ffffff" : "var(--bg-card)";
-  const cardBorder = "1px solid rgba(7,26,45,0.12)";
-  const dividerLine = "rgba(7,26,45,0.12)";
-  const accentChipBg = "rgba(34,197,94,0.12)";
-  const neutralChipBg = "rgba(255,255,255,0.10)";
+  const themeVars = {
+    "--lt-login-bg": isLight ? "#f7fbff" : "#051733",
+  } as CSSProperties;
 
-  // Brand mark used in both layouts.
-  const brandMark = (size: number, fontSize: number) => (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: Math.round(size * 0.22),
-        background: green,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#06281b",
-        fontWeight: 900,
-        fontSize,
-        boxShadow: "0 16px 34px rgba(34,197,94,0.24)",
-        flexShrink: 0,
-      }}
+  const mark = (size: number, fontSize: number) => (
+    <span
+      className="lt-login-mark"
+      style={{ width: size, height: size, fontSize }}
+      aria-hidden="true"
     >
       L
-    </div>
+    </span>
   );
 
-  // ---- Left panel (desktop only) — brand / value framing -----------
-  // Static value-proposition copy. Does not claim any user-specific
-  // progress, mistake history, or trial state.
-  const leftPanel = isDesktop ? (
-    <section
-      aria-label="LazyTopper exam companion"
-      style={{
-        flex: "1 1 0",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "56px clamp(40px, 5vw, 72px)",
-        background: navy,
-        borderRight: "none",
-        minWidth: 0,
-        overflow: "hidden",
-      }}
-    >
-      <Link
-        to="/"
-        aria-label="Back to LazyTopper home"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 12,
-          textDecoration: "none",
-          color: "#f8fafc",
-          alignSelf: "flex-start",
-        }}
-      >
-        {brandMark(40, 16)}
-        <span
-          style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: "1.25rem",
-            fontWeight: 800,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          LazyTopper
-        </span>
-      </Link>
-
-      <div style={{ maxWidth: 560, display: "flex", flexDirection: "column", gap: 18 }}>
-        <h1
-          style={{
-            fontFamily: "'Fraunces', 'Source Serif Pro', Georgia, 'Times New Roman', serif",
-            fontSize: "clamp(2.6rem, 4.8vw, 4.55rem)",
-            fontWeight: 650,
-            margin: 0,
-            lineHeight: 1.02,
-            color: "#f8fafc",
-            letterSpacing: 0,
-          }}
-        >
-          A calm cockpit for CBSE Class 10.
-        </h1>
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#cbd5e1",
-            margin: 0,
-            lineHeight: 1.55,
-          }}
-        >
-          Sign in so LazyTopper can save your attempts, connect checked
-          mistakes to Mistake Intelligence, and keep progress tied to your
-          Gmail or phone account. Your 7-day free trial starts when you sign in.
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "6px 12px",
-              borderRadius: 999,
-              background: accentChipBg,
-              color: "#bbf7d0",
-              border: "1px solid rgba(34,197,94,0.25)",
-              fontSize: "0.78rem",
-              fontWeight: 800,
-              letterSpacing: "0.01em",
-            }}
-          >
-            Saved attempts
-          </span>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "6px 12px",
-              borderRadius: 999,
-              background: neutralChipBg,
-              color: "#e5edf3",
-              border: "1px solid rgba(255,255,255,0.16)",
-              fontSize: "0.78rem",
-              fontWeight: 700,
-            }}
-          >
-            Mistake Intelligence
-          </span>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "6px 12px",
-              borderRadius: 999,
-              background: neutralChipBg,
-              color: "#e5edf3",
-              border: "1px solid rgba(255,255,255,0.16)",
-              fontSize: "0.78rem",
-              fontWeight: 700,
-            }}
-          >
-            7-day trial
-          </span>
-        </div>
-      </div>
-
-      <div
-        style={{
-          fontSize: "0.75rem",
-          color: "#9fb0c0",
-          letterSpacing: "0.04em",
-        }}
-      >
-        © LazyTopper
-      </div>
-    </section>
-  ) : null;
-
-  // ---- Right panel — reason-aware sign-in --------------------------
-  const rightPanel = (
-    <section
-      aria-label="Sign in"
-      style={{
-        flex: "1 1 0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: isDesktop ? "56px clamp(32px, 5vw, 72px)" : "32px 16px",
-        background: rightPanelBg,
-        minWidth: 0,
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 440,
-          display: "flex",
-          flexDirection: "column",
-          gap: 20,
-          background: isDesktop ? "transparent" : cardBg,
-          backdropFilter: isDesktop ? undefined : "blur(16px)",
-          borderRadius: isDesktop ? 0 : 20,
-          padding: isDesktop ? 0 : "32px 24px",
-          border: isDesktop ? "none" : cardBorder,
-        }}
-      >
-        {/* Mobile-only brand mark + wordmark — left panel is hidden below 1024px. */}
-        {!isDesktop && (
-          <Link
-            to="/"
-            aria-label="Back to LazyTopper home"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              textDecoration: "none",
-              color: navy,
-              alignSelf: "flex-start",
-            }}
-          >
-            {brandMark(44, 18)}
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-              <span
-                style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: "1.1rem",
-                  fontWeight: 800,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                LazyTopper
-              </span>
-              <span style={{ fontSize: "0.78rem", color: navyMuted }}>
-                CBSE Class 10 Board Exam Prep
-              </span>
-            </div>
-          </Link>
-        )}
-
-        {/* Reason-aware prompt block (chip + headline + sub-copy). */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <span
-            style={{
-              alignSelf: "flex-start",
-              display: "inline-block",
-              fontSize: "0.7rem",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: navy,
-              padding: "4px 10px",
-              borderRadius: 999,
-              background: "#eaf4ea",
-              border: "1px solid rgba(7,26,45,0.10)",
-            }}
-          >
-            {prompt.chip}
-          </span>
-          <h2
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: isDesktop ? "1.75rem" : "1.4rem",
-              fontWeight: 800,
-              color: navy,
-              margin: 0,
-              lineHeight: 1.2,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            {prompt.headline}
-          </h2>
-          <p
-            style={{
-              fontSize: "0.92rem",
-              color: navyMuted,
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
-            {prompt.subCopy}
-          </p>
-        </div>
-
-        {/* Real Clerk sign-in widget. Config preserved exactly as
-            shipped — only the surrounding layout has changed. */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <SignIn
-            routing="path"
-            path={import.meta.env.BASE_URL + "login"}
-            signUpUrl={import.meta.env.BASE_URL + "sign-up"}
-            appearance={{
-              variables: {
-                colorPrimary: navy,
-                colorBackground: "#ffffff",
-                colorText: navy,
-                colorInputBackground: "#ffffff",
-                colorInputText: navy,
-                borderRadius: "12px",
-              },
-              elements: {
-                rootBox: { width: "100%" },
-                card: { background: "transparent", boxShadow: "none", border: "none", padding: 0 },
-                headerTitle: { display: "none" },
-                headerSubtitle: { display: "none" },
-                socialButtonsBlockButton: {
-                  background: "#ffffff",
-                  border: "1px solid rgba(7,26,45,0.14)",
-                  color: navy,
-                  borderRadius: "14px",
-                  fontWeight: 800,
-                },
-                formButtonPrimary: {
-                  background: navy,
-                  color: "#ffffff",
-                  fontWeight: 800,
-                  borderRadius: "14px",
-                  boxShadow: "0 16px 28px rgba(7,26,45,0.20)",
-                },
-                footerActionLink: { color: navy },
-                dividerLine: { background: dividerLine },
-                dividerText: { color: navyMuted },
-              },
-            }}
-          />
-        </div>
-
-        <div
-          style={{
-            border: "1px solid rgba(7,26,45,0.10)",
-            background: "#ffffff",
-            borderRadius: 14,
-            padding: "12px 14px",
-            color: navyMuted,
-            fontSize: "0.82rem",
-            lineHeight: 1.45,
-          }}
-        >
-          Sign in with Gmail or phone if enabled. Your attempts, checked
-          answers, progress, and Mistake Intelligence stay connected to this
-          account.
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 8,
-            fontSize: "0.78rem",
-            color: navyMuted,
-            textAlign: "center",
-          }}
-        >
-          <Link
-            to="/"
-            style={{
-              color: navyMuted,
-              textDecoration: "none",
-              fontWeight: 700,
-            }}
-          >
-            {isStartTrial ? "← Back to landing" : "← Back to home"}
-          </Link>
-          <span style={{ lineHeight: 1.4 }}>
-            By signing in, you agree to our Terms of Service
-          </span>
-        </div>
-      </div>
-    </section>
-  );
+  const clerkAppearance = {
+    options: {
+      unsafe_disableDevelopmentModeWarnings: true,
+    },
+    variables: {
+      colorPrimary: "#071a3d",
+      colorBackground: "#ffffff",
+      colorText: "#071a3d",
+      colorInputBackground: "#ffffff",
+      colorInputText: "#071a3d",
+      borderRadius: "12px",
+      fontFamily: "'Inter', system-ui, sans-serif",
+    },
+    elements: {
+      rootBox: { width: "100%" },
+      cardBox: {
+        width: "100%",
+        background: "transparent",
+        boxShadow: "none",
+        border: "none",
+      },
+      card: {
+        width: "100%",
+        background: "transparent",
+        boxShadow: "none",
+        border: "none",
+        padding: 0,
+      },
+      main: { background: "transparent", boxShadow: "none" },
+      footer: { background: "transparent", boxShadow: "none" },
+      header: { display: "none" },
+      headerTitle: { display: "none" },
+      headerSubtitle: { display: "none" },
+      socialButtonsBlockButton: {
+        minHeight: "46px",
+        background: "#ffffff",
+        border: "1px solid rgba(7, 26, 61, 0.14)",
+        color: "#071a3d",
+        borderRadius: "13px",
+        fontWeight: 800,
+        boxShadow: "0 8px 18px rgba(7, 26, 61, 0.06)",
+      },
+      formFieldInput: {
+        minHeight: "44px",
+        border: "1px solid rgba(7, 26, 61, 0.16)",
+        borderRadius: "12px",
+      },
+      formButtonPrimary: {
+        minHeight: "46px",
+        background: "#071a3d",
+        color: "#ffffff",
+        fontWeight: 800,
+        borderRadius: "13px",
+        boxShadow: "0 16px 28px rgba(7, 26, 61, 0.20)",
+      },
+      footerActionLink: { color: "#071a3d", fontWeight: 800 },
+      dividerLine: { background: "rgba(7, 26, 61, 0.12)" },
+      dividerText: { color: "#49627f", fontWeight: 700 },
+      identityPreviewEditButton: { color: "#071a3d" },
+    },
+  };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        display: "flex",
-        flexDirection: isDesktop ? "row" : "column",
-        background: rightPanelBg,
-        color: navy,
-      }}
+    <main
+      className="lt-login-page"
+      data-login-theme={isLight ? "light" : "dark"}
+      style={themeVars}
+      aria-label="LazyTopper sign in"
     >
-      {leftPanel}
-      {rightPanel}
-    </div>
+      <style dangerouslySetInnerHTML={{ __html: LOGIN_CSS }} />
+
+      <section className="lt-login-brand-panel" aria-label="LazyTopper exam companion">
+        <Link to="/" aria-label="Back to LazyTopper home" className="lt-login-home-link">
+          {mark(42, 17)}
+          <span className="lt-login-wordmark">LazyTopper</span>
+        </Link>
+
+        <div className="lt-login-promise">
+          <span className="lt-login-kicker">CBSE Class 10 study cockpit</span>
+          <h1 className="lt-login-title">Sign in when your work needs saving.</h1>
+          <p className="lt-login-lede">
+            LazyTopper can keep attempts, checked answers, progress, and Mistake
+            Intelligence evidence connected to your account only after real sign-in.
+          </p>
+
+          <div className="lt-login-benefits" aria-label="What sign-in protects">
+            <div className="lt-login-benefit">
+              <span className="lt-login-benefit-dot" />
+              Saved practice attempts
+            </div>
+            <div className="lt-login-benefit">
+              <span className="lt-login-benefit-dot" />
+              Checked-answer history
+            </div>
+            <div className="lt-login-benefit">
+              <span className="lt-login-benefit-dot" />
+              Progress tied to account
+            </div>
+            <div className="lt-login-benefit">
+              <span className="lt-login-benefit-dot" />
+              Mistake Intelligence evidence
+            </div>
+          </div>
+        </div>
+
+        <div className="lt-login-loop" aria-label="LazyTopper product loop">
+          <span>Exam Trends</span>
+          <strong>to</strong>
+          <span>Practice</span>
+          <strong>to</strong>
+          <span>Check & Improve</span>
+          <strong>to</strong>
+          <span>Me / Progress</span>
+        </div>
+      </section>
+
+      <section className="lt-login-auth-panel" aria-label="Sign in">
+        <div className="lt-login-gate">
+          <Link to="/" aria-label="Back to LazyTopper home" className="lt-login-mobile-brand">
+            {mark(42, 17)}
+            <span>
+              <span className="lt-login-wordmark">LazyTopper</span>
+              <span className="lt-login-mobile-brand-sub">CBSE Class 10 Board Exam Prep</span>
+            </span>
+          </Link>
+
+          <div className="lt-login-prompt">
+            <span className="lt-login-reason-chip">{prompt.chip}</span>
+            <h2 className="lt-login-heading">{prompt.headline}</h2>
+            <p className="lt-login-subcopy">{prompt.subCopy}</p>
+          </div>
+
+          <div className="lt-login-clerk-frame">
+            <SignIn
+              routing="path"
+              path={import.meta.env.BASE_URL + "login"}
+              signUpUrl={import.meta.env.BASE_URL + "sign-up"}
+              appearance={clerkAppearance}
+            />
+          </div>
+
+          <div className="lt-login-helper">
+            <span className="lt-login-helper-icon" aria-hidden="true">
+              i
+            </span>
+            <span>
+              Use the same Google, email, or phone account you want LazyTopper to
+              remember. Sign-in is required for saved learning actions.
+            </span>
+          </div>
+
+          <div className="lt-login-foot">
+            <Link to="/" className="lt-login-back-link">
+              {isStartTrial ? "<- Back to landing" : "<- Back to home"}
+            </Link>
+            <span className="lt-login-terms">By signing in, you agree to our Terms of Service</span>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

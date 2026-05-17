@@ -1,18 +1,8 @@
 /**
- * Desktop Level 2 — Reason-aware login prompt copy.
+ * Desktop Level 2 - Reason-aware login prompt copy.
  *
- * Reference (final desktop prototype):
- *   chetan-anand-hub/topic-focus-lite — src/pages/LoginGate.tsx
- *   (`REASON_TEXT` map + `?reason=...&redirect=...` URL contract).
- *
- * This is a tiny, pure mapping. Kept separate from `Login.tsx` so the
- * supported reason set is easy to scan in one place and is trivially
- * unit-testable by importing this module.
- *
- * Reasons mirror the canonical list documented in the QA addendum:
- *   start-trial, login, save-worksheet, upload-answers, grade-answer,
- *   open-progress, mistake-aware, mistake-aware-worksheet,
- *   start-full-mock, open-check, start-practice, check-answer.
+ * This pure mapping keeps the supported reason set easy to scan and
+ * preserves the production URL contract: `?reason=...&redirect=...`.
  *
  * Unrecognised reasons fall back to the `login` copy so stale links
  * never produce empty headlines.
@@ -32,43 +22,44 @@ export interface LoginPrompt {
 const PROMPTS: Record<string, LoginPrompt> = {
   "start-trial": {
     chip: "Free trial",
-    headline: "Sign in / Start trial",
+    headline: "Start with a real account",
     subCopy:
-      "Start your free trial to save attempts, keep progress connected, and power Mistake Intelligence.",
+      "Sign in to begin the trial path and keep attempts, checked answers, progress, and Mistake Intelligence evidence tied to you.",
     ctaLabel: "Start free trial",
   },
   "login": {
     chip: "Welcome back",
     headline: "Welcome back",
-    subCopy: "Sign in to pick up your saved attempts, progress, and recommendations.",
+    subCopy:
+      "Sign in to return to saved attempts, checked answers, progress, and Mistake Intelligence evidence.",
     ctaLabel: "Resume LazyTopper",
   },
   "start-practice": {
     chip: "Practice",
-    headline: "Sign in / Start practice",
+    headline: "Sign in to start practice",
     subCopy:
-      "Sign in to save practice attempts and connect mistakes to Mistake Intelligence.",
+      "Practice attempts can be saved and connected to Mistake Intelligence only after sign-in.",
     ctaLabel: "Start practice",
   },
   "save-worksheet": {
     chip: "Save worksheet",
     headline: "Save this worksheet",
     subCopy:
-      "Sign in to save and resume worksheets across devices.",
+      "Sign in so this worksheet can stay connected to your account instead of this device only.",
     ctaLabel: "Save & continue",
   },
   "upload-answers": {
     chip: "Check & Improve",
     headline: "Upload your answers",
     subCopy:
-      "Sign in to submit a handwritten answer for checking.",
+      "Sign in before upload so checked answers can be saved to your learning record.",
     ctaLabel: "Upload & continue",
   },
   "grade-answer": {
     chip: "Check & Improve",
     headline: "Get this answer graded",
     subCopy:
-      "Sign in to receive feedback and a mistake tag.",
+      "Sign in so feedback and mistake evidence can stay connected to your account.",
     ctaLabel: "Grade & continue",
   },
   "check-answer": {
@@ -79,23 +70,23 @@ const PROMPTS: Record<string, LoginPrompt> = {
     ctaLabel: "Check answer",
   },
   "open-progress": {
-    chip: "Me · Progress",
+    chip: "Me / Progress",
     headline: "Open your progress",
     subCopy:
-      "Sign in to see your saved attempts and weak areas.",
+      "Sign in to see progress that belongs to your account, not just this browser.",
     ctaLabel: "Open progress",
   },
   "mistake-aware": {
     chip: "Mistake-aware",
     headline: "Practise on your weak areas",
-    subCopy: "Sign in to unlock mistake-aware practice.",
+    subCopy: "Sign in so practice can use saved mistake evidence from your account.",
     ctaLabel: "Open practice",
   },
   "mistake-aware-worksheet": {
     chip: "Mistake-aware worksheet",
     headline: "Generate a mistake-aware worksheet",
     subCopy:
-      "Sign in to build a worksheet from your weak areas.",
+      "Sign in so worksheet generation can use saved mistake evidence from your account.",
     ctaLabel: "Generate worksheet",
   },
   "start-full-mock": {
@@ -108,7 +99,7 @@ const PROMPTS: Record<string, LoginPrompt> = {
   "open-check": {
     chip: "Check & Improve",
     headline: "Check your answer",
-    subCopy: "Sign in to use Check & Improve.",
+    subCopy: "Sign in so checked answers and feedback can be saved to your account.",
     ctaLabel: "Open Check & Improve",
   },
 };
@@ -133,7 +124,7 @@ export const KNOWN_LOGIN_REASONS: ReadonlyArray<string> = [
 ];
 
 /**
- * Resolve reason → prompt copy. Unknown / missing reasons fall back to
+ * Resolve reason -> prompt copy. Unknown / missing reasons fall back to
  * the `login` copy so stale links never produce empty UI.
  */
 export function getLoginPrompt(reason: string | null | undefined): LoginPrompt {
