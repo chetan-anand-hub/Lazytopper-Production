@@ -272,12 +272,12 @@ interface QuickCard {
 }
 
 const PRIMARY_CARDS: QuickCard[] = [
+  { to: `/exam-trends${HOME_QS_LEAD}`, icon: TrendingUpIcon,
+    label: "Exam Trends", sub: "Tier-ranked topics with one-click actions." },
   { to: `/practice-hub${HOME_QS_LEAD}`, icon: LayersIcon,
     label: "Practice", sub: "Quick practice or full mock." },
   { to: `/practice/worksheets${HOME_QS_LEAD}`, icon: ClipboardListIcon,
-    label: "Worksheet", sub: "Build a worksheet by topic or subject." },
-  { to: `/exam-trends${HOME_QS_LEAD}`, icon: TrendingUpIcon,
-    label: "Exam Trends", sub: "Tier-ranked topics with one-click actions." },
+    label: "Worksheets", sub: "Build a worksheet by topic or subject." },
   { to: `/check-improve${HOME_QS_LEAD}`, icon: ClipboardCheckIcon,
     label: "Check & Improve", sub: "Get feedback on your answer." },
 ];
@@ -326,6 +326,11 @@ export default function DesktopHome() {
   const memoryGrade = memory?.grade ?? null;
   const memorySubject = memory?.subject ?? null;
   const resumeRoute = resolveResumeRoute(memory);
+  const resumeCtaLabel = lastAttempt
+    ? "Continue worksheet plan"
+    : memoryGrade && memorySubject
+      ? "Resume with Exam Trends"
+      : null;
 
   // Default subject for quick-generate predicted/multi-topic when no
   // memory exists. We never invent a subject in the visible label, but
@@ -494,7 +499,7 @@ export default function DesktopHome() {
                   fontWeight: 600,
                 }}
               >
-                Continue where you left off <ArrowRightIcon size={14} />
+                {resumeCtaLabel} <ArrowRightIcon size={14} />
               </Link>
             )}
           </section>

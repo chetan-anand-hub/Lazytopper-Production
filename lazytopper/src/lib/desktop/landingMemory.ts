@@ -169,8 +169,8 @@ export function hasMeaningfulMemory(memory: LandingMemory | null): boolean {
 
 /**
  * Resolve the route the "Resume" CTA should send the user to, based on
- * real memory. Defaults to `/dashboard` when a profile exists (the
- * production post-auth landing) and to `/` when nothing is known.
+ * real memory. Returns `/` when only a profile exists (no safe resume
+ * target) and when nothing is known.
  *
  * Never returns a route that depends on faked state.
  */
@@ -182,12 +182,11 @@ export function resolveResumeRoute(memory: LandingMemory | null): string {
     return "/practice/worksheets";
   }
   if (memory.grade && memory.subject) {
-    // Send the user back to the topic-hub for the last subject they
-    // were viewing — this is the closest production equivalent of the
-    // prototype's `lastRoute` hint.
-    return `/topic-hub/${encodeURIComponent(memory.grade)}/${encodeURIComponent(memory.subject)}`;
+    // Broad grade/subject context should resume safely via Exam Trends,
+    // not Topic Hub (which can over-promise missing per-topic state).
+    return `/exam-trends?subject=${encodeURIComponent(memory.subject)}`;
   }
-  if (memory.hasProfile) return "/dashboard";
+  if (memory.hasProfile) return "/";
   return "/";
 }
 
