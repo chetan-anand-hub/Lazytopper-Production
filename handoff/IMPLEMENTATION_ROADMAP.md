@@ -1,20 +1,97 @@
 # LazyTopper Implementation Roadmap
 
-This roadmap preserves the staged implementation plan after PR #80 merge.
+This roadmap preserves the staged implementation plan after PR #82 merge.
 
 Latest verified live base:
 ```
 base/approved-thru-437
-018c95b11f5168d27fb93bb3a2cae3859b682627
+11aac1bc8bce67e6b2d67e540b4295491c0b78e0
 ```
 
 Current stage:
-PR #80 / PR-K2H-4 is merged. Frozen landing page and Explore-first `/browse` entry are complete. Next active implementation should be PR-K2H-5 - Login visual parity + auth gate polish.
+PR #82 / PR-K2H-5 is merged. Login visual parity + auth gate polish is complete. Next active implementation should be PR-K2H-6 - Home/cockpit learning order + Continue repair.
 
 Current implementation branch:
 ```
 None. Create the next implementation branch fresh from the live verified base after this docs-only handoff update merges.
 ```
+
+## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
+
+Status:
+Merged.
+
+PR:
+```
+https://github.com/chetan-anand-hub/Lazytopper-Production/pull/82
+```
+
+Merged at:
+`2026-05-17T12:15:42Z`
+
+Previous checkpoint before merge:
+`283355dec5ced04bbe72976f5f068593e0900799`
+
+Final head:
+`06ba3cd74c93cf0c47fd44a4957e72b97a782765`
+
+Merge commit / new base:
+`11aac1bc8bce67e6b2d67e540b4295491c0b78e0`
+
+Changed files:
+2
+
+Changed files list:
+- `lazytopper/src/pages/Login.tsx`
+- `lazytopper/src/lib/desktop/loginPrompts.ts`
+
+Completed:
+- Polished the production Login gate into a calmer LazyTopper auth composition aligned with the frozen landing and Lovable/topic-focus-lite LoginGate visual/composition direction.
+- Refined the left brand/value panel, right reason-aware gate, Clerk frame, helper copy, desktop rhythm, and mobile/narrow layout.
+- Kept Login production-real-auth, not prototype fake auth.
+- Preserved real Clerk SignIn and BASE_PATH / Clerk path behavior.
+- Preserved reason-aware prompting, unknown reason fallback, signed-in redirect, `location.state.from`, and profile/onboarding fallback.
+- Preserved and strengthened safe redirect handling by rejecting empty redirect query values and backslash-containing paths.
+- Kept no guest CTA and no app shell/sidebar/bottom nav on Login.
+- Removed visible Clerk Development mode warning using supported Clerk appearance option `unsafe_disableDevelopmentModeWarnings`, not a DOM/CSS hack.
+- Did not hide required provider, legal, or security UI.
+
+Validation:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Production verifier passed: 8 passed, 0 failed.
+- `git diff --check` passed.
+- Allowed-file check passed.
+- Forbidden-file guard produced no output.
+
+QA result:
+PASS.
+
+Visual QA:
+- Local screenshots existed for 1440x900, 1366x768, and 390x844.
+- Owner Vercel preview QA passed key items: Development mode not visible, Clerk visible/usable, no guest CTA, no app chrome/nav, reason copy variants correct, and Back link safe.
+- Owner did not manually verify every viewport on Vercel; local screenshot evidence covered viewport confidence.
+
+Follow-ups:
+- Production launch still requires Clerk production instance / `pk_live` env configuration.
+- Do not treat `unsafe_disableDevelopmentModeWarnings` as a substitute for production Clerk configuration.
+- Before public launch, capture Vercel/production Login screenshot with production Clerk config.
+- External Google/Clerk continuation screens remain outside app UI control.
+
+## PR-K2H-6 - Home/cockpit learning order + Continue repair
+
+Status:
+Recommended next implementation PR after this docs-only update.
+
+Goals:
+- Make Home/browse cockpit order match the learning loop: Exam Trends -> Practice -> Worksheets -> Check & Improve.
+- Repair "Continue where you left off" so it never routes to TopicHub "Topic not found."
+- If the saved topic is not curated, hide the continue card or route safely to Practice Hub / Exam Trends with honest state.
+- Do not touch landing, Login, pricing, Practice internals, HPQ, or TopicHub content unless a future K2H-6 prompt explicitly scopes it.
+- Do not start until this docs-only handoff update is merged.
+
+Required starting point for future product prompts:
+`base/approved-thru-437 @ 11aac1bc8bce67e6b2d67e540b4295491c0b78e0`.
 
 ## PR-K2H-4 / PR #80 - Frozen landing page and explore-first entry
 
@@ -87,10 +164,10 @@ Doctrine:
 - Landing has one primary CTA only: Explore.
 - Browse mode is for product inspection only and must not create a fake guest learner.
 
-## PR-K2H-5 - Login visual parity + auth gate polish
+## Historical PR-K2H-5 - Login visual parity + auth gate polish planning note
 
 Status:
-Recommended next implementation PR after this docs-only update.
+Completed by PR #82.
 
 Allowed likely scope:
 - `lazytopper/src/pages/Login.tsx`
