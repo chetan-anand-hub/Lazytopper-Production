@@ -77,3 +77,44 @@ PR #69 / K2D remains separate from this handoff sequence.
 - Do not merge PR #69 blindly or automatically.
 - Do not absorb K2D into K2H without explicit audit and product owner approval.
 - Each PR must be audited and validated independently before merge.
+---
+
+## PR-K2H-6 Continue Repair Decision — Option B
+
+Owner-approved decision: use Option B for the K2H-6 “Continue where you left off” repair.
+
+Saved worksheet memory:
+- CTA label: `Continue worksheet plan`
+- Route: `/practice/worksheets`
+- Preserve `source=home` and `returnTo=/`
+
+Grade + subject memory only:
+- CTA label: `Resume with Exam Trends`
+- Route: `/exam-trends?subject=<subject>`
+- Preserve `source=home` and `returnTo=/`
+
+Profile-only memory:
+- Do not show a Continue CTA.
+
+No broad grade/subject-only memory should route to TopicHub.
+TopicHub should only be used for resume in a future PR if there is a verified curated topic key or safe topic mapping.
+
+Home primary cards should be ordered:
+`Exam Trends -> Practice -> Worksheets -> Check & Improve`
+
+Likely K2H-6 product scope:
+- `lazytopper/src/pages/desktop/DesktopHome.tsx`
+- `lazytopper/src/lib/desktop/landingMemory.ts`
+
+Read-only inspect:
+- `lazytopper/src/App.tsx`
+- `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
+- `lazytopper/src/lib/desktop/topics.ts`
+
+K2H-6 non-goals:
+- Do not touch landing, Login, pricing, Practice internals, HPQ, Mock, TopicHub content, docs/handoff, package/server/env/data in the product PR unless explicitly rescoped.
+- Do not redesign Home.
+- Do not create fake memory, fake topic history, fake attempts, or fake personalization.
+- Do not change `/browse` behavior unless source audit proves it is necessary.
+- Do not route to old `/trends/:grade/:subject`.
+- Do not hard-code `/app` routes in source.
