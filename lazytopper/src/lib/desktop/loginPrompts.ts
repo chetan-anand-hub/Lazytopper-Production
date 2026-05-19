@@ -41,6 +41,14 @@ const PROMPTS: Record<string, LoginPrompt> = {
       "Practice attempts can be saved and connected to Mistake Intelligence only after sign-in.",
     ctaLabel: "Start practice",
   },
+  "start-focused-practice": {
+    chip: "Focused practice",
+    headline: "Sign in to start focused practice",
+    subCopy:
+      "Your attempt will be saved and connected to Mistake Intelligence " +
+      "so your weak areas surface over time.",
+    ctaLabel: "Start focused practice",
+  },
   "save-worksheet": {
     chip: "Save worksheet",
     headline: "Save this worksheet",
@@ -112,6 +120,7 @@ export const KNOWN_LOGIN_REASONS: ReadonlyArray<string> = [
   "start-trial",
   "login",
   "start-practice",
+  "start-focused-practice",
   "save-worksheet",
   "upload-answers",
   "grade-answer",

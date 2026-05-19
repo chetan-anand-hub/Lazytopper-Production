@@ -760,6 +760,7 @@ export default function Login() {
               routing="path"
               path={import.meta.env.BASE_URL + "login"}
               signUpUrl={import.meta.env.BASE_URL + "sign-up"}
+              forceRedirectUrl={nextPath}
               appearance={clerkAppearance}
             />
           </div>

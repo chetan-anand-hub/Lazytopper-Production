@@ -1547,7 +1547,7 @@ function MistakesPanel({
             Drill these patterns
           </ButtonLink>
           <ButtonLink to={practiceHref} variant="outline" icon={<IconDumbbell />}>
-            Open focused practice
+            Practice this topic
           </ButtonLink>
         </div>
 
