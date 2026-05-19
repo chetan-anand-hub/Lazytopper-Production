@@ -1,6 +1,22 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-19T08:48:24Z UTC
+Last updated: 2026-05-19T19:22:46Z UTC
+
+## Post-PR #89 / PR-K2H-8a handoff update
+
+Last updated: 2026-05-19T19:22:46Z UTC
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #89: `36f406099568884965d139354cb103b9451688ab`
+- PR #89 head SHA: `1673ae006da87a4c3d51f881d48e684b19da2604`
+- PR #89 merge commit / new base: `33d0eaff60817a4ddd9fb42f081c230a4ba241a0`
+- Files changed: 4
+  - `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
+  - `lazytopper/src/lib/desktop/loginPrompts.ts`
+  - `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
+  - `lazytopper/src/pages/Login.tsx`
+- QA result: PASS — 12/12 automated tests passed.
+- Follow-up: Clerk OAuth round-trip (`forceRedirectUrl`) requires manual Vercel QA with real Google credentials before K2H-15 auth migration.
+- Next stage: K2H-8b — Advanced Practice filters (Section, marks, type, difficulty, count).
 
 ## Post-PR #87 / PR-K2H-7 handoff update
 

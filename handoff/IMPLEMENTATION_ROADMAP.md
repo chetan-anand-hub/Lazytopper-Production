@@ -715,3 +715,51 @@ K2H-8 doctrine and non-goals will be authored when the K2H-8 prompt is written. 
 
 Future implementation prompts must start from:
 `base/approved-thru-437 @ e239f883e30ec4bb9f185cadf1e9dfe127b1dc64`
+
+---
+
+## Post-PR #89 / PR-K2H-8a handoff update
+
+Status: DONE.
+
+PR #89 / PR-K2H-8a — Practice focus continuity + Clerk OAuth redirect — is merged.
+
+Current checkpoint:
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #89: `36f406099568884965d139354cb103b9451688ab`
+- PR #89 head SHA: `1673ae006da87a4c3d51f881d48e684b19da2604`
+- PR #89 merge commit / new base: `33d0eaff60817a4ddd9fb42f081c230a4ba241a0`
+
+What PR #89 changed:
+- **Fix 1 — `subtopicHint`/`focus` forwarded through `buildLegacyPracticePath`.** The function signature now accepts `subtopicHint?: string` and `focus?: string`; the body forwards them as URL params; the `quickPracticePath` derivation passes the page-level `subtopicHintParam` and `focusParam` (already read from the URL since PR-K2G) into it. The legacy `/practice/:grade/:subject` engine already consumed `subtopicHint` at `PracticePage.tsx:166`; this fix wires the desktop hub side of the contract so focus context actually reaches the engine.
+- **Fix 2 — MistakeIntelligencePanel locked-state CTA preserves the focused URL.** The previously-hardcoded `loginUrl("mistake-aware", "/practice-hub")` at the old line 1238 now reads `loginUrl("mistake-aware", currentPracticeUrl)`. Required prop plumbing: new optional `currentPracticeUrl: string` prop on `MistakePanelProps`, destructured in `MistakeIntelligencePanel`, forwarded from the render site in the main `DesktopPracticePage` body.
+- **Fix 3 — `start-focused-practice` login reason on the Quick Practice CTA.** `loginPrompts.ts` gains a new `start-focused-practice` entry (chip "Focused practice", headline "Sign in to start focused practice", sub-copy referencing Mistake Intelligence) and the key is added to `KNOWN_LOGIN_REASONS`. `DesktopPracticePage.tsx` derives a `quickPracticeTarget` that routes the signed-out + focused-context click through `loginUrl("start-focused-practice", currentPracticeUrl)`; both Quick Practice CTA sites (PrimaryCard + the legacy panel "Continue in full practice engine" Link) use `quickPracticeTarget`. The signed-in and non-focused paths are unchanged — no new auth gate added there.
+- **Fix 4 — TopicHub HowBoardsUseItPanel label honesty.** The "Open focused practice" label, which navigated to a topic-level (not concept-level) href, is relabelled to "Practice this topic" so it matches what the href actually does. The Board Essentials concept-row "Practise this" CTA remains the only focus-passing route on this surface — unchanged.
+- **Clerk OAuth follow-up.** `forceRedirectUrl={nextPath}` is now passed to Clerk `<SignIn>` on `Login.tsx:763`. This makes Clerk itself responsible for routing the user back to the `?redirect=` target after an OAuth round-trip (Google sign-in), instead of relying solely on the post-effect `navigate(nextPath)` that only fires for email/password instant-sign-in. `nextPath` is already validated by `isSafeInternalPath` (line 588), so the new wiring has no open-redirect risk.
+
+Files changed by PR #89:
+- `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` (+31/-6)
+- `lazytopper/src/lib/desktop/loginPrompts.ts` (+9/-0)
+- `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx` (+1/-1)
+- `lazytopper/src/pages/Login.tsx` (+1/-0)
+
+Validation and QA:
+- 12/12 automated tests passed (see `test-k2h-8a-final-2026-05-20.md`):
+  - 8 Playwright browser tests against local `vite dev` (focus banner DOM, CTA URL capture, Login reason copy, MI panel href, non-focused control, TopicHub label).
+  - 4 static source-file assertions (`forceRedirectUrl` wiring, loginPrompts entry, `buildLegacyPracticePath` signature, hardcoded `/practice-hub` removal).
+- TypeScript: 0 errors.
+- Production build passed with `NODE_ENV=production` and `BASE_PATH=/app/`.
+- Production verifier passed: 8 passed, 0 failed.
+- `git diff --check` clean.
+
+Outstanding follow-up (must clear before K2H-15):
+- The Clerk OAuth round-trip behaviour (Google sign-in preserving the `?redirect=` target through the external auth provider) is verified at the static code level only — the prop is wired and TypeScript-validated by the installed `@clerk/react` types. The actual OAuth round-trip must be manually tested against a Vercel preview with a Clerk env that has Google OAuth enabled (`pk_test_*` or `pk_live_*`). The local `vite dev` Clerk environment is in dev mode and does not exercise a real Google OAuth round-trip.
+- **This Clerk OAuth runtime verification must be completed before K2H-15 (Firebase Auth migration) begins.** K2H-15 will re-platform the auth layer and the `forceRedirectUrl` semantics may change with it; we should confirm the Clerk implementation works end-to-end first so the regression surface during the auth migration is bounded.
+
+Next recommended product stage:
+- PR-K2H-8b — Advanced Practice filters (Section A/B/C/D/E, marks, type/family, competency, difficulty, count). Builds on K2H-8a's `subtopicHint`/`focus` plumbing; should extend the URL contract for `buildLegacyPracticePath` to carry the additional filter params and add a filter panel to the Practice Hub UI.
+
+K2H-8b doctrine and non-goals will be authored when the K2H-8b prompt is written. Until then, do not start product implementation against this checkpoint; only this docs-only handoff update is active.
+
+Future implementation prompts must start from:
+`base/approved-thru-437 @ 33d0eaff60817a4ddd9fb42f081c230a4ba241a0`
