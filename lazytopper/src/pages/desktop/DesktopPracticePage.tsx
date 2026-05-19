@@ -1176,6 +1176,10 @@ interface MistakePanelProps {
   mockPath: string;
   checkPath: string;
   drillPath: string;
+  /** Current Practice page URL (path + query). Used to preserve scope/focus
+   *  on post-login redirect when a signed-out learner clicks the locked-state
+   *  "Start free trial" CTA. */
+  currentPracticeUrl: string;
 }
 function MistakeIntelligencePanel({
   isSignedIn,
@@ -1187,6 +1191,7 @@ function MistakeIntelligencePanel({
   mockPath,
   checkPath,
   drillPath,
+  currentPracticeUrl,
 }: MistakePanelProps) {
   // ── State 1 — logged out
   if (!isSignedIn) {
@@ -1235,7 +1240,7 @@ function MistakeIntelligencePanel({
           mini-sections inside your mocks.
         </p>
         <Link
-          to={loginUrl("mistake-aware", "/practice-hub")}
+          to={loginUrl("mistake-aware", currentPracticeUrl)}
           style={{
             alignSelf: "flex-start",
             background: PRIMARY_GREEN,
@@ -1927,10 +1932,17 @@ export default function DesktopPracticePage() {
     : undefined;
 
   // ── Path builders (every CTA → existing production route) ──────────────
-  const buildLegacyPracticePath = (params: { timed?: boolean; topic?: string }): string => {
+  const buildLegacyPracticePath = (params: {
+    timed?: boolean;
+    topic?: string;
+    subtopicHint?: string;
+    focus?: string;
+  }): string => {
     const sp = new URLSearchParams();
     if (params.topic) sp.set("topic", params.topic);
     if (params.timed) sp.set("timed", "1");
+    if (params.subtopicHint) sp.set("subtopicHint", params.subtopicHint);
+    if (params.focus) sp.set("focus", params.focus);
     sp.set("source", SOURCE);
     sp.set("returnTo", returnTo);
     return withQuery(`/practice/${grade}/${scope.subject}`, sp);
@@ -2009,7 +2021,11 @@ export default function DesktopPracticePage() {
   const quickPracticePath: string | null = !validScope
     ? null
     : scope.scope === "topic" && scope.topicSlug
-      ? buildLegacyPracticePath({ topic: scope.topicSlug })
+      ? buildLegacyPracticePath({
+          topic: scope.topicSlug,
+          subtopicHint: subtopicHintParam || undefined,
+          focus: focusParam || undefined,
+        })
       : buildLegacyPracticePath({});
 
   const fullMockPath: string = !isSignedIn
@@ -2098,6 +2114,14 @@ export default function DesktopPracticePage() {
   const selectedNames = displayDesktopTopicNames(scope.selectedTopicSlugs);
   const topicHubFocusContext =
     sourceParam === "topicHub" && (focusParam.length > 0 || subtopicHintParam.length > 0);
+  // Quick Practice CTA target — when a signed-out learner arrived with focus
+  // context (focus/subtopicHint from TopicHub), route through the reason-aware
+  // login gate so the post-login redirect preserves the full focused URL.
+  // Signed-in users and non-focused contexts continue navigating directly.
+  const quickPracticeTarget: string | null =
+    !isSignedIn && topicHubFocusContext && quickPracticePath
+      ? loginUrl("start-focused-practice", currentPracticeUrl)
+      : quickPracticePath;
   const previewLine = (mode: "practice-set" | "worksheet" | "predicted" | "full-mock" | "timed" | "chapter-test" | "practice-paper"): string => {
     if (mode === "practice-set" && topicHubFocusContext && focusParam) {
       return `practice set from ${selectedTopic?.name ?? scope.subject} - focus: ${focusParam}`;
@@ -2313,7 +2337,7 @@ export default function DesktopPracticePage() {
                   desc="A short, focused set of real questions in the full Practice workspace."
                   preview={previewLine("practice-set")}
                   cta="Start quick practice"
-                  to={quickPracticePath}
+                  to={quickPracticeTarget}
                   disabledHint="Pick a scope above first"
                   onActivate={(to) => navigate(to)}
                   honestNote="Opens the full Practice workspace with this scope."
@@ -2970,9 +2994,9 @@ export default function DesktopPracticePage() {
                     gap: 10,
                   }}
                 >
-                  {quickPracticePath ? (
+                  {quickPracticeTarget ? (
                     <Link
-                      to={quickPracticePath}
+                      to={quickPracticeTarget}
                       onClick={() =>
                         appendQuickPracticeSignal(
                           "next_action_clicked",
@@ -3694,6 +3718,7 @@ export default function DesktopPracticePage() {
               }
               checkPath={checkLinkPath}
               drillPath={drillFromMistakePath}
+              currentPracticeUrl={currentPracticeUrl}
             />
 
             {/* Quick links */}
