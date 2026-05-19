@@ -1,6 +1,17 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-17T12:20:00Z UTC / 2026-05-17 17:50 IST
+Last updated: 2026-05-19T08:48:24Z UTC
+
+## Post-PR #87 / PR-K2H-7 handoff update
+
+Last updated: 2026-05-19T08:48:24Z UTC
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #87: `d7c41bf5cb5a74796bf5645e3064cf47a32e699e`
+- PR #87 head SHA: `a40659010af61634675a0662e91b0629acf03d65`
+- PR #87 merge commit / new base: `e239f883e30ec4bb9f185cadf1e9dfe127b1dc64`
+- Files changed: `lazytopper/src/pages/PricingPage.tsx`, `lazytopper/src/App.tsx`
+- QA result: PASS — Vercel preview confirmed, standalone routing verified.
+- Next stage: K2H-8 — Practice focus consumption + advanced filters.
 
 ## Current GitHub Checkpoint
 
