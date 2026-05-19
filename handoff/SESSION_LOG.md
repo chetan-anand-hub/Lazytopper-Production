@@ -1,3 +1,18 @@
+## Post-PR #87 / PR-K2H-7 handoff update
+
+Timestamp: 2026-05-19T08:48:24Z UTC
+- PR #87 merged into `base/approved-thru-437`.
+- New base SHA: `e239f883e30ec4bb9f185cadf1e9dfe127b1dc64`.
+- K2H-7 complete: Pricing visual redesign matching frozen landing/Login grammar.
+- App.tsx: `/pricing` added as a standalone route (no DesktopShell chrome, no global navbar, no TrialBanner, no BottomNav) — three minimal edits using the same pattern as `/welcome` (added to `isDesktopShellRoute`, `isPublicLandingRoute`, and `BottomNav` internal exclusion).
+- PricingPage.tsx: full rewrite to the `lt-pricing-*` CSS-in-JS grammar; no inline `style={{}}` props; CSS classes only; preserves all logic (`saveWaitlistEntry`, `useState` hooks, `handleStartTrial`, `handleWaitlistSubmit`).
+- Premium price now displayed as `₹2,999 / year` with `~₹250/month · less than one tuition session` sub-line; copy stays data-honest about manual activation / no automated checkout.
+- All Unicode symbols (₹ ✓ — 🎉 🏛️ 🗺️ 🎓) verified as real UTF-8 bytes in the file; zero `C3 A2` mojibake markers.
+- Vercel QA: PASS.
+- Pipeline: Claude.ai + Claude Code + GitHub MCP fully operational end-to-end (validation, push, merge, post-merge verification).
+- Next: K2H-8 — Practice focus consumption + advanced filters.
+
+
 ## 2026-05-17T12:20:00Z - PR #82 merge recorded; docs-only handoff update before PR-K2H-6
 
 ### Starting state

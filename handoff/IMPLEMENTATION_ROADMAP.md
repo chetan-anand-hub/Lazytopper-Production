@@ -670,3 +670,48 @@ Pricing next-stage doctrine:
 
 Future implementation prompts must start from:
 `base/approved-thru-437 @ a0e540a837cebe21ffdb8537b9da241537f42fd9`
+
+---
+
+## Post-PR #87 / PR-K2H-7 handoff update
+
+Status: DONE.
+
+PR #87 / PR-K2H-7 — Pricing visual redesign + standalone routing — is merged.
+
+Current checkpoint:
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #87: `d7c41bf5cb5a74796bf5645e3064cf47a32e699e`
+- PR #87 head SHA: `a40659010af61634675a0662e91b0629acf03d65`
+- PR #87 merge commit / new base: `e239f883e30ec4bb9f185cadf1e9dfe127b1dc64`
+
+What PR #87 changed:
+- Rewrote `lazytopper/src/pages/PricingPage.tsx` to use the `lt-pricing-*` CSS-in-JS grammar (`<style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />`, no inline `style={{}}` props). Visual tokens match the frozen Welcome landing and Login gate: dark navy gradient bg (`#071a2d → #051733`), green accent `#16b96a`, Space Grotesk headings, Inter body, 960px max content width, 13px CTA radius with the Login navy `#071a3d` + spec'd box-shadow.
+- Premium card now shows `₹2,999 / year` with `~₹250/month · less than one tuition session` sub-line. Copy stays data-honest: "Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically." No automated checkout introduced.
+- Five media-query breakpoints mirror Login exactly: large desktop ≥1440px, narrow laptop 1024-1180px, short-laptop max-height 820px, tablet/mobile ≤1023px, small mobile ≤520px.
+- All preserved logic: `WAITLIST_KEY`, `WaitlistEntry`, `saveWaitlistEntry`, `FREE_FEATURES` (8 items), `PREMIUM_FEATURES` (6 items), `BOARDS_COMING` (3 items), `useState` hooks, `handleStartTrial`, `handleWaitlistSubmit` body unchanged (parameter dropped only because the new wiring is `<button type="button" onClick>` instead of `<form onSubmit>`).
+- `lazytopper/src/App.tsx`: added `/pricing` to three exclusion sites using the same pattern as `/welcome`:
+  - `isDesktopShellRoute(pathname)` — explicit `return false` for `/pricing`.
+  - `isPublicLandingRoute` — `/pricing` added to the OR-chain. This also hides the global top navbar, CommandPalette, and BreakReminder on `/pricing` (natural cascade — same effect `/welcome` already has).
+  - `BottomNav` internal exclusion — `current === "/pricing"` added to the early-return guard.
+- Result: `/pricing` renders fully standalone — no DesktopShell, no global navbar, no TrialBanner, no BottomNav — verified by Playwright DOM probe (0 `.navbar` nodes, 0 fixed-bottom nodes at both 1440px and 375px viewports).
+
+Files changed by PR #87:
+- `lazytopper/src/pages/PricingPage.tsx`
+- `lazytopper/src/App.tsx`
+
+Validation and QA:
+- TypeScript passed (0 errors).
+- Production build passed with `NODE_ENV=production` and `BASE_PATH=/app/` (built in ~15s; new PricingPage chunk 20.09 kB raw / 4.71 kB gzipped).
+- Production verifier passed: `8 passed, 0 failed`.
+- `git diff --check` passed.
+- Local + Vercel preview visual QA passed at 1440px and 375px.
+- All Unicode symbols (₹ ✓ — 🎉 🏛️ 🗺️ 🎓) verified as real UTF-8 bytes; zero `C3 A2` mojibake markers.
+
+Next recommended product stage:
+- PR-K2H-8 — Practice focus consumption + advanced filters.
+
+K2H-8 doctrine and non-goals will be authored when the K2H-8 prompt is written. Until then, do not start product implementation against this checkpoint; only this docs-only handoff update is active.
+
+Future implementation prompts must start from:
+`base/approved-thru-437 @ e239f883e30ec4bb9f185cadf1e9dfe127b1dc64`
