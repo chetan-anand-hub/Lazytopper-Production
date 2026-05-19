@@ -177,7 +177,7 @@ function BottomNav() {
     return null;
   }
 
-  if (current === "/welcome" || current.startsWith("/intent")) {
+  if (current === "/welcome" || current === "/pricing" || current.startsWith("/intent")) {
     return null;
   }
 
@@ -341,6 +341,8 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   if (pathname === "/browse") return true;
   // "/welcome" is always a public landing page, never shell-wrapped.
   if (pathname === "/welcome") return false;
+  // "/pricing" is a standalone public page — never shell-wrapped.
+  if (pathname === "/pricing") return false;
   // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
   // no other future destinations (/check-improve, /me, /topic-hub,
   // /topic-hub/*) are added in this phase.
@@ -513,7 +515,9 @@ export default function App() {
   const isAuthRoute =
     location.pathname === "/login" || location.pathname.startsWith("/login/");
   const isPublicLandingRoute =
-    location.pathname === "/welcome" || (location.pathname === "/" && !user);
+    location.pathname === "/welcome" ||
+    location.pathname === "/pricing" ||
+    (location.pathname === "/" && !user);
   const shouldUseDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
   const pricingUrl = (source: string) => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
