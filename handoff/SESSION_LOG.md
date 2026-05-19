@@ -1,3 +1,20 @@
+## Post-PR #89 / PR-K2H-8a handoff update
+
+Timestamp: 2026-05-19T19:22:46Z UTC
+- PR #89 merged into `base/approved-thru-437`.
+- New base SHA: `33d0eaff60817a4ddd9fb42f081c230a4ba241a0`.
+- K2H-8a complete: Practice focus continuity.
+  - `subtopicHint`/`focus` forwarded through `buildLegacyPracticePath` so the legacy `/practice/:grade/:subject` engine receives the focus context (`PracticePage.tsx:166-167` already consumes `subtopicHint`).
+  - MistakeIntelligencePanel hardcoded `/practice-hub` redirect fixed to live `currentPracticeUrl` (via `MistakePanelProps.currentPracticeUrl` prop plumbing).
+  - `start-focused-practice` login reason added to `loginPrompts.ts` (chip "Focused practice" + headline "Sign in to start focused practice").
+  - TopicHub HowBoardsUseItPanel "Open focused practice" relabelled to "Practice this topic" (the href was already topic-level; this fixes the label-vs-behaviour honesty gap).
+  - `forceRedirectUrl={nextPath}` added to Clerk `<SignIn>` so OAuth round-trips (Google sign-in) preserve the `?redirect=` target through the external auth provider.
+- 12/12 automated tests passed (see `test-k2h-8a-final-2026-05-20.md`): 8 Playwright browser tests + 4 static source-file assertions. Focus banner renders/absent correctly; Quick Practice CTA forwards subtopicHint+focus when signed-in; routes through `reason=start-focused-practice` when signed-out; Login page renders new prompt copy; MI panel locked CTA preserves focused URL; non-focused path unchanged; TopicHub label change; source files contain all expected wiring.
+- Follow-up: Clerk OAuth round-trip needs manual Vercel QA with real Google credentials before K2H-15 Firebase Auth migration.
+- Pipeline: Claude.ai + Claude Code + GitHub MCP + Playwright tests (Chromium 1217).
+- Next: K2H-8b — Advanced Practice filters (Section A/B/C/D/E, marks, type/family, competency, difficulty, count).
+
+
 ## Post-PR #87 / PR-K2H-7 handoff update
 
 Timestamp: 2026-05-19T08:48:24Z UTC
