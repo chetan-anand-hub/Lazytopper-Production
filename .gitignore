@@ -84,3 +84,10 @@ attached_assets/*.md
 # Cleanup proof artifacts (Phase 8) — never commit these
 .review-artifacts/
 attached_assets/
+
+# Tool-generated session and notes dirs
+/docs/project_notes/
+/docs/session/
+
+# Claude Code local config
+.mcp.json

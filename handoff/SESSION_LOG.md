@@ -851,13 +851,13 @@ Timestamp:
 - K2C branch does not already exist.
 
 
-## 2026-05-05T11:25:06Z â€” PR-K2B repair: save copy and handoff state
+## 2026-05-05T11:25:06Z — PR-K2B repair: save copy and handoff state
 
 ### Work completed
 - Repaired signed-in idle save copy so it no longer says device-only.
 - Updated DesktopWorksheetsPage comments to reflect signed-in profile save plus signed-out device save.
 - Repaired NEXT_ACTION.md stale K2A base/branch instructions.
-- Repaired CURRENT_STATE.md stale â€œK2A has not startedâ€ section.
+- Repaired CURRENT_STATE.md stale “K2A has not started” section.
 - Updated K2B audit doc with repair note.
 
 ### Data-honesty audit
@@ -874,7 +874,7 @@ Timestamp:
 
 
 
-## 2026-05-05T12:45:00Z â€” PR-K2B: wire worksheet save to profile
+## 2026-05-05T12:45:00Z — PR-K2B: wire worksheet save to profile
 
 Timestamp:
 - UTC: 2026-05-05T12:45:00Z
@@ -883,10 +883,10 @@ Timestamp:
 ### Starting state
 - Base branch: base/approved-thru-437
 - Active branch: feat/desktop-pr-k2b-wire-worksheet-profile-save
-- Current task/stage: PR-K2B â€” wire worksheet save to profile
+- Current task/stage: PR-K2B — wire worksheet save to profile
 
 ### Work completed
-- Wired desktop worksheet â€œSave worksheetâ€ to K2A profile save helper for signed-in users.
+- Wired desktop worksheet “Save worksheet” to K2A profile save helper for signed-in users.
 - Preserved device-only save for signed-out users.
 - Mapped K2A statuses to honest UI copy (profile-saved, local-only, skipped-signed-out, failed).
 - No progress/mastery/Me/Mistake Intelligence claims.
@@ -908,8 +908,8 @@ Timestamp:
 - Build verifier: pending
 
 ### Manual/browser QA evidence
-- Signed-out: Save worksheet â†’ â€œSaved on this device.â€
-- Signed-in: Save worksheet â†’ â€œSaved to your profile.â€ or â€œSaved locally. Profile sync is unavailable right now.â€
+- Signed-out: Save worksheet → “Saved on this device.”
+- Signed-in: Save worksheet → “Saved to your profile.” or “Saved locally. Profile sync is unavailable right now.”
 - No progress/mastery/Me/Mistake Intelligence claims in UI.
 
 ### Known limitations
@@ -999,7 +999,7 @@ Timestamp:
 - That Firestore success with local cache failure returns `profile-saved`, not `failed`.
 
 
-## 2026-05-05T12:35:00Z UTC â€” PR-K2A: Contract repair and detailed result shape
+## 2026-05-05T12:35:00Z UTC — PR-K2A: Contract repair and detailed result shape
 
 **Timestamp:** 2026-05-05T12:35:00Z UTC / 2026-05-05 18:05 IST
 
@@ -1013,11 +1013,11 @@ Current branch: feat/desktop-pr-k2a-worksheet-profile-contract (fresh from previ
 
 #### Repaired service contract
 - **Fixed 5 contract design issues:**
-  1. **No authClient check before local writes** â†’ Accept uid: string | null | undefined; let Firestore rules decide
-  2. **Local write honesty** â†’ writeLocalJson() now returns boolean; reads back to verify actual success
-  3. **Independent Firestore attempt** â†’ Try Firestore even if local fails (don't skip early)
-  4. **Null record for skipped-signed-out** â†’ Return record: null when uid missing (K2B can distinguish)
-  5. **Detailed result shape** â†’ Added SavedWorksheetWriteResult, ActivityEventWriteResult with status, id, record, localCacheSaved, firestoreAttempted, firestorePath, errorMessage
+  1. **No authClient check before local writes** → Accept uid: string | null | undefined; let Firestore rules decide
+  2. **Local write honesty** → writeLocalJson() now returns boolean; reads back to verify actual success
+  3. **Independent Firestore attempt** → Try Firestore even if local fails (don't skip early)
+  4. **Null record for skipped-signed-out** → Return record: null when uid missing (K2B can distinguish)
+  5. **Detailed result shape** → Added SavedWorksheetWriteResult, ActivityEventWriteResult with status, id, record, localCacheSaved, firestoreAttempted, firestorePath, errorMessage
 
 #### Modified: lazytopper/src/services/worksheetProfileService.ts (550 lines)
 - Updated saveWorksheetToProfile() to new signature and behavior
@@ -1038,10 +1038,10 @@ Current branch: feat/desktop-pr-k2a-worksheet-profile-contract (fresh from previ
 - All sections now document the repaired behavior
 
 #### Validation results
-- âœ… TypeScript compilation: No errors
-- âœ… Production build: Built in 13.92s (faster than before)
-- âœ… Build verification: 8/8 checks passed
-- âœ… Scope gate: Only allowed files changed (service + audit + this log)
+- ✅ TypeScript compilation: No errors
+- ✅ Production build: Built in 13.92s (faster than before)
+- ✅ Build verification: 8/8 checks passed
+- ✅ Scope gate: Only allowed files changed (service + audit + this log)
 
 ### Key Design Changes
 
@@ -1085,13 +1085,13 @@ async function saveWorksheetToProfile(
 
 ### Data-honesty audit
 
-âœ… **Repaired contract maintains strict data honesty:**
+✅ **Repaired contract maintains strict data honesty:**
 - Accepts uid = null and returns skipped (no fake persistence)
 - writeLocalJson() verifies actual write success (no false positives)
 - Firestore attempted even if local fails (no hidden failures)
 - record: null for skipped prevents K2B from treating skipped as saved
 - Error messages included for debugging (transparent about failures)
-- Still maintains: generated â‰  progress, saved â‰  mastery, attempted â‰  checked, etc.
+- Still maintains: generated ≠ progress, saved ≠ mastery, attempted ≠ checked, etc.
 
 ### Session learnings
 
@@ -1107,15 +1107,15 @@ async function saveWorksheetToProfile(
 
 ### Known issues / Follow-ups
 
-1. **K2B must use record !== null check** â€” Not just status === "skipped-signed-out"; the check must be explicit so refactoring doesn't break it
+1. **K2B must use record !== null check** — Not just status === "skipped-signed-out"; the check must be explicit so refactoring doesn't break it
 
-2. **K2B should display errorMessage** â€” If status is "failed", show errorMessage to user for transparency
+2. **K2B should display errorMessage** — If status is "failed", show errorMessage to user for transparency
 
-3. **K2B should display firestorePath** â€” For debugging cloud issues, firestorePath in error messages helps
+3. **K2B should display firestorePath** — For debugging cloud issues, firestorePath in error messages helps
 
-4. **Hydration still optional** â€” hydrateProfileFromCloud() is not auto-called; K2B or signin flow must call it if desired
+4. **Hydration still optional** — hydrateProfileFromCloud() is not auto-called; K2B or signin flow must call it if desired
 
-5. **No progress inference from activity** â€” Even with detailed activity history, Me/Progress aggregation is K2D+, not K2A
+5. **No progress inference from activity** — Even with detailed activity history, Me/Progress aggregation is K2D+, not K2A
 
 ### Next safe action
 
@@ -1157,7 +1157,7 @@ async function saveWorksheetToProfile(
 
 ---
 
-## 2026-05-05T11:15:00Z UTC â€” PR-K2A: Worksheet profile save contract implemented
+## 2026-05-05T11:15:00Z UTC — PR-K2A: Worksheet profile save contract implemented
 
 **Timestamp:** 2026-05-05T11:15:00Z UTC / 2026-05-05 16:45 IST
 
@@ -1170,10 +1170,10 @@ async function saveWorksheetToProfile(
 ### Work completed
 
 #### Clean-start check
-- âœ… git fetch, switch to base/approved-thru-437, pull --ff-only
-- âœ… Confirmed HEAD exactly: 8ff9a33be8345f201d54d91fdfe21f221093d537
-- âœ… Confirmed working tree clean
-- âœ… Found and repaired polluted K2A branch
+- ✅ git fetch, switch to base/approved-thru-437, pull --ff-only
+- ✅ Confirmed HEAD exactly: 8ff9a33be8345f201d54d91fdfe21f221093d537
+- ✅ Confirmed working tree clean
+- ✅ Found and repaired polluted K2A branch
 
 #### Repair of polluted branch
 - Found local/remote `feat/desktop-pr-k2a-worksheet-profile-contract` pointing to old base
@@ -1187,11 +1187,11 @@ async function saveWorksheetToProfile(
 - Created: `lazytopper/src/services/worksheetProfileService.ts` (414 lines)
 - Implements typed contract for signed-in worksheet profile save and activity recording
 - Exports:
-  - `saveWorksheetToProfile(uid, draft)` â†’ `{ status, record }`
-  - `recordWorksheetActivity(uid, draft)` â†’ `{ status, record }`
-  - `listLocalProfileSavedWorksheets(uid)` â†’ array
-  - `listLocalWorksheetActivity(uid)` â†’ array
-  - `hydrateProfileFromCloud(uid)` â†’ optional cloud fetch
+  - `saveWorksheetToProfile(uid, draft)` → `{ status, record }`
+  - `recordWorksheetActivity(uid, draft)` → `{ status, record }`
+  - `listLocalProfileSavedWorksheets(uid)` → array
+  - `listLocalWorksheetActivity(uid)` → array
+  - `hydrateProfileFromCloud(uid)` → optional cloud fetch
   - Type exports: `WriteStatus`, `WorksheetActivityKind`, all record/draft types
 
 - Write statuses:
@@ -1211,10 +1211,10 @@ async function saveWorksheetToProfile(
   - Respects existing Firestore rules (isOwner(uid))
 
 - Data honesty:
-  - Generated â‰  progress
-  - Saved â‰  mastery
-  - Attempted â‰  checked
-  - Checked â‰  logged
+  - Generated ≠ progress
+  - Saved ≠ mastery
+  - Attempted ≠ checked
+  - Checked ≠ logged
   - No automatic Me/Progress/Mistake Intelligence claims
 
 #### Audit documentation
@@ -1227,33 +1227,33 @@ async function saveWorksheetToProfile(
 
 #### TypeScript compilation
 ```
-âœ… pnpm --filter lazytopper exec tsc --noEmit
+✅ pnpm --filter lazytopper exec tsc --noEmit
    No errors. Service compiles cleanly.
 ```
 
 #### Production build
 ```
-âœ… NODE_ENV=production BASE_PATH=/app/ pnpm --filter lazytopper run build
+✅ NODE_ENV=production BASE_PATH=/app/ pnpm --filter lazytopper run build
    Built successfully in 15.98s
    Main JS bundle created with new service included
 ```
 
 #### Build verification
 ```bash
-âœ… node scripts/verify-production-build.mjs
+✅ node scripts/verify-production-build.mjs
    8 passed, 0 failed
-   âœ“ Build verification PASSED â€” safe to deploy
+   ✓ Build verification PASSED — safe to deploy
 ```
 
 #### Git scope gate
 ```bash
-âœ… git diff --name-only origin/base/approved-thru-437...HEAD
+✅ git diff --name-only origin/base/approved-thru-437...HEAD
    (after staging)
 
 Modified files:
-- lazytopper/src/services/worksheetProfileService.ts âœ… ALLOWED
-- docs/audits/pr-k2a-worksheet-profile-save-contract.md âœ… ALLOWED
-- handoff/SESSION_LOG.md âœ… ALLOWED
+- lazytopper/src/services/worksheetProfileService.ts ✅ ALLOWED
+- docs/audits/pr-k2a-worksheet-profile-save-contract.md ✅ ALLOWED
+- handoff/SESSION_LOG.md ✅ ALLOWED
 
 No forbidden files changed (UI, worksheet generator, mistake services, package files).
 ```
@@ -1273,10 +1273,10 @@ No forbidden files changed (UI, worksheet generator, mistake services, package f
 
 ### Data-honesty audit
 
-âœ… Service maintains strict data honesty:
+✅ Service maintains strict data honesty:
 - Writes exactly what the caller provides (no inference)
 - Returns honest `WriteStatus` (profile-saved, local-only, skipped, failed)
-- Activity states are distinct (generated â‰  attempted â‰  checked â‰  logged)
+- Activity states are distinct (generated ≠ attempted ≠ checked ≠ logged)
 - No progress claims; no mastery claims; no Mistake Intelligence claims
 - No fake checked answers persisted as "solutions"
 - No generated worksheets claimed as "catalog questions"
@@ -1313,7 +1313,7 @@ No forbidden files changed (UI, worksheet generator, mistake services, package f
 
 2. **K2B must update save labels:** UI labels must distinguish "Saved on this device" (signed-out) from "Saved to profile" (signed-in, profile-saved) from "Saved locally, will sync" (local-only).
 
-3. **K2C must wire full learner loop:** Generate â†’ attempt â†’ check â†’ see progress. Activity recording is ready; UI wiring is K2C.
+3. **K2C must wire full learner loop:** Generate → attempt → check → see progress. Activity recording is ready; UI wiring is K2C.
 
 4. **K2D must add Me/Progress aggregation:** Read activity history + rules. Compute progress/mastery. Update `learnerProgress/{uid}`. Feed Mistake Intelligence from saved checked evidence.
 
@@ -1352,12 +1352,12 @@ No forbidden files changed (UI, worksheet generator, mistake services, package f
 
 ---
 
-## 2026-05-04T18:04:56Z â€” Handoff roadmap and trackers added
+## 2026-05-04T18:04:56Z — Handoff roadmap and trackers added
 
 ### Completed
 
 - Added `NEXT_ACTION.md` for immediate next task.
-- Added `IMPLEMENTATION_ROADMAP.md` for full K2A â†’ K7 â†’ J sequence.
+- Added `IMPLEMENTATION_ROADMAP.md` for full K2A → K7 → J sequence.
 - Added `DECISION_LOG.md` for permanent project decisions.
 - Added `OPEN_QUESTIONS_AND_FOLLOWUPS.md` for unresolved issues.
 - Updated `README.md` file map and read order.
@@ -1365,7 +1365,7 @@ No forbidden files changed (UI, worksheet generator, mistake services, package f
 
 ### Session learnings
 
-- The handoff system needs both immediate next action and full roadmap; otherwise future GPT sessions may know K2A but lose the larger K2 â†’ K7 â†’ J sequence.
+- The handoff system needs both immediate next action and full roadmap; otherwise future GPT sessions may know K2A but lose the larger K2 → K7 → J sequence.
 - Permanent decisions should not be buried in chronological logs.
 - Open questions/follow-ups need a separate file so they do not become accidental blockers or disappear.
 - Revised Level 3 improvements still have no finalized canonical prototype, so implementation must proceed through product-native specs and QA gates.
@@ -1374,7 +1374,7 @@ No forbidden files changed (UI, worksheet generator, mistake services, package f
 
 Start PR-K2A only after verifying live base and reading all handoff files.
 
-## 2026-05-04T17:16:38Z â€” Handoff timestamp and learning rules added
+## 2026-05-04T17:16:38Z — Handoff timestamp and learning rules added
 
 Timestamp:
 - UTC: 2026-05-04T17:16:38Z
@@ -1383,7 +1383,7 @@ Timestamp:
 ### Completed
 
 - Updated handoff SOP rules so every future session must timestamp handoff entries.
-- Added requirement that every session log entry includes â€œSession learnings.â€
+- Added requirement that every session log entry includes “Session learnings.”
 - Added requirement that handoff folder is updated at regular checkpoints and at end of session.
 - Confirmed current base remains 7518d2fc4a181472b4dafd1969a41d96eec2ec3d.
 - Confirmed next implementation stage remains PR-K2A.
@@ -1403,7 +1403,7 @@ Start PR-K2A only after verifying live base and reading:
 - handoff/CURRENT_STATE.md
 - handoff/SESSION_LOG.md
 
-## 2026-05-04 â€” Handoff SOP folder activated
+## 2026-05-04 — Handoff SOP folder activated
 
 ### Completed
 
@@ -1461,7 +1461,7 @@ K2A must be helper/contract only.
 - DesktopWorksheetsPage edits
 - WorksheetReady edits
 
-## 2026-05-03 â€” Post K1C / Pre K2A checkpoint
+## 2026-05-03 — Post K1C / Pre K2A checkpoint
 
 ### Completed in this session
 
@@ -1487,7 +1487,7 @@ K2A must be helper/contract only.
 - Browser Agent can also fail on Codespaces due to certificate / forwarding / gateway issues.
 - If Codespaces preview fails for Browser Agent but works manually, classify as:
   ```
-  INCONCLUSIVE â€” preview access limitation
+  INCONCLUSIVE — preview access limitation
   ```
 - Do not call that a product route failure unless the app itself loads and fails.
 
@@ -1519,7 +1519,7 @@ K2A should be a helper/contract PR only.
 
 ## Post-PR #85 / PR-K2H-6 handoff update
 
-PR #85 / PR-K2H-6 â€” Home cockpit order + safe Continue repair is merged.
+PR #85 / PR-K2H-6 — Home cockpit order + safe Continue repair is merged.
 
 Current checkpoint:
 - Active integration branch: `base/approved-thru-437`

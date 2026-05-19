@@ -254,7 +254,7 @@ This file tracks unresolved items so they do not get buried in session logs.
 
 Newest items should be added at the top with UTC timestamp.
 
-## 2026-05-07 Ã¢â‚¬â€ Practice and HPQ Level-3 design grammar alignment
+## 2026-05-07 Ã¢— Practice and HPQ Level-3 design grammar alignment
 
 Status:
 Active follow-up before desktop graduation sign-off.
@@ -265,7 +265,7 @@ During manual 7-day trial QA, Practice and HPQ old-format pages were confirmed f
 Action:
 Plan a future scoped PR (likely PR-K2F or equivalent) to align Practice and HPQ surfaces with the upgraded Level-3 desktop design grammar. Do not block trial entitlement. Add to implementation roadmap for post-K2E stage.
 
-## 2026-05-07 Ã¢â‚¬â€ Browser Agent cannot complete magic-link auth without inbox access
+## 2026-05-07 Ã¢— Browser Agent cannot complete magic-link auth without inbox access
 
 Status:
 Permanent QA caution for trial entitlement testing.
@@ -345,9 +345,9 @@ Action:
 Add tutor/examiner wording and quality checks later, after real worksheet/check/progress paths are grounded.
 ---
 
-## PR-K2H-6 Continue Repair Decision â€” Option B
+## PR-K2H-6 Continue Repair Decision — Option B
 
-Owner-approved decision: use Option B for the K2H-6 â€œContinue where you left offâ€ repair.
+Owner-approved decision: use Option B for the K2H-6 “Continue where you left off” repair.
 
 Saved worksheet memory:
 - CTA label: `Continue worksheet plan`
@@ -389,7 +389,7 @@ K2H-6 non-goals:
 
 ## Post-PR #85 / PR-K2H-6 handoff update
 
-PR #85 / PR-K2H-6 â€” Home cockpit order + safe Continue repair is merged.
+PR #85 / PR-K2H-6 — Home cockpit order + safe Continue repair is merged.
 
 Current checkpoint:
 - Active integration branch: `base/approved-thru-437`

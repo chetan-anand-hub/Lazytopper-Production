@@ -362,7 +362,7 @@ PR #69 / K2D remains separate.
 
 ## Post-PR #85 / PR-K2H-6 handoff update
 
-PR #85 / PR-K2H-6 â€” Home cockpit order + safe Continue repair is merged.
+PR #85 / PR-K2H-6 — Home cockpit order + safe Continue repair is merged.
 
 Current checkpoint:
 - Active integration branch: `base/approved-thru-437`

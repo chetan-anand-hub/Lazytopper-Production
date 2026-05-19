@@ -79,9 +79,9 @@ PR #69 / K2D remains separate from this handoff sequence.
 - Each PR must be audited and validated independently before merge.
 ---
 
-## PR-K2H-6 Continue Repair Decision â€” Option B
+## PR-K2H-6 Continue Repair Decision — Option B
 
-Owner-approved decision: use Option B for the K2H-6 â€œContinue where you left offâ€ repair.
+Owner-approved decision: use Option B for the K2H-6 “Continue where you left off” repair.
 
 Saved worksheet memory:
 - CTA label: `Continue worksheet plan`
@@ -123,7 +123,7 @@ K2H-6 non-goals:
 
 ## Post-PR #85 / PR-K2H-6 handoff update
 
-PR #85 / PR-K2H-6 â€” Home cockpit order + safe Continue repair is merged.
+PR #85 / PR-K2H-6 — Home cockpit order + safe Continue repair is merged.
 
 Current checkpoint:
 - Active integration branch: `base/approved-thru-437`
