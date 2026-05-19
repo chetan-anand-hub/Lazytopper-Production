@@ -357,3 +357,53 @@ PR #69 / K2D remains separate.
 - Do not edit `lazytopper/src`, server/API files, package files, lock files, question-bank/data files, screenshots/artifacts, or env files.
 - Do not touch PR #69 / K2D code.
 - Do not commit or push until the local diff is reviewed.
+
+---
+
+## Post-PR #85 / PR-K2H-6 handoff update
+
+PR #85 / PR-K2H-6 — Home cockpit order + safe Continue repair is merged.
+
+Current checkpoint:
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #85: `c5515abf5cf616137391dc02f5e673ecc098baac`
+- PR #85 head SHA: `f490a59bb97857e6be484fa288872eb625d69fd6`
+- PR #85 merge commit / new base: `a0e540a837cebe21ffdb8537b9da241537f42fd9`
+
+What PR #85 changed:
+- Reordered Home cockpit primary cards to: `Exam Trends -> Practice -> Worksheets -> Check & Improve`
+- Implemented K2H-6 Option B for Continue/resume behavior:
+  - saved worksheet memory -> `Continue worksheet plan` -> `/practice/worksheets`
+  - grade + subject memory -> `Resume with Exam Trends` -> `/exam-trends?subject=<subject>`
+  - profile-only memory -> no Continue CTA
+- Removed broad grade/subject memory routing to TopicHub to avoid TopicHub "Topic not found" risk.
+- Preserved `/browse` behavior, no guest mode, no fake memory, and no fake personalization.
+
+Files changed by PR #85:
+- `lazytopper/src/lib/desktop/landingMemory.ts`
+- `lazytopper/src/pages/desktop/DesktopHome.tsx`
+
+Validation and QA:
+- TypeScript passed.
+- Production build passed with `NODE_ENV=production` and `BASE_PATH=/app/`.
+- Production verifier passed: `8 passed, 0 failed`.
+- `git diff --check` passed.
+- Local `/app/browse` visual QA passed.
+- Vercel `/app/browse` visual QA passed.
+- Confirmed card order: `Exam Trends -> Practice -> Worksheets -> Check & Improve`.
+- Local `/api/cbse-exam-date?class=10` proxy error remains a non-blocking local backend issue unrelated to PR #85.
+
+Next recommended product stage:
+- Pricing visual redesign, no payment gateway yet.
+
+Pricing next-stage doctrine:
+- Redesign Pricing so it visually matches the frozen landing, Login, and desktop cockpit grammar.
+- Keep pricing honest: manual activation/payment not automated yet.
+- Do not add fake checkout.
+- Do not add fake premium unlock.
+- Do not mark premium from normal client UI.
+- Do not implement payment gateway in the visual redesign PR.
+- Payment gateway / UPI / manual activation remains a later launch-readiness stage requiring server/admin verification.
+
+Future implementation prompts must start from:
+`base/approved-thru-437 @ a0e540a837cebe21ffdb8537b9da241537f42fd9`
