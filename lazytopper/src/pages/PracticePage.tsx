@@ -285,7 +285,8 @@ useEffect(() => {
             ?? ""
         ).toLowerCase();
         const isCompetency = Boolean((q as { isCompetencyBased?: unknown }).isCompetencyBased);
-        if (questionType === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple");
+        if (questionType === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple")
+          || Array.isArray((q as { options?: unknown }).options);
         if (questionType === "Proof") return fmt.includes("proof") || fmt.includes("prove");
         if (questionType === "Competency") return isCompetency || fmt.includes("competency") || fmt.includes("application");
         if (questionType === "AR") return fmt.includes("assertion") || fmt === "ar";
@@ -295,7 +296,10 @@ useEffect(() => {
     }
     // PR-K2H-8c — PYQ-only filter. Honours the `isPYQ` flag when present.
     if (pyqOnly) {
-      pool = pool.filter((q) => Boolean((q as { isPYQ?: unknown }).isPYQ));
+      pool = pool.filter((q) =>
+        Boolean((q as { isPYQ?: unknown }).isPYQ) ||
+        Boolean((q as { pyqYear?: unknown }).pyqYear)
+      );
     }
     return pool;
   }, [questions, sectionFilter, questionType, pyqOnly]);
@@ -485,6 +489,10 @@ const packTopicKey = useMemo(() => {
   }, [filteredQuestions, activeQuestionId]);
 
   useEffect(() => {
+    // PR-K2H-8e: clear exclusion set when filter changes so the
+    // new filter cohort is not immediately excluded.
+    previousQuestionKeys.current = new Set<string>();
+
     let cancelled = false;
 
     const run = async () => {
@@ -521,6 +529,8 @@ const packTopicKey = useMemo(() => {
             adaptiveMix,
             priorityConceptKeys,
             marksFilter,
+            questionType: questionType !== "All" ? questionType : undefined,
+            pyqOnly: pyqOnly || undefined,
             excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
           }),
           timeout,
@@ -574,6 +584,8 @@ const packTopicKey = useMemo(() => {
     strictFocus,
     sectionFilter,
     marksFilter,
+    questionType,
+    pyqOnly,
     regenerationKey,
   ]);
 

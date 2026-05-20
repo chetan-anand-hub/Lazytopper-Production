@@ -382,6 +382,9 @@ export interface AiTopupArgs {
   priorityConceptKeys?: string[];
   marksFilter?: number;
   excludeKeys?: Set<string>;
+  // PR-K2H-8d: question type and PYQ filters
+  questionType?: string;   // "All" | "MCQ" | "Proof" | "Competency" | "AR" | "Case"
+  pyqOnly?: boolean;
 }
 
 function expandQuestionsForDrill(source: PracticeQuestion[], targetCount: number): PracticeQuestion[] {
@@ -459,9 +462,37 @@ export async function buildPracticeQuestionsWithAiTopup(
   }
 
   const desiredSection = normalizeBoardPattern(args.sectionFilter);
-  const bankQuestionsFiltered = desiredSection
+  let bankQuestionsFiltered = desiredSection
     ? bankQuestions.filter((q) => inferBoardPatternFromQuestion(q) === desiredSection)
     : bankQuestions;
+
+  // PR-K2H-8d — Question type filter
+  if (args.questionType && args.questionType !== "All") {
+    const qt = args.questionType;
+    const filtered = bankQuestionsFiltered.filter((q) => {
+      const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
+      const isCompetency = Boolean((q as { isCompetencyBased?: unknown }).isCompetencyBased);
+      if (qt === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple");
+      if (qt === "Proof") return fmt.includes("proof") || fmt.includes("prove");
+      if (qt === "Competency") return isCompetency || fmt.includes("competency") || fmt.includes("application");
+      if (qt === "AR") return fmt.includes("assertion") || fmt === "ar";
+      if (qt === "Case") return fmt.includes("case") || (q as { section?: unknown }).section === "E";
+      return true;
+    });
+    // Only apply filter if it yields results — otherwise fall through with full pool
+    // (honest: "no X questions available" is better handled by showing empty state)
+    if (filtered.length > 0) bankQuestionsFiltered = filtered;
+  }
+
+  // PR-K2H-8d — PYQ-only filter
+  if (args.pyqOnly) {
+    const filtered = bankQuestionsFiltered.filter((q) =>
+      Boolean((q as { isPYQ?: unknown }).isPYQ) ||
+      Boolean((q as { pyqYear?: unknown }).pyqYear)
+    );
+    // Only apply if results exist — prevents blank screen when PYQ data is sparse
+    if (filtered.length > 0) bankQuestionsFiltered = filtered;
+  }
 
   const focusIdSet =
     args.strictFocus && Array.isArray(args.focusBankIds) && args.focusBankIds.length > 0
