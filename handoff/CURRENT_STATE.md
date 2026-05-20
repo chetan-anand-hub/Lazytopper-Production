@@ -1,6 +1,25 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-20T08:54:25Z UTC
+Last updated: 2026-05-20T17:45:22Z UTC
+
+## Post-PR #94 / K2H-8d+8e handoff update
+
+Last updated: 2026-05-20T17:45:22Z UTC
+- Active branch: `base/approved-thru-437`
+- New base: `699a39d4bf629126e910d8403660820c090e9137`
+- Previous base: `c11b53851ea7b8a9ee48b41420c16bbbb55661a4`
+- PR #94 head SHA: `b1e04a98e6401f2a8bdd0f335b7f69b8b8847c6f`
+- PR #94 merged at: 2026-05-20T17:41:26Z UTC
+- Files changed: 2
+  - `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
+  - `lazytopper/src/pages/PracticePage.tsx`
+- What shipped:
+  - K2H-8d — `questionType` + `pyqOnly` plumbed through `AiTopupArgs` to the engine; filter applied AFTER the section filter with graceful fallback (`if filtered.length > 0`) so a no-match selection doesn't blank the workspace.
+  - K2H-8e — `previousQuestionKeys.current` cleared at the start of the build `useEffect` so filter changes get a fresh question pool instead of carrying stale dedupe state forward.
+  - MCQ chip + "Build new set" now returns correctly filtered results end-to-end (chip click → filter → engine pool → render).
+  - Competency + Section filters confirmed working end-to-end against the question bank.
+  - **PYQ filter currently returns 0 results** — the engine doesn't pull `pyqYear`-tagged pack3 questions into its candidate pool. This is a known limitation deferred to **K2H-8f** (engine-tier change in `practiceSetGenerator.ts`).
+- Next: `content/question-bank-expansion-01` branch — add proof packs, AR packs, case-based packs, backfill missing `solutionSteps`, source PYQ entries from official CBSE PDFs.
 
 ## Post-PR #92 / K2H-8b+8c handoff update
 

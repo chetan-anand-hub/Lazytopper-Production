@@ -1,3 +1,18 @@
+## Post-PR #94 / K2H-8d+8e
+
+Timestamp: 2026-05-20T17:45:22Z UTC
+- PR #94 merged into `base/approved-thru-437`. New base: `699a39d4bf629126e910d8403660820c090e9137`. PR head SHA: `b1e04a98e6401f2a8bdd0f335b7f69b8b8847c6f`. Merged at: 2026-05-20T17:41:26Z UTC.
+- **K2H-8d — Filter wiring through the engine** (`lazytopper/src/components/practice/practiceQuestionBuilder.ts`, `lazytopper/src/pages/PracticePage.tsx`):
+  - `questionType` and `pyqOnly` added to the `AiTopupArgs` interface so the filter values flow from the UI through `PracticePage` into the engine.
+  - Filter applied AFTER the section filter inside the engine pipeline, with a graceful fallback (`if filtered.length > 0`) so an empty filtered result preserves the prior pool instead of blanking the workspace.
+- **K2H-8e — Stale dedupe state fix** (`lazytopper/src/pages/PracticePage.tsx`):
+  - `previousQuestionKeys.current` cleared at the start of the build `useEffect` so filter changes get a fresh candidate pool. Without this, the dedupe set from the previous filter context carried forward and starved subsequent builds.
+- **End-to-end result**: MCQ chip + "Build new set" now returns correctly filtered questions. Competency and Section filters confirmed working end-to-end.
+- **Known limitation deferred to K2H-8f**: PYQ-only filter currently returns 0 results because the engine selection layer (`practiceSetGenerator.ts`) does not pull `pyqYear`-tagged pack3 entries into its candidate pool. K2H-8f will add an engine-tier PYQ bias.
+- Pipeline: Claude Code + Playwright + local vite dev. GitHub MCP still not loaded in this session; `gh` CLI used for verification.
+- Content branch next: `content/question-bank-expansion-01` — add proof packs (triangles/trigonometry/circles already drafted into temp diff/), AR packs (maths + science already drafted), case-based packs, backfill missing `solutionSteps`, source PYQ entries from official CBSE PDFs once domain access is unblocked.
+
+
 ## Post-PR #92 / K2H-8b+8c handoff update
 
 Timestamp: 2026-05-20T08:54:25Z UTC
