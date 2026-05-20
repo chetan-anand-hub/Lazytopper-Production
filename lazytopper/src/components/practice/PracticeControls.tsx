@@ -10,6 +10,11 @@ export interface PracticeControlsProps {
   onSetSectionFilter: (s: string) => void;
   questionCount: number;
   onSetQuestionCount: (n: number) => void;
+  // PR-K2H-8c — optional Question Type + PYQ filters.
+  questionType?: string;
+  onSetQuestionType?: (t: string) => void;
+  pyqOnly?: boolean;
+  onSetPyqOnly?: (v: boolean) => void;
   onRegenerate: () => void;
   onDownloadWorksheet?: () => void;
   onCopyLink?: () => void;
@@ -22,6 +27,10 @@ export function PracticeControls({
   difficulty, onSetDifficulty,
   sectionFilter, onSetSectionFilter,
   questionCount, onSetQuestionCount,
+  questionType,
+  onSetQuestionType,
+  pyqOnly,
+  onSetPyqOnly,
   onRegenerate,
   onDownloadWorksheet,
   onCopyLink,
@@ -115,6 +124,7 @@ export function PracticeControls({
             })}
           </div>
 
+          {/* PR-K2H-8c — Section row (chips replace the old <select> dropdown). */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span style={{
               minWidth: 110,
@@ -124,31 +134,85 @@ export function PracticeControls({
               textTransform: "uppercase",
               letterSpacing: "0.08em",
             }}>
-              Type
+              Section
             </span>
-            <select
-              value={sectionFilter}
-              onChange={(e) => onSetSectionFilter(e.target.value)}
-              style={{
-                borderRadius: 10,
-                border: "1px solid hsl(220, 18%, 90%)",
-                padding: "8px 14px",
-                fontSize: "0.85rem",
-                background: "#ffffff",
-                color: "hsl(220, 25%, 12%)",
-                cursor: "pointer",
-                width: "auto",
-                margin: 0,
-              }}
-            >
-              <option value="ALL">All</option>
-              <option value="A">A (1m)</option>
-              <option value="B">B (2m)</option>
-              <option value="C">C (3m)</option>
-              <option value="D">D (5m)</option>
-              <option value="E">E (Case, 4m)</option>
-            </select>
+            {([
+              { value: "ALL", label: "All" },
+              { value: "A",   label: "A · 1mk" },
+              { value: "B",   label: "B · 2mk" },
+              { value: "C",   label: "C · 3mk" },
+              { value: "D",   label: "D · 5mk" },
+              { value: "E",   label: "E · Case (4mk)" },
+            ]).map(({ value, label }) => {
+              const active = sectionFilter === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => onSetSectionFilter(value)}
+                  style={{
+                    borderRadius: 999,
+                    padding: "5px 11px",
+                    border: active ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 90%)",
+                    backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
+                    color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
+                    fontSize: "0.76rem",
+                    cursor: "pointer",
+                    fontWeight: active ? 700 : 600,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
+
+          {/* PR-K2H-8c — Question Type row (optional, only when handler provided). */}
+          {onSetQuestionType && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{
+                minWidth: 110,
+                fontSize: "0.74rem",
+                fontWeight: 800,
+                color: "hsl(220, 15%, 42%)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}>
+                Type
+              </span>
+              {([
+                { value: "All",         label: "All types" },
+                { value: "MCQ",         label: "MCQ" },
+                { value: "Proof",       label: "Proof" },
+                { value: "Competency",  label: "Competency" },
+                { value: "AR",          label: "Assertion-Reason" },
+                { value: "Case",        label: "Case-based" },
+              ]).map(({ value, label }) => {
+                const active = (questionType ?? "All") === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => onSetQuestionType(value)}
+                    style={{
+                      borderRadius: 999,
+                      padding: "5px 11px",
+                      border: active ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 90%)",
+                      backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
+                      color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
+                      fontSize: "0.76rem",
+                      cursor: "pointer",
+                      fontWeight: active ? 700 : 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span style={{
@@ -161,6 +225,29 @@ export function PracticeControls({
             }}>
               Questions
             </span>
+            {/* PR-K2H-8c — Count presets. Number input still available for custom counts. */}
+            {[5, 10, 15, 20].map((n) => {
+              const active = questionCount === n;
+              return (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => onSetQuestionCount(n)}
+                  style={{
+                    borderRadius: 999,
+                    padding: "5px 11px",
+                    border: active ? "1px solid hsl(152, 55%, 45%)" : "1px solid hsl(220, 18%, 90%)",
+                    backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
+                    color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
+                    fontSize: "0.76rem",
+                    cursor: "pointer",
+                    fontWeight: active ? 700 : 600,
+                  }}
+                >
+                  {n}
+                </button>
+              );
+            })}
             <input
               type="number"
               min={MIN_QUESTION_COUNT}
@@ -252,6 +339,42 @@ export function PracticeControls({
             </button>
             )}
           </div>
+
+          {/* PR-K2H-8c — PYQ toggle (optional, only when handler provided). */}
+          {onSetPyqOnly && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <label style={{
+                display: "flex", alignItems: "center", gap: 8,
+                cursor: "pointer", userSelect: "none",
+              }}>
+                <input
+                  type="checkbox"
+                  checked={pyqOnly ?? false}
+                  onChange={(e) => onSetPyqOnly(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: "hsl(152, 55%, 45%)", cursor: "pointer" }}
+                />
+                <span style={{
+                  fontSize: "0.80rem", fontWeight: 700,
+                  color: "hsl(220, 25%, 12%)",
+                }}>
+                  Previous Year Questions only
+                </span>
+              </label>
+              {pyqOnly && (
+                <span style={{
+                  fontSize: "0.72rem",
+                  color: "hsl(152, 55%, 32%)",
+                  background: "hsl(152, 55%, 95%)",
+                  border: "1px solid hsl(152, 55%, 80%)",
+                  borderRadius: 999,
+                  padding: "2px 8px",
+                  fontWeight: 700,
+                }}>
+                  PYQ
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
