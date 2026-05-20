@@ -169,6 +169,9 @@ const PracticePage: React.FC = () => {
     const queryRecommendedCount = parsePositiveInt(qp.get("count"));
     const queryDifficultyPreset = parseDifficultyChoice(qp.get("difficulty"));
     const queryMarksFilter = parsePositiveInt(qp.get("marks"));
+    // PR-K2H-8c — Question Type + PYQ-only URL params (no nav-state fallback).
+    const queryQuestionType = qp.get("questionType") || "All";
+    const queryPyqOnly = qp.get("pyq") === "1";
 
     const recommendedCount = queryRecommendedCount ?? navRecommendedCount ?? 10;
     const clampedCount = Math.max(
@@ -183,6 +186,8 @@ const PracticePage: React.FC = () => {
       recommendedCount: clampedCount,
       difficultyPreset: queryDifficultyPreset ?? navDifficultyPreset ?? "All",
       marksFilter: queryMarksFilter ?? navMarksFilter,
+      questionType: queryQuestionType,
+      pyqOnly: queryPyqOnly,
     };
   }, [practiceFilters, qp]);
 
@@ -207,6 +212,13 @@ const PracticePage: React.FC = () => {
   const [marksFilter, setMarksFilter] = useState<number | undefined>(
     () => initialPracticeDefaults.marksFilter
   );
+  // PR-K2H-8c — Question Type + PYQ-only filter state.
+  const [questionType, setQuestionType] = useState<string>(
+    () => initialPracticeDefaults.questionType
+  );
+  const [pyqOnly, setPyqOnly] = useState<boolean>(
+    () => initialPracticeDefaults.pyqOnly
+  );
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -217,6 +229,8 @@ const PracticePage: React.FC = () => {
     setQuestionCount(initialPracticeDefaults.recommendedCount);
     setDifficulty(initialPracticeDefaults.difficultyPreset);
     setMarksFilter(initialPracticeDefaults.marksFilter);
+    setQuestionType(initialPracticeDefaults.questionType);
+    setPyqOnly(initialPracticeDefaults.pyqOnly);
     didInitFromUrlRef.current = true;
   }, [initialPracticeDefaults]);
 
@@ -258,9 +272,33 @@ useEffect(() => {
   };
 
   const filteredQuestions = useMemo(() => {
-    if (sectionFilter === "ALL") return questions;
-    return questions.filter((q) => getQuestionSection(q) === sectionFilter);
-  }, [questions, sectionFilter]);
+    let pool = sectionFilter === "ALL"
+      ? questions
+      : questions.filter((q) => getQuestionSection(q) === sectionFilter);
+    // PR-K2H-8c — Question Type filter. Falls through to "all" when the
+    // question payload lacks the field (e.g. older bank items).
+    if (questionType && questionType !== "All") {
+      pool = pool.filter((q) => {
+        const fmt = String(
+          (q as { format?: unknown }).format
+            ?? (q as { type?: unknown }).type
+            ?? ""
+        ).toLowerCase();
+        const isCompetency = Boolean((q as { isCompetencyBased?: unknown }).isCompetencyBased);
+        if (questionType === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple");
+        if (questionType === "Proof") return fmt.includes("proof") || fmt.includes("prove");
+        if (questionType === "Competency") return isCompetency || fmt.includes("competency") || fmt.includes("application");
+        if (questionType === "AR") return fmt.includes("assertion") || fmt === "ar";
+        if (questionType === "Case") return fmt.includes("case") || getQuestionSection(q) === "E";
+        return true;
+      });
+    }
+    // PR-K2H-8c — PYQ-only filter. Honours the `isPYQ` flag when present.
+    if (pyqOnly) {
+      pool = pool.filter((q) => Boolean((q as { isPYQ?: unknown }).isPYQ));
+    }
+    return pool;
+  }, [questions, sectionFilter, questionType, pyqOnly]);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [isWhyPanelOpen, setIsWhyPanelOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -880,6 +918,10 @@ const packTopicKey = useMemo(() => {
           onSetSectionFilter={(s) => setSectionFilter(s as SectionFilterValue)}
           questionCount={questionCount}
           onSetQuestionCount={setQuestionCount}
+          questionType={questionType}
+          onSetQuestionType={setQuestionType}
+          pyqOnly={pyqOnly}
+          onSetPyqOnly={setPyqOnly}
           onRegenerate={() => {
             trackUxEvent("practice_regenerate_click", "practice", {
               action: "regenerate_set",
