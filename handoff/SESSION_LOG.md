@@ -1,3 +1,27 @@
+## Post-PR #92 / K2H-8b+8c handoff update
+
+Timestamp: 2026-05-20T08:54:25Z UTC
+- PR #92 merged into `base/approved-thru-437`. New base SHA: `b97ba30e02cdb2a51822512ad02f1918c71c762b`. PR head SHA: `a625fdb8a6380e944fc02286fe15b515577544da`. Merged at: 2026-05-20T08:49:43Z UTC.
+- **K2H-8b — Practice Hub filter panel** (`lazytopper/src/pages/desktop/DesktopPracticePage.tsx`):
+  - New filter panel between `<PracticeScopeBuilder>` and `lt-practice-main-grid`. Collapse/expand toggle with green active state; "Refine practice" → "Hide filters".
+  - Section chips (`All / A · 1mk / B · 2mk / C · 3mk / D · 5mk / E · Case (4mk)`), Difficulty chips (`All / Easy / Medium / Hard`), Count chips (`5 / 10 / 15 / 20`).
+  - `PFSection` / `PFDifficulty` / `PFCount` union types; `pfSection`, `pfDifficulty`, `pfCount`, `showPracticeFilters` state.
+  - `quickPracticePath` derivation forwards filter params to `/practice/:grade/:subject` via four scope branches (topic / full-subject / multi-topic / null). Default-omit logic: `pfSection !== "ALL" ? pfSection : undefined`.
+  - URL hydration on mount reads `section`, `difficulty`, `count` query params; scope-change reset effect also resets filters when the user picks a new topic.
+  - Bug fix during K2H-8b: URL hydration was not auto-expanding the panel because the scope-reset useEffect ran after hydration and clobbered `setShowPracticeFilters(true)`. Fix decoupled panel-expansion into a separate useEffect watching `[pfSection, pfDifficulty]`.
+- **K2H-8c — PracticeControls "Build this set" upgrade** (`lazytopper/src/components/practice/PracticeControls.tsx` + `lazytopper/src/pages/PracticePage.tsx`):
+  - Removed legacy `<select>` Type dropdown, replaced with **Section chips** (mark-labelled: `A · 1mk` … `E · Case (4mk)`).
+  - New **Question Type** chip row (`All types / MCQ / Proof / Competency / Assertion-Reason / Case-based`).
+  - **Count preset chips** (`5 / 10 / 15 / 20`) added before the existing number input.
+  - New **PYQ toggle** ("Previous Year Questions only") with conditional inline `PYQ` badge.
+  - New optional props on `PracticeControlsProps`: `questionType?`, `onSetQuestionType?`, `pyqOnly?`, `onSetPyqOnly?`. Rows render only when the corresponding handler is provided (graceful degradation).
+  - `PracticePage.tsx`: new state `questionType` (`useState<string>("All")`) and `pyqOnly` (`useState<boolean>(false)`); URL hydration via `qp.get("questionType")` and `qp.get("pyq") === "1"`; `filteredQuestions` useMemo extended with question-type filter chain (MCQ / Proof / Competency / AR / Case) and PYQ-only filter using safe `unknown` casts on `q.format`, `q.type`, `q.isCompetencyBased`, `q.isPYQ`. When fields are absent, `Boolean(undefined) === false` falls through honestly — no fake matches invented.
+- **navigation.ts**: `DesktopPracticePathInput` extended with `section?: string`, `difficulty?: string`, `count?: number`; `buildDesktopPracticePath` forwards them as URL params.
+- **Tests**: 15/16 PASS (`test-k2h-8c-2026-05-20.md`). The single non-clean result is S2 — a literal-substring false positive: `<select` appears once in the source but only inside a code comment documenting the removal of the `<select>` JSX element. No real failure.
+- Pipeline: Claude Code + gh CLI + Playwright Chromium 1217 + local vite dev (port 25246). GitHub MCP was not available in this session; `gh` CLI used as documented fallback.
+- Next stage: **Question bank expansion** — PYQ tagging coverage, NCERT-aligned new items, Science proof/derivation seeds, Triangles/Trigonometry competency tagging (currently 1–2%), and the 129 missing-`section` items in spec+factory packs. Gaps fully documented in `question-bank-audit.md`.
+
+
 ## Post-PR #89 / PR-K2H-8a handoff update
 
 Timestamp: 2026-05-19T19:22:46Z UTC
