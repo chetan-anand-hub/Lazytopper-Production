@@ -1,14 +1,14 @@
 # LazyTopper Next Action
 
 Timestamp:
-2026-05-19T19:22:46Z UTC
+2026-05-20T08:54:25Z UTC
 
 ## Current State
 
-Timestamp: 2026-05-19T19:22:46Z UTC
-Live base: `33d0eaff60817a4ddd9fb42f081c230a4ba241a0`
-Last merged: PR #89 / K2H-8a — Practice focus continuity + Clerk OAuth redirect.
-Next immediate action: Start PR-K2H-8b — Advanced Practice filters.
+Timestamp: 2026-05-20T08:54:25Z UTC
+Live base: `b97ba30e02cdb2a51822512ad02f1918c71c762b`
+Last merged: PR #92 / K2H-8b+8c — Practice filters hub + PracticeControls upgrade.
+Next: Question bank expansion — PYQ, NCERT, Proof, Competency, Assertion-Reason questions.
 
 ## Next Immediate Action
 

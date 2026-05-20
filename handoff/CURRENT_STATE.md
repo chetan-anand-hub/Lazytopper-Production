@@ -1,6 +1,22 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-19T19:22:46Z UTC
+Last updated: 2026-05-20T08:54:25Z UTC
+
+## Post-PR #92 / K2H-8b+8c handoff update
+
+Last updated: 2026-05-20T08:54:25Z UTC
+- Active branch: `base/approved-thru-437`
+- Previous base: `d4e1c0b46a0a7f7575205ef9b3cb74eeb174e04b`
+- PR #92 merge commit / new base: `b97ba30e02cdb2a51822512ad02f1918c71c762b`
+- PR #92 head SHA: `a625fdb8a6380e944fc02286fe15b515577544da`
+- PR #92 merged at: 2026-05-20T08:49:43Z UTC
+- Files changed: 4
+  - `lazytopper/src/components/practice/PracticeControls.tsx` (+146/−23) — K2H-8c
+  - `lazytopper/src/lib/desktop/navigation.ts` (+6/−0) — K2H-8b
+  - `lazytopper/src/pages/PracticePage.tsx` (+45/−3) — K2H-8c
+  - `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` (+302/−2) — K2H-8b + K2H-8b panel-expand fix
+- QA: PASS — 15/16 static + browser tests passed (S2 false positive on a code comment, not a real failure; see `test-k2h-8c-2026-05-20.md`).
+- Next stage: Question bank expansion — PYQ, NCERT, Proof, Competency, Assertion-Reason questions (driven by the gaps surfaced in `question-bank-audit.md`: Triangles/Trigonometry competency tagging holes, Science proof/derivation thinness, 129 untagged `section` fields).
 
 ## Post-PR #89 / PR-K2H-8a handoff update
 

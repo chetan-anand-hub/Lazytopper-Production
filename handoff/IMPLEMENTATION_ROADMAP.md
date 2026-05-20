@@ -454,17 +454,24 @@ Scope:
 
 ## PR-K2H-4 - Advanced Practice filters and selection quality
 
+Status:
+DONE — delivered as PR #92 / K2H-8b+8c. See "Post-PR #92 / PR-K2H-8b+8c handoff update" at the bottom of this roadmap for the actual scope and merged SHA.
+
 Purpose:
 Improve Practice selection quality and control.
 
-Scope:
-- Section A/B/C/D/E filters.
-- Marks filters.
-- Type/family filters.
-- Competency filters.
-- Difficulty filters.
-- Count controls.
-- Selection quality and dedupe checks.
+Scope (delivered):
+- Section A/B/C/D/E filters — chips with mark labels (`A · 1mk` … `E · Case (4mk)`) in both Practice Hub and `Build this set`.
+- Marks filters — implicit in the Section chips.
+- Type/family filters — Question Type chip row (MCQ / Proof / Competency / Assertion-Reason / Case-based).
+- Competency filters — via the `Competency` chip + runtime `isCompetencyBased` lookup.
+- Difficulty filters — `Question level` chip row (`All levels / Easy / Medium / Hard`) carried over from prior work.
+- Count controls — preset chips (`5 / 10 / 15 / 20`) + free-form number input.
+- Selection quality and dedupe checks — preserved by the existing `filteredQuestions` chain.
+
+Not in scope of K2H-8b+8c (still pending):
+- True dedupe checks across topic/scope boundaries.
+- PYQ data completeness for Triangles/Trigonometry spec+factory packs (currently 1–2% competency-tagged; see `question-bank-audit.md`).
 
 ## Sign-in/trial enforcement pass for learning surfaces
 
@@ -763,3 +770,63 @@ K2H-8b doctrine and non-goals will be authored when the K2H-8b prompt is written
 
 Future implementation prompts must start from:
 `base/approved-thru-437 @ 33d0eaff60817a4ddd9fb42f081c230a4ba241a0`
+
+---
+
+## Post-PR #92 / PR-K2H-8b+8c handoff update
+
+Status: DONE.
+
+PR #92 / PR-K2H-8b+8c — Practice filters hub + PracticeControls upgrade — is merged.
+
+Current checkpoint:
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #92: `d4e1c0b46a0a7f7575205ef9b3cb74eeb174e04b`
+- PR #92 head SHA: `a625fdb8a6380e944fc02286fe15b515577544da`
+- PR #92 merge commit / new base: `b97ba30e02cdb2a51822512ad02f1918c71c762b`
+- PR #92 merged at: `2026-05-20T08:49:43Z`
+
+What PR #92 changed:
+- **K2H-8b — Practice Hub filter panel** (`lazytopper/src/pages/desktop/DesktopPracticePage.tsx`):
+  - New collapsible filter panel between `<PracticeScopeBuilder>` and the main practice grid. Toggle label reads "Refine practice" when collapsed and "Hide filters" when expanded.
+  - Section chips (`All / A · 1mk / B · 2mk / C · 3mk / D · 5mk / E · Case (4mk)`), Difficulty chips (`All / Easy / Medium / Hard`), Count chips (`5 / 10 / 15 / 20`).
+  - `PFSection` / `PFDifficulty` / `PFCount` union types and state hooks. Default-omit logic forwards non-default values to the destination `/practice/:grade/:subject` engine via `buildLegacyPracticePath`.
+  - URL hydration on mount honors `?section=…&difficulty=…&count=…`. Scope-change reset effect also clears filters when the user picks a new topic.
+  - Bug fix during implementation: URL hydration was not auto-expanding the panel because the scope-reset useEffect ran after hydration and clobbered `setShowPracticeFilters(true)`. Fix decoupled panel-expansion into a separate useEffect watching `[pfSection, pfDifficulty]`.
+- **K2H-8c — PracticeControls "Build this set" upgrade**:
+  - Removed legacy `<select>` Type dropdown, replaced with Section chips (mark-labelled).
+  - New Question Type chip row (`All types / MCQ / Proof / Competency / Assertion-Reason / Case-based`).
+  - Count preset chips (`5 / 10 / 15 / 20`) before the existing number input.
+  - PYQ toggle ("Previous Year Questions only") with conditional `PYQ` badge.
+  - New optional props on `PracticeControlsProps`: `questionType?`, `onSetQuestionType?`, `pyqOnly?`, `onSetPyqOnly?`. Rows render only when handlers are provided (graceful degradation).
+  - `PracticePage.tsx`: new state `questionType`, `pyqOnly`; URL hydration via `qp.get("questionType")` and `qp.get("pyq") === "1"`; `filteredQuestions` useMemo extended with question-type filter chain and PYQ-only filter using safe `unknown` casts. Falls through honestly when `isPYQ` / `isCompetencyBased` are absent on bank items (no fake matches invented).
+- **`lazytopper/src/lib/desktop/navigation.ts`**: `DesktopPracticePathInput` extended with `section?: string`, `difficulty?: string`, `count?: number`; `buildDesktopPracticePath` forwards them.
+
+Files changed by PR #92:
+- `lazytopper/src/components/practice/PracticeControls.tsx` (+146/−23)
+- `lazytopper/src/lib/desktop/navigation.ts` (+6/−0)
+- `lazytopper/src/pages/PracticePage.tsx` (+45/−3)
+- `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` (+302/−2)
+
+Validation and QA:
+- TypeScript passed (0 errors).
+- Production build passed with `NODE_ENV=production BASE_PATH=/app/`.
+- Production verifier passed: 8 passed, 0 failed.
+- `git diff --check` clean.
+- Static + browser test suite: **15/16 PASS** (see `test-k2h-8c-2026-05-20.md`). The single non-clean result is S2 — a literal-substring false positive where `<select` appears once in the source file but only inside a code comment documenting the removal of the `<select>` JSX element. No real failure.
+- 9/9 Playwright browser tests PASS: Section chip activation, Question Type chip activation, Count preset + number-input sync, PYQ toggle + badge, URL hydration (all 5 params at once), Section filter affects visible questions, mobile 375px layout, Build new set unchanged.
+- Pipeline: Claude Code + gh CLI + Playwright Chromium 1217 + local vite dev (port 25246). GitHub MCP was not loaded in this session; `gh` CLI used as the canonical fallback.
+
+Next recommended product stage:
+- **Question bank expansion** — driven by the gaps surfaced in `question-bank-audit.md`:
+  - Tag `isCompetencyBased` on the Triangles pack1 + Trigonometry pack1 items (currently 1–2% — single biggest competency-share lift available).
+  - Add `section` / `marks` fields to the 129 un-classified spec+factory questions so the new K2H-8b filter UI can route them.
+  - Populate the 13 empty Science pack2 files OR delete the placeholders.
+  - Seed Science proof/derivation questions (currently 6 across all of Science).
+  - Optional: rewrite generic 4-step Assertion-Reason solution templates in `highlyProbableQuestions.ts`.
+- The next product PR is content-only — no UI changes required for the filters to start producing better results once the bank is tagged.
+
+Question bank expansion doctrine and non-goals will be authored when the next prompt is written. Until then, do not start product implementation against this checkpoint; only this docs-only handoff update is active.
+
+Future implementation prompts must start from:
+`base/approved-thru-437 @ b97ba30e02cdb2a51822512ad02f1918c71c762b`
