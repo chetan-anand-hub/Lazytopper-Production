@@ -1,14 +1,14 @@
 # LazyTopper Next Action
 
 Timestamp:
-2026-05-20T08:54:25Z UTC
+2026-05-20T17:45:22Z UTC
 
 ## Current State
 
-Timestamp: 2026-05-20T08:54:25Z UTC
-Live base: `b97ba30e02cdb2a51822512ad02f1918c71c762b`
-Last merged: PR #92 / K2H-8b+8c — Practice filters hub + PracticeControls upgrade.
-Next: Question bank expansion — PYQ, NCERT, Proof, Competency, Assertion-Reason questions.
+Timestamp: 2026-05-20T17:45:22Z UTC
+Live base: `699a39d4bf629126e910d8403660820c090e9137`
+Last merged: PR #94 / K2H-8d+8e — Wire questionType + pyqOnly filters through engine.
+Next: `content/question-bank-expansion-01` — add proof packs, AR packs, case-based packs, fix `solutionSteps`, source PYQ entries from official CBSE PDFs.
 
 ## Next Immediate Action
 

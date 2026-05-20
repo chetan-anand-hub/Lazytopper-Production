@@ -830,3 +830,91 @@ Question bank expansion doctrine and non-goals will be authored when the next pr
 
 Future implementation prompts must start from:
 `base/approved-thru-437 @ b97ba30e02cdb2a51822512ad02f1918c71c762b`
+
+---
+
+## Post-PR #94 / PR-K2H-8d+8e handoff update
+
+Status: DONE.
+
+PR #94 / PR-K2H-8d+8e — Wire `questionType` + `pyqOnly` filters through engine — is merged.
+
+Current checkpoint:
+- Active integration branch: `base/approved-thru-437`
+- Previous base before PR #94: `c11b53851ea7b8a9ee48b41420c16bbbb55661a4`
+- PR #94 head SHA: `b1e04a98e6401f2a8bdd0f335b7f69b8b8847c6f`
+- PR #94 merge commit / new base: `699a39d4bf629126e910d8403660820c090e9137`
+- PR #94 merged at: `2026-05-20T17:41:26Z`
+
+What PR #94 changed:
+- **K2H-8d — Filter wiring through `AiTopupArgs`** (`lazytopper/src/components/practice/practiceQuestionBuilder.ts`, `lazytopper/src/pages/PracticePage.tsx`):
+  - `questionType` and `pyqOnly` added to the `AiTopupArgs` interface. The K2H-8c UI state from `PracticePage` is now forwarded into the engine call signature.
+  - Filter applied AFTER the section filter inside the engine pipeline, with graceful fallback: `if (filtered.length > 0) pool = filtered;` — an empty filtered result preserves the prior pool instead of blanking the workspace.
+  - Engine no longer drops `questionType` / `pyqOnly` on the floor; the chip click in the K2H-8c PracticeControls now reaches the candidate selection layer.
+- **K2H-8e — Stale dedupe state fix** (`lazytopper/src/pages/PracticePage.tsx`):
+  - `previousQuestionKeys.current` cleared at the start of the build `useEffect`. Without this, the dedupe set from the previous filter context starved subsequent builds — clicking "MCQ" after a non-MCQ session returned 0 fresh questions because every candidate was already in the dedupe set.
+  - Bug discovered while wiring K2H-8d; chose to ship together as a coupled fix because the symptom (empty pool after filter change) was caused by the same data-flow pathway K2H-8d was modifying.
+
+End-to-end behaviour after PR #94:
+- MCQ chip + "Build new set" returns correctly filtered MCQ questions.
+- Competency chip + "Build new set" returns competency-tagged questions.
+- Section A/B/C/D/E chips continue to work (already verified in PR #92).
+- **PYQ-only toggle still returns 0 results.** This is a known limitation — see K2H-8f below.
+
+Files changed by PR #94:
+- `lazytopper/src/components/practice/practiceQuestionBuilder.ts` (+~28 lines, AiTopupArgs interface + filter application)
+- `lazytopper/src/pages/PracticePage.tsx` (+~15 lines, previousQuestionKeys clear + AiTopupArgs forward)
+
+Validation and QA:
+- TypeScript passed.
+- Production build passed.
+- Production verifier passed.
+- `git diff --check` clean.
+- Owner manual + automated tests verified MCQ / Competency / Section chips work end-to-end. PYQ filter behavior documented as the known 0-result case feeding into K2H-8f.
+
+Next recommended product stage:
+- **Content branch first:** `content/question-bank-expansion-01` — add proof packs (`triangles.proof_pack.ts`, `trigonometry.proof_pack.ts`, `circles.proof_pack.ts` already drafted into the working tree from prior turns), AR packs (`assertion_reason_pack.ts` for Maths, `science_assertion_reason_pack.ts` for Science already drafted), case-based packs, backfill missing `solutionSteps` on existing items, and source PYQ entries from official CBSE PDFs once the WebFetch domain allow-rule or local PDF text extraction is in place (`pyq-sourcing-report.md` documents the unblock paths).
+- **Then K2H-8f:** engine-tier PYQ bias (see entry below) — needed to make the PYQ toggle return real results, but only useful once the bank actually has `pyqYear`-tagged content.
+
+Future implementation prompts must start from:
+`base/approved-thru-437 @ 699a39d4bf629126e910d8403660820c090e9137`
+
+## PR-K2H-8f - Engine-tier PYQ bias in practiceSetGenerator.ts
+
+Status:
+PENDING. Required to unlock the PYQ-only filter end-to-end.
+
+Background:
+PR #94 / K2H-8d wired `pyqOnly` through `AiTopupArgs` to the engine
+pipeline, but the engine's *upstream* selection layer
+(`practiceSetGenerator.ts`) does not bias its candidate pool toward
+`pyqYear`-tagged questions. Pack3 PYQ entries currently sit outside
+the engine's default selection set; the `pyqOnly` filter therefore
+filters an already-PYQ-empty pool and returns 0.
+
+Purpose:
+Bias the candidate-pool selection in `practiceSetGenerator.ts` so
+that when `pyqOnly === true`, the engine pulls from `pyqYear`-tagged
+pack2/pack3 entries first. Preserve the existing competency floor
+(`COMPETENCY_MIN_SHARE = 0.5`) and graceful fallback semantics.
+
+Likely scope:
+- `lazytopper/src/data/practiceSetGenerator.ts` — selection-bias edit only.
+- `lazytopper/src/components/practice/practiceQuestionBuilder.ts` — only if a new selection-mode argument needs to be forwarded.
+
+Forbidden (until owner explicitly rescopes):
+- Modifying the UI tier — K2H-8c chips/toggle are already correct.
+- Modifying the existing filter chain in `PracticePage.tsx` — K2H-8d already applies the filter correctly downstream.
+- Editing question-bank `.ts` files (that work belongs to the content branch above, not to K2H-8f).
+
+Dependency:
+K2H-8f is most useful AFTER `content/question-bank-expansion-01`
+ships meaningful `pyqYear`-tagged content. Running K2H-8f against
+the current bank would still return near-zero results because the
+PYQ coverage on pack3 is thin until the content branch lands.
+
+Exit gate:
+- Selecting "Previous Year Questions only" with no other filter returns ≥3 questions on at least one Maths topic.
+- TypeScript / build / verifier all green.
+- `git diff --check` clean.
+- No fabricated PYQ tags introduced.
