@@ -69,8 +69,10 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT-E16", subject: "Maths", topicKey: "Statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the median of: 3, 5, 7, 9, 11, 13, 15.", solutionSteps: [
-      "The given data is already in ascending order. Number of observations (n) = 7. [1]",
-      "Since n is odd, Median = ((n+1)/2)th observation = (7+1)/2 = 4th observation = 9. [1]",
+      "Data given: 3, 5, 7, 9, 11, 13, 15. Already arranged in ascending order. [½]",
+      "Number of observations n = 7, which is odd. [½]",
+      "For odd n, Median = ((n+1)/2)th observation. Position = (7+1)/2 = 4. [½]",
+      "The 4th observation in the ordered list is 9. Median = 9. [½]",
     ], finalAnswer: "9" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-E17", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If Σfᵢ = 20 and Σfᵢxᵢ = 300, then the mean is:", options: ["15", "20", "10", "30"], answer: "15", explanation: "The correct answer is 15. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "15" , isCompetencyBased: true,
     solutionSteps: [
@@ -86,8 +88,10 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT-E20", subject: "Maths", topicKey: "Statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "The median of an ungrouped data is 25 and mean is 28. Find the mode using the empirical formula.", solutionSteps: [
-      "Write the empirical formula: Mode = 3 Median - 2 Mean. [1]",
-      "Substitute values: Mode = 3(25) - 2(28) = 75 - 56 = 19. [1]",
+      "Given: Median = 25, Mean = 28. Apply the empirical relation between the three measures. [½]",
+      "Empirical formula: Mode = 3 × Median − 2 × Mean. [½]",
+      "Substitute the values: Mode = 3(25) − 2(28) = 75 − 56. [½]",
+      "Mode = 19. [½]",
     ], finalAnswer: "19" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-M01", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the mean of the following data using the step deviation method:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100\nFrequency: 7, 8, 12, 10, 3", solutionSteps: [
       "a = 50, h = 20; dᵢ: −2, −1, 0, 1, 2 [1]",
@@ -162,8 +166,10 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT-M18", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The mean of 5 numbers is 18. If one number is excluded, the mean becomes 16. Find the excluded number.", solutionSteps: [
-      "Sum of 5 = 90, Sum of 4 = 64 [1]",
-      "Excluded = 90 − 64 = 26 [1]",
+      "Mean of 5 numbers = 18, so total Sum of 5 = 5 × 18 = 90. [½]",
+      "After excluding one number, 4 numbers remain with mean 16. Sum of 4 = 4 × 16 = 64. [½]",
+      "Excluded number = (Sum of 5) − (Sum of 4) = 90 − 64. [½]",
+      "Excluded number = 26. [½]",
     ], finalAnswer: "26" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-M19", subject: "Maths", topicKey: "Statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the median of:\nClass: 0–10, 10–20, 20–30, 30–40, 40–50\nFreq: 3, 5, 9, 5, 3\nCF: 3, 8, 17, 22, 25", solutionSteps: [
       "n=25, n/2=12.5 [1]",
@@ -256,8 +262,10 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT2P1-R02", subject: "Maths", topicKey: "Statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the median for data: Class: 0–10, 10–20, 20–30, 30–40, 40–50; Frequency: 5, 9, 19, 9, 8.", solutionSteps: [
-      "n=50, n/2=25. CF: 5, 14, 33. Median class: 20-30 [1]",
-      "Median = 20 + (25-14)/19 × 10 = 20+5.79 = 25.79 [1]",
+      "Total frequency n = 5+9+19+9+8 = 50, so n/2 = 25. [½]",
+      "Cumulative frequencies: 5, 14, 33, 42, 50. First cf ≥ 25 is 33, so median class = 20–30. [½]",
+      "Median = L + [(n/2 − cf)/f] × h with L=20, cf=14 (cf before median class), f=19, h=10. [½]",
+      "Median = 20 + (25−14)/19 × 10 = 20 + 110/19 ≈ 25.79. [½]",
     ], finalAnswer: "≈ 25.79", visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT2P1-R03", subject: "Maths", topicKey: "Statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In the formula for mode: Mode = l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h, what is f₂?", options: ["Frequency of modal class", "Frequency after modal class", "Frequency before modal class", "Total frequency"], answer: "Frequency after modal class", explanation: "The correct answer is Frequency after modal class. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Frequency after modal class", isCompetencyBased: false,
     solutionSteps: [

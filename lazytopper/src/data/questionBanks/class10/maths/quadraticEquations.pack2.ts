@@ -372,7 +372,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "difficulty": "Medium",
     "bloomSkill": "Applying",
     "questionText": "A natural number is 5 more than another. If the product of two natural numbers is 84, find them.",
-    "options": ["x = [-b ± √(b² - 4ac)] / 2a", "x = [-b ± √(b² + 4ac)] / 2a", "x = [b ± √(b² - 4ac)] / 2a", "x = [-b ± √(b² - 4ac)] / a"],
+    "options": [],
     "answer": "7 and 12",
     "solutionSteps": [
       "Let first number = x, second = x + 5",
