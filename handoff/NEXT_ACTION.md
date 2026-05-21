@@ -5,10 +5,10 @@ Timestamp:
 
 ## Current State
 
-Timestamp: 2026-05-20T17:45:22Z UTC
-Live base: `699a39d4bf629126e910d8403660820c090e9137`
-Last merged: PR #94 / K2H-8d+8e — Wire questionType + pyqOnly filters through engine.
-Next: `content/question-bank-expansion-01` — add proof packs, AR packs, case-based packs, fix `solutionSteps`, source PYQ entries from official CBSE PDFs.
+Timestamp: 2026-05-21T05:18:20Z UTC
+Live base: `90c97f568f2dd914ed98ffa50af6d0729b9b2b69`
+Last merged: PR #96 / content Agent 1 fixes — 18 questions improved.
+Next: Pass 1 content audit — syllabus-filtered inventory of all PDF sources before extraction begins. Future product prompts must use `base/approved-thru-437 @ 90c97f568f2dd914ed98ffa50af6d0729b9b2b69`.
 
 ## Next Immediate Action
 

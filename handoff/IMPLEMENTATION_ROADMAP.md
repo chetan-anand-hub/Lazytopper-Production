@@ -918,3 +918,38 @@ Exit gate:
 - TypeScript / build / verifier all green.
 - `git diff --check` clean.
 - No fabricated PYQ tags introduced.
+
+## Post-PR #96 / content Agent 1 handoff update
+
+Status: DONE
+Merge commit: 90c97f568f2dd914ed98ffa50af6d0729b9b2b69
+PR: #96 — content: Question bank Agent 1 fixes — 18 questions improved
+
+Files changed:
+- lazytopper/src/data/questionBanks/class10/maths/arithmeticProgression.pack1.ts
+- lazytopper/src/data/questionBanks/class10/maths/quadraticEquations.pack2.ts
+- lazytopper/src/data/questionBanks/class10/maths/statistics.pack1.ts
+- lazytopper/src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack1.ts
+
+Validation: tsc PASS, git diff --check PASS, forbidden files untouched.
+
+Future implementation prompts must start from:
+base/approved-thru-437 @ 90c97f568f2dd914ed98ffa50af6d0729b9b2b69
+
+## PENDING — Pass 1 Content Audit
+
+Status: PENDING
+Purpose: Syllabus-filtered inventory of all local PDF sources. Read CBSE 2025-26 syllabus PDFs first to extract in-scope topic list. Then scan all sources and produce master extraction table: rows = topics, columns = source, cells = estimated unique question count. Flag out-of-scope topics, scanned PDFs needing OCR, and duplicate risk between sources.
+
+Sources to scan:
+- C:\Users\Chetan\OneDrive\Desktop\diff\CBSE-Official\ (syllabus filter)
+- C:\Users\Chetan\OneDrive\Desktop\diff\ncert-books\ (NCERT textbook + exemplar)
+- C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\PYQ\ (4 years official papers)
+- C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\ (reference books + PYQ collections)
+
+Constraints:
+- Only Maths and Science (Class 10) — skip all other subjects
+- Only topics in the 2025-26 rationalised syllabus — flag and exclude deleted topics
+- Estimate unique questions only — flag duplicate risk where same question appears in multiple sources
+
+Exit gate: Master extraction table complete. Extraction readiness (READY/NEEDS-OCR/SKIP) confirmed per file.
