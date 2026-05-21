@@ -1,3 +1,16 @@
+## Post-PR #98 / Science chapters 1-7 NCERT+Exemplar extraction
+
+- PR #98 merged into base/approved-thru-437
+- Merge commit: b88ed11fb85aec1a9739207dd0eeea5fcdb7b264
+- Previous base: f687ba22d7df9692dce70760f2ea71275f0bfed1
+- 14 new Science question bank files created (608 questions)
+- Validation infrastructure created: _validate_pack.py (Check 9 added), _smoke_test_topickey.mjs
+- tsc command corrected: npx tsc -p tsconfig.app.json --noEmit
+- topicKey canonical slug reference established for all 27 chapters
+- Content audit agent dispatched (TopicHub, hints, Gemini, interactives)
+- Next: content/question-bank-expansion-02
+
+
 ## Post-PR #96 / content Agent 1 handoff update
 
 - PR #96 merged into base/approved-thru-437
