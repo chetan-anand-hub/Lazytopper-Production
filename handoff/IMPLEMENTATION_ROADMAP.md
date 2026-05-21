@@ -953,3 +953,50 @@ Constraints:
 - Estimate unique questions only — flag duplicate risk where same question appears in multiple sources
 
 Exit gate: Master extraction table complete. Extraction readiness (READY/NEEDS-OCR/SKIP) confirmed per file.
+
+
+## Post-PR #98 / Science chapters 1-7 NCERT+Exemplar extraction
+
+Status: DONE
+Merge commit: b88ed11fb85aec1a9739207dd0eeea5fcdb7b264
+PR: #98 — content: Science chapters 1-7 NCERT+Exemplar extraction (608 questions)
+
+Files added (14):
+- science/chemicalReactions.ncert.ts (28 Qs)
+- science/chemicalReactions.exemplar.ts (45 Qs)
+- science/acidsBasesSalts.ncert.ts (33 Qs)
+- science/acidsBasesSalts.exemplar.ts (48 Qs)
+- science/metalsNonMetals.ncert.ts (29 Qs)
+- science/metalsNonMetals.exemplar.ts (65 Qs)
+- science/carbonCompounds.ncert.ts (28 Qs)
+- science/carbonCompounds.exemplar.ts (56 Qs)
+- science/lifeProcesses.ncert.ts (34 Qs)
+- science/lifeProcesses.exemplar.ts (82 Qs)
+- science/controlAndCoordination.ncert.ts (26 Qs)
+- science/controlAndCoordination.exemplar.ts (53 Qs)
+- science/reproduction.ncert.ts (23 Qs)
+- science/reproduction.exemplar.ts (58 Qs)
+
+Validation: tsc PASS, _validate_pack.py ALL FILES PASS (54.9% competency), smoke test 5/5 PASS
+Zero product code touched.
+Future implementation prompts must start from:
+base/approved-thru-437 @ b88ed11fb85aec1a9739207dd0eeea5fcdb7b264
+
+## PENDING — content/question-bank-expansion-02
+
+Status: PENDING
+Purpose: Extract remaining Science chapters (8-13) and all Maths chapters (1-14) from NCERT textbook + Exemplar sources. Target: ~1,800 additional questions.
+
+Science chapters pending:
+- Ch 8: Heredity (jesc108 — use pdfplumber fallback, decompression errors known)
+- Ch 9: Light — Reflection and Refraction (jesc109 — use gdrive copy)
+- Ch 10: Human Eye and Colourful World (jesc110)
+- Ch 11: Electricity (jesc111)
+- Ch 12: Magnetic Effects of Current (jesc112)
+- Ch 13: Our Environment (jesc113)
+NOTE: Light + Human Eye share topicKey: "light-reflection-and-refraction-incl-human-eye-prism"
+
+Maths chapters pending (all 14):
+real-numbers, polynomials, pair-of-linear-equations-in-two-variables, quadratic-equations, arithmetic-progressions, triangles, coordinate-geometry, trigonometry, areas-related-to-circles, surface-areas-and-volumes, statistics, probability, circles
+
+Exit gate: _validate_pack.py ALL FILES PASS + tsc -p tsconfig.app.json --noEmit PASS + smoke test 5/5 PASS per session

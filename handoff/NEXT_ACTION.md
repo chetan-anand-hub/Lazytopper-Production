@@ -5,10 +5,10 @@ Timestamp:
 
 ## Current State
 
-Timestamp: 2026-05-21T05:18:20Z UTC
-Live base: `90c97f568f2dd914ed98ffa50af6d0729b9b2b69`
-Last merged: PR #96 / content Agent 1 fixes — 18 questions improved.
-Next: Pass 1 content audit — syllabus-filtered inventory of all PDF sources before extraction begins. Future product prompts must use `base/approved-thru-437 @ 90c97f568f2dd914ed98ffa50af6d0729b9b2b69`.
+Timestamp: 2026-05-21T17:31:56Z UTC
+Live base: `b88ed11fb85aec1a9739207dd0eeea5fcdb7b264`
+Last merged: PR #98 / Science chapters 1-7 NCERT+Exemplar extraction (608 questions).
+Next: content/question-bank-expansion-02 — Science chapters 8-13 + Maths chapters 1-14 NCERT+Exemplar extraction. Future product prompts must use `base/approved-thru-437 @ b88ed11fb85aec1a9739207dd0eeea5fcdb7b264`.
 
 ## Next Immediate Action
 
