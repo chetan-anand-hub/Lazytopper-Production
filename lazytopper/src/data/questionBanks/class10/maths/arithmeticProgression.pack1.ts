@@ -24,10 +24,10 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
   { id: "AP-E08", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Application Problems", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If 2, x, 26 are in AP, then x =", options: ["12", "14", "13", "16"], answer: "14", explanation: "x = (2+26)/2 = 14. Therefore, the correct answer is 14.", solutionSteps: ["x = (2+26)/2 = 14"], finalAnswer: "14" , isCompetencyBased: false },
   { id: "AP-E09", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The sequence 2, 4, 8, 16, ... is not an AP.\nReason (R): The common difference is not constant.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Evaluate Assertion (A): For the AP 3, 8, 13, ..., a=3, d=5. The 15th term a15 = 3 + (15-1)5 = 3 + 14*5 = 3 + 70 = 73. So, Assertion (A) is true.",
-      "Evaluate Reason (R): The formula for the nth term of an AP is an = a + (n-1)d. So, Reason (R) is true.",
-      "Determine if R explains A: The calculation for the 15th term in Assertion (A) directly uses the formula given in Reason (R).",
-      "Therefore, both A and R are true, and R is the correct explanation of A. Option (A) is correct.",
+      "Evaluate Assertion (A): Successive differences: 4-2=2, 8-4=4, 16-8=8. Not constant. Not an AP. TRUE.",
+      "Evaluate Reason (R): A sequence is AP only when difference between consecutive terms is the same constant. TRUE.",
+      "Does R explain A: Yes — A is true precisely because differences (2,4,8) are not constant, which is what R states.",
+      "Both A and R are true, and R is the correct explanation of A. Answer: (A)"
     ],
   },
   { id: "AP-E10", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The sum of first 20 terms of the AP 1, 5, 9, 13, ... is:", options: ["780", "790", "800", "770"], answer: "780", explanation: "The correct answer is 780. This is a fundamental result that should be recalled directly from the key concepts of this topic.", solutionSteps: ["a=1, d=4, S₂₀ = 20/2[2+19(4)] = 10×78 = 780"], finalAnswer: "780" , isCompetencyBased: true },
@@ -49,11 +49,10 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
   { id: "AP-E17", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Application Problems", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The 4th term of an AP is equal to 3 times the first term and the 7th term exceeds twice the 3rd term by 1. Find the first term.", options: ["3", "2", "1", "4"], answer: "3", explanation: "a₄ = 3a → a+3d = 3a → d = 2a/3. a₇ = 2a₃+1 → a+6d = 2(a+2d)+1 → 2d = a+1. 2(2a/3) = a+1 → 4a/3 = a+1 → a/3 = 1 → a = 3. Therefore, the correct answer is 3.", solutionSteps: ["a₄ = 3a → a+3d = 3a → d = 2a/3", "a₇ = 2a₃+1 → a+6d = 2(a+2d)+1 → 2d = a+1", "2(2a/3) = a+1 → 4a/3 = a+1 → a/3 = 1 → a = 3"], finalAnswer: "3" , isCompetencyBased: true },
   { id: "AP-E18", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first n terms of an AP is given by Sₙ = n/2[2a + (n−1)d]. An alternative formula using first and last terms is:", options: ["Sₙ = n(a+l)/2", "Sₙ = n(a−l)/2", "Sₙ = n(2a+l)", "Sₙ = n²(a+l)"], answer: "Sₙ = n(a+l)/2", explanation: "The correct answer is Sₙ = n(a+l)/2. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Sₙ = n(a+l)/2" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify given values: Sum of first 5 terms (S5) = 35, first term (a) = 3, number of terms (n) = 5.",
-      "Use the formula for the sum of n terms of an AP: Sn = n/2 * [2a + (n-1)d].",
-      "Substitute the values: 35 = 5/2 * [2*3 + (5-1)d].",
-      "Simplify and solve for d: 35 = 5/2 * [6 + 4d] => 70 = 5 * (6 + 4d) => 14 = 6 + 4d => 8 = 4d => d = 2.",
-      "The common difference is 2. Therefore, option (B) is correct.",
+      "Last term of AP with n terms: l = a + (n-1)d, so (n-1)d = l - a.",
+      "Substitute into Sn = n/2[2a + (n-1)d]: Sn = n/2[2a + (l-a)] = n/2 x (a+l).",
+      "Alternative form using first and last terms: Sn = n(a+l)/2.",
+      "Therefore option (A) Sn = n(a+l)/2 is correct."
     ],
   },
   { id: "AP-E19", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If the first term of an AP is −5 and d = 2, the 10th term is:", options: ["13", "15", "11", "17"], answer: "13", explanation: "a₁₀ = −5 + 9(2) = 13. Therefore, the correct answer is 13.", solutionSteps: ["a₁₀ = −5 + 9(2) = 13"], finalAnswer: "13" , isCompetencyBased: true },
@@ -84,9 +83,10 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "12 terms" , isCompetencyBased: true },
   { id: "AP-M05", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If a, b, c are in AP, then b = (a+c)/2.\nReason (R): The middle term of three terms in AP is the arithmetic mean of the other two.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "The question text for Assertion (A) and Reason (R) is missing.",
-      "Therefore, a detailed solution and reasoning for this Assertion-Reasoning question cannot be provided.",
-      "The final answer field is also empty, so no specific answer can be given.",
+      "Evaluate A: If a,b,c in AP then b-a=c-b, so 2b=a+c, giving b=(a+c)/2. TRUE.",
+      "Evaluate R: Arithmetic mean of a and c is (a+c)/2; middle term of 3-term AP equals this mean. TRUE.",
+      "R explains A: The result in A is exactly the arithmetic mean property stated in R.",
+      "Both A and R true, R is correct explanation. Answer: (A)"
     ],
   },
   { id: "AP-M06", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the sum of all three-digit natural numbers which are divisible by 7.", solutionSteps: [
@@ -251,23 +251,26 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "a₅:a₂₁ = 1:3; S₅:S₂₁ = 5:49" , isCompetencyBased: true },
   { id: "AP-AR05", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If the nth term of an AP is 3n + 5, then the common difference is 3.\nReason (R): The common difference d = aₙ₊₁ − aₙ.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "The question text for Assertion (A) and Reason (R) is missing.",
-      "Therefore, a detailed solution and reasoning for this Assertion-Reasoning question cannot be provided.",
-      "The final answer field is also empty, so no specific answer can be given.",
+      "Evaluate A: With an=3n+5, a1=8 and a2=11, so d=a2-a1=3. TRUE.",
+      "Evaluate R: By definition d = a(n+1) - an for any n in an AP. TRUE.",
+      "R explains A: The calculation in A directly applies the formula stated in R.",
+      "Both A and R true, R is correct explanation. Answer: (A)"
     ],
   },
   { id: "AP-N01", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The nth term of an AP is 7 − 4n. What is the common difference?", options: ["−4","4","7","−7"], answer: "−4", explanation: "The correct answer is −4. a_n = 7 − 4n, so d = a_{n+1} − a_n = −4. The common difference is −4.", finalAnswer: "a_n = 7 − 4n, so d = a_{n+1} − a_n = −4. The common difference is −4.", isCompetencyBased: false,
     solutionSteps: [
-      "The question text for the Multiple Choice Question is missing.",
-      "Therefore, a detailed solution and reasoning for this MCQ cannot be provided.",
-      "The final answer field is also empty, so no specific answer can be given.",
+      "nth term formula: an = 7 - 4n.",
+      "a1 = 7 - 4(1) = 3 and a2 = 7 - 4(2) = -1.",
+      "Common difference d = a2 - a1 = -1 - 3 = -4.",
+      "The common difference is -4. Answer: option (A)."
     ],
   },
   { id: "AP-N02", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first n natural numbers is given by:", options: ["n(n+1)/2","n(n−1)/2","n²","n(n+1)"], answer: "n(n+1)/2", explanation: "The correct answer is n(n+1)/2. S = 1+2+…+n = n(n+1)/2.", finalAnswer: "S = 1+2+…+n = n(n+1)/2.", isCompetencyBased: false,
     solutionSteps: [
-      "The first n natural numbers are 1, 2, 3, ..., n, which form an Arithmetic Progression (AP).",
-      "For this AP, the first term (a) = 1 and the last term (l) = n.",
-      "The sum of n terms of an AP is given by S_n = n/2 * (a + l). Substituting the values, S_n = n/2 * (1 + n).",
+      "First n natural numbers 1,2,3,...,n form AP with first term a=1, last term l=n.",
+      "Sum formula for AP: Sn = n/2 x (a + l).",
+      "Substitute a=1, l=n: Sn = n/2 x (1+n) = n(n+1)/2.",
+      "Sum of first n natural numbers = n(n+1)/2. Answer: option (A)."
     ],
   }
 ];
