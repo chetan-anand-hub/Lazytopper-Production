@@ -1,3 +1,18 @@
+---
+Session: 2026-05-22
+Work done: canonicalQuestionBank wiring + topicKey fixes + syllabus guard patch
+PR: #100 (open, awaiting merge)
+Branch: content/wire-ncert-exemplar-science-ch1-7
+SHA: 519b65123a8d2e9ba5f35d76624cf7c5b81fb0d3
+Key decisions:
+- Bundled 3 concerns into one PR: engine wiring + topicKey retag + guard patch
+- topicKey in reproduction/controlAndCoordination files retagged to match topics.ts canonical slugs (not file-author slugs) — required for engine topicMatches() to route correctly
+- TOPIC_ALIASES entry added for backward-compat only (engine does not consult aliases — data file retag was the real fix)
+- syllabusGuard.ts and cbseHistoricalArchetypes.ts now in sync on Constructions/Ogive/Frustum
+- deletionGuard.test.ts update deferred to next small PR
+Next: Science 8-13 extraction on content/question-bank-expansion-02
+---
+
 ## Post-PR #98 / Science chapters 1-7 NCERT+Exemplar extraction
 
 - PR #98 merged into base/approved-thru-437

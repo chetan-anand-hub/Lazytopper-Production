@@ -1,6 +1,32 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-21T17:31:56Z UTC
+Last updated: 2026-05-22T00:00:00Z UTC
+
+## PR #100 / Science ch1-7 engine wiring + topicKey fixes + syllabus guard patch — OPEN, awaiting merge
+
+Timestamp: 2026-05-22T00:00:00Z UTC
+Status: **OPEN PR — awaiting merge into base/approved-thru-437**
+Last completed PR: PR #100 — "content: wire Science ch1-7 NCERT+Exemplar into engine + fix topicKey slugs + patch syllabus guard"
+Branch: content/wire-ncert-exemplar-science-ch1-7
+PR head SHA: 519b65123a8d2e9ba5f35d76624cf7c5b81fb0d3
+Base before merge (origin/base/approved-thru-437): 6a70889f3dfaadd5c33c3fa410f360036fd69a19
+Merge commit / new base: (pending — PR not yet merged)
+
+### PR #100 entry — content: wire Science ch1-7 NCERT+Exemplar into engine pool
+
+Branch: content/wire-ncert-exemplar-science-ch1-7
+SHA: 519b65123a8d2e9ba5f35d76624cf7c5b81fb0d3
+Files changed: 8
+- `lazytopper/src/data/canonicalQuestionBank.ts` (+31 lines — 14 imports + 14 spreads)
+- `lazytopper/src/lib/desktop/topics.ts` (+1 line — backward-compat URL alias)
+- `lazytopper/src/data/questionBanks/class10/science/controlAndCoordination.ncert.ts` (topicKey retagged: `control-and-co-ordination` → `control-and-coordination`)
+- `lazytopper/src/data/questionBanks/class10/science/controlAndCoordination.exemplar.ts` (same retag, 54 occurrences)
+- `lazytopper/src/data/questionBanks/class10/science/reproduction.ncert.ts` (topicKey retagged: `reproduction` → `how-do-organisms-reproduce`)
+- `lazytopper/src/data/questionBanks/class10/science/reproduction.exemplar.ts` (same retag, 59 occurrences)
+- `scripts/src/syllabusGuard.ts` (+3 lines — Constructions chapter added to Maths banned subtopics: `"Constructions"`, `"Division of a Line Segment"`, `"Construction of Tangents"`)
+- `lazytopper/src/prediction/cbseHistoricalArchetypes.ts` (+8 lines — `MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords` populated with `constructions`, `division of a line segment`, `construction of tangents`, `frustum`, `ogive`, `graph ogive`)
+
+Net effect: 608 Science questions (chapters 1-7 NCERT + Exemplar) are now fully visible to the practice engine, mock engine, HPQ, and all consumers. All 3227 question IDs unique — zero collisions.
 
 ## Post-PR #98 / Science chapters 1-7 NCERT+Exemplar extraction
 
