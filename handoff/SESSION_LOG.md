@@ -1,4 +1,20 @@
 ---
+Session: 2026-05-22 (afternoon)
+Work done: Merged PRs #101 + #102. QA unblocked. Starting Science 8-13 + Maths extraction today.
+PRs merged:
+  #101 — Clerk OAuth BASE_PATH fix (feature-tip SHA: 5ad88cd, base merge SHA: f88f742)
+  #102 — Science ch1-7 engine wiring + topicKey + syllabus guard (feature-tip SHA: 4557b3f, base merge SHA: 56ce39b)
+New base SHA: 56ce39bd88200abf196827e54a3d4feeb191237f (PR #102 merge commit on base/approved-thru-437)
+Key decisions:
+- Handoff commit accidentally landed on fix/ branch, cherry-picked to correct content/ branch
+- Both PRs merged same session, QA verified on Vercel
+- Login Google OAuth confirmed working post PR #101
+- 608 Science questions confirmed in engine post PR #102
+- Squash-merge produces a new commit SHA on base — handoff records both the feature-branch tip SHA (for traceability) and the merge commit SHA (for session-start verification)
+Next: Science 8-13 extraction on content/question-bank-expansion-02 (rebase onto 56ce39b before starting)
+---
+
+---
 Session: 2026-05-22
 Work done: canonicalQuestionBank wiring + topicKey fixes + syllabus guard patch
 PR: #100 (open, awaiting merge)
