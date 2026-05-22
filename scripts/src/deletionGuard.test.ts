@@ -98,8 +98,8 @@ describe("isScienceDeletedFor2026_27 — subtopic-keyword deletions", () => {
 // isMathsDeletedFor2026_27
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("isMathsDeletedFor2026_27 — current 2026-27 state (no deletions)", () => {
-  test("no Maths chapters are deleted for 2026-27 (deletedTopics is empty)", () => {
+describe("isMathsDeletedFor2026_27 — current 2026-27 state (subtopic-level deletions configured)", () => {
+  test("no full Maths chapters are deleted for 2026-27 (deletedTopics is empty)", () => {
     assert.equal(
       MATHS_DELETED_CHAPTERS_2026_27.deletedTopics.length,
       0,
@@ -107,15 +107,15 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (no deletions)", ()
     );
   });
 
-  test("no Maths subtopic keywords are deleted for 2026-27 (deletedSubtopicKeywords is empty)", () => {
+  test("6 Maths subtopic keywords are deleted for 2026-27 (Constructions, Frustum, Ogive)", () => {
     assert.equal(
       MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords.length,
-      0,
-      "deletedSubtopicKeywords array should be empty"
+      6,
+      "deletedSubtopicKeywords array should contain 6 entries: constructions, division of a line segment, construction of tangents, frustum, ogive, graph ogive"
     );
   });
 
-  test("returns false for any Maths topic when no deletions are configured", () => {
+  test("returns false for any Maths topic name alone when no full-chapter deletions are configured", () => {
     assert.equal(isMathsDeletedFor2026_27("Real Numbers"), false);
     assert.equal(isMathsDeletedFor2026_27("Polynomials"), false);
     assert.equal(isMathsDeletedFor2026_27("Quadratic Equations"), false);
@@ -124,8 +124,8 @@ describe("isMathsDeletedFor2026_27 — current 2026-27 state (no deletions)", ()
     assert.equal(isMathsDeletedFor2026_27("Probability"), false);
   });
 
-  test("returns false with any subtopic when no deletions are configured", () => {
-    assert.equal(isMathsDeletedFor2026_27("Statistics", "Ogive"), false);
+  test("returns true for banned Maths subtopic keywords (Ogive); false for retained subtopics", () => {
+    assert.equal(isMathsDeletedFor2026_27("Statistics", "Ogive"), true);
     assert.equal(isMathsDeletedFor2026_27("Arithmetic Progression", "Sum of n terms"), false);
   });
 });
