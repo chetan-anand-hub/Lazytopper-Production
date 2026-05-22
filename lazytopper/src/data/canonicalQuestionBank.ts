@@ -85,6 +85,22 @@ import { ELEC_EXEMPLAR } from './questionBanks/class10/science/electricity.exemp
 import { MAG_NCERT } from './questionBanks/class10/science/magneticEffects.ncert';
 import { MAG_EXEMPLAR } from './questionBanks/class10/science/magneticEffects.exemplar';
 
+// Maths NCERT + Exemplar — Agent A chapters (expansion-03, added 2026-05-22)
+import { RN_NCERT } from './questionBanks/class10/maths/realNumbers.ncert';
+import { RN_EXEMPLAR } from './questionBanks/class10/maths/realNumbers.exemplar';
+import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
+import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
+import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
+import { QE_EXEMPLAR } from './questionBanks/class10/maths/quadraticEquations.exemplar';
+import { TRI_NCERT } from './questionBanks/class10/maths/triangles.ncert';
+import { TRI_EXEMPLAR } from './questionBanks/class10/maths/triangles.exemplar';
+import { CG_NCERT } from './questionBanks/class10/maths/coordinateGeometry.ncert';
+import { CG_EXEMPLAR } from './questionBanks/class10/maths/coordinateGeometry.exemplar';
+import { TRIG_NCERT } from './questionBanks/class10/maths/trigonometry.ncert';
+import { TRIG_EXEMPLAR } from './questionBanks/class10/maths/trigonometry.exemplar';
+import { SAV_NCERT } from './questionBanks/class10/maths/surfaceAreasAndVolumes.ncert';
+import { SAV_EXEMPLAR } from './questionBanks/class10/maths/surfaceAreasAndVolumes.exemplar';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -166,6 +182,21 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ELEC_EXEMPLAR,
   ...MAG_NCERT,
   ...MAG_EXEMPLAR,
+  // Maths Agent A chapters NCERT + Exemplar (expansion-03, added 2026-05-22)
+  ...RN_NCERT,
+  ...RN_EXEMPLAR,
+  ...PLE_NCERT,
+  ...PLE_EXEMPLAR,
+  ...QE_NCERT,
+  ...QE_EXEMPLAR,
+  ...TRI_NCERT,
+  ...TRI_EXEMPLAR,
+  ...CG_NCERT,
+  ...CG_EXEMPLAR,
+  ...TRIG_NCERT,
+  ...TRIG_EXEMPLAR,
+  ...SAV_NCERT,
+  ...SAV_EXEMPLAR,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
