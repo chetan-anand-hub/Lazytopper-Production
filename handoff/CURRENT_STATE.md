@@ -1,21 +1,54 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-22T00:00:00Z UTC
+Last updated: 2026-05-22T16:00:00Z UTC
 
-## PR #100 / Science ch1-7 engine wiring + topicKey fixes + syllabus guard patch — OPEN, awaiting merge
+## Post-PR #102 + PR #101 / Science engine wiring + Clerk OAuth fix — MERGED
 
-Timestamp: 2026-05-22T00:00:00Z UTC
-Status: **OPEN PR — awaiting merge into base/approved-thru-437**
-Last completed PR: PR #100 — "content: wire Science ch1-7 NCERT+Exemplar into engine + fix topicKey slugs + patch syllabus guard"
-Branch: content/wire-ncert-exemplar-science-ch1-7
-PR head SHA: 519b65123a8d2e9ba5f35d76624cf7c5b81fb0d3
-Base before merge (origin/base/approved-thru-437): 6a70889f3dfaadd5c33c3fa410f360036fd69a19
-Merge commit / new base: (pending — PR not yet merged)
+Timestamp: 2026-05-22T16:00:00Z UTC
+Status: **MERGED into base/approved-thru-437**
+Live base SHA: `56ce39bd88200abf196827e54a3d4feeb191237f`
 
-### PR #100 entry — content: wire Science ch1-7 NCERT+Exemplar into engine pool
+Note on SHAs below: PR #101 and PR #102 each had a feature-branch tip SHA (the last commit on the source branch) AND a separate merge commit SHA on `base/approved-thru-437`. GitHub's merge produced new commits on base — the merge commit SHAs are what `git rev-parse` reports for the base branch and are what session-start verification should match. The feature-branch tip SHAs are recorded for traceability only.
 
-Branch: content/wire-ncert-exemplar-science-ch1-7
-SHA: 519b65123a8d2e9ba5f35d76624cf7c5b81fb0d3
+### PR #102 entry — content: wire Science ch1-7 NCERT+Exemplar into engine + fix topicKey slugs + patch syllabus guard
+
+Branch: `content/wire-ncert-exemplar-science-ch1-7`
+Feature-branch tip SHA: `4557b3fe2fc25bb4ad15cfbc50869b6a418879c5` (the squash-merge commit that landed on base differs)
+Merge commit on base (live SHA): `56ce39bd88200abf196827e54a3d4feeb191237f`
+Status: MERGED into `base/approved-thru-437`
+Files changed: 12 (8 source + 4 handoff)
+Key changes:
+- `lazytopper/src/data/canonicalQuestionBank.ts`: 14 imports + 14 spreads (+31 lines)
+- `lazytopper/src/lib/desktop/topics.ts`: 1 `TOPIC_ALIASES` entry for backward-compat URL slug
+- `lazytopper/src/data/questionBanks/class10/science/controlAndCoordination.ncert.ts` + `.exemplar.ts`: topicKey retagged to `"control-and-coordination"` (164 occurrences fixed)
+- `lazytopper/src/data/questionBanks/class10/science/reproduction.ncert.ts` + `.exemplar.ts`: topicKey retagged to `"how-do-organisms-reproduce"` (83 occurrences fixed)
+- `scripts/src/syllabusGuard.ts`: Constructions added to Maths banned subtopics
+- `lazytopper/src/prediction/cbseHistoricalArchetypes.ts`: `MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords` populated (was empty `[]`)
+
+Net effect: 608 Science questions (ch1-7 NCERT + Exemplar) now fully visible to the practice engine, mock engine, HPQ, and all consumers. All 3,227 question IDs unique — zero collisions.
+
+### PR #101 entry — fix: Clerk OAuth forceRedirectUrl missing BASE_PATH prefix causes 404 on Vercel
+
+Branch: `fix/clerk-oauth-redirect-base-path`
+Feature-branch tip SHA: `5ad88cd04233dd002ad22880ce5a6c405aa32db7`
+Merge commit on base (live SHA): `f88f742a5b30e9e34d4020345d70a611862b01d3`
+Status: MERGED into `base/approved-thru-437`
+Files changed: 1
+
+Key change:
+- `lazytopper/src/pages/Login.tsx` line 763:
+  - Before: `forceRedirectUrl={nextPath}`
+  - After:  `` forceRedirectUrl={`${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}${nextPath}`} ``
+
+Root cause: Clerk OAuth callback was missing `/app/` BASE_PATH prefix, causing redirect to `/practice/...` instead of `/app/practice/...` on Vercel, resulting in 404.
+
+Fix: Full absolute URL constructed so Clerk uses correct domain + path. Verified working on Vercel preview after merge.
+
+### PR #100 entry — content: wire Science ch1-7 NCERT+Exemplar into engine pool (now merged)
+
+Branch: `content/wire-ncert-exemplar-science-ch1-7`
+PR head SHA: `519b65123a8d2e9ba5f35d76624cf7c5b81fb0d3`
+Merge commit on base: `443a913` (followed later by PRs #101 and #102 above)
 Files changed: 8
 - `lazytopper/src/data/canonicalQuestionBank.ts` (+31 lines — 14 imports + 14 spreads)
 - `lazytopper/src/lib/desktop/topics.ts` (+1 line — backward-compat URL alias)
