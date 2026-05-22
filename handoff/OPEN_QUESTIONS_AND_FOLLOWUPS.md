@@ -1,3 +1,26 @@
+## 2026-05-22 — PR #106 follow-ups
+
+### OPEN — Spot-check Science ch8-12 question accuracy
+
+Verify 10-15 random questions especially:
+- Electricity numericals (`electricity.ncert.ts`, `electricity.exemplar.ts`) — solutionSteps accuracy, units, sign convention
+- Heredity Punnett squares (`heredity.ncert.ts`, `heredity.exemplar.ts`) — genotype/phenotype ratios
+- `light.exemplar.ts` against `jeep110.pdf` (fabrication incident — re-extracted from correct PDF, but extra eyeball wise)
+Priority: **Medium**
+
+### OPEN — PR numbering correction
+
+Handoff previously recorded Science ch8-12 as PR #104.
+Actual GitHub PR numbers: **#106** (content) and **#105** (handoff docs).
+Priority: **Low** (documentation only)
+
+### RESOLVED — Science ch8-12 engine extraction
+
+296 questions extracted, wired, and engine-reachability verified.
+PRs #105 (docs) and #106 (content) merged. Base SHA: `dfbf725a362b11a4113ec63f4ecebbaa792848a3`.
+
+---
+
 ## 2026-05-22 — PR #104 follow-ups
 
 ### OPEN — Spot-check Science ch8-12 question accuracy

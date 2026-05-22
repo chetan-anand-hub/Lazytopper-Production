@@ -1,4 +1,18 @@
 ---
+Session: 2026-05-22 (end of day)
+PRs merged: #105 (handoff docs), #106 (Science ch8-12 content)
+New base SHA: dfbf725a362b11a4113ec63f4ecebbaa792848a3
+Science extraction complete:
+  Ch1-7: 608 questions (PRs #98, #102)
+  Ch8-12: 296 questions (PR #106)
+  Ch13: deleted from CBSE 2026-27 — not extracted
+  Total Science NCERT+Exemplar: 904 questions in engine
+Key finding: Exemplar PDFs use old CBSE chapter numbering (documented in master knowledge)
+Key finding: Ch9 and Ch10 are separate topics in topics.ts
+Next: fix/deletion-guard-tests (Low mode) then Maths ch1-14 (High mode)
+---
+
+---
 Session: 2026-05-22 (evening)
 Work done: Science ch8-12 NCERT+Exemplar extraction (296 questions)
 Commit: 83c92893a246cc7eee8221be000957bfa2054b22

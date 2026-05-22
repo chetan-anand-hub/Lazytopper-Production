@@ -1,6 +1,36 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-22T20:00:00Z UTC
+Last updated: 2026-05-22T23:00:00Z UTC
+
+## Post-PR #106 / Science ch8-12 NCERT+Exemplar extraction — MERGED
+
+Timestamp: 2026-05-22
+Status: **MERGED into base/approved-thru-437**
+Merge SHA on base: `dfbf725a362b11a4113ec63f4ecebbaa792848a3`
+
+### PR #106 entry — content: Science ch8-12 NCERT+Exemplar extraction + engine registration
+
+Branch: `content/question-bank-expansion-02` (deleted from remote after merge)
+Files changed: 11 (10 new `.ts` + `canonicalQuestionBank.ts`)
+Questions: **296 new**
+- `heredity`: 37 (topicKey: `heredity`)
+- `light`: 73 (topicKey: `light-reflection-and-refraction`)
+- `humanEye`: 46 (topicKey: `human-eye-and-colourful-world`)
+- `electricity`: 89 (topicKey: `electricity`)
+- `magneticEffects`: 51 (topicKey: `magnetic-effects-of-electric-current`)
+
+Ch 13 "Our Environment": confirmed deleted from CBSE 2026-27 — **not extracted**.
+
+Spread count in `canonicalQuestionBank.ts`: **68 → 78** (+10 spreads).
+Engine reachability: **5/5 PASS** (live `canonicalQuestionBank` import verified — all 296 reachable via topicKey filter).
+
+NOTE: Previously recorded in handoff as PR #104. Actual GitHub PR number is **#106**. PR #105 was the earlier handoff docs update for Science ch8-12 (merged same session). This file corrects the numbering.
+
+Key finding: the slug `light-reflection-and-refraction-incl-human-eye-prism` does **NOT exist** anywhere in `lazytopper/src/lib/desktop/topics.ts` (neither in `TOPICS` nor `TOPIC_ALIASES`). Actual slugs:
+- Ch 9 Light: `light-reflection-and-refraction`
+- Ch 10 Human Eye: `human-eye-and-colourful-world`
+
+These are **two separate topic entries** in topics.ts, not a shared slug. The original task prompt was wrong on this; the extraction was done against the real slugs and engine routing verified.
 
 ## Post-PR #104 / Science ch8-12 NCERT+Exemplar extraction + engine registration — OPEN
 

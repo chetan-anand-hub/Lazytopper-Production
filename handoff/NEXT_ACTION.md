@@ -1,42 +1,40 @@
 # LazyTopper Next Action
 
-Timestamp: 2026-05-22T20:00:00Z UTC
+Timestamp: 2026-05-22T23:00:00Z UTC
 
 ## Current State
 
-PR #104 (Science ch8-12 NCERT+Exemplar extraction + engine registration) is **OPEN** on `content/question-bank-expansion-02`.
-Branch tip SHA: `83c92893a246cc7eee8221be000957bfa2054b22`
-Parent base SHA: `63a015756c45007de035c35616fb2571c5daa60e` (post-PR #103).
+PRs #100, #101, #102, #103, #105, #106 are MERGED into `base/approved-thru-437`.
+Live base SHA: `dfbf725a362b11a4113ec63f4ecebbaa792848a3` (PR #106 merge commit).
 
-PRs #100, #101, #102, #103 are MERGED into `base/approved-thru-437`.
+Science extraction COMPLETE:
+- Ch 1-7: 608 questions (PRs #98, #102)
+- Ch 8-12: 296 questions (PR #106)
+- Ch 13 Our Environment: deleted from CBSE 2026-27 — not extracted
+- Total Science NCERT+Exemplar in engine: **904 questions**
 
 ## IMMEDIATE:
 
-1. **Merge PR #104** (Science ch8-12 extraction)
-   Branch: `content/question-bank-expansion-02`
-   Commit: `83c92893a246cc7eee8221be000957bfa2054b22`
-   296 new questions; all validations PASS; engine reachability 5/5 PASS.
-   Recommended owner spot-checks before merge: Electricity numericals, Heredity Punnett squares, `light.exemplar.ts` vs `jeep110.pdf` (fabrication incident — see `OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
-
-2. **Fix `deletionGuard.test.ts`** (3 broken assertions from PR #102 syllabus guard patch)
+1. **Fix `deletionGuard.test.ts`** — 3 broken assertions from PR #102
    File: `scripts/src/deletionGuard.test.ts` lines 110-130
-   Changes needed:
+   Changes:
    - `deletedSubtopicKeywords.length === 0`  →  `=== 6`
    - `isMathsDeletedFor2026_27("Statistics", "Ogive") === false`  →  `true`
    - Any assertion assuming no Maths deletions → flip to new doctrine
    Branch: `fix/deletion-guard-tests`
    Effort: **Low mode**
 
-3. **Maths chapters 1-14 extraction**
+2. **Maths ch1-14 extraction**
    Branch: `content/question-bank-expansion-03`
-   Create from base **AFTER PR #104 merges** (must rebase onto the new merge SHA).
-   Skip entirely: Constructions chapter
-   Skip subtopics: Frustum of cone, Ex 6.4 area-ratio theorem, Ogive construction, Euclid's Division Lemma proof
-   Source PDFs: `C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\Class X\Maths\ebooks\Maths01.pdf` through `Maths15.pdf`
-   Exemplar PDFs: `jeep201.pdf` through `jeep215.pdf` (skip `jeep211`)
-   Special case: `jeep212.pdf` not in gdrive — use `ncert books` path
-   Lesson from PR #104: verify each Exemplar PDF header matches the expected chapter title before extracting (Exemplar uses old CBSE numbering; NCERT uses new numbering).
-   Effort: **High mode** agent
+   Create from `base/approved-thru-437 @ dfbf725a362b11a4113ec63f4ecebbaa792848a3`
+   Source: `C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\Class X\Maths\`
+   Effort: **High mode**
+
+   IMPORTANT before starting:
+   - Read `lazytopper/src/lib/desktop/topics.ts` to verify ALL Maths slugs (do not trust the original task prompt — PR #106 revealed prompt slugs can be wrong)
+   - Skip Constructions chapter entirely
+   - Skip subtopics: Frustum, Ex 6.4 area-ratio, Ogive construction, Euclid's Division Lemma proof
+   - Verify each Exemplar PDF header matches the expected chapter title before extracting (lesson from PR #106: Exemplar PDFs use old CBSE numbering while NCERT uses new numbering)
 
 ## Data-Honesty Guardrails
 
