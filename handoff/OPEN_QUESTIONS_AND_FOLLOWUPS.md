@@ -1,3 +1,35 @@
+## 2026-05-22 — PR #100 follow-ups (post engine wiring + topicKey fixes + syllabus guard patch)
+
+### OPEN — deletionGuard.test.ts update needed
+
+3 assertions in `scripts/src/deletionGuard.test.ts` (lines 110-130) now fail due to PR #100 populating `MATHS_DELETED_CHAPTERS_2026_27`. Fix in next small PR before any `pnpm test` run.
+Priority: **High** (blocks clean CI)
+
+### OPEN — CI syllabus guard not enforced in GitHub Actions
+
+Both GH Actions workflows (`blackbox.yml`, `mojibake-guardrail.yml`) use npm not pnpm. Root `preinstall` rejects npm so `syllabusGuard` never runs in CI. `syllabusGuard` only runs on manual `pnpm build`.
+Fix: update workflow yml files to use pnpm.
+Priority: **Medium** (post-launch)
+
+### OPEN — Maths question bank empty (no NCERT/Exemplar extraction yet)
+
+All 13 Maths topics have only pack1/pack2/pack3 questions. NCERT + Exemplar extraction pending (`content/question-bank-expansion-03`).
+Priority: **High** (pre-launch content depth)
+
+### RESOLVED — 608 Science questions invisible to engine
+
+Fixed by PR #100. All 608 questions now wired into `canonicalQuestionBank`.
+
+### RESOLVED — topicKey mismatch for Control & Coordination and Reproduction
+
+Fixed by PR #100. Both files retagged to canonical `topics.ts` slugs.
+
+### RESOLVED — Maths syllabus guard missing Constructions chapter
+
+Fixed by PR #100. `syllabusGuard.ts` and `cbseHistoricalArchetypes.ts` both updated.
+
+---
+
 ## 2026-05-17 - PR #82 Login polish follow-ups and PR-K2H-6 next stage
 
 Status:
