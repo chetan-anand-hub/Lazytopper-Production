@@ -1,6 +1,62 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-22T16:00:00Z UTC
+Last updated: 2026-05-22T20:00:00Z UTC
+
+## Post-PR #104 / Science ch8-12 NCERT+Exemplar extraction + engine registration — OPEN
+
+Timestamp: 2026-05-22T20:00:00Z UTC
+Status: **OPEN PR — awaiting merge into base/approved-thru-437**
+Parent base SHA: `63a015756c45007de035c35616fb2571c5daa60e` (post-PR #103, handoff for #101+#102)
+
+### PR #104 entry — content: Science ch8-12 NCERT+Exemplar extraction + engine registration (296 questions)
+
+Branch: `content/question-bank-expansion-02`
+Commit SHA: `83c92893a246cc7eee8221be000957bfa2054b22`
+Files changed: 11 (10 new `.ts` + `canonicalQuestionBank.ts`)
+Diff stat: `+2483 / -0` lines
+
+New question files under `lazytopper/src/data/questionBanks/class10/science/`:
+- `heredity.ncert.ts` (10 Qs) / `heredity.exemplar.ts` (27 Qs) — topicKey `heredity`
+- `light.ncert.ts` (35 Qs) / `light.exemplar.ts` (38 Qs) — topicKey `light-reflection-and-refraction`
+- `humanEye.ncert.ts` (16 Qs) / `humanEye.exemplar.ts` (30 Qs) — topicKey `human-eye-and-colourful-world`
+- `electricity.ncert.ts` (54 Qs) / `electricity.exemplar.ts` (35 Qs) — topicKey `electricity`
+- `magneticEffects.ncert.ts` (21 Qs) / `magneticEffects.exemplar.ts` (30 Qs) — topicKey `magnetic-effects-of-electric-current`
+
+Engine registration in `lazytopper/src/data/canonicalQuestionBank.ts`: 10 new imports + 10 new spreads (+23 lines).
+
+Totals by topicKey (via live `canonicalQuestionBank` import):
+- `heredity`: 37
+- `light-reflection-and-refraction`: 73
+- `human-eye-and-colourful-world`: 46
+- `electricity`: 89
+- `magnetic-effects-of-electric-current`: 51
+- **Total new: 296** (139 NCERT + 157 Exemplar)
+
+Ch 13 "Our Environment": **confirmed deleted from CBSE 2026-27** (per `scripts/src/syllabusGuard.ts` lines 66-77 and `scripts/src/validateQuestionBanks.ts` ncertRef ban for "NCERT Ch15"). Not extracted; existing legacy `ourEnvironment.pack1.ts` / `.pack2.ts` left untouched.
+
+Spread count in `canonicalQuestionBank.ts`: **68 → 78** (verified by `Select-String -Pattern "^\s+\.\.\.[A-Z]" | Measure-Object`; case-insensitive PowerShell match also picks up the two legacy lowercase spreads `trianglesPack2Questions` / `trigonometryPack2Questions`).
+
+Engine reachability: **5/5 PASS** (live `tsx` import of `canonicalQuestionBank` confirms 296/296 new-prefix IDs reachable; per-topicKey filter counts match per-file counts exactly — see `C:\Users\Chetan\OneDrive\Desktop\diff\engine-reachability-test.mjs`).
+
+Validations all PASS:
+- `npx tsc -p tsconfig.app.json --noEmit` → exit 0
+- `npx tsx scripts/src/syllabusGuard.ts` → "all question banks are clean"
+- `npx tsx scripts/src/validateQuestionBanks.ts` → mark/section consistency PASS, ncertRef PASS, duplicate IDs PASS across 132 files
+- `git diff --check` → no whitespace errors
+- `topicMatches()` simulation against actual topics.ts slugs → 5/5 ROUTES CORRECTLY
+
+### Key finding — slug correction vs. original task prompt
+
+The original `LazyTopper_Science_Ch8_13_Extraction.md` prompt proposed slugs that **do not exist** in `lazytopper/src/lib/desktop/topics.ts`:
+- ❌ proposed `heredity-and-evolution` — actual canonical is `heredity`
+- ❌ proposed `light-reflection-and-refraction-incl-human-eye-prism` — does not exist anywhere in topics.ts (not in TOPICS, not in TOPIC_ALIASES)
+- ❌ proposed Ch 9 (Light) and Ch 10 (Human Eye) **share** a slug — actual: they are **two separate topic entries** in topics.ts with distinct slugs (`light-reflection-and-refraction` and `human-eye-and-colourful-world`)
+
+Per Rule 2 ("Use the slug from topics.ts verbatim"), all new files use the actual canonical slugs. Engine reachability test (5/5 PASS) confirms the practice page routes correctly.
+
+### Anomaly recorded — Light Exemplar fabrication incident, caught and fixed
+
+During parallel agent dispatch, the original task prompt's Exemplar PDF mapping was found to be off-by-one (Exemplar PDFs use OLD CBSE numbering — `jeep108` = old Ch 8 Reproduction, `jeep109` = old Ch 9 / new Ch 8 Heredity, …). Before this was caught, a Ch 9 agent observed that its assigned source `.txt` was the wrong chapter and **generated 27 questions from training data** ("the same questions present in every published copy"). This violated the no-fake-data doctrine. The file was deleted, source labelling fixed, the agent prompt strengthened with an **ABSOLUTE ANTI-FABRICATION RULE**, and Ch 9 Exemplar was re-extracted from the correct PDF (`jeep110.pdf`) — final `light.exemplar.ts` has 38 verified-from-source questions. Owner spot-check of this file vs. `jeep110.pdf` recommended before merge.
 
 ## Post-PR #102 + PR #101 / Science engine wiring + Clerk OAuth fix — MERGED
 
