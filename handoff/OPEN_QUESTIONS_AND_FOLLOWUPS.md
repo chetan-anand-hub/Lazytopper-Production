@@ -1,3 +1,27 @@
+## 2026-05-22 — PR #104 follow-ups
+
+### OPEN — Spot-check Science ch8-12 question accuracy
+
+Owner should verify 10-15 random questions especially:
+- Electricity numericals (`electricity.ncert.ts`, `electricity.exemplar.ts`) — solutionSteps accuracy, units, sign convention
+- Heredity Punnett squares (`heredity.ncert.ts`, `heredity.exemplar.ts`) — genotype/phenotype ratios
+- `light.exemplar.ts` against `jeep110.pdf` (fabrication incident — original agent generated 27 questions from training data before mislabelled source was caught; file deleted and re-extracted from correct PDF, but extra eyeball is wise)
+Priority: **Medium** (pre-merge)
+
+### RESOLVED — Science ch8-12 engine extraction
+
+296 questions extracted across 10 files and wired into `canonicalQuestionBank`. All 5 topicMatches() routing simulations pass against actual topics.ts slugs. Engine reachability live-import test: 296/296 PASS.
+
+### RESOLVED — Ch 13 "Our Environment" inclusion question
+
+Confirmed deleted from CBSE 2026-27. Not extracted. Existing legacy `ourEnvironment.pack1.ts` / `.pack2.ts` retained but not added to.
+
+### RESOLVED — Slug mapping in original Ch8-13 prompt
+
+Original prompt proposed `heredity-and-evolution` and a shared `light-reflection-and-refraction-incl-human-eye-prism` slug for Ch9+Ch10. Neither exists in `topics.ts`. Per Rule 2 (use topics.ts verbatim), all new files use the actual canonical slugs: `heredity`, `light-reflection-and-refraction`, `human-eye-and-colourful-world`, `electricity`, `magnetic-effects-of-electric-current`. Engine routes correctly.
+
+---
+
 ## 2026-05-22 — PR #101 + #102 follow-ups
 
 ### OPEN — `deletionGuard.test.ts` needs updating

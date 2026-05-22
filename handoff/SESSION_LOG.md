@@ -1,4 +1,19 @@
 ---
+Session: 2026-05-22 (evening)
+Work done: Science ch8-12 NCERT+Exemplar extraction (296 questions)
+Commit: 83c92893a246cc7eee8221be000957bfa2054b22
+PR: #104 (open)
+Key findings:
+- Ch13 Our Environment confirmed deleted — not extracted
+- slug light-reflection-and-refraction-incl-human-eye-prism does NOT exist
+  in topics.ts — Ch9 and Ch10 are separate topics
+- Heredity slug is heredity (not heredity-and-evolution)
+- Light Exemplar fabrication incident caught and corrected by agent
+- Engine reachability test added to workflow — 5/5 PASS
+Next: deletionGuard.test.ts fix + Maths ch1-14 extraction
+---
+
+---
 Session: 2026-05-22 (afternoon)
 Work done: Merged PRs #101 + #102. QA unblocked. Starting Science 8-13 + Maths extraction today.
 PRs merged:
