@@ -57,6 +57,22 @@ import { EL2_PACK2 } from './questionBanks/class10/science/electricity.pack2';
 import { ME2_PACK2 } from './questionBanks/class10/science/magneticEffects.pack2';
 import { OE2_PACK2 } from './questionBanks/class10/science/ourEnvironment.pack2';
 
+// Science chapters 1–7 NCERT + Exemplar extractions (added 2026-05-22 — wires PR #98 content into engine pool)
+import { CHEM_REACTIONS_NCERT } from './questionBanks/class10/science/chemicalReactions.ncert';
+import { CHEM_REACTIONS_EXEMPLAR } from './questionBanks/class10/science/chemicalReactions.exemplar';
+import { ACIDS_BASES_SALTS_NCERT } from './questionBanks/class10/science/acidsBasesSalts.ncert';
+import { ACIDS_BASES_SALTS_EXEMPLAR } from './questionBanks/class10/science/acidsBasesSalts.exemplar';
+import { METALS_NON_METALS_NCERT } from './questionBanks/class10/science/metalsNonMetals.ncert';
+import { METALS_NON_METALS_EXEMPLAR } from './questionBanks/class10/science/metalsNonMetals.exemplar';
+import { CARBON_COMPOUNDS_NCERT } from './questionBanks/class10/science/carbonCompounds.ncert';
+import { CARBON_COMPOUNDS_EXEMPLAR } from './questionBanks/class10/science/carbonCompounds.exemplar';
+import { LIFE_PROCESSES_NCERT } from './questionBanks/class10/science/lifeProcesses.ncert';
+import { LIFE_PROCESSES_EXEMPLAR } from './questionBanks/class10/science/lifeProcesses.exemplar';
+import { CONTROL_COORDINATION_NCERT } from './questionBanks/class10/science/controlAndCoordination.ncert';
+import { CONTROL_COORDINATION_EXEMPLAR } from './questionBanks/class10/science/controlAndCoordination.exemplar';
+import { REPRODUCTION_NCERT } from './questionBanks/class10/science/reproduction.ncert';
+import { REPRODUCTION_EXEMPLAR } from './questionBanks/class10/science/reproduction.exemplar';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -112,6 +128,21 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ME2_PACK2,
   ...OUR_ENVIRONMENT_PACK1,
   ...OE2_PACK2,
+  // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
+  ...CHEM_REACTIONS_NCERT,
+  ...CHEM_REACTIONS_EXEMPLAR,
+  ...ACIDS_BASES_SALTS_NCERT,
+  ...ACIDS_BASES_SALTS_EXEMPLAR,
+  ...METALS_NON_METALS_NCERT,
+  ...METALS_NON_METALS_EXEMPLAR,
+  ...CARBON_COMPOUNDS_NCERT,
+  ...CARBON_COMPOUNDS_EXEMPLAR,
+  ...LIFE_PROCESSES_NCERT,
+  ...LIFE_PROCESSES_EXEMPLAR,
+  ...CONTROL_COORDINATION_NCERT,
+  ...CONTROL_COORDINATION_EXEMPLAR,
+  ...REPRODUCTION_NCERT,
+  ...REPRODUCTION_EXEMPLAR,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",

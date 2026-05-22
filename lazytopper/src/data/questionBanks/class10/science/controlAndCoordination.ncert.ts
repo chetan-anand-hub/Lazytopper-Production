@@ -1,42 +1,42 @@
 import type { CanonicalQuestion } from '../../../predictionTypes';
 
 // Source: NCERT Class 10 Science — Chapter 6: Control and Coordination
-// topicKey: "control-and-co-ordination"
+// topicKey: "control-and-coordination"
 // Extraction date: 2026-05-21
 // Source PDF: cbse-papers/gdrive/.../Science/ebooks/jesc106.pdf (READY)
 // Coverage: §6.1 (5), §6.2 (5), §6.3 (4) in-text + 12 exercises = 26 questions
 
 export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
   // ===== §6.1 In-text (after Nervous System) =====
-  { id: "CTRL-NCERT-6-SA-001", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Reflex vs Voluntary", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Reflex vs Voluntary", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "What is the difference between a reflex action and walking?",
     answer: "Reflex action is an involuntary, rapid, automatic response to a stimulus controlled by the spinal cord (e.g., withdrawing hand from a hot object). Walking is a voluntary action controlled by the cerebrum of the brain that involves conscious decisions.",
     solutionSteps: ["Reflex = involuntary, controlled by spinal cord via reflex arc, very fast, no thought.", "Walking = voluntary, controlled by cerebrum + cerebellum, requires conscious decision and balance.", "Reflex protects body from harm; walking is goal-directed locomotion."],
     finalAnswer: "Reflex: involuntary, spinal cord, instant. Walking: voluntary, brain, conscious.",
     ncertRef: "In-text Q1 (after §6.1)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-002", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Synapse", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Synapse", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "What happens at the synapse between two neurons?",
     answer: "At the synapse (gap between two neurons), the electrical impulse arriving at the axonal end of the first neuron triggers the release of chemicals (neurotransmitters). These chemicals diffuse across the synapse and generate a new electrical impulse in the dendrite of the next neuron.",
     solutionSteps: ["Electrical impulse reaches the axonal end of pre-synaptic neuron.", "It triggers release of chemicals (neurotransmitters) into the synaptic gap.", "Chemicals diffuse across the synapse and bind to receptors on the dendrite of the next neuron.", "A new electrical impulse is generated in the post-synaptic neuron."],
     finalAnswer: "Electrical → chemical → electrical signal transmission across the synaptic gap.",
     ncertRef: "In-text Q2 (after §6.1)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-VSA-001", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Brain Anatomy", section: "A", marks: 1, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
+  { id: "CTRL-NCERT-6-VSA-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Brain Anatomy", section: "A", marks: 1, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Which part of the brain maintains posture and equilibrium of the body?",
     answer: "Cerebellum (part of the hind-brain).",
     solutionSteps: ["Hind-brain has three parts: medulla, pons, cerebellum.", "Cerebellum is responsible for precision of voluntary actions, posture and balance."],
     finalAnswer: "Cerebellum.",
     ncertRef: "In-text Q3 (after §6.1)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-003", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Receptors", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-003", subject: "Science", topicKey: "control-and-coordination", subtopic: "Receptors", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "How do we detect the smell of an agarbatti (incense stick)?",
     answer: "Olfactory receptors located in the lining of the nose detect the chemical molecules from the agarbatti smoke. These receptors generate electrical impulses that travel through the olfactory nerves to the fore-brain, which interprets the signals as smell.",
     solutionSteps: ["Smoke molecules from agarbatti enter the nose.", "They stimulate olfactory receptors in the nasal lining.", "Receptors generate nerve impulses sent via the olfactory nerve.", "Fore-brain interprets the signal as a specific smell."],
     finalAnswer: "Olfactory receptors in nose → impulse → fore-brain interprets as smell.",
     ncertRef: "In-text Q4 (after §6.1)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-004", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Reflex Arc", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-004", subject: "Science", topicKey: "control-and-coordination", subtopic: "Reflex Arc", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is the role of the brain in reflex action?",
     answer: "Reflex actions are processed in the spinal cord via a reflex arc, not by the brain — this allows fast response. However, the brain still receives the sensory information (after the response) so that we become consciously aware of what happened (we feel the pain after withdrawing the hand).",
     solutionSteps: ["Reflex arc is formed in the spinal cord, bypassing the brain for speed.", "Brain's role is limited — it receives information after the reflex has occurred.", "This makes us aware of the stimulus (e.g., we feel the heat) after we have already reacted."],
@@ -45,14 +45,14 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     strategyHint: "CBSE-favourite: brain is NOT the controller of reflex; spinal cord is. Brain only becomes aware later." },
 
   // ===== §6.2 In-text (Plants) =====
-  { id: "CTRL-NCERT-6-VSA-002", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
+  { id: "CTRL-NCERT-6-VSA-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "What are plant hormones?",
     answer: "Plant hormones (phytohormones) are chemical substances produced by plants in small quantities that coordinate growth, development, and responses to environmental stimuli. Examples: auxin, gibberellin, cytokinin, abscisic acid.",
     solutionSteps: ["Plant hormones = chemical messengers synthesised in plants.", "They are produced in one part and act in another (diffuse to target).", "They control growth, cell division, ripening, etc. — e.g., auxin (growth), abscisic acid (inhibits growth)."],
     finalAnswer: "Chemical compounds that coordinate plant growth and responses (auxin, gibberellin, cytokinin, abscisic acid).",
     ncertRef: "In-text Q1 (after §6.2)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-005", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Plant Movements", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "CTRL-NCERT-6-SA-005", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Movements", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "How is the movement of leaves of the sensitive plant different from the movement of a shoot towards light?",
     answer: "Movement of sensitive plant (Mimosa) leaves is a NASTIC movement — quick, non-directional response to touch caused by changes in water content (turgor) of pulvinus cells. No growth involved. Movement of shoot towards light is a TROPIC movement (phototropism) — slow, directional growth response caused by unequal distribution of auxin.",
     solutionSteps: ["Sensitive plant: nastic (non-directional), very quick, caused by water/turgor change, no growth.", "Shoot bending towards light: tropic (directional, phototropism), slow, caused by growth via auxin redistribution.", "Key difference: one is movement without growth (instant), other is growth-dependent directional bending."],
@@ -60,14 +60,14 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "In-text Q2 (after §6.2)", isCompetencyBased: true,
     strategyHint: "Nastic vs tropic — tropic is directional + growth; nastic is non-directional + turgor." },
 
-  { id: "CTRL-NCERT-6-VSA-003", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
+  { id: "CTRL-NCERT-6-VSA-003", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Give an example of a plant hormone that promotes growth.",
     answer: "Auxin (also accepted: gibberellin or cytokinin).",
     solutionSteps: ["Growth-promoting hormones: auxin, gibberellin, cytokinin.", "Growth-inhibiting hormone: abscisic acid.", "Auxin is the most commonly cited example."],
     finalAnswer: "Auxin.",
     ncertRef: "In-text Q3 (after §6.2)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-006", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Tendrils & Auxin", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "CTRL-NCERT-6-SA-006", subject: "Science", topicKey: "control-and-coordination", subtopic: "Tendrils & Auxin", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "How do auxins promote the growth of a tendril around a support?",
     answer: "When a tendril touches a support, the cells on the side touching the support produce less auxin. The cells on the opposite side (away from support) get more auxin and grow longer. This unequal growth causes the tendril to curve around the support.",
     solutionSteps: ["Tendril makes contact with support on one side.", "Auxin moves away from the contact side towards the opposite (free) side.", "Cells on the free side elongate due to higher auxin concentration.", "Cells on the contact side grow less → tendril coils around the support."],
@@ -75,7 +75,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "In-text Q4 (after §6.2)", isCompetencyBased: true,
     strategyHint: "Mechanism parallels phototropism — auxin shifts AWAY from the stimulus side." },
 
-  { id: "CTRL-NCERT-6-LA-001", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Experimental Design", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Creating",
+  { id: "CTRL-NCERT-6-LA-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Experimental Design", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design an experiment to demonstrate hydrotropism.",
     answer: "Take two pots A and B with porous walls. Sow germinated bean seeds in both. In pot A, water the soil normally so it is uniformly moist. In pot B, do NOT water directly — instead place a moist sponge/water container on one side of the pot, keeping the rest dry. After a few days, gently remove the seedlings: in pot A roots grow straight down; in pot B roots curve towards the moist side. This shows roots bend towards water → hydrotropism.",
     solutionSteps: ["Take a wide trough/pot, fill with soil, sow germinated bean seeds.", "Place a porous pot (with water) on one side of the trough — water seeps to one side only.", "Keep set-up for 5–7 days; protect from light/gravity bias by horizontal alignment if possible.", "Gently dig up seedlings and observe root direction.", "Roots curve towards the moist side (the porous pot) → demonstrates positive hydrotropism.", "Control: a pot with uniformly moist soil — roots grow straight down (only geotropism)."],
@@ -84,14 +84,14 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     strategyHint: "Always include CONTROL (uniform moisture) to isolate the variable being tested." },
 
   // ===== §6.3 In-text (Animal Hormones) =====
-  { id: "CTRL-NCERT-6-SA-007", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Chemical Coordination", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-007", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chemical Coordination", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "How does chemical coordination take place in animals?",
     answer: "Chemical coordination in animals occurs through hormones secreted by endocrine glands. Hormones are released directly into the bloodstream and carried to target organs, where they bind to specific receptors and produce a response. This system is slower than nervous coordination but reaches all cells.",
     solutionSteps: ["Endocrine glands (pituitary, thyroid, adrenal, etc.) secrete hormones.", "Hormones travel in blood to specific target organs/tissues.", "They bind to target cell receptors and elicit a response (e.g., insulin lowers blood sugar).", "Feedback mechanism regulates hormone secretion."],
     finalAnswer: "Endocrine glands secrete hormones → carried in blood → act on target organs.",
     ncertRef: "In-text Q1 (after §6.3)", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-008", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Thyroid/Iodine", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-008", subject: "Science", topicKey: "control-and-coordination", subtopic: "Thyroid/Iodine", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Why is the use of iodised salt advisable?",
     answer: "Iodine is essential for the thyroid gland to synthesise the hormone thyroxin. Thyroxin regulates carbohydrate, protein and fat metabolism. Iodine deficiency causes goitre (swollen neck) and impairs growth/metabolism. Iodised salt ensures adequate iodine intake, preventing these disorders.",
     solutionSteps: ["Iodine is needed by thyroid gland to make thyroxin.", "Thyroxin regulates metabolism (carbs, proteins, fats).", "Iodine deficiency → less thyroxin → goitre + metabolic problems.", "Iodised salt ensures everyone gets adequate iodine in diet."],
@@ -99,7 +99,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "In-text Q2 (after §6.3)", isCompetencyBased: true,
     strategyHint: "Public-health competency: link diet (iodised salt) → hormone (thyroxin) → disease (goitre)." },
 
-  { id: "CTRL-NCERT-6-SA-009", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Adrenaline", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-009", subject: "Science", topicKey: "control-and-coordination", subtopic: "Adrenaline", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "How does our body respond when adrenaline is secreted into the blood?",
     answer: "Adrenaline (from adrenal gland) prepares the body for 'fight or flight'. It causes: (i) heart beats faster → more O₂ supply to muscles; (ii) reduces blood flow to digestive system and skin; (iii) diverts blood to skeletal muscles; (iv) increases breathing rate via contraction of diaphragm and rib muscles. Together these enable quick response to stress.",
     solutionSteps: ["Adrenaline is secreted into blood from adrenal glands during stress/fear.", "Target: heart → increased heart rate → more O₂ to muscles.", "Blood diverted from skin and digestive system to skeletal muscles.", "Breathing rate increases (diaphragm + rib muscle contractions).", "Net effect: body prepared for 'fight or flight'."],
@@ -107,7 +107,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "In-text Q3 (after §6.3)", isCompetencyBased: true,
     strategyHint: "Fight-or-flight response is a high-frequency exam topic." },
 
-  { id: "CTRL-NCERT-6-SA-010", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Insulin/Diabetes", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-010", subject: "Science", topicKey: "control-and-coordination", subtopic: "Insulin/Diabetes", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Why are some patients of diabetes treated by giving injections of insulin?",
     answer: "Diabetes results when the pancreas fails to produce sufficient insulin. Insulin regulates blood sugar by enabling cells to absorb glucose from blood. Without insulin, blood sugar rises (hyperglycaemia), causing complications. Insulin injections replace the deficient hormone and restore blood sugar regulation.",
     solutionSteps: ["Insulin is produced by pancreas (beta cells of islets of Langerhans).", "Insulin enables uptake of glucose by body cells → lowers blood sugar.", "In diabetes (Type 1), pancreas can't produce enough insulin → blood sugar rises.", "Insulin injections supply the missing hormone, restoring glucose regulation."],
@@ -116,7 +116,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     strategyHint: "Health-application competency: connects gland → hormone → disease → treatment." },
 
   // ===== EXERCISES =====
-  { id: "CTRL-NCERT-6-MCQ-001", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+  { id: "CTRL-NCERT-6-MCQ-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Which of the following is a plant hormone?",
     options: ["Insulin", "Thyroxin", "Oestrogen", "Cytokinin"],
     answer: "Cytokinin",
@@ -124,7 +124,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     finalAnswer: "(d) Cytokinin.",
     ncertRef: "Exercise Q1", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-MCQ-002", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Neuron Structure", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+  { id: "CTRL-NCERT-6-MCQ-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Neuron Structure", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The gap between two neurons is called a",
     options: ["dendrite", "synapse", "axon", "impulse"],
     answer: "synapse",
@@ -132,7 +132,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     finalAnswer: "(b) Synapse.",
     ncertRef: "Exercise Q2", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-MCQ-003", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Brain Functions", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-MCQ-003", subject: "Science", topicKey: "control-and-coordination", subtopic: "Brain Functions", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "The brain is responsible for",
     options: ["thinking", "regulating the heart beat", "balancing the body", "all of the above"],
     answer: "all of the above",
@@ -140,7 +140,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     finalAnswer: "(d) All of the above.",
     ncertRef: "Exercise Q3", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-011", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Receptors", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "CTRL-NCERT-6-SA-011", subject: "Science", topicKey: "control-and-coordination", subtopic: "Receptors", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "What is the function of receptors in our body? Think of situations where receptors do not work properly. What problems are likely to arise?",
     answer: "Receptors are specialised cells/nerve endings that detect changes (stimuli) in the environment (light, sound, taste, smell, touch, temperature) and convert them into nerve impulses. If receptors malfunction: olfactory damage → loss of smell (hence taste reduced); photoreceptor damage → blindness; gustatory damage → no taste; thermoreceptor damage → can't sense hot/cold (risk of burns); auditory damage → deafness.",
     solutionSteps: ["Receptors detect stimuli (light, smell, taste, sound, touch, temperature) at the sense organs.", "They convert stimulus → electrical impulse sent to CNS via sensory neurons.", "Brain interprets these signals → we perceive the stimulus.", "If damaged: e.g., damaged thermoreceptors → can't sense heat → may get burnt. Damaged photoreceptors → blindness."],
@@ -148,7 +148,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q4", isCompetencyBased: true,
     strategyHint: "Always link function → consequence of failure (typical analytical CBSE pattern)." },
 
-  { id: "CTRL-NCERT-6-LA-002", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Neuron Structure & Function", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-LA-002", subject: "Science", topicKey: "control-and-coordination", subtopic: "Neuron Structure & Function", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Draw the structure of a neuron and explain its function.",
     answer: "A neuron has three main parts: (1) Cell body (cyton) — contains nucleus and cytoplasm; (2) Dendrites — short branches that receive impulses from other neurons or receptors; (3) Axon — long fibre that carries impulses away from the cell body. Functions: dendrites pick up stimuli → impulse passes to cell body → travels along axon → at axonal end, chemical (neurotransmitter) is released across synapse to next neuron or to muscle/gland.",
     solutionSteps: ["Draw labelled neuron showing: dendrites (input), cell body with nucleus, axon (long, may be myelinated), axon terminals, synapse.", "Dendrites: receive electrical signals from other neurons or sensory receptors.", "Cell body: integrates incoming signals; contains nucleus and most organelles.", "Axon: conducts the electrical impulse away from cell body towards axon terminal.", "Axon terminal: releases neurotransmitter chemicals into synapse.", "Synapse: chemical crosses gap → generates new impulse in next neuron or triggers muscle/gland response."],
@@ -156,7 +156,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q5", isCompetencyBased: false,
     strategyHint: "REQUIRES-FIGURE: must draw labelled neuron diagram." },
 
-  { id: "CTRL-NCERT-6-SA-012", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Phototropism", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-012", subject: "Science", topicKey: "control-and-coordination", subtopic: "Phototropism", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "How does phototropism occur in plants?",
     answer: "When light falls on one side of a plant shoot, auxin (a growth hormone) produced at the tip diffuses towards the shaded side. Higher auxin on the shady side stimulates greater cell elongation there. Unequal growth makes the shoot bend towards light. This is positive phototropism in shoots (roots show negative phototropism).",
     solutionSteps: ["Auxin is produced at the shoot tip.", "When light hits one side, auxin moves to the shaded (away-from-light) side.", "Cells on the shady side elongate more due to higher auxin.", "Unequal elongation → shoot bends towards the light source."],
@@ -164,7 +164,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q6", isCompetencyBased: true,
     strategyHint: "Common diagram question — label light source, auxin distribution, bending direction." },
 
-  { id: "CTRL-NCERT-6-SA-013", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Spinal Cord", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "CTRL-NCERT-6-SA-013", subject: "Science", topicKey: "control-and-coordination", subtopic: "Spinal Cord", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which signals will get disrupted in case of a spinal cord injury?",
     answer: "All reflex actions (since reflex arcs pass through the spinal cord) and signals between the brain and body parts below the injury site will be disrupted. Voluntary movements, sensory perception, and reflexes below the injury level are lost. Brain-to-body and body-to-brain communication is blocked.",
     solutionSteps: ["Spinal cord carries: (i) reflex arcs; (ii) sensory signals from body to brain; (iii) motor signals from brain to body.", "Injury blocks signal transmission through that segment.", "All reflexes below the injury are lost.", "Voluntary movements and sensations below the injury are also lost."],
@@ -172,14 +172,14 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q7", isCompetencyBased: true,
     strategyHint: "Mention BOTH reflex AND voluntary signals for full marks." },
 
-  { id: "CTRL-NCERT-6-SA-014", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Plant Chemical Coordination", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-014", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Chemical Coordination", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "How does chemical coordination occur in plants?",
     answer: "Plants coordinate chemically via plant hormones (phytohormones). These are synthesised in one part (e.g., shoot tip, root tip, fruits) and diffuse to the target site where they regulate growth, division and responses. Examples: auxin (cell elongation, tropisms), gibberellin (stem growth), cytokinin (cell division), abscisic acid (growth inhibition, leaf fall).",
     solutionSteps: ["Plant hormones synthesised in one location (e.g., shoot tip, root tip).", "They diffuse through tissue to the site of action.", "Four major plant hormones: auxin, gibberellin, cytokinin, abscisic acid.", "They control growth, tropisms, cell division, and dormancy."],
     finalAnswer: "Via plant hormones (auxin, gibberellin, cytokinin, abscisic acid) that diffuse to act on target cells.",
     ncertRef: "Exercise Q8", isCompetencyBased: false },
 
-  { id: "CTRL-NCERT-6-SA-015", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Need for Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "CTRL-NCERT-6-SA-015", subject: "Science", topicKey: "control-and-coordination", subtopic: "Need for Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is the need for a system of control and coordination in an organism?",
     answer: "Control and coordination ensure that all body parts of a multicellular organism work together in harmony to respond appropriately to environmental stimuli, perform life processes, maintain homeostasis, and survive. Without it, different organs would act independently — leading to chaos and failure to respond to dangers, food, etc.",
     solutionSteps: ["Multicellular organisms have many specialised organs.", "These organs must work together — e.g., heart pumps, lungs breathe, muscles move — all in sync.", "Coordination ensures correct response to stimuli (e.g., withdrawing from heat).", "Failure = organism cannot survive environmental challenges."],
@@ -187,7 +187,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q9", isCompetencyBased: true,
     strategyHint: "Highlight 'integrated response' as the key reason." },
 
-  { id: "CTRL-NCERT-6-SA-016", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Involuntary vs Reflex", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "CTRL-NCERT-6-SA-016", subject: "Science", topicKey: "control-and-coordination", subtopic: "Involuntary vs Reflex", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "How are involuntary actions and reflex actions different from each other?",
     answer: "Involuntary actions (e.g., heart beat, peristalsis, breathing) are continuous, controlled by the medulla in the hind-brain, and not necessarily a response to external stimulus. Reflex actions (e.g., withdrawing hand from heat, blinking) are sudden, short-lived responses to a specific external stimulus, controlled by the spinal cord through a reflex arc.",
     solutionSteps: ["Involuntary actions: continuous, internally regulated, controlled by mid/hind-brain (medulla). Examples: heart beat, breathing, digestion.", "Reflex actions: sudden response to external stimulus, controlled by spinal cord via reflex arc. Examples: blinking, knee-jerk, pulling hand from flame.", "Both are not under conscious control, but differ in TRIGGER (internal vs external) and CONTROL CENTRE (medulla vs spinal cord)."],
@@ -195,7 +195,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q10", isCompetencyBased: true,
     strategyHint: "Tabulate: trigger source, control centre, examples." },
 
-  { id: "CTRL-NCERT-6-LA-003", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Nervous vs Hormonal", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+  { id: "CTRL-NCERT-6-LA-003", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous vs Hormonal", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Compare and contrast nervous and hormonal mechanisms for control and coordination in animals.",
     answer: "Nervous mechanism: uses electrical impulses, very fast, short-lived effects, point-to-point delivery via neurons, response limited to neuron-connected cells. Hormonal mechanism: uses chemical messengers (hormones), slow but long-lasting effects, delivered via bloodstream, can reach every cell. Similarities: both coordinate body functions, both involve specialised cells (neurons / endocrine glands), both use signaling molecules at some point.",
     solutionSteps: ["Speed: Nervous = fast (milliseconds); Hormonal = slow (minutes to hours).", "Mode: Nervous = electrical impulses through neurons; Hormonal = chemical (hormones) through blood.", "Duration: Nervous = short-lived response; Hormonal = long-lasting effect.", "Reach: Nervous = only cells connected by nerves; Hormonal = all cells via blood.", "Control: Nervous = brain + spinal cord; Hormonal = endocrine glands.", "Similarity: both achieve coordination; both use signaling molecules (neurotransmitters / hormones)."],
@@ -203,7 +203,7 @@ export const CONTROL_COORDINATION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q11", isCompetencyBased: true,
     strategyHint: "Use a comparison table — examiners reward clarity in compare/contrast." },
 
-  { id: "CTRL-NCERT-6-SA-017", subject: "Science", topicKey: "control-and-co-ordination", subtopic: "Plant vs Animal Movement", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "CTRL-NCERT-6-SA-017", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant vs Animal Movement", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "What is the difference between the manner in which movement takes place in a sensitive plant and the movement in our legs?",
     answer: "Sensitive plant: movement is caused by changes in water content (turgor) of pulvinus cells — no nervous tissue, no muscles, signal via electrical-chemical means (but no specialised conduction tissue). It is involuntary and non-directional. Movement in legs: caused by contraction of skeletal muscles in response to nervous impulses from the brain. It is voluntary, directional and controlled by the cerebrum.",
     solutionSteps: ["Sensitive plant: no nerves, no muscles; movement via changes in turgor (water in cells).", "Triggered by touch; signal moves via electrical-chemical means (no specialised tissue).", "Movement in legs: nervous impulse from brain travels via motor neurons to skeletal muscles.", "Muscles contract via specialised proteins → leg moves.", "Plant = chemical/turgor change; Animal = nerves + muscle contraction."],

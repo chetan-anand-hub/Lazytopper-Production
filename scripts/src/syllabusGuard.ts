@@ -23,6 +23,9 @@ const RULES: BannedSubtopicRule[] = [
       "Frustum of Cone",
       "Ogive",
       "Graph/Ogive",
+      "Constructions",
+      "Division of a Line Segment",
+      "Construction of Tangents",
     ],
     questionBankDir: join(
       import.meta.dirname,
