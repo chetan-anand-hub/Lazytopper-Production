@@ -316,6 +316,7 @@ const TOPIC_ALIASES: Record<string, string> = {
   "magnetic-effects": "magnetic-effects-of-electric-current",
   "magnetic-effects-of-current": "magnetic-effects-of-electric-current",
   "control-coordination": "control-and-coordination",
+  "control-and-co-ordination": "control-and-coordination",
   "reproduction": "how-do-organisms-reproduce",
   "how-organisms-reproduce": "how-do-organisms-reproduce",
   "environment": "our-environment",

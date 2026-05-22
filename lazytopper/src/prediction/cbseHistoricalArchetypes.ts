@@ -704,7 +704,14 @@ export const MATHS_DELETED_CHAPTERS_2026_27 = {
    * chapters (none confirmed for 2026-27).  Matched as case-insensitive
    * substrings against the normalised subtopic name.
    */
-  deletedSubtopicKeywords: [] as string[],
+  deletedSubtopicKeywords: [
+    "constructions",
+    "division of a line segment",
+    "construction of tangents",
+    "frustum",
+    "ogive",
+    "graph ogive",
+  ] as string[],
 } as const;
 
 /**
