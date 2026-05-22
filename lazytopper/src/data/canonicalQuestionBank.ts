@@ -73,6 +73,18 @@ import { CONTROL_COORDINATION_EXEMPLAR } from './questionBanks/class10/science/c
 import { REPRODUCTION_NCERT } from './questionBanks/class10/science/reproduction.ncert';
 import { REPRODUCTION_EXEMPLAR } from './questionBanks/class10/science/reproduction.exemplar';
 
+// Science chapters 8-12 NCERT + Exemplar extractions (added 2026-05-22 — Ch 13 Our Environment skipped per CBSE 2026-27 rationalisation)
+import { HEREDITY_NCERT } from './questionBanks/class10/science/heredity.ncert';
+import { HEREDITY_EXEMPLAR } from './questionBanks/class10/science/heredity.exemplar';
+import { LIGHT_NCERT } from './questionBanks/class10/science/light.ncert';
+import { LIGHT_EXEMPLAR } from './questionBanks/class10/science/light.exemplar';
+import { EYE_NCERT } from './questionBanks/class10/science/humanEye.ncert';
+import { EYE_EXEMPLAR } from './questionBanks/class10/science/humanEye.exemplar';
+import { ELEC_NCERT } from './questionBanks/class10/science/electricity.ncert';
+import { ELEC_EXEMPLAR } from './questionBanks/class10/science/electricity.exemplar';
+import { MAG_NCERT } from './questionBanks/class10/science/magneticEffects.ncert';
+import { MAG_EXEMPLAR } from './questionBanks/class10/science/magneticEffects.exemplar';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -143,6 +155,17 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...CONTROL_COORDINATION_EXEMPLAR,
   ...REPRODUCTION_NCERT,
   ...REPRODUCTION_EXEMPLAR,
+  // Science chapters 8-12 NCERT + Exemplar extractions (added 2026-05-22)
+  ...HEREDITY_NCERT,
+  ...HEREDITY_EXEMPLAR,
+  ...LIGHT_NCERT,
+  ...LIGHT_EXEMPLAR,
+  ...EYE_NCERT,
+  ...EYE_EXEMPLAR,
+  ...ELEC_NCERT,
+  ...ELEC_EXEMPLAR,
+  ...MAG_NCERT,
+  ...MAG_EXEMPLAR,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
