@@ -1,0 +1,421 @@
+import type { CanonicalQuestion } from '../../../predictionTypes';
+
+// Source: NCERT Class 10 Science — Chapter 11: Electricity (jesc111.pdf)
+// topicKey: "electricity"
+// Extraction date: 2026-05-22
+// Syllabus: CBSE 2026-27
+// Coverage: All in-text questions (5 blocks), all 13 worked examples, all 18 exercise questions
+
+export const ELEC_NCERT: CanonicalQuestion[] = [
+  // ===== §11.1 In-text =====
+  { id: "ELEC-NCERT-11-SA-001", subject: "Science", topicKey: "electricity", subtopic: "Electric Circuit", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "What does an electric circuit mean?",
+    answer: "An electric circuit is a continuous and closed conducting path through which an electric current flows. It typically consists of a source (cell or battery), connecting wires, a switch (plug key), and one or more electrical components (e.g., a bulb, resistor, ammeter). When the switch is closed the path is complete and current flows; when it is open the circuit is broken and current stops.",
+    solutionSteps: ["An electric circuit is a continuous and closed conducting path of an electric current.", "It comprises a source of potential difference (cell/battery), connecting wires, a switch (plug key) and electrical components.", "Current flows only when the path is closed; opening the switch breaks the circuit and stops the current."],
+    finalAnswer: "A continuous and closed conducting path along which an electric current flows.",
+    ncertRef: "In-text Q1 §11.1", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-SA-002", subject: "Science", topicKey: "electricity", subtopic: "Unit of Current", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "Define the unit of current.",
+    answer: "The SI unit of electric current is the ampere (A). One ampere is defined as the flow of one coulomb of electric charge through any cross-section of a conductor in one second. That is, 1 A = 1 C / 1 s.",
+    solutionSteps: ["The SI unit of current is the ampere (A), named after Andre-Marie Ampere.", "One ampere = rate of flow of one coulomb of charge per second.", "Symbolically, 1 A = 1 C s⁻¹."],
+    finalAnswer: "1 ampere = 1 coulomb per second (1 A = 1 C/s).",
+    ncertRef: "In-text Q2 §11.1", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-SA-003", subject: "Science", topicKey: "electricity", subtopic: "Charge & Electrons", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Calculate the number of electrons constituting one coulomb of charge.",
+    answer: "Charge of one electron, e = 1.6 × 10⁻¹⁹ C. Number of electrons in 1 C = 1 / (1.6 × 10⁻¹⁹) = 6.25 × 10¹⁸ electrons.",
+    solutionSteps: ["Charge on one electron, e = 1.6 × 10⁻¹⁹ C.", "If n electrons make up a charge Q, then Q = n × e ⇒ n = Q/e.", "For Q = 1 C: n = 1 / (1.6 × 10⁻¹⁹) = 6.25 × 10¹⁸.", "Hence about 6.25 × 10¹⁸ electrons constitute one coulomb of charge."],
+    finalAnswer: "≈ 6.25 × 10¹⁸ electrons",
+    ncertRef: "In-text Q3 §11.1", isCompetencyBased: true },
+
+  // ===== §11.1 Example 11.1 =====
+  { id: "ELEC-NCERT-11-SA-004", subject: "Science", topicKey: "electricity", subtopic: "Current & Charge", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "A current of 0.5 A is drawn by a filament of an electric bulb for 10 minutes. Find the amount of electric charge that flows through the circuit.",
+    answer: "Given I = 0.5 A, t = 10 min = 600 s. From I = Q/t, Q = I × t = 0.5 A × 600 s = 300 C.",
+    solutionSteps: ["Given: current I = 0.5 A, time t = 10 min = 600 s.", "Using the definition of current, I = Q/t ⇒ Q = I × t.", "Substituting: Q = 0.5 A × 600 s = 300 C.", "Hence the charge flowing through the circuit is 300 coulombs."],
+    finalAnswer: "Q = 300 C",
+    ncertRef: "Example 11.1", isCompetencyBased: true },
+
+  // ===== §11.2 In-text =====
+  { id: "ELEC-NCERT-11-SA-005", subject: "Science", topicKey: "electricity", subtopic: "Potential Difference", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "Name a device that helps to maintain a potential difference across a conductor.",
+    answer: "A cell, or a battery (combination of cells), maintains a potential difference across the ends of a conductor. The chemical reaction inside the cell continuously supplies energy to the charges, keeping the potential difference between its terminals while current flows.",
+    solutionSteps: ["A cell (or battery) maintains a potential difference across its terminals.", "Chemical energy inside the cell is converted to electrical energy.", "When connected to a conductor, this potential difference drives the current."],
+    finalAnswer: "A cell or battery (combination of cells).",
+    ncertRef: "In-text Q1 §11.2", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-SA-006", subject: "Science", topicKey: "electricity", subtopic: "Volt Definition", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "What is meant by saying that the potential difference between two points is 1 V?",
+    answer: "Potential difference V = Work done (W) / Charge (Q). Saying that the potential difference between two points is 1 V means 1 joule of work is done in moving 1 coulomb of charge from one point to the other. That is, 1 V = 1 J / 1 C.",
+    solutionSteps: ["Potential difference V between two points = work done per unit charge moved between the points: V = W/Q.", "If V = 1 volt, then 1 joule of work is done to move 1 coulomb of charge between the points.", "Hence 1 V = 1 J C⁻¹."],
+    finalAnswer: "1 J of work is done to move 1 C of charge between the two points (1 V = 1 J/C).",
+    ncertRef: "In-text Q2 §11.2", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-SA-007", subject: "Science", topicKey: "electricity", subtopic: "Energy and Voltage", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "How much energy is given to each coulomb of charge passing through a 6 V battery?",
+    answer: "Energy per coulomb = potential difference. From V = W/Q, W = V × Q. For each coulomb (Q = 1 C) passing through a 6 V battery, energy supplied = 6 V × 1 C = 6 J.",
+    solutionSteps: ["By definition, V = W/Q, where W is work (energy) done per charge Q.", "For Q = 1 C and V = 6 V, W = V × Q = 6 V × 1 C = 6 J.", "Hence each coulomb of charge gains 6 J of energy passing through the 6 V battery."],
+    finalAnswer: "6 joules of energy per coulomb.",
+    ncertRef: "In-text Q3 §11.2", isCompetencyBased: true },
+
+  // ===== §11.2 Example 11.2 =====
+  { id: "ELEC-NCERT-11-SA-008", subject: "Science", topicKey: "electricity", subtopic: "Work and Voltage", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "How much work is done in moving a charge of 2 C across two points having a potential difference 12 V?",
+    answer: "Given Q = 2 C, V = 12 V. Using V = W/Q ⇒ W = V × Q = 12 V × 2 C = 24 J.",
+    solutionSteps: ["Given: charge Q = 2 C, potential difference V = 12 V.", "Work done in moving a charge through a potential difference: W = V × Q.", "Substituting: W = 12 V × 2 C = 24 J.", "Hence the work done is 24 joules."],
+    finalAnswer: "W = 24 J",
+    ncertRef: "Example 11.2", isCompetencyBased: true },
+
+  // ===== §11.5 In-text =====
+  { id: "ELEC-NCERT-11-SA-009", subject: "Science", topicKey: "electricity", subtopic: "Factors Affecting Resistance", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "On what factors does the resistance of a conductor depend?",
+    answer: "Resistance R of a uniform conductor depends on: (i) its length l — R ∝ l (longer wire has more resistance); (ii) its area of cross-section A — R ∝ 1/A (thicker wire has lower resistance); (iii) the nature (resistivity ρ) of the material; (iv) temperature of the conductor. Combining: R = ρl/A.",
+    solutionSteps: ["Resistance is directly proportional to the length of the conductor: R ∝ l.", "Resistance is inversely proportional to the area of cross-section: R ∝ 1/A.", "Resistance depends on the nature of the material through its resistivity ρ.", "Combining: R = ρl/A. Resistance also varies with temperature."],
+    finalAnswer: "Length, area of cross-section, nature of material (resistivity), and temperature.",
+    ncertRef: "In-text Q1 §11.5", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-SA-010", subject: "Science", topicKey: "electricity", subtopic: "Resistance and Thickness", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Will current flow more easily through a thick wire or a thin wire of the same material, when connected to the same source? Why?",
+    answer: "Current flows more easily through the thick wire. Resistance R = ρl/A; for the same material and length, R is inversely proportional to the area of cross-section A. A thicker wire has a larger A, hence a smaller resistance, so by Ohm's law I = V/R the current is larger.",
+    solutionSteps: ["For a given material and length, R = ρl/A, so R is inversely proportional to area of cross-section.", "Thicker wire ⇒ larger A ⇒ smaller R.", "By Ohm's law, I = V/R; smaller R at the same V gives larger I.", "Hence current flows more easily through the thick wire."],
+    finalAnswer: "Through the thick wire — larger area of cross-section gives lower resistance and hence higher current.",
+    ncertRef: "In-text Q2 §11.5", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-011", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law Application", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Let the resistance of an electrical component remains constant while the potential difference across the two ends of the component decreases to half of its former value. What change will occur in the current through it?",
+    answer: "From Ohm's law, I = V/R. R is constant. If V becomes V/2, then new current I' = (V/2)/R = I/2. So the current is reduced to one-half of its former value.",
+    solutionSteps: ["Ohm's law: I = V/R. Here R remains constant.", "New potential difference V' = V/2.", "New current I' = V'/R = (V/2)/R = (1/2)(V/R) = I/2.", "Hence the current through the component reduces to half of its initial value."],
+    finalAnswer: "Current becomes half of its former value.",
+    ncertRef: "In-text Q3 §11.5", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-012", subject: "Science", topicKey: "electricity", subtopic: "Alloys in Heating Devices", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Why are coils of electric toasters and electric irons made of an alloy rather than a pure metal?",
+    answer: "Alloys are preferred because: (i) the resistivity of an alloy is generally higher than that of its constituent pure metals, giving more heat (H = I²Rt) for the same current; (ii) alloys do not oxidise (burn) readily even at high temperatures, so the heating element has a long life; (iii) alloys (e.g., nichrome) have a high melting point so they can be operated red-hot without melting.",
+    solutionSteps: ["Resistivity of an alloy is generally much higher than that of pure metals ⇒ more heat generated per unit length for the same current.", "Alloys do not oxidise readily even at high temperatures, so the heating element has a long life.", "Alloys have high melting points, so the coil can be heated red-hot without melting."],
+    finalAnswer: "High resistivity + high melting point + does not oxidise at high temperature — ideal for heating elements.",
+    ncertRef: "In-text Q4 §11.5", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-013", subject: "Science", topicKey: "electricity", subtopic: "Resistivity Comparison", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Use the data in Table 11.2 to answer the following – (a) Which among iron and mercury is a better conductor? (b) Which material is the best conductor?",
+    answer: "(a) From Table 11.2, resistivity of iron = 10.0 × 10⁻⁸ Ω m and resistivity of mercury = 94.0 × 10⁻⁸ Ω m. Lower resistivity means a better conductor, so iron is a better conductor than mercury. (b) Silver has the lowest resistivity (1.60 × 10⁻⁸ Ω m), so silver is the best conductor among those listed.",
+    solutionSteps: ["A material with lower resistivity (ρ) is a better conductor.", "ρ(iron) = 10.0 × 10⁻⁸ Ω m; ρ(mercury) = 94.0 × 10⁻⁸ Ω m. Iron has the lower ρ, so iron is the better conductor.", "From the table, silver has the lowest ρ = 1.60 × 10⁻⁸ Ω m.", "Hence silver is the best conductor among the listed materials."],
+    finalAnswer: "(a) Iron. (b) Silver.",
+    ncertRef: "In-text Q5 §11.5", isCompetencyBased: true },
+
+  // ===== §11.5 Examples 11.3-11.6 =====
+  { id: "ELEC-NCERT-11-SA-014", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law Calculation", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "(a) How much current will an electric bulb draw from a 220 V source, if the resistance of the bulb filament is 1200 Ω? (b) How much current will an electric heater coil draw from a 220 V source, if the resistance of the heater coil is 100 Ω?",
+    answer: "By Ohm's law I = V/R. (a) I = 220/1200 ≈ 0.18 A. (b) I = 220/100 = 2.2 A. The heater draws a much larger current than the bulb from the same source because of its much lower resistance.",
+    solutionSteps: ["Using Ohm's law: I = V/R.", "(a) V = 220 V, R = 1200 Ω ⇒ I = 220/1200 = 0.183 A ≈ 0.18 A.", "(b) V = 220 V, R = 100 Ω ⇒ I = 220/100 = 2.2 A.", "Note: at the same voltage, a lower-resistance device (heater) draws more current than a higher-resistance device (bulb)."],
+    finalAnswer: "(a) I ≈ 0.18 A; (b) I = 2.2 A.",
+    ncertRef: "Example 11.3", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-015", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law Calculation", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "The potential difference between the terminals of an electric heater is 60 V when it draws a current of 4 A from the source. What current will the heater draw if the potential difference is increased to 120 V?",
+    answer: "First find the resistance: R = V/I = 60/4 = 15 Ω. Assuming R is constant, when V becomes 120 V: I' = V'/R = 120/15 = 8 A.",
+    solutionSteps: ["Given: V₁ = 60 V, I₁ = 4 A. Find resistance R = V₁/I₁ = 60/4 = 15 Ω.", "Now V₂ = 120 V and R remains the same.", "By Ohm's law, I₂ = V₂/R = 120/15 = 8 A.", "Hence the heater will draw a current of 8 A."],
+    finalAnswer: "I₂ = 8 A",
+    ncertRef: "Example 11.4", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-001", subject: "Science", topicKey: "electricity", subtopic: "Resistivity Calculation", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Resistance of a metal wire of length 1 m is 26 Ω at 20°C. If the diameter of the wire is 0.3 mm, what will be the resistivity of the metal at that temperature? Using Table 11.2, predict the material of the wire.",
+    answer: "Given R = 26 Ω, l = 1 m, d = 0.3 mm = 3 × 10⁻⁴ m. Area A = πd²/4 = π × (3 × 10⁻⁴)²/4 = 7.07 × 10⁻⁸ m². Resistivity ρ = RA/l = 26 × 7.07 × 10⁻⁸ / 1 ≈ 1.84 × 10⁻⁶ Ω m. Comparing with Table 11.2, this matches manganese.",
+    solutionSteps: ["Given: R = 26 Ω, l = 1 m, diameter d = 0.3 mm = 3 × 10⁻⁴ m.", "Area of cross-section A = πd²/4 = π × (3 × 10⁻⁴)² / 4 = π × 9 × 10⁻⁸ / 4 ≈ 7.07 × 10⁻⁸ m².", "Using R = ρl/A, the resistivity is ρ = RA/l.", "ρ = (26 × 7.07 × 10⁻⁸) / 1 ≈ 1.84 × 10⁻⁶ Ω m.", "From Table 11.2, ρ = 1.84 × 10⁻⁶ Ω m corresponds to manganese."],
+    finalAnswer: "ρ ≈ 1.84 × 10⁻⁶ Ω m; material is manganese.",
+    ncertRef: "Example 11.5", isCompetencyBased: true,
+    strategyHint: "Express d in metres first; use A = πd²/4." },
+
+  { id: "ELEC-NCERT-11-SA-016", subject: "Science", topicKey: "electricity", subtopic: "Resistance Scaling", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A wire of given material having length l and area of cross-section A has a resistance of 4 Ω. What would be the resistance of another wire of the same material having length l/2 and area of cross-section 2A?",
+    answer: "R = ρl/A. For first wire R₁ = ρl/A = 4 Ω. For second wire R₂ = ρ(l/2)/(2A) = ρl/(4A) = R₁/4 = 4/4 = 1 Ω.",
+    solutionSteps: ["For a wire of the same material, R = ρl/A.", "First wire: R₁ = ρl/A = 4 Ω.", "Second wire: R₂ = ρ × (l/2) / (2A) = (1/4) × ρl/A = R₁/4.", "Hence R₂ = 4/4 = 1 Ω."],
+    finalAnswer: "R₂ = 1 Ω",
+    ncertRef: "Example 11.6", isCompetencyBased: true },
+
+  // ===== §11.6 In-text (Series) =====
+  // REQUIRES-FIGURE
+  { id: "ELEC-NCERT-11-SA-017", subject: "Science", topicKey: "electricity", subtopic: "Series Circuit Diagram", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Draw a schematic diagram of a circuit consisting of a battery of three cells of 2 V each, a 5 Ω resistor, an 8 Ω resistor, and a 12 Ω resistor, and a plug key, all connected in series.",
+    answer: "The schematic must show three cells of 2 V each (total 6 V) connected in series, then a 5 Ω resistor, an 8 Ω resistor, a 12 Ω resistor and a plug key all joined end-to-end to form a single closed loop. Symbols: long-and-short parallel lines for each cell, rectangular box (or zigzag) for each resistor, and the standard open/closed-switch symbol for the plug key.",
+    solutionSteps: ["Draw three cells in series (long line +, short line −) so terminals add: total EMF = 3 × 2 V = 6 V.", "From the positive terminal of the battery, draw a wire to the 5 Ω resistor, then to the 8 Ω resistor, then to the 12 Ω resistor.", "From the 12 Ω resistor connect through a plug key back to the negative terminal of the battery to close the loop.", "Use standard symbols: cell (long-short lines), resistor (rectangle), plug key (open/closed switch)."],
+    finalAnswer: "Closed series loop: 6 V battery → 5 Ω → 8 Ω → 12 Ω → plug key → back to battery.",
+    strategyHint: "REQUIRES-FIGURE: a single-loop schematic showing 3 cells (2 V each) in series with 5 Ω, 8 Ω, 12 Ω resistors and a plug key.",
+    ncertRef: "In-text Q1 §11.6.1", isCompetencyBased: true },
+
+  // REQUIRES-FIGURE
+  { id: "ELEC-NCERT-11-LA-002", subject: "Science", topicKey: "electricity", subtopic: "Series Circuit Readings", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Redraw the circuit of Question 1, putting in an ammeter to measure the current through the resistors and a voltmeter to measure the potential difference across the 12 Ω resistor. What would be the readings in the ammeter and the voltmeter?",
+    answer: "Ammeter is connected in series anywhere in the loop; voltmeter is connected in parallel across the 12 Ω resistor only. Total EMF V = 3 × 2 = 6 V. Total resistance R = 5 + 8 + 12 = 25 Ω. Current I = V/R = 6/25 = 0.24 A (ammeter reading). Voltage across the 12 Ω resistor V₁₂ = I × 12 = 0.24 × 12 = 2.88 V (voltmeter reading).",
+    solutionSteps: ["EMF of battery: V = 3 × 2 V = 6 V.", "Total series resistance: R = 5 + 8 + 12 = 25 Ω.", "Series current (same everywhere): I = V/R = 6 / 25 = 0.24 A. This is the ammeter reading.", "Voltage across 12 Ω resistor: V₁₂ = I × 12 = 0.24 × 12 = 2.88 V. This is the voltmeter reading.", "Ammeter is connected in series; voltmeter is connected in parallel across the 12 Ω resistor only."],
+    finalAnswer: "Ammeter reads 0.24 A; voltmeter reads 2.88 V.",
+    strategyHint: "REQUIRES-FIGURE: the previous series circuit with an ammeter in series and a voltmeter in parallel across the 12 Ω resistor.",
+    ncertRef: "In-text Q2 §11.6.1", isCompetencyBased: true },
+
+  // Example 11.7
+  // REQUIRES-FIGURE
+  { id: "ELEC-NCERT-11-LA-003", subject: "Science", topicKey: "electricity", subtopic: "Series Circuit", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "An electric lamp, whose resistance is 20 Ω, and a conductor of 4 Ω resistance are connected to a 6 V battery. Calculate (a) the total resistance of the circuit, (b) the current through the circuit, and (c) the potential difference across the electric lamp and conductor.",
+    answer: "(a) Series: R = 20 + 4 = 24 Ω. (b) I = V/R = 6/24 = 0.25 A. (c) V_lamp = I × 20 = 5 V; V_conductor = I × 4 = 1 V (sum = 6 V, consistent).",
+    solutionSteps: ["The lamp (20 Ω) and the conductor (4 Ω) are in series with a 6 V battery.", "(a) Total resistance: R_s = R₁ + R₂ = 20 + 4 = 24 Ω.", "(b) Current in the circuit (same everywhere in series): I = V/R_s = 6 V / 24 Ω = 0.25 A.", "(c) Voltage across lamp: V₁ = I × R₁ = 0.25 × 20 = 5 V. Voltage across conductor: V₂ = I × R₂ = 0.25 × 4 = 1 V.", "Check: V₁ + V₂ = 5 + 1 = 6 V = battery EMF."],
+    finalAnswer: "R = 24 Ω; I = 0.25 A; V_lamp = 5 V; V_conductor = 1 V.",
+    strategyHint: "REQUIRES-FIGURE: 6 V battery in series with a 20 Ω lamp and a 4 Ω resistor.",
+    ncertRef: "Example 11.7", isCompetencyBased: true },
+
+  // ===== §11.6 In-text (Parallel) =====
+  { id: "ELEC-NCERT-11-SA-018", subject: "Science", topicKey: "electricity", subtopic: "Parallel Resistance Limit", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Judge the equivalent resistance when the following are connected in parallel – (a) 1 Ω and 10⁶ Ω, (b) 1 Ω and 10³ Ω, and 10⁶ Ω.",
+    answer: "For parallel combination: 1/R_p = 1/R₁ + 1/R₂ + ... (a) 1/R_p = 1/1 + 1/10⁶ ≈ 1 ⇒ R_p ≈ 1 Ω (slightly less than 1 Ω). (b) 1/R_p = 1 + 1/10³ + 1/10⁶ ≈ 1 ⇒ R_p ≈ 1 Ω. In a parallel combination, the equivalent resistance is always less than the smallest individual resistance — here it is just under 1 Ω in both cases.",
+    solutionSteps: ["In parallel: 1/R_p = Σ (1/Rᵢ). Therefore R_p is less than the smallest resistance in the combination.", "(a) 1/R_p = 1 + 10⁻⁶ ≈ 1 ⇒ R_p ≈ 1 Ω (very slightly less than 1 Ω).", "(b) 1/R_p = 1 + 10⁻³ + 10⁻⁶ ≈ 1.001 ⇒ R_p ≈ 0.999 Ω ≈ 1 Ω.", "Conclusion: when a small resistor is in parallel with much larger resistors, the equivalent resistance is essentially equal to the smallest resistance."],
+    finalAnswer: "Both cases give an equivalent resistance ≈ 1 Ω (slightly less than 1 Ω).",
+    ncertRef: "In-text Q1 §11.6.2", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-004", subject: "Science", topicKey: "electricity", subtopic: "Parallel Combination", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "An electric lamp of 100 Ω, a toaster of resistance 50 Ω, and a water filter of resistance 500 Ω are connected in parallel to a 220 V source. What is the resistance of an electric iron connected to the same source that takes as much current as all three appliances, and what is the current through it?",
+    answer: "Compute combined parallel resistance: 1/R_p = 1/100 + 1/50 + 1/500 = 5/500 + 10/500 + 1/500 = 16/500 ⇒ R_p = 500/16 = 31.25 Ω. Total current from source I = V/R_p = 220/31.25 = 7.04 A. The iron must draw the same 7.04 A from 220 V, so its resistance R_iron = V/I = 220/7.04 ≈ 31.25 Ω.",
+    solutionSteps: ["For parallel resistors: 1/R_p = 1/R₁ + 1/R₂ + 1/R₃ = 1/100 + 1/50 + 1/500.", "Take LCM 500: 1/R_p = 5/500 + 10/500 + 1/500 = 16/500.", "R_p = 500/16 = 31.25 Ω.", "Total current drawn: I = V/R_p = 220 / 31.25 = 7.04 A.", "Iron must draw the same current at 220 V, so R_iron = V/I = 220/7.04 ≈ 31.25 Ω."],
+    finalAnswer: "R_iron ≈ 31.25 Ω; I ≈ 7.04 A.",
+    ncertRef: "In-text Q2 §11.6.2", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-019", subject: "Science", topicKey: "electricity", subtopic: "Parallel Advantage", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "What are the advantages of connecting electrical devices in parallel with the battery instead of connecting them in series?",
+    answer: "Advantages of parallel connection: (i) each device receives the full supply voltage and operates at its rated value; (ii) different devices can independently draw the current they need; (iii) if one device fails or is switched off, the others continue to work (the circuit is not broken); (iv) total resistance of the circuit is reduced, so a useful total current can flow; (v) each device has its own switch and can be controlled independently.",
+    solutionSteps: ["In parallel, each device gets the same (full) supply voltage and operates at its rated power.", "Each branch carries the current required by its device; devices with very different resistances/ratings can coexist.", "If one device is switched off or fails, the others in other branches continue to function (the circuit is not broken).", "The total resistance is lower than any single device, so more current can be supplied to drive multiple appliances."],
+    finalAnswer: "Each device runs at full voltage and is independently controllable; failure of one doesn't break the rest.",
+    ncertRef: "In-text Q3 §11.6.2", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-005", subject: "Science", topicKey: "electricity", subtopic: "Mixed Combinations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "How can three resistors of resistances 2 Ω, 3 Ω, and 6 Ω be connected to give a total resistance of (a) 4 Ω, (b) 1 Ω?",
+    answer: "(a) Put 3 Ω and 6 Ω in parallel: 1/R' = 1/3 + 1/6 = 1/2 ⇒ R' = 2 Ω. Then connect 2 Ω in series with R': total = 2 + 2 = 4 Ω. (b) Connect all three in parallel: 1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1 ⇒ R = 1 Ω.",
+    solutionSteps: ["(a) To get 4 Ω: combine 3 Ω and 6 Ω in parallel first. 1/R' = 1/3 + 1/6 = 2/6 + 1/6 = 3/6 = 1/2, so R' = 2 Ω.", "Then put the 2 Ω resistor in series with R'(= 2 Ω): R_total = 2 + 2 = 4 Ω.", "(b) To get 1 Ω: connect all three resistors in parallel.", "1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1.", "Therefore R = 1 Ω."],
+    finalAnswer: "(a) 2 Ω in series with parallel of (3 Ω, 6 Ω) → 4 Ω. (b) All three in parallel → 1 Ω.",
+    ncertRef: "In-text Q4 §11.6.2", isCompetencyBased: true,
+    strategyHint: "Try parallel-of-some-then-series to fine-tune total." },
+
+  { id: "ELEC-NCERT-11-SA-020", subject: "Science", topicKey: "electricity", subtopic: "Extremes of Combination", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "What is (a) the highest, (b) the lowest total resistance that can be secured by combinations of four coils of resistance 4 Ω, 8 Ω, 12 Ω, 24 Ω?",
+    answer: "(a) Highest: all four in series. R_max = 4 + 8 + 12 + 24 = 48 Ω. (b) Lowest: all four in parallel. 1/R_min = 1/4 + 1/8 + 1/12 + 1/24 = 6/24 + 3/24 + 2/24 + 1/24 = 12/24 = 1/2 ⇒ R_min = 2 Ω.",
+    solutionSteps: ["Maximum resistance: connect all coils in series. R_max = R₁ + R₂ + R₃ + R₄ = 4 + 8 + 12 + 24 = 48 Ω.", "Minimum resistance: connect all coils in parallel.", "1/R_min = 1/4 + 1/8 + 1/12 + 1/24. With LCM 24: = 6/24 + 3/24 + 2/24 + 1/24 = 12/24 = 1/2.", "R_min = 2 Ω."],
+    finalAnswer: "(a) 48 Ω (all in series); (b) 2 Ω (all in parallel).",
+    ncertRef: "In-text Q5 §11.6.2", isCompetencyBased: true },
+
+  // Examples 11.8-11.9
+  // REQUIRES-FIGURE
+  { id: "ELEC-NCERT-11-LA-006", subject: "Science", topicKey: "electricity", subtopic: "Parallel Combination Calculation", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "In the circuit diagram given in Fig. 11.10, suppose the resistors R₁, R₂ and R₃ have the values 5 Ω, 10 Ω, 30 Ω, respectively, which have been connected to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
+    answer: "Three resistors are in parallel with a 12 V battery, so each has 12 V across it. (a) I₁ = 12/5 = 2.4 A; I₂ = 12/10 = 1.2 A; I₃ = 12/30 = 0.4 A. (b) I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A. (c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3 ⇒ R_p = 3 Ω.",
+    solutionSteps: ["In parallel each resistor has the full battery voltage V = 12 V across it.", "(a) I₁ = V/R₁ = 12/5 = 2.4 A; I₂ = V/R₂ = 12/10 = 1.2 A; I₃ = V/R₃ = 12/30 = 0.4 A.", "(b) Total current I = I₁ + I₂ + I₃ = 2.4 + 1.2 + 0.4 = 4 A.", "(c) 1/R_p = 1/5 + 1/10 + 1/30 = 6/30 + 3/30 + 1/30 = 10/30 = 1/3, so R_p = 3 Ω.", "Cross-check: I = V/R_p = 12/3 = 4 A. Consistent."],
+    finalAnswer: "I₁ = 2.4 A, I₂ = 1.2 A, I₃ = 0.4 A; I = 4 A; R_p = 3 Ω.",
+    strategyHint: "REQUIRES-FIGURE: 12 V battery with 5 Ω, 10 Ω, 30 Ω in parallel.",
+    ncertRef: "Example 11.8", isCompetencyBased: true },
+
+  // REQUIRES-FIGURE
+  { id: "ELEC-NCERT-11-LA-007", subject: "Science", topicKey: "electricity", subtopic: "Series-Parallel Combination", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If in Fig. 11.12, R₁ = 10 Ω, R₂ = 40 Ω, R₃ = 30 Ω, R₄ = 20 Ω, R₅ = 60 Ω, and a 12 V battery is connected to the arrangement. Calculate (a) the total resistance in the circuit, and (b) the total current flowing in the circuit.",
+    answer: "R₁ and R₂ are in parallel: 1/R' = 1/10 + 1/40 = 5/40 ⇒ R' = 8 Ω. R₃, R₄ and R₅ are in parallel: 1/R'' = 1/30 + 1/20 + 1/60 = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω. The two combinations are then in series: R = R' + R'' = 8 + 10 = 18 Ω. (a) Total resistance = 18 Ω. (b) Total current I = V/R = 12/18 = 0.67 A.",
+    solutionSteps: ["First parallel group (R₁, R₂): 1/R' = 1/10 + 1/40 = 4/40 + 1/40 = 5/40 ⇒ R' = 40/5 = 8 Ω.", "Second parallel group (R₃, R₄, R₅): 1/R'' = 1/30 + 1/20 + 1/60. With LCM 60: = 2/60 + 3/60 + 1/60 = 6/60 = 1/10 ⇒ R'' = 10 Ω.", "These two equivalent resistors R' and R'' are in series.", "Total resistance: R = R' + R'' = 8 + 10 = 18 Ω.", "Total current: I = V/R = 12 / 18 = 2/3 ≈ 0.67 A."],
+    finalAnswer: "R = 18 Ω; I ≈ 0.67 A.",
+    strategyHint: "REQUIRES-FIGURE: 12 V battery driving (R₁ ∥ R₂) in series with (R₃ ∥ R₄ ∥ R₅).",
+    ncertRef: "Example 11.9", isCompetencyBased: true },
+
+  // ===== §11.7 In-text =====
+  { id: "ELEC-NCERT-11-SA-021", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Why does the cord of an electric heater not glow while the heating element does?",
+    answer: "Heat produced is H = I²Rt. The same current flows through both the cord and the heating element (series). The heating element is made of a high-resistivity alloy (e.g., nichrome) with a much higher resistance than the copper cord, so almost all the heat is produced in the element, raising its temperature to red-hot. The cord, with very low resistance, dissipates very little heat and remains cool.",
+    solutionSteps: ["The cord (copper, low resistivity) and the heating element (nichrome, high resistivity) carry the same current I in series.", "By Joule's law H = I²Rt, the heat produced is proportional to resistance for the same I and t.", "The element has a high resistance, so most of the heat is dissipated there and it becomes red-hot and glows.", "The cord has a very low resistance, so very little heat is produced and it remains cool and does not glow."],
+    finalAnswer: "Heating element has high resistance (alloy) → I²R heat very large, glows; cord (low-R copper) dissipates negligible heat.",
+    ncertRef: "In-text Q1 §11.7", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-022", subject: "Science", topicKey: "electricity", subtopic: "Heat Energy", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Compute the heat generated while transferring 96000 coulomb of charge in one hour through a potential difference of 50 V.",
+    answer: "Energy supplied W = V × Q = 50 V × 96000 C = 4.8 × 10⁶ J. Since charge is transferred through a potential difference and all energy is dissipated as heat, H = W = 4.8 × 10⁶ J.",
+    solutionSteps: ["Given: Q = 96000 C, V = 50 V, t = 1 h (time is not needed for the energy calculation here).", "Energy transferred = work done = V × Q.", "H = V × Q = 50 V × 96000 C = 4,800,000 J = 4.8 × 10⁶ J.", "Hence the heat generated is 4.8 × 10⁶ joules."],
+    finalAnswer: "H = 4.8 × 10⁶ J",
+    ncertRef: "In-text Q2 §11.7", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-023", subject: "Science", topicKey: "electricity", subtopic: "Joule's Heating", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "An electric iron of resistance 20 Ω takes a current of 5 A. Calculate the heat developed in 30 s.",
+    answer: "By Joule's law H = I²Rt = (5)² × 20 × 30 = 25 × 20 × 30 = 15,000 J = 1.5 × 10⁴ J.",
+    solutionSteps: ["Given: R = 20 Ω, I = 5 A, t = 30 s.", "Joule's law of heating: H = I²Rt.", "H = (5)² × 20 × 30 = 25 × 20 × 30 = 15,000 J.", "Hence H = 1.5 × 10⁴ J."],
+    finalAnswer: "H = 15,000 J = 1.5 × 10⁴ J",
+    ncertRef: "In-text Q3 §11.7", isCompetencyBased: true },
+
+  // Examples 11.10-11.11
+  { id: "ELEC-NCERT-11-LA-008", subject: "Science", topicKey: "electricity", subtopic: "Power and Resistance", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "An electric iron consumes energy at a rate of 840 W when heating is at the maximum rate and 360 W when the heating is at the minimum. The voltage is 220 V. What are the current and the resistance in each case?",
+    answer: "Use P = VI ⇒ I = P/V and R = V/I. (a) Maximum: I = 840/220 = 3.82 A; R = 220/3.82 ≈ 57.60 Ω. (b) Minimum: I = 360/220 = 1.64 A; R = 220/1.64 ≈ 134.15 Ω.",
+    solutionSteps: ["Power input P = V × I, so current I = P/V; resistance R = V/I.", "Case (a): P = 840 W, V = 220 V. I = 840/220 = 3.82 A.", "R = V/I = 220 / 3.82 ≈ 57.60 Ω.", "Case (b): P = 360 W, V = 220 V. I = 360/220 = 1.64 A.", "R = 220 / 1.64 ≈ 134.15 Ω."],
+    finalAnswer: "Max: I ≈ 3.82 A, R ≈ 57.6 Ω. Min: I ≈ 1.64 A, R ≈ 134.15 Ω.",
+    ncertRef: "Example 11.10", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-024", subject: "Science", topicKey: "electricity", subtopic: "Heat from Resistor", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "100 J of heat is produced each second in a 4 Ω resistance. Find the potential difference across the resistor.",
+    answer: "H = I²Rt. Given H = 100 J, R = 4 Ω, t = 1 s. So I² = H/(Rt) = 100/(4×1) = 25 ⇒ I = 5 A. By Ohm's law, V = IR = 5 × 4 = 20 V.",
+    solutionSteps: ["Given H = 100 J in t = 1 s through R = 4 Ω.", "Using H = I²Rt ⇒ I² = H/(Rt) = 100/(4 × 1) = 25.", "Therefore I = √25 = 5 A.", "Applying Ohm's law: V = IR = 5 × 4 = 20 V."],
+    finalAnswer: "V = 20 V",
+    ncertRef: "Example 11.11", isCompetencyBased: true },
+
+  // ===== §11.8 In-text =====
+  { id: "ELEC-NCERT-11-SA-025", subject: "Science", topicKey: "electricity", subtopic: "Electric Power", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "What determines the rate at which energy is delivered by a current?",
+    answer: "The rate at which electrical energy is delivered to (or dissipated by) a circuit element is the electric power P. P = VI = I²R = V²/R, so the rate depends on the potential difference V across the element and the current I through it (or equivalently the resistance R).",
+    solutionSteps: ["Rate of energy delivery = electric power P.", "P = V × I (work done per unit time per unit charge × charge per second).", "Equivalently, using Ohm's law, P = I²R = V²/R.", "Thus the rate is determined by the potential difference and the current (or by R for a given V)."],
+    finalAnswer: "Electric power P = VI = I²R = V²/R determines the rate.",
+    ncertRef: "In-text Q1 §11.8", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-LA-009", subject: "Science", topicKey: "electricity", subtopic: "Power and Energy", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "An electric motor takes 5 A from a 220 V line. Determine the power of the motor and the energy consumed in 2 h.",
+    answer: "Power P = VI = 220 × 5 = 1100 W = 1.1 kW. Energy in 2 h = P × t = 1.1 kW × 2 h = 2.2 kWh = 2.2 × 3.6 × 10⁶ J = 7.92 × 10⁶ J.",
+    solutionSteps: ["Given: V = 220 V, I = 5 A, t = 2 h.", "Power P = V × I = 220 × 5 = 1100 W = 1.1 kW.", "Energy consumed = P × t = 1.1 kW × 2 h = 2.2 kWh.", "Converting to joules: 1 kWh = 3.6 × 10⁶ J ⇒ Energy = 2.2 × 3.6 × 10⁶ = 7.92 × 10⁶ J."],
+    finalAnswer: "Power = 1100 W = 1.1 kW; Energy = 2.2 kWh = 7.92 × 10⁶ J.",
+    ncertRef: "In-text Q2 §11.8", isCompetencyBased: true },
+
+  // Example 11.12-11.13
+  { id: "ELEC-NCERT-11-SA-026", subject: "Science", topicKey: "electricity", subtopic: "Bulb Power", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "An electric bulb is connected to a 220 V generator. The current is 0.50 A. What is the power of the bulb?",
+    answer: "P = VI = 220 V × 0.50 A = 110 W (= 110 J/s).",
+    solutionSteps: ["Given V = 220 V, I = 0.50 A.", "Electric power P = V × I.", "P = 220 × 0.50 = 110 W = 110 J/s."],
+    finalAnswer: "P = 110 W",
+    ncertRef: "Example 11.12", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-010", subject: "Science", topicKey: "electricity", subtopic: "Cost of Electricity", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "An electric refrigerator rated 400 W operates 8 hour/day. What is the cost of the energy to operate it for 30 days at Rs 3.00 per kW h?",
+    answer: "Daily energy = 400 W × 8 h = 3200 Wh = 3.2 kWh. In 30 days = 3.2 × 30 = 96 kWh. Cost = 96 × ₹3.00 = ₹288.00.",
+    solutionSteps: ["Daily energy consumption = power × hours per day = 400 W × 8 h = 3200 Wh = 3.2 kWh.", "Total energy in 30 days = 3.2 kWh × 30 = 96 kWh.", "Tariff = Rs 3.00 per kWh.", "Total cost = 96 kWh × Rs 3.00 = Rs 288.00."],
+    finalAnswer: "Total cost = Rs 288.00",
+    ncertRef: "Example 11.13", isCompetencyBased: true },
+
+  // ===== Exercises (1-18) =====
+  { id: "ELEC-NCERT-11-MCQ-001", subject: "Science", topicKey: "electricity", subtopic: "Cut Wire Parallel", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A piece of wire of resistance R is cut into five equal parts. These parts are then connected in parallel. If the equivalent resistance of this combination is R', then the ratio R/R' is –",
+    options: ["1/25", "1/5", "5", "25"],
+    answer: "25",
+    solutionSteps: ["Each of the 5 equal parts has resistance R/5.", "Connecting five resistors of (R/5) in parallel: 1/R' = 5 × (1/(R/5)) = 5 × (5/R) = 25/R.", "So R' = R/25.", "Therefore R/R' = R/(R/25) = 25."],
+    finalAnswer: "25 — option (d)",
+    ncertRef: "Exercise Q1", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-MCQ-002", subject: "Science", topicKey: "electricity", subtopic: "Electric Power", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "Which of the following terms does not represent electrical power in a circuit?",
+    options: ["I²R", "IR²", "VI", "V²/R"],
+    answer: "IR²",
+    solutionSteps: ["Electric power expressions: P = VI = I²R = V²/R.", "I²R, VI and V²/R are all valid forms of power.", "IR² (current × resistance²) has units A × Ω² = V·Ω, which is not power.", "Hence the odd one out is IR²."],
+    finalAnswer: "IR² — option (b)",
+    ncertRef: "Exercise Q2", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-MCQ-003", subject: "Science", topicKey: "electricity", subtopic: "Bulb at Lower Voltage", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "An electric bulb is rated 220 V and 100 W. When it is operated on 110 V, the power consumed will be –",
+    options: ["100 W", "75 W", "50 W", "25 W"],
+    answer: "25 W",
+    solutionSteps: ["At rated values: R = V²/P = (220)²/100 = 48400/100 = 484 Ω.", "Assuming R stays approximately constant, at V' = 110 V: P' = V'²/R = (110)²/484 = 12100/484 = 25 W.", "Equivalently, halving the voltage quarters the power (P ∝ V²).", "Hence the power consumed becomes 25 W."],
+    finalAnswer: "25 W — option (d)",
+    ncertRef: "Exercise Q3", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-MCQ-004", subject: "Science", topicKey: "electricity", subtopic: "Heat in Series vs Parallel", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Two conducting wires of the same material and of equal lengths and equal diameters are first connected in series and then parallel in a circuit across the same potential difference. The ratio of heat produced in series and parallel combinations would be –",
+    options: ["1:2", "2:1", "1:4", "4:1"],
+    answer: "1:4",
+    solutionSteps: ["Let each wire have resistance R. Series: R_s = 2R. Parallel: R_p = R/2.", "Heat produced in time t with same V: H = V²t/R.", "H_series = V²t/(2R); H_parallel = V²t/(R/2) = 2V²t/R.", "Ratio H_series : H_parallel = (V²t/2R) : (2V²t/R) = (1/2) : 2 = 1 : 4."],
+    finalAnswer: "1:4 — option (c)",
+    ncertRef: "Exercise Q4", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-027", subject: "Science", topicKey: "electricity", subtopic: "Voltmeter Connection", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "How is a voltmeter connected in the circuit to measure the potential difference between two points?",
+    answer: "A voltmeter is always connected in parallel across the two points between which the potential difference is to be measured. It has very high resistance so that it draws negligible current from the circuit and does not alter the voltage being measured.",
+    solutionSteps: ["A voltmeter measures the potential difference across two points.", "It must be connected in parallel across the two points.", "An ideal voltmeter has very high resistance so it draws negligible current and does not disturb the circuit."],
+    finalAnswer: "In parallel across the two points; very high resistance.",
+    ncertRef: "Exercise Q5", isCompetencyBased: false },
+
+  { id: "ELEC-NCERT-11-LA-011", subject: "Science", topicKey: "electricity", subtopic: "Resistance and Geometry", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A copper wire has diameter 0.5 mm and resistivity of 1.6 × 10⁻⁸ Ω m. What will be the length of this wire to make its resistance 10 Ω? How much does the resistance change if the diameter is doubled?",
+    answer: "d = 0.5 mm = 5 × 10⁻⁴ m. A = πd²/4 = π(5 × 10⁻⁴)²/4 ≈ 1.963 × 10⁻⁷ m². Using R = ρl/A, l = RA/ρ = 10 × 1.963 × 10⁻⁷ / 1.6 × 10⁻⁸ ≈ 122.7 m. If diameter is doubled, A becomes 4× → R becomes R/4 = 2.5 Ω (resistance decreases to one-fourth).",
+    solutionSteps: ["Given d = 0.5 mm = 5 × 10⁻⁴ m, ρ = 1.6 × 10⁻⁸ Ω m, R = 10 Ω.", "Area A = πd²/4 = π × (5 × 10⁻⁴)² / 4 = π × 25 × 10⁻⁸ / 4 ≈ 1.963 × 10⁻⁷ m².", "From R = ρl/A: l = RA/ρ = (10 × 1.963 × 10⁻⁷) / (1.6 × 10⁻⁸) = (1.963 × 10⁻⁶) / (1.6 × 10⁻⁸) ≈ 122.7 m.", "If diameter is doubled, new area = π(2d)²/4 = 4A. So new resistance R' = ρl/(4A) = R/4.", "Hence the resistance becomes 10/4 = 2.5 Ω (reduces to one-fourth)."],
+    finalAnswer: "l ≈ 122.7 m. With doubled diameter, R becomes one-fourth (= 2.5 Ω).",
+    ncertRef: "Exercise Q6", isCompetencyBased: true,
+    strategyHint: "R ∝ 1/A and A ∝ d², so R ∝ 1/d²." },
+
+  { id: "ELEC-NCERT-11-LA-012", subject: "Science", topicKey: "electricity", subtopic: "V-I Graph", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "The values of current I flowing in a given resistor for the corresponding values of potential difference V across the resistor are given below – I (amperes): 0.5, 1.0, 2.0, 3.0, 4.0; V (volts): 1.6, 3.4, 6.7, 10.2, 13.2. Plot a graph between V and I and calculate the resistance of that resistor.",
+    answer: "Plot V (y-axis) vs I (x-axis): all points lie approximately on a straight line through the origin, confirming Ohm's law. The slope of the line gives the resistance. V/I values: 1.6/0.5 = 3.2; 3.4/1.0 = 3.4; 6.7/2.0 = 3.35; 10.2/3.0 = 3.4; 13.2/4.0 = 3.3. Average slope ≈ 3.35 Ω. Hence R ≈ 3.4 Ω.",
+    solutionSteps: ["Plot V on the y-axis and I on the x-axis using the given data.", "Points lie on a straight line through the origin → linear V–I relation (Ohm's law).", "Compute V/I ratios: 1.6/0.5 = 3.2; 3.4/1.0 = 3.4; 6.7/2.0 = 3.35; 10.2/3.0 = 3.4; 13.2/4.0 = 3.30.", "Average V/I = (3.2 + 3.4 + 3.35 + 3.4 + 3.30)/5 ≈ 3.33 Ω.", "Therefore the slope of V–I graph, R ≈ 3.3–3.4 Ω."],
+    finalAnswer: "R ≈ 3.4 Ω (slope of straight-line V-I graph).",
+    strategyHint: "REQUIRES-FIGURE: V vs I straight-line graph passing through origin.",
+    ncertRef: "Exercise Q7", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-028", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "When a 12 V battery is connected across an unknown resistor, there is a current of 2.5 mA in the circuit. Find the value of the resistance of the resistor.",
+    answer: "By Ohm's law R = V/I = 12 V / (2.5 × 10⁻³ A) = 4800 Ω = 4.8 kΩ.",
+    solutionSteps: ["Given V = 12 V and I = 2.5 mA = 2.5 × 10⁻³ A.", "Using Ohm's law: R = V/I.", "R = 12 / (2.5 × 10⁻³) = 4800 Ω = 4.8 kΩ."],
+    finalAnswer: "R = 4800 Ω = 4.8 kΩ",
+    ncertRef: "Exercise Q8", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-029", subject: "Science", topicKey: "electricity", subtopic: "Series Circuit", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "A battery of 9 V is connected in series with resistors of 0.2 Ω, 0.3 Ω, 0.4 Ω, 0.5 Ω and 12 Ω, respectively. How much current would flow through the 12 Ω resistor?",
+    answer: "In a series circuit the current is the same everywhere. Total R = 0.2 + 0.3 + 0.4 + 0.5 + 12 = 13.4 Ω. Current I = V/R = 9/13.4 ≈ 0.67 A. Hence the 12 Ω resistor carries about 0.67 A.",
+    solutionSteps: ["For series resistors, R_total = sum of resistances.", "R_total = 0.2 + 0.3 + 0.4 + 0.5 + 12 = 13.4 Ω.", "In a series circuit the current is the same in every resistor: I = V/R_total = 9 / 13.4 ≈ 0.67 A.", "Hence the current through the 12 Ω resistor is also ≈ 0.67 A."],
+    finalAnswer: "I ≈ 0.67 A",
+    ncertRef: "Exercise Q9", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-030", subject: "Science", topicKey: "electricity", subtopic: "Parallel Resistors Count", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "How many 176 Ω resistors (in parallel) are required to carry 5 A on a 220 V line?",
+    answer: "Current per 176 Ω resistor on a 220 V line: I₀ = 220/176 = 1.25 A. To supply 5 A in total: number n = 5 / 1.25 = 4. So 4 such resistors connected in parallel are required.",
+    solutionSteps: ["Current through one 176 Ω resistor at 220 V: I₀ = V/R = 220/176 = 1.25 A.", "All resistors are in parallel, so total current = n × I₀.", "Set n × 1.25 = 5 ⇒ n = 5 / 1.25 = 4.", "Hence 4 resistors of 176 Ω each are needed in parallel."],
+    finalAnswer: "4 resistors",
+    ncertRef: "Exercise Q10", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-013", subject: "Science", topicKey: "electricity", subtopic: "Mixed Combinations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Show how you would connect three resistors, each of resistance 6 Ω, so that the combination has a resistance of (i) 9 Ω, (ii) 4 Ω.",
+    answer: "(i) 9 Ω: connect two 6 Ω resistors in parallel (giving 3 Ω) and put the third 6 Ω in series with this combination. Total = 6 + 3 = 9 Ω. (ii) 4 Ω: connect two 6 Ω resistors in series (giving 12 Ω) and put the third 6 Ω in parallel with this combination. 1/R = 1/12 + 1/6 = 1/12 + 2/12 = 3/12 = 1/4 ⇒ R = 4 Ω.",
+    solutionSteps: ["(i) Combine two 6 Ω resistors in parallel: 1/R' = 1/6 + 1/6 = 2/6 ⇒ R' = 3 Ω.", "Place the third 6 Ω in series with R': total = 6 + 3 = 9 Ω. ✓", "(ii) Combine two 6 Ω resistors in series: R'' = 6 + 6 = 12 Ω.", "Put the third 6 Ω in parallel with R'': 1/R = 1/12 + 1/6 = 1/12 + 2/12 = 3/12 = 1/4.", "Therefore R = 4 Ω. ✓"],
+    finalAnswer: "(i) parallel(6,6) in series with 6 → 9 Ω. (ii) series(6,6) in parallel with 6 → 4 Ω.",
+    ncertRef: "Exercise Q11", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-031", subject: "Science", topicKey: "electricity", subtopic: "Number of Bulbs", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Several electric bulbs designed to be used on a 220 V electric supply line, are rated 10 W. How many lamps can be connected in parallel with each other across the two wires of 220 V line if the maximum allowable current is 5 A?",
+    answer: "Current drawn by one 10 W bulb at 220 V: I₀ = P/V = 10/220 = 1/22 A ≈ 0.0455 A. Maximum number n = I_max / I₀ = 5 / (1/22) = 5 × 22 = 110. Hence 110 such bulbs can be connected in parallel.",
+    solutionSteps: ["Current drawn by one bulb: I₀ = P/V = 10 W / 220 V = 1/22 A ≈ 0.0455 A.", "All bulbs are in parallel, so total current = n × I₀.", "Set n × (1/22) ≤ 5 ⇒ n ≤ 110.", "Therefore at most 110 bulbs of 10 W can be connected in parallel without exceeding 5 A."],
+    finalAnswer: "110 bulbs",
+    ncertRef: "Exercise Q12", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-014", subject: "Science", topicKey: "electricity", subtopic: "Hot-plate Coils", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A hot plate of an electric oven connected to a 220 V line has two resistance coils A and B, each of 24 Ω resistance, which may be used separately, in series, or in parallel. What are the currents in the three cases?",
+    answer: "(a) Single coil: I = V/R = 220/24 ≈ 9.17 A. (b) Series (R = 48 Ω): I = 220/48 ≈ 4.58 A. (c) Parallel (R = 12 Ω): I = 220/12 ≈ 18.33 A.",
+    solutionSteps: ["Case (a) — one coil only: R = 24 Ω. I = V/R = 220 / 24 = 9.17 A.", "Case (b) — series combination: R_s = 24 + 24 = 48 Ω. I = 220 / 48 ≈ 4.58 A.", "Case (c) — parallel combination: 1/R_p = 1/24 + 1/24 = 2/24 ⇒ R_p = 12 Ω.", "I = 220 / 12 ≈ 18.33 A.", "Summary: single ≈ 9.17 A; series ≈ 4.58 A; parallel ≈ 18.33 A."],
+    finalAnswer: "Single: 9.17 A; Series: 4.58 A; Parallel: 18.33 A.",
+    ncertRef: "Exercise Q13", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-015", subject: "Science", topicKey: "electricity", subtopic: "Power Comparison", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Compare the power used in the 2 Ω resistor in each of the following circuits: (i) a 6 V battery in series with 1 Ω and 2 Ω resistors, and (ii) a 4 V battery in parallel with 12 Ω and 2 Ω resistors.",
+    answer: "(i) Series: R = 1 + 2 = 3 Ω, I = 6/3 = 2 A. Power in 2 Ω: P₁ = I²R = (2)² × 2 = 8 W. (ii) Parallel: each branch has 4 V across it. Voltage across 2 Ω = 4 V. Power in 2 Ω: P₂ = V²/R = 16/2 = 8 W. Hence P₁ : P₂ = 8 W : 8 W = 1 : 1 (equal).",
+    solutionSteps: ["Case (i): 1 Ω and 2 Ω in series with 6 V battery. R_total = 1 + 2 = 3 Ω.", "Current I = V/R = 6 / 3 = 2 A. Power dissipated in 2 Ω: P₁ = I²R = (2)² × 2 = 8 W.", "Case (ii): 12 Ω and 2 Ω each connected directly to the 4 V battery (parallel).", "Voltage across the 2 Ω resistor = 4 V. Power in 2 Ω: P₂ = V²/R = (4)² / 2 = 16/2 = 8 W.", "Therefore P₁ = P₂ = 8 W; the ratio is 1 : 1."],
+    finalAnswer: "Both = 8 W (ratio 1 : 1).",
+    ncertRef: "Exercise Q14", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-032", subject: "Science", topicKey: "electricity", subtopic: "Parallel Lamps", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Two lamps, one rated 100 W at 220 V, and the other 60 W at 220 V, are connected in parallel to electric mains supply. What current is drawn from the line if the supply voltage is 220 V?",
+    answer: "Each lamp operates at 220 V (parallel). Current in 100 W lamp: I₁ = 100/220 = 5/11 A ≈ 0.455 A. Current in 60 W lamp: I₂ = 60/220 = 3/11 A ≈ 0.273 A. Total line current I = I₁ + I₂ = 160/220 = 8/11 A ≈ 0.727 A.",
+    solutionSteps: ["Each lamp gets the full supply voltage of 220 V (parallel connection).", "Current in 100 W lamp: I₁ = P₁/V = 100 / 220 = 5/11 A ≈ 0.455 A.", "Current in 60 W lamp: I₂ = P₂/V = 60 / 220 = 3/11 A ≈ 0.273 A.", "Total line current I = I₁ + I₂ = (100 + 60)/220 = 160/220 = 8/11 A ≈ 0.73 A."],
+    finalAnswer: "I ≈ 0.73 A",
+    ncertRef: "Exercise Q15", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-033", subject: "Science", topicKey: "electricity", subtopic: "Energy Comparison", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Which uses more energy, a 250 W TV set in 1 hr, or a 1200 W toaster in 10 minutes?",
+    answer: "Energy = power × time. TV: 250 W × 1 h = 250 Wh. Toaster: 1200 W × (10/60) h = 1200 × (1/6) = 200 Wh. The TV uses more energy (250 Wh > 200 Wh).",
+    solutionSteps: ["Energy consumed = power × time (with consistent units).", "TV: P = 250 W, t = 1 h ⇒ Energy = 250 × 1 = 250 Wh.", "Toaster: P = 1200 W, t = 10 min = 1/6 h ⇒ Energy = 1200 × 1/6 = 200 Wh.", "Compare: 250 Wh > 200 Wh, so the TV uses more energy."],
+    finalAnswer: "TV (250 Wh) > Toaster (200 Wh).",
+    ncertRef: "Exercise Q16", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-SA-034", subject: "Science", topicKey: "electricity", subtopic: "Rate of Heating", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "An electric heater of resistance 8 Ω draws 15 A from the service mains 2 hours. Calculate the rate at which heat is developed in the heater.",
+    answer: "Rate of heat production = power P = I²R = (15)² × 8 = 225 × 8 = 1800 W = 1.8 kW. (The 2-hour duration is not needed for the rate.)",
+    solutionSteps: ["Rate of heating = electric power P = I²R.", "Given I = 15 A, R = 8 Ω.", "P = (15)² × 8 = 225 × 8 = 1800 W = 1.8 kW.", "Hence heat is developed at the rate of 1800 J s⁻¹."],
+    finalAnswer: "P = 1800 W = 1.8 kW",
+    ncertRef: "Exercise Q17", isCompetencyBased: true },
+
+  { id: "ELEC-NCERT-11-LA-016", subject: "Science", topicKey: "electricity", subtopic: "Conceptual Explanations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "Explain the following. (a) Why is the tungsten used almost exclusively for filament of electric lamps? (b) Why are the conductors of electric heating devices, such as bread-toasters and electric irons, made of an alloy rather than a pure metal? (c) Why is the series arrangement not used for domestic circuits? (d) How does the resistance of a wire vary with its area of cross-section? (e) Why are copper and aluminium wires usually employed for electricity transmission?",
+    answer: "(a) Tungsten has a very high melting point (~3380°C) so it can be heated to incandescence without melting; it retains heat and emits light efficiently. (b) Alloys (like nichrome) have higher resistivity and do not oxidise at high temperatures, so they produce more heat without burning out. (c) In a series circuit each device must operate at the same current, and if one fails the whole circuit breaks; also each device cannot get the full mains voltage. Parallel solves both issues. (d) Resistance is inversely proportional to area of cross-section: R ∝ 1/A; thicker wire has lower resistance. (e) Copper and aluminium have very low resistivity, so they conduct electricity with minimal energy loss; they are also ductile, abundant and relatively cheap.",
+    solutionSteps: ["(a) Tungsten's very high melting point (~3380 °C) lets its filament become red-hot/white-hot without melting; it emits enough light when hot.", "(b) Alloys (e.g., nichrome) have high resistivity (more I²R heat per metre) and do not oxidise at high temperature, giving long-lasting heating elements.", "(c) Series: same current through every device, so devices needing different currents can't all run; failure of one breaks the entire circuit; voltage divides across devices instead of full mains being available.", "(d) R = ρl/A, so R is inversely proportional to area A. Doubling A halves R; quadrupling A reduces R to one-fourth.", "(e) Copper and aluminium have very low resistivity (≈10⁻⁸ Ω m), so transmission losses (I²R) are small; they are also ductile, abundant and economical."],
+    finalAnswer: "See five-part explanation above.",
+    ncertRef: "Exercise Q18", isCompetencyBased: true,
+    strategyHint: "Tie each answer to a physical reason — high m.p., resistivity, R = ρl/A, etc." },
+];
