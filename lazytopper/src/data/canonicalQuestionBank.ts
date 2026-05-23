@@ -122,6 +122,11 @@ import { TRIANGLES_PROOF_QUESTIONS } from './questionBanks/class10/maths/triangl
 import { TRIGONOMETRY_PROOF_QUESTIONS } from './questionBanks/class10/maths/trigonometry.proof';
 import { SCIENCE_AR_QUESTIONS } from './questionBanks/class10/science/science.assertionReasoning';
 
+// P0.5 diff/ pack registration (2026-05-23) — case-based (Section E) + circles proof
+import { MATHS_CASE_BASED_QUESTIONS } from './questionBanks/class10/maths/maths.caseBased';
+import { SCIENCE_CASE_BASED_QUESTIONS } from './questionBanks/class10/science/science.caseBased';
+import { CIRCLES_PROOF_QUESTIONS } from './questionBanks/class10/maths/circles.proof';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -237,6 +242,10 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PROOF_QUESTIONS,
   ...TRIGONOMETRY_PROOF_QUESTIONS,
   ...SCIENCE_AR_QUESTIONS,
+  // P0.5 diff/ pack registration (2026-05-23) — 43 questions (case-based Sec E + circles proof Sec C/D)
+  ...MATHS_CASE_BASED_QUESTIONS,
+  ...SCIENCE_CASE_BASED_QUESTIONS,
+  ...CIRCLES_PROOF_QUESTIONS,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
