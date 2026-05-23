@@ -1,6 +1,88 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-23
-Live base SHA: 8c8acf40f129949cac47adf8a769d8fdc6128c79
+Last updated: 2026-05-23 (post-PR #114)
+Live base SHA: d0b34932ce30805e6e3b7a492ffdb3d3538d24d4
+
+## Post-PR #114 — P0.5 diff/ pack registration (21 questions — case-based + circles proof) — MERGED
+
+Timestamp: 2026-05-23
+Merge SHA on base: d0b34932ce30805e6e3b7a492ffdb3d3538d24d4
+
+PR #114 | content: register P0.5 diff/ pack files (21 questions — case-based Sec E merged + circles proof Sec C/D)
+Branch: content/register-diff-packs-p05 (deleted after merge)
+Commits: 1
+
+Files changed: 4
+  - lazytopper/src/data/questionBanks/class10/maths/maths.caseBased.ts (NEW — 6 Qs)
+  - lazytopper/src/data/questionBanks/class10/science/science.caseBased.ts (NEW — 5 Qs)
+  - lazytopper/src/data/questionBanks/class10/maths/circles.proof.ts (NEW — 10 Qs)
+  - lazytopper/src/data/canonicalQuestionBank.ts (MODIFIED — +3 imports, +3 spreads)
+
+Questions added: 21
+  Maths — maths.caseBased.ts: 6 Section E case sets (4 marks each; merged from 18 sub-rows i/ii/iii)
+    topicKeys: triangles (2), arithmetic-progression (2), statistics (1), quadratic-equations (1)
+  Science — science.caseBased.ts: 5 Section E case sets (4 marks each; merged from 15 sub-rows)
+    topicKeys: electricity (2), life-processes (2), light-reflection-and-refraction (1)
+  Maths — circles.proof.ts: 10 (Section C=5 Short 3-mark + Section D=5 Long 5-mark; topicKey: circles)
+
+canonicalQuestionBank.ts:
+  Spreads before: 109
+  Spreads after: 112
+  Bank total: 4,445 questions
+
+Source files (diff/ folder):
+  maths_case_based_pack.ts → maths.caseBased.ts (split form 18 sub-rows → merged 6 case sets in repo)
+  science_case_based_pack.ts → science.caseBased.ts (split 15 → merged 5 in repo)
+  circles_proof_pack.ts → circles.proof.ts (10 rows, no restructure needed)
+  diff/ originals untouched (kept in split form for reference)
+
+Fixes applied:
+  topicKey normalisation (in diff/ sources): Title Case → kebab-case slug (8 distinct keys across 3 files)
+  format normalisation (in repo copies only): "Proof" → "Short" (Sec C × 5) | "Long" (Sec D × 5)
+  Case-set restructure (in repo copies only, maths + science case-based):
+    Each 3-row split case set (marks 1+1+2) merged into one 4-mark Section E row.
+    Reason: validateQuestionBanks enforces section "E" ⇒ marks 4 per row.
+    Merge done via one-off script diff/_p05_merge_caseSets.mjs (preserved in diff/).
+    ID format: base ID without -i/-ii/-iii suffix (e.g. CASE-MATHS-TRI-001).
+    questionText/solutionSteps/answer concatenate parts with "Part (i)/(ii)/(iii)" labels.
+    First sub-part's subject/topicKey/subtopic/difficulty/bloomSkill/pyqYear/pyqSet/ncertRef preserved.
+    isCompetencyBased: true if ANY sub-part was true.
+
+Validations: ALL 6 PASS (round 2, post-restructure)
+  1. syllabusGuard — PASS (0 banned subtopics)
+  2. validateQuestionBanks — PASS (166 files, mark/section consistent, 0 duplicate IDs)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate ID belt-and-suspenders — PASS (1,365 IDs, 0 dupes)
+  5. git diff scope — PASS (4 expected paths)
+  6. Engine reachability — PASS (21 P0.5 Qs route correctly; 0 stray sub-part IDs)
+
+V2 mid-flight blocker + resolution:
+  Round 1 (split form): 33 mark/section mismatches in case-based files (Section E rows with marks 1 or 2).
+  Resolution (owner-directed Option 2): restructure repo copies so each case set is ONE 4-mark Section E row.
+  Round 2: V2 PASS.
+
+Engine reachability results (P0.5 contribution only):
+  circles                            → P0.5 hits=10, total=48,  sections={D:5,C:5}
+  triangles                          → P0.5 hits=2,  total=76,  sections={E:2}
+  arithmetic-progression             → P0.5 hits=2,  total=48,  sections={E:2}
+  statistics                         → P0.5 hits=1,  total=40,  sections={E:1}
+  quadratic-equations                → P0.5 hits=1,  total=60,  sections={E:1}
+  electricity                        → P0.5 hits=2,  total=101, sections={E:2}
+  life-processes                     → P0.5 hits=2,  total=128, sections={E:2}
+  light-reflection-and-refraction    → P0.5 hits=1,  total=74,  sections={E:1}
+
+Authentic question total post-PR #114: 1,630
+  NCERT+Exemplar Science ch1-12: 904 (PRs #98–#106)
+  NCERT+Exemplar Maths ch1-14: 643 (PR #109)
+  P0 diff/ pack registration: 62 (PR #112)
+  P0.5 diff/ pack registration: 21 (PR #114)
+  Total: 1,630 authentic questions in engine
+
+Known issue (scheduled as PRE-P1):
+  Mojibake in maths.caseBased.ts and science.caseBased.ts — UTF-8 multibyte sequences
+  (e.g. △, ∥, ², √, ₂, →, ✓, ₹) rendered as â–³, âˆ¥, Â², âˆš, etc. in questionText/solutionSteps.
+  Inherited from the diff/ source pack files; not introduced by the merge script.
+  circles.proof.ts has the same issue. UI rendering of these questions will be visibly broken.
+  Fix scheduled as PRE-P1 (branch: content/fix-p05-symbol-restoration) BEFORE P1-M Practise Papers.
 
 ## Post-PR #112 — P0 diff/ pack registration (62 questions) — MERGED
 
@@ -81,7 +163,7 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #110 — docs(handoff): post-PR #108 #109 Maths extraction complete
+Last merged PR: #114 — content: register P0.5 diff/ pack files (21 questions)
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -111,7 +193,11 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #107 | Docs: post-PR #106 | 7a120ad9 | Handoff updated |
 | #108 | Fix: deletionGuard.test.ts | 25230e8f | 29/29 tests passing |
 | #109 | Maths ch1-14 NCERT+Exemplar | f0d90b1b | 643 questions wired into engine |
-| #110 | Docs: post-PR #108 #109 | b6be2908 | CURRENT BASE |
+| #110 | Docs: post-PR #108 #109 | b6be2908 | Handoff updated |
+| #111 | Docs: full catchup #99–#110 | da8c08dc | Handoff updated |
+| #112 | P0 diff/ pack registration | 8c8acf40 | 62 questions (AR + Proof) wired into engine |
+| #113 | Docs: post-PR #112 | e7645273 | Handoff updated |
+| #114 | P0.5 diff/ pack registration | d0b34932 | 21 questions (Case-based + circles proof) — CURRENT BASE |
 
 ## Question bank state
 
@@ -119,13 +205,16 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 |---|---|---|
 | Science NCERT+Exemplar ch1-12 | 904 | Live in engine |
 | Maths NCERT+Exemplar ch1-14 | 643 | Live in engine |
+| P0 diff/ packs (PR #112) | 62 | Live in engine |
+| P0.5 diff/ packs (PR #114) | 21 | Live in engine |
 | Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated (retirement pending) |
-| Total in engine | ~4,017 | — |
+| Total in engine | 4,445 | — |
 
-canonicalQuestionBank.ts spread count: 104
+canonicalQuestionBank.ts spread count: 112
 
 ## Known issues
 
+- **Mojibake in P0.5 case-based + circles.proof files (HIGH — UI render broken)** — fix as PRE-P1
 - Clerk dev mode only (pk_test_) — no production instance configured
 - AI features 404 in production (no /api/* rewrite in vercel.json)
 - PYQ filter returns 0 (K2H-8f engine fix pending)
@@ -133,6 +222,7 @@ canonicalQuestionBank.ts spread count: 104
 - deletionGuard.test.ts fixed (PR #108) — 29/29 tests passing
 - strategyHint authored but never rendered (quick win pending)
 - index.html meta stale (149/month, wrong theme-color)
+- pyqSet format inconsistency in P0 AR files (full CBSE codes — cleanup in P5)
 
 ## Frozen files — do not touch
 
