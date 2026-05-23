@@ -85,6 +85,36 @@ import { ELEC_EXEMPLAR } from './questionBanks/class10/science/electricity.exemp
 import { MAG_NCERT } from './questionBanks/class10/science/magneticEffects.ncert';
 import { MAG_EXEMPLAR } from './questionBanks/class10/science/magneticEffects.exemplar';
 
+// Maths NCERT + Exemplar — Agent A chapters (expansion-03, added 2026-05-22)
+import { RN_NCERT } from './questionBanks/class10/maths/realNumbers.ncert';
+import { RN_EXEMPLAR } from './questionBanks/class10/maths/realNumbers.exemplar';
+import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
+import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
+import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
+import { QE_EXEMPLAR } from './questionBanks/class10/maths/quadraticEquations.exemplar';
+import { TRI_NCERT } from './questionBanks/class10/maths/triangles.ncert';
+import { TRI_EXEMPLAR } from './questionBanks/class10/maths/triangles.exemplar';
+import { CG_NCERT } from './questionBanks/class10/maths/coordinateGeometry.ncert';
+import { CG_EXEMPLAR } from './questionBanks/class10/maths/coordinateGeometry.exemplar';
+import { TRIG_NCERT } from './questionBanks/class10/maths/trigonometry.ncert';
+import { TRIG_EXEMPLAR } from './questionBanks/class10/maths/trigonometry.exemplar';
+import { SAV_NCERT } from './questionBanks/class10/maths/surfaceAreasAndVolumes.ncert';
+import { SAV_EXEMPLAR } from './questionBanks/class10/maths/surfaceAreasAndVolumes.exemplar';
+
+// Maths NCERT + Exemplar — Agent B chapters (expansion-03, added 2026-05-22)
+import { POLY_NCERT } from './questionBanks/class10/maths/polynomials.ncert';
+import { POLY_EXEMPLAR } from './questionBanks/class10/maths/polynomials.exemplar';
+import { AP_NCERT } from './questionBanks/class10/maths/arithmeticProgression.ncert';
+import { AP_EXEMPLAR } from './questionBanks/class10/maths/arithmeticProgression.exemplar';
+import { CIRC_NCERT } from './questionBanks/class10/maths/circles.ncert';
+import { CIRC_EXEMPLAR } from './questionBanks/class10/maths/circles.exemplar';
+import { ARC_NCERT } from './questionBanks/class10/maths/areasRelatedToCircles.ncert';
+import { ARC_EXEMPLAR } from './questionBanks/class10/maths/areasRelatedToCircles.exemplar';
+import { STAT_NCERT } from './questionBanks/class10/maths/statistics.ncert';
+import { STAT_EXEMPLAR } from './questionBanks/class10/maths/statistics.exemplar';
+import { PROB_NCERT } from './questionBanks/class10/maths/probability.ncert';
+import { PROB_EXEMPLAR } from './questionBanks/class10/maths/probability.exemplar';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -166,6 +196,34 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ELEC_EXEMPLAR,
   ...MAG_NCERT,
   ...MAG_EXEMPLAR,
+  // Maths Agent A chapters NCERT + Exemplar (expansion-03, added 2026-05-22)
+  ...RN_NCERT,
+  ...RN_EXEMPLAR,
+  ...PLE_NCERT,
+  ...PLE_EXEMPLAR,
+  ...QE_NCERT,
+  ...QE_EXEMPLAR,
+  ...TRI_NCERT,
+  ...TRI_EXEMPLAR,
+  ...CG_NCERT,
+  ...CG_EXEMPLAR,
+  ...TRIG_NCERT,
+  ...TRIG_EXEMPLAR,
+  ...SAV_NCERT,
+  ...SAV_EXEMPLAR,
+  // Maths Agent B chapters (expansion-03, added 2026-05-22)
+  ...POLY_NCERT,
+  ...POLY_EXEMPLAR,
+  ...AP_NCERT,
+  ...AP_EXEMPLAR,
+  ...CIRC_NCERT,
+  ...CIRC_EXEMPLAR,
+  ...ARC_NCERT,
+  ...ARC_EXEMPLAR,
+  ...STAT_NCERT,
+  ...STAT_EXEMPLAR,
+  ...PROB_NCERT,
+  ...PROB_EXEMPLAR,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
