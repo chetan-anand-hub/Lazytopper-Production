@@ -1,4 +1,24 @@
 ---
+Session: 2026-05-23
+Work done:
+  - PR #108: fix deletionGuard.test.ts (3 assertions, SHA: 25230e8f)
+  - PR #109: Maths ch1-14 NCERT+Exemplar 643 questions (SHA: f0d90b1b)
+New base SHA: f0d90b1bc696d73e3064750aa89ef48ddf482c5b
+Content extraction complete:
+  Science NCERT+Exemplar ch1-12: 904 questions
+  Maths NCERT+Exemplar ch1-14: 643 questions
+  Grand total in engine: ~4,017 questions
+Key findings this session:
+  - NCERT PDF disk numbers use old 2018-19 chapter numbering
+  - jeep213.pdf = combined Stats+Prob Exemplar (split correctly)
+  - Maths11.pdf = Constructions (not ARC) — always verify PDF titles
+  - Anti-fabrication rule triggered twice (Surface Areas NCERT, Light Exemplar)
+    both caught and corrected by agents
+  - Engine reachability test now mandatory for all content PRs
+  - quality-assessment-report.md generated — pack quality audit pending
+Next: PYQ extraction, pack quality audit, product UI work
+---
+---
 Session: 2026-05-22 (end of day)
 PRs merged: #105 (handoff docs), #106 (Science ch8-12 content)
 New base SHA: dfbf725a362b11a4113ec63f4ecebbaa792848a3

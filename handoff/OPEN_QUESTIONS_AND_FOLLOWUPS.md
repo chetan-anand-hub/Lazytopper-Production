@@ -1,3 +1,32 @@
+## 2026-05-23 — Post-PR #109 open items
+
+### OPEN — Pack quality audit required (HIGH)
+~2,470 existing pack1/pack2/pack3 questions are AI-generated without
+source PDF verification. quality-assessment-report.md (in diff folder)
+has full details. Decision needed: keep/fix/replace strategy.
+
+### OPEN — PYQ extraction pending
+87 text-extractable CBSE papers available (2023/2024/2025).
+extraction-report.md documents 220 Triangles+Trig questions already
+extracted with symbol stripping issues.
+Separate sessions needed: Maths PYQ + Science PYQ.
+
+### OPEN — assertion_reason_pack.ts not yet registered
+File exists at C:\Users\Chetan\OneDrive\Desktop\diff\assertion_reason_pack.ts
+Needs schema validation and canonicalQuestionBank.ts registration.
+
+### OPEN — K2H-8f PYQ filter engine fix
+practiceSetGenerator.ts does not bias pool toward pyqYear questions.
+PYQ filter returns 0 results. Fix after PYQ extraction completes.
+
+### RESOLVED — Maths ch1-14 NCERT+Exemplar extraction
+643 questions across 26 files. All wired into engine. PR #109 merged.
+
+### RESOLVED — PR #108 deletionGuard test fix
+3 broken assertions fixed. All 29 tests passing.
+
+---
+
 ## 2026-05-22 — PR #106 follow-ups
 
 ### OPEN — Spot-check Science ch8-12 question accuracy

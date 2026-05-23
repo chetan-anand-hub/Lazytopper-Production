@@ -1,6 +1,53 @@
 # LazyTopper Current Handoff State
 
-Last updated: 2026-05-22T23:00:00Z UTC
+Last updated: 2026-05-23T00:00:00Z UTC
+
+## Post-PR #109 — Maths ch1-14 NCERT+Exemplar extraction — MERGED
+
+Timestamp: 2026-05-23
+Merge SHA on base: f0d90b1bc696d73e3064750aa89ef48ddf482c5b
+
+PR #109 | content: Maths all 13 chapters NCERT+Exemplar (643 questions)
+Branch: content/question-bank-expansion-03 (deleted after merge)
+Commits: 2 (Agent A: 429364d, Agent B: 8875b4e)
+Files: 27 (26 new .ts + canonicalQuestionBank.ts)
+
+Questions added: 643
+  Agent A (ch1,3,4,6,7,8+9,12): 400 questions
+  Agent B (ch2,5,10,11,13,14): 243 questions
+
+Per-topic breakdown:
+  real-numbers: RN-N- prefix
+  pair-of-linear-equations: PLE-N- prefix
+  quadratic-equations: QE-N- prefix
+  triangles: TRI-N- prefix
+  coordinate-geometry: CG-N- prefix
+  trigonometry (ch8+ch9 combined): TRIG-N- prefix
+  surface-areas-and-volumes: SAV-N- prefix
+  polynomials: POLY-N- prefix
+  arithmetic-progression: AP-N- prefix
+  circles: CIRC-N- prefix
+  areas-related-to-circles: ARC-N- prefix
+  statistics: STAT-N- prefix
+  probability: PROB-N- prefix
+  Constructions: DELETED from CBSE 2026-27 — not extracted
+
+Spread count: 78 → 104
+Engine reachability: all 13 Maths topicKeys ROUTES CORRECTLY
+Combined competency: Agent A 73.2%, Agent B 82.3%
+
+Key findings:
+- Maths11.pdf = Constructions (not ARC) — used Maths12.pdf for ARC
+- jeep213.pdf = combined Stats+Prob Exemplar — split correctly
+- Agent A Surface Areas NCERT rebuilt after fabrication (verified clean)
+- Agent B: 12 Creating-level questions (fixed Agent A zero-Creating gap)
+- NCERT disk numbering uses old 2018-19 chapter numbers — documented
+
+Total question bank state (post-PR #109):
+  Science NCERT+Exemplar ch1-12: 904 questions
+  Maths NCERT+Exemplar ch1-14: 643 questions
+  Existing pack1/pack2/pack3: ~2,470 questions (quality audit pending)
+  Grand total in engine: ~4,017 questions
 
 ## Post-PR #106 / Science ch8-12 NCERT+Exemplar extraction — MERGED
 
