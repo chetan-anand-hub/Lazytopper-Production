@@ -1,3 +1,53 @@
+## 2026-05-23 — Post-PR #114 open items
+
+### OPEN — Mojibake in P0.5 case-based + circles proof files (HIGH priority, UI render broken)
+Files affected:
+  lazytopper/src/data/questionBanks/class10/maths/maths.caseBased.ts
+  lazytopper/src/data/questionBanks/class10/science/science.caseBased.ts
+  lazytopper/src/data/questionBanks/class10/maths/circles.proof.ts
+Symptom: UTF-8 multibyte sequences rendered as Latin-1 garbage in questionText,
+solutionSteps, answer, finalAnswer, explanation, strategyHint. Examples:
+`â–³` (should be `△`), `âˆ¥` (`∥`), `âˆš` (`√`), `Â²` (`²`), `Î©` (`Ω`),
+`â‚‚` (`₂`), `â†’` (`→`), `Â°` (`°`), `âˆ ` (`∠`), `â‚¹` (`₹`).
+Origin: inherited from diff/ source pack files; not introduced by P0.5 merge script.
+Action: PRE-P1 byte-level replacement pass. Branch `content/fix-p05-symbol-restoration`,
+Low mode, data-only, ~30 min. Must merge BEFORE P1-M (Practise Papers extraction will
+produce the same class of garbage if the recipe isn't established first).
+Reference: NEXT_ACTION.md has the full replacement table.
+
+### OPEN — pyqSet format inconsistency (LOW priority, carries forward from PR #112)
+Still applies. The P0.5 case-based + circles proof files also use full CBSE set codes
+(e.g. "30/1/1") in pyqSet rather than the short form ("1"|"2"|"3") that will be used
+in P5 PYQ extraction. Non-blocking — field is string | undefined. Normalise during P5
+cleanup pass across:
+  triangles.assertionReasoning.ts, trigonometry.assertionReasoning.ts (P0)
+  triangles.proof.ts, trigonometry.proof.ts (P0)
+  science.assertionReasoning.ts (P0)
+  maths.caseBased.ts, science.caseBased.ts, circles.proof.ts (P0.5)
+
+### OPEN — K2H-8f PYQ engine filter (MEDIUM priority, pre-condition for P5)
+Unchanged from post-PR #112. practiceSetGenerator.ts does not bias pool toward
+pyqYear-tagged questions; PYQ filter returns 0 results when pyqOnly===true.
+Must fix before P5 PYQ extraction. Branch: fix/pyq-engine-bias | Mode: Medium.
+
+### OPEN — .claude/ folder not in .gitignore (LOW priority)
+Unchanged. Add to .gitignore in a future docs-only PR. Do NOT stage it for any commit.
+
+### RESOLVED — P0.5 pack registration (PR #114)
+21 questions registered from 3 diff/ pack files:
+  maths.caseBased.ts: 6 Section E case sets (4 marks each; merged from 18 split sub-rows)
+  science.caseBased.ts: 5 Section E case sets (4 marks each; merged from 15 split sub-rows)
+  circles.proof.ts: 10 (5 Section C Short 3-mark + 5 Section D Long 5-mark)
+topicKey normalisation complete (8 keys across 3 files).
+"format": "Proof" → "Short"/"Long" applied to circles.proof.ts only (case-based files
+use format="Case-Based" which is valid).
+Mid-flight V2 blocker (33 mark/section mismatches) resolved via Option 2 restructure:
+each split 3-row case set merged into one 4-mark Section E row. Owner-directed.
+All 6 validations PASS. Merged as PR #114.
+Authentic total: 1,609 → 1,630.
+
+---
+
 ## 2026-05-23 — Post-PR #112 open items
 
 ### OPEN — P0.5 probe pending (LOW priority, quick win)
