@@ -1,6 +1,82 @@
 # LazyTopper Current Handoff State
 Last updated: 2026-05-23
-Live base SHA: b6be29081f594febe75b405f6c88d1da55b801f2
+Live base SHA: 8c8acf40f129949cac47adf8a769d8fdc6128c79
+
+## Post-PR #112 — P0 diff/ pack registration (62 questions) — MERGED
+
+Timestamp: 2026-05-23
+Merge SHA on base: 8c8acf40f129949cac47adf8a769d8fdc6128c79
+
+PR #112 | content: register P0 diff/ pack files (62 questions — triangles/trig AR+proof, science AR)
+Branch: content/register-diff-packs (deleted after merge)
+Commits: 1
+
+Files changed: 6
+  - lazytopper/src/data/questionBanks/class10/maths/triangles.assertionReasoning.ts (NEW — 10 Qs)
+  - lazytopper/src/data/questionBanks/class10/maths/trigonometry.assertionReasoning.ts (NEW — 10 Qs)
+  - lazytopper/src/data/questionBanks/class10/maths/triangles.proof.ts (NEW — 10 Qs)
+  - lazytopper/src/data/questionBanks/class10/maths/trigonometry.proof.ts (NEW — 12 Qs)
+  - lazytopper/src/data/questionBanks/class10/science/science.assertionReasoning.ts (NEW — 20 Qs)
+  - lazytopper/src/data/canonicalQuestionBank.ts (MODIFIED — +5 imports, +5 spreads)
+
+Questions added: 62
+  Maths — triangles.assertionReasoning.ts: 10 (Section A AR, topicKey: triangles)
+  Maths — trigonometry.assertionReasoning.ts: 10 (Section A AR, topicKey: trigonometry)
+  Maths — triangles.proof.ts: 10 (Section C=3, D=7, topicKey: triangles)
+  Maths — trigonometry.proof.ts: 12 (Section C=6, D=6, topicKey: trigonometry)
+  Science — science.assertionReasoning.ts: 20 (Section A AR, electricity=10, life-processes=10)
+
+canonicalQuestionBank.ts:
+  Spreads before: 104
+  Spreads after: 109
+  Bank total: 4,424 questions
+
+Source files (diff/ folder):
+  assertion_reason_pack.ts → split into triangles + trigonometry AR files
+  science_assertion_reason_pack.ts → science.assertionReasoning.ts
+  triangles_proof_pack.ts → triangles.proof.ts
+  trigonometry_proof_pack.ts → trigonometry.proof.ts
+
+Fix applied: topicKey normalisation only
+  "Triangles" → "triangles"
+  "Trigonometry" → "trigonometry"
+  "Electricity" → "electricity"
+  "Life Processes" → "life-processes"
+
+Mid-flight schema correction (in repo files only, diff/ originals untouched):
+  "format": "Proof" → "Short" (Section C, 3-mark)
+  "format": "Proof" → "Long" (Section D, 5-mark)
+  Reason: "Proof" is not a valid QuestionFormat union member in predictionTypes.ts
+
+Validations: ALL 6 PASS
+  1. syllabusGuard — PASS (0 banned subtopics)
+  2. validateQuestionBanks — PASS (163 files, 0 duplicate IDs)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate ID check — PASS (1,344 IDs, 0 dupes)
+  5. git status diff check — PASS (exactly 6 expected files)
+  6. Engine reachability — PASS (all 4 topicKeys ROUTE CORRECTLY)
+
+Engine reachability results:
+  triangles    → total 74  | new 20 | A=10 C=3 D=7  | comp 14/20 | steps 20/20
+  trigonometry → total 318 | new 22 | A=10 C=6 D=6  | comp 14/22 | steps 22/22
+  electricity  → total 99  | new 10 | A=10           | comp 8/10  | steps 10/10
+  life-processes → total 126 | new 10 | A=10         | comp 8/10  | steps 10/10
+
+Competency impact:
+  triangles: was 1.7% (pack3 only) → now meaningfully higher with 14/20 = 70% new Qs
+  trigonometry: was 1.7% (pack3 only) → now with 14/22 = 64% new Qs
+  electricity: AR coverage added (was 0 Section A AR) → +10 AR Qs at 80% competency
+  life-processes: AR coverage added (was 0 Section A AR) → +10 AR Qs at 80% competency
+
+Authentic question total post-PR #112: 1,609
+  NCERT+Exemplar Science ch1-12: 904 (PRs #98-#106)
+  NCERT+Exemplar Maths ch1-14: 643 (PR #109)
+  P0 diff/ pack registration: 62 (PR #112)
+  Total: 1,609 authentic questions in engine
+
+Note: pyqSet values in AR files use full CBSE set codes (e.g. "30/1/1")
+rather than short form ("1"|"2"|"3"). Non-blocking — field is string | undefined.
+Will be normalised during P5 PYQ extraction cleanup pass.
 
 ## Current state
 

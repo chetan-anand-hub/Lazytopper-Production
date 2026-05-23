@@ -1,3 +1,47 @@
+## 2026-05-23 — Post-PR #112 open items
+
+### OPEN — P0.5 probe pending (LOW priority, quick win)
+Three diff/ pack files not yet probed or registered:
+  maths_case_based_pack.ts (~23.8 KB)
+  science_case_based_pack.ts (~24.8 KB)
+  circles_proof_pack.ts (~18.5 KB)
+Expected pattern: same topicKey title-case issue as P0. Same fix.
+Expected yield: ~30-80 questions (Section E case-based + circles proofs).
+Action: Low mode agent, branch content/register-diff-packs-p05.
+
+### OPEN — K2H-8f PYQ engine filter (MEDIUM priority, pre-condition for P5)
+practiceSetGenerator.ts does not bias pool toward pyqYear-tagged questions.
+PYQ filter returns 0 results when pyqOnly===true.
+Must fix before P5 PYQ extraction — otherwise PYQ questions won't surface
+via the PYQ filter even after extraction.
+Branch: fix/pyq-engine-bias | Mode: Medium
+
+### OPEN — pyqSet format inconsistency (LOW priority, cleanup)
+AR files registered in PR #112 use full CBSE set codes ("30/1/1") in pyqSet
+rather than the short form ("1"|"2"|"3") that will be used in P5 PYQ extraction.
+Non-blocking — field is string | undefined. Normalise during P5 cleanup pass.
+Files: triangles.assertionReasoning.ts, trigonometry.assertionReasoning.ts
+
+### OPEN — .claude/ folder not in .gitignore (LOW priority)
+The .claude/ IDE state folder is untracked (shows in git status).
+Add to .gitignore in a future docs-only PR.
+Do NOT stage it for any content commit.
+
+### RESOLVED — Pass 1C gdrive unprobed folders
+All 6 unprobed gdrive subfolders assessed. Key findings:
+  Science/Chapter-wise/: ~1,422 net new Qs — added as P4b to extraction queue
+  cbse-papers/PYQ/: 26 READY papers, ~784 net new Qs
+  Science/NCERT Examplers 2020/: 100% duplicate — permanently skip
+  misc/: English literature only — permanently skip
+  Maths/PYQs/: all Basic — permanently skip
+  Sample+Preboard: ~199 PDF-extractable Qs — added as P6
+
+### RESOLVED — P0 pack registration (PR #112)
+62 questions registered from 4 diff/ pack files.
+topicKey normalisation complete.
+"format": "Proof" schema issue found and fixed (→ "Short"/"Long").
+All 6 validations PASS. Merged as PR #112.
+
 ## 2026-05-23 — Post-PR #109 open items
 
 ### OPEN — Pack quality audit required (HIGH)

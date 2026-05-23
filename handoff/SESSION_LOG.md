@@ -1,4 +1,131 @@
 ---
+
+## 2026-05-23 — P0 diff/ pack registration + Pass 1B/1C audit session
+
+Timestamp: 2026-05-23 (Asia/Kolkata)
+
+### Starting state
+
+- Base branch: base/approved-thru-437
+- Base SHA: da8c08dcc059621fad755bbf643a4dc425bc1447 (post-PR #111)
+- Active PRs: none at session start
+- Current task: resource audit + P0 pack registration
+
+### Work completed
+
+1. Pass 1C gdrive audit — probed all unprobed gdrive subfolders:
+   - Science/Chapter-wise/ (32 PDFs): confirmed cbjescco+cbjesccq series, ~1,422 net new Qs
+   - Sample papers/ + Preboard/ (19 PDFs): ~199 PDF-extractable Qs
+   - Science/NCERT Examplers 2020/ (33 PDFs): 100% duplicate of already-extracted — skip
+   - misc/ (53 PDFs): entirely English literature — skip
+   - cbse-papers/PYQ/ (30 PDFs): 26 READY, 7 NEEDS-OCR, ~784 net new Qs
+   - Maths/PYQs/: all BASIC subfolders — skip entirely
+   - Report saved: C:\Users\Chetan\OneDrive\Desktop\diff\report-pass1c-gdrive-audit.md
+
+2. Project knowledge updated:
+   - LazyTopper_Master_Project_Knowledge_v4.md — produced with Pass 1C findings
+   - LazyTopper_QB_Expansion_Tracker.md — new file, full phase tracker P0-P8
+   - LazyTopper_Pass1C_Audit_Prompt.md — new file, agent prompt for future passes
+   - resource-audit-fresh.md — uploaded to project knowledge
+   - report-pass1c-gdrive-audit.md — uploaded to project knowledge
+
+3. PR #112 — P0 pack registration:
+   - Merged 62 questions from 4 diff/ pack files into canonicalQuestionBank.ts
+   - topicKey normalisation: title-case → lowercase slugs
+   - Mid-flight fix: "format": "Proof" → "Short"/"Long" (predictionTypes.ts schema)
+   - All 6 validations PASS
+   - Bank: 1,547 → 1,609 authentic questions
+   - canonicalQuestionBank.ts spreads: 104 → 109
+
+### GitHub evidence
+
+- PR #112: content/register-diff-packs → base/approved-thru-437
+- State: MERGED
+- Merge SHA: 8c8acf40f129949cac47adf8a769d8fdc6128c79
+- Files changed: 6 (5 new .ts + canonicalQuestionBank.ts)
+- +2,276 lines
+
+### Validation evidence
+
+- syllabusGuard: PASS
+- validateQuestionBanks: PASS (163 files, 0 duplicates)
+- tsc -p tsconfig.app.json --noEmit: PASS (exit 0)
+- Duplicate ID check: PASS (1,344 IDs, 0 dupes)
+- git diff --name-only: PASS (exactly 6 expected files)
+- Engine reachability: PASS (triangles, trigonometry, electricity, life-processes — all ROUTE CORRECTLY)
+
+### Data-honesty audit
+
+- No fake data added. All 62 questions are pre-existing verified content from diff/ folder.
+- solutionSteps: 62/62 non-empty (100%)
+- isCompetencyBased: 44/62 = 71%
+- No isPYQ: true on unverified content (pyqYear/pyqSet values in AR files use
+  full CBSE set codes — noted as cleanup item for P5)
+
+### Decisions made
+
+- "format": "Proof" is not a valid QuestionFormat — proof questions map to
+  "Short" (Section C) or "Long" (Section D). This is now established convention.
+- P4b Science Chapter-wise (cbjescco+cbjesccq, ~1,422 Qs) added as a new
+  high-priority extraction phase — largest single new source found in Pass 1C.
+- Science/NCERT Examplers 2020/ confirmed 100% duplicate — permanently skip.
+- misc/ folder confirmed English literature only — permanently skip.
+- Maths/PYQs/ subfolders confirmed all BASIC — permanently skip.
+- Pack retirement threshold remains 6,000 authentic questions.
+- pyqSet format cleanup (full CBSE code → short "1"/"2"/"3") deferred to P5.
+
+### Session learnings
+
+- The assertion_reason_pack.ts split (triangles + trigonometry into separate files)
+  required a proper brace-balanced parser — simple regex splitting fails on
+  nested objects. The _p0_split_and_copy.py script handles this correctly.
+- The "format": "Proof" issue will recur in P0.5 circles_proof_pack.ts —
+  the _p0_fix_proof_format.py script is reusable for P0.5.
+- pnpm not on PATH in VS Code terminal — use npx tsx ./src/syllabusGuard.ts
+  directly as equivalent. Same script, same result.
+- Pass 1C confirmed that all Maths PYQs Standard are in cbse-papers/PYQ/,
+  not in gdrive/Maths/PYQs/ (which is all Basic). Do not probe gdrive/Maths/PYQs/
+  in future passes.
+- Science Chapter-wise folder (cbjescco/cbjesccq series) is the largest
+  untouched source — 24 in-scope files, ~1,422 net new questions. Schedule as P4b.
+
+### Roadmap impact
+
+- NEXT_ACTION.md: updated to P0.5 as next task
+- QB_Expansion_Tracker.md: P0 row filled in, P0.5 → P8 pending
+- Master Knowledge v4: Pass 1C findings and P4b added
+- No change to IMPLEMENTATION_ROADMAP.md (content extraction separate from product roadmap)
+- OPEN_QUESTIONS_AND_FOLLOWUPS.md: K2H-8f PYQ filter fix still open (pre-condition for P5)
+
+### Known issues / follow-ups
+
+- K2H-8f: PYQ filter returns 0 results — must fix before P5 PYQ extraction
+- pyqSet format inconsistency in P0 AR files — cleanup in P5
+- 3 diff/ pack files still unprobed (P0.5): maths_case_based_pack.ts,
+  science_case_based_pack.ts, circles_proof_pack.ts
+- .claude/ folder is untracked — owner should add to .gitignore
+
+### Next safe action
+
+1. Verify SHA: git rev-parse origin/base/approved-thru-437
+   Must return: 8c8acf40f129949cac47adf8a769d8fdc6128c79
+2. Proceed with P0.5 — probe 3 remaining diff/ pack files
+   Branch: content/register-diff-packs-p05
+   Mode: Low
+3. Then P1-M — CBSE Practise Papers Maths Standard
+   Branch: content/practise-papers-maths
+   Mode: High
+
+### What the next session must verify first
+
+- [ ] SHA matches 8c8acf40f129949cac47adf8a769d8fdc6128c79
+- [ ] PR #112 is merged (check GitHub)
+- [ ] canonicalQuestionBank.ts has 109 spreads
+- [ ] Bank reports 4,424 total questions (or higher if P0.5 done)
+- [ ] Authentic count is 1,609 (post-PR #112)
+- [ ] Read NEXT_ACTION.md before starting any extraction
+
+---
 Session: 2026-05-23
 Work done:
   - PR #108: fix deletionGuard.test.ts (3 assertions, SHA: 25230e8f)
