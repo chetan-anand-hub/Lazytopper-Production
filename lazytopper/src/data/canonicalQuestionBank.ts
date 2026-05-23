@@ -115,6 +115,13 @@ import { STAT_EXEMPLAR } from './questionBanks/class10/maths/statistics.exemplar
 import { PROB_NCERT } from './questionBanks/class10/maths/probability.ncert';
 import { PROB_EXEMPLAR } from './questionBanks/class10/maths/probability.exemplar';
 
+// P0 diff/ pack registration (2026-05-23) — 62 questions closing triangles/trig/electricity/life-processes gaps
+import { TRIANGLES_AR_QUESTIONS } from './questionBanks/class10/maths/triangles.assertionReasoning';
+import { TRIGONOMETRY_AR_QUESTIONS } from './questionBanks/class10/maths/trigonometry.assertionReasoning';
+import { TRIANGLES_PROOF_QUESTIONS } from './questionBanks/class10/maths/triangles.proof';
+import { TRIGONOMETRY_PROOF_QUESTIONS } from './questionBanks/class10/maths/trigonometry.proof';
+import { SCIENCE_AR_QUESTIONS } from './questionBanks/class10/science/science.assertionReasoning';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -224,6 +231,12 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...STAT_EXEMPLAR,
   ...PROB_NCERT,
   ...PROB_EXEMPLAR,
+  // P0 diff/ pack registration (2026-05-23) — 62 questions (AR Sec A + Proof Sec C/D)
+  ...TRIANGLES_AR_QUESTIONS,
+  ...TRIGONOMETRY_AR_QUESTIONS,
+  ...TRIANGLES_PROOF_QUESTIONS,
+  ...TRIGONOMETRY_PROOF_QUESTIONS,
+  ...SCIENCE_AR_QUESTIONS,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
