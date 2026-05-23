@@ -1,66 +1,89 @@
-# LazyTopper Next Action
-Timestamp: 2026-05-23
+# LazyTopper — Next Action
 
-## IMMEDIATE — next session tasks (in priority order)
+Last updated: 2026-05-23 (post-PR #112)
+Live base SHA: 8c8acf40f129949cac47adf8a769d8fdc6128c79
 
-1. Resource audit of cbse-papers folder
-   Check for existing _audit_pass1b_*.txt files first
-   If missing: fresh audit of C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\
-   Goal: establish full PYQ extractable question inventory
-   Mode: Low
+## Immediate next action: P0.5 — Probe 3 remaining diff/ pack files
 
-2. Register assertion_reason_pack.ts
-   File: C:\Users\Chetan\OneDrive\Desktop\diff\assertion_reason_pack.ts
-   Validate schema + register in canonicalQuestionBank.ts
-   Branch: content/ar-pack-registration
-   Mode: Low
+Priority order for this session or next session:
 
-3. Mistake Intelligence audit (read-only)
-   Read: mistakeLogService.ts, MistakeIntelCard.tsx,
-         MistakeIntelligencePanel.tsx, CheckAndImprovePage, MePage
-   Save: C:\Users\Chetan\OneDrive\Desktop\diff\mi-audit.md
-   Mode: Low
+### 1. P0.5 — Probe + register remaining diff/ pack files (Low mode, ~1 hour)
 
-4. Solution Checker audit (read-only)
-   Find SolutionChecker.tsx, read in full
-   Save: C:\Users\Chetan\OneDrive\Desktop\diff\solution-checker-audit.md
-   Mode: Low
+Files to probe:
+  C:\Users\Chetan\OneDrive\Desktop\diff\maths_case_based_pack.ts  (~23.8 KB)
+  C:\Users\Chetan\OneDrive\Desktop\diff\science_case_based_pack.ts  (~24.8 KB)
+  C:\Users\Chetan\OneDrive\Desktop\diff\circles_proof_pack.ts  (~18.5 KB)
 
-5. Quick wins bundle (one PR)
-   - Wire strategyHint as Hint button in PracticeQuestionCard.tsx
-   - Fix index.html meta (149/month → 2999/year, theme-color)
-   - Fix CLAUDE.md tsc command
-   - Fix mobile TopicHub Learn tile routing
-   Branch: fix/quick-wins-bundle
-   Mode: Low
+For each file:
+  1. Count questions (count "id": occurrences)
+  2. Read topicKey values — expect title-case (same pattern as P0)
+  3. Check schema completeness (solutionSteps, isCompetencyBased, section, marks)
+  4. Check format field (expect "Proof" → needs "Short"/"Long" fix same as P0)
+  5. If clean after topicKey + format fix: register in canonicalQuestionBank.ts
+  6. Run all 6 validations
+  7. Save report to diff/report-p05-pack-registration.md
 
-6. PYQ extraction (after resource audit confirms sources)
-   Branch: content/pyq-extraction
-   Years: 2023, 2024, 2025 Maths + 2023 Science
-   Tag: pyqYear, isPYQ: true
-   Mode: High
+Branch: content/register-diff-packs-p05
+Expected yield: ~30-80 questions
 
-7. Engine fix K2H-8f (alongside PYQ extraction)
-   File: lazytopper/src/data/practiceSetGenerator.ts
-   Fix: bias pool toward pyqYear questions when pyqOnly===true
-   Branch: fix/pyq-engine-bias
-   Mode: Medium
+### 2. P1-M — CBSE Practise Papers Maths Standard (High mode, ~1 session)
 
-8. Mistake Intelligence wiring (after audit)
-   Wire MistakeIntelligencePanel into practice debrief + Me/Progress
-   Branch: fix/mi-wiring
-   Mode: Medium
+Source: C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\Class X\CBSE Practise Papers\Maths Std.pdf
+Pages: 234 | Extractable: YES (pdfplumber) | MS: bundled inline
+Expected yield: ~400-550 questions across all 13 Maths topics, all 5 sections
+Branch: content/practise-papers-maths
+ID prefix: PP-M-{TOPIC_SHORT}-{SEQ}
+File naming: maths/{topicSlug}.practise.ts (one file per topic)
 
-9. Solution Checker implementation (after audit)
-   Connect to MI, improve CBSE marking scheme alignment
-   Branch: fix/solution-checker-mi
-   Mode: High
+Symbol restoration required before extraction:
+  θ missing where sin/cos/tan present → restore
+  ° missing where angle of elevation/depression present → restore
+  √ missing where square root mentioned → restore
 
-10. Mock Builder + Worksheet design alignment
-    Branch: fix/mock-builder-design, fix/worksheet-design
-    Mode: Medium each
+### 3. P1-S — CBSE Practise Papers Science (High mode, ~1 session)
 
-## PARKED — do not touch
+Source: C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\Class X\CBSE Practise Papers\Science.pdf
+Pages: 321 | Extractable: YES | MS: bundled inline
+Expected yield: ~400-550 questions across all 12 Science topics, all 5 sections
+Branch: content/practise-papers-science
+ID prefix: PP-S-{TOPIC_SHORT}-{SEQ}
+File naming: science/{topicSlug}.practise.ts (one file per topic)
 
-- PR #69 / K2D — solution provenance draft. Do not merge.
-- PR #17 — diagnostic categories. Preservation only.
+## Full extraction queue (reference)
+
+P0   ✅ COMPLETE — PR #112 (62 Qs, AR+proof packs)
+P0.5 ⏳ PENDING  — 3 remaining diff/ packs (~30-80 Qs)
+P1-M ⏳ PENDING  — Practise Papers Maths (~400-550 Qs)
+P1-S ⏳ PENDING  — Practise Papers Science (~400-550 Qs)
+P2   ⏳ PENDING  — Additional PQ 2023-24 + SQP (~344 Qs)
+P3   ⏳ PENDING  — Meridian worksheets + Maths QB READY (~475 Qs)
+P4-M ⏳ PENDING  — cbjemaco + cbjemacq Maths (~750-1,050 Qs)
+P4b-S ⏳ PENDING — Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs)
+P5-M ⏳ PENDING  — PYQ papers Maths 2022-2025 (~400 Qs) [requires K2H-8f fix]
+P5-S ⏳ PENDING  — PYQ papers Science 2022-2025 (~400 Qs)
+P6   ⏳ PENDING  — Sample papers + Preboard PDFs (~200 Qs)
+P7   ⏳ PENDING  — Pack retirement (trigger: authentic count ≥ 6,000)
+P8   🔒 DEFERRED — OCR-gated sources (~1,100 Qs, needs OCR tool)
+
+Pack retirement threshold: 6,000 authentic questions
+Current authentic total: 1,609 (post-PR #112)
+Target authentic total (P0-P6, no OCR): ~5,920 net after 15% dedup
+
+## Engine fix required before P5
+
+K2H-8f: practiceSetGenerator.ts does not bias pool toward pyqYear-tagged questions.
+PYQ filter returns 0 results when pyqOnly===true.
+Branch: fix/pyq-engine-bias
+Mode: Medium
+Do alongside or before P5-M PYQ extraction.
+
+## Operating rules for all content sessions
+
+- SHA verification mandatory before every agent prompt
+- All 6 validations before every content commit
+- Owner reviews extraction report before any commit
+- Every content PR followed immediately by a docs-only handoff PR
+- Anti-fabrication: every question from source PDF only
+- topicKey must match topics.ts exactly — verify before every extraction
+- No Maths Basic papers (only Standard syllabus)
+- Pack files must NOT be deleted until authentic count ≥ 6,000
