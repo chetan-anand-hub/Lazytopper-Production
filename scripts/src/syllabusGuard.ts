@@ -96,6 +96,11 @@ const RULES: BannedSubtopicRule[] = [
       "Sexually Transmitted Diseases",
       "STI",
       "STDs",
+      "Barrier Contraception",
+      "Contraception Methods",
+      "Reasons for Contraception",
+      "Contraceptive Methods",
+      "Birth Control Methods",
       // Ch 9 — Evolution section deleted (Mendel/genetics retained)
       "Evolution",
       "Natural Selection",
