@@ -1,123 +1,104 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-24 (post-PR #117)
-Live base SHA: a38573b6e5ca0db4cff6153be273fdb160047ad8
+Last updated: 2026-05-24 (post-PR #119)
+Live base SHA: c5b8c51e22a2fffc0afb9109d0c230511160ab8d
 
-## Immediate next action: P2 — CBSE Additional PQ 2023-24 + SQP extraction (RESUME from Checkpoint A)
+## Immediate next actions — three follow-ups queued
 
-Branch: `content/additional-pq-sqp-2024` (already exists locally, off base SHA `e9f41cd`;
-will need rebase onto current base `a38573b` before resuming).
-Mode: High (~1–2 sessions).
+P2 SQP merged successfully (PR #119, +69 authentic Qs, 1,630 → 1,699). Three follow-up
+PRs are queued, in suggested order. Items #1 and #2 are small docs/data cleanups that
+unblock bank-wide validation; item #3 is the next content extraction.
 
-### Status
+### Follow-up #1 — Reproduction question bank cleanup (small, data-only)
 
-**Paused at Checkpoint A — source inventory complete, owner-approved, extraction not started.**
-See `C:\Users\Chetan\OneDrive\Desktop\diff\report-p2-source-inventory.md` for the full
-source manifest and `_p2_inventory.py` for the inventory script.
+Branch (suggested): `content/reproduction-banned-cleanup`
+Mode: Low.
 
-The prerequisite blocker for P2 (`syllabusGuard.ts` outdated for CBSE 2025-26) was fixed
-in PR #117 and is now merged. P2 extraction may now resume.
+15 existing questions are flagged by syllabusGuard as out-of-syllabus Ch 8 Reproductive
+Health content (deleted in CBSE 2025-26). This is the long-running V1 validation failure
+across PRs #117 and #119 — cleanup unblocks it.
 
-### Source folder
+Files to touch:
+- `lazytopper/src/data/questionBanks/class10/science/reproduction.exemplar.ts` — STDs ×2, Contraception ×1
+- `lazytopper/src/data/questionBanks/class10/science/reproduction.ncert.ts` — Contraception ×1
+- `lazytopper/src/data/questionBanks/class10/science/reproduction.pack2.ts` — Reproductive Health ×11
 
-`C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\Class X-20260521T030909Z-3-001\Class X\CBSE Syllabus+sample paper 2023 2024\`
+For each flagged question, decide:
+- **Remove** if entirely about deleted Reproductive Health / Contraception / STDs sub-topics
+- **Reclassify** the `subtopic` to a retained sub-topic in the same chapter (e.g. "Human
+  Reproductive System — Anatomy", "Vegetative Propagation", "Sexual Reproduction in Plants")
+  AND verify the question text itself doesn't depend on the deleted concept
 
-### Sources — Maths (3 APQ + 1 SQP, all paired)
+After cleanup, `syllabusGuard` against existing bank must return **0 violations**.
 
-| QP file | Pages | Paired MS | MS Pages | Header |
-|---|---:|---|---:|---|
-| Mathematics-PQ1.pdf | 28 | Mathematics-PQ1_MS.pdf | 22 | CBSE ADDITIONAL PRACTICE QUESTIONS — MATHEMATICS STANDARD (041) Class X 2023–24 |
-| Mathematics-PQ2.pdf | 7 | Mathematics-PQ2MS2.pdf | 7 | Additional Practice Question Paper Class X Session 2023-24 MATHEMATICS STANDARD (Code No.041) |
-| Mathematics-PQ_2022.pdf | 20 | Mathematics-PQ_2022_MS.pdf | 13 | Practice Questions Session 2022-23 Class X Subject- Mathematics (Standard) |
-| MathsStandard-SQP.pdf | 10 | MathsStandard-MS.pdf | 9 | SAMPLE QUESTION PAPER Class X Session 2023-24 MATHEMATICS STANDARD (Code No.041) |
+### Follow-up #2 — ops/ acceptance test alignment for Our Environment (small, code-only)
 
-### Sources — Science (3 APQ + 1 SQP — one MS missing → owner approved skip)
+Branch (suggested): `fix/ops-our-environment-alignment`
+Mode: Low.
 
-| QP file | Pages | Paired MS | Notes |
-|---|---:|---|---|
-| Science-PQ.pdf | 14 | Science-PQMS.pdf | Use |
-| Science-PQ2.pdf | 10 | Science-PQMS2.pdf | Use |
-| Science-PQ (1).pdf | 14 | **— missing —** | **SKIP** per owner approval (2026-05-24) |
-| Science-SQP.pdf | 8 | Science-MS.pdf | Use |
+`syllabusGuard.ts` now bans the entire "Our Environment" chapter (Ch 15 — deleted per CBSE
+2025-26). Existing ops/ acceptance tests still expect the chapter to be present. Reconcile:
 
-### ID prefixes (collision-free vs current 1,365 IDs)
+- `lazytopper/scripts/ops/cbse_registry_2026_27_acceptance.mjs` — line 26-30 add
+  "Our Environment" to `EXCLUDED_CHAPTER_TITLES`; line 208-218 invert or remove the
+  `our_environment_chapter_present_in_scope` assertion.
+- `lazytopper/scripts/ops/science_deleted_zeroing_acceptance.ts` — line 226-249 update or
+  remove the "food chains under Our Environment NOT zeroed" assertion.
+- `lazytopper/scripts/ops/generate_content_backlog_and_matrix.mjs` — line 210-215 align
+  "our environment" handling with the deleted-chapter doctrine.
+- Possibly also `lazytopper/src/prediction/cbseHistoricalArchetypes.ts` — verify Our
+  Environment is in `SCIENCE_DELETED_CHAPTERS_2026_27.deletedTopics`; add if missing.
 
+After fix, all ops/ acceptance tests should pass.
+
+### Follow-up #3 — P2 APQ extraction (CBSE Additional Practice Questions 2023-24)
+
+Branch: `content/additional-pq-sqp-2024` (already exists locally; preserve and re-use, OR
+re-create after deleting). Mode: HIGH.
+
+Five papers to extract (~270–300 questions estimated), all CBSE-official, all with matching MS:
+
+| QP | Pages | MS | MS Pages |
+|---|---:|---|---:|
+| Mathematics-PQ1.pdf | 28 | Mathematics-PQ1_MS.pdf | 22 |
+| Mathematics-PQ2.pdf | 7 | Mathematics-PQ2MS2.pdf | 7 |
+| Mathematics-PQ_2022.pdf | 20 | Mathematics-PQ_2022_MS.pdf | 13 |
+| Science-PQ.pdf | 14 | Science-PQMS.pdf | 12 |
+| Science-PQ2.pdf | 10 | Science-PQMS2.pdf | 7 |
+
+Skipped: `Science-PQ (1).pdf` (2022-23 set, no matching MS — owner decision).
+
+**Use `pymupdf` (fitz) — NOT `pdfplumber`.** During PR #119 SQP extraction, `pdfplumber 0.11.9`
+emitted `(cid:NNNN)` glyph artifacts on CBSE PDF math expressions (font subsets without
+ToUnicode mapping), requiring heavy manual reconstruction. `pymupdf 1.27.2.3` extracts the
+same files cleanly with 0 cid artifacts. Sample probe on MathsStandard-SQP.pdf confirmed.
+
+```python
+import fitz
+doc = fitz.open(pdf_path)
+text = "".join(p.get_text() for p in doc)
+doc.close()
+```
+
+Per-topic file naming follows P2 SQP convention: `maths/{slug}.additionalPQ.ts` and
+`science/{slug}.additionalPQ.ts` with kebab-case slug matching topics.ts.
+
+ID prefixes (confirmed collision-free):
 - `APQ-M-{TOPIC_SHORT}-{SEQ:003d}` — Maths Additional PQ
 - `APQ-S-{TOPIC_SHORT}-{SEQ:003d}` — Science Additional PQ
-- `SQP-M-{TOPIC_SHORT}-{SEQ:003d}` — Maths SQP
-- `SQP-S-{TOPIC_SHORT}-{SEQ:003d}` — Science SQP
 
-### Expected scope
+Doctrine reminders (per CLAUDE.md §13 + PR #117 + PR #119):
+- `solutionSteps` minimums: A=1, B=2, C=3, D=5, E=4
+- `isPYQ`: false on all (practice papers, not board PYQs)
+- `subtopic`: must not contain syllabusGuard banned strings (30 Maths + 82 Science)
+- Section E: ONE row per case set, marks=4
+- Anti-fabrication: question text from QP PDF only; solutionSteps from MS PDF only
+- Skip deleted-topic questions entirely (don't just rename subtopic to pass guard)
+- Avoid `]` and `[...]` markers inside solutionSteps text — they break mini-test regex
+  (use `(...)` for math grouping; use `OR (alternative):` instead of `[OR]`)
 
-After dropping Science-PQ (1).pdf: ~65 pages of Maths QPs + ~32 pages of Science QPs.
-Estimated yield: ~270 questions total (lower than the prompt's 344 estimate because of the
-dropped 2022-23 Science set).
-
-### Doctrine applied (post-PR #117)
-
-- `solutionSteps` minimums: A=1, B=2, C=3, D=5, E=4 per new CLAUDE.md §13.
-- syllabusGuard now blocks 30 Maths + 82 Science banned subtopics. New extracted questions
-  must avoid all of them.
-- isPYQ stays `false` for both APQ and SQP (these are practice/sample, not board exam PYQs).
-- Section E case sets: ONE row per case, marks=4 (combine sub-parts (i)/(ii)/(iii)).
-
-### Operating order when resuming
-
-1. Switch to base, fast-forward, then either rebase `content/additional-pq-sqp-2024` onto
-   `a38573b` or delete and recreate from current base.
-2. Re-confirm Step B2 (topics.ts slugs unchanged, ID prefix collision-free).
-3. Step B4 extraction (per-topic) with Checkpoint B mini-test after each file.
-4. Step B5 register in `canonicalQuestionBank.ts` (only files actually created).
-5. Step B6 run all 6 validations (the new syllabusGuard MUST pass — no banned subtopics
-   in extracted content).
-6. Step B7 final verification report.
-7. Step B8 STOP for owner approval.
-8. Step B9 commit + push + PR after explicit approval.
-
-Full task script: `LazyTopper_P1S_Probe_P2_Agent_Prompt.md` Part B (saved in agent prompts).
-
----
-
-## After P2: Follow-up PRs queued from PR #117
-
-### Follow-up #1 — ops/ acceptance test alignment (small, docs-only)
-
-Branch: `fix/ops-our-environment-alignment` (suggested)
-Mode: Low.
-
-Reconcile `lazytopper/scripts/ops/` files with the new doctrine that Our Environment Ch15
-is fully deleted per CBSE 2025-26:
-
-- `cbse_registry_2026_27_acceptance.mjs` line 26-30: add "Our Environment" to
-  `EXCLUDED_CHAPTER_TITLES`. Line 208-218: invert or remove the
-  `our_environment_chapter_present_in_scope` assertion.
-- `science_deleted_zeroing_acceptance.ts` line 226-249: update or remove the
-  "food chains under Our Environment NOT zeroed" assertion (currently expects ecology
-  retained).
-- `generate_content_backlog_and_matrix.mjs` line 210-215: align "our environment"
-  handling with the deleted-chapter doctrine.
-- May also need to update `lazytopper/src/prediction/cbseHistoricalArchetypes.ts` to add
-  Our Environment to the SCIENCE_DELETED_CHAPTERS_2026_27 constant. Verify in scope first.
-
-### Follow-up #2 — Reproduction question bank cleanup (data-only)
-
-Branch: `content/reproduction-banned-cleanup` (suggested)
-Mode: Low.
-
-15 questions flagged by the updated syllabusGuard as out-of-syllabus Ch8 Reproductive
-Health content. Decide per question whether to:
-- Remove (if entirely about deleted Reproductive Health / Contraception / STDs sub-topics)
-- Reclassify subtopic to a retained sub-topic in the same chapter
-
-Files:
-- `lazytopper/src/data/questionBanks/class10/science/reproduction.exemplar.ts` —
-  STDs ×2, Contraception ×1
-- `lazytopper/src/data/questionBanks/class10/science/reproduction.ncert.ts` —
-  Contraception ×1
-- `lazytopper/src/data/questionBanks/class10/science/reproduction.pack2.ts` —
-  Reproductive Health ×11
-
-After cleanup, `syllabusGuard` against existing bank must return 0 violations.
+The P2 SQP prompt's Step B4 source-to-file mapping and per-file mini-test recipe still apply;
+all 25 SQP topic files passed their mini-tests cleanly.
 
 ---
 
@@ -127,11 +108,14 @@ After cleanup, `syllabusGuard` against existing bank must return 0 violations.
 |---|---|---|
 | P0    | ✅ COMPLETE | PR #112 (62 Qs, AR+proof packs) |
 | P0.5  | ✅ COMPLETE | PR #114 (21 Qs, case-based Sec E merged + circles proof) |
-| PRE-P1| ✅ COMPLETE | PR #116 (mojibake symbol restoration in P0.5 case-based files; ftfy-based, 499 char repairs) |
-| **P1-M** | ❌ **ABANDONED** | Source `CBSE Practise Papers/Maths Std.pdf` is a NODIA 3rd-party compilation with no inline solutions (external hyperlinks only), pdfplumber math-layout corruption, no topic tagging. See `report-p1m-ABANDONED.md`. |
-| **P1-S** | ❌ **ABANDONED** | Source `CBSE Practise Papers/Science.pdf` probed 2026-05-24 — same NODIA blockers as P1-M. See `report-p1s-probe.md`. |
-| **P2**   | ⏸️ **NEXT** — paused at Checkpoint A | Branch `content/additional-pq-sqp-2024` alive; CBSE-official; source inventory approved by owner; extraction not yet started. |
-| Guard fix | ✅ COMPLETE | PR #117 (syllabusGuard + bannedExercises + CLAUDE.md §13) — prerequisite for P2 extraction. |
+| PRE-P1| ✅ COMPLETE | PR #116 (mojibake symbol restoration; ftfy-based, 499 char repairs) |
+| **P1-M** | ❌ **ABANDONED** | NODIA 3rd-party PDF — no inline solutions, pdfplumber math corruption, no topic tagging. See `report-p1m-ABANDONED.md`. |
+| **P1-S** | ❌ **ABANDONED** | Same NODIA blockers as P1-M. See `report-p1s-probe.md`. |
+| Guard fix | ✅ COMPLETE | PR #117 (syllabusGuard + bannedExercises + CLAUDE.md §13) |
+| **P2 SQP** | ✅ **COMPLETE** | **PR #119** (69 Qs SQP only + bannedExercises hotfix); APQ deferred |
+| **P2 APQ** | ⏳ **NEXT** (Follow-up #3) | 5 CBSE APQ papers, ~270–300 Qs estimated; use pymupdf not pdfplumber |
+| Reproduction cleanup | ⏳ NEXT (Follow-up #1) | 15 syllabusGuard violations in reproduction.*.ts |
+| ops/ alignment | ⏳ NEXT (Follow-up #2) | Our Environment doctrine consistency |
 | P3    | ⏳ PENDING  | Meridian worksheets + Maths QB READY (~475 Qs) |
 | P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
 | P4b-S | ⏳ PENDING  | Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs) |
@@ -142,7 +126,7 @@ After cleanup, `syllabusGuard` against existing bank must return 0 violations.
 | P8    | 🔒 DEFERRED | OCR-gated sources (~1,100 Qs, needs OCR tool) |
 
 Pack retirement threshold: 6,000 authentic questions
-Current authentic total: 1,630 (unchanged since post-PR #114; PR #116 was encoding-only, PR #117 was docs/config-only)
+Current authentic total: **1,699** (post-PR #119; +69 from previous 1,630)
 
 ## Engine fix required before P5
 
@@ -155,14 +139,17 @@ Do alongside or before P5-M PYQ extraction.
 ## Operating rules for all content sessions
 
 - SHA verification mandatory before every agent prompt
-- All 6 validations before every content commit (new syllabusGuard is stricter now)
-- Owner reviews extraction report before any commit (Checkpoint B per-file + Checkpoint A final)
+- All 6 validations before every content commit (syllabusGuard + bannedExercises are strict now)
+- Owner reviews extraction report before any commit (Checkpoint B per-file + final verify)
 - Every content PR followed immediately by a docs-only handoff PR
 - Anti-fabrication: every question from source PDF only — never paraphrase
 - topicKey must match `topics.ts` exactly — verify before every extraction
 - Pack files must NOT be deleted until authentic count ≥ 6,000
 - isPYQ stays `false` for practice/sample papers (only set true for actual board exam PYQs)
 - `solutionSteps` minimums per CLAUDE.md §13: A=1, B=2, C=3, D=5, E=4 (CBSE 2025-26 OSM)
-- For Science: avoid all 82 banned subtopics in syllabusGuard.ts (incl. Our Environment chapter)
-- For Maths: avoid all 30 banned subtopics (incl. Constructions chapter, Frustum of Cone,
-  Ogive/Step Deviation, Complementary-Angle Trig Ratios, Cross-Multiplication)
+- For Science: avoid all 82 banned subtopics in syllabusGuard.ts
+- For Maths: avoid all 30 banned subtopics
+- PDF extraction tool: **pymupdf (fitz)** for CBSE official PDFs — pdfplumber introduces
+  cid-artifact corruption on font-subset math expressions
+- Avoid `[...]` brackets inside solutionSteps array entries — mini-test regex breaks on `]`;
+  use `(...)` for math grouping and `OR (alternative):` instead of `[OR]`

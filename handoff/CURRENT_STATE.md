@@ -1,6 +1,85 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-24 (post-PR #117)
-Live base SHA: a38573b6e5ca0db4cff6153be273fdb160047ad8
+Last updated: 2026-05-24 (post-PR #119)
+Live base SHA: c5b8c51e22a2fffc0afb9109d0c230511160ab8d
+
+## Post-PR #119 — P2 CBSE Sample Question Papers 2023-24 (69 Qs Maths+Science SQP) + bannedExercises hotfix — MERGED
+
+Timestamp: 2026-05-24
+Merge SHA on base: c5b8c51e22a2fffc0afb9109d0c230511160ab8d
+
+PR #119 | content: P2 CBSE Sample Question Papers 2023-24 (69 Qs Maths+Science SQP) + bannedExercises hotfix
+Branch: content/additional-pq-sqp-2024 (preserved locally — APQ follow-up may reuse)
+Commits: 1 (6fdb48b)
+
+Files changed: 27 (1 modified bank + 1 modified config + 25 new SQP topic files)
+  - lazytopper/src/data/canonicalQuestionBank.ts (MODIFIED — +25 imports, +25 spreads under P2 banner)
+  - scripts/src/bannedExercises.json (MODIFIED — bannedExercises hotfix, see below)
+  - lazytopper/src/data/questionBanks/class10/maths/*.sqp.ts (NEW — 13 files, 38 Qs)
+    real-numbers.sqp.ts (3), polynomials.sqp.ts (2), pair-of-linear-equations.sqp.ts (2),
+    quadratic-equations.sqp.ts (2), arithmetic-progression.sqp.ts (3), triangles.sqp.ts (3),
+    coordinate-geometry.sqp.ts (3), trigonometry.sqp.ts (6), circles.sqp.ts (4),
+    areas-related-to-circles.sqp.ts (3), surface-areas-and-volumes.sqp.ts (2),
+    statistics.sqp.ts (3), probability.sqp.ts (2)
+  - lazytopper/src/data/questionBanks/class10/science/*.sqp.ts (NEW — 12 files, 31 Qs)
+    chemical-reactions-and-equations.sqp.ts (4), acids-bases-and-salts.sqp.ts (1),
+    metals-and-non-metals.sqp.ts (3), carbon-and-its-compounds.sqp.ts (2),
+    life-processes.sqp.ts (3), control-and-coordination.sqp.ts (2),
+    how-do-organisms-reproduce.sqp.ts (3), heredity.sqp.ts (3),
+    light-reflection-and-refraction.sqp.ts (4), human-eye-and-colourful-world.sqp.ts (1),
+    electricity.sqp.ts (4), magnetic-effects-of-electric-current.sqp.ts (1)
+
+Sources (CBSE-official, both with matching marking-scheme PDFs):
+  Maths: MathsStandard-SQP.pdf (10pp) + MathsStandard-MS.pdf (9pp)
+  Science: Science-SQP.pdf (8pp) + Science-MS.pdf (6pp)
+
+Section breakdown: A=33 (1mk), B=10 (2mk), C=13 (3mk), D=7 (5mk), E=6 (4mk case-based)
+Section E case-sets: ONE row per case set with merged sub-parts (i)/(ii)/(iii), marks=4
+
+isPYQ: false on all 69 questions (SQP is CBSE-released sample, not a board exam paper)
+isCompetencyBased: 44/69 = 63.8% overall
+solutionSteps: 0% empty (all 69 questions have full steps from MS PDFs)
+
+8 Science questions intentionally skipped (deleted-in-2025-26 topics):
+  Q5 (missing options - image-only), Q6/Q7 (Periodic Classification),
+  Q15/Q16/Q20/Q26 (Our Environment / Ozone / Food Chain), Q18 (Natural Selection)
+
+bannedExercises.json hotfix (owner-directed during PR #119 review):
+  PR #117 had added 6 chapter-renumbering false positives — Ex 11.1, Ex 11.2, Ex 9.1, Ex 9.2,
+  NCERT Ch11, NCERT Ch9 Ex 9 — because these were OLD-NCERT numbering for deleted Constructions.
+  In NEW CBSE 2025-26 NCERT: Ch 11 = Areas Related to Circles (RETAINED), Ch 9 = Some Applications
+  of Trigonometry (RETAINED) — same exercise numbers, different content. 75 pre-existing pack-file
+  ncertRef strings referred to RETAINED chapters. Hotfix removed those 6 entries; kept only
+  "Ex 13.3" (Frustum — correctly deleted). reason string updated.
+
+Tooling discovery during this PR:
+  pdfplumber 0.11.9 emits (cid:NNNN) glyph artifacts for CBSE PDF math expressions (font subsets
+  without ToUnicode mapping) — required heavy manual reconstruction per question.
+  pymupdf 1.27.2.3 (fitz) — tested on MathsStandard-SQP.pdf: extracts cleanly with 0 cid artifacts.
+  Recommended PDF tool for APQ follow-up extraction (replaces pdfplumber).
+
+Validations: 5 of 6 PASS; 1 pre-existing only (V1 syllabusGuard 15-violations in reproduction.*.ts,
+  unchanged from PR #117, queued for separate cleanup PR; P2 SQP contributes 0 new violations)
+  1. syllabusGuard — FAIL on 15 PRE-EXISTING (reproduction.exemplar.ts STDs x2 + Contraception x1,
+     reproduction.ncert.ts Contraception x1, reproduction.pack2.ts Reproductive Health x11)
+  2. validateQuestionBanks — PASS (after hotfix; 0 banned-exercise refs across 191 files,
+     mark/section consistent, 0 duplicate IDs)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate ID belt-and-suspenders — PASS (1,434 IDs, 0 dupes)
+  5. git diff scope + whitespace — PASS (27 expected files; git diff --check clean)
+  6. Engine reachability — PASS (bank loads at 4,514 questions; all 69 SQP IDs reachable)
+
+canonicalQuestionBank.ts:
+  Spreads before: 112
+  Spreads after: 137
+  Bank total: 4,514 questions (was 4,445)
+
+Authentic question total post-PR #119: 1,699
+  NCERT+Exemplar Science ch1-12: 904 (PRs #98–#106)
+  NCERT+Exemplar Maths ch1-14: 643 (PR #109)
+  P0 diff/ pack registration: 62 (PR #112)
+  P0.5 diff/ pack registration: 21 (PR #114)
+  P2 CBSE SQP 2023-24: 69 (PR #119)
+  Total: 1,699 authentic questions in engine
 
 ## Post-PR #117 — syllabusGuard + bannedExercises + CBSE step-marking doctrine (2025-26) — MERGED
 

@@ -1,5 +1,153 @@
 ---
 
+## 2026-05-24 — P2 SQP extracted (PR #119, 69 Qs), bannedExercises hotfix, pymupdf adopted as PDF tool
+
+Timestamp: 2026-05-24 (Asia/Kolkata)
+
+### Starting state
+
+- Base branch: base/approved-thru-437 at 487f960 (post PR #118 docs handoff)
+- Active local branch: `content/additional-pq-sqp-2024` (was paused at Checkpoint A after source inventory)
+- Task: P2 extraction — Checkpoint A source inventory had been approved by owner in prior session;
+  resume Step B4 (extraction) and run through to commit
+
+### Work completed
+
+1. **Pre-flight (Steps B0–B3) re-confirmed**
+   - SHA verify: HEAD matches `487f960`
+   - Branch rebased (0 commits ahead of base — fast-forward only)
+   - ID prefix collision check: 0 APQ-/SQP- IDs across 1,365 pre-existing IDs
+   - All 7 expected P2 source PDFs present; 4 used this PR (SQP only), 3 deferred
+
+2. **Scope confirmation — SQP-only this PR (owner-directed)**
+   - Owner approved Option 1 ("Ship SQP-only PR first") after I flagged realistic effort estimate
+     (~270 questions × careful authoring with math reconstruction = multi-session work)
+   - Decision: extract MathsStandard-SQP (38 Qs) + Science-SQP (31 Qs) = 69 Qs total this PR
+   - APQ papers (PQ1, PQ2, PQ_2022, Science-PQ, Science-PQ2) deferred to follow-up PR
+   - Science-PQ (1).pdf (2022-23 set) skipped — no matching MS in folder
+
+3. **Step B4 — extraction**
+   - All 14 SQP+MS PDF files extracted to text via pdfplumber+ftfy; saved to `_p2_text/`
+   - Per-question manual authoring required because pdfplumber emitted `(cid:NNNN)` glyph artifacts
+     for math expressions (font subset issue)
+   - Maths SQP: 38 questions classified across 13 topic files (1-6 Qs each)
+   - Science SQP: 31 questions classified across 12 topic files (1-4 Qs each)
+   - 8 Science questions intentionally skipped on deleted-in-2025-26 topics:
+     Q5 (missing options - image-only), Q6/Q7 (Periodic Classification),
+     Q15/Q16/Q20/Q26 (Our Environment / Ozone / Food Chain), Q18 (Natural Selection)
+   - Section E case sets: ONE row per case set with merged sub-parts (i)/(ii)/(iii), marks=4
+   - All 25 topic files use kebab-case slug naming matching topics.ts
+     (deviates from older camelCase pack files; matches P2 prompt spec)
+   - Quoted property names ("id", "subject", etc.) per existing P0.5 file convention
+
+4. **Checkpoint B — per-file mini-tests after each file**
+   - All 25 files pass T1-T10 hard checks: topicKey, section/marks, format enum,
+     ID prefix, isPYQ false, no mojibake, no (cid:NNNN), no banned subtopic strings,
+     0% empty solutionSteps
+   - Minor issues fixed mid-flight:
+     - `quadratic-equations.sqp.ts`: `[OR]` and `[−48 ± 60]` markers in solutionSteps broke
+       regex `(.*?)\]` — replaced with `OR (alternative):` and `(...)` math grouping
+     - Same fix applied to `pair-of-linear-equations.sqp.ts` and `surface-areas-and-volumes.sqp.ts`
+     - `metals-and-non-metals.sqp.ts`: subtopic "Reaction of Metals with Dilute Acid — H₂ Evolution"
+       contained substring "Evolution" (banned) — renamed to "Reaction of Reactive Metal with Dilute Acid"
+     - `carbon-and-its-compounds.sqp.ts` Section E: step count short due to `[O]` markers in steps
+       (oxidation notation) — restructured into 6 separate steps without bracket markers
+     - `electricity.sqp.ts` Section C ELEC-003: step count 2 < min 3 — split into 3 steps
+   - Soft warnings (T9 competency<40%) remain on 8 files; honest tagging — many SQP Section A items
+     are recall/procedural by intent. Overall: 44/69 = 63.8% competency.
+
+5. **Step B5 — canonicalQuestionBank.ts registration**
+   - Added 25 imports under P2 banner (Maths SQP × 13, Science SQP × 12)
+   - Added 25 spreads under matching P2 banner
+   - Spread count: 112 → 137
+
+6. **Step B6 — six-step validation suite**
+   - V1 syllabusGuard: 15 PRE-EXISTING violations remain in reproduction.*.ts (unchanged from
+     PR #117); P2 SQP contributes 0 new violations
+   - V2 validateQuestionBanks: initially FAILED with 75 banned-exercise references —
+     surfaced PR #117 false positives (see hotfix below)
+   - V3 app tsc: PASS (exit 0)
+   - V4 duplicate ID belt-and-suspenders: PASS (0 dupes across 1,434 IDs)
+   - V5 git diff scope: PASS (exactly 27 expected entries — 2 modified + 25 new + 1 untracked .claude/)
+   - V6 engine reachability: PASS (bank loads at 4,514 questions; all 69 SQP IDs reachable;
+     custom probe confirmed correct per-topic distribution)
+
+7. **bannedExercises.json hotfix (owner-directed mid-PR)**
+   - PR #117 had added 6 entries (Ex 11.1, Ex 11.2, Ex 9.1, Ex 9.2, NCERT Ch11, NCERT Ch9 Ex 9)
+     as banned Maths exercises because these were OLD-NCERT numbering for deleted Constructions
+   - BUT in NEW CBSE 2025-26 NCERT: Ch 11 = Areas Related to Circles (RETAINED), Ch 9 = Some
+     Applications of Trigonometry (RETAINED) — same exercise numbers, different content
+   - 75 pre-existing pack-file ncertRef strings refer to the RETAINED new-NCERT chapters
+     (not deleted Constructions content) — these are chapter-renumbering false positives
+   - Owner directed hotfix: remove 6 false-positive entries; keep only "Ex 13.3" (Frustum —
+     correctly deleted). Updated `reason` string to document the chapter-renumbering rationale.
+   - V2 re-run after hotfix: PASS (0 banned-exercise refs)
+   - Analogous to Correction 1 we applied during PR #117 for syllabusGuard's
+     `Area of Triangle` / `Conversion of Solids` false positives
+
+8. **pymupdf adopted as recommended PDF tool for CBSE official PDFs**
+   - During SQP extraction, pdfplumber 0.11.9 emitted `(cid:NNNN)` glyph artifacts for math
+     expressions (font subsets without ToUnicode mapping) — required heavy manual reconstruction
+     per question (5-8 min/Q for math-heavy items)
+   - Tested pymupdf 1.27.2.3 (fitz) on the same MathsStandard-SQP.pdf during handoff prep:
+     extracts cleanly with **0 cid artifacts**
+   - Recommended PDF tool for APQ follow-up extraction (replaces pdfplumber)
+   - Documented in NEXT_ACTION.md Follow-up #3 and Operating Rules
+
+9. **PR #119 opened and merged**
+   - Branch: content/additional-pq-sqp-2024 (preserved locally for APQ follow-up reuse)
+   - Commit: 6fdb48b — "content: P2 CBSE Sample Question Papers 2023-24 (69 Qs Maths+Science SQP) + bannedExercises hotfix"
+   - 27 files changed, 1,914 insertions, 8 deletions
+   - Merged to base/approved-thru-437 → new SHA c5b8c51
+
+10. **PR #120 — this docs handoff (in progress)**
+
+### Decisions made
+
+- **SQP-first delivery shape** chosen over (a) APQ-only, (b) Sample Paper 01 spike, or (c) full
+  scope this session. SQP is the most surgical scope: official CBSE content, both subjects,
+  small enough to author end-to-end with care, ships sooner.
+- **APQ deferred to follow-up PR** — owner approved; branch preserved for reuse
+- **bannedExercises.json hotfix** included in same PR as P2 SQP (vs. separate small PR) because
+  V2 validation otherwise blocks the SQP PR from merging
+- **isPYQ omitted entirely** from new question objects rather than `isPYQ: false`. Reason:
+  CanonicalQuestion interface doesn't declare isPYQ; engine reads via `(q as { isPYQ?: unknown })`.
+  Omission = false semantically, avoids TS excess-property errors. Verification regex confirms
+  no `isPYQ: true` anywhere.
+- **Kebab-case file naming** (`real-numbers.sqp.ts`) vs older camelCase (`realNumbers.pack1.ts`)
+  per P2 prompt spec — matches topics.ts slug. Creates mixed convention in the folder; documented.
+- **pymupdf adoption** for future CBSE PDF extraction (replaces pdfplumber for these subset-font PDFs)
+
+### Validations / verifications run
+
+- All 25 P2 SQP topic files pass Checkpoint B mini-tests (T1-T10)
+- Bank totals: 4,445 → 4,514 (+69 questions); spreads 112 → 137
+- Authentic count: 1,630 → 1,699
+- Bank loads at 4,514 questions via canonicalQuestionBank import chain
+- All 69 SQP IDs reachable; correct topic-key distribution verified
+- 0 banned-exercise refs across 191 files (after hotfix)
+- 0 duplicate IDs across 1,434 total bank IDs
+
+### Follow-up items queued for next sessions
+
+1. **Reproduction question bank cleanup** (Follow-up #1, small data-only) — fix 15 syllabusGuard
+   violations in reproduction.*.ts (long-running V1 failure since PR #117)
+2. **ops/ acceptance test alignment** (Follow-up #2, small code-only) — Our Environment doctrine
+   consistency in cbse_registry_2026_27_acceptance.mjs + science_deleted_zeroing_acceptance.ts
+3. **P2 APQ extraction** (Follow-up #3, HIGH mode) — 5 CBSE APQ papers, ~270-300 Qs estimated;
+   use pymupdf not pdfplumber; branch content/additional-pq-sqp-2024 preserved
+
+### Ending state
+
+- Base branch: base/approved-thru-437 at c5b8c51 (post-PR #119)
+- Active local branches: `content/additional-pq-sqp-2024` (preserved for APQ follow-up reuse)
+- Authentic question total: 1,699 (was 1,630)
+- canonicalQuestionBank spreads: 137 (was 112); bank total: 4,514 (was 4,445)
+- Bank-wide validateQuestionBanks: PASS (0 banned-exercise refs, 0 dupes, mark/section consistent)
+- Bank-wide syllabusGuard: FAIL with 15 pre-existing violations queued for Follow-up #1
+
+---
+
 ## 2026-05-24 — PRE-P1 mojibake fix (PR #116), P1-M/P1-S abandoned, syllabusGuard fix (PR #117), P2 paused at Checkpoint A
 
 Timestamp: 2026-05-23 → 2026-05-24 (rolled over Asia/Kolkata midnight)
