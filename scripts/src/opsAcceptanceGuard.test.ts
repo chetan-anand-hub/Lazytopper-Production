@@ -70,6 +70,7 @@ function syllabusGuardHasBannedSubtopic(s: string): boolean {
 describe("Deleted Science chapters return 0 (prediction guard)", () => {
   const fullChapterDeletions = [
     "Periodic Classification of Elements",
+    "Sources of Energy",
     "Management of Natural Resources",
   ];
 
@@ -79,9 +80,10 @@ describe("Deleted Science chapters return 0 (prediction guard)", () => {
     });
   }
 
-  test(`"Sources of Energy" content under Our Environment is zeroed via subtopic keyword`, () => {
-    // Sources of Energy is treated as a deleted SUBTOPIC keyword under
-    // the retained Our Environment chapter (see archetypes lines 803-807).
+  test(`"sources of energy" subtopic-keyword fallback still zeros historical entries`, () => {
+    // Belt-and-suspenders: any legacy question mistakenly tagged with topic
+    // "Our Environment" + subtopic "sources of energy" must still be zeroed
+    // via the subtopic-keyword path.
     assert.equal(
       isScienceDeletedFor2026_27("Our Environment", "sources of energy"),
       true
@@ -96,22 +98,51 @@ describe("Deleted Science chapters return 0 (prediction guard)", () => {
     assert.equal(SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear, 2026);
   });
 
-  test(`reproduction-health and contraception subtopics are zeroed`, () => {
-    assert.equal(
-      isScienceDeletedFor2026_27("How do Organisms Reproduce?", "reproductive health"),
-      true
-    );
-    assert.equal(
-      isScienceDeletedFor2026_27("How do Organisms Reproduce?", "contraception methods"),
-      true
-    );
-  });
-
   test(`evolution subtopics under Heredity are zeroed`, () => {
     assert.equal(isScienceDeletedFor2026_27("Heredity & Evolution", "evolution"), true);
     assert.equal(
       isScienceDeletedFor2026_27("Heredity & Evolution", "natural selection"),
       true
+    );
+  });
+});
+
+// ── Block 1b: 2026-27 restored — reproduction health NOT zeroed ─────────────
+
+describe("2026-27 restored — reproduction health subtopics NOT zeroed", () => {
+  test(`"reproductive health" under Reproduction is NOT zeroed`, () => {
+    assert.equal(
+      isScienceDeletedFor2026_27("How do Organisms Reproduce?", "reproductive health"),
+      false
+    );
+  });
+
+  test(`"contraception methods" under Reproduction is NOT zeroed`, () => {
+    assert.equal(
+      isScienceDeletedFor2026_27("How do Organisms Reproduce?", "contraception methods"),
+      false
+    );
+  });
+
+  test(`"family planning" under Reproduction is NOT zeroed`, () => {
+    assert.equal(
+      isScienceDeletedFor2026_27("How do Organisms Reproduce?", "family planning"),
+      false
+    );
+  });
+
+  test(`"Safe Sex and HIV/AIDS" under Reproduction is NOT zeroed`, () => {
+    assert.equal(
+      isScienceDeletedFor2026_27("How do Organisms Reproduce?", "Safe Sex and HIV/AIDS"),
+      false
+    );
+  });
+
+  test(`Our Environment topic (chapter) is NOT zeroed — ecology retained`, () => {
+    assert.equal(isScienceDeletedFor2026_27("Our Environment"), false);
+    assert.equal(
+      isScienceDeletedFor2026_27("Our Environment", "food chain"),
+      false
     );
   });
 });
@@ -138,8 +169,9 @@ describe("Retained Science chapters are in scope", () => {
   }
 
   test(`"how-do-organisms-reproduce" (chapter name) is NOT zeroed by prediction guard`, () => {
-    // The chapter as a whole is retained. Only specific subtopics
-    // (reproductive health, contraception, family planning) are zeroed.
+    // The entire Ch 8 (including reproductive health subtopics) is in scope
+    // for 2026-27. The only Science chapter-name deletions are Periodic
+    // Classification, Sources of Energy, and Management of Natural Resources.
     assert.equal(
       isScienceDeletedFor2026_27("How do Organisms Reproduce?", "Sexual Reproduction"),
       false
@@ -192,20 +224,15 @@ describe("Deleted Maths topics are not in scope", () => {
   });
 });
 
-// ── Block 4: syllabusGuard banned list covers all deleted strings ───────────
+// ── Block 4: syllabusGuard banned list — 2026-27 doctrine ───────────────────
 
-describe("syllabusGuard banned list covers all deleted chapters", () => {
+describe("syllabusGuard banned list — 2026-27 doctrine", () => {
+  // Chapters / sections that ARE deleted from board scope in 2026-27.
   const mustBeBanned = [
-    "Our Environment",
     "Management of Natural Resources",
     "Sources of Energy",
     "Periodic Classification",
-    "Reproductive Health",
-    "Contraception",
     "Evolution",
-    "Barrier Contraception",
-    "Contraception Methods",
-    "Reasons for Contraception",
   ];
 
   for (const s of mustBeBanned) {
@@ -218,11 +245,27 @@ describe("syllabusGuard banned list covers all deleted chapters", () => {
     });
   }
 
+  // 2026-27 RETAINED content — must NOT be in the banned list.
+  // Includes Our Environment (Unit V, 5 marks — ecology) and all reproductive
+  // health subtopics (Ch 8 restored 2026-27).
   const mustNotBeBannedAsExactString = [
     "Sexual Reproduction",
     "Asexual Reproduction",
     "Heredity",
     "Electricity",
+    "Our Environment",
+    "Ecosystem",
+    "Food Chain",
+    "Food Web",
+    "Ozone Depletion",
+    "Trophic Levels",
+    "Reproductive Health",
+    "Contraception",
+    "Family Planning",
+    "Safe Sex and HIV/AIDS",
+    "STDs",
+    "Barrier Contraception",
+    "Contraception Methods",
   ];
 
   for (const s of mustNotBeBannedAsExactString) {
@@ -230,7 +273,62 @@ describe("syllabusGuard banned list covers all deleted chapters", () => {
       assert.equal(
         syllabusGuardHasBannedSubtopic(s),
         false,
-        `"${s}" must NOT appear in syllabusGuard.ts banned list (it is a retained subtopic)`
+        `"${s}" must NOT appear in syllabusGuard.ts banned list (retained in 2026-27)`
+      );
+    });
+  }
+});
+
+// ── Block 4b: 2026-27 formative-only topics tracked in archetypes (not banned in bank) ─
+
+describe("2026-27 formative-only topics — tracked in archetypes, NOT banned in bank", () => {
+  // Motor / EMI / Generator are taught in 2026-27 but not assessed in the
+  // year-end board exam (Science_SecP1_2026-27.pdf Note for Teachers). They
+  // remain valid question-bank subtopics for formative practice, so they are
+  // NOT in the syllabusGuard banned list. They are tracked in the prediction
+  // engine via SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics.
+  const formativeOnly = [
+    "Electric Motor",
+    "Electromagnetic Induction",
+    "Electric Generator",
+  ];
+
+  for (const s of formativeOnly) {
+    test(`syllabusGuard.ts does NOT ban formative-only subtopic "${s}"`, () => {
+      assert.equal(
+        syllabusGuardHasBannedSubtopic(s),
+        false,
+        `Formative-only topic "${s}" should remain in the question bank — not banned`
+      );
+    });
+  }
+
+  test(`SCIENCE_DELETED_CHAPTERS_2026_27 exposes formativeOnlyTopics`, () => {
+    const arch = SCIENCE_DELETED_CHAPTERS_2026_27 as unknown as {
+      formativeOnlyTopics?: readonly string[];
+    };
+    assert.ok(
+      Array.isArray(arch.formativeOnlyTopics),
+      "Expected SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics to exist"
+    );
+    assert.ok(arch.formativeOnlyTopics!.includes("Electric Motor"));
+    assert.ok(arch.formativeOnlyTopics!.includes("Electromagnetic Induction"));
+    assert.ok(arch.formativeOnlyTopics!.includes("Electric Generator"));
+  });
+
+  // Spot-checks that retained content is NOT banned.
+  const retainedNotBanned = [
+    "Our Environment",
+    "Reproductive Health",
+    "Contraception",
+  ];
+
+  for (const s of retainedNotBanned) {
+    test(`syllabusGuard.ts does NOT ban retained topic "${s}"`, () => {
+      assert.equal(
+        syllabusGuardHasBannedSubtopic(s),
+        false,
+        `"${s}" must NOT appear in syllabusGuard.ts banned list (retained in 2026-27)`
       );
     });
   }

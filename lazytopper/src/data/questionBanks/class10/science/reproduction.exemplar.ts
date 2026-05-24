@@ -191,6 +191,13 @@ export const REPRODUCTION_EXEMPLAR: CanonicalQuestion[] = [
     solutionSteps: ["Sperm is produced in testis.", "Carried via vas deferens.", "Vas deferens joins with tube from urinary bladder; sperm enters urethra.", "Urethra carries sperm out through penis.", "(ureter carries urine from kidney to bladder — not involved in sperm transport)."],
     finalAnswer: "(a) Testis → vas deferens → urethra.", ncertRef: "Exemplar Q26", isCompetencyBased: false },
 
+  { id: "REPR-EXMPLR-7-MCQ-027", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Safe Sex and HIV/AIDS", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "Which among the following diseases is not sexually transmitted?",
+    options: ["Syphillis", "Hepatitis", "HIV - AIDS", "Gonorrhoea"],
+    answer: "Hepatitis",
+    solutionSteps: ["Syphilis, HIV-AIDS, gonorrhoea = STDs.", "Hepatitis is primarily transmitted via contaminated food/water/blood (Hepatitis A/B/E) — NOT mainly sexual.", "Note: Hepatitis B CAN be sexually transmitted but is not primarily an STD; per NCERT it's not classified as STD."],
+    finalAnswer: "(b) Hepatitis.", ncertRef: "Exemplar Q27", isCompetencyBased: false },
+
   // ===== Short Answers Q28-Q48 =====
   { id: "REPR-EXMPLR-7-SA-001", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Cross Pollination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "In a bisexual flower inspite of the young stamens being removed artificially, the flower produces fruit. Provide a suitable explanation for the above situation.",
@@ -320,6 +327,14 @@ export const REPRODUCTION_EXEMPLAR: CanonicalQuestion[] = [
     finalAnswer: "Endometrium thickens, placenta develops, uterus enlarges, menstruation stops.",
     ncertRef: "Exemplar Q45", isCompetencyBased: true },
 
+  { id: "REPR-EXMPLR-7-SA-019", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Family Planning", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "What are the benefits of using mechanical barriers during sexual act?",
+    answer: "Benefits of mechanical barriers (e.g., condoms): (1) Prevent unwanted pregnancy by blocking sperm from reaching the egg; (2) Protect against many sexually transmitted diseases (STDs) like HIV-AIDS, syphilis, gonorrhoea by preventing exchange of body fluids; (3) No hormonal side effects (unlike pills); (4) Easy to use, cheap, no medical procedure needed; (5) Reversible (no permanent effect).",
+    solutionSteps: ["Barriers (e.g., condoms) physically block sperm from reaching egg → prevent pregnancy.", "Block exchange of body fluids → protect from STDs (HIV, syphilis, gonorrhoea).", "No hormonal side effects.", "Cheap, accessible, reversible."],
+    finalAnswer: "Prevents pregnancy AND protects from STDs; no side effects; easy to use.",
+    ncertRef: "Exemplar Q46", isCompetencyBased: true,
+    strategyHint: "Key dual benefit: contraception + STD protection." },
+
   { id: "REPR-EXMPLR-7-SA-020", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Female Reproductive Diagram", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Remembering",
     questionText: "In the given Figure 8.3 label the parts and mention their functions: (a) Production of egg; (b) Site of fertilisation; (c) Site of implantation; (d) Entry of the sperms",
     answer: "(a) Ovary — produces egg (ovum); (b) Fallopian tube (oviduct) — site of fertilisation; (c) Uterus (specifically endometrium) — site of implantation; (d) Vagina — entry point for sperms during intercourse.",
@@ -381,6 +396,13 @@ export const REPRODUCTION_EXEMPLAR: CanonicalQuestion[] = [
     finalAnswer: "Placenta = disc connecting foetus to uterine wall; supplies nutrients/O₂, removes waste, secretes pregnancy hormones.",
     ncertRef: "Exemplar Q54", isCompetencyBased: true },
 
+  { id: "REPR-EXMPLR-7-LA-007", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Family Planning", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "What are various ways to avoid pregnancy? Elaborate any one method.",
+    answer: "Four main contraceptive categories: (1) Barrier methods — condom (male), diaphragm (female); (2) Hormonal methods — oral pills, injections, implants; (3) Intra-Uterine Devices (IUDs) — Copper-T, loop; (4) Surgical methods — vasectomy (male), tubectomy (female). Elaborating CONDOM: a thin rubber sheath worn over the penis during intercourse. It physically blocks sperm from entering the vagina, preventing fertilisation. Advantages: simultaneously prevents STDs (HIV, syphilis), no side effects, cheap, easy to use, reversible. Disadvantages: must be used correctly every time; failure rate ~2-15%.",
+    solutionSteps: ["Method 1: Barrier — condom, diaphragm (blocks sperm).", "Method 2: Hormonal — oral pills (prevent ovulation).", "Method 3: IUD — Copper-T, loop (prevents implantation).", "Method 4: Surgical — vasectomy, tubectomy (permanent block).", "Elaborate condom: thin rubber sheath worn on penis.", "Mechanism: physically blocks sperm from entering vagina.", "Advantages: prevents pregnancy + STDs; no side effects; cheap; reversible."],
+    finalAnswer: "Methods: barrier (condom), hormonal (pills), IUD (Copper-T), surgical (vasectomy/tubectomy). Condom = sheath blocking sperm, also prevents STDs.",
+    ncertRef: "Exemplar Q55", isCompetencyBased: true },
+
   { id: "REPR-EXMPLR-7-LA-008", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Fertilisation", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "How does fertilisation take place? Fertilisation occurs once in a month. Comment.",
     answer: "Fertilisation: during intercourse, sperms enter the female vagina, travel up through the cervix and uterus, and reach the fallopian tube. If an egg is present in the fallopian tube (released by ovulation), one sperm fuses with the egg → zygote. The zygote travels to the uterus and implants in the endometrium. Comment on once-a-month: a female ovary releases ONE egg per menstrual cycle (~every 28 days), and the egg lives only ~1 day. So even though intercourse may happen frequently, fertilisation can occur only during a narrow fertile window of 1-2 days each month when a viable egg is available.",
@@ -396,4 +418,10 @@ export const REPRODUCTION_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Q57", isCompetencyBased: true,
     strategyHint: "Contrast individual cost vs species benefit." },
 
+  { id: "REPR-EXMPLR-7-LA-010", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Safe Sex and HIV/AIDS", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "Describe sexually transmitted diseases and mention the ways to prevent them.",
+    answer: "Sexually Transmitted Diseases (STDs) are infections transmitted from one person to another through sexual contact (exchange of body fluids). Bacterial STDs: syphilis (Treponema pallidum), gonorrhoea (Neisseria gonorrhoeae) — treatable with antibiotics. Viral STDs: HIV-AIDS (Human Immunodeficiency Virus — attacks immune system), genital warts (HPV) — viral, harder to treat. Prevention: (i) use mechanical barriers (condoms) during sex; (ii) avoid multiple sexual partners; (iii) ensure sterile needles in medical procedures (HIV); (iv) screen blood for transfusion; (v) safe sex practices and education; (vi) regular testing and timely treatment.",
+    solutionSteps: ["STDs spread through sexual contact (body fluids).", "Bacterial STDs: syphilis, gonorrhoea — antibiotic-treatable.", "Viral STDs: HIV-AIDS (immune system), genital warts (HPV) — no cure for HIV.", "Symptoms: genital sores, discharge, immune weakness (HIV).", "Prevention 1: use condoms during sex (barrier).", "Prevention 2: limit sexual partners; mutual monogamy.", "Prevention 3: use sterile needles; screen blood for transfusion.", "Prevention 4: regular testing + timely treatment.", "Prevention 5: education and awareness."],
+    finalAnswer: "STDs = infections via sexual contact (bacterial: syphilis, gonorrhoea; viral: HIV, warts). Prevention: condoms, limit partners, sterile needles, blood screening, education.",
+    ncertRef: "Exemplar Q58", isCompetencyBased: true },
 ];

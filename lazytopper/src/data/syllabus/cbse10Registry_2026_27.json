@@ -6,9 +6,9 @@
     "generated_on": "2026-04-18",
     "notes": [
       "Unit marks and topic scope reflect the CBSE rationalized curriculum for 2026-27.",
-      "Excluded from scope (explicitly removed in 2026-27 rationalization): Periodic Classification of Elements, Management of Natural Resources, Sources of Energy, reproductive health subtopic from Reproduction, and the evolution section from Heredity.",
+      "Excluded from scope (explicitly removed in 2026-27 rationalization): Periodic Classification of Elements, Management of Natural Resources, Sources of Energy, and the evolution section from Heredity.",
       "The Heredity chapter is now assessed on Mendelian genetics and sex determination only; evolution, fossils, speciation, and homologous/analogous organs are out of scope.",
-      "The Reproduction chapter is assessed on asexual and sexual reproduction mechanisms only; reproductive health, family planning, safe sex, and HIV/AIDS topics are out of scope.",
+      "The Reproduction chapter (Ch 8) covers asexual and sexual reproduction mechanisms AND reproductive health (contraception, family planning, safe sex, HIV/AIDS) — all in scope for 2026-27.",
       "Our Environment (food chains, trophic levels, ecosystem interactions, pollution, waste management) remains in scope under Unit 5.",
       "Maths scope is unchanged from 2025-26."
     ],
@@ -33,11 +33,6 @@
       }
     ],
     "excluded_subtopics": [
-      {
-        "chapter": "Reproduction",
-        "subtopic": "Reproductive health: need and methods of family planning; safe sex vs HIV/AIDS; child bearing and women's health",
-        "reason": "Deleted from CBSE Class 10 Science scope in 2026-27 rationalization"
-      },
       {
         "chapter": "Heredity",
         "subtopics": ["Evolution", "Fossils", "Speciation", "Homologous and analogous organs", "Natural selection", "Evidence of evolution"],
