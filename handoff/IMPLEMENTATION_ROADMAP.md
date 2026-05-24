@@ -5,16 +5,32 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-11aac1bc8bce67e6b2d67e540b4295491c0b78e0
+e4e42feef15bbff2828f7c0c2055bf7131c671c0
 ```
 
 Current stage:
-PR #82 / PR-K2H-5 is merged. Login visual parity + auth gate polish is complete. Next active implementation should be PR-K2H-6 - Home/cockpit learning order + Continue repair.
+PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
+in the content + tooling track (PRs #112, #114, #116, #117, #119, #121). Next product PR
+should still be PR-K2H-6 (Home/cockpit learning order + Continue repair) — unchanged.
 
 Current implementation branch:
 ```
 None. Create the next implementation branch fresh from the live verified base after this docs-only handoff update merges.
 ```
+
+## Content + Tooling track — recent stages
+
+Latest in the content/tooling track:
+
+- PR #119 (2026-05-24) — P2 CBSE SQP 2023-24: 69 questions across 25 topic files (Maths 38 +
+  Science 31). Adopted pymupdf as the official PDF extraction tool (replaces pdfplumber).
+- PR #121 (2026-05-24) — Reproduction bank cleanup + syllabusGuard variant extension:
+  18 questions removed across 3 reproduction banks; 5 new banned variants added;
+  35-test regression suite created at `scripts/src/reproductionBankGuard.test.ts`.
+  syllabusGuard now reports 0 violations (was 15).
+
+See `CURRENT_STATE.md` for the full PR history table and `NEXT_ACTION.md` for the queued
+content tasks (ops/ alignment + P2 APQ extraction).
 
 ## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
 

@@ -1,6 +1,54 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-24 (post-PR #119)
-Live base SHA: c5b8c51e22a2fffc0afb9109d0c230511160ab8d
+Last updated: 2026-05-24 (post-PR #121)
+Live base SHA: e4e42feef15bbff2828f7c0c2055bf7131c671c0
+
+## Post-PR #121 — Reproduction bank cleanup + syllabusGuard variant extension + regression test suite — MERGED
+
+Timestamp: 2026-05-24
+Merge SHA on base: e4e42feef15bbff2828f7c0c2055bf7131c671c0
+
+PR #121 | fix: reproduction bank cleanup — remove banned Ch8 subtopics + extend syllabusGuard
+Branch: fix/reproduction-bank-cleanup (deleted after merge)
+Commits: 1 (48201c8)
+
+Files changed: 6 (18 questions removed across 3 banks; guard extended; new regression test)
+  - lazytopper/src/data/questionBanks/class10/science/reproduction.exemplar.ts (-4 Qs)
+      REPR-EXMPLR-7-MCQ-027 (STDs), REPR-EXMPLR-7-SA-019 (Barrier Contraception),
+      REPR-EXMPLR-7-LA-007 (Contraception), REPR-EXMPLR-7-LA-010 (STDs)
+  - lazytopper/src/data/questionBanks/class10/science/reproduction.ncert.ts (-3 Qs)
+      REPR-NCERT-7-SA-012 (Contraception), REPR-NCERT-7-SA-016 (Contraception Methods),
+      REPR-NCERT-7-SA-019 (Reasons for Contraception)
+  - lazytopper/src/data/questionBanks/class10/science/reproduction.pack2.ts (-11 Qs)
+      REP2-015/016/017/018/021/025/038/039/040/041/048 — all subtopic "Reproductive Health"
+  - scripts/src/syllabusGuard.ts — 5 new banned variants added to Science Ch8 block:
+      "Barrier Contraception", "Contraception Methods", "Reasons for Contraception",
+      "Contraceptive Methods", "Birth Control Methods"
+  - scripts/src/reproductionBankGuard.test.ts — NEW (35 tests / 5 describe blocks)
+      banned variants flagged (12) + retained subtopics clean (15) + substring safety (3)
+      + multi-banned counted (2) + regression lock on 3 repo files (3)
+  - scripts/package.json — `test:reproduction` script added; `test:matrix:all` updated to 3 files
+
+Rationale: 15 questions across 3 reproduction banks were flagged by syllabusGuard (existing
+ban list) but had never been cleaned. An additional 3 questions used compound subtopic strings
+("Barrier Contraception" / "Contraception Methods" / "Reasons for Contraception") that slipped
+past exact-match syllabusGuard despite being entirely about deleted Ch8 sub-topics. This PR
+removes all 18 questions, extends the ban list with the 5 compound variants (plus 2 defensive
+forward-looking variants), and adds a 35-test regression suite so future extractions cannot
+reintroduce similar content without tripping the guard.
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations; was 15 pre-PR)
+  2. validateQuestionBanks — PASS (0 dupes, mark/section consistent across 191 files)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate ID belt-and-suspenders — PASS (0 dupes)
+  5. Full test matrix (syllabusGuard.test + deletionGuard.test + reproductionBankGuard.test)
+     — PASS (74/74)
+  6. Engine reachability — PASS (296/296 new-PR questions routable)
+
+Bank state (removals only, no additions):
+  Authentic questions: 1,699 (unchanged — removed Qs were always invalid per CBSE 2025-26)
+  Spreads: 137 (unchanged)
+  Bank total: 4,514 (unchanged)
 
 ## Post-PR #119 — P2 CBSE Sample Question Papers 2023-24 (69 Qs Maths+Science SQP) + bannedExercises hotfix — MERGED
 
@@ -353,7 +401,7 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #114 — content: register P0.5 diff/ pack files (21 questions)
+Last merged PR: #121 — fix: reproduction bank cleanup + syllabusGuard variant extension + regression test suite
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -387,32 +435,43 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #111 | Docs: full catchup #99–#110 | da8c08dc | Handoff updated |
 | #112 | P0 diff/ pack registration | 8c8acf40 | 62 questions (AR + Proof) wired into engine |
 | #113 | Docs: post-PR #112 | e7645273 | Handoff updated |
-| #114 | P0.5 diff/ pack registration | d0b34932 | 21 questions (Case-based + circles proof) — CURRENT BASE |
+| #114 | P0.5 diff/ pack registration | d0b34932 | 21 questions (Case-based + circles proof) |
+| #115 | Docs: post-PR #114 | 693d9112 | Handoff updated |
+| #116 | PRE-P1 mojibake symbol restoration | e9f41cd8 | 499 char repairs (ftfy) in P0.5 case-based files |
+| #117 | syllabusGuard + bannedExercises + CBSE step-marking doctrine | a38573b6 | Guard rebuilt for CBSE 2025-26 |
+| #118 | Docs: post-PR #117 | 487f9603 | Handoff updated |
+| #119 | P2 CBSE SQP 2023-24 + bannedExercises hotfix | c5b8c51e | 69 SQP questions (Maths 38 + Science 31) |
+| #120 | Docs: post-PR #119 | 0222917e | Handoff updated |
+| #121 | Reproduction bank cleanup + syllabusGuard variant ext + regression tests | e4e42fee | -18 Qs, +5 banned variants, +35 tests — CURRENT BASE |
 
 ## Question bank state
 
 | Content | Questions | Status |
 |---|---|---|
-| Science NCERT+Exemplar ch1-12 | 904 | Live in engine |
+| Science NCERT+Exemplar ch1-12 | 904 | Live in engine (7 deleted in PR #121 — banned Ch8 subtopics) |
 | Maths NCERT+Exemplar ch1-14 | 643 | Live in engine |
 | P0 diff/ packs (PR #112) | 62 | Live in engine |
 | P0.5 diff/ packs (PR #114) | 21 | Live in engine |
-| Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated (retirement pending) |
-| Total in engine | 4,445 | — |
+| P2 SQP 2023-24 (PR #119) | 69 | Live in engine |
+| Existing pack1/pack2/pack3 | ~2,459 | Live, AI-generated (11 deleted in PR #121); retirement pending |
+| Total in engine | 4,514 | (unchanged — removals only, no additions in PR #121) |
 
-canonicalQuestionBank.ts spread count: 112
+canonicalQuestionBank.ts spread count: 137
 
 ## Known issues
 
-- **Mojibake in P0.5 case-based + circles.proof files (HIGH — UI render broken)** — fix as PRE-P1
+- **PRE-P1 mojibake (RESOLVED in PR #116)** — fully fixed via ftfy
+- syllabusGuard 15 reproduction-bank violations (RESOLVED in PR #121) — 0 violations now
+- ops/ acceptance test: Our Environment chapter assertion still expects retained — pending
 - Clerk dev mode only (pk_test_) — no production instance configured
 - AI features 404 in production (no /api/* rewrite in vercel.json)
-- PYQ filter returns 0 (K2H-8f engine fix pending)
-- pack1/pack2/pack3 questions are AI-generated — retirement planned
+- PYQ filter returns 0 (K2H-8f engine fix pending — pre-req for P5)
+- pack1/pack2/pack3 questions are AI-generated — retirement planned (threshold 6,000 authentic)
 - deletionGuard.test.ts fixed (PR #108) — 29/29 tests passing
 - strategyHint authored but never rendered (quick win pending)
 - index.html meta stale (149/month, wrong theme-color)
 - pyqSet format inconsistency in P0 AR files (full CBSE codes — cleanup in P5)
+- .claude/ folder not in .gitignore — minor housekeeping
 
 ## Frozen files — do not touch
 

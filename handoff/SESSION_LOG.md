@@ -1,5 +1,96 @@
 ---
 
+## 2026-05-24 — Reproduction bank cleanup (PR #121, -18 Qs) + syllabusGuard variant extension + 35-test regression suite
+
+Timestamp: 2026-05-24 (Asia/Kolkata)
+
+### Starting state
+
+- Base branch: base/approved-thru-437 at `0222917e` (post PR #120 docs handoff)
+- Active branch: `fix/reproduction-bank-cleanup` (fresh from base)
+- Pre-existing problem: syllabusGuard reported 15 violations across the 3 reproduction
+  question banks. Carry-over from PR #117 (when the guard was rebuilt for CBSE 2025-26).
+  Banned subtopics: STDs / Contraception / Reproductive Health — all deleted from CBSE
+  Class 10 Science Ch 8 per the 2025-26 rationalisation.
+
+### Work completed
+
+1. **First pass — remove 15 syllabusGuard-flagged questions**
+   - `reproduction.exemplar.ts`: 3 removals (REPR-EXMPLR-7-MCQ-027 "STDs",
+     REPR-EXMPLR-7-LA-007 "Contraception", REPR-EXMPLR-7-LA-010 "STDs")
+   - `reproduction.ncert.ts`: 1 removal (REPR-NCERT-7-SA-012 "Contraception" —
+     copper-T / STD question)
+   - `reproduction.pack2.ts`: 11 removals (REP2-015/016/017/018/021/025/038/039/040/041/048 —
+     all subtopic "Reproductive Health")
+   - All 4 canonical-source removals were REMOVE per the decision rules — all questions
+     were genuinely about banned topics (no candidates for subtopic reclassification).
+   - Result after first pass: syllabusGuard PASS (0 violations).
+
+2. **Second pass — Option A extension (owner-directed)**
+   - 3 additional questions used **compound subtopic strings** that slipped past the
+     exact-match syllabusGuard but were entirely about contraception:
+       REPR-EXMPLR-7-SA-019 (subtopic "Barrier Contraception")
+       REPR-NCERT-7-SA-016 (subtopic "Contraception Methods")
+       REPR-NCERT-7-SA-019 (subtopic "Reasons for Contraception")
+   - Removed all 3.
+   - Added 5 new banned-subtopic strings to `scripts/src/syllabusGuard.ts` Science Ch8 block:
+       "Barrier Contraception", "Contraception Methods", "Reasons for Contraception",
+       "Contraceptive Methods", "Birth Control Methods" (last two defensive — not in repo
+       but plausible future variants).
+
+3. **Regression test suite — new file**
+   - Created `scripts/src/reproductionBankGuard.test.ts` with 35 tests / 5 describe blocks:
+       (a) Banned variants ARE flagged — 12 tests, one per banned string
+       (b) Retained reproduction subtopics are NOT flagged — 15 tests (Sexual Reproduction,
+           Asexual Reproduction, Budding, Pollination, Fertilisation, etc.)
+       (c) Substring containment does NOT trigger violation — 3 tests (exact-match-only)
+       (d) Multiple banned subtopics in one file all counted — 2 tests
+       (e) Regression lock on the 3 repo files post-cleanup — 3 tests
+   - One mid-flight fix: the initial path expression `"../../../.."` resolved one level
+     too high (`C:\Projects\` instead of repo root). Corrected to `"../../.."` and all 35
+     tests passed.
+   - Wired into `scripts/package.json` as `test:reproduction` (standalone) and added to
+     `test:matrix:all` alongside syllabusGuard.test.ts and deletionGuard.test.ts.
+
+4. **Validations (all 6 PASS)**
+   - syllabusGuard — PASS (0 violations; was 15)
+   - validateQuestionBanks — PASS (191 files, mark/section consistent, 0 duplicate IDs)
+   - tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+   - Duplicate IDs (PowerShell scan) — 0
+   - Engine reachability — PASS (296/296 new-PR questions routable)
+   - Full test matrix (3 test files) — PASS (74/74)
+
+5. **Commit + PR**
+   - Single commit `48201c8` with 18 deletions + 5 guard additions + 35-test file + package.json wire
+   - PR #121 opened against `base/approved-thru-437`; merged at SHA `e4e42feef15bbff2828f7c0c2055bf7131c671c0`
+
+### Bank state
+
+- Removals only (no additions): 18 questions removed across 3 reproduction banks
+- Authentic count: 1,699 (treated as unchanged — removed Qs were always invalid per CBSE 2025-26)
+- Spreads: 137 (unchanged)
+- Bank total: 4,514 (unchanged)
+- syllabusGuard violations: 0 (was 15)
+
+### Diff scope
+
+Exactly 6 files touched, all on the approved list:
+1. lazytopper/src/data/questionBanks/class10/science/reproduction.exemplar.ts
+2. lazytopper/src/data/questionBanks/class10/science/reproduction.ncert.ts
+3. lazytopper/src/data/questionBanks/class10/science/reproduction.pack2.ts
+4. scripts/src/syllabusGuard.ts
+5. scripts/src/reproductionBankGuard.test.ts (NEW)
+6. scripts/package.json
+
+No `.tsx` product files, no `canonicalQuestionBank.ts`, no forbidden files touched.
+
+### Next priority items
+
+1. ops/ acceptance test alignment for Our Environment (now Follow-up #1)
+2. P2 APQ extraction with pymupdf (now Follow-up #2)
+
+---
+
 ## 2026-05-24 — P2 SQP extracted (PR #119, 69 Qs), bannedExercises hotfix, pymupdf adopted as PDF tool
 
 Timestamp: 2026-05-24 (Asia/Kolkata)
