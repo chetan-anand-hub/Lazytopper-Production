@@ -7,15 +7,9 @@
       "year": "2026-27",
       "subject": "Maths",
       "grade": "Class 10",
-      "reason": "Multiple topics deleted from CBSE Class 10 Maths 2025-26: Constructions (Ch9 + Ch11 fully deleted), Frustum of Cone (Ex 13.3 deleted), Ogive/Step-Deviation (Statistics). Also deleted: Euclid's Division Lemma, Polynomial Division Algorithm, Complementary Angle Trig Ratios, Area of Triangle (Coord Geom).",
+      "reason": "NCERT Ch 13 Ex 13.3 (Frustum of Cone) was deleted from the CBSE Class 10 syllabus from 2023-24 onwards. Note: Ex 11.1/11.2 and Ex 9.1/9.2 are NOT banned in new NCERT — chapter renumbering means Ch 9 = Some Applications of Trigonometry (RETAINED) and Ch 11 = Areas Related to Circles (RETAINED). Earlier inclusion of those exercises was a false positive surfaced during P2 SQP extraction (2026-05-24) and removed.",
       "bannedExercises": [
-        "Ex 13.3",
-        "Ex 11.1",
-        "Ex 11.2",
-        "Ex 9.1",
-        "Ex 9.2",
-        "NCERT Ch11",
-        "NCERT Ch9 Ex 9"
+        "Ex 13.3"
       ],
       "questionBankDir": "../../lib/shared-data/src/questionBanks/maths"
     },

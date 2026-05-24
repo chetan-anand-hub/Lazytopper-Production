@@ -127,6 +127,35 @@ import { MATHS_CASE_BASED_QUESTIONS } from './questionBanks/class10/maths/maths.
 import { SCIENCE_CASE_BASED_QUESTIONS } from './questionBanks/class10/science/science.caseBased';
 import { CIRCLES_PROOF_QUESTIONS } from './questionBanks/class10/maths/circles.proof';
 
+// P2 CBSE Sample Question Paper 2023-24 (2026-05-24) — SQP-only scope; APQ deferred to follow-up PR
+// Maths SQP (13 topic files, 38 questions from MathsStandard-SQP.pdf + MathsStandard-MS.pdf)
+import { REAL_NUMBERS_SQP } from './questionBanks/class10/maths/real-numbers.sqp';
+import { POLYNOMIALS_SQP } from './questionBanks/class10/maths/polynomials.sqp';
+import { PAIR_OF_LINEAR_EQUATIONS_SQP } from './questionBanks/class10/maths/pair-of-linear-equations.sqp';
+import { QUADRATIC_EQUATIONS_SQP } from './questionBanks/class10/maths/quadratic-equations.sqp';
+import { ARITHMETIC_PROGRESSION_SQP } from './questionBanks/class10/maths/arithmetic-progression.sqp';
+import { TRIANGLES_SQP } from './questionBanks/class10/maths/triangles.sqp';
+import { COORDINATE_GEOMETRY_SQP } from './questionBanks/class10/maths/coordinate-geometry.sqp';
+import { TRIGONOMETRY_SQP } from './questionBanks/class10/maths/trigonometry.sqp';
+import { CIRCLES_SQP } from './questionBanks/class10/maths/circles.sqp';
+import { AREAS_RELATED_TO_CIRCLES_SQP } from './questionBanks/class10/maths/areas-related-to-circles.sqp';
+import { SURFACE_AREAS_AND_VOLUMES_SQP } from './questionBanks/class10/maths/surface-areas-and-volumes.sqp';
+import { STATISTICS_SQP } from './questionBanks/class10/maths/statistics.sqp';
+import { PROBABILITY_SQP } from './questionBanks/class10/maths/probability.sqp';
+// Science SQP (12 topic files, 31 questions from Science-SQP.pdf + Science-MS.pdf)
+import { CHEMICAL_REACTIONS_SQP } from './questionBanks/class10/science/chemical-reactions-and-equations.sqp';
+import { ACIDS_BASES_SALTS_SQP } from './questionBanks/class10/science/acids-bases-and-salts.sqp';
+import { METALS_NON_METALS_SQP } from './questionBanks/class10/science/metals-and-non-metals.sqp';
+import { CARBON_COMPOUNDS_SQP } from './questionBanks/class10/science/carbon-and-its-compounds.sqp';
+import { LIFE_PROCESSES_SQP } from './questionBanks/class10/science/life-processes.sqp';
+import { CONTROL_COORDINATION_SQP } from './questionBanks/class10/science/control-and-coordination.sqp';
+import { HOW_DO_ORGANISMS_REPRODUCE_SQP } from './questionBanks/class10/science/how-do-organisms-reproduce.sqp';
+import { HEREDITY_SQP } from './questionBanks/class10/science/heredity.sqp';
+import { LIGHT_REFLECTION_SQP } from './questionBanks/class10/science/light-reflection-and-refraction.sqp';
+import { HUMAN_EYE_SQP } from './questionBanks/class10/science/human-eye-and-colourful-world.sqp';
+import { ELECTRICITY_SQP } from './questionBanks/class10/science/electricity.sqp';
+import { MAGNETIC_EFFECTS_SQP } from './questionBanks/class10/science/magnetic-effects-of-electric-current.sqp';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -246,6 +275,34 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...MATHS_CASE_BASED_QUESTIONS,
   ...SCIENCE_CASE_BASED_QUESTIONS,
   ...CIRCLES_PROOF_QUESTIONS,
+  // P2 CBSE Sample Question Paper 2023-24 (2026-05-24) — 69 questions (38 Maths SQP + 31 Science SQP)
+  // Maths SQP (13 files)
+  ...REAL_NUMBERS_SQP,
+  ...POLYNOMIALS_SQP,
+  ...PAIR_OF_LINEAR_EQUATIONS_SQP,
+  ...QUADRATIC_EQUATIONS_SQP,
+  ...ARITHMETIC_PROGRESSION_SQP,
+  ...TRIANGLES_SQP,
+  ...COORDINATE_GEOMETRY_SQP,
+  ...TRIGONOMETRY_SQP,
+  ...CIRCLES_SQP,
+  ...AREAS_RELATED_TO_CIRCLES_SQP,
+  ...SURFACE_AREAS_AND_VOLUMES_SQP,
+  ...STATISTICS_SQP,
+  ...PROBABILITY_SQP,
+  // Science SQP (12 files)
+  ...CHEMICAL_REACTIONS_SQP,
+  ...ACIDS_BASES_SALTS_SQP,
+  ...METALS_NON_METALS_SQP,
+  ...CARBON_COMPOUNDS_SQP,
+  ...LIFE_PROCESSES_SQP,
+  ...CONTROL_COORDINATION_SQP,
+  ...HOW_DO_ORGANISMS_REPRODUCE_SQP,
+  ...HEREDITY_SQP,
+  ...LIGHT_REFLECTION_SQP,
+  ...HUMAN_EYE_SQP,
+  ...ELECTRICITY_SQP,
+  ...MAGNETIC_EFFECTS_SQP,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
