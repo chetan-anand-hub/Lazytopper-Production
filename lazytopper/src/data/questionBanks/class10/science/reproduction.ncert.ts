@@ -91,6 +91,14 @@ export const REPRODUCTION_NCERT: CanonicalQuestion[] = [
     ncertRef: "In-text Q4 (after §7.3)", isCompetencyBased: true,
     strategyHint: "Mention BOTH nutrient supply AND waste removal." },
 
+  { id: "REPR-NCERT-7-SA-012", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Safe Sex and HIV/AIDS", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "If a woman is using a copper-T, will it help in protecting her from sexually transmitted diseases?",
+    answer: "No. Copper-T is an Intra-Uterine Contraceptive Device (IUCD) that prevents pregnancy by stopping the fertilised egg from implanting in the uterus. However, it does NOT create a barrier between the male and female reproductive organs, so it does NOT prevent the exchange of body fluids during intercourse. Therefore, it provides NO protection against sexually transmitted diseases (STDs) like HIV-AIDS, syphilis, gonorrhoea. Only condoms provide some protection against STDs.",
+    solutionSteps: ["Copper-T = IUCD placed inside the uterus → only prevents pregnancy.", "It does NOT block exchange of body fluids during intercourse.", "STDs (HIV, syphilis, gonorrhoea) spread via body fluids.", "Hence Copper-T offers NO protection from STDs.", "Only condoms (barrier method) can prevent STDs to some extent."],
+    finalAnswer: "No — Copper-T prevents only pregnancy, not STDs (no barrier to body fluid exchange).",
+    ncertRef: "In-text Q5 (after §7.3)", isCompetencyBased: true,
+    strategyHint: "Distinguish contraception (preventing pregnancy) from STD protection (barrier needed)." },
+
   // ===== EXERCISES =====
   { id: "REPR-NCERT-7-MCQ-001", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Budding", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Asexual reproduction takes place through budding in",
@@ -142,6 +150,13 @@ export const REPRODUCTION_NCERT: CanonicalQuestion[] = [
     ncertRef: "Exercise Q7", isCompetencyBased: false,
     strategyHint: "REQUIRES-FIGURE: standard flower longitudinal section diagram." },
 
+  { id: "REPR-NCERT-7-SA-016", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Family Planning", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "What are the different methods of contraception?",
+    answer: "Four main categories: (1) Mechanical/Barrier methods — condom (male), diaphragm (female): physically prevent sperm from meeting egg. (2) Chemical methods — oral pills, hormonal injections: change hormonal balance to prevent ovulation. (3) Intra-Uterine Devices (IUDs) — Copper-T, loop: placed in uterus to prevent implantation. (4) Surgical methods — vasectomy (cutting vas deferens in male), tubectomy (blocking fallopian tubes in female): permanent prevention of gamete passage.",
+    solutionSteps: ["Barrier methods: condom (male), diaphragm (female) — physical block.", "Hormonal methods: oral contraceptive pills, hormonal injections — prevent ovulation.", "IUDs: Copper-T, loop — prevent implantation in uterus.", "Surgical methods: vasectomy (male), tubectomy (female) — permanent block of gamete passage.", "Some methods (condoms) also protect against STDs."],
+    finalAnswer: "Barrier (condom), hormonal (pills), IUD (Copper-T), surgical (vasectomy, tubectomy).",
+    ncertRef: "Exercise Q8", isCompetencyBased: true },
+
   { id: "REPR-NCERT-7-SA-017", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Reproduction Modes", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "How are the modes for reproduction different in unicellular and multicellular organisms?",
     answer: "Unicellular organisms: use simple methods — fission (binary in Amoeba, multiple in Plasmodium), budding (yeast), spore formation. Cell division IS reproduction. Multicellular organisms: have specialised cells/tissues, cannot just divide. Use complex methods — fragmentation (Spirogyra), regeneration (Hydra, Planaria), budding (Hydra), vegetative propagation (plants), spore formation (Rhizopus), and sexual reproduction (involving gametes from specialised reproductive organs).",
@@ -156,4 +171,11 @@ export const REPRODUCTION_NCERT: CanonicalQuestion[] = [
     finalAnswer: "Reproduction maintains population by creating new individuals AND ensures species adaptability through variation.",
     ncertRef: "Exercise Q10", isCompetencyBased: true },
 
+  { id: "REPR-NCERT-7-SA-019", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Family Planning", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "What could be the reasons for adopting contraceptive methods?",
+    answer: "Reasons: (1) To prevent unwanted pregnancies — avoid health risks to mother/child if not ready; (2) To space children — allow time between pregnancies for mother's recovery and child care; (3) To control population growth — important for resource availability and standard of living; (4) Protection from sexually transmitted diseases (barrier methods like condoms); (5) Family planning according to economic and social circumstances; (6) Reduces maternal mortality from unsafe abortions.",
+    solutionSteps: ["Prevent unwanted pregnancies that may harm woman's physical/mental health.", "Allow spacing between children for better health of mother and child.", "Population control — better standard of living and resource distribution.", "Barrier methods (condoms) also protect against STDs (HIV, syphilis).", "Enables family planning aligned with economic and social factors."],
+    finalAnswer: "Avoid unwanted pregnancy, space children, population control, STD protection, family planning.",
+    ncertRef: "Exercise Q11", isCompetencyBased: true,
+    strategyHint: "Mention BOTH individual reasons (health) AND societal reasons (population control)." },
 ];

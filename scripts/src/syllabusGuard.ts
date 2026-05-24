@@ -71,10 +71,23 @@ const RULES: BannedSubtopicRule[] = [
     year: "2026-27",
     subject: "Science",
     grade: "Class 10",
-    // Source: CBSE Class 10 Science Syllabus 2025-26 (cbseacademic.nic.in)
-    // Deleted: Ch5 Periodic Classification (full), Ch8 Reproductive Health
-    //   sub-topics, Ch9 Evolution section, Ch14 Sources of Energy (full),
-    //   Ch15 Our Environment (full), Ch16 Management of Natural Resources (full).
+    // Source: CBSE Class 10 Science Syllabus 2026-27 (cbseacademic.nic.in
+    //   Science_SecP1_2026-27.pdf).
+    // Deleted from board-assessed scope (banned at question-bank level):
+    //   • Ch5 Periodic Classification of Elements (entire chapter)
+    //   • Ch9 Evolution section (Mendel/genetics retained)
+    //   • Ch14 Sources of Energy (entire chapter)
+    //   • Ch16 Management of Natural Resources (entire chapter)
+    // RETAINED in 2026-27 (do NOT add to banned list):
+    //   • Ch8 Reproductive Health subtopics (reproduction chapter incl.
+    //     contraception, family planning, STIs, safe sex — restored 2026-27)
+    //   • Ch15 Our Environment (ecology, food chains, trophic levels,
+    //     pollution, waste management — Unit V, 5 marks)
+    // Formative only (taught but not in year-end exam — NOT banned here):
+    //   • Electric Motor, Electromagnetic Induction, Electric Generator
+    //     (Note for Teachers, Science_SecP1_2026-27.pdf). These remain valid
+    //     question-bank subtopics; the "do not predict" doctrine is enforced
+    //     in cbseHistoricalArchetypes.SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics.
     bannedSubtopics: [
       // Ch 5 — Periodic Classification of Elements (entire chapter deleted)
       "Periodic Classification",
@@ -88,19 +101,7 @@ const RULES: BannedSubtopicRule[] = [
       "Modern Periodic Law",
       "Periods and Groups",
       "Periodicity of Properties",
-      // Ch 8 — Reproductive Health sub-topics deleted
-      "Reproductive Health",
-      "Contraception",
-      "Family Planning",
-      "Sexually Transmitted Infections",
-      "Sexually Transmitted Diseases",
-      "STI",
-      "STDs",
-      "Barrier Contraception",
-      "Contraception Methods",
-      "Reasons for Contraception",
-      "Contraceptive Methods",
-      "Birth Control Methods",
+      // Ch 8 Reproductive Health subtopics — RETAINED in 2026-27 (no entries)
       // Ch 9 — Evolution section deleted (Mendel/genetics retained)
       "Evolution",
       "Natural Selection",
@@ -140,21 +141,15 @@ const RULES: BannedSubtopicRule[] = [
       "Ocean Thermal Energy",
       "Wave Energy",
       "Energy from Sea",
-      // Ch 15 — Our Environment (entire chapter deleted)
-      "Our Environment",
-      "Ecosystem",
-      "Food Chain",
-      "Food Web",
-      "Biodegradable",
-      "Non-Biodegradable",
-      "Ozone Depletion",
-      "Ozone Layer",
-      "Biological Magnification",
-      "Energy Flow",
-      "Trophic Levels",
-      "Trophic Level",
-      "Waste Management",
-      "Environmental Problems",
+      // Ch 15 Our Environment — RETAINED in 2026-27 under Unit V (5 marks; no entries)
+      //
+      // Note: Electric Motor / Electromagnetic Induction / Electric Generator are
+      // formative-only in 2026-27 (Science_SecP1_2026-27.pdf Note for Teachers).
+      // They are NOT banned at the question-bank level — formative practice
+      // questions on these topics remain valid. The "do not predict for board
+      // exam" doctrine is enforced via cbseHistoricalArchetypes
+      // SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics, not via this guard.
+      //
       // Ch 16 — Management of Natural Resources (entire chapter deleted)
       "Management of Natural Resources",
       "Natural Resources Management",

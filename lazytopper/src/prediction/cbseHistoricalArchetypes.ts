@@ -764,27 +764,39 @@ export function isMathsDeletedForYear(
 // ─────────────────────────────────────────────────────────────────────────────
 // 2026-27 CBSE Science syllabus deletions
 //
+// Source: CBSE Class 10 Science Syllabus 2026-27 (cbseacademic.nic.in
+//   Science_SecP1_2026-27.pdf).
 // Historical entries above are preserved for trend analysis but the prediction
 // engine must NOT surface these topics in any 2026-27 (or later) output.
 //
-// Deleted FULL chapters:
-//   • Periodic Classification of Elements
-//   • Management of Natural Resources
+// Deleted FULL chapters from board-assessed scope:
+//   • Periodic Classification of Elements (Ch 5)
+//   • Sources of Energy (Ch 14)
+//   • Management of Natural Resources (Ch 16)
 //
 // Deleted content within chapters that otherwise remain:
 //   • Evolution section of "Heredity & Evolution" — Mendel / genetics stays.
 //     Subtopics to exclude: anything evolution-related (fossils, homologous /
 //     analogous organs, speciation, natural selection, evolutionary evidence).
-//   • Sources of Energy section of "Our Environment / Sources of Energy" —
-//     ecology (food chains, pollution, waste management) stays.
+//
+// RETAINED in 2026-27 (do NOT add to deletion lists):
+//   • Our Environment chapter (Ch 15) — Unit V, 5 marks. Ecology, food chains,
+//     trophic levels, ecosystem interactions, pollution, waste management.
+//   • Ch 8 Reproductive Health subtopics — reproduction chapter including
+//     contraception, family planning, STIs, safe sex are back in scope.
+//
+// Formative only (NOT assessed in year-end exam):
+//   • Electric Motor / Electromagnetic Induction / Electric Generator
+//     (Note for Teachers — Science_SecP1_2026-27.pdf)
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
   effectiveFromYear: 2026,
 
-  /** Full chapters removed entirely. */
+  /** Full chapters removed entirely from board-assessed scope. */
   deletedTopics: [
     "Periodic Classification of Elements",
     "Periodic Classification",
+    "Sources of Energy",
     "Management of Natural Resources",
   ] as const,
 
@@ -800,15 +812,23 @@ export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
     "analogous organ",
     "speciation",
     "natural selection",
-    // Our Environment / Sources of Energy — energy portion removed
+    // Sources of Energy — also matched as subtopic keywords for any historical
+    // questions tagged under "Our Environment / Sources of Energy" combined topic.
     "sources of energy",
     "conventional",
     "non conventional",
     "nonconventional",
-    // How do Organisms Reproduce? — reproductive health (contraception, STIs, family planning) removed
-    "reproductive health",
-    "contraception",
-    "family planning",
+  ] as const,
+
+  /**
+   * Topics that are TAUGHT in 2026-27 but are not assessed in the year-end
+   * board examination. Predictions / weightings must NOT surface these even
+   * though they remain in the curriculum.
+   */
+  formativeOnlyTopics: [
+    "Electric Motor",
+    "Electromagnetic Induction",
+    "Electric Generator",
   ] as const,
 } as const;
 

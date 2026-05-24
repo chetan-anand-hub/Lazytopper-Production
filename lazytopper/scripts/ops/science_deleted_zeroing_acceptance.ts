@@ -156,17 +156,32 @@ const energyCases: Array<[string, string]> = [
   ["Our Environment", "nonconventional energy"],
 ];
 
-// Group 3: How do Organisms Reproduce? — reproductive health portion
-const reproductiveCases: Array<[string, string]> = [
-  ["How do Organisms Reproduce?", "reproductive health"],
-  ["How do Organisms Reproduce?", "contraception methods"],
-  ["How do Organisms Reproduce?", "family planning"],
-];
+// Group 3: How do Organisms Reproduce? — reproductive health is RESTORED in
+// 2026-27 board scope (PR fix/syllabus-guard-2026-27-update). These cases must
+// NOT be zeroed any more — assertions inverted to assertNotZeroed below.
 
-for (const [topic, subtopic] of [...evolutionCases, ...energyCases, ...reproductiveCases]) {
+for (const [topic, subtopic] of [...evolutionCases, ...energyCases]) {
   const label = `${topic.replace(/[^a-zA-Z0-9]/g, "_")}__${subtopic.replace(/[^a-zA-Z0-9]/g, "_")}`;
   assert5SignalZeroed(label, topic, subtopic);
   assertProbZeroed(label, topic, subtopic);
+}
+
+// Reproductive health subtopics are RETAINED in 2026-27 — confirm they are NOT zeroed.
+const reproductiveRetainedCases: Array<[string, string]> = [
+  ["How do Organisms Reproduce?", "reproductive health"],
+  ["How do Organisms Reproduce?", "contraception methods"],
+  ["How do Organisms Reproduce?", "family planning"],
+  ["How do Organisms Reproduce?", "Safe Sex and HIV/AIDS"],
+];
+
+for (const [topic, subtopic] of reproductiveRetainedCases) {
+  const label = `repro_retained__${subtopic.replace(/[^a-zA-Z0-9]/g, "_")}`;
+  const result = compute5SignalScore(makeBase5Input(topic, subtopic), TARGET_YEAR);
+  addCheck(
+    `5signal:${label}:not_zeroed_in_2026_27`,
+    !result.confidenceRationale.toLowerCase().includes("excluded"),
+    `compositeScore=${result.compositeScore}, rationale="${result.confidenceRationale}"`
+  );
 }
 
 // ── Confirm targetYear < 2026 does NOT zero out deleted topics ────────────────
