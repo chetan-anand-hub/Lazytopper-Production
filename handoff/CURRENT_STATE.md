@@ -1,6 +1,117 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-23 (post-PR #114)
-Live base SHA: d0b34932ce30805e6e3b7a492ffdb3d3538d24d4
+Last updated: 2026-05-24 (post-PR #117)
+Live base SHA: a38573b6e5ca0db4cff6153be273fdb160047ad8
+
+## Post-PR #117 — syllabusGuard + bannedExercises + CBSE step-marking doctrine (2025-26) — MERGED
+
+Timestamp: 2026-05-24
+Merge SHA on base: a38573b6e5ca0db4cff6153be273fdb160047ad8
+
+PR #117 | fix: syllabusGuard + bannedExercises + CBSE step-marking doctrine (2025-26)
+Branch: fix/syllabus-guard-2025-26 (deleted after merge)
+Commits: 1 (7299760)
+
+Files changed: 3 (all docs/config — no question bank touched)
+  - scripts/src/syllabusGuard.ts (MODIFIED — RULES array rebuilt for CBSE 2025-26)
+  - scripts/src/bannedExercises.json (MODIFIED — Maths exercises 1→7, Science 2→8)
+  - CLAUDE.md (MODIFIED — new §13 CBSE Content Doctrine — Step Marking)
+
+syllabusGuard.ts:
+  Maths bannedSubtopics: 8 → 30 (added Euclid Lemma, Polynomial Division Algo, Cross-Multiplication,
+    Complementary-Angle Trig, Frustum of Cone, Step Deviation, Ogive variants, Construction variants)
+  Science bannedSubtopics: 24 → 82 (added Periodic Classification chapter, Reproductive Health,
+    Evolution sub-topics, Sources of Energy chapter, Our Environment chapter, Management of Natural
+    Resources chapter — all per CBSE 2025-26 rationalisation)
+  Owner-applied correction during review: removed "Area of Triangle" + "Conversion of Solids"
+    variants (3+3 entries) — topics.ts blurbs explicitly retain these concepts; only Frustum of Cone
+    was genuinely deleted. Final Maths count: 30 (not the initial 36).
+
+bannedExercises.json:
+  Maths: added Ex 11.1, 11.2 (Constructions Ch11), Ex 9.1, 9.2, NCERT Ch11, NCERT Ch9 Ex 9. Kept Ex 13.3.
+  Science: added Ch5/Ch14/Ch16 Exercise+InText pairs (Periodic Classification, Sources of Energy,
+    Management of Natural Resources). Kept Ch15 Exercise+InText.
+
+CLAUDE.md §13 (NEW — appended; §1–§12 untouched):
+  Corrected solutionSteps minimums per CBSE 2025-26 OSM marking guide:
+    Section A (1mk MCQ/AR):  1 step  (was wrongly documented as 2)
+    Section B (2mk VSA):     2 steps
+    Section C (3mk SA):      3 steps
+    Section D (5mk LA):      5 steps
+    Section E (4mk case):    4 steps
+  Six step-marking principles added: half-mark steps, error-carried-forward, SI units mandatory,
+    exact CBSE keywords for Science, chemistry split (balanced equation + state symbols), Science
+    diagram split (drawing + labels).
+
+Validations: ALL PASS
+  1. App tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  2. Scripts tsc --noEmit — PASS (exit 0)
+  3. git diff --check — PASS
+  4. git diff --name-only HEAD — PASS (exactly 3 files)
+  5. 5-test verification script — ALL PASS
+  6. syllabusGuard against existing bank — 15 flagged (down from 65 after Correction 1):
+       Maths violations: 0 (Area of Triangle + Conversion of Solids correctly removed from ban list)
+       Science violations: 15 — all legitimate Ch8 Reproductive Health deletions in
+         reproduction.exemplar.ts (STDs x2, Contraception x1)
+         reproduction.ncert.ts (Contraception x1)
+         reproduction.pack2.ts (Reproductive Health x11)
+       Per prompt: no auto-fix; flagged for follow-up PR.
+
+Bank totals unchanged: 1,630 authentic questions (no question bank file touched by this PR).
+
+Follow-up PRs queued (NOT done yet):
+  1. ops/ acceptance test alignment — `lazytopper/scripts/ops/cbse_registry_2026_27_acceptance.mjs`
+     line 26-30 EXCLUDED_CHAPTER_TITLES needs Our Environment added; line 208-218
+     "our_environment_chapter_present_in_scope" assertion needs inverting.
+     `lazytopper/scripts/ops/science_deleted_zeroing_acceptance.ts` line 226-249 "food chains under
+     Our Environment NOT zeroed" assertion needs updating. Both contradict the new doctrine that
+     Our Environment is fully deleted per CBSE 2025-26.
+  2. Reproduction question bank cleanup — reclassify/remove the 15 banned questions across
+     reproduction.exemplar.ts, reproduction.ncert.ts, reproduction.pack2.ts.
+
+## Post-PR #116 — PRE-P1 mojibake symbol restoration in P0.5 case-based files — MERGED
+
+Timestamp: 2026-05-23 (late)
+Merge SHA on base: e9f41cd855ea571c1e39ef761042ca7eac153202
+
+PR #116 | fix: restore mojibake symbols in P0.5 case-based files (maths.caseBased + science.caseBased)
+Branch: content/fix-p05-symbol-restoration (deleted after merge)
+Commits: 1 (a6fc107)
+
+Files changed: 2 (data-only, scoped to symbol-broken case-based files)
+  - lazytopper/src/data/questionBanks/class10/maths/maths.caseBased.ts (encoding fix — 266 replacements)
+  - lazytopper/src/data/questionBanks/class10/science/science.caseBased.ts (encoding fix — 233 replacements)
+
+Tool used: ftfy 6.3.1. The original PRE-P1 prompt's Latin-1 mojibake dictionary was insufficient —
+actual encoding was Windows-1252 (cp1252) for maths.caseBased and doubly-encoded cp1252 for
+science.caseBased. ftfy.fix_text handled both correctly. After fix, ftfy.fix_text is a no-op on
+both saved files (idempotent — fully clean).
+
+Total character replacements: 499 (266 + 233). 0 content changes — encoding-only.
+
+Symbols recovered (sample):
+  Maths: △ ᵢ Σ × − ≈ ≥ √ → ∠ ∥ — ✓ ₁ ₂ ₃ ₄ ₅ ₉ ₀ ₹
+  Science: Ω ρ ₂ ₆ ₇ ₈ ₚ ⁻⁶ ⁻⁷ ⁻⁸ ⁺ × − → — ≈
+
+circles.proof.ts was scheduled in the original PRE-P1 prompt but found to be already clean
+(no mojibake present). Removed from the fix scope mid-flight.
+
+Validations: 4 PASS
+  - tsc -p tsconfig.app.json --noEmit — PASS
+  - validateQuestionBanks — PASS (0 dupes, mark/section OK across 166 files)
+  - git diff --check — PASS
+  - git diff --name-only HEAD — exactly 2 expected files
+
+Bank totals: 1,630 authentic questions (unchanged; encoding repair only).
+
+## Post-PR #115 — docs handoff post-PR #114 — MERGED
+
+Timestamp: 2026-05-23
+Merge SHA on base: 693d91125a9232f5a2d9f07af3683132d46aa674
+
+PR #115 | docs: handoff update post-PR #114 (P0.5 pack registration, 21 questions)
+Branch: docs/handoff-pr114 (deleted after merge)
+
+Docs-only handoff sync after PR #114. No product files changed.
 
 ## Post-PR #114 — P0.5 diff/ pack registration (21 questions — case-based + circles proof) — MERGED
 

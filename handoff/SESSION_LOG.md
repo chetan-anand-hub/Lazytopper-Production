@@ -1,5 +1,125 @@
 ---
 
+## 2026-05-24 — PRE-P1 mojibake fix (PR #116), P1-M/P1-S abandoned, syllabusGuard fix (PR #117), P2 paused at Checkpoint A
+
+Timestamp: 2026-05-23 → 2026-05-24 (rolled over Asia/Kolkata midnight)
+
+### Starting state
+
+- Base branch: base/approved-thru-437 at e9f41cd (post PR #115 docs handoff)
+- Note: agent prompts were sometimes written against an older SHA; owner approved
+  proceeding on tip when only docs-only PRs intervened.
+
+### Work completed (chronological)
+
+1. **PR #116 — PRE-P1 mojibake symbol restoration (MERGED)**
+   - Scope: `lazytopper/src/data/questionBanks/class10/maths/maths.caseBased.ts` and
+     `science.caseBased.ts` (circles.proof.ts checked, found already clean — dropped from scope).
+   - Original prompt's hand-rolled Latin-1 mojibake dictionary was insufficient: actual encoding
+     was Windows-1252 (cp1252) for maths and **doubly-encoded** cp1252 for science. Switched
+     mid-flight to `ftfy` 6.3.1 which handles both. After fix, `ftfy.fix_text` is idempotent
+     on both saved files.
+   - 499 character repairs (266 maths + 233 science). 0 semantic content changes.
+   - Symbols recovered: △ ∥ ∠ × − √ ≈ ≥ → ° ² ³ ₁ ₂ ₃ ₄ ₅ ₉ ₀ ₹ Σ ᵢ ✓ — ρ Ω ₚ ⁻⁶ ⁻⁷ ⁻⁸ ⁺ etc.
+   - All 4 validations PASS (tsc, validateQuestionBanks, git diff --check, scope).
+   - Merged → new base e9f41cd.
+
+2. **P1-M (CBSE Practise Papers Maths Standard) — ABANDONED at Checkpoint A**
+   - Branch `content/practise-papers-maths` created off e9f41cd; deleted after abandonment.
+   - PDF probe revealed three blockers:
+     1. NODIA 3rd-party compilation, not CBSE-official. Page 1 footer:
+        "Marking Scheme links are on each paper". MS pages NOT in PDF — were external hyperlinks.
+     2. pdfplumber math-layout corruption: 2D expressions (fractions, superscripts, integrals,
+        square roots) linearised to broken text e.g. `4sinq−cosq / c4sinq+cosqm`.
+     3. No topic tagging: ~1140 questions across 30 sample papers with no per-question topic
+        metadata, requiring manual classification.
+   - Owner chose Option 4 (pause; pivot to a different source).
+   - Report saved: `report-p1m-structure.md`, `report-p1m-ABANDONED.md` (5-line summary).
+
+3. **P1-S (CBSE Practise Papers Science) — ABANDONED via read-only probe**
+   - No branch needed (probe-only). Result: same NODIA blockers as P1-M.
+   - 321 pages, 30 NODIA sample papers, same "Click the Following Button to See the Free
+     MS/Solutions" footer.
+   - Report saved: `report-p1s-probe.md`.
+
+4. **P2 (CBSE Additional PQ 2023-24 + SQP) — PAUSED at Checkpoint A**
+   - Branch `content/additional-pq-sqp-2024` created off e9f41cd (preserved locally for resume).
+   - Source folder: `cbse-papers/gdrive/Class X.../CBSE Syllabus+sample paper 2023 2024/`.
+   - Inventory: 8 PDFs probed — 3 Maths APQs + matched MS, 1 Maths SQP + MS, 3 Science APQs
+     (one MS missing), 1 Science SQP + MS. All CBSE-official (no NODIA watermark).
+   - Owner decision: skip `Science-PQ (1).pdf` (the 2022-23 set with no MS); proceed with the
+     other 7 papers.
+   - Extraction halted at owner request pending the syllabusGuard.ts fix (next item).
+   - Report saved: `report-p2-source-inventory.md`.
+
+5. **PR #117 — syllabusGuard + bannedExercises + CBSE step-marking doctrine fix (MERGED)**
+   - Three docs/config files in one PR; no question bank touched.
+   - `scripts/src/syllabusGuard.ts`: Maths banned 8 → 30, Science banned 24 → 82. Owner-applied
+     mid-PR correction: dropped 6 false-positive Maths entries (`Area of Triangle` variants and
+     `Conversion of Solids` variants — both retained in topics.ts chapter blurbs). Only
+     `Frustum of Cone` kept for Mensuration.
+   - `scripts/src/bannedExercises.json`: Maths 1 → 7, Science 2 → 8.
+   - `CLAUDE.md`: added new §13 CBSE Content Doctrine — Step Marking. Old doctrine line
+     `A=2, B=3, C=4, D=5, E=4` did NOT actually exist in CLAUDE.md, so appended fresh rather
+     than replacing. Corrected minimums to A=1, B=2, C=3, D=5, E=4 per CBSE 2025-26 OSM.
+     Six step-marking principles added: half-mark steps, error-carried-forward, SI units,
+     exact Science keywords, chemistry balanced-equation + state-symbols split, Science
+     diagram + labels split.
+   - Validations: all PASS (app tsc, scripts tsc, diff --check, scope check, 5-test verify).
+   - syllabusGuard against existing bank: 65 violations on first run → 15 after Correction 1
+     (all 15 are legitimate Ch8 Reproductive Health deletions in reproduction.{exemplar,ncert,
+     pack2}.ts). Per prompt: no auto-fix; flagged for follow-up PR.
+   - ops/ files (`cbse_registry_2026_27_acceptance.mjs`, `science_deleted_zeroing_acceptance.ts`,
+     `generate_content_backlog_and_matrix.mjs`) NOT touched in this PR — updating them would
+     create self-contradictions with their existing "Our Environment present in scope"
+     assertions. Owner approved deferring to a follow-up PR.
+   - Merged → new base a38573b.
+
+6. **PR #118 — docs handoff post-PR #117 (THIS PR)**
+
+### Validations / verifications run
+
+- syllabusGuard.ts (pre-PR #117): had 8+24 banned subtopics; outdated for CBSE 2025-26
+- syllabusGuard.ts (post-PR #117): 30+82 banned subtopics; matches owner's 2025-26 rationalisation
+- Bank-wide syllabusGuard scan (post-PR #117): 15 legitimate violations flagged for follow-up
+- All TypeScript builds PASS throughout the session
+- ftfy idempotency confirmed on both repaired files
+- P2 inventory script confirmed all 8 source PDFs present and classified correctly
+
+### Decisions made
+
+- **Pivot away from NODIA Practise Papers** (P1-M abandoned at Checkpoint A; P1-S abandoned at
+  probe). NODIA is a 3rd-party compilation that systematically lacks inline solutions, has poor
+  math layout extractability, and no topic metadata. Future content sourcing should prefer
+  CBSE-official PDFs (APQ, SQP) and publisher PDFs with bundled MS (Oswaal/MTG/Educart).
+- **Our Environment Ch15 doctrine**: fully deleted per CBSE 2025-26 (matches bannedExercises.json
+  reason text and CBSE official syllabus). Existing ops/ tests that expect Our Environment
+  retained are outdated — follow-up PR required.
+- **Maths Area of Triangle and Conversion of Solids**: NOT deleted in 2025-26 (topics.ts blurbs
+  confirm retention). Banned-list entries removed during PR #117 review to avoid false-positive
+  suppression of legitimate bank content.
+- **CBSE step-marking doctrine**: Section A is 1 mark → 1 step (was wrongly documented as 2).
+  Full A=1/B=2/C=3/D=5/E=4 minimums + 6 principles now in CLAUDE.md §13.
+
+### Follow-up items queued
+
+1. **ops/ acceptance test alignment** for Our Environment full-deletion (small docs-only PR).
+2. **Reproduction bank cleanup**: reclassify or remove 15 banned questions across 3 files.
+3. **Resume P2 extraction**: branch `content/additional-pq-sqp-2024` preserved locally;
+   needs rebase onto a38573b before resuming Step B4. New syllabusGuard must pass cleanly
+   on extracted content (i.e., no Our Environment / Reproductive Health / Constructions /
+   Frustum / Periodic Classification etc.).
+
+### Ending state
+
+- Base branch: base/approved-thru-437 at a38573b (post-PR #117)
+- Active local branches: `content/additional-pq-sqp-2024` (P2, paused at Checkpoint A)
+- Authentic question total: 1,630 (unchanged — PR #116 was encoding-only, PR #117 was config-only)
+- Bank-wide validateQuestionBanks: PASS (166 files, 0 duplicate IDs)
+- Bank-wide syllabusGuard: FAIL with 15 legitimate violations queued for follow-up
+
+---
+
 ## 2026-05-23 — P0.5 diff/ pack registration session (PR #114)
 
 Timestamp: 2026-05-23 (Asia/Kolkata)
