@@ -1,3 +1,51 @@
+## 2026-05-24 — Post-PR #121 open items
+
+### RESOLVED — Reproduction bank syllabusGuard violations (PR #121)
+The long-running V1 validation failure carried across PRs #117, #119, #120 is now fixed.
+Removed 18 questions across the 3 reproduction banks (4 exemplar + 3 ncert + 11 pack2)
+covering deleted Ch8 sub-topics (Reproductive Health, Contraception, STDs).
+
+### RESOLVED — syllabusGuard compound-variant gap (PR #121)
+3 questions used compound subtopics ("Barrier Contraception", "Contraception Methods",
+"Reasons for Contraception") that slipped past the exact-match guard despite being
+entirely about banned topics. Guard extended with these 5 strings (3 actual + 2 defensive
+forward-looking variants: "Contraceptive Methods", "Birth Control Methods").
+
+### RESOLVED — Reproduction bank regression coverage (PR #121)
+35-test regression suite added at `scripts/src/reproductionBankGuard.test.ts`
+(banned variants flagged + retained subtopics clean + substring safety +
+multi-banned counted + repo-file regression lock). Wired into both `test:reproduction`
+standalone and `test:matrix:all` (now 3 test files, 74 tests total).
+
+### OPEN — ops/ acceptance test: Our Environment chapter assertion (MEDIUM, carry forward)
+Unchanged since PR #117. `lazytopper/scripts/ops/cbse_registry_2026_27_acceptance.mjs`
+(lines 26-30 EXCLUDED_CHAPTER_TITLES; lines 208-218 our_environment_chapter_present_in_scope
+assertion) and `lazytopper/scripts/ops/science_deleted_zeroing_acceptance.ts` (lines 226-249
+"food chains under Our Environment NOT zeroed") still contradict the doctrine that
+Our Environment is fully deleted per CBSE 2025-26. Now the highest-priority follow-up.
+
+### OPEN — K2H-8f PYQ engine filter (MEDIUM, pre-condition for P5)
+Unchanged. `practiceSetGenerator.ts` does not bias pool toward `pyqYear`-tagged questions;
+PYQ filter returns 0 results when `pyqOnly===true`. Must fix before P5 PYQ extraction.
+Branch: `fix/pyq-engine-bias` | Mode: Medium.
+
+### OPEN — pyqSet format inconsistency (LOW, carry forward)
+Unchanged. Some AR files use full CBSE set codes (e.g. "30/1/1") in pyqSet rather than
+the short form ("1"|"2"|"3"). Non-blocking — field is string | undefined. Normalise
+during P5 cleanup pass.
+
+### OPEN — .claude/ folder not in .gitignore (LOW)
+Unchanged. Untracked .claude/ shows in every `git status`. Add to .gitignore in a future
+docs-only PR. Do NOT stage it for any commit.
+
+### OPEN — Clerk pk_live production key (unknown status)
+No production Clerk instance configured. Pre-requisite for public launch.
+
+### OPEN — API gateway / vercel rewrite for /api/* (no branch in progress)
+AI features return 404 in production because vercel.json has no /api/* rewrite.
+
+---
+
 ## 2026-05-23 — Post-PR #114 open items
 
 ### OPEN — Mojibake in P0.5 case-based + circles proof files (HIGH priority, UI render broken)
