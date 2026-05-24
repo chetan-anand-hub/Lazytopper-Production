@@ -5,13 +5,13 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-e4e42feef15bbff2828f7c0c2055bf7131c671c0
+f09b5fca679e3669bcb0e0b5b26a480d983448cb
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
-in the content + tooling track (PRs #112, #114, #116, #117, #119, #121). Next product PR
-should still be PR-K2H-6 (Home/cockpit learning order + Continue repair) — unchanged.
+in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124). Next
+product PR should still be PR-K2H-6 (Home/cockpit learning order + Continue repair) — unchanged.
 
 Current implementation branch:
 ```
@@ -25,12 +25,25 @@ Latest in the content/tooling track:
 - PR #119 (2026-05-24) — P2 CBSE SQP 2023-24: 69 questions across 25 topic files (Maths 38 +
   Science 31). Adopted pymupdf as the official PDF extraction tool (replaces pdfplumber).
 - PR #121 (2026-05-24) — Reproduction bank cleanup + syllabusGuard variant extension:
-  18 questions removed across 3 reproduction banks; 5 new banned variants added;
-  35-test regression suite created at `scripts/src/reproductionBankGuard.test.ts`.
-  syllabusGuard now reports 0 violations (was 15).
+  18 questions removed across 3 reproduction banks (later restored in PR #124); 5 new
+  banned variants added (later removed in PR #124); 35-test regression suite created.
+- PR #123 (2026-05-24) — ops acceptance regression suite: 37 new tests in
+  `scripts/src/opsAcceptanceGuard.test.ts` locking the deletion doctrine across registry,
+  archetypes, topics, and syllabusGuard. Purely additive.
+- PR #124 (2026-05-24) — syllabusGuard 2026-27 doctrine fix: 26 banned strings removed
+  (12 reproductive-health + 14 Our Environment ecology); Sources of Energy promoted to
+  deletedTopics; new formativeOnlyTopics array for Motor/EMI/Generator; 18 questions
+  restored. Authentic count 1,699 → 1,717. Test matrix now 125/125 across 4 files.
+
+Doctrine snapshot (2026-27):
+- RETAINED in board scope: Our Environment (ecology, Unit V 5 marks), Reproduction
+  including reproductive health (Ch 8), Heredity Mendelian section.
+- DELETED in board scope: Periodic Classification (Ch 5), Sources of Energy (Ch 14),
+  Management of Natural Resources (Ch 16), Evolution section of Heredity.
+- FORMATIVE ONLY (taught but not assessed): Motor / Electromagnetic Induction / Generator.
 
 See `CURRENT_STATE.md` for the full PR history table and `NEXT_ACTION.md` for the queued
-content tasks (ops/ alignment + P2 APQ extraction).
+content tasks (P2 APQ extraction next).
 
 ## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
 
