@@ -1,3 +1,73 @@
+## 2026-05-24 — Post syllabusGuard 2026-27 doctrine fix (PR #124) open items
+
+### RESOLVED — syllabusGuard incorrectly banned Our Environment subtopics (PR #124)
+14 Our Environment ecology strings (Our Environment, Ecosystem, Food Chain,
+Food Web, Biodegradable, Non-Biodegradable, Ozone Depletion, Ozone Layer,
+Biological Magnification, Energy Flow, Trophic Levels, Trophic Level, Waste
+Management, Environmental Problems) removed from Science banned list. Our
+Environment is RETAINED in 2026-27 (Unit V, 5 marks, ecology scope).
+
+### RESOLVED — syllabusGuard incorrectly banned Contraception/STDs (PR #124)
+12 reproductive-health strings (Reproductive Health, Contraception, Family
+Planning, STI, STDs, Sexually Transmitted Infections/Diseases, Barrier
+Contraception, Contraception Methods, Reasons for Contraception,
+Contraceptive Methods, Birth Control Methods) removed from Science banned
+list. Reproductive health is RETAINED in 2026-27 (Ch 8 board scope).
+
+### RESOLVED — 18 reproduction questions wrongly removed in PR #121 (PR #124)
+All 18 questions restored from git history at pre-PR #121 commit `0222917e`.
+Subtopics retagged to 2026-27-compliant values:
+  - "Safe Sex and HIV/AIDS" for STD/HIV/safe-sex content
+  - "Family Planning" for contraception/family-planning content
+  - "Reproductive Health" for general reproductive-health content
+
+### RESOLVED — Motor/Generator/EMI not tracked in archetypes (PR #124)
+New `SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics` array added with
+["Electric Motor", "Electromagnetic Induction", "Electric Generator"]. These
+topics are taught in 2026-27 but not assessed in the year-end board exam
+(Science_SecP1_2026-27.pdf Note for Teachers). Tracked in the prediction
+engine; NOT banned in question bank (preserves the 36 formative practice
+questions in magneticEffects.exemplar/pack1/pack2).
+
+### RESOLVED — Sources of Energy doctrine cleanup (PR #124)
+Sources of Energy was previously matched only as a subtopic-keyword fallback
+under Our Environment. PR #124 promoted it to a proper `deletedTopics` entry
+in cbseHistoricalArchetypes (Ch 14 is fully deleted from board scope). The
+subtopic-keyword fallback was retained as a belt-and-suspenders measure for
+any legacy questions still tagged with topic="Our Environment".
+
+### OPEN — Our Environment has 0 questions in the question bank (LOW, needs extraction)
+Our Environment chapter is in scope (Unit V, 5 marks), the topicKey
+`our-environment` is registered in topics.ts with weight 4, but the question
+bank currently has 0 questions tagged to this topicKey. Needs future content
+extraction (NCERT Ch 13 of the new numbering, or Ch 15 of legacy numbering)
+covering food chains, trophic levels, ecosystem interactions, pollution, and
+waste management.
+
+### OPEN — K2H-8f PYQ engine filter (MEDIUM, pre-condition for P5)
+Unchanged. `practiceSetGenerator.ts` does not bias pool toward `pyqYear`-tagged
+questions; PYQ filter returns 0 results when `pyqOnly===true`. Must fix before
+P5 PYQ extraction. Branch: `fix/pyq-engine-bias` | Mode: Medium.
+
+### OPEN — pyqSet format inconsistency (LOW, carry forward)
+Unchanged. Some AR files use full CBSE set codes (e.g. "30/1/1") in pyqSet
+rather than the short form ("1"|"2"|"3"). Non-blocking — field is string |
+undefined. Normalise during P5 cleanup pass.
+
+### OPEN — .claude/ folder not in .gitignore (LOW)
+Unchanged. Untracked .claude/ shows in every `git status`. Add to .gitignore
+in a future docs-only PR. Do NOT stage it for any commit.
+
+### OPEN — Clerk pk_live production key (unknown status)
+Unchanged. No production Clerk instance configured. Pre-requisite for public
+launch.
+
+### OPEN — API gateway / vercel rewrite for /api/* (no branch in progress)
+Unchanged. AI features return 404 in production because vercel.json has no
+/api/* rewrite.
+
+---
+
 ## 2026-05-24 — Post-PR #121 open items
 
 ### RESOLVED — Reproduction bank syllabusGuard violations (PR #121)

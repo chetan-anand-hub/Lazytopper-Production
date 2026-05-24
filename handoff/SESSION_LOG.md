@@ -1,5 +1,132 @@
 ---
 
+## 2026-05-24 — syllabusGuard 2026-27 doctrine fix (PR #124) + 18 questions restored + ops acceptance regression suite (PR #123)
+
+Timestamp: 2026-05-24 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `ef31ece0` (post-PR #122 handoff)
+- Prior incident: PR #121 had blanket-removed 18 reproduction questions under
+  a 2025-26 reading that treated all of Ch 8 reproductive-health subtopics as
+  out-of-syllabus. Doctrinal review found that the **2026-27 board syllabus
+  restores those subtopics** — contraception, family planning, STIs, safe
+  sex, HIV/AIDS are all in scope under Ch 8.
+- Concurrent concern: syllabusGuard.ts also banned Our Environment subtopics
+  (Ecosystem, Food Chain, Food Web, etc.) — but the registry JSON and
+  cbseHistoricalArchetypes both treated Our Environment as RETAINED. Internal
+  inconsistency needed resolution.
+
+### Work completed across two PRs
+
+**PR #123 — ops acceptance regression suite (purely additive)**
+
+- New `scripts/src/opsAcceptanceGuard.test.ts` — 37 tests across 5 describe
+  blocks that lock in the deletion doctrine across the registry JSON,
+  cbseHistoricalArchetypes, topics.ts, and syllabusGuard.
+- Block coverage: deleted Science chapters return true from
+  isScienceDeletedFor2026_27; retained Science slugs present in topics.ts;
+  "constructions" absent and retained Maths slugs present; syllabusGuard
+  banned list contains required strings + does NOT contain retained ones;
+  regression lock that spawns both ops/ acceptance scripts and asserts exit 0.
+- Investigation finding: existing `cbse_registry_2026_27_acceptance.mjs`
+  (22/22 PASS) and `science_deleted_zeroing_acceptance.ts` (152/152 PASS)
+  already aligned with codebase truth. No edits to existing ops/ tests needed.
+- Wired into `scripts/package.json` as `test:ops-acceptance` and
+  `test:matrix:all` (now 3 test files / 111 tests).
+
+**PR #124 — syllabusGuard 2026-27 doctrine fix**
+
+1. **syllabusGuard.ts** — removed 26 strings from Science banned list (12
+   reproductive-health + 14 Our Environment ecology). Net banned count:
+   86 → 60. Source comment updated to cite `Science_SecP1_2026-27.pdf`.
+
+2. **cbseHistoricalArchetypes.ts** — promoted `"Sources of Energy"` from
+   subtopic-keyword-only to a proper `deletedTopics` entry (Ch 14 is fully
+   deleted). Removed `"reproductive health"`, `"contraception"`,
+   `"family planning"` from `deletedSubtopicKeywords`. Added new
+   `formativeOnlyTopics: ["Electric Motor", "Electromagnetic Induction",
+   "Electric Generator"]` array — these are taught in 2026-27 but not
+   assessed in the year-end board exam (Note for Teachers reference).
+   Header block rewritten to cite 2026-27 source.
+
+3. **cbse10Registry_2026_27.json** — `meta.notes` rewritten so the
+   Reproduction chapter is described as fully in scope (including
+   reproductive health, family planning, safe sex, HIV/AIDS). Removed the
+   Reproduction reproductive-health entry from `meta.excluded_subtopics`.
+   The Heredity evolution exclusion is unchanged.
+
+4. **Question restoration (18 questions)** — all 18 retrieved verbatim from
+   git history at the pre-PR #121 commit `0222917e`. Only the subtopic field
+   updated to 2026-27-compliant values:
+     - `reproduction.exemplar.ts` (+4): REPR-EXMPLR-7-MCQ-027 → "Safe Sex
+       and HIV/AIDS"; SA-019, LA-007 → "Family Planning"; LA-010 → "Safe
+       Sex and HIV/AIDS".
+     - `reproduction.ncert.ts` (+3): REPR-NCERT-7-SA-012 → "Safe Sex and
+       HIV/AIDS"; SA-016, SA-019 → "Family Planning".
+     - `reproduction.pack2.ts` (+11): REP2-015/017/018/025/039 → "Family
+       Planning"; REP2-016/038/040 → "Safe Sex and HIV/AIDS";
+       REP2-021/041/048 → "Reproductive Health".
+   File line counts after restore exactly match pre-PR #121 (427 / 181 / 1628).
+
+5. **reproductionBankGuard.test.ts** — rewritten. File purpose flipped from
+   "assert these strings are banned" → "assert these strings are NOT banned".
+   30 tests in 3 blocks: (a) the 14 2026-27-retained reproductive-health
+   strings are absent from the Science banned list; (b) the 15 long-retained
+   reproduction subtopics are absent; (c) regression lock that spawns
+   `syllabusGuard.ts` and asserts exit 0 against the entire bank.
+
+6. **opsAcceptanceGuard.test.ts** — extended from 37 to 56 tests. New Block
+   1b "2026-27 restored — reproduction health subtopics NOT zeroed". Block 4
+   `mustBeBanned` reduced to 4 chapter-level deletions; `mustNotBeBannedAsExactString`
+   expanded to 17 strings covering Our Environment ecology + all
+   reproductive-health variants. New Block 4b "2026-27 formative-only topics
+   — tracked in archetypes, NOT banned in bank" — asserts Motor/EMI/Generator
+   are NOT in syllabusGuard AND ARE present in formativeOnlyTopics.
+
+7. **science_deleted_zeroing_acceptance.ts (bonus)** — inverted
+   `reproductiveCases` assertions to confirm reproductive-health subtopics
+   are NOT zeroed under 2026-27. This was not in the original task diff
+   scope but had to change because the doctrine flip forced its old
+   assertions to fail.
+
+### Design decision: Motor/EMI/Generator NOT in syllabusGuard
+
+The original task spec asked to ADD Motor/EMI/Generator to the syllabusGuard
+banned list. Trial-running that against the current bank flagged 36 existing
+questions in `magneticEffects.exemplar.ts` / `pack1.ts` / `pack2.ts` (files
+not in this PR's diff scope per hard constraints). The "formative only —
+taught but not assessed" doctrine is semantically distinct from "deleted from
+syllabus" — formative practice questions on these topics are still useful in
+the question bank; they just must not be predicted as appearing on the board
+paper. The correct doctrinal location is the prediction engine, not the
+question-bank guard. Captured via the new
+`SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics` array.
+
+### Validations (all six PASS)
+
+- syllabusGuard: PASS — 0 violations
+- validateQuestionBanks: PASS — 0 dupes (191 files)
+- tsc -p tsconfig.app.json --noEmit: exit 0
+- Duplicate IDs: 0
+- Full test matrix (4 files): 125/125 PASS
+- Engine reachability: 296/296
+
+### Bank state
+
+- Authentic count: 1,699 → **1,717** (+18 restored)
+- Spread count: 137 (unchanged — no new files added)
+- Bank total: 4,514 → ~4,532
+- syllabusGuard Science banned list: 86 → 60 strings
+
+### Next priority item
+
+P2 APQ extraction (5 CBSE Additional Practice Question papers, ~150-170 Qs
+estimated). Use pymupdf (confirmed 0 cid artifacts during PR #119 SQP work).
+Branch suggestion: `content/additional-pq-sqp-2024`. Mode: HIGH.
+
+---
+
 ## 2026-05-24 — Reproduction bank cleanup (PR #121, -18 Qs) + syllabusGuard variant extension + 35-test regression suite
 
 Timestamp: 2026-05-24 (Asia/Kolkata)

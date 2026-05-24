@@ -1,6 +1,100 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-24 (post-PR #121)
-Live base SHA: e4e42feef15bbff2828f7c0c2055bf7131c671c0
+Last updated: 2026-05-24 (post syllabusGuard 2026-27 doctrine fix)
+Live base SHA: f09b5fca679e3669bcb0e0b5b26a480d983448cb
+
+## Post — syllabusGuard 2026-27 doctrine fix (PR #124) — MERGED
+
+Timestamp: 2026-05-24
+Merge SHA on base: f09b5fca679e3669bcb0e0b5b26a480d983448cb
+
+PR | fix: syllabusGuard 2026-27 doctrine — restore reproductive health + Our Environment
+Branch: fix/syllabus-guard-2026-27-update (deleted after merge)
+Commits: 1 (bab8c57)
+
+Files changed: 9 (+672 / -233)
+
+This PR reverses PR #121's blanket removal of reproductive-health content,
+which was based on a 2025-26 reading. The 2026-27 board syllabus retains the
+Ch 8 reproductive-health subtopics (contraception, family planning, STIs,
+safe sex) and the Our Environment chapter (Unit V, ecology). All 18 questions
+PR #121 deleted are restored.
+
+syllabusGuard.ts changes:
+  - REMOVED 12 reproductive-health strings from Science banned list
+      Reproductive Health, Contraception, Family Planning, Sexually
+      Transmitted Infections, Sexually Transmitted Diseases, STI, STDs,
+      Barrier Contraception, Contraception Methods, Reasons for Contraception,
+      Contraceptive Methods, Birth Control Methods
+  - REMOVED 14 Our Environment ecology strings from Science banned list
+      Our Environment, Ecosystem, Food Chain, Food Web, Biodegradable,
+      Non-Biodegradable, Ozone Depletion, Ozone Layer, Biological
+      Magnification, Energy Flow, Trophic Levels, Trophic Level, Waste
+      Management, Environmental Problems
+  - Source comment updated to cite Science_SecP1_2026-27.pdf
+  - Net Science banned subtopics: 86 → 60
+
+cbseHistoricalArchetypes.ts changes:
+  - Sources of Energy promoted to deletedTopics (was only in subtopic-keyword
+    fallback) — Ch 14 is fully deleted from board scope
+  - Removed "reproductive health", "contraception", "family planning" from
+    deletedSubtopicKeywords — restored in 2026-27
+  - NEW formativeOnlyTopics array: ["Electric Motor", "Electromagnetic
+    Induction", "Electric Generator"] — taught in 2026-27 but not assessed
+    in year-end exam (Science_SecP1_2026-27.pdf Note for Teachers)
+  - Header block updated to 2026-27 doctrine source
+
+cbse10Registry_2026_27.json changes:
+  - meta.notes updated — Reproduction chapter described as fully in scope
+    (asexual + sexual + reproductive health, family planning, safe sex,
+    HIV/AIDS)
+  - meta.excluded_subtopics — removed the Reproduction reproductive-health
+    entry (kept the Heredity evolution exclusion)
+
+Questions restored (18 total, all from PR #121 removals):
+  reproduction.exemplar.ts (+4): REPR-EXMPLR-7-MCQ-027, SA-019, LA-007, LA-010
+  reproduction.ncert.ts (+3):    REPR-NCERT-7-SA-012, SA-016, SA-019
+  reproduction.pack2.ts (+11):   REP2-015, 016, 017, 018, 021, 025, 038, 039,
+                                  040, 041, 048
+  All content preserved verbatim from git history at pre-PR #121 commit
+  0222917e. Only the subtopic field updated to 2026-27-compliant values:
+    "Safe Sex and HIV/AIDS" — questions about STDs/HIV/safe sex
+    "Family Planning"       — contraception / family-planning content
+    "Reproductive Health"   — general reproductive-health content
+
+Test files:
+  - reproductionBankGuard.test.ts — rewritten; purpose flipped from "assert
+    banned" → "assert retained". 30 tests.
+  - opsAcceptanceGuard.test.ts — expanded to 56 tests. New Block 1b confirms
+    reproductive-health subtopics NOT zeroed; new Block 4b covers
+    formativeOnlyTopics archetype + Motor/EMI/Generator are NOT banned.
+  - lazytopper/scripts/ops/science_deleted_zeroing_acceptance.ts — bonus fix:
+    reproductive-health zeroing assertions inverted (no longer zeroed).
+
+Doctrine decisions locked (CBSE 2026-27):
+  Our Environment chapter: RETAINED (Unit V, 5 marks — ecology, food chains,
+    trophic levels, pollution, waste management). Do NOT ban its subtopics.
+  Reproductive Health subtopics (Ch 8): RETAINED — contraception, family
+    planning, STIs, safe sex, HIV/AIDS. Do NOT ban.
+  Motor / Electromagnetic Induction / Electric Generator: FORMATIVE ONLY.
+    Tracked in cbseHistoricalArchetypes SCIENCE_DELETED_CHAPTERS_2026_27
+    .formativeOnlyTopics. NOT banned in question bank — preserves 36
+    formative practice questions in magneticEffects.*.ts.
+  Sources of Energy (Ch 14): FULLY DELETED. Now in deletedTopics + retains
+    subtopic-keyword fallback for legacy questions.
+  Management of Natural Resources (Ch 16): FULLY DELETED. Unchanged.
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations; was 0 before too, but doctrine now correct)
+  2. validateQuestionBanks — PASS (191 files, 0 dupes, mark/section consistent)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate IDs — 0
+  5. Full test matrix (4 files) — PASS (125/125 tests)
+  6. Engine reachability — PASS (296/296 questions routable)
+
+Bank state:
+  Authentic questions: 1,717 (was 1,699; +18 restored)
+  Spreads: 137 (unchanged — no new files)
+  Bank total: ~4,532 (was ~4,514; +18 restored)
 
 ## Post-PR #121 — Reproduction bank cleanup + syllabusGuard variant extension + regression test suite — MERGED
 
@@ -401,7 +495,7 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #121 — fix: reproduction bank cleanup + syllabusGuard variant extension + regression test suite
+Last merged PR: #124 — fix: syllabusGuard 2026-27 doctrine — restore reproductive health + Our Environment
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -442,27 +536,34 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #118 | Docs: post-PR #117 | 487f9603 | Handoff updated |
 | #119 | P2 CBSE SQP 2023-24 + bannedExercises hotfix | c5b8c51e | 69 SQP questions (Maths 38 + Science 31) |
 | #120 | Docs: post-PR #119 | 0222917e | Handoff updated |
-| #121 | Reproduction bank cleanup + syllabusGuard variant ext + regression tests | e4e42fee | -18 Qs, +5 banned variants, +35 tests — CURRENT BASE |
+| #121 | Reproduction bank cleanup + syllabusGuard variant ext + regression tests | e4e42fee | -18 Qs, +5 banned variants, +35 tests |
+| #122 | Docs: post-PR #121 | ef31ece0 | Handoff updated |
+| #123 | ops acceptance regression suite — 2026-27 deletion doctrine | 734b437b | +37 tests, locks doctrine across registry + archetypes + topics |
+| #124 | syllabusGuard 2026-27 doctrine — reproductive health + Our Environment | f09b5fca | -26 banned strings, +18 Qs restored, formativeOnlyTopics added — CURRENT BASE |
 
 ## Question bank state
 
 | Content | Questions | Status |
 |---|---|---|
-| Science NCERT+Exemplar ch1-12 | 904 | Live in engine (7 deleted in PR #121 — banned Ch8 subtopics) |
+| Science NCERT+Exemplar ch1-12 | 904 | Live in engine (7 restored in PR #124 — reproductive health back in scope) |
 | Maths NCERT+Exemplar ch1-14 | 643 | Live in engine |
 | P0 diff/ packs (PR #112) | 62 | Live in engine |
 | P0.5 diff/ packs (PR #114) | 21 | Live in engine |
 | P2 SQP 2023-24 (PR #119) | 69 | Live in engine |
-| Existing pack1/pack2/pack3 | ~2,459 | Live, AI-generated (11 deleted in PR #121); retirement pending |
-| Total in engine | 4,514 | (unchanged — removals only, no additions in PR #121) |
+| Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated (11 restored in PR #124); retirement pending |
+| Total in engine | ~4,532 | (was 4,514 pre-PR #124; +18 restored) |
 
 canonicalQuestionBank.ts spread count: 137
 
 ## Known issues
 
 - **PRE-P1 mojibake (RESOLVED in PR #116)** — fully fixed via ftfy
-- syllabusGuard 15 reproduction-bank violations (RESOLVED in PR #121) — 0 violations now
-- ops/ acceptance test: Our Environment chapter assertion still expects retained — pending
+- **syllabusGuard reproduction-bank violations** (RESOLVED in PR #121, doctrine corrected in PR #124)
+- **syllabusGuard incorrectly banned Our Environment subtopics** (RESOLVED in PR #124)
+- **syllabusGuard incorrectly banned Contraception/STDs** (RESOLVED in PR #124)
+- **18 reproduction questions wrongly removed in PR #121** — RESTORED in PR #124
+- **Motor/Generator/EMI not tracked in archetypes** (RESOLVED in PR #124 — formativeOnlyTopics added)
+- Our Environment: 0 questions in question bank — needs future content extraction
 - Clerk dev mode only (pk_test_) — no production instance configured
 - AI features 404 in production (no /api/* rewrite in vercel.json)
 - PYQ filter returns 0 (K2H-8f engine fix pending — pre-req for P5)

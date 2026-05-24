@@ -1,27 +1,46 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-24 (post-PR #121)
-Live base SHA: e4e42feef15bbff2828f7c0c2055bf7131c671c0
+Last updated: 2026-05-24 (post syllabusGuard 2026-27 doctrine fix, PR #124)
+Live base SHA: f09b5fca679e3669bcb0e0b5b26a480d983448cb
 
-## Immediate next actions — two follow-ups queued
+## Immediate next action — P2 APQ extraction
 
-Reproduction bank cleanup merged successfully (PR #121, -18 banned Ch8 Qs + 5 new
-syllabusGuard variants + 35 regression tests). syllabusGuard now reports **0 violations**.
-Two follow-up items remain in priority order. Item #1 is a small ops/ alignment fix;
-item #2 is the next content extraction (P2 APQ).
+Tooling track is now caught up with CBSE 2026-27 doctrine. Authentic question
+total is 1,717. Next active content task is P2 APQ extraction (CBSE Additional
+Practice Questions 2023-24).
 
-### ✅ Follow-up #1 — Reproduction bank cleanup — COMPLETE (PR #121)
+### ✅ Follow-up — Reproduction bank cleanup — COMPLETE (PR #121)
 
-Done in PR #121 (merge SHA: e4e42feef15bbff2828f7c0c2055bf7131c671c0):
-- 18 questions removed across 3 reproduction banks (4 exemplar + 3 ncert + 11 pack2)
-- 5 new banned-subtopic variants added to syllabusGuard.ts (Barrier Contraception,
-  Contraception Methods, Reasons for Contraception, Contraceptive Methods,
-  Birth Control Methods)
-- 35-test regression suite added at `scripts/src/reproductionBankGuard.test.ts`
-- Wired into `scripts/package.json` as `test:reproduction` and `test:matrix:all`
-- All 6 validations PASS; syllabusGuard reports 0 violations (was 15)
+PR #121 removed 18 questions + added 5 banned variants + 35-test suite.
 
-### Follow-up #1 (new) — ops/ acceptance test alignment for Our Environment (small, code-only)
+### ✅ Follow-up — ops acceptance regression suite — COMPLETE (PR #123)
+
+PR #123 added `scripts/src/opsAcceptanceGuard.test.ts` with 37 tests locking
+in the deletion doctrine across registry + archetypes + topics + syllabusGuard.
+
+### ✅ Follow-up — syllabusGuard 2026-27 doctrine fix — COMPLETE (PR #124)
+
+Done in PR #124 (merge SHA: f09b5fca679e3669bcb0e0b5b26a480d983448cb):
+- 26 strings removed from syllabusGuard Science banned list (12 reproductive
+  health + 14 Our Environment ecology) — Ch 8 reproductive health subtopics
+  and Our Environment chapter are RETAINED in 2026-27.
+- 18 questions restored across reproduction.*.ts (PR #121's deletions undone).
+- Sources of Energy promoted to deletedTopics in cbseHistoricalArchetypes
+  (was only matched via subtopic-keyword fallback).
+- New `formativeOnlyTopics` array on `SCIENCE_DELETED_CHAPTERS_2026_27`:
+  ["Electric Motor", "Electromagnetic Induction", "Electric Generator"] —
+  taught in 2026-27 but not assessed; tracked in archetypes (not banned in
+  question bank, so the 36 formative practice questions in magneticEffects.*.ts
+  remain valid).
+- Registry JSON `meta.notes` and `meta.excluded_subtopics` updated to reflect
+  reproductive health back in scope.
+- reproductionBankGuard.test.ts rewritten (30 tests; purpose flipped from
+  "assert banned" → "assert retained").
+- opsAcceptanceGuard.test.ts extended to 56 tests with new Blocks 1b + 4b.
+- Test matrix now 125/125 PASS (4 test files).
+- Authentic count: 1,699 → 1,717.
+
+### Next active task — P2 APQ extraction (CBSE Additional Practice Questions 2023-24)
 
 Branch (suggested): `fix/ops-our-environment-alignment`
 Mode: Low.
@@ -41,7 +60,7 @@ Mode: Low.
 
 After fix, all ops/ acceptance tests should pass.
 
-### Follow-up #2 (new) — P2 APQ extraction (CBSE Additional Practice Questions 2023-24)
+### P2 APQ extraction — operational details
 
 Branch: `content/additional-pq-sqp-2024` (already exists locally; preserve and re-use, OR
 re-create after deleting). Mode: HIGH.
@@ -104,8 +123,9 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | Guard fix | ✅ COMPLETE | PR #117 (syllabusGuard + bannedExercises + CLAUDE.md §13) |
 | **P2 SQP** | ✅ **COMPLETE** | **PR #119** (69 Qs SQP only + bannedExercises hotfix); APQ deferred |
 | Reproduction cleanup | ✅ COMPLETE | PR #121 (-18 Qs, +5 banned variants, +35 regression tests) |
-| ops/ alignment | ⏳ NEXT (Follow-up #1) | Our Environment doctrine consistency |
-| **P2 APQ** | ⏳ NEXT (Follow-up #2) | 5 CBSE APQ papers, ~270–300 Qs estimated; use pymupdf not pdfplumber |
+| ops acceptance regression suite | ✅ COMPLETE | PR #123 (+37 tests, doctrine lock across 4 source-of-truth files) |
+| syllabusGuard 2026-27 doctrine fix | ✅ COMPLETE | PR #124 (-26 banned strings, +18 Qs restored, formativeOnlyTopics added) |
+| **P2 APQ** | ⏳ **NEXT** | 5 CBSE APQ papers, ~150-170 Qs estimated; use pymupdf not pdfplumber |
 | P3    | ⏳ PENDING  | Meridian worksheets + Maths QB READY (~475 Qs) |
 | P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
 | P4b-S | ⏳ PENDING  | Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs) |
@@ -116,9 +136,9 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | P8    | 🔒 DEFERRED | OCR-gated sources (~1,100 Qs, needs OCR tool) |
 
 Pack retirement threshold: 6,000 authentic questions
-Current authentic total: **1,699** (post-PR #121; unchanged — PR #121 removed 7 banned Ch8
-authentic Qs that were always invalid per CBSE 2025-26, treating them as never having
-counted toward the audit total)
+Current authentic total: **1,717** (post-PR #124; +18 restored — the 7 NCERT/Exemplar
++ 11 pack2 Qs PR #121 removed under the wrong 2025-26 doctrine are back, retagged
+with 2026-27-compliant subtopics)
 
 ## Engine fix required before P5
 
