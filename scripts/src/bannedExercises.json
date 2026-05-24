@@ -1,14 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Banned NCERT exercise references per board/year. Used by validateQuestionBanks CI script. When a question bank file contains a ncertRef matching a banned exercise, the build fails.",
+  "$comment": "Banned NCERT exercise references per board/year. Used by validateQuestionBanks CI script. Source: CBSE Class 10 Syllabus 2025-26 (cbseacademic.nic.in).",
   "rules": [
     {
       "board": "CBSE",
       "year": "2026-27",
       "subject": "Maths",
       "grade": "Class 10",
-      "reason": "NCERT Ch 13 Ex 13.3 (Frustum of Cone) was deleted from the CBSE Class 10 syllabus from 2023-24 onwards. Questions may still be valid (Ex 13.1 = Surface Area, Ex 13.2 = Volume), but the ncertRef metadata must point to Ex 13.1 or Ex 13.2.",
-      "bannedExercises": ["Ex 13.3"],
+      "reason": "Multiple topics deleted from CBSE Class 10 Maths 2025-26: Constructions (Ch9 + Ch11 fully deleted), Frustum of Cone (Ex 13.3 deleted), Ogive/Step-Deviation (Statistics). Also deleted: Euclid's Division Lemma, Polynomial Division Algorithm, Complementary Angle Trig Ratios, Area of Triangle (Coord Geom).",
+      "bannedExercises": [
+        "Ex 13.3",
+        "Ex 11.1",
+        "Ex 11.2",
+        "Ex 9.1",
+        "Ex 9.2",
+        "NCERT Ch11",
+        "NCERT Ch9 Ex 9"
+      ],
       "questionBankDir": "../../lib/shared-data/src/questionBanks/maths"
     },
     {
@@ -16,8 +24,17 @@
       "year": "2026-27",
       "subject": "Science",
       "grade": "Class 10",
-      "reason": "Chapter 15 (Our Environment) was removed from the CBSE Class 10 Science syllabus for 2026-27. All InText and Exercise questions referencing Ch 15 are out-of-syllabus.",
-      "bannedExercises": ["NCERT Ch15 Exercise", "NCERT Ch15 InText"],
+      "reason": "Chapters 5, 14, 15, 16 fully deleted from CBSE Class 10 Science 2025-26. Evolution section of Ch9 (Heredity) deleted. Reproductive Health sub-topics of Ch8 deleted.",
+      "bannedExercises": [
+        "NCERT Ch5 Exercise",
+        "NCERT Ch5 InText",
+        "NCERT Ch14 Exercise",
+        "NCERT Ch14 InText",
+        "NCERT Ch15 Exercise",
+        "NCERT Ch15 InText",
+        "NCERT Ch16 Exercise",
+        "NCERT Ch16 InText"
+      ],
       "questionBankDir": "../../lib/shared-data/src/questionBanks/science"
     }
   ]

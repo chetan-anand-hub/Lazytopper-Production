@@ -163,3 +163,32 @@ GitHub MCP is available for:
 
 Use GitHub MCP for verification only — never for direct commits or merges.
 All commits and pushes go through local git commands confirmed by owner.
+
+---
+
+## 13. CBSE Content Doctrine — Step Marking
+
+When extracting or authoring questions, populate `solutionSteps` to match the
+official CBSE 2025-26 step-marking scheme. The OLD doctrine "A=2, B=3, C=4,
+D=5, E=4 steps" was wrong — Section A is a 1-mark item and earns 1 step.
+
+solutionSteps minimums — aligned with official CBSE 2025-26 step-marking scheme:
+  Section A (1mk MCQ/AR):  1 step  — correct answer + brief justification
+                                      (MCQ: why correct option; AR: why assertion/reason true/false)
+  Section B (2mk VSA):     2 steps — formula/approach + substitution/working + answer with unit
+  Section C (3mk SA):      3 steps — given+formula + substitution + intermediate working + final answer+unit
+  Section D (5mk LA):      5 steps — define/setup + formulate + simplify + solve + conclude with units
+  Section E (4mk case):    4 steps — Part(i) answer [1mk] + Part(ii) answer [1mk] +
+                                      Part(iii) working [1mk] + Part(iii) final answer [1mk]
+
+CBSE step-marking principles (source: official CBSE OSM guide, cbseacademic.nic.in 2025-26):
+- Half-mark steps are real: stating the correct formula alone earns 0.5mk even if the
+  rest is wrong.
+- Error carried forward: if a step has a calculation error but subsequent steps follow
+  correct method from that value, full marks are awarded for those subsequent steps.
+- SI units mandatory: a final numerical answer without unit loses 0.5mk.
+- Science keywords: exact CBSE technical term required (e.g. oesophagus not food pipe).
+- Science chemistry: balanced equation earns 0.5mk; state symbols/catalyst earns 0.5mk
+  — store these as two separate `solutionSteps` entries.
+- Science diagrams: label as Step "Diagram: [description]"; accuracy and labels are
+  separately marked — store as two `solutionSteps` entries if both are required.
