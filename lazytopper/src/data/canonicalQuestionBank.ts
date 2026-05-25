@@ -239,6 +239,23 @@ import { SURFACE_AREAS_AND_VOLUMES_PYQ } from './questionBanks/class10/maths/sur
 import { STATISTICS_PYQ } from './questionBanks/class10/maths/statistics.pyq';
 import { PROBABILITY_PYQ } from './questionBanks/class10/maths/probability.pyq';
 
+// P4 Maths PYQ 2026 — CBSE 2025-26 board papers (30/4/x, 30/5/x, 30(B)), 2026-05-25
+// 13 Maths topic files; verbatim from QP + matched MS_X_041_Mathematics_30-x-x_2025-26
+// Scope note: 9 Standard QPs (30/1/x, 30/2/x, 30/3/x) scanned (no text) — skipped; all 9 Maths Basic (430-x-x) out of scope
+import { REAL_NUMBERS_PYQ_2026 } from './questionBanks/class10/maths/real-numbers.pyq2026';
+import { POLYNOMIALS_PYQ_2026 } from './questionBanks/class10/maths/polynomials.pyq2026';
+import { PAIR_LINEAR_EQUATIONS_PYQ_2026 } from './questionBanks/class10/maths/pair-of-linear-equations.pyq2026';
+import { QUADRATIC_EQUATIONS_PYQ_2026 } from './questionBanks/class10/maths/quadratic-equations.pyq2026';
+import { ARITHMETIC_PROGRESSION_PYQ_2026 } from './questionBanks/class10/maths/arithmetic-progression.pyq2026';
+import { TRIANGLES_PYQ_2026 } from './questionBanks/class10/maths/triangles.pyq2026';
+import { COORDINATE_GEOMETRY_PYQ_2026 } from './questionBanks/class10/maths/coordinate-geometry.pyq2026';
+import { TRIGONOMETRY_PYQ_2026 } from './questionBanks/class10/maths/trigonometry.pyq2026';
+import { CIRCLES_PYQ_2026 } from './questionBanks/class10/maths/circles.pyq2026';
+import { AREAS_RELATED_TO_CIRCLES_PYQ_2026 } from './questionBanks/class10/maths/areas-related-to-circles.pyq2026';
+import { SURFACE_AREAS_AND_VOLUMES_PYQ_2026 } from './questionBanks/class10/maths/surface-areas-and-volumes.pyq2026';
+import { STATISTICS_PYQ_2026 } from './questionBanks/class10/maths/statistics.pyq2026';
+import { PROBABILITY_PYQ_2026 } from './questionBanks/class10/maths/probability.pyq2026';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -456,6 +473,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...SURFACE_AREAS_AND_VOLUMES_PYQ,
   ...STATISTICS_PYQ,
   ...PROBABILITY_PYQ,
+  // P4 Maths PYQ 2026 — CBSE 2025-26 board papers (42 Qs across 13 Maths topic files, 2026-05-25)
+  ...REAL_NUMBERS_PYQ_2026,
+  ...POLYNOMIALS_PYQ_2026,
+  ...PAIR_LINEAR_EQUATIONS_PYQ_2026,
+  ...QUADRATIC_EQUATIONS_PYQ_2026,
+  ...ARITHMETIC_PROGRESSION_PYQ_2026,
+  ...TRIANGLES_PYQ_2026,
+  ...COORDINATE_GEOMETRY_PYQ_2026,
+  ...TRIGONOMETRY_PYQ_2026,
+  ...CIRCLES_PYQ_2026,
+  ...AREAS_RELATED_TO_CIRCLES_PYQ_2026,
+  ...SURFACE_AREAS_AND_VOLUMES_PYQ_2026,
+  ...STATISTICS_PYQ_2026,
+  ...PROBABILITY_PYQ_2026,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
