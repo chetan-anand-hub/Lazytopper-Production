@@ -1,60 +1,97 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-25 (post-PR #135 — P4-M PYQ Maths 103 Qs)
-Live base SHA: 2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
+Last updated: 2026-05-25 (post-PR #137 — P4-S Science 111 Qs; **P4 phase complete: 214 board PYQs**)
+Live base SHA: f25af07803230b203a298b6e12e5e74989bf1411
 
-## Immediate next action — P4-S PYQ Science extraction (Mode: HIGH, ~400 Qs)
+## Immediate next action — K2H-8f UI wire-up (Mode: Low-Medium)
 
-P4-M completed in PR #135 (103 verbatim Maths PYQs across 13 topic files).
-P4-S Science is the next parallel content phase — same doctrine, fresh branch.
+P4 PYQ content phase is now **complete** (PRs #135 + #137 = 214 verbatim board
+PYQs). The engine recognises 214/214 as PYQ via the `pyqYear` path. The next
+gating step is the UI side: the K2H-8c `pyqOnly` chip is rendered but does not
+yet flow through to the engine's pyqOnly filter.
 
-Branch (fresh): `content/p4-pyq-science` (no reuse — per fresh-branch doctrine)
-Sources confirmed on disk:
-  - **Science QP series:** `31_x_x.pdf` (CBSE Class X Science 086 PYQ)
-  - **Matching MS files:** `X_086_31_x_MS` Science marking schemes
-  - Location: `C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\Class X-...\
-    Class X\CBSE Previous papers\2022-2023\SCIENCE\` (verify exact path first —
-    may differ from Maths path)
-  - Same 2022-23 board exam set
+Branch (fresh): `fix/k2h-8f-ui-wire`
+File: `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
 
-ID prefix: `PYQ-S-2023-{TOPIC}-{NNN}` (Science variant of P4-M's `PYQ-M-{TOPIC}-{NNN}`)
-File naming: `science/{topic-slug}.pyq.ts`
+Add `pyqOnly?: boolean` to the builder's argument type and pass it through to
+the engine's `generatePracticeSet({ ..., pyqOnly })`. Engine accepts it since
+PR #133. Small scoped change; one TS file + maybe a follow-up in the
+PracticeChips component if the chip state isn't already wired.
 
-Doctrine (same as P4-M):
-  - **`pyqYear: "2023"` populates on ALL** — engine isPYQQuestion() recognises via this
-  - **`isPYQ: true` field OMITTED** — type doesn't include it (K2H-8f-c follow-up;
-    populate later with one-line script when type is updated)
-  - **`pyqSet: "1"|"2"|"3"`** from set code (never raw "31/x/x")
-  - **Section E case sets** stored as ONE row per case, marks=4
-  - **Verbatim only** — questionText/solutionSteps exact PDF text, ftfy.fix_text
-  - **Skip deleted topics** — Periodic Classification (Ch5), Evolution (Ch9),
-    Sources of Energy (Ch14), Mgmt of Natural Resources (Ch16), Motor/EMI/Generator
-    (formative-only — track in strategyHint not main bank)
-  - **MCQ option quality filter** — drop MCQs where pymupdf options have duplicates
+Optional but recommended to fold in:
+  - Engine-to-UI mapping fix (currently strips `pyqYear`/`isPYQ` fields)
+  - K2H-8f-c: add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
+    (one-line PR, unlocks setting `isPYQ: true` on all 214 P4 files via backfill)
 
-Pipeline scripts (REUSABLE from P4-M — kept in `C:\Users\Chetan\OneDrive\Desktop\diff\`):
-  - `p4_probe.py` — probe all Science QPs + MS files (run FIRST; check for scanned PDFs)
-  - `p4_extract.py` — **REPLACE Maths topic classifier with Science classifier**
-    (13 retained Science topicKeys; banned subtopics per 2026-27 doctrine).
-    Then re-use the QP/MS segmentation as-is.
-  - `p4_generate_ts.py` — **REPLACE topic-short table with Science codes** (e.g.
-    CR=chemical-reactions, ABS=acids-bases-salts, MNM=metals-non-metals, etc.).
-    Change ID prefix `PYQ-M-` → `PYQ-S-2023-`. Re-use OR-variant separation,
-    section heuristics, marks-tail stripping, MCQ option-quality filter.
-  - `p4_checkpoint_b.py` — works as-is (PYQ-S-2023-* will pass T6 prefix check
-    if you update the regex to accept `PYQ-S-*`).
-  - `p4_pyq_reachability.mjs` — copy and adapt: change topic list to 13 Science
-    topicKeys; ID-prefix filter to `PYQ-S-2023-`.
+## Next active task — P4 PYQ continuation (Mode: HIGH, ~300-400 Qs across multiple years)
 
-Expected yield (after similar filters apply): ~150-200 Science PYQs.
+**NEW SOURCE CONFIRMED:** Path
+`C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS`
+contains official CBSE marking schemes for 2022-2026 (all years). This
+unblocks P4 continuation for years previously missing MS.
 
-Three small UI-side follow-ups remain from K2H-8f (separate product PRs; not
-blocking P4-S content work):
-  a. Wire `pyqOnly` through `practiceQuestionBuilder.ts` (UI-engine bridge)
-  b. Fix engine-to-UI mapping that strips `pyqYear`/`isPYQ` fields
-  c. Add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
-     **Once (c) lands, a one-line script can populate `isPYQ: true` on all
-     existing P4-M files** (and P4-S files when those land).
+Probe step (REQUIRED FIRST):
+```powershell
+Get-ChildItem 'C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS' -Recurse -Filter '*.pdf' | Group-Object -Property Directory | Select-Object Name, Count
+```
+Confirm MS file naming convention and pair with QP files on disk before
+starting extraction. May differ from 2022-23 series naming.
+
+Year-by-year extraction plan (each its own fresh branch):
+  - **2023-24** — branch `content/p4-pyq-maths-2024` + `content/p4-pyq-science-2024`
+    QPs: 13 Maths + 7 Science → ~230 Qs estimated
+    pyqYear: "2024", pyqSet: derived from set code
+  - **2024-25** — branch `content/p4-pyq-maths-2025` + `content/p4-pyq-science-2025`
+    QPs: 9 Maths + 9 Science → ~200 Qs estimated
+    pyqYear: "2025", pyqSet: derived from set code
+  - **2025-26** — branch `content/p4-pyq-maths-2026` + `content/p4-pyq-science-2026`
+    QPs: 23 Maths + 13 Science → ~300 Qs estimated
+    pyqYear: "2026", pyqSet: derived from set code
+
+Pipeline scripts (REUSABLE from P4-M + P4-S, kept in `diff\`):
+  - `p4_extract.py` (Maths) / `p4s_extract.py` (Science) — swap QP+MS file
+    lists; topic classifiers already tuned
+  - `p4_generate_ts.py` (Maths) / `p4s_generate_ts.py` (Science) — change
+    pyqYear and OUT_DIR if extending into different files
+  - `p4_checkpoint_b.py` / `p4s_checkpoint_b.py` — update pyqYear assertion
+    to match year being extracted
+  - `p4_pyq_reachability.mjs` / `p4s_pyq_reachability.mjs` — adjust ID prefix
+    filter if extracting into separate `*.pyq2024.ts` files vs appending
+
+Conservative estimate after typical filter rates (~30-40% loss to scanned /
+Hindi-only / truncated / broken-options): **300-400 more verbatim board PYQs**.
+Combined with P4 phase, total PYQ count could reach ~500-600.
+
+### Follow-up task — K2H-8f-c add `isPYQ?: boolean` to CanonicalQuestion (Mode: Low)
+
+Branch (fresh): `fix/canonical-question-isPYQ-field`
+File: `lazytopper/src/data/predictionTypes.ts` (currently forbidden per
+CLAUDE.md §4; this task explicitly scopes it IN)
+
+Add `isPYQ?: boolean;` line to `CanonicalQuestion` interface. Then run a
+backfill script across all 26 P4 files (13 maths + 13 science) to set
+`isPYQ: true` on all 214 questions. Engine isPYQQuestion() will then recognise
+PYQs via both isPYQ field AND pyqYear path (redundant but explicit).
+
+### Follow-up task — Download 2023-24 Maths MS from cbse.gov.in (Mode: Low)
+
+SUPERSEDED by new `final MS` folder confirmation — all years' MS are now on
+disk. This task collapses into the P4 continuation 2023-24 extraction above.
+
+### ✅ Completed in PR #137 — P4-S PYQ Science (111 Qs)
+
+Done in PR #137 (merge SHA f25af07):
+- 13 new `science/{topic}.pyq.ts` files (one per retained Class 10 Science topic)
+- 111 questions extracted from 9 text-extractable QPs (31/2/x, 31/4/x, 31/5/x)
+  paired with MS X_086_31_x_MS marking schemes (each MS file is "ALL SETS"
+  bundle, split by Paper Code: 31/x/y marker)
+- Section breakdown: A=37 B=23 C=29 D=15 E=7
+- Competency: 85.8% avg (range 56.2-100%; all ≥40%)
+- ID prefix: PYQ-S-{TOPIC}-{NNN}
+- Authentic: 2,587 → 2,698; spreads 189 → 202; bank 5,415 → 5,526
+- pyqYear: "2023" + pyqSet: "1"/"2"/"3" on all 111 → engine recognises 111/111
+- Deferred: 6 scanned QPs (31/1/x, 31/6/x) + ~60 Hindi-only bodies + ~50
+  truncated bodies + 3 broken-option MCQs (see CURRENT_STATE.md for details)
 
 ### ✅ Completed in PR #135 — P4-M PYQ Maths (103 Qs)
 
