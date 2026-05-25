@@ -1,5 +1,100 @@
 ---
 
+## 2026-05-25 — P2 APQ Science-PQ2 (PR #130, +49 Qs) — P2 APQ phase COMPLETE + stale branch deleted + tutor/content audit recorded
+
+Timestamp: 2026-05-25 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `b16ebb6` (post-PR #129 handoff)
+- Active branch: `content/additional-pq-sqp-2024` (rebased onto current base —
+  PR #128's commit dropped cleanly as already-in-base)
+
+### Work completed
+
+1. **Science-PQ2 extraction (49 Science Qs appended)**:
+   - APPENDED to all 13 existing `science/{topic}.additionalPQ.ts` files
+     created in PR #128. No new files created; canonicalQuestionBank.ts
+     untouched.
+   - Sequential ID numbering continued per topic (e.g.,
+     `metals-and-non-metals` 009-014).
+   - 10 OR-pair questions (Q23, Q25, Q28, Q31, Q34, Q35, Q36, Q37, Q38, Q39)
+     extracted as BOTH variants per locked doctrine — separate rows.
+   - Q35 OR variant placed under `control-and-coordination` (hormones /
+     adrenaline) while the main went to `heredity` (energy flow + pea
+     cross). All other OR pairs stayed in the same topic file.
+   - Per-file additions: ACID +4 → 6, CARB +4 → 8, CHEM +2 → 4, CTRL +3 → 5,
+     ELEC +3 → 7, HERED +2 → 6, REPR +2 → 5, EYE +3 → 6, LIFE +8 → 13,
+     LIGHT +4 → 7, MAG +4 → 6, METAL +6 → 14, ENV +4 → 8.
+
+2. **Section breakdown (new only)**: A=20 B=8 C=9 D=6 E=6. Competency 40/49 =
+   81.6%. REQUIRES-FIGURE tagged on 13 questions (electron-dot N2,
+   electrolysis set-up, heart diagram, parallel-resistor circuit, V-I graph,
+   solenoid field-lines, etc.).
+
+3. **Anti-fabrication doctrine maintained**:
+   - questionText verbatim from QP PDFs (pymupdf, 0 cid artifacts confirmed).
+   - solutionSteps from matching MS PDF (Science-PQMS2.pdf).
+   - isPYQ: false on all 49; pyqSet omitted.
+   - 2026-27 syllabus respected — no banned-topic content (Periodic
+     Classification, Evolution, Sources of Energy, Mgmt of Natural
+     Resources, Motor/EMI/Generator).
+
+4. **Force-with-lease push for rebased branch** — same pattern as PR #126
+   and #128. After this PR cleared, branch was permanently deleted (next
+   bullet).
+
+5. **Branch management fix (one-time cleanup, applied in this docs PR)**:
+   - `content/additional-pq-sqp-2024` had been squash-merged 4 times
+     (PRs #119, #126, #128, #130), each cycle requiring a `--force-with-lease`
+     push because the local branch had to be rebased onto the new base.
+   - Branch DELETED post-merge (remote + local).
+   - **Doctrine update:** future extraction phases use a fresh branch name
+     per phase. This eliminates the force-push requirement permanently.
+
+6. **P2 APQ phase COMPLETE**:
+   - PR #119 (SQP, 69 Qs) + PR #126 (Maths PQ1+PQ2, 76 Qs) + PR #128
+     (Maths PQ_2022 + Science-PQ, 90 Qs) + PR #130 (Science-PQ2, 49 Qs)
+     = **284 authentic Qs across 5 papers**.
+   - All 13 retained Maths topicKeys and all 13 retained Science topicKeys
+     now have APQ content.
+
+7. **Tutor / content audit completed (read-only, separate from PR)**:
+   - Report: `diff\report-tutor-content-audit-2026-05-24.md`.
+   - Findings recorded as new pre-launch quick-win product PRs:
+     • strategyHint authored on 75 banks but never rendered
+     • "Show visual" button in TopicHub right rail is broken
+     • No formula-sheet surface despite formula data in 14 topics
+     • API gateway gap confirmed in vercel.json (no /api/* rewrite)
+
+### Validations (all six PASS)
+
+- syllabusGuard: PASS — 0 violations
+- validateQuestionBanks: PASS (217 files; 0 dupes; mark/section consistent)
+- tsc -p tsconfig.app.json --noEmit: exit 0
+- Duplicate IDs (APQ-S-* prefix): 0 (95 IDs, all unique)
+- Full test matrix (4 files): 125/125 PASS
+- Engine reachability: PASS — canonicalQuestionBank loaded at 4,729 Qs;
+  296/296 new-PR Heredity/Light/Eye/Elec/Mag IDs reachable
+
+### Bank state
+
+- Authentic count: 1,883 → **1,932** (+49)
+- Spreads: 163 (unchanged — no new files registered)
+- Bank total (engine-confirmed): **4,729**
+- Progress to 4,500-Q retirement: 1,932 / 4,500 = **42.9%** (+1.1 pp)
+
+### Next priority items
+
+Two parallel tracks open; owner choice for next session:
+- **Product track:** four pre-launch quick wins (strategyHint Hint button;
+  "Show visual" wiring fix; Formula sheet tab; API gateway).
+- **Content track:** P3 Meridian extraction (~475 Qs). New fresh branch
+  `content/p3-meridian` — no reuse. First step: pymupdf cid probe on
+  Meridian PDFs (3rd-party publisher, not yet tested).
+
+---
+
 ## 2026-05-25 — P2 APQ continuation: PQ_2022 + Science-PQ (PR #128, +90 Qs) + OR-doctrine validated + first Our Environment Qs
 
 Timestamp: 2026-05-25 (Asia/Kolkata)

@@ -1,12 +1,12 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-25 (post-PR #128 — P2 APQ continuation: PQ_2022 + Science-PQ)
-Live base SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3
+Last updated: 2026-05-25 (post-PR #130 — P2 APQ Science-PQ2; P2 APQ COMPLETE)
+Live base SHA: d739585df2013b7299c3c8e931c5685d388f606d
 
-## Immediate next action — Science-PQ2 extraction (P2 APQ finale)
+## Immediate next action — pre-launch quick wins (product track) OR P3 Meridian (content track)
 
-P2 APQ continuation merged successfully (PR #128, +90 authentic Qs across 26
-topic files, 1,793 → 1,883). One paper remains for P2 APQ to be complete.
+P2 APQ is now fully complete (5 papers, 284 authentic Qs total — see history
+below). Two parallel tracks open; owner choice for next session.
 
 ### ✅ Follow-up — P2 APQ Maths PQ1 + PQ2 — COMPLETE (PR #126)
 
@@ -27,47 +27,57 @@ Done in PR #128 (merge SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3):
 - Section breakdown: A=37 B=15 C=15 D=10 E=6 — non-MCQ density up from 36 (PR #126) to 46
 - Authentic: 1,793 → 1,883; spreads: 150 → 163
 
-### Next active task — Science-PQ2 extraction (Mode: HIGH)
+### ✅ Follow-up — P2 APQ Science-PQ2 (finale) — COMPLETE (PR #130)
 
-Branch: `content/additional-pq-sqp-2024` (preserve — REBASE first onto current
-base SHA 028d51d37d3a168196809676ed4d9e5c3b20fdb3 before continuing).
+Done in PR #130 (merge SHA: d739585df2013b7299c3c8e931c5685d388f606d):
+- 13 Science files APPENDED with Science-PQ2 (+49 Qs)
+- 10 OR-pairs extracted as separate rows
+- 13 REQUIRES-FIGURE tags
+- Section breakdown (new only): A=20 B=8 C=9 D=6 E=6
+- Competency 81.6%
+- Authentic: 1,883 → 1,932; spreads unchanged (163 — no new files)
+- canonicalQuestionBank.ts NOT touched
+- **P2 APQ phase complete:** 284 authentic Qs across 5 papers (SQP + 3 APQ Maths + Science-PQ + Science-PQ2)
+- Branch `content/additional-pq-sqp-2024` DELETED after merge (remote + local). Future extraction phases use fresh branch names per phase to eliminate the force-push requirement permanently.
 
-Paper remaining (text pre-extracted to `diff/_apq_text/`):
-  - **Science-PQ2.pdf** (~39 Qs + OR variants ≈ 45-50 Qs) + Science-PQMS2.pdf
-      Will APPEND to the 13 existing `science/{topic}.additionalPQ.ts` files
-      created in PR #128 (per "one file per topic, combined across papers" spec)
+### Pre-launch quick wins (product track — sequence as owner decides)
 
-Agent instruction file ready (per Chetan): `LazyTopper_Agent_P2_APQ_SciencePQ2_Instruction.md`.
-**Note:** SHA placeholder in that file needs to be updated to the current
-base SHA `028d51d37d3a168196809676ed4d9e5c3b20fdb3` before uploading to the agent.
+A tutor/content audit completed during this cycle surfaced four small/medium
+product fixes. Run each as its own scoped product PR; they are independent.
 
-Estimated bank state after Science-PQ2 complete: ~1,930 authentic / ~4,748 total /
-163 spreads (no new files — Science-PQ2 appends to existing).
+  1. **strategyHint Hint button in PracticeQuestionCard** (Small) — 75 question
+     banks contain authored strategyHints (including all 65 REQUIRES-FIGURE
+     descriptions) but no UI displays them. Add a "Hint" toggle that reveals
+     `q.strategyHint` when present.
 
-**Critical doctrine for this extraction (new in PR #126 cycle):**
+  2. **Fix "Show visual" wiring in TopicHub right rail** (≈20 lines) — button
+     currently broken (no-op or wrong handler). Wire to the existing visualiser
+     surface for the active topic.
 
-  1. **Extract BOTH OR variants for B/C/D/E sections** — PR #126 stored OR
-     variants merged into single rows. Future passes must extract BOTH
-     alternatives as separate questions to increase non-MCQ density.
-     Section A (MCQ/AR) is currently over-represented.
+  3. **Formula sheet tab on TopicHub** (Medium) — 14 topics have seeded formula
+     data in archetypes/predictions but no render surface. Add a "Formulas" tab
+     beside Notes/Practice on TopicHub for those 14 topics.
 
-  2. **REQUIRES-FIGURE strategyHint** — for any question referencing a PDF
-     figure (diagram, table, graph) that doesn't render in text, set
-     `strategyHint: "REQUIRES-FIGURE: [description]"`. Keep questionText
-     and answer accurate to PDF.
+  4. **API gateway fix — vercel.json rewrite + Railway deploy** (High) — no
+     `/api/*` rewrite in `vercel.json`, so AI features 404 in production. Add
+     rewrite to forward `/api/*` to the Railway-deployed backend.
 
-  3. **isPYQ: false** on all APQ (practice papers, not board PYQs).
-     **pyqSet: omit** entirely.
+### Next active content task — P3 Meridian extraction (Mode: HIGH, ~475 Qs)
 
-  4. **Section E case-based: ONE row per case set**, marks=4. Do NOT split
-     into sub-rows.
+Sources confirmed on disk in `C:\Users\Chetan\OneDrive\Desktop\diff\` gdrive
+copy: Meridian worksheets + Maths QB. Two-agent split planned (Maths topics /
+Science topics).
 
-  5. **PDF tool: pymupdf** (fitz). Confirmed 0 cid artifacts on all 5 APQ PDFs.
-
-  6. **ID prefixes** (continue from PR #126's per-topic sequences for Maths;
-     start fresh for Science):
-     - Maths: `APQ-M-{TOPICSHORT}-{SEQ:003d}` — continue numbering per topic
-     - Science: `APQ-S-{TOPICSHORT}-{SEQ:003d}` — start at 001 per topic
+  - **Branch (fresh):** `content/p3-meridian` (no reuse of any prior branch)
+  - **First step:** pymupdf cid probe on Meridian PDFs (not yet tested — Meridian
+    is a 3rd-party publisher; may or may not extract cleanly)
+  - **ID prefixes:** `MRD-*` (Meridian worksheets), `MQB-*` (Maths QB)
+  - **Topic targets:** all 13 retained Maths topicKeys + all 13 retained Science
+    topicKeys
+  - **Same extraction doctrine** as P2 APQ (OR variants as separate rows,
+    REQUIRES-FIGURE tags, isPYQ:false, pyqSet omitted, Section E one-row, etc.)
+  - **Agent instruction file** will be authored after Chetan approves the next
+    session start (instruction template proven across PRs #126, #128, #130)
 
 ### Future task — Content + product deliberation (planning, not code)
 
@@ -180,11 +190,13 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | ops acceptance regression suite | ✅ COMPLETE | PR #123 (+37 tests, doctrine lock across 4 source-of-truth files) |
 | syllabusGuard 2026-27 doctrine fix | ✅ COMPLETE | PR #124 (-26 banned strings, +18 Qs restored, formativeOnlyTopics added) |
 | P2 APQ Maths PQ1+PQ2 | ✅ COMPLETE | PR #126 (+76 Qs across 13 topic files; 88% competency) |
-| **P2 APQ continuation (PQ_2022 + Science-PQ)** | ✅ **COMPLETE** | PR #128 (+90 Qs; first Our Environment Qs; OR-doctrine validated) |
-| **Science-PQ2 (P2 APQ finale)** | ⏳ **NEXT** | ~45-50 Qs, APPEND to existing 13 Science files, same branch |
+| P2 APQ continuation (PQ_2022 + Science-PQ) | ✅ COMPLETE | PR #128 (+90 Qs; first Our Environment Qs; OR-doctrine validated) |
+| **P2 APQ Science-PQ2 (finale)** | ✅ **COMPLETE** | PR #130 (+49 Qs appended to 13 Science files; P2 APQ phase complete — 284 Qs across 5 papers) |
+| Pre-launch quick wins | ⏳ READY | strategyHint Hint button; "Show visual" fix; Formula sheet tab; API gateway fix |
 | Content + product deliberation | ⏳ PLANNING | Notes/formulae/proofs/tutor drawer decisions before launch |
-| AR density pass | ⏳ AFTER P2 APQ | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic |
-| P3    | ⏳ PENDING  | Meridian worksheets + Maths QB READY (~475 Qs) |
+| AR density pass | ⏳ UNBLOCKED | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic (P2 APQ now complete) |
+| **P3** | ⏳ **NEXT (content track)** | Meridian worksheets + Maths QB on disk (~475 Qs). NEW BRANCH `content/p3-meridian` (fresh — no reuse). First step: pymupdf cid probe on Meridian PDFs. |
+| TopicHub seeded coverage backfill | ⏳ CONTENT | 11/25 topics still on sample-preview |
 | P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
 | P4b-S | ⏳ PENDING  | Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs) |
 | P5-M  | ⏳ PENDING  | PYQ papers Maths 2022-2025 (~400 Qs) [requires K2H-8f fix] |
@@ -198,8 +210,9 @@ Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep. At 4,500
 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
 100% routable. No OCR phase needed.
 
-Current authentic total: **1,883** (post-PR #128; +90 from APQ continuation).
-Progress to retirement: 1,883 / 4,500 = **41.8%** (+2 pp from PR #126 state).
+Current authentic total: **1,932** (post-PR #130; +49 from Science-PQ2).
+Progress to retirement: 1,932 / 4,500 = **42.9%** (+1.1 pp from PR #128 state).
+Bank total (engine-confirmed): **4,729** questions loaded.
 
 ## Engine fix required before P5
 

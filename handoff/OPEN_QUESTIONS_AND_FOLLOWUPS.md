@@ -1,3 +1,95 @@
+## 2026-05-25 — Post-PR #130 (P2 APQ Science-PQ2; P2 APQ COMPLETE) open items
+
+### RESOLVED — P2 APQ Science-PQ2 extraction (PR #130)
+13 Science topic files APPENDED with Science-PQ2 (+49 Qs). 10 OR-pairs as
+separate rows; 13 REQUIRES-FIGURE tags. Section breakdown A=20 B=8 C=9 D=6 E=6;
+competency 81.6%. No new files; canonicalQuestionBank.ts untouched. Authentic
+count 1,883 → 1,932. Bank total (engine-confirmed) 4,729.
+
+### RESOLVED — P2 APQ phase COMPLETE
+PRs #119 + #126 + #128 + #130 together extract **284 authentic Qs across 5
+official CBSE practice papers** (SQP, PQ1, PQ2, PQ_2022, Science-PQ, Science-PQ2).
+All 13 retained Maths topicKeys and all 13 retained Science topicKeys now have
+APQ content.
+
+### RESOLVED — content/additional-pq-sqp-2024 branch DELETED (remote + local)
+Branch had been squash-merged 4 times (PRs #119, #126, #128, #130), each cycle
+requiring a `--force-with-lease` push after rebase onto the new base. Branch
+deleted permanently. **Doctrine update applied:** future extraction phases use a
+fresh branch name per phase (e.g. `content/p3-meridian`, `content/p4-cbjemaco`).
+This eliminates the force-push requirement permanently.
+
+### RECORDED — Tutor / content audit findings (read-only report)
+Report: `diff\report-tutor-content-audit-2026-05-24.md`. Key findings now
+recorded as new product-PR follow-ups (below).
+
+### OPEN — strategyHint never rendered on any surface (LOW, quick win — promoted)
+75 question banks contain authored `strategyHint` content (including all 65
+REQUIRES-FIGURE descriptions). No UI surface displays them. Add a "Hint" toggle
+in `PracticeQuestionCard` (or equivalent) that reveals `q.strategyHint` when
+present. Small product PR.
+
+### OPEN — "Show visual" button broken in TopicHub right rail (LOW, quick win)
+Button currently a no-op or routes incorrectly. Wire to the existing visualiser
+surface for the active topic. ≈20 lines product PR.
+
+### OPEN — No formula sheet surface (MEDIUM, quick win)
+14 topics have seeded formula data in archetypes/predictions but no UI renders
+it. Add a "Formulas" tab beside Notes/Practice on TopicHub for those 14 topics.
+Medium product PR.
+
+### OPEN — API gateway gap in vercel.json (HIGH, production blocker)
+No `/api/*` rewrite in `vercel.json`. AI features return 404 in production. Fix
+requires Vercel rewrite + Railway deploy of the backend. High-effort product PR.
+
+### OPEN — P3 Meridian extraction (HIGH, next content task)
+~475 Qs across Meridian worksheets + Maths QB (both on disk in gdrive copy).
+**New fresh branch:** `content/p3-meridian` (no reuse — per branch-management
+doctrine update above). First step: pymupdf cid probe on Meridian PDFs
+(3rd-party publisher; cid behaviour not yet tested). Split across 2 agents
+(Maths topics / Science topics). ID prefixes: `MRD-*`, `MQB-*`. Same OR-pair +
+REQUIRES-FIGURE doctrine as P2 APQ.
+
+### OPEN — TopicHub seeded coverage backfill (MEDIUM, content)
+11/25 TopicHub topics still on sample-preview (1 additional topic seeded since
+PR #128 noted 12). Pre-launch content work.
+
+### OPEN — REQUIRES-FIGURE backlog (LOW, post-launch resolution)
+~65 cumulative APQ questions (PR #126 + #128 + #130) tagged REQUIRES-FIGURE.
+Plan: Option B (placeholder images) at launch; Option A (SVG renders)
+post-launch.
+
+### OPEN — Our Environment density (LOW, future extraction)
+8 Qs in bank (PR #128 seeded 4 + PR #130 added 4 more). Approaching reasonable
+density; future extractions should add more.
+
+### OPEN — AR (Assertion-Reasoning) density gap (MEDIUM, now UNBLOCKED)
+P2 APQ phase complete, so the dedicated `.assertionReasoning.ts` extraction
+pass is unblocked. Target: 2-3 AR per topic for both Maths and Science.
+
+### OPEN — Content + product deliberation (MEDIUM, pre-launch planning)
+Continued from PR #128 cycle: Notes per chapter, Formula sheets (now partially
+addressed by quick-win above), Proof library, Tutor drawer audit
+(MentorSolveDrawer / ConceptTeachDrawer / TutorDrawerV2). Pre-launch decisions
+required.
+
+### OPEN — K2H-8f PYQ engine filter (MEDIUM, pre-condition for P5)
+Unchanged. `practiceSetGenerator.ts` does not bias pool toward `pyqYear`-tagged
+questions; PYQ filter returns 0 results when `pyqOnly===true`. Must fix before
+P5 PYQ extraction.
+
+### OPEN — pyqSet format inconsistency (LOW, P5 cleanup)
+Unchanged. Some AR files use full CBSE set codes (e.g., "30/1/1"). Normalise
+during P5 cleanup pass.
+
+### OPEN — .claude/ folder not in .gitignore (LOW)
+Unchanged. Untracked `.claude/` shows in every `git status`.
+
+### OPEN — Clerk pk_live production key (unknown status)
+Unchanged. No production Clerk instance configured.
+
+---
+
 ## 2026-05-25 — Post-PR #128 (P2 APQ continuation) open items
 
 ### RESOLVED — P2 APQ continuation (Maths PQ_2022 + Science-PQ) (PR #128)
