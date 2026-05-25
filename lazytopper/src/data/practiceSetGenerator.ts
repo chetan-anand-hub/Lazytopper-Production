@@ -34,6 +34,10 @@ export interface PracticeSetConfig {
   shuffle?: boolean;            // default: true
   adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
+  // K2H-8f: when true, restrict the candidate pool to PYQ-tagged questions.
+  // Must run at the engine layer because the UI-layer PracticeQuestion mapping
+  // strips pyqYear/isPYQ before downstream filters can see them.
+  pyqOnly?: boolean;
 }
 
 export interface ResolvedPracticeSetConfig {
@@ -66,6 +70,28 @@ export function normalizeBoardPattern(v: unknown): BoardPattern | undefined {
   return undefined;
 }
 
+// K2H-8f: engine-layer PYQ matcher. Exported for unit-testing.
+// Honours both the explicit `isPYQ` flag (used by P4 PYQ extraction once it
+// lands) and the populated `pyqYear` field (current bank tagging convention,
+// e.g. "2022", "2023", "30/1/1"). Either form qualifies as PYQ — accepting
+// both avoids the format-mismatch failure described in K2H-8f Cause A.
+export function isPYQQuestion(q: unknown): boolean {
+  if (!q || typeof q !== "object") return false;
+  const cast = q as { isPYQ?: unknown; pyqYear?: unknown };
+  if (cast.isPYQ === true) return true;
+  const year = cast.pyqYear;
+  if (typeof year === "string" && year.trim().length > 0) return true;
+  if (typeof year === "number" && Number.isFinite(year)) return true;
+  return false;
+}
+
+export function applyBoardPatternFilter<T extends { section?: any; marks?: any; blueprintSlotId?: any }>(
+  candidates: T[],
+  pattern: BoardPattern
+): T[] {
+  return (candidates || []).filter((q) => inferBoardPatternFromQuestion(q) === pattern);
+}
+
 export function inferBoardPatternFromQuestion(q: any): BoardPattern | undefined {
   if (!q) return undefined;
 
@@ -90,12 +116,6 @@ export function inferBoardPatternFromQuestion(q: any): BoardPattern | undefined 
   return undefined;
 }
 
-export function applyBoardPatternFilter<T extends { section?: any; marks?: any; blueprintSlotId?: any }>(
-  candidates: T[],
-  pattern: BoardPattern
-): T[] {
-  return (candidates || []).filter((q) => inferBoardPatternFromQuestion(q) === pattern);
-}
 function normaliseDifficultyMix(
   raw: Partial<Record<DifficultyLevel, number>> | undefined,
   hasHard: boolean
@@ -237,6 +257,14 @@ export function generatePracticeSet(
     candidates = applyBoardPatternFilter(candidates, boardPattern);
   }
 
+  // K2H-8f: PYQ-only filter at the engine layer.
+  // Hard filter (no soft fallback): if the caller asks for PYQs only and the
+  // pool has none, return an empty set so the UI shows an honest empty state
+  // per CLAUDE.md product doctrine, rather than silently substituting non-PYQ
+  // questions.
+  if (cfg.pyqOnly) {
+    candidates = candidates.filter(isPYQQuestion);
+  }
 
   // If we somehow have zero questions, just return empty set.
   if (candidates.length === 0) {
@@ -327,6 +355,10 @@ export function generatePracticeSet(
   const compCount = selected.filter(q => q.isCompetencyBased).length;
   const compTarget = Math.ceil(selected.length * COMPETENCY_MIN_SHARE);
 
+  // K2H-8f: when pyqOnly is on, the candidate pool is already PYQ-only, so
+  // any competency swap is naturally PYQ-preserving. Skip the swap when the
+  // PYQ pool yields no competency-based PYQs (common case) so we do not
+  // churn the selection or break the PYQ contract.
   if (compCount < compTarget && !isSingleDifficultyFilter) {
     const compCandidates = candidates.filter(
       q => q.isCompetencyBased && !takenIds.has(q.id)
