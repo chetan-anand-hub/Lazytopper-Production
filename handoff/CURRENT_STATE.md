@@ -1,6 +1,88 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #128 — P2 APQ continuation: PQ_2022 + Science-PQ)
-Live base SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3
+Last updated: 2026-05-25 (post-PR #130 — P2 APQ Science-PQ2; P2 APQ COMPLETE)
+Live base SHA: d739585df2013b7299c3c8e931c5685d388f606d
+
+## Post-PR #130 — P2 APQ Science-PQ2 (49 Qs appended across 13 Science files) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: d739585df2013b7299c3c8e931c5685d388f606d
+
+PR #130 | content: P2 APQ Science-PQ2 — 49 Qs appended across 13 Science topic files
+Branch: content/additional-pq-sqp-2024 (NOW DELETED — remote + local removed
+  after this PR cleared the merge queue; the branch had been squash-merged 4
+  times, PRs #119, #126, #128, #130, and was no longer needed. Future
+  extraction phases use fresh branch names per phase to eliminate force-push
+  requirement permanently.)
+Commits: 1 (5c3e0fc, force-with-lease pushed after rebase onto b16ebb6)
+
+Files changed: 13 (+501 insertions, 0 deletions)
+  - 13 modified science/*.additionalPQ.ts files (Science-PQ2 appended to
+    existing arrays created in PR #128)
+  - canonicalQuestionBank.ts NOT touched (no new files registered; all 13
+    Science APQ files already in spread chain since PR #128)
+
+Source PDFs (pymupdf 1.27.2.3, 0 cid artifacts):
+  Science-PQ2.pdf (10pp) + Science-PQMS2.pdf (7pp) — 39 base Qs + 10 OR
+    variants as separate rows = 49 Science questions appended
+
+Section breakdown (new only): A=20 B=8 C=9 D=6 E=6
+Competency (new only): 40/49 = 81.6% (well above 40% floor)
+Skipped (deleted topics): 0 — Science-PQ2 contained no questions on banned
+  2026-27 topics (Periodic Classification, Evolution, Sources of Energy,
+  Mgmt of Natural Resources, Electric Motor/EMI/Generator)
+REQUIRES-FIGURE strategyHints: 13 new this session
+  (electron-dot N2, electrolysis set-up, heart diagram, parallel-resistor
+  circuit with two ammeters, V-I straight-line graph, copper-heating set-up,
+  iron-filings test tubes, ray diagrams, solenoid field-line pattern, prism
+  recombination diagram, ozone/atmospheric-refraction visuals)
+
+OR variants extracted as separate rows (10 pairs): Q23, Q25, Q28, Q31, Q34,
+  Q35, Q36, Q37, Q38, Q39. Q35 OR placed under control-and-coordination
+  (hormones / adrenaline) while its main went to heredity (energy flow +
+  pea cross). All other OR pairs stayed in the same topic file.
+
+Per-file additions (Science-PQ2 appended):
+  acids-bases-and-salts (+4 → 6), carbon-and-its-compounds (+4 → 8),
+  chemical-reactions-and-equations (+2 → 4),
+  control-and-coordination (+3 → 5), electricity (+3 → 7),
+  heredity (+2 → 6), how-do-organisms-reproduce (+2 → 5),
+  human-eye-and-colourful-world (+3 → 6), life-processes (+8 → 13),
+  light-reflection-and-refraction (+4 → 7),
+  magnetic-effects-of-electric-current (+4 → 6),
+  metals-and-non-metals (+6 → 14), our-environment (+4 → 8)
+
+P2 APQ — NOW COMPLETE (5 papers, 284 Qs total):
+  PR #119: SQP papers (69 Qs — Maths 38 + Science 31)
+  PR #126: Mathematics-PQ1 + PQ2 (76 Qs)
+  PR #128: Mathematics-PQ_2022 + Science-PQ (90 Qs)
+  PR #130: Science-PQ2 (49 Qs)
+  TOTAL P2 APQ: 284 authentic Qs sourced from official CBSE practice papers
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations)
+  2. validateQuestionBanks — PASS (217 files; 0 dupes; mark/section consistent)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate IDs (APQ-S-* prefix) — 0 (95 APQ-S-* IDs total, all unique)
+  5. Full test matrix (4 files) — PASS (125/125 tests)
+  6. Engine reachability — PASS (4,729 questions loaded; 296/296 new-PR
+     Heredity/Light/Eye/Elec/Mag IDs reachable)
+  git diff --check — exit 0 (no whitespace)
+  git diff --name-only HEAD — exactly 13 expected files (science/*.additionalPQ.ts)
+
+Bank state:
+  Authentic questions: 1,883 → 1,932 (+49)
+  Spreads: 163 (unchanged — no new files registered)
+  Bank total (engine-confirmed): 4,729
+  Progress to 4,500-Q retirement threshold: 1,932 / 4,500 = 42.9%
+
+Tutor / content audit completed (read-only, separate from this PR):
+  Report: diff\report-tutor-content-audit-2026-05-24.md
+  Key findings:
+    • strategyHint on 75 question banks is authored but never rendered
+    • "Show visual" button in TopicHub right rail is broken (wiring gap)
+    • No formula-sheet surface exists, despite formula data in 14 topics
+    • API gateway gap confirmed in vercel.json (no /api/* rewrite)
+  Pre-launch product deliberation in progress on a separate planning track.
 
 ## Post-PR #128 — P2 APQ continuation: PQ_2022 + Science-PQ (~90 Qs across 26 topic files) — MERGED
 
@@ -663,7 +745,7 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #128 — content: P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs across 26 topic files)
+Last merged PR: #130 — content: P2 APQ Science-PQ2 (49 Qs across 13 Science topic files); P2 APQ phase COMPLETE
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -711,7 +793,9 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #125 | Docs: post-PR #124 | 462f2c77 | Handoff updated |
 | #126 | P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files) | 9be89452 | +76 authentic, +13 spreads, REQUIRES-FIGURE doctrine, 4,500 retirement threshold |
 | #127 | Docs: post-PR #126 | 26db3f1c | Handoff updated |
-| #128 | P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs) | 028d51d3 | +90 authentic, +13 spreads (Science), OR-doctrine validated, first Our Environment Qs — CURRENT BASE |
+| #128 | P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs) | 028d51d3 | +90 authentic, +13 spreads (Science), OR-doctrine validated, first Our Environment Qs |
+| #129 | Docs: handoff post-PR #128 | b16ebb64 | Handoff updated |
+| #130 | P2 APQ Science-PQ2 (49 Qs across 13 Science files) | d739585d | +49 authentic (1,883 → 1,932), spreads unchanged (no new files), P2 APQ COMPLETE (5 papers / 284 Qs total). content/additional-pq-sqp-2024 branch DELETED after merge — CURRENT BASE |
 
 ## Question bank state
 
@@ -723,16 +807,17 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | P0.5 diff/ packs (PR #114) | 21 | Live in engine |
 | P2 SQP 2023-24 (PR #119) | 69 | Live in engine |
 | P2 APQ Maths PQ1+PQ2 (PR #126) | 76 | Live in engine |
-| **P2 APQ continuation PQ_2022+Science (PR #128)** | **90** | **Live in engine (new — 44 Maths PQ_2022 + 46 Science PQ)** |
+| P2 APQ continuation PQ_2022+Science (PR #128) | 90 | Live in engine |
+| **P2 APQ Science-PQ2 (PR #130)** | **49** | **Live in engine (appended to 13 Science files; no new spreads)** |
 | Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated; retirement threshold 4,500 |
-| Total in engine | ~4,698 | (was ~4,608 pre-PR #128; +90 from APQ continuation) |
+| Total in engine (confirmed) | **4,729** | (engine reachability load: canonicalQuestionBank.length = 4,729) |
 
-canonicalQuestionBank.ts spread count: 163 (was 150; +13 new Science APQ files in PR #128)
+canonicalQuestionBank.ts spread count: 163 (unchanged from PR #128 — PR #130 only appended to existing arrays)
 
 Pack retirement threshold: **4,500 authentic questions** (set in PR #126 cycle).
   At 4,500 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
   100% routable. No OCR phase needed.
-  Progress: 1,883 / 4,500 = **41.8%** (was 39.8% pre-PR #128; +2 percentage points).
+  Progress: 1,932 / 4,500 = **42.9%** (+1.1 pp from PR #128).
 
 ## Known issues
 
@@ -742,18 +827,20 @@ Pack retirement threshold: **4,500 authentic questions** (set in PR #126 cycle).
 - **syllabusGuard incorrectly banned Contraception/STDs** (RESOLVED in PR #124)
 - **18 reproduction questions wrongly removed in PR #121** — RESTORED in PR #124
 - **Motor/Generator/EMI not tracked in archetypes** (RESOLVED in PR #124 — formativeOnlyTopics added)
-- **REQUIRES-FIGURE backlog** — ~52 cumulative APQ questions (PR #126 + #128) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
-- **B/C/D/E density doctrine validated in PR #128** — OR-pair extraction increased non-MCQ density from 36 (PR #126) to 46 (PR #128). Doctrine working — keep applying to remaining extractions.
-- **AR (Assertion-Reasoning) density gap** — still thin across both Maths and Science; dedicated .assertionReasoning.ts pass needed after P2 APQ completes (target 2-3 AR per topic)
-- **Our Environment: 4 Qs now in bank** (PR #128 — first ever). Needs more extraction in future passes to reach reasonable density.
-- **TopicHub SEEDED: 13/25 topics only** — 12 topicKeys with bank content do not yet have curated TopicHub pages
+- **REQUIRES-FIGURE backlog** — ~65 cumulative APQ questions (PR #126 + #128 + #130) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
+- **B/C/D/E density doctrine validated through PR #130** — OR-pair extraction continues to produce dense non-MCQ output. Apply to all future extractions.
+- **AR (Assertion-Reasoning) density gap** — still thin across both Maths and Science; dedicated .assertionReasoning.ts pass needed (P2 APQ now complete, so unblocked)
+- **Our Environment: 8 Qs in bank** (PR #128 seeded 4 + PR #130 added 4 more). Approaching reasonable density; still needs growth.
+- **TopicHub SEEDED: 14/25 topics** — 11 topicKeys with bank content still on sample-preview (was 12 pre-#130; one additional topic now seeded)
+- **"Show visual" button broken in TopicHub right rail** — wiring gap; quick-win product PR planned (≤20 lines)
+- **No formula sheet surface** — data exists in archetypes for 14 topics but no UI renders it; medium-effort product PR planned
+- **strategyHint never rendered** — 75 question banks contain authored strategyHints (including all REQUIRES-FIGURE descriptions) but no surface displays them; small product PR planned (Hint button in PracticeQuestionCard)
+- **API gateway gap in vercel.json** — no /api/* rewrite; AI features return 404 in production; high-effort fix (Vercel rewrite + Railway deploy)
 - **Tutor drawer surfaces underused** — MentorSolveDrawer / ConceptTeachDrawer / TutorDrawerV2 exist but don't receive student attempt data; pre-launch product decision pending
 - Clerk dev mode only (pk_test_) — no production instance configured
-- AI features 404 in production (no /api/* rewrite in vercel.json)
 - PYQ filter returns 0 (K2H-8f engine fix pending — pre-req for P5)
-- pack1/pack2/pack3 questions are AI-generated — retirement REVISED to 4,500 authentic threshold (was 6,000)
+- pack1/pack2/pack3 questions are AI-generated — retirement at 4,500 authentic threshold
 - deletionGuard.test.ts fixed (PR #108) — 29/29 tests passing
-- strategyHint authored but never rendered (quick win pending)
 - index.html meta stale (149/month, wrong theme-color)
 - pyqSet format inconsistency in P0 AR files (full CBSE codes — cleanup in P5)
 - .claude/ folder not in .gitignore — minor housekeeping

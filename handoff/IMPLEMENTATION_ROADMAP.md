@@ -5,15 +5,16 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-028d51d37d3a168196809676ed4d9e5c3b20fdb3
+d739585df2013b7299c3c8e931c5685d388f606d
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
 in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126,
-#128). Next product PR should still be PR-K2H-6 (Home/cockpit learning order + Continue
-repair) — unchanged, though pre-launch product deliberations (notes/formulae/proofs/tutor
-drawers) are now open per PR #128 cycle.
+#128, #130). The **P2 APQ phase is now complete** (5 papers, 284 authentic Qs across PRs
+#119, #126, #128, #130). Pre-launch quick-win product PRs (strategyHint Hint button,
+"Show visual" wiring fix, Formula sheet tab, API gateway) are now queued as a new
+product track running in parallel with P3 Meridian content extraction.
 
 Current implementation branch:
 ```
@@ -46,6 +47,14 @@ Latest in the content/tooling track:
   **First ever Our Environment questions in the bank** (4 Qs). OR-pair doctrine validated
   (non-MCQ density 36 → 46 between PR #126 and #128). Authentic 1,793 → 1,883; spreads
   150 → 163. Progress to 4,500 retirement: 41.8%.
+- PR #130 (2026-05-25) — P2 APQ Science-PQ2 (finale): 49 questions appended across the
+  13 existing Science topic files. No new files; canonicalQuestionBank.ts untouched.
+  10 OR-pairs as separate rows, 13 REQUIRES-FIGURE tags. Section breakdown A=20 B=8 C=9
+  D=6 E=6; competency 81.6%. Authentic 1,883 → 1,932; spreads unchanged at 163. Bank
+  total (engine-confirmed) 4,729. Progress to 4,500 retirement: 42.9%. **P2 APQ phase
+  COMPLETE** — 284 authentic Qs across 5 papers (PRs #119, #126, #128, #130). Branch
+  `content/additional-pq-sqp-2024` DELETED post-merge (remote + local); future extraction
+  phases use fresh branch names per phase to eliminate the force-push requirement.
 
 Doctrine snapshot (2026-27):
 - RETAINED in board scope: Our Environment (ecology, Unit V 5 marks), Reproduction
@@ -64,8 +73,10 @@ Extraction doctrine additions (PR #126 cycle):
   (2-3 AR per topic, both Maths and Science).
 
 See `CURRENT_STATE.md` for the full PR history table and `NEXT_ACTION.md` for the queued
-content tasks. Next: Science-PQ2 (P2 APQ finale, ~45-50 Qs); then content + product
-deliberation (notes/formulae/proofs/tutor drawers); then AR density pass; then P3 Meridian.
+content tasks. Next: pre-launch quick wins (product track — strategyHint Hint button, "Show
+visual" wiring fix, Formula sheet tab, API gateway) AND/OR P3 Meridian extraction (content
+track — fresh branch `content/p3-meridian`, ~475 Qs, first step pymupdf cid probe). Then AR
+density pass. Owner decides sequence next session.
 
 ## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
 
