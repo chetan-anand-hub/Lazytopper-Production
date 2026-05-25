@@ -1,6 +1,64 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #137 — P4-S PYQ Science 111 Qs; **P4 phase complete: 214 board PYQs**)
-Live base SHA: f25af07803230b203a298b6e12e5e74989bf1411
+Last updated: 2026-05-25 (post-PR #139 — K2H-8f-b UI wire-up; PYQ chip end-to-end functional)
+Live base SHA: b7add944a713430679de8c5e6d07dca49f4db272
+
+## Post-PR #139 — K2H-8f-b UI wire-up: pyqOnly chip now end-to-end functional
+
+Timestamp: 2026-05-25
+Merge SHA on base: b7add944a713430679de8c5e6d07dca49f4db272
+
+PR #139 | fix(practice): K2H-8f-b wire pyqOnly through UI bridge to engine filter
+Branch: fix/k2h-8f-ui-wire (squash-merged — delete branch)
+Commits: 1 (8610d79)
+
+Files changed: 2 (+112 insertions, -9 deletions)
+  - lazytopper/src/components/practice/practiceQuestionBuilder.ts
+    (+13/-9) — 4 changes:
+    1. Added pyqOnly?: boolean to buildPracticeQuestionsFromEngine args
+    2. Passed pyqOnly: args.pyqOnly through to generatePracticeSet (activates
+       PR #133 engine-layer hard filter)
+    3. Added pyqYear/pyqSet to CanonicalQuestion→PracticeQuestion object literal
+       mapping (lines ~245-264) — fields were previously stripped, making
+       isPYQQuestion() see undefined on every question
+    4. Removed redundant UI-layer pyqOnly soft-fallback from
+       buildPracticeQuestionsWithAiTopup (was silently no-op due to stripped fields)
+  - scripts/src/practiceSetGeneratorGuard.test.ts
+    (+99/0) — new describe block "K2H-8f-b buildPracticeQuestionsFromEngine
+    pyqOnly wire-up" with 3 tests:
+    · pyqOnly:true via UI bridge returns only PYQ questions (end-to-end)
+    · UI bridge mapping preserves pyqYear on mapped PracticeQuestion (Change 3 lock)
+    · pyqOnly:true is a subset of pyqOnly:false via UI bridge
+
+K2H-8f thread now complete:
+  PR #133 — engine-layer hard filter + isPYQQuestion() helper
+  PR #135 — 103 P4-M Maths PYQs (pyqYear: "2023")
+  PR #137 — 111 P4-S Science PYQs (pyqYear: "2023")
+  PR #139 — UI bridge wired (this PR) — CURRENT BASE
+
+End-to-end behaviour: PYQ chip in PracticeSetupScreen sets pyqOnly:true →
+builder passes to engine → engine hard-filters → mapping preserves pyqYear →
+214 board PYQs (2022-23) flow through cleanly. Empty state honest (no soft fallback).
+
+Follow-up: K2H-8f-c (low priority, separate PR) — add isPYQ?: boolean to
+CanonicalQuestion in predictionTypes.ts + backfill 214 PYQs. Not blocking —
+engine recognises all 214 via pyqYear.
+
+Validations:
+  1. TypeScript (npx tsc -p tsconfig.app.json --noEmit) — exit 0
+  2. Duplicate IDs — 37 pre-existing legacy duplicates (unchanged, not from this PR)
+  3. Question count — 4,342 (unchanged — no bank files touched)
+  4. Spread count — 202 (unchanged)
+  5. Diff scope — exactly 2 expected files
+  6. Engine reachability — 111/111 P4-S PYQ-S-* questions reachable (unchanged)
+
+Test matrix: 137/137 PASS (5 test files) — up from 134/134 (+3 K2H-8f-b tests)
+
+Bank state (unchanged by this PR):
+  Authentic questions: ~2,698
+  Bank total: ~5,526
+  Spreads: 202
+  Board PYQs: 214 (2022-23, all 26 topicKeys)
+  Retirement threshold: 4,500 (60.0% reached)
 
 ## Post-PR #137 — P4-S PYQ Science (111 verbatim CBSE 2022-23 board Qs across 13 Science topic files) — MERGED
 
