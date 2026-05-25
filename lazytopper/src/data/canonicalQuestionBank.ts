@@ -256,6 +256,22 @@ import { SURFACE_AREAS_AND_VOLUMES_PYQ_2026 } from './questionBanks/class10/math
 import { STATISTICS_PYQ_2026 } from './questionBanks/class10/maths/statistics.pyq2026';
 import { PROBABILITY_PYQ_2026 } from './questionBanks/class10/maths/probability.pyq2026';
 
+// P4 Maths PYQ 2025 — CBSE 2024-25 board papers (30/1/x, 30/2/x, 30/3/x), 2026-05-25
+// 12 Maths topic files (no triangles — topic had 0 extractable items); verbatim from QP + matched MS 2024-25
+// Scope note: 10 Standard QPs (30/4/x, 30/5/x, 30/6/x, 30(B)) scanned — skipped (require OCR); Maths Basic (241) not in scope
+import { REAL_NUMBERS_PYQ_2025 } from './questionBanks/class10/maths/real-numbers.pyq2025';
+import { POLYNOMIALS_PYQ_2025 } from './questionBanks/class10/maths/polynomials.pyq2025';
+import { PAIR_LINEAR_EQUATIONS_PYQ_2025 } from './questionBanks/class10/maths/pair-of-linear-equations.pyq2025';
+import { QUADRATIC_EQUATIONS_PYQ_2025 } from './questionBanks/class10/maths/quadratic-equations.pyq2025';
+import { ARITHMETIC_PROGRESSION_PYQ_2025 } from './questionBanks/class10/maths/arithmetic-progression.pyq2025';
+import { COORDINATE_GEOMETRY_PYQ_2025 } from './questionBanks/class10/maths/coordinate-geometry.pyq2025';
+import { TRIGONOMETRY_PYQ_2025 } from './questionBanks/class10/maths/trigonometry.pyq2025';
+import { CIRCLES_PYQ_2025 } from './questionBanks/class10/maths/circles.pyq2025';
+import { AREAS_RELATED_TO_CIRCLES_PYQ_2025 } from './questionBanks/class10/maths/areas-related-to-circles.pyq2025';
+import { SURFACE_AREAS_AND_VOLUMES_PYQ_2025 } from './questionBanks/class10/maths/surface-areas-and-volumes.pyq2025';
+import { STATISTICS_PYQ_2025 } from './questionBanks/class10/maths/statistics.pyq2025';
+import { PROBABILITY_PYQ_2025 } from './questionBanks/class10/maths/probability.pyq2025';
+
 // P4 Science PYQ 2026 — CBSE 2025-26 board papers (31/2/x, 31/3/x, 31/4/x, 31/5/x), 2026-05-25
 // 13 Science topic files; verbatim from QP + matched English marking schemes (X_086 Set-N ENGLISH)
 // Scope note: 3 QPs (31/1/x) are scanned (no extractable text) — skipped (require OCR)
@@ -504,6 +520,19 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...SURFACE_AREAS_AND_VOLUMES_PYQ_2026,
   ...STATISTICS_PYQ_2026,
   ...PROBABILITY_PYQ_2026,
+  // P4 Maths PYQ 2025 — CBSE 2024-25 board papers (57 Qs across 12 Maths topic files, 2026-05-25)
+  ...REAL_NUMBERS_PYQ_2025,
+  ...POLYNOMIALS_PYQ_2025,
+  ...PAIR_LINEAR_EQUATIONS_PYQ_2025,
+  ...QUADRATIC_EQUATIONS_PYQ_2025,
+  ...ARITHMETIC_PROGRESSION_PYQ_2025,
+  ...COORDINATE_GEOMETRY_PYQ_2025,
+  ...TRIGONOMETRY_PYQ_2025,
+  ...CIRCLES_PYQ_2025,
+  ...AREAS_RELATED_TO_CIRCLES_PYQ_2025,
+  ...SURFACE_AREAS_AND_VOLUMES_PYQ_2025,
+  ...STATISTICS_PYQ_2025,
+  ...PROBABILITY_PYQ_2025,
   // P4 Science PYQ 2026 — CBSE 2025-26 board papers (151 Qs across 13 Science topic files, 2026-05-25)
   ...chemicalReactionsPYQ2026,
   ...acidsBasesSaltsPYQ2026,
