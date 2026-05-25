@@ -205,6 +205,23 @@ import { ELECTRICITY_CHAPTERWISE } from './questionBanks/class10/science/electri
 import { MAGNETIC_EFFECTS_CHAPTERWISE } from './questionBanks/class10/science/magnetic-effects-of-electric-current.chapterwise';
 import { OUR_ENVIRONMENT_CHAPTERWISE } from './questionBanks/class10/science/our-environment.chapterwise';
 
+// P4 Science PYQ — CBSE 2022-23 board papers (31/2/x, 31/4/x, 31/5/x), 2026-05-25
+// 13 Science topic files; 111 questions verbatim from QP + matched MS X_086_31_x_MS marking schemes
+// Scope note: 6 QPs (31/1/x, 31/6/x) are scanned PDFs — skipped (require OCR for body text)
+import { CHEMICAL_REACTIONS_PYQ } from './questionBanks/class10/science/chemical-reactions-and-equations.pyq';
+import { ACIDS_BASES_SALTS_PYQ } from './questionBanks/class10/science/acids-bases-and-salts.pyq';
+import { METALS_NON_METALS_PYQ } from './questionBanks/class10/science/metals-and-non-metals.pyq';
+import { CARBON_COMPOUNDS_PYQ } from './questionBanks/class10/science/carbon-and-its-compounds.pyq';
+import { LIFE_PROCESSES_PYQ } from './questionBanks/class10/science/life-processes.pyq';
+import { CONTROL_COORDINATION_PYQ } from './questionBanks/class10/science/control-and-coordination.pyq';
+import { HOW_DO_ORGANISMS_REPRODUCE_PYQ } from './questionBanks/class10/science/how-do-organisms-reproduce.pyq';
+import { HEREDITY_PYQ } from './questionBanks/class10/science/heredity.pyq';
+import { LIGHT_REFLECTION_PYQ } from './questionBanks/class10/science/light-reflection-and-refraction.pyq';
+import { HUMAN_EYE_PYQ } from './questionBanks/class10/science/human-eye-and-colourful-world.pyq';
+import { ELECTRICITY_PYQ } from './questionBanks/class10/science/electricity.pyq';
+import { MAGNETIC_EFFECTS_PYQ } from './questionBanks/class10/science/magnetic-effects-of-electric-current.pyq';
+import { OUR_ENVIRONMENT_PYQ } from './questionBanks/class10/science/our-environment.pyq';
+
 // P4 Maths PYQ — CBSE 2022-23 board papers (30/2/x, 30/4/x, 30/5/x), 2026-05-25
 // 13 Maths topic files; ~134 questions verbatim from QP + matched MS 041_30-x-x marking schemes
 // Scope note: 6 QPs (30/1/x, 30/6/x) + 30-B-5 are scanned PDFs — skipped (require OCR for body text)
@@ -411,6 +428,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ELECTRICITY_CHAPTERWISE,
   ...MAGNETIC_EFFECTS_CHAPTERWISE,
   ...OUR_ENVIRONMENT_CHAPTERWISE,
+  // P4 Science PYQ — CBSE 2022-23 board papers (111 Qs across 13 Science topic files, 2026-05-25)
+  ...CHEMICAL_REACTIONS_PYQ,
+  ...ACIDS_BASES_SALTS_PYQ,
+  ...METALS_NON_METALS_PYQ,
+  ...CARBON_COMPOUNDS_PYQ,
+  ...LIFE_PROCESSES_PYQ,
+  ...CONTROL_COORDINATION_PYQ,
+  ...HOW_DO_ORGANISMS_REPRODUCE_PYQ,
+  ...HEREDITY_PYQ,
+  ...LIGHT_REFLECTION_PYQ,
+  ...HUMAN_EYE_PYQ,
+  ...ELECTRICITY_PYQ,
+  ...MAGNETIC_EFFECTS_PYQ,
+  ...OUR_ENVIRONMENT_PYQ,
   // P4 Maths PYQ — CBSE 2022-23 board papers (134 Qs across 13 Maths topic files, 2026-05-25)
   ...REAL_NUMBERS_PYQ,
   ...POLYNOMIALS_PYQ,
