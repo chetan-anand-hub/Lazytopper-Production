@@ -1,3 +1,59 @@
+## 2026-05-25 — Post-PR #135 (P4-M PYQ Maths 103 Qs)
+
+### RESOLVED — P4-M PYQ Maths extraction (PR #135)
+13 new `maths/{topic}.pyq.ts` files + canonicalQuestionBank.ts registration.
+103 verbatim CBSE 2022-23 board questions across 9 text-extractable QPs
+(30/2/x, 30/4/x, 30/5/x) + matching MS 041_30-x-x marking schemes.
+Section A=48 / B=15 / C=22 / D=15 / E=3; competency 100%; engine isPYQQuestion()
+recognises 103/103 via `pyqYear: "2023"` path. Authentic 2,484 → 2,587;
+spreads 176 → 189; bank 5,281 → 5,415.
+
+### LOCKED — `isPYQ` field omission via pyqYear path (P4-M doctrine, also for P4-S)
+P4-M instruction Section 3 said "isPYQ: true on ALL". The `CanonicalQuestion`
+type in `predictionTypes.ts` does NOT include `isPYQ?: boolean` yet, and that
+file is globally forbidden per CLAUDE.md §4. Resolution locked: **omit `isPYQ`
+field entirely; populate `pyqYear: "2023"` (or appropriate year) instead**.
+PR #133's `isPYQQuestion(q)` helper recognises both paths — 103/103 verified.
+**Apply this approach to P4-S Science extraction too.** Once K2H-8f-c follow-up
+adds `isPYQ: true` to the type, a one-line script can backfill it across all
+P4-M + P4-S files. Don't fight the type system.
+
+### LOCKED — Permanent PYQ Maths source decisions (do not re-evaluate)
+P4-M session probed and PERMANENTLY documented these source-availability facts:
+  - **2022-23 Maths used**: 9/16 QPs extracted (30/2/x, 30/4/x, 30/5/x).
+  - **2022-23 Maths skipped — require OCR**: 30/1/x, 30/6/x, 30-B-5 (scanned
+    image-only PDFs; pymupdf returns 0 chars).
+  - **2023-24 Maths deferred — MS download needed**: `24 math 1/2/3.pdf` series
+    exists locally but no matching MS on disk. Download MS from cbse.gov.in,
+    then resume as P4-M continuation.
+  - **Within-paper losses (unavoidable without OCR)**: 48 questions where pymupdf
+    returned only Hindi-script body; 41 questions with math-symbol-heavy truncated
+    bodies; 18 MCQs with broken option sets (duplicates from lost minus signs).
+    Total 107 of 342 raw question instances skipped to preserve anti-fabrication.
+
+### OPEN — P4-S PYQ Science extraction (HIGH, **next active task**)
+Fresh branch `content/p4-pyq-science`. Sources: `31_x_x.pdf` Science QPs +
+`X_086_31_x_MS` marking schemes (confirmed on disk in
+`...\CBSE Previous papers\2022-2023\SCIENCE\`). ~150-200 Qs expected after
+similar quality filters. ID prefix `PYQ-S-2023-{TOPIC}-{NNN}`. File naming
+`science/{topic-slug}.pyq.ts`. Pipeline scripts in `diff\` are reusable:
+swap Maths topic classifier for Science; update ID prefix and topic-short
+table in `p4_generate_ts.py`; probe FIRST to identify scanned-PDF skips.
+Same doctrine as P4-M (pyqYear via isPYQQuestion; pyqSet "1"/"2"/"3";
+Section E one-row case-based; anti-fabrication; broken-MCQ filter; skip
+deleted topics — Periodic Classification, Evolution, Sources of Energy,
+Management of Natural Resources, Motor/EMI/Generator).
+
+### OPEN — 2023-24 Maths MS download then P4-M continuation (LOW)
+Manual step: download missing 2023-24 Maths marking schemes from cbse.gov.in.
+Once on disk, extract another ~50-100 Qs from the `24 math 1/2/3.pdf` series
+as P4-M continuation (separate fresh branch).
+
+### OPEN — K2H-8f-c add `isPYQ?: boolean` to CanonicalQuestion type
+Adds `isPYQ?: boolean` to `predictionTypes.ts`. Small PR (one line). Unblocks
+setting `isPYQ: true` on P4-M + P4-S files via one-line backfill script. Not
+blocking content extraction (engine already recognises via pyqYear).
+
 ## 2026-05-25 — Post-PR #132 + #133 (P3 Science chapter-wise; K2H-8f PYQ engine fix)
 
 ### RESOLVED — P3 Science chapter-wise extraction (PR #132)
@@ -38,18 +94,13 @@ independent — can ship separately or bundled.
 Until these land, the engine filter works but the UI chip can't reach it
 cleanly. Not blocking P4 content extraction.
 
-### OPEN — P4-M PYQ Maths extraction (HIGH, content track A)
-~400 Qs; 16 QPs (30-x-x) + 16 MS files confirmed on disk. Fresh branch
-`content/p4-pyq-maths`. **isPYQ: true** on all (these ARE official board
-PYQs); `pyqYear: "2022"/"2023"/etc` + `pyqSet: "30/1/1"` etc populated.
-ID prefix `PYQ-M-{TOPIC}-{NNN}`. Apply locked doctrine: OR-pair extraction
-for B/C/D/E, REQUIRES-FIGURE tags, Section E one-row case-based, anti-
-fabrication. First step: pymupdf cid probe on 30-x-x PDFs (not yet tested).
+### RESOLVED — P4-M PYQ Maths extraction (now PR #135 — see above)
+Was OPEN; closed by PR #135 (2026-05-25). 103 verbatim Qs extracted from
+9 text-extractable QPs. See top of this file for details and P4-M source
+decisions locked.
 
-### OPEN — P4-S PYQ Science extraction (HIGH, content track B — parallel)
-~400 Qs; 15 QPs (31_x_x) + MS files confirmed on disk. Fresh branch
-`content/p4-pyq-science`. Same doctrine as P4-M. ID prefix `PYQ-S-{TOPIC}-
-{NNN}`. Can run in parallel with P4-M (different topic files, no overlap).
+### OPEN — P4-S PYQ Science extraction — see top of this file
+Now the next active task. Same doctrine as P4-M (pyqYear via isPYQQuestion).
 
 ### OPEN — Pre-launch quick wins (carry-over from PR #130 cycle)
 Still queued, unchanged:

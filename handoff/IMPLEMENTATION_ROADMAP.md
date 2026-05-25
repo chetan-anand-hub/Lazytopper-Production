@@ -5,18 +5,19 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-c0f129dcdbe8722c8b74792df8cab358981d8c3e
+2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
 in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126,
-#128, #130, #132, #133). The **P2 APQ phase is complete** (5 papers, 284 Qs) and the
-**P3 Science chapter-wise phase is complete** (PR #132, 552 Qs). The **K2H-8f PYQ engine
-filter** landed in PR #133, unblocking P4 PYQ content extraction at the engine layer.
-Three parallel tracks now open: P4-M / P4-S PYQ content extraction (fresh branches);
-K2H-8f UI wiring follow-ups (3 small product PRs); pre-launch quick wins (4 product PRs
-from prior cycle).
+#128, #130, #132, #133, #135). The **P2 APQ phase is complete** (5 papers, 284 Qs);
+**P3 Science chapter-wise phase is complete** (PR #132, 552 Qs); **K2H-8f PYQ engine
+filter** landed in PR #133; **P4-M PYQ Maths phase is complete** (PR #135, 103 verbatim
+CBSE 2022-23 board Qs). Next content phase: **P4-S PYQ Science** (fresh branch, ~150-200 Qs
+expected). Other parallel tracks open: K2H-8f UI wiring follow-ups (3 small product PRs);
+pre-launch quick wins (4 product PRs from prior cycle); 2023-24 Maths MS download then
+P4-M continuation.
 
 Current implementation branch:
 ```
@@ -26,6 +27,15 @@ None. Create the next implementation branch fresh from the live verified base af
 ## Content + Tooling track — recent stages
 
 Latest in the content/tooling track:
+
+- PR #135 (2026-05-25) — **P4-M PYQ Maths**: 103 verbatim CBSE 2022-23 board questions
+  across 13 maths/*.pyq.ts files. ID prefix `PYQ-M-{TOPIC}-{NNN}`. Section A=48 / B=15 /
+  C=22 / D=15 / E=3; competency 100%. Sources: 9 text-extractable QPs (30/2/x, 30/4/x,
+  30/5/x) + matching MS 041_30-x-x marking schemes. Deferred: 6 scanned QPs (require OCR);
+  48 Hindi-only bodies; 41 truncated bodies; 18 broken-option MCQs. NEW doctrine locked:
+  `pyqYear: "2023"` populated; `isPYQ` field OMITTED until K2H-8f-c lands (engine
+  isPYQQuestion() helper recognises 103/103 via pyqYear path). Spreads 176 → 189;
+  authentic 2,484 → 2,587; bank 5,281 → 5,415.
 
 - PR #119 (2026-05-24) — P2 CBSE SQP 2023-24: 69 questions across 25 topic files (Maths 38 +
   Science 31). Adopted pymupdf as the official PDF extraction tool (replaces pdfplumber).

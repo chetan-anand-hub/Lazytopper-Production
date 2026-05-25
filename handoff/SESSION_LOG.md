@@ -1,5 +1,110 @@
 ---
 
+## 2026-05-25 — P4-M PYQ Maths (PR #135, +103 Qs verbatim CBSE 2022-23 board)
+
+Timestamp: 2026-05-25 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `acd458e` (post-PR #132+#133+#134 handoff)
+- Fresh branch `content/p4-pyq-maths` created from verified base SHA
+- Pre-req unblocked: PR #133's `isPYQQuestion()` engine helper recognises
+  PYQ via populated `pyqYear` even when `isPYQ` field is absent
+
+### Work completed — PR #135 (P4-M PYQ Maths, 103 Qs)
+
+Branch: `content/p4-pyq-maths` (DELETED post-merge per fresh-branch doctrine)
+Commit: 449677e (14 files, +939 insertions)
+Merge SHA on base: 2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
+
+Files: 13 new `maths/{topic}.pyq.ts` + 1 modified `canonicalQuestionBank.ts`
+(+13 imports + 13 spreads under "P4 Maths PYQ" banner).
+
+Sources: 9 text-extractable QPs from 2022-23 board exam (30/2/1-3, 30/4/1-3,
+30/5/1-3) + matching MS 041_30-x-x marking schemes. All clean (0 cid / 0 mojibake
+on all 18 PDFs after probe).
+
+Extraction: 103 verbatim CBSE board PYQs across all 13 retained Maths topicKeys.
+Section breakdown A=48 / B=15 / C=22 / D=15 / E=3. Competency 100%. Bank
+5,281 → 5,415; authentic 2,484 → 2,587 (57.5% to 4,500-Q retirement).
+
+Pipeline (REUSABLE for P4-S — scripts in `diff\`):
+  - `p4_probe.py` — probe all 32 PDFs
+  - `p4_extract.py` — QP+MS segmentation + Maths topic classifier
+  - `p4_generate_ts.py` — JSON → 13 TS files; broken-MCQ filter; dedup
+  - `p4_checkpoint_b.py` — Checkpoint B per file (Section 7 of P4-M instruction)
+  - `p4_pyq_reachability.mjs` — engine isPYQQuestion() verification
+
+### NEW doctrine — isPYQ field via pyqYear path
+
+The agent instruction Section 3 said "isPYQ: true on ALL P4 questions". The
+`CanonicalQuestion` type in `predictionTypes.ts` does NOT include `isPYQ?: boolean`
+yet (K2H-8f-c follow-up). `predictionTypes.ts` is globally forbidden per CLAUDE.md
+§4. Resolution: **omit `isPYQ` field entirely; populate `pyqYear: "2023"` instead**.
+PR #133's `isPYQQuestion(q)` helper recognises both paths — engine reachability
+test confirms 103/103 P4-M questions are recognised as PYQ via the `pyqYear` path.
+Locked as the standard for P4-S Science too. Once K2H-8f-c lands (adds `isPYQ`
+to type), a one-line script can backfill `isPYQ: true` on all P4-M + P4-S files.
+
+### Permanent source decisions LOCKED (don't re-evaluate next session)
+
+  USED (2022-23 Maths):
+    - 30/2/1, 30/2/2, 30/2/3 — pyqSet 1/2/3
+    - 30/4/1, 30/4/2, 30/4/3 — pyqSet 1/2/3
+    - 30/5/1, 30/5/2, 30/5/3 — pyqSet 1/2/3
+    (9 QPs + 9 MS, all clean, 103 Qs extracted)
+
+  SKIPPED — REQUIRE OCR (scanned image-only PDFs, 0 extractable text):
+    - 30/1/1, 30/1/2, 30/1/3
+    - 30/6/1, 30/6/2, 30/6/3
+    - 30-B-5 (VI candidates paper, different layout)
+    Do NOT attempt re-extract without OCR pipeline.
+
+  DEFERRED — MS download needed before extraction:
+    - 2023-24 Maths PYQs: `24 math 1/2/3.pdf` series on disk; NO matching MS
+      Action: download MS from cbse.gov.in, then resume as P4-M continuation
+
+  DEFERRED — quality blockers within extracted papers:
+    - 48 questions where pymupdf returned only Hindi-script body
+    - 41 questions where math-symbol-heavy English body got truncated mid-sentence
+    - 18 MCQs where pymupdf options had duplicates (lost minus signs / fractions)
+    Total: 107 of 342 raw question instances skipped to maintain anti-fabrication.
+
+### Validations (all PASS)
+
+  - `npx tsc -p tsconfig.app.json --noEmit` — exit 0
+  - syllabusGuard — 0 violations
+  - validateQuestionBanks — 243 files, 0 dupes, mark/section consistent
+  - Checkpoint B (per Section 7 of P4-M instruction) — **13/13 PASS**
+    (0 mojibake / 0 cid / no bad IDs / pyqYear+pyqSet populated on all)
+  - New PYQ-M-* duplicate IDs across 103 — 0
+  - Engine reachability — **103/103 P4-M questions routed AND
+    isPYQQuestion()-recognised** (via pyqYear path)
+  - Full test matrix (5 files, 19 suites) — **134/134 PASS**
+
+### Push hiccup (transient)
+
+GitHub returned `Internal Server Error` on 4 consecutive push attempts (Request
+IDs `366A:125F47`, `366E:379AB8`, `367E:474A2`, `36B4:47F96` between 09:03Z and
+09:06Z). Repo API was fine throughout (rate limit 4993/5000, branch protection
+returned 404 = not protected). Server-side hiccup; resolved on retry ~6 min later.
+Recorded for future reference if pattern recurs.
+
+### Next session priorities
+
+  1. **P4-S PYQ Science** (HIGH mode, ~150-200 Qs expected). Fresh branch
+     `content/p4-pyq-science`. Sources: `31_x_x` QPs + `X_086_31_x_MS` files in
+     `.../CBSE Previous papers/2022-2023/SCIENCE/`. Pipeline reusable from P4-M
+     (swap Maths topic classifier for Science classifier; update ID prefix to
+     `PYQ-S-2023-`; update topic-short table).
+  2. **K2H-8f UI wire-up** (Low-Medium mode). `practiceQuestionBuilder.ts` —
+     wire pyqOnly chip through to engine. Fold in engine-to-UI field-stripping
+     fix and isPYQ type addition (K2H-8f-c) if scope allows.
+  3. **Download 2023-24 Maths MS from cbse.gov.in** (Low mode). Then extract
+     remaining 3 sets as P4-M continuation.
+
+---
+
 ## 2026-05-25 — P3 Science chapter-wise (PR #132, +552 Qs) + K2H-8f PYQ engine fix (PR #133)
 
 Timestamp: 2026-05-25 (Asia/Kolkata)
