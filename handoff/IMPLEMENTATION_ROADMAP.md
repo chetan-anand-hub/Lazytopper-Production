@@ -5,13 +5,14 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-f09b5fca679e3669bcb0e0b5b26a480d983448cb
+9be894526eb20ad51bca2c7aaa3b8ffab931191a
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
-in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124). Next
-product PR should still be PR-K2H-6 (Home/cockpit learning order + Continue repair) — unchanged.
+in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126).
+Next product PR should still be PR-K2H-6 (Home/cockpit learning order + Continue repair) —
+unchanged.
 
 Current implementation branch:
 ```
@@ -34,6 +35,10 @@ Latest in the content/tooling track:
   (12 reproductive-health + 14 Our Environment ecology); Sources of Energy promoted to
   deletedTopics; new formativeOnlyTopics array for Motor/EMI/Generator; 18 questions
   restored. Authentic count 1,699 → 1,717. Test matrix now 125/125 across 4 files.
+- PR #126 (2026-05-25) — P2 APQ Maths PQ1 + PQ2: 76 questions across 13 new
+  `.additionalPQ.ts` files (one per Maths topic, PQ1+PQ2 combined). 88% competency,
+  ~22 REQUIRES-FIGURE tags. Authentic 1,717 → 1,793; spreads 137 → 150. Pack retirement
+  threshold REVISED from 6,000 to 4,500.
 
 Doctrine snapshot (2026-27):
 - RETAINED in board scope: Our Environment (ecology, Unit V 5 marks), Reproduction
@@ -42,8 +47,17 @@ Doctrine snapshot (2026-27):
   Management of Natural Resources (Ch 16), Evolution section of Heredity.
 - FORMATIVE ONLY (taught but not assessed): Motor / Electromagnetic Induction / Generator.
 
+Extraction doctrine additions (PR #126 cycle):
+- Pack retirement threshold: **4,500 authentic** (revised from 6,000).
+- REQUIRES-FIGURE strategyHint: standard tag for questions referencing PDF figures
+  that don't render in text extraction.
+- B/C/D/E OR variants: future extractions must extract BOTH alternatives as separate
+  questions to increase non-MCQ density.
+- AR density: dedicated `.assertionReasoning.ts` pass scheduled post-P2-APQ
+  (2-3 AR per topic, both Maths and Science).
+
 See `CURRENT_STATE.md` for the full PR history table and `NEXT_ACTION.md` for the queued
-content tasks (P2 APQ extraction next).
+content tasks (P2 APQ continuation — PQ_2022 + Science papers — next).
 
 ## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
 

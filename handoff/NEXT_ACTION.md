@@ -1,46 +1,85 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-24 (post syllabusGuard 2026-27 doctrine fix, PR #124)
-Live base SHA: f09b5fca679e3669bcb0e0b5b26a480d983448cb
+Last updated: 2026-05-25 (post-PR #126 — P2 APQ Maths PQ1+PQ2)
+Live base SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a
 
-## Immediate next action — P2 APQ extraction
+## Immediate next action — P2 APQ continuation (PQ_2022 + Science PQ + Science PQ2)
 
-Tooling track is now caught up with CBSE 2026-27 doctrine. Authentic question
-total is 1,717. Next active content task is P2 APQ extraction (CBSE Additional
-Practice Questions 2023-24).
+P2 APQ Maths PQ1+PQ2 merged successfully (PR #126, +76 authentic Qs, 1,717 →
+1,793). Three more APQ papers remain to be extracted on the same branch
+`content/additional-pq-sqp-2024`. Text already pre-extracted to
+`diff/_apq_text/` for all three.
 
-### ✅ Follow-up — Reproduction bank cleanup — COMPLETE (PR #121)
+### ✅ Follow-up — P2 APQ Maths PQ1 + PQ2 — COMPLETE (PR #126)
 
-PR #121 removed 18 questions + added 5 banned variants + 35-test suite.
+Done in PR #126 (merge SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a):
+- 13 new `.additionalPQ.ts` files created (one per Maths topic)
+- canonicalQuestionBank.ts updated (+13 imports + 13 spreads under
+  "P2 CBSE APQ 2023-24" banner)
+- 76 questions extracted from Mathematics-PQ1.pdf + Mathematics-PQ2.pdf
+  (38 each), combined per topic across both papers
+- Section breakdown: A=40 B=10 C=12 D=8 E=6
+- Competency: 88% (67/76) — well above 40% target
+- ~22 REQUIRES-FIGURE strategyHints
+- isPYQ: false on all 76
+- Authentic: 1,717 → 1,793; spreads: 137 → 150
+- Test matrix: 125/125 PASS
 
-### ✅ Follow-up — ops acceptance regression suite — COMPLETE (PR #123)
+### Next active task — P2 APQ continuation (Mode: HIGH)
 
-PR #123 added `scripts/src/opsAcceptanceGuard.test.ts` with 37 tests locking
-in the deletion doctrine across registry + archetypes + topics + syllabusGuard.
+Branch: `content/additional-pq-sqp-2024` (preserve — REBASE first onto current
+base SHA 9be894526eb20ad51bca2c7aaa3b8ffab931191a before continuing).
 
-### ✅ Follow-up — syllabusGuard 2026-27 doctrine fix — COMPLETE (PR #124)
+Papers remaining (text pre-extracted to `diff/_apq_text/`):
+  - **Mathematics-PQ_2022.pdf** (~38 Qs, 2022-23 set) + MS
+      Will APPEND to the existing 13 `maths/{topic}.additionalPQ.ts` files
+      (per "one file per topic, combined across papers" spec)
+  - **Science-PQ.pdf** (~39 Qs) + Science-PQMS.pdf
+      Will CREATE new `science/{topic}.additionalPQ.ts` files
+  - **Science-PQ2.pdf** (~39 Qs) + Science-PQMS2.pdf
+      Will APPEND to the same `science/{topic}.additionalPQ.ts` files
 
-Done in PR #124 (merge SHA: f09b5fca679e3669bcb0e0b5b26a480d983448cb):
-- 26 strings removed from syllabusGuard Science banned list (12 reproductive
-  health + 14 Our Environment ecology) — Ch 8 reproductive health subtopics
-  and Our Environment chapter are RETAINED in 2026-27.
-- 18 questions restored across reproduction.*.ts (PR #121's deletions undone).
-- Sources of Energy promoted to deletedTopics in cbseHistoricalArchetypes
-  (was only matched via subtopic-keyword fallback).
-- New `formativeOnlyTopics` array on `SCIENCE_DELETED_CHAPTERS_2026_27`:
-  ["Electric Motor", "Electromagnetic Induction", "Electric Generator"] —
-  taught in 2026-27 but not assessed; tracked in archetypes (not banned in
-  question bank, so the 36 formative practice questions in magneticEffects.*.ts
-  remain valid).
-- Registry JSON `meta.notes` and `meta.excluded_subtopics` updated to reflect
-  reproductive health back in scope.
-- reproductionBankGuard.test.ts rewritten (30 tests; purpose flipped from
-  "assert banned" → "assert retained").
-- opsAcceptanceGuard.test.ts extended to 56 tests with new Blocks 1b + 4b.
-- Test matrix now 125/125 PASS (4 test files).
-- Authentic count: 1,699 → 1,717.
+Estimated total this PR cycle: ~116 additional Qs. Projected bank state after
+P2 APQ fully complete: 1,909 authentic / ~4,724 total / ~163 spreads.
 
-### Next active task — P2 APQ extraction (CBSE Additional Practice Questions 2023-24)
+**Critical doctrine for this extraction (new in PR #126 cycle):**
+
+  1. **Extract BOTH OR variants for B/C/D/E sections** — PR #126 stored OR
+     variants merged into single rows. Future passes must extract BOTH
+     alternatives as separate questions to increase non-MCQ density.
+     Section A (MCQ/AR) is currently over-represented.
+
+  2. **REQUIRES-FIGURE strategyHint** — for any question referencing a PDF
+     figure (diagram, table, graph) that doesn't render in text, set
+     `strategyHint: "REQUIRES-FIGURE: [description]"`. Keep questionText
+     and answer accurate to PDF.
+
+  3. **isPYQ: false** on all APQ (practice papers, not board PYQs).
+     **pyqSet: omit** entirely.
+
+  4. **Section E case-based: ONE row per case set**, marks=4. Do NOT split
+     into sub-rows.
+
+  5. **PDF tool: pymupdf** (fitz). Confirmed 0 cid artifacts on all 5 APQ PDFs.
+
+  6. **ID prefixes** (continue from PR #126's per-topic sequences for Maths;
+     start fresh for Science):
+     - Maths: `APQ-M-{TOPICSHORT}-{SEQ:003d}` — continue numbering per topic
+     - Science: `APQ-S-{TOPICSHORT}-{SEQ:003d}` — start at 001 per topic
+
+### Future task — AR (Assertion-Reasoning) density pass
+
+After P2 APQ fully completes, run a dedicated `.assertionReasoning.ts`
+extraction pass to address the AR density gap identified in PR #126 cycle.
+Target: 2-3 AR questions per topic for both Maths and Science.
+Source: any of the existing CBSE source PDFs (NCERT, Exemplar, APQ, SQP)
+that have AR coverage we haven't extracted yet.
+
+### Future task — REQUIRES-FIGURE resolution
+
+Post-launch (Option B first): replace the ~22 REQUIRES-FIGURE strategyHints
+with placeholder images. Post-Option A (after launch): SVG renders from PDF
+figure descriptions.
 
 Branch (suggested): `fix/ops-our-environment-alignment`
 Mode: Low.
@@ -125,7 +164,9 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | Reproduction cleanup | ✅ COMPLETE | PR #121 (-18 Qs, +5 banned variants, +35 regression tests) |
 | ops acceptance regression suite | ✅ COMPLETE | PR #123 (+37 tests, doctrine lock across 4 source-of-truth files) |
 | syllabusGuard 2026-27 doctrine fix | ✅ COMPLETE | PR #124 (-26 banned strings, +18 Qs restored, formativeOnlyTopics added) |
-| **P2 APQ** | ⏳ **NEXT** | 5 CBSE APQ papers, ~150-170 Qs estimated; use pymupdf not pdfplumber |
+| **P2 APQ Maths PQ1+PQ2** | ✅ **COMPLETE** | PR #126 (+76 Qs across 13 topic files; 88% competency; REQUIRES-FIGURE + 4,500 retirement doctrine) |
+| **P2 APQ continuation** | ⏳ **NEXT** | PQ_2022 + Science-PQ + Science-PQ2 (~116 Qs), same branch; rebase first |
+| AR density pass | ⏳ AFTER P2 APQ | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic |
 | P3    | ⏳ PENDING  | Meridian worksheets + Maths QB READY (~475 Qs) |
 | P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
 | P4b-S | ⏳ PENDING  | Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs) |
@@ -135,10 +176,13 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | P7    | ⏳ PENDING  | Pack retirement (trigger: authentic count ≥ 6,000) |
 | P8    | 🔒 DEFERRED | OCR-gated sources (~1,100 Qs, needs OCR tool) |
 
-Pack retirement threshold: 6,000 authentic questions
-Current authentic total: **1,717** (post-PR #124; +18 restored — the 7 NCERT/Exemplar
-+ 11 pack2 Qs PR #121 removed under the wrong 2025-26 doctrine are back, retagged
-with 2026-27-compliant subtopics)
+Pack retirement threshold: **4,500 authentic questions** (REVISED from 6,000 in PR #126 cycle).
+Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep. At 4,500
+authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
+100% routable. No OCR phase needed.
+
+Current authentic total: **1,793** (post-PR #126; +76 from APQ Maths PQ1+PQ2).
+Progress to retirement: 1,793 / 4,500 = 39.8%.
 
 ## Engine fix required before P5
 
