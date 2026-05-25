@@ -1,5 +1,140 @@
 ---
 
+## 2026-05-25 — P3 Science chapter-wise (PR #132, +552 Qs) + K2H-8f PYQ engine fix (PR #133)
+
+Timestamp: 2026-05-25 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `6c5404f` (post-PR #131 handoff)
+- Two parallel branches needed: `content/p3-science-chapterwise` (fresh per
+  doctrine) for content; `fix/k2h-8f-pyq-filter` (separate, pre-existing
+  unfinished work in working tree) for the engine fix.
+
+### Work completed — PR #132 (P3 Science chapter-wise, 552 Qs)
+
+1. **Source selection (permanent decisions)**:
+   - **USED**: `cbjescco01-15` (MCQ, 13 files) + `cbjesccq01-15` (PYQ-style,
+     13 files) from `…\Class X\Science\Chapter-wise\` (www.cbse.online).
+   - **SKIPPED forever** (recorded so future sessions don't re-evaluate):
+     Meridian (no MS PDFs → anti-fabrication blocker), NODIA (MS on external
+     URL), cbjemacq (Sinhala glyph corruption), Maths Basic 430-x-x (out-of-
+     Standard scope), Aakash chapter-wise (scanned, needs OCR), Old\ folder
+     (superseded duplicates).
+
+2. **Probe step (Section 4 of agent instruction)**: all 26 source PDFs
+   probed via pymupdf. Result: 0 cid artifacts, 0 Sinhala corruption,
+   solutions present across every file. PASS.
+
+3. **Programmatic extraction pipeline**: built Python parser handling both
+   source structures (`OBJECTIVE QUESTIONS` MCQ headers in cbjescco;
+   `ONE/TWO/THREE/FIVE MARKS QUESTIONS` section headers in cbjesccq). Caps
+   applied for reviewability: 20 cleanest MCQs per file + up to 6 per
+   PYQ-style mark-section. Source has ~3,243 raw question fragments —
+   extracting all in one PR would be unreviewable.
+
+4. **Quality filters**:
+   - Garbled MCQ filter: options with exploded chemistry-formula tokens
+     (e.g. `"Na O Na O 4 2 2 2 \" +"`) rejected pre-write via token-
+     distribution heuristic.
+   - Stray cp1252 `¬` (U+00AC) soft-hyphen artifact stripped via clean_text().
+   - REQUIRES-FIGURE heuristic on `diagram|figure|circuit|ray diagram|shown`
+     keywords (conservative — manual sweep recommended pre-launch).
+   - 2026-27 within-chapter ban filter: Evolution/Darwin/etc. removed from
+     ch09 (heredity); Motor/EMI/Generator/Fleming's-Right-Hand removed from
+     ch13 (magnetic effects).
+
+5. **MCQ competency doctrine (locked this session)**: MCQ defaults to
+   `isCompetencyBased: true` per CBSE 2026-27 — option discrimination
+   requires concept application above pure recall. Pure-recall MCQs
+   starting with Define/Name the/List the/Recall/Match the stay false.
+   This lifted competency from sub-40% (Checkpoint B T9 floor) to 74.6%
+   overall (412/552).
+
+6. **Chemistry arrow caveat**: pymupdf renders `→` as `$` in this source
+   (e.g. `Cu(s) + 2AgNO3(aq) $ Cu(NO3)2(aq) + 2Ag(s)`). Content is verbatim
+   from PDF (anti-fabrication preserved); just the arrow symbol is `$` not
+   `→`. Future cleanup pass could substitute where safe.
+
+7. **canonicalQuestionBank.ts registration**: 13 new imports + 13 new
+   spreads under "P3 Science Chapter-wise" banner. Spreads 163 → 176.
+
+8. **Branch fix-up incident**: P3 commit accidentally landed on
+   `fix/k2h-8f-pyq-filter` (a silent branch switch happened mid-session;
+   exact cause unclear — possibly VSCode auto-switch). Recovered with
+   `git branch -f content/p3-science-chapterwise aaa730a` and
+   `git branch -f fix/k2h-8f-pyq-filter 6c5404f` to restore the K2H-8f
+   branch to its pre-session state. Local-only branches, no remote impact.
+   Lesson: verify `git branch --show-current` before each commit when
+   multiple branches are in flight.
+
+### Work completed — PR #133 (K2H-8f engine fix)
+
+1. **Root cause** (recorded for posterity): K2H-8c UI chip wired `pyqOnly`
+   through `AiTopupArgs`, but the engine pipeline ran a SOFT fallback
+   (`if filtered.length > 0`) instead of a hard filter. Combined with
+   engine-to-UI mapping stripping `pyqYear`/`isPYQ`, the empty filter
+   silently fell back to "all questions" — masking the bug as "PYQ filter
+   returns 0".
+
+2. **Fix scope (engine layer only)**: PR #133 added `pyqOnly?: boolean` to
+   `PracticeSetConfig` and exported `isPYQQuestion(q)` helper that honours
+   BOTH explicit `isPYQ: true` and populated `pyqYear` (covers current bank
+   convention "2022"/"2023"/"30/1/1" and future P4 PYQ flag). Engine now
+   applies a HARD pyqOnly filter — no silent fallback.
+
+3. **Test suite expanded**: new `scripts/src/practiceSetGeneratorGuard.test.ts`
+   with 9 K2H-8f regression tests. Matrix grew 125 → **134/134 PASS**.
+
+4. **Three UI-side follow-ups** queued (separate PRs):
+   - Wire `pyqOnly` through `practiceQuestionBuilder.ts`
+   - Fix engine-to-UI mapping field stripping
+   - Add `isPYQ?: boolean` to `CanonicalQuestion`
+
+### Validations (both PRs)
+
+PR #132:
+- syllabusGuard: PASS — 0 violations
+- validateQuestionBanks: PASS (230 files; 0 dupes; mark/section consistent)
+- tsc -p tsconfig.app.json --noEmit: exit 0
+- Checkpoint B per file: 13/13 PASS (after MOJI_RE false-positive fix +
+  expanded competency heuristic)
+- Duplicate IDs (SCO-S-* + SCQ-S-*): 0 across 552
+- Engine reachability: PASS (canonicalQuestionBank loads at 5,281)
+- Test matrix: 125/125 PASS
+
+PR #133:
+- Test matrix: 134/134 PASS (125 + 9 new K2H-8f tests)
+- tsc exit 0
+- 435 `pyqYear`-tagged questions confirmed returned by the engine filter
+
+### Bank state
+
+- Authentic count: 1,932 → **2,484** (+552)
+- Spreads: 163 → **176** (+13)
+- Bank total (engine-confirmed): 4,729 → **5,281**
+- Progress to 4,500-Q retirement: 2,484 / 4,500 = **55.2%** (+12.3 pp)
+
+### Branch cleanup (post-merge)
+
+- `content/p3-science-chapterwise` DELETED (remote + local) — fresh-branch
+  doctrine in effect since PR #130.
+- `fix/k2h-8f-pyq-filter` DELETED (remote + local).
+
+### Next priority items
+
+Three parallel tracks open:
+- **Product track:** K2H-8f UI wiring follow-ups (3 small PRs); pre-launch
+  quick wins (4 PRs from prior cycle).
+- **Content track A:** **P4-M PYQ Maths** — fresh branch
+  `content/p4-pyq-maths`; 16 QPs (30-x-x) + 16 MS on disk; ~400 Qs;
+  `isPYQ: true` + `pyqYear` populated.
+- **Content track B:** **P4-S PYQ Science** — fresh branch
+  `content/p4-pyq-science`; 15 QPs (31_x_x) + MS on disk; ~400 Qs; can
+  run in parallel with track A.
+
+---
+
 ## 2026-05-25 — P2 APQ Science-PQ2 (PR #130, +49 Qs) — P2 APQ phase COMPLETE + stale branch deleted + tutor/content audit recorded
 
 Timestamp: 2026-05-25 (Asia/Kolkata)

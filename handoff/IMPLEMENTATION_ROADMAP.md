@@ -5,16 +5,18 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-d739585df2013b7299c3c8e931c5685d388f606d
+c0f129dcdbe8722c8b74792df8cab358981d8c3e
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
 in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126,
-#128, #130). The **P2 APQ phase is now complete** (5 papers, 284 authentic Qs across PRs
-#119, #126, #128, #130). Pre-launch quick-win product PRs (strategyHint Hint button,
-"Show visual" wiring fix, Formula sheet tab, API gateway) are now queued as a new
-product track running in parallel with P3 Meridian content extraction.
+#128, #130, #132, #133). The **P2 APQ phase is complete** (5 papers, 284 Qs) and the
+**P3 Science chapter-wise phase is complete** (PR #132, 552 Qs). The **K2H-8f PYQ engine
+filter** landed in PR #133, unblocking P4 PYQ content extraction at the engine layer.
+Three parallel tracks now open: P4-M / P4-S PYQ content extraction (fresh branches);
+K2H-8f UI wiring follow-ups (3 small product PRs); pre-launch quick wins (4 product PRs
+from prior cycle).
 
 Current implementation branch:
 ```
@@ -55,6 +57,27 @@ Latest in the content/tooling track:
   COMPLETE** — 284 authentic Qs across 5 papers (PRs #119, #126, #128, #130). Branch
   `content/additional-pq-sqp-2024` DELETED post-merge (remote + local); future extraction
   phases use fresh branch names per phase to eliminate the force-push requirement.
+- PR #132 (2026-05-25) — P3 Science chapter-wise: **552 questions** across 13 new
+  `science/{topic}.chapterwise.ts` files (one per retained Science topic). Sources:
+  cbjescco01-15 (MCQ, 252 Qs) + cbjesccq01-15 (PYQ-style, 300 Qs) from www.cbse.online.
+  Section breakdown A=330 B=78 C=72 D=72 E=0; competency 74.6% (MCQ defaults to
+  competency=true per locked CBSE 2026-27 doctrine); ~70 REQUIRES-FIGURE tagged.
+  ID prefixes SCO-S-* and SCQ-S-*. Authentic 1,932 → 2,484; spreads 163 → 176; bank
+  total 4,729 → 5,281. Progress to 4,500 retirement: 55.2% (+12.3 pp). Permanent source
+  decisions recorded: Meridian/NODIA/cbjemacq/Maths-Basic-430/Aakash-chapterwise/Old\
+  all permanently SKIPPED with rationale. Caveat: pymupdf renders `→` as `$` in this
+  source (verbatim from PDF; future cleanup pass could substitute where safe). Branch
+  `content/p3-science-chapterwise` DELETED post-merge.
+- PR #133 (2026-05-25) — K2H-8f PYQ filter (engine layer): adds `pyqOnly?: boolean`
+  field to `PracticeSetConfig` and exported `isPYQQuestion(q)` helper that honours both
+  explicit `isPYQ: true` and populated `pyqYear` (covers current bank tagging convention
+  "2022"/"2023"/"30/1/1"). Engine now applies a HARD pyqOnly filter — no silent
+  soft-fallback. 435 `pyqYear`-tagged questions now correctly returned. New test file
+  `scripts/src/practiceSetGeneratorGuard.test.ts` with 9 regression tests; full matrix
+  grew from 125 to **134/134 PASS** (5 test files). Three UI-side follow-ups remain
+  (separate PRs): wire `pyqOnly` through practiceQuestionBuilder.ts; fix engine-to-UI
+  field stripping; add `isPYQ?: boolean` to CanonicalQuestion. P4 PYQ extraction is now
+  unblocked at the engine layer. Branch `fix/k2h-8f-pyq-filter` DELETED post-merge.
 
 Doctrine snapshot (2026-27):
 - RETAINED in board scope: Our Environment (ecology, Unit V 5 marks), Reproduction
@@ -73,10 +96,11 @@ Extraction doctrine additions (PR #126 cycle):
   (2-3 AR per topic, both Maths and Science).
 
 See `CURRENT_STATE.md` for the full PR history table and `NEXT_ACTION.md` for the queued
-content tasks. Next: pre-launch quick wins (product track — strategyHint Hint button, "Show
-visual" wiring fix, Formula sheet tab, API gateway) AND/OR P3 Meridian extraction (content
-track — fresh branch `content/p3-meridian`, ~475 Qs, first step pymupdf cid probe). Then AR
-density pass. Owner decides sequence next session.
+content tasks. Next: **P4-M PYQ Maths** (fresh branch `content/p4-pyq-maths`; 16 QPs
+30-x-x + 16 MS on disk; ~400 Qs; `isPYQ: true` + `pyqYear` populated) AND/OR **P4-S PYQ
+Science** (fresh branch `content/p4-pyq-science`; 15 QPs 31_x_x + MS on disk; ~400 Qs;
+can run in parallel). UI follow-ups for K2H-8f and the pre-launch quick wins continue on
+the product track. Owner decides sequence next session.
 
 ## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
 

@@ -1,6 +1,149 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #130 — P2 APQ Science-PQ2; P2 APQ COMPLETE)
-Live base SHA: d739585df2013b7299c3c8e931c5685d388f606d
+Last updated: 2026-05-25 (post-PR #132 + #133 — P3 Science chapterwise + K2H-8f PYQ engine fix)
+Live base SHA: c0f129dcdbe8722c8b74792df8cab358981d8c3e
+
+## Post-PR #133 — K2H-8f PYQ filter fix (engine-layer hard filter + isPYQQuestion helper) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: c0f129dcdbe8722c8b74792df8cab358981d8c3e
+
+PR #133 | fix: K2H-8f PYQ filter — engine-layer hard filter (no soft fallback)
+Branch: fix/k2h-8f-pyq-filter (DELETED after merge)
+Commits: 1 (6908ee3)
+
+Files changed: 3 (engine + new test + scripts package)
+  - lazytopper/src/data/practiceSetGenerator.ts (MODIFIED)
+      Adds `pyqOnly?: boolean` field to PracticeSetConfig.
+      Adds exported `isPYQQuestion(q)` helper — honours both explicit
+      `isPYQ: true` and populated `pyqYear` (covers current bank tagging
+      convention "2022"/"2023"/"30/1/1" and future P4 PYQ flag).
+      Restructures applyBoardPatternFilter location (no behaviour change).
+      Engine now applies a HARD pyqOnly filter — no silent soft-fallback
+      that masked the bug.
+  - scripts/src/practiceSetGeneratorGuard.test.ts (NEW)
+      9 new K2H-8f regression tests locking the engine-layer contract.
+  - scripts/package.json (MODIFIED — test:matrix:all extended to 5 files)
+
+Root cause (recorded for posterity):
+  The K2H-8c UI chip wired `pyqOnly===true` through `AiTopupArgs`, but the
+  engine pipeline ran a SOFT fallback (`if filtered.length > 0`) instead of
+  a hard filter. When the engine-to-UI mapping stripped `pyqYear`/`isPYQ`
+  before the filter saw the data, the resulting empty pool silently fell
+  back to "all questions" — hiding the bug as "PYQ filter returns 0".
+  Two compounding faults: (1) field stripping in the mapping layer; (2)
+  soft-fallback behaviour that masked the empty-filter signal.
+
+Fix scope (engine layer ONLY — UI wiring deferred):
+  PR #133 fixes (1) the engine-layer contract — pyqOnly is now a hard filter
+  honouring both isPYQ and pyqYear. 435 pyqYear-tagged questions are now
+  correctly returned. Three follow-ups remain (separate PRs):
+    a. Wire pyqOnly through practiceQuestionBuilder.ts (UI-engine bridge)
+    b. Fix engine-to-UI mapping field stripping (pyqYear/isPYQ lost)
+    c. Add `isPYQ?: boolean` to CanonicalQuestion in predictionTypes.ts
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (no question bank changes)
+  2. validateQuestionBanks — PASS
+  3. tsc -p tsconfig.app.json --noEmit — exit 0
+  4. Full test matrix: **134/134** PASS (125 pre-existing + 9 new K2H-8f tests)
+  5. git diff --check — clean
+  6. Engine reachability — PASS
+
+Bank state unchanged (engine-only fix):
+  Authentic: 2,484 (no question bank touched in this PR)
+  Spreads: 176
+  Bank total (engine-confirmed): 5,281
+
+Unblocks: P4 PYQ extraction (Maths + Science) can now proceed knowing the
+PYQ filter actually works end-to-end at the engine layer. UI wiring needs
+follow-up but is independent of content extraction.
+
+## Post-PR #132 — P3 Science chapter-wise (552 Qs across 13 Science topic files) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: (squashed into c0f129d via #132 + #133)
+
+PR #132 | content: P3 Science chapter-wise (552 Qs across 13 Science topic files)
+Branch: content/p3-science-chapterwise (DELETED after merge — per branch
+  doctrine: fresh branch per phase, no reuse)
+Commits: 1 (aaa730a)
+
+Files changed: 14 (+3,990 insertions)
+  - 13 NEW science/*.chapterwise.ts files (one per retained Science topicKey)
+  - lazytopper/src/data/canonicalQuestionBank.ts — +13 imports + 13 spreads
+    under "P3 Science Chapter-wise" banner; spreads 163 → 176
+
+Source PDFs (pymupdf 1.27.2.3, 0 cid + 0 Sinhala corruption confirmed via probe):
+  cbjescco01-15.pdf (MCQ series, 13 files) — 252 questions
+  cbjesccq01-15.pdf (PYQ-style series, 13 files) — 300 questions
+  Source: www.cbse.online / rava.org.in
+
+Chapters covered (13 retained, 3 skipped per 2026-27 doctrine):
+  ch01 chemical-reactions-and-equations
+  ch02 acids-bases-and-salts
+  ch03 metals-and-non-metals
+  ch04 carbon-and-its-compounds
+  ch06 life-processes
+  ch07 control-and-coordination
+  ch08 how-do-organisms-reproduce
+  ch09 heredity (within-chapter filter: Evolution/Darwin removed)
+  ch10 light-reflection-and-refraction
+  ch11 human-eye-and-colourful-world
+  ch12 electricity
+  ch13 magnetic-effects-of-electric-current (within-chapter filter:
+       Motor/EMI/Generator/Fleming's-Right-Hand removed)
+  ch15 our-environment
+  SKIPPED: ch05 Periodic Classification, ch14 Sources of Energy,
+           ch16 Mgmt of Natural Resources (all fully deleted 2026-27)
+
+Caps applied for reviewability (source has ~3,243 raw 'Ans :' markers; full
+extraction would be unreviewable in one PR): 20 cleanest MCQs per file +
+6 per PYQ-style mark-section (1mk/2mk/3mk/5mk).
+
+Section breakdown: A=330, B=78, C=72, D=72, E=0 (chapter-wise series has
+no case-based section).
+Competency: 412/552 = 74.6% (MCQ defaults to competency=true per CBSE
+  2026-27 doctrine — option discrimination is concept application; pure
+  recall MCQs Define/Name the/List the/Recall/Match the stay false).
+REQUIRES-FIGURE: ~70 questions tagged via figure/diagram/circuit keyword
+  heuristic. Heuristic is conservative — manual sweep recommended pre-launch.
+isPYQ: false on all 552 (chapter-wise compilations, not board exam papers).
+
+ID format:
+  SCO-S-{TOPIC}-{NNN} for MCQ source (cbjescco)
+  SCQ-S-{TOPIC}-{NNN} for PYQ-style source (cbjesccq)
+
+Extraction caveat: pymupdf renders chemistry arrow `→` as `$` in this source
+(e.g. `Cu(s) + 2AgNO3(aq) $ Cu(NO3)2(aq) + 2Ag(s)`). Content is verbatim from
+PDF (anti-fabrication preserved); just the arrow symbol is `$` not `→`. A
+future cleanup pass could replace `$` with `→` if not breaking valid `$` uses.
+
+P3 extraction source decisions (permanent — recorded so future sessions
+don't waste cycles on rejected sources):
+  USED: cbjescco01-15 + cbjesccq01-15 (Science Chapter-wise) — 552 Qs in PR #132
+  SKIPPED forever:
+    - Meridian — no marking-scheme PDFs to support anti-fabrication doctrine
+    - NODIA — solutions hosted externally on URL (not on disk); PYQ blocker
+    - cbjemacq — Sinhala glyph corruption confirmed by pymupdf probe
+    - Maths Basic 430-x-x — out-of-scope Standard track only
+    - Chapterwise SOL Aakash — scanned images, needs OCR (deferred phase)
+    - Old\ folder — superseded duplicates
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations)
+  2. validateQuestionBanks — PASS (230 files; 0 dupes; mark/section consistent)
+  3. tsc -p tsconfig.app.json --noEmit — exit 0
+  4. Checkpoint B per file — 13/13 PASS
+  5. Duplicate IDs (SCO-S-* + SCQ-S-*) — 0 across 552
+  6. Engine reachability — PASS (canonicalQuestionBank loads at 5,281)
+
+Test matrix at the time of PR #132: 125/125 PASS (post-#133 it's 134/134).
+
+Bank state:
+  Authentic questions: 1,932 → **2,484** (+552)
+  Spreads: 163 → **176** (+13)
+  Bank total (engine-confirmed): 4,729 → **5,281**
+  Progress to 4,500-Q retirement: 2,484 / 4,500 = **55.2%** (+12.3 pp from #130)
 
 ## Post-PR #130 — P2 APQ Science-PQ2 (49 Qs appended across 13 Science files) — MERGED
 
@@ -745,7 +888,8 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #130 — content: P2 APQ Science-PQ2 (49 Qs across 13 Science topic files); P2 APQ phase COMPLETE
+Last merged PR: #133 — fix: K2H-8f PYQ filter (engine-layer hard filter)
+Last merged content PR: #132 — content: P3 Science chapter-wise (552 Qs across 13 Science topic files)
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -795,7 +939,10 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #127 | Docs: post-PR #126 | 26db3f1c | Handoff updated |
 | #128 | P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs) | 028d51d3 | +90 authentic, +13 spreads (Science), OR-doctrine validated, first Our Environment Qs |
 | #129 | Docs: handoff post-PR #128 | b16ebb64 | Handoff updated |
-| #130 | P2 APQ Science-PQ2 (49 Qs across 13 Science files) | d739585d | +49 authentic (1,883 → 1,932), spreads unchanged (no new files), P2 APQ COMPLETE (5 papers / 284 Qs total). content/additional-pq-sqp-2024 branch DELETED after merge — CURRENT BASE |
+| #130 | P2 APQ Science-PQ2 (49 Qs across 13 Science files) | d739585d | +49 authentic (1,883 → 1,932), spreads unchanged (no new files), P2 APQ COMPLETE (5 papers / 284 Qs total). content/additional-pq-sqp-2024 branch DELETED after merge |
+| #131 | Docs: handoff post-PR #130 | 6c5404f9 | Handoff updated |
+| #132 | P3 Science chapter-wise (552 Qs across 13 Science files) | (squashed into c0f129d) | +552 authentic (1,932 → 2,484), spreads 163 → 176, bank 4,729 → 5,281. 13 chapters covered; ch05/14/16 skipped per 2026-27. SCO/SCQ ID prefixes. content/p3-science-chapterwise branch DELETED after merge |
+| #133 | Fix: K2H-8f PYQ filter (engine-layer hard filter) | c0f129dc | Engine `pyqOnly` field + `isPYQQuestion` helper. 435 pyqYear-tagged Qs now correctly returned. Test matrix 125 → 134 (+9). UI wiring follow-up. fix/k2h-8f-pyq-filter branch DELETED after merge — CURRENT BASE |
 
 ## Question bank state
 
@@ -808,16 +955,17 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | P2 SQP 2023-24 (PR #119) | 69 | Live in engine |
 | P2 APQ Maths PQ1+PQ2 (PR #126) | 76 | Live in engine |
 | P2 APQ continuation PQ_2022+Science (PR #128) | 90 | Live in engine |
-| **P2 APQ Science-PQ2 (PR #130)** | **49** | **Live in engine (appended to 13 Science files; no new spreads)** |
+| P2 APQ Science-PQ2 (PR #130) | 49 | Live in engine |
+| **P3 Science chapter-wise (PR #132)** | **552** | **Live in engine (13 new files; +13 spreads). SCO-S-*/SCQ-S-* IDs** |
 | Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated; retirement threshold 4,500 |
-| Total in engine (confirmed) | **4,729** | (engine reachability load: canonicalQuestionBank.length = 4,729) |
+| Total in engine (confirmed) | **5,281** | (engine reachability load: canonicalQuestionBank.length = 5,281) |
 
-canonicalQuestionBank.ts spread count: 163 (unchanged from PR #128 — PR #130 only appended to existing arrays)
+canonicalQuestionBank.ts spread count: **176** (was 163 pre-PR #132; +13 chapter-wise files)
 
 Pack retirement threshold: **4,500 authentic questions** (set in PR #126 cycle).
   At 4,500 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
   100% routable. No OCR phase needed.
-  Progress: 1,932 / 4,500 = **42.9%** (+1.1 pp from PR #128).
+  Progress: 2,484 / 4,500 = **55.2%** (+12.3 pp from PR #130).
 
 ## Known issues
 
@@ -827,18 +975,19 @@ Pack retirement threshold: **4,500 authentic questions** (set in PR #126 cycle).
 - **syllabusGuard incorrectly banned Contraception/STDs** (RESOLVED in PR #124)
 - **18 reproduction questions wrongly removed in PR #121** — RESTORED in PR #124
 - **Motor/Generator/EMI not tracked in archetypes** (RESOLVED in PR #124 — formativeOnlyTopics added)
-- **REQUIRES-FIGURE backlog** — ~65 cumulative APQ questions (PR #126 + #128 + #130) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
+- **REQUIRES-FIGURE backlog** — ~135 cumulative questions (PRs #126 + #128 + #130 + #132 ~70 in chapter-wise) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
+- **Chemistry `$` arrow rendering in chapter-wise files** (PR #132) — pymupdf renders `→` as `$` in cbjescco/cbjesccq source. Content verbatim from PDF (anti-fabrication preserved). Future cleanup pass could substitute `$` → `→` where safe.
+- **K2H-8f UI wiring follow-up** (post-PR #133) — engine-layer hard filter landed in PR #133, but three UI-side connections remain (separate PRs): (a) wire `pyqOnly` through practiceQuestionBuilder.ts; (b) fix engine-to-UI mapping that strips `pyqYear`/`isPYQ`; (c) add `isPYQ?: boolean` to CanonicalQuestion in predictionTypes.ts. Until these land, the engine filter works but the UI chip can't reach it cleanly.
 - **B/C/D/E density doctrine validated through PR #130** — OR-pair extraction continues to produce dense non-MCQ output. Apply to all future extractions.
-- **AR (Assertion-Reasoning) density gap** — still thin across both Maths and Science; dedicated .assertionReasoning.ts pass needed (P2 APQ now complete, so unblocked)
-- **Our Environment: 8 Qs in bank** (PR #128 seeded 4 + PR #130 added 4 more). Approaching reasonable density; still needs growth.
-- **TopicHub SEEDED: 14/25 topics** — 11 topicKeys with bank content still on sample-preview (was 12 pre-#130; one additional topic now seeded)
+- **AR (Assertion-Reasoning) density gap** — still thin across both Maths and Science; dedicated .assertionReasoning.ts pass needed (P2 APQ complete, P3 Science chapter-wise complete)
+- **Our Environment: 48 Qs in bank** (PR #128 seeded 4 + PR #130 added 4 + PR #132 added 40 chapter-wise). Density now reasonable.
+- **TopicHub SEEDED: 14/25 topics** — 11 topicKeys with bank content still on sample-preview
 - **"Show visual" button broken in TopicHub right rail** — wiring gap; quick-win product PR planned (≤20 lines)
 - **No formula sheet surface** — data exists in archetypes for 14 topics but no UI renders it; medium-effort product PR planned
-- **strategyHint never rendered** — 75 question banks contain authored strategyHints (including all REQUIRES-FIGURE descriptions) but no surface displays them; small product PR planned (Hint button in PracticeQuestionCard)
+- **strategyHint never rendered** — 75+ question banks contain authored strategyHints (including all REQUIRES-FIGURE descriptions) but no surface displays them; small product PR planned (Hint button in PracticeQuestionCard)
 - **API gateway gap in vercel.json** — no /api/* rewrite; AI features return 404 in production; high-effort fix (Vercel rewrite + Railway deploy)
 - **Tutor drawer surfaces underused** — MentorSolveDrawer / ConceptTeachDrawer / TutorDrawerV2 exist but don't receive student attempt data; pre-launch product decision pending
 - Clerk dev mode only (pk_test_) — no production instance configured
-- PYQ filter returns 0 (K2H-8f engine fix pending — pre-req for P5)
 - pack1/pack2/pack3 questions are AI-generated — retirement at 4,500 authentic threshold
 - deletionGuard.test.ts fixed (PR #108) — 29/29 tests passing
 - index.html meta stale (149/month, wrong theme-color)
