@@ -1,0 +1,62 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+// Source: CBSE Class X Mathematics Standard (041) Previous Year Question Papers — 2024-25 board exam
+// Question papers + matched marking schemes (X_MS_041_Mathematics Standard_30-x-x_2024-25) from CBSE
+// topicKey: "coordinate-geometry"
+// Extraction date: 2026-05-25
+// PDF tool: pymupdf 1.27.2.3 (0 cid artifacts confirmed via probe)
+// Coverage: 9 text-extractable Standard QPs (30/1/x, 30/2/x, 30/3/x); 10 scanned QPs (30/4/x, 30/5/x, 30/6/x, 30(B)) skipped — require OCR; Maths Basic (241) not in scope
+
+export const COORDINATE_GEOMETRY_PYQ_2025: CanonicalQuestion[] = [
+  { id: "PYQ-M-2025-CG-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Midpoint Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The midpoint of the line segment joining the points P( 4, 5) and Q(4, 6) lies on :",
+    options: ["xaxis", "yaxis", "origin", "neither xaxis nor yaxis"],
+    answer: "y – axis",
+    solutionSteps: ["Correct option: (b) y – axis."],
+    finalAnswer: "(b) y – axis",
+    ncertRef: "PYQ 30/1/1 Q3", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CG-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Coordinates of Vertices", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The points ( 5, 0), (5, 0) and (0, 4) are the vertices of a triangle which is a/an :",
+    options: ["rightangled triangle", "isosceles triangle", "equilateral triangle", "scalene triangle 30/2/1 # 6| P a g e"],
+    answer: "isosceles triangle",
+    solutionSteps: ["Correct option: (b) isosceles triangle."],
+    finalAnswer: "(b) isosceles triangle",
+    ncertRef: "PYQ 30/2/1 Q6", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CG-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
+    questionText: "The coordinates of the centre of a circle are (2a, a 7). Find the value(s) 9) and has diameter 10 units.",
+    answer: "a2 −8a + 15 = 0 ⟹(a −5)(a −3) = 0 ⟹a = 5, 3",
+    solutionSteps: ["radius = 5√2 units (2a −11)2 + (a −7 + 9)2 = 50", "a2 −8a + 15 = 0 ⟹(a −5)(a −3) = 0 ⟹a = 5, 3"],
+    finalAnswer: "a2 −8a + 15 = 0 ⟹(a −5)(a −3) = 0 ⟹a = 5, 3",
+    ncertRef: "PYQ 30/1/1 Q23", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CG-004", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Coordinates of Vertices", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the length of the median through the vertex B of ABC with vertices A(9, 2), B( 3, 7) and C( 1, 10).",
+    answer: "the length of median is √58 units 1",
+    solutionSteps: ["Mid point of AC = (4,4) Length of median from B to AC = √(4 + 3)2 + (4 −7)2 = √58", "the length of median is √58 units 1"],
+    finalAnswer: "the length of median is √58 units 1",
+    ncertRef: "PYQ 30/1/3 Q25", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "3" },
+  { id: "PYQ-M-2025-CG-005", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the ratio in which the yaxis divides the line segment joining the points (5, 6) and ( 1, 4). Also find the point of intersection.",
+    answer: "Hence, ratio is 5:1 y = −4(5)−6 5+1 = −26 6 = −13 3 Coordinates of point of intersection are P(0, − 13 3 )",
+    solutionSteps: ["Let the ratio be k:1 and point on y axis be P(0, y) 0 = −k+5 k+1 k = 5", "Hence, ratio is 5:1 y = −4(5)−6 5+1 = −26 6 = −13 3 Coordinates of point of intersection are P(0, − 13 3 )"],
+    finalAnswer: "Hence, ratio is 5:1 y = −4(5)−6 5+1 = −26 6 = −13 3 Coordinates of point of intersection are P(0, − 13 3 )",
+    ncertRef: "PYQ 30/1/1 Q28", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CG-006", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Midpoint Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
+    questionText: "If the midpoint of the line segment joining the points A(3, 4) and B(k, 6) is P(x, y) and x + y 10 = 0, then find the value of k.",
+    answer: "( 3+k 2 ) + 5 – 10 = 0 ⟹ k = 7",
+    solutionSteps: ["x = 3+k 2 and y = 4+6 2 = 5", "( 3+k 2 ) + 5 – 10 = 0 ⟹ k = 7"],
+    finalAnswer: "( 3+k 2 ) + 5 – 10 = 0 ⟹ k = 7",
+    ncertRef: "PYQ 30/2/1 Q28", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CG-007", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Midpoint Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
+    questionText: "If (a, b) is the midpoint of the line segment joining the points A(10, 6) and B(k, 4) and a 2b = 18, then find the value of k.",
+    answer: "10+k 2 – 2 (– 1) = 18 ⟹ k = 22",
+    solutionSteps: ["a = 10+k 2 and b = −6+4 2 = – 1 Given, a – 2b = 18", "10+k 2 – 2 (– 1) = 18 ⟹ k = 22"],
+    finalAnswer: "10+k 2 – 2 (– 1) = 18 ⟹ k = 22",
+    ncertRef: "PYQ 30/2/2 Q27", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "2" },
+];

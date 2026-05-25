@@ -1,0 +1,61 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+// Source: CBSE Class X Mathematics Standard (041) Previous Year Question Papers — 2024-25 board exam
+// Question papers + matched marking schemes (X_MS_041_Mathematics Standard_30-x-x_2024-25) from CBSE
+// topicKey: "circles"
+// Extraction date: 2026-05-25
+// PDF tool: pymupdf 1.27.2.3 (0 cid artifacts confirmed via probe)
+// Coverage: 9 text-extractable Standard QPs (30/1/x, 30/2/x, 30/3/x); 10 scanned QPs (30/4/x, 30/5/x, 30/6/x, 30(B)) skipped — require OCR; Maths Basic (241) not in scope
+
+export const CIRCLES_PYQ_2025: CanonicalQuestion[] = [
+  { id: "PYQ-M-2025-CIRC-001", subject: "Maths", topicKey: "circles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The tangents drawn at the extremities of the diameter of a circle are always :",
+    options: ["parallel", "perpendicular", "equal", "intersecting"],
+    answer: "parallel",
+    solutionSteps: ["Correct option: (a) parallel."],
+    finalAnswer: "(a) parallel",
+    ncertRef: "PYQ 30/1/1 Q7", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CIRC-002", subject: "Maths", topicKey: "circles", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A person is standing at P outside a circular ground at a distance of 26 m from the centre of the ground. He found that his distances from the points A and B on the ground are 10 m (PA and PB are tangents to the circle). Find the radius of the circular ground.",
+    answer: "(26)2 = OA2 + (10)2 ⟹ OA = √576= 24 radius = 24 m",
+    solutionSteps: ["OAP = 90 In right OAP", "(26)2 = OA2 + (10)2 ⟹ OA = √576= 24 radius = 24 m"],
+    finalAnswer: "(26)2 = OA2 + (10)2 ⟹ OA = √576= 24 radius = 24 m",
+    ncertRef: "PYQ 30/1/1 Q25", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CIRC-003", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "At point A on the diameter AB of a circle of radius 10 cm, tangent XAY is drawn to the circle. Find the length of the chord CD parallel to XY at a distance of 16 cm from A.",
+    answer: "OP = 16 – 10 = 6 cm XY ‖ CD ∴ ∠ CPO = 90° In right ∆ OPC, CP = √(10)2 −(6)2 = 8 cm CD = 2 × CP = 2 × 8 = 16 cm",
+    solutionSteps: ["AP = 16 cm", "OP = 16 – 10 = 6 cm XY ‖ CD ∴ ∠ CPO = 90° In right ∆ OPC, CP = √(10)2 −(6)2 = 8 cm CD = 2 × CP = 2 × 8 = 16 cm"],
+    finalAnswer: "OP = 16 – 10 = 6 cm XY ‖ CD ∴ ∠ CPO = 90° In right ∆ OPC, CP = √(10)2 −(6)2 = 8 cm CD = 2 × CP = 2 × 8 = 16 cm",
+    ncertRef: "PYQ 30/2/1 Q25", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CIRC-004", subject: "Maths", topicKey: "circles", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
+    answer: "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚 Correct figure ½ Mark",
+    solutionSteps: ["Tangents 𝑙 and 𝑚 are drawn at the end points A and B of the diameter AB of the circle ∠1 = 90°, ∠2 = 90°", "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚 Correct figure ½ Mark"],
+    finalAnswer: "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚 Correct figure ½ Mark",
+    ncertRef: "PYQ 30/3/1 Q25", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CIRC-005", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A chord of a circle of radius 10 cm subtends a right angle at the centre of the circle. Find the area of the corresponding minor segment. [Use = 3·14]",
+    answer: "Area of minor segment ACB = Area of sector OACB −Area of right ∆OAB Area of sector OACB = 90 360 × 3.14 × 10 × 10 = 78.5 cm2 Area of right ∆OAB = 1 2 × 10 × 10 = 50 cm2 Area of minor segment ACB = (78.5 −50) = 28.5 cm2",
+    solutionSteps: ["Area of minor segment ACB = Area of sector OACB −Area of right ∆OAB Area of sector OACB = 90 360 × 3.14 × 10 × 10 = 78.5 cm2 Area of right ∆OAB = 1 2 × 10 × 10 = 50 cm2 Area of minor segment ACB = (78.5 −50) = 28.5 cm2"],
+    finalAnswer: "Area of minor segment ACB = Area of sector OACB −Area of right ∆OAB Area of sector OACB = 90 360 × 3.14 × 10 × 10 = 78.5 cm2 Area of right ∆OAB = 1 2 × 10 × 10 = 50 cm2 Area of minor segment ACB = (78.5 −50) = 28.5 cm2",
+    ncertRef: "PYQ 30/3/1 Q29", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CIRC-006", subject: "Maths", topicKey: "circles", subtopic: "Tangent to a Circle", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "In the given figure, PC is a tangent to the circle at C. AOB is the diameter which when extended meets the tangent at P. Find CBA and BCO, if PCA = 110 . 4 (LA) , 5 4 5=20",
+    answer: "∠OBC = ∠OCB ∠OBC = ∠OCB = 70°",
+    solutionSteps: ["∠ACB = ∠OCB + ∠OCA = 90° ∠PCB + ∠OCB + ∠OCA = 110° ∠PCB = 110° −90° = 20° ∠PCB + ∠OCB = 90° ∠OCB = 90° −20° = 70° As OB = OC", "∠OBC = ∠OCB ∠OBC = ∠OCB = 70°"],
+    finalAnswer: "∠OBC = ∠OCB ∠OBC = ∠OCB = 70°",
+    ncertRef: "PYQ 30/3/1 Q31", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-M-2025-CIRC-007", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "In the given figure, PB is a tangent to the circle with centre O at B. AB is a chord of the circle of length 24 cm and at a distance of 5 cm from the centre of the circle. If the length PB of the tangent is 20 cm, find the length of OP.",
+    answer: "PB = 20 cm AM = MB = 12 cm In ∆OMB, OB = √52 + 122 = 13 cm As PB is tangent ⇒PB ⊥OB In rt ∆OBP, OP = √132 + 202 = √569 cm",
+    solutionSteps: ["Join OB ½  11 𝐴𝐵= 24 cm", "OM = 5 cm", "PB = 20 cm AM = MB = 12 cm In ∆OMB, OB = √52 + 122 = 13 cm As PB is tangent ⇒PB ⊥OB In rt ∆OBP, OP = √132 + 202 = √569 cm"],
+    finalAnswer: "PB = 20 cm AM = MB = 12 cm In ∆OMB, OB = √52 + 122 = 13 cm As PB is tangent ⇒PB ⊥OB In rt ∆OBP, OP = √132 + 202 = √569 cm",
+    ncertRef: "PYQ 30/3/3 Q27", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "3" },
+];
