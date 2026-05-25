@@ -1,0 +1,61 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+// Source: CBSE Class X Mathematics Standard (041) Previous Year Question Papers — 2022-23 board exam
+// Question papers + matched marking schemes (MS 041_30-x-x Mathematics 2022-23) from CBSE
+// topicKey: "arithmetic-progression"
+// Extraction date: 2026-05-25
+// PDF tool: pymupdf 1.27.2.3 (0 cid artifacts confirmed via probe)
+// Coverage: 9 text-extractable QPs (30/2/x, 30/4/x, 30/5/x); 6 scanned QPs (30/1/x, 30/6/x) and 30-B-5 skipped — require OCR
+
+export const ARITHMETIC_PROGRESSION_PYQ: CanonicalQuestion[] = [
+  { id: "PYQ-M-AP-001", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The common difference of the A.P. whose nth term is given by an = 3n + 7, is :",
+    options: ["7", "3", "3n", "1"],
+    answer: "3 1",
+    solutionSteps: ["Correct option: (b) 3 1."],
+    finalAnswer: "(b) 3 1",
+    ncertRef: "PYQ 30/5/1 Q3", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-AP-002", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "(A) How many terms are there in an A.P. whose first and fifth terms are – 14 and 2, respectively and the last term is 62. 3 OR (B) Which term of the A.P. : 65, 61, 57, 53, .................. is the first negative term ?",
+    answer: "Sol. 65, 61, 57, 53, ... a = 65, d = – 4 Let an be the first negative term an < 0  a + (n – 1)d < 0 65 + (n – 1) (– 4) < 0  69 – 4n < 0 n > 4 69  Least positive integral value of n which satisfies n > 69 4 is 18  1st negative term of the AP =",
+    solutionSteps: ["a = – 14, a5 = 2  a + 4d = 2 – 14 + 4d = 2  d = 4 an = 62  a + (n – 1)d = 62 – 14 + (n – 1)4 = 62  n = 20 1 1 1 OR 26(B).", "Sol. 65, 61, 57, 53, ... a = 65, d = – 4 Let an be the first negative term an < 0  a + (n – 1)d < 0 65 + (n – 1) (– 4) < 0  69 – 4n < 0 n > 4 69  Least positive integral value of n which satisfies n > 69 4 is 18  1st negative term of the AP ="],
+    finalAnswer: "Sol. 65, 61, 57, 53, ... a = 65, d = – 4 Let an be the first negative term an < 0  a + (n – 1)d < 0 65 + (n – 1) (– 4) < 0  69 – 4n < 0 n > 4 69  Least positive integral value of n which satisfies n > 69 4 is 18  1st negative term of the AP =",
+    ncertRef: "PYQ 30/4/1 Q26", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-AP-003", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "(A) How many terms are there in A.P. whose first and fifth term are – 14 and 2, respectively and the last term is 62. 3 10 AWdm (B) A.P. : 65, 61, 57, 53, .......... H$m H$m¡Zgm nX g~go nhbm G$UmË_H$ nX hmoJm?",
+    answer: "Sol. 65, 61, 57, 53, ... a = 65, d = – 4 Let an be the first negative term an < 0  a + (n – 1)d < 0 65 + (n – 1) (– 4) < 0  69 – 4n < 0 n > 4 69  Least positive integral value of n which satisfies n > 69 4 is 18  1st negative term of AP =",
+    solutionSteps: ["a = – 14, a5 = 2  a + 4d = 2 – 14 + 4d = 2  d = 4 an = 62  a + (n – 1)d = 62 – 14 + (n – 1)4 = 62  n = 20 1 1 1 12  29(B).", "Sol. 65, 61, 57, 53, ... a = 65, d = – 4 Let an be the first negative term an < 0  a + (n – 1)d < 0 65 + (n – 1) (– 4) < 0  69 – 4n < 0 n > 4 69  Least positive integral value of n which satisfies n > 69 4 is 18  1st negative term of AP ="],
+    finalAnswer: "Sol. 65, 61, 57, 53, ... a = 65, d = – 4 Let an be the first negative term an < 0  a + (n – 1)d < 0 65 + (n – 1) (– 4) < 0  69 – 4n < 0 n > 4 69  Least positive integral value of n which satisfies n > 69 4 is 18  1st negative term of AP =",
+    ncertRef: "PYQ 30/4/3 Q29", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "3" },
+  { id: "PYQ-M-AP-004", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "If pth term of an A.P. is q and qth term is p, then prove that its nth term is (p + q n).",
+    answer: "ap = a + (p – 1)d = q ________ (i) aq = a + (q – 1)d = p ________ (ii) Solving (i) and (ii) d = – 1, a = q + p – 1 an = (q + p – 1) + (n – 1)(– 1) = q + p - n 𝟏 𝟐 𝟏 𝟐 𝟏 𝟐+",
+    solutionSteps: ["ap = a + (p – 1)d = q ________ (i) aq = a + (q – 1)d = p ________ (ii) Solving (i) and (ii) d = – 1, a = q + p – 1 an = (q + p – 1) + (n – 1)(– 1) = q + p - n 𝟏 𝟐 𝟏 𝟐 𝟏 𝟐+"],
+    finalAnswer: "ap = a + (p – 1)d = q ________ (i) aq = a + (q – 1)d = p ________ (ii) Solving (i) and (ii) d = – 1, a = q + p – 1 an = (q + p – 1) + (n – 1)(– 1) = q + p - n 𝟏 𝟐 𝟏 𝟐 𝟏 𝟐+",
+    ncertRef: "PYQ 30/5/1 Q27", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-AP-005", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "In an A.P., the sum of the first n terms is given by Sn = 6n n2. Find its 30th term.",
+    answer: "Here Sn = 6n – n2 n = 1, S1 = a = 5 n = 2, a + (a + d) = 12 – 4 or 2a + d = 8 1 2 1 17  Putting a = 5, d = – 2 Hence a30 = 5 + 29(– 2) = –",
+    solutionSteps: ["Here Sn = 6n – n2 n = 1, S1 = a = 5 n = 2, a + (a + d) = 12 – 4 or 2a + d = 8 1 2 1 17  Putting a = 5, d = – 2 Hence a30 = 5 + 29(– 2) = –"],
+    finalAnswer: "Here Sn = 6n – n2 n = 1, S1 = a = 5 n = 2, a + (a + d) = 12 – 4 or 2a + d = 8 1 2 1 17  Putting a = 5, d = – 2 Hence a30 = 5 + 29(– 2) = –",
+    ncertRef: "PYQ 30/5/2 Q30", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "2" },
+  { id: "PYQ-M-AP-006", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Common Difference", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the common difference of an A.P. whose first term is 8, the last term is 65 and the sum of all its terms is 730.",
+    answer: "a = 8, l = 65 730 = 𝒏 𝟐 [8 + 65] 𝒏 = 𝟕𝟑𝟎 × 2 73 = 20 ∴ l = a + 19 d ⟹ 65 = 18 + 19 d ⟹ d =",
+    solutionSteps: ["a = 8, l = 65 730 = 𝒏 𝟐 [8 + 65] 𝒏 = 𝟕𝟑𝟎 × 2 73 = 20 ∴ l = a + 19 d ⟹ 65 = 18 + 19 d ⟹ d ="],
+    finalAnswer: "a = 8, l = 65 730 = 𝒏 𝟐 [8 + 65] 𝒏 = 𝟕𝟑𝟎 × 2 73 = 20 ∴ l = a + 19 d ⟹ 65 = 18 + 19 d ⟹ d =",
+    ncertRef: "PYQ 30/5/3 Q31", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "3" },
+  { id: "PYQ-M-AP-007", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "General", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "How many terms of the arithmetic progression 45, 39, 33, ........ must be taken so that their sum is 180 ? Explain the double answer.",
+    answer: "45, 39, 33, ....... a = 45, d = – 6 Sn = 180 180 = 2 n [2 × 45 + (n – 1) (– 6)]  180 = 2 n [90 – 6n + 6] ½ 1 13   360 = 96n – 6n2  6n2 – 96n + 360 = 0  n2 – 16n + 60 = 0  (n – 10) (n – 6) = 0 n – 10 = 0, n – 6 = 0  n = 10, 6 We get two values of 'n' as sum of 7th term to 10th term is zero as some terms are negative and some are positive.",
+    solutionSteps: ["45, 39, 33, ....... a = 45, d = – 6 Sn = 180 180 = 2 n [2 × 45 + (n – 1) (– 6)]  180 = 2 n [90 – 6n + 6] ½ 1 13   360 = 96n – 6n2  6n2 – 96n + 360 = 0  n2 – 16n + 60 = 0  (n – 10) (n – 6) = 0 n – 10 = 0, n – 6 = 0  n = 10, 6 We get two values of 'n' as sum of 7th term to 10th term is zero as some terms are negative and some are positive."],
+    finalAnswer: "45, 39, 33, ....... a = 45, d = – 6 Sn = 180 180 = 2 n [2 × 45 + (n – 1) (– 6)]  180 = 2 n [90 – 6n + 6] ½ 1 13   360 = 96n – 6n2  6n2 – 96n + 360 = 0  n2 – 16n + 60 = 0  (n – 10) (n – 6) = 0 n – 10 = 0, n – 6 = 0  n = 10, 6 We get two values of 'n' as sum of 7th term to 10th term is zero as some terms are negative and some are positive.",
+    ncertRef: "PYQ 30/2/1 Q32", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+];

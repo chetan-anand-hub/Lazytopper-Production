@@ -205,6 +205,23 @@ import { ELECTRICITY_CHAPTERWISE } from './questionBanks/class10/science/electri
 import { MAGNETIC_EFFECTS_CHAPTERWISE } from './questionBanks/class10/science/magnetic-effects-of-electric-current.chapterwise';
 import { OUR_ENVIRONMENT_CHAPTERWISE } from './questionBanks/class10/science/our-environment.chapterwise';
 
+// P4 Maths PYQ — CBSE 2022-23 board papers (30/2/x, 30/4/x, 30/5/x), 2026-05-25
+// 13 Maths topic files; ~134 questions verbatim from QP + matched MS 041_30-x-x marking schemes
+// Scope note: 6 QPs (30/1/x, 30/6/x) + 30-B-5 are scanned PDFs — skipped (require OCR for body text)
+import { REAL_NUMBERS_PYQ } from './questionBanks/class10/maths/real-numbers.pyq';
+import { POLYNOMIALS_PYQ } from './questionBanks/class10/maths/polynomials.pyq';
+import { PAIR_LINEAR_EQUATIONS_PYQ } from './questionBanks/class10/maths/pair-of-linear-equations.pyq';
+import { QUADRATIC_EQUATIONS_PYQ } from './questionBanks/class10/maths/quadratic-equations.pyq';
+import { ARITHMETIC_PROGRESSION_PYQ } from './questionBanks/class10/maths/arithmetic-progression.pyq';
+import { TRIANGLES_PYQ } from './questionBanks/class10/maths/triangles.pyq';
+import { COORDINATE_GEOMETRY_PYQ } from './questionBanks/class10/maths/coordinate-geometry.pyq';
+import { TRIGONOMETRY_PYQ } from './questionBanks/class10/maths/trigonometry.pyq';
+import { CIRCLES_PYQ } from './questionBanks/class10/maths/circles.pyq';
+import { AREAS_RELATED_TO_CIRCLES_PYQ } from './questionBanks/class10/maths/areas-related-to-circles.pyq';
+import { SURFACE_AREAS_AND_VOLUMES_PYQ } from './questionBanks/class10/maths/surface-areas-and-volumes.pyq';
+import { STATISTICS_PYQ } from './questionBanks/class10/maths/statistics.pyq';
+import { PROBABILITY_PYQ } from './questionBanks/class10/maths/probability.pyq';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -394,6 +411,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ELECTRICITY_CHAPTERWISE,
   ...MAGNETIC_EFFECTS_CHAPTERWISE,
   ...OUR_ENVIRONMENT_CHAPTERWISE,
+  // P4 Maths PYQ — CBSE 2022-23 board papers (134 Qs across 13 Maths topic files, 2026-05-25)
+  ...REAL_NUMBERS_PYQ,
+  ...POLYNOMIALS_PYQ,
+  ...PAIR_LINEAR_EQUATIONS_PYQ,
+  ...QUADRATIC_EQUATIONS_PYQ,
+  ...ARITHMETIC_PROGRESSION_PYQ,
+  ...TRIANGLES_PYQ,
+  ...COORDINATE_GEOMETRY_PYQ,
+  ...TRIGONOMETRY_PYQ,
+  ...CIRCLES_PYQ,
+  ...AREAS_RELATED_TO_CIRCLES_PYQ,
+  ...SURFACE_AREAS_AND_VOLUMES_PYQ,
+  ...STATISTICS_PYQ,
+  ...PROBABILITY_PYQ,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
