@@ -1,5 +1,54 @@
 ---
 
+## 2026-05-25 — P4 PYQ 2026 Maths + Science (PR #141 + #142) — 193 board PYQs added
+
+### Starting state
+- Base at session start: 7994e7ae (post-PR #140 handoff)
+- SHA after Maths merge: fdd2b8e
+- SHA after Science merge: 7a1ec2b (current HEAD)
+
+### Work completed
+
+1. Both agents ran in parallel from base SHA 7994e7ae
+2. Maths agent (content/p4-pyq-2026-maths):
+   - Unzipped Mathematics_Standard_2026.zip + 041_MATHEMATICS_STANDARD_2026.zip
+   - Probed 32 QPs: 7 text-extractable Standard, 9 scanned, 16 Basic (skipped)
+   - Extracted 84 intact → 42 unique after dedup
+   - Generated 13 .pyq2026.ts files, registered in canonicalQuestionBank.ts
+   - Approved, committed c008022, PR #141 opened and merged → SHA fdd2b8e
+3. Science agent (content/p4-pyq-2026-science):
+   - Unzipped Science_2026.zip + 086_SCIENCE_2026.zip
+   - Probed 15 QPs: 12 text-extractable, 3 scanned (31/1/x)
+   - Extracted 151 unique questions across 12 papers
+   - Adapted pipeline for 2025-26 subject-based paper structure
+   - Rebased onto fdd2b8e after Maths merged (spread count 228 confirmed)
+   - Approved, committed 2a03e6e, PR #142 opened and merged → SHA 7a1ec2b
+
+### New protocol note
+- Agent instructions delivered as downloadable .md files (established PR #139 session)
+- Parallel agent execution confirmed working for non-overlapping file scopes
+- Sequential merge with rebase confirmed as correct pattern for parallel PRs
+
+### Bank state post-session
+- Authentic questions: ~2,891
+- Board PYQs: 407 (214 from 2022-23 + 193 from 2025-26)
+- Spreads: 228
+- Retirement threshold: ~64.2% (2,891 / 4,500)
+- Test matrix: 137/137 PASS
+
+### Next task
+P4 continuation 2025 — Maths + Science (parallel)
+Branches: content/p4-pyq-2025-maths + content/p4-pyq-2025-science
+pyqYear: "2025"
+Sources:
+  Maths: 041_Mathematics_Standard_2025.zip + Math_2025.zip
+         (use 041 Standard English subfolder only — Math_2025.zip has 38 files incl Hindi/Urdu)
+  Science: 086_Science_2025.zip + Science_2025.zip
+Note: 2025 paper structure may differ from 2026 — probe and check before assuming format.
+Expected yield: ~80 Maths + ~80 Science
+
+---
+
 ## 2026-05-25 — K2H-8f-b UI wire-up (PR #139) — PYQ chip end-to-end functional
 
 ### Starting state
