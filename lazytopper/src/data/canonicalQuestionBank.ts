@@ -156,6 +156,22 @@ import { HUMAN_EYE_SQP } from './questionBanks/class10/science/human-eye-and-col
 import { ELECTRICITY_SQP } from './questionBanks/class10/science/electricity.sqp';
 import { MAGNETIC_EFFECTS_SQP } from './questionBanks/class10/science/magnetic-effects-of-electric-current.sqp';
 
+// P2 CBSE Additional Practice Questions 2023-24 (2026-05-24) — Maths only (PQ1 + PQ2)
+// 13 Maths topic files, 76 questions combined from Mathematics-PQ1.pdf + Mathematics-PQ2.pdf
+import { REAL_NUMBERS_APQ } from './questionBanks/class10/maths/real-numbers.additionalPQ';
+import { POLYNOMIALS_APQ } from './questionBanks/class10/maths/polynomials.additionalPQ';
+import { PAIR_OF_LINEAR_EQUATIONS_APQ } from './questionBanks/class10/maths/pair-of-linear-equations.additionalPQ';
+import { QUADRATIC_EQUATIONS_APQ } from './questionBanks/class10/maths/quadratic-equations.additionalPQ';
+import { ARITHMETIC_PROGRESSION_APQ } from './questionBanks/class10/maths/arithmetic-progression.additionalPQ';
+import { TRIANGLES_APQ } from './questionBanks/class10/maths/triangles.additionalPQ';
+import { COORDINATE_GEOMETRY_APQ } from './questionBanks/class10/maths/coordinate-geometry.additionalPQ';
+import { TRIGONOMETRY_APQ } from './questionBanks/class10/maths/trigonometry.additionalPQ';
+import { CIRCLES_APQ } from './questionBanks/class10/maths/circles.additionalPQ';
+import { AREAS_RELATED_TO_CIRCLES_APQ } from './questionBanks/class10/maths/areas-related-to-circles.additionalPQ';
+import { SURFACE_AREAS_AND_VOLUMES_APQ } from './questionBanks/class10/maths/surface-areas-and-volumes.additionalPQ';
+import { STATISTICS_APQ } from './questionBanks/class10/maths/statistics.additionalPQ';
+import { PROBABILITY_APQ } from './questionBanks/class10/maths/probability.additionalPQ';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -303,6 +319,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...HUMAN_EYE_SQP,
   ...ELECTRICITY_SQP,
   ...MAGNETIC_EFFECTS_SQP,
+  // P2 CBSE APQ 2023-24 (Maths only — PQ1 + PQ2, 76 questions across 13 topic files)
+  ...REAL_NUMBERS_APQ,
+  ...POLYNOMIALS_APQ,
+  ...PAIR_OF_LINEAR_EQUATIONS_APQ,
+  ...QUADRATIC_EQUATIONS_APQ,
+  ...ARITHMETIC_PROGRESSION_APQ,
+  ...TRIANGLES_APQ,
+  ...COORDINATE_GEOMETRY_APQ,
+  ...TRIGONOMETRY_APQ,
+  ...CIRCLES_APQ,
+  ...AREAS_RELATED_TO_CIRCLES_APQ,
+  ...SURFACE_AREAS_AND_VOLUMES_APQ,
+  ...STATISTICS_APQ,
+  ...PROBABILITY_APQ,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
