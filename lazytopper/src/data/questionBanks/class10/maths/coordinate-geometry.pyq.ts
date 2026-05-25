@@ -1,0 +1,62 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+// Source: CBSE Class X Mathematics Standard (041) Previous Year Question Papers — 2022-23 board exam
+// Question papers + matched marking schemes (MS 041_30-x-x Mathematics 2022-23) from CBSE
+// topicKey: "coordinate-geometry"
+// Extraction date: 2026-05-25
+// PDF tool: pymupdf 1.27.2.3 (0 cid artifacts confirmed via probe)
+// Coverage: 9 text-extractable QPs (30/2/x, 30/4/x, 30/5/x); 6 scanned QPs (30/1/x, 30/6/x) and 30-B-5 skipped — require OCR
+
+export const COORDINATE_GEOMETRY_PYQ: CanonicalQuestion[] = [
+  { id: "PYQ-M-CG-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Coordinates of Vertices", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The coordinates of the vertex A of a rectangle ABCD whose three vertices are given as B(0, 0), C(3, 0) and D(0, 4) are :",
+    options: ["(4, 0)", "(0, 3)", "(3, 4)", "(4, 3)"],
+    answer: "(3, 4) 1",
+    solutionSteps: ["Correct option: (c) (3, 4) 1."],
+    finalAnswer: "(c) (3, 4) 1",
+    ncertRef: "PYQ 30/2/1 Q5", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-CG-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The distance between the points P 5 , 3 11 and Q 5 , 3 2 is :",
+    options: ["6 units", "4 units", "2 units", "3 units"],
+    answer: "3 units",
+    solutionSteps: ["Correct option: (d) 3 units."],
+    finalAnswer: "(d) 3 units",
+    ncertRef: "PYQ 30/5/1 Q7", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-CG-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Coordinates of Vertices", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Show that the points ( 2, 3), (8, 3) and (6, 7) are the vertices of a right-angled triangle.",
+    answer: "Let the given points be A (– 2, 3), B (8, 3) and C (6, 7) Then, AB = 10, BC = 16 4 + = 20 , AC = 16 64 + = 80 1 ½ 9   AB2 = BC2 + AC2 ∴ the given points are the vertices of a right angled triangle.",
+    solutionSteps: ["Let the given points be A (– 2, 3), B (8, 3) and C (6, 7) Then, AB = 10, BC = 16 4 + = 20 , AC = 16 64 + = 80 1 ½ 9   AB2 = BC2 + AC2 ∴ the given points are the vertices of a right angled triangle."],
+    finalAnswer: "Let the given points be A (– 2, 3), B (8, 3) and C (6, 7) Then, AB = 10, BC = 16 4 + = 20 , AC = 16 64 + = 80 1 ½ 9   AB2 = BC2 + AC2 ∴ the given points are the vertices of a right angled triangle.",
+    ncertRef: "PYQ 30/2/1 Q23", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-CG-004", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the ratio in which y-axis divides the line segment joining the points (5, 6) and ( 1, 4).",
+    answer: "Let the point of division be P(0, y) which divides AB in the ratio K : 1 0 = – K + 5 K + 1  K = 5 Ratio is 5:1",
+    solutionSteps: ["Let the point of division be P(0, y) which divides AB in the ratio K : 1 0 = – K + 5 K + 1  K = 5 Ratio is 5:1"],
+    finalAnswer: "Let the point of division be P(0, y) which divides AB in the ratio K : 1 0 = – K + 5 K + 1  K = 5 Ratio is 5:1",
+    ncertRef: "PYQ 30/5/1 Q24", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-CG-005", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the ratio in which line y = x divides the line segment joining the points (6, 3) and (1, 6).",
+    answer: "Let the ratio be 𝒌: 𝟏 x = 𝒌+𝟔 k + 1 y = 𝟔𝒌 – 3 k + 1 1 2 1 2 11  P(x, y) lies on y = x  k + 6 = 6k –3  k = 𝟗 𝟓 Ratio is 9 :",
+    solutionSteps: ["Let the ratio be 𝒌: 𝟏 x = 𝒌+𝟔 k + 1 y = 𝟔𝒌 – 3 k + 1 1 2 1 2 11  P(x, y) lies on y = x  k + 6 = 6k –3  k = 𝟗 𝟓 Ratio is 9 :"],
+    finalAnswer: "Let the ratio be 𝒌: 𝟏 x = 𝒌+𝟔 k + 1 y = 𝟔𝒌 – 3 k + 1 1 2 1 2 11  P(x, y) lies on y = x  k + 6 = 6k –3  k = 𝟗 𝟓 Ratio is 9 :",
+    ncertRef: "PYQ 30/5/2 Q22", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "2" },
+  { id: "PYQ-M-CG-006", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Equidistant Points", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
+    questionText: "If Q(0, 1) is equidistant from P(5, 3) and R(x, 6), find the values of x.",
+    answer: "PQ = QR  PQ2 = QR2 (5 – 0)2 + (– 3 – 1)2 = (x – 0)2 + (6 – 1)2  25 + 16 = x2 + 25  x2 = 16  x = 4, x = – 4 1 1 ½ +",
+    solutionSteps: ["PQ = QR  PQ2 = QR2 (5 – 0)2 + (– 3 – 1)2 = (x – 0)2 + (6 – 1)2  25 + 16 = x2 + 25  x2 = 16  x = 4, x = – 4 1 1 ½ +"],
+    finalAnswer: "PQ = QR  PQ2 = QR2 (5 – 0)2 + (– 3 – 1)2 = (x – 0)2 + (6 – 1)2  25 + 16 = x2 + 25  x2 = 16  x = 4, x = – 4 1 1 ½ +",
+    ncertRef: "PYQ 30/2/1 Q28", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "1" },
+  { id: "PYQ-M-CG-007", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "From an external point, two tangents are drawn to a circle. Prove that the line joining the external point to the centre of the circle bisects the angle between the two tangents.",
+    answer: "To prove:  OPA =  OPB Construction: Join OA, OB Proof: In  OPA and  OPB OP = OP (common) OA = OA (radii)  OAP =  OBP (each 90, radius ⊥ tangents) ∴  OPA   OPB (RHS)   OPA =  OPB (CPCT) 1 mark for correct figure",
+    solutionSteps: ["Given : PA and PB are tangents drawn from an external point P to the circle with centre O.", "To prove:  OPA =  OPB Construction: Join OA, OB Proof: In  OPA and  OPB OP = OP (common) OA = OA (radii)  OAP =  OBP (each 90, radius ⊥ tangents) ∴  OPA   OPB (RHS)   OPA =  OPB (CPCT) 1 mark for correct figure"],
+    finalAnswer: "To prove:  OPA =  OPB Construction: Join OA, OB Proof: In  OPA and  OPB OP = OP (common) OA = OA (radii)  OAP =  OBP (each 90, radius ⊥ tangents) ∴  OPA   OPB (RHS)   OPA =  OPB (CPCT) 1 mark for correct figure",
+    ncertRef: "PYQ 30/4/3 Q27", isCompetencyBased: true,
+    pyqYear: "2023", pyqSet: "3" },
+];
