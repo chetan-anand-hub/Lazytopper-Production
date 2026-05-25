@@ -52,4 +52,23 @@ export const HEREDITY_APQ: CanonicalQuestion[] = [
 
   // Science-PQ Q38 OR variant — using above's second formulation; we already covered both, so no separate row needed.
   // (Both OR variants represented in solutionSteps of APQ-S-HERED-004 above.)
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q11 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-HERED-005", subject: "Science", topicKey: "heredity", subtopic: "Monohybrid Cross — F2 Genotypic Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A cross between pure tall and pure short pea plants gives hybrid tall pea plants in the first generation. What would be the genotypic ratio in the offspring of the second generation if these F1 plants were self-pollinated?",
+    options: ["3:1", "9:3:3:1", "1:2:1", "1:1"],
+    answer: "1:2:1",
+    solutionSteps: ["Cross TT × tt → F1 all Tt (hybrid tall).", "Self-pollination of F1 (Tt × Tt) gives F2 genotypes: TT, Tt, Tt, tt ⟹ GENOTYPIC ratio = 1 TT : 2 Tt : 1 tt = 1:2:1. (Note: phenotypic ratio is 3:1.)"],
+    finalAnswer: "(c) 1:2:1",
+    ncertRef: "APQ Science-PQ2 Q11", isCompetencyBased: true },
+
+  // Science-PQ2 Q35 first variant (Section D, Long, 5 marks)
+  { id: "APQ-S-HERED-006", subject: "Science", topicKey: "heredity", subtopic: "Dihybrid Cross + Unidirectional Energy Flow", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "(a) Flow of energy in a food chain is unidirectional. Justify the statement. (b) (i) In a cross between pea plants having round green seeds and wrinkled yellow seeds, what progeny is expected in F1 and F2 generation? (ii) What would be the impact on the ratio of F2 generation if F1 progeny plants inherited a single whole gene set from each parent? Give reason.",
+    answer: "(a) Energy moves only forward, lost as heat at each step. (b)(i) F1 all round-yellow (RrYy); F2 = 9:3:3:1. (b)(ii) Independent assortment lost ⟹ 9:3:3:1 not obtained.",
+    solutionSteps: ["(a) Energy captured by autotrophs (producers) does NOT revert to the solar input; energy passed to herbivores does NOT return to autotrophs. As energy moves through trophic levels it is dissipated as heat and is no longer available to lower levels — so the flow is one-way (unidirectional).", "(b)(i) F1: All Round Yellow seeds with genotype RrYy (round R is dominant, yellow Y is dominant).", "(b)(i) F2 (RrYy × RrYy): phenotypic ratio = 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green.", "(b)(ii) If F1 inherited a SINGLE whole gene SET from each parent, then traits R and y (or any pair) would be LINKED together and could not assort independently.", "(b)(ii) Therefore the standard 9:3:3:1 ratio would NOT be obtained — only the parental phenotypes would reappear in the ratio determined by the linked combinations."],
+    finalAnswer: "(a) Energy lost as heat at each step ⟹ unidirectional; (b)(i) F1 RrYy, F2 9:3:3:1; (b)(ii) linked genes ⟹ no 9:3:3:1.",
+    ncertRef: "APQ Science-PQ2 Q35 (first variant)", isCompetencyBased: true },
 ];
