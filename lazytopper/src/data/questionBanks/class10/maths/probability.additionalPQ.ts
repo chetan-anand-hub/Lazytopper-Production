@@ -56,4 +56,24 @@ export const PROBABILITY_APQ: CanonicalQuestion[] = [
     finalAnswer: "(i) 8/13; (ii) 11/13; (iii) 1/26.",
     ncertRef: "APQ PQ2 Q31", isCompetencyBased: true,
     strategyHint: "Standard deck: 12 face cards (J,Q,K each suit), 26 black cards (clubs+spades), 6 black face cards." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q18 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-PROB-006", subject: "Maths", topicKey: "probability", subtopic: "Probability — Marbles", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "A bowl contains 3 red and 2 blue marbles. Roohi wants to pick a red marble. Which of the following changes could she make so that the probability of picking a red marble is greater than it was before? (i) Adding a red marble. (ii) Removing a blue marble. (iii) Adding 1 red and 1 blue marble.",
+    options: ["only (i)", "only (i) and (ii)", "only (i) and (iii)", "(all of the above)"],
+    answer: "only (i) and (ii)",
+    solutionSteps: ["Starting: P(red) = 3/5 = 0.6.", "(i) Add red: 4/6 ≈ 0.67 > 0.6 ✓.", "(ii) Remove blue: 3/4 = 0.75 > 0.6 ✓.", "(iii) Add 1 red and 1 blue: 4/7 ≈ 0.57 < 0.6 ✗. Only (i) and (ii) increase the probability."],
+    finalAnswer: "(b) only (i) and (ii)",
+    ncertRef: "APQ PQ_2022 Q18", isCompetencyBased: true },
+
+  // PQ_2022 Q31 (Section C, Short, 3 marks)
+  { id: "APQ-M-PROB-007", subject: "Maths", topicKey: "probability", subtopic: "Probability — Weighted Dartboard", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "A square dartboard has sections numbered 1 to 12. Smaller sections (1 to 8) have area 1/16 each; larger sections (9 to 12) have area 1/8 each. Arya: \"My dart will land on a composite number.\" Bashir: \"My dart will land on an even number.\" Cathy: \"My dart will land on a factor of 12.\" Calculate the probability of each and determine the winner.",
+    answer: "Arya 9/16; Bashir 1/2; Cathy 7/16. Arya has highest chance.",
+    solutionSteps: ["Composite numbers in 1-12: {4, 6, 8, 9, 10, 12}. Among small (1-8): 4, 6, 8 → 3 × (1/16). Among large (9-12): 9, 10, 12 → 3 × (1/8). P(Arya) = 3/16 + 3/8 = 3/16 + 6/16 = 9/16.", "Even numbers: {2, 4, 6, 8, 10, 12}. Small: 4 × (1/16); Large: 2 × (1/8). P(Bashir) = 4/16 + 2/8 = 4/16 + 4/16 = 8/16 = 1/2.", "Factors of 12: {1, 2, 3, 4, 6, 12}. Small: 5 × (1/16); Large: 1 × (1/8). P(Cathy) = 5/16 + 1/8 = 5/16 + 2/16 = 7/16.", "Compare: 9/16 > 8/16 > 7/16 ⟹ Arya wins."],
+    finalAnswer: "Arya 9/16, Bashir 1/2, Cathy 7/16. Arya highest chance.",
+    ncertRef: "APQ PQ_2022 Q31", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: square dartboard with sections numbered 1-12." },
 ];

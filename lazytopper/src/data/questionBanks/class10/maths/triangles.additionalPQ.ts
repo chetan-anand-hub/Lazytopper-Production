@@ -80,4 +80,35 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
     finalAnswer: "Area = 32/3 cm^2.",
     ncertRef: "APQ PQ1 Q33", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: right triangle ABC with internal lines PT and SR." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q5 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-TRI-009", subject: "Maths", topicKey: "triangles", subtopic: "Similar Triangles — Word Application", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Sonali is standing on one side of a 7 m wide road. She wants to estimate the distance (D) between two light poles on the other side without crossing the road. Which of the following expressions represent D in terms of p and r?",
+    options: ["7r/p m", "pr/7 m", "pr/(p+7) m", "r(p+7)/p m"],
+    answer: "r(p+7)/p m",
+    solutionSteps: ["Similar triangles from observed sight-lines: ratio of corresponding sides gives D/(p + 7) = r/p (where p is the distance from Sonali to the road and (p + 7) is her distance to the far poles).", "Solve: D = r(p + 7)/p m."],
+    finalAnswer: "(d) r(p+7)/p m",
+    ncertRef: "APQ PQ_2022 Q5", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: Sonali across 7 m road from light poles." },
+
+  // PQ_2022 Q6 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-TRI-010", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Sufficient Conditions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Shown are two triangles such that length of two sides of each is known. Along with the given information, which of these is sufficient to conclude whether ΔKLM is similar to ΔPQR? (i) ∠KLM = ∠PQR (ii) Ratio of KM:PR",
+    options: ["only (i)", "only (ii)", "either (i) or (ii)", "(the given information is enough to conclude that ΔKLM ∼ ΔPQR as ratio of sides is known)"],
+    answer: "either (i) or (ii)",
+    solutionSteps: ["With two sides known on each triangle, (i) included angle = SAS similarity criterion ⟹ sufficient.", "(ii) Third side ratio added to two known sides = SSS similarity criterion ⟹ sufficient.", "Either condition alone is sufficient."],
+    finalAnswer: "(c) either (i) or (ii)",
+    ncertRef: "APQ PQ_2022 Q6", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: two triangles ΔKLM and ΔPQR with side lengths." },
+
+  // PQ_2022 Q34 (Section D, Long, 5 marks)
+  { id: "APQ-M-TRI-011", subject: "Maths", topicKey: "triangles", subtopic: "Trapezium Area via Similar Triangles", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "In the figure below, ST || PQ. All measurements are in units. Prove that the area of the trapezium PQTS is [(1/2)(a + b)h] sq units.",
+    answer: "Proved.",
+    solutionSteps: ["In ΔPQR and ΔSTR: ∠PRQ = ∠SRT (common); ∠PQR = ∠STR (corresponding angles, ST || PQ). So ΔPQR ~ ΔSTR by AA criterion.", "Area of ΔPQR = (1/2)·b·(H + h); Area of ΔSTR = (1/2)·a·H.", "Area of trapezium PQTS = ΔPQR − ΔSTR = (1/2)·b·(H + h) − (1/2)·a·H = (1/2)·[(b − a)H + b·h].", "From similarity: (H + h)/H = b/a ⟹ H = a·h/(b − a).", "Substitute: Area = (1/2)·[(b − a)·a·h/(b − a) + b·h] = (1/2)·[a·h + b·h] = (1/2)·(a + b)·h. QED."],
+    finalAnswer: "Area of trapezium PQTS = (1/2)(a + b)h.",
+    ncertRef: "APQ PQ_2022 Q34", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: triangle PQR with parallel line ST inside." },
 ];

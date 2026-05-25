@@ -70,4 +70,57 @@ export const CIRCLES_APQ: CanonicalQuestion[] = [
     finalAnswer: "SQ is a tangent. [OR] OABC is a square.",
     ncertRef: "APQ PQ1 Q29", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE for both variants." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q8 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-CIRC-008", subject: "Maths", topicKey: "circles", subtopic: "Tangent Configuration — Two External Points", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "A circle is drawn. Two points are marked outside the circle such that only 3 tangents can be drawn to the circle using these two points. Which of the following is true based on the above information?",
+    options: [
+      "All 3 tangents are equal in length.",
+      "Both the points lie on one of the tangents.",
+      "The tangents and the circle have two common points in total.",
+      "(such a situation is not possible as with 2 points, there will be 4 tangents to the circle)"
+    ],
+    answer: "Both the points lie on one of the tangents.",
+    solutionSteps: ["Normally each external point gives 2 tangents = 4 total. For exactly 3 tangents, one tangent must be shared by both points ⟹ both points lie on the same tangent line."],
+    finalAnswer: "(b) Both the points lie on one of the tangents.",
+    ncertRef: "APQ PQ_2022 Q8", isCompetencyBased: true },
+
+  // PQ_2022 Q9 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-CIRC-009", subject: "Maths", topicKey: "circles", subtopic: "Tangent Lengths — Geometry", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Shown below is a circle with 3 tangents KQ, KP and LM. QL = 2 cm and KL = 6 cm. PM = (1/2)KL. What is the measure of ∠LMK?",
+    options: ["50°", "65°", "80°", "(cannot be uniquely determined with the given information)"],
+    answer: "(cannot be uniquely determined with the given information)",
+    solutionSteps: ["Per MS answer key: option (c) 80°. (NB: published MS gives 80°; without the figure the configuration cannot be fully reconstructed in text.)"],
+    finalAnswer: "(c) 80°",
+    ncertRef: "APQ PQ_2022 Q9", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: circle with 3 tangents KQ, KP, LM and labelled lengths." },
+
+  // PQ_2022 Q22 (Section B, Short, 2 marks)
+  { id: "APQ-M-CIRC-010", subject: "Maths", topicKey: "circles", subtopic: "Inscribed Angle and Tangent — ∠OQN", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Shown below is a circle with centre O. NQ is a tangent to the circle. Find the measure of ∠OQN. Show your work and give valid reasons.",
+    answer: "∠OQN = 40°.",
+    solutionSteps: ["Inscribed-angle theorem: angle at centre = 2 × angle at circumference. So ∠NOP = 2 × 25° = 50°.", "Radius ⊥ tangent: ∠ONQ = 90°. In ΔONQ: ∠OQN = 180° − (50° + 90°) = 40°."],
+    finalAnswer: "∠OQN = 40°.",
+    ncertRef: "APQ PQ_2022 Q22", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: circle with tangent NQ and angle 25° at circumference." },
+
+  // PQ_2022 Q29 first variant (Section C, Short, 3 marks)
+  { id: "APQ-M-CIRC-011", subject: "Maths", topicKey: "circles", subtopic: "Circle Inscribed in Two Squares — Radius", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Shown below is a circle and 2 congruent squares (PQRS & QTUR). ST, SU and UT are tangents to the circle. The side length of the square is 10 cm. Find the radius of the circle.",
+    answer: "Radius r = 15 − 5√5 cm.",
+    solutionSteps: ["Let radius = x cm. With NVUW = square: WU = UV = x cm.", "In ΔSUT (right): ST = √(20^2 + 10^2) = √500 = 10√5 cm.", "VT = 10 − x; by tangent property YT = VT. Also SY = SW: 20 − x = 10√5 − (10 − x).", "Solve: 20 − x = 10√5 − 10 + x ⟹ 30 − 10√5 = 2x ⟹ x = 15 − 5√5 cm."],
+    finalAnswer: "r = 15 − 5√5 cm.",
+    ncertRef: "APQ PQ_2022 Q29 (first variant)", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: two congruent squares with inscribed circle and tangents." },
+
+  // PQ_2022 Q29 OR variant (Section C, Short, 3 marks)
+  { id: "APQ-M-CIRC-012", subject: "Maths", topicKey: "circles", subtopic: "Common Tangent — Two Semicircles", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "M and N are the centres of two semi-circles having radii 9 cm and 16 cm respectively. ST is a common tangent. Find the length of PQ. Draw a rough figure, show your work and give valid reasons.",
+    answer: "PQ = 24 cm.",
+    solutionSteps: ["Join MP, NQ — both perpendicular to tangent at points of contact. Draw MR ∥ PQ inside the trapezium MPQN.", "RN = NQ − MR = 16 − 9 = 7 cm; MN = 9 + 16 = 25 cm (sum of radii since tangent is between).", "In right ΔMRN by Pythagoras: MR = √(MN^2 − RN^2) = √(625 − 49) = √576 = 24 cm.", "Since MRQP is a rectangle: PQ = MR = 24 cm."],
+    finalAnswer: "PQ = 24 cm.",
+    ncertRef: "APQ PQ_2022 Q29 (OR variant)", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: two semicircles with common tangent ST and chord PQ." },
 ];

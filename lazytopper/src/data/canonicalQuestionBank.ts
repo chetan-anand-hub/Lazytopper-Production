@@ -172,6 +172,22 @@ import { SURFACE_AREAS_AND_VOLUMES_APQ } from './questionBanks/class10/maths/sur
 import { STATISTICS_APQ } from './questionBanks/class10/maths/statistics.additionalPQ';
 import { PROBABILITY_APQ } from './questionBanks/class10/maths/probability.additionalPQ';
 
+// P2 CBSE APQ 2023-24 — Science (Science-PQ.pdf, 2026-05-25)
+// 12 Science topic files, ~42 questions
+import { CHEMICAL_REACTIONS_APQ } from './questionBanks/class10/science/chemical-reactions-and-equations.additionalPQ';
+import { ACIDS_BASES_SALTS_APQ } from './questionBanks/class10/science/acids-bases-and-salts.additionalPQ';
+import { METALS_NON_METALS_APQ } from './questionBanks/class10/science/metals-and-non-metals.additionalPQ';
+import { CARBON_COMPOUNDS_APQ } from './questionBanks/class10/science/carbon-and-its-compounds.additionalPQ';
+import { LIFE_PROCESSES_APQ } from './questionBanks/class10/science/life-processes.additionalPQ';
+import { CONTROL_COORDINATION_APQ } from './questionBanks/class10/science/control-and-coordination.additionalPQ';
+import { HOW_DO_ORGANISMS_REPRODUCE_APQ } from './questionBanks/class10/science/how-do-organisms-reproduce.additionalPQ';
+import { HEREDITY_APQ } from './questionBanks/class10/science/heredity.additionalPQ';
+import { LIGHT_REFLECTION_APQ } from './questionBanks/class10/science/light-reflection-and-refraction.additionalPQ';
+import { HUMAN_EYE_APQ } from './questionBanks/class10/science/human-eye-and-colourful-world.additionalPQ';
+import { ELECTRICITY_APQ } from './questionBanks/class10/science/electricity.additionalPQ';
+import { MAGNETIC_EFFECTS_APQ } from './questionBanks/class10/science/magnetic-effects-of-electric-current.additionalPQ';
+import { OUR_ENVIRONMENT_APQ } from './questionBanks/class10/science/our-environment.additionalPQ';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -333,6 +349,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...SURFACE_AREAS_AND_VOLUMES_APQ,
   ...STATISTICS_APQ,
   ...PROBABILITY_APQ,
+  // P2 CBSE APQ 2023-24 — Science (Science-PQ.pdf, ~42 Qs across 13 files)
+  ...CHEMICAL_REACTIONS_APQ,
+  ...ACIDS_BASES_SALTS_APQ,
+  ...METALS_NON_METALS_APQ,
+  ...CARBON_COMPOUNDS_APQ,
+  ...LIFE_PROCESSES_APQ,
+  ...CONTROL_COORDINATION_APQ,
+  ...HOW_DO_ORGANISMS_REPRODUCE_APQ,
+  ...HEREDITY_APQ,
+  ...LIGHT_REFLECTION_APQ,
+  ...HUMAN_EYE_APQ,
+  ...ELECTRICITY_APQ,
+  ...MAGNETIC_EFFECTS_APQ,
+  ...OUR_ENVIRONMENT_APQ,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",

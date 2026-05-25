@@ -39,4 +39,14 @@ export const ARITHMETIC_PROGRESSION_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(i) a = 15, d = 5; a12 = 15 + 11 × 5 = 70.", "(ii) Middle row of 15 = 8th row; a8 = 15 + 7 × 5 = 50.", "(iii) Sum Sn = 1875: n/2 × [2(15) + (n−1)·5] = 1875 ⟹ n^2 + 5n − 750 = 0 ⟹ (n − 25)(n + 30) = 0 ⟹ n = 25.", "[OR] Sn = 1250: n/2 × [30 + (n−1)·5] = 1250 ⟹ n^2 + 5n − 500 = 0 ⟹ (n − 20)(n + 25) = 0 ⟹ n = 20. Rows left blank = 30 − 20 = 10."],
     finalAnswer: "(i) 70; (ii) 50; (iii) 25 rows [or] 10 left blank.",
     ncertRef: "APQ PQ2 Q37", isCompetencyBased: true },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q36 (Section E, Case-Based, 4 marks)
+  { id: "APQ-M-AP-005", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "AP — Real-world Spacecraft Velocity", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Deep Space 1 ion propulsion engine produced a constant acceleration. Initial average velocity in first month: 27360 km/hr. When the spacecraft passed asteroid Braille, it reached 55800 km/hr. Based on first 6 months, the monthly velocities form a pattern. (i) Does the average monthly velocity form an arithmetic progression? Justify. (ii) The distance travelled in the first 10 months can be expressed as 7300p km where p is the sum of average monthly velocity for the first 10 months. Find p. (iii) Spacecraft passed comet Borelly 15 months after it passed Braille. Find the average monthly velocity when it passed Borelly. OR (iii) After how many months did the spacecraft pass Braille?",
+    answer: "(i) Yes, AP with d = 3555 km/hr. (ii) p = 4,33,575 km/hr. (iii) 1,09,125 km/hr. [OR] 9 months.",
+    solutionSteps: ["(i) Differences: 30915 − 27360 = 3555; 34470 − 30915 = 3555. Constant common difference ⟹ AP with d = 3555.", "(ii) S10 = (10/2)·[2·27360 + 9·3555] = 5·[54720 + 31995] = 5·86715 = 4,33,575.", "(iii) Braille at velocity 55800: 27360 + (n − 1)·3555 = 55800 ⟹ (n − 1)·3555 = 28440 ⟹ n − 1 = 8 ⟹ n = 9. Borelly is 15 months after Braille = month (9 + 15) = 24. Velocity = 27360 + 23·3555 = 27360 + 81765 = 1,09,125 km/hr.", "[OR] Same equation 27360 + (n − 1)·3555 = 55800 ⟹ n = 9 months."],
+    finalAnswer: "(i) Yes (AP, d = 3555); (ii) 4,33,575 km/hr; (iii) 1,09,125 km/hr [or] 9 months.",
+    ncertRef: "APQ PQ_2022 Q36", isCompetencyBased: true },
 ];

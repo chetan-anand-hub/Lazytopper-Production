@@ -61,4 +61,36 @@ export const REAL_NUMBERS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Assume 5 + 6√7 is rational. Let 5 + 6√7 = p/q where q ≠ 0 and p, q are integers.", "Rearranging: √7 = (p − 5q) / (6q).", "Since p and q are integers, (p − 5q)/(6q) is rational, so √7 would be rational — contradiction (√7 is irrational).", "Hence our assumption is wrong, so 5 + 6√7 is irrational."],
     finalAnswer: "5 + 6√7 is irrational.",
     ncertRef: "APQ PQ2 Q26", isCompetencyBased: false },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q19 (Section A, Assertion-Reasoning, 1 mark)
+  { id: "APQ-M-RN-007", subject: "Maths", topicKey: "real-numbers", subtopic: "Prime Numbers and Irrationality", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Analysing",
+    questionText: "Assertion (A): 2 is a prime number. Reason (R): The square of an irrational number is always a prime number.",
+    options: [
+      "Both (A) and (R) are true and (R) is the correct explanation of (A).",
+      "Both (A) and (R) are true and (R) is not the correct explanation of (A).",
+      "(A) is true but (R) is false.",
+      "(A) is false but (R) is true."
+    ],
+    answer: "(A) is true but (R) is false.",
+    solutionSteps: ["A is true: 2 is the smallest prime number.", "R is false: (√2)^2 = 2 is prime, but (√3)^2 = 3 is also prime, while (√4)^2 = 4 is not prime. The square of an irrational number is not always prime — counter-example (√6)^2 = 6 (composite)."],
+    finalAnswer: "(c) (A) is true but (R) is false.",
+    ncertRef: "APQ PQ_2022 Q19", isCompetencyBased: true },
+
+  // PQ_2022 Q23 (Section B, Short, 2 marks)
+  { id: "APQ-M-RN-008", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF — Word Problem", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the smallest pair of 4-digit numbers such that the difference between them is 303 and their HCF is 101. Show your steps.",
+    answer: "Numbers are 1010 and 1313.",
+    solutionSteps: ["Let the two numbers be 101p and 101q where p > q and gcd(p, q) = 1 (since HCF = 101).", "Difference: 101p − 101q = 303 ⟹ 101(p − q) = 303 ⟹ p − q = 3, so p = q + 3.", "Smallest 4-digit number = 1000 ⟹ 101q ≥ 1000 ⟹ q ≥ 10. Take q = 10 ⟹ p = 13. Numbers: 101·10 = 1010 and 101·13 = 1313 (gcd(10, 13) = 1 ✓)."],
+    finalAnswer: "1010 and 1313.",
+    ncertRef: "APQ PQ_2022 Q23", isCompetencyBased: true },
+
+  // PQ_2022 Q26 (Section C, Short, 3 marks)
+  { id: "APQ-M-RN-009", subject: "Maths", topicKey: "real-numbers", subtopic: "LCM via Prime Factorisation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The LCM of 6^4, 8^2 and k is 12^4 where k is a positive integer. Find the smallest value of k. Show your steps.",
+    answer: "Smallest k = 256 (or 2^8).",
+    solutionSteps: ["Prime factorisations: 6^4 = (2·3)^4 = 2^4 × 3^4; 8^2 = 2^6; 12^4 = (4·3)^4 = 2^8 × 3^4.", "LCM(6^4, 8^2, k) takes maximum power of each prime: max(4, 6, e2(k)) = 8 and max(4, 0, e3(k)) = 4.", "So e2(k) must be 8 (since 6 < 8 from 8^2). e3(k) ≤ 4 (smallest k → e3(k) = 0). Smallest k = 2^8 = 256."],
+    finalAnswer: "k = 256.",
+    ncertRef: "APQ PQ_2022 Q26", isCompetencyBased: true },
 ];

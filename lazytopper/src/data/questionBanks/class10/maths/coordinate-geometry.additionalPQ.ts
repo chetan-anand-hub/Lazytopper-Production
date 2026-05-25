@@ -65,4 +65,39 @@ export const COORDINATE_GEOMETRY_APQ: CanonicalQuestion[] = [
     finalAnswer: "(i) (17/3, 10/3); (ii) isosceles right; (iii) 110.5 m^2 [or] (11, 31/5).",
     ncertRef: "APQ PQ2 Q38", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: rectangular plot with triangle PQR and labelled coordinates." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q4 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-CG-007", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula — Concentric Circles", section: "A", marks: 1, format: "MCQ", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Two concentric circles are centered at O(−4, 3). The ratio of the area of inner circle to that of the outer circle is 1:9. Points A and B lie on the boundaries of the inner and outer circles, respectively. The coordinates of point B are (3, 5). Which of the following are the coordinates of A?",
+    options: ["(2/3, 13/3)", "(−5/3, 11/3)", "(−9/4, 14/4)", "(−33/10, 16/5)"],
+    answer: "(−5/3, 11/3)",
+    solutionSteps: ["Area ratio 1:9 ⟹ radius ratio 1:3. So OA = (1/3)·OB.", "If A lies on segment OB (same direction from centre as B), A divides OB internally in ratio 1:2 (from O).", "A = O + (1/3)·(B − O) = (−4 + (1/3)·7, 3 + (1/3)·2) = (−4 + 7/3, 3 + 2/3) = (−5/3, 11/3)."],
+    finalAnswer: "(b) (−5/3, 11/3)",
+    ncertRef: "APQ PQ_2022 Q4", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: concentric circles with A inside and B outside." },
+
+  // PQ_2022 Q20 (Section A, Assertion-Reasoning, 1 mark)
+  { id: "APQ-M-CG-008", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Equidistant Points — Perpendicular Bisector", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Assertion (A): The origin is the ONLY point equidistant from (2, 3) and (−2, −3). Reason (R): The origin is the midpoint of the line joining (2, 3) and (−2, −3).",
+    options: [
+      "Both (A) and (R) are true and (R) is the correct explanation for (A).",
+      "Both (A) and (R) are true but (R) is not the correct explanation for (A).",
+      "(A) is true but (R) is false.",
+      "(A) is false but (R) is true."
+    ],
+    answer: "(A) is false but (R) is true.",
+    solutionSteps: ["R is TRUE: midpoint of (2, 3) and (−2, −3) is ((2 + (−2))/2, (3 + (−3))/2) = (0, 0) = origin.", "A is FALSE: the locus of points equidistant from (2, 3) and (−2, −3) is the perpendicular bisector — an entire line, not just the origin."],
+    finalAnswer: "(d) (A) is false but (R) is true.",
+    ncertRef: "APQ PQ_2022 Q20", isCompetencyBased: true },
+
+  // PQ_2022 Q37 (Section E, Case-Based, 4 marks)
+  { id: "APQ-M-CG-009", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance, Midpoint, Section Formula — Raycasting Game", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Raycasting is a technique used in computer games. A snooker game in creation stage on a coordinate map has six pockets P1-P6 and three balls — white W(−3, −2), red R, green G(7, 1). (i) How much distance will a ray travel from the green ball to the nearest pocket (P4 at (9, 3))? (ii) Find coordinates of the yellow ball at the midpoint of WG. (iii) White ball rebounds off rail (line P4-P6) and lands in P2(2, −4). Ball crossed x-axis at X(2/7, 0). Ratio of distance rail-to-X and X-to-P2 = 3:4. Find coordinates of point on rail where ball struck. OR (iii) Riju wants to hit a blue ball (−1, −3) into P5 along a straight path. Would the red ball lie on the path?",
+    answer: "(i) 2√2 units. (ii) (2, −1/2). (iii) (−1, 3). [OR] Yes — collinear (BR + RP5 = BP5).",
+    solutionSteps: ["(i) Distance G(7,1) → P4(9,3) = √((9−7)^2 + (3−1)^2) = √(4 + 4) = √8 = 2√2.", "(ii) Midpoint of W(−3, −2), G(7, 1) = ((−3+7)/2, (−2+1)/2) = (2, −1/2).", "(iii) Let strike point on rail be (c, 3). X(2/7, 0) divides line from (c, 3) to P2(2, −4) in ratio 3:4. By section formula: 2/7 = (3·2 + 4·c)/7 ⟹ 2 = 6 + 4c ⟹ c = −1. So strike point = (−1, 3).", "[OR] BR = 2√5, RP5 = √5, BP5 = 3√5. BR + RP5 = BP5 ⟹ collinear ⟹ red ball lies on path."],
+    finalAnswer: "(i) 2√2; (ii) (2, −1/2); (iii) (−1, 3) [or] yes, collinear.",
+    ncertRef: "APQ PQ_2022 Q37", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: snooker table coordinate map with pockets and balls." },
 ];

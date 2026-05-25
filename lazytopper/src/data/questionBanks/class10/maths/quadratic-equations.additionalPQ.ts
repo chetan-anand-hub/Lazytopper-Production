@@ -40,4 +40,32 @@ export const QUADRATIC_EQUATIONS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Let usual speed = x km/hr. Time saved by faster speed = 30 min = 1/2 hr.", "Equation: 1500/x − 1500/(x + 250) = 1/2.", "Multiply through and simplify: 1500·(250) / [x(x + 250)] = 1/2 ⟹ x(x + 250) = 750000.", "x^2 + 250x − 750000 = 0 ⟹ (x − 750)(x + 1000) = 0.", "Reject negative root: x = 750 km/hr."],
     finalAnswer: "Usual speed = 750 km/hr.",
     ncertRef: "APQ PQ2 Q35", isCompetencyBased: true },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q3 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-QE-005", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots — Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "A teacher asks three students to complete the following statement about the nature of the roots of a quadratic equation. If q^2 − 4pr > 0, the roots of the quadratic equation px^2 + qx + r = 0 will be... Zain answers, \"always positive\". Vipul answers, \"positive, if p, q, and r are positive\". Suman answers, \"negative, if p, q, and r are positive\". Who answered correctly?",
+    options: ["Zain", "Vipul", "Suman", "(none of them)"],
+    answer: "Suman",
+    solutionSteps: ["q^2 − 4pr > 0 ⟹ two distinct real roots. Sum of roots = −q/p; product of roots = r/p.", "If p, q, r > 0: sum = −q/p < 0 (negative), product = r/p > 0 (positive). Both roots negative.", "Suman is correct."],
+    finalAnswer: "(c) Suman",
+    ncertRef: "APQ PQ_2022 Q3", isCompetencyBased: true },
+
+  // PQ_2022 Q32 first variant (Section D, Long, 5 marks)
+  { id: "APQ-M-QE-006", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problem — Sales/Price", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Sejal started a business where she sells earrings online. She made Rs 12000 in sales in her first month. In the second month, when she decreased the price of her product by Rs 20, she sold 40 more items and increased her total sales by Rs 2000. At what price did she sell the earrings in the second month? Show your work.",
+    answer: "Rs 100 per earring (second month).",
+    solutionSteps: ["Let first-month price = p; first-month quantity n = 12000/p.", "Second month: price = (p − 20), quantity = (12000/p + 40), sales = 12000 + 2000 = 14000. Equation: (p − 20)(12000/p + 40) = 14000.", "Expand: 12000 + 40p − 240000/p − 800 = 14000 ⟹ 40p − 240000/p − 2800 = 0. Multiply by p: 40p^2 − 2800p − 240000 = 0 ⟹ p^2 − 70p − 6000 = 0.", "Solve: p = (70 ± √(4900 + 24000))/2 = (70 ± 170)/2 ⟹ p = 120 (rejecting p = −50).", "Second-month price = 120 − 20 = Rs 100."],
+    finalAnswer: "Rs 100.",
+    ncertRef: "APQ PQ_2022 Q32 (first variant)", isCompetencyBased: true },
+
+  // PQ_2022 Q32 OR variant (Section D, Long, 5 marks)
+  { id: "APQ-M-QE-007", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problem — Geometric Area", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "A wall measures 5 m in length and 4 m in height. The outer portion of the wall of uniform width 'x' m will be painted and the central portion will be tiled. The total budget, including the tiles at Rs 500 per m^2 and paint at Rs 200 per m^2, is Rs 5800. Find x such that the work is completed as per the budget. Show your work.",
+    answer: "x = 1 m.",
+    solutionSteps: ["Tiled area = (5 − 2x)(4 − 2x); painted area = 20 − (5 − 2x)(4 − 2x).", "Budget equation: 500·(5 − 2x)(4 − 2x) + 200·[20 − (5 − 2x)(4 − 2x)] = 5800.", "Simplify: 300·(5 − 2x)(4 − 2x) + 4000 = 5800 ⟹ (5 − 2x)(4 − 2x) = 6 ⟹ 20 − 18x + 4x^2 = 6 ⟹ 4x^2 − 18x + 14 = 0 ⟹ 2x^2 − 9x + 7 = 0.", "Solve: (2x − 7)(x − 1) = 0 ⟹ x = 1 or x = 3.5.", "Reject x = 3.5 (exceeds height/2 = 2). Accept x = 1 m."],
+    finalAnswer: "x = 1 m.",
+    ncertRef: "APQ PQ_2022 Q32 (OR variant)", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: wall with painted border of width x." },
 ];

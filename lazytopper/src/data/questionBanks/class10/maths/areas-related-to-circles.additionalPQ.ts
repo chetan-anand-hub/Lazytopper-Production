@@ -53,4 +53,53 @@ export const AREAS_RELATED_TO_CIRCLES_APQ: CanonicalQuestion[] = [
     finalAnswer: "(i) 60°; (ii) 84.77 cm^2; (iii) 102.67 cm^2 [or] 42.67 cm.",
     ncertRef: "APQ PQ2 Q36", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: trophy shield with sector DOC and triangles." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q7 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-ARC-006", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector — Length Calculation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Shown below is a sector of a circle with centre P. All lengths are measured in cm. What is the length of PE?",
+    options: ["3 cm", "3.5 cm", "4 cm", "4.5 cm"],
+    answer: "4 cm",
+    solutionSteps: ["Per MS answer key: option (c) 4 cm."],
+    finalAnswer: "(c) 4 cm",
+    ncertRef: "APQ PQ_2022 Q7", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: sector of circle with centre P and labelled lengths." },
+
+  // PQ_2022 Q13 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-ARC-007", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area — Sufficient Conditions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "In the figure below, a unit square ROST is inscribed in a circular sector with centre O. Along with the above information, which of these is SUFFICIENT to find the area of sector POQ?",
+    options: ["area of the square ROST", "radius of sector POQ", "arc length PQ", "(the given information is sufficient)"],
+    answer: "arc length PQ",
+    solutionSteps: ["Per MS answer key: option (c). The arc length PQ (combined with known geometric relations to the inscribed unit square) suffices to determine both radius and angle, hence sector area."],
+    finalAnswer: "(c) arc length PQ",
+    ncertRef: "APQ PQ_2022 Q13", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: unit square inscribed in circular sector." },
+
+  // PQ_2022 Q14 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-ARC-008", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area — Fibonacci Grid", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Fibonacci sequence: 0, 1, 1, 2, 3, 5, 8, 13... Shown is a representation of the first few terms in a unit square grid. The terms represent side lengths. What is the area of the shaded sector?",
+    options: ["4π sq units", "16π sq units", "48π sq units", "64π sq units"],
+    answer: "16π sq units",
+    solutionSteps: ["Per MS answer key: option (b) 16π sq units. The shaded quarter-sector has radius 8 (a Fibonacci term in the spiral); area = (1/4)·π·8^2 = 16π."],
+    finalAnswer: "(b) 16π sq units",
+    ncertRef: "APQ PQ_2022 Q14", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: Fibonacci spiral in unit square grid." },
+
+  // PQ_2022 Q25 first variant (Section B, Short, 2 marks)
+  { id: "APQ-M-ARC-009", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length — Chord Subtending 60°", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "A 3.5 cm chord subtends an angle of 60° at the centre of a circle. What is the arc length of the minor sector? (Use π = 22/7.)",
+    answer: "Arc length = 11/3 cm (≈ 3.67 cm).",
+    solutionSteps: ["Triangle OMN with OM = ON (radii) and ∠MON = 60° ⟹ equilateral triangle (angles opposite equal sides equal, all 60°). So OM = ON = MN = 3.5 cm.", "Radius r = 3.5 = 7/2 cm. Arc length = (60°/360°) × 2π × r = (1/6) × 2 × (22/7) × (7/2) = 22/6 = 11/3 cm."],
+    finalAnswer: "11/3 cm.",
+    ncertRef: "APQ PQ_2022 Q25 (first variant)", isCompetencyBased: true },
+
+  // PQ_2022 Q25 OR variant (Section B, Short, 2 marks)
+  { id: "APQ-M-ARC-010", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Segment Area — Semicircle in Semicircle", section: "B", marks: 2, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "A semicircle MON is inscribed in another semicircle. Radius OL of the larger semicircle is 6 cm. Find the area of the shaded segment in terms of π. Draw a rough figure and show your steps.",
+    answer: "Area = 9(π − 2) cm^2.",
+    solutionSteps: ["From figure: ∠MON = 90°. Sector MON area in larger semicircle = (90°/360°) × π × 6^2 = 9π cm^2.", "Triangle MON area = (1/2) × 6 × 6 = 18 cm^2.", "Shaded segment area = sector − triangle = 9π − 18 = 9(π − 2) cm^2."],
+    finalAnswer: "9(π − 2) cm^2.",
+    ncertRef: "APQ PQ_2022 Q25 (OR variant)", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: smaller semicircle MON inscribed in larger semicircle, radius OL = 6." },
 ];
