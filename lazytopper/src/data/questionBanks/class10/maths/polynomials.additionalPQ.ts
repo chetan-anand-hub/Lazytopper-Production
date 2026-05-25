@@ -42,4 +42,23 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
     finalAnswer: "P = (4, 0), Q = (−3, 0); distance = 150 m.",
     ncertRef: "APQ PQ1 Q27", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: Parabolic graph showing stone trajectory; Q is launch point, P is landing point." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q1 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-POLY-005", subject: "Maths", topicKey: "polynomials", subtopic: "Factor from Polynomial Graph", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "The graph of a polynomial p(x) passes through the points (-5, 0), (0, -40), (8, 0) and (5, -30). Which among the following is a factor of p(x)?",
+    options: ["(x - 5)", "(x - 8)", "(x + 30)", "(x + 40)"],
+    answer: "(x - 8)",
+    solutionSteps: ["Zeros of p(x) are x-coordinates where graph crosses x-axis (y = 0). Points (−5, 0) and (8, 0) are on the x-axis ⟹ x = −5 and x = 8 are zeros.", "Factors corresponding to zeros: (x + 5) and (x − 8). From options, (x − 8) is a factor."],
+    finalAnswer: "(b) (x - 8)",
+    ncertRef: "APQ PQ_2022 Q1", isCompetencyBased: true },
+
+  // PQ_2022 Q27 (Section C, Short, 3 marks)
+  { id: "APQ-M-POLY-006", subject: "Maths", topicKey: "polynomials", subtopic: "Sum/Product of Zeroes Identities", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If m and n are zeroes of the polynomial (3x^2 - x - 2), find the values of the following without factorising the polynomial. (i) 1/m + 1/n (ii) m^2 + n^2",
+    answer: "(i) −1/2. (ii) 13/9.",
+    solutionSteps: ["From 3x^2 − x − 2: m + n = −(−1)/3 = 1/3; mn = −2/3.", "(i) 1/m + 1/n = (m + n)/mn = (1/3) / (−2/3) = −1/2.", "(ii) m^2 + n^2 = (m + n)^2 − 2mn = (1/3)^2 − 2(−2/3) = 1/9 + 4/3 = 1/9 + 12/9 = 13/9."],
+    finalAnswer: "(i) −1/2; (ii) 13/9.",
+    ncertRef: "APQ PQ_2022 Q27", isCompetencyBased: true },
 ];

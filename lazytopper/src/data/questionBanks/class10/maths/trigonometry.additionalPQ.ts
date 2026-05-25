@@ -100,4 +100,69 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     finalAnswer: "(i) 30 m; (ii) 60°; (iii) ~10.42 m/s [or] ~13.14 m/s.",
     ncertRef: "APQ PQ1 Q38", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE for all sub-parts." },
+
+  // ===== Mathematics-PQ_2022.pdf (2022-23 set, appended 2026-05-25) =====
+
+  // PQ_2022 Q10 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-TRIG-011", subject: "Maths", topicKey: "trigonometry", subtopic: "cos θ from Similar Right Triangles", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "In the figure shown below, lines AB and PQ are parallel to each other. All measurements are in centimetres. Which of the following gives the value of cos θ?",
+    options: ["b/c", "c/b", "c/(b+y)", "(a+x)/(b+y)"],
+    answer: "c/b",
+    solutionSteps: ["Per MS: cos θ = c/b (adjacent over hypotenuse in one of the right triangles formed by the parallel lines)."],
+    finalAnswer: "(b) c/b",
+    ncertRef: "APQ PQ_2022 Q10", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: parallel lines AB and PQ with labelled sides a, b, c, x, y." },
+
+  // PQ_2022 Q11 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-TRIG-012", subject: "Maths", topicKey: "trigonometry", subtopic: "Pythagorean Triples from sin θ", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "The sine of an angle in a right triangle is 4/5. Which of these could be the measures of the sides of the triangle?",
+    options: ["4 cm, 5 cm and 9 cm", "4 cm, 5 cm and √41 cm", "6 cm, 8 cm and 10 cm", "8 cm, 10 cm and 4√41 cm"],
+    answer: "6 cm, 8 cm and 10 cm",
+    solutionSteps: ["sin θ = opp/hyp = 4/5 ⟹ opp:hyp = 4:5, so triangle is in ratio 3:4:5 (Pythagorean triple).", "Scaled by 2: 6:8:10 cm. Check: 6^2 + 8^2 = 36 + 64 = 100 = 10^2 ✓ and 8/10 = 4/5 ✓."],
+    finalAnswer: "(c) 6 cm, 8 cm and 10 cm",
+    ncertRef: "APQ PQ_2022 Q11", isCompetencyBased: true },
+
+  // PQ_2022 Q16 (Section A, MCQ, 1 mark)
+  { id: "APQ-M-TRIG-013", subject: "Maths", topicKey: "trigonometry", subtopic: "Simplifying Trig Expression", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Which of the following is equal to the given expression (as shown in the figure)?",
+    options: ["sec θ", "cosec θ", "(cot^2 θ)(sec θ)", "(cot^2 θ)(cosec θ)"],
+    answer: "(cot^2 θ)(sec θ)",
+    solutionSteps: ["Per MS answer key: option (c) (cot^2 θ)(sec θ)."],
+    finalAnswer: "(c) (cot^2 θ)(sec θ)",
+    ncertRef: "APQ PQ_2022 Q16", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: trig expression shown in PDF only as image." },
+
+  // PQ_2022 Q24 first variant (Section B, Short, 2 marks)
+  { id: "APQ-M-TRIG-014", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Equations — Standard Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If cos(A + 2B) = 0, 0° ≤ (A + 2B) ≤ 90° and cos(B − A) = √3/2, 0° ≤ (B − A) ≤ 90°, then find cosec(2A + B). Show your work.",
+    answer: "cosec(2A + B) = 2/√3.",
+    solutionSteps: ["cos(A + 2B) = 0 ⟹ A + 2B = 90°.", "cos(B − A) = √3/2 ⟹ B − A = 30°.", "Subtract: (A + 2B) − (B − A) = 90° − 30° ⟹ 2A + B = 60°. So cosec 60° = 2/√3."],
+    finalAnswer: "2/√3.",
+    ncertRef: "APQ PQ_2022 Q24 (first variant)", isCompetencyBased: true },
+
+  // PQ_2022 Q24 OR variant (Section B, Short, 2 marks)
+  { id: "APQ-M-TRIG-015", subject: "Maths", topicKey: "trigonometry", subtopic: "True/False Trig Statements with Justification", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "State whether the following statements are true or false. Give reasons. (i) As the value of sin θ increases, the value of tan θ decreases. (ii) When the value of sin θ is maximum, the value of cosec θ is also maximum. (Note: 0° < θ < 90°.)",
+    answer: "Both FALSE.",
+    solutionSteps: ["(i) FALSE: tan θ = sin θ / cos θ. As sin θ increases in (0°, 90°), cos θ decreases, so tan θ INCREASES (numerator up, denominator down).", "(ii) FALSE: cosec θ = 1/sin θ. When sin θ is maximum (= 1), cosec θ is MINIMUM (= 1) — they are inversely related."],
+    finalAnswer: "(i) False; (ii) False.",
+    ncertRef: "APQ PQ_2022 Q24 (OR variant)", isCompetencyBased: true },
+
+  // PQ_2022 Q30 (Section C, Short, 3 marks)
+  { id: "APQ-M-TRIG-016", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Identity Proof — Multi-step", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Prove that the given trigonometric identity holds (as shown in the figure).",
+    answer: "Proved — equals (cot x + 1)/(sec x · cosec x).",
+    solutionSteps: ["Per MS: simplify LHS using (a^2 − b^2) and sin^2 + cos^2 = 1 to get an intermediate form.", "Rewrite denominator in terms of sine and cosine, factor (a^2 − b^2) ⟹ cos x · (cos x + sin x).", "Multiply numerator and denominator by sin x to get (cot x + 1)/(sec x · cosec x)."],
+    finalAnswer: "Identity proved equals (cot x + 1)/(sec x · cosec x).",
+    ncertRef: "APQ PQ_2022 Q30", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: identity LHS shown in PDF only as image." },
+
+  // PQ_2022 Q38 (Section E, Case-Based, 4 marks)
+  { id: "APQ-M-TRIG-017", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances — Surya Kiran Aerial", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "Surya Kiran demonstration. Anuja is at Hawa Mahal, Sarthak at City Palace, 1365 m apart. Planes A, B, C in formation. (i) Angle of elevation of plane B from Anuja = 30°, altitude 675 m. Find horizontal distance from Anuja. (ii) Pilot from plane B sees plane A at angle of elevation 30°. B at 740 m; horizontal distance between A and B is 50√3 m. Find altitude of plane A. (iii) Angle of elevation of plane C from Sarthak = 60°, from Anuja = 45°. Find plane's horizontal distance from Sarthak. OR (iii) Pilot from plane A sees Anuja at angle of depression 60° and Sarthak at 30°. Find altitude of the plane.",
+    answer: "(i) 675√3 m. (ii) 790 m. (iii) 1365/(√3 + 1) m. [OR] 341.25√3 m.",
+    solutionSteps: ["(i) tan 30° = 1/√3 = 675/PQ ⟹ PQ = 675√3 m.", "(ii) AX = 50√3 · tan 30° = 50√3 · (1/√3) = 50 m. Altitude of A = 740 + 50 = 790 m.", "(iii) tan 45° = 1 = CM/PM ⟹ CM = PM. tan 60° = √3 = CM/MO ⟹ CM = MO√3. PM + MO = 1365 ⟹ MO√3 + MO = 1365 ⟹ MO = 1365/(√3 + 1) m.", "[OR] tan 60° = AD/DP = √3 ⟹ DP = AD/√3. tan 30° = AD/DO = 1/√3 ⟹ DO = AD√3. DP + DO = 1365 ⟹ AD/√3 + AD√3 = 1365 ⟹ AD·(1 + 3)/√3 = 1365 ⟹ AD = 341.25√3 m."],
+    finalAnswer: "(i) 675√3 m; (ii) 790 m; (iii) 1365/(√3 + 1) m [or] 341.25√3 m.",
+    ncertRef: "APQ PQ_2022 Q38", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE for all sub-parts." },
 ];
