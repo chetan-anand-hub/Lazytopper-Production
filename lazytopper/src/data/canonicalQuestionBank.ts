@@ -188,6 +188,23 @@ import { ELECTRICITY_APQ } from './questionBanks/class10/science/electricity.add
 import { MAGNETIC_EFFECTS_APQ } from './questionBanks/class10/science/magnetic-effects-of-electric-current.additionalPQ';
 import { OUR_ENVIRONMENT_APQ } from './questionBanks/class10/science/our-environment.additionalPQ';
 
+// P3 Science Chapter-wise (cbjescco01-15 MCQ + cbjesccq01-15 PYQ-style, 2026-05-25)
+// 13 Science topic files combining MCQ + PYQ-style per chapter; ~552 questions total
+// Source: www.cbse.online / rava.org.in
+import { CHEMICAL_REACTIONS_CHAPTERWISE } from './questionBanks/class10/science/chemical-reactions-and-equations.chapterwise';
+import { ACIDS_BASES_SALTS_CHAPTERWISE } from './questionBanks/class10/science/acids-bases-and-salts.chapterwise';
+import { METALS_NON_METALS_CHAPTERWISE } from './questionBanks/class10/science/metals-and-non-metals.chapterwise';
+import { CARBON_COMPOUNDS_CHAPTERWISE } from './questionBanks/class10/science/carbon-and-its-compounds.chapterwise';
+import { LIFE_PROCESSES_CHAPTERWISE } from './questionBanks/class10/science/life-processes.chapterwise';
+import { CONTROL_COORDINATION_CHAPTERWISE } from './questionBanks/class10/science/control-and-coordination.chapterwise';
+import { HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE } from './questionBanks/class10/science/how-do-organisms-reproduce.chapterwise';
+import { HEREDITY_CHAPTERWISE } from './questionBanks/class10/science/heredity.chapterwise';
+import { LIGHT_REFLECTION_CHAPTERWISE } from './questionBanks/class10/science/light-reflection-and-refraction.chapterwise';
+import { HUMAN_EYE_CHAPTERWISE } from './questionBanks/class10/science/human-eye-and-colourful-world.chapterwise';
+import { ELECTRICITY_CHAPTERWISE } from './questionBanks/class10/science/electricity.chapterwise';
+import { MAGNETIC_EFFECTS_CHAPTERWISE } from './questionBanks/class10/science/magnetic-effects-of-electric-current.chapterwise';
+import { OUR_ENVIRONMENT_CHAPTERWISE } from './questionBanks/class10/science/our-environment.chapterwise';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -363,6 +380,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ELECTRICITY_APQ,
   ...MAGNETIC_EFFECTS_APQ,
   ...OUR_ENVIRONMENT_APQ,
+  // P3 Science Chapter-wise (cbjescco + cbjesccq, 552 Qs across 13 Science files)
+  ...CHEMICAL_REACTIONS_CHAPTERWISE,
+  ...ACIDS_BASES_SALTS_CHAPTERWISE,
+  ...METALS_NON_METALS_CHAPTERWISE,
+  ...CARBON_COMPOUNDS_CHAPTERWISE,
+  ...LIFE_PROCESSES_CHAPTERWISE,
+  ...CONTROL_COORDINATION_CHAPTERWISE,
+  ...HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE,
+  ...HEREDITY_CHAPTERWISE,
+  ...LIGHT_REFLECTION_CHAPTERWISE,
+  ...HUMAN_EYE_CHAPTERWISE,
+  ...ELECTRICITY_CHAPTERWISE,
+  ...MAGNETIC_EFFECTS_CHAPTERWISE,
+  ...OUR_ENVIRONMENT_CHAPTERWISE,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
