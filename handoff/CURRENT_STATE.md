@@ -1,6 +1,65 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #139 — K2H-8f-b UI wire-up; PYQ chip end-to-end functional)
-Live base SHA: b7add944a713430679de8c5e6d07dca49f4db272
+Last updated: 2026-05-25 (post-PR #141 + #142 — P4 PYQ 2026 Maths + Science, 193 board exam Qs added)
+Live base SHA: 7a1ec2bd0c9da810a5c64f2d6e2f4463c4dafd7f
+
+## Post-PR #141 + #142 — P4 PYQ 2026: 193 board exam questions added (Maths + Science)
+
+Timestamp: 2026-05-25
+Merge SHA on base: 7a1ec2bd0c9da810a5c64f2d6e2f4463c4dafd7f
+
+### PR #141 | content: P4-M PYQ 2026 — 42 Qs verbatim across 13 Maths topic files
+Branch: content/p4-pyq-2026-maths (squash-merged — delete branch)
+Commit: c008022
+Files: 14 (+487 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts (+13 imports +13 spreads; 202→215)
+  - 13 new maths/*.pyq2026.ts files
+
+Questions: 42 Maths PYQs (pyqYear: "2026")
+Section breakdown: A=8 B=10 C=10 D=5 E=9
+Competency: 100% isCompetencyBased:true
+Source: 7 text-extractable QPs from 30/4/x, 30/5/x, 30(B) series
+  9 scanned QPs (30/1/x–30/3/x) skipped — OCR out of scope
+  9 Maths Basic (430-x-x) files skipped per scope
+Key notes:
+  - 30/4/x MS PDFs render Section A MCQ answers as images (dropped via MS_BLANK)
+  - PUA/Symbol-font Greek variable stripping caused truncation filtering
+  - T5 step-minimum advisories non-blocking (MS steps rendered as images)
+  - isPYQ field omitted; pyqYear is sole PYQ signal
+
+### PR #142 | content: P4-S PYQ 2026 — 151 Qs verbatim across 13 Science topic files
+Branch: content/p4-pyq-2026-science (squash-merged — delete branch)
+Commit: 2a03e6e
+Files: 14 (+1292 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts (+13 imports +13 spreads; 215→228)
+  - 13 new science/*.pyq2026.ts files
+
+Questions: 151 Science PYQs (pyqYear: "2026")
+Section breakdown: A=61 B=40 C=29 D=17 E=4
+Competency: 81.8%–100% isCompetencyBased:true across all files
+Source: 12 text-extractable QPs from 31/2/x–31/5/x series
+  3 scanned QPs (31/1/x) skipped — OCR out of scope
+Key pipeline adaptations for 2025-26 paper:
+  - Paper restructured by subject (Biology/Chemistry/Physics) with mixed marks
+  - Marks detected from question text; mapped to section A/B/C/D/E
+  - Uppercase A/B/C/D MCQ options handled
+  - PUA/Devanagari stripping for 31/4/x and 31/5/x sets
+  - MS slash-format "(LETTER) / value step_marks total_marks" handled
+  - 0 syllabus-banned questions (deleted topics absent from 2025-26 exam)
+
+### Combined 2026 state
+Board PYQs added this session: 193 (42 Maths + 151 Science)
+Total board PYQs in bank: 407 (214 from 2022-23 + 193 from 2025-26)
+Spreads: 202 → 228 (+26 across both PRs)
+Test matrix: 137/137 PASS (unchanged)
+Authentic questions: ~2,891 (~2,698 + 193)
+Retirement threshold progress: ~2,891 / 4,500 = ~64.2%
+
+Validations (both PRs):
+  TypeScript: exit 0
+  Duplicate IDs: 0 new
+  Test matrix: 137/137 PASS
+  Diff scope: clean (no .tsx, no predictionTypes.ts, no test files)
+  PYQ reachability: 42/42 Maths + 151/151 Science recognized as PYQ
 
 ## Post-PR #139 — K2H-8f-b UI wire-up: pyqOnly chip now end-to-end functional
 

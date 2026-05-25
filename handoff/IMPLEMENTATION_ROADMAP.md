@@ -2,6 +2,43 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-25 — Post-PR #141 + #142 roadmap update
+
+### Completed this session
+- P4 PYQ 2026 COMPLETE:
+  · PR #141 — 42 Maths PYQs (pyqYear: "2026"), 13 files
+  · PR #142 — 151 Science PYQs (pyqYear: "2026"), 13 files
+  · Combined: 193 board PYQs from 2025-26 exam
+  · Total board PYQs in bank: 407
+
+### Active track — P4 PYQ 2025
+Priority order: 2025 → 2024 (2026 done, 2023 done)
+
+  [ ] PR — P4 2025 Maths (~80 Qs) — content/p4-pyq-2025-maths
+  [ ] PR — P4 2025 Science (~80 Qs) — content/p4-pyq-2025-science
+  [ ] PR — Handoff post-2025
+  [ ] PR — P4 2024 Maths (~80 Qs) — content/p4-pyq-2024-maths
+  [ ] PR — P4 2024 Science (~80 Qs) — content/p4-pyq-2024-science
+  [ ] PR — Handoff post-2024
+
+### Expected bank state after 2025 + 2024
+  Authentic: ~3,051 (~67.8% of 4,500 threshold)
+  Board PYQs: ~567 across 4 exam years (2022-23, 2024, 2025, 2026)
+
+### Parked track — Product PRs
+Blocked until authentic >= 4,500. See LazyTopper_Tutor_Content_Audit_Findings.md.
+  [ ] P2 — strategyHint Hint button (Small)
+  [ ] P3 — Show visual wiring (~20 lines)
+  [ ] P4 — Formula sheet tab (Medium)
+  [ ] P1 — API gateway (High — production blocker)
+
+### Low priority
+  [ ] K2H-8f-c — isPYQ backfill in predictionTypes.ts
+  [ ] 2022 Term II papers (pipeline adaptation needed)
+  [ ] AR density pass (2-3 AR per topic)
+
+---
+
 Latest verified live base:
 ```
 base/approved-thru-437
