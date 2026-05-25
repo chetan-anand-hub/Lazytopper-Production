@@ -1,0 +1,63 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+// Source: CBSE Class X Science (086) Previous Year Question Papers — 2024-25 board exam
+// Question papers (31/1/x, 31/2/x, 31/3/x) + matched English marking schemes (X_086_31-N-1 to 3 Science_MS)
+// topicKey: "magnetic-effects-of-electric-current"
+// Extraction date: 2026-05-25
+// PDF tool: pymupdf (0 cid artifacts confirmed via probe)
+// Coverage: 9 text-extractable QPs (31/1/x, 31/2/x, 31/3/x); 9 scanned QPs (31/4/x, 31/5/x, 31/6/x) skipped — require OCR
+
+export const magneticEffectsPYQ2025: CanonicalQuestion[] = [
+  { id: "PYQ-S-2025-MAG-001", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Bar Magnet", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Which one of the following statements is not true about a bar magnet ?",
+    options: ["It sets itself in north-south direction when suspended freely.", "It has attractive power for iron filings.", "It produces magnetic field lines.", "The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole."],
+    answer: "The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole.",
+    solutionSteps: ["Correct option: (d) The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole.."],
+    finalAnswer: "(d) The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole.",
+    ncertRef: "PYQ 31/3/1 Q14", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-S-2025-MAG-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Solenoid", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The strength of magnetic field produced inside a long straight current carrying solenoid does not depend upon :",
+    options: ["number of turns in the solenoid", "direction of current flowing through the solenoid", "material of the core filled inside the solenoid", "radius of the coil of the solenoid"],
+    answer: "radius of the coil of the solenoid",
+    solutionSteps: ["Correct option: (d) radius of the coil of the solenoid."],
+    finalAnswer: "(d) radius of the coil of the solenoid",
+    ncertRef: "PYQ 31/3/1 Q15", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-S-2025-MAG-003", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Solenoid", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The strength of the magnetic field produced inside a current carrying long straight solenoid does not depend upon :",
+    options: ["Area of cross-section of the tube of the solenoid", "Number of turns per unit length in the solenoid", "Direction of current flowing through the coil of the solenoid", "Material of the core of the solenoid"],
+    answer: "Direction of current flowing through the coil of the solenoid",
+    solutionSteps: ["Correct option: (c) Direction of current flowing through the coil of the solenoid."],
+    finalAnswer: "(c) Direction of current flowing through the coil of the solenoid",
+    ncertRef: "PYQ 31/3/2 Q15", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "2" },
+  { id: "PYQ-S-2025-MAG-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field Lines", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Consider a rectangular cardboard having two holes P and Q through which a current carrying circular loop has been inserted as shown in the diagram. (a) Make this diagram on your answer sheet and draw three magnetic field lines, one each passing through the points 1 (near P), 2 (at the centre of the loop) and 3 (near Q). (b) List two factors on which the intensity of the magnetic field produced at the centre of the loop depends. (c) Name the rule you will apply to determine the direction of magnetic field produced due to a current carrying straight conductor.",
+    answer: "No. of turns of loop (c ) Right hand thumb rule",
+    solutionSteps: ["a) Marking magnetic lines for points 1,2 and 3", "• Strength of the current in the loop", "No. of turns of loop (c ) Right hand thumb rule"],
+    finalAnswer: "No. of turns of loop (c ) Right hand thumb rule",
+    ncertRef: "PYQ 31/3/1 Q32", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "1" },
+  { id: "PYQ-S-2025-MAG-005", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field Lines", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "(a) Draw a labelled diagram to show the pattern of magnetic field lines on a horizontal white board due to a straight current carrying conductor passing perpendicular through its centre. If the direction of current in the conductor is vertically downwards, mark the direction of (i) current, and (ii) magnetic field lines. (b) State the right hand thumb rule and check whether the directions marked on the diagram are in accordance with this rule.",
+    answer: "Then your fingers will wrap around the conductor in the direction of the magnetic field lines.",
+    solutionSteps: ["a) • Diagram : 1 Labelling : 1 (b) Right hand thumb rule", "Imagine that you are holding a currentcarrying straight conductor in your right hand such that the thumb points towards the direction of current.", "Then your fingers will wrap around the conductor in the direction of the magnetic field lines."],
+    finalAnswer: "Then your fingers will wrap around the conductor in the direction of the magnetic field lines.",
+    ncertRef: "PYQ 31/3/2 Q32", isCompetencyBased: true,
+    pyqYear: "2025", pyqSet: "2" },
+  { id: "PYQ-S-2025-MAG-006", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Current-Carrying Conductors", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "(a) Name and state the rule which determines the force on a current carrying conductor placed in a uniform magnetic field. (b) Consider the following three diagrams in which the entry of a positive charge (+Q) in a magnetic field is shown. Identify giving reason the case in which the force experienced by the charge is (i) maximum, and (ii) minimum. 3 I. II. III.",
+    answer: "(b) (i) Maximum in Case III – Magnetic field and current/motion of charge are perpendicular to each other. ½ ½ ½ ½ Lungs Pulmonary vein (Oxygenated Blood) Left atrium Left Ventricle Aorta Body Parts Veins Vena cava (Deoxygenated blood) Right Atrium Right Ventricle",
+    solutionSteps: ["a) Fleming's Left hand rule Statement : Stretch the thumb, fore figure and the middle figure of your left hand such that they are mutually perpendicular.", "If the first finger points in the direction of field (F) and the second finger in the direction of current, then the thumb will point in the direction of the force acting on the conductor.", "(b) (i) Maximum in Case III – Magnetic field and current/motion of charge are perpendicular to each other. ½ ½ ½ ½ Lungs Pulmonary vein (Oxygenated Blood) Left atrium Left Ventricle Aorta Body Parts Veins Vena cava (Deoxygenated blood) Right Atrium Right Ventricle"],
+    finalAnswer: "(b) (i) Maximum in Case III – Magnetic field and current/motion of charge are perpendicular to each other. ½ ½ ½ ½ Lungs Pulmonary vein (Oxygenated Blood) Left atrium Left Ventricle Aorta Body Parts Veins Vena cava (Deoxygenated blood) Right Atrium Right Ventricle",
+    ncertRef: "PYQ 31/3/3 Q32", isCompetencyBased: false,
+    pyqYear: "2025", pyqSet: "3" },
+  { id: "PYQ-S-2025-MAG-007", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Magnetic Field Lines", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "(a) The given figure shows the current passing through the straight conductor XY. (i) Copy the diagram and draw the magnetic field lines when current flows from conductor X to Y. (ii) Name and state the rule used in determining the direction of the magnetic field lines in the situation given above. (iii) , 5 () (i) (i) , (ii) (iii) (ii) - ?",
+    answer: "Diagram Marking (i), (ii) and (iii) (ii) By inserting a piece of magnetic material like soft iron inside the current carrying solenoid.",
+    solutionSteps: ["a) (i) (ii) Right hand thumb rule", "Statement of the rule Imagine holding a current carrying straight conductor in the right hand such that the thumb points towards the direction of current, then the fingers will wrap around the conductor in the direction of the field lines of the magnetic field.", "(iii) • According to Fleming's lefthand rule, stretch the thumb, forefinger and middle finger of your left hand such that they are mutually perpendicular.", "If the first finger points in the direction of magnetic field and the second finger in the direction of current, then the thumb will point in the direction of motion or the force acting on the conductor. • Out of the plane/ upwards", "Diagram Marking (i), (ii) and (iii) (ii) By inserting a piece of magnetic material like soft iron inside the current carrying solenoid."],
+    finalAnswer: "Diagram Marking (i), (ii) and (iii) (ii) By inserting a piece of magnetic material like soft iron inside the current carrying solenoid.",
+    ncertRef: "PYQ 31/2/1 Q36", isCompetencyBased: false,
+    pyqYear: "2025", pyqSet: "1" },
+];

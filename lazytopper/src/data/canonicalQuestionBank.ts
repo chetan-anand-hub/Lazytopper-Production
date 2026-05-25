@@ -289,6 +289,24 @@ import { electricityPYQ2026 } from './questionBanks/class10/science/electricity.
 import { magneticEffectsPYQ2026 } from './questionBanks/class10/science/magneticEffects.pyq2026';
 import { ourEnvironmentPYQ2026 } from './questionBanks/class10/science/ourEnvironment.pyq2026';
 
+// P4 Science PYQ 2025 — CBSE 2024-25 board papers (31/1/x, 31/2/x, 31/3/x), 2026-05-25
+// 13 Science topic files; verbatim from QP + matched English marking schemes (X_086_31-N-1 to 3 Science_MS)
+// Scope note: 9 QPs (31/4/x, 31/5/x, 31/6/x) are scanned (no extractable text) — skipped (require OCR)
+// Paper structure: traditional A/B/C/D/E by question type (not subject-based like 2025-26)
+import { chemicalReactionsPYQ2025 } from './questionBanks/class10/science/chemicalReactions.pyq2025';
+import { acidsBasesSaltsPYQ2025 } from './questionBanks/class10/science/acidsBasesSalts.pyq2025';
+import { metalsNonMetalsPYQ2025 } from './questionBanks/class10/science/metalsNonMetals.pyq2025';
+import { carbonCompoundsPYQ2025 } from './questionBanks/class10/science/carbonCompounds.pyq2025';
+import { lifeProcessesPYQ2025 } from './questionBanks/class10/science/lifeProcesses.pyq2025';
+import { controlCoordinationPYQ2025 } from './questionBanks/class10/science/controlCoordination.pyq2025';
+import { howOrganismsReproducePYQ2025 } from './questionBanks/class10/science/howOrganismsReproduce.pyq2025';
+import { heredityPYQ2025 } from './questionBanks/class10/science/heredity.pyq2025';
+import { lightReflectionPYQ2025 } from './questionBanks/class10/science/lightReflection.pyq2025';
+import { humanEyePYQ2025 } from './questionBanks/class10/science/humanEye.pyq2025';
+import { electricityPYQ2025 } from './questionBanks/class10/science/electricity.pyq2025';
+import { magneticEffectsPYQ2025 } from './questionBanks/class10/science/magneticEffects.pyq2025';
+import { ourEnvironmentPYQ2025 } from './questionBanks/class10/science/ourEnvironment.pyq2025';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -547,6 +565,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...electricityPYQ2026,
   ...magneticEffectsPYQ2026,
   ...ourEnvironmentPYQ2026,
+  // P4 Science PYQ 2025 — CBSE 2024-25 board papers (125 Qs across 13 Science topic files, 2026-05-25)
+  ...chemicalReactionsPYQ2025,
+  ...acidsBasesSaltsPYQ2025,
+  ...metalsNonMetalsPYQ2025,
+  ...carbonCompoundsPYQ2025,
+  ...lifeProcessesPYQ2025,
+  ...controlCoordinationPYQ2025,
+  ...howOrganismsReproducePYQ2025,
+  ...heredityPYQ2025,
+  ...lightReflectionPYQ2025,
+  ...humanEyePYQ2025,
+  ...electricityPYQ2025,
+  ...magneticEffectsPYQ2025,
+  ...ourEnvironmentPYQ2025,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
