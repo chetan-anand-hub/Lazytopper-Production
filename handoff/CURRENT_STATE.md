@@ -1,6 +1,81 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #126 — P2 APQ Maths PQ1+PQ2)
-Live base SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a
+Last updated: 2026-05-25 (post-PR #128 — P2 APQ continuation: PQ_2022 + Science-PQ)
+Live base SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3
+
+## Post-PR #128 — P2 APQ continuation: PQ_2022 + Science-PQ (~90 Qs across 26 topic files) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: 028d51d37d3a168196809676ed4d9e5c3b20fdb3
+
+PR #128 | content: P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs across 26 topic files)
+Branch: content/additional-pq-sqp-2024 (preserved — Science-PQ2 to be appended next session)
+Commits: 1 (143badb)
+
+Files changed: 27 (+1029 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts — +13 Science imports + 13 spreads
+    under "P2 CBSE APQ 2023-24 — Science" banner; spread count 150 → 163
+  - 13 modified maths/*.additionalPQ.ts files (PQ_2022 appended to existing arrays)
+  - 13 new science/*.additionalPQ.ts files (Science-PQ created — covers all 13 retained
+    Science topicKeys)
+
+Source PDFs (pymupdf 1.27.2.3, 0 cid artifacts):
+  Mathematics-PQ_2022.pdf (20pp) + Mathematics-PQ_2022_MS.pdf (13pp) — 38 base + 6 OR
+    variants = 44 Maths questions appended
+  Science-PQ.pdf (14pp) + Science-PQMS.pdf (12pp) — 39 base + 7 OR variants = 46
+    Science questions in new files
+
+Total: ~90 questions across 26 topic files.
+
+Section breakdown this session:
+  A=37 (1mk MCQ + AR), B=15 (2mk Short), C=15 (3mk Short), D=10 (5mk Long), E=6 (4mk Case-Based)
+Competency: ~85% (target 40% — well exceeded)
+Skipped (deleted topics): 0 — no 2026-27-deleted topics appeared
+REQUIRES-FIGURE strategyHints: ~30 new this session (~52 cumulative across PR #126 + #128)
+
+New extraction doctrine compliance (locked in PR #126 cycle, validated this PR):
+
+  1. **BOTH OR variants for B/C/D/E** — 13 OR-pairs extracted as separate rows in
+     PR #128 (vs merged-OR in PR #126). Measurable density improvement:
+       PR #126 (PQ1+PQ2): B=10, C=12, D=8, E=6 → 36 non-A questions
+       PR #128 (PQ_2022 + Science-PQ): B=15, C=15, D=10, E=6 → 46 non-A questions
+     The new doctrine is working — non-MCQ density is up despite similar paper count.
+
+  2. **REQUIRES-FIGURE strategyHint** — applied consistently across ~30 new questions
+     (geometry diagrams, circuit diagrams, ray diagrams, eye anatomy, ecological pyramids,
+     coordinate plots, etc.). questionText and answer remain accurate to PDF.
+
+Per-file additions (Maths PQ_2022 appended):
+  real-numbers (+3 → 9), polynomials (+2 → 6), pair-of-linear-equations (+4 → 10),
+  quadratic-equations (+3 → 7), arithmetic-progression (+1 → 5), triangles (+3 → 11),
+  coordinate-geometry (+3 → 9), trigonometry (+7 → 17), circles (+5 → 12),
+  areas-related-to-circles (+5 → 10), surface-areas-and-volumes (+3 → 9),
+  statistics (+3 → 8), probability (+2 → 7)
+
+Per-file creations (Science from Science-PQ):
+  chemical-reactions-and-equations (2), acids-bases-and-salts (2),
+  metals-and-non-metals (8), carbon-and-its-compounds (4), life-processes (5),
+  control-and-coordination (2), how-do-organisms-reproduce (3), heredity (4),
+  light-reflection-and-refraction (3), human-eye-and-colourful-world (3),
+  electricity (4), magnetic-effects-of-electric-current (2),
+  **our-environment (4) ← FIRST EVER Our Environment questions in the bank!**
+
+The 4 Our Environment questions (APQ-S-ENV-001 through 004) fill the gap flagged in
+PRs #122/#125: Our Environment topicKey was registered in topics.ts (weight 4) but had
+0 questions in the bank. Now resolved.
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations)
+  2. validateQuestionBanks — PASS (217 files scanned, was 204; 0 dupes, mark/section consistent)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate IDs — 0
+  5. Full test matrix (4 files) — PASS (125/125 tests)
+  6. Engine reachability — PASS (296/296)
+
+Bank state:
+  Authentic questions: 1,793 → 1,883 (+90)
+  Spreads: 150 → 163 (+13 new Science APQ files)
+  Bank total: ~4,608 → ~4,698 (+90)
+  Progress to 4,500-Q retirement threshold: 1,883 / 4,500 = 41.8%
 
 ## Post-PR #126 — P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files) — MERGED
 
@@ -588,7 +663,7 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #126 — content: P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files)
+Last merged PR: #128 — content: P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs across 26 topic files)
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -634,7 +709,9 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #123 | ops acceptance regression suite — 2026-27 deletion doctrine | 734b437b | +37 tests, locks doctrine across registry + archetypes + topics |
 | #124 | syllabusGuard 2026-27 doctrine — reproductive health + Our Environment | f09b5fca | -26 banned strings, +18 Qs restored, formativeOnlyTopics added |
 | #125 | Docs: post-PR #124 | 462f2c77 | Handoff updated |
-| #126 | P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files) | 9be89452 | +76 authentic, +13 spreads, REQUIRES-FIGURE doctrine, 4,500 retirement threshold — CURRENT BASE |
+| #126 | P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files) | 9be89452 | +76 authentic, +13 spreads, REQUIRES-FIGURE doctrine, 4,500 retirement threshold |
+| #127 | Docs: post-PR #126 | 26db3f1c | Handoff updated |
+| #128 | P2 APQ continuation — PQ_2022 + Science-PQ (~90 Qs) | 028d51d3 | +90 authentic, +13 spreads (Science), OR-doctrine validated, first Our Environment Qs — CURRENT BASE |
 
 ## Question bank state
 
@@ -645,17 +722,17 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | P0 diff/ packs (PR #112) | 62 | Live in engine |
 | P0.5 diff/ packs (PR #114) | 21 | Live in engine |
 | P2 SQP 2023-24 (PR #119) | 69 | Live in engine |
-| **P2 APQ Maths PQ1+PQ2 (PR #126)** | **76** | **Live in engine (new)** |
-| Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated; retirement threshold REVISED to 4,500 |
-| Total in engine | ~4,608 | (was ~4,532 pre-PR #126; +76 from APQ) |
+| P2 APQ Maths PQ1+PQ2 (PR #126) | 76 | Live in engine |
+| **P2 APQ continuation PQ_2022+Science (PR #128)** | **90** | **Live in engine (new — 44 Maths PQ_2022 + 46 Science PQ)** |
+| Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated; retirement threshold 4,500 |
+| Total in engine | ~4,698 | (was ~4,608 pre-PR #128; +90 from APQ continuation) |
 
-canonicalQuestionBank.ts spread count: 150 (was 137; +13 APQ files)
+canonicalQuestionBank.ts spread count: 163 (was 150; +13 new Science APQ files in PR #128)
 
-Pack retirement threshold (REVISED 2026-05-25): **4,500 authentic questions**
-  (down from 6,000). Rationale: 5,000+ authentic is sufficient for CBSE
-  Class 10 prep. At 4,500 authentic, retire all AI packs (~2,815 Qs).
-  Bank becomes 100% authentic + 100% routable. No OCR phase needed.
-  Progress: 1,793 / 4,500 = 39.8% to retirement threshold.
+Pack retirement threshold: **4,500 authentic questions** (set in PR #126 cycle).
+  At 4,500 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
+  100% routable. No OCR phase needed.
+  Progress: 1,883 / 4,500 = **41.8%** (was 39.8% pre-PR #128; +2 percentage points).
 
 ## Known issues
 
@@ -665,10 +742,12 @@ Pack retirement threshold (REVISED 2026-05-25): **4,500 authentic questions**
 - **syllabusGuard incorrectly banned Contraception/STDs** (RESOLVED in PR #124)
 - **18 reproduction questions wrongly removed in PR #121** — RESTORED in PR #124
 - **Motor/Generator/EMI not tracked in archetypes** (RESOLVED in PR #124 — formativeOnlyTopics added)
-- **REQUIRES-FIGURE backlog** — ~22 Maths APQ questions (from PR #126) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
-- **B/C/D/E density gap** — Section A (MCQ/AR) over-represented across all extractions; future passes must extract BOTH OR variants for B/C/D/E
-- **AR (Assertion-Reasoning) density gap** — thin coverage across both Maths and Science; dedicated .assertionReasoning.ts pass needed after P2 APQ completes (target 2-3 AR per topic)
-- Our Environment: 0 questions in question bank — needs future content extraction
+- **REQUIRES-FIGURE backlog** — ~52 cumulative APQ questions (PR #126 + #128) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
+- **B/C/D/E density doctrine validated in PR #128** — OR-pair extraction increased non-MCQ density from 36 (PR #126) to 46 (PR #128). Doctrine working — keep applying to remaining extractions.
+- **AR (Assertion-Reasoning) density gap** — still thin across both Maths and Science; dedicated .assertionReasoning.ts pass needed after P2 APQ completes (target 2-3 AR per topic)
+- **Our Environment: 4 Qs now in bank** (PR #128 — first ever). Needs more extraction in future passes to reach reasonable density.
+- **TopicHub SEEDED: 13/25 topics only** — 12 topicKeys with bank content do not yet have curated TopicHub pages
+- **Tutor drawer surfaces underused** — MentorSolveDrawer / ConceptTeachDrawer / TutorDrawerV2 exist but don't receive student attempt data; pre-launch product decision pending
 - Clerk dev mode only (pk_test_) — no production instance configured
 - AI features 404 in production (no /api/* rewrite in vercel.json)
 - PYQ filter returns 0 (K2H-8f engine fix pending — pre-req for P5)

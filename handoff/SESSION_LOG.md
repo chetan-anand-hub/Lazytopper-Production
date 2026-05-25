@@ -1,5 +1,97 @@
 ---
 
+## 2026-05-25 — P2 APQ continuation: PQ_2022 + Science-PQ (PR #128, +90 Qs) + OR-doctrine validated + first Our Environment Qs
+
+Timestamp: 2026-05-25 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `26db3f1c` (post-PR #127 handoff)
+- Active branch: `content/additional-pq-sqp-2024` (rebased onto current base —
+  PR #126's commit dropped cleanly as already-in-base)
+
+### Work completed
+
+1. **Scope confirmation (Chetan via AskUserQuestion)** — Of the 3 remaining
+   papers (~140-150 Qs with OR variants), confirmed scope as PQ_2022 +
+   Science-PQ this session; Science-PQ2 deferred.
+
+2. **Mathematics-PQ_2022 extraction (44 Maths Qs appended)**:
+   - APPENDED to all 13 existing `maths/{topic}.additionalPQ.ts` files.
+   - Sequential ID numbering continued per topic (e.g., real-numbers 007-009).
+   - 6 OR-pair questions (Q24, Q25, Q28, Q29, Q32, Q33) extracted as BOTH
+     variants per new doctrine — 12 separate rows for those instead of 6.
+   - Section breakdown: A=20 (MCQs + AR), B=4, C=5+OR=8, D=4+OR=8, E=3 case-based.
+
+3. **Science-PQ extraction (46 Science Qs, 13 new files created)**:
+   - CREATED 13 new `science/{topic}.additionalPQ.ts` files (one per retained
+     Science topicKey).
+   - **First ever Our Environment questions in the bank** (4 Qs: 3 Section A
+     + 1 Section B) — closes the gap flagged in PR #122/#125 notes.
+   - 7 OR-pair questions (Q23, Q25, Q28, Q34, Q35, Q36, Q37) extracted as
+     BOTH variants — 14 separate rows.
+   - Some OR variants spread across topics (e.g., Q25 first variant =
+     electricity, OR variant = magnetic-effects).
+
+4. **canonicalQuestionBank.ts registration**:
+   - 13 new Science imports added under "P2 CBSE APQ 2023-24 — Science" banner.
+   - 13 new spreads in the export array.
+   - Spread count: 150 → 163.
+   - Maths spreads unchanged (PQ_2022 appended to existing arrays).
+
+5. **Anti-fabrication doctrine maintained**:
+   - questionText verbatim from QP PDFs (pymupdf, 0 cid artifacts confirmed).
+   - solutionSteps from matching MS PDFs (PQ_2022_MS.pdf, PQMS.pdf).
+   - OR variants merged into single row only where the second variant duplicated
+     the first's solutionSteps (e.g., heredity Q38 — both alternatives covered
+     in one row's solutionSteps for parallel structure). Most OR variants
+     written as separate rows.
+   - isPYQ: false on all 90; pyqSet omitted.
+   - REQUIRES-FIGURE strategyHints on ~30 new questions.
+
+6. **Force-push for rebased branch** — same pattern as PR #126: branch was
+   rebased at session start, so `--force-with-lease` push needed to update
+   remote with new history (PR #126's ee7bc8d → PR #128's 143badb).
+
+### New extraction doctrine validated this session
+
+The B/C/D/E density doctrine from PR #126 cycle was tested in PR #128:
+
+  PR #126 (PQ1 + PQ2): B=10, C=12, D=8, E=6 = 36 non-A questions
+  PR #128 (PQ_2022 + Science-PQ): B=15, C=15, D=10, E=6 = 46 non-A questions
+
+Despite covering similar paper volume, non-MCQ density rose ~28% — the
+OR-pair extraction works. Keep applying to Science-PQ2 and beyond.
+
+### Validations (all six PASS)
+
+- syllabusGuard: PASS — 0 violations
+- validateQuestionBanks: PASS (217 files scanned, was 204; 0 dupes,
+  mark/section consistent)
+- tsc -p tsconfig.app.json --noEmit: exit 0
+- Duplicate IDs: 0
+- Full test matrix (4 files): 125/125 PASS
+- Engine reachability: PASS (296/296)
+
+### Bank state
+
+- Authentic count: 1,793 → **1,883** (+90)
+- Spreads: 150 → **163** (+13 new Science APQ files)
+- Bank total: ~4,608 → ~4,698
+- Progress to 4,500-Q retirement: 1,883 / 4,500 = **41.8%** (+2 pp)
+
+### Next priority item
+
+Science-PQ2 extraction (P2 APQ finale) — same branch
+`content/additional-pq-sqp-2024`, rebase onto `028d51d3...` first. Will
+APPEND to the 13 existing `science/*.additionalPQ.ts` files (per "one file
+per topic, combined across papers" spec). Estimated ~45-50 Qs.
+
+Agent instruction file `LazyTopper_Agent_P2_APQ_SciencePQ2_Instruction.md`
+is ready but its SHA placeholder needs updating to `028d51d3...` before upload.
+
+---
+
 ## 2026-05-25 — P2 APQ Maths PQ1+PQ2 (PR #126, +76 Qs) + retirement threshold revised + new extraction doctrine
 
 Timestamp: 2026-05-25 (Asia/Kolkata)

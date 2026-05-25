@@ -1,46 +1,48 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-25 (post-PR #126 — P2 APQ Maths PQ1+PQ2)
-Live base SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a
+Last updated: 2026-05-25 (post-PR #128 — P2 APQ continuation: PQ_2022 + Science-PQ)
+Live base SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3
 
-## Immediate next action — P2 APQ continuation (PQ_2022 + Science PQ + Science PQ2)
+## Immediate next action — Science-PQ2 extraction (P2 APQ finale)
 
-P2 APQ Maths PQ1+PQ2 merged successfully (PR #126, +76 authentic Qs, 1,717 →
-1,793). Three more APQ papers remain to be extracted on the same branch
-`content/additional-pq-sqp-2024`. Text already pre-extracted to
-`diff/_apq_text/` for all three.
+P2 APQ continuation merged successfully (PR #128, +90 authentic Qs across 26
+topic files, 1,793 → 1,883). One paper remains for P2 APQ to be complete.
 
 ### ✅ Follow-up — P2 APQ Maths PQ1 + PQ2 — COMPLETE (PR #126)
 
 Done in PR #126 (merge SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a):
 - 13 new `.additionalPQ.ts` files created (one per Maths topic)
-- canonicalQuestionBank.ts updated (+13 imports + 13 spreads under
-  "P2 CBSE APQ 2023-24" banner)
-- 76 questions extracted from Mathematics-PQ1.pdf + Mathematics-PQ2.pdf
-  (38 each), combined per topic across both papers
+- 76 questions from Mathematics-PQ1 + PQ2
 - Section breakdown: A=40 B=10 C=12 D=8 E=6
-- Competency: 88% (67/76) — well above 40% target
-- ~22 REQUIRES-FIGURE strategyHints
-- isPYQ: false on all 76
-- Authentic: 1,717 → 1,793; spreads: 137 → 150
-- Test matrix: 125/125 PASS
+- Competency 88%, ~22 REQUIRES-FIGURE tags
 
-### Next active task — P2 APQ continuation (Mode: HIGH)
+### ✅ Follow-up — P2 APQ continuation (PQ_2022 + Science-PQ) — COMPLETE (PR #128)
+
+Done in PR #128 (merge SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3):
+- 13 Maths files updated (PQ_2022 appended, +44 Qs)
+- 13 new Science files created (Science-PQ, +46 Qs)
+- All 13 retained Science topicKeys now have APQ content
+- **First ever Our Environment questions in the bank** (4 Qs)
+- 13 OR-pairs → 26 separate rows (B/C/D/E doctrine validated)
+- Section breakdown: A=37 B=15 C=15 D=10 E=6 — non-MCQ density up from 36 (PR #126) to 46
+- Authentic: 1,793 → 1,883; spreads: 150 → 163
+
+### Next active task — Science-PQ2 extraction (Mode: HIGH)
 
 Branch: `content/additional-pq-sqp-2024` (preserve — REBASE first onto current
-base SHA 9be894526eb20ad51bca2c7aaa3b8ffab931191a before continuing).
+base SHA 028d51d37d3a168196809676ed4d9e5c3b20fdb3 before continuing).
 
-Papers remaining (text pre-extracted to `diff/_apq_text/`):
-  - **Mathematics-PQ_2022.pdf** (~38 Qs, 2022-23 set) + MS
-      Will APPEND to the existing 13 `maths/{topic}.additionalPQ.ts` files
-      (per "one file per topic, combined across papers" spec)
-  - **Science-PQ.pdf** (~39 Qs) + Science-PQMS.pdf
-      Will CREATE new `science/{topic}.additionalPQ.ts` files
-  - **Science-PQ2.pdf** (~39 Qs) + Science-PQMS2.pdf
-      Will APPEND to the same `science/{topic}.additionalPQ.ts` files
+Paper remaining (text pre-extracted to `diff/_apq_text/`):
+  - **Science-PQ2.pdf** (~39 Qs + OR variants ≈ 45-50 Qs) + Science-PQMS2.pdf
+      Will APPEND to the 13 existing `science/{topic}.additionalPQ.ts` files
+      created in PR #128 (per "one file per topic, combined across papers" spec)
 
-Estimated total this PR cycle: ~116 additional Qs. Projected bank state after
-P2 APQ fully complete: 1,909 authentic / ~4,724 total / ~163 spreads.
+Agent instruction file ready (per Chetan): `LazyTopper_Agent_P2_APQ_SciencePQ2_Instruction.md`.
+**Note:** SHA placeholder in that file needs to be updated to the current
+base SHA `028d51d37d3a168196809676ed4d9e5c3b20fdb3` before uploading to the agent.
+
+Estimated bank state after Science-PQ2 complete: ~1,930 authentic / ~4,748 total /
+163 spreads (no new files — Science-PQ2 appends to existing).
 
 **Critical doctrine for this extraction (new in PR #126 cycle):**
 
@@ -67,19 +69,32 @@ P2 APQ fully complete: 1,909 authentic / ~4,724 total / ~163 spreads.
      - Maths: `APQ-M-{TOPICSHORT}-{SEQ:003d}` — continue numbering per topic
      - Science: `APQ-S-{TOPICSHORT}-{SEQ:003d}` — start at 001 per topic
 
+### Future task — Content + product deliberation (planning, not code)
+
+Pre-launch product decisions opened in PR #128 cycle — these are planning
+sessions, not content extractions:
+
+  - **Notes per chapter** (beyond exam tips): no current surface; content TBD.
+  - **Formula sheets per topic**: data exists in archetypes/predictions but no
+    render surface — should there be one?
+  - **Proof library**: some proofs exist in P0 (triangles.proof.ts) and P0.5
+    (circles.proof.ts) but no dedicated surface; should they be promoted?
+  - **Tutor drawer audit**: MentorSolveDrawer, ConceptTeachDrawer, TutorDrawerV2
+    exist but are underused — they don't receive student attempt data. Decide
+    keep/repurpose/remove before launch.
+
 ### Future task — AR (Assertion-Reasoning) density pass
 
-After P2 APQ fully completes, run a dedicated `.assertionReasoning.ts`
-extraction pass to address the AR density gap identified in PR #126 cycle.
+After P2 APQ fully completes (Science-PQ2 done), run a dedicated
+`.assertionReasoning.ts` extraction pass to address the AR density gap.
 Target: 2-3 AR questions per topic for both Maths and Science.
-Source: any of the existing CBSE source PDFs (NCERT, Exemplar, APQ, SQP)
-that have AR coverage we haven't extracted yet.
+Source: existing CBSE source PDFs with AR coverage not yet extracted.
 
 ### Future task — REQUIRES-FIGURE resolution
 
-Post-launch (Option B first): replace the ~22 REQUIRES-FIGURE strategyHints
-with placeholder images. Post-Option A (after launch): SVG renders from PDF
-figure descriptions.
+Post-launch (Option B first): replace the ~52 cumulative REQUIRES-FIGURE
+strategyHints with placeholder images. Post-Option A (after launch): SVG
+renders from PDF figure descriptions.
 
 Branch (suggested): `fix/ops-our-environment-alignment`
 Mode: Low.
@@ -164,8 +179,10 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | Reproduction cleanup | ✅ COMPLETE | PR #121 (-18 Qs, +5 banned variants, +35 regression tests) |
 | ops acceptance regression suite | ✅ COMPLETE | PR #123 (+37 tests, doctrine lock across 4 source-of-truth files) |
 | syllabusGuard 2026-27 doctrine fix | ✅ COMPLETE | PR #124 (-26 banned strings, +18 Qs restored, formativeOnlyTopics added) |
-| **P2 APQ Maths PQ1+PQ2** | ✅ **COMPLETE** | PR #126 (+76 Qs across 13 topic files; 88% competency; REQUIRES-FIGURE + 4,500 retirement doctrine) |
-| **P2 APQ continuation** | ⏳ **NEXT** | PQ_2022 + Science-PQ + Science-PQ2 (~116 Qs), same branch; rebase first |
+| P2 APQ Maths PQ1+PQ2 | ✅ COMPLETE | PR #126 (+76 Qs across 13 topic files; 88% competency) |
+| **P2 APQ continuation (PQ_2022 + Science-PQ)** | ✅ **COMPLETE** | PR #128 (+90 Qs; first Our Environment Qs; OR-doctrine validated) |
+| **Science-PQ2 (P2 APQ finale)** | ⏳ **NEXT** | ~45-50 Qs, APPEND to existing 13 Science files, same branch |
+| Content + product deliberation | ⏳ PLANNING | Notes/formulae/proofs/tutor drawer decisions before launch |
 | AR density pass | ⏳ AFTER P2 APQ | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic |
 | P3    | ⏳ PENDING  | Meridian worksheets + Maths QB READY (~475 Qs) |
 | P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
@@ -181,8 +198,8 @@ Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep. At 4,500
 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
 100% routable. No OCR phase needed.
 
-Current authentic total: **1,793** (post-PR #126; +76 from APQ Maths PQ1+PQ2).
-Progress to retirement: 1,793 / 4,500 = 39.8%.
+Current authentic total: **1,883** (post-PR #128; +90 from APQ continuation).
+Progress to retirement: 1,883 / 4,500 = **41.8%** (+2 pp from PR #126 state).
 
 ## Engine fix required before P5
 

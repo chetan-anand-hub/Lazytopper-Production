@@ -5,14 +5,15 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-9be894526eb20ad51bca2c7aaa3b8ffab931191a
+028d51d37d3a168196809676ed4d9e5c3b20fdb3
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
-in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126).
-Next product PR should still be PR-K2H-6 (Home/cockpit learning order + Continue repair) —
-unchanged.
+in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126,
+#128). Next product PR should still be PR-K2H-6 (Home/cockpit learning order + Continue
+repair) — unchanged, though pre-launch product deliberations (notes/formulae/proofs/tutor
+drawers) are now open per PR #128 cycle.
 
 Current implementation branch:
 ```
@@ -39,6 +40,12 @@ Latest in the content/tooling track:
   `.additionalPQ.ts` files (one per Maths topic, PQ1+PQ2 combined). 88% competency,
   ~22 REQUIRES-FIGURE tags. Authentic 1,717 → 1,793; spreads 137 → 150. Pack retirement
   threshold REVISED from 6,000 to 4,500.
+- PR #128 (2026-05-25) — P2 APQ continuation (PQ_2022 + Science-PQ): 90 questions across
+  26 topic files. PQ_2022 appended to 13 Maths files (+44 Qs); Science-PQ created 13 new
+  Science files (+46 Qs) — all 13 retained Science topicKeys now have APQ content.
+  **First ever Our Environment questions in the bank** (4 Qs). OR-pair doctrine validated
+  (non-MCQ density 36 → 46 between PR #126 and #128). Authentic 1,793 → 1,883; spreads
+  150 → 163. Progress to 4,500 retirement: 41.8%.
 
 Doctrine snapshot (2026-27):
 - RETAINED in board scope: Our Environment (ecology, Unit V 5 marks), Reproduction
@@ -57,7 +64,8 @@ Extraction doctrine additions (PR #126 cycle):
   (2-3 AR per topic, both Maths and Science).
 
 See `CURRENT_STATE.md` for the full PR history table and `NEXT_ACTION.md` for the queued
-content tasks (P2 APQ continuation — PQ_2022 + Science papers — next).
+content tasks. Next: Science-PQ2 (P2 APQ finale, ~45-50 Qs); then content + product
+deliberation (notes/formulae/proofs/tutor drawers); then AR density pass; then P3 Meridian.
 
 ## PR-K2H-5 / PR #82 - Login visual parity + auth gate polish
 
