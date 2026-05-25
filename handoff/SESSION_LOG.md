@@ -1,5 +1,62 @@
 ---
 
+## 2026-05-25 — P4 PYQ 2025 Maths + Science (PR #144 + #145) — 182 board PYQs added
+
+### Starting state
+- Base at task start: 0c043d0 (post-PR #143 handoff)
+- SHA after Maths merge (PR #144): 6929d86
+- SHA after Science merge (PR #145): 3ae3474 (current HEAD)
+
+### Work completed
+
+1. Both agents ran in parallel from base SHA 0c043d0
+2. Maths agent (content/p4-pyq-2025-maths):
+   - Unzipped 041_Mathematics_Standard_2025.zip + Math_2025.zip
+   - Used 041 Mathematics Standard/ English subfolder only
+   - Probed 19 QPs: 9 text-extractable (30/1/x–30/3/x), 10 scanned
+   - Traditional structure confirmed (not subject-based)
+   - Extracted 114 intact → 57 unique after dedup
+   - Generated 12 .pyq2025.ts files (no triangles — 0 questions)
+   - Race-condition recovery: cherry-pick to clean branch
+   - Approved, committed 32b1c11, PR #144 merged → SHA 6929d86
+3. Science agent (content/p4-pyq-2025-science):
+   - Unzipped 086_Science_2025.zip + Science_2025.zip
+   - English Medium only (Hindi subfolder detected and excluded)
+   - Probed 18 QPs: 9 text-extractable (31/1/x–31/3/x), 9 scanned
+   - Traditional structure confirmed
+   - Extracted 125 unique questions
+   - Adapted pipeline: bare-letter MS answers, watermark footer, Q.P. CODE marker format
+   - Race-condition recovery: rebase --onto to drop contaminating Maths commit 0a56cc1
+   - Classifier blocked force-push → owner ran CLI push directly
+   - Approved, committed 3ba011c, PR #145 merged → SHA 3ae3474
+
+### Race-condition protocol established (final form)
+- Both agents commit independently to their own branches
+- Maths merges first → new SHA
+- Science rebases onto new SHA dropping any contamination
+- If classifier blocks force-push → owner runs: git push --force-with-lease origin [branch]
+- Sequential merge always: Maths first, then Science
+
+### Bank state post-session
+- Authentic questions: ~3,073
+- Board PYQs: 589 (2022-23 + 2024-25 + 2025-26)
+- Spreads: 253
+- Retirement threshold: ~68.3% (3,073 / 4,500)
+- Test matrix: 137/137 PASS
+
+### Next task
+P4 continuation 2024 — Maths + Science (parallel)
+Branches: content/p4-pyq-2024-maths + content/p4-pyq-2024-science
+pyqYear: "2024"
+Sources:
+  Maths: MATHEMATICS_STANDARD_2024.zip + Mathematics_Standard_2024.zip
+  Science: SCIENCE_2024.zip + Science_2024.zip
+         (Science_2024.zip has Hindi subfolder — use English only)
+Note: Check paper structure at probe — 2024 may differ from 2025 or 2026
+Expected yield: ~80 Maths + ~80 Science
+
+---
+
 ## 2026-05-25 — P4 PYQ 2026 Maths + Science (PR #141 + #142) — 193 board PYQs added
 
 ### Starting state

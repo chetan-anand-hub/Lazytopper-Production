@@ -1,6 +1,80 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #141 + #142 — P4 PYQ 2026 Maths + Science, 193 board exam Qs added)
-Live base SHA: 7a1ec2bd0c9da810a5c64f2d6e2f4463c4dafd7f
+Last updated: 2026-05-25 (post-PR #144 + #145 — P4 PYQ 2025 Maths + Science, 182 board exam Qs added)
+Live base SHA: 3ae34749d9745bfbbf283dfa3dbcf3f89007bc3f
+
+## Post-PR #144 + #145 — P4 PYQ 2025: 182 board exam questions added (Maths + Science)
+
+Timestamp: 2026-05-25
+Merge SHA on base: 3ae34749d9745bfbbf283dfa3dbcf3f89007bc3f
+
+### PR #144 | content: P4-M PYQ 2025 — 57 Qs verbatim across 12 Maths topic files
+Branch: content/p4-pyq-2025-maths (squash-merged — delete branch)
+Commit: 32b1c11
+Files: 13 (+571 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts (+12 imports +12 spreads; 228→240)
+  - 12 new maths/*.pyq2025.ts files (no triangles — 0 extractable for topic)
+
+Questions: 57 Maths PYQs (pyqYear: "2025")
+Section breakdown: A=15 B=11 C=14 D=8 E=9
+Competency: 100% isCompetencyBased:true
+Paper structure: TRADITIONAL A/B/C/D/E (not subject-based like 2025-26)
+Source: 9 text-extractable QPs from 30/1/x–30/3/x series
+  10 scanned QPs (30/4/x–30/6/x + 30B visually impaired) skipped
+  MS ALL text-extractable (no MCQ image problem unlike 2026)
+Key notes:
+  - isPYQ field omitted; pyqYear is sole PYQ signal
+  - T5 step-minimum advisories non-blocking (MS steps collapse after stripping)
+  - Race-condition recovery: cherry-pick from contaminated commit 0a56cc1 → 87eedd1 → 32b1c11
+
+### PR #145 | content: P4-S PYQ 2025 — 125 Qs verbatim across 13 Science topic files
+Branch: content/p4-pyq-2025-science (squash-merged — delete branch)
+Commit: 3ba011c
+Files: 14 (+1088 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts (+13 imports +13 spreads; 240→253)
+  - 13 new science/*.pyq2025.ts files
+
+Questions: 125 Science PYQs (pyqYear: "2025")
+Section breakdown: A=38 B=22 C=39 D=12 E=14
+Competency: 66.7%→100% isCompetencyBased:true
+Paper structure: TRADITIONAL A/B/C/D/E (confirmed — 2024-25 kept question-type sections)
+Source: 9 text-extractable QPs from 31/1/x–31/3/x series
+  9 scanned QPs (31/4/x–31/6/x) skipped
+Key pipeline adaptations vs 2025-26:
+  - Traditional section_for(qnum) mapping restored
+  - MS split marker: Q.P. CODE 31/X/Y (space-separated, no slash)
+  - get_mcq_answer: bare-letter format (LETTER /value, LETTER)/value)
+  - Page footer stripping: *31/1/3* 6 # *ECNEICS* watermark
+  - 3 syllabus-banned questions skipped (deletion guard active)
+  - isPYQ field omitted; pyqYear is sole PYQ signal
+  - Race-condition recovery: rebase dropped contaminating Maths commit 0a56cc1
+
+### Combined 2025 state
+Board PYQs added this session: 182 (57 Maths + 125 Science)
+Total board PYQs in bank: 589
+  214 from 2022-23 (PR #135 + #137)
+  193 from 2025-26 (PR #141 + #142)
+  182 from 2024-25 (PR #144 + #145)
+Spreads: 228 → 253 (+25 across both PRs)
+Test matrix: 137/137 PASS (unchanged)
+Authentic questions: ~3,073 (~2,698 + 375 PYQs added since PR #137)
+Retirement threshold progress: ~3,073 / 4,500 = ~68.3%
+
+Validations (both PRs):
+  TypeScript: exit 0
+  Duplicate IDs: 0 new
+  Test matrix: 137/137 PASS
+  Diff scope: clean
+  PYQ reachability: 57/57 Maths + 125/125 Science recognized as PYQ
+
+### Operational learning — parallel agent protocol
+Parallel agents in shared working tree cause race conditions on canonicalQuestionBank.ts.
+Pattern now well-understood. Correct protocol:
+  1. Both agents run extraction in parallel (different file scopes)
+  2. Maths agent commits + pushes first
+  3. Science agent rebases onto post-Maths SHA (dropping any contamination)
+  4. Science agent force-pushes
+  5. Sequential merge: Maths first, then Science
+  If classifier blocks force-push: owner runs git push --force-with-lease from CLI
 
 ## Post-PR #141 + #142 — P4 PYQ 2026: 193 board exam questions added (Maths + Science)
 
