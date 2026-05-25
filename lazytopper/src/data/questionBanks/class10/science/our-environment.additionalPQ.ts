@@ -52,4 +52,51 @@ export const OUR_ENVIRONMENT_APQ: CanonicalQuestion[] = [
     finalAnswer: "(a) Phytoplankton (highest energy); (b) limited food at bottom of inverted pyramid = unsustainable.",
     ncertRef: "APQ Science-PQ Q26", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: two food pyramids — land (traditional) and aquatic (inverted)." },
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q15 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-ENV-005", subject: "Science", topicKey: "our-environment", subtopic: "Food Chain — Impact of Removing a Trophic Level", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "If all the organisms of one trophic level in a food chain die, what would be its impact on the population of organisms in other trophic levels? It will:",
+    options: [
+      "remain the same in the next trophic level",
+      "increase in the next trophic level",
+      "increase in the lower trophic level",
+      "remain the same in the lower trophic level"
+    ],
+    answer: "increase in the lower trophic level",
+    solutionSteps: ["If predators (one trophic level) are wiped out, the prey at the LOWER trophic level no longer face that predation pressure — their population INCREASES.", "Next trophic level (above the dead level) loses its food source ⟹ that population would decrease, not stay same."],
+    finalAnswer: "(c) increase in the lower trophic level",
+    ncertRef: "APQ Science-PQ2 Q15", isCompetencyBased: true },
+
+  // Science-PQ2 Q16 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-ENV-006", subject: "Science", topicKey: "our-environment", subtopic: "Biomagnification of Non-degradable Chemicals", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "The chemicals that are non-degradable, get progressively accumulated at each trophic level, and their concentration is seen maximum in the bodies of top consumers. This phenomenon is known as:",
+    options: ["Eutrophication", "Pollution", "Accumulation", "Biomagnification"],
+    answer: "Biomagnification",
+    solutionSteps: ["BIOMAGNIFICATION = progressive build-up of non-biodegradable substances (e.g., DDT, mercury) as they move up the food chain; top consumers carry the maximum concentration.", "Eutrophication = nutrient enrichment of water bodies; pollution is a general term; accumulation alone does not imply trophic-level concentration."],
+    finalAnswer: "(d) Biomagnification",
+    ncertRef: "APQ Science-PQ2 Q16", isCompetencyBased: false },
+
+  // Science-PQ2 Q20 (Section A, Assertion-Reasoning, 1 mark)
+  { id: "APQ-S-ENV-007", subject: "Science", topicKey: "our-environment", subtopic: "Biodegradable vs Non-biodegradable Waste — Composting", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Assertion (A): All kitchen waste cannot form compost. Reason (R): Material like milk packets may not be biodegradable.",
+    options: [
+      "Both A and R are true, and R is the correct explanation of A.",
+      "Both A and R are true, but R is not the correct explanation of A.",
+      "A is true but R is false.",
+      "A is false but R is true."
+    ],
+    answer: "Both A and R are true, and R is the correct explanation of A.",
+    solutionSteps: ["A is true: some items found in kitchen waste (e.g., plastics, foils, milk packets) cannot be composted.", "R is true and EXPLAINS A: composting requires biodegradable matter. Milk packets (often plastic-lined) are non-biodegradable, so they cannot form compost — hence not ALL kitchen waste can form compost."],
+    finalAnswer: "(a) Both A and R are true, and R is the correct explanation of A.",
+    ncertRef: "APQ Science-PQ2 Q20", isCompetencyBased: true },
+
+  // Science-PQ2 Q26 (Section B, Short, 2 marks)
+  { id: "APQ-S-ENV-008", subject: "Science", topicKey: "our-environment", subtopic: "Ozone Layer Depletion — CFCs and Health Effects", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Marked decline in the thickness of ozone layer was noticed in the 1980s. Which human activity can be held accountable for this change? What is the possible effect of this on human health?",
+    answer: "Release of CFCs caused depletion; UV rays cause skin cancer.",
+    solutionSteps: ["Human activities releasing CHLOROFLUOROCARBONS (CFCs) — used in refrigerators, air conditioners, and aerosol sprays — were responsible for the marked depletion of the ozone layer.", "The ozone layer shields the Earth's surface from harmful UV rays of the Sun. Its depletion increases UV exposure, which causes SKIN CANCER and other harmful effects on human health (also cataracts, immune suppression)."],
+    finalAnswer: "Human cause: CFC release; health effect: increased UV ⟹ skin cancer.",
+    ncertRef: "APQ Science-PQ2 Q26", isCompetencyBased: true },
 ];

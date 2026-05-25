@@ -30,4 +30,22 @@ export const HOW_DO_ORGANISMS_REPRODUCE_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(a) Regeneration: cells in a fragment of an organism (e.g., Planaria, Hydra) divide and differentiate to rebuild missing body parts — similar to stem cell action.", "Budding: a small outgrowth (bud) develops on the parent (e.g., Hydra). The bud's cells differentiate into all needed tissues, then detaches as a new individual — also stem-cell-like.", "(b) Testes (male) and Ovaries (female): both produce gametes (sperm/egg) and reproductive hormones (testosterone/oestrogen).", "Vas deferens (male) and Fallopian tube (female): both transport gametes to the site of fertilisation."],
     finalAnswer: "(a) Regeneration + Budding; (b) Testes/Ovaries (gamete + hormone production); Vas deferens/Fallopian tube (gamete transport).",
     ncertRef: "APQ Science-PQ Q35 (first variant)", isCompetencyBased: true },
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q22 (Section B, Short, 2 marks)
+  { id: "APQ-S-REPR-004", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction — Rhizopus Spores", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "(i) Name the reproductive and non-reproductive parts of Rhizopus. (ii) How are the spores protected till they begin to grow?",
+    answer: "(i) Reproductive: sporangia; Non-reproductive: hyphae. (ii) Thick walls cover the spores.",
+    solutionSteps: ["(i) In Rhizopus, the non-reproductive parts are the HYPHAE (thread-like vegetative filaments). The reproductive parts are the SPORANGIA (knob-like sacs at the tips of hyphae that contain the spores).", "(ii) The spores are covered by THICK WALLS that protect them from harsh conditions (drying, heat, etc.) until they come in contact with a moist surface; on moisture they germinate and begin to grow into new individuals."],
+    finalAnswer: "(i) Reproductive = sporangia; non-reproductive = hyphae; (ii) thick protective walls around spores.",
+    ncertRef: "APQ Science-PQ2 Q22", isCompetencyBased: false },
+
+  // Science-PQ2 Q29 (Section C, Short, 3 marks)
+  { id: "APQ-S-REPR-005", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Reproductive Health — Contraceptive Methods", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "State any three reasons to justify the use of contraceptive methods.",
+    answer: "(a) Prevent unwanted pregnancies; (b) control population/birth rate; (c) prevent STIs.",
+    solutionSteps: ["(a) To prevent UNWANTED PREGNANCIES — helps individuals/families plan when and how many children to have, supporting maternal health.", "(b) To CONTROL POPULATION growth and birth rate — supports balanced demographic growth and conservation of resources.", "(c) To PREVENT the transfer of sexually transmitted diseases / infections (HIV/AIDS, syphilis, etc.) — barrier methods like condoms protect against STIs."],
+    finalAnswer: "(a) Avoid unwanted pregnancies; (b) control population; (c) prevent STIs.",
+    ncertRef: "APQ Science-PQ2 Q29", isCompetencyBased: true },
 ];

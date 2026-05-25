@@ -23,4 +23,30 @@ export const CHEMICAL_REACTIONS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["P (AgNO3 + NaCl → AgCl + NaNO3): two compounds swap ions ⟹ double displacement.", "Q: single displacement (Mg displaces H). R: combustion (combination). S: KOH + H2SO4 → K2SO4 + H2O is acid-base neutralisation = double displacement.", "P and S are both double-displacement reactions."],
     finalAnswer: "(d) P and S",
     ncertRef: "APQ Science-PQ Q2", isCompetencyBased: true },
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q1 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-CHEM-003", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Oxidation Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Which of the following observations is correct for the experimental diagram in which copper metal is heated strongly in air?",
+    options: [
+      "Red-coloured copper is reduced to black-coloured copper(I) oxide",
+      "Red-coloured copper is oxidized to red-coloured copper(I) oxide",
+      "Red-coloured copper is reduced to black-coloured copper(II) oxide",
+      "Red-coloured copper is oxidized to black-coloured copper(II) oxide"
+    ],
+    answer: "Red-coloured copper is oxidized to black-coloured copper(II) oxide",
+    solutionSteps: ["When copper is heated strongly in air, it combines with atmospheric oxygen — this is an oxidation reaction: 2 Cu + O2 → 2 CuO.", "The product CuO (copper(II) oxide) is BLACK in colour. Reddish-brown copper is converted to black CuO; the metal undergoes oxidation (gain of oxygen)."],
+    finalAnswer: "(d) Red-coloured copper is oxidized to black-coloured copper(II) oxide",
+    ncertRef: "APQ Science-PQ2 Q1", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: experimental set-up of copper being heated in air over a flame." },
+
+  // Science-PQ2 Q2 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-CHEM-004", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Balancing Chemical Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "The ratio (x:y) of reactants Fe and H2O in the given balanced chemical equation is: xFe(s) + yH2O(g) → Fe3O4(s) + 4H2(g)",
+    options: ["x:y = 2:3", "x:y = 3:4", "x:y = 1:4", "x:y = 4:1"],
+    answer: "x:y = 3:4",
+    solutionSteps: ["Balance Fe atoms: RHS has 3 Fe (in Fe3O4) ⟹ x = 3.", "Balance O atoms: RHS has 4 O (in Fe3O4) ⟹ y = 4 (each H2O carries 1 O).", "Check H: LHS 4 × H2O = 8 H; RHS 4 × H2 = 8 H ✓. Balanced equation: 3 Fe + 4 H2O → Fe3O4 + 4 H2. So x:y = 3:4."],
+    finalAnswer: "(b) x:y = 3:4",
+    ncertRef: "APQ Science-PQ2 Q2", isCompetencyBased: true },
 ];

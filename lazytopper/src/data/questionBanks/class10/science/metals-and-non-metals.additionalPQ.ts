@@ -85,4 +85,69 @@ export const METALS_NON_METALS_APQ: CanonicalQuestion[] = [
     solutionSteps: ["(a) Bottom section. Metals at the bottom (e.g., Ag) are least reactive — their compounds are unstable and decompose easily even by sunlight, releasing the free metal.", "(b) Photolytic decomposition: e.g., 2 AgCl → 2 Ag + Cl2 (in sunlight)."],
     finalAnswer: "(a) Bottom; (b) photolytic decomposition.",
     ncertRef: "APQ Science-PQ Q28 (OR variant)", isCompetencyBased: true },
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q4 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-METAL-009", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity with Water — Hot vs Cold", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "The metal X does not react with cold water but floats on hot water with the formation of colourless bubbles. Which of the following represents metal X?",
+    options: ["Aluminium", "Copper", "Magnesium", "Lead"],
+    answer: "Magnesium",
+    solutionSteps: ["Aluminium does not react with cold or hot water under normal conditions (Al2O3 protective layer).", "Copper and lead do not react with cold or hot water (below H in reactivity series).", "Magnesium does not react with cold water but reacts with hot water to liberate H2 bubbles (Mg + 2 H2O → Mg(OH)2 + H2). The H2 bubbles cling to Mg, making it float."],
+    finalAnswer: "(c) Magnesium",
+    ncertRef: "APQ Science-PQ2 Q4", isCompetencyBased: true },
+
+  // Science-PQ2 Q7 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-METAL-010", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reaction of Metal with Acid — Hydrogen Test", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "In the set-up shown, a metal reacts with dilute acid releasing gas 'X'. Which of the following tests is given by the gas 'X' produced in the set-up?",
+    options: [
+      "Lime water turns milky white",
+      "Puts off a burning matchstick",
+      "Burning matchstick produces a pop sound and the flame puts off",
+      "Choking smell with the smell of burning sulphur"
+    ],
+    answer: "Burning matchstick produces a pop sound and the flame puts off",
+    solutionSteps: ["Metals (above H in reactivity series) react with dilute acid to release hydrogen gas: M + 2 HCl → MCl2 + H2↑.", "H2 gas is identified by the 'pop' sound test: when a burning matchstick is brought near the gas, it burns rapidly with a characteristic pop and the flame is then extinguished."],
+    finalAnswer: "(c) Burning matchstick produces a pop sound and the flame puts off",
+    ncertRef: "APQ Science-PQ2 Q7", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: set-up of metal + dilute acid in a test tube with gas X collected/tested." },
+
+  // Science-PQ2 Q17 (Section A, Assertion-Reasoning, 1 mark)
+  { id: "APQ-S-METAL-011", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Electrorefining of Copper", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Assertion (A): Copper ions migrate from the anode to the cathode during electrorefining of copper. Reason (R): In the electrorefining process, metal ions accept electrons at the anode and are deposited as pure metal.",
+    options: [
+      "Both A and R are true, and R is the correct explanation of A.",
+      "Both A and R are true, but R is not the correct explanation of A.",
+      "A is true but R is false.",
+      "A is false but R is true."
+    ],
+    answer: "A is true but R is false.",
+    solutionSteps: ["A is true: In electrorefining, the impure copper anode dissolves into solution as Cu^2+ ions, which then migrate to and deposit on the pure copper cathode.", "R is false: Reduction (gain of electrons) occurs at the CATHODE, not the anode. At the anode oxidation occurs (Cu → Cu^2+ + 2 e-). So R is incorrect."],
+    finalAnswer: "(c) A is true but R is false.",
+    ncertRef: "APQ Science-PQ2 Q17", isCompetencyBased: true },
+
+  // Science-PQ2 Q27 (Section C, Short, 3 marks)
+  { id: "APQ-S-METAL-012", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series — Displacement Reactions", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Sakshi added iron filings to four test tubes A, B, C, D containing aqueous solutions of ZnSO4, CuSO4, FeSO4 and Al2(SO4)3 respectively. (a) In which test tube will she observe the reaction to be most vigorous? (b) What is the reason for her observation? (c) Write a well-balanced equation of the reaction in (b).",
+    answer: "(a) Test tube B. (b) Cu is below Fe in reactivity series. (c) Fe + CuSO4 → FeSO4 + Cu.",
+    solutionSteps: ["(a) Most vigorous reaction is in TEST TUBE B (CuSO4 solution).", "(b) Iron (Fe) is more reactive than copper (Cu) — Cu lies BELOW Fe in the reactivity series. Hence Fe displaces Cu from CuSO4. Fe cannot displace Zn or Al (more reactive than Fe), and FeSO4 has no displacement.", "(c) Balanced equation: Fe(s) + CuSO4(aq) → FeSO4(aq) + Cu(s). Blue colour of CuSO4 fades; reddish Cu deposits on iron filings."],
+    finalAnswer: "(a) Test tube B; (b) Cu < Fe in reactivity; (c) Fe + CuSO4 → FeSO4 + Cu.",
+    ncertRef: "APQ Science-PQ2 Q27", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: four labelled test tubes A, B, C, D with iron filings added." },
+
+  // Science-PQ2 Q28 first variant (Section C, Short, 3 marks)
+  { id: "APQ-S-METAL-013", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Amphoteric Oxides — Aluminium and Thermite", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "Metal 'A' is used in the thermite process as a reducing agent. When 'A' is heated with oxygen it gives an oxide 'B' which is amphoteric in nature. Identify A and B. Illustrate with the help of chemical equations the reaction of B with HCl and NaOH respectively.",
+    answer: "A = Aluminium (Al); B = Al2O3 (alumina, amphoteric).",
+    solutionSteps: ["A = Aluminium (used as reducing agent in thermite reaction). On heating with O2: 4 Al + 3 O2 → 2 Al2O3, so B = Al2O3 — an amphoteric oxide.", "Reaction of Al2O3 (basic side) with acid HCl: Al2O3 + 6 HCl → 2 AlCl3 + 3 H2O.", "Reaction of Al2O3 (acidic side) with base NaOH: Al2O3 + 2 NaOH → 2 NaAlO2 + H2O (sodium aluminate)."],
+    finalAnswer: "A = Al, B = Al2O3; reacts with both HCl (Al2O3 + 6 HCl → 2 AlCl3 + 3 H2O) and NaOH (Al2O3 + 2 NaOH → 2 NaAlO2 + H2O).",
+    ncertRef: "APQ Science-PQ2 Q28 (first variant)", isCompetencyBased: true },
+
+  // Science-PQ2 Q28 OR variant (Section C, Short, 3 marks)
+  { id: "APQ-S-METAL-014", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Electrolytic Reduction of Sodium Chloride; Thermite", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "(a) \"Carbon cannot be used to reduce metal oxides of sodium, magnesium, calcium and aluminium to respective metals.\" Comment. (b) These metals are obtained by electrolytic reduction of their molten chloride. Write the reactions that occur at the anode and cathode during the electrolytic reduction of molten sodium chloride. (c) Illustrate with the help of a chemical equation reduction of manganese dioxide with aluminium powder.",
+    answer: "(a) Na, Mg, Ca, Al have greater affinity for O than C. (b) Cathode: Na+ + e- → Na; Anode: 2 Cl- → Cl2 + 2 e-. (c) 3 MnO2 + 4 Al → 3 Mn + 2 Al2O3 + Heat.",
+    solutionSteps: ["(a) Carbon cannot reduce oxides of highly reactive metals (Na, Mg, Ca, Al) because these metals have greater affinity for oxygen than carbon does. So carbon cannot strip oxygen away from their oxides.", "(b) Electrolytic reduction of molten NaCl: at CATHODE (reduction): Na+ + e- → Na (sodium deposited). At ANODE (oxidation): 2 Cl- → Cl2 + 2 e- (chlorine gas evolved).", "(c) Reduction of manganese dioxide with aluminium powder (thermite-type reaction): 3 MnO2(s) + 4 Al(s) → 3 Mn(l) + 2 Al2O3(s) + Heat (highly exothermic)."],
+    finalAnswer: "(a) high O-affinity of Na/Mg/Ca/Al; (b) cathode Na+ + e- → Na, anode 2 Cl- → Cl2 + 2 e-; (c) 3 MnO2 + 4 Al → 3 Mn + 2 Al2O3.",
+    ncertRef: "APQ Science-PQ2 Q28 (OR variant)", isCompetencyBased: true },
 ];

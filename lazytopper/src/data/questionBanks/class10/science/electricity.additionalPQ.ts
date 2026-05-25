@@ -40,4 +40,32 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     finalAnswer: "(a) 40 Ω; (b) 7.5 V [or] 3.75 W; (c) decreases.",
     ncertRef: "APQ Science-PQ Q39", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: 4-resistor circuit." },
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q32 (Section C, Short, 3 marks)
+  { id: "APQ-S-ELEC-005", subject: "Science", topicKey: "electricity", subtopic: "Electric Charge, Electron Count, Ohm's Law from V-I", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "(a) A current of 10 A flows through a conductor for two minutes. (i) Calculate the amount of charge passing through the conductor. (ii) If the charge of an electron is 1.6 × 10^-19 C, calculate the total number of electrons flowing through the conductor. (b) The V-I graph for a conductor is a straight line through the origin. What do you infer from this graph?",
+    answer: "(a)(i) Q = 1200 C; (ii) n ≈ 7.5 × 10^21 electrons. (b) V ∝ I ⟹ R is constant (Ohm's law).",
+    solutionSteps: ["(a)(i) Given I = 10 A, t = 2 min = 120 s. Charge Q = I × t = 10 × 120 = 1200 C.", "(a)(ii) Number of electrons n = Q / e = 1200 / (1.6 × 10^-19) = 7.5 × 10^21 electrons.", "(b) A straight-line V-I graph passing through the origin shows V ∝ I — confirming Ohm's law. The slope V/I = R is constant, so the conductor has a constant resistance (ohmic conductor)."],
+    finalAnswer: "(a)(i) 1200 C; (ii) 7.5 × 10^21 electrons; (b) V ∝ I ⟹ constant R (Ohm's law verified).",
+    ncertRef: "APQ Science-PQ2 Q32", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: V-I straight-line graph through origin." },
+
+  // Science-PQ2 Q39 first variant (Section E, Case-Based, 4 marks)
+  { id: "APQ-S-ELEC-006", subject: "Science", topicKey: "electricity", subtopic: "Resistance and Length — Parallel Resistors and Ammeters", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "Rahima built a circuit with two resistors A and B (same metal, same thickness) in parallel; A is twice as long as B. The total current is 6 A and the battery voltage is 12 V. (a) What will be the resistance in the circuit? (b) Determine the values of 'RA' and 'RB'. (c) Determine the current in both the ammeters A1 and A2. Will they be the same? Justify.",
+    answer: "(a) R = 2 Ω. (b) RA = 6 Ω, RB = 3 Ω. (c) IA = 2 A, IB = 4 A — NOT same (length ratio 2:1 ⟹ current ratio 1:2).",
+    solutionSteps: ["(a) Net resistance from V = IR: R = V/I = 12 / 6 = 2 Ω.", "(b) For two resistors of the same material and thickness, R ∝ length. So RA = 2 × RB. In parallel: 1/R = 1/RA + 1/RB ⟹ 1/2 = 1/(2RB) + 1/RB = 3/(2 RB) ⟹ RB = 3 Ω, RA = 6 Ω. (Check via V/I: RA = 12/2 = 6, RB = 12/4 = 3.)", "(c) Current through A (RA = 6 Ω): IA = V/RA = 12/6 = 2 A. Current through B (RB = 3 Ω): IB = V/RB = 12/3 = 4 A.", "(c) The currents are NOT the same — current is inversely proportional to resistance (V common in parallel). Length-ratio 2:1 produces resistance-ratio 2:1, hence current-ratio 1:2 (IA : IB = 1 : 2)."],
+    finalAnswer: "(a) 2 Ω; (b) RA = 6 Ω, RB = 3 Ω; (c) IA = 2 A, IB = 4 A — not equal (current ∝ 1/R).",
+    ncertRef: "APQ Science-PQ2 Q39 (first variant)", isCompetencyBased: true,
+    strategyHint: "REQUIRES-FIGURE: parallel-resistor circuit with two ammeters A1 (in A's branch) and A2 (in B's branch) + 12 V battery." },
+
+  // Science-PQ2 Q39 OR variant (Section E, Case-Based, 4 marks)
+  { id: "APQ-S-ELEC-007", subject: "Science", topicKey: "electricity", subtopic: "Resistivity — Definition and Affecting Factors", section: "E", marks: 4, format: "Case-Based", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "(c) Define resistivity. What are the factors affecting the resistivity of a conductor?",
+    answer: "Resistivity = R × A / L; a material property — depends on nature of material and temperature.",
+    solutionSteps: ["Resistivity (ρ) is defined as the electrical resistance of a conductor of UNIT cross-sectional area and UNIT length. Mathematically ρ = R × A / L; SI unit ohm-metre (Ω·m).", "Resistivity is a CHARACTERISTIC PROPERTY of the material — it depends on the NATURE of the material (atomic structure, free electron density).", "It also depends on TEMPERATURE: for metals, resistivity INCREASES with temperature; for semiconductors/insulators, resistivity DECREASES with temperature.", "Resistivity does NOT depend on the dimensions (length or cross-sectional area) of the conductor."],
+    finalAnswer: "ρ = R·A/L (Ω·m); depends on material nature and temperature.",
+    ncertRef: "APQ Science-PQ2 Q39 (OR variant)", isCompetencyBased: false },
 ];

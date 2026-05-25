@@ -21,4 +21,36 @@ export const CONTROL_COORDINATION_APQ: CanonicalQuestion[] = [
     solutionSteps: ["Similarity 1: Both signals initiated by receptors at specific sense organs (olfactory in nose; pain in hand).", "Similarity 2: Both use neurotransmitters released and accepted by neurons to carry impulse.", "Difference 1: Smelling the rose is VOLUNTARY; pulling hand away is INVOLUNTARY (reflex).", "Difference 2: Smelling — impulse reaches the brain and back (long pathway). Pulling hand — impulse travels only to spinal cord and back (reflex arc, much faster).", "(b) NO, not all involuntary actions are reflex. Reflexes require an external stimulus and reflex arc (e.g., touching thorn). Many involuntary actions (heartbeat, peristalsis, breathing) occur continuously without external stimulus — controlled by medulla and autonomic nervous system, not by a reflex arc."],
     finalAnswer: "2 similarities + 2 differences listed; not all involuntary = reflex.",
     ncertRef: "APQ Science-PQ Q35 (OR variant)", isCompetencyBased: true },
+
+  // ----- Source: Science-PQ2.pdf + Science-PQMS2.pdf (appended 2026-05-25) -----
+
+  // Science-PQ2 Q9 (Section A, MCQ, 1 mark)
+  { id: "APQ-S-CTRL-003", subject: "Science", topicKey: "control-and-coordination", subtopic: "Plant Hormones — Phototropism and Auxin", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "Rajesh noticed that a potted plant kept in the window of his room shows bending towards sunlight. This could be due to:",
+    options: [
+      "More growth in the well lit region due to diffusion of auxin hormone",
+      "More growth in the region away from light due to diffusion of auxin hormone",
+      "More growth in the well lit region due to diffusion of cytokinin hormone",
+      "More growth in the region away from light due to diffusion of cytokinin hormone"
+    ],
+    answer: "More growth in the region away from light due to diffusion of auxin hormone",
+    solutionSteps: ["Auxin synthesised at the shoot tip diffuses away from light to the shaded side of the stem.", "Higher auxin concentration on the shaded side promotes more cell elongation there ⟹ the shaded side grows longer ⟹ the shoot bends TOWARDS light (positive phototropism)."],
+    finalAnswer: "(b) More growth in the region away from light due to diffusion of auxin hormone",
+    ncertRef: "APQ Science-PQ2 Q9", isCompetencyBased: true },
+
+  // Science-PQ2 Q30 (Section C, Short, 3 marks)
+  { id: "APQ-S-CTRL-004", subject: "Science", topicKey: "control-and-coordination", subtopic: "Brain Regions — Forebrain, Medulla, Cerebellum", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Given below are some disorders noticed in some patients. It could be due to malfunctioning of which part of the brain? (a) Loss of sensation of feeling full (b) Lowered ability to salivate (c) Difficulty in maintaining the posture and balance in body",
+    answer: "(a) Forebrain; (b) Medulla in hind-brain; (c) Cerebellum.",
+    solutionSteps: ["(a) Loss of sensation of feeling full (satiety centre) is controlled by the FOREBRAIN.", "(b) Salivation is an involuntary action controlled by the MEDULLA in the hind-brain.", "(c) Maintenance of posture and balance is controlled by the CEREBELLUM (part of the hind-brain)."],
+    finalAnswer: "(a) Forebrain; (b) Medulla; (c) Cerebellum.",
+    ncertRef: "APQ Science-PQ2 Q30", isCompetencyBased: true },
+
+  // Science-PQ2 Q35 OR variant (Section D, Long, 5 marks)
+  { id: "APQ-S-CTRL-005", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormonal Regulation — Insulin and Adrenaline", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "(a) How does blood sugar level get regulated in the human body? (b) (i) Which hormone is secreted into the blood when you are under stress? Name the gland that secretes this hormone. (ii) How does it help the body to cope up in an emergency situation?",
+    answer: "(a) Insulin (with feedback). (b)(i) Adrenaline from adrenal gland. (b)(ii) Increased heart rate and breathing rate.",
+    solutionSteps: ["(a) When blood sugar rises, pancreatic cells detect it and secrete more INSULIN, which lowers blood sugar by promoting uptake/storage. As blood sugar falls, insulin secretion is reduced. This timing and amount is regulated by a FEEDBACK MECHANISM.", "(b)(i) Under stress, the hormone ADRENALINE is secreted by the ADRENAL GLAND (situated above the kidneys).", "(b)(ii) Adrenaline acts on the heart — heart beats faster, supplying more oxygenated blood to skeletal muscles.", "(b)(ii cont.) Breathing rate also increases due to contraction of the diaphragm and rib muscles, increasing oxygen intake — preparing the body for 'fight or flight'."],
+    finalAnswer: "(a) Insulin + feedback; (b) adrenaline from adrenal gland — speeds heart and breathing for emergencies.",
+    ncertRef: "APQ Science-PQ2 Q35 (OR variant)", isCompetencyBased: true },
 ];
