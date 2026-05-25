@@ -2,6 +2,45 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-25 — Post-PR #147 + #148 roadmap update
+
+### Completed this session
+- P4 PYQ 2024 COMPLETE:
+  · PR #147 — 96 Maths PYQs (pyqYear: "2024"), 13 files, 17 OR pairs
+  · PR #148 — 76 Science PYQs (pyqYear: "2024"), 13 files
+  · Combined: 172 board PYQs from 2023-24 exam
+
+- P4 PYQ PHASE FULLY COMPLETE:
+  All 4 main exam years extracted:
+  · 2022-23: 214 Qs (PR #135+#137)
+  · 2023-24: 172 Qs (PR #147+#148)
+  · 2024-25: 182 Qs (PR #144+#145)
+  · 2025-26: 193 Qs (PR #141+#142)
+  Total board PYQs: 761 across 4 exam years
+
+### Active track — Product fixes
+  [ ] fix/practice-filters-complete — filter bugs + step marks (instruction ready)
+  [ ] fix/mojibake-ncert-exemplar — NCERT/Exemplar symbol corruption
+  [ ] Handoff post-fixes
+
+### Expected bank state after fixes
+  These are code/quality fixes — no new questions added
+  Authentic: ~3,245 (unchanged)
+  Retirement threshold: ~72.1% (unchanged)
+
+### Next content track — P5 Sample Papers
+  After fixes complete and ~3,245 authentic confirmed:
+  Remaining to threshold: ~1,255 questions
+  Source: P5 Sample + Preboard papers (~200 Qs)
+  Then: pack retirement decision at 4,500
+
+### Parked track — Product PRs
+Blocked until authentic >= 4,500.
+  [ ] P2 — strategyHint Hint button
+  [ ] P3 — Show visual wiring
+  [ ] P4 — Formula sheet tab
+  [ ] P1 — API gateway (production blocker)
+
 ## 2026-05-25 — Post-PR #144 + #145 roadmap update
 
 ### Completed this session

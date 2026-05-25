@@ -1,6 +1,91 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #144 + #145 — P4 PYQ 2025 Maths + Science, 182 board exam Qs added)
-Live base SHA: 3ae34749d9745bfbbf283dfa3dbcf3f89007bc3f
+Last updated: 2026-05-25 (post-PR #147 + #148 — P4 PYQ 2024 Maths + Science, 172 board exam Qs added)
+Live base SHA: a52b10b4f9af3adc0161e8e2082cf7fc9e17f297
+
+## Post-PR #147 + #148 — P4 PYQ 2024: 172 board exam questions added (Maths + Science)
+
+Timestamp: 2026-05-25
+Merge SHA on base: a52b10b4f9af3adc0161e8e2082cf7fc9e17f297
+
+### PR #147 | content: P4-M PYQ 2024 — 96 Qs verbatim across 13 Maths topic files
+Branch: content/p4-pyq-2024-maths (squash-merged — delete branch)
+Commit: 32b1c11
+Files: 14 (+571 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts (+13 imports +13 spreads; 253→266)
+  - 13 new maths/*.pyq2024.ts files
+
+Questions: 96 Maths PYQs (pyqYear: "2024")
+Section balance: A=30(31.3%) B=22 C=29 D=7 E=8
+OR questions: 17 pairs with -a/-b suffix IDs
+Competency: 100% isCompetencyBased:true across all files
+Paper structure: TRADITIONAL A/B/C/D/E
+Source: 13 text-extractable QPs from 30/2/x–30/5/x + 30(B)
+  3 scanned QPs (30/1/x) skipped — OCR out of scope
+  No Maths Basic (430-x-x) files in 2024 QP zip
+Syllabus filter: 0 banned 2026-27 topics in output
+isPYQ field omitted; pyqYear is sole PYQ signal
+
+### PR #148 | content: P4-S PYQ 2024 — 76 Qs verbatim across 13 Science topic files
+Branch: content/p4-pyq-2024-science (squash-merged — delete branch)
+Commit: af7af35
+Files: 14 (+746 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts (+13 imports +13 spreads; 266→279)
+  - 13 new science/*.pyq2024.ts files
+
+Questions: 76 Science PYQs (pyqYear: "2024")
+Section balance: A=24(31.6%) B=19 C=20 D=7 E=6
+Paper structure: TRADITIONAL A/B/C/D/E
+Source: 6 text-extractable QPs from 31/4/x + 31/5/x series
+  9 QPs (31/1/x–31/3/x) are scanned — OCR out of scope (inverse of 2025 pattern)
+Syllabus filter: 1 banned topic dropped (solar energy, Ch14 Sources of Energy)
+isPYQ field omitted; pyqYear is sole PYQ signal
+Pipeline fixes vs 2025:
+  - QP path has extra \SCIENCE subfolder
+  - MS marker regex widened for 2023-24 lone-digit format
+  - Footer-strip ordering fixed (PAGE before X-SCIENCE)
+  - Padded-step splitter fixed for placeholder fragmentation
+
+### Combined 2024 state
+Board PYQs added this session: 172 (96 Maths + 76 Science)
+Total board PYQs in bank: 761
+  214 from 2022-23 (PR #135+#137)
+  193 from 2025-26 (PR #141+#142)
+  182 from 2024-25 (PR #144+#145)
+  172 from 2023-24 (PR #147+#148)
+Spreads: 253 → 279 (+26 across both PRs)
+Test matrix: 137/137 PASS (unchanged)
+Authentic questions: ~3,245 (~3,073 + 172)
+Retirement threshold progress: ~3,245 / 4,500 = ~72.1%
+
+Validations (both PRs):
+  TypeScript: exit 0
+  syllabusGuard: exit 0
+  Test matrix: 137/137 PASS
+  Diff scope: clean
+  PYQ reachability: 96/96 Maths + 76/76 Science recognized as PYQ
+
+### Open items identified this session (not blocking)
+1. NCERT/Exemplar trigonometry files have mojibake symbols (Ã‚Â², Ã¢ÂˆÂ , Ã¢â‚¬")
+   — extraction from 2026-05-22 ran without correct encoding fix
+   — questions exist and are registered but render broken on screen
+   — fix: byte-level symbol restoration pass (branch: fix/mojibake-ncert-exemplar)
+   — priority: HIGH before launch, LOW for content expansion
+
+2. Practice filter bugs confirmed (separate PR):
+   — isCompetencyBased not mapped in CanonicalQuestion→PracticeQuestion
+   — Proof filter checks wrong format string (format is "Long"/"Short" not "Proof")
+   — Same bugs in both practiceQuestionBuilder.ts AND PracticePage.tsx
+   — Step marks hidden for all canonical bank questions
+   — Fix branch: fix/practice-filters-complete
+
+3. Parallel agent rebase protocol update:
+   — Agents should rebase onto latest base before committing
+   — Added to agent instruction template going forward
+
+### Agent instruction protocol update (this session)
+New rule added to all future agent instructions:
+  "Before committing, fetch origin and check if base has moved.
+   If SHA differs → rebase first, then commit, push, open PR."
 
 ## Post-PR #144 + #145 — P4 PYQ 2025: 182 board exam questions added (Maths + Science)
 
