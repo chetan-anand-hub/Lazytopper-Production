@@ -1,5 +1,116 @@
 ---
 
+## 2026-05-25 — P2 APQ Maths PQ1+PQ2 (PR #126, +76 Qs) + retirement threshold revised + new extraction doctrine
+
+Timestamp: 2026-05-25 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `462f2c77` (post-PR #125 handoff)
+- Active branch: `content/additional-pq-sqp-2024` (preserved from PR #119 SQP
+  cycle; rebased onto current base at start of this session — SQP commit
+  dropped cleanly as it's already in base)
+
+### Work completed
+
+1. **PDF probe + text dump** — Probed all 5 APQ PDFs via pymupdf. Confirmed
+   0 cid artifacts on every page (vs pdfplumber's known cid corruption on
+   CBSE math PDFs). Dumped all 10 QP+MS PDFs to text files in
+   `diff/_apq_text/` for systematic extraction.
+
+2. **Scope decision (Chetan via AskUserQuestion)** — Realistic single-session
+   capacity is 1-2 papers. Confirmed scope: PQ1 + PQ2 (76 Qs across 13 Maths
+   topic files) this session; PQ_2022 + Science-PQ + Science-PQ2 deferred to
+   follow-up sessions on the same branch.
+
+3. **Extraction — 13 .additionalPQ.ts files created** (one per Maths topic):
+   - real-numbers (6 Qs), polynomials (4), pair-of-linear-equations (6),
+     quadratic-equations (4), arithmetic-progression (4), triangles (8),
+     coordinate-geometry (6), trigonometry (10), circles (7),
+     areas-related-to-circles (5), surface-areas-and-volumes (6),
+     statistics (5), probability (5) — total 76 Qs.
+   - Section breakdown: A=40 (1mk MCQ+AR), B=10 (2mk), C=12 (3mk),
+     D=8 (5mk), E=6 (4mk case-based).
+   - Competency: 67/76 = 88% (target 40%).
+   - Combined PQ1 + PQ2 questions per topic, per spec ("one file per topic,
+     combined across papers"). ID format: `APQ-M-{TOPICSHORT}-{SEQ:003d}`,
+     sequential per topic.
+
+4. **Anti-fabrication doctrine maintained**:
+   - questionText verbatim from QP PDFs (pymupdf extraction)
+   - solutionSteps sourced from matching MS PDFs (exact CBSE marking steps)
+   - OR variants merged into single rows for this PR (see new doctrine
+     decision below for future passes)
+   - Section E case-based stored as ONE row per case, marks=4 (no sub-part
+     splitting)
+   - isPYQ: false on all 76; pyqSet omitted on all 76
+   - REQUIRES-FIGURE strategyHints on ~22 questions referencing diagrams,
+     tables, or graphs that don't render in text extraction
+
+5. **canonicalQuestionBank.ts registration** — Added 13 imports + 13 spreads
+   under "P2 CBSE APQ 2023-24" banner. Spread count: 137 → 150.
+
+6. **Mid-flight fix** — One typo on probability.additionalPQ.ts export name
+   (`PROBABILITY_ADDITIONAL_PQ` vs `PROBABILITY_APQ`) caught by tsc and
+   corrected. All other files passed type-check on first try.
+
+7. **Force-push for rebased branch** — Branch `content/additional-pq-sqp-2024`
+   was rebased at session start, so the remote (with the dropped SQP commit
+   sitting on a now-superseded base) needed `--force-with-lease` to update.
+   Chetan approved the force-push via AskUserQuestion.
+
+### New doctrine decisions locked in this PR cycle
+
+1. **Pack retirement threshold REVISED: 6,000 → 4,500 authentic**
+   Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep. At
+   4,500 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100%
+   authentic + 100% routable. No OCR phase needed.
+   Current progress: 1,793 / 4,500 = 39.8%.
+
+2. **REQUIRES-FIGURE doctrine**
+   Questions referencing PDF diagrams/tables/graphs that don't render in
+   text extraction tag with `strategyHint: "REQUIRES-FIGURE: [description]"`.
+   questionText and answer remain accurate to PDF; figure described in
+   strategyHint so future Option B (placeholder image) or Option A
+   (SVG render) post-launch can fill the gap. ~22 questions in PR #126
+   carry this tag.
+
+3. **B/C/D/E density gap (future doctrine)**
+   PR #126's section split (A=40, B+C+D+E=36) shows MCQ over-representation.
+   Future extractions MUST extract BOTH OR variants for B/C/D/E sections to
+   double non-MCQ density. Apply to PQ_2022, Science-PQ, Science-PQ2 and
+   beyond. Bake into all future extraction agent instructions.
+
+4. **AR (Assertion-Reasoning) density gap**
+   Thin across all extractions to date. Dedicated `.assertionReasoning.ts`
+   extraction pass scheduled after P2 APQ completes. Target: 2-3 AR
+   questions per topic for both Maths and Science.
+
+### Validations (all six PASS)
+
+- syllabusGuard: PASS — 0 violations
+- validateQuestionBanks: PASS (204 files, was 191; 0 dupes, mark/section consistent)
+- tsc -p tsconfig.app.json --noEmit: exit 0 (one mid-flight typo fix)
+- Duplicate IDs: 0
+- Full test matrix (4 files): 125/125 PASS
+- Engine reachability: PASS (296/296)
+
+### Bank state
+
+- Authentic count: 1,717 → **1,793** (+76)
+- Spreads: 137 → **150** (+13)
+- Bank total: ~4,532 → ~4,608
+
+### Next priority item
+
+P2 APQ continuation — same branch (rebase first onto current base SHA
+9be894526eb20ad51bca2c7aaa3b8ffab931191a). Papers: Mathematics-PQ_2022
+(~38 Qs, APPEND to existing 13 Maths files), Science-PQ (~39 Qs, CREATE
+new science/*.additionalPQ.ts files), Science-PQ2 (~39 Qs, APPEND to
+science files). All text pre-extracted to `diff/_apq_text/`.
+
+---
+
 ## 2026-05-24 — syllabusGuard 2026-27 doctrine fix (PR #124) + 18 questions restored + ops acceptance regression suite (PR #123)
 
 Timestamp: 2026-05-24 (Asia/Kolkata)

@@ -1,6 +1,99 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-24 (post syllabusGuard 2026-27 doctrine fix)
-Live base SHA: f09b5fca679e3669bcb0e0b5b26a480d983448cb
+Last updated: 2026-05-25 (post-PR #126 — P2 APQ Maths PQ1+PQ2)
+Live base SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a
+
+## Post-PR #126 — P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: 9be894526eb20ad51bca2c7aaa3b8ffab931191a
+
+PR #126 | content: P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files)
+Branch: content/additional-pq-sqp-2024 (preserved — PQ_2022 + Science papers
+  to be appended in follow-up session, same branch)
+Commits: 1 (ee7bc8d)
+
+Files changed: 14 (+839 insertions)
+  - lazytopper/src/data/canonicalQuestionBank.ts — +13 imports + 13 spreads
+    under "P2 CBSE APQ 2023-24" banner; spread count 137 → 150.
+  - 13 new lazytopper/src/data/questionBanks/class10/maths/{topic}.additionalPQ.ts files
+
+Source PDFs (pymupdf 1.27.2.3, 0 cid artifacts confirmed):
+  Mathematics-PQ1.pdf (28pp) + Mathematics-PQ1_MS.pdf (22pp) — 38 questions
+  Mathematics-PQ2.pdf (7pp)  + Mathematics-PQ2MS2.pdf (7pp)  — 38 questions
+
+Total: 76 questions across all 13 retained Maths topicKeys.
+
+Section breakdown: A=40 (1mk MCQ+AR), B=10 (2mk Short), C=12 (3mk Short),
+                   D=8 (5mk Long), E=6 (4mk Case-Based)
+Competency: 67/76 = 88% (target was 40% — well exceeded)
+Skipped (deleted topics): 0 — no 2026-27-deleted Maths topics appeared in PQ1/PQ2
+REQUIRES-FIGURE strategyHints: ~22 questions (geometry diagrams, tables, graphs)
+
+Anti-fabrication doctrine maintained:
+  - questionText verbatim from QP PDFs
+  - solutionSteps sourced from matching MS PDFs (exact CBSE marking steps)
+  - OR variants merged into single rows
+  - Section E case-based stored as ONE row per case (marks=4, no sub-part split)
+  - isPYQ: false on all 76 (practice papers, not board PYQs)
+  - pyqSet: omitted on all 76
+  - ID format: APQ-M-{TOPICSHORT}-{SEQ:003d}, sequential per topic across both papers
+
+Per-file question counts:
+  real-numbers.additionalPQ.ts             — 6 Qs (A=2, B=1, C=2)
+  polynomials.additionalPQ.ts              — 4 Qs (A=2, B=1, C=1)
+  pair-of-linear-equations.additionalPQ.ts — 6 Qs (A=3, B=1, C=2)
+  quadratic-equations.additionalPQ.ts      — 4 Qs (A=2, D=2)
+  arithmetic-progression.additionalPQ.ts   — 4 Qs (A=2, E=2)
+  triangles.additionalPQ.ts                — 8 Qs (A=5, B=1, D=2)
+  coordinate-geometry.additionalPQ.ts      — 6 Qs (A=4, E=2)
+  trigonometry.additionalPQ.ts             — 10 Qs (A=5, B=1, C=2, D=1, E=1)
+  circles.additionalPQ.ts                  — 7 Qs (A=3, B=2, C=2)
+  areas-related-to-circles.additionalPQ.ts — 5 Qs (A=3, B=1, E=1)
+  surface-areas-and-volumes.additionalPQ.ts — 6 Qs (A=3, B=1, C=1, D=1)
+  statistics.additionalPQ.ts               — 5 Qs (A=3, D=2)
+  probability.additionalPQ.ts              — 5 Qs (A=3, C=2)
+
+New doctrine decisions locked in this PR cycle:
+
+  Pack retirement threshold REVISED: 6,000 → 4,500 authentic questions
+    Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep.
+    At 4,500 authentic, retire all AI packs (~2,815 Qs). Bank becomes
+    100% authentic + 100% routable. No OCR phase needed.
+    Current trajectory: 1,793 authentic; ~2,700 more needed to hit 4,500.
+
+  REQUIRES-FIGURE doctrine:
+    Questions referencing PDF diagrams/tables/graphs that don't render in
+    text extraction tag with strategyHint: "REQUIRES-FIGURE: [description]".
+    questionText and answer remain accurate to PDF; figure is described in
+    strategyHint so future Option B (placeholder image) or Option A (SVG
+    render post-launch) can fill the gap. ~22 questions in PR #126 carry
+    this tag.
+
+  B/C/D/E density gap identified:
+    Section A (MCQ/AR) is over-represented in extraction outputs to date.
+    Future extractions MUST extract BOTH OR variants for B/C/D/E sections
+    to increase non-MCQ density. Bake into all future extraction agent
+    instructions. Current Section A:non-A ratio in PR #126 is 40:36 — needs
+    to flip toward non-A in subsequent extractions.
+
+  AR (Assertion-Reasoning) density gap identified:
+    AR coverage thin across all extractions to date. Dedicated
+    .assertionReasoning.ts extraction pass needed after P2 APQ completes.
+    Target: 2-3 AR questions per topic for both Maths and Science.
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations)
+  2. validateQuestionBanks — PASS (204 files scanned, was 191; 0 dupes,
+     mark/section consistent)
+  3. tsc -p tsconfig.app.json --noEmit — PASS (exit 0)
+  4. Duplicate IDs — 0
+  5. Full test matrix (4 files) — PASS (125/125 tests)
+  6. Engine reachability — PASS (296/296)
+
+Bank state:
+  Authentic questions: 1,717 → 1,793 (+76)
+  Spreads: 137 → 150 (+13)
+  Bank total: ~4,532 → ~4,608 (+76)
 
 ## Post — syllabusGuard 2026-27 doctrine fix (PR #124) — MERGED
 
@@ -495,7 +588,7 @@ Will be normalised during P5 PYQ extraction cleanup pass.
 ## Current state
 
 Production branch: base/approved-thru-437
-Last merged PR: #124 — fix: syllabusGuard 2026-27 doctrine — restore reproductive health + Our Environment
+Last merged PR: #126 — content: P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files)
 Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 
 ## Complete PR history (all merged)
@@ -539,7 +632,9 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | #121 | Reproduction bank cleanup + syllabusGuard variant ext + regression tests | e4e42fee | -18 Qs, +5 banned variants, +35 tests |
 | #122 | Docs: post-PR #121 | ef31ece0 | Handoff updated |
 | #123 | ops acceptance regression suite — 2026-27 deletion doctrine | 734b437b | +37 tests, locks doctrine across registry + archetypes + topics |
-| #124 | syllabusGuard 2026-27 doctrine — reproductive health + Our Environment | f09b5fca | -26 banned strings, +18 Qs restored, formativeOnlyTopics added — CURRENT BASE |
+| #124 | syllabusGuard 2026-27 doctrine — reproductive health + Our Environment | f09b5fca | -26 banned strings, +18 Qs restored, formativeOnlyTopics added |
+| #125 | Docs: post-PR #124 | 462f2c77 | Handoff updated |
+| #126 | P2 APQ Maths PQ1 + PQ2 (76 Qs across 13 topic files) | 9be89452 | +76 authentic, +13 spreads, REQUIRES-FIGURE doctrine, 4,500 retirement threshold — CURRENT BASE |
 
 ## Question bank state
 
@@ -550,10 +645,17 @@ Live Vercel: https://lazytopper-production-desktop.vercel.app/app/
 | P0 diff/ packs (PR #112) | 62 | Live in engine |
 | P0.5 diff/ packs (PR #114) | 21 | Live in engine |
 | P2 SQP 2023-24 (PR #119) | 69 | Live in engine |
-| Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated (11 restored in PR #124); retirement pending |
-| Total in engine | ~4,532 | (was 4,514 pre-PR #124; +18 restored) |
+| **P2 APQ Maths PQ1+PQ2 (PR #126)** | **76** | **Live in engine (new)** |
+| Existing pack1/pack2/pack3 | ~2,470 | Live, AI-generated; retirement threshold REVISED to 4,500 |
+| Total in engine | ~4,608 | (was ~4,532 pre-PR #126; +76 from APQ) |
 
-canonicalQuestionBank.ts spread count: 137
+canonicalQuestionBank.ts spread count: 150 (was 137; +13 APQ files)
+
+Pack retirement threshold (REVISED 2026-05-25): **4,500 authentic questions**
+  (down from 6,000). Rationale: 5,000+ authentic is sufficient for CBSE
+  Class 10 prep. At 4,500 authentic, retire all AI packs (~2,815 Qs).
+  Bank becomes 100% authentic + 100% routable. No OCR phase needed.
+  Progress: 1,793 / 4,500 = 39.8% to retirement threshold.
 
 ## Known issues
 
@@ -563,11 +665,14 @@ canonicalQuestionBank.ts spread count: 137
 - **syllabusGuard incorrectly banned Contraception/STDs** (RESOLVED in PR #124)
 - **18 reproduction questions wrongly removed in PR #121** — RESTORED in PR #124
 - **Motor/Generator/EMI not tracked in archetypes** (RESOLVED in PR #124 — formativeOnlyTopics added)
+- **REQUIRES-FIGURE backlog** — ~22 Maths APQ questions (from PR #126) tagged REQUIRES-FIGURE in strategyHint; need placeholder image (Option B) or SVG render (Option A) post-launch
+- **B/C/D/E density gap** — Section A (MCQ/AR) over-represented across all extractions; future passes must extract BOTH OR variants for B/C/D/E
+- **AR (Assertion-Reasoning) density gap** — thin coverage across both Maths and Science; dedicated .assertionReasoning.ts pass needed after P2 APQ completes (target 2-3 AR per topic)
 - Our Environment: 0 questions in question bank — needs future content extraction
 - Clerk dev mode only (pk_test_) — no production instance configured
 - AI features 404 in production (no /api/* rewrite in vercel.json)
 - PYQ filter returns 0 (K2H-8f engine fix pending — pre-req for P5)
-- pack1/pack2/pack3 questions are AI-generated — retirement planned (threshold 6,000 authentic)
+- pack1/pack2/pack3 questions are AI-generated — retirement REVISED to 4,500 authentic threshold (was 6,000)
 - deletionGuard.test.ts fixed (PR #108) — 29/29 tests passing
 - strategyHint authored but never rendered (quick win pending)
 - index.html meta stale (149/month, wrong theme-color)
