@@ -1,12 +1,102 @@
 # LazyTopper — Next Action
 
-Last updated: 2026-05-25 (post-PR #130 — P2 APQ Science-PQ2; P2 APQ COMPLETE)
-Live base SHA: d739585df2013b7299c3c8e931c5685d388f606d
+Last updated: 2026-05-25 (post-PR #132 + #133 — P3 Science chapterwise + K2H-8f PYQ fix)
+Live base SHA: c0f129dcdbe8722c8b74792df8cab358981d8c3e
 
-## Immediate next action — pre-launch quick wins (product track) OR P3 Meridian (content track)
+## Immediate next action — P4 PYQ extraction (NOW UNBLOCKED by PR #133)
 
-P2 APQ is now fully complete (5 papers, 284 authentic Qs total — see history
-below). Two parallel tracks open; owner choice for next session.
+PR #133 fixed the K2H-8f PYQ engine filter — the engine now correctly returns
+the 435 `pyqYear`-tagged questions when `pyqOnly===true`. This was the pre-req
+for trustworthy P4 PYQ extraction. P4 can now proceed in two parallel content
+sessions (Maths + Science).
+
+Three small UI-side follow-ups remain from K2H-8f (separate product PRs;
+not blocking P4 content work):
+  a. Wire `pyqOnly` through `practiceQuestionBuilder.ts` (UI-engine bridge)
+  b. Fix engine-to-UI mapping that strips `pyqYear`/`isPYQ` fields
+  c. Add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
+
+### ✅ Completed in PR #132 — P3 Science chapter-wise
+
+Done in PR #132 (merge SHA folded into c0f129d via #132+#133):
+- 13 new `science/{topic}.chapterwise.ts` files (one per retained Science topic)
+- 552 questions from cbjescco (MCQ, 252 Qs) + cbjesccq (PYQ-style, 300 Qs)
+- Section breakdown: A=330 B=78 C=72 D=72 E=0 (chapter-wise series has no case-based)
+- Competency: 74.6% (412/552); ~70 REQUIRES-FIGURE tagged
+- ID prefixes: SCO-S-* and SCQ-S-*
+- Authentic: 1,932 → 2,484; spreads 163 → 176; bank 4,729 → 5,281
+- Caps applied for reviewability (20 MCQ/file + 6 per PYQ-section)
+- Caveat: pymupdf renders chemistry `→` as `$` in this source — verbatim from PDF, future cleanup pass recommended
+
+### ✅ Completed in PR #133 — K2H-8f PYQ filter fix (engine layer)
+
+Done in PR #133 (merge SHA c0f129d):
+- `lazytopper/src/data/practiceSetGenerator.ts`: added `pyqOnly?` field +
+  exported `isPYQQuestion()` helper. Engine now applies a HARD pyqOnly filter
+  (no silent soft-fallback).
+- New test file `scripts/src/practiceSetGeneratorGuard.test.ts` (9 tests).
+- Test matrix grew from 125/125 to **134/134 PASS** (5 test files).
+- 435 `pyqYear`-tagged questions now correctly returned by the engine filter.
+
+### Next active task A — Wire pyqOnly through practiceQuestionBuilder.ts (Mode: Low–Medium)
+
+Branch (fresh): `fix/k2h-8f-pyq-ui-wiring`
+File: `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
+
+Connect the K2H-8c UI `pyqOnly` chip state to the engine's new `pyqOnly`
+filter (the engine accepts it now; the bridge currently doesn't pass it).
+Small, scoped change. Required before the PYQ filter is end-to-end usable
+in the practice surface.
+
+May want to fold in the two related follow-ups during this PR (engine-to-UI
+field-stripping fix + adding `isPYQ?: boolean` to `CanonicalQuestion`), but
+each can ship independently.
+
+### Next active task B — P4-M PYQ Maths extraction (Mode: HIGH, ~400 Qs)
+
+Branch (fresh): `content/p4-pyq-maths` (no reuse — per fresh-branch doctrine)
+Sources confirmed on disk:
+  - **16 QP PDFs:** `30-x-x.pdf` series (CBSE Maths Standard PYQ)
+  - **16 MS files:** matching `041_30-x-x_MS` marking-scheme PDFs
+  - Location: `C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\` (verify
+    exact subpath via probe before extraction)
+ID prefix: `PYQ-M-{TOPIC}-{NNN}`
+Critical:
+  - **isPYQ: true** on all P4 questions (these ARE official board PYQs)
+  - **pyqYear: "2022"/"2023"/etc** populated from QP year
+  - **pyqSet: "30/1/1"** etc populated from QP set code where known
+  - Apply OR-pair extraction for B/C/D/E (locked doctrine)
+  - Apply REQUIRES-FIGURE strategyHints
+  - pymupdf cid probe FIRST on a sample of the 30-x-x PDFs (not yet tested)
+
+### Next active task C — P4-S PYQ Science extraction (Mode: HIGH, ~400 Qs)
+
+Branch (fresh): `content/p4-pyq-science`
+Sources confirmed on disk:
+  - **15 QP PDFs:** `31_x_x.pdf` series (CBSE Science PYQ)
+  - Matching MS files on disk
+ID prefix: `PYQ-S-{TOPIC}-{NNN}`
+Same isPYQ/pyqYear/pyqSet/OR/REQUIRES-FIGURE doctrine as P4-M.
+Can run **in parallel** with P4-M (different topic files, no overlap).
+
+### Pre-launch quick wins (product track — independent, sequence as owner decides)
+
+Still queued from PR #130 cycle:
+  1. strategyHint Hint button in PracticeQuestionCard (Small)
+  2. Fix "Show visual" wiring in TopicHub right rail (≈20 lines)
+  3. Formula sheet tab on TopicHub for 14 seeded topics (Medium)
+  4. API gateway fix — vercel.json /api/* rewrite + Railway deploy (High)
+
+### Future task — Maths chapter-wise extraction (LOW priority)
+
+`cbjemaco` series (MCQ-only, clean per earlier probe) is available but would
+add mostly Section A density. Defer unless B/C/D/E coverage from PYQs proves
+insufficient.
+
+### Future task — AR (Assertion-Reasoning) density pass
+
+Dedicated `.assertionReasoning.ts` extraction; 2-3 AR per topic for Maths +
+Science. P2 APQ + P3 Science chapter-wise complete, so unblocked.
 
 ### ✅ Follow-up — P2 APQ Maths PQ1 + PQ2 — COMPLETE (PR #126)
 
@@ -40,44 +130,17 @@ Done in PR #130 (merge SHA: d739585df2013b7299c3c8e931c5685d388f606d):
 - **P2 APQ phase complete:** 284 authentic Qs across 5 papers (SQP + 3 APQ Maths + Science-PQ + Science-PQ2)
 - Branch `content/additional-pq-sqp-2024` DELETED after merge (remote + local). Future extraction phases use fresh branch names per phase to eliminate the force-push requirement permanently.
 
-### Pre-launch quick wins (product track — sequence as owner decides)
+### P3 phase outcome — Meridian SKIPPED, Chapter-wise CHOSEN
 
-A tutor/content audit completed during this cycle surfaced four small/medium
-product fixes. Run each as its own scoped product PR; they are independent.
+The previous handoff queued "P3 Meridian extraction" as the next content task.
+During session prep, source probes rejected Meridian (no marking-scheme PDFs,
+violates anti-fabrication doctrine) and several other candidates (NODIA — MS
+hosted externally on URL; cbjemacq — Sinhala glyph corruption; Maths Basic
+430-x-x — out-of-Standard scope; Aakash chapterwise — scanned, needs OCR).
 
-  1. **strategyHint Hint button in PracticeQuestionCard** (Small) — 75 question
-     banks contain authored strategyHints (including all 65 REQUIRES-FIGURE
-     descriptions) but no UI displays them. Add a "Hint" toggle that reveals
-     `q.strategyHint` when present.
-
-  2. **Fix "Show visual" wiring in TopicHub right rail** (≈20 lines) — button
-     currently broken (no-op or wrong handler). Wire to the existing visualiser
-     surface for the active topic.
-
-  3. **Formula sheet tab on TopicHub** (Medium) — 14 topics have seeded formula
-     data in archetypes/predictions but no render surface. Add a "Formulas" tab
-     beside Notes/Practice on TopicHub for those 14 topics.
-
-  4. **API gateway fix — vercel.json rewrite + Railway deploy** (High) — no
-     `/api/*` rewrite in `vercel.json`, so AI features 404 in production. Add
-     rewrite to forward `/api/*` to the Railway-deployed backend.
-
-### Next active content task — P3 Meridian extraction (Mode: HIGH, ~475 Qs)
-
-Sources confirmed on disk in `C:\Users\Chetan\OneDrive\Desktop\diff\` gdrive
-copy: Meridian worksheets + Maths QB. Two-agent split planned (Maths topics /
-Science topics).
-
-  - **Branch (fresh):** `content/p3-meridian` (no reuse of any prior branch)
-  - **First step:** pymupdf cid probe on Meridian PDFs (not yet tested — Meridian
-    is a 3rd-party publisher; may or may not extract cleanly)
-  - **ID prefixes:** `MRD-*` (Meridian worksheets), `MQB-*` (Maths QB)
-  - **Topic targets:** all 13 retained Maths topicKeys + all 13 retained Science
-    topicKeys
-  - **Same extraction doctrine** as P2 APQ (OR variants as separate rows,
-    REQUIRES-FIGURE tags, isPYQ:false, pyqSet omitted, Section E one-row, etc.)
-  - **Agent instruction file** will be authored after Chetan approves the next
-    session start (instruction template proven across PRs #126, #128, #130)
+PR #132 used `cbjescco01-15 + cbjesccq01-15` (Science chapter-wise) instead.
+Those 6 alternative source pools are now permanently SKIPPED — recorded in
+CURRENT_STATE.md so future sessions don't waste cycles re-evaluating them.
 
 ### Future task — Content + product deliberation (planning, not code)
 
@@ -191,11 +254,16 @@ all 25 SQP topic files passed their mini-tests cleanly.
 | syllabusGuard 2026-27 doctrine fix | ✅ COMPLETE | PR #124 (-26 banned strings, +18 Qs restored, formativeOnlyTopics added) |
 | P2 APQ Maths PQ1+PQ2 | ✅ COMPLETE | PR #126 (+76 Qs across 13 topic files; 88% competency) |
 | P2 APQ continuation (PQ_2022 + Science-PQ) | ✅ COMPLETE | PR #128 (+90 Qs; first Our Environment Qs; OR-doctrine validated) |
-| **P2 APQ Science-PQ2 (finale)** | ✅ **COMPLETE** | PR #130 (+49 Qs appended to 13 Science files; P2 APQ phase complete — 284 Qs across 5 papers) |
+| P2 APQ Science-PQ2 (finale) | ✅ COMPLETE | PR #130 (+49 Qs; P2 APQ phase complete — 284 Qs across 5 papers) |
+| **P3 Science chapter-wise** | ✅ **COMPLETE** | PR #132 (+552 Qs across 13 Science files; SCO-S-*/SCQ-S-* IDs; cbjescco + cbjesccq source) |
+| **K2H-8f PYQ engine filter** | ✅ **COMPLETE** | PR #133 (engine-layer hard filter + `isPYQQuestion` helper; test matrix 125 → 134) |
+| K2H-8f UI wiring follow-up | ⏳ NEXT (product) | Wire `pyqOnly` through `practiceQuestionBuilder.ts`; fix engine-to-UI field stripping; add `isPYQ?: boolean` to `CanonicalQuestion` |
+| **P4-M PYQ Maths** | ⏳ **NEXT (content, UNBLOCKED by #133)** | Fresh branch `content/p4-pyq-maths`. 16 QPs (30-x-x) + 16 MS on disk. `isPYQ: true`, `pyqYear` populated. ~400 Qs. |
+| **P4-S PYQ Science** | ⏳ **NEXT (content, parallel)** | Fresh branch `content/p4-pyq-science`. 15 QPs (31_x_x) + MS on disk. ~400 Qs. |
 | Pre-launch quick wins | ⏳ READY | strategyHint Hint button; "Show visual" fix; Formula sheet tab; API gateway fix |
+| Maths chapter-wise (cbjemaco) | ⏳ LOW priority | MCQ-only clean source; defer unless B/C/D/E coverage from PYQs proves insufficient |
+| AR density pass | ⏳ UNBLOCKED | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic |
 | Content + product deliberation | ⏳ PLANNING | Notes/formulae/proofs/tutor drawer decisions before launch |
-| AR density pass | ⏳ UNBLOCKED | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic (P2 APQ now complete) |
-| **P3** | ⏳ **NEXT (content track)** | Meridian worksheets + Maths QB on disk (~475 Qs). NEW BRANCH `content/p3-meridian` (fresh — no reuse). First step: pymupdf cid probe on Meridian PDFs. |
 | TopicHub seeded coverage backfill | ⏳ CONTENT | 11/25 topics still on sample-preview |
 | P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
 | P4b-S | ⏳ PENDING  | Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs) |
@@ -210,17 +278,24 @@ Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep. At 4,500
 authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
 100% routable. No OCR phase needed.
 
-Current authentic total: **1,932** (post-PR #130; +49 from Science-PQ2).
-Progress to retirement: 1,932 / 4,500 = **42.9%** (+1.1 pp from PR #128 state).
-Bank total (engine-confirmed): **4,729** questions loaded.
+Current authentic total: **2,484** (post-PR #132; +552 from P3 Science chapter-wise).
+Progress to retirement: 2,484 / 4,500 = **55.2%** (+12.3 pp from PR #130 state).
+Bank total (engine-confirmed): **5,281** questions loaded.
 
-## Engine fix required before P5
+## Engine fix — RESOLVED (PR #133)
 
-K2H-8f: `practiceSetGenerator.ts` does not bias pool toward `pyqYear`-tagged questions.
-PYQ filter returns 0 results when `pyqOnly===true`.
-Branch: `fix/pyq-engine-bias`
-Mode: Medium.
-Do alongside or before P5-M PYQ extraction.
+K2H-8f engine-layer fix landed in PR #133 (merge SHA c0f129d). Adds `pyqOnly`
+field to `PracticeSetConfig` and exported `isPYQQuestion()` helper; engine
+now applies a HARD pyqOnly filter (no silent soft-fallback). 435 `pyqYear`-
+tagged questions are now correctly returned by the engine.
+
+Three UI-side follow-ups remain (separate PRs — each independent):
+  a. Wire `pyqOnly` through `practiceQuestionBuilder.ts` (UI-engine bridge)
+  b. Fix engine-to-UI mapping that strips `pyqYear`/`isPYQ` fields
+  c. Add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
+
+P4-M / P4-S PYQ extraction is unblocked at the engine layer — content work
+can proceed without waiting for the UI follow-ups.
 
 ## Operating rules for all content sessions
 

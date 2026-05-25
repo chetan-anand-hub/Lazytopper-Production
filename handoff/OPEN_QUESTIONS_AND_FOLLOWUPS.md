@@ -1,3 +1,109 @@
+## 2026-05-25 — Post-PR #132 + #133 (P3 Science chapter-wise; K2H-8f PYQ engine fix)
+
+### RESOLVED — P3 Science chapter-wise extraction (PR #132)
+13 new `science/{topic}.chapterwise.ts` files + canonicalQuestionBank.ts
+registration. 552 questions (252 MCQ from cbjescco + 300 PYQ-style from
+cbjesccq). Sources: www.cbse.online / rava.org.in. All 13 retained Class 10
+Science topics covered; ch05/14/16 skipped per 2026-27 doctrine. ID prefixes
+SCO-S-*/SCQ-S-*. Authentic 1,932 → 2,484; spreads 163 → 176; bank 4,729 → 5,281.
+
+### RESOLVED — K2H-8f PYQ engine filter (PR #133)
+Engine-layer hard pyqOnly filter landed; `isPYQQuestion(q)` helper honours
+both explicit `isPYQ: true` and populated `pyqYear`. 435 pyqYear-tagged
+questions now correctly returned. Test matrix 125 → **134/134 PASS**.
+**P4 PYQ extraction unblocked at engine layer.**
+
+### LOCKED — MCQ competency doctrine (CBSE 2026-27)
+PR #132 locks this: MCQ defaults to `isCompetencyBased: true` because option
+discrimination requires concept application above pure recall (CBSE 2026-27
+doctrine). Pure-recall MCQs starting with Define/Name the/List the/Recall/
+Match the stay false. Use for all future MCQ extractions.
+
+### LOCKED — Permanent source decisions (recorded in CURRENT_STATE.md)
+P3 session probed and PERMANENTLY SKIPPED these sources (anti-fabrication
+or quality blockers). Future sessions should NOT re-evaluate:
+  - Meridian (no marking-scheme PDFs)
+  - NODIA (MS hosted externally on URL)
+  - cbjemacq (Sinhala glyph corruption confirmed by probe)
+  - Maths Basic 430-x-x (out-of-Standard scope)
+  - Chapterwise SOL Aakash (scanned, needs OCR — deferred phase)
+  - Old\ folder (superseded duplicates)
+
+### OPEN — K2H-8f UI wiring follow-ups (MEDIUM, 3 small PRs)
+PR #133 fixed the engine layer; three UI-side connections remain. Each
+independent — can ship separately or bundled.
+  a. Wire `pyqOnly` through `practiceQuestionBuilder.ts` (UI-engine bridge)
+  b. Fix engine-to-UI mapping that strips `pyqYear`/`isPYQ` fields
+  c. Add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
+Until these land, the engine filter works but the UI chip can't reach it
+cleanly. Not blocking P4 content extraction.
+
+### OPEN — P4-M PYQ Maths extraction (HIGH, content track A)
+~400 Qs; 16 QPs (30-x-x) + 16 MS files confirmed on disk. Fresh branch
+`content/p4-pyq-maths`. **isPYQ: true** on all (these ARE official board
+PYQs); `pyqYear: "2022"/"2023"/etc` + `pyqSet: "30/1/1"` etc populated.
+ID prefix `PYQ-M-{TOPIC}-{NNN}`. Apply locked doctrine: OR-pair extraction
+for B/C/D/E, REQUIRES-FIGURE tags, Section E one-row case-based, anti-
+fabrication. First step: pymupdf cid probe on 30-x-x PDFs (not yet tested).
+
+### OPEN — P4-S PYQ Science extraction (HIGH, content track B — parallel)
+~400 Qs; 15 QPs (31_x_x) + MS files confirmed on disk. Fresh branch
+`content/p4-pyq-science`. Same doctrine as P4-M. ID prefix `PYQ-S-{TOPIC}-
+{NNN}`. Can run in parallel with P4-M (different topic files, no overlap).
+
+### OPEN — Pre-launch quick wins (carry-over from PR #130 cycle)
+Still queued, unchanged:
+  1. strategyHint Hint button in PracticeQuestionCard (Small)
+  2. "Show visual" wiring fix in TopicHub right rail (~20 lines)
+  3. Formula sheet tab on TopicHub for 14 seeded topics (Medium)
+  4. API gateway fix — vercel.json /api/* rewrite + Railway deploy (High)
+
+### OPEN — Maths chapter-wise (LOW priority, future phase)
+`cbjemaco` series (MCQ-only, clean per earlier probe) available but would
+add mostly Section A density. Defer unless B/C/D/E coverage from P4 PYQs
+proves insufficient.
+
+### OPEN — Chemistry `$` arrow rendering in chapter-wise files (LOW, cleanup)
+PR #132 caveat: pymupdf renders `→` as `$` in cbjescco/cbjesccq source
+(e.g. `Cu(s) + 2AgNO3(aq) $ Cu(NO3)2(aq) + 2Ag(s)`). Content verbatim from
+PDF — anti-fabrication preserved. Optional future cleanup pass could
+substitute `$` → `→` where safe, but risks corrupting valid `$` uses.
+
+### OPEN — REQUIRES-FIGURE backlog (LOW, post-launch resolution)
+~135 cumulative questions tagged (PRs #126 + #128 + #130 + #132). Plan
+unchanged: Option B (placeholder images) at launch; Option A (SVG renders)
+post-launch. PR #132 added ~70 to the backlog from chapter-wise heuristic.
+
+### OPEN — AR (Assertion-Reasoning) density gap (MEDIUM, UNBLOCKED)
+P2 APQ + P3 Science chapter-wise complete; AR density pass unblocked.
+Target: 2-3 AR per topic for Maths + Science. Source: existing CBSE PDFs
+with AR coverage not yet extracted.
+
+### OPEN — Our Environment density (LOW, healthy now)
+48 Qs in bank: PR #128 seeded 4 + PR #130 added 4 + PR #132 added 40
+chapter-wise. Density now reasonable; no urgent extraction needed.
+
+### OPEN — TopicHub seeded coverage backfill (MEDIUM, content)
+11/25 TopicHub topics still on sample-preview. Pre-launch content work.
+
+### OPEN — Branch fix-up incident lesson (LOW, process)
+PR #132 session had a silent mid-session branch switch (P3 commit landed
+on wrong branch initially, recovered with `git branch -f`). Cause unclear
+(possibly VSCode auto-switch). Lesson: verify `git branch --show-current`
+before each commit when multiple branches are in flight.
+
+### OPEN — pyqSet format inconsistency (LOW, P5 cleanup)
+Unchanged. Some AR files use full CBSE set codes (e.g., "30/1/1"). P4 PYQ
+extraction should use the same convention; cleanup pass deferred to P5.
+
+### OPEN — .claude/ folder not in .gitignore (LOW)
+Unchanged. Untracked `.claude/` shows in every `git status`.
+
+### OPEN — Clerk pk_live production key (unknown status)
+Unchanged. No production Clerk instance configured.
+
+---
+
 ## 2026-05-25 — Post-PR #130 (P2 APQ Science-PQ2; P2 APQ COMPLETE) open items
 
 ### RESOLVED — P2 APQ Science-PQ2 extraction (PR #130)
