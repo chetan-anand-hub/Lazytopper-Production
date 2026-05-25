@@ -1,3 +1,84 @@
+## 2026-05-25 — Post-PR #128 (P2 APQ continuation) open items
+
+### RESOLVED — P2 APQ continuation (Maths PQ_2022 + Science-PQ) (PR #128)
+13 Maths topic files updated with PQ_2022 (+44 Qs). 13 new Science topic files
+created from Science-PQ (+46 Qs). All 13 retained Science topicKeys now
+have APQ content. Authentic count 1,793 → 1,883.
+
+### RESOLVED — Our Environment had 0 questions in question bank (PR #128)
+Carry-over since PR #122 noted Our Environment was registered in topics.ts
+but had no bank content. PR #128 added 4 Our Environment questions (3 Section
+A + 1 Section B) from Science-PQ. Topic is now seeded; future passes can add
+more density.
+
+### CONFIRMED — B/C/D/E density doctrine works (PR #128)
+PR #126 (PQ1+PQ2) had B=10, C=12, D=8, E=6 = 36 non-A questions. PR #128
+applied the BOTH-OR-variants rule and got B=15, C=15, D=10, E=6 = 46 non-A
+questions for similar paper volume. ~28% improvement. Doctrine working —
+apply to all future extractions.
+
+### OPEN — Science-PQ2 deferred (HIGH, next session)
+P2 APQ finale paper. ~39 Qs + OR variants ≈ 45-50 Qs. Will APPEND to the 13
+existing Science topic files (per "one file per topic, combined across papers"
+spec). Same branch `content/additional-pq-sqp-2024`, rebase first onto
+028d51d3... Text pre-extracted to `diff/_apq_text/`. Agent instruction file
+`LazyTopper_Agent_P2_APQ_SciencePQ2_Instruction.md` ready; SHA placeholder
+needs updating to current base before upload.
+
+### OPEN — Content + product deliberation (MEDIUM, pre-launch planning)
+New deliberation opened in PR #128 cycle — these are pre-launch product
+decisions, not content extractions:
+  - Notes per chapter (beyond exam tips) — no current surface
+  - Formula sheets per topic — data exists in archetypes, no render surface
+  - Proof library — proofs exist in P0/P0.5 packs, no dedicated surface
+  - Tutor drawer audit — MentorSolveDrawer / ConceptTeachDrawer /
+    TutorDrawerV2 don't receive student attempt data; decide keep / repurpose
+    / remove before launch
+Schedule planning session before next product PR.
+
+### OPEN — REQUIRES-FIGURE backlog (LOW, post-launch resolution)
+~52 cumulative APQ questions (PR #126 + #128) tagged REQUIRES-FIGURE in
+strategyHint. Plan: Option B (placeholder images) at launch; Option A (SVG
+renders) post-launch.
+
+### OPEN — Our Environment density (LOW, future extraction)
+4 Qs is a starting density. Future extractions should add more. Sources
+available: NCERT Ch 13 (renamed from Ch 15), Exemplar, future PYQs.
+
+### OPEN — AR (Assertion-Reasoning) density gap (MEDIUM, post-P2-APQ)
+Unchanged. AR coverage still thin across both Maths and Science. Dedicated
+`.assertionReasoning.ts` extraction pass scheduled after P2 APQ completes
+(Science-PQ2). Target: 2-3 AR per topic.
+
+### OPEN — TopicHub SEEDED 13/25 only (MEDIUM, content authoring)
+Unchanged. 12 topicKeys with bank content do not yet have curated TopicHub
+pages. Pre-launch decision required.
+
+### OPEN — strategyHint not rendered on any surface (LOW, quick win)
+Unchanged. Many questions have valuable strategyHints (especially REQUIRES-
+FIGURE descriptions and CBSE step-marking guidance) but no UI surface renders
+them. Quick UI win pre-launch.
+
+### OPEN — K2H-8f PYQ engine filter (MEDIUM, pre-condition for P5)
+Unchanged. `practiceSetGenerator.ts` does not bias pool toward `pyqYear`-tagged
+questions; PYQ filter returns 0 results when `pyqOnly===true`. Must fix
+before P5 PYQ extraction.
+
+### OPEN — pyqSet format inconsistency (LOW, P5 cleanup)
+Unchanged. Some AR files use full CBSE set codes (e.g., "30/1/1") rather
+than short form. Normalise during P5 cleanup pass.
+
+### OPEN — .claude/ folder not in .gitignore (LOW)
+Unchanged. Untracked .claude/ shows in every `git status`.
+
+### OPEN — Clerk pk_live production key (unknown status)
+Unchanged. No production Clerk instance configured.
+
+### OPEN — API gateway / vercel rewrite for /api/* (no branch in progress)
+Unchanged. AI features return 404 in production.
+
+---
+
 ## 2026-05-25 — Post-PR #126 (P2 APQ Maths PQ1+PQ2) open items
 
 ### RESOLVED — P2 APQ Maths PQ1+PQ2 extraction (PR #126)
