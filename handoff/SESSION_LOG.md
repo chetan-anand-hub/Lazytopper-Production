@@ -1,5 +1,103 @@
 ---
 
+## 2026-05-25 — P4-S PYQ Science (PR #137, +111 Qs verbatim CBSE 2022-23 board); **P4 phase complete**
+
+Timestamp: 2026-05-25 (Asia/Kolkata)
+
+### Starting state
+
+- Base: `base/approved-thru-437` at `f82e8a6` (post-PR #135+#136 handoff)
+- Fresh branch `content/p4-pyq-science` created from verified base SHA
+- Pipeline scripts adapted from P4-M (p4_extract.py + p4_generate_ts.py) with
+  Science-specific changes
+
+### Work completed — PR #137 (P4-S PYQ Science, 111 Qs)
+
+Branch: `content/p4-pyq-science` (DELETED post-merge per fresh-branch doctrine)
+Commit: fd9711c (14 files, +985 insertions)
+Merge SHA on base: f25af07803230b203a298b6e12e5e74989bf1411
+
+Files: 13 new `science/{topic}.pyq.ts` + 1 modified `canonicalQuestionBank.ts`
+(+13 imports + 13 spreads under "P4 Science PYQ" banner).
+
+Sources: 9 text-extractable QPs from 2022-23 board exam (31/2/1-3, 31/4/1-3,
+31/5/1-3) + 4 matching MS files (X_086_31_2/4/5_MS_UNSIGNED_ALL SETS — each
+covers all 3 sets; parser splits by `Paper Code: 31/x/y` marker). All 13 PDFs
+clean (0 cid / 0 mojibake / 0 sinhala on probe).
+
+Extraction: 111 verbatim CBSE board PYQs across all 13 retained Science
+topicKeys. Section breakdown A=37 / B=23 / C=29 / D=15 / E=7. Competency 85.8%
+avg (range 56-100%, all ≥40%). Bank 5,415 → 5,526; authentic 2,587 → 2,698
+(60.0% to 4,500-Q retirement).
+
+### Pipeline adaptations locked in this PR (carry forward to P4 continuation)
+
+1. **Science section ranges**: A=Q1-20 (20 MCQs, no AR), B=21-26, C=27-33,
+   D=34-36, E=37-39. (Different from Maths which has A=Q1-18 MCQ + AR Q19-20.)
+2. **MS "ALL SETS" bundle splitting**: Each Science MS file contains 3 paper
+   variants; parser splits by `Paper Code: 31/x/y` marker so each QP gets its
+   correct set's solutions.
+3. **MCQ answer fallback**: Science MS often gives only option letter `(c)`
+   without value text (just option letter + marks digit). Generator falls
+   back to QP options array to populate full answer text. Avoids storing
+   "(c) 1" (marks digit) as the answer.
+4. **Science page footer stripping**: `H N H` page footer pattern leaks into
+   extracted options and body; stripped in `clean_option` +
+   `clean_question_text`.
+5. **Deleted-topic filter** broadened for Science: Periodic Classification
+   (Ch5), Evolution/Darwin/fossils (Ch9 portion), Sources of Energy (Ch14),
+   Mgmt of Natural Resources (Ch16), Motor/EMI/Generator (formative-only).
+
+### LOCKED — P4 phase complete (PR #135 + PR #137)
+
+Combined: **214 verbatim CBSE 2022-23 board PYQs** across all 26 retained
+Class 10 topicKeys (13 Maths + 13 Science). All 214 engine-recognised as PYQ
+via the `pyqYear` path (PR #133 helper). `isPYQ` field deliberately omitted
+until K2H-8f-c follow-up adds it to the `CanonicalQuestion` type.
+
+### NEW SOURCE CONFIRMED — `final MS` folder unlocks P4 continuation
+
+Path: `C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS`
+contains official CBSE marking schemes for **2022-2026 (all years)**. This
+unblocks P4 continuation passes that were previously stalled on missing MS:
+  - 2023-24: 13 Maths QPs + 7 Science QPs → ~230 Qs potential
+  - 2024-25: 9 Maths QPs + 9 Science QPs → ~200 Qs potential
+  - 2025-26: 23 Maths QPs + 13 Science QPs → ~300 Qs potential
+
+After typical filter rate (~30-40% loss to scanned / Hindi-only / truncated /
+broken-options): **300-400 more verbatim board PYQs** estimated possible.
+Probe MS folder first to verify naming convention before extraction.
+
+### Validations (all PASS)
+
+  - `npx tsc -p tsconfig.app.json --noEmit` — exit 0
+  - syllabusGuard — 0 violations across 256 question files
+  - validateQuestionBanks — mark/section consistent, 0 dupes, 0 banned refs
+  - Checkpoint B per file — **13/13 PASS** (0 mojibake / 0 cid / 0 sinhala /
+    pyqYear+pyqSet populated on all)
+  - PYQ-S-* duplicate IDs across 111 — 0
+  - Engine reachability — **111/111 P4-S questions routed AND
+    isPYQQuestion()-recognised** via pyqYear path
+  - Full test matrix (5 files, 19 suites) — **134/134 PASS**
+
+### Push
+
+Push succeeded on first attempt this time (no GitHub 5xx hiccup like PR #135).
+
+### Next session priorities
+
+  1. **K2H-8f UI wire-up** (Low-Medium mode). `practiceQuestionBuilder.ts` —
+     wire pyqOnly chip state through to engine `generatePracticeSet`. Fold in
+     engine-to-UI field-stripping fix + K2H-8f-c (add isPYQ to type) if scope
+     allows.
+  2. **P4 continuation** — 2023-24 + 2024-25 + 2025-26 PYQs using newly-found
+     `final MS` folder. Probe folder FIRST to verify MS file naming and QP
+     pairing before extraction. Each year on its own fresh branch.
+  3. **Pre-launch quick wins** carried over from prior cycle (strategyHint
+     button, "Show visual" fix, formula sheet tab, API gateway).
+
+---
+
 ## 2026-05-25 — P4-M PYQ Maths (PR #135, +103 Qs verbatim CBSE 2022-23 board)
 
 Timestamp: 2026-05-25 (Asia/Kolkata)

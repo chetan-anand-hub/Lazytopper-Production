@@ -1,6 +1,145 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #135 — P4-M PYQ Maths 103 Qs)
-Live base SHA: 2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
+Last updated: 2026-05-25 (post-PR #137 — P4-S PYQ Science 111 Qs; **P4 phase complete: 214 board PYQs**)
+Live base SHA: f25af07803230b203a298b6e12e5e74989bf1411
+
+## Post-PR #137 — P4-S PYQ Science (111 verbatim CBSE 2022-23 board Qs across 13 Science topic files) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: f25af07803230b203a298b6e12e5e74989bf1411
+
+PR #137 | content: P4-S PYQ Science — 111 Qs across 13 topic files (CBSE 2022-23)
+Branch: content/p4-pyq-science (DELETED after merge — per fresh-branch doctrine)
+Commits: 1 (fd9711c)
+
+Files changed: 14 (+985 insertions)
+  - 13 NEW science/*.pyq.ts files (one per retained Class 10 Science topicKey)
+  - lazytopper/src/data/canonicalQuestionBank.ts — +13 imports + 13 spreads
+    under "P4 Science PYQ" banner; spreads 189 → 202
+
+Source PDFs (pymupdf 1.27.2.3, all 9 QPs + 4 MS files 0 cid / 0 mojibake / 0 sinhala):
+  9 text-extractable QPs (2022-23 board exam):
+    31/2/1, 31/2/2, 31/2/3   — pyqSet "1", "2", "3"
+    31/4/1, 31/4/2, 31/4/3   — pyqSet "1", "2", "3"
+    31/5/1, 31/5/2, 31/5/3   — pyqSet "1", "2", "3"
+  4 "ALL SETS" MS files (split by Paper Code: 31/x/y marker per set):
+    X_086_31_2_MS_UNSIGNED_ALL SETS.pdf
+    X_086_31_4_MS_UNSIGNED_ALL SETS.pdf
+    X_086_31_5_MS_UNSIGNED_ALL SETS.pdf
+  Folder: cbse-papers\gdrive\...\CBSE Previous papers\2022-2023\SCIENCE\
+
+Section breakdown: A=37 B=23 C=29 D=15 E=7 (Science section ranges differ
+  from Maths: A=Q1-20 not Q1-18; B=Q21-26; C=Q27-33; D=Q34-36; E=Q37-39)
+Competency: 85.8% avg (range 56.2-100% per file, all ≥40% floor)
+ID prefix: PYQ-S-{TOPIC}-{NNN}; topic short codes CHEM, ACID, METAL, CARB,
+  LIFE, CTRL, REPR, HERED, LIGHT, EYE, ELEC, MAG, ENV
+
+Pipeline adaptations from P4-M (locked in this PR):
+  1. **Section range table updated** — Science has 39 Qs (vs Maths 38),
+     Section A spans Q1-20 (20 MCQs, no AR); B 21-26; C 27-33; D 34-36; E 37-39.
+  2. **MS "ALL SETS" bundle splitting** — Science MS files combine 3 paper
+     variants in one file; parser splits by `Paper Code: 31/x/y` marker so
+     each QP gets the correct set's solutions.
+  3. **MCQ answer fallback** — Science MS often gives only `(c)` (option
+     letter) without value text; generator now looks up the option text from
+     the QP's options array when MS value is empty. Avoids storing "(c) 1"
+     (marks-column digit) as the answer.
+  4. **Science page footer stripping** — `H N H` pattern leaks into options
+     and body; stripped in clean_option + clean_question_text.
+  5. **Deleted-topic filter for Science** — Periodic Classification (Ch5),
+     Evolution/Darwin/fossils (Ch9 portion), Sources of Energy (Ch14), Mgmt
+     of Natural Resources (Ch16), Motor/EMI/Generator (formative-only).
+
+Same doctrine as P4-M (carried forward unchanged):
+  - **isPYQ field OMITTED** — `predictionTypes.ts` forbidden per CLAUDE.md §4
+  - **pyqYear: "2023"** populated on all 111 → engine `isPYQQuestion()`
+    recognises 111/111 via the populated-pyqYear path (PR #133 helper)
+  - **pyqSet: "1"|"2"|"3"** from set code (never raw "31/x/y")
+  - **Section E case sets** stored as ONE row, marks=4
+  - **Anti-fabrication preserved** — verbatim PDF text, ftfy.fix_text applied
+  - **MCQ option quality filter** — 3 MCQs dropped due to broken option sets
+
+Deferred — known gaps documented for follow-up:
+  - **6 scanned QPs** — 31/1/1, 31/1/2, 31/1/3, 31/6/1, 31/6/2, 31/6/3 are
+    scanned image-only PDFs (0 chars extractable). Require OCR.
+  - **~60 Hindi-only bodies** — pymupdf returned only Devanagari-as-Latin1
+    on bilingual layout for these questions; skipped per anti-fabrication.
+  - **~50 truncated bodies** — figure/symbol-heavy questions where pymupdf
+    cut off mid-sentence; skipped per anti-fabrication.
+  - **3 broken-option MCQs** — per-question manual repair needed.
+
+Tools used (REUSABLE for P4 continuation passes — kept in `diff\`):
+  - `p4s_probe.py` — probes Science QPs + MS files for cid/sinhala/scanned
+  - `p4s_extract.py` — QP+MS segmentation + Science topic classifier + MS
+    paper-code splitting
+  - `p4s_generate_ts.py` — JSON → 13 science/*.pyq.ts; MCQ option-from-QP
+    fallback
+  - `p4s_checkpoint_b.py` — Checkpoint B with PYQ-S-* prefix validation
+  - `p4s_pyq_reachability.mjs` — Engine `isPYQQuestion()` verification
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations across 256 question files)
+  2. validateQuestionBanks — PASS (mark/section consistent; 0 dupes/banned-refs)
+  3. tsc -p tsconfig.app.json --noEmit — exit 0
+  4. Checkpoint B per file — 13/13 PASS (0 mojibake, 0 cid, 0 sinhala, all
+     pyqYear/pyqSet populated)
+  5. New PYQ-S-* duplicate IDs across 111 — 0
+  6. Engine reachability — 111/111 routed AND isPYQQuestion()-recognised via
+     pyqYear path
+  Full test matrix (5 files, 19 suites) — **134/134 PASS**
+
+Bank state:
+  Authentic questions: 2,587 → **2,698** (+111)
+  Spreads: 189 → **202** (+13)
+  Bank total (engine-confirmed): 5,415 → **5,526**
+  Progress to 4,500-Q retirement: 2,698 / 4,500 = **60.0%** (+2.5 pp from PR #135)
+
+## P4 PYQ phase — COMPLETE
+
+P4-M (PR #135, 103 Maths PYQs) + P4-S (PR #137, 111 Science PYQs) = **214
+verbatim CBSE 2022-23 board PYQs** across all 26 retained Class 10 topicKeys.
+All 214 engine-recognised as PYQ via the `pyqYear` path (PR #133 helper).
+
+Combined P4 totals:
+  - Files added: 26 new `*.pyq.ts` (13 maths + 13 science)
+  - Questions: 214 verbatim board PYQs
+  - Authentic progress: 2,484 → **2,698** = **60.0%** of 4,500 retirement target
+  - Spreads: 176 → **202** (+26)
+  - Bank: 5,281 → **5,526**
+  - Each PR validated independently; combined test matrix: 134/134 PASS
+
+PYQ source decisions LOCKED at P4 phase end (2022-23 only):
+  USED (2022-23):
+    - 9 Maths QPs (30/2/x, 30/4/x, 30/5/x) → 103 Maths PYQs in PR #135
+    - 9 Science QPs (31/2/x, 31/4/x, 31/5/x) → 111 Science PYQs in PR #137
+  SKIPPED — REQUIRE OCR (scanned image-only PDFs):
+    - 6 Maths QPs: 30/1/x, 30/6/x, 30-B-5
+    - 6 Science QPs: 31/1/x, 31/6/x
+  PIPELINE LIMITATION — bilingual-layout text extraction loss without OCR:
+    - ~48 Maths Hindi-only bodies (P4-M)
+    - ~60 Science Hindi-only bodies (P4-S)
+    - ~41 Maths + ~50 Science truncated math/figure bodies
+
+## NEW PYQ source confirmed — UNLOCKS P4 CONTINUATION
+
+Path: `C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS`
+Contains: official CBSE marking-scheme files for **2022-2026 (all years)**.
+This unlocks P4 continuation passes for years previously blocked on missing MS:
+  - **2023-24 Maths** (13 QPs) + **Science** (7 QPs) — ~230 Qs potential
+  - **2024-25 Maths** (9 QPs) + **Science** (9 QPs) — ~200 Qs potential
+  - **2025-26 Maths** (23 QPs) + **Science** (13 QPs) — ~300 Qs potential
+
+Pipeline scripts (`p4s_extract.py`, `p4s_generate_ts.py` and their P4-M
+equivalents) are reusable with:
+  - Updated QP file list (per year)
+  - Updated MS file mappings (**probe `final MS` folder first** to verify
+    pairing — may have different naming convention than 2022-23 series)
+  - Same Maths/Science topic classifiers (already tuned)
+  - Same anti-fabrication + broken-MCQ filter doctrine
+
+Estimated continuation yield (after typical Hindi-only / truncated /
+broken-option filter rate of ~30-40%): **~150-200 Maths + ~150-200 Science =
+300-400 more verbatim board PYQs possible** if all listed papers are
+text-extractable.
 
 ## Post-PR #135 — P4-M PYQ Maths (103 verbatim CBSE 2022-23 board Qs across 13 Maths topic files) — MERGED
 

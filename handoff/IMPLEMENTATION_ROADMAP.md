@@ -5,19 +5,28 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
+f25af07803230b203a298b6e12e5e74989bf1411
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
 in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126,
-#128, #130, #132, #133, #135). The **P2 APQ phase is complete** (5 papers, 284 Qs);
-**P3 Science chapter-wise phase is complete** (PR #132, 552 Qs); **K2H-8f PYQ engine
-filter** landed in PR #133; **P4-M PYQ Maths phase is complete** (PR #135, 103 verbatim
-CBSE 2022-23 board Qs). Next content phase: **P4-S PYQ Science** (fresh branch, ~150-200 Qs
-expected). Other parallel tracks open: K2H-8f UI wiring follow-ups (3 small product PRs);
-pre-launch quick wins (4 product PRs from prior cycle); 2023-24 Maths MS download then
-P4-M continuation.
+#128, #130, #132, #133, #135, #137). **P4 PYQ phase is now COMPLETE**: PR #135 P4-M Maths
+(103 Qs) + PR #137 P4-S Science (111 Qs) = **214 verbatim CBSE 2022-23 board PYQs** across
+all 26 retained Class 10 topicKeys. All 214 engine-recognised as PYQ via `pyqYear` path
+(PR #133 helper). Authentic-question total now 2,698 / 4,500 = **60.0%** of retirement
+threshold.
+
+**NEW PYQ SOURCE CONFIRMED**: `cbse-papers\gdrive\PYQs\MS\final MS` contains MS files for
+2022-2026 (all years). Unblocks P4 continuation for 2023-24, 2024-25, 2025-26 (~300-400
+more board PYQs potentially extractable).
+
+Next parallel tracks open:
+  1. **K2H-8f UI wire-up** — Low-Medium (`practiceQuestionBuilder.ts` pyqOnly wiring)
+  2. **P4 continuation** — High (2023-24 + 2024-25 + 2025-26 PYQ extractions, fresh
+     branches per year, pipeline scripts already built and tuned)
+  3. **K2H-8f-c** — Low (add `isPYQ?: boolean` to `CanonicalQuestion` + backfill on 214)
+  4. **Pre-launch product quick wins** (4 product PRs from prior cycle)
 
 Current implementation branch:
 ```
@@ -27,6 +36,15 @@ None. Create the next implementation branch fresh from the live verified base af
 ## Content + Tooling track — recent stages
 
 Latest in the content/tooling track:
+
+- PR #137 (2026-05-25) — **P4-S PYQ Science**: 111 verbatim CBSE 2022-23 board questions
+  across 13 science/*.pyq.ts files. ID prefix `PYQ-S-{TOPIC}-{NNN}`. Section A=37 / B=23 /
+  C=29 / D=15 / E=7; competency 85.8% avg. Sources: 9 text-extractable QPs (31/2/x,
+  31/4/x, 31/5/x) + 4 matching MS files ("ALL SETS" bundles split by Paper Code marker).
+  Deferred: 6 scanned QPs (31/1/x, 31/6/x); ~60 Hindi-only bodies; ~50 truncated bodies;
+  3 broken-option MCQs. Doctrine continued from P4-M (PR #135): `pyqYear: "2023"`
+  populated; `isPYQ` field omitted until K2H-8f-c lands. Spreads 189 → 202; authentic
+  2,587 → 2,698; bank 5,415 → 5,526. **P4 PHASE COMPLETE — 214 board PYQs total.**
 
 - PR #135 (2026-05-25) — **P4-M PYQ Maths**: 103 verbatim CBSE 2022-23 board questions
   across 13 maths/*.pyq.ts files. ID prefix `PYQ-M-{TOPIC}-{NNN}`. Section A=48 / B=15 /
