@@ -1,6 +1,102 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #132 + #133 — P3 Science chapterwise + K2H-8f PYQ engine fix)
-Live base SHA: c0f129dcdbe8722c8b74792df8cab358981d8c3e
+Last updated: 2026-05-25 (post-PR #135 — P4-M PYQ Maths 103 Qs)
+Live base SHA: 2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
+
+## Post-PR #135 — P4-M PYQ Maths (103 verbatim CBSE 2022-23 board Qs across 13 Maths topic files) — MERGED
+
+Timestamp: 2026-05-25
+Merge SHA on base: 2b231e172b1e734d92abbf1c69ca7fcfbdb0af9d
+
+PR #135 | content: P4-M PYQ Maths — 103 Qs across 13 topic files (CBSE 2022-23)
+Branch: content/p4-pyq-maths (DELETED after merge — per fresh-branch doctrine)
+Commits: 1 (449677e)
+
+Files changed: 14 (+939 insertions)
+  - 13 NEW maths/*.pyq.ts files (one per retained Class 10 Maths topicKey)
+  - lazytopper/src/data/canonicalQuestionBank.ts — +13 imports + 13 spreads under
+    "P4 Maths PYQ" banner; spreads 176 → 189
+
+Source PDFs (pymupdf 1.27.2.3, all 9 QPs + 9 MS files 0 cid / 0 mojibake):
+  9 text-extractable QPs (2022-23 board exam):
+    30/2/1, 30/2/2, 30/2/3   — pyqSet "1", "2", "3"
+    30/4/1, 30/4/2, 30/4/3   — pyqSet "1", "2", "3"
+    30/5/1, 30/5/2, 30/5/3   — pyqSet "1", "2", "3"
+  9 matched MS 041_30-x-x Mathematics 2022-23 marking schemes
+  Folder: cbse-papers\gdrive\...\CBSE Previous papers\2022-2023\MATHEMATICS_STANDARD\
+
+Section breakdown: A=48 B=15 C=22 D=15 E=3
+Competency: 103/103 = 100% (well above 40% floor)
+ID prefix: PYQ-M-{TOPIC}-{NNN}; topic short codes per Section 6 of P4-M instruction
+
+Doctrine notes (locked in this PR):
+  1. **isPYQ field intentionally OMITTED** — CanonicalQuestion type in
+     `lazytopper/src/data/predictionTypes.ts` does not include `isPYQ?: boolean`
+     yet (forbidden file per CLAUDE.md §4). PR #133's `isPYQQuestion(q)` helper
+     recognises questions via populated `pyqYear` path. All 103 new questions
+     populate `pyqYear: "2023"` + `pyqSet: "1"|"2"|"3"` → engine recognises 103/103
+     as PYQ (verified by reachability run). Follow-up K2H-8f-c (add isPYQ to type)
+     remains queued.
+  2. **Anti-fabrication preserved verbatim** — questionText + solutionSteps are
+     exact PDF text (with ftfy.fix_text applied); zero paraphrasing. Math symbols
+     that pymupdf failed to render (subscripts/superscripts/some fractions) are
+     left as the rendered text (e.g. "a_n" extracted as "an", "x²" sometimes as "x2").
+     These rendering quirks are documented; future cleanup pass possible.
+  3. **MCQ option quality filter** — 18 MCQs dropped because pymupdf's option
+     extraction produced duplicates (lost minus signs) or AR-bleed. Dropped
+     entirely rather than fabricated.
+
+Deferred — known gaps documented for follow-up:
+  - **6 scanned QPs** — 30/1/1, 30/1/2, 30/1/3, 30/6/1, 30/6/2, 30/6/3 are scanned
+    image-only PDFs (pymupdf `get_text()` returned 0 chars; 7-17 images per page).
+    Plus 30-B-5 (the VI candidates paper) has a different layout and was skipped.
+    These 7 papers require **OCR** to recover question text — out of scope this PR.
+  - **48 Hindi-only question bodies** — bilingual QP layout sometimes loses the
+    English version entirely (pymupdf returns only the Devanagari-as-Latin1
+    garbled Hindi). Per anti-fabrication doctrine, these were skipped. Recovery
+    would require OCR or an alternative PDF tool (pdf2image + tesseract / Adobe
+    extract API).
+  - **41 questions with truncated body** — math-symbol-heavy questions where
+    pymupdf truncated mid-sentence (e.g. "If the pair of equations ... then t").
+    Skipped per anti-fabrication doctrine.
+  - **18 broken-option MCQs** — needs per-question manual repair (mostly options
+    like {"-57","-57","-64","-64"} where minus signs were lost on negative numbers
+    making 4 distinct options collapse to 2 duplicates).
+
+Tools used (kept in `C:\Users\Chetan\OneDrive\Desktop\diff\` — REUSABLE FOR P4-S):
+  - `p4_probe.py` — probes 32 PDFs for cid/mojibake/scanned status
+  - `p4_extract.py` — QP + MS segmentation + topic classifier (KEYWORD-BASED;
+    Maths-specific patterns — swap for Science before reusing)
+  - `p4_generate_ts.py` — JSON → 13 TS files; broken-MCQ filter; dedup
+  - `p4_checkpoint_b.py` — Section 7 Checkpoint B per file
+  - `p4_pyq_reachability.mjs` — verifies engine isPYQQuestion() recognises new IDs
+
+Validations: ALL PASS
+  1. syllabusGuard — PASS (0 violations)
+  2. validateQuestionBanks — PASS (243 files; 0 dupes; mark/section consistent)
+  3. tsc -p tsconfig.app.json --noEmit — exit 0
+  4. Checkpoint B per file — 13/13 PASS (0 mojibake, 0 cid, all pyqYear/pyqSet set)
+  5. New PYQ-M-* duplicate IDs across 103 — 0
+  6. Engine reachability — 103/103 routed AND isPYQQuestion()-recognised
+  Full test matrix (5 files, 19 suites) — **134/134 PASS**
+
+Bank state:
+  Authentic questions: 2,484 → **2,587** (+103)
+  Spreads: 176 → **189** (+13)
+  Bank total (engine-confirmed): 5,281 → **5,415**
+  Progress to 4,500-Q retirement: 2,587 / 4,500 = **57.5%** (+2.3 pp from #134)
+
+PYQ source decisions — PERMANENTLY LOCKED (do not re-evaluate next session):
+  USED:
+    - 2022-23 Maths Standard (041): 9/16 QPs extracted. 30/2/x, 30/4/x, 30/5/x
+      with their MS 041_30-x-x marking schemes. 103 Qs in PR #135.
+  SKIPPED — REQUIRE OCR (not feasible without alt tooling):
+    - 2022-23 Maths 30/1/x, 30/6/x, 30-B-5 — scanned image-only PDFs (0 chars)
+    - 2024-25, 2025-26 Maths PYQs (if present on disk) — scanned
+    - 48 individual questions from extracted papers — Hindi-only after extraction
+  DEFERRED — MS download needed:
+    - 2023-24 Maths PYQs — QP PDFs exist locally (24 math 1/2/3.pdf series)
+      but NO matching MS files on disk. MS likely available at cbse.gov.in;
+      requires manual download before extraction can proceed.
 
 ## Post-PR #133 — K2H-8f PYQ filter fix (engine-layer hard filter + isPYQQuestion helper) — MERGED
 
