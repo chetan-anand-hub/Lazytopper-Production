@@ -1,386 +1,85 @@
 # LazyTopper — Next Action
-
-Last updated: 2026-05-25 (post-PR #137 — P4-S Science 111 Qs; **P4 phase complete: 214 board PYQs**)
-Live base SHA: f25af07803230b203a298b6e12e5e74989bf1411
-
-## Immediate next action — K2H-8f UI wire-up (Mode: Low-Medium)
-
-P4 PYQ content phase is now **complete** (PRs #135 + #137 = 214 verbatim board
-PYQs). The engine recognises 214/214 as PYQ via the `pyqYear` path. The next
-gating step is the UI side: the K2H-8c `pyqOnly` chip is rendered but does not
-yet flow through to the engine's pyqOnly filter.
-
-Branch (fresh): `fix/k2h-8f-ui-wire`
-File: `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
-
-Add `pyqOnly?: boolean` to the builder's argument type and pass it through to
-the engine's `generatePracticeSet({ ..., pyqOnly })`. Engine accepts it since
-PR #133. Small scoped change; one TS file + maybe a follow-up in the
-PracticeChips component if the chip state isn't already wired.
-
-Optional but recommended to fold in:
-  - Engine-to-UI mapping fix (currently strips `pyqYear`/`isPYQ` fields)
-  - K2H-8f-c: add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
-    (one-line PR, unlocks setting `isPYQ: true` on all 214 P4 files via backfill)
-
-## Next active task — P4 PYQ continuation (Mode: HIGH, ~300-400 Qs across multiple years)
-
-**NEW SOURCE CONFIRMED:** Path
-`C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS`
-contains official CBSE marking schemes for 2022-2026 (all years). This
-unblocks P4 continuation for years previously missing MS.
-
-Probe step (REQUIRED FIRST):
-```powershell
-Get-ChildItem 'C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS' -Recurse -Filter '*.pdf' | Group-Object -Property Directory | Select-Object Name, Count
-```
-Confirm MS file naming convention and pair with QP files on disk before
-starting extraction. May differ from 2022-23 series naming.
-
-Year-by-year extraction plan (each its own fresh branch):
-  - **2023-24** — branch `content/p4-pyq-maths-2024` + `content/p4-pyq-science-2024`
-    QPs: 13 Maths + 7 Science → ~230 Qs estimated
-    pyqYear: "2024", pyqSet: derived from set code
-  - **2024-25** — branch `content/p4-pyq-maths-2025` + `content/p4-pyq-science-2025`
-    QPs: 9 Maths + 9 Science → ~200 Qs estimated
-    pyqYear: "2025", pyqSet: derived from set code
-  - **2025-26** — branch `content/p4-pyq-maths-2026` + `content/p4-pyq-science-2026`
-    QPs: 23 Maths + 13 Science → ~300 Qs estimated
-    pyqYear: "2026", pyqSet: derived from set code
-
-Pipeline scripts (REUSABLE from P4-M + P4-S, kept in `diff\`):
-  - `p4_extract.py` (Maths) / `p4s_extract.py` (Science) — swap QP+MS file
-    lists; topic classifiers already tuned
-  - `p4_generate_ts.py` (Maths) / `p4s_generate_ts.py` (Science) — change
-    pyqYear and OUT_DIR if extending into different files
-  - `p4_checkpoint_b.py` / `p4s_checkpoint_b.py` — update pyqYear assertion
-    to match year being extracted
-  - `p4_pyq_reachability.mjs` / `p4s_pyq_reachability.mjs` — adjust ID prefix
-    filter if extracting into separate `*.pyq2024.ts` files vs appending
-
-Conservative estimate after typical filter rates (~30-40% loss to scanned /
-Hindi-only / truncated / broken-options): **300-400 more verbatim board PYQs**.
-Combined with P4 phase, total PYQ count could reach ~500-600.
-
-### Follow-up task — K2H-8f-c add `isPYQ?: boolean` to CanonicalQuestion (Mode: Low)
-
-Branch (fresh): `fix/canonical-question-isPYQ-field`
-File: `lazytopper/src/data/predictionTypes.ts` (currently forbidden per
-CLAUDE.md §4; this task explicitly scopes it IN)
-
-Add `isPYQ?: boolean;` line to `CanonicalQuestion` interface. Then run a
-backfill script across all 26 P4 files (13 maths + 13 science) to set
-`isPYQ: true` on all 214 questions. Engine isPYQQuestion() will then recognise
-PYQs via both isPYQ field AND pyqYear path (redundant but explicit).
-
-### Follow-up task — Download 2023-24 Maths MS from cbse.gov.in (Mode: Low)
-
-SUPERSEDED by new `final MS` folder confirmation — all years' MS are now on
-disk. This task collapses into the P4 continuation 2023-24 extraction above.
-
-### ✅ Completed in PR #137 — P4-S PYQ Science (111 Qs)
-
-Done in PR #137 (merge SHA f25af07):
-- 13 new `science/{topic}.pyq.ts` files (one per retained Class 10 Science topic)
-- 111 questions extracted from 9 text-extractable QPs (31/2/x, 31/4/x, 31/5/x)
-  paired with MS X_086_31_x_MS marking schemes (each MS file is "ALL SETS"
-  bundle, split by Paper Code: 31/x/y marker)
-- Section breakdown: A=37 B=23 C=29 D=15 E=7
-- Competency: 85.8% avg (range 56.2-100%; all ≥40%)
-- ID prefix: PYQ-S-{TOPIC}-{NNN}
-- Authentic: 2,587 → 2,698; spreads 189 → 202; bank 5,415 → 5,526
-- pyqYear: "2023" + pyqSet: "1"/"2"/"3" on all 111 → engine recognises 111/111
-- Deferred: 6 scanned QPs (31/1/x, 31/6/x) + ~60 Hindi-only bodies + ~50
-  truncated bodies + 3 broken-option MCQs (see CURRENT_STATE.md for details)
-
-### ✅ Completed in PR #135 — P4-M PYQ Maths (103 Qs)
-
-Done in PR #135 (merge SHA 2b231e1):
-- 13 new `maths/{topic}.pyq.ts` files (one per retained Class 10 Maths topic)
-- 103 questions extracted from 9 text-extractable QPs (30/2/x, 30/4/x, 30/5/x)
-  paired with MS 041_30-x-x marking schemes
-- Section breakdown: A=48 B=15 C=22 D=15 E=3
-- Competency: 100%
-- ID prefix: PYQ-M-{TOPIC}-{NNN}
-- Authentic: 2,484 → 2,587; spreads 176 → 189; bank 5,281 → 5,415
-- pyqYear: "2023" + pyqSet: "1"/"2"/"3" on all 103 → engine recognises 103/103
-- Deferred: 6 scanned QPs (30/1/x, 30/6/x, 30-B-5) + 48 Hindi-only bodies + 41
-  truncated bodies + 18 broken-option MCQs (see CURRENT_STATE.md for details)
-
-### ✅ Completed in PR #132 — P3 Science chapter-wise
-
-Done in PR #132 (merge SHA folded into c0f129d via #132+#133):
-- 13 new `science/{topic}.chapterwise.ts` files (one per retained Science topic)
-- 552 questions from cbjescco (MCQ, 252 Qs) + cbjesccq (PYQ-style, 300 Qs)
-- Section breakdown: A=330 B=78 C=72 D=72 E=0 (chapter-wise series has no case-based)
-- Competency: 74.6% (412/552); ~70 REQUIRES-FIGURE tagged
-- ID prefixes: SCO-S-* and SCQ-S-*
-- Authentic: 1,932 → 2,484; spreads 163 → 176; bank 4,729 → 5,281
-- Caps applied for reviewability (20 MCQ/file + 6 per PYQ-section)
-- Caveat: pymupdf renders chemistry `→` as `$` in this source — verbatim from PDF, future cleanup pass recommended
-
-### ✅ Completed in PR #133 — K2H-8f PYQ filter fix (engine layer)
-
-Done in PR #133 (merge SHA c0f129d):
-- `lazytopper/src/data/practiceSetGenerator.ts`: added `pyqOnly?` field +
-  exported `isPYQQuestion()` helper. Engine now applies a HARD pyqOnly filter
-  (no silent soft-fallback).
-- New test file `scripts/src/practiceSetGeneratorGuard.test.ts` (9 tests).
-- Test matrix grew from 125/125 to **134/134 PASS** (5 test files).
-- 435 `pyqYear`-tagged questions now correctly returned by the engine filter.
-
-### Follow-up task — Wire pyqOnly through practiceQuestionBuilder.ts (Mode: Low–Medium)
-
-Branch (fresh): `fix/k2h-8f-pyq-ui-wiring`
-File: `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
-
-Connect the K2H-8c UI `pyqOnly` chip state to the engine's `pyqOnly` filter
-(engine accepts it since PR #133; bridge currently doesn't pass it). Small,
-scoped change. Required before the PYQ filter is end-to-end usable in the
-practice surface.
-
-May want to fold in the two related follow-ups during this PR (engine-to-UI
-field-stripping fix + adding `isPYQ?: boolean` to `CanonicalQuestion`), but
-each can ship independently.
-
-### Follow-up task — Download 2023-24 Maths MS from cbse.gov.in (Mode: Low)
-
-The 2023-24 Maths QP PDFs exist locally (`24 math 1/2/3.pdf` series) but NO
-matching marking-scheme PDFs are on disk. MS likely available at cbse.gov.in;
-once downloaded, extract as P4-M continuation (another ~50-100 Qs possible).
-
-### Pre-launch quick wins (product track — independent, sequence as owner decides)
-
-Still queued from PR #130 cycle:
-  1. strategyHint Hint button in PracticeQuestionCard (Small)
-  2. Fix "Show visual" wiring in TopicHub right rail (≈20 lines)
-  3. Formula sheet tab on TopicHub for 14 seeded topics (Medium)
-  4. API gateway fix — vercel.json /api/* rewrite + Railway deploy (High)
-
-### Future task — Maths chapter-wise extraction (LOW priority)
-
-`cbjemaco` series (MCQ-only, clean per earlier probe) is available but would
-add mostly Section A density. Defer unless B/C/D/E coverage from PYQs proves
-insufficient.
-
-### Future task — AR (Assertion-Reasoning) density pass
-
-Dedicated `.assertionReasoning.ts` extraction; 2-3 AR per topic for Maths +
-Science. P2 APQ + P3 Science chapter-wise complete, so unblocked.
-
-### ✅ Follow-up — P2 APQ Maths PQ1 + PQ2 — COMPLETE (PR #126)
-
-Done in PR #126 (merge SHA: 9be894526eb20ad51bca2c7aaa3b8ffab931191a):
-- 13 new `.additionalPQ.ts` files created (one per Maths topic)
-- 76 questions from Mathematics-PQ1 + PQ2
-- Section breakdown: A=40 B=10 C=12 D=8 E=6
-- Competency 88%, ~22 REQUIRES-FIGURE tags
-
-### ✅ Follow-up — P2 APQ continuation (PQ_2022 + Science-PQ) — COMPLETE (PR #128)
-
-Done in PR #128 (merge SHA: 028d51d37d3a168196809676ed4d9e5c3b20fdb3):
-- 13 Maths files updated (PQ_2022 appended, +44 Qs)
-- 13 new Science files created (Science-PQ, +46 Qs)
-- All 13 retained Science topicKeys now have APQ content
-- **First ever Our Environment questions in the bank** (4 Qs)
-- 13 OR-pairs → 26 separate rows (B/C/D/E doctrine validated)
-- Section breakdown: A=37 B=15 C=15 D=10 E=6 — non-MCQ density up from 36 (PR #126) to 46
-- Authentic: 1,793 → 1,883; spreads: 150 → 163
-
-### ✅ Follow-up — P2 APQ Science-PQ2 (finale) — COMPLETE (PR #130)
-
-Done in PR #130 (merge SHA: d739585df2013b7299c3c8e931c5685d388f606d):
-- 13 Science files APPENDED with Science-PQ2 (+49 Qs)
-- 10 OR-pairs extracted as separate rows
-- 13 REQUIRES-FIGURE tags
-- Section breakdown (new only): A=20 B=8 C=9 D=6 E=6
-- Competency 81.6%
-- Authentic: 1,883 → 1,932; spreads unchanged (163 — no new files)
-- canonicalQuestionBank.ts NOT touched
-- **P2 APQ phase complete:** 284 authentic Qs across 5 papers (SQP + 3 APQ Maths + Science-PQ + Science-PQ2)
-- Branch `content/additional-pq-sqp-2024` DELETED after merge (remote + local). Future extraction phases use fresh branch names per phase to eliminate the force-push requirement permanently.
-
-### P3 phase outcome — Meridian SKIPPED, Chapter-wise CHOSEN
-
-The previous handoff queued "P3 Meridian extraction" as the next content task.
-During session prep, source probes rejected Meridian (no marking-scheme PDFs,
-violates anti-fabrication doctrine) and several other candidates (NODIA — MS
-hosted externally on URL; cbjemacq — Sinhala glyph corruption; Maths Basic
-430-x-x — out-of-Standard scope; Aakash chapterwise — scanned, needs OCR).
-
-PR #132 used `cbjescco01-15 + cbjesccq01-15` (Science chapter-wise) instead.
-Those 6 alternative source pools are now permanently SKIPPED — recorded in
-CURRENT_STATE.md so future sessions don't waste cycles re-evaluating them.
-
-### Future task — Content + product deliberation (planning, not code)
-
-Pre-launch product decisions opened in PR #128 cycle — these are planning
-sessions, not content extractions:
-
-  - **Notes per chapter** (beyond exam tips): no current surface; content TBD.
-  - **Formula sheets per topic**: data exists in archetypes/predictions but no
-    render surface — should there be one?
-  - **Proof library**: some proofs exist in P0 (triangles.proof.ts) and P0.5
-    (circles.proof.ts) but no dedicated surface; should they be promoted?
-  - **Tutor drawer audit**: MentorSolveDrawer, ConceptTeachDrawer, TutorDrawerV2
-    exist but are underused — they don't receive student attempt data. Decide
-    keep/repurpose/remove before launch.
-
-### Future task — AR (Assertion-Reasoning) density pass
-
-After P2 APQ fully completes (Science-PQ2 done), run a dedicated
-`.assertionReasoning.ts` extraction pass to address the AR density gap.
-Target: 2-3 AR questions per topic for both Maths and Science.
-Source: existing CBSE source PDFs with AR coverage not yet extracted.
-
-### Future task — REQUIRES-FIGURE resolution
-
-Post-launch (Option B first): replace the ~52 cumulative REQUIRES-FIGURE
-strategyHints with placeholder images. Post-Option A (after launch): SVG
-renders from PDF figure descriptions.
-
-Branch (suggested): `fix/ops-our-environment-alignment`
-Mode: Low.
-
-`syllabusGuard.ts` now bans the entire "Our Environment" chapter (Ch 15 — deleted per CBSE
-2025-26). Existing ops/ acceptance tests still expect the chapter to be present. Reconcile:
-
-- `lazytopper/scripts/ops/cbse_registry_2026_27_acceptance.mjs` — line 26-30 add
-  "Our Environment" to `EXCLUDED_CHAPTER_TITLES`; line 208-218 invert or remove the
-  `our_environment_chapter_present_in_scope` assertion.
-- `lazytopper/scripts/ops/science_deleted_zeroing_acceptance.ts` — line 226-249 update or
-  remove the "food chains under Our Environment NOT zeroed" assertion.
-- `lazytopper/scripts/ops/generate_content_backlog_and_matrix.mjs` — line 210-215 align
-  "our environment" handling with the deleted-chapter doctrine.
-- Possibly also `lazytopper/src/prediction/cbseHistoricalArchetypes.ts` — verify Our
-  Environment is in `SCIENCE_DELETED_CHAPTERS_2026_27.deletedTopics`; add if missing.
-
-After fix, all ops/ acceptance tests should pass.
-
-### P2 APQ extraction — operational details
-
-Branch: `content/additional-pq-sqp-2024` (already exists locally; preserve and re-use, OR
-re-create after deleting). Mode: HIGH.
-
-Five papers to extract (~270–300 questions estimated), all CBSE-official, all with matching MS:
-
-| QP | Pages | MS | MS Pages |
-|---|---:|---|---:|
-| Mathematics-PQ1.pdf | 28 | Mathematics-PQ1_MS.pdf | 22 |
-| Mathematics-PQ2.pdf | 7 | Mathematics-PQ2MS2.pdf | 7 |
-| Mathematics-PQ_2022.pdf | 20 | Mathematics-PQ_2022_MS.pdf | 13 |
-| Science-PQ.pdf | 14 | Science-PQMS.pdf | 12 |
-| Science-PQ2.pdf | 10 | Science-PQMS2.pdf | 7 |
-
-Skipped: `Science-PQ (1).pdf` (2022-23 set, no matching MS — owner decision).
-
-**Use `pymupdf` (fitz) — NOT `pdfplumber`.** During PR #119 SQP extraction, `pdfplumber 0.11.9`
-emitted `(cid:NNNN)` glyph artifacts on CBSE PDF math expressions (font subsets without
-ToUnicode mapping), requiring heavy manual reconstruction. `pymupdf 1.27.2.3` extracts the
-same files cleanly with 0 cid artifacts. Sample probe on MathsStandard-SQP.pdf confirmed.
-
-```python
-import fitz
-doc = fitz.open(pdf_path)
-text = "".join(p.get_text() for p in doc)
-doc.close()
-```
-
-Per-topic file naming follows P2 SQP convention: `maths/{slug}.additionalPQ.ts` and
-`science/{slug}.additionalPQ.ts` with kebab-case slug matching topics.ts.
-
-ID prefixes (confirmed collision-free):
-- `APQ-M-{TOPIC_SHORT}-{SEQ:003d}` — Maths Additional PQ
-- `APQ-S-{TOPIC_SHORT}-{SEQ:003d}` — Science Additional PQ
-
-Doctrine reminders (per CLAUDE.md §13 + PR #117 + PR #119):
-- `solutionSteps` minimums: A=1, B=2, C=3, D=5, E=4
-- `isPYQ`: false on all (practice papers, not board PYQs)
-- `subtopic`: must not contain syllabusGuard banned strings (30 Maths + 82 Science)
-- Section E: ONE row per case set, marks=4
-- Anti-fabrication: question text from QP PDF only; solutionSteps from MS PDF only
-- Skip deleted-topic questions entirely (don't just rename subtopic to pass guard)
-- Avoid `]` and `[...]` markers inside solutionSteps text — they break mini-test regex
-  (use `(...)` for math grouping; use `OR (alternative):` instead of `[OR]`)
-
-The P2 SQP prompt's Step B4 source-to-file mapping and per-file mini-test recipe still apply;
-all 25 SQP topic files passed their mini-tests cleanly.
-
----
-
-## Full extraction queue (reference)
-
-| Phase | Status | Notes |
-|---|---|---|
-| P0    | ✅ COMPLETE | PR #112 (62 Qs, AR+proof packs) |
-| P0.5  | ✅ COMPLETE | PR #114 (21 Qs, case-based Sec E merged + circles proof) |
-| PRE-P1| ✅ COMPLETE | PR #116 (mojibake symbol restoration; ftfy-based, 499 char repairs) |
-| **P1-M** | ❌ **ABANDONED** | NODIA 3rd-party PDF — no inline solutions, pdfplumber math corruption, no topic tagging. See `report-p1m-ABANDONED.md`. |
-| **P1-S** | ❌ **ABANDONED** | Same NODIA blockers as P1-M. See `report-p1s-probe.md`. |
-| Guard fix | ✅ COMPLETE | PR #117 (syllabusGuard + bannedExercises + CLAUDE.md §13) |
-| **P2 SQP** | ✅ **COMPLETE** | **PR #119** (69 Qs SQP only + bannedExercises hotfix); APQ deferred |
-| Reproduction cleanup | ✅ COMPLETE | PR #121 (-18 Qs, +5 banned variants, +35 regression tests) |
-| ops acceptance regression suite | ✅ COMPLETE | PR #123 (+37 tests, doctrine lock across 4 source-of-truth files) |
-| syllabusGuard 2026-27 doctrine fix | ✅ COMPLETE | PR #124 (-26 banned strings, +18 Qs restored, formativeOnlyTopics added) |
-| P2 APQ Maths PQ1+PQ2 | ✅ COMPLETE | PR #126 (+76 Qs across 13 topic files; 88% competency) |
-| P2 APQ continuation (PQ_2022 + Science-PQ) | ✅ COMPLETE | PR #128 (+90 Qs; first Our Environment Qs; OR-doctrine validated) |
-| P2 APQ Science-PQ2 (finale) | ✅ COMPLETE | PR #130 (+49 Qs; P2 APQ phase complete — 284 Qs across 5 papers) |
-| **P3 Science chapter-wise** | ✅ **COMPLETE** | PR #132 (+552 Qs across 13 Science files; SCO-S-*/SCQ-S-* IDs; cbjescco + cbjesccq source) |
-| **K2H-8f PYQ engine filter** | ✅ **COMPLETE** | PR #133 (engine-layer hard filter + `isPYQQuestion` helper; test matrix 125 → 134) |
-| K2H-8f UI wiring follow-up | ⏳ NEXT (product) | Wire `pyqOnly` through `practiceQuestionBuilder.ts`; fix engine-to-UI field stripping; add `isPYQ?: boolean` to `CanonicalQuestion` |
-| **P4-M PYQ Maths** | ⏳ **NEXT (content, UNBLOCKED by #133)** | Fresh branch `content/p4-pyq-maths`. 16 QPs (30-x-x) + 16 MS on disk. `isPYQ: true`, `pyqYear` populated. ~400 Qs. |
-| **P4-S PYQ Science** | ⏳ **NEXT (content, parallel)** | Fresh branch `content/p4-pyq-science`. 15 QPs (31_x_x) + MS on disk. ~400 Qs. |
-| Pre-launch quick wins | ⏳ READY | strategyHint Hint button; "Show visual" fix; Formula sheet tab; API gateway fix |
-| Maths chapter-wise (cbjemaco) | ⏳ LOW priority | MCQ-only clean source; defer unless B/C/D/E coverage from PYQs proves insufficient |
-| AR density pass | ⏳ UNBLOCKED | Dedicated .assertionReasoning.ts extraction, 2-3 AR per topic |
-| Content + product deliberation | ⏳ PLANNING | Notes/formulae/proofs/tutor drawer decisions before launch |
-| TopicHub seeded coverage backfill | ⏳ CONTENT | 11/25 topics still on sample-preview |
-| P4-M  | ⏳ PENDING  | cbjemaco + cbjemacq Maths (~750–1,050 Qs) |
-| P4b-S | ⏳ PENDING  | Science Chapter-wise cbjescco+cbjesccq (~1,422 Qs) |
-| P5-M  | ⏳ PENDING  | PYQ papers Maths 2022-2025 (~400 Qs) [requires K2H-8f fix] |
-| P5-S  | ⏳ PENDING  | PYQ papers Science 2022-2025 (~400 Qs) |
-| P6    | ⏳ PENDING  | Sample papers + Preboard PDFs (~200 Qs) |
-| P7    | ⏳ PENDING  | Pack retirement (trigger: authentic count ≥ 6,000) |
-| P8    | 🔒 DEFERRED | OCR-gated sources (~1,100 Qs, needs OCR tool) |
-
-Pack retirement threshold: **4,500 authentic questions** (REVISED from 6,000 in PR #126 cycle).
-Rationale: 5,000+ authentic is sufficient for CBSE Class 10 prep. At 4,500
-authentic, retire all AI packs (~2,815 Qs). Bank becomes 100% authentic +
-100% routable. No OCR phase needed.
-
-Current authentic total: **2,484** (post-PR #132; +552 from P3 Science chapter-wise).
-Progress to retirement: 2,484 / 4,500 = **55.2%** (+12.3 pp from PR #130 state).
-Bank total (engine-confirmed): **5,281** questions loaded.
-
-## Engine fix — RESOLVED (PR #133)
-
-K2H-8f engine-layer fix landed in PR #133 (merge SHA c0f129d). Adds `pyqOnly`
-field to `PracticeSetConfig` and exported `isPYQQuestion()` helper; engine
-now applies a HARD pyqOnly filter (no silent soft-fallback). 435 `pyqYear`-
-tagged questions are now correctly returned by the engine.
-
-Three UI-side follow-ups remain (separate PRs — each independent):
-  a. Wire `pyqOnly` through `practiceQuestionBuilder.ts` (UI-engine bridge)
-  b. Fix engine-to-UI mapping that strips `pyqYear`/`isPYQ` fields
-  c. Add `isPYQ?: boolean` to `CanonicalQuestion` in `predictionTypes.ts`
-
-P4-M / P4-S PYQ extraction is unblocked at the engine layer — content work
-can proceed without waiting for the UI follow-ups.
-
-## Operating rules for all content sessions
-
-- SHA verification mandatory before every agent prompt
-- All 6 validations before every content commit (syllabusGuard + bannedExercises are strict now)
-- Owner reviews extraction report before any commit (Checkpoint B per-file + final verify)
-- Every content PR followed immediately by a docs-only handoff PR
-- Anti-fabrication: every question from source PDF only — never paraphrase
-- topicKey must match `topics.ts` exactly — verify before every extraction
-- Pack files must NOT be deleted until authentic count ≥ 6,000
-- isPYQ stays `false` for practice/sample papers (only set true for actual board exam PYQs)
-- `solutionSteps` minimums per CLAUDE.md §13: A=1, B=2, C=3, D=5, E=4 (CBSE 2025-26 OSM)
-- For Science: avoid all 82 banned subtopics in syllabusGuard.ts
-- For Maths: avoid all 30 banned subtopics
-- PDF extraction tool: **pymupdf (fitz)** for CBSE official PDFs — pdfplumber introduces
-  cid-artifact corruption on font-subset math expressions
-- Avoid `[...]` brackets inside solutionSteps array entries — mini-test regex breaks on `]`;
-  use `(...)` for math grouping and `OR (alternative):` instead of `[OR]`
+# Updated: 2026-05-25 (post-PR #139)
+# Base SHA: b7add944a713430679de8c5e6d07dca49f4db272
+
+## CURRENT BASE
+
+Branch: base/approved-thru-437
+SHA: b7add944a713430679de8c5e6d07dca49f4db272
+Last PR: #139 — K2H-8f-b UI wire-up (PYQ chip end-to-end functional)
+
+## IMMEDIATE NEXT TASKS (in order)
+
+### Task 1 — P4 Continuation 2026 Maths (HIGH — most recent exam)
+Branch: content/p4-pyq-2026-maths (fresh)
+Sources (unzip first):
+  QP: Mathematics_Standard_2026.zip
+  MS: 041_MATHEMATICS_STANDARD_2026.zip
+  Path: C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS\
+pyqYear: "2026"
+ID prefix: PYQ-M-2026-{TOPICSHORT}-{SEQ}
+CRITICAL: Skip all 430-x-x series files (Maths Basic) — use 30-x-x only
+Pipeline: p4s_probe.py → p4s_extract.py → p4s_generate_ts.py (adapt paths + year)
+Expected yield: ~100 Qs
+
+### Task 2 — P4 Continuation 2026 Science (HIGH — most recent exam)
+Branch: content/p4-pyq-2026-science (fresh)
+Sources (unzip first):
+  QP: Science_2026.zip
+  MS: 086_SCIENCE_2026.zip
+  Path: same as above
+pyqYear: "2026"
+ID prefix: PYQ-S-2026-{TOPICSHORT}-{SEQ}
+Pipeline: same as Task 1 (adapt subject + section ranges for Science)
+Expected yield: ~100 Qs
+Can run parallel to Task 1 (different files, non-overlapping scope)
+
+### Task 3 — P4 Continuation 2025 Maths + Science
+After Task 1+2 merge.
+Sources: 041_Mathematics_Standard_2025.zip + Math_2025.zip
+         086_Science_2025.zip + Science_2025.zip
+Note: Math_2025.zip has 38 files — use 041 Standard English subfolder only
+pyqYear: "2025"
+Expected yield: ~80 Maths + ~80 Science
+
+### Task 4 — P4 Continuation 2024 Maths + Science
+After Task 3 merges.
+Sources: MATHEMATICS_STANDARD_2024.zip + Mathematics_Standard_2024.zip
+         SCIENCE_2024.zip + Science_2024.zip
+Note: Science_2024.zip has Hindi subfolder — use English only
+pyqYear: "2024"
+Expected yield: ~80 Maths + ~80 Science
+
+## BANK STATE (post-PR #139)
+
+Authentic questions: ~2,698
+Bank total: ~5,526
+Spreads: 202
+Board PYQs: 214 (2022-23 only — 2024/2025/2026 pending)
+Test matrix: 137/137 PASS (5 test files)
+Retirement threshold: 4,500 (60.0% reached)
+Expected post-2026+2025+2024: ~3,218 authentic (~71% of threshold)
+
+## PYQ SOURCE PATH
+
+C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS\
+
+All sources are zip archives — UNZIP BEFORE PROBING.
+Run p4s_probe.py (adapted) on each year before extraction.
+Expect ~10-15 Qs per text-extractable QP. ~6/16 QPs per zip are scanned (0 chars).
+
+## PIPELINE SCRIPTS
+
+C:\Users\Chetan\OneDrive\Desktop\diff\p4s_probe.py
+C:\Users\Chetan\OneDrive\Desktop\diff\p4s_extract.py
+C:\Users\Chetan\OneDrive\Desktop\diff\p4s_generate_ts.py
+C:\Users\Chetan\OneDrive\Desktop\diff\p4s_checkpoint_b.py
+C:\Users\Chetan\OneDrive\Desktop\diff\p4s_pyq_reachability.mjs
+
+## PARKED (do not start yet)
+
+Product PRs (strategyHint button, Show visual fix, Formula sheet, API gateway)
+— parked until authentic count >= 4,500
+— full detail in LazyTopper_Tutor_Content_Audit_Findings.md (project knowledge)
+
+K2H-8f-c (isPYQ backfill in predictionTypes.ts) — low priority, not blocking

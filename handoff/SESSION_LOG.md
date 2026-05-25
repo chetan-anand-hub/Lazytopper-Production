@@ -1,5 +1,46 @@
 ---
 
+## 2026-05-25 — K2H-8f-b UI wire-up (PR #139) — PYQ chip end-to-end functional
+
+### Starting state
+- Base: base/approved-thru-437 at c563cabe (post-PR #138)
+- SHA at start of session: c563cabe6c25101514d2ed2e545ef69aad0c884b
+
+### Work completed
+
+1. SHA verified: c563cabe confirmed before starting
+2. Knowledge verification: 20/20 questions answered correctly from project knowledge
+3. K2H-8f UI wire-up executed:
+   - Fixed buildPracticeQuestionsFromEngine to pass pyqOnly to generatePracticeSet
+   - Fixed CanonicalQuestion→PracticeQuestion mapping to preserve pyqYear/pyqSet
+   - Removed UI-layer soft-fallback pyqOnly block (was the silent failure mode)
+   - Added 3 regression tests (K2H-8f-b describe block)
+4. Report reviewed and approved by owner
+5. Commit 8610d79 on fix/k2h-8f-ui-wire, pushed, PR #139 opened and merged
+
+### Validations
+- TypeScript: exit 0
+- Test matrix: 137/137 PASS (+3 from 134/134)
+- Diff scope: 2 files only
+- No question bank files touched
+
+### New protocol established this session
+- Agent instructions now delivered as downloadable .md files (no truncation risk)
+
+### Post-merge SHA
+b7add944a713430679de8c5e6d07dca49f4db272
+
+### Next task
+P4 continuation 2026 — most recent exam, highest value
+Branch: content/p4-pyq-2026-maths + content/p4-pyq-2026-science
+Sources: C:\Users\Chetan\OneDrive\Desktop\diff\cbse-papers\gdrive\PYQs\MS\final MS\
+  Mathematics_Standard_2026.zip + 041_MATHEMATICS_STANDARD_2026.zip
+  Science_2026.zip + 086_SCIENCE_2026.zip
+Note: Skip Maths Basic (430-x-x) in 2026 Maths zip — use 30-x-x only
+Unzip all archives before probing.
+
+---
+
 ## 2026-05-25 — P4-S PYQ Science (PR #137, +111 Qs verbatim CBSE 2022-23 board); **P4 phase complete**
 
 Timestamp: 2026-05-25 (Asia/Kolkata)

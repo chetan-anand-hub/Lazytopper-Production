@@ -5,33 +5,69 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 Latest verified live base:
 ```
 base/approved-thru-437
-f25af07803230b203a298b6e12e5e74989bf1411
+b7add944a713430679de8c5e6d07dca49f4db272
 ```
 
 Current stage:
 PR #82 / PR-K2H-5 is merged. K2H product work paused since PR #87. Recent activity has been
 in the content + tooling track (PRs #112, #114, #116, #117, #119, #121, #123, #124, #126,
-#128, #130, #132, #133, #135, #137). **P4 PYQ phase is now COMPLETE**: PR #135 P4-M Maths
-(103 Qs) + PR #137 P4-S Science (111 Qs) = **214 verbatim CBSE 2022-23 board PYQs** across
-all 26 retained Class 10 topicKeys. All 214 engine-recognised as PYQ via `pyqYear` path
-(PR #133 helper). Authentic-question total now 2,698 / 4,500 = **60.0%** of retirement
+#128, #130, #132, #133, #135, #137, #139). **K2H-8f thread is now COMPLETE** (PR #139
+wired the UI bridge — PYQ chip end-to-end functional). **P4 PYQ 2022-23 phase complete**:
+214 verbatim board PYQs across all 26 retained Class 10 topicKeys, all engine-recognised
+via `pyqYear` path. Authentic-question total 2,698 / 4,500 = **60.0%** of retirement
 threshold.
 
 **NEW PYQ SOURCE CONFIRMED**: `cbse-papers\gdrive\PYQs\MS\final MS` contains MS files for
-2022-2026 (all years). Unblocks P4 continuation for 2023-24, 2024-25, 2025-26 (~300-400
-more board PYQs potentially extractable).
+2022-2026 (all years). Unblocks P4 continuation for 2024, 2025, 2026 (~300-400 more board
+PYQs potentially extractable).
 
 Next parallel tracks open:
-  1. **K2H-8f UI wire-up** — Low-Medium (`practiceQuestionBuilder.ts` pyqOnly wiring)
-  2. **P4 continuation** — High (2023-24 + 2024-25 + 2025-26 PYQ extractions, fresh
-     branches per year, pipeline scripts already built and tuned)
-  3. **K2H-8f-c** — Low (add `isPYQ?: boolean` to `CanonicalQuestion` + backfill on 214)
-  4. **Pre-launch product quick wins** (4 product PRs from prior cycle)
+  1. **P4 continuation 2026** — High (most recent exam, highest value)
+  2. **P4 continuation 2025** — High (after 2026 merges)
+  3. **P4 continuation 2024** — High (after 2025 merges)
+  4. **K2H-8f-c** — Low (add `isPYQ?: boolean` to `CanonicalQuestion` + backfill on 214)
+  5. **Pre-launch product quick wins** — Parked until authentic count ≥ 4,500
 
 Current implementation branch:
 ```
 None. Create the next implementation branch fresh from the live verified base after this docs-only handoff update merges.
 ```
+
+## 2026-05-25 — Post-PR #139 roadmap update
+
+### Completed this session
+- K2H-8f FULLY COMPLETE (3-PR thread):
+  · PR #133 — engine hard filter + isPYQQuestion() helper
+  · PR #135+#137 — 214 board PYQs added (2022-23)
+  · PR #139 — UI bridge wired, soft-fallback removed
+  PYQ chip is now end-to-end functional.
+
+### Active track — P4 PYQ continuation
+Priority order: 2026 → 2025 → 2024 (most recent exam first)
+Expected: ~520 additional PYQs across 3 years
+Post-extraction authentic count: ~3,218 (~71% of 4,500 retirement threshold)
+
+  [ ] PR #140 — P4 2026 Maths (~100 Qs) — content/p4-pyq-2026-maths
+  [ ] PR #141 — P4 2026 Science (~100 Qs) — content/p4-pyq-2026-science
+  [ ] PR — Handoff post-2026
+  [ ] PR — P4 2025 Maths (~80 Qs) — content/p4-pyq-2025-maths
+  [ ] PR — P4 2025 Science (~80 Qs) — content/p4-pyq-2025-science
+  [ ] PR — Handoff post-2025
+  [ ] PR — P4 2024 Maths (~80 Qs) — content/p4-pyq-2024-maths
+  [ ] PR — P4 2024 Science (~80 Qs) — content/p4-pyq-2024-science
+  [ ] PR — Handoff post-2024
+
+### Parked track — Product PRs
+Blocked until authentic ≥ 4,500. See LazyTopper_Tutor_Content_Audit_Findings.md.
+  [ ] P2 — strategyHint Hint button (Small)
+  [ ] P3 — Show visual wiring (~20 lines)
+  [ ] P4 — Formula sheet tab (Medium)
+  [ ] P1 — API gateway (High — production blocker)
+
+### Low priority
+  [ ] K2H-8f-c — isPYQ backfill in predictionTypes.ts
+  [ ] 2022 Term II papers (pipeline adaptation needed)
+  [ ] AR density pass (2-3 AR per topic)
 
 ## Content + Tooling track — recent stages
 
