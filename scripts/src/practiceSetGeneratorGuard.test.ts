@@ -152,3 +152,102 @@ describe("K2H-8f generatePracticeSet pyqOnly filter", () => {
     assert.strictEqual(set.questions.length, 0);
   });
 });
+
+// ── UI bridge: buildPracticeQuestionsFromEngine passes pyqOnly to engine ──
+//
+// K2H-8f-b: verifies the UI wire-up fix in practiceQuestionBuilder.ts.
+// The engine fix was K2H-8f (PR #133). This confirms the bridge:
+//   1. Passes pyqOnly through to generatePracticeSet (Change 2)
+//   2. Preserves pyqYear/pyqSet on the mapped PracticeQuestion (Change 3)
+//   3. No longer relies on a soft-fallback UI-layer pyqOnly filter (Change 4)
+// Before this fix the PYQ toggle was a no-op: the mapping stripped pyqYear,
+// the UI-layer filter saw `undefined` on every question, and the soft fallback
+// silently returned the full pool.
+
+describe("K2H-8f-b buildPracticeQuestionsFromEngine pyqOnly wire-up", () => {
+  test("pyqOnly:true via UI bridge returns only PYQ questions", async () => {
+    const { buildPracticeQuestionsFromEngine } = await import(
+      "../../lazytopper/src/components/practice/practiceQuestionBuilder.js"
+    );
+
+    const questions = buildPracticeQuestionsFromEngine({
+      subjectKey: "Maths",
+      topicKey: "Real Numbers",
+      count: 10,
+      difficulty: "All",
+      pyqOnly: true,
+    });
+
+    assert.ok(
+      questions.length > 0,
+      `UI bridge with pyqOnly:true returned 0 questions for Real Numbers. ` +
+        `Engine fix may not be wired through. Check Change 2 in practiceQuestionBuilder.ts.`
+    );
+
+    for (const q of questions) {
+      assert.ok(
+        isPYQQuestion(q),
+        `non-PYQ question leaked through UI bridge pyqOnly filter: id=${(q as { id?: string }).id}`
+      );
+    }
+  });
+
+  test("UI bridge mapping preserves pyqYear on mapped PracticeQuestion (Change 3)", async () => {
+    const { buildPracticeQuestionsFromEngine } = await import(
+      "../../lazytopper/src/components/practice/practiceQuestionBuilder.js"
+    );
+
+    const questions = buildPracticeQuestionsFromEngine({
+      subjectKey: "Maths",
+      topicKey: "Real Numbers",
+      count: 10,
+      difficulty: "All",
+      pyqOnly: true,
+    });
+
+    // At least one question must have pyqYear populated — proves the engine→UI
+    // mapping carries it forward instead of stripping it (the bug before #133).
+    const withPyqYear = questions.filter((q) =>
+      Boolean((q as { pyqYear?: unknown }).pyqYear)
+    );
+    assert.ok(
+      withPyqYear.length > 0,
+      `0 of ${questions.length} mapped questions carry pyqYear forward. ` +
+        `Check Change 3 in practiceQuestionBuilder.ts mapping block.`
+    );
+  });
+
+  test("pyqOnly:true is a subset of pyqOnly:false via UI bridge", async () => {
+    const { buildPracticeQuestionsFromEngine } = await import(
+      "../../lazytopper/src/components/practice/practiceQuestionBuilder.js"
+    );
+
+    const pyqOnly = buildPracticeQuestionsFromEngine({
+      subjectKey: "Maths",
+      topicKey: "Real Numbers",
+      count: 20,
+      difficulty: "All",
+      pyqOnly: true,
+    });
+
+    const all = buildPracticeQuestionsFromEngine({
+      subjectKey: "Maths",
+      topicKey: "Real Numbers",
+      count: 20,
+      difficulty: "All",
+      pyqOnly: false,
+    });
+
+    assert.ok(
+      all.length >= pyqOnly.length,
+      `pyqOnly:false (${all.length}) must return >= pyqOnly:true (${pyqOnly.length}) — UI bridge filter behaviour regressed`
+    );
+    // And the unfiltered pool must contain at least one non-PYQ question to
+    // prove pyqOnly was actually narrowing the result rather than no-op.
+    const hasNonPYQ = all.some((q) => !isPYQQuestion(q));
+    assert.ok(
+      hasNonPYQ,
+      "unfiltered UI-bridge pool contains only PYQ questions — pyqOnly:true vs pyqOnly:false distinction is not observable; UI wire-up may not be exercising real bank"
+    );
+  });
+});

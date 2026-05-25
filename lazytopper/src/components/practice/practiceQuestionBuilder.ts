@@ -160,6 +160,7 @@ export function buildPracticeQuestionsFromEngine(args: {
   adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
   marksFilter?: number;
+  pyqOnly?: boolean;
 }): PracticeQuestion[] {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
   const difficultyMix = difficultyChoiceToMix(args.difficulty);
@@ -174,6 +175,7 @@ export function buildPracticeQuestionsFromEngine(args: {
       : undefined,
     adaptiveMix: args.adaptiveMix,
     priorityConceptKeys: args.priorityConceptKeys,
+    pyqOnly: args.pyqOnly,
   });
 
   let candidates: RawQuestion[] = [...(practiceSet.questions as RawQuestion[])];
@@ -258,6 +260,11 @@ export function buildPracticeQuestionsFromEngine(args: {
       topicKey: q.topicKey ?? "",
       subtopic: q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? "",
       format: q.format ?? "",
+      // K2H-8f-b: preserve pyqYear/pyqSet so engine isPYQQuestion() can recognise PYQs
+      // downstream and the pyqOnly engine filter has visible signal. isPYQ field omitted
+      // because CanonicalQuestion type does not yet include it (K2H-8f-c follow-up).
+      pyqYear: q.pyqYear as string | undefined,
+      pyqSet: q.pyqSet as string | undefined,
     } as PracticeQuestion;
   });
 }
@@ -434,6 +441,7 @@ export async function buildPracticeQuestionsWithAiTopup(
     adaptiveMix: args.adaptiveMix,
     priorityConceptKeys: args.priorityConceptKeys,
     marksFilter: args.marksFilter,
+    pyqOnly: args.pyqOnly,
   });
 
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
@@ -484,15 +492,11 @@ export async function buildPracticeQuestionsWithAiTopup(
     if (filtered.length > 0) bankQuestionsFiltered = filtered;
   }
 
-  // PR-K2H-8d — PYQ-only filter
-  if (args.pyqOnly) {
-    const filtered = bankQuestionsFiltered.filter((q) =>
-      Boolean((q as { isPYQ?: unknown }).isPYQ) ||
-      Boolean((q as { pyqYear?: unknown }).pyqYear)
-    );
-    // Only apply if results exist — prevents blank screen when PYQ data is sparse
-    if (filtered.length > 0) bankQuestionsFiltered = filtered;
-  }
+  // K2H-8f-b: UI-layer pyqOnly filter removed — engine layer (PR #133) now applies
+  // a hard pyqOnly filter via generatePracticeSet, and the engine→UI mapping above
+  // preserves pyqYear/pyqSet so isPYQQuestion() has visible signal. The previous
+  // soft-fallback ("if filtered.length > 0") silently disabled the PYQ filter
+  // whenever the mapping had stripped these fields, which made the toggle a no-op.
 
   const focusIdSet =
     args.strictFocus && Array.isArray(args.focusBankIds) && args.focusBankIds.length > 0
