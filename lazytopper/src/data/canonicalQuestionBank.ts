@@ -256,6 +256,23 @@ import { SURFACE_AREAS_AND_VOLUMES_PYQ_2026 } from './questionBanks/class10/math
 import { STATISTICS_PYQ_2026 } from './questionBanks/class10/maths/statistics.pyq2026';
 import { PROBABILITY_PYQ_2026 } from './questionBanks/class10/maths/probability.pyq2026';
 
+// P4 Science PYQ 2026 — CBSE 2025-26 board papers (31/2/x, 31/3/x, 31/4/x, 31/5/x), 2026-05-25
+// 13 Science topic files; verbatim from QP + matched English marking schemes (X_086 Set-N ENGLISH)
+// Scope note: 3 QPs (31/1/x) are scanned (no extractable text) — skipped (require OCR)
+import { chemicalReactionsPYQ2026 } from './questionBanks/class10/science/chemicalReactions.pyq2026';
+import { acidsBasesSaltsPYQ2026 } from './questionBanks/class10/science/acidsBasesSalts.pyq2026';
+import { metalsNonMetalsPYQ2026 } from './questionBanks/class10/science/metalsNonMetals.pyq2026';
+import { carbonCompoundsPYQ2026 } from './questionBanks/class10/science/carbonCompounds.pyq2026';
+import { lifeProcessesPYQ2026 } from './questionBanks/class10/science/lifeProcesses.pyq2026';
+import { controlCoordinationPYQ2026 } from './questionBanks/class10/science/controlCoordination.pyq2026';
+import { howOrganismsReproducePYQ2026 } from './questionBanks/class10/science/howOrganismsReproduce.pyq2026';
+import { heredityPYQ2026 } from './questionBanks/class10/science/heredity.pyq2026';
+import { lightReflectionPYQ2026 } from './questionBanks/class10/science/lightReflection.pyq2026';
+import { humanEyePYQ2026 } from './questionBanks/class10/science/humanEye.pyq2026';
+import { electricityPYQ2026 } from './questionBanks/class10/science/electricity.pyq2026';
+import { magneticEffectsPYQ2026 } from './questionBanks/class10/science/magneticEffects.pyq2026';
+import { ourEnvironmentPYQ2026 } from './questionBanks/class10/science/ourEnvironment.pyq2026';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -487,6 +504,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...SURFACE_AREAS_AND_VOLUMES_PYQ_2026,
   ...STATISTICS_PYQ_2026,
   ...PROBABILITY_PYQ_2026,
+  // P4 Science PYQ 2026 — CBSE 2025-26 board papers (151 Qs across 13 Science topic files, 2026-05-25)
+  ...chemicalReactionsPYQ2026,
+  ...acidsBasesSaltsPYQ2026,
+  ...metalsNonMetalsPYQ2026,
+  ...carbonCompoundsPYQ2026,
+  ...lifeProcessesPYQ2026,
+  ...controlCoordinationPYQ2026,
+  ...howOrganismsReproducePYQ2026,
+  ...heredityPYQ2026,
+  ...lightReflectionPYQ2026,
+  ...humanEyePYQ2026,
+  ...electricityPYQ2026,
+  ...magneticEffectsPYQ2026,
+  ...ourEnvironmentPYQ2026,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
