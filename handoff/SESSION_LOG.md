@@ -1,5 +1,51 @@
 ---
 
+## 2026-05-25 — P4 PYQ 2024 Maths + Science (PR #147 + #148) — 172 board PYQs added
+
+### Starting state
+- Base at task start: 8c4bd37 (post-PR #146 handoff)
+- SHA after Maths merge (PR #147): 5e1af4f
+- SHA after Science merge (PR #148): a52b10b (current HEAD)
+
+### Work completed
+
+1. P4 2024 Maths extraction (content/p4-pyq-2024-maths):
+   - Sources already unzipped at 2024\PYQ\maths\MATHEMATICS_STANDARD_2024\
+   - Probed: 13/16 QPs text-extractable; 3 scanned (30/1/x)
+   - Syllabus filter applied at extraction + generation time
+   - 96 questions extracted, 17 OR pairs, traditional structure
+   - Approved, PR #147 merged → SHA 5e1af4f
+
+2. P4 2024 Science extraction (content/p4-pyq-2024-science):
+   - Sources unzipped at 2024\PYQ\science\SCIENCE_2024\ (extra \SCIENCE subfolder)
+   - Probed: 6/15 QPs text-extractable (31/4/x + 31/5/x only)
+   - 4 pipeline fixes required vs 2025 pipeline
+   - 1 banned topic dropped (solar energy)
+   - 76 questions extracted, traditional structure
+   - Approved, PR #148 merged → SHA a52b10b
+
+3. Audit findings this session:
+   - Full question bank audit run (v1 had script bug, v2 sent but not yet run)
+   - Confirmed: NCERT/Exemplar trigonometry files exist but have mojibake
+   - Confirmed: practice filters broken (isCompetencyBased not mapped, Proof
+     filter wrong format, same bugs in 2 places)
+   - Confirmed: pack1/pack3/proof/AR files have correct questions and register fine
+
+### Bank state post-session
+- Authentic questions: ~3,245
+- Board PYQs: 761 (all 4 years: 2022-23, 2023-24, 2024-25, 2025-26)
+- Spreads: 279
+- Retirement threshold: ~72.1% (3,245 / 4,500)
+- Test matrix: 137/137 PASS
+
+### Next tasks
+1. fix/practice-filters-complete — filter bugs + step marks (instruction ready)
+2. fix/mojibake-ncert-exemplar — symbol restoration for NCERT/Exemplar files
+3. Handoff PR after both fixes
+4. Audit v2 re-run after filters fixed to get accurate per-topic counts
+
+---
+
 ## 2026-05-25 — P4 PYQ 2025 Maths + Science (PR #144 + #145) — 182 board PYQs added
 
 ### Starting state
