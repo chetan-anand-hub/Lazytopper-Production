@@ -52,19 +52,6 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     strategyHint: "Use 3·Median = Mode + 2·Mean." },
 
   // ===== Section A — Assertion-Reasoning (1 mark) =====
-  { id: "STAT-N-NCERT-13-AR-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Assertion (A): The choice of assumed mean 'a' in the assumed-mean method does not change the final value of the mean.\nReason (R): The assumed-mean and step-deviation methods are algebraic re-arrangements of the direct method and therefore yield the same mean.",
-    options: [
-      "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-      "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
-      "(C) Assertion is true but Reason is false.",
-      "(D) Assertion is false but Reason is true."
-    ],
-    answer: "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-    solutionSteps: ["Activity 1 in NCERT (page 265) confirms A.", "R is the standard NCERT remark — true.", "R is the reason A holds."],
-    finalAnswer: "Option (A).",
-    ncertRef: "NCERT Section 14.2 / Activity 1", isCompetencyBased: true },
-
   { id: "STAT-N-NCERT-13-AR-002", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): The median formula for grouped data is l + ((n/2 − cf)/f) × h.\nReason (R): cf in this formula is the cumulative frequency of the median class itself.",
     options: [

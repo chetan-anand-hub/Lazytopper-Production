@@ -1997,6 +1997,8 @@ export default function DesktopPracticePage() {
     section?: string;
     difficulty?: string;
     count?: number;
+    questionType?: string;
+    pyqOnly?: boolean;
   }): string => {
     const sp = new URLSearchParams();
     if (params.topic) sp.set("topic", params.topic);
@@ -2006,6 +2008,10 @@ export default function DesktopPracticePage() {
     if (params.section) sp.set("section", params.section);
     if (params.difficulty) sp.set("difficulty", params.difficulty);
     if (params.count) sp.set("count", String(params.count));
+    if (params.questionType && params.questionType !== "All") {
+      sp.set("questionType", params.questionType);
+    }
+    if (params.pyqOnly) sp.set("pyq", "1");
     sp.set("source", SOURCE);
     sp.set("returnTo", returnTo);
     return withQuery(`/practice/${grade}/${scope.subject}`, sp);

@@ -317,36 +317,6 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 14.2"
   },
 {
-    "id": "ST2-015",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Mean of Grouped Data",
-    "section": "B",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Using step deviation method with assumed mean 25 and class width 10, if Σfd = 12 and Σf = 40, then the mean is:",
-    "options": [
-      "28",
-      "30",
-      "25.3",
-      "22"
-    ],
-    "answer": "28",
-    "solutionSteps": [
-      "Mean = a + (Σfd/Σf) × h",
-      "Mean = 25 + (12/40) × 10",
-      "Mean = 25 + 3 = 28"
-    ],
-    "finalAnswer": "28",
-    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
-    "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "A",
-    "ncertRef": "Ex 14.1"
-  },
-{
     "id": "ST2-016",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -510,36 +480,6 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqYear": "2025",
     "pyqSet": "A",
     "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
-  },
-{
-    "id": "ST2-023",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Mean of Grouped Data",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "For grouped data using step deviation method, if d = (x - a)/h, then the relation is:",
-    "options": [
-      "Mean = a + (Σfd'/Σf) × h",
-      "Mean = a + (Σfd/Σf)",
-      "Mean = a + h × (Σfd'/Σf)",
-      "Both (a) and (c)"
-    ],
-    "answer": "Both (a) and (c)",
-    "solutionSteps": [
-      "Step deviation method: d' = (x-a)/h or d = x-a",
-      "Mean = a + h(Σfd'/Σf) = a + (Σfd/Σf) × h",
-      "Both expressions are equivalent"
-    ],
-    "finalAnswer": "Both (a) and (c)",
-    "explanation": "Step deviation method: d' = (x-a)/h or d = x-a. Mean = a + h(Σfd'/Σf) = a + (Σfd/Σf) × h. Both expressions are equivalent. Therefore, the correct answer is Both (a) and (c).",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.1"
   },
 {
     "id": "ST2-024",
@@ -1118,25 +1058,6 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 14.2, 14.3"
   },
   {
-    "id": "STAT2-R01",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Mean (Step Deviation)",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "In the step deviation method for computing mean, if all class widths are equal, the mean is calculated as:",
-    "options": ["A + (Σfᵢuᵢ/Σfᵢ) × h", "A + Σfᵢuᵢ", "A × (Σfᵢuᵢ/Σfᵢ)", "A + Σfᵢuᵢ/h"],
-    "answer": "A + (Σfᵢuᵢ/Σfᵢ) × h",
-    "solutionSteps": ["In step deviation: x̄ = A + (Σfᵢuᵢ/Σfᵢ) × h where uᵢ = (xᵢ - A)/h"],
-    "finalAnswer": "A + (Σfᵢuᵢ/Σfᵢ) × h",
-    "explanation": "In step deviation: x̄ = A + (Σfᵢuᵢ/Σfᵢ) × h where uᵢ = (xᵢ - A)/h. Therefore, the correct answer is A + (Σfᵢuᵢ/Σfᵢ) × h.",
-    "isCompetencyBased": false,
-    "ncertRef": "Ex 14.1"
-  },
-  {
     "id": "STAT2-R02",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1211,25 +1132,6 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
-  },
-  {
-    "id": "STAT2-R06",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Mean (Step Deviation)",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Using step deviation method with assumed mean A = 25 and h = 5, if Σfᵢ = 50 and Σfᵢuᵢ = 10, then the mean is:",
-    "options": ["26", "24", "25", "27"],
-    "answer": "26",
-    "solutionSteps": ["Mean = A + (Σfᵢuᵢ/Σfᵢ) × h = 25 + (10/50) × 5 = 25 + 1 = 26"],
-    "finalAnswer": "26",
-    "explanation": "Mean = A + (Σfᵢuᵢ/Σfᵢ) × h = 25 + (10/50) × 5 = 25 + 1 = 26. Therefore, the correct answer is 26.",
-    "isCompetencyBased": true,
-    "ncertRef": "Ex 14.1"
   },
   {
     "id": "STAT2-R07",

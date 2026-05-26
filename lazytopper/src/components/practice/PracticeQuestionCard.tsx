@@ -218,10 +218,19 @@ export function PracticeQuestionCard({
     stepMarkTotal > 0 &&
     Math.abs(stepMarkTotal - questionTotalMarks) <= 0.01;
 
+  const isCanonicalBankQuestion = Boolean(
+    q.id &&
+    !String(q.id).startsWith("ai-") &&
+    q.solutionSteps &&
+    q.solutionSteps.length > 0 &&
+    (q.marks ?? 0) > 1
+  );
+
   const hasUnsafeWrittenStepMarks =
     isWrittenStepMarkCandidate &&
     stepMarkTotal > 0 &&
-    !hasSafeStepMarks;
+    !hasSafeStepMarks &&
+    !isCanonicalBankQuestion;
 
   const renderMcqOptions = () => {
     if (!hasStructuredOptions) return null;

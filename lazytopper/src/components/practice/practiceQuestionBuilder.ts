@@ -265,6 +265,7 @@ export function buildPracticeQuestionsFromEngine(args: {
       // because CanonicalQuestion type does not yet include it (K2H-8f-c follow-up).
       pyqYear: q.pyqYear as string | undefined,
       pyqSet: q.pyqSet as string | undefined,
+      isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
     } as PracticeQuestion;
   });
 }
@@ -481,15 +482,39 @@ export async function buildPracticeQuestionsWithAiTopup(
       const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
       const isCompetency = Boolean((q as { isCompetencyBased?: unknown }).isCompetencyBased);
       if (qt === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple");
-      if (qt === "Proof") return fmt.includes("proof") || fmt.includes("prove");
-      if (qt === "Competency") return isCompetency || fmt.includes("competency") || fmt.includes("application");
+      if (qt === "Proof") {
+        const qId = String((q as { id?: unknown }).id ?? "").toLowerCase();
+        const qText = String((q as { questionText?: unknown }).questionText ?? "").toLowerCase().trim();
+        const qSub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
+        const qFmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
+        const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
+        const qSection = String((q as { section?: unknown }).section ?? "");
+        return (
+          /prf/i.test(qId) ||
+          /^prove\s+that/i.test(qText) ||
+          /^show\s+that/i.test(qText) ||
+          /^derive\s+/i.test(qText) ||
+          /proof|identit|tangent.propert|geometric.proof/i.test(qSub) ||
+          (
+            (qFmt === "long" || qFmt === "short") &&
+            qBloom === "Analysing" &&
+            (qSection === "C" || qSection === "D")
+          )
+        );
+      }
+      if (qt === "Competency") {
+        // Section A + Remembering is never competency-based regardless of skillFamily
+        const qSection = String((q as { section?: unknown }).section ?? "");
+        const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
+        if (qSection === "A" && qBloom === "Remembering") return false;
+        return isCompetency || fmt.includes("competency") || fmt.includes("application");
+      }
       if (qt === "AR") return fmt.includes("assertion") || fmt === "ar";
       if (qt === "Case") return fmt.includes("case") || (q as { section?: unknown }).section === "E";
       return true;
     });
-    // Only apply filter if it yields results — otherwise fall through with full pool
-    // (honest: "no X questions available" is better handled by showing empty state)
-    if (filtered.length > 0) bankQuestionsFiltered = filtered;
+    // Always apply filter — callers see honest empty state when no questions match
+    bankQuestionsFiltered = filtered;
   }
 
   // K2H-8f-b: UI-layer pyqOnly filter removed — engine layer (PR #133) now applies

@@ -22,6 +22,8 @@ export interface DesktopPracticePathInput extends DesktopRouteContext {
   section?: string;        // "A" | "B" | "C" | "D" | "E"
   difficulty?: string;     // "Easy" | "Medium" | "Hard"
   count?: number;          // 5 | 10 | 15 | 20
+  questionType?: string;   // "All" | "MCQ" | "Proof" | "Competency" | "AR" | "Case"
+  pyqOnly?: boolean;
 }
 
 export interface DesktopWorksheetPathInput extends DesktopRouteContext {
@@ -61,6 +63,12 @@ export const buildDesktopPracticePath = (input: DesktopPracticePathInput): strin
   if (input.section) params.set("section", input.section);
   if (input.difficulty) params.set("difficulty", input.difficulty);
   if (input.count) params.set("count", String(input.count));
+  if (input.questionType && input.questionType !== "All") {
+    params.set("questionType", input.questionType);
+  }
+  if (input.pyqOnly) {
+    params.set("pyq", "1");
+  }
   addContext(params, input);
   return withQuery("/practice-hub", params);
 };

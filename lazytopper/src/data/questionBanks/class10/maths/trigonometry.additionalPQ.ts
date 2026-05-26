@@ -75,7 +75,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
     ncertRef: "APQ PQ2 Q29", isCompetencyBased: true },
 
   // PQ1 Q30 (Section C, Short, 3 marks)
-  { id: "APQ-M-TRIG-008", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Construction in Semicircle", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+  { id: "APQ-M-TRIG-008", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Shown is a semicircle of radius 1 unit. Make necessary constructions and show the trig relation in the figure.",
     answer: "Geometric construction proof.",
     solutionSteps: ["Draw radius OR with R on the diameter PQ. In ΔRPO: sin θ = RP/OR ⟹ RP = sin θ (since OR = 1).", "Also cos θ = PO/OR ⟹ PO = cos θ.", "Using these in ΔRPQ, the required relation follows by elementary trigonometry."],

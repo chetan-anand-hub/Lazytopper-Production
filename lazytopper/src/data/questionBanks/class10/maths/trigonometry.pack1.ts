@@ -180,9 +180,12 @@ function makeTrigQuestion(spec: TrigQuestionSpec): TrigPackQuestion {
     solutionSteps: buildSolutionSteps(spec),
     finalAnswer: spec.finalAnswer ?? spec.answer,
     isCompetencyBased: (() => {
+      // Section A + Remembering is never competency-based regardless of skillFamily
+      const bloom = spec.bloomSkill ?? defaultBloom(spec.skillFamily);
+      if (spec.cbseFormat === "A" && bloom === "Remembering") return false;
       const fmt = FORMAT_BY_SECTION[spec.cbseFormat].toLowerCase();
       if (fmt.includes("case") || fmt.includes("assertion")) return true;
-      const bl = (spec.bloomSkill ?? defaultBloom(spec.skillFamily)).toLowerCase();
+      const bl = bloom.toLowerCase();
       return bl === "applying" || bl === "analysing" || bl === "evaluating" || bl === "creating";
     })(),
     strategyHint: spec.strategyHint ?? defaultStrategyHint(spec.skillFamily),
