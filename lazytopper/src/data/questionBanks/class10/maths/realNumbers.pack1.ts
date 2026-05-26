@@ -562,20 +562,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "sqrt(2) is a non-perfect square root, and its decimal expansion is non-terminating and non-repeating (1.414...). Therefore, sqrt(2) is irrational.",
     ],
   },
-  { id: "RN-N03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Using Euclid's division algorithm, HCF(455, 42) is:", options: ["7","14","21","1"], answer: "7", explanation: "The correct answer is 7. 455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", finalAnswer: "455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", isCompetencyBased: false,
-    solutionSteps: [
-      "An even integer is defined as an integer that is divisible by 2, leaving a remainder of 0.",
-      "According to Euclid's Division Lemma, any positive integer 'a' divided by 2 can be expressed as a = 2q + r, where 0 <= r < 2. So, r can be 0 or 1.",
-      "For 'a' to be an even integer, the remainder 'r' must be 0. Therefore, a = 2q + 0, which simplifies to a = 2q.",
-    ],
-  },
-  { id: "RN-ND01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Use Euclid's division algorithm to find HCF of 867 and 255. Hence find their LCM.", solutionSteps: [
-      "Apply Euclid's algorithm: dividend = divisor × quotient + remainder; 867 = 255 × 3 + 102 [1]",
-      "255 = 102 × 2 + 51; 102 = 51 × 2 + 0 [1]",
-      "Since remainder is 0, HCF(867, 255) = 51. [1]",
-      "LCM × HCF = Product of the two numbers [1]",
-      "LCM = (867 × 255) / 51 = 867 × 5 = 4335 [1]",
-    ], answer: "HCF = 51; LCM = 4335.", explanation: "See solution steps for full working.", finalAnswer: "HCF = 51; LCM = 4335.", isCompetencyBased: true },
   { id: "RN-ND02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: [
       "Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.; Squaring: 5 = p²/q² → p² = 5q². [1]",
       "5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.; Then (5m)² = 5q² → 25m² = 5q² → 5m² = q². [1]",

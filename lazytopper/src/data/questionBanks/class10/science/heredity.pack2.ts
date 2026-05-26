@@ -1054,27 +1054,6 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch9"
   },
   {
-    "id": "HE2-060",
-    "subject": "Science",
-    "topicKey": "Heredity",
-    "subtopic": "Hereditary Material",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "Differentiate between inherited traits and acquired traits. Give two examples of each and state why acquired traits cannot be inherited.",
-    "options": undefined,
-    "answer": "Inherited: coded in DNA/gametes (eye colour, blood group); Acquired: body cells only (muscles, tanned skin); acquired don't change germ cell DNA",
-    "solutionSteps": ["Inherited traits: determined by genes; present in DNA of germ cells; passed to offspring", "Examples: eye colour, blood group, attached or free earlobes, colour of hair", "Acquired traits: developed during the organism's lifetime; result of environment, learning, or injury", "Examples: body built through exercise, language spoken, a scar from an injury, tanned skin", "Why not inherited: acquired traits affect somatic (body) cells only; germ cells (egg and sperm) are not modified", "Since offspring inherit DNA from germ cells, somatic changes are not transmitted"],
-    "finalAnswer": "Inherited (eye colour, blood group) encoded in germ cell DNA; Acquired (muscles, tan) affect somatic cells only — germ cells unchanged",
-    "explanation": "Only changes in germ cell DNA are heritable. Acquired traits affect somatic cells and cannot modify the germ cell DNA passed to offspring.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch9"
-  },
-  {
     "id": "HE2-061",
     "subject": "Science",
     "topicKey": "Heredity",

@@ -128,11 +128,6 @@ export const HEREDITY_PACK1: CanonicalQuestion[] = [
       "(iii) Yes, X^c X^c daughter is colour-blind [1]",
       "(iv) Males have only one X; one defective X = colour-blind. Females need both X defective [1]",
     ], finalAnswer: "(i) 50% (ii) 50% (iii) Yes (iv) Males have single X; one defective = affected" , visualExplainerId: "science-heredity-evolution-mendels-laws-of-inheritance", isCompetencyBased: true },
-  { id: "HE-H06", subject: "Science", topicKey: "Heredity", subtopic: "Mendel's Laws", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "How are inherited traits different from acquired traits? Why can't acquired traits be passed to the next generation?", solutionSteps: [
-      "Inherited traits: coded in DNA, passed from parents to offspring through gametes; Acquired traits: developed during lifetime due to environmental factors [1]",
-      "Acquired traits affect only somatic (body) cells, not germ (reproductive) cells; Since reproductive cells are unaffected, acquired traits cannot be inherited [1]",
-      "Example: muscular body from exercise (acquired, not inherited) [1]",
-    ], finalAnswer: "Inherited=in DNA/gametes; Acquired=somatic only, don't affect germ cells → not passed on" , isCompetencyBased: true },
   { id: "HE-H08", subject: "Science", topicKey: "Heredity", subtopic: "Mendel's Laws", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "State the law of independent assortment. How does a dihybrid cross demonstrate it?", solutionSteps: [
       "Punnett Square: Set up a 2×2 grid. Write the two parental gametes along the top and left side. Fill all four cells to obtain offspring genotypes. State the genotypic ratio and phenotypic ratio.; Law: when two pairs of traits are combined in a hybrid, segregation of one pair is independent of the other [1]",
       "In a dihybrid cross RrYy × RrYy, each parent produces 4 gamete types: RY, Ry, rY, ry; All combinations are equally likely → 9:3:3:1 ratio in F₂ [1]",
@@ -238,11 +233,4 @@ export const HEREDITY_PACK1: CanonicalQuestion[] = [
       "Cross: X (egg) × Y-sperm → XY (male child); Probability of girl or boy = 50% each [1]",
       "The sex of the child depends on which sperm (X or Y) fertilises the egg — determined by the father; Blaming the mother is scientifically wrong; she can only contribute X chromosomes [1]",
     ], finalAnswer: "XX=female, XY=male; father's X-or-Y sperm decides sex; mother always gives X; blame on mother is scientifically wrong", visualExplainerId: "science-heredity-evolution-sex-determination", isCompetencyBased: true },
-  { id: "HE-D03", subject: "Science", topicKey: "Heredity", subtopic: "Mendel's Laws", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Distinguish between inherited and acquired traits. Can acquired traits be passed to offspring? Explain with examples. Discuss why this matters for understanding heredity.", solutionSteps: [
-      "Inherited traits: characteristics controlled by genes, present in DNA, passed from parents to offspring via gametes; Examples: eye colour, blood group, skin colour, height [1]",
-      "Acquired traits: characteristics developed during the lifetime of an organism due to environmental factors/learning/injury; Examples: muscular body from exercise, lost limb, language learned, tanned skin [1]",
-      "Can acquired traits be passed on? NO — they affect somatic (body) cells, not germ (reproductive) cells [1]",
-      "Since gametes (egg, sperm) are unaffected by changes to somatic cells, acquired traits cannot be inherited [1]",
-      "This matters: proves that the 'inheritance of acquired characteristics' (Lamarck's idea) is wrong; only changes in germ cells can be inherited [1]",
-    ], finalAnswer: "Inherited: in DNA/gametes (e.g. blood group); Acquired: body cells only (e.g. exercise muscles); acquired cannot be inherited as germ cells are unaffected", isCompetencyBased: true },
 ];

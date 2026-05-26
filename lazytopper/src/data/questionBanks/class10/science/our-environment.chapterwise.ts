@@ -169,47 +169,35 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "(d) organisms linked in food chain",
     ncertRef: "cbjescco15 Q23", isCompetencyBased: true },
   // cbjesccq15 Q1 (Section A, 1mk)
-  { id: "SCQ-S-ENV-021", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "SCQ-S-ENV-021", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is an ecosystem? [Delhi 2017, CBSE 2014]",
     answer: "Ecosystem is an interaction of physical and biotic factors present in an area among each other.",
     solutionSteps: ["Ecosystem is an interaction of physical and biotic factors present in an area among each other."],
     ncertRef: "cbjesccq15 Q1", isCompetencyBased: false },
   // cbjesccq15 Q2 (Section A, 1mk)
-  { id: "SCQ-S-ENV-022", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "SCQ-S-ENV-022", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Why is forest/lake considered a natural ecosystem?",
     answer: "[Delhi 2017] Forests and lakes have both biotic and abiotic components which are present naturally and are interacting without manjs interference.",
     solutionSteps: ["[Delhi 2017] Forests and lakes have both biotic and abiotic components which are present naturally and are interacting without manjs interference."],
     ncertRef: "cbjesccq15 Q2", isCompetencyBased: true },
   // cbjesccq15 Q3 (Section A, 1mk)
-  { id: "SCQ-S-ENV-023", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "SCQ-S-ENV-023", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If in the following food chain, 100 J of energy is available to the lion, how much energy was available to the producer? Plants Deer -> Lion",
     answer: "[All India 2017] 10,000 J.",
     solutionSteps: ["[All India 2017] 10,000 J."],
     ncertRef: "cbjesccq15 Q3", isCompetencyBased: true },
   // cbjesccq15 Q4 (Section A, 1mk)
-  { id: "SCQ-S-ENV-024", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "SCQ-S-ENV-024", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "In a food chain of frog, grass, insect and snake, assign trophic level to frog.",
     answer: "[All India 2016] Grass $ Insect $ Frog $ Snake Frog is in 3rd trophic level i.e., secondary consumer.",
     solutionSteps: ["[All India 2016] Grass $ Insect $ Frog $ Snake Frog is in 3rd trophic level i.e., secondary consumer."],
     ncertRef: "cbjesccq15 Q4", isCompetencyBased: false },
   // cbjesccq15 Q5 (Section A, 1mk)
-  { id: "SCQ-S-ENV-025", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
+  { id: "SCQ-S-ENV-025", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "In a food chain of rabbit, grass and fox, assign trophic level to rabbit. [Delhi 2016]",
     answer: "Grass $ rabbit $ fox Rabbit is a primary consumer or a herbivore or 1st trophic level.",
     solutionSteps: ["Grass $ rabbit $ fox Rabbit is a primary consumer or a herbivore or 1st trophic level."],
     ncertRef: "cbjesccq15 Q5", isCompetencyBased: false },
-  // cbjesccq15 Q6 (Section A, 1mk)
-  { id: "SCQ-S-ENV-026", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "A", marks: 1, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Give one protective function of forests. [CBSE 2016]",
-    answer: "Forests reduce atmospheric pollution.",
-    solutionSteps: ["Forests reduce atmospheric pollution."],
-    ncertRef: "cbjesccq15 Q6", isCompetencyBased: false },
-  // cbjesccq15 Q61 (Section B, 2mk)
-  { id: "SCQ-S-ENV-027", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "State two advantages of conserving (i) forests (ii) wild life",
-    answer: "[All India 2017] (i) Advantages of conserving forest are termed as kbiodiversity hotspotsl. They have large number of species of plants and animals. (a) They purify air, help in recharging groundwater, bring rains and maintain the fertility of soil. (b) They are also a source of ",
-    solutionSteps: ["[All India 2017] (i) Advantages of conserving forest are termed as kbiodiversity hotspotsl. They have large number of species of plants and animals. (a) They purify air, help in recharging groundwater, bring rains and maintain the fertility of soil. (b) They are also a source of income for tribal people. (ii) Wild life is important (a) To preserve bio-diversity. (b) As each species has a position in the food chain so wildlife helps in balancing the nature."],
-    ncertRef: "cbjesccq15 Q61", isCompetencyBased: false },
   // cbjesccq15 Q62 (Section B, 2mk)
   { id: "SCQ-S-ENV-028", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What are ozone holes? How do they form?",
@@ -282,10 +270,4 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "[All India 2013] All wastes generated are not of the same nature. Biodegradable wastes such as plant and animal can be acted upon by decomposers in nature and broken down easily in simpler substances as they possess enzymes to do so. Example: animal excreta, fruit peels, leftover",
     solutionSteps: ["[All India 2013] All wastes generated are not of the same nature. Biodegradable wastes such as plant and animal can be acted upon by decomposers in nature and broken down easily in simpler substances as they possess enzymes to do so. Example: animal excreta, fruit peels, leftover food, crop refuge and so on. Some other wastes or materials especially the ones produced by man can not be broken down by decomposers as they do not possess enzymes to do so. They are non biodegradable wastes such as some pesticide-DDT, detergents, plastics, radioactive wastes, metals etc. These substance may be broke"],
     ncertRef: "cbjesccq15 Q105", isCompetencyBased: true },
-  // cbjesccq15 Q106 (Section D, 5mk)
-  { id: "SCQ-S-ENV-040", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Give one instance where peoplejs participation helped to save this natural resource? Why should forests be conserved?",
-    answer: "[All India 2009] [Delhi 2017] Chipko movement i.e., khug the trees movementl is one of the movements in India to conserve biodiversity and to the end the alienation of people from their forests which started in March 1973 by Sunder Lal Bahuguna in Hilly areas like Himachal Prades",
-    solutionSteps: ["[All India 2009] [Delhi 2017] Chipko movement i.e., khug the trees movementl is one of the movements in India to conserve biodiversity and to the end the alienation of people from their forests which started in March 1973 by Sunder Lal Bahuguna in Hilly areas like Himachal Pradesh. Two benefits are: (i) Existing forest cover was protected reducing landslides, land erosion. It actually protected environment and maintained ecological balance. (ii) Forest wealth could be utilized for food, fodder, fuel, fertilizers and fibers keeping in mind its conservation. We should conserve forests as: (i) Fo"],
-    ncertRef: "cbjesccq15 Q106", isCompetencyBased: true },
 ];

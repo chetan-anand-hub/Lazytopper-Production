@@ -14,12 +14,6 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "The 'answer' field is empty, so the final answer will also be empty.",
     ],
   },
-  { id: "STAT-E04", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In the formula for mean by step deviation method, dᵢ = (xᵢ − a)/h, what does 'a' represent?", options: ["Assumed mean", "Actual mean", "Median", "Mode"], answer: "Assumed mean", explanation: "The correct answer is Assumed mean. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Assumed mean" , isCompetencyBased: false,
-    solutionSteps: [
-      "The question text is missing, so specific solution steps cannot be provided.",
-      "The 'answer' field is empty, so the final answer will also be empty.",
-    ],
-  },
   { id: "STAT-E05", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the mean of the following distribution: Class: 10–20, 20–30, 30–40; Frequency: 5, 8, 7.", solutionSteps: [
       "Mid-values: 15, 25, 35; Σfx = 75+200+245 = 520 [½]",
       "Σf = 20 [½]",
@@ -93,11 +87,6 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "Substitute the values: Mode = 3(25) − 2(28) = 75 − 56. [½]",
       "Mode = 19. [½]",
     ], finalAnswer: "19" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT-M01", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the mean of the following data using the step deviation method:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100\nFrequency: 7, 8, 12, 10, 3", solutionSteps: [
-      "a = 50, h = 20; dᵢ: −2, −1, 0, 1, 2 [1]",
-      "Σfᵢdᵢ = −14−8+0+10+6 = −6 [1]",
-      "Mean = 50 + (−6/40)×20 = 50 − 3 = 47 [1]",
-    ], finalAnswer: "47" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-M02", subject: "Maths", topicKey: "Statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the median for:\nClass: 0–10, 10–20, 20–30, 30–40, 40–50\nFrequency: 5, 8, 20, 15, 7\nCumulative: 5, 13, 33, 48, 55", solutionSteps: [
       "n = 55, n/2 = 27.5; Median class: 20–30 (cf just ≥ 27.5 is 33) [1]",
       "l=20, cf=13, f=20, h=10 [1]",
@@ -254,13 +243,6 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "CF: 2,6,24,45,78. Median class: 35–40 [1]",
       "Median = 35 + (50−45)/33 × 5 = 35 + 0.76 = 35.76 [1]",
     ], finalAnswer: "35.76 years" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
-  { id: "STAT2P1-R01", subject: "Maths", topicKey: "Statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The step deviation method for computing mean is most suitable when:", options: ["Class widths are unequal", "All class widths are equal", "Data is ungrouped", "Mode is required"], answer: "All class widths are equal", explanation: "The correct answer is All class widths are equal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "All class widths are equal", isCompetencyBased: false,
-    solutionSteps: [
-      "Recall the formula for calculating the mean using the step-deviation method.",
-      "The formula is Mean = a + [ (sum of fi*ui) / (sum of fi) ] * h, where 'a' is assumed mean, 'h' is class size, and ui = (xi - a)/h.",
-      "Identify the correct option or apply given values to this formula to find the mean.",
-    ],
-  },
   { id: "STAT2P1-R02", subject: "Maths", topicKey: "Statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the median for data: Class: 0–10, 10–20, 20–30, 30–40, 40–50; Frequency: 5, 9, 19, 9, 8.", solutionSteps: [
       "Total frequency n = 5+9+19+9+8 = 50, so n/2 = 25. [½]",
       "Cumulative frequencies: 5, 14, 33, 42, 50. First cf ≥ 25 is 33, so median class = 20–30. [½]",

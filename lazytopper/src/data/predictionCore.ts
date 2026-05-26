@@ -33,7 +33,7 @@ function normaliseTopic(raw: string): string {
     .trim()
     .toLowerCase()
     .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ");
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function toCanonicalFormat(kind: string | undefined): QuestionFormat {
