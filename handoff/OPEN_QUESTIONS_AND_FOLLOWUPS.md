@@ -1,3 +1,115 @@
+## 2026-05-26 — Post-PR #150 + #151 (PYQ 2024 Maths re-run + permanent tagging/filter/step-marks fix)
+
+### CLOSED — ISSUE-001 Practice type filters broken (PR #151)
+Symptoms (pre-fix):
+  - Competency chip returned 0 questions
+  - Proof chip returned only 2 questions out of 70+ proof items in bank
+Root causes:
+  - `isCompetencyBased` not forwarded in CanonicalQuestion → PracticeQuestion mapping
+  - Proof predicate matched `fmt.includes("proof")` but format strings are
+    "Long"/"Short" since PR #112 (field value "Proof" was retired)
+Fix (PR #151):
+  - Added `isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased`
+    to the mapping in practiceQuestionBuilder.ts:268
+  - Broadened Proof predicate at L2 and L3: PRF IDs + `prove that` / `show that` /
+    `derive ` anchored text + subtopic regex (proof|identit|tangent.propert|
+    geometric.proof) + Long/Short + Analysing + Section C/D safety net
+  - Added Section A + Remembering override (3 sites) so recall questions
+    never qualify as Competency
+  - L2 soft fallback removed — honest empty state when no questions match
+
+### CLOSED — ISSUE-002 Step marks hidden for canonical bank questions (PR #151)
+Symptom: "Step marks are hidden because this solution is a guide" banner
+showed for all multi-step bank questions, hiding per-step CBSE marks.
+Root cause: hasUnsafeWrittenStepMarks fired whenever step marks didn't sum
+to the question total, including for valid bank questions.
+Fix (PR #151): Added `isCanonicalBankQuestion` boolean
+(id present + not "ai-" prefix + solutionSteps non-empty + marks > 1) and
+short-circuited hasUnsafeWrittenStepMarks to false for canonical questions.
+AI question safety net preserved (still fires for AI questions with mismatched step marks).
+
+### RESOLVED — ISSUE-003 Mojibake in NCERT/Exemplar files
+Probe scan (PR #151 session) of all *.ncert.ts + *.exemplar.ts files in
+maths/ and science/ returned **0 mojibake hits**. Files were already clean
+(likely fixed by a prior PR before this session). No action needed.
+
+### NEW OPEN — ISSUE-006 Hindi PYQ garbled question in bank (P0 — must fix before launch)
+Symptom (from PR #151 smoke test on Vercel preview): one PYQ question
+renders garbled Devanagari script transliterated to ASCII patterns
+(`OgHo$`, `_mZ`, `H$m`, `bE 2 sin`).
+Root cause: Hindi-medium PYQ paper extracted without language detection;
+Devanagari mojibake'd to ASCII.
+Priority: P0 — renders broken text to students
+Fix (next small PR — combine with ISSUE-007):
+  - Branch: fix/remove-hindi-garbled-pyq
+  - Search command:
+    Select-String -Recurse -Path "lazytopper\src\data\questionBanks\class10" `
+      -Include "*.ts" -Pattern "OgHo|_mZ|H\$m|bE 2 sin"
+  - Identify question ID, remove from source pack file
+
+### NEW OPEN — ISSUE-007 Proof filter catches Section A conceptual questions (P0)
+Symptom (from PR #151 smoke test): "In a proof, from which side do you start?"
+(a Section A recall MCQ about proof technique) appears in Proof filter results.
+Root cause: PR #151's broadened Proof predicate matches subtopic keywords
+("proof"/"identit"/"tangent.propert") even when the question itself is a
+Section A recall MCQ ABOUT proofs, not a proof exercise.
+Priority: P0 — pollutes Proof filter with recall questions
+Fix (one line each in two files — combine with ISSUE-006 in same small PR):
+  Add at TOP of Proof branch in practiceQuestionBuilder.ts (~line 485) and
+  PracticePage.tsx (~line 290):
+    const qSection = String((q as { section?: unknown }).section ?? "");
+    if (qSection === "A") return false;
+Branch: fix/remove-hindi-garbled-pyq (combined PR)
+
+### NEW OPEN — ISSUE-008 VSA-format doctrine decision (P1)
+96 questions in the bank use `format: "VSA"`:
+  - 90 in Section B + 2 marks
+  - 6 in Section A + 1 mark
+These aren't covered by the 7 section×format migration rules in PR #151.
+"VSA" (Very Short Answer) is a legitimate CBSE format but doesn't map cleanly
+to the current filter chips. Decisions needed:
+  - Should VSA questions appear under "Short" in filter chips, or as a separate chip?
+  - Should A+VSA+1mk be retagged to A+MCQ+1mk + force options? (only if options exist)
+Defer until post-launch UX review.
+
+### Session learnings (carry forward)
+
+- **Smoke test on Vercel preview is mandatory** for filter/UI changes before merge.
+  Several violations only surfaced in real usage that audits missed.
+- **Section A excluded from Proof predicate**: conceptual questions about a
+  technique should never match the technique's own filter.
+- **Pack builder group-default section assignment** is the root cause of
+  wrong-section questions, not filter code.
+- **Hindi-medium PYQ files** can contain garbled Devanagari script —
+  extraction scripts must detect and skip non-English content.
+- **stash → rebase → pop** is the correct sequence when base advances during agent work.
+- **Section×format migration** (Option B Rule 7) is repeatable for future audits;
+  script at C:\Users\Chetan\OneDrive\Desktop\diff\fix_section_format_migration.mjs
+
+### Decisions recorded this session
+
+1. **Filter system redesign (next sprint)**: 2-layer default/advanced
+   ("Competency" → "Application & Scenario", Section labels → Mark labels,
+   Difficulty moves to advanced panel, Source filter added,
+   Section A excluded from Proof)
+
+2. **Pack quality strategy (launch)**: Option B — remove structural outliers
+   for launch (Section D + Remembering recall questions, Section A + Short
+   without MCQ options), regenerate from stricter prompts post-launch
+
+3. **Academic calendar alignment (confirmed)**: Launch first week of June 2026.
+   Primary use case at launch: chapter-by-chapter practice + worksheet generation.
+   Filter complexity not needed until September (PT1 season). Full timed mock +
+   advanced filter system needed before October (half-yearly).
+
+4. **Tagging doctrine for future content**:
+   `isCompetencyBased: true` ONLY if real-world context OR AR/Case format OR
+   Analysing+ Bloom — NOT just "Bloom ≥ Applying".
+   Proof filter: Section A questions NEVER qualify regardless of subtopic.
+   Section assignment: must be per-question editorial judgment, not group default.
+
+---
+
 ## 2026-05-25 — Post-PR #137 (P4-S PYQ Science 111 Qs; **P4 phase complete: 214 board PYQs**)
 
 ### RESOLVED — P4-S PYQ Science extraction (PR #137)

@@ -1,5 +1,166 @@
 ---
 
+## 2026-05-26 — Post-PR #150 + #151: PYQ 2024 Maths + permanent tagging/filter/step-marks fix
+
+### Starting state
+- Base at session start: 670434c (post-#147+#148 docs handoff)
+- Base after PR #150 merge: cfadd9e
+- Base after PR #151 merge: 547da58 (current HEAD on origin/base/approved-thru-437)
+- Active PRs at session start: none
+
+### Work completed
+
+1. PR #150 merged — P4-M PYQ 2024 Maths (96 questions, 13 topic files, pyqYear "2024")
+   - Section balance: A=30 (31.3%) B=22 C=29 D=7 E=8 — within target
+   - syllabusGuard: 0 violations
+   - Tests: 137/137 PASS
+   - Spreads: 253 → 266 (+13)
+
+2. Comprehensive tagging + filter audit (2026-05-26)
+   - Audit script scanned all 6,042 questions
+   - 1,242 questions with ≥1 violation (20.6% violation rate)
+   - Filter system audit revealed 5 soft fallback locations
+   - Browser smoke test on Vercel preview confirmed: Proof filter showing only 2
+     questions (too narrow), Competency filter showing recall questions, Section D
+     showing trivial recall questions, Hindi PYQ question with garbled Devanagari
+     encoding present in bank
+
+3. PR #151 merged — permanent tagging, filter & step marks fix (32 files, commit 087ba40)
+   - ISSUE-001 CLOSED: Competency filter (isCompetencyBased mapping added at
+     practiceQuestionBuilder.ts:268), Proof filter broadened (PRF IDs +
+     prove/show/derive text + subtopic keywords + Long/Short+Analysing+SectionC/D
+     safety net at both L2 and L3 sites)
+   - ISSUE-002 CLOSED: Step-marks "guide-only" banner suppressed for canonical
+     bank questions (id present + non-AI prefix + solutionSteps non-empty + marks > 1)
+   - 18 genuine 2026-27 syllabus violations removed (8 step-deviation, 2 Euclid's
+     algorithm, 3 acquired-traits/Lamarck, 3 forest-conservation, 1 heart-evolution
+     PYQ, 1 inline case-study + APQ-M-TRIG-008 kept with subtopic renamed)
+   - 25 inline section×marks mismatches fixed in canonicalQuestionBank.ts
+     (23 section B→C, 2 section B→A + format Short→MCQ)
+   - isCompetencyBased added to 97 missing questions (37 trigonometry.pack2,
+     34 triangles.pack2, 26 inline canonicalQuestionBank.ts literals)
+   - Section A + Remembering competency override (3 sites: L2 filter, L3 filter,
+     trigonometry.pack1 builder IIFE)
+   - L2 soft fallback removed (practiceQuestionBuilder.ts) — honest empty state
+     instead of silent full-pool fallback
+   - Our Environment normaliser fixed (predictionCore.ts:36) — separator collapse
+     merges "our-environment" + "OurEnvironment" topic keys (156 questions now
+     reachable from one entry point)
+   - questionType + pyqOnly forwarded through navigation.ts and DesktopPracticePage.tsx
+   - Section×format migration (Option B): 77 A+Short+noOptions questions migrated
+     to B+2mk across 13 Science chapterwise files (Rule 7 only; D+MCQ / D+Short
+     Rules 1-3 found 0 matches as those combos don't exist in the current bank)
+   - Tests: 137/137 PASS, TypeScript exit 0, build exit 0, syllabusGuard exit 0,
+     validateQuestionBanks exit 0, duplicate IDs 0
+
+### GitHub evidence
+
+- PR #150: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/150
+  Base after merge: cfadd9e
+- PR #151: https://github.com/chetan-anand-hub/Lazytopper-Production/pull/151
+  Head commit: 087ba40 | 32 files changed, +406/-552 | Base after merge: 547da58
+
+### Validation evidence (PR #151)
+
+- TypeScript: exit 0
+- Build: exit 0 (17.67s)
+- Test matrix: 137/137 PASS
+- syllabusGuard: exit 0
+- validateQuestionBanks: exit 0
+- Duplicate IDs: 0
+- git diff --check: clean
+- Diff scope: 32 expected files (no unexpected files)
+
+### Decisions made this session
+
+1. FILTER SYSTEM REDESIGN (agreed, implementation next sprint):
+   Default visible (2 rows):
+     Row 1 — Question Style: All · MCQ · Proof · Application & Scenario ·
+              Assertion-Reasoning · Case-based
+     Row 2 — Marks: All · 1 mark · 2 marks · 3 marks · 5 marks · Case (4 marks)
+   Toggle: "Board exam questions only" (PYQ) — always visible
+   Advanced (expandable): Difficulty row + Source row (Authentic only / Practice only)
+   Key changes: "Competency" → "Application & Scenario", Section labels → Mark labels,
+   Difficulty to advanced panel, Source filter added, Section A excluded from Proof
+
+2. PACK QUESTION QUALITY STRATEGY (agreed):
+   Option B — remove structural outliers for launch, regenerate post-launch
+   Structural outliers to remove: Section D + Remembering recall questions,
+   Section A + Short without MCQ options
+   Keep rest of pack questions as practice volume even if imperfect
+
+3. ACADEMIC CALENDAR ALIGNMENT (confirmed):
+   Launch: first week of June 2026
+   Primary use case at launch: chapter-by-chapter practice + worksheet generation
+   Filter complexity not needed by students until September (PT1 season)
+   Timed mock + full filter system needed before October (half-yearly)
+
+4. TAGGING DOCTRINE FOR FUTURE CONTENT:
+   isCompetencyBased: true ONLY if real-world context OR AR/Case format OR
+   Analysing+ Bloom — NOT just "Bloom ≥ Applying"
+   Proof filter: Section A questions NEVER qualify regardless of subtopic
+   Section assignment: must be per-question editorial judgment, not group default
+
+### Session learnings
+
+- Pack builder group-default section assignment is the root cause of wrong-section
+  questions (not the filter code). Filter code is now correct; data tagging was wrong.
+- Proof predicate needs Section A exclusion — conceptual questions about proof
+  technique (subtopic "Proof pattern writing") were being caught by keyword match.
+- Hindi-medium PYQ files can contain garbled Devanagari script — extraction
+  scripts must detect and skip non-English content. Add to extraction doctrine.
+- Smoke testing on Vercel preview before merging is mandatory for filter/UI changes.
+- stash → rebase → pop is the correct sequence when base advances during agent work.
+- Section×format migration script (Option B) successfully moved 77 questions
+  to correct CBSE sections in one automated pass. The audit's "431" estimate
+  included builder-generated questions (not text-replaceable) and items already
+  fixed in earlier rounds.
+- The bank has 96 VSA-format questions (90 in Section B + 6 in Section A) not
+  covered by the 7 migration rules — needs a separate doctrine decision.
+- NCERT/Exemplar mojibake probe found 0 hits; files were already clean (likely
+  fixed by an earlier PR before this session).
+
+### Roadmap impact
+
+- ISSUE-001 closed (Competency + Proof filters working)
+- ISSUE-002 closed (step marks visible on bank questions)
+- Two NEW P0 issues opened from smoke test: ISSUE-006 (Hindi garbled PYQ) and
+  ISSUE-007 (Proof Section A exclusion — one-line fix)
+
+### Known issues / follow-ups (after this session)
+
+REMAINING P0 (must fix before launch):
+  1. ISSUE-006: Hindi PYQ garbled question in bank — find and remove
+     (search for OgHo or _mZ pattern in PYQ files)
+  2. ISSUE-007: Proof filter catches Section A conceptual questions — add Section A
+     exclusion (one line: if (qSection === "A") return false; at top of Proof branch
+     in BOTH practiceQuestionBuilder.ts and PracticePage.tsx)
+  3. Clerk production keys — switch pk_test_ to pk_live_ on Vercel
+  4. API gateway — Railway deploy + vercel.json rewrite (all AI features 404 in prod)
+
+REMAINING P1 (pre-launch):
+  5. P5 sample paper extraction (~200 questions from sample + preboard papers)
+  6. Filter UX redesign — rename chips, 2-layer default/advanced layout
+  7. Practice end-of-session debrief (session results screen)
+  8. Timed mock UI polish (match overall design system)
+  9. HPQ content QA (solutionSteps contradictions in ple-hpq-103, ple-hpq-105)
+  10. Worksheet generator PDF format audit
+  11. VSA-format doctrine decision (96 questions outside the 7 migration rules)
+
+POST-LAUNCH:
+  12. Pack question regeneration with stricter per-section prompts
+  13. K2D → Mistake Intelligence aggregation (weak areas, mastery scores)
+  14. practiceFilterGuard.test.ts (Tier 3 behavioural tests)
+  15. TutorDrawerV2 decision
+
+### Next safe action
+
+1. Merge this handoff PR (#152 expected)
+2. Fix ISSUE-006 + ISSUE-007 in one small PR (Hindi garbled + Proof Section A)
+3. Then: P5 sample paper extraction
+
+---
+
 ## 2026-05-25 — P4 PYQ 2024 Maths + Science (PR #147 + #148) — 172 board PYQs added
 
 ### Starting state

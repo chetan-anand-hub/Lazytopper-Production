@@ -1,6 +1,118 @@
 # LazyTopper Current Handoff State
-Last updated: 2026-05-25 (post-PR #147 + #148 — P4 PYQ 2024 Maths + Science, 172 board exam Qs added)
-Live base SHA: a52b10b4f9af3adc0161e8e2082cf7fc9e17f297
+Last updated: 2026-05-26 (post-PR #150 + #151 — PYQ 2024 Maths + permanent tagging/filter/step-marks fix)
+Live base SHA: 547da58b47906dab4f419afb371ab0887b0e0c51
+
+## Post-PR #150 + #151 — PYQ 2024 Maths + permanent tagging/filter/step-marks fix
+
+Timestamp: 2026-05-26
+Base after PR #150 merge: cfadd9e
+Base after PR #151 merge: 547da58 (current live base)
+Last merged PR: #151
+
+### PR #150 | content: P4-M PYQ 2024 (re-run) — 96 Qs verbatim across 13 Maths topic files
+Branch: content/p4-pyq-2024-maths (squash-merged — branch deleted)
+Base after merge: cfadd9e
+
+Questions: 96 Maths PYQs (pyqYear: "2024")
+Section balance: A=30 (31.3%) B=22 C=29 D=7 E=8 — within target
+Spreads delta: 253 → 266 (+13)
+Source: 13 text-extractable QPs from 30/2/x–30/5/x + 30(B)
+Syllabus filter: 0 banned 2026-27 topics in output
+Test matrix: 137/137 PASS at merge
+
+### PR #151 | fix: permanent tagging, filter & step marks — launch-ready
+Branch: fix/tagging-and-filters (squash-merged — branch deleted)
+Head commit: 087ba40
+Base after merge: 547da58
+Files: 32 (+406 insertions, -552 deletions)
+Closes ISSUE-001 (filter bugs) and ISSUE-002 (step marks)
+
+FILTER FIXES (6 code files):
+- practiceQuestionBuilder.ts:268 — isCompetencyBased forwarded in CanonicalQuestion→PracticeQuestion mapping
+- practiceQuestionBuilder.ts:485-503 — Proof predicate broadened (PRF IDs + prove/show/derive + subtopic keywords + Long/Short+Analysing+SectionC/D safety net)
+- practiceQuestionBuilder.ts (Competency branch) — Section A + Remembering always returns false override
+- practiceQuestionBuilder.ts:495-496 — L2 soft fallback removed (filters now return honest empty state)
+- PracticePage.tsx:290-308 — L3 Proof predicate matched to L2 broadened logic
+- PracticePage.tsx (Competency branch) — same Section A + Remembering override
+- predictionCore.ts:36 — Our Environment normaliser fixed (separator collapse: "our-environment" + "OurEnvironment" merge; 156 questions now reachable from single topic key)
+- navigation.ts — questionType + pyqOnly added to DesktopPracticePathInput interface + forwarded to URL params
+- DesktopPracticePage.tsx — buildLegacyPracticePath signature + body forward questionType + pyqOnly through navigation
+
+STEP MARKS FIX (1 code file):
+- PracticeQuestionCard.tsx — guide-only banner suppressed when isCanonicalBankQuestion (id present + not "ai-" prefix + solutionSteps non-empty + marks > 1). AI question safety net preserved.
+
+DATA FIXES (26 data files):
+- canonicalQuestionBank.ts — 23 inline literals section B→C (marks=3) + 2 section B→A + format Short→MCQ (marks=1) + 26 isCompetencyBased flags added
+- trigonometry.pack1.ts — Section A + Remembering override added to builder IIFE so questions are born with correct tag
+- trigonometry.pack2.ts + triangles.pack2.ts — 71 isCompetencyBased flags added (37+34)
+- 18 syllabus violations removed across 10 files:
+  - realNumbers.pack1.ts: RN-N03, RN-ND01 (Euclid's algorithm — banned)
+  - statistics.pack1.ts: STAT-E04, STAT-M01, STAT2P1-R01 (step deviation)
+  - statistics.pack2.ts: ST2-015, ST2-023, STAT2-R01, STAT2-R06 (step deviation)
+  - statistics.ncert.ts: STAT-N-NCERT-13-AR-001 (step deviation in Reason)
+  - maths.caseBased.ts: CASE-MATHS-STAT-001 (step-deviation case study)
+  - trigonometry.additionalPQ.ts: APQ-M-TRIG-008 KEPT with subtopic renamed (incidental geometry, not Constructions chapter)
+  - heredity.pack1.ts: HE-H06, HE-D03 (acquired traits / Lamarck)
+  - heredity.pack2.ts: HE2-060 (acquired traits)
+  - our-environment.chapterwise.ts: SCQ-S-ENV-026, SCQ-S-ENV-027, SCQ-S-ENV-040 (forest conservation)
+  - lifeProcesses.pyq2026.ts: PYQ-S-2026-LIFEP-008 (heart-evolution PYQ)
+- Section×format migration (Option B Rule 7): 77 A+Short+noOptions → B+2mk across 13 Science chapterwise files
+
+Validations (PR #151 at merge):
+  TypeScript: exit 0
+  Build: exit 0 (17.67s)
+  Test matrix: 137/137 PASS
+  syllabusGuard: exit 0
+  validateQuestionBanks: exit 0
+  Duplicate IDs: 0
+  git diff --check: clean
+
+### Combined bank state (post-PR #150 + #151)
+Total questions: ~6,120 (5,828 in pack files + 26 inline canonical + builder-generated items)
+  - Authentic: ~3,341 (NCERT + Exemplar + PYQ 2023/2024/2025/2026 + SQP + APQ + Chapterwise)
+  - AI-Generated: ~2,779 (Pack-1 + Pack-2 + Pack-3 + Synthetic variants)
+  - PYQs: 857 total (4 complete years)
+    - 2022-23 (pyqYear "2023"): 214 Qs (103M + 111S) — PR #135+#137
+    - 2023-24 (pyqYear "2024"): 172 Qs (96M + 76S) — PR #147+#148+#150
+    - 2024-25 (pyqYear "2025"): 182 Qs (57M + 125S) — PR #144+#145
+    - 2025-26 (pyqYear "2026"): 193 Qs (42M + 151S) — PR #141+#142
+  - canonicalQuestionBank.ts spreads: 266 (post-PR #150) — unchanged by #151 (no new imports)
+
+### Filter system state (post-PR #151)
+All filter chips: WORKING
+  - MCQ: working
+  - Proof: working (broadened — PRF IDs + prove/show/derive + subtopics + safety net)
+    KNOWN ISSUE: Section A conceptual questions still caught — see ISSUE-007 (one-line fix pending)
+  - Competency: working (isCompetencyBased mapping + Section A + Remembering override)
+  - Assertion-Reasoning: working
+  - Case-based: working
+  - PYQ toggle: working
+  - Section / Difficulty: working
+  - Our Environment topic: fixed (normaliser merged 156 split questions)
+  - questionType + pyqOnly: now forwarded through navigation
+
+### Step marks state (post-PR #151)
+Guide-only banner: REMOVED for canonical bank questions
+Step mark badges: visible when solutionSteps contain explicit mark notation
+                  (content gap for questions without mark notation — not a code issue)
+
+### Tests
+137/137 PASS (5 test files)
+syllabusGuard: exit 0
+validateQuestionBanks: exit 0
+
+### Open P0 issues (must fix before launch — first week of June 2026)
+1. ISSUE-006: Hindi PYQ garbled question in bank (search: OgHo or _mZ in PYQ files)
+2. ISSUE-007: Proof filter Section A exclusion (one-line code fix)
+3. Clerk pk_live_ keys (Vercel env var change)
+4. API gateway Railway deploy (all AI features 404 in production)
+
+### Decisions this session
+- Filter redesign for next sprint: 2-layer default/advanced, student vocabulary
+  ("Competency" → "Application & Scenario", Section labels → Mark labels)
+- Pack quality strategy: Option B (remove structural outliers, regenerate post-launch)
+- Tagging doctrine: isCompetencyBased requires real-world context, AR/Case, OR Analysing+
+- Section A excluded from Proof predicate (next small PR)
 
 ## Post-PR #147 + #148 — P4 PYQ 2024: 172 board exam questions added (Maths + Science)
 
