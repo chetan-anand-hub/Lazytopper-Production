@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
@@ -89,8 +90,8 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
             This can happen if the topic name didn't match our question bank. Here's what you can do:
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 320, margin: "0 auto" }}>
-            <a
-              href={`/topic-hub/10/${subjectKey}`}
+            <Link
+              to={`/topic-hub/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
                 background: "hsl(152, 55%, 45%)", border: "1px solid hsl(152, 55%, 45%)",
@@ -99,9 +100,9 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               }}
             >
               Browse chapters in Chapter Hub
-            </a>
-            <a
-              href={`/trends/10/${subjectKey}`}
+            </Link>
+            <Link
+              to={`/trends/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
                 background: "#ffffff", border: "1px solid hsl(220, 18%, 90%)",
@@ -110,9 +111,9 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               }}
             >
               Pick a chapter from Exam Trends
-            </a>
-            <a
-              href={`/highly-probable/10/${subjectKey}`}
+            </Link>
+            <Link
+              to={`/highly-probable/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
                 background: "#ffffff", border: "1px solid hsl(220, 18%, 90%)",
@@ -121,7 +122,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               }}
             >
               Try Predicted Questions instead
-            </a>
+            </Link>
           </div>
         </div>
       ) : (

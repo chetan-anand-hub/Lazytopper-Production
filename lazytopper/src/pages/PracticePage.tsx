@@ -14,6 +14,27 @@ import { lazy, Suspense } from "react";
 import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
 import type { PracticeSectionFilter } from "../navigation/practiceNavigation";
+
+const COUNT_SOFT_MAX = 50;
+const mapEngineMarks = (ui: string): number | undefined => {
+  if (ui === "1") return 1;
+  if (ui === "5") return 5;
+  if (ui === "4") return 4;
+  return undefined;
+};
+const navMarksToUi = (n: number | undefined): string => {
+  if (n === 1) return "1";
+  if (n === 5) return "5";
+  if (n === 4) return "4";
+  if (n === 2 || n === 3) return "23";
+  return "all";
+};
+const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
+  if (ui === "1") return "A";
+  if (ui === "5") return "D";
+  if (ui === "4") return "E";
+  return "All";
+};
 import {
   getQuestionFamiliesForTopic,
   getQuestionMeta,
@@ -76,8 +97,6 @@ interface PracticeNavState {
   };
 }
 
-type SectionFilterValue = "ALL" | "A" | "B" | "C" | "D" | "E";
-
 const FIRST_PRACTICE_KEY = "lazytopper.first_practice_tracked";
 
 const PracticePage: React.FC = () => {
@@ -111,9 +130,6 @@ const PracticePage: React.FC = () => {
   const targetMistakeType = qp.get("targetMistakeType") || "";
 
   const navState = (location.state as PracticeNavState) || {};
-  // Support deep-linking via URL query params (e.g., /practice/10/Maths?topic=Triangles&section=A)
-  const qpSectionRaw = (qp.get("section") || qp.get("pattern") || qp.get("type") || "").trim();
-  const qpSection = qpSectionRaw ? qpSectionRaw.toUpperCase() : "";
 
   const subjectKeyStr = String(navState.subjectKey ?? navState.subject ?? subjectKey ?? "").toLowerCase();
   const subjectTitle = String(
@@ -168,16 +184,29 @@ const PracticePage: React.FC = () => {
     const queryStrictFocus = parseBooleanFlag(qp.get("strictFocus"));
     const queryRecommendedCount = parsePositiveInt(qp.get("count"));
     const queryDifficultyPreset = parseDifficultyChoice(qp.get("difficulty"));
-    const queryMarksFilter = parsePositiveInt(qp.get("marks"));
-    // PR-K2H-8c — Question Type + PYQ-only URL params (no nav-state fallback).
-    const queryQuestionType = qp.get("questionType") || "All";
-    const queryPyqOnly = qp.get("pyq") === "1";
 
     const recommendedCount = queryRecommendedCount ?? navRecommendedCount ?? 10;
     const clampedCount = Math.max(
       MIN_QUESTION_COUNT,
-      Math.min(MAX_QUESTION_COUNT, recommendedCount)
+      Math.min(COUNT_SOFT_MAX, Math.min(MAX_QUESTION_COUNT, recommendedCount))
     );
+
+    const queryMarks = qp.get("marks");
+    const queryStyle = qp.get("style");
+    const querySource = qp.get("source");
+    const queryDiff = qp.get("diff");
+    const marksUi = queryMarks && ["all", "1", "23", "5", "4"].includes(queryMarks)
+      ? queryMarks
+      : navMarksFilter !== undefined ? navMarksToUi(navMarksFilter) : "all";
+    const styleUi = queryStyle && ["all", "proof", "ar", "hots", "case"].includes(queryStyle)
+      ? queryStyle
+      : "all";
+    const sourceUi = querySource && ["all", "pyq", "ncert", "others"].includes(querySource)
+      ? querySource
+      : "all";
+    const diffUi = queryDiff && ["all", "Easy", "Medium", "Hard"].includes(queryDiff)
+      ? queryDiff
+      : navDifficultyPreset && navDifficultyPreset !== "All" ? navDifficultyPreset : "all";
 
     return {
       subtopicHint: querySubtopicHint ?? navSubtopicHint,
@@ -185,9 +214,10 @@ const PracticePage: React.FC = () => {
       strictFocus: queryStrictFocus ?? navStrictFocus ?? false,
       recommendedCount: clampedCount,
       difficultyPreset: queryDifficultyPreset ?? navDifficultyPreset ?? "All",
-      marksFilter: queryMarksFilter ?? navMarksFilter,
-      questionType: queryQuestionType,
-      pyqOnly: queryPyqOnly,
+      marksUi,
+      styleUi,
+      sourceUi,
+      diffUi,
     };
   }, [practiceFilters, qp]);
 
@@ -209,16 +239,36 @@ const PracticePage: React.FC = () => {
   const [difficulty, setDifficulty] = useState<DifficultyChoice>(
     () => initialPracticeDefaults.difficultyPreset
   );
-  const [marksFilter, setMarksFilter] = useState<number | undefined>(
-    () => initialPracticeDefaults.marksFilter
+  // Pending state — drives chip UI and the live "N available" hint.
+  const [pendingMarks, setPendingMarks] = useState<string>(
+    () => initialPracticeDefaults.marksUi
   );
-  // PR-K2H-8c — Question Type + PYQ-only filter state.
-  const [questionType, setQuestionType] = useState<string>(
-    () => initialPracticeDefaults.questionType
+  const [pendingStyle, setPendingStyle] = useState<string>(
+    () => initialPracticeDefaults.styleUi
   );
-  const [pyqOnly, setPyqOnly] = useState<boolean>(
-    () => initialPracticeDefaults.pyqOnly
+  const [pendingSource, setPendingSource] = useState<string>(
+    () => initialPracticeDefaults.sourceUi
   );
+  const [pendingDifficulty, setPendingDifficulty] = useState<string>(
+    () => initialPracticeDefaults.diffUi
+  );
+  // Committed state — drives the visible question list (and engine fetch deps).
+  const [committedMarks, setCommittedMarks] = useState<string>(
+    () => initialPracticeDefaults.marksUi
+  );
+  const [committedStyle, setCommittedStyle] = useState<string>(
+    () => initialPracticeDefaults.styleUi
+  );
+  const [committedSource, setCommittedSource] = useState<string>(
+    () => initialPracticeDefaults.sourceUi
+  );
+  const [committedDifficulty, setCommittedDifficulty] = useState<string>(
+    () => initialPracticeDefaults.diffUi
+  );
+  const [committedCount, setCommittedCount] = useState<number>(
+    () => initialPracticeDefaults.recommendedCount
+  );
+  const [isBuilt, setIsBuilt] = useState<boolean>(false);
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -228,106 +278,143 @@ const PracticePage: React.FC = () => {
     setStrictFocus(Boolean(initialPracticeDefaults.strictFocus));
     setQuestionCount(initialPracticeDefaults.recommendedCount);
     setDifficulty(initialPracticeDefaults.difficultyPreset);
-    setMarksFilter(initialPracticeDefaults.marksFilter);
-    setQuestionType(initialPracticeDefaults.questionType);
-    setPyqOnly(initialPracticeDefaults.pyqOnly);
+    setPendingMarks(initialPracticeDefaults.marksUi);
+    setPendingStyle(initialPracticeDefaults.styleUi);
+    setPendingSource(initialPracticeDefaults.sourceUi);
+    setPendingDifficulty(initialPracticeDefaults.diffUi);
+    setCommittedMarks(initialPracticeDefaults.marksUi);
+    setCommittedStyle(initialPracticeDefaults.styleUi);
+    setCommittedSource(initialPracticeDefaults.sourceUi);
+    setCommittedDifficulty(initialPracticeDefaults.diffUi);
+    setCommittedCount(initialPracticeDefaults.recommendedCount);
     didInitFromUrlRef.current = true;
   }, [initialPracticeDefaults]);
 
+  const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
 
-  const [sectionFilter, setSectionFilter] = useState<SectionFilterValue>(() => {
-  const init = String(navState.sectionFilter || qpSection || "ALL").toUpperCase();
-  return (init === "A" || init === "B" || init === "C" || init === "D" || init === "E") ? init : "ALL";
-});
+  const matchesFilters = useCallback(
+    (q: PracticeQuestion, marks: string, style: string, source: string, diff: string) => {
+      if (marks !== "all") {
+        const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
+        const m = Number((q as { marks?: unknown }).marks ?? 0);
+        const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
+        const is1mk = section === "A" || m === 1 || fmt === "mcq" ||
+          fmt.includes("assertion") || fmt === "ar";
+        const is23mk = section === "B" || section === "C" || m === 2 || m === 3 ||
+          fmt === "short" || fmt === "vsa";
+        const is5mk = section === "D" || m === 5 || fmt === "long";
+        const is4mk = section === "E" || m === 4 || fmt.includes("case");
+        if (marks === "1" && !is1mk) return false;
+        if (marks === "23" && !is23mk) return false;
+        if (marks === "5" && !is5mk) return false;
+        if (marks === "4" && !is4mk) return false;
+      }
 
-useEffect(() => {
-  const s = (qpSection || "").toUpperCase();
-  if (s === "A" || s === "B" || s === "C" || s === "D" || s === "E" || s === "ALL") {
-    setSectionFilter(s as SectionFilterValue);
-  }
-}, [qpSection]);
-  const inferSectionFromMarks = (marks: unknown): "A" | "B" | "C" | "D" | "E" | null => {
-    const m = typeof marks === "number" ? marks : Number(marks);
-    if (!Number.isFinite(m)) return null;
-    if (m === 1) return "A";
-    if (m === 2) return "B";
-    if (m === 3) return "C";
-    if (m === 4) return "E"; // 4 marks = Case-based (E)
-    if (m === 5) return "D";
-    return null;
-  };
+      if (style !== "all") {
+        const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
+        const id = String((q as { id?: unknown }).id ?? "");
+        const sub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
+        const qtext = String((q as { questionText?: unknown }).questionText ?? "")
+          .toLowerCase().slice(0, 80);
+        const section = String((q as { section?: unknown }).section ?? "");
+        const bloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
 
-  const getQuestionSection = (q: PracticeQuestion): "A" | "B" | "C" | "D" | "E" | null => {
-    const direct = String(q.section || "").toUpperCase();
-    if (direct === "A" || direct === "B" || direct === "C" || direct === "D" || direct === "E") return direct;
-    const byMarks = inferSectionFromMarks(q.marks);
-    if (byMarks) return byMarks;
-    const slot = String(q.blueprintSlotId || "").toUpperCase();
-    if (slot.startsWith("A")) return "A";
-    if (slot.startsWith("B")) return "B";
-    if (slot.startsWith("C")) return "C";
-    if (slot.startsWith("D")) return "D";
-    if (slot.startsWith("E")) return "E";
-    return null;
-  };
+        if (style === "proof") {
+          // ISSUE-007 fix: Section A is never a Proof question.
+          if (section === "A") return false;
+          const isProof =
+            /prf/i.test(id) ||
+            /^prove\s+that|^show\s+that|^derive\s/i.test(qtext) ||
+            /proof|identit|tangent.propert/i.test(sub) ||
+            (fmt.includes("long") && bloom === "Analysing" &&
+             (section === "C" || section === "D"));
+          if (!isProof) return false;
+        }
+        if (style === "ar" &&
+            !fmt.includes("assertion") && !fmt.includes("ar")) return false;
+        if (style === "hots") {
+          const d = String((q as { difficulty?: unknown }).difficulty ?? "");
+          const isHots = d === "Hard" || bloom === "Analysing" || bloom === "Evaluating";
+          if (!isHots) return false;
+        }
+        if (style === "case" &&
+            !fmt.includes("case") && section !== "E") return false;
+      }
+
+      if (source !== "all") {
+        const qid = String((q as { id?: unknown }).id ?? "").toLowerCase();
+        const pyqYear = (q as { pyqYear?: unknown }).pyqYear;
+        const isPYQ = Boolean(pyqYear) ||
+          Boolean((q as { isPYQ?: unknown }).isPYQ);
+
+        if (source === "pyq" && !isPYQ) return false;
+
+        if (source === "ncert") {
+          if (isPYQ) return false;
+          const isNcertExemplar =
+            /^(rn-n-|poly-n-|ple-n-|qe-n-|ap-n-|tri-n-|cg-n-|trig-n-|circ-n-|arc-n-|sav-n-|stat-n-|prob-n-)/.test(qid) ||
+            /ncert|exemplar/.test(qid) ||
+            /-exmplr-|-ncert-/.test(qid);
+          if (!isNcertExemplar) return false;
+        }
+
+        if (source === "others") {
+          if (isPYQ) return false;
+          const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-/.test(qid);
+          if (isNcertSource) return false;
+        }
+      }
+
+      if (diff !== "all") {
+        const d = String((q as { difficulty?: unknown }).difficulty ?? "");
+        if (d !== diff) return false;
+      }
+
+      return true;
+    },
+    []
+  );
 
   const filteredQuestions = useMemo(() => {
-    let pool = sectionFilter === "ALL"
-      ? questions
-      : questions.filter((q) => getQuestionSection(q) === sectionFilter);
-    // PR-K2H-8c — Question Type filter. Falls through to "all" when the
-    // question payload lacks the field (e.g. older bank items).
-    if (questionType && questionType !== "All") {
-      pool = pool.filter((q) => {
-        const fmt = String(
-          (q as { format?: unknown }).format
-            ?? (q as { type?: unknown }).type
-            ?? ""
-        ).toLowerCase();
-        const isCompetency = Boolean((q as { isCompetencyBased?: unknown }).isCompetencyBased);
-        if (questionType === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple")
-          || Array.isArray((q as { options?: unknown }).options);
-        if (questionType === "Proof") {
-          const qId = String((q as { id?: unknown }).id ?? "").toLowerCase();
-          const qText = String((q as { questionText?: unknown }).questionText ?? "").toLowerCase().trim();
-          const qSub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
-          const qFmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-          const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
-          const qSection = String((q as { section?: unknown }).section ?? "");
-          return (
-            /prf/i.test(qId) ||
-            /^prove\s+that/i.test(qText) ||
-            /^show\s+that/i.test(qText) ||
-            /^derive\s+/i.test(qText) ||
-            /proof|identit|tangent.propert|geometric.proof/i.test(qSub) ||
-            (
-              (qFmt === "long" || qFmt === "short") &&
-              qBloom === "Analysing" &&
-              (qSection === "C" || qSection === "D")
-            )
-          );
-        }
-        if (questionType === "Competency") {
-          // Section A + Remembering is never competency-based regardless of skillFamily
-          const qSection = String((q as { section?: unknown }).section ?? "");
-          const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
-          if (qSection === "A" && qBloom === "Remembering") return false;
-          return isCompetency || fmt.includes("competency") || fmt.includes("application");
-        }
-        if (questionType === "AR") return fmt.includes("assertion") || fmt === "ar";
-        if (questionType === "Case") return fmt.includes("case") || getQuestionSection(q) === "E";
-        return true;
-      });
+    if (!isBuilt) return [];
+    if (!questions || questions.length === 0) return [];
+    return questions.filter((q) =>
+      matchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty)
+    );
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, matchesFilters]);
+
+  const availableCount = useMemo(() => {
+    if (!questions || questions.length === 0) return 0;
+    return questions.filter((q) =>
+      matchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty)
+    ).length;
+  }, [questions, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, matchesFilters]);
+
+  const handleSetStyle = useCallback((v: string) => {
+    setPendingStyle(v);
+    if (v === "hots") {
+      setPendingDifficulty("Hard");
+    } else if (pendingStyle === "hots" && v !== "hots") {
+      setPendingDifficulty("all");
     }
-    // PR-K2H-8c — PYQ-only filter. Honours the `isPYQ` flag when present.
-    if (pyqOnly) {
-      pool = pool.filter((q) =>
-        Boolean((q as { isPYQ?: unknown }).isPYQ) ||
-        Boolean((q as { pyqYear?: unknown }).pyqYear)
-      );
-    }
-    return pool;
-  }, [questions, sectionFilter, questionType, pyqOnly]);
+  }, [pendingStyle]);
+
+  const handleClearFilters = useCallback(() => {
+    setPendingMarks("all");
+    setPendingStyle("all");
+    setPendingSource("all");
+    setPendingDifficulty("all");
+    setQuestionCount(10);
+  }, []);
+
+  const handleEditFilters = useCallback(() => {
+    setIsBuilt(false);
+    setPendingMarks(committedMarks);
+    setPendingStyle(committedStyle);
+    setPendingSource(committedSource);
+    setPendingDifficulty(committedDifficulty);
+    setQuestionCount(committedCount);
+  }, [committedMarks, committedStyle, committedSource, committedDifficulty, committedCount]);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [isWhyPanelOpen, setIsWhyPanelOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -550,12 +637,10 @@ const packTopicKey = useMemo(() => {
             subtopicHint,
             focusBankIds,
             strictFocus,
-            sectionFilter: sectionFilter === "ALL" ? undefined : sectionFilter,
             adaptiveMix,
             priorityConceptKeys,
-            marksFilter,
-            questionType: questionType !== "All" ? questionType : undefined,
-            pyqOnly: pyqOnly || undefined,
+            marksFilter: engineMarksFilter,
+            pyqOnly: committedSource === "pyq" || undefined,
             excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
           }),
           timeout,
@@ -607,10 +692,8 @@ const packTopicKey = useMemo(() => {
     subtopicHint,
     focusBankIds,
     strictFocus,
-    sectionFilter,
-    marksFilter,
-    questionType,
-    pyqOnly,
+    engineMarksFilter,
+    committedSource,
     regenerationKey,
   ]);
 
@@ -627,14 +710,13 @@ const packTopicKey = useMemo(() => {
   };
 
   const handleDownloadWorksheet = async () => {
+    const scope = uiMarksToSectionScope(committedMarks);
     await downloadWorksheet({
       topicLabel: topicLabel || topicParam,
       subjectKey,
       grade,
       difficulty,
-      // PracticePage uses PracticeSectionFilter ("A"|"B"|…|"E", never "All").
-      // Convert to SectionScope: single letter → ["X"]; undefined (no filter) → "All".
-      sectionFilter: sectionFilter ? [sectionFilter] : "All",
+      sectionFilter: scope === "All" ? "All" : [scope],
       questions: filteredQuestions,
     });
   };
@@ -656,7 +738,10 @@ const packTopicKey = useMemo(() => {
     const params = new URLSearchParams();
     params.set("topic", topicParam);
     if (difficulty !== "All") params.set("difficulty", difficulty);
-    if (sectionFilter !== "ALL") params.set("section", sectionFilter);
+    if (committedMarks !== "all") params.set("marks", committedMarks);
+    if (committedStyle !== "all") params.set("style", committedStyle);
+    if (committedSource !== "all") params.set("source", committedSource);
+    if (committedDifficulty !== "all") params.set("diff", committedDifficulty);
     params.set("count", String(ids.length));
     params.set("focusBankIds", ids.join(","));
     params.set("strictFocus", "true");
@@ -683,7 +768,7 @@ const packTopicKey = useMemo(() => {
         linkCopiedTimerRef.current = setTimeout(() => setLinkCopied(false), 2500);
       } catch {}
     });
-  }, [filteredQuestions, topicParam, difficulty, sectionFilter]);
+  }, [filteredQuestions, topicParam, difficulty, committedMarks, committedStyle, committedSource, committedDifficulty]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -949,16 +1034,43 @@ const packTopicKey = useMemo(() => {
         })())}
 
         <PracticeControls
-          difficulty={difficulty}
-          onSetDifficulty={setDifficulty}
-          sectionFilter={sectionFilter}
-          onSetSectionFilter={(s) => setSectionFilter(s as SectionFilterValue)}
-          questionCount={questionCount}
-          onSetQuestionCount={setQuestionCount}
-          questionType={questionType}
-          onSetQuestionType={setQuestionType}
-          pyqOnly={pyqOnly}
-          onSetPyqOnly={setPyqOnly}
+          pendingMarks={pendingMarks}
+          pendingStyle={pendingStyle}
+          pendingSource={pendingSource}
+          pendingDifficulty={pendingDifficulty}
+          pendingCount={questionCount}
+          availableCount={availableCount}
+          onSetMarks={setPendingMarks}
+          onSetStyle={handleSetStyle}
+          onSetSource={setPendingSource}
+          onSetDifficulty={(v) => {
+            setPendingDifficulty(v);
+            setDifficulty(v === "all" ? "All" : (v as DifficultyChoice));
+          }}
+          onSetCount={setQuestionCount}
+          onClearFilters={handleClearFilters}
+          committedMarks={committedMarks}
+          committedStyle={committedStyle}
+          committedSource={committedSource}
+          committedDifficulty={committedDifficulty}
+          committedCount={committedCount}
+          onBuildSet={() => {
+            trackUxEvent("practice_regenerate_click", "practice", {
+              action: "build_set",
+              topic: topicParam,
+              subject: subjectKey,
+              questionCount,
+            });
+            setCommittedMarks(pendingMarks);
+            setCommittedStyle(pendingStyle);
+            setCommittedSource(pendingSource);
+            setCommittedDifficulty(pendingDifficulty);
+            setCommittedCount(questionCount);
+            setIsBuilt(true);
+            regenerateQuestions();
+          }}
+          isBuilt={isBuilt}
+          onEditFilters={handleEditFilters}
           onRegenerate={() => {
             trackUxEvent("practice_regenerate_click", "practice", {
               action: "regenerate_set",
@@ -968,7 +1080,7 @@ const packTopicKey = useMemo(() => {
             });
             regenerateQuestions();
           }}
-          onDownloadWorksheet={handleDownloadWorksheet}
+          onDownloadPdf={handleDownloadWorksheet}
           onCopyLink={handleCopyLink}
           linkCopied={linkCopied}
           hasQuestions={filteredQuestions.length > 0}
@@ -987,6 +1099,7 @@ const packTopicKey = useMemo(() => {
           />
         )}
 
+        {isBuilt && (
         <section
           style={{
             display: "flex",
@@ -1038,7 +1151,9 @@ const packTopicKey = useMemo(() => {
             </span>
           )}
         </section>
+        )}
 
+        {isBuilt && (
         <PracticeQuestionList
           isLoading={isLoading}
           error={error}
@@ -1070,6 +1185,7 @@ const packTopicKey = useMemo(() => {
           onOpenConceptDrawer={openConceptDrawer}
           onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
+        )}
 
 {(() => {
   const allDone = questions.length > 0 && sessionStats.attemptedInSet >= questions.length;
