@@ -360,7 +360,11 @@ const PracticePage: React.FC = () => {
 
         if (source === "others") {
           if (isPYQ) return false;
-          const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-/.test(qid);
+          // H3-bug fix: also exclude -EXEM- IDs (e.g. POLY-N-EXEM-2-MCQ-001),
+          // which contain neither "ncert" nor "exemplar" as substrings but are
+          // caught by the NCERT prefix regex above — without this they would
+          // appear in BOTH the NCERT and Others filters.
+          const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-|-exem-/.test(qid);
           if (isNcertSource) return false;
         }
       }

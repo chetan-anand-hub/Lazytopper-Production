@@ -50,6 +50,15 @@ const STYLE_COMPAT: Record<string, Set<string>> = {
   "5": new Set(["all", "proof", "hots"]),
   "4": new Set(["all", "case"]),
 };
+// Reverse direction: given a Style selection, which Marks chips are compatible?
+// Mirrors STYLE_COMPAT so chips grey out symmetrically in both directions.
+const MARKS_COMPAT_BY_STYLE: Record<string, Set<string>> = {
+  all: new Set(["all", "1", "23", "5", "4"]),
+  proof: new Set(["all", "23", "5"]),
+  ar: new Set(["all", "1"]),
+  hots: new Set(["all", "23", "5"]),
+  case: new Set(["all", "4"]),
+};
 const DIFF_COMPAT_BY_MARKS: Record<string, Set<string>> = {
   all: new Set(["all", "Easy", "Medium", "Hard"]),
   "1": new Set(["all", "Easy", "Medium"]),
@@ -173,20 +182,24 @@ export function PracticeControls({
   const navigate = useNavigate();
 
   const compatibleStyles = STYLE_COMPAT[pendingMarks] ?? STYLE_COMPAT.all;
+  const compatibleMarks = MARKS_COMPAT_BY_STYLE[pendingStyle] ?? MARKS_COMPAT_BY_STYLE.all;
   // HOTS overrides the marks-based difficulty rules — only "Hard" is allowed.
   const compatibleDiffs = pendingStyle === "hots"
     ? new Set(["Hard"])
     : (DIFF_COMPAT_BY_MARKS[pendingMarks] ?? DIFF_COMPAT_BY_MARKS.all);
 
-  // Auto-reset style/difficulty when current selection becomes incompatible.
+  // Auto-reset style/marks/difficulty when current selection becomes incompatible.
   useEffect(() => {
     if (pendingStyle !== "all" && !compatibleStyles.has(pendingStyle)) {
       onSetStyle("all");
     }
+    if (pendingMarks !== "all" && !compatibleMarks.has(pendingMarks)) {
+      onSetMarks("all");
+    }
     if (pendingDifficulty !== "all" && !compatibleDiffs.has(pendingDifficulty)) {
       onSetDifficulty(pendingStyle === "hots" ? "Hard" : "all");
     }
-  }, [pendingMarks, pendingStyle, pendingDifficulty, compatibleStyles, compatibleDiffs, onSetStyle, onSetDifficulty]);
+  }, [pendingMarks, pendingStyle, pendingDifficulty, compatibleStyles, compatibleMarks, compatibleDiffs, onSetStyle, onSetMarks, onSetDifficulty]);
 
   if (isBuilt) {
     const badges: { key: string; label: string }[] = [
@@ -337,6 +350,9 @@ export function PracticeControls({
   const showStyleConstraintNote =
     pendingMarks !== "all" &&
     STYLE_OPTIONS.some((o) => !compatibleStyles.has(o.value));
+  const showMarksConstraintNote =
+    pendingStyle !== "all" &&
+    MARKS_OPTIONS.some((o) => !compatibleMarks.has(o.value));
 
   return (
     <FilterPanel
@@ -347,8 +363,10 @@ export function PracticeControls({
       pendingCount={pendingCount}
       availableCount={availableCount}
       compatibleStyles={compatibleStyles}
+      compatibleMarks={compatibleMarks}
       compatibleDiffs={compatibleDiffs}
       showStyleConstraintNote={showStyleConstraintNote}
+      showMarksConstraintNote={showMarksConstraintNote}
       onSetMarks={onSetMarks}
       onSetStyle={onSetStyle}
       onSetSource={onSetSource}
@@ -369,8 +387,10 @@ interface FilterPanelProps {
   pendingCount: number;
   availableCount: number;
   compatibleStyles: Set<string>;
+  compatibleMarks: Set<string>;
   compatibleDiffs: Set<string>;
   showStyleConstraintNote: boolean;
+  showMarksConstraintNote: boolean;
   onSetMarks: (v: string) => void;
   onSetStyle: (v: string) => void;
   onSetSource: (v: string) => void;
@@ -389,8 +409,10 @@ function FilterPanel({
   pendingCount,
   availableCount,
   compatibleStyles,
+  compatibleMarks,
   compatibleDiffs,
   showStyleConstraintNote,
+  showMarksConstraintNote,
   onSetMarks,
   onSetStyle,
   onSetSource,
@@ -453,18 +475,25 @@ function FilterPanel({
           <span style={ROW_LABEL_STYLE}>Marks</span>
           {MARKS_OPTIONS.map((opt) => {
             const active = pendingMarks === opt.value;
+            const disabled = !compatibleMarks.has(opt.value);
             return (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => onSetMarks(opt.value)}
-                style={chipStyle(active, false)}
+                style={chipStyle(active, disabled)}
+                aria-disabled={disabled}
               >
                 {opt.label}
               </button>
             );
           })}
         </div>
+        {showMarksConstraintNote && (
+          <div style={NOTE_STYLE}>
+            Greyed chips not available for selected style
+          </div>
+        )}
 
         {/* STYLE row */}
         <div style={ROW_STYLE}>

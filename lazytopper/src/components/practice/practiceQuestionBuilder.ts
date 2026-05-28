@@ -489,6 +489,8 @@ export async function buildPracticeQuestionsWithAiTopup(
         const qFmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
         const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
         const qSection = String((q as { section?: unknown }).section ?? "");
+        // ISSUE-007 fix: Section A is never a Proof question.
+        if (qSection === "A") return false;
         return (
           /prf/i.test(qId) ||
           /^prove\s+that/i.test(qText) ||
