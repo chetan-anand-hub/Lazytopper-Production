@@ -1588,12 +1588,6 @@ const SOURCE: DesktopActionSource = "practice";
 
 type TabId = "topic" | "selected" | "full";
 
-// PR-K2H-8b — Practice filter axes. Forwarded to the destination
-// /practice/:grade/:subject engine (PracticePage already consumes them).
-type PFSection = "ALL" | "A" | "B" | "C" | "D" | "E";
-type PFDifficulty = "All" | "Easy" | "Medium" | "Hard";
-type PFCount = 5 | 10 | 15 | 20;
-
 const HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH = false;
 
 function getQuickPracticeSolutionParts(question: PracticeQuestion): string[] {
@@ -1659,15 +1653,8 @@ export default function DesktopPracticePage() {
     const urlTopics = params.get("topics");
     const urlStream = params.get("stream");
 
-    // K2H-8b: also include filter params (section/difficulty/count) in the
-    // gate so a focused URL with filters but no fresh scope still hydrates.
-    const urlSectionEarly = params.get("section");
-    const urlDifficultyEarly = params.get("difficulty");
-    const urlCountEarly = params.get("count");
-
     // Only proceed if there are URL params to process.
-    if (!urlSubject && !urlScope && !urlTopic && !urlTopics && !urlStream
-        && !urlSectionEarly && !urlDifficultyEarly && !urlCountEarly) {
+    if (!urlSubject && !urlScope && !urlTopic && !urlTopics && !urlStream) {
       return;
     }
 
@@ -1725,51 +1712,12 @@ export default function DesktopPracticePage() {
     // it stays null/empty (honest fallback).
 
     setScope(newScope);
-
-    // PR-K2H-8b — Hydrate practice filters (section / difficulty / count).
-    // Panel auto-expansion is handled by a separate useEffect below that
-    // watches [pfSection, pfDifficulty] — keeps it independent of the
-    // scope-change reset effect, which also touches showPracticeFilters.
-    const urlSection = (urlSectionEarly || "").toUpperCase();
-    if (urlSection === "A" || urlSection === "B" || urlSection === "C"
-        || urlSection === "D" || urlSection === "E") {
-      setPfSection(urlSection as PFSection);
-    }
-    if (urlDifficultyEarly === "Easy" || urlDifficultyEarly === "Medium"
-        || urlDifficultyEarly === "Hard") {
-      setPfDifficulty(urlDifficultyEarly as PFDifficulty);
-    }
-    const urlCountNum = urlCountEarly && /^\d+$/.test(urlCountEarly)
-      ? parseInt(urlCountEarly, 10)
-      : NaN;
-    if (urlCountNum === 5 || urlCountNum === 10
-        || urlCountNum === 15 || urlCountNum === 20) {
-      setPfCount(urlCountNum as PFCount);
-    }
   }, []); // Run once on mount to parse initial URL params.
 
   // Parity options (local UI checkboxes).
   const [worksheetMistakeMini, setWorksheetMistakeMini] = useState(false);
   const [mockWeakArea, setMockWeakArea] = useState(false);
   const [drillTargeted, setDrillTargeted] = useState(false);
-
-  // PR-K2H-8b — Practice filter state (Section / Difficulty / Count).
-  // Forwarded to the destination /practice engine via `buildLegacyPracticePath`.
-  // `showPracticeFilters` collapses/expands the on-page panel.
-  const [pfSection, setPfSection] = useState<PFSection>("ALL");
-  const [pfDifficulty, setPfDifficulty] = useState<PFDifficulty>("All");
-  const [pfCount, setPfCount] = useState<PFCount>(10);
-  const [showPracticeFilters, setShowPracticeFilters] = useState(false);
-
-  // PR-K2H-8b fix — Auto-expand the filter panel whenever a non-default
-  // filter is active. Decoupled from URL hydration so the panel opens even
-  // after the scope-change reset useEffect (which would otherwise clobber
-  // an inline setShowPracticeFilters(true) call during initial mount).
-  useEffect(() => {
-    if (pfSection !== "ALL" || pfDifficulty !== "All") {
-      setShowPracticeFilters(true);
-    }
-  }, [pfSection, pfDifficulty]);
 
   // PR-C2.1 legacy in-page Quick Practice panel state. K2G routes the primary
   // "Start quick practice" CTA directly to the full Practice workspace, so
@@ -1965,15 +1913,9 @@ export default function DesktopPracticePage() {
 
   // Reset the Quick Practice panel whenever scope changes — stale questions
   // for a different topic would be misleading.
-  // PR-K2H-8b — Also reset Section / Difficulty / Count filters because they
-  // were chosen against the previous scope and may no longer match the new one.
   useEffect(() => {
     setQuickPracticePanel(null);
     resetQuickPracticeRunState();
-    setPfSection("ALL");
-    setPfDifficulty("All");
-    setPfCount(10);
-    setShowPracticeFilters(false);
   }, [scope.subject, scope.stream, scope.scope, scope.topicSlug, scope.selectedTopicSlugs]);
 
   // Blueprint preview source: chosen single topic, first selected topic of a
@@ -2087,12 +2029,6 @@ export default function DesktopPracticePage() {
   }, [scope, worksheetMistakeMini, returnTo]);
 
   // ── Card ROUTING with login fallbacks (PR-LANDING reasons) ─────────────
-  // PR-K2H-8b — forward Section / Difficulty / Count filters to the
-  // destination /practice engine. Defaults ("ALL", "All", 10) are omitted
-  // from the URL so a clean Quick Practice path stays clean.
-  const pfSectionParam = pfSection !== "ALL" ? pfSection : undefined;
-  const pfDifficultyParam = pfDifficulty !== "All" ? pfDifficulty : undefined;
-  const pfCountParam = pfCount !== 10 ? pfCount : undefined;
   const quickPracticePath: string | null = !validScope
     ? null
     : scope.scope === "topic" && scope.topicSlug
@@ -2100,22 +2036,12 @@ export default function DesktopPracticePage() {
           topic: scope.topicSlug,
           subtopicHint: subtopicHintParam || undefined,
           focus: focusParam || undefined,
-          section: pfSectionParam,
-          difficulty: pfDifficultyParam,
-          count: pfCountParam,
         })
       : scope.scope === "full-subject"
-        ? buildLegacyPracticePath({
-            section: pfSectionParam,
-            difficulty: pfDifficultyParam,
-            count: pfCountParam,
-          })
+        ? buildLegacyPracticePath({})
         : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length > 0
           ? buildLegacyPracticePath({
               topic: scope.selectedTopicSlugs[0],
-              section: pfSectionParam,
-              difficulty: pfDifficultyParam,
-              count: pfCountParam,
             })
           : buildLegacyPracticePath({});
 
@@ -2391,120 +2317,6 @@ export default function DesktopPracticePage() {
           summary={scopeSummary}
           helper="Showing a starter set of high-yield topics from the desktop bridge — not the full chapter list. Use the existing chapter pages for anything outside this short list."
         />
-
-        {/* PR-K2H-8b — Practice Filters Panel. Lives between ScopeBuilder and
-            the "Choose what to do" cards. Forwards Section / Difficulty /
-            Count to the destination /practice engine via quickPracticePath. */}
-        <div className="lt-pf-panel" aria-label="Practice filters">
-          <div className="lt-pf-toggle-row">
-            <button
-              type="button"
-              className="lt-pf-toggle"
-              data-active={showPracticeFilters ? "true" : "false"}
-              onClick={() => setShowPracticeFilters((v) => !v)}
-              aria-expanded={showPracticeFilters}
-              aria-controls="lt-pf-rows"
-            >
-              {showPracticeFilters ? "▲ Hide filters" : "▼ Refine practice"}
-            </button>
-
-            {(pfSection !== "ALL" || pfDifficulty !== "All" || pfCount !== 10) && (
-              <span className="lt-pf-active-summary">
-                {[
-                  pfSection !== "ALL" ? `Section ${pfSection}` : null,
-                  pfDifficulty !== "All" ? pfDifficulty : null,
-                  pfCount !== 10 ? `${pfCount} questions` : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
-            )}
-          </div>
-
-          {showPracticeFilters && (
-            <div id="lt-pf-rows" className="lt-pf-rows">
-
-              <div className="lt-pf-row" role="group" aria-label="Section">
-                <span className="lt-pf-label">Section</span>
-                <div className="lt-pf-chips">
-                  {(["ALL", "A", "B", "C", "D", "E"] as PFSection[]).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      className="lt-pf-chip"
-                      data-active={pfSection === s ? "true" : "false"}
-                      onClick={() => setPfSection(s)}
-                      aria-pressed={pfSection === s}
-                    >
-                      {s === "ALL"
-                        ? "All"
-                        : s === "A"
-                          ? "A · 1mk"
-                          : s === "B"
-                            ? "B · 2mk"
-                            : s === "C"
-                              ? "C · 3mk"
-                              : s === "D"
-                                ? "D · 5mk"
-                                : "E · Case (4mk)"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lt-pf-row" role="group" aria-label="Difficulty">
-                <span className="lt-pf-label">Difficulty</span>
-                <div className="lt-pf-chips">
-                  {(["All", "Easy", "Medium", "Hard"] as PFDifficulty[]).map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      className="lt-pf-chip"
-                      data-active={pfDifficulty === d ? "true" : "false"}
-                      onClick={() => setPfDifficulty(d)}
-                      aria-pressed={pfDifficulty === d}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lt-pf-row" role="group" aria-label="Questions">
-                <span className="lt-pf-label">Questions</span>
-                <div className="lt-pf-chips">
-                  {([5, 10, 15, 20] as PFCount[]).map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      className="lt-pf-chip"
-                      data-active={pfCount === n ? "true" : "false"}
-                      onClick={() => setPfCount(n)}
-                      aria-pressed={pfCount === n}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {(pfSection !== "ALL" || pfDifficulty !== "All" || pfCount !== 10) && (
-                <button
-                  type="button"
-                  className="lt-pf-clear"
-                  onClick={() => {
-                    setPfSection("ALL");
-                    setPfDifficulty("All");
-                    setPfCount(10);
-                  }}
-                >
-                  Clear filters
-                </button>
-              )}
-
-            </div>
-          )}
-        </div>
 
         <div className="lt-practice-main-grid">
           {/* ───────────────────── MAIN COLUMN ───────────────────── */}
