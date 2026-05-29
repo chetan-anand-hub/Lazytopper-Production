@@ -1,5 +1,75 @@
 ---
 
+## 2026-05-29 — Post-PR #153 + #154 + #155: filter UX + engine fixes
+
+### Starting state
+Base SHA at session start: 18c1f5a6ab1f3b775d6cd52cb39bab9297549515 (post-PR #152)
+
+### Work completed
+
+1. PR #153 merged — filter UX redesign (4 files)
+   - PracticeControls.tsx: student-language chips (Marks/Style/Source/Difficulty)
+   - PracticePage.tsx: pending/committed filter state, Option B (questions after Build)
+   - PracticeQuestionList.tsx: empty state nav fix (Link not a href)
+   - DesktopPracticePage.tsx: K2H-8b filter panel removed
+   - isBuilt defaults to false (panel-first UX)
+   - Count chip with dropdown (max 20, worksheet nudge above 20)
+   - HOTS auto-selects Hard, freezes Easy/Medium
+   - Clear filters button
+   - Collapsed-after-build: summary bar with Edit button
+
+2. Comprehensive bank audit performed (2026-05-28/29)
+   - bank_health_audit.py: 5,821 questions, 0 mojibake, 0 orphans
+   - filter_reachability_audit.py: 163 empty combos (all structural impossibilities)
+   - technical_audit.py: H1-H6 all clean except H3-bug (126 Exemplar double-count)
+   - Per-topic question matrix established (all 26 topics, A/B/C/D/E counts)
+   Audit files saved at: C:\Users\Chetan\OneDrive\Desktop\diff\
+
+3. PR #154 merged — source filter + chip constraints + ISSUE-006/007 (4 files)
+   ISSUE-006 CLOSED: Hindi garbled PYQ question removed (PYQ-M-2024-TRIG-003)
+   ISSUE-007 CLOSED: Proof filter Section A exclusion (1 line, 2 files)
+   H3-BUG FIXED: 126 Exemplar -EXEM- IDs no longer double-counted in Others
+   STYLE_COMPAT: bidirectional chip constraints (Style -> Marks direction added)
+
+4. PR #155 merged — engine marks/section/competency/blueprint (4 files)
+   Root cause diagnosed via browser console: engine returned 50 questions but
+   only 5 survived B+C filter due to Section-A bias in default difficulty mix.
+   Fix A: marksFilter string-to-number mapping (already wired pre-PR)
+   Fix B: enforceCompetencyFloor gate (quick practice=false, mock/mission=true)
+   Fix C: engineCount multiplier (5x when marks filter active, capped 100)
+   Fix D: engineSectionFilter (routes engine to correct section directly)
+   Fix E: CBSE blueprint distribution (5-section parallel fetch for "All" marks)
+   Fix F: bankAvailableCount (pre-Build count from bank, not empty questions state)
+   Fix G: filteredQuestions.slice(0, committedCount) (trims overfetch to request)
+   Smoke test: 24/24 PASS across 6 topics x 4 marks filters
+   Distribution verified: balanced A/B/C/D/E in "All" marks mode
+
+### Key decisions
+1. COMPETENCY floor: applies only to mock/timed test paths (not quick practice)
+2. bankAvailableCount: runs buildPracticeQuestionsFromEngine(count=200) on mount
+   to show realistic pre-Build availability hint to students
+3. Case-based "Easy" tagging: identified as data quality issue, cleanup deferred
+4. "N available" pre-Build: shows bank count (not 0) after Fix F
+
+### Audit findings (saved to desktop, not in repo)
+- 5,821 questions total | 3,139 authentic (53%) | 2,689 AI (46%)
+- All 26 topics covered | 0 orphaned questions | 0 mojibake
+- Section D thin for Maths (real-numbers:14, polynomials:12, coord-geom:14)
+- Section E thin everywhere (6-19 per topic) — target for Sprint 1
+
+### Open issues post-session
+P0: API gateway 404 in production (backend not deployed to Railway)
+P0: Clerk pk_test_ keys active in production
+P1: Sprint 1 CBSE official content extraction (~480 Qs on disk)
+P1: Practice end-of-session debrief
+COSMETIC: 51 AI-Pack files use Title Case topicKeys (engine normalises them)
+COSMETIC: Case-based questions tagged "Easy" should be "Medium"
+
+### New base SHA
+99533830ff9b1d4654bf4968e36151ccb7531815 (post-PR #155)
+
+---
+
 ## 2026-05-26 — Post-PR #150 + #151: PYQ 2024 Maths + permanent tagging/filter/step-marks fix
 
 ### Starting state
