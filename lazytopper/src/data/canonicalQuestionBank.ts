@@ -156,6 +156,63 @@ import { HUMAN_EYE_SQP } from './questionBanks/class10/science/human-eye-and-col
 import { ELECTRICITY_SQP } from './questionBanks/class10/science/electricity.sqp';
 import { MAGNETIC_EFFECTS_SQP } from './questionBanks/class10/science/magnetic-effects-of-electric-current.sqp';
 
+// Sprint 1 — CBSE CBE Item Bank (Competency-based education for CBSE, Sep 2021)
+// Source: Item-Bank--Maths---Class-10.pdf / Item-Bank---Science-Class-10.pdf (2026-05-29)
+import { RN_CBE } from './questionBanks/class10/maths/real-numbers.cbe';
+import { POLY_CBE } from './questionBanks/class10/maths/polynomials.cbe';
+import { PLE_CBE } from './questionBanks/class10/maths/pair-of-linear-equations.cbe';
+import { QE_CBE } from './questionBanks/class10/maths/quadratic-equations.cbe';
+import { AP_CBE } from './questionBanks/class10/maths/arithmetic-progression.cbe';
+import { TRI_CBE } from './questionBanks/class10/maths/triangles.cbe';
+import { CIRC_CBE } from './questionBanks/class10/maths/circles.cbe';
+import { CG_CBE } from './questionBanks/class10/maths/coordinate-geometry.cbe';
+import { ARC_CBE } from './questionBanks/class10/maths/areas-related-to-circles.cbe';
+import { SAV_CBE } from './questionBanks/class10/maths/surface-areas-and-volumes.cbe';
+import { STAT_CBE } from './questionBanks/class10/maths/statistics.cbe';
+import { PROB_CBE } from './questionBanks/class10/maths/probability.cbe';
+import { TRIG_CBE } from './questionBanks/class10/maths/trigonometry.cbe';
+import { CHEM_CBE } from './questionBanks/class10/science/chemical-reactions-and-equations.cbe';
+import { ACID_CBE } from './questionBanks/class10/science/acids-bases-and-salts.cbe';
+import { MNM_CBE } from './questionBanks/class10/science/metals-and-non-metals.cbe';
+import { CARB_CBE } from './questionBanks/class10/science/carbon-and-its-compounds.cbe';
+import { LIFE_CBE } from './questionBanks/class10/science/life-processes.cbe';
+import { CTRL_CBE } from './questionBanks/class10/science/control-and-coordination.cbe';
+import { REPR_CBE } from './questionBanks/class10/science/how-do-organisms-reproduce.cbe';
+import { HERD_CBE } from './questionBanks/class10/science/heredity.cbe';
+import { LGHT_CBE } from './questionBanks/class10/science/light-reflection-and-refraction.cbe';
+import { HEYE_CBE } from './questionBanks/class10/science/human-eye-and-colourful-world.cbe';
+import { ELEC_CBE } from './questionBanks/class10/science/electricity.cbe';
+import { MAGN_CBE } from './questionBanks/class10/science/magnetic-effects-of-electric-current.cbe';
+import { ENVI_CBE } from './questionBanks/class10/science/our-environment.cbe';
+
+// Sprint 1 — CBSE Sample Papers (P5): SP Maths Standard 2022 + Science SQP 2022-23 + OnBoard Science 2023
+import { RN_SP } from './questionBanks/class10/maths/real-numbers.sp';
+import { POLY_SP } from './questionBanks/class10/maths/polynomials.sp';
+import { PLE_SP } from './questionBanks/class10/maths/pair-of-linear-equations.sp';
+import { QE_SP } from './questionBanks/class10/maths/quadratic-equations.sp';
+import { AP_SP } from './questionBanks/class10/maths/arithmetic-progression.sp';
+import { TRI_SP } from './questionBanks/class10/maths/triangles.sp';
+import { CG_SP } from './questionBanks/class10/maths/coordinate-geometry.sp';
+import { TRIG_SP } from './questionBanks/class10/maths/trigonometry.sp';
+import { CIRC_SP } from './questionBanks/class10/maths/circles.sp';
+import { ARC_SP } from './questionBanks/class10/maths/areas-related-to-circles.sp';
+import { SAV_SP } from './questionBanks/class10/maths/surface-areas-and-volumes.sp';
+import { STAT_SP } from './questionBanks/class10/maths/statistics.sp';
+import { PROB_SP } from './questionBanks/class10/maths/probability.sp';
+import { CHEM_SP } from './questionBanks/class10/science/chemical-reactions-and-equations.sp';
+import { ACID_SP } from './questionBanks/class10/science/acids-bases-and-salts.sp';
+import { MNM_SP } from './questionBanks/class10/science/metals-and-non-metals.sp';
+import { CARB_SP } from './questionBanks/class10/science/carbon-and-its-compounds.sp';
+import { LIFE_SP } from './questionBanks/class10/science/life-processes.sp';
+import { CTRL_SP } from './questionBanks/class10/science/control-and-coordination.sp';
+import { REPR_SP } from './questionBanks/class10/science/how-do-organisms-reproduce.sp';
+import { HERD_SP } from './questionBanks/class10/science/heredity.sp';
+import { LGHT_SP } from './questionBanks/class10/science/light-reflection-and-refraction.sp';
+import { HEYE_SP } from './questionBanks/class10/science/human-eye-and-colourful-world.sp';
+import { ELEC_SP } from './questionBanks/class10/science/electricity.sp';
+import { MAGN_SP } from './questionBanks/class10/science/magnetic-effects-of-electric-current.sp';
+import { ENVI_SP } from './questionBanks/class10/science/our-environment.sp';
+
 // P2 CBSE Additional Practice Questions 2023-24 (2026-05-24) — Maths only (PQ1 + PQ2)
 // 13 Maths topic files, 76 questions combined from Mathematics-PQ1.pdf + Mathematics-PQ2.pdf
 import { REAL_NUMBERS_APQ } from './questionBanks/class10/maths/real-numbers.additionalPQ';
@@ -490,6 +547,61 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...HUMAN_EYE_SQP,
   ...ELECTRICITY_SQP,
   ...MAGNETIC_EFFECTS_SQP,
+  // Sprint 1 — CBSE CBE Item Bank (Competency-based education for CBSE, Sep 2021)
+  ...RN_CBE,
+  ...POLY_CBE,
+  ...PLE_CBE,
+  ...QE_CBE,
+  ...AP_CBE,
+  ...TRI_CBE,
+  ...CIRC_CBE,
+  ...CG_CBE,
+  ...ARC_CBE,
+  ...SAV_CBE,
+  ...STAT_CBE,
+  ...PROB_CBE,
+  ...TRIG_CBE,
+  // Sprint 1 — CBSE CBE Item Bank (Science Class 10)
+  ...CHEM_CBE,
+  ...ACID_CBE,
+  ...MNM_CBE,
+  ...CARB_CBE,
+  ...LIFE_CBE,
+  ...CTRL_CBE,
+  ...REPR_CBE,
+  ...HERD_CBE,
+  ...LGHT_CBE,
+  ...HEYE_CBE,
+  ...ELEC_CBE,
+  ...MAGN_CBE,
+  ...ENVI_CBE,
+  // Sprint 1 — CBSE Sample Papers (P5): SP Maths 2022 + Science SQP 2022-23 + OnBoard 2023
+  ...RN_SP,
+  ...POLY_SP,
+  ...PLE_SP,
+  ...QE_SP,
+  ...AP_SP,
+  ...TRI_SP,
+  ...CG_SP,
+  ...TRIG_SP,
+  ...CIRC_SP,
+  ...ARC_SP,
+  ...SAV_SP,
+  ...STAT_SP,
+  ...PROB_SP,
+  ...CHEM_SP,
+  ...ACID_SP,
+  ...MNM_SP,
+  ...CARB_SP,
+  ...LIFE_SP,
+  ...CTRL_SP,
+  ...REPR_SP,
+  ...HERD_SP,
+  ...LGHT_SP,
+  ...HEYE_SP,
+  ...ELEC_SP,
+  ...MAGN_SP,
+  ...ENVI_SP,
   // P2 CBSE APQ 2023-24 (Maths only — PQ1 + PQ2, 76 questions across 13 topic files)
   ...REAL_NUMBERS_APQ,
   ...POLYNOMIALS_APQ,

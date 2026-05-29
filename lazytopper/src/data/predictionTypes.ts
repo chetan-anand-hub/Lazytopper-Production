@@ -79,6 +79,14 @@ export interface CanonicalQuestion {
   pyqSet?: string;
   ncertRef?: string;
   isCompetencyBased?: boolean;
+  /**
+   * Set true when the question depends on a figure/diagram. `diagramDescription`
+   * then carries enough detail (from question text + mark scheme) for a later
+   * diagram-generation pass to recreate the figure. Additive optional metadata —
+   * introduced for the Sprint 1 CBSE Official extraction (2026-05-29).
+   */
+  requiresDiagram?: boolean;
+  diagramDescription?: string;
 }
 
 // -----------------------------------------------------------------------------
