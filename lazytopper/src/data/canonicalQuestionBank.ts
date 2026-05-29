@@ -213,6 +213,21 @@ import { ELEC_SP } from './questionBanks/class10/science/electricity.sp';
 import { MAGN_SP } from './questionBanks/class10/science/magnetic-effects-of-electric-current.sp';
 import { ENVI_SP } from './questionBanks/class10/science/our-environment.sp';
 
+// Sprint 1 follow-up — CBSE Maths Standard Preboard Sample Papers SP1 + SP2 (generated solutions)
+import { RN_PREBOARD } from './questionBanks/class10/maths/real-numbers.preboard';
+import { POLY_PREBOARD } from './questionBanks/class10/maths/polynomials.preboard';
+import { PLE_PREBOARD } from './questionBanks/class10/maths/pair-of-linear-equations.preboard';
+import { QE_PREBOARD } from './questionBanks/class10/maths/quadratic-equations.preboard';
+import { AP_PREBOARD } from './questionBanks/class10/maths/arithmetic-progression.preboard';
+import { TRI_PREBOARD } from './questionBanks/class10/maths/triangles.preboard';
+import { CG_PREBOARD } from './questionBanks/class10/maths/coordinate-geometry.preboard';
+import { TRIG_PREBOARD } from './questionBanks/class10/maths/trigonometry.preboard';
+import { CIRC_PREBOARD } from './questionBanks/class10/maths/circles.preboard';
+import { ARC_PREBOARD } from './questionBanks/class10/maths/areas-related-to-circles.preboard';
+import { SAV_PREBOARD } from './questionBanks/class10/maths/surface-areas-and-volumes.preboard';
+import { STAT_PREBOARD } from './questionBanks/class10/maths/statistics.preboard';
+import { PROB_PREBOARD } from './questionBanks/class10/maths/probability.preboard';
+
 // P2 CBSE Additional Practice Questions 2023-24 (2026-05-24) — Maths only (PQ1 + PQ2)
 // 13 Maths topic files, 76 questions combined from Mathematics-PQ1.pdf + Mathematics-PQ2.pdf
 import { REAL_NUMBERS_APQ } from './questionBanks/class10/maths/real-numbers.additionalPQ';
@@ -602,6 +617,20 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ELEC_SP,
   ...MAGN_SP,
   ...ENVI_SP,
+  // Sprint 1 follow-up — Maths Preboard Sample Papers SP1 + SP2 (generated solutions)
+  ...RN_PREBOARD,
+  ...POLY_PREBOARD,
+  ...PLE_PREBOARD,
+  ...QE_PREBOARD,
+  ...AP_PREBOARD,
+  ...TRI_PREBOARD,
+  ...CG_PREBOARD,
+  ...TRIG_PREBOARD,
+  ...CIRC_PREBOARD,
+  ...ARC_PREBOARD,
+  ...SAV_PREBOARD,
+  ...STAT_PREBOARD,
+  ...PROB_PREBOARD,
   // P2 CBSE APQ 2023-24 (Maths only — PQ1 + PQ2, 76 questions across 13 topic files)
   ...REAL_NUMBERS_APQ,
   ...POLYNOMIALS_APQ,
