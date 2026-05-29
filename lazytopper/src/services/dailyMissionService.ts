@@ -266,6 +266,7 @@ function buildLearningSegment(topicSlug: string, subject: "Maths" | "Science", s
       topicKey: topicSlug,
       totalQuestions: 5 - items.length + 1,
       difficultyMix: { Easy: 0.6, Medium: 0.4, Hard: 0 },
+      enforceCompetencyFloor: true,
     });
     for (const rawQ of practiceResult.questions) {
       if (items.length >= 6) break;
@@ -308,6 +309,7 @@ function buildPracticeSegment(topicSlug: string, subject: "Maths" | "Science", s
     totalQuestions: 7,
     difficultyMix: { Easy: 0.3, Medium: 0.5, Hard: 0.2 },
     shuffle: true,
+    enforceCompetencyFloor: true,
   });
 
   for (let i = 0; i < practiceResult.questions.length; i++) {
@@ -413,6 +415,7 @@ function buildMockTestSegment(topicSlug: string, subject: "Maths" | "Science", _
     totalQuestions: 10,
     difficultyMix: { Easy: 0.2, Medium: 0.5, Hard: 0.3 },
     shuffle: true,
+    enforceCompetencyFloor: true,
   });
 
   const items: DailyMixItem[] = practiceResult.questions.map((rawQ, i) => {
@@ -472,6 +475,7 @@ function buildWeakDrillSegment(subject: "Maths" | "Science", excludeSlug: string
     totalQuestions: 5,
     difficultyMix: { Easy: 0.4, Medium: 0.4, Hard: 0.2 },
     shuffle: true,
+    enforceCompetencyFloor: true,
   });
 
   const items: DailyMixItem[] = practiceResult.questions.map((rawQ, i) => {

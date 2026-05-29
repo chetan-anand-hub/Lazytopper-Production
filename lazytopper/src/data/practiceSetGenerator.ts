@@ -38,6 +38,11 @@ export interface PracticeSetConfig {
   // Must run at the engine layer because the UI-layer PracticeQuestion mapping
   // strips pyqYear/isPYQ before downstream filters can see them.
   pyqOnly?: boolean;
+  // Fix B: when true, enforce the 50% competency-based floor via the swap
+  // loop below. Opt-in (default false) — only timed mock tests should require
+  // this share; quick practice should honour the student's filter selection
+  // without silently substituting competency questions.
+  enforceCompetencyFloor?: boolean;
 }
 
 export interface ResolvedPracticeSetConfig {
@@ -351,25 +356,30 @@ export function generatePracticeSet(
     selected.push(...topUp);
   }
 
-  const COMPETENCY_MIN_SHARE = 0.5;
-  const compCount = selected.filter(q => q.isCompetencyBased).length;
-  const compTarget = Math.ceil(selected.length * COMPETENCY_MIN_SHARE);
+  // Fix B: only enforce the 50% competency floor when explicitly opted in
+  // (timed mock tests). Quick practice paths inherit the default (false)
+  // and honour the student's filter selection without silent swaps.
+  if (cfg.enforceCompetencyFloor) {
+    const COMPETENCY_MIN_SHARE = 0.5;
+    const compCount = selected.filter(q => q.isCompetencyBased).length;
+    const compTarget = Math.ceil(selected.length * COMPETENCY_MIN_SHARE);
 
-  // K2H-8f: when pyqOnly is on, the candidate pool is already PYQ-only, so
-  // any competency swap is naturally PYQ-preserving. Skip the swap when the
-  // PYQ pool yields no competency-based PYQs (common case) so we do not
-  // churn the selection or break the PYQ contract.
-  if (compCount < compTarget && !isSingleDifficultyFilter) {
-    const compCandidates = candidates.filter(
-      q => q.isCompetencyBased && !takenIds.has(q.id)
-    );
-    for (const cq of compCandidates) {
-      if (selected.filter(q => q.isCompetencyBased).length >= compTarget) break;
-      const swapIdx = selected.findIndex(q => !q.isCompetencyBased);
-      if (swapIdx < 0) break;
-      takenIds.delete(selected[swapIdx].id);
-      selected[swapIdx] = cq;
-      takenIds.add(cq.id);
+    // K2H-8f: when pyqOnly is on, the candidate pool is already PYQ-only, so
+    // any competency swap is naturally PYQ-preserving. Skip the swap when the
+    // PYQ pool yields no competency-based PYQs (common case) so we do not
+    // churn the selection or break the PYQ contract.
+    if (compCount < compTarget && !isSingleDifficultyFilter) {
+      const compCandidates = candidates.filter(
+        q => q.isCompetencyBased && !takenIds.has(q.id)
+      );
+      for (const cq of compCandidates) {
+        if (selected.filter(q => q.isCompetencyBased).length >= compTarget) break;
+        const swapIdx = selected.findIndex(q => !q.isCompetencyBased);
+        if (swapIdx < 0) break;
+        takenIds.delete(selected[swapIdx].id);
+        selected[swapIdx] = cq;
+        takenIds.add(cq.id);
+      }
     }
   }
 
