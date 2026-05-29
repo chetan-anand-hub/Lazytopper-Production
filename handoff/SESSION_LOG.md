@@ -1,5 +1,70 @@
 ---
 
+## 2026-05-29T14:30Z — Post-PR #157+#158: Sprint 1 content extraction complete
+
+### Starting state
+Base SHA at session start: 94aee7d (post-PR #156)
+
+### Work completed
+
+1. PR #157 merged — Sprint 1 CBSE Official + P5 Sample Papers (442 Qs)
+   - CBE Item Bank Maths: 148 questions across 13 *.cbe.ts files
+   - CBE Item Bank Science: 173 questions across 13 *.cbe.ts files
+     (includes appended Science10R3a)
+   - P5 Sample Papers: 121 questions across 26 *.sp.ts files
+     (SP Maths 2022 + Science SQP 2022-23 + OnBoard 2023)
+   - 116 questions tagged requiresDiagram with diagramDescription
+   - predictionTypes.ts gained 2 optional fields (requiresDiagram, diagramDescription)
+   - CFPQ deferred (image-only PDFs, OCR follow-up sprint needed)
+
+2. PR #158 merged — Preboard SP1 + SP2 generated solutions (55 Qs)
+   - Unsolved 2019-20 Maths Standard papers
+   - Worked solutions generated in CBSE marking style per owner authorization
+   - Modelled on existing CBE Maths question files
+   - Every solutionStep mark-weight-prefixed summing to question marks
+   - 12 solutions spot-checked against first principles — all correct
+   - Banned topics filtered (Constructions, Cross-Multiplication, etc.)
+   - Section D 4-mark items excluded (no valid CBSE section mapping)
+
+### Sprint 1 totals
+- Total new authentic questions: 497
+- Files added: 65 (.cbe.ts, .sp.ts, .preboard.ts)
+- Bank moved from 5,821 → 6,318 questions
+- Authentic ratio moved from 53% → 58%
+
+### Key decisions made this session
+
+1. CFPQ image-only PDFs deferred to OCR sprint (not fabricated)
+2. Preboard papers: generated solutions authorized as Claude can solve
+   deterministic CBSE maths accurately when given existing CBE question
+   files as style/quality reference
+3. requiresDiagram + diagramDescription fields added to CanonicalQuestion
+   (2 optional fields, additive only, predictionTypes.ts forbidden rule
+   overridden for this specific authorized exception)
+4. Section A 65% in preboards kept as-is (inherent to source structure)
+5. Rate limiting must ship WITH API gateway PR, not as follow-up
+6. lazytopper.app confirmed as definitive launch domain
+7. Step marking prefix is non-negotiable for all new content
+
+### Audits/diagnostics performed
+
+- Independent banned-content keyword scan across 65 new files: clean
+- 12 generated solutions spot-checked: all correct
+- All validation gates: green
+- Filter system architecture documented (4 layers L1-L4)
+
+### Open issues identified post-session
+
+- AR questions appearing in 5-mark Section D (tagging error in some pack files)
+- Repo-wide solutionSteps prefix audit needed (older questions pre-step-mark rule)
+- Preboard quick-practice currently shows panel-first UX (PR #153 decision;
+  any reversal requires its own PR)
+
+### New base SHA
+2c91940c31a61adfffb6928ebfc53ddd02ee7d05
+
+---
+
 ## 2026-05-29 — Post-PR #153 + #154 + #155: filter UX + engine fixes
 
 ### Starting state
