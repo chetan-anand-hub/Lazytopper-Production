@@ -64,6 +64,7 @@ import {
   buildRubricContextHeader,
   resolvePracticePackKey,
   buildPracticeQuestionsWithAiTopup,
+  buildPracticeQuestionsFromEngine,
   normaliseSubject,
   parseDifficultyChoice,
   parsePositiveInt,
@@ -382,17 +383,16 @@ const PracticePage: React.FC = () => {
   const filteredQuestions = useMemo(() => {
     if (!isBuilt) return [];
     if (!questions || questions.length === 0) return [];
-    return questions.filter((q) =>
+    // The engine deliberately over-fetches when a marks/section filter is
+    // active (see engineCount above) so the random-sample bias toward the
+    // Easy/Section-A bucket doesn't starve other sections. After client-
+    // side narrowing we trim to the user's committed count so the rendered
+    // list matches what they asked for.
+    const matched = questions.filter((q) =>
       matchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty)
     );
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, matchesFilters]);
-
-  const availableCount = useMemo(() => {
-    if (!questions || questions.length === 0) return 0;
-    return questions.filter((q) =>
-      matchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty)
-    ).length;
-  }, [questions, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, matchesFilters]);
+    return matched.slice(0, committedCount);
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedCount, matchesFilters]);
 
   const handleSetStyle = useCallback((v: string) => {
     setPendingStyle(v);
@@ -590,6 +590,24 @@ const packTopicKey = useMemo(() => {
   });
 }, [subjectKey, topicParam, topicKeyParam, navState]);
 
+  // Pre-build availability hint: count how many questions in the bank
+  // match the pending filters, so the "N available" copy on the Build
+  // panel works even before the first Build (the prior useMemo ran against
+  // the post-build `questions` state and was always 0 until then).
+  const bankAvailableCount = useMemo(() => {
+    const sectionForMarks = uiMarksToSectionScope(pendingMarks);
+    const bankQuestions = buildPracticeQuestionsFromEngine({
+      subjectKey,
+      topicKey: topicLabel,
+      count: 200,
+      difficulty: "All",
+      boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
+    });
+    return bankQuestions.filter((q) =>
+      matchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty)
+    ).length;
+  }, [subjectKey, topicLabel, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, matchesFilters]);
+
   useEffect(() => {
     if (filteredQuestions.length === 0) {
       if (activeQuestionId !== null) setActiveQuestionId(null);
@@ -630,25 +648,104 @@ const packTopicKey = useMemo(() => {
           ? wrongConcepts.map((e) => e.conceptKey)
           : undefined;
 
-        const next = await Promise.race([
-          buildPracticeQuestionsWithAiTopup({
-            grade,
-            subjectKey,
-            topicLabel,
-            packTopicKey,
-            count: questionCount,
-            difficulty,
-            subtopicHint,
-            focusBankIds,
-            strictFocus,
-            adaptiveMix,
-            priorityConceptKeys,
-            marksFilter: engineMarksFilter,
-            pyqOnly: committedSource === "pyq" || undefined,
-            excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
-          }),
-          timeout,
-        ]);
+        // Engine section filter — routes the engine to fetch from the
+        // correct Section directly instead of a random sample biased by
+        // the default difficulty mix (which is Section-A-heavy). For the
+        // "23" combo we fetch unrestricted and let the client narrow B+C.
+        const engineSectionFilter = (() => {
+          if (committedMarks === "1") return "A";
+          if (committedMarks === "5") return "D";
+          if (committedMarks === "4") return "E";
+          return undefined;
+        })();
+
+        // Engine fetch count.
+        //   "23" → 100: B+C ≈ 49% of a mixed-section random sample, so a
+        //               deep pool is needed for the client filter to clear.
+        //   exact section (A/D/E) → 5× requested, capped at 100: precise.
+        //   "all" → just questionCount (balanced mix, no narrowing).
+        const engineCount = (() => {
+          if (committedMarks === "all") return questionCount;
+          if (committedMarks === "23") return 100;
+          return Math.min(questionCount * 5, 100);
+        })();
+
+        let next: PracticeQuestion[];
+
+        if (committedMarks === "all") {
+          // CBSE Class 10 board paper blueprint:
+          //   Section A (1mk) 30% · B (2mk) 20% · C (3mk) 20% · D (5mk) 20% · E (4mk) 10%
+          // Fan out one engine call per section so the returned mix mirrors
+          // the board's section weighting instead of generatePracticeSet's
+          // default difficulty bucketing (which over-pulls from the Easy /
+          // Section-A bucket and produces non-board-shaped sets).
+          const BLUEPRINT: Array<{ section: "A" | "B" | "C" | "D" | "E"; share: number }> = [
+            { section: "A", share: 0.30 },
+            { section: "B", share: 0.20 },
+            { section: "C", share: 0.20 },
+            { section: "D", share: 0.20 },
+            { section: "E", share: 0.10 },
+          ];
+
+          const sectionResults = await Promise.race([
+            Promise.all(
+              BLUEPRINT.map(({ section, share }) =>
+                buildPracticeQuestionsWithAiTopup({
+                  grade,
+                  subjectKey,
+                  topicLabel,
+                  packTopicKey,
+                  count: Math.max(1, Math.round(questionCount * share)),
+                  difficulty,
+                  subtopicHint,
+                  focusBankIds,
+                  strictFocus,
+                  sectionFilter: section,
+                  adaptiveMix,
+                  priorityConceptKeys,
+                  marksFilter: engineMarksFilter,
+                  pyqOnly: committedSource === "pyq" || undefined,
+                  excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
+                })
+              )
+            ),
+            timeout,
+          ]);
+
+          const seen = new Set<string>();
+          const merged: PracticeQuestion[] = [];
+          for (const batch of sectionResults) {
+            for (const q of batch) {
+              const key = String(q.questionText || "").trim().toLowerCase().slice(0, 80);
+              if (key && !seen.has(key)) {
+                seen.add(key);
+                merged.push(q);
+              }
+            }
+          }
+          next = merged.slice(0, questionCount);
+        } else {
+          next = await Promise.race([
+            buildPracticeQuestionsWithAiTopup({
+              grade,
+              subjectKey,
+              topicLabel,
+              packTopicKey,
+              count: engineCount,
+              difficulty,
+              subtopicHint,
+              focusBankIds,
+              strictFocus,
+              sectionFilter: engineSectionFilter,
+              adaptiveMix,
+              priorityConceptKeys,
+              marksFilter: engineMarksFilter,
+              pyqOnly: committedSource === "pyq" || undefined,
+              excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
+            }),
+            timeout,
+          ]);
+        }
 
         if (!cancelled) {
           setQuestions(next);
@@ -697,6 +794,7 @@ const packTopicKey = useMemo(() => {
     focusBankIds,
     strictFocus,
     engineMarksFilter,
+    committedMarks,
     committedSource,
     regenerationKey,
   ]);
@@ -1043,7 +1141,7 @@ const packTopicKey = useMemo(() => {
           pendingSource={pendingSource}
           pendingDifficulty={pendingDifficulty}
           pendingCount={questionCount}
-          availableCount={availableCount}
+          availableCount={bankAvailableCount}
           onSetMarks={setPendingMarks}
           onSetStyle={handleSetStyle}
           onSetSource={setPendingSource}

@@ -80,6 +80,8 @@ export default function ChapterTestPage() {
       topicKey: normalizedKey,
       totalQuestions: 30,
       shuffle: true,
+      // Fix B: chapter tests are timed mocks — keep the 50% competency floor.
+      enforceCompetencyFloor: true,
     });
     const valid = (pool.questions || []).filter(
       (q) => Boolean(q.questionText) && Boolean(q.answer)
