@@ -1,5 +1,56 @@
 ---
 
+## 2026-05-30 — PR #164: Decommission dead blackbox/tracker/pmem memory tooling
+
+### Starting state
+Base SHA at session start: 653762a (post-PR #163). Numbered PR #164.
+
+### Scope decision (owner-delegated FULL CLEAN)
+Investigation found the dead "memory blackbox" tool was more entangled than the
+original PR-0.5 brief: beyond the named files, it was referenced by startSafe.mjs
+(start:safe), the scripts/githooks pre-commit, trackerAll.mjs (the tracker family
+IS the blackbox dashboard), the pmem-runner, the PR template, and .gitignore.
+Flagged the ambiguity and STOPPED; owner delegated a full clean decommission of the
+entire experiment, then approved folding in the orphaned
+tools/project-memory-blackbox-ext/ stub.
+
+### Removed (16 files + 20 npm scripts)
+- scripts/: blackbox.mjs, contextpack.mjs, rulesDigest.mjs, memoryContracts.ts,
+  stageTracker.mjs, trackerAll/Watch/Serve/Ui/UiLive/Doctor.mjs
+- tools/pmem/ (pmem-runner.cjs, End-Session.ps1) + tools/project-memory-blackbox-ext/
+  (keyLoader.ts — a one-file stub) + .github/workflows/blackbox.yml
+- npm scripts: blackbox*, contextpack, rules:digest, tracker*, pmem:*, precommit:check
+
+### Repaired (nothing left broken)
+- start:quick → `npx tsc -p tsconfig.app.json --noEmit && npm run build` (kills the
+  false-green bare `npx tsc --noEmit` — the #160→#162 bug class)
+- startSafe.mjs (drop blackbox:full, fix tsc), githooks/pre-commit (keep lint),
+  githooks/README.md, PR template, .gitignore (kept load-bearing .project_memory/ ignore)
+
+### Preserved (verified): .project_memory/ops/, docs/project_memory/, all scripts/ops/*,
+server/services/serverConfig.cjs. Zero deletions under any of these.
+
+### Evidence + gate
+- Repo-wide sweep for the experiment → 0 references. npm run build → exit 0.
+  Vitest 2/2, guard suite 137/137.
+- Vercel PREVIEW check on #164: SUCCESS. Merged (squash) → base
+  `7f41422d02f6040852abc0b3a9bbb3a253f06d23`. Vercel PRODUCTION deploy: SUCCESS.
+- Branch `chore/decommission-blackbox` deleted (remote + local).
+
+### Process note
+git rm staged the deletions; the 6 edits staged separately. Used `npm pkg delete`
+to remove the 20 scripts (preserves formatting/order). All commit messages authored
+via `-F file` (avoids the PowerShell-here-string-in-bash hazard from #160).
+
+### Report
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report\report-PR0.5-decommission-blackbox-2026-05-30.md`
+  (copy in `...\diff\`)
+
+### Next
+PR A — shared responsive grammar primitives + first real render test (see NEXT_ACTION.md).
+
+---
+
 ## 2026-05-30 — PR #162: Hotfix — exclude test files from production app tsconfig
 
 ### Starting state

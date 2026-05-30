@@ -1,27 +1,26 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-30 (post-PR #162 tsconfig hotfix; Vercel GREEN)
-# Base SHA: bd0c36e7f5f81b2a80f867616895af1bd23a2156
+# Updated: 2026-05-30 (post-PR #164 blackbox decommission; Vercel GREEN)
+# Base SHA: 7f41422d02f6040852abc0b3a9bbb3a253f06d23
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: bd0c36e7f5f81b2a80f867616895af1bd23a2156
-Last PRs: #160 (Vitest render-test infra) + #161 (docs handoff post-#160) + #162 (hotfix: exclude test files from production app tsconfig — Vercel production deploy confirmed GREEN)
+SHA: 7f41422d02f6040852abc0b3a9bbb3a253f06d23
+Last PRs: #162 (tsconfig hotfix) + #163 (docs handoff post-#162) + #164 (decommission dead blackbox/tracker/pmem tooling + false-green tsc fix — Vercel production deploy confirmed GREEN)
 
-## IMMEDIATE NEXT TASK — PR 0.5: Blackbox decommission (planning-approved)
+## IMMEDIATE NEXT TASK — PR A: shared responsive grammar primitives + first real render test
 
-Branch: `chore/decommission-blackbox`. Remove the dead blackbox/contextpack memory
-tooling (owner-confirmed unused) AND fix the two false-green commands it left wired:
-  - `start:quick`: drop blackbox; replace bare `npx tsc --noEmit` (false-green —
-    root tsconfig has `files: []`) with `npx tsc -p tsconfig.app.json --noEmit && npm run build`.
-  - `precommit:check`: drop blackbox/contextpack; either remove or repoint to
-    `npx tsc -p tsconfig.app.json --noEmit && npm run test`.
-REMOVE only the dead tool (blackbox.mjs, contextpack.mjs, rulesDigest.mjs,
-stageTracker.mjs, memoryContracts.ts, .github/workflows/blackbox.yml, their npm
-scripts). PRESERVE `.project_memory/ops/`, `docs/project_memory/`, all `scripts/ops/*`,
-and `server/services/serverConfig.cjs` — they only SHARE the `.project_memory` name;
-they do NOT import blackbox. Grep-verify before deleting; STOP if anything live
-imports the tool. Evidence must include the production build (the #160→#162 lesson).
+Next in the planning-session staged UI track (PR A → B → C → D). PR A introduces the
+shared responsive grammar primitives AND ships the FIRST real render test on the
+Vitest infra from #160 (use `setMatchMediaMatches` to assert desktop vs mobile
+reflow). Branch fresh from the current tip. Await the PR-A instruction before starting.
+
+Then: PR B (Mobile Home), PR C (usePracticeHub extraction), PR D (MobilePracticePage).
+
+NOTE: the false-green `npx tsc --noEmit` was FIXED in #164 — `start:quick` and
+`start:safe` now use the real `npx tsc -p tsconfig.app.json --noEmit`. Use
+`npm run build` (the actual Vercel command) as the build gate; the Vercel PREVIEW
+check on each PR is a valid pre-merge production-build gate.
 
 ## RENDER-TEST INFRA NOW AVAILABLE (PR #160)
 
@@ -32,9 +31,10 @@ primitives, Mobile Home, practice-page extraction) MUST ship a real render/reflo
 test as proof-of-work. The `scripts/` guard suite (137 tests, node:test runner) is
 separate and unaffected — `vitest.config.ts` `include` is scoped to `src/`.
 
-NOTE: the false-green `npx tsc --noEmit` inside `start:quick`/`precommit:check` is
-still present (out of scope for #160). Use `npx tsc -p tsconfig.app.json --noEmit`
-for a real app typecheck. Slated for the blackbox-decommission PR.
+NOTE: the false-green `npx tsc --noEmit` was RESOLVED in #164 — `start:quick` now
+runs `npx tsc -p tsconfig.app.json --noEmit && npm run build`, and `precommit:check`
+was removed. Use `npx tsc -p tsconfig.app.json --noEmit` (or `npm run build`) for a
+real app typecheck.
 
 ## BANK STATE
 

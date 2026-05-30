@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-30 — Post-PR #164 roadmap update (blackbox decommission; Vercel green)
+
+### Completed this session
+- [x] PR 0.5 / #164 — decommissioned the dead blackbox/tracker/pmem memory
+  experiment (16 files + 20 npm scripts) and fixed the false-green `npx tsc --noEmit`
+  in start:quick/start:safe. Live infra (.project_memory/ops, scripts/ops,
+  serverConfig.cjs) preserved. New base SHA `7f41422d02f6040852abc0b3a9bbb3a253f06d23`.
+  Vercel preview + production both GREEN.
+
+### Staged UI track — next up
+  [ ] PR A — shared responsive grammar primitives + FIRST real render test (uses the
+      #160 Vitest infra; assert desktop vs mobile reflow via setMatchMediaMatches)
+  [ ] PR B — Mobile Home
+  [ ] PR C — usePracticeHub extraction
+  [ ] PR D — MobilePracticePage
+
+### Still parked / unchanged
+P0 launch blockers remain ahead of the UI track (API gateway 404, Clerk pk_live_).
+
 ## 2026-05-30 — Post-PR #162 roadmap update (production-build hotfix; Vercel green)
 
 ### Completed this session
