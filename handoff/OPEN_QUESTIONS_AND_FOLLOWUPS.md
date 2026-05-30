@@ -1,3 +1,26 @@
+## 2026-05-30 — Post-PR #164 (blackbox decommission)
+
+### RESOLVED — Dead blackbox/tracker/pmem tooling removed (PR #164)
+The entire dead "memory blackbox" experiment (blackbox + contextpack + tracker
+family + pmem-runner + the project-memory-blackbox-ext stub + blackbox.yml + 20 npm
+scripts) was removed. No live import existed in src/server/ops. Repo-wide refs now 0.
+
+### RESOLVED — False-green `npx tsc --noEmit` in start:quick / precommit:check (PR #164)
+start:quick now runs `npx tsc -p tsconfig.app.json --noEmit && npm run build`;
+precommit:check removed; startSafe.mjs fixed to the same real typecheck. The bare
+`npx tsc --noEmit` (always exit 0 because root tsconfig has `files: []`) is gone from
+the convenience scripts.
+
+### OPEN — Two hook dirs coexist (LOW, cosmetic)
+Repo has both root `.githooks/pre-commit` (Windows-metadata cleaner) and
+`scripts/githooks/pre-commit` (now lint-only after #164). `hooks:enable` points to
+`scripts/githooks`. Consider consolidating to one hook dir in a future cleanup.
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it.
+
+---
+
 ## 2026-05-30 — Post-PR #162 (production-build hotfix)
 
 ### RESOLVED — Test files swept into the production app compile (PR #162)

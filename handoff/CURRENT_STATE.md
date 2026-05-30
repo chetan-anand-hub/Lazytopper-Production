@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-05-30 (post-PR #161 handoff + #162 tsconfig hotfix)
+Last updated: 2026-05-30 (post-PR #163 handoff + #164 blackbox decommission)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: bd0c36e7f5f81b2a80f867616895af1bd23a2156
-Last merged PRs: #160 (Vitest render-test infra), #161 (docs handoff post-#160), #162 (hotfix: exclude test files from production app tsconfig — Vercel deploy GREEN confirmed)
+SHA: 7f41422d02f6040852abc0b3a9bbb3a253f06d23
+Last merged PRs: #162 (tsconfig hotfix), #163 (docs handoff post-#162), #164 (chore: decommission dead blackbox/tracker/pmem tooling — Vercel deploy GREEN confirmed)
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -26,6 +26,12 @@ Render-test infra: Vitest 3.2.4 + Testing Library + jsdom (PR #160) — `npm tes
 Production build: GREEN. PR #162 added `exclude` to tsconfig.app.json so `tsc -b`
   (Vercel's `npm run build`) no longer compiles the dev-only test files. Vercel
   production deploy for the merge commit confirmed Ready/SUCCESS.
+Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
+  experiment (16 files: scripts + tools/pmem + tools/project-memory-blackbox-ext +
+  blackbox.yml + 20 npm scripts). Repaired start:quick/start:safe to use the REAL
+  `tsc -p tsconfig.app.json --noEmit` (killed the false-green bare `npx tsc --noEmit`).
+  PRESERVED: .project_memory/ops/, docs/project_memory/, all scripts/ops/*,
+  serverConfig.cjs. Vercel production deploy GREEN. Repo-wide refs to experiment: 0.
 
 ## Recent PRs (post-handoff backfill)
 #152 — Handoff post-#150+#151
@@ -39,6 +45,8 @@ Production build: GREEN. PR #162 added `exclude` to tsconfig.app.json so `tsc -b
 #160 — chore: Vitest + Testing Library render-test infrastructure (tooling-only)
 #161 — docs: handoff update post-#160
 #162 — fix: exclude test files from production app tsconfig (Vercel green confirmed)
+#163 — docs: handoff update post-#162
+#164 — chore: decommission dead blackbox/tracker/pmem tooling + false-green tsc fix (Vercel green)
 
 ## Source breakdown
 
