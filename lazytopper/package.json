@@ -124,7 +124,9 @@
     "verify:full": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ops/codex_testing/codex_verify.ps1 -TaskName full -Suite full",
     "tutor:eval": "node scripts/tutorEval.mjs",
     "start:safe": "node scripts/startSafe.mjs",
-    "start:quick": "npm run blackbox && npx tsc --noEmit && npm run build"
+    "start:quick": "npm run blackbox && npx tsc --noEmit && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@clerk/react": "^6.2.0",
@@ -147,6 +149,9 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
     "@types/node": "^24.10.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.2",
@@ -158,10 +163,12 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "29.1.1",
     "madge": "^8.0.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
     "vite": "^7.2.2",
+    "vitest": "3.2.4",
     "yaml": "^2.8.2"
   }
 }
