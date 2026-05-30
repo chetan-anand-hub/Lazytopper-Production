@@ -2,6 +2,28 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-30 — Post-PR #160 roadmap update (render-test infra foundation)
+
+### Completed this session
+- [x] PR #160 — Vitest + Testing Library render-test infrastructure (tooling-only).
+  New base SHA `99fd660bf9ef9cbd4ead133344c10352d529809a`. Installs the render-test
+  mechanism the upcoming UI track depends on: `npm test` in `lazytopper/` runs Vitest
+  over `src/**/*.test.tsx` (jsdom + Testing Library + jest-dom + matchMedia polyfill).
+  One smoke test green; 137 guard tests untouched. No feature/component/data changes.
+
+### Unblocked next (UI render-test track)
+With infra in place, each of these UI PRs must now ship a real render/reflow test:
+  [ ] Grammar primitives PR
+  [ ] Mobile Home PR
+  [ ] Practice-page extraction PR
+  [ ] Blackbox-decommission PR (also fixes the false-green `npx tsc --noEmit` in
+      `start:quick`/`precommit:check` — out of scope for #160)
+
+### Still parked / unchanged
+P0 launch blockers remain ahead of the UI track per CURRENT_STATE.md:
+  [ ] ISSUE-009 API gateway 404 in production (Railway deploy + vercel rewrite)
+  [ ] ISSUE-010 Clerk pk_live_ keys switch
+
 ## 2026-05-25 — Post-PR #147 + #148 roadmap update
 
 ### Completed this session

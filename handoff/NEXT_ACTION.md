@@ -1,12 +1,25 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-26 (post-PR #150 + #151)
-# Base SHA: 547da58b47906dab4f419afb371ab0887b0e0c51
+# Updated: 2026-05-30 (post-PR #160 vitest infra)
+# Base SHA: 99fd660bf9ef9cbd4ead133344c10352d529809a
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 547da58b47906dab4f419afb371ab0887b0e0c51
-Last PRs: #150 (P4-M 2024 re-run, 96 Qs) + #151 (permanent tagging/filter/step-marks fix, 32 files)
+SHA: 99fd660bf9ef9cbd4ead133344c10352d529809a
+Last PRs: #159 (docs handoff post-#157+#158) + #160 (Vitest + Testing Library render-test infrastructure, tooling-only)
+
+## RENDER-TEST INFRA NOW AVAILABLE (PR #160)
+
+`npm test` in `lazytopper/` runs Vitest over `src/**/*.test.{ts,tsx}` (jsdom,
+Testing Library, jest-dom; `window.matchMedia` polyfilled in `src/test/setup.ts`,
+overridable per-test via `setMatchMediaMatches`). Every future UI PR (grammar
+primitives, Mobile Home, practice-page extraction) MUST ship a real render/reflow
+test as proof-of-work. The `scripts/` guard suite (137 tests, node:test runner) is
+separate and unaffected — `vitest.config.ts` `include` is scoped to `src/`.
+
+NOTE: the false-green `npx tsc --noEmit` inside `start:quick`/`precommit:check` is
+still present (out of scope for #160). Use `npx tsc -p tsconfig.app.json --noEmit`
+for a real app typecheck. Slated for the blackbox-decommission PR.
 
 ## BANK STATE
 

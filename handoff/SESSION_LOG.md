@@ -1,5 +1,58 @@
 ---
 
+## 2026-05-30 — PR #160: Vitest + Testing Library render-test infrastructure
+
+### Starting state
+Base SHA at session start: 7e6e39d (post-PR #159 docs handoff).
+
+NOTE: the PR0 instruction named base `2c91940` (post-#158); origin tip had already
+advanced one docs-only PR (#159). Flagged the SHA mismatch per doctrine; owner chose
+to branch from the current tip `7e6e39d`. Numbered the PR #160 (next unused integer
+after #159).
+
+### Work completed (tooling-only foundation PR)
+The `lazytopper/` app package had NO render-test mechanism. PR #160 installs it once
+so every future UI PR can ship a real proof-of-work render/reflow test.
+
+- Added devDependencies (exact pins, all >1 day old per minimumReleaseAge policy):
+  vitest@3.2.4, @testing-library/react@16.3.2, @testing-library/jest-dom@6.9.1,
+  @testing-library/user-event@14.6.1, jsdom@29.1.1 (+ transitive
+  @testing-library/dom@10.4.1).
+- `vitest.config.ts` — SEPARATE from vite.config.ts; React plugin, jsdom, globals,
+  setupFiles, `include` scoped to `src/**/*.test.{ts,tsx}` so it never runs the
+  scripts/ node:test guard suite.
+- `src/test/setup.ts` — jest-dom + configurable `window.matchMedia` polyfill (jsdom
+  lacks it; useIsDesktop needs it). Defaults to mobile, overridable per-test via
+  `setMatchMediaMatches`, resets each test; provides both modern (addEventListener)
+  and legacy (addListener) MediaQueryList APIs.
+- `src/test/smoke.test.tsx` — one trivial render test (2 assertions) proving the
+  mechanism end to end.
+- `package.json` — added `test`/`test:watch` scripts; no existing script altered.
+
+### Evidence
+- Proof-of-work: `npm run test` → Vitest 3.2.4, smoke.test.tsx **2 passed**.
+- Regression: `tsc -p tsconfig.app.json --noEmit` clean; scripts/ guard suite
+  **137/137 PASS**, untouched.
+- Scope: `git diff --check` clean; only package.json, package-lock.json,
+  vitest.config.ts, src/test/setup.ts, src/test/smoke.test.tsx changed. `.claude/`
+  never staged.
+
+### Merge
+- PR #160 merged → new base SHA `99fd660bf9ef9cbd4ead133344c10352d529809a`.
+- Branch `chore/vitest-test-infra` deleted (remote + local).
+
+### Process note (carry forward)
+First commit accidentally used PowerShell here-string syntax (`@'...'@`) inside the
+Bash tool, leaving a stray `@` in the commit subject. Caught immediately, amended
+via a temp file BEFORE any push — pushed history is clean. Lesson: the Bash tool is
+POSIX bash; use heredoc (`<<'EOF'`) or `-F file`, not PowerShell here-strings.
+
+### Reports
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report\PR0-vitest-infra-2026-05-30.md`
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report-PR0-vitest-test-infra-2026-05-30.md`
+
+---
+
 ## 2026-05-29T14:30Z — Post-PR #157+#158: Sprint 1 content extraction complete
 
 ### Starting state
