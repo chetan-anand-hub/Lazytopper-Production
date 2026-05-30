@@ -1,12 +1,27 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-30 (post-PR #160 vitest infra)
-# Base SHA: 99fd660bf9ef9cbd4ead133344c10352d529809a
+# Updated: 2026-05-30 (post-PR #162 tsconfig hotfix; Vercel GREEN)
+# Base SHA: bd0c36e7f5f81b2a80f867616895af1bd23a2156
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 99fd660bf9ef9cbd4ead133344c10352d529809a
-Last PRs: #159 (docs handoff post-#157+#158) + #160 (Vitest + Testing Library render-test infrastructure, tooling-only)
+SHA: bd0c36e7f5f81b2a80f867616895af1bd23a2156
+Last PRs: #160 (Vitest render-test infra) + #161 (docs handoff post-#160) + #162 (hotfix: exclude test files from production app tsconfig — Vercel production deploy confirmed GREEN)
+
+## IMMEDIATE NEXT TASK — PR 0.5: Blackbox decommission (planning-approved)
+
+Branch: `chore/decommission-blackbox`. Remove the dead blackbox/contextpack memory
+tooling (owner-confirmed unused) AND fix the two false-green commands it left wired:
+  - `start:quick`: drop blackbox; replace bare `npx tsc --noEmit` (false-green —
+    root tsconfig has `files: []`) with `npx tsc -p tsconfig.app.json --noEmit && npm run build`.
+  - `precommit:check`: drop blackbox/contextpack; either remove or repoint to
+    `npx tsc -p tsconfig.app.json --noEmit && npm run test`.
+REMOVE only the dead tool (blackbox.mjs, contextpack.mjs, rulesDigest.mjs,
+stageTracker.mjs, memoryContracts.ts, .github/workflows/blackbox.yml, their npm
+scripts). PRESERVE `.project_memory/ops/`, `docs/project_memory/`, all `scripts/ops/*`,
+and `server/services/serverConfig.cjs` — they only SHARE the `.project_memory` name;
+they do NOT import blackbox. Grep-verify before deleting; STOP if anything live
+imports the tool. Evidence must include the production build (the #160→#162 lesson).
 
 ## RENDER-TEST INFRA NOW AVAILABLE (PR #160)
 

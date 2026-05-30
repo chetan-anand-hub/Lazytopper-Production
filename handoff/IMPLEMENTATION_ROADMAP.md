@@ -2,6 +2,26 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-30 — Post-PR #162 roadmap update (production-build hotfix; Vercel green)
+
+### Completed this session
+- [x] PR #162 — hotfix: exclude test files from production app tsconfig. New base SHA
+  `bd0c36e7f5f81b2a80f867616895af1bd23a2156`. Stopped #160's dev-only test files from
+  entering the `tsc -b` production compile (they break on Vercel where devDeps are
+  pruned). Vercel preview AND production deploy both confirmed GREEN.
+
+### Planned next (the staged UI track from the planning session)
+  [ ] PR 0.5 — Blackbox decommission + false-green `npx tsc --noEmit` fix
+      (`chore/decommission-blackbox`). Removes dead tooling; the false-green check is
+      the same bug class that caused the #160→#162 episode. Owner approval required.
+  [ ] PR A — shared responsive grammar primitives + FIRST real render test
+  [ ] PR B — Mobile Home
+  [ ] PR C — usePracticeHub extraction
+  [ ] PR D — MobilePracticePage
+
+### Still parked / unchanged
+P0 launch blockers remain (API gateway 404, Clerk pk_live_) per CURRENT_STATE.md.
+
 ## 2026-05-30 — Post-PR #160 roadmap update (render-test infra foundation)
 
 ### Completed this session
