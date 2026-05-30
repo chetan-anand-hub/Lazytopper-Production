@@ -1,5 +1,45 @@
 ---
 
+## 2026-05-30 — PR #166: Shared responsive grammar primitives + first render test
+
+### Starting state
+Base SHA at session start: 0d5a63f (post-PR #165). Numbered PR #166.
+
+### What shipped (foundation primitives; no page changed)
+New folder `src/components/grammar/` with reusable responsive building blocks that
+carry the verified live desktop grammar (HSL token literals matched exactly to
+DesktopPracticePage constants — GREEN hsl(152,55%,45%), FG, MUTED, BORDER, etc.):
+- tokens.ts, Card.tsx, Pill.tsx (active/disabled/tone), SectionHeader.tsx, index.ts
+- TileRow.tsx — KEY primitive: N-column grid on desktop, single-column stack below
+  1024px. Reflow is a REAL `@media (max-width: 1023px)` rule in a scoped <style>
+  (NOT a JS width check, NOT inline). Column count flows via the `--lt-tile-cols`
+  CSS custom property so the CSS text is shared/idempotent across instances.
+- grammar.test.tsx — the FIRST real render test on the #160 Vitest infra.
+
+### How the render test proves reflow (jsdom has no layout)
+Asserts the CSS contract, not pixels: the emitted <style> contains
+`@media (max-width: 1023px)` collapsing .lt-grammar-tile-row to one column; column
+count is `--lt-tile-cols`-driven; and rendering desktop vs mobile
+(setMatchMediaMatches true/false) yields BYTE-IDENTICAL CSS — proving pure-CSS
+reflow with no JS branch. Plus Pill/Card/SectionHeader behavior.
+
+### Evidence + gate
+- npm run test → 10/10 (2 smoke + 8 grammar). npm run build → exit 0. Guards 137/137.
+- Scope: src/components/grammar/* only (7 files); no page/component/data change.
+- Vercel PREVIEW check on #166: SUCCESS. Merged (squash) → base
+  `fefcbc74a01dee0ac2ef305e8c393571ff03c64c`. Vercel PRODUCTION deploy: SUCCESS.
+- Branch `feat/responsive-grammar-primitives` deleted (remote + local).
+
+### Report
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report\report-PRA-grammar-primitives-2026-05-30.md`
+  (copy in `...\diff\`)
+
+### Next
+PR B — Mobile Home: reflow the Home cockpit onto these primitives (TileRow for the
+4-card row) + a render test. See NEXT_ACTION.md.
+
+---
+
 ## 2026-05-30 — PR #164: Decommission dead blackbox/tracker/pmem memory tooling
 
 ### Starting state

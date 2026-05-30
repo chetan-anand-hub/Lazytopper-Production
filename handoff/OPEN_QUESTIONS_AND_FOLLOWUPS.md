@@ -1,3 +1,21 @@
+## 2026-05-30 — Post-PR #166 (grammar primitives)
+
+### RESOLVED — No shared responsive primitives for the mobile work (PR #166)
+Pages hand-rolled inline-styled grids with no mobile reflow. PR #166 added
+`src/components/grammar/` (Card, TileRow, Pill, SectionHeader) so page reflows (PR B+)
+reuse one consistent contract. TileRow reflow is pure CSS (@media max-width:1023px).
+Wired into no page yet.
+
+### OPEN — Grammar primitives not yet wired into any page (expected; PR B+)
+The primitives exist and are tested but unused. PR B (Mobile Home) is the first
+consumer. Until pages adopt them, the live mobile squeeze (e.g. DesktopHome 4-card
+row) persists. Tracked in the staged UI roadmap.
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it.
+
+---
+
 ## 2026-05-30 — Post-PR #164 (blackbox decommission)
 
 ### RESOLVED — Dead blackbox/tracker/pmem tooling removed (PR #164)

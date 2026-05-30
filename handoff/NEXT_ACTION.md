@@ -1,26 +1,30 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-30 (post-PR #164 blackbox decommission; Vercel GREEN)
-# Base SHA: 7f41422d02f6040852abc0b3a9bbb3a253f06d23
+# Updated: 2026-05-30 (post-PR #166 grammar primitives; Vercel GREEN)
+# Base SHA: fefcbc74a01dee0ac2ef305e8c393571ff03c64c
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 7f41422d02f6040852abc0b3a9bbb3a253f06d23
-Last PRs: #162 (tsconfig hotfix) + #163 (docs handoff post-#162) + #164 (decommission dead blackbox/tracker/pmem tooling + false-green tsc fix — Vercel production deploy confirmed GREEN)
+SHA: fefcbc74a01dee0ac2ef305e8c393571ff03c64c
+Last PRs: #164 (blackbox decommission) + #165 (docs handoff post-#164) + #166 (shared responsive grammar primitives + first render test — Vercel production deploy confirmed GREEN)
 
-## IMMEDIATE NEXT TASK — PR A: shared responsive grammar primitives + first real render test
+## IMMEDIATE NEXT TASK — PR B: Mobile Home
 
-Next in the planning-session staged UI track (PR A → B → C → D). PR A introduces the
-shared responsive grammar primitives AND ships the FIRST real render test on the
-Vitest infra from #160 (use `setMatchMediaMatches` to assert desktop vs mobile
-reflow). Branch fresh from the current tip. Await the PR-A instruction before starting.
+Next in the staged UI track (PR A done → B → C → D). PR B reflows the Home/cockpit
+onto the new grammar primitives (#166) — chiefly TileRow for the 4-card row that
+currently squeezes on mobile (DesktopHome `gridTemplateColumns: repeat(4,...)` with
+no breakpoint). Ship a render test asserting the Home reflow on the #166 primitives.
+Branch fresh from the current tip. Await the PR-B instruction before starting.
 
-Then: PR B (Mobile Home), PR C (usePracticeHub extraction), PR D (MobilePracticePage).
+Then: PR C (usePracticeHub extraction), PR D (MobilePracticePage).
 
-NOTE: the false-green `npx tsc --noEmit` was FIXED in #164 — `start:quick` and
-`start:safe` now use the real `npx tsc -p tsconfig.app.json --noEmit`. Use
-`npm run build` (the actual Vercel command) as the build gate; the Vercel PREVIEW
-check on each PR is a valid pre-merge production-build gate.
+GRAMMAR PRIMITIVES AVAILABLE (PR #166): import from `src/components/grammar`
+(`Card`, `TileRow`, `Pill`, `SectionHeader`). TileRow reflow is pure CSS
+(@media max-width:1023px); pass desktop column count via the `columns` prop.
+
+NOTE: build gate = `npm run build` (the real Vercel command); the Vercel PREVIEW
+check on each PR is a valid pre-merge production-build gate. The false-green
+`npx tsc --noEmit` was fixed in #164.
 
 ## RENDER-TEST INFRA NOW AVAILABLE (PR #160)
 
