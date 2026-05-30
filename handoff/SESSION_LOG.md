@@ -1,5 +1,52 @@
 ---
 
+## 2026-05-30 — PR #162: Hotfix — exclude test files from production app tsconfig
+
+### Starting state
+Base SHA at session start: 2c83ea3 (post-PR #161 docs handoff). Numbered PR #162.
+
+### The bug (and an honest non-repro)
+PR #160's test files (src/test/setup.ts, smoke.test.tsx) import dev-only packages
+(@testing-library/react, jest-dom, vitest). tsconfig.app.json had `include: ["src"]`
+and NO `exclude`, so the production compile (tsc -b && vite build = Vercel's
+`npm run build`) sweeps the test files into the app program (confirmed via
+`tsc --listFilesOnly`).
+
+IMPORTANT — the described failure did NOT reproduce locally: `npm run build` and
+`tsc -b --force` both passed GREEN on the unmodified base. Root cause traced: locally
+devDependencies are installed so the test imports resolve; on Vercel the production
+install prunes devDependencies (NODE_ENV=production), so the test files fail with
+`TS2305 ... no exported member`. Reported the green local build honestly rather than
+claiming a repro; fixed the root cause anyway (prod compile must never include tests).
+
+### Fix (one file)
+tsconfig.app.json: added `exclude: ["src/**/*.test.ts", "src/**/*.test.tsx",
+"src/test/**"]`; kept `include: ["src"]`. tsconfig.node.json includes only
+vite.config.ts — no change needed. vitest.config.ts untouched (its own include keeps
+Vitest running the tests).
+
+### Evidence
+- After fix, `tsc --listFilesOnly` no longer lists src/test/* (was: both present).
+- `npm run build` → ✓ built, exit 0. `npm run test` → 2 passed. Guard suite 137/137.
+- Scope: only tsconfig.app.json. `.claude/` never staged.
+
+### Vercel gate (the real validation — hard gate, passed)
+- PR #162 Vercel PREVIEW check: SUCCESS (production-mode build, devDeps pruned —
+  the exact failure surface). Confirmed the devDep-pruning diagnosis.
+- Merged #162 (squash) → base SHA `bd0c36e7f5f81b2a80f867616895af1bd23a2156`.
+- Vercel PRODUCTION deploy for bd0c36e: SUCCESS (Ready). Fix confirmed in prod.
+- Branch `fix/tsconfig-exclude-tests` deleted (remote + local).
+
+### Reports
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report-PR0.1-tsconfig-exclude-tests-2026-05-30.md`
+- copy in `...\diff\report\`.
+
+### Next
+PR 0.5 — blackbox decommission + false-green `npx tsc --noEmit` fix
+(`chore/decommission-blackbox`). See NEXT_ACTION.md.
+
+---
+
 ## 2026-05-30 — PR #160: Vitest + Testing Library render-test infrastructure
 
 ### Starting state

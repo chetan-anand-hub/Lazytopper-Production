@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-05-30 (post-PR #159 handoff + #160 vitest infra)
+Last updated: 2026-05-30 (post-PR #161 handoff + #162 tsconfig hotfix)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 99fd660bf9ef9cbd4ead133344c10352d529809a
-Last merged PRs: #159 (docs handoff post-#157+#158), #160 (Vitest + Testing Library render-test infrastructure — tooling-only)
+SHA: bd0c36e7f5f81b2a80f867616895af1bd23a2156
+Last merged PRs: #160 (Vitest render-test infra), #161 (docs handoff post-#160), #162 (hotfix: exclude test files from production app tsconfig — Vercel deploy GREEN confirmed)
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -23,6 +23,9 @@ COMPETENCY floor: gated by enforceCompetencyFloor flag
 Render-test infra: Vitest 3.2.4 + Testing Library + jsdom (PR #160) — `npm test` in
   lazytopper/ runs src/**/*.test.tsx; 1 smoke test green; matchMedia polyfilled in
   src/test/setup.ts. Guard suite (137) unaffected — separate node:test runner.
+Production build: GREEN. PR #162 added `exclude` to tsconfig.app.json so `tsc -b`
+  (Vercel's `npm run build`) no longer compiles the dev-only test files. Vercel
+  production deploy for the merge commit confirmed Ready/SUCCESS.
 
 ## Recent PRs (post-handoff backfill)
 #152 — Handoff post-#150+#151
@@ -34,6 +37,8 @@ Render-test infra: Vitest 3.2.4 + Testing Library + jsdom (PR #160) — `npm tes
 #158 — content: CBSE Preboard SP1+SP2 generated solutions (55 Qs)
 #159 — docs: handoff update post-#157+#158
 #160 — chore: Vitest + Testing Library render-test infrastructure (tooling-only)
+#161 — docs: handoff update post-#160
+#162 — fix: exclude test files from production app tsconfig (Vercel green confirmed)
 
 ## Source breakdown
 

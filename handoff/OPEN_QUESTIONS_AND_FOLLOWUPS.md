@@ -1,3 +1,23 @@
+## 2026-05-30 — Post-PR #162 (production-build hotfix)
+
+### RESOLVED — Test files swept into the production app compile (PR #162)
+PR #160's render-test files (src/test/*) import dev-only packages. tsconfig.app.json
+had no `exclude`, so `tsc -b` (Vercel's build) compiled them. Green locally (devDeps
+present) but breaks on Vercel where devDeps are pruned (TS2305). Fixed by adding an
+`exclude` array to tsconfig.app.json. Vercel preview + production deploy both GREEN.
+Lesson locked: gate UI/build PRs on the REAL `npm run build`, not bare
+`tsc -p ... --noEmit`; and Vercel preview check is a valid pre-merge prod-build gate.
+
+### OPEN — False-green `npx tsc --noEmit` in start:quick / precommit:check (MEDIUM → scheduled)
+Still present. NOW SCHEDULED as part of PR 0.5 (blackbox decommission): rewrite
+`start:quick` to `npx tsc -p tsconfig.app.json --noEmit && npm run build`, and drop
+the dead blackbox/contextpack chain from both scripts. See NEXT_ACTION.md.
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it.
+
+---
+
 ## 2026-05-30 — Post-PR #160 (render-test infrastructure)
 
 ### RESOLVED — No render-test mechanism in lazytopper/ (PR #160)
