@@ -1,3 +1,29 @@
+## 2026-05-30 — Post-PR #160 (render-test infrastructure)
+
+### RESOLVED — No render-test mechanism in lazytopper/ (PR #160)
+The app package had no Vitest/Jest, no Testing Library, no jsdom, no `*.test.tsx`,
+no `test` script. PR #160 installed it (Vitest 3.2.4 + Testing Library + jsdom),
+scoped `vitest.config.ts` `include` to `src/` so the scripts/ guard suite is never
+touched, polyfilled `window.matchMedia` in `src/test/setup.ts`, and proved it with
+one green smoke test. Future UI PRs can now ship real proof-of-work render tests.
+
+### OPEN — False-green `npx tsc --noEmit` in start:quick / precommit:check (MEDIUM)
+`start:quick` and `precommit:check` call bare `npx tsc --noEmit`, which always
+exits 0 (false pass) in this repo. Real app typecheck is
+`npx tsc -p tsconfig.app.json --noEmit`. Deliberately left as-is in #160 (out of
+scope); slated for the blackbox-decommission PR.
+
+### OPEN — Test-tooling adds dev-dependency tree (LOW, informational)
+`npm install` for #160 added 717 packages; `npm audit` reports pre-existing
+vulnerabilities in the wider dev tree (none introduced by #160 are actionable in
+scope — dev-only test tooling, not shipped to the app bundle).
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it. Add
+to `.gitignore` in a future docs-only PR.
+
+---
+
 ## 2026-05-26 — Post-PR #150 + #151 (PYQ 2024 Maths re-run + permanent tagging/filter/step-marks fix)
 
 ### CLOSED — ISSUE-001 Practice type filters broken (PR #151)

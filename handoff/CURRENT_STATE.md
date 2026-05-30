@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-05-29 (post-PR #157 + #158)
+Last updated: 2026-05-30 (post-PR #159 handoff + #160 vitest infra)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 2c91940c31a61adfffb6928ebfc53ddd02ee7d05
-Last merged PRs: #157 (Sprint 1 — 442 Qs), #158 (Preboard SP1+SP2 — 55 Qs)
+SHA: 99fd660bf9ef9cbd4ead133344c10352d529809a
+Last merged PRs: #159 (docs handoff post-#157+#158), #160 (Vitest + Testing Library render-test infrastructure — tooling-only)
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -20,6 +20,9 @@ TopicKey orphans: 0
 Filter system: ALL chips working
 CBSE blueprint distribution: working (5-section parallel fetch)
 COMPETENCY floor: gated by enforceCompetencyFloor flag
+Render-test infra: Vitest 3.2.4 + Testing Library + jsdom (PR #160) — `npm test` in
+  lazytopper/ runs src/**/*.test.tsx; 1 smoke test green; matchMedia polyfilled in
+  src/test/setup.ts. Guard suite (137) unaffected — separate node:test runner.
 
 ## Recent PRs (post-handoff backfill)
 #152 — Handoff post-#150+#151
@@ -29,6 +32,8 @@ COMPETENCY floor: gated by enforceCompetencyFloor flag
 #156 — docs: handoff post-#153+#154+#155
 #157 — content: Sprint 1 CBSE CBE Item Bank + P5 Sample Papers (442 Qs)
 #158 — content: CBSE Preboard SP1+SP2 generated solutions (55 Qs)
+#159 — docs: handoff update post-#157+#158
+#160 — chore: Vitest + Testing Library render-test infrastructure (tooling-only)
 
 ## Source breakdown
 
