@@ -65,10 +65,8 @@ playwright-report/
 !.project_memory/LATEST.md
 !.project_memory/LATEST.json
 !.project_memory/PROMPT_SEED.md
-# --- Project Memory Blackbox (clean history) ---
-# High-churn / bulk: never commit
+# --- Project memory (runtime/ops data — high-churn, never commit) ---
 .project_memory/
-docs/session/*_blackbox.md
 .codex_runs/
 RUN_*/
 **/RUN_*/
