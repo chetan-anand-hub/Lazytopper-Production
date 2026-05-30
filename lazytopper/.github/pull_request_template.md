@@ -1,7 +1,6 @@
-## Blackbox & build checks
-- [ ] Ran `npm run blackbox` and pasted the summary table from the console.
+## Build & checks
 - [ ] Ran `npm run build` and pasted the final lines (or noted existing artifact output).
-- [ ] Attached the `contextpack.md` + `latest.json` (or linked the CI artifact) for reviewers.
+- [ ] Ran `npm run test` (Vitest) and confirmed it passes.
 - [ ] Confirmed the invariants are intact: Weekly Wrapped capture wrapper, share helper call, and CBSE dates-driven TBD display.
 
 ## Changes

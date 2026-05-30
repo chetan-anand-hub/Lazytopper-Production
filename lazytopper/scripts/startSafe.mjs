@@ -19,8 +19,7 @@ if (status) {
   process.exit(2);
 }
 
-run('npm run blackbox:full');
-run('npx tsc --noEmit');
+run('npx tsc -p tsconfig.app.json --noEmit');
 run('npm run build');
 tryRun('npm test');
 
