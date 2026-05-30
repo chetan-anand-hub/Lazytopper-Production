@@ -2,6 +2,24 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-30 — Post-PR #166 roadmap update (grammar primitives; Vercel green)
+
+### Completed this session
+- [x] PR A / #166 — shared responsive grammar primitives (`src/components/grammar/`:
+  Card, TileRow, Pill, SectionHeader, tokens, index) + the FIRST real render test.
+  TileRow reflows desktop↔mobile via a real `@media (max-width:1023px)` rule. No page
+  changed. New base SHA `fefcbc74a01dee0ac2ef305e8c393571ff03c64c`. Vercel preview +
+  production both GREEN.
+
+### Staged UI track — remaining
+  [ ] PR B — Mobile Home (reflow the Home cockpit onto the #166 primitives — TileRow
+      for the 4-card row that squeezes on mobile — + a render test)
+  [ ] PR C — usePracticeHub extraction
+  [ ] PR D — MobilePracticePage
+
+### Still parked / unchanged
+P0 launch blockers remain ahead of the UI track (API gateway 404, Clerk pk_live_).
+
 ## 2026-05-30 — Post-PR #164 roadmap update (blackbox decommission; Vercel green)
 
 ### Completed this session
