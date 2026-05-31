@@ -75,6 +75,7 @@ const Worksheets        = lazy(() => import("./pages/app/Worksheets"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
 const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
 const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
+const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 
 // Mobile baseline pages (#438 — broken destination repair)
 const MobileExamTrends  = lazy(() => import("./pages/app/ExamTrends"));
@@ -675,7 +676,10 @@ export default function App() {
               signed-in/local-session desktop → DesktopHome cockpit
               (shell-wrapped above), mobile → HomeRedirect. */}
           <Route path="/" element={<RootEntry />} />
-          <Route path="/welcome" element={<Welcome />} />
+          <Route
+            path="/welcome"
+            element={isDesktop ? <Welcome /> : withRouteSuspense(<MobileWelcome />)}
+          />
           <Route
             path="/browse"
             element={
