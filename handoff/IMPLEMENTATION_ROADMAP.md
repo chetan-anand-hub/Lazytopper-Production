@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-31 — Post-PR #170 roadmap update (mobile landing; Vercel green)
+
+### Completed this session
+- [x] PR C / #170 — mobile landing (swipe carousel) for /welcome. New
+  src/pages/MobileWelcome.tsx (native CSS scroll-snap, 4 frozen v4 SVG cards, sticky
+  honest CTA); /welcome branches `isDesktop ? Welcome : MobileWelcome`. Welcome.tsx
+  untouched. New base SHA `ac2361736785ed392a2c272cd6ede26acda36a77`. Vercel preview
+  + production both GREEN (owner reviewed preview before merge).
+
+### Mobile track status
+  [x] PR A (#166) grammar primitives
+  [x] PR B (#168) mobile Home (/browse)
+  [x] PR C (#170) mobile landing (/welcome)
+  [ ] usePracticeHub extraction (reusable Practice Hub data/state hook)
+  [ ] MobilePracticePage (consumes the hook; mobile Practice reflow)
+
+### Still parked / unchanged
+P0 launch blockers remain ahead of the UI track (API gateway 404, Clerk pk_live_).
+
 ## 2026-05-31 — Post-PR #168 roadmap update (mobile Home; Vercel green)
 
 ### Completed this session

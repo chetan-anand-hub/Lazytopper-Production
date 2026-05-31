@@ -1,3 +1,25 @@
+## 2026-05-31 — Post-PR #170 (mobile landing)
+
+### RESOLVED — /welcome landing had no mobile layout (PR #170)
+Added MobileWelcome (swipe carousel, frozen v4 art) + a viewport switch at /welcome.
+Welcome.tsx untouched. Honest trial copy enforced (test asserts "then paid" absent).
+
+### PROCESS — "frozen design" file referenced but absent (carry-forward lesson)
+The PR-C prompt pointed at PR_C_mobile_landing.md + carousel_cards_v4_genz.html, which
+were not on disk. Correct handling = STOP and request the file; do NOT invent locked
+art. Owner supplied PR_C_frozen_carousel_art.md; used verbatim. Apply to future
+"frozen design" PRs.
+
+### OPEN — MobileWelcome dot indicator relies on scroll (LOW)
+Active-dot tracking uses an onScroll handler (jsdom has no layout, so the test asserts
+the scroll-snap CSS contract + 4 dots, not pixel position). Fine on real devices;
+noted for awareness.
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it.
+
+---
+
 ## 2026-05-31 — Post-PR #168 (mobile Home)
 
 ### RESOLVED — /browse cockpit squeezed on mobile (PR #168)
