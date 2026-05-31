@@ -1,3 +1,45 @@
+## 2026-06-01 — Post-PR #172 (mobile Home polish)
+
+### RESOLVED — mobile /browse was the plain PR-#168 layout, not the locked polish (PR #172)
+Rebuilt MobileHome to the owner-locked design (illustrated gradient SVG icons, orient-
+before-act order, persistent hints, inspiring SAMPLE Mistake-Intel panel, honest CTA).
+Real data only; signed-in Mistake-Intel uses an honest empty state (no invented counts).
+
+### RESOLVED — green browser-chrome banner + near-black 3-tab BottomNav (PR #172)
+theme-color #58cc02→navy #0f1b33; BottomNav recoloured to light grammar + 3→5 tabs.
+
+### RESOLVED — double brand bar on signed-out mobile (PR #172 addendum, Option A)
+Global public navbar now suppressed on mobile /browse + /welcome via
+isMobileSelfChromedRoute (!isDesktop-gated). Each mobile page shows ONE brand bar.
+
+### ACCEPTED CONSEQUENCE — Search dropped from mobile Home (owner-approved)
+The global navbar carried Search + Log in; suppressing it on mobile /browse removes the
+Search box from mobile Home. Owner approved; NOT re-added. Search remains inside the
+product. Revisit only if mobile users need top-level search on Home.
+
+### OPEN — legacy/superseded routes flagged for a deprecation PR (MEDIUM)
+From the #172 §D audit (flag-only, nothing deleted): /dashboard→/me, /trends→/exam-trends,
+/practice/:g/:s→/practice-hub still resolve to real legacy pages and remain live signed-in
+entry points (RootEntry/HomeRedirect send signed-in users to /dashboard). /profile,
+/ai-mentor, /mentor, /topic-mock already redirect. /predictive-papers + /highly-probable
+= candidate canonical home for a future dedicated Predicted destination (currently routed
+via /exam-trends). Separate future PR after owner review.
+
+### OPEN — legacy #58cc02 brand palette (LOW, separate colour-migration PR)
+styles.css (~50 hits), styles/tokens.css (--lt-brand-*), favicon.svg, og-image.svg still
+use the Duolingo-green #58cc02; the new grammar green is hsl(152,55%,45%). Large blast
+radius — deprecate as a dedicated colour-migration PR, not mid-polish.
+
+### OPEN — Predicted card shares the /exam-trends route with "What scores most" (LOW)
+Per the canonical-routes constraint, both the trends card and the Predicted card route to
+/exam-trends (where the predicted breakdown lives). A future dedicated Predicted page
+(/predictive-papers) would split them. Honest today (no fake data); noted for awareness.
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it.
+
+---
+
 ## 2026-05-31 — Post-PR #170 (mobile landing)
 
 ### RESOLVED — /welcome landing had no mobile layout (PR #170)

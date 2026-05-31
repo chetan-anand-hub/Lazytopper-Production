@@ -1,5 +1,75 @@
 ---
 
+## 2026-06-01 — PR #172: Mobile Home polish + 5-tab light BottomNav + single brand bar
+
+### Starting state
+Base SHA at session start: a6fc024 (post-PR #171). Numbered PR #172. Branch
+`feat/mobile-home-polish`. The locked design `mobile_home_locked_final.html` was not on
+disk but was supplied inline in the prompt — built verbatim from that.
+
+### What shipped (mobile Home polish + mobile-chrome fixes, <1024px)
+- Rebuilt src/pages/app/MobileHome.tsx to the owner-locked polish design: illustrated
+  gradient SVG icons copied verbatim (JSX-cased, unique gradient ids) — rising bar chart
+  (Exam Trends), crystal-ball "?" (Predicted), stacked sheets + play (Practice), phone +
+  green tick (Check), brain (Mistake Intel). Orient-before-act order for signed-out
+  students (What scores most → What's likely in 2027 → Practice it → Check your answer);
+  persistent one-line hint per row; inspiring Mistake-Intelligence panel with a clearly
+  labelled SAMPLE report ("Sample · what your report looks like") + honest CTA "Start
+  free — find my reasons" (NOT "Sign in to unlock"). Resume strip only when signed-in
+  with real landingMemory. Real-data wiring kept on the firebase-free boundary; signed-in
+  Mistake-Intel shows an honest empty state (no invented counts) since real insights pull
+  firebase at module load (CAUTION honoured). Predicted card routes to /exam-trends (the
+  canonical predicted surface; /predictive-papers flagged in the audit for a future
+  dedicated destination).
+- App.tsx BottomNav(): recoloured to the light app grammar (background #fff, borderTop
+  hsl(220,18%,90%), active green hsl(152,55%,45%), inactive slate hsl(220,15%,42%)) —
+  replacing the near-black rgba(10,10,10,0.95) band; expanded 3→5 tabs (Home /browse,
+  Exam Trends /exam-trends, Practice /practice-hub, Check /check-improve, Me /me) with
+  added Home + Check icons; visibility gate intact (null on desktop, /welcome, /pricing,
+  /intent*). Exported for unit testing.
+- index.html theme-color #58cc02 → navy #0f1b33 (killed the green mobile browser-chrome
+  banner). No PWA web-manifest with theme_color exists; favicon/og-image/styles.css
+  #58cc02 are the legacy brand palette — flagged in the §D audit, NOT changed.
+
+### Addendum — double brand-bar fix (Option A, owner-chosen)
+The signed-out mobile preview showed TWO stacked brand bars (global public navbar +
+MobileHome's own locked-design bar). Fix: a single added condition on the global-navbar
+render gate via a pure exported predicate `isMobileSelfChromedRoute(pathname, isDesktop)`
+(= `!isDesktop && (pathname==="/browse" || pathname==="/welcome")`); `!mobileSelfChromed`
+ANDed into the navbar gate. Gated on `!isDesktop` → desktop chrome unchanged. Now each
+mobile page (Home + Landing) shows exactly ONE brand bar. Accepted consequence: the
+global Search box is no longer on mobile Home (owner-approved; NOT re-added). App.tsx
+scope stayed confined to BottomNav() + this one navbar-gate condition.
+
+### §D obsolescence audit (flag-only; no deletions this PR)
+Reported legacy/superseded routes for a future deprecation PR: /dashboard→/me,
+/trends→/exam-trends, /practice/:g/:s→/practice-hub (/profile, /ai-mentor, /mentor,
+/topic-mock already redirect); /predictive-papers + /highly-probable = candidate home for
+a future dedicated Predicted destination. Legacy #58cc02 palette (styles.css/tokens.css/
+favicon/og-image) = separate colour-migration PR.
+
+### Evidence + gate
+- npx tsc -p tsconfig.app.json --noEmit → exit 0. npm run test → 32/32 (was 19; added
+  MobileHome polish assertions, BottomNav 5-tab/route/colour/visibility, the
+  isMobileSelfChromedRoute predicate, single-brand-bar). npm run build → exit 0.
+  Guards 137/137. git diff --check clean. Desktop render byte-identical (App.tsx diff
+  confined to BottomNav + 1 navbar-gate condition; no desktop/forbidden files).
+- Playwright screenshots (signed-out, 390px) confirmed: illustrated icons + orient-first
+  order, SAMPLE Mistake-Intel panel, 5-tab light BottomNav, single brand bar on /browse
+  AND /welcome, desktop /browse unchanged.
+- Vercel PREVIEW: SUCCESS (owner reviewed). Merged (squash) → base
+  `a6360370588014a0a696fea97d6f4d548b0e5a5a`. Vercel PRODUCTION deploy: SUCCESS.
+- Branch `feat/mobile-home-polish` deleted (remote + local).
+
+### Report
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report\report-PRD-mobile-home-polish-2026-05-31.md`
+  (+ screenshots/ 01–06; copies in `...\diff\`).
+
+### Next
+usePracticeHub extraction + MobilePracticePage (owner-sequenced). See NEXT_ACTION.md.
+
+---
+
 ## 2026-05-31 — PR #170: Mobile landing (swipe carousel) for /welcome
 
 ### Starting state

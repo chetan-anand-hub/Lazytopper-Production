@@ -2,6 +2,38 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-01 — Post-PR #172 roadmap update (mobile Home polish; Vercel green)
+
+### Completed this session
+- [x] PR D / #172 — mobile Home polish + mobile-chrome fixes (<1024px). Rebuilt
+  src/pages/app/MobileHome.tsx to the owner-locked design (illustrated gradient SVG
+  icons, orient-before-act order, persistent hints, inspiring SAMPLE Mistake-Intel
+  panel, honest CTA; real-data on the firebase-free boundary). BottomNav recoloured to
+  the light grammar + expanded 3→5 tabs (Home/Exam Trends/Practice/Check/Me). theme-color
+  #58cc02→navy #0f1b33. Addendum: global navbar suppressed on mobile /browse + /welcome
+  (isMobileSelfChromedRoute) → single brand bar on both mobile pages (Search dropped from
+  mobile Home, owner-approved). Desktop byte-identical. Tests 19→32. New base SHA
+  `a6360370588014a0a696fea97d6f4d548b0e5a5a`. Vercel preview + production both GREEN
+  (owner reviewed preview before merge).
+
+### Mobile track status
+  [x] PR A (#166) grammar primitives
+  [x] PR B (#168) mobile Home (/browse)
+  [x] PR C (#170) mobile landing (/welcome)
+  [x] PR D (#172) mobile Home polish + 5-tab light BottomNav + single brand bar
+  [ ] usePracticeHub extraction (reusable Practice Hub data/state hook)
+  [ ] MobilePracticePage (consumes the hook; mobile Practice reflow)
+
+### Flagged for a future deprecation PR (from the #172 §D audit)
+  [ ] Legacy route consolidation: /dashboard→/me, /trends→/exam-trends,
+      /practice/:g/:s→/practice-hub; dedicated Predicted destination via
+      /predictive-papers
+  [ ] Legacy #58cc02 colour-migration (styles.css/tokens.css/favicon/og-image →
+      navy/green grammar)
+
+### Still parked / unchanged
+P0 launch blockers remain ahead of the UI track (API gateway 404, Clerk pk_live_).
+
 ## 2026-05-31 — Post-PR #170 roadmap update (mobile landing; Vercel green)
 
 ### Completed this session

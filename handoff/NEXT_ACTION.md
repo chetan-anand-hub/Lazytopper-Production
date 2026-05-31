@@ -1,18 +1,28 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-31 (post-PR #170 mobile landing; Vercel GREEN)
-# Base SHA: ac2361736785ed392a2c272cd6ede26acda36a77
+# Updated: 2026-06-01 (post-PR #172 mobile Home polish; Vercel GREEN)
+# Base SHA: a6360370588014a0a696fea97d6f4d548b0e5a5a
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: ac2361736785ed392a2c272cd6ede26acda36a77
-Last PRs: #168 (mobile Home) + #169 (docs handoff post-#168) + #170 (mobile landing swipe carousel for /welcome — Vercel production deploy confirmed GREEN)
+SHA: a6360370588014a0a696fea97d6f4d548b0e5a5a
+Last PRs: #170 (mobile landing) + #171 (docs handoff post-#170) + #172 (mobile Home polish + 5-tab light BottomNav + single brand bar <1024px — Vercel production deploy confirmed GREEN)
 
 ## IMMEDIATE NEXT TASK — next mobile reflow (owner-sequenced)
 
 Mobile track so far: PR A (#166 grammar primitives) → PR B (#168 mobile Home /browse)
-→ PR C (#170 mobile landing /welcome). NOTE: the owner re-used the "PR C" label for the
-mobile landing; the earlier-predicted usePracticeHub extraction did NOT happen yet.
+→ PR C (#170 mobile landing /welcome) → PR D (#172 mobile Home polish + 5-tab light
+BottomNav + single brand bar). NOTE: the owner re-used the "PR C"/"PR D" labels for the
+mobile landing + Home-polish work; the earlier-predicted usePracticeHub extraction did
+NOT happen yet.
+
+NEW PATTERN ESTABLISHED IN #172 (reuse for future mobile pages with their own bar):
+- A mobile page that renders its OWN locked-design brand bar must suppress the global
+  public navbar at mobile width. Add the route to `isMobileSelfChromedRoute(pathname,
+  isDesktop)` in App.tsx (pure exported predicate; `!isDesktop`-gated so desktop chrome
+  is unchanged) and AND `!mobileSelfChromed` into the navbar render gate. Otherwise two
+  brand bars stack. Consequence to accept: the global navbar's Search/Log-in are then
+  absent on that mobile route.
 
 Remaining staged items (owner picks order & supplies the instruction + any frozen
 design before each):
