@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-05-30 (post-PR #165 handoff + #166 grammar primitives)
+Last updated: 2026-05-31 (post-PR #167 handoff + #168 mobile Home)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: fefcbc74a01dee0ac2ef305e8c393571ff03c64c
-Last merged PRs: #164 (blackbox decommission), #165 (docs handoff post-#164), #166 (feat: shared responsive grammar primitives + first render test — Vercel deploy GREEN confirmed)
+SHA: dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f
+Last merged PRs: #166 (grammar primitives), #167 (docs handoff post-#166), #168 (feat: mobile Home layout for /browse — Vercel deploy GREEN confirmed)
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -26,7 +26,11 @@ Render-test infra: Vitest 3.2.4 + Testing Library + jsdom (PR #160) — `npm tes
 Grammar primitives: PR #166 added src/components/grammar/ (Card, TileRow, Pill,
   SectionHeader, tokens, index) + the first real render test. TileRow reflows
   desktop↔mobile via a real @media(max-width:1023px) CSS rule (--lt-tile-cols var).
-  Wired into NO page yet (PR B+ does that). Vercel production deploy GREEN.
+Mobile Home: PR #168 added src/pages/app/MobileHome.tsx (first page reflow) — the
+  /browse cockpit now renders MobileHome below 1024px (isDesktop switch in App.tsx),
+  stacking the 4 destinations via TileRow. Desktop DesktopHome render byte-identical.
+  Shared firebase-free src/lib/desktop/homeDestinations.tsx (PRIMARY_CARDS + loginUrl)
+  is the single source of truth for both Home variants. Vercel production deploy GREEN.
 Production build: GREEN. PR #162 added `exclude` to tsconfig.app.json so `tsc -b`
   (Vercel's `npm run build`) no longer compiles the dev-only test files. Vercel
   production deploy for the merge commit confirmed Ready/SUCCESS.
@@ -53,6 +57,8 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #164 — chore: decommission dead blackbox/tracker/pmem tooling + false-green tsc fix (Vercel green)
 #165 — docs: handoff update post-#164
 #166 — feat: shared responsive grammar primitives + first render test (Vercel green)
+#167 — docs: handoff update post-#166
+#168 — feat: mobile Home layout for /browse (reflow cockpit below 1024px) (Vercel green)
 
 ## Source breakdown
 

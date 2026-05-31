@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-05-31 — Post-PR #168 roadmap update (mobile Home; Vercel green)
+
+### Completed this session
+- [x] PR B / #168 — mobile Home layout for /browse (first real page reflow). New
+  src/pages/app/MobileHome.tsx on the PR-A primitives; /browse branches
+  `isDesktop ? DesktopHome : MobileHome`; shared firebase-free
+  src/lib/desktop/homeDestinations.tsx (PRIMARY_CARDS + loginUrl). Desktop render
+  byte-identical. New base SHA `dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f`. Vercel
+  preview + production both GREEN.
+
+### Staged UI track — remaining
+  [ ] PR C — usePracticeHub extraction (reusable Practice Hub data/state hook)
+  [ ] PR D — MobilePracticePage (consumes the PR C hook; mobile Practice reflow)
+
+### Still parked / unchanged
+P0 launch blockers remain ahead of the UI track (API gateway 404, Clerk pk_live_).
+
 ## 2026-05-30 — Post-PR #166 roadmap update (grammar primitives; Vercel green)
 
 ### Completed this session

@@ -1,3 +1,26 @@
+## 2026-05-31 — Post-PR #168 (mobile Home)
+
+### RESOLVED — /browse cockpit squeezed on mobile (PR #168)
+DesktopHome rendered at /browse at all widths with non-reflowing grids. PR #168 added
+MobileHome (single-column, on the PR-A primitives) and a viewport switch at /browse.
+Desktop render byte-identical. First grammar-primitive consumer (resolves the
+"primitives not yet wired into any page" item from #166).
+
+### OPEN — Other DesktopHome grids still desktop-only on mobile-reachable routes? (LOW)
+MobileHome covers the /browse Home cockpit. If any OTHER signed-in mobile route ends
+up rendering DesktopHome (it currently doesn't — RootEntry redirects mobile), it would
+need the same treatment. No action now; flagged for awareness.
+
+### OPEN — Quick-generate fallback derivation duplicated in MobileHome (LOW)
+MobileHome re-derives fallbackGrade/fallbackSubject with the same logic as DesktopHome
+(a few lines; uses the same real landingMemory). If it grows, lift into a shared hook
+(candidate for the PR C usePracticeHub-style extraction pattern). Not fake data.
+
+### OPEN — .claude/ folder still not in .gitignore (LOW, unchanged)
+Untracked `.claude/` continues to show in every `git status`. Never stage it.
+
+---
+
 ## 2026-05-30 — Post-PR #166 (grammar primitives)
 
 ### RESOLVED — No shared responsive primitives for the mobile work (PR #166)
