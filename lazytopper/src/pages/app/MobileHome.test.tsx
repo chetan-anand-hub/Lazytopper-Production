@@ -19,7 +19,6 @@ vi.mock("../../hooks/useSubscription", () => ({
 
 import MobileHome from "./MobileHome";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
-import { PRIMARY_CARDS } from "../../lib/desktop/homeDestinations";
 
 afterEach(cleanup);
 
@@ -31,41 +30,74 @@ function renderMobileHome() {
   );
 }
 
-describe("MobileHome (mobile /browse layout)", () => {
-  it("renders all four destinations stacked in a single-column TileRow", () => {
+describe("MobileHome (mobile /browse layout — locked polish design)", () => {
+  it("renders the four illustrated destinations in orient-before-act order", () => {
     setMatchMediaMatches(false); // mobile
-    const { container } = renderMobileHome();
+    renderMobileHome();
 
-    // All four real destinations (from the shared PRIMARY_CARDS) are rendered.
     const dests = screen.getAllByTestId("mobile-home-destination");
-    expect(dests).toHaveLength(PRIMARY_CARDS.length);
-    expect(PRIMARY_CARDS).toHaveLength(4);
-    for (const c of PRIMARY_CARDS) {
-      expect(screen.getByText(c.label)).toBeInTheDocument();
-    }
+    expect(dests).toHaveLength(4);
 
-    // They sit in a TileRow whose CSS collapses to one column below 1024px —
-    // i.e. they stack on mobile (jsdom has no layout, so assert the CSS contract).
-    const row = container.querySelector(".lt-grammar-tile-row");
-    expect(row).not.toBeNull();
-    const css = container.querySelector("style")?.textContent ?? "";
-    const mobileBlock = css.slice(css.indexOf("@media (max-width: 1023px)"));
-    expect(mobileBlock).toContain(".lt-grammar-tile-row");
-    expect(mobileBlock).toContain("grid-template-columns: minmax(0, 1fr)");
+    // Orient-first order: trends → predicted → practice → check.
+    expect(dests[0]).toHaveTextContent("What scores most");
+    expect(dests[1]).toHaveTextContent("What's likely in 2027");
+    expect(dests[2]).toHaveTextContent("Practice it");
+    expect(dests[3]).toHaveTextContent("Check your answer");
+
+    // Each illustrated tile carries an SVG infographic (not a plain box).
+    for (const d of dests) {
+      expect(d.querySelector("svg")).not.toBeNull();
+    }
   });
 
-  it("renders the mistake-intelligence card in its real logged-out state", () => {
+  it("routes each destination to a canonical Home route", () => {
     setMatchMediaMatches(false);
     renderMobileHome();
-    expect(screen.getByText("Mistake intelligence")).toBeInTheDocument();
-    expect(screen.getByText("Mistake-aware practice")).toBeInTheDocument();
-    // Logged-out CTA — no invented counts.
+    const dests = screen.getAllByTestId("mobile-home-destination");
+    const hrefs = dests.map((d) => d.getAttribute("href"));
+    // Trends + Predicted both surface on the canonical exam-trends page.
+    expect(hrefs[0]).toContain("/exam-trends");
+    expect(hrefs[1]).toContain("/exam-trends");
+    expect(hrefs[2]).toContain("/practice-hub");
+    expect(hrefs[3]).toContain("/check-improve");
+    // No legacy lookalikes.
+    for (const h of hrefs) {
+      expect(h).not.toMatch(/\/dashboard|\/profile|^\/trends|^\/practice(\?|$)/);
+    }
+  });
+
+  it("shows the SAMPLE mistake-intelligence panel — clearly labelled, honest CTA", () => {
+    setMatchMediaMatches(false);
+    renderMobileHome();
+
+    // Pain-framed section header.
+    expect(screen.getByText("Why do you keep losing marks?")).toBeInTheDocument();
+
+    // The preview is explicitly labelled a SAMPLE — not the user's real data.
     expect(
-      screen.getByText(/Mistake-aware practice needs saved attempts/i),
-    ).toBeInTheDocument();
-    // "Start free trial" appears as both the header chip and the mistake-card CTA
-    // for a signed-out visitor — both are the real logged-out affordances.
-    expect(screen.getAllByText("Start free trial").length).toBeGreaterThanOrEqual(1);
+      screen.getByTestId("mobile-home-mistake-sample-label"),
+    ).toHaveTextContent(/Sample · what your report looks like/i);
+
+    // Sample insight content (clearly an example).
+    expect(screen.getByText(/Most marks lost: Trigonometry, conceptual/i)).toBeInTheDocument();
+
+    // Honest, inviting CTA — NOT "Sign in to unlock".
+    expect(screen.getByText(/Start free — find my reasons/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Sign in to unlock/i)).toBeNull();
+  });
+
+  it("does NOT show a resume strip for a signed-out visitor", () => {
+    setMatchMediaMatches(false);
+    renderMobileHome();
+    expect(screen.queryByTestId("mobile-home-resume")).toBeNull();
+  });
+
+  it("renders exactly ONE brand bar (its own locked-design header)", () => {
+    // The global public navbar is suppressed on mobile /browse (see
+    // isMobileSelfChromedRoute), so MobileHome must carry a single brand bar.
+    setMatchMediaMatches(false);
+    renderMobileHome();
+    expect(screen.getAllByText("LazyTopper")).toHaveLength(1);
   });
 });
 
