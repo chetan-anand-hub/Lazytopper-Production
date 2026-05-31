@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-05-31 (post-PR #169 handoff + #170 mobile landing)
+Last updated: 2026-06-01 (post-PR #171 handoff + #172 mobile Home polish)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: ac2361736785ed392a2c272cd6ede26acda36a77
-Last merged PRs: #168 (mobile Home), #169 (docs handoff post-#168), #170 (feat: mobile landing swipe carousel for /welcome — Vercel deploy GREEN confirmed)
+SHA: a6360370588014a0a696fea97d6f4d548b0e5a5a
+Last merged PRs: #170 (mobile landing), #171 (docs handoff post-#170), #172 (feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px — Vercel production deploy GREEN confirmed)
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -36,6 +36,20 @@ Mobile landing: PR #170 added src/pages/MobileWelcome.tsx — /welcome renders a
   (isDesktop switch in App.tsx). Desktop Welcome.tsx UNTOUCHED (zero diff). Sticky
   "Start free" → /browse (no gate); honest sub-line "7-day Premium trial — then free
   Basic, upgrade anytime." (never "then paid"). Vercel production deploy GREEN.
+Mobile Home polish: PR #172 rebuilt src/pages/app/MobileHome.tsx to the owner-locked
+  polish design (mobile_home_locked_final.html): illustrated gradient SVG icons per
+  destination, orient-before-act order for new students, persistent per-row hints, and
+  an inspiring Mistake-Intelligence panel with a clearly-labelled SAMPLE report + honest
+  "Start free — find my reasons" CTA (real-data wiring on the firebase-free boundary;
+  signed-in shows an honest empty state, never invented counts). BottomNav (App.tsx)
+  recoloured to the light app grammar (white surface, soft border, green active /
+  muted-slate inactive) and expanded 3→5 tabs (Home / Exam Trends / Practice / Check /
+  Me) on canonical routes; visibility gate intact. theme-color #58cc02→navy #0f1b33
+  (index.html) kills the green browser-chrome banner. Global public navbar suppressed on
+  mobile /browse + /welcome (isMobileSelfChromedRoute, gated on !isDesktop) so each
+  mobile page shows ONE locked-design brand bar — Search no longer on mobile Home
+  (owner-approved; not re-added). Desktop byte-identical. Tests 19→32. Vercel production
+  deploy GREEN.
 Production build: GREEN. PR #162 added `exclude` to tsconfig.app.json so `tsc -b`
   (Vercel's `npm run build`) no longer compiles the dev-only test files. Vercel
   production deploy for the merge commit confirmed Ready/SUCCESS.
@@ -66,6 +80,8 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #168 — feat: mobile Home layout for /browse (reflow cockpit below 1024px) (Vercel green)
 #169 — docs: handoff update post-#168
 #170 — feat: mobile landing swipe carousel for /welcome (Vercel green)
+#171 — docs: handoff update post-#170
+#172 — feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px (Vercel green)
 
 ## Source breakdown
 
