@@ -12,6 +12,7 @@ import {
   resolveResumeRoute,
   type LandingMemory,
 } from "../../lib/desktop/landingMemory";
+import { loginUrl, PRIMARY_CARDS } from "../../lib/desktop/homeDestinations";
 
 /**
  * DesktopHome — PR-B2: locked prototype parity with topic-focus-lite/src/pages/HomePage.tsx.
@@ -73,17 +74,6 @@ const HOME_QS_LEAD = `?${HOME_QS}`;
 // ── ICONS (inline SVG, no lucide) ───────────────────────────────
 type IconProps = { size?: number };
 
-function LayersIcon({ size = 20 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-      strokeLinejoin="round" aria-hidden="true">
-      <polygon points="12 2 2 7 12 12 22 7 12 2" />
-      <polyline points="2 17 12 22 22 17" />
-      <polyline points="2 12 12 17 22 12" />
-    </svg>
-  );
-}
 function ClipboardListIcon({ size = 20 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -92,27 +82,6 @@ function ClipboardListIcon({ size = 20 }: IconProps) {
       <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
       <path d="M12 11h4M12 16h4M8 11h.01M8 16h.01" />
-    </svg>
-  );
-}
-function TrendingUpIcon({ size = 20 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-      strokeLinejoin="round" aria-hidden="true">
-      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-      <polyline points="16 7 22 7 22 13" />
-    </svg>
-  );
-}
-function ClipboardCheckIcon({ size = 20 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-      strokeLinejoin="round" aria-hidden="true">
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-      <path d="m9 14 2 2 4-4" />
     </svg>
   );
 }
@@ -210,14 +179,6 @@ function aggregateBuckets(entries: MistakeLogEntry[]): {
   return { total, rows, topRow };
 }
 
-// ── REASON-AWARE LOGIN URL HELPER (PR-LANDING contract) ─────────
-function loginUrl(reason: string, redirect: string): string {
-  const p = new URLSearchParams();
-  p.set("reason", reason);
-  p.set("redirect", redirect);
-  return `/login?${p.toString()}`;
-}
-
 // ── DATE FORMAT (saved-on label) ────────────────────────────────
 function formatSavedOn(iso: string): string | null {
   try {
@@ -262,25 +223,9 @@ const chipAccentStyle: React.CSSProperties = {
   color: "hsl(152, 60%, 30%)",
 };
 
-// ── PRIMARY ACTION CARDS (4) ────────────────────────────────────
-type IconCmp = (props: IconProps) => React.ReactElement;
-interface QuickCard {
-  to: string;
-  icon: IconCmp;
-  label: string;
-  sub: string;
-}
-
-const PRIMARY_CARDS: QuickCard[] = [
-  { to: `/exam-trends${HOME_QS_LEAD}`, icon: TrendingUpIcon,
-    label: "Exam Trends", sub: "Tier-ranked topics with one-click actions." },
-  { to: `/practice-hub${HOME_QS_LEAD}`, icon: LayersIcon,
-    label: "Practice", sub: "Quick practice or full mock." },
-  { to: `/practice/worksheets${HOME_QS_LEAD}`, icon: ClipboardListIcon,
-    label: "Worksheets", sub: "Build a worksheet by topic or subject." },
-  { to: `/check-improve${HOME_QS_LEAD}`, icon: ClipboardCheckIcon,
-    label: "Check & Improve", sub: "Get feedback on your answer." },
-];
+// PRIMARY_CARDS + QuickCard + loginUrl now live in
+// ../../lib/desktop/homeDestinations (single source of truth shared with the
+// mobile Home variant). Render output is unchanged.
 
 // ── COMPONENT ──────────────────────────────────────────────────
 export default function DesktopHome() {

@@ -74,6 +74,7 @@ const Intent            = lazy(() => import("./pages/app/Intent"));
 const Worksheets        = lazy(() => import("./pages/app/Worksheets"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
 const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
+const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
 
 // Mobile baseline pages (#438 — broken destination repair)
 const MobileExamTrends  = lazy(() => import("./pages/app/ExamTrends"));
@@ -680,7 +681,9 @@ export default function App() {
             element={
               user
                 ? <Navigate to="/" replace />
-                : withRouteSuspense(<DesktopHome />)
+                : isDesktop
+                  ? withRouteSuspense(<DesktopHome />)
+                  : withRouteSuspense(<MobileHome />)
             }
           />
           <Route path="/login" element={<Login />} />
