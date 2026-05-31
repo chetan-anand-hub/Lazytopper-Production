@@ -1,26 +1,34 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-30 (post-PR #166 grammar primitives; Vercel GREEN)
-# Base SHA: fefcbc74a01dee0ac2ef305e8c393571ff03c64c
+# Updated: 2026-05-31 (post-PR #168 mobile Home; Vercel GREEN)
+# Base SHA: dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: fefcbc74a01dee0ac2ef305e8c393571ff03c64c
-Last PRs: #164 (blackbox decommission) + #165 (docs handoff post-#164) + #166 (shared responsive grammar primitives + first render test — Vercel production deploy confirmed GREEN)
+SHA: dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f
+Last PRs: #166 (grammar primitives) + #167 (docs handoff post-#166) + #168 (mobile Home layout for /browse — Vercel production deploy confirmed GREEN)
 
-## IMMEDIATE NEXT TASK — PR B: Mobile Home
+## IMMEDIATE NEXT TASK — PR C: usePracticeHub extraction
 
-Next in the staged UI track (PR A done → B → C → D). PR B reflows the Home/cockpit
-onto the new grammar primitives (#166) — chiefly TileRow for the 4-card row that
-currently squeezes on mobile (DesktopHome `gridTemplateColumns: repeat(4,...)` with
-no breakpoint). Ship a render test asserting the Home reflow on the #166 primitives.
-Branch fresh from the current tip. Await the PR-B instruction before starting.
+Next in the staged UI track (PR A done → B done → C → D). PR C extracts the Practice
+Hub's data/state derivation into a reusable hook (`usePracticeHub`) so a later
+MobilePracticePage (PR D) can reuse it without forking — same desktop-unchanged +
+real-data discipline as PR B. Branch fresh from the current tip. Await the PR-C
+instruction before starting. Then: PR D (MobilePracticePage).
 
-Then: PR C (usePracticeHub extraction), PR D (MobilePracticePage).
-
-GRAMMAR PRIMITIVES AVAILABLE (PR #166): import from `src/components/grammar`
-(`Card`, `TileRow`, `Pill`, `SectionHeader`). TileRow reflow is pure CSS
-(@media max-width:1023px); pass desktop column count via the `columns` prop.
+PATTERNS ESTABLISHED (reuse in PR C/D):
+- Per-platform split: `isDesktop ? <Desktop/> : <Mobile/>` at the route (App.tsx edit
+  permitted ONLY for that minimal branch). RootEntry-style redirects may mean only
+  some sites need the switch — verify render sites first.
+- Reuse without firebase coupling: lift shared, dependency-free logic into a small
+  module (e.g. PR #168's src/lib/desktop/homeDestinations.tsx) imported by both
+  variants; do NOT import a heavy page into a light one (pulls firebase into the chunk
+  + unit test).
+- Grammar primitives: import from `src/components/grammar` (`Card`, `TileRow`, `Pill`,
+  `SectionHeader`). TileRow reflow is pure CSS (@media max-width:1023px); `columns` prop.
+- Desktop-unchanged proof: keep edits to the desktop component module-level only
+  (relocate declarations; never touch the component JSX) and show the diff hunks are
+  all pre-component.
 
 NOTE: build gate = `npm run build` (the real Vercel command); the Vercel PREVIEW
 check on each PR is a valid pre-merge production-build gate. The false-green

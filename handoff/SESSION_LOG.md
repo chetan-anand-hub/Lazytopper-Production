@@ -1,5 +1,56 @@
 ---
 
+## 2026-05-31 — PR #168: Mobile Home (/browse cockpit reflow below 1024px)
+
+### Starting state
+Base SHA at session start: 89bcf83 (post-PR #167). Numbered PR #168.
+
+### What shipped (first real page reflow)
+DesktopHome rendered at /browse at all widths with 3 non-reflowing grids → mobile
+4-card squeeze. Added a dedicated mobile layout + viewport switch; desktop unchanged.
+- New src/pages/app/MobileHome.tsx — single-column mobile cockpit on the PR-A grammar
+  primitives (TileRow stacks the 4 destinations via the real @media(max-width:1023px)
+  CSS). Real data only (shared PRIMARY_CARDS/loginUrl, useAuth, useSubscription,
+  landingMemory). /browse is signed-out-only → mistake card renders the real
+  logged-out state.
+- App.tsx: /browse now `isDesktop ? <DesktopHome/> : <MobileHome/>` + a lazy import.
+  RootEntry needed NO change (already redirects mobile away before DesktopHome).
+- New src/lib/desktop/homeDestinations.tsx — firebase-free single source of truth for
+  PRIMARY_CARDS + loginUrl, imported by BOTH Home variants.
+- DesktopHome.tsx: declaration relocation ONLY (import the shared symbols; remove the
+  relocated PRIMARY_CARDS/loginUrl/QuickCard + 3 icons used only by PRIMARY_CARDS).
+  Component JSX untouched — render byte-identical.
+
+### Key decision — why the homeDestinations extraction
+Importing PRIMARY_CARDS/loginUrl directly from DesktopHome would pull firebase (via
+mistakeLogService → firebaseClient initializeApp) into the mobile chunk AND the Vitest
+unit test. Lifting only the dependency-free routing bits into homeDestinations avoids
+that while keeping a single source of truth (no fork).
+
+### Desktop-unchanged proof
+App.tsx = lazy import + 1 branch. DesktopHome.tsx = 4 ins / 59 del, ALL module-level
+(every diff hunk < line 286; component return/JSX zero hunks). tsc -b clean.
+
+### Evidence + gate
+- npm run test → 13/13 (2 smoke + 3 MobileHome + 8 grammar). npm run build → exit 0.
+  Guards 137/137.
+- Vercel PREVIEW check on #168: SUCCESS. Merged (squash) → base
+  `dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f`. Vercel PRODUCTION deploy: SUCCESS.
+- Branch `feat/mobile-home` deleted (remote + local).
+
+### Note (owner-confirmed)
+App.tsx is normally globally-forbidden; the PR-B instruction explicitly permitted the
+minimal isDesktop branch + lazy import only. Owner approved.
+
+### Report
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report\report-PRB-mobile-home-2026-05-31.md`
+  (+ a DETAILED copy and an earlier copy in `...\diff\`)
+
+### Next
+PR C — usePracticeHub extraction (then PR D — MobilePracticePage). See NEXT_ACTION.md.
+
+---
+
 ## 2026-05-30 — PR #166: Shared responsive grammar primitives + first render test
 
 ### Starting state
