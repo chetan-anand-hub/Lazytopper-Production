@@ -152,16 +152,39 @@ function RootEntry() {
 }
 
 /**
- * BottomNav — baseline mobile tabs: Practice / Exam Trends / Me.
+ * isMobileSelfChromedRoute — true on routes whose mobile page renders its OWN
+ * locked-design brand bar (MobileHome `/browse`, MobileWelcome `/welcome`), so
+ * the global public navbar must NOT also render at mobile width (otherwise two
+ * brand bars stack — the double-bar issue). Gated on `!isDesktop`, so desktop
+ * chrome on these routes is unchanged.
  *
- * Visibility rules (per guardrail #1):
- *   Hidden on /welcome and any /app/intent* path.
- *   Shown on all other routes.
- *
- * Active state covers both new /app/* paths and existing legacy paths
- * so the nav stays coherent when users visit old deep-links.
+ * `/welcome` is already suppressed via `isPublicLandingRoute`; including it here
+ * is defensive and documents intent — the new effect is suppressing the global
+ * navbar on mobile `/browse`. Exported as a pure predicate for unit testing.
  */
-function BottomNav() {
+export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): boolean {
+  return !isDesktop && (pathname === "/browse" || pathname === "/welcome");
+}
+
+/**
+ * BottomNav — mobile tab bar: Home / Exam Trends / Practice / Check / Me.
+ *
+ * Recoloured to the app's light grammar (PR D): white surface, soft border,
+ * green active / muted-slate inactive — replacing the old near-black band and
+ * 3-tab set so the mobile chrome matches the desktop sidebar and the locked
+ * mobile-Home design. Five tabs mirror the desktop sidebar destinations.
+ *
+ * Visibility rules:
+ *   Hidden on desktop (>=1024px), on /welcome, /pricing, and any /intent* path.
+ *   Shown on all other mobile routes.
+ *
+ * Active state covers the canonical routes plus their legacy aliases so the nav
+ * stays coherent when users visit old deep-links.
+ *
+ * Exported for unit testing (the 5-tab/route/colour contract); App still renders
+ * it internally — the export adds no runtime behaviour.
+ */
+export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
@@ -184,10 +207,18 @@ function BottomNav() {
   }
 
   const go = (path: string) => navigate(path);
-  const activeColor = "#22c55e";
-  const inactiveColor = "var(--text-muted)";
+  // Light app grammar — same tokens as the grammar primitives / locked design.
+  const activeColor = "hsl(152, 55%, 45%)";
+  const inactiveColor = "hsl(220, 15%, 42%)";
 
   // ── Active-state detection ─────────────────────────────────────────
+  const isHomeActive = current === "/browse" || current === "/";
+
+  const isExamTrendsActive =
+    current.startsWith("/exam-trends") ||
+    current.startsWith("/trends") ||
+    current.startsWith("/topic-hub");
+
   const isPracticeActive =
     current.startsWith("/practice-hub") ||
     current.startsWith("/practice") ||
@@ -204,20 +235,40 @@ function BottomNav() {
     current.startsWith("/study-plan") ||
     current.startsWith("/planner");
 
-  const isExamTrendsActive =
-    current.startsWith("/exam-trends") ||
-    current.startsWith("/trends") ||
-    current.startsWith("/topic-hub");
+  const isCheckActive = current.startsWith("/check-improve");
 
   const isMeActive =
     current === "/me" ||
     current === "/profile" ||
     current === "/dashboard" ||
-    current === "/" ||
     current === "/weekly-wrapped" ||
     current === "/parent-dashboard";
 
   const navItems = [
+    {
+      label: "Home",
+      // House icon
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 11l9-8 9 8"/>
+          <path d="M5 10v10h14V10"/>
+        </svg>
+      ),
+      active: isHomeActive,
+      onClick: () => go("/browse"),
+    },
+    {
+      label: "Exam Trends",
+      // LineChart icon
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3v18h18"/>
+          <path d="M7 16l4-4 4 4 4-4"/>
+        </svg>
+      ),
+      active: isExamTrendsActive,
+      onClick: () => go("/exam-trends"),
+    },
     {
       label: "Practice",
       // Compass icon
@@ -231,16 +282,16 @@ function BottomNav() {
       onClick: () => go("/practice-hub"),
     },
     {
-      label: "Exam Trends",
-      // LineChart icon
+      label: "Check",
+      // Phone icon (photo your handwritten answer)
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 3v18h18"/>
-          <path d="M7 16l4-4 4 4 4-4"/>
+          <rect x="6" y="3" width="12" height="18" rx="2"/>
+          <circle cx="12" cy="16" r="1"/>
         </svg>
       ),
-      active: isExamTrendsActive,
-      onClick: () => go("/exam-trends"),
+      active: isCheckActive,
+      onClick: () => go("/check-improve"),
     },
     {
       label: "Me",
@@ -266,9 +317,8 @@ function BottomNav() {
         display: "flex",
         justifyContent: "space-around",
         padding: "6px 8px 10px",
-        background: "rgba(10,10,10,0.95)",
-        backdropFilter: "blur(16px)",
-        borderTop: "1px solid var(--bg-card-border)",
+        background: "#fff",
+        borderTop: "1px solid hsl(220, 18%, 90%)",
         zIndex: 20,
       }}
     >
@@ -285,7 +335,7 @@ function BottomNav() {
             alignItems: "center",
             gap: 2,
             color: item.active ? activeColor : inactiveColor,
-            fontWeight: item.active ? 800 : 700,
+            fontWeight: item.active ? 800 : 600,
             fontSize: "0.6rem",
             letterSpacing: "0.02em",
             textTransform: "uppercase",
@@ -521,6 +571,7 @@ export default function App() {
     location.pathname === "/pricing" ||
     (location.pathname === "/" && !user);
   const shouldUseDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
+  const mobileSelfChromed = isMobileSelfChromedRoute(location.pathname, isDesktop);
   const pricingUrl = (source: string) => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
     return `/pricing?source=${encodeURIComponent(source)}&returnTo=${encodeURIComponent(returnTo)}`;
@@ -550,7 +601,7 @@ export default function App() {
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
-      {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && (
+      {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && !mobileSelfChromed && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
