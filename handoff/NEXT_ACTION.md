@@ -1,20 +1,27 @@
 # LazyTopper — Next Action
-# Updated: 2026-05-31 (post-PR #168 mobile Home; Vercel GREEN)
-# Base SHA: dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f
+# Updated: 2026-05-31 (post-PR #170 mobile landing; Vercel GREEN)
+# Base SHA: ac2361736785ed392a2c272cd6ede26acda36a77
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f
-Last PRs: #166 (grammar primitives) + #167 (docs handoff post-#166) + #168 (mobile Home layout for /browse — Vercel production deploy confirmed GREEN)
+SHA: ac2361736785ed392a2c272cd6ede26acda36a77
+Last PRs: #168 (mobile Home) + #169 (docs handoff post-#168) + #170 (mobile landing swipe carousel for /welcome — Vercel production deploy confirmed GREEN)
 
-## IMMEDIATE NEXT TASK — PR C: usePracticeHub extraction
+## IMMEDIATE NEXT TASK — next mobile reflow (owner-sequenced)
 
-Next in the staged UI track (PR A done → B done → C → D). PR C extracts the Practice
-Hub's data/state derivation into a reusable hook (`usePracticeHub`) so a later
-MobilePracticePage (PR D) can reuse it without forking — same desktop-unchanged +
-real-data discipline as PR B. Branch fresh from the current tip. Await the PR-C
-instruction before starting. Then: PR D (MobilePracticePage).
+Mobile track so far: PR A (#166 grammar primitives) → PR B (#168 mobile Home /browse)
+→ PR C (#170 mobile landing /welcome). NOTE: the owner re-used the "PR C" label for the
+mobile landing; the earlier-predicted usePracticeHub extraction did NOT happen yet.
+
+Remaining staged items (owner picks order & supplies the instruction + any frozen
+design before each):
+  - usePracticeHub extraction — reusable Practice Hub data/state hook
+  - MobilePracticePage — mobile Practice reflow (consumes the hook)
+  - (any further per-platform reflows for routes that render a desktop page at mobile
+    width — verify render sites; RootEntry-style redirects mean not every site needs it)
+
+Branch fresh from the current tip. Await the instruction (+ frozen art if any) first.
 
 PATTERNS ESTABLISHED (reuse in PR C/D):
 - Per-platform split: `isDesktop ? <Desktop/> : <Mobile/>` at the route (App.tsx edit

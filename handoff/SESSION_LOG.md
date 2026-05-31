@@ -1,5 +1,46 @@
 ---
 
+## 2026-05-31 — PR #170: Mobile landing (swipe carousel) for /welcome
+
+### Starting state
+Base SHA at session start: 32001a2 (post-PR #169). Numbered PR #170.
+
+### Process note — missing referenced files (flagged + resolved)
+The PR-C prompt referenced PR_C_mobile_landing.md (full instruction) and
+carousel_cards_v4_genz.html (frozen art) — NEITHER was on disk. STOPPED and asked
+rather than invent "frozen" visuals; owner then supplied PR_C_frozen_carousel_art.md
+with the exact SVGs. Used those verbatim. Lesson: when a "frozen design" file is
+referenced but absent, stop and request it — do not fabricate locked art.
+
+### What shipped (mobile public landing)
+- New src/pages/MobileWelcome.tsx — full-bleed mobile landing (own minimal top bar;
+  /welcome is not shell-wrapped, BottomNav hidden). Hook line + native CSS scroll-snap
+  carousel (NO gesture lib) of 4 PRESENTATIONAL cards using the frozen v4 SVG art
+  verbatim (01 Exam Trends / 02 Predicted Questions / 03 Check & Improve / 04 Mistake
+  Intelligence) + dot indicator. Sticky "Start free" CTA → navigate(user?"/":"/browse")
+  (no login gate); honest sub-line "7-day Premium trial — then free Basic, upgrade
+  anytime." (test asserts "then paid" is ABSENT); quiet "Already a member? Sign in"
+  link → /login?reason=login&redirect=%2F. CTAs match desktop Welcome exactly.
+- App.tsx: /welcome now `isDesktop ? <Welcome/> : <MobileWelcome/>` + a lazy import.
+- Welcome.tsx (2,220 lines): ZERO changes (git diff --quiet → unchanged).
+
+### Evidence + gate
+- npm run test → 19/19 (added 6 MobileWelcome). npm run build → exit 0. Guards 137/137.
+- Vercel PREVIEW check: SUCCESS. Owner reviewed the preview
+  (https://lazytopper-productio-git-c7e036-chetan-anands-projects-1c1a72c8.vercel.app/app/welcome)
+  then approved merge. Merged (squash) → base
+  `ac2361736785ed392a2c272cd6ede26acda36a77`. Vercel PRODUCTION deploy: SUCCESS.
+- Branch `feat/mobile-landing` deleted (remote + local).
+
+### Report
+- `C:\Users\Chetan\OneDrive\Desktop\diff\report\report-PRC-mobile-landing-2026-05-31.md`
+  (copy in `...\diff\`)
+
+### Next
+usePracticeHub extraction + MobilePracticePage (owner-sequenced). See NEXT_ACTION.md.
+
+---
+
 ## 2026-05-31 — PR #168: Mobile Home (/browse cockpit reflow below 1024px)
 
 ### Starting state

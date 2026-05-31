@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-05-31 (post-PR #167 handoff + #168 mobile Home)
+Last updated: 2026-05-31 (post-PR #169 handoff + #170 mobile landing)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: dfbbcff27796bb0ad980b2fd72c3eb19b0aa268f
-Last merged PRs: #166 (grammar primitives), #167 (docs handoff post-#166), #168 (feat: mobile Home layout for /browse — Vercel deploy GREEN confirmed)
+SHA: ac2361736785ed392a2c272cd6ede26acda36a77
+Last merged PRs: #168 (mobile Home), #169 (docs handoff post-#168), #170 (feat: mobile landing swipe carousel for /welcome — Vercel deploy GREEN confirmed)
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -31,6 +31,11 @@ Mobile Home: PR #168 added src/pages/app/MobileHome.tsx (first page reflow) — 
   stacking the 4 destinations via TileRow. Desktop DesktopHome render byte-identical.
   Shared firebase-free src/lib/desktop/homeDestinations.tsx (PRIMARY_CARDS + loginUrl)
   is the single source of truth for both Home variants. Vercel production deploy GREEN.
+Mobile landing: PR #170 added src/pages/MobileWelcome.tsx — /welcome renders a
+  swipe carousel (native CSS scroll-snap, 4 frozen v4 SVG cards) below 1024px
+  (isDesktop switch in App.tsx). Desktop Welcome.tsx UNTOUCHED (zero diff). Sticky
+  "Start free" → /browse (no gate); honest sub-line "7-day Premium trial — then free
+  Basic, upgrade anytime." (never "then paid"). Vercel production deploy GREEN.
 Production build: GREEN. PR #162 added `exclude` to tsconfig.app.json so `tsc -b`
   (Vercel's `npm run build`) no longer compiles the dev-only test files. Vercel
   production deploy for the merge commit confirmed Ready/SUCCESS.
@@ -59,6 +64,8 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #166 — feat: shared responsive grammar primitives + first render test (Vercel green)
 #167 — docs: handoff update post-#166
 #168 — feat: mobile Home layout for /browse (reflow cockpit below 1024px) (Vercel green)
+#169 — docs: handoff update post-#168
+#170 — feat: mobile landing swipe carousel for /welcome (Vercel green)
 
 ## Source breakdown
 
