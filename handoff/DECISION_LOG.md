@@ -1,3 +1,37 @@
+## 2026-06-01T16:59:01Z - PR #174 merged; check-solution parse fix + AI gateway live (local) + two-track doctrine
+
+Decision:
+PR #174 (`fix: check-solution parse reliability`) is merged into `base/approved-thru-437`.
+The AI gateway is now LIVE on local dev (non-stub, direct Gemini key). Owner locked several
+product clarifications and a two-track build plan.
+
+Details:
+- PR #174 merged at `2026-06-01T16:59:01Z`. Base before merge: `8c161739f7ba7bc8faed897970665e0d94c1eee1`.
+- Merge commit / new base SHA: `5ad359c42127ac89056002c226828297ead7c98b`.
+- Changed file: `lazytopper/server/routes/checkSolution.cjs` (force JSON + raise token cap).
+- QA: PASS (npm run build exit 0; measured before/after on real handwritten image).
+
+Doctrine / decisions:
+- Force JSON mode (`responseMimeType:'application/json'`) on any Gemini call that must
+  return structured data; give thinking models token headroom. (See D20.)
+- Trial = ALL features for 7 days, then free Basic. Gate is trial-not-paywall during the 7
+  days. Trial/premium state still server/admin-sourced only — NEVER client-activated.
+- Redesign target is FULLY responsive at every width (one fluid layout), not a 1024px
+  desktop/mobile twin switch.
+- Launch domain = `lazytopper.in` (NOT `.app`).
+- PR numbering follows git (#175+); "PR-1..8" Track A labels map to real git numbers.
+- Two-track build LOCKED: Track A (design/UI fluid responsive) + Track B (content:
+  interactives via Claude, proofs, formula sheets, pre-gen PDFs) with robust content QA.
+  Source specs (Learn Flow Spec, Track A PR Breakdown) are owner/architect-held, not yet
+  committed to this repo.
+
+Implication:
+Next is PR B — grading + teach prompt tightening, MEASURED against a mistake-scenario test
+matrix (fixes D21 over-classification) — then a check-solution eval set, then Railway deploy
+(now in scope; owner needs a live link for students to test tutor+checker quality). Deploy
+ONLY after the checker reliably returns good grades locally. Future implementation starts
+from `5ad359c42127ac89056002c226828297ead7c98b` or whatever live GitHub later confirms.
+
 ## 2026-05-16T18:55:00Z - PR #80 merged; frozen landing and Explore-first doctrine locked
 
 Decision:

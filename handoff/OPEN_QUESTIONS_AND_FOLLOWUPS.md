@@ -1,3 +1,41 @@
+## 2026-06-01 — AI gateway live (local) + PR #174 (check-solution parse fix)
+
+### OPEN — check-solution OVER-classifies mistakes as "conceptual" (MEDIUM → PR B) [D21]
+Real repro `sol2.jpeg`: a sign-misread from a correctly-factored expression (`(x−4)(x+2)`,
+root read as −4 not +4) was tagged CONCEPTUAL — should be SILLY (method understood). The
+propagated downstream error (wrong sum-verification) was double-counted as a SECOND
+conceptual mistake instead of attributed to the single root-cause slip. Fix = PR B
+grading-prompt tightening, MEASURED vs a mistake-scenario matrix. Do NOT hand students a
+live link until classification is trustworthy. See DISCOVERIES.md D21.
+
+### RESOLVED — check-solution "could not evaluate" parse bug (PR #174) [D20]
+gemini-2.5-flash truncated/wrapped its JSON under maxOutputTokens:2500 with no JSON mime →
+unparseable → misleading "clearer image" fallback. Fixed: responseMimeType:'application/json'
++ token cap 2500→8000 + warn-log + honest message. Measured before/after on real images.
+
+### RESOLVED — local dev AI features looked broken (proxy port) [D19]
+Vite proxies /api to API_SERVER_PORT||8080, not the gateway's :3001. Start Vite as
+`API_SERVER_PORT=3001 npx vite`. Gateway + Vite run separately; nothing auto-spawns the
+gateway. See DISCOVERIES.md D19.
+
+### OPEN — verify-build.mjs / "137 guards" referenced but absent in this checkout (LOW)
+CLAUDE.md §6 and the A2 instruction reference `node scripts/verify-build.mjs` and a "137
+guards" verifier; neither exists at those paths in this checkout. The real build gate is
+`npm run build` (Vercel command), which passes. Reconcile CLAUDE.md with the actual repo, or
+restore the verifier, so future sessions don't chase a missing gate.
+
+### OPEN — LOCKED specs referenced but not committed to the repo (LOW)
+LazyTopper_Learn_Flow_Spec_LOCKED.md + LazyTopper_TrackA_PR_Breakdown.md (and any
+New-Session-Brief / Master-Knowledge index) are owner/architect-held and NOT in this repo.
+This handoff references them but cannot link to in-repo copies. Commit them under handoff/ if
+the next session needs them as the source of truth for Track A/B.
+
+### OPEN — Clerk pk_test_→pk_live_, DPDP/consent for minors, charge path (at student-link time)
+Surfaced by the owner clarifications. Resolve before the public student link, alongside the
+Railway deploy. Not blockers for PR B (local).
+
+---
+
 ## 2026-06-01 — Post-PR #172 (mobile Home polish)
 
 ### RESOLVED — mobile /browse was the plain PR-#168 layout, not the locked polish (PR #172)

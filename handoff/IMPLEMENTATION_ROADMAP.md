@@ -2,6 +2,32 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-01 — Post-PR #174 roadmap update (check-solution parse fix; AI gateway live LOCAL)
+
+### Completed this session
+- [x] AI gateway live on LOCAL dev (non-stub, direct Gemini key; no code change — env is
+  gitignored). Both endpoints (`/api/mentor`, `/api/check-solution`) return real Gemini
+  output locally. Unblocks prompt tightening (PR B) against real output.
+- [x] PR #174 (A2) — check-solution parse reliability. `responseMimeType:'application/json'`
+  + `maxOutputTokens` 2500→8000 + warn-log + honest fallback (scope: checkSolution.cjs).
+  Measured before/after on real handwritten images: the "could not evaluate" bug is fixed.
+  New base SHA `5ad359c42127ac89056002c226828297ead7c98b`.
+
+### AI track status (now active)
+  [x] A — gateway live on local dev (non-stub)
+  [x] A2 (#174) — check-solution parse fix
+  [ ] B — tighten grading + teach prompts, MEASURED vs mistake-scenario matrix (fixes D21)
+  [ ] check-solution eval set (40–60 graded answers, launch gate)
+  [ ] Railway deploy (P0, now in scope) + Clerk pk_live_ (P0) → student link
+
+### Two-track build (owner-locked 2026-06-01; specs owner/architect-held, not in repo)
+  [ ] Track A — design/UI: fully responsive at every width (one fluid layout, not a 1024 twin)
+  [ ] Track B — content: interactives via Claude, proofs, formula sheets, pre-gen PDFs + QA
+
+### Still parked / unchanged
+P0 launch blockers remain (API gateway prod deploy, Clerk pk_live_). Mobile reflow track
+(usePracticeHub, MobilePracticePage) continues at lower priority than the AI track.
+
 ## 2026-06-01 — Post-PR #172 roadmap update (mobile Home polish; Vercel green)
 
 ### Completed this session

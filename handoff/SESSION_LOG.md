@@ -1,5 +1,56 @@
 ---
 
+## 2026-06-01 — AI gateway live (local dev) + PR #174: check-solution parse fix + this docs PR
+
+### Starting state
+Base SHA at session start: 8c16173 (post-PR #173 docs handoff). Worked across three things
+this session: (1) bring the AI gateway live on LOCAL dev non-stub, (2) PR #174 fix the
+check-solution "could not evaluate" parse bug, (3) this docs-only handoff PR.
+
+### 1 — AI gateway live on LOCAL dev (no code change; env is gitignored)
+Placed the owner's direct Gemini key in `lazytopper/server/.env` (`API_KEY` + `PORT=3001`;
+gitignored — confirmed `git check-ignore`). Booted gateway: `Gemini: ON (gemini-2.5-flash)
+| Auth: direct-key`, `STUB_MODE=false`. Smoke-tested both endpoints with real output:
+`/api/mentor` (learn_teach, triangles/BPT) → real structured teach; `/api/check-solution`
+(typed answer) → real graded JSON. Confirmed end-to-end dev path: browser same-origin /api
+→ Vite proxy (:25246) → gateway (:3001) → real Gemini. KEY NEVER printed/committed.
+
+### 2 — PR #174: check-solution parse reliability (the "could not evaluate" bug)
+Root cause: `gemini-2.5-flash` is a thinking model; under `maxOutputTokens:2500` with no
+JSON mime-type, its reply truncated/wrapped → `extractJsonObjectFromText` returned null →
+misleading "clearer image" fallback (image was always read fine). Fix (scoped to
+`server/routes/checkSolution.cjs`, +4/-2): `responseMimeType:'application/json'` +
+`maxOutputTokens` 2500→8000 + warn-log unparseable reply (model text only) + honest
+fallback message. `geminiClient.cjs` already forwarded responseMimeType — untouched.
+MEASURED before/after on the owner's real handwritten image `sol2.jpeg`: BEFORE `ok:false`
+"could not evaluate"; AFTER `ok:true`, 5 annotated steps, read the handwriting, caught the
+wrong zeroes → 1/3. `sol3.jpeg` (correct solution) → 3/3. Typed regression still works.
+Discovered a quality gap in the AFTER output (see D21) — deferred to PR B.
+
+### Evidence + gate (PR #174)
+- `npm run build` exit 0 (`tsc -b` clean, `BOM_GUARD_OK`, ✓ built in 17s). `git diff --check`
+  clean. Diff = exactly checkSolution.cjs. No forbidden files. Verified locally non-stub.
+- NOTE: CLAUDE.md/instruction referenced `scripts/verify-build.mjs` + "137 guards" — neither
+  exists in this checkout (flagged, not faked). The real build gate (`npm run build`) passed.
+- Commit 4ae059f → PR #174 → MERGED (2026-06-01 16:59 UTC) → new trunk SHA 5ad359c.
+
+### 3 — Discoveries recorded (D19–D21) + owner clarifications
+See DISCOVERIES.md (D19 local dev proxy port; D20 force-JSON for structured Gemini calls;
+D21 check-solution over-classifies conceptual). Owner clarifications (trial = all features
+for 7 days then free Basic; fully responsive at every width not a 1024 twin; PR numbers
+follow git; launch domain = lazytopper.in NOT .app; two-track build locked) recorded in
+CURRENT_STATE.md. The LOCKED specs (Learn Flow Spec, Track A PR Breakdown) are owner/
+architect-held and NOT yet in this repo — referenced, not fabricated.
+
+### Sequencing
+A2 (#174, done) → THIS docs update → PR B (grading + teach prompt tightening, measured vs a
+mistake-scenario matrix) → check-solution eval set → Railway deploy (now IN scope — owner
+needs a live link for students to test tutor+checker quality) → hand students the link.
+Deploy ONLY after the checker reliably returns GOOD grades locally. Open at student-link
+time: Clerk pk_test_→pk_live_, DPDP/consent for minors, monetization charge path.
+
+---
+
 ## 2026-06-01 — PR #172: Mobile Home polish + 5-tab light BottomNav + single brand bar
 
 ### Starting state

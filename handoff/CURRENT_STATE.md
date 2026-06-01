@@ -1,10 +1,19 @@
 # LazyTopper — Current State
-Last updated: 2026-06-01 (post-PR #171 handoff + #172 mobile Home polish)
+Last updated: 2026-06-01 (post-PR #174 — check-solution parse fix; AI gateway live on LOCAL dev)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: a6360370588014a0a696fea97d6f4d548b0e5a5a
-Last merged PRs: #170 (mobile landing), #171 (docs handoff post-#170), #172 (feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px — Vercel production deploy GREEN confirmed)
+SHA: 5ad359c42127ac89056002c226828297ead7c98b
+Last merged PRs: #172 (feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px — Vercel GREEN), #173 (docs handoff post-#172), #174 (fix: check-solution parse reliability — force JSON output + raise maxOutputTokens 2500→8000; verified on local dev)
+
+## AI gateway status
+- LIVE on LOCAL dev (non-stub): direct Gemini key in gitignored `lazytopper/server/.env`
+  (`API_KEY` + `PORT=3001`); serverConfig auto-sets `AI_PROVIDER=gemini` + `STUB_MODE=false`.
+  Boot proof: `Gemini: ON (gemini-2.5-flash) | Auth: direct-key`. Tutor (`/api/mentor`)
+  and grader (`/api/check-solution`) both return real Gemini output locally.
+- DARK in production until the Railway deploy (P0 ISSUE-009) + Clerk pk_live_ (P0 ISSUE-010).
+- LOCAL DEV RUN: gateway = `npm run dev:gateway` (node server/index.cjs :3001); app =
+  `API_SERVER_PORT=3001 npx vite` (:25246 → /app/). Both started SEPARATELY. See D19.
 
 ## Bank state
 Total questions: ~6,318 (flat) / ~6,617 (incl. builders)
@@ -82,6 +91,8 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #170 — feat: mobile landing swipe carousel for /welcome (Vercel green)
 #171 — docs: handoff update post-#170
 #172 — feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px (Vercel green)
+#173 — docs: handoff update post-PR #172 (mobile Home polish; Vercel green)
+#174 — fix: check-solution parse reliability (force JSON output + raise token cap; local-dev verified)
 
 ## Source breakdown
 
@@ -117,6 +128,7 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 | Case-Based "Easy" re-tag | Find-replace fix | XS |
 | TopicKey cleanup | 51 AI-Pack Title Case keys | XS |
 | check-solution eval set | 40-60 graded answers as launch gate | M |
+| D21: check-solution OVER-classifies as conceptual | Tighten grading prompt in PR B + measure vs mistake-scenario matrix (sign-misread should be SILLY; don't double-count propagated errors) | M |
 | Rate limiting on API gateway | Bundle with gateway PR | XS |
 | Repo-wide solutionSteps step-mark audit | Older questions missing [N mark] prefix | M |
 | AR/Section/Marks tagging audit | Some AR questions tagged as Section D 5mk | S |
@@ -142,7 +154,22 @@ PYQ 2018-19 (heavy banned topic overlap) | Sentry/error monitoring backend
 10. PYQ 2019-20 extraction (after download)
 
 ## Confirmed launch domain
-lazytopper.app (verify DNS in Vercel before P0 gateway work starts)
+lazytopper.in (owner-confirmed 2026-06-01 — NOT .app; earlier ".app" was wrong).
+Verify DNS in Vercel before P0 gateway work starts.
+
+## Owner clarifications (2026-06-01) — LOCKED
+- Trial = ALL features for 7 days (full tutor + checker + everything), then reverts to
+  free Basic. Gate is trial-not-paywall during those 7 days. No client-side premium/trial
+  activation (doctrine unchanged): trial state comes from server/admin only.
+- Fully responsive across ALL screen sizes — one fluid layout adapts at every width, NOT
+  a 1024px desktop/mobile twin switch. This is more work than porting a mobile twin and is
+  the target for the redesign (Track A).
+- PR numbering follows git (next sequential, #175+). "PR-1..8" in the Track A breakdown are
+  logical labels — map them to real git numbers.
+- Two-track build, LOCKED: Track A (design/UI — fluid responsive redesign) + Track B
+  (content: interactives via Claude, proofs, formula sheets, pre-generated PDFs) with
+  robust content QA. Source specs are owner/architect-held (LazyTopper_Learn_Flow_Spec_
+  LOCKED.md + LazyTopper_TrackA_PR_Breakdown.md) — NOT yet committed to this repo.
 
 ## Operating model unchanged
 Chetan = owner/merger | Claude chat = architect/planner | Claude Code = executor

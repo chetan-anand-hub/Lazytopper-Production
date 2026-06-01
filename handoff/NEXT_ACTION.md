@@ -1,14 +1,37 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-01 (post-PR #172 mobile Home polish; Vercel GREEN)
-# Base SHA: a6360370588014a0a696fea97d6f4d548b0e5a5a
+# Updated: 2026-06-01 (post-PR #174 check-solution parse fix; AI gateway live on LOCAL dev)
+# Base SHA: 5ad359c42127ac89056002c226828297ead7c98b
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: a6360370588014a0a696fea97d6f4d548b0e5a5a
-Last PRs: #170 (mobile landing) + #171 (docs handoff post-#170) + #172 (mobile Home polish + 5-tab light BottomNav + single brand bar <1024px — Vercel production deploy confirmed GREEN)
+SHA: 5ad359c42127ac89056002c226828297ead7c98b
+Last PRs: #172 (mobile Home polish — Vercel GREEN) + #173 (docs handoff post-#172) + #174 (fix: check-solution parse reliability — force JSON + raise token cap; local-dev verified)
 
-## IMMEDIATE NEXT TASK — next mobile reflow (owner-sequenced)
+## IMMEDIATE NEXT TASK — PR B: tighten grading + teach prompts (MEASURED)
+
+The AI gateway is LIVE on local dev (non-stub, direct Gemini key) — prompts can now be
+tightened against REAL Gemini output. PR B is the next product PR.
+
+Scope (correctness/quality of the existing AI surfaces — NOT new features):
+- Tighten the check-solution GRADING prompt to fix D21 over-classification: a sign-misread
+  from a correct factor must be SILLY (not CONCEPTUAL); a propagated downstream error must
+  be attributed to its single root-cause slip, NOT double-counted as a second mistake.
+- Tighten the teach prompt(s) for quality against real output.
+- MEASURE every change against a mistake-scenario test matrix (conceptual vs calculation vs
+  silly vs presentation; single-slip vs propagated-error). Capture before/after on real
+  answers/images. This is correctness work — keep the diff to prompts; no schema changes.
+
+Prerequisite to RUN locally: gateway non-stub (`npm run dev:gateway` on :3001) + app
+(`API_SERVER_PORT=3001 npx vite` → :25246). See D19/D20 in DISCOVERIES.md. Owner approves
+before merge; PR report includes the GitHub PR URL.
+
+AFTER PR B: check-solution eval set (40–60 graded answers, launch gate) → Railway deploy
+(now IN scope — owner needs a live link for students to test tutor+checker quality) → hand
+students the link. Deploy ONLY after the checker reliably returns GOOD grades locally.
+Open at student-link time: Clerk pk_test_→pk_live_, DPDP/consent for minors, charge path.
+
+## ALSO STAGED — next mobile reflow (owner-sequenced; lower priority than PR B)
 
 Mobile track so far: PR A (#166 grammar primitives) → PR B (#168 mobile Home /browse)
 → PR C (#170 mobile landing /welcome) → PR D (#172 mobile Home polish + 5-tab light
