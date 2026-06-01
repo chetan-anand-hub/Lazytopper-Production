@@ -160,7 +160,8 @@ function createCheckSolutionRoute(deps) {
 
       const reply = await callGemini(GEMINI_MODEL, contents, {
         temperature: 0.15,
-        maxOutputTokens: 2500,
+        maxOutputTokens: 8000,
+        responseMimeType: 'application/json',
       });
 
       const parsed = extractJsonObjectFromText(reply.text);
@@ -206,9 +207,10 @@ function createCheckSolutionRoute(deps) {
         });
       }
 
+      console.warn('[check-solution] unparseable reply (first 500 chars):', reply.text?.slice(0, 500));
       return sendJson(res, 200, {
         ok: false,
-        error: 'Could not evaluate the solution. Please try again with a clearer image.',
+        error: "We couldn't read the grading this time — please try again.",
       });
     } catch (err) {
       console.error('[check-solution]', err);
