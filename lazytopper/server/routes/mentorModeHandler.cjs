@@ -129,18 +129,16 @@ function createMentorModeHandler(deps) {
           const stepIdx = Number(payload.stepIndex) || 0;
           const studentText = payload.attempt_loop?.student_attempt?.raw_text || '';
           const cCtx = payload.conceptContext || {};
-          if (stepIdx === 0 && isConceptTeach && (cCtx.questionText || cCtx.subtopic)) {
-            const parts = [`Teach the concept behind this specific question from "${topicName}".`];
-            if (cCtx.questionText) parts.push(`The question was: "${cCtx.questionText}"`);
-            if (cCtx.subtopic) parts.push(`Subtopic: ${cCtx.subtopic}`);
-            parts.push('Start with Phase 1: explain the NCERT theory for this specific concept with a real-life analogy and end with a check question.');
+          const conceptName = String(cCtx.subtopic || cCtx.concept || '').trim() || topicName;
+          if (stepIdx === 0) {
+            const parts = [`Teach the CBSE Class ${payload.grade || 10} concept "${conceptName}"${conceptName !== topicName ? ` (from ${topicName})` : ''}, directly and concisely.`];
+            if (cCtx.questionText) parts.push(`It was opened from this question: "${cCtx.questionText}".`);
+            parts.push(`Stay strictly on "${conceptName}". Lead with substance (no greeting/preamble/analogy opener), organize by marks with concrete board-style examples, and end with exactly ONE step-marking follow-up offer fitted to the concept.`);
             return parts.join('\n');
-          } else if (stepIdx === 0) {
-            return `Start teaching "${topicName}" to a CBSE Class ${payload.grade || 10} student. This is the very first message — introduce the topic with a real-life example and ask an engaging opening question.`;
           } else if (studentText) {
-            return `The student responded: "${studentText}"\n\nAcknowledge their response, explain further with a new example, and ask the next question.`;
+            return `The student said: "${studentText}".\nAnswer that directly, staying strictly on "${conceptName}". If they accepted your step-marking offer, give the step-by-step solution to your own example with per-step CBSE marks (correctness first). No fluff, no preamble.`;
           }
-          return `Continue teaching "${topicName}" — move to the next concept with a worked example and a question.`;
+          return `Continue teaching "${conceptName}" — the next concrete board-style point, staying on "${conceptName}", ending with one fitting follow-up offer. No fluff.`;
         }
         return isTeachTabPayload(payload)
           ? buildLearnTeachContractPrompt(payload)
