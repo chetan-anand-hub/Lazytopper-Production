@@ -1,3 +1,51 @@
+## 2026-06-02 - PR #176 merged (scope:guard re-armed) + owner product decisions
+
+Decision:
+PR #176 (`fix: restore repo_boundary_policy.json`) is merged into `base/approved-thru-437`,
+re-arming the scope guards. Several owner product decisions were locked today.
+
+Details:
+- PR #176 merged 2026-06-02. Base before merge: `1e9bd04` is the merge commit / new trunk SHA.
+  Commit `c7d742f`. Changed file: `lazytopper/docs/project_memory/governance/repo_boundary_
+  policy.json` (restored from history `d4ed284`; ONE file, no code). Vercel GREEN before merge.
+- The break was the untrack in `2081003`, not the `.gitignore` rule — re-tracking is the
+  durable fix (`git check-ignore` reports no-match for a tracked file). No `.gitignore` edit.
+
+Decisions (owner, 2026-06-02):
+- **3/19 acceptance regressions — DEFER ALL THREE; mark known-red-by-decision.** Investigation
+  (report-3of19-regression-intent) proved all 3 are INTENTIONAL product changes, zero accidental:
+  - SES-04 (dashboard session player) — session-player arch deliberately deleted (`b891597`),
+    replaced by `/daily-mix`. Check is stale.
+  - PRG-03 (dashboard "Performance Matrix") — Dashboard rebuilt (`c1afcd3`); matrix →
+    `TopicMasteryGrid` (alive). Check is stale.
+  - PRG-02 (TopicHub competency) — dropped in the 8025→700 rewrite (`428e3ac`); TopicHub is the
+    locked Track A redesign target.
+  - Do NOT update/fix any now. SES-04 + PRG-03 resolve as part of the Dashboard→Home/Me-Progress
+    consolidation; PRG-02 resolves in the Track A TopicHub redesign. Not to be re-investigated.
+- **Dashboard is being retired → Home + Me/Progress** (owner-stated product direction). The
+  product has NO Dashboard. BUT the repo still hardcodes `/dashboard` as the post-login landing
+  in 3 places (`Login.tsx` fallback ~L594, `HomeRedirect`, `RootEntry` mobile). Desktop `/`
+  correctly lands signed-in users on DesktopHome; login-fallback + mobile still go to
+  `/dashboard`. → A **Dashboard→Home/Me-Progress consolidation** (fix the 3 hardcoded landings)
+  is a tracked Track A / cleanup task. NOT done today.
+- **Post-login redirect:** the `?redirect=` / `location.state.from` priority correctly returns a
+  gated-mid-action user to where they were (matches "gate at save, return after"). Only the
+  bare-login FALLBACK wrongly defaults to `/dashboard` — fixed by the consolidation above.
+- **Mistake Intelligence: NOT yet integrated.** Me/Progress does not yet wire to real
+  mistake-intelligence data — a separate future PR. "Me/Progress shows real memory-intelligence
+  data" is the INTENDED state, not the current one.
+- **Daily Mix:** alive + premium-gated (`/daily-mix/:grade/:subject`, "Daily Focus Mix"). It is a
+  daily-habit PRACTICE surface (streak/resume/mastery), NOT one of the four hooks (Exam Trends,
+  Predicted, Check & Improve, Mistake Intelligence) and NOT mistake/spaced-repetition-driven. →
+  Flagged for an explicit owner KEEP/CUT decision (candidate to retire like the session-player).
+  Undecided.
+
+Implication:
+Next is this docs PR → PR B (Part 1) grading-prompt tightening (sync `feat/check-solution-
+grading-prompt` `204ac7c` onto `1e9bd04`, then merge) → Track A PR-1 tutor wiring → PR B2
+teach-prompt tightening → Railway deploy. Future implementation starts from `1e9bd04` or
+whatever live GitHub later confirms.
+
 ## 2026-06-01T16:59:01Z - PR #174 merged; check-solution parse fix + AI gateway live (local) + two-track doctrine
 
 Decision:

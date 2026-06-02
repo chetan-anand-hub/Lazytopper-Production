@@ -2,6 +2,35 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-02 — Post-PR #176 roadmap update (scope:guard re-armed)
+
+### Completed this session
+- [x] PR #176 — restored `lazytopper/docs/project_memory/governance/repo_boundary_policy.json`
+  from history (`d4ed284`), re-arming `scope:guard`, `scope:guard:tutor`, `test:repo-boundary`,
+  and `ci:smoke`'s first step (all had thrown "missing policy file" since `2081003` untracked
+  it). ONE file, no code. New trunk SHA `1e9bd04`. Vercel GREEN before merge.
+
+### The sequence (owner-confirmed 2026-06-02)
+  [ ] PR B (Part 1) — grading-prompt tightening (sync parked `feat/check-solution-grading-prompt`
+      `204ac7c` onto `1e9bd04`; re-run scope:guard + build + `test:matrix:all`; open + merge)
+  [ ] Track A PR-1 — tutor wiring (per-row "Learn this" → ConceptTeachDrawer/TeachFlow
+      `concept_teach` in DesktopTopicHub; the tutor is NOT yet visible in the product)
+  [ ] PR B2 — teach-prompt tightening (deferred until the tutor is wired + visible)
+  [ ] Railway deploy + `vercel.json /api/*` rewrite + rate limiting (ISSUE-009 unlock) → student link
+  [ ] Track A redesign PRs + Track B content
+
+### Backlog surfaced by #176 (deferred — see OPEN_QUESTIONS)
+  [ ] `test:repo-boundary` 1/5 — `vitest.config.ts` matches no policy lane
+  [ ] `verify-build.mjs` missing (CLAUDE.md §6 stale)
+  [ ] `ci:smoke` downstream steps (build / tutor:eval / lint:ci) unevaluated
+  [ ] Wire `ci:smoke` into CI so a broken gate fails loudly (the deeper fix per D23)
+
+### Product decisions locked today (see DECISION_LOG)
+  3/19 acceptance reds = known-red-by-decision (SES-04/PRG-03 → Dashboard→Home/Me-Progress
+  consolidation; PRG-02 → Track A TopicHub). Dashboard retired → Home + Me/Progress (3 hardcoded
+  `/dashboard` landings to fix in Track A). Mistake Intelligence not yet wired to Me/Progress.
+  Daily Mix alive + premium-gated — owner KEEP/CUT decision pending.
+
 ## 2026-06-01 — Post-PR #174 roadmap update (check-solution parse fix; AI gateway live LOCAL)
 
 ### Completed this session

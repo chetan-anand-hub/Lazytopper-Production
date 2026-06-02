@@ -1,5 +1,57 @@
 ---
 
+## 2026-06-02 — PR #176: restore scope-guard policy (re-arm 3 gates) + this docs PR
+
+### Starting state
+Base SHA at session start: `1e9bd04` (after #176 had merged). This session: (1) PR #176 —
+restore the accidentally-untracked `repo_boundary_policy.json` to re-arm the scope guards;
+(2) this docs-only handoff PR recording all state + decisions resolved today.
+
+### 1 — PR #176: restore repo_boundary_policy.json (re-arm scope:guard + test:repo-boundary + ci:smoke)
+Forensic root cause (established, not re-investigated): the policy JSON was added in `d4ed284`
+and read by three live scripts (`scopeGuard.mjs`, `ops/repo_boundary_acceptance.mjs`,
+`ops/software_testing_bot.mjs`); the chore `2081003` ("remove internal docs and reports from
+git tracking") `git rm --cached`'d the whole `project_memory/` tree and untracked this ONE
+live-dependency file — so `scope:guard`, `scope:guard:tutor`, `test:repo-boundary`, and
+`ci:smoke`'s first step all threw "missing policy file". Fix: restored the REAL file from
+history (`git show d4ed284:… > …`, not hand-authored — avoids drift), force-added (it sits
+under the gitignored `project_memory/` tree). Confirmed it parses + has the four required lane
+arrays the guard validates. Exactly ONE new file; no code, no `.gitignore` change.
+
+### Evidence + gate (PR #176)
+- `scope:guard`: `missing policy file` → `SCOPE_GUARD_OK`. `scope:guard:tutor`: → `SCOPE_GUARD_OK`.
+- `test:repo-boundary`: was erroring on the missing policy → now RUNS (4/5). The policy file
+  classifies as `trackedTooling` (lane rule `docs/`), so it adds NO new red. The 1 red is
+  pre-existing: `vitest.config.ts` matches no lane.
+- `git check-ignore`: reports NO match once the file is tracked (tracking overrides the dir
+  ignore rule) — so re-tracking is the durable fix; no `.gitignore` edit needed.
+- `tsc --noEmit` exit 0; production build GREEN (32.8s); `git diff --check` clean; remote PR
+  diff = exactly the one JSON. `verify-build.mjs` referenced by CLAUDE.md §6 is absent in this
+  checkout (flagged, not faked) — same gap noted in #174/#175.
+- Commit `c7d742f` → PR #176 → MERGED (2026-06-02) → merge commit / new trunk `1e9bd04`.
+  Vercel GREEN confirmed by owner before merge. Branch deleted (remote + local) post-merge.
+
+### 2 — Owner decisions recorded (see DECISION_LOG) + discoveries D22–D23 (see DISCOVERIES)
+3/19 acceptance reds = known-red-by-decision (all 3 INTENTIONAL product changes, zero accidental
+regressions); Dashboard is being retired → Home + Me/Progress (3 hardcoded `/dashboard` landings
+to fix in a Track A consolidation); post-login `?redirect=`/`from` priority is correct — only the
+bare-login FALLBACK wrongly defaults to `/dashboard`; Mistake Intelligence NOT yet wired to
+Me/Progress (future PR); Daily Mix alive + premium-gated, a daily-habit PRACTICE surface (NOT one
+of the four hooks, NOT mistake/spaced-repetition-driven) — flagged for an owner KEEP/CUT decision.
+D22 (Vercel "AI API request failed" is BY DESIGN — ISSUE-009) and D23 (scope:guard dead since
+`2081003`) recorded.
+
+### Sequencing
+This docs update → PR B (Part 1): sync `feat/check-solution-grading-prompt` (`204ac7c`, parked,
+NOT merged) onto `1e9bd04`, re-run scope:guard + build + `test:matrix:all`, open + merge →
+Track A PR-1 (tutor wiring: per-row "Learn this" → ConceptTeachDrawer/TeachFlow concept_teach in
+DesktopTopicHub — the tutor is NOT yet visible in the product) → PR B2 (teach-prompt tightening,
+deferred until tutor is wired + visible) → Railway deploy + `vercel.json /api/*` rewrite + rate
+limiting (the unlock for the Vercel link's AI; at link-time: Clerk pk_test_→pk_live_, DPDP/consent
+for minors, charge path) → Track A redesign PRs + Track B content.
+
+---
+
 ## 2026-06-01 — AI gateway live (local dev) + PR #174: check-solution parse fix + this docs PR
 
 ### Starting state
