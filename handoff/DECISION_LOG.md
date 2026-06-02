@@ -1,3 +1,34 @@
+## 2026-06-02 - PR #178 merged (check-solution grading-prompt tightening; D21 resolved; T4 boundary case)
+
+Decision:
+PR #178 (`feat: tighten check-solution grading prompt`) is merged into `base/approved-thru-437`.
+D21 (grader over-classifying mistakes as conceptual) is RESOLVED — measured 6/9→8/9 solid on
+the T1–T9 scenario matrix against the live local gateway. Scope: `checkSolution.cjs` prompt
+strings only (no call-config/schema/data/feature change).
+
+Details:
+- New trunk / merge commit SHA: `c760c8eb5c830e64054d516c48d3b5ac85ff523c`. Merged at
+  `2026-06-02T09:33:42Z` (squash). Parked branch was rebased onto `7948dc3` (clean) before merge.
+
+Doctrine / decisions:
+- Mistake type is classified by CAUSE (what the error reveals about understanding), not by
+  where it appears: sign-misread from a correct factor = SILLY (not conceptual); a correct but
+  unbalanced equation = PRESENTATION (not conceptual); a propagated downstream error = ONE root
+  cause (carried-forward → mistakeType null), never several conceptuals; a wholly-skipped step =
+  MISSING (mistakeType null), not a typed mistake; alternative valid method is not penalised.
+- **T4 = accepted boundary case (Option 1).** When a student writes the verification VALUES
+  (sum/product) but omits the −b/a comparison, "attempted-but-format-short" (presentation) vs
+  "step omitted" (missing) is genuinely ambiguous; gemini-2.5-flash is ~50/50 even at temp 0.15.
+  Marks are always 2.5/3 and it is NEVER conceptual — only the deducted-mark label flips between
+  two defensible values, both conveying the same fix to the student. Not a blocker. The T1–T9
+  matrix becomes the permanent regression set and seeds the 40–60-answer eval set.
+- Part 2 (teach prompt) deferred to PR B2 — until the tutor is wired/visible (Track A PR-1) and
+  measurable against real lessons.
+
+Implication:
+Next product PR = Track A PR-1 (tutor wiring, desktop TopicHub). check-solution eval set + the
+P0 deploy chain (Railway gateway, Clerk pk_live_) remain ahead of the public student link.
+
 ## 2026-06-02 - PR #176 merged (scope:guard re-armed) + owner product decisions
 
 Decision:

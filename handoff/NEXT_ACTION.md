@@ -1,21 +1,27 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-02 (post-PR #176 restore repo_boundary_policy.json; scope:guard re-armed)
-# Base SHA: 1e9bd0421b7db39438054e2c9e9693e66f4ab943
+# Updated: 2026-06-02 (post-PR #178 check-solution grading-prompt tightening; D21 resolved)
+# Base SHA: c760c8eb5c830e64054d516c48d3b5ac85ff523c
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 1e9bd0421b7db39438054e2c9e9693e66f4ab943
-Last PRs: #174 (fix: check-solution parse reliability — force JSON + raise token cap; local-dev verified) + #175 (docs handoff post-#174) + #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed)
+SHA: c760c8eb5c830e64054d516c48d3b5ac85ff523c
+Last PRs: #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed) + #177 (docs handoff post-#176) + #178 (feat: tighten check-solution grading prompt — D21 resolved; measured 6/9→8/9 on T1–T9)
+
+## IMMEDIATE NEXT TASK — Track A PR-1 (tutor wiring, desktop TopicHub)
+
+Per-row "Learn this" → ConceptTeachDrawer/TeachFlow `concept_teach` mode in DesktopTopicHub.
+The tutor is NOT yet visible in the product — this is the next real product move. PR B2
+(teach-prompt tightening) stays PARKED until the tutor is wired + visible, so it is measurable
+against real lessons. The AI gateway is live on LOCAL dev (non-stub) for verification (D19/D20).
 
 ## THE SEQUENCE (owner-confirmed 2026-06-02)
 
-1. (this) docs handoff → merge.
-2. **PR B (Part 1)** — grading-prompt tightening. Branch `feat/check-solution-grading-prompt`
-   (`204ac7c`, PARKED, NOT merged). Sync onto `1e9bd04`, re-run `scope:guard` + `npm run build`
-   + `test:matrix:all`, then open + merge. (T4 accepted as Option 1 — documented boundary case;
-   3/19 noted pre-existing/deferred.)
-3. **Track A PR-1 — tutor wiring**: per-row "Learn this" → ConceptTeachDrawer/TeachFlow
+1. ~~docs handoff post-#176 → merge~~ DONE (#177).
+2. ~~**PR B (Part 1)** — grading-prompt tightening~~ DONE (#178; rebased onto `7948dc3`, merged
+   `c760c8e`; gates green; T4 accepted as Option 1; 3/19 pre-existing/deferred). + this docs
+   handoff (post-#178).
+3. **Track A PR-1 — tutor wiring** (NEXT): per-row "Learn this" → ConceptTeachDrawer/TeachFlow
    `concept_teach` mode in DesktopTopicHub. The tutor is NOT yet visible in the product — this
    is the next real product move.
 4. **PR B2 — teach-prompt tightening** (deferred until the tutor is wired + visible, so it is

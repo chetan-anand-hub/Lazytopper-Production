@@ -33,7 +33,12 @@ to `generationConfig`, with a built-in fallback path if a route rejects it) — 
 to USE it. LESSON: force JSON mode on every Gemini call that must return structured data;
 never rely on parsing free text, and give thinking models token headroom.
 
-## D21 — check-solution OVER-classifies mistakes as "conceptual" (KNOWN QUALITY ISSUE → PR B)
+## D21 — check-solution OVER-classifies mistakes as "conceptual" (RESOLVED by #178)
+> RESOLVED 2026-06-02 (#178): grading prompt tightened + measured 6/9→8/9 on the T1–T9 matrix.
+> Sign-misread → silly; propagated error → single root cause; missing → null; unbalanced →
+> presentation; T2 stays conceptual. T4 = accepted boundary case (DECISION_LOG 2026-06-02).
+> Original analysis retained below for context.
+
 Real reproduction (`sol2.jpeg`): the student factored `(x−4)(x+2)` correctly but read a root
 as `−4` instead of `+4` — a SIGN MISREAD from a correct factor (the method was understood),
 which should be tagged SILLY. The grader tagged it CONCEPTUAL. It also double-counted the

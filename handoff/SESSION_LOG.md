@@ -1,5 +1,37 @@
 ---
 
+## 2026-06-02 — PR #178: check-solution grading-prompt tightening (D21 fix) + this docs PR
+
+### Starting state
+Trunk at session start: `7948dc3` (post #176 gate restore + #177 docs). The PR B (Part 1)
+grading-prompt change had been committed and PARKED earlier (`204ac7c`, based on the older
+`3455ce5`) pending the gate audit. With scope:guard re-armed by #176, B was cleared to land.
+
+### What shipped (#178 — grading prompt only; scope: `server/routes/checkSolution.cjs`)
+- Rebased the parked branch onto current trunk `7948dc3` — CLEAN, no conflicts (B touches
+  only checkSolution.cjs; #176 = policy JSON; #177 = handoff md; no overlap). `204ac7c`→`84b570a`.
+- The change: 12-rule grading rewrite (mistake type by CAUSE; per-type boundary examples —
+  sign-misread from a correct factor = silly NOT conceptual, unbalanced equation = presentation;
+  error-propagation → ONE root cause / carried-forward → null; correct → null; MISSING → always
+  null; alternative valid method not penalised; presentation-vs-missing; per-step attribution).
+  NO call-config change (that was #174). No schema/data/feature change.
+- Force-with-lease push of the rebased branch (owner-approved; expected after rebase of a
+  parked branch — file diff byte-identical to the reviewed change). PR #178 opened → owner
+  chose merge-now (squash) → merge commit `c760c8e` (new trunk SHA).
+
+### Measured quality (live gemini-2.5-flash, non-stub, BEFORE/AFTER on T1–T9)
+- BEFORE 6/9 → AFTER 8/9 solid. D21 (T1 `sol2.jpeg`) robustly fixed every run (silly, never
+  conceptual×2). T7 (skipped verification → missing/null, was conceptual) and T8 (unbalanced
+  → presentation, was conceptual) newly fixed. T2 (genuine wrong-method) stays conceptual —
+  no over-correction. T4 accepted as Option 1 (see DECISION_LOG).
+
+### Gates (rebased branch @ trunk)
+- scope:guard `SCOPE_GUARD_OK` (the gate dead when B was first written; re-armed by #176).
+- `npm run build` exit 0. `scripts` `test:matrix:all` 137/137. diff = exactly checkSolution.cjs.
+- backlog_1_19 3/19 reds pre-existing/intentional (identical on base via stash), unrelated.
+
+---
+
 ## 2026-06-02 — PR #176: restore scope-guard policy (re-arm 3 gates) + this docs PR
 
 ### Starting state
