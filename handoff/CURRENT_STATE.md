@@ -1,10 +1,21 @@
 # LazyTopper — Current State
-Last updated: 2026-06-01 (post-PR #174 — check-solution parse fix; AI gateway live on LOCAL dev)
+Last updated: 2026-06-02 (post-PR #176 — restore repo_boundary_policy.json; scope:guard re-armed)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 5ad359c42127ac89056002c226828297ead7c98b
-Last merged PRs: #172 (feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px — Vercel GREEN), #173 (docs handoff post-#172), #174 (fix: check-solution parse reliability — force JSON output + raise maxOutputTokens 2500→8000; verified on local dev)
+SHA: 1e9bd0421b7db39438054e2c9e9693e66f4ab943
+Last merged PRs: #174 (fix: check-solution parse reliability — force JSON output + raise maxOutputTokens 2500→8000; verified on local dev), #175 (docs handoff post-#174), #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed; file was accidentally untracked in 2081003)
+
+## Governance / gates
+- scope:guard: **LIVE again** — `SCOPE_GUARD_OK` on trunk. Was DEAD since `2081003`
+  (a docs-cleanup chore) accidentally untracked `lazytopper/docs/project_memory/governance/
+  repo_boundary_policy.json`, which two live scripts read; #176 restored it from history.
+- `test:repo-boundary`: now RUNS again (4/5 checks pass). 1 pre-existing red:
+  `vitest.config.ts` is tracked but matches no policy lane (`all_tracked_files_classified`)
+  — backlog, deferred (see OPEN_QUESTIONS).
+- LESSON (D23): a file-removal can silently break a live gate; `ci:smoke` runs only locally,
+  NOT in CI, so the broken gate failed silently. Wiring `ci:smoke` into CI is the deeper
+  fix (backlog).
 
 ## AI gateway status
 - LIVE on LOCAL dev (non-stub): direct Gemini key in gitignored `lazytopper/server/.env`
@@ -12,6 +23,10 @@ Last merged PRs: #172 (feat: mobile Home polish + 5-tab light BottomNav + single
   Boot proof: `Gemini: ON (gemini-2.5-flash) | Auth: direct-key`. Tutor (`/api/mentor`)
   and grader (`/api/check-solution`) both return real Gemini output locally.
 - DARK in production until the Railway deploy (P0 ISSUE-009) + Clerk pk_live_ (P0 ISSUE-010).
+- CONFIRMED 2026-06-02 (D22): testing the checker on the Vercel link returns "AI API request
+  failed" — this is EXPECTED, NOT a bug. Vercel has no `/api/*` route to deploy to yet
+  (ISSUE-009); AI features work ONLY on localhost (gateway up + `API_SERVER_PORT=3001`, per
+  D19) until the Railway deploy.
 - LOCAL DEV RUN: gateway = `npm run dev:gateway` (node server/index.cjs :3001); app =
   `API_SERVER_PORT=3001 npx vite` (:25246 → /app/). Both started SEPARATELY. See D19.
 
@@ -93,6 +108,14 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #172 — feat: mobile Home polish + 5-tab light BottomNav + single brand bar <1024px (Vercel green)
 #173 — docs: handoff update post-PR #172 (mobile Home polish; Vercel green)
 #174 — fix: check-solution parse reliability (force JSON output + raise token cap; local-dev verified)
+#175 — docs: handoff update post-PR #174 (check-solution parse fix; AI gateway live local; D19–D21)
+#176 — fix: restore repo_boundary_policy.json (re-arm scope:guard + test:repo-boundary + ci:smoke)
+
+## Parked / not-yet-merged branches
+- **PR B (Part 1) — grading-prompt tightening — PARKED.** Committed on branch
+  `feat/check-solution-grading-prompt` (`204ac7c`), NOT merged. Merges next, after this docs
+  PR, once synced onto `1e9bd04`. (T4 accepted as Option 1 — documented boundary case; 3/19
+  acceptance reds noted pre-existing/deferred.)
 
 ## Source breakdown
 

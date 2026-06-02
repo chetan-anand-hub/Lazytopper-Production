@@ -1,14 +1,32 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-01 (post-PR #174 check-solution parse fix; AI gateway live on LOCAL dev)
-# Base SHA: 5ad359c42127ac89056002c226828297ead7c98b
+# Updated: 2026-06-02 (post-PR #176 restore repo_boundary_policy.json; scope:guard re-armed)
+# Base SHA: 1e9bd0421b7db39438054e2c9e9693e66f4ab943
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 5ad359c42127ac89056002c226828297ead7c98b
-Last PRs: #172 (mobile Home polish — Vercel GREEN) + #173 (docs handoff post-#172) + #174 (fix: check-solution parse reliability — force JSON + raise token cap; local-dev verified)
+SHA: 1e9bd0421b7db39438054e2c9e9693e66f4ab943
+Last PRs: #174 (fix: check-solution parse reliability — force JSON + raise token cap; local-dev verified) + #175 (docs handoff post-#174) + #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed)
 
-## IMMEDIATE NEXT TASK — PR B: tighten grading + teach prompts (MEASURED)
+## THE SEQUENCE (owner-confirmed 2026-06-02)
+
+1. (this) docs handoff → merge.
+2. **PR B (Part 1)** — grading-prompt tightening. Branch `feat/check-solution-grading-prompt`
+   (`204ac7c`, PARKED, NOT merged). Sync onto `1e9bd04`, re-run `scope:guard` + `npm run build`
+   + `test:matrix:all`, then open + merge. (T4 accepted as Option 1 — documented boundary case;
+   3/19 noted pre-existing/deferred.)
+3. **Track A PR-1 — tutor wiring**: per-row "Learn this" → ConceptTeachDrawer/TeachFlow
+   `concept_teach` mode in DesktopTopicHub. The tutor is NOT yet visible in the product — this
+   is the next real product move.
+4. **PR B2 — teach-prompt tightening** (deferred until the tutor is wired + visible, so it is
+   measurable against real lessons).
+5. **Railway deploy** + `vercel.json /api/*` rewrite + rate limiting — the unlock that makes the
+   Vercel link's AI features work (ISSUE-009) → hand students the link. At link-time: Clerk
+   `pk_test_`→`pk_live_`, DPDP/consent for minors, monetization charge path.
+6. Track A redesign PRs (Exam Trends ranked list, TopicHub concept-spine, formula/proofs/PDF,
+   mobile/responsive) + Track B content (interactives, proofs, formula sheets, QA).
+
+## PR B (Part 1) DETAIL — tighten grading prompt (MEASURED)
 
 The AI gateway is LIVE on local dev (non-stub, direct Gemini key) — prompts can now be
 tightened against REAL Gemini output. PR B is the next product PR.

@@ -1,3 +1,44 @@
+## 2026-06-02 — Post-PR #176 (scope:guard re-armed)
+
+### OPEN — Daily Mix keep/cut (owner decision pending)
+Daily Mix is alive + premium-gated (`/daily-mix/:grade/:subject`), a daily-habit PRACTICE
+surface (streak/resume/mastery) — NOT one of the four hooks and NOT mistake/spaced-repetition-
+driven. Candidate to retire like the session-player was. Owner KEEP/CUT decision needed.
+
+### OPEN — Dashboard→Home/Me-Progress consolidation (Track A) — 3 hardcoded /dashboard landings
+The product has NO Dashboard (retired → Home + Me/Progress), but the repo still hardcodes
+`/dashboard` as the post-login landing in 3 places (`Login.tsx` fallback ~L594, `HomeRedirect`,
+`RootEntry` mobile). Desktop `/` is correct; login-fallback + mobile still go to `/dashboard`.
+Fix all three in the consolidation. (The `?redirect=`/`from` priority is already correct — only
+the bare-login FALLBACK is wrong.) SES-04 + PRG-03 resolve here.
+
+### OPEN — Mistake Intelligence not yet wired to Me/Progress (future PR)
+"Me/Progress shows real memory-intelligence data" is the INTENDED state, not current. Separate
+future PR; do not present it as done.
+
+### OPEN — Backlog from #176 (gate hygiene)
+- `test:repo-boundary` 1/5: `vitest.config.ts` is tracked but matches no policy lane
+  (`all_tracked_files_classified`). Add it to the `product`/`trackedTooling` lane (or fix the
+  rule) — deferred.
+- `verify-build.mjs` missing from this checkout (CLAUDE.md §6 references it; stale — same gap
+  flagged in #174/#175).
+- `ci:smoke` downstream steps (build / tutor:eval / lint:ci) unevaluated in #176 (out of scope).
+- **Wire `ci:smoke` into CI** so a broken gate fails loudly — the deeper fix (D23); today it runs
+  only locally, which is exactly why `2081003` broke a live gate silently.
+
+### CLOSED — 3/19 acceptance reds = known-red-by-decision (do NOT re-investigate)
+All 3 are intentional product changes: SES-04 (session-player deleted `b891597` → `/daily-mix`),
+PRG-03 (Dashboard rebuilt `c1afcd3` → `TopicMasteryGrid`), PRG-02 (dropped in 8025→700 rewrite
+`428e3ac`; TopicHub is the Track A target). SES-04 + PRG-03 resolve in the Dashboard→Home/
+Me-Progress consolidation; PRG-02 in the Track A TopicHub redesign. See DECISION_LOG 2026-06-02.
+
+### NOTE — Locked specs are owner/architect-held, NOT in repo
+`LazyTopper_Learn_Flow_Spec_LOCKED.md`, `LazyTopper_TrackA_PR_Breakdown.md`,
+`LazyTopper_Mistake_Scenario_Map.md` are referenced but not committed here — referenced, not
+fabricated. Commit under `handoff/` if the next session needs them as source of truth.
+
+---
+
 ## 2026-06-01 — AI gateway live (local) + PR #174 (check-solution parse fix)
 
 ### OPEN — check-solution OVER-classifies mistakes as "conceptual" (MEDIUM → PR B) [D21]
