@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -29,6 +29,11 @@ import {
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { useAuth } from "../../context/AuthContext";
+import type { ConceptTeachContext } from "../../components/tutor/ConceptTeachDrawer";
+
+// Reused concept tutor (concept_teach mode) — lazy so its chunk loads only when a
+// "Learn this" drawer is first opened. Same engine the mobile TopicHub + PracticePage use.
+const ConceptTeachDrawer = lazy(() => import("../../components/tutor/ConceptTeachDrawer"));
 
 /**
  * DesktopTopicHubPage — desktop Topic Hub, locked-prototype parity (PR-I1).
@@ -1068,6 +1073,16 @@ function BoardConceptRow({
     ...routeContext,
   });
 
+  // "Learn this" → reused ConceptTeachDrawer in concept_teach mode for THIS concept.
+  // questionText:"" + concept routes /api/mentor to concept_teach (see ConceptTeachDrawer).
+  const [teachOpen, setTeachOpen] = useState(false);
+  const teachContext: ConceptTeachContext = {
+    topicKey: topic.slug,
+    subject: topic.subject,
+    questionText: "",
+    concept: concept.name,
+  };
+
   return (
     <div
       style={{
@@ -1113,7 +1128,14 @@ function BoardConceptRow({
           {concept.oneLineUse}
         </div>
       </div>
-      <div style={{ alignSelf: "center" }}>
+      <div style={{ alignSelf: "center", display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+        <PlainButton
+          onClick={() => setTeachOpen(true)}
+          icon={<IconSparkle />}
+          title={`Learn the concept: ${concept.name}`}
+        >
+          Learn this
+        </PlainButton>
         <ButtonLink
           to={conceptPracticeHref}
           variant="outline"
@@ -1123,6 +1145,15 @@ function BoardConceptRow({
           Practise this
         </ButtonLink>
       </div>
+      {teachOpen ? (
+        <Suspense fallback={null}>
+          <ConceptTeachDrawer
+            open={teachOpen}
+            onClose={() => setTeachOpen(false)}
+            context={teachContext}
+          />
+        </Suspense>
+      ) : null}
     </div>
   );
 }
