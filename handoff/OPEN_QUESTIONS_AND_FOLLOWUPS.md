@@ -11,6 +11,15 @@ When a student writes the verification VALUES but omits the −b/a comparison, t
 at temp 0.15 — both defensible; marks always 2.5/3; NEVER conceptual. Accepted as Option 1
 (documented). Track in the 40–60-answer eval set; revisit only if it causes student confusion.
 
+### OPEN — triage 7 kept-unmerged branches (LOW; backlog, no action now)
+The post-#178 prune deleted only confirmed-merged branches. These 7 were KEPT because they are
+NOT merged to trunk (each has unmerged work) and must each be reviewed later to LAND or CLOSE —
+do not bulk-delete. Local + remote copies of each exist on origin:
+`fix/clerk-oauth-redirect-base-path`, `fix/ops-acceptance-test-alignment`,
+`fix/reproduction-bank-cleanup`, `fix/syllabus-guard-2026-27-update`, `fix/tagging-and-filters`,
+`handoff/post-pr-144-145`, `handoff/post-pr-147-148`. For each: decide land (rebase + PR) or
+close (delete local + remote). Owner-scheduled; no action until then.
+
 ### CARRIED FORWARD (unchanged) from post-#176
 Daily Mix keep/cut; Dashboard→Home/Me consolidation (SES-04/PRG-03); Mistake Intelligence
 wiring; #176 gate-hygiene backlog (wire `ci:smoke` into CI; `vitest.config.ts` lane); the
