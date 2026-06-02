@@ -1,3 +1,23 @@
+## 2026-06-02 — Post-PR #178 (grading-prompt tightening)
+
+### RESOLVED — check-solution over-classifies as "conceptual" (#178) [D21]
+Grading prompt tightened + measured 6/9→8/9 on the T1–T9 matrix; D21/T1 robustly fixed
+(silly, never conceptual×2), T7 (missing→null) + T8 (unbalanced→presentation) also fixed,
+T2 stays conceptual. See DECISION_LOG (2026-06-02 #178) and DISCOVERIES.md D21.
+
+### OPEN — check-solution T4 boundary case (LOW; eval-set note)
+When a student writes the verification VALUES but omits the −b/a comparison, the grader is
+~50/50 between `presentation` (attempted-but-format-short) and `missing` (step omitted), even
+at temp 0.15 — both defensible; marks always 2.5/3; NEVER conceptual. Accepted as Option 1
+(documented). Track in the 40–60-answer eval set; revisit only if it causes student confusion.
+
+### CARRIED FORWARD (unchanged) from post-#176
+Daily Mix keep/cut; Dashboard→Home/Me consolidation (SES-04/PRG-03); Mistake Intelligence
+wiring; #176 gate-hygiene backlog (wire `ci:smoke` into CI; `vitest.config.ts` lane); the
+3/19 backlog_1_19 reds (known-red-by-decision). See entries below.
+
+---
+
 ## 2026-06-02 — Post-PR #176 (scope:guard re-armed)
 
 ### OPEN — Daily Mix keep/cut (owner decision pending)

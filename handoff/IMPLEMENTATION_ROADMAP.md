@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-02 — Post-PR #178 roadmap update (grading-prompt tightening; D21 resolved)
+
+### Completed this session
+- [x] PR #178 (PR B Part 1) — check-solution GRADING prompt tightening. Parked branch rebased
+  onto trunk `7948dc3` (clean) → squash-merged `c760c8e`. Scope: `checkSolution.cjs` prompt
+  strings only. **D21 RESOLVED** (over-classification as conceptual): measured 6/9→8/9 solid on
+  the T1–T9 scenario matrix (live gemini-2.5-flash). T7 (missing→null) + T8 (unbalanced→
+  presentation) also fixed; T2 stays conceptual (no over-correction). T4 = accepted boundary
+  case (Option 1). Gates: scope:guard OK, build exit 0, test:matrix:all 137/137.
+
+### AI track status
+  [x] A — gateway live on local dev (non-stub)
+  [x] A2 (#174) — check-solution parse fix
+  [x] B Part 1 (#178) — grading-prompt tightening (D21 resolved)
+  [ ] Track A PR-1 — tutor wiring (per-row "Learn this" → ConceptTeachDrawer; tutor not yet visible)
+  [ ] B2 — teach-prompt tightening (parked until tutor wired/visible)
+  [ ] check-solution eval set (40–60 graded answers; T1–T9 matrix is the seed)
+  [ ] Railway deploy (P0) + Clerk pk_live_ (P0) → student link
+
 ## 2026-06-02 — Post-PR #176 roadmap update (scope:guard re-armed)
 
 ### Completed this session

@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-06-02 (post-PR #176 — restore repo_boundary_policy.json; scope:guard re-armed)
+Last updated: 2026-06-02 (post-PR #178 — check-solution grading-prompt tightening; D21 RESOLVED)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 1e9bd0421b7db39438054e2c9e9693e66f4ab943
-Last merged PRs: #174 (fix: check-solution parse reliability — force JSON output + raise maxOutputTokens 2500→8000; verified on local dev), #175 (docs handoff post-#174), #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed; file was accidentally untracked in 2081003)
+SHA: c760c8eb5c830e64054d516c48d3b5ac85ff523c
+Last merged PRs: #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed), #177 (docs handoff post-#176), #178 (feat: tighten check-solution grading prompt — fixes D21 over-classification; measured 6/9→8/9 on the T1–T9 scenario matrix)
 
 ## Governance / gates
 - scope:guard: **LIVE again** — `SCOPE_GUARD_OK` on trunk. Was DEAD since `2081003`
@@ -110,6 +110,8 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #174 — fix: check-solution parse reliability (force JSON output + raise token cap; local-dev verified)
 #175 — docs: handoff update post-PR #174 (check-solution parse fix; AI gateway live local; D19–D21)
 #176 — fix: restore repo_boundary_policy.json (re-arm scope:guard + test:repo-boundary + ci:smoke)
+#177 — docs: handoff update post-PR #176 (scope:guard re-armed; product decisions; D22–D23)
+#178 — feat: tighten check-solution grading prompt (fix D21 over-classification; scenario-matrix measured; Vercel N/A — server-side)
 
 ## Parked / not-yet-merged branches
 - **PR B (Part 1) — grading-prompt tightening — PARKED.** Committed on branch
@@ -151,7 +153,7 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 | Case-Based "Easy" re-tag | Find-replace fix | XS |
 | TopicKey cleanup | 51 AI-Pack Title Case keys | XS |
 | check-solution eval set | 40-60 graded answers as launch gate | M |
-| D21: check-solution OVER-classifies as conceptual | Tighten grading prompt in PR B + measure vs mistake-scenario matrix (sign-misread should be SILLY; don't double-count propagated errors) | M |
+| ~~D21: check-solution OVER-classifies as conceptual~~ RESOLVED (#178) | Grading prompt tightened + measured 6/9→8/9 on T1–T9; sign-misread now SILLY, propagated errors single-root-cause, missing→null, unbalanced→presentation. T4 = accepted boundary case (see DECISION_LOG). | DONE |
 | Rate limiting on API gateway | Bundle with gateway PR | XS |
 | Repo-wide solutionSteps step-mark audit | Older questions missing [N mark] prefix | M |
 | AR/Section/Marks tagging audit | Some AR questions tagged as Section D 5mk | S |
