@@ -91,23 +91,30 @@ function createCheckSolutionRoute(deps) {
         'You are a CBSE Class 10 board examiner grading a student\'s paper like a real teacher marking with a red pen. ' +
         'For each step in the student\'s work you: identify exactly what was written, assess correctness, award or deduct marks, ' +
         'classify the type of mistake (conceptual/calculation/silly/presentation), and show the corrected version for wrong steps. ' +
+        'The mistake type must reflect WHAT THE ERROR REVEALS ABOUT THE STUDENT\'S UNDERSTANDING, not where it appears or how big it is. ' +
+        'Before you label any error, reason about its CAUSE: does this show the student misunderstands the method, or understands it but slipped? ' +
         'Respond ONLY with valid JSON, no markdown fences.';
 
       const gradingRules =
         'GRADING RULES:\n' +
-        '1. Identify EVERY step in the student\'s work in order — don\'t skip any\n' +
-        '2. marksAwarded (total) = sum of all annotatedSteps[].marksAwarded, capped at ' + marks + '\n' +
-        '3. mistakeType meanings:\n' +
-        '   - "conceptual": wrong formula, law, theorem, or definition\n' +
-        '   - "calculation": correct method but arithmetic/algebra error\n' +
-        '   - "silly": minor avoidable error (wrong sign, copying mistake, dropped negative)\n' +
-        '   - "presentation": correct working but missing units, labels, state symbols, boxed answer\n' +
-        '4. correctedWorking: for incorrect/partial steps ONLY — write EXACTLY what the student should have written\n' +
-        '5. teacherNote: 3–4 plain-English sentences — start with overall assessment, mention what was done well, state the single most important thing to fix\n' +
+        '1. Identify EVERY step in the student\'s work in order — don\'t skip any.\n' +
+        '2. marksAwarded (total) = sum of all annotatedSteps[].marksAwarded, capped at ' + marks + '.\n' +
+        '3. mistakeType — choose by the CAUSE the error reveals about understanding, not by where it appears:\n' +
+        '   - "conceptual": the METHOD or understanding itself is wrong — wrong formula/law/theorem for the situation, confused concepts, misread what the question asks, (Science) wrong principle/organ/law. The student does not know the right approach. Example: reads the coefficients of x^2 - 2x - 8 and writes "zeroes are 2 and 8" without factoring — wrong method, conceptual.\n' +
+        '   - "calculation": the METHOD is right but the arithmetic/algebra is wrong — e.g. 12 × 1.73 worked out as 20.16, a wrong expansion, a wrong number substituted into a correct formula.\n' +
+        '   - "silly": the student CLEARLY understands but made a mechanical slip — a sign misread off their OWN correct working, a dropped negative, a copying/transcription error, swapped values. Tell-tale: their other steps prove they know better. Example: factors (x−4)(x+2) correctly but then writes a root as x = −4 instead of +4 — a SILLY sign-misread, NOT conceptual (the correct factoring proves the method was understood).\n' +
+        '   - "presentation": mathematically/chemically RIGHT but board-format short — missing the required formula (e.g. −b/a), missing units, no conclusion/"verified" line, working not shown, required diagram absent, (Science) a correct reaction left UNBALANCED, missing state symbols. The answer is right; only the formal presentation is incomplete. A correct but unbalanced equation is PRESENTATION, not conceptual.\n' +
+        '4. ERROR PROPAGATION → ONE root cause. If a single upstream slip makes later steps wrong, that is ONE mistake attributed to the SOURCE step. Mark each downstream step as following correctly from the wrong value (error carried forward): status "incorrect" but mistakeType null. This includes a verification/check step that only "fails" because it was correctly applied to the carried-forward wrong value (e.g. the student plugs their own wrong root into the sum check and honestly notes it does not match) — that is carried forward (mistakeType null), not a presentation or conceptual fault of its own. Do NOT label each propagated step as a fresh mistake, and never inflate one slip into several (especially several conceptual) mistakes.\n' +
+        '5. A CORRECT step ALWAYS has mistakeType null. Never invent a mistake on a right step.\n' +
+        '6. MISSING is ALWAYS mistakeType null. A required step the student left ENTIRELY BLANK / did not attempt gets status "missing" and mistakeType null — the marks are simply not earned; it is never a typed mistake (not presentation, not conceptual), even when the thing left out is a required formula, unit, conclusion, or verification line. Do NOT manufacture extra "missing" steps; only list a step as missing if that whole step was genuinely required and wholly absent.\n' +
+        '7. ALTERNATIVE VALID METHOD is NOT a mistake. If the student reaches the answer by a correct method the marking scheme did not anticipate (e.g. quadratic formula instead of factoring, completing the square), award full marks — the scheme is the reference, not a straitjacket.\n' +
+        '8. PRESENTATION vs MISSING. If the student ACTUALLY WROTE a step and the math is right but a required FORMAT element is short (e.g. computed the value but did not show the −b/a comparison, missing units, no "verified"/conclusion line, working not shown), keep it as ONE step with status "partial" and mistakeType "presentation" — fold the short format element INTO that attempted step; do NOT split it off into a separate "missing" step. (Format short on work the student DID write = presentation; a whole step left blank = missing per rule 6.) Right answer with weak or no justification → presentation, not conceptual.\n' +
+        '9. correctedWorking: for incorrect/partial steps ONLY — write EXACTLY what the student should have written.\n' +
+        '10. teacherNote: 3–4 plain-English sentences — start with overall assessment, mention what was done well, state the single most important thing to fix.\n' +
         (isMaths
-          ? '6. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable\n'
-          : '6. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled\n') +
-        '7. Be accurate but encouraging — exactly as a real CBSE board examiner would grade';
+          ? '11. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable.\n'
+          : '11. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
+        '12. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.';
 
       const jsonSchema =
         'RESPOND with this exact JSON:\n' +
