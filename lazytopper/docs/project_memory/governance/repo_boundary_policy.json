@@ -1,0 +1,90 @@
+{
+  "version": 2,
+  "description": "Canonical lane boundaries for scope guard and session-safe workflow.",
+  "lanes": {
+    "product": [
+      "src/",
+      "server/",
+      "public/",
+      "tests/",
+      "index.html",
+      "package.json",
+      "package-lock.json",
+      "vite.config.ts",
+      "tsconfig.json",
+      "tsconfig.app.json",
+      "tsconfig.node.json"
+    ],
+    "trackedTooling": [
+      "scripts/",
+      "tools/",
+      "docs/",
+      ".github/",
+      ".githooks/",
+      "run_qa_agent.ps1",
+      "Network",
+      ".gitignore",
+      ".gitattributes",
+      ".editorconfig",
+      "eslint.config.js",
+      "playwright.config.ts",
+      "README.md",
+      "CHANGELOG.md",
+      "NOTES/",
+      "GPT_CHANGELOG*.md"
+    ],
+    "generatedEvidence": [
+      ".project_memory/",
+      "docs/project_memory/test_runs/",
+      "docs/project_memory/strategy_reports/",
+      "docs/project_memory/review_packets/20*.md",
+      "docs/project_memory/review_packets/20*.json",
+      "docs/project_memory/review_packets/*_review.md",
+      "docs/project_memory/review_packets/*_review.json",
+      "docs/session/",
+      "docs/ops/out/",
+      "RUN_*/**",
+      "**/RUN_*/**",
+      ".codex_runs/",
+      "dist/",
+      "build/",
+      "node_modules/",
+      "reports/",
+      "_debug_bundle/",
+      "_handover_evidence/",
+      "_codex_output/",
+      "_handoff/",
+      "_rollback/"
+    ],
+    "localOnly": [
+      "tools/.local_ops/",
+      ".vscode/",
+      "fix_patch.diff",
+      "gate_git_status.txt",
+      "mojibake_pre_stdout.txt",
+      "mojibake_pre_stderr.txt",
+      "mojibake_post_stdout.txt",
+      "mojibake_post_stderr.txt",
+      "repo_folders.txt",
+      "repo_paths.txt",
+      "tsc_noemit_stdout.txt",
+      "tsc_noemit_stderr.txt",
+      "set"
+    ]
+  },
+  "modeToLanes": {
+    "tooling": [
+      "trackedTooling"
+    ],
+    "tutor": [
+      "product"
+    ],
+    "product": [
+      "product"
+    ],
+    "mixed": [
+      "product",
+      "trackedTooling"
+    ]
+  }
+}
