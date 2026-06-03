@@ -1,5 +1,55 @@
 ---
 
+## 2026-06-03 — Tutor made visible (#181) + teaching tightened to LOCKED style (#182) + this docs PR
+
+### Starting state
+Trunk `fd44340` (post #179 docs + #181 tutor wiring). The concept tutor was newly visible on
+desktop TopicHub (PR #181, "Learn this" per concept row) but its TEACHING was verbose/persona-
+heavy/off-topic (PR-1 live failures). PR B2 fixes the teaching quality. (#179/#181 were not
+previously logged — folded in here.)
+
+### #181 — wire concept tutor into desktop TopicHub (per-row "Learn this")
+Reused the existing `ConceptTeachDrawer` (same engine mobile TopicHub + PracticePage use) — each
+desktop `BoardConceptRow` got a "Learn this" button opening concept_teach for THAT concept
+(`context = { topicKey: topic.slug, subject, questionText:"", concept: concept.name }`). Lazy +
+gated on open; row-level state; mobile `TopicHub.tsx` byte-unchanged. Scope: `DesktopTopicHubPage.tsx`
+only. Owner verified the tutor opens live. Merged → `fd44340`.
+
+### #182 — tighten the concept teach-prompt to the owner-LOCKED style (B2)
+The live concept_teach path is FREE TEXT (trace `schema:text`) built by
+`buildConversationalTeachSystemPrompt` in `server/prompts/promptLearn.cjs` + the concept branch of
+`buildUserPrompt` in `server/routes/mentorModeHandler.cjs` — NOT `promptTeachContract.cjs` as the
+brief assumed (verified via the route; see D24). Edited those two (free-text path → no teach-contract
+validator change). Rewrote to: answer the exact question first; no Namaste/persona/flattery/filler-
+analogy openers; no "interactive above"/[HIGHLIGHT]; stay strictly on the opened concept (no drift);
+organize by marks with concrete board examples; end with ONE step-marking offer; on "yes" SOLVE ITS
+OWN example with per-step `[½/1 mark]` CBSE marking (correctness-first); plain-text notation (no LaTeX).
+Embedded the two owner-approved imitation examples; general by concept type (Science conceptual NOT
+forced into "prove it"). Also fixed the user-prompt teaching the whole TOPIC when only `concept`
+was passed (desktop's case).
+
+### Measured (live gemini-2.5-flash, non-stub, restart-after-edit), 6 cases / both subjects
+BEFORE: persona fluff + analogy intros + "interactive above" + no offer + topic drift + no step-marks
+on "yes". AFTER: direct, no fluff, on-concept (drift fixed — standard angles stayed standard angles),
+one fitting offer, self-solved per-step `[½/1 mark]` — math spot-checked correct (identity proofs,
+`2tan²45+cos²30−sin²60=2`, sector areas 154/462 cm², Ohm's law 2A). Residual: ~1/13 turns slipped one
+late analogy on a long first-teach message (eval-set territory).
+
+### Owner live-verify + the 429 lesson (D25)
+Owner topped up the Gemini prepaid balance and verified the tightened teaching live in the drawer.
+During testing the gateway hit `429 RESOURCE_EXHAUSTED` — root message "Your prepayment credits are
+depleted" (a billing/quota limit, NOT a local rate limiter and not a tutor bug). The `/api/user/progress`
+503 in console is also by-design locally (no `DATABASE_URL`). The concept tutor is `RequirePremium`-gated;
+a reset local trial re-grants 7 days via the app's own `activateTrial`.
+
+### Gates (#181 and #182)
+Both: `npm run build` exit 0; `scope:guard` SCOPE_GUARD_OK (post-commit; pre-commit "unclassified" =
+D23 subdir artifact; `src/`+`server/` are product lane); `scripts` `test:matrix:all` 137/137. #181 diff
+= `DesktopTopicHubPage.tsx`; #182 diff = the two prompt files. No schema/data/call-config/validator change.
+B2 committed `8ab00a7` → PR #182 → MERGED → trunk `fd0e7e9`.
+
+---
+
 ## 2026-06-02 — PR #178: check-solution grading-prompt tightening (D21 fix) + this docs PR
 
 ### Starting state

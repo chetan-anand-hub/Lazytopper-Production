@@ -1,3 +1,35 @@
+## 2026-06-03 - Tutor teach-style LOCKED + implemented (#182); responsive Option B; Formula/Notes; pivot to redesign
+
+Decision:
+PR #181 (desktop tutor wiring) + PR #182 (teach-prompt LOCKED-style tightening) are merged.
+Several product directions were locked this session.
+
+Details:
+- Trunk after #182: `fd0e7e9398eb6910855f0e1e08e030b71409253b`. B2 committed `8ab00a7`, squash-merged.
+- Live concept_teach prompt path = `server/prompts/promptLearn.cjs` + concept branch of
+  `buildUserPrompt` in `server/routes/mentorModeHandler.cjs` (NOT promptTeachContract.cjs) — D24.
+
+Doctrine / decisions (locked 2026-06-03):
+- TUTOR TEACH STYLE LOCKED + implemented (B2/#182): direct, no fluff/persona/filler-analogy openers,
+  on the opened concept (no drift), organized by marks, ends with ONE step-marking offer. On "yes"
+  the tutor SOLVES ITS OWN example with CBSE-style step-marking — fabricated by the model, NOT a
+  stored-`solutionSteps` lookup. CORRECTNESS IS PARAMOUNT (correctness first, mark-weighting second);
+  the eval set must hard-verify fabricated math at scale.
+- RESPONSIVE = OPTION B LOCKED: converge the desktop/mobile twin files into ONE responsive component
+  per surface (desktop-leads, mobile-adapts at every width), retire BOTH twins, done incrementally
+  per surface (not a 1024px twin switch).
+- NEW PRODUCT DIRECTION: per-topic Formula Sheet + NCERT-based summary Notes — static, pre-generated
+  content that right-sizes the tutor (offload reference material from the chat). Needs a
+  content-correctness pass before shipping.
+- PIVOT (post-B2 sequencing): move to the end-to-end responsive redesign — Exam Trends ranked-list →
+  TopicHub concept-spine (+ Formula/Notes) → Check & Improve → Me/Progress → Worksheet generator.
+
+Implication:
+Next product PR = Exam Trends ranked-list responsive redesign (Option B; source
+`02_exam_trends_ranked_list.html`). Separate follow-up PRs: interactive-handoff fix
+(`findVisualForConcept` returns the WRONG visual), mobile-tutor wiring (mobile `app/TopicHub.tsx`
+"Learn" is a placeholder), Formula/Notes generation, AI cost/rate-limit hardening (launch gate).
+
 ## 2026-06-02 - PR #178 merged (check-solution grading-prompt tightening; D21 resolved; T4 boundary case)
 
 Decision:
