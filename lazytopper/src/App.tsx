@@ -78,13 +78,13 @@ const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
 const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 
 // Mobile baseline pages (#438 — broken destination repair)
-const MobileExamTrends  = lazy(() => import("./pages/app/ExamTrends"));
 const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
 
-// Desktop Phase 3 — locked desktop Exam Trends page (>=1024px only).
-// Mobile width keeps rendering MobileExamTrends unchanged. /topic-hub
-// remains intentionally NOT shell-wrapped in this phase.
-const DesktopExamTrendsPage = lazy(() => import("./pages/desktop/DesktopExamTrendsPage"));
+// Exam Trends — ONE responsive ranked-list component (Option-B convergence).
+// Replaces BOTH retired twins (the old desktop card grid + the old mobile tier
+// list). It mounts inside DesktopShell at desktop width (isDesktopShellRoute)
+// and reflows fluidly to mobile — no breakpoint file swap for this route.
+const ExamTrendsRanked = lazy(() => import("./pages/ExamTrendsRanked"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
 // Desktop Phase 7 — locked desktop Worksheet workspace (>=1024px only).
@@ -956,17 +956,14 @@ export default function App() {
                Desktop routes (/trends, /topic-hub/:grade/:subject, /me)
                are untouched — they remain separate from these mobile screens. */}
 
-          {/* Exam Trends — desktop Phase 3: at desktop width (>=1024px) this
-              renders the locked DesktopExamTrendsPage inside DesktopShell
-              (the conditional shell wrap is applied above). At mobile width,
-              the existing MobileExamTrends renders unchanged. */}
+          {/* Exam Trends — Option-B convergence: ONE responsive ranked-list
+              component renders at every width. At desktop width it mounts
+              inside DesktopShell (isDesktopShellRoute keeps "/exam-trends"
+              shell-wrapped); at mobile width it reflows fluidly. No desktop /
+              mobile twin split for this route. */}
           <Route
             path="/exam-trends"
-            element={
-              isDesktop
-                ? withRouteSuspense(<DesktopExamTrendsPage />)
-                : withRouteSuspense(<MobileExamTrends />)
-            }
+            element={withRouteSuspense(<ExamTrendsRanked />)}
           />
 
           {/* Mobile Topic Hub — entry picker (no topicName) or topic detail (:topicName).
