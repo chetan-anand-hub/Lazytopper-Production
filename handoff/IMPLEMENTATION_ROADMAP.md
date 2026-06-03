@@ -2,6 +2,36 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-03 — Post-PR #184 roadmap update (Exam Trends ranked-list responsive redesign; FIRST Option-B convergence)
+
+### Completed this session
+- [x] PR #184 — Exam Trends ranked-list responsive redesign. ONE responsive component
+  `src/pages/ExamTrendsRanked.tsx` renders at every width and RETIRES both twins
+  (`DesktopExamTrendsPage.tsx` + `app/ExamTrends.tsx`, deleted); `App.tsx` `/exam-trends` route
+  de-split. Locked ranked priority-list; design grammar reused exactly; real data only; proof tag
+  omitted (no real `proof` field). Gates green (tsc, build, scope:guard --mode product, matrix
+  137/137). Trunk after merge `93a2674`. FIRST Option-B convergence — the TEMPLATE for the rest.
+
+### Responsive redesign (Option B LOCKED — converge twins, one component per surface)
+  [x] Exam Trends ranked-list (#184 — DONE; sets the pattern)
+  [ ] **Content-correctness sweep (NEXT, HIGH)** — clean banned syllabus content from
+      `topicTeachContracts.ts` (tutor) + `topics.ts` blurbs + config files; EXTEND `syllabusGuard`
+      to scan them (D26). Tutor teaching banned content is the urgent part.
+  [ ] **Re-derive Exam Trends priorities FRESH** (tier + trend + marks) from current syllabus +
+      recent paper pattern (D27); re-check HPQ counts. PREREQUISITE for the band redesign.
+  [ ] **Exam Trends band redesign** — Must-crack / High-ROI / Good-to-do expandable bands (reuses the
+      merged ranked-list rows; one synthesized priority verdict). ONLY AFTER the fresh tiering.
+  [ ] TopicHub concept-spine (+ Formula Sheet / NCERT Notes) · [ ] Check & Improve · [ ] Me/Progress
+      · [ ] Worksheet generator (each Option B; same template as #184)
+  [ ] Formula/Notes content generation + correctness pass
+
+### AI track status (carried)
+  [x] gateway live (local) · [x] checker parse fix (#174) · [x] checker grading (#178)
+  [x] tutor wiring (#181) · [x] tutor teaching LOCKED (#182)
+  [ ] interactive-handoff fix (`findVisualForConcept` returns wrong visual) — separate PR
+  [ ] mobile-tutor wiring (mobile `app/TopicHub.tsx` "Learn" is a placeholder) — separate PR
+  [ ] check-solution eval set + tutor fabricated-solution correctness eval (launch gates)
+
 ## 2026-06-03 — Post-PR #182 roadmap update (tutor visible + teaching LOCKED; pivot to responsive redesign)
 
 ### Completed this session

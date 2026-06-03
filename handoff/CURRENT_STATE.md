@@ -1,10 +1,25 @@
 # LazyTopper — Current State
-Last updated: 2026-06-03 (post-PR #182 — concept teach-prompt tightened to LOCKED style; tutor teaching quality resolved on desktop)
+Last updated: 2026-06-03 (post-PR #184 — Exam Trends ranked-list responsive redesign; FIRST Option-B convergence)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: fd0e7e9398eb6910855f0e1e08e030b71409253b
-Last merged PRs: #179 (docs handoff post-#178), #181 (feat: wire concept tutor into desktop TopicHub — per-row "Learn this"), #182 (feat: tighten concept teach-prompt to LOCKED style — teaching now direct/no-fluff/on-concept with self-solved CBSE step-marking; owner live-verified)
+SHA: 93a26749e1e6a74819af6e8388e332df8d8b48d3
+Last merged PRs: #182 (feat: tighten concept teach-prompt to LOCKED style — owner live-verified), #183 (docs handoff post-#182), #184 (feat: Exam Trends ranked-list responsive redesign — ONE responsive component `ExamTrendsRanked.tsx` retiring both twins `DesktopExamTrendsPage.tsx` + `app/ExamTrends.tsx`; `/exam-trends` route de-split in App.tsx; design grammar preserved; verified responsive desktop + real mobile)
+
+## Responsive redesign (Option B) — FIRST convergence DONE (#184)
+Exam Trends is the first surface converged under the LOCKED Option-B decision: ONE responsive
+component (`src/pages/ExamTrendsRanked.tsx`) renders at every width (~360px → desktop) and replaces
+BOTH twins (the old desktop card grid `DesktopExamTrendsPage.tsx` + the old mobile tier list
+`app/ExamTrends.tsx`, both deleted). `App.tsx` `/exam-trends` no longer does the `isDesktop ?
+<Desktop/> : <Mobile/>` split — it renders the one component at all widths (still `DesktopShell`-
+wrapped ≥1024px via `isDesktopShellRoute`, reflows fluidly below). Locked ranked priority-list:
+trend-colored marks-weight bars, "Open" → Topic Hub, "⋯" reveals Practice/Worksheet/Predicted/
+Add-to-selection, Subject + Science-stream + Sort (Marks weight | Trend), multi-select tray. Design
+grammar reused exactly; real data only (28 topics, both subjects, stream filter, honest trend tiers +
+HPQ counts, no fabricated %); proof tag omitted (no real `proof` field). Gates green (tsc, build,
+scope:guard --mode product, matrix 137/137). This sets the PATTERN for the remaining Option-B
+surfaces (TopicHub, Check & Improve, Me/Progress, Worksheet). NOTE: the Exam Trends tiering/trend/
+marks data is stale (D27) and must be re-derived fresh before the planned band redesign.
 
 ## Tutor teaching quality (RESOLVED on desktop — B2/#182, live-verified)
 The concept_teach tutor now teaches in the owner-LOCKED style: answers the exact question
@@ -127,6 +142,8 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #179 — docs: handoff update post-PR #178 (grading-prompt tightening; D21 resolved)
 #181 — feat: wire concept tutor into desktop TopicHub (per-row "Learn this"; reuse ConceptTeachDrawer)
 #182 — feat: tighten concept teach-prompt to LOCKED style (direct/no-fluff/on-concept; self-solved CBSE step-marking; live-verified)
+#183 — docs: handoff update post-PR #182 (tutor visible + teaching LOCKED; pivot to responsive redesign)
+#184 — feat: Exam Trends ranked-list responsive redesign (FIRST Option-B convergence; one component retires both twins; Vercel green)
 
 ## Parked / not-yet-merged branches
 - **PR B (Part 1) — grading-prompt tightening — PARKED.** Committed on branch

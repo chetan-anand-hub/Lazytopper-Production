@@ -1,32 +1,45 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-03 (post-PR #182 teach-prompt LOCKED-style tightening; pivot to responsive redesign)
-# Base SHA: fd0e7e9398eb6910855f0e1e08e030b71409253b
+# Updated: 2026-06-03 (post-PR #184 Exam Trends ranked-list responsive redesign — FIRST Option-B convergence)
+# Base SHA: 93a26749e1e6a74819af6e8388e332df8d8b48d3
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: fd0e7e9398eb6910855f0e1e08e030b71409253b
-Last PRs: #179 (docs handoff post-#178) + #181 (feat: wire concept tutor into desktop TopicHub — "Learn this") + #182 (feat: tighten concept teach-prompt to LOCKED style — owner live-verified)
+SHA: 93a26749e1e6a74819af6e8388e332df8d8b48d3
+Last PRs: #182 (feat: tighten concept teach-prompt to LOCKED style — owner live-verified) + #183 (docs handoff post-#182) + #184 (feat: Exam Trends ranked-list responsive redesign — FIRST Option-B convergence; one responsive component retires both twins)
 
-## IMMEDIATE NEXT TASK — Exam Trends ranked-list responsive redesign (Option B)
+## IMMEDIATE NEXT TASK — Content-correctness sweep (HIGH): clean banned syllabus content + extend syllabusGuard
 
-First surface of the end-to-end responsive redesign. Converge the desktop/mobile twins into ONE
-responsive component (desktop-leads, mobile-adapts at every width), retire both twins. Source design:
-`02_exam_trends_ranked_list.html`. Option B is LOCKED (see DECISION_LOG 2026-06-03). Branch FRESH
-from `fd0e7e9`.
+The most urgent item is that the TUTOR ACTIVELY TEACHES banned (dropped-syllabus) content (D26).
+Clean banned terms (Euclid's division lemma, division algorithm, etc.) from the descriptive/teaching
+metadata `syllabusGuard` does NOT currently scan:
+- `src/tutor/topicTeachContracts.ts` (tutor teaching — URGENT)
+- `src/lib/desktop/topics.ts` (Exam Trends blurbs — Real Numbers ~L25, Polynomials ~L35)
+- `class10ContentConfig.ts`, `practiceFilters.ts`
+AND extend `syllabusGuard` to scan these files so the leak can't regress. NOTE: `src/lib/desktop/` and
+`src/data/` are forbidden lanes — this task needs explicit scope in its instruction. See DISCOVERIES D26.
 
-## THE SEQUENCE (owner-confirmed 2026-06-03)
+## THE SEQUENCE (owner-confirmed 2026-06-03 — reordered post-#184)
 
 1. ~~Track A PR-1 — tutor wiring~~ DONE (#181 — desktop TopicHub "Learn this").
-2. ~~PR B2 — teach-prompt tightening~~ DONE (#182 — LOCKED style; owner live-verified; merged `fd0e7e9`).
-3. **Exam Trends ranked-list responsive redesign (NEXT)** — Option B, source `02_exam_trends_ranked_list.html`.
-4. Then, end-to-end responsive redesign: **TopicHub concept-spine (+ Formula Sheet / NCERT Notes) →
-   Check & Improve → Me/Progress → Worksheet generator** (each Option B; one responsive component per surface).
-5. Separate follow-up PRs (not blocking the redesign): interactive-handoff fix
-   (`findVisualForConcept` returns the WRONG visual — standard-angles showed Height & Distance);
-   mobile-tutor wiring (mobile `src/pages/app/TopicHub.tsx` "Learn" is a placeholder → Check & Improve,
-   NOT wired to concept_teach); Formula/Notes generation + content-correctness pass; AI cost/rate-limit
-   hardening (launch gate, D25).
+2. ~~PR B2 — teach-prompt tightening~~ DONE (#182 — LOCKED style; owner live-verified).
+3. ~~Exam Trends ranked-list responsive redesign~~ DONE (#184 — FIRST Option-B convergence; merged `93a2674`).
+4. **Content-correctness sweep (NEXT, HIGH)** — clean banned content from `topicTeachContracts.ts`
+   (tutor) + `topics.ts` blurbs + config files; EXTEND `syllabusGuard` to scan them (D26). Tutor
+   teaching banned content is the urgent part.
+5. **Re-derive Exam Trends priorities FRESH** (tier + trend + marks) from the current CBSE syllabus +
+   recent paper pattern — a scientific basis. The existing priorities are stale/untraceable (D27).
+   HPQ counts also to be re-checked.
+6. **Exam Trends band redesign** — Must-crack / High-ROI / Good-to-do expandable bands (reuses the
+   merged ranked-list rows; one synthesized priority verdict replacing the weight-vs-trend sort).
+   ONLY AFTER the fresh tiering (step 5).
+7. Then the other Option-B surfaces: **TopicHub concept-spine (+ Formula Sheet / NCERT Notes) →
+   Check & Improve → Me/Progress → Worksheet generator** (each Option B; one responsive component per
+   surface; same template as Exam Trends #184).
+8. Separate follow-up PRs (not blocking): interactive-handoff fix (`findVisualForConcept` returns the
+   WRONG visual — standard-angles showed Height & Distance); mobile-tutor wiring (mobile
+   `src/pages/app/TopicHub.tsx` "Learn" is a placeholder → Check & Improve, NOT wired to concept_teach);
+   Formula/Notes generation + content-correctness pass; AI cost/rate-limit hardening (launch gate, D25).
 5. **Railway deploy** + `vercel.json /api/*` rewrite + rate limiting — the unlock that makes the
    Vercel link's AI features work (ISSUE-009) → hand students the link. At link-time: Clerk
    `pk_test_`→`pk_live_`, DPDP/consent for minors, monetization charge path.
