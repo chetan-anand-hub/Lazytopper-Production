@@ -75,3 +75,26 @@ silently. Wiring `ci:smoke` into CI (so a broken gate fails loudly) is the deepe
 (backlog). Also surfaced (only with uncommitted changes): scopeGuard run from the `lazytopper/`
 subdir gets `lazytopper/…`-prefixed git paths the lane rules (written relative to `lazytopper/`)
 don't match — harmless once changes are committed; pre-existing, not in #176's scope.
+
+## D24 — the LIVE concept_teach prompt is in promptLearn.cjs, NOT promptTeachContract.cjs
+The desktop/mobile "Learn this" drawer (ConceptTeachDrawer → TeachFlow → `/api/mentor` concept_teach)
+resolves to a FREE-TEXT response (trace `normalized_mode: learn_teach`, `schema: text`) built by
+`buildConversationalTeachSystemPrompt` in `server/prompts/promptLearn.cjs` (system prompt) + the
+`learn_teach`/concept branch of `buildUserPrompt` in `server/routes/mentorModeHandler.cjs` (user
+prompt); the route sends `contents = [systemPrompt, ...history, userPrompt]`. `promptTeachContract.cjs`
+(`buildLearnTeachContractPrompt`) is the STRUCTURED-contract path and is NOT used by concept_teach.
+The PR B2 brief named promptTeachContract.cjs — wrong; verified via the live trace before editing.
+Because the path is free text, there is NO teach-contract validator to change in lockstep.
+LESSON (and D24 general form): verify repo facts directly against the running code/trace — the brief's
+"mobile already wires the tutor" assumption and the named prompt file were both wrong on inspection.
+Future teach-prompt work targets `promptLearn.cjs` + `mentorModeHandler.cjs`.
+
+## D25 — Gemini 429 during testing = prepaid-balance/RPM, not a local rate limiter
+"Mentor is rate-limited. Please wait and retry." is a faithful passthrough of a real Gemini
+`429 RESOURCE_EXHAUSTED`. In this session the body said "Your prepayment credits are depleted" — a
+BILLING/quota limit on the key's AI Studio project (top up at ai.studio, or swap a funded key into
+`server/.env`), NOT a per-minute throttle and NOT a code bug. Heavy measurement runs (BEFORE/AFTER
+matrices ≈ dozens of calls) plus live clicks burn the balance fast. LESSON: keep live measurement
+runs lean; treat repeated 429s as a quota/billing signal first. AI cost/rate-limit hardening is a
+launch gate (backlog). (Separately, the `/api/user/progress` 503 in local console is by-design — no
+local `DATABASE_URL`; it is the progress sync, not the tutor.)

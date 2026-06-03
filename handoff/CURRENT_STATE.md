@@ -1,10 +1,22 @@
 # LazyTopper — Current State
-Last updated: 2026-06-02 (post-PR #178 — check-solution grading-prompt tightening; D21 RESOLVED)
+Last updated: 2026-06-03 (post-PR #182 — concept teach-prompt tightened to LOCKED style; tutor teaching quality resolved on desktop)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: c760c8eb5c830e64054d516c48d3b5ac85ff523c
-Last merged PRs: #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed), #177 (docs handoff post-#176), #178 (feat: tighten check-solution grading prompt — fixes D21 over-classification; measured 6/9→8/9 on the T1–T9 scenario matrix)
+SHA: fd0e7e9398eb6910855f0e1e08e030b71409253b
+Last merged PRs: #179 (docs handoff post-#178), #181 (feat: wire concept tutor into desktop TopicHub — per-row "Learn this"), #182 (feat: tighten concept teach-prompt to LOCKED style — teaching now direct/no-fluff/on-concept with self-solved CBSE step-marking; owner live-verified)
+
+## Tutor teaching quality (RESOLVED on desktop — B2/#182, live-verified)
+The concept_teach tutor now teaches in the owner-LOCKED style: answers the exact question
+first (no Namaste/persona/flattery/filler-analogy openers, no "interactive above" narration);
+stays strictly on the opened concept (no topic drift); organizes by marks with concrete board
+examples; ends with exactly ONE step-marking follow-up offer. On "yes" it SOLVES ITS OWN
+example with per-step `[½/1 mark]` CBSE step-marking — math spot-checked correct across both
+subjects; plain-text notation (no LaTeX leak). General across subjects (Science conceptual is
+not forced into a "prove it" offer). LIVE path = `server/prompts/promptLearn.cjs`
+(`buildConversationalTeachSystemPrompt`) + the concept branch of `buildUserPrompt` in
+`server/routes/mentorModeHandler.cjs` — NOT `promptTeachContract.cjs` (see DISCOVERIES D24).
+Residual: occasional late analogy on a long first-teach message (~1/13 turns) — eval-set territory.
 
 ## Governance / gates
 - scope:guard: **LIVE again** — `SCOPE_GUARD_OK` on trunk. Was DEAD since `2081003`
@@ -112,6 +124,9 @@ Dev tooling: PR #164 decommissioned the dead blackbox/tracker/pmem memory
 #176 — fix: restore repo_boundary_policy.json (re-arm scope:guard + test:repo-boundary + ci:smoke)
 #177 — docs: handoff update post-PR #176 (scope:guard re-armed; product decisions; D22–D23)
 #178 — feat: tighten check-solution grading prompt (fix D21 over-classification; scenario-matrix measured; Vercel N/A — server-side)
+#179 — docs: handoff update post-PR #178 (grading-prompt tightening; D21 resolved)
+#181 — feat: wire concept tutor into desktop TopicHub (per-row "Learn this"; reuse ConceptTeachDrawer)
+#182 — feat: tighten concept teach-prompt to LOCKED style (direct/no-fluff/on-concept; self-solved CBSE step-marking; live-verified)
 
 ## Parked / not-yet-merged branches
 - **PR B (Part 1) — grading-prompt tightening — PARKED.** Committed on branch

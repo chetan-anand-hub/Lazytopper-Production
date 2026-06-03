@@ -1,3 +1,35 @@
+## 2026-06-03 — Post-PR #182 (tutor visible + teaching LOCKED)
+
+### RESOLVED — tutor teaching quality (#181 wiring + #182 LOCKED style)
+Teaching is now direct/no-fluff/on-concept with a step-marking offer; on "yes" it self-solves with
+per-step `[½/1 mark]` CBSE marking (math verified). Owner live-verified. See DECISION_LOG / D24.
+
+### OPEN — interactive-handoff returns the WRONG visual (MEDIUM; separate PR)
+`findVisualForConcept` returned a Height-&-Distance visual when "standard angles" was opened. Must
+return the visual for the OPENED concept or NOTHING. B2 already stopped the teach prompt from
+narrating "the interactive" — but the visual-selection bug itself is unfixed. Its own PR.
+
+### OPEN — mobile concept-tutor not wired (MEDIUM; separate PR)
+Mobile `src/pages/app/TopicHub.tsx` "Learn" is a placeholder routing to Check & Improve — it is NOT
+wired to the concept_teach drawer (only desktop is, via #181). The teach PROMPT (#182) already covers
+mobile once wired (shared backend). Wire mobile "Learn" → ConceptTeachDrawer in a follow-up.
+
+### OPEN — Formula Sheet + NCERT Notes generation + correctness pass (NEW direction)
+Per-topic static Formula Sheet + NCERT-based summary Notes (pre-generated) to right-size the tutor.
+Needs a content-correctness pass before shipping. Sequenced into the TopicHub redesign.
+
+### OPEN — AI cost / rate-limit hardening (launch gate) [D25]
+Gemini 429 "prepayment credits depleted" hit during testing. Before the student link: add rate
+limiting on the gateway, leaner call patterns, and a cost ceiling. Bundle with the Railway deploy.
+
+### CARRIED FORWARD (unchanged)
+Daily Mix keep/cut; Dashboard→Home/Me consolidation (3 hardcoded `/dashboard` landings); 3/19
+backlog_1_19 known-red-by-decision; stale-branch triage (PR #180, still parked); check-solution T4
+boundary case (eval-set note); #176 gate-hygiene backlog (wire `ci:smoke` into CI; `vitest.config.ts`
+lane). See sections below.
+
+---
+
 ## 2026-06-02 — Post-PR #178 (grading-prompt tightening)
 
 ### RESOLVED — check-solution over-classifies as "conceptual" (#178) [D21]

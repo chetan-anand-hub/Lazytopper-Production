@@ -2,6 +2,29 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-03 — Post-PR #182 roadmap update (tutor visible + teaching LOCKED; pivot to responsive redesign)
+
+### Completed this session
+- [x] PR #181 — wire concept tutor into desktop TopicHub (per-row "Learn this"; reuse ConceptTeachDrawer).
+  Tutor is now VISIBLE + usable on desktop. Merged `fd44340`.
+- [x] PR #182 (B2) — tighten concept teach-prompt to the owner-LOCKED style. Teaching is now direct/
+  no-fluff/on-concept with a step-marking offer; on "yes" the tutor self-solves with per-step `[½/1 mark]`
+  CBSE marking (math verified correct). Owner live-verified. Merged `fd0e7e9`. Live path =
+  `promptLearn.cjs` + `mentorModeHandler.cjs` (D24).
+
+### AI track status
+  [x] gateway live (local) · [x] checker parse fix (#174) · [x] checker grading (#178)
+  [x] tutor wiring (#181) · [x] tutor teaching LOCKED (#182)
+  [ ] interactive-handoff fix (`findVisualForConcept` returns wrong visual) — separate PR
+  [ ] mobile-tutor wiring (mobile `app/TopicHub.tsx` "Learn" is a placeholder) — separate PR
+  [ ] check-solution eval set + tutor fabricated-solution correctness eval (launch gates)
+
+### Responsive redesign (Option B LOCKED — converge twins, one component per surface)
+  [ ] Exam Trends ranked-list (NEXT; source `02_exam_trends_ranked_list.html`)
+  [ ] TopicHub concept-spine (+ Formula Sheet / NCERT Notes)
+  [ ] Check & Improve · [ ] Me/Progress · [ ] Worksheet generator
+  [ ] Formula/Notes content generation + correctness pass
+
 ## 2026-06-02 — Post-PR #178 roadmap update (grading-prompt tightening; D21 resolved)
 
 ### Completed this session

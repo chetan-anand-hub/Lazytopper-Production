@@ -1,75 +1,48 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-02 (post-PR #178 check-solution grading-prompt tightening; D21 resolved)
-# Base SHA: c760c8eb5c830e64054d516c48d3b5ac85ff523c
+# Updated: 2026-06-03 (post-PR #182 teach-prompt LOCKED-style tightening; pivot to responsive redesign)
+# Base SHA: fd0e7e9398eb6910855f0e1e08e030b71409253b
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: c760c8eb5c830e64054d516c48d3b5ac85ff523c
-Last PRs: #176 (fix: restore repo_boundary_policy.json — scope:guard re-armed) + #177 (docs handoff post-#176) + #178 (feat: tighten check-solution grading prompt — D21 resolved; measured 6/9→8/9 on T1–T9)
+SHA: fd0e7e9398eb6910855f0e1e08e030b71409253b
+Last PRs: #179 (docs handoff post-#178) + #181 (feat: wire concept tutor into desktop TopicHub — "Learn this") + #182 (feat: tighten concept teach-prompt to LOCKED style — owner live-verified)
 
-## IMMEDIATE NEXT TASK — Track A PR-1 (tutor wiring, desktop TopicHub)
+## IMMEDIATE NEXT TASK — Exam Trends ranked-list responsive redesign (Option B)
 
-Per-row "Learn this" → ConceptTeachDrawer/TeachFlow `concept_teach` mode in DesktopTopicHub.
-The tutor is NOT yet visible in the product — this is the next real product move. PR B2
-(teach-prompt tightening) stays PARKED until the tutor is wired + visible, so it is measurable
-against real lessons. The AI gateway is live on LOCAL dev (non-stub) for verification (D19/D20).
+First surface of the end-to-end responsive redesign. Converge the desktop/mobile twins into ONE
+responsive component (desktop-leads, mobile-adapts at every width), retire both twins. Source design:
+`02_exam_trends_ranked_list.html`. Option B is LOCKED (see DECISION_LOG 2026-06-03). Branch FRESH
+from `fd0e7e9`.
 
-## THE SEQUENCE (owner-confirmed 2026-06-02)
+## THE SEQUENCE (owner-confirmed 2026-06-03)
 
-1. ~~docs handoff post-#176 → merge~~ DONE (#177).
-2. ~~**PR B (Part 1)** — grading-prompt tightening~~ DONE (#178; rebased onto `7948dc3`, merged
-   `c760c8e`; gates green; T4 accepted as Option 1; 3/19 pre-existing/deferred). + this docs
-   handoff (post-#178).
-3. **Track A PR-1 — tutor wiring** (NEXT): per-row "Learn this" → ConceptTeachDrawer/TeachFlow
-   `concept_teach` mode in DesktopTopicHub. The tutor is NOT yet visible in the product — this
-   is the next real product move.
-4. **PR B2 — teach-prompt tightening** (deferred until the tutor is wired + visible, so it is
-   measurable against real lessons).
+1. ~~Track A PR-1 — tutor wiring~~ DONE (#181 — desktop TopicHub "Learn this").
+2. ~~PR B2 — teach-prompt tightening~~ DONE (#182 — LOCKED style; owner live-verified; merged `fd0e7e9`).
+3. **Exam Trends ranked-list responsive redesign (NEXT)** — Option B, source `02_exam_trends_ranked_list.html`.
+4. Then, end-to-end responsive redesign: **TopicHub concept-spine (+ Formula Sheet / NCERT Notes) →
+   Check & Improve → Me/Progress → Worksheet generator** (each Option B; one responsive component per surface).
+5. Separate follow-up PRs (not blocking the redesign): interactive-handoff fix
+   (`findVisualForConcept` returns the WRONG visual — standard-angles showed Height & Distance);
+   mobile-tutor wiring (mobile `src/pages/app/TopicHub.tsx` "Learn" is a placeholder → Check & Improve,
+   NOT wired to concept_teach); Formula/Notes generation + content-correctness pass; AI cost/rate-limit
+   hardening (launch gate, D25).
 5. **Railway deploy** + `vercel.json /api/*` rewrite + rate limiting — the unlock that makes the
    Vercel link's AI features work (ISSUE-009) → hand students the link. At link-time: Clerk
    `pk_test_`→`pk_live_`, DPDP/consent for minors, monetization charge path.
-6. Track A redesign PRs (Exam Trends ranked list, TopicHub concept-spine, formula/proofs/PDF,
-   mobile/responsive) + Track B content (interactives, proofs, formula sheets, QA).
+6. **Launch chain (after the redesign + eval set):** check-solution eval set (40–60 graded answers,
+   launch gate) + the tutor fabricated-solution correctness eval → Railway deploy + `vercel.json /api/*`
+   rewrite + AI rate-limit/cost hardening (D25) → Clerk pk_test_→pk_live_, DPDP/consent for minors,
+   charge path → hand students the live link. Deploy ONLY after grading + teaching are reliably GOOD locally.
 
-## PR B (Part 1) DETAIL — tighten grading prompt (MEASURED)
+## SUPERSEDED — old mobile-twin reflow track (replaced by Option B convergence)
 
-The AI gateway is LIVE on local dev (non-stub, direct Gemini key) — prompts can now be
-tightened against REAL Gemini output. PR B is the next product PR.
-
-Scope (correctness/quality of the existing AI surfaces — NOT new features):
-- Tighten the check-solution GRADING prompt to fix D21 over-classification: a sign-misread
-  from a correct factor must be SILLY (not CONCEPTUAL); a propagated downstream error must
-  be attributed to its single root-cause slip, NOT double-counted as a second mistake.
-- Tighten the teach prompt(s) for quality against real output.
-- MEASURE every change against a mistake-scenario test matrix (conceptual vs calculation vs
-  silly vs presentation; single-slip vs propagated-error). Capture before/after on real
-  answers/images. This is correctness work — keep the diff to prompts; no schema changes.
-
-Prerequisite to RUN locally: gateway non-stub (`npm run dev:gateway` on :3001) + app
-(`API_SERVER_PORT=3001 npx vite` → :25246). See D19/D20 in DISCOVERIES.md. Owner approves
-before merge; PR report includes the GitHub PR URL.
-
-AFTER PR B: check-solution eval set (40–60 graded answers, launch gate) → Railway deploy
-(now IN scope — owner needs a live link for students to test tutor+checker quality) → hand
-students the link. Deploy ONLY after the checker reliably returns GOOD grades locally.
-Open at student-link time: Clerk pk_test_→pk_live_, DPDP/consent for minors, charge path.
-
-## ALSO STAGED — next mobile reflow (owner-sequenced; lower priority than PR B)
-
-Mobile track so far: PR A (#166 grammar primitives) → PR B (#168 mobile Home /browse)
-→ PR C (#170 mobile landing /welcome) → PR D (#172 mobile Home polish + 5-tab light
-BottomNav + single brand bar). NOTE: the owner re-used the "PR C"/"PR D" labels for the
-mobile landing + Home-polish work; the earlier-predicted usePracticeHub extraction did
-NOT happen yet.
-
-NEW PATTERN ESTABLISHED IN #172 (reuse for future mobile pages with their own bar):
-- A mobile page that renders its OWN locked-design brand bar must suppress the global
-  public navbar at mobile width. Add the route to `isMobileSelfChromedRoute(pathname,
-  isDesktop)` in App.tsx (pure exported predicate; `!isDesktop`-gated so desktop chrome
-  is unchanged) and AND `!mobileSelfChromed` into the navbar render gate. Otherwise two
-  brand bars stack. Consequence to accept: the global navbar's Search/Log-in are then
-  absent on that mobile route.
+The earlier mobile-reflow track (PR A #166 primitives → #168 mobile Home → #170 mobile landing →
+#172 Home polish; staged usePracticeHub/MobilePracticePage) built mobile TWINS of desktop pages.
+That approach is now SUPERSEDED by the LOCKED responsive Option B (DECISION_LOG 2026-06-03): one
+responsive component per surface (desktop-leads, mobile-adapts), retiring both twins. The grammar
+primitives (`src/components/grammar/`) and the `isMobileSelfChromedRoute` navbar pattern remain
+useful building blocks for the convergence, but new work converges twins rather than forking them.
 
 Remaining staged items (owner picks order & supplies the instruction + any frozen
 design before each):
