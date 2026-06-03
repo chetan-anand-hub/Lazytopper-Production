@@ -98,3 +98,27 @@ matrices ≈ dozens of calls) plus live clicks burn the balance fast. LESSON: ke
 runs lean; treat repeated 429s as a quota/billing signal first. AI cost/rate-limit hardening is a
 launch gate (backlog). (Separately, the `/api/user/progress` 503 in local console is by-design — no
 local `DATABASE_URL`; it is the progress sync, not the tutor.)
+
+## D26 — banned-syllabus content leaked into UNGUARDED files (descriptive/teaching metadata)
+`syllabusGuard` scans the QUESTION BANK only. The bank was correctly cleaned of dropped-syllabus
+topics, but banned terms survive in descriptive/teaching metadata that the guard never looks at:
+- `src/lib/desktop/topics.ts` — Exam Trends blurbs still say "Euclid's division lemma" (Real Numbers,
+  ~L25) and "the division algorithm" (Polynomials, ~L35).
+- `src/tutor/topicTeachContracts.ts` — the tutor ACTIVELY TEACHES Euclid's lemma / division algorithm
+  (MOST SERIOUS — students are taught removed content).
+- `class10ContentConfig.ts`, `practiceFilters.ts` — also carry banned references.
+FIX (next task, HIGH): clean these files AND extend `syllabusGuard` to scan them so it can't regress.
+The tutor-teaching case is the urgent part. NOTE: `src/lib/desktop/` and `src/data/` are forbidden
+lanes — the cleanup needs explicit scope. (Exam Trends #184 did NOT touch these — it read the blurbs
+as-is; the leak predates it and is tracked here for the content-correctness sweep.)
+
+## D27 — Exam Trends tiering/trend/marks data provenance is stale/untraceable
+The `must-crack / high-roi / good-to-do` `tier` enum exists and engines consume it (`strategyEngine`,
+`dailyMix`), but TOPIC-LEVEL priority (which topic is must-crack, its trend tier, its ~marks) is not
+cleanly traceable and (per owner) was derived from OLD 10-yr data + the PRE-revision syllabus. Exam
+Trends' entire job is telling students what matters MOST, so this data must be RE-DERIVED FRESH against
+the current CBSE syllabus + the latest paper pattern (a scientific basis) BEFORE the planned band
+redesign. HPQ counts are also to be re-checked (later). LESSON: #184 faithfully RENDERS whatever
+`desktopTopicsBySubject` returns (trend tier, weight, blurb) — it did NOT validate the underlying
+priorities; the redesign surfaced that the data itself needs a fresh derivation. Do NOT build the
+Must-crack/High-ROI/Good-to-do bands on the stale tiering — re-derive first.

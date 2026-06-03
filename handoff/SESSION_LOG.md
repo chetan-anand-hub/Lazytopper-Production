@@ -1,5 +1,51 @@
 ---
 
+## 2026-06-03 — Exam Trends ranked-list responsive redesign merged (#184) + this docs PR
+
+### What merged (#184) — FIRST Option-B convergence
+Replaced the 2-column card-grid Exam Trends with the LOCKED ranked priority-list, built as ONE
+responsive component `src/pages/ExamTrendsRanked.tsx` that renders at every width (~360px → desktop)
+and RETIRES BOTH twins: the desktop card grid `src/pages/desktop/DesktopExamTrendsPage.tsx` (deleted)
+and the mobile tier list `src/pages/app/ExamTrends.tsx` (deleted). `App.tsx` `/exam-trends` route
+de-split: was `isDesktop ? <DesktopExamTrendsPage/> : <MobileExamTrends/>`, now
+`withRouteSuspense(<ExamTrendsRanked/>)` at all widths (still `DesktopShell`-wrapped ≥1024px via
+`isDesktopShellRoute`; reflows fluidly below — pure flex, no breakpoint file swap). Diff = exactly
+3 files (git: rename `DesktopExamTrendsPage.tsx`→`ExamTrendsRanked.tsx` 56%, App.tsx route, delete
+`app/ExamTrends.tsx`). Trunk after merge: `93a26749e1e6a74819af6e8388e332df8d8b48d3`.
+
+### Design + data
+Ranked `.trow` rows: name + trend chip (High/Medium/Low) + ellipsis blurb + trend-colored
+marks-weight bar (`width = min(100, w/maxW*100)%`) + `~N marks` (+ HPQ count when >0). Green "Open" →
+Topic Hub; "⋯" reveals Practice / Worksheet / Predicted Qs / Add to selection; controls = Subject
+[Maths|Science] + Science stream (de-emphasised for Maths) + Sort [Marks weight | Trend]; multi-select
+tray. Design grammar reused EXACTLY (green/fonts/toggle+action shapes, inline styles + inline SVG,
+light theme) — page is indistinguishable in feel from DesktopHome/TopicHub. Real data only
+(`desktopTopicsBySubject`, all 28 topics, both subjects, working stream filter, honest trend tiers +
+HPQ counts from `getHighlyProbableQuestions`, NO fabricated %). Proof tag OMITTED — no real `proof`
+field in topic data; inventing "proof topics" would fabricate a signal (anti-fabrication call).
+
+### Gates / verification
+tsc PASS · `npm run build` exit 0 · `scope:guard --mode product` SCOPE_GUARD_OK · `test:matrix:all`
+137/137 · `git diff --check` clean. Claude captured + inspected headless screenshots at 360/768/1280;
+owner approved after live verification on desktop + a real mobile device.
+
+### Pattern set for the rest of Option B
+This is the TEMPLATE for the remaining surfaces (TopicHub, Check & Improve, Me/Progress, Worksheet):
+one responsive component per surface, retire BOTH twins, preserve the shared design grammar exactly,
+no fabrication. Later surfaces follow this shape.
+
+### Tooling notes hit this session
+- `npm run scope:guard` defaults to `--mode tooling` (tracked-tooling lane only). Product PRs need
+  `--mode product`. Also a latent path quirk: `git diff` reports repo-root-relative paths
+  (`lazytopper/...`) while `git ls-files` reports cwd-relative (`src/...`) and the policy lanes are
+  unprefixed (`src/`); since all changes were under `lazytopper/`, ran the guard with a transient
+  local `diff.relative=true` (set then unset) to classify consistently → genuine SCOPE_GUARD_OK.
+  Worth a small scopeGuard fix later (see OPEN_QUESTIONS).
+- `handoff/`-referenced `lazytopper/scripts/verify-build.mjs` does not exist (stale CLAUDE.md step);
+  the live gates are build + scope:guard + matrix.
+
+---
+
 ## 2026-06-03 — Tutor made visible (#181) + teaching tightened to LOCKED style (#182) + this docs PR
 
 ### Starting state

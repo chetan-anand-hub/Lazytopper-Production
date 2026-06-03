@@ -1,3 +1,49 @@
+## 2026-06-03 — Post-PR #184 (Exam Trends ranked-list responsive redesign)
+
+### OPEN — clean banned syllabus content from unguarded files + extend syllabusGuard (HIGH; NEXT task) [D26]
+`syllabusGuard` scans the question bank only; banned terms (Euclid's division lemma, division
+algorithm) survive in `src/tutor/topicTeachContracts.ts` (tutor TEACHES them — urgent),
+`src/lib/desktop/topics.ts` (Exam Trends blurbs), `class10ContentConfig.ts`, `practiceFilters.ts`.
+Clean these AND extend the guard to scan them. `src/lib/desktop/` + `src/data/` are forbidden lanes —
+needs explicit scope. See DISCOVERIES D26.
+
+### OPEN — re-derive Exam Trends priorities FRESH (tier + trend + marks) [D27]
+Topic-level priority data is stale/untraceable (old 10-yr data + pre-revision syllabus). Re-derive
+must-crack/high-roi/good-to-do tier + trend + ~marks against the CURRENT CBSE syllabus + recent paper
+pattern (scientific basis) BEFORE the band redesign. See DISCOVERIES D27.
+
+### OPEN — HPQ-count recheck (MEDIUM)
+The Exam Trends HPQ counts (from `getHighlyProbableQuestions`, matched by canonical topic name) are
+rendered honestly but were not re-validated against the fresh tiering. Re-check counts when the
+priority data is re-derived (bundle with D27).
+
+### OPEN — Exam Trends band-threshold definition (after fresh tiering)
+The planned Must-crack / High-ROI / Good-to-do BAND redesign needs explicit numeric/qualitative
+thresholds that map a topic's (re-derived) tier/trend/marks to exactly one band. Define AFTER the
+fresh tiering (D27) lands — do not band on the stale data. See DECISION_LOG (2026-06-03 #184).
+
+### OPEN — Exam Trends proof tag (LOW; product decision)
+The locked prototype's optional "⟨proofs⟩" tag was omitted in #184 (no real `proof` field in topic
+data; inventing it = fabrication). To add it: either add a real `proof` flag to the topic data
+(forbidden `src/data/`/`src/lib/desktop/` lane → explicit scope) or drop it from the spec.
+
+### OPEN — scopeGuard ergonomics for product PRs (LOW; tooling)
+`npm run scope:guard` defaults to `--mode tooling`; product PRs need `--mode product`. Latent path
+quirk: `git diff` is repo-root-relative (`lazytopper/...`) while `git ls-files` is cwd-relative
+(`src/...`) and the policy lanes are unprefixed (`src/`), so product PRs only classify cleanly with a
+cwd-relative diff. Worked around with a transient `diff.relative=true`. Worth normalizing the
+`lazytopper/` prefix in `scopeGuard.mjs` (and/or a `scope:guard:product` npm script). Also:
+`lazytopper/scripts/verify-build.mjs` referenced by CLAUDE.md does not exist (stale step).
+
+### CARRIED FORWARD (unchanged from below)
+interactive-handoff wrong-visual fix; mobile concept-tutor wiring; Formula Sheet + NCERT Notes
+generation + correctness pass; AI cost/rate-limit hardening (D25); Daily Mix keep/cut; Dashboard→
+Home/Me consolidation; 3/19 backlog_1_19 known-red-by-decision; stale-branch triage (PR #180 parked);
+check-solution T4 boundary case; #176 gate-hygiene backlog (wire `ci:smoke` into CI; `vitest.config.ts`
+lane). See sections below.
+
+---
+
 ## 2026-06-03 — Post-PR #182 (tutor visible + teaching LOCKED)
 
 ### RESOLVED — tutor teaching quality (#181 wiring + #182 LOCKED style)

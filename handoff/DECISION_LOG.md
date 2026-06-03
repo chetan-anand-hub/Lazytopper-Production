@@ -1,3 +1,35 @@
+## 2026-06-03 - Exam Trends ranked-list responsive redesign merged (#184); band redesign decided as NEXT iteration
+
+Decision:
+PR #184 (Exam Trends ranked-list responsive redesign) is merged — the FIRST Option-B convergence.
+Trunk after #184: `93a26749e1e6a74819af6e8388e332df8d8b48d3`.
+
+Details / decisions (locked 2026-06-03):
+- EXAM TRENDS = FIRST OPTION-B CONVERGENCE — TEMPLATE FOR THE REST. One responsive component
+  `src/pages/ExamTrendsRanked.tsx` renders at every width and retires BOTH twins
+  (`DesktopExamTrendsPage.tsx` + `app/ExamTrends.tsx`); `App.tsx` `/exam-trends` route de-split.
+  The remaining surfaces (TopicHub, Check & Improve, Me/Progress, Worksheet) follow this exact
+  shape: one component per surface, retire both twins, preserve the shared design grammar exactly,
+  no fabrication.
+- PROOF TAG OMITTED — correct anti-fabrication call. The locked prototype's optional "⟨proofs⟩" tag
+  has NO backing field in production topic data (`DesktopTopicSummary` carries no `proof` flag).
+  Inventing which topics are "proof topics" would fabricate a UI signal → omitted, surfaced to owner.
+  Adding it later requires a real `proof` field in `src/data/` (forbidden lane → explicit scope).
+- NEW — EXAM TRENDS "MUST-CRACK / HIGH-ROI / GOOD-TO-DO" BAND REDESIGN IS THE NEXT ITERATION. Reuses
+  the existing real `tier` enum concept (already used by strategyEngine / dailyMix) and the merged
+  ranked-list rows, grouping them into three expandable priority BANDS. Bands replace the
+  weight-vs-trend SORT confusion with ONE synthesized priority verdict per topic. PREREQUISITE: the
+  tier/trend/marks data must be RE-DERIVED FRESH against current CBSE syllabus + latest paper pattern
+  BEFORE banding (the existing priorities are stale/untraceable — see DISCOVERIES D27). Band
+  thresholds to be defined after the fresh tiering (see OPEN_QUESTIONS).
+- SEQUENCING (locked): content-correctness sweep (D26 — clean banned syllabus terms from descriptive/
+  teaching metadata + extend syllabusGuard to scan those files) → re-derive Exam Trends priorities
+  fresh (D27) → Exam Trends band redesign → the other Option-B surfaces.
+
+Implication:
+Next product PR = content-correctness sweep (HIGH — tutor actively teaches banned content, D26),
+THEN fresh tiering (D27), THEN the band redesign. Do NOT band on the stale tiering.
+
 ## 2026-06-03 - Tutor teach-style LOCKED + implemented (#182); responsive Option B; Formula/Notes; pivot to redesign
 
 Decision:
