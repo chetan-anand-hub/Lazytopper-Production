@@ -1,3 +1,32 @@
+## 2026-06-04 - CONTENT SWEEP merged (#188): 93 banned out-of-syllabus entries DELETED; gating syllabusGuard GREEN
+
+Decision:
+PR #188 is merged. The syllabus-correctness arc is CLOSED: verified → guard corrected (#186) → content
+swept (#188). The gating `syllabusGuard` now exits 0 and `test:matrix:all` = 175/175 (incl. #19).
+Trunk after #188: `e0395fcbfeaf9d366afd4b93fb1514604363771f`.
+
+Decisions locked (2026-06-04):
+- DELETE, NOT RETAG (owner, final) — every leaked entry for an out-of-2026-27 topic (deleted or
+  formative-only) was DELETED. Predicting/teaching them as board-relevant is wrong; LazyTopper is
+  strictly board-prep. No "not-assessed" tag was added.
+- REWRITE-TO-STAY-ACCURATE for blurbs/teach-contracts — where deletion would leave a broken fragment
+  (topic blurbs, topic-hub sections, tutor teach-steps), the content was rewritten to describe the
+  CURRENT in-syllabus topic correctly rather than deleting the word and leaving an incoherent surface.
+- AUTHORED TEACH-STEPS WERE STRUCTURALLY REQUIRED — `TopicTeachContract.keyIdeas` is a fixed 4-tuple
+  `[string, string, string, string]`. Removing banned teach-steps left 3-item arrays that fail the
+  type; the production build (`tsc -b`) caught this (TS2322) even though `tsc --noEmit` did NOT. So the
+  in-syllabus replacement steps (marked `[content-sweep 2026-06-04]` in real-numbers, heredity, and
+  magnetic-effects) were NOT gold-plating — the type system demanded them. Keep them.
+- GUARD IS THE SPEC — `syllabusGuard.ts` was NOT touched; content conforms to the guard, not vice
+  versa. `predictionTypes.ts` schema frozen. The guard going GREEN is the proof the sweep is complete.
+- SCOPE-GUARD `--mode product` FAIL is a LOCAL path-prefix artifact (combined repo: diff emits
+  `lazytopper/src/...`, policy rule is `src/`), NOT a real lane violation. Surfaced; not hacked around.
+- POLYNOMIALS DIVISION-ALGORITHM LEAK DEFERRED (D31) — out of the 93-item worklist scope and not
+  guard-flagged (the surface scan omits bare "Division Algorithm"); tracked as a follow-up rather than
+  expanding this PR.
+
+---
+
 ## 2026-06-04 - syllabusGuard + registry CORRECTED to official CBSE 2026-27 and EXTENDED to all board-prep surfaces (#186)
 
 Decision:
