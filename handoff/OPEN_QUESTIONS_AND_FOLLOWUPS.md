@@ -1,15 +1,56 @@
+## 2026-06-05 — Post-PR #192 (scopeGuard monorepo path-prefix FIX)
+
+### RESOLVED — scopeGuard monorepo path-prefix bug FIXED (#192) [D32]
+The monorepo path-frame bug (see the #190 block below, "scopeGuard broken by the monorepo move") is FIXED.
+Root cause: `.git` at repo root + guard run from `lazytopper/` → `git diff` emits `lazytopper/src/...`
+while policy rules are lazytopper-relative (`src/`) → every product edit `[unclassified]` → FAIL.
+**Fix (Option A, owner-approved):** `lazytopper/scripts/scopeGuard.mjs` (1 file, +52/−6; policy JSON
+untouched) — `detectAnchorPrefix()` derives `lazytopper/` from `git rev-parse --show-toplevel` vs cwd;
+`toPolicyFrame()` strips it for in-anchor files (so they match `src/`-style rules) while files OUTSIDE the
+anchor keep their full git-root path and are STILL classified (real lane, or `unknown` → visible FAIL);
+no-blind-spot invariant (fails if classified-count ≠ changed-count); coupled `git show HEAD:./package.json`
+(cwd-relative) fix for the scripts-only package.json check.
+**⚠️ The `--relative` suggestion was REJECTED:** `git diff --relative` emits only files under cwd → silently
+drops tracked changes OUTSIDE `lazytopper/` = a false-PASS blind spot (worse than a false-FAIL). The correct
+fix normalizes the classification *frame*, never narrows what the guard sees. Proven FAIL→OK on a product
+edit; tracked out-of-tree file still seen+flagged; unclassified → visible FAIL. Gates: tsc 0;
+`test:matrix:all` 175/175; build 0; verifier PASS. Trunk `318c6b6`. Follow-ups: D33–D35 below.
+
+### OPEN — scopeGuard: untracked files OUTSIDE `lazytopper/` are invisible (LOW; pre-existing) [D33]
+`git diff` (tracked changes) spans the whole repo, so the #192 fix DOES see tracked out-of-tree changes
+(exactly the thing `--relative` would have hidden — confirmed in the PR's no-blind-spot proof). BUT
+`git ls-files --others --exclude-standard` is **cwd-scoped** by git's design, so **untracked** files
+outside `lazytopper/` (e.g. a new file dropped at the repo root) are NOT listed and so not classified.
+**Deliberately NOT widened to git-root scope in #192**, because the repo carries an untracked root-level
+`.claude/` directory with no policy lane → widening (`git -C <root> ls-files …`) would classify it
+`unknown` → a NEW false-FAIL on every run. Trading one false-FAIL for another is not a fix. Revisit only if
+root-level untracked lanes are formalized (e.g. add `.claude/` to `localOnly`, THEN widen the ls-files scope).
+
+### OPEN — add scopeGuard unit coverage to the test matrix (LOW; tooling) [D34]
+`scopeGuard.mjs` has no automated test in `cd scripts && npm run test:matrix:all` (175/175). It runs
+`main()` on import, so a unit test needs an export refactor (guard `main()` behind an `if (import.meta.url
+=== ...)` entry check, then export `detectAnchorPrefix`/`toPolicyFrame`/`classifyFile` for testing). #192
+relied on live FAIL→OK evidence instead. Add coverage in a future tracked-tooling PR to regression-proof
+the path-frame logic.
+
+### OPEN — CLAUDE.md §6 references a stale verifier name (LOW; docs) [D35]
+CLAUDE.md §6 validation steps list `node scripts/verify-build.mjs`, which does not exist. The real verifier
+is `lazytopper/scripts/verify-production-build.mjs` (used and PASS in #192). Correct CLAUDE.md §6 (and any
+agent instructions) to the actual filename so future sessions don't chase a missing gate. (Same gap noted
+in the #174/#175/#176 backlog — consolidate.)
+
 ## 2026-06-05 — Post-PR #190 (Exam Trends band redesign — 3 collapsible priority bands)
 
-### NEW — scopeGuard broken by the monorepo move (MEDIUM; tooling follow-up)
+### RESOLVED (by #192 — see Post-PR #192 block above, D32) — scopeGuard broken by the monorepo move
 The repo is now a pnpm monorepo (`workspace`) with `.git` at the repo root and `lazytopper/` nested.
 `lazytopper/scripts/scopeGuard.mjs` runs `git diff --name-only` (no `--relative`), so git emits
 `lazytopper/src/...` while the `product` lane rule in `repo_boundary_policy.json` is `src/`. Result:
 EVERY `lazytopper/src/**` product edit is classified `[unclassified]` and the guard FAILs — it currently
 green-lights nothing and reds everything in `lazytopper/src`, so it is not a real gate. Observed on #188
-and again on #190; both manually verified as non-breaches. Fix (tracked-tooling PR): either pass
+and again on #190; both manually verified as non-breaches. ~~Fix (tracked-tooling PR): either pass
 `--relative` to the git invocations in `scopeGuard.mjs`, or prefix the policy `product`/`trackedTooling`
-lane rules with `lazytopper/`. Until fixed, product-scope must be verified by hand (`git diff --name-only`
-+ semantic lane check). `scopeGuard.mjs` is tracked-tooling — out of scope for product PRs.
+lane rules with `lazytopper/`.~~ **FIXED in #192 via path-frame normalization (Option A); the `--relative`
+half of this suggestion was REJECTED as a false-PASS blind spot.**
 
 ### RESOLVED — re-derive Exam Trends priorities FRESH (was D27) → owner-locked tiers
 ~~Topic-level priority data stale/untraceable; re-derive tier/trend/marks before the band redesign.~~
@@ -94,13 +135,14 @@ The locked prototype's optional "⟨proofs⟩" tag was omitted in #184 (no real 
 data; inventing it = fabrication). To add it: either add a real `proof` flag to the topic data
 (forbidden `src/data/`/`src/lib/desktop/` lane → explicit scope) or drop it from the spec.
 
-### OPEN — scopeGuard ergonomics for product PRs (LOW; tooling)
-`npm run scope:guard` defaults to `--mode tooling`; product PRs need `--mode product`. Latent path
+### RESOLVED (by #192, D32) — scopeGuard ergonomics for product PRs (LOW; tooling)
+`npm run scope:guard` defaults to `--mode tooling`; product PRs need `--mode product`. ~~Latent path
 quirk: `git diff` is repo-root-relative (`lazytopper/...`) while `git ls-files` is cwd-relative
 (`src/...`) and the policy lanes are unprefixed (`src/`), so product PRs only classify cleanly with a
-cwd-relative diff. Worked around with a transient `diff.relative=true`. Worth normalizing the
-`lazytopper/` prefix in `scopeGuard.mjs` (and/or a `scope:guard:product` npm script). Also:
-`lazytopper/scripts/verify-build.mjs` referenced by CLAUDE.md does not exist (stale step).
+cwd-relative diff.~~ The path quirk is FIXED in #192 (`toPolicyFrame` normalizes BOTH `git diff` and
+`git ls-files` output into the policy frame). `--mode product` now classifies `lazytopper/src/**` cleanly
+without any `diff.relative` workaround. The stale-verifier note (`verify-build.mjs` → real name is
+`verify-production-build.mjs`) is now tracked as its own follow-up [D35] above.
 
 ### CARRIED FORWARD (unchanged from below)
 interactive-handoff wrong-visual fix; mobile concept-tutor wiring; Formula Sheet + NCERT Notes
