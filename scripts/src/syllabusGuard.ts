@@ -1,6 +1,29 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SYLLABUS GUARD — CBSE Class 10 (2026-27)
+//
+// Two scan modes:
+//   (1) QUESTION-BANK scan  — exact, full-string match against the `subtopic:`
+//       field value. Precise, zero false positives. Gates the question banks.
+//   (2) BOARD-PREP SURFACE scan — curated, word-boundary phrase match across the
+//       NON-question-bank surfaces that assemble or describe board content (HPQ,
+//       mocks, worksheets, practice/daily-mix, exam-trends/topic metadata, tutor
+//       teach-contracts). Uses ONLY unambiguous, content-specific phrases and
+//       NEVER bare generics (e.g. "Evolution", "Generator", "Motor", "Fossil",
+//       "Stakeholders", "Constructions", "Division Algorithm") so it cannot trip
+//       on legitimate prose ("gas evolution", "evolution of heat") or code
+//       identifiers (worksheetGenerator, dailyMixGenerator). Preserved
+//       in-syllabus terms (Heredity, Mendel, Step Deviation, reproductive
+//       health, …) are NEVER on any banned list — see SURFACE scan tests.
+//
+// Authority: owner-signed-off verification report report-syllabus-verification-
+// 2026-06-04.md, verified against the LIVE official CBSE 2026-27 Class X syllabus
+// (Maths Code 041/241 — Maths_SecP1X_2026-27.pdf; Science Code 086 —
+// Science_SecP1_2026-27.pdf; cbseacademic.nic.in).
+// ─────────────────────────────────────────────────────────────────────────────
 
 interface BannedSubtopicRule {
   board: string;
@@ -17,11 +40,19 @@ const RULES: BannedSubtopicRule[] = [
     year: "2026-27",
     subject: "Maths",
     grade: "Class 10",
-    // Source: CBSE Class 10 Mathematics Syllabus 2025-26 (cbseacademic.nic.in)
-    // Deleted: Constructions (entire chapter), Euclid's Division Lemma,
-    //   Polynomial Division Algorithm, Area of Triangle (Coord Geom),
-    //   Trig Complementary Angles, Frustum of Cone, Ogive, Step-Deviation,
-    //   Cross-Multiplication Method, Decimal Representation of Rationals.
+    // Source: official CBSE Class X Mathematics (Code 041 & 241) Syllabus
+    //   2026-27 (cbseacademic.nic.in — SecPart1/Maths_SecP1X_2026-27.pdf).
+    // OUT of the official 2026-27 Class X content (banned at question-bank level):
+    //   Constructions (entire chapter), Euclid's Division Lemma/Algorithm,
+    //   Polynomial Division Algorithm, Decimal Representation of Rationals,
+    //   Cross-Multiplication Method, Trig Complementary Angles, Frustum of Cone,
+    //   Ogive / Cumulative Frequency Graph, Area of Triangle (Coordinate
+    //   Geometry), Conversion of Solids (Surface Areas & Volumes), and the
+    //   CUBIC zeroes–coefficient relationship (Polynomials is restricted to the
+    //   QUADRATIC zeroes–coefficient relationship only).
+    // IN (do NOT ban): Step Deviation Method — official Statistics text reads
+    //   "Computes the mean … using direct, assumed mean and step deviation
+    //   method." Banning it wrongly stripped a valid examined method.
     bannedSubtopics: [
       // Real Numbers — deleted sub-topics
       "Euclid's Division Lemma",
@@ -29,22 +60,31 @@ const RULES: BannedSubtopicRule[] = [
       "Euclid's Division Algorithm",
       "Decimal Representation of Rational Numbers",
       "Terminating and Non-Terminating Decimals",
-      // Polynomials — deleted sub-topic
+      // Polynomials — deleted sub-topic + CUBIC zeroes–coefficient (quadratic only is IN)
       "Division Algorithm for Polynomials",
       "Polynomial Division Algorithm",
       "Division Algorithm",
+      "Zeroes and Coefficients of Cubic Polynomials",
+      "Zeroes of Cubic Polynomials",
+      "Cubic Polynomial Zeroes-Coefficient Relationship",
+      "Relationship Between Zeroes and Coefficients of Cubic Polynomials",
       // Pair of Linear Equations — deleted method
       "Cross-Multiplication Method",
       "Cross Multiplication Method",
+      // Coordinate Geometry — deleted sub-topic (Coord Geom = distance + section only)
+      "Area of a Triangle in Coordinate Geometry",
+      "Area of Triangle in Coordinate Geometry",
+      "Area of Triangle (Coordinate Geometry)",
       // Trigonometry — deleted sub-topic
       "Trigonometric Ratios of Complementary Angles",
       "Complementary Angles Trigonometry",
       "T-Ratios of Complementary Angles",
       // Mensuration — deleted sub-topics
       "Frustum of Cone",
+      "Conversion of Solids",
+      "Conversion of Solid from One Shape to Another",
       // Statistics — deleted sub-topics
-      "Step Deviation Method",
-      "Step-Deviation Method",
+      //   (Step Deviation Method is IN — NOT banned. Ogive/graph forms are OUT.)
       "Ogive",
       "Graph/Ogive",
       "Cumulative Frequency Graph",
@@ -71,25 +111,28 @@ const RULES: BannedSubtopicRule[] = [
     year: "2026-27",
     subject: "Science",
     grade: "Class 10",
-    // Source: CBSE Class 10 Science Syllabus 2026-27 (cbseacademic.nic.in
-    //   Science_SecP1_2026-27.pdf).
-    // Deleted from board-assessed scope (banned at question-bank level):
-    //   • Ch5 Periodic Classification of Elements (entire chapter)
-    //   • Ch9 Evolution section (Mendel/genetics retained)
-    //   • Ch14 Sources of Energy (entire chapter)
-    //   • Ch16 Management of Natural Resources (entire chapter)
-    // RETAINED in 2026-27 (do NOT add to banned list):
-    //   • Ch8 Reproductive Health subtopics (reproduction chapter incl.
-    //     contraception, family planning, STIs, safe sex — restored 2026-27)
-    //   • Ch15 Our Environment (ecology, food chains, trophic levels,
-    //     pollution, waste management — Unit V, 5 marks)
-    // Formative only (taught but not in year-end exam — NOT banned here):
-    //   • Electric Motor, Electromagnetic Induction, Electric Generator
-    //     (Note for Teachers, Science_SecP1_2026-27.pdf). These remain valid
-    //     question-bank subtopics; the "do not predict" doctrine is enforced
-    //     in cbseHistoricalArchetypes.SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics.
+    // Source: official CBSE Class X Science (Code 086) Syllabus 2026-27
+    //   (cbseacademic.nic.in — SecPart1/Science_SecP1_2026-27.pdf).
+    // OUT of board-assessed scope (banned at question-bank level):
+    //   • Ch5 Periodic Classification of Elements (formative-only — not assessed
+    //     in the year-end exam; excluded from board-prep surfaces by owner doctrine)
+    //   • Ch9 Evolution section (formative-only — Heredity/Mendel/sex-determination
+    //     are RETAINED & assessed and are NOT banned)
+    //   • Ch14 Sources of Energy (truly deleted)
+    //   • Ch16 Management of Natural Resources (truly deleted)
+    // RETAINED & ASSESSED in 2026-27 (do NOT ban — must NOT match any banned term):
+    //   • Heredity, Mendel's contribution, Laws of Inheritance, Sex Determination
+    //   • Ch8 Reproduction incl. reproductive health (family planning, safe sex
+    //     vs HIV/AIDS, child bearing & women's health)
+    //   • Ch15 Our Environment (ecology, food chains, trophic levels, pollution,
+    //     waste management — Unit V, 5 marks)
+    //   • Carbon & its Compounds "homologous series" (distinct from the banned
+    //     evolution term "homologous organs")
+    // Formative-only Motor / Electromagnetic Induction / Electric Generator are
+    //   enforced as board-prep exclusions via the SURFACE scan below (precise
+    //   multi-word phrases only), NOT at the question-bank level.
     bannedSubtopics: [
-      // Ch 5 — Periodic Classification of Elements (entire chapter deleted)
+      // Ch 5 — Periodic Classification of Elements (formative-only; board-excluded)
       "Periodic Classification",
       "Periodic Classification of Elements",
       "Newlands Octaves",
@@ -102,7 +145,8 @@ const RULES: BannedSubtopicRule[] = [
       "Periods and Groups",
       "Periodicity of Properties",
       // Ch 8 Reproductive Health subtopics — RETAINED in 2026-27 (no entries)
-      // Ch 9 — Evolution section deleted (Mendel/genetics retained)
+      // Ch 9 — Evolution section (formative-only; board-excluded). Heredity/
+      //   Mendel/Sex-Determination/Inheritance of Traits are RETAINED — NOT here.
       "Evolution",
       "Natural Selection",
       "Speciation",
@@ -111,7 +155,11 @@ const RULES: BannedSubtopicRule[] = [
       "Fossils",
       "Human Evolution",
       "Evolutionary Relationships",
+      "Tracing Evolutionary Relationships",
+      "Evolution and Classification",
+      "Evolution by Stages",
       "Acquired Traits",
+      "Acquired and Inherited Traits",
       "Origin of Life",
       "Homologous Organs",
       "Analogous Organs",
@@ -142,14 +190,6 @@ const RULES: BannedSubtopicRule[] = [
       "Wave Energy",
       "Energy from Sea",
       // Ch 15 Our Environment — RETAINED in 2026-27 under Unit V (5 marks; no entries)
-      //
-      // Note: Electric Motor / Electromagnetic Induction / Electric Generator are
-      // formative-only in 2026-27 (Science_SecP1_2026-27.pdf Note for Teachers).
-      // They are NOT banned at the question-bank level — formative practice
-      // questions on these topics remain valid. The "do not predict for board
-      // exam" doctrine is enforced via cbseHistoricalArchetypes
-      // SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics, not via this guard.
-      //
       // Ch 16 — Management of Natural Resources (entire chapter deleted)
       "Management of Natural Resources",
       "Natural Resources Management",
@@ -172,6 +212,128 @@ const RULES: BannedSubtopicRule[] = [
   },
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// BOARD-PREP SURFACE scan (PART C)
+//
+// Curated, unambiguous, content-specific banned phrases. Matched as whole
+// phrases with word boundaries (case-insensitive) anywhere in a surface file.
+// DELIBERATELY EXCLUDES bare generics that collide with legitimate prose or
+// code: "Evolution" (gas evolution), "Generator"/"Motor"/"Induction" (code +
+// retained-chapter prose), "Fossil"/"Darwin" (record/prose), "Constructions",
+// "Division Algorithm", "Stakeholders", "Sustainable Development". It also
+// NEVER contains a preserved in-syllabus term.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const SURFACE_BANNED_PHRASES: string[] = [
+  // ── Maths — board-deleted (unambiguous phrases) ──
+  "Euclid's Division Lemma",
+  "Euclid's Division Algorithm",
+  "Decimal Representation of Rational Numbers",
+  "Division Algorithm for Polynomials",
+  "Cross-Multiplication Method",
+  "Cross Multiplication Method",
+  "Area of a Triangle in Coordinate Geometry",
+  "Area of Triangle in Coordinate Geometry",
+  "Trigonometric Ratios of Complementary Angles",
+  "Frustum of Cone",
+  "Frustum of a Cone",
+  "Conversion of Solids",
+  "Ogive",
+  "Cumulative Frequency Graph",
+  "Cumulative Frequency Curve",
+  "Construction of Tangents",
+  "Construction of Similar Triangles",
+  "Division of a Line Segment",
+  // ── Science — Periodic Classification (formative-only; board-excluded) ──
+  "Periodic Classification",
+  "Newlands Octaves",
+  "Dobereiner's Triads",
+  "Mendeleev's Periodic Table",
+  "Modern Periodic Table",
+  "Modern Periodic Law",
+  // ── Science — Evolution section (formative-only; board-excluded) ──
+  //   precise phrases only — bare "Evolution"/"Fossil"/"Darwin" deliberately omitted.
+  "Natural Selection",
+  "Speciation",
+  "Human Evolution",
+  "Evolutionary Relationships",
+  "Tracing Evolutionary Relationships",
+  "Evolution and Classification",
+  "Evolution by Stages",
+  "Acquired and Inherited Traits",
+  "Homologous Organs",
+  "Analogous Organs",
+  "Vestigial Organs",
+  "Evidence of Evolution",
+  "Origin of Life",
+  // ── Science — Sources of Energy (deleted) ──
+  "Sources of Energy",
+  "Conventional Sources of Energy",
+  "Non-Conventional Sources of Energy",
+  "Solar Energy",
+  "Wind Energy",
+  "Nuclear Energy",
+  "Tidal Energy",
+  "Geothermal Energy",
+  "Ocean Thermal Energy",
+  "Wave Energy",
+  "Fossil Fuels",
+  "Biogas",
+  "Hydropower",
+  // ── Science — Management of Natural Resources (deleted) ──
+  "Management of Natural Resources",
+  "Rainwater Harvesting",
+  "Ganga Action Plan",
+  "Chipko Movement",
+  "Wildlife Conservation",
+  "Forest Conservation",
+  "Reforestation",
+  // ── Science — Motor / EMI / Generator (formative-only; board-excluded —
+  //   precise multi-word phrases only; bare "Motor"/"Generator"/"Induction" omitted) ──
+  "Electromagnetic Induction",
+  "Electric Motor",
+  "Electric Generator",
+];
+
+// Board-prep surfaces that assemble or describe board-relevant content. Paths are
+// relative to lazytopper/src. Verified present 2026-06-04; new siblings should be
+// added here (the SEQUENCING NOTE in the task asks for periodic re-grep).
+const LAZYTOPPER_SRC = join(import.meta.dirname, "../../lazytopper/src");
+
+const BOARD_PREP_SURFACES: string[] = [
+  // HPQ / predicted-questions
+  "data/highlyProbableQuestions.ts",
+  "data/predictedQuestions.ts",
+  "data/predictedQuestionsScience.ts",
+  "data/predictedScienceQuestions.ts",
+  "data/hpqCompetencyAdditions.ts",
+  "prediction/hpqConfidence.ts",
+  // Mocks / full-length / chapter-test engines
+  "utils/topicMockEngine.ts",
+  "utils/mockBlueprint.ts",
+  "utils/mockPaperEngine.ts",
+  "utils/mockPaperEngineScience.ts",
+  "utils/mockBuilder.ts",
+  // Worksheet generator
+  "components/practice/worksheetGenerator.ts",
+  "services/worksheetProfileService.ts",
+  "lib/desktop/savedWorksheets.ts",
+  // Practice / daily-mix
+  "data/practiceSetGenerator.ts",
+  "services/dailyMixGenerator.ts",
+  "services/dailyMixService.ts",
+  // Exam Trends / topic metadata
+  "lib/desktop/topics.ts",
+  "lib/desktop/topicHubContent.ts",
+  "data/class10MathTopicTrends.ts",
+  "data/class10ScienceTopicTrends.ts",
+  // Practice filters / content config
+  "data/practiceFilters.ts",
+  "data/class10ContentConfig.ts",
+  // Tutor teach-contracts (must NOT teach excluded/formative-only topics)
+  "tutor/topicTeachContracts.ts",
+];
+
 const SUBTOPIC_PATTERN = /["']?subtopic["']?\s*:\s*["'`]([^"'`]+)["'`]/g;
 
 export interface Violation {
@@ -180,6 +342,7 @@ export interface Violation {
   matchCount: number;
 }
 
+// ── Mode 1: question-bank scan — exact `subtopic:` field-value match ──
 export function scanFile(filePath: string, bannedSubtopics: string[]): Violation[] {
   const content = readFileSync(filePath, "utf-8");
   const violations: Violation[] = [];
@@ -203,11 +366,48 @@ export function scanFile(filePath: string, bannedSubtopics: string[]): Violation
   return violations;
 }
 
+// ── Mode 2: board-prep surface scan — curated word-boundary phrase match ──
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Whole-phrase, case-insensitive match that will NOT fire when the phrase is part
+// of a larger word (so "Ogive" does not match "Ogives", and bare-word collisions
+// are avoided). Phrases begin/end with alphanumerics, so alnum lookarounds suffice.
+export function scanContentForPhrases(
+  content: string,
+  phrases: string[]
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const phrase of phrases) {
+    const re = new RegExp(
+      `(?<![A-Za-z0-9])${escapeRegExp(phrase)}(?![A-Za-z0-9])`,
+      "gi"
+    );
+    const matches = content.match(re);
+    if (matches && matches.length > 0) {
+      counts.set(phrase, matches.length);
+    }
+  }
+  return counts;
+}
+
+export function scanSurfaceFile(filePath: string, phrases: string[]): Violation[] {
+  const content = readFileSync(filePath, "utf-8");
+  const counts = scanContentForPhrases(content, phrases);
+  const violations: Violation[] = [];
+  for (const [subtopic, matchCount] of counts.entries()) {
+    violations.push({ file: filePath, subtopic, matchCount });
+  }
+  return violations;
+}
+
 function runGuard(): void {
   const workspaceRoot = join(import.meta.dirname, "../..");
   let totalViolations = 0;
   let hasError = false;
 
+  // ── Mode 1: question banks ──
   for (const rule of RULES) {
     console.log(
       `\nChecking ${rule.grade} ${rule.subject} (${rule.board} ${rule.year})...`
@@ -247,16 +447,44 @@ function runGuard(): void {
     }
   }
 
+  // ── Mode 2: board-prep surfaces ──
+  console.log(
+    `\nChecking board-prep surfaces (curated phrase scan, ${BOARD_PREP_SURFACES.length} files)...`
+  );
+  const surfaceViolations: Violation[] = [];
+  for (const rel of BOARD_PREP_SURFACES) {
+    const filePath = join(LAZYTOPPER_SRC, rel);
+    if (!existsSync(filePath)) {
+      console.error(`  ERROR: surface file missing: lazytopper/src/${rel}`);
+      hasError = true;
+      continue;
+    }
+    surfaceViolations.push(...scanSurfaceFile(filePath, SURFACE_BANNED_PHRASES));
+  }
+
+  if (surfaceViolations.length === 0) {
+    console.log(`  ✓ No board-excluded phrases found on any board-prep surface.`);
+  } else {
+    hasError = true;
+    for (const v of surfaceViolations) {
+      const relFile = relative(workspaceRoot, v.file);
+      console.error(
+        `  ✗ BOARD-EXCLUDED PHRASE "${v.subtopic}" found ${v.matchCount} time(s) in ${relFile}`
+      );
+      totalViolations += v.matchCount;
+    }
+  }
+
   if (hasError) {
     console.error(
-      `\nSyllabus guard FAILED — ${totalViolations} out-of-syllabus question(s) detected.`
+      `\nSyllabus guard FAILED — ${totalViolations} out-of-syllabus item(s) detected.`
     );
     console.error(
-      `Remove or reclassify the flagged questions before merging.\n`
+      `Remove or reclassify the flagged questions/content before merging.\n`
     );
     process.exit(1);
   } else {
-    console.log(`\nSyllabus guard passed — all question banks are clean.\n`);
+    console.log(`\nSyllabus guard passed — all banks and surfaces are clean.\n`);
   }
 }
 

@@ -44,6 +44,7 @@ import {
   isScienceDeletedFor2026_27,
   isMathsDeletedFor2026_27,
 } from "../../lazytopper/src/prediction/cbseHistoricalArchetypes.js";
+import { SURFACE_BANNED_PHRASES } from "./syllabusGuard.js";
 
 // ── Repo paths ──────────────────────────────────────────────────────────────
 const REPO_ROOT = join(fileURLToPath(import.meta.url), "../../..");
@@ -64,6 +65,31 @@ function syllabusGuardHasBannedSubtopic(s: string): boolean {
   // Crude but specific — matches the literal quoted string in the file.
   return syllabusGuardSource.includes(`"${s}"`);
 }
+
+// Precise: extract the exact quoted entries of every question-bank
+// `bannedSubtopics: [...]` array in syllabusGuard.ts, ignoring comments and the
+// separate SURFACE_BANNED_PHRASES list. This lets us distinguish "banned in the
+// question bank" from "surface-excluded" — a distinction the whole-file
+// substring check above cannot make.
+function questionBankBannedEntries(source: string): Set<string> {
+  const entries = new Set<string>();
+  const blockRe = /bannedSubtopics:\s*\[([\s\S]*?)\]/g;
+  let block: RegExpExecArray | null;
+  while ((block = blockRe.exec(source)) !== null) {
+    const body = block[1].replace(/\/\/[^\n]*/g, ""); // strip line comments
+    const strRe = /"((?:[^"\\]|\\.)*)"/g;
+    let s: RegExpExecArray | null;
+    while ((s = strRe.exec(body)) !== null) {
+      entries.add(s[1].toLowerCase());
+    }
+  }
+  return entries;
+}
+
+const QUESTION_BANK_BANNED = questionBankBannedEntries(syllabusGuardSource);
+const SURFACE_PHRASE_SET = new Set(
+  SURFACE_BANNED_PHRASES.map((p) => p.toLowerCase())
+);
 
 // ── Block 1: Deleted Science chapters trigger the prediction deletion guard ─
 
@@ -279,14 +305,17 @@ describe("syllabusGuard banned list — 2026-27 doctrine", () => {
   }
 });
 
-// ── Block 4b: 2026-27 formative-only topics tracked in archetypes (not banned in bank) ─
+// ── Block 4b: 2026-27 formative-only topics — valid in the bank, surface-excluded ─
 
-describe("2026-27 formative-only topics — tracked in archetypes, NOT banned in bank", () => {
+describe("2026-27 formative-only topics — NOT banned in the question bank, but surface-excluded", () => {
   // Motor / EMI / Generator are taught in 2026-27 but not assessed in the
-  // year-end board exam (Science_SecP1_2026-27.pdf Note for Teachers). They
-  // remain valid question-bank subtopics for formative practice, so they are
-  // NOT in the syllabusGuard banned list. They are tracked in the prediction
-  // engine via SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics.
+  // year-end board exam (Science_SecP1_2026-27.pdf Note for Teachers). Under the
+  // owner-decided strictly-board-prep doctrine (2026-06-04) they are EXCLUDED
+  // from all board-prep surfaces (HPQ, mocks, tutor, …) — enforced via
+  // syllabusGuard.SURFACE_BANNED_PHRASES — while remaining valid QUESTION-BANK
+  // subtopics for formative practice (so they are NOT in the question-bank
+  // `bannedSubtopics` arrays). They are also tracked in the prediction engine
+  // via SCIENCE_DELETED_CHAPTERS_2026_27.formativeOnlyTopics.
   const formativeOnly = [
     "Electric Motor",
     "Electromagnetic Induction",
@@ -294,11 +323,19 @@ describe("2026-27 formative-only topics — tracked in archetypes, NOT banned in
   ];
 
   for (const s of formativeOnly) {
-    test(`syllabusGuard.ts does NOT ban formative-only subtopic "${s}"`, () => {
+    test(`syllabusGuard question-bank list does NOT ban formative-only subtopic "${s}"`, () => {
       assert.equal(
-        syllabusGuardHasBannedSubtopic(s),
+        QUESTION_BANK_BANNED.has(s.toLowerCase()),
         false,
-        `Formative-only topic "${s}" should remain in the question bank — not banned`
+        `Formative-only topic "${s}" must remain a valid question-bank subtopic — not in bannedSubtopics`
+      );
+    });
+
+    test(`syllabusGuard SURFACE_BANNED_PHRASES DOES exclude formative-only topic "${s}" from board-prep surfaces`, () => {
+      assert.equal(
+        SURFACE_PHRASE_SET.has(s.toLowerCase()),
+        true,
+        `Formative-only topic "${s}" must be surface-excluded (board-prep doctrine)`
       );
     });
   }

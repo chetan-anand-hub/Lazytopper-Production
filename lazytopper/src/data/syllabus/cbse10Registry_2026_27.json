@@ -6,8 +6,8 @@
     "generated_on": "2026-04-18",
     "notes": [
       "Unit marks and topic scope reflect the CBSE rationalized curriculum for 2026-27.",
-      "Excluded from scope (explicitly removed in 2026-27 rationalization): Periodic Classification of Elements, Management of Natural Resources, Sources of Energy, and the evolution section from Heredity.",
-      "The Heredity chapter is now assessed on Mendelian genetics and sex determination only; evolution, fossils, speciation, and homologous/analogous organs are out of scope.",
+      "Two distinct out-of-board-exam categories (do not conflate): (a) TRULY DELETED chapters — Sources of Energy and Management of Natural Resources (absent from the syllabus entirely); (b) FORMATIVE-ONLY topics — Periodic Classification of Elements, the Evolution section of Heredity, and Motor/Electromagnetic Induction/Electric Generator: these remain in the syllabus and are taught/portfolio-creditable, but are NOT assessed in the year-end (summative) examination. Per owner doctrine (LazyTopper = strictly board-prep), BOTH categories are excluded from all board-prep surfaces.",
+      "The Heredity chapter is assessed on Mendelian genetics and sex determination (these are board-assessed and RETAINED); only the evolution section (evolution, fossils, speciation, natural selection, homologous/analogous organs, evidence of evolution) is formative-only and excluded from board-prep.",
       "The Reproduction chapter (Ch 8) covers asexual and sexual reproduction mechanisms AND reproductive health (contraception, family planning, safe sex, HIV/AIDS) — all in scope for 2026-27.",
       "Our Environment (food chains, trophic levels, ecosystem interactions, pollution, waste management) remains in scope under Unit 5.",
       "Maths scope is unchanged from 2025-26."
@@ -21,22 +21,31 @@
     "excluded_chapters": [
       {
         "chapter": "Periodic Classification of Elements",
-        "reason": "Deleted from CBSE Class 10 Science syllabus in 2026-27 rationalization"
+        "reason": "Formative-only in 2026-27 — in the syllabus but NOT assessed in the year-end examination; excluded from board-prep scope per owner doctrine (not a true deletion)",
+        "category": "formative-only"
       },
       {
         "chapter": "Management of Natural Resources",
-        "reason": "Deleted from CBSE Class 10 Science syllabus in 2026-27 rationalization"
+        "reason": "Truly deleted from the CBSE Class 10 Science syllabus in 2026-27 rationalization",
+        "category": "deleted"
       },
       {
         "chapter": "Sources of Energy",
-        "reason": "Deleted from CBSE Class 10 Science syllabus in 2026-27 rationalization"
+        "reason": "Truly deleted from the CBSE Class 10 Science syllabus in 2026-27 rationalization",
+        "category": "deleted"
+      },
+      {
+        "chapter": "Electromagnetic Induction / Electric Motor / Electric Generator (within Magnetic Effects of Electric Current)",
+        "reason": "Formative-only in 2026-27 — in the syllabus but NOT assessed in the year-end examination; excluded from board-prep scope per owner doctrine. The parent chapter Magnetic Effects of Electric Current remains in scope.",
+        "category": "formative-only"
       }
     ],
     "excluded_subtopics": [
       {
         "chapter": "Heredity",
         "subtopics": ["Evolution", "Fossils", "Speciation", "Homologous and analogous organs", "Natural selection", "Evidence of evolution"],
-        "reason": "Evolution section removed; only Mendelian genetics and sex determination remain in scope"
+        "reason": "Evolution section is formative-only in 2026-27 — taught but NOT assessed in the year-end examination; excluded from board-prep scope (not removed from the syllabus). Mendelian genetics and sex determination are board-assessed and IN scope.",
+        "category": "formative-only"
       }
     ]
   },
@@ -350,12 +359,10 @@
           "unit_id": "S10_U2",
           "title": "Reproduction",
           "cbse_scope_bullets": [
-            "Asexual and sexual reproduction in animals and plants."
-          ],
-          "excluded_scope_bullets": [
+            "Asexual and sexual reproduction in animals and plants.",
             "Reproductive health: need and methods of family planning; safe sex vs HIV/AIDS; child bearing and women's health."
           ],
-          "scope_notes": "Reproductive health, family planning, safe sex, and HIV/AIDS topics are excluded from the 2026-27 assessed scope.",
+          "scope_notes": "Reproduction incl. reproductive health (family planning, safe sex vs HIV/AIDS, child bearing and women's health) is IN the 2026-27 assessed scope, per the official Class X Science syllabus (Unit II) and this registry's meta note. Corrected 2026-06-04 — a prior version wrongly excluded reproductive health.",
           "recommended_concept_packs": 12,
           "visual_min": 4
         },
@@ -370,7 +377,10 @@
           "excluded_scope_bullets": [
             "Evolution: speciation, natural selection, fossil evidence, homologous and analogous organs, evolutionary relationships."
           ],
-          "scope_notes": "Evolution is excluded from the 2026-27 assessed scope. Only Mendelian genetics and sex determination are in scope. This chapter was previously titled 'Heredity & Evolution'.",
+          "scope_notes": "Evolution is FORMATIVE-ONLY in 2026-27 — taught but not assessed in the year-end examination; excluded from board-prep scope per owner doctrine (not removed from the syllabus). Heredity/Mendel's laws/sex determination ARE board-assessed and in scope. This chapter was previously titled 'Heredity & Evolution'.",
+          "formative_only_scope_bullets": [
+            "Evolution: speciation, natural selection, fossil evidence, homologous and analogous organs, evolutionary relationships (formative-only — not year-end assessed)."
+          ],
           "recommended_concept_packs": 10,
           "visual_min": 3
         },
@@ -412,6 +422,10 @@
             "Force on current-carrying conductor; Fleming's Left Hand Rule.",
             "DC and AC (frequency); advantage of AC over DC; domestic circuits."
           ],
+          "formative_only_scope_bullets": [
+            "Electric Motor; Electromagnetic Induction; Electric Generator (formative-only in 2026-27 — taught but NOT assessed in the year-end examination; excluded from board-prep scope per owner doctrine)."
+          ],
+          "scope_notes": "The chapter is in scope and board-assessed, EXCEPT Electric Motor, Electromagnetic Induction and Electric Generator, which are formative-only (not year-end assessed) and excluded from board-prep surfaces.",
           "recommended_concept_packs": 16,
           "visual_min": 6
         },

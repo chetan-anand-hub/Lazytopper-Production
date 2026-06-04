@@ -141,24 +141,22 @@ async function run() {
     reproChapter ? `found: ${reproChapter.title}` : "FAIL: Reproduction chapter not found"
   );
   if (reproChapter) {
+    // 2026-27 CORRECTION (owner-signed-off, verified against the official Class X
+    // Science syllabus, Unit II): reproductive health — need & methods of family
+    // planning, safe sex vs HIV/AIDS, child bearing & women's health — is
+    // IN-syllabus and board-assessed. A prior version of this check wrongly
+    // required it to be EXCLUDED; that was the exact HIGH-priority registry bug
+    // fixed in the 2026-06-04 syllabus-guard correction. The check is now
+    // inverted: reproductive-health content must be PRESENT in the assessed
+    // scope bullets.
     const hit = bulletsContainKeyword(reproChapter.scopeBullets, REPRODUCTIVE_HEALTH_KEYWORDS);
     addCheck(
       checks,
-      "reproduction_scope_excludes_reproductive_health",
-      !hit,
+      "reproduction_scope_includes_reproductive_health",
+      Boolean(hit),
       hit
-        ? `FAIL: scope bullet contains '${hit}' — reproductive health content must be excluded`
-        : "ok: no reproductive health keywords in assessed scope bullets"
-    );
-
-    const inExcluded = bulletsContainKeyword(reproChapter.excludedScopeBullets, REPRODUCTIVE_HEALTH_KEYWORDS);
-    addCheck(
-      checks,
-      "reproduction_excluded_bullets_mention_reproductive_health",
-      true,
-      inExcluded
-        ? `info: excluded_scope_bullets correctly notes '${inExcluded}'`
-        : "info: excluded_scope_bullets does not reference reproductive health topics (non-blocking)"
+        ? `ok: assessed scope bullets include reproductive-health content ('${hit}') — IN scope for 2026-27`
+        : "FAIL: reproductive-health content missing from assessed scope bullets — it is IN-syllabus for 2026-27 (official source)"
     );
   }
 
