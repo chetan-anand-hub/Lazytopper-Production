@@ -1,3 +1,43 @@
+## 2026-06-04 - syllabusGuard + registry CORRECTED to official CBSE 2026-27 and EXTENDED to all board-prep surfaces (#186)
+
+Decision:
+PR #186 is merged. The syllabus RULER (guard + registry) is now verified-correct against the LIVE
+official CBSE 2026-27 Class X syllabus (Maths 041/241, Science 086, cbseacademic.nic.in) and the
+owner-signed-off `report-syllabus-verification-2026-06-04.md`. Trunk after #186:
+`918b754fe6fe08eb9ba7ab7a2cfc3b70993544a7`.
+
+Decisions locked (2026-06-04):
+- SYLLABUS VERIFIED AGAINST THE LIVE OFFICIAL SOURCE — the owner-signed-off verification report is the
+  authority, NOT memory and NOT the old ban list.
+- STEP DEVIATION UN-BANNED — it is IN the official Statistics scope ("…direct, assumed mean and step
+  deviation method"). The prior ban was a correctness bug.
+- REPRODUCTIVE HEALTH RESTORED TO IN-SCOPE — family planning / safe sex vs HIV-AIDS / child bearing is
+  board-assessed (official Unit II). The registry's exclusion of it was a HIGH-priority bug (it also
+  contradicted the registry's own meta). Moved into `cbse_scope_bullets`.
+- HEREDITY / MENDEL / SEX-DETERMINATION PRESERVED (board-assessed) — only the Evolution SECTION is
+  out. Sub-topic precision is enforced two-way: banned evolution terms caught, preserved heredity
+  terms never flagged (test-asserted).
+- 3 CONFIRMED-OUT MATHS ITEMS ADDED — Area of Triangle in Coordinate Geometry; Conversion of Solids;
+  cubic zeroes–coefficient relationship (Polynomials restricted to quadratic).
+- STRICTLY-BOARD-PREP DOCTRINE (owner, final) — formative-only topics (Periodic Classification, the
+  Evolution section, Motor/EMI/Generator) AND truly-deleted topics (Sources of Energy, Management of
+  Natural Resources) are EXCLUDED from ALL board-prep surfaces INCLUDING THE TUTOR. Formative-only
+  topics remain valid QUESTION-BANK subtopics (formative practice) — so they are surface-excluded
+  (`SURFACE_BANNED_PHRASES`) but NOT in the question-bank `bannedSubtopics`.
+- GUARD EXTENDED VIA CURATED PHRASE-SCAN — only unambiguous content-specific phrases; bare generics
+  (Evolution, Generator, Motor, Fossil, Constructions, …) deliberately excluded to avoid false
+  positives on prose ("gas evolution") and code identifiers (`dailyMixGenerator`). This honours the
+  HARD RULE "never let a generic term over-match in-syllabus content."
+- TWO STALE DOCTRINE-LOCKS CORRECTED (owner-authorized "correct both now") — the registry-acceptance
+  reproductive-health check (was asserting exclusion) and opsAcceptanceGuard Block 4b (whole-file
+  substring) encoded the pre-correction doctrine and were corrected so the only remaining red is the
+  intended sweep worklist.
+
+Implication:
+The gating guard is intentionally RED on a 93-item sweep worklist. NEXT product PR = the CONTENT SWEEP
+(clean the leaks → gating guard + matrix #19 green), run against THIS corrected guard. Then fresh Exam
+Trends tiering (D27) → band redesign → the other Option-B surfaces.
+
 ## 2026-06-03 - Exam Trends ranked-list responsive redesign merged (#184); band redesign decided as NEXT iteration
 
 Decision:

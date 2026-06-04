@@ -1,10 +1,37 @@
 # LazyTopper — Current State
-Last updated: 2026-06-03 (post-PR #184 — Exam Trends ranked-list responsive redesign; FIRST Option-B convergence)
+Last updated: 2026-06-04 (post-PR #186 — syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 93a26749e1e6a74819af6e8388e332df8d8b48d3
-Last merged PRs: #182 (feat: tighten concept teach-prompt to LOCKED style — owner live-verified), #183 (docs handoff post-#182), #184 (feat: Exam Trends ranked-list responsive redesign — ONE responsive component `ExamTrendsRanked.tsx` retiring both twins `DesktopExamTrendsPage.tsx` + `app/ExamTrends.tsx`; `/exam-trends` route de-split in App.tsx; design grammar preserved; verified responsive desktop + real mobile)
+SHA: 918b754fe6fe08eb9ba7ab7a2cfc3b70993544a7
+Last merged PRs: #184 (feat: Exam Trends ranked-list responsive redesign), #185 (docs handoff post-#184), #186 (fix: correct syllabusGuard + registry to official CBSE 2026-27; extend guard to all 24 board-prep surfaces; correct 2 stale doctrine-locks)
+
+## Syllabus guard CORRECTED to official 2026-27 + EXTENDED (#186) — RULER done, SWEEP next
+The syllabus RULER is now correct and trustworthy (verified against the live official CBSE 2026-27
+Class X syllabus — Maths 041/241, Science 086, cbseacademic.nic.in; owner-signed-off
+`report-syllabus-verification-2026-06-04.md`). #186 fixed 3 correctness bugs and extended scope:
+- **Step Deviation un-banned** (it is IN the official Statistics scope — the prior ban wrongly
+  stripped an examined method); **3 confirmed-OUT Maths items added** (Area of Triangle in Coord
+  Geometry; Conversion of Solids; cubic zeroes–coefficient); **Evolution-section sub-topics banned
+  while Heredity/Mendel/Sex-Determination are PRESERVED** (board-assessed; two-way test-asserted);
+  Maths citation fixed 2025-26→2026-27.
+- **Reproduction registry bug fixed (HIGH):** reproductive health / family planning / safe sex vs
+  HIV-AIDS is IN-syllabus → moved into `cbse_scope_bullets` (was wrongly excluded). Formative-only
+  (Periodic Classification, Evolution section, Motor/EMI/Generator) vs truly-deleted (Sources of
+  Energy, Mgmt of Natural Resources) relabelled with explicit `category` tags.
+- **Guard EXTENDED to 24 board-prep surfaces** (HPQ, mocks, worksheets, practice/daily-mix,
+  exam-trends/topic metadata, filters/config, **tutor teach-contracts**) via a curated word-boundary
+  phrase scan (`SURFACE_BANNED_PHRASES`) — bare generics (Evolution, Generator, Motor, …) deliberately
+  excluded to avoid false positives on prose ("gas evolution") + code identifiers (`dailyMixGenerator`).
+  Strictly-board-prep doctrine: formative-only + deleted topics excluded from EVERY surface INCLUDING
+  the tutor. Tests 10→45 (per-surface-category, two-way preserved-term, precision). Two stale
+  doctrine-locks corrected (registry-acceptance reproductive-health check inverted; opsAcceptanceGuard
+  Block 4b made precise).
+- **GATING GUARD IS INTENTIONALLY RED** on a **93-item sweep worklist** (banks: Conversion of Solids
+  ×46; surfaces: EMI/Motor/Generator across predicted/HPQ/config/trends/topics/topicHubContent + the
+  tutor teaching Euclid's lemma & evolution evidence). This is the spec for the **CONTENT SWEEP (next
+  PR)**, which removes the leaks and turns the gating guard + matrix #19 green. matrix = 174/175 (only
+  #19 red by design). This completes the guard half of D26; the content cleanup is what remains.
 
 ## Responsive redesign (Option B) — FIRST convergence DONE (#184)
 Exam Trends is the first surface converged under the LOCKED Option-B decision: ONE responsive
@@ -199,16 +226,16 @@ PYQ 2018-19 (heavy banned topic overlap) | Sentry/error monitoring backend
 
 ## Next safe actions (in order)
 
-1. Merge this handoff PR
-2. API gateway Railway deploy with rate limiting bundled (P0)
-3. Clerk pk_live_ switch (P0, 2 min)
-4. check-solution eval set (launch gate, P1)
-5. GitHub Actions CI + practiceFilterGuard.test.ts (P1)
-6. Case-Based "Easy" re-tag (XS)
-7. Repo-wide solutionSteps step-mark audit (M)
-8. AR/Section tagging audit (S)
-9. Practice session debrief (P1, before Sep PT1)
-10. PYQ 2019-20 extraction (after download)
+1. **CONTENT SWEEP (HIGH, NEXT)** — clean the 93-item worklist surfaced by the corrected guard
+   (banks: Conversion of Solids ×46; surfaces: EMI/Motor/Generator + tutor teaching Euclid's lemma &
+   evolution evidence). Turns the gating syllabusGuard + matrix #19 GREEN. Completes D26.
+2. Re-derive Exam Trends priorities FRESH (tier+trend+marks) [D27]; recheck HPQ counts → then the
+   Exam Trends band redesign (Must-crack / High-ROI / Good-to-do).
+3. Then the other Option-B surfaces (TopicHub + Formula/Notes, Check & Improve, Me/Progress, Worksheet).
+4. API gateway Railway deploy with rate limiting bundled (P0); Clerk pk_live_ switch (P0).
+5. check-solution eval set (launch gate, P1); GitHub Actions CI + practiceFilterGuard.test.ts (P1).
+6. Case-Based "Easy" re-tag (XS); repo-wide solutionSteps step-mark audit (M); AR/Section tagging audit (S).
+7. Practice session debrief (P1); PYQ 2019-20 extraction (after download).
 
 ## Confirmed launch domain
 lazytopper.in (owner-confirmed 2026-06-01 — NOT .app; earlier ".app" was wrong).

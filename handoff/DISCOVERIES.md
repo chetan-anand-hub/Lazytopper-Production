@@ -112,6 +112,12 @@ The tutor-teaching case is the urgent part. NOTE: `src/lib/desktop/` and `src/da
 lanes — the cleanup needs explicit scope. (Exam Trends #184 did NOT touch these — it read the blurbs
 as-is; the leak predates it and is tracked here for the content-correctness sweep.)
 
+> **UPDATE (#186, 2026-06-04): the GUARD HALF of D26 is DONE.** `syllabusGuard` now scans all 24
+> board-prep surfaces (incl. `topicTeachContracts.ts`, `topics.ts`, config files) via a curated
+> phrase scan, and the RULER itself was corrected (step-deviation un-banned, reproduction bug fixed,
+> 3 maths items added, citation fixed). The CONTENT cleanup remains — see D28 for the exact 93-item
+> worklist the corrected guard now surfaces. The gating guard is RED until that sweep lands.
+
 ## D27 — Exam Trends tiering/trend/marks data provenance is stale/untraceable
 The `must-crack / high-roi / good-to-do` `tier` enum exists and engines consume it (`strategyEngine`,
 `dailyMix`), but TOPIC-LEVEL priority (which topic is must-crack, its trend tier, its ~marks) is not
@@ -122,3 +128,35 @@ redesign. HPQ counts are also to be re-checked (later). LESSON: #184 faithfully 
 `desktopTopicsBySubject` returns (trend tier, weight, blurb) — it did NOT validate the underlying
 priorities; the redesign surfaced that the data itself needs a fresh derivation. Do NOT build the
 Must-crack/High-ROI/Good-to-do bands on the stale tiering — re-derive first.
+
+## D28 — the corrected syllabusGuard's 93-item RED output IS the content-sweep spec (#186)
+After #186 corrected + extended the guard, the gating `syllabusGuard` run exits 1 with a precise,
+spot-checked-real worklist (no false positives) — this is the SPEC for the next sweep PR:
+- **Question banks (exact `subtopic:`, 46 hits):** `"Conversion of Solids"` in
+  `surfaceAreasAndVolumes.exemplar.ts` (×23), `surfaceAreasAndVolumes.ncert.ts` (×10),
+  `surfaceAreasVolumes.pack2.ts` (×13).
+- **Board-prep surfaces (curated phrase, 47 hits):** EMI/Motor/Generator across
+  `predictedQuestionsScience.ts` (EMI×10, Motor×8, Generator×2), `hpqCompetencyAdditions.ts` (EMI×5,
+  Motor×1), `highlyProbableQuestions.ts` (Motor×1), `class10ContentConfig.ts` (EMI×1, Motor×3),
+  `class10ScienceTopicTrends.ts` (EMI×1, Motor×1); `topics.ts` (Euclid's Division Lemma×1, Conversion
+  of Solids×1, EMI×1); `topicHubContent.ts` (Frustum of a Cone×1, Conversion of Solids×2, EMI×1);
+  **`topicTeachContracts.ts`** (Euclid's Division Lemma×1, Euclid's Division Algorithm×1, Acquired and
+  Inherited Traits×1, Homologous Organs×1, Analogous Organs×1, EMI×1, Motor×1 — the tutor literally
+  teaches removed content: `:73` "state Euclid's division lemma: a = bq + r", `:412` "evidence for
+  evolution: homologous organs, analogous organs, fossils").
+The sweep removes/retags these → gating guard + matrix #19 go green. LESSON: a curated phrase scan
+(unambiguous multi-word phrases only) catches real leaks while bare-word prose scanning would drown in
+false positives ("gas evolution", `dailyMixGenerator`) — see `SURFACE_BANNED_PHRASES`.
+
+## D29 — CLAUDE.md §6 `verify-build.mjs` is a stale name; the real verifier is `verify-production-build.mjs`
+CLAUDE.md §6 says run `node scripts/verify-build.mjs`, but that file does not exist (it was removed in
+the #164 tooling decommission). The actual build verifier present in the repo is
+`lazytopper/scripts/verify-production-build.mjs` (also `scripts/verify-production-build.mjs`). Use the
+`verify-production-build.mjs` name; treat the CLAUDE.md reference as stale. (Previously noted in
+OPEN_QUESTIONS; recorded here as the canonical fact.)
+
+## D30 — PYQ `solutionSteps` data-quality issue (truncated/garbled steps) — later cleanup
+Some PYQ questions carry truncated or garbled `solutionSteps` (incomplete working / mangled notation)
+— a content-quality issue independent of the syllabus sweep. Flagged for a later data-quality cleanup
+pass (do NOT bundle into the content sweep, which is scoped to banned-syllabus removal). Tracked in
+OPEN_QUESTIONS.

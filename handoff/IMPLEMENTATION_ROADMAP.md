@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-04 — Post-PR #186 roadmap update (syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces)
+
+### Completed this session
+- [x] PR #186 — corrected `syllabusGuard.ts` + `cbse10Registry_2026_27.json` to the owner-signed-off
+  official CBSE 2026-27 syllabus (step-deviation un-banned; 3 OUT maths items added; Evolution
+  sub-topics banned with Heredity/Mendel PRESERVED; citation fixed; Reproduction registry bug fixed;
+  formative-only vs deleted relabelled) AND extended the guard to scan all 24 board-prep surfaces via
+  a curated phrase scan (tutor incl.). Corrected 2 stale doctrine-locks. Tests 10→45. Trunk after
+  merge `918b754`. The RULER is now correct — guard half of D26 done. Gating guard intentionally RED
+  on the 93-item sweep worklist (matrix 174/175, only #19 red by design).
+
+### Responsive redesign / content-correctness track
+  [x] Exam Trends ranked-list (#184 — sets the pattern)
+  [x] **Correct + extend syllabusGuard (the RULER)** (#186 — DONE)
+  [ ] **CONTENT SWEEP (NEXT, HIGH)** — clean the 93-item worklist (D28) so the gating guard + matrix
+      #19 go GREEN. Tutor teaching banned content is the urgent part. Run against the corrected guard.
+
 ## 2026-06-03 — Post-PR #184 roadmap update (Exam Trends ranked-list responsive redesign; FIRST Option-B convergence)
 
 ### Completed this session
