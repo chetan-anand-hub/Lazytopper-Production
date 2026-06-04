@@ -24,7 +24,8 @@ import {
  * ExamTrendsRanked — ONE responsive Exam Trends page (Option-B convergence).
  *
  * Source of truth (owner-held locked prototype):
- *   02_exam_trends_ranked_list.html — a ranked priority-LIST (not a card grid).
+ *   02_exam_trends_ranked_list.html — a ranked priority list, now evolved into
+ *   THREE collapsible priority BANDS (Must-crack / High-ROI / Good-to-do).
  *
  * This single component renders at every width (~360px → desktop) and RETIRES
  * both twins it replaced:
@@ -35,22 +36,34 @@ import {
  * mobile width it reflows fluidly via flex-wrap + min-width:0 ellipsis — NOT a
  * breakpoint swap to a different file.
  *
- * Design grammar is reused EXACTLY from the locked desktop pages (DesktopHome /
- * DesktopTopicHub / the old DesktopExamTrendsPage): the same green/text/border
- * tokens, the same Fraunces/Inter fonts, the same Toggle/Action button shapes,
- * inline styles + inline SVG (no Tailwind/shadcn/lucide), light theme only. ONLY
- * the Exam Trends *layout* changes (card grid → ranked list); the shared visual
- * language is byte-faithful so this page feels like the same product.
+ * BAND redesign (layout-only evolution of the flat ranked list):
+ *   The flat sorted list made the student reconcile weight-vs-trend via a Sort
+ *   toggle. The bands do that synthesis FOR them — the band IS the verdict.
+ *   Three collapsible bands replace the Sort toggle: Must-crack (open by
+ *   default) → High-ROI (collapsed) → Good-to-do (collapsed). Inside each band
+ *   the EXISTING row design is reused verbatim (name + tier chip + marks-weight
+ *   bar + Open → Topic Hub + "⋯" secondary actions). The row gains an "Expect:"
+ *   recurring-sub-pattern line (must-crack only — the locked doc supplies these)
+ *   and a volatility note on the two highest-but-most-volatile topics. The
+ *   Subject + Science-stream filters are kept; only the Sort toggle is removed.
+ *
+ * Tier authority (DO NOT re-derive or trust a stale code `tier` field):
+ *   LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md — owner-signed-off tiers.
+ *   The band membership, sub-patterns and volatility flags below are transcribed
+ *   VERBATIM from that locked doc and keyed by canonical topic slug. They are
+ *   data sourced from the authority, never computed from `weight`/`trendTier`.
  *
  * Data honesty (doctrine):
- *   - Real production data only (desktopTopicsBySubject — all 28 topics, both
+ *   - Real production data only (desktopTopicsBySubject — all topics, both
  *     subjects, working Science-stream filter). No fabricated "% likely".
- *   - Trend tier chips render High/Medium/Low — never a fake percentage.
+ *   - Trend tier chips render High/Medium/Low — never a fake percentage. The
+ *     chip is the every-year/frequency signal that makes a tier defensible.
+ *   - Sub-patterns are framed "Expect: [shape]" — a high-probability SHAPE, never
+ *     "the paper will ask X". They render ONLY where the locked doc supplies one
+ *     (the must-crack topics); High-ROI rows show none rather than an invented
+ *     shape (no fake data; nothing re-derived).
  *   - HPQ counts come from getHighlyProbableQuestions only, matched by canonical
  *     topic name; if no bucket matches we render nothing (no invented number).
- *   - The prototype's optional "proofs" tag is OMITTED: production topic data
- *     carries no structured proof flag, and inventing which topics are "proof
- *     topics" would fabricate a UI signal. Surfaced to owner as a follow-up.
  *
  * Routing reuses the production routes the old page used — "Open" → Topic Hub;
  * the "⋯" secondary actions → existing Practice / Worksheet / Predicted routes;
@@ -68,6 +81,10 @@ const TEXT_TERTIARY = "hsl(220, 14%, 55%)";
 const BORDER = "hsl(220, 18%, 90%)";
 const CARD_BG = "#ffffff";
 const SURFACE_SOFT = "hsl(215, 28%, 96%)";
+// Volatility / "prepare deep" honesty note — reuses the medium-tier amber so it
+// reads as a caution, not a new color in the grammar.
+const CAUTION_FG = "hsl(35, 75%, 32%)";
+const CAUTION_BG = "hsl(43, 90%, 94%)";
 
 const TIER_COLOR: Record<DesktopTrendTier, { fg: string; bg: string }> = {
   high: { fg: "hsl(152, 60%, 32%)", bg: "hsl(152, 55%, 95%)" },
@@ -79,18 +96,118 @@ const TIER_LABEL: Record<DesktopTrendTier, string> = {
   medium: "Medium",
   low: "Low",
 };
-const TIER_SORT: Record<DesktopTrendTier, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
 
 const FONT_DISPLAY =
   '"Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif';
 const FONT_BODY =
   '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
-type SortMode = "weight" | "trend";
+// ─── Priority bands (owner-locked) ───────────────────────────────────────────
+// Transcribed VERBATIM from LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md.
+// Do NOT re-tier or re-derive from weight/trendTier — this map IS the authority.
+type Band = "must-crack" | "high-roi" | "good-to-do";
+
+interface BandMeta {
+  band: Band;
+  /** "Expect: [shape]" recurring sub-pattern — only where the locked doc gives one. */
+  subPattern?: string;
+  /** Highest-weight but most volatile in its subject — "prepare deep, weight varies". */
+  volatile?: boolean;
+}
+
+const BAND_BY_SLUG: Record<string, BandMeta> = {
+  // ── MATHEMATICS — Must-crack (5) ──
+  trigonometry: {
+    band: "must-crack",
+    subPattern: "5-mk Heights & Distances LA + standard-angle evaluation",
+    volatile: true,
+  },
+  circles: {
+    band: "must-crack",
+    subPattern: "1-mk tangent MCQ + chord/tangent proof",
+  },
+  triangles: {
+    band: "must-crack",
+    subPattern: "similarity / BPT proof + 1-mk MCQ",
+  },
+  "surface-areas-and-volumes": {
+    band: "must-crack",
+    subPattern: "5-mk combination-of-solids LA + 4-mk case study",
+  },
+  polynomials: {
+    band: "must-crack",
+    subPattern: "2-mk zeroes-of-polynomial",
+  },
+  // ── MATHEMATICS — High-ROI ──
+  "coordinate-geometry": { band: "high-roi" },
+  "real-numbers": { band: "high-roi" },
+  probability: { band: "high-roi" },
+  "quadratic-equations": { band: "high-roi" },
+  statistics: { band: "high-roi" },
+  // ── MATHEMATICS — Good-to-do ──
+  "arithmetic-progression": { band: "good-to-do" },
+  "pair-of-linear-equations": { band: "good-to-do" },
+  "areas-related-to-circles": { band: "good-to-do" },
+
+  // ── SCIENCE — Must-crack (6) ──
+  "chemical-reactions-and-equations": {
+    band: "must-crack",
+    subPattern: "2-mk balancing + 3-mk displacement (full A–E spread)",
+  },
+  "light-reflection-and-refraction": {
+    band: "must-crack",
+    subPattern: "5-mk concave-mirror numerical/ray + 3-mk convex-lens",
+  },
+  "life-processes": {
+    band: "must-crack",
+    subPattern: "full A–E spread (nutrition, respiration, transport, excretion)",
+  },
+  "acids-bases-and-salts": {
+    band: "must-crack",
+    subPattern: "5-mk pH & indicators LA + case study",
+  },
+  electricity: {
+    band: "must-crack",
+    subPattern: "Ohm's-law / circuit numericals",
+    volatile: true,
+  },
+  heredity: {
+    band: "must-crack",
+    subPattern: "2–3-mk Mendelian crosses",
+  },
+  // ── SCIENCE — High-ROI ──
+  "control-and-coordination": { band: "high-roi" },
+  "metals-and-non-metals": { band: "high-roi" },
+  "magnetic-effects-of-electric-current": { band: "high-roi" },
+  "how-do-organisms-reproduce": { band: "high-roi" },
+  "carbon-and-its-compounds": { band: "high-roi" },
+  // ── SCIENCE — Good-to-do ──
+  "our-environment": { band: "good-to-do" },
+  "human-eye-and-colourful-world": { band: "good-to-do" },
+};
+
+const BAND_ORDER: Band[] = ["must-crack", "high-roi", "good-to-do"];
+
+const BAND_DISPLAY: Record<
+  Band,
+  { label: string; definition: string; defaultOpen: boolean }
+> = {
+  "must-crack": {
+    label: "Must-crack",
+    definition: "The non-negotiables — big marks, every year. Prepare deep.",
+    defaultOpen: true,
+  },
+  "high-roi": {
+    label: "High-ROI",
+    definition: "Best marks-per-hour — scoreable, consistent, formula-driven.",
+    defaultOpen: false,
+  },
+  "good-to-do": {
+    label: "Good-to-do",
+    definition: "Lower weight or more volatile — do these if time permits.",
+    defaultOpen: false,
+  },
+};
 
 // ─── Inline SVG glyphs (same family as the retired page) ────────────────────
 const ICON: React.CSSProperties = {
@@ -164,6 +281,23 @@ function IconMore({ size = 16 }: { size?: number }) {
       <circle cx="5" cy="12" r="1" />
       <circle cx="12" cy="12" r="1" />
       <circle cx="19" cy="12" r="1" />
+    </svg>
+  );
+}
+function IconChevron({ size = 18, open }: { size?: number; open: boolean }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      style={{
+        ...ICON,
+        transform: open ? "rotate(90deg)" : "rotate(0deg)",
+        transition: "transform 180ms ease",
+      }}
+      aria-hidden
+    >
+      <polyline points="9 6 15 12 9 18" />
     </svg>
   );
 }
@@ -332,38 +466,26 @@ function PageHeader() {
           color: TEXT_MUTED,
         }}
       >
-        What scores most in CBSE Class 10 — ranked. Tap a topic to learn or practise.
+        What scores most in CBSE Class 10, grouped by priority. Open a band to see
+        the few topics that matter — and where to spend your time.
       </p>
     </header>
   );
 }
 
-// ─── Controls row (Subject + Science stream + Sort) — flex-wraps on phones ──
+// ─── Controls row (Subject + Science stream) — flex-wraps on phones ─────────
 function ControlsRow({
   subject,
   stream,
-  sortMode,
   onSubject,
   onStream,
-  onSort,
 }: {
   subject: DesktopSubject;
   stream: DesktopStream;
-  sortMode: SortMode;
   onSubject: (s: DesktopSubject) => void;
   onStream: (s: DesktopStream) => void;
-  onSort: (s: SortMode) => void;
 }) {
   const scienceDisabled = subject !== "Science";
-  const groupLabel: React.CSSProperties = {
-    fontFamily: FONT_BODY,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-    color: TEXT_MUTED,
-    whiteSpace: "nowrap",
-  };
   return (
     <section
       style={{
@@ -404,17 +526,6 @@ function ControlsRow({
             {s}
           </ToggleButton>
         ))}
-      </div>
-
-      {/* Sort */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <span style={groupLabel}>Sort:</span>
-        <ToggleButton active={sortMode === "weight"} onClick={() => onSort("weight")}>
-          Marks weight
-        </ToggleButton>
-        <ToggleButton active={sortMode === "trend"} onClick={() => onSort("trend")}>
-          Trend
-        </ToggleButton>
       </div>
     </section>
   );
@@ -510,9 +621,10 @@ function SelectedTopicTray({
   );
 }
 
-// ─── Topic row (.trow) — the ranked-list unit (replaces the old card) ───────
+// ─── Topic row (.trow) — the ranked-list unit, reused inside every band ─────
 function TopicRow({
   topic,
+  meta,
   maxWeight,
   hpqCount,
   selected,
@@ -526,6 +638,7 @@ function TopicRow({
   onToggleSelect,
 }: {
   topic: DesktopTopicSummary;
+  meta: BandMeta | undefined;
   maxWeight: number;
   hpqCount: number;
   selected: boolean;
@@ -597,6 +710,26 @@ function TopicRow({
             >
               {TIER_LABEL[topic.trendTier]}
             </span>
+            {meta?.volatile && (
+              <span
+                title="Highest-weight but most volatile — prepare deep, don't bank a fixed mark-total."
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  flexShrink: 0,
+                  padding: "2px 8px",
+                  borderRadius: 999,
+                  background: CAUTION_BG,
+                  color: CAUTION_FG,
+                  fontFamily: FONT_BODY,
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Prepare deep · weight varies
+              </span>
+            )}
           </div>
 
           <div
@@ -613,6 +746,35 @@ function TopicRow({
           >
             {topic.blurb}
           </div>
+
+          {/* Recurring sub-pattern — the SHAPE, never a specific question. Renders
+              only where the locked doc supplies one (must-crack topics). */}
+          {meta?.subPattern && (
+            <div
+              style={{
+                marginTop: 6,
+                display: "flex",
+                alignItems: "baseline",
+                gap: 6,
+                fontFamily: FONT_BODY,
+                fontSize: 11.5,
+                lineHeight: 1.45,
+                color: TEXT_MUTED,
+              }}
+            >
+              <span
+                style={{
+                  flexShrink: 0,
+                  fontWeight: 700,
+                  letterSpacing: "0.02em",
+                  color: PRIMARY_GREEN_DEEP,
+                }}
+              >
+                Expect:
+              </span>
+              <span style={{ minWidth: 0 }}>{meta.subPattern}</span>
+            </div>
+          )}
 
           {/* Marks-weight bar + label */}
           <div
@@ -727,13 +889,164 @@ function TopicRow({
   );
 }
 
+// ─── Priority band — collapsible header + the reused rows ───────────────────
+function PriorityBand({
+  band,
+  topics,
+  open,
+  maxWeight,
+  hpqCounts,
+  selectedSlugs,
+  expandedSlug,
+  onToggleOpen,
+  onToggleExpand,
+  onOpen,
+  onPractice,
+  onWorksheet,
+  onPredicted,
+  onToggleSelect,
+}: {
+  band: Band;
+  topics: DesktopTopicSummary[];
+  open: boolean;
+  maxWeight: number;
+  hpqCounts: Map<string, number>;
+  selectedSlugs: string[];
+  expandedSlug: string | null;
+  onToggleOpen: () => void;
+  onToggleExpand: (slug: string) => void;
+  onOpen: (topic: DesktopTopicSummary) => void;
+  onPractice: (topic: DesktopTopicSummary) => void;
+  onWorksheet: (topic: DesktopTopicSummary) => void;
+  onPredicted: (topic: DesktopTopicSummary) => void;
+  onToggleSelect: (slug: string) => void;
+}) {
+  const display = BAND_DISPLAY[band];
+  const count = topics.length;
+  return (
+    <section
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 14,
+        overflow: "hidden",
+        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+        marginBottom: 14,
+      }}
+    >
+      <button
+        type="button"
+        onClick={onToggleOpen}
+        aria-expanded={open}
+        style={{
+          appearance: "none",
+          width: "100%",
+          textAlign: "left",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 12,
+          padding: "16px 16px",
+          background: open ? PRIMARY_GREEN_SOFT : CARD_BG,
+          border: "none",
+          borderBottom: open ? `1px solid ${BORDER}` : "none",
+          cursor: "pointer",
+          transition: "background 160ms ease",
+        }}
+      >
+        <span
+          style={{
+            flexShrink: 0,
+            marginTop: 1,
+            color: open ? PRIMARY_GREEN_DEEP : TEXT_MUTED,
+            display: "inline-flex",
+          }}
+        >
+          <IconChevron open={open} />
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              flexWrap: "wrap",
+              gap: 8,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 16,
+                fontWeight: 600,
+                color: TEXT_FG,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {display.label}
+            </span>
+            <span
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 11.5,
+                fontWeight: 600,
+                color: TEXT_MUTED,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {count} topic{count === 1 ? "" : "s"}
+            </span>
+          </span>
+          <span
+            style={{
+              display: "block",
+              marginTop: 3,
+              fontFamily: FONT_BODY,
+              fontSize: 12,
+              lineHeight: 1.45,
+              color: TEXT_TERTIARY,
+            }}
+          >
+            {display.definition}
+          </span>
+        </span>
+      </button>
+
+      {open && (
+        <div>
+          {topics.map((topic, idx) => (
+            <TopicRow
+              key={topic.slug}
+              topic={topic}
+              meta={BAND_BY_SLUG[topic.slug]}
+              maxWeight={maxWeight}
+              hpqCount={hpqCounts.get(topic.slug) ?? 0}
+              selected={selectedSlugs.includes(topic.slug)}
+              expanded={expandedSlug === topic.slug}
+              isLast={idx === topics.length - 1}
+              onToggleExpand={() => onToggleExpand(topic.slug)}
+              onOpen={() => onOpen(topic)}
+              onPractice={() => onPractice(topic)}
+              onWorksheet={() => onWorksheet(topic)}
+              onPredicted={() => onPredicted(topic)}
+              onToggleSelect={() => onToggleSelect(topic.slug)}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ExamTrendsRanked() {
   const navigate = useNavigate();
   const location = useLocation();
   const [subject, setSubject] = useState<DesktopSubject>("Maths");
   const [stream, setStream] = useState<DesktopStream>("All");
-  const [sortMode, setSortMode] = useState<SortMode>("weight");
+  const [openBands, setOpenBands] = useState<Record<Band, boolean>>(() => ({
+    "must-crack": BAND_DISPLAY["must-crack"].defaultOpen,
+    "high-roi": BAND_DISPLAY["high-roi"].defaultOpen,
+    "good-to-do": BAND_DISPLAY["good-to-do"].defaultOpen,
+  }));
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
   const currentExamTrendsUrl = `${location.pathname}${location.search}`;
@@ -745,21 +1058,34 @@ export default function ExamTrendsRanked() {
     if (next === "Maths") setStream("All");
   };
 
+  // One filtered, weight-desc list; the bands regroup it (the band IS the
+  // synthesis, so there is no more weight-vs-trend Sort toggle).
   const sortedTopics = useMemo<DesktopTopicSummary[]>(() => {
     const list = desktopTopicsBySubject(subject, stream);
-    return [...list].sort((a, b) => {
-      if (sortMode === "trend") {
-        const tierDiff = TIER_SORT[a.trendTier] - TIER_SORT[b.trendTier];
-        if (tierDiff !== 0) return tierDiff;
-      }
-      return b.weight - a.weight;
-    });
-  }, [subject, stream, sortMode]);
+    return [...list].sort((a, b) => b.weight - a.weight);
+  }, [subject, stream]);
 
   const maxWeight = useMemo(
     () => sortedTopics.reduce((m, t) => Math.max(m, t.weight), 1),
     [sortedTopics],
   );
+
+  // Group the filtered list into the three owner-locked bands, preserving the
+  // weight-desc order inside each band. A topic with no locked entry (shouldn't
+  // happen — the locked doc covers every topic) falls back to Good-to-do rather
+  // than being silently dropped.
+  const bandedTopics = useMemo<Record<Band, DesktopTopicSummary[]>>(() => {
+    const groups: Record<Band, DesktopTopicSummary[]> = {
+      "must-crack": [],
+      "high-roi": [],
+      "good-to-do": [],
+    };
+    sortedTopics.forEach((topic) => {
+      const band = BAND_BY_SLUG[topic.slug]?.band ?? "good-to-do";
+      groups[band].push(topic);
+    });
+    return groups;
+  }, [sortedTopics]);
 
   const hpqCounts = useMemo(() => {
     const map = new Map<string, number>();
@@ -775,6 +1101,10 @@ export default function ExamTrendsRanked() {
 
   const toggleExpand = (slug: string) => {
     setExpandedSlug((prev) => (prev === slug ? null : slug));
+  };
+
+  const toggleBand = (band: Band) => {
+    setOpenBands((prev) => ({ ...prev, [band]: !prev[band] }));
   };
 
   const goPracticeTopic = (topic: DesktopTopicSummary) => {
@@ -861,6 +1191,8 @@ export default function ExamTrendsRanked() {
 
   const clearSelection = () => setSelectedSlugs([]);
 
+  const hasTopics = sortedTopics.length > 0;
+
   return (
     <div
       style={{
@@ -878,10 +1210,8 @@ export default function ExamTrendsRanked() {
       <ControlsRow
         subject={subject}
         stream={stream}
-        sortMode={sortMode}
         onSubject={handleSubject}
         onStream={setStream}
-        onSort={setSortMode}
       />
 
       {selectedSlugs.length > 0 && (
@@ -896,7 +1226,7 @@ export default function ExamTrendsRanked() {
         />
       )}
 
-      {sortedTopics.length === 0 ? (
+      {!hasTopics ? (
         <div
           style={{
             background: CARD_BG,
@@ -912,33 +1242,25 @@ export default function ExamTrendsRanked() {
           No topics match this filter yet.
         </div>
       ) : (
-        <div
-          style={{
-            background: CARD_BG,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 14,
-            overflow: "hidden",
-            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-          }}
-        >
-          {sortedTopics.map((topic, idx) => (
-            <TopicRow
-              key={topic.slug}
-              topic={topic}
-              maxWeight={maxWeight}
-              hpqCount={hpqCounts.get(topic.slug) ?? 0}
-              selected={selectedSlugs.includes(topic.slug)}
-              expanded={expandedSlug === topic.slug}
-              isLast={idx === sortedTopics.length - 1}
-              onToggleExpand={() => toggleExpand(topic.slug)}
-              onOpen={() => goTopicHub(topic)}
-              onPractice={() => goPracticeTopic(topic)}
-              onWorksheet={() => goWorksheetTopic(topic)}
-              onPredicted={() => goPredictedTopic(topic)}
-              onToggleSelect={() => toggleSelect(topic.slug)}
-            />
-          ))}
-        </div>
+        BAND_ORDER.filter((band) => bandedTopics[band].length > 0).map((band) => (
+          <PriorityBand
+            key={band}
+            band={band}
+            topics={bandedTopics[band]}
+            open={openBands[band]}
+            maxWeight={maxWeight}
+            hpqCounts={hpqCounts}
+            selectedSlugs={selectedSlugs}
+            expandedSlug={expandedSlug}
+            onToggleOpen={() => toggleBand(band)}
+            onToggleExpand={toggleExpand}
+            onOpen={goTopicHub}
+            onPractice={goPracticeTopic}
+            onWorksheet={goWorksheetTopic}
+            onPredicted={goPredictedTopic}
+            onToggleSelect={toggleSelect}
+          />
+        ))
       )}
     </div>
   );
