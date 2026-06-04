@@ -320,17 +320,10 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       concepts: [
         {
           name: "Right-hand Rules & Field Lines",
-          sharePercent: 55,
+          sharePercent: 100,
           question_types: ["Short", "Diagram-based"],
           summary_and_exam_tips:
             "Draw neat field line diagrams; remember direction rules for straight conductor and solenoid.",
-        },
-        {
-          name: "Electric Motor & Electromagnetic Induction",
-          sharePercent: 45,
-          question_types: ["Short", "Long"],
-          summary_and_exam_tips:
-            "Labelled diagrams + principle statements give easy marks.",
         },
       ],
     },

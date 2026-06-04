@@ -1971,16 +1971,16 @@ const magneticConfig: TopicContentConfig = {
 
   quickRevisionRoadmap: [
     "1️⃣ Revise magnetic field lines: direction (N → S outside, S → N inside), properties, and field due to a straight conductor and solenoid.",
-    "2️⃣ Practise right-hand thumb rule, right-hand grip rule, and Fleming’s left-hand rule for force on a current-carrying conductor.",
-    "3️⃣ Learn the principle, construction and working of an electric motor with a clean labelled diagram.",
-    "4️⃣ Skim the difference between motor and generator; note which rule is used where.",
+    "2️⃣ Practise the right-hand thumb rule and right-hand grip rule for the direction of the magnetic field around a conductor and a solenoid.",
+    "3️⃣ Master Fleming’s left-hand rule and the force on a current-carrying conductor placed in a magnetic field.",
+    "4️⃣ Practise predicting the direction of the force from the directions of current and field.",
   ],
 
   keyConceptsSummary:
-    "Core ideas: (i) current-carrying conductors produce magnetic fields, (ii) field lines represent strength and direction of the field, (iii) direction rules: thumb rules and Fleming’s left-hand rule, (iv) construction and working of electric motor and simple ideas of electromagnetic induction & generator. Most questions are reasoning or diagram based.",
+    "Core ideas: (i) current-carrying conductors produce magnetic fields, (ii) field lines represent strength and direction of the field, (iii) direction rules: the right-hand thumb/grip rules and Fleming’s left-hand rule, (iv) the force experienced by a current-carrying conductor placed in a magnetic field. Most questions are reasoning or diagram based.",
 
   boardExamplesSummary:
-    "Common patterns: draw and label field lines around a bar magnet or straight conductor, state right-hand thumb rule, explain the working of an electric motor with a diagram, or distinguish between motor and generator. 2-mark questions often ask you to predict the direction of force or current using Fleming’s rules.",
+    "Common patterns: draw and label field lines around a bar magnet or straight conductor, state the right-hand thumb rule, or find the direction of the force on a current-carrying conductor in a magnetic field. 2-mark questions often ask you to predict the direction of the force using Fleming’s left-hand rule.",
 };
 
 // -----------------------------------------------------------------

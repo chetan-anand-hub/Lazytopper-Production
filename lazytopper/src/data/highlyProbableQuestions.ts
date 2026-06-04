@@ -2532,49 +2532,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         ],
         finalAnswer: "A current-carrying solenoid produces a magnetic field similar to a bar magnet, with one end behaving as N-pole and the other as S-pole. Field lines emerge from the north end and enter the south end, forming closed loops.",
       },
-      {
-        id: "sci-mec-hpq-3",
-        subject: "Science",
-        stream: "Physics",
-        topic: "Magnetic Effects of Electric Current",
-        subtopic: "Electric Motor/Generator",
-        concept: "Fleming’s left-hand rule AR",
-        section: "A",
-        type: "AssertionReason",
-        kind: "assertion-reason",
-        difficulty: "Medium",
-        marks: 1,
-        likelihood: "Medium-High",
-        tier: "high-roi",
-        bloomSkill: "Analysing",
-        question:
-          "Assertion: Fleming’s left-hand rule gives the direction of force on a current-carrying conductor in a magnetic field. Reason: According to the rule, thumb, forefinger and middle finger represent force, magnetic field and current respectively, all mutually perpendicular.",
-        assertion:
-          "Fleming’s left-hand rule gives the direction of force on a current-carrying conductor in a magnetic field.",
-        reason:
-          "According to the rule, thumb, forefinger and middle finger represent force, magnetic field and current respectively, all mutually perpendicular.",
-        aROptions: [
-          {
-            label: "A",
-            text: "Both A and R are true, and R is the correct explanation of A.",
-          },
-          {
-            label: "B",
-            text: "Both A and R are true, but R is not the correct explanation of A.",
-          },
-          { label: "C", text: "A is true but R is false." },
-          { label: "D", text: "A is false but R is true." },
-        ],
-        correctOption: "A",
-        explanation:
-          "The rule is used for direction of force; the mapping of fingers is correctly stated, so R explains A.",
-        policyTag: "AR motor rule",
-        solutionSteps: [
-          "Assertion states Fleming's left-hand rule gives the direction of force on a current-carrying conductor, which is true.",
-          "Reason states the rule's components: thumb for force, forefinger for magnetic field, middle finger for current, all mutually perpendicular.",
-          "This description of the rule's components and their perpendicularity correctly explains how the direction of force is determined.",
-        ],
-      },
     ],
   },
 

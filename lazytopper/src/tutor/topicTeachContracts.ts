@@ -68,19 +68,21 @@ const scienceGeneric: TeachContractSeed = {
 const topicSpecificSeeds: Record<string, TeachContractSeed> = {
   "real-numbers": {
     ...mathsGeneric,
-    goalLine: "Learn {topic} with Euclid's division and Fundamental Theorem of Arithmetic in CBSE board-writing format.",
+    goalLine: "Learn {topic} with the Fundamental Theorem of Arithmetic and proofs of irrationality in CBSE board-writing format.",
     keyIdeas: [
-      "state Euclid's division lemma: a = bq + r, 0 ≤ r < b.",
       "apply the Fundamental Theorem of Arithmetic (unique prime factorisation) before finding HCF/LCM.",
       "use HCF × LCM = product of two numbers and verify the result.",
       "prove irrationality by contradiction: assume √p is rational, derive that p divides both a and b, contradicting co-primality.",
+      // [content-sweep 2026-06-04] in-syllabus 4th step (keyIdeas is a fixed 4-tuple)
+      // replacing the removed Euclid's-division-lemma step.
+      "solve HCF/LCM word problems via prime factorisation, then state the final answer with clear reasoning.",
     ],
     checkpointQuestion:
-      "Board checkpoint: Find HCF of 420 and 130 using Euclid's division algorithm. Write each step with Given, algorithm application, and Therefore/Hence.",
+      "Board checkpoint: Find the HCF and LCM of 420 and 130 using prime factorisation. Write each step with Given, prime factorisation, and Therefore/Hence.",
     checkpointAnswer:
-      "Expected answer: Given: 420, 130. Step 1: 420 = 130 × 3 + 30. Step 2: 130 = 30 × 4 + 10. Step 3: 30 = 10 × 3 + 0. Therefore HCF(420, 130) = 10.",
+      "Expected answer: Given: 420, 130. 420 = 2² × 3 × 5 × 7; 130 = 2 × 5 × 13. HCF = product of common primes (lowest powers) = 2 × 5 = 10. LCM = 2² × 3 × 5 × 7 × 13 = 5460. Therefore HCF(420, 130) = 10 and LCM(420, 130) = 5460 (check: 10 × 5460 = 420 × 130).",
     commonMistake:
-      "Common mistake: stopping Euclid's algorithm before the remainder reaches zero, or confusing HCF and LCM formulas. This can lose marks in CBSE board checking.",
+      "Common mistake: leaving the prime factorisation incomplete, or confusing the HCF rule (common primes, lowest powers) with the LCM rule (all primes, highest powers). This can lose marks in CBSE board checking.",
   },
   polynomials: {
     ...mathsGeneric,
@@ -404,12 +406,14 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
   },
   "heredity-and-evolution": {
     ...scienceGeneric,
-    goalLine: "Learn {topic} with Mendel's laws, inheritance patterns, and evolutionary evidence in CBSE board-writing format.",
+    goalLine: "Learn {topic} with Mendel's laws, inheritance patterns, and sex determination in CBSE board-writing format.",
     keyIdeas: [
       "state Mendel's laws: dominance, segregation (3:1 in F₂), independent assortment.",
       "use Punnett squares to show genotypic and phenotypic ratios for monohybrid and dihybrid crosses.",
-      "distinguish between acquired and inherited traits with examples.",
-      "explain evidence for evolution: homologous organs, analogous organs, fossils, DNA comparison.",
+      // [content-sweep 2026-06-04] in-syllabus replacements for the two removed
+      // evolution-evidence teach-steps (formative-only; out of board-assessed scope).
+      "use correct terminology — dominant/recessive, genotype/phenotype, homozygous/heterozygous, F₁ and F₂ generations.",
+      "explain how sex is determined in humans: females XX, males XY; the father's gamete (X or Y) decides the child's sex.",
     ],
     checkpointQuestion:
       "Board checkpoint: In a monohybrid cross between tall (TT) and dwarf (tt) pea plants, show the F₁ and F₂ generations with genotypic and phenotypic ratios.",
@@ -452,19 +456,21 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
   },
   "magnetic-effects-of-electric-current": {
     ...scienceGeneric,
-    goalLine: "Learn {topic} with field rules and motor/generator principles in CBSE board-writing format.",
+    goalLine: "Learn {topic} with field rules and the force on a current-carrying conductor in CBSE board-writing format.",
     keyIdeas: [
       "apply the right-hand thumb rule to determine magnetic field direction around a current-carrying conductor.",
-      "state Fleming's left-hand rule for motor effect: Force direction from current and field directions.",
-      "explain electromagnetic induction: changing magnetic field induces EMF (Faraday's law), state Fleming's right-hand rule.",
-      "describe the working of electric motor and AC generator with labelled diagrams.",
+      "state Fleming's left-hand rule for the force on a current-carrying conductor: force direction from current and field directions.",
+      // [content-sweep 2026-06-04] in-syllabus replacements for the two removed
+      // induction / motor / generator teach-steps (formative-only; out of board scope).
+      "draw and describe magnetic field lines around a bar magnet and a straight current-carrying conductor, noting their properties.",
+      "describe the magnetic field due to a current-carrying solenoid and how it behaves like a bar magnet.",
     ],
     checkpointQuestion:
       "Board checkpoint: State Fleming's left-hand rule. How is it used to determine the direction of force on a current-carrying conductor in a magnetic field?",
     checkpointAnswer:
       "Expected answer: Fleming's left-hand rule: Stretch the thumb, forefinger, and middle finger of the left hand mutually perpendicular. Forefinger → direction of magnetic field (B). Middle finger → direction of current (I). Thumb → direction of force (F). Therefore the force on the conductor is perpendicular to both the current and the magnetic field.",
     commonMistake:
-      "Common mistake: confusing Fleming's left-hand rule (motor) with right-hand rule (generator), or mixing up which finger represents which quantity. This can lose marks in CBSE board checking.",
+      "Common mistake: mixing up which finger represents field, current and force in Fleming's left-hand rule, or not naming the rule before applying it. This can lose marks in CBSE board checking.",
   },
   "our-environment": {
     ...scienceGeneric,

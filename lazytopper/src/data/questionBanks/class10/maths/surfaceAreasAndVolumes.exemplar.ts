@@ -102,79 +102,6 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 12.1 Q6", isCompetencyBased: false,
     strategyHint: "Identification-only; you will not be asked to compute frustum surface area or volume." },
 
-  { id: "SAV-N-EXMPLR-12-MCQ-006", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A hollow cube of internal edge 22 cm is filled with spherical marbles of diameter 0.5 cm and it is assumed that 1/8 space of the cube remains unfilled. Then the number of marbles that the cube can accommodate is",
-    options: ["142296", "142396", "142496", "142596"],
-    answer: "142296",
-    solutionSteps: [
-      "Volume of cube = 22³ = 10 648 cm³.",
-      "Space filled by marbles = (1 − 1/8) × 10 648 = (7/8) × 10 648 = 9 317 cm³.",
-      "Volume of one marble = (4/3)π(0.25)³ = (4/3)(22/7)(0.015625) = 88/(3 × 7 × 64) = 88/1344 ≈ 0.06548 cm³.",
-      "Number of marbles = 9 317 / 0.06548 ≈ 1,42,296."
-    ],
-    finalAnswer: "1,42,296 marbles — option (A).",
-    ncertRef: "Exemplar Ex 12.1 Q8", isCompetencyBased: true,
-    strategyHint: "Subtract the 1/8 unfilled space, then divide by one-marble volume." },
-
-  { id: "SAV-N-EXMPLR-12-MCQ-007", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A metallic spherical shell of internal and external diameters 4 cm and 8 cm respectively is melted and recast into a cone of base diameter 8 cm. The height of the cone is",
-    options: ["12 cm", "14 cm", "15 cm", "18 cm"],
-    answer: "14 cm",
-    solutionSteps: [
-      "Volume of shell = (4/3)π(R³ − r³) = (4/3)π(4³ − 2³) = (4/3)π × 56 = (224/3)π cm³.",
-      "Volume of cone = (1/3)πR²h = (1/3)π(4)²h = (16/3)πh cm³.",
-      "Conservation of volume: (16/3)πh = (224/3)π → h = 224/16 = 14 cm."
-    ],
-    finalAnswer: "14 cm — option (B).",
-    ncertRef: "Exemplar Ex 12.1 Q9", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-MCQ-008", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A solid piece of iron in the form of a cuboid of dimensions 49 cm × 33 cm × 24 cm is moulded to form a solid sphere. The radius of the sphere is",
-    options: ["21 cm", "23 cm", "25 cm", "19 cm"],
-    answer: "21 cm",
-    solutionSteps: [
-      "Volume of cuboid = 49 × 33 × 24 = 38 808 cm³.",
-      "(4/3)πr³ = 38 808 → r³ = 38 808 × 3 / (4 × 22/7) = 38 808 × 21 / 88 = 9 261.",
-      "r = ∛9 261 = 21 cm."
-    ],
-    finalAnswer: "21 cm — option (A).",
-    ncertRef: "Exemplar Ex 12.1 Q10", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-MCQ-009", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A mason constructs a wall of dimensions 270 cm × 300 cm × 350 cm with bricks each of size 22.5 cm × 11.25 cm × 8.75 cm, assuming that 1/8 of the volume is occupied by mortar. The number of bricks used is",
-    options: ["11100", "11200", "11000", "11300"],
-    answer: "11200",
-    solutionSteps: [
-      "Volume of wall = 270 × 300 × 350 = 2,83,50,000 cm³.",
-      "Brick portion (excluding mortar) = (7/8) × 2,83,50,000 = 2,48,06,250 cm³.",
-      "Volume of one brick = 22.5 × 11.25 × 8.75 = 2 214.84375 cm³.",
-      "Number of bricks = 2,48,06,250 / 2 214.84375 = 11 200."
-    ],
-    finalAnswer: "11 200 bricks — option (B).",
-    ncertRef: "Exemplar Ex 12.1 Q11", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-MCQ-010", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Twelve solid spheres of the same size are made by melting a solid metallic cylinder of base diameter 2 cm and height 16 cm. The diameter of each sphere is",
-    options: ["4 cm", "3 cm", "2 cm", "6 cm"],
-    answer: "2 cm",
-    solutionSteps: [
-      "Volume of cylinder = πR²h = π(1)²(16) = 16π cm³.",
-      "Volume of 12 spheres = 12 × (4/3)πr³ = 16πr³.",
-      "Equate: 16πr³ = 16π → r³ = 1 → r = 1 cm → diameter = 2 cm."
-    ],
-    finalAnswer: "2 cm — option (C).",
-    ncertRef: "Exemplar Ex 12.1 Q12", isCompetencyBased: true },
-
   { id: "SAV-N-EXMPLR-12-MCQ-011", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "A", marks: 1, format: "MCQ",
     difficulty: "Hard", bloomSkill: "Applying",
@@ -218,34 +145,6 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     finalAnswer: "2r cm — option (B).",
     ncertRef: "Exemplar Ex 12.1 Q16", isCompetencyBased: false },
 
-  { id: "SAV-N-EXMPLR-12-MCQ-014", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Easy", bloomSkill: "Understanding",
-    questionText: "During conversion of a solid from one shape to another, the volume of the new shape will",
-    options: ["increase", "decrease", "remain unaltered", "be doubled"],
-    answer: "remain unaltered",
-    solutionSteps: [
-      "Conversion (melting + recasting) only changes the shape; no material is added or removed.",
-      "Hence the volume is conserved (remains unaltered)."
-    ],
-    finalAnswer: "Remain unaltered — option (C).",
-    ncertRef: "Exemplar Ex 12.1 Q17", isCompetencyBased: false,
-    strategyHint: "Mass and volume of the metal are conserved on melting/recasting." },
-
-  { id: "SAV-N-EXMPLR-12-MCQ-015", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Volumes of two spheres are in the ratio 64 : 27. The ratio of their surface areas is",
-    options: ["3 : 4", "4 : 3", "9 : 16", "16 : 9"],
-    answer: "16 : 9",
-    solutionSteps: [
-      "V₁/V₂ = (r₁/r₂)³ = 64/27 → r₁/r₂ = 4/3.",
-      "Surface area ratio = (r₁/r₂)² = (4/3)² = 16/9."
-    ],
-    finalAnswer: "16 : 9 — option (D).",
-    ncertRef: "Exemplar Ex 12.1 Q20", isCompetencyBased: true,
-    strategyHint: "Cube-root the volume ratio to get the radius ratio; then square for area." },
-
   // ===== True/False (Ex 12.2, in-syllabus only) =====
   { id: "SAV-N-EXMPLR-12-VSA-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "B", marks: 2, format: "VSA",
@@ -272,43 +171,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     finalAnswer: "False — TSA is 4πrh + 2πr², not 4πrh + 4πr².",
     ncertRef: "Exemplar Ex 12.2 Q2", isCompetencyBased: true },
 
-  { id: "SAV-N-EXMPLR-12-VSA-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "B", marks: 2, format: "VSA",
-    difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "State whether true or false and justify: 'A solid ball is exactly fitted inside the cubical box of side a. The volume of the ball is (4/3)a³.'",
-    solutionSteps: [
-      "Ball fits exactly in cube → diameter of ball = a → radius r = a/2.",
-      "Volume of ball = (4/3)πr³ = (4/3)π(a/2)³ = (4/3)π × a³/8 = πa³/6.",
-      "This is NOT (4/3)a³ — it is πa³/6.",
-      "Hence FALSE."
-    ],
-    finalAnswer: "False — volume is πa³/6, not (4/3)a³.",
-    ncertRef: "Exemplar Ex 12.2 Q4", isCompetencyBased: true },
-
   // ===== Short Answer (Exercise 12.3, in-syllabus only) =====
-  { id: "SAV-N-EXMPLR-12-SA-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Easy", bloomSkill: "Applying",
-    questionText: "Three metallic solid cubes whose edges are 3 cm, 4 cm and 5 cm are melted and formed into a single cube. Find the edge of the cube so formed.",
-    solutionSteps: [
-      "Volume conserved: a³ = 3³ + 4³ + 5³ = 27 + 64 + 125 = 216 cm³.",
-      "a = ∛216 = 6 cm."
-    ],
-    finalAnswer: "Edge of new cube = 6 cm.",
-    ncertRef: "Exemplar Ex 12.3 Q1", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-SA-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "How many shots each having diameter 3 cm can be made from a cuboidal lead solid of dimensions 9 cm × 11 cm × 12 cm?",
-    solutionSteps: [
-      "Volume of cuboid = 9 × 11 × 12 = 1188 cm³.",
-      "Volume of one shot (sphere, r = 1.5 cm) = (4/3)π(1.5)³ = (4/3)(22/7)(3.375) = 99/7 cm³.",
-      "Number of shots = 1188 ÷ (99/7) = 1188 × 7 / 99 = 84."
-    ],
-    finalAnswer: "84 shots.",
-    ncertRef: "Exemplar Ex 12.3 Q2", isCompetencyBased: true },
-
   { id: "SAV-N-EXMPLR-12-SA-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "C", marks: 3, format: "Short",
     difficulty: "Easy", bloomSkill: "Applying",
@@ -360,110 +223,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 12.3 Q9", isCompetencyBased: true,
     strategyHint: "Cone + scoop, then take 5/6 of that volume." },
 
-  { id: "SAV-N-EXMPLR-12-SA-007", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Marbles of diameter 1.4 cm are dropped into a cylindrical beaker of diameter 7 cm containing some water. Find the number of marbles that should be dropped into the beaker so that the water level rises by 5.6 cm. (Use π = 22/7)",
-    solutionSteps: [
-      "Rise in water = volume of marbles dropped.",
-      "Volume of water raised = πR²h = (22/7)(3.5)²(5.6) = (22/7)(12.25)(5.6) = 215.6 cm³.",
-      "Volume of one marble = (4/3)π(0.7)³ = (4/3)(22/7)(0.343) = (4 × 22 × 0.343)/(3 × 7) = 30.184/21 ≈ 1.4373 cm³.",
-      "Number of marbles = 215.6 / 1.4373 = 150."
-    ],
-    finalAnswer: "150 marbles.",
-    ncertRef: "Exemplar Ex 12.3 Q10", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-SA-008", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "How many spherical lead shots each of diameter 4.2 cm can be obtained from a solid rectangular lead piece with dimensions 66 cm, 42 cm and 21 cm? (Use π = 22/7)",
-    solutionSteps: [
-      "V(cuboid) = 66 × 42 × 21 = 58 212 cm³.",
-      "V(one shot) = (4/3)π(2.1)³ = (4/3)(22/7)(9.261) = (4 × 22 × 9.261)/(3 × 7) = 814.968/21 ≈ 38.808 cm³.",
-      "Number of shots = 58 212 / 38.808 = 1 500."
-    ],
-    finalAnswer: "1 500 shots.",
-    ncertRef: "Exemplar Ex 12.3 Q11", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-SA-009", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "How many spherical lead shots of diameter 4 cm can be made out of a solid cube of lead whose edge measures 44 cm? (Use π = 22/7)",
-    solutionSteps: [
-      "V(cube) = 44³ = 85 184 cm³.",
-      "V(one shot) = (4/3)π(2)³ = (4/3)(22/7)(8) = 704/21 cm³.",
-      "Number of shots = 85 184 / (704/21) = 85 184 × 21 / 704 = 2 541."
-    ],
-    finalAnswer: "2 541 shots.",
-    ncertRef: "Exemplar Ex 12.3 Q12", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-SA-010", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A wall 24 m long, 0.4 m thick and 6 m high is constructed with bricks each of dimensions 25 cm × 16 cm × 10 cm. If the mortar occupies (1/10)th of the volume of the wall, find the number of bricks used in constructing the wall.",
-    solutionSteps: [
-      "V(wall) = 24 × 0.4 × 6 = 57.6 m³ = 57 600 000 cm³.",
-      "Brick portion = (9/10) × 57 600 000 = 51 840 000 cm³.",
-      "V(one brick) = 25 × 16 × 10 = 4 000 cm³.",
-      "Number of bricks = 51 840 000 / 4 000 = 12 960."
-    ],
-    finalAnswer: "12 960 bricks.",
-    ncertRef: "Exemplar Ex 12.3 Q13", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-SA-011", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Find the number of metallic circular discs of base diameter 1.5 cm and height 0.2 cm that need to be melted to form a right circular cylinder of height 10 cm and diameter 4.5 cm.",
-    solutionSteps: [
-      "V(big cylinder) = π(2.25)²(10) = 50.625π cm³.",
-      "V(one disc) = π(0.75)²(0.2) = π × 0.5625 × 0.2 = 0.1125π cm³.",
-      "Number of discs = 50.625π / 0.1125π = 50.625 / 0.1125 = 450."
-    ],
-    finalAnswer: "450 discs.",
-    ncertRef: "Exemplar Ex 12.3 Q14", isCompetencyBased: true },
-
   // ===== Long Answer (Exercise 12.4, in-syllabus only — frustum items skipped) =====
-  { id: "SAV-N-EXMPLR-12-LA-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A solid metallic hemisphere of radius 8 cm is melted and recast into a right circular cone of base radius 6 cm. Determine the height of the cone.",
-    solutionSteps: [
-      "V(hemisphere) = (2/3)πr³ = (2/3)π(8)³ = (2/3)π(512) = (1024/3)π cm³.",
-      "V(cone) = (1/3)πR²h = (1/3)π(6)²h = 12πh cm³.",
-      "Conservation: 12πh = (1024/3)π → h = 1024 / 36 = 256/9.",
-      "h = 256/9 cm ≈ 28.44 cm."
-    ],
-    finalAnswer: "h = 256/9 cm ≈ 28.44 cm.",
-    ncertRef: "Exemplar Ex 12.4 Q1", isCompetencyBased: true,
-    strategyHint: "Set hemisphere volume = cone volume." },
-
-  { id: "SAV-N-EXMPLR-12-LA-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A rectangular water tank of base 11 m × 6 m contains water up to a height of 5 m. If the water in the tank is transferred to a cylindrical tank of radius 3.5 m, find the height of the water level in the tank. (Use π = 22/7)",
-    solutionSteps: [
-      "V(water) = 11 × 6 × 5 = 330 m³.",
-      "V(cylinder) = πR²H = (22/7)(3.5)²(H) = (22/7)(12.25)H = 38.5 H.",
-      "Equate: 38.5 H = 330 → H = 330 / 38.5 = 60/7 m ≈ 8.57 m."
-    ],
-    finalAnswer: "Water level rises to H = 60/7 m ≈ 8.57 m.",
-    ncertRef: "Exemplar Ex 12.4 Q2", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-LA-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Water flows at the rate of 10 m/minute through a cylindrical pipe 5 mm in diameter. How long would it take to fill a conical vessel whose diameter at the base is 40 cm and depth 24 cm? (Use π = 22/7)",
-    solutionSteps: [
-      "V(conical vessel) = (1/3)πR²h = (1/3)(22/7)(20)²(24) = (1/3)(22/7)(400)(24) = (22 × 400 × 24)/(3 × 7) = 2,11,200/21 cm³.",
-      "Rate of flow: pipe radius = 2.5 mm = 0.25 cm; speed = 10 m/min = 1000 cm/min.",
-      "Volume per minute = π(0.25)²(1000) = (22/7)(0.0625)(1000) = (22 × 62.5)/7 = 1375/7 cm³/min.",
-      "Time = V(vessel) / (volume per minute) = (2,11,200/21) ÷ (1375/7) = (2,11,200/21) × (7/1375) = 2,11,200 / 4125 = 51.2 min.",
-      "= 51 min 12 s."
-    ],
-    finalAnswer: "51 min 12 s (= 51.2 minutes).",
-    ncertRef: "Exemplar Ex 12.4 Q5", isCompetencyBased: true,
-    strategyHint: "Time = total volume ÷ volumetric flow rate." },
-
   { id: "SAV-N-EXMPLR-12-LA-004", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long",
     difficulty: "Medium", bloomSkill: "Applying",
@@ -478,21 +238,6 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 12.4 Q6", isCompetencyBased: true,
     strategyHint: "Canvas = curved surface only (cone is sitting on the ground)." },
 
-  { id: "SAV-N-EXMPLR-12-LA-005", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Water is flowing at the rate of 15 km/h through a pipe of diameter 14 cm into a cuboidal pond which is 50 m long and 44 m wide. In what time will the level of water in the pond rise by 21 cm? (Use π = 22/7)",
-    solutionSteps: [
-      "Required volume to rise pond level by 21 cm = 50 × 44 × 0.21 = 462 m³.",
-      "Pipe radius = 7 cm = 0.07 m; speed = 15 km/h = 15 000 m/h.",
-      "Volume of water per hour = π(0.07)²(15 000) = (22/7)(0.0049)(15 000) = (22 × 0.0049 × 15 000)/7.",
-      "= (22 × 73.5)/7 = 1617/7 = 231 m³/h.",
-      "Time = 462 / 231 = 2 hours."
-    ],
-    finalAnswer: "Time = 2 hours.",
-    ncertRef: "Exemplar Ex 12.4 Q8", isCompetencyBased: true,
-    strategyHint: "Volume needed ÷ volume per hour = hours." },
-
   { id: "SAV-N-EXMPLR-12-LA-006", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long",
     difficulty: "Medium", bloomSkill: "Applying",
@@ -505,19 +250,6 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     ],
     finalAnswer: "≈ 487.62 cm³ of water.",
     ncertRef: "Exemplar Ex 12.4 Q11", isCompetencyBased: true },
-
-  { id: "SAV-N-EXMPLR-12-LA-007", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A cylindrical bucket of height 32 cm and base radius 18 cm is filled with sand. This bucket is emptied on the ground and a conical heap of sand is formed. If the height of the conical heap is 24 cm, find the radius and slant height of the heap. (Use π = 22/7)",
-    solutionSteps: [
-      "V(sand) = π(18)²(32) = 324 × 32 π = 10 368π cm³.",
-      "V(cone) = (1/3)πr²(24) = 8πr².",
-      "Equate: 8πr² = 10 368π → r² = 1 296 → r = 36 cm.",
-      "Slant height l = √(r² + h²) = √(36² + 24²) = √(1 296 + 576) = √1 872 = 12√13 cm ≈ 43.27 cm."
-    ],
-    finalAnswer: "Radius = 36 cm; slant height = 12√13 cm ≈ 43.27 cm.",
-    ncertRef: "Exemplar Ex 12.4 Q13", isCompetencyBased: true },
 
   { id: "SAV-N-EXMPLR-12-LA-008", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long",
@@ -533,18 +265,6 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     finalAnswer: "TSA = 301.44 cm²;  V = 376.80 cm³.",
     ncertRef: "Exemplar Ex 12.4 Q14", isCompetencyBased: true,
     strategyHint: "Rocket bottom is closed → include cylinder bottom circle; the top is replaced by the cone." },
-
-  { id: "SAV-N-EXMPLR-12-LA-009", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A hemispherical bowl of internal radius 9 cm is full of liquid. The liquid is to be filled into cylindrical-shaped bottles each of radius 1.5 cm and height 4 cm. How many bottles are needed to empty the bowl?",
-    solutionSteps: [
-      "V(bowl) = (2/3)πr³ = (2/3)π(9)³ = (2/3)π(729) = 486π cm³.",
-      "V(one bottle) = πR²h = π(1.5)²(4) = π(2.25)(4) = 9π cm³.",
-      "Number of bottles = 486π / 9π = 54."
-    ],
-    finalAnswer: "54 bottles.",
-    ncertRef: "Exemplar Ex 12.4 Q16", isCompetencyBased: true },
 
   // ===== Case-Based =====
   { id: "SAV-N-EXMPLR-12-CB-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
@@ -562,38 +282,7 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     ncertRef: "Exemplar Ex 12.4 Q20", isCompetencyBased: true,
     strategyHint: "Subtract depressions from the cuboid volume." },
 
-  { id: "SAV-N-EXMPLR-12-CB-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "E", marks: 4, format: "Case-Based",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A children's pool 80 m long and 50 m broad is filled with water. 500 children jump into the pool together. The average displacement of water by one child is 0.04 m³.\n(i) Find the total volume of water displaced by all 500 children.\n(ii) Determine the rise in the water level (in cm) of the pool.",
-    solutionSteps: [
-      "(i) Volume displaced = 500 × 0.04 = 20 m³.",
-      "(ii) Let rise = h metres. Then 80 × 50 × h = 20 → 4000 h = 20 → h = 0.005 m = 0.5 cm."
-    ],
-    finalAnswer: "(i) 20 m³ displaced;  (ii) water rises by 0.5 cm.",
-    ncertRef: "Exemplar Ex 12.4 Q10", isCompetencyBased: true,
-    strategyHint: "Total displacement = base area × rise; solve for rise." },
-
   // ===== Assertion-Reasoning =====
-  { id: "SAV-N-EXMPLR-12-AR-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "Assertion-Reasoning",
-    difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Assertion (A): When a metallic sphere is melted and recast into a cylinder, the volume of the cylinder equals the volume of the original sphere.\nReason (R): Melting and recasting changes the shape of a metallic object but conserves its mass and (assuming the density is unchanged) its volume.",
-    options: [
-      "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-      "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
-      "(C) Assertion is true but Reason is false.",
-      "(D) Assertion is false but Reason is true."
-    ],
-    answer: "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-    solutionSteps: [
-      "Assertion: When a metallic object is recast, volume is conserved → TRUE.",
-      "Reason: Melting/recasting preserves mass; with unchanged density, volume is also preserved → TRUE.",
-      "Reason directly explains Assertion. Hence option (A)."
-    ],
-    finalAnswer: "Option (A).",
-    ncertRef: "Exemplar concept check (Ex 12.1 Q17)", isCompetencyBased: false },
-
   { id: "SAV-N-EXMPLR-12-AR-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Combination of Solids", section: "A", marks: 1, format: "Assertion-Reasoning",
     difficulty: "Medium", bloomSkill: "Understanding",

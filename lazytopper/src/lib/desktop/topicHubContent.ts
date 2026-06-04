@@ -509,14 +509,12 @@ const SEEDED: Record<string, ActionableSeed> = {
 
   "surface-areas-and-volumes": {
     topicSnapshot: {
-      likelySection: "Sections C/D — combinations of solids and conversion between solids.",
+      likelySection: "Sections C/D — combinations of solids.",
       examinerNotes: "Marks come from picking the right pair of formulas and keeping units consistent throughout.",
     },
     boardEssentials: [
       { name: "Cylinder, cone and sphere — surface area and volume", oneLineUse: "Memorise the four core formulas; everything else builds on them.", marks: "1–3" },
       { name: "Combinations of solids (cone on cylinder, hemisphere on cube, …)", oneLineUse: "Add the visible surface areas and add the volumes — never both for the joining face.", marks: "3–5" },
-      { name: "Conversion of solids (melt-and-recast)", oneLineUse: "Equate volumes; never areas.", marks: "3–5" },
-      { name: "Frustum of a cone", oneLineUse: "Use the frustum formulas when a cone is sliced parallel to its base.", marks: "3–5" },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -528,18 +526,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       directUse: "Add only the externally visible surfaces; subtract the joining faces from each solid.",
       commonTrap: "Including the circular face where the cone sits on the cylinder — that face is hidden.",
     },
-    fullFormulaUseMap: [
-      {
-        kind: "formula",
-        title: "Conversion of solids (volume conservation)",
-        whenToUse: [
-          "Melt-and-recast questions",
-          "When liquid is poured from one vessel into another shape",
-        ],
-        directUse: "Set V₁ = V₂; solve for the unknown dimension.",
-        commonTrap: "Trying to equate surface areas instead of volumes — only volume is conserved.",
-      },
-    ],
+    fullFormulaUseMap: [],
     commonMistake: "Adding the joining face's area twice when computing the surface area of a combined solid.",
     examinerWarning: "Keep π = 22/7 (or 3.14) consistent throughout the solution and state the unit (cm² / cm³) at every stage.",
   },
@@ -592,37 +579,26 @@ const SEEDED: Record<string, ActionableSeed> = {
 
   "magnetic-effects-of-electric-current": {
     topicSnapshot: {
-      likelySection: "Sections C/D — right-hand rules, solenoid diagrams and induction descriptions.",
+      likelySection: "Sections C/D — right-hand rules and solenoid diagrams.",
       examinerNotes: "Direction questions are marked strictly — name the rule before applying it.",
     },
     boardEssentials: [
       { name: "Right-hand thumb rule (field around a straight conductor)", oneLineUse: "Find direction of magnetic field from current direction.", marks: "1–2" },
       { name: "Solenoid as a bar magnet", oneLineUse: "Use the right-hand grip rule to identify N and S poles of a current-carrying solenoid.", marks: "2–3" },
       { name: "Force on a current-carrying conductor (Fleming's left-hand rule)", oneLineUse: "Find direction of force on a conductor in a magnetic field.", marks: "2–3" },
-      { name: "Electromagnetic induction (Fleming's right-hand rule)", oneLineUse: "Find direction of induced current when a conductor moves through a field.", marks: "2–3" },
     ],
     formulaUsePreview: {
       kind: "law",
       title: "Fleming's left-hand rule (force on current-carrying conductor)",
       whenToUse: [
         "When direction of force on a conductor is asked",
-        "Motor working principle questions",
+        "When a current-carrying conductor lies in a magnetic field",
       ],
       directUse: "Forefinger = field, second finger = current, thumb = force — all mutually perpendicular.",
       commonTrap: "Swapping forefinger and second finger.",
     },
-    fullFormulaUseMap: [
-      {
-        kind: "law",
-        title: "Fleming's right-hand rule (induced current direction)",
-        whenToUse: [
-          "Generator working principle",
-          "Direction of induced current questions",
-        ],
-        commonTrap: "Using the left-hand rule by reflex when induction is involved.",
-      },
-    ],
-    commonMistake: "Confusing Fleming's left-hand (motor) and right-hand (generator) rules.",
+    fullFormulaUseMap: [],
+    commonMistake: "Mixing up which finger represents field, current and force when applying Fleming's left-hand rule.",
     examinerWarning: "Always name the rule you are applying before stating the direction — examiners mark this explicitly.",
   },
 
