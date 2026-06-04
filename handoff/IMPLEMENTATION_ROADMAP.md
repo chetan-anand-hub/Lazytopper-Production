@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-04 — Post-PR #188 roadmap update (CONTENT SWEEP — gating syllabusGuard GREEN)
+
+### Completed this session
+- [x] PR #188 — **content sweep**: deleted/rewrote the 93-item worklist the corrected guard (#186)
+  flagged. Banks: Conversion of Solids ×46 (exemplar 42→19, ncert 24→14, pack2 50→37; canonical
+  6520→6474, spreads intact). Surfaces: EMI/Motor/Generator + Euclid/Frustum ×47 across predicted/HPQ/
+  competency/config/trends/topics/topicHubContent + tutor contracts. DELETE-not-retag; blurbs/contracts
+  rewritten syllabus-accurate; marked in-syllabus teach-steps (keyIdeas 4-tuple). Gating
+  `syllabusGuard` exits 0, `test:matrix:all` 175/175 (incl. #19). Trunk after merge `e0395fc`.
+  **The content-correctness arc (D26) is CLOSED**: verified → guard corrected (#186) → content swept (#188).
+- [ ] Deferred follow-up (D31): polynomials-contract division-algorithm leak + syllabusGuard
+  generic-phrase blind-spot — a future guard-phrase + small-sweep PR (NOT done here, out of worklist scope).
+
+### Next on the responsive-redesign / content-correctness track
+- [ ] **Re-derive Exam Trends priorities FRESH** (tier + trend + marks) from the current CBSE 2026-27
+  syllabus + recent paper pattern (D27 — existing priorities stale/untraceable). Prereq for the band redesign.
+
 ## 2026-06-04 — Post-PR #186 roadmap update (syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces)
 
 ### Completed this session

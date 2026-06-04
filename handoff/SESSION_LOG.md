@@ -1,5 +1,55 @@
 ---
 
+## 2026-06-04 — CONTENT SWEEP: 93 banned out-of-syllabus entries deleted; gating syllabusGuard GREEN (#188) + this docs PR
+
+### What merged (#188) — the syllabus-correctness arc is CLOSED
+The content sweep deleted/rewrote the 93-item worklist the corrected guard (#186) flagged, making the
+gating `syllabusGuard` exit 0 and `test:matrix:all` = **175/175 (incl. #19, previously red by design)**.
+Trunk after merge: `e0395fcbfeaf9d366afd4b93fb1514604363771f`. Diff = exactly **11 files**, all under
+`lazytopper/src/**` (34 insertions / 1110 deletions).
+
+- **Question banks (Conversion of Solids ×46, exact subtopic):** exemplar 42→19, ncert 24→14,
+  pack2 50→37. Canonical bank **6520 → 6474** (exactly −46; `canonicalQuestionBank.ts` untouched,
+  `...SAV_*` spreads intact — the silent-zero trap was avoided and proven by import-count both ways).
+- **Board-prep surfaces (EMI / Electric Motor / Electric Generator + Euclid/Frustum ×47):** deleted
+  discrete objects in predictedQuestionsScience (4), hpqCompetencyAdditions (2 groups),
+  highlyProbableQuestions (1 nested); removed the Motor+EMI concept in class10ScienceTopicTrends
+  (surviving in-syllabus concept share renormalized 55→100); rewrote class10ContentConfig
+  (magneticConfig), topics.ts (3 blurbs), topicHubContent.ts (surface-areas + magnetic-effects hubs),
+  and the real-numbers / heredity-and-evolution / magnetic-effects tutor contracts to stay
+  syllabus-accurate. The tutor no longer teaches Euclid's lemma/algorithm or evolution evidence.
+
+### Owner decision + the sharp catch
+- Owner decision: **DELETE leaked entries (not retag)**; blurbs/teach-contracts REWRITTEN to stay
+  accurate rather than left as broken fragments. PRESERVED: Heredity/Mendel, reproductive health,
+  step-deviation, Our Environment, the in-syllabus "Combination/Transformation" questions.
+- **`keyIdeas` is a fixed 4-tuple** `[string,string,string,string]`. Removing banned teach-steps left
+  3-item arrays; the production build (`tsc -b`) caught this (TS2322) although `tsc --noEmit` did NOT.
+  So the in-syllabus replacement steps were **structurally required, not gold-plating** — each affected
+  contract restored to 4 with marked `[content-sweep 2026-06-04]` steps. (See DECISION_LOG + D31.)
+- `syllabusGuard.ts` and `predictionTypes.ts` were NOT modified (content conforms to the guard; schema
+  frozen). No forbidden files touched.
+
+### Process notes (gates + scope)
+- Gates: guard exit 0; matrix 175/175; `npx tsc --noEmit` 0; prod build 0; `git diff --check` clean.
+- `scopeGuard.mjs --mode product` reported FAIL (all 11 files `[unclassified]`) — diagnosed as the
+  known **local combined-repo path-prefix artifact** (git root is `Lazytopper-Production`, so diff
+  emits `lazytopper/src/...` while the policy `product` rule is `src/`). Every changed file is under
+  `lazytopper/src/**` (the product lane in a canonical checkout). Surfaced honestly; **not** hacked
+  around (no edit to scopeGuard or its policy). See D31.
+- Worked AUDIT-first: a per-file proposal (`report-content-sweep-banned-AUDIT-2026-06-04.md`) was
+  owner-reviewed before any edit; deletions done with a brace/string/comment-aware object scanner
+  (surgical line-range deletion so kept questions stay byte-for-byte). Full report:
+  `report-content-sweep-banned-2026-06-04.md`.
+
+### Deferred (D31) — NOT in this PR
+The `polynomials` tutor contract still teaches the polynomial **division algorithm** (out of 2026-27
+quadratic-only scope), at `topicTeachContracts.ts` ~:79/:87/:91. The surface scan deliberately omits
+bare "Division Algorithm", so it is NOT flagged — left out of the 93-item worklist scope, tracked as a
+follow-up (guard-phrase addition + small sweep). Recorded as D31 + OPEN_QUESTIONS.
+
+---
+
 ## 2026-06-04 — syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces (#186) + this docs PR
 
 ### What merged (#186) — the RULER is now correct & trustworthy

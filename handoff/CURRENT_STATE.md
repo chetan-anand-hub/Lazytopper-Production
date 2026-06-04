@@ -1,12 +1,28 @@
 # LazyTopper — Current State
-Last updated: 2026-06-04 (post-PR #186 — syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces)
+Last updated: 2026-06-04 (post-PR #188 — content sweep: 93 banned out-of-syllabus entries deleted; gating syllabusGuard now GREEN)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 918b754fe6fe08eb9ba7ab7a2cfc3b70993544a7
-Last merged PRs: #184 (feat: Exam Trends ranked-list responsive redesign), #185 (docs handoff post-#184), #186 (fix: correct syllabusGuard + registry to official CBSE 2026-27; extend guard to all 24 board-prep surfaces; correct 2 stale doctrine-locks)
+SHA: e0395fcbfeaf9d366afd4b93fb1514604363771f
+Last merged PRs: #186 (fix: correct syllabusGuard + registry to official CBSE 2026-27; extend guard to all 24 board-prep surfaces; correct 2 stale doctrine-locks), #187 (docs handoff post-#186), #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green)
 
-## Syllabus guard CORRECTED to official 2026-27 + EXTENDED (#186) — RULER done, SWEEP next
+## Syllabus-correctness arc CLOSED (#186 RULER + #188 SWEEP) — gating guard GREEN
+The full arc is now complete: verified → guard corrected (#186) → **content swept (#188)** → gating
+`syllabusGuard` exits 0, `test:matrix:all` = **175/175 (incl. #19, previously red by design)**.
+**#188 deleted the 93-item worklist** the corrected guard flagged: question banks Conversion of Solids
+×46 (exemplar 42→19, ncert 24→14, pack2 50→37; canonical bank 6520→6474, exactly −46, spreads intact);
+board-prep surfaces EMI/Motor/Generator + Euclid/Frustum ×47 across predicted/HPQ/competency/config/
+trends/topics/topicHubContent + the tutor teach-contracts. Owner decision was DELETE (not retag);
+blurbs/contracts were REWRITTEN to stay syllabus-accurate. `keyIdeas` is a fixed 4-tuple, so removed
+tutor teach-steps were replaced with marked in-syllabus steps (`[content-sweep 2026-06-04]`) —
+structurally required, caught by the prod build (`tsc -b`), not by `tsc --noEmit`. `syllabusGuard.ts`
+and `predictionTypes.ts` were NOT touched (content conforms to the guard; schema frozen). Diff = exactly
+11 files, all `lazytopper/src/**`. **Deferred follow-up (D31):** the `polynomials` tutor contract still
+teaches the polynomial *division algorithm* (out of 2026-27 quadratic-only scope) — the surface scan
+deliberately omits bare "Division Algorithm", so it is NOT flagged; left out of scope, tracked for a
+future guard-phrase + sweep PR. Trunk after #188: `e0395fc`.
+
+## Syllabus guard CORRECTED to official 2026-27 + EXTENDED (#186) — RULER done (history)
 The syllabus RULER is now correct and trustworthy (verified against the live official CBSE 2026-27
 Class X syllabus — Maths 041/241, Science 086, cbseacademic.nic.in; owner-signed-off
 `report-syllabus-verification-2026-06-04.md`). #186 fixed 3 correctness bugs and extended scope:
@@ -27,11 +43,11 @@ Class X syllabus — Maths 041/241, Science 086, cbseacademic.nic.in; owner-sign
   the tutor. Tests 10→45 (per-surface-category, two-way preserved-term, precision). Two stale
   doctrine-locks corrected (registry-acceptance reproductive-health check inverted; opsAcceptanceGuard
   Block 4b made precise).
-- **GATING GUARD IS INTENTIONALLY RED** on a **93-item sweep worklist** (banks: Conversion of Solids
-  ×46; surfaces: EMI/Motor/Generator across predicted/HPQ/config/trends/topics/topicHubContent + the
-  tutor teaching Euclid's lemma & evolution evidence). This is the spec for the **CONTENT SWEEP (next
-  PR)**, which removes the leaks and turns the gating guard + matrix #19 green. matrix = 174/175 (only
-  #19 red by design). This completes the guard half of D26; the content cleanup is what remains.
+- At #186 the gating guard was **intentionally RED** on a **93-item sweep worklist** (banks: Conversion
+  of Solids ×46; surfaces: EMI/Motor/Generator across predicted/HPQ/config/trends/topics/topicHubContent
+  + the tutor teaching Euclid's lemma & evolution evidence) — matrix 174/175 (only #19 red by design).
+  **That worklist was the spec for the CONTENT SWEEP, now DONE in #188** (see the arc-closed section at
+  the top): all 93 deleted/rewritten, gating guard GREEN, matrix 175/175. D26 is fully closed.
 
 ## Responsive redesign (Option B) — FIRST convergence DONE (#184)
 Exam Trends is the first surface converged under the LOCKED Option-B decision: ONE responsive

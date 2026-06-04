@@ -1,15 +1,22 @@
-## 2026-06-04 — Post-PR #186 (syllabusGuard corrected to official CBSE 2026-27 + extended)
+## 2026-06-04 — Post-PR #188 (content sweep merged; gating syllabusGuard GREEN)
 
-### OPEN — CONTENT SWEEP: clean the 93-item worklist the corrected guard flags (HIGH; NEXT task) [D26/D28]
-The guard EXTENSION half of D26 is DONE (#186): the guard is corrected and now scans all 24 board-prep
-surfaces. The CONTENT cleanup remains — the gating guard is RED on a 93-item worklist (full list:
-DISCOVERIES D28). Clean/retag: `src/tutor/topicTeachContracts.ts` (tutor teaches Euclid's lemma +
-evolution evidence — URGENT); `src/data/questionBanks/class10/maths/*` (Conversion of Solids ×46);
-`topics.ts`, `topicHubContent.ts`, `predictedQuestionsScience.ts`, `hpqCompetencyAdditions.ts`,
-`highlyProbableQuestions.ts`, `class10ContentConfig.ts`, `class10ScienceTopicTrends.ts` (EMI/Motor/
-Generator + Euclid/Frustum/Conversion). `src/tutor/`, `src/lib/desktop/`, `src/data/` are forbidden
-lanes — needs explicit scope. Run AGAINST the corrected guard; do NOT re-loosen it. Turns the gating
-guard + matrix #19 GREEN.
+### OPEN — syllabusGuard generic-phrase blind-spot + polynomials teach-contract leak (MEDIUM; follow-up) [D31]
+The board-prep surface scan omits bare generics (e.g. "Division Algorithm") to stay false-positive-free,
+so out-of-scope content named only by a generic term is not flagged. Concrete leak left untouched by the
+#188 sweep (out of the 93-item worklist): the `polynomials` tutor contract in
+`src/tutor/topicTeachContracts.ts` (~:79/:87/:91) still teaches the polynomial **division algorithm**
+(out of the QUADRATIC-only Polynomials scope for 2026-27). Follow-up: (a) add a precise phrase like
+"division algorithm for polynomials"/"polynomial long division" to `SURFACE_BANNED_PHRASES` (carefully,
+no over-match), then (b) sweep the polynomials contract. See DISCOVERIES D31.
+
+### RESOLVED — CONTENT SWEEP: the 93-item worklist (DONE #188) [D26/D28 → CLOSED]
+~~The CONTENT cleanup remains — the gating guard is RED on a 93-item worklist.~~ **DONE in #188.**
+Deleted/rewrote all 93 items: banks Conversion of Solids ×46 (canonical 6520→6474, spreads intact);
+surfaces EMI/Motor/Generator + Euclid/Frustum ×47 across predicted/HPQ/competency/config/trends/topics/
+topicHubContent + the tutor contracts. DELETE-not-retag; blurbs/contracts rewritten syllabus-accurate;
+marked in-syllabus teach-steps where the `keyIdeas` 4-tuple required them. Gating `syllabusGuard` exits
+0, `test:matrix:all` 175/175 (incl. #19). `syllabusGuard.ts`/`predictionTypes.ts` untouched. Trunk
+`e0395fc`. D26 (verify → correct guard → sweep) is fully CLOSED. Residual generic-phrase gap → D31 above.
 
 ### OPEN — PYQ `solutionSteps` data-quality cleanup (MEDIUM) [D30]
 Some PYQ questions carry truncated/garbled `solutionSteps`. Independent of the syllabus sweep — a

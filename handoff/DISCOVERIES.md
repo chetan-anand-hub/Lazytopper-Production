@@ -160,3 +160,27 @@ Some PYQ questions carry truncated or garbled `solutionSteps` (incomplete workin
 — a content-quality issue independent of the syllabus sweep. Flagged for a later data-quality cleanup
 pass (do NOT bundle into the content sweep, which is scoped to banned-syllabus removal). Tracked in
 OPEN_QUESTIONS.
+
+## D31 — syllabusGuard surface-scan blind-spot for generic phrases (+ the untouched polynomials teach-contract leak) — tracked follow-up
+The board-prep SURFACE scan (`SURFACE_BANNED_PHRASES`) deliberately uses only unambiguous multi-word
+phrases and **omits bare generics** ("Evolution", "Generator", "Motor", "Division Algorithm",
+"Constructions", "Fossil", …) to avoid false positives on prose ("gas evolution") and code identifiers
+(`worksheetGenerator`). A real consequence: content that is out of the 2026-27 scope but only named by
+a generic term is NOT flagged by the guard.
+Concrete instance (found during the #188 content sweep, left untouched on purpose): the `polynomials`
+contract in `lazytopper/src/tutor/topicTeachContracts.ts` (~:79 goalLine, :87/:91 keyIdea) still
+teaches the **polynomial division algorithm** ("use the division algorithm: p(x) = g(x)·q(x) + r(x)")
+— out of the restricted (QUADRATIC-only) Polynomials scope for 2026-27. It was OUTSIDE the 93-item
+worklist and not guard-flagged, so it was correctly deferred rather than expanding PR #188's scope.
+Follow-up (tracked in OPEN_QUESTIONS): (a) add a precise phrase such as "division algorithm for
+polynomials" / "polynomial long division" to `SURFACE_BANNED_PHRASES` (carefully — must not over-match
+in-syllabus prose), then (b) a small sweep of the polynomials contract. Broader lesson: the guard's
+precision (zero false positives) is a deliberate trade against recall on generic phrasings; when a
+topic's only mention uses a generic word, a human/scoped pass is still needed.
+
+Related (also surfaced at #188): the scope guard (`scopeGuard.mjs --mode product`) reports FAIL on
+every changed `lazytopper/src/**` file because, in this combined repo, `git diff` emits
+`lazytopper/src/...` paths while the policy `product` lane rule is `src/` (no prefix). This is a LOCAL
+path-prefix artifact, not a real lane violation (same family as the D23-era scope:guard path issue).
+Do not "fix" it by editing the policy in a product PR; in a canonical app-root checkout the paths are
+`src/...` and it passes.
