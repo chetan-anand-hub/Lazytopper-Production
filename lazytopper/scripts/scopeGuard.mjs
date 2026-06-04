@@ -11,6 +11,38 @@ const POLICY_PATH = path.join(
   "repo_boundary_policy.json"
 );
 
+// Path frame-of-reference normalization (monorepo: .git at repo root, guard run from lazytopper/).
+// `git diff` emits paths relative to the GIT ROOT (e.g. "lazytopper/src/..."), but the policy lane
+// rules are written relative to the guard's anchor dir (cwd, e.g. "src/"). We strip the anchor
+// prefix so in-anchor files match the rules, while files OUTSIDE the anchor keep their full git-root
+// path and are STILL classified (they land in a real lane or fall to "unknown" -> visible FAIL).
+// We never use `git diff --relative`: that would silently drop out-of-anchor files (false-PASS blind spot).
+function detectAnchorPrefix() {
+  try {
+    const gitRoot = normalizePath(
+      execSync("git rev-parse --show-toplevel", { encoding: "utf8" })
+    );
+    const anchor = normalizePath(ROOT);
+    if (!gitRoot || anchor === gitRoot) return "";
+    if (anchor.startsWith(`${gitRoot}/`)) {
+      return `${anchor.slice(gitRoot.length + 1)}/`;
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+const ANCHOR_PREFIX = detectAnchorPrefix();
+
+// Map a git-root-relative path into the policy's (anchor-relative) frame. Total and 1:1 — never drops.
+function toPolicyFrame(filePath) {
+  const p = normalizePath(filePath);
+  if (ANCHOR_PREFIX && p.startsWith(ANCHOR_PREFIX)) {
+    return p.slice(ANCHOR_PREFIX.length);
+  }
+  return p;
+}
+
 const rawArgs = process.argv.slice(2);
 const modeIdx = rawArgs.indexOf("--mode");
 const mode = modeIdx !== -1 && rawArgs[modeIdx + 1] ? rawArgs[modeIdx + 1] : "tooling";
@@ -50,7 +82,10 @@ function packageJsonHasOnlyScriptChanges() {
 
   try {
     const current = readJsonSafe(path.join(ROOT, "package.json"));
-    const headText = execSync("git show HEAD:package.json", { encoding: "utf8" });
+    // HEAD:./package.json resolves relative to cwd (the anchor dir), so this reads the guard's own
+    // package.json — not a repo-root package.json. Required now that path normalization maps an
+    // in-anchor "<anchor>/package.json" change to "package.json", activating this scripts-only check.
+    const headText = execSync("git show HEAD:./package.json", { encoding: "utf8" });
     const previous = JSON.parse(headText);
     if (!current || !previous) {
       packageJsonScriptsOnlyChangeCache = false;
@@ -136,11 +171,13 @@ function main() {
     process.exit(1);
   }
 
-  const staged = listFiles("git diff --name-only --cached");
-  const unstaged = listFiles("git diff --name-only");
-  const untracked = listFiles("git ls-files --others --exclude-standard");
-  const stagedDeleted = listFiles("git diff --name-only --diff-filter=D --cached");
-  const unstagedDeleted = listFiles("git diff --name-only --diff-filter=D");
+  // Collect the FULL diff (no `--relative` — see toPolicyFrame note), then normalize each path into
+  // the policy frame. Mapping is total and 1:1, so nothing is ever dropped from what the guard sees.
+  const staged = listFiles("git diff --name-only --cached").map(toPolicyFrame);
+  const unstaged = listFiles("git diff --name-only").map(toPolicyFrame);
+  const untracked = listFiles("git ls-files --others --exclude-standard").map(toPolicyFrame);
+  const stagedDeleted = listFiles("git diff --name-only --diff-filter=D --cached").map(toPolicyFrame);
+  const unstagedDeleted = listFiles("git diff --name-only --diff-filter=D").map(toPolicyFrame);
   const all = Array.from(new Set([...staged, ...unstaged, ...untracked]));
   const deletedFiles = new Set([...stagedDeleted, ...unstagedDeleted]);
 
@@ -160,6 +197,15 @@ function main() {
   for (const file of all) {
     const lane = classifyFile(file, lanes);
     laneBuckets[lane].push(file);
+  }
+
+  // No-blind-spot invariant: every changed file must be classified into exactly one bucket.
+  // If this ever diverges, fail loudly rather than silently passing an unseen change.
+  const classifiedCount = Object.values(laneBuckets).reduce((sum, files) => sum + files.length, 0);
+  if (classifiedCount !== all.length) {
+    console.log("SCOPE_GUARD_FAIL: classification invariant broken");
+    console.log(`changed files: ${all.length}, classified: ${classifiedCount}`);
+    process.exit(1);
   }
 
   const hardBoundaryViolations = [
