@@ -1,12 +1,22 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-04 (post-PR #188 content sweep — 93 banned out-of-syllabus entries deleted; gating syllabusGuard GREEN)
-# Base SHA: e0395fcbfeaf9d366afd4b93fb1514604363771f
+# Updated: 2026-06-05 (post-PR #190 Exam Trends band redesign — flat ranked list → 3 collapsible priority bands)
+# Base SHA: cfb3106625395f1fca4cce01e6365fd0bb5935ce
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: e0395fcbfeaf9d366afd4b93fb1514604363771f
-Last PRs: #186 (fix: correct syllabusGuard + registry to official CBSE 2026-27; extend guard to all 24 board-prep surfaces; correct 2 stale doctrine-locks) + #187 (docs handoff post-#186) + #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green)
+SHA: cfb3106625395f1fca4cce01e6365fd0bb5935ce
+Last PRs: #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green) + #189 (docs handoff post-#188) + #190 (feat: Exam Trends band redesign — flat ranked list → 3 collapsible priority bands)
+
+## EXAM TRENDS BAND REDESIGN — DONE (#190). Steps 5 + 6 complete.
+
+The Exam Trends surface is now 3 collapsible priority bands (Must-crack / High-ROI / Good-to-do) on the
+owner-signed-off locked tiers (`LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md`, transcribed VERBATIM).
+The locked doc IS the fresh, scientifically-derived tiering D27 asked for (step 5), and #190 is the band
+redesign (step 6). Layout-only Option-B evolution of the ONE component; 1 product file; "Expect:" line on
+the 11 must-crack topics only; volatility flag on Trig + Electricity; no fabrication; grammar preserved.
+Gates green (tsc, build, verifier, matrix 175/175). scope:guard FAIL = known monorepo path-prefix artifact
+(verified not a breach). Trunk `cfb3106`. See CURRENT_STATE top section + SESSION_LOG.
 
 ## SYLLABUS-CORRECTNESS ARC — CLOSED (#186 + #188). Gating guard GREEN, matrix 175/175.
 
@@ -18,12 +28,14 @@ contracts. Owner decision DELETE-not-retag; blurbs/contracts rewritten syllabus-
 longer teaches Euclid's lemma or evolution evidence. See DISCOVERIES D26 (CLOSED) + D31 (deferred
 polynomials follow-up).
 
-## IMMEDIATE NEXT TASK — step 5: re-derive Exam Trends priorities FRESH (HIGH)
+## IMMEDIATE NEXT TASK — step 7: next Option-B surface (TopicHub concept-spine)
 
-With the RULER correct and content swept, the next track item is to **re-derive Exam Trends priorities
-fresh** (tier + trend + marks) from the current CBSE 2026-27 syllabus + recent paper pattern — a
-traceable scientific basis. The existing priorities are stale/untraceable (D27); HPQ counts also to be
-re-checked. This is the prerequisite for the planned Exam Trends band redesign (step 6).
+Exam Trends (the FIRST Option-B surface, #184) is now fully converged through its band redesign (#190).
+The next track item is the next Option-B surface — **TopicHub concept-spine (+ Formula Sheet / NCERT
+Notes)** — using the same template (ONE responsive component per surface; design grammar reused; honest
+data only). Note the carried OPEN gate: the Notes/Formula template needs owner sign-off (structure,
+granularity, #examples) BEFORE generation. Optional pre-step for #190: capture the 360/768/desktop ×
+Maths/Science band screenshots as PR evidence (deferred — owner to request).
 
 ## THE SEQUENCE (owner-confirmed; reordered post-#186)
 
@@ -35,13 +47,12 @@ re-checked. This is the prerequisite for the planned Exam Trends band redesign (
 4b. ~~CONTENT SWEEP~~ DONE (#188 — deleted the 93-item worklist; gating guard GREEN, matrix 175/175
    incl. #19; banks Conversion of Solids ×46, surfaces EMI/Motor/Generator + Euclid/Frustum ×47;
    DELETE-not-retag; blurbs/contracts rewritten syllabus-accurate; trunk `e0395fc`). Closes D26.
-5. **Re-derive Exam Trends priorities FRESH (NEXT, HIGH)** (tier + trend + marks) from the current CBSE syllabus +
-   recent paper pattern — a scientific basis. The existing priorities are stale/untraceable (D27).
-   HPQ counts also to be re-checked.
-6. **Exam Trends band redesign** — Must-crack / High-ROI / Good-to-do expandable bands (reuses the
-   merged ranked-list rows; one synthesized priority verdict replacing the weight-vs-trend sort).
-   ONLY AFTER the fresh tiering (step 5).
-7. Then the other Option-B surfaces: **TopicHub concept-spine (+ Formula Sheet / NCERT Notes) →
+5. ~~Re-derive Exam Trends priorities FRESH~~ DONE (owner-signed-off composite model + 2 teacher
+   overrides → `LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md`; the scientific basis D27 asked for).
+6. ~~Exam Trends band redesign~~ DONE (#190 — Must-crack / High-ROI / Good-to-do collapsible bands;
+   reuses the merged ranked-list rows; the band replaces the weight-vs-trend Sort toggle; 1 product
+   file; "Expect:" line on the 11 must-crack topics; volatility flag on Trig + Electricity; trunk `cfb3106`).
+7. **(NEXT) Then the other Option-B surfaces: TopicHub concept-spine (+ Formula Sheet / NCERT Notes) →
    Check & Improve → Me/Progress → Worksheet generator** (each Option B; one responsive component per
    surface; same template as Exam Trends #184).
 8. Separate follow-up PRs (not blocking): interactive-handoff fix (`findVisualForConcept` returns the

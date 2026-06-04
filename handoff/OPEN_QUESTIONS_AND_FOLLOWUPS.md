@@ -1,3 +1,40 @@
+## 2026-06-05 — Post-PR #190 (Exam Trends band redesign — 3 collapsible priority bands)
+
+### NEW — scopeGuard broken by the monorepo move (MEDIUM; tooling follow-up)
+The repo is now a pnpm monorepo (`workspace`) with `.git` at the repo root and `lazytopper/` nested.
+`lazytopper/scripts/scopeGuard.mjs` runs `git diff --name-only` (no `--relative`), so git emits
+`lazytopper/src/...` while the `product` lane rule in `repo_boundary_policy.json` is `src/`. Result:
+EVERY `lazytopper/src/**` product edit is classified `[unclassified]` and the guard FAILs — it currently
+green-lights nothing and reds everything in `lazytopper/src`, so it is not a real gate. Observed on #188
+and again on #190; both manually verified as non-breaches. Fix (tracked-tooling PR): either pass
+`--relative` to the git invocations in `scopeGuard.mjs`, or prefix the policy `product`/`trackedTooling`
+lane rules with `lazytopper/`. Until fixed, product-scope must be verified by hand (`git diff --name-only`
++ semantic lane check). `scopeGuard.mjs` is tracked-tooling — out of scope for product PRs.
+
+### RESOLVED — re-derive Exam Trends priorities FRESH (was D27) → owner-locked tiers
+~~Topic-level priority data stale/untraceable; re-derive tier/trend/marks before the band redesign.~~
+DONE: the owner-signed-off `LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md` (composite model +
+2 teacher overrides) is the fresh, traceable basis. Consumed by #190. D27 CLOSED.
+
+### RESOLVED — Exam Trends band-threshold definition → not a computed threshold
+~~The band redesign needs explicit numeric/qualitative thresholds mapping tier/trend/marks to a band.~~
+RESOLVED by design: bands are owner-signed-off DATA (the locked doc), transcribed verbatim and keyed by
+slug — there is NO computed threshold, and nothing is banded on stale data. Closed by #190.
+
+### CARRIED — HPQ-count recheck (MEDIUM)
+#190 kept the existing honest HPQ matching (`getHighlyProbableQuestions`, canonical-name match) unchanged;
+the locked tiers doc did not alter HPQ data. Counts were not separately re-validated against the new
+tiering — still open as a small data-quality recheck. Bundle with any future Exam Trends data pass.
+
+### CARRIED — Exam Trends band screenshots (LOW; PR evidence)
+The 360/768/desktop × Maths/Science band-state screenshots specified by the task were deferred (owner
+declined for now). Capture on request to complete the #190 evidence packet.
+
+### OPEN — Exam Trends proof tag (LOW; product decision) — carried
+The locked prototype's optional "⟨proofs⟩" tag is still omitted (no real `proof` field; inventing it =
+fabrication). To add it: add a real `proof` flag to topic data (gated `src/lib/desktop/` lane → explicit
+scope) or drop it from the spec.
+
 ## 2026-06-04 — Post-PR #188 (content sweep merged; gating syllabusGuard GREEN)
 
 ### OPEN — syllabusGuard generic-phrase blind-spot + polynomials teach-contract leak (MEDIUM; follow-up) [D31]

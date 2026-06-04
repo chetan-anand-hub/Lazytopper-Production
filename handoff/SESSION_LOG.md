@@ -1,5 +1,46 @@
 ---
 
+## 2026-06-05 — EXAM TRENDS BAND REDESIGN: flat ranked list → 3 collapsible priority bands (#190) + this docs PR
+
+### What merged (#190) — Option-B convergence #2, step 6 complete
+Evolved the ONE responsive Exam Trends component (`src/pages/ExamTrendsRanked.tsx`, shipped #184) from a
+flat sorted list into THREE collapsible priority BANDS — **Must-crack** (open by default) → **High-ROI**
+(collapsed) → **Good-to-do** (collapsed). Layout-only; the band IS the synthesized verdict, so the
+weight-vs-trend **Sort toggle was removed**; Subject + Science-stream filters stay. Trunk after merge:
+`cfb3106625395f1fca4cce01e6365fd0bb5935ce`. Diff = exactly **1 product file** (+406 / −84).
+
+- **Rows reused verbatim:** the existing `TopicRow` renders inside each band (name + trend chip +
+  marks-weight bar + ~N marks + HPQ + Open→Topic Hub + "⋯" Practice/Worksheet/Predicted/Add-to-selection).
+  Within-band order = marks-weight desc. Empty bands (under a stream filter) hide; all-empty → honest empty state.
+- **NEW "Expect:" sub-pattern line** — the recurring SHAPE (never a specific question), rendered ONLY on
+  the 11 must-crack topics the locked doc supplies. High-ROI rows show none (no invented shapes; no fake data).
+- **Volatility flag** ("Prepare deep · weight varies") on Trigonometry + Electricity in the existing
+  medium-tier amber (no new color introduced).
+
+### Authority + the honesty discipline
+- Tiers / sub-patterns / volatility transcribed **VERBATIM** from the owner-signed-off
+  `LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md` (composite model + 2 teacher overrides:
+  Triangles→must-crack & Statistics→high-ROI swap; Heredity→must-crack). Co-located in the component as
+  a slug-keyed map — **NOT computed** from `weight`/`trendTier`, and NOT trusting any stale code `tier`.
+- Because the data lives in the component, **no `src/data/` or `src/lib/desktop/` (gated-lane) edit was
+  needed** → tightest possible scope (1 product file). All 26 topics covered (no topic unbanded).
+- The locked doc satisfies the **D27 "re-derive priorities FRESH" prerequisite (step 5)** — the tiering is
+  now scientifically derived + owner-locked. The band-threshold open question is closed (bands are
+  signed-off data, not a computed threshold; "don't band on stale data" honored).
+
+### Process notes (gates + scope)
+- Gates: `npx tsc --noEmit` 0; prod build (`tsc -b && vite build`) 0; `verify-production-build.mjs` PASS;
+  `test:matrix:all` **175/175**; `git diff --check` clean; forbidden patterns (console.log/Math.random/
+  localStorage/`/app/`) none.
+- `scope:guard --mode product` reported FAIL listing the file `[unclassified]` — the **known combined-repo
+  path-prefix artifact** (git root is `Lazytopper-Production`, so diff emits `lazytopper/src/...` while the
+  policy `product` rule is `src/`; same artifact noted under #188 and D31). Manually verified NOT a breach
+  (relative to `lazytopper/`, the file matches `src/`). NOT hacked around — surfaced as a new follow-up to
+  fix the guard for the monorepo move. Full report: `report-exam-trends-bands-2026-06-05.md`.
+- Deferred (owner declined for now): 360/768/desktop × Maths/Science band screenshots as PR evidence.
+
+---
+
 ## 2026-06-04 — CONTENT SWEEP: 93 banned out-of-syllabus entries deleted; gating syllabusGuard GREEN (#188) + this docs PR
 
 ### What merged (#188) — the syllabus-correctness arc is CLOSED

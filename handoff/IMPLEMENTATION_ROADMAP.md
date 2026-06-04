@@ -2,6 +2,26 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-05 — Post-PR #190 roadmap update (Exam Trends band redesign — 3 collapsible priority bands)
+
+### Completed this session
+- [x] PR #190 — **Exam Trends band redesign**: flat ranked list → 3 collapsible priority bands
+  (Must-crack open / High-ROI collapsed / Good-to-do collapsed) on the owner-signed-off locked tiers
+  (`LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md`, transcribed VERBATIM). Layout-only Option-B
+  evolution of the ONE component; rows reused verbatim; "Expect:" sub-pattern line on the 11 must-crack
+  topics only; volatility flag on Trig + Electricity; no fabrication; grammar preserved; 1 product file.
+  Gating: tsc 0, build 0, verifier PASS, matrix 175/175. Trunk after merge `cfb3106`.
+- [x] **Re-derive Exam Trends priorities FRESH** (D27, step 5) — satisfied by the owner-signed-off
+  composite model + 2 teacher overrides (the locked tiers doc); the basis is now traceable + signed-off.
+
+### Responsive-redesign track — Exam Trends FULLY converged
+  [x] Exam Trends ranked-list (#184 — sets the pattern)
+  [x] Exam Trends fresh tiering (locked doc 2026-06-05 — D27/step 5)
+  [x] Exam Trends band redesign (#190 — step 6)
+  [ ] **(NEXT) TopicHub concept-spine (+ Formula Sheet / NCERT Notes)** — same Option-B template;
+      needs owner sign-off on the Notes/Formula template BEFORE generation
+  [ ] Check & Improve → Me/Progress → Worksheet generator (each Option B; same template as #184)
+
 ## 2026-06-04 — Post-PR #188 roadmap update (CONTENT SWEEP — gating syllabusGuard GREEN)
 
 ### Completed this session
