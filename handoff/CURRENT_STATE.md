@@ -1,10 +1,28 @@
 # LazyTopper — Current State
-Last updated: 2026-06-05 (post-PR #190 — Exam Trends band redesign: flat ranked list → 3 collapsible priority bands on owner-locked tiers)
+Last updated: 2026-06-05 (post-PR #192 — scopeGuard monorepo path-prefix fix: scope:guard now classifies lazytopper/-prefixed diffs correctly)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: cfb3106625395f1fca4cce01e6365fd0bb5935ce
-Last merged PRs: #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green), #189 (docs handoff post-#188), #190 (feat: Exam Trends band redesign — flat ranked list → 3 collapsible priority bands)
+SHA: 318c6b6119f6639106dee159afb14655d994f4b0
+Last merged PRs: #189 (docs handoff post-#188), #190 (feat: Exam Trends band redesign — flat ranked list → 3 collapsible priority bands), #191 (docs handoff post-#190), #192 (fix: scopeGuard monorepo path frame — classify lazytopper/-prefixed diffs correctly)
+
+## scopeGuard monorepo path-prefix bug FIXED (#192) — tracked-tooling
+`scope:guard` had false-FAILed on **every** product edit (3rd PR hit; see the #190 section's "known
+monorepo path-prefix artifact" note — that artifact is now resolved). Root cause: `.git` is at the repo
+root and the guard runs from `lazytopper/`, so `git diff` emits **git-root-relative** paths
+(`lazytopper/src/...`) while the policy lane rules are **lazytopper-relative** (`src/`) → every product
+file classified `unclassified` → `SCOPE_GUARD_FAIL`. **Fix (Option A, owner-approved):** normalize the
+path *frame* in `lazytopper/scripts/scopeGuard.mjs` (1 file, +52/−6; policy JSON untouched) —
+`detectAnchorPrefix()` derives `lazytopper/` from `git rev-parse --show-toplevel` vs cwd; `toPolicyFrame()`
+strips it for in-anchor files (so they match `src/`-style rules) while files OUTSIDE the anchor keep their
+full git-root path and are STILL classified (real lane, or `unknown` → visible FAIL); a no-blind-spot
+invariant fails loudly if classified-count ≠ changed-count; coupled `git show HEAD:./package.json`
+(cwd-relative) fix keeps the scripts-only package.json check reading the guard's own file. **The handoff's
+`--relative` suggestion was REJECTED** (it emits only files under cwd → silently drops tracked changes
+outside `lazytopper/` = false-PASS blind spot). Proven FAIL→OK on a product edit; tracked out-of-tree file
+still seen+flagged; unclassified file → visible FAIL. Gates: tsc 0; `test:matrix:all` **175/175**; prod
+build 0; verifier PASS; `git diff --check` clean. Follow-ups logged in OPEN_QUESTIONS (D32–D35). Trunk
+after #192: `318c6b6`.
 
 ## Exam Trends BAND redesign DONE (#190) — step 6 complete; Option-B convergence #2
 The flat ranked list (`src/pages/ExamTrendsRanked.tsx`, shipped #184) is now THREE collapsible priority
@@ -101,7 +119,11 @@ not forced into a "prove it" offer). LIVE path = `server/prompts/promptLearn.cjs
 Residual: occasional late analogy on a long first-teach message (~1/13 turns) — eval-set territory.
 
 ## Governance / gates
-- scope:guard: **LIVE again** — `SCOPE_GUARD_OK` on trunk. Was DEAD since `2081003`
+- scope:guard: **LIVE + monorepo-correct (#192)** — classifies `lazytopper/`-prefixed diffs correctly
+  under `--mode product`; no longer false-FAILs every product edit (the path-frame bug that hit 3 PRs is
+  fixed; `--relative` blind-spot fix rejected). NOTE: `git ls-files --others` is cwd-scoped, so **untracked**
+  files *outside* `lazytopper/` are invisible to the guard (pre-existing; deliberately NOT widened — would
+  false-FAIL on the untracked root `.claude/`; see OPEN_QUESTIONS D33). Was DEAD since `2081003`
   (a docs-cleanup chore) accidentally untracked `lazytopper/docs/project_memory/governance/
   repo_boundary_policy.json`, which two live scripts read; #176 restored it from history.
 - `test:repo-boundary`: now RUNS again (4/5 checks pass). 1 pre-existing red:
