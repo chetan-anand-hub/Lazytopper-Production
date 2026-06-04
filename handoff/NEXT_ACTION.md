@@ -1,32 +1,42 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-03 (post-PR #184 Exam Trends ranked-list responsive redesign — FIRST Option-B convergence)
-# Base SHA: 93a26749e1e6a74819af6e8388e332df8d8b48d3
+# Updated: 2026-06-04 (post-PR #186 syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces)
+# Base SHA: 918b754fe6fe08eb9ba7ab7a2cfc3b70993544a7
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 93a26749e1e6a74819af6e8388e332df8d8b48d3
-Last PRs: #182 (feat: tighten concept teach-prompt to LOCKED style — owner live-verified) + #183 (docs handoff post-#182) + #184 (feat: Exam Trends ranked-list responsive redesign — FIRST Option-B convergence; one responsive component retires both twins)
+SHA: 918b754fe6fe08eb9ba7ab7a2cfc3b70993544a7
+Last PRs: #184 (feat: Exam Trends ranked-list responsive redesign) + #185 (docs handoff post-#184) + #186 (fix: correct syllabusGuard + registry to official CBSE 2026-27; extend guard to all 24 board-prep surfaces; correct 2 stale doctrine-locks)
 
-## IMMEDIATE NEXT TASK — Content-correctness sweep (HIGH): clean banned syllabus content + extend syllabusGuard
+## IMMEDIATE NEXT TASK — CONTENT SWEEP (HIGH): clean the 93-item worklist the corrected guard now flags
 
-The most urgent item is that the TUTOR ACTIVELY TEACHES banned (dropped-syllabus) content (D26).
-Clean banned terms (Euclid's division lemma, division algorithm, etc.) from the descriptive/teaching
-metadata `syllabusGuard` does NOT currently scan:
-- `src/tutor/topicTeachContracts.ts` (tutor teaching — URGENT)
-- `src/lib/desktop/topics.ts` (Exam Trends blurbs — Real Numbers ~L25, Polynomials ~L35)
-- `class10ContentConfig.ts`, `practiceFilters.ts`
-AND extend `syllabusGuard` to scan these files so the leak can't regress. NOTE: `src/lib/desktop/` and
-`src/data/` are forbidden lanes — this task needs explicit scope in its instruction. See DISCOVERIES D26.
+The RULER is now correct (#186): the guard was fixed (step-deviation un-banned, reproduction bug
+fixed, 3 maths items added, citation fixed) AND extended to scan all 24 board-prep surfaces. The
+gating guard is intentionally RED on a **93-item sweep worklist** (full list in DISCOVERIES D28).
+Clean / retag the flagged content so the gating `syllabusGuard` + matrix #19 go GREEN:
+- **`src/tutor/topicTeachContracts.ts` — URGENT** (the tutor teaches Euclid's division lemma/algorithm
+  `:73`, and evolution evidence / homologous & analogous organs / acquired-and-inherited traits `:411-412`,
+  + electromagnetic induction / electric motor).
+- **`src/data/questionBanks/class10/maths/*` — "Conversion of Solids" ×46** (surfaceAreasAndVolumes
+  exemplar/ncert + surfaceAreasVolumes.pack2) — remove or retag these out-of-syllabus questions.
+- **Surfaces:** EMI/Motor/Generator across `predictedQuestionsScience.ts`, `hpqCompetencyAdditions.ts`,
+  `highlyProbableQuestions.ts`, `class10ContentConfig.ts`, `class10ScienceTopicTrends.ts`;
+  `topics.ts` (Euclid's Division Lemma blurb + Conversion of Solids + EMI); `topicHubContent.ts`
+  (Frustum of a Cone + Conversion of Solids + EMI).
+NOTE: `src/lib/desktop/`, `src/data/`, `src/tutor/` are forbidden lanes — the sweep needs explicit
+scope in its instruction. Run the sweep AGAINST the corrected guard; do NOT re-loosen the guard.
+See DISCOVERIES D26 (now guard-half-done) + D28 (the worklist spec).
 
-## THE SEQUENCE (owner-confirmed 2026-06-03 — reordered post-#184)
+## THE SEQUENCE (owner-confirmed; reordered post-#186)
 
 1. ~~Track A PR-1 — tutor wiring~~ DONE (#181 — desktop TopicHub "Learn this").
 2. ~~PR B2 — teach-prompt tightening~~ DONE (#182 — LOCKED style; owner live-verified).
 3. ~~Exam Trends ranked-list responsive redesign~~ DONE (#184 — FIRST Option-B convergence; merged `93a2674`).
-4. **Content-correctness sweep (NEXT, HIGH)** — clean banned content from `topicTeachContracts.ts`
-   (tutor) + `topics.ts` blurbs + config files; EXTEND `syllabusGuard` to scan them (D26). Tutor
-   teaching banned content is the urgent part.
+4. ~~Correct + EXTEND syllabusGuard (the RULER)~~ DONE (#186 — corrected to official 2026-27; extended
+   to 24 board-prep surfaces; 2 stale doctrine-locks fixed; merged `918b754`). The guard half of D26.
+4b. **CONTENT SWEEP (NEXT, HIGH)** — clean the 93-item worklist the corrected guard now flags (tutor
+   teaching banned content is the urgent part; banks: Conversion of Solids ×46; surfaces:
+   EMI/Motor/Generator + Euclid/Frustum). Turns the gating guard + matrix #19 GREEN. See D28.
 5. **Re-derive Exam Trends priorities FRESH** (tier + trend + marks) from the current CBSE syllabus +
    recent paper pattern — a scientific basis. The existing priorities are stale/untraceable (D27).
    HPQ counts also to be re-checked.

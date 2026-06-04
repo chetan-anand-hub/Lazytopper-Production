@@ -1,11 +1,34 @@
-## 2026-06-03 — Post-PR #184 (Exam Trends ranked-list responsive redesign)
+## 2026-06-04 — Post-PR #186 (syllabusGuard corrected to official CBSE 2026-27 + extended)
 
-### OPEN — clean banned syllabus content from unguarded files + extend syllabusGuard (HIGH; NEXT task) [D26]
-`syllabusGuard` scans the question bank only; banned terms (Euclid's division lemma, division
-algorithm) survive in `src/tutor/topicTeachContracts.ts` (tutor TEACHES them — urgent),
-`src/lib/desktop/topics.ts` (Exam Trends blurbs), `class10ContentConfig.ts`, `practiceFilters.ts`.
-Clean these AND extend the guard to scan them. `src/lib/desktop/` + `src/data/` are forbidden lanes —
-needs explicit scope. See DISCOVERIES D26.
+### OPEN — CONTENT SWEEP: clean the 93-item worklist the corrected guard flags (HIGH; NEXT task) [D26/D28]
+The guard EXTENSION half of D26 is DONE (#186): the guard is corrected and now scans all 24 board-prep
+surfaces. The CONTENT cleanup remains — the gating guard is RED on a 93-item worklist (full list:
+DISCOVERIES D28). Clean/retag: `src/tutor/topicTeachContracts.ts` (tutor teaches Euclid's lemma +
+evolution evidence — URGENT); `src/data/questionBanks/class10/maths/*` (Conversion of Solids ×46);
+`topics.ts`, `topicHubContent.ts`, `predictedQuestionsScience.ts`, `hpqCompetencyAdditions.ts`,
+`highlyProbableQuestions.ts`, `class10ContentConfig.ts`, `class10ScienceTopicTrends.ts` (EMI/Motor/
+Generator + Euclid/Frustum/Conversion). `src/tutor/`, `src/lib/desktop/`, `src/data/` are forbidden
+lanes — needs explicit scope. Run AGAINST the corrected guard; do NOT re-loosen it. Turns the gating
+guard + matrix #19 GREEN.
+
+### OPEN — PYQ `solutionSteps` data-quality cleanup (MEDIUM) [D30]
+Some PYQ questions carry truncated/garbled `solutionSteps`. Independent of the syllabus sweep — a
+later data-quality pass; do NOT bundle into the content sweep. See DISCOVERIES D30.
+
+### OPEN — Notes/Formula template sign-off (product) — carried
+The TopicHub concept-spine + Formula Sheet / NCERT Notes rollout needs owner sign-off on the template
+BEFORE generation: (a) notes structure; (b) granularity (per-[Concept] vs per-topic); (c) 1 vs 3
+worked examples per concept. Define before the Formula/Notes content-generation PR.
+
+### OPEN — stale-branch cleanup (housekeeping) — carried
+Delete merged/abandoned remote branches: `feat/syllabus-guard-correct-and-extend` (merged via #186),
+`feat/438-mobile-parity`, `feat/desktop-phase-3`, `feat/desktop-pr-e`, + the ~7 stragglers from #180.
+(CLAUDE.md forbids auto branch deletion — owner-side cleanup.)
+
+### OPEN — clean banned syllabus content from unguarded files + extend syllabusGuard (SUPERSEDED by #186) [D26]
+~~`syllabusGuard` scans the question bank only; banned terms survive in `topicTeachContracts.ts`,
+`topics.ts`, `class10ContentConfig.ts`, `practiceFilters.ts`.~~ The EXTEND-guard half is DONE (#186) —
+the guard now scans these surfaces. The CONTENT cleanup is the sweep above. See DISCOVERIES D26/D28.
 
 ### OPEN — re-derive Exam Trends priorities FRESH (tier + trend + marks) [D27]
 Topic-level priority data is stale/untraceable (old 10-yr data + pre-revision syllabus). Re-derive

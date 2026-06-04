@@ -1,5 +1,58 @@
 ---
 
+## 2026-06-04 — syllabusGuard corrected to official CBSE 2026-27 + extended to all board-prep surfaces (#186) + this docs PR
+
+### What merged (#186) — the RULER is now correct & trustworthy
+Corrected `scripts/src/syllabusGuard.ts` + `lazytopper/src/data/syllabus/cbse10Registry_2026_27.json`
+to the owner-signed-off official CBSE 2026-27 Class X syllabus (verified vs the live source —
+`report-syllabus-verification-2026-06-04.md`), and extended the guard to scan ALL board-prep surfaces.
+Trunk after merge: `918b754fe6fe08eb9ba7ab7a2cfc3b70993544a7`. Diff = exactly 5 files (the 3 guard/
+registry files + 2 corrected stale doctrine-locks).
+
+Corrections (PART A/B):
+- Un-banned **Step Deviation Method** (IN the official Statistics scope — the prior ban wrongly
+  stripped an examined method).
+- Added 3 confirmed-OUT Maths items (Area of Triangle in Coordinate Geometry; Conversion of Solids;
+  cubic zeroes–coefficient relationship — Polynomials is quadratic-only).
+- Banned the Evolution-section sub-topics while **PRESERVING Heredity / Mendel / Sex-Determination**
+  (board-assessed — never banned; two-way test-asserted). Fixed the Maths citation 2025-26→2026-27.
+- **Reproduction registry bug (HIGH):** reproductive health / family planning / safe sex vs HIV-AIDS
+  is IN-syllabus → moved into `cbse_scope_bullets` (was wrongly excluded). Relabelled formative-only
+  vs truly-deleted with explicit `category` tags.
+
+Extension (PART C):
+- New curated word-boundary **`SURFACE_BANNED_PHRASES`** scan over 24 board-prep surfaces (HPQ, mocks,
+  worksheets, practice/daily-mix, exam-trends/topic metadata, filters/config, **tutor teach-contracts**).
+  Bare generics (Evolution, Generator, Motor, Fossil, …) deliberately excluded — proven false positives
+  on prose ("gas evolution", "evolution of heat") and code identifiers (`dailyMixGenerator`,
+  `worksheetGenerator`). Strictly-board-prep doctrine: formative-only + deleted topics excluded from
+  EVERY surface incl. the tutor. Tests 10→45 (per-surface-category, two-way preserved-term, precision).
+
+Stale doctrine-locks corrected (PART D, owner-authorized):
+- `cbse_registry_2026_27_acceptance.mjs` — inverted the reproduction check (require reproductive
+  health PRESENT in scope; was asserting it must be EXCLUDED — the very bug being fixed). 21/21.
+- `opsAcceptanceGuard.test.ts` Block 4b — made the Motor/EMI/Generator check precise (absent from
+  question-bank `bannedSubtopics`, present in `SURFACE_BANNED_PHRASES`) instead of a whole-file
+  substring.
+
+### Gates / verification
+scripts tsc · lazytopper tsc · lazytopper production build (exit 0) · registry acceptance 21/21 ·
+`git diff --check` clean. Matrix = **174/175 — only #19 red BY DESIGN** (reproductionBankGuard
+"syllabusGuard exits 0"): the gating guard correctly exits 1 on the **93-item sweep worklist** (banks:
+Conversion of Solids ×46; surfaces: EMI/Motor/Generator across predicted/HPQ/config/trends/topics/
+topicHubContent + the tutor teaching Euclid's lemma & evolution evidence). The CONTENT SWEEP (next PR)
+removes the leaks → gating guard + matrix #19 green.
+
+### Sequencing note
+This PR fixed the RULER (D26's guard half). The CONTENT cleanup is the NEXT PR (the sweep), run against
+this corrected guard. Then: re-derive Exam Trends priorities fresh (D27) → band redesign → other
+Option-B surfaces.
+
+### Process note
+The squash-merge of #186 was blocked by the harness self-merge guardrail (owner = merger) and the
+owner performed the merge. Remote feature branch deletion was likewise owner-side (CLAUDE.md forbids
+auto branch deletion).
+
 ## 2026-06-03 — Exam Trends ranked-list responsive redesign merged (#184) + this docs PR
 
 ### What merged (#184) — FIRST Option-B convergence
