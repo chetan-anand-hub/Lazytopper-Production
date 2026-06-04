@@ -1,10 +1,34 @@
 # LazyTopper — Current State
-Last updated: 2026-06-04 (post-PR #188 — content sweep: 93 banned out-of-syllabus entries deleted; gating syllabusGuard now GREEN)
+Last updated: 2026-06-05 (post-PR #190 — Exam Trends band redesign: flat ranked list → 3 collapsible priority bands on owner-locked tiers)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: e0395fcbfeaf9d366afd4b93fb1514604363771f
-Last merged PRs: #186 (fix: correct syllabusGuard + registry to official CBSE 2026-27; extend guard to all 24 board-prep surfaces; correct 2 stale doctrine-locks), #187 (docs handoff post-#186), #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green)
+SHA: cfb3106625395f1fca4cce01e6365fd0bb5935ce
+Last merged PRs: #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green), #189 (docs handoff post-#188), #190 (feat: Exam Trends band redesign — flat ranked list → 3 collapsible priority bands)
+
+## Exam Trends BAND redesign DONE (#190) — step 6 complete; Option-B convergence #2
+The flat ranked list (`src/pages/ExamTrendsRanked.tsx`, shipped #184) is now THREE collapsible priority
+BANDS — **Must-crack** (open by default) → **High-ROI** (collapsed) → **Good-to-do** (collapsed). The band
+IS the synthesized verdict, so the weight-vs-trend **Sort toggle was removed**; Subject + Science-stream
+filters stay. Layout-only Option-B evolution of the ONE responsive component (no twin; verified 360/768/
+desktop reflow grammar). The existing `TopicRow` is reused verbatim inside each band (name + trend chip +
+marks-weight bar + ~N marks + HPQ + Open→Topic Hub + "⋯" Practice/Worksheet/Predicted/Add-to-selection);
+within-band order = marks-weight desc. NEW: an **"Expect:" recurring-sub-pattern line** rendered ONLY on the
+11 must-crack topics the locked doc supplies (High-ROI rows show none — no invented shapes); a **volatility
+flag** ("Prepare deep · weight varies") on Trigonometry + Electricity in the existing amber caution tone
+(no new color). Tiers/sub-patterns/volatility were transcribed **VERBATIM** from the owner-signed-off
+authority `LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md` and co-located in the component as data —
+NOT computed from `weight`/`trendTier`, and no `src/data/` or `src/lib/desktop/` edit needed (so the diff
+is exactly **1 product file**, `src/pages/ExamTrendsRanked.tsx`, +406/−84). Design grammar preserved
+byte-faithfully; honest empty states; in-syllabus only (corrected guard #188). The owner-locked tiers
+(2026-06-05, model + 2 teacher overrides: Triangles→must-crack/Statistics→high-ROI; Heredity→must-crack)
+**satisfy the D27 "re-derive priorities FRESH" prerequisite (step 5)** — tiering is now scientifically
+derived + owner-locked, so the band-threshold open question is closed (bands are signed-off data, not a
+computed threshold). Gates: `tsc --noEmit` 0; prod build 0; verifier PASS; `test:matrix:all` **175/175**;
+`git diff --check` clean; forbidden patterns none. `scope:guard --mode product` reported FAIL listing the
+file `[unclassified]` — the **known monorepo path-prefix artifact** (git root is `Lazytopper-Production`,
+so diff emits `lazytopper/src/...` while the policy `product` rule is `src/`), manually verified as NOT a
+real breach (the file matches `src/` relative to `lazytopper/`); not hacked around. Trunk after #190: `cfb3106`.
 
 ## Syllabus-correctness arc CLOSED (#186 RULER + #188 SWEEP) — gating guard GREEN
 The full arc is now complete: verified → guard corrected (#186) → **content swept (#188)** → gating
