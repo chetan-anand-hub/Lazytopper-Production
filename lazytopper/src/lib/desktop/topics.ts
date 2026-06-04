@@ -22,7 +22,7 @@ const TOPICS: DesktopTopicSummary[] = [
     trendTier: "medium",
     weight: 6,
     marks: "~6 marks",
-    blurb: "Euclid's division lemma, the fundamental theorem of arithmetic, and rational vs irrational numbers.",
+    blurb: "The fundamental theorem of arithmetic and proofs of the irrationality of √2, √3 and √5.",
   },
   {
     slug: "polynomials",
@@ -122,7 +122,7 @@ const TOPICS: DesktopTopicSummary[] = [
     trendTier: "high",
     weight: 7,
     marks: "~7 marks",
-    blurb: "Surface area and volume of combinations of solids and conversion of solids from one shape to another.",
+    blurb: "Surface area and volume of combinations of solids.",
   },
   {
     slug: "statistics",
@@ -223,7 +223,7 @@ const TOPICS: DesktopTopicSummary[] = [
     trendTier: "high",
     weight: 6,
     marks: "~6 marks",
-    blurb: "Magnetic field due to current-carrying conductors, the right-hand rule, and electromagnetic induction.",
+    blurb: "Magnetic field due to current-carrying conductors, the right-hand rule, and the force on a conductor in a magnetic field.",
   },
   {
     slug: "life-processes",

@@ -1722,55 +1722,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     finalAnswer: "Diagram showing lines emerging from north pole and entering south pole with density higher near poles.\nProperties: (i) They emerge from N and enter at S pole. (ii) They never intersect each other. (iii) Closer lines indicate stronger field (any two).",
   },
 
-  {
-    id: "2026-ME-SA-03",
-    topicKey: "MagneticEffects",
-    subtopic: "Electric Motor",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "State the principle of an electric motor. Draw a labelled diagram of a simple electric motor.",
-    answer:
-      "Principle: A current-carrying conductor placed in a magnetic field experiences a force. Diagram should show coil, magnets, split ring commutator, brushes, and direction of current and motion.",
-    explanation:
-      "Boards look for principle statement plus neat labelled diagram.",
-    policyTag: "Motor principle + diagram",
-    solutionSteps: [
-      "Principle of an electric motor: A current-carrying conductor placed in a magnetic field experiences a force.; This force causes the conductor to move, converting electrical energy into mechanical energy. [1]",
-      "The labelled diagram should include a rectangular coil, strong permanent magnets (N and S poles), a split ring commutator, and carbon brushes. [1]",
-      "Clearly label the direction of current flow in the coil and the resulting direction of rotation or motion. [1]",
-    ],
-    finalAnswer: "Principle: A current-carrying conductor placed in a magnetic field experiences a force. Diagram should show coil, magnets, split ring commutator, brushes, and direction of current and motion.",
-  },
-
-  {
-    id: "2026-ME-CASE-04",
-    topicKey: "MagneticEffects",
-    subtopic: "Electromagnetic Induction",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "A coil of wire is connected to a galvanometer. When a bar magnet is quickly pushed into the coil, the galvanometer shows a deflection.\n(i) Name the phenomenon involved.\n(ii) What happens when the magnet is withdrawn from the coil?\n(iii) On what factors does the magnitude of induced current depend?\n(iv) Name one device that works on the principle of this phenomenon.",
-    answer:
-      "(i) Electromagnetic induction (EMI).\n(ii) The galvanometer shows deflection in the opposite direction (current reverses).\n(iii) Speed of motion, number of turns in the coil, strength of magnet, and area of coil.\n(iv) Generator/dynamo.",
-    explanation:
-      "Standard EMI case-based question connecting observation with principle and applications.",
-    policyTag: "EMI case-study",
-    solutionSteps: [
-      "The phenomenon involved when a magnet is moved relative to a coil, inducing current, is Electromagnetic Induction.; When the magnet is withdrawn from the coil, the galvanometer shows deflection in the opposite direction, indicating a reversal of induced current. [1]",
-      "The magnitude of induced current depends on the speed of relative motion between the magnet and the coil. [1]",
-      "It also depends on the number of turns in the coil, the strength of the magnet, and the area of the coil. [1]",
-      "An electric generator (or dynamo) is a device that works on the principle of electromagnetic induction. [1]",
-    ],
-    finalAnswer: "(i) Electromagnetic induction (EMI).\n(ii) The galvanometer shows deflection in the opposite direction (current reverses).\n(iii) Speed of motion, number of turns in the coil, strength of magnet, and area of coil.\n(iv) Generator/dynamo.",
-  },
-
   // ================================================================
   // EXTRA DEPTH PACK 2026 — PHYSICS & BIOLOGY HIGH-ROI TOPICS
   // Electricity, Magnetic Effects, Human Eye, Life Processes
@@ -1912,31 +1863,6 @@ A proper fuse rating slightly above 3.9 A is used so it melts if current exceeds
       "This rule states that if the thumb points in the direction of current, the curled fingers indicate the direction of the magnetic field lines.",
     ],
     finalAnswer: "Right-hand thumb rule",
-  },
-
-  {
-    id: "2026-MG-SA-03",
-    topicKey: "MagneticEffects",
-    subtopic: "Force on a Current-Carrying Conductor",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      "State Fleming's left-hand rule. How does this rule help in understanding the working of an electric motor?",
-    answer:
-      `Fleming's left-hand rule: Stretch the thumb, forefinger and middle finger mutually perpendicular to each other; forefinger indicates magnetic field, middle finger current, and thumb gives the direction of force on the conductor.
-In a motor, this rule predicts the direction of force on the current-carrying coil placed in a magnetic field, explaining its rotation.`,
-    explanation:
-      "The rule connects direction of current, magnetic field and force, which is the basic principle behind motor rotation.",
-    policyTag: "Magnetic effects – conductor in magnetic field, motor principle",
-    solutionSteps: [
-      "Fleming's left-hand rule states: Stretch the thumb, forefinger, and middle finger of the left hand so that they are mutually perpendicular.; If the forefinger points in the direction of the magnetic field and the middle finger points in the direction of the current [½]",
-      "then the thumb will point in the direction of the force or motion experienced by the conductor.; In an electric motor, a current-carrying coil is placed in a magnetic field. This rule helps determine the direction of the force acting on the coil. [½]",
-      "This force causes the coil to rotate continuously, thereby explaining the working principle of an electric motor. [1]",
-    ],
-    finalAnswer: "Fleming's left-hand rule states: Stretch the thumb, forefinger, and middle finger of the left hand so that they are mutually perpendicular. If the forefinger points in the direction of the magnetic field and the middle finger points in the direction of the current, then the thumb will point in the direction of the force or motion experienced by the conductor. This rule helps in understanding the working of an electric motor by determining the direction of the force acting on the current-carrying coil placed in a magnetic field, which causes the coil to rotate.",
   },
 
   {
@@ -2691,34 +2617,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
     pastBoardYear: "2023",
     policyTag: "Metals & Non-Metals 5-mark extraction",
     finalAnswer: "Example: Zinc from zinc blende (ZnS). Steps: (i) Concentration of ore by froth floatation. (ii) Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂. (iii) Reduction: ZnO + C → Zn + CO. (iv) Refining by electrolytic refining.",
-  },
-
-  {
-    id: "2026-MAG-LA-05",
-    topicKey: "MagneticEffects",
-    subtopic: "Electromagnetic Induction & Generator",
-    kind: "Short",
-    section: "D",
-    marks: 5,
-    difficulty: "Hard",
-    bloomSkill: "Understanding",
-    questionText:
-      "Explain the principle of an electric generator. Draw a labelled diagram of an AC generator and explain its working. What is the function of slip rings in the generator?",
-    answer:
-      "Principle: Electromagnetic induction — when a coil rotates in a magnetic field, the magnetic flux through it changes, inducing an EMF. Working: As the armature rotates, it cuts magnetic field lines; by Faraday's law, an EMF is induced that changes direction every half rotation, producing AC. Slip rings maintain continuous contact between the rotating coil and external circuit, allowing current to flow out.",
-    explanation:
-      "AC generators convert mechanical energy to electrical energy using electromagnetic induction, with slip rings enabling continuous AC output.",
-    solutionSteps: [
-      "State the principle (electromagnetic induction). [1]",
-      "Draw labelled diagram with armature, magnets, slip rings, brushes. [1]",
-      "Explain rotation and flux change. [1]",
-      "Explain why AC is produced. [1]",
-      "State the function of slip rings. [1]",
-    ],
-    strategyHint: "Focus on how rotation causes changing flux, which induces EMF.",
-    pastBoardYear: "2024",
-    policyTag: "Magnetic Effects 5-mark AC generator",
-    finalAnswer: "Principle: Electromagnetic induction — when a coil rotates in a magnetic field, the magnetic flux through it changes, inducing an EMF. Working: As the armature rotates, it cuts magnetic field lines; by Faraday's law, an EMF is induced that changes direction every half rotation, producing AC. Slip rings maintain continuous contact between the rotating coil and external circuit, allowing current to flow out.",
   },
 
   {

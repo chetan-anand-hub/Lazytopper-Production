@@ -39,21 +39,6 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 13.2 Q1", isCompetencyBased: false,
     strategyHint: "Add hemisphere volume (2/3)πr³ and cone volume (1/3)πr²h; with r = h = 1 they combine to exactly π." },
 
-  { id: "SAV-N-NCERT-12-MCQ-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "A", marks: 1, format: "MCQ",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Metallic spheres of radii 6 cm, 8 cm and 10 cm are melted to form a single solid sphere. The radius of the resulting sphere is",
-    options: ["10 cm", "12 cm", "14 cm", "16 cm"],
-    answer: "12 cm",
-    solutionSteps: [
-      "Conservation of volume: (4/3)πR³ = (4/3)π(6³ + 8³ + 10³).",
-      "R³ = 216 + 512 + 1000 = 1728.",
-      "R = ∛1728 = 12 cm."
-    ],
-    finalAnswer: "12 cm — option (B).",
-    ncertRef: "NCERT Ex 13.3 Q2", isCompetencyBased: false,
-    strategyHint: "Equate total volume: R³ = r₁³ + r₂³ + r₃³ when spheres are melted into one." },
-
   { id: "SAV-N-NCERT-12-AR-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Surface Area of Combined Solids", section: "A", marks: 1, format: "Assertion-Reasoning",
     difficulty: "Medium", bloomSkill: "Understanding",
@@ -121,32 +106,6 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 13.1 Q6", isCompetencyBased: true,
     strategyHint: "Capsule = cylinder + 2 hemispheres (= 1 full sphere of same radius); use 2πrh + 4πr²." },
 
-  { id: "SAV-N-NCERT-12-SA-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "B", marks: 2, format: "Short",
-    difficulty: "Easy", bloomSkill: "Applying",
-    questionText: "A metallic sphere of radius 4.2 cm is melted and recast into the shape of a cylinder of radius 6 cm. Find the height of the cylinder. (Take π = 22/7.)",
-    solutionSteps: [
-      "Conservation of volume: (4/3)πR³ = πr²h.",
-      "(4/3)(4.2)³ = (6)² × h ⇒ h = (4 × 4.2³)/(3 × 36).",
-      "= (4 × 74.088)/108 cm = 296.352/108 cm = 2.744 cm ≈ 2.74 cm."
-    ],
-    finalAnswer: "Height of cylinder = 2.74 cm.",
-    ncertRef: "NCERT Ex 13.3 Q1", isCompetencyBased: false,
-    strategyHint: "Volume of sphere melted = volume of cylinder cast; cancel π and solve for h." },
-
-  { id: "SAV-N-NCERT-12-SA-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "B", marks: 2, format: "Short",
-    difficulty: "Easy", bloomSkill: "Applying",
-    questionText: "A cone of height 24 cm and radius of base 6 cm is made up of modelling clay. A child reshapes it in the form of a sphere. Find the radius of the sphere.",
-    solutionSteps: [
-      "Volume of cone = (1/3)π(6)²(24) = (1/3)π × 36 × 24 cm³ = 288π cm³.",
-      "Volume of sphere = (4/3)πr³ = 288π ⇒ r³ = 288 × 3/4 = 216.",
-      "r = ∛216 = 6 cm."
-    ],
-    finalAnswer: "Radius of the sphere = 6 cm.",
-    ncertRef: "NCERT Example 8", isCompetencyBased: false,
-    strategyHint: "Equate (1/3)πr_c² h_c with (4/3)πR³ and solve for R." },
-
   // ===== Section C — Short (3m) =====
   { id: "SAV-N-NCERT-12-SA-004", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Surface Area of Combined Solids", section: "C", marks: 3, format: "Short",
@@ -203,33 +162,6 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 13.2 Q2", isCompetencyBased: true,
     strategyHint: "Cylinder length excludes the two cone heights; add cylinder volume to both cone volumes." },
 
-  { id: "SAV-N-NCERT-12-SA-008", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A 20 m deep well with diameter 7 m is dug and the earth from digging is evenly spread out to form a platform 22 m by 14 m. Find the height of the platform. (Take π = 22/7.)",
-    solutionSteps: [
-      "Volume of earth dug out (cylinder) = πr²h = (22/7)(3.5)²(20) m³ = (22/7)(12.25)(20) m³ = 770 m³.",
-      "Let H be the height of the platform. Volume of platform = 22 × 14 × H = 308H m³.",
-      "Conservation: 308H = 770 ⇒ H = 770/308 = 2.5 m."
-    ],
-    finalAnswer: "Height of platform = 2.5 m.",
-    ncertRef: "NCERT Ex 13.3 Q3", isCompetencyBased: true,
-    strategyHint: "Volume of dug-out cylinder equals volume of the cuboidal platform; solve for the height." },
-
-  { id: "SAV-N-NCERT-12-SA-009", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "C", marks: 3, format: "Short",
-    difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "A copper rod of diameter 1 cm and length 8 cm is drawn into a wire of length 18 m of uniform thickness. Find the thickness of the wire.",
-    solutionSteps: [
-      "Volume of rod = π × (1/2)² × 8 cm³ = 2π cm³.",
-      "Length of wire = 18 m = 1800 cm. Let r be the wire's radius; then volume = π × r² × 1800.",
-      "πr² × 1800 = 2π ⇒ r² = 1/900 ⇒ r = 1/30 cm.",
-      "Thickness (diameter) = 2r = 1/15 cm ≈ 0.67 mm."
-    ],
-    finalAnswer: "Thickness of wire = 1/15 cm ≈ 0.67 mm.",
-    ncertRef: "NCERT Example 10", isCompetencyBased: true,
-    strategyHint: "Equate rod volume πr₁²h₁ with wire volume πr₂²h₂ (h₂ in cm); solve for diameter 2r₂." },
-
   // ===== Section D — Long (5m) =====
   { id: "SAV-N-NCERT-12-LA-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Surface Area of Combined Solids", section: "D", marks: 5, format: "Long",
@@ -246,37 +178,6 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Example 3", isCompetencyBased: true,
     strategyHint: "Since cone's base is wider than cylinder's top, add the ring (πr² − πr'²) to the cone's CSA; cylinder gets its CSA plus its bottom circle." },
 
-  { id: "SAV-N-NCERT-12-LA-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Selvi's house has an overhead tank in the shape of a cylinder, filled by pumping water from a cuboidal sump of dimensions 1.57 m × 1.44 m × 95 cm. The overhead tank has radius 60 cm and height 95 cm. Find the height of water left in the sump after the tank is completely filled (sump was initially full). Also compare the capacity of the tank with that of the sump. (Use π = 3.14.)",
-    solutionSteps: [
-      "Convert all to metres: tank radius = 0.6 m, height = 0.95 m. Sump = 1.57 × 1.44 × 0.95 m.",
-      "Volume pumped to overhead tank = πr²h = 3.14 × 0.6 × 0.6 × 0.95 m³ = 1.07388 m³.",
-      "Sump full volume = 1.57 × 1.44 × 0.95 m³ = 2.14776 m³.",
-      "Volume left in sump = 2.14776 − 1.07388 = 1.07388 m³ = (1.57 × 0.6 × 0.6 × 0.95 × 2) m³.",
-      "Height of water left = volume/(l × b) = (1.57 × 0.6 × 0.6 × 0.95 × 2)/(1.57 × 1.44) m = 0.475 m = 47.5 cm.",
-      "Capacity of tank / Capacity of sump = (3.14 × 0.6 × 0.6 × 0.95)/(1.57 × 1.44 × 0.95) = 1/2."
-    ],
-    finalAnswer: "Height of water left in sump = 47.5 cm; tank's capacity is half the sump's capacity.",
-    ncertRef: "NCERT Example 9", isCompetencyBased: true,
-    strategyHint: "Volume of water transferred equals tank volume; compute residual sump volume and divide by base area to get the height." },
-
-  { id: "SAV-N-NCERT-12-LA-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A hemispherical tank full of water is emptied by a pipe at the rate of 25/7 litres per second. How much time will it take to empty half the tank, if the tank is 3 m in diameter? (Take π = 22/7.)",
-    solutionSteps: [
-      "Radius of hemispherical tank R = 3/2 = 1.5 m.",
-      "Volume of tank = (2/3)πR³ = (2/3)(22/7)(1.5)³ m³ = (2/3)(22/7)(3.375) m³ = 99/14 m³.",
-      "Half-tank volume = (1/2)(99/14) = 99/28 m³ = (99/28) × 1000 L = 99000/28 L.",
-      "Time = volume / rate = (99000/28) ÷ (25/7) seconds = (99000/28)(7/25) seconds = 990 s.",
-      "990 s = 16.5 minutes."
-    ],
-    finalAnswer: "Time to empty half the tank = 16.5 minutes.",
-    ncertRef: "NCERT Example 11", isCompetencyBased: true,
-    strategyHint: "Compute hemisphere volume (2/3)πR³, halve it, convert m³ → litres (× 1000), divide by the pumping rate." },
-
   { id: "SAV-N-NCERT-12-LA-004", subject: "Maths", topicKey: "surface-areas-and-volumes",
     subtopic: "Volume of Combined Solids", section: "D", marks: 5, format: "Long",
     difficulty: "Hard", bloomSkill: "Applying",
@@ -291,20 +192,6 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     finalAnswer: "Approximate syrup in 45 gulab jamuns ≈ 338 cm³.",
     ncertRef: "NCERT Ex 13.2 Q3", isCompetencyBased: true,
     strategyHint: "Each jamun = cylinder + 2 hemispheres (= 1 sphere); use πr²h + (4/3)πr³, then take 30%." },
-
-  { id: "SAV-N-NCERT-12-LA-005", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "D", marks: 5, format: "Long",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A container shaped like a right circular cylinder of diameter 12 cm and height 15 cm is full of ice cream. The ice cream is to be filled into cones of height 12 cm and diameter 6 cm, each having a hemispherical shape on top. Find the number of such cones that can be filled with ice cream.",
-    solutionSteps: [
-      "Volume of cylinder (ice-cream available) = πR²H = π(6)²(15) = 540π cm³.",
-      "Each cone-with-hemisphere top: cone radius r = 3 cm, cone height h = 12 cm.",
-      "Volume per cone unit = (1/3)πr²h + (2/3)πr³ = (1/3)π(9)(12) + (2/3)π(27) = 36π + 18π = 54π cm³.",
-      "Number of cones = 540π / 54π = 10."
-    ],
-    finalAnswer: "Number of cones that can be filled = 10.",
-    ncertRef: "NCERT Ex 13.3 Q5", isCompetencyBased: true,
-    strategyHint: "Equate total cylinder volume to N × (cone volume + hemisphere volume) and solve for N." },
 
   // ===== Section E — Case-Based (4m) =====
   { id: "SAV-N-NCERT-12-CB-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
@@ -335,31 +222,4 @@ export const SAV_NCERT: CanonicalQuestion[] = [
     ncertRef: "NCERT Ex 13.2 Q5", isCompetencyBased: true,
     strategyHint: "Displaced water = (1/4) of cone volume = N × (volume of one sphere); solve for N." },
 
-  { id: "SAV-N-NCERT-12-CB-003", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "E", marks: 4, format: "Case-Based",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Water in a canal, 6 m wide and 1.5 m deep, is flowing with a speed of 10 km/h. How much area will it irrigate in 30 minutes, if 8 cm of standing water is needed?",
-    solutionSteps: [
-      "Length of water column flowing in 30 min = (10 km/h)(0.5 h) = 5 km = 5000 m.",
-      "Volume of water flowing out in 30 min = 5000 × 6 × 1.5 m³ = 45000 m³.",
-      "Standing water needed = 8 cm = 0.08 m on the field.",
-      "Area irrigated = Volume / depth = 45000 / 0.08 m² = 562500 m²."
-    ],
-    finalAnswer: "Area irrigated = 562500 m² (= 56.25 hectares).",
-    ncertRef: "NCERT Ex 13.3 Q8", isCompetencyBased: true,
-    strategyHint: "Volume flowed in 30 min = (speed × time) × width × depth; divide by required depth to get area." },
-
-  { id: "SAV-N-NCERT-12-CB-004", subject: "Maths", topicKey: "surface-areas-and-volumes",
-    subtopic: "Conversion of Solids", section: "E", marks: 4, format: "Case-Based",
-    difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A farmer connects a pipe of internal diameter 20 cm from a canal into a cylindrical tank in her field, which is 10 m in diameter and 2 m deep. If water flows through the pipe at the rate of 3 km/h, in how much time will the tank be filled?",
-    solutionSteps: [
-      "Tank volume = π(5)²(2) m³ = 50π m³.",
-      "Pipe inner radius = 10 cm = 0.1 m. Water-column length flowing in 1 hour = 3 km = 3000 m.",
-      "Volume of water flowing per hour = π(0.1)²(3000) m³ = 30π m³.",
-      "Time = 50π / 30π hours = 5/3 hours = 1 hour 40 minutes = 100 minutes."
-    ],
-    finalAnswer: "Tank fills in 5/3 hours = 1 h 40 min (100 minutes).",
-    ncertRef: "NCERT Ex 13.3 Q9", isCompetencyBased: true,
-    strategyHint: "Equate (pipe cross-section × flow length per unit time) × time with tank volume." },
 ];
