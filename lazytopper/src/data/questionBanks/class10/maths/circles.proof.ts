@@ -1,7 +1,7 @@
 ﻿import type { CanonicalQuestion } from "../../../predictionTypes";
 
 /**
- * Circles Proof Pack â€” Tangent Theorems + Chord Properties
+ * Circles Proof Pack — Tangent Theorems + Chord Properties
  *
  * Content basis:
  * - CBSE Class X Mathematics Standard SQP 2025-26
@@ -9,7 +9,7 @@
  * - CBSE Board Papers 2022-2025
  *
  * Proof structure follows CBSE board format:
- * Given â†’ To Prove â†’ Construction â†’ Proof (with reasons) â†’ Hence Proved
+ * Given → To Prove → Construction → Proof (with reasons) → Hence Proved
  *
  * The two CBSE-mandated theorems (tangent perpendicular to radius,
  * equal tangents from external point) appear EVERY year in Section C or D.
@@ -19,9 +19,9 @@
  */
 export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // SECTION D â€” 5 MARKS (Full proofs, board-style)
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────────
+  // SECTION D — 5 MARKS (Full proofs, board-style)
+  // ─────────────────────────────────────────────
 
   {
     "id": "CIR-PRF-D-001",
@@ -33,12 +33,12 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Prove that the tangent at any point of a circle is perpendicular to the radius through the point of contact. Using this theorem, if O is the centre of a circle and PA is a tangent from external point P, find âˆ OPA if âˆ AOP = 40Â°.",
+    "questionText": "Prove that the tangent at any point of a circle is perpendicular to the radius through the point of contact. Using this theorem, if O is the centre of a circle and PA is a tangent from external point P, find ∠OPA if ∠AOP = 40°.",
     "options": [],
-    "answer": "âˆ OPA = 50Â°",
+    "answer": "∠OPA = 50°",
     "solutionSteps": [
       "GIVEN: A circle with centre O. XY is a tangent to the circle at point A.",
-      "TO PROVE: OA âŠ¥ XY",
+      "TO PROVE: OA ⊥ XY",
       "PROOF: Take any point B (other than A) on the tangent XY.",
       "Since XY is a tangent, it touches the circle only at A.",
       "Therefore B lies outside the circle.",
@@ -46,20 +46,20 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
       "This is true for every point B on the tangent XY other than A.",
       "Therefore OA is the shortest distance from O to line XY.",
       "But the shortest distance from a point to a line is the perpendicular.",
-      "Therefore OA âŠ¥ XY. Hence Proved.",
-      "APPLICATION: In â–³OAP, âˆ OAP = 90Â° (tangent âŠ¥ radius at point of contact)",
-      "âˆ AOP + âˆ OAP + âˆ OPA = 180Â° (angle sum of triangle)",
-      "40Â° + 90Â° + âˆ OPA = 180Â°",
-      "âˆ OPA = 180Â° âˆ’ 130Â° = 50Â°",
-      "Therefore âˆ OPA = 50Â°."
+      "Therefore OA ⊥ XY. Hence Proved.",
+      "APPLICATION: In △OAP, ∠OAP = 90° (tangent ⊥ radius at point of contact)",
+      "∠AOP + ∠OAP + ∠OPA = 180° (angle sum of triangle)",
+      "40° + 90° + ∠OPA = 180°",
+      "∠OPA = 180° − 130° = 50°",
+      "Therefore ∠OPA = 50°."
     ],
-    "finalAnswer": "âˆ OPA = 50Â°",
-    "explanation": "Tangent is perpendicular to radius at point of contact â€” proved by showing OA is shortest distance. Application: in â–³OAP, angles sum to 180Â°. âˆ OAP = 90Â°, âˆ AOP = 40Â°, so âˆ OPA = 50Â°.",
+    "finalAnswer": "∠OPA = 50°",
+    "explanation": "Tangent is perpendicular to radius at point of contact — proved by showing OA is shortest distance. Application: in △OAP, angles sum to 180°. ∠OAP = 90°, ∠AOP = 40°, so ∠OPA = 50°.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "30/1/1",
     "ncertRef": "Theorem 10.1, Ex 10.1",
-    "strategyHint": "The proof uses the key idea that every point on the tangent except A is outside the circle, making OA the shortest path â€” hence perpendicular."
+    "strategyHint": "The proof uses the key idea that every point on the tangent except A is outside the circle, making OA the shortest path — hence perpendicular."
   },
 
   {
@@ -72,31 +72,31 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "Prove that the lengths of tangents drawn from an external point to a circle are equal. Hence, if tangents PA and PB are drawn from point P to a circle with centre O, and âˆ APB = 70Â°, find âˆ AOB.",
+    "questionText": "Prove that the lengths of tangents drawn from an external point to a circle are equal. Hence, if tangents PA and PB are drawn from point P to a circle with centre O, and ∠APB = 70°, find ∠AOB.",
     "options": [],
-    "answer": "âˆ AOB = 110Â°",
+    "answer": "∠AOB = 110°",
     "solutionSteps": [
       "GIVEN: Circle with centre O. PA and PB are tangents from external point P touching the circle at A and B respectively.",
       "TO PROVE: PA = PB",
       "CONSTRUCTION: Join OA, OB and OP.",
-      "PROOF: In â–³OAP and â–³OBP:",
+      "PROOF: In △OAP and △OBP:",
       "OA = OB  (radii of the same circle)  ...(i)",
       "OP = OP  (common side)  ...(ii)",
-      "âˆ OAP = âˆ OBP = 90Â°  (tangent âŠ¥ radius at point of contact)  ...(iii)",
-      "By RHS congruence rule: â–³OAP â‰… â–³OBP",
+      "∠OAP = ∠OBP = 90°  (tangent ⊥ radius at point of contact)  ...(iii)",
+      "By RHS congruence rule: △OAP ≅ △OBP",
       "Therefore PA = PB  (CPCT). Hence Proved.",
       "ADDITIONAL RESULTS FROM CONGRUENCE (CPCT):",
-      "âˆ OPA = âˆ OPB  (OP bisects âˆ APB)",
-      "âˆ AOP = âˆ BOP  (OP bisects âˆ AOB)",
-      "APPLICATION: âˆ APB = 70Â°, find âˆ AOB.",
+      "∠OPA = ∠OPB  (OP bisects ∠APB)",
+      "∠AOP = ∠BOP  (OP bisects ∠AOB)",
+      "APPLICATION: ∠APB = 70°, find ∠AOB.",
       "In quadrilateral OAPB:",
-      "âˆ OAP + âˆ APB + âˆ OBP + âˆ AOB = 360Â°",
-      "90Â° + 70Â° + 90Â° + âˆ AOB = 360Â°",
-      "âˆ AOB = 360Â° âˆ’ 250Â° = 110Â°",
-      "Therefore âˆ AOB = 110Â°."
+      "∠OAP + ∠APB + ∠OBP + ∠AOB = 360°",
+      "90° + 70° + 90° + ∠AOB = 360°",
+      "∠AOB = 360° − 250° = 110°",
+      "Therefore ∠AOB = 110°."
     ],
-    "finalAnswer": "âˆ AOB = 110Â°",
-    "explanation": "PA = PB proved by RHS congruence of â–³OAP and â–³OBP. Application: angles in quadrilateral OAPB sum to 360Â°. 90Â°+70Â°+90Â°+âˆ AOB = 360Â° gives âˆ AOB = 110Â°.",
+    "finalAnswer": "∠AOB = 110°",
+    "explanation": "PA = PB proved by RHS congruence of △OAP and △OBP. Application: angles in quadrilateral OAPB sum to 360°. 90°+70°+90°+∠AOB = 360° gives ∠AOB = 110°.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "30/1/1",
@@ -151,33 +151,33 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that âˆ PTQ = 2âˆ OPQ.",
+    "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
     "options": [],
-    "answer": "âˆ PTQ = 2âˆ OPQ (proved)",
+    "answer": "∠PTQ = 2∠OPQ (proved)",
     "solutionSteps": [
       "GIVEN: Circle with centre O. TP and TQ are tangents from external point T touching circle at P and Q.",
-      "TO PROVE: âˆ PTQ = 2âˆ OPQ",
+      "TO PROVE: ∠PTQ = 2∠OPQ",
       "PROOF: Since tangents from external point are equal: TP = TQ  ...(i)",
-      "Therefore â–³TPQ is isosceles.",
-      "âˆ TPQ = âˆ TQP  (base angles of isosceles â–³TPQ)  ...(ii)",
-      "Let âˆ TPQ = âˆ TQP = x",
-      "In â–³TPQ: âˆ PTQ + âˆ TPQ + âˆ TQP = 180Â°",
-      "âˆ PTQ + x + x = 180Â°",
-      "âˆ PTQ = 180Â° âˆ’ 2x  ...(iii)",
+      "Therefore △TPQ is isosceles.",
+      "∠TPQ = ∠TQP  (base angles of isosceles △TPQ)  ...(ii)",
+      "Let ∠TPQ = ∠TQP = x",
+      "In △TPQ: ∠PTQ + ∠TPQ + ∠TQP = 180°",
+      "∠PTQ + x + x = 180°",
+      "∠PTQ = 180° − 2x  ...(iii)",
       "Now, TP is a tangent and OP is the radius at P.",
-      "âˆ OPT = 90Â°  (tangent âŠ¥ radius)  ...(iv)",
-      "âˆ OPQ = âˆ OPT âˆ’ âˆ TPQ = 90Â° âˆ’ x  ...(v)",
-      "Therefore 2âˆ OPQ = 2(90Â° âˆ’ x) = 180Â° âˆ’ 2x  ...(vi)",
+      "∠OPT = 90°  (tangent ⊥ radius)  ...(iv)",
+      "∠OPQ = ∠OPT − ∠TPQ = 90° − x  ...(v)",
+      "Therefore 2∠OPQ = 2(90° − x) = 180° − 2x  ...(vi)",
       "From (iii) and (vi):",
-      "âˆ PTQ = 180Â° âˆ’ 2x = 2âˆ OPQ. Hence Proved."
+      "∠PTQ = 180° − 2x = 2∠OPQ. Hence Proved."
     ],
-    "finalAnswer": "âˆ PTQ = 2âˆ OPQ (proved)",
-    "explanation": "TP = TQ (equal tangents) makes â–³TPQ isosceles. Let base angles = x. âˆ PTQ = 180Â°âˆ’2x. Since âˆ OPT = 90Â°, âˆ OPQ = 90Â°âˆ’x. So 2âˆ OPQ = 180Â°âˆ’2x = âˆ PTQ.",
+    "finalAnswer": "∠PTQ = 2∠OPQ (proved)",
+    "explanation": "TP = TQ (equal tangents) makes △TPQ isosceles. Let base angles = x. ∠PTQ = 180°−2x. Since ∠OPT = 90°, ∠OPQ = 90°−x. So 2∠OPQ = 180°−2x = ∠PTQ.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "30/3/1",
     "ncertRef": "Ex 10.2 Q13",
-    "strategyHint": "Use TP = TQ (isosceles triangle). Let base angle = x. Express âˆ PTQ in terms of x. Use âˆ OPT = 90Â° to express âˆ OPQ in terms of x. Show they match."
+    "strategyHint": "Use TP = TQ (isosceles triangle). Let base angle = x. Express ∠PTQ in terms of x. Use ∠OPT = 90° to express ∠OPQ in terms of x. Show they match."
   },
 
   {
@@ -190,43 +190,43 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "In the figure, XY and X'Y' are two parallel tangents to a circle with centre O. Another tangent AB with point of tangency C intersects XY at A and X'Y' at B. Prove that âˆ AOB = 90Â°.",
+    "questionText": "In the figure, XY and X'Y' are two parallel tangents to a circle with centre O. Another tangent AB with point of tangency C intersects XY at A and X'Y' at B. Prove that ∠AOB = 90°.",
     "options": [],
-    "answer": "âˆ AOB = 90Â° (proved)",
+    "answer": "∠AOB = 90° (proved)",
     "solutionSteps": [
       "GIVEN: XY and X'Y' are parallel tangents to circle with centre O at points P and Q respectively. AB is a third tangent touching circle at C, meeting XY at A and X'Y' at B.",
-      "TO PROVE: âˆ AOB = 90Â°",
+      "TO PROVE: ∠AOB = 90°",
       "PROOF: Join O to A and O to B.",
       "Since XY is tangent at P and AB is tangent at C, both touching from vertex A:",
       "AP = AC  (equal tangents from external point A)  ...(i)",
-      "In â–³OAP and â–³OAC:",
+      "In △OAP and △OAC:",
       "OA = OA  (common)",
       "OP = OC  (radii)",
       "AP = AC  (from i)",
-      "By SSS congruence: â–³OAP â‰… â–³OAC",
-      "Therefore âˆ POA = âˆ COA, i.e., OA bisects âˆ POC  ...(ii)",
+      "By SSS congruence: △OAP ≅ △OAC",
+      "Therefore ∠POA = ∠COA, i.e., OA bisects ∠POC  ...(ii)",
       "Since X'Y' is tangent at Q and AB is tangent at C, both from vertex B:",
       "BQ = BC  (equal tangents from external point B)  ...(iii)",
-      "Similarly â–³OBQ â‰… â–³OBC by SSS, so OB bisects âˆ QOC  ...(iv)",
-      "Now, P and Q are opposite ends of a diameter (since XY âˆ¥ X'Y' are parallel tangents).",
-      "Therefore âˆ POQ = 180Â°  (POQ is a straight line)  ...(v)",
-      "âˆ POC + âˆ COQ = 180Â°",
-      "2âˆ AOC + 2âˆ BOC = 180Â°  [from (ii) and (iv), OA and OB bisect]",
-      "âˆ AOC + âˆ BOC = 90Â°",
-      "âˆ AOB = 90Â°. Hence Proved."
+      "Similarly △OBQ ≅ △OBC by SSS, so OB bisects ∠QOC  ...(iv)",
+      "Now, P and Q are opposite ends of a diameter (since XY ∥ X'Y' are parallel tangents).",
+      "Therefore ∠POQ = 180°  (POQ is a straight line)  ...(v)",
+      "∠POC + ∠COQ = 180°",
+      "2∠AOC + 2∠BOC = 180°  [from (ii) and (iv), OA and OB bisect]",
+      "∠AOC + ∠BOC = 90°",
+      "∠AOB = 90°. Hence Proved."
     ],
-    "finalAnswer": "âˆ AOB = 90Â° (proved)",
-    "explanation": "OA bisects âˆ POC (equal tangents from A). OB bisects âˆ QOC (equal tangents from B). Since XY âˆ¥ X'Y', POQ is a diameter so âˆ POQ = 180Â°. Half of 180Â° = 90Â° = âˆ AOB.",
+    "finalAnswer": "∠AOB = 90° (proved)",
+    "explanation": "OA bisects ∠POC (equal tangents from A). OB bisects ∠QOC (equal tangents from B). Since XY ∥ X'Y', POQ is a diameter so ∠POQ = 180°. Half of 180° = 90° = ∠AOB.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "30/2/1",
     "ncertRef": "Ex 10.2 Q12",
-    "strategyHint": "The key is that XY âˆ¥ X'Y' means P and Q are diametrically opposite, so âˆ POQ = 180Â°. OA and OB are angle bisectors, so their included angle is half of 180Â° = 90Â°."
+    "strategyHint": "The key is that XY ∥ X'Y' means P and Q are diametrically opposite, so ∠POQ = 180°. OA and OB are angle bisectors, so their included angle is half of 180° = 90°."
   },
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // SECTION C â€” 3 MARKS
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────────
+  // SECTION C — 3 MARKS
+  // ─────────────────────────────────────────────
 
   {
     "id": "CIR-PRF-C-001",
@@ -238,22 +238,22 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "From an external point P, two tangents PA and PB are drawn to a circle with centre O. If PA = 12 cm and OA = 5 cm, find OP. Also show that âˆ OAP = 90Â°.",
+    "questionText": "From an external point P, two tangents PA and PB are drawn to a circle with centre O. If PA = 12 cm and OA = 5 cm, find OP. Also show that ∠OAP = 90°.",
     "options": [],
     "answer": "OP = 13 cm",
     "solutionSteps": [
       "GIVEN: Tangents PA and PB from external point P to circle with centre O. PA = 12 cm, OA = 5 cm.",
       "Since PA is a tangent at A, and OA is the radius:",
-      "âˆ OAP = 90Â°  (tangent is perpendicular to radius at point of contact)",
-      "Therefore â–³OAP is right-angled at A.",
-      "By Pythagoras Theorem: OPÂ² = OAÂ² + PAÂ²",
-      "OPÂ² = 5Â² + 12Â²",
-      "OPÂ² = 25 + 144 = 169",
-      "OP = âˆš169 = 13 cm",
-      "Therefore OP = 13 cm and âˆ OAP = 90Â°."
+      "∠OAP = 90°  (tangent is perpendicular to radius at point of contact)",
+      "Therefore △OAP is right-angled at A.",
+      "By Pythagoras Theorem: OP² = OA² + PA²",
+      "OP² = 5² + 12²",
+      "OP² = 25 + 144 = 169",
+      "OP = √169 = 13 cm",
+      "Therefore OP = 13 cm and ∠OAP = 90°."
     ],
-    "finalAnswer": "OP = 13 cm, âˆ OAP = 90Â°",
-    "explanation": "âˆ OAP = 90Â° by tangent-radius theorem. Then OP = âˆš(5Â² + 12Â²) = âˆš169 = 13 cm by Pythagoras.",
+    "finalAnswer": "OP = 13 cm, ∠OAP = 90°",
+    "explanation": "∠OAP = 90° by tangent-radius theorem. Then OP = √(5² + 12²) = √169 = 13 cm by Pythagoras.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -278,15 +278,15 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
       "TO PROVE: P is the midpoint of AB, i.e., PA = PB",
       "PROOF: AB is tangent to the smaller circle at P.",
       "OP is the radius of the smaller circle at the point of tangency.",
-      "Since tangent âŠ¥ radius at point of contact: OP âŠ¥ AB  ...(i)",
+      "Since tangent ⊥ radius at point of contact: OP ⊥ AB  ...(i)",
       "AB is a chord of the larger circle.",
       "OP is drawn from centre O perpendicular to chord AB  (from i).",
       "The perpendicular from the centre to a chord bisects the chord.",
       "Therefore PA = PB.",
       "Hence P is the midpoint of AB. Hence Proved."
     ],
-    "finalAnswer": "PA = PB â€” the chord is bisected at the tangent point P.",
-    "explanation": "OP âŠ¥ AB (tangent-radius). OP is also perpendicular from centre to chord AB of larger circle. Perpendicular from centre bisects chord, so PA = PB.",
+    "finalAnswer": "PA = PB — the chord is bisected at the tangent point P.",
+    "explanation": "OP ⊥ AB (tangent-radius). OP is also perpendicular from centre to chord AB of larger circle. Perpendicular from centre bisects chord, so PA = PB.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "30/1/1",
@@ -303,11 +303,11 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A circle is inscribed in â–³ABC with AB = 10 cm, BC = 8 cm and CA = 6 cm. Find the lengths of tangents from each vertex.",
+    "questionText": "A circle is inscribed in △ABC with AB = 10 cm, BC = 8 cm and CA = 6 cm. Find the lengths of tangents from each vertex.",
     "options": [],
     "answer": "Tangents: from A = 4 cm, from B = 6 cm, from C = 2 cm",
     "solutionSteps": [
-      "GIVEN: Circle inscribed in â–³ABC. AB = 10 cm, BC = 8 cm, CA = 6 cm.",
+      "GIVEN: Circle inscribed in △ABC. AB = 10 cm, BC = 8 cm, CA = 6 cm.",
       "Let the circle touch AB at P, BC at Q, CA at R.",
       "Let tangent lengths be: AP = AR = x, BP = BQ = y, CQ = CR = z",
       "(equal tangents from each external vertex)",
@@ -318,9 +318,9 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
       "Adding all three equations:",
       "2(x + y + z) = 24",
       "x + y + z = 12  ...(iv)",
-      "From (iv) âˆ’ (i): z = 12 âˆ’ 10 = 2 cm  (tangent from C)",
-      "From (iv) âˆ’ (ii): x = 12 âˆ’ 8 = 4 cm  (tangent from A)",
-      "From (iv) âˆ’ (iii): y = 12 âˆ’ 6 = 6 cm  (tangent from B)",
+      "From (iv) − (i): z = 12 − 10 = 2 cm  (tangent from C)",
+      "From (iv) − (ii): x = 12 − 8 = 4 cm  (tangent from A)",
+      "From (iv) − (iii): y = 12 − 6 = 6 cm  (tangent from B)",
       "Therefore: Tangent from A = 4 cm, from B = 6 cm, from C = 2 cm."
     ],
     "finalAnswer": "Tangent from A = 4 cm, from B = 6 cm, from C = 2 cm",
@@ -341,23 +341,23 @@ export const CIRCLES_PROOF_QUESTIONS: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "If PA and PB are tangents from external point P to a circle with centre O, then prove that âˆ APB + âˆ AOB = 180Â°.",
+    "questionText": "If PA and PB are tangents from external point P to a circle with centre O, then prove that ∠APB + ∠AOB = 180°.",
     "options": [],
-    "answer": "âˆ APB + âˆ AOB = 180Â° (proved)",
+    "answer": "∠APB + ∠AOB = 180° (proved)",
     "solutionSteps": [
       "GIVEN: PA and PB are tangents from external point P to circle with centre O.",
-      "TO PROVE: âˆ APB + âˆ AOB = 180Â°",
-      "PROOF: Since PA is tangent at A: âˆ OAP = 90Â°  ...(i)",
-      "Since PB is tangent at B: âˆ OBP = 90Â°  ...(ii)",
+      "TO PROVE: ∠APB + ∠AOB = 180°",
+      "PROOF: Since PA is tangent at A: ∠OAP = 90°  ...(i)",
+      "Since PB is tangent at B: ∠OBP = 90°  ...(ii)",
       "In quadrilateral OAPB:",
-      "Sum of all angles = 360Â°",
-      "âˆ OAP + âˆ APB + âˆ OBP + âˆ AOB = 360Â°",
-      "90Â° + âˆ APB + 90Â° + âˆ AOB = 360Â°   [from (i) and (ii)]",
-      "âˆ APB + âˆ AOB + 180Â° = 360Â°",
-      "âˆ APB + âˆ AOB = 180Â°. Hence Proved."
+      "Sum of all angles = 360°",
+      "∠OAP + ∠APB + ∠OBP + ∠AOB = 360°",
+      "90° + ∠APB + 90° + ∠AOB = 360°   [from (i) and (ii)]",
+      "∠APB + ∠AOB + 180° = 360°",
+      "∠APB + ∠AOB = 180°. Hence Proved."
     ],
-    "finalAnswer": "âˆ APB + âˆ AOB = 180Â° (proved via angle sum of quadrilateral OAPB)",
-    "explanation": "In quadrilateral OAPB, âˆ OAP = âˆ OBP = 90Â° (tangent-radius). Angle sum of quadrilateral = 360Â°. So âˆ APB + âˆ AOB = 360Â° âˆ’ 180Â° = 180Â°.",
+    "finalAnswer": "∠APB + ∠AOB = 180° (proved via angle sum of quadrilateral OAPB)",
+    "explanation": "In quadrilateral OAPB, ∠OAP = ∠OBP = 90° (tangent-radius). Angle sum of quadrilateral = 360°. So ∠APB + ∠AOB = 360° − 180° = 180°.",
     "isCompetencyBased": false,
     "pyqYear": "2022",
     "pyqSet": "30/2/1",
