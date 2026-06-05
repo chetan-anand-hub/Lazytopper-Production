@@ -1,8 +1,10 @@
 // src/data/highlyProbableQuestions.ts
 import type { PredictedQuestionId } from "./predictedQuestions";
-import { mergeBucketsByTopic } from "../utils/mergeBucketsByTopic.ts";
+import {
+  mergeBucketsByTopic,
+  canonicalTopicKey,
+} from "../utils/mergeBucketsByTopic.ts";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
-import { deriveHPQConfidence } from "../prediction/hpqConfidence";
 import { hpqCompetencyAdditions } from "./hpqCompetencyAdditions";
 
 const hpqAdditions: HPQTopicBucket[] = [
@@ -2905,17 +2907,77 @@ export const highlyProbableQuestions: HPQTopicBucket[] = [
   ...mergeBucketsByTopic("Science", _rawHpqBuckets),
 ];
 
-function normalizeTopicLabel(raw: string): string {
-  return String(raw || "")
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
+// ------------------- Locked Exam-Trends tiers (single source of truth) -------------------
+// Source: LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md (owner-signed-off).
+// The tier BADGE is driven from this table — never from hand-authored per-bucket
+// `defaultTier` values — so HPQ tiering can't drift from the Exam-Trends page again.
+// Keys are matched by canonical topic identity, so label variants still resolve.
+const LOCKED_TIER_SOURCE: Record<HPQSubject, Record<HPQTier, string[]>> = {
+  Maths: {
+    "must-crack": [
+      "Trigonometry",
+      "Circles",
+      "Triangles",
+      "Surface Areas & Volumes",
+      "Polynomials",
+    ],
+    "high-roi": [
+      "Coordinate Geometry",
+      "Real Numbers",
+      "Probability",
+      "Quadratic Equations",
+      "Statistics",
+    ],
+    "good-to-do": [
+      "Arithmetic Progression",
+      "Pair of Linear Equations",
+      "Areas Related to Circles",
+    ],
+  },
+  Science: {
+    "must-crack": [
+      "Chemical Reactions & Equations",
+      "Light – Reflection & Refraction",
+      "Life Processes",
+      "Acids, Bases & Salts",
+      "Electricity",
+      "Heredity",
+    ],
+    "high-roi": [
+      "Control & Coordination",
+      "Metals & Non-metals",
+      "Magnetic Effects of Current",
+      "How Do Organisms Reproduce",
+      "Carbon & its Compounds",
+    ],
+    "good-to-do": ["Our Environment", "Human Eye & Colourful World"],
+  },
+};
+
+// Flatten the locked table into a canonical-key → tier lookup, once at load.
+const lockedTierByKey: Record<HPQSubject, Map<string, HPQTier>> = {
+  Maths: new Map(),
+  Science: new Map(),
+};
+for (const subject of Object.keys(LOCKED_TIER_SOURCE) as HPQSubject[]) {
+  for (const tier of Object.keys(LOCKED_TIER_SOURCE[subject]) as HPQTier[]) {
+    for (const label of LOCKED_TIER_SOURCE[subject][tier]) {
+      lockedTierByKey[subject].set(canonicalTopicKey(label), tier);
+    }
+  }
+}
+
+/** Locked Exam-Trends tier for a topic, or undefined if the topic isn't tiered. */
+export function getLockedTier(
+  subject: HPQSubject,
+  topic: string
+): HPQTier | undefined {
+  return lockedTierByKey[subject].get(canonicalTopicKey(topic));
 }
 
 const allowedScienceTopicLabels = new Set(
   Object.values(class10ScienceTopicTrends.topics).map((topic) =>
-    normalizeTopicLabel(topic.topicName)
+    canonicalTopicKey(topic.topicName)
   )
 );
 
@@ -2935,8 +2997,17 @@ export function getHighlyProbableQuestions(
     if (bSubject !== subj) return false;
     if (
       subj === "Science" &&
-      !allowedScienceTopicLabels.has(normalizeTopicLabel(b.topic))
+      !allowedScienceTopicLabels.has(canonicalTopicKey(b.topic))
     ) {
+      // Never drop content silently — a label drifting away from the trends
+      // registry is how questions vanish unnoticed. Surface it in dev.
+      if (import.meta.env?.DEV) {
+        console.warn(
+          `[HPQ] Science bucket "${b.topic}" (canonical "${canonicalTopicKey(
+            b.topic
+          )}") is not in class10ScienceTopicTrends and was dropped from display.`
+        );
+      }
       return false;
     }
     if (subj === "Science" && stream) {
@@ -2944,17 +3015,21 @@ export function getHighlyProbableQuestions(
     }
     return true;
   });
-  return filtered.map((bucket) => ({
-    ...bucket,
-    questions: bucket.questions.map((question) => ({
-      ...question,
-      ...deriveHPQConfidence({
-        subject: subj,
-        topic: bucket.topic,
-        question,
-      }),
-    })),
-  }));
+  // Drive the tier badge from the locked Exam-Trends tiers (single source of
+  // truth), overriding any hand-authored bucket/question tier so the badge can
+  // never contradict the Exam-Trends page. Falls back to the authored value
+  // only for a topic absent from the locked table.
+  return filtered.map((bucket) => {
+    const lockedTier = getLockedTier(subj, bucket.topic);
+    return {
+      ...bucket,
+      defaultTier: lockedTier ?? bucket.defaultTier,
+      questions: bucket.questions.map((question) => ({
+        ...question,
+        tier: lockedTier ?? question.tier,
+      })),
+    };
+  });
 }
 
 /**

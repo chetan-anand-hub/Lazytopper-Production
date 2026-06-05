@@ -582,7 +582,7 @@ const HighlyProbableQuestions: React.FC = () => {
     setSearchParams(new URLSearchParams());
 
     navigate(`/highly-probable/${grade}/${next}`, {
-      state: { back: currentURL, backLabel: "Back to Predicted Questions" },
+      state: { back: currentURL, backLabel: "Back to Question Patterns" },
       replace: true,
     });
   };
@@ -601,7 +601,7 @@ const HighlyProbableQuestions: React.FC = () => {
     navigate(`/mock-builder/${encodeURIComponent(grade)}/${encodeURIComponent(subjectKey)}${query ? `?${query}` : ""}`, {
       state: {
         back: currentURL,
-        backLabel: "Back to Predicted Questions",
+        backLabel: "Back to Question Patterns",
       },
     });
   };
@@ -625,7 +625,7 @@ const HighlyProbableQuestions: React.FC = () => {
       {
         state: {
           back: currentURL,
-          backLabel: "Back to Predicted Questions",
+          backLabel: "Back to Question Patterns",
         },
       }
     );
@@ -757,7 +757,7 @@ const HighlyProbableQuestions: React.FC = () => {
       topicKey,
       topicName,
       backPath,
-      backLabel: "Back to Predicted Questions",
+      backLabel: "Back to Question Patterns",
       subtopicHint: q.subtopic || q.concept || bucket.topic,
       focusBankIds: q.id ? [q.id] : undefined,
       recommendedCount,
@@ -993,7 +993,7 @@ const HighlyProbableQuestions: React.FC = () => {
               {hpqBack.label}
             </button>
             <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>
-              Predicted Questions
+              High-Probability Question Patterns
             </span>
             <span>Class {grade} - {subjectKey}</span>
           </div>
@@ -1002,7 +1002,7 @@ const HighlyProbableQuestions: React.FC = () => {
             <ReturnContextBar
               backTo={hpqBack.target}
               backLabel={hpqBack.label}
-              currentLabel="Predicted Q's"
+              currentLabel="Question Patterns"
               quickLinks={[
                 { label: "Trends", to: EXAM_TRENDS_PATH },
                 { label: "Chapter Hub", to: addHpqReturnContext(buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : ""), currentURL) },
@@ -1046,7 +1046,7 @@ const HighlyProbableQuestions: React.FC = () => {
               marginBottom: 8,
             }}
             >
-              Class {grade} - {subjectKey} - Predicted Questions
+              Class {grade} - {subjectKey} - High-Probability Question Patterns
             </div>
             <h1
             style={{
@@ -1058,7 +1058,7 @@ const HighlyProbableQuestions: React.FC = () => {
               marginBottom: 10,
             }}
           >
-              Predicted Questions
+              High-Probability Question Patterns
             </h1>
             <p
             style={{
@@ -1069,9 +1069,9 @@ const HighlyProbableQuestions: React.FC = () => {
               margin: "0 0 6px",
             }}
           >
-              High-probability board questions selected through LazyTopper's exam-pattern analysis.
+              The question shapes that recur most on CBSE boards — drawn from 4 years of papers, the official blueprint, and examiner-pattern analysis.
               <br />
-              Use these topic-wise stacks for focused 2027 revision.
+              Master these patterns first.
             </p>
             <div
               style={{
@@ -1080,7 +1080,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 lineHeight: 1.45,
               }}
             >
-              Predictions guide revision - they do not replace full chapter preparation.
+              These represent high-probability question patterns to prioritise — not predictions of the exact 2027 paper. Full preparation still matters.
             </div>
             {topicFilter !== "all" ? (
               <div
@@ -1519,10 +1519,10 @@ const HighlyProbableQuestions: React.FC = () => {
                   bucket.questions.filter(isCompetencyQuestion).length;
                 const stackBlurb =
                   tier === "must-crack"
-                    ? "High-priority predicted stack for 2027 board revision."
+                    ? "High-priority pattern stack for 2027 board revision."
                     : tier === "high-roi"
-                      ? "High-value predicted stack for focused 2027 revision."
-                      : "Useful predicted stack for completing topic coverage.";
+                      ? "High-value pattern stack for focused 2027 revision."
+                      : "Useful pattern stack for completing topic coverage.";
                 const isScience =
                   (bucket.subject ?? subjectKey) === "Science";
                 const streamLabel =

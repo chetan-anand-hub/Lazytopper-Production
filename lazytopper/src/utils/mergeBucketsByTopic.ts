@@ -9,6 +9,33 @@ import type {
   HPQTier,
 } from "../data/highlyProbableQuestions";
 
+// Known label variants that name the SAME chapter. Maps a normalized label to
+// its canonical normalized form, so a spelling drift (a stray suffix, "&" vs
+// "and", an extra word, a leading "the") can't fork one chapter into two cards
+// or get it silently dropped by a label-keyed filter. Single source of topic
+// identity — reused by the HPQ tier lookup and the Science topic-allow filter.
+const TOPIC_ALIASES: Record<string, string> = {
+  "pair of linear equations in two variables": "pair of linear equations",
+  "arithmetic progressions": "arithmetic progression",
+  "magnetic effects of electric current": "magnetic effects of current",
+  "human eye and colourful world": "the human eye and the colourful world",
+};
+
+/** Lowercase, collapse "&"→"and" and any non-alphanumeric run to a single space. */
+export function normalizeTopicLabel(raw: string): string {
+  return String(raw || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Canonical topic-identity key: normalized label, with known variants folded in. */
+export function canonicalTopicKey(raw: string): string {
+  const n = normalizeTopicLabel(raw);
+  return TOPIC_ALIASES[n] ?? n;
+}
+
 // Higher priority first (used when merging defaultTier conflicts)
 const TIER_PRIORITY: Record<HPQTier, number> = {
   "must-crack": 3,
@@ -69,7 +96,9 @@ export function mergeBucketsByTopic(
   // Key by topic + stream for Science; just topic for Maths.
   const keyOf = (b: HPQTopicBucket): string => {
     const s = normaliseSubject(b.subject);
-    const topic = (b.topic || "").trim();
+    // Key on the canonical topic identity (not the raw label) so near-duplicate
+    // labels for the same chapter merge into one card instead of rendering twice.
+    const topic = canonicalTopicKey(b.topic || "");
     const stream = (b.stream as HPQStream | undefined) ?? undefined;
     if (s === "Science") {
       return `${topic}__${stream ?? "General"}`;
