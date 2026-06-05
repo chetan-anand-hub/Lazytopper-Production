@@ -1,12 +1,43 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-05 (post-PR #190 Exam Trends band redesign — flat ranked list → 3 collapsible priority bands)
-# Base SHA: cfb3106625395f1fca4cce01e6365fd0bb5935ce
+# Updated: 2026-06-05 (post-PR #194 — HPQ Phase 1: tier badges re-based on locked tiers, dead confidence compute retired, honest reframe, plumbing fixed)
+# Base SHA: 6d5b6edfbf8a980d824d2b56ba6d60e69c5b9c57
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: cfb3106625395f1fca4cce01e6365fd0bb5935ce
-Last PRs: #188 (feat: content sweep — delete 93 banned out-of-syllabus entries; syllabusGuard now green) + #189 (docs handoff post-#188) + #190 (feat: Exam Trends band redesign — flat ranked list → 3 collapsible priority bands)
+SHA: 6d5b6edfbf8a980d824d2b56ba6d60e69c5b9c57
+Last PRs: #190 (Exam Trends band redesign) + #191 (docs post-#190) + #192 (scopeGuard monorepo path fix) + #193 (docs post-#192) + #194 (feat: HPQ Phase 1 — consistency + honesty)
+
+## HPQ PHASE 1 — DONE (#194). Consistency + honesty (logic/copy/plumbing only).
+
+HPQ now tells the SAME story as Exam Trends. Tier badges are driven from the locked tiers
+(`LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md`) via a single canonical-key→tier lookup in
+`getHighlyProbableQuestions()` — **0 tier contradictions (was 11/27); must-crack badge share 74%→42%**.
+Dead `deriveHPQConfidence` compute retired (page shows no confidence UI; `hpqConfidence.ts` kept for a
+future model). Copy reframed to honest "High-Probability Question Patterns" (representative shape, not a
+specific-question prediction; three locked evidence sources named). Plumbing: canonical-key merge dedupes
+the duplicate Pair-of-Linear / Metals cards; Science filter fix recovers Human Eye 1→4 and DEV-logs any
+future drop. All questions KEPT (re-badge + de-emphasize, never delete). 3 files, +140/−36;
+`predictionTypes.ts` frozen. Gates green; pre-existing reds (bank-health/canonical-gen/mojibake) verified
+unrelated. Report `report-hpq-phase1-consistency-2026-06-05.md`. Trunk `6d5b6ed`. See CURRENT_STATE top.
+
+## NEXT HPQ TASK — HPQ PHASE 2 (content authoring; gated `src/data/`, owner-validated, PYQ-sourced).
+
+Phase 1 only RE-BADGED. Phase 2 adds/rebalances CONTENT — author from real PYQ sources, owner-validated:
+1. **Missing every-year 5-mk Section-D Long-Answer marquee shapes** (the deepest "same story" gap): Trig
+   Heights & Distances 5-mk LA; Surface Areas combination-of-solids 5-mk LA; Statistics grouped-median
+   5-mk LA; Triangles similarity/BPT proof (Section D); Acids/Bases 5-mk LA; Chemical Reactions 3-mk
+   displacement SA. (Maths currently has effectively ZERO valid 5-mk LA HPQs.)
+2. **Distribution re-weight toward must-crack:** lift Circles (2) and Heredity (4) to adequate; trim or
+   re-tier the over-stacked sets (Pair of Linear 8, AP 6, Metals 12) so volume over-indexes must-crack and
+   tapers to good-to-do. (Phase 1 deliberately left volume alone — re-badging only.)
+3. **`rn-hpq-4` Section-D/4-mark mislabel** — Section D = 5-mk LA in CBSE; fix the only Maths "Section D"
+   item (currently 4 marks, which is why Maths reads as zero valid 5-mk LA).
+4. **Backfill 49 competency `solutionSteps`** (the `*-comp-*` entries carry answer+explanation but no
+   step-marked working) to the §13 CBSE step-marking minimums per section.
+5. **Confidence-model reconciliation** — DEFERRED until a confidence UI is actually designed; re-base
+   `compute5SignalScore` on blueprint-weight + 4-year frequency + §4 sub-pattern (so a band can never
+   contradict a tier) before any confidence badge ships. See OPEN_QUESTIONS.
 
 ## EXAM TRENDS BAND REDESIGN — DONE (#190). Steps 5 + 6 complete.
 

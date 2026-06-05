@@ -1,5 +1,62 @@
 ---
 
+## 2026-06-05 — HPQ PHASE 1: consistency + honesty (#194) + this docs PR
+
+### What merged (#194) — logic/copy/plumbing only; NO content authoring (Phase 2); all questions kept
+Made Highly-Probable-Questions tell the SAME story as Exam Trends. Authority:
+`LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md` + `report-hpq-refinement-audit-2026-06-05.md`. Branch
+`feat/hpq-phase1-consistency` from `5975a73`; merged `6d5b6ed`. Diff = exactly **3 files** (+140/−36):
+`src/data/highlyProbableQuestions.ts`, `src/pages/HighlyProbableQuestions.tsx`,
+`src/utils/mergeBucketsByTopic.ts`. `predictionTypes.ts` frozen; `.claude/` never staged.
+
+- **P0 — tier badge single source of truth.** `defaultTier` was hand-authored per bucket → 74% of HPQs
+  badged must-crack and 11/27 cards contradicted the locked tiers (the tiering Exam Trends established was
+  flattened to "everything is must-crack"). Added `LOCKED_TIER_SOURCE` (verbatim from the locked doc),
+  flattened to a canonical-key→tier lookup; `getHighlyProbableQuestions()` now overrides each bucket's
+  `defaultTier` AND each question's `tier` from it — ONE chokepoint every consumer (HPQ page, Desktop
+  practice, daily-mix, mini-mock, night-before, revision-calendar) reads through, so badges can't drift
+  again. Executed-runtime (esbuild-bundled, target 2027): **0 contradictions; must-crack badge share
+  74%→42%** (per-question 74%→44%). Corrections: Polynomials/Heredity → must-crack; Real Numbers,
+  Quadratic, Probability, Statistics, Coordinate Geom, Metals, Carbon, Control → high-ROI; Pair-of-Linear,
+  AP, Human Eye → good-to-do.
+- **P2 — dead confidence compute retired.** `deriveHPQConfidence()` ran on every load but the page renders
+  no confidence band/score/rationale → dead compute on a non-tier-aligned 5-signal basis (no
+  blueprint-weight term). Removed the call + the line-5 import. `prediction/hpqConfidence.ts` KEPT on disk
+  (untouched) for a future reconciled model + UI; optional `confidenceScore?/Band?/Rationale?` type fields
+  KEPT (still its return type, harmless). No other `src/` referent to `deriveHPQConfidence` — verified.
+- **P3 — honest representative-shape reframe (owner-approved copy).** H1 "Predicted Questions" →
+  **"High-Probability Question Patterns"**; sub-head "The question shapes that recur most on CBSE boards —
+  drawn from 4 years of papers, the official blueprint, and examiner-pattern analysis. Master these
+  patterns first." (names the three locked evidence sources, not just "exam-pattern analysis"); disclaimer
+  "These represent high-probability question patterns to prioritise — not predictions of the exact 2027
+  paper. Full preparation still matters." Nav back-labels → "Back to Question Patterns"; breadcrumb →
+  "Question Patterns"; stack blurbs "predicted stack" → "pattern stack". NO confidence badge (P2 retired
+  the compute).
+- **P5 — plumbing.** Added `normalizeTopicLabel` + `canonicalTopicKey` + alias table to
+  `mergeBucketsByTopic` (exported; single source of topic identity) and keyed the merge on canonical
+  identity → the two "Pair of Linear Equations"/"…in Two Variables" cards and the two "Metals &
+  Non-metals"/"Metals and Non-Metals" cards collapse to one card each (26 deduped cards). The Science
+  `allowedScienceTopicLabels` filter now matches on canonical key → "Human Eye & Colourful World" matches
+  trends "The Human Eye & the Colourful World" so the 3 silently-dropped seed questions survive
+  (**Human Eye 1→4**); any future drop is DEV-logged (`console.warn`, stripped from prod), never silent.
+  Aliases: `pair of linear equations in two variables`→`pair of linear equations`;
+  `arithmetic progressions`→`arithmetic progression`;
+  `magnetic effects of electric current`→`magnetic effects of current`;
+  `human eye and colourful world`→`the human eye and the colourful world`.
+
+### Gates
+tsc 0; prod build 0 (BASE_PATH=/app/); `scope:guard --mode product` **SCOPE_GUARD_OK**; `git diff --check`
+clean; diff = 3 allowed files. Matrix: weightage-mix 3/3, trig-retire 3/3, llm-path-audit 5/5, bsre 3/3;
+`hpq:drift` green (changed=0). Three reds are **pre-existing / unrelated** (verified absent-on-base or
+not-in-diff): bank-health 2/4 (page never imported `bankHealth`), canonical-gen 2/4 (PracticePage
+unified-generator), mojibake 1/3 (a double-encoded em-dash — bytes E2 80 94 rendered as mojibake — in
+`src/data/questionBanks/.../circles.proof.ts`; none of this PR's 3 files flagged; the new em-dashes are
+genuine U+2014 and pass). In-syllabus unchanged (3 recovered
+Human-Eye Q all IN). Report: `…\Desktop\diff\report-hpq-phase1-consistency-2026-06-05.md`.
+**VERDICT: PASS-WITH-FOLLOW-UP** (Phase 2 = content authoring; see NEXT_ACTION + OPEN_QUESTIONS).
+
+---
+
 ## 2026-06-05 — EXAM TRENDS BAND REDESIGN: flat ranked list → 3 collapsible priority bands (#190) + this docs PR
 
 ### What merged (#190) — Option-B convergence #2, step 6 complete
