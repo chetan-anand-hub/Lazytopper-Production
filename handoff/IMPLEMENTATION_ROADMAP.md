@@ -2,6 +2,29 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-05 — Post-PR #194 roadmap update (HPQ Phase 1 — consistency + honesty)
+
+### Completed this session
+- [x] PR #194 — **HPQ Phase 1 (consistency + honesty; logic/copy/plumbing only, no content authoring)**.
+  Tier badges re-based on the locked tiers via a single canonical-key→tier lookup in
+  `getHighlyProbableQuestions()` (0 contradictions, was 11/27; must-crack share 74%→42%); dead
+  `deriveHPQConfidence` compute retired (`hpqConfidence.ts` kept); honest reframe to "High-Probability
+  Question Patterns" (representative shape, three locked evidence sources, no specific-question claim, no
+  confidence badge); canonical-key merge dedupes the duplicate Pair-of-Linear / Metals cards; Science
+  filter fix recovers Human Eye 1→4 + DEV-logs future drops. All questions KEPT. 3 files, +140/−36;
+  `predictionTypes.ts` frozen. Gates green; pre-existing reds (bank-health/canonical-gen/mojibake) verified
+  unrelated. Trunk after merge `6d5b6ed`.
+
+### HPQ track
+  [x] HPQ refinement audit (read-only gap report, `report-hpq-refinement-audit-2026-06-05.md`)
+  [x] HPQ Phase 1 — re-badge on locked tiers + retire dead compute + honest reframe + plumbing (#194)
+  [ ] **(NEXT HPQ) HPQ Phase 2 — content authoring** (gated `src/data/`, PYQ-sourced, owner-validated):
+      the missing 5-mk Section-D LA marquee shapes (Trig H&D, Surface Areas combination, Statistics median,
+      Triangles BPT proof, Acids/Bases LA, Chemical Reactions 3-mk displacement); distribution re-weight
+      toward must-crack (lift Circles/Heredity, trim/re-tier Pair-of-Linear/AP/Metals); fix `rn-hpq-4`
+      Section-D/4-mark mislabel; backfill 49 competency `solutionSteps`; confidence-model reconciliation
+      IF a confidence UI is designed.
+
 ## 2026-06-05 — Post-PR #190 roadmap update (Exam Trends band redesign — 3 collapsible priority bands)
 
 ### Completed this session

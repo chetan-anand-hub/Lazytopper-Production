@@ -1,4 +1,36 @@
-## 2026-06-05 — Post-PR #192 (scopeGuard monorepo path-prefix FIX)
+## 2026-06-05 — Post-PR #194 (HPQ Phase 1 — consistency + honesty)
+
+### OPEN — HPQ PHASE 2: content authoring (HIGH; gated `src/data/`, PYQ-sourced, owner-validated) [D36]
+Phase 1 (#194) RE-BADGED only — it did NOT add/rebalance content. Phase 2 is the tracked next HPQ task.
+Author from real PYQ sources, owner-validated; gated `src/data/` lane (`scope:guard --mode product` + owner
+auth). Worklist (from `report-hpq-refinement-audit-2026-06-05.md` §1b/§4/§6 P1+P4):
+1. **Missing every-year 5-mk Section-D Long-Answer marquee shapes** — the deepest "same story" gap (Maths
+   has effectively ZERO valid 5-mk LA HPQs): Trig Heights & Distances 5-mk LA; Surface Areas
+   combination-of-solids 5-mk LA; Statistics grouped-median 5-mk LA; Triangles similarity/BPT proof
+   (Section D); Acids/Bases 5-mk LA; Chemical Reactions 3-mk displacement SA.
+2. **Distribution re-weight toward must-crack** — lift Circles (2) + Heredity (4) to adequate; trim/re-tier
+   the over-stacked sets (Pair of Linear 8, AP 6, Metals 12) so volume over-indexes must-crack and tapers.
+3. **`rn-hpq-4` Section-D/4-mark mislabel** — Section D = 5-mk LA in CBSE; the only Maths "Section D" item
+   is tagged 4 marks (why Maths reads as zero valid 5-mk LA). Fix label/marks/steps.
+4. **Backfill 49 competency `solutionSteps`** — the `*-comp-*` entries carry answer+explanation but no
+   step-marked working; bring to §13 CBSE step-marking minimums per section.
+
+### OPEN — HPQ confidence model reconciliation (DEFERRED until a confidence UI is designed) [D37]
+P2 (#194) RETIRED the dead `deriveHPQConfidence` call (page shows no confidence UI) but KEPT
+`prediction/hpqConfidence.ts` + the optional `confidenceScore?/Band?/Rationale?` type fields. The model is
+a format/recency-driven 5-signal score with NO blueprint-weight / tier input, so its bands can contradict
+the locked tiers (audit §2: Quadratic/Real-Numbers high-roi out-score must-crack Circles/Polynomials at
+0% high). BEFORE any confidence badge ships, re-base `compute5SignalScore` on the Exam-Trends axes
+(blueprint-weight + 4-year frequency + §4 sub-pattern recurrence) so a band can never contradict a tier.
+Do NOT surface any confidence UI until reconciled. No code wired today, so this is latent, not live.
+
+### NOTE — pre-existing test reds surfaced while validating #194 (unrelated; not introduced) [D38]
+While running the HPQ gates, three acceptance suites were already RED on base (verified absent-on-base /
+not in the #194 diff), tracked so they aren't mistaken for HPQ regressions: `test:prediction:bank-health`
+2/4 (`HighlyProbableQuestions.tsx` never imported `../prediction/bankHealth` / `buildTopicKeySources` — the
+test expects a bank-health summary the page doesn't compute); `test:canonical:generator` 2/4 (PracticePage
+unified-generator import/fallback checks); `test:mojibake` 1/3 (a double-encoded em-dash —
+bytes E2 80 94 rendered as mojibake — in `src/data/questionBanks/class10/maths/circles.proof.ts`). LOW priority; separate cleanup PRs.
 
 ### RESOLVED — scopeGuard monorepo path-prefix bug FIXED (#192) [D32]
 The monorepo path-frame bug (see the #190 block below, "scopeGuard broken by the monorepo move") is FIXED.

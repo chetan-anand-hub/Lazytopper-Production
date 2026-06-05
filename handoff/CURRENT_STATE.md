@@ -1,10 +1,44 @@
 # LazyTopper — Current State
-Last updated: 2026-06-05 (post-PR #192 — scopeGuard monorepo path-prefix fix: scope:guard now classifies lazytopper/-prefixed diffs correctly)
+Last updated: 2026-06-05 (post-PR #194 — HPQ Phase 1: tier badges re-based on locked tiers, dead confidence compute retired, honest representative-shape reframe, merge/filter plumbing fixed)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 318c6b6119f6639106dee159afb14655d994f4b0
-Last merged PRs: #189 (docs handoff post-#188), #190 (feat: Exam Trends band redesign — flat ranked list → 3 collapsible priority bands), #191 (docs handoff post-#190), #192 (fix: scopeGuard monorepo path frame — classify lazytopper/-prefixed diffs correctly)
+SHA: 6d5b6edfbf8a980d824d2b56ba6d60e69c5b9c57
+Last merged PRs: #190 (feat: Exam Trends band redesign), #191 (docs handoff post-#190), #192 (fix: scopeGuard monorepo path frame), #193 (docs handoff post-#192), #194 (feat: HPQ Phase 1 — consistency + honesty)
+
+## HPQ Phase 1 — consistency + honesty DONE (#194) — gated src/data + page lanes
+Highly-Probable-Questions now tells the SAME story as Exam Trends. **Logic/copy/plumbing only — no
+content authoring (that is Phase 2); all questions kept (re-badge + de-emphasize, never delete).**
+Authority: `LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md` + `report-hpq-refinement-audit-2026-06-05.md`.
+Diff = exactly **3 files** (`src/data/highlyProbableQuestions.ts`, `src/pages/HighlyProbableQuestions.tsx`,
+`src/utils/mergeBucketsByTopic.ts`; +140/−36). `predictionTypes.ts` frozen.
+- **P0 — tier badge single source of truth.** `defaultTier` was hand-authored per bucket (74% must-crack;
+  11/27 cards contradicted the locked tiers). NEW `LOCKED_TIER_SOURCE` table (verbatim from the locked doc)
+  is flattened to a canonical-key→tier lookup; `getHighlyProbableQuestions()` overrides each bucket's
+  `defaultTier` AND each question's `tier` from it — one chokepoint every consumer reads through, so it
+  can't drift again. Executed-runtime: **0 contradictions (was 11/27); must-crack badge share 74%→42%**
+  (per-question 74%→44%). Corrections: Polynomials/Heredity → must-crack; Real Numbers, Quadratic,
+  Probability, Statistics, Coordinate Geom, Metals, Carbon, Control → high-ROI; Pair-of-Linear, AP, Human
+  Eye → good-to-do.
+- **P2 — dead confidence compute retired.** `deriveHPQConfidence()` ran on every load but the page renders
+  no confidence UI → dead compute on a non-tier-aligned 5-signal basis. Call + import removed.
+  `prediction/hpqConfidence.ts` KEPT on disk (untouched) for a future reconciled model; optional
+  `confidenceScore?/Band?/Rationale?` type fields kept (still its return type). No other `src/` referent.
+- **P3 — honest reframe (owner-approved copy).** H1 "Predicted Questions" → **"High-Probability Question
+  Patterns"**; sub-head names the three locked evidence sources (4 years of papers + official blueprint +
+  examiner-pattern analysis); disclaimer "high-probability patterns to prioritise — not predictions of the
+  exact 2027 paper." Nav labels + stack blurbs aligned. NO confidence badge introduced.
+- **P5 — plumbing.** `canonicalTopicKey()` (normalize + alias table, exported from mergeBucketsByTopic)
+  keys the merge → duplicate "Pair of Linear Equations" and "Metals & Non-metals" cards collapse to one
+  each (26 deduped cards). Science topic-allow filter matches on canonical key → the 3 silently-dropped
+  Human-Eye seed questions survive (**Human Eye 1→4**); any future drop is DEV-logged (`console.warn`,
+  stripped from prod), never silent.
+- **Gates:** tsc 0; prod build 0; `scope:guard --mode product` SCOPE_GUARD_OK; `git diff --check` clean;
+  matrix weightage/trig/llm/bsre green; `hpq:drift` green (changed=0). Pre-existing/unrelated reds
+  (bank-health 2/4, canonical-gen 2/4, mojibake 1/3 `circles.proof.ts`) verified absent-on-base / not in
+  diff. In-syllabus unchanged (3 recovered Human-Eye Q all IN). Report:
+  `report-hpq-phase1-consistency-2026-06-05.md`. **Phase 2 = content authoring (see NEXT_ACTION).**
+  Trunk after #194: `6d5b6ed`.
 
 ## scopeGuard monorepo path-prefix bug FIXED (#192) — tracked-tooling
 `scope:guard` had false-FAILed on **every** product edit (3rd PR hit; see the #190 section's "known
