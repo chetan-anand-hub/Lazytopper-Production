@@ -1,12 +1,22 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-05 (post-PR #194 — HPQ Phase 1: tier badges re-based on locked tiers, dead confidence compute retired, honest reframe, plumbing fixed)
-# Base SHA: 6d5b6edfbf8a980d824d2b56ba6d60e69c5b9c57
+# Updated: 2026-06-06 (post-PR #196 — 3 pre-existing test reds resolved; mojibake checker un-blinded; CI gap tracked D39)
+# Base SHA: 19b3029eb478f1a3ce50a2e442d55098c17863ec
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 6d5b6edfbf8a980d824d2b56ba6d60e69c5b9c57
-Last PRs: #190 (Exam Trends band redesign) + #191 (docs post-#190) + #192 (scopeGuard monorepo path fix) + #193 (docs post-#192) + #194 (feat: HPQ Phase 1 — consistency + honesty)
+SHA: 19b3029eb478f1a3ce50a2e442d55098c17863ec
+Last PRs: #192 (scopeGuard monorepo path fix) + #193 (docs post-#192) + #194 (feat: HPQ Phase 1 — consistency + honesty) + #195 (docs post-#194) + #196 (fix: 3 pre-existing test reds + un-blind mojibake checker)
+
+## POST-#196 (housekeeping done; does not change the next HPQ task)
+The three long-red ops suites (D38) are GREEN: mojibake 3/3 (re-encoded circles.proof.ts + the second
+corrupted file maths.caseBased.ts the diagnosis missed), bank-health 4/4 (stale→retirement guard + orphan
+dead-compute deleted), canonical 4/4 (re-pointed to the relocated practiceQuestionBuilder.ts). The
+`check-mojibake.cjs` 50-hit scan cap (why the second file stayed hidden, and the local+CI blind spot) is
+removed. **NEW tracked follow-up [D39]:** the mojibake guardrail workflow is mislocated under
+`lazytopper/.github/workflows/` so GitHub never runs it — relocating + EXPANDING CI (gate the full matrix +
+scope-guard, not just mojibake) is a deliberate infra change owed its OWN PR (verify uncapped checker clean
+across all trunk first; decide trigger scope). Not blocking the next HPQ task.
 
 ## HPQ PHASE 1 — DONE (#194). Consistency + honesty (logic/copy/plumbing only).
 
