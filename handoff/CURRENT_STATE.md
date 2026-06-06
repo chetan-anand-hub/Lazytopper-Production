@@ -1,10 +1,52 @@
 # LazyTopper — Current State
-Last updated: 2026-06-05 (post-PR #194 — HPQ Phase 1: tier badges re-based on locked tiers, dead confidence compute retired, honest representative-shape reframe, merge/filter plumbing fixed)
+Last updated: 2026-06-06 (post-PR #196 — 3 pre-existing test reds resolved: mojibake re-encode + stale-test cleanup + checker cap un-blinded; CI finding corrected)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 6d5b6edfbf8a980d824d2b56ba6d60e69c5b9c57
-Last merged PRs: #190 (feat: Exam Trends band redesign), #191 (docs handoff post-#190), #192 (fix: scopeGuard monorepo path frame), #193 (docs handoff post-#192), #194 (feat: HPQ Phase 1 — consistency + honesty)
+SHA: 19b3029eb478f1a3ce50a2e442d55098c17863ec
+Last merged PRs: #192 (fix: scopeGuard monorepo path frame), #193 (docs handoff post-#192), #194 (feat: HPQ Phase 1 — consistency + honesty), #195 (docs handoff post-#194), #196 (fix: 3 pre-existing test reds + un-blind mojibake checker)
+
+## 3 pre-existing test reds RESOLVED (#196) — mixed PR (product src/data + trackedTooling lanes)
+The three acceptance suites that had been RED on trunk (tracked as D38) are now GREEN. Authority:
+owner-approved diagnosis `report-preexisting-failures-diagnosis-2026-06-05.md` + independent re-verification
+(`report-preexisting-failures-fix-2026-06-05.md`). Branch `fix/preexisting-failures` from `df88d29`; merged
+`19b3029`. **3 lane-pure commits**, 7 files (+173/−393); `predictionTypes.ts` frozen; `.claude/` never staged.
+- **Commit 1 (product/data) — mojibake re-encode.** `circles.proof.ts` (462 corrupted glyphs, 12 types) +
+  `maths.caseBased.ts` (6 glyphs, 2 types) → correct Unicode via a 1:1 reversible map built from the EXACT
+  in-file bytes. Only corrupted sequences changed; already-correct Unicode + the pre-existing BOM left
+  byte-for-byte. Single-level UTF-8→cp1252 corruption (not double-encoded). **`test:mojibake` 1/3 → 3/3.**
+  CORRECTION to the diagnosis: caseBased was a SECOND corrupted file it missed (signature single-level
+  `â–³`→`△` ×5 + a subscript-n stored as `â`+ASCII-apostrophe+`™`, a smart-quote artifact) — NOT the
+  predicted double-encoded `Ã¢âÂ³`.
+- **Commit 2 (tooling + product orphan deletes) — stale-test cleanup.** bank-health was a stale test
+  asserting never-built wiring (`bankHealthSummaryForSubject` exists nowhere; HPQ never imported the engine);
+  the engine (`src/prediction/bankHealth.ts` + `buildTopicKeySources.ts`) was orphaned dead compute (nothing
+  in `src/` imported it). Deleted both orphans + rewrote the test as a **retirement guard** (same idiom as
+  `trig:retire`/`bsre:retire`): asserts the dead compute is gone + HPQ surfaces no computed health (no-fake-
+  data doctrine). Script name KEPT — 4 harnesses invoke it (`test_matrix.json`, `software_testing_bot.mjs`,
+  `agent2_test_guard.mjs`, `matrix_execution_acceptance.mjs`) — so no package.json change. **2/4 → 4/4.**
+  canonical-generator was stale after the "Split giant files" refactor (`be5e2de`) relocated
+  `generateUnifiedPracticeQuestions`/`canonicalFallback` from `PracticePage.tsx` into
+  `practiceQuestionBuilder.ts`; re-pointed the two page-side checks to the live chain. Generator unchanged.
+  **2/4 → 4/4.**
+- **Commit 3 (tooling) — un-blind the mojibake checker.** `check-mojibake.cjs` broke its scan at 50 hits;
+  the cap bounded the SCAN (not just output), so a heavily-corrupted file that filled it stopped the loop
+  before later-sorting files were read. `circles.proof.ts` (96 corrupted lines) sorts before
+  `maths.caseBased.ts`, so the checker never saw the second corrupted file — and corruption shipped past
+  both the local gate AND the CI workflow (both run this checker). Now scans every file/line; a
+  `DISPLAY_LIMIT` bounds only printed output. Proof: against base-corrupted inputs the old cap flags only
+  circles; uncapped flags both.
+- **CI finding (corrected twice; tracked D39).** A mojibake guardrail workflow FILE exists but at
+  `lazytopper/.github/workflows/mojibake-guardrail.yml` — a SUBDIRECTORY. GitHub Actions only runs workflows
+  at the repo-root `.github/workflows/`, so it has **never executed** (`gh workflow list --all` and
+  `gh run list` both empty — zero workflows registered, zero runs ever). It is dormant. So corruption shipped
+  for TWO independent reasons: CI mislocated (never runs) + the checker it/the local gate would run was
+  capped/blind (now fixed). Full test matrix + scope-guard remain un-CI-gated.
+- **Gates:** tsc 0; prod build 0; `verify-production-build` PASS; `scope:guard --mode mixed` SCOPE_GUARD_OK
+  (product+trackedTooling); `git diff --check` clean; the 3 previously-red now GREEN (mojibake 3/3,
+  bank-health 4/4, canonical 4/4); lazytopper `test:matrix:all` green; root `scripts` `test:matrix:all`
+  **175/175**; exhaustive uncapped repo-wide rescan **0 corruption** in any content file. Trunk after #196:
+  `19b3029`.
 
 ## HPQ Phase 1 — consistency + honesty DONE (#194) — gated src/data + page lanes
 Highly-Probable-Questions now tells the SAME story as Exam Trends. **Logic/copy/plumbing only — no

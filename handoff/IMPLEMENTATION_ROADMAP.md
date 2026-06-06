@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-06 — Post-PR #196 roadmap update (3 pre-existing test reds resolved)
+
+### Completed this session
+- [x] PR #196 — **resolve the 3 long-red ops-acceptance suites + un-blind the mojibake checker** (mixed PR,
+  3 lane-pure commits, trunk after merge `19b3029`): mojibake re-encode of `circles.proof.ts` +
+  `maths.caseBased.ts` (1/3→3/3); bank-health stale test → retirement guard + orphan dead-compute deleted
+  (2/4→4/4); canonical-generator re-pointed to the relocated `practiceQuestionBuilder.ts` (2/4→4/4);
+  removed the 50-hit scan cap in `check-mojibake.cjs` that had blinded both the local gate and the (dormant)
+  CI workflow. Root suite 175/175; uncapped repo-wide rescan 0 corruption. Closes D38.
+
+### Test-health / CI track
+  [x] 3 pre-existing reds fixed (#196) — mojibake / bank-health / canonical
+  [x] mojibake checker un-blinded (50-hit scan cap removed)
+  [ ] **(TRACKED, own PR) CI relocation + EXPANSION [D39]** — the mojibake guardrail workflow is mislocated
+      under `lazytopper/.github/workflows/` so GitHub never runs it; relocate to repo root AND expand to gate
+      the full `test:matrix:all` + `scope:guard` (not just mojibake). First verify the uncapped checker
+      passes clean across ALL of trunk; decide the trigger scope (PRs-to-trunk vs all pushes). Deliberate
+      infra change — activates whole-repo CI gating for the first time.
+
 ## 2026-06-05 — Post-PR #194 roadmap update (HPQ Phase 1 — consistency + honesty)
 
 ### Completed this session

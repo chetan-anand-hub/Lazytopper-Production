@@ -1,5 +1,54 @@
 ---
 
+## 2026-06-06 — 3 PRE-EXISTING TEST REDS RESOLVED (#196) + this docs PR
+
+### What merged (#196) — mixed PR, 3 lane-pure commits; the 3 long-red ops suites now green
+Fixed the three acceptance suites that had been RED on trunk (tracked D38). Authority: owner-approved
+diagnosis `report-preexisting-failures-diagnosis-2026-06-05.md` + independent re-verification
+(`report-preexisting-failures-fix-2026-06-05.md`). Branch `fix/preexisting-failures` from `df88d29`; merged
+`19b3029`. 7 files (+173/−393); `predictionTypes.ts` frozen; `.claude/` never staged.
+
+- **Commit 1 `751c08a` (product/data) — mojibake re-encode.** `circles.proof.ts` (462 corrupted glyphs, 12
+  types) + `maths.caseBased.ts` (6 glyphs, 2 types) → correct Unicode via a 1:1 reversible map built from
+  the EXACT in-file bytes (single-level UTF-8→cp1252; not double-encoded). Only corrupted sequences changed;
+  already-correct Unicode + the pre-existing BOM preserved byte-for-byte. `test:mojibake` 1/3 → **3/3**.
+- **Commit 2 `3347502` (tooling + product orphan deletes) — stale-test cleanup.** bank-health → retirement
+  guard (deleted orphan `src/prediction/bankHealth.ts` + `buildTopicKeySources.ts`; rewrote test in the
+  `trig:retire`/`bsre:retire` idiom — kept the script name, 4 harnesses invoke it). canonical-generator →
+  re-pointed to `practiceQuestionBuilder.ts` (generator relocated by `be5e2de`). Both 2/4 → **4/4**.
+- **Commit 3 `0fc4457` (tooling) — un-blind the mojibake checker.** Removed the 50-hit scan cap in
+  `check-mojibake.cjs` (it bounded the SCAN, so a file filling it blinded the checker to later files). Now
+  scans all; `DISPLAY_LIMIT` bounds only output.
+
+### Three corrections to the brief/diagnosis (verified independently — the value of re-checking claims)
+1. **Mojibake was TWO files, not one.** The diagnosis said "exactly one file (`circles.proof.ts`)". Root
+   cause of the miss: the checker's 50-hit cap (circles fills 50, alphabetically blocking the scan from
+   reaching `maths.caseBased.ts`). Re-ran uncapped → found + fixed both; repo-wide rescan confirms zero left.
+2. **caseBased's signature differed from the instruction's guess** (single-level `â–³`/subscript-n vs the
+   predicted double-encoded `Ã¢âÂ³`) — mapped from real bytes, not the prediction.
+3. **The "no CI exists" conclusion was effectively right but for a subtler reason than "no file."** A
+   mojibake guardrail workflow FILE exists, but it's mislocated under `lazytopper/.github/workflows/` so
+   GitHub never runs it (`gh workflow list --all` / `gh run list` both empty). Plus it/the local gate ran the
+   capped checker. Two independent blind spots. Refined only by checking `gh workflow list`, not by assuming.
+
+### Process note
+Owner chose "2 commits as instructed" then sanctioned a small 3rd tooling commit for the cap fix once the
+guardrail dependency surfaced. The orphan `src/prediction` deletions classify as PRODUCT lane (everything
+under `src/`), not tooling — flagged; owner kept them with the tooling fixes in commit 2; PR run
+`--mode mixed` (both lanes allowed). Squash-merged per repo convention; branch deleted remote+local.
+
+### Gates (all PASS)
+tsc 0; prod build 0; `verify-production-build` PASS; `scope:guard --mode mixed` SCOPE_GUARD_OK;
+`git diff --check` clean; mojibake 3/3, bank-health 4/4, canonical 4/4; lazytopper matrix green; root
+`scripts` matrix **175/175**; uncapped repo-wide rescan 0 corruption. Trunk after #196: `19b3029`.
+
+### Follow-ups
+D38 (pre-existing reds) → **RESOLVED**. New **D39** logged: CI relocation + expansion (the mislocated
+mojibake workflow + activate whole-repo CI gating + expand to gate the full matrix + scope-guard, not just
+mojibake) — a deliberate infra change deserving its own PR (see OPEN_QUESTIONS D39).
+
+---
+
 ## 2026-06-05 — HPQ PHASE 1: consistency + honesty (#194) + this docs PR
 
 ### What merged (#194) — logic/copy/plumbing only; NO content authoring (Phase 2); all questions kept

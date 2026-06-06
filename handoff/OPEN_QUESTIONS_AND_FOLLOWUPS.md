@@ -1,3 +1,32 @@
+## 2026-06-06 — Post-PR #196 (3 pre-existing test reds resolved)
+
+### OPEN — CI relocation + EXPANSION (mojibake guardrail mislocated → never runs; activate + gate everything) [D39]
+**Finding (corrected twice).** A mojibake guardrail workflow FILE exists at
+`lazytopper/.github/workflows/mojibake-guardrail.yml`, but GitHub Actions only runs workflows at the
+**repo-root** `.github/workflows/` — this one is in a SUBDIRECTORY, so it has **never executed**
+(`gh workflow list --all` and `gh run list` are BOTH empty: zero workflows registered, zero runs ever). It
+is dormant. AND even if relocated it ran `npm run check:mojibake` — the 50-capped checker the local gate
+also used (now un-capped in #196). So the corruption shipped for TWO independent reasons: CI mislocated
+(never runs) + checker blind (cap). The full **test matrix + scope-guard are also not CI-gated** at all.
+**This is the right outcome corrected:** the earlier "no CI exists" note was effectively right in OUTCOME,
+just because the file is mislocated rather than absent.
+**Tracked as its own PR (do NOT slip into a product PR) — relocating activates whole-repo CI gating for the
+first time ever, a deliberate infra change with side effects.** That PR should:
+1. **First verify the uncapped checker passes clean across ALL of trunk** (it now scans everything for the
+   first time — might surface latent corruption anywhere in the repo, not just the two fixed files).
+2. **Decide the trigger scope** — the current `on: push: {}` + `pull_request: {}` has no branch filter;
+   choose PRs-to-trunk vs all pushes deliberately.
+3. **EXPAND, don't just relocate** — since CI is being turned on anyway, gate the full **`test:matrix:all`
+   + `scope:guard`** (not only mojibake). Gate everything that matters in one workflow.
+Owner-directed scope (2026-06-06).
+
+### RESOLVED — pre-existing test reds fixed (#196) [D38]
+The three suites tracked below as D38 are FIXED and GREEN: `test:mojibake` 1/3→3/3 (re-encoded
+`circles.proof.ts` + the second corrupted file `maths.caseBased.ts` the diagnosis missed; checker cap
+removed so neither stays hidden), `test:prediction:bank-health` 2/4→4/4 (stale → retirement guard + orphan
+dead-compute deleted), `test:canonical:generator` 2/4→4/4 (re-pointed to the relocated
+`practiceQuestionBuilder.ts`). See CURRENT_STATE / SESSION_LOG (#196) and the residual CI gap in **D39**.
+
 ## 2026-06-05 — Post-PR #194 (HPQ Phase 1 — consistency + honesty)
 
 ### OPEN — HPQ PHASE 2: content authoring (HIGH; gated `src/data/`, PYQ-sourced, owner-validated) [D36]
@@ -24,13 +53,15 @@ the locked tiers (audit §2: Quadratic/Real-Numbers high-roi out-score must-crac
 (blueprint-weight + 4-year frequency + §4 sub-pattern recurrence) so a band can never contradict a tier.
 Do NOT surface any confidence UI until reconciled. No code wired today, so this is latent, not live.
 
-### NOTE — pre-existing test reds surfaced while validating #194 (unrelated; not introduced) [D38]
+### NOTE — pre-existing test reds surfaced while validating #194 (unrelated; not introduced) [D38] → RESOLVED in #196
 While running the HPQ gates, three acceptance suites were already RED on base (verified absent-on-base /
 not in the #194 diff), tracked so they aren't mistaken for HPQ regressions: `test:prediction:bank-health`
 2/4 (`HighlyProbableQuestions.tsx` never imported `../prediction/bankHealth` / `buildTopicKeySources` — the
 test expects a bank-health summary the page doesn't compute); `test:canonical:generator` 2/4 (PracticePage
-unified-generator import/fallback checks); `test:mojibake` 1/3 (a double-encoded em-dash —
-bytes E2 80 94 rendered as mojibake — in `src/data/questionBanks/class10/maths/circles.proof.ts`). LOW priority; separate cleanup PRs.
+unified-generator import/fallback checks); `test:mojibake` 1/3 (mojibake in
+`src/data/questionBanks/class10/maths/circles.proof.ts`). **RESOLVED in #196** — see the dated
+"Post-PR #196" RESOLVED [D38] entry at the top of this file (mojibake was actually TWO files; the residual
+CI-gating gap is now tracked as [D39]).
 
 ### RESOLVED — scopeGuard monorepo path-prefix bug FIXED (#192) [D32]
 The monorepo path-frame bug (see the #190 block below, "scopeGuard broken by the monorepo move") is FIXED.
