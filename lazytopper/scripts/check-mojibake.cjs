@@ -36,14 +36,21 @@ for (const rel of tracked) {
     if (match) {
       hits.push({ file: rel, line: idx + 1, sig: match[0], snippet: line.trim() });
     }
-    if (hits.length >= 50) break;
   }
-  if (hits.length >= 50) break;
 }
 
+// Scan EVERY tracked file and EVERY line above — never break early. A prior 50-hit cap bounded the
+// SCAN (not just the output), so a heavily-corrupted file that filled the cap blinded the checker to
+// corruption in any file sorting after it (real corruption shipped this way). The display limit below
+// bounds only the printed lines; detection (and the failing exit code) always covers the whole repo.
+const DISPLAY_LIMIT = 200;
 if (hits.length > 0) {
-  for (const hit of hits) {
+  for (const hit of hits.slice(0, DISPLAY_LIMIT)) {
     console.log(hit.file + ':' + hit.line + ':' + hit.sig + ':' + hit.snippet);
+  }
+  if (hits.length > DISPLAY_LIMIT) {
+    const fileCount = new Set(hits.map((hit) => hit.file)).size;
+    console.log(`... and ${hits.length - DISPLAY_LIMIT} more mojibake hits (total ${hits.length} across ${fileCount} files)`);
   }
   process.exitCode = 1;
 } else {

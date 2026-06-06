@@ -15,23 +15,30 @@ function check(name, ok, details = "") {
 
 function run() {
   const checks = [];
+  // The unified generator + canonicalFallback were extracted from PracticePage.tsx into the
+  // practiceQuestionBuilder helper by the "Split giant files" refactor (commit be5e2de). The page
+  // now consumes that helper, so these checks follow the chain page -> builder -> questionGenerator
+  // at its live location instead of grepping the (pre-split) PracticePage body.
   const practice = text("src/pages/PracticePage.tsx");
+  const builder = text("src/components/practice/practiceQuestionBuilder.ts");
   const generator = text("src/data/questionGenerator.ts");
   const scienceGenerator = text("src/data/scienceQuestionGenerator.ts");
 
   checks.push(
     check(
       "practice_imports_unified_generator",
-      /from "\.\.\/data\/questionGenerator"/.test(practice) && /generateUnifiedPracticeQuestions/.test(practice),
-      "Practice page should import the canonical unified generator"
+      /from "\.\.\/components\/practice\/practiceQuestionBuilder"/.test(practice) &&
+        /from "\.\.\/\.\.\/data\/questionGenerator"/.test(builder) &&
+        /generateUnifiedPracticeQuestions/.test(builder),
+      "Practice page should consume practiceQuestionBuilder, which imports the canonical unified generator"
     )
   );
 
   checks.push(
     check(
       "practice_uses_unified_generator_fallback",
-      /generateUnifiedPracticeQuestions\(/.test(practice) && /canonicalFallback/.test(practice),
-      "Practice page should invoke canonicalFallback when engine coverage is thin"
+      /generateUnifiedPracticeQuestions\(/.test(builder) && /canonicalFallback/.test(builder),
+      "practiceQuestionBuilder should invoke canonicalFallback (generateUnifiedPracticeQuestions) when engine coverage is thin"
     )
   );
 
