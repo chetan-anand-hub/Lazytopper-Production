@@ -1,5 +1,58 @@
 ---
 
+## 2026-06-06 — DE-REPLIT PR-A (#199) + this docs PR
+
+### What merged (#199) — chore: safe Replit scaffold + dead lazytopper-app stub deletes (zero build/lockfile risk)
+First, lockfile-INDEPENDENT slice of retiring Replit. Authority: read-only audit
+`report-replit-removal-audit-2026-06-06.md` (executive finding: the product build imports ZERO `@replit`
+plugins, CI builds `lazytopper` only → these deletes can't break the shipped app) + execution report
+`report-de-replit-pr-a-2026-06-06.md`. Branch `chore/de-replit-pr-a` from `2857871`; **70 files
+(69 deletes + 1 root `package.json` build-fix), squash-merged `fec2f92`**. `.claude/` never staged.
+- **Deleted:** `.replit`, `.replitignore`, `.tmp-lazytopper-artifact.toml`; `scripts/backup-to-drive.mjs`
+  (Replit-only Drive backup, hardcoded `/home/runner/workspace`, wired to no `package.json` script);
+  `artifacts/lazytopper-app/src/**` (64 — vestigial wouter/radix home/admin/not-found stub, NOT in the shipped
+  bundle) + its `.replit-artifact/artifact.toml` (the build-target≠dev-target "footgun"). KEPT the lazytopper-app
+  `package.json` + the `dist/public/app` output target the REAL `lazytopper` build writes to.
+- **Root build hygiene:** dropped `--filter @workspace/lazytopper-app --filter @workspace/lazytopper-video`
+  from the root `build`; kept `@workspace/api-server` + `lazytopper`. `scripts`-field edit → lockfile-safe.
+- `post-merge.sh` does NOT exist at root (audit re-check) — skipped.
+
+### The two "FAILs" are diagnosed, not bugs (the honesty)
+- **scope:guard --mode mixed FAIL = coverage gap, NOT a breach.** The boundary policy lanes are anchored to
+  the `lazytopper/` frame; there is NO lane modeling root-level Replit scaffold or `artifacts/**` stub paths,
+  so every infra/stub delete reports `[unclassified]`. Manually verified the diff is ONLY scaffold + the
+  lazytopper-app stub + the backup script + the root build-script swap — zero `lazytopper/src`, zero handoff,
+  zero `package.json`-deps/`pnpm-workspace.yaml`/`pnpm-lock.yaml`. Governance JSON deliberately NOT edited
+  (a guard `infra`/`artifacts` lane is a separate decision — logged in OPEN_QUESTIONS).
+- **`pnpm install --frozen-lockfile` FAIL = PRE-EXISTING (#198), confirmed live.** It cites
+  `lazytopper/package.json` (vitest/testing-library deps drifted from the lockfile) — files this PR does NOT
+  touch. PR-A changes ZERO lockfile inputs, so frozen-lockfile validity is unchanged by construction. This
+  also VALIDATED the defer call: removing a workspace importer would stack a second failure on the existing one.
+
+### Why the rest is deferred (PR-B) — lockfile coupling, proven from the lockfile
+The lockfile (v9.0) has explicit importer entries for `artifacts/lazytopper-video` + `artifacts/mockup-sandbox`
+(+ `lazytopper-mobile`), and serializes the `@replit/vite-plugin-*` catalog. Deleting those dirs / editing the
+catalog makes the committed lockfile stale → `--frozen-lockfile` (what CI runs, pnpm 11.0.8) fails → needs a
+regen, which is exactly what #198 is parked on. So all importer/catalog/workspace changes are PR-B, behind the
+#198 regen. lazytopper-mobile added to PR-B as owner-confirmed non-product (Expo native path; the product is
+ONE responsive website). `api-server` KEPT (owner-confirmed real backend).
+
+### Gates (all runnable PASS)
+tsc 0 (lazytopper `tsconfig.app.json`); `check:mojibake` 0; root `scripts` `test:matrix:all` **175/175**;
+lazytopper ops matrix green (weightage 3/3, canonical 4/4, trig 3/3, llm 5/5, bsre 3/3); `git diff --check`
+clean; PR #199 remote forbidden-file check clean. `vite build` + `verify-production-build.mjs` not runnable on
+Windows (linux-x64 pinned binaries); the root CI quality-gate workflow is parked in #198 so #199 was not
+auto-CI-gated — build-safety rests on the audit's evidence chain.
+
+### Process note
+Owner approved the conservative scope (defer the lockfile-coupled dirs), authorized merge + SHA update, and
+resolved the flags inline: KEEP api-server, lazytopper-mobile → PR-B, add the root-build `--filter` fix to PR-A.
+Local `node_modules` was purged by the frozen-lockfile corroboration and could not be cleanly restored (the
+`@clerk/backend` `ERR_PNPM_MISSING_TIME` / `minimumReleaseAge` registry issue) — committed diff unaffected
+(gitignored; gates ran green before), `pnpm-lock.yaml` byte-unchanged; restore needs the proper env / the #198 fix.
+
+---
+
 ## 2026-06-06 — 3 PRE-EXISTING TEST REDS RESOLVED (#196) + this docs PR
 
 ### What merged (#196) — mixed PR, 3 lane-pure commits; the 3 long-red ops suites now green

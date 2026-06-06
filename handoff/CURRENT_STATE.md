@@ -1,10 +1,37 @@
 # LazyTopper — Current State
-Last updated: 2026-06-06 (post-PR #196 — 3 pre-existing test reds resolved: mojibake re-encode + stale-test cleanup + checker cap un-blinded; CI finding corrected)
+Last updated: 2026-06-06 (post-PR #199 — de-Replit PR-A: safe scaffold + dead lazytopper-app stub deletes)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 19b3029eb478f1a3ce50a2e442d55098c17863ec
-Last merged PRs: #192 (fix: scopeGuard monorepo path frame), #193 (docs handoff post-#192), #194 (feat: HPQ Phase 1 — consistency + honesty), #195 (docs handoff post-#194), #196 (fix: 3 pre-existing test reds + un-blind mojibake checker)
+SHA: fec2f92d1ac00162673193b19f879c27be4b3d6b
+Last merged PRs: #194 (feat: HPQ Phase 1), #195 (docs handoff post-#194), #196 (fix: 3 pre-existing test reds + un-blind mojibake checker), #197 (docs handoff post-#196), #199 (chore: de-Replit PR-A — scaffold + dead-stub deletes)
+
+## de-Replit PR-A DONE (#199) — safe scaffold + dead lazytopper-app stub (zero build/lockfile risk)
+First, lockfile-INDEPENDENT slice of retiring Replit. Authority: `report-replit-removal-audit-2026-06-06.md`
++ `report-de-replit-pr-a-2026-06-06.md`. Build-safety verified: the product build (`lazytopper/vite.config.ts`)
+imports ZERO `@replit` plugins and CI builds `lazytopper` only — these deletes cannot break the shipped app.
+Branch `chore/de-replit-pr-a` from `2857871`; **70 files (69 deletes + 1 root `package.json` build-fix);
+squash-merged `fec2f92`**. `.claude/` never staged.
+- **Deleted:** `.replit`, `.replitignore`, `.tmp-lazytopper-artifact.toml` (root scaffold); `scripts/backup-to-drive.mjs`
+  (Replit-only Drive backup, wired to no script); `artifacts/lazytopper-app/src/**` (64 — vestigial wouter/radix
+  stub, NOT in the shipped bundle) + its `.replit-artifact/artifact.toml`. The lazytopper-app `package.json` +
+  the `dist/` output target the real build writes to are **KEPT**.
+- **Root build hygiene:** dropped dead-stub filters (`@workspace/lazytopper-app`, `@workspace/lazytopper-video`)
+  from the root `package.json` `build`; **kept** `@workspace/api-server` + `lazytopper` (`scripts`-field edit → lockfile-safe).
+- **Gates:** tsc 0; mojibake 0; root `scripts` `test:matrix:all` **175/175**; lazytopper ops matrix green;
+  `git diff --check` clean; remote forbidden-file check clean. Two NON-blocking, NOT-this-PR FAILs:
+  `scope:guard` = coverage gap (no policy lane models root-scaffold/`artifacts/**` deletes; manually verified
+  clean; governance JSON untouched), and `pnpm install --frozen-lockfile` = PRE-EXISTING #198 staleness
+  (`lazytopper/package.json` test-dep drift; this PR changes ZERO lockfile inputs — confirmed live). `vite build`
+  / `verify-production-build.mjs` not runnable on Windows (linux-pinned binaries); root CI workflow parked in #198.
+- **DEFERRED to PR-B (lockfile-coupled — behind the #198 lockfile regen):** delete whole packages
+  `artifacts/lazytopper-video/`, `artifacts/mockup-sandbox/`, `artifacts/lazytopper-mobile/` (all workspace
+  importers; lazytopper-mobile = owner-confirmed non-product Expo native path); remove `@replit/vite-plugin-*`
+  + the 3 stub `vite.config.ts` + the 3 `catalog:` entries; `pnpm-workspace.yaml` allowlist cleanup
+  (`stripe-replit-sync`, `@replit/*` exclude); orphaned root dep `@replit/connectors-sdk`; reconcile the root
+  `typecheck` glob (`./artifacts/**` still hits the src-less lazytopper-app).
+- **KEEP (owner-confirmed):** `artifacts/api-server/` — real backend (Express/Postgres/Clerk → AI gateway);
+  retained in the root build; map the backend separately before touching it.
 
 ## 3 pre-existing test reds RESOLVED (#196) — mixed PR (product src/data + trackedTooling lanes)
 The three acceptance suites that had been RED on trunk (tracked as D38) are now GREEN. Authority:

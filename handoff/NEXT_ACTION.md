@@ -1,12 +1,25 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-06 (post-PR #196 — 3 pre-existing test reds resolved; mojibake checker un-blinded; CI gap tracked D39)
-# Base SHA: 19b3029eb478f1a3ce50a2e442d55098c17863ec
+# Updated: 2026-06-06 (post-PR #199 — de-Replit PR-A: safe scaffold + dead-stub deletes)
+# Base SHA: fec2f92d1ac00162673193b19f879c27be4b3d6b
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 19b3029eb478f1a3ce50a2e442d55098c17863ec
-Last PRs: #192 (scopeGuard monorepo path fix) + #193 (docs post-#192) + #194 (feat: HPQ Phase 1 — consistency + honesty) + #195 (docs post-#194) + #196 (fix: 3 pre-existing test reds + un-blind mojibake checker)
+SHA: fec2f92d1ac00162673193b19f879c27be4b3d6b
+Last PRs: #194 (HPQ Phase 1) + #195 (docs post-#194) + #196 (fix: 3 pre-existing test reds + un-blind mojibake checker) + #197 (docs post-#196) + #199 (chore: de-Replit PR-A — scaffold + dead-stub deletes)
+
+## DE-REPLIT — PR-A DONE (#199); PR-B QUEUED behind the #198 lockfile regen
+PR-A removed the lockfile-safe Replit scaffold + the dead `lazytopper-app/src` stub + dropped the dead-stub
+filters from the root build (trunk `fec2f92`; authority `report-replit-removal-audit-2026-06-06.md`). **PR-B
+is the lockfile-coupled remainder and CANNOT land until the #198 pnpm-lock.yaml regen happens in the
+linux/Replit env (pnpm 11.x)** — every PR-B item changes a lockfile input and breaks `--frozen-lockfile`
+(already red on trunk vs `lazytopper/package.json`). PR-B scope: delete the `lazytopper-video`/
+`mockup-sandbox`/`lazytopper-mobile` packages (all workspace importers; mobile = non-product Expo native path),
+remove `@replit/vite-plugin-*` + edit the 3 stub vite.configs + drop the catalog entries, clean
+`pnpm-workspace.yaml` (`stripe-replit-sync`, `@replit/*` exclude), remove the orphaned `@replit/connectors-sdk`,
+and reconcile the root `typecheck` glob. KEEP `api-server` (real backend). The server Replit AI proxy
+(Gemini fallback + entire Claude path) is a SEPARATE migration (needs API keys + backend deploy). See
+CURRENT_STATE (#199) + OPEN_QUESTIONS.
 
 ## POST-#196 (housekeeping done; does not change the next HPQ task)
 The three long-red ops suites (D38) are GREEN: mojibake 3/3 (re-encoded circles.proof.ts + the second
