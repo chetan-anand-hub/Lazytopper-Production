@@ -1,3 +1,30 @@
+## 2026-06-06 — Post-PR #199 (de-Replit PR-A)
+
+### OPEN — de-Replit PR-B (lockfile-coupled removals) — BLOCKED behind the #198 lockfile regen [D40]
+PR-A (#199) removed the lockfile-SAFE Replit scaffold + the dead `lazytopper-app/src` stub. The remainder is
+lockfile-coupled and cannot land until the `pnpm-lock.yaml` regen (the #198 blocker) happens in the
+linux/Replit env on pnpm 11.x — every item below changes a lockfile input and breaks `pnpm install
+--frozen-lockfile` (already red on trunk vs `lazytopper/package.json`; confirmed live during PR-A). PR-B scope:
+1. Delete whole workspace packages (all lockfile importers): `artifacts/lazytopper-video/`,
+   `artifacts/mockup-sandbox/`, `artifacts/lazytopper-mobile/` (owner-confirmed non-product Expo native path).
+2. Remove `@replit/vite-plugin-*` packages + edit the 3 stub `vite.config.ts` (drop `runtimeErrorOverlay()`
+   import/call + the gated cartographer/dev-banner dynamic imports) + drop the 3 `catalog:` entries.
+3. `pnpm-workspace.yaml` allowlist cleanup: `stripe-replit-sync` line + `@replit/*` in `minimumReleaseAgeExclude`.
+4. Remove the now-orphaned root dep `@replit/connectors-sdk` (its only consumer, `backup-to-drive.mjs`, was
+   deleted in PR-A).
+5. Reconcile the root `typecheck` (`--filter "./artifacts/**"` still globs the src-less lazytopper-app).
+KEEP `artifacts/api-server/` (owner-confirmed real backend). The server Replit AI proxy (Gemini fallback +
+the entire Claude path) is a SEPARATE migration (API keys + backend deploy), NOT part of PR-B. Sequencing:
+do the #198 lockfile regen first, then PR-B atomic (configs + manifests + lockfile in one).
+
+### OPEN — scope:guard has no lane for infra / `artifacts/**` deletes (coverage gap) [D41]
+PR-A's deletes (root scaffold, `artifacts/lazytopper-app/src/**`) all classified `[unclassified]` →
+`SCOPE_GUARD_FAIL`, because the boundary policy lanes (`repo_boundary_policy.json`) are anchored to the
+`lazytopper/` frame and model no root-level or `artifacts/**` paths. Not a breach (manually verified), but it
+means infra/scaffold PRs can't be guard-validated. Follow-up: add an `infra`/`artifacts` lane (or an explicit
+`infra` mode) so de-Replit PR-B (and similar) get real classification rather than a blanket FAIL. Governance
+JSON deliberately left untouched in PR-A (separate decision).
+
 ## 2026-06-06 — Post-PR #196 (3 pre-existing test reds resolved)
 
 ### OPEN — CI relocation + EXPANSION (mojibake guardrail mislocated → never runs; activate + gate everything) [D39]
