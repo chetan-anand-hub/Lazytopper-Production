@@ -1,3 +1,45 @@
+## 2026-06-07 — Post-PR #198 (CI activated)
+
+### RESOLVED — D39 (CI relocation + expansion)
+CI is now LIVE: `.github/workflows/quality-gate.yml` at the repo root gates the full bar (pnpm frozen
+install → root matrix 175/175 → mojibake → linux build → ops matrix) on every PR into trunk + push to it.
+Old mislocated `lazytopper/.github/workflows/mojibake-guardrail.yml` deleted. Proven to run AND gate
+(probe PR #202 → red on a planted mojibake). Closed by #198 (`9d772cb`).
+
+### UPDATE — D40 (de-Replit PR-B) now UNBLOCKED
+PR-B was blocked behind "the #198 lockfile regen". That regen landed as **#201**, and #198's CI proves a
+clean `pnpm install --frozen-lockfile` on linux. PR-B is now doable — regen the lockfile in the same linux/
+Codespace path #201 used, on **pnpm 10.32.1** (match what CI pins, NOT pnpm 11), and let CI verify. Scope
+unchanged (see the #199 section below).
+
+### OPEN — add a `packageManager` pin to root package.json (HIGH-VALUE) [D42]
+Root `package.json` declares no `packageManager` field, so different environments resolve different pnpm
+versions — the root cause of the #198 pnpm-version churn (Codespace regen used 10.32.1; corepack default
+was 11.0.8; pnpm 9/11 mis-handle the lockfile/preinstall guard). Adding `"packageManager": "pnpm@10.32.1"`
+makes Corepack enforce ONE version everywhere (CI, Codespace, local). Touches `package.json` (product lane)
+→ separate PR. Until then, CI explicitly pins `corepack prepare pnpm@10.32.1`.
+
+### OPEN — root `preinstall` guard is incompatible with pnpm 11 on linux [D43]
+The guard `case "$npm_config_user_agent" in pnpm/*)` exits 1 under pnpm 11 on the linux runner because pnpm
+11 leaves `npm_config_user_agent` EMPTY for the workspace-root lifecycle script (verified: pnpm 10.32.1 sets
+it correctly; pnpm 11 does on Windows-standalone but not linux-workspace-root). Fix the guard (e.g. also
+accept an empty agent, or detect pnpm another way) BEFORE any move to pnpm 11. Coupled with D42.
+
+### OPEN — ops acceptance scripts depend on `rg` with no fallback [D44]
+`bsre_spike` / `trig_legacy_retire` / `llm_path_audit` / `prediction_bank_health` shell out to `rg` (ripgrep)
+and treat "binary missing" identically to "no match" (`(res.status ?? 1) === 1 → []`), silently passing or
+failing depending on the check's polarity. CI now installs ripgrep so this is masked, but a node/git-grep
+fallback (or an explicit "rg required" assertion) would make them robust off the runner. Low priority.
+
+### OPEN — `feature_file_matrix.mjs` hardcodes absolute Windows Desktop paths [D45]
+Lines 11-13 reference `c:\Users\Chetan\OneDrive\Desktop\…\*.docx` — an owner-local `.docx` analysis tool
+(`test:feature:file-matrix`) that can only run on the owner's machine; NOT in the CI matrix. If it should
+ever be portable/CI-able, make it skip-if-missing or relocate the inputs into the repo. Not blocking.
+
+### OPEN — bump `actions/setup-node@v4` (Node-20 deprecation annotation) [D46]
+The CI workflow emits a non-fatal annotation: Node-20 actions are deprecated (forced to Node 24 on
+2026-06-16). Bump the action when convenient; not urgent (still runs).
+
 ## 2026-06-06 — Post-PR #199 (de-Replit PR-A)
 
 ### OPEN — de-Replit PR-B (lockfile-coupled removals) — BLOCKED behind the #198 lockfile regen [D40]

@@ -1,3 +1,35 @@
+## 2026-06-07 - CI ACTIVATED (#198): quality gate live; pnpm pinned 10.32.1; ripgrep in CI; D39 resolved
+
+Decision:
+PR #198 is merged (squash, trunk `9d772cba602afcbae025b63f93b439dc9d38ebd0`). GitHub Actions CI is LIVE for
+the first time, gating every PR into `base/approved-thru-437` (+ push to it). D39 RESOLVED. The stale-lockfile
+blocker that parked #198 last session was cleared on trunk by #201.
+
+Decisions locked (2026-06-07):
+- WORKFLOW AT REPO ROOT, FULL BAR — `.github/workflows/quality-gate.yml` gates pnpm `--frozen-lockfile` →
+  root `scripts` `test:matrix:all` (175/175) → lazytopper `check:mojibake` → linux `vite build` →
+  lazytopper `test:matrix:all`. The old mislocated `lazytopper/.github/workflows/mojibake-guardrail.yml`
+  (a subdir → never registered → zero runs ever) was deleted. Triggers scoped to trunk (not bare `on: push`).
+- PIN pnpm 10.32.1 IN CI (not 11) — it's the version #201 regenerated + frozen-verified the lockfile with,
+  AND pnpm 11 leaves `npm_config_user_agent` empty for the workspace-root lifecycle script on linux, tripping
+  the root `preinstall` guard (`case ...pnpm/*` → "Use pnpm instead"). Do NOT bump CI to pnpm 11 without first
+  fixing that guard. (Root cause is the absence of a `packageManager` pin — see OPEN_QUESTIONS follow-up.)
+- INSTALL ripgrep IN CI, don't degrade the audits — the ops acceptance scripts deliberately use `rg` (no
+  fallback); ubuntu-latest lacks it. Fix the environment (install the tool), not the check.
+- ops tests made CROSS-PLATFORM (3rd commit, owner-authorized scope-add into #198, NOT a separate PR) —
+  `bsre_spike:50` + `trig_legacy_retire:29` path separators → `[\\/]` regex. These dormant-on-Windows bugs
+  only matter because #198 turns on linux CI and can't be CI-verified without it → same concern, kept as a
+  distinct legible commit. BSRE is LIVE product code (TopicHub tutor `/api/mentor`) — the check stays.
+- scope:guard STAYS A LOCAL GATE (not in CI) — it inspects the local working-tree diff (staged/unstaged/
+  untracked), so on a clean CI checkout it classifies nothing → trivial false-PASS. Wiring it to a PR diff
+  would mean rewriting scopeGuard.mjs (out of #198's lane).
+- NO PRODUCT-PR AUTO-MERGE (deferred) — the human merge gate is retained until CI has proven runs-and-gates
+  over a series of real PRs; auto-merge, if ever, starts narrow (docs-only). Proven-it-gates this PR via a
+  planted-regression probe (PR #202 → red on mojibake → torn down).
+- SQUASH MERGE — matches the trunk `title (#N)` convention; the 3 commits remain legible inside the PR.
+
+---
+
 ## 2026-06-04 - CONTENT SWEEP merged (#188): 93 banned out-of-syllabus entries DELETED; gating syllabusGuard GREEN
 
 Decision:

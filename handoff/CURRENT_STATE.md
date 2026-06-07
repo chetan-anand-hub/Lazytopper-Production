@@ -1,10 +1,41 @@
 # LazyTopper — Current State
-Last updated: 2026-06-06 (post-PR #199 — de-Replit PR-A: safe scaffold + dead lazytopper-app stub deletes)
+Last updated: 2026-06-07 (post-PR #198 — CI ACTIVATED + CLAUDE.md corrected; lockfile blocker resolved via #201)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: fec2f92d1ac00162673193b19f879c27be4b3d6b
-Last merged PRs: #194 (feat: HPQ Phase 1), #195 (docs handoff post-#194), #196 (fix: 3 pre-existing test reds + un-blind mojibake checker), #197 (docs handoff post-#196), #199 (chore: de-Replit PR-A — scaffold + dead-stub deletes)
+SHA: 9d772cba602afcbae025b63f93b439dc9d38ebd0
+Last merged PRs: #196 (fix: 3 pre-existing reds), #197 (docs post-#196), #199 (chore: de-Replit PR-A), #200 (docs post-#199), #201 (fix: regenerate pnpm-lock.yaml to match package.json), #198 (chore: CLAUDE.md fix + CI activation)
+
+## CI ACTIVATED (#198) — the safety net is LIVE; CLAUDE.md corrected
+GitHub Actions CI now runs on every PR into `base/approved-thru-437` and on push to it. This is the FIRST
+time CI has ever executed (the predecessor `lazytopper/.github/workflows/mojibake-guardrail.yml` was in a
+SUBDIRECTORY — GitHub only registers workflows at the repo ROOT — so it never ran). **D39 RESOLVED.**
+- **Workflow:** `.github/workflows/quality-gate.yml` (repo root; old mislocated file deleted). On an
+  ubuntu-latest runner it gates the full bar: pnpm `--frozen-lockfile` install → root `scripts`
+  `test:matrix:all` (**175/175**) → lazytopper `check:mojibake` → **`build` (linux `vite build`)** →
+  lazytopper `test:matrix:all`. A red run blocks merge. Triggers scoped to trunk (PR-into + push-to);
+  `concurrency` cancels superseded runs.
+- **Squash-merged `9d772cb`** (3 legible commits: CLAUDE.md fix / CI workflow / cross-platform ops fixes).
+  Final green run `27088156112`; **proven to gate** — throwaway PR #202 with a planted mojibake glyph went
+  RED at the mojibake step, then was torn down.
+- **Prereq cleared:** the stale-lockfile blocker that parked #198 last session was fixed on trunk by **#201**
+  (regenerated `pnpm-lock.yaml` to match `lazytopper/package.json`). #198 rebased clean onto that.
+- **Three Windows-only fragilities** that only surface under live linux CI were found + fixed inside #198:
+  (1) pinned CI to **pnpm 10.32.1** — the lockfile's regen version; pnpm 11 leaves `npm_config_user_agent`
+  empty on linux so the root `preinstall` guard (`case ...pnpm/*`) trips; (2) added a **ripgrep** install
+  step — the ops audits shell out to `rg` with no fallback and ubuntu-latest lacks it; (3) fixed **hardcoded
+  Windows path separators** in `bsre_spike_acceptance.mjs:50` (blocking) + `trig_legacy_retire_acceptance.mjs:29`
+  (latent) to a cross-platform `[\\/]` regex. (BSRE is live product code — powers the TopicHub tutor
+  `/api/mentor` path — so the check stays; only the separator was wrong.) Left alone: `styles_change_impact:25`
+  `hasBackslash()` is an intentional non-portable-path DETECTOR; `feature_file_matrix.mjs` absolute Desktop
+  paths are an owner-local tool, not in CI.
+- **CLAUDE.md corrected:** verifier `verify-build.mjs`→`verify-production-build.mjs`; TS check
+  bare `tsc --noEmit`→`npx tsc -p tsconfig.app.json --noEmit`; dropped dead `NODE_ENV/BASE_PATH`; documented
+  the pnpm-workspace reality + the real gate bar + the two distinct `test:matrix:all`; added §6a (CI active;
+  `scope:guard` stays a LOCAL gate — it inspects the working-tree diff, so a clean CI checkout is a false-PASS).
+- **NOT in scope (deferred):** product-PR auto-merge — the human merge gate is retained until CI is proven
+  over a series of real PRs. Authority: `report-unpark-198-ci-green-2026-06-07.md`
+  (+ `report-ci-activation-blocked-2026-06-05.md` for the prior parked diagnosis).
 
 ## de-Replit PR-A DONE (#199) — safe scaffold + dead lazytopper-app stub (zero build/lockfile risk)
 First, lockfile-INDEPENDENT slice of retiring Replit. Authority: `report-replit-removal-audit-2026-06-06.md`

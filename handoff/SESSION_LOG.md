@@ -1,5 +1,46 @@
 ---
 
+## 2026-06-07 — CI ACTIVATED (#198) + CLAUDE.md corrected + this docs PR
+
+### What merged (#198) — chore: fix stale CLAUDE.md + activate CI quality gate
+Squash-merged **`9d772cb`** (3 legible commits: CLAUDE.md fix / CI workflow / cross-platform ops fixes).
+This UNPARKED #198 from last session, where it was blocked RED on a stale `pnpm-lock.yaml` — that blocker
+was fixed on trunk by **#201** (lockfile regen). Authority: `report-unpark-198-ci-green-2026-06-07.md`
+(+ the prior `report-ci-activation-blocked-2026-06-05.md`). `.claude/` never staged.
+- **CI is LIVE for the first time ever.** `.github/workflows/quality-gate.yml` at the repo ROOT (the old
+  `lazytopper/.github/workflows/mojibake-guardrail.yml` was in a subdir → GitHub never registered it → zero
+  runs ever). Relocated + expanded to gate the full bar on ubuntu-latest: pnpm `--frozen-lockfile` →
+  root `scripts` matrix **175/175** → `check:mojibake` → **linux `vite build`** → lazytopper ops matrix.
+  Triggers scoped to trunk (PR-into + push-to); `concurrency` cancels superseded runs. **D39 RESOLVED.**
+- **Rebased clean** onto post-#201 trunk `2059282` (no conflict — #198 touches CLAUDE.md + workflow + 2 ops
+  scripts; #201 touched only the lockfile).
+- **Three Windows-only fragilities surfaced by live linux CI, each diagnosed + fixed (none a product bug):**
+  1. **pnpm version** — pinned CI to **pnpm 10.32.1** (the lockfile's regen version). pnpm 11 leaves
+     `npm_config_user_agent` empty for the workspace-root lifecycle script on linux → the root `preinstall`
+     guard (`case "$npm_config_user_agent" in pnpm/*`) printed "Use pnpm instead" and exited 1.
+  2. **ripgrep** — added `apt-get install -y ripgrep`. The ops acceptance scripts shell out to `rg` with no
+     fallback (`(res.status ?? 1) === 1 → []`), and ubuntu-latest doesn't ship it → a must-find check failed.
+  3. **path separators** — `bsre_spike_acceptance.mjs:50` (BLOCKING) hardcoded `server\index.cjs`;
+     `trig_legacy_retire_acceptance.mjs:29` (latent) hardcoded `scripts\ops\…ps1`. Fixed to `[\\/]` regex.
+     Full scan found these were the only separator BUGS: `styles_change_impact:25` `hasBackslash()` is an
+     intentional non-portable-path detector (left alone); `feature_file_matrix.mjs` absolute Desktop paths
+     are an owner-local tool not in CI. BSRE is live product code (TopicHub tutor `/api/mentor`) — kept.
+- **Proven to gate:** throwaway PR **#202** with a planted mojibake glyph (U+FFFD) went RED at the mojibake
+  step (build/ops skipped); PR closed + branch deleted. Clean #198 → green; bad input → red.
+- **CLAUDE.md corrected:** `verify-build.mjs`→`verify-production-build.mjs`; bare `tsc --noEmit`→
+  `npx tsc -p tsconfig.app.json --noEmit`; dropped dead `NODE_ENV/BASE_PATH`; documented pnpm-workspace +
+  the real gate bar + the two `test:matrix:all`; added §6a (CI active; scope:guard stays local).
+- **Merge method:** SQUASH (matches the trunk `title (#N)` convention; the 3 commits stay legible in #198).
+- **Deferred (documented):** product-PR auto-merge — human merge gate retained until CI proven over real PRs.
+
+### This docs PR
+Updates CURRENT_STATE / NEXT_ACTION / SESSION_LOG / DECISION_LOG / OPEN_QUESTIONS for the merged #198:
+trunk `9d772cb`; CI ACTIVE + what it gates; D39 RESOLVED; lockfile blocker resolved via #201; the 3
+Windows-isms fixed; de-Replit PR-B now UNBLOCKED; new follow-ups (packageManager pin, preinstall-guard-vs-
+pnpm11, rg fallback, feature_file_matrix, setup-node bump); product auto-merge deferred.
+
+---
+
 ## 2026-06-06 — DE-REPLIT PR-A (#199) + this docs PR
 
 ### What merged (#199) — chore: safe Replit scaffold + dead lazytopper-app stub deletes (zero build/lockfile risk)
