@@ -26,7 +26,8 @@ function rg(query) {
     .map((s) => s.trim())
     .filter(Boolean)
     .filter((line) => !line.includes("trig_legacy_retire_acceptance"))
-    .filter((line) => !line.includes("scripts\\ops\\run-practice-integration-pack.ps1"));
+    // Match both path separators (Windows `\` vs Linux CI `/`) so the self-exclusion holds cross-platform.
+    .filter((line) => !/scripts[\\/]ops[\\/]run-practice-integration-pack\.ps1/.test(line));
 }
 
 function run() {
