@@ -1,5 +1,39 @@
 ---
 
+## 2026-06-07 — AUTH MIGRATION PR-1 (#206): Firebase ID-token verify at the api-server edge + Clerk dual-accept
+
+### What merged (#206) — backend edge guard (Surface B), Option B
+Branch `feat/auth-firebase-edge` from `45f733e`; **5 files (2 new + 3 edits) + the lockfile regen; squash-merged
+`a3def5f`.** Authority: the read-only audit `report-auth-migration-clerk-to-firebase-2026-06-07.md` (owner-reviewed)
++ the PR-1 report `report-pr1-auth-firebase-edge-2026-06-07.md`. `.claude/` never staged.
+- **NEW `artifacts/api-server/src/lib/firebaseAdmin.ts`** — Firebase Admin init for the edge (mirrors the gateway:
+  `VITE_FIREBASE_PROJECT_ID` + optional `FIREBASE_SERVICE_ACCOUNT_KEY`, else ADC; exports `firebaseAdminApp` or null).
+- **NEW `artifacts/api-server/src/middlewares/requireFirebaseAuth.ts`** — dual-accept guard: `verifyIdToken` first
+  → `req.userId = uid`; on failure falls back to the still-mounted `@clerk/express` `getAuth(req)`; else 401.
+- `routes/admin.ts` + `routes/questions.ts` — `requireAuth()` → `requireFirebaseAuth`, read `req.userId`; dropped
+  the `@clerk/express` imports. `package.json` — added `firebase-admin@^13.7.0`.
+
+### The Option-B decision (agent flagged a real spec contradiction)
+The build doc told PR-1 to BOTH "drop `@clerk/express`" AND "fall back to Clerk verification" — mutually exclusive.
+The agent STOPPED and asked (auth = never-guess); owner confirmed **Option B**: keep `@clerk/express` mounted, reuse
+its verified `getAuth` for the throwaway fallback, remove it + the fallback together in PR-3. No new auth code, no
+`jsonwebtoken`/`jwks-rsa`. See DECISION_LOG. **Forward correction:** the admin allowlist rename
+`ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS` (+ Firebase-uid bootstrap) moves to **PR-2** (not PR-3), else admin routes
+403 once the client sends Firebase tokens.
+
+### Execution + gates (Windows ↔ Codespace, like #204)
+Code authored + committed on the Windows box; the linux-only gates ran in a Codespace via `gh codespace ssh` (after
+the owner granted the `codespace` token scope). Codespace (pnpm 10.32.1): lockfile regenerated for the `firebase-admin`
+add (only `pnpm-lock.yaml` changed, +8/−65; committed in the PR); **api-server `typecheck` exit 0** (the 2 new files'
+FIRST real compile — needed `tsc -b lib/api-zod lib/db` first; CI does NOT typecheck api-server, so this was the real
+proof); **api-server `build` exit 0**; root matrix **175/175**; lazytopper ops matrix **all 6 green** (a transient
+`llm-path 4/5` was a Codespace missing-ripgrep artifact — identical on trunk, CI installs rg → 5/5). **CI green**
+(run `27100425116`, 1m29s). The first push (pre-lockfile) failed CI on frozen-install exactly as predicted, then went
+green after the lockfile commit. Deploy note: api-server now needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY`
+(or ADC) in Railway. Trunk after #206: `a3def5f`.
+
+---
+
 ## 2026-06-07 — INFRA ARC CLOSED: de-Replit COMPLETE (#204) + this docs PR
 
 ### The arc (one session): lockfile → CI → de-Replit, all closed

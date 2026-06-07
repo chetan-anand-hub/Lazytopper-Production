@@ -1,12 +1,32 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-07 (post-PR #204 — de-Replit COMPLETE; infra arc closed; PIVOT TO PRODUCT)
-# Base SHA: 54410609835686556a3382404bdfe62278bc1185
+# Updated: 2026-06-07 (post-PR #206 — AUTH MIGRATION PR-1 of 4 merged; PR-2 is NEXT)
+# Base SHA: a3def5f70366dbca7f133f072bd7cdfd8f41901f
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 54410609835686556a3382404bdfe62278bc1185
-Last PRs: #199 (de-Replit PR-A) + #200 (docs) + #201 (fix: regenerate pnpm-lock.yaml) + #198 (CI activation + CLAUDE.md fix) + #203 (docs) + #204 (chore: de-Replit PR-B — @replit pkgs + 3 stubs removed)
+SHA: a3def5f70366dbca7f133f072bd7cdfd8f41901f
+Last PRs: #204 (de-Replit PR-B) + #205 (docs) + #206 (auth migration PR-1 — Firebase ID-token verify at the api-server edge + Clerk dual-accept, Option B)
+
+## ⏭️ IMMEDIATE NEXT — AUTH MIGRATION PR-2 (frontend on Firebase Auth)
+Auth migration is 4 sequenced PRs (audit `report-auth-migration-clerk-to-firebase-2026-06-07.md` + build doc
+`AGENT_auth_migration_build_4PRs.md`). **PR-1 (#206) DONE** — the api-server edge now verifies Firebase ID tokens
+with a temporary Clerk fallback (Option B; `@clerk/express` stays until PR-3).
+**PR-2 (NEXT, branch `feat/auth-firebase-frontend`):** rewrite `context/AuthContext.tsx` internals to direct
+Firebase Auth (`onAuthStateChanged`, `signInWithPopup`+`GoogleAuthProvider` One Tap, Email/Password) — PRESERVE the
+exported `AuthContextType` shape (the ~38 façade consumers stay untouched) and the local-dev/E2E anonymous-session
+path verbatim; `getToken()` → `authClient.currentUser.getIdToken()`. Rebuild `pages/Login.tsx` + `pages/SignUpPage.tsx`
+natively in the existing frame per `lazytopper_login_prototype_v2.html` (rename `lt-login-clerk-frame` → `lt-login-frame`;
+Google One Tap + Email/Phone toggle [phone handler lands in PR-4]; no "Welcome back" header; preserve design grammar).
+Remove `ClerkProvider` from `main.tsx` (**authorized for PR-2 only**); drop `@clerk/react`.
+**BLOCKING in PR-2 — admin allowlist:** migrate `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS` (rename + revalue) with the
+bootstrap (owner signs in once via Firebase → capture uid → set `ADMIN_FIREBASE_UIDS`), and update the `admin.ts`
+comment (still says "PR-3"). Else every admin route 403s once the client sends Firebase tokens.
+Gates: `npx tsc -p tsconfig.app.json --noEmit`; `pnpm build` + `verify-production-build.mjs`; `scope:guard --mode product`;
+Vercel-green + 360/768/desktop screenshots; CI green; lockfile regen in Codespaces (`@clerk/react` removed). STOP for approval.
+Deploy note (INFRA-4): `artifacts/api-server` now needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC) in Railway.
+
+## (the PRODUCT-track sections below remain valid — pick up after the auth migration arc, or in parallel per owner)
 
 ## ✅ THE INFRA THAT MATTERED IS DONE — NEXT SESSION PIVOTS TO PRODUCT + THE LAUNCH DEPLOY
 Closed this session (see CURRENT_STATE): lockfile fixed (#201), CLAUDE.md corrected (#198), CI LIVE + proven

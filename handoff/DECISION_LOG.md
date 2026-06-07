@@ -1,3 +1,42 @@
+## 2026-06-07 - AUTH MIGRATION PR-1 (#206): Clerk-fallback = OPTION B (keep @clerk/express through PR-1/PR-2)
+
+Decision:
+For the PR-1 dual-accept transition (the api-server edge must accept BOTH a Firebase ID token and, temporarily,
+the existing Clerk token until PR-2 switches the client), the Clerk-fallback verification uses **Option B**:
+keep `@clerk/express` mounted and reuse its already-verified `getAuth(req)` for the fallback. `requireFirebaseAuth`
+tries Firebase `verifyIdToken` first → `req.userId = uid`; on failure it falls back to Clerk `getAuth(req)`.
+`@clerk/express` + the Clerk fallback are removed **together in PR-3** (Firebase-only).
+
+Why B (not A):
+The Clerk fallback is **throwaway code** alive only for the PR-1→PR-2 window. Option A (hand-roll Clerk JWT
+verification with `jwks-rsa` + `jsonwebtoken`, à la `firebaseAuth.cjs`) would add new security-critical code on
+the most sensitive surface — code that can't be compile-checked on the Windows box — plus new workspace deps and
+more lockfile churn, all for a path deleted two PRs later. **We never write fresh auth-verification code that
+lives for two PRs when an already-verified path exists.** B is lower-risk on every axis: no new code on the auth
+surface, no new deps (only `firebase-admin` is added in PR-1), cleanest lockfile.
+
+The contradiction this corrects:
+The build doc (`AGENT_auth_migration_build_4PRs.md`) listed BOTH "drop `@clerk/express` in PR-1" AND "fall back to
+Clerk verification in PR-1" — mutually exclusive (you can't call Clerk's `getAuth` if you've removed the package).
+The agent flagged it; owner confirmed B. The **"drop `@clerk/express`" line is corrected → moved to PR-3.**
+
+Decisions locked (2026-06-07):
+- OPTION B — `@clerk/express` stays mounted through PR-1/PR-2; `clerkMiddleware()` + `clerkProxyMiddleware` stay
+  in `app.ts` (untouched in PR-1). NO `jsonwebtoken`/`jwks-rsa`. Removed together with the fallback in PR-3.
+- ADMIN ALLOWLIST RENAME MOVES TO **PR-2** (not PR-3) — `admin.ts` checks `req.userId` against `ADMIN_CLERK_UIDS`
+  (Clerk ids). Once PR-2 makes the client send Firebase tokens, `req.userId` is a Firebase uid → admin routes 403
+  until migrated. So `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS` (rename + revalue) lands in PR-2, with a bootstrap:
+  owner signs in once via Firebase → capture uid → set `ADMIN_FIREBASE_UIDS`. PR-1 kept the old name (forward
+  correction; the in-code comment still says "PR-3" — PR-2 updates it).
+- DEPLOY ENV (Railway) — `artifacts/api-server` now needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY`
+  (or ADC) to verify Firebase ID tokens; fold into the INFRA-4 backend-deploy checklist.
+- LOCKFILE + LINUX GATES IN CODESPACES — PR-1 added `firebase-admin` to `api-server`; lockfile regenerated on
+  pnpm 10.32.1 in a Codespace (Windows can't), committed in the PR. api-server `typecheck`/`build` + both matrices
+  were run in the Codespace (CI does NOT typecheck api-server) — all green. See CURRENT_STATE (#206).
+- BACKLOG (separate small gated PR, NOT this docs PR): add an `apiServer` lane to `repo_boundary_policy.json` so
+  future `artifacts/api-server` PRs get a real `scope:guard` PASS instead of `[unclassified]`. Tracked in
+  OPEN_QUESTIONS [D47].
+
 ## 2026-06-07 - DE-REPLIT COMPLETE (#199 + #204): repo fully @replit-free; infra arc closed
 
 Decision:

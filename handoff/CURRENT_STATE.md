@@ -1,10 +1,72 @@
 # LazyTopper — Current State
-Last updated: 2026-06-07 (post-PR #204 — de-Replit COMPLETE; the full infra arc is closed; next session pivots to PRODUCT)
+Last updated: 2026-06-07 (post-PR #206 — AUTH MIGRATION PR-1 of 4: Firebase ID-token verify at the api-server edge + Clerk dual-accept)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 54410609835686556a3382404bdfe62278bc1185
-Last merged PRs: #199 (de-Replit PR-A), #200 (docs post-#199), #201 (fix: regenerate pnpm-lock.yaml), #198 (chore: CLAUDE.md fix + CI activation), #203 (docs post-#198), #204 (chore: de-Replit PR-B — @replit packages + 3 non-product stubs removed)
+SHA: a3def5f70366dbca7f133f072bd7cdfd8f41901f
+Last merged PRs: #204 (chore: de-Replit PR-B), #205 (docs post-#204), #206 (feat: auth migration PR-1 — Firebase ID-token verify at the api-server edge + Clerk dual-accept)
+
+## AUTH MIGRATION ARC STARTED (#206) — PR-1 of 4: Firebase edge verify + Clerk dual-accept (Option B)
+Owner decided to **remove Clerk and use Firebase Authentication directly** (Google + Email/Password + a NEW
+phone/SMS-OTP option). Rationale (verified): all student data already lives in Firestore (per-uid, secured by
+`firestore.rules` `isOwner(uid)`); Clerk sits "midway" (login UI + session → a backend bridge mints a Firebase
+custom token); Firebase has native auth, so Clerk is the removable layer. Cheapest to migrate now (no live
+student accounts, Clerk production not yet set up). Authority: the read-only audit
+`report-auth-migration-clerk-to-firebase-2026-06-07.md` (owner-reviewed) + the 4-PR build plan.
+
+**The migration is 4 sequenced, owner-approved PRs (same executor, STOP-for-approval between each):**
+- **PR-1 (#206, DONE)** — backend edge guard ("Surface B" = `artifacts/api-server`): verify Firebase ID tokens.
+- PR-2 (NEXT) — frontend `AuthContext` internals + Login/SignUp rebuilt natively on Firebase Auth (Google One
+  Tap + Email/Password); client switches to send Firebase ID tokens; drop `@clerk/react`; `main.tsx` authorized.
+- PR-3 — delete the gateway bridge (`/api/auth/firebase-token` + `firebaseAuth.cjs`); remove the Clerk fallback
+  **and** `@clerk/express` together; unmount `clerkMiddleware`; remove `clerkProxyMiddleware` + Clerk env.
+- PR-4 — phone / SMS-OTP provider (reCAPTCHA v2 invisible; project `lazzyy-topper` on Blaze).
+
+### PR-1 (#206) — what landed (5 files, all under `artifacts/api-server/`)
+Branch `feat/auth-firebase-edge` from `45f733e`; squash-merged **`a3def5f`**. `.claude/` never staged.
+- **NEW `src/lib/firebaseAdmin.ts`** — Firebase Admin init for the edge (mirrors the gateway: `VITE_FIREBASE_PROJECT_ID`
+  + optional `FIREBASE_SERVICE_ACCOUNT_KEY`, else ADC). Exports `firebaseAdminApp` (or `null` if unconfigured).
+- **NEW `src/middlewares/requireFirebaseAuth.ts`** — the dual-accept guard: (1) `verifyIdToken(bearer)` →
+  `req.userId = decoded.uid`; (2) on failure, fall back to the **still-mounted** `@clerk/express` `getAuth(req)`;
+  else `401 {ok:false,error:"Unauthenticated"}`. Augments `Express.Request` with `userId?: string`.
+- `src/routes/admin.ts` / `src/routes/questions.ts` — `requireAuth()` → `requireFirebaseAuth`; read `req.userId`;
+  dropped the `@clerk/express` imports from the route files. `x-user-id` forwarding to the gateway unchanged.
+- `package.json` — added `firebase-admin@^13.7.0` (the one new dep; already in the lockfile via lazytopper).
+
+### Option B (owner-confirmed) — the dual-accept lifecycle
+PR-1 keeps `@clerk/express` mounted (the fallback's `getAuth` needs `clerkMiddleware`; the still-Clerk frontend
+needs `clerkProxyMiddleware`). NO hand-rolled Clerk crypto; NO `jsonwebtoken`/`jwks-rsa`. The Clerk fallback +
+`@clerk/express` are removed **together in PR-3**. Lifecycle: PR-1 adds Firebase verify + Clerk fallback (both
+live) → PR-2 switches the client to Firebase tokens **and** migrates the admin allowlist → PR-3 removes the
+Clerk fallback + `@clerk/express`. `/shared-api/questions/report` never breaks. Rejected Option A (hand-rolled
+JWKS Clerk verification) as unjustified security-critical/throwaway code. The build doc's "drop `@clerk/express`
+in PR-1" line is corrected → moved to PR-3. See DECISION_LOG (Option B).
+
+### ⚠️ PR-2 FORWARD CORRECTION (admin allowlist) — do NOT lose
+`admin.ts` `requireAdminRole` checks `req.userId` against **`ADMIN_CLERK_UIDS`** (Clerk ids). PR-1 deliberately
+left this as-is. When **PR-2** switches the client to Firebase tokens, `req.userId` becomes a **Firebase uid**,
+so every admin route would **403** until the allowlist is migrated. Therefore the **rename + revalue
+`ADMIN_CLERK_UIDS` → `ADMIN_FIREBASE_UIDS` moves to PR-2 (not PR-3)**, with a bootstrap step: owner signs in
+once via Firebase → capture the uid → set it in `ADMIN_FIREBASE_UIDS`. (A code comment in `admin.ts` notes the
+deferral; that comment still says "PR-3" — PR-2 must update it.)
+
+### Deploy-stage note (Railway) — NEW requirement from #206
+`artifacts/api-server` now requires **`VITE_FIREBASE_PROJECT_ID`** + **`FIREBASE_SERVICE_ACCOUNT_KEY`** (or ADC)
+in its Railway deploy environment to verify Firebase ID tokens. Without them `firebaseAdminApp` is `null` and the
+edge relies on the Clerk fallback only (fine during the PR-1→PR-2 window; required real once PR-3 is Firebase-only).
+Fold into the INFRA-4 backend-deploy env checklist.
+
+### PR-1 gate evidence (all green)
+- **CI `quality-gate.yml`**: PASS (1m29s, run `27100425116`) — frozen-lockfile install + root matrix 175/175 +
+  mojibake + lazytopper build + ops matrix all green.
+- **Codespaces (linux, pnpm 10.32.1)** — the gates that can't run on the Windows box: lockfile regenerated (only
+  `pnpm-lock.yaml` changed, +8/−65, adds `firebase-admin` to api-server, committed in the PR); **api-server
+  `typecheck` exit 0** (first real compile of the 2 new files; required building the `@workspace/api-zod`/`db`
+  composite refs first); **api-server `build` (esbuild) exit 0** (`firebase-admin` externalized); root matrix
+  **175/175**; lazytopper ops matrix **all 6 green** (the transient `llm-path 4/5` was a Codespace-only missing-
+  ripgrep artifact — identical on trunk, unrelated to PR-1; CI installs ripgrep → 5/5).
+- `scope:guard` is structurally **N/A** for an `artifacts/api-server`-only PR (its policy lanes are
+  lazytopper-anchored — no `artifacts/api-server` lane); forbidden-files clean; diff confined to 5 files.
 
 ## ✅ INFRA ARC CLOSED THIS SESSION (4 items) — repo is healthy; NEXT SESSION PIVOTS TO PRODUCT
 The whole arc this session was diagnosing + closing the infra tangle. As of trunk `5441060` all four are DONE:
