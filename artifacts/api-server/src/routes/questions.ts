@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { requireAuth, getAuth } from "@clerk/express";
 import http from "http";
+import { requireFirebaseAuth } from "../middlewares/requireFirebaseAuth";
 
 const router: IRouter = Router();
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
@@ -39,9 +39,9 @@ function proxyToGateway(
 
 router.post(
   "/questions/report",
-  requireAuth(),
+  requireFirebaseAuth,
   async (req, res): Promise<void> => {
-    const { userId } = getAuth(req);
+    const userId = req.userId;
     if (!userId) {
       res.status(401).json({ ok: false, error: "Unauthenticated" });
       return;

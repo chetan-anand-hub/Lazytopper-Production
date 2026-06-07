@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
-import { requireAuth, getAuth } from "@clerk/express";
 import http from "http";
+import { requireFirebaseAuth } from "../middlewares/requireFirebaseAuth";
 
 const router: IRouter = Router();
 
@@ -8,9 +8,16 @@ const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
 
 /**
  * Admin role guard.  Requires ADMIN_CLERK_UIDS to be set (comma-separated
- * Clerk user IDs).  In production, returns 503 if the env var is missing so
- * admin endpoints are never accidentally open.  In non-production environments
- * the guard is skipped for developer convenience.
+ * user IDs).  In production, returns 503 if the env var is missing so admin
+ * endpoints are never accidentally open.  In non-production environments the
+ * guard is skipped for developer convenience.
+ *
+ * The uid is read from `req.userId` (set by `requireFirebaseAuth`). During the
+ * PR-1→PR-2 window that value is a Clerk user id (the fallback path), so the
+ * ADMIN_CLERK_UIDS allowlist must still hold Clerk ids. The env var is
+ * intentionally NOT renamed in PR-1 — the rename to ADMIN_FIREBASE_UIDS lands
+ * in PR-3 alongside the Firebase-only cutover, to avoid a misleading name while
+ * the values are still Clerk ids.
  */
 function requireAdminRole(req: Request, res: Response, next: NextFunction): void {
   const rawEnv = process.env["ADMIN_CLERK_UIDS"] || "";
@@ -22,7 +29,7 @@ function requireAdminRole(req: Request, res: Response, next: NextFunction): void
     }
     return next();
   }
-  const { userId } = getAuth(req);
+  const userId = req.userId;
   if (!userId || !adminUids.includes(userId)) {
     res.status(403).json({ ok: false, error: "Admin access required" });
     return;
@@ -64,7 +71,7 @@ function callGateway(
 
 router.get(
   "/admin/cache-stats",
-  requireAuth(),
+  requireFirebaseAuth,
   async (_req, res): Promise<void> => {
     try {
       const { statusCode, body } = await callGateway("/api/mentor/cache-stats");
@@ -78,7 +85,7 @@ router.get(
 
 router.get(
   "/admin/question-reports",
-  requireAuth(),
+  requireFirebaseAuth,
   requireAdminRole,
   async (_req, res): Promise<void> => {
     try {
@@ -93,7 +100,7 @@ router.get(
 
 router.patch(
   "/admin/question-reports/:id/resolve",
-  requireAuth(),
+  requireFirebaseAuth,
   requireAdminRole,
   async (req: Request, res): Promise<void> => {
     try {
