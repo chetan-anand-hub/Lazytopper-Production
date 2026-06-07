@@ -1,3 +1,23 @@
+## 2026-06-07 — Post-PR #206 (auth migration PR-1: Firebase edge verify + Clerk dual-accept)
+
+### MUST-CARRY into PR-2 (auth migration) — do NOT lose
+- **[AUTH-PR2-ADMIN, BLOCKING for PR-2]** `admin.ts` `requireAdminRole` checks `req.userId` against
+  **`ADMIN_CLERK_UIDS`** (Clerk ids). PR-2 switches the client to Firebase ID tokens → `req.userId` becomes a
+  Firebase uid → **every admin route 403s** until the allowlist is migrated. PR-2 MUST: rename + revalue
+  `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS`, run the bootstrap (owner signs in once via Firebase → capture uid →
+  set `ADMIN_FIREBASE_UIDS`), and update the in-code comment in `admin.ts` (it still says "PR-3").
+- **[AUTH-DEPLOY, for INFRA-4]** `artifacts/api-server` now requires `VITE_FIREBASE_PROJECT_ID` +
+  `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC) in its Railway env to verify Firebase ID tokens.
+- **[AUTH-PR3]** PR-3 removes the Clerk fallback **and** `@clerk/express` together, unmounts `clerkMiddleware()`,
+  removes `clerkProxyMiddleware` + Clerk env, and deletes the gateway bridge (`/api/auth/firebase-token` +
+  `firebaseAuth.cjs` + its `server/index.cjs` wiring; drop `jsonwebtoken`/`jwks-rsa` from the gateway).
+
+### NEW backlog — own small gated PR (NOT a docs change)
+- **[D47, NEW]** Add an `apiServer` lane to `lazytopper/docs/project_memory/governance/repo_boundary_policy.json`
+  (e.g. `artifacts/api-server/`) so `artifacts/api-server`-only PRs get a real `scope:guard` PASS instead of
+  `[unclassified]`. This is a policy/config change — keep it OUT of docs-only auto-merge PRs; ship as its own
+  small gated PR. (Same coverage-gap family as the `artifacts/**` deletes noted under D41 for de-Replit.)
+
 ## 2026-06-07 — Post-PR #204 (de-Replit COMPLETE; infra arc closed)
 
 ### RESOLVED — D40 (de-Replit PR-B) + D26-arc Replit removal
