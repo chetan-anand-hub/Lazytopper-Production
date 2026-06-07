@@ -1,5 +1,49 @@
 ---
 
+## 2026-06-07 — INFRA ARC CLOSED: de-Replit COMPLETE (#204) + this docs PR
+
+### The arc (one session): lockfile → CI → de-Replit, all closed
+Diagnosed and untangled the infra knot end-to-end. By session end, trunk `5441060` carries all four:
+**(1)** lockfile regenerated to match `package.json` (#201); **(2)** CLAUDE.md commands corrected (#198);
+**(3)** CI LIVE + proven-to-gate at the repo root (#198); **(4)** de-Replit COMPLETE (#199 PR-A + #204 PR-B).
+The repo is now **fully `@replit`-free** in manifests, source, AND lockfile (verified `grep` = 0); workspace
+**12 → 9 projects**; lockfile shrank **~7,300 lines** (21,345 → 14,051).
+
+### What merged (#204) — de-Replit PR-B: @replit packages + 3 non-product stubs (atomic, lockfile-coupled)
+Branch `chore/de-replit-pr-b` from `a0c7018`; **144 files (140 stub deletes + 4 edits) + the lockfile regen;
+squash-merged `5441060`.** Authority `report-de-replit-pr-b-2026-06-07.md`. `.claude/` never staged.
+- A: deleted `artifacts/lazytopper-video`, `mockup-sandbox`, `lazytopper-mobile` (all importers; mobile = the
+  Expo NATIVE path, not the product). B: stripped `@replit` plugins from `lazytopper-app/vite.config.ts`.
+  C: removed `@replit/connectors-sdk` (root) + the 3 `@replit/vite-plugin-*` devDeps. D: cleaned
+  `pnpm-workspace.yaml` (catalog + `minimumReleaseAgeExclude` + stale comments; kept the `packages:` glob +
+  linux-x64 `overrides`). E: root `typecheck` → `--filter @workspace/api-server` (the glob had begun erroring
+  on the src-less `lazytopper-app`).
+- **The atomic coupling** (package removal + the one config edit + the dir deletes + the lockfile regen) was
+  honored: split across PRs, the build breaks. F (lockfile regen) was done in a linux Codespace on **pnpm
+  10.32.1** — the Windows box can't (the `minimumReleaseAge` registry check needs `time` metadata it couldn't
+  fetch; same `@clerk/backend ERR_PNPM_MISSING_TIME` wall hit twice this session).
+- **First real PR through the new #198 CI gate — went green.** That simultaneously proves PR-B AND the CI on a
+  real change.
+
+### Execution split (Windows ↔ Codespace), and why
+Deterministic edits (A–E) + the deps-free gates (`grep` for `@replit`, `git diff --check`, scope:guard, "no
+product/handoff" check) ran on the Windows box and were committed/pushed as an INTENTIONALLY-incomplete branch
+(commit `bc8b768`, flagged `[LOCKFILE REGEN PENDING]` so the stale lockfile couldn't be mistaken for a bug).
+The owner then ran the lockfile regen + frozen-install verify in a Codespace, pushed, opened the PR, and
+merged green. The PR was deliberately NOT opened until the lockfile landed (a stale-lockfile PR = false-red CI).
+
+### Backend architecture mapped + product shape confirmed
+Confirmed the layered backend: frontend `/api/*` → `api-server` (Express edge: Clerk auth, Postgres/Drizzle)
+→ spawns + proxies AI to → `lazytopper/server/*.cjs` (Gemini/Claude/tutor/check-solution gateway, :3001). So
+"deploy the backend" = deploy `api-server` (runs the gateway as a child) + Postgres. Confirmed the product =
+ONE responsive website (the deleted `lazytopper-mobile` Expo app was NOT the product). Verified the build
+pipeline: `lazytopper/src` → vite → `artifacts/lazytopper-app/dist/public/app` → served at `/app/`.
+
+### Gates (docs PR)
+DOCS-ONLY (`handoff/*.md`); no code/product/lockfile. The new CI runs on this PR and should pass trivially.
+
+---
+
 ## 2026-06-07 — CI ACTIVATED (#198) + CLAUDE.md corrected + this docs PR
 
 ### What merged (#198) — chore: fix stale CLAUDE.md + activate CI quality gate

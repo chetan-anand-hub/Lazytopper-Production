@@ -1,3 +1,23 @@
+## 2026-06-07 — Post-PR #204 (de-Replit COMPLETE; infra arc closed)
+
+### RESOLVED — D40 (de-Replit PR-B) + D26-arc Replit removal
+PR-B merged as **#204** (`5441060`): `@replit/*` packages + `@replit/connectors-sdk` + the 3 non-product
+stubs removed atomically with the lockfile regen. Repo is fully `@replit`-free. De-Replit is COMPLETE
+(PR-A #199 + PR-B #204). The only Replit-adjacent work left is INFRA-4b (runtime AI-proxy rewiring), tracked
+under NEXT_ACTION / the backend deploy — NOT scaffold cleanup.
+
+### STILL OPEN — carry these forward (do NOT lose)
+- **[D42, HIGH-VALUE]** add `"packageManager": "pnpm@10.32.1"` to root `package.json` so Corepack enforces ONE
+  pnpm everywhere (root cause of the version churn). Small separate PR. Coupled with D43.
+- **[D43]** root `preinstall` guard trips on pnpm 11's empty `npm_config_user_agent` on linux — fix before any
+  pnpm 11 move.
+- **[D44]** ops audits assume `rg` (ripgrep) with no fallback (CI installs it; off-runner they're fragile).
+- **[D45]** `feature_file_matrix.mjs` hardcodes owner-local Windows Desktop paths (not CI-portable).
+- **[D46, NEW]** `actions/setup-node@v4` uses Node 20 (deprecation track) — bump when convenient.
+- **[D31]** `syllabusGuard` generic-phrase blind-spot (polynomials division-algorithm leak) — content debt.
+- **Domain** `lazytopper.in` (owner-confirmed) vs the earlier `.app` references — reconcile remaining `.app`
+  mentions before the deploy; verify DNS in Vercel before INFRA-4.
+
 ## 2026-06-07 — Post-PR #198 (CI activated)
 
 ### RESOLVED — D39 (CI relocation + expansion)

@@ -1,10 +1,24 @@
 # LazyTopper — Current State
-Last updated: 2026-06-07 (post-PR #198 — CI ACTIVATED + CLAUDE.md corrected; lockfile blocker resolved via #201)
+Last updated: 2026-06-07 (post-PR #204 — de-Replit COMPLETE; the full infra arc is closed; next session pivots to PRODUCT)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 9d772cba602afcbae025b63f93b439dc9d38ebd0
-Last merged PRs: #196 (fix: 3 pre-existing reds), #197 (docs post-#196), #199 (chore: de-Replit PR-A), #200 (docs post-#199), #201 (fix: regenerate pnpm-lock.yaml to match package.json), #198 (chore: CLAUDE.md fix + CI activation)
+SHA: 54410609835686556a3382404bdfe62278bc1185
+Last merged PRs: #199 (de-Replit PR-A), #200 (docs post-#199), #201 (fix: regenerate pnpm-lock.yaml), #198 (chore: CLAUDE.md fix + CI activation), #203 (docs post-#198), #204 (chore: de-Replit PR-B — @replit packages + 3 non-product stubs removed)
+
+## ✅ INFRA ARC CLOSED THIS SESSION (4 items) — repo is healthy; NEXT SESSION PIVOTS TO PRODUCT
+The whole arc this session was diagnosing + closing the infra tangle. As of trunk `5441060` all four are DONE:
+1. **Lockfile fixed (#201)** — `pnpm-lock.yaml` regenerated to match `lazytopper/package.json`; frozen installs work on linux.
+2. **CLAUDE.md corrected (#198)** — stale commands fixed (`verify-production-build.mjs`; `npx tsc -p tsconfig.app.json --noEmit`; the real gate bar; the two distinct `test:matrix:all`).
+3. **CI LIVE (#198)** — `.github/workflows/quality-gate.yml` at the repo ROOT gates every PR into trunk + push to trunk: pnpm **10.32.1** frozen install → root matrix **175/175** → mojibake → **linux `vite build`** → ops matrix. Proven to RUN and to GATE (probe PR #202 went red on a planted mojibake). ripgrep installed in CI; `scope:guard` stays a LOCAL gate (working-tree-diff based → false-PASS on a clean CI checkout). No product-PR auto-merge (human gate retained).
+4. **De-Replit COMPLETE (#199 PR-A + #204 PR-B)** — all Replit scaffold, the `@replit/vite-plugin-*` packages, `@replit/connectors-sdk`, and the 3 non-product stubs (`lazytopper-video`, `mockup-sandbox`, `lazytopper-mobile`) removed. The repo is now **fully `@replit`-free in manifests + source + lockfile** (verified `grep` = 0). Workspace **12 → 9 projects**; lockfile shrank **~7,300 lines** (21,345 → 14,051). PR-B (#204) was the **first real PR through the new CI gate** — it went green.
+
+**KEPT (real, NOT removed):**
+- `artifacts/api-server/` — the real Express/Clerk/Postgres backend that proxies to the AI gateway.
+- `artifacts/lazytopper-app/` — the vite build **OUTPUT TARGET**: `lazytopper/src` builds into its `dist/public/app` (served at `/app/`). Now a shell (its stub `src` went in PR-A); kept only as the output path.
+- `lazytopper/` — the product (the ONE responsive website).
+
+**Backend architecture (mapped this session):** layered — frontend `/api/*` → `api-server` (Express edge: Clerk auth, Postgres/Drizzle, questions/admin) → spawns + proxies AI to → `lazytopper/server/*.cjs` (the Gemini/Claude/tutor/check-solution gateway on port 3001). So "deploy the backend" = deploy `api-server` (which runs the gateway as a child) + provision Postgres.
 
 ## CI ACTIVATED (#198) — the safety net is LIVE; CLAUDE.md corrected
 GitHub Actions CI now runs on every PR into `base/approved-thru-437` and on push to it. This is the FIRST
@@ -63,6 +77,28 @@ squash-merged `fec2f92`**. `.claude/` never staged.
   `typecheck` glob (`./artifacts/**` still hits the src-less lazytopper-app).
 - **KEEP (owner-confirmed):** `artifacts/api-server/` — real backend (Express/Postgres/Clerk → AI gateway);
   retained in the root build; map the backend separately before touching it.
+
+## de-Replit PR-B DONE (#204) — @replit packages + 3 non-product stubs removed (atomic, lockfile-coupled)
+The lockfile-coupled remainder that PR-A deferred. Authority: `report-de-replit-pr-b-2026-06-07.md`.
+Branch `chore/de-replit-pr-b` from `a0c7018`; **144 files (140 stub-dir deletes + 4 edits) + the lockfile
+regen; squash-merged `5441060`**. The atomic set (all in one PR, or the build breaks):
+- **A — deleted 3 non-product stub packages:** `artifacts/lazytopper-video/`, `artifacts/mockup-sandbox/`,
+  `artifacts/lazytopper-mobile/` (the Expo NATIVE-app path — NOT the product, which is ONE responsive website).
+  All 3 were workspace/lockfile importers.
+- **B — stripped the surviving `@replit` config:** `artifacts/lazytopper-app/vite.config.ts` →
+  `plugins: [react(), tailwindcss()]` (removed `runtimeErrorOverlay` + the `REPL_ID`-gated cartographer/dev-banner).
+- **C — removed `@replit` deps:** root `@replit/connectors-sdk` (orphaned once PR-A deleted its only consumer)
+  + the 3 `@replit/vite-plugin-*` devDeps in `lazytopper-app/package.json`.
+- **D — cleaned `pnpm-workspace.yaml`:** dropped the 3 `@replit` `catalog:` entries + the
+  `minimumReleaseAgeExclude` block (`@replit/*`, `stripe-replit-sync`) + stale Replit comments. The `packages:`
+  glob (`artifacts/*`) needed no edit; the linux-x64 `overrides` block is KEPT (build-platform pinning).
+- **E — reconciled the root `typecheck`:** `--filter "./artifacts/**"` → `--filter @workspace/api-server`
+  (the glob had started hitting the src-less `lazytopper-app`, which errored TS18003 after PR-A).
+- **F — lockfile regen (Codespaces, pnpm 10.32.1):** the Windows box can't (the `minimumReleaseAge` registry
+  check needs `time` metadata it couldn't fetch); regenerated on linux per the #201 path. Lockfile shrank
+  ~7,300 lines. **The new #198 CI gated the PR green** — its first real-PR proof.
+- Windows-side gates before handoff: `@replit` purged from all source; `git diff --check` clean; no
+  `lazytopper/src`/handoff touched; `scope:guard` FAIL = the known `artifacts/**` coverage gap (D41), not a breach.
 
 ## 3 pre-existing test reds RESOLVED (#196) — mixed PR (product src/data + trackedTooling lanes)
 The three acceptance suites that had been RED on trunk (tracked as D38) are now GREEN. Authority:
