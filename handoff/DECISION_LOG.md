@@ -1,3 +1,29 @@
+## 2026-06-07 - DE-REPLIT COMPLETE (#199 + #204): repo fully @replit-free; infra arc closed
+
+Decision:
+The two-PR de-Replit is merged. PR-A (#199, `fec2f92`) removed the lockfile-safe scaffold + the dead
+`lazytopper-app/src` stub; PR-B (#204, `5441060`) removed the `@replit/*` packages, `@replit/connectors-sdk`,
+and the 3 non-product stub packages (`lazytopper-video`, `mockup-sandbox`, `lazytopper-mobile`) atomically
+with the lockfile regen. Repo is now fully `@replit`-free (manifests + source + lockfile); workspace 12 → 9.
+
+Decisions locked (2026-06-07):
+- TWO-PR SPLIT BY LOCKFILE COUPLING — the lockfile-SAFE deletes (scaffold, stub src, root build-script filters)
+  went first (PR-A) so they could land + be validated on the Windows box; everything that changes a lockfile
+  input (package removal, importer/dir deletes, catalog) was held for PR-B as ONE atomic change. Splitting the
+  `@replit` package removal from the `lazytopper-app/vite.config.ts` edit would break the build → same PR.
+- LOCKFILE REGEN IN CODESPACES (linux), NOT WINDOWS — the Windows box cannot regen: the `minimumReleaseAge`
+  guard needs registry `time` metadata that the local install couldn't fetch (`@clerk/backend
+  ERR_PNPM_MISSING_TIME`). Regen on linux/pnpm 10.32.1 (the #201 path), matching what CI pins. Do NOT regen on
+  Windows. Do NOT disable `minimumReleaseAge`.
+- PR-B PUSHED INCOMPLETE-BY-DESIGN, PR HELD — the A–E source edits were pushed with an intentionally-stale
+  lockfile (commit flagged `[LOCKFILE REGEN PENDING]`); the PR was opened only AFTER the Codespace lockfile
+  commit landed, so the new CI's first run was on the COMPLETE atomic set (a stale-lockfile PR = false-red).
+- KEEP `api-server` + `lazytopper-app` + `lazytopper` — `api-server` is the real backend; `lazytopper-app` is
+  the vite build OUTPUT TARGET (kept as a shell after its stub src went in PR-A); `lazytopper` is the product.
+  Only the 3 confirmed non-product stubs were removed. The product is ONE responsive website (no native app).
+- RUNTIME AI-PROXY REWIRING IS SEPARATE (INFRA-4b) — `claudeClient.cjs`'s Replit-proxy → direct Anthropic API
+  is NOT part of de-Replit scaffold cleanup; it lands with the backend deploy + the owner's API key.
+
 ## 2026-06-07 - CI ACTIVATED (#198): quality gate live; pnpm pinned 10.32.1; ripgrep in CI; D39 resolved
 
 Decision:
