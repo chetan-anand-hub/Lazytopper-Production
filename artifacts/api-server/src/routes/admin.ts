@@ -7,20 +7,20 @@ const router: IRouter = Router();
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
 
 /**
- * Admin role guard.  Requires ADMIN_CLERK_UIDS to be set (comma-separated
- * user IDs).  In production, returns 503 if the env var is missing so admin
+ * Admin role guard.  Requires ADMIN_FIREBASE_UIDS to be set (comma-separated
+ * Firebase uids).  In production, returns 503 if the env var is missing so admin
  * endpoints are never accidentally open.  In non-production environments the
  * guard is skipped for developer convenience.
  *
- * The uid is read from `req.userId` (set by `requireFirebaseAuth`). During the
- * PR-1→PR-2 window that value is a Clerk user id (the fallback path), so the
- * ADMIN_CLERK_UIDS allowlist must still hold Clerk ids. The env var is
- * intentionally NOT renamed in PR-1 — the rename to ADMIN_FIREBASE_UIDS lands
- * in PR-3 alongside the Firebase-only cutover, to avoid a misleading name while
- * the values are still Clerk ids.
+ * The uid is read from `req.userId` (set by `requireFirebaseAuth`). As of PR-2
+ * the frontend sends Firebase ID tokens, so `req.userId` is a Firebase uid — the
+ * allowlist env was renamed ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS and its values
+ * must be Firebase uids. Bootstrap: the owner signs in once via Firebase, captures
+ * that uid, and sets it in ADMIN_FIREBASE_UIDS (a Firebase uid does not exist until
+ * the first Firebase sign-in).
  */
 function requireAdminRole(req: Request, res: Response, next: NextFunction): void {
-  const rawEnv = process.env["ADMIN_CLERK_UIDS"] || "";
+  const rawEnv = process.env["ADMIN_FIREBASE_UIDS"] || "";
   const adminUids = rawEnv.split(",").map((s) => s.trim()).filter(Boolean);
   if (adminUids.length === 0) {
     if (process.env["NODE_ENV"] === "production") {

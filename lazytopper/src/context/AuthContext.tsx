@@ -1,7 +1,22 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from "react";
-import { useUser, useClerk } from "@clerk/react";
-import { signInWithCustomToken, signOut as firebaseSignOut } from "firebase/auth";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  type User as FirebaseUser,
+} from "firebase/auth";
 import {
   hydrateLocalProgressFromCloud,
   ensureLearnerProgressBaseline,
@@ -32,6 +47,12 @@ type AuthContextType = {
   mistakeLogsHydrated: number;
   getToken: () => Promise<string | null>;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmailPassword: (email: string, password: string) => Promise<void>;
+  signUpWithEmailPassword: (
+    email: string,
+    password: string,
+    displayName?: string,
+  ) => Promise<void>;
   initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
   sendPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
   verifyPhoneOtp: (code: string) => Promise<void>;
@@ -90,47 +111,13 @@ function shouldAutoAnonBootstrap(): boolean {
   return Boolean(import.meta.env.DEV) && isAutomation;
 }
 
-async function signIntoFirebase(
-  uid: string,
-  getToken: () => Promise<string | null>
-): Promise<boolean> {
-  if (!firebaseConfigured || !authClient) return false;
-  if (authClient.currentUser?.uid === uid) return true;
-  try {
-    const sessionToken = await getToken();
-    if (!sessionToken) {
-      if (import.meta.env.DEV) {
-        console.warn("[AuthContext] No Clerk session token available — skipping Firebase sign-in");
-      }
-      return false;
-    }
-    const resp = await fetch("/api/auth/firebase-token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${sessionToken}`,
-      },
-      body: JSON.stringify({}),
-    });
-    const data = (await resp.json()) as { ok: boolean; token?: string; error?: string };
-    if (data.ok && data.token) {
-      await signInWithCustomToken(authClient, data.token);
-      if (import.meta.env.DEV) {
-        console.info("[AuthContext] Firebase Auth signed in for uid=%s", uid);
-      }
-      return true;
-    } else {
-      if (import.meta.env.DEV) {
-        console.warn("[AuthContext] Firebase token endpoint returned error:", data.error);
-      }
-      return false;
-    }
-  } catch (err) {
-    if (import.meta.env.DEV) {
-      console.warn("[AuthContext] Firebase sign-in failed — cloud sync disabled for this session:", err);
-    }
-    return false;
-  }
+function mapFirebaseUser(fbUser: FirebaseUser): AuthUser {
+  return {
+    uid: fbUser.uid,
+    email: fbUser.email,
+    phoneNumber: fbUser.phoneNumber,
+    displayName: fbUser.displayName,
+  };
 }
 
 async function signOutOfFirebase(): Promise<void> {
@@ -143,32 +130,38 @@ async function signOutOfFirebase(): Promise<void> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
-  const clerk = useClerk();
-
+  const [firebaseUser, setFirebaseUser] = useState<AuthUser | null>(null);
+  const [firebaseLoaded, setFirebaseLoaded] = useState(false);
   const [localUser, setLocalUser] = useState<AuthUser | null>(() => readLocalSession());
   const [mistakeLogsHydrated, setMistakeLogsHydrated] = useState(0);
-  const firebaseSignedInUid = useRef<string | null>(null);
 
-  const mappedClerkUser: AuthUser | null = clerkUser
-    ? {
-        uid: clerkUser.id,
-        email: clerkUser.primaryEmailAddress?.emailAddress || null,
-        phoneNumber: clerkUser.primaryPhoneNumber?.phoneNumber || null,
-        displayName: clerkUser.fullName || clerkUser.firstName || null,
-      }
-    : null;
-
-  const user = mappedClerkUser || localUser;
-  const loading = !clerkLoaded;
-
+  // Track Firebase Auth state directly. This REPLACES the former Clerk →
+  // /api/auth/firebase-token bridge: the signed-in Firebase user (Google,
+  // email/password, or — from PR-4 — phone) is now the source of identity.
   useEffect(() => {
-    if (shouldAutoAnonBootstrap() && clerkLoaded && !clerkUser && !localUser) {
+    if (!firebaseConfigured || !authClient) {
+      setFirebaseLoaded(true);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(authClient, (fbUser) => {
+      setFirebaseUser(fbUser ? mapFirebaseUser(fbUser) : null);
+      setFirebaseLoaded(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const user = firebaseUser || localUser;
+  const loading = !firebaseLoaded;
+
+  // Local-dev / E2E anonymous-session bootstrap (PRESERVED verbatim from the
+  // Clerk implementation — automation/dev only; never a user-facing guest mode).
+  useEffect(() => {
+    if (shouldAutoAnonBootstrap() && firebaseLoaded && !firebaseUser && !localUser) {
       const devUser = createLocalDevUser();
       setLocalUser(devUser);
       writeLocalSession(devUser);
     }
-  }, [clerkLoaded, clerkUser, localUser]);
+  }, [firebaseLoaded, firebaseUser, localUser]);
 
   useEffect(() => {
     const uid = user?.uid || null;
@@ -179,22 +172,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     void (async () => {
-      if (firebaseSignedInUid.current !== uid) {
-        const getToken = () =>
-          clerk.session?.getToken() ?? Promise.resolve(null);
-        for (let attempt = 0; attempt < 3; attempt++) {
-          if (cancelled) return;
-          if (attempt > 0) {
-            await new Promise<void>((r) => setTimeout(r, 2000 * attempt));
-          }
-          const success = await signIntoFirebase(uid, getToken);
-          if (success) {
-            firebaseSignedInUid.current = uid;
-            break;
-          }
-        }
-      }
-
       if (cancelled) return;
 
       await Promise.allSettled([
@@ -204,7 +181,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: activeUser.email,
           phoneNumber: activeUser.phoneNumber,
           displayName: activeUser.displayName,
-          authProvider: activeUser.phoneNumber && !activeUser.email ? "clerk-phone" : activeUser.email ? "clerk-email" : "clerk",
+          authProvider:
+            activeUser.phoneNumber && !activeUser.email
+              ? "firebase-phone"
+              : activeUser.email
+                ? "firebase-email"
+                : "firebase",
         }),
         ensureLearnerCloudBaseline(uid),
         ensureLearnerProgressBaseline(uid),
@@ -223,9 +205,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user?.uid, user?.email, user?.phoneNumber, user?.displayName, user?.isLocalSession]);
 
-  const signInWithGoogleHandler = async () => {
-    clerk.openSignIn({});
-  };
+  const getToken = useCallback(async (): Promise<string | null> => {
+    if (!authClient?.currentUser) return null;
+    try {
+      return await authClient.currentUser.getIdToken();
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const signInWithGoogle = useCallback(async () => {
+    if (!authClient) throw new Error("Firebase Auth is not configured");
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    await signInWithPopup(authClient, provider);
+  }, []);
+
+  const signInWithEmailPassword = useCallback(async (email: string, password: string) => {
+    if (!authClient) throw new Error("Firebase Auth is not configured");
+    await signInWithEmailAndPassword(authClient, email, password);
+  }, []);
+
+  const signUpWithEmailPassword = useCallback(
+    async (email: string, password: string, displayName?: string) => {
+      if (!authClient) throw new Error("Firebase Auth is not configured");
+      const credential = await createUserWithEmailAndPassword(authClient, email, password);
+      const trimmedName = (displayName || "").trim();
+      if (trimmedName && credential.user) {
+        try {
+          await updateProfile(credential.user, { displayName: trimmedName });
+        } catch {
+          // Non-blocking: account is created even if the display name fails to set.
+        }
+      }
+    },
+    [],
+  );
 
   const continueLocalSession = () => {
     const devUser = createLocalDevUser();
@@ -234,32 +249,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     writeLocalSession(devUser);
   };
 
-  const logoutHandler = async () => {
-    firebaseSignedInUid.current = null;
-    void signOutOfFirebase();
-    if (clerkUser) {
-      await clerk.signOut();
-    }
+  const logout = useCallback(async () => {
+    await signOutOfFirebase();
     writeLocalSession(null);
     setActiveProgressUser(null);
     setLocalUser(null);
-  };
+    setFirebaseUser(null);
+  }, []);
 
   const noopAsync = async () => {};
 
   const value: AuthContextType = {
     user,
     loading,
-    firebaseReady: true,
+    firebaseReady: firebaseConfigured,
     phoneRecaptchaStatus: "idle",
     mistakeLogsHydrated,
-    getToken: () => clerk.session?.getToken() ?? Promise.resolve(null),
-    signInWithGoogle: signInWithGoogleHandler,
+    getToken,
+    signInWithGoogle,
+    signInWithEmailPassword,
+    signUpWithEmailPassword,
+    // Phone (SMS OTP) handlers are wired in PR-4; the façade shape is stable now.
     initPhoneRecaptcha: noopAsync,
     sendPhoneOtp: noopAsync,
     verifyPhoneOtp: noopAsync,
     continueLocalSession,
-    logout: logoutHandler,
+    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,9 +1,7 @@
-import { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { SignIn } from "@clerk/react";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { getLoginPrompt } from "../lib/desktop/loginPrompts";
 
 type LocationState = { from?: string };
 
@@ -316,9 +314,9 @@ const LOGIN_CSS = `
     font-weight: 500;
   }
 
-  .lt-login-clerk-frame {
+  .lt-login-frame {
     width: 100%;
-    padding: 14px;
+    padding: 22px;
     border-radius: 18px;
     border: 1px solid var(--lt-line);
     background: var(--lt-card);
@@ -326,8 +324,223 @@ const LOGIN_CSS = `
     backdrop-filter: blur(18px);
   }
 
-  .lt-login-clerk-frame > div {
+  .lt-google {
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    background: #ffffff;
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    padding: 13px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .lt-google:hover:not(:disabled) {
+    border-color: #bcc9dc;
+    background: #fafcff;
+  }
+
+  .lt-google:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .lt-gmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+  }
+
+  .lt-onetap {
+    margin: 8px 0 0;
+    font-size: 0.78rem;
+    color: var(--lt-muted);
+    text-align: center;
+  }
+
+  .lt-or {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0 16px;
+    color: rgba(7, 26, 61, 0.4);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .lt-or:before,
+  .lt-or:after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: var(--lt-line);
+  }
+
+  .lt-toggle {
+    display: flex;
+    background: #eef2f8;
+    border-radius: 11px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+
+  .lt-toggle button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    border-radius: 8px;
+    padding: 9px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(7, 26, 61, 0.55);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .lt-toggle button.active {
+    background: #ffffff;
+    color: var(--lt-ink);
+    box-shadow: 0 1px 2px rgba(7, 26, 61, 0.1);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-toggle {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .lt-field-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    margin: 0 0 7px;
+  }
+
+  .lt-field-label + .lt-field {
+    margin-bottom: 12px;
+  }
+
+  .lt-field {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--lt-line);
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .lt-field:focus-within {
+    border-color: var(--lt-green);
+    box-shadow: 0 0 0 3px rgba(22, 185, 106, 0.15);
+  }
+
+  .lt-prefix {
+    padding: 0 12px;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(7, 26, 61, 0.6);
+    background: #f6f9fd;
+    border-right: 1px solid var(--lt-line);
+  }
+
+  .lt-field input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 13px 14px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: var(--lt-ink);
+    background: transparent;
+  }
+
+  .lt-field input::placeholder {
+    color: rgba(7, 26, 61, 0.35);
+  }
+
+  .lt-field input:disabled {
+    color: rgba(7, 26, 61, 0.4);
+    cursor: not-allowed;
+  }
+
+  .lt-login-error {
+    margin: 2px 0 0;
+    color: #c0362c;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .lt-login-note {
+    margin: 2px 0 0;
+    color: var(--lt-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .lt-continue {
+    width: 100%;
+    margin-top: 16px;
+    background: var(--lt-navy);
+    color: #ffffff;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.98rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, transform 0.05s;
+  }
+
+  .lt-continue:hover:not(:disabled) {
+    background: #0a2452;
+  }
+
+  .lt-continue:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  .lt-continue:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .lt-signup {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    color: var(--lt-muted);
+  }
+
+  .lt-signup a {
+    color: var(--lt-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .lt-signup a:hover {
+    color: var(--lt-green-dark);
   }
 
   .lt-login-helper {
@@ -457,8 +670,8 @@ const LOGIN_CSS = `
       line-height: 1.45;
     }
 
-    .lt-login-clerk-frame {
-      padding: 10px;
+    .lt-login-frame {
+      padding: 16px;
     }
 
     .lt-login-helper {
@@ -517,7 +730,7 @@ const LOGIN_CSS = `
       font-size: 0.92rem;
     }
 
-    .lt-login-clerk-frame {
+    .lt-login-frame {
       padding: 0;
       border: 0;
       border-radius: 0;
@@ -554,17 +767,46 @@ const LOGIN_CSS = `
  * Login page (`/login`).
  *
  * Production responsibilities preserved:
- * - Real Clerk `<SignIn>` widget drives the auth flow.
+ * - Native Firebase Auth widget drives sign-in: Google (popup) + email/password.
+ *   The Phone (SMS-OTP) pane is present but its handler is wired in PR-4.
  * - Redirect priority stays `?redirect`, `location.state.from`, then
  *   profile/onboarding fallback.
  * - The page stays standalone, without DesktopShell/sidebar chrome.
  * - No guest CTA or fake trial activation is exposed from Login.
  */
+function describeAuthError(err: unknown): string {
+  const code =
+    typeof err === "object" && err !== null && "code" in err
+      ? String((err as { code?: unknown }).code || "")
+      : "";
+  switch (code) {
+    case "auth/popup-closed-by-user":
+    case "auth/cancelled-popup-request":
+      return ""; // user dismissed the Google popup — nothing to surface
+    case "auth/invalid-email":
+      return "Enter a valid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled.";
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+      return "Incorrect email or password.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please try again in a few minutes.";
+    case "auth/popup-blocked":
+      return "Your browser blocked the sign-in popup. Allow popups and try again.";
+    case "auth/network-request-failed":
+      return "Network error. Check your connection and try again.";
+    default:
+      return "Sign-in failed. Please try again.";
+  }
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, signInWithGoogle, signInWithEmailPassword } = useAuth();
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -580,7 +822,6 @@ export default function Login() {
 
   const reason = searchParams.get("reason");
   const isStartTrial = reason === "start-trial";
-  const prompt = useMemo(() => getLoginPrompt(reason), [reason]);
 
   const nextPath = useMemo(() => {
     if (searchParams.has("redirect")) {
@@ -593,6 +834,13 @@ export default function Login() {
       typeof window !== "undefined" && !!window.localStorage.getItem("lazytopper.profile.v2");
     return hasProfile ? "/dashboard" : "/onboarding";
   }, [location.state, searchParams]);
+
+  const [method, setMethod] = useState<"email" | "phone">("email");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     trackUxEvent("login_start", "login", {
@@ -609,6 +857,38 @@ export default function Login() {
     }
   }, [user, nextPath, navigate, reason]);
 
+  const handleGoogle = async () => {
+    if (busy) return;
+    setError(null);
+    setBusy(true);
+    try {
+      await signInWithGoogle();
+      // Navigation is handled by the `user` effect once auth state updates.
+    } catch (err) {
+      setError(describeAuthError(err));
+      setBusy(false);
+    }
+  };
+
+  const handleEmailSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setError(null);
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      setError("Enter your email and password.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await signInWithEmailPassword(trimmedEmail, password);
+      // Navigation is handled by the `user` effect once auth state updates.
+    } catch (err) {
+      setError(describeAuthError(err));
+      setBusy(false);
+    }
+  };
+
   const themeVars = {
     "--lt-login-bg": isLight ? "#f7fbff" : "#051733",
   } as CSSProperties;
@@ -622,68 +902,6 @@ export default function Login() {
       L
     </span>
   );
-
-  const clerkAppearance = {
-    options: {
-      unsafe_disableDevelopmentModeWarnings: true,
-    },
-    variables: {
-      colorPrimary: "#071a3d",
-      colorBackground: "#ffffff",
-      colorText: "#071a3d",
-      colorInputBackground: "#ffffff",
-      colorInputText: "#071a3d",
-      borderRadius: "12px",
-      fontFamily: "'Inter', system-ui, sans-serif",
-    },
-    elements: {
-      rootBox: { width: "100%" },
-      cardBox: {
-        width: "100%",
-        background: "transparent",
-        boxShadow: "none",
-        border: "none",
-      },
-      card: {
-        width: "100%",
-        background: "transparent",
-        boxShadow: "none",
-        border: "none",
-        padding: 0,
-      },
-      main: { background: "transparent", boxShadow: "none" },
-      footer: { background: "transparent", boxShadow: "none" },
-      header: { display: "none" },
-      headerTitle: { display: "none" },
-      headerSubtitle: { display: "none" },
-      socialButtonsBlockButton: {
-        minHeight: "46px",
-        background: "#ffffff",
-        border: "1px solid rgba(7, 26, 61, 0.14)",
-        color: "#071a3d",
-        borderRadius: "13px",
-        fontWeight: 800,
-        boxShadow: "0 8px 18px rgba(7, 26, 61, 0.06)",
-      },
-      formFieldInput: {
-        minHeight: "44px",
-        border: "1px solid rgba(7, 26, 61, 0.16)",
-        borderRadius: "12px",
-      },
-      formButtonPrimary: {
-        minHeight: "46px",
-        background: "#071a3d",
-        color: "#ffffff",
-        fontWeight: 800,
-        borderRadius: "13px",
-        boxShadow: "0 16px 28px rgba(7, 26, 61, 0.20)",
-      },
-      footerActionLink: { color: "#071a3d", fontWeight: 800 },
-      dividerLine: { background: "rgba(7, 26, 61, 0.12)" },
-      dividerText: { color: "#49627f", fontWeight: 700 },
-      identityPreviewEditButton: { color: "#071a3d" },
-    },
-  };
 
   return (
     <main
@@ -749,20 +967,119 @@ export default function Login() {
             </span>
           </Link>
 
-          <div className="lt-login-prompt">
-            <span className="lt-login-reason-chip">{prompt.chip}</span>
-            <h2 className="lt-login-heading">{prompt.headline}</h2>
-            <p className="lt-login-subcopy">{prompt.subCopy}</p>
-          </div>
+          <div className="lt-login-frame">
+            <button
+              type="button"
+              className="lt-google"
+              onClick={handleGoogle}
+              disabled={busy}
+            >
+              <span className="lt-gmark" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="18" height="18">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+              </span>
+              Continue with Google
+            </button>
+            <p className="lt-onetap">Uses the Google account already signed in to your browser</p>
 
-          <div className="lt-login-clerk-frame">
-            <SignIn
-              routing="path"
-              path={import.meta.env.BASE_URL + "login"}
-              signUpUrl={import.meta.env.BASE_URL + "sign-up"}
-              forceRedirectUrl={`${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}${nextPath}`}
-              appearance={clerkAppearance}
-            />
+            <div className="lt-or">or</div>
+
+            <div className="lt-toggle" role="tablist" aria-label="Sign-in method">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={method === "email"}
+                className={method === "email" ? "active" : ""}
+                onClick={() => {
+                  setMethod("email");
+                  setError(null);
+                }}
+              >
+                Email
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={method === "phone"}
+                className={method === "phone" ? "active" : ""}
+                onClick={() => {
+                  setMethod("phone");
+                  setError(null);
+                }}
+              >
+                Phone
+              </button>
+            </div>
+
+            {method === "email" ? (
+              <form onSubmit={handleEmailSubmit} noValidate>
+                <label className="lt-field-label" htmlFor="lt-login-email">
+                  Email address
+                </label>
+                <div className="lt-field">
+                  <input
+                    id="lt-login-email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <label className="lt-field-label" htmlFor="lt-login-password">
+                  Password
+                </label>
+                <div className="lt-field">
+                  <input
+                    id="lt-login-password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="Your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                {error ? (
+                  <p className="lt-login-error" role="alert">
+                    {error}
+                  </p>
+                ) : null}
+                <button className="lt-continue" type="submit" disabled={busy}>
+                  {busy ? "Signing in..." : "Continue"} <span aria-hidden="true">{"→"}</span>
+                </button>
+              </form>
+            ) : (
+              <div>
+                <label className="lt-field-label" htmlFor="lt-login-phone">
+                  Mobile number
+                </label>
+                <div className="lt-field">
+                  <span className="lt-prefix">+91</span>
+                  <input
+                    id="lt-login-phone"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="10-digit mobile number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                    disabled
+                  />
+                </div>
+                <p className="lt-login-note">Phone sign-in (SMS OTP) arrives shortly.</p>
+                <button className="lt-continue" type="button" disabled>
+                  Continue <span aria-hidden="true">{"→"}</span>
+                </button>
+              </div>
+            )}
+
+            <p className="lt-signup">
+              Don't have an account? <Link to="/sign-up">Sign up</Link>
+            </p>
           </div>
 
           <div className="lt-login-helper">
