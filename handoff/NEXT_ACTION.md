@@ -1,19 +1,29 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-06 (post-PR #199 — de-Replit PR-A: safe scaffold + dead-stub deletes)
-# Base SHA: fec2f92d1ac00162673193b19f879c27be4b3d6b
+# Updated: 2026-06-07 (post-PR #198 — CI ACTIVATED + CLAUDE.md corrected)
+# Base SHA: 9d772cba602afcbae025b63f93b439dc9d38ebd0
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: fec2f92d1ac00162673193b19f879c27be4b3d6b
-Last PRs: #194 (HPQ Phase 1) + #195 (docs post-#194) + #196 (fix: 3 pre-existing test reds + un-blind mojibake checker) + #197 (docs post-#196) + #199 (chore: de-Replit PR-A — scaffold + dead-stub deletes)
+SHA: 9d772cba602afcbae025b63f93b439dc9d38ebd0
+Last PRs: #196 (fix: 3 pre-existing reds) + #197 (docs) + #199 (chore: de-Replit PR-A) + #200 (docs) + #201 (fix: regenerate pnpm-lock.yaml) + #198 (chore: CLAUDE.md fix + CI activation)
 
-## DE-REPLIT — PR-A DONE (#199); PR-B QUEUED behind the #198 lockfile regen
+## CI IS LIVE (#198) — D39 RESOLVED
+GitHub Actions now gates every PR into trunk (`.github/workflows/quality-gate.yml`): pnpm frozen install →
+root matrix 175/175 → mojibake → linux build → ops matrix. CI pins **pnpm 10.32.1** (pnpm 11 breaks the root
+preinstall guard on linux) and installs **ripgrep** (ops audits need it). Proven to run AND gate (probe PR
+#202 went red on a planted mojibake). `scope:guard` is NOT in CI (working-tree-diff based → false-PASS on a
+clean checkout) — it stays a LOCAL pre-commit gate. **No product-PR auto-merge** — human merge gate retained
+until CI is proven over real PRs. HIGH-VALUE follow-up (OPEN_QUESTIONS): add `"packageManager":"pnpm@10.32.1"`
+to root `package.json` so Corepack enforces ONE pnpm everywhere. See CURRENT_STATE (#198) + DECISION_LOG.
+
+## DE-REPLIT — PR-A DONE (#199); PR-B NOW UNBLOCKED (the #198 lockfile regen landed via #201)
 PR-A removed the lockfile-safe Replit scaffold + the dead `lazytopper-app/src` stub + dropped the dead-stub
 filters from the root build (trunk `fec2f92`; authority `report-replit-removal-audit-2026-06-06.md`). **PR-B
-is the lockfile-coupled remainder and CANNOT land until the #198 pnpm-lock.yaml regen happens in the
-linux/Replit env (pnpm 11.x)** — every PR-B item changes a lockfile input and breaks `--frozen-lockfile`
-(already red on trunk vs `lazytopper/package.json`). PR-B scope: delete the `lazytopper-video`/
+(the lockfile-coupled remainder) is NOW DOABLE:** the `pnpm-lock.yaml` regen it waited on landed as **#201**
+and CI proves a clean `--frozen-lockfile` install on linux. Regen the lockfile in the SAME path #201 used
+(linux/Codespace, **pnpm 10.32.1** — match the version CI pins, NOT pnpm 11) when removing importers/catalog
+entries, and let CI verify the result. PR-B scope: delete the `lazytopper-video`/
 `mockup-sandbox`/`lazytopper-mobile` packages (all workspace importers; mobile = non-product Expo native path),
 remove `@replit/vite-plugin-*` + edit the 3 stub vite.configs + drop the catalog entries, clean
 `pnpm-workspace.yaml` (`stripe-replit-sync`, `@replit/*` exclude), remove the orphaned `@replit/connectors-sdk`,
