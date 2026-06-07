@@ -1,0 +1,71 @@
+name: Quality Gate
+
+# Workflows are only registered when they live in the REPO ROOT .github/workflows/.
+# (The predecessor lived in lazytopper/.github/workflows/ and therefore never ran.)
+#
+# Gates the full integration bar on a linux runner — the platform the build is
+# pinned to (pnpm-workspace.yaml strips all non-linux-x64 binaries). Mirrors the
+# local gates documented in CLAUDE.md section 6.
+
+on:
+  pull_request:
+    branches: [base/approved-thru-437]
+  push:
+    branches: [base/approved-thru-437]
+
+# A newer push to the same PR/branch supersedes an in-flight run.
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Enable pnpm (corepack)
+        # Repo is a pnpm workspace (lockfileVersion 9.0); npm install is blocked
+        # by a root preinstall guard and scripts/ uses pnpm `catalog:` refs.
+        run: |
+          corepack enable
+          # Pin pnpm to the version the lockfile was regenerated + frozen-verified with on
+          # linux (#201). The root preinstall guard is `case "$npm_config_user_agent" in pnpm/*)`,
+          # and pnpm 11 leaves npm_config_user_agent EMPTY for the workspace-root lifecycle
+          # script on linux -> the guard prints "Use pnpm instead" and exits 1. pnpm 10.32.1
+          # sets it correctly AND matches the lockfile's overrides serialization.
+          # (Follow-up: add "packageManager":"pnpm@10.32.1" to root package.json so Corepack
+          #  enforces one version everywhere; and fix the guard before any move to pnpm 11.)
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      # The lazytopper ops-matrix acceptance scripts (llm_path_audit, bsre_spike, etc.)
+      # shell out to `rg` (ripgrep) and have no fallback — ubuntu-latest does not ship it.
+      # Install it so those audits behave as they do locally / in the Codespace.
+      # (git/node/npm are already present; no other non-standard tool is on the gate path.)
+      - name: Install ripgrep (required by ops-matrix audits)
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # --- Root guard matrix: 5 suites, 175/175 ---
+      - name: Root guard matrix (scripts/ test:matrix:all)
+        run: pnpm --filter @workspace/scripts run test:matrix:all
+
+      # --- lazytopper gates ---
+      - name: Mojibake check (lazytopper)
+        run: pnpm --filter lazytopper run check:mojibake
+
+      - name: Build (lazytopper)
+        run: pnpm --filter lazytopper run build
+
+      - name: Ops matrix (lazytopper test:matrix:all)
+        run: pnpm --filter lazytopper run test:matrix:all

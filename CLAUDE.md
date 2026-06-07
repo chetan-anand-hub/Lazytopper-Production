@@ -37,7 +37,7 @@ If there is a mismatch, stop and report — do not proceed.
 - Auto-approve all file reads
 - Auto-approve git fetch, git log, git diff, git status, git rev-parse
 - Auto-approve PowerShell read commands
-- Auto-approve TypeScript compilation checks (tsc --noEmit)
+- Auto-approve TypeScript compilation checks (npx tsc -p tsconfig.app.json --noEmit)
 - Auto-approve build verification commands
 - ASK before: git commit, git push, git merge, git rebase
 - ASK before: any file write or edit
@@ -78,19 +78,64 @@ Globally forbidden across all PRs unless explicitly scoped:
 
 ## 6. Validation — Run After Every Edit
 
-Always run in this order before reporting done:
+This repo is a **pnpm workspace** — `npm install` is blocked by a root `preinstall`
+guard, and `scripts/` uses pnpm `catalog:` refs that only pnpm resolves. Use pnpm
+(via `corepack pnpm` if pnpm is not on PATH). Install once with
+`corepack pnpm install --frozen-lockfile`.
+
+Always run these gates before reporting done:
 
 ```bash
+# TypeScript typecheck (lazytopper app — bare `tsc --noEmit` has given false-greens)
 cd lazytopper
-npx tsc --noEmit
-NODE_ENV=production BASE_PATH=/app/ npm run build
-node scripts/verify-build.mjs
+npx tsc -p tsconfig.app.json --noEmit
+
+# Production build (Vite; base "/app/" is hardcoded in vite.config.ts — no env vars needed)
+pnpm run build
+node scripts/verify-production-build.mjs        # post-build bundle verifier
+
+# Content + scope guards (lazytopper)
+pnpm run check:mojibake
+pnpm run scope:guard --mode product             # or --mode mixed; works post-#192
+
+# Root guard matrix — 175/175 (5 suites: syllabus, deletion, reproduction, ops, practice-set)
+cd ../scripts
+pnpm run test:matrix:all
+
+# lazytopper ops matrix (bank-health, weightage-mix, canonical-gen, trig-retire, llm-path, bsre)
+cd ../lazytopper
+pnpm run test:matrix:all
+
+# Diff hygiene
+cd ..
 git diff --check
 git diff --name-only origin/base/approved-thru-437
 ```
 
+NOTE — there are TWO `test:matrix:all` scripts: the root `scripts/` 5-suite guard matrix
+(175/175) and the `lazytopper/` ops-checks matrix. Run BOTH; they are different.
+
+The production build (`vite build`) is pinned to linux-x64 (Replit; non-linux platform
+binaries are stripped in `pnpm-workspace.yaml`). Windows dev boxes cannot run it locally —
+it is gated by CI on linux (see §6a). The other gates above run on any platform.
+
 Report each result explicitly: PASS or FAIL with details.
 If any step fails: STOP. Do not proceed to commit. Report to owner.
+
+---
+
+## 6a. CI — Active Quality Gate
+
+CI is **active**: `.github/workflows/quality-gate.yml` (repo ROOT — the only place GitHub
+registers workflows) runs on every PR targeting `base/approved-thru-437` and on push to
+that branch. On a linux runner it installs the workspace with pnpm and gates the full bar:
+the root `scripts` `test:matrix:all` (175/175), then lazytopper `check:mojibake`, `build`,
+and lazytopper `test:matrix:all`. A red CI run blocks merge.
+
+`scope:guard` is intentionally NOT wired into CI — it inspects the LOCAL working-tree diff
+(staged / unstaged / untracked files), so on a clean CI checkout there is nothing for it
+to classify (false-PASS). It remains a **local** pre-commit gate (run it before committing,
+as in §6). The human merge gate is retained — CI does NOT auto-merge product PRs.
 
 ---
 

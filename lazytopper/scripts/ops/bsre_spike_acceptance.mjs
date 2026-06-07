@@ -47,7 +47,8 @@ function run() {
   );
 
   const refs = rg("engine/bsre|BsreEvaluator|triangles_bsre_rubrics_v1");
-  const serverRefs = refs.filter((line) => line.includes("server\\index.cjs"));
+  // Match both path separators: rg emits `server\index.cjs` on Windows, `server/index.cjs` on Linux CI.
+  const serverRefs = refs.filter((line) => /server[\\/]index\.cjs/.test(line));
   checks.push(
     check(
       "bsre_runtime_refs_present",
