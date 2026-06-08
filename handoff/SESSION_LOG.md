@@ -1,5 +1,62 @@
 ---
 
+## 2026-06-08 — AUTH MIGRATION PR-4 (#214): phone / SMS-OTP — auth arc 4/4 COMPLETE
+
+### What merged (#214)
+Branch `feat/auth-phone-otp` from `ff44580`; squash-merged **`7e00430`**. Two files (`AuthContext.tsx` +
+`Login.tsx`), additive — `AuthContextType` shape and ~38 consumers untouched; no dependency change (firebase
+12.9.0 already ships the phone APIs), so no lockfile regen. `.claude/` never staged. Reports:
+`report-pr4-*` + `report-pr4-rootcause-recaptcha-rerender-2026-06-08.md`.
+- **AuthContext** — filled the phone façade: `initPhoneRecaptcha` (invisible reCAPTCHA, **Firebase v12 arg order
+  auth-first**: `new RecaptchaVerifier(authClient, containerId, {size:"invisible"})`), `sendPhoneOtp`
+  (`signInWithPhoneNumber`), `verifyPhoneOtp` (`confirmation.confirm`). Phone user flows through the existing
+  `onAuthStateChanged` → hydration seam, tagged `authProvider: "firebase-phone"`.
+- **Login** — Phone tab is a 2-step in-pane flow (`+91` 10-digit → Send OTP → 6-digit → Verify), with Resend +
+  Change-number; phone error codes added to `describeAuthError`; invisible reCAPTCHA host div.
+- **Verified in production-preview:** real-number login — real SMS, real OTP, signed in, trial tied to the phone
+  account. Gates: tsc clean; mojibake; scope:guard product OK; root 175/175; ops 6/6; CI green.
+
+### The debugging chain that closed it (capture the lessons)
+The OTP failed for a while with a generic "Sign-in failed"; isolating it took several layers — recorded so the
+traps aren't re-hit:
+1. **Vercel `VITE_FIREBASE_*` were entirely missing from the build** (Vite inlines them at build time). Proven by
+   an SMS-free control: the **email** sign-in path also failed with **zero `identitytoolkit` network calls** →
+   `authClient` was null for ALL providers, not just phone. Fix: owner set all six `VITE_FIREBASE_*` in Vercel
+   (all scopes); the rebuilt preview baked them in (verified `AIzaSy…` + `lazzyy-topper.firebaseapp.com` in bundle).
+   **Lesson:** a missing client config looks like a phone bug but kills every provider; the email-path control
+   test (no SMS, no reCAPTCHA) is the cheapest discriminator.
+2. **Preview-domain authorization + SMS region policy.** Each preview URL is per-deploy and must be added to
+   Firebase Authorized domains; SMS **region policy was Deny → set Allow India**. (App Check off; reCAPTCHA
+   SMS-defense not enabled.)
+3. **The real client bug — reCAPTCHA re-render.** Once config was good, `sendVerificationCode` still never fired:
+   `sendPhoneOtp` tore down the pre-warmed verifier and **rebuilt a new one in the same container** every call,
+   and `RecaptchaVerifier.clear()` does NOT free the element → the rebuild's `render()` threw **"reCAPTCHA has
+   already been rendered in this element"** before any send (a plain `Error`, no `auth/...` code, hence the
+   generic UI message). Reproduced live on the authorized preview: clean single-verifier flow → `sendVerificationCode`
+   200; teardown+rebuild → the throw; **one verifier reused for send+resend → 200 twice.**
+   **Fix:** render the verifier **once**, **reuse** it for the initial send AND resend (the modular SDK
+   `_reset()`s it internally after each `signInWithPhoneNumber` — it is NOT single-use), and call `.clear()` ONLY
+   on logout / provider-unmount / verify-success (verify-failure keeps it intact so retry/resend works). Moved the
+   invisible reCAPTCHA `<div>` OUT of the conditional phone `<form>` to an always-mounted spot so an Email⇄Phone
+   toggle can't unmount the container under a live verifier. **Lesson:** my fold-in premise "spent verifier can't
+   be reused, so rebuild" was wrong for the modular SDK — reuse, never re-render the same container.
+
+### Follow-ups logged (OPEN_QUESTIONS)
+- **[SMS-DELIVERABILITY, pre-launch MEDIUM]** Firebase's default SMS sender lands in Android spam/junk → durable
+  fix needs a DLT-registered sender header (TRAI/India) via a custom SMS provider; verify the exact Firebase
+  mechanism when tackling (don't assume); DLT has operator lead-time. Not a launch blocker (Google is primary).
+- **[OTP-SPAM-HINT, small PR LOW]** "check your spam/junk folder" line on the OTP-sent screen — interim mitigation.
+- **[D42]** packageManager pin — already tracked; still open (separate hygiene PR).
+
+---
+
+## 2026-06-08 — DOCS handoff reconcile (#213): CURRENT_STATE + SESSION_LOG to trunk post-#212
+Branch `docs/handoff-post-pr212`; squash-merged `ff44580`. The #212 governance scrub had merged without its §10
+handoff update (CURRENT_STATE lagged trunk by one commit); this reconciled both docs to trunk. Docs-only;
+self-merged under the handoff auto-merge policy.
+
+---
+
 ## 2026-06-08 — GOVERNANCE/DOCS Clerk scrub (#212): CLAUDE.md + setup docs now Firebase-correct
 
 ### What merged (#212)

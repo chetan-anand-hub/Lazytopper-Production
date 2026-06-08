@@ -29,10 +29,13 @@ owner-approved PRs (same executor; STOP-for-approval between each). Authority: t
       `clerkMiddleware()`; dropped `@clerk/express` + `http-proxy-middleware` + `jsonwebtoken`/`jwks-rsa` (last two
       remain transitive under firebase-admin). Zero Clerk in code; lockfile `@clerk`=0 (−162). Gates: CI green +
       Codespace tsc/build/verifier + **gateway boots** + matrices. Trunk `6bf6e58`.
-  [ ] **(NEXT — HOLD for go) CLAUDE.md governance scrub** — §1 stack + §5 doctrine + `FIREBASE_SETUP.md` +
-      desktop-graduation Clerk notes (owner-ready instruction; not in a code PR; does NOT auto-merge).
-  [ ] **PR-4 (HOLD for go)** — phone / SMS-OTP provider (`feat/auth-phone-otp`): fill the phone façade with
-      `signInWithPhoneNumber` + reCAPTCHA v2 invisible; wire the Phone tab; live OTP smoke test. `lazzyy-topper` on Blaze.
+  [x] **CLAUDE.md governance scrub (#212)** — §1 stack + §5 doctrine + `FIREBASE_SETUP.md` +
+      desktop-graduation Clerk notes. Owner-reviewed merge (governance file; not auto-merged). Trunk `c755adb`.
+  [x] **PR-4 (#214) — phone / SMS-OTP** (`feat/auth-phone-otp`): filled the phone façade with
+      `signInWithPhoneNumber` + invisible reCAPTCHA; wired the 2-step Phone tab. **Auth arc 4/4 COMPLETE** —
+      Firebase-only end to end; verified in production-preview with a real-number login (real SMS/OTP, trial tied
+      to the phone account). Root-caused + fixed the reCAPTCHA re-render bug (one verifier, render once, reuse).
+      Trunk `7e00430`.
   [ ] (backlog, own PR) D47 — `apiServer` lane in `repo_boundary_policy.json` for `scope:guard`.
   [ ] (follow-up) Google **One-Tap** (GIS) once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
 

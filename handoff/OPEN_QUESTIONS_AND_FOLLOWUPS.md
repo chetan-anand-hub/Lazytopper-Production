@@ -1,3 +1,31 @@
+## 2026-06-08 — Post-PR #214 (auth migration PR-4: phone/SMS-OTP — ARC 4/4 COMPLETE)
+
+### RESOLVED in PR-4
+- **[AUTH-PR4]** Phone / SMS-OTP shipped: `signInWithPhoneNumber` + invisible reCAPTCHA, 2-step in-pane Phone tab.
+  Verified in production-preview with a real-number login (real SMS/OTP, signed in, trial tied to the phone
+  account). Root-caused + fixed the reCAPTCHA re-render bug (teardown+rebuild in the same container threw
+  "already rendered"; fix = one verifier, render once, **reuse** for send+resend, `.clear()` only on
+  logout/unmount/verify-success). **The auth migration arc (PR-1 #206 → PR-2 #208 → PR-3 #210 → scrub #212 →
+  PR-4 #214) is CLOSED — Firebase-only end to end.**
+
+### NEW follow-ups (not launch blockers)
+- **[SMS-DELIVERABILITY, pre-launch, MEDIUM]** Firebase's default SMS sender lands in **Android spam/junk**, so
+  phone-OTP students may never see the code (hit in the #214 real-number test — first OTP was in junk). Durable
+  fix needs a **DLT-registered sender header (TRAI/India regulatory regime)**, which likely means routing OTP
+  through a **custom SMS provider on the Identity Platform tier** — **verify the exact Firebase mechanism when
+  tackling, do not assume**; DLT registration has **operator lead-time, so start early** if phone-OTP becomes
+  important. **Priority MEDIUM — not a launch blocker** (Google sign-in is the primary path; phone is the fallback).
+- **[OTP-SPAM-HINT, small PR, LOW]** Add a **"check your spam/junk folder"** line on the OTP-sent screen as a
+  cheap interim mitigation for the above. Separate small PR (`Login.tsx` only), not now.
+- **[D42]** `packageManager` pin — **already tracked below** (HIGH-VALUE, separate hygiene PR); still open.
+
+### Owner / deploy actions pending (carried — next workstream is go-live / Phase 1)
+- **[AUTH-ADMIN, BLOCKING]** Bootstrap `ADMIN_FIREBASE_UIDS` (sign in once via Firebase → capture uid → set env)
+  — the ONLY way admin routes authorize now (no Clerk fallback).
+- **[AUTH-DEPLOY]** `artifacts/api-server` needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or
+  ADC) in Railway; add the prod domain to Firebase Authorized domains. (Vercel frontend `VITE_FIREBASE_*` now set
+  all-scopes — confirmed in #214.)
+
 ## 2026-06-08 — Post-PR #210 (auth migration PR-3: Clerk teardown — Firebase-only)
 
 ### RESOLVED in PR-3
