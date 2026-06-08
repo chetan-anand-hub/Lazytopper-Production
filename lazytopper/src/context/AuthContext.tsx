@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -15,7 +16,10 @@ import {
   updateProfile,
   onAuthStateChanged,
   signOut as firebaseSignOut,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
   type User as FirebaseUser,
+  type ConfirmationResult,
 } from "firebase/auth";
 import {
   hydrateLocalProgressFromCloud,
@@ -134,6 +138,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
   const [localUser, setLocalUser] = useState<AuthUser | null>(() => readLocalSession());
   const [mistakeLogsHydrated, setMistakeLogsHydrated] = useState(0);
+  const [phoneRecaptchaStatus, setPhoneRecaptchaStatus] =
+    useState<PhoneRecaptchaStatus>("idle");
+
+  // Phone (SMS OTP) is reCAPTCHA-gated. The verifier and the pending
+  // confirmation live in refs, not state: they must survive re-renders without
+  // triggering one. An invisible reCAPTCHA verifier is single-use — once a
+  // signInWithPhoneNumber call (success OR failure) consumes it, it must be torn
+  // down so the next send (including an explicit resend) builds a fresh one.
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const phoneConfirmationRef = useRef<ConfirmationResult | null>(null);
+
+  // Tear down the verifier widget only; leaves any pending confirmation intact
+  // (a successful send retires its spent widget but must keep the confirmation).
+  const teardownRecaptcha = useCallback(() => {
+    if (recaptchaVerifierRef.current) {
+      try {
+        recaptchaVerifierRef.current.clear();
+      } catch {
+        // ignore teardown errors — the widget may already be gone
+      }
+      recaptchaVerifierRef.current = null;
+    }
+    setPhoneRecaptchaStatus("idle");
+  }, []);
+
+  // Full reset: tear down the widget AND drop the pending confirmation.
+  const resetPhone = useCallback(() => {
+    teardownRecaptcha();
+    phoneConfirmationRef.current = null;
+  }, [teardownRecaptcha]);
 
   // Track Firebase Auth state directly: the signed-in Firebase user (Google,
   // email/password, or — from PR-4 — phone) is the source of identity.
@@ -241,6 +275,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const initPhoneRecaptcha = useCallback(async (recaptchaContainerId: string) => {
+    if (!authClient) throw new Error("Firebase Auth is not configured");
+    if (recaptchaVerifierRef.current) return; // idempotent — reuse the live widget
+    // Firebase v12 argument order: auth FIRST, then container, then params.
+    const verifier = new RecaptchaVerifier(authClient, recaptchaContainerId, {
+      size: "invisible",
+      callback: () => setPhoneRecaptchaStatus("solved"),
+      "expired-callback": () => setPhoneRecaptchaStatus("expired"),
+    });
+    try {
+      await verifier.render();
+      recaptchaVerifierRef.current = verifier;
+      setPhoneRecaptchaStatus("ready");
+    } catch (err) {
+      try {
+        verifier.clear();
+      } catch {
+        // ignore
+      }
+      setPhoneRecaptchaStatus("error");
+      throw err;
+    }
+  }, []);
+
+  const sendPhoneOtp = useCallback(
+    async (phoneE164: string, recaptchaContainerId: string) => {
+      if (!authClient) throw new Error("Firebase Auth is not configured");
+      // Always start from a fresh, unspent verifier — a prior send (success or
+      // failure, including the resend path) consumes the invisible widget.
+      teardownRecaptcha();
+      await initPhoneRecaptcha(recaptchaContainerId);
+      const verifier = recaptchaVerifierRef.current;
+      if (!verifier) throw new Error("reCAPTCHA is not ready");
+      try {
+        phoneConfirmationRef.current = await signInWithPhoneNumber(
+          authClient,
+          phoneE164,
+          verifier,
+        );
+      } finally {
+        // Retire the now-spent widget regardless of outcome; the confirmation
+        // (set above on success) is preserved for verifyPhoneOtp.
+        teardownRecaptcha();
+      }
+    },
+    [initPhoneRecaptcha, teardownRecaptcha],
+  );
+
+  const verifyPhoneOtp = useCallback(async (code: string) => {
+    const confirmation = phoneConfirmationRef.current;
+    if (!confirmation) throw new Error("Request an OTP before verifying");
+    await confirmation.confirm(code);
+    // onAuthStateChanged picks up the phone user; the hydration effect tags it
+    // authProvider "firebase-phone". Drop the one-shot confirmation + any widget.
+    resetPhone();
+  }, [resetPhone]);
+
   const continueLocalSession = () => {
     const devUser = createLocalDevUser();
     setLocalUser(devUser);
@@ -250,28 +341,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await signOutOfFirebase();
+    resetPhone();
     writeLocalSession(null);
     setActiveProgressUser(null);
     setLocalUser(null);
     setFirebaseUser(null);
-  }, []);
+  }, [resetPhone]);
 
-  const noopAsync = async () => {};
+  // Tear down any live reCAPTCHA widget when the provider unmounts.
+  useEffect(() => resetPhone, [resetPhone]);
 
   const value: AuthContextType = {
     user,
     loading,
     firebaseReady: firebaseConfigured,
-    phoneRecaptchaStatus: "idle",
+    phoneRecaptchaStatus,
     mistakeLogsHydrated,
     getToken,
     signInWithGoogle,
     signInWithEmailPassword,
     signUpWithEmailPassword,
-    // Phone (SMS OTP) handlers are wired in PR-4; the façade shape is stable now.
-    initPhoneRecaptcha: noopAsync,
-    sendPhoneOtp: noopAsync,
-    verifyPhoneOtp: noopAsync,
+    initPhoneRecaptcha,
+    sendPhoneOtp,
+    verifyPhoneOtp,
     continueLocalSession,
     logout,
   };
