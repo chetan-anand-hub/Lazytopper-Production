@@ -1,5 +1,27 @@
 ---
 
+## 2026-06-08 — GOVERNANCE/DOCS Clerk scrub (#212): CLAUDE.md + setup docs now Firebase-correct
+
+### What merged (#212)
+Branch `docs/governance-clerk-scrub`; **3 files (+13/−8), docs/governance only — no code/config/CI/handoff;
+squash-merged `c755adb`.** Closes the carve-out deferred from #210 (governance files are not edited inside a
+code PR, and are excluded from docs auto-merge — so this was an owner-reviewed merge, not a self-merge).
+- **CLAUDE.md** §1 stack "Firebase + Clerk auth" → "Firebase (Auth + Firestore)"; §5 doctrine replaced the
+  obsolete "Clerk stays for now (K2H-15)" line with the Firebase-only doctrine (Google + Email/Password + Phone;
+  Firestore keyed on Firebase uid; admin via `ADMIN_FIREBASE_UIDS`). §7 left as-is (generic auth check).
+- **FIREBASE_SETUP.md** — UID keying Clerk → Firebase; auth-flow section rewritten from the deleted
+  Clerk→firebase-token bridge to the Firebase-only flow.
+- **docs/desktop-graduation-state.md** — SUPERSEDED banner added at top (historical archive; Clerk refs below
+  are non-operative).
+
+### State after #212
+Auth migration arc is **3/4 code-complete + governance reconciled**; the repo and its doctrine are both
+Firebase-only. Trunk: `c755adb`. **Next: PR-4 — phone / SMS-OTP** (`feat/auth-phone-otp`, hold for owner go).
+This handoff entry (`docs/handoff-post-pr212`) reconciles `CURRENT_STATE.md`/`SESSION_LOG.md` to trunk, which
+had lagged #212 by one commit.
+
+---
+
 ## 2026-06-08 — AUTH MIGRATION PR-3 (#210): Clerk teardown — auth is Firebase-only
 
 ### What merged (#210)
