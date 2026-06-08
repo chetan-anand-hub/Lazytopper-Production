@@ -7,7 +7,7 @@
 ## 1. Project Identity
 
 - Product: LazyTopper — CBSE Class 10 study cockpit
-- Stack: React + TypeScript + Vite + Firebase + Clerk auth
+- Stack: React + TypeScript + Vite + Firebase (Auth + Firestore) — auth is Firebase Auth (Google + Email/Password + Phone). No Clerk.
 - Active integration branch: `base/approved-thru-437`
 - Working directory: `C:\Projects\Lazytopper-Production`
 - App source lives at: `lazytopper/src/`
@@ -69,7 +69,7 @@ Globally forbidden across all PRs unless explicitly scoped:
 - No guest mode — /browse is inspection only; no fake learner session
 - No fake payment — payment is deferred; no client-side premium activation
 - No fake trial activation — trial state must come from server/admin, never client UI
-- Clerk stays for now — auth architecture is a deliberate future decision (K2H-15)
+- Auth is Firebase-only (Google + Email/Password + Phone). Clerk was fully removed in the auth migration (PR-1..PR-3). Firestore is keyed on Firebase uid; admin routes authorize via ADMIN_FIREBASE_UIDS.
 - Safe redirects always — reject any external URL in redirect params
 - Visual grammar — deep navy, soft white, green accent, calm premium CBSE cockpit feel
 - Honest empty states — if data is thin, show honest empty state, never invent content
