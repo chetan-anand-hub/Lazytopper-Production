@@ -32,7 +32,7 @@ const TOPICS: DesktopTopicSummary[] = [
     trendTier: "medium",
     weight: 6,
     marks: "~6 marks",
-    blurb: "Zeroes of polynomials, relations between coefficients and zeroes, and the division algorithm.",
+    blurb: "Zeroes of a quadratic polynomial and the relationship between its zeroes and coefficients.",
   },
   {
     slug: "pair-of-linear-equations",
@@ -42,7 +42,7 @@ const TOPICS: DesktopTopicSummary[] = [
     trendTier: "high",
     weight: 6,
     marks: "~6 marks",
-    blurb: "Solving linear pairs by substitution, elimination, and cross-multiplication, including word problems.",
+    blurb: "Solving pairs of linear equations by substitution and elimination, including word problems.",
   },
   {
     slug: "quadratic-equations",
