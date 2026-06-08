@@ -1,16 +1,25 @@
-## 2026-06-07 — Post-PR #206 (auth migration PR-1: Firebase edge verify + Clerk dual-accept)
+## 2026-06-08 — Post-PR #208 (auth migration PR-2: frontend on Firebase Auth)
 
-### MUST-CARRY into PR-2 (auth migration) — do NOT lose
-- **[AUTH-PR2-ADMIN, BLOCKING for PR-2]** `admin.ts` `requireAdminRole` checks `req.userId` against
-  **`ADMIN_CLERK_UIDS`** (Clerk ids). PR-2 switches the client to Firebase ID tokens → `req.userId` becomes a
-  Firebase uid → **every admin route 403s** until the allowlist is migrated. PR-2 MUST: rename + revalue
-  `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS`, run the bootstrap (owner signs in once via Firebase → capture uid →
-  set `ADMIN_FIREBASE_UIDS`), and update the in-code comment in `admin.ts` (it still says "PR-3").
-- **[AUTH-DEPLOY, for INFRA-4]** `artifacts/api-server` now requires `VITE_FIREBASE_PROJECT_ID` +
-  `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC) in its Railway env to verify Firebase ID tokens.
-- **[AUTH-PR3]** PR-3 removes the Clerk fallback **and** `@clerk/express` together, unmounts `clerkMiddleware()`,
-  removes `clerkProxyMiddleware` + Clerk env, and deletes the gateway bridge (`/api/auth/firebase-token` +
-  `firebaseAuth.cjs` + its `server/index.cjs` wiring; drop `jsonwebtoken`/`jwks-rsa` from the gateway).
+### RESOLVED in PR-2
+- **[AUTH-PR2-ADMIN]** Admin allowlist **renamed in code** `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS` + comment
+  updated. *Owner action still pending:* the **value bootstrap** (sign in once via Firebase → capture uid → set
+  `ADMIN_FIREBASE_UIDS`); until set, admin routes 503 in prod / dev-skip locally.
+
+### MUST-CARRY into PR-3 (the Clerk teardown) — do NOT lose
+- **[AUTH-PR3]** PR-3 (`fix/remove-clerk-bridge`, **HOLD for owner go**): remove the api-server Clerk **fallback**
+  branch from `requireFirebaseAuth` (Firebase-only) **and** `@clerk/express` together; unmount `clerkMiddleware()`;
+  remove `clerkProxyMiddleware`; delete the gateway bridge (`/api/auth/firebase-token` route + `firebaseAuth.cjs` +
+  its `server/index.cjs` wiring); drop `jsonwebtoken`/`jwks-rsa` (gateway); remove Clerk env (`CLERK_SECRET_KEY`,
+  `CLERK_JWKS_URI`, `CLERK_ISSUER`, `VITE_CLERK_*`). Two package.json changes → lockfile regen in Codespaces.
+
+### Owner / deploy actions pending (not code)
+- **[AUTH-DOMAINS]** Add the prod Vercel domain to the `lazzyy-topper` Firebase **Authorized domains** so
+  `signInWithPopup` works in prod (localhost already allowed). Also do a real Google-popup sign-in check (couldn't
+  be headless-automated; email/password + getToken were runtime-verified Firebase in the Codespace).
+- **[AUTH-DEPLOY, INFRA-4]** `artifacts/api-server` requires `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY`
+  (or ADC) in Railway.
+- **[ONE-TAP follow-up]** Add Google GIS **One-Tap** (floating auto-prompt) once a Web OAuth client ID
+  (`VITE_GOOGLE_CLIENT_ID`) is provided — small PR; PR-2 shipped popup-only.
 
 ### NEW backlog — own small gated PR (NOT a docs change)
 - **[D47, NEW]** Add an `apiServer` lane to `lazytopper/docs/project_memory/governance/repo_boundary_policy.json`
