@@ -34,7 +34,7 @@ import { loginUrl, PRIMARY_CARDS } from "../../lib/desktop/homeDestinations";
  *     ErrorCategory).
  *
  * Honest copy contract:
- *   - No fake personalised greeting beyond a real Clerk display name.
+ *   - No fake personalised greeting beyond a real account display name.
  *   - Memory strip only renders when hasMeaningfulMemory() is true.
  *   - "Latest saved worksheet" never says "score" / "attempt" — saved
  *     worksheets capture the plan, not a graded result.

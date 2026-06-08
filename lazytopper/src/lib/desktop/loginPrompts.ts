@@ -11,7 +11,7 @@
 export interface LoginPrompt {
   /** Short, reason-distinct chip shown above the headline. */
   chip: string;
-  /** Headline rendered above the Clerk sign-in widget. */
+  /** Headline rendered above the sign-in widget. */
   headline: string;
   /** One-line sub-copy describing why the user is being asked to sign in. */
   subCopy: string;

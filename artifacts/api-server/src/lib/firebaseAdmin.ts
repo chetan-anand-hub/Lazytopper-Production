@@ -13,7 +13,7 @@ import { logger } from "./logger";
  * `verifyIdToken` (the same pattern already used in `server/routes/share.cjs`).
  *
  * If `VITE_FIREBASE_PROJECT_ID` is unset, this exports `null` and the auth
- * middleware falls back to the temporary Clerk path (removed in PR-3).
+ * middleware rejects requests (it can no longer verify ID tokens).
  */
 function initFirebaseAdmin(): admin.app.App | null {
   const projectId = process.env["VITE_FIREBASE_PROJECT_ID"];

@@ -127,7 +127,6 @@ const { createAiQuestionsRoute } = require('./routes/aiQuestions.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
-const { createFirebaseAuthRoute } = require('./routes/firebaseAuth.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
@@ -255,7 +254,6 @@ const diagramRoutes = createDiagramRoutes(routeDeps);
 const userProgressRoutes = createUserProgressRoutes(routeDeps);
 const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
-const firebaseAuthRoute = createFirebaseAuthRoute({ sendJson, readJson, firebaseAdmin });
 const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
 
 async function handleRequest(req, res) {
@@ -277,7 +275,6 @@ async function handleRequest(req, res) {
       reqPath === '/api/generate-visual' ||
       reqPath === '/api/session/start' ||
       reqPath === '/api/share-token' ||
-      reqPath === '/api/auth/firebase-token' ||
       reqPath === '/api/admin/warm-question-pool' ||
       reqPath === '/api/admin/question-reports' ||
       /^\/api\/admin\/question-reports\/\d+\/resolve$/.test(reqPath) ||
@@ -463,9 +460,6 @@ async function handleRequest(req, res) {
     return aiQuestionsRoute.handlePost(req, res);
   }
 
-  if (req.method === 'POST' && reqPath === '/api/auth/firebase-token') {
-    return firebaseAuthRoute.handleFirebaseToken(req, res);
-  }
   if (req.method === 'POST' && reqPath === '/api/generate-visual') {
     return diagramRoutes.handleGenerateVisual(req, res);
   }
