@@ -1,12 +1,67 @@
 # LazyTopper — Current State
-Last updated: 2026-06-07 (post-PR #206 — AUTH MIGRATION PR-1 of 4: Firebase ID-token verify at the api-server edge + Clerk dual-accept)
+Last updated: 2026-06-08 (post-PR #208 — AUTH MIGRATION PR-2 of 4: frontend on Firebase Auth; Clerk removed from the client)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: a3def5f70366dbca7f133f072bd7cdfd8f41901f
-Last merged PRs: #204 (chore: de-Replit PR-B), #205 (docs post-#204), #206 (feat: auth migration PR-1 — Firebase ID-token verify at the api-server edge + Clerk dual-accept)
+SHA: 597880d9e4ba2452ba5f758e3e5914fa9799ca40
+Last merged PRs: #206 (auth PR-1 — Firebase edge verify), #207 (docs post-#206), #208 (feat: auth PR-2 — frontend rebuilt natively on Firebase Auth; @clerk/react dropped)
 
-## AUTH MIGRATION ARC STARTED (#206) — PR-1 of 4: Firebase edge verify + Clerk dual-accept (Option B)
+## AUTH MIGRATION ARC — PR-2 of 4 DONE (#208): frontend on Firebase Auth (Clerk removed from the client)
+PR-2 (`feat/auth-firebase-frontend` from `7f993cb`; squash-merged **`597880d`**) rebuilt the frontend auth on
+**direct Firebase Auth** and removed Clerk from the client. The api-server edge (PR-1) is now hit with **Firebase
+ID tokens** (its preferred `verifyIdToken` path); the Clerk fallback there goes idle (removed in PR-3). Design basis:
+`LazyTopper_Login_Design_Spec_v2.md` + `lazytopper_login_prototype_v2.html`. Reports:
+`report-pr2-auth-firebase-frontend-2026-06-08.md` + `report-pr2-evidence-2026-06-08.md`.
+
+### What landed (6 files + lockfile)
+- **`src/context/AuthContext.tsx`** — internals → direct Firebase Auth (`onAuthStateChanged`,
+  `signInWithPopup(GoogleAuthProvider)`, email/password). **Added** `signInWithEmailPassword` /
+  `signUpWithEmailPassword` (additive — `AuthContextType` shape preserved, ~38 consumers untouched).
+  `getToken()` → `currentUser.getIdToken()`. Clerk→`/api/auth/firebase-token` bridge deleted from the client.
+  **Local-dev/E2E anonymous-session path preserved verbatim.** Phone façade stays no-ops (PR-4).
+- **`src/pages/Login.tsx`** — native v2 widget: official Google button + One-Tap sub-line, Email/Phone segmented
+  toggle, **one-step** email+password, **disabled** Phone tab with honest "arrives shortly" note (handler = PR-4).
+  `lt-login-clerk-frame` → `lt-login-frame`; **"Welcome back" header removed**; left brand panel untouched.
+- **`src/pages/SignUpPage.tsx`** — native Google + email/password create-account.
+- **`src/main.tsx`** — `ClerkProvider` removed (authorized for PR-2). **`package.json`** — `@clerk/react` dropped.
+- **`artifacts/api-server/src/routes/admin.ts`** — admin allowlist migrated **`ADMIN_CLERK_UIDS` →
+  `ADMIN_FIREBASE_UIDS`** (the forward-corrected functional step; `req.userId` is now a Firebase uid).
+
+### Owner decisions (PR-2)
+- **Google = popup** (`signInWithPopup`) — no new env/script. True GIS One-Tap is a fast-follow once a Web OAuth
+  client ID is supplied. **Email = one-step**, password-based (no magic link). Phone toggle present, inert until PR-4.
+
+### PR-2 gate evidence (all green)
+- **CI `quality-gate`**: PASS (run `27102702574`) — frozen install + root matrix 175/175 + mojibake + lazytopper
+  build + ops matrix.
+- **Codespaces (pre-push, files copied in — no commit):** lazytopper `tsc -p tsconfig.app.json` **exit 0** (the
+  ~770-line rewrite's first compile); api-server typecheck exit 0; **vite build exit 0**; verify-production-build
+  PASS; root 175/175; ops matrix 6/6; lockfile regenerated (`@clerk/react` removed, −17 lines).
+- **Vercel-preview screenshots** (360/768/desktop × login + signup) captured + assessed faithful to the v2
+  prototype — `pr2-{login,signup}-{360,768,desktop}.png` in the diff folder.
+- **Runtime auth verification (headless, real `lazzyy-topper`):** email/password sign-up+sign-in + `getIdToken()`
+  → decoded JWT `iss = https://securetoken.google.com/lazzyy-topper`, `aud = lazzyy-topper`,
+  `sign_in_provider = password` — a genuine **Firebase** token (NOT Clerk). Throwaway account deleted.
+- Zero `@clerk`/`VITE_CLERK` refs remain in `lazytopper/src`. `scope:guard` classifies the 5 FE files as
+  `product`; the 1 BE file (`admin.ts`) is the known `[unclassified]` gap (D47).
+
+### ⚠️ PR-3 IS NEXT (owner to give go) — the Clerk teardown
+PR-3 (`fix/remove-clerk-bridge`): delete the gateway bridge (`/api/auth/firebase-token` + `firebaseAuth.cjs` + its
+`server/index.cjs` wiring; drop `jsonwebtoken`/`jwks-rsa`); remove the api-server **Clerk fallback** branch from
+`requireFirebaseAuth` (Firebase-only); drop **`@clerk/express`**; unmount `clerkMiddleware()`; remove
+`clerkProxyMiddleware`; remove Clerk env (`CLERK_SECRET_KEY`, `CLERK_JWKS_URI`, `CLERK_ISSUER`, `VITE_CLERK_*`).
+
+### Owner / deploy actions still pending
+- **Admin bootstrap:** sign in once via Firebase → capture your uid → set `ADMIN_FIREBASE_UIDS` (else admin routes
+  503 in prod / dev-skip locally).
+- **Firebase Authorized domains:** add the prod Vercel domain to `lazzyy-topper` so `signInWithPopup` works in prod
+  (localhost already allowed; the Google popup couldn't be auto-tested headlessly — owner verifies with a real click).
+- **Railway env (from PR-1):** `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC) on api-server.
+- **One-Tap (GIS) follow-up:** small PR once a Web OAuth client ID is provided.
+
+---
+
+## AUTH MIGRATION PR-1 (#206) — Firebase edge verify + Clerk dual-accept (Option B)
 Owner decided to **remove Clerk and use Firebase Authentication directly** (Google + Email/Password + a NEW
 phone/SMS-OTP option). Rationale (verified): all student data already lives in Firestore (per-uid, secured by
 `firestore.rules` `isOwner(uid)`); Clerk sits "midway" (login UI + session → a backend bridge mints a Firebase

@@ -1,30 +1,34 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-07 (post-PR #206 — AUTH MIGRATION PR-1 of 4 merged; PR-2 is NEXT)
-# Base SHA: a3def5f70366dbca7f133f072bd7cdfd8f41901f
+# Updated: 2026-06-08 (post-PR #208 — AUTH MIGRATION PR-2 of 4 merged; PR-3 is NEXT, HOLDING for owner go)
+# Base SHA: 597880d9e4ba2452ba5f758e3e5914fa9799ca40
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: a3def5f70366dbca7f133f072bd7cdfd8f41901f
-Last PRs: #204 (de-Replit PR-B) + #205 (docs) + #206 (auth migration PR-1 — Firebase ID-token verify at the api-server edge + Clerk dual-accept, Option B)
+SHA: 597880d9e4ba2452ba5f758e3e5914fa9799ca40
+Last PRs: #206 (auth PR-1 — Firebase edge verify) + #207 (docs) + #208 (auth PR-2 — frontend on Firebase Auth; @clerk/react dropped)
 
-## ⏭️ IMMEDIATE NEXT — AUTH MIGRATION PR-2 (frontend on Firebase Auth)
+## ⏭️ IMMEDIATE NEXT — AUTH MIGRATION PR-3 (delete the Clerk bridge + @clerk/express) — HOLD FOR OWNER GO
 Auth migration is 4 sequenced PRs (audit `report-auth-migration-clerk-to-firebase-2026-06-07.md` + build doc
-`AGENT_auth_migration_build_4PRs.md`). **PR-1 (#206) DONE** — the api-server edge now verifies Firebase ID tokens
-with a temporary Clerk fallback (Option B; `@clerk/express` stays until PR-3).
-**PR-2 (NEXT, branch `feat/auth-firebase-frontend`):** rewrite `context/AuthContext.tsx` internals to direct
-Firebase Auth (`onAuthStateChanged`, `signInWithPopup`+`GoogleAuthProvider` One Tap, Email/Password) — PRESERVE the
-exported `AuthContextType` shape (the ~38 façade consumers stay untouched) and the local-dev/E2E anonymous-session
-path verbatim; `getToken()` → `authClient.currentUser.getIdToken()`. Rebuild `pages/Login.tsx` + `pages/SignUpPage.tsx`
-natively in the existing frame per `lazytopper_login_prototype_v2.html` (rename `lt-login-clerk-frame` → `lt-login-frame`;
-Google One Tap + Email/Phone toggle [phone handler lands in PR-4]; no "Welcome back" header; preserve design grammar).
-Remove `ClerkProvider` from `main.tsx` (**authorized for PR-2 only**); drop `@clerk/react`.
-**BLOCKING in PR-2 — admin allowlist:** migrate `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS` (rename + revalue) with the
-bootstrap (owner signs in once via Firebase → capture uid → set `ADMIN_FIREBASE_UIDS`), and update the `admin.ts`
-comment (still says "PR-3"). Else every admin route 403s once the client sends Firebase tokens.
-Gates: `npx tsc -p tsconfig.app.json --noEmit`; `pnpm build` + `verify-production-build.mjs`; `scope:guard --mode product`;
-Vercel-green + 360/768/desktop screenshots; CI green; lockfile regen in Codespaces (`@clerk/react` removed). STOP for approval.
-Deploy note (INFRA-4): `artifacts/api-server` now needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC) in Railway.
+`AGENT_auth_migration_build_4PRs.md`). **PR-1 (#206) + PR-2 (#208) DONE** — the edge verifies Firebase ID tokens
+and the frontend authenticates directly on Firebase (Clerk removed from the client; the client now sends Firebase
+ID tokens, runtime-verified `iss = securetoken.google.com/lazzyy-topper`).
+**PR-3 (NEXT, branch `fix/remove-clerk-bridge`) — the Clerk teardown. Owner said HOLD until "go".** Scope:
+- Delete the gateway bridge: `/api/auth/firebase-token` route + `lazytopper/server/routes/firebaseAuth.cjs` + its
+  wiring in `server/index.cjs` (route handler + CORS list + import); drop `jsonwebtoken` + `jwks-rsa` (gateway).
+- Remove the api-server **Clerk fallback** branch from `requireFirebaseAuth` (Firebase-only verification).
+- Drop **`@clerk/express`**; unmount `app.use(clerkMiddleware())`; remove `clerkProxyMiddleware.ts` + its mount.
+- Remove remaining Clerk env: `CLERK_SECRET_KEY`, `CLERK_JWKS_URI`, `CLERK_ISSUER`, `VITE_CLERK_*`.
+Gates: api-server tsc/build + gateway boots; `test:matrix:all` 175/175; CI green; lockfile regen in Codespaces
+(two package.json change — api-server `@clerk/express` + lazytopper `jsonwebtoken`/`jwks-rsa`). STOP for approval.
+
+### Owner / deploy actions still pending (carry forward)
+- **Admin bootstrap (BLOCKING for admin routes in prod):** sign in once via Firebase → capture your uid → set
+  `ADMIN_FIREBASE_UIDS` (renamed in PR-2; `req.userId` is now a Firebase uid).
+- **Firebase Authorized domains:** add the prod Vercel domain to `lazzyy-topper` so `signInWithPopup` works in prod.
+- **Railway env (INFRA-4):** `artifacts/api-server` needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC).
+- **Google popup live check:** verify a real Google sign-in on an authorized domain (couldn't be headless-automated).
+- **One-Tap (GIS) follow-up:** small PR once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
 
 ## (the PRODUCT-track sections below remain valid — pick up after the auth migration arc, or in parallel per owner)
 

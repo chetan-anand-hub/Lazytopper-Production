@@ -18,17 +18,19 @@ owner-approved PRs (same executor; STOP-for-approval between each). Authority: t
 
 ### Auth migration track
   [x] PR-1 (#206) — edge verifies Firebase ID tokens; Clerk dual-accept fallback (Option B)
-  [ ] **PR-2 (NEXT)** — frontend `AuthContext` internals → direct Firebase Auth (Google One Tap + Email/Password),
-      Login/SignUp rebuilt natively in the existing frame (design grammar preserved; `lazytopper_login_prototype_v2`);
-      client `getToken()` → `authClient.currentUser.getIdToken()`; remove `ClerkProvider` from `main.tsx`
-      (authorized); drop `@clerk/react`. **BLOCKING:** migrate the admin allowlist `ADMIN_CLERK_UIDS →
-      ADMIN_FIREBASE_UIDS` (+ Firebase-uid bootstrap) — else admin routes 403. Preserve the local-dev/E2E
-      anonymous-session path verbatim. Gates incl. Vercel-green + 360/768/desktop screenshots.
-  [ ] PR-3 — delete the gateway bridge (`/api/auth/firebase-token` + `firebaseAuth.cjs`); remove the Clerk
-      fallback + `@clerk/express` together; unmount `clerkMiddleware`; remove `clerkProxyMiddleware` + Clerk env;
-      drop `jsonwebtoken`/`jwks-rsa` from the gateway. Firebase-only verification.
+  [x] **PR-2 (#208)** — frontend `AuthContext` → direct Firebase Auth (Google **popup** + one-step Email/Password;
+      One-Tap deferred to a follow-up); Login/SignUp rebuilt natively (v2 prototype; no "Welcome back"); `getToken()`
+      → `currentUser.getIdToken()`; `ClerkProvider` removed from `main.tsx`; `@clerk/react` dropped; admin allowlist
+      `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS`; local-dev/E2E path preserved. Gates: CI green; Codespace lazytopper
+      tsc + vite build + verifier + matrices; Vercel screenshots faithful; **runtime token verified Firebase**
+      (`iss = securetoken.google.com/lazzyy-topper`). Trunk after merge `597880d`.
+  [ ] **PR-3 (NEXT — HOLD for owner go)** — delete the gateway bridge (`/api/auth/firebase-token` + `firebaseAuth.cjs`
+      + `server/index.cjs` wiring); remove the api-server Clerk **fallback** + `@clerk/express` together; unmount
+      `clerkMiddleware`; remove `clerkProxyMiddleware` + Clerk env; drop `jsonwebtoken`/`jwks-rsa` from the gateway.
+      Firebase-only verification. Branch `fix/remove-clerk-bridge`.
   [ ] PR-4 — phone / SMS-OTP provider (reCAPTCHA v2 invisible; project `lazzyy-topper` on Blaze; live OTP smoke test).
   [ ] (backlog, own PR) D47 — `apiServer` lane in `repo_boundary_policy.json` for `scope:guard`.
+  [ ] (follow-up) Google **One-Tap** (GIS) once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
 
 ## 2026-06-06 — Post-PR #196 roadmap update (3 pre-existing test reds resolved)
 

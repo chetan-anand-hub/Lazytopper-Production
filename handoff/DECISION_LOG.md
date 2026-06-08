@@ -1,3 +1,39 @@
+## 2026-06-08 - AUTH MIGRATION PR-2 (#208): frontend Firebase Auth — Google popup + one-step email/password
+
+Decision:
+PR-2 rebuilt the frontend on direct Firebase Auth and removed Clerk from the client (`@clerk/react` dropped,
+`ClerkProvider` out of `main.tsx`). Two owner-confirmed UX/mechanism choices:
+- **Google = `signInWithPopup(GoogleAuthProvider)`** for PR-2 (no new env var / external script). True GIS
+  **One-Tap** (the floating auto-prompt) is deferred to a small follow-up because it needs a Web OAuth client ID
+  (`VITE_GOOGLE_CLIENT_ID`, not yet provided) + the `gsi/client` script. The "Continue with Google" button +
+  popup already deliver the browser-profile experience; the One-Tap sub-line copy is kept.
+- **Email = one-step** (email + password fields shown together → `signInWithEmailAndPassword`), password-based,
+  **no magic link**. The v2 prototype showed an email-only first view; one-step matches "indistinguishable from
+  today's Clerk card" and avoids a two-step flow. (Agent asked both before building — never guess on auth UX.)
+
+Other locked choices:
+- **Façade is additive** — added `signInWithEmailPassword` / `signUpWithEmailPassword`; no existing
+  `AuthContextType` member changed → the ~38 `useAuth()` consumers are untouched.
+- **Phone tab present but disabled** in PR-2 with an honest "arrives shortly" note (handler lands in PR-4) —
+  honest-empty-state, no fake/broken action.
+- **Admin allowlist rename executed in PR-2** (`ADMIN_CLERK_UIDS` → `ADMIN_FIREBASE_UIDS`) — the functional
+  forward-correction from the PR-1 decision: once the client sends Firebase tokens, `req.userId` is a Firebase
+  uid, so the allowlist must hold Firebase uids. Value migration = owner bootstrap (sign in once → capture uid →
+  set env).
+- **Local-dev/E2E anonymous-session path preserved verbatim**; `firebaseReady` now reflects `firebaseConfigured`.
+
+Verification (owner-directed): email/password + `getIdToken()` are domain-independent, so verified headlessly in
+the Codespace against the real `lazzyy-topper` project (public web config) — decoded token `iss =
+securetoken.google.com/lazzyy-topper`, `aud = lazzyy-topper` (a Firebase token, not Clerk). Throwaway account
+deleted; nothing committed. The Google **popup** is owner-verified on an authorized domain (headless can't drive it).
+
+## 2026-06-08 - PROCESS: docs-only PRs may be agent-auto-merged (handoff/* + .md ONLY)
+
+Owner granted standing permission to **self-merge docs-only PRs** (the `docs/handoff-post-pr<N>` updates). Gate
+before any auto-merge: run `git diff --name-only` and confirm **zero** code / config / schema / question-bank /
+auth / CI files — every path under `handoff/` or a `.md`. If even one non-doc file appears, STOP and wait for the
+owner's merge. All other PRs (product/auth/infra) still require the literal "approved" + owner merge.
+
 ## 2026-06-07 - AUTH MIGRATION PR-1 (#206): Clerk-fallback = OPTION B (keep @clerk/express through PR-1/PR-2)
 
 Decision:

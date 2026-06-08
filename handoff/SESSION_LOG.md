@@ -1,5 +1,36 @@
 ---
 
+## 2026-06-08 — AUTH MIGRATION PR-2 (#208): frontend rebuilt on Firebase Auth; Clerk removed from the client
+
+### What merged (#208) — native Firebase Auth login/signup
+Branch `feat/auth-firebase-frontend` from `7f993cb`; **6 files (+774/−275) + the lockfile regen; squash-merged
+`597880d`.** `.claude/` never staged. Authority: `report-pr2-auth-firebase-frontend-2026-06-08.md` +
+`report-pr2-evidence-2026-06-08.md`; design `LazyTopper_Login_Design_Spec_v2.md` + `lazytopper_login_prototype_v2.html`.
+- `AuthContext` internals → direct Firebase Auth (`onAuthStateChanged`, `signInWithPopup`, email/password); added
+  `signInWithEmailPassword`/`signUpWithEmailPassword` (additive — façade shape kept); `getToken()` → `getIdToken()`;
+  Clerk bridge deleted; local-dev/E2E path preserved verbatim. `Login.tsx` rebuilt to the v2 widget (Google popup
+  + one-step email/password + disabled Phone tab; `lt-login-clerk-frame`→`lt-login-frame`; no "Welcome back").
+  `SignUpPage.tsx` native. `main.tsx` ClerkProvider removed; `@clerk/react` dropped. `admin.ts` allowlist
+  `ADMIN_CLERK_UIDS`→`ADMIN_FIREBASE_UIDS`.
+
+### Owner decisions + the auth-UX questions
+Asked two forks before coding (never guess on auth): **Google = popup** (One-Tap fast-follow, needs a Web client
+id) and **email = one-step** (email+password together, no magic link). Both owner-confirmed = recommended.
+
+### Execution + gates (Windows authoring, Codespace verification)
+Hand-authored the ~770-line rewrite on Windows (no local lazytopper node_modules → can't compile there), then —
+to de-risk before the report — **copied the uncommitted files into the Codespace and ran the real gates without
+committing** (rule 1 intact): lazytopper `tsc -p tsconfig.app.json` exit 0 (first compile), api-server typecheck
+exit 0, **vite build exit 0**, verify-production-build PASS, root 175/175, ops 6/6, lockfile regen (`@clerk/react`
+removed). After approval: code + lockfile pushed together (no red CI run); **CI green** (`27102702574`).
+Captured Vercel-preview **screenshots** (360/768/desktop × login+signup) headless via Codespace Chromium — faithful
+to the prototype. **Runtime verification:** since email/password + `getIdToken()` are domain-independent, verified
+headlessly against the real `lazzyy-topper` project — token `iss = securetoken.google.com/lazzyy-topper` (Firebase,
+not Clerk); throwaway account deleted. Google popup left for owner (authorized-domain only; not headless-automatable).
+Trunk after #208: `597880d`. **PR-3 (Clerk teardown) is next — holding for owner's go.**
+
+---
+
 ## 2026-06-07 — AUTH MIGRATION PR-1 (#206): Firebase ID-token verify at the api-server edge + Clerk dual-accept
 
 ### What merged (#206) — backend edge guard (Surface B), Option B
