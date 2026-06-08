@@ -1,5 +1,30 @@
 ---
 
+## 2026-06-08 — AUTH MIGRATION PR-3 (#210): Clerk teardown — auth is Firebase-only
+
+### What merged (#210)
+Branch `fix/remove-clerk-bridge` from `5fc4141`; **14 files (2 deletions + 12 edits, +30/−224) + lockfile (−162);
+squash-merged `6bf6e58`.** `.claude/` never staged. Report: `report-pr3-remove-clerk-bridge-2026-06-08.md`.
+- Deleted the gateway bridge `firebaseAuth.cjs` (+ `server/index.cjs` wiring) and `clerkProxyMiddleware.ts`.
+- `requireFirebaseAuth` → Firebase-only (Clerk `getAuth` fallback removed). `app.ts` drops `clerkMiddleware()`.
+- Dropped `@clerk/express`, `http-proxy-middleware`, `jsonwebtoken`, `jwks-rsa` (the last two remain transitive
+  under `firebase-admin`). Scrubbed stale "Clerk" comments + the `authProvider` default → "firebase".
+
+### Zero-Clerk gate + the governance carve-out
+`grep` over src/server/package.json = **0**; lockfile `@clerk` = 0. Remaining `clerk` matches are non-code
+(gitignored `.env.local`, `.project_memory` snapshots, `handoff/*` history, and `CLAUDE.md`/`FIREBASE_SETUP.md`/
+desktop-graduation docs). The governance/docs scrub was **deliberately deferred to its own owner-reviewed PR** —
+`CLAUDE.md` is not edited inside a code PR. Process refined: docs-only auto-merge **excludes** governance files.
+
+### Gates (Codespace pre-push, then CI)
+Files copied into the Codespace and verified without committing: api-server + lazytopper tsc/build exit 0,
+verify-production-build PASS, **gateway boots without the bridge**, root 175/175, ops 6/6, lockfile `@clerk`=0.
+After approval: code + lockfile pushed together; **CI green** (`27115594685`, 1m33s). Trunk after #210: `6bf6e58`.
+**Now load-bearing (no fallback):** `ADMIN_FIREBASE_UIDS` + the api-server Firebase env. Next: CLAUDE.md
+governance scrub (hold for go), then PR-4 phone/SMS-OTP (hold for go).
+
+---
+
 ## 2026-06-08 — AUTH MIGRATION PR-2 (#208): frontend rebuilt on Firebase Auth; Clerk removed from the client
 
 ### What merged (#208) — native Firebase Auth login/signup

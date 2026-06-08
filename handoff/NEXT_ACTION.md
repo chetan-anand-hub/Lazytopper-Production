@@ -1,34 +1,39 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-08 (post-PR #208 — AUTH MIGRATION PR-2 of 4 merged; PR-3 is NEXT, HOLDING for owner go)
-# Base SHA: 597880d9e4ba2452ba5f758e3e5914fa9799ca40
+# Updated: 2026-06-08 (post-PR #210 — AUTH MIGRATION PR-3 of 4 merged; Clerk-free in code. NEXT: CLAUDE.md scrub, then PR-4 — both HOLD for go)
+# Base SHA: 6bf6e582d12e868b49c8a516a3be013021a814a4
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 597880d9e4ba2452ba5f758e3e5914fa9799ca40
-Last PRs: #206 (auth PR-1 — Firebase edge verify) + #207 (docs) + #208 (auth PR-2 — frontend on Firebase Auth; @clerk/react dropped)
+SHA: 6bf6e582d12e868b49c8a516a3be013021a814a4
+Last PRs: #208 (auth PR-2 — frontend on Firebase Auth) + #209 (docs) + #210 (auth PR-3 — Clerk teardown; Firebase-only)
 
-## ⏭️ IMMEDIATE NEXT — AUTH MIGRATION PR-3 (delete the Clerk bridge + @clerk/express) — HOLD FOR OWNER GO
-Auth migration is 4 sequenced PRs (audit `report-auth-migration-clerk-to-firebase-2026-06-07.md` + build doc
-`AGENT_auth_migration_build_4PRs.md`). **PR-1 (#206) + PR-2 (#208) DONE** — the edge verifies Firebase ID tokens
-and the frontend authenticates directly on Firebase (Clerk removed from the client; the client now sends Firebase
-ID tokens, runtime-verified `iss = securetoken.google.com/lazzyy-topper`).
-**PR-3 (NEXT, branch `fix/remove-clerk-bridge`) — the Clerk teardown. Owner said HOLD until "go".** Scope:
-- Delete the gateway bridge: `/api/auth/firebase-token` route + `lazytopper/server/routes/firebaseAuth.cjs` + its
-  wiring in `server/index.cjs` (route handler + CORS list + import); drop `jsonwebtoken` + `jwks-rsa` (gateway).
-- Remove the api-server **Clerk fallback** branch from `requireFirebaseAuth` (Firebase-only verification).
-- Drop **`@clerk/express`**; unmount `app.use(clerkMiddleware())`; remove `clerkProxyMiddleware.ts` + its mount.
-- Remove remaining Clerk env: `CLERK_SECRET_KEY`, `CLERK_JWKS_URI`, `CLERK_ISSUER`, `VITE_CLERK_*`.
-Gates: api-server tsc/build + gateway boots; `test:matrix:all` 175/175; CI green; lockfile regen in Codespaces
-(two package.json change — api-server `@clerk/express` + lazytopper `jsonwebtoken`/`jwks-rsa`). STOP for approval.
+## ⏭️ IMMEDIATE NEXT — two tasks, IN ORDER, BOTH HOLD FOR OWNER GO (neither auto-merges)
+Auth migration: **PR-1 (#206) + PR-2 (#208) + PR-3 (#210) DONE.** Auth is Firebase-only end to end; the repo is
+Clerk-free in code (grep over src/server/package.json = 0; lockfile `@clerk` = 0). Only PR-4 (phone) remains.
 
-### Owner / deploy actions still pending (carry forward)
-- **Admin bootstrap (BLOCKING for admin routes in prod):** sign in once via Firebase → capture your uid → set
-  `ADMIN_FIREBASE_UIDS` (renamed in PR-2; `req.userId` is now a Firebase uid).
-- **Firebase Authorized domains:** add the prod Vercel domain to `lazzyy-topper` so `signInWithPopup` works in prod.
-- **Railway env (INFRA-4):** `artifacts/api-server` needs `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or ADC).
-- **Google popup live check:** verify a real Google sign-in on an authorized domain (couldn't be headless-automated).
-- **One-Tap (GIS) follow-up:** small PR once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
+### 1. CLAUDE.md governance scrub (NEXT — HOLD for owner go; does NOT auto-merge)
+The owner has the exact surgical instruction ready: §1 stack + §5 doctrine ("Clerk stays for now — K2H-15" is now
+obsolete), plus `FIREBASE_SETUP.md` + `docs/desktop-graduation-state.md` Clerk notes. This was deliberately kept
+OUT of PR-3 (governance files don't go in a code PR, and are excluded from docs-only auto-merge). Await the owner's
+instruction + go.
+
+### 2. AUTH MIGRATION PR-4 — phone / SMS-OTP (the last auth PR — HOLD for owner go)
+Branch `feat/auth-phone-otp`. Fill the `initPhoneRecaptcha`/`sendPhoneOtp`/`verifyPhoneOtp` façade (currently
+no-ops) with `signInWithPhoneNumber` + `RecaptchaVerifier` (**reCAPTCHA v2 invisible**); wire the Phone tab in the
+login widget (+91 prefix, 10-digit → 6-digit OTP step). Project `lazzyy-topper` on Blaze (done); owner enables the
+Phone provider in the console + adds the prod domain to Authorized domains. Gates: as PR-2 (tsc + build + verifier
++ matrices + Vercel screenshots) + a **live OTP smoke test**; CI green; lockfile regen if package.json changes.
+STOP for approval.
+
+### Owner / deploy actions still pending (now load-bearing — no Clerk fallback)
+- **Admin bootstrap (BLOCKING):** set `ADMIN_FIREBASE_UIDS` to your Firebase uid — the ONLY way admin routes
+  authorize now (else 503 in prod).
+- **Railway env:** `artifacts/api-server` REQUIRES `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or
+  ADC) — `requireFirebaseAuth` returns 503 without it.
+- **Firebase Authorized domains:** add the prod Vercel domain (`signInWithPopup`). Do the real Google-popup check.
+- Remove `VITE_CLERK_PUBLISHABLE_KEY` from deploy env + local `.env.local`.
+- **Google One-Tap (GIS)** follow-up once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
 
 ## (the PRODUCT-track sections below remain valid — pick up after the auth migration arc, or in parallel per owner)
 

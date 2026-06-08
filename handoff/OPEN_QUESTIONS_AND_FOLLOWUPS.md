@@ -1,3 +1,26 @@
+## 2026-06-08 — Post-PR #210 (auth migration PR-3: Clerk teardown — Firebase-only)
+
+### RESOLVED in PR-3
+- **[AUTH-PR3]** Clerk teardown complete: gateway bridge + `clerkProxyMiddleware` deleted; `requireFirebaseAuth`
+  Firebase-only; `clerkMiddleware()` unmounted; `@clerk/express` + `http-proxy-middleware` + `jsonwebtoken`/`jwks-rsa`
+  dropped (last two transitive under firebase-admin). Zero Clerk in tracked code/config; lockfile `@clerk` = 0.
+
+### NEXT — IN ORDER, both HOLD for owner go, neither auto-merges
+- **[CLAUDE-SCRUB, NEXT]** CLAUDE.md governance scrub — §1 stack + §5 doctrine ("Clerk stays for now — K2H-15" is
+  now obsolete) + `FIREBASE_SETUP.md` + `docs/desktop-graduation-state.md` Clerk notes. Owner has the exact surgical
+  instruction. Governance file → owner-reviewed PR, NOT docs-only auto-merge.
+- **[AUTH-PR4]** Phone / SMS-OTP (`feat/auth-phone-otp`): fill the phone façade with `signInWithPhoneNumber` +
+  reCAPTCHA v2 invisible; wire the Phone tab; live OTP smoke test.
+
+### NOW LOAD-BEARING (no Clerk fallback after PR-3)
+- **[AUTH-ADMIN, BLOCKING]** Set `ADMIN_FIREBASE_UIDS` = your Firebase uid — the ONLY way admin routes authorize
+  now (else 503 in prod / dev-skip locally).
+- **[AUTH-DEPLOY]** `artifacts/api-server` REQUIRES `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or
+  ADC) in Railway — `requireFirebaseAuth` returns 503 without it.
+- **[AUTH-DOMAINS]** Add the prod Vercel domain to `lazzyy-topper` Authorized domains (`signInWithPopup`); do a real
+  Google-popup sign-in check. Remove `VITE_CLERK_PUBLISHABLE_KEY` from deploy env + local `.env.local`.
+- **[ONE-TAP]** Google GIS One-Tap once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided (PR-2 = popup-only).
+
 ## 2026-06-08 — Post-PR #208 (auth migration PR-2: frontend on Firebase Auth)
 
 ### RESOLVED in PR-2

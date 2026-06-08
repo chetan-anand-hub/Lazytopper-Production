@@ -1,3 +1,32 @@
+## 2026-06-08 - AUTH MIGRATION PR-3 (#210): Clerk teardown — auth is Firebase-only
+
+Decision:
+PR-3 removed all remaining Clerk; auth is now Firebase end-to-end. Deleted the gateway custom-token bridge
+(`firebaseAuth.cjs` + `/api/auth/firebase-token`) and the Clerk FAPI proxy (`clerkProxyMiddleware.ts`); made
+`requireFirebaseAuth` **Firebase-only** (removed the Clerk `getAuth` fallback); removed `clerkMiddleware()`;
+dropped `@clerk/express`, `jsonwebtoken`, `jwks-rsa`, and the orphaned `http-proxy-middleware`. Lockfile −162
+(whole `@clerk/*` tree gone).
+
+Locked choices:
+- **Firebase-only, fail-closed** — with no fallback, `requireFirebaseAuth` returns 503 when Firebase Admin is
+  unconfigured (was a silent Clerk-fallback before). So `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY`
+  on api-server and `ADMIN_FIREBASE_UIDS` are now **load-bearing** for prod (no Clerk safety net).
+- **`jsonwebtoken`/`jwks-rsa` stay as transitive deps** of `firebase-admin` (it uses them internally) — only the
+  direct deps were dropped. `http-proxy-middleware` removed (it existed solely for the Clerk proxy).
+- **Zero Clerk in CODE/CONFIG** (grep over src/server/package.json = 0), including a scrub of stale "Clerk"
+  comments + the `authProvider` default string. The remaining `clerk` matches are **non-code**: gitignored
+  `.env.local`, auto-gen `.project_memory` snapshots, `handoff/*` history, and governance/docs
+  (`CLAUDE.md`, `FIREBASE_SETUP.md`, `docs/desktop-graduation-state.md`).
+- **Governance/docs scrub deferred to its own owner-reviewed PR** — `CLAUDE.md` and instruction/doc files were NOT
+  edited inside this code PR (avoids mixing governance into a code change; `CLAUDE.md §5` "Clerk stays for now —
+  K2H-15" is now obsolete and is the next task).
+
+## 2026-06-08 - PROCESS (refined): docs-only auto-merge excludes governance files
+
+The docs-only auto-merge permission (handoff/* + pure-doc `.md`) **excludes `CLAUDE.md` and any
+governance/instruction file** — being `.md` is not sufficient; if it steers how the agent or repo behaves it
+always needs the owner's explicit merge. (Supersedes the 2026-06-08 grant's wording.)
+
 ## 2026-06-08 - AUTH MIGRATION PR-2 (#208): frontend Firebase Auth — Google popup + one-step email/password
 
 Decision:
