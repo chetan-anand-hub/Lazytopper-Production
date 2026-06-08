@@ -135,9 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [localUser, setLocalUser] = useState<AuthUser | null>(() => readLocalSession());
   const [mistakeLogsHydrated, setMistakeLogsHydrated] = useState(0);
 
-  // Track Firebase Auth state directly. This REPLACES the former Clerk →
-  // /api/auth/firebase-token bridge: the signed-in Firebase user (Google,
-  // email/password, or — from PR-4 — phone) is now the source of identity.
+  // Track Firebase Auth state directly: the signed-in Firebase user (Google,
+  // email/password, or — from PR-4 — phone) is the source of identity.
   useEffect(() => {
     if (!firebaseConfigured || !authClient) {
       setFirebaseLoaded(true);
@@ -153,8 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = firebaseUser || localUser;
   const loading = !firebaseLoaded;
 
-  // Local-dev / E2E anonymous-session bootstrap (PRESERVED verbatim from the
-  // Clerk implementation — automation/dev only; never a user-facing guest mode).
+  // Local-dev / E2E anonymous-session bootstrap (automation/dev only; never a
+  // user-facing guest mode).
   useEffect(() => {
     if (shouldAutoAnonBootstrap() && firebaseLoaded && !firebaseUser && !localUser) {
       const devUser = createLocalDevUser();

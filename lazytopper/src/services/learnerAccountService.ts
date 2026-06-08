@@ -30,7 +30,7 @@ export async function ensureLearnerAccountMetadata(
       email: cleanNullableString(input.email),
       phoneNumber: cleanNullableString(input.phoneNumber),
       displayName: cleanNullableString(input.displayName),
-      authProvider: cleanNullableString(input.authProvider) || "clerk",
+      authProvider: cleanNullableString(input.authProvider) || "firebase",
       lastLoginAt: now,
       updatedAt: now,
       ...(snap.exists() ? {} : { createdAt: now }),

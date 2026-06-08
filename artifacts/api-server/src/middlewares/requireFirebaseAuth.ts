@@ -1,16 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
-import { getAuth } from "@clerk/express";
 import { firebaseAdminApp } from "../lib/firebaseAdmin";
 import { logger } from "../lib/logger";
 
 /**
  * Express request augmentation — the verified caller uid resolved by
- * `requireFirebaseAuth`.
- *
- * During the Clerk→Firebase migration window this is a Firebase uid (preferred
- * path) or, via the temporary Clerk fallback, a Clerk user id. In both cases it
- * is the per-uid Firestore document key for that user, so downstream
- * `x-user-id` forwarding is unchanged.
+ * `requireFirebaseAuth` (a Firebase uid). It is the per-uid Firestore document
+ * key for that user, so downstream `x-user-id` forwarding is unchanged.
  */
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -29,16 +24,8 @@ function extractBearerToken(req: Request): string {
 /**
  * Auth guard for the `/shared-api/*` protected routes (Surface B).
  *
- * Dual-accept transition (Option B, owner-confirmed for PR-1):
- *   1. Verify the bearer as a Firebase ID token (`verifyIdToken`).
- *   2. On failure, fall back to the still-mounted `@clerk/express` session
- *      (`getAuth(req)`), so the existing Clerk-token client keeps working until
- *      PR-2 switches it to send Firebase ID tokens.
- *
- * The Clerk fallback and `@clerk/express` are removed together in PR-3, leaving
- * Firebase-only verification.
- *
- * Sets `req.userId` to the verified uid on success; responds 401 otherwise.
+ * Verifies the bearer as a Firebase ID token (`verifyIdToken`) and sets
+ * `req.userId = decoded.uid`; responds 401 otherwise. Firebase-only.
  */
 export async function requireFirebaseAuth(
   req: Request,
@@ -46,30 +33,23 @@ export async function requireFirebaseAuth(
   next: NextFunction,
 ): Promise<void> {
   const token = extractBearerToken(req);
-
-  // 1. Firebase ID token (preferred path).
-  if (token && firebaseAdminApp) {
-    try {
-      const decoded = await firebaseAdminApp.auth().verifyIdToken(token);
-      req.userId = decoded.uid;
-      next();
-      return;
-    } catch {
-      // Not a valid Firebase token — fall through to the Clerk fallback below.
-    }
+  if (!token) {
+    res.status(401).json({ ok: false, error: "Unauthenticated" });
+    return;
   }
 
-  // 2. Clerk session fallback (TEMPORARY — removed in PR-3).
+  if (!firebaseAdminApp) {
+    logger.error("[auth] Firebase Admin not configured — cannot verify ID token");
+    res.status(503).json({ ok: false, error: "Auth not configured" });
+    return;
+  }
+
   try {
-    const { userId } = getAuth(req);
-    if (userId) {
-      req.userId = userId;
-      next();
-      return;
-    }
+    const decoded = await firebaseAdminApp.auth().verifyIdToken(token);
+    req.userId = decoded.uid;
+    next();
   } catch (err) {
-    logger.warn({ err }, "[auth] Clerk fallback verification error");
+    logger.warn({ err }, "[auth] Firebase ID token verification failed");
+    res.status(401).json({ ok: false, error: "Unauthenticated" });
   }
-
-  res.status(401).json({ ok: false, error: "Unauthenticated" });
 }

@@ -12,7 +12,7 @@
  *   POST /api/user/progress/mastery        → merge one topic into topic_mastery
  *   POST /api/user/progress/mission        → merge one key into mission_progress
  *
- * User identity comes from the X-User-ID header (Clerk uid).
+ * User identity comes from the X-User-ID header (Firebase uid).
  * Gracefully returns 503 when DATABASE_URL is not configured.
  */
 

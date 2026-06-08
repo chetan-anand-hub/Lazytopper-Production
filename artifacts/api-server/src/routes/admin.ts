@@ -12,12 +12,10 @@ const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
  * endpoints are never accidentally open.  In non-production environments the
  * guard is skipped for developer convenience.
  *
- * The uid is read from `req.userId` (set by `requireFirebaseAuth`). As of PR-2
- * the frontend sends Firebase ID tokens, so `req.userId` is a Firebase uid — the
- * allowlist env was renamed ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS and its values
- * must be Firebase uids. Bootstrap: the owner signs in once via Firebase, captures
- * that uid, and sets it in ADMIN_FIREBASE_UIDS (a Firebase uid does not exist until
- * the first Firebase sign-in).
+ * The uid is read from `req.userId` (set by `requireFirebaseAuth`), which is a
+ * Firebase uid, so `ADMIN_FIREBASE_UIDS` must hold Firebase uids. Bootstrap: the
+ * owner signs in once via Firebase, captures that uid, and sets it in
+ * `ADMIN_FIREBASE_UIDS` (a Firebase uid does not exist until the first sign-in).
  */
 function requireAdminRole(req: Request, res: Response, next: NextFunction): void {
   const rawEnv = process.env["ADMIN_FIREBASE_UIDS"] || "";
