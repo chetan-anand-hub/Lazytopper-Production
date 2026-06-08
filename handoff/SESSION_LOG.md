@@ -1,5 +1,38 @@
 ---
 
+## 2026-06-09 — SYLLABUS PROSE copy-fix (#216) + two READ-ONLY audits
+
+### What merged (#216)
+Branch `fix/banned-term-prose-copy` from `10d3417`; squash-merged **`b35f764`**. **2 files, copy-only (+2/−3)**;
+`.claude/` never staged. Removed 3 Tier-1A out-of-syllabus strings rendered on the live cockpit
+(`lib/desktop/topics.ts` + `topicHubContent.ts` feed the practice hub / topic hub / exam-trends / me / check):
+- `topics.ts:35` Polynomials blurb — dropped "and the division algorithm" → "Zeroes of a quadratic polynomial
+  and the relationship between its zeroes and coefficients."
+- `topics.ts:45` Linear Equations blurb — dropped "cross-multiplication" → substitution + elimination wording.
+- `topicHubContent.ts:249` — removed the "Complementary angles (sin(90°−θ)=cosθ)" Board-Essentials row.
+**Why the guard missed them:** the 175/175 syllabus guard's surface scan deliberately omits bare generics
+("Division Algorithm", "Cross-Multiplication", "Complementary Angles") to avoid prose false-positives, so these
+passed untouched in *descriptions*. Gates: tsc clean; mojibake; scope:guard product OK (2 files); root 175/175;
+ops 6/6; diff --check clean; banned-term re-grep on both files = 0. Authority: `report-banned-term-prose-audit-2026-06-08.md` §1A.
+
+### Two READ-ONLY audits landed first (reports in `diff/`, no code)
+1. **Responsive + surface-inventory audit** — full route-graph sweep; classified every page Live / Obsolete /
+   Ambiguous; built the dead-link map. **Headline:** mobile `/`, the catch-all, and the Ctrl+K command palette
+   still route live students into the **old `/dashboard`** (dead). Orphans found: `Home.tsx`, `ProfilePage.tsx`,
+   `app/PracticeHome.tsx`, `MentorPanel`, `WeeklyWrappedWidget`. Owner-ruling queue → kill-list. **SEVER PR next.**
+2. **Banned-term prose audit** — Step-0 re-read of `syllabusGuard.ts`; 3 Tier-1A (fixed in #216), 2 Tier-1B
+   deferred, Tier-2 cataloged. Reachability lens reused from audit #1.
+
+### Follow-ups logged (OPEN_QUESTIONS)
+- **[BANNED-PROSE-1B, deferred]** `NightBeforePage.tsx:7` (Euclid's Division Lemma) + `class10ContentConfig.ts:479`
+  (complementary angles, via `/revision-calendar`) — both **MOOTED by the sever PR** (their routes get
+  disconnected). Re-check after sever; fix only if those routes are kept.
+- **[BANNED-PROSE-2, content sprint]** the Tier-2 banned-prose punch-list: Periodic Classification practice pack
+  (`promptDPracticePacks.ts`, unreachable today), `topicTeachContracts.ts` (unwired), TopicHub V2 enrichment,
+  and prediction archetypes — **handle archetypes with care, they label real past papers.**
+
+---
+
 ## 2026-06-08 — AUTH MIGRATION PR-4 (#214): phone / SMS-OTP — auth arc 4/4 COMPLETE
 
 ### What merged (#214)

@@ -1,3 +1,38 @@
+## 2026-06-09 — Post-PR #216 (banned-term prose copy-fix) + audit follow-ups
+
+### RESOLVED in #216
+- **[BANNED-PROSE-1A]** 3 Tier-1A out-of-syllabus strings removed from the live cockpit (`topics.ts:35` division
+  algorithm, `:45` cross-multiplication, `topicHubContent.ts:249` complementary-angles row). Guard can't catch
+  these (surface scan omits bare generics). Authority: `report-banned-term-prose-audit-2026-06-08.md` §1A.
+
+### DEFERRED — banned-prose Tier-1B (MOOTED by the upcoming SEVER PR — do not fix standalone)
+- **[BANNED-PROSE-1B]** `pages/NightBeforePage.tsx:7` ("Euclid's Division Lemma: a = bq + r" formula) and
+  `data/class10ContentConfig.ts:479` (complementary-angles clause, surfaced via `/revision-calendar` +
+  orphaned `TopicHubHome`). Both routes are Bucket-B/C in the surface audit — the **sever PR disconnects them**,
+  which moots these. **Re-grep after the sever lands; fix only if `/night-before` or `/revision-calendar` is kept.**
+
+### CONTENT-SPRINT punch-list — "clean banned prose during the content sprint" (Tier-2)
+Not live today; clean as the content/TopicHub work builds. From `report-banned-term-prose-audit-2026-06-08.md` §2:
+- **Periodic Classification practice pack** — `data/promptDPracticePacks.ts:341–~430` (`"periodic_classification"`,
+  Mendeleev/Newlands/Döbereiner). **Unreachable now** (no Periodic Classification topic in the live `topics.ts`
+  catalog), so the live practice flow never requests it — but it must be cleaned/retired when the Science pack
+  set is finalized.
+- **Teach contracts** — `tutor/topicTeachContracts.ts:89,93` ("division algorithm" taught). **Imported by nobody**
+  (unwired); fix when wiring the TopicHub teach-flow.
+- **TopicHub V2 enrichment** — `data/topicHubV2Enrichment.ts:1410,1417` (complementary angles),
+  `data/topicHubV2Full.ts:1217` (conversion of solids). Unbuilt TopicHub V2 content.
+- **Prediction archetypes** — `prediction/cbseHistoricalArchetypes.ts` (Sources of Energy / natural selection /
+  speciation / homologous organ / frustum), `prediction/cbse5SignalScoring.ts:84`, `tutor/diagram/diagramTemplates.ts:536`,
+  `data/visualConceptRegistry.ts:158`. **⚠️ HANDLE WITH CARE — these label REAL past papers** (historical truth
+  used by the prediction engine); revise the labels without corrupting the past-paper record.
+- **Dead-subgraph content** — `data/topicHubContent.ts:29` (cross-multiplication) feeds only the dead `/daily-mix`;
+  moot if daily-mix is severed.
+
+### NEXT WORKSTREAM
+- **SEVER PR (next, owner sends instruction)** — turn the surface-audit owner-ruling queue (Bucket B confirmed-dead
+  + Bucket C rulings) into the kill-list; disconnect mobile `/`/catch-all/command-palette dead-links; touches
+  `App.tsx` (forbidden — owner authorizes). Then go-live / Phase 1.
+
 ## 2026-06-08 — Post-PR #214 (auth migration PR-4: phone/SMS-OTP — ARC 4/4 COMPLETE)
 
 ### RESOLVED in PR-4

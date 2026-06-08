@@ -1,10 +1,26 @@
 # LazyTopper — Current State
-Last updated: 2026-06-08 (post-PR #214 — AUTH MIGRATION 4/4 COMPLETE: phone/SMS-OTP. Auth is Firebase-only end to end, verified in production-preview with a real-number login. Next workstream: go-live deploy / Phase 1 — owner to scope before start)
+Last updated: 2026-06-09 (post-PR #216 — banned-term prose copy-fix: 3 Tier-1A out-of-syllabus strings removed from the live cockpit. Two READ-ONLY audits landed (responsive-surface + banned-term-prose); the SEVER PR is next, then go-live / Phase 1 — owner to scope)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 7e00430a9240a165274ccd0d3bed6ea484ee07a6
-Last merged PRs: #210 (auth PR-3 — Clerk teardown; Firebase-only), #211 (docs post-#210), #212 (docs: governance Clerk scrub — CLAUDE.md §1/§5 + FIREBASE_SETUP.md + desktop-graduation), #213 (docs: handoff reconcile to trunk post-#212), #214 (feat: auth PR-4 — phone/SMS-OTP; `signInWithPhoneNumber` + invisible reCAPTCHA)
+SHA: b35f764457d3470083e2a3ff846237a0beffc899
+Last merged PRs: #212 (docs: governance Clerk scrub), #213 (docs: handoff reconcile post-#212), #214 (feat: auth PR-4 — phone/SMS-OTP; `signInWithPhoneNumber` + invisible reCAPTCHA), #215 (docs: handoff post-#214 — auth arc 4/4 COMPLETE), #216 (fix: remove out-of-syllabus banned terms from live topic copy — `topics.ts` + `topicHubContent.ts`)
+
+## SYLLABUS PROSE COPY-FIX (#216) — 3 Tier-1A banned terms removed from the live cockpit
+PR #216 (`fix/banned-term-prose-copy`; squash-merged **`b35f764`**) fixed 3 out-of-syllabus strings the
+175/175 guard cannot catch (its surface scan omits bare generics to avoid prose false-positives). 2 files,
+copy-only (+2/−3): `lib/desktop/topics.ts:35` Polynomials blurb dropped "the division algorithm" → quadratic
+zeroes-coefficient wording; `:45` Linear Equations blurb dropped "cross-multiplication"; `topicHubContent.ts:249`
+removed the "Complementary angles" Board-Essentials row. Authority: `report-banned-term-prose-audit-2026-06-08.md`.
+
+### Two READ-ONLY audits now drive the next workstreams (reports in `diff/`)
+- **`report-responsive-surface-audit-2026-06-08.md`** — mapped the live cockpit vs the abandoned graveyard
+  (old `/dashboard` subgraph + `components/dashboard/*`, orphans Home/ProfilePage/PracticeHome/MentorPanel,
+  old `/trends`, `/planner`). **Headline risk:** mobile `/` + catch-all + command palette still route live
+  students into dead surfaces (old Dashboard is the mobile landing today). Owner-ruling queue (Bucket B + C)
+  → produces the kill-list. **The SEVER PR is the next instruction.**
+- **`report-banned-term-prose-audit-2026-06-08.md`** — 3 Tier-1A fixed here (#216). Tier-1B + Tier-2 deferred
+  (see OPEN_QUESTIONS).
 
 ## AUTH MIGRATION ARC — 4/4 COMPLETE (#214): auth is Firebase-only, end to end
 The arc is closed: **PR-1 #206** (api-server edge `verifyIdToken`) → **PR-2 #208** (frontend rebuilt on Firebase
