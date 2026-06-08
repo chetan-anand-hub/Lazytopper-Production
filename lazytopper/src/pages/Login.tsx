@@ -543,6 +543,25 @@ const LOGIN_CSS = `
     color: var(--lt-green-dark);
   }
 
+  .lt-login-linkbtn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: var(--lt-ink);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .lt-login-linkbtn:hover:not(:disabled) {
+    color: var(--lt-green-dark);
+  }
+
+  .lt-login-linkbtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
   .lt-login-helper {
     display: grid;
     grid-template-columns: 28px minmax(0, 1fr);
@@ -793,6 +812,17 @@ function describeAuthError(err: unknown): string {
       return "Incorrect email or password.";
     case "auth/too-many-requests":
       return "Too many attempts. Please try again in a few minutes.";
+    case "auth/invalid-phone-number":
+    case "auth/missing-phone-number":
+      return "Enter a valid 10-digit mobile number.";
+    case "auth/invalid-verification-code":
+      return "That code is incorrect. Check the SMS and try again.";
+    case "auth/code-expired":
+      return "This code has expired. Request a new one.";
+    case "auth/quota-exceeded":
+      return "SMS limit reached. Please try again later.";
+    case "auth/captcha-check-failed":
+      return "Verification check failed. Please try again.";
     case "auth/popup-blocked":
       return "Your browser blocked the sign-in popup. Allow popups and try again.";
     case "auth/network-request-failed":
@@ -806,7 +836,14 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user, signInWithGoogle, signInWithEmailPassword } = useAuth();
+  const {
+    user,
+    signInWithGoogle,
+    signInWithEmailPassword,
+    initPhoneRecaptcha,
+    sendPhoneOtp,
+    verifyPhoneOtp,
+  } = useAuth();
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -839,8 +876,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneStep, setPhoneStep] = useState<"number" | "otp">("number");
+  const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const RECAPTCHA_CONTAINER_ID = "lt-login-recaptcha";
 
   useEffect(() => {
     trackUxEvent("login_start", "login", {
@@ -888,6 +929,74 @@ export default function Login() {
       setBusy(false);
     }
   };
+
+  const handlePhoneSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setError(null);
+    if (phoneStep === "number") {
+      if (phone.length !== 10) {
+        setError("Enter your 10-digit mobile number.");
+        return;
+      }
+      setBusy(true);
+      try {
+        await sendPhoneOtp(`+91${phone}`, RECAPTCHA_CONTAINER_ID);
+        setPhoneStep("otp");
+      } catch (err) {
+        setError(describeAuthError(err));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+    // phoneStep === "otp"
+    if (otp.length !== 6) {
+      setError("Enter the 6-digit code from the SMS.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await verifyPhoneOtp(otp);
+      // Navigation is handled by the `user` effect once auth state updates.
+    } catch (err) {
+      setError(describeAuthError(err));
+      setBusy(false);
+    }
+  };
+
+  // Re-send: the prior invisible verifier is spent, so AuthContext rebuilds a
+  // fresh one inside sendPhoneOtp. Reset the OTP field and re-request.
+  const handleResendOtp = async () => {
+    if (busy) return;
+    setError(null);
+    setOtp("");
+    setBusy(true);
+    try {
+      await sendPhoneOtp(`+91${phone}`, RECAPTCHA_CONTAINER_ID);
+    } catch (err) {
+      setError(describeAuthError(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleChangeNumber = () => {
+    if (busy) return;
+    setError(null);
+    setOtp("");
+    setPhoneStep("number");
+  };
+
+  // Warm the invisible reCAPTCHA when the Phone tab opens so the first "Send
+  // OTP" doesn't pay the Google script-load latency (sendPhoneOtp rebuilds a
+  // fresh verifier each time). The bottom-right badge is expected (left for launch).
+  useEffect(() => {
+    if (method !== "phone") return;
+    void initPhoneRecaptcha(RECAPTCHA_CONTAINER_ID).catch(() => {
+      // Surfaced on the actual send attempt; no honest state to show pre-action.
+    });
+  }, [method, initPhoneRecaptcha]);
 
   const themeVars = {
     "--lt-login-bg": isLight ? "#f7fbff" : "#051733",
@@ -997,6 +1106,8 @@ export default function Login() {
                 onClick={() => {
                   setMethod("email");
                   setError(null);
+                  setPhoneStep("number");
+                  setOtp("");
                 }}
               >
                 Email
@@ -1053,34 +1164,102 @@ export default function Login() {
                 </button>
               </form>
             ) : (
-              <div>
-                <label className="lt-field-label" htmlFor="lt-login-phone">
-                  Mobile number
-                </label>
-                <div className="lt-field">
-                  <span className="lt-prefix">+91</span>
-                  <input
-                    id="lt-login-phone"
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    placeholder="10-digit mobile number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                    disabled
-                  />
-                </div>
-                <p className="lt-login-note">Phone sign-in (SMS OTP) arrives shortly.</p>
-                <button className="lt-continue" type="button" disabled>
-                  Continue <span aria-hidden="true">{"→"}</span>
-                </button>
-              </div>
+              <form onSubmit={handlePhoneSubmit} noValidate>
+                {phoneStep === "number" ? (
+                  <>
+                    <label className="lt-field-label" htmlFor="lt-login-phone">
+                      Mobile number
+                    </label>
+                    <div className="lt-field">
+                      <span className="lt-prefix">+91</span>
+                      <input
+                        id="lt-login-phone"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        maxLength={10}
+                        placeholder="10-digit mobile number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                    <p className="lt-login-note">
+                      We'll text a 6-digit code to verify this number.
+                    </p>
+                    {error ? (
+                      <p className="lt-login-error" role="alert">
+                        {error}
+                      </p>
+                    ) : null}
+                    <button className="lt-continue" type="submit" disabled={busy}>
+                      {busy ? "Sending code..." : "Send OTP"}{" "}
+                      <span aria-hidden="true">{"→"}</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <label className="lt-field-label" htmlFor="lt-login-otp">
+                      Enter the 6-digit code
+                    </label>
+                    <div className="lt-field">
+                      <input
+                        id="lt-login-otp"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        placeholder="6-digit code"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                    <p className="lt-login-note">
+                      Code sent to +91 {phone}.{" "}
+                      <button
+                        type="button"
+                        className="lt-login-linkbtn"
+                        onClick={handleChangeNumber}
+                        disabled={busy}
+                      >
+                        Change number
+                      </button>
+                    </p>
+                    {error ? (
+                      <p className="lt-login-error" role="alert">
+                        {error}
+                      </p>
+                    ) : null}
+                    <button className="lt-continue" type="submit" disabled={busy}>
+                      {busy ? "Verifying..." : "Verify & continue"}{" "}
+                      <span aria-hidden="true">{"→"}</span>
+                    </button>
+                    <p className="lt-signup">
+                      Didn't get it?{" "}
+                      <button
+                        type="button"
+                        className="lt-login-linkbtn"
+                        onClick={handleResendOtp}
+                        disabled={busy}
+                      >
+                        Resend OTP
+                      </button>
+                    </p>
+                  </>
+                )}
+              </form>
             )}
 
             <p className="lt-signup">
               Don't have an account? <Link to="/sign-up">Sign up</Link>
             </p>
           </div>
+
+          {/*
+            Invisible reCAPTCHA host — always mounted (NOT inside the conditional
+            phone form), so toggling Email/Phone never unmounts the container out
+            from under a live verifier. The bottom-right badge is expected.
+          */}
+          <div id={RECAPTCHA_CONTAINER_ID} />
 
           <div className="lt-login-helper">
             <span className="lt-login-helper-icon" aria-hidden="true">
