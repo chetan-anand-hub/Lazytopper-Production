@@ -1246,8 +1246,6 @@ export default function Login() {
                     </p>
                   </>
                 )}
-                {/* Invisible reCAPTCHA host; the bottom-right badge is expected. */}
-                <div id={RECAPTCHA_CONTAINER_ID} />
               </form>
             )}
 
@@ -1255,6 +1253,13 @@ export default function Login() {
               Don't have an account? <Link to="/sign-up">Sign up</Link>
             </p>
           </div>
+
+          {/*
+            Invisible reCAPTCHA host — always mounted (NOT inside the conditional
+            phone form), so toggling Email/Phone never unmounts the container out
+            from under a live verifier. The bottom-right badge is expected.
+          */}
+          <div id={RECAPTCHA_CONTAINER_ID} />
 
           <div className="lt-login-helper">
             <span className="lt-login-helper-icon" aria-hidden="true">

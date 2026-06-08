@@ -143,14 +143,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Phone (SMS OTP) is reCAPTCHA-gated. The verifier and the pending
   // confirmation live in refs, not state: they must survive re-renders without
-  // triggering one. An invisible reCAPTCHA verifier is single-use — once a
-  // signInWithPhoneNumber call (success OR failure) consumes it, it must be torn
-  // down so the next send (including an explicit resend) builds a fresh one.
+  // triggering one. The invisible reCAPTCHA verifier is rendered ONCE and reused
+  // for the initial send AND any resend — signInWithPhoneNumber resets it
+  // internally after each call. It must NOT be rebuilt in the same container:
+  // RecaptchaVerifier.clear() does not free the element, so a second render()
+  // throws "reCAPTCHA has already been rendered in this element". We therefore
+  // only clear() it when the flow is truly done (logout / unmount / verify-success).
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const phoneConfirmationRef = useRef<ConfirmationResult | null>(null);
 
-  // Tear down the verifier widget only; leaves any pending confirmation intact
-  // (a successful send retires its spent widget but must keep the confirmation).
+  // Tear down the verifier widget only; leaves any pending confirmation intact.
   const teardownRecaptcha = useCallback(() => {
     if (recaptchaVerifierRef.current) {
       try {
@@ -302,25 +304,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sendPhoneOtp = useCallback(
     async (phoneE164: string, recaptchaContainerId: string) => {
       if (!authClient) throw new Error("Firebase Auth is not configured");
-      // Always start from a fresh, unspent verifier — a prior send (success or
-      // failure, including the resend path) consumes the invisible widget.
-      teardownRecaptcha();
+      // Render the verifier once (idempotent) and REUSE it for the initial send
+      // and any resend — signInWithPhoneNumber resets it internally each call.
+      // Do not teardown+rebuild here: re-rendering into the same container throws
+      // "reCAPTCHA has already been rendered in this element".
       await initPhoneRecaptcha(recaptchaContainerId);
       const verifier = recaptchaVerifierRef.current;
       if (!verifier) throw new Error("reCAPTCHA is not ready");
-      try {
-        phoneConfirmationRef.current = await signInWithPhoneNumber(
-          authClient,
-          phoneE164,
-          verifier,
-        );
-      } finally {
-        // Retire the now-spent widget regardless of outcome; the confirmation
-        // (set above on success) is preserved for verifyPhoneOtp.
-        teardownRecaptcha();
-      }
+      phoneConfirmationRef.current = await signInWithPhoneNumber(
+        authClient,
+        phoneE164,
+        verifier,
+      );
     },
-    [initPhoneRecaptcha, teardownRecaptcha],
+    [initPhoneRecaptcha],
   );
 
   const verifyPhoneOtp = useCallback(async (code: string) => {
