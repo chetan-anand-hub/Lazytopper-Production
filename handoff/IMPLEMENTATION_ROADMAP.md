@@ -24,11 +24,15 @@ owner-approved PRs (same executor; STOP-for-approval between each). Authority: t
       `ADMIN_CLERK_UIDS → ADMIN_FIREBASE_UIDS`; local-dev/E2E path preserved. Gates: CI green; Codespace lazytopper
       tsc + vite build + verifier + matrices; Vercel screenshots faithful; **runtime token verified Firebase**
       (`iss = securetoken.google.com/lazzyy-topper`). Trunk after merge `597880d`.
-  [ ] **PR-3 (NEXT — HOLD for owner go)** — delete the gateway bridge (`/api/auth/firebase-token` + `firebaseAuth.cjs`
-      + `server/index.cjs` wiring); remove the api-server Clerk **fallback** + `@clerk/express` together; unmount
-      `clerkMiddleware`; remove `clerkProxyMiddleware` + Clerk env; drop `jsonwebtoken`/`jwks-rsa` from the gateway.
-      Firebase-only verification. Branch `fix/remove-clerk-bridge`.
-  [ ] PR-4 — phone / SMS-OTP provider (reCAPTCHA v2 invisible; project `lazzyy-topper` on Blaze; live OTP smoke test).
+  [x] **PR-3 (#210)** — Clerk teardown: deleted the gateway bridge (`firebaseAuth.cjs` + `server/index.cjs` wiring)
+      + `clerkProxyMiddleware.ts`; `requireFirebaseAuth` → Firebase-only (Clerk fallback removed); `app.ts` drops
+      `clerkMiddleware()`; dropped `@clerk/express` + `http-proxy-middleware` + `jsonwebtoken`/`jwks-rsa` (last two
+      remain transitive under firebase-admin). Zero Clerk in code; lockfile `@clerk`=0 (−162). Gates: CI green +
+      Codespace tsc/build/verifier + **gateway boots** + matrices. Trunk `6bf6e58`.
+  [ ] **(NEXT — HOLD for go) CLAUDE.md governance scrub** — §1 stack + §5 doctrine + `FIREBASE_SETUP.md` +
+      desktop-graduation Clerk notes (owner-ready instruction; not in a code PR; does NOT auto-merge).
+  [ ] **PR-4 (HOLD for go)** — phone / SMS-OTP provider (`feat/auth-phone-otp`): fill the phone façade with
+      `signInWithPhoneNumber` + reCAPTCHA v2 invisible; wire the Phone tab; live OTP smoke test. `lazzyy-topper` on Blaze.
   [ ] (backlog, own PR) D47 — `apiServer` lane in `repo_boundary_policy.json` for `scope:guard`.
   [ ] (follow-up) Google **One-Tap** (GIS) once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
 

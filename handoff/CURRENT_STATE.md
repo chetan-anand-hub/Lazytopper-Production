@@ -1,12 +1,59 @@
 # LazyTopper — Current State
-Last updated: 2026-06-08 (post-PR #208 — AUTH MIGRATION PR-2 of 4: frontend on Firebase Auth; Clerk removed from the client)
+Last updated: 2026-06-08 (post-PR #210 — AUTH MIGRATION PR-3 of 4: Clerk teardown; auth is Firebase-only, repo is Clerk-free in code)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 597880d9e4ba2452ba5f758e3e5914fa9799ca40
-Last merged PRs: #206 (auth PR-1 — Firebase edge verify), #207 (docs post-#206), #208 (feat: auth PR-2 — frontend rebuilt natively on Firebase Auth; @clerk/react dropped)
+SHA: 6bf6e582d12e868b49c8a516a3be013021a814a4
+Last merged PRs: #208 (auth PR-2 — frontend on Firebase Auth), #209 (docs post-#208), #210 (fix: auth PR-3 — Clerk teardown; @clerk/express + bridge + fallback removed; Firebase-only)
 
-## AUTH MIGRATION ARC — PR-2 of 4 DONE (#208): frontend on Firebase Auth (Clerk removed from the client)
+## AUTH MIGRATION ARC — PR-3 of 4 DONE (#210): Clerk teardown — auth is now Firebase-only
+PR-3 (`fix/remove-clerk-bridge` from `5fc4141`; squash-merged **`6bf6e58`**) removed **all remaining Clerk**:
+the gateway custom-token bridge, the api-server Clerk dual-accept fallback, `@clerk/express` + the Clerk
+middlewares, and the now-dead JWT libs. Auth is **Firebase-only end to end**. 14 files (2 deletions + 12 edits,
++30/−224) + lockfile (−162). Report: `report-pr3-remove-clerk-bridge-2026-06-08.md`.
+
+### What landed
+- **Deleted** `lazytopper/server/routes/firebaseAuth.cjs` (the `/api/auth/firebase-token` bridge) +
+  `artifacts/api-server/src/middlewares/clerkProxyMiddleware.ts`.
+- `server/index.cjs` — removed the bridge require/factory/route-handler/CORS entry. `lazytopper/package.json` —
+  dropped `jsonwebtoken` + `jwks-rsa` (remain transitive under `firebase-admin`, which is correct).
+- `requireFirebaseAuth.ts` — removed the Clerk `getAuth` fallback → **Firebase-only** (`verifyIdToken` or 401;
+  503 if Firebase Admin unconfigured — fail-closed, since there is no fallback now).
+- `app.ts` — removed `clerkMiddleware()` + the proxy mount. `artifacts/api-server/package.json` — dropped
+  `@clerk/express` + the orphaned `http-proxy-middleware`.
+- Scrubbed stale "Clerk" comments + the `authProvider` default (`"clerk"` → `"firebase"`).
+
+### Zero-Clerk (owner gate)
+`grep -rinE "clerk"` over `**/src`, `**/server`, `**/package.json` → **ZERO**. The lockfile `@clerk` count = 0
+(whole `@clerk/*` tree removed). Remaining `clerk` matches are **non-code only**: gitignored `.env.local`,
+auto-gen `.project_memory` snapshots, `handoff/*` migration history, and `CLAUDE.md`/`FIREBASE_SETUP.md`/
+`docs/desktop-graduation-state.md` — the latter are the **governance/docs scrub** queued next (owner-ready
+instruction; `CLAUDE.md §5` "Clerk stays for now — K2H-15" is now obsolete).
+
+### PR-3 gate evidence (all green, Codespace + CI)
+- **CI `quality-gate`**: PASS (run `27115594685`, 1m33s) — frozen install + root 175/175 + mojibake + build + ops.
+- **Codespace (pre-push):** api-server tsc/build exit 0; lazytopper tsc/build exit 0; verify-production-build PASS;
+  **gateway boots without the bridge** ("LazyTopper AI server running on port 3011"); root 175/175; ops 6/6;
+  lockfile `@clerk` count = 0.
+
+### ⚠️ Now load-bearing (the Clerk safety net is gone)
+- **Admin bootstrap (BLOCKING):** `ADMIN_FIREBASE_UIDS` = your Firebase uid is the ONLY way admin routes
+  authorize now. Until set: admin routes 503 in prod / dev-skip locally.
+- **Railway env:** `artifacts/api-server` REQUIRES `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY`
+  (or ADC) — `requireFirebaseAuth` returns 503 without it (no fallback).
+- Remove `VITE_CLERK_PUBLISHABLE_KEY` from deploy env + the local `.env.local`.
+
+### Remaining auth work
+- **(NEXT, hold for owner go) CLAUDE.md governance scrub** — surgical §1 stack + §5 doctrine edits, +
+  `FIREBASE_SETUP.md` + `docs/desktop-graduation-state.md` (owner has the exact instruction; does NOT auto-merge).
+- **(then, hold for go) PR-4 — phone / SMS-OTP** (`feat/auth-phone-otp`): fill the `initPhoneRecaptcha`/
+  `sendPhoneOtp`/`verifyPhoneOtp` façade with `signInWithPhoneNumber` + reCAPTCHA v2 invisible; wire the Phone
+  tab (+91 → 6-digit OTP). Project `lazzyy-topper` on Blaze; enable Phone provider + Authorized domains (owner).
+- Google **One-Tap** (GIS) follow-up once a Web OAuth client ID is provided.
+
+---
+
+## AUTH MIGRATION PR-2 (#208): frontend on Firebase Auth (Clerk removed from the client)
 PR-2 (`feat/auth-firebase-frontend` from `7f993cb`; squash-merged **`597880d`**) rebuilt the frontend auth on
 **direct Firebase Auth** and removed Clerk from the client. The api-server edge (PR-1) is now hit with **Firebase
 ID tokens** (its preferred `verifyIdToken` path); the Clerk fallback there goes idle (removed in PR-3). Design basis:
