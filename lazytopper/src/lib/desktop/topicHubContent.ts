@@ -246,7 +246,6 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Ratios at standard angles (0°, 30°, 45°, 60°, 90°)", oneLineUse: "Plug straight into evaluation and 1-mark MCQs.", marks: "1–2" },
       { name: "Pythagorean identities (sin²θ+cos²θ=1, 1+tan²θ=sec²θ)", oneLineUse: "Replace one ratio with another to simplify or prove.", marks: "2–3" },
-      { name: "Complementary angles (sin(90°−θ)=cosθ)", oneLineUse: "Collapse mixed-ratio expressions in 2-mark questions.", marks: "1–2" },
       { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step.", marks: "3–5" },
     ],
     formulaUsePreview: {
