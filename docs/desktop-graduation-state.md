@@ -1,5 +1,7 @@
 # LazyTopper Desktop Graduation State
 
+> **⚠️ SUPERSEDED (auth) — 2026-06-08:** Clerk was **fully removed** in the auth migration (PR-1..PR-3 = #206 / #208 / #210). Auth is now **Firebase-only** (Google + Email/Password + Phone), keyed on the Firebase uid; the api-server verifies Firebase ID tokens (`requireFirebaseAuth` / `verifyIdToken`), `firestore.rules` enforces `isOwner(uid)`, and admin routes authorize via `ADMIN_FIREBASE_UIDS`. **Every "Clerk" / `pk_test` / `pk_live` / `VITE_CLERK_PUBLISHABLE_KEY` reference below is HISTORICAL and no longer operative — do NOT preserve Clerk or treat any Clerk note below as a live rule.** The Clerk→`/api/auth/firebase-token` bridge no longer exists.
+
 Last updated: 2026-05-17T12:20:00Z UTC / 2026-05-17 17:50 IST
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.

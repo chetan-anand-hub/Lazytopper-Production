@@ -68,18 +68,21 @@ This deploys both `firestore.rules` and `firestore.indexes.json` from the repo r
 | `mockScoreHistory/{uid}` | Mock exam scores |
 | `learningPaths/{uid}` | AI-generated personalised learning path |
 
-All documents are keyed by the user's Clerk UID. Security rules enforce that only
+All documents are keyed by the user's Firebase UID. Security rules enforce that only
 the authenticated user can read or write their own documents.
 
 ---
 
 ## Authentication flow
 
-1. Student signs in via Clerk (phone / Google / email)
-2. On sign-in, the app calls `POST /api/auth/firebase-token` with the Clerk JWT
-3. Gateway verifies the Clerk JWT and uses Firebase Admin SDK to issue a custom token
-4. Frontend calls `signInWithCustomToken()` — Firebase Auth now has the student's identity
-5. All Firestore read/write calls succeed under the security rules
+1. Student signs in directly with Firebase Auth (Google / Email+Password; Phone/SMS-OTP)
+2. Firebase Auth holds the student's identity (`onAuthStateChanged` in `AuthContext`)
+3. The frontend gets a Firebase ID token via `currentUser.getIdToken()` for backend calls
+4. The api-server edge verifies that ID token with `requireFirebaseAuth` (`verifyIdToken`)
+5. All Firestore read/write calls succeed under the `isOwner(uid)` security rules
+
+(There is no longer a Clerk-to-Firebase token bridge — that was removed in the auth
+migration. Admin routes authorize via `ADMIN_FIREBASE_UIDS`.)
 
 The gateway startup log confirms Admin SDK status:
 ```
