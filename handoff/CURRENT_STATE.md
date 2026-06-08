@@ -1,10 +1,18 @@
 # LazyTopper — Current State
-Last updated: 2026-06-08 (post-PR #212 — governance/docs Clerk scrub; CLAUDE.md + FIREBASE_SETUP.md + desktop-graduation now Firebase-correct. Auth migration arc 3/4 code-complete; PR-4 phone/SMS-OTP is next)
+Last updated: 2026-06-08 (post-PR #214 — AUTH MIGRATION 4/4 COMPLETE: phone/SMS-OTP. Auth is Firebase-only end to end, verified in production-preview with a real-number login. Next workstream: go-live deploy / Phase 1 — owner to scope before start)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: c755adb60e3d86d2acb07c6a7d77dd32a1b25aef
-Last merged PRs: #209 (docs post-#208), #210 (fix: auth PR-3 — Clerk teardown; @clerk/express + bridge + fallback removed; Firebase-only), #211 (docs post-#210), #212 (docs: governance Clerk scrub — CLAUDE.md §1/§5 + FIREBASE_SETUP.md + desktop-graduation)
+SHA: 7e00430a9240a165274ccd0d3bed6ea484ee07a6
+Last merged PRs: #210 (auth PR-3 — Clerk teardown; Firebase-only), #211 (docs post-#210), #212 (docs: governance Clerk scrub — CLAUDE.md §1/§5 + FIREBASE_SETUP.md + desktop-graduation), #213 (docs: handoff reconcile to trunk post-#212), #214 (feat: auth PR-4 — phone/SMS-OTP; `signInWithPhoneNumber` + invisible reCAPTCHA)
+
+## AUTH MIGRATION ARC — 4/4 COMPLETE (#214): auth is Firebase-only, end to end
+The arc is closed: **PR-1 #206** (api-server edge `verifyIdToken`) → **PR-2 #208** (frontend rebuilt on Firebase
+Auth + native login) → **PR-3 #210** (Clerk teardown — Firebase-only, repo Clerk-free) → **governance scrub #212**
+(CLAUDE.md/§5 doctrine + setup docs) → **PR-4 #214** (phone / SMS-OTP). Auth providers live: **Google (popup) +
+Email/Password + Phone (SMS OTP)**. Firestore keyed on Firebase uid; admin via `ADMIN_FIREBASE_UIDS`.
+**Verified in production-preview:** a real-number phone login — real SMS, real OTP, signed in, **trial correctly
+tied to the phone account**. (Deliverability caveat logged — see OPEN_QUESTIONS [SMS-DELIVERABILITY].)
 
 ## AUTH MIGRATION ARC — PR-3 of 4 DONE (#210): Clerk teardown — auth is now Firebase-only
 PR-3 (`fix/remove-clerk-bridge` from `5fc4141`; squash-merged **`6bf6e58`**) removed **all remaining Clerk**:
