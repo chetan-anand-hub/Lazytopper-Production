@@ -1,10 +1,10 @@
 # LazyTopper — Current State
-Last updated: 2026-06-08 (post-PR #210 — AUTH MIGRATION PR-3 of 4: Clerk teardown; auth is Firebase-only, repo is Clerk-free in code)
+Last updated: 2026-06-08 (post-PR #212 — governance/docs Clerk scrub; CLAUDE.md + FIREBASE_SETUP.md + desktop-graduation now Firebase-correct. Auth migration arc 3/4 code-complete; PR-4 phone/SMS-OTP is next)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 6bf6e582d12e868b49c8a516a3be013021a814a4
-Last merged PRs: #208 (auth PR-2 — frontend on Firebase Auth), #209 (docs post-#208), #210 (fix: auth PR-3 — Clerk teardown; @clerk/express + bridge + fallback removed; Firebase-only)
+SHA: c755adb60e3d86d2acb07c6a7d77dd32a1b25aef
+Last merged PRs: #209 (docs post-#208), #210 (fix: auth PR-3 — Clerk teardown; @clerk/express + bridge + fallback removed; Firebase-only), #211 (docs post-#210), #212 (docs: governance Clerk scrub — CLAUDE.md §1/§5 + FIREBASE_SETUP.md + desktop-graduation)
 
 ## AUTH MIGRATION ARC — PR-3 of 4 DONE (#210): Clerk teardown — auth is now Firebase-only
 PR-3 (`fix/remove-clerk-bridge` from `5fc4141`; squash-merged **`6bf6e58`**) removed **all remaining Clerk**:
@@ -44,9 +44,10 @@ instruction; `CLAUDE.md §5` "Clerk stays for now — K2H-15" is now obsolete).
 - Remove `VITE_CLERK_PUBLISHABLE_KEY` from deploy env + the local `.env.local`.
 
 ### Remaining auth work
-- **(NEXT, hold for owner go) CLAUDE.md governance scrub** — surgical §1 stack + §5 doctrine edits, +
-  `FIREBASE_SETUP.md` + `docs/desktop-graduation-state.md` (owner has the exact instruction; does NOT auto-merge).
-- **(then, hold for go) PR-4 — phone / SMS-OTP** (`feat/auth-phone-otp`): fill the `initPhoneRecaptcha`/
+- **(DONE — #212) CLAUDE.md governance scrub** — surgical §1 stack + §5 doctrine edits, +
+  `FIREBASE_SETUP.md` + `docs/desktop-graduation-state.md`. Owner-reviewed merge (governance files excluded from
+  docs auto-merge). Trunk after #212: `c755adb`.
+- **(NEXT, hold for owner go) PR-4 — phone / SMS-OTP** (`feat/auth-phone-otp`): fill the `initPhoneRecaptcha`/
   `sendPhoneOtp`/`verifyPhoneOtp` façade with `signInWithPhoneNumber` + reCAPTCHA v2 invisible; wire the Phone
   tab (+91 → 6-digit OTP). Project `lazzyy-topper` on Blaze; enable Phone provider + Authorized domains (owner).
 - Google **One-Tap** (GIS) follow-up once a Web OAuth client ID is provided.
