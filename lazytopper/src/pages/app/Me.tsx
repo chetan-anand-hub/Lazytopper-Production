@@ -19,12 +19,6 @@ function readLocalInt(key: string, fallback = 0): number {
   }
 }
 
-const COMMON_MISTAKES = [
-  { cat: "Sign errors in algebra", lost: 12, pct: 70 },
-  { cat: "Skipping justification steps", lost: 8, pct: 45 },
-  { cat: "Unit mistakes in numericals", lost: 5, pct: 28 },
-];
-
 export default function Me() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -138,8 +132,12 @@ export default function Me() {
               label: "Total XP",
             },
             {
+              // Honest no-data marker: mobile Me has no real weak-areas data
+              // source yet (the desktop Me weak-area pipeline is not wired here).
+              // Show "—", never a fabricated count. Real count arrives with the
+              // Phase-2 convergence + Check & Improve persistence (Track B).
               iconPath: "M22 12h-4l-3 9L9 3l-3 9H2",
-              value: subject === "Science" ? "3" : "2",
+              value: "—",
               label: "Weak topics",
             },
           ].map((stat) => (
@@ -212,55 +210,34 @@ export default function Me() {
           >
             Where you lose marks
           </div>
-          <div className="card-soft" style={{ padding: "14px 16px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {COMMON_MISTAKES.map((r) => (
-                <div key={r.cat}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "0.82rem",
-                        fontWeight: 600,
-                        color: "var(--mob-fg)",
-                      }}
-                    >
-                      {r.cat}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "0.72rem",
-                        color: "var(--mob-fg-muted)",
-                      }}
-                    >
-                      −{r.lost} marks
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      height: 6,
-                      borderRadius: 3,
-                      background: "var(--mob-muted)",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: "100%",
-                        borderRadius: 3,
-                        background: "var(--mob-danger, #ef4444)",
-                        width: `${r.pct}%`,
-                        transition: "width 0.4s ease",
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+          {/* HONEST EMPTY-STATE (fix/mobile-me-honesty): the hardcoded
+              COMMON_MISTAKES bars (-12/-8/-5 marks) were fabricated personal
+              data shown to real users — removed. Mobile Me has no real mistake
+              data source yet, so we mirror desktop Me's honest empty-state copy
+              and never invent numbers. Real mistake mix arrives once mobile
+              Check & Improve persists graded answers (Track B) + the Phase-2
+              convergence shares the desktop data pipeline. */}
+          <div className="card-soft" style={{ padding: "16px" }}>
+            <div
+              style={{
+                fontSize: "0.86rem",
+                fontWeight: 700,
+                color: "var(--mob-fg)",
+                marginBottom: 6,
+              }}
+            >
+              {user ? "No mistake logs yet" : "Your mistake mix appears here"}
+            </div>
+            <div
+              style={{
+                fontSize: "0.78rem",
+                color: "var(--mob-fg-muted)",
+                lineHeight: 1.5,
+              }}
+            >
+              {user
+                ? "Use Check & Improve to grade an answer. Each graded answer adds to your real mistake mix — nothing is shown until then."
+                : "Sign in and grade an answer in Check & Improve. Your real mistake categories will appear here automatically."}
             </div>
           </div>
         </div>
@@ -448,6 +425,21 @@ export default function Me() {
             Sign in to save your progress →
           </button>
         )}
+
+        {/* Honesty footer — mirrors desktop Me: numbers come only from real
+            activity; empty cards mean no data yet, never a sample number. */}
+        <div
+          style={{
+            fontSize: "0.68rem",
+            color: "var(--mob-fg-muted)",
+            textAlign: "center",
+            lineHeight: 1.5,
+            marginTop: 2,
+          }}
+        >
+          Stats here come only from your saved attempts and graded answers. Empty
+          cards mean there's no data yet — never a sample number.
+        </div>
       </div>
     </MobileShell>
   );
