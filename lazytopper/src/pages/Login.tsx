@@ -869,7 +869,11 @@ export default function Login() {
     if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
     const hasProfile =
       typeof window !== "undefined" && !!window.localStorage.getItem("lazytopper.profile.v2");
-    return hasProfile ? "/dashboard" : "/onboarding";
+    // SEVER PR: post-login fallback re-pointed off the retired /dashboard to "/"
+    // (RootEntry routes to the live home per viewport). ?redirect= / state.from
+    // remain isSafeInternalPath-guarded; a stale severed target now resolves via
+    // the catch-all to "/" (home), never stranding the user.
+    return hasProfile ? "/" : "/onboarding";
   }, [location.state, searchParams]);
 
   const [method, setMethod] = useState<"email" | "phone">("email");

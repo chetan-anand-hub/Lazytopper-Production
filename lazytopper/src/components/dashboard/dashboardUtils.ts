@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import { topicHubV2Content } from "../../data/topicHubV2Full";
 import { normalizeTopicKey } from "../../utils/topicResolver";
 import { useTheme } from "../../context/ThemeContext";

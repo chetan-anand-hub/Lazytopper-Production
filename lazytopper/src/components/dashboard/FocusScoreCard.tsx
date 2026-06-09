@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import { useEffect, useState } from "react";
 import { getAppFocus, getFocusMessage } from "../../services/focusTracker";
 import { RingChart } from "./RingChart";

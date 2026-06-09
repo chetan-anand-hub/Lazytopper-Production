@@ -1,3 +1,4 @@
+// DEFERRED-REVIVE 2026-06-08 - shelved (B2B/parent-visibility or pending-redesign); revive later, do not delete.
 import { useState, useRef, useEffect } from "react";
 import { loadParentPinHash, verifyPin, hasParentPin } from "../services/parentPinService";
 import ParentDashboardPage from "./ParentDashboardPage";

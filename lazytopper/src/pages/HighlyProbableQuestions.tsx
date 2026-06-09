@@ -32,7 +32,6 @@ import {
   fetchStepSolution,
   type StepSolutionResponse,
 } from "../ai/aiClient";
-import JourneyStrip from "../components/ux/JourneyStrip";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -998,24 +997,19 @@ const HighlyProbableQuestions: React.FC = () => {
             <span>Class {grade} - {subjectKey}</span>
           </div>
         ) : (
-          <>
-            <ReturnContextBar
-              backTo={hpqBack.target}
-              backLabel={hpqBack.label}
-              currentLabel="Question Patterns"
-              quickLinks={[
-                { label: "Trends", to: EXAM_TRENDS_PATH },
-                { label: "Chapter Hub", to: addHpqReturnContext(buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : ""), currentURL) },
-                { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
-              ]}
-            />
-            <JourneyStrip
-              current="hpq"
-              grade={grade}
-              subject={subjectKey}
-              topic={currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : undefined}
-            />
-          </>
+          /* SEVER PR: JourneyStrip removed — it linked to the retired old /trends
+             ("guide-the-student" journey is retired; the product is intent-first).
+             ReturnContextBar's quick-links already point to live surfaces. */
+          <ReturnContextBar
+            backTo={hpqBack.target}
+            backLabel={hpqBack.label}
+            currentLabel="Question Patterns"
+            quickLinks={[
+              { label: "Trends", to: EXAM_TRENDS_PATH },
+              { label: "Chapter Hub", to: addHpqReturnContext(buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : ""), currentURL) },
+              { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
+            ]}
+          />
         )}
 
         {/* Hero: HPQ hub */}

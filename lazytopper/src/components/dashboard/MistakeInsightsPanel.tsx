@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import { useState, useEffect, useMemo } from "react";
 import { getMistakeLogs, type MistakeLogEntry } from "../../services/mistakeLogService";
 import { useAuth } from "../../context/AuthContext";

@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 export function RingChart({ value, size = 48, strokeWidth = 3.5, color }: { value: number; size?: number; strokeWidth?: number; color: string }) {
   const r = (size - strokeWidth) / 2;
   const circ = 2 * Math.PI * r;

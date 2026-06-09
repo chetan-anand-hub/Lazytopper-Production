@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Import the strategy plan helper.  Use a relative import since this file

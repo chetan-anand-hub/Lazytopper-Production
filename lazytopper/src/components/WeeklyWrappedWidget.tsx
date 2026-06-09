@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAttempts } from '../services/practiceInsights';

@@ -233,8 +233,9 @@ export default function TopicHub() {
 
   const topicKey = normalizeTopicKey(rawTopicKey) || defaultTopicKeyFor(subject);
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
-  const backTo = String(navState?.back || `/trends/${grade}/${subject}`);
-  const backLabel = String(navState?.backLabel || "Back to trends");
+  // SEVER PR: back-default re-pointed off the retired /trends to live /exam-trends.
+  const backTo = String(navState?.back || `/exam-trends`);
+  const backLabel = String(navState?.backLabel || "Back to Exam Trends");
 
   useEffect(() => {
     const hasRouteTopicKey = Boolean((params as Record<string, string | undefined>).topicKey);

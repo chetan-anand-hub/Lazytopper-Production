@@ -356,7 +356,8 @@ export default function WeakAreaPracticePage() {
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
       <button
-        onClick={() => navigate(navState?.back || "/dashboard")}
+        /* SEVER PR: back-default re-pointed off the retired /dashboard to live /practice-hub. */
+        onClick={() => navigate(navState?.back || "/practice-hub")}
         style={{
           background: "none",
           border: "none",
