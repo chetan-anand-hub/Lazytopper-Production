@@ -1,5 +1,43 @@
 ---
 
+## 2026-06-09 — SEVER PR (#218): disconnect obsolete surfaces — product reaches only live surfaces
+
+**Trunk after merge: `bcb7c2a`** (squash-merge of `fix/sever-obsolete-surfaces`; 57 files, +170/−171). Owner-authorized
+(forbidden `App.tsx`, routing-scoped), owner-merged (NOT auto-merge). Authority:
+`AGENT_sever_obsolete_surfaces_2026-06-08.md` + the two read-only audits.
+
+### What landed
+Severed every inbound edge (route, nav, catch-all, command-palette, leaked link) to the obsolete/deferred graveyard
+so the running product reaches ONLY live surfaces. **Markers-now, no file moves** — 46 disconnected files marked
+`LEGACY-RETIRED` (43) / `DEFERRED-REVIVE` (3) for a Phase-2 clean-branch.
+- **Routing fix (App.tsx):** mobile `/` (RootEntry) + catch-all `*` (HomeRedirect) re-pointed off the retired old
+  `/dashboard` to the live MobileHome (`/browse`) / `/`; `/browse` terminal at mobile width (no redirect loop).
+  Resolves the two-contradictory-homes bug. Durable nav-mirror rule encoded; BottomNav active-state residue trimmed.
+- **18 dead routes removed** (15 RETIRE + 3 DEFERRED) + their lazy imports. `weak-area-practice` KEPT (partial-sever).
+- **Command palette** severed at switch (App.tsx) + catalog (`commandPaletteConfig.ts`) + intent (`commandIntent.ts`).
+- **11 leaks closed** — incl. JourneyStrip-from-HPQ and 5 found beyond the named ones via a manual dead-path grep
+  (PracticeQuestionList, TopicHub, WeakAreaPractice, ExamSimulation, MockBuilder, Login fallback, Onboarding).
+
+### The merge gate (point-2 upgrade)
+Built a reusable **before/after connectivity-graph tool** (`connectivity-graph.mjs`; emits adjacency JSON + a readable
+reachability summary from the live entry points). 3-way diff verdict: **18/18 intended cuts unreachable AFTER,
+28/28 live routes preserved (zero reachability lost), 0 unexpected losses**, `/mock-paper` the sole flagged collateral.
+Two self-caught tool bugs were fixed mid-verification (route-path declarations miscounted as nav edges;
+zero-static wildcard matches) — disclosed in the report's method-honesty section.
+
+### Gates
+tsc 0 · mojibake 0 · scope:guard product OK · root matrix 175/175 · ops 6/6 · git diff --check clean. **CI
+`quality-gate` GREEN** (linux vite build + verify-production-build). Forbidden-file check on the merge commit:
+only `App.tsx` (authorized); `main.tsx` untouched. Owner verified the Vercel preview (MobileHome-as-landing,
+desktop nav, gated-CTA→login→return, routing fix). Report + artifacts in the diff folder.
+
+### Follow-ups logged (OPEN_QUESTIONS)
+§7 sever residue (MockPaper, admin-lane `/dashboard` back-links, TopicHubHome orphan, dead buildUrl helpers,
+clean-branch marker pass) + a NEW **Phase-2 responsive divergence punch-list** from the preview (mobile Me fabricated
+data, mobile avatar no dropdown, mobile top-ribbon divergence — soft-launch blockers, pre-existing, NOT sever-caused).
+
+---
+
 ## 2026-06-09 — SYLLABUS PROSE copy-fix (#216) + two READ-ONLY audits
 
 ### What merged (#216)

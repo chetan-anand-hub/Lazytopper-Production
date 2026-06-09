@@ -2,6 +2,29 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-09 — Post-PR #218 roadmap update (SEVER: product reaches only live surfaces)
+
+The structural sever that the two read-only audits (responsive-surface + banned-term-prose) set up. Disconnect-only
+(markers-now, no file moves); proven by a before/after connectivity-graph merge gate.
+
+### Completed this session
+- [x] **PR #218 — SEVER: disconnect obsolete surfaces** (trunk after merge `bcb7c2a`; 57 files, +170/−171):
+  severed every inbound edge (route/nav/catch-all/command-palette/leaked link) to the obsolete/deferred graveyard;
+  re-pointed mobile `/` + catch-all off the retired old `/dashboard` to the live MobileHome (fixes the
+  two-contradictory-homes bug); removed 18 dead `<Route>` entries (15 RETIRE + 3 DEFERRED); kept `weak-area-practice`
+  (partial-sever); closed 11 leaks (incl. 5 beyond the named ones, found via manual dead-path grep); marked 46 files
+  `LEGACY-RETIRED`/`DEFERRED-REVIVE` for a Phase-2 clean-branch. Merge gate (connectivity graph): 18/18 cuts severed,
+  28/28 live routes preserved, 0 unexpected losses. CI green (incl. linux build); owner-verified on Vercel preview.
+
+### Sever / responsive track
+  [x] Read-only responsive-surface audit (`report-responsive-surface-audit-2026-06-08.md`)
+  [x] Read-only banned-term-prose audit (`report-banned-term-prose-audit-2026-06-08.md`); Tier-1A fixed in #216
+  [x] **SEVER PR (#218)** — disconnect obsolete surfaces; product reaches only live surfaces
+  [ ] **(NEXT) Phase-2 responsive divergence punch-list** — reconcile stale mobile twins to the desktop
+      source-of-truth (no invented numbers). Seed items (OPEN_QUESTIONS, soft-launch blockers): mobile Me fabricated
+      sample data; mobile avatar dropdown (Log out / Manage subscription); mobile top-ribbon/trial-banner divergence.
+  [ ] (later) Phase-2 clean-branch — grep the 46 markers to delete (`LEGACY-RETIRED`) / keep (`DEFERRED-REVIVE`).
+
 ## 2026-06-07 — Post-PR #206 roadmap update (AUTH MIGRATION arc: Clerk → Firebase Auth + phone)
 
 A Stage-1 launch prerequisite (the backend auth verification changes from Clerk to Firebase). 4 sequenced,

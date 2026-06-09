@@ -1,3 +1,45 @@
+## 2026-06-09 — Post-PR #218 (SEVER: disconnect obsolete surfaces)
+
+### NEW — Phase-2 RESPONSIVE DIVERGENCE punch-list (soft-launch blockers; pre-existing, NOT caused by the sever)
+Found while verifying #218 on the Vercel preview. Governing principle for all three: **desktop is source-of-truth,
+reconcile mobile to it, no invented numbers.** These are the seed of the Phase-2 responsive divergence punch-list
+(the next workstream after the sever) — soft-launch blockers, but they did NOT block #218.
+- **[RESP-DIV-1, soft-launch blocker, TRUST-CRITICAL] Mobile Me diverges from desktop Me.** The mobile `useIsDesktop()`
+  variant is a stale page showing **fabricated sample data to a real signed-in user** (−12 / −8 / −5 marks, a
+  "Premium" badge, demo weak-topics). Desktop Me (the "study mirror") is the current source-of-truth with the honest
+  empty-state / no-invented-numbers model. Reconcile mobile Me to desktop's content + honesty model **before soft
+  launch** — fabricated data to a real user is a trust breach (violates the no-fake-data doctrine).
+- **[RESP-DIV-2, soft-launch] Mobile avatar has no dropdown.** Desktop avatar opens a menu (Me/Progress + Manage
+  subscription + Log out); the mobile avatar-initial only navigates to Me — so there is **no mobile path to Log out
+  or Manage subscription.** Add the dropdown (or an equivalent mobile affordance). (Subset of RESP-DIV-3.)
+- **[RESP-DIV-3, soft-launch] Mobile top-ribbon + avatar diverge from desktop.** Desktop top-bar (source-of-truth)
+  has the "Trial active – N days left" pill + the avatar dropdown; mobile shows a different trial-banner treatment
+  and a navigate-only avatar (no dropdown, no Log out / Manage subscription path). Reconcile the mobile top-bar to
+  desktop. (Supersets RESP-DIV-2.)
+
+### NEW — §7 SEVER RESIDUE (cleanup follow-ups; flagged in the sever report, not stranded silently)
+- **[SEVER-RESIDUE-1] MockPaper newly unreachable, kept routed.** `/mock-paper/:slug`'s only entry was the deferred
+  `/predictive-papers`; the page is kept routed (harmless — unreachable from live nav) and flagged. Recommend folding
+  MockPaper into the `/predictive-papers` DEFERRED-REVIVE family in the "pending redesign into the chapter/full-test
+  family" work. Not in the 17 rulings, so not unilaterally retired.
+- **[SEVER-RESIDUE-2] Admin-lane `/dashboard` back-links.** `CacheStatsPage`, `FunnelPage`, `QuestionReportsPage`,
+  `VisualAuditPage`, `TeacherDashboardPage` (+ a `/trends` quick-link in TeacherDashboard) still point at the removed
+  `/dashboard`/`/trends`. Admin is a SEPARATE lane (explicitly out of sever scope); these degrade gracefully to `/`
+  via the catch-all. Trivial back-target fixes for a future admin-lane cleanup.
+- **[SEVER-RESIDUE-3] `pages/TopicHubHome.tsx`** — a pre-existing orphan (imported by nobody) that links to the
+  retired `/trends`. Not in the 17 rulings; left unmarked. Clean-branch candidate.
+- **[SEVER-RESIDUE-4] Dead utility exports** `buildTrendsUrl` / `buildStudyPlanUrl` in `utils/buildUrl.ts` now have
+  ZERO callers (the last `buildStudyPlanUrl` caller was the removed MockBuilder branch). Harmless; clean-branch removal.
+- **[CLEAN-BRANCH, Phase-2] Marker pass.** 46 disconnected files carry `LEGACY-RETIRED` (43) / `DEFERRED-REVIVE` (3)
+  markers. A later clean-branch greps these to delete (retired) / keep (deferred). MockBuilder lines 191/197 also
+  carry dead `navState.back.includes("/study-plan")` GUARD checks (not navigations) — harmless, left in place.
+
+### Tooling note
+The before/after connectivity-graph merge gate is a reusable tool (`connectivity-graph.mjs` + `connectivity-diff.mjs`
++ `apply-markers.mjs`, in the diff folder). Static React tracing is approximate; two tool bugs were found and fixed
+during #218 (route-path declarations miscounted as nav edges; zero-static wildcard matches). Reuse for the next sever
+or the Phase-2 clean-branch verification.
+
 ## 2026-06-09 — Post-PR #216 (banned-term prose copy-fix) + audit follow-ups
 
 ### RESOLVED in #216

@@ -1,10 +1,41 @@
 # LazyTopper — Current State
-Last updated: 2026-06-09 (post-PR #216 — banned-term prose copy-fix: 3 Tier-1A out-of-syllabus strings removed from the live cockpit. Two READ-ONLY audits landed (responsive-surface + banned-term-prose); the SEVER PR is next, then go-live / Phase 1 — owner to scope)
+Last updated: 2026-06-09 (post-PR #218 — SEVER PR: obsolete surfaces disconnected; the running product now reaches ONLY live surfaces. NEXT: Phase-2 responsive divergence punch-list (mobile↔desktop reconcile — soft-launch blockers) + go-live / Phase 1 — owner to scope)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: b35f764457d3470083e2a3ff846237a0beffc899
-Last merged PRs: #212 (docs: governance Clerk scrub), #213 (docs: handoff reconcile post-#212), #214 (feat: auth PR-4 — phone/SMS-OTP; `signInWithPhoneNumber` + invisible reCAPTCHA), #215 (docs: handoff post-#214 — auth arc 4/4 COMPLETE), #216 (fix: remove out-of-syllabus banned terms from live topic copy — `topics.ts` + `topicHubContent.ts`)
+SHA: bcb7c2a71cb137ac536c270298cc9bce2d1e9ece
+Last merged PRs: #214 (feat: auth PR-4 — phone/SMS-OTP), #215 (docs), #216 (fix: banned-term prose copy-fix — `topics.ts` + `topicHubContent.ts`), #217 (docs: handoff post-#216), #218 (fix/routing: SEVER — disconnect obsolete surfaces; re-point mobile `/` + catch-all to live MobileHome)
+
+## SEVER PR (#218) — obsolete surfaces disconnected; product reaches ONLY live surfaces
+PR #218 (`fix/sever-obsolete-surfaces`; squash-merged **`bcb7c2a`**, 57 files +170/−171) severed every inbound edge
+(route, nav, catch-all, command-palette, leaked link) to obsolete/deferred pages so the running product reaches
+ONLY live surfaces. **Markers-now doctrine** — no files moved/deleted; 46 disconnected files carry a top-of-file
+`LEGACY-RETIRED` (43) / `DEFERRED-REVIVE` (3) marker for a future Phase-2 clean-branch (grep the markers to
+delete/keep). Authority: `AGENT_sever_obsolete_surfaces_2026-06-08.md` + the two read-only audits
+(`report-responsive-surface-audit-2026-06-08.md`, `report-banned-term-prose-audit-2026-06-08.md`).
+- **Routing (App.tsx — owner-authorized, routing-scoped):** mobile `/` (RootEntry) + catch-all `*` (HomeRedirect)
+  re-pointed off the retired old `/dashboard` to the live MobileHome (`/browse`) / `/`; `/browse` made terminal at
+  mobile width (no `/`⇄`/browse` loop). **Fixes the two-contradictory-homes bug** (mobile `/` + catch-all landed on
+  the old Dashboard while the BottomNav Home tab went to `/browse`). Durable nav-mirror rule encoded; BottomNav
+  active-state residue trimmed to the live set. `main.tsx` was NOT needed (less forbidden-file surface).
+- **18 dead `<Route>` entries removed** (RETIRE: dashboard, trends, daily-mix, daily-mission, planner, study-plan,
+  night-before, revision-calendar, mini-mock, weekly-wrapped, weekly-digest, methodology, settings; DEFERRED:
+  parent-dashboard, parent, predictive-papers). `weak-area-practice` KEPT (partial-sever: dead-Dashboard doorway +
+  palette entry severed; live ExamSim/MockPaper inbound preserved).
+- **11 leaks closed:** JourneyStrip removed from HPQ; command palette severed at switch + catalog
+  (`commandPaletteConfig`) + intent (`commandIntent`); live back-defaults/links in PracticeQuestionList, TopicHub,
+  WeakAreaPractice, ExamSimulation, MockBuilder, the Login post-login fallback, and Onboarding re-pointed off
+  severed routes. (5 of these were BEYOND the named JourneyStrip+palette — surfaced by a manual dead-path grep
+  that the connectivity graph cannot see.)
+- **Merge gate = before/after connectivity graph** (a new reusable tool `connectivity-graph.mjs` in the diff
+  folder): 18/18 intended cuts unreachable AFTER, **28/28 live routes preserved (zero loss)**, 0 unexpected losses;
+  `/mock-paper` flagged collateral (kept routed, unreachable — its only entry was the deferred predictive-papers).
+- **Gates:** tsc, mojibake, scope:guard product, root matrix 175/175, ops 6/6, git diff --check all PASS; **CI
+  `quality-gate` GREEN** (the linux vite build + verify-production-build). Vercel preview verified by owner
+  (MobileHome landing 360/768, desktop sidebar nav, gated-CTA→login→return, routing fix → MobileHome not old
+  Dashboard). Report: `report-sever-obsolete-surfaces-2026-06-08.md` + `connectivity-{before,after,diff}.*`.
+- **Auth untouched** — zero auth / `main.tsx` / Firebase files in the 57; this build is byte-identical to #214 on
+  auth. New responsive-divergence findings from the preview logged in OPEN_QUESTIONS (Phase-2, soft-launch).
 
 ## SYLLABUS PROSE COPY-FIX (#216) — 3 Tier-1A banned terms removed from the live cockpit
 PR #216 (`fix/banned-term-prose-copy`; squash-merged **`b35f764`**) fixed 3 out-of-syllabus strings the

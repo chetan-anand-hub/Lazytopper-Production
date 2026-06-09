@@ -1,39 +1,47 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-08 (post-PR #210 — AUTH MIGRATION PR-3 of 4 merged; Clerk-free in code. NEXT: CLAUDE.md scrub, then PR-4 — both HOLD for go)
-# Base SHA: 6bf6e582d12e868b49c8a516a3be013021a814a4
+# Updated: 2026-06-09 (post-PR #218 — SEVER merged; product reaches only live surfaces. NEXT: Phase-2 responsive divergence punch-list + go-live — owner to scope)
+# Base SHA: bcb7c2a71cb137ac536c270298cc9bce2d1e9ece
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 6bf6e582d12e868b49c8a516a3be013021a814a4
-Last PRs: #208 (auth PR-2 — frontend on Firebase Auth) + #209 (docs) + #210 (auth PR-3 — Clerk teardown; Firebase-only)
+SHA: bcb7c2a71cb137ac536c270298cc9bce2d1e9ece
+Last PRs: #214 (auth PR-4 — phone/SMS-OTP; auth arc 4/4 COMPLETE) + #215/#217 (docs) + #216 (banned-term prose copy-fix) + #218 (SEVER — disconnect obsolete surfaces)
 
-## ⏭️ IMMEDIATE NEXT — two tasks, IN ORDER, BOTH HOLD FOR OWNER GO (neither auto-merges)
-Auth migration: **PR-1 (#206) + PR-2 (#208) + PR-3 (#210) DONE.** Auth is Firebase-only end to end; the repo is
-Clerk-free in code (grep over src/server/package.json = 0; lockfile `@clerk` = 0). Only PR-4 (phone) remains.
+## ⏭️ IMMEDIATE NEXT — Phase-2 responsive divergence reconcile (soft-launch), then go-live (owner to scope/order)
+The auth migration arc is CLOSED (PR-1..PR-4 — Firebase-only end to end). The SEVER (#218) is merged — the running
+product now reaches ONLY live surfaces (mobile `/`, catch-all, and the command palette no longer route students into
+the old Dashboard graveyard). The next workstream is the **Phase-2 responsive divergence punch-list** surfaced while
+verifying #218 on the preview, then the go-live deploy.
 
-### 1. CLAUDE.md governance scrub (NEXT — HOLD for owner go; does NOT auto-merge)
-The owner has the exact surgical instruction ready: §1 stack + §5 doctrine ("Clerk stays for now — K2H-15" is now
-obsolete), plus `FIREBASE_SETUP.md` + `docs/desktop-graduation-state.md` Clerk notes. This was deliberately kept
-OUT of PR-3 (governance files don't go in a code PR, and are excluded from docs-only auto-merge). Await the owner's
-instruction + go.
+### 1. Phase-2 RESPONSIVE DIVERGENCE punch-list (soft-launch blockers — desktop is source-of-truth; no invented numbers)
+Reconcile the stale `useIsDesktop()` mobile twins to their desktop source-of-truth. See OPEN_QUESTIONS (RESP-DIV-1..3):
+- **RESP-DIV-1 (TRUST-CRITICAL):** mobile Me shows FABRICATED sample data to a real signed-in user (−12/−8/−5 marks,
+  "Premium" badge, demo weak-topics). Reconcile to desktop Me's honest empty-state model BEFORE soft launch.
+- **RESP-DIV-2/3:** mobile avatar has no dropdown (no Log out / Manage subscription path) + mobile top-ribbon/trial
+  banner diverges from desktop. Reconcile the mobile top-bar + avatar to desktop.
+Each is its own scoped PR (desktop-leads, mobile-adapts; Option-B grammar). Owner supplies order + any frozen design.
 
-### 2. AUTH MIGRATION PR-4 — phone / SMS-OTP (the last auth PR — HOLD for owner go)
-Branch `feat/auth-phone-otp`. Fill the `initPhoneRecaptcha`/`sendPhoneOtp`/`verifyPhoneOtp` façade (currently
-no-ops) with `signInWithPhoneNumber` + `RecaptchaVerifier` (**reCAPTCHA v2 invisible**); wire the Phone tab in the
-login widget (+91 prefix, 10-digit → 6-digit OTP step). Project `lazzyy-topper` on Blaze (done); owner enables the
-Phone provider in the console + adds the prod domain to Authorized domains. Gates: as PR-2 (tsc + build + verifier
-+ matrices + Vercel screenshots) + a **live OTP smoke test**; CI green; lockfile regen if package.json changes.
-STOP for approval.
+### 2. Phase-2 clean-branch (later) — execute the marker deletions
+#218 marked 46 files `LEGACY-RETIRED` (43) / `DEFERRED-REVIVE` (3) without deleting them. A later clean-branch greps
+the markers to delete (retired) / keep (deferred). Also clear the §7 sever residue (MockPaper into the predictive
+family; admin-lane back-links; TopicHubHome orphan; dead buildUrl helpers). See OPEN_QUESTIONS.
 
-### Owner / deploy actions still pending (now load-bearing — no Clerk fallback)
+### 3. Go-live deploy chain (the launch unlock — AI is dark in prod until this)
+INFRA-4 backend deploy: deploy `api-server` (runs the `lazytopper/server` gateway as a child) + provision Postgres →
+Railway + `/api/*` rewrite in `vercel.json` + rate limiting; INFRA-4b Claude/Gemini client rewiring (Replit-proxy →
+direct Anthropic/Gemini key).
+
+### Owner / deploy actions pending (go-live)
 - **Admin bootstrap (BLOCKING):** set `ADMIN_FIREBASE_UIDS` to your Firebase uid — the ONLY way admin routes
   authorize now (else 503 in prod).
 - **Railway env:** `artifacts/api-server` REQUIRES `VITE_FIREBASE_PROJECT_ID` + `FIREBASE_SERVICE_ACCOUNT_KEY` (or
   ADC) — `requireFirebaseAuth` returns 503 without it.
-- **Firebase Authorized domains:** add the prod Vercel domain (`signInWithPopup`). Do the real Google-popup check.
-- Remove `VITE_CLERK_PUBLISHABLE_KEY` from deploy env + local `.env.local`.
+- **Firebase Authorized domains:** add the prod Vercel domain (Google `signInWithPopup` needs it; email/password does
+  NOT). Phone-OTP is unchanged since #214 (the sever touched zero auth files).
 - **Google One-Tap (GIS)** follow-up once a Web OAuth client ID (`VITE_GOOGLE_CLIENT_ID`) is provided.
+- **[SMS-DELIVERABILITY]** Firebase default SMS sender lands in Android spam (DLT-registered sender / custom provider
+  needed; operator lead-time — start early if phone becomes primary). Phone is the fallback; Google/email is primary.
 
 ## (the PRODUCT-track sections below remain valid — pick up after the auth migration arc, or in parallel per owner)
 
