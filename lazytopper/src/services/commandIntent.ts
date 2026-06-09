@@ -47,12 +47,8 @@ export function parseCommandIntent(query: string): CommandIntent {
   if (norm === "my stats" || norm === "stats") {
     return { recognized: true, handler: "navigateToStats", query: norm };
   }
-  if (norm.includes("daily mix")) {
-    return { recognized: true, handler: "navigateToDailyMix", query: norm };
-  }
-  if (norm.includes("weekly wrapped") || norm.includes("weekly recap")) {
-    return { recognized: true, handler: "navigateToWeeklyWrap", query: norm };
-  }
+  // SEVER PR: "daily mix" → navigateToDailyMix and "weekly wrapped/recap" →
+  // navigateToWeeklyWrap intents removed — both routes are retired.
   if (norm.includes("mentor")) {
     return { recognized: true, handler: "navigateToMentor", query: norm };
   }

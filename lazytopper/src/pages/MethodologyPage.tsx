@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import { useNavigate, useLocation } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 

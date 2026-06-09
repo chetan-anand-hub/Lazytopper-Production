@@ -24,19 +24,9 @@ export interface QuickAction {
  * Handlers are string keys that your palette integration layer maps to routes / callbacks.
  */
 export const defaultQuickActions: QuickAction[] = [
-  // Core “Pro Tips” entry points
-  {
-    id: 'start-daily-mix',
-    label: 'Play Daily Mix',
-    description: 'Start today’s quick mix: 1 concept + questions + recap',
-    handler: 'navigateToDailyMix',
-  },
-  {
-    id: 'open-weekly-wrapped',
-    label: 'Weekly Wrapped',
-    description: 'Open your weekly progress story (shareable recap)',
-    handler: 'navigateToWeeklyWrap',
-  },
+  // SEVER PR (2026-06-08): 'start-daily-mix' (→ /daily-mix) and
+  // 'open-weekly-wrapped' (→ /weekly-wrapped) removed — both routes are retired.
+  // The catalog now advertises live targets only.
 
   // Practice & exam mode
   {
@@ -92,13 +82,7 @@ export const defaultQuickActions: QuickAction[] = [
     handler: 'toggleVibeMode',
   },
 
-  // Navigation
-  {
-    id: 'view-dashboard',
-    label: 'Dashboard',
-    description: 'Go back to the main home screen',
-    handler: 'navigateToDashboard',
-  },
+  // SEVER PR: 'view-dashboard' (→ /dashboard) removed — the old Dashboard is retired.
 ];
 
 /**
@@ -106,10 +90,6 @@ export const defaultQuickActions: QuickAction[] = [
  * UI layer can render an icon by looking up `quickActionIconMap[action.id]`.
  */
 export const quickActionIconMap: Record<string, string> = {
-  // Pro Tips
-  'start-daily-mix': 'PlayCircle',
-  'open-weekly-wrapped': 'PartyPopper',
-
   // Practice
   'start-practice': 'Dumbbell',
   'practice-hpq': 'Target',
@@ -123,9 +103,6 @@ export const quickActionIconMap: Record<string, string> = {
   // Stats & settings
   'view-stats': 'BarChart3',
   'toggle-vibe-mode': 'Zap',
-
-  // Navigation
-  'view-dashboard': 'LayoutDashboard',
 };
 
 /**
@@ -133,7 +110,6 @@ export const quickActionIconMap: Record<string, string> = {
  * If you later add keyword search, these can power “fuzzy intent” queries.
  */
 export const quickActionKeywords: Record<string, string[]> = {
-  'start-daily-mix': ['daily mix', 'mix', 'play', 'today', 'focus'],
   'practice-hpq': ['hpq', 'highly probable', 'most important', 'imp', 'marks', 'pyq vibes'],
   'take-mock-test': ['mock', 'test', 'timer', 'exam', 'paper'],
   'open-mock-builder': ['builder', 'custom paper', 'mock builder', 'create mock'],
@@ -141,6 +117,4 @@ export const quickActionKeywords: Record<string, string[]> = {
   'open-mentor': ['mentor', 'help', 'explain', 'solve', 'marking', 'plan'],
   'view-stats': ['stats', 'progress', 'accuracy', 'streak', 'match'],
   'toggle-vibe-mode': ['vibe', 'beast', 'zombie', 'difficulty', 'easy', 'hard'],
-  'view-dashboard': ['dashboard', 'home', 'main'],
-  'open-weekly-wrapped': ['wrapped', 'weekly', 'recap', 'share', 'story'],
 };

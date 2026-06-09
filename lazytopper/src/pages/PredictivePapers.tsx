@@ -1,3 +1,4 @@
+// DEFERRED-REVIVE 2026-06-08 - shelved (B2B/parent-visibility or pending-redesign); revive later, do not delete.
 // src/pages/PredictivePapers.tsx
 
 import React from "react";

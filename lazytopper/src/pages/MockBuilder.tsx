@@ -19,7 +19,6 @@ import {
 
 import {
   buildHPQUrl,
-  buildStudyPlanUrl,
 } from "../utils/buildUrl";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 
@@ -242,10 +241,8 @@ const MockBuilder: React.FC = () => {
       return;
     }
     // Tag-based fallback
-    if (fromTag === "study-plan") {
-      navigate(buildStudyPlanUrl(grade, subjectKey));
-      return;
-    }
+    // SEVER PR: the fromTag === "study-plan" branch (→ retired /study-plan) was
+    // removed; such flows now fall through to the default /exam-trends route below.
     if (fromTag === "hpq" || fromTag === "highly-probable") {
       navigate(buildHPQUrl(grade, subjectKey));
       return;

@@ -5,9 +5,6 @@ import SignUpPage from "./pages/SignUpPage";
 import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
 
-import { StudyPlannerView } from "./components/planner/StudyPlannerView";
-
-
 // Import the new Vibe toggle and command palette components.
 
 import { CommandPalette } from './ui/components/CommandPalette';
@@ -34,34 +31,27 @@ const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
 // same scope-builder experience available at mobile width too.
 const DesktopPracticePage = lazy(() => import("./pages/desktop/DesktopPracticePage"));
 
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const TrendsPage = lazy(() => import("./pages/TrendsPage"));
+// SEVER PR (fix/sever-obsolete-surfaces, 2026-06-08): the lazy imports for the
+// retired/deferred surfaces (Dashboard, TrendsPage, PredictivePapers, StudyPlan,
+// DailyMix, DailyMission, WeeklyWrapped, ParentDashboard, Methodology, NightBefore,
+// RevisionCalendar, MiniMock, ParentAccess, WeeklyDigest, Settings) were removed
+// alongside their <Route> entries below — the route was the only inbound edge.
+// The page files remain on disk (marked LEGACY-RETIRED / DEFERRED-REVIVE) for the
+// Phase-2 clean-branch pass. MockPaper is KEPT routed but is now unreachable (its
+// only entry was the deferred PredictivePapers) — flagged in the sever report.
 const MockPaper = lazy(() => import("./pages/MockPaper"));
 const HighlyProbableQuestions = lazy(() => import("./pages/HighlyProbableQuestions"));
-const PredictivePapersPage = lazy(() => import("./pages/PredictivePapers"));
 const TopicHub = lazy(() => import("./pages/TopicHub"));
 const MockBuilder = lazy(() => import("./pages/MockBuilder"));
-const StudyPlanPage = lazy(() => import("./pages/StudyPlanPage"));
 const PracticePage = lazy(() => import("./pages/PracticePage"));
-const DailyMixPage = lazy(() => import("./pages/DailyMixPage"));
-const DailyMissionPage = lazy(() => import("./pages/DailyMissionPage"));
-const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
-const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
 const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
-const MethodologyPage = lazy(() => import("./pages/MethodologyPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
-const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
-const RevisionCalendarPage = lazy(() => import("./pages/RevisionCalendarPage"));
-const MiniMockPage = lazy(() => import("./pages/MiniMockPage"));
-const ParentAccessPage = lazy(() => import("./pages/ParentAccessPage"));
-const WeeklyDigestPage = lazy(() => import("./pages/WeeklyDigestPage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
 const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
@@ -127,7 +117,10 @@ function TopicMockRedirect() {
 function HomeRedirect() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  // SEVER PR: catch-all "*" no longer drops signed-in students onto the retired
+  // old Dashboard. Send them to "/" — RootEntry then branches by viewport to the
+  // live home (desktop DesktopHome / mobile MobileHome via /browse).
+  if (user) return <Navigate to="/" replace />;
   return <Navigate to="/welcome" replace />;
 }
 
@@ -138,7 +131,10 @@ function RootEntry() {
   if (loading) return null;
 
   if (!isDesktop) {
-    if (user) return <Navigate to="/dashboard" replace />;
+    // SEVER PR: mobile "/" for a signed-in student is the live MobileHome at
+    // /browse — NOT the retired old Dashboard. (Was the two-contradictory-homes
+    // bug: this landed on /dashboard while the BottomNav Home tab went to /browse.)
+    if (user) return <Navigate to="/browse" replace />;
     return <Navigate to="/welcome" replace />;
   }
 
@@ -173,6 +169,14 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
  * green active / muted-slate inactive — replacing the old near-black band and
  * 3-tab set so the mobile chrome matches the desktop sidebar and the locked
  * mobile-Home design. Five tabs mirror the desktop sidebar destinations.
+ *
+ * DURABLE RULE (SEVER PR 2026-06-08): the mobile nav targets DERIVE FROM / MUST
+ * MATCH the desktop nav set (components/desktop/DesktopShell.tsx NAV_ITEMS:
+ * Home / Exam Trends / Practice / Check & Improve / Me). They must NOT diverge
+ * again — divergence is what created the two-contradictory-homes bug (mobile "/"
+ * landed on the old Dashboard while the Home tab went to /browse). Home is the
+ * only intentional split: desktop "/" (DesktopHome) vs mobile "/browse"
+ * (MobileHome). If you add/rename a desktop nav destination, update BOTH.
  *
  * Visibility rules:
  *   Hidden on desktop (>=1024px), on /welcome, /pricing, and any /intent* path.
@@ -216,7 +220,6 @@ export function BottomNav() {
 
   const isExamTrendsActive =
     current.startsWith("/exam-trends") ||
-    current.startsWith("/trends") ||
     current.startsWith("/topic-hub");
 
   const isPracticeActive =
@@ -228,21 +231,13 @@ export function BottomNav() {
     current.startsWith("/topic-mock") ||
     current.startsWith("/chapter-test") ||
     current.startsWith("/mock-paper") ||
-    current.startsWith("/mock-builder") ||
-    current.startsWith("/predictive-papers") ||
-    current.startsWith("/daily-mix") ||
-    current.startsWith("/daily-mission") ||
-    current.startsWith("/study-plan") ||
-    current.startsWith("/planner");
+    current.startsWith("/mock-builder");
 
   const isCheckActive = current.startsWith("/check-improve");
 
   const isMeActive =
     current === "/me" ||
-    current === "/profile" ||
-    current === "/dashboard" ||
-    current === "/weekly-wrapped" ||
-    current === "/parent-dashboard";
+    current === "/profile";
 
   const navItems = [
     {
@@ -505,9 +500,11 @@ export default function App() {
     const s = ctx.subject;
 
     switch (resolvedHandler) {
-      case 'navigateToDashboard':
-        navigate('/dashboard');
-        break;
+      // SEVER PR: command-palette navigations to retired/deferred surfaces
+      // (navigateToDashboard, navigateToWeeklyWrap, navigateToDailyMix,
+      // navigateToWeakAreas, navigateToParentDashboard) were removed — the palette
+      // now reaches only live targets. Their catalog entries are also gone from
+      // commandPaletteConfig.ts / commandIntent.ts so they no longer surface.
       case 'navigateToPractice':
         navigate(`/practice/${g}/${s}${topicParam}`);
         break;
@@ -535,18 +532,6 @@ export default function App() {
         break;
       case 'navigateToProfile':
         navigate('/me');
-        break;
-      case 'navigateToWeeklyWrap':
-        navigate('/weekly-wrapped');
-        break;
-      case 'navigateToDailyMix':
-        navigate(`/daily-mix/${g}/${s}${topicParam}`);
-        break;
-      case 'navigateToWeakAreas':
-        navigate('/weak-area-practice');
-        break;
-      case 'navigateToParentDashboard':
-        navigate('/parent-dashboard');
         break;
       case "setVibeLow":
         setMode("zombie");
@@ -731,14 +716,20 @@ export default function App() {
             path="/welcome"
             element={isDesktop ? <Welcome /> : withRouteSuspense(<MobileWelcome />)}
           />
+          {/* SEVER PR: at mobile width /browse ALWAYS renders the live MobileHome
+              (signed-in or out) — this is the signed-in mobile home landing that
+              "/" (RootEntry) redirects to. Desktop is unchanged: signed-in users
+              bounce to "/" (DesktopHome), signed-out see DesktopHome here. Making
+              mobile /browse terminal (no signed-in bounce) avoids a "/" ⇄ "/browse"
+              redirect loop now that mobile "/" routes signed-in users to /browse. */}
           <Route
             path="/browse"
             element={
-              user
-                ? <Navigate to="/" replace />
-                : isDesktop
-                  ? withRouteSuspense(<DesktopHome />)
-                  : withRouteSuspense(<MobileHome />)
+              isDesktop
+                ? (user
+                    ? <Navigate to="/" replace />
+                    : withRouteSuspense(<DesktopHome />))
+                : withRouteSuspense(<MobileHome />)
             }
           />
           <Route path="/login" element={<Login />} />
@@ -754,16 +745,18 @@ export default function App() {
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />
           <Route path="/admin/difficulty-breakdown" element={<RequireAuth>{withRouteSuspense(<DifficultyBreakdownPage />)}</RequireAuth>} />
           <Route path="/admin/question-reports" element={<RequireAuth>{withRouteSuspense(<QuestionReportsPage />)}</RequireAuth>} />
-          <Route path="/methodology" element={withRouteSuspense(<MethodologyPage />)} />
+          {/* SEVER PR: /methodology RETIRED (prediction method changed; content now
+              wrong). Only inbound was the retired old /trends. Page file marked
+              LEGACY-RETIRED. */}
           <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-          <Route path="/dashboard" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<Dashboard />)}</SectionErrorBoundary></RequireAuth>} />
+          {/* SEVER PR: /dashboard (old Dashboard) RETIRED — it was the mobile "/"
+              + catch-all + command-palette landing (now all re-pointed to the live
+              MobileHome / "/"). Its components/dashboard/* cluster (imported only by
+              Dashboard) is marked LEGACY-RETIRED. */}
 
-
-          {/* New Smart Study Planner (grade + subject aware) */}
-          <Route path="/planner/:grade/:subject" element={<RequirePremium featureLabel="Smart Study Planner"><StudyPlannerView /></RequirePremium>} />
-          {/* Legacy planner route (no params) */}
-          <Route path="/planner" element={<RequirePremium featureLabel="Smart Study Planner"><StudyPlannerView /></RequirePremium>} />
+          {/* SEVER PR: /planner (StudyPlannerView, "planner-mode mentor") RETIRED —
+              premium-gated, not in nav, no live inbound. Marked LEGACY-RETIRED. */}
 
 
           {/* Topic Hub entry with grade & subject in path */}
@@ -807,8 +800,10 @@ export default function App() {
 
       
 
-          {/* Dynamic Trends Page (Maths + Science with toggle) */}
-          <Route path="/trends/:grade/:subject" element={withRouteSuspense(<TrendsPage />)} />
+          {/* SEVER PR: old /trends (TrendsPage) RETIRED — superseded by /exam-trends
+              (ExamTrendsRanked). Leaked inbound (JourneyStrip in HPQ) removed; the
+              JourneyStrip-only references in live PracticeQuestionList / mobile
+              TopicHub re-pointed to /exam-trends. Marked LEGACY-RETIRED. */}
 
           {/* Auto-mock paper view (legacy + predictive) — free users get 1/day */}
           <Route path="/mock-paper/:slug" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<MockPaper />)}</SectionErrorBoundary></MockViewGate>} />
@@ -833,11 +828,12 @@ export default function App() {
             element={<RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>}
           />
 
-          {/* Predictive papers hub — requires auth */}
-          <Route
-            path="/predictive-papers"
-            element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<PredictivePapersPage />)}</SectionErrorBoundary></RequireAuth>}
-          />
+          {/* SEVER PR: /predictive-papers DISCONNECTED + marked DEFERRED-REVIVE
+              (pending redesign into the chapter/full-test family). It had no live
+              inbound nav (only back-targets). NOTE: it was the only entry to
+              /mock-paper/:slug, so MockPaper is now unreachable — kept routed and
+              flagged in the sever report (part of the same pending-redesign family).
+              Live ExamSimulation/MockPaper back-defaults re-pointed off it. */}
 
           {/* Exam Simulation — unlimited full-length mock */}
           <Route
@@ -845,18 +841,18 @@ export default function App() {
             element={<RequirePremium featureLabel="Exam Simulation"><SectionErrorBoundary>{withRouteSuspense(<ExamSimulationPage />)}</SectionErrorBoundary></RequirePremium>}
           />
 
-          <Route path="/night-before" element={<RequireAuth>{withRouteSuspense(<NightBeforePage />)}</RequireAuth>} />
-          <Route path="/revision-calendar" element={<RequireAuth>{withRouteSuspense(<RevisionCalendarPage />)}</RequireAuth>} />
-          <Route path="/mini-mock" element={<RequireAuth>{withRouteSuspense(<MiniMockPage />)}</RequireAuth>} />
-          <Route path="/parent" element={withRouteSuspense(<ParentAccessPage />)} />
-          <Route path="/weekly-digest" element={withRouteSuspense(<WeeklyDigestPage />)} />
+          {/* SEVER PR: exam-week tools /night-before, /revision-calendar, /mini-mock
+              RETIRED (reached only via the dead dashboard cluster / Settings). And
+              /weekly-digest RETIRED (verified NOT part of mistake-intel; its only
+              referrers were the retired Settings/Dashboard/ParentDashboard share
+              flow). All marked LEGACY-RETIRED. /parent (ParentAccessPage) is
+              DISCONNECTED + marked DEFERRED-REVIVE (future B2B / parent-visibility). */}
 
           <Route path="/practice/:grade/:subject" element={<PracticeLimitGate><SectionErrorBoundary>{withRouteSuspense(<PracticePage />)}</SectionErrorBoundary></PracticeLimitGate>} />
 
-          {/* Study Plan with mandatory grade & subject */}
-          <Route path="/study-plan/:grade/:subject" element={<RequirePremium featureLabel="Smart Study Planner">{withRouteSuspense(<StudyPlanPage />)}</RequirePremium>} />
-          {/* Legacy Study Plan route */}
-          <Route path="/study-plan" element={<RequirePremium featureLabel="Smart Study Planner">{withRouteSuspense(<StudyPlanPage />)}</RequirePremium>} />
+          {/* SEVER PR: /study-plan (StudyPlanPage) RETIRED — reached only from the
+              dead MentorPanel + MockBuilder back-nav. The live MockBuilder back path
+              that defaulted here was re-pointed to /exam-trends. Marked LEGACY-RETIRED. */}
 
           {/* AI Mentor routes redirect to TopicHub preserving context */}
           <Route path="/ai-mentor/:grade/:subject" element={<MentorRedirect />} />
@@ -864,44 +860,30 @@ export default function App() {
           <Route path="/mentor/:grade/:subject" element={<MentorRedirect />} />
           <Route path="/mentor" element={<Navigate to="/topic-hub" replace />} />
 
-          {/* Daily Mission — structured 30-min study session */}
-          <Route
-            path="/daily-mission/:grade/:subject"
-            element={<RequirePremium featureLabel="Daily Mission">{withRouteSuspense(<DailyMissionPage />)}</RequirePremium>}
-          />
+          {/* SEVER PR: /daily-mission, /daily-mix (DailyMissionPage / DailyMixPage)
+              and /weekly-wrapped (WeeklyWrappedPage) RETIRED — reached only via the
+              dead dashboard cluster + command palette (both severed). All marked
+              LEGACY-RETIRED. */}
 
-          {/* Daily Mix route for personalised study mixes */}
-          <Route
-            path="/daily-mix/:grade/:subject"
-            element={<RequirePremium featureLabel="Daily Focus Mix">{withRouteSuspense(<DailyMixPage />)}</RequirePremium>}
-          />
-
-          {/* Weekly Wrapped recap route */}
-          <Route
-            path="/weekly-wrapped"
-            element={<RequireAuth>{withRouteSuspense(<WeeklyWrappedPage />)}</RequireAuth>}
-          />
-
-          {/* Weak Area Practice & Learning Paths */}
+          {/* Weak Area Practice & Learning Paths — KEPT (live via ExamSimulation /
+              MockPaper). SEVER PR severed only the dead-Dashboard doorway + the
+              command-palette entry; its back-default was re-pointed off /dashboard. */}
           <Route
             path="/weak-area-practice"
             element={<RequirePremium featureLabel="Weak Area Practice">{withRouteSuspense(<WeakAreaPracticePage />)}</RequirePremium>}
           />
 
-          {/* Parent/Teacher Progress Report Dashboard */}
-          <Route
-            path="/parent-dashboard"
-            element={<RequirePremium featureLabel="Parent Dashboard">{withRouteSuspense(<ParentDashboardPage />)}</RequirePremium>}
-          />
+          {/* SEVER PR: /parent-dashboard (ParentDashboardPage) DISCONNECTED + marked
+              DEFERRED-REVIVE (future B2B / parent-visibility). Reached only from the
+              retired Settings + WeeklyDigest + command palette. */}
 
-          {/* Student Profile & Growth Journey */}
+          {/* Student Profile & Growth Journey — /profile alias kept (→ /me, live). */}
           <Route path="/profile" element={<Navigate to="/me" replace />} />
 
-          {/* Settings */}
-          <Route
-            path="/settings"
-            element={<RequireAuth>{withRouteSuspense(<SettingsPage />)}</RequireAuth>}
-          />
+          {/* SEVER PR: /settings (SettingsPage) RETIRED — Me/Progress is the account
+              surface. Reached only from the orphaned ProfilePage; it linked onward to
+              the retired night-before/weekly-digest/parent-dashboard. Marked
+              LEGACY-RETIRED. */}
 
           {/* ── Mobile baseline routes (#437)
                BrowserRouter basename="/app" is ALWAYS active (vite base="/app/" in

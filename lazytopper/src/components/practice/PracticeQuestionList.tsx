@@ -102,7 +102,8 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               Browse chapters in Chapter Hub
             </Link>
             <Link
-              to={`/trends/10/${subjectKey}`}
+              /* SEVER PR: re-pointed off the retired /trends to live /exam-trends. */
+              to={`/exam-trends`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
                 background: "#ffffff", border: "1px solid hsl(220, 18%, 90%)",

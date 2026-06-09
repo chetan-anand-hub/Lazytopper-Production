@@ -69,8 +69,9 @@ export default function ExamSimulationPage() {
   const finishExamRef = useRef<() => void>(() => {});
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
-  const backTo = navState?.back || "/predictive-papers";
-  const backLabel = navState?.backLabel || "Back to papers";
+  // SEVER PR: back-default re-pointed off the deferred /predictive-papers to live /practice-hub.
+  const backTo = navState?.back || "/practice-hub";
+  const backLabel = navState?.backLabel || "Back to Practice";
 
   const breathingStartRef = useRef(0);
 

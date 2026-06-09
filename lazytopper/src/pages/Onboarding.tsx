@@ -97,7 +97,9 @@ export default function Onboarding() {
     setProfileAndCompute(nextProfile);
     trackUxEvent("onboarding_complete", "onboarding", { target: String(targetPercent) });
     creditPendingReferral(`user_${Date.now()}`);
-    navigate("/dashboard");
+    // SEVER PR: post-onboarding landing re-pointed off the retired /dashboard to
+    // "/" (RootEntry routes to the live home per viewport: DesktopHome / MobileHome).
+    navigate("/");
   };
 
   if (loadingProfile) {

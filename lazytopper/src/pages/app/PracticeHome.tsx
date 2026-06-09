@@ -1,3 +1,4 @@
+// LEGACY-RETIRED 2026-06-08 - disconnected from product; safe to delete in clean-branch pass.
 import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
