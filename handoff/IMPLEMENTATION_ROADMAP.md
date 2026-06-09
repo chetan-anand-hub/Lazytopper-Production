@@ -2,6 +2,30 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-09 — Post-PR #220 roadmap update (Phase-2 responsive divergence: audit + Track A)
+
+The Phase-2 reconcile of stale mobile twins to the desktop source-of-truth. Authority:
+`report-responsive-divergence-audit-2026-06-08.md` (read-only map of every `useIsDesktop()` split).
+
+### Completed this session
+- [x] **Responsive-divergence audit (read-only)** — 7 split surfaces classified; 5 DIVERGENT (Me, chrome/avatar, Check &
+  Improve, Topic Hub, Worksheets); severities normalized; ordered Phase-2 punch-list produced.
+- [x] **PR #220 — Track A: mobile Me honesty** (trunk after merge `8c478ce`; 1 file `app/Me.tsx`, +48/−56): removed the
+  fabricated `COMMON_MISTAKES` bars (−12/−8/−5) + invented weak-topics count; honest empty-states (desktop verbatim copy) +
+  honesty footer. Grep-proven zero fabricated data; gates green; build CI-gated. The urgent trust-critical stopgap.
+
+### Phase-2 responsive divergence track (ordered; trust-critical first)
+  [x] Responsive-divergence audit
+  [x] **Track A — mobile Me honesty (RESP-DIV-1)** (#220, stopgap)
+  [ ] **(NEXT) Track B — mobile Check & Improve: trust + persistence** (fix the permissive failed-grade guard; wire
+      `useAuth`/`persistMistakeLog` so mobile grading saves — the data source mobile Me needs)
+  [ ] RESP-DIV-2 — mobile logout / Manage-subscription path (functional, high)
+  [ ] Topic Hub reconcile (wire mobile Learn to tutor; label/drop synthetic questions; honest progress signal)
+  [ ] Worksheets parity (mistake-intelligence + multi-topic/full-subject + save + Science `stream`)
+  [ ] Home real-insights on mobile (firebase-free boundary decision)
+  [ ] RESP-DIV-3 — trial banner (cosmetic)
+  [ ] Durable: converge mobile Me into desktop Me (one responsive component, one pipeline) — after Track B
+
 ## 2026-06-09 — Post-PR #218 roadmap update (SEVER: product reaches only live surfaces)
 
 The structural sever that the two read-only audits (responsive-surface + banned-term-prose) set up. Disconnect-only

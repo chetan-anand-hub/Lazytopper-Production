@@ -1,14 +1,58 @@
+## 2026-06-09 — Post-PR #220 (Track A: mobile Me honesty) + full responsive-divergence audit
+
+### RESOLVED (stopgap) in #220 — RESP-DIV-1 honesty-patched
+- **[RESP-DIV-1] Mobile Me fabricated data → HONESTY-PATCHED (`fix/mobile-me-honesty`, trunk `8c478ce`).** Deleted the
+  hardcoded `COMMON_MISTAKES` bars (−12/−8/−5 marks, rendered unconditionally) + the invented weak-topics count
+  (`Science?"3":"2"` → honest `"—"`); replaced with branch-on-`user` honest empty-states using desktop Me's verbatim copy
+  + an honesty footer. Grep proof: zero fabricated data remains. Gates green; build CI-gated. 1 file (`app/Me.tsx`), +48/−56.
+  Report: `report-mobile-me-honesty-2026-06-08.md`. **CORRECTION to the original preview note:** the "Premium" badge is the
+  REAL `useSubscription()` label (not fabricated); the actual fabrications were the mistake bars + weak-topics count, now gone.
+  **STILL OPEN (coupled):** Track B (mobile Check persistence so real data flows) + the durable convergence — see below.
+
+### The full responsive-divergence audit landed (READ-ONLY) — `report-responsive-divergence-audit-2026-06-08.md`
+Mapped every `useIsDesktop()` split (trunk `ac2eedf`). Of 7 split surfaces: 2 MATCH-by-design (Home, Welcome), 2 MATCH by
+construction (Exam Trends, Practice Hub), **5 DIVERGENT** (Me, chrome/avatar, Check & Improve, Topic Hub, Worksheets).
+Severities normalized to the rubric (mobile-shows-less = functional, not trust-critical). **Phase-2 punch-list in fix order
+(trust-critical first):**
+1. ~~Mobile Me honesty (RESP-DIV-1)~~ **DONE (#220, stopgap).**
+2. **[TRACK B, next] Mobile Check & Improve — trust + persistence.** (a) Fix the permissive failed-grade guard in
+   `app/CheckImprove.tsx` (`!result.ok && result.error`) so a failed grade can never render as a valid score
+   (trust-critical-potential — confirm whether the grader can return `ok:false` with empty `error`). (b) Wire `useAuth()` +
+   `persistMistakeLog(user.uid, …)` so mobile grading actually SAVES — this is the data source mobile Me needs; until it
+   lands, mobile Me's honest empty-state is the correct render. **Coupled with RESP-DIV-1 — this makes real data flow.**
+3. **[RESP-DIV-2, functional-HIGH] Mobile has NO logout path** (escalated from "no dropdown"). The mobile avatar only
+   navigates to `/me`; the mobile Me page has no logout; the only logout button lived in the now-retired `SettingsPage`
+   (pre-existing gap, not a #218 regression). Add Log out + Manage subscription to the mobile chrome or Me page (mirror the
+   desktop `DesktopShell` dropdown). A signed-in mobile student currently cannot sign out.
+4. **[TOPIC-HUB, functional/content] Mobile Topic Hub reconcile.** `app/TopicHub.tsx` "Learn" routes to `/check-improve`
+   (concept tutor still unwired); `pages/TopicHub.tsx` builds UNLABELLED synthetic fallback questions
+   (`buildFallbackStepQuestion`/`buildFallbackCheckpoint`) recorded to a localStorage "Chapter Mastered" signal. Reconcile to
+   the desktop reference+tutor model: wire mobile "Learn" to the tutor; label or drop generated questions; replace the local
+   "mastery" claim with an honest progress indicator.
+5. **[WORKSHEETS, functional] Mobile Worksheets parity.** Desktop has mistake-intelligence + multi-topic/full-subject +
+   save/upload + the Science `stream` filter; `app/Worksheets.tsx` is single-topic-only and its `SCIENCE_TOPICS` is missing
+   the `stream` field. Bring the desktop capabilities to mobile. (No fabrication — capability gap only.)
+6. **[HOME, functional] Mobile Home real-insights gap.** Signed-in MobileHome never surfaces real mistake insights (honest
+   empty-state by the firebase-free boundary). Surface real insights on mobile — requires resolving that boundary (explicit
+   architecture decision). The signed-out "Sample" panel is correctly labelled (honest); no change there.
+7. **[RESP-DIV-3, cosmetic] Mobile trial ribbon.** Static mobile pill + separate `TrialBanner` vs the desktop interactive
+   color-coded pill. Reconcile last.
+
+### DURABLE (post-stopgap) — converge mobile Me into desktop Me
+The real cure for RESP-DIV-1 is convergence: fold `app/Me.tsx` into `DesktopMePage` as ONE responsive component sharing ONE
+data pipeline (eliminating the parallel mobile page). Larger Phase-2 re-architecture; do AFTER Track B wires the data source.
+Minor copy debt to fold in: the mobile worksheet CTA subtitle "targets your weak areas" overclaims the single-topic generator.
+
 ## 2026-06-09 — Post-PR #218 (SEVER: disconnect obsolete surfaces)
 
 ### NEW — Phase-2 RESPONSIVE DIVERGENCE punch-list (soft-launch blockers; pre-existing, NOT caused by the sever)
 Found while verifying #218 on the Vercel preview. Governing principle for all three: **desktop is source-of-truth,
 reconcile mobile to it, no invented numbers.** These are the seed of the Phase-2 responsive divergence punch-list
 (the next workstream after the sever) — soft-launch blockers, but they did NOT block #218.
-- **[RESP-DIV-1, soft-launch blocker, TRUST-CRITICAL] Mobile Me diverges from desktop Me.** The mobile `useIsDesktop()`
-  variant is a stale page showing **fabricated sample data to a real signed-in user** (−12 / −8 / −5 marks, a
-  "Premium" badge, demo weak-topics). Desktop Me (the "study mirror") is the current source-of-truth with the honest
-  empty-state / no-invented-numbers model. Reconcile mobile Me to desktop's content + honesty model **before soft
-  launch** — fabricated data to a real user is a trust breach (violates the no-fake-data doctrine).
+- **[RESP-DIV-1, TRUST-CRITICAL] Mobile Me fabricated data — ✅ HONESTY-PATCHED in #220** (see the Post-PR #220 section
+  above; the data is now honest empty-states). The mobile `useIsDesktop()` variant had shown fabricated data to a real
+  signed-in user (−12 / −8 / −5 marks + invented weak-topics; note the "Premium" badge was actually the REAL subscription
+  label). Durable convergence + Track B (real data pipeline) remain open.
 - **[RESP-DIV-2, soft-launch] Mobile avatar has no dropdown.** Desktop avatar opens a menu (Me/Progress + Manage
   subscription + Log out); the mobile avatar-initial only navigates to Me — so there is **no mobile path to Log out
   or Manage subscription.** Add the dropdown (or an equivalent mobile affordance). (Subset of RESP-DIV-3.)
