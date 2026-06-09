@@ -1,26 +1,33 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-09 (post-PR #218 — SEVER merged; product reaches only live surfaces. NEXT: Phase-2 responsive divergence punch-list + go-live — owner to scope)
-# Base SHA: bcb7c2a71cb137ac536c270298cc9bce2d1e9ece
+# Updated: 2026-06-09 (post-PR #220 — Track A done: mobile Me honesty-patched. Full divergence audit landed. NEXT: Track B — mobile Check & Improve trust + persistence — owner to scope)
+# Base SHA: 8c478ce76d7a4371db51832bbf0c536103e5cbb7
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: bcb7c2a71cb137ac536c270298cc9bce2d1e9ece
-Last PRs: #214 (auth PR-4 — phone/SMS-OTP; auth arc 4/4 COMPLETE) + #215/#217 (docs) + #216 (banned-term prose copy-fix) + #218 (SEVER — disconnect obsolete surfaces)
+SHA: 8c478ce76d7a4371db51832bbf0c536103e5cbb7
+Last PRs: #216 (banned-term prose copy-fix) + #217/#219 (docs) + #218 (SEVER — disconnect obsolete surfaces) + #220 (Track A — mobile Me honesty: fabricated −12/−8/−5 data removed)
 
 ## ⏭️ IMMEDIATE NEXT — Phase-2 responsive divergence reconcile (soft-launch), then go-live (owner to scope/order)
-The auth migration arc is CLOSED (PR-1..PR-4 — Firebase-only end to end). The SEVER (#218) is merged — the running
-product now reaches ONLY live surfaces (mobile `/`, catch-all, and the command palette no longer route students into
-the old Dashboard graveyard). The next workstream is the **Phase-2 responsive divergence punch-list** surfaced while
-verifying #218 on the preview, then the go-live deploy.
+The auth arc is CLOSED and the SEVER (#218) is merged. The full **responsive-divergence audit** is done
+(`report-responsive-divergence-audit-2026-06-08.md`): 7 mobile/desktop split surfaces, 5 DIVERGENT. The Phase-2
+reconcile is underway, in fix order (trust-critical first). **Track A (mobile Me honesty) is DONE (#220).**
 
 ### 1. Phase-2 RESPONSIVE DIVERGENCE punch-list (soft-launch blockers — desktop is source-of-truth; no invented numbers)
-Reconcile the stale `useIsDesktop()` mobile twins to their desktop source-of-truth. See OPEN_QUESTIONS (RESP-DIV-1..3):
-- **RESP-DIV-1 (TRUST-CRITICAL):** mobile Me shows FABRICATED sample data to a real signed-in user (−12/−8/−5 marks,
-  "Premium" badge, demo weak-topics). Reconcile to desktop Me's honest empty-state model BEFORE soft launch.
-- **RESP-DIV-2/3:** mobile avatar has no dropdown (no Log out / Manage subscription path) + mobile top-ribbon/trial
-  banner diverges from desktop. Reconcile the mobile top-bar + avatar to desktop.
-Each is its own scoped PR (desktop-leads, mobile-adapts; Option-B grammar). Owner supplies order + any frozen design.
+Ordered in OPEN_QUESTIONS (Post-PR #220 section). Each is its own scoped PR (desktop-leads, mobile-adapts; Option-B grammar):
+- ~~**Track A — mobile Me honesty (RESP-DIV-1, TRUST-CRITICAL)**~~ **DONE (#220, stopgap).** Fabricated −12/−8/−5 mistakes +
+  invented weak-topics removed → honest empty-states. (The "Premium badge" in the original note was the REAL subscription
+  label, not fabricated.) Durable convergence + Track B remain.
+- **Track B (NEXT) — mobile Check & Improve trust + persistence.** (a) Fix `app/CheckImprove.tsx`'s permissive failed-grade
+  guard (`!result.ok && result.error`) so a failed grade can't render as a valid score. (b) Wire `useAuth()` +
+  `persistMistakeLog(user.uid, …)` so mobile grading SAVES — the real data source mobile Me needs (until then, mobile Me's
+  honest empty-state is correct). **Coupled with Track A.**
+- **RESP-DIV-2 (functional-HIGH) — mobile has NO logout path.** Add Log out + Manage subscription to mobile chrome / Me page.
+- **Topic Hub reconcile** (wire mobile "Learn" to the tutor; label/drop synthetic fallback questions; honest progress vs the
+  localStorage "Chapter Mastered" claim) → **Worksheets parity** (mistake-intelligence + multi-topic/full-subject + save +
+  Science `stream` field) → **Home real-insights** (firebase-free boundary decision) → **RESP-DIV-3 (cosmetic) trial banner**.
+- **Durable cure:** converge mobile Me into desktop Me (one responsive component, one data pipeline) — after Track B.
+Owner supplies order confirmation + any frozen design before each.
 
 ### 2. Phase-2 clean-branch (later) — execute the marker deletions
 #218 marked 46 files `LEGACY-RETIRED` (43) / `DEFERRED-REVIVE` (3) without deleting them. A later clean-branch greps

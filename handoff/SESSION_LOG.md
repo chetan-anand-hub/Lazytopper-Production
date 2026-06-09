@@ -1,5 +1,32 @@
 ---
 
+## 2026-06-09 — Phase-2 responsive-divergence audit + Track A (#220): mobile Me honesty
+
+**Trunk after merge: `8c478ce`** (#220, `fix/mobile-me-honesty`; 1 file `app/Me.tsx`, +48/−56). Owner-merged code PR.
+
+### Read-only audit first
+`report-responsive-divergence-audit-2026-06-08.md` mapped every `useIsDesktop()` mobile/desktop split (trunk `ac2eedf`):
+7 split surfaces → 2 MATCH-by-design (Home, Welcome), 2 MATCH by construction (Exam Trends, Practice Hub), **5 DIVERGENT**
+(Me, chrome/avatar, Check & Improve, Topic Hub, Worksheets). Used parallel read-only sub-agents per surface; re-verified the
+two flagship trust-critical claims (mobile Me fabricated data; mobile Topic Hub synthetic content) + the logout gap by direct
+read; **normalized severities** (mobile-shows-less = functional, not trust-critical). Produced the ordered Phase-2 punch-list.
+
+### Track A (#220) — the urgent trust-critical stopgap
+Mobile Me (`app/Me.tsx`) had rendered fabricated personal performance data to real signed-in users: hardcoded
+`COMMON_MISTAKES` bars (−12/−8/−5 marks, unconditional, unlabelled) + an invented weak-topics count (`Science?"3":"2"`).
+Removed both; replaced with branch-on-`user` honest empty-states using desktop Me's **verbatim copy** ("No mistake logs yet" /
+"Use Check & Improve… nothing is shown until then") + an honesty footer. Weak-topics tile → `"—"`. Kept Streak/XP (real
+localStorage). **Grep proof: zero fabricated data remains.** Gates: tsc 0, mojibake, scope:guard product, root matrix
+175/175, ops 6/6, git diff --check clean; build CI-gated. Report: `report-mobile-me-honesty-2026-06-08.md`.
+
+### Still open (logged in OPEN_QUESTIONS, in fix order)
+Track A was the honesty STOPGAP. **Track B next** — mobile Check & Improve: fix the permissive failed-grade guard + wire
+`useAuth`/`persistMistakeLog` so mobile grading SAVES (the real data source mobile Me needs). Then RESP-DIV-2 (mobile has NO
+logout path), Topic Hub reconcile, Worksheets parity, Home real-insights, RESP-DIV-3 (trial banner). Durable cure = converge
+mobile Me into desktop Me (one responsive component, one data pipeline).
+
+---
+
 ## 2026-06-09 — SEVER PR (#218): disconnect obsolete surfaces — product reaches only live surfaces
 
 **Trunk after merge: `bcb7c2a`** (squash-merge of `fix/sever-obsolete-surfaces`; 57 files, +170/−171). Owner-authorized

@@ -1,10 +1,24 @@
 # LazyTopper — Current State
-Last updated: 2026-06-09 (post-PR #218 — SEVER PR: obsolete surfaces disconnected; the running product now reaches ONLY live surfaces. NEXT: Phase-2 responsive divergence punch-list (mobile↔desktop reconcile — soft-launch blockers) + go-live / Phase 1 — owner to scope)
+Last updated: 2026-06-09 (post-PR #220 — Track A: mobile Me honesty-patched (fabricated −12/−8/−5 data gone). Full responsive-divergence audit landed → Phase-2 punch-list ordered. NEXT: Track B — mobile Check & Improve trust + persistence — owner to scope)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: bcb7c2a71cb137ac536c270298cc9bce2d1e9ece
-Last merged PRs: #214 (feat: auth PR-4 — phone/SMS-OTP), #215 (docs), #216 (fix: banned-term prose copy-fix — `topics.ts` + `topicHubContent.ts`), #217 (docs: handoff post-#216), #218 (fix/routing: SEVER — disconnect obsolete surfaces; re-point mobile `/` + catch-all to live MobileHome)
+SHA: 8c478ce76d7a4371db51832bbf0c536103e5cbb7
+Last merged PRs: #216 (fix: banned-term prose copy-fix), #217 (docs), #218 (fix/routing: SEVER — disconnect obsolete surfaces), #219 (docs: handoff post-#218), #220 (fix/mobile-me: remove fabricated performance data — honest empty-states; RESP-DIV-1)
+
+## PHASE-2 RESPONSIVE DIVERGENCE — Track A DONE (#220); audit ordered the rest
+The Phase-2 work (reconcile stale mobile twins to the desktop source-of-truth; no invented numbers) is underway.
+- **Full divergence audit (read-only):** `report-responsive-divergence-audit-2026-06-08.md` mapped every `useIsDesktop()`
+  split. 7 split surfaces → 2 MATCH-by-design (Home, Welcome), 2 MATCH by construction (Exam Trends, Practice Hub),
+  **5 DIVERGENT** (Me, chrome/avatar, Check & Improve, Topic Hub, Worksheets). Severities normalized (mobile-shows-less =
+  functional, not trust-critical).
+- **Track A DONE (#220, `8c478ce`):** mobile Me (`app/Me.tsx`) no longer shows fabricated personal data — the hardcoded
+  `COMMON_MISTAKES` bars (−12/−8/−5) + invented weak-topics count are removed, replaced with honest empty-states (desktop
+  Me's verbatim copy) + an honesty footer. The urgent trust-critical stopgap. Streak/XP kept (real localStorage). 1 file,
+  +48/−56; grep-proven zero fabricated data; gates green; build CI-gated.
+- **Punch-list order (OPEN_QUESTIONS):** Track A ✓ → **Track B (mobile Check trust + persistence — the data source mobile
+  Me needs)** → RESP-DIV-2 (mobile has NO logout path) → Topic Hub reconcile → Worksheets parity → Home real-insights →
+  RESP-DIV-3 (trial banner). Durable cure = converge mobile Me into desktop Me (one responsive component, one pipeline).
 
 ## SEVER PR (#218) — obsolete surfaces disconnected; product reaches ONLY live surfaces
 PR #218 (`fix/sever-obsolete-surfaces`; squash-merged **`bcb7c2a`**, 57 files +170/−171) severed every inbound edge
