@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { getMistakeLogs } from "../../services/mistakeLogService";
 
 function readLocalInt(key: string, fallback = 0): number {
   try {
@@ -27,6 +29,57 @@ export default function Me() {
 
   const streak = readLocalInt("lazytopper.streak");
   const xp = readLocalInt("lazytopper.xp");
+
+  // Real mistake mix from the SHARED pipeline — the same getMistakeLogs(uid, 30)
+  // desktop Me reads. Persisted by Check & Improve (mobile + desktop). No
+  // fabricated data: an honest empty-state shows until the student grades an
+  // answer; once they do, the real category mix appears here AND on desktop Me.
+  const [mistakeMix, setMistakeMix] = useState<{
+    bars: Array<{ label: string; count: number; pct: number }>;
+    total: number;
+  }>({ bars: [], total: 0 });
+
+  useEffect(() => {
+    if (!user) {
+      setMistakeMix({ bars: [], total: 0 });
+      return;
+    }
+    let cancelled = false;
+    void getMistakeLogs(user.uid, 30)
+      .then((logs) => {
+        if (cancelled) return;
+        const totals = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+        for (const l of logs) {
+          const c = l.mistakeCounts || ({} as typeof totals);
+          totals.conceptual += Number(c.conceptual) || 0;
+          totals.calculation += Number(c.calculation) || 0;
+          totals.silly += Number(c.silly) || 0;
+          totals.presentation += Number(c.presentation) || 0;
+        }
+        const total =
+          totals.conceptual + totals.calculation + totals.silly + totals.presentation;
+        const bars = [
+          { label: "Conceptual", count: totals.conceptual },
+          { label: "Calculation", count: totals.calculation },
+          { label: "Silly mistakes", count: totals.silly },
+          { label: "Presentation", count: totals.presentation },
+        ]
+          .filter((d) => d.count > 0)
+          .map((d) => ({
+            label: d.label,
+            count: d.count,
+            pct: total > 0 ? Math.round((d.count / total) * 100) : 0,
+          }))
+          .sort((a, b) => b.count - a.count);
+        setMistakeMix({ bars, total });
+      })
+      .catch(() => {
+        if (!cancelled) setMistakeMix({ bars: [], total: 0 });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Student";
   const initials = displayName
@@ -210,36 +263,78 @@ export default function Me() {
           >
             Where you lose marks
           </div>
-          {/* HONEST EMPTY-STATE (fix/mobile-me-honesty): the hardcoded
-              COMMON_MISTAKES bars (-12/-8/-5 marks) were fabricated personal
-              data shown to real users — removed. Mobile Me has no real mistake
-              data source yet, so we mirror desktop Me's honest empty-state copy
-              and never invent numbers. Real mistake mix arrives once mobile
-              Check & Improve persists graded answers (Track B) + the Phase-2
-              convergence shares the desktop data pipeline. */}
-          <div className="card-soft" style={{ padding: "16px" }}>
-            <div
-              style={{
-                fontSize: "0.86rem",
-                fontWeight: 700,
-                color: "var(--mob-fg)",
-                marginBottom: 6,
-              }}
-            >
-              {user ? "No mistake logs yet" : "Your mistake mix appears here"}
+          {/* REAL mistake mix (Track B): when the student has graded answers, show
+              their actual category breakdown from the shared getMistakeLogs
+              pipeline (counts per category, mirroring desktop Me's
+              "{count} of {total} ({pct}%)"). Otherwise an HONEST empty-state —
+              never fabricated numbers (the −12/−8/−5 sample bars were removed in
+              #220). The mix fills in once Check & Improve persists a grade. */}
+          {mistakeMix.total > 0 ? (
+            <div className="card-soft" style={{ padding: "14px 16px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {mistakeMix.bars.map((b) => (
+                  <div key={b.label}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: 6,
+                      }}
+                    >
+                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--mob-fg)" }}>
+                        {b.label}
+                      </span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)" }}>
+                        {b.count} of {mistakeMix.total} ({b.pct}%)
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        height: 6,
+                        borderRadius: 3,
+                        background: "var(--mob-muted)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          borderRadius: 3,
+                          background: "var(--mob-danger, #ef4444)",
+                          width: `${b.pct}%`,
+                          transition: "width 0.4s ease",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div
-              style={{
-                fontSize: "0.78rem",
-                color: "var(--mob-fg-muted)",
-                lineHeight: 1.5,
-              }}
-            >
-              {user
-                ? "Use Check & Improve to grade an answer. Each graded answer adds to your real mistake mix — nothing is shown until then."
-                : "Sign in and grade an answer in Check & Improve. Your real mistake categories will appear here automatically."}
+          ) : (
+            <div className="card-soft" style={{ padding: "16px" }}>
+              <div
+                style={{
+                  fontSize: "0.86rem",
+                  fontWeight: 700,
+                  color: "var(--mob-fg)",
+                  marginBottom: 6,
+                }}
+              >
+                {user ? "No mistake logs yet" : "Your mistake mix appears here"}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.78rem",
+                  color: "var(--mob-fg-muted)",
+                  lineHeight: 1.5,
+                }}
+              >
+                {user
+                  ? "Use Check & Improve to grade an answer. Each graded answer adds to your real mistake mix — nothing is shown until then."
+                  : "Sign in and grade an answer in Check & Improve. Your real mistake categories will appear here automatically."}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Recommended next action */}

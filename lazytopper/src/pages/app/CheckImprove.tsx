@@ -6,6 +6,52 @@ import {
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
 } from "../../ai/aiClient";
+import { useAuth } from "../../context/AuthContext";
+import { logMistakes, type MistakeLogEntry } from "../../services/mistakeLogService";
+
+/**
+ * buildMobileLogEntry — mirror of DesktopCheckImprovePage.tsx `buildLogEntry`.
+ * Maps a grader response to the SHARED MistakeLogEntry schema so a mobile grade
+ * persists to the SAME pipeline desktop uses (`logMistakes` → localStorage +
+ * Firestore `learnerProfiles/{uid}/mistakeLogs`) and surfaces in mobile + desktop
+ * Me. Do NOT diverge this from desktop's mapping — keep the two unified.
+ */
+function buildMobileLogEntry(
+  subject: string,
+  topic: string,
+  question: string,
+  result: CheckSolutionResponse,
+): Omit<MistakeLogEntry, "id"> {
+  const summary = result.mistakeSummary ?? {
+    conceptual: 0,
+    calculation: 0,
+    silly: 0,
+    presentation: 0,
+  };
+  const marksLost = Math.max(0, result.totalMarks - result.marksAwarded);
+  const stepDetails = (result.annotatedSteps ?? [])
+    .filter((s) => s.mistakeType && s.marksDeducted > 0)
+    .map((s) => ({
+      stepNumber: s.stepNumber,
+      mistakeType: String(s.mistakeType),
+      marksDeducted: s.marksDeducted,
+    }));
+  return {
+    timestamp: new Date().toISOString(),
+    questionText: question,
+    topic,
+    subject,
+    totalMarks: result.totalMarks,
+    marksLost,
+    mistakeCounts: {
+      conceptual: summary.conceptual ?? 0,
+      calculation: summary.calculation ?? 0,
+      silly: summary.silly ?? 0,
+      presentation: summary.presentation ?? 0,
+    },
+    stepDetails,
+  };
+}
 
 const MATHS_TOPICS = [
   "Real Numbers", "Polynomials", "Linear Equations", "Quadratic Equations",
@@ -26,6 +72,7 @@ type Tab  = "upload" | "type";
 
 export default function CheckImprove() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [view, setView]               = useState<View>("upload");
@@ -41,6 +88,7 @@ export default function CheckImprove() {
   const [grading, setGrading]         = useState(false);
   const [gradeResult, setGradeResult] = useState<CheckSolutionResponse | null>(null);
   const [gradeError, setGradeError]   = useState<string | null>(null);
+  const [saved, setSaved]             = useState<"idle" | "saved" | "no-user">("idle");
 
   const hasContent = tab === "upload" ? fileLoaded : textAnswer.trim().length > 10;
   const canGrade   = hasContent && question.trim().length > 0;
@@ -65,6 +113,7 @@ export default function CheckImprove() {
 
   async function handleGrade() {
     setGradeError(null);
+    setSaved("idle");
     setGrading(true);
     try {
       const req = {
@@ -77,11 +126,33 @@ export default function CheckImprove() {
           : { textAnswer: textAnswer.trim() }),
       };
       const result = await checkSolutionImage(req);
-      if (!result.ok && result.error) {
-        setGradeError("Grading unavailable — please try again.");
+      // Mirror desktop's guard: a failed grade (no result, or ok === false) must
+      // render as an ERROR — never as a valid score. The old permissive check
+      // (`!result.ok && result.error`) let an `ok:false` response with an empty
+      // `error` fall through to the else branch and render as a real grade.
+      if (!result || result.ok === false) {
+        setGradeError(
+          result?.error
+            ? `Grading unavailable — ${result.error}`
+            : "Grading unavailable — please try again.",
+        );
+        return;
+      }
+      setGradeResult(result);
+      setView("graded");
+      // Persist to the SAME pipeline desktop uses (mirror, don't reinvent):
+      // logMistakes writes localStorage synchronously + Firestore
+      // `learnerProfiles/{uid}/mistakeLogs` fire-and-forget. Keyed on uid, so the
+      // graded mistake surfaces in BOTH mobile Me and desktop Me. Only persists
+      // when signed in (no fabricated/anonymous history).
+      if (user) {
+        setSaved("saved");
+        void logMistakes(
+          user.uid,
+          buildMobileLogEntry(subject, topic, question.trim(), result),
+        );
       } else {
-        setGradeResult(result);
-        setView("graded");
+        setSaved("no-user");
       }
     } catch {
       setGradeError("Grading unavailable — please try again.");
@@ -94,6 +165,7 @@ export default function CheckImprove() {
     return (
       <GradedResult
         result={gradeResult}
+        saved={saved}
         onBack={() => { setView("upload"); setGradeResult(null); }}
         navigate={navigate}
       />
@@ -430,10 +502,12 @@ function StatusBadge({ status }: { status: CheckSolutionAnnotatedStep["status"] 
 
 function GradedResult({
   result,
+  saved,
   onBack,
   navigate,
 }: {
   result: CheckSolutionResponse;
+  saved: "idle" | "saved" | "no-user";
   onBack: () => void;
   navigate: ReturnType<typeof useNavigate>;
 }) {
@@ -494,6 +568,41 @@ function GradedResult({
             ))}
           </div>
         </div>
+
+        {/* ── Save status (honest) — graded answer persisted to your progress
+             (the SAME pipeline as desktop; surfaces in mobile + desktop Me) ── */}
+        {saved === "saved" ? (
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: 12,
+              background: "var(--mob-success-soft)",
+              border: "1px solid rgba(34,197,94,0.2)",
+              color: "var(--mob-success)",
+              fontSize: "0.78rem",
+              fontWeight: 600,
+            }}
+          >
+            ✓ Saved to your progress — view it in Me
+          </div>
+        ) : saved === "no-user" ? (
+          <button
+            onClick={() => navigate("/login?reason=open-progress&redirect=%2Fcheck-improve")}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: "1.5px dashed var(--mob-card-border)",
+              background: "transparent",
+              color: "var(--mob-fg-muted)",
+              fontSize: "0.78rem",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+            }}
+          >
+            Sign in to save this to your progress →
+          </button>
+        ) : null}
 
         {/* ── Where you lost marks ──────────────────────────────── */}
         {lost.length > 0 && (
