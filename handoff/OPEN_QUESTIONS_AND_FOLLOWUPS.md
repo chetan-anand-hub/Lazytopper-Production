@@ -1,3 +1,31 @@
+## 2026-06-09 — Post-PR #222 (Track B: mobile Check & Improve — trust + persistence)
+
+### MERGED in #222 (trunk `6c88ccf`) — but persistence is UNPROVEN end-to-end (see the gate below)
+- **[TRACK B] Mobile Check & Improve trust + persistence** (`fix/mobile-check-persistence`; 2 files
+  `app/CheckImprove.tsx` + `app/Me.tsx`, +236/−32). Three coupled fixes, all mirroring desktop (not reinvented):
+  1. **Trust guard fixed** — `!result.ok && result.error` → `!result || result.ok === false` (mirrors
+     `DesktopCheckImprovePage.tsx:727`). A failed / empty-error grade now renders an ERROR, never a fake score.
+  2. **Persistence wired** — `useAuth` + `buildMobileLogEntry` (1:1 copy of desktop `buildLogEntry`) → `logMistakes(uid, entry)`
+     → SAME localStorage key + Firestore `learnerProfiles/{uid}/mistakeLogs`. Honest save indicator; only persists when signed in.
+  3. **Mobile Me read** — `getMistakeLogs(uid, 30)` + desktop's `mistakeCounts` aggregation → real category mix
+     (`{count} of {total} ({pct}%)`) when data exists; honest empty-state otherwise. Minimal read to close the loop (NOT convergence).
+  Static gates green; build CI-gated. Report: `report-mobile-check-persistence-2026-06-08.md`.
+  Step-5 (failed-grade → error) is preview-testable; steps 2–4 (successful grade → persist → Me) are NOT (gateway dark in prod).
+
+### ⛔ VERIFICATION GATE — do NOT close Track B until the backend round-trip passes
+- **[TRACK-B-GATE, blocks "done"] Track B persistence is code-complete + static-green but UNPROVEN end-to-end.** Grading
+  (`/api/check-solution`) is dark in production until the Railway/api-server deploy (ISSUE-009 / INFRA-4), so a *successful*
+  grade cannot be produced on the Vercel preview — meaning the grade→persist→mobile-Me→desktop-Me round-trip can't be proven
+  yet. **As part of INFRA-4 go-live testing, run the real round-trip** (sign in → grade a real answer → confirm it appears as
+  real data in mobile Me AND desktop Me on the same uid). Until that passes, Track B is "merged, not fully verified" — do not
+  mark it fully done. (Alternatively verify locally against a running gateway: `npm run dev:gateway` + `API_SERVER_PORT=3001`.)
+
+### RESP-DIV-1 — now honest AND wired (end-to-end pending backend)
+- **[RESP-DIV-1] status:** mobile Me no longer fabricates (Track A #220) AND now *reads* real mistake data from the shared
+  pipeline (Track B #222). The data only actually *flows* once grading is live (backend deploy). So: **honest + wired; real
+  data appears end-to-end only post-Railway-deploy.** Closed on honesty; gated on backend for the live loop. Durable Me
+  convergence (one responsive component, one pipeline) remains the last RESP-DIV-1-family item.
+
 ## 2026-06-09 — Post-PR #220 (Track A: mobile Me honesty) + full responsive-divergence audit
 
 ### RESOLVED (stopgap) in #220 — RESP-DIV-1 honesty-patched

@@ -17,9 +17,11 @@ The Phase-2 reconcile of stale mobile twins to the desktop source-of-truth. Auth
 ### Phase-2 responsive divergence track (ordered; trust-critical first)
   [x] Responsive-divergence audit
   [x] **Track A — mobile Me honesty (RESP-DIV-1)** (#220, stopgap)
-  [ ] **(NEXT) Track B — mobile Check & Improve: trust + persistence** (fix the permissive failed-grade guard; wire
-      `useAuth`/`persistMistakeLog` so mobile grading saves — the data source mobile Me needs)
-  [ ] RESP-DIV-2 — mobile logout / Manage-subscription path (functional, high)
+  [x] **Track B — mobile Check & Improve: trust + persistence** (#222, trunk `6c88ccf`; 2 files, +236/−32): guard fixed
+      (`!result || result.ok === false`); persistence wired to the shared `logMistakes`/Firestore pipeline (mirrors desktop
+      `buildLogEntry`); mobile Me reads real `getMistakeLogs` mix. Static-green. ⛔ **VERIFICATION-GATED** — the successful
+      grade→persist→Me round-trip is UNPROVEN until the Railway/api-server deploy (grading dark in prod); verify at INFRA-4.
+  [ ] **(NEXT) RESP-DIV-2 — mobile logout / Manage-subscription path** (functional, high)
   [ ] Topic Hub reconcile (wire mobile Learn to tutor; label/drop synthetic questions; honest progress signal)
   [ ] Worksheets parity (mistake-intelligence + multi-topic/full-subject + save + Science `stream`)
   [ ] Home real-insights on mobile (firebase-free boundary decision)

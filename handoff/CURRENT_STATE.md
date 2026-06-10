@@ -1,10 +1,16 @@
 # LazyTopper — Current State
-Last updated: 2026-06-09 (post-PR #220 — Track A: mobile Me honesty-patched (fabricated −12/−8/−5 data gone). Full responsive-divergence audit landed → Phase-2 punch-list ordered. NEXT: Track B — mobile Check & Improve trust + persistence — owner to scope)
+Last updated: 2026-06-09 (post-PR #222 — Track B: mobile Check & Improve trust guard + persistence wired to the shared pipeline. RESP-DIV-1 now honest AND wired; real-data loop end-to-end-pending the backend deploy. NEXT: RESP-DIV-2 (mobile logout) — or prioritize the Railway/api-server deploy to PROVE the Track B loop)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 8c478ce76d7a4371db51832bbf0c536103e5cbb7
-Last merged PRs: #216 (fix: banned-term prose copy-fix), #217 (docs), #218 (fix/routing: SEVER — disconnect obsolete surfaces), #219 (docs: handoff post-#218), #220 (fix/mobile-me: remove fabricated performance data — honest empty-states; RESP-DIV-1)
+SHA: 6c88ccf1f9cbd459a28ccc3bf58a37a3bb35f30a
+Last merged PRs: #218 (SEVER — disconnect obsolete surfaces), #219 (docs), #220 (mobile-me honesty — RESP-DIV-1 stopgap), #221 (docs), #222 (mobile-check trust guard + persistence — Track B; persistence unproven-end-to-end until the Railway deploy)
+
+## ⛔ TRACK B (#222) verification gate — do NOT mark fully done until the backend deploy
+Track B persistence is **code-complete + static-green but UNPROVEN end-to-end**: grading (`/api/check-solution`) is dark in prod
+until the Railway/api-server deploy (ISSUE-009 / INFRA-4), so a successful grade can't be produced on the preview — the
+grade→persist→mobile-Me→desktop-Me round-trip can't be proven yet. Verify it as part of INFRA-4 go-live testing (or locally vs a
+running gateway). The failed-grade path (renders error, not a fake score) IS preview-testable. See OPEN_QUESTIONS [TRACK-B-GATE].
 
 ## PHASE-2 RESPONSIVE DIVERGENCE — Track A DONE (#220); audit ordered the rest
 The Phase-2 work (reconcile stale mobile twins to the desktop source-of-truth; no invented numbers) is underway.

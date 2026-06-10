@@ -1,5 +1,34 @@
 ---
 
+## 2026-06-09 — Track B (#222): mobile Check & Improve — trust + persistence
+
+**Trunk after merge: `6c88ccf`** (#222, `fix/mobile-check-persistence`; 2 files `app/CheckImprove.tsx` + `app/Me.tsx`, +236/−32).
+Owner-merged code PR. The coupled fix Track A pointed at: make mobile grading persist real results so the now-honest mobile Me
+fills with the student's actual data.
+
+### What landed (all mirror desktop — not reinvented)
+- **Trust guard:** `!result.ok && result.error` → `!result || result.ok === false` (mirrors `DesktopCheckImprovePage.tsx:727`).
+  A failed / empty-error grade now renders an ERROR, never a fake score.
+- **Persistence:** `useAuth` + `buildMobileLogEntry` (1:1 copy of desktop `buildLogEntry`) → `logMistakes(uid, entry)` → SAME
+  localStorage key + Firestore `learnerProfiles/{uid}/mistakeLogs`. Honest save indicator (Saved / Sign in to save); signed-in only.
+- **Mobile Me read:** `getMistakeLogs(uid, 30)` + desktop's `mistakeCounts` aggregation → real category mix when data exists;
+  honest empty-state otherwise. Minimal read to close the loop (NOT the durable convergence).
+
+### Gates + the honest verification boundary
+Static gates green (tsc 0, mojibake, scope:guard product, root 175/175, ops 6/6, diff-check clean); build CI-gated. **I HELD
+rather than claiming PASS:** the live grade→persist→Me round-trip can't be run from this box AND can't be run on the preview
+either — grading (`/api/check-solution`) is **dark in prod until the Railway/api-server deploy** (ISSUE-009 / INFRA-4). So Track B
+is **merged = code-complete + static-green; persistence UNPROVEN end-to-end until the backend is live.** Logged as a hard
+verification gate ([TRACK-B-GATE] in OPEN_QUESTIONS) tied to INFRA-4. Step-5 (failed-grade → error) IS preview-testable.
+Report: `report-mobile-check-persistence-2026-06-08.md`.
+
+### Sequencing note
+RESP-DIV-1 is now honest (A) AND wired (B), but the live mistake-intelligence loop only *proves out* once the gateway is
+deployed — so **INFRA-4 (Railway/api-server + `/api/*`) is the critical path** to validating this loop end-to-end. Worth
+prioritizing the deploy before the durable Me convergence (which also can't be proven until grading is live).
+
+---
+
 ## 2026-06-09 — Phase-2 responsive-divergence audit + Track A (#220): mobile Me honesty
 
 **Trunk after merge: `8c478ce`** (#220, `fix/mobile-me-honesty`; 1 file `app/Me.tsx`, +48/−56). Owner-merged code PR.
