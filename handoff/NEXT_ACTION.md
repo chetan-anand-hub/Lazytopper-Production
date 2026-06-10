@@ -1,28 +1,27 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-09 (post-PR #220 — Track A done: mobile Me honesty-patched. Full divergence audit landed. NEXT: Track B — mobile Check & Improve trust + persistence — owner to scope)
-# Base SHA: 8c478ce76d7a4371db51832bbf0c536103e5cbb7
+# Updated: 2026-06-09 (post-PR #222 — Track B done: mobile Check trust guard + persistence wired. NEXT: RESP-DIV-2 (mobile logout) — OR prioritize the Railway/api-server deploy to PROVE the Track B loop end-to-end — owner to scope)
+# Base SHA: 6c88ccf1f9cbd459a28ccc3bf58a37a3bb35f30a
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 8c478ce76d7a4371db51832bbf0c536103e5cbb7
-Last PRs: #216 (banned-term prose copy-fix) + #217/#219 (docs) + #218 (SEVER — disconnect obsolete surfaces) + #220 (Track A — mobile Me honesty: fabricated −12/−8/−5 data removed)
+SHA: 6c88ccf1f9cbd459a28ccc3bf58a37a3bb35f30a
+Last PRs: #218 (SEVER) + #219/#221 (docs) + #220 (Track A — mobile Me honesty) + #222 (Track B — mobile Check trust guard + persistence; persistence unproven-end-to-end until the Railway deploy)
 
-## ⏭️ IMMEDIATE NEXT — Phase-2 responsive divergence reconcile (soft-launch), then go-live (owner to scope/order)
-The auth arc is CLOSED and the SEVER (#218) is merged. The full **responsive-divergence audit** is done
-(`report-responsive-divergence-audit-2026-06-08.md`): 7 mobile/desktop split surfaces, 5 DIVERGENT. The Phase-2
-reconcile is underway, in fix order (trust-critical first). **Track A (mobile Me honesty) is DONE (#220).**
+## ⏭️ IMMEDIATE NEXT — finish Phase-2 responsive divergence, and/or the go-live deploy (owner to scope/order)
+The auth arc is CLOSED, the SEVER (#218) is merged, and the responsive-divergence audit's two trust-critical items are done
+(Track A #220 + Track B #222). **Decision point:** the Track B mistake-loop can only be PROVEN once grading is live, so the
+**Railway/api-server deploy (INFRA-4) is now the critical path** to validating the whole loop end-to-end — it may be worth
+doing the deploy before the remaining (functional/cosmetic) divergence items or the durable convergence.
 
-### 1. Phase-2 RESPONSIVE DIVERGENCE punch-list (soft-launch blockers — desktop is source-of-truth; no invented numbers)
-Ordered in OPEN_QUESTIONS (Post-PR #220 section). Each is its own scoped PR (desktop-leads, mobile-adapts; Option-B grammar):
-- ~~**Track A — mobile Me honesty (RESP-DIV-1, TRUST-CRITICAL)**~~ **DONE (#220, stopgap).** Fabricated −12/−8/−5 mistakes +
-  invented weak-topics removed → honest empty-states. (The "Premium badge" in the original note was the REAL subscription
-  label, not fabricated.) Durable convergence + Track B remain.
-- **Track B (NEXT) — mobile Check & Improve trust + persistence.** (a) Fix `app/CheckImprove.tsx`'s permissive failed-grade
-  guard (`!result.ok && result.error`) so a failed grade can't render as a valid score. (b) Wire `useAuth()` +
-  `persistMistakeLog(user.uid, …)` so mobile grading SAVES — the real data source mobile Me needs (until then, mobile Me's
-  honest empty-state is correct). **Coupled with Track A.**
-- **RESP-DIV-2 (functional-HIGH) — mobile has NO logout path.** Add Log out + Manage subscription to mobile chrome / Me page.
+### 1. Phase-2 RESPONSIVE DIVERGENCE punch-list (desktop is source-of-truth; no invented numbers)
+Ordered in OPEN_QUESTIONS. Each is its own scoped PR (desktop-leads, mobile-adapts; Option-B grammar):
+- ~~**Track A — mobile Me honesty (RESP-DIV-1)**~~ **DONE (#220).** Fabricated −12/−8/−5 + invented weak-topics removed.
+- ~~**Track B — mobile Check trust + persistence**~~ **DONE (#222), but verification-gated.** Guard fixed; persistence wired to
+  the shared `logMistakes`/`getMistakeLogs` pipeline; mobile Me reads real data. ⛔ **[TRACK-B-GATE]** the successful
+  grade→persist→Me round-trip is UNPROVEN until the backend deploy (grading is dark in prod) — verify at INFRA-4 go-live; do not
+  mark fully done until then.
+- **RESP-DIV-2 (NEXT, functional-HIGH) — mobile has NO logout path.** Add Log out + Manage subscription to mobile chrome / Me page.
 - **Topic Hub reconcile** (wire mobile "Learn" to the tutor; label/drop synthetic fallback questions; honest progress vs the
   localStorage "Chapter Mastered" claim) → **Worksheets parity** (mistake-intelligence + multi-topic/full-subject + save +
   Science `stream` field) → **Home real-insights** (firebase-free boundary decision) → **RESP-DIV-3 (cosmetic) trial banner**.
