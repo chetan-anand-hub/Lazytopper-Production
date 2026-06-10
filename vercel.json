@@ -8,6 +8,14 @@
   ],
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://REPLACE-ME.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/shared-api/:path*",
+      "destination": "https://REPLACE-ME.up.railway.app/shared-api/:path*"
+    },
+    {
       "source": "/app/:path*",
       "destination": "/app/index.html"
     }
