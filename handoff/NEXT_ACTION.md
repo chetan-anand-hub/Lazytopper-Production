@@ -1,18 +1,23 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-09 (post-PR #222 — Track B done: mobile Check trust guard + persistence wired. NEXT: RESP-DIV-2 (mobile logout) — OR prioritize the Railway/api-server deploy to PROVE the Track B loop end-to-end — owner to scope)
-# Base SHA: 6c88ccf1f9cbd459a28ccc3bf58a37a3bb35f30a
+# Updated: 2026-06-11 (post-PR #224 + #225 — INFRA-4/PR1: Railway backend LIVE + vercel /api wired. Grading no longer dark in prod. NEXT: owner+cofounder run the Track B live round-trip to CLOSE [TRACK-B-GATE]; then PR2 (harden); then RESP-DIV-2)
+# Base SHA: 7c106b610703b6dc8c54d47f9a05eb1a078b8fb4
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 6c88ccf1f9cbd459a28ccc3bf58a37a3bb35f30a
-Last PRs: #218 (SEVER) + #219/#221 (docs) + #220 (Track A — mobile Me honesty) + #222 (Track B — mobile Check trust guard + persistence; persistence unproven-end-to-end until the Railway deploy)
+SHA: 7c106b610703b6dc8c54d47f9a05eb1a078b8fb4
+Last PRs: #220 (Track A — mobile Me honesty) + #222 (Track B — mobile Check trust guard + persistence) + #223 (docs) + #224 (INFRA-4/PR1 — Railway deploy image) + #225 (INFRA-4/PR1 — fill vercel.json with the live Railway URL)
 
-## ⏭️ IMMEDIATE NEXT — finish Phase-2 responsive divergence, and/or the go-live deploy (owner to scope/order)
-The auth arc is CLOSED, the SEVER (#218) is merged, and the responsive-divergence audit's two trust-critical items are done
-(Track A #220 + Track B #222). **Decision point:** the Track B mistake-loop can only be PROVEN once grading is live, so the
-**Railway/api-server deploy (INFRA-4) is now the critical path** to validating the whole loop end-to-end — it may be worth
-doing the deploy before the remaining (functional/cosmetic) divergence items or the durable convergence.
+## ⏭️ IMMEDIATE NEXT — close the Track B gate (live round-trip), then PR2 (harden), then resume Phase-2
+INFRA-4/PR1 is **DONE + the backend is LIVE on Railway** (owner-confirmed `stub:false`, Gemini direct-key); grading is no longer
+dark in prod. The critical path is now:
+1. **[OWNER+COFOUNDER] Track B live round-trip → CLOSE [TRACK-B-GATE].** On the live app: sign in → grade a real answer → confirm
+   "Saved to your progress" → mobile Me shows the real mistake mix → desktop Me matches (same uid); plus failed-grade → error.
+   Runbook §7 in `report-api-gateway-railway-2026-06-10.md`. Only this pass closes the gate / ISSUE-009.
+2. **INFRA-4 / PR2 (harden) — queued.** Provision Postgres + set `DATABASE_URL`; **add `tsx`** (warmup needs it once Postgres is on);
+   set `ADMIN_FIREBASE_UIDS` (admin routes 503 without it) + `SESSION_SECRET` (share feature); add rate-limiting; decide warm-pool
+   (`WARM_POOL_TOP_UP_INTERVAL_MS` is `0` for a quiet first deploy). **INFRA-4b** claudeClient Replit-proxy rewire = later visuals PR.
+3. **Resume Phase-2 responsive divergence** — RESP-DIV-2 (mobile logout) next, then the rest of the punch-list below.
 
 ### 1. Phase-2 RESPONSIVE DIVERGENCE punch-list (desktop is source-of-truth; no invented numbers)
 Ordered in OPEN_QUESTIONS. Each is its own scoped PR (desktop-leads, mobile-adapts; Option-B grammar):

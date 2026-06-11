@@ -1,5 +1,42 @@
 ---
 
+## 2026-06-11 — INFRA-4 / PR1 (#224 + #225): Railway backend LIVE; `/api/*` wired
+
+**Trunk after merge: `7c106b6`** (#225, `fix/vercel-railway-url`; 1 file `vercel.json`, +2/−2). Preceded by **#224**
+(`fix/api-gateway-railway`; 4 files, +94/−0 — `Dockerfile`, `.dockerignore`, `railway.json`, `vercel.json`). Both deploy-config
+only, no application code. **The backend is now DEPLOYED and live on Railway** (owner-confirmed `stub:false`, Gemini direct-key).
+
+### What landed
+- **#224 — Railway deploy image (full-workspace runtime).** `Dockerfile`: `node:24-slim`, corepack `pnpm@10.32.1` (D42 pin),
+  `COPY . .` (whole monorepo — the gateway transpiles `lazytopper/src/**/*.ts` at runtime), `pnpm install --frozen-lockfile`
+  **without** prune (keeps `typescript`), root `pnpm run build`, `CMD` launches `artifacts/api-server/dist/index.mjs` with
+  **cwd = repo root**. `.dockerignore` excludes only rebuilt/runtime-irrelevant paths (no source excluded). `railway.json`:
+  Dockerfile builder + healthcheck `/shared-api/healthz`. **Why Dockerfile not Nixpacks:** deterministic full-workspace + no-prune
+  + cwd for a runtime-source-compiled server.
+- **#225 — `vercel.json` rewrites point at the live backend.** `/api/*` and `/shared-api/*` →
+  `https://lazytopper-production-production.up.railway.app` (no trailing slash). #224 shipped a syntactically-valid sentinel
+  (`https://REPLACE-ME.up.railway.app`) so any interim Vercel deploy stayed valid and cleanly 502'd until the real URL landed.
+
+### Scope decisions (recorded)
+- **claudeClient Replit-proxy rewire (INFRA-4b) — DEFERRED.** Grading is **Gemini-only** (`handleCheckSolution` calls only
+  `callGemini`); `callClaude` throws gracefully without the Anthropic proxy and is visuals-only. Not needed for PR1.
+- **`tsx` gap — flagged for PR2.** Absent from all manifests; the solution-cache warmup that spawns `node --import tsx/esm` is
+  `DATABASE_URL`-gated, and PR1 sets no `DATABASE_URL`, so it is **inert in PR1**. PR2 must add `tsx` alongside Postgres.
+
+### Gates
+#224 + #225: tsc PASS, mojibake PASS, root matrix 175/175, ops 6/6, `git diff --check` clean; **CI `quality-gate` GREEN** on
+both PRs and on the post-merge base push (`7c106b6` → success — the linux vite build + verify-production-build). scope:guard is
+structurally N/A for root deploy-config (no lazytopper product lane). Reports: `report-api-server-deploy-investigation-2026-06-10.md`
+(read-only map) + `report-api-gateway-railway-2026-06-10.md` (PR1 + owner runbook).
+
+### ⛔ Still open — the LIVE round-trip (owner + cofounder)
+INFRA-4/PR1 is **code-complete + deployed**, but **[TRACK-B-GATE] is now LIVE-TESTABLE, not yet closed**: the owner runs the real
+grade→persist→mobile-Me→desktop-Me round-trip (same uid) on the live app with the cofounder. Only that pass closes the gate /
+ISSUE-009. **PR2 (harden)** queued next: provision Postgres + `DATABASE_URL` + **add `tsx`** + `ADMIN_FIREBASE_UIDS` +
+`SESSION_SECRET` + rate-limit + warm-pool decision.
+
+---
+
 ## 2026-06-09 — Track B (#222): mobile Check & Improve — trust + persistence
 
 **Trunk after merge: `6c88ccf`** (#222, `fix/mobile-check-persistence`; 2 files `app/CheckImprove.tsx` + `app/Me.tsx`, +236/−32).

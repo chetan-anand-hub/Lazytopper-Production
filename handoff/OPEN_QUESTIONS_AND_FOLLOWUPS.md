@@ -1,6 +1,28 @@
+## 2026-06-11 — Post-PR #224 + #225 (INFRA-4/PR1: Railway backend LIVE)
+
+### ✅ DONE — backend deployed + live
+- **[INFRA-4/PR1] Railway deploy + `vercel.json /api/*` rewrite** (#224 + #225, trunk `7c106b6`). `artifacts/api-server`
+  (self-spawns the AI gateway) is **live on Railway**; owner-confirmed `stub:false`, Gemini direct-key. `/api/*` + `/shared-api/*`
+  rewrites point at `https://lazytopper-production-production.up.railway.app`. Grading no longer dark in prod.
+
+### ⛔ [TRACK-B-GATE] — now LIVE-TESTABLE; owner+cofounder run the round-trip to CLOSE
+- The backend is live, so the grade→persist→mobile-Me→desktop-Me round-trip can finally be PROVEN. **Owner + cofounder run it on
+  the live app** (sign in → grade a real answer → "Saved to your progress" → mobile Me real mix → desktop Me matches same uid;
+  plus failed-grade → error). **Only that pass closes [TRACK-B-GATE] / ISSUE-009.** Runbook: `report-api-gateway-railway-2026-06-10.md` §7.
+
+### Follow-ups surfaced by INFRA-4/PR1 (for PR2 "harden")
+- **[INFRA-4-tsx] add `tsx`** — absent from all manifests; the solution-cache warmup spawns `node --import tsx/esm`. Inert in PR1
+  (warmup is `DATABASE_URL`-gated and PR1 sets none); **PR2 must add `tsx` when it provisions Postgres** or warmup fails to spawn.
+- **[INFRA-4-PR2] harden** — provision Postgres + `DATABASE_URL`; `ADMIN_FIREBASE_UIDS` (admin 503 without it); `SESSION_SECRET`
+  (share feature 503 without it); rate-limiting; warm-pool decision (`WARM_POOL_TOP_UP_INTERVAL_MS` is `0` now). Confirm
+  `CORS_ORIGIN` = the real app origin (default is a localhost dev value).
+- **[INFRA-4b] claudeClient rewire** — Replit-proxy → direct Anthropic key; visuals-only, deferred to a later visuals PR.
+- **[D42] root `packageManager` pin** — root `package.json` has none; the Dockerfile pins corepack `pnpm@10.32.1` as a workaround.
+  Still worth a standalone hygiene PR so non-Docker tooling resolves pnpm 10 too.
+
 ## 2026-06-09 — Post-PR #222 (Track B: mobile Check & Improve — trust + persistence)
 
-### MERGED in #222 (trunk `6c88ccf`) — but persistence is UNPROVEN end-to-end (see the gate below)
+### MERGED in #222 (trunk `6c88ccf`) — superseded by the 2026-06-11 gate update above
 - **[TRACK B] Mobile Check & Improve trust + persistence** (`fix/mobile-check-persistence`; 2 files
   `app/CheckImprove.tsx` + `app/Me.tsx`, +236/−32). Three coupled fixes, all mirroring desktop (not reinvented):
   1. **Trust guard fixed** — `!result.ok && result.error` → `!result || result.ok === false` (mirrors

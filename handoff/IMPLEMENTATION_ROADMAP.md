@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-11 — Post-PR #224 + #225 roadmap update (INFRA-4/PR1: backend LIVE)
+
+The go-live deploy unlock. INFRA-4/PR1 deployed `artifacts/api-server` (self-spawns the AI gateway) to Railway and wired the
+Vercel `/api/*` rewrite to it. Grading is no longer dark in production. Authority:
+`report-api-server-deploy-investigation-2026-06-10.md` (read-only map) + `report-api-gateway-railway-2026-06-10.md` (PR1 + runbook).
+
+### Completed this session
+- [x] **PR #224 — Railway deploy image** (trunk `f318eb9`; 4 files, +94/−0): `Dockerfile` (full-workspace runtime, corepack
+  pnpm@10.32.1, no-prune keeps `typescript`, cwd=root), `.dockerignore` (no source excluded), `railway.json` (healthcheck
+  `/shared-api/healthz`), `vercel.json` (`/api/*`+`/shared-api/*` rewrites with a valid sentinel). Gates green; CI `quality-gate` GREEN.
+- [x] **PR #225 — fill vercel.json with the live Railway URL** (trunk `7c106b6`; 1 file, +2/−2): sentinel →
+  `https://lazytopper-production-production.up.railway.app`. **Backend confirmed live** (`stub:false`, Gemini direct-key). CI GREEN.
+
+### INFRA-4 go-live track
+  [x] **PR1 — Railway deploy + `vercel.json /api/*` rewrite** (#224 + #225) — backend LIVE
+  [ ] **⛔ Track B live round-trip [TRACK-B-GATE]** (owner + cofounder, on the live app) — closes ISSUE-009
+  [ ] **PR2 (harden)** — Postgres + `DATABASE_URL` + **`tsx`** + `ADMIN_FIREBASE_UIDS` + `SESSION_SECRET` + rate-limit + warm-pool decision
+  [ ] **INFRA-4b** — claudeClient Replit-proxy → direct-key rewire (later visuals PR; grading is Gemini-only so deferred)
+
 ## 2026-06-09 — Post-PR #220 roadmap update (Phase-2 responsive divergence: audit + Track A)
 
 The Phase-2 reconcile of stale mobile twins to the desktop source-of-truth. Authority:
@@ -19,8 +38,8 @@ The Phase-2 reconcile of stale mobile twins to the desktop source-of-truth. Auth
   [x] **Track A — mobile Me honesty (RESP-DIV-1)** (#220, stopgap)
   [x] **Track B — mobile Check & Improve: trust + persistence** (#222, trunk `6c88ccf`; 2 files, +236/−32): guard fixed
       (`!result || result.ok === false`); persistence wired to the shared `logMistakes`/Firestore pipeline (mirrors desktop
-      `buildLogEntry`); mobile Me reads real `getMistakeLogs` mix. Static-green. ⛔ **VERIFICATION-GATED** — the successful
-      grade→persist→Me round-trip is UNPROVEN until the Railway/api-server deploy (grading dark in prod); verify at INFRA-4.
+      `buildLogEntry`); mobile Me reads real `getMistakeLogs` mix. Static-green. ⛔ **VERIFICATION-GATED** — backend now LIVE
+      (#224/#225), so the round-trip is **live-testable**; owner+cofounder run it to close [TRACK-B-GATE]. See the 2026-06-11 section.
   [ ] **(NEXT) RESP-DIV-2 — mobile logout / Manage-subscription path** (functional, high)
   [ ] Topic Hub reconcile (wire mobile Learn to tutor; label/drop synthetic questions; honest progress signal)
   [ ] Worksheets parity (mistake-intelligence + multi-topic/full-subject + save + Science `stream`)
