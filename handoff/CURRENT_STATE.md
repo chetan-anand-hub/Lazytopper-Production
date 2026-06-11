@@ -1,16 +1,29 @@
 # LazyTopper — Current State
-Last updated: 2026-06-09 (post-PR #222 — Track B: mobile Check & Improve trust guard + persistence wired to the shared pipeline. RESP-DIV-1 now honest AND wired; real-data loop end-to-end-pending the backend deploy. NEXT: RESP-DIV-2 (mobile logout) — or prioritize the Railway/api-server deploy to PROVE the Track B loop)
+Last updated: 2026-06-11 (post-PR #224 + #225 — INFRA-4/PR1: Railway backend DEPLOYED + LIVE; `vercel.json /api/*` wired to the live backend. Grading no longer dark in prod — owner-confirmed `stub:false`, Gemini direct-key. NEXT: owner+cofounder run the Track B live round-trip to CLOSE [TRACK-B-GATE]; then PR2 (harden: Postgres + tsx + admin/session + rate-limit + warm-pool); then RESP-DIV-2 (mobile logout))
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 6c88ccf1f9cbd459a28ccc3bf58a37a3bb35f30a
-Last merged PRs: #218 (SEVER — disconnect obsolete surfaces), #219 (docs), #220 (mobile-me honesty — RESP-DIV-1 stopgap), #221 (docs), #222 (mobile-check trust guard + persistence — Track B; persistence unproven-end-to-end until the Railway deploy)
+SHA: 7c106b610703b6dc8c54d47f9a05eb1a078b8fb4
+Last merged PRs: #220 (mobile-me honesty — RESP-DIV-1 stopgap), #221 (docs), #222 (mobile-check trust guard + persistence — Track B), #223 (docs), **#224 (INFRA-4/PR1 — Railway deploy image: Dockerfile + railway.json + vercel sentinel; 4 files)**, **#225 (INFRA-4/PR1 — fill vercel.json with the live Railway URL; 1 file)**
 
-## ⛔ TRACK B (#222) verification gate — do NOT mark fully done until the backend deploy
-Track B persistence is **code-complete + static-green but UNPROVEN end-to-end**: grading (`/api/check-solution`) is dark in prod
-until the Railway/api-server deploy (ISSUE-009 / INFRA-4), so a successful grade can't be produced on the preview — the
-grade→persist→mobile-Me→desktop-Me round-trip can't be proven yet. Verify it as part of INFRA-4 go-live testing (or locally vs a
-running gateway). The failed-grade path (renders error, not a fake score) IS preview-testable. See OPEN_QUESTIONS [TRACK-B-GATE].
+## ✅ INFRA-4 / PR1 — backend DEPLOYED + LIVE (the go-live unlock)
+The backend (`artifacts/api-server`, which self-spawns the `lazytopper/server` AI gateway as a child) is **deployed on Railway and
+live** — owner-confirmed `/api/health` shows `stub:false` with Gemini **direct-key** auth. **Grading (`/api/check-solution`) is no
+longer dark in production.** Wiring: Vercel static app → `vercel.json` rewrite (`/api/*` + `/shared-api/*`) →
+`https://lazytopper-production-production.up.railway.app` → api-server (8080) → gateway (3001) → Gemini.
+- **Deploy shape (load-bearing):** the image carries the **whole workspace** and keeps `typescript` installed — the gateway
+  transpiles `lazytopper/src/**/*.ts` at runtime and resolves files relative to cwd (Dockerfile + `.dockerignore` encode this).
+- **Deferred:** claudeClient Replit-proxy rewire (INFRA-4b) — grading is Gemini-only; Claude is visuals-only and degrades
+  gracefully. **Flagged for PR2:** `tsx` (absent from manifests; warmup is `DATABASE_URL`-gated, inert until PR2 adds Postgres).
+- **PR2 (harden, queued):** provision Postgres + `DATABASE_URL` + add `tsx` + `ADMIN_FIREBASE_UIDS` + `SESSION_SECRET` +
+  rate-limit + warm-pool decision (`WARM_POOL_TOP_UP_INTERVAL_MS` currently `0`).
+Reports: `report-api-server-deploy-investigation-2026-06-10.md`, `report-api-gateway-railway-2026-06-10.md` (incl. owner runbook).
+
+## ⛔ TRACK B (#222) verification gate — now LIVE-TESTABLE; owner+cofounder run it to close
+With the backend live, the grade→persist→mobile-Me→desktop-Me round-trip can finally be PROVEN. **Status: live-testable, NOT yet
+closed.** The owner + cofounder run the real round-trip on the live app (sign in → grade a real answer → confirm "Saved to your
+progress" → mobile Me shows the real mistake mix → desktop Me matches on the same uid; plus the failed-grade → error path). **Only
+that pass closes [TRACK-B-GATE] / ISSUE-009.** Step-by-step in `report-api-gateway-railway-2026-06-10.md` §7. See OPEN_QUESTIONS [TRACK-B-GATE].
 
 ## PHASE-2 RESPONSIVE DIVERGENCE — Track A DONE (#220); audit ordered the rest
 The Phase-2 work (reconcile stale mobile twins to the desktop source-of-truth; no invented numbers) is underway.
