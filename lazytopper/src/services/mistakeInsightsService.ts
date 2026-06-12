@@ -44,7 +44,7 @@ export interface MistakeTrend {
 const EMPTY_COUNTS: MistakeCounts = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
 const MISTAKE_TYPES: CheckerMistakeType[] = ["conceptual", "calculation", "silly", "presentation"];
 
-function isSafeEntry(e: unknown): e is MistakeLogEntry {
+export function isSafeEntry(e: unknown): e is MistakeLogEntry {
   if (!e || typeof e !== "object") return false;
   const entry = e as Record<string, unknown>;
   if (typeof entry.timestamp !== "string") return false;
@@ -208,6 +208,59 @@ export async function getTopicMistakeHotspots(uid: string, days: number): Promis
     return buildHotspots(entries);
   } catch {
     return [];
+  }
+}
+
+/**
+ * "Careless mark-loss" view (Phase 2 — Me page insight).
+ *
+ * Silly + presentation mistakes are real and worth surfacing, but they are NOT
+ * knowledge gaps, so they are deliberately kept OUT of weak-areas and presented
+ * on Me as their own exam-technique pattern. This selector aggregates only those
+ * two categories from the same Stream-1 mistake logs the rest of Me reads.
+ */
+export interface CarelessInsight {
+  sillyCount: number;
+  presentationCount: number;
+  count: number;
+  marksLost: number;
+  hasData: boolean;
+}
+
+const CARELESS_TYPES = new Set(["silly", "presentation"]);
+
+/** Pure aggregator — call from surfaces that already hold the entries. */
+export function summarizeCareless(entries: MistakeLogEntry[]): CarelessInsight {
+  let sillyCount = 0;
+  let presentationCount = 0;
+  let marksLost = 0;
+  for (const e of entries) {
+    if (!isSafeEntry(e)) continue;
+    sillyCount += Number(e.mistakeCounts?.silly) || 0;
+    presentationCount += Number(e.mistakeCounts?.presentation) || 0;
+    for (const s of e.stepDetails ?? []) {
+      if (CARELESS_TYPES.has(String(s.mistakeType))) {
+        marksLost += Number(s.marksDeducted) || 0;
+      }
+    }
+  }
+  const count = sillyCount + presentationCount;
+  return {
+    sillyCount,
+    presentationCount,
+    count,
+    marksLost: Math.round(marksLost * 10) / 10,
+    hasData: count > 0,
+  };
+}
+
+/** Async wrapper for surfaces that need to fetch first. */
+export async function getCarelessInsight(uid: string, days: number): Promise<CarelessInsight> {
+  try {
+    const raw = await getMistakeLogs(uid, days);
+    return summarizeCareless(raw.filter(isSafeEntry));
+  } catch {
+    return { sillyCount: 0, presentationCount: 0, count: 0, marksLost: 0, hasData: false };
   }
 }
 

@@ -193,12 +193,28 @@ function createCheckSolutionRoute(deps) {
         const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
         const capped = Math.min(totalAwarded, marks);
 
+        // Additive-floor reconcile: the LLM's self-reported mistakeSummary is
+        // unreliable — it frequently leaves the four counters at 0 even when it
+        // deducted marks and tagged steps with a mistakeType (the root of the
+        // Quick-Practice "mistake not logged" bug). For each category, take the
+        // MAX of the LLM's count and the number of annotatedSteps carrying that
+        // mistakeType. ADDITIVE FLOOR ONLY — we never subtract or reclassify the
+        // LLM's explicit counts; if no step carries a mistakeType the floor is 0
+        // and the LLM summary passes through unchanged. The step→category map is
+        // 1:1 (annotatedSteps[].mistakeType is already one of the four
+        // categories, validated above).
         const rawSummary = parsed.mistakeSummary || {};
+        const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+        for (const s of annotatedSteps) {
+          if (s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
+            stepFloor[s.mistakeType] += 1;
+          }
+        }
         const mistakeSummary = {
-          conceptual: Math.max(0, Number(rawSummary.conceptual || 0)),
-          calculation: Math.max(0, Number(rawSummary.calculation || 0)),
-          silly: Math.max(0, Number(rawSummary.silly || 0)),
-          presentation: Math.max(0, Number(rawSummary.presentation || 0)),
+          conceptual: Math.max(0, Number(rawSummary.conceptual || 0), stepFloor.conceptual),
+          calculation: Math.max(0, Number(rawSummary.calculation || 0), stepFloor.calculation),
+          silly: Math.max(0, Number(rawSummary.silly || 0), stepFloor.silly),
+          presentation: Math.max(0, Number(rawSummary.presentation || 0), stepFloor.presentation),
         };
 
         return sendJson(res, 200, {
