@@ -6,7 +6,7 @@ import {
   type CheckSolutionAnnotatedStep,
   type MistakeType,
 } from "../../ai/aiClient";
-import { logMistakes } from "../../services/mistakeLogService";
+import { recordMistake } from "../../services/mistakeIntelligence";
 import { useAuth } from "../../context/AuthContext";
 import {
   desktopTopicsBySubject,
@@ -524,58 +524,9 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
 
 /* ────────────────── data helpers ────────────────── */
 
-function buildLogEntry(
-  ctx: GradedContext,
-  result: CheckSolutionResponse,
-): {
-  timestamp: string;
-  questionText: string;
-  topic: string;
-  subject: string;
-  totalMarks: number;
-  marksLost: number;
-  mistakeCounts: {
-    conceptual: number;
-    calculation: number;
-    silly: number;
-    presentation: number;
-  };
-  stepDetails: Array<{
-    stepNumber: number;
-    mistakeType: string;
-    marksDeducted: number;
-  }>;
-} {
-  const summary = result.mistakeSummary ?? {
-    conceptual: 0,
-    calculation: 0,
-    silly: 0,
-    presentation: 0,
-  };
-  const marksLost = Math.max(0, result.totalMarks - result.marksAwarded);
-  const stepDetails = (result.annotatedSteps ?? [])
-    .filter((s) => s.mistakeType && s.marksDeducted > 0)
-    .map((s) => ({
-      stepNumber: s.stepNumber,
-      mistakeType: String(s.mistakeType),
-      marksDeducted: s.marksDeducted,
-    }));
-  return {
-    timestamp: new Date().toISOString(),
-    questionText: ctx.question,
-    topic: ctx.topicName,
-    subject: ctx.subject,
-    totalMarks: result.totalMarks,
-    marksLost,
-    mistakeCounts: {
-      conceptual: summary.conceptual ?? 0,
-      calculation: summary.calculation ?? 0,
-      silly: summary.silly ?? 0,
-      presentation: summary.presentation ?? 0,
-    },
-    stepDetails,
-  };
-}
+// Entry building + persistence now live behind the single front door
+// `recordMistake` (src/services/mistakeIntelligence.ts). The previous local
+// buildLogEntry was removed so desktop + mobile can no longer diverge.
 
 /* ────────────────── page ────────────────── */
 
@@ -677,16 +628,25 @@ const DesktopCheckImprovePage: React.FC = () => {
     ctx: GradedContext,
     graded: CheckSolutionResponse,
   ) {
-    if (!user) {
-      setSaveStatus("no-user");
-      return;
-    }
     setSaveStatus("saving");
-    try {
-      await logMistakes(user.uid, buildLogEntry(ctx, graded));
-      setSaveStatus("saved");
-    } catch {
-      setSaveStatus("save-failed");
+    const rec = await recordMistake(user, graded, {
+      subject: ctx.subject,
+      topic: ctx.topicName,
+      topicKey: ctx.topicSlug, // canonical slug → aligns the weak-area bridge
+      question: ctx.question,
+    });
+    switch (rec.outcome) {
+      case "logged":
+      case "duplicate":
+      case "skipped-clean":
+        setSaveStatus("saved");
+        break;
+      case "skipped-no-user":
+      case "skipped-local":
+        setSaveStatus("no-user");
+        break;
+      default:
+        setSaveStatus("save-failed");
     }
   }
 

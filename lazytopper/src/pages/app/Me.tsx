@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getMistakeLogs } from "../../services/mistakeLogService";
+import { summarizeCareless, type CarelessInsight } from "../../services/mistakeInsightsService";
 
 function readLocalInt(key: string, fallback = 0): number {
   try {
@@ -38,16 +39,28 @@ export default function Me() {
     bars: Array<{ label: string; count: number; pct: number }>;
     total: number;
   }>({ bars: [], total: 0 });
+  // Careless (silly + presentation) marks — surfaced as a DISTINCT insight,
+  // separate from weak topics (those slips are exam-technique, not knowledge
+  // gaps, so they never bridge to weak-areas). Derived from the same logs.
+  const [careless, setCareless] = useState<CarelessInsight>({
+    sillyCount: 0,
+    presentationCount: 0,
+    count: 0,
+    marksLost: 0,
+    hasData: false,
+  });
 
   useEffect(() => {
     if (!user) {
       setMistakeMix({ bars: [], total: 0 });
+      setCareless({ sillyCount: 0, presentationCount: 0, count: 0, marksLost: 0, hasData: false });
       return;
     }
     let cancelled = false;
     void getMistakeLogs(user.uid, 30)
       .then((logs) => {
         if (cancelled) return;
+        setCareless(summarizeCareless(logs));
         const totals = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
         for (const l of logs) {
           const c = l.mistakeCounts || ({} as typeof totals);
@@ -74,7 +87,10 @@ export default function Me() {
         setMistakeMix({ bars, total });
       })
       .catch(() => {
-        if (!cancelled) setMistakeMix({ bars: [], total: 0 });
+        if (!cancelled) {
+          setMistakeMix({ bars: [], total: 0 });
+          setCareless({ sillyCount: 0, presentationCount: 0, count: 0, marksLost: 0, hasData: false });
+        }
       });
     return () => {
       cancelled = true;
@@ -330,12 +346,61 @@ export default function Me() {
                 }}
               >
                 {user
-                  ? "Use Check & Improve to grade an answer. Each graded answer adds to your real mistake mix — nothing is shown until then."
+                  ? "Use Check & Improve to grade an answer. Each graded answer with a mistake adds to your real mistake mix — nothing is shown until then."
                   : "Sign in and grade an answer in Check & Improve. Your real mistake categories will appear here automatically."}
               </div>
             </div>
           )}
         </div>
+
+        {/* Careless mark-loss (silly + presentation) — a DISTINCT insight,
+            separate from weak topics. Only shown once there is real mistake
+            data; honest copy either way, never a fabricated number. */}
+        {user && mistakeMix.total > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--mob-fg-muted)",
+                marginBottom: 10,
+              }}
+            >
+              Careless mark-loss
+            </div>
+            <div className="card-soft" style={{ padding: "14px 16px" }}>
+              {careless.hasData ? (
+                <>
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      fontWeight: 800,
+                      fontFamily: "var(--font-display)",
+                      color: "var(--mob-fg)",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {careless.marksLost > 0
+                      ? `${careless.marksLost} mark${careless.marksLost === 1 ? "" : "s"} lost to careless slips`
+                      : `${careless.count} careless slip${careless.count === 1 ? "" : "s"}`}
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
+                    {careless.sillyCount} silly · {careless.presentationCount} presentation. These
+                    are exam-technique slips, not topic weaknesses — slow down on the final line,
+                    units, and labels.
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontSize: "0.82rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
+                  No careless marks lost — your slips are concept or calculation based. That&rsquo;s a
+                  knowledge gap to close with practice, not carelessness.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Recommended next action */}
         <div>

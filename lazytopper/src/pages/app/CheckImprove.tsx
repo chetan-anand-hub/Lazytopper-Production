@@ -7,51 +7,12 @@ import {
   type CheckSolutionAnnotatedStep,
 } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
-import { logMistakes, type MistakeLogEntry } from "../../services/mistakeLogService";
+import { recordMistake } from "../../services/mistakeIntelligence";
 
-/**
- * buildMobileLogEntry — mirror of DesktopCheckImprovePage.tsx `buildLogEntry`.
- * Maps a grader response to the SHARED MistakeLogEntry schema so a mobile grade
- * persists to the SAME pipeline desktop uses (`logMistakes` → localStorage +
- * Firestore `learnerProfiles/{uid}/mistakeLogs`) and surfaces in mobile + desktop
- * Me. Do NOT diverge this from desktop's mapping — keep the two unified.
- */
-function buildMobileLogEntry(
-  subject: string,
-  topic: string,
-  question: string,
-  result: CheckSolutionResponse,
-): Omit<MistakeLogEntry, "id"> {
-  const summary = result.mistakeSummary ?? {
-    conceptual: 0,
-    calculation: 0,
-    silly: 0,
-    presentation: 0,
-  };
-  const marksLost = Math.max(0, result.totalMarks - result.marksAwarded);
-  const stepDetails = (result.annotatedSteps ?? [])
-    .filter((s) => s.mistakeType && s.marksDeducted > 0)
-    .map((s) => ({
-      stepNumber: s.stepNumber,
-      mistakeType: String(s.mistakeType),
-      marksDeducted: s.marksDeducted,
-    }));
-  return {
-    timestamp: new Date().toISOString(),
-    questionText: question,
-    topic,
-    subject,
-    totalMarks: result.totalMarks,
-    marksLost,
-    mistakeCounts: {
-      conceptual: summary.conceptual ?? 0,
-      calculation: summary.calculation ?? 0,
-      silly: summary.silly ?? 0,
-      presentation: summary.presentation ?? 0,
-    },
-    stepDetails,
-  };
-}
+// Persistence (entry building + policy + dedup + the weak-area bridge) now lives
+// behind the single front door `recordMistake`. The old local buildMobileLogEntry
+// (a hand-kept mirror of desktop's buildLogEntry) was removed so the two surfaces
+// can no longer diverge.
 
 const MATHS_TOPICS = [
   "Real Numbers", "Polynomials", "Linear Equations", "Quadratic Equations",
@@ -146,11 +107,19 @@ export default function CheckImprove() {
       // graded mistake surfaces in BOTH mobile Me and desktop Me. Only persists
       // when signed in (no fabricated/anonymous history).
       if (user) {
-        setSaved("saved");
-        void logMistakes(
-          user.uid,
-          buildMobileLogEntry(subject, topic, question.trim(), result),
-        );
+        const rec = await recordMistake(user, result, {
+          subject,
+          topic,
+          question: question.trim(),
+        });
+        // logged / duplicate (already saved) / skipped-clean (graded, no mistake
+        // to save) all read as success; signed-out / local / error read as
+        // "not saved — sign in".
+        const ok =
+          rec.outcome === "logged" ||
+          rec.outcome === "duplicate" ||
+          rec.outcome === "skipped-clean";
+        setSaved(ok ? "saved" : "no-user");
       } else {
         setSaved("no-user");
       }

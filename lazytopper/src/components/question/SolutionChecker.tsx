@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
-import { logMistakes } from "../../services/mistakeLogService";
+import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import {
   getMistakeInsights, getMistakeTrend,
   type MistakeInsights, type MistakeTrend, type CheckerMistakeType,
@@ -25,6 +25,16 @@ function saveResult(questionId: string, result: CheckSolutionResponse): void {
     localStorage.setItem(CHECK_RESULT_KEY_PREFIX + questionId, JSON.stringify(result));
   } catch {
   }
+}
+
+type LogStatus = "pending" | "saving" | "saved" | "unavailable" | "local-only" | "no-mistakes" | "cached";
+
+/** Map the single front-door outcome to the evidence-state label. */
+function statusFromOutcome(outcome: RecordMistakeOutcome): LogStatus {
+  if (isSavedOutcome(outcome)) return "saved";
+  if (outcome === "skipped-clean") return "no-mistakes";
+  if (outcome === "skipped-no-user" || outcome === "skipped-local") return "local-only";
+  return "unavailable";
 }
 
 
@@ -213,8 +223,9 @@ export function SolutionChecker({
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [logStatus, setLogStatus] = useState<"pending" | "saving" | "saved" | "unavailable" | "local-only" | "no-mistakes" | "cached">("pending");
+  const [logStatus, setLogStatus] = useState<LogStatus>("pending");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const backfilledRef = useRef<string | null>(null);
   const [insightData, setInsightData] = useState<MistakeInsights | null>(null);
   const [insightTrend, setInsightTrend] = useState<MistakeTrend | null>(null);
   const [insightReady, setInsightReady] = useState(false);
@@ -229,6 +240,25 @@ export function SolutionChecker({
       onResult?.(saved);
     }
   }, [questionId]);
+
+  // Cache short-circuit fix: a previously-cached result restored on mount used
+  // to display without ever persisting the mistake. Route it through the front
+  // door (deduped), so a mistake cached before sign-in / before this fix is
+  // back-filled exactly once. recordMistake dedups against the fresh-check log,
+  // so this never double-logs a result that was just checked.
+  useEffect(() => {
+    if (!result || !isFromCache) return;
+    if (!user?.uid || user.isLocalSession) return;
+    const sig = questionId || "";
+    if (backfilledRef.current === sig) return;
+    backfilledRef.current = sig;
+    let cancelled = false;
+    setLogStatus("saving");
+    void recordMistake(user, result, { subject, topic, question, questionId }).then((res) => {
+      if (!cancelled) setLogStatus(statusFromOutcome(res.outcome));
+    });
+    return () => { cancelled = true; };
+  }, [result, isFromCache, user, questionId, subject, topic, question]);
 
   useEffect(() => {
     if (!result || !user?.uid || user?.isLocalSession) {
@@ -324,42 +354,15 @@ export function SolutionChecker({
           saveResult(questionId, response);
         }
         onResult?.(response);
-        const mistakeCount =
-          response.mistakeSummary.conceptual +
-          response.mistakeSummary.calculation +
-          response.mistakeSummary.silly +
-          response.mistakeSummary.presentation;
 
-        // Determine logging status
-        if (user?.isLocalSession) {
-          setLogStatus("local-only");
-        } else if (user?.uid) {
-          if (mistakeCount > 0) {
-            setLogStatus("saving");
-            logMistakes(user.uid, {
-              timestamp: new Date().toISOString(),
-              questionText: question,
-              topic,
-              subject,
-              totalMarks: response.totalMarks,
-              marksLost: response.totalMarks - response.marksAwarded,
-              mistakeCounts: response.mistakeSummary,
-              stepDetails: response.annotatedSteps
-                .filter((s) => s.mistakeType != null)
-                .map((s) => ({
-                  stepNumber: s.stepNumber,
-                  mistakeType: String(s.mistakeType),
-                  marksDeducted: s.marksDeducted,
-                })),
-            })
-              .then(() => setLogStatus("saved"))
-              .catch(() => setLogStatus("unavailable"));
-          } else {
-            setLogStatus("no-mistakes");
-          }
-        } else {
-          setLogStatus("local-only");
-        }
+        // Single ingestion front door. The old `mistakeCount > 0` guard (which
+        // keyed off the LLM's self-reported summary and silently dropped graded
+        // mistakes whose summary was under-reported) is gone — recordMistake
+        // decides from the actual score + per-step mistakeType, and owns the
+        // builder, dedup, and the weak-area bridge.
+        setLogStatus("saving");
+        const rec = await recordMistake(user, response, { subject, topic, question, questionId });
+        setLogStatus(statusFromOutcome(rec.outcome));
       } else {
         setError(response.error || "Could not evaluate. Try a clearer image or type your answer.");
         setLogStatus("unavailable");

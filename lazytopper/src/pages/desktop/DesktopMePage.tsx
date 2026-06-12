@@ -10,6 +10,7 @@ import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
+import { summarizeCareless } from "../../services/mistakeInsightsService";
 import {
   buildDesktopPracticePath,
   buildDesktopWorksheetPath,
@@ -698,6 +699,13 @@ const DesktopMePage: React.FC = () => {
     () => computeMistakeMix(mistakeLogs),
     [mistakeLogs]
   );
+  // Careless (silly + presentation) marks — surfaced as a distinct insight,
+  // deliberately kept out of weak-areas (those slips are exam-technique, not
+  // knowledge gaps). Same Stream-1 logs, via the shared selector.
+  const careless = useMemo(
+    () => summarizeCareless(mistakeLogs),
+    [mistakeLogs]
+  );
   const weakAreas = useMemo(
     () => computeWeakAreas(attempts, mistakeLogs),
     [attempts, mistakeLogs]
@@ -1024,11 +1032,11 @@ const DesktopMePage: React.FC = () => {
           }
           sub={
             isSignedOut
-              ? "Appears after a graded answer is saved."
+              ? "Appears once a graded answer has a mistake to log."
               : logsLoading
                 ? "Loading mistake logs…"
                 : mistakeLogs.length === 0
-                  ? "No graded answers in the last 30 days."
+                  ? "No mistakes logged in the last 30 days."
                   : `${totalMarksLost} marks lost across logged answers.`
           }
           unavailable={isSignedOut || (!logsLoading && mistakeLogs.length === 0)}
@@ -1168,6 +1176,32 @@ const DesktopMePage: React.FC = () => {
                   </div>
                 </div>
               ))}
+
+              {/* Careless mark-loss (silly + presentation) — a DISTINCT
+                  exam-technique insight, explicitly NOT a topic weakness. */}
+              {careless.hasData && (
+                <div
+                  style={{
+                    borderRadius: 10,
+                    background: SECONDARY_BG,
+                    padding: 16,
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+                    Careless mark-loss
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: TEXT_FG }}>
+                    {careless.marksLost > 0
+                      ? `${careless.marksLost} mark${careless.marksLost === 1 ? "" : "s"} lost to careless slips`
+                      : `${careless.count} careless slip${careless.count === 1 ? "" : "s"}`}
+                  </div>
+                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, lineHeight: 1.5 }}>
+                    {careless.sillyCount} silly · {careless.presentationCount} presentation. These are
+                    exam-technique slips, not topic weaknesses — they are not counted as weak areas.
+                    Slow down on the final line, units, and labels.
+                  </div>
+                </div>
+              )}
 
               <div
                 style={{
