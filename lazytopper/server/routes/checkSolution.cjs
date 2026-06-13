@@ -165,13 +165,42 @@ function createCheckSolutionRoute(deps) {
 
       const contents = [{ role: 'user', parts }];
 
-      const reply = await callGemini(GEMINI_MODEL, contents, {
+      // Gemini grading is non-deterministic and the JSON occasionally comes back
+      // unparseable — most often TRUNCATED: the response is cut at maxOutputTokens
+      // and ends mid-JSON, so extractJsonObjectFromText (which needs complete
+      // JSON) can't recover it and the same image grades fine on a retry. Two
+      // resilience measures, both parse-only (grading semantics below unchanged):
+      //   (a) give long multi-step grades more room — 8000 -> 16000 tokens (a cap,
+      //       not a target: short grades cost the same; only truncated ones change);
+      //   (b) on a parse-gate miss, re-issue the grading call ONCE before giving up.
+      const gradingGenConfig = {
         temperature: 0.15,
-        maxOutputTokens: 8000,
+        maxOutputTokens: 16000,
         responseMimeType: 'application/json',
-      });
+      };
 
-      const parsed = extractJsonObjectFromText(reply.text);
+      const gradeOnce = async () => {
+        const r = await callGemini(GEMINI_MODEL, contents, gradingGenConfig);
+        return { reply: r, parsed: extractJsonObjectFromText(r.text) };
+      };
+      const isGoodParse = (p) => !!(p && Array.isArray(p.annotatedSteps));
+      const finishReasonOf = (r) =>
+        (r && r.raw && r.raw.candidates && r.raw.candidates[0] && r.raw.candidates[0].finishReason) || null;
+
+      let { reply, parsed } = await gradeOnce();
+
+      if (!isGoodParse(parsed)) {
+        // First attempt missed — log the decisive truncation signals (finishReason
+        // MAX_TOKENS and/or a reply ending mid-JSON; log the TAIL, not the head)
+        // then retry exactly once. No loop: the retry's outcome is final.
+        console.warn(
+          '[check-solution] parse miss (attempt 1) — retrying once.',
+          'finishReason:', finishReasonOf(reply),
+          'len:', reply.text ? reply.text.length : 0,
+          'tail:', reply.text ? reply.text.slice(-200) : '(empty)'
+        );
+        ({ reply, parsed } = await gradeOnce());
+      }
 
       if (parsed && Array.isArray(parsed.annotatedSteps)) {
         const VALID_MISTAKE_TYPES = new Set(['conceptual', 'calculation', 'silly', 'presentation']);
@@ -230,7 +259,17 @@ function createCheckSolutionRoute(deps) {
         });
       }
 
-      console.warn('[check-solution] unparseable reply (first 500 chars):', reply.text?.slice(0, 500));
+      // Both attempts failed. Log the decisive signals so the cause is provable
+      // from the Railway logs: finishReason === 'MAX_TOKENS' and/or a reply that
+      // ends mid-JSON (tail without closing braces) = truncation; otherwise it is
+      // shape-variance (valid JSON missing annotatedSteps).
+      console.warn(
+        '[check-solution] unparseable reply after retry —',
+        'finishReason:', finishReasonOf(reply),
+        'len:', reply.text ? reply.text.length : 0,
+        'head:', reply.text ? reply.text.slice(0, 300) : '(empty)',
+        'tail:', reply.text ? reply.text.slice(-200) : '(empty)'
+      );
       return sendJson(res, 200, {
         ok: false,
         error: "We couldn't read the grading this time — please try again.",
