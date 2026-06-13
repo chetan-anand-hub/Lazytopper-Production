@@ -2,6 +2,28 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-12 — Post-PR #227 roadmap update (MI Consolidation P1+P2)
+
+The MI Architecture Map (`LazyTopper_MI_Architecture_Map_2026-06-11.md`) phased path. P1+P2 shipped together (owner scope
+decision: Option A — bundled, since the bridge is narrow/safe). Authority: `report-mi-consolidation-p1p2-2026-06-11.md` +
+`report-quickpractice-mistakelog-diagnostic-2026-06-11.md`.
+
+### Completed this session
+- [x] **Phase 1 — single ingestion front door** (`recordMistake`): one policy + builder + dedup; routed `SolutionChecker`
+  (deleted the `mistakeCount>0` guard — the Quick-Practice bug; added deduped cache back-fill), mobile `CheckImprove`, desktop
+  `DesktopCheckImprovePage`. Local `buildLogEntry` / `buildMobileLogEntry` deleted. Closes Map gaps #1, #4, #6.
+- [x] **Phase 2 — weak-area bridge** (conceptual+calculation → Stream-3 `WrongAnswerEntry`, capped term, no `confidenceScore`
+  change). Closes Map gap #3 for knowledge-gap types. Owner-verified live: Polynomials + Real Numbers surfaced in Weak Areas.
+- [x] **Phase 2 — careless insight** (silly+presentation card on both Me pages; NOT bridged).
+- [x] **Server additive-floor `mistakeSummary` reconcile** (`max(llm, stepDerived)`). Closes Map gap #2.
+- [x] **#227 merged** (trunk `c618cd5`, squash of `e3e3f18`; 8 files +531/−159). CI `quality-gate` GREEN.
+
+### Deferred (named in the Map; NOT in this PR)
+- [ ] **MCQ migration onto `recordMistake`** (Map Phase 2 / gap #5 — still hardcodes `conceptual:1`).
+- [ ] **Chapter-tests + mocks onto the front door** (Map Phase 3).
+- [ ] **Layer-merge / durable Me convergence** (Map Phase 4).
+- [ ] **[FU-GRADE-PARSE]** grade-parse resilience · **[FU-ME-REFRESH]** Me auto-refresh (live follow-ups).
+
 ## 2026-06-11 — Post-PR #224 + #225 roadmap update (INFRA-4/PR1: backend LIVE)
 
 The go-live deploy unlock. INFRA-4/PR1 deployed `artifacts/api-server` (self-spawns the AI gateway) to Railway and wired the

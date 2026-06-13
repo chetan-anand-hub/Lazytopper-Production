@@ -1,5 +1,70 @@
 ---
 
+## 2026-06-12 — MI Consolidation P1+P2 (#227): single front door + weak-area bridge + careless insight + server reconcile
+
+**Trunk after merge: `c618cd5`** (#227, `fix/mi-consolidation-p1p2`; squash of branch commit `e3e3f18`; 8 files, +531/−159 —
+1 new `services/mistakeIntelligence.ts`). Owner-merged code PR. Implements Phases 1+2 of the MI Architecture Map
+(`LazyTopper_MI_Architecture_Map_2026-06-11.md`) and fixes the Quick Practice "mistake not logged" bug
+(`report-quickpractice-mistakelog-diagnostic-2026-06-11.md`). Full PR report: `report-mi-consolidation-p1p2-2026-06-11.md`.
+
+### What landed
+- **Phase 1 — single ingestion front door.** New `recordMistake(user, gradeResult, context)` in
+  `src/services/mistakeIntelligence.ts` owns the ONE policy (`uid && !isLocalSession` AND (`marksAwarded < totalMarks` OR any
+  step `mistakeType`)), the ONE builder (consolidates desktop `buildLogEntry` + mobile `buildMobileLogEntry` — both **deleted**),
+  and dedup (covers the cache-restore path). Routed `SolutionChecker` (**deleted the `mistakeCount>0` guard** — the bug; added a
+  deduped cache back-fill), mobile `CheckImprove`, desktop `DesktopCheckImprovePage`. Mobile/desktop kept as two components.
+- **Phase 2 — weak-area bridge.** Conceptual+calculation graded mistakes also write ONE `WrongAnswerEntry` (Stream 3) via the
+  existing `recordWrongAnswer` → feeds the existing **capped** `Math.min(wrongData.count*5, 30)` term. **`confidenceScore`
+  formula untouched.** This closes Map gap #3 for knowledge-gap types (graded mistakes finally reach weak-areas/learning-path).
+- **Phase 2 — careless insight.** Silly+presentation surfaced as a distinct "Careless mark-loss" card on both Me pages, labelled
+  NOT a weakness (they do NOT bridge). New `summarizeCareless`/`getCarelessInsight` in `mistakeInsightsService` (`isSafeEntry`
+  now exported).
+- **Server — additive-floor reconcile.** `server/routes/checkSolution.cjs`: `mistakeSummary[cat] = max(llm[cat], stepDerived[cat])`,
+  additive only (never subtract/reclassify); `marksAwarded` reconcile untouched. Client mirrors it so the fix + bridge work even
+  before the backend redeploys.
+- **Me copy rider** (copy-only, approved): desktop "Mistakes logged" StatCard empty/signed-out subs → "mistake to log" framing;
+  mobile mistake-mix empty-state → "Each graded answer **with a mistake** …".
+
+### Approved decisions (cofounder + owner)
+1. **conceptKey** — real `questionId` → per-question node; free-typed → `graded:${topicKey}` topic node; difficulty default `"Medium"`.
+2. **Server step→category** — 1:1, additive floor.
+3. **Careless card** — distinct silly+presentation card on both Me pages.
+4. **Routing** — conceptual+calculation → weak-areas; silly+presentation → careless insight only.
+- **Behavior change (approved):** a **full-marks** answer no longer logs a zero-mistake row (mistake answers still log — the
+  regression-critical case is preserved). The copy rider above keeps the empty-state wording honest with this.
+
+### Gates + scope
+Static gates green: tsc 0, mojibake, scope:guard product, root matrix **175/175**, ops **6/6**, `git diff --check` clean.
+**CI `quality-gate` GREEN** on PR #227 (linux vite build + verify-production-build). No forbidden files; `adaptivePracticeEngine`
++ `weakAreaAggregator` were **called, not modified**. OUT OF SCOPE (deferred per task): MCQ migration onto the front door (still
+hardcodes `conceptual:1`), chapter-tests/mocks, layer-merge, durable Me convergence.
+
+### ✅ Live verification — owner-run post-merge (PASS)
+1. **Regression — PASS.** Check & Improve (mobile + desktop) signed-in graded answer with mistakes still logs + shows in Me.
+2. **Quick Practice logging — PASS.** Conceptual/calc mistake now appears in Me. (A separate **intermittent grade-parse** issue
+   was observed — not a logging failure; logged as a follow-up.)
+3. **Bridge → weak-areas — PASS.** **Polynomials + Real Numbers** surfaced in Weak Areas from graded mistakes (the topic-key /
+   alias-map resolution path held for these). A silly-only mistake did NOT add a weak area but DID show in the careless card.
+4. **Server reconcile — PASS.** Graded-with-mistakes returns reconciled non-zero `mistakeSummary`. **Caveat:** the Me page needs a
+   manual refresh to reflect it — logged as a separate follow-up (auto-refresh lag).
+5. **No double-log — PASS.** One check = one Me entry + one weak-area signal; cached re-open adds nothing.
+
+**Note (not a formal closure):** this live round-trip exercised the Check & Improve grade→persist→Me path on the live backend —
+relevant evidence for **[TRACK-B-GATE]**; the owner decides whether that formally closes it.
+
+### Two follow-ups for the next session (both pre-existing / separate from this PR)
+- **[FU-GRADE-PARSE] grade-parse resilience** — an intermittent grade-parse issue on the Quick Practice check (the grade
+  occasionally fails to parse). Pre-existing, separate from MI logging; handled elsewhere. Worth a resilience pass on the
+  `/check-solution` parse path.
+- **[FU-ME-REFRESH] Me-page auto-refresh** — Me does not auto-reflect a freshly-logged mistake / reconciled summary until a manual
+  refresh. Add a refresh/refetch trigger (or re-fetch on focus / after a grade) so new mistakes appear without a reload.
+
+### Classification is eval-pending
+The bridge routes by Gemini's mistake-typing; the eval set validates the classification/reconcile next. Be ready to tune routing
+if the eval shows it's noisy.
+
+---
+
 ## 2026-06-11 — INFRA-4 / PR1 (#224 + #225): Railway backend LIVE; `/api/*` wired
 
 **Trunk after merge: `7c106b6`** (#225, `fix/vercel-railway-url`; 1 file `vercel.json`, +2/−2). Preceded by **#224**

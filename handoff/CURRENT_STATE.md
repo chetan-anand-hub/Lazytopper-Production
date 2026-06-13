@@ -1,10 +1,28 @@
 # LazyTopper — Current State
-Last updated: 2026-06-11 (post-PR #224 + #225 — INFRA-4/PR1: Railway backend DEPLOYED + LIVE; `vercel.json /api/*` wired to the live backend. Grading no longer dark in prod — owner-confirmed `stub:false`, Gemini direct-key. NEXT: owner+cofounder run the Track B live round-trip to CLOSE [TRACK-B-GATE]; then PR2 (harden: Postgres + tsx + admin/session + rate-limit + warm-pool); then RESP-DIV-2 (mobile logout))
+Last updated: 2026-06-12 (post-PR #227 — MI Consolidation P1+P2 MERGED + owner live-verified: `recordMistake` single front door, Quick-Practice logging bug FIXED, conceptual+calculation graded mistakes now bridge to Weak Areas, silly+presentation careless-insight card on Me, server additive-floor `mistakeSummary` reconcile. 2 non-blocking follow-ups: grade-parse resilience, Me auto-refresh. NEXT: owner+cofounder close [TRACK-B-GATE] formally; then PR2 (harden); then RESP-DIV-2 (mobile logout))
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 7c106b610703b6dc8c54d47f9a05eb1a078b8fb4
-Last merged PRs: #220 (mobile-me honesty — RESP-DIV-1 stopgap), #221 (docs), #222 (mobile-check trust guard + persistence — Track B), #223 (docs), **#224 (INFRA-4/PR1 — Railway deploy image: Dockerfile + railway.json + vercel sentinel; 4 files)**, **#225 (INFRA-4/PR1 — fill vercel.json with the live Railway URL; 1 file)**
+SHA: c618cd5badaf4e6624a41c1c68fadc9f29051c87
+Last merged PRs: #222 (Track B — mobile-check trust + persistence), #223 (docs), #224 (INFRA-4/PR1 — Railway deploy image), #225 (INFRA-4/PR1 — live Railway URL in vercel.json), #226 (docs), **#227 (MI Consolidation P1+P2 — recordMistake front door + weak-area bridge + careless insight + server reconcile + Me copy; 8 files +531/−159; squash of `e3e3f18`)**
+
+## ✅ MI CONSOLIDATION P1+P2 (#227, trunk `c618cd5`) — MERGED + owner live-verified
+The MI Architecture Map (`LazyTopper_MI_Architecture_Map_2026-06-11.md`) exposed MI as 3 capture streams feeding 2 disconnected
+analysis layers. P1+P2 builds the **one ingestion front door** and bridges the first gap.
+- **`recordMistake(user, gradeResult, context)`** (`src/services/mistakeIntelligence.ts`) is THE entry point: one policy
+  (`uid && !isLocalSession` AND `marksAwarded < totalMarks` OR any step `mistakeType`), one builder (replaces desktop
+  `buildLogEntry` + mobile `buildMobileLogEntry`, both deleted), dedup (covers the cache-restore path). Routed `SolutionChecker`
+  (**deleted the `mistakeCount>0` guard** — the Quick-Practice bug), mobile `CheckImprove`, desktop `DesktopCheckImprovePage`.
+- **Bridge (Map gap #3, knowledge-gap types):** conceptual+calculation graded mistakes write ONE Stream-3 `WrongAnswerEntry` via
+  `recordWrongAnswer` → feeds the existing capped `Math.min(wrongData.count*5, 30)` weak-area term. **`confidenceScore`
+  untouched.** Silly+presentation do NOT bridge — surfaced as a distinct **"Careless mark-loss"** card on both Me pages.
+- **Server:** `checkSolution.cjs` additive-floor reconcile `max(llm, stepDerived)` (client mirrors it).
+- **Behavior change (approved):** full-marks answers no longer log a zero-mistake row; mistake answers still log.
+- **Live verification (owner, PASS):** regression ✅, Quick-Practice logging ✅, bridge ✅ (Polynomials + Real Numbers surfaced),
+  server reconcile ✅, no double-log ✅. **2 follow-ups:** [FU-GRADE-PARSE] intermittent grade-parse; [FU-ME-REFRESH] Me needs
+  manual refresh. Both pre-existing / separate from this PR (see OPEN_QUESTIONS). Classification is eval-pending.
+- **OUT OF SCOPE (deferred):** MCQ migration onto the front door (still `conceptual:1`), chapter-tests/mocks, layer-merge, durable
+  Me convergence. Report: `report-mi-consolidation-p1p2-2026-06-11.md`.
 
 ## ✅ INFRA-4 / PR1 — backend DEPLOYED + LIVE (the go-live unlock)
 The backend (`artifacts/api-server`, which self-spawns the `lazytopper/server` AI gateway as a child) is **deployed on Railway and

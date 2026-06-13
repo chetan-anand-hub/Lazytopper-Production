@@ -1,3 +1,32 @@
+## 2026-06-12 — Post-PR #227 (MI Consolidation P1+P2)
+
+### ✅ DONE — MI P1+P2 merged + owner live-verified
+- **[MI-P1P2] `recordMistake` front door + weak-area bridge + careless insight + server reconcile** (#227, trunk `c618cd5`,
+  squash of `e3e3f18`; 8 files +531/−159). Quick-Practice "mistake not logged" bug FIXED. Owner live-verification: regression ✅,
+  Quick-Practice logging ✅, bridge ✅ (Polynomials + Real Numbers in Weak Areas), server reconcile ✅, no double-log ✅.
+  Report: `report-mi-consolidation-p1p2-2026-06-11.md`.
+
+### New follow-ups surfaced by the MI live verification (both pre-existing / separate from MI logging)
+- **[FU-GRADE-PARSE] grade-parse resilience** — an **intermittent grade-parse failure** observed on the Quick-Practice "check my
+  answer" flow (the grade occasionally fails to parse). This is **not** an MI logging failure — logging works once a grade parses.
+  Pre-existing on the `/check-solution` parse path; harden it (defensive parse + retry / clearer error). Owner noted it is being
+  handled elsewhere; tracked here so it isn't lost.
+- **[FU-ME-REFRESH] Me page auto-refresh lag** — after a graded mistake, the Me page does **not** reflect the new mistake / the
+  reconciled `mistakeSummary` until a **manual refresh**. Add a refetch trigger (on focus, or after a grade completes) so Me
+  updates without a reload. Surfaced specifically against verification point 4 (server reconcile is correct; Me display lags it).
+
+### Eval-pending (named for the next workstream)
+- **[MI-EVAL] classification quality** — the weak-area bridge routes by **Gemini's mistake-typing** (conceptual/calculation vs
+  silly/presentation). The eval set validates this next; be ready to tune routing if it's noisy.
+
+### Still open / deferred (named in the MI Architecture Map, NOT in #227)
+- **[MI-MCQ] MCQ onto the front door** — `PracticeQuestionCard` still writes `logMistakes` directly with hardcoded `conceptual:1`
+  (Map gap #5 / Phase 2). **[MI-TESTS-MOCKS]** chapter-tests + mocks onto `recordMistake` (Phase 3). **[MI-LAYER-MERGE]**
+  reconcile the two analysis layers + durable Me convergence (Phase 4).
+- **Topic-key resolution risk (watch):** the bridge depends on `normalizeTopicKey(display label)` resolving to the canonical slug
+  the aggregator iterates. Verified live for Polynomials + Real Numbers; if a future topic's weak-area bump silently no-ops, it's
+  an alias-map/`topicResolver` gap → fast-follow patch, not a revert.
+
 ## 2026-06-11 — Post-PR #224 + #225 (INFRA-4/PR1: Railway backend LIVE)
 
 ### ✅ DONE — backend deployed + live
