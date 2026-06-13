@@ -1,12 +1,22 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-11 (post-PR #224 + #225 — INFRA-4/PR1: Railway backend LIVE + vercel /api wired. Grading no longer dark in prod. NEXT: owner+cofounder run the Track B live round-trip to CLOSE [TRACK-B-GATE]; then PR2 (harden); then RESP-DIV-2)
-# Base SHA: 7c106b610703b6dc8c54d47f9a05eb1a078b8fb4
+# Updated: 2026-06-12 (post-PR #227 — MI Consolidation P1+P2 MERGED + owner live-verified. Quick-Practice logging bug fixed; graded conceptual+calc mistakes now bridge to Weak Areas; careless-insight card on Me; server reconcile. NEXT: 2 MI follow-ups (grade-parse resilience, Me auto-refresh); owner+cofounder formally close [TRACK-B-GATE]; then PR2 (harden); then RESP-DIV-2)
+# Base SHA: c618cd5badaf4e6624a41c1c68fadc9f29051c87
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 7c106b610703b6dc8c54d47f9a05eb1a078b8fb4
-Last PRs: #220 (Track A — mobile Me honesty) + #222 (Track B — mobile Check trust guard + persistence) + #223 (docs) + #224 (INFRA-4/PR1 — Railway deploy image) + #225 (INFRA-4/PR1 — fill vercel.json with the live Railway URL)
+SHA: c618cd5badaf4e6624a41c1c68fadc9f29051c87
+Last PRs: #222 (Track B — mobile Check trust + persistence) + #223 (docs) + #224 (INFRA-4/PR1 — Railway deploy image) + #225 (INFRA-4/PR1 — live Railway URL) + #226 (docs) + #227 (MI Consolidation P1+P2 — recordMistake front door + weak-area bridge + careless insight + server reconcile)
+
+## ⏭️ IMMEDIATE NEXT — MI follow-ups (small), then close Track B, then PR2
+PR #227 (MI P1+P2) is **MERGED + owner live-verified** (regression, Quick-Practice logging, bridge → Polynomials + Real Numbers in
+Weak Areas, server reconcile, no double-log all PASS). Two non-blocking follow-ups it surfaced — both **pre-existing / separate**
+from MI logging, scope each as its own small PR:
+1. **[FU-GRADE-PARSE] grade-parse resilience** — intermittent grade-parse failure on the Quick-Practice check (`/check-solution`
+   parse path). Not a logging bug; harden the parse/retry.
+2. **[FU-ME-REFRESH] Me auto-refresh** — Me does not reflect a freshly-logged mistake / reconciled summary until a manual reload;
+   add a refetch-on-focus / post-grade trigger.
+3. **Eval-pending:** the bridge routes by Gemini mistake-typing — tune routing if the eval set shows it's noisy.
 
 ## ⏭️ IMMEDIATE NEXT — close the Track B gate (live round-trip), then PR2 (harden), then resume Phase-2
 INFRA-4/PR1 is **DONE + the backend is LIVE on Railway** (owner-confirmed `stub:false`, Gemini direct-key); grading is no longer
