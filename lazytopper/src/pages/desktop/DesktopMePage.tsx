@@ -12,7 +12,6 @@ import {
 } from "../../services/mistakeLogService";
 import { summarizeCareless } from "../../services/mistakeInsightsService";
 import {
-  buildDesktopPracticePath,
   buildDesktopWorksheetPath,
   buildDesktopTopicHubPath,
   withQuery,
@@ -757,14 +756,18 @@ const DesktopMePage: React.FC = () => {
     subject: DesktopSubject,
     topicSlug: string
   ) => {
-    navigate(
-      buildDesktopPracticePath({
-        scope: "topic",
-        subject,
-        topic: topicSlug,
-        ...ROUTE_CTX,
-      })
-    );
+    // Option B (one-click direct): a weak-area CTA expresses explicit intent, so
+    // route STRAIGHT to the auto-serving practice set (PracticePage keys its
+    // Gap-B auto-serve on an explicit `topic=` arrival) — bypassing the
+    // /practice-hub chooser, and matching mobile's one-click behaviour. We
+    // deliberately do NOT modify buildDesktopPracticePath (a gated lane that
+    // always returns /practice-hub); generic entries (gotoPracticeBrowse) keep
+    // using it and stay an open, unscoped builder — never auto-scoped.
+    const params = new URLSearchParams();
+    params.set("topic", topicSlug);
+    if (ROUTE_CTX.source) params.set("source", ROUTE_CTX.source);
+    if (ROUTE_CTX.returnTo) params.set("returnTo", ROUTE_CTX.returnTo);
+    navigate(withQuery(`/practice/10/${subject}`, params));
   };
 
   const gotoWorksheetForTopic = (
