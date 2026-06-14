@@ -2,6 +2,32 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-14 — Post-PR #233 roadmap update (MI Loop Stage 2 / Measure-leg PR 1)
+
+The MI loop's **Measure** leg per `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (3 PRs). PR 1 makes graded scores measurable.
+Report: `report-mi-loop-stage2-pr1-recordattempt-2026-06-14.md`.
+
+### Completed this session
+- [x] **#233 — MI Loop Stage 2 / Measure-leg PR 1** (trunk `57fb7aa`, squash of `d8ee55c`; 4 frontend files +199/−15).
+  The dead `recordAttempt` (0 call sites) is now the real single front door — score-twin of `recordMistake` (policy + dedup +
+  localStorage + existing Firestore mirror; **no `firestore.rules` edit**). Marks is the universal unit; `correct` derived.
+  Routed all 3 graded surfaces. Attempts merge with mistake-log rows (no duplicate weak-area rows). CI GREEN. Owner live-verified
+  PASS (Saved attempts / Accuracy / Recent populate; merged into Polynomials weak-area row; X/Y banner = v1 scorecard).
+
+### MI loop — Measure leg, remaining PRs
+- [ ] **Stage 2 PR 2 — close the loop (next):** a **correct** `recordAttempt` decrements the topic/concept weakness via
+  `clearWrongAnswer` (wire to the live attempt path, NOT the dormant session subsystem; already clamped ≥0). Confirm the
+  aggregator's `accuracy<60 && attempts>=2` path now receives real attempts. **Decisive test:** a logged weak area
+  (Real Numbers −7) **visibly shrinks** on Me after a clean correct drill — the proof the loop closes.
+- [ ] **Stage 2 PR 3 — MCQ honest capture:** `PracticeQuestionCard` MCQ click → `recordAttempt` (1/1 or 0/1); stop the direct
+  `logMistakes` hardcoded `conceptual:1` (record a wrong MCQ as unclassified/objective — owner-confirm exact treatment).
+- [ ] **Stage 3 — concept-level targeting (eval-gated):** pass the weak concept into `generatePracticeSet.conceptKey`.
+  = **[FU-DRILL-ENRICHMENT]**.
+
+### Follow-ups logged this PR (see OPEN_QUESTIONS)
+- [ ] **[FU-ATTEMPT-MARKS-ACCURACY]** — marks-weighted Me accuracy (currently binary). **[FU-ATTEMPT-SR]** — dropped
+  spaced-repetition side-effect; reviving is its own decision.
+
 ## 2026-06-14 — Post-PR #231 roadmap update (MI Loop Stage 1 / Act-leg)
 
 The MI loop (Capture → Identify → **Act** → Measure) per `LazyTopper_MI_Loop_Culmination_Spec_2026-06-12.md`. Stage 1 wires the

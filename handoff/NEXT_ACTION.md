@@ -1,27 +1,34 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-14 (post-PR #231 — MI Loop Stage 1 / Act-leg MERGED + owner live-verified. Weak-area CTAs now target the #1 weak topic and land one-click in a ready scoped set (desktop matches mobile); intent-first guardrail preserved. NEXT: MI Loop Stage 2 = Measure leg (`recordAttempt`/scorecard — closes the loop, makes improvement visible); then Stage 3 (concept-level targeting, eval-gated); plus [FU-ME-REFRESH] + 5 Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; then PR2; then RESP-DIV-2)
-# Base SHA: 6d80a57
+# Updated: 2026-06-14 (post-PR #233 — MI Loop Stage 2 / Measure-leg PR 1 MERGED + owner live-verified. The `recordAttempt` front door is live — graded scores PERSIST and feed the Me scorecard; Saved attempts / Accuracy / Accuracy-by-subject / Recent all flow from real attempts; attempts merge into weak-area rows (Polynomials verified). NEXT: MI Loop Stage 2 PR 2 = close the loop (a correct attempt shrinks the weakness via `clearWrongAnswer`); then PR 3 (MCQ honest capture); then Stage 3 (concept-level, eval-gated); plus [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 57fb7aa
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 6d80a57
-Last PRs: #226 (docs) + #227 (MI Consolidation P1+P2) + #228 (docs) + #229 (grade-parse resilience) + #230 (docs — post-#229) + #231 (MI Loop Stage 1 / Act-leg — weak-topic targeting + auto-serve + Option B one-click direct)
+SHA: 57fb7aa
+Last PRs: #229 (grade-parse resilience) + #230 (docs — post-#229) + #231 (MI Loop Stage 1 / Act-leg) + #232 (docs — post-#231) + #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door + route GRADED solutions to the attempt store)
 
-## ⏭️ IMMEDIATE NEXT — MI Loop Stage 2 (Measure leg), then Stage 3, plus the follow-ups
-PR #231 (MI Loop **Stage 1 / Act-leg**) is **MERGED + owner live-verified** (one-click ready set desktop+mobile; guardrail holds;
-served sets non-empty). The loop's next leg:
+## ⏭️ IMMEDIATE NEXT — MI Loop Stage 2 PR 2 (close the loop), then PR 3 (MCQ), then Stage 3
+PR #233 (MI Loop **Stage 2 / Measure-leg PR 1**) is **MERGED + owner live-verified** (attempt stream works: Saved attempts /
+Accuracy / Accuracy-by-subject / Recent populate from real graded attempts; attempts merge into the Polynomials weak-area row;
+X/Y banner = v1 scorecard). The loop is now measurable but not yet **bidirectional**. Next, per
+`AGENT_t3_mi_measure_loopclose_2026-06-12.md`:
 
-1. **MI Loop Stage 2 — the Measure leg (headline next).** Build the `recordAttempt` front door + Firestore attempt/score stream
-   (per `LazyTopper_Scorecard_Architecture_Spec_2026-06-12.md`, reframed by the MI-Loop spec as the loop's **return leg**) so
-   "Saved attempts", "Accuracy by subject", and per-topic "your weak area shrank after the drill" stop being empty. Mirror the
-   merged `recordMistake` signature for symmetry. Durable on live Firestore; no PR2 dependency.
-2. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
+1. **MI Loop Stage 2 PR 2 — close the loop (headline next).** When a `recordAttempt` is **correct** on a topic/concept, decrement
+   that topic/concept's wrong-answer count via `clearWrongAnswer` (the weakness shrinks) — wire to the LIVE attempt path, NOT the
+   dormant `recordSelfAssessment` session subsystem; guard ≥0 (already clamped). Confirm the aggregator's
+   `accuracy<60 && attempts>=2` path now receives the real PR-1 attempts. **Decisive live test:** a logged weak area
+   (e.g. Real Numbers −7) **visibly shrinks** on Me after a clean correct drill — the proof the loop closes. One PR; STOP for owner.
+2. **MI Loop Stage 2 PR 3 — MCQ honest capture.** `PracticeQuestionCard` MCQ click → `recordAttempt` (1/1 or 0/1); stop the direct
+   `logMistakes` hardcoded `conceptual:1` (a wrong MCQ has no working to classify — record as unclassified/objective;
+   **owner-confirm the exact treatment** in the report before finalizing).
+3. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
    `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**.
-3. **Stage-1 polish follow-ups** (each small, surfaced during live testing — see OPEN_QUESTIONS): **[FU-DRILL-ROUTING]**,
-   **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**, **[FU-WEAKAREA-HUB-LIMIT]**.
-4. **[FU-ME-REFRESH]** — Me auto-refresh after a grade (still open). **[FU-GRADE-MARKSCALE]** / **[FU-GRADE-CONSISTENCY]** /
-   **[MI-EVAL]** — eval-gated grade-quality items.
+4. **PR-1 follow-ups (logged, not blocking):** **[FU-ATTEMPT-MARKS-ACCURACY]** (marks-weighted Me accuracy; display-only,
+   data already persisted), **[FU-ATTEMPT-SR]** (dropped spaced-repetition side-effect — its own decision).
+5. **Stage-1 polish follow-ups** (see OPEN_QUESTIONS): **[FU-DRILL-ROUTING]**, **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**,
+   **[FU-WEAKAREA-HUB-LIMIT]**. **[FU-ME-REFRESH]** — Me auto-refresh after a grade (still open). **[FU-GRADE-MARKSCALE]** /
+   **[FU-GRADE-CONSISTENCY]** / **[MI-EVAL]** — eval-gated grade-quality items.
 
 ## ⏭️ IMMEDIATE NEXT — close the Track B gate (live round-trip), then PR2 (harden), then resume Phase-2
 INFRA-4/PR1 is **DONE + the backend is LIVE on Railway** (owner-confirmed `stub:false`, Gemini direct-key); grading is no longer

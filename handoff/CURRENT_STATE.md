@@ -1,10 +1,33 @@
 # LazyTopper — Current State
-Last updated: 2026-06-14 (post-PR #231 — MI Loop Stage 1 (Act-leg) MERGED + owner live-verified: "practise where you lose marks" CTAs now target the #1 weak topic and land the student ONE-CLICK in a ready scoped set (desktop matches mobile, no hub), honest generic fallback when no weak data; intent-first guardrail preserved (generic practice stays open/unscoped). NEXT: MI Loop Stage 2 = the Measure leg (`recordAttempt`/scorecard); then Stage 3 (concept-level targeting, eval-gated); plus [FU-ME-REFRESH] + 5 Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; PR2 (harden); RESP-DIV-2)
+Last updated: 2026-06-14 (post-PR #233 — MI Loop Stage 2 / Measure-leg PR 1 MERGED + owner live-verified: the `recordAttempt` front door is live — graded scores now PERSIST and feed the Me scorecard. "Saved attempts" / "Accuracy" / "Accuracy by subject" / "Recent activity" all flow from real graded attempts, and attempts MERGE into the weak-area rows (attempts + accuracy alongside marks-lost — verified on Polynomials). The existing per-answer X/Y banner is the v1 session scorecard (owner-confirmed; no new UI). NEXT: MI Loop Stage 2 PR 2 = close the loop (a correct attempt shrinks the weakness via `clearWrongAnswer`); then PR 3 (MCQ honest capture); then Stage 3 (concept-level, eval-gated); plus [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 6d80a57
-Last merged PRs: #226 (docs), #227 (MI Consolidation P1+P2 — squash `e3e3f18`), #228 (docs), #229 (grade-parse resilience — squash `14ea860`), #230 (docs — post-#229), **#231 (MI Loop Stage 1 / Act-leg — weak-topic targeting + auto-serve + Option B one-click direct; 3 files +92/−15; squash of `09fa7f8`+`deaad2e`)**
+SHA: 57fb7aa
+Last merged PRs: #228 (docs), #229 (grade-parse resilience — squash `14ea860`), #230 (docs — post-#229), #231 (MI Loop Stage 1 / Act-leg — squash of `09fa7f8`+`deaad2e`), #232 (docs — post-#231), **#233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door + route GRADED solutions to the attempt store; 4 files +199/−15; squash `d8ee55c` → trunk `57fb7aa`)**
+
+## ✅ MI LOOP STAGE 2 — Measure-leg PR 1 (#233, trunk `57fb7aa`) — MERGED + owner live-verified
+The MI loop is Capture → Identify → Act → **Measure**. The loop did NOT close: `recordAttempt` had **0 call sites** (empty
+scorecard, dead accuracy path). PR 1 makes the engine **measurable** — graded scores persist and feed the Me cards. Per
+`AGENT_t3_mi_measure_loopclose_2026-06-12.md` (PR 1 of 3). Report: `report-mi-loop-stage2-pr1-recordattempt-2026-06-14.md`.
+- **Front door:** the dead `practiceInsights.recordAttempt` is now the real, single `recordAttempt(user, ctx)` — the **score-twin
+  of `recordMistake`** (policy: skip no-user/local; dedup; localStorage + the **existing** Firestore mirror — **no `firestore.rules`
+  edit**). Exactly one `recordAttempt` (confirmed-and-replaced the dead one).
+- **Marks is the universal unit:** an attempt carries `marksScored`/`marksAvailable`/`mode`; `correct` is **derived** (full marks)
+  so the existing %-correct readers are unchanged. `marksScored` clamped to `[0, marksAvailable]` (can't invent marks).
+- **Routed all three graded surfaces** (Quick Practice `SolutionChecker` — fresh + cache-restore; desktop `DesktopCheckImprovePage`;
+  mobile `CheckImprove`) — each calls `recordAttempt` alongside `recordMistake`. Records EVERY graded attempt incl. full marks
+  (accuracy needs the correct ones). Dedup keyed on `(uid, questionId|hash(question), score, mode)` so a cache-restore never
+  double-counts. `topicKey` = human label → attempts **merge** with mistake-log rows (no duplicate weak-area rows).
+- **Live-verified PASS (owner):** Saved attempts populate; Accuracy / Accuracy-by-subject / Recent all flow from real graded
+  attempts; attempts merged into the **Polynomials** weak-area row (attempts + accuracy alongside marks-lost); X/Y banner confirmed
+  as the v1 session scorecard (no new UI).
+- **2 follow-ups logged:** **[FU-ATTEMPT-MARKS-ACCURACY]** (Me accuracy still binary — marks-weighted is the fuller decision-1
+  expression, needs label changes; fast-follow) and **[FU-ATTEMPT-SR]** (the old dead `recordAttempt` fed spaced-repetition; that
+  side-effect was intentionally dropped — reviving it is its own decision). See OPEN_QUESTIONS.
+- **NEXT in the loop:** **PR 2 = close the loop** — a correct `recordAttempt` decrements the topic/concept weakness via
+  `clearWrongAnswer` (wire to the live attempt path, not the dormant session subsystem). Decisive test: a logged weak area
+  (e.g. Real Numbers −7) **visibly shrinks** on Me after a clean drill. Then **PR 3** = MCQ honest capture through the doors.
 
 ## ✅ MI LOOP STAGE 1 — Act-leg (#231, trunk `6d80a57`) — MERGED + owner live-verified
 The MI loop is Capture → Identify → **Act** → Measure. Stage 1 wires the **Act** hand-off so "practise where you lose marks"
