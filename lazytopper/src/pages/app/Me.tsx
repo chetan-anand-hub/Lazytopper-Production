@@ -6,6 +6,7 @@ import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getMistakeLogs } from "../../services/mistakeLogService";
 import { summarizeCareless, type CarelessInsight } from "../../services/mistakeInsightsService";
+import { getWrongConceptsForTopic } from "../../services/adaptivePracticeEngine";
 import { normalizeTopicKey } from "../../utils/topicResolver";
 
 function readLocalInt(key: string, fallback = 0): number {
@@ -57,6 +58,9 @@ export default function Me() {
     subjectPath: string;
     topicSlug: string;
     topicLabel: string;
+    /** Recoverable wrong-answer count (Stream 3) — shrinks toward zero as the
+     *  topic is drilled correctly. Distinct from the historical marks lost. */
+    activeGaps: number;
   } | null>(null);
 
   useEffect(() => {
@@ -90,6 +94,11 @@ export default function Me() {
                 subjectPath: (top.subject || "Maths").toLowerCase(),
                 topicSlug: normalizeTopicKey(top.label) || top.label,
                 topicLabel: top.label,
+                // Active gaps remaining, keyed by the SAME canonical key the
+                // bridge stored (normalizeTopicKey) so the count resolves.
+                activeGaps: getWrongConceptsForTopic(
+                  normalizeTopicKey(top.label) || top.label,
+                ).reduce((sum, e) => sum + (Number(e.count) || 0), 0),
               }
             : null,
         );
@@ -514,7 +523,9 @@ export default function Me() {
               </div>
               <div style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.72)" }}>
                 {topWeak
-                  ? "Ready set on your biggest mark-loss"
+                  ? topWeak.activeGaps > 0
+                    ? `${topWeak.activeGaps} active gap${topWeak.activeGaps === 1 ? "" : "s"} to clear · biggest mark-loss`
+                    : "Ready set on your biggest mark-loss"
                   : "Board-style · targets your weak areas"}
               </div>
             </div>
