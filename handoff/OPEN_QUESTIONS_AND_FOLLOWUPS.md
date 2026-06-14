@@ -1,3 +1,26 @@
+## 2026-06-14 — Post-PR #231 (MI Loop Stage 1 / Act-leg)
+
+### ✅ DONE — MI Loop Stage 1 merged + owner live-verified
+- **[MI-LOOP-S1] Act-leg targeting** (#231, trunk `6d80a57`, squash of `09fa7f8`+`deaad2e`; 3 files +92/−15). Gap A (weak-topic
+  targeting + honest generic fallback) + Gap B (auto-serve on targeted arrival) + Option B (one-click direct via
+  `gotoPracticeForTopic`, gated `buildDesktopPracticePath` untouched, intent-first guardrail preserved). **Live-verified PASS:**
+  one-click ready set (desktop + mobile); generic Practice stays open/unscoped; served set non-empty (Real Numbers, Polynomials);
+  "Edit filters" works. Report: `report-mi-loop-stage1-targeting-2026-06-12.md`.
+
+### New follow-ups surfaced during Stage-1 live testing (recorded — do NOT fix ad hoc; sequence per the MI-Loop spec)
+- **[FU-DRILL-ROUTING]** — TopicHub "Run targeted drill" routes to the **worksheet generator** (`mistakeAwareHref` →
+  `buildDesktopWorksheetPath`, `DesktopTopicHubPage` ~L2135) instead of a practice drill. **Label contradicts destination** —
+  repoint to the auto-serving practice set (same one-click pattern as #231) or relabel.
+- **[FU-WEAKAREA-LABEL]** — `PracticePage` shows **no weak-area framing** on a targeted arrival, so a scoped set still *looks*
+  generic. Add an honest "Targeting your weak area: <topic>" banner on `?topic=`/`targeted=1` arrivals.
+- **[FU-WEAKAREA-CTAS]** — only `weakAreas[0]` gets a "Practise" CTA (`DesktopMePage` ~L1431 gate); **secondary weak areas**
+  (e.g. Polynomials) have none. Extend the targeted CTA to the top-N weak areas.
+- **[FU-WEAKAREA-HUB-LIMIT]** — the practice-hub surfaces only the **top** weak area (`rows[0]`) vs Me's full list. Align the hub
+  to show Me's weak-area set.
+- **[FU-DRILL-ENRICHMENT]** — the targeted drill is **topic-level only**: the mistake-*category* never reaches
+  `generatePracticeSet`, and concept-priority is gated on `adaptiveMix` (`difficulty === "All"`). This is **MI Loop Stage 3**
+  (concept-level targeting), **eval-gated** — do after Stages 1–2 prove the loop + the eval set validates classification.
+
 ## 2026-06-14 — Post-PR #229 (grade-parse resilience)
 
 ### ✅ CLOSED

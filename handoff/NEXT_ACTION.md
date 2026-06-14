@@ -1,22 +1,27 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-14 (post-PR #229 — grade-parse resilience MERGED + owner live-verified. The "couldn't read the grading" intermittency was Gemini JSON truncation; fixed (retry + maxOutputTokens 16000 + diagnostics), zero grading-semantics change. [FU-GRADE-PARSE] CLOSED. NEXT: [FU-ME-REFRESH]; eval-gated grade-quality items; owner+cofounder close [TRACK-B-GATE]; then PR2 (harden); then RESP-DIV-2)
-# Base SHA: 59e11f6
+# Updated: 2026-06-14 (post-PR #231 — MI Loop Stage 1 / Act-leg MERGED + owner live-verified. Weak-area CTAs now target the #1 weak topic and land one-click in a ready scoped set (desktop matches mobile); intent-first guardrail preserved. NEXT: MI Loop Stage 2 = Measure leg (`recordAttempt`/scorecard — closes the loop, makes improvement visible); then Stage 3 (concept-level targeting, eval-gated); plus [FU-ME-REFRESH] + 5 Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; then PR2; then RESP-DIV-2)
+# Base SHA: 6d80a57
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 59e11f6
-Last PRs: #224 (INFRA-4/PR1 — Railway deploy image) + #225 (INFRA-4/PR1 — live Railway URL) + #226 (docs) + #227 (MI Consolidation P1+P2) + #228 (docs — post-#227) + #229 (grade-parse resilience — retry + maxOutputTokens 16000 + diagnostics)
+SHA: 6d80a57
+Last PRs: #226 (docs) + #227 (MI Consolidation P1+P2) + #228 (docs) + #229 (grade-parse resilience) + #230 (docs — post-#229) + #231 (MI Loop Stage 1 / Act-leg — weak-topic targeting + auto-serve + Option B one-click direct)
 
-## ⏭️ IMMEDIATE NEXT — remaining MI/grade follow-ups, then close Track B, then PR2
-PR #227 (MI P1+P2) and #229 (grade-parse resilience) are both **MERGED + owner live-verified**. **[FU-GRADE-PARSE] is CLOSED**
-(`sol_5.jpeg` now grades cleanly on both surfaces). Remaining follow-ups, each its own small PR:
-1. **[FU-ME-REFRESH] Me auto-refresh** — Me does not reflect a freshly-logged mistake / reconciled summary until a manual reload;
-   add a refetch-on-focus / post-grade trigger. (Confirmed again during the #229 live check.)
-2. **[FU-GRADE-MARKSCALE] (eval-gated)** — Check & Improve marks are **student-entered, not question-derived**; the grader should
-   judge the **CBSE mark value** of the answer rather than trust the entered total.
-3. **[FU-GRADE-CONSISTENCY] (eval-tuned)** — mistake-type varies across surfaces for the same answer; mostly **downstream of
-   mark-scale**; ties into **[MI-EVAL]** (bridge routes by Gemini mistake-typing — tune once the eval set runs).
+## ⏭️ IMMEDIATE NEXT — MI Loop Stage 2 (Measure leg), then Stage 3, plus the follow-ups
+PR #231 (MI Loop **Stage 1 / Act-leg**) is **MERGED + owner live-verified** (one-click ready set desktop+mobile; guardrail holds;
+served sets non-empty). The loop's next leg:
+
+1. **MI Loop Stage 2 — the Measure leg (headline next).** Build the `recordAttempt` front door + Firestore attempt/score stream
+   (per `LazyTopper_Scorecard_Architecture_Spec_2026-06-12.md`, reframed by the MI-Loop spec as the loop's **return leg**) so
+   "Saved attempts", "Accuracy by subject", and per-topic "your weak area shrank after the drill" stop being empty. Mirror the
+   merged `recordMistake` signature for symmetry. Durable on live Firestore; no PR2 dependency.
+2. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
+   `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**.
+3. **Stage-1 polish follow-ups** (each small, surfaced during live testing — see OPEN_QUESTIONS): **[FU-DRILL-ROUTING]**,
+   **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**, **[FU-WEAKAREA-HUB-LIMIT]**.
+4. **[FU-ME-REFRESH]** — Me auto-refresh after a grade (still open). **[FU-GRADE-MARKSCALE]** / **[FU-GRADE-CONSISTENCY]** /
+   **[MI-EVAL]** — eval-gated grade-quality items.
 
 ## ⏭️ IMMEDIATE NEXT — close the Track B gate (live round-trip), then PR2 (harden), then resume Phase-2
 INFRA-4/PR1 is **DONE + the backend is LIVE on Railway** (owner-confirmed `stub:false`, Gemini direct-key); grading is no longer
