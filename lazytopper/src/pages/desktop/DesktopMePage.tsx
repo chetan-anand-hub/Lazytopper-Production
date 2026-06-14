@@ -721,6 +721,21 @@ const DesktopMePage: React.FC = () => {
     [mistakeLogs]
   );
 
+  // #1 weak topic (highest marks lost) that resolves to a real hub slug — the
+  // target for the "practise where you lose marks" CTA. Null when there is no
+  // weak-area data yet (honest fallback: generic browse, never a fake target).
+  const topWeakTarget = useMemo(() => {
+    const top = weakAreas[0];
+    if (top && top.hubSlug && top.hubSubject) {
+      return {
+        subject: top.hubSubject as DesktopSubject,
+        slug: top.hubSlug as string,
+        name: top.topicName,
+      };
+    }
+    return null;
+  }, [weakAreas]);
+
   /* ────────────────── routing helpers ────────────────── */
 
   const gotoLogin = () => {
@@ -1229,15 +1244,21 @@ const DesktopMePage: React.FC = () => {
                       lineHeight: 1.5,
                     }}
                   >
-                    Open a targeted practice set on your most-attempted topics.
+                    {topWeakTarget
+                      ? `Open a practice set on ${topWeakTarget.name} — your biggest mark-loss.`
+                      : "Open a targeted practice set on your most-attempted topics."}
                   </div>
                 </div>
                 <button
                   type="button"
                   style={buttonSmallDark}
-                  onClick={gotoPracticeBrowse}
+                  onClick={() =>
+                    topWeakTarget
+                      ? gotoPracticeForTopic(topWeakTarget.subject, topWeakTarget.slug)
+                      : gotoPracticeBrowse()
+                  }
                 >
-                  Open practice
+                  {topWeakTarget ? "Practise this topic" : "Open practice"}
                 </button>
               </div>
             </div>
