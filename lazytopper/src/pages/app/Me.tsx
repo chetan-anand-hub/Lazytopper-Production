@@ -6,6 +6,7 @@ import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getMistakeLogs } from "../../services/mistakeLogService";
 import { summarizeCareless, type CarelessInsight } from "../../services/mistakeInsightsService";
+import { normalizeTopicKey } from "../../utils/topicResolver";
 
 function readLocalInt(key: string, fallback = 0): number {
   try {
@@ -49,11 +50,20 @@ export default function Me() {
     marksLost: 0,
     hasData: false,
   });
+  // #1 weak topic (highest marks lost) from the same logs — the target for the
+  // "practise where you lose marks" CTA. Null when there is no real weak topic
+  // yet (honest fallback: the generic worksheet generator, never a fake target).
+  const [topWeak, setTopWeak] = useState<{
+    subjectPath: string;
+    topicSlug: string;
+    topicLabel: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) {
       setMistakeMix({ bars: [], total: 0 });
       setCareless({ sillyCount: 0, presentationCount: 0, count: 0, marksLost: 0, hasData: false });
+      setTopWeak(null);
       return;
     }
     let cancelled = false;
@@ -61,6 +71,28 @@ export default function Me() {
       .then((logs) => {
         if (cancelled) return;
         setCareless(summarizeCareless(logs));
+        // Top weak topic by marks lost (mirrors desktop Me's weak-area ranking).
+        const byTopic = new Map<string, { marksLost: number; subject: string; label: string }>();
+        for (const l of logs) {
+          const label = (l.topic || "").trim();
+          if (!label) continue;
+          const prev = byTopic.get(label) || { marksLost: 0, subject: l.subject || "Maths", label };
+          prev.marksLost += Number(l.marksLost) || 0;
+          byTopic.set(label, prev);
+        }
+        let top: { marksLost: number; subject: string; label: string } | null = null;
+        for (const v of byTopic.values()) {
+          if (!top || v.marksLost > top.marksLost) top = v;
+        }
+        setTopWeak(
+          top && top.marksLost > 0
+            ? {
+                subjectPath: (top.subject || "Maths").toLowerCase(),
+                topicSlug: normalizeTopicKey(top.label) || top.label,
+                topicLabel: top.label,
+              }
+            : null,
+        );
         const totals = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
         for (const l of logs) {
           const c = l.mistakeCounts || ({} as typeof totals);
@@ -90,6 +122,7 @@ export default function Me() {
         if (!cancelled) {
           setMistakeMix({ bars: [], total: 0 });
           setCareless({ sillyCount: 0, presentationCount: 0, count: 0, marksLost: 0, hasData: false });
+          setTopWeak(null);
         }
       });
     return () => {
@@ -418,7 +451,13 @@ export default function Me() {
           </div>
           <button
             className="tap"
-            onClick={() => navigate("/practice/worksheets")}
+            onClick={() =>
+              navigate(
+                topWeak
+                  ? `/practice/10/${topWeak.subjectPath}?topic=${encodeURIComponent(topWeak.topicSlug)}&source=me`
+                  : "/practice/worksheets",
+              )
+            }
             style={{
               display: "flex",
               alignItems: "center",
@@ -471,10 +510,12 @@ export default function Me() {
                   marginBottom: 2,
                 }}
               >
-                Generate a worksheet
+                {topWeak ? `Practise ${topWeak.topicLabel}` : "Generate a worksheet"}
               </div>
               <div style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.72)" }}>
-                Board-style · targets your weak areas
+                {topWeak
+                  ? "Ready set on your biggest mark-loss"
+                  : "Board-style · targets your weak areas"}
               </div>
             </div>
             <svg

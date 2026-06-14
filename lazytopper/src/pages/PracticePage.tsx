@@ -288,6 +288,18 @@ const PracticePage: React.FC = () => {
     setCommittedSource(initialPracticeDefaults.sourceUi);
     setCommittedDifficulty(initialPracticeDefaults.diffUi);
     setCommittedCount(initialPracticeDefaults.recommendedCount);
+    // Gap-B auto-serve: a TARGETED arrival — an explicit topic in the URL (from
+    // a "practise where you lose marks" CTA, Topic Hub, or the desktop hub's
+    // "Start quick practice") or a Fix-My-Mistakes session (targeted=1) — should
+    // land the student IN a ready, scoped set rather than behind the builder.
+    // The generate effect already fetches on mount; flipping isBuilt surfaces it.
+    // A bare subject-level arrival (no explicit topic) keeps the manual builder,
+    // and "Edit filters" remains available to refine a served set.
+    const arrivedTargeted =
+      (!!rawTopicParam && rawTopicParam.toLowerCase() !== "generic") || isTargetedSession;
+    if (arrivedTargeted) {
+      setIsBuilt(true);
+    }
     didInitFromUrlRef.current = true;
   }, [initialPracticeDefaults]);
 
