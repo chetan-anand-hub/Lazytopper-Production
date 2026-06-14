@@ -6,6 +6,7 @@
  */
 
 import { doc, setDoc } from "firebase/firestore";
+import type { AuthUser } from "../context/AuthContext";
 import {
   buildProgressScopeKey,
   getActiveProgressUser,
@@ -16,6 +17,11 @@ import { firestoreDb } from "./firebaseClient";
 export type LTSubject = "maths" | "science";
 export type DifficultyLevel = "Easy" | "Medium" | "Hard";
 
+/** How an attempt was produced. Marks is the universal unit (MI-Loop decision 1):
+ *  `graded` = examiner-style check (marksScored/marksAvailable from the grader);
+ *  `mcq` = objective click (1/1 or 0/1); `self-assess` = got-it / need-practice. */
+export type AttemptMode = "graded" | "mcq" | "self-assess";
+
 export interface PracticeAttempt {
   id: string;
   questionId: string;
@@ -24,7 +30,12 @@ export interface PracticeAttempt {
   subject: LTSubject;
   difficulty: DifficultyLevel;
   bloomSkill?: string;
+  /** Derived binary view (full marks) — kept for the existing %-correct readers. */
   correct: boolean;
+  /** Marks model (source of truth). Optional so legacy/binary attempts still parse. */
+  marksScored?: number;
+  marksAvailable?: number;
+  mode?: AttemptMode;
   timestamp: number;
 }
 
@@ -107,28 +118,161 @@ export function saveInsights(data: PracticeInsights): void {
 }
 
 /**
- * Record a single practice attempt.
+ * Append a single practice attempt to the store (localStorage + Firestore
+ * mirror via saveInsights). Internal — every write goes through the
+ * `recordAttempt` front door so policy + dedup can never be bypassed.
  */
-export function recordAttempt(attempt: Omit<PracticeAttempt, "id"> & { id?: string }): void {
+function appendAttempt(attempt: Omit<PracticeAttempt, "id"> & { id?: string }): void {
   const data = loadInsights();
   const id =
-    attempt.id ?? `${attempt.questionId}-${attempt.topicKey}-${Date.now().toString(36)}`;
+    attempt.id ??
+    `${attempt.questionId || "q"}-${attempt.topicKey}-${Date.now().toString(36)}`;
   data.attempts.push({ ...attempt, id });
   saveInsights(data);
+}
 
-  void import("./spacedRepetitionEngine").then((sr) => {
-    try {
-      const conceptKey = attempt.bloomSkill || attempt.questionId;
-      const subject = (attempt.subject.toLowerCase() === "science" ? "Science" : "Maths") as "Maths" | "Science";
+/* ──────────────────────────────────────────────────────────────────────────
+ * recordAttempt — the unified attempt front door (MI-Loop Stage 2, PR 1).
+ *
+ * The score-twin of `recordMistake` (mistakeIntelligence.ts): the ONE writer of
+ * the attempt store. Mirrors recordMistake's signature + policy (skip no-user /
+ * skip local; localStorage + Firestore) and adds idempotency so a cache-restore
+ * of the same graded result never double-counts. Unlike recordMistake it records
+ * EVERY graded attempt — including full marks — because accuracy needs the
+ * correct answers too (and PR 2 will use a correct attempt to shrink a weakness).
+ *
+ * Marks is the universal unit: an attempt carries marksScored/marksAvailable;
+ * `correct` is derived (full marks) for the existing %-correct readers.
+ * ────────────────────────────────────────────────────────────────────────── */
 
-      if (!attempt.correct) {
-        sr.addWrongAnswerToSR(attempt.topicKey, conceptKey, subject);
-      } else {
-        sr.addConceptToSR(attempt.topicKey, conceptKey, subject);
-        sr.reviewConcept(attempt.topicKey, conceptKey, 4);
-      }
-    } catch {}
-  }).catch(() => {});
+export interface RecordAttemptContext {
+  subject: string;
+  /** Human-readable topic label — stored as topicKey + topicName so attempts
+   *  group with mistake-log rows (which also key on the label) on the Me page. */
+  topic: string;
+  /** Optional canonical/slug key; only a fallback when `topic` is absent. */
+  topicKey?: string;
+  /** Optional question text — distinguishes free-typed checks in the dedup key. */
+  question?: string;
+  /** Stable question id when the surface has one (Quick Practice / HPQ). */
+  questionId?: string;
+  marksScored: number;
+  marksAvailable: number;
+  mode: AttemptMode;
+  difficulty?: string;
+  bloomSkill?: string;
+  /** Defaults to now; pass-through kept for testability. */
+  timestamp?: number;
+}
+
+export type RecordAttemptOutcome =
+  | "recorded" // newly persisted
+  | "duplicate" // same (user, question, score, mode) already recorded
+  | "skipped-no-user" // signed out
+  | "skipped-local" // local/browse session — never persists fabricated history
+  | "skipped-invalid"; // no positive marksAvailable — nothing measurable to record
+
+const ATTEMPT_DEDUP_KEY = "lazytopper.attempt.dedup.v1";
+const ATTEMPT_DEDUP_MAX = 400;
+
+/** Stable, dependency-free string hash (djb2) for the no-questionId dedup sig. */
+function hashAttemptString(input: string): string {
+  let h = 5381;
+  for (let i = 0; i < input.length; i++) {
+    h = (h * 33) ^ input.charCodeAt(i);
+  }
+  return (h >>> 0).toString(36);
+}
+
+function readAttemptDedup(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(ATTEMPT_DEDUP_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeAttemptDedup(keys: string[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      ATTEMPT_DEDUP_KEY,
+      JSON.stringify(keys.slice(0, ATTEMPT_DEDUP_MAX)),
+    );
+  } catch {
+    /* quota / SSR — dedup is best-effort, never blocks recording */
+  }
+}
+
+function attemptDedupKey(
+  uid: string,
+  ctx: RecordAttemptContext,
+  scored: number,
+  available: number,
+): string {
+  const qid =
+    ctx.questionId && ctx.questionId.trim()
+      ? ctx.questionId.trim()
+      : `t:${hashAttemptString(ctx.question || ctx.topic || "")}`;
+  return [uid, qid, `${scored}/${available}`, ctx.mode].join("::");
+}
+
+function toLTSubject(subject: string): LTSubject {
+  return String(subject).trim().toLowerCase() === "science" ? "science" : "maths";
+}
+
+function toDifficulty(difficulty?: string): DifficultyLevel {
+  const v = String(difficulty || "").trim().toLowerCase();
+  if (v === "easy") return "Easy";
+  if (v === "hard") return "Hard";
+  return "Medium";
+}
+
+/**
+ * The single attempt-ingestion front door. Idempotent per (user, question,
+ * score, mode). Returns the outcome so a surface can drive its own status.
+ */
+export function recordAttempt(
+  user: AuthUser | null | undefined,
+  ctx: RecordAttemptContext,
+): RecordAttemptOutcome {
+  // ── Policy (mirror recordMistake) ─────────────────────────────────────
+  if (!user?.uid) return "skipped-no-user";
+  if (user.isLocalSession) return "skipped-local";
+
+  const available = Number(ctx.marksAvailable);
+  if (!Number.isFinite(available) || available <= 0) return "skipped-invalid";
+  let scored = Number(ctx.marksScored);
+  if (!Number.isFinite(scored)) scored = 0;
+  // Clamp to [0, available] so a stray grader value can never invent marks.
+  scored = Math.max(0, Math.min(scored, available));
+
+  // ── Dedup ─────────────────────────────────────────────────────────────
+  const key = attemptDedupKey(user.uid, ctx, scored, available);
+  const seen = readAttemptDedup();
+  if (seen.includes(key)) return "duplicate";
+
+  // ── Build + persist ───────────────────────────────────────────────────
+  const topicLabel = String(ctx.topic ?? ctx.topicKey ?? "").trim();
+  appendAttempt({
+    questionId: ctx.questionId?.trim() || "",
+    topicKey: topicLabel,
+    topicName: topicLabel || undefined,
+    subject: toLTSubject(ctx.subject),
+    difficulty: toDifficulty(ctx.difficulty),
+    bloomSkill: ctx.bloomSkill,
+    correct: scored >= available,
+    marksScored: scored,
+    marksAvailable: available,
+    mode: ctx.mode,
+    timestamp: Number(ctx.timestamp) || Date.now(),
+  });
+  writeAttemptDedup([key, ...seen.filter((k) => k !== key)]);
+  return "recorded";
 }
 
 /**

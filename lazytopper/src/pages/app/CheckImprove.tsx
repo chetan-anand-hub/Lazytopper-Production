@@ -8,6 +8,7 @@ import {
 } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake } from "../../services/mistakeIntelligence";
+import { recordAttempt } from "../../services/practiceInsights";
 
 // Persistence (entry building + policy + dedup + the weak-area bridge) now lives
 // behind the single front door `recordMistake`. The old local buildMobileLogEntry
@@ -111,6 +112,16 @@ export default function CheckImprove() {
           subject,
           topic,
           question: question.trim(),
+        });
+        // Score-twin: persist the graded score as an attempt so it feeds the
+        // (shared) Me scorecard / accuracy alongside the mistake log.
+        recordAttempt(user, {
+          subject,
+          topic,
+          question: question.trim(),
+          marksScored: result.marksAwarded,
+          marksAvailable: result.totalMarks,
+          mode: "graded",
         });
         // logged / duplicate (already saved) / skipped-clean (graded, no mistake
         // to save) all read as success; signed-out / local / error read as
