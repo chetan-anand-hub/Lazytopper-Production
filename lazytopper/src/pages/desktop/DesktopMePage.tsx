@@ -19,6 +19,8 @@ import {
   type DesktopSubject,
 } from "../../lib/desktop/navigation";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { getWrongConceptsForTopic } from "../../services/adaptivePracticeEngine";
+import { normalizeTopicKey } from "../../utils/topicResolver";
 
 /**
  * DesktopMePage — Me / Progress page wired to real saved-attempt and
@@ -274,6 +276,10 @@ interface WeakArea {
   attempts: number;
   accuracyPct: number;
   marksLost: number;
+  /** Active gaps remaining — the recoverable wrong-answer count (Stream 3) that
+   *  shrinks as the topic is drilled correctly. Distinct from `marksLost` (the
+   *  historical scar, which never shrinks): this is the forward-looking healing. */
+  activeGaps: number;
   hubSlug: string | null;
   hubSubject: DesktopSubject | null;
 }
@@ -456,6 +462,15 @@ function computeWeakAreas(
         ? computeAccuracyPct(entry.correct, entry.attempts)
         : 0;
     const subjectLabel = entry.subject ? ltSubjectLabel(entry.subject) : "";
+    // Active gaps remaining = the recoverable wrong-answer count (Stream 3),
+    // looked up by the SAME canonical key the bridge stored it under. A clean
+    // correct drill shrinks this toward zero (via recordAttempt's loop-closer);
+    // marksLost (the historical scar) stays put.
+    const canonicalKey = normalizeTopicKey(entry.topicKey) || entry.topicKey;
+    const activeGaps = getWrongConceptsForTopic(canonicalKey).reduce(
+      (sum, e) => sum + (Number(e.count) || 0),
+      0,
+    );
     rows.push({
       topicKey: entry.topicKey,
       topicName: meta.name,
@@ -463,6 +478,7 @@ function computeWeakAreas(
       attempts: entry.attempts,
       accuracyPct,
       marksLost: entry.marksLost,
+      activeGaps,
       hubSlug: meta.hubSlug,
       hubSubject: meta.hubSubject,
     });
@@ -1382,6 +1398,9 @@ const DesktopMePage: React.FC = () => {
                           : ""}
                         {showMarksLost
                           ? ` · ${w.marksLost} marks lost`
+                          : ""}
+                        {w.activeGaps > 0
+                          ? ` · ${w.activeGaps} active gap${w.activeGaps === 1 ? "" : "s"} to clear`
                           : ""}
                       </div>
                     </div>

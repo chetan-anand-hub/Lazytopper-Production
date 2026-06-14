@@ -12,6 +12,8 @@ import {
   getActiveProgressUser,
   saveLearnerProgressSegment,
 } from "./studentProgressStore";
+import { clearWrongAnswer, getWrongConceptsForTopic } from "./adaptivePracticeEngine";
+import { normalizeTopicKey } from "../utils/topicResolver";
 import { firestoreDb } from "./firebaseClient";
 
 export type LTSubject = "maths" | "science";
@@ -258,6 +260,7 @@ export function recordAttempt(
 
   // ── Build + persist ───────────────────────────────────────────────────
   const topicLabel = String(ctx.topic ?? ctx.topicKey ?? "").trim();
+  const isCorrect = scored >= available;
   appendAttempt({
     questionId: ctx.questionId?.trim() || "",
     topicKey: topicLabel,
@@ -265,13 +268,46 @@ export function recordAttempt(
     subject: toLTSubject(ctx.subject),
     difficulty: toDifficulty(ctx.difficulty),
     bloomSkill: ctx.bloomSkill,
-    correct: scored >= available,
+    correct: isCorrect,
     marksScored: scored,
     marksAvailable: available,
     mode: ctx.mode,
     timestamp: Number(ctx.timestamp) || Date.now(),
   });
   writeAttemptDedup([key, ...seen.filter((k) => k !== key)]);
+
+  // ── Loop-closer (MI-Loop Stage 2 PR 2) ────────────────────────────────
+  // A FULLY-correct attempt shrinks the topic's active weakness by one. This
+  // is the return leg: `recordMistake` grows the wrong-answer count (Stream 3)
+  // when a graded answer loses marks; a clean drill answered correctly here
+  // decrements it via `clearWrongAnswer` (already clamped at 0 — never
+  // negative). A partial / wrong attempt is `isCorrect === false` and never
+  // shrinks anything.
+  //
+  // Key-matching is the critical detail (the G9 alias-fragility class): the
+  // weakness was keyed by the bridge as `normalizeTopicKey(topicKey ?? topic)`,
+  // so we resolve the SAME canonical key here (NOT the raw human label — the
+  // weak-area lookup keeps hyphens but turns spaces into "_", so a raw label
+  // would miss the canonical entry). We then decrement the stored entry using
+  // its OWN keys, so the map key matches exactly.
+  if (isCorrect) {
+    try {
+      const canonicalKey = normalizeTopicKey(ctx.topicKey ?? ctx.topic) || "";
+      if (canonicalKey) {
+        const gaps = getWrongConceptsForTopic(canonicalKey);
+        if (gaps.length > 0) {
+          // Drain the dominant gap first (highest count; tie-break most recent).
+          const target = gaps.reduce((a, b) =>
+            b.count > a.count || (b.count === a.count && b.timestamp > a.timestamp) ? b : a,
+          );
+          clearWrongAnswer(target.topicKey, target.conceptKey);
+        }
+      }
+    } catch {
+      /* loop-closer is best-effort — never blocks recording the attempt */
+    }
+  }
+
   return "recorded";
 }
 
