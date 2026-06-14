@@ -1,3 +1,27 @@
+## 2026-06-14 — Post-PR #233 (MI Loop Stage 2 / Measure-leg PR 1)
+
+### ✅ DONE — MI Loop Stage 2 PR 1 merged + owner live-verified
+- **[MI-LOOP-S2-PR1] `recordAttempt` front door** (#233, trunk `57fb7aa`, squash of `d8ee55c`; 4 files +199/−15). The dead
+  `recordAttempt` (0 call sites) is now the real single attempt front door — score-twin of `recordMistake` (skip no-user/local;
+  dedup; localStorage + existing Firestore mirror; **no `firestore.rules` edit**). Marks is the universal unit; `correct` derived.
+  All 3 graded surfaces routed; attempts merge with mistake-log rows. **Live-verified PASS:** Saved attempts / Accuracy /
+  Accuracy-by-subject / Recent populate from real graded attempts; merged into the **Polynomials** weak-area row; X/Y banner
+  confirmed as the v1 session scorecard (no new UI). Report: `report-mi-loop-stage2-pr1-recordattempt-2026-06-14.md`.
+
+### New follow-ups logged this PR (recorded — do NOT fix ad hoc)
+- **[FU-ATTEMPT-MARKS-ACCURACY]** — the Me "Accuracy" / "Accuracy by subject" cards are still **binary** (full-marks = correct), so
+  a graded 4/5 reads as one not-fully-correct attempt. Marks-weighted accuracy (∑marksScored / ∑marksAvailable) is the fuller
+  expression of decision 1, but the card labels ("X correct of Y attempts") must change to a marks framing first. Fast-follow
+  (decision 3 puts trend/analytics as fast-follow). The marks data is already persisted, so this is display-only.
+- **[FU-ATTEMPT-SR]** — the OLD dead `recordAttempt` body fed `spacedRepetitionEngine` (`addWrongAnswerToSR`/`addConceptToSR`/
+  `reviewConcept`); that side-effect was **intentionally dropped** when the front door was rebuilt (it was never live; activating a
+  dormant subsystem is out of PR-1 scope). If live attempts should feed SR, that is its own decision.
+
+### Next — MI Loop Stage 2 PR 2 (the loop-closer; do NOT start until this docs ritual is done)
+A **correct** `recordAttempt` should decrement the topic/concept weakness via `clearWrongAnswer` (wire to the live attempt path,
+NOT `recordSelfAssessment`'s dormant session subsystem; already clamped ≥0). Decisive live test: a logged weak area (Real Numbers
+−7) **visibly shrinks** on Me after a clean correct drill.
+
 ## 2026-06-14 — Post-PR #231 (MI Loop Stage 1 / Act-leg)
 
 ### ✅ DONE — MI Loop Stage 1 merged + owner live-verified

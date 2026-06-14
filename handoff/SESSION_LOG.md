@@ -1,5 +1,60 @@
 ---
 
+## 2026-06-14 — MI Loop Stage 2 / Measure-leg PR 1 (#233): `recordAttempt` front door + route GRADED solutions
+
+**Trunk after merge: `57fb7aa`** (#233, `feat/desktop-pr-mi-loop-stage2-pr1-recordattempt`; squash of `d8ee55c`; 4 files
+`services/practiceInsights.ts` + `components/question/SolutionChecker.tsx` + `pages/desktop/DesktopCheckImprovePage.tsx` +
+`pages/app/CheckImprove.tsx`, +199/−15). Owner-merged code PR (frontend service + 3 graded surfaces). Implements PR 1 of
+`AGENT_t3_mi_measure_loopclose_2026-06-12.md` (the Measure leg). Report:
+`report-mi-loop-stage2-pr1-recordattempt-2026-06-14.md`.
+
+### The verified problem
+`recordAttempt` was **dead** — 0 call sites (only the definition + handoff docs). The attempt store was read by ~6 surfaces
+(DesktopMePage, ProfilePage, weakAreaAggregator, badgeEngine, dailyMixGenerator, WeeklyWrapped) but **never written**, so the
+scorecard / "Saved attempts" / "Accuracy by subject" were always empty (honest empty states).
+
+### What landed
+- **The single attempt front door.** Transformed the dead `practiceInsights.recordAttempt` into the real `recordAttempt(user,
+  ctx)` — the **score-twin of `recordMistake`**: policy (skip no-user / skip local), dedup, persists via the **existing**
+  `saveInsights` (localStorage per-uid + the existing `learnerProgress`/`practiceInsights` Firestore mirrors). **`firestore.rules`
+  NOT touched** (no new collection) — satisfies the persistence constraint.
+- **Marks model (decision 1).** `PracticeAttempt` extended additively with `marksScored`/`marksAvailable`/`mode` (+ `AttemptMode`);
+  `correct` is **derived** (full marks) so every existing %-correct reader keeps working. `marksScored` clamped to
+  `[0, marksAvailable]`; `marksAvailable<=0` → `skipped-invalid` (no invented marks).
+- **Routed the 3 graded surfaces** (4 call sites): `SolutionChecker` fresh-check + cache-restore backfill, `DesktopCheckImprovePage`
+  `persistMistakeLog`, mobile `CheckImprove` `handleGrade` — each calls `recordAttempt` alongside `recordMistake`. Records EVERY
+  graded attempt incl. full marks (accuracy needs the correct ones; PR 2 will use a correct attempt to shrink a weakness).
+- **Idempotent + merges with logs.** Dedup on `(uid, questionId|hash(question), marksScored/marksAvailable, mode)` → a cache-restore
+  of the same score never double-counts. `topicKey` stored as the **human topic label** (same key the mistake log uses) so attempts
+  merge into ONE weak-area row (marks-lost from the log + accuracy from the attempt) — a free down-payment on PR 2.
+- **Session scorecard.** The three surfaces already render the per-answer X/Y banner; PR 1 makes that score persist + feed the Me
+  cards. **No new scorecard UI invented** (owner-confirmed as the v1 scorecard). The old dead `recordAttempt` body fed
+  spaced-repetition; that side-effect was intentionally dropped (`[FU-ATTEMPT-SR]`).
+
+### Gates
+tsc 0, mojibake clean, scope:guard product OK, root matrix **175/175**, ops **22/22** (bank-health 4/4, weightage 3/3, canonical
+4/4, trig-retire 3/3, llm-path 5/5, bsre 3/3), `git diff --check` clean. **CI `quality-gate` GREEN** on PR #233 (incl. linux
+`vite build`); Vercel preview build green. No backend, no grading-semantics, no question-bank, no forbidden files.
+
+### ✅ Live verification — owner-run (PASS)
+- "Saved attempts" populate from real graded attempts: **PASS**.
+- "Accuracy" / "Accuracy by subject" / "Recent activity" all flow from real attempts: **PASS**.
+- Attempts **merged** into the **Polynomials** weak-area row (attempts + accuracy shown alongside marks-lost): **PASS**.
+- The per-answer X/Y banner is the v1 session scorecard — no new UI needed: **CONFIRMED**.
+
+### Follow-ups logged (NOT fixed here — see OPEN_QUESTIONS)
+- **[FU-ATTEMPT-MARKS-ACCURACY]** Me accuracy is still binary (full-marks=correct); marks-weighted accuracy (∑scored / ∑available)
+  is the fuller decision-1 expression but needs label changes ("X correct of Y" → marks framing). Fast-follow.
+- **[FU-ATTEMPT-SR]** the dropped spaced-repetition side-effect from the old dead `recordAttempt`; reviving live attempts into SR is
+  its own decision.
+
+### Next
+**PR 2 (the loop-closer)** — a correct `recordAttempt` shrinks the topic/concept weakness via `clearWrongAnswer` (live attempt
+path, not the dormant session subsystem). Decisive test: a logged weak area (Real Numbers −7) **visibly shrinks** on Me after a
+clean drill. Do NOT start until this docs ritual is complete.
+
+---
+
 ## 2026-06-14 — MI Loop Stage 1 (#231): targeted "practise where you lose marks" (Act-leg)
 
 **Trunk after merge: `6d80a57`** (#231, `fix/mi-loop-stage1-targeting`; squash of branch commits `09fa7f8` + `deaad2e`; 3 files
