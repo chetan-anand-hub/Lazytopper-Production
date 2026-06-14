@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
+import { recordAttempt } from "../../services/practiceInsights";
 import {
   getMistakeInsights, getMistakeTrend,
   type MistakeInsights, type MistakeTrend, type CheckerMistakeType,
@@ -257,6 +258,14 @@ export function SolutionChecker({
     void recordMistake(user, result, { subject, topic, question, questionId }).then((res) => {
       if (!cancelled) setLogStatus(statusFromOutcome(res.outcome));
     });
+    // Score-twin: a restored graded result is also an attempt (deduped, so a
+    // cache-restore of the same score never double-counts toward accuracy).
+    recordAttempt(user, {
+      subject, topic, question, questionId,
+      marksScored: result.marksAwarded,
+      marksAvailable: result.totalMarks,
+      mode: "graded",
+    });
     return () => { cancelled = true; };
   }, [result, isFromCache, user, questionId, subject, topic, question]);
 
@@ -363,6 +372,14 @@ export function SolutionChecker({
         setLogStatus("saving");
         const rec = await recordMistake(user, response, { subject, topic, question, questionId });
         setLogStatus(statusFromOutcome(rec.outcome));
+        // Score-twin of the mistake door: record the graded score as an attempt
+        // (every graded answer, including full marks — accuracy needs both).
+        recordAttempt(user, {
+          subject, topic, question, questionId,
+          marksScored: response.marksAwarded,
+          marksAvailable: response.totalMarks,
+          mode: "graded",
+        });
       } else {
         setError(response.error || "Could not evaluate. Try a clearer image or type your answer.");
         setLogStatus("unavailable");

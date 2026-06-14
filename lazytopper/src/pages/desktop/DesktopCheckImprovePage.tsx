@@ -7,6 +7,7 @@ import {
   type MistakeType,
 } from "../../ai/aiClient";
 import { recordMistake } from "../../services/mistakeIntelligence";
+import { recordAttempt } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
 import {
   desktopTopicsBySubject,
@@ -634,6 +635,17 @@ const DesktopCheckImprovePage: React.FC = () => {
       topic: ctx.topicName,
       topicKey: ctx.topicSlug, // canonical slug → aligns the weak-area bridge
       question: ctx.question,
+    });
+    // Score-twin: persist the graded score as an attempt (feeds the Me
+    // scorecard / accuracy). Every graded answer, including full marks.
+    recordAttempt(user, {
+      subject: ctx.subject,
+      topic: ctx.topicName,
+      topicKey: ctx.topicSlug,
+      question: ctx.question,
+      marksScored: graded.marksAwarded,
+      marksAvailable: graded.totalMarks,
+      mode: "graded",
     });
     switch (rec.outcome) {
       case "logged":
