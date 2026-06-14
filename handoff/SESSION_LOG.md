@@ -1,5 +1,44 @@
 ---
 
+## 2026-06-14 — Grade-parse resilience (#229): retry + token cap + diagnostics on the check-solution parse path
+
+**Trunk after merge: `59e11f6`** (#229, `fix/grade-parse-resilience`; squash of branch commit `14ea860`; 1 file
+`server/routes/checkSolution.cjs`, +44/−5). Owner-merged code PR (live grading path). Closes **[FU-GRADE-PARSE]** (surfaced by the
+MI live verification). Report: `report-grade-parse-resilience-2026-06-12.md`.
+
+### Root cause (static trace; now also provable from logs)
+The intermittent **"We couldn't read the grading this time"** = **response truncation.** The grading call capped at
+`maxOutputTokens: 8000`; long multi-step grades overran it → Gemini returned text **cut mid-JSON** → `extractJsonObjectFromText`
+(which recovers only complete JSON / fences / first-`{`-to-last-`}`) returned null → failure path. Same image grades on retry
+because output length varies. `callGemini`'s internal retry fires **only on HTTP 429**, never on a truncated 200 — so the route
+had to own the retry. `finishReason` is reachable at `reply.raw.candidates[0].finishReason`.
+
+### Fix (parse-resilience ONLY — zero grading-semantics change)
+- **Single bounded retry** on a parse-gate miss (`gradeOnce()` re-issued exactly once, no loop).
+- **`maxOutputTokens` 8000 → 16000** — a cap not a target (short grades cost/latency the same; only truncated long grades now
+  complete).
+- **Failure-path diagnostics** — log `finishReason` + reply length + **tail** (last 200 chars) on the attempt-1 miss and the final
+  failure, so `MAX_TOKENS`/mid-JSON cutoff is provable from Railway logs.
+- **Untouched:** grading prompt/rules, mark scheme, `marksAwarded`/`capped`, the MI additive-floor reconcile, success-path response
+  shape. Fix 3 (tolerant/nested parsing) NOT added — no shape-variance observed.
+
+### Gates
+tsc 0, mojibake, scope:guard product, root matrix **175/175**, ops **6/6**, `git diff --check` clean. **CI `quality-gate` GREEN**
+on PR #229 (linux vite build + verify-production-build). 1 file, server-only, no forbidden files, no client changes.
+
+### ✅ Live verification — owner-run post-merge (PASS)
+- `sol_5.jpeg` now grades **reliably on BOTH Quick Practice AND Check & Improve** — no "couldn't read the grading." Grade content
+  quality unchanged. (Me page reflects after a **manual refresh** — that is the separate known **[FU-ME-REFRESH]**, not a
+  regression.)
+
+### Two new follow-ups surfaced (recorded so they're not lost)
+- **[FU-GRADE-MARKSCALE]** — in Check & Improve the **marks are student-entered, not question-derived**, so the grader should judge
+  the **CBSE mark value** of the answer rather than trust the entered total. **Eval-gated.**
+- **[FU-GRADE-CONSISTENCY]** — **mistake-type varies across surfaces** for the same answer; mostly **downstream of mark-scale**.
+  **Eval-tuned** (ties into [MI-EVAL]).
+
+---
+
 ## 2026-06-12 — MI Consolidation P1+P2 (#227): single front door + weak-area bridge + careless insight + server reconcile
 
 **Trunk after merge: `c618cd5`** (#227, `fix/mi-consolidation-p1p2`; squash of branch commit `e3e3f18`; 8 files, +531/−159 —

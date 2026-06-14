@@ -1,3 +1,25 @@
+## 2026-06-14 — Post-PR #229 (grade-parse resilience)
+
+### ✅ CLOSED
+- **[FU-GRADE-PARSE] grade-parse resilience — CLOSED by #229** (trunk `59e11f6`, squash of `14ea860`; 1 file
+  `server/routes/checkSolution.cjs`, +44/−5). Root cause: **Gemini JSON truncation** (`maxOutputTokens: 8000` cap → long
+  multi-step grades cut mid-JSON → `extractJsonObjectFromText` returns null → "couldn't read the grading"). Fix (parse-resilience
+  only, zero grading-semantics change): single bounded retry on parse-gate miss + `maxOutputTokens` 8000→16000 + failure-path
+  diagnostics (`finishReason`/length/tail). **Owner live-verified PASS** — `sol_5.jpeg` grades reliably on both Quick Practice and
+  Check & Improve. Report: `report-grade-parse-resilience-2026-06-12.md`.
+
+### New follow-ups surfaced by the #229 live check (both eval-gated; downstream of grading QUALITY, not the parse path)
+- **[FU-GRADE-MARKSCALE] (eval-gated)** — in **Check & Improve the marks are student-entered, not question-derived**, so the grader
+  currently grades against a total the student typed. It should instead **judge the CBSE mark value** the answer is worth. Needs
+  the eval set to validate any prompt/scoring change — do not hand-tune blind.
+- **[FU-GRADE-CONSISTENCY] (eval-tuned)** — the **mistake-type classification varies across surfaces** for the same answer. Mostly
+  **downstream of [FU-GRADE-MARKSCALE]** (different mark context → different typing) and tied to **[MI-EVAL]**; fold into the eval
+  pass rather than patching ad hoc.
+
+### Still active (unchanged)
+- **[FU-ME-REFRESH]** — Me does not reflect a freshly-logged mistake / reconciled summary until a manual refresh (reconfirmed
+  during the #229 live check). Add a refetch-on-focus / post-grade trigger. **[MI-EVAL]** classification quality — eval-pending.
+
 ## 2026-06-12 — Post-PR #227 (MI Consolidation P1+P2)
 
 ### ✅ DONE — MI P1+P2 merged + owner live-verified
@@ -7,10 +29,9 @@
   Report: `report-mi-consolidation-p1p2-2026-06-11.md`.
 
 ### New follow-ups surfaced by the MI live verification (both pre-existing / separate from MI logging)
-- **[FU-GRADE-PARSE] grade-parse resilience** — an **intermittent grade-parse failure** observed on the Quick-Practice "check my
-  answer" flow (the grade occasionally fails to parse). This is **not** an MI logging failure — logging works once a grade parses.
-  Pre-existing on the `/check-solution` parse path; harden it (defensive parse + retry / clearer error). Owner noted it is being
-  handled elsewhere; tracked here so it isn't lost.
+- **[FU-GRADE-PARSE] grade-parse resilience → CLOSED by #229** (see the 2026-06-14 section above). Was an intermittent
+  grade-parse failure on the Quick-Practice "check my answer" flow; root cause = Gemini JSON truncation; fixed with retry +
+  raised token cap + diagnostics. Owner live-verified PASS.
 - **[FU-ME-REFRESH] Me page auto-refresh lag** — after a graded mistake, the Me page does **not** reflect the new mistake / the
   reconciled `mistakeSummary` until a **manual refresh**. Add a refetch trigger (on focus, or after a grade completes) so Me
   updates without a reload. Surfaced specifically against verification point 4 (server reconcile is correct; Me display lags it).

@@ -1,10 +1,24 @@
 # LazyTopper — Current State
-Last updated: 2026-06-12 (post-PR #227 — MI Consolidation P1+P2 MERGED + owner live-verified: `recordMistake` single front door, Quick-Practice logging bug FIXED, conceptual+calculation graded mistakes now bridge to Weak Areas, silly+presentation careless-insight card on Me, server additive-floor `mistakeSummary` reconcile. 2 non-blocking follow-ups: grade-parse resilience, Me auto-refresh. NEXT: owner+cofounder close [TRACK-B-GATE] formally; then PR2 (harden); then RESP-DIV-2 (mobile logout))
+Last updated: 2026-06-14 (post-PR #229 — grade-parse resilience MERGED + owner live-verified: the intermittent "couldn't read the grading" was Gemini JSON TRUNCATION; fixed with a single bounded retry + `maxOutputTokens` 8000→16000 + finishReason/tail diagnostics, zero grading-semantics change. `sol_5.jpeg` now grades cleanly on both surfaces. [FU-GRADE-PARSE] CLOSED. NEXT: [FU-ME-REFRESH] Me auto-refresh; eval-gated [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; then PR2 (harden); then RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: c618cd5badaf4e6624a41c1c68fadc9f29051c87
-Last merged PRs: #222 (Track B — mobile-check trust + persistence), #223 (docs), #224 (INFRA-4/PR1 — Railway deploy image), #225 (INFRA-4/PR1 — live Railway URL in vercel.json), #226 (docs), **#227 (MI Consolidation P1+P2 — recordMistake front door + weak-area bridge + careless insight + server reconcile + Me copy; 8 files +531/−159; squash of `e3e3f18`)**
+SHA: 59e11f6
+Last merged PRs: #224 (INFRA-4/PR1 — Railway deploy image), #225 (INFRA-4/PR1 — live Railway URL), #226 (docs), #227 (MI Consolidation P1+P2 — recordMistake front door + bridge + careless insight + server reconcile; squash of `e3e3f18`), #228 (docs — post-#227 handoff), **#229 (grade-parse resilience — retry + maxOutputTokens 16000 + diagnostics; 1 file +44/−5; squash of `14ea860`)**
+
+## ✅ GRADE-PARSE RESILIENCE (#229, trunk `59e11f6`) — MERGED + owner live-verified
+The intermittent **"We couldn't read the grading this time"** was **Gemini JSON truncation**: the grading call capped at
+`maxOutputTokens: 8000`, long multi-step grades overran it and came back **cut mid-JSON**, and `extractJsonObjectFromText`
+(recovers only complete JSON) returned null → failure path. (Same image graded on retry because output length varies; the
+client's internal retry only fires on 429.)
+- **Fix (`server/routes/checkSolution.cjs`, parse-resilience ONLY):** single bounded retry on a parse-gate miss (no loop);
+  `maxOutputTokens` 8000→16000 (a cap, not a target); failure-path diagnostics logging `finishReason` + length + tail. **Grading
+  semantics untouched** (prompt/rules/mark-scheme/`marksAwarded`/MI reconcile/response shape all unchanged).
+- **Live verification (owner, PASS):** `sol_5.jpeg` grades reliably on **both** Quick Practice and Check & Improve, no error;
+  grade quality unchanged. (Me reflects after a manual refresh — separate known **[FU-ME-REFRESH]**, not a regression.)
+- **[FU-GRADE-PARSE] CLOSED.** Two new eval-gated follow-ups recorded: **[FU-GRADE-MARKSCALE]** (Check & Improve marks are
+  student-entered, not question-derived → grader should judge the CBSE mark value) and **[FU-GRADE-CONSISTENCY]** (mistake-type
+  varies across surfaces; mostly downstream of mark-scale). Report: `report-grade-parse-resilience-2026-06-12.md`.
 
 ## ✅ MI CONSOLIDATION P1+P2 (#227, trunk `c618cd5`) — MERGED + owner live-verified
 The MI Architecture Map (`LazyTopper_MI_Architecture_Map_2026-06-11.md`) exposed MI as 3 capture streams feeding 2 disconnected

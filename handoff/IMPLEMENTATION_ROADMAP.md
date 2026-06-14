@@ -2,6 +2,22 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-14 — Post-PR #229 roadmap update (grade-parse resilience)
+
+A live-grading-path hardening that closes the MI-surfaced **[FU-GRADE-PARSE]**. Report:
+`report-grade-parse-resilience-2026-06-12.md`.
+
+### Completed this session
+- [x] **#229 — grade-parse resilience** (trunk `59e11f6`, squash of `14ea860`; 1 file `server/routes/checkSolution.cjs`, +44/−5).
+  Root cause = Gemini JSON **truncation** (`maxOutputTokens: 8000` → long grades cut mid-JSON → unparseable). Fix = single bounded
+  retry + `maxOutputTokens` 8000→16000 + `finishReason`/tail diagnostics; **zero grading-semantics change**. CI GREEN.
+  Owner live-verified PASS (`sol_5.jpeg` grades cleanly on both surfaces).
+
+### Eval-gated follow-ups (named; deferred to the eval pass)
+- [ ] **[FU-GRADE-MARKSCALE]** — Check & Improve marks are student-entered, not question-derived → grader should judge the CBSE
+  mark value. **[FU-GRADE-CONSISTENCY]** — cross-surface mistake-type variance (downstream of mark-scale; ties into **[MI-EVAL]**).
+- [ ] **[FU-ME-REFRESH]** — Me auto-refresh after a grade (still open).
+
 ## 2026-06-12 — Post-PR #227 roadmap update (MI Consolidation P1+P2)
 
 The MI Architecture Map (`LazyTopper_MI_Architecture_Map_2026-06-11.md`) phased path. P1+P2 shipped together (owner scope
