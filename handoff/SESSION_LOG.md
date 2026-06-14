@@ -1,5 +1,53 @@
 ---
 
+## 2026-06-14 — MI Loop Stage 1 (#231): targeted "practise where you lose marks" (Act-leg)
+
+**Trunk after merge: `6d80a57`** (#231, `fix/mi-loop-stage1-targeting`; squash of branch commits `09fa7f8` + `deaad2e`; 3 files
+`pages/desktop/DesktopMePage.tsx` + `pages/PracticePage.tsx` + `pages/app/Me.tsx`, +92/−15). Owner-merged code PR (frontend).
+Implements Stage 1 (the **Act leg**) of `LazyTopper_MI_Loop_Culmination_Spec_2026-06-12.md`. Report:
+`report-mi-loop-stage1-targeting-2026-06-12.md`.
+
+### What landed
+- **Gap A — target the #1 weak topic.** Desktop Me ("Practise where you actually lose marks") and mobile Me ("where you lose
+  marks") CTAs now route to the student's top weak topic (highest marks lost), with an **honest generic fallback** when there is
+  no weak-area data yet (desktop → generic browse; mobile → worksheet generator). No fabricated target.
+- **Gap B — auto-serve targeted arrivals.** Investigated: `PracticePage` fetches the set on mount but `filteredQuestions` is gated
+  to `[]` until `isBuilt` flips via "Build this set", so a targeted arrival used to land on the **builder**, not in questions.
+  Fix: flip `isBuilt=true` on a TARGETED arrival — explicit `?topic=` (non-generic) OR `targeted=1`. Bare subject-level arrival
+  keeps the manual builder; "Edit filters" still reaches it on a served set.
+- **Option B — one-click direct (owner-decided).** `gotoPracticeForTopic` now navigates straight to
+  `/practice/10/<subject>?topic=<slug>` (auto-serves via the Gap-B trigger), **bypassing the `/practice-hub` chooser** so desktop
+  matches mobile's one-click weak-area flow. Both its callers (the new CTA + the existing "Practise {topicName}") are now direct.
+- **Gated lane untouched:** `buildDesktopPracticePath` (always → `/practice-hub`) was NOT modified; its now-unused import was
+  removed from DesktopMePage.
+- **Intent-first guardrail preserved:** generic entries (`gotoPracticeBrowse`, nav "Practice", bare subject-level arrivals) still
+  open the **open, unscoped builder** and are NEVER auto-scoped to weak areas; auto-serve was not widened.
+
+### Spec alignment
+Matches the MI-Loop spec **Stage 1 (Act-leg A+B)** exactly. Stage 2 (Measure leg — `recordAttempt` / scorecard) and Stage 3
+(concept-level targeting via `conceptKey`, eval-gated) remain out of scope, untouched.
+
+### Gates
+tsc 0, mojibake, scope:guard product, root matrix **175/175**, ops **6/6**, `git diff --check` clean. **CI `quality-gate` GREEN**
+on PR #231 (final head `deaad2e`). 3 frontend files; no backend, no `generatePracticeSet` ranking, no question-bank, no
+forbidden files, no gated lanes modified.
+
+### ✅ Live verification — owner-run post-merge (PASS)
+- Weak-area CTA → **one-click ready set** on the weak topic (desktop **and** mobile): **PASS**.
+- Guardrail — generic "Practice" stays open/unscoped (not auto-scoped to weak areas): **PASS**.
+- Served set not empty (Real Numbers, Polynomials): **PASS**.
+- "Edit filters" works from a served set: **PASS**.
+
+### Follow-ups surfaced during Stage-1 live testing (recorded, NOT fixed here — see OPEN_QUESTIONS)
+- **[FU-DRILL-ROUTING]** TopicHub "Run targeted drill" → worksheet generator (not a practice drill); label contradicts destination.
+- **[FU-WEAKAREA-LABEL]** PracticePage shows no weak-area framing on a targeted arrival (looks generic).
+- **[FU-WEAKAREA-CTAS]** only `weakAreas[0]` gets a "Practise" CTA; secondary weak areas have none.
+- **[FU-WEAKAREA-HUB-LIMIT]** practice-hub shows only the top weak area vs Me's full list.
+- **[FU-DRILL-ENRICHMENT]** drill is topic-level only; mistake-category never reaches the generator; concept-priority gated on
+  `adaptiveMix` (difficulty === "All"). = MI Loop **Stage 3**, eval-gated.
+
+---
+
 ## 2026-06-14 — Grade-parse resilience (#229): retry + token cap + diagnostics on the check-solution parse path
 
 **Trunk after merge: `59e11f6`** (#229, `fix/grade-parse-resilience`; squash of branch commit `14ea860`; 1 file

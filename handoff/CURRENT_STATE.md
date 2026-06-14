@@ -1,10 +1,27 @@
 # LazyTopper — Current State
-Last updated: 2026-06-14 (post-PR #229 — grade-parse resilience MERGED + owner live-verified: the intermittent "couldn't read the grading" was Gemini JSON TRUNCATION; fixed with a single bounded retry + `maxOutputTokens` 8000→16000 + finishReason/tail diagnostics, zero grading-semantics change. `sol_5.jpeg` now grades cleanly on both surfaces. [FU-GRADE-PARSE] CLOSED. NEXT: [FU-ME-REFRESH] Me auto-refresh; eval-gated [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; then PR2 (harden); then RESP-DIV-2)
+Last updated: 2026-06-14 (post-PR #231 — MI Loop Stage 1 (Act-leg) MERGED + owner live-verified: "practise where you lose marks" CTAs now target the #1 weak topic and land the student ONE-CLICK in a ready scoped set (desktop matches mobile, no hub), honest generic fallback when no weak data; intent-first guardrail preserved (generic practice stays open/unscoped). NEXT: MI Loop Stage 2 = the Measure leg (`recordAttempt`/scorecard); then Stage 3 (concept-level targeting, eval-gated); plus [FU-ME-REFRESH] + 5 Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; PR2 (harden); RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 59e11f6
-Last merged PRs: #224 (INFRA-4/PR1 — Railway deploy image), #225 (INFRA-4/PR1 — live Railway URL), #226 (docs), #227 (MI Consolidation P1+P2 — recordMistake front door + bridge + careless insight + server reconcile; squash of `e3e3f18`), #228 (docs — post-#227 handoff), **#229 (grade-parse resilience — retry + maxOutputTokens 16000 + diagnostics; 1 file +44/−5; squash of `14ea860`)**
+SHA: 6d80a57
+Last merged PRs: #226 (docs), #227 (MI Consolidation P1+P2 — squash `e3e3f18`), #228 (docs), #229 (grade-parse resilience — squash `14ea860`), #230 (docs — post-#229), **#231 (MI Loop Stage 1 / Act-leg — weak-topic targeting + auto-serve + Option B one-click direct; 3 files +92/−15; squash of `09fa7f8`+`deaad2e`)**
+
+## ✅ MI LOOP STAGE 1 — Act-leg (#231, trunk `6d80a57`) — MERGED + owner live-verified
+The MI loop is Capture → Identify → **Act** → Measure. Stage 1 wires the **Act** hand-off so "practise where you lose marks"
+finally serves targeted practice (per `LazyTopper_MI_Loop_Culmination_Spec_2026-06-12.md`).
+- **Gap A:** desktop + mobile Me weak-area CTAs target the #1 weak topic (highest marks lost); honest generic fallback when no
+  weak-area data (no fabricated target).
+- **Gap B:** a TARGETED arrival (explicit `?topic=` non-generic, or `targeted=1`) at `PracticePage` now **auto-serves** the
+  already-fetched set (flips `isBuilt`); bare subject-level entry keeps the builder; "Edit filters" preserved.
+- **Option B (one-click direct):** `gotoPracticeForTopic` → `/practice/10/<subject>?topic=<slug>` directly, bypassing the
+  `/practice-hub` chooser so desktop matches mobile. Gated `buildDesktopPracticePath` (→ `/practice-hub`) **untouched**.
+- **Intent-first guardrail:** generic entries stay open/unscoped — never auto-scoped to weak areas.
+- **Live-verified PASS:** one-click ready set (desktop + mobile); guardrail holds; served set non-empty (Real Numbers,
+  Polynomials); "Edit filters" works. Report: `report-mi-loop-stage1-targeting-2026-06-12.md`.
+- **NEXT in the loop:** **Stage 2 = Measure leg** (`recordAttempt` + attempt/score stream → "Saved attempts"/"Accuracy"/weak-area
+  shrinking; = the Scorecard spec, reframed as the loop's return leg). **Stage 3** = concept-level targeting (eval-gated).
+  5 Stage-1 follow-ups recorded in OPEN_QUESTIONS ([FU-DRILL-ROUTING], [FU-WEAKAREA-LABEL], [FU-WEAKAREA-CTAS],
+  [FU-WEAKAREA-HUB-LIMIT], [FU-DRILL-ENRICHMENT]).
 
 ## ✅ GRADE-PARSE RESILIENCE (#229, trunk `59e11f6`) — MERGED + owner live-verified
 The intermittent **"We couldn't read the grading this time"** was **Gemini JSON truncation**: the grading call capped at

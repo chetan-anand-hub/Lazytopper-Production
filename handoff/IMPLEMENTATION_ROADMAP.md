@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-14 — Post-PR #231 roadmap update (MI Loop Stage 1 / Act-leg)
+
+The MI loop (Capture → Identify → **Act** → Measure) per `LazyTopper_MI_Loop_Culmination_Spec_2026-06-12.md`. Stage 1 wires the
+Act hand-off. Report: `report-mi-loop-stage1-targeting-2026-06-12.md`.
+
+### Completed this session
+- [x] **#231 — MI Loop Stage 1 / Act-leg** (trunk `6d80a57`, squash of `09fa7f8`+`deaad2e`; 3 frontend files +92/−15).
+  Gap A (weak-topic targeting + honest fallback), Gap B (auto-serve targeted arrivals), Option B (one-click direct;
+  gated `buildDesktopPracticePath` untouched; intent-first guardrail preserved). CI GREEN. Owner live-verified PASS.
+
+### MI loop — remaining legs
+- [ ] **Stage 2 — Measure leg (next):** `recordAttempt` + Firestore attempt/score stream (Scorecard spec = the loop's return
+  leg) → "Saved attempts"/"Accuracy by subject"/weak-area-shrinking. Mirrors `recordMistake`. Makes the loop *visible*.
+- [ ] **Stage 3 — concept-level targeting (eval-gated):** pass the weak concept into `generatePracticeSet.conceptKey`
+  (needs MI sub-concept capture + eval). = **[FU-DRILL-ENRICHMENT]**.
+- [ ] **Stage-1 polish:** [FU-DRILL-ROUTING], [FU-WEAKAREA-LABEL], [FU-WEAKAREA-CTAS], [FU-WEAKAREA-HUB-LIMIT] (see OPEN_QUESTIONS).
+
 ## 2026-06-14 — Post-PR #229 roadmap update (grade-parse resilience)
 
 A live-grading-path hardening that closes the MI-surfaced **[FU-GRADE-PARSE]**. Report:
