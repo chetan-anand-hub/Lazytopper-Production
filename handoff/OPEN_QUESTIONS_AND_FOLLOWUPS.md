@@ -1,3 +1,29 @@
+## 2026-06-15 — Post-PR #235 (MI Loop Stage 2 / Measure-leg PR 2 — THE LOOP CLOSES)
+
+### ✅ DONE — MI Loop Stage 2 PR 2 merged + owner live-verified (the loop is now bidirectional)
+- **[MI-LOOP-S2-PR2] close the loop** (#235, trunk `59f9d18`, squash of `4c8936b`; 4 files +135/−2). A FULLY-correct
+  `recordAttempt` decrements one active gap for the topic via `clearWrongAnswer` (live correct-attempt path; clamped at 0;
+  wrong/partial never shrink), key-matched to the bridge's increment (identical `normalizeTopicKey(ctx.topicKey ?? ctx.topic)`;
+  caught the G9 spaces→`_` vs `-` trap). Both Me surfaces show "active gaps remaining" (recoverable healing) alongside
+  historical "marks lost" (the scar) — owner Option 1; did NOT repoint Me to `getWeakAreas`. Codespaces vitest **2/2 PASS** +
+  `vite build` ✓ + verifier ✓ (Linux, mocked stores, no creds); CI GREEN. **Live-verified PASS:** active gaps → 0 on Real
+  Numbers AND Polynomials; marks-lost held; wrong didn't shrink; clamp held; mobile parity. Report:
+  `report-mi-loop-stage2-pr2-loopclose-2026-06-14.md`.
+
+### New follow-ups logged this PR (recorded — do NOT fix ad hoc)
+- **[FU-IMPROVEMENT-CARD] (blocks the improvement/journey card)** — the loop-closer's `clearWrongAnswer` **DELETES** the
+  wrong-answer entry when its count hits zero, which **erases the improvement record** (you can no longer tell a topic was
+  ever weak-then-cleared). Before building any improvement / journey / "you fixed N gaps" card on Me, the loop-closer must
+  FIRST record a **durable "gap cleared" event** — cumulative + per-topic + timestamp — in the `practiceInsights` mirror
+  (the existing localStorage + Firestore pattern; no `firestore.rules` edit). Accuracy/mistake **trends** are already
+  derivable from existing attempt/log timestamps; this adds only the cleared-gap signal. Sequence: durable event FIRST,
+  then the card.
+- **[FU-WEAKAREA-ALIAS-DISPLAY] (display under-count, not wrong data)** — the active-gaps COUNT shown on Me under-shows for
+  topics whose display label ≠ canonical slug (e.g. "Linear Equations" → `pair-of-linear-equations`) because the display
+  lookup `normalizeTopicKey(label)` only resolves cleanly when the label slug-normalizes to the canonical (or the alias map
+  covers it). Honest 0, never wrong data. The **data-layer decrement is unaffected** (it uses the bridge-identical key).
+  Fix = extend the alias map coverage (gated `src/data/`) or resolve the row's canonical key from its hub slug.
+
 ## 2026-06-14 — Post-PR #233 (MI Loop Stage 2 / Measure-leg PR 1)
 
 ### ✅ DONE — MI Loop Stage 2 PR 1 merged + owner live-verified

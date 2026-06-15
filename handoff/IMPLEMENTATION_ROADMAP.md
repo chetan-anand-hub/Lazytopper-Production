@@ -2,6 +2,33 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-15 — Post-PR #235 roadmap update (MI Loop Stage 2 / Measure-leg PR 2 — THE LOOP CLOSES)
+
+The MI loop's **Measure** leg, PR 2 (the loop-closer). The engine is now **bidirectional** (Capture → Identify → Act →
+Measure all live). Report: `report-mi-loop-stage2-pr2-loopclose-2026-06-14.md`.
+
+### Completed this session
+- [x] **#235 — MI Loop Stage 2 / Measure-leg PR 2** (trunk `59f9d18`, squash of `4c8936b`; 4 frontend files +135/−2).
+  A FULLY-correct `recordAttempt` decrements one active gap for the topic via `clearWrongAnswer` (live correct-attempt
+  path; clamped at 0; wrong/partial never shrink), key-matched to the bridge's increment (identical
+  `normalizeTopicKey(ctx.topicKey ?? ctx.topic)`; caught the spaces→`_` vs `-` G9 trap). Both Me surfaces show "active
+  gaps remaining" (recoverable healing) alongside historical "marks lost" (the scar). Codespaces vitest 2/2 + `vite
+  build` ✓ + verifier ✓; CI GREEN. **Owner live-verified PASS** — active gaps shrank to 0 on Real Numbers AND
+  Polynomials; marks-lost held; wrong didn't shrink; clamp held; mobile parity.
+
+### MI loop — Measure leg, remaining PR
+- [ ] **Stage 2 PR 3 — MCQ honest capture (next, owner-greenlight-gated):** `PracticeQuestionCard` MCQ click →
+  `recordAttempt` (1/1 or 0/1); stop the direct `logMistakes` hardcoded `conceptual:1` (record a wrong MCQ as
+  unclassified/objective — owner-confirm exact treatment). Do NOT start until greenlit.
+- [ ] **Stage 3 — concept-level targeting (eval-gated):** pass the weak concept into `generatePracticeSet.conceptKey`.
+  = **[FU-DRILL-ENRICHMENT]**.
+
+### Follow-ups logged this PR (see OPEN_QUESTIONS)
+- [ ] **[FU-IMPROVEMENT-CARD]** — the loop-closer DELETES the wrong-answer entry at zero, erasing the improvement record;
+  before an improvement/journey card on Me, record a durable "gap cleared" event (cumulative + per-topic + timestamp) in
+  the `practiceInsights` mirror first. **[FU-WEAKAREA-ALIAS-DISPLAY]** — active-gaps count under-shows for label≠slug
+  topics until the alias map covers them (data-layer decrement unaffected).
+
 ## 2026-06-14 — Post-PR #233 roadmap update (MI Loop Stage 2 / Measure-leg PR 1)
 
 The MI loop's **Measure** leg per `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (3 PRs). PR 1 makes graded scores measurable.
