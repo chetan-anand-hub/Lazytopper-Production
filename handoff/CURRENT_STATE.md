@@ -1,10 +1,18 @@
 # LazyTopper — Current State
-Last updated: 2026-06-15 (post-PR #237 — MI Loop Stage 2 / Measure-leg PR 3 (MCQ honest capture) MERGED — **the Measure leg is COMPLETE**. `PracticeQuestionCard` MCQ clicks now route through `recordAttempt` (1/1 correct, 0/1 wrong, mode "mcq", same topic/questionId keying as graded answers) so MCQ feeds Saved attempts / Accuracy and a CORRECT MCQ shrinks a weakness via the PR-2 loop-closer. The hardcoded `conceptual:1` direct-`logMistakes` bypass is GONE — a wrong MCQ records an attempt only (owner-ruled treatment (a)); the Me "concept gaps" breakdown now reflects real graded classifications only. CI GREEN on #237. ⏳ owner live-verify pending. The MI loop is now bidirectional across graded AND MCQ capture. NEXT: MI Loop Stage 3 = concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]); plus [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Last updated: 2026-06-15 (post-PR #238 / stand-down — MI Loop Stage 2 / **Measure leg COMPLETE** (#233 front door + #235 loop-closer + #237 MCQ honest capture; the loop is bidirectional across graded AND MCQ capture; ⏳ owner live-verify of #237 pending). All four #235/#237 feature+docs branches deleted; trunk clean at `2b92f7b`. RE-SEQUENCED NEXT (owner): **(1) MI polish batch** — ONE PR, surface/ranking only, NOT eval-gated → **(2) the MI eval** ([MI-EVAL]) → **(3) Stage 3** concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]). No code work started in this window — the next PR starts fresh. Carried follow-ups: [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: b75f065
-Last merged PRs: #232 (docs — post-#231), #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door; squash `d8ee55c` → `57fb7aa`), #234 (docs — post-#233), #235 (MI Loop Stage 2 / Measure-leg PR 2 — close the loop + "active gaps remaining"; squash `4c8936b` → `59f9d18`), #236 (docs — post-#235), **#237 (MI Loop Stage 2 / Measure-leg PR 3 — MCQ honest capture: route clicks through `recordAttempt`, drop the `conceptual:1` bypass; 1 file +22/−36; squash `9edf6fb` → trunk `b75f065`)**
+SHA: 2b92f7b
+Last merged PRs: #233 (MI Loop S2 PR 1 — `recordAttempt` front door; squash `d8ee55c` → `57fb7aa`), #234 (docs), #235 (MI Loop S2 PR 2 — close the loop + "active gaps remaining"; squash `4c8936b` → `59f9d18`), #236 (docs), #237 (MI Loop S2 PR 3 — MCQ honest capture; squash `9edf6fb` → `b75f065`), **#238 (docs — post-#237, Measure leg complete; → trunk `2b92f7b`)**
+
+## ⏭️ NEXT (owner-re-sequenced at stand-down): (1) MI polish batch → (2) MI eval → (3) Stage 3
+The Measure leg is complete; no more Stage-2 PRs. Each step is its own PR; the next PR starts fresh (no code began this window).
+1. **MI polish batch — ONE PR, surface/ranking only, NOT eval-gated.** Presentation/ranking tidy on existing surfaces; no
+   grading/accuracy-semantics changes, no eval dependency. Exact item list owner-confirmed before the PR opens (candidates: the
+   surface/ranking-only logged follow-ups — see NEXT_ACTION).
+2. **MI eval — [MI-EVAL]** check-solution eval set (launch gate; gates how hard we lean on AI grades; unblocks eval-gated items).
+3. **MI Loop Stage 3 — concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]).** Not before the eval.
 
 ## ✅ MI LOOP STAGE 2 — Measure-leg PR 3 (#237, trunk `b75f065`) — MERGED — MEASURE LEG COMPLETE
 The last Measure-leg PR: MCQ honest capture. Per `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (PR 3 of 3).
