@@ -9,7 +9,7 @@ import { CorrectBurst, WrongShake } from "../celebrations";
 import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
 import { VisualExplainer } from "../VisualExplainer";
 import { useAuth } from "../../context/AuthContext";
-import { logMistakes } from "../../services/mistakeLogService";
+import { recordAttempt } from "../../services/practiceInsights";
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -259,41 +259,27 @@ export function PracticeQuestionCard({
         const resultStatus = oi === correctIdx ? "correct" : "wrong";
         onMcqResult(qId, resultStatus);
 
-        // MCQ option click is a real answer attempt. When the correct answer key is trusted
-        // and the signed-in learner gets it wrong, record objective-question mistake
-        // evidence using the existing mistake history path. Correct attempts do not
-        // have a durable answer-attempt store yet, so they remain visible in-session
-        // until a broader attempt-log model is added.
-        if (
-          resultStatus === "wrong" &&
-          user?.uid &&
-          !(user as { isLocalSession?: boolean }).isLocalSession
-        ) {
-          const marksLost = typeof q.marks === "number" && q.marks > 0 ? q.marks : 1;
-          logMistakes(user.uid, {
-            timestamp: new Date().toISOString(),
-            questionText: q.questionText,
-            topic: topicLabel,
-            subject: subjectKey,
-            totalMarks: marksLost,
-            marksLost,
-            mistakeCounts: {
-              conceptual: 1,
-              calculation: 0,
-              silly: 0,
-              presentation: 0,
-            },
-            stepDetails: [
-              {
-                stepNumber: 1,
-                mistakeType: "conceptual",
-                marksDeducted: marksLost,
-              },
-            ],
-          }).catch(() => {
-            // Keep MCQ feedback student-safe; saved history can recover on next checked answer.
-          });
-        }
+        // MI-Loop Stage 2 PR 3 — MCQ honest capture. An MCQ click is a real
+        // answer attempt, so route it through the SAME front door graded answers
+        // use (`recordAttempt`): marks is the universal unit, MCQ = 1/1 correct
+        // or 0/1 wrong. This feeds Saved attempts / Accuracy, and a CORRECT MCQ
+        // shrinks a weakness via the PR-2 loop-closer (same topic/questionId
+        // keying as the graded surfaces, so it merges + key-matches). The front
+        // door self-guards policy (skipped for signed-out / local sessions).
+        //
+        // A bare MCQ click has NO working to classify — so a WRONG MCQ records an
+        // attempt ONLY. It never fabricates a "conceptual" mistake (the old direct
+        // `logMistakes` bypass with hardcoded `conceptual:1` is removed), so the
+        // Me "concept gaps" breakdown reflects real graded classifications only.
+        recordAttempt(user, {
+          subject: subjectKey,
+          topic: topicLabel,
+          question: q.questionText,
+          questionId: qId,
+          marksScored: resultStatus === "correct" ? 1 : 0,
+          marksAvailable: 1,
+          mode: "mcq",
+        });
       }
     };
     return (
