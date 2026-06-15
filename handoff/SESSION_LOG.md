@@ -1,5 +1,65 @@
 ---
 
+## 2026-06-15 — MI Loop Stage 2 / Measure-leg PR 2 (#235): close the loop — correct answers shrink the weakness
+
+**Trunk after merge: `59f9d18`** (#235, `feat/desktop-pr-mi-loop-stage2-pr2-loopclose`; squash of `4c8936b`; 4 files
+`services/practiceInsights.ts` + `services/practiceInsights.loopclose.test.ts` + `pages/desktop/DesktopMePage.tsx` +
+`pages/app/Me.tsx`, +135/−2). Owner-merged code PR (frontend service + both Me surfaces + vitest proof). Implements PR 2
+of `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (the loop-closer). Report:
+`report-mi-loop-stage2-pr2-loopclose-2026-06-14.md`. **The MI loop is now BIDIRECTIONAL** (Capture → Identify → Act →
+Measure all live).
+
+### The investigation that shaped it
+`clearWrongAnswer` decrements the **`wrongAnswerLog`** (Stream 3), but **neither Me surface reads that store** — both
+display grow-only mistake-log `marksLost` (Stream 1). The `wrongAnswerLog` feeds the `weakAreaAggregator`
+(ProfilePage / practice-hub / learning-path), not the Me rows. So the data-layer loop-closer alone would be INVISIBLE
+on Me. **Owner decision (Option 1):** add an "active gaps remaining" indicator (the recoverable count) ALONGSIDE the
+historical "marks lost" — the scar (never shrinks) vs the healing (shrinks to 0). Do NOT repoint Me to `getWeakAreas`.
+
+### What landed
+- **Loop-closer (data layer).** In `recordAttempt`, a FULLY-correct attempt (`scored >= available`) decrements one
+  active gap for the topic via `clearWrongAnswer` — live correct-attempt path (NOT the dormant `recordSelfAssessment`);
+  runs only on a newly-recorded attempt (after dedup → no double-decrement); wrong/partial never shrink; clamped at 0.
+- **Key-matching (the G9 alias-fragility class).** The decrement resolves the canonical key with the IDENTICAL
+  expression `normalizeTopicKey(ctx.topicKey ?? ctx.topic)` the `recordMistake` bridge used to increment (same ctx
+  passed to both doors in PR 1) → tautologically equal key; then decrements the stored entry by its OWN keys (exact
+  map-key match). Caught the trap that `getWrongConceptsForTopic` keeps `-` but turns spaces→`_` (raw
+  "Real Numbers"→"real_numbers" would miss the stored "real-numbers") — fixed by normalizing first on both data +
+  display paths.
+- **"Active gaps remaining" on Me.** Both Me surfaces show `· N active gaps to clear` alongside `· M marks lost`.
+- **Confirmed (no change):** the aggregator's `accuracy<60 && attempts>=2` path already receives PR-1 attempts. Clamp
+  at 0 already held in `clearWrongAnswer`.
+
+### Gates + pre-merge logic confidence
+tsc 0, mojibake clean, scope:guard product OK, root matrix **175/175**, ops **22/22**, `git diff --check` clean. **CI
+`quality-gate` GREEN** on PR #235. **GitHub Codespaces (canonical Linux; mocked/local stores only — no Firebase creds,
+`firestoreDb` null → jsdom localStorage):** vitest `practiceInsights.loopclose.test.ts` **2/2 PASS** (2-topic decrement
++ clamp-at-0 + wrong-answer-no-shrink + canonical-slug topicKey); `pnpm build` (`vite build`) ✓ 9.04s;
+`verify-production-build.mjs` ✓ exit 0. (pnpm 10.32.1, matching CI.) Proof test KEPT in the PR. No backend, no grading
+semantics, no question-bank, no forbidden files (`topicAliasMap.ts`/`adaptivePracticeEngine.ts` read-only).
+
+### ✅ Live verification — owner-run (PASS — the loop closes)
+- "Active gaps" shrank to **0 on Real Numbers AND Polynomials** after clean correct drills: **PASS**.
+- "Marks lost" held as the historical scar (never shrank): **PASS**.
+- A wrong answer did **not** shrink active gaps; clamp held at **0, never negative**: **PASS**.
+- **Mobile parity** confirmed: **PASS**.
+
+### Residuals logged (NOT fixed here — see OPEN_QUESTIONS)
+- **[FU-IMPROVEMENT-CARD]** — `clearWrongAnswer` DELETES the wrong-answer entry at zero, **erasing the improvement
+  record**. Before building an improvement/journey card on Me, the loop-closer must first record a durable "gap cleared"
+  event (cumulative + per-topic + timestamp) in the `practiceInsights` mirror. Trends (accuracy/mistakes) are derivable
+  from existing timestamps.
+- **[FU-WEAKAREA-ALIAS-DISPLAY]** — the active-gaps COUNT under-shows for topics whose display label ≠ canonical slug
+  (e.g. "Linear Equations" → `pair-of-linear-equations`) until the alias map covers them (honest 0, never wrong data).
+  The data-layer decrement is unaffected (bridge-identical key).
+
+### Next
+**PR 3 — MCQ honest capture** (the last Measure-leg PR): `PracticeQuestionCard` MCQ click → `recordAttempt` (1/1 or
+0/1); stop the hardcoded `conceptual:1` bypass (owner-confirm the wrong-MCQ treatment). **Owner-greenlight-gated** — do
+NOT start until greenlit.
+
+---
+
 ## 2026-06-14 — MI Loop Stage 2 / Measure-leg PR 1 (#233): `recordAttempt` front door + route GRADED solutions
 
 **Trunk after merge: `57fb7aa`** (#233, `feat/desktop-pr-mi-loop-stage2-pr1-recordattempt`; squash of `d8ee55c`; 4 files

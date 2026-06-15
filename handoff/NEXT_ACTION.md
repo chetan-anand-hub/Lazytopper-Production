@@ -1,31 +1,31 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-14 (post-PR #233 — MI Loop Stage 2 / Measure-leg PR 1 MERGED + owner live-verified. The `recordAttempt` front door is live — graded scores PERSIST and feed the Me scorecard; Saved attempts / Accuracy / Accuracy-by-subject / Recent all flow from real attempts; attempts merge into weak-area rows (Polynomials verified). NEXT: MI Loop Stage 2 PR 2 = close the loop (a correct attempt shrinks the weakness via `clearWrongAnswer`); then PR 3 (MCQ honest capture); then Stage 3 (concept-level, eval-gated); plus [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: 57fb7aa
+# Updated: 2026-06-15 (post-PR #235 — MI Loop Stage 2 / Measure-leg PR 2 MERGED + owner live-verified. THE LOOP CLOSES: a fully-correct `recordAttempt` shrinks the topic's active weakness via `clearWrongAnswer` (key-matched; clamped at 0; wrong/partial never shrink). Both Me surfaces show "active gaps remaining" (healing) alongside "marks lost" (scar). Live-verified PASS: active gaps → 0 on Real Numbers AND Polynomials; marks-lost held; wrong didn't shrink; clamp held; mobile parity. The MI loop is now BIDIRECTIONAL. NEXT: MI Loop Stage 2 PR 3 = MCQ honest capture (last Measure-leg PR, OWNER-GREENLIGHT-GATED); then Stage 3 (concept-level, eval-gated); plus [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 59f9d18
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 57fb7aa
-Last PRs: #229 (grade-parse resilience) + #230 (docs — post-#229) + #231 (MI Loop Stage 1 / Act-leg) + #232 (docs — post-#231) + #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door + route GRADED solutions to the attempt store)
+SHA: 59f9d18
+Last PRs: #231 (MI Loop Stage 1 / Act-leg) + #232 (docs — post-#231) + #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door) + #234 (docs — post-#233) + #235 (MI Loop Stage 2 / Measure-leg PR 2 — close the loop: correct attempt shrinks the weakness + "active gaps remaining" on Me)
 
-## ⏭️ IMMEDIATE NEXT — MI Loop Stage 2 PR 2 (close the loop), then PR 3 (MCQ), then Stage 3
-PR #233 (MI Loop **Stage 2 / Measure-leg PR 1**) is **MERGED + owner live-verified** (attempt stream works: Saved attempts /
-Accuracy / Accuracy-by-subject / Recent populate from real graded attempts; attempts merge into the Polynomials weak-area row;
-X/Y banner = v1 scorecard). The loop is now measurable but not yet **bidirectional**. Next, per
+## ⏭️ IMMEDIATE NEXT — MI Loop Stage 2 PR 3 (MCQ honest capture, owner-greenlight-gated), then Stage 3
+PR #235 (MI Loop **Stage 2 / Measure-leg PR 2**) is **MERGED + owner live-verified** — **THE LOOP CLOSES**: active gaps shrank to 0
+on Real Numbers AND Polynomials after clean drills; marks-lost held as the scar; wrong answers didn't shrink; clamp held; mobile
+parity. **The MI loop is now BIDIRECTIONAL (Capture → Identify → Act → Measure all live).** Next, per
 `AGENT_t3_mi_measure_loopclose_2026-06-12.md`:
 
-1. **MI Loop Stage 2 PR 2 — close the loop (headline next).** When a `recordAttempt` is **correct** on a topic/concept, decrement
-   that topic/concept's wrong-answer count via `clearWrongAnswer` (the weakness shrinks) — wire to the LIVE attempt path, NOT the
-   dormant `recordSelfAssessment` session subsystem; guard ≥0 (already clamped). Confirm the aggregator's
-   `accuracy<60 && attempts>=2` path now receives the real PR-1 attempts. **Decisive live test:** a logged weak area
-   (e.g. Real Numbers −7) **visibly shrinks** on Me after a clean correct drill — the proof the loop closes. One PR; STOP for owner.
-2. **MI Loop Stage 2 PR 3 — MCQ honest capture.** `PracticeQuestionCard` MCQ click → `recordAttempt` (1/1 or 0/1); stop the direct
-   `logMistakes` hardcoded `conceptual:1` (a wrong MCQ has no working to classify — record as unclassified/objective;
-   **owner-confirm the exact treatment** in the report before finalizing).
-3. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
+1. **MI Loop Stage 2 PR 3 — MCQ honest capture (headline next; ⛔ OWNER-GREENLIGHT-GATED — do NOT start until greenlit).**
+   `PracticeQuestionCard` MCQ option click → `recordAttempt` (correct AND wrong; 1/1 or 0/1) so MCQ feeds accuracy + the scorecard
+   + the PR-2 decrement. Stop the direct `logMistakes` hardcoded `conceptual:1` bypass — a wrong MCQ has no working to classify, so
+   record it as an **unclassified/objective** miss (NOT "conceptual"), routed through `recordMistake`, not a direct `logMistakes`.
+   **Owner-confirm the exact wrong-MCQ treatment in the report before finalizing.** One PR; STOP for owner.
+2. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
    `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**.
-4. **PR-1 follow-ups (logged, not blocking):** **[FU-ATTEMPT-MARKS-ACCURACY]** (marks-weighted Me accuracy; display-only,
-   data already persisted), **[FU-ATTEMPT-SR]** (dropped spaced-repetition side-effect — its own decision).
+3. **PR-2 follow-ups (logged, not blocking):** **[FU-IMPROVEMENT-CARD]** (the loop-closer deletes the entry at zero, erasing the
+   improvement record → record a durable "gap cleared" event before building any improvement/journey card on Me),
+   **[FU-WEAKAREA-ALIAS-DISPLAY]** (active-gaps count under-shows for label≠canonical-slug topics).
+4. **PR-1 follow-ups (logged):** **[FU-ATTEMPT-MARKS-ACCURACY]** (marks-weighted Me accuracy; display-only),
+   **[FU-ATTEMPT-SR]** (dropped spaced-repetition side-effect — its own decision).
 5. **Stage-1 polish follow-ups** (see OPEN_QUESTIONS): **[FU-DRILL-ROUTING]**, **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**,
    **[FU-WEAKAREA-HUB-LIMIT]**. **[FU-ME-REFRESH]** — Me auto-refresh after a grade (still open). **[FU-GRADE-MARKSCALE]** /
    **[FU-GRADE-CONSISTENCY]** / **[MI-EVAL]** — eval-gated grade-quality items.

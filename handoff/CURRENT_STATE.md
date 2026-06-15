@@ -1,10 +1,39 @@
 # LazyTopper — Current State
-Last updated: 2026-06-14 (post-PR #233 — MI Loop Stage 2 / Measure-leg PR 1 MERGED + owner live-verified: the `recordAttempt` front door is live — graded scores now PERSIST and feed the Me scorecard. "Saved attempts" / "Accuracy" / "Accuracy by subject" / "Recent activity" all flow from real graded attempts, and attempts MERGE into the weak-area rows (attempts + accuracy alongside marks-lost — verified on Polynomials). The existing per-answer X/Y banner is the v1 session scorecard (owner-confirmed; no new UI). NEXT: MI Loop Stage 2 PR 2 = close the loop (a correct attempt shrinks the weakness via `clearWrongAnswer`); then PR 3 (MCQ honest capture); then Stage 3 (concept-level, eval-gated); plus [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + Stage-1 follow-ups; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Last updated: 2026-06-15 (post-PR #235 — MI Loop Stage 2 / Measure-leg PR 2 MERGED + owner live-verified: THE LOOP CLOSES. A fully-correct `recordAttempt` decrements the topic's active weakness via `clearWrongAnswer` (key-matched to the bridge; clamped at 0; wrong/partial never shrink). Both Me surfaces now show "active gaps remaining" (the recoverable healing) ALONGSIDE the historical "marks lost" (the scar). Live-verified PASS: active gaps shrank to 0 on Real Numbers AND Polynomials after clean drills, marks-lost held, wrong answers didn't shrink, clamp held, mobile parity. **The MI loop is now BIDIRECTIONAL: Capture → Identify → Act → Measure all live.** NEXT: MI Loop Stage 2 PR 3 = MCQ honest capture (last Measure-leg PR, owner-greenlight-gated); then Stage 3 (concept-level, eval-gated); plus [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 57fb7aa
-Last merged PRs: #228 (docs), #229 (grade-parse resilience — squash `14ea860`), #230 (docs — post-#229), #231 (MI Loop Stage 1 / Act-leg — squash of `09fa7f8`+`deaad2e`), #232 (docs — post-#231), **#233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door + route GRADED solutions to the attempt store; 4 files +199/−15; squash `d8ee55c` → trunk `57fb7aa`)**
+SHA: 59f9d18
+Last merged PRs: #230 (docs — post-#229), #231 (MI Loop Stage 1 / Act-leg — squash of `09fa7f8`+`deaad2e`), #232 (docs — post-#231), #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door; squash `d8ee55c` → `57fb7aa`), #234 (docs — post-#233), **#235 (MI Loop Stage 2 / Measure-leg PR 2 — close the loop: correct attempt shrinks the weakness + "active gaps remaining" on Me; 4 files +135/−2; squash `4c8936b` → trunk `59f9d18`)**
+
+## ✅ MI LOOP STAGE 2 — Measure-leg PR 2 (#235, trunk `59f9d18`) — MERGED + owner live-verified — THE LOOP CLOSES
+The return leg. A graded mistake grows the wrong-answer count (Stream 3) via the `recordMistake` bridge; PR 2 makes a
+clean correct drill SHRINK it — the engine is now bidirectional. Per `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (PR 2
+of 3). Report: `report-mi-loop-stage2-pr2-loopclose-2026-06-14.md`.
+- **Loop-closer (data layer):** in `recordAttempt`, a FULLY-correct attempt (`scored >= available`) decrements one
+  active gap for the topic via `clearWrongAnswer` — live correct-attempt path (NOT the dormant `recordSelfAssessment`);
+  only on a newly-recorded attempt (after dedup → no double-decrement); wrong/partial never shrink; clamped at 0.
+- **Key-matching (the G9 alias-fragility class):** the decrement resolves the canonical key with the IDENTICAL
+  expression `normalizeTopicKey(ctx.topicKey ?? ctx.topic)` the bridge used to increment (same ctx passed to both doors
+  in PR 1) → tautologically equal key; then decrements the stored entry by its OWN keys (exact map-key match). Caught
+  the trap that `getWrongConceptsForTopic` keeps `-` but turns spaces→`_` (raw "Real Numbers"→"real_numbers" would miss
+  "real-numbers") — fixed by normalizing first on both data + display paths.
+- **"Active gaps remaining" on Me (owner Option 1):** both Me surfaces show the recoverable wrong-answer count
+  (`· N active gaps to clear`) ALONGSIDE the historical `· M marks lost` — the **scar** (never shrinks) vs the
+  **healing** (shrinks to 0). Did NOT repoint Me to `getWeakAreas` (deferred durable-Me convergence).
+- **Pre-merge logic confidence — GitHub Codespaces (Linux; mocked/local stores, no Firebase creds):** vitest
+  `practiceInsights.loopclose.test.ts` **2/2 PASS** (2-topic decrement + clamp-at-0 + wrong-no-shrink + canonical-slug
+  topicKey); `vite build` ✓ 9.04s; `verify-production-build.mjs` ✓ exit 0. CI `quality-gate` GREEN on #235.
+- **Live verification (owner, PASS):** active gaps shrank to **0 on Real Numbers AND Polynomials** after clean correct
+  drills; marks-lost held as the historical scar; wrong answers didn't shrink; clamp held at 0; **mobile parity** confirmed.
+- **Residuals logged (see OPEN_QUESTIONS):** **[FU-IMPROVEMENT-CARD]** (clearWrongAnswer DELETES the entry at zero,
+  erasing the improvement record — before an improvement/journey card on Me, the loop-closer must first record a durable
+  "gap cleared" event (cumulative + per-topic + timestamp) in the practiceInsights mirror); **[FU-WEAKAREA-ALIAS-DISPLAY]**
+  (active-gaps count under-shows for topics whose label ≠ canonical slug until the alias map covers them; data-layer
+  decrement unaffected).
+- **NEXT in the loop:** **PR 3 = MCQ honest capture** (last Measure-leg PR) — `PracticeQuestionCard` MCQ click →
+  `recordAttempt` (1/1 or 0/1); stop the hardcoded `conceptual:1` bypass. **Owner-greenlight-gated** — do NOT start until
+  greenlit.
 
 ## ✅ MI LOOP STAGE 2 — Measure-leg PR 1 (#233, trunk `57fb7aa`) — MERGED + owner live-verified
 The MI loop is Capture → Identify → Act → **Measure**. The loop did NOT close: `recordAttempt` had **0 call sites** (empty
