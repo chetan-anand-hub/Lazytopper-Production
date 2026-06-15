@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-15 — Post-PR #237 roadmap update (MI Loop Stage 2 / Measure-leg PR 3 — MEASURE LEG COMPLETE)
+
+The last Measure-leg PR: MCQ honest capture. Report: `report-mi-loop-stage2-pr3-mcq-2026-06-15.md`.
+
+### Completed this session
+- [x] **#237 — MI Loop Stage 2 / Measure-leg PR 3** (trunk `b75f065`, squash of `9edf6fb`; 1 file +22/−36).
+  `PracticeQuestionCard` MCQ clicks now route through `recordAttempt` (1/1 correct, 0/1 wrong, mode "mcq", same
+  topic/questionId keying as graded answers) → MCQ feeds accuracy + a correct MCQ shrinks a weakness via the PR-2
+  loop-closer. Removed the hardcoded `conceptual:1` direct-`logMistakes` bypass. **Owner-ruled wrong-MCQ treatment (a)
+  attempt-only** (no mistake-log entry / no synthesized grade / no typed category). CI GREEN. ⏳ owner live-verify pending.
+
+### ✅ MI loop — Measure leg COMPLETE (#233 + #235 + #237). The loop is bidirectional across graded AND MCQ capture.
+
+### MI loop — remaining
+- [ ] **Stage 3 — concept-level targeting (eval-gated, next):** pass the weak concept/mistake-pattern into
+  `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**.
+- [ ] Open follow-ups carried: **[FU-IMPROVEMENT-CARD]**, **[FU-WEAKAREA-ALIAS-DISPLAY]**, **[FU-ATTEMPT-MARKS-ACCURACY]**,
+  **[FU-ATTEMPT-SR]**, **[FU-ME-REFRESH]** (see OPEN_QUESTIONS).
+
 ## 2026-06-15 — Post-PR #235 roadmap update (MI Loop Stage 2 / Measure-leg PR 2 — THE LOOP CLOSES)
 
 The MI loop's **Measure** leg, PR 2 (the loop-closer). The engine is now **bidirectional** (Capture → Identify → Act →

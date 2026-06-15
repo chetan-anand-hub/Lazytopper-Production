@@ -1,5 +1,50 @@
 ---
 
+## 2026-06-15 — MI Loop Stage 2 / Measure-leg PR 3 (#237): MCQ honest capture — the Measure leg is COMPLETE
+
+**Trunk after merge: `b75f065`** (#237, `feat/desktop-pr-mi-loop-stage2-pr3-mcq`; squash of `9edf6fb`; 1 file
+`components/practice/PracticeQuestionCard.tsx`, +22/−36). Owner-merged code PR. Implements PR 3 (the last) of
+`AGENT_t3_mi_measure_loopclose_2026-06-12.md`. Report: `report-mi-loop-stage2-pr3-mcq-2026-06-15.md`. **The MI loop's
+Measure leg is now complete** — bidirectional across graded AND MCQ capture.
+
+### The problem
+`PracticeQuestionCard`'s MCQ handler (1) called `logMistakes` DIRECTLY with a hardcoded `conceptual: 1` (+ a fabricated
+`stepDetails[0].mistakeType = "conceptual"`) for a wrong MCQ — inflating the Me "concept gaps" breakdown with a type a
+bare click can't justify; and (2) recorded NOTHING for a correct MCQ (so MCQ never fed accuracy / couldn't shrink a
+weakness).
+
+### What landed
+- **Route MCQ clicks through `recordAttempt`** (the PR-1 front door): correct = 1/1, wrong = 0/1, `mode: "mcq"`, with the
+  SAME `topic`/`questionId` keying the graded surfaces use — so MCQ feeds Saved attempts / Accuracy and a CORRECT MCQ
+  shrinks a weakness via the PR-2 loop-closer (key-matches the bridge). Recorded for both correct + wrong, only when the
+  answer key is trusted (`correctIdx >= 0`, the existing guard); the front door self-guards policy (signed-out/local skip).
+- **Removed the hardcoded `conceptual:1` bypass** — the entire direct-`logMistakes` block + its now-unused import.
+- **Wrong-MCQ treatment — OWNER-RULED (a) attempt-only:** a wrong MCQ records the 0/1 attempt and NOTHING else (no
+  mistake-log entry, no synthesized grade object, no typed category). Option (b) — an untyped/objective `recordMistake` —
+  was surfaced with a recommendation for (a) and DECLINED by the owner. Rationale: a bare MCQ click has no working to
+  classify, and `recordMistake` consumes a graded `CheckSolutionResponse` an MCQ lacks (routing one through it would mean
+  synthesizing a fake grade object = fabrication). Accuracy is the honest home for MCQ correctness.
+- **One front door, no fabrication:** all MCQ signal flows through `recordAttempt` only.
+
+### Gates
+tsc 0 · mojibake clean · scope:guard product OK · root matrix **175/175** · ops **22/22** · `git diff --check` clean.
+**CI `quality-gate` GREEN** on PR #237. (`vite build` CI-gated on linux; the change is a small front-door routing swap
+with no new types.) 1 component file; no `firestore.rules` / `App.tsx` / `src/data/` / gated lanes / grading semantics /
+question-bank; **no direct `logMistakes`**, no fabricated types.
+
+### ⏳ Owner live-verify — PENDING (post-merge)
+1. Wrong MCQ → counts as an attempt (Accuracy reflects it) and does NOT inflate the "conceptual" breakdown.
+2. Correct MCQ → counts toward accuracy and can shrink a weak area (loop-closer).
+3. Me "concept gaps" headline now reflects real graded classifications only.
+
+### Next
+**MI Loop Stage 3 — concept-level targeting (eval-gated):** pass the weak concept/mistake-pattern into
+`generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set) = **[FU-DRILL-ENRICHMENT]**. The
+Measure leg is done — no more Stage-2 PRs. Open follow-ups: [FU-IMPROVEMENT-CARD], [FU-WEAKAREA-ALIAS-DISPLAY],
+[FU-ATTEMPT-MARKS-ACCURACY], [FU-ATTEMPT-SR], [FU-ME-REFRESH].
+
+---
+
 ## 2026-06-15 — MI Loop Stage 2 / Measure-leg PR 2 (#235): close the loop — correct answers shrink the weakness
 
 **Trunk after merge: `59f9d18`** (#235, `feat/desktop-pr-mi-loop-stage2-pr2-loopclose`; squash of `4c8936b`; 4 files
