@@ -1,3 +1,19 @@
+## 2026-06-15 — Post-PR #237 (MI Loop Stage 2 / Measure-leg PR 3 — MCQ honest capture; MEASURE LEG COMPLETE)
+
+### ✅ DONE — MI Loop Stage 2 PR 3 merged (⏳ owner live-verify pending)
+- **[MI-LOOP-S2-PR3] MCQ honest capture** (#237, trunk `b75f065`, squash of `9edf6fb`; 1 file +22/−36). `PracticeQuestionCard`
+  MCQ clicks now route through `recordAttempt` (1/1 correct, 0/1 wrong, `mode:"mcq"`, same topic/questionId keying as graded
+  answers) → MCQ feeds Saved attempts / Accuracy + a correct MCQ shrinks a weakness via the PR-2 loop-closer. Removed the
+  hardcoded `conceptual:1` direct-`logMistakes` bypass (a bare MCQ click has no working to classify). **Owner-ruled wrong-MCQ
+  treatment (a) attempt-only** — record the 0/1 attempt and nothing else (no mistake-log entry, no synthesized grade object, no
+  typed category); option (b) untyped/objective `recordMistake` declined. One front door, no fabrication. CI GREEN. Report:
+  `report-mi-loop-stage2-pr3-mcq-2026-06-15.md`. **The MI loop Measure leg is now complete** (graded + MCQ capture).
+
+### Decision recorded — wrong-MCQ treatment
+- **[DECISION-MCQ-WRONG] = (a) attempt-only** (owner-ruled). A wrong MCQ is an accuracy signal, not a typed-mistake signal;
+  `recordMistake` expects a graded `CheckSolutionResponse` an MCQ lacks (synthesizing one = fabrication). "Marks lost" /
+  mistake-mix / weak-areas stay sourced from real graded classifications. Closed.
+
 ## 2026-06-15 — Post-PR #235 (MI Loop Stage 2 / Measure-leg PR 2 — THE LOOP CLOSES)
 
 ### ✅ DONE — MI Loop Stage 2 PR 2 merged + owner live-verified (the loop is now bidirectional)

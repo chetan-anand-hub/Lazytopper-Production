@@ -1,10 +1,31 @@
 # LazyTopper — Current State
-Last updated: 2026-06-15 (post-PR #235 — MI Loop Stage 2 / Measure-leg PR 2 MERGED + owner live-verified: THE LOOP CLOSES. A fully-correct `recordAttempt` decrements the topic's active weakness via `clearWrongAnswer` (key-matched to the bridge; clamped at 0; wrong/partial never shrink). Both Me surfaces now show "active gaps remaining" (the recoverable healing) ALONGSIDE the historical "marks lost" (the scar). Live-verified PASS: active gaps shrank to 0 on Real Numbers AND Polynomials after clean drills, marks-lost held, wrong answers didn't shrink, clamp held, mobile parity. **The MI loop is now BIDIRECTIONAL: Capture → Identify → Act → Measure all live.** NEXT: MI Loop Stage 2 PR 3 = MCQ honest capture (last Measure-leg PR, owner-greenlight-gated); then Stage 3 (concept-level, eval-gated); plus [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Last updated: 2026-06-15 (post-PR #237 — MI Loop Stage 2 / Measure-leg PR 3 (MCQ honest capture) MERGED — **the Measure leg is COMPLETE**. `PracticeQuestionCard` MCQ clicks now route through `recordAttempt` (1/1 correct, 0/1 wrong, mode "mcq", same topic/questionId keying as graded answers) so MCQ feeds Saved attempts / Accuracy and a CORRECT MCQ shrinks a weakness via the PR-2 loop-closer. The hardcoded `conceptual:1` direct-`logMistakes` bypass is GONE — a wrong MCQ records an attempt only (owner-ruled treatment (a)); the Me "concept gaps" breakdown now reflects real graded classifications only. CI GREEN on #237. ⏳ owner live-verify pending. The MI loop is now bidirectional across graded AND MCQ capture. NEXT: MI Loop Stage 3 = concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]); plus [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 59f9d18
-Last merged PRs: #230 (docs — post-#229), #231 (MI Loop Stage 1 / Act-leg — squash of `09fa7f8`+`deaad2e`), #232 (docs — post-#231), #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door; squash `d8ee55c` → `57fb7aa`), #234 (docs — post-#233), **#235 (MI Loop Stage 2 / Measure-leg PR 2 — close the loop: correct attempt shrinks the weakness + "active gaps remaining" on Me; 4 files +135/−2; squash `4c8936b` → trunk `59f9d18`)**
+SHA: b75f065
+Last merged PRs: #232 (docs — post-#231), #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door; squash `d8ee55c` → `57fb7aa`), #234 (docs — post-#233), #235 (MI Loop Stage 2 / Measure-leg PR 2 — close the loop + "active gaps remaining"; squash `4c8936b` → `59f9d18`), #236 (docs — post-#235), **#237 (MI Loop Stage 2 / Measure-leg PR 3 — MCQ honest capture: route clicks through `recordAttempt`, drop the `conceptual:1` bypass; 1 file +22/−36; squash `9edf6fb` → trunk `b75f065`)**
+
+## ✅ MI LOOP STAGE 2 — Measure-leg PR 3 (#237, trunk `b75f065`) — MERGED — MEASURE LEG COMPLETE
+The last Measure-leg PR: MCQ honest capture. Per `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (PR 3 of 3).
+Report: `report-mi-loop-stage2-pr3-mcq-2026-06-15.md`.
+- **Route MCQ clicks through `recordAttempt`:** `PracticeQuestionCard` MCQ option click → `recordAttempt` (correct = 1/1,
+  wrong = 0/1, `mode: "mcq"`, `topic = topicLabel`, `question`, `questionId`, `subject`) — the SAME keying graded answers
+  use, so MCQ feeds Saved attempts / Accuracy and a **CORRECT MCQ shrinks a weakness via the PR-2 loop-closer**. Recorded
+  for both correct + wrong, only when the answer key is trusted (`correctIdx >= 0`); the front door self-guards policy.
+- **Removed the hardcoded `conceptual:1` bypass:** the whole direct-`logMistakes` block (+ its now-unused import). A bare
+  MCQ click has no working to classify, so a wrong MCQ no longer fabricates a "conceptual" mistake.
+- **Wrong-MCQ treatment — OWNER-RULED (a) attempt-only:** a wrong MCQ records the 0/1 attempt and NOTHING else (no
+  mistake-log entry, no synthesized grade object, no typed category). Option (b) — an untyped/objective `recordMistake` —
+  was declined. Marks-lost / mistake-mix / weak-areas stay sourced from real graded classifications.
+- **One front door, no fabrication:** all MCQ signal flows through `recordAttempt` only — no direct `logMistakes`, no
+  fabricated types, no synthesized grade objects.
+- **Gates:** tsc 0 · mojibake clean · root matrix 175/175 · ops 22/22 · scope:guard OK · `git diff --check` clean. CI
+  `quality-gate` GREEN on #237. (`vite build` CI-gated on linux.)
+- **⏳ Owner live-verify PENDING** (post-merge): wrong MCQ → attempt + Accuracy, NOT conceptual-inflated; correct MCQ →
+  accuracy + can shrink a weak area; Me "concept gaps" = real graded classifications only.
+- **NEXT:** **MI Loop Stage 3 — concept-level targeting (eval-gated)** = `generatePracticeSet.conceptKey` from the weak
+  concept (needs MI sub-concept capture + the eval set) = **[FU-DRILL-ENRICHMENT]**. (Measure leg done; no more Stage-2 PRs.)
 
 ## ✅ MI LOOP STAGE 2 — Measure-leg PR 2 (#235, trunk `59f9d18`) — MERGED + owner live-verified — THE LOOP CLOSES
 The return leg. A graded mistake grows the wrong-answer count (Stream 3) via the `recordMistake` bridge; PR 2 makes a
