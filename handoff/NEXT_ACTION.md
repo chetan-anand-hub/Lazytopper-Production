@@ -1,27 +1,36 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-15 (post-PR #237 — MI Loop Stage 2 / Measure-leg PR 3 (MCQ honest capture) MERGED — **the Measure leg is COMPLETE**. `PracticeQuestionCard` MCQ clicks route through `recordAttempt` (1/1 correct, 0/1 wrong, mode "mcq") so MCQ feeds Accuracy + a correct MCQ shrinks a weakness via the PR-2 loop-closer; the hardcoded `conceptual:1` direct-`logMistakes` bypass is gone (owner-ruled wrong-MCQ treatment (a) attempt-only). CI GREEN; ⏳ owner live-verify pending. The MI loop is bidirectional across graded AND MCQ capture. NEXT: MI Loop Stage 3 = concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]); plus [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: b75f065
+# Updated: 2026-06-15 (post-PR #238 / stand-down — MI Loop Stage 2 / Measure leg COMPLETE (#233+#235+#237 merged; the loop is bidirectional across graded AND MCQ capture; ⏳ owner live-verify of #237 pending). All four #235/#237 feature+docs branches deleted; trunk clean at `2b92f7b`. RE-SEQUENCED NEXT (owner): **(1) MI polish batch** — ONE PR, surface/ranking only, NOT eval-gated; then **(2) the MI eval** ([MI-EVAL] check-solution eval set); then **(3) Stage 3** concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]). No code work started in this window — the next PR starts fresh. Carried follow-ups: [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 2b92f7b
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: b75f065
-Last PRs: #233 (MI Loop Stage 2 / Measure-leg PR 1 — `recordAttempt` front door) + #234 (docs — post-#233) + #235 (MI Loop Stage 2 / Measure-leg PR 2 — close the loop + "active gaps remaining") + #236 (docs — post-#235) + #237 (MI Loop Stage 2 / Measure-leg PR 3 — MCQ honest capture: route through `recordAttempt`, drop the `conceptual:1` bypass)
+SHA: 2b92f7b
+Last PRs: #233 (MI Loop S2 PR 1 — `recordAttempt` front door) + #234 (docs) + #235 (MI Loop S2 PR 2 — close the loop + "active gaps remaining") + #236 (docs) + #237 (MI Loop S2 PR 3 — MCQ honest capture) + #238 (docs — post-#237, Measure leg complete)
 
-## ⏭️ IMMEDIATE NEXT — MI Loop Stage 3 (concept-level targeting, eval-gated)
-PR #237 (MI Loop **Stage 2 / Measure-leg PR 3 — MCQ honest capture**) is **MERGED** (CI GREEN; ⏳ owner live-verify pending).
-**The MI loop's Measure leg is COMPLETE** — the loop is bidirectional across graded AND MCQ capture (Capture → Identify → Act
-→ Measure all live, for both graded answers and objective MCQs). No more Stage-2 PRs. Next, per
-`AGENT_t3_mi_measure_loopclose_2026-06-12.md`:
+## ⏭️ IMMEDIATE NEXT — (1) MI polish batch → (2) MI eval → (3) Stage 3
+The MI loop's **Measure leg is COMPLETE** (#233 + #235 + #237; bidirectional across graded AND MCQ capture; ⏳ owner
+live-verify of #237 pending). No more Stage-2 PRs. **Owner-re-sequenced** next track (each its own PR; the next PR starts
+fresh — no code began in this window):
 
-1. **MI Loop Stage 3 — concept-level targeting (eval-gated; headline next).** Pass the weak concept/mistake-pattern into
-   `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**. Eval-gated:
-   do not lean on it until the check-solution eval set exists ([MI-EVAL]).
-2. **MI-loop follow-ups (logged, not blocking):** **[FU-IMPROVEMENT-CARD]** (the loop-closer deletes the entry at zero, erasing
-   the improvement record → record a durable "gap cleared" event before building any improvement/journey card on Me),
-   **[FU-WEAKAREA-ALIAS-DISPLAY]** (active-gaps count under-shows for label≠canonical-slug topics),
-   **[FU-ATTEMPT-MARKS-ACCURACY]** (marks-weighted Me accuracy; display-only), **[FU-ATTEMPT-SR]** (dropped
-   spaced-repetition side-effect — its own decision).
+1. **MI polish batch (headline next) — ONE PR, surface/ranking only, NOT eval-gated.** Tidy the now-complete loop's
+   presentation/ranking on the existing surfaces — **no grading/accuracy semantics, no eval dependency**. Candidate
+   items live in the logged follow-ups (surface/ranking-only ones): e.g. **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**,
+   **[FU-WEAKAREA-HUB-LIMIT]**, **[FU-DRILL-ROUTING]**, **[FU-ME-REFRESH]**, **[FU-WEAKAREA-ALIAS-DISPLAY]**. Owner to
+   confirm the exact item list + frozen scope before the PR opens. (Deliberately scoped OUT: anything that changes how a
+   number is computed — those wait for the eval.)
+2. **MI eval — [MI-EVAL] check-solution eval set** (40–60 graded answers + tutor fabricated-solution correctness eval;
+   launch gate). Gates how hard we lean on AI-estimated grades; unblocks the eval-gated items.
+3. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
+   `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**.
+   Do not start until the eval (step 2) exists.
+
+### MI-loop follow-ups (logged; slot into the batches above)
+- **[FU-IMPROVEMENT-CARD]** (the loop-closer deletes the wrong-answer entry at zero, erasing the improvement record →
+  record a durable "gap cleared" event before building any improvement/journey card on Me — sequence: durable event FIRST).
+- **[FU-WEAKAREA-ALIAS-DISPLAY]** (active-gaps count under-shows for label≠canonical-slug topics; surface/ranking — batch 1).
+- **[FU-ATTEMPT-MARKS-ACCURACY]** (marks-weighted Me accuracy; display-only — but touches how accuracy reads, so eval-aware),
+  **[FU-ATTEMPT-SR]** (dropped spaced-repetition side-effect — its own decision).
 3. **Stage-1 polish follow-ups** (see OPEN_QUESTIONS): **[FU-DRILL-ROUTING]**, **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**,
    **[FU-WEAKAREA-HUB-LIMIT]**. **[FU-ME-REFRESH]** — Me auto-refresh after a grade (still open). **[FU-GRADE-MARKSCALE]** /
    **[FU-GRADE-CONSISTENCY]** / **[MI-EVAL]** — eval-gated grade-quality items.
