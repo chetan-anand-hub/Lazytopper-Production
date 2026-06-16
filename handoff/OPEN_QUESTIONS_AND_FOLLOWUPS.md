@@ -1,3 +1,26 @@
+## 2026-06-16 — Post-PR #244 (Check & Improve auto-detect marks/subject/topic — Claim 2; merged + CI GREEN; owner live-verify pending)
+
+### ✅ DONE — Claim 2 merged
+- **[CLAIM2-AUTODETECT]** (#244, trunk `43ffa09`, squash; 6 files +330/−238; commit `d93cd23`). The Check & Improve grader now
+  determines marks/subject/topic from the question (owner-ruled option (a)); the student selectors are gone on both surfaces
+  (desktop + app). Opt-in `detectMarks` flag → Quick Practice (`SolutionChecker`, canonical-bank marks) is byte-identical.
+  Printed marks preferred → inferred → flagged `fallback` (never a silent static 3); topic constrained to the canonical
+  `topics.ts` vocab + re-canonicalised via the shared `resolveDetectedGradeTopic` helper (reuses Fix A's
+  `desktopTopicForWeakAreaKey` — no new normaliser → clean MI attribution). Report: `report-claim2-autodetect-marks-2026-06-16.md`.
+
+### Decisive verification owed (do NOT mark fully done until then)
+- **[CLAIM2-LIVE-VERIFY] (owner, decisive)** — static gates can't judge the AI's marks-inference quality. On real uploads:
+  (1) question stating "[3]" → graded /3 without entering marks; (2) question with no printed mark → sensible inferred scale,
+  not a blind 3; (3) detected topic buckets correctly on Me ▸ weak-areas (real key, routes to practice via Fix A); (4) the
+  manual marks/subject/topic selectors are gone at desktop (≥1024px) AND mobile width.
+
+### Touchpoints / related follow-ups
+- **[FU-GRADE-MARKSCALE]** — partially addressed: the grader now judges the CBSE mark value from the question (prefers printed,
+  else infers) rather than consuming a student-entered scale. The eval ([MI-EVAL]) should now also score the auto-detected
+  mark scale + topic-detection accuracy. **[FU-GRADE-CONSISTENCY]** and **[MI-EVAL]** remain open / eval-gated.
+- The two Check & Improve surfaces now share `resolveDetectedGradeTopic` (`src/utils/checkImproveDetection.ts`) — they can no
+  longer diverge on topic canonicalisation (a recurring desktop-vs-mobile drift class).
+
 ## 2026-06-16 — Post-PR #242 (topicKey Fix A — Me weak-area resolver + 13 aliases; merged + CI GREEN; owner live-verify pending)
 
 ### ✅ DONE — read-only audit + Fix A merged

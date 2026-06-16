@@ -1,11 +1,42 @@
 # LazyTopper — Current State
-Last updated: 2026-06-16 (post-PR #242 — **topicKey Fix A MERGED** (trunk `77f2ed2`): the Me weak-area row now resolves stored topic labels through the strong serving-side resolver (`desktopTopicForWeakAreaKey`, reusing `getRuntimeTopicCandidates`) + 13 explicit `topics.ts` aliases; the 13 in-bank spellings that fell to `/exam-trends` — the **Light** repro + 12 siblings — now route to Quick Practice. Read-time only; **no `src/data` rewrite, no stored-record migration**. CI GREEN. **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED.** Preceded by the read-only **topicKey-duplication audit** (`report-topickey-duplication-audit-2026-06-16.md`, DONE). **Fix B (consolidate the bank to one canonical kebab topicKey per topic + a CI guard) = [FU-TOPICKEY-CONSOLIDATION], HELD / authorized-later.** Owner live-verify of #242 PENDING. RE-SEQUENCED NEXT (owner; queued): **(ii) "Finish session" scorecard-trigger PR** → **(iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]**; then **(2) MI eval** ([MI-EVAL]) → **(3) Stage 3** ([FU-DRILL-ENRICHMENT]) → **Fix B** when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-Previously (post-PR #240 — **MI polish batch MERGED** (trunk `9eff0b0`): 5 surface/ranking sub-tasks (weak-area blended-severity ranking, per-row targeted practice CTAs, wrong-MCQ nudge, Practise→Practice UI copy, end-of-session scorecard + footer removal); CI GREEN; **owner live-verify 4/5 PASS** (sub-tasks 1–4 verified; sub-task 5 scorecard NOT yet confirmable — its `allDone`-only trigger is being redesigned into an explicit student-declared "Finish session"). mi-polish branch deleted.)
+Last updated: 2026-06-16 (post-PR #244 — **Check & Improve auto-detect MERGED** (trunk `43ffa09`): the grader now determines marks/subject/topic from the question itself (Claim 2, owner-ruled option (a)); the student-picked marks/subject/topic selectors are GONE on both Check & Improve surfaces (desktop + app). Isolated behind a `detectMarks` flag so Quick Practice (`SolutionChecker`, canonical-bank marks) is byte-identical. Printed marks preferred → inferred → flagged `fallback` (never a silent static 3); topic constrained to the canonical `topics.ts` vocab and re-canonicalised via the shared `resolveDetectedGradeTopic` helper (reuses Fix A's `desktopTopicForWeakAreaKey` — clean MI attribution). CI GREEN. **Owner live-verify of #244 PENDING** (decisive — static gates can't judge marks-inference quality). NEXT (owner; queued, NOT yet authorized): **(ii) "Finish session" scorecard-trigger PR** → **(iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]**; then **(2) MI eval** ([MI-EVAL]) → **(3) Stage 3** ([FU-DRILL-ENRICHMENT]) → **Fix B [FU-TOPICKEY-CONSOLIDATION]** when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Previously (post-PR #242 — **topicKey Fix A MERGED** (trunk `77f2ed2`): the Me weak-area row now resolves stored topic labels through the strong serving-side resolver (`desktopTopicForWeakAreaKey`) + 13 `topics.ts` aliases; the 13 in-bank spellings that fell to `/exam-trends` now route to Quick Practice. Read-time only. CI GREEN. **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED.** Preceded by the read-only topicKey-duplication audit. **Fix B [FU-TOPICKEY-CONSOLIDATION] HELD / authorized-later.** Owner live-verify of #242 PENDING.)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 77f2ed2
-Last merged PRs: #237 (MI Loop S2 PR 3 — MCQ honest capture; → `b75f065`), #238 (docs), **#239 (docs — stand-down; → `fb30720`)**, **#240 (MI polish batch — 5 sub-tasks; squash → `9eff0b0`)**, **#242 (topicKey Fix A — Me weak-area resolver + 13 aliases; squash → `77f2ed2`)**
+SHA: 43ffa09
+Last merged PRs: **#240 (MI polish batch — 5 sub-tasks; squash → `9eff0b0`)**, **#242 (topicKey Fix A — Me weak-area resolver + 13 aliases; squash → `77f2ed2`)**, **#243 (docs)**, **#244 (Check & Improve auto-detect marks/subject/topic — Claim 2; squash → `43ffa09`)**
+
+## ✅ CHECK & IMPROVE AUTO-DETECT (#244, trunk `43ffa09`) — MERGED + CI GREEN — owner live-verify PENDING
+Claim 2 (owner-ruled option (a): infer from the provided question). The grader now determines marks/subject/topic from the
+question it already receives, instead of the student picking them (bad UX + eval contamination). Authority:
+`AGENT_claim2_autodetect_marks_2026-06-16.md`. Report: `report-claim2-autodetect-marks-2026-06-16.md`. 6 files +330/−238;
+commit `d93cd23` (server + client + 2 UI + shared helper + test).
+- **Isolation — a `detectMarks` flag.** `/api/check-solution` is shared by Quick Practice (`SolutionChecker`, marks from the
+  canonical bank — authoritative) and Check & Improve (student-guessed). The detection path is opt-in: when `detectMarks` is
+  absent the handler is **byte-identical** to before (`effectiveMarks = marks`, same cap/`totalMarks`/percentage). Only Check
+  & Improve sets it → blast radius stays on Check & Improve.
+- **Server (`checkSolution.cjs`):** when `detectMarks`, the prompt asks the AI to determine `detectedMarks` (printed value
+  preferred → `marksSource:"stated"`; else inferred from type/depth → `"inferred"`; validated to `[1,6]`, else a flagged
+  `"fallback"` — never a silent static 3), `detectedSubject`, and `detectedTopic` (constrained to the canonical `topics.ts`
+  vocabulary the client passes — exact key or null, never invented). `effectiveMarks` drives the cap + percentage. Per-step
+  grading rules / error-propagation / additive-floor reconcile UNCHANGED — only the SOURCE of marks/subject/topic changed.
+- **Client (`aiClient.ts`):** `checkSolutionImage` gains optional `marks` + `detectMarks` + `topicVocabulary`; response gains
+  `detectedSubject`/`detectedTopic`/`marksSource`.
+- **UI (`DesktopCheckImprovePage` + app `CheckImprove`):** the manual marks/subject/topic selectors are REMOVED; both send
+  `detectMarks` + the canonical vocab and build the graded context from the detected response. The detected topic is
+  canonicalised via the shared `resolveDetectedGradeTopic()` helper (`src/utils/checkImproveDetection.ts`), which reuses
+  Fix A's `desktopTopicForWeakAreaKey` — **no new normaliser** — so MI attribution lands on a real `topics.ts` key (the app
+  variant's old free-text dropdown stored non-canonical labels like `"Light"`). Honest fallbacks: unresolved/absent topic →
+  full-subject; subject → resolved topic's subject, else AI's detectedSubject, else Maths.
+- **Anti-fabrication:** never invents marks (printed → inferred → flagged fallback) or a topic (canonical list or null). No
+  grading-semantics drift beyond the marks source.
+- **Gates:** tsc 0 · server `node --check` OK · root matrix **175/175** · lazytopper ops matrix green · mojibake clean ·
+  scope:guard product OK · `git diff --check` clean · helper Node-replication proof **6/6**. **CI `quality-gate` GREEN** on
+  #244 (1m21s — incl. the linux `vite build` + the new vitest). No forbidden/gated files touched (gated resolver imported only).
+- **⏳ Owner live-verify PENDING (decisive):** (1) question stating "[3]" → graded /3 without entering marks; (2) question with
+  no printed mark → sensible inferred scale, not a blind 3; (3) detected topic buckets correctly on Me ▸ weak-areas (real key,
+  routes to practice via Fix A); (4) selectors gone at desktop (≥1024px) AND mobile width.
 
 ## ✅ topicKey FIX A (#242, trunk `77f2ed2`) — MERGED + CI GREEN — owner live-verify PENDING
 The repair half of the topicKey-duplication problem the read-only audit (`report-topickey-duplication-audit-2026-06-16.md`)
