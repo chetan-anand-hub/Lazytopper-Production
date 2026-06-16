@@ -10,12 +10,17 @@ Report: `report-detect-then-confirm-2026-06-16.md`.
 - [x] **#246 — Check & Improve detect-then-confirm + question photo upload** (trunk `c9404e1`, squash; 9 files +935/−78;
   commit `3e00ac4`). The UX layer on Claim 2: detection is visible + correctable before grading (new `/api/detect-question`
   detection-only call → confirmation chip → constrained correction → grade on confirmed values via the unchanged trusted path).
-  Question photo upload added (distinct slot). Override logged on the attempt record. CI GREEN. **⏳ owner live-verify PENDING.**
+  Question photo upload added (distinct slot). Override logged on the attempt record. CI GREEN. **✅ owner live-verify = PASS 5/6**
+  (printed marks correct; inference genuine + graduated AP=2 vs proof=3; topics bucket clean; selectors gone both widths).
 
 ### Remaining / queued
 - [ ] **⚠️ [FU-DETECTION-META-LAUNCH-FLIP] — PRE-LAUNCH GATE (hard).** Flip `SHOW_DETECTION_META` → `false` in
   `src/utils/checkImproveDetection.ts` before shipping Check & Improve to students. ON now for owner testing; the tester-vs-
   student line. One-line change, but a real miss if forgotten.
+- [ ] **[FU-DETECTION-MARKS-CEILING] (from the #246 live-verify, NOT a blocker).** Inference under-calls true 5-mark questions
+  (multi-part numerical + proofs) as 3; caught-and-correctable via [Change] (the UX absorbs it). Fix later: tune the
+  `/api/detect-question` mark heuristic toward 5 for multi-part/derivation/proof/long-answer items (prompt-only), or
+  bank-grounding (deferred behind Fix B). `detectionOverride` telemetry will measure how often it fires.
 - [ ] **(ii) "Finish session" scorecard-trigger PR**, **(iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]**, **(2) MI eval
   [MI-EVAL]** (now also validates the auto-detected mark scale + topic detection), **(3) Stage 3 [FU-DRILL-ENRICHMENT]**,
   **Fix B [FU-TOPICKEY-CONSOLIDATION]** — all owner-authorized-later. Bank-grounding for detection is deferred behind Fix B.

@@ -18,13 +18,21 @@
   false;`), but easy to forget — wired into NEXT_ACTION (item 0) + ROADMAP so it surfaces every session until done. After
   flipping, verify the chip on BOTH desktop + app shows the values + Change but no source label.
 
-### Decisive verification owed
-- **[DETECT-CONFIRM-LIVE-VERIFY] (owner, decisive — NOT yet run/reported)** — on real uploads: (1) printed-marks "[3]" → chip
-  shows 3 marks (read from question), no marks picker; (2) no-marks question → sensibly INFERRED mark (a short Q infers 2–3,
-  a proof ~5 — the Q3-vs-Q5 divergence proves inference is real, not a blind 3); (3) **photo** of a printed-marks question →
-  reads the PRINTED value (`marksSource` stated), two distinct upload slots (question vs answer) with no confusion;
-  (4) tap [Change] → correct a wrong detection → grades against the corrected value, and the corrected topic buckets to a
-  clean canonical key on Me (override logged silently, not shown); (5) selectors gone on desktop AND mobile width.
+### ✅ Decisive verification — DONE (owner): [DETECT-CONFIRM-LIVE-VERIFY] = PASS 5/6
+- (1) Printed marks read correctly; (2) inference GENUINE + graduated — a short AP question infers **2**, a proof infers **3**
+  (they diverge → real inference, not a blind constant); (3) **photo** of a printed-marks question reads the printed value with
+  two distinct upload slots; (4) **[Change]** corrects a wrong detection → grades the corrected value, corrected topic buckets
+  to a clean canonical key on Me; (5) selectors gone on desktop AND mobile width. The detect-then-confirm UX is validated live.
+
+### 🐞 New follow-up from the live-verify (the 6th — known issue, NOT a blocker)
+- **[FU-DETECTION-MARKS-CEILING] (owner-observed in the #246 live-verify)** — the inferred mark scale **under-calls true
+  5-mark questions** (multi-part numerical + proofs) as **3**; inference tops out below 5 for the heavy items. It is
+  **caught-and-correctable via [Change]** (the student bumps it to 5), so it does NOT corrupt grading — exactly the failure
+  mode detect-then-confirm was built to absorb (the AI proposes, the student corrects). Hence PASS-with-known-issue, not a
+  blocker. Fix candidates (later, owner-authorized): (a) tune the `/api/detect-question` prompt's mark heuristic to reach 5 for
+  multi-part / derivation / proof / long-answer items (cheap, prompt-only); (b) bank-grounding / retrieval to calibrate the
+  scale against real CBSE mark allocations — DEFERRED behind Fix B. The override telemetry (`detectionOverride`, logged on the
+  attempt when the student bumps 3→5) is the signal that will measure how often this fires. Not urgent; the UX absorbs it.
 
 ### Touchpoints
 - The two Check & Improve surfaces continue to share `checkImproveDetection.ts` (now also `buildConfirmedDetection` +
