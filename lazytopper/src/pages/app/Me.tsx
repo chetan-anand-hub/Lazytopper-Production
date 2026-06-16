@@ -519,7 +519,7 @@ export default function Me() {
                   marginBottom: 2,
                 }}
               >
-                {topWeak ? `Practise ${topWeak.topicLabel}` : "Generate a worksheet"}
+                {topWeak ? `Practice ${topWeak.topicLabel}` : "Generate a worksheet"}
               </div>
               <div style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.72)" }}>
                 {topWeak

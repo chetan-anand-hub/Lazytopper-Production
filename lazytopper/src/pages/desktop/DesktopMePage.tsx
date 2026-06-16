@@ -403,6 +403,30 @@ function computeMistakeMix(logs: MistakeLogEntry[]): {
   return { totals, total, bars };
 }
 
+// --- Weak-area ranking (blended severity) ---------------------------------
+// A topic earns a place in "Topics dragging your score" via EITHER signal:
+//   1. marksLost — graded marks dropped (the historical scar).
+//   2. low accuracy on enough attempts — e.g. a topic failed mostly through wrong
+//      MCQs, which lose no graded marks but is still a real weakness.
+// We BLEND, not replace: the low-accuracy signal is converted to a marks-equivalent
+// "drag" and ADDED to marksLost, so a 0-marks-lost low-accuracy topic still ranks
+// among the top weaknesses instead of being filtered out by marksLost === 0.
+const WEAK_AREA_MIN_ATTEMPTS = 3; // enough attempts for accuracy to be meaningful
+const WEAK_AREA_LOW_ACCURACY = 40; // percent; below this counts as a drag signal
+
+function weakAreaLowAccuracyDrag(row: WeakArea): number {
+  if (row.attempts < WEAK_AREA_MIN_ATTEMPTS) return 0;
+  if (row.accuracyPct >= WEAK_AREA_LOW_ACCURACY) return 0;
+  // Marks-equivalent drag = the number of wrong attempts (deterministic, bounded
+  // by attempt volume), reconstructed from the rounded accuracy already shown.
+  const wrongAttempts = Math.round(row.attempts * (1 - row.accuracyPct / 100));
+  return Math.max(0, wrongAttempts);
+}
+
+function weaknessSeverity(row: WeakArea): number {
+  return row.marksLost + weakAreaLowAccuracyDrag(row);
+}
+
 function computeWeakAreas(
   attempts: PracticeAttempt[],
   logs: MistakeLogEntry[]
@@ -485,10 +509,17 @@ function computeWeakAreas(
   }
 
   rows.sort((a, b) => {
-    if (b.marksLost !== a.marksLost) return b.marksLost - a.marksLost;
-    if (a.attempts > 0 && b.attempts > 0) return a.accuracyPct - b.accuracyPct;
-    if (a.attempts > 0) return -1;
-    if (b.attempts > 0) return 1;
+    // Blended weakness severity: marks-lost (the graded scar) AND low accuracy on
+    // enough attempts BOTH qualify a topic — so a topic weak only via wrong MCQs
+    // (0 marks lost, low accuracy) can still surface. See weaknessSeverity().
+    const sevA = weaknessSeverity(a);
+    const sevB = weaknessSeverity(b);
+    if (sevB !== sevA) return sevB - sevA;
+    // Tie-breakers: lower accuracy first (worse), then prefer rows with evidence.
+    if (a.attempts > 0 && b.attempts > 0 && a.accuracyPct !== b.accuracyPct)
+      return a.accuracyPct - b.accuracyPct;
+    if (a.attempts > 0 && b.attempts === 0) return -1;
+    if (b.attempts > 0 && a.attempts === 0) return 1;
     return 0;
   });
 
@@ -814,6 +845,20 @@ const DesktopMePage: React.FC = () => {
     navigate(withQuery("/exam-trends", params));
   };
 
+  const gotoWeakAreaPractice = (w: WeakArea) => {
+    // Every weak-area row is a working targeted CTA: route straight to an
+    // auto-served practice set scoped to THAT row's topic (the Stage-1 one-click
+    // gotoPracticeForTopic path). Topic-level only — no type filters (that's
+    // Stage 3). When the topic doesn't resolve to a hub slug/subject we can't
+    // build a practice path, so fall back to the topic hub/trends destination
+    // rather than emitting a broken or generic route.
+    if (w.hubSubject && w.hubSlug) {
+      gotoPracticeForTopic(w.hubSubject, w.hubSlug);
+    } else {
+      gotoTopicHubOrTrends(w.hubSlug);
+    }
+  };
+
   const gotoCheckImprove = () => {
     const params = new URLSearchParams();
     if (ROUTE_CTX.source) params.set("source", ROUTE_CTX.source);
@@ -1083,7 +1128,7 @@ const DesktopMePage: React.FC = () => {
             isSignedOut
               ? "Appears after you save attempts in a topic."
               : topicsCovered === 0
-                ? "Practise a topic to start the count."
+                ? "Practice a topic to start the count."
                 : "Distinct topics in your saved attempts."
           }
           unavailable={isSignedOut || topicsCovered === 0}
@@ -1253,7 +1298,7 @@ const DesktopMePage: React.FC = () => {
                 </div>
                 <div style={{ flex: 1, fontSize: 13 }}>
                   <div style={{ fontWeight: 600, color: TEXT_FG }}>
-                    Practise where you actually lose marks
+                    Practice where you actually lose marks
                   </div>
                   <div
                     style={{
@@ -1277,7 +1322,7 @@ const DesktopMePage: React.FC = () => {
                       : gotoPracticeBrowse()
                   }
                 >
-                  {topWeakTarget ? "Practise this topic" : "Open practice"}
+                  {topWeakTarget ? "Practice this topic" : "Open practice"}
                 </button>
               </div>
             </div>
@@ -1351,7 +1396,7 @@ const DesktopMePage: React.FC = () => {
                   <button
                     key={w.topicKey}
                     type="button"
-                    onClick={() => gotoTopicHubOrTrends(w.hubSlug)}
+                    onClick={() => gotoWeakAreaPractice(w)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -1445,8 +1490,10 @@ const DesktopMePage: React.FC = () => {
                 );
               })}
 
-              {/* Quick action for the top weak topic if it resolves to a real
-                  hub slug; otherwise we silently omit the deep CTA. */}
+              {/* The mistake-aware worksheet for the top weak topic (a distinct
+                  action from drilling). Every row already routes to targeted
+                  practice on click, so no per-row "Practice" button is needed.
+                  Shown only when the top topic resolves to a real hub slug. */}
               {weakAreas[0] && weakAreas[0].hubSlug && weakAreas[0].hubSubject ? (
                 <div
                   style={{
@@ -1456,18 +1503,6 @@ const DesktopMePage: React.FC = () => {
                     gap: 8,
                   }}
                 >
-                  <button
-                    type="button"
-                    style={buttonOutline}
-                    onClick={() =>
-                      gotoPracticeForTopic(
-                        weakAreas[0].hubSubject as DesktopSubject,
-                        weakAreas[0].hubSlug as string
-                      )
-                    }
-                  >
-                    Practise {weakAreas[0].topicName}
-                  </button>
                   <button
                     type="button"
                     style={buttonOutline}

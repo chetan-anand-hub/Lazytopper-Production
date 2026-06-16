@@ -1,4 +1,10 @@
-
+// Shared session-stats shape for a Quick Practice set.
+//
+// The mid-session progress *bar* that used to live here (the "This session only ·
+// N/M tried · MCQ answers: 0/5" footer) was retired in favour of the deliberate
+// end-of-session scorecard rendered on set completion in PracticePage. The bar's
+// "MCQ answers" label was correct-count mislabeled as answered, so it was removed
+// rather than kept. Only the shared type remains.
 
 export interface SessionStats {
   total: number;
@@ -7,46 +13,4 @@ export interface SessionStats {
   needsAnotherLook: number;
   localMcqAnswered: number;
   localMcqCorrect: number;
-}
-
-export function SessionProgressBar({ stats }: { stats: SessionStats }) {
-  if (stats.total === 0 || stats.attemptedInSet === 0) return null;
-  return (
-    <div
-      style={{
-        marginTop: 16, padding: "12px 16px", borderRadius: 14,
-        background: "#ffffff",
-        border: "1px solid hsl(220, 18%, 90%)",
-        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-        display: "flex", gap: 16, flexWrap: "wrap",
-        alignItems: "center", fontSize: "0.8rem",
-      }}
-    >
-      <span style={{ fontWeight: 700, color: "var(--text)" }}>This practice set</span>
-      <span style={{ color: "hsl(220, 15%, 42%)" }}>
-        This session only
-      </span>
-      <span style={{ color: "hsl(220, 25%, 12%)" }}>
-        {stats.attemptedInSet}/{stats.total} tried
-      </span>
-      {stats.markedUnderstood > 0 && (
-        <span style={{ color: "hsl(152, 55%, 28%)" }}>
-          {stats.markedUnderstood} marked by you
-        </span>
-      )}
-      {stats.needsAnotherLook > 0 && (
-        <span style={{ color: "hsl(35, 80%, 35%)" }}>
-          {stats.needsAnotherLook} needs another look
-        </span>
-      )}
-      {stats.localMcqAnswered > 0 && (
-        <span style={{ color: "hsl(215, 65%, 32%)" }}>
-          MCQ answers: {stats.localMcqCorrect}/{stats.localMcqAnswered}
-        </span>
-      )}
-      <span style={{ color: "hsl(220, 15%, 42%)" }}>
-        Checked answers and mistakes help build your practice history.
-      </span>
-    </div>
-  );
 }

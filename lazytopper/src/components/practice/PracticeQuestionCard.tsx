@@ -393,6 +393,32 @@ export function PracticeQuestionCard({
             )}
           </div>
         )}
+        {/* Discoverability nudge after a wrong MCQ: point at the EXISTING inline
+            Check-my-answer box. No new data path — just reveals the checker. */}
+        {result === "wrong" && hasStructuredOptions && !showChecker && (
+          <button
+            type="button"
+            onClick={() => {
+              onSetActiveQuestion(String(q.id));
+              if (!showChecker) handleToggleCheck();
+            }}
+            style={{
+              marginTop: 6,
+              padding: "7px 12px",
+              borderRadius: 10,
+              fontSize: "0.78rem",
+              fontWeight: 600,
+              background: "transparent",
+              color: "hsl(215, 65%, 38%)",
+              border: "1px dashed hsl(215, 55%, 70%)",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+            }}
+          >
+            Want to know why? Show your working below.
+          </button>
+        )}
       </div>
     );
   };
