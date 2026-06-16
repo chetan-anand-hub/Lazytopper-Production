@@ -1,29 +1,32 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-15 (post-PR #238 / stand-down — MI Loop Stage 2 / Measure leg COMPLETE (#233+#235+#237 merged; the loop is bidirectional across graded AND MCQ capture; ⏳ owner live-verify of #237 pending). All four #235/#237 feature+docs branches deleted; trunk clean at `2b92f7b`. RE-SEQUENCED NEXT (owner): **(1) MI polish batch** — ONE PR, surface/ranking only, NOT eval-gated; then **(2) the MI eval** ([MI-EVAL] check-solution eval set); then **(3) Stage 3** concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]). No code work started in this window — the next PR starts fresh. Carried follow-ups: [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: 2b92f7b
+# Updated: 2026-06-16 (post-PR #240 — MI polish batch MERGED (trunk `9eff0b0`): 5 surface/ranking sub-tasks; CI GREEN; owner live-verify 4/5 PASS (sub-tasks 1–4 verified; sub-task 5 scorecard not yet confirmable — `allDone`-only trigger being redesigned into a "Finish session" action). mi-polish branch deleted. QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `9eff0b0`): (i) read-only topicKey audit → (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling follow-up [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]). Carried: [FU-WEAKAREA-EXAMTRENDS-FALLBACK] (Light row → Exam Trends; topicKey-dup symptom) + [FU-SPELLING-GATED-REMAINDER] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 9eff0b0
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 2b92f7b
-Last PRs: #233 (MI Loop S2 PR 1 — `recordAttempt` front door) + #234 (docs) + #235 (MI Loop S2 PR 2 — close the loop + "active gaps remaining") + #236 (docs) + #237 (MI Loop S2 PR 3 — MCQ honest capture) + #238 (docs — post-#237, Measure leg complete)
+SHA: 9eff0b0
+Last PRs: #235 (MI Loop S2 PR 2 — close the loop) + #236 (docs) + #237 (MI Loop S2 PR 3 — MCQ honest capture) + #238 (docs) + #239 (docs — stand-down) + #240 (MI polish batch — 5 surface/ranking sub-tasks; → `9eff0b0`)
 
-## ⏭️ IMMEDIATE NEXT — (1) MI polish batch → (2) MI eval → (3) Stage 3
-The MI loop's **Measure leg is COMPLETE** (#233 + #235 + #237; bidirectional across graded AND MCQ capture; ⏳ owner
-live-verify of #237 pending). No more Stage-2 PRs. **Owner-re-sequenced** next track (each its own PR; the next PR starts
-fresh — no code began in this window):
+## ⏭️ IMMEDIATE NEXT — (i) topicKey audit → (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3
+The MI polish batch (#240) is merged + CI-green; owner live-verify 4/5 PASS. The three items below are **QUEUED but NOT yet
+authorized** — the owner sends each as its own instruction, branched fresh from `9eff0b0`. Do not start until instructed.
 
-1. **MI polish batch (headline next) — ONE PR, surface/ranking only, NOT eval-gated.** Tidy the now-complete loop's
-   presentation/ranking on the existing surfaces — **no grading/accuracy semantics, no eval dependency**. Candidate
-   items live in the logged follow-ups (surface/ranking-only ones): e.g. **[FU-WEAKAREA-LABEL]**, **[FU-WEAKAREA-CTAS]**,
-   **[FU-WEAKAREA-HUB-LIMIT]**, **[FU-DRILL-ROUTING]**, **[FU-ME-REFRESH]**, **[FU-WEAKAREA-ALIAS-DISPLAY]**. Owner to
-   confirm the exact item list + frozen scope before the PR opens. (Deliberately scoped OUT: anything that changes how a
-   number is computed — those wait for the eval.)
-2. **MI eval — [MI-EVAL] check-solution eval set** (40–60 graded answers + tutor fabricated-solution correctness eval;
+1. **(i) Read-only topicKey audit — independent investigation (next).** Trace the topicKey duplication /
+   non-canonical-variant problem surfaced by the #240 live-verify bug **[FU-WEAKAREA-EXAMTRENDS-FALLBACK]**: the **Light –
+   Reflection and Refraction** weak-area row routes to Exam Trends, not practice, because its topicKey (en-dash variant +
+   "(in…)" suffix) does not resolve to a practice slug and hits the honest fallback. Read-only: map where topicKeys are
+   minted / normalized / aliased across data + builders + Me; output = the systematic kill-list. Do NOT patch ad hoc.
+2. **(ii) "Finish session" scorecard-trigger PR — small.** Replace #240's `allDone`-only scorecard trigger with an explicit
+   student-declared "Finish session" action; honest on PARTIAL sessions (no implied completion). Makes sub-task 5
+   confirmable. = **[FU-SESSION-SCORECARD-TRIGGER]**.
+3. **(iii) Gated-spelling follow-up — [FU-SPELLING-GATED-REMAINDER].** Owner-authorized separate PR for the ~60
+   `src/data/**` + `src/lib/desktop/loginPrompts.ts` rendered "Practise" strings #240 could not touch (gated dirs).
+4. **MI eval — [MI-EVAL] check-solution eval set** (40–60 graded answers + tutor fabricated-solution correctness eval;
    launch gate). Gates how hard we lean on AI-estimated grades; unblocks the eval-gated items.
-3. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
+5. **MI Loop Stage 3 — concept-level targeting (eval-gated).** Pass the weak concept/mistake-pattern into
    `generatePracticeSet`'s `conceptKey` (needs MI sub-concept capture + the eval set). = **[FU-DRILL-ENRICHMENT]**.
-   Do not start until the eval (step 2) exists.
+   Do not start until the eval (step 4) exists.
 
 ### MI-loop follow-ups (logged; slot into the batches above)
 - **[FU-IMPROVEMENT-CARD]** (the loop-closer deletes the wrong-answer entry at zero, erasing the improvement record →

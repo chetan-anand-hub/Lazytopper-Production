@@ -1,5 +1,56 @@
 ---
 
+## 2026-06-16 — MI Polish Batch (#240): weak-area ranking + per-row CTAs + MCQ nudge + spelling + session scorecard
+
+**Trunk after merge: `9eff0b0`** (#240, `feat/mi-polish-batch`; squash; 7 files +122/−79). Owner-merged code PR; CI GREEN.
+One PR, FIVE surface/ranking sub-tasks on the now-complete MI loop — **NOT eval-gated, no new data plumbing**. Authority:
+`AGENT_mi_polish_batch_2026-06-14.md`. Report: `report-mi-polish-batch-2026-06-15.md`. One commit per sub-task:
+`af881a8` (ranking) · `72d0e1b` (CTAs) · `4cd837a` (MCQ nudge) · `11494d4` (spelling) · `7a6cadd` (scorecard).
+
+### What landed (per sub-task)
+- **[FU-WEAKAREA-ACCURACY-RANK]** — `DesktopMePage.computeWeakAreas` now ranks by a **blended severity**
+  (`marksLost + lowAccuracyDrag`, where drag = wrong-attempt count gated on ≥3 attempts & <40% accuracy). EITHER signal
+  qualifies a topic, so one weak only via wrong MCQs (0 graded marks lost) surfaces. Graded topics with accuracy ≥40 keep
+  prior ordering (drag = 0). Deterministic, bounded.
+- **[FU-WEAKAREA-CTAS]** — every weak-area row routes to an auto-served topic-scoped practice set via the existing Stage-1
+  `gotoPracticeForTopic` (new `gotoWeakAreaPractice` helper), not just row[0]. Topic-level only; gated
+  `buildDesktopPracticePath` untouched; honest topic-hub/trends fallback when a topic has no hub slug. Dropped the redundant
+  row[0] "Practise" button; kept the mistake-aware worksheet CTA.
+- **[FU-MCQ-UPLOAD-NUDGE]** — `PracticeQuestionCard`: a wrong MCQ shows a soft "Want to know why? Show your working below."
+  nudge that reveals the EXISTING inline Check-my-answer box. Discoverability only — no new data path; correct MCQ shows nothing.
+- **[FU-SPELLING-PRACTICE]** (owner-ruled) — "Practise"→"Practice" in UI copy: DesktopMePage (3), mobile Me (1),
+  DesktopTopicHubPage button + title (2). No identifiers/routes/keys changed.
+- **[FU-SESSION-SCORECARD]** — deliberate end-of-session scorecard on `allDone` (attempted · MCQs correct · accuracy +
+  honest locally-derived MI nudge + honest saved-state line), replacing the footer and the mislabeled "MCQ answers: 0/5".
+  Clean teardown: `SessionProgressBar` reduced to the shared `SessionStats` type; unused `sessionStats` prop dropped from
+  `PracticeQuestionList`. No new persistence / session-lifecycle state.
+
+### Gates
+tsc 0 · mojibake clean · scope:guard product OK · root matrix **175/175** · ops **22/22** · `git diff --check` clean.
+**CI `quality-gate` GREEN** on #240 (incl. linux `vite build` + ops matrix). No forbidden/gated files touched (7 files, all
+non-gated product UI).
+
+### Owner live-verify — 4/5 PASS
+- ✅ Sub-tasks 1–4 verified live (ranking surfaces an MCQ-only weak topic; every row's arrow opens topic-scoped practice;
+  wrong-MCQ nudge opens the checker, correct MCQ silent; no "Practise" in the touched UI).
+- ⏳ Sub-task 5 (scorecard) **NOT yet confirmable** — the `allDone`-only trigger is hard to surface; **being redesigned into
+  an explicit student-declared "Finish session" trigger** (queued PR ii). Code shipped; re-confirm after the redesign.
+- 🐞 **Live bug ([FU-WEAKAREA-EXAMTRENDS-FALLBACK]):** the **Light – Reflection and Refraction** weak-area row routes to
+  **Exam Trends instead of practice** — its non-canonical topicKey (en-dash variant + "(in…)" suffix) fails to resolve to a
+  practice slug and hits sub-task 2's honest fallback. Confirmed symptom of the **topicKey duplication** problem; traced in
+  the upcoming read-only topicKey audit (item i). NOT a regression of the fallback.
+
+### Carried follow-ups (see OPEN_QUESTIONS)
+- **[FU-SPELLING-GATED-REMAINDER]** — ~60 rendered "Practise" strings under `src/data/**` + `src/lib/desktop/loginPrompts.ts`
+  remain (gated dirs #240 could not touch); owner-authorized separate follow-up PR.
+- **[FU-WEAKAREA-EXAMTRENDS-FALLBACK]** — the Light-row Exam-Trends misroute (above); topicKey-duplication symptom.
+
+### Next (queued, NOT yet authorized — each its own owner instruction, branched fresh from `9eff0b0`)
+(i) read-only topicKey audit → (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling follow-up; then (2) MI eval
+→ (3) Stage 3.
+
+---
+
 ## 2026-06-15 — MI Loop Stage 2 / Measure-leg PR 3 (#237): MCQ honest capture — the Measure leg is COMPLETE
 
 **Trunk after merge: `b75f065`** (#237, `feat/desktop-pr-mi-loop-stage2-pr3-mcq`; squash of `9edf6fb`; 1 file

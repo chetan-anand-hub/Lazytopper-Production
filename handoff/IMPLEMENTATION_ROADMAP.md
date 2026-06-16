@@ -2,6 +2,26 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-16 — Post-PR #240 roadmap update (MI polish batch — surface/ranking, NOT eval-gated)
+
+The MI loop is Measure-complete; #240 is the surface/ranking polish on the finished engine. Report:
+`report-mi-polish-batch-2026-06-15.md`.
+
+### Completed this session
+- [x] **#240 — MI polish batch** (trunk `9eff0b0`, squash; 7 files +122/−79; one commit per sub-task). Five surface/ranking
+  sub-tasks: weak-area **blended-severity ranking** ([FU-WEAKAREA-ACCURACY-RANK]); **per-row targeted practice CTAs**
+  ([FU-WEAKAREA-CTAS]); **wrong-MCQ nudge** to the existing checker ([FU-MCQ-UPLOAD-NUDGE]); **Practise→Practice** UI copy
+  ([FU-SPELLING-PRACTICE]); **end-of-session scorecard + footer removal** ([FU-SESSION-SCORECARD]). CI GREEN. **Owner
+  live-verify 4/5 PASS** — sub-tasks 1–4 verified; sub-task 5 scorecard NOT yet confirmable (trigger being redesigned).
+
+### MI polish — remaining / surfaced
+- [ ] **(i) Read-only topicKey audit (next, owner-authorized as its own instruction):** trace the topicKey
+  duplication/non-canonical-variant problem ([FU-WEAKAREA-EXAMTRENDS-FALLBACK] — Light row misroutes to Exam Trends).
+- [ ] **(ii) "Finish session" scorecard-trigger PR:** explicit student-declared finish replacing the `allDone`-only trigger;
+  honest on partial sessions. Makes sub-task 5 confirmable.
+- [ ] **(iii) Gated-spelling follow-up [FU-SPELLING-GATED-REMAINDER]:** the ~60 `src/data/**` + `loginPrompts.ts` "Practise"
+  strings (gated dirs).
+
 ## 2026-06-15 — Post-PR #237 roadmap update (MI Loop Stage 2 / Measure-leg PR 3 — MEASURE LEG COMPLETE)
 
 The last Measure-leg PR: MCQ honest capture. Report: `report-mi-loop-stage2-pr3-mcq-2026-06-15.md`.
