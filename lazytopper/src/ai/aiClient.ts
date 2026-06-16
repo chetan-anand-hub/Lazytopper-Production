@@ -258,6 +258,19 @@ export interface CheckSolutionMistakeSummary {
   presentation: number;
 }
 
+/** Where the grading mark scale came from when `detectMarks` was requested:
+ *  `stated` = printed on the question; `inferred` = AI judged from type/depth;
+ *  `fallback` = AI gave no usable value (neutral default, surfaced honestly). */
+export type CheckSolutionMarksSource = "stated" | "inferred" | "fallback";
+
+/** Canonical topic vocabulary entry passed to the grader so the AI's detected
+ *  topic is constrained to a real `topics.ts` key (never free text). */
+export interface CheckSolutionTopicVocab {
+  slug: string;
+  name: string;
+  subject: string;
+}
+
 export interface CheckSolutionResponse {
   ok: boolean;
   totalMarks: number;
@@ -266,14 +279,24 @@ export interface CheckSolutionResponse {
   annotatedSteps: CheckSolutionAnnotatedStep[];
   mistakeSummary: CheckSolutionMistakeSummary;
   teacherNote: string;
+  // Auto-detect echo (present only when the request set `detectMarks`).
+  detectedSubject?: "Maths" | "Science" | null;
+  detectedTopic?: string | null;
+  marksSource?: CheckSolutionMarksSource | null;
   error?: string;
 }
 
 export async function checkSolutionImage(req: {
-  subject: string;
-  topic: string;
+  subject?: string;
+  topic?: string;
   question: string;
-  marks: number;
+  marks?: number;
+  /** Opt-in: the AI determines marks/subject/topic from the question (Check &
+   *  Improve). When false/absent, the caller-supplied marks stay authoritative
+   *  (Quick Practice / SolutionChecker — unchanged). */
+  detectMarks?: boolean;
+  /** Canonical topics the AI may choose `detectedTopic` from (auto-detect only). */
+  topicVocabulary?: CheckSolutionTopicVocab[];
   imageBase64?: string;
   imageMimeType?: string;
   textAnswer?: string;

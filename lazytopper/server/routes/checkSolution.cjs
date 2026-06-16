@@ -64,6 +64,25 @@ function createCheckSolutionRoute(deps) {
     const solutionSteps = Array.isArray(payload.solutionSteps) ? payload.solutionSteps.map(String) : null;
     const finalAnswer = payload.finalAnswer ? String(payload.finalAnswer).trim() : null;
 
+    // Claim-2 auto-detect: when the caller cannot supply an authoritative mark
+    // value (Check & Improve — a student shouldn't decide "is this a 3-mark
+    // question?"), the AI determines marks/subject/topic from the question it
+    // already receives. `marks`/`subject`/`topic` above are then HINTS only. The
+    // flag is opt-in so the trusted-marks callers (Quick Practice / SolutionChecker,
+    // whose marks come from the canonical bank) are byte-identical to before.
+    const autoDetect = Boolean(payload.detectMarks);
+    // Canonical topic vocabulary (passed by the client from topics.ts — the single
+    // source of truth) so the model can ONLY choose a real topicKey, never free text.
+    const topicVocabulary = Array.isArray(payload.topicVocabulary)
+      ? payload.topicVocabulary
+          .map((t) => ({
+            slug: String((t && t.slug) || '').trim(),
+            name: String((t && t.name) || '').trim(),
+            subject: String((t && t.subject) || '').trim(),
+          }))
+          .filter((t) => t.slug && t.name)
+      : [];
+
     const isPdf = imageMimeType === 'application/pdf';
     const hasImage = imageBase64.length > 0;
     const hasText = textAnswer.length > 0;
@@ -87,8 +106,29 @@ function createCheckSolutionRoute(deps) {
     try {
       const isMaths = /math/i.test(subject);
 
+      // Canonical-topic list for the prompt (auto-detect only). The model must set
+      // detectedTopic to one of these exact keys (or null) — never invent a topic.
+      const topicListBlock = autoDetect && topicVocabulary.length > 0
+        ? '\n\nCANONICAL TOPICS — set "detectedTopic" to the exact key of the one that best matches the question, or null if none clearly fits. Never invent a topic.\n' +
+          topicVocabulary
+            .map((t) => '  - "' + t.slug + '"  (' + t.subject + ' — ' + t.name + ')')
+            .join('\n') + '\n'
+        : '';
+
+      // Detection instructions (auto-detect only): determine marks/subject/topic
+      // from the question BEFORE grading. Printed marks win; otherwise infer.
+      const detectionRules = autoDetect
+        ? '\nDETERMINE THE QUESTION FIRST (from the question text/image, before grading):\n' +
+          '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never let anything override a clearly-printed value, and never blindly default to 3.\n' +
+          '- detectedSubject: "Maths" or "Science".\n' +
+          '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n'
+        : '';
+
       const systemPrompt =
         'You are a CBSE Class 10 board examiner grading a student\'s paper like a real teacher marking with a red pen. ' +
+        (autoDetect
+          ? 'FIRST determine the question\'s total marks, subject and topic from the question itself (see "DETERMINE THE QUESTION FIRST"); THEN grade. '
+          : '') +
         'For each step in the student\'s work you: identify exactly what was written, assess correctness, award or deduct marks, ' +
         'classify the type of mistake (conceptual/calculation/silly/presentation), and show the corrected version for wrong steps. ' +
         'The mistake type must reflect WHAT THE ERROR REVEALS ABOUT THE STUDENT\'S UNDERSTANDING, not where it appears or how big it is. ' +
@@ -98,7 +138,7 @@ function createCheckSolutionRoute(deps) {
       const gradingRules =
         'GRADING RULES:\n' +
         '1. Identify EVERY step in the student\'s work in order — don\'t skip any.\n' +
-        '2. marksAwarded (total) = sum of all annotatedSteps[].marksAwarded, capped at ' + marks + '.\n' +
+        '2. marksAwarded (total) = sum of all annotatedSteps[].marksAwarded, capped at ' + (autoDetect ? 'the totalMarks you determine for this question' : marks) + '.\n' +
         '3. mistakeType — choose by the CAUSE the error reveals about understanding, not by where it appears:\n' +
         '   - "conceptual": the METHOD or understanding itself is wrong — wrong formula/law/theorem for the situation, confused concepts, misread what the question asks, (Science) wrong principle/organ/law. The student does not know the right approach. Example: reads the coefficients of x^2 - 2x - 8 and writes "zeroes are 2 and 8" without factoring — wrong method, conceptual.\n' +
         '   - "calculation": the METHOD is right but the arithmetic/algebra is wrong — e.g. 12 × 1.73 worked out as 20.16, a wrong expansion, a wrong number substituted into a correct formula.\n' +
@@ -111,7 +151,9 @@ function createCheckSolutionRoute(deps) {
         '8. PRESENTATION vs MISSING. If the student ACTUALLY WROTE a step and the math is right but a required FORMAT element is short (e.g. computed the value but did not show the −b/a comparison, missing units, no "verified"/conclusion line, working not shown), keep it as ONE step with status "partial" and mistakeType "presentation" — fold the short format element INTO that attempted step; do NOT split it off into a separate "missing" step. (Format short on work the student DID write = presentation; a whole step left blank = missing per rule 6.) Right answer with weak or no justification → presentation, not conceptual.\n' +
         '9. correctedWorking: for incorrect/partial steps ONLY — write EXACTLY what the student should have written.\n' +
         '10. teacherNote: 3–4 plain-English sentences — start with overall assessment, mention what was done well, state the single most important thing to fix.\n' +
-        (isMaths
+        (autoDetect
+          ? '11. Apply the checks for the subject you detect — Maths: formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable. Science: terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n'
+          : isMaths
           ? '11. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable.\n'
           : '11. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
         '12. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.';
@@ -119,7 +161,13 @@ function createCheckSolutionRoute(deps) {
       const jsonSchema =
         'RESPOND with this exact JSON:\n' +
         '{\n' +
-        '  "totalMarks": ' + marks + ',\n' +
+        (autoDetect
+          ? '  "detectedSubject": "Maths" | "Science",\n' +
+            '  "detectedTopic": "<canonical topic key from the list, or null>",\n' +
+            '  "detectedMarks": <the total marks you determined for this question>,\n' +
+            '  "marksSource": "stated" | "inferred",\n'
+          : '') +
+        '  "totalMarks": ' + (autoDetect ? '<same number as detectedMarks>' : marks) + ',\n' +
         '  "marksAwarded": <number>,\n' +
         '  "annotatedSteps": [\n' +
         '    {\n' +
@@ -148,9 +196,11 @@ function createCheckSolutionRoute(deps) {
       const userPrompt =
         'Grade this student\'s answer for the following CBSE board exam question.\n\n' +
         'Question: ' + question + '\n' +
-        'Total marks: ' + marks + '\n' +
-        'Subject: ' + subject + '\n' +
-        (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
+        (autoDetect
+          ? detectionRules + topicListBlock
+          : 'Total marks: ' + marks + '\n' +
+            'Subject: ' + subject + '\n' +
+            (topic ? 'Chapter/Topic: ' + topic + '\n' : '')) +
         markingSchemeBlock +
         '\n' +
         (hasImage
@@ -203,6 +253,38 @@ function createCheckSolutionRoute(deps) {
       }
 
       if (parsed && Array.isArray(parsed.annotatedSteps)) {
+        // Resolve the authoritative mark scale + detected fields. In auto-detect
+        // mode the AI determines marks/subject/topic from the question (a printed
+        // value is preferred over inference); otherwise the caller-supplied
+        // marks/subject/topic stay authoritative (unchanged trusted-marks path).
+        let effectiveMarks = marks;
+        let detectedSubject = null;
+        let detectedTopic = null;
+        let marksSource = null;
+        if (autoDetect) {
+          const dm = Number(parsed.detectedMarks != null ? parsed.detectedMarks : parsed.totalMarks);
+          if (Number.isFinite(dm) && dm >= 1 && dm <= 6) {
+            effectiveMarks = Math.round(dm);
+            marksSource = parsed.marksSource === 'stated' ? 'stated' : 'inferred';
+          } else {
+            // The model failed to return a usable mark — fall back to the caller's
+            // hint if it sent one, else a neutral 3, and flag it honestly so the
+            // client never presents a blind default as a confident detection.
+            effectiveMarks = Number.isFinite(marks) && marks >= 1 ? marks : 3;
+            marksSource = 'fallback';
+          }
+          detectedSubject = /sci/i.test(String(parsed.detectedSubject || ''))
+            ? 'Science'
+            : /math/i.test(String(parsed.detectedSubject || ''))
+              ? 'Maths'
+              : null;
+          const dt = parsed.detectedTopic;
+          detectedTopic =
+            dt && String(dt).trim() && String(dt).trim().toLowerCase() !== 'null'
+              ? String(dt).trim()
+              : null;
+        }
+
         const VALID_MISTAKE_TYPES = new Set(['conceptual', 'calculation', 'silly', 'presentation']);
 
         const annotatedSteps = parsed.annotatedSteps
@@ -220,7 +302,7 @@ function createCheckSolutionRoute(deps) {
           }));
 
         const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
-        const capped = Math.min(totalAwarded, marks);
+        const capped = Math.min(totalAwarded, effectiveMarks);
 
         // Additive-floor reconcile: the LLM's self-reported mistakeSummary is
         // unreliable — it frequently leaves the four counters at 0 even when it
@@ -248,12 +330,17 @@ function createCheckSolutionRoute(deps) {
 
         return sendJson(res, 200, {
           ok: true,
-          totalMarks: marks,
+          totalMarks: effectiveMarks,
           marksAwarded: capped,
-          percentage: Math.round((capped / marks) * 100),
+          percentage: Math.round((capped / effectiveMarks) * 100),
           annotatedSteps,
           mistakeSummary,
           teacherNote: String(parsed.teacherNote || '').trim(),
+          // Auto-detect echo (null in the trusted-marks path): the client surfaces
+          // these read-only and canonicalises detectedTopic before storing.
+          detectedSubject,
+          detectedTopic,
+          marksSource,
           provider: ACTIVE_PROVIDER,
           model: GEMINI_MODEL,
         });
