@@ -1,16 +1,17 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-16 (post-PR #242 — topicKey Fix A MERGED (trunk `77f2ed2`): Me weak-area row now resolves stored labels through the strong serving-side resolver (`desktopTopicForWeakAreaKey` + 13 `topics.ts` aliases); the 13 in-bank spellings that fell to `/exam-trends` (Light repro + 12 siblings) now route to Quick Practice. Read-time only; no `src/data` rewrite, no stored-record migration. CI GREEN. **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED.** Preceded by the read-only topicKey-duplication audit (DONE). **Fix B (bank consolidation + CI guard) = [FU-TOPICKEY-CONSOLIDATION], HELD / authorized-later.** Owner live-verify of #242 PENDING. QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `77f2ed2`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: 77f2ed2
+# Updated: 2026-06-16 (post-PR #244 — Check & Improve auto-detect marks/subject/topic MERGED (trunk `43ffa09`): the grader determines marks/subject/topic from the question itself (Claim 2, option (a)); student selectors GONE on both surfaces. Isolated behind a `detectMarks` flag → Quick Practice byte-identical. Printed marks preferred → inferred → flagged fallback; topic constrained to canonical `topics.ts` vocab + re-canonicalised via shared helper (reuses Fix A). CI GREEN. **Owner live-verify of #244 PENDING (decisive — marks-inference quality).** QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `43ffa09`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B [FU-TOPICKEY-CONSOLIDATION] when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 43ffa09
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 77f2ed2
-Last PRs: #237 (MI Loop S2 PR 3 — MCQ honest capture) + #238 (docs) + #239 (docs — stand-down) + #240 (MI polish batch — 5 surface/ranking sub-tasks; → `9eff0b0`) + #242 (topicKey Fix A — Me weak-area resolver + 13 aliases; → `77f2ed2`)
+SHA: 43ffa09
+Last PRs: #240 (MI polish batch — 5 surface/ranking sub-tasks; → `9eff0b0`) + #242 (topicKey Fix A — Me weak-area resolver + 13 aliases; → `77f2ed2`) + #243 (docs) + #244 (Check & Improve auto-detect marks/subject/topic — Claim 2; → `43ffa09`)
 
 ## ⏭️ IMMEDIATE NEXT — (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3 → Fix B
-topicKey audit (i) + Fix A (#242) are done (#242 CI-green; owner live-verify PENDING). The items below are **QUEUED but NOT yet
-authorized** — the owner sends each as its own instruction, branched fresh from `77f2ed2`. Do not start until instructed.
+topicKey audit (i) + Fix A (#242) + Check & Improve auto-detect (#244, Claim 2) are done (#244 CI-green; owner live-verify
+PENDING). The items below are **QUEUED but NOT yet authorized** — the owner sends each as its own instruction, branched fresh
+from `43ffa09`. Do not start until instructed.
 
 1. **(i) Read-only topicKey audit — ✅ DONE** (`report-topickey-duplication-audit-2026-06-16.md`). Fix A (#242) shipped the
    **read-time repair** half ([FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED). **Fix B = the bank-key DATA consolidation to one

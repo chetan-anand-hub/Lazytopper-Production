@@ -1,5 +1,50 @@
 ---
 
+## 2026-06-16 — Check & Improve auto-detect marks/subject/topic (#244, Claim 2)
+
+**Trunk after merge: `43ffa09`** (#244, `fix/checkimprove-autodetect-marks`; squash; 6 files +330/−238). Owner-merged code PR;
+CI GREEN (`quality-gate` 1m21s). Claim 2 (owner-ruled option (a): infer from the provided question). Authority:
+`AGENT_claim2_autodetect_marks_2026-06-16.md`. Report: `report-claim2-autodetect-marks-2026-06-16.md`. Commit `d93cd23`.
+
+### Why
+Check & Improve made the STUDENT pick marks (default 3), subject and topic, and the grader treated the student-entered marks
+as authoritative. Bad UX (a 15-year-old shouldn't decide "is this a 3-mark question?") + eval contamination (a tester-supplied
+mark isn't testing the AI's grading judgment). The grader already receives the question → the AI determines these itself.
+
+### What landed (6 files)
+- **`server/routes/checkSolution.cjs`** — opt-in `detectMarks` path. When set, the prompt asks the AI to determine
+  `detectedMarks` (printed value preferred → `marksSource:"stated"`; else inferred from question type/depth → `"inferred"`;
+  validated to `[1,6]`, else a flagged `"fallback"` — never a silent static 3), `detectedSubject`, and `detectedTopic`
+  (constrained to the canonical `topics.ts` vocabulary the client passes — exact key or null, never invented). `effectiveMarks`
+  drives the cap + percentage. **When `detectMarks` is absent the handler is BYTE-IDENTICAL to before** (`effectiveMarks =
+  marks`) — Quick Practice / `SolutionChecker` (canonical-bank marks) unaffected. Per-step grading rules unchanged.
+- **`src/ai/aiClient.ts`** — `checkSolutionImage` gains optional `marks` + `detectMarks` + `topicVocabulary`; response gains
+  `detectedSubject`/`detectedTopic`/`marksSource` (+ `CheckSolutionMarksSource`/`CheckSolutionTopicVocab` types).
+- **`src/pages/desktop/DesktopCheckImprovePage.tsx`** + **`src/pages/app/CheckImprove.tsx`** — manual marks/subject/topic
+  selectors REMOVED; both send `detectMarks` + the canonical vocab (`CANONICAL_TOPIC_VOCAB` from topics.ts) and build the
+  graded context from the detected response; result header surfaces the marks source; honest copy.
+- **`src/utils/checkImproveDetection.ts`** (new) + **`.test.ts`** — shared `resolveDetectedGradeTopic()` canonicalises the
+  detected subject/topic via Fix A's `desktopTopicForWeakAreaKey` (NO new normaliser), so MI attribution lands on a real
+  `topics.ts` key (the app variant's old free-text dropdown stored non-canonical labels like `"Light"`). Honest fallbacks.
+
+### Anti-fabrication
+Never invents marks (printed → inferred → flagged fallback) or a topic (canonical list or null → full-subject). No
+grading-semantics drift beyond the marks SOURCE; the non-`detectMarks` path is numerically identical to trunk.
+
+### Gates
+tsc 0 · server `node --check` OK · root matrix **175/175** · lazytopper ops matrix green · mojibake clean · scope:guard
+product OK · `git diff --check` clean · helper Node-replication proof **6/6**. **CI `quality-gate` GREEN** on #244 (incl. the
+linux `vite build` + the new vitest). No forbidden/gated files touched (gated resolver imported only).
+
+### Follow-ups
+**⏳ Owner live-verify of #244 PENDING (decisive — static gates can't judge marks-inference quality):** (1) question stating
+"[3]" → graded /3 without entering marks; (2) question with no printed mark → sensible inferred scale, not a blind 3;
+(3) detected topic buckets correctly on Me ▸ weak-areas (real key, routes to practice via Fix A); (4) selectors gone at
+desktop (≥1024px) AND mobile width. Related eval-gated grade-quality items remain open: [FU-GRADE-MARKSCALE] (now partially
+addressed — the grader judges the CBSE mark value), [FU-GRADE-CONSISTENCY], [MI-EVAL].
+
+---
+
 ## 2026-06-16 — topicKey Fix A (#242): Me weak-area resolver + 13 aliases (the read-time repair half)
 
 **Trunk after merge: `77f2ed2`** (#242, `fix/topickey-me-resolver`; squash; 3 files +114/−2). Owner-merged code PR; CI GREEN.

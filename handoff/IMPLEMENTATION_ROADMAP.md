@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-16 — Post-PR #244 roadmap update (Check & Improve auto-detect — Claim 2)
+
+Report: `report-claim2-autodetect-marks-2026-06-16.md`.
+
+### Completed this session
+- [x] **#244 — Check & Improve auto-detect marks/subject/topic** (trunk `43ffa09`, squash; 6 files +330/−238; commit
+  `d93cd23`). The grader determines marks/subject/topic from the question (Claim 2, option (a)); student selectors removed on
+  both surfaces. Isolated behind a `detectMarks` flag → Quick Practice byte-identical. Printed marks preferred → inferred →
+  flagged fallback; topic constrained to the canonical `topics.ts` vocab + re-canonicalised via the shared
+  `resolveDetectedGradeTopic` helper (reuses Fix A — no new normaliser). CI GREEN. **⏳ owner live-verify PENDING.**
+
+### Remaining / queued
+- [ ] **(ii) "Finish session" scorecard-trigger PR** (replace #240's `allDone`-only trigger; honest on partial sessions).
+- [ ] **(iii) Gated-spelling [FU-SPELLING-GATED-REMAINDER]** (~60 `src/data/**` + `loginPrompts.ts` "Practise" strings).
+- [ ] **(2) MI eval [MI-EVAL]** — check-solution eval set (launch gate; now also validates the Claim-2 auto-detected mark
+  scale + grading quality). Then **(3) Stage 3 [FU-DRILL-ENRICHMENT]**, and **Fix B [FU-TOPICKEY-CONSOLIDATION]** when authorized.
+
 ## 2026-06-16 — Post-PR #242 roadmap update (topicKey Fix A — read-time repair half)
 
 The repair half of the topicKey-duplication problem the read-only audit mapped. Reports:
