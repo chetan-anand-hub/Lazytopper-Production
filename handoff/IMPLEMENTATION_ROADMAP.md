@@ -2,6 +2,24 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-17 — Post-PR #246 roadmap update (Check & Improve detect-then-confirm)
+
+Report: `report-detect-then-confirm-2026-06-16.md`.
+
+### Completed this session
+- [x] **#246 — Check & Improve detect-then-confirm + question photo upload** (trunk `c9404e1`, squash; 9 files +935/−78;
+  commit `3e00ac4`). The UX layer on Claim 2: detection is visible + correctable before grading (new `/api/detect-question`
+  detection-only call → confirmation chip → constrained correction → grade on confirmed values via the unchanged trusted path).
+  Question photo upload added (distinct slot). Override logged on the attempt record. CI GREEN. **⏳ owner live-verify PENDING.**
+
+### Remaining / queued
+- [ ] **⚠️ [FU-DETECTION-META-LAUNCH-FLIP] — PRE-LAUNCH GATE (hard).** Flip `SHOW_DETECTION_META` → `false` in
+  `src/utils/checkImproveDetection.ts` before shipping Check & Improve to students. ON now for owner testing; the tester-vs-
+  student line. One-line change, but a real miss if forgotten.
+- [ ] **(ii) "Finish session" scorecard-trigger PR**, **(iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]**, **(2) MI eval
+  [MI-EVAL]** (now also validates the auto-detected mark scale + topic detection), **(3) Stage 3 [FU-DRILL-ENRICHMENT]**,
+  **Fix B [FU-TOPICKEY-CONSOLIDATION]** — all owner-authorized-later. Bank-grounding for detection is deferred behind Fix B.
+
 ## 2026-06-16 — Post-PR #244 roadmap update (Check & Improve auto-detect — Claim 2)
 
 Report: `report-claim2-autodetect-marks-2026-06-16.md`.

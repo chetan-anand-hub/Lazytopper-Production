@@ -1,5 +1,63 @@
 ---
 
+## 2026-06-17 — Check & Improve detect-then-confirm + question photo upload (#246)
+
+**Trunk after merge: `c9404e1`** (#246, `feat/checkimprove-detect-then-confirm`; squash; 9 files +935/−78). Owner-merged code PR;
+CI GREEN (`quality-gate` 1m7s). The UX layer on Claim 2 (#244): detection is now VISIBLE + CORRECTABLE before grading, plus
+question photo upload. Authority: `AGENT_detect_then_confirm_2026-06-16.md`. Report: `report-detect-then-confirm-2026-06-16.md`.
+Commit `3e00ac4`.
+
+### Core principle
+Detect-then-CONFIRM, never declare-from-scratch. The default stays pure auto-detection (Claim 2); the old subject/topic/marks
+fill-in form was NOT rebuilt. The student touches a value only if it's wrong, and corrections are constrained (topic → canonical
+`topics.ts` key via Fix A's resolver — no forked normaliser; marks 1–6; subject Maths/Science).
+
+### What landed (9 files)
+- **`server/routes/checkSolution.cjs`** — new `handleDetectQuestion`: a detection-ONLY call that reads marks/subject/topic from
+  the question text/photo (printed marks preferred; topic constrained to the canonical vocab; validated to `[1,6]`/flagged
+  fallback). No grading. The grader `handleCheckSolution` is **untouched**.
+- **`server/routes/questions.cjs` + `server/index.cjs`** — expose + register `POST /api/detect-question`.
+- **`src/ai/aiClient.ts`** — `detectQuestion()` + `DetectQuestionResponse`.
+- **`src/services/practiceInsights.ts`** — additive optional `marksSource` + `detectionOverride` on `PracticeAttempt` /
+  `RecordAttemptContext` (override logging; reuses the attempt's localStorage + Firestore mirror — no new collection).
+- **`src/utils/checkImproveDetection.ts`** — `SHOW_DETECTION_META` flag (default ON), `clampDetectedMarks`,
+  `buildConfirmedDetection`, `ConfirmedDetection`/`DetectionMarksSource` types.
+- **`src/utils/checkImproveDetection.test.ts`** — tests for `clampDetectedMarks` + `buildConfirmedDetection`.
+- **`src/pages/desktop/DesktopCheckImprovePage.tsx`** + **`src/pages/app/CheckImprove.tsx`** — the detect-then-confirm UI on
+  both surfaces: question tabs (type/upload) + "Read the question →" + confirmation chip + inline constrained correction; grade
+  gated on confirmation; override log; question photo is a distinct slot from the answer photo.
+
+### The flow
+Question by type/paste/**photo of the question** → "Read the question →" (one deliberate, cheaper call) → detection-only on the
+question alone (a photo is passed so the AI reads the PRINTED marks) → confirmation chip (subject·topic·marks + source) with a
+quiet [Change] (optional, non-blocking) → constrained correction (corrected mark → `marksSource:"user"`) → grade on the
+CONFIRMED values via the unchanged trusted-marks path.
+
+### ⚠️ SHOW_DETECTION_META — the tester-vs-student line (DO NOT FORGET)
+`SHOW_DETECTION_META` (in `checkImproveDetection.ts`) is **ON now for the owner testing phase**. It gates ONLY the meta-display
+(the "read from the question" / "estimated" source label) — NOT the detected values or the Change control (those stay visible +
+correctable even at launch). **It MUST be flipped to `false` before shipping Check & Improve to students** — shipping with the
+machinery still showing would be a real miss. Logged as **[FU-DETECTION-META-LAUNCH-FLIP]**, a hard PRE-LAUNCH gate (NEXT_ACTION
+item 0 + OPEN_QUESTIONS).
+
+### Out of scope (respected)
+Bank-grounding/retrieval for detection (deferred behind Fix B); no `src/data` reach. No grading-semantics change beyond
+consuming the confirmed values.
+
+### Gates
+tsc 0 · 3× `node --check` (checkSolution/questions/index) · root matrix **175/175** · lazytopper ops matrix green (incl.
+llm-path 5/5 — the new AI route didn't break the path audit) · mojibake clean · scope:guard product OK · `git diff --check`
+clean · `clampDetectedMarks` 9/9 + `buildConfirmedDetection` Node proofs. **CI `quality-gate` GREEN** on #246 (incl. the linux
+`vite build` + vitest). No forbidden/gated files touched (gated resolver imported only).
+
+### Follow-ups
+**[FU-DETECTION-META-LAUNCH-FLIP]** (pre-launch, hard gate). **⏳ Owner live-verify of #246 PENDING (decisive — not yet
+run/reported):** (1) printed-marks "[3]" → chip reads it, no marks picker; (2) no-marks question → sensibly inferred (Q3 vs Q5
+divergence); (3) **photo** of a printed-marks question → reads the printed value, two distinct upload slots; (4) **Change** →
+grades the corrected value, clean canonical bucket on Me (override logged silently); (5) selectors gone desktop AND mobile width.
+
+---
+
 ## 2026-06-16 — Check & Improve auto-detect marks/subject/topic (#244, Claim 2)
 
 **Trunk after merge: `43ffa09`** (#244, `fix/checkimprove-autodetect-marks`; squash; 6 files +330/−238). Owner-merged code PR;

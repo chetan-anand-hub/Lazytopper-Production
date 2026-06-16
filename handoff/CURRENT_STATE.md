@@ -1,11 +1,41 @@
 # LazyTopper — Current State
-Last updated: 2026-06-16 (post-PR #244 — **Check & Improve auto-detect MERGED** (trunk `43ffa09`): the grader now determines marks/subject/topic from the question itself (Claim 2, owner-ruled option (a)); the student-picked marks/subject/topic selectors are GONE on both Check & Improve surfaces (desktop + app). Isolated behind a `detectMarks` flag so Quick Practice (`SolutionChecker`, canonical-bank marks) is byte-identical. Printed marks preferred → inferred → flagged `fallback` (never a silent static 3); topic constrained to the canonical `topics.ts` vocab and re-canonicalised via the shared `resolveDetectedGradeTopic` helper (reuses Fix A's `desktopTopicForWeakAreaKey` — clean MI attribution). CI GREEN. **Owner live-verify of #244 PENDING** (decisive — static gates can't judge marks-inference quality). NEXT (owner; queued, NOT yet authorized): **(ii) "Finish session" scorecard-trigger PR** → **(iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]**; then **(2) MI eval** ([MI-EVAL]) → **(3) Stage 3** ([FU-DRILL-ENRICHMENT]) → **Fix B [FU-TOPICKEY-CONSOLIDATION]** when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Last updated: 2026-06-17 (post-PR #246 — **Check & Improve detect-then-confirm MERGED** (trunk `c9404e1`): builds on Claim 2 (#244). Detection is now VISIBLE + CORRECTABLE before grading. New flow on both surfaces: question input by type/paste/**photo of the question** (distinct slot from the answer photo) → **"Read the question →"** fires a detection-ONLY call (`POST /api/detect-question`, the cheaper call) on the question alone → a **confirmation chip** shows detected subject·topic·marks (+ source) with a quiet **[Change]** affordance → constrained correction (topic→canonical key via Fix A's resolver, marks 1–6, subject toggle; corrected mark flagged `marksSource:"user"`) → grade runs on the CONFIRMED values via the unchanged trusted-marks path (the grader `handleCheckSolution` is byte-identical). Override logged on the attempt record (`marksSource`+`detectionOverride`; reuses recordAttempt persistence — no new collection / no firestore.rules change). **`SHOW_DETECTION_META` flag (shared helper) default=ON for owner testing; ⚠️ MUST flip to OFF before student launch — see [FU-DETECTION-META-LAUNCH-FLIP], the tester-vs-student line.** Bank-grounding deferred behind Fix B. CI GREEN. **Owner live-verify of #246 PENDING** (decisive). NEXT (owner; queued, NOT yet authorized): **(ii) "Finish session" scorecard-trigger PR** → **(iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]**; then **(2) MI eval** ([MI-EVAL]) → **(3) Stage 3** ([FU-DRILL-ENRICHMENT]) → **Fix B [FU-TOPICKEY-CONSOLIDATION]** when authorized. PRE-LAUNCH gate: **[FU-DETECTION-META-LAUNCH-FLIP]**. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-DETECTION-META-LAUNCH-FLIP] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Previously (post-PR #244 — **Check & Improve auto-detect MERGED** (trunk `43ffa09`): the grader determines marks/subject/topic from the question itself (Claim 2, option (a)); the student-picked selectors are GONE on both surfaces. Isolated behind a `detectMarks` flag so Quick Practice is byte-identical. Printed marks preferred → inferred → flagged `fallback`; topic constrained to the canonical vocab + re-canonicalised via Fix A's resolver. CI GREEN. Owner live-verify of #244 PENDING.)
 Previously (post-PR #242 — **topicKey Fix A MERGED** (trunk `77f2ed2`): the Me weak-area row now resolves stored topic labels through the strong serving-side resolver (`desktopTopicForWeakAreaKey`) + 13 `topics.ts` aliases; the 13 in-bank spellings that fell to `/exam-trends` now route to Quick Practice. Read-time only. CI GREEN. **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED.** Preceded by the read-only topicKey-duplication audit. **Fix B [FU-TOPICKEY-CONSOLIDATION] HELD / authorized-later.** Owner live-verify of #242 PENDING.)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 43ffa09
-Last merged PRs: **#240 (MI polish batch — 5 sub-tasks; squash → `9eff0b0`)**, **#242 (topicKey Fix A — Me weak-area resolver + 13 aliases; squash → `77f2ed2`)**, **#243 (docs)**, **#244 (Check & Improve auto-detect marks/subject/topic — Claim 2; squash → `43ffa09`)**
+SHA: c9404e1
+Last merged PRs: **#242 (topicKey Fix A; squash → `77f2ed2`)**, **#243 (docs)**, **#244 (Check & Improve auto-detect — Claim 2; squash → `43ffa09`)**, **#245 (docs)**, **#246 (Check & Improve detect-then-confirm + question photo upload; squash → `c9404e1`)**
+
+## ✅ CHECK & IMPROVE DETECT-THEN-CONFIRM (#246, trunk `c9404e1`) — MERGED + CI GREEN — owner live-verify PENDING
+The UX layer on Claim 2 (#244): detection is now VISIBLE + CORRECTABLE before grading, plus question photo upload. Authority:
+`AGENT_detect_then_confirm_2026-06-16.md`. Report: `report-detect-then-confirm-2026-06-16.md`. 9 files +935/−78; commit `3e00ac4`.
+- **Core principle:** detect-then-CONFIRM, never declare-from-scratch. The default stays pure auto-detection; the old
+  subject/topic/marks fill-in form was NOT rebuilt. The student touches a value only if it's wrong (constrained correction).
+- **Flow (both desktop + app):** question by type/paste/**photo of the question** (distinct slot vs the answer photo) →
+  **"Read the question →"** → detection-ONLY `POST /api/detect-question` on the question alone (one deliberate, cheaper call;
+  a photo is passed so the AI reads the PRINTED marks) → **confirmation chip** (subject·topic·marks + source) with quiet
+  **[Change]** → constrained correction (topic→canonical key via Fix A's resolver; marks 1–6; subject toggle; corrected mark
+  → `marksSource:"user"`) → grade on the CONFIRMED values via the unchanged trusted-marks path.
+- **Server:** new `handleDetectQuestion` (`checkSolution.cjs`) + `/api/detect-question` (`questions.cjs` + `index.cjs`). The
+  grader `handleCheckSolution` is **untouched** (no grading-semantics change).
+- **Override logging:** when the student corrects the detection, the attempt record carries `marksSource` + `detectionOverride
+  {detected, confirmed}` — reuses `recordAttempt` → localStorage + Firestore-mirror (no new collection, no `firestore.rules`).
+  Internal telemetry for classifier-accuracy; never shown to the student.
+- **⚠️ `SHOW_DETECTION_META` flag (shared helper `checkImproveDetection.ts`) — default ON for the owner testing phase.** It
+  gates ONLY the meta-display (the "read from the question" / "estimated" source label) — NOT the detected values or the
+  Change control (those stay visible + correctable even at launch). **MUST be flipped to `false` before shipping to students
+  — shipping with the machinery still showing would be a real miss (the tester-vs-student line). Logged as
+  [FU-DETECTION-META-LAUNCH-FLIP], a hard PRE-LAUNCH gate — see OPEN_QUESTIONS.**
+- **Out of scope (respected):** bank-grounding/retrieval for detection (deferred behind Fix B); no `src/data` reach.
+- **Gates:** tsc 0 · 3× `node --check` · root matrix **175/175** · lazytopper ops matrix green (incl. llm-path 5/5) · mojibake
+  clean · scope:guard product OK · `git diff --check` clean · `clampDetectedMarks` 9/9 + `buildConfirmedDetection` proofs.
+  **CI `quality-gate` GREEN** on #246 (1m7s — incl. the linux `vite build` + vitest). No forbidden/gated files touched.
+- **⏳ Owner live-verify of #246 PENDING (decisive — not yet run/reported):** (1) printed-marks "[3]" → chip reads it, no
+  marks picker; (2) no-marks question → sensibly INFERRED mark (Q3 short vs Q5 proof divergence, not a blind 3); (3) **photo**
+  of a printed-marks question → reads the printed value, two distinct upload slots; (4) **Change** a wrong detection → grades
+  the corrected value, clean canonical bucket on Me (override logged silently); (5) selectors gone desktop AND mobile width.
 
 ## ✅ CHECK & IMPROVE AUTO-DETECT (#244, trunk `43ffa09`) — MERGED + CI GREEN — owner live-verify PENDING
 Claim 2 (owner-ruled option (a): infer from the provided question). The grader now determines marks/subject/topic from the
