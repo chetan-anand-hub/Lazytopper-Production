@@ -1128,7 +1128,7 @@ const DesktopMePage: React.FC = () => {
             isSignedOut
               ? "Appears after you save attempts in a topic."
               : topicsCovered === 0
-                ? "Practise a topic to start the count."
+                ? "Practice a topic to start the count."
                 : "Distinct topics in your saved attempts."
           }
           unavailable={isSignedOut || topicsCovered === 0}
@@ -1298,7 +1298,7 @@ const DesktopMePage: React.FC = () => {
                 </div>
                 <div style={{ flex: 1, fontSize: 13 }}>
                   <div style={{ fontWeight: 600, color: TEXT_FG }}>
-                    Practise where you actually lose marks
+                    Practice where you actually lose marks
                   </div>
                   <div
                     style={{
@@ -1322,7 +1322,7 @@ const DesktopMePage: React.FC = () => {
                       : gotoPracticeBrowse()
                   }
                 >
-                  {topWeakTarget ? "Practise this topic" : "Open practice"}
+                  {topWeakTarget ? "Practice this topic" : "Open practice"}
                 </button>
               </div>
             </div>

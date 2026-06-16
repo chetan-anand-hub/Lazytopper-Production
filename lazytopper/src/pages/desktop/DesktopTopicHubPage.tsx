@@ -1140,9 +1140,9 @@ function BoardConceptRow({
           to={conceptPracticeHref}
           variant="outline"
           icon={<IconDumbbell />}
-          title={`Practise this concept on ${concept.name}`}
+          title={`Practice this concept on ${concept.name}`}
         >
-          Practise this
+          Practice this
         </ButtonLink>
       </div>
       {teachOpen ? (
