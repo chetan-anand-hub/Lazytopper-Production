@@ -403,6 +403,30 @@ function computeMistakeMix(logs: MistakeLogEntry[]): {
   return { totals, total, bars };
 }
 
+// --- Weak-area ranking (blended severity) ---------------------------------
+// A topic earns a place in "Topics dragging your score" via EITHER signal:
+//   1. marksLost — graded marks dropped (the historical scar).
+//   2. low accuracy on enough attempts — e.g. a topic failed mostly through wrong
+//      MCQs, which lose no graded marks but is still a real weakness.
+// We BLEND, not replace: the low-accuracy signal is converted to a marks-equivalent
+// "drag" and ADDED to marksLost, so a 0-marks-lost low-accuracy topic still ranks
+// among the top weaknesses instead of being filtered out by marksLost === 0.
+const WEAK_AREA_MIN_ATTEMPTS = 3; // enough attempts for accuracy to be meaningful
+const WEAK_AREA_LOW_ACCURACY = 40; // percent; below this counts as a drag signal
+
+function weakAreaLowAccuracyDrag(row: WeakArea): number {
+  if (row.attempts < WEAK_AREA_MIN_ATTEMPTS) return 0;
+  if (row.accuracyPct >= WEAK_AREA_LOW_ACCURACY) return 0;
+  // Marks-equivalent drag = the number of wrong attempts (deterministic, bounded
+  // by attempt volume), reconstructed from the rounded accuracy already shown.
+  const wrongAttempts = Math.round(row.attempts * (1 - row.accuracyPct / 100));
+  return Math.max(0, wrongAttempts);
+}
+
+function weaknessSeverity(row: WeakArea): number {
+  return row.marksLost + weakAreaLowAccuracyDrag(row);
+}
+
 function computeWeakAreas(
   attempts: PracticeAttempt[],
   logs: MistakeLogEntry[]
@@ -485,10 +509,17 @@ function computeWeakAreas(
   }
 
   rows.sort((a, b) => {
-    if (b.marksLost !== a.marksLost) return b.marksLost - a.marksLost;
-    if (a.attempts > 0 && b.attempts > 0) return a.accuracyPct - b.accuracyPct;
-    if (a.attempts > 0) return -1;
-    if (b.attempts > 0) return 1;
+    // Blended weakness severity: marks-lost (the graded scar) AND low accuracy on
+    // enough attempts BOTH qualify a topic — so a topic weak only via wrong MCQs
+    // (0 marks lost, low accuracy) can still surface. See weaknessSeverity().
+    const sevA = weaknessSeverity(a);
+    const sevB = weaknessSeverity(b);
+    if (sevB !== sevA) return sevB - sevA;
+    // Tie-breakers: lower accuracy first (worse), then prefer rows with evidence.
+    if (a.attempts > 0 && b.attempts > 0 && a.accuracyPct !== b.accuracyPct)
+      return a.accuracyPct - b.accuracyPct;
+    if (a.attempts > 0 && b.attempts === 0) return -1;
+    if (b.attempts > 0 && a.attempts === 0) return 1;
     return 0;
   });
 
