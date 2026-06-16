@@ -1,18 +1,51 @@
 # LazyTopper — Current State
-Last updated: 2026-06-15 (post-PR #238 / stand-down — MI Loop Stage 2 / **Measure leg COMPLETE** (#233 front door + #235 loop-closer + #237 MCQ honest capture; the loop is bidirectional across graded AND MCQ capture; ⏳ owner live-verify of #237 pending). All four #235/#237 feature+docs branches deleted; trunk clean at `2b92f7b`. RE-SEQUENCED NEXT (owner): **(1) MI polish batch** — ONE PR, surface/ranking only, NOT eval-gated → **(2) the MI eval** ([MI-EVAL]) → **(3) Stage 3** concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]). No code work started in this window — the next PR starts fresh. Carried follow-ups: [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+Last updated: 2026-06-16 (post-PR #240 — **MI polish batch MERGED** (trunk `9eff0b0`): 5 surface/ranking sub-tasks (weak-area blended-severity ranking, per-row targeted practice CTAs, wrong-MCQ nudge, Practise→Practice UI copy, end-of-session scorecard + footer removal); CI GREEN; **owner live-verify 4/5 PASS** (sub-tasks 1–4 verified; sub-task 5 scorecard NOT yet confirmable — its `allDone`-only trigger is being redesigned into an explicit student-declared "Finish session"). mi-polish branch deleted. RE-SEQUENCED NEXT (owner; queued, NOT yet authorized — each arrives as its own instruction): **(i) read-only topicKey audit** → **(ii) "Finish session" scorecard-trigger PR** → **(iii) gated-spelling follow-up [FU-SPELLING-GATED-REMAINDER]**; then **(2) MI eval** ([MI-EVAL]) → **(3) Stage 3** ([FU-DRILL-ENRICHMENT]). Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-WEAKAREA-EXAMTRENDS-FALLBACK] (Light row routes to Exam Trends — topicKey-duplication symptom) + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 2b92f7b
-Last merged PRs: #233 (MI Loop S2 PR 1 — `recordAttempt` front door; squash `d8ee55c` → `57fb7aa`), #234 (docs), #235 (MI Loop S2 PR 2 — close the loop + "active gaps remaining"; squash `4c8936b` → `59f9d18`), #236 (docs), #237 (MI Loop S2 PR 3 — MCQ honest capture; squash `9edf6fb` → `b75f065`), **#238 (docs — post-#237, Measure leg complete; → trunk `2b92f7b`)**
+SHA: 9eff0b0
+Last merged PRs: #235 (MI Loop S2 PR 2 — close the loop; → `59f9d18`), #236 (docs), #237 (MI Loop S2 PR 3 — MCQ honest capture; → `b75f065`), #238 (docs), **#239 (docs — stand-down; → `fb30720`)**, **#240 (MI polish batch — 5 sub-tasks; squash → `9eff0b0`)**
 
-## ⏭️ NEXT (owner-re-sequenced at stand-down): (1) MI polish batch → (2) MI eval → (3) Stage 3
-The Measure leg is complete; no more Stage-2 PRs. Each step is its own PR; the next PR starts fresh (no code began this window).
-1. **MI polish batch — ONE PR, surface/ranking only, NOT eval-gated.** Presentation/ranking tidy on existing surfaces; no
-   grading/accuracy-semantics changes, no eval dependency. Exact item list owner-confirmed before the PR opens (candidates: the
-   surface/ranking-only logged follow-ups — see NEXT_ACTION).
-2. **MI eval — [MI-EVAL]** check-solution eval set (launch gate; gates how hard we lean on AI grades; unblocks eval-gated items).
-3. **MI Loop Stage 3 — concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]).** Not before the eval.
+## ⏭️ NEXT (owner-re-sequenced post-#240): (i) topicKey audit → (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3
+The MI polish batch is merged. The three items below are QUEUED but **NOT yet authorized** — the owner sends each as its own
+instruction, branched fresh against `9eff0b0`. Do not start until instructed.
+1. **(i) Read-only topicKey audit — independent investigation.** Trace the topicKey duplication / non-canonical-variant
+   problem surfaced by the #240 live-verify bug ([FU-WEAKAREA-EXAMTRENDS-FALLBACK]): a weak-area row whose topicKey is a
+   non-canonical variant (en-dash + "(in…)" suffix) fails to resolve to a practice slug and hits the honest Exam-Trends
+   fallback. Read-only map of where topicKeys are minted / normalized / aliased; output is the kill-list for the cure.
+2. **(ii) "Finish session" scorecard-trigger PR — small.** Replace the scorecard's `allDone`-only trigger with an explicit
+   student-declared "Finish session" action; honest on PARTIAL sessions (don't imply completion). Finishes sub-task 5's
+   intent (the redesign that makes the scorecard confirmable).
+3. **(iii) Gated-spelling follow-up — [FU-SPELLING-GATED-REMAINDER].** Owner-authorized separate PR for the ~60
+   `src/data/**` + `src/lib/desktop/loginPrompts.ts` rendered "Practise" strings #240 could not touch (gated dirs).
+4. **(2) MI eval — [MI-EVAL]** check-solution eval set (launch gate; unblocks eval-gated items).
+5. **(3) MI Loop Stage 3 — concept-level targeting (eval-gated, [FU-DRILL-ENRICHMENT]).** Not before the eval.
+
+## ✅ MI POLISH BATCH (#240, trunk `9eff0b0`) — MERGED + CI GREEN — owner live-verify 4/5 PASS
+One PR, five surface/ranking sub-tasks on the finished MI loop (NOT eval-gated; no new data plumbing). Authority:
+`AGENT_mi_polish_batch_2026-06-14.md`. Report: `report-mi-polish-batch-2026-06-15.md`. 7 files +122/−79; one commit per
+sub-task (`af881a8` ranking · `72d0e1b` CTAs · `4cd837a` MCQ nudge · `11494d4` spelling · `7a6cadd` scorecard).
+- **Sub-task 1 [FU-WEAKAREA-ACCURACY-RANK] — VERIFIED.** `computeWeakAreas` ranks by **blended severity**
+  (`marksLost + lowAccuracyDrag`); a topic weak only via wrong MCQs (0 marks lost, ≥3 attempts, <40% accuracy) now
+  surfaces. Graded topics with accuracy ≥40 keep prior ordering (drag = 0). Deterministic.
+- **Sub-task 2 [FU-WEAKAREA-CTAS] — VERIFIED (with one bug, see below).** Every weak-area row routes to an auto-served
+  topic-scoped practice set via the existing Stage-1 `gotoPracticeForTopic`; honest fallback to topic-hub/trends when a
+  topic has no hub slug; gated `buildDesktopPracticePath` untouched. Dropped the redundant row[0] "Practise" button.
+- **Sub-task 3 [FU-MCQ-UPLOAD-NUDGE] — VERIFIED.** A wrong MCQ shows "Want to know why? Show your working below." →
+  reveals the EXISTING inline Check-my-answer box; correct MCQ shows nothing. No new data path.
+- **Sub-task 4 [FU-SPELLING-PRACTICE] — VERIFIED (partial scope).** "Practise"→"Practice" in DesktopMePage/mobile Me/
+  DesktopTopicHubPage UI copy. **Gated remainder carried as [FU-SPELLING-GATED-REMAINDER]** (~60 `src/data/**` +
+  `loginPrompts.ts` strings — forbidden dirs, owner-authorized separate follow-up).
+- **Sub-task 5 [FU-SESSION-SCORECARD] — NOT yet confirmable.** End-of-session scorecard (attempted · MCQs correct ·
+  accuracy + honest MI nudge + honest saved-state line) replaced the footer + the mislabeled "MCQ answers: 0/5". Its
+  `allDone`-only trigger made it hard to surface in live-verify → **being redesigned into an explicit "Finish session"
+  trigger** (queued PR ii). Code shipped; behaviour re-confirmed after the redesign.
+- **🐞 Live bug found ([FU-WEAKAREA-EXAMTRENDS-FALLBACK]):** the **Light – Reflection and Refraction** weak-area row
+  routes to **Exam Trends instead of practice** — its non-canonical topicKey (en-dash variant + "(in…)" suffix) fails to
+  resolve to a practice slug and hits sub-task 2's honest fallback. **Confirmed symptom of the topicKey duplication
+  problem**; to be traced in the upcoming read-only topicKey audit (item i). NOT a regression of the fallback itself.
+- **Gates:** tsc 0 · mojibake clean · root matrix **175/175** · ops **22/22** · scope:guard product OK ·
+  `git diff --check` clean. **CI `quality-gate` GREEN** on #240 (incl. the linux `vite build` + ops matrix).
 
 ## ✅ MI LOOP STAGE 2 — Measure-leg PR 3 (#237, trunk `b75f065`) — MERGED — MEASURE LEG COMPLETE
 The last Measure-leg PR: MCQ honest capture. Per `AGENT_t3_mi_measure_loopclose_2026-06-12.md` (PR 3 of 3).

@@ -1,3 +1,30 @@
+## 2026-06-16 — Post-PR #240 (MI polish batch — surface/ranking; merged + CI GREEN; owner live-verify 4/5)
+
+### ✅ DONE — MI polish batch merged (4/5 live-verified)
+- **[MI-POLISH-BATCH]** (#240, trunk `9eff0b0`, squash; 7 files +122/−79; one commit per sub-task). Five surface/ranking
+  sub-tasks on the finished MI loop (NOT eval-gated): weak-area blended-severity ranking, per-row targeted practice CTAs,
+  wrong-MCQ nudge, Practise→Practice UI copy, end-of-session scorecard + footer removal. CI GREEN. Report:
+  `report-mi-polish-batch-2026-06-15.md`. Live-verify: sub-tasks 1–4 PASS; sub-task 5 not yet confirmable (trigger redesign).
+
+### New follow-ups logged this PR (recorded — do NOT fix ad hoc)
+- **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] (confirmed live bug; topicKey-duplication symptom)** — the **Light – Reflection and
+  Refraction** weak-area row on desktop Me routes to **Exam Trends instead of practice**. Root cause: its topicKey is a
+  **non-canonical variant** (en-dash separator + a "(in…)" suffix) that does NOT resolve to a practice hub slug, so
+  sub-task 2's targeted-practice routing correctly falls through to its **honest topic-hub/trends fallback**. The fallback is
+  working as designed — the defect is upstream: the **topicKey is duplicated / non-canonical**. **To be traced in the
+  upcoming read-only topicKey audit (queued item i)** — do NOT patch the alias/route ad hoc; the audit produces the
+  systematic kill-list. Related to [FU-WEAKAREA-ALIAS-DISPLAY] (same duplication class, display side).
+- **[FU-SPELLING-GATED-REMAINDER] (owner-authorized separate follow-up)** — ~60 rendered "Practise" strings remain under
+  `lazytopper/src/data/**` (topicHubV2Full, topicHubContent, class10ContentConfig, class10ScienceTopicTrends,
+  predictedQuestionsScience) + 1 in `lazytopper/src/lib/desktop/loginPrompts.ts`. #240 (sub-task 4) could NOT touch these —
+  both are FORBIDDEN/GATED dirs. Finishing the global Practise→Practice replace needs an **owner-gated PR** scoped to those
+  files. Until then "Practise" still appears in topic-hub study tips + the login prompt.
+
+### Scorecard trigger — redesign queued (not a defect, a confirmability gap)
+- **[FU-SESSION-SCORECARD-TRIGGER]** — the #240 scorecard renders on `allDone` (set fully attempted), which is hard to reach
+  in live-verify and silent on partial sessions. Queued PR (ii) replaces it with an **explicit student-declared "Finish
+  session"** action, honest on partial sessions (no implied completion). Makes sub-task 5 confirmable.
+
 ## 2026-06-15 — Post-PR #237 (MI Loop Stage 2 / Measure-leg PR 3 — MCQ honest capture; MEASURE LEG COMPLETE)
 
 ### ✅ DONE — MI Loop Stage 2 PR 3 merged (⏳ owner live-verify pending)
