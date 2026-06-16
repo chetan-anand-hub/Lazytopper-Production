@@ -370,7 +370,137 @@ function createCheckSolutionRoute(deps) {
     }
   }
 
-  return { handleCheckSolution };
+  // ── Detection-only (detect-then-confirm, Claim 2 UX) ──────────────────────
+  // A focused, cheap call that reads marks/subject/topic FROM THE QUESTION ALONE
+  // (text or an uploaded photo) BEFORE the student commits an answer — so the UI
+  // can show the detected values and let the student correct a wrong one. No
+  // grading happens here. The grade call then runs on the CONFIRMED values via the
+  // existing trusted-marks path. Marks/subject/topic contract is identical to the
+  // grader's auto-detect block (printed marks win; topic constrained to the
+  // canonical vocabulary; honest fallback).
+  async function handleDetectQuestion(req, res) {
+    let payload;
+    try {
+      payload = await readJson(req);
+    } catch (e) {
+      return sendJson(res, 400, { error: 'Invalid JSON' });
+    }
+
+    const question = String(payload.question || '').trim();
+    const imageBase64 = String(payload.imageBase64 || '').trim();
+    const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
+    const isPdf = imageMimeType === 'application/pdf';
+    const hasImage = imageBase64.length > 0;
+    const topicVocabulary = Array.isArray(payload.topicVocabulary)
+      ? payload.topicVocabulary
+          .map((t) => ({
+            slug: String((t && t.slug) || '').trim(),
+            name: String((t && t.name) || '').trim(),
+            subject: String((t && t.subject) || '').trim(),
+          }))
+          .filter((t) => t.slug && t.name)
+      : [];
+
+    if (!question && !hasImage) {
+      return sendJson(res, 400, { error: 'Provide the question text or a photo of the question' });
+    }
+    if (hasImage) {
+      const imgCheck = validateMentorImagePayload(payload);
+      if (!imgCheck || !imgCheck.ok) {
+        return sendJson(res, 400, { error: imgCheck ? imgCheck.error : 'Invalid image' });
+      }
+    }
+
+    if (isStubMode()) {
+      return sendJson(res, 200, {
+        ok: true,
+        detectedMarks: 3,
+        detectedSubject: 'Maths',
+        detectedTopic: null,
+        marksSource: 'inferred',
+      });
+    }
+
+    const topicListBlock = topicVocabulary.length > 0
+      ? '\n\nCANONICAL TOPICS — set "detectedTopic" to the exact key of the one that best matches the question, or null if none clearly fits. Never invent a topic.\n' +
+        topicVocabulary
+          .map((t) => '  - "' + t.slug + '"  (' + t.subject + ' — ' + t.name + ')')
+          .join('\n') + '\n'
+      : '';
+
+    const prompt =
+      'You are a CBSE Class 10 examiner. Read the question below and determine ONLY its total marks, subject and topic. ' +
+      'Do NOT solve or grade it. Respond ONLY with valid JSON, no markdown fences.\n\n' +
+      (question ? 'Question: ' + question + '\n' : '') +
+      (hasImage
+        ? 'The attached ' + (isPdf ? 'PDF' : 'image') + ' is a photo of the QUESTION — read the printed text, including any printed mark allocation.\n'
+        : '') +
+      '\nDETERMINE:\n' +
+      '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
+      '- detectedSubject: "Maths" or "Science".\n' +
+      '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
+      topicListBlock +
+      '\nRESPOND with this exact JSON:\n' +
+      '{ "detectedMarks": <number>, "marksSource": "stated" | "inferred", "detectedSubject": "Maths" | "Science", "detectedTopic": "<canonical key or null>" }';
+
+    try {
+      const parts = hasImage
+        ? [{ text: prompt }, buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 })]
+        : [{ text: prompt }];
+      const reply = await callGemini(GEMINI_MODEL, [{ role: 'user', parts }], {
+        temperature: 0.1,
+        maxOutputTokens: 400,
+        responseMimeType: 'application/json',
+      });
+      const parsed = extractJsonObjectFromText(reply.text);
+      if (!parsed) {
+        return sendJson(res, 200, {
+          ok: false,
+          error: "We couldn't read the question this time — please try again.",
+        });
+      }
+
+      // Validate identically to the grader's auto-detect block.
+      const dm = Number(parsed.detectedMarks);
+      let detectedMarks;
+      let marksSource;
+      if (Number.isFinite(dm) && dm >= 1 && dm <= 6) {
+        detectedMarks = Math.round(dm);
+        marksSource = parsed.marksSource === 'stated' ? 'stated' : 'inferred';
+      } else {
+        detectedMarks = 3;
+        marksSource = 'fallback';
+      }
+      const detectedSubject = /sci/i.test(String(parsed.detectedSubject || ''))
+        ? 'Science'
+        : /math/i.test(String(parsed.detectedSubject || ''))
+          ? 'Maths'
+          : null;
+      const dt = parsed.detectedTopic;
+      const detectedTopic =
+        dt && String(dt).trim() && String(dt).trim().toLowerCase() !== 'null'
+          ? String(dt).trim()
+          : null;
+
+      return sendJson(res, 200, {
+        ok: true,
+        detectedMarks,
+        detectedSubject,
+        detectedTopic,
+        marksSource,
+        provider: ACTIVE_PROVIDER,
+        model: GEMINI_MODEL,
+      });
+    } catch (err) {
+      console.error('[detect-question]', err);
+      return sendJson(res, 500, {
+        ok: false,
+        error: 'Failed to read the question. Please try again.',
+      });
+    }
+  }
+
+  return { handleCheckSolution, handleDetectQuestion };
 }
 
 module.exports = { createCheckSolutionRoute };

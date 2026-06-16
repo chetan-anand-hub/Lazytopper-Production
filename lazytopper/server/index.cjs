@@ -270,6 +270,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/more-like-this' ||
       reqPath === '/api/step-solution' ||
       reqPath === '/api/check-solution' ||
+      reqPath === '/api/detect-question' ||
       reqPath === '/api/tutor-feedback' ||
       reqPath === '/api/generate-diagram' ||
       reqPath === '/api/generate-visual' ||
@@ -429,6 +430,9 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && req.url === '/api/check-solution') {
     return questionRoutes.handleCheckSolution(req, res);
+  }
+  if (req.method === 'POST' && req.url === '/api/detect-question') {
+    return questionRoutes.handleDetectQuestion(req, res);
   }
 
   if (req.method === 'GET' && reqPath === '/api/user/progress') {

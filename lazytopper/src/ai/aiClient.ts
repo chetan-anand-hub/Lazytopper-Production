@@ -311,6 +311,32 @@ export async function checkSolutionImage(req: {
   return handleJsonResponse<CheckSolutionResponse>(res);
 }
 
+/** Detect-then-confirm (Claim 2 UX): read marks/subject/topic from the QUESTION
+ *  alone (text or an uploaded photo), before the student commits an answer. A
+ *  focused, cheap call — no grading. The grade then runs on the confirmed values. */
+export interface DetectQuestionResponse {
+  ok: boolean;
+  detectedMarks?: number;
+  detectedSubject?: "Maths" | "Science" | null;
+  detectedTopic?: string | null;
+  marksSource?: CheckSolutionMarksSource | null;
+  error?: string;
+}
+
+export async function detectQuestion(req: {
+  question?: string;
+  imageBase64?: string;
+  imageMimeType?: string;
+  topicVocabulary?: CheckSolutionTopicVocab[];
+}): Promise<DetectQuestionResponse> {
+  const res = await fetch(`${API_BASE}/detect-question`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return handleJsonResponse<DetectQuestionResponse>(res);
+}
+
 export interface GenerateVisualRequest {
   topic: string;
   concept?: string;

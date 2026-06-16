@@ -38,7 +38,18 @@ export interface PracticeAttempt {
   marksScored?: number;
   marksAvailable?: number;
   mode?: AttemptMode;
+  /** Detect-then-confirm telemetry (Check & Improve): how the mark scale was set
+   *  (stated/inferred/fallback/user), and — when the student corrected the AI's
+   *  detection — the detected-vs-confirmed values. A correction signal for future
+   *  classifier-accuracy measurement; never shown to the student. */
+  marksSource?: string;
+  detectionOverride?: DetectionOverrideLog | null;
   timestamp: number;
+}
+
+export interface DetectionOverrideLog {
+  detected: { marks: number; subject: string; topicKey: string };
+  confirmed: { marks: number; subject: string; topicKey: string };
 }
 
 export interface PracticeInsights {
@@ -163,6 +174,9 @@ export interface RecordAttemptContext {
   mode: AttemptMode;
   difficulty?: string;
   bloomSkill?: string;
+  /** Detect-then-confirm telemetry (Check & Improve only). */
+  marksSource?: string;
+  detectionOverride?: DetectionOverrideLog | null;
   /** Defaults to now; pass-through kept for testability. */
   timestamp?: number;
 }
@@ -272,6 +286,8 @@ export function recordAttempt(
     marksScored: scored,
     marksAvailable: available,
     mode: ctx.mode,
+    ...(ctx.marksSource ? { marksSource: ctx.marksSource } : {}),
+    ...(ctx.detectionOverride ? { detectionOverride: ctx.detectionOverride } : {}),
     timestamp: Number(ctx.timestamp) || Date.now(),
   });
   writeAttemptDedup([key, ...seen.filter((k) => k !== key)]);
