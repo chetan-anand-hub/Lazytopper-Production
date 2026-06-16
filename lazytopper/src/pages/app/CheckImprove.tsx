@@ -9,25 +9,22 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
+import { desktopTopicsBySubject } from "../../lib/desktop/topics";
+import { resolveDetectedGradeTopic } from "../../utils/checkImproveDetection";
 
 // Persistence (entry building + policy + dedup + the weak-area bridge) now lives
 // behind the single front door `recordMistake`. The old local buildMobileLogEntry
 // (a hand-kept mirror of desktop's buildLogEntry) was removed so the two surfaces
 // can no longer diverge.
-
-const MATHS_TOPICS = [
-  "Real Numbers", "Polynomials", "Linear Equations", "Quadratic Equations",
-  "Arithmetic Progression", "Triangles", "Coordinate Geometry", "Circles",
-  "Surface Areas & Volumes", "Trigonometry", "Statistics", "Probability",
-];
-const SCIENCE_TOPICS = [
-  "Chemical Reactions", "Acids, Bases & Salts", "Metals & Non-Metals",
-  "Carbon Compounds", "Life Processes", "Control & Coordination",
-  "Reproduction", "Heredity & Evolution", "Light", "Electricity",
-  "Magnetic Effects", "Our Environment",
-];
-
-const MARKS_OPTIONS = [1, 2, 3, 4, 5];
+//
+// Claim 2: the student no longer picks marks/subject/topic — the grader determines
+// them from the question (`detectMarks: true`). We pass the canonical topics.ts
+// vocabulary so the detected topic is a real key (was a free-text dropdown that
+// produced non-canonical labels like "Light" — exactly the keys Fix A had to alias).
+const CANONICAL_TOPIC_VOCAB = [
+  ...desktopTopicsBySubject("Maths"),
+  ...desktopTopicsBySubject("Science"),
+].map((t) => ({ slug: t.slug, name: t.name, subject: t.subject }));
 
 type View = "upload" | "graded";
 type Tab  = "upload" | "type";
@@ -43,10 +40,7 @@ export default function CheckImprove() {
   const [fileMime, setFileMime]       = useState<string>("image/jpeg");
   const [fileLoaded, setFileLoaded]   = useState(false);
   const [textAnswer, setTextAnswer]   = useState("");
-  const [subject, setSubject]         = useState<"Maths" | "Science">("Maths");
-  const [topic, setTopic]             = useState(MATHS_TOPICS[0]);
   const [question, setQuestion]       = useState("");
-  const [marks, setMarks]             = useState(3);
   const [grading, setGrading]         = useState(false);
   const [gradeResult, setGradeResult] = useState<CheckSolutionResponse | null>(null);
   const [gradeError, setGradeError]   = useState<string | null>(null);
@@ -54,11 +48,6 @@ export default function CheckImprove() {
 
   const hasContent = tab === "upload" ? fileLoaded : textAnswer.trim().length > 10;
   const canGrade   = hasContent && question.trim().length > 0;
-
-  function switchSubject(s: "Maths" | "Science") {
-    setSubject(s);
-    setTopic(s === "Maths" ? MATHS_TOPICS[0] : SCIENCE_TOPICS[0]);
-  }
 
   function handleFileChange(file: File) {
     const reader = new FileReader();
@@ -78,11 +67,11 @@ export default function CheckImprove() {
     setSaved("idle");
     setGrading(true);
     try {
+      const trimmedQuestion = question.trim();
       const req = {
-        subject,
-        topic,
-        question: question.trim(),
-        marks,
+        question: trimmedQuestion,
+        detectMarks: true,
+        topicVocabulary: CANONICAL_TOPIC_VOCAB,
         ...(tab === "upload" && fileBase64
           ? { imageBase64: fileBase64, imageMimeType: fileMime }
           : { textAnswer: textAnswer.trim() }),
@@ -102,6 +91,15 @@ export default function CheckImprove() {
       }
       setGradeResult(result);
       setView("graded");
+      // Claim 2: persist under the AI-DETECTED subject/topic, canonicalised through
+      // the shared resolver (same as desktop + the Me weak-area row, Fix A) so MI
+      // attribution lands on a real topics.ts key (the old free-text dropdown stored
+      // non-canonical labels). Honest fallbacks live in the helper.
+      const {
+        subject: detectedSubject,
+        topicName: detectedTopicName,
+        topicSlug: detectedTopicSlug,
+      } = resolveDetectedGradeTopic(result);
       // Persist to the SAME pipeline desktop uses (mirror, don't reinvent):
       // logMistakes writes localStorage synchronously + Firestore
       // `learnerProfiles/{uid}/mistakeLogs` fire-and-forget. Keyed on uid, so the
@@ -109,16 +107,18 @@ export default function CheckImprove() {
       // when signed in (no fabricated/anonymous history).
       if (user) {
         const rec = await recordMistake(user, result, {
-          subject,
-          topic,
-          question: question.trim(),
+          subject: detectedSubject,
+          topic: detectedTopicName,
+          topicKey: detectedTopicSlug,
+          question: trimmedQuestion,
         });
         // Score-twin: persist the graded score as an attempt so it feeds the
         // (shared) Me scorecard / accuracy alongside the mistake log.
         recordAttempt(user, {
-          subject,
-          topic,
-          question: question.trim(),
+          subject: detectedSubject,
+          topic: detectedTopicName,
+          topicKey: detectedTopicSlug,
+          question: trimmedQuestion,
           marksScored: result.marksAwarded,
           marksAvailable: result.totalMarks,
           mode: "graded",
@@ -151,8 +151,6 @@ export default function CheckImprove() {
       />
     );
   }
-
-  const topicList = subject === "Maths" ? MATHS_TOPICS : SCIENCE_TOPICS;
 
   return (
     <MobileShell
@@ -314,52 +312,16 @@ export default function CheckImprove() {
           />
         )}
 
-        {/* ── Subject & topic ───────────────────────────────────── */}
+        {/* ── Question — marks, subject & topic are auto-detected ─── */}
         <div className="card-soft" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Subject & topic
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {(["Maths", "Science"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => switchSubject(s)}
-                style={{
-                  flex: 1, height: 36, borderRadius: 10,
-                  border: subject === s ? "none" : `1px solid var(--mob-card-border)`,
-                  background: subject === s ? "var(--mob-primary)" : "var(--mob-muted)",
-                  color: subject === s ? "#ffffff" : "var(--mob-fg-muted)",
-                  fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
-                }}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <select
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            style={{
-              width: "100%", height: 40, borderRadius: 10,
-              border: `1px solid var(--mob-card-border)`,
-              background: "var(--mob-muted)", color: "var(--mob-fg)",
-              fontFamily: "var(--font-body)", fontSize: "0.85rem", padding: "0 10px",
-            }}
-          >
-            {topicList.map((t) => <option key={t}>{t}</option>)}
-          </select>
-        </div>
-
-        {/* ── Question + marks ─────────────────────────────────── */}
-        <div className="card-soft" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Question (brief description)
+            Question
           </div>
           <input
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="e.g. Prove Pythagoras theorem"
+            placeholder="Paste the question, e.g. Prove Pythagoras theorem [3]"
             style={{
               width: "100%", height: 40, borderRadius: 10,
               border: `1px solid var(--mob-card-border)`,
@@ -368,29 +330,9 @@ export default function CheckImprove() {
               padding: "0 12px", boxSizing: "border-box",
             }}
           />
-          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Marks
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {MARKS_OPTIONS.map((m) => (
-              <button
-                key={m}
-                onClick={() => setMarks(m)}
-                className="pill tap"
-                style={{
-                  flex: 1,
-                  border: marks === m ? "none" : `1px solid var(--mob-card-border)`,
-                  background: marks === m ? "var(--mob-primary)" : "var(--mob-muted)",
-                  color: marks === m ? "#ffffff" : "var(--mob-fg-muted)",
-                  fontWeight: marks === m ? 700 : 400,
-                  cursor: "pointer",
-                  textAlign: "center",
-                  padding: "6px 0",
-                }}
-              >
-                {m}
-              </button>
-            ))}
+          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
+            The examiner reads the marks, subject and chapter from the question itself —
+            you don’t pick them.
           </div>
         </div>
 

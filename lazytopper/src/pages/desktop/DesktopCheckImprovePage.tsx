@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   checkSolutionImage,
@@ -9,11 +9,8 @@ import {
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
-import {
-  desktopTopicsBySubject,
-  desktopTopicBySlug,
-  type DesktopTopicSummary,
-} from "../../lib/desktop/topics";
+import { desktopTopicsBySubject } from "../../lib/desktop/topics";
+import { resolveDetectedGradeTopic } from "../../utils/checkImproveDetection";
 import {
   buildDesktopPracticePath,
   buildDesktopWorksheetPath,
@@ -36,9 +33,11 @@ import {
  *   - Default view is the real input/upload state (no fake graded sample,
  *     no fake 3/5 score, no fake mistake category counts, no fake trend
  *     bars, no fake personalised insight).
- *   - Subject + topic selectors use `desktopTopicsBySubject` /
- *     `desktopTopicBySlug` so topic naming matches the rest of the desktop
- *     surface.
+ *   - Claim 2 (auto-detect): the student no longer picks marks/subject/topic.
+ *     The grader determines them from the question (`detectMarks: true`), with the
+ *     canonical `topics.ts` vocabulary (`CANONICAL_TOPIC_VOCAB`) passed so the
+ *     detected topic is a real key. The detected topic is canonicalised via
+ *     `desktopTopicForWeakAreaKey` before storing, keeping MI attribution clean.
  *   - Answer-method tabs: Upload photo (real `<input type="file">` +
  *     `FileReader` -> `imageBase64` + MIME) and Type answer (textarea ->
  *     `textAnswer`).
@@ -99,7 +98,13 @@ const ROUTE_CTX: DesktopRouteContext = {
   returnTo: "/check-improve",
 };
 
-const MARKS_OPTIONS = [1, 2, 3, 4, 5] as const;
+// Canonical topic vocabulary (Maths + Science) from topics.ts — the single source
+// of truth. Passed to the grader so the AI's detected topic is constrained to a
+// real `topics.ts` key (never free text), keeping MI attribution clean (Fix A).
+const CANONICAL_TOPIC_VOCAB = [
+  ...desktopTopicsBySubject("Maths"),
+  ...desktopTopicsBySubject("Science"),
+].map((t) => ({ slug: t.slug, name: t.name, subject: t.subject }));
 
 const MISTAKE_LABELS: Record<MistakeType, { label: string; fg: string; bg: string }> = {
   conceptual: { label: "Conceptual", fg: WARNING_FG, bg: WARNING_SOFT },
@@ -118,6 +123,8 @@ interface GradedContext {
   topicSlug: string;
   question: string;
   marks: number;
+  /** How the mark scale was determined by the grader (auto-detect). */
+  marksSource: "stated" | "inferred" | "fallback" | null;
 }
 
 /* ────────────────── inline SVG glyphs ────────────────── */
@@ -552,13 +559,10 @@ const DesktopCheckImprovePage: React.FC = () => {
   }, []);
 
   // ── input form state ─────────────────────────────────────────────
-  const [subject, setSubject] = useState<DesktopSubject>("Maths");
-  const [topicSlug, setTopicSlug] = useState<string>(() => {
-    const list = desktopTopicsBySubject("Maths");
-    return list[0]?.slug ?? "";
-  });
+  // Subject / topic / marks are NO LONGER student-picked — the grader determines
+  // them from the question (Claim 2). The student supplies only the question + the
+  // answer; the detected values come back on the graded result.
   const [question, setQuestion] = useState<string>("");
-  const [marks, setMarks] = useState<number>(3);
   const [tab, setTab] = useState<AnswerTab>("upload");
   const [textAnswer, setTextAnswer] = useState<string>("");
   const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -572,27 +576,10 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [resultCtx, setResultCtx] = useState<GradedContext | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
-  const topicList: DesktopTopicSummary[] = useMemo(
-    () => desktopTopicsBySubject(subject),
-    [subject],
-  );
-  const currentTopic = useMemo(
-    () => desktopTopicBySlug(topicSlug),
-    [topicSlug],
-  );
-  const topicName = currentTopic?.name ?? "";
-
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
   const hasQuestion = question.trim().length > 0;
   const canGrade = hasAnswer && hasQuestion && status !== "loading";
-
-  function changeSubject(next: DesktopSubject) {
-    if (next === subject) return;
-    setSubject(next);
-    const first = desktopTopicsBySubject(next)[0];
-    setTopicSlug(first?.slug ?? "");
-  }
 
   function handleFileChosen(file: File) {
     const reader = new FileReader();
@@ -668,34 +655,23 @@ const DesktopCheckImprovePage: React.FC = () => {
     setStatus("loading");
     setSaveStatus("idle");
 
-    const ctx: GradedContext = {
-      subject,
-      topicName,
-      topicSlug,
-      question: question.trim(),
-      marks,
-    };
+    const trimmedQuestion = question.trim();
 
     try {
-      const payload =
+      // Claim 2: the grader determines marks/subject/topic from the question. We
+      // send only the question + the answer + the canonical topic vocabulary; no
+      // student-picked marks/subject/topic.
+      const answerPart =
         tab === "upload" && imageBase64
-          ? {
-              subject,
-              topic: topicName,
-              question: ctx.question,
-              marks,
-              imageBase64,
-              imageMimeType: imageMime,
-            }
-          : {
-              subject,
-              topic: topicName,
-              question: ctx.question,
-              marks,
-              textAnswer: textAnswer.trim(),
-            };
+          ? { imageBase64, imageMimeType: imageMime }
+          : { textAnswer: textAnswer.trim() };
 
-      const graded = await checkSolutionImage(payload);
+      const graded = await checkSolutionImage({
+        question: trimmedQuestion,
+        detectMarks: true,
+        topicVocabulary: CANONICAL_TOPIC_VOCAB,
+        ...answerPart,
+      });
       if (!graded || graded.ok === false) {
         setErrorMessage(
           graded?.error
@@ -705,6 +681,20 @@ const DesktopCheckImprovePage: React.FC = () => {
         setStatus("error");
         return;
       }
+
+      // Build the graded context from what the AI DETECTED, canonicalising the
+      // detected topic through the shared resolver (same one the Me weak-area row
+      // uses, Fix A) so MI attribution lands on a real topics.ts key.
+      const detected = resolveDetectedGradeTopic(graded);
+      const ctx: GradedContext = {
+        subject: detected.subject,
+        topicName: detected.topicName,
+        topicSlug: detected.topicSlug,
+        question: trimmedQuestion,
+        marks: graded.totalMarks,
+        marksSource: graded.marksSource ?? null,
+      };
+
       setResult(graded);
       setResultCtx(ctx);
       setStatus("ready");
@@ -807,50 +797,7 @@ const DesktopCheckImprovePage: React.FC = () => {
         >
           {/* LEFT — input panel */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
-            {/* Subject + topic */}
-            <div style={{ ...cardStyle, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={sectionEyebrow}>Subject &amp; topic</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {(["Maths", "Science"] as DesktopSubject[]).map((s) => {
-                  const active = subject === s;
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => changeSubject(s)}
-                      style={{
-                        flex: 1,
-                        height: 38,
-                        borderRadius: 9,
-                        border: active ? "none" : `1px solid ${BORDER}`,
-                        background: active ? TEXT_FG : CARD_BG,
-                        color: active ? "#ffffff" : TEXT_FG,
-                        fontFamily: FONT_SANS,
-                        fontWeight: 600,
-                        fontSize: 13,
-                        cursor: "pointer",
-                      }}
-                    >
-                      {s}
-                    </button>
-                  );
-                })}
-              </div>
-              <select
-                value={topicSlug}
-                onChange={(e) => setTopicSlug(e.target.value)}
-                style={inputStyle}
-              >
-                {topicList.length === 0 && <option value="">(no topics available)</option>}
-                {topicList.map((t) => (
-                  <option key={t.slug} value={t.slug}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Question + marks */}
+            {/* Question — marks, subject & topic are auto-detected by the grader */}
             <div style={{ ...cardStyle, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={sectionEyebrow}>Question</div>
               <input
@@ -860,32 +807,9 @@ const DesktopCheckImprovePage: React.FC = () => {
                 placeholder="e.g. Prove that the sum of opposite angles of a cyclic quadrilateral is 180°"
                 style={inputStyle}
               />
-              <div style={sectionEyebrow}>Marks</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {MARKS_OPTIONS.map((m) => {
-                  const active = marks === m;
-                  return (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setMarks(m)}
-                      style={{
-                        flex: 1,
-                        height: 38,
-                        borderRadius: 9,
-                        border: active ? "none" : `1px solid ${BORDER}`,
-                        background: active ? PRIMARY_GREEN : CARD_BG,
-                        color: active ? "#ffffff" : TEXT_FG,
-                        fontFamily: FONT_SANS,
-                        fontWeight: 700,
-                        fontSize: 13,
-                        cursor: "pointer",
-                      }}
-                    >
-                      {m}
-                    </button>
-                  );
-                })}
+              <div style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+                Paste or type the question exactly as printed. The examiner reads its
+                marks, subject and chapter from the question itself — you don’t pick them.
               </div>
             </div>
 
@@ -1107,7 +1031,7 @@ const DesktopCheckImprovePage: React.FC = () => {
                   color: TEXT_FG,
                 }}
               >
-                <li>Tell us the subject, topic, question and marks.</li>
+                <li>Paste the question — we read its marks, subject and chapter for you.</li>
                 <li>Upload a photo of your written answer or type it out.</li>
                 <li>
                   We call our examiner-style grader and show the real score,
@@ -1201,7 +1125,13 @@ const DesktopCheckImprovePage: React.FC = () => {
             ? resultCtx.question.slice(0, 57) + "…"
             : resultCtx.question
         } (${resultCtx.marks} marks)`}
-        description="Examiner-style grading from the live grader. Mistakes categorised. Next action queued."
+        description={`Examiner-style grading from the live grader — marks${
+          resultCtx.marksSource === "stated"
+            ? ", subject & topic read from the question"
+            : resultCtx.marksSource === "inferred"
+              ? " estimated from the question, plus subject & topic"
+              : ", subject & topic"
+        } auto-detected. Mistakes categorised. Next action queued.`}
         actions={
           <>
             <button type="button" style={buttonOutline} onClick={resetToInput}>
