@@ -1,17 +1,23 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-16 (post-PR #244 — Check & Improve auto-detect marks/subject/topic MERGED (trunk `43ffa09`): the grader determines marks/subject/topic from the question itself (Claim 2, option (a)); student selectors GONE on both surfaces. Isolated behind a `detectMarks` flag → Quick Practice byte-identical. Printed marks preferred → inferred → flagged fallback; topic constrained to canonical `topics.ts` vocab + re-canonicalised via shared helper (reuses Fix A). CI GREEN. **Owner live-verify of #244 PENDING (decisive — marks-inference quality).** QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `43ffa09`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B [FU-TOPICKEY-CONSOLIDATION] when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: 43ffa09
+# Updated: 2026-06-17 (post-PR #246 — Check & Improve detect-then-confirm + question photo upload MERGED (trunk `c9404e1`): the UX layer on Claim 2 (#244). Detection is now VISIBLE + CORRECTABLE before grading. "Read the question →" → detection-only `POST /api/detect-question` → confirmation chip (subject·topic·marks + source) + quiet [Change] (constrained correction; corrected mark → marksSource "user") → grade on CONFIRMED values via the unchanged trusted path. Question photo upload added (distinct slot). Override logged on the attempt record (reuses recordAttempt; no new collection). **`SHOW_DETECTION_META` flag default=ON for testing — ⚠️ MUST flip to OFF before student launch ([FU-DETECTION-META-LAUNCH-FLIP], hard pre-launch gate).** Bank-grounding deferred behind Fix B. CI GREEN. **Owner live-verify of #246 PENDING (decisive).** QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `c9404e1`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B [FU-TOPICKEY-CONSOLIDATION] when authorized. PRE-LAUNCH gate: [FU-DETECTION-META-LAUNCH-FLIP]. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-DETECTION-META-LAUNCH-FLIP] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: c9404e1
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 43ffa09
-Last PRs: #240 (MI polish batch — 5 surface/ranking sub-tasks; → `9eff0b0`) + #242 (topicKey Fix A — Me weak-area resolver + 13 aliases; → `77f2ed2`) + #243 (docs) + #244 (Check & Improve auto-detect marks/subject/topic — Claim 2; → `43ffa09`)
+SHA: c9404e1
+Last PRs: #242 (topicKey Fix A; → `77f2ed2`) + #243 (docs) + #244 (Check & Improve auto-detect — Claim 2; → `43ffa09`) + #245 (docs) + #246 (Check & Improve detect-then-confirm + question photo upload; → `c9404e1`)
 
 ## ⏭️ IMMEDIATE NEXT — (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3 → Fix B
-topicKey audit (i) + Fix A (#242) + Check & Improve auto-detect (#244, Claim 2) are done (#244 CI-green; owner live-verify
-PENDING). The items below are **QUEUED but NOT yet authorized** — the owner sends each as its own instruction, branched fresh
-from `43ffa09`. Do not start until instructed.
+topicKey audit (i) + Fix A (#242) + Check & Improve auto-detect (#244) + detect-then-confirm (#246) are done (#246 CI-green;
+owner live-verify PENDING). The items below are **QUEUED but NOT yet authorized** — the owner sends each as its own instruction,
+branched fresh from `c9404e1`. Do not start until instructed.
+
+0. **⚠️ PRE-LAUNCH GATE — [FU-DETECTION-META-LAUNCH-FLIP].** Before shipping Check & Improve to students, flip
+   `SHOW_DETECTION_META` to `false` in `lazytopper/src/utils/checkImproveDetection.ts`. It is ON now so the owner can see the
+   detection machinery (source label etc.) during testing; students must NOT see it. This is the tester-vs-student line — a
+   one-line change, but a real miss if forgotten. (It hides only the meta/source label, never the detected values or the
+   Change control.) Verify on both desktop + app after flipping.
 
 1. **(i) Read-only topicKey audit — ✅ DONE** (`report-topickey-duplication-audit-2026-06-16.md`). Fix A (#242) shipped the
    **read-time repair** half ([FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED). **Fix B = the bank-key DATA consolidation to one

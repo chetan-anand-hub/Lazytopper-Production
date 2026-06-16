@@ -1,3 +1,37 @@
+## 2026-06-17 — Post-PR #246 (Check & Improve detect-then-confirm + question photo upload; merged + CI GREEN; owner live-verify pending)
+
+### ✅ DONE — detect-then-confirm merged
+- **[DETECT-THEN-CONFIRM]** (#246, trunk `c9404e1`, squash; 9 files +935/−78; commit `3e00ac4`). The UX layer on Claim 2:
+  detection is now VISIBLE + CORRECTABLE before grading, plus question photo upload. "Read the question →" → detection-only
+  `POST /api/detect-question` on the question alone → confirmation chip (subject·topic·marks + source) + quiet [Change]
+  (constrained correction; corrected mark → `marksSource:"user"`) → grade on the CONFIRMED values via the unchanged
+  trusted-marks path (the grader is untouched). Override logged on the attempt record (`marksSource` + `detectionOverride`;
+  reuses recordAttempt persistence — no new collection / no `firestore.rules` change). Report: `report-detect-then-confirm-2026-06-16.md`.
+
+### ⚠️ PRE-LAUNCH GATE — must not be forgotten
+- **[FU-DETECTION-META-LAUNCH-FLIP] (hard pre-launch gate, owner-flagged)** — `SHOW_DETECTION_META` in
+  `lazytopper/src/utils/checkImproveDetection.ts` is **ON now for the owner testing phase**; it MUST be flipped to **`false`
+  before Check & Improve ships to students**. It gates ONLY the detection meta-display (the "read from the question" /
+  "estimated" source label) — it does NOT hide the detected values or the [Change] control (those stay visible + correctable
+  at launch — calm "we read this from your question", never anxious "AI low-confidence"). **This is the tester-vs-student
+  line: shipping with the machinery still showing is a real miss.** A one-line change (`export const SHOW_DETECTION_META =
+  false;`), but easy to forget — wired into NEXT_ACTION (item 0) + ROADMAP so it surfaces every session until done. After
+  flipping, verify the chip on BOTH desktop + app shows the values + Change but no source label.
+
+### Decisive verification owed
+- **[DETECT-CONFIRM-LIVE-VERIFY] (owner, decisive — NOT yet run/reported)** — on real uploads: (1) printed-marks "[3]" → chip
+  shows 3 marks (read from question), no marks picker; (2) no-marks question → sensibly INFERRED mark (a short Q infers 2–3,
+  a proof ~5 — the Q3-vs-Q5 divergence proves inference is real, not a blind 3); (3) **photo** of a printed-marks question →
+  reads the PRINTED value (`marksSource` stated), two distinct upload slots (question vs answer) with no confusion;
+  (4) tap [Change] → correct a wrong detection → grades against the corrected value, and the corrected topic buckets to a
+  clean canonical key on Me (override logged silently, not shown); (5) selectors gone on desktop AND mobile width.
+
+### Touchpoints
+- The two Check & Improve surfaces continue to share `checkImproveDetection.ts` (now also `buildConfirmedDetection` +
+  `clampDetectedMarks` + the `SHOW_DETECTION_META` flag) — they can't diverge.
+- **Bank-grounding / retrieval for detection** is DEFERRED behind **Fix B [FU-TOPICKEY-CONSOLIDATION]** (calibrating detection
+  against the question bank needs the topicKey/tagging cleanup first). Detection stays prompt-based for now.
+
 ## 2026-06-16 — Post-PR #244 (Check & Improve auto-detect marks/subject/topic — Claim 2; merged + CI GREEN; owner live-verify pending)
 
 ### ✅ DONE — Claim 2 merged
