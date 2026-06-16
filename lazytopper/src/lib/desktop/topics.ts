@@ -1,4 +1,5 @@
 import type { DesktopStream, DesktopSubject } from "./navigation";
+import { getRuntimeTopicCandidates } from "../../data/syllabus/topicAliasMap";
 
 export type DesktopTrendTier = "high" | "medium" | "low";
 
@@ -320,6 +321,26 @@ const TOPIC_ALIASES: Record<string, string> = {
   "reproduction": "how-do-organisms-reproduce",
   "how-organisms-reproduce": "how-do-organisms-reproduce",
   "environment": "our-environment",
+
+  // topicKey-duplication audit (2026-06-16): the bank also stores PascalCase
+  // Science abbreviations (predictedQuestionsScience.ts + class10ScienceTopicTrends)
+  // and a couple of `science_*` keys. Those have NO internal separator, so the
+  // slug-style `normalize` above collapses them to a single lowercase blob that
+  // missed every slug / display-name / alias — and the Me weak-area row then fell
+  // back to /exam-trends. These map each failing normalized blob to its canonical.
+  "light": "light-reflection-and-refraction",
+  "lifeprocesses": "life-processes",
+  "acidsbasessalts": "acids-bases-and-salts",
+  "humaneyeandcolourfulworld": "human-eye-and-colourful-world",
+  "carboncompounds": "carbon-and-its-compounds",
+  "controlandcoordination": "control-and-coordination",
+  "metalsnonmetals": "metals-and-non-metals",
+  "chemicalreactions": "chemical-reactions-and-equations",
+  "magneticeffects": "magnetic-effects-of-electric-current",
+  "heredityevolution": "heredity",
+  "ourenvironment": "our-environment",
+  "science-light-reflection-refraction": "light-reflection-and-refraction",
+  "science-reproduction": "how-do-organisms-reproduce",
 };
 
 export const desktopTopicBySlug = (
@@ -340,6 +361,31 @@ export const desktopTopicBySlug = (
     return TOPICS.find((topic) => topic.slug === aliased);
   }
 
+  return undefined;
+};
+
+// Weak-area / attribution resolver (topicKey-duplication audit, 2026-06-16).
+//
+// Attempts and mistakes are stored under the RAW topic label (recordAttempt /
+// recordMistake never canonicalise), so a stored key can be any of the bank's
+// variant spellings. `desktopTopicBySlug` alone handles kebab / Title-Case /
+// en-dash, and (with the aliases above) the known PascalCase Science blobs — but
+// it does NOT camelCase-split, so it cannot generalise to arbitrary variants.
+//
+// This wraps it with the SAME strong resolver the serving surfaces already use
+// (`getRuntimeTopicCandidates` — camelCase split + the canonical alias map): try
+// the raw key first, then each runtime candidate spelling. Reuses the existing
+// resolver; introduces no fourth normaliser. Genuinely-unknown topics still
+// return undefined, so the Me row keeps its honest /exam-trends fallback.
+export const desktopTopicForWeakAreaKey = (
+  rawKey: string,
+): DesktopTopicSummary | undefined => {
+  const direct = desktopTopicBySlug(rawKey);
+  if (direct) return direct;
+  for (const candidate of getRuntimeTopicCandidates(rawKey)) {
+    const viaCandidate = desktopTopicBySlug(candidate);
+    if (viaCandidate) return viaCandidate;
+  }
   return undefined;
 };
 
