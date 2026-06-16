@@ -18,7 +18,7 @@ import {
   type DesktopRouteContext,
   type DesktopSubject,
 } from "../../lib/desktop/navigation";
-import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { desktopTopicForWeakAreaKey } from "../../lib/desktop/topics";
 import { getWrongConceptsForTopic } from "../../services/adaptivePracticeEngine";
 import { normalizeTopicKey } from "../../utils/topicResolver";
 
@@ -302,7 +302,7 @@ function resolveTopicMeta(
   topicKey: string,
   fallbackName?: string
 ): { name: string; hubSlug: string | null; hubSubject: DesktopSubject | null } {
-  const meta = desktopTopicBySlug(topicKey);
+  const meta = desktopTopicForWeakAreaKey(topicKey);
   if (meta) {
     return { name: meta.name, hubSlug: meta.slug, hubSubject: meta.subject };
   }
