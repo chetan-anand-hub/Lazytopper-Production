@@ -1,3 +1,32 @@
+## 2026-06-16 — Post-PR #242 (topicKey Fix A — Me weak-area resolver + 13 aliases; merged + CI GREEN; owner live-verify pending)
+
+### ✅ DONE — read-only audit + Fix A merged
+- **[TOPICKEY-AUDIT] (read-only, DONE)** — `report-topickey-duplication-audit-2026-06-16.md`. 84 distinct `topicKey` strings,
+  4,907 occurrences, **32% under non-canonical spellings**. Proved serving merges all variants (no content shortage) but the
+  attribution side fragments: `recordAttempt`/`recordMistake` store the raw label, and the Me row resolved it through the
+  weakest normaliser. The report IS the Fix B migration spec (key→key map, affected files, guard design in §5).
+- **[TOPICKEY-FIXA]** (#242, trunk `77f2ed2`, squash; 3 files +114/−2; commit `4eb2320`). New `desktopTopicForWeakAreaKey`
+  routes the Me weak-area row through the strong serving-side resolver (`getRuntimeTopicCandidates`) + 13 `topics.ts` aliases;
+  the 13 in-bank spellings that fell to `/exam-trends` now resolve to Quick Practice. **Read-time only** — no `src/data`
+  rewrite, no stored-record migration. Report: `report-topickey-fixA-me-resolver-2026-06-16.md`. CI GREEN.
+
+### Resolved this PR
+- **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] — ✅ RESOLVED by #242** (pending owner live-verify). The Light row (and the 12 sibling
+  spellings) no longer hit the honest fallback — the Me hub resolution now camelCase-splits + alias-resolves via the strong
+  resolver, and 13 explicit `topics.ts` aliases cover the failing normalized blobs. The earlier note that this was an en-dash
+  "(in…)"-suffix problem was superseded by the audit: the en-dash variant actually resolved; the failing spellings were the
+  PascalCase Science abbreviations (`Light`, `MagneticEffects`, …) + 2 `science_*` keys. Honest fallback PRESERVED for
+  genuinely-unknown topics.
+
+### New follow-up logged this PR (recorded — do NOT start until authorized)
+- **[FU-TOPICKEY-CONSOLIDATION] (Fix B — owner-authorized-later, gated) — HELD.** Migrate every question's `topicKey` to the
+  single canonical kebab slug from `topics.ts`, retire the ~58 variant spellings, and add a **CI guard** (in the root `scripts`
+  matrix, NOT `scope:guard`) that fails if a non-canonical topicKey reappears. Touches gated `src/data/**` across ~60 files;
+  stage Maths/Science as separate PRs. Permanent cure for the source fragmentation; Fix A already covers the live read-time
+  symptom, so Fix B is not urgent. Exact key→key map + affected-file list + 3-part guard design = audit report §5.
+- Related: **[FU-WEAKAREA-ALIAS-DISPLAY]** (same duplication class, display side) is partially mitigated by Fix A's resolver
+  but its active-gaps COUNT path (`getWrongConceptsForTopic` keying) is separate — still open.
+
 ## 2026-06-16 — Post-PR #240 (MI polish batch — surface/ranking; merged + CI GREEN; owner live-verify 4/5)
 
 ### ✅ DONE — MI polish batch merged (4/5 live-verified)

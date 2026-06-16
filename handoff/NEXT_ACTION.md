@@ -1,22 +1,22 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-16 (post-PR #240 — MI polish batch MERGED (trunk `9eff0b0`): 5 surface/ranking sub-tasks; CI GREEN; owner live-verify 4/5 PASS (sub-tasks 1–4 verified; sub-task 5 scorecard not yet confirmable — `allDone`-only trigger being redesigned into a "Finish session" action). mi-polish branch deleted. QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `9eff0b0`): (i) read-only topicKey audit → (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling follow-up [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]). Carried: [FU-WEAKAREA-EXAMTRENDS-FALLBACK] (Light row → Exam Trends; topicKey-dup symptom) + [FU-SPELLING-GATED-REMAINDER] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: 9eff0b0
+# Updated: 2026-06-16 (post-PR #242 — topicKey Fix A MERGED (trunk `77f2ed2`): Me weak-area row now resolves stored labels through the strong serving-side resolver (`desktopTopicForWeakAreaKey` + 13 `topics.ts` aliases); the 13 in-bank spellings that fell to `/exam-trends` (Light repro + 12 siblings) now route to Quick Practice. Read-time only; no `src/data` rewrite, no stored-record migration. CI GREEN. **[FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED.** Preceded by the read-only topicKey-duplication audit (DONE). **Fix B (bank consolidation + CI guard) = [FU-TOPICKEY-CONSOLIDATION], HELD / authorized-later.** Owner live-verify of #242 PENDING. QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `77f2ed2`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B when authorized. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 77f2ed2
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 9eff0b0
-Last PRs: #235 (MI Loop S2 PR 2 — close the loop) + #236 (docs) + #237 (MI Loop S2 PR 3 — MCQ honest capture) + #238 (docs) + #239 (docs — stand-down) + #240 (MI polish batch — 5 surface/ranking sub-tasks; → `9eff0b0`)
+SHA: 77f2ed2
+Last PRs: #237 (MI Loop S2 PR 3 — MCQ honest capture) + #238 (docs) + #239 (docs — stand-down) + #240 (MI polish batch — 5 surface/ranking sub-tasks; → `9eff0b0`) + #242 (topicKey Fix A — Me weak-area resolver + 13 aliases; → `77f2ed2`)
 
-## ⏭️ IMMEDIATE NEXT — (i) topicKey audit → (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3
-The MI polish batch (#240) is merged + CI-green; owner live-verify 4/5 PASS. The three items below are **QUEUED but NOT yet
-authorized** — the owner sends each as its own instruction, branched fresh from `9eff0b0`. Do not start until instructed.
+## ⏭️ IMMEDIATE NEXT — (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3 → Fix B
+topicKey audit (i) + Fix A (#242) are done (#242 CI-green; owner live-verify PENDING). The items below are **QUEUED but NOT yet
+authorized** — the owner sends each as its own instruction, branched fresh from `77f2ed2`. Do not start until instructed.
 
-1. **(i) Read-only topicKey audit — independent investigation (next).** Trace the topicKey duplication /
-   non-canonical-variant problem surfaced by the #240 live-verify bug **[FU-WEAKAREA-EXAMTRENDS-FALLBACK]**: the **Light –
-   Reflection and Refraction** weak-area row routes to Exam Trends, not practice, because its topicKey (en-dash variant +
-   "(in…)" suffix) does not resolve to a practice slug and hits the honest fallback. Read-only: map where topicKeys are
-   minted / normalized / aliased across data + builders + Me; output = the systematic kill-list. Do NOT patch ad hoc.
+1. **(i) Read-only topicKey audit — ✅ DONE** (`report-topickey-duplication-audit-2026-06-16.md`). Fix A (#242) shipped the
+   **read-time repair** half ([FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED). **Fix B = the bank-key DATA consolidation to one
+   canonical kebab topicKey per topic + a CI guard that fails if a non-canonical topicKey reappears = [FU-TOPICKEY-CONSOLIDATION],
+   HELD / authorized-later** (gated `src/data/**` across ~60 files; staged Maths/Science; migration map + guard design in the
+   audit report §5). Do NOT start Fix B until owner-authorized.
 2. **(ii) "Finish session" scorecard-trigger PR — small.** Replace #240's `allDone`-only scorecard trigger with an explicit
    student-declared "Finish session" action; honest on PARTIAL sessions (no implied completion). Makes sub-task 5
    confirmable. = **[FU-SESSION-SCORECARD-TRIGGER]**.

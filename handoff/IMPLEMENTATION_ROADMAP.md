@@ -2,6 +2,27 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-16 — Post-PR #242 roadmap update (topicKey Fix A — read-time repair half)
+
+The repair half of the topicKey-duplication problem the read-only audit mapped. Reports:
+`report-topickey-duplication-audit-2026-06-16.md` (the audit/spec) + `report-topickey-fixA-me-resolver-2026-06-16.md` (Fix A).
+
+### Completed this session
+- [x] **Read-only topicKey-duplication audit** — enumerated all 84 distinct `topicKey` strings (4,907 occurrences; 32% under
+  non-canonical spellings), mapped the three normalisers, proved serving merges but attribution fragments, and located the
+  Light repro root cause at file:line. The report IS the Fix B migration spec.
+- [x] **#242 — topicKey Fix A** (trunk `77f2ed2`, squash; 3 files +114/−2; commit `4eb2320`). New `desktopTopicForWeakAreaKey`
+  routes the Me weak-area row through the strong serving-side resolver (`getRuntimeTopicCandidates`) + 13 `topics.ts` aliases;
+  the 13 in-bank spellings (11 PascalCase Science abbreviations + 2 `science_*`) that fell to `/exam-trends` now resolve to
+  Quick Practice. Read-time only — no `src/data` rewrite, no stored-record migration. CI GREEN. **[FU-WEAKAREA-EXAMTRENDS-
+  FALLBACK] RESOLVED** (⏳ owner live-verify pending).
+
+### topicKey — remaining
+- [ ] **Fix B — bank-key data consolidation + CI guard = [FU-TOPICKEY-CONSOLIDATION] (HELD / authorized-later).** Migrate every
+  question to a single canonical kebab `topicKey` matching `topics.ts`, retire variants, add a CI guard that fails if a
+  non-canonical topicKey reappears. Gated `src/data/**` across ~60 files; stage Maths/Science. Exact key→key map + affected
+  files + guard design in the audit report §5. Do NOT start until owner-authorized.
+
 ## 2026-06-16 — Post-PR #240 roadmap update (MI polish batch — surface/ranking, NOT eval-gated)
 
 The MI loop is Measure-complete; #240 is the surface/ranking polish on the finished engine. Report:

@@ -1,5 +1,55 @@
 ---
 
+## 2026-06-16 — topicKey Fix A (#242): Me weak-area resolver + 13 aliases (the read-time repair half)
+
+**Trunk after merge: `77f2ed2`** (#242, `fix/topickey-me-resolver`; squash; 3 files +114/−2). Owner-merged code PR; CI GREEN.
+The repair half of the topicKey-duplication problem the read-only audit (`report-topickey-duplication-audit-2026-06-16.md`)
+mapped. **Ungated, read-time only — repairs existing users WITHOUT a data migration.** Authority:
+`AGENT_topickey_fixA_me_resolver_2026-06-16.md`. Report: `report-topickey-fixA-me-resolver-2026-06-16.md`. Commit `4eb2320`.
+
+### Why
+The Me "Topics dragging your score" row resolved each stored (raw, un-canonicalised) topic label through `desktopTopicBySlug`
+— the weakest of the three topicKey normalisers, which does NOT camelCase-split. The audit proved **exactly 13** in-bank
+spellings fail it (11 PascalCase Science abbreviations: `Light`, `LifeProcesses`, `AcidsBasesSalts`, `HumanEyeAndColourfulWorld`,
+`CarbonCompounds`, `ControlAndCoordination`, `MetalsNonMetals`, `ChemicalReactions`, `MagneticEffects`, `HeredityEvolution`,
+`OurEnvironment`; + 2 `science_*`: `science_light_reflection_refraction`, `science_reproduction`), so those rows silently
+routed to `/exam-trends`. **Named repro: the Light row.** Not Light-specific — every Science weak-area row whose stored label
+is a PascalCase abbreviation broke identically. (`Electricity`/`Trigonometry`/`Reproduction` escaped only because their
+single-word/aliased forms happen to resolve.)
+
+### What landed (3 files)
+- **`lib/desktop/topics.ts`** — **Change 1:** new exported `desktopTopicForWeakAreaKey(rawKey)` wraps `desktopTopicBySlug`
+  with the SAME strong resolver the serving surfaces already use (`getRuntimeTopicCandidates` — camelCase split + the
+  canonical alias map): try the raw key, then each runtime candidate spelling. **Reuses** the existing resolver; **no fourth
+  normaliser.** Genuinely-unknown topics still return `undefined`, so the honest `/exam-trends` fallback is preserved.
+  **Change 2:** 13 `TOPIC_ALIASES` entries mapping each failing normalized spelling to its canonical `topics.ts` slug
+  (belt-and-braces for cases the strong map routes to a non-`topics.ts` canonical, e.g. `HeredityEvolution`→`heredity`).
+  `topics.ts` now imports (does not edit) `getRuntimeTopicCandidates` from the gated `data/syllabus/topicAliasMap.ts`.
+- **`pages/desktop/DesktopMePage.tsx`** — `resolveTopicMeta` now calls `desktopTopicForWeakAreaKey` (import swapped). Only
+  wiring; `gotoWeakAreaPractice`'s fallback (`:855-858`) unchanged — it now simply receives a non-null hubSlug for the 13.
+- **`lib/desktop/topics.weakarea.test.ts`** (new) — asserts all 13 resolve to the correct slug+subject; no-regression on
+  kebab/Title-Case/en-dash/`Electricity`; an arbitrary non-aliased variant (`carbon-compounds`) resolves via the candidate
+  bridge (proves Change 1); unknown/empty keys still return `undefined`.
+
+### NOT this PR (HELD)
+The bank-key DATA consolidation + CI guard = **Fix B / [FU-TOPICKEY-CONSOLIDATION]**, owner-authorized-later. Fix A does NOT
+rewrite `src/data` or stored learner records — it fixes RESOLUTION at read time, which is exactly why it repairs existing
+users with no migration. Migration map + guard design are in the audit report §5.
+
+### Gates
+tsc 0 · root matrix **175/175** · lazytopper ops matrix green · mojibake clean · scope:guard product OK · `git diff --check`
+clean. Faithful Node replication of the live resolver chain = **20/20 PASS** pre-merge (local vitest + `vite build` are
+linux-pinned → they run in CI). **CI `quality-gate` GREEN** on #242 (incl. the linux `vite build` + the new vitest). No
+forbidden/gated-data files touched (3 files: 2 product + 1 test).
+
+### Follow-ups
+**[FU-WEAKAREA-EXAMTRENDS-FALLBACK] RESOLVED** (pending owner live-verify). **[FU-TOPICKEY-CONSOLIDATION] (Fix B) logged, HELD.**
+**⏳ Owner live-verify of #242 PENDING:** (1) Light row → Quick Practice not Exam Trends; (2) a second previously-failing
+Science topic (Magnetic Effects / Human Eye) → practice; (3) Real Numbers (already working) → no regression; (4) an unknown
+topic → still falls back gracefully.
+
+---
+
 ## 2026-06-16 — MI Polish Batch (#240): weak-area ranking + per-row CTAs + MCQ nudge + spelling + session scorecard
 
 **Trunk after merge: `9eff0b0`** (#240, `feat/mi-polish-batch`; squash; 7 files +122/−79). Owner-merged code PR; CI GREEN.
