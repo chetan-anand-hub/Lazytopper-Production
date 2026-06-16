@@ -2,15 +2,21 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   checkSolutionImage,
+  detectQuestion,
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
   type MistakeType,
 } from "../../ai/aiClient";
 import { recordMistake } from "../../services/mistakeIntelligence";
-import { recordAttempt } from "../../services/practiceInsights";
+import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
-import { resolveDetectedGradeTopic } from "../../utils/checkImproveDetection";
+import {
+  buildConfirmedDetection,
+  clampDetectedMarks,
+  SHOW_DETECTION_META,
+  type ConfirmedDetection,
+} from "../../utils/checkImproveDetection";
 import {
   buildDesktopPracticePath,
   buildDesktopWorksheetPath,
@@ -106,6 +112,23 @@ const CANONICAL_TOPIC_VOCAB = [
   ...desktopTopicsBySubject("Science"),
 ].map((t) => ({ slug: t.slug, name: t.name, subject: t.subject }));
 
+// Meta label for the mark scale (gated by SHOW_DETECTION_META — hides the HOW,
+// never the values). Calm phrasing, never anxious "AI low-confidence".
+function detectionSourceLabel(
+  source: "stated" | "inferred" | "fallback" | "user" | null,
+): string {
+  switch (source) {
+    case "stated":
+      return "read from the question";
+    case "inferred":
+      return "estimated from the question";
+    case "user":
+      return "you set this";
+    default:
+      return "";
+  }
+}
+
 const MISTAKE_LABELS: Record<MistakeType, { label: string; fg: string; bg: string }> = {
   conceptual: { label: "Conceptual", fg: WARNING_FG, bg: WARNING_SOFT },
   calculation: { label: "Calculation", fg: INFO_FG, bg: INFO_SOFT },
@@ -123,8 +146,10 @@ interface GradedContext {
   topicSlug: string;
   question: string;
   marks: number;
-  /** How the mark scale was determined by the grader (auto-detect). */
-  marksSource: "stated" | "inferred" | "fallback" | null;
+  /** How the mark scale was set (detect-then-confirm). */
+  marksSource: "stated" | "inferred" | "fallback" | "user" | null;
+  /** Non-null only when the student corrected the AI's detection. */
+  detectionOverride: DetectionOverrideLog | null;
 }
 
 /* ────────────────── inline SVG glyphs ────────────────── */
@@ -562,12 +587,30 @@ const DesktopCheckImprovePage: React.FC = () => {
   // Subject / topic / marks are NO LONGER student-picked — the grader determines
   // them from the question (Claim 2). The student supplies only the question + the
   // answer; the detected values come back on the graded result.
+  // Question input — type/paste OR upload a photo of the QUESTION (distinct from
+  // the answer photo). The photo lets the grader read the printed "[3]" directly.
   const [question, setQuestion] = useState<string>("");
+  const [questionTab, setQuestionTab] = useState<"type" | "upload">("type");
+  const [qImageBase64, setQImageBase64] = useState<string | null>(null);
+  const [qImageMime, setQImageMime] = useState<string>("image/jpeg");
+  const [qImageName, setQImageName] = useState<string>("");
+  const qFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Answer input (unchanged).
   const [tab, setTab] = useState<AnswerTab>("upload");
   const [textAnswer, setTextAnswer] = useState<string>("");
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMime, setImageMime] = useState<string>("image/jpeg");
   const [imageName, setImageName] = useState<string>("");
+
+  // Detect-then-confirm: `detected` is the AI's read (immutable record for the
+  // override log); `confirmed` is what grading runs against (the student may
+  // correct it). `editing` toggles the inline correction.
+  const [detecting, setDetecting] = useState<boolean>(false);
+  const [detectError, setDetectError] = useState<string | null>(null);
+  const [detected, setDetected] = useState<ConfirmedDetection | null>(null);
+  const [confirmed, setConfirmed] = useState<ConfirmedDetection | null>(null);
+  const [editing, setEditing] = useState<boolean>(false);
 
   // ── grading + result state ───────────────────────────────────────
   const [status, setStatus] = useState<GradeStatus>("idle");
@@ -576,10 +619,12 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [resultCtx, setResultCtx] = useState<GradedContext | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
+  const hasQuestion =
+    questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
-  const hasQuestion = question.trim().length > 0;
-  const canGrade = hasAnswer && hasQuestion && status !== "loading";
+  // Grade only after the question has been read + confirmed AND an answer exists.
+  const canGrade = Boolean(confirmed) && hasAnswer && status !== "loading";
 
   function handleFileChosen(file: File) {
     const reader = new FileReader();
@@ -604,6 +649,90 @@ const DesktopCheckImprovePage: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  // Question photo → base64. Reading a new question invalidates any prior detection.
+  function handleQuestionFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = reader.result as string;
+      const [prefix, b64] = data.split(",");
+      const mime = prefix.match(/:(.*?);/)?.[1] || file.type || "image/jpeg";
+      setQImageBase64(b64 || null);
+      setQImageMime(mime);
+      setQImageName(file.name);
+      clearDetection();
+    };
+    reader.onerror = () => {
+      setQImageBase64(null);
+      setQImageName("");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearDetection() {
+    setDetected(null);
+    setConfirmed(null);
+    setEditing(false);
+    setDetectError(null);
+  }
+
+  // Read the question ALONE (one deliberate, cheap call) → show the detected chip.
+  async function handleReadQuestion() {
+    if (detecting) return;
+    const q = question.trim();
+    if (questionTab === "type" && !q) return;
+    if (questionTab === "upload" && !qImageBase64) return;
+    setDetecting(true);
+    setDetectError(null);
+    try {
+      const d = await detectQuestion({
+        question: q || undefined,
+        ...(questionTab === "upload" && qImageBase64
+          ? { imageBase64: qImageBase64, imageMimeType: qImageMime }
+          : {}),
+        topicVocabulary: CANONICAL_TOPIC_VOCAB,
+      });
+      if (!d || d.ok === false) {
+        setDetectError(d?.error ?? "We couldn't read the question — please try again.");
+        return;
+      }
+      const cd = buildConfirmedDetection(d);
+      setDetected(cd);
+      setConfirmed(cd);
+      setEditing(false);
+    } catch {
+      setDetectError("We couldn't read the question — please try again.");
+    } finally {
+      setDetecting(false);
+    }
+  }
+
+  // Constrained corrections — topic stays a canonical key; marks 1–6; subject
+  // toggle re-seeds the topic. A corrected mark is flagged marksSource "user".
+  function correctSubject(next: DesktopSubject) {
+    const first = CANONICAL_TOPIC_VOCAB.find((t) => t.subject === next);
+    setConfirmed((c) =>
+      c
+        ? { ...c, subject: next, topicSlug: first?.slug ?? "", topicName: first?.name ?? "" }
+        : c,
+    );
+  }
+  function correctTopic(slug: string) {
+    const t = CANONICAL_TOPIC_VOCAB.find((x) => x.slug === slug);
+    setConfirmed((c) =>
+      c
+        ? {
+            ...c,
+            topicSlug: t?.slug ?? "",
+            topicName: t?.name ?? "",
+            subject: (t?.subject as DesktopSubject) ?? c.subject,
+          }
+        : c,
+    );
+  }
+  function correctMarks(m: number) {
+    setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
+  }
+
   function resetToInput() {
     setStatus("idle");
     setErrorMessage(null);
@@ -624,7 +753,8 @@ const DesktopCheckImprovePage: React.FC = () => {
       question: ctx.question,
     });
     // Score-twin: persist the graded score as an attempt (feeds the Me
-    // scorecard / accuracy). Every graded answer, including full marks.
+    // scorecard / accuracy). Every graded answer, including full marks. Carries the
+    // detect-then-confirm telemetry (mark-scale source + any student override).
     recordAttempt(user, {
       subject: ctx.subject,
       topic: ctx.topicName,
@@ -633,6 +763,8 @@ const DesktopCheckImprovePage: React.FC = () => {
       marksScored: graded.marksAwarded,
       marksAvailable: graded.totalMarks,
       mode: "graded",
+      marksSource: ctx.marksSource ?? undefined,
+      detectionOverride: ctx.detectionOverride,
     });
     switch (rec.outcome) {
       case "logged":
@@ -650,7 +782,7 @@ const DesktopCheckImprovePage: React.FC = () => {
   }
 
   async function handleGrade() {
-    if (!canGrade) return;
+    if (!canGrade || !confirmed) return;
     setErrorMessage(null);
     setStatus("loading");
     setSaveStatus("idle");
@@ -658,18 +790,21 @@ const DesktopCheckImprovePage: React.FC = () => {
     const trimmedQuestion = question.trim();
 
     try {
-      // Claim 2: the grader determines marks/subject/topic from the question. We
-      // send only the question + the answer + the canonical topic vocabulary; no
-      // student-picked marks/subject/topic.
+      // Detect-then-confirm: grade against the CONFIRMED (possibly corrected)
+      // marks/subject/topic via the trusted-marks path (no re-detection at grade
+      // time). The question is sent as text when typed; when it was a photo we send
+      // its description-free label so the grader still has the question text — for a
+      // photo-only question we fall back to the answer image carrying the work.
       const answerPart =
         tab === "upload" && imageBase64
           ? { imageBase64, imageMimeType: imageMime }
           : { textAnswer: textAnswer.trim() };
 
       const graded = await checkSolutionImage({
-        question: trimmedQuestion,
-        detectMarks: true,
-        topicVocabulary: CANONICAL_TOPIC_VOCAB,
+        question: trimmedQuestion || confirmed.topicName || "Submitted question",
+        subject: confirmed.subject,
+        topic: confirmed.topicName,
+        marks: confirmed.marks,
         ...answerPart,
       });
       if (!graded || graded.ok === false) {
@@ -682,17 +817,34 @@ const DesktopCheckImprovePage: React.FC = () => {
         return;
       }
 
-      // Build the graded context from what the AI DETECTED, canonicalising the
-      // detected topic through the shared resolver (same one the Me weak-area row
-      // uses, Fix A) so MI attribution lands on a real topics.ts key.
-      const detected = resolveDetectedGradeTopic(graded);
+      // The override log: detected vs confirmed, only when the student changed it.
+      const overrideLog: DetectionOverrideLog | null =
+        detected &&
+        (detected.marks !== confirmed.marks ||
+          detected.subject !== confirmed.subject ||
+          detected.topicSlug !== confirmed.topicSlug)
+          ? {
+              detected: {
+                marks: detected.marks,
+                subject: detected.subject,
+                topicKey: detected.topicSlug,
+              },
+              confirmed: {
+                marks: confirmed.marks,
+                subject: confirmed.subject,
+                topicKey: confirmed.topicSlug,
+              },
+            }
+          : null;
+
       const ctx: GradedContext = {
-        subject: detected.subject,
-        topicName: detected.topicName,
-        topicSlug: detected.topicSlug,
+        subject: confirmed.subject,
+        topicName: confirmed.topicName,
+        topicSlug: confirmed.topicSlug,
         question: trimmedQuestion,
         marks: graded.totalMarks,
-        marksSource: graded.marksSource ?? null,
+        marksSource: confirmed.marksSource,
+        detectionOverride: overrideLog,
       };
 
       setResult(graded);
@@ -797,25 +949,185 @@ const DesktopCheckImprovePage: React.FC = () => {
         >
           {/* LEFT — input panel */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
-            {/* Question — marks, subject & topic are auto-detected by the grader */}
+            {/* STEP 1 — the question (type / paste / upload a photo of the QUESTION) */}
             <div style={{ ...cardStyle, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={sectionEyebrow}>Question</div>
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="e.g. Prove that the sum of opposite angles of a cyclic quadrilateral is 180°"
-                style={inputStyle}
-              />
-              <div style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
-                Paste or type the question exactly as printed. The examiner reads its
-                marks, subject and chapter from the question itself — you don’t pick them.
+              <div style={sectionEyebrow}>1 · The question</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {(["type", "upload"] as const).map((t) => {
+                  const active = questionTab === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => { setQuestionTab(t); clearDetection(); }}
+                      style={{
+                        flex: 1, height: 34, borderRadius: 8,
+                        border: active ? "none" : `1px solid ${BORDER}`,
+                        background: active ? TEXT_FG : CARD_BG,
+                        color: active ? "#ffffff" : TEXT_FG,
+                        fontFamily: FONT_SANS, fontWeight: 600, fontSize: 12.5, cursor: "pointer",
+                      }}
+                    >
+                      {t === "type" ? "Type / paste" : "Photo of the question"}
+                    </button>
+                  );
+                })}
               </div>
+
+              {questionTab === "type" ? (
+                <input
+                  type="text"
+                  value={question}
+                  onChange={(e) => { setQuestion(e.target.value); clearDetection(); }}
+                  placeholder="e.g. Find the 10th term of the AP 3, 7, 11, … [3]"
+                  style={inputStyle}
+                />
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <input
+                    ref={qFileInputRef}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleQuestionFile(f);
+                    }}
+                  />
+                  <button type="button" style={buttonOutline} onClick={() => qFileInputRef.current?.click()}>
+                    {qImageName ? `Question photo: ${qImageName}` : "Choose a photo of the question"}
+                  </button>
+                  <div style={{ fontSize: 12, color: TEXT_MUTED }}>
+                    A clear photo lets us read the printed marks (e.g. “[3]”) straight off the page.
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleReadQuestion}
+                disabled={!hasQuestion || detecting}
+                style={{
+                  ...buttonAccent,
+                  opacity: !hasQuestion || detecting ? 0.55 : 1,
+                  cursor: !hasQuestion || detecting ? "not-allowed" : "pointer",
+                  alignSelf: "flex-start",
+                }}
+              >
+                {detecting ? "Reading…" : confirmed ? "Re-read the question" : "Read the question →"}
+              </button>
+              {detectError && (
+                <div style={{ fontSize: 12.5, color: DANGER_FG }}>{detectError}</div>
+              )}
+
+              {/* Confirmation chip — the detected values, always visible + correctable */}
+              {confirmed && (
+                <div
+                  style={{
+                    background: MUTED_BG,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 10,
+                    padding: "12px 14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+                    <strong>Detected:</strong> {confirmed.subject}
+                    {confirmed.topicName ? ` · ${confirmed.topicName}` : ""} ·{" "}
+                    {confirmed.marks} mark{confirmed.marks === 1 ? "" : "s"}
+                    {SHOW_DETECTION_META && detectionSourceLabel(confirmed.marksSource) ? (
+                      <span style={{ color: TEXT_MUTED }}>
+                        {" "}({detectionSourceLabel(confirmed.marksSource)})
+                      </span>
+                    ) : null}
+                  </div>
+                  {!editing ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ fontSize: 12.5, color: TEXT_MUTED }}>Looks right?</span>
+                      <button
+                        type="button"
+                        onClick={() => setEditing(true)}
+                        style={{
+                          background: "none", border: "none", padding: 0,
+                          color: PRIMARY_GREEN, fontFamily: FONT_SANS, fontWeight: 600,
+                          fontSize: 12.5, cursor: "pointer",
+                        }}
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {(["Maths", "Science"] as DesktopSubject[]).map((s) => {
+                          const active = confirmed.subject === s;
+                          return (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => correctSubject(s)}
+                              style={{
+                                flex: 1, height: 32, borderRadius: 8,
+                                border: active ? "none" : `1px solid ${BORDER}`,
+                                background: active ? TEXT_FG : CARD_BG,
+                                color: active ? "#ffffff" : TEXT_FG,
+                                fontFamily: FONT_SANS, fontWeight: 600, fontSize: 12, cursor: "pointer",
+                              }}
+                            >
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <select
+                        value={confirmed.topicSlug}
+                        onChange={(e) => correctTopic(e.target.value)}
+                        style={inputStyle}
+                      >
+                        <option value="">(no specific topic)</option>
+                        {CANONICAL_TOPIC_VOCAB.filter((t) => t.subject === confirmed.subject).map((t) => (
+                          <option key={t.slug} value={t.slug}>{t.name}</option>
+                        ))}
+                      </select>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {[1, 2, 3, 4, 5, 6].map((m) => {
+                          const active = confirmed.marks === m;
+                          return (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => correctMarks(m)}
+                              style={{
+                                flex: 1, height: 32, borderRadius: 8,
+                                border: active ? "none" : `1px solid ${BORDER}`,
+                                background: active ? PRIMARY_GREEN : CARD_BG,
+                                color: active ? "#ffffff" : TEXT_FG,
+                                fontFamily: FONT_SANS, fontWeight: 700, fontSize: 12, cursor: "pointer",
+                              }}
+                            >
+                              {m}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditing(false)}
+                        style={{ ...buttonOutline, alignSelf: "flex-start" }}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Answer-method tabs */}
+            {/* STEP 2 — the answer (upload a photo of YOUR work, or type it) */}
             <div style={{ ...cardStyle, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={sectionEyebrow}>Your answer</div>
+              <div style={sectionEyebrow}>2 · Your answer</div>
               <div
                 style={{
                   display: "flex",
@@ -985,8 +1297,8 @@ const DesktopCheckImprovePage: React.FC = () => {
               >
                 {!canGrade && status !== "loading" && (
                   <span style={{ fontSize: 12, color: TEXT_MUTED }}>
-                    {!hasQuestion
-                      ? "Add a question description to continue"
+                    {!confirmed
+                      ? "Read the question first (step 1)"
                       : "Add an answer (image or text) to continue"}
                   </span>
                 )}
@@ -1031,8 +1343,9 @@ const DesktopCheckImprovePage: React.FC = () => {
                   color: TEXT_FG,
                 }}
               >
-                <li>Paste the question — we read its marks, subject and chapter for you.</li>
-                <li>Upload a photo of your written answer or type it out.</li>
+                <li>Add the question (type, paste, or photo) and tap “Read the question”.</li>
+                <li>Check what we read — marks, subject, chapter — and change it if it’s off.</li>
+                <li>Upload a photo of your written answer or type it out, then grade.</li>
                 <li>
                   We call our examiner-style grader and show the real score,
                   annotated steps and where marks were lost.

@@ -3,14 +3,21 @@ import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
 import {
   checkSolutionImage,
+  detectQuestion,
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
 } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake } from "../../services/mistakeIntelligence";
-import { recordAttempt } from "../../services/practiceInsights";
+import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
-import { resolveDetectedGradeTopic } from "../../utils/checkImproveDetection";
+import type { DesktopSubject } from "../../lib/desktop/navigation";
+import {
+  buildConfirmedDetection,
+  clampDetectedMarks,
+  SHOW_DETECTION_META,
+  type ConfirmedDetection,
+} from "../../utils/checkImproveDetection";
 
 // Persistence (entry building + policy + dedup + the weak-area bridge) now lives
 // behind the single front door `recordMistake`. The old local buildMobileLogEntry
@@ -29,10 +36,22 @@ const CANONICAL_TOPIC_VOCAB = [
 type View = "upload" | "graded";
 type Tab  = "upload" | "type";
 
+function detectionSourceLabel(
+  source: "stated" | "inferred" | "fallback" | "user" | null,
+): string {
+  switch (source) {
+    case "stated": return "read from the question";
+    case "inferred": return "estimated from the question";
+    case "user": return "you set this";
+    default: return "";
+  }
+}
+
 export default function CheckImprove() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
+  const qFileRef = useRef<HTMLInputElement>(null);
 
   const [view, setView]               = useState<View>("upload");
   const [tab, setTab]                 = useState<Tab>("upload");
@@ -40,14 +59,27 @@ export default function CheckImprove() {
   const [fileMime, setFileMime]       = useState<string>("image/jpeg");
   const [fileLoaded, setFileLoaded]   = useState(false);
   const [textAnswer, setTextAnswer]   = useState("");
+
+  // Question input (type/paste OR a photo of the QUESTION) + detect-then-confirm.
   const [question, setQuestion]       = useState("");
+  const [questionTab, setQuestionTab] = useState<"type" | "upload">("type");
+  const [qImageBase64, setQImageBase64] = useState<string | null>(null);
+  const [qImageMime, setQImageMime]   = useState<string>("image/jpeg");
+  const [qImageName, setQImageName]   = useState<string>("");
+  const [detecting, setDetecting]     = useState(false);
+  const [detectError, setDetectError] = useState<string | null>(null);
+  const [detected, setDetected]       = useState<ConfirmedDetection | null>(null);
+  const [confirmed, setConfirmed]     = useState<ConfirmedDetection | null>(null);
+  const [editing, setEditing]         = useState(false);
+
   const [grading, setGrading]         = useState(false);
   const [gradeResult, setGradeResult] = useState<CheckSolutionResponse | null>(null);
   const [gradeError, setGradeError]   = useState<string | null>(null);
   const [saved, setSaved]             = useState<"idle" | "saved" | "no-user">("idle");
 
   const hasContent = tab === "upload" ? fileLoaded : textAnswer.trim().length > 10;
-  const canGrade   = hasContent && question.trim().length > 0;
+  const hasQuestion = questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
+  const canGrade   = Boolean(confirmed) && hasContent;
 
   function handleFileChange(file: File) {
     const reader = new FileReader();
@@ -62,16 +94,94 @@ export default function CheckImprove() {
     reader.readAsDataURL(file);
   }
 
+  function clearDetection() {
+    setDetected(null);
+    setConfirmed(null);
+    setEditing(false);
+    setDetectError(null);
+  }
+
+  function handleQuestionFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const [prefix, b64] = result.split(",");
+      const mime = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
+      setQImageBase64(b64);
+      setQImageMime(mime);
+      setQImageName(file.name);
+      clearDetection();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function handleReadQuestion() {
+    if (detecting) return;
+    const q = question.trim();
+    if (questionTab === "type" && !q) return;
+    if (questionTab === "upload" && !qImageBase64) return;
+    setDetecting(true);
+    setDetectError(null);
+    try {
+      const d = await detectQuestion({
+        question: q || undefined,
+        ...(questionTab === "upload" && qImageBase64
+          ? { imageBase64: qImageBase64, imageMimeType: qImageMime }
+          : {}),
+        topicVocabulary: CANONICAL_TOPIC_VOCAB,
+      });
+      if (!d || d.ok === false) {
+        setDetectError(d?.error ?? "We couldn't read the question — please try again.");
+        return;
+      }
+      const cd = buildConfirmedDetection(d);
+      setDetected(cd);
+      setConfirmed(cd);
+      setEditing(false);
+    } catch {
+      setDetectError("We couldn't read the question — please try again.");
+    } finally {
+      setDetecting(false);
+    }
+  }
+
+  function correctSubject(next: DesktopSubject) {
+    const first = CANONICAL_TOPIC_VOCAB.find((t) => t.subject === next);
+    setConfirmed((c) =>
+      c ? { ...c, subject: next, topicSlug: first?.slug ?? "", topicName: first?.name ?? "" } : c,
+    );
+  }
+  function correctTopic(slug: string) {
+    const t = CANONICAL_TOPIC_VOCAB.find((x) => x.slug === slug);
+    setConfirmed((c) =>
+      c
+        ? {
+            ...c,
+            topicSlug: t?.slug ?? "",
+            topicName: t?.name ?? "",
+            subject: (t?.subject as DesktopSubject) ?? c.subject,
+          }
+        : c,
+    );
+  }
+  function correctMarks(m: number) {
+    setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
+  }
+
   async function handleGrade() {
+    if (!confirmed) return;
     setGradeError(null);
     setSaved("idle");
     setGrading(true);
     try {
       const trimmedQuestion = question.trim();
+      // Detect-then-confirm: grade against the CONFIRMED (possibly corrected)
+      // marks/subject/topic via the trusted-marks path (no re-detection at grade time).
       const req = {
-        question: trimmedQuestion,
-        detectMarks: true,
-        topicVocabulary: CANONICAL_TOPIC_VOCAB,
+        question: trimmedQuestion || confirmed.topicName || "Submitted question",
+        subject: confirmed.subject,
+        topic: confirmed.topicName,
+        marks: confirmed.marks,
         ...(tab === "upload" && fileBase64
           ? { imageBase64: fileBase64, imageMimeType: fileMime }
           : { textAnswer: textAnswer.trim() }),
@@ -91,15 +201,20 @@ export default function CheckImprove() {
       }
       setGradeResult(result);
       setView("graded");
-      // Claim 2: persist under the AI-DETECTED subject/topic, canonicalised through
-      // the shared resolver (same as desktop + the Me weak-area row, Fix A) so MI
-      // attribution lands on a real topics.ts key (the old free-text dropdown stored
-      // non-canonical labels). Honest fallbacks live in the helper.
-      const {
-        subject: detectedSubject,
-        topicName: detectedTopicName,
-        topicSlug: detectedTopicSlug,
-      } = resolveDetectedGradeTopic(result);
+
+      const detectedSubject = confirmed.subject;
+      const detectedTopicName = confirmed.topicName;
+      const detectedTopicSlug = confirmed.topicSlug;
+      const overrideLog: DetectionOverrideLog | null =
+        detected &&
+        (detected.marks !== confirmed.marks ||
+          detected.subject !== confirmed.subject ||
+          detected.topicSlug !== confirmed.topicSlug)
+          ? {
+              detected: { marks: detected.marks, subject: detected.subject, topicKey: detected.topicSlug },
+              confirmed: { marks: confirmed.marks, subject: confirmed.subject, topicKey: confirmed.topicSlug },
+            }
+          : null;
       // Persist to the SAME pipeline desktop uses (mirror, don't reinvent):
       // logMistakes writes localStorage synchronously + Firestore
       // `learnerProfiles/{uid}/mistakeLogs` fire-and-forget. Keyed on uid, so the
@@ -122,6 +237,8 @@ export default function CheckImprove() {
           marksScored: result.marksAwarded,
           marksAvailable: result.totalMarks,
           mode: "graded",
+          marksSource: confirmed.marksSource ?? undefined,
+          detectionOverride: overrideLog,
         });
         // logged / duplicate (already saved) / skipped-clean (graded, no mistake
         // to save) all read as success; signed-out / local / error read as
@@ -312,28 +429,171 @@ export default function CheckImprove() {
           />
         )}
 
-        {/* ── Question — marks, subject & topic are auto-detected ─── */}
+        {/* ── The question — type / paste / photo, then "Read the question" ── */}
         <div className="card-soft" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Question
+            The question
           </div>
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Paste the question, e.g. Prove Pythagoras theorem [3]"
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["type", "upload"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => { setQuestionTab(t); clearDetection(); }}
+                style={{
+                  flex: 1, height: 32, borderRadius: 9,
+                  border: questionTab === t ? "none" : `1px solid var(--mob-card-border)`,
+                  background: questionTab === t ? "var(--mob-fg)" : "var(--mob-muted)",
+                  color: questionTab === t ? "#ffffff" : "var(--mob-fg-muted)",
+                  fontWeight: 600, fontSize: "0.78rem", cursor: "pointer",
+                }}
+              >
+                {t === "type" ? "Type / paste" : "Photo of question"}
+              </button>
+            ))}
+          </div>
+
+          {questionTab === "type" ? (
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => { setQuestion(e.target.value); clearDetection(); }}
+              placeholder="e.g. Find the 10th term of the AP 3, 7, 11, … [3]"
+              style={{
+                width: "100%", height: 40, borderRadius: 10,
+                border: `1px solid var(--mob-card-border)`,
+                background: "var(--mob-muted)", color: "var(--mob-fg)",
+                fontFamily: "var(--font-body)", fontSize: "0.85rem",
+                padding: "0 12px", boxSizing: "border-box",
+              }}
+            />
+          ) : (
+            <>
+              <input
+                ref={qFileRef}
+                type="file"
+                accept="image/*,application/pdf"
+                style={{ display: "none" }}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleQuestionFile(f); }}
+              />
+              <button
+                onClick={() => qFileRef.current?.click()}
+                style={{
+                  width: "100%", minHeight: 40, borderRadius: 10,
+                  border: `1px dashed var(--mob-card-border)`, background: "var(--mob-muted)",
+                  color: "var(--mob-fg)", fontFamily: "var(--font-body)", fontSize: "0.82rem",
+                  padding: "8px 12px", cursor: "pointer",
+                }}
+              >
+                {qImageName ? `Question photo: ${qImageName}` : "Choose a photo of the question"}
+              </button>
+              <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
+                A clear photo lets us read the printed marks (e.g. “[3]”) off the page.
+              </div>
+            </>
+          )}
+
+          <button
+            onClick={handleReadQuestion}
+            disabled={!hasQuestion || detecting}
             style={{
-              width: "100%", height: 40, borderRadius: 10,
-              border: `1px solid var(--mob-card-border)`,
-              background: "var(--mob-muted)", color: "var(--mob-fg)",
-              fontFamily: "var(--font-body)", fontSize: "0.85rem",
-              padding: "0 12px", boxSizing: "border-box",
+              alignSelf: "flex-start", minHeight: 36, borderRadius: 10, padding: "0 16px",
+              border: "none", background: "hsl(280,60%,50%)", color: "#ffffff",
+              fontWeight: 700, fontSize: "0.82rem",
+              opacity: !hasQuestion || detecting ? 0.5 : 1,
+              cursor: !hasQuestion || detecting ? "not-allowed" : "pointer",
             }}
-          />
-          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
-            The examiner reads the marks, subject and chapter from the question itself —
-            you don’t pick them.
-          </div>
+          >
+            {detecting ? "Reading…" : confirmed ? "Re-read the question" : "Read the question →"}
+          </button>
+          {detectError && (
+            <div style={{ fontSize: "0.78rem", color: "var(--mob-danger, #d4351c)" }}>{detectError}</div>
+          )}
+
+          {confirmed && (
+            <div
+              style={{
+                background: "var(--mob-muted)", border: `1px solid var(--mob-card-border)`,
+                borderRadius: 10, padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8,
+              }}
+            >
+              <div style={{ fontSize: "0.82rem", color: "var(--mob-fg)", lineHeight: 1.5 }}>
+                <strong>Detected:</strong> {confirmed.subject}
+                {confirmed.topicName ? ` · ${confirmed.topicName}` : ""} · {confirmed.marks} mark
+                {confirmed.marks === 1 ? "" : "s"}
+                {SHOW_DETECTION_META && detectionSourceLabel(confirmed.marksSource)
+                  ? <span style={{ color: "var(--mob-fg-muted)" }}> ({detectionSourceLabel(confirmed.marksSource)})</span>
+                  : null}
+              </div>
+              {!editing ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: "0.76rem", color: "var(--mob-fg-muted)" }}>Looks right?</span>
+                  <button
+                    onClick={() => setEditing(true)}
+                    style={{ background: "none", border: "none", padding: 0, color: "hsl(280,60%,50%)", fontWeight: 600, fontSize: "0.78rem", cursor: "pointer" }}
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {(["Maths", "Science"] as DesktopSubject[]).map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => correctSubject(s)}
+                        style={{
+                          flex: 1, height: 30, borderRadius: 8,
+                          border: confirmed.subject === s ? "none" : `1px solid var(--mob-card-border)`,
+                          background: confirmed.subject === s ? "var(--mob-fg)" : "var(--mob-muted)",
+                          color: confirmed.subject === s ? "#ffffff" : "var(--mob-fg-muted)",
+                          fontWeight: 600, fontSize: "0.76rem", cursor: "pointer",
+                        }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  <select
+                    value={confirmed.topicSlug}
+                    onChange={(e) => correctTopic(e.target.value)}
+                    style={{
+                      width: "100%", height: 38, borderRadius: 9,
+                      border: `1px solid var(--mob-card-border)`, background: "var(--mob-muted)",
+                      color: "var(--mob-fg)", fontFamily: "var(--font-body)", fontSize: "0.82rem", padding: "0 10px",
+                    }}
+                  >
+                    <option value="">(no specific topic)</option>
+                    {CANONICAL_TOPIC_VOCAB.filter((t) => t.subject === confirmed.subject).map((t) => (
+                      <option key={t.slug} value={t.slug}>{t.name}</option>
+                    ))}
+                  </select>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {[1, 2, 3, 4, 5, 6].map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => correctMarks(m)}
+                        style={{
+                          flex: 1, height: 30, borderRadius: 8,
+                          border: confirmed.marks === m ? "none" : `1px solid var(--mob-card-border)`,
+                          background: confirmed.marks === m ? "hsl(280,60%,50%)" : "var(--mob-muted)",
+                          color: confirmed.marks === m ? "#ffffff" : "var(--mob-fg-muted)",
+                          fontWeight: 700, fontSize: "0.76rem", cursor: "pointer",
+                        }}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setEditing(false)}
+                    style={{ alignSelf: "flex-start", minHeight: 30, borderRadius: 8, padding: "0 14px", border: `1px solid var(--mob-card-border)`, background: "var(--mob-muted)", color: "var(--mob-fg)", fontWeight: 600, fontSize: "0.78rem", cursor: "pointer" }}
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Tip card ─────────────────────────────────────────── */}
@@ -398,7 +658,7 @@ export default function CheckImprove() {
         </button>
         {!canGrade && !grading && (
           <div style={{ textAlign: "center", fontSize: "0.68rem", color: "var(--mob-fg-muted)", marginTop: 6 }}>
-            {!hasContent ? "Upload or type an answer first" : "Add a question description to continue"}
+            {!confirmed ? "Read the question first" : "Upload or type an answer first"}
           </div>
         )}
       </div>
