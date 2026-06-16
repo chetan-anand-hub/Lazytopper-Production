@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
-import { SessionProgressBar, type SessionStats } from "./SessionProgressBar";
 
 export interface PracticeQuestionListProps {
   isLoading: boolean;
@@ -19,7 +18,6 @@ export interface PracticeQuestionListProps {
   practiceSolutionLoading: Record<string, boolean>;
   practiceSolutionError: Record<string, string | undefined>;
   practiceSolutionData: Record<string, StepSolutionResponse>;
-  sessionStats: SessionStats;
   onSetActiveQuestion: (id: string) => void;
   onToggleAnswer: (id: string, q?: PracticeQuestion) => void;
   onMcqSelect: (qId: string, optionIndex: number) => void;
@@ -35,7 +33,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     isLoading, error, questions, filteredQuestions, subjectKey, topicLabel, difficultyFilter,
     expandedAnswers, selfAssessments, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
-    sessionStats,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
     onSelfAssessGotIt, onSelfAssessNeedPractice,
     onOpenConceptDrawer, onOpenMentorBoard,
@@ -155,8 +152,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
           ))}
         </div>
       )}
-
-      <SessionProgressBar stats={sessionStats} />
     </section>
   );
 }

@@ -76,6 +76,7 @@ import { PracticeControls } from "../components/practice/PracticeControls";
 import { PracticeHero } from "../components/practice/PracticeHero";
 import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPanel";
 import { PracticeQuestionList } from "../components/practice/PracticeQuestionList";
+import type { SessionStats } from "../components/practice/SessionProgressBar";
 import { downloadWorksheet } from "../components/practice/worksheetGenerator";
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
@@ -1032,7 +1033,7 @@ const packTopicKey = useMemo(() => {
     return idx >= 0 ? idx + 1 : null;
   }, [filteredQuestions, activeQuestion]);
 
-  const sessionStats = useMemo(() => {
+  const sessionStats = useMemo<SessionStats>(() => {
     const attemptedIds = new Set<string>([
       ...Object.keys(mcqSelections),
       ...Object.keys(selfAssessments),
@@ -1283,7 +1284,6 @@ const packTopicKey = useMemo(() => {
           practiceSolutionLoading={practiceSolutionLoading}
           practiceSolutionError={practiceSolutionError}
           practiceSolutionData={practiceSolutionData}
-          sessionStats={sessionStats}
           onSetActiveQuestion={setActiveQuestionId}
           onToggleAnswer={handleToggleAnswer}
           onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
@@ -1311,6 +1311,19 @@ const packTopicKey = useMemo(() => {
   nextActions.push({ label: "Chapter Test", icon: "Test", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Predicted Questions", icon: "HPQ", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Study this chapter", icon: "Hub", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  // End-of-session scorecard figures (from existing session state — no new plumbing).
+  const scAttempted = sessionStats.attemptedInSet;
+  const scMcqAnswered = sessionStats.localMcqAnswered;
+  const scMcqCorrect = sessionStats.localMcqCorrect;
+  const scMcqMissed = scMcqAnswered - scMcqCorrect;
+  const scMcqAccuracy = scMcqAnswered > 0 ? Math.round((scMcqCorrect / scMcqAnswered) * 100) : null;
+  // One honest, locally-derived MI nudge — no fabricated insight.
+  const scNudge =
+    scMcqMissed > 0
+      ? `You missed ${scMcqMissed} MCQ${scMcqMissed === 1 ? "" : "s"} - open "Check my answer" on those to log your working.`
+      : scMcqAnswered > 0
+        ? `All ${scMcqAnswered} MCQ${scMcqAnswered === 1 ? "" : "s"} correct this session.`
+        : null;
   return (
     <div style={{
       marginTop: 20,
@@ -1321,11 +1334,21 @@ const packTopicKey = useMemo(() => {
       boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
     }}>
       <div style={{ marginBottom: 16 }}>
-        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 600, color: "hsl(220, 25%, 12%)", margin: "0 0 4px" }}>
-          Set notes complete - {sessionStats.attemptedInSet}/{questions.length} attempted in this set
+        <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "hsl(152, 45%, 32%)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+          Session scorecard
+        </div>
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 700, color: "hsl(220, 25%, 12%)", margin: "0 0 6px", lineHeight: 1.35 }}>
+          {scAttempted} of {questions.length} attempted
+          {scMcqAnswered > 0 ? ` · ${scMcqCorrect}/${scMcqAnswered} MCQs correct` : ""}
+          {scMcqAccuracy !== null ? ` · ${scMcqAccuracy}% accuracy` : ""}
         </h3>
-        <p style={{ fontSize: "0.84rem", color: "hsl(220, 15%, 42%)", margin: 0, lineHeight: 1.5 }}>
-          This session only. These notes are not graded and are not saved to Me / Progress. Use Check my answer where you want real feedback.
+        {scNudge && (
+          <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
+            {scNudge}
+          </p>
+        )}
+        <p style={{ fontSize: "0.8rem", color: "hsl(220, 15%, 42%)", margin: 0, lineHeight: 1.5 }}>
+          MCQ results and answers you check are saved to your progress. Self-marked notes stay in this session.
         </p>
       </div>
       <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "hsl(220, 15%, 42%)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
