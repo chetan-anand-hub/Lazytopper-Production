@@ -845,6 +845,20 @@ const DesktopMePage: React.FC = () => {
     navigate(withQuery("/exam-trends", params));
   };
 
+  const gotoWeakAreaPractice = (w: WeakArea) => {
+    // Every weak-area row is a working targeted CTA: route straight to an
+    // auto-served practice set scoped to THAT row's topic (the Stage-1 one-click
+    // gotoPracticeForTopic path). Topic-level only — no type filters (that's
+    // Stage 3). When the topic doesn't resolve to a hub slug/subject we can't
+    // build a practice path, so fall back to the topic hub/trends destination
+    // rather than emitting a broken or generic route.
+    if (w.hubSubject && w.hubSlug) {
+      gotoPracticeForTopic(w.hubSubject, w.hubSlug);
+    } else {
+      gotoTopicHubOrTrends(w.hubSlug);
+    }
+  };
+
   const gotoCheckImprove = () => {
     const params = new URLSearchParams();
     if (ROUTE_CTX.source) params.set("source", ROUTE_CTX.source);
@@ -1382,7 +1396,7 @@ const DesktopMePage: React.FC = () => {
                   <button
                     key={w.topicKey}
                     type="button"
-                    onClick={() => gotoTopicHubOrTrends(w.hubSlug)}
+                    onClick={() => gotoWeakAreaPractice(w)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -1476,8 +1490,10 @@ const DesktopMePage: React.FC = () => {
                 );
               })}
 
-              {/* Quick action for the top weak topic if it resolves to a real
-                  hub slug; otherwise we silently omit the deep CTA. */}
+              {/* The mistake-aware worksheet for the top weak topic (a distinct
+                  action from drilling). Every row already routes to targeted
+                  practice on click, so no per-row "Practice" button is needed.
+                  Shown only when the top topic resolves to a real hub slug. */}
               {weakAreas[0] && weakAreas[0].hubSlug && weakAreas[0].hubSubject ? (
                 <div
                   style={{
@@ -1487,18 +1503,6 @@ const DesktopMePage: React.FC = () => {
                     gap: 8,
                   }}
                 >
-                  <button
-                    type="button"
-                    style={buttonOutline}
-                    onClick={() =>
-                      gotoPracticeForTopic(
-                        weakAreas[0].hubSubject as DesktopSubject,
-                        weakAreas[0].hubSlug as string
-                      )
-                    }
-                  >
-                    Practise {weakAreas[0].topicName}
-                  </button>
                   <button
                     type="button"
                     style={buttonOutline}
