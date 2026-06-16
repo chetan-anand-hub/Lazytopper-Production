@@ -51,10 +51,12 @@ clean · `clampDetectedMarks` 9/9 + `buildConfirmedDetection` Node proofs. **CI 
 `vite build` + vitest). No forbidden/gated files touched (gated resolver imported only).
 
 ### Follow-ups
-**[FU-DETECTION-META-LAUNCH-FLIP]** (pre-launch, hard gate). **⏳ Owner live-verify of #246 PENDING (decisive — not yet
-run/reported):** (1) printed-marks "[3]" → chip reads it, no marks picker; (2) no-marks question → sensibly inferred (Q3 vs Q5
-divergence); (3) **photo** of a printed-marks question → reads the printed value, two distinct upload slots; (4) **Change** →
-grades the corrected value, clean canonical bucket on Me (override logged silently); (5) selectors gone desktop AND mobile width.
+**[FU-DETECTION-META-LAUNCH-FLIP]** (pre-launch, hard gate). **✅ Owner live-verify of #246 = PASS 5/6:** (1) printed marks read
+correctly, no marks picker; (2) inference genuine + graduated — AP=2 vs proof=3 diverge (real, not a blind constant); (3) photo
+reads the printed value, two distinct upload slots; (4) [Change] grades the corrected value, clean canonical bucket on Me;
+(5) selectors gone desktop AND mobile width. **🐞 The 6th = [FU-DETECTION-MARKS-CEILING]:** inference under-calls true 5-mark
+questions (multi-part numerical + proofs) as 3 — caught-and-correctable via [Change] (the UX absorbs it), NOT a blocker. Fix
+later: tune the detect-question mark heuristic toward 5 for multi-part/proof items, or bank-grounding (deferred behind Fix B).
 
 ---
 
