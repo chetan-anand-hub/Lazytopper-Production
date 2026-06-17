@@ -1,5 +1,54 @@
 ---
 
+## 2026-06-17 — "Finish session" scorecard trigger (#249)
+
+**Trunk after merge: `704dcff`** (#249, `feat/desktop-pr-finish-session-scorecard`; squash; 2 files +63/−2). Owner-merged code PR;
+CI `quality-gate` GREEN (1m8s, incl. the linux `vite build`). Authority: `AGENT_finish_session_scorecard_2026-06-16.md`. Report:
+`report-finish-session-scorecard-2026-06-17.md`. Commit `b740a3f`. **Supersedes #240 sub-task 5's `allDone`-only scorecard trigger.**
+
+### Why
+#240 tied the session scorecard to `allDone` (every question attempted) — the wrong model: students stop when they're *done*,
+not when they've exhausted the set, so the scorecard rarely fired and the owner could never confirm it. Replace the trigger with
+an explicit student-declared **"Finish session"** so the student declares completion (partial or full) and gets a scorecard for
+exactly what they did.
+
+### What landed (2 files)
+- **`src/pages/PracticePage.tsx`** (+62/−2) — new `sessionFinished` state; always-available **"Finish session"** button at the
+  set foot (full-width green accent, renders on desktop + mobile widths) that fires `practice_finish_session_click` and sets
+  `sessionFinished=true`; scorecard trigger changed from `allDone` to `showScorecard = (sessionFinished || allDone) &&
+  questions.length > 0`; explicit partial-session honesty copy; a "Keep practicing this set" escape hatch on a manual partial
+  finish; `setSessionFinished(false)` added to the existing fetch-success reset block.
+- **`src/services/uxTelemetry.ts`** (+1) — `practice_finish_session_click` added to the typed `UxEventName` union (additive).
+
+### Design (load-bearing + guard honoured)
+- **Finish button = the primary trigger; `allDone` = a convenience auto-offer.** The scorecard is deliberate (Finish tap or
+  allDone), never an auto-popup on navigation.
+- **Reuses the EXISTING `sessionStats`** — no new counters, no persistence, no session-lifecycle state machine. The STOP-IF-IT-
+  BALLOONS guard held: the change is one boolean + a button + a trigger swap + copy (+ one additive telemetry type member).
+- **Partial honesty:** attempted-only denominators; explicit "the {M} you didn't reach aren't counted" line; honest zero-attempt
+  state. Unattempted questions are never counted against the student.
+
+### Gates
+tsc 0 · mojibake clean · scope:guard product OK · root matrix **175/175** · lazytopper ops matrix green · `git diff --check`
+clean. **CI `quality-gate` GREEN** (the linux `vite build` could not run locally — Windows box; CI-gated as standard). No
+forbidden/gated files touched.
+
+### Owner live-verify = PASS (partial-session honesty PROVEN)
+A **3-of-10 finish** reads *"3 of 10 attempted · 0/3 MCQs correct · 0% accuracy · Here's how those 3 went, the 7 you didn't
+reach aren't counted."* The **zero-attempt** case reads honestly too. [FU-SESSION-SCORECARD-TRIGGER] CLOSED.
+
+### New follow-up logged (for the next, read-only audit)
+**[FU-MALFORMED-QUESTION]** — a live-observed malformed question: **Real Numbers Quick Practice Q10 fused two questions**
+(alarm-clock LCM + prove √5) with inconsistent tags (5-mark / Section-D / Short). Suspected AI-generated pack origin. To be
+characterised by the upcoming read-only AI-generated-question-tier audit (see OPEN_QUESTIONS).
+
+### Post-merge ritual (this docs PR)
+Trunk synced `02132b9`→`704dcff` (ff-only); feature branch `feat/desktop-pr-finish-session-scorecard` deleted (remote + local,
+owner-OK'd); this docs-only handoff PR self-merged. **NEXT (owner): read-only AI-generated-question-tier audit, its own
+instruction branched fresh against `704dcff`.**
+
+---
+
 ## 2026-06-17 — Check & Improve detect-then-confirm + question photo upload (#246)
 
 **Trunk after merge: `c9404e1`** (#246, `feat/checkimprove-detect-then-confirm`; squash; 9 files +935/−78). Owner-merged code PR;

@@ -1,17 +1,22 @@
 # LazyTopper — Next Action
-# Updated: 2026-06-17 (post-PR #246 — Check & Improve detect-then-confirm + question photo upload MERGED (trunk `c9404e1`): the UX layer on Claim 2 (#244). Detection is now VISIBLE + CORRECTABLE before grading. "Read the question →" → detection-only `POST /api/detect-question` → confirmation chip (subject·topic·marks + source) + quiet [Change] (constrained correction; corrected mark → marksSource "user") → grade on CONFIRMED values via the unchanged trusted path. Question photo upload added (distinct slot). Override logged on the attempt record (reuses recordAttempt; no new collection). **`SHOW_DETECTION_META` flag default=ON for testing — ⚠️ MUST flip to OFF before student launch ([FU-DETECTION-META-LAUNCH-FLIP], hard pre-launch gate).** Bank-grounding deferred behind Fix B. CI GREEN. **Owner live-verify of #246 = PASS 5/6** (printed marks correct; inference genuine + graduated AP=2 vs proof=3; topics bucket clean; selectors gone both widths). The 6th: **[FU-DETECTION-MARKS-CEILING]** — inference under-calls true 5-mark questions (multi-part numerical + proofs) as 3; caught-and-correctable via [Change], NOT a blocker. QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `c9404e1`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B [FU-TOPICKEY-CONSOLIDATION] when authorized. PRE-LAUNCH gate: [FU-DETECTION-META-LAUNCH-FLIP]. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-DETECTION-META-LAUNCH-FLIP] + [FU-DETECTION-MARKS-CEILING] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
-# Base SHA: c9404e1
+# Updated: 2026-06-17 (post-PR #249 — **"Finish session" scorecard trigger MERGED** (trunk `704dcff`): replaces #240 sub-task 5's `allDone`-only scorecard trigger with an explicit student-declared "Finish session" button (always-available at the set foot, both widths) → fires `practice_finish_session_click` + sets `sessionFinished` → surfaces the scorecard. `allDone` kept as a convenience auto-offer. Reuses the EXISTING `sessionStats` — no new counters/persistence/state machine. Partial-session honesty PROVEN in owner live-verify (a 3-of-10 finish reads "3 of 10 attempted · 0/3 MCQs correct · 0% accuracy · the 7 you didn't reach aren't counted"; zero-attempt honest too). CI GREEN. Supersedes #240 sub-task 5. [FU-SESSION-SCORECARD-TRIGGER] CLOSED. NEW: **[FU-MALFORMED-QUESTION]** (Real Numbers Quick Practice Q10 fused alarm-clock LCM + prove √5 with inconsistent 5-mark/Section-D/Short tags; suspected AI-generated pack origin) — for the upcoming read-only AI-generated-question-tier audit. IMMEDIATE NEXT (owner; its own instruction, branched fresh from `704dcff`): **read-only AI-generated-question-tier audit**. Previously post-PR #246 — Check & Improve detect-then-confirm + question photo upload MERGED (trunk `c9404e1`): the UX layer on Claim 2 (#244). Detection is now VISIBLE + CORRECTABLE before grading. "Read the question →" → detection-only `POST /api/detect-question` → confirmation chip (subject·topic·marks + source) + quiet [Change] (constrained correction; corrected mark → marksSource "user") → grade on CONFIRMED values via the unchanged trusted path. Question photo upload added (distinct slot). Override logged on the attempt record (reuses recordAttempt; no new collection). **`SHOW_DETECTION_META` flag default=ON for testing — ⚠️ MUST flip to OFF before student launch ([FU-DETECTION-META-LAUNCH-FLIP], hard pre-launch gate).** Bank-grounding deferred behind Fix B. CI GREEN. **Owner live-verify of #246 = PASS 5/6** (printed marks correct; inference genuine + graduated AP=2 vs proof=3; topics bucket clean; selectors gone both widths). The 6th: **[FU-DETECTION-MARKS-CEILING]** — inference under-calls true 5-mark questions (multi-part numerical + proofs) as 3; caught-and-correctable via [Change], NOT a blocker. QUEUED NEXT (owner; NOT yet authorized — each its own instruction, branched fresh from `c9404e1`): (ii) "Finish session" scorecard-trigger PR → (iii) gated-spelling [FU-SPELLING-GATED-REMAINDER]; then (2) MI eval ([MI-EVAL]) → (3) Stage 3 ([FU-DRILL-ENRICHMENT]) → Fix B [FU-TOPICKEY-CONSOLIDATION] when authorized. PRE-LAUNCH gate: [FU-DETECTION-META-LAUNCH-FLIP]. Carried: [FU-SPELLING-GATED-REMAINDER] + [FU-TOPICKEY-CONSOLIDATION] + [FU-DETECTION-META-LAUNCH-FLIP] + [FU-DETECTION-MARKS-CEILING] + [FU-IMPROVEMENT-CARD] + [FU-WEAKAREA-ALIAS-DISPLAY] + [FU-ATTEMPT-MARKS-ACCURACY] + [FU-ATTEMPT-SR] + [FU-ME-REFRESH] + [FU-GRADE-MARKSCALE]/[FU-GRADE-CONSISTENCY]/[MI-EVAL]; owner+cofounder close [TRACK-B-GATE]; RESP-DIV-2)
+# Base SHA: 704dcff
 
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: c9404e1
-Last PRs: #242 (topicKey Fix A; → `77f2ed2`) + #243 (docs) + #244 (Check & Improve auto-detect — Claim 2; → `43ffa09`) + #245 (docs) + #246 (Check & Improve detect-then-confirm + question photo upload; → `c9404e1`)
+SHA: 704dcff
+Last PRs: #244 (Check & Improve auto-detect — Claim 2; → `43ffa09`) + #245 (docs) + #246 (Check & Improve detect-then-confirm + question photo upload; → `c9404e1`) + #248 (docs) + #249 ("Finish session" scorecard trigger; → `704dcff`)
 
-## ⏭️ IMMEDIATE NEXT — (ii) "Finish session" PR → (iii) gated-spelling — then (2) MI eval → (3) Stage 3 → Fix B
-topicKey audit (i) + Fix A (#242) + Check & Improve auto-detect (#244) + detect-then-confirm (#246) are done (#246 CI-green;
-owner live-verify PENDING). The items below are **QUEUED but NOT yet authorized** — the owner sends each as its own instruction,
-branched fresh from `c9404e1`. Do not start until instructed.
+## ⏭️ IMMEDIATE NEXT — read-only AI-generated-question-tier audit → (iii) gated-spelling → (2) MI eval → (3) Stage 3 → Fix B
+topicKey audit (i) + Fix A (#242) + Check & Improve auto-detect (#244) + detect-then-confirm (#246) + **(ii) "Finish session"
+scorecard trigger (#249 — DONE, owner live-verify PASS, [FU-SESSION-SCORECARD-TRIGGER] CLOSED)** are done. The items below are
+**QUEUED but NOT yet authorized** — the owner sends each as its own instruction, branched fresh from `704dcff`. Do not start
+until instructed.
+
+- **(NEXT) Read-only AI-generated-question-tier audit.** Characterise the AI-generated question packs for malformedness — seeded
+  by **[FU-MALFORMED-QUESTION]** (Real Numbers Quick Practice Q10 fused two questions: alarm-clock LCM + prove √5, with
+  inconsistent 5-mark / Section-D / Short tags; suspected AI-generated origin). Read-only — maps the problem; no fixes this pass.
 
 0. **⚠️ PRE-LAUNCH GATE — [FU-DETECTION-META-LAUNCH-FLIP].** Before shipping Check & Improve to students, flip
    `SHOW_DETECTION_META` to `false` in `lazytopper/src/utils/checkImproveDetection.ts`. It is ON now so the owner can see the
@@ -24,9 +29,10 @@ branched fresh from `c9404e1`. Do not start until instructed.
    canonical kebab topicKey per topic + a CI guard that fails if a non-canonical topicKey reappears = [FU-TOPICKEY-CONSOLIDATION],
    HELD / authorized-later** (gated `src/data/**` across ~60 files; staged Maths/Science; migration map + guard design in the
    audit report §5). Do NOT start Fix B until owner-authorized.
-2. **(ii) "Finish session" scorecard-trigger PR — small.** Replace #240's `allDone`-only scorecard trigger with an explicit
-   student-declared "Finish session" action; honest on PARTIAL sessions (no implied completion). Makes sub-task 5
-   confirmable. = **[FU-SESSION-SCORECARD-TRIGGER]**.
+2. **(ii) "Finish session" scorecard-trigger PR — ✅ DONE (#249, trunk `704dcff`).** Replaced #240's `allDone`-only scorecard
+   trigger with an explicit student-declared "Finish session" action; honest on PARTIAL sessions (attempted-only denominators +
+   "the M you didn't reach aren't counted"). Owner live-verify PASS (3-of-10 + zero-attempt both honest).
+   **[FU-SESSION-SCORECARD-TRIGGER] CLOSED.** Report: `report-finish-session-scorecard-2026-06-17.md`.
 3. **(iii) Gated-spelling follow-up — [FU-SPELLING-GATED-REMAINDER].** Owner-authorized separate PR for the ~60
    `src/data/**` + `src/lib/desktop/loginPrompts.ts` rendered "Practise" strings #240 could not touch (gated dirs).
 4. **MI eval — [MI-EVAL] check-solution eval set** (40–60 graded answers + tutor fabricated-solution correctness eval;

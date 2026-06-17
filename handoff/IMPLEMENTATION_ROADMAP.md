@@ -2,6 +2,26 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-17 — Post-PR #249 roadmap update ("Finish session" scorecard trigger)
+
+Report: `report-finish-session-scorecard-2026-06-17.md`.
+
+### Completed this session
+- [x] **#249 — "Finish session" scorecard trigger** (trunk `704dcff`, squash; 2 files +63/−2; commit `b740a3f`). Replaces
+  #240 sub-task 5's `allDone`-only scorecard trigger with an explicit student-declared **"Finish session"** button
+  (always-available at the set foot, both desktop + mobile widths) → fires `practice_finish_session_click` + sets
+  `sessionFinished` → surfaces the scorecard. `allDone` retained as a convenience auto-offer. Reuses the EXISTING `sessionStats`
+  — no new counters/persistence/state machine. Partial-session honesty (attempted-only denominators + "the M you didn't reach
+  aren't counted" + honest zero-attempt state). "Keep practicing this set" escape hatch on a manual partial finish. CI GREEN.
+  **✅ owner live-verify = PASS — partial honesty PROVEN** (3-of-10 reads "3 of 10 attempted · 0/3 MCQs correct · 0% accuracy ·
+  the 7 you didn't reach aren't counted"; zero-attempt honest too). **Supersedes #240 sub-task 5.** [FU-SESSION-SCORECARD-TRIGGER] CLOSED.
+
+### Remaining / queued (owner-authorized-later; each its own instruction, branched from `704dcff`)
+- [ ] **(NEXT) Read-only AI-generated-question-tier audit** — seeded by **[FU-MALFORMED-QUESTION]** (Real Numbers Quick Practice
+  Q10 fused alarm-clock LCM + prove √5 with inconsistent 5-mark/Section-D/Short tags; suspected AI-generated origin). Read-only.
+- [ ] **(iii) Gated-spelling [FU-SPELLING-GATED-REMAINDER]**, **(2) MI eval [MI-EVAL]**, **(3) Stage 3 [FU-DRILL-ENRICHMENT]**,
+  **Fix B [FU-TOPICKEY-CONSOLIDATION]**. PRE-LAUNCH gate carried: **[FU-DETECTION-META-LAUNCH-FLIP]**.
+
 ## 2026-06-17 — Post-PR #246 roadmap update (Check & Improve detect-then-confirm)
 
 Report: `report-detect-then-confirm-2026-06-16.md`.
@@ -37,7 +57,7 @@ Report: `report-claim2-autodetect-marks-2026-06-16.md`.
   `resolveDetectedGradeTopic` helper (reuses Fix A — no new normaliser). CI GREEN. **⏳ owner live-verify PENDING.**
 
 ### Remaining / queued
-- [ ] **(ii) "Finish session" scorecard-trigger PR** (replace #240's `allDone`-only trigger; honest on partial sessions).
+- [x] **(ii) "Finish session" scorecard-trigger PR** — DONE (#249, trunk `704dcff`; replaced #240's `allDone`-only trigger; honest on partial sessions; owner live-verify PASS).
 - [ ] **(iii) Gated-spelling [FU-SPELLING-GATED-REMAINDER]** (~60 `src/data/**` + `loginPrompts.ts` "Practise" strings).
 - [ ] **(2) MI eval [MI-EVAL]** — check-solution eval set (launch gate; now also validates the Claim-2 auto-detected mark
   scale + grading quality). Then **(3) Stage 3 [FU-DRILL-ENRICHMENT]**, and **Fix B [FU-TOPICKEY-CONSOLIDATION]** when authorized.
@@ -78,8 +98,8 @@ The MI loop is Measure-complete; #240 is the surface/ranking polish on the finis
 ### MI polish — remaining / surfaced
 - [ ] **(i) Read-only topicKey audit (next, owner-authorized as its own instruction):** trace the topicKey
   duplication/non-canonical-variant problem ([FU-WEAKAREA-EXAMTRENDS-FALLBACK] — Light row misroutes to Exam Trends).
-- [ ] **(ii) "Finish session" scorecard-trigger PR:** explicit student-declared finish replacing the `allDone`-only trigger;
-  honest on partial sessions. Makes sub-task 5 confirmable.
+- [x] **(ii) "Finish session" scorecard-trigger PR — DONE (#249, trunk `704dcff`):** explicit student-declared finish replacing
+  the `allDone`-only trigger; honest on partial sessions. Made sub-task 5 confirmable; owner live-verify PASS. [FU-SESSION-SCORECARD-TRIGGER] CLOSED.
 - [ ] **(iii) Gated-spelling follow-up [FU-SPELLING-GATED-REMAINDER]:** the ~60 `src/data/**` + `loginPrompts.ts` "Practise"
   strings (gated dirs).
 
