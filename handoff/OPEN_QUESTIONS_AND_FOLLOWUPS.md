@@ -1,3 +1,25 @@
+## 2026-06-17 — Post-PR #249 ("Finish session" scorecard trigger; merged + CI GREEN; owner live-verify PASS)
+
+### ✅ DONE — Finish-session trigger merged + live-verified
+- **[FU-SESSION-SCORECARD-TRIGGER] — CLOSED** (#249, trunk `704dcff`, squash; 2 files +63/−2; commit `b740a3f`). Replaced #240
+  sub-task 5's `allDone`-only scorecard trigger with an explicit student-declared **"Finish session"** button (always-available
+  at the set foot, both desktop + mobile widths) → fires `practice_finish_session_click` + sets `sessionFinished` → surfaces the
+  scorecard; `allDone` retained as a convenience auto-offer. Reuses the EXISTING `sessionStats` — no new counters/persistence/
+  state machine. **Owner live-verify = PASS — partial-session honesty PROVEN:** a 3-of-10 finish reads "3 of 10 attempted · 0/3
+  MCQs correct · 0% accuracy · the 7 you didn't reach aren't counted"; the zero-attempt case reads honestly too.
+  **Supersedes #240 sub-task 5.** Report: `report-finish-session-scorecard-2026-06-17.md`.
+
+### 🐞 NEW follow-up — for the upcoming read-only AI-generated-question-tier audit
+- **[FU-MALFORMED-QUESTION] (owner-observed live during the #249 verify)** — a **malformed question in a live pack**: **Real
+  Numbers Quick Practice Q10 fused TWO distinct questions into one** — an alarm-clock LCM word-problem AND "prove √5 is
+  irrational" — and carried **inconsistent metadata** (tagged **5-mark / Section-D** yet also labelled **Short**; the two fused
+  parts don't add up to a single coherent mark/section/format). **Suspected AI-generated pack origin** (the generator likely
+  concatenated two seeds and mis-tagged the result). This is a CONTENT-INTEGRITY signal, not a #249 regression (the scorecard
+  surfaced correctly; the question itself is the defect). **To be characterised by the next task — a read-only
+  AI-generated-question-tier audit** (its own owner instruction, branched fresh from `704dcff`): scope the prevalence of fused /
+  mis-tagged / mark-section-inconsistent items across the AI-generated tiers; map (do not fix) the problem. Repro: Real Numbers
+  → Quick Practice → Q10.
+
 ## 2026-06-17 — Post-PR #246 (Check & Improve detect-then-confirm + question photo upload; merged + CI GREEN; owner live-verify pending)
 
 ### ✅ DONE — detect-then-confirm merged
