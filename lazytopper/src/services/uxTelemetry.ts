@@ -11,6 +11,7 @@ type UxEventName =
   | "hpq_open_practice"
   | "hpq_open_topic_hub"
   | "practice_regenerate_click"
+  | "practice_finish_session_click"
   | "topichub_topic_mock_click"
   | "topichub_all_done_banner_chapter_test"
   | "topic_mock_start"

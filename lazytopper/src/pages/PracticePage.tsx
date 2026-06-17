@@ -271,6 +271,11 @@ const PracticePage: React.FC = () => {
     () => initialPracticeDefaults.recommendedCount
   );
   const [isBuilt, setIsBuilt] = useState<boolean>(false);
+  // Load-bearing scorecard trigger: the student DECLARES completion (partial or
+  // full) by tapping "Finish session", which sets this true and surfaces the
+  // scorecard. `allDone` (every question attempted) remains a convenience
+  // auto-offer. Reset on every fresh build/regenerate (see the fetch effect).
+  const [sessionFinished, setSessionFinished] = useState<boolean>(false);
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -762,6 +767,7 @@ const packTopicKey = useMemo(() => {
 
         if (!cancelled) {
           setQuestions(next);
+          setSessionFinished(false);
           setExpandedAnswers({});
           setSelfAssessments({});
           setMcqSelections({});
@@ -1049,6 +1055,12 @@ const packTopicKey = useMemo(() => {
     };
   }, [questions.length, mcqSelections, selfAssessments, mcqResults]);
 
+  // Scorecard trigger. `sessionFinished` (the explicit "Finish session" tap) is
+  // the primary, always-available trigger; `allDone` (every question attempted)
+  // is a convenience auto-offer. Either surfaces the same scorecard.
+  const allDone = questions.length > 0 && sessionStats.attemptedInSet >= questions.length;
+  const showScorecard = (sessionFinished || allDone) && questions.length > 0;
+
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
     [getQuestionStrategyDetails, activeQuestion]
@@ -1301,13 +1313,52 @@ const packTopicKey = useMemo(() => {
         />
         )}
 
+        {isBuilt && filteredQuestions.length > 0 && !showScorecard && (
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => {
+                trackUxEvent("practice_finish_session_click", "practice", {
+                  topic: topicParam,
+                  subject: subjectKey,
+                  attempted: sessionStats.attemptedInSet,
+                  total: questions.length,
+                });
+                setSessionFinished(true);
+              }}
+              style={{
+                width: "100%",
+                padding: "13px 16px",
+                borderRadius: 12,
+                border: "1px solid hsl(152, 45%, 32%)",
+                background: "hsl(152, 45%, 32%)",
+                color: "#ffffff",
+                fontSize: "0.92rem",
+                fontWeight: 800,
+                cursor: "pointer",
+                boxShadow: "0 1px 2px rgba(15, 23, 42, 0.06)",
+              }}
+            >
+              Finish session
+            </button>
+            <p style={{ margin: 0, fontSize: "0.76rem", color: "hsl(220, 15%, 42%)", textAlign: "center", lineHeight: 1.5 }}>
+              See your scorecard for what you've done so far - attempt as many or as few as you like.
+            </p>
+          </div>
+        )}
+
 {(() => {
-  const allDone = questions.length > 0 && sessionStats.attemptedInSet >= questions.length;
-  if (!allDone) return null;
+  if (!showScorecard) return null;
   const topicK = canonicalTopicKey || topicParam;
   const nextActions = [
     { label: "Build a fresh set", icon: "New", action: () => regenerateQuestions() },
   ];
+  // A manual Finish on a partial set must not trap the student — let them
+  // return to the same set. (Not offered on the allDone auto-offer: there is
+  // nothing left to attempt in this set.)
+  if (!allDone) {
+    nextActions.unshift({ label: "Keep practicing this set", icon: "Back", action: () => setSessionFinished(false) });
+  }
   nextActions.push({ label: "Chapter Test", icon: "Test", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Predicted Questions", icon: "HPQ", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Study this chapter", icon: "Hub", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
@@ -1342,6 +1393,15 @@ const packTopicKey = useMemo(() => {
           {scMcqAnswered > 0 ? ` · ${scMcqCorrect}/${scMcqAnswered} MCQs correct` : ""}
           {scMcqAccuracy !== null ? ` · ${scMcqAccuracy}% accuracy` : ""}
         </h3>
+        {scAttempted === 0 ? (
+          <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
+            You finished without attempting any questions yet - nothing is counted against you. Jump back in whenever you're ready.
+          </p>
+        ) : !allDone ? (
+          <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
+            Here's how those {scAttempted} went. The {questions.length - scAttempted} you didn't reach aren't counted - finish whenever you like.
+          </p>
+        ) : null}
         {scNudge && (
           <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
             {scNudge}
