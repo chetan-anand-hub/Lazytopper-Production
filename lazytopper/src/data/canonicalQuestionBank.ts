@@ -1496,3 +1496,93 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
     "isCompetencyBased": false
   }
 ];
+
+// ---------------------------------------------------------------------------
+// AI-tier source provenance (AI-tier PR2a)
+// ---------------------------------------------------------------------------
+// `canonicalQuestionBank` concatenates ~290 source arrays. The TIER of a
+// question is encoded by the FILE/suffix it was authored in (audit
+// 2026-06-17): files ending `.pack1` / `.pack2` / `.pack3` are AI-generated
+// "packs"; every other source (ncert / exemplar / pyq* / sqp / sp / cbe /
+// preboard / additionalPQ / chapterwise / AR / proof / caseBased, plus the
+// curated inline items above) is authentic.
+//
+// Once the arrays are spread into the flat bank above, that file-of-origin
+// signal is gone — which is exactly why the PredictionCore merge could not
+// rank by tier. We capture the AI-pack ids HERE, at ingest, where each
+// array's source file is still known. `predictionCore` reads this set to
+// stamp a `_source` field that survives the merge and feeds ranking.
+//
+// This block is purely ADDITIVE: it does not reorder or mutate
+// `canonicalQuestionBank`, so total and per-topic question counts are
+// unchanged. Adding a new `.pack*` source in future MUST also be added to
+// this list, or it will default to "authentic" — the
+// `predictionCore.source.test.ts` AI-share guard exists to catch that drift.
+const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>> = [
+  // *.pack1 (AI-generated, batch 1)
+  TRIANGLES_PACK1_QUESTIONS,
+  TRIG_PACK1_QUESTIONS,
+  REAL_NUMBERS_PACK1,
+  POLYNOMIALS_PACK1,
+  PAIR_LINEAR_EQUATIONS_PACK1,
+  QUADRATIC_EQUATIONS_PACK1,
+  ARITHMETIC_PROGRESSION_PACK1,
+  COORDINATE_GEOMETRY_PACK1,
+  CIRCLES_PACK1,
+  AREAS_RELATED_TO_CIRCLES_PACK1,
+  SURFACE_AREAS_VOLUMES_PACK1,
+  STATISTICS_PACK1,
+  PROBABILITY_PACK1,
+  CHEMICAL_REACTIONS_PACK1,
+  ACIDS_BASES_SALTS_PACK1,
+  METALS_NON_METALS_PACK1,
+  CARBON_COMPOUNDS_PACK1,
+  LIFE_PROCESSES_PACK1,
+  CONTROL_AND_COORDINATION_PACK1,
+  REPRODUCTION_PACK1,
+  HEREDITY_PACK1,
+  LIGHT_PACK1,
+  HUMAN_EYE_PACK1,
+  ELECTRICITY_PACK1,
+  MAGNETIC_EFFECTS_PACK1,
+  OUR_ENVIRONMENT_PACK1,
+  // *.pack2 (AI-generated, batch 2)
+  trianglesPack2Questions,
+  trigonometryPack2Questions,
+  RN2_PACK2,
+  PL2_PACK2,
+  PLE2_PACK2,
+  QE2_PACK2,
+  AP2_PACK2,
+  CG2_PACK2,
+  CI2_PACK2,
+  ARC2_PACK2,
+  SAV2_PACK2,
+  ST2_PACK2,
+  PR2_PACK2,
+  CR2_PACK2,
+  ABS2_PACK2,
+  MNM2_PACK2,
+  CC2_PACK2,
+  LP2_PACK2,
+  CNC2_PACK2,
+  REP2_PACK2,
+  HE2_PACK2,
+  LT2_PACK2,
+  HEC2_PACK2,
+  EL2_PACK2,
+  ME2_PACK2,
+  OE2_PACK2,
+  // *.pack3 (AI-generated, batch 3)
+  TR3_PACK3,
+  TG3_PACK3,
+];
+
+/**
+ * Ids of every AI-generated "pack" question (`.pack1` / `.pack2` / `.pack3`).
+ * Membership = AI-generated; absence = authentic. Consumed by
+ * `predictionCore` to stamp provenance that survives the unified-bank merge.
+ */
+export const AI_GENERATED_QUESTION_IDS: ReadonlySet<string> = new Set(
+  AI_GENERATED_PACK_SOURCES.flatMap((source) => source.map((q) => q.id))
+);
