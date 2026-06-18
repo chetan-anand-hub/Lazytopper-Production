@@ -2,6 +2,27 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-18 — Post-PR #251 roadmap update (AI-tier PR1 mechanical content-integrity)
+
+Reports: `report-ai-tier-audit-2026-06-17.md` (read-only audit) → `report-aitier-pr1-mechanical-2026-06-17.md` (PR1).
+
+### Completed this session
+- [x] **Read-only AI-generated-question-tier audit** (`report-ai-tier-audit-2026-06-17.md`). File-based source classification
+  (no per-question `source` field); ~3,684 authentic vs ~3,010 AI in the live pool (~45% AI, ~816 short of the 4,500 threshold);
+  Q10 = one-off cross-concept fusion; 5-mark-"Short" tag defect was systematic; NO ranking demotion exists; mocks = mixed pool.
+- [x] **#251 — AI-tier PR1 mechanical content-integrity** (trunk `f4a41b6`, squash; 5 files +237/−41; commit `8524e8e`).
+  `QuestionKind` += `"Long"` (both predicted files) + `toCanonicalFormat` propagation; **24** five-mark Section-D predicted items
+  retagged `Short→Long`; fused **Q10** (`2026-RN-LA-03`) split into `2026-RN-SA-08` + `2026-RN-SA-09` (net +1);
+  `aiTierContentIntegrityGuard` added to the root matrix (175→181). CI GREEN. **[FU-MALFORMED-QUESTION] CLOSED.**
+
+### Remaining / queued (owner-authorized-later; each its own instruction, branched from `f4a41b6`)
+- [ ] **(NEXT) AI-tier PR1b — 19-pack `format:"Short"` cleanup [FU-AITIER-PACK-5MK-SHORT]** — retag only genuine LA `Short→Long`
+  in `.pack2/.pack3` + shrink `PACK_5MK_SHORT_BACKLOG`; QUARANTINE content↔marks mismatches (`TG3-056`, `REP2-039`, …).
+- [ ] **(THEN) AI-tier PR2 — provenance + ranking [FU-AITIER-PROVENANCE-RANKING]** — `source` stamp + AI-lower ranking in
+  `getAdjustedScore` + `pastBoardYear` strip.
+- [ ] **(iii) Gated-spelling [FU-SPELLING-GATED-REMAINDER]**, **(2) MI eval [MI-EVAL]**, **(3) Stage 3 [FU-DRILL-ENRICHMENT]**,
+  **Fix B [FU-TOPICKEY-CONSOLIDATION]**. PRE-LAUNCH gate carried: **[FU-DETECTION-META-LAUNCH-FLIP]**.
+
 ## 2026-06-17 — Post-PR #249 roadmap update ("Finish session" scorecard trigger)
 
 Report: `report-finish-session-scorecard-2026-06-17.md`.

@@ -1,5 +1,46 @@
 ---
 
+## 2026-06-18 — AI-tier PR1: mechanical content-integrity (#251)
+
+**Trunk after merge: `f4a41b6`** (#251, `feat/desktop-pr-aitier1-content-integrity`; squash; 5 files +237/−41). Owner-merged code
+PR; CI `quality-gate` GREEN (1m12s, incl. the linux `vite build` + the new root-matrix suite). Authority:
+`report-ai-tier-audit-2026-06-17.md` → `AGENT_aitier_pr1_mechanical_2026-06-17.md`. Report:
+`report-aitier-pr1-mechanical-2026-06-17.md`. Commit `8524e8e`. First remediation from the read-only AI-tier audit; mechanical
+only (NOT ranking/provenance — that is PR2).
+
+### Why
+The audit found the AI tier content is mostly sound but had two mechanical defects: (1) `QuestionKind` had no `"Long"` member, so
+**25** five-mark Section-D long-answers in the predicted layer were forced to `kind:"Short"` (the "5mk + Section-D + Short"
+symptom seen live on Q10); (2) ONE genuinely fused question (Q10) welded two unrelated questions into one entry. No CI guard
+caught either class.
+
+### What landed (5 files)
+- **`src/data/predictedQuestions.ts`** — `QuestionKind` += `"Long"`; 12 retags `Short→Long`; Q10 split (1→2, net +1).
+- **`src/data/predictedQuestionsScience.ts`** — `QuestionKind` += `"Long"`; 12 retags `Short→Long`.
+- **`src/data/predictionCore.ts`** — `toCanonicalFormat`: `kind:"long"→format:"Long"` (1 line; makes the retag propagate to the
+  unified bank instead of staying cosmetic).
+- **`scripts/src/aiTierContentIntegrityGuard.test.ts`** (new) — fails on fused (`/\balso\s+prove\b/i`), section↔marks mismatch
+  (A1/B2/C3/D5/E4), and 5-mark "Short" (hard on the predicted layer; pinned baseline on packs). Locks the Q10 split.
+- **`scripts/package.json`** — wired into `test:matrix:all` (175→181) + `test:ai-tier-integrity` script.
+
+### Q10 split (anti-fabrication)
+`2026-RN-LA-03` → `2026-RN-SA-08` (alarm-clock LCM, Section C/3mk) + `2026-RN-SA-09` ("Prove √5 is irrational", Section C/3mk).
+Both genuine Real-Numbers questions; `pastBoardYear` omitted on the new items (no fabricated board year). **Net +1** — the only
+intended count change. **[FU-MALFORMED-QUESTION] RESOLVED.**
+
+### ⚠️ Flagged discovery — the audit undercounted (→ [FU-AITIER-PACK-5MK-SHORT])
+The SAME defect exists in **19 more** `.pack2/.pack3` questions (they use `format:"Short"`, which the predicted-layer `kind`
+tally missed): `ARC2-016/017, PR2-018, TG3-056/059, ABS2-047/048, CC2-048, CR2-043…046, HEC2-039, LT2-016/024, ME2-025,
+MNM2-037, REP2-039/048`. `.pack` files are gated + out of PR1 scope, so NOT edited here — the guard pins them as a shrink-only
+baseline (`PACK_5MK_SHORT_BACKLOG`). **PR1b** (owner-authorized, separate): retag only the genuine LA; QUARANTINE the
+content↔marks mismatches (`TG3-056`, `REP2-039`, …) for a content pass — do NOT relabel those.
+
+### Gates / scope
+tsc PASS · root matrix **181/181** · ops matrix PASS · mojibake PASS · scope:guard `--mode mixed` PASS · `git diff --check`
+clean. Confirmed `QuestionKind` is NOT in forbidden `predictionTypes.ts`. No forbidden files touched. No self-merge.
+
+---
+
 ## 2026-06-17 — "Finish session" scorecard trigger (#249)
 
 **Trunk after merge: `704dcff`** (#249, `feat/desktop-pr-finish-session-scorecard`; squash; 2 files +63/−2). Owner-merged code PR;
