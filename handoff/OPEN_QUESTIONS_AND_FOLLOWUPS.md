@@ -1,3 +1,27 @@
+## 2026-06-18 — Post-PR #251 (AI-tier PR1 mechanical content-integrity; merged + CI GREEN)
+
+### ✅ RESOLVED — Q10 de-fused + tagging defect fixed + guard added
+- **[FU-MALFORMED-QUESTION] — RESOLVED** (#251, trunk `f4a41b6`, squash; 5 files +237/−41; commit `8524e8e`). The read-only
+  audit (`report-ai-tier-audit-2026-06-17.md`) found Q10 (`2026-RN-LA-03`) was a **one-off** cross-concept fusion, and the
+  "5mk/Section-D/Short" symptom was a **systematic** tag defect (the `QuestionKind` type had no `"Long"` member). PR1: added
+  `"Long"` to `QuestionKind` (both predicted files) + `toCanonicalFormat` propagation; retagged **24** five-mark Section-D
+  predicted items `Short→Long`; **split Q10** into `2026-RN-SA-08` (LCM, C/3mk) + `2026-RN-SA-09` (√5 proof, C/3mk) [net +1];
+  added `aiTierContentIntegrityGuard` to the root matrix (175→181) locking the class. Report:
+  `report-aitier-pr1-mechanical-2026-06-17.md`.
+
+### 🐞 NEW follow-ups
+- **[FU-AITIER-PACK-5MK-SHORT] (owner-authorized, queued — PR1b).** The audit undercounted: the SAME 5-mark-"Short" defect
+  exists in **19** gated `.pack2/.pack3` questions (`format:"Short"`, which the predicted-layer `kind` tally missed) —
+  `ARC2-016/017, PR2-018, TG3-056/059, ABS2-047/048, CC2-048, CR2-043…046, HEC2-039, LT2-016/024, ME2-025, MNM2-037,
+  REP2-039/048`. Pinned as a shrink-only baseline in `PACK_5MK_SHORT_BACKLOG`. **PR1b:** retag ONLY the genuine long-answers
+  `format:"Short"→"Long"` and shrink the backlog; **QUARANTINE** the content↔marks mismatches (e.g. `TG3-056` "cosec 60°",
+  `REP2-039` "name two contraceptives" tagged 5mk) — flag for a separate content-judgment pass, do NOT relabel. Needs explicit
+  `src/data/**` pack-file scope. Wait for the owner's PR1b instruction.
+- **[FU-AITIER-PROVENANCE-RANKING] (PR2 — architectural, queued).** From audit §4–§6: there is **no source/provenance field** and
+  **no AI-lower ranking** — AI and authentic interleave at parity across all four surfaces (Quick Practice, HPQ, Chapter Test,
+  Full Mock), and mocks draw from the mixed unified bank. PR2: add a `source`/provenance stamp at the module boundary, enforce
+  AI demotion in `predictionCore.getAdjustedScore`, and strip the unverified `pastBoardYear`. Owner-authorized, separate.
+
 ## 2026-06-17 — Post-PR #249 ("Finish session" scorecard trigger; merged + CI GREEN; owner live-verify PASS)
 
 ### ✅ DONE — Finish-session trigger merged + live-verified
