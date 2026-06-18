@@ -121,6 +121,9 @@ import { PROB_EXEMPLAR } from './questionBanks/class10/maths/probability.exempla
 import { AP_EXEMPLAR2 } from './questionBanks/class10/maths/arithmeticProgression.exemplar2';
 import { STAT_EXEMPLAR2 } from './questionBanks/class10/maths/statistics.exemplar2';
 import { SAV_EXEMPLAR2 } from './questionBanks/class10/maths/surfaceAreasAndVolumes.exemplar2';
+// Bank Expansion Phase 1, Batch 2 (2026-06-18) — Coordinate-Geometry + Areas-Related-to-Circles
+import { CG_EXEMPLAR2 } from './questionBanks/class10/maths/coordinateGeometry.exemplar2';
+import { ARC_EXEMPLAR2 } from './questionBanks/class10/maths/areasRelatedToCircles.exemplar2';
 
 // P0 diff/ pack registration (2026-05-23) — 62 questions closing triangles/trig/electricity/life-processes gaps
 import { TRIANGLES_AR_QUESTIONS } from './questionBanks/class10/maths/triangles.assertionReasoning';
@@ -536,6 +539,9 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...AP_EXEMPLAR2,
   ...STAT_EXEMPLAR2,
   ...SAV_EXEMPLAR2,
+  // Bank Expansion Phase 1, Batch 2 (2026-06-18) — authentic Exemplar questions, AI solutions (pending owner verification)
+  ...CG_EXEMPLAR2,
+  ...ARC_EXEMPLAR2,
   // P0 diff/ pack registration (2026-05-23) — 62 questions (AR Sec A + Proof Sec C/D)
   ...TRIANGLES_AR_QUESTIONS,
   ...TRIGONOMETRY_AR_QUESTIONS,
@@ -1612,6 +1618,8 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   AP_EXEMPLAR2,
   STAT_EXEMPLAR2,
   SAV_EXEMPLAR2,
+  CG_EXEMPLAR2,
+  ARC_EXEMPLAR2,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set(
