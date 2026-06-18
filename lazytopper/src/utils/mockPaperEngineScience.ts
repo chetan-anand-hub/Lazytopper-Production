@@ -229,7 +229,9 @@ export function buildScienceMockPaperFromBank(
           format: question.kind,
           bloom: question.bloomSkill,
           policyTag: question.policyTag,
-          sourceYearHint: Number(question.pastBoardYear || "") || targetYear - 1,
+          // pastBoardYear stripped (PR2b); recurrence comes from the historical
+          // dataset's sourceYear, so this hint falls to the prior year.
+          sourceYearHint: targetYear - 1,
         },
         context: {
           targetYear,

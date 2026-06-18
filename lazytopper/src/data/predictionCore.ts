@@ -117,7 +117,6 @@ function toCanonicalFromMathPredicted(): CanonicalQuestionWithScore[] {
     solutionSteps: q.solutionSteps,
     finalAnswer: q.finalAnswer,
     strategyHint: q.strategyHint,
-    pastBoardYear: q.pastBoardYear,
     policyTag: q.policyTag,
   }));
 }
@@ -141,12 +140,13 @@ function toCanonicalFromSciencePredicted(): CanonicalQuestionWithScore[] {
     solutionSteps: q.solutionSteps,
     finalAnswer: q.finalAnswer,
     strategyHint: q.strategyHint,
-    pastBoardYear: q.pastBoardYear,
     policyTag: q.policyTag,
   }));
 }
 
-function dedupeById<T extends CanonicalQuestion>(questions: T[]): T[] {
+// Exported for the PR2b dedup unit test (predictionCore.pastboardyear.test.ts).
+// Not part of the page-facing API.
+export function dedupeById<T extends CanonicalQuestion>(questions: T[]): T[] {
   const byId = new Map<string, T>();
   for (const q of questions) {
     const existing = byId.get(q.id);
@@ -155,10 +155,14 @@ function dedupeById<T extends CanonicalQuestion>(questions: T[]): T[] {
       continue;
     }
 
-    // Prefer richer metadata when duplicate IDs exist.
+    // Prefer the higher-scoring duplicate. A former pastBoardYear tiebreaker
+    // (prefer the dup that HAS a pastBoardYear) was removed with the AI-tier
+    // PR2b provenance strip: predicted questions no longer carry a fabricated
+    // pastBoardYear and the authentic bank never had one, so that clause was
+    // always false. Dedup is now score-only.
     const existingScore = Number(existing.predictionScore ?? 0);
     const nextScore = Number(q.predictionScore ?? 0);
-    if (nextScore > existingScore || (!!q.pastBoardYear && !existing.pastBoardYear)) {
+    if (nextScore > existingScore) {
       byId.set(q.id, q);
     }
   }
@@ -230,7 +234,9 @@ function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
       format: q.format,
       bloom: q.bloomSkill,
       policyTag: q.policyTag,
-      sourceYearHint: Number(q.pastBoardYear || "") || targetYear - 1,
+      // pastBoardYear was stripped (PR2b); recurrence is derived from the
+      // historical dataset's sourceYear, so this hint falls to the prior year.
+      sourceYearHint: targetYear - 1,
     },
     context: {
       targetYear,

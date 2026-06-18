@@ -749,7 +749,6 @@ function scoreQuestion(
     bloomSkill: q.bloomSkill || "Applying",
     difficulty: q.difficulty || "Medium",
     policyTag: q.policyTag || "",
-    pastBoardYear: q.pastBoardYear || "",
   });
 
   const predictionSignal = fiveSignalScore / 5.0;

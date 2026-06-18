@@ -161,7 +161,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Which metal is softest? (A) Sodium (B) Iron (C) Zinc (D) Copper",
               answer: "Sodium",
               explanation: "Sodium is so soft it can be cut with a knife.",
-              pastBoardYear: "2024",
               policyTag: "MCQ/Fact",
             },
             {
@@ -175,7 +174,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "How do non-metals generally react with water? (A) Vigorously (B) Slowly (C) Not at all (D) Explosively",
               answer: "Not at all",
               explanation: "Non-metals generally do not react with water.",
-              pastBoardYear: "2025",
               policyTag: "Board MCQ trend",
             },
           ],
@@ -197,7 +195,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
               explanation:
                 "A more reactive metal displaces a less reactive metal from its salt solution. Zinc is more reactive than copper.",
-              pastBoardYear: "2023",
               policyTag: "AR mandatory",
             },
           ],
@@ -218,7 +215,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
               answer: "Iron is extracted by reduction of hematite in a blast furnace.",
               explanation:
                 "In the blast furnace, carbon monoxide reduces Fe₂O₃ (hematite) to metallic iron at high temperature.",
-              pastBoardYear: "2022",
               policyTag: "NEP: process focus",
             },
           ],
@@ -240,7 +236,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Methods: painting, oil/grease coating, galvanisation.\nThey prevent rusting by stopping oxygen and moisture from reaching the iron surface.",
               explanation:
                 "Rusting is an oxidation process requiring oxygen and moisture. Any barrier coating that prevents air and water from reaching iron slows or stops rusting.",
-              pastBoardYear: "2025",
               policyTag: "Case/Corrosion NEP",
             },
           ],
@@ -291,7 +286,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Ingestion: food taken into mouth and chewed with teeth, mixed with saliva.\nDigestion: food broken down by enzymes in mouth, stomach and small intestine.\nAbsorption: digested food absorbed through villi of the small intestine into blood.",
               explanation:
                 "Board-style 3-marker on human nutrition covering main steps of ingestion, digestion and absorption.",
-              pastBoardYear: "2023",
               policyTag: "Life Processes/Standard 3-marker",
             },
           ],
@@ -313,7 +307,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "(a) To supply more oxygen and remove more CO₂.\n(b) By faster aerobic respiration in mitochondria using more oxygen and glucose.\n(c) Haemoglobin; lungs (alveoli).\n(d) Aerobic respiration uses oxygen and releases more energy; anaerobic occurs without oxygen and releases less energy.",
               explanation:
                 "Case integrates reasons for increased breathing, site of exchange, pigment and comparison of aerobic vs anaerobic respiration.",
-              pastBoardYear: "2022",
               policyTag: "Life Processes/Case-based NEP",
             },
           ],
@@ -335,7 +328,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Arteries carry blood away from the heart under high pressure; veins bring blood back to the heart and have valves; capillaries connect arteries and veins and allow exchange of materials between blood and tissues.",
               explanation:
                 "Typical 3-mark transport question focusing on functions of main blood vessels.",
-              pastBoardYear: "2021",
               policyTag: "Life Processes/Circulation",
             },
           ],
@@ -357,7 +349,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Diagram of nephron with glomerulus, Bowman’s capsule, tubule and collecting duct. Filtration occurs in glomerulus; reabsorption and secretion occur along tubule; urine collected and carried to bladder.",
               explanation:
                 "Standard 5-marker combining diagram of nephron with description of filtration, reabsorption and urine formation.",
-              pastBoardYear: "2020",
               policyTag: "Life Processes/Diagram mandatory",
             },
           ],
@@ -415,7 +406,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
               answer: "10%",
               explanation:
                 "Only about 10% of the energy at one trophic level is available to the next level; the rest is lost as heat.",
-              pastBoardYear: "2023",
               policyTag: "MCQ/Fact",
             },
             {
@@ -431,7 +421,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "A food chain is a linear sequence of organisms where each one is eaten by the next. A food web is a network of interconnected food chains in an ecosystem, showing that most organisms are part of multiple feeding relationships.",
               explanation:
                 "Food webs reflect realistic feeding relationships better than simple chains; they show the complexity of energy flow in an ecosystem.",
-              pastBoardYear: "2022",
               policyTag: "Short/Concept",
             },
           ],
@@ -453,7 +442,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Biodegradable: substances broken down by microorganisms (e.g. vegetable peels). Non-biodegradable: substances that cannot be broken down naturally (e.g. plastic bags).",
               explanation:
                 "Non-biodegradable substances accumulate in the environment and cause long-term pollution, while biodegradable substances are recycled naturally.",
-              pastBoardYear: "2024",
               policyTag: "Short/Distinction",
             },
           ],

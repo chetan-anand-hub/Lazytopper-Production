@@ -69,7 +69,6 @@ export function deriveHPQConfidence(args: {
       bloom: toBloomStr(question.bloomSkill),
       difficulty: question.difficulty || "Medium",
       policyTag: question.policyTag,
-      pastBoardYear: question.pastBoardYear,
     },
     targetYear
   );
