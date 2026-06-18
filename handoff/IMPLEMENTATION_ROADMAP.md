@@ -2,6 +2,27 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-18 — Post-PR #259 roadmap update (AI-tier FU-RANK-MOCKS-HPQ soft AI-demotion on Full Mock + Topic Mock)
+
+Report: `report-ai-tier-rank-mocks-hpq-2026-06-18.md`.
+
+### Completed this session
+- [x] **#259 — AI-tier FU-RANK-MOCKS-HPQ** (trunk `775ee75`, squash; 4 files +209/−11; commit `ba2f619`). Extended PR2a's
+  `SOURCE_MULTIPLIER` (reused — exported `getSourceMultiplier`, no fork) to the mock selection paths: **Full Mock**
+  (`unlimitedPaperEngine.weightedSelect` per section/marks slot + `sourceWeightedPick` authentic-first archetype prefill) and
+  **Topic Mock** (`topicMockEngine.weightedShuffleByScore`). Soft + structure-preserving (per-pool, `0.3/0.6` never 0 →
+  authentic-thin slot still fills with AI; blueprint/section-counts/pools unchanged; zero question added/removed).
+  **⚠️ Boundary correction: HPQ was a no-op** — `highlyProbableQuestions.ts` is a hand-authored curated bank, never uses
+  `getAllQuestions()`, ZERO AI-pack content → left untouched. **All AI-bearing surfaces now covered** (practice via PR2a + the two
+  mocks; HPQ already AI-free). `predictionTypes.ts` untouched. Codespaces vitest 7/7; CI GREEN (root matrix 181/181).
+
+### Remaining / queued (owner-authorized-later; each its own instruction, branched from `775ee75`)
+- [ ] **(NEXT) [FU-AITIER-RANK-DIFFICULTY-HELPERS]** — apply the same `getSourceMultiplier` demotion to
+  `difficultyAwarePractice.ts` + `difficultyAutoSuggest.ts` (also call `getAllQuestions()` + serve AI at parity; out of #259 scope).
+- [ ] **[FU-AITIER-MARKS-MISMATCH]** — content/marks pass for the 7 quarantined pack items (carried).
+- [ ] **[FU-HPQ-PHASE2-ESBUILD]** (infra, low priority) · **[FU-PASTBOARDYEAR-TYPE-DECLS]** (optional type-hygiene) ·
+  **[FU-CURATED-26-PROVENANCE]** (decision recorded: curated-26 stay authentic).
+
 ## 2026-06-18 — Post-PR #257 roadmap update (AI-tier PR2b strip fabricated pastBoardYear)
 
 Report: `report-ai-tier-pr2b-pastboardyear-strip-2026-06-18.md`.

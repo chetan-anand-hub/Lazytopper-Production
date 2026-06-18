@@ -1,3 +1,27 @@
+## 2026-06-18 — Post-PR #259 (AI-tier FU-RANK-MOCKS-HPQ soft AI-demotion on Full Mock + Topic Mock; merged + CI GREEN)
+
+### ✅ RESOLVED — mock surfaces now soft-demote AI per-slot
+- **[FU-AITIER-RANK-MOCKS-HPQ] — RESOLVED** (#259, trunk `775ee75`, squash; 4 files +209/−11; commit `ba2f619`). Extended PR2a's
+  `SOURCE_MULTIPLIER` (reused — exported `getSourceMultiplier`, no fork) to the mock selection paths: **Full Mock**
+  (`unlimitedPaperEngine.weightedSelect` per section/marks slot + `sourceWeightedPick` authentic-first archetype prefill) and
+  **Topic Mock** (`topicMockEngine.weightedShuffleByScore`). Soft + structure-preserving (per-pool, `0.3/0.6` never 0 → an
+  authentic-thin slot still fills with AI; blueprint/section-counts/pools unchanged; zero question added/removed). Codespaces vitest
+  7/7. Report: `report-ai-tier-rank-mocks-hpq-2026-06-18.md`.
+- **HPQ "serves AI at parity" assumption — RESOLVED as a NON-issue (boundary correction).** The instruction assumed HPQ uses
+  `getAllQuestions()` + serves AI at parity. **Wrong.** `highlyProbableQuestions.ts` is a hand-authored curated bank
+  (`ple-hpq-*`, `sci-he-hpq-*`, `rn-comp-*`); never calls `getAllQuestions()`; ZERO AI-pack content (none in
+  `AI_GENERATED_QUESTION_IDS`; `hpqCompetencyAdditions` curated). Nothing to demote (×1.0) → left untouched (no cosmetic no-op).
+  **All AI-bearing surfaces now covered: practice (PR2a) + Full Mock + Topic Mock (#259); HPQ already AI-free.**
+
+### 🐞 NEW follow-up
+- **[FU-AITIER-RANK-DIFFICULTY-HELPERS] (NEW, owner-authorized-later).** `difficultyAwarePractice.ts` +
+  `difficultyAutoSuggest.ts` also call `getAllQuestions()` and serve AI at parity, but were out of #259's named scope (Full Mock /
+  Topic Mock / HPQ) and its authorized gated-file list → NOT touched. Apply the same `getSourceMultiplier` demotion to their
+  selection so every AI-bearing surface honours the AI-lower doctrine. Separate PR, its own instruction branched fresh from `775ee75`.
+- **Owner live-verify of #259 — PENDING** (the real gate for a live ranking change): (1) generate a Full Mock on a ~50%-AI topic
+  mix → each section authentic-first, AI only where authentic is thin; (2) the mock still has all sections filled (structure
+  intact); (3) per-topic counts unchanged; (4) Topic Mock likewise authentic-first per slot. (HPQ item N/A — curated, no AI.)
+
 ## 2026-06-18 — Post-PR #257 (AI-tier PR2b strip fabricated pastBoardYear; merged + CI GREEN)
 
 ### ✅ RESOLVED — fabricated pastBoardYear stripped (anti-fabrication)
