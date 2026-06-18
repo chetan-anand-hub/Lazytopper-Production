@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-18 — Post-PR #257 roadmap update (AI-tier PR2b strip fabricated pastBoardYear)
+
+Report: `report-ai-tier-pr2b-pastboardyear-strip-2026-06-18.md`.
+
+### Completed this session
+- [x] **#257 — AI-tier PR2b strip fabricated pastBoardYear** (trunk `d6e0e14`, squash; 11 files +113/−106; commit `b4280ad`).
+  Anti-fabrication. **Boundary corrected: 96 values / 5 files** (instruction assumed 75/2 — undercount of 21; exhaustive
+  enumeration done first per owner). Stripped all 96 (field-removal only); cleaned all 8 `.pastBoardYear` reads → dedup
+  score-only, `sourceYearHint` → `targetYear-1`, dead 5-signal-input fields removed. **`predictionTypes.ts` untouched.**
+  **HPQ confidence proven UNAFFECTED** (scorers read dataset `sourceYear`, never `pastBoardYear` — dead plumbing). Count-integrity:
+  served bank 6,715 unchanged, `pastBoardYear_remaining=0`. Codespaces vitest 9/9; CI GREEN (root matrix 181/181).
+
+### Remaining / queued (owner-authorized-later; each its own instruction, branched from `d6e0e14`)
+- [ ] **(NEXT) [FU-AITIER-RANK-MOCKS-HPQ]** — apply PR2a's `sourceMultiplier` AI-demotion to Full Mock (`unlimitedPaperEngine`),
+  Topic Mock (`topicMockEngine`), and HPQ (`highlyProbableQuestions`), which route through `getAllQuestions()` + own selection.
+- [ ] **[FU-AITIER-MARKS-MISMATCH]** — content/marks pass for the 7 quarantined pack items (carried).
+- [ ] **[FU-HPQ-PHASE2-ESBUILD]** (infra, low priority) · **[FU-PASTBOARDYEAR-TYPE-DECLS]** (optional type-hygiene) ·
+  **[FU-CURATED-26-PROVENANCE]** (decision recorded: curated-26 stay authentic).
+
 ## 2026-06-18 — Post-PR #255 roadmap update (AI-tier PR2a source-provenance stamp + soft AI-lower ranking)
 
 Report: `report-ai-tier-pr2a-provenance-ranking-2026-06-18.md`.

@@ -1,5 +1,50 @@
 ---
 
+## 2026-06-18 — AI-tier PR2b: strip fabricated pastBoardYear (#257)
+
+**Trunk after merge: `d6e0e14`** (#257, `feat/ai-tier-pr2b-pastboardyear-strip`; squash; 11 files +113/−106; commit `b4280ad`).
+Owner-merged code PR; CI `quality-gate` GREEN (1m9s, incl. linux `vite build` + root matrix 181/181). Anti-fabrication strip.
+Authority: `report-ai-tier-audit-2026-06-17.md` → `AGENT_aitier_pr2b_pastboardyear_strip_2026-06-18.md`. Report:
+`report-ai-tier-pr2b-pastboardyear-strip-2026-06-18.md`.
+
+### Why
+Predicted/HPQ questions carried a self-asserted `pastBoardYear` with NO traceable PYQ reference — a question claiming a board year
+it can't prove. Authentic PYQs use the traceable `pyqYear` (759 values); the authentic `questionBanks/**` tree has ZERO
+`pastBoardYear`. Every `pastBoardYear` value WAS the fabrication surface → strip it.
+
+### ⚠️ Boundary was wrong (the load-bearing finding)
+The instruction assumed **75 values / 2 files**. Owner mandated proving the boundary first ("no third surprise"). Exhaustive
+repo-wide enumeration found **96 values / 5 files** (undercount of 21): `predictedQuestions.ts` 55 · `predictedQuestionsScience.ts`
+20 (incl. **8 non-numeric `"Model"`**) · `class10SciencePredictiveEngine.ts` 12 · `highlyProbableQuestions.ts` 8 (student-facing
+HPQ) · `scripts/ops/hpq_phase2_acceptance.entry.ts` 1 (test fixture). Owner authorized **Option A** (strip all 96 + clean every
+consumer). Cross-checked tracked non-`.ts` files = none; only surviving `pastBoardYear: "…"` literals are intentional test inputs.
+
+### What landed (11 files)
+- **5 value files** — 96 `pastBoardYear: "…"` lines removed (field-removal only; nothing invented; per-file question counts
+  unchanged). **`predictionTypes.ts` (forbidden) NOT touched** — optional field stays declared, values gone.
+- **5 consumers** — all 8 `.pastBoardYear` reads removed (0 remain repo-wide): `predictionCore` dedup → **score-only**;
+  `predictionCore`+`mockPaperEngineScience` `sourceYearHint` → `targetYear-1`; `predictionCore` converters + `predictionScoring`
+  + `paperEngine` + `hpqConfidence` → dropped the dead 5-signal-input field.
+- **1 new test** — `predictionCore.pastboardyear.test.ts`.
+
+### KEY FINDING — HPQ confidence does NOT shift (dead plumbing)
+The 5-signal scorer (`cbse5SignalScoring`) and Bayesian recurrence scorer (`probabilisticScoring`) compute recency from the
+historical dataset's `sourceYear` and NEVER read `input.pastBoardYear`/`sourceYearHint` (those appear only at type decls). So the
+strip changes ONLY the dedup tiebreaker; HPQ + mock confidence numbers are unchanged. Corrects the instruction's "HPQ confidence
+will shift" assumption. Proven by unit test #4 (identical `compute5SignalScore` with vs without `pastBoardYear`).
+
+### Verification
+- **Codespaces vitest 9/9** (5 PR2b + 4 PR2a regression). Count-integrity (Codespaces): served bank **total 6,715 UNCHANGED**,
+  tiers {authentic 3,710 · ai 2,764 · predicted 241}, `pastBoardYear_remaining=0`.
+- Local gates all green; no forbidden files. `hpq_phase2_acceptance` (ops, not a CI gate) can't run in Codespaces — pre-existing
+  `Cannot find package 'esbuild'` in its harness (fails identically on trunk; my change is one clean fixture-line removal).
+
+### Next (owner; queued)
+**[FU-AITIER-RANK-MOCKS-HPQ]** (apply `sourceMultiplier` to Full Mock / Topic Mock / HPQ) → deferred **[FU-AITIER-MARKS-MISMATCH]**
+content pass for the 7. The predicted `0.6` tier is now "earned" — no fabricated provenance behind it.
+
+---
+
 ## 2026-06-18 — AI-tier PR2a: source-provenance stamp + soft AI-lower ranking (#255)
 
 **Trunk after merge: `686f737`** (#255, `feat/ai-tier-pr2a-provenance-ranking`; squash; 3 files +265/−9; commit `b4236ac`).

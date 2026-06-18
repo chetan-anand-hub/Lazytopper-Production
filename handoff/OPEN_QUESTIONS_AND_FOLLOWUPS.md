@@ -1,3 +1,28 @@
+## 2026-06-18 — Post-PR #257 (AI-tier PR2b strip fabricated pastBoardYear; merged + CI GREEN)
+
+### ✅ RESOLVED — fabricated pastBoardYear stripped (anti-fabrication)
+- **pastBoardYear-fabrication — RESOLVED** (#257, trunk `d6e0e14`, squash; 11 files +113/−106; commit `b4280ad`). Predicted/HPQ
+  questions claimed a board year with no traceable PYQ reference. **96 values across 5 files** stripped (instruction assumed
+  75/2 — undercount of 21; exhaustive enumeration done before stripping per owner). All 8 `.pastBoardYear` reads cleaned:
+  dedup → score-only, `sourceYearHint` → `targetYear-1`, dead 5-signal-input fields removed. `predictionTypes.ts` untouched
+  (optional field stays declared). Count-integrity: served bank 6,715 unchanged, `pastBoardYear_remaining=0`. Codespaces vitest
+  9/9. Report: `report-ai-tier-pr2b-pastboardyear-strip-2026-06-18.md`.
+- **HPQ-confidence-shift concern — RESOLVED as a NON-issue.** The instruction expected HPQ confidence to shift; verified it does
+  NOT — the 5-signal + Bayesian scorers read the historical dataset's `sourceYear`, never `input.pastBoardYear`/`sourceYearHint`
+  (dead plumbing). Only the dedup tiebreaker changed (now score-only). Proven by unit test.
+
+### 🐞 NEW / carried follow-ups
+- **[FU-AITIER-RANK-MOCKS-HPQ] (carried, owner-authorized-later).** Still open after PR2b. Full Mock (`unlimitedPaperEngine`),
+  Topic Mock (`topicMockEngine`), and HPQ (`highlyProbableQuestions`) route through `getAllQuestions()` + own selection and do
+  NOT get PR2a's `sourceMultiplier` AI-demotion. Apply the same demotion there so all four surfaces honour the AI-lower doctrine.
+- **[FU-HPQ-PHASE2-ESBUILD] (NEW, low priority — infra).** `scripts/ops/hpq_phase2_acceptance.mjs` cannot run in Codespaces:
+  `Cannot find package 'esbuild'` (the ops bundling harness imports `esbuild` from `lazytopper/scripts/ops/`, where pnpm doesn't
+  hoist it). Fails identically on trunk; not a CI gate. Pre-existing — surfaced (not caused) by PR2b's fixture edit.
+- **[FU-PASTBOARDYEAR-TYPE-DECLS] (NEW, optional cleanup).** 9 `pastBoardYear?: string` optional type decls remain (incl. the
+  forbidden `predictionTypes.ts:72`). All harmless/unused now; could be removed in a future type-hygiene pass (would need
+  `predictionTypes.ts` authorization). Also `class10SciencePredictiveEngine.ts:469` has a stale prose doc-comment listing
+  `pastBoardYear` as a field — cosmetic.
+
 ## 2026-06-18 — Post-PR #255 (AI-tier PR2a source-provenance stamp + soft AI-lower ranking; merged + CI GREEN + live-verified)
 
 ### ✅ RESOLVED — AI-lower ranking now enforced (the provenance + ranking half of the audit's PR2)
