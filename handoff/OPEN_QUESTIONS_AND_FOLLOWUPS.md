@@ -1,3 +1,21 @@
+## 2026-06-18 — Post-PR #253 (AI-tier PR1b pack-file 5-mark retags; merged + CI GREEN)
+
+### ✅ RESOLVED — pack-layer backlog drained of genuine long-answers
+- **[FU-AITIER-PACK-5MK-SHORT] — RESOLVED** (#253, trunk `f83915b`, squash; 9 files +34/−19; commit `86394e4`). The 19 pinned
+  pack-layer `format:"Short"` Section-D/5-mark items were split by content: **12 genuine 5-mark long-answers relabelled
+  `Short→Long`** (label-only; each confirmed by reading its `questionText`) — `ARC2-016/017, ABS2-048, CC2-048, CR2-044/045/046,
+  HEC2-039, LT2-016/024, ME2-025, REP2-048`. **`PR2-018` reclassified** on inspection (single-step `7/12` one-liner, not a
+  long-answer) → moved to quarantine. Backlog **19 → 7**; count unchanged. Report: `report-aitier-pr1b-pack-retags-2026-06-18.md`.
+
+### 🐞 NEW follow-up
+- **[FU-AITIER-MARKS-MISMATCH] (owner-authorized-later; content/marks pass).** The **7** quarantined pack items —
+  `TG3-056` ("cosec 60°"), `TG3-059` ("evaluate 4 sin30° tan60° − 2 cot60° cos30°"), `ABS2-047` ("salt vs base"), `CR2-043`
+  ("balance Al + O₂ → Al₂O₃"), `MNM2-037` ("name the reducing agent"), `REP2-039` ("name two contraceptives"), `PR2-018`
+  ("P(not blue)") — are SHORT questions wrongly tagged **5-mark**. This is a content↔marks problem, NOT a label problem: PR1b
+  deliberately did NOT relabel them (relabelling to "Long" worsens them). Fix the **marks** (or rewrite to genuinely fit 5 marks),
+  then remove each from `PACK_5MK_SHORT_BACKLOG` in `aiTierContentIntegrityGuard.test.ts`. They stay pinned + annotated so the
+  guard tracks them with no regression. Gated `.pack` edits + content judgment — owner-authorized, separate.
+
 ## 2026-06-18 — Post-PR #251 (AI-tier PR1 mechanical content-integrity; merged + CI GREEN)
 
 ### ✅ RESOLVED — Q10 de-fused + tagging defect fixed + guard added
