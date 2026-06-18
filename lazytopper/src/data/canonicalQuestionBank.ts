@@ -115,6 +115,13 @@ import { STAT_EXEMPLAR } from './questionBanks/class10/maths/statistics.exemplar
 import { PROB_NCERT } from './questionBanks/class10/maths/probability.ncert';
 import { PROB_EXEMPLAR } from './questionBanks/class10/maths/probability.exemplar';
 
+// Bank Expansion Phase 1, Batch 1 (2026-06-18) — net-new NCERT-Exemplar Maths
+// questions (authentic) with AI-generated step-marked solutions (PENDING OWNER
+// VERIFICATION). Solution provenance tracked in AI_GENERATED_SOLUTION_IDS below.
+import { AP_EXEMPLAR2 } from './questionBanks/class10/maths/arithmeticProgression.exemplar2';
+import { STAT_EXEMPLAR2 } from './questionBanks/class10/maths/statistics.exemplar2';
+import { SAV_EXEMPLAR2 } from './questionBanks/class10/maths/surfaceAreasAndVolumes.exemplar2';
+
 // P0 diff/ pack registration (2026-05-23) — 62 questions closing triangles/trig/electricity/life-processes gaps
 import { TRIANGLES_AR_QUESTIONS } from './questionBanks/class10/maths/triangles.assertionReasoning';
 import { TRIGONOMETRY_AR_QUESTIONS } from './questionBanks/class10/maths/trigonometry.assertionReasoning';
@@ -524,6 +531,11 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...STAT_EXEMPLAR,
   ...PROB_NCERT,
   ...PROB_EXEMPLAR,
+  // Bank Expansion Phase 1, Batch 1 (2026-06-18) — authentic Exemplar questions,
+  // AI-generated solutions (pending owner verification; see AI_GENERATED_SOLUTION_IDS)
+  ...AP_EXEMPLAR2,
+  ...STAT_EXEMPLAR2,
+  ...SAV_EXEMPLAR2,
   // P0 diff/ pack registration (2026-05-23) — 62 questions (AR Sec A + Proof Sec C/D)
   ...TRIANGLES_AR_QUESTIONS,
   ...TRIGONOMETRY_AR_QUESTIONS,
@@ -1585,4 +1597,23 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
  */
 export const AI_GENERATED_QUESTION_IDS: ReadonlySet<string> = new Set(
   AI_GENERATED_PACK_SOURCES.flatMap((source) => source.map((q) => q.id))
+);
+
+/**
+ * THE DECOUPLE (Bank Expansion Phase 1) — ids whose QUESTION is authentic
+ * (verbatim NCERT Exemplar) but whose worked SOLUTION is AI-generated and
+ * PENDING OWNER VERIFICATION. This is a provenance axis distinct from
+ * AI_GENERATED_QUESTION_IDS (which marks whole AI-pack questions): membership
+ * here means "trust the question, the solution is awaiting examiner sign-off".
+ * Tracked the same way `_source` is (an id-set, NOT a field on the gated
+ * CanonicalQuestion type in predictionTypes.ts).
+ */
+const AI_GENERATED_SOLUTION_SOURCES = [
+  AP_EXEMPLAR2,
+  STAT_EXEMPLAR2,
+  SAV_EXEMPLAR2,
+] as const;
+
+export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set(
+  AI_GENERATED_SOLUTION_SOURCES.flatMap((source) => source.map((q) => q.id))
 );
