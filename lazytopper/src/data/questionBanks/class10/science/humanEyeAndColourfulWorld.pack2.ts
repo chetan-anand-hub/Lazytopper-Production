@@ -1110,7 +1110,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Dispersion",
     "section": "D",
     "marks": 5,
-    "format": "Short",
+    "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
     "questionText": "Why does white light passing through a prism produce a spectrum, while light of a single color does not?",

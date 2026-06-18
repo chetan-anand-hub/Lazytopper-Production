@@ -1409,7 +1409,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Properties of Acids and Bases",
     "section": "D",
     "marks": 5,
-    "format": "Short",
+    "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
     "questionText": "A student accidentally spills concentrated sulfuric acid on the laboratory bench. Explain the steps to safely neutralize the acid using a commonly available base.",

@@ -713,7 +713,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "subtopic": "AC and DC",
     "section": "D",
     "marks": 5,
-    "format": "Short",
+    "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
     "questionText": "Compare and contrast DC motor and AC generator in terms of: (a) Energy conversion, (b) Role of commutator/slip rings, (c) Output nature.",
