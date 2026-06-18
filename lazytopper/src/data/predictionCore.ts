@@ -294,8 +294,13 @@ function getBloomMultiplier(q: CanonicalQuestion): number {
  * and AI-generated questions are demoted (but never excluded), so authenticated
  * questions surface first while AI can still appear when authentic is thin.
  * Unstamped questions default to authentic — we never demote on missing data.
+ *
+ * Exported (AI-tier FU-RANK-MOCKS-HPQ) so the mock engines reuse this ONE
+ * SOURCE_MULTIPLIER for their per-slot selection instead of forking a copy.
+ * Accepts a bare CanonicalQuestion too — the `_source` field is optional, and
+ * the unified bank returned by getAllQuestions() carries it stamped at ingest.
  */
-function getSourceMultiplier(q: CanonicalQuestionWithScore): number {
+export function getSourceMultiplier(q: CanonicalQuestionWithScore): number {
   return SOURCE_MULTIPLIER[q._source ?? "authentic"];
 }
 

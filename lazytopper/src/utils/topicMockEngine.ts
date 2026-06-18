@@ -1,4 +1,4 @@
-import { PredictionCore } from "../data/predictionCore";
+import { PredictionCore, getSourceMultiplier } from "../data/predictionCore";
 import type { CanonicalQuestion, SectionKey, LTSubjectKey } from "../data/predictionTypes";
 import { resolveRuntimeTopicKey } from "./topicResolver";
 
@@ -174,10 +174,18 @@ function matchesSection(q: CanonicalQuestion, section: SectionKey, marks: number
   return false;
 }
 
-function weightedShuffleByScore(arr: CanonicalQuestion[], rng: () => number): CanonicalQuestion[] {
+// Exported for the mock-source unit test (mockEngineSource.test.ts). Pure given
+// its rng. Not part of the page-facing API.
+export function weightedShuffleByScore(arr: CanonicalQuestion[], rng: () => number): CanonicalQuestion[] {
   const scored = arr.map(q => ({
     q,
-    weight: (q.predictionScore ?? 50) / 100 + 0.3 + rng() * 0.4,
+    // Soft AI-lower ranking (AI-tier FU-RANK-MOCKS-HPQ): scale each candidate's
+    // score-weight by its source multiplier so authentic ranks ahead of
+    // predicted ahead of AI WITHIN this section pool. The multiplier is
+    // 0.3/0.6 (never 0) and the +0.3/+rng base keeps every candidate ranked &
+    // selectable, so an authentic-thin slot still fills with AI. Reuses PR2a's
+    // single SOURCE_MULTIPLIER via getSourceMultiplier.
+    weight: ((q.predictionScore ?? 50) / 100 + 0.3 + rng() * 0.4) * getSourceMultiplier(q),
   }));
   scored.sort((a, b) => b.weight - a.weight);
   return scored.map(s => s.q);

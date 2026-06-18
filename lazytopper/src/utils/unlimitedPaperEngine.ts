@@ -1,4 +1,4 @@
-import { PredictionCore } from "../data/predictionCore";
+import { PredictionCore, getSourceMultiplier } from "../data/predictionCore";
 import type { CanonicalQuestion, SectionKey, LTSubjectKey } from "../data/predictionTypes";
 import { getActiveProgressUser } from "../services/studentProgressStore";
 import { class10TopicTrendList } from "../data/class10MathTopicTrends";
@@ -306,7 +306,31 @@ function countArchetypesInPaper(
   return count;
 }
 
-function weightedSelect(
+// Soft authentic-first pick among an already-constrained candidate list
+// (AI-tier FU-RANK-MOCKS-HPQ). Each candidate is weighted by its source
+// multiplier (authentic 1.0 > predicted 0.6 > ai 0.3) so authentic is preferred
+// for the slot, but an all-AI / authentic-thin list still yields a pick (the
+// slot is never left empty). Used by the guaranteed-archetype prefill, whose
+// slots otherwise picked uniformly at full AI parity.
+function sourceWeightedPick<T extends CanonicalQuestion>(
+  items: T[],
+  rng: () => number,
+): T | undefined {
+  if (items.length === 0) return undefined;
+  let total = 0;
+  for (const it of items) total += getSourceMultiplier(it);
+  if (total <= 0) return items[Math.floor(rng() * items.length)];
+  let r = rng() * total;
+  for (const it of items) {
+    r -= getSourceMultiplier(it);
+    if (r <= 0) return it;
+  }
+  return items[items.length - 1];
+}
+
+// Exported for the mock-source unit test (mockEngineSource.test.ts). Pure given
+// its rng — no DOM/localStorage. Not part of the page-facing API.
+export function weightedSelect(
   pool: CanonicalQuestion[],
   usedIds: Set<string>,
   rng: () => number,
@@ -320,7 +344,12 @@ function weightedSelect(
     if (usedIds.has(q.id)) continue;
 
     const predScore = getEffectiveScore(q);
-    const predWeight = Math.pow(Math.max(predScore, 0.5), 1.5);
+    // Soft AI-lower ranking (AI-tier FU-RANK-MOCKS-HPQ): demote non-authentic
+    // candidates WITHIN this section/marks pool so authentic fills each slot
+    // first, while AI/predicted can still surface when authentic is thin (the
+    // multiplier is 0.3/0.6, never 0, and the additive topic/rng terms below
+    // keep every candidate selectable). Reuses PR2a's single SOURCE_MULTIPLIER.
+    const predWeight = Math.pow(Math.max(predScore, 0.5), 1.5) * getSourceMultiplier(q);
 
     const canonical = canonicalTopicKey(q.topicKey, subject);
     const topicNeed = topicNeedMap.get(canonical) ?? 0;
@@ -691,10 +720,13 @@ function prefillArchetypeQuestions(
     );
 
     if (matches.length > 0) {
-      const idx = Math.floor(rng() * matches.length);
-      const picked = matches[idx];
-      usedIds.add(picked.id);
-      selected.push(picked);
+      // Prefer an authentic archetype for this guaranteed slot, soft-falling to
+      // predicted/AI when authentic is thin (AI-tier FU-RANK-MOCKS-HPQ).
+      const picked = sourceWeightedPick(matches, rng);
+      if (picked) {
+        usedIds.add(picked.id);
+        selected.push(picked);
+      }
     }
   }
 
