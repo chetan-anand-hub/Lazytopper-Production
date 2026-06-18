@@ -1,3 +1,27 @@
+## 2026-06-19 — Post-PR #262 (Bank Expansion Phase 1, Batch 1: 60 net-new Exemplar Maths Qs + AI step-marked solutions; merged + CI GREEN)
+
+### ✅ RESOLVED / DELIVERED
+- **Batch 1 of the Exemplar-Maths bank expansion (THE DECOUPLE)** — 60 net-new authentic questions (AP 24, Statistics 16, SAV 20) +
+  AI step-marked solutions, owner-verified + merged (`444238b`). Solution-provenance via `AI_GENERATED_SOLUTION_IDS` id-set;
+  `predictionTypes.ts` untouched. Codespaces vitest NO REGRESSION vs base.
+
+### 🔭 NEW FOLLOW-UPS
+- **[FU-VITEST-INFRA]** — repo vitest setup has a pre-existing gap: 7 component/page suites fail to LOAD with `Cannot find module
+  '@testing-library/dom'` and `window is not defined` (jsdom env not active). Fails identically on untouched base `444238b` (proven),
+  so it is NOT a Batch-1 regression — but it makes the Codespaces vitest gate noisy. Fix as its own tiny hygiene PR: add
+  `@testing-library/dom` to devDependencies and ensure the jsdom test environment is applied. (CI quality-gate does not run vitest.)
+- **[FU-EXEMPLAR-STAT-13.4]** — Statistics LA Exercise 13.4 (answer key shows 51.75 / 48.41 / 31 yrs / 201.96 g / median-salary
+  13420 / …) is NOT extractable from `jeep213.pdf` (question text absent in the PDF's text layer). Needs a clean source before those LA items can be added.
+- **[FU-EXEMPLAR-DEFERRED-NETNEW]** — additional net-new available for later top-ups: AP Ex 5.3 has ~12 further SA items + more Ex 5.2
+  reasoning parts (not all harvested in Batch 1 to keep the batch verifiable). Surfaced so coverage is not silently capped.
+
+### ⏭️ NEXT BATCHES (owner-authorized separately, branched fresh from `444238b`)
+- Batch 2: Areas-Related-to-Circles + Coordinate-Geometry (Coord-Geom drops Area-of-Triangle-in-Coordinate-Geometry — banned).
+- Batch 3: Triangles + Circles · Batch 4: Trigonometry + Pair-of-Linear-Eq (Trig drops complementary-angle ratios) · Batch 5: Real-Numbers + Polynomials (Euclid + cubic-zeroes-coeff dropped).
+- These new rows fall into Fix B [FU-TOPICKEY-CONSOLIDATION] migration scope.
+
+---
+
 ## 2026-06-18 — Post-PR #259 (AI-tier FU-RANK-MOCKS-HPQ soft AI-demotion on Full Mock + Topic Mock; merged + CI GREEN)
 
 ### ✅ RESOLVED — mock surfaces now soft-demote AI per-slot

@@ -2,6 +2,17 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-19 — Post-PR #262 roadmap update (Bank Expansion Phase 1, Batch 1 — Exemplar Maths)
+
+Report: `report-bank-expansion-p1-exemplar-maths-BATCH1-2026-06-18.md`.
+
+**Bank Expansion Phase 1 (Exemplar-Maths net-new + AI step-marked solutions — THE DECOUPLE) — Batch 1 of 5 DONE (#262, trunk `444238b`).**
+- ✅ Batch 1: Arithmetic Progressions (24) + Statistics (16) + Surface-Areas-&-Volumes (20) = **60 net-new**, owner-verified + merged.
+- ⏳ Batch 2: Areas-Related-to-Circles + Coordinate-Geometry · Batch 3: Triangles + Circles · Batch 4: Trigonometry + Pair-of-Linear-Eq · Batch 5: Real-Numbers + Polynomials.
+- Recipe: extract verbatim → syllabus-filter (per `scripts/src/syllabusGuard.ts`) → dedup vs repo → AI `[N mark]` solutions (finalAnswer vs jeep2an.pdf)
+  → new `*.exemplar2.ts` + register + `AI_GENERATED_SOLUTION_IDS` (never `predictionTypes.ts`) → gates + Codespaces vitest → STOP for owner verification.
+- Follow-ups: [FU-VITEST-INFRA], [FU-EXEMPLAR-STAT-13.4], [FU-EXEMPLAR-DEFERRED-NETNEW]. New rows ∈ Fix B [FU-TOPICKEY-CONSOLIDATION] scope.
+
 ## 2026-06-18 — Post-PR #259 roadmap update (AI-tier FU-RANK-MOCKS-HPQ soft AI-demotion on Full Mock + Topic Mock)
 
 Report: `report-ai-tier-rank-mocks-hpq-2026-06-18.md`.
