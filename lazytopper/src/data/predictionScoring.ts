@@ -83,7 +83,6 @@ function get5SignalResult(q: PredictionScoreInput): FiveSignalResult {
       bloom: q.bloomSkill,
       difficulty: q.difficulty,
       policyTag: q.policyTag,
-      pastBoardYear: q.pastBoardYear,
     },
     targetYear
   );

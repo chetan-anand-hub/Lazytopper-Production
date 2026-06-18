@@ -77,7 +77,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "To prove irrationality, assume rational, simplify, and reach a contradiction with a known irrational.",
-    pastBoardYear: "2022",
     policyTag: "Irrationality proof/standard pattern",
   },
 
@@ -105,7 +104,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Simplify to obtain 5/2.",
     ],
     strategyHint: "Use sum and product of zeroes formula; no factorisation needed.",
-    pastBoardYear: "2024",
     policyTag: "Formula based MCQ/Polynomials",
     finalAnswer: "5/2",
   },
@@ -132,7 +130,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "After verifying a factor using the Factor Theorem, always divide to simplify the remaining quadratic.",
-    pastBoardYear: "2023",
     policyTag: "Polynomial factorisation/Factor theorem",
   },
 
@@ -160,7 +157,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Compute y − x.",
     ],
     strategyHint: "Eliminate x or y by multiplying equations suitably.",
-    pastBoardYear: "2023",
     policyTag: "NEP-2020/MCQ emphasis/Must-crack",
     finalAnswer: "2",
   },
@@ -187,7 +183,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Convert the word problem into two linear equations, then use substitution.",
-    pastBoardYear: "2022",
     policyTag: "Algebra word-problem/Standard board flavour",
   },
 
@@ -212,7 +207,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Find y and then back-substitute to get x. [1]",
     ],
     strategyHint: "Always isolate a variable from the simpler equation.",
-    pastBoardYear: "2021",
     policyTag: "Basic substitution method/1–2 mark pattern",
   },
 
@@ -240,7 +234,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Translate the fraction condition into two equations and solve by substitution or elimination.",
-    pastBoardYear: "2020",
     policyTag: "Classic 4–5 mark linear word problem",
   },
 
@@ -269,7 +262,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Set D = 0 and solve for k.",
     ],
     strategyHint: "Immediately use discriminant condition instead of solving fully.",
-    pastBoardYear: "2025",
     policyTag: "NEP-2020/MCQ/Discriminant focus",
   },
 
@@ -297,7 +289,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Translate product of consecutive integers directly into n(n + 1).",
-    pastBoardYear: "2023",
     policyTag: "Application word problem/Medium difficulty",
   },
 
@@ -322,7 +313,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Choose two numbers whose product is a·c and sum is b to split the middle term.",
-    pastBoardYear: "2022",
     policyTag: "Algebraic solution/Factorisation practice",
   },
 
@@ -351,7 +341,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Change only the condition on D; the expression 25 − 24a stays the same.",
-    pastBoardYear: "2024",
     policyTag: "Case-based/Discriminant concept integration",
   },
 
@@ -378,7 +367,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Simplify to get the 10th term.",
     ],
     strategyHint: "Remember that the first term corresponds to n = 1.",
-    pastBoardYear: "2022",
     policyTag: "Direct formula MCQ/AP",
     finalAnswer: "34",
   },
@@ -405,7 +393,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Sum questions often reduce to a quadratic; check that n is a positive integer.",
-    pastBoardYear: "2023",
     policyTag: "AP sum/board pattern",
   },
 
@@ -433,7 +420,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Recognise the classic 3–4–5 right triangle pattern for quick mental calculation.",
-    pastBoardYear: "2021",
     policyTag: "Direct formula MCQ/Distance",
     finalAnswer: "5",
   },
@@ -460,7 +446,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Keep the ratio order consistent with which point you assign m₁ and m₂.",
-    pastBoardYear: "2023",
     policyTag: "Section formula standard",
   },
 
@@ -489,7 +474,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "For trig identities, convert everything to sine and cosine first.",
-    pastBoardYear: "2023",
     policyTag: "Identity proof/Trig algebra",
   },
 
@@ -517,7 +501,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Separate the problem into two right triangles with a common base.",
-    pastBoardYear: "2022",
     policyTag: "Heights & distances/Two-position angle",
   },
 
@@ -541,7 +524,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Subtract and simplify.",
     ],
     strategyHint: "Memorise the standard trig table for 0°, 30°, 45°, 60°, 90°.",
-    pastBoardYear: "2021",
     policyTag: "Single-step MCQ/Standard values",
   },
 
@@ -567,7 +549,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Break such expressions into numerator and denominator pieces first.",
-    pastBoardYear: "2020",
     policyTag: "Trig value manipulation/Medium level",
   },
 
@@ -594,7 +575,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Most two-position problems reduce to solving two tan equations in two unknowns.",
-    pastBoardYear: "2024",
     policyTag: "Case-based/Heights & distances/Two angles",
   },
 
@@ -624,7 +604,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Think of shortest distance from a point to a line being the perpendicular segment.",
-    pastBoardYear: "2023",
     policyTag: "Tangents/radius property",
   },
 
@@ -652,7 +631,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "120° is one-third of 360°, so area is one-third of full circle area.",
-    pastBoardYear: "2022",
     policyTag: "Sector area/basic computation",
   },
 
@@ -680,7 +658,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Do not include base area of cone; hemisphere covers it.",
-    pastBoardYear: "2023",
     policyTag: "Combination of solids/Surface area",
   },
 
@@ -708,7 +685,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Assumed mean method reduces calculations by shifting origin and scale.",
-    pastBoardYear: "2022",
     policyTag: "Grouped data mean/Assumed mean method",
   },
 
@@ -735,7 +711,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "For small data sets, order the numbers first; it makes all three measures easy to see.",
-    pastBoardYear: "2023",
     policyTag: "Case-based mandatory, NEP 2020/Statistics",
   },
 
@@ -762,7 +737,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Use probability formula P(E) = favourable/total.",
     ],
     strategyHint: "Remember there are 4 cards of each denomination.",
-    pastBoardYear: "2021",
     policyTag: "Basic probability/Single-event",
     finalAnswer: "1/13",
   },
@@ -789,7 +763,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     ],
     strategyHint:
       "Sometimes complementary probability (1 − P(E)) is quicker.",
-    pastBoardYear: "2023",
     policyTag: "Simple complementary probability",
   },
 
@@ -810,7 +783,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     answer: "12",
     explanation:
       "Product of zeroes for ax²+bx+c is c/a. Here c = 12, a = 1 ⇒ αβ = 12.",
-    pastBoardYear: "2024",
     policyTag: "Formula-based MCQ",
     solutionSteps: [
       "The standard form of a quadratic polynomial is ax² + bx + c.",
@@ -835,7 +807,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "The roots are x = 2 and x = 5 (distinct). Distinct real roots imply two x-intercepts.",
-    pastBoardYear: "2023",
     policyTag: "AR/Graph link to roots",
     solutionSteps: [
       "For Assertion (A): The zeroes of y = (x−2)(x−5) are x=2 and x=5.; Since there are two distinct real zeroes, the graph cuts the x-axis at two distinct points. So, A is true. [½]",
@@ -859,7 +830,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "(i) p(1)=0, p(4)=0. (ii) p(x)=(x−1)(x−4)(x−5). (iii) x ∈ {1,4,5} (check feasibility).",
     explanation:
       "Use Factor Theorem for x = 1, 4, then divide to obtain the third factor x−5.",
-    pastBoardYear: "2022",
     policyTag: "Case-based/realistic context",
     solutionSteps: [
       "(i) To verify (x−1) is a factor, check p(1): p(1) = (1)³−10(1)²+29(1)−20 = 1−10+29−20 = 0.; To verify (x−4) is a factor, check p(4): p(4) = (4)³−10(4)²+29(4)−20 = 64−160+116−20 = 0. [1]",
@@ -886,7 +856,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "Second equation is a multiple of the first; hence infinitely many solutions.",
-    pastBoardYear: "2021",
     policyTag: "AR/Consistency conditions",
     solutionSteps: [
       "For Assertion (A): Compare coefficients of 2x+3y=7 (L1) and 4x+6y=14 (L2).; Calculate ratios: a₁/a₂ = 2/4 = 1/2, b₁/b₂ = 3/6 = 1/2, c₁/c₂ = 7/14 = 1/2. [½]",
@@ -910,7 +879,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Let x,y be samosas,idlis: x+y=120; 9x+6y=1020 ⇒ x=60, y=60.",
     explanation:
       "Solve the linear pair using elimination/substitution.",
-    pastBoardYear: "2024",
     policyTag: "Contextual/standard pair",
     solutionSteps: [
       "(i) Let x be the number of samosas and y be the number of idlis.; Total items sold: x + y = 120 (Equation 1). [1]",
@@ -937,7 +905,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "D=36−44=−8<0 ⇒ no real roots.",
-    pastBoardYear: "2023",
     policyTag: "AR/Discriminant test",
     solutionSteps: [
       "For Assertion (A): The given equation is x²−6x+11=0. Here a=1, b=−6, c=11.; Calculate the discriminant D = b²−4ac = (−6)² − 4(1)(11) = 36 − 44 = −8. [½]",
@@ -961,7 +928,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Equation: (x−3)(x+2)=0 ⇒ x²−x−6=0.",
     explanation:
       "Sum=1, product=−6 ⇒ x²−(sum)x+(product)=0 ⇒ x²−x−6=0.",
-    pastBoardYear: "2021",
     policyTag: "Roots→Equation construction",
     solutionSteps: [
       "If roots are α and β, the quadratic equation is (x−α)(x−β) = 0.; Given roots are 3 and −2. So, the equation is (x−3)(x−(−2)) = 0. [1]",
@@ -987,7 +953,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "a+9d=25 and a+19d=45 ⇒ 10d=20 ⇒ d=2.",
-    pastBoardYear: "2022",
     policyTag: "AR/AP nth-term relation",
     solutionSteps: [
       "Reason (R) states the correct formula for the nth term of an AP: aₙ = a + (n−1)d. So, R is true.; For Assertion (A): Using the formula, a₁₀ = a + (10−1)d = a + 9d = 25 (Equation 1). [½]",
@@ -1011,7 +976,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "d=1, last term=20 ⇒ n such that a+(n−1)d=20 ⇒ 14+(n−1)=20 ⇒ n=7. Total height Sₙ = n/2(2a+(n−1)d)=7/2(28+6)=7/2·34=119 cm.",
     explanation:
       "Use nth term for count; then AP sum for total height.",
-    pastBoardYear: "2024",
     policyTag: "Practical AP modelling",
     solutionSteps: [
       "Identify the first term a = 14 cm and common difference d = 1 cm for the AP of step heights.; The height of the top step is the nth term, an = 20 cm. Use the formula an = a + (n-1)d. [1]",
@@ -1038,7 +1002,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     answer: "9:25",
     explanation:
       "Area ratio equals square of side ratio ⇒ (3/5)²=9/25.",
-    pastBoardYear: "2021",
     policyTag: "Direct similarity fact",
     solutionSteps: [
       "Recall the theorem: The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
@@ -1062,7 +1025,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "DE ∥ BC and DE = (1/2)·BC.",
     explanation:
       "Midpoint theorem: segment joining midpoints of two sides is parallel to the third side and half of it.",
-    pastBoardYear: "2023",
     policyTag: "Theorem application",
     solutionSteps: [
       "Given that D and E are the midpoints of sides AB and AC respectively in ΔABC.; Consider ΔADE and ΔABC. We have AD/AB = 1/2 (since D is midpoint) and AE/AC = 1/2 (since E is midpoint). [1]",
@@ -1087,7 +1049,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     answer: "PT² = PA·PB.",
     explanation:
       "Power of a point theorem (tangent-secant).",
-    pastBoardYear: "2021",
     policyTag: "Standard tangent-secant relation",
     solutionSteps: [
       "Draw a circle with center O. Let P be an external point. Draw a tangent PT and a secant PAB to the circle. Join AT and BT.; Consider ΔPTA and ΔPBT.; ∠APT = ∠BPT (This is the common angle for both triangles). [1]",
@@ -1111,7 +1072,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "OP ⟂ PT at point of contact; use congruence to show equality.",
-    pastBoardYear: "2022",
     policyTag: "AR/Equal tangents",
     solutionSteps: [
       "Assertion (A) states that tangents drawn from an external point to a circle are equal in length. This is a fundamental property of circles and is true.; Reason (R) states that the triangles formed by radii to the points of contact are congruent right triangles. Let P be the external point, O the center, and T1, T2 the points of contact. [½]",
@@ -1137,7 +1097,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     answer: "1/2·r·L",
     explanation:
       "Area of sector = (1/2)·r·L (when θ is in radians).",
-    pastBoardYear: "2021",
     policyTag: "Sector formula (radian form)",
     solutionSteps: [
       "Recall the formula for arc length L of a sector with radius r and central angle θ (in radians): L = rθ.",
@@ -1165,7 +1124,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Outer radius = 1.01 m. Volume = (2/3)π(1.01³ − 1³) = (2/3)·(22/7)·0.030301 ≈ 0.06348 m³.",
     explanation:
       "Volume of hollow hemisphere = (2/3)π(R³ − r³) where R = outer radius and r = inner radius.",
-    pastBoardYear: "2024",
     policyTag: "Hollow hemisphere volume",
     solutionSteps: [
       "Inner radius (r) = 1 m. Thickness of iron sheet = 1 cm = 0.01 m.; Outer radius (R) = Inner radius + Thickness = 1 m + 0.01 m = 1.01 m. [1]",
@@ -1191,7 +1149,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Median class: 20–30; median ≈ 24.3 (approx.).",
     explanation:
       "Find cumulative frequencies; locate n/2; use median formula: L + [(n/2−cf)/f]·h.",
-    pastBoardYear: "2023",
     policyTag: "Grouped median",
     solutionSteps: [
       "Construct the cumulative frequency (cf) table: Classes 0-10 (cf=5), 10-20 (cf=14), 20-30 (cf=28), 30-40 (cf=36), 40-50 (cf=40).; Total frequency (N) = 40. N/2 = 20. The class containing the 20th observation is 20-30. [1]",
@@ -1215,7 +1172,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Both A and R are true, and R is the correct explanation of A.",
     explanation:
       "Highest frequency decides modal class; formula estimates the mode within that class.",
-    pastBoardYear: "2022",
     policyTag: "AR/Mode estimation",
     solutionSteps: [
       "Assertion (A) is true: The modal class for grouped data is indeed the class interval with the highest frequency, as the mode is expected to lie within this class.; Reason (R) is true: The formula Mode = L + [(f₁−f₀)/(2f₁−f₀−f₂)]·h is the correct empirical formula used to calculate the mode of grouped data. [½]",
@@ -1241,7 +1197,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     answer: "0.8",
     explanation:
       "Mutually exclusive ⇒ P(A∪B)=P(A)+P(B)=0.3+0.5=0.8.",
-    pastBoardYear: "2021",
     policyTag: "Basic addition rule",
     solutionSteps: [
       "For mutually exclusive events A and B, the probability of their union is given by P(A∪B) = P(A) + P(B).",
@@ -1265,7 +1220,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "P = (4/6)·(3/5)=2/5.",
     explanation:
       "First red: 4/6; then red: 3/5. Multiply.",
-    pastBoardYear: "2024",
     policyTag: "Two-step probability",
     solutionSteps: [
       "Total number of balls in the bag = 4 red + 2 blue = 6 balls.; Probability of drawing the first red ball = (Number of red balls) / (Total balls) = 4/6. [½]",
@@ -3370,7 +3324,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     strategyHint:
       "For two observations on one line, create two tan equations using the same height variable.",
     policyTag: "Trigonometry 5-mark competency application",
-    pastBoardYear: "2024",
   },
 
 
@@ -3398,7 +3351,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Compute S₁₅ using the given formula. [1]",
     ],
     strategyHint: "When sum is given as a formula, use aₙ = Sₙ − Sₙ₋₁ to extract the AP.",
-    pastBoardYear: "2022",
     policyTag: "AP 5-mark sum formula application",
   },
 
@@ -3475,7 +3427,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "AB = √(169−25) = 12 cm. [1]",
     ],
     strategyHint: "Always prove the theorem first, then apply Pythagoras for the numerical part.",
-    pastBoardYear: "2023",
     policyTag: "Circles 5-mark theorem + numerical",
   },
 
@@ -3503,7 +3454,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Identify modal class as the class with maximum frequency. [1]",
     ],
     strategyHint: "Build the CF column carefully; the median class is the first class whose CF ≥ N/2.",
-    pastBoardYear: "2024",
     policyTag: "Statistics 5-mark median + mode grouped data",
   },
 
@@ -3531,7 +3481,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "New P(red) = 7/14 = 1/2. [1]",
     ],
     strategyHint: "Count favourable and total outcomes carefully for each sub-part.",
-    pastBoardYear: "2023",
     policyTag: "Probability 5-mark multi-part",
   },
 
@@ -3559,7 +3508,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Verify using relationship between zeroes and coefficients. [1]",
     ],
     strategyHint: "Express new zeroes in terms of old ones and use Vieta's formulas.",
-    pastBoardYear: "2022",
     policyTag: "Polynomials 5-mark zeroes transformation",
   },
 
@@ -3587,7 +3535,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Substitute values and solve for EC. [1]",
     ],
     strategyHint: "BPT proof always uses equal-base-equal-height area argument.",
-    pastBoardYear: "2024",
     policyTag: "Triangles 5-mark theorem + application",
   },
 
@@ -3615,7 +3562,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Total surface area = CSA of cone + CSA of hemisphere. [1]",
     ],
     strategyHint: "In combined solids, exclude the common circular face from the total.",
-    pastBoardYear: "2023",
     policyTag: "Surface Areas 5-mark combined solid",
   },
 
@@ -3643,7 +3589,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "State speed with units. [1]",
     ],
     strategyHint: "Speed-distance-time problems always give a quadratic; set up time difference equation.",
-    pastBoardYear: "2022",
     policyTag: "QE 5-mark speed-distance application",
   },
 ];

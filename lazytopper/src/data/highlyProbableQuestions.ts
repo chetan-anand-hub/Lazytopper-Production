@@ -1545,7 +1545,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         answer: "4Fe + 3O₂ → 2Fe₂O₃",
         explanation:
           "Total Fe atoms and O atoms on both sides must be equal; 4Fe + 3O₂ → 2Fe₂O₃ balances the equation.",
-        pastBoardYear: "2024",
         policyTag: "MCQ balancing",
         solutionSteps: [
           "The unbalanced equation for rusting is Fe + O₂ → Fe₂O₃.",
@@ -1574,7 +1573,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Decomposition reaction. Example: CaCO₃ → CaO + CO₂ (thermal decomposition).",
         explanation:
           "A single compound breaking down into simpler substances is called a decomposition reaction.",
-        pastBoardYear: "2023",
         policyTag: "Decomposition trend",
         solutionSteps: [
           "In the reaction 2KClO₃ → 2KCl + 3O₂, a single reactant (KClO₃) breaks down into two simpler products (KCl and O₂). [½]",
@@ -1641,7 +1639,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         answer: "Strong acid",
         explanation:
           "pH 2 is highly acidic and such a solution turns blue litmus red.",
-        pastBoardYear: "2025",
         policyTag: "Indicator/pH MCQ",
         solutionSteps: [
           "A solution that turns blue litmus red indicates that it is acidic in nature.",
@@ -1735,7 +1732,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Which metal is softest? (A) Sodium (B) Iron (C) Zinc (D) Copper",
         answer: "Sodium",
         explanation: "Sodium is so soft that it can be easily cut with a knife.",
-        pastBoardYear: "2024",
         policyTag: "MCQ/Fact",
         solutionSteps: [
           "Recall the physical properties of the given metals.",
@@ -1763,7 +1759,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "How do non-metals generally react with water? (A) Vigorously (B) Slowly (C) Not at all (D) Explosively",
         answer: "Not at all",
         explanation: "Non-metals usually do not react with water directly.",
-        pastBoardYear: "2025",
         policyTag: "Board MCQ trend",
         solutionSteps: [
           "Recall the general chemical properties of non-metals.",
@@ -1808,7 +1803,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         correctOption: "A",
         explanation:
           "More reactive metals displace less reactive ones from their salt solutions.",
-        pastBoardYear: "2023",
         policyTag: "AR mandatory",
         solutionSteps: [
           "Evaluate the Assertion: Zinc is more reactive than copper, so it displaces copper from copper sulphate solution. This statement is true.",
@@ -1839,7 +1833,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Reduction of iron oxide by carbon monoxide in the blast furnace.",
         explanation:
           "In the blast furnace, carbon monoxide reduces Fe₂O₃ to molten iron: Fe₂O₃ + 3CO → 2Fe + 3CO₂.",
-        pastBoardYear: "2022",
         policyTag: "NEP: process focus",
         solutionSteps: [
           "The main step used to extract iron from hematite in the blast furnace is reduction.; In the blast furnace, carbon monoxide (CO) acts as the primary reducing agent. [½]",
@@ -1867,7 +1860,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         answer: "Painting and applying oil/grease or galvanising.",
         explanation:
           "Painting and oil/grease create a protective layer, preventing oxygen and water from reaching the iron surface. Galvanising coats iron with zinc which is more reactive and protects by sacrificial action.",
-        pastBoardYear: "2025",
         policyTag: "Case/resistivity NEP",
         solutionSteps: [
           "Method 1: Painting the bicycle.; Painting creates a physical barrier, preventing the iron surface from coming into contact with oxygen and moisture, which are necessary for rusting. [1]",

@@ -75,7 +75,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "In Zn + CuSO₄ → ZnSO₄ + Cu, more reactive zinc displaces copper from copper sulphate, so it is a displacement reaction.",
     strategyHint:
       "Look for one element replacing another in a compound – that’s displacement.",
-    pastBoardYear: "2022",
     policyTag: "Basic reaction type MCQ",
     solutionSteps: [
       "A displacement reaction involves a more reactive element displacing a less reactive element from its compound.",
@@ -107,7 +106,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     ],
     strategyHint:
       "For reaction type, check if ions are exchanged and whether a precipitate forms.",
-    pastBoardYear: "2023",
     policyTag: "Precipitation/double-displacement pattern",
     finalAnswer: "(a) BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) + 2NaCl(aq)\\n(b) Double displacement and precipitation reaction.",
   },
@@ -134,7 +132,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     ],
     strategyHint:
       "Use oxygen-based definition of redox for simple reactions at Class 10 level.",
-    pastBoardYear: "2021",
     policyTag: "Redox identification",
     finalAnswer: "(a) Copper is oxidised; oxygen is reduced.\\n(b) Copper gains oxygen to form copper(II) oxide, while oxygen is used up in forming the compound.",
   },
@@ -1194,7 +1191,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     answer: "Virtual, erect and enlarged",
     explanation:
       "For a concave mirror with object between pole and focus, the image formed is virtual, erect, enlarged and behind the mirror.",
-    pastBoardYear: "Model",
     policyTag: "Light mirror position-image mapping",
     solutionSteps: [
       "When an object is placed between the pole (P) and the principal focus (F) of a concave mirror, the reflected rays diverge.",
@@ -1224,7 +1220,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     answer: "The speed of light in air is 1.5 times that in glass",
     explanation:
       "Refractive index n = c / v. If n = 1.5, then c = 1.5 v, so speed of light in air is 1.5 times the speed in glass.",
-    pastBoardYear: "Model",
     policyTag: "Refractive index interpretation MCQ",
     solutionSteps: [
       "The refractive index (n) of a medium is defined as the ratio of the speed of light in air/vacuum (c) to the speed of light in the medium (v). So, n = c/v.",
@@ -1255,7 +1250,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "From denser medium to rarer medium and angle of incidence > critical angle",
     explanation:
       "Total internal reflection takes place only when light travels from denser to rarer medium and angle of incidence exceeds the critical angle.",
-    pastBoardYear: "Model",
     policyTag: "TIR condition MCQ",
     solutionSteps: [
       "Total internal reflection (TIR) occurs when light travels from an optically denser medium to an optically rarer medium.",
@@ -1280,7 +1274,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Using 1/f = 1/v + 1/u with f = −10 cm and u = −15 cm: 1/−10 = 1/v + 1/−15 ⇒ −1/10 = 1/v − 1/15. Solving gives v = −30 cm. Image is real, inverted and enlarged, formed 30 cm in front of the mirror.",
     explanation:
       "Substitute values in mirror formula with correct signs; negative v indicates image in front of mirror (real). Magnitude greater than object distance shows enlargement.",
-    pastBoardYear: "Model",
     policyTag: "Concave mirror numerical 2m",
     solutionSteps: [
       "Given: Object distance, u = -15 cm (object placed in front of mirror). Focal length of concave mirror, f = -10 cm.; Apply the mirror formula: 1/f = 1/v + 1/u. Substitute the given values: 1/(-10) = 1/v + 1/(-15). [½]",
@@ -1305,7 +1298,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Snell’s law: n₁ sin i = n₂ sin r. Refractive index n of a medium is given by n = c / v, where c is speed of light in vacuum and v is speed of light in the medium.",
     explanation:
       "Snell’s law relates angles of incidence and refraction; definition of refractive index links it to speed of light.",
-    pastBoardYear: "Model",
     policyTag: "Snell law and n = c/v",
     solutionSteps: [
       "Snell's law states that for a given pair of media, the ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant.; Mathematically, Snell's law is expressed as n₁ sin i = n₂ sin r, where n₁ and n₂ are refractive indices, i is angle of incidence, r is angle of refraction. [½]",
@@ -1330,7 +1322,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Given f = +15 cm, v = +30 cm. Using 1/f = 1/v − 1/u: 1/15 = 1/30 − 1/u ⇒ 1/u = 1/30 − 1/15 = −1/30, so u = −30 cm. Magnification m = v / u = 30 / (−30) = −1, so image is real, inverted and same size.",
     explanation:
       "Apply lens formula with sign convention; object distance negative, real image positive. Magnification as v/u gives sign and size relation.",
-    pastBoardYear: "Model",
     policyTag: "Convex lens numerical 3m",
     solutionSteps: [
       "Given: focal length of convex lens f = +15 cm. Image is real and on the other side, so image distance v = +30 cm.; Apply the lens formula: 1/f = 1/v - 1/u. [1]",
@@ -1355,7 +1346,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Rules: (i) A ray parallel to principal axis passes through second focus F₂ after refraction. (ii) A ray passing through optical centre goes undeviated. (iii) A ray passing through F₁ emerges parallel to principal axis. For object at F₁, refracted rays are parallel, so image is formed at infinity; it is highly enlarged and real.",
     explanation:
       "Recall standard rules for convex lens ray construction; special case object at focus gives image at infinity, very large and real.",
-    pastBoardYear: "Model",
     policyTag: "Convex lens ray rules 3m",
     solutionSteps: [
       "Rule 1: A ray of light parallel to the principal axis passes through the second principal focus (F₂) after refraction.; Rule 2: A ray of light passing through the optical centre (O) of the lens goes undeviated after refraction. [1]",
@@ -1380,7 +1370,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "(a) Negative power ⇒ concave lens, focal length f = 1/P = 1/−2.0 = −0.5 m. (b) Net power Pₙ = −2.0 + 1.0 = −1.0 D, so resulting lens is still concave with f = −1.0 m. (c) Combination reduces the effective divergence; distant objects remain clear but with slightly reduced correction strength.",
     explanation:
       "Use relation P = 1/f (in m) and add powers algebraically for lenses in contact; interpret sign of net power for nature of lens and its effect on correction.",
-    pastBoardYear: "Model",
     policyTag: "Lens power combination case",
     solutionSteps: [
       "For part (a), the given power P = -2.0 D is negative, which indicates that the lens used is a concave lens.; The focal length (f) is calculated using the formula f = 1/P. [1]",
@@ -2448,7 +2437,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint:
       "Always reduce the parallel block first, then solve series current, then branch currents.",
     policyTag: "Electricity 5-mark competency numerical with diagram",
-    pastBoardYear: "2025",
     finalAnswer: "(a) Parallel part: 1/Rp = 1/6 + 1/3 = 1/2 ⇒ Rp = 2 Ω. Equivalent: Req = 4 + 2 = 6 Ω. (b) Total current I = V/Req = 12/6 = 2 A. (c) Voltage across parallel branch = I×Rp = 2×2 = 4 V. Hence I2 = 4/6 = 2/3 A and I3 = 4/3 A.",
   },
 
@@ -2475,7 +2463,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Conclude with overall significance. [1]",
     ],
     strategyHint: "Always start with the diagram, then explain each part asked.",
-    pastBoardYear: "2023",
     policyTag: "Life Processes 5-mark digestive system",
     finalAnswer: "(i) HCl creates acidic medium, activates pepsinogen to pepsin, kills ingested bacteria. (ii) Bile juice emulsifies fats into smaller droplets for lipase action. (iii) Villi increase surface area for efficient absorption of digested food into blood.",
   },
@@ -2503,7 +2490,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "State why separation is advantageous. [1]",
     ],
     strategyHint: "Use arrows to show blood flow direction in the diagram.",
-    pastBoardYear: "2024",
     policyTag: "Life Processes 5-mark heart & circulation",
     finalAnswer: "Double circulation: blood passes through the heart twice in one complete cycle — once through pulmonary circuit (heart→lungs→heart) and once through systemic circuit (heart→body→heart). It is necessary to maintain separation of oxygenated and deoxygenated blood for efficient oxygen supply to body tissues.",
   },
@@ -2531,7 +2517,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Contrast reflex action with voluntary action. [1]",
     ],
     strategyHint: "Draw the reflex arc first, then trace the impulse path step by step.",
-    pastBoardYear: "2023",
     policyTag: "Control & Coordination 5-mark reflex arc",
     finalAnswer: "Reflex arc: receptor → sensory neuron → spinal cord → motor neuron → effector. When touching hot object: heat receptor detects stimulus → impulse travels via sensory nerve to spinal cord → spinal cord processes and sends response via motor nerve → hand muscles contract to withdraw. Difference: reflex action is involuntary and controlled by spinal cord; walking is voluntary and controlled by brain.",
   },
@@ -2558,7 +2543,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Implantation occurs in the uterus wall. Embryo develops, placenta forms. [1]",
     ],
     strategyHint: "Label at least 5 parts in the diagram for full marks.",
-    pastBoardYear: "2022",
     policyTag: "Reproduction 5-mark female reproductive system",
     finalAnswer: "(i) Ovary produces eggs (ova) and female hormones (oestrogen, progesterone). (ii) Fallopian tube is the site of fertilisation; it carries the egg from ovary to uterus. (iii) Implantation occurs in the uterus wall; after implantation, the embryo develops and the placenta forms for nutrient and waste exchange.",
   },
@@ -2586,7 +2570,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Draw ray diagram with two standard rays. [1]",
     ],
     strategyHint: "Use sign convention: u is negative, f is positive for convex lens.",
-    pastBoardYear: "2024",
     policyTag: "Light 5-mark lens numerical + ray diagram",
     finalAnswer: "Using 1/v − 1/u = 1/f: 1/v = 1/15 + 1/(−30) = 1/15 − 1/30 = 1/30. v = 30 cm. Magnification m = v/u = 30/(−30) = −1. Image size = |m| × 5 = 5 cm. Image is real, inverted, same size, formed at 2F on the other side.",
   },
@@ -2614,7 +2597,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Mention the refining step. [1]",
     ],
     strategyHint: "Remember: sulphide ores are roasted, carbonate ores are calcinated.",
-    pastBoardYear: "2023",
     policyTag: "Metals & Non-Metals 5-mark extraction",
     finalAnswer: "Example: Zinc from zinc blende (ZnS). Steps: (i) Concentration of ore by froth floatation. (ii) Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂. (iii) Reduction: ZnO + C → Zn + CO. (iv) Refining by electrolytic refining.",
   },
@@ -2642,7 +2624,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "State phenotypic ratio 3:1 and genotypic ratio 1:2:1. [1]",
     ],
     strategyHint: "Always draw the Punnett square for full marks.",
-    pastBoardYear: "2023",
     policyTag: "Heredity 5-mark monohybrid cross",
     finalAnswer: "P: TT × tt → F₁: all Tt (tall). F₁ × F₁: Tt × Tt → F₂: TT, Tt, Tt, tt. Phenotypic ratio: 3 tall : 1 short. Genotypic ratio: 1 TT : 2 Tt : 1 tt.",
   },
@@ -2670,7 +2651,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Explain the role of water in acid ionisation. [1]",
     ],
     strategyHint: "Remember: baking soda → soda ash (heat) → washing soda (recrystallise with water).",
-    pastBoardYear: "2022",
     policyTag: "Acids Bases Salts 5-mark preparation of salts",
     finalAnswer: "(a) 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂, then Na₂CO₃ + 10H₂O → Na₂CO₃·10H₂O. (b) Washing soda: used in glass/soap/paper industries and as cleaning agent. Baking soda: used in baking and as antacid. (c) Dry HCl does not produce H⁺ ions; acids produce H⁺ only in aqueous solution.",
   },

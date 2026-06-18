@@ -249,7 +249,6 @@ export async function runAcceptance(): Promise<{
     tier: "must-crack",
     question: "Prove that the two triangles are similar using AA criterion.",
     bloomSkill: "Applying",
-    pastBoardYear: "2024",
     policyTag: "Triangles-AA-proof",
   };
   const derivedConfidence = deriveHPQConfidence({
