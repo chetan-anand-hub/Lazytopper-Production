@@ -1,5 +1,30 @@
 ---
 
+## 2026-06-19 — Bank Expansion Phase 1, Batch 1: 60 net-new Exemplar Maths Qs + AI step-marked solutions (#262)
+
+**Trunk after merge: `444238b`** (#262, `feat/desktop-pr-exemplar-batch1-maths`; squash; 4 files). THE DECOUPLE — authentic verbatim
+NCERT-Exemplar QUESTIONS + AI-GENERATED step-marked SOLUTIONS, owner-verified (examiner-of-record) before merge. Owner-merged; no
+self-merge. Authority: Pass-2 net-new audit + `AGENT_bank_expansion_p1_exemplar_maths_2026-06-18.md`.
+
+- **Net-new: AP 24, Statistics 16, Surface-Areas-&-Volumes 20** in new `*.exemplar2.ts` files (`AP_EXEMPLAR2`/`STAT_EXEMPLAR2`/`SAV_EXEMPLAR2`),
+  registered in `canonicalQuestionBank.ts` (import + spread; engine-visible +60 verified).
+- **Provenance:** NEW `AI_GENERATED_SOLUTION_IDS` id-set (mirrors PR2a `_source`); **`predictionTypes.ts` NOT touched** — the gated-field
+  STOP in the instruction was avoided by tracking solution-provenance as an id-set (owner-locked decision). solutionSource split: 60 ai / 0 authentic-solution.
+- **Fidelity (decouple):** every `solutionStep` `[N mark]`-prefixed summing to marks; every `finalAnswer` cross-checked vs the official
+  Exemplar answer key (jeep2an.pdf); 3 reconstructed-math items flagged `// ⚠ RECON`; 1 unrecoverable item (SAV Ex12.2 Q3) DROPPED not guessed.
+- **Syllabus exclusions (question level):** SAV frustum 11 + conversion-of-solids 11 + Stats ogive 1 dropped as banned; probability
+  out-of-scope (separate topicKey); 6 figure-locked dropped. Dedup vs full repo corpus (2,889 maths Qs) by `ncertRef` + content; borderline list surfaced + owner-ruled.
+- **Gates ALL GREEN:** tsc, per-question validator 60/60, mojibake, root matrix 181/181 (incl. syllabus guard over the new files),
+  lazytopper ops matrix, scope:guard, git diff --check. CI `quality-gate` GREEN (linux `vite build`).
+- **Codespaces vitest: NO REGRESSION** — PR branch and untouched base `444238b` give IDENTICAL results (18/18 executable tests pass
+  incl. `predictionCore.source`/`.pastboardyear`; the 7 suite-load failures are a PRE-EXISTING infra gap — missing `@testing-library/dom`
+  + jsdom env — failing the same way on base). Logged as [FU-VITEST-INFRA].
+- Reports: `report-bank-expansion-p1-exemplar-maths-BATCH1-2026-06-18.md` + Phase-A report + review docs (`.md`/`.html`).
+- **NEXT (owner; queued):** Batch 2 (Areas-Related-to-Circles + Coordinate-Geometry) → Batch 3 (Triangles+Circles) → Batch 4 (Trig+PLE)
+  → Batch 5 (Real-Numbers+Polynomials). New follow-ups: [FU-VITEST-INFRA], [FU-EXEMPLAR-STAT-13.4], [FU-EXEMPLAR-DEFERRED-NETNEW].
+
+---
+
 ## 2026-06-18 — AI-tier FU-RANK-MOCKS-HPQ: soft AI-demotion on Full Mock + Topic Mock (#259)
 
 **Trunk after merge: `775ee75`** (#259, `feat/desktop-pr-rank-mocks-hpq`; squash; 4 files +209/−11; commit `ba2f619`).
