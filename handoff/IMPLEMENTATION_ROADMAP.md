@@ -2,6 +2,28 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-18 — Post-PR #255 roadmap update (AI-tier PR2a source-provenance stamp + soft AI-lower ranking)
+
+Report: `report-ai-tier-pr2a-provenance-ranking-2026-06-18.md`.
+
+### Completed this session
+- [x] **#255 — AI-tier PR2a source-provenance stamp + soft AI-lower ranking** (trunk `686f737`, squash; 3 files +265/−9; commit
+  `b4236ac`). ARCHITECTURAL — the provenance + ranking half of the audit's PR2. `AI_GENERATED_QUESTION_IDS` stamped at ingest from
+  the 54 `.pack[1-3]` arrays (additive; bank untouched); `_source` tier on the local `CanonicalQuestionWithScore` intersection
+  (forbidden `predictionTypes.ts` NOT touched); `getAdjustedScore *= SOURCE_MULTIPLIER {authentic 1.0 / predicted 0.6 / ai 0.3}`.
+  Covers Quick Practice / topic practice. CI GREEN (root matrix 181/181; linux build); vitest 4/4 in Codespaces; **owner live-verify
+  PASS** (~50%-AI topics serve all authentic in the top 10; first AI at index ~100–186). Live split: 6,715 = 3,710 auth + 2,764 ai
+  + 241 predicted. **AI-lower-ranking-not-enforced RESOLVED.**
+
+### Remaining / queued (owner-authorized-later; each its own instruction, branched from `686f737`)
+- [ ] **(NEXT) AI-tier PR2b — `pastBoardYear` strip** — now unblocked: the PR2a stamp distinguishes verifiable PYQ years from
+  fabricated predicted-layer ones. Strip the unverified `pastBoardYear` from the predicted/AI layers.
+- [ ] **(THEN) [FU-AITIER-RANK-MOCKS-HPQ]** — apply the same `sourceMultiplier` demotion to Full Mock (`unlimitedPaperEngine`),
+  Topic Mock (`topicMockEngine`), and HPQ (`highlyProbableQuestions`), which route through `getAllQuestions()` + own selection and
+  still draw AI at parity.
+- [ ] **[FU-CURATED-26-PROVENANCE]** — decision recorded (curated-26 inline items stay `authentic`); re-open only if reclassified.
+- [ ] **[FU-AITIER-MARKS-MISMATCH]** — content/marks pass for the 7 quarantined pack items (carried).
+
 ## 2026-06-18 — Post-PR #253 roadmap update (AI-tier PR1b pack-file 5-mark retags)
 
 Report: `report-aitier-pr1b-pack-retags-2026-06-18.md`.

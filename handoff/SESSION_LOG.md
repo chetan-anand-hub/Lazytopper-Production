@@ -1,5 +1,52 @@
 ---
 
+## 2026-06-18 — AI-tier PR2a: source-provenance stamp + soft AI-lower ranking (#255)
+
+**Trunk after merge: `686f737`** (#255, `feat/ai-tier-pr2a-provenance-ranking`; squash; 3 files +265/−9; commit `b4236ac`).
+Owner-merged code PR; CI `quality-gate` GREEN (1m11s, incl. linux `vite build` + root matrix 181/181). ARCHITECTURAL — changes
+live serving/ranking on practice surfaces. Authority: `report-ai-tier-audit-2026-06-17.md` →
+`AGENT_aitier_pr2a_provenance_ranking_2026-06-18.md`. Report: `report-ai-tier-pr2a-provenance-ranking-2026-06-18.md`.
+
+### Why
+The audit found the AI-lower ranking we assumed existed was **never enforced**: `getAdjustedScore` (base × type × bloom × bayesian)
+had **no source term**, and the file/suffix tier marker was destroyed at the `canonicalQuestionBank` concatenation — so the live
+pool ran ~41% AI **at full parity** with NCERT/PYQ/etc. PR2a (a) stamps provenance that survives the merge, then (b) soft-demotes
+AI so authenticated questions surface first.
+
+### What landed (3 files)
+- **`canonicalQuestionBank.ts` (+90, additive)** — `AI_GENERATED_QUESTION_IDS: ReadonlySet<string>` captured at ingest from the
+  **54 `.pack[1-3]` source arrays**, where each array's source file is still known. The bank array is **untouched** (no reorder /
+  adds / deletes) → counts unchanged. Id-pattern derivation was **rejected** (the `2026-…` id prefix collides between the predicted
+  layer and the curated inline items; pack1 builds ids via a builder so they aren't literal in source).
+- **`predictionCore.ts` (+78/−9)** — local `QuestionSource = "authentic"|"ai-generated"|"predicted"` on the
+  `CanonicalQuestionWithScore` intersection (**forbidden `predictionTypes.ts` NOT touched**). Stamp at merge (predicted → `predicted`;
+  canonical by AI-pack id set; `dedupeById` made generic so `_source` survives). `getAdjustedScore *= getSourceMultiplier`, with
+  **`SOURCE_MULTIPLIER = { authentic: 1.0, predicted: 0.6, "ai-generated": 0.3 }`** (owner-locked; soft — never zero).
+- **`predictionCore.source.test.ts` (+106, new)** — ranking + live-pool provenance tests.
+
+### Surfaces
+- **Covered** (route through `getAdjustedScore` via `getLikelyQuestionsForConcept`): Quick Practice / topic practice
+  (`practiceSetGenerator.generatePracticeSet`, `predictionDataService`).
+- **NOT covered → [FU-AITIER-RANK-MOCKS-HPQ]:** Full Mock (`unlimitedPaperEngine`), Topic Mock (`topicMockEngine`), HPQ
+  (`highlyProbableQuestions`) — all use `getAllQuestions()` + own selection. Later PR.
+
+### Verification
+- **Exact live split (Codespaces):** total **6,715** = authentic **3,710 (55.3%)** + ai-generated **2,764 (41.2%)** + predicted
+  **241 (3.6%)**, **0 unstamped**. Authentic > AI; 790 short of the 4,500 retirement threshold.
+- **vitest 4/4 PASS in Codespaces** (CI `quality-gate` does not run vitest). Local gates all green; no forbidden files touched.
+- **✅ Owner-requested live-verify = PASS** — functional, real `getLikelyQuestionsForConcept` on `686f737`: on ~50%-AI topics the
+  first AI question lands at index ~100–186, so a 10-question Quick Practice serves **all authentic** — Real Numbers (49%) @#97,
+  Triangles (52%) @#127, Trigonometry (53%) @#186; Light/Electricity (30%) @#239/#217. Before PR2a, AI interleaved at parity.
+
+### Decisions locked
+Multipliers `1.0 / 0.6 / 0.3`; **curated-26 inline items stay authentic → [FU-CURATED-26-PROVENANCE]** (owner-logged).
+
+### Next (owner; queued)
+**PR2b** (`pastBoardYear` strip — unblocked: this stamp distinguishes verifiable PYQ years from fabricated predicted-layer ones) →
+**[FU-AITIER-RANK-MOCKS-HPQ]** (mocks/HPQ ranking) → deferred **[FU-AITIER-MARKS-MISMATCH]** content pass for the 7.
+
+---
+
 ## 2026-06-18 — AI-tier PR1b: pack-file 5-mark retags (relabel-only) + quarantine (#253)
 
 **Trunk after merge: `f83915b`** (#253, `feat/desktop-pr-aitier1b-pack-retags`; squash; 9 files +34/−19). Owner-merged code PR;

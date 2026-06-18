@@ -1,3 +1,30 @@
+## 2026-06-18 — Post-PR #255 (AI-tier PR2a source-provenance stamp + soft AI-lower ranking; merged + CI GREEN + live-verified)
+
+### ✅ RESOLVED — AI-lower ranking now enforced (the provenance + ranking half of the audit's PR2)
+- **AI-lower-ranking-not-enforced — RESOLVED** (#255, trunk `686f737`, squash; 3 files +265/−9; commit `b4236ac`). The audit found
+  `getAdjustedScore` had no source term and the file/suffix tier marker was destroyed at the bank concatenation (~41% AI at full
+  parity). PR2a stamps `AI_GENERATED_QUESTION_IDS` at ingest from the 54 `.pack[1-3]` arrays (additive; bank untouched), stamps a
+  `_source` tier (`authentic`/`ai-generated`/`predicted`) on the local `CanonicalQuestionWithScore` intersection (forbidden
+  `predictionTypes.ts` NOT touched), and multiplies `getAdjustedScore` by `SOURCE_MULTIPLIER = {1.0, 0.6, 0.3}`. **Owner live-verify
+  PASS:** on ~50%-AI topics a 10-question Quick Practice serves all authentic (first AI at index ~100–186). Exact live split: 6,715
+  total = 3,710 authentic + 2,764 ai + 241 predicted, 0 unstamped. Report: `report-ai-tier-pr2a-provenance-ranking-2026-06-18.md`.
+
+### 🐞 NEW follow-ups
+- **[FU-AITIER-RANK-MOCKS-HPQ] (owner-authorized-later; ranking parity for the remaining surfaces).** PR2a's `sourceMultiplier`
+  only applies inside `getLikelyQuestionsForConcept` (Quick Practice / topic practice). **Full Mock** (`unlimitedPaperEngine` :353),
+  **Topic Mock** (`topicMockEngine` :147), and **HPQ** (`highlyProbableQuestions`, own pool) route through `getAllQuestions()` +
+  their own selection/weighting and therefore still draw AI at parity. Apply the same tier demotion in those selection paths so all
+  four surfaces honour the AI-lower doctrine. Separate PR; needs care (mock/HPQ ordering carries higher regression risk).
+- **[FU-CURATED-26-PROVENANCE] (owner-logged; decision recorded).** The 26 curated inline items in `canonicalQuestionBank.ts`
+  (ids `2026-…`, e.g. `2026-TRIG-APP-01`) are not from a `.pack` file nor a verified-source file. **Decision: they stay
+  classified `authentic`** (the documented "not-AI-pack ⇒ authentic" rule; ≤26 items, low impact). Re-open only if these should be
+  treated as a curated/predicted tier.
+
+### ↪️ CARRIED (unchanged by #255)
+- **[FU-AITIER-MARKS-MISMATCH]** — the 7 quarantined pack items still need the marks/content pass (out of PR2a scope).
+- **PR2b `pastBoardYear` strip** — now **unblocked** by this stamp (it distinguishes verifiable PYQ years from fabricated
+  predicted-layer ones). Owner's immediate next.
+
 ## 2026-06-18 — Post-PR #253 (AI-tier PR1b pack-file 5-mark retags; merged + CI GREEN)
 
 ### ✅ RESOLVED — pack-layer backlog drained of genuine long-answers
