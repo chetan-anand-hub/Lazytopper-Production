@@ -1,3 +1,19 @@
+## 2026-06-19 — Post-PR #265 + #264 (Bank Expansion Batch 2, 45 net-new + vitest-infra; merged, trunk `381e9df`)
+
+### ✅ RESOLVED / DELIVERED
+- **Batch 2** — Coordinate-Geometry 22 + Areas-Related-to-Circles 23 = 45 net-new, owner-verified + merged (#265). CG Area-of-Triangle excluded; figure-locked dropped; 3 `⚠ RECON`. Provenance via `AI_GENERATED_SOLUTION_IDS`; `predictionTypes.ts` untouched.
+- **[FU-VITEST-INFRA] — RESOLVED** (#264, `2ef0b2c`): `@testing-library/dom` devDep + `setup.ts` window-guard; lockfile regenerated in Codespaces (pnpm 10.32.1). Codespaces vitest now **11/11 suites, 63/63 tests green** (was 7 failed / 4 passed). Future batches verify clean.
+
+### 🔭 NEW / UPDATED FOLLOW-UPS
+- **[FU-DIAGRAM-RECOVERY]** (NEW) — full-corpus figure-locked census found **67** diagram-dependent in-scope exercise questions, **42 high-mark (Section C+D)**: Triangles 18 · ARC 17 · Circles 15 · SAV 9 · PLE 3 · CG 2 · Trig 2 · Stats 1. These are currently DROPPED at extraction. Mocks are a launch surface, so recovering the high-mark ones (extract + clean + tag authentic NCERT/Exemplar diagrams, set `requiresDiagram`/`diagramDescription`) is launch-critical. **Decision needed before Batch 3** (Triangles+Circles hold 33 of the 42): drop-and-census as usual, or pair Batch 3 with a diagram-recovery pass.
+- **[FU-EXEMPLAR-DEFERRED-NETNEW]** (updated) — deferred net-new available for top-ups: Batch-1 (AP Ex5.3 extras), Batch-2 (CG Ex7.3 Q12,14,15; ARC Ex11.4 Q7,9,10,11,13,19). Also CG collinearity-via-area items (Ex7.2 Q5,Q10; 7.3 Q19) were excluded as area-adjacent — owner may re-include solved via section/slope.
+- **[FU-EXEMPLAR-STAT-13.4]** (carried) — Stats LA Ex13.4 question text not extractable from jeep213.pdf.
+
+### ⏭️ NEXT BATCHES (owner-authorized separately, fresh from `381e9df`)
+- Batch 3: Triangles + Circles · Batch 4: Trigonometry + Pair-of-Linear-Eq (Trig drops complementary-angle ratios) · Batch 5: Real-Numbers + Polynomials (Euclid + cubic-zeroes-coeff dropped). New rows ∈ Fix B [FU-TOPICKEY-CONSOLIDATION] scope.
+
+---
+
 ## 2026-06-19 — Post-PR #262 (Bank Expansion Phase 1, Batch 1: 60 net-new Exemplar Maths Qs + AI step-marked solutions; merged + CI GREEN)
 
 ### ✅ RESOLVED / DELIVERED

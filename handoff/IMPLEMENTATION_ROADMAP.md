@@ -2,6 +2,18 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-19 — Post-PR #265 + #264 roadmap update (Bank Expansion Batch 2 + vitest-infra)
+
+Report: `report-bank-expansion-batch2-2026-06-18.md`.
+
+**Bank Expansion Phase 1 (THE DECOUPLE) — Batch 2 of 5 DONE (#265, trunk `381e9df`).**
+- ✅ Batch 1: AP 24 + Statistics 16 + SAV 20 = 60 (#262).
+- ✅ Batch 2: Coordinate-Geometry 22 + Areas-Related-to-Circles 23 = **45** (#265). CG Area-of-Triangle-in-Coordinate-Geometry excluded; figure-locked dropped; 3 `⚠ RECON`.
+- ⏳ Batch 3: Triangles + Circles · Batch 4: Trigonometry + Pair-of-Linear-Eq · Batch 5: Real-Numbers + Polynomials.
+- **Figure-locked census (owner-requested):** 67 in-scope (42 high-mark C+D); Triangles 18 · ARC 17 · Circles 15 lead → **[FU-DIAGRAM-RECOVERY]** (extract+clean+tag authentic NCERT/Exemplar diagrams; converges at Batch 3).
+
+**Test infra — [FU-VITEST-INFRA] RESOLVED (#264, `2ef0b2c`):** `@testing-library/dom` devDep + `setup.ts` window-guard; lockfile regenerated in Codespaces. Codespaces vitest now 11/11 suites / 63 tests green (batches from `381e9df` onward verify clean).
+
 ## 2026-06-19 — Post-PR #262 roadmap update (Bank Expansion Phase 1, Batch 1 — Exemplar Maths)
 
 Report: `report-bank-expansion-p1-exemplar-maths-BATCH1-2026-06-18.md`.

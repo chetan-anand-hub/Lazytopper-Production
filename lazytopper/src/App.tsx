@@ -41,7 +41,11 @@ const DesktopPracticePage = lazy(() => import("./pages/desktop/DesktopPracticePa
 // only entry was the deferred PredictivePapers) — flagged in the sever report.
 const MockPaper = lazy(() => import("./pages/MockPaper"));
 const HighlyProbableQuestions = lazy(() => import("./pages/HighlyProbableQuestions"));
-const TopicHub = lazy(() => import("./pages/TopicHub"));
+// Learn-Flow rebuild PR-B: the legacy mobile Topic Hub components
+// (pages/TopicHub.tsx premium lesson flow + pages/app/TopicHub.tsx bare entry) are
+// no longer routed — DesktopTopicHubPage (the responsive concept-spine) renders at
+// every width. The files remain for now; they are deleted in PR-F per the rebuild
+// sequence. (Imports removed here so tsc noUnusedLocals stays green.)
 const MockBuilder = lazy(() => import("./pages/MockBuilder"));
 const PracticePage = lazy(() => import("./pages/PracticePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
@@ -68,7 +72,6 @@ const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
 const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 
 // Mobile baseline pages (#438 — broken destination repair)
-const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
 
 // Exam Trends — ONE responsive ranked-list component (Option-B convergence).
 // Replaces BOTH retired twins (the old desktop card grid + the old mobile tier
@@ -760,18 +763,18 @@ export default function App() {
 
 
           {/* Topic Hub entry with grade & subject in path */}
-          {/* Topic Hub — Desktop Phase 4: at desktop width (>=1024px) the
-              locked DesktopTopicHubPage renders inside DesktopShell (the
-              conditional shell wrap is applied below). At mobile width, the
-              existing premium-gated TopicHub continues to render unchanged. */}
+          {/* Topic Hub — Learn-Flow rebuild PR-B: DesktopTopicHubPage (the
+              responsive concept-spine) renders at EVERY width. Access model
+              unchanged — these two routes stay premium-gated. */}
           <Route
             path="/topic-hub/:grade/:subject"
             element={
               <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
                 <SectionErrorBoundary>
-                  {isDesktop
-                    ? withRouteSuspense(<DesktopTopicHubPage />)
-                    : withRouteSuspense(<TopicHub />)}
+                  {/* Learn-Flow rebuild PR-B: the responsive concept-spine
+                      (DesktopTopicHubPage) is the Topic Hub main view at EVERY
+                      width — single component, single BoardConcept data source. */}
+                  {withRouteSuspense(<DesktopTopicHubPage />)}
                 </SectionErrorBoundary>
               </RequirePremium>
             }
@@ -781,21 +784,21 @@ export default function App() {
             element={
               <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
                 <SectionErrorBoundary>
-                  {isDesktop
-                    ? withRouteSuspense(<DesktopTopicHubPage />)
-                    : withRouteSuspense(<TopicHub />)}
+                  {/* Learn-Flow rebuild PR-B: the responsive concept-spine
+                      (DesktopTopicHubPage) is the Topic Hub main view at EVERY
+                      width — single component, single BoardConcept data source. */}
+                  {withRouteSuspense(<DesktopTopicHubPage />)}
                 </SectionErrorBoundary>
               </RequirePremium>
             }
           />
 
-          {/* TopicHub launcher page (desktop fallback — mobile route at line ~724 takes
-               precedence for /app/topic-hub because it is defined first in the same
-               Routes tree. This desktop launcher remains for any non-mobile direct
-               desktop navigation that bypasses the /app/ basename.) */}
+          {/* Bare /topic-hub launcher. Learn-Flow rebuild PR-B: renders the
+               concept-spine at every width; with no topic named it redirects to
+               Exam Trends (the topic picker in the new flow). */}
           <Route
             path="/topic-hub"
-            element={isDesktop ? withRouteSuspense(<DesktopTopicHubPage />) : <MobileTopicHub />}
+            element={withRouteSuspense(<DesktopTopicHubPage />)}
           />
 
       
@@ -948,24 +951,20 @@ export default function App() {
             element={withRouteSuspense(<ExamTrendsRanked />)}
           />
 
-          {/* Mobile Topic Hub — entry picker (no topicName) or topic detail (:topicName).
-              Desktop Phase 4: at desktop width (>=1024px) these mount the locked
-              DesktopTopicHubPage inside DesktopShell. Mobile width keeps the
-              existing MobileTopicHub picker / detail behavior unchanged. */}
+          {/* Topic Hub inside the /app/ basename — bare entry (no topicName) or
+              topic detail (:topicName). Learn-Flow rebuild PR-B: the responsive
+              concept-spine (DesktopTopicHubPage) renders at every width; bare
+              entry redirects to Exam Trends. */}
           <Route
             path="/topic-hub"
             element={
-              isDesktop
-                ? withRouteSuspense(<DesktopTopicHubPage />)
-                : withRouteSuspense(<MobileTopicHub />)
+              withRouteSuspense(<DesktopTopicHubPage />)
             }
           />
           <Route
             path="/topic-hub/:topicName"
             element={
-              isDesktop
-                ? withRouteSuspense(<DesktopTopicHubPage />)
-                : withRouteSuspense(<MobileTopicHub />)
+              withRouteSuspense(<DesktopTopicHubPage />)
             }
           />
 
