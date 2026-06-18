@@ -6,7 +6,7 @@
 // functions will incorporate policy weighting, recency and other factors.
 
 import type { BloomLevel, CanonicalQuestion, DifficultyLevel, QuestionFormat } from "./predictionTypes";
-import { canonicalQuestionBank } from "./canonicalQuestionBank";
+import { canonicalQuestionBank, AI_GENERATED_QUESTION_IDS } from "./canonicalQuestionBank";
 import { predictedQuestions } from "./predictedQuestions";
 import { predictedQuestionsScience } from "./predictedQuestionsScience";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
@@ -19,7 +19,39 @@ import {
   SCIENCE_DELETED_CHAPTERS_2026_27,
 } from "../prediction/cbseHistoricalArchetypes";
 
-type CanonicalQuestionWithScore = CanonicalQuestion & { _adjustedScore?: number };
+// ---------------------------------------------------------------------------
+// AI-tier source provenance + ranking (AI-tier PR2a)
+// ---------------------------------------------------------------------------
+// Tier of a question, derived at ingest from its source file (see
+// canonicalQuestionBank.ts `AI_GENERATED_QUESTION_IDS`):
+//   - "authentic"    : NCERT / Exemplar / PYQ / SQP / SP / CBE / preboard /
+//                      additionalPQ / chapterwise + curated inline items.
+//   - "ai-generated" : `.pack1` / `.pack2` / `.pack3` AI packs.
+//   - "predicted"    : the predicted-board layer (predictedQuestions[Science]).
+//                      A distinct, curated-prediction tier that sits BETWEEN
+//                      authentic and AI: more deliberate than a raw AI pack,
+//                      but not a verifiable past-paper source.
+//
+// The field lives on this LOCAL intersection type (the same pattern already
+// used for `_adjustedScore`) so the canonical `CanonicalQuestion` type in the
+// gated `predictionTypes.ts` is NOT touched. It is stamped at merge time and
+// read by `getSourceMultiplier` to soft-demote non-authentic questions.
+export type QuestionSource = "authentic" | "ai-generated" | "predicted";
+
+// Soft (NOT hard) ranking multipliers. Authentic ranks at full strength; the
+// others are demoted but can still surface when authentic is thin for a topic.
+// Tunable in ONE place — owner may collapse "predicted" into "ai-generated" by
+// setting both to the same value.
+const SOURCE_MULTIPLIER: Record<QuestionSource, number> = {
+  authentic: 1.0,
+  predicted: 0.6,
+  "ai-generated": 0.3,
+};
+
+export type CanonicalQuestionWithScore = CanonicalQuestion & {
+  _adjustedScore?: number;
+  _source?: QuestionSource;
+};
 
 const scienceTopicDisplayByKey: Record<string, string> = Object.values(
   class10ScienceTopicTrends.topics
@@ -66,8 +98,9 @@ function toDifficulty(raw: string | undefined): DifficultyLevel {
   return "Medium";
 }
 
-function toCanonicalFromMathPredicted(): CanonicalQuestion[] {
+function toCanonicalFromMathPredicted(): CanonicalQuestionWithScore[] {
   return predictedQuestions.map((q) => ({
+    _source: "predicted" as const,
     id: q.id,
     subject: "Maths",
     topicKey: q.topicKey,
@@ -89,8 +122,9 @@ function toCanonicalFromMathPredicted(): CanonicalQuestion[] {
   }));
 }
 
-function toCanonicalFromSciencePredicted(): CanonicalQuestion[] {
+function toCanonicalFromSciencePredicted(): CanonicalQuestionWithScore[] {
   return predictedQuestionsScience.map((q) => ({
+    _source: "predicted" as const,
     id: q.id,
     subject: "Science",
     topicKey: scienceTopicDisplayByKey[q.topicKey] ?? q.topicKey,
@@ -112,8 +146,8 @@ function toCanonicalFromSciencePredicted(): CanonicalQuestion[] {
   }));
 }
 
-function dedupeById(questions: CanonicalQuestion[]): CanonicalQuestion[] {
-  const byId = new Map<string, CanonicalQuestion>();
+function dedupeById<T extends CanonicalQuestion>(questions: T[]): T[] {
+  const byId = new Map<string, T>();
   for (const q of questions) {
     const existing = byId.get(q.id);
     if (!existing) {
@@ -140,8 +174,21 @@ function isScienceDeletedQuestion(q: CanonicalQuestion, targetYear: number): boo
 function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
   const targetYear = predictionTargetYear();
 
+  // Stamp tier provenance at the point the source-of-origin is still known.
+  // canonicalQuestionBank carries no `_source`; classify each item by its
+  // membership in the AI-pack id set captured at ingest. The predicted layer
+  // already carries `_source: "predicted"` from its converters above.
+  const stampedCanonical: CanonicalQuestionWithScore[] = canonicalQuestionBank.map(
+    (q) => ({
+      ...q,
+      _source: AI_GENERATED_QUESTION_IDS.has(q.id)
+        ? ("ai-generated" as const)
+        : ("authentic" as const),
+    })
+  );
+
   const merged = dedupeById([
-    ...canonicalQuestionBank,
+    ...stampedCanonical,
     ...toCanonicalFromMathPredicted(),
     ...toCanonicalFromSciencePredicted(),
   ]).filter((q) => !isScienceDeletedQuestion(q, targetYear));
@@ -236,14 +283,27 @@ function getBloomMultiplier(q: CanonicalQuestion): number {
   }
 }
 
-function getAdjustedScore(q: CanonicalQuestionWithScore): number {
+/**
+ * Soft AI-lower ranking term. Authentic questions keep full weight; predicted
+ * and AI-generated questions are demoted (but never excluded), so authenticated
+ * questions surface first while AI can still appear when authentic is thin.
+ * Unstamped questions default to authentic — we never demote on missing data.
+ */
+function getSourceMultiplier(q: CanonicalQuestionWithScore): number {
+  return SOURCE_MULTIPLIER[q._source ?? "authentic"];
+}
+
+// Exported for ranking unit tests (predictionCore.source.test.ts). Not part of
+// the page-facing API — pages use PredictionCore.getLikelyQuestionsForConcept.
+export function getAdjustedScore(q: CanonicalQuestionWithScore): number {
   const baseRaw = Number(q._adjustedScore ?? q.predictionScore ?? 0);
   const base = baseRaw > 0 ? baseRaw : 1;
   return (
     base *
     getQuestionTypeMultiplier(q) *
     getBloomMultiplier(q) *
-    getBayesianMultiplier(q)
+    getBayesianMultiplier(q) *
+    getSourceMultiplier(q)
   );
 }
 
