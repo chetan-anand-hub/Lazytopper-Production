@@ -55,7 +55,11 @@ function installMatchMedia(): void {
   });
 }
 
-installMatchMedia();
+// Suites that opt into `// @vitest-environment node` have no `window`; the global
+// setupFiles still runs for them, so guard the matchMedia polyfill on a real DOM.
+if (typeof window !== "undefined") {
+  installMatchMedia();
+}
 
 afterEach(() => {
   currentMatches = () => DEFAULT_MATCHES;
