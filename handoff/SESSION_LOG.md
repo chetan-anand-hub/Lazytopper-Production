@@ -1,5 +1,22 @@
 ---
 
+## 2026-06-19 — Bank Expansion Phase 1, Batch 2 (45 net-new) + vitest-infra fix (#265 + #264)
+
+**Trunk after merges: `381e9df`** — #264 vitest-infra (`2ef0b2c`) then #265 Batch 2 (`381e9df`). Owner merged #265; agent merged #264 on owner instruction.
+
+**#265 — Batch 2 (THE DECOUPLE):** 45 net-new authentic Exemplar questions + AI step-marked solutions (owner-verified).
+- **Coordinate-Geometry 22 + Areas-Related-to-Circles 23** in new `*.exemplar2.ts`; `AI_GENERATED_SOLUTION_IDS` extended; **`predictionTypes.ts` NOT touched**. Section split A=9, B=16, C=17, D=3.
+- Syllabus: CG **Area-of-Triangle-in-Coordinate-Geometry BANNED** → 7 area items dropped; 13 figure-locked "shaded region" dropped; 1 unrecoverable-options MCQ dropped (not guessed); **3 `// ⚠ RECON`** flagged. `[N mark]` steps sum to marks; finalAnswers cross-checked vs jeep2an.pdf.
+- Gates GREEN: tsc, validator 45/45, mojibake, root matrix 181/181, ops matrix, scope:guard, diff-check, CI quality-gate. Codespaces vitest = no-regression vs base.
+- **FULL-CORPUS FIGURE-LOCKED CENSUS (owner-requested):** 67 figure-locked exercise Qs in-scope (A=15, B=10, C=25, D=17); **42 high-mark (C+D)**; by chapter Triangles 18 · ARC 17 · Circles 15 · SAV 9 · PLE 3 · CG 2 · Trig 2 · Stats 1 → [FU-DIAGRAM-RECOVERY].
+- Reports: `report-bank-expansion-batch2-2026-06-18.md` + review docs (`.md`/`.html`).
+
+**#264 — [FU-VITEST-INFRA] RESOLVED:** added `@testing-library/dom` direct devDep (unsatisfied `@testing-library/react` peer pnpm-strict hid → 5 suites) + guarded `src/test/setup.ts`'s `window.matchMedia` for `// @vitest-environment node` suites (→ 2 suites). `pnpm-lock.yaml` regenerated in **Codespaces** (pnpm 10.32.1, NOT Windows). **Codespaces vitest now 11/11 suites, 63/63 tests GREEN** (was 7 failed / 4 passed, 18). `predictionTypes.ts` untouched.
+
+**NEXT (owner; queued, fresh from `381e9df`):** Batch 3 (Triangles + Circles — diagram-recovery decision converges here) → Batch 4 (Trig + PLE) → Batch 5 (Real-Numbers + Polynomials).
+
+---
+
 ## 2026-06-19 — Bank Expansion Phase 1, Batch 1: 60 net-new Exemplar Maths Qs + AI step-marked solutions (#262)
 
 **Trunk after merge: `444238b`** (#262, `feat/desktop-pr-exemplar-batch1-maths`; squash; 4 files). THE DECOUPLE — authentic verbatim
