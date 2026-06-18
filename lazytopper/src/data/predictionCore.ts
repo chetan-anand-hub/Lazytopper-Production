@@ -41,6 +41,7 @@ function toCanonicalFormat(kind: string | undefined): QuestionFormat {
   if (k === "mcq") return "MCQ";
   if (k === "assertion-reasoning") return "Assertion-Reasoning";
   if (k === "case-based") return "Case-Based";
+  if (k === "long") return "Long";
   return "Short";
 }
 
