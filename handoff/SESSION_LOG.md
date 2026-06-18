@@ -1,5 +1,51 @@
 ---
 
+## 2026-06-18 — AI-tier FU-RANK-MOCKS-HPQ: soft AI-demotion on Full Mock + Topic Mock (#259)
+
+**Trunk after merge: `775ee75`** (#259, `feat/desktop-pr-rank-mocks-hpq`; squash; 4 files +209/−11; commit `ba2f619`).
+Owner-merged code PR; CI `quality-gate` GREEN (1m17s, incl. linux `vite build` + root matrix 181/181). ARCHITECTURAL — live
+ranking change on the mock selection surfaces. Authority: PR2a (`686f737`, the `SOURCE_MULTIPLIER`) + `report-ai-tier-audit-2026-06-17.md`.
+Report: `report-ai-tier-rank-mocks-hpq-2026-06-18.md`.
+
+### Why
+PR2a's `SOURCE_MULTIPLIER` (authentic 1.0 / predicted 0.6 / ai 0.3) only applied inside `getLikelyQuestionsForConcept` (Quick
+Practice / topic practice). The mock engines route through `getAllQuestions()` + their OWN selection and still drew AI at full
+parity. This PR extends the SAME soft demotion to them — authentic fills each section slot first, BEFORE chapter-test/mock pages
+get built on top.
+
+### What landed (4 files; reused PR2a's ONE multiplier — no fork)
+- **`predictionCore.ts`** — `getSourceMultiplier` made `export` (no multiplier values changed; `predictionTypes.ts` untouched).
+- **`unlimitedPaperEngine.ts` (Full Mock)** — `weightedSelect`: `predWeight *= getSourceMultiplier(q)` (per section/marks slot);
+  new `sourceWeightedPick` makes the guaranteed-archetype **prefill** authentic-first (was uniform-random); `weightedSelect`
+  exported for the test.
+- **`topicMockEngine.ts` (Topic Mock)** — `weightedShuffleByScore`: weight `*= getSourceMultiplier(q)`; exported for the test.
+- **`mockEngineSource.test.ts` (new)** — Codespaces vitest proving per-slot authentic preference + soft AI fallback for both engines.
+
+### ⚠️ Boundary correction (the load-bearing finding)
+The instruction assumed HPQ "uses `getAllQuestions()` + own selection and serves AI at full parity." **Wrong.** HPQ
+(`highlyProbableQuestions.ts`) is a hand-authored curated bank (`ple-hpq-*`, `sci-he-hpq-*`, `rn-comp-*`); it never calls
+`getAllQuestions()` and contains ZERO AI-pack content (none in `AI_GENERATED_QUESTION_IDS`; `hpqCompetencyAdditions` is curated
+too). So there is **nothing to demote** on HPQ — the multiplier would be ×1.0 everywhere. Left `highlyProbableQuestions.ts`
+**untouched** (no cosmetic no-op), mirroring the PR2b boundary-correction precedent. **All AI-bearing surfaces are now covered:
+Quick Practice/topic practice (PR2a) + Full Mock + Topic Mock (this PR); HPQ was already AI-free.**
+
+### Structure preservation + count integrity
+Demotion operates WITHIN each already-constrained section/marks candidate pool, never globally. Soft: multipliers `0.3/0.6` (never
+0) and the additive base/topic/rng terms keep every candidate selectable → an authentic-thin slot still fills with AI; no slot
+left empty. The blueprint loop, section counts, and pools are unchanged — only WHICH question wins each slot changed. Zero
+question added/removed. Repair passes (`repairArchetypes`/`repairStreamBalance`) left as-is (rare hard-constraint satisfiers).
+
+### New follow-up logged → [FU-AITIER-RANK-DIFFICULTY-HELPERS]
+`difficultyAwarePractice.ts` + `difficultyAutoSuggest.ts` ALSO call `getAllQuestions()` and serve AI at parity, but are out of this
+PR's named scope + authorized file list → flagged for a future owner-authorized PR (NOT touched).
+
+### Verification
+- **Codespaces vitest 7/7 PASS** on `ba2f619` (ran in codespace `ubiquitous-robot`; CI quality-gate does NOT run vitest).
+- Local gates all green: tsc 0 · mojibake clean · scope:guard `--mode mixed` OK · root matrix **181/181** · lazytopper ops matrix
+  green · `git diff --check` clean. No forbidden files. **No self-merge; owner squash-merged; branch deleted (local + remote).**
+
+---
+
 ## 2026-06-18 — AI-tier PR2b: strip fabricated pastBoardYear (#257)
 
 **Trunk after merge: `d6e0e14`** (#257, `feat/ai-tier-pr2b-pastboardyear-strip`; squash; 11 files +113/−106; commit `b4280ad`).
