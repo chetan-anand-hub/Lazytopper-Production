@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-18 — Post-PR #253 roadmap update (AI-tier PR1b pack-file 5-mark retags)
+
+Report: `report-aitier-pr1b-pack-retags-2026-06-18.md`.
+
+### Completed this session
+- [x] **#253 — AI-tier PR1b pack-file 5-mark retags** (trunk `f83915b`, squash; 9 files +34/−19; commit `86394e4`). Relabel-only
+  follow-up to #251. **12** genuine 5-mark pack long-answers relabelled `format:"Short"→"Long"` (each confirmed by reading its
+  `questionText`); **`PR2-018` reclassified** on inspection (single-step `7/12` one-liner) → moved to quarantine; **7 quarantined**
+  (`TG3-056, TG3-059, ABS2-047, CR2-043, MNM2-037, REP2-039, PR2-018`) kept pinned + annotated. **Backlog 19→7**; count unchanged.
+  CI GREEN (root matrix 181/181 with backlog 7). **[FU-AITIER-PACK-5MK-SHORT] RESOLVED** (relabel half).
+
+### Remaining / queued (owner-authorized-later; each its own instruction, branched from `f83915b`)
+- [ ] **(NEXT) AI-tier PR2 — provenance + ranking [FU-AITIER-PROVENANCE-RANKING]** — `source` stamp + AI-lower ranking in
+  `getAdjustedScore` + `pastBoardYear` strip.
+- [ ] **(THEN) [FU-AITIER-MARKS-MISMATCH]** — content/marks pass for the 7 quarantined pack items (fix marks or rewrite; then
+  shrink `PACK_5MK_SHORT_BACKLOG`). NOT a relabel.
+- [ ] **(iii) Gated-spelling [FU-SPELLING-GATED-REMAINDER]**, **(2) MI eval [MI-EVAL]**, **(3) Stage 3 [FU-DRILL-ENRICHMENT]**,
+  **Fix B [FU-TOPICKEY-CONSOLIDATION]**. PRE-LAUNCH gate carried: **[FU-DETECTION-META-LAUNCH-FLIP]**.
+
 ## 2026-06-18 — Post-PR #251 roadmap update (AI-tier PR1 mechanical content-integrity)
 
 Reports: `report-ai-tier-audit-2026-06-17.md` (read-only audit) → `report-aitier-pr1-mechanical-2026-06-17.md` (PR1).

@@ -1,5 +1,45 @@
 ---
 
+## 2026-06-18 — AI-tier PR1b: pack-file 5-mark retags (relabel-only) + quarantine (#253)
+
+**Trunk after merge: `f83915b`** (#253, `feat/desktop-pr-aitier1b-pack-retags`; squash; 9 files +34/−19). Owner-merged code PR;
+CI `quality-gate` GREEN (1m9s, incl. linux `vite build` + root matrix 181/181 with backlog now 7). Authority:
+`report-aitier-pr1-mechanical-2026-06-17.md` (the 19-item `PACK_5MK_SHORT_BACKLOG`) + cofounder Group-A/B classification →
+`AGENT_aitier_pr1b_pack_retags_2026-06-17.md`. Report: `report-aitier-pr1b-pack-retags-2026-06-18.md`. Commit `86394e4`.
+Relabel-only follow-up to #251 that drains the pack-layer backlog.
+
+### Why
+#251 fixed the predicted layer and found 19 more `section:"D", marks:5, format:"Short"` items in `.pack2/.pack3` files (pinned as
+`PACK_5MK_SHORT_BACKLOG`). Cofounder review split them: the genuine 5-mark long-answers get the same `Short→Long` relabel, but the
+content↔marks mismatches (short questions wrongly tagged 5-mark) must NOT be relabelled — relabelling them "Long" makes them more
+wrong, not less. Two groups, two treatments.
+
+### What landed (9 files)
+- **8 × `.pack2.ts`** — `format:"Short"→"Long"` on **12** Group-A genuine long-answers (label-only; 12 fields):
+  `ARC2-016/017` (areasRelatedToCircles), `ABS2-048` (acidsBasesSalts), `CC2-048` (carbonCompounds), `CR2-044/045/046`
+  (chemicalReactions), `HEC2-039` (humanEye), `LT2-016/024` (light), `ME2-025` (magneticEffects), `REP2-048` (reproduction).
+  Each was confirmed a genuine 5-mark long-answer by reading its `questionText` first.
+- **`scripts/src/aiTierContentIntegrityGuard.test.ts`** — `PACK_5MK_SHORT_BACKLOG` shrunk **19 → 7** with a QUARANTINE annotation
+  ("content↔marks mismatch, content-judgment pass pending (not a relabel)").
+
+### ⚠️ PR2-018 reclassified (the instruction's safeguard fired)
+The instruction listed 13 Group-A ids but said to move any that "looks like a content-mismatch on inspection" to Group B.
+**`PR2-018`** ("3 red, 4 green, 5 blue → P(not blue)") is a single-step `7/12` one-liner — NOT a 5-mark long-answer — so it was
+**moved to Group B (quarantine), not relabelled**. Group A = **12** (not 13); Group B = **7** (not 6).
+
+### Group B — 7 QUARANTINED → [FU-AITIER-MARKS-MISMATCH]
+`TG3-056, TG3-059, ABS2-047, CR2-043, MNM2-037, REP2-039, PR2-018` — short questions wrongly tagged 5-mark. Left untouched, kept
+pinned + annotated in the backlog so the guard tracks them with no regression. Need a later marks/content pass (fix marks or
+rewrite), NOT a relabel.
+
+### Net / gates / scope
+Backlog **19 → 7**. **Count UNCHANGED** (label-only; symmetric per-file diffs; 0 adds/deletes/marks/rewrites).
+**[FU-AITIER-PACK-5MK-SHORT] RESOLVED** (relabel half; residual 7 carry forward as [FU-AITIER-MARKS-MISMATCH]). Gates: tsc PASS ·
+root matrix **181/181** (backlog 7) · ops matrix PASS · mojibake PASS · scope:guard `--mode mixed` PASS · `git diff --check` clean.
+No forbidden files touched (incl. `predictionTypes.ts`). No self-merge; owner squash-merged.
+
+---
+
 ## 2026-06-18 — AI-tier PR1: mechanical content-integrity (#251)
 
 **Trunk after merge: `f4a41b6`** (#251, `feat/desktop-pr-aitier1-content-integrity`; squash; 5 files +237/−41). Owner-merged code
