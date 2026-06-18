@@ -45,14 +45,29 @@ const BANK_DIR = join(DATA_DIR, "questionBanks", "class10");
 
 const SECTION_MARKS: Record<string, number> = { A: 1, B: 2, C: 3, D: 5, E: 4 };
 
-// The 19 known pack-layer Section-D/5-mark questions still labelled
-// format:"Short" (audit 2026-06-17). Out of this PR's authorized scope; pinned
-// as a baseline so the guard tracks them without editing the gated pack files.
+// Pack-layer Section-D/5-mark questions still labelled format:"Short".
+// Audit 2026-06-17 found 19; PR1b (2026-06-18) relabelled the 13 genuine
+// long-answers Short->Long (12 from the original Group-A list + nothing added),
+// shrinking this backlog to the 7 below.
+//
+// These 7 are QUARANTINED - content<->marks mismatch, content-judgment pass
+// pending (NOT a relabel). Each is a SHORT question wrongly tagged 5-mark;
+// relabelling them "Long" would make them more wrong, so the marks/content must
+// be fixed (or the question rewritten) in a later pass, not here. Tracked as
+// [FU-AITIER-MARKS-MISMATCH]. They stay pinned so the guard reports no
+// regression; remove an id only when its marks/content are actually corrected.
+//
+//   TG3-056  "Find the value of cosec 60°"                         (~1 mark)
+//   TG3-059  "Evaluate: 4 sin30° tan60° - 2 cot60° cos30°"         (~2-3 marks)
+//   ABS2-047 "difference between a salt and a base, one example"   (~2 marks)
+//   CR2-043  "Balance: Al + O2 -> Al2O3, show working"             (~1-2 marks)
+//   MNM2-037 "Name the reducing agent in iron extraction"          (~1 mark)
+//   REP2-039 "Name two contraceptive methods"                      (~1 mark)
+//   PR2-018  "3 red, 4 green, 5 blue: P(not blue)"  -- reclassified from PR1b
+//            Group-A on inspection (single-step 7/12, not a 5-mark long-answer)
 const PACK_5MK_SHORT_BACKLOG: ReadonlySet<string> = new Set([
-  "ARC2-016", "ARC2-017", "PR2-018", "TG3-056", "TG3-059",
-  "ABS2-047", "ABS2-048", "CC2-048", "CR2-043", "CR2-044",
-  "CR2-045", "CR2-046", "HEC2-039", "LT2-016", "LT2-024",
-  "ME2-025", "MNM2-037", "REP2-039", "REP2-048",
+  "TG3-056", "TG3-059", "ABS2-047", "CR2-043",
+  "MNM2-037", "REP2-039", "PR2-018",
 ]);
 
 interface ParsedQuestion {

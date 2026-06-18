@@ -1475,7 +1475,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Reproductive Health",
     "section": "D",
     "marks": 5,
-    "format": "Short",
+    "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
     "questionText": "Why is reproductive health education important for adolescents?",

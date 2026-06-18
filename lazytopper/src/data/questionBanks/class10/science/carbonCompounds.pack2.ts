@@ -1470,7 +1470,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
-    "format": "Short",
+    "format": "Long",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
     "questionText": "Explain the difference between addition and substitution reactions with one example each.",
