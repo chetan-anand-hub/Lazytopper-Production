@@ -1,5 +1,22 @@
 ---
 
+## 2026-06-19 — ⚠️ CORRECTION: commit `c418f59` ("docs(handoff)…#266") also carried PR-B product change (mislabeled)
+
+**What happened:** the squash-merge `c418f59`, titled `docs(handoff): post-PR #265 + #264 … (#266)`, **also carried a product change** — the Learn-Flow PR-B concept-spine: `lazytopper/src/App.tsx` (5 `/topic-hub*` routes rerouted to the responsive spine + 2 legacy imports removed), `pages/desktop/DesktopTopicHubPage.tsx` (rewritten 2537→~227 ln), and NEW `components/topichub/ConceptSpine.tsx` + `ConceptSpine.test.tsx`. So **PR-B landed on trunk ungated**, bundled inside a commit labeled docs-only.
+
+**Cause:** a **parallel-agent shared-working-directory collision** — the docs branch (#266) was cut while an unpushed local PR-B commit sat on local `base/approved-thru-437`, so the squash bundled PR-B + the handoff docs into one commit.
+
+**Status (assessed read-only + owner live-verify):**
+- PR-B **code is correct and green** — tsc 0, root matrix 181/181, ops matrix pass, CI Quality Gate SUCCESS on `c418f59`; **owner-live-verified on desktop + mobile**.
+- File set was exactly the 4 PR-B files + 5 handoff docs; **no forbidden files** (no `src/data`, `predictionTypes.ts`, `Welcome`, `DesktopShell`, `main`, `vite.config`, `firebase.json`, `firestore.rules`).
+- The PR-B code on trunk is byte-identical to the PR-B commit `d582da6` (local `feat/desktop-pr-topichub-spine-prb`).
+- **The commit is mislabeled** ("docs(handoff)" but carries product) and **PR-B bypassed its own gated PR** (no standalone PR / CI-as-PR / pre-merge owner gate of its own).
+- Local trunk reconciled to remote (`git reset --hard origin/base/approved-thru-437` → `c418f59`); orphaned `d582da6` dropped as a trunk tip (content already on trunk).
+
+**Process fix (going forward):** run each agent in its own **git worktree** (isolation) so a shared working directory can never let one agent's uncommitted/local commits ride into another's PR. Tracked as **[FU-WORKTREE-ISOLATION]**.
+
+---
+
 ## 2026-06-19 — Bank Expansion Phase 1, Batch 2 (45 net-new) + vitest-infra fix (#265 + #264)
 
 **Trunk after merges: `381e9df`** — #264 vitest-infra (`2ef0b2c`) then #265 Batch 2 (`381e9df`). Owner merged #265; agent merged #264 on owner instruction.

@@ -1,3 +1,9 @@
+## 2026-06-19 — ⚠️ Process follow-up (commit c418f59 carried PR-B ungated)
+
+- **[FU-WORKTREE-ISOLATION]** (NEW, process) — commit `c418f59` ("docs(handoff)…#266") also carried the PR-B concept-spine product change (App.tsx + DesktopTopicHubPage + ConceptSpine + test), which reached trunk **ungated** due to a parallel-agent **shared-working-directory** collision (docs branch cut while an unpushed local PR-B commit sat on local `base`; squash bundled both). PR-B code is correct, green, and owner-live-verified (desktop + mobile), but the commit is **mislabeled** and PR-B **bypassed its own gated PR**. **Fix:** give each concurrent agent its own **git worktree** so uncommitted/local commits can't ride into another agent's PR. See the SESSION_LOG correction entry of this date. (No code action outstanding — PR-B is accepted-forward; this is the process guardrail.)
+
+---
+
 ## 2026-06-19 — Post-PR #265 + #264 (Bank Expansion Batch 2, 45 net-new + vitest-infra; merged, trunk `381e9df`)
 
 ### ✅ RESOLVED / DELIVERED
