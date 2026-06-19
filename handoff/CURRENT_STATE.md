@@ -28,8 +28,8 @@ worktree** ([FU-WORKTREE-ISOLATION] honoured). Report: `report-topichub-final-ia
   **Examiner's tips = clickable panel** of 3–4 per-topic tips (replaces the single buried line; authored content, anti-fabrication) ·
   concept action **"Teach me"** (was "Learn this") · concept **"Practise"** auto-filtered to concept + mark band ·
   topic band = **Practise this topic / Chapter test / Worksheet** ("Worksheet" was "Generate worksheet") · two-Practise
-  differentiation · navy product sidebar + Mistake Intel panel are a **constant** (final IA pins MI on this surface, overriding the
-  original "MI stays on Home/Me, not here") · Category (B) split-with-parity stands.
+  differentiation · navy product sidebar is a **constant** (its **Mistake Intel panel is global chrome on every page — NOT on the
+  Topic Hub page body**; the "no MI on the Topic Hub page" rule is UNCHANGED by the final IA) · Category (B) split-with-parity stands.
 - **Planned PR sequence:** PR-C (tutor flow) → PR-D (layout/action-band/tips/notes-consolidation) → PR-E (chapter-test + worksheet
   wiring) → PR-F (content fill) → PR-G (delete dead old-mobile). On the Topic Hub the final mockup wins over the older
   `01_full_flow…` prototype. (PR-B concept-spine already landed via the mislabeled `c418f59`/#266.)

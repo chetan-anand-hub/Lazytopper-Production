@@ -9,7 +9,7 @@
 - **PR-E — chapter-test + worksheet wiring** (+ concept-level Practise auto-filter).
 - **PR-F — content fill:** per-topic Examiner's tips (anti-fabrication) + unified Notes content.
 - **PR-G — delete dead old-mobile** once the new IA ships at all widths.
-- ⚠️ **Note vs the original locked spec:** the final IA pins the navy-rail **Mistake Intel panel on the Topic Hub** as constant product chrome; the original 2026-06-01 spec had said "MI stays on Home/Me, not here" — the final IA wins (recorded in the supersession block). PR-D should respect this.
+- ⚠️ **Mistake Intel placement (PR-D guard, corrected):** Mistake Intel appears in the **navy sidebar** (global product chrome, present on every page) — **NOT on the Topic Hub page body**. The "no MI on the Topic Hub page" rule is **UNCHANGED** by the final IA; the sidebar panel is **chrome, not page content**. There is no supersession of the MI placement rule. PR-D must NOT add MI to the Topic Hub page body.
 
 ---
 
