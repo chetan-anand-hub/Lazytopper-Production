@@ -5,7 +5,50 @@
 
 ---
 
+## ⚠️ FINAL IA SUPERSESSION — 2026-06-19 (owner-approved · binding)
+
+The owner approved a **final Topic Hub IA** on 2026-06-19. The decisions below **SUPERSEDE** the
+corresponding points in the original (2026-06-01) "Topic Hub" and "Formula sheet & Proofs" sections
+further down this file. Where the two conflict, **this section wins**. The visual reference is
+[topichub_ia_mockup_FINAL_2026-06-19.html](./topichub_ia_mockup_FINAL_2026-06-19.html). This update
+supersedes the previously committed locked spec (#261).
+
+- **Learn-first hierarchy (NEW).** The concept rows are the **HERO** of the page — headed
+  "Learn the N concepts". The topic-level **action band RECEDES below them** into a quiet, dashed
+  zone labelled "When you're ready — practise or test the whole topic". (Supersedes the original
+  framing where the action affordances led.)
+- **Notes = ONE unified view (NEW).** A single **Notes** toggle opens one note containing
+  **formulae + proofs + mind-map as sections**. This **SUPERSEDES** the original split
+  "Formula sheet" tab + "Proofs" tab — there are no longer separate tabs; it is one Notes view.
+- **Examiner's tips = a clickable panel (NEW).** A clickable **"Examiner's tips"** affordance expands
+  to show **3–4 per-topic examiner-POV tips** (diagram discipline · method-mark/formula ·
+  common-trap · presentation/units). This **SUPERSEDES** the original single buried "examiner tip
+  survives as ONE line". Tips are **CONTENT, authored per-topic** — real examiner guidance,
+  anti-fabrication: never invented.
+- **Concept-row action = "Teach me" (RENAME).** The per-concept tutor action is now **"Teach me"**
+  (was **"Learn this"**). It opens the concept tutor (`concept_teach` mode — engine unchanged).
+- **Concept-row "Practise" = auto-filtered (CLARIFY).** The per-concept **"Practise"** opens Quick
+  Practice **auto-filtered to that concept + its mark band** — NOT the whole topic.
+- **Topic-level action band = three actions (NEW).** "**Practise this topic**" (primary, solid green) ·
+  "**Chapter test**" (secondary; timed/untimed) · "**Worksheet**" (secondary; was
+  "Generate worksheet"). All three sit in the receded band.
+- **Two-Practise differentiation (NEW).** Topic-level = full phrase **"Practise this topic"** +
+  solid primary + lives in the band. Concept-level = short **"Practise"** + green-tint secondary +
+  lives inside the concept card. The two must remain visually and verbally distinct.
+- **Navy product sidebar is a CONSTANT (REAFFIRM).** Light nav text, active item highlighted,
+  **Mistake Intel panel pinned at the bottom**. It must be respected, not reinvented. Mobile =
+  navy bottom tab bar. (NB: this restores the Mistake Intel panel on this surface — the original
+  spec had said "Mistake Intelligence stays on Home/Me, not here"; the final IA pins the navy
+  rail's MI panel as part of the constant product chrome.)
+- **Category (B) split-with-parity stands.** Desktop / mobile may differ in **interaction**
+  (interactive side-by-side on desktop / full-screen on mobile) but share the **SAME grammar/tokens,
+  SAME data, single-sourced behavior, 360px-safe**.
+
+---
+
 ## DESIGN DECISIONS (locked — do not re-open without owner)
+> **NOTE (2026-06-19):** Several points in this original section are superseded by the
+> **FINAL IA SUPERSESSION** block above. Read that block first; it wins on any conflict.
 
 ### Exam Trends (replaces the card grid)
 - **Ranked priority list**, not a uniform card grid. Topics sorted by marks weight (default) or trend.
