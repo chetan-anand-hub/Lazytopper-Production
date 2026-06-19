@@ -2,6 +2,19 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-20 — Post-PR #272 roadmap update (Topic Hub PR-C tutor flow MERGED)
+
+Report: `report-topichub-prc-tutor-2026-06-19.md`. Trunk `d9ba545` (#272, squash; owner live-verified + merged; branch+worktree cleaned up).
+
+**Topic Hub rebuild — PR-C DONE:**
+- ✅ **PR-C: tutor flow** — concept-row "Teach me" wired to the existing `concept_teach` engine (`ConceptSpine` → `ConceptTeachDrawer` → `TeachFlow` → `/api/mentor`), both platforms; `findVisualForConcept` wrong-visual fix (null not `concepts[0]`); earned-reveal client support (teach-first; follow-up-turn server visual). Owner LIVE-VERIFIED PASS.
+- ⏳ **PR-D (NEXT): layout / action-band / tips / notes-consolidation** — learn-first hierarchy; receded action band; clickable Examiner's tips; unified Notes (formulae + proofs + mind-map). Also absorbs PR-C's flagged deferrals: **mobile full-screen toggle** for the interactive (currently stacked) + **per-row visual badge** rendering. ⚠️ MI stays in the navy sidebar (chrome) — NOT on the Topic Hub page body. Starts fresh in its own worktree.
+- ⏳ PR-E: chapter-test + worksheet wiring (+ concept-level Practise auto-filter).
+- ⏳ PR-F: content fill — per-topic Examiner's tips (anti-fabrication) + unified Notes content.
+- ⏳ PR-G: delete dead old-mobile once the new IA ships at all widths.
+
+**New cross-cutting follow-up (NOT a layout PR): [FU-CONTEXTUAL-TUTOR-REBUILD]** — the `/api/mentor` `concept_teach` engine follows a scripted "Ravi Sir / Step N of 5" lesson and does not respond contextually to student input. Pre-existing; PR-C wired into it but never scoped to rebuild it. Separate upcoming workstream.
+
 ## 2026-06-19 — Post-PR #268 roadmap update (docs(design): FINAL Topic Hub IA)
 
 Report: `report-topichub-final-ia-docs-2026-06-19.md`. Trunk `a280685` (DOCS-ONLY; owner-merged).
@@ -9,8 +22,8 @@ Report: `report-topichub-final-ia-docs-2026-06-19.md`. Trunk `a280685` (DOCS-ONL
 **The Topic Hub / Learn-Flow rebuild now has its FINAL owner-approved IA committed in-repo** (`docs/design/topichub_ia_mockup_FINAL_2026-06-19.html` + the supersession block in `LazyTopper_Learn_Flow_Spec_LOCKED.md` + the updated `TOPICHUB_BUILD_REFERENCE.md`). **Supersedes #261.** Build "done" for each rebuild PR is checked against this committed source.
 
 **Topic Hub rebuild PR sequence (each owner-authorized separately, verified vs the final IA):**
-- ⏳ PR-C: tutor flow — wire concept-row "Teach me" → existing `concept_teach` engine.
-- ⏳ PR-D: layout / action-band / tips / notes-consolidation (learn-first hierarchy; receded action band; clickable Examiner's tips; unified Notes = formulae + proofs + mind-map).
+- ✅ PR-C: tutor flow — concept-row "Teach me" → existing `concept_teach` engine. **MERGED (#272, `d9ba545`), owner live-verified.**
+- ⏳ PR-D (NEXT): layout / action-band / tips / notes-consolidation (learn-first hierarchy; receded action band; clickable Examiner's tips; unified Notes = formulae + proofs + mind-map). + PR-C deferrals: mobile full-screen toggle + per-row visual badge.
 - ⏳ PR-E: chapter-test + worksheet wiring (+ concept-level Practise auto-filter to concept + mark band).
 - ⏳ PR-F: content fill — per-topic Examiner's tips (anti-fabrication) + unified Notes content.
 - ⏳ PR-G: delete dead old-mobile once the new IA ships at all widths.

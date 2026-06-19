@@ -1,5 +1,21 @@
 ---
 
+## 2026-06-20 — PR-C: Topic Hub concept tutor "Teach me" flow MERGED (#272, trunk `d9ba545`)
+
+**Trunk after merge: `d9ba545`** (#272, squash; `feat/topichub-prc-tutor`; owner live-verified + squash-merged; branch deleted local+remote; worktree removed). **BEHAVIORAL** — built in an **isolated git worktree** (`[FU-WORKTREE-ISOLATION]` honoured). The cohesive concept-tutor FLOW, both platforms. Report: `report-topichub-prc-tutor-2026-06-19.md`. 4 files +160/−28.
+
+- **1. "Teach me" LIVE on the concept spine** — `components/topichub/ConceptSpine.tsx`: the concept-row action "Learn this" (inert/`aria-disabled`) → **"Teach me"**, wired to open the EXISTING `ConceptTeachDrawer` → `TeachFlow` → `POST /api/mentor` (`concept_teach`). ConceptSpine owns the drawer open/close state and passes the clicked concept's `{topicKey: slug, subject, concept: name, questionText: ""}`; drawer mounted fresh per concept. **One responsive mount = BOTH platforms** (the spine renders at every width via `DesktopTopicHubPage.tsx:218`). Dead `TutorDrawerV2`/`MentorPanel` untouched.
+- **2. `findVisualForConcept` wrong-visual bug FIXED** — `data/visualConceptRegistry.ts` (GATED `src/data`, owner-authorized for THIS fix only): empty search terms + below-confidence matches (`score <= 3`) now return **`null`** instead of silently serving `chapter.concepts[0]` (an unrelated interactive). Threshold mirrors the sibling resolver already in the file; correct-match path unchanged. Anti-fabrication: **no visual beats the wrong visual.** Shared resolver — also corrects `TeachFlow`/`TutorMessageRenderer`/`DiagramBlock` (all already handle `null`).
+- **3. Earned-reveal client support** — `components/tutor/TeachFlow.tsx` (scoped to `concept_teach`): no longer eagerly auto-opens the matched visual on mount (teach-first); `sendMessage` now honours a server-pushed visual on follow-up turns (mirrors `startLearning`) so the tutor's offer→"yes"→reveal can fire. `learn_teach` flows unchanged. The side-by-side(desktop)/stacked(mobile) split already existed.
+- **Tests:** `ConceptSpine.test.tsx` — "Teach me" opens the drawer (drawer `vi.mock`'d off the network); `findVisualForConcept` returns null (not a wrong visual) below threshold / empty terms / unresolved chapter.
+- **Gates:** tsc PASS · mojibake PASS · root matrix **181/181** · ops matrix PASS · scope:guard `--mode mixed` PASS · `git diff --check` clean. **CI `quality-gate` GREEN** (linux `vite build` confirms the bundle builds). vitest runs in Codespaces, not the quality-gate. No forbidden files beyond the owner-authorized `visualConceptRegistry.ts`. **No self-merge; owner live-verified + squash-merged.**
+- **✅ Owner LIVE-VERIFY = PASS:** "Teach me" opens the tutor on **both** platforms; `findVisual` returns null instead of a wrong visual; earned-reveal client support confirmed.
+- **⚠️ NEW follow-up — [FU-CONTEXTUAL-TUTOR-REBUILD] (NOT a PR-C defect):** at live-verify the tutor's CONTENT behaviour surfaced — it follows a scripted "Ravi Sir / Step N of 5" lesson and does **not** respond contextually to what the student types. This is a **pre-existing issue in the old `/api/mentor` `concept_teach` engine**, which PR-C correctly wired into but was **never scoped to rebuild**. Tracked as a **separate upcoming workstream** (the contextual-tutor rebuild). PR-C is closed/correct.
+- **Deferred (flagged, for PR-D):** mobile renders the visual **stacked**, not a full-screen **toggle** (spec wants a toggle on mobile) — a TeachFlow render change touching every mobile tutor surface; PR-D-shaped, not bundled. Per-row visual badge rendering also deferred to PR-D.
+- **NEXT:** PR-D (Topic Hub layout / action-band / Examiner's tips / Notes-consolidation) — starts fresh in its own worktree, verified vs the FINAL IA (#268).
+
+---
+
 ## 2026-06-19 — docs(design): FINAL Topic Hub IA committed (#268, trunk `a280685`)
 
 **Trunk after merge: `a280685`** (#268, `docs/topichub-final-ia`; owner-merged). **DOCS-ONLY** — records the owner-approved **FINAL Topic Hub information architecture** as an in-repo binding reference for the rebuild PRs (PR-C onward). **Supersedes the previously committed locked spec (#261).** Built in an **isolated git worktree** (`[FU-WORKTREE-ISOLATION]` honoured — no shared-checkout collision).

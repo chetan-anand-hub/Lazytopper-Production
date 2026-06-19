@@ -12,8 +12,19 @@ Previously (post-PR #242 — **topicKey Fix A MERGED** (trunk `77f2ed2`): the Me
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: a280685
-Last merged PRs: **#262 (Bank Expansion P1 Batch 1, 60 net-new; → `444238b`)**, **#263 (docs)**, **#264 (vitest-infra; → `2ef0b2c`)**, **#265 (Bank Expansion P1 Batch 2, 45 net-new; → `381e9df`)**, **#266 (⚠️ mislabeled "docs" that also carried PR-B concept-spine; → `c418f59`)**, **#267 (docs correction; → `a92fac6`)**, **#268 (docs(design) FINAL Topic Hub IA, supersedes #261; → `a280685`)**
+SHA: d9ba545
+Last merged PRs: **#262 (Bank Expansion P1 Batch 1, 60 net-new; → `444238b`)**, **#263 (docs)**, **#264 (vitest-infra; → `2ef0b2c`)**, **#265 (Bank Expansion P1 Batch 2, 45 net-new; → `381e9df`)**, **#266 (⚠️ mislabeled "docs" that also carried PR-B concept-spine; → `c418f59`)**, **#267 (docs correction; → `a92fac6`)**, **#268 (docs(design) FINAL Topic Hub IA, supersedes #261; → `a280685`)**, **#269 / #270 / #271 (docs/handoff/design — MI-placement corrections; → `571bcdf` / `a300a25` / `70b5362`)**, **#272 (Topic Hub PR-C concept tutor "Teach me" flow; → `d9ba545`)**
+
+## ✅ TOPIC HUB PR-C: CONCEPT TUTOR "TEACH ME" FLOW (#272, trunk `d9ba545`) — MERGED + CI GREEN + OWNER LIVE-VERIFIED
+BEHAVIORAL — the cohesive concept-tutor FLOW wired on BOTH platforms; built in an isolated git worktree ([FU-WORKTREE-ISOLATION] honoured). Report: `report-topichub-prc-tutor-2026-06-19.md`. 4 files +160/−28; squash `d9ba545`.
+- **"Teach me" LIVE on the spine** (`components/topichub/ConceptSpine.tsx`): inert "Learn this" → **"Teach me"** opening the EXISTING `ConceptTeachDrawer` → `TeachFlow` → `/api/mentor` `concept_teach`. Spine owns drawer open/close state + passes the clicked concept's `{topicKey:slug, subject, concept:name, questionText:""}`, mounted fresh per concept. **One responsive mount = both platforms** (spine renders at all widths via `DesktopTopicHubPage.tsx:218`). Dead `TutorDrawerV2`/`MentorPanel` untouched.
+- **`findVisualForConcept` wrong-visual fix** (`data/visualConceptRegistry.ts`, GATED `src/data`, owner-authorized for THIS fix only): empty terms + below-confidence (`score<=3`) → **`null`** not `concepts[0]`. Threshold mirrors the sibling resolver; correct-match path unchanged. Anti-fabrication: no visual beats the wrong visual. Shared resolver also corrects `TeachFlow`/`TutorMessageRenderer`/`DiagramBlock`.
+- **Earned-reveal client support** (`components/tutor/TeachFlow.tsx`, scoped to `concept_teach`): no eager auto-open on mount (teach-first); `sendMessage` honours a server-pushed visual on follow-up turns (mirrors `startLearning`). `learn_teach` unchanged. Side-by-side(desktop)/stacked(mobile) split already existed.
+- **Tests** (`ConceptSpine.test.tsx`): "Teach me" opens the drawer (vi.mock'd); findVisual null-not-wrong cases. **Gates:** tsc · mojibake · root matrix **181/181** · ops matrix · scope:guard `--mode mixed` · diff-check — all PASS. **CI `quality-gate` GREEN** (linux `vite build`); vitest in Codespaces (not the quality-gate). No forbidden files beyond the authorized `visualConceptRegistry.ts`. **No self-merge; owner live-verified + squash-merged; branch deleted (local+remote); worktree removed.**
+- **✅ Owner LIVE-VERIFY = PASS:** "Teach me" opens the tutor on both platforms; findVisual returns null not a wrong visual; earned-reveal client support in.
+- **⚠️ NEW [FU-CONTEXTUAL-TUTOR-REBUILD] (NOT a PR-C defect):** the tutor's CONTENT behaviour (scripted "Ravi Sir / Step N of 5"; doesn't respond contextually to student input) is a **pre-existing `/api/mentor` `concept_teach` engine** issue PR-C correctly wired into but was never scoped to rebuild → separate upcoming workstream (contextual-tutor rebuild).
+- **Deferred to PR-D (flagged):** mobile shows the visual **stacked**, not a full-screen **toggle**; per-row visual badge rendering.
+- **NEXT:** PR-D (Topic Hub layout / action-band / Examiner's tips / Notes-consolidation), fresh worktree, vs the FINAL IA (#268).
 
 ## ✅ DOCS(DESIGN): FINAL TOPIC HUB IA COMMITTED (#268, trunk `a280685`) — MERGED + CI GREEN
 DOCS-ONLY. Records the owner-approved **FINAL Topic Hub information architecture** as the in-repo binding reference for the
