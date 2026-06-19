@@ -36,10 +36,12 @@ supersedes the previously committed locked spec (#261).
   solid primary + lives in the band. Concept-level = short **"Practise"** + green-tint secondary +
   lives inside the concept card. The two must remain visually and verbally distinct.
 - **Navy product sidebar is a CONSTANT (REAFFIRM).** Light nav text, active item highlighted,
-  **Mistake Intel panel pinned at the bottom**. It must be respected, not reinvented. Mobile =
-  navy bottom tab bar. (NB: this restores the Mistake Intel panel on this surface — the original
-  spec had said "Mistake Intelligence stays on Home/Me, not here"; the final IA pins the navy
-  rail's MI panel as part of the constant product chrome.)
+  **Mistake Intel panel pinned at the bottom of the sidebar**. It must be respected, not reinvented.
+  Mobile = navy bottom tab bar. **⚠️ MI is sidebar CHROME, not Topic Hub page content.** The MI panel
+  is part of the **global product sidebar shown on every page** — it is NOT a Topic Hub page-body
+  element. The original spec's rule "Mistake Intelligence stays on Home/Me, not here [the Topic Hub
+  page body]" still HOLDS and is preserved by the final IA — there is **no supersession of the MI
+  placement rule**. PR-D must keep MI in the sidebar and must NOT add it to the Topic Hub page body.
 - **Category (B) split-with-parity stands.** Desktop / mobile may differ in **interaction**
   (interactive side-by-side on desktop / full-screen on mobile) but share the **SAME grammar/tokens,
   SAME data, single-sourced behavior, 360px-safe**.
