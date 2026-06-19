@@ -12,8 +12,30 @@ Previously (post-PR #242 — **topicKey Fix A MERGED** (trunk `77f2ed2`): the Me
 
 ## Live base
 Branch: base/approved-thru-437
-SHA: 775ee75
-Last merged PRs: **#255 (AI-tier PR2a source-provenance stamp + soft AI-lower ranking; squash → `686f737`)**, **#256 (docs)**, **#257 (AI-tier PR2b strip fabricated `pastBoardYear`; squash → `d6e0e14`)**, **#258 (docs)**, **#259 (AI-tier FU-RANK-MOCKS-HPQ soft AI-demotion on Full Mock + Topic Mock; squash → `775ee75`)**
+SHA: a280685
+Last merged PRs: **#262 (Bank Expansion P1 Batch 1, 60 net-new; → `444238b`)**, **#263 (docs)**, **#264 (vitest-infra; → `2ef0b2c`)**, **#265 (Bank Expansion P1 Batch 2, 45 net-new; → `381e9df`)**, **#266 (⚠️ mislabeled "docs" that also carried PR-B concept-spine; → `c418f59`)**, **#267 (docs correction; → `a92fac6`)**, **#268 (docs(design) FINAL Topic Hub IA, supersedes #261; → `a280685`)**
+
+## ✅ DOCS(DESIGN): FINAL TOPIC HUB IA COMMITTED (#268, trunk `a280685`) — MERGED + CI GREEN
+DOCS-ONLY. Records the owner-approved **FINAL Topic Hub information architecture** as the in-repo binding reference for the
+Learn-Flow rebuild (PR-C onward). **Supersedes the previously committed locked spec (#261).** Built in an **isolated git
+worktree** ([FU-WORKTREE-ISOLATION] honoured). Report: `report-topichub-final-ia-docs-2026-06-19.md`. 3 files +407/−1.
+- **Files (all `docs/design/`):** NEW `topichub_ia_mockup_FINAL_2026-06-19.html` (owner-approved visual — the chat attachment
+  was mojibake-corrupted in transit, so the clean on-disk UTF-8 original was copied **byte-identical**, `cmp` IDENTICAL, 19,515 B);
+  `LazyTopper_Learn_Flow_Spec_LOCKED.md` (top FINAL IA SUPERSESSION block + a "read this first" note on the original section);
+  `TOPICHUB_BUILD_REFERENCE.md` (final-IA note, HTML as binding source #3, planned PR sequence).
+- **Final IA (supersedes #261):** learn-first hierarchy (concept rows = HERO; topic action band recedes into a quiet/dashed zone) ·
+  **Notes = ONE unified view** (formulae + proofs + mind-map sections — replaces split Formula-sheet/Proofs tabs) ·
+  **Examiner's tips = clickable panel** of 3–4 per-topic tips (replaces the single buried line; authored content, anti-fabrication) ·
+  concept action **"Teach me"** (was "Learn this") · concept **"Practise"** auto-filtered to concept + mark band ·
+  topic band = **Practise this topic / Chapter test / Worksheet** ("Worksheet" was "Generate worksheet") · two-Practise
+  differentiation · navy product sidebar + Mistake Intel panel are a **constant** (final IA pins MI on this surface, overriding the
+  original "MI stays on Home/Me, not here") · Category (B) split-with-parity stands.
+- **Planned PR sequence:** PR-C (tutor flow) → PR-D (layout/action-band/tips/notes-consolidation) → PR-E (chapter-test + worksheet
+  wiring) → PR-F (content fill) → PR-G (delete dead old-mobile). On the Topic Hub the final mockup wins over the older
+  `01_full_flow…` prototype. (PR-B concept-spine already landed via the mislabeled `c418f59`/#266.)
+- **Gates:** docs-only scope (0 src/config/CI/auth) · forbidden-file check PASS · mojibake 0 hits (project regex over the 3 files) ·
+  `git diff --check` clean · internal links resolve · **CI `quality-gate` GREEN (1m12s)** + Vercel PASS. **Not self-merged**
+  (adds an `.html`, outside the `.md`-only auto-merge policy) → owner-merged, mirroring #261. Worktree removed post-merge.
 
 ## ✅ AI-TIER FU-RANK-MOCKS-HPQ — SOFT AI-DEMOTION ON FULL MOCK + TOPIC MOCK (#259, trunk `775ee75`) — MERGED + CI GREEN
 ARCHITECTURAL ranking-parity follow-up to PR2a. PR2a's `SOURCE_MULTIPLIER` only reached the practice paths

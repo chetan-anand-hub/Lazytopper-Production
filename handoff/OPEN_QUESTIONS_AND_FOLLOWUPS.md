@@ -1,3 +1,18 @@
+## 2026-06-19 — Post-PR #268 (docs(design): FINAL Topic Hub IA committed; trunk `a280685`)
+
+### ✅ RESOLVED / DELIVERED
+- **FINAL Topic Hub IA committed** to `docs/design/` (#268): the owner-approved mockup HTML + the spec supersession (learn-first hierarchy, unified Notes, clickable Examiner's tips, "Teach me", concept-filtered Practise, 3-action band, constant navy sidebar + Mistake Intel). **Supersedes #261.** Now the in-repo binding reference for the rebuild. Built in an isolated worktree ([FU-WORKTREE-ISOLATION] honoured).
+
+### 🔭 NEXT (Topic Hub rebuild — owner-authorized separately, each its own PR vs the final IA)
+- **PR-C — tutor flow:** wire the concept-row "Teach me" into the existing `concept_teach` engine (per-concept; engine unchanged; do NOT rebuild the chat / do NOT use `TutorDrawerV2`/`MentorPanel`).
+- **PR-D — layout / action-band / tips / notes-consolidation:** flip to learn-first, recede the action band, add the clickable Examiner's tips panel, consolidate Formula-sheet + Proofs into the single unified Notes view.
+- **PR-E — chapter-test + worksheet wiring** (+ concept-level Practise auto-filter).
+- **PR-F — content fill:** per-topic Examiner's tips (anti-fabrication) + unified Notes content.
+- **PR-G — delete dead old-mobile** once the new IA ships at all widths.
+- ⚠️ **Note vs the original locked spec:** the final IA pins the navy-rail **Mistake Intel panel on the Topic Hub** as constant product chrome; the original 2026-06-01 spec had said "MI stays on Home/Me, not here" — the final IA wins (recorded in the supersession block). PR-D should respect this.
+
+---
+
 ## 2026-06-19 — ⚠️ Process follow-up (commit c418f59 carried PR-B ungated)
 
 - **[FU-WORKTREE-ISOLATION]** (NEW, process) — commit `c418f59` ("docs(handoff)…#266") also carried the PR-B concept-spine product change (App.tsx + DesktopTopicHubPage + ConceptSpine + test), which reached trunk **ungated** due to a parallel-agent **shared-working-directory** collision (docs branch cut while an unpushed local PR-B commit sat on local `base`; squash bundled both). PR-B code is correct, green, and owner-live-verified (desktop + mobile), but the commit is **mislabeled** and PR-B **bypassed its own gated PR**. **Fix:** give each concurrent agent its own **git worktree** so uncommitted/local commits can't ride into another agent's PR. See the SESSION_LOG correction entry of this date. (No code action outstanding — PR-B is accepted-forward; this is the process guardrail.)

@@ -5,8 +5,10 @@
 ## CURRENT BASE
 
 Branch: base/approved-thru-437
-SHA: 381e9df
-Last PRs: #259 (AI-tier FU-RANK-MOCKS-HPQ; → `775ee75`) + #260 (docs) + #261 (docs(design) Topic Hub LOCKED spec; → `169a74c`) + #262 (Bank Expansion P1 Batch 1, 60 net-new; → `444238b`) + #263 (docs) + #264 (vitest-infra: @testing-library/dom + setup window-guard; → `2ef0b2c`) + #265 (Bank Expansion P1 Batch 2, 45 net-new; → `381e9df`)
+SHA: a280685
+Last PRs: #259 (AI-tier FU-RANK-MOCKS-HPQ; → `775ee75`) + #260 (docs) + #261 (docs(design) Topic Hub LOCKED spec; → `169a74c`) + #262 (Bank Expansion P1 Batch 1, 60 net-new; → `444238b`) + #263 (docs) + #264 (vitest-infra: @testing-library/dom + setup window-guard; → `2ef0b2c`) + #265 (Bank Expansion P1 Batch 2, 45 net-new; → `381e9df`) + #266 (**mislabeled** "docs" that also carried PR-B concept-spine; → `c418f59`) + #267 (docs correction; → `a92fac6`) + #268 (**docs(design) FINAL Topic Hub IA**, supersedes #261; → `a280685`)
+
+> **Two parallel queues now exist** — pick per owner: **(1) Bank Expansion** Batch 3 (Triangles + Circles), the IMMEDIATE NEXT below; and **(2) Topic Hub rebuild** PR-C → PR-D → PR-E → PR-F → PR-G, now verified against the FINAL IA committed in #268 (`docs/design/topichub_ia_mockup_FINAL_2026-06-19.html` + the supersession block in `LazyTopper_Learn_Flow_Spec_LOCKED.md`). PR-B concept-spine already landed (via the mislabeled `c418f59`). See OPEN_QUESTIONS + IMPLEMENTATION_ROADMAP for the PR-C…PR-G breakdown.
 
 ## ⏭️ IMMEDIATE NEXT — Bank Expansion P1 **Batch 3 (Triangles + Circles)** when owner authorizes
 Batches 1 (AP+Stats+SAV, 60) and 2 (CG+ARC, 45) are DONE + merged. **Batch 3 = Triangles + Circles** — ⚠️ this batch holds the bulk of the

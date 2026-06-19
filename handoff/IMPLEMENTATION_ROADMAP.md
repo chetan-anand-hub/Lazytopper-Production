@@ -2,6 +2,21 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-19 — Post-PR #268 roadmap update (docs(design): FINAL Topic Hub IA)
+
+Report: `report-topichub-final-ia-docs-2026-06-19.md`. Trunk `a280685` (DOCS-ONLY; owner-merged).
+
+**The Topic Hub / Learn-Flow rebuild now has its FINAL owner-approved IA committed in-repo** (`docs/design/topichub_ia_mockup_FINAL_2026-06-19.html` + the supersession block in `LazyTopper_Learn_Flow_Spec_LOCKED.md` + the updated `TOPICHUB_BUILD_REFERENCE.md`). **Supersedes #261.** Build "done" for each rebuild PR is checked against this committed source.
+
+**Topic Hub rebuild PR sequence (each owner-authorized separately, verified vs the final IA):**
+- ⏳ PR-C: tutor flow — wire concept-row "Teach me" → existing `concept_teach` engine.
+- ⏳ PR-D: layout / action-band / tips / notes-consolidation (learn-first hierarchy; receded action band; clickable Examiner's tips; unified Notes = formulae + proofs + mind-map).
+- ⏳ PR-E: chapter-test + worksheet wiring (+ concept-level Practise auto-filter to concept + mark band).
+- ⏳ PR-F: content fill — per-topic Examiner's tips (anti-fabrication) + unified Notes content.
+- ⏳ PR-G: delete dead old-mobile once the new IA ships at all widths.
+
+(NB: PR-B concept-spine already landed via the mislabeled `c418f59`/#266 — see SESSION_LOG; the final IA above is the reference the remaining PRs build to.)
+
 ## 2026-06-19 — Post-PR #265 + #264 roadmap update (Bank Expansion Batch 2 + vitest-infra)
 
 Report: `report-bank-expansion-batch2-2026-06-18.md`.
