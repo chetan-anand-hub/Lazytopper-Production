@@ -1,5 +1,17 @@
 ---
 
+## 2026-06-19 — docs(design): FINAL Topic Hub IA committed (#268, trunk `a280685`)
+
+**Trunk after merge: `a280685`** (#268, `docs/topichub-final-ia`; owner-merged). **DOCS-ONLY** — records the owner-approved **FINAL Topic Hub information architecture** as an in-repo binding reference for the rebuild PRs (PR-C onward). **Supersedes the previously committed locked spec (#261).** Built in an **isolated git worktree** (`[FU-WORKTREE-ISOLATION]` honoured — no shared-checkout collision).
+
+- **3 files, all under `docs/design/`** (+407/−1): NEW `topichub_ia_mockup_FINAL_2026-06-19.html` (owner-approved visual; the chat attachment was mojibake-corrupted in transit, so the clean on-disk UTF-8 original was copied **byte-identical** — `cmp` IDENTICAL, 19,515 bytes); `LazyTopper_Learn_Flow_Spec_LOCKED.md` (top **FINAL IA SUPERSESSION** block + "read this first" note on the original section); `TOPICHUB_BUILD_REFERENCE.md` (final-IA note, HTML added as binding source #3, planned PR sequence).
+- **Final IA recorded (supersedes #261):** learn-first hierarchy (concept rows are the HERO; topic action band recedes into a quiet/dashed zone) · **Notes = ONE unified view** (formulae + proofs + mind-map sections — replaces split Formula-sheet/Proofs tabs) · **Examiner's tips = clickable panel** of 3–4 per-topic tips (replaces the single buried line; authored content, anti-fabrication) · concept action **"Teach me"** (was "Learn this") · concept **"Practise"** auto-filtered to concept + mark band · topic band = **Practise this topic / Chapter test / Worksheet** ("Worksheet" was "Generate worksheet") · two-Practise differentiation · navy product sidebar + Mistake Intel panel are a **constant** · Category (B) split-with-parity stands.
+- **Planned PR sequence:** PR-C (tutor flow) → PR-D (layout/action-band/tips/notes-consolidation) → PR-E (chapter-test + worksheet wiring) → PR-F (content fill) → PR-G (delete dead old-mobile). On the Topic Hub the final mockup wins over the older `01_full_flow…` prototype.
+- **Gates:** docs-only scope (0 src/config/CI/auth) · forbidden-file check PASS · mojibake 0 hits (project regex over the 3 files) · `git diff --check` clean · internal links resolve · CI `quality-gate` GREEN (1m12s) + Vercel PASS. **Not self-merged** (adds an `.html`, outside the `.md`-only auto-merge policy) → owner-merged, mirroring #261. Worktree removed post-merge. Report: `report-topichub-final-ia-docs-2026-06-19.md`.
+- **Note on trunk SHA continuity:** between the last full handoff (#265, `381e9df`) and this commit, trunk also took #266 (`c418f59`, the mislabeled PR-B carry — see the correction entry below) and #267 (`a92fac6`, that correction's docs). #268 (`a280685`) is this docs(design) commit on top.
+
+---
+
 ## 2026-06-19 — ⚠️ CORRECTION: commit `c418f59` ("docs(handoff)…#266") also carried PR-B product change (mislabeled)
 
 **What happened:** the squash-merge `c418f59`, titled `docs(handoff): post-PR #265 + #264 … (#266)`, **also carried a product change** — the Learn-Flow PR-B concept-spine: `lazytopper/src/App.tsx` (5 `/topic-hub*` routes rerouted to the responsive spine + 2 legacy imports removed), `pages/desktop/DesktopTopicHubPage.tsx` (rewritten 2537→~227 ln), and NEW `components/topichub/ConceptSpine.tsx` + `ConceptSpine.test.tsx`. So **PR-B landed on trunk ungated**, bundled inside a commit labeled docs-only.
