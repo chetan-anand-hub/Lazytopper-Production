@@ -1,3 +1,21 @@
+## 2026-06-20 — Post-PR #272 (Topic Hub PR-C concept tutor "Teach me" flow; trunk `d9ba545`)
+
+### ✅ RESOLVED / DELIVERED
+- **PR-C tutor flow (#272, `d9ba545`)** — concept-row **"Teach me"** wired LIVE into the existing `concept_teach` engine on BOTH platforms (one responsive `ConceptSpine` mount); **`findVisualForConcept` wrong-visual bug FIXED** (below-confidence/empty → `null`, not `concepts[0]`); **earned-reveal client support** (teach-first; follow-up-turn server visual). Owner LIVE-VERIFIED PASS. Built in an isolated worktree; no self-merge; branch + worktree cleaned up.
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-CONTEXTUAL-TUTOR-REBUILD]** — at PR-C live-verify the tutor's **content behaviour** surfaced: it serves a scripted **"Ravi Sir / Step N of 5"** lesson and does **not** respond contextually to what the student types. This is a **pre-existing defect in the old `/api/mentor` `concept_teach` engine** (server-side), which PR-C correctly wired into but was **never scoped to rebuild**. **Not a PR-C defect and not a PR-D layout item** — it is a **separate upcoming workstream** (the contextual-tutor rebuild). Owner-flagged, deliberately deferred.
+
+### 🔭 PR-C DEFERRALS (fold into PR-D)
+- **Mobile interactive = full-screen toggle:** TeachFlow currently renders the visual **stacked** under the chat on mobile, not a full-screen toggle (spec category B wants a toggle). A TeachFlow render change touching every mobile tutor surface — PR-D-shaped, not bundled into the behavioral PR-C.
+- **Per-row visual badge:** with `findVisualForConcept` now honest, the per-row "has interactive" badge can be rendered on the spine — deferred to PR-D's layout work.
+
+### 🔭 NEXT (Topic Hub rebuild — owner-authorized separately, each its own PR vs the final IA)
+- **PR-D (NEXT) — layout / action-band / tips / notes-consolidation** (+ the two PR-C deferrals above). ⚠️ MI stays in the navy sidebar (chrome), NOT on the Topic Hub page body. Starts fresh in its own worktree.
+- PR-E — chapter-test + worksheet wiring (+ concept-level Practise auto-filter) · PR-F — content fill · PR-G — delete dead old-mobile.
+
+---
+
 ## 2026-06-19 — Post-PR #268 (docs(design): FINAL Topic Hub IA committed; trunk `a280685`)
 
 ### ✅ RESOLVED / DELIVERED
