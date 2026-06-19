@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import { Pill } from "../grammar/Pill";
 import { SectionHeader } from "../grammar/SectionHeader";
+import ConceptTeachDrawer from "../tutor/ConceptTeachDrawer";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
 import type {
   ActionableTopicHubContent,
@@ -19,9 +20,13 @@ import type {
  * a header tab bar (Formula sheet · Proofs · Practice all) renders as structure, and
  * a tight stat strip (trend · marks · sections) replaces the old prose right-rail.
  *
- * ISOLATED structural/visual PR — NO behaviour/data-pipeline change:
- *   - "Learn this" RENDERS but is INERT here (the concept tutor is wired in PR-C+D;
- *     do not open ConceptTeachDrawer from this PR).
+ * Concept-row actions:
+ *   - "Teach me" opens the concept tutor (`ConceptTeachDrawer` → `TeachFlow` →
+ *     /api/mentor in `concept_teach` mode — the EXISTING engine, reused unchanged).
+ *     ConceptSpine owns the open/close state and passes the clicked concept's
+ *     { topicKey, subject, concept } context (wired in PR-C). Because the spine is a
+ *     single responsive component mounted at every width, this wiring covers BOTH
+ *     desktop and mobile in one place.
  *   - "Practise" routes to the EXISTING practice target (already-wired, trivial).
  *   - Formula sheet / Proofs tabs are HONEST empty containers ("coming soon"),
  *     designed to RECEIVE pre-generated per-topic content in PR-E. No notes,
@@ -32,10 +37,10 @@ import type {
  *     only name/oneLineUse/marks). FormulaUseCard data is per-topic, not per-concept,
  *     so there is no clean per-row join. Rendered WITHOUT it (omitted, not faked).
  *   - visual badge per row: a real "has interactive" check depends on
- *     findVisualForConcept, which currently falls back silently to concepts[0]
- *     (audit §6) — using it would fabricate a badge on every row. Omitted here;
- *     the honest per-row visual badge lands with PR-D's findVisual fix.
- *   Both omissions are flagged in the PR-B report.
+ *     findVisualForConcept. PR-C hardens that resolver so a below-confidence match
+ *     returns null instead of a wrong concepts[0] visual, but the per-row badge
+ *     RENDERING is a layout change deferred to PR-D — omitted here, not faked.
+ *   Both omissions are flagged in the PR-B / PR-C reports.
  *
  * Design grammar: light mode, var(--font-display) (Fraunces) headings +
  * var(--font-body) (Inter), brand green hsl(152,55%,45%); grammar tokens mirrored
@@ -248,6 +253,11 @@ export function ConceptSpine({
   practiceHrefForConcept,
 }: ConceptSpineProps) {
   const [activeTab, setActiveTab] = useState<SpineTab>(null);
+  // The concept whose tutor drawer is open (null = closed). ConceptSpine owns this
+  // open/close state; opening passes the clicked concept's context to the existing
+  // ConceptTeachDrawer → TeachFlow → /api/mentor `concept_teach` engine. One mount
+  // covers both platforms (the spine renders at every width).
+  const [teachConcept, setTeachConcept] = useState<BoardConcept | null>(null);
   const concepts = actionable.boardEssentials;
   const trendTier = topic.trendTier;
 
@@ -335,14 +345,14 @@ export function ConceptSpine({
                 )}
               </div>
               <div className="lt-spine__row-actions">
-                {/* INERT in PR-B — concept tutor is wired in PR-C+D */}
+                {/* Opens the concept tutor (concept_teach) — wired in PR-C */}
                 <button
                   type="button"
                   className="lt-spine__btn lt-spine__btn--learn"
-                  aria-disabled="true"
-                  title="Learn this concept (coming soon)"
+                  onClick={() => setTeachConcept(concept)}
+                  title={`Teach me: ${concept.name}`}
                 >
-                  Learn this
+                  Teach me
                 </button>
                 {/* Existing, already-wired practice route */}
                 <Link
@@ -357,6 +367,24 @@ export function ConceptSpine({
           </Card>
         ))}
       </div>
+
+      {/* Concept tutor — REUSED engine (ConceptTeachDrawer → TeachFlow → /api/mentor
+          `concept_teach`). Mounted fresh per concept so each gets its own session;
+          questionText is empty (concept-teach, not a question). One mount = both
+          platforms. Teach-first / earned-reveal + the visual/chat split (side-by-side
+          on desktop, stacked under 768px) are handled inside TeachFlow. */}
+      {teachConcept && (
+        <ConceptTeachDrawer
+          open
+          onClose={() => setTeachConcept(null)}
+          context={{
+            topicKey: topic.slug,
+            subject: topic.subject,
+            questionText: "",
+            concept: teachConcept.name,
+          }}
+        />
+      )}
     </div>
   );
 }

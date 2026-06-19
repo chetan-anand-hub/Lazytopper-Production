@@ -1,10 +1,30 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 import { ConceptSpine } from "./ConceptSpine";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHubContent";
+import { findVisualForConcept } from "../../data/visualConceptRegistry";
+
+// Stub the concept tutor drawer: ConceptSpine's PR-C responsibility is to OWN the
+// open/close state and pass the clicked concept's context — not the tutor engine
+// itself (which makes /api/mentor network calls). The stub records open + context so
+// we can assert the wiring without dragging TeachFlow's fetch into a unit test.
+vi.mock("../tutor/ConceptTeachDrawer", () => ({
+  default: ({
+    open,
+    context,
+  }: {
+    open: boolean;
+    context: { topicKey: string; subject: string; concept?: string };
+  }) =>
+    open ? (
+      <div data-testid="concept-teach-drawer">
+        {`teach:${context.subject}:${context.topicKey}:${context.concept ?? ""}`}
+      </div>
+    ) : null,
+}));
 
 afterEach(cleanup);
 
@@ -58,10 +78,10 @@ describe("ConceptSpine — renders the concept rows", () => {
       expect(screen.getByText(concept.name)).toBeInTheDocument();
     }
 
-    // Every row carries a "Learn this" and a "Practise" action.
+    // Every row carries a "Teach me" and a "Practise" action.
     for (const row of Array.from(rows)) {
       const scope = within(row as HTMLElement);
-      expect(scope.getByText("Learn this")).toBeInTheDocument();
+      expect(scope.getByText("Teach me")).toBeInTheDocument();
       expect(scope.getByText("Practise")).toBeInTheDocument();
     }
   });
@@ -81,16 +101,35 @@ describe("ConceptSpine — renders the concept rows", () => {
   });
 });
 
-describe("ConceptSpine — layout-only contract (PR-B)", () => {
-  it("'Learn this' is INERT (a button, never a navigation link)", () => {
+describe("ConceptSpine — tutor wiring (PR-C)", () => {
+  it("'Teach me' is a LIVE button (no longer inert / aria-disabled)", () => {
     renderSpine();
-    const learnButtons = screen.getAllByText("Learn this");
-    for (const btn of learnButtons) {
+    const teachButtons = screen.getAllByText("Teach me");
+    expect(teachButtons.length).toBe(trigContent.boardEssentials.length);
+    for (const btn of teachButtons) {
       expect(btn.tagName).toBe("BUTTON");
-      expect(btn).toHaveAttribute("aria-disabled", "true");
+      expect(btn).not.toHaveAttribute("aria-disabled");
     }
-    // No "Learn this" anchor exists.
-    expect(screen.queryByRole("link", { name: "Learn this" })).toBeNull();
+    // It opens a drawer, not a navigation — no "Teach me" anchor exists.
+    expect(screen.queryByRole("link", { name: "Teach me" })).toBeNull();
+  });
+
+  it("clicking 'Teach me' opens the concept tutor with the row's context", () => {
+    const { container } = renderSpine();
+    // Closed initially.
+    expect(screen.queryByTestId("concept-teach-drawer")).toBeNull();
+
+    // Click the FIRST row's "Teach me".
+    const firstRow = container.querySelector(".lt-spine__row") as HTMLElement;
+    const firstConcept = trigContent.boardEssentials[0];
+    fireEvent.click(within(firstRow).getByText("Teach me"));
+
+    // Drawer opens, carrying { subject, topicKey (slug), concept } for that row.
+    const drawer = screen.getByTestId("concept-teach-drawer");
+    expect(drawer).toBeInTheDocument();
+    expect(drawer).toHaveTextContent(
+      `teach:${trig.subject}:${trig.slug}:${firstConcept.name}`,
+    );
   });
 
   it("'Practise' routes to the existing per-concept practice target", () => {
@@ -145,5 +184,30 @@ describe("ConceptSpine reflow (load-bearing)", () => {
     expect(mobile.container.querySelectorAll(".lt-spine__row")).toHaveLength(
       trigContent.boardEssentials.length,
     );
+  });
+});
+
+describe("findVisualForConcept — no wrong visual (PR-C anti-fabrication)", () => {
+  it("returns the matching visual on a confident, above-threshold match", () => {
+    // Correct-match path is unchanged: a real concept title still resolves.
+    const visual = findVisualForConcept("Maths", "real-numbers", [
+      "Fundamental Theorem of Arithmetic",
+    ]);
+    expect(visual?.title).toBe("Fundamental Theorem of Arithmetic");
+  });
+
+  it("returns null (not concepts[0]) for a below-threshold / unmatched concept", () => {
+    // Previously this fell back silently to the chapter's FIRST concept — a wrong,
+    // unrelated interactive. Now an honest null: no visual beats the wrong visual.
+    expect(findVisualForConcept("Maths", "real-numbers", ["qqqzzz-not-a-concept"])).toBeNull();
+  });
+
+  it("returns null when there are no usable search terms", () => {
+    // Empty terms can't identify a concept → no auto-served concepts[0].
+    expect(findVisualForConcept("Maths", "real-numbers", [])).toBeNull();
+  });
+
+  it("returns null when the chapter does not resolve at all", () => {
+    expect(findVisualForConcept("Maths", "no-such-chapter", ["anything"])).toBeNull();
   });
 });

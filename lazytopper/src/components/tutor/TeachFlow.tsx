@@ -231,8 +231,17 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
   const [activeVisual, setActiveVisual] = useState<VisualConcept | null>(null);
   useEffect(() => {
+    // Earned reveal (LOCKED spec): in concept_teach mode the tutor TEACHES first and
+    // the interactive is OFFERED, never auto-opened on mount. It appears only when the
+    // tutor pushes it (server `svRaw`, gated on !activeVisual) or the student asks
+    // ("show me the graph"). So do NOT eagerly bind the matched visual in concept mode.
+    // The visual is still computed (visualConcept) so the server gets the availability
+    // hint via `visualTitle` and can offer it. Non-concept (learn_teach) flows keep
+    // their existing eager visual — this is scoped to the concept tutor to avoid a
+    // shared-surface behaviour change. (PR-C)
+    if (isConceptMode) return;
     setActiveVisual(visualConcept ?? null);
-  }, [visualConcept]);
+  }, [visualConcept, isConceptMode]);
 
   function detectGraphOrDiagramRequest(text: string): boolean {
     return /\b(graph|draw|plot|show|picture|visual|diagram|line|intersect|image|see it|look like)\b/i.test(text);
@@ -608,15 +617,37 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
       let tutorText = "";
       let responseStructured = null;
+      let serverVisualRaw: Record<string, unknown> | null = null;
       try {
         const streamResult = await callMentorStream(mentorBody, (t) => {
           setStreamingText(t);
         });
         tutorText = streamResult.responseText;
+        serverVisualRaw = streamResult.visual;
       } catch {
         const fallbackPayload = await callMentor(mentorBody);
         tutorText = extractTutorText(fallbackPayload) || "";
         responseStructured = extractStructuredSection(fallbackPayload);
+        const svContainer = (fallbackPayload as Record<string, unknown>).data as Record<string, unknown> | undefined;
+        serverVisualRaw = svContainer?.visual as Record<string, unknown> | null ?? null;
+      }
+
+      // Earned reveal: when the tutor offers the interactive and the student accepts,
+      // the server returns the visual on this follow-up turn — surface it. Gated on
+      // !activeVisual so an already-open visual isn't clobbered. Mirrors startLearning's
+      // svRaw handling (previously only turn-1 honoured a server-pushed visual, so a
+      // concept-teach offer-after-teaching could never reveal). (PR-C)
+      const svRawFollowup = serverVisualRaw as { filePath?: string; title?: string; chapter?: string; subject?: string } | null;
+      if (svRawFollowup?.filePath && svRawFollowup.title && !activeVisual) {
+        setActiveVisual({
+          id: `${svRawFollowup.subject}-${svRawFollowup.chapter}-${svRawFollowup.title}`,
+          title: svRawFollowup.title,
+          chapter: svRawFollowup.chapter ?? "",
+          subject: (svRawFollowup.subject as "maths" | "science") ?? "maths",
+          filePath: svRawFollowup.filePath,
+          keywords: [],
+          isInteractive: true,
+        });
       }
 
       if (!tutorText) {

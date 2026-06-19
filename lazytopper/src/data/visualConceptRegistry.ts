@@ -547,7 +547,11 @@ export function findVisualForConcept(
   if (!chapter) return null;
 
   const terms = searchTerms.map((t) => t.toLowerCase().trim()).filter(Boolean);
-  if (terms.length === 0) return chapter.concepts[0] || null;
+  // No usable search terms → we cannot confidently identify the concept. Return NO
+  // visual rather than silently serving concepts[0] (an UNRELATED interactive — e.g.
+  // always "Similar Triangles" for any Triangles concept). Anti-fabrication applied
+  // to visuals: a missing interactive is honest; a wrong one is not. (PR-C)
+  if (terms.length === 0) return null;
 
   let bestMatch: VisualConcept | null = null;
   let bestScore = 0;
@@ -570,10 +574,15 @@ export function findVisualForConcept(
     }
   }
 
-  // Always return at least the first concept when the chapter resolved correctly
-  // — ensures every valid chapter shows a visual, even when search terms don't
-  // match any specific keyword (e.g. generic "trigonometry" or "statistics" slugs)
-  return bestMatch ?? chapter.concepts[0] ?? null;
+  // Below the confidence threshold (a weak/fallback match) → return NO visual rather
+  // than concepts[0]. A low-scoring match would surface an unrelated interactive
+  // (e.g. a generic "trigonometry"/"statistics" slug with no concept hit). The
+  // threshold mirrors the fallback semantics of the sibling resolver above
+  // (score <= 3 == fallback → null). The correct-match path (score > threshold) is
+  // unchanged. (PR-C — earned-reveal anti-fabrication: no visual beats the wrong one.)
+  const CONFIDENCE_THRESHOLD = 3;
+  if (!bestMatch || bestScore <= CONFIDENCE_THRESHOLD) return null;
+  return bestMatch;
 }
 
 export function getVisualsForChapter(
