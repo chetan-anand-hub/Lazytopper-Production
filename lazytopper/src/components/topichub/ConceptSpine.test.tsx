@@ -7,7 +7,7 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHubContent";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 
-// Stub the concept tutor drawer: ConceptSpine's PR-C responsibility is to OWN the
+// Stub the concept tutor drawer: ConceptSpine's responsibility is to OWN the
 // open/close state and pass the clicked concept's context — not the tutor engine
 // itself (which makes /api/mentor network calls). The stub records open + context so
 // we can assert the wiring without dragging TeachFlow's fetch into a unit test.
@@ -29,14 +29,18 @@ vi.mock("../tutor/ConceptTeachDrawer", () => ({
 afterEach(cleanup);
 
 /**
- * Render test for the rebuilt Topic Hub concept-spine (Learn-Flow PR-B), on the
- * same Vitest infra as the grammar primitives test (#166). It asserts:
- *   1. the spine renders one row per BoardConcept (the page IS its concept rows);
- *   2. the desktop→mobile reflow is a real, pure-CSS @media (max-width: 1023px)
- *      contract — byte-identical markup/CSS at every width, NOT a JS width branch;
- *   3. the layout-only contract: "Learn this" is INERT (a button, no navigation),
- *      "Practise" routes to the existing practice target;
- *   4. honest sample-preview labelling.
+ * Render test for the final-IA Topic Hub concept-spine LAYOUT (Learn-Flow PR-D).
+ * It asserts the structural contract of the rebuilt page:
+ *   1. learn-first — one concept row per BoardConcept (the concepts are the hero);
+ *   2. Notes is ONE unified toggle (no Formula/Proofs split tab bar);
+ *   3. Examiner's tips is a clickable, expandable container (honest "coming soon",
+ *      content arrives later — no fabricated tips);
+ *   4. the receded action band has 3 buttons with the right hierarchy (primary
+ *      "Practise this topic" routes; "Chapter test"/"Worksheet" present-but-inert);
+ *   5. concept "Practise" carries the concept identity + its mark band;
+ *   6. per-row visual badge appears ONLY where findVisualForConcept is non-null;
+ *   7. the desktop→mobile reflow is a real, pure-CSS @media (max-width: 1023px)
+ *      contract — byte-identical markup/CSS at every width, NOT a JS width branch.
  * jsdom does not compute layout, so we assert the CSS contract is present and
  * targets the right selector rather than measuring pixels.
  */
@@ -60,13 +64,18 @@ function renderSpine(
         backHref="/exam-trends"
         backLabel={backLabel}
         practiceAllHref="/practice-hub?scope=topic"
-        practiceHrefForConcept={(c) => `/practice-hub?focus=${encodeURIComponent(c.name)}`}
+        // Concept-filtered route carries BOTH the concept focus and its mark band
+        // (PR-D item 5). ConceptSpine renders whatever the page supplies; this stub
+        // mirrors the real page builder's concept+markBand contract.
+        practiceHrefForConcept={(c) =>
+          `/practice-hub?focus=${encodeURIComponent(c.name)}&markBand=${encodeURIComponent(c.marks)}`
+        }
       />
     </MemoryRouter>,
   );
 }
 
-describe("ConceptSpine — renders the concept rows", () => {
+describe("ConceptSpine — learn-first concept rows", () => {
   it("renders exactly one row per BoardConcept, with name + use + both actions", () => {
     const { container } = renderSpine();
     const rows = container.querySelectorAll(".lt-spine__row");
@@ -86,29 +95,116 @@ describe("ConceptSpine — renders the concept rows", () => {
     }
   });
 
+  it("renders the learn-first concepts header (Learn the N concepts)", () => {
+    renderSpine();
+    expect(
+      screen.getByText(`Learn the ${trigContent.boardEssentials.length} concepts`),
+    ).toBeInTheDocument();
+    expect(screen.getByText("teach yourself first, then practise each")).toBeInTheDocument();
+  });
+
   it("renders the in-page back button with the given label + href", () => {
     renderSpine(trig, trigContent, "Back to Maths on Exam Trends");
     const back = screen.getByRole("link", { name: /Back to Maths on Exam Trends/ });
     expect(back).toHaveAttribute("href", "/exam-trends");
   });
+});
 
-  it("renders the header tab bar (Formula sheet · Proofs · Practice all)", () => {
+describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () => {
+  it("replaces the old Formula/Proofs/Practice-all tab bar with ONE Notes toggle", () => {
     renderSpine();
-    expect(screen.getByRole("button", { name: "Formula sheet" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Proofs" })).toBeInTheDocument();
-    const practiceAll = screen.getByRole("link", { name: "Practice all" });
-    expect(practiceAll).toHaveAttribute("href", "/practice-hub?scope=topic");
+    // The split tab bar is gone.
+    expect(screen.queryByRole("button", { name: "Formula sheet" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Proofs" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Practice all" })).toBeNull();
+    // One unified Notes toggle is present.
+    expect(screen.getByRole("button", { name: /Notes/ })).toBeInTheDocument();
+  });
+
+  it("Notes is an honest 'coming soon' container, collapsed until clicked", () => {
+    renderSpine();
+    expect(screen.queryByText(/Notes coming soon/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
+    expect(screen.getByText(/Notes coming soon/)).toBeInTheDocument();
   });
 });
 
-describe("ConceptSpine — tutor wiring (PR-C)", () => {
+describe("ConceptSpine — Examiner's tips (expandable container, no fabrication)", () => {
+  it("is collapsed by default and expands on click", () => {
+    renderSpine();
+    const toggle = screen.getByRole("button", { name: /Examiner.s tips/ });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText(/More examiner.s tips/)).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    // Honest "coming soon" — the full tip set is a later stage, not fabricated here.
+    expect(screen.getByText(/More examiner.s tips/)).toBeInTheDocument();
+  });
+
+  it("seeds the one real examinerWarning as a preview tip on a seeded topic", () => {
+    renderSpine();
+    fireEvent.click(screen.getByRole("button", { name: /Examiner.s tips/ }));
+    expect(screen.getByText(trigContent.examinerWarning)).toBeInTheDocument();
+  });
+
+  it("does NOT seed the sample-preview placeholder as if it were a real tip", () => {
+    // real-numbers is a sample-preview topic; its examinerWarning is a placeholder.
+    expect(realNumbersContent.isSamplePreview).toBe(true);
+    renderSpine(realNumbers, realNumbersContent);
+    fireEvent.click(screen.getByRole("button", { name: /Examiner.s tips/ }));
+    expect(screen.queryByText(realNumbersContent.examinerWarning)).toBeNull();
+    // Still shows the honest "coming soon" line.
+    expect(screen.getByText(/More examiner.s tips/)).toBeInTheDocument();
+  });
+});
+
+describe("ConceptSpine — receded action band (3 buttons, correct hierarchy)", () => {
+  it("has exactly 3 actions: a primary that routes + two inert secondaries", () => {
+    const { container } = renderSpine();
+    const band = container.querySelector(".lt-spine__band") as HTMLElement;
+    expect(band).toBeTruthy();
+
+    const actions = band.querySelectorAll(".lt-spine__ab");
+    expect(actions).toHaveLength(3);
+
+    // Primary — solid "Practise this topic", routes to the whole-topic practice.
+    const primary = band.querySelector(".lt-spine__ab--primary") as HTMLElement;
+    expect(primary.tagName).toBe("A");
+    expect(primary).toHaveTextContent("Practise this topic");
+    expect(primary).toHaveAttribute("href", "/practice-hub?scope=topic");
+
+    // Secondaries — Chapter test / Worksheet, present-but-inert (honest, pending PR-E).
+    const secondaries = band.querySelectorAll(".lt-spine__ab--secondary");
+    expect(secondaries).toHaveLength(2);
+    for (const sec of Array.from(secondaries)) {
+      expect(sec.tagName).toBe("BUTTON");
+      expect(sec).toHaveAttribute("aria-disabled", "true");
+    }
+    expect(within(band).getByText(/Chapter test/)).toBeInTheDocument();
+    expect(within(band).getByText(/Worksheet/)).toBeInTheDocument();
+  });
+
+  it("differentiates topic-level Practise (band, primary) from concept-level (in card)", () => {
+    const { container } = renderSpine();
+    // Topic-level: full phrase, in the band, primary.
+    const bandPrimary = container.querySelector(".lt-spine__band .lt-spine__ab--primary");
+    expect(bandPrimary).toHaveTextContent("Practise this topic");
+    // Concept-level: short "Practise", inside the concept rows, secondary tint.
+    const rowPractise = container.querySelectorAll(".lt-spine__row .lt-spine__btn--practise");
+    expect(rowPractise).toHaveLength(trigContent.boardEssentials.length);
+    expect(rowPractise[0]).toHaveTextContent("Practise");
+  });
+});
+
+describe("ConceptSpine — tutor wiring (PR-C, preserved)", () => {
   it("'Teach me' is a LIVE button (no longer inert / aria-disabled)", () => {
     renderSpine();
     const teachButtons = screen.getAllByText("Teach me");
     expect(teachButtons.length).toBe(trigContent.boardEssentials.length);
     for (const btn of teachButtons) {
-      expect(btn.tagName).toBe("BUTTON");
-      expect(btn).not.toHaveAttribute("aria-disabled");
+      expect(btn.closest("button")).not.toBeNull();
+      expect(btn.closest("button")).not.toHaveAttribute("aria-disabled");
     }
     // It opens a drawer, not a navigation — no "Teach me" anchor exists.
     expect(screen.queryByRole("link", { name: "Teach me" })).toBeNull();
@@ -116,41 +212,63 @@ describe("ConceptSpine — tutor wiring (PR-C)", () => {
 
   it("clicking 'Teach me' opens the concept tutor with the row's context", () => {
     const { container } = renderSpine();
-    // Closed initially.
     expect(screen.queryByTestId("concept-teach-drawer")).toBeNull();
 
-    // Click the FIRST row's "Teach me".
     const firstRow = container.querySelector(".lt-spine__row") as HTMLElement;
     const firstConcept = trigContent.boardEssentials[0];
     fireEvent.click(within(firstRow).getByText("Teach me"));
 
-    // Drawer opens, carrying { subject, topicKey (slug), concept } for that row.
     const drawer = screen.getByTestId("concept-teach-drawer");
     expect(drawer).toBeInTheDocument();
     expect(drawer).toHaveTextContent(
       `teach:${trig.subject}:${trig.slug}:${firstConcept.name}`,
     );
   });
+});
 
-  it("'Practise' routes to the existing per-concept practice target", () => {
+describe("ConceptSpine — concept 'Practise' carries concept + mark filter (PR-D item 5)", () => {
+  it("every concept Practise link carries a focus AND a markBand param", () => {
     renderSpine();
     const practiseLinks = screen.getAllByRole("link", { name: "Practise" });
     expect(practiseLinks.length).toBe(trigContent.boardEssentials.length);
     for (const link of practiseLinks) {
-      expect(link).toHaveAttribute("href", expect.stringContaining("/practice-hub?focus="));
+      const href = link.getAttribute("href") ?? "";
+      expect(href).toContain("focus=");
+      expect(href).toContain("markBand=");
     }
+  });
+
+  it("the link carries THIS row's specific concept + mark band", () => {
+    const { container } = renderSpine();
+    const firstRow = container.querySelector(".lt-spine__row") as HTMLElement;
+    const firstConcept = trigContent.boardEssentials[0];
+    const link = within(firstRow).getByRole("link", { name: "Practise" });
+    const href = link.getAttribute("href") ?? "";
+    expect(href).toContain(`focus=${encodeURIComponent(firstConcept.name)}`);
+    expect(href).toContain(`markBand=${encodeURIComponent(firstConcept.marks)}`);
+  });
+});
+
+describe("ConceptSpine — per-row visual badge (PR-D item 8, honest)", () => {
+  it("shows a 'Visual' badge ONLY where findVisualForConcept is non-null", () => {
+    const { container } = renderSpine();
+    const expectedBadges = trigContent.boardEssentials.filter(
+      (c) => findVisualForConcept(trig.subject, trig.slug, [c.name]) !== null,
+    ).length;
+    const badges = container.querySelectorAll(".lt-spine__badge");
+    expect(badges).toHaveLength(expectedBadges);
+    // Contract guard: never more badges than concepts (no fabricated visuals).
+    expect(badges.length).toBeLessThanOrEqual(trigContent.boardEssentials.length);
   });
 });
 
 describe("ConceptSpine — sample-preview honesty", () => {
   it("labels a sample-preview topic and omits the label on a seeded topic", () => {
-    // real-numbers is a sample-preview topic in the seed map.
     expect(realNumbersContent.isSamplePreview).toBe(true);
     renderSpine(realNumbers, realNumbersContent);
     expect(screen.getByText("Sample preview")).toBeInTheDocument();
     cleanup();
 
-    // trigonometry is seeded — no preview label.
     expect(trigContent.isSamplePreview).toBe(false);
     renderSpine();
     expect(screen.queryByText("Sample preview")).toBeNull();
@@ -189,7 +307,6 @@ describe("ConceptSpine reflow (load-bearing)", () => {
 
 describe("findVisualForConcept — no wrong visual (PR-C anti-fabrication)", () => {
   it("returns the matching visual on a confident, above-threshold match", () => {
-    // Correct-match path is unchanged: a real concept title still resolves.
     const visual = findVisualForConcept("Maths", "real-numbers", [
       "Fundamental Theorem of Arithmetic",
     ]);
@@ -197,13 +314,10 @@ describe("findVisualForConcept — no wrong visual (PR-C anti-fabrication)", () 
   });
 
   it("returns null (not concepts[0]) for a below-threshold / unmatched concept", () => {
-    // Previously this fell back silently to the chapter's FIRST concept — a wrong,
-    // unrelated interactive. Now an honest null: no visual beats the wrong visual.
     expect(findVisualForConcept("Maths", "real-numbers", ["qqqzzz-not-a-concept"])).toBeNull();
   });
 
   it("returns null when there are no usable search terms", () => {
-    // Empty terms can't identify a concept → no auto-served concepts[0].
     expect(findVisualForConcept("Maths", "real-numbers", [])).toBeNull();
   });
 

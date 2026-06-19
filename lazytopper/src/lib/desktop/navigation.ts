@@ -19,6 +19,7 @@ export interface DesktopPracticePathInput extends DesktopRouteContext {
   mistake?: string;
   focus?: string;
   subtopicHint?: string;
+  markBand?: string;       // concept mark band (e.g. "1–2") — concept-filtered practice
   section?: string;        // "A" | "B" | "C" | "D" | "E"
   difficulty?: string;     // "Easy" | "Medium" | "Hard"
   count?: number;          // 5 | 10 | 15 | 20
@@ -60,6 +61,7 @@ export const buildDesktopPracticePath = (input: DesktopPracticePathInput): strin
   if (input.mistake) params.set("mistake", input.mistake);
   if (input.focus) params.set("focus", input.focus);
   if (input.subtopicHint) params.set("subtopicHint", input.subtopicHint);
+  if (input.markBand) params.set("markBand", input.markBand);
   if (input.section) params.set("section", input.section);
   if (input.difficulty) params.set("difficulty", input.difficulty);
   if (input.count) params.set("count", String(input.count));

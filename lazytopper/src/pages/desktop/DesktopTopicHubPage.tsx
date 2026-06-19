@@ -211,6 +211,11 @@ export default function DesktopTopicHubPage() {
       mode: "practice-set",
       focus: concept.name,
       subtopicHint: concept.oneLineUse || concept.name,
+      // Concept-filtered practice carries the concept's mark band too (PR-D item 5),
+      // so Quick Practice opens scoped to THIS concept + its mark range rather than
+      // the whole topic. (Downstream consumption of `markBand` by the practice page
+      // is its own follow-up; this PR guarantees the route carries it.)
+      markBand: concept.marks,
       ...routeContext,
     });
 
