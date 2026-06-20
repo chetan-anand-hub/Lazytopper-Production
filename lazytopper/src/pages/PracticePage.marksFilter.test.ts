@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { parseMarksValue, marksTokenToBucketSet, parseMarksRangeParams } from "./PracticePage";
+import {
+  parseMarksValue,
+  marksTokenToBucketSet,
+  parseMarksRangeParams,
+  questionMatchesFilters,
+  selectInRangeFromPool,
+} from "./PracticePage";
+import type { PracticeQuestion } from "../data/predictionDataService";
 
 /**
  * PR-E1 — PracticePage CONSUMES the concept mark band. The HUB path still uses the
@@ -90,5 +97,90 @@ describe("parseMarksRangeParams — concept-row exact numeric range", () => {
     const r23 = parseMarksRangeParams("2", "3")!;
     expect(3 >= r23.min && 3 <= r23.max).toBe(true); // 3-mark now included
     expect(4 >= r23.min && 4 <= r23.max).toBe(false);
+  });
+});
+
+/**
+ * PR-E1 FINAL-BUG FIX — single-pool unification.
+ *
+ * THE BUG: the "N available" hint and the displayed set were computed from TWO
+ * DIFFERENT engine draws (a 200-count count-draw vs the ~100 display draw). Two
+ * independent random samples → the hint promised more in-range questions than the
+ * display draw actually contained (hint "10", display 5–6) even when the bank had
+ * enough. selectInRangeFromPool now derives BOTH numbers from ONE shared pool, so
+ * the hint can never exceed what the display delivers, and a narrow in-range band
+ * fills to committedCount whenever the pool genuinely has enough. The honest
+ * thin-bank case still reports the REAL smaller number.
+ *
+ * Helpers under test are PURE (no React / no engine fetch), so the invariant is
+ * locked directly: available >= displayed.length, and
+ * displayed.length === min(available, committedCount).
+ */
+const mkQ = (id: string, marks: number, section: string): PracticeQuestion =>
+  ({ id, marks, section, questionText: `Q ${id}`, difficulty: "Medium", format: "" } as unknown as PracticeQuestion);
+
+const RANGE_3_5 = parseMarksRangeParams("3", "5")!; // {min:3,max:5}
+
+describe("questionMatchesFilters — exact range predicate (shared by hint + display)", () => {
+  it("keeps 3/4/5-mark questions and drops 1/2-mark for a 3–5 band", () => {
+    expect(questionMatchesFilters(mkQ("a", 3, "C"), "all", "all", "all", "all", RANGE_3_5)).toBe(true);
+    expect(questionMatchesFilters(mkQ("b", 4, "E"), "all", "all", "all", "all", RANGE_3_5)).toBe(true);
+    expect(questionMatchesFilters(mkQ("c", 5, "D"), "all", "all", "all", "all", RANGE_3_5)).toBe(true);
+    expect(questionMatchesFilters(mkQ("d", 2, "B"), "all", "all", "all", "all", RANGE_3_5)).toBe(false);
+    expect(questionMatchesFilters(mkQ("e", 1, "A"), "all", "all", "all", "all", RANGE_3_5)).toBe(false);
+  });
+});
+
+describe("selectInRangeFromPool — hint and display share ONE pool (the fixed two-pool bug)", () => {
+  it("bank HAS enough in-range → display fills to committedCount (not fewer)", () => {
+    // Pool of 20: ten in-range (3–5), ten out-of-range — mirrors a healthy bank.
+    const pool: PracticeQuestion[] = [
+      ...Array.from({ length: 10 }, (_, i) => mkQ(`in-${i}`, 3 + (i % 3), "C")), // marks 3,4,5...
+      ...Array.from({ length: 10 }, (_, i) => mkQ(`out-${i}`, i % 2 === 0 ? 1 : 2, "A")),
+    ];
+    const committedCount = 10;
+    const { available, displayed } = selectInRangeFromPool(
+      pool, "all", "all", "all", "all", RANGE_3_5, committedCount,
+    );
+    expect(available).toBe(10);            // hint reflects THIS pool
+    expect(displayed.length).toBe(10);     // display fills to committedCount — NOT 5–6
+    expect(displayed.every((q) => Number((q as { marks: number }).marks) >= 3)).toBe(true);
+  });
+
+  it("INVARIANT: hint can never promise more than the display delivers from the same pool", () => {
+    const pool: PracticeQuestion[] = Array.from({ length: 30 }, (_, i) =>
+      mkQ(`q-${i}`, (i % 5) + 1, "C"), // marks cycle 1..5 → ~18 in 3–5 band
+    );
+    for (const committedCount of [3, 5, 10, 25]) {
+      const { available, displayed } = selectInRangeFromPool(
+        pool, "all", "all", "all", "all", RANGE_3_5, committedCount,
+      );
+      // The hint (available) is always an upper bound the display fills up to.
+      expect(displayed.length).toBeLessThanOrEqual(available);
+      expect(displayed.length).toBe(Math.min(available, committedCount));
+    }
+  });
+
+  it("HONEST thin-bank: when the pool truly lacks committedCount in-range, the hint shows the REAL smaller number and display === that", () => {
+    // Only 4 in-range questions exist in the whole pool — a genuinely thin bank.
+    const pool: PracticeQuestion[] = [
+      mkQ("in-0", 3, "C"), mkQ("in-1", 4, "E"), mkQ("in-2", 5, "D"), mkQ("in-3", 3, "C"),
+      ...Array.from({ length: 12 }, (_, i) => mkQ(`out-${i}`, 1, "A")),
+    ];
+    const committedCount = 10; // student asked for 10
+    const { available, displayed } = selectInRangeFromPool(
+      pool, "all", "all", "all", "all", RANGE_3_5, committedCount,
+    );
+    expect(available).toBe(4);          // honest: the REAL in-range count, not a padded 10
+    expect(displayed.length).toBe(4);   // display shows the real 4, no fabricated fillers
+    expect(displayed.length).toBe(available); // hint and display agree exactly
+  });
+
+  it("empty / unbuilt pool → 0 available, 0 displayed (honest empty state)", () => {
+    const { available, displayed } = selectInRangeFromPool(
+      [], "all", "all", "all", "all", RANGE_3_5, 10,
+    );
+    expect(available).toBe(0);
+    expect(displayed.length).toBe(0);
   });
 });
