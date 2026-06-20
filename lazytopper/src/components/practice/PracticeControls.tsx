@@ -193,7 +193,15 @@ export function PracticeControls({
     if (pendingStyle !== "all" && !compatibleStyles.has(pendingStyle)) {
       onSetStyle("all");
     }
-    if (pendingMarks !== "all" && !compatibleMarks.has(pendingMarks)) {
+    // `pendingMarks` may be a comma SET of buckets (a Topic Hub concept-row carries
+    // the concept's mark BAND as a bucket set — range -> set, PR-E1). A set is
+    // compatible iff EVERY one of its buckets is compatible with the current style;
+    // only then is it left intact (so the concept band is not wiped on mount).
+    const marksBuckets = pendingMarks === "all" ? [] : pendingMarks.split(",").filter(Boolean);
+    if (
+      pendingMarks !== "all" &&
+      !marksBuckets.every((b) => compatibleMarks.has(b))
+    ) {
       onSetMarks("all");
     }
     if (pendingDifficulty !== "all" && !compatibleDiffs.has(pendingDifficulty)) {

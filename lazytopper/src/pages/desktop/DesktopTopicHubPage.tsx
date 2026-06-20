@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 
 import {
+  buildDesktopChapterTestPath,
+  buildDesktopConceptPracticePath,
   buildDesktopPracticePath,
   type DesktopRouteContext,
   type DesktopSubject,
@@ -202,20 +204,30 @@ export default function DesktopTopicHubPage() {
     ...routeContext,
   });
 
+  // Chapter test action-band button (PR-E1 item 3) — wires PR-D's inert "Soon"
+  // button to the existing ChapterTestPage for THIS topic.
+  const chapterTestHref = buildDesktopChapterTestPath({
+    subject: topic.subject,
+    topicKey: topic.slug,
+    ...routeContext,
+  });
+
+  // Concept-row "Practise" (PR-E1 items 1+2 + amendment — [FU-PRACTISE-CONCEPT-FILTER]).
+  // Lands DIRECTLY in Quick Practice (/practice/:grade/:subject) — NOT the generic
+  // /practice-hub (which needed a 2nd click) — carrying the concept focus AND the
+  // concept's mark band as an EXACT numeric range (marksMin/marksMax) PracticePage
+  // filters on the real `marks` field — no coarse-bucket 2/3-mark fusion. This is
+  // the PATH-CONDITIONAL concept entry: the range is pre-applied ONLY here; the
+  // hub-entry path forces no range. `backLabel` + the topic-hub `returnTo` (in
+  // routeContext) send "Back" to THIS specific topic page (item 4).
   const practiceHrefForConcept = (concept: BoardConcept): string =>
-    buildDesktopPracticePath({
-      scope: "topic",
+    buildDesktopConceptPracticePath({
       subject: topic.subject,
-      stream: topic.stream,
       topic: topic.slug,
-      mode: "practice-set",
       focus: concept.name,
       subtopicHint: concept.oneLineUse || concept.name,
-      // Concept-filtered practice carries the concept's mark band too (PR-D item 5),
-      // so Quick Practice opens scoped to THIS concept + its mark range rather than
-      // the whole topic. (Downstream consumption of `markBand` by the practice page
-      // is its own follow-up; this PR guarantees the route carries it.)
       markBand: concept.marks,
+      backLabel: `Back to ${topic.name}`,
       ...routeContext,
     });
 
@@ -226,6 +238,7 @@ export default function DesktopTopicHubPage() {
       backHref={backHref}
       backLabel={backLabel}
       practiceAllHref={practiceAllHref}
+      chapterTestHref={chapterTestHref}
       practiceHrefForConcept={practiceHrefForConcept}
     />
   );

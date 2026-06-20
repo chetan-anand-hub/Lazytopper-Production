@@ -22,12 +22,209 @@ const mapEngineMarks = (ui: string): number | undefined => {
   if (ui === "4") return 4;
   return undefined;
 };
+// Valid single marks buckets (CBSE section grouping). A `?marks=` value may be a
+// single bucket OR a comma-joined SET of buckets (e.g. "1,23") — the latter is how
+// a Topic Hub concept-row carries a mark BAND that spans more than one bucket
+// (range -> set, PR-E1). "all" is the no-filter sentinel.
+const MARKS_BUCKETS = ["1", "23", "5", "4"] as const;
+/**
+ * Parse a raw `marks` query value into a canonical filter token:
+ *   - "all" (or empty/invalid) -> "all"
+ *   - a single valid bucket -> that bucket ("1" | "23" | "5" | "4")
+ *   - a comma SET of valid buckets -> the deduped, canonically-ordered set joined
+ *     by "," (e.g. "23,1" -> "1,23"). A set collapsing to one bucket returns that
+ *     single bucket; an empty/invalid set returns "all".
+ */
+export const parseMarksValue = (raw: string | null): string => {
+  if (!raw) return "all";
+  if (raw === "all") return "all";
+  const parts = raw.split(",").map((p) => p.trim()).filter(Boolean);
+  const valid = MARKS_BUCKETS.filter((b) => parts.includes(b));
+  if (valid.length === 0) return "all";
+  return valid.join(",");
+};
+/** The set of buckets active for a committed marks token ("all" -> empty set). */
+export const marksTokenToBucketSet = (token: string): Set<string> =>
+  token === "all" ? new Set() : new Set(token.split(",").filter(Boolean));
+
+export interface MarksRange { min: number; max: number; }
+/**
+ * Parse the concept-row EXACT mark-range params (`marksMin` / `marksMax`) into a
+ * numeric {min,max} (PR-E1 amendment). PATH-CONDITIONAL: only the Topic Hub
+ * concept-row emits these; every other entry (the Practice hub included) passes
+ * null here and keeps the student-controlled bucket UI at "all". Out-of-CBSE
+ * values (outside 1..5) or a missing/invalid pair yield null (honest default —
+ * no forced range). A single param present is treated as min==max.
+ */
+export const parseMarksRangeParams = (
+  rawMin: string | null,
+  rawMax: string | null,
+): MarksRange | null => {
+  const toMark = (v: string | null): number | null => {
+    if (v == null || v.trim() === "") return null;
+    const n = Number(v);
+    return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+  };
+  const a = toMark(rawMin);
+  const b = toMark(rawMax);
+  if (a == null && b == null) return null;
+  const lo = a ?? (b as number);
+  const hi = b ?? (a as number);
+  return { min: Math.min(lo, hi), max: Math.max(lo, hi) };
+};
 const navMarksToUi = (n: number | undefined): string => {
   if (n === 1) return "1";
   if (n === 5) return "5";
   if (n === 4) return "4";
   if (n === 2 || n === 3) return "23";
   return "all";
+};
+
+/**
+ * PURE filter predicate — does a single bank question pass the active filters?
+ * Extracted to module scope (PR-E1 final-bug fix) so the SAME predicate drives
+ * BOTH the "N available" hint AND the displayed set (see selectInRangeFromPool).
+ * Previously the in-component `matchesFilters` useCallback was the only consumer;
+ * the hint counted a SEPARATE engine draw, which let the two pools diverge. The
+ * behaviour here is byte-for-byte the prior callback body — exact-range / bucket
+ * logic is unchanged. Imported by PracticePage.marksFilter.test.ts.
+ */
+export const questionMatchesFilters = (
+  q: PracticeQuestion,
+  marks: string,
+  style: string,
+  source: string,
+  diff: string,
+  range: MarksRange | null,
+): boolean => {
+  // EXACT concept mark-range filter (PR-E1 amendment) — path-conditional: only
+  // active when the concept-row entry supplied marksMin/marksMax. Filters on
+  // the real numeric `marks` field so "3-5" yields ONLY 3,4,5 (no coarse-bucket
+  // 2/3-mark fusion). Questions with no numeric marks fall through to section.
+  if (range) {
+    const rawMarks = (q as { marks?: unknown }).marks;
+    let m = Number(rawMarks ?? NaN);
+    if (!Number.isFinite(m) || m <= 0) {
+      // Fall back to the CBSE section -> canonical mark when marks is absent.
+      const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
+      m = section === "A" ? 1 : section === "B" ? 2 : section === "C" ? 3
+        : section === "D" ? 5 : section === "E" ? 4 : NaN;
+    }
+    if (!Number.isFinite(m) || m < range.min || m > range.max) return false;
+  }
+  if (marks !== "all") {
+    const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
+    const m = Number((q as { marks?: unknown }).marks ?? 0);
+    const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
+    const is1mk = section === "A" || m === 1 || fmt === "mcq" ||
+      fmt.includes("assertion") || fmt === "ar";
+    const is23mk = section === "B" || section === "C" || m === 2 || m === 3 ||
+      fmt === "short" || fmt === "vsa";
+    const is5mk = section === "D" || m === 5 || fmt === "long";
+    const is4mk = section === "E" || m === 4 || fmt.includes("case");
+    // `marks` is a bucket SET token ("1" | "23" | "5" | "4" or a comma set like
+    // "1,23"). A question passes if it matches ANY active bucket (union — a
+    // concept band spanning two buckets keeps both). Empty set = no match.
+    const active = marksTokenToBucketSet(marks);
+    const matchesAnyBucket =
+      (active.has("1") && is1mk) ||
+      (active.has("23") && is23mk) ||
+      (active.has("5") && is5mk) ||
+      (active.has("4") && is4mk);
+    if (!matchesAnyBucket) return false;
+  }
+
+  if (style !== "all") {
+    const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
+    const id = String((q as { id?: unknown }).id ?? "");
+    const sub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
+    const qtext = String((q as { questionText?: unknown }).questionText ?? "")
+      .toLowerCase().slice(0, 80);
+    const section = String((q as { section?: unknown }).section ?? "");
+    const bloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
+
+    if (style === "proof") {
+      // ISSUE-007 fix: Section A is never a Proof question.
+      if (section === "A") return false;
+      const isProof =
+        /prf/i.test(id) ||
+        /^prove\s+that|^show\s+that|^derive\s/i.test(qtext) ||
+        /proof|identit|tangent.propert/i.test(sub) ||
+        (fmt.includes("long") && bloom === "Analysing" &&
+         (section === "C" || section === "D"));
+      if (!isProof) return false;
+    }
+    if (style === "ar" &&
+        !fmt.includes("assertion") && !fmt.includes("ar")) return false;
+    if (style === "hots") {
+      const d = String((q as { difficulty?: unknown }).difficulty ?? "");
+      const isHots = d === "Hard" || bloom === "Analysing" || bloom === "Evaluating";
+      if (!isHots) return false;
+    }
+    if (style === "case" &&
+        !fmt.includes("case") && section !== "E") return false;
+  }
+
+  if (source !== "all") {
+    const qid = String((q as { id?: unknown }).id ?? "").toLowerCase();
+    const pyqYear = (q as { pyqYear?: unknown }).pyqYear;
+    const isPYQ = Boolean(pyqYear) ||
+      Boolean((q as { isPYQ?: unknown }).isPYQ);
+
+    if (source === "pyq" && !isPYQ) return false;
+
+    if (source === "ncert") {
+      if (isPYQ) return false;
+      const isNcertExemplar =
+        /^(rn-n-|poly-n-|ple-n-|qe-n-|ap-n-|tri-n-|cg-n-|trig-n-|circ-n-|arc-n-|sav-n-|stat-n-|prob-n-)/.test(qid) ||
+        /ncert|exemplar/.test(qid) ||
+        /-exmplr-|-ncert-/.test(qid);
+      if (!isNcertExemplar) return false;
+    }
+
+    if (source === "others") {
+      if (isPYQ) return false;
+      // H3-bug fix: also exclude -EXEM- IDs (e.g. POLY-N-EXEM-2-MCQ-001),
+      // which contain neither "ncert" nor "exemplar" as substrings but are
+      // caught by the NCERT prefix regex above — without this they would
+      // appear in BOTH the NCERT and Others filters.
+      const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-|-exem-/.test(qid);
+      if (isNcertSource) return false;
+    }
+  }
+
+  if (diff !== "all") {
+    const d = String((q as { difficulty?: unknown }).difficulty ?? "");
+    if (d !== diff) return false;
+  }
+
+  return true;
+};
+
+/**
+ * PR-E1 FINAL-BUG FIX — single-pool unification. The "N available" hint and the
+ * displayed set are derived from ONE shared `pool` so the hint can NEVER promise
+ * more than the display delivers. `available` = total in-pool matches (honest:
+ * if the bank truly has fewer than committedCount in-range, this is that real
+ * smaller number). `displayed` = the same matches sliced to committedCount.
+ *
+ * INVARIANT (unit-tested): displayed.length === Math.min(available, committedCount).
+ * Therefore available >= displayed.length always — the hint is a faithful upper
+ * bound that the display fills to whenever the pool genuinely has enough.
+ */
+export const selectInRangeFromPool = (
+  pool: PracticeQuestion[],
+  marks: string,
+  style: string,
+  source: string,
+  diff: string,
+  range: MarksRange | null,
+  committedCount: number,
+): { available: number; displayed: PracticeQuestion[] } => {
+  const matched = pool.filter((q) =>
+    questionMatchesFilters(q, marks, style, source, diff, range)
+  );
+  return { available: matched.length, displayed: matched.slice(0, committedCount) };
 };
 const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
   if (ui === "1") return "A";
@@ -161,8 +358,17 @@ const PracticePage: React.FC = () => {
     if (qpSource === "trends") return "/exam-trends";
     return "/practice-hub";
   }, [safeReturnTo, back, qpSource]);
+  // `backLabel` may arrive via nav-state OR (Topic Hub concept-row uses a plain
+  // <Link to={url}> that cannot carry nav-state) the `?backLabel=` query param —
+  // e.g. "Back to Trigonometry", so concept-row Back returns to the SPECIFIC
+  // topic page with the right label (PR-E1 amendment item 4).
+  const queryBackLabel = useMemo(() => {
+    const raw = qp.get("backLabel");
+    return raw && raw.trim() ? raw.trim() : null;
+  }, [qp]);
   const backLabel: string =
     navState.backLabel ||
+    queryBackLabel ||
     (practiceBackTo.includes("/practice-hub")
       ? "Back to Practice"
       : practiceBackTo.includes("/exam-trends") || practiceBackTo.includes("/trends")
@@ -197,9 +403,15 @@ const PracticePage: React.FC = () => {
     const queryStyle = qp.get("style");
     const querySource = qp.get("source");
     const queryDiff = qp.get("diff");
-    const marksUi = queryMarks && ["all", "1", "23", "5", "4"].includes(queryMarks)
-      ? queryMarks
-      : navMarksFilter !== undefined ? navMarksToUi(navMarksFilter) : "all";
+    // `marks` may be "all", a single bucket, or a comma SET of buckets (a Topic
+    // Hub concept-row carries the concept's mark BAND as a bucket set — range ->
+    // set, PR-E1). parseMarksValue canonicalises all three forms.
+    const parsedQueryMarks = queryMarks ? parseMarksValue(queryMarks) : null;
+    const marksUi = parsedQueryMarks && parsedQueryMarks !== "all"
+      ? parsedQueryMarks
+      : queryMarks === "all"
+        ? "all"
+        : navMarksFilter !== undefined ? navMarksToUi(navMarksFilter) : "all";
     const styleUi = queryStyle && ["all", "proof", "ar", "hots", "case"].includes(queryStyle)
       ? queryStyle
       : "all";
@@ -222,6 +434,22 @@ const PracticePage: React.FC = () => {
       diffUi,
     };
   }, [practiceFilters, qp]);
+
+  // Concept-row EXACT mark range (PR-E1 amendment). PATH-CONDITIONAL: present ONLY
+  // on the Topic Hub concept-row entry (which emits marksMin/marksMax). On every
+  // other entry (the Practice hub included) this is null and the page keeps its
+  // student-controlled bucket UI at "all". A STARTING filter, not a lock — held in
+  // state so the student can clear/widen it via the advanced filter.
+  const conceptMarksRange = useMemo(
+    () => parseMarksRangeParams(qp.get("marksMin"), qp.get("marksMax")),
+    [qp]
+  );
+  // Concept name carried by the concept-row entry (`?focus=`), used by the
+  // applied-band indicator. Concept-row-only — null elsewhere.
+  const conceptFocusLabel = useMemo(() => {
+    const raw = (qp.get("focus") || "").trim();
+    return raw || null;
+  }, [qp]);
 
   const didInitFromUrlRef = useRef(false);
   const didAutoOpenJourneyMentorRef = useRef(false);
@@ -270,6 +498,16 @@ const PracticePage: React.FC = () => {
   const [committedCount, setCommittedCount] = useState<number>(
     () => initialPracticeDefaults.recommendedCount
   );
+  // EXACT concept mark-range filter (PR-E1 amendment) — separate from the coarse
+  // bucket UI so "3-5" yields ONLY 3,4,5 with no 2-mark contamination. Pending
+  // mirrors committed; both seed from the URL range (null off the concept path)
+  // and are cleared by Clear/Edit filters so the student can widen it.
+  const [pendingMarksRange, setPendingMarksRange] = useState<MarksRange | null>(
+    () => conceptMarksRange
+  );
+  const [committedMarksRange, setCommittedMarksRange] = useState<MarksRange | null>(
+    () => conceptMarksRange
+  );
   const [isBuilt, setIsBuilt] = useState<boolean>(false);
   // Load-bearing scorecard trigger: the student DECLARES completion (partial or
   // full) by tapping "Finish session", which sets this true and surfaces the
@@ -294,6 +532,8 @@ const PracticePage: React.FC = () => {
     setCommittedSource(initialPracticeDefaults.sourceUi);
     setCommittedDifficulty(initialPracticeDefaults.diffUi);
     setCommittedCount(initialPracticeDefaults.recommendedCount);
+    setPendingMarksRange(conceptMarksRange);
+    setCommittedMarksRange(conceptMarksRange);
     // Gap-B auto-serve: a TARGETED arrival — an explicit topic in the URL (from
     // a "practise where you lose marks" CTA, Topic Hub, or the desktop hub's
     // "Start quick practice") or a Fix-My-Mistakes session (targeted=1) — should
@@ -311,106 +551,34 @@ const PracticePage: React.FC = () => {
 
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
 
-  const matchesFilters = useCallback(
-    (q: PracticeQuestion, marks: string, style: string, source: string, diff: string) => {
-      if (marks !== "all") {
-        const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
-        const m = Number((q as { marks?: unknown }).marks ?? 0);
-        const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-        const is1mk = section === "A" || m === 1 || fmt === "mcq" ||
-          fmt.includes("assertion") || fmt === "ar";
-        const is23mk = section === "B" || section === "C" || m === 2 || m === 3 ||
-          fmt === "short" || fmt === "vsa";
-        const is5mk = section === "D" || m === 5 || fmt === "long";
-        const is4mk = section === "E" || m === 4 || fmt.includes("case");
-        if (marks === "1" && !is1mk) return false;
-        if (marks === "23" && !is23mk) return false;
-        if (marks === "5" && !is5mk) return false;
-        if (marks === "4" && !is4mk) return false;
-      }
-
-      if (style !== "all") {
-        const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-        const id = String((q as { id?: unknown }).id ?? "");
-        const sub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
-        const qtext = String((q as { questionText?: unknown }).questionText ?? "")
-          .toLowerCase().slice(0, 80);
-        const section = String((q as { section?: unknown }).section ?? "");
-        const bloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
-
-        if (style === "proof") {
-          // ISSUE-007 fix: Section A is never a Proof question.
-          if (section === "A") return false;
-          const isProof =
-            /prf/i.test(id) ||
-            /^prove\s+that|^show\s+that|^derive\s/i.test(qtext) ||
-            /proof|identit|tangent.propert/i.test(sub) ||
-            (fmt.includes("long") && bloom === "Analysing" &&
-             (section === "C" || section === "D"));
-          if (!isProof) return false;
-        }
-        if (style === "ar" &&
-            !fmt.includes("assertion") && !fmt.includes("ar")) return false;
-        if (style === "hots") {
-          const d = String((q as { difficulty?: unknown }).difficulty ?? "");
-          const isHots = d === "Hard" || bloom === "Analysing" || bloom === "Evaluating";
-          if (!isHots) return false;
-        }
-        if (style === "case" &&
-            !fmt.includes("case") && section !== "E") return false;
-      }
-
-      if (source !== "all") {
-        const qid = String((q as { id?: unknown }).id ?? "").toLowerCase();
-        const pyqYear = (q as { pyqYear?: unknown }).pyqYear;
-        const isPYQ = Boolean(pyqYear) ||
-          Boolean((q as { isPYQ?: unknown }).isPYQ);
-
-        if (source === "pyq" && !isPYQ) return false;
-
-        if (source === "ncert") {
-          if (isPYQ) return false;
-          const isNcertExemplar =
-            /^(rn-n-|poly-n-|ple-n-|qe-n-|ap-n-|tri-n-|cg-n-|trig-n-|circ-n-|arc-n-|sav-n-|stat-n-|prob-n-)/.test(qid) ||
-            /ncert|exemplar/.test(qid) ||
-            /-exmplr-|-ncert-/.test(qid);
-          if (!isNcertExemplar) return false;
-        }
-
-        if (source === "others") {
-          if (isPYQ) return false;
-          // H3-bug fix: also exclude -EXEM- IDs (e.g. POLY-N-EXEM-2-MCQ-001),
-          // which contain neither "ncert" nor "exemplar" as substrings but are
-          // caught by the NCERT prefix regex above — without this they would
-          // appear in BOTH the NCERT and Others filters.
-          const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-|-exem-/.test(qid);
-          if (isNcertSource) return false;
-        }
-      }
-
-      if (diff !== "all") {
-        const d = String((q as { difficulty?: unknown }).difficulty ?? "");
-        if (d !== diff) return false;
-      }
-
-      return true;
-    },
-    []
-  );
-
-  const filteredQuestions = useMemo(() => {
-    if (!isBuilt) return [];
-    if (!questions || questions.length === 0) return [];
-    // The engine deliberately over-fetches when a marks/section filter is
-    // active (see engineCount above) so the random-sample bias toward the
-    // Easy/Section-A bucket doesn't starve other sections. After client-
-    // side narrowing we trim to the user's committed count so the rendered
-    // list matches what they asked for.
-    const matched = questions.filter((q) =>
-      matchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty)
+  // PR-E1 FINAL-BUG FIX — derive BOTH the displayed set AND the post-build "N
+  // available" hint from this ONE realized pool (`questions`), via the shared
+  // selectInRangeFromPool helper. Before, `filteredQuestions` filtered the
+  // fetched `questions` while `bankAvailableCount` counted a SEPARATE engine
+  // draw, so the hint could promise more than the display delivered. Now the
+  // hint is `committedPoolSelection.available` (matches in THIS pool) and the
+  // display is `committedPoolSelection.displayed` (the same matches, sliced to
+  // committedCount) — the two can no longer diverge.
+  const committedPoolSelection = useMemo(() => {
+    if (!isBuilt || !questions || questions.length === 0) {
+      return { available: 0, displayed: [] as PracticeQuestion[] };
+    }
+    // The engine deliberately over-fetches when a marks/section filter (or an
+    // exact concept range) is active so the random-sample bias toward the
+    // Easy/Section-A bucket doesn't starve other sections. We narrow client-side
+    // and trim to the committed count so the rendered list matches the request.
+    return selectInRangeFromPool(
+      questions,
+      committedMarks,
+      committedStyle,
+      committedSource,
+      committedDifficulty,
+      committedMarksRange,
+      committedCount,
     );
-    return matched.slice(0, committedCount);
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedCount, matchesFilters]);
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount]);
+
+  const filteredQuestions = committedPoolSelection.displayed;
 
   const handleSetStyle = useCallback((v: string) => {
     setPendingStyle(v);
@@ -426,6 +594,9 @@ const PracticePage: React.FC = () => {
     setPendingStyle("all");
     setPendingSource("all");
     setPendingDifficulty("all");
+    // Widen out of the pre-applied concept band too (PR-E1 amendment): "Clear
+    // filters" must let the student escape the starting range, not just the buckets.
+    setPendingMarksRange(null);
     setQuestionCount(10);
   }, []);
 
@@ -435,8 +606,9 @@ const PracticePage: React.FC = () => {
     setPendingStyle(committedStyle);
     setPendingSource(committedSource);
     setPendingDifficulty(committedDifficulty);
+    setPendingMarksRange(committedMarksRange);
     setQuestionCount(committedCount);
-  }, [committedMarks, committedStyle, committedSource, committedDifficulty, committedCount]);
+  }, [committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount]);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [isWhyPanelOpen, setIsWhyPanelOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -608,11 +780,24 @@ const packTopicKey = useMemo(() => {
   });
 }, [subjectKey, topicParam, topicKeyParam, navState]);
 
-  // Pre-build availability hint: count how many questions in the bank
-  // match the pending filters, so the "N available" copy on the Build
-  // panel works even before the first Build (the prior useMemo ran against
-  // the post-build `questions` state and was always 0 until then).
-  const bankAvailableCount = useMemo(() => {
+  // Availability hint ("N available").
+  //
+  // POST-BUILD (single-pool unification, PR-E1 final-bug fix): once a set is
+  // built/served, the hint MUST reflect the SAME realized pool the display
+  // filters (`questions`), not a separate engine draw. Reporting a fresh
+  // 200-draw count here was the root cause of the two-pool divergence — the
+  // separate draw landed more in-range matches than the (smaller, independent)
+  // display draw, so the hint promised e.g. 10 while the display showed 5–6.
+  // Now post-build the hint === `committedPoolSelection.available` (matches in
+  // THIS pool), so the hint can never exceed what the display delivers, and a
+  // narrow in-range band reliably fills to committedCount when the pool has
+  // enough. The honest thin-bank case is preserved: if the realized pool truly
+  // has fewer than committedCount in-range, `available` IS that real number.
+  //
+  // PRE-BUILD: there is no realized pool yet, so keep the deep candidate-pool
+  // preview over the PENDING filters (live "N available" as the student tunes
+  // filters on the builder, before the first Build).
+  const preBuildAvailableCount = useMemo(() => {
     const sectionForMarks = uiMarksToSectionScope(pendingMarks);
     const bankQuestions = buildPracticeQuestionsFromEngine({
       subjectKey,
@@ -622,9 +807,13 @@ const packTopicKey = useMemo(() => {
       boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
     });
     return bankQuestions.filter((q) =>
-      matchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty)
+      questionMatchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange)
     ).length;
-  }, [subjectKey, topicLabel, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, matchesFilters]);
+  }, [subjectKey, topicLabel, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange]);
+
+  const bankAvailableCount = isBuilt
+    ? committedPoolSelection.available
+    : preBuildAvailableCount;
 
   useEffect(() => {
     if (filteredQuestions.length === 0) {
@@ -678,13 +867,18 @@ const packTopicKey = useMemo(() => {
         })();
 
         // Engine fetch count.
-        //   "23" → 100: B+C ≈ 49% of a mixed-section random sample, so a
-        //               deep pool is needed for the client filter to clear.
-        //   exact section (A/D/E) → 5× requested, capped at 100: precise.
+        //   "23" / any multi-bucket SET → 100: the client narrows from a mixed
+        //               sample, so a deep pool is needed for the filter to clear.
+        //   exact single section (A/D/E) → 5× requested, capped at 100: precise.
         //   "all" → just questionCount (balanced mix, no narrowing).
         const engineCount = (() => {
+          // Concept-row EXACT range (PR-E1 amendment): the bucket UI is "all" here,
+          // so over-fetch the full blueprint pool (100) and let the client-side
+          // numeric-range narrowing trim it — otherwise a narrow band (e.g. 3-5)
+          // could starve a 10-question blueprint sample.
+          if (committedMarksRange) return 100;
           if (committedMarks === "all") return questionCount;
-          if (committedMarks === "23") return 100;
+          if (committedMarks === "23" || committedMarks.includes(",")) return 100;
           return Math.min(questionCount * 5, 100);
         })();
 
@@ -814,6 +1008,7 @@ const packTopicKey = useMemo(() => {
     strictFocus,
     engineMarksFilter,
     committedMarks,
+    committedMarksRange,
     committedSource,
     regenerationKey,
   ]);
@@ -1126,6 +1321,45 @@ const packTopicKey = useMemo(() => {
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
 
+        {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
+            ONLY: shown when this session arrived from the Topic Hub with an exact
+            mark range (conceptMarksRange). Honestly surfaces the pre-applied band
+            and that it is changeable via the advanced filter. The hub entry never
+            emits marksMin/marksMax, so this never renders there (neutral). */}
+        {conceptMarksRange && committedMarksRange && (
+          <div
+            style={{
+              margin: "0 0 14px 0",
+              padding: "9px 13px",
+              borderRadius: 10,
+              background: "hsl(152, 45%, 96%)",
+              border: "1px solid hsl(152, 45%, 84%)",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 8,
+              fontSize: "0.78rem",
+              color: "hsl(152, 45%, 26%)",
+            }}
+          >
+            <span style={{ fontWeight: 800 }}>
+              {conceptFocusLabel
+                ? `Practising ${conceptFocusLabel}`
+                : "Practising this concept"}
+            </span>
+            <span aria-hidden="true">{"·"}</span>
+            <span style={{ fontWeight: 700 }}>
+              {committedMarksRange.min === committedMarksRange.max
+                ? `${committedMarksRange.min} marks`
+                : `${committedMarksRange.min}–${committedMarksRange.max} marks`}
+            </span>
+            <span aria-hidden="true">{"·"}</span>
+            <span style={{ fontWeight: 600, color: "hsl(220, 15%, 42%)" }}>
+              edit filters to change
+            </span>
+          </div>
+        )}
+
         <PracticeHero
           grade={grade}
           subjectKey={subjectKey}
@@ -1192,6 +1426,7 @@ const packTopicKey = useMemo(() => {
             setCommittedStyle(pendingStyle);
             setCommittedSource(pendingSource);
             setCommittedDifficulty(pendingDifficulty);
+            setCommittedMarksRange(pendingMarksRange);
             setCommittedCount(questionCount);
             setIsBuilt(true);
             regenerateQuestions();

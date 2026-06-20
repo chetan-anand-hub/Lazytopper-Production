@@ -64,11 +64,14 @@ function renderSpine(
         backHref="/exam-trends"
         backLabel={backLabel}
         practiceAllHref="/practice-hub?scope=topic"
-        // Concept-filtered route carries BOTH the concept focus and its mark band
-        // (PR-D item 5). ConceptSpine renders whatever the page supplies; this stub
-        // mirrors the real page builder's concept+markBand contract.
+        chapterTestHref="/chapter-test/10/Maths/trigonometry?source=topicHub"
+        // Concept-row Practise (PR-E1 + amendment) lands DIRECTLY in Quick Practice
+        // (/practice/:grade/:subject) carrying the concept focus + the mark band as
+        // an EXACT numeric range (marksMin/marksMax) PracticePage filters on the real
+        // `marks` field. ConceptSpine renders whatever the page supplies; this stub
+        // mirrors the real builder's contract.
         practiceHrefForConcept={(c) =>
-          `/practice-hub?focus=${encodeURIComponent(c.name)}&markBand=${encodeURIComponent(c.marks)}`
+          `/practice/10/Maths?focus=${encodeURIComponent(c.name)}&marksMin=2&marksMax=3`
         }
       />
     </MemoryRouter>,
@@ -160,7 +163,7 @@ describe("ConceptSpine — Examiner's tips (expandable container, no fabrication
 });
 
 describe("ConceptSpine — receded action band (3 buttons, correct hierarchy)", () => {
-  it("has exactly 3 actions: a primary that routes + two inert secondaries", () => {
+  it("has 3 actions: primary Practise + LIVE Chapter test link + inert Worksheet", () => {
     const { container } = renderSpine();
     const band = container.querySelector(".lt-spine__band") as HTMLElement;
     expect(band).toBeTruthy();
@@ -174,14 +177,22 @@ describe("ConceptSpine — receded action band (3 buttons, correct hierarchy)", 
     expect(primary).toHaveTextContent("Practise this topic");
     expect(primary).toHaveAttribute("href", "/practice-hub?scope=topic");
 
-    // Secondaries — Chapter test / Worksheet, present-but-inert (honest, pending PR-E).
+    // Chapter test — LIVE (PR-E1 item 3): a real routing link, NOT inert.
+    const test = band.querySelector(".lt-spine__ab--test") as HTMLElement;
+    expect(test).toBeTruthy();
+    expect(test.tagName).toBe("A");
+    expect(test).toHaveTextContent("Chapter test");
+    expect(test).toHaveAttribute(
+      "href",
+      "/chapter-test/10/Maths/trigonometry?source=topicHub",
+    );
+    expect(test).not.toHaveAttribute("aria-disabled");
+
+    // Worksheet — still present-but-inert (honest "Soon"), pending PR-E2.
     const secondaries = band.querySelectorAll(".lt-spine__ab--secondary");
-    expect(secondaries).toHaveLength(2);
-    for (const sec of Array.from(secondaries)) {
-      expect(sec.tagName).toBe("BUTTON");
-      expect(sec).toHaveAttribute("aria-disabled", "true");
-    }
-    expect(within(band).getByText(/Chapter test/)).toBeInTheDocument();
+    expect(secondaries).toHaveLength(1);
+    expect(secondaries[0].tagName).toBe("BUTTON");
+    expect(secondaries[0]).toHaveAttribute("aria-disabled", "true");
     expect(within(band).getByText(/Worksheet/)).toBeInTheDocument();
   });
 
@@ -226,26 +237,30 @@ describe("ConceptSpine — tutor wiring (PR-C, preserved)", () => {
   });
 });
 
-describe("ConceptSpine — concept 'Practise' carries concept + mark filter (PR-D item 5)", () => {
-  it("every concept Practise link carries a focus AND a markBand param", () => {
+describe("ConceptSpine — concept 'Practise' routes to Quick Practice with filter (PR-E1)", () => {
+  it("every concept Practise link targets Quick Practice (NOT the hub) with a focus + exact mark range", () => {
     renderSpine();
     const practiseLinks = screen.getAllByRole("link", { name: "Practise" });
     expect(practiseLinks.length).toBe(trigContent.boardEssentials.length);
     for (const link of practiseLinks) {
       const href = link.getAttribute("href") ?? "";
+      // Lands DIRECTLY in Quick Practice, not the generic hub.
+      expect(href).toContain("/practice/");
+      expect(href).not.toContain("/practice-hub");
       expect(href).toContain("focus=");
-      expect(href).toContain("markBand=");
+      // Carries the EXACT mark range (marksMin/marksMax) PracticePage CONSUMES.
+      expect(href).toContain("marksMin=");
+      expect(href).toContain("marksMax=");
     }
   });
 
-  it("the link carries THIS row's specific concept + mark band", () => {
+  it("the link carries THIS row's specific concept focus", () => {
     const { container } = renderSpine();
     const firstRow = container.querySelector(".lt-spine__row") as HTMLElement;
     const firstConcept = trigContent.boardEssentials[0];
     const link = within(firstRow).getByRole("link", { name: "Practise" });
     const href = link.getAttribute("href") ?? "";
     expect(href).toContain(`focus=${encodeURIComponent(firstConcept.name)}`);
-    expect(href).toContain(`markBand=${encodeURIComponent(firstConcept.marks)}`);
   });
 });
 
