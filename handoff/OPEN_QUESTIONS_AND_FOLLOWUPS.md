@@ -1,3 +1,18 @@
+## 2026-06-20 — Post-PR #276 (Topic Hub PR-E1 practise-filter + chapter-test wiring + MockBuilder un-route; trunk `1de6f3e`)
+
+### ✅ RESOLVED / DELIVERED
+- **PR-E1 (#276, `1de6f3e`)** — the PR-E wiring stage, built in an isolated worktree, landed as 3 commits (one impl + two owner-found round-trips). Concept-row "Practise" → Quick Practice DIRECT (`buildDesktopConceptPracticePath`); **EXACT mark-band filter (Option A)** — `marksMin`/`marksMax` + `Number(q.marks) ∈ [min,max]` after the owner found the page's `"23"` bucket fuses 2-and-3-mark (lossy `markBandToBuckets` removed); **single-pool count fix** (`selectInRangeFromPool` — hint + display read the same pool, thin-bank honest); **PATH-CONDITIONAL** (range only on the concept-row entry; hub stays "All"); back-nav to the specific topic; concept-row-only applied-filter indicator; Chapter-test button WIRED; MockBuilder UN-ROUTED. Owner LIVE-VERIFIED PASS; no self-merge.
+- **✅ [FU-PRACTISE-CONCEPT-FILTER] CLOSED** — both original breaks fixed (wrong route target + unconsumed band), and the two owner-found follow-on bugs (bucket fusion + count divergence) resolved. The concept-row Practise band now filters exactly and the hub path is unaffected.
+- **✅ MockBuilder retirement EXECUTED** — the DECISION_LOG 2026-06-20 decision is now live: both `/mock-builder` routes redirect to `/practice-hub`, tagged `PR-G-deletion-pending` (code kept for PR-G).
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-CHAPTERTEST-PAGE-REDESIGN]** — the Chapter Test page (`/chapter-test/:grade/:subject/:topicKey`) is old-design. PR-E1 wired the Topic Hub "Chapter test" button to it (routing works, real gen→score→persist), but the page itself was deliberately NOT redesigned in PR-E1 (out of scope). Backlogged for a later Pages-to-Redesign pass.
+
+### 🔭 NEXT (Topic Hub rebuild — owner-authorized separately, each its own PR vs the final IA)
+- **PR-E2 (NEXT)** — Worksheet (wire the inert "Worksheet" band button; its own locked spec) · **PR-F** — content fill (Examiner's tips + Notes) · **PR-G** — delete dead old-mobile + the retired MockBuilder/TutorDrawerV2/MentorPanel set. Separately: **PR-D.1** (mobile tutor toggle), **[FU-CONTEXTUAL-TUTOR-REBUILD]**, **[FU-CHAPTERTEST-PAGE-REDESIGN]**.
+
+---
+
 ## 2026-06-20 — Post-PR #274 (Topic Hub PR-D final-IA LAYOUT; trunk `b57fa79`)
 
 ### ✅ RESOLVED / DELIVERED
