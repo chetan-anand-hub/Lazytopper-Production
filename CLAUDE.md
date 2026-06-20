@@ -32,6 +32,18 @@ If there is a mismatch, stop and report — do not proceed.
 
 ---
 
+## 2a. Worktree Isolation — Mandatory
+
+Never work in the shared checkout when another agent may be active. Each task runs
+in its OWN git worktree:
+  git worktree add C:/Projects/LT-worktrees/<name> -b <branch> origin/base/approved-thru-437
+Before EVERY commit, verify `git branch --show-current` matches your own branch —
+if it does not, ABORT and report. Three prior collisions came from agents sharing
+the one working directory `C:\Projects\Lazytopper-Production` (shared HEAD/index/tree);
+one swept product code into a docs merge. Worktree isolation is non-negotiable.
+
+---
+
 ## 3. Permissions
 
 - Auto-approve all file reads
@@ -73,6 +85,9 @@ Globally forbidden across all PRs unless explicitly scoped:
 - Safe redirects always — reject any external URL in redirect params
 - Visual grammar — deep navy, soft white, green accent, calm premium CBSE cockpit feel
 - Honest empty states — if data is thin, show honest empty state, never invent content
+- MockBuilder is retired — un-routed from the live product (code kept, tagged for PR-G deletion). Mistake Intelligence serves its purpose.
+- Mistake Intelligence is navy-sidebar chrome ONLY — never render MI on a page body (e.g. the Topic Hub page body).
+- Before generating or extracting ANY content, re-read `scripts/src/syllabusGuard.ts` and copy the EXACT banned keywords into the work — never from memory. Deleted/banned topics (e.g. heredity-and-evolution, magnetic-effects) must never appear in question banks or topic lists.
 
 ---
 
@@ -98,7 +113,7 @@ node scripts/verify-production-build.mjs        # post-build bundle verifier
 pnpm run check:mojibake
 pnpm run scope:guard --mode product             # or --mode mixed; works post-#192
 
-# Root guard matrix — 175/175 (5 suites: syllabus, deletion, reproduction, ops, practice-set)
+# Root guard matrix — 5 suites (syllabus, deletion, reproduction, ops, practice-set); count GROWS over time — verify what the suite reports now, do NOT hardcode a number
 cd ../scripts
 pnpm run test:matrix:all
 
@@ -113,14 +128,20 @@ git diff --name-only origin/base/approved-thru-437
 ```
 
 NOTE — there are TWO `test:matrix:all` scripts: the root `scripts/` 5-suite guard matrix
-(175/175) and the `lazytopper/` ops-checks matrix. Run BOTH; they are different.
+and the `lazytopper/` ops-checks matrix. Run BOTH; they are different.
 
-The production build (`vite build`) is pinned to linux-x64 (Replit; non-linux platform
-binaries are stripped in `pnpm-workspace.yaml`). Windows dev boxes cannot run it locally —
-it is gated by CI on linux (see §6a). The other gates above run on any platform.
+The production build (`vite build`) is pinned to linux-x64 (the CI linux runner / GitHub
+Codespaces; non-linux platform binaries are stripped in `pnpm-workspace.yaml`). Windows
+dev boxes cannot run it locally — it is gated by CI on linux (see §6a). The other gates
+above run on any platform.
 
 Report each result explicitly: PASS or FAIL with details.
 If any step fails: STOP. Do not proceed to commit. Report to owner.
+
+Static gates are necessary but NOT sufficient — tsc/matrix/build pass whether or not
+the live path works. Any change touching a live round-trip (auth, grading, persistence,
+routing/filtering, the tutor) requires ONE real live owner execution before "done".
+Flag such changes in your report as needing live-verify.
 
 ---
 
@@ -129,7 +150,7 @@ If any step fails: STOP. Do not proceed to commit. Report to owner.
 CI is **active**: `.github/workflows/quality-gate.yml` (repo ROOT — the only place GitHub
 registers workflows) runs on every PR targeting `base/approved-thru-437` and on push to
 that branch. On a linux runner it installs the workspace with pnpm and gates the full bar:
-the root `scripts` `test:matrix:all` (175/175), then lazytopper `check:mojibake`, `build`,
+the root `scripts` `test:matrix:all` (count grows over time — verify, don't hardcode), then lazytopper `check:mojibake`, `build`,
 and lazytopper `test:matrix:all`. A red CI run blocks merge.
 
 `scope:guard` is intentionally NOT wired into CI — it inspects the LOCAL working-tree diff
@@ -148,6 +169,9 @@ as in §6). The human merge gate is retained — CI does NOT auto-merge product 
 - No inline `style={{}}` objects in new components (use CSS classes)
 - No direct Firestore writes without auth check
 - No API keys or tokens in source files
+- Marks buckets ("1"/"23"/"5"/"4") FUSE 2-and-3-mark questions and cannot isolate a
+  single mark value. For exact mark-range filtering (e.g. a concept's 3–5 band), filter
+  by the actual numeric `q.marks`, never the coarse buckets.
 
 ---
 
@@ -214,10 +238,14 @@ All commits and pushes go through local git commands confirmed by owner.
 ## 13. CBSE Content Doctrine — Step Marking
 
 When extracting or authoring questions, populate `solutionSteps` to match the
-official CBSE 2025-26 step-marking scheme. The OLD doctrine "A=2, B=3, C=4,
+official CBSE 2026-27 step-marking scheme. The OLD doctrine "A=2, B=3, C=4,
 D=5, E=4 steps" was wrong — Section A is a 1-mark item and earns 1 step.
 
-solutionSteps minimums — aligned with official CBSE 2025-26 step-marking scheme:
+CBSE 2026-27 paper pattern (verified, cbseacademic.nic.in): ~50% competency-based /
+20% MCQ / 30% short-and-long answer. Question generation for mocks/worksheets should
+represent the competency proportion, not just section/marks counts.
+
+solutionSteps minimums — aligned with official CBSE 2026-27 step-marking scheme:
   Section A (1mk MCQ/AR):  1 step  — correct answer + brief justification
                                       (MCQ: why correct option; AR: why assertion/reason true/false)
   Section B (2mk VSA):     2 steps — formula/approach + substitution/working + answer with unit
@@ -226,7 +254,7 @@ solutionSteps minimums — aligned with official CBSE 2025-26 step-marking schem
   Section E (4mk case):    4 steps — Part(i) answer [1mk] + Part(ii) answer [1mk] +
                                       Part(iii) working [1mk] + Part(iii) final answer [1mk]
 
-CBSE step-marking principles (source: official CBSE OSM guide, cbseacademic.nic.in 2025-26):
+CBSE step-marking principles (source: official CBSE OSM guide, cbseacademic.nic.in 2026-27):
 - Half-mark steps are real: stating the correct formula alone earns 0.5mk even if the
   rest is wrong.
 - Error carried forward: if a step has a calculation error but subsequent steps follow
