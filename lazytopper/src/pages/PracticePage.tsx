@@ -22,6 +22,30 @@ const mapEngineMarks = (ui: string): number | undefined => {
   if (ui === "4") return 4;
   return undefined;
 };
+// Valid single marks buckets (CBSE section grouping). A `?marks=` value may be a
+// single bucket OR a comma-joined SET of buckets (e.g. "1,23") — the latter is how
+// a Topic Hub concept-row carries a mark BAND that spans more than one bucket
+// (range -> set, PR-E1). "all" is the no-filter sentinel.
+const MARKS_BUCKETS = ["1", "23", "5", "4"] as const;
+/**
+ * Parse a raw `marks` query value into a canonical filter token:
+ *   - "all" (or empty/invalid) -> "all"
+ *   - a single valid bucket -> that bucket ("1" | "23" | "5" | "4")
+ *   - a comma SET of valid buckets -> the deduped, canonically-ordered set joined
+ *     by "," (e.g. "23,1" -> "1,23"). A set collapsing to one bucket returns that
+ *     single bucket; an empty/invalid set returns "all".
+ */
+export const parseMarksValue = (raw: string | null): string => {
+  if (!raw) return "all";
+  if (raw === "all") return "all";
+  const parts = raw.split(",").map((p) => p.trim()).filter(Boolean);
+  const valid = MARKS_BUCKETS.filter((b) => parts.includes(b));
+  if (valid.length === 0) return "all";
+  return valid.join(",");
+};
+/** The set of buckets active for a committed marks token ("all" -> empty set). */
+export const marksTokenToBucketSet = (token: string): Set<string> =>
+  token === "all" ? new Set() : new Set(token.split(",").filter(Boolean));
 const navMarksToUi = (n: number | undefined): string => {
   if (n === 1) return "1";
   if (n === 5) return "5";
@@ -197,9 +221,15 @@ const PracticePage: React.FC = () => {
     const queryStyle = qp.get("style");
     const querySource = qp.get("source");
     const queryDiff = qp.get("diff");
-    const marksUi = queryMarks && ["all", "1", "23", "5", "4"].includes(queryMarks)
-      ? queryMarks
-      : navMarksFilter !== undefined ? navMarksToUi(navMarksFilter) : "all";
+    // `marks` may be "all", a single bucket, or a comma SET of buckets (a Topic
+    // Hub concept-row carries the concept's mark BAND as a bucket set — range ->
+    // set, PR-E1). parseMarksValue canonicalises all three forms.
+    const parsedQueryMarks = queryMarks ? parseMarksValue(queryMarks) : null;
+    const marksUi = parsedQueryMarks && parsedQueryMarks !== "all"
+      ? parsedQueryMarks
+      : queryMarks === "all"
+        ? "all"
+        : navMarksFilter !== undefined ? navMarksToUi(navMarksFilter) : "all";
     const styleUi = queryStyle && ["all", "proof", "ar", "hots", "case"].includes(queryStyle)
       ? queryStyle
       : "all";
@@ -323,10 +353,16 @@ const PracticePage: React.FC = () => {
           fmt === "short" || fmt === "vsa";
         const is5mk = section === "D" || m === 5 || fmt === "long";
         const is4mk = section === "E" || m === 4 || fmt.includes("case");
-        if (marks === "1" && !is1mk) return false;
-        if (marks === "23" && !is23mk) return false;
-        if (marks === "5" && !is5mk) return false;
-        if (marks === "4" && !is4mk) return false;
+        // `marks` is a bucket SET token ("1" | "23" | "5" | "4" or a comma set like
+        // "1,23"). A question passes if it matches ANY active bucket (union — a
+        // concept band spanning two buckets keeps both). Empty set = no match.
+        const active = marksTokenToBucketSet(marks);
+        const matchesAnyBucket =
+          (active.has("1") && is1mk) ||
+          (active.has("23") && is23mk) ||
+          (active.has("5") && is5mk) ||
+          (active.has("4") && is4mk);
+        if (!matchesAnyBucket) return false;
       }
 
       if (style !== "all") {
@@ -678,13 +714,13 @@ const packTopicKey = useMemo(() => {
         })();
 
         // Engine fetch count.
-        //   "23" → 100: B+C ≈ 49% of a mixed-section random sample, so a
-        //               deep pool is needed for the client filter to clear.
-        //   exact section (A/D/E) → 5× requested, capped at 100: precise.
+        //   "23" / any multi-bucket SET → 100: the client narrows from a mixed
+        //               sample, so a deep pool is needed for the filter to clear.
+        //   exact single section (A/D/E) → 5× requested, capped at 100: precise.
         //   "all" → just questionCount (balanced mix, no narrowing).
         const engineCount = (() => {
           if (committedMarks === "all") return questionCount;
-          if (committedMarks === "23") return 100;
+          if (committedMarks === "23" || committedMarks.includes(",")) return 100;
           return Math.min(questionCount * 5, 100);
         })();
 

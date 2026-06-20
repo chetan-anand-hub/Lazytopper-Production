@@ -34,9 +34,10 @@ import type {
  *      topic practice (what the old "Practice all" tab did). Chapter test /
  *      Worksheet are present-but-inert (honest "Soon") pending their PR-E wiring.
  *   5. Concept-row "Practise" is CONCEPT-FILTERED — the page builds the per-concept
- *      route carrying the concept identity + its mark band (see
- *      DesktopTopicHubPage + buildDesktopPracticePath `markBand`). ConceptSpine
- *      renders whatever href the page supplies.
+ *      route (PR-E1: buildDesktopConceptPracticePath) that lands DIRECTLY in Quick
+ *      Practice (/practice/:grade/:subject) carrying the concept identity + its mark
+ *      band translated into the `marks` filter PracticePage CONSUMES (range -> bucket
+ *      set). ConceptSpine renders whatever href the page supplies.
  *   8. Per-row visual badge — a row shows a "Visual" badge ONLY where
  *      findVisualForConcept returns a real (non-null) interactive for that concept.
  *      Honest: no badge where no visual (PR-C hardened that resolver to return null
@@ -349,6 +350,13 @@ const SPINE_CSS = `
   cursor: default;
   opacity: 0.7;
 }
+/* Live secondary (e.g. Chapter test) — a real, clickable route, so it is NOT
+   dimmed like the inert "Soon" buttons. Quiet white-card hover, brand-green edge. */
+.lt-spine__ab--test {
+  flex: 1;
+  cursor: pointer;
+}
+.lt-spine__ab--test:hover { border-color: hsl(152, 40%, 70%); }
 .lt-spine__soon {
   font-size: 9.5px;
   font-weight: 700;
@@ -389,6 +397,8 @@ export interface ConceptSpineProps {
   backLabel: string;
   /** Existing whole-topic practice route — powers "Practise this topic" in the band. */
   practiceAllHref: string;
+  /** Existing Chapter Test route for this topic — powers "Chapter test" in the band (PR-E1). */
+  chapterTestHref: string;
   /** Builds the existing per-concept (concept + mark band) practice route. */
   practiceHrefForConcept: (concept: BoardConcept) => string;
 }
@@ -399,6 +409,7 @@ export function ConceptSpine({
   backHref,
   backLabel,
   practiceAllHref,
+  chapterTestHref,
   practiceHrefForConcept,
 }: ConceptSpineProps) {
   // The concept whose tutor drawer is open (null = closed). ConceptSpine owns this
@@ -566,15 +577,17 @@ export function ConceptSpine({
           <Link to={practiceAllHref} className="lt-spine__ab lt-spine__ab--primary">
             Practise this topic
           </Link>
-          {/* Chapter test / Worksheet — present-but-inert (honest "Soon") pending PR-E */}
-          <button
-            type="button"
-            className="lt-spine__ab lt-spine__ab--secondary"
-            aria-disabled="true"
-            title="Chapter test — coming soon"
+          {/* Chapter test — LIVE (PR-E1 item 3). Routes to the existing Chapter Test
+              page (/chapter-test/:grade/:subject/:topicKey) for THIS topic. The page
+              already does real gen -> score -> persist (timed/untimed). */}
+          <Link
+            to={chapterTestHref}
+            className="lt-spine__ab lt-spine__ab--test"
+            title="Take a chapter test on this topic"
           >
-            Chapter test <span className="lt-spine__soon">Soon</span>
-          </button>
+            Chapter test
+          </Link>
+          {/* Worksheet — present-but-inert (honest "Soon") pending PR-E2 */}
           <button
             type="button"
             className="lt-spine__ab lt-spine__ab--secondary"

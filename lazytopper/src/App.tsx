@@ -46,7 +46,11 @@ const HighlyProbableQuestions = lazy(() => import("./pages/HighlyProbableQuestio
 // no longer routed — DesktopTopicHubPage (the responsive concept-spine) renders at
 // every width. The files remain for now; they are deleted in PR-F per the rebuild
 // sequence. (Imports removed here so tsc noUnusedLocals stays green.)
-const MockBuilder = lazy(() => import("./pages/MockBuilder"));
+// PR-E1 item 4 / PR-G-deletion-pending: MockBuilder is UN-ROUTED from the live
+// product (MI now serves its purpose; the page is a display-only stub). The file
+// is KEPT on disk — PR-G deletes the legacy set. Its lazy import is removed so the
+// bundle no longer pulls it and tsc noUnusedLocals stays green. The /mock-builder
+// routes below now redirect to the Practice hub.
 const PracticePage = lazy(() => import("./pages/PracticePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
@@ -518,7 +522,9 @@ export default function App() {
         navigate('/exam-simulation');
         break;
       case 'navigateToMockBuilder':
-        navigate(`/mock-builder/${g}/${s}`);
+        // PR-E1 item 4 / PR-G-deletion-pending: Mock Builder is un-routed; send the
+        // command-palette entry to the live Practice hub instead of the dead route.
+        navigate('/practice-hub');
         break;
       case 'navigateToTopicHub':
         if (normalizedTopic) {
@@ -815,10 +821,13 @@ export default function App() {
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={<TopicMockRedirect />} />
           <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<ChapterTestPage />)}</SectionErrorBoundary></MockViewGate>} />
 
-          {/* New Mock Builder v1 with mandatory grade & subject */}
-          <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
-          {/* Legacy Mock Builder route (no params) */}
-          <Route path="/mock-builder" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
+          {/* PR-E1 item 4 / PR-G-deletion-pending: Mock Builder is UN-ROUTED from the
+              live product — students can no longer reach it (MI now serves its
+              purpose; the page is a display-only stub). The MockBuilder file is KEPT
+              on disk for PR-G to delete; here the routes redirect to the Practice hub
+              so any remaining inbound links land somewhere live instead of a 404. */}
+          <Route path="/mock-builder/:grade/:subject" element={<Navigate to="/practice-hub" replace />} />
+          <Route path="/mock-builder" element={<Navigate to="/practice-hub" replace />} />
 
           {/* Predicted Questions with mandatory grade & subject */}
           <Route
