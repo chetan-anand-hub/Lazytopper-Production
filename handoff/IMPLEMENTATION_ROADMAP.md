@@ -2,6 +2,18 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-20 — Post-PR #276 roadmap update (Topic Hub PR-E1 practise-filter + chapter-test wiring + MockBuilder un-route MERGED)
+
+Reports: `report-pr-e1-practise-filter-chaptertest-2026-06-20.md` + `report-pr-e1-amendment-exact-marks-backnav-2026-06-20.md` + `report-pr-e1-fix-two-pool-count-divergence-2026-06-20.md`. Trunk `1de6f3e` (#276, squash; owner LIVE-VERIFIED + merged; branch+worktree cleaned up; 3 commits = one impl + two owner-found round-trips).
+
+**Topic Hub rebuild — PR-E1 DONE (the PR-E wiring stage):**
+- ✅ **PR-E1: practise-filter + chapter-test wiring + MockBuilder un-route** — concept-row "Practise" routes DIRECTLY to Quick Practice (`buildDesktopConceptPracticePath`, not `/practice-hub`); **EXACT mark-band filter (Option A)** emitting numeric `marksMin`/`marksMax` and filtering on `Number(q.marks) ∈ [min,max]` after the owner found the page's `"23"` bucket fuses 2-and-3-mark (lossy `markBandToBuckets` removed); **single-pool count fix** (`selectInRangeFromPool` — hint + display read the same realized pool, `available >= displayed`, thin-bank honest); **PATH-CONDITIONAL** (range only on the concept-row entry; hub entry stays "All"); back-nav to the specific topic (`backLabel:"Back to {Topic}"`); concept-row-only applied-filter indicator; **Chapter-test button WIRED** to `/chapter-test/:grade/:subject/:topicKey`; **MockBuilder UN-ROUTED** (redirect to `/practice-hub`, tagged `PR-G-deletion-pending`, file kept). **[FU-PRACTISE-CONCEPT-FILTER] CLOSED.** Owner LIVE-VERIFIED PASS.
+- ⏳ **PR-E2 (NEXT): Worksheet** — wire the inert "Worksheet" band button to its generation flow (its own locked spec).
+- ⏳ PR-F: content fill — per-topic Examiner's tips (anti-fabrication) + unified Notes content.
+- ⏳ PR-G: delete dead old-mobile + the **retired MockBuilder** + dead `TutorDrawerV2`/`MentorPanel`/old `pages/TopicHub.tsx`.
+
+**New follow-up — [FU-CHAPTERTEST-PAGE-REDESIGN]:** the Chapter Test page is old-design (the PR-E1 button wiring works; the page redesign is backlogged, not part of PR-E1).
+
 ## 2026-06-20 — Post-PR #274 roadmap update (Topic Hub PR-D final-IA LAYOUT MERGED)
 
 Report: `report-topichub-prd-layout-2026-06-20.md`. Trunk `b57fa79` (#274, squash; owner live-verified GOOD + merged; branch+worktree cleaned up).
