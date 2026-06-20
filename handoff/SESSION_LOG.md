@@ -1,5 +1,24 @@
 ---
 
+## 2026-06-20 — PR-D: Topic Hub final-IA LAYOUT MERGED (#274, trunk `b57fa79`)
+
+**Trunk after merge: `b57fa79`** (#274, squash; `feat/topichub-prd-layout`; owner live-verified the layout = GOOD + squash-merged; branch + worktree cleaned up). **STRUCTURAL/VISUAL** — built in an **isolated git worktree** (`[FU-WORKTREE-ISOLATION]` honoured). `ConceptSpine` rebuilt to MATCH the binding mockup `docs/design/topichub_ia_mockup_FINAL_2026-06-19.html`. Report: `report-topichub-prd-layout-2026-06-20.md`. 4 files +515/−175.
+
+- **Learn-first** — concept rows are the HERO under a **"Learn the N concepts"** header ("teach yourself first, then practise each"); the topic-level action band moves BELOW them into a quiet **dashed** zone ("When you're ready — practise or test the whole topic").
+- **Notes consolidation** — one unified **Notes** toggle replaces the `Formula sheet · Proofs · Practice all` tab bar (formulae + proofs + mind-map = sections of one view); honest "coming soon" (content = PR-F). The "Practice all" function is absorbed by the band's "Practise this topic".
+- **Examiner's tips** — clickable/expandable `★ Examiner's tips` CONTAINER (`aria-expanded`); seeds the one real `examinerWarning` as a preview tip on seeded topics + honest "coming soon". **No fabrication** (the mockup's 4 sample tips were mockup-only; sample-preview placeholders are never shown as real tips). Per-topic content = PR-F.
+- **Action band (3 buttons)** — `Practise this topic` (primary, solid green, routes to the existing whole-topic practice = old "Practice all") + inert `Chapter test` / `Worksheet` (`aria-disabled`, honest "Soon") pending PR-E.
+- **Concept "Practise" → concept + mark band** — `buildDesktopPracticePath` gains an optional `markBand`; `DesktopTopicHubPage` passes `focus`+`subtopicHint`+`markBand: concept.marks`. Route CARRIES both; consumption = [FU-PRACTISE-CONCEPT-FILTER] (PR-E).
+- **Per-row visual badge** — `✦ Visual` only where `findVisualForConcept` is non-null (honest; PR-C hardened that resolver). **MI guard:** no MI on the page body; MI stays navy-sidebar chrome (#270/#271 held).
+- **Responsive + grammar** — one responsive component, pure-CSS `@media (max-width:1023px)` reflow, 360px-safe, class-driven (no inline styles). `ConceptSpine.test.tsx` rewritten for the new contract.
+- **Gates:** tsc PASS · mojibake PASS · scope:guard `--mode mixed` PASS · root matrix **181/181** · ops matrix PASS · `git diff --check` clean · forbidden-file PASS (none touched). vitest + linux `vite build` are linux-only → **CI `quality-gate` GREEN**. **No self-merge; owner live-verified + squash-merged.**
+- **⚠️ Item 7 SPLIT to PR-D.1 (owner-approved):** mobile full-screen tutor toggle is a `TeachFlow` render change (not ConceptSpine layout), unverifiable on Windows, not part of the mockup gate. **Corrected blast radius:** `TeachFlow` now backs ONLY the one live Topic Hub tutor — `TutorDrawerV2`/`MentorPanel`/old `pages/TopicHub.tsx` are dead code (PR-G deletes them); everywhere else the AI does solution-CHECKING, not tutoring.
+- **⚠️ NEW [FU-PRACTISE-CONCEPT-FILTER] (PR-E):** concept-row "Practise" lands on `/practice-hub` (`navigation.ts:75`) not Quick Practice, and `markBand="1–2"` (string) is never consumed — `PracticePage` filters on a numeric `marksFilter` bucketed `"1"/"23"/"5"/"4"` (`PracticePage.tsx:182`,`326-329`), never reads `markBand`. Owner-verified on Trigonometry + Light. PR-E: route to quick-practice directly + translate band string → bucket-set, **path-conditional** (concept-row entry only; hub entry stays student-controlled).
+- **Decisions (see DECISION_LOG):** **MockBuilder RETIRED** (un-routed + tagged for PR-G deletion, code kept — MI auto-captures the revisit need); **[FU-BOOKMARK-SAVE-QUESTION]** logged for later.
+- **NEXT:** PR-E (chapter-test + worksheet wiring + [FU-PRACTISE-CONCEPT-FILTER]) → PR-F (content) → PR-G (deletions). Separately: PR-D.1, [FU-CONTEXTUAL-TUTOR-REBUILD].
+
+---
+
 ## 2026-06-20 — PR-C: Topic Hub concept tutor "Teach me" flow MERGED (#272, trunk `d9ba545`)
 
 **Trunk after merge: `d9ba545`** (#272, squash; `feat/topichub-prc-tutor`; owner live-verified + squash-merged; branch deleted local+remote; worktree removed). **BEHAVIORAL** — built in an **isolated git worktree** (`[FU-WORKTREE-ISOLATION]` honoured). The cohesive concept-tutor FLOW, both platforms. Report: `report-topichub-prc-tutor-2026-06-19.md`. 4 files +160/−28.
