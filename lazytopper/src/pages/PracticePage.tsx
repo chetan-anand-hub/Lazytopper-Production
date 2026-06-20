@@ -46,6 +46,32 @@ export const parseMarksValue = (raw: string | null): string => {
 /** The set of buckets active for a committed marks token ("all" -> empty set). */
 export const marksTokenToBucketSet = (token: string): Set<string> =>
   token === "all" ? new Set() : new Set(token.split(",").filter(Boolean));
+
+export interface MarksRange { min: number; max: number; }
+/**
+ * Parse the concept-row EXACT mark-range params (`marksMin` / `marksMax`) into a
+ * numeric {min,max} (PR-E1 amendment). PATH-CONDITIONAL: only the Topic Hub
+ * concept-row emits these; every other entry (the Practice hub included) passes
+ * null here and keeps the student-controlled bucket UI at "all". Out-of-CBSE
+ * values (outside 1..5) or a missing/invalid pair yield null (honest default —
+ * no forced range). A single param present is treated as min==max.
+ */
+export const parseMarksRangeParams = (
+  rawMin: string | null,
+  rawMax: string | null,
+): MarksRange | null => {
+  const toMark = (v: string | null): number | null => {
+    if (v == null || v.trim() === "") return null;
+    const n = Number(v);
+    return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+  };
+  const a = toMark(rawMin);
+  const b = toMark(rawMax);
+  if (a == null && b == null) return null;
+  const lo = a ?? (b as number);
+  const hi = b ?? (a as number);
+  return { min: Math.min(lo, hi), max: Math.max(lo, hi) };
+};
 const navMarksToUi = (n: number | undefined): string => {
   if (n === 1) return "1";
   if (n === 5) return "5";
@@ -185,8 +211,17 @@ const PracticePage: React.FC = () => {
     if (qpSource === "trends") return "/exam-trends";
     return "/practice-hub";
   }, [safeReturnTo, back, qpSource]);
+  // `backLabel` may arrive via nav-state OR (Topic Hub concept-row uses a plain
+  // <Link to={url}> that cannot carry nav-state) the `?backLabel=` query param —
+  // e.g. "Back to Trigonometry", so concept-row Back returns to the SPECIFIC
+  // topic page with the right label (PR-E1 amendment item 4).
+  const queryBackLabel = useMemo(() => {
+    const raw = qp.get("backLabel");
+    return raw && raw.trim() ? raw.trim() : null;
+  }, [qp]);
   const backLabel: string =
     navState.backLabel ||
+    queryBackLabel ||
     (practiceBackTo.includes("/practice-hub")
       ? "Back to Practice"
       : practiceBackTo.includes("/exam-trends") || practiceBackTo.includes("/trends")
@@ -253,6 +288,22 @@ const PracticePage: React.FC = () => {
     };
   }, [practiceFilters, qp]);
 
+  // Concept-row EXACT mark range (PR-E1 amendment). PATH-CONDITIONAL: present ONLY
+  // on the Topic Hub concept-row entry (which emits marksMin/marksMax). On every
+  // other entry (the Practice hub included) this is null and the page keeps its
+  // student-controlled bucket UI at "all". A STARTING filter, not a lock — held in
+  // state so the student can clear/widen it via the advanced filter.
+  const conceptMarksRange = useMemo(
+    () => parseMarksRangeParams(qp.get("marksMin"), qp.get("marksMax")),
+    [qp]
+  );
+  // Concept name carried by the concept-row entry (`?focus=`), used by the
+  // applied-band indicator. Concept-row-only — null elsewhere.
+  const conceptFocusLabel = useMemo(() => {
+    const raw = (qp.get("focus") || "").trim();
+    return raw || null;
+  }, [qp]);
+
   const didInitFromUrlRef = useRef(false);
   const didAutoOpenJourneyMentorRef = useRef(false);
 
@@ -300,6 +351,16 @@ const PracticePage: React.FC = () => {
   const [committedCount, setCommittedCount] = useState<number>(
     () => initialPracticeDefaults.recommendedCount
   );
+  // EXACT concept mark-range filter (PR-E1 amendment) — separate from the coarse
+  // bucket UI so "3-5" yields ONLY 3,4,5 with no 2-mark contamination. Pending
+  // mirrors committed; both seed from the URL range (null off the concept path)
+  // and are cleared by Clear/Edit filters so the student can widen it.
+  const [pendingMarksRange, setPendingMarksRange] = useState<MarksRange | null>(
+    () => conceptMarksRange
+  );
+  const [committedMarksRange, setCommittedMarksRange] = useState<MarksRange | null>(
+    () => conceptMarksRange
+  );
   const [isBuilt, setIsBuilt] = useState<boolean>(false);
   // Load-bearing scorecard trigger: the student DECLARES completion (partial or
   // full) by tapping "Finish session", which sets this true and surfaces the
@@ -324,6 +385,8 @@ const PracticePage: React.FC = () => {
     setCommittedSource(initialPracticeDefaults.sourceUi);
     setCommittedDifficulty(initialPracticeDefaults.diffUi);
     setCommittedCount(initialPracticeDefaults.recommendedCount);
+    setPendingMarksRange(conceptMarksRange);
+    setCommittedMarksRange(conceptMarksRange);
     // Gap-B auto-serve: a TARGETED arrival — an explicit topic in the URL (from
     // a "practise where you lose marks" CTA, Topic Hub, or the desktop hub's
     // "Start quick practice") or a Fix-My-Mistakes session (targeted=1) — should
@@ -342,7 +405,29 @@ const PracticePage: React.FC = () => {
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
 
   const matchesFilters = useCallback(
-    (q: PracticeQuestion, marks: string, style: string, source: string, diff: string) => {
+    (
+      q: PracticeQuestion,
+      marks: string,
+      style: string,
+      source: string,
+      diff: string,
+      range: MarksRange | null,
+    ) => {
+      // EXACT concept mark-range filter (PR-E1 amendment) — path-conditional: only
+      // active when the concept-row entry supplied marksMin/marksMax. Filters on
+      // the real numeric `marks` field so "3-5" yields ONLY 3,4,5 (no coarse-bucket
+      // 2/3-mark fusion). Questions with no numeric marks fall through to section.
+      if (range) {
+        const rawMarks = (q as { marks?: unknown }).marks;
+        let m = Number(rawMarks ?? NaN);
+        if (!Number.isFinite(m) || m <= 0) {
+          // Fall back to the CBSE section -> canonical mark when marks is absent.
+          const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
+          m = section === "A" ? 1 : section === "B" ? 2 : section === "C" ? 3
+            : section === "D" ? 5 : section === "E" ? 4 : NaN;
+        }
+        if (!Number.isFinite(m) || m < range.min || m > range.max) return false;
+      }
       if (marks !== "all") {
         const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
         const m = Number((q as { marks?: unknown }).marks ?? 0);
@@ -443,10 +528,10 @@ const PracticePage: React.FC = () => {
     // side narrowing we trim to the user's committed count so the rendered
     // list matches what they asked for.
     const matched = questions.filter((q) =>
-      matchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty)
+      matchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange)
     );
     return matched.slice(0, committedCount);
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedCount, matchesFilters]);
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, matchesFilters]);
 
   const handleSetStyle = useCallback((v: string) => {
     setPendingStyle(v);
@@ -462,6 +547,9 @@ const PracticePage: React.FC = () => {
     setPendingStyle("all");
     setPendingSource("all");
     setPendingDifficulty("all");
+    // Widen out of the pre-applied concept band too (PR-E1 amendment): "Clear
+    // filters" must let the student escape the starting range, not just the buckets.
+    setPendingMarksRange(null);
     setQuestionCount(10);
   }, []);
 
@@ -471,8 +559,9 @@ const PracticePage: React.FC = () => {
     setPendingStyle(committedStyle);
     setPendingSource(committedSource);
     setPendingDifficulty(committedDifficulty);
+    setPendingMarksRange(committedMarksRange);
     setQuestionCount(committedCount);
-  }, [committedMarks, committedStyle, committedSource, committedDifficulty, committedCount]);
+  }, [committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount]);
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [isWhyPanelOpen, setIsWhyPanelOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -658,9 +747,9 @@ const packTopicKey = useMemo(() => {
       boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
     });
     return bankQuestions.filter((q) =>
-      matchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty)
+      matchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange)
     ).length;
-  }, [subjectKey, topicLabel, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, matchesFilters]);
+  }, [subjectKey, topicLabel, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, matchesFilters]);
 
   useEffect(() => {
     if (filteredQuestions.length === 0) {
@@ -719,6 +808,11 @@ const packTopicKey = useMemo(() => {
         //   exact single section (A/D/E) → 5× requested, capped at 100: precise.
         //   "all" → just questionCount (balanced mix, no narrowing).
         const engineCount = (() => {
+          // Concept-row EXACT range (PR-E1 amendment): the bucket UI is "all" here,
+          // so over-fetch the full blueprint pool (100) and let the client-side
+          // numeric-range narrowing trim it — otherwise a narrow band (e.g. 3-5)
+          // could starve a 10-question blueprint sample.
+          if (committedMarksRange) return 100;
           if (committedMarks === "all") return questionCount;
           if (committedMarks === "23" || committedMarks.includes(",")) return 100;
           return Math.min(questionCount * 5, 100);
@@ -850,6 +944,7 @@ const packTopicKey = useMemo(() => {
     strictFocus,
     engineMarksFilter,
     committedMarks,
+    committedMarksRange,
     committedSource,
     regenerationKey,
   ]);
@@ -1162,6 +1257,45 @@ const packTopicKey = useMemo(() => {
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
 
+        {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
+            ONLY: shown when this session arrived from the Topic Hub with an exact
+            mark range (conceptMarksRange). Honestly surfaces the pre-applied band
+            and that it is changeable via the advanced filter. The hub entry never
+            emits marksMin/marksMax, so this never renders there (neutral). */}
+        {conceptMarksRange && committedMarksRange && (
+          <div
+            style={{
+              margin: "0 0 14px 0",
+              padding: "9px 13px",
+              borderRadius: 10,
+              background: "hsl(152, 45%, 96%)",
+              border: "1px solid hsl(152, 45%, 84%)",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 8,
+              fontSize: "0.78rem",
+              color: "hsl(152, 45%, 26%)",
+            }}
+          >
+            <span style={{ fontWeight: 800 }}>
+              {conceptFocusLabel
+                ? `Practising ${conceptFocusLabel}`
+                : "Practising this concept"}
+            </span>
+            <span aria-hidden="true">{"·"}</span>
+            <span style={{ fontWeight: 700 }}>
+              {committedMarksRange.min === committedMarksRange.max
+                ? `${committedMarksRange.min} marks`
+                : `${committedMarksRange.min}–${committedMarksRange.max} marks`}
+            </span>
+            <span aria-hidden="true">{"·"}</span>
+            <span style={{ fontWeight: 600, color: "hsl(220, 15%, 42%)" }}>
+              edit filters to change
+            </span>
+          </div>
+        )}
+
         <PracticeHero
           grade={grade}
           subjectKey={subjectKey}
@@ -1228,6 +1362,7 @@ const packTopicKey = useMemo(() => {
             setCommittedStyle(pendingStyle);
             setCommittedSource(pendingSource);
             setCommittedDifficulty(pendingDifficulty);
+            setCommittedMarksRange(pendingMarksRange);
             setCommittedCount(questionCount);
             setIsBuilt(true);
             regenerateQuestions();

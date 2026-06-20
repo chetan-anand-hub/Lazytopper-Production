@@ -65,12 +65,13 @@ function renderSpine(
         backLabel={backLabel}
         practiceAllHref="/practice-hub?scope=topic"
         chapterTestHref="/chapter-test/10/Maths/trigonometry?source=topicHub"
-        // Concept-row Practise (PR-E1) lands DIRECTLY in Quick Practice
-        // (/practice/:grade/:subject) carrying the concept focus + the mark filter
-        // in the format PracticePage consumes (`marks`). ConceptSpine renders
-        // whatever the page supplies; this stub mirrors the real builder's contract.
+        // Concept-row Practise (PR-E1 + amendment) lands DIRECTLY in Quick Practice
+        // (/practice/:grade/:subject) carrying the concept focus + the mark band as
+        // an EXACT numeric range (marksMin/marksMax) PracticePage filters on the real
+        // `marks` field. ConceptSpine renders whatever the page supplies; this stub
+        // mirrors the real builder's contract.
         practiceHrefForConcept={(c) =>
-          `/practice/10/Maths?focus=${encodeURIComponent(c.name)}&marks=23`
+          `/practice/10/Maths?focus=${encodeURIComponent(c.name)}&marksMin=2&marksMax=3`
         }
       />
     </MemoryRouter>,
@@ -237,7 +238,7 @@ describe("ConceptSpine — tutor wiring (PR-C, preserved)", () => {
 });
 
 describe("ConceptSpine — concept 'Practise' routes to Quick Practice with filter (PR-E1)", () => {
-  it("every concept Practise link targets Quick Practice (NOT the hub) with a focus + marks", () => {
+  it("every concept Practise link targets Quick Practice (NOT the hub) with a focus + exact mark range", () => {
     renderSpine();
     const practiseLinks = screen.getAllByRole("link", { name: "Practise" });
     expect(practiseLinks.length).toBe(trigContent.boardEssentials.length);
@@ -247,8 +248,9 @@ describe("ConceptSpine — concept 'Practise' routes to Quick Practice with filt
       expect(href).toContain("/practice/");
       expect(href).not.toContain("/practice-hub");
       expect(href).toContain("focus=");
-      // Carries the marks filter in the format PracticePage CONSUMES.
-      expect(href).toContain("marks=");
+      // Carries the EXACT mark range (marksMin/marksMax) PracticePage CONSUMES.
+      expect(href).toContain("marksMin=");
+      expect(href).toContain("marksMax=");
     }
   });
 

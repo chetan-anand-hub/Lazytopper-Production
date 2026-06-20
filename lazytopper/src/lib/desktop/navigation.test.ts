@@ -1,60 +1,53 @@
 import { describe, it, expect } from "vitest";
 import {
-  markBandToBuckets,
-  marksBucketsToParam,
+  parseMarkBandRange,
   buildDesktopConceptPracticePath,
   buildDesktopChapterTestPath,
   buildDesktopPracticePath,
 } from "./navigation";
 
 /**
- * PR-E1 — [FU-PRACTISE-CONCEPT-FILTER] + Chapter-test wiring.
+ * PR-E1 + amendment — [FU-PRACTISE-CONCEPT-FILTER].
  *
- * These tests lock the two behaviours the owner reported broken:
- *   1. concept-row Practise must route DIRECTLY to Quick Practice
- *      (/practice/:grade/:subject), NOT the generic /practice-hub;
- *   2. the concept mark BAND must be carried in the `marks` format PracticePage
- *      CONSUMES — a RANGE -> bucket SET mapping (not the old never-read markBand
- *      string).
- * Plus the band->bucket mapping itself, and the PATH-CONDITIONAL guarantee that
- * the hub-entry builder forces NO marks band.
+ * The amendment replaces the lossy coarse-bucket model (which FUSED 2- and
+ * 3-mark questions into one bucket "23" and so contaminated a "3-5" request with
+ * 2-mark questions) with an EXACT numeric mark range carried as marksMin/marksMax.
+ * These tests lock:
+ *   1. concept-row Practise routes DIRECTLY to Quick Practice (NOT /practice-hub);
+ *   2. the concept mark BAND is carried as an EXACT range (marksMin/marksMax), NOT
+ *      the old coarse bucket set (and NOT the dead markBand string);
+ *   3. the back-nav label (Back to {Topic}) rides the URL (Link can't carry state);
+ *   4. PATH-CONDITIONAL: the hub-entry builder forces NO range.
  */
 
-describe("markBandToBuckets — range -> bucket SET (PR-E1)", () => {
-  it("maps the four real concept bands to their bucket unions", () => {
-    // The exact mapping from the spec.
-    expect(markBandToBuckets("1–2")).toEqual(["1", "23"]); // en-dash 1–2
-    expect(markBandToBuckets("2–3")).toEqual(["23"]); //       en-dash 2–3
-    expect(markBandToBuckets("3–5")).toEqual(["23", "5"]); //  en-dash 3–5
-    expect(markBandToBuckets("1–3")).toEqual(["1", "23"]); //  en-dash 1–3
+describe("parseMarkBandRange — exact numeric range from a band string (PR-E1 amendment)", () => {
+  it("maps the real concept bands to exact {min,max} (no bucket fusion)", () => {
+    expect(parseMarkBandRange("1–2")).toEqual({ min: 1, max: 2 }); // en-dash 1–2
+    expect(parseMarkBandRange("2–3")).toEqual({ min: 2, max: 3 }); // en-dash 2–3 — now isolates 3!
+    expect(parseMarkBandRange("3–5")).toEqual({ min: 3, max: 5 }); // en-dash 3–5 — NO 2-mark
+    expect(parseMarkBandRange("1–3")).toEqual({ min: 1, max: 3 }); // en-dash 1–3
   });
 
   it("is robust to the dash glyph (hyphen / em-dash / 'to') — no literal-dash match", () => {
-    expect(markBandToBuckets("1-2")).toEqual(["1", "23"]); // ascii hyphen
-    expect(markBandToBuckets("3—5")).toEqual(["23", "5"]); // em-dash
-    expect(markBandToBuckets("1 to 3")).toEqual(["1", "23"]);
+    expect(parseMarkBandRange("1-2")).toEqual({ min: 1, max: 2 }); // ascii hyphen
+    expect(parseMarkBandRange("3—5")).toEqual({ min: 3, max: 5 }); // em-dash
+    expect(parseMarkBandRange("1 to 3")).toEqual({ min: 1, max: 3 });
   });
 
-  it("treats a single number as low==high", () => {
-    expect(markBandToBuckets("1")).toEqual(["1"]);
-    expect(markBandToBuckets("5")).toEqual(["5"]);
-    expect(markBandToBuckets("4")).toEqual(["4"]);
+  it("treats a single number as min==max", () => {
+    expect(parseMarkBandRange("1")).toEqual({ min: 1, max: 1 });
+    expect(parseMarkBandRange("5")).toEqual({ min: 5, max: 5 });
+    expect(parseMarkBandRange("4")).toEqual({ min: 4, max: 4 });
   });
 
-  it("returns [] for an empty / unparseable band (caller then emits no filter)", () => {
-    expect(markBandToBuckets(undefined)).toEqual([]);
-    expect(markBandToBuckets("")).toEqual([]);
-    expect(markBandToBuckets("n/a")).toEqual([]);
-  });
-
-  it("serialises to the comma `marks` param PracticePage reads (or null when empty)", () => {
-    expect(marksBucketsToParam(markBandToBuckets("1–2"))).toBe("1,23");
-    expect(marksBucketsToParam(markBandToBuckets("2–3"))).toBe("23");
-    expect(marksBucketsToParam(markBandToBuckets(""))).toBeNull();
+  it("returns null for an empty / unparseable band (caller then emits no filter)", () => {
+    expect(parseMarkBandRange(undefined)).toBeNull();
+    expect(parseMarkBandRange("")).toBeNull();
+    expect(parseMarkBandRange("n/a")).toBeNull();
   });
 });
 
-describe("buildDesktopConceptPracticePath — concept-row Practise target (PR-E1 items 1+2)", () => {
+describe("buildDesktopConceptPracticePath — concept-row Practise target (PR-E1 amendment)", () => {
   it("lands DIRECTLY in Quick Practice (/practice/:grade/:subject), NOT /practice-hub", () => {
     const href = buildDesktopConceptPracticePath({
       subject: "Maths",
@@ -66,33 +59,39 @@ describe("buildDesktopConceptPracticePath — concept-row Practise target (PR-E1
     expect(href).not.toContain("/practice-hub");
   });
 
-  it("carries the mark band as the CONSUMED `marks` set (not the dead markBand string)", () => {
+  it("carries the mark band as an EXACT range (marksMin/marksMax), not buckets", () => {
     const href = buildDesktopConceptPracticePath({
       subject: "Maths",
       topic: "trigonometry",
-      markBand: "1–2",
+      markBand: "3–5",
     });
     const qs = new URLSearchParams(href.split("?")[1]);
-    expect(qs.get("marks")).toBe("1,23");
+    expect(qs.get("marksMin")).toBe("3");
+    expect(qs.get("marksMax")).toBe("5");
+    // the old lossy coarse-bucket param is gone entirely
+    expect(qs.has("marks")).toBe(false);
     expect(qs.has("markBand")).toBe(false);
   });
 
-  it("a single-bucket band emits a single `marks` value", () => {
+  it("a 2–3 band now isolates 3-mark too (min=2,max=3) — the fixed bug", () => {
     const href = buildDesktopConceptPracticePath({
       subject: "Science",
       topic: "electricity",
       markBand: "2–3",
     });
-    expect(new URLSearchParams(href.split("?")[1]).get("marks")).toBe("23");
+    const qs = new URLSearchParams(href.split("?")[1]);
+    expect(qs.get("marksMin")).toBe("2");
+    expect(qs.get("marksMax")).toBe("3");
   });
 
-  it("carries focus + subtopicHint + source/returnTo context", () => {
+  it("carries focus + subtopicHint + backLabel + source/returnTo context", () => {
     const href = buildDesktopConceptPracticePath({
       subject: "Maths",
       topic: "trigonometry",
       focus: "Ratios",
       subtopicHint: "Plug into evaluation",
       markBand: "1–2",
+      backLabel: "Back to Trigonometry",
       source: "topicHub",
       returnTo: "/topic-hub/10/Maths/trigonometry",
     });
@@ -100,24 +99,27 @@ describe("buildDesktopConceptPracticePath — concept-row Practise target (PR-E1
     expect(qs.get("topic")).toBe("trigonometry");
     expect(qs.get("focus")).toBe("Ratios");
     expect(qs.get("subtopicHint")).toBe("Plug into evaluation");
+    expect(qs.get("backLabel")).toBe("Back to Trigonometry");
     expect(qs.get("source")).toBe("topicHub");
     expect(qs.get("returnTo")).toBe("/topic-hub/10/Maths/trigonometry");
   });
 
-  it("emits NO marks param when the band is unparseable (honest default)", () => {
+  it("emits NO range params when the band is unparseable (honest default)", () => {
     const href = buildDesktopConceptPracticePath({
       subject: "Maths",
       topic: "trigonometry",
       markBand: "n/a",
     });
-    expect(new URLSearchParams(href.split("?")[1]).has("marks")).toBe(false);
+    const qs = new URLSearchParams(href.split("?")[1]);
+    expect(qs.has("marksMin")).toBe(false);
+    expect(qs.has("marksMax")).toBe(false);
   });
 });
 
-describe("PATH-CONDITIONAL — hub entry forces NO band (PR-E1)", () => {
-  it("the generic hub practice path never emits a `marks` band", () => {
+describe("PATH-CONDITIONAL — hub entry forces NO range (PR-E1)", () => {
+  it("the generic hub practice path never emits a marks range", () => {
     // Path 1 — via the Practice hub: student sets their own filters, no concept
-    // context. buildDesktopPracticePath carries no marks bucket at all.
+    // context. buildDesktopPracticePath carries no exact range at all.
     const hub = buildDesktopPracticePath({
       scope: "topic",
       subject: "Maths",
@@ -125,6 +127,8 @@ describe("PATH-CONDITIONAL — hub entry forces NO band (PR-E1)", () => {
       mode: "practice-set",
     });
     const qs = new URLSearchParams(hub.split("?")[1]);
+    expect(qs.has("marksMin")).toBe(false);
+    expect(qs.has("marksMax")).toBe(false);
     expect(qs.has("marks")).toBe(false);
   });
 });

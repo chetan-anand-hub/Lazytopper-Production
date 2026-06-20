@@ -212,12 +212,14 @@ export default function DesktopTopicHubPage() {
     ...routeContext,
   });
 
-  // Concept-row "Practise" (PR-E1 items 1+2 — [FU-PRACTISE-CONCEPT-FILTER] fix).
+  // Concept-row "Practise" (PR-E1 items 1+2 + amendment — [FU-PRACTISE-CONCEPT-FILTER]).
   // Lands DIRECTLY in Quick Practice (/practice/:grade/:subject) — NOT the generic
   // /practice-hub (which needed a 2nd click) — carrying the concept focus AND the
-  // concept's mark band translated into the `marks` filter PracticePage actually
-  // CONSUMES (range -> bucket SET). This is the PATH-CONDITIONAL concept entry: the
-  // band is pre-applied ONLY here; the hub-entry path forces no band.
+  // concept's mark band as an EXACT numeric range (marksMin/marksMax) PracticePage
+  // filters on the real `marks` field — no coarse-bucket 2/3-mark fusion. This is
+  // the PATH-CONDITIONAL concept entry: the range is pre-applied ONLY here; the
+  // hub-entry path forces no range. `backLabel` + the topic-hub `returnTo` (in
+  // routeContext) send "Back" to THIS specific topic page (item 4).
   const practiceHrefForConcept = (concept: BoardConcept): string =>
     buildDesktopConceptPracticePath({
       subject: topic.subject,
@@ -225,6 +227,7 @@ export default function DesktopTopicHubPage() {
       focus: concept.name,
       subtopicHint: concept.oneLineUse || concept.name,
       markBand: concept.marks,
+      backLabel: `Back to ${topic.name}`,
       ...routeContext,
     });
 

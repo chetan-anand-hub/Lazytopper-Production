@@ -55,50 +55,35 @@ export const withQuery = (path: string, params: URLSearchParams): string => {
 };
 
 /**
- * The marks-filter buckets PracticePage consumes from the `?marks=` query param
- * (see PracticePage `initialPracticeDefaults` — accepts "all" | "1" | "23" | "5"
- * | "4"). A concept's mark BAND is a RANGE (e.g. "1-2") that can span more than
- * one bucket, so the band maps to a SET of buckets (range -> set), serialised as
- * a comma-joined `marks` value (e.g. "1,23") on the SAME `?marks=` mechanism the
- * page already reads. PracticePage narrows on this set client-side.
+ * A concept's mark BAND is a RANGE (e.g. "1-2", "3-5"). PR-E1 mapped this to a
+ * SET of coarse PracticePage buckets ("1" | "23" | "5" | "4"). That model FUSES
+ * 2- and 3-mark questions into one bucket "23", so a "3-5" request could not be
+ * isolated from 2-mark questions (structural contamination — owner-reported).
+ *
+ * PR-E1 amendment (Option A): the concept-row path now carries the EXACT mark
+ * RANGE as `marksMin`/`marksMax`, and PracticePage filters by the actual numeric
+ * `marks` field per question. CBSE Section B = 2-mark, Section C = 3-mark; the
+ * exact range keeps that distinction the coarse buckets destroyed.
  */
-export type DesktopMarksBucket = "1" | "23" | "5" | "4";
+export interface DesktopMarkRange {
+  min: number;
+  max: number;
+}
 
 /**
- * Translate a concept mark-band string into the SET of PracticePage `marks`
- * buckets it spans (range -> set), per the PR-E1 mapping:
- *   1-2 -> {1, 23}   ·   2-3 -> {23}   ·   3-5 -> {23, 5}   ·   1-3 -> {1, 23}
- *
- * The band low/high are parsed from the digits in the string (robust to en-dash,
+ * Parse a concept mark-band string into an EXACT numeric {min,max} range.
+ * The low/high are parsed from the digits in the string (robust to en-dash,
  * hyphen, em-dash or "to" — we never match a literal dash byte, so there is no
- * mojibake surface). A single number (e.g. "3") is treated as low==high. Bucket
- * membership by CBSE section marks:
- *   1mk -> "1" · 2mk/3mk -> "23" · 4mk -> "4" · 5mk -> "5".
- * Returns [] for an unparseable band so callers emit no `marks` filter at all
- * (the page then stays at its default "all" — honest, never a wrong forced band).
+ * mojibake surface). A single number (e.g. "3") is treated as min==max. Returns
+ * null for an unparseable band so callers emit no range filter at all (the page
+ * then stays at its default "all" — honest, never a wrong forced band).
  */
-export const markBandToBuckets = (band: string | undefined): DesktopMarksBucket[] => {
-  if (!band) return [];
+export const parseMarkBandRange = (band: string | undefined): DesktopMarkRange | null => {
+  if (!band) return null;
   const nums = (band.match(/\d+/g) ?? []).map((n) => Number(n)).filter((n) => n >= 1 && n <= 5);
-  if (nums.length === 0) return [];
-  const low = Math.min(...nums);
-  const high = Math.max(...nums);
-  const buckets: DesktopMarksBucket[] = [];
-  const add = (b: DesktopMarksBucket) => {
-    if (!buckets.includes(b)) buckets.push(b);
-  };
-  for (let m = low; m <= high; m += 1) {
-    if (m === 1) add("1");
-    else if (m === 2 || m === 3) add("23");
-    else if (m === 4) add("4");
-    else if (m === 5) add("5");
-  }
-  return buckets;
+  if (nums.length === 0) return null;
+  return { min: Math.min(...nums), max: Math.max(...nums) };
 };
-
-/** Serialise a bucket set into the comma-joined `?marks=` value PracticePage reads. */
-export const marksBucketsToParam = (buckets: DesktopMarksBucket[]): string | null =>
-  buckets.length ? buckets.join(",") : null;
 
 export interface DesktopConceptPracticePathInput extends DesktopRouteContext {
   subject: DesktopSubject;
@@ -106,7 +91,8 @@ export interface DesktopConceptPracticePathInput extends DesktopRouteContext {
   topic: string;           // topic slug
   focus?: string;          // concept identity
   subtopicHint?: string;   // concept one-line use / hint
-  markBand?: string;       // concept mark band (e.g. "1-2") -> mapped to `marks` set
+  markBand?: string;       // concept mark band (e.g. "1-2") -> exact marksMin/marksMax
+  backLabel?: string;      // e.g. "Back to Trigonometry" — specific Topic Hub topic
 }
 
 /**
@@ -117,10 +103,16 @@ export interface DesktopConceptPracticePathInput extends DesktopRouteContext {
  * and would not carry the band). PracticePage auto-builds a scoped set on a
  * targeted topic arrival, so the student lands inside a ready, concept-scoped set.
  *
- * PATH-CONDITIONAL: the band is applied ONLY here (the concept-row entry). The
- * hub entry (buildLegacyPracticePath in DesktopPracticePage) emits NO `marks`, so
- * the student-controlled filter stays at "all" there. A starting filter, not a
- * lock — the student can still change marks on the page.
+ * PATH-CONDITIONAL: the EXACT range (`marksMin`/`marksMax`) is applied ONLY here
+ * (the concept-row entry). The hub entry (buildDesktopPracticePath) emits NO
+ * range, so the student-controlled bucket filter stays at "all" there. A starting
+ * filter, not a lock — the student can still widen/clear it via the advanced
+ * filter on the page.
+ *
+ * EXACT range vs. coarse buckets: "3-5" -> marksMin=3&marksMax=5 yields ONLY 3,4,5
+ * (no 2-mark contamination, since PracticePage filters on the real numeric `marks`
+ * field). Back-nav: a `backLabel` (e.g. "Back to Trigonometry") + the topic-hub
+ * `returnTo` send the student back to the SPECIFIC topic page (item 4).
  */
 export const buildDesktopConceptPracticePath = (
   input: DesktopConceptPracticePathInput,
@@ -130,8 +122,12 @@ export const buildDesktopConceptPracticePath = (
   params.set("topic", input.topic);
   if (input.focus) params.set("focus", input.focus);
   if (input.subtopicHint) params.set("subtopicHint", input.subtopicHint);
-  const marks = marksBucketsToParam(markBandToBuckets(input.markBand));
-  if (marks) params.set("marks", marks);
+  const range = parseMarkBandRange(input.markBand);
+  if (range) {
+    params.set("marksMin", String(range.min));
+    params.set("marksMax", String(range.max));
+  }
+  if (input.backLabel) params.set("backLabel", input.backLabel);
   addContext(params, input);
   return withQuery(`/practice/${grade}/${input.subject}`, params);
 };

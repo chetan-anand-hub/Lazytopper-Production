@@ -36,8 +36,9 @@ import type {
  *   5. Concept-row "Practise" is CONCEPT-FILTERED — the page builds the per-concept
  *      route (PR-E1: buildDesktopConceptPracticePath) that lands DIRECTLY in Quick
  *      Practice (/practice/:grade/:subject) carrying the concept identity + its mark
- *      band translated into the `marks` filter PracticePage CONSUMES (range -> bucket
- *      set). ConceptSpine renders whatever href the page supplies.
+ *      band as an EXACT numeric range (marksMin/marksMax) PracticePage filters on
+ *      the real `marks` field (amendment — replaced the coarse bucket set that fused
+ *      2/3-mark). ConceptSpine renders whatever href the page supplies.
  *   8. Per-row visual badge — a row shows a "Visual" badge ONLY where
  *      findVisualForConcept returns a real (non-null) interactive for that concept.
  *      Honest: no badge where no visual (PR-C hardened that resolver to return null
