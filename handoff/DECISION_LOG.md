@@ -1,3 +1,37 @@
+## 2026-06-20 - MockBuilder RETIRED (un-routed + tagged for PR-G deletion; code kept)
+
+Decision (owner, recorded post-PR-D #274):
+**MockBuilder is cut from the live product.** Un-route it from the live app and **tag it for deletion** so it joins
+the **PR-G legacy set** (alongside dead `TutorDrawerV2`, `MentorPanel`, and old `pages/TopicHub.tsx`). **Keep the code**
+for now; PR-G removes it with the rest of the dead set.
+
+Reason:
+- **Mistake Intelligence now auto-captures the "hard questions to revisit" need** that MockBuilder was meant to serve
+  **manually**. With MI surfacing the questions a student got wrong (and the mistake patterns) automatically, a manual
+  mock-building surface is redundant.
+
+Locked choices:
+- **Un-route now, delete in PR-G** — no immediate code deletion; the un-route removes it from the live product, and the
+  PR-G legacy sweep (which already deletes the dead old-mobile + tutor surfaces) takes the code with it.
+- **MI is the replacement path** — the revisit/hard-questions need is served by Mistake Intelligence, not a rebuilt
+  MockBuilder. Do NOT reinstate a manual builder unless MI proves insufficient.
+
+## 2026-06-20 - [FU-BOOKMARK-SAVE-QUESTION] logged (future, not a launch blocker)
+
+Decision (owner, recorded post-PR-D #274):
+A future **lightweight "bookmark / save this question"** feature — let a student **proactively save a tricky question
+even when they answered it correctly** — and **surface saved questions on the Me / Progress page**. **Not a launch
+blocker; logged for later.**
+
+Rationale / boundary:
+- **Distinct from Mistake Intelligence** — MI captures questions the student got WRONG (auto). This is a **voluntary
+  save-for-revisit** for questions worth a second look regardless of correctness. The two are complementary, not a
+  substitute for each other.
+- **Surface = Me / Progress** — saved questions list lives on Me/Progress (where the student reviews their own state),
+  not buried in the practice flow.
+- **Scope when picked up:** a save toggle on a question + a saved-questions list on Me; honest empty state; no fake
+  pre-seeded saves. Owner-logged; no PR scheduled yet.
+
 ## 2026-06-08 - AUTH MIGRATION PR-3 (#210): Clerk teardown — auth is Firebase-only
 
 Decision:

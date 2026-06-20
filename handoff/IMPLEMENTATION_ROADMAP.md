@@ -2,6 +2,20 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-20 — Post-PR #274 roadmap update (Topic Hub PR-D final-IA LAYOUT MERGED)
+
+Report: `report-topichub-prd-layout-2026-06-20.md`. Trunk `b57fa79` (#274, squash; owner live-verified GOOD + merged; branch+worktree cleaned up).
+
+**Topic Hub rebuild — PR-D DONE:**
+- ✅ **PR-D: final-IA layout** — `ConceptSpine` rebuilt to MATCH the binding mockup. Learn-first (concepts hero + "Learn the N concepts"; receded dashed action band below); unified **Notes** toggle (replaces Formula/Proofs/Practice-all tabs, honest coming-soon); clickable **Examiner's tips** container seeding the 1 real `examinerWarning` (no fabrication); 3-button action band ("Practise this topic" primary routes; "Chapter test"/"Worksheet" inert "Soon"); concept "Practise" carries concept + `markBand`; per-row `✦ Visual` badge only where `findVisualForConcept` non-null; MI stays sidebar chrome. One responsive component, pure-CSS reflow, class-driven. Owner LIVE-VERIFIED GOOD.
+- ⏳ **PR-E (NEXT): chapter-test + worksheet wiring + [FU-PRACTISE-CONCEPT-FILTER]** — wire the inert "Chapter test"/"Worksheet" band buttons to their pages; route concept "Practise" to Quick Practice directly + translate the concept `markBand` string → the page's numeric `marksFilter` bucket-set (`PracticePage.tsx:182`,`326-329`), **path-conditional** (band applies only on the concept-row entry, not the Practice-hub entry).
+- ⏳ PR-F: content fill — per-topic Examiner's tips (anti-fabrication) + unified Notes content.
+- ⏳ PR-G: delete dead old-mobile + the **retired MockBuilder** + dead `TutorDrawerV2`/`MentorPanel`/old `pages/TopicHub.tsx`.
+
+**Split off PR-D (owner-approved): PR-D.1 — mobile full-screen tutor toggle** (a `TeachFlow` render change; desktop side-by-side ↔ mobile full-screen toggle, same component + data; unverifiable on Windows so it gets its own mobile live-verify). Blast radius is small — `TeachFlow` now backs ONLY the one live Topic Hub tutor.
+
+**Decisions recorded (DECISION_LOG):** MockBuilder retired (un-routed from live product + tagged for PR-G deletion; MI now auto-captures the manual "hard questions to revisit" need); **[FU-BOOKMARK-SAVE-QUESTION]** (future "save this question" → Me/Progress; not a launch blocker).
+
 ## 2026-06-20 — Post-PR #272 roadmap update (Topic Hub PR-C tutor flow MERGED)
 
 Report: `report-topichub-prc-tutor-2026-06-19.md`. Trunk `d9ba545` (#272, squash; owner live-verified + merged; branch+worktree cleaned up).
