@@ -1,5 +1,24 @@
 ---
 
+## 2026-06-21 — CLAUDE.md governance refresh MERGED (#278, trunk `f7170ef`)
+
+**Trunk after merge: `f7170ef`** (#278, squash; `chore/claude-md-refresh`, isolated worktree off `b4163ef`, commit `ea837d4`; **product PR — root file — owner-merged, no self-merge**). A surgical edit to **`CLAUDE.md` ONLY** (+37/−9) — de-stale + add the missing invariant rules every agent reads at session start. Report: shown in-thread (no separate `report-*.md`; the full diff was relayed to the owner).
+
+- **§2a Worktree Isolation (NEW)** — the project's #1 lesson made an invariant: every task runs in its OWN `git worktree`; verify `git branch --show-current` before every commit. Rationale baked in: three prior collisions from the shared checkout `C:\Projects\Lazytopper-Production`, one of which swept product code into a docs merge (`c418f59`/#266).
+- **Matrix count DE-HARDCODED** — §6 + §6a no longer say "175/175" (it was 181 as of 2026-06-20 and grows); now "verify what the suite reports now, do NOT hardcode".
+- **Replit → CI linux runner / GitHub Codespaces** in §6 (Replit retired); linux-x64 build-pin fact + Windows-can't-build-locally + CI-gated all retained. Gate COMMANDS unchanged.
+- **Verification doctrine (NEW, §6 tail)** — static gates (tsc/matrix/build) are necessary but NOT sufficient; any change touching a live round-trip (auth, grading, persistence, routing/filtering, the tutor) needs ONE real owner live-execution before "done", flagged as needing live-verify.
+- **§13 CBSE 2025-26 → 2026-27** throughout + a new competency-split line (~50% competency-based / 20% MCQ / 30% short-and-long; generation should represent the competency proportion, not just section/marks counts). Step-marking minimums A=1/B=2/C=3/D=5/E=4 unchanged.
+- **§7 marks-bucket gotcha (NEW)** — the direct PR-E1 lesson: the `"1"/"23"/"5"/"4"` buckets FUSE 2-and-3-mark and can't isolate a single mark value → for exact mark-range filtering use numeric `q.marks`, never the coarse buckets.
+- **§5 (NEW bullets)** — MockBuilder retired (un-routed, code kept for PR-G); Mistake Intelligence is navy-sidebar chrome ONLY (never on a page body); re-read `scripts/src/syllabusGuard.ts` and copy EXACT banned keywords before generating/extracting any content (never from memory).
+- **Untouched:** §3/§8/§9/§10/§11/§12 and all gate COMMANDS; no restructuring.
+- **Mojibake / BOM:** the 8 insertions are mojibake-clean (en-dash "3–5" verified; byte-sequence scan clean). The repo `check:mojibake` resolves to `lazytopper/` and does NOT scan root `CLAUDE.md`, so the file was checked directly. Line 1 has a pre-existing UTF-8 BOM (on trunk before this PR, not gate-flagged) — **owner decided to LEAVE it** rather than churn the encoding.
+- **Gates:** `git diff --check` clean · `git diff --name-only` = exactly `CLAUDE.md` (no `.claude/`, nothing else). No tsc/build (no source change).
+- **Worktree hygiene this session:** the stale `pr-e1` (PR-E1 #276) and `prd-layout` (PR-D #274) worktrees + branches were removed (the handoff had wrongly claimed `prd-layout` was already cleaned). Inert `.git/worktrees/{pr-e1,prd-layout}` admin folders linger (locked during removal) — harmless, prune later.
+- **NEXT:** **PR-E2 (Worksheet)** — its own locked spec, branched fresh from `f7170ef`.
+
+---
+
 ## 2026-06-20 — PR-E1: concept-row Practise → Quick Practice + exact mark-band filter + Chapter-test wired + MockBuilder un-routed MERGED (#276, trunk `1de6f3e`)
 
 **Trunk after merge: `1de6f3e`** (#276, squash; `feat/practise-filter-chaptertest`, branched off `acc419b`; owner LIVE-VERIFIED + squash-merged; branch + worktree cleaned up). **BEHAVIORAL wiring** — built in an **isolated git worktree** (`[FU-WORKTREE-ISOLATION]` honoured). The PR-E stage, landed as **3 commits squashed** (one implementation + two owner-found live-verify round-trips). Reports: `report-pr-e1-practise-filter-chaptertest-2026-06-20.md` + `report-pr-e1-amendment-exact-marks-backnav-2026-06-20.md` + `report-pr-e1-fix-two-pool-count-divergence-2026-06-20.md`.
