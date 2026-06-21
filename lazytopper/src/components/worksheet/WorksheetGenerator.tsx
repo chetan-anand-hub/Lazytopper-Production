@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import type { LTSubjectKey } from "../../data/predictionTypes";
@@ -20,7 +20,7 @@ import {
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
-import { downloadQuestionsPdf, downloadAnswerKeyPdf } from "./worksheetPdf";
+import { exportWorksheetPdf } from "./worksheetPdfExport";
 
 /**
  * WorksheetGenerator — PR-E2a: ONE responsive worksheet generator that replaces
@@ -117,9 +117,29 @@ function readMistakeHotspot(uid: string | null | undefined, topics: WorksheetTop
   return bestLost > 0 ? best : null;
 }
 
+/** Reject any non-relative / protocol-bearing redirect (safe-redirect doctrine). */
+function safeInternalReturnTo(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return null;
+  return value;
+}
+
 export default function WorksheetGenerator() {
   const { user } = useAuth();
   const ctx = useSubjectContext();
+  const location = useLocation();
+
+  // FIX 3 — origin-aware back navigation. The worksheet path carries `returnTo`
+  // from its caller (e.g. TopicActions → buildDesktopWorksheetPath, which sets
+  // returnTo). Honor it (validated) so "Back" returns where the student came from
+  // — on BOTH the build and the in-place generated view — instead of always the
+  // generic practice hub. Default to /practice-hub when no safe origin is given.
+  const backHref = useMemo(() => {
+    const rt = new URLSearchParams(location.search).get("returnTo");
+    return safeInternalReturnTo(rt) ?? "/practice-hub";
+  }, [location.search]);
+  const backLabel = backHref === "/practice-hub" ? "Back to Practice" : "Back";
 
   const [subject, setSubject] = useState<LTSubjectKey>((ctx.subject as LTSubjectKey) || "Maths");
   const [stream, setStream] = useState<ScienceStream>("All");
@@ -143,6 +163,8 @@ export default function WorksheetGenerator() {
   const [view, setView] = useState<"build" | "generated">("build");
   const [generated, setGenerated] = useState<PersistedWorksheet | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  // E2a.2 — which PDF (if any) is currently being generated for download.
+  const [downloading, setDownloading] = useState<"questions" | "answers" | null>(null);
 
   // Keep single/multi selections valid when the visible catalogue changes.
   const topicKeysSig = topics.map((t) => t.key).join(",");
@@ -299,13 +321,19 @@ export default function WorksheetGenerator() {
   }
 
   async function runDownload(kind: "questions" | "answers") {
-    if (!generated) return;
+    if (!generated || downloading) return;
     setDownloadError(null);
+    setDownloading(kind);
     try {
-      if (kind === "questions") await downloadQuestionsPdf(generated);
-      else await downloadAnswerKeyPdf(generated);
+      // Renders the worksheet (real math via MathText/KaTeX) into a detached
+      // offscreen node and rasterises it into a jsPDF FILE — worksheet only,
+      // never the app page. The persisted `generated.questions` array is the
+      // single source, so the PDF count matches the header count exactly.
+      await exportWorksheetPdf(generated, kind);
     } catch {
-      setDownloadError("Download failed — please try again.");
+      setDownloadError("Couldn’t build the PDF — please try again.");
+    } finally {
+      setDownloading(null);
     }
   }
 
@@ -323,9 +351,9 @@ export default function WorksheetGenerator() {
     <div className="lt-ws">
       <style>{WS_CSS}</style>
 
-      <Link to="/practice-hub" className="lt-ws__back">
+      <Link to={backHref} className="lt-ws__back">
         <span aria-hidden="true">←</span>
-        <span>Back to Practice</span>
+        <span>{backLabel}</span>
       </Link>
 
       {view === "build" ? (
@@ -480,8 +508,10 @@ export default function WorksheetGenerator() {
                   </div>
                 )}
 
-                {/* MI enrich — quiet toggle */}
-                <div className={`lt-ws__more${canEnrich ? "" : " off"}`}>
+                {/* MI enrich — a labelled, contained field inside the build-mode
+                    card (FIX 3: was reading as detached / "hanging in air"). */}
+                <div className={`lt-ws__more${canEnrich ? "" : " off"}`} data-testid="mi-enrich-box">
+                  <div className="lt-ws__lbl">Personalise (optional)</div>
                   <label className="lt-ws__morerow" title={canEnrich ? `Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.` : "Grade an answer in Check & Improve and pick a multi-topic / full-subject scope that includes a weak topic to unlock."}>
                     <input type="checkbox" checked={miEnrich && canEnrich} disabled={!canEnrich} onChange={(e) => setMiEnrich(e.target.checked)} className="lt-ws__check" />
                     <span className="lt-ws__moretext">
@@ -571,12 +601,12 @@ export default function WorksheetGenerator() {
             )}
 
             <div className="lt-ws__dlgrid">
-              <button type="button" className="lt-ws__dl lt-ws__dl--primary" onClick={() => runDownload("questions")}>
-                <span className="lt-ws__dlt">↓ Worksheet (questions)</span>
+              <button type="button" className="lt-ws__dl lt-ws__dl--primary" onClick={() => runDownload("questions")} disabled={!!downloading}>
+                <span className="lt-ws__dlt">{downloading === "questions" ? "Preparing PDF…" : "↓ Worksheet (questions)"}</span>
                 <span className="lt-ws__dld">{generated?.questions.length} numbered questions · sections A–E. No answers — attempt honestly.</span>
               </button>
-              <button type="button" className="lt-ws__dl" onClick={() => runDownload("answers")}>
-                <span className="lt-ws__dlt">↓ Answer key + solutions</span>
+              <button type="button" className="lt-ws__dl" onClick={() => runDownload("answers")} disabled={!!downloading}>
+                <span className="lt-ws__dlt">{downloading === "answers" ? "Preparing PDF…" : "↓ Answer key + solutions"}</span>
                 <span className="lt-ws__dld">Step-by-step solutions with CBSE mark weights. Open after you attempt.</span>
               </button>
             </div>
@@ -670,8 +700,10 @@ const WS_CSS = `
 .lt-ws__custom { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
 
-.lt-ws__more { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 12px; }
-.lt-ws__more.off { opacity: 0.8; }
+/* FIX 2 — MI-enrich is its own contained box inside the build-mode card (was a
+   bare divider row that read as "hanging in air"). */
+.lt-ws__more { margin-top: 14px; border: 1px solid var(--ws-line); border-radius: 12px; padding: 12px 14px; background: var(--ws-surface-2); }
+.lt-ws__more.off { opacity: 0.9; }
 .lt-ws__morerow { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ws-fg); cursor: pointer; }
 .lt-ws__more.off .lt-ws__morerow { cursor: not-allowed; }
 .lt-ws__check { accent-color: var(--ws-green); flex-shrink: 0; }
