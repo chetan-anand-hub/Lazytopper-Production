@@ -24,8 +24,16 @@ describe("WorksheetGenerator — MI-enrich visible + in the preview (Item 2/4)",
     );
     const mi = getByTestId("mi-enrich-box");
     // Placed in the right preview panel (not the build card).
-    expect(mi.closest(".lt-ws__preview")).not.toBeNull();
+    const preview = mi.closest(".lt-ws__preview");
+    expect(preview).not.toBeNull();
     expect(mi.closest(".lt-ws__card")).toBeNull();
+    // Ordering: MI sits AFTER the complete snapshot (Sections in scope), so the
+    // compact "Will be generated" snapshot stays intact above it.
+    const sections = Array.from(preview!.querySelectorAll(".lt-ws__bh")).find(
+      (el) => el.textContent === "Sections in scope",
+    );
+    expect(sections).toBeTruthy();
+    expect(sections!.compareDocumentPosition(mi) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     // Visible + explained.
     expect(mi.textContent).toContain("Personalise this worksheet");
     expect(mi.textContent).toContain("Mistake Intelligence");

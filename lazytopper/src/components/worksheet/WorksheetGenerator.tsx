@@ -556,13 +556,26 @@ export default function WorksheetGenerator() {
                   </div>
                 )}
 
-                {/* MI enrich (Item 2 + 4) — placed in the right preview, next to the
-                    live Distribution it controls (toggle on → distribution re-weights
-                    toward the weak topic), so the cause-and-effect is visible. Always
-                    VISIBLE + explained; the real <input> is hard-scoped so the global
-                    input{width:100%;appearance:none} rule can't balloon it. Three
-                    honest states: signed-out → login (returns here); enriched →
-                    toggle; signed-in-but-no-hotspot → how-to-unlock message. */}
+                {/* Sections in scope */}
+                <div className="lt-ws__pvbreak">
+                  <div className="lt-ws__bh">Sections in scope</div>
+                  <div className="lt-ws__pvsecs">
+                    {ALL_SECTIONS.filter((s) => effSections === "All" || (effSections as string[]).includes(s)).map((s) => (
+                      <span key={s} className="lt-ws__pvsec">{SECTION_MARK_LABEL[s]}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* MI enrich — AFTER the complete "Will be generated" snapshot (chips
+                    + distribution + sections), as its OWN distinct block, so the
+                    compact snapshot stays intact and the MI reads as a separate
+                    ACTION. Styled as the page's single NAVY anchor (Item 5) so it is
+                    discoverable on the otherwise-pale page. Always VISIBLE + titled +
+                    explained in all three states (signed-out → login returning here;
+                    enriched → toggle; signed-in-no-hotspot → how-to-unlock note), so
+                    the locked state reads as intentional, not a broken empty box. The
+                    real <input> is hard-scoped so the global input{...} rule can't
+                    balloon it. */}
                 <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
                   <div className="lt-ws__mi-title"><span aria-hidden="true">✨</span> Personalise this worksheet</div>
                   <p className="lt-ws__mi-desc">
@@ -587,16 +600,6 @@ export default function WorksheetGenerator() {
                       Grade a worksheet or use Check &amp; Improve first — then pick a multi-topic or full-subject scope, and this focuses the worksheet on the topics you&rsquo;ve lost the most marks on.
                     </p>
                   )}
-                </div>
-
-                {/* Sections in scope */}
-                <div className="lt-ws__pvbreak">
-                  <div className="lt-ws__bh">Sections in scope</div>
-                  <div className="lt-ws__pvsecs">
-                    {ALL_SECTIONS.filter((s) => effSections === "All" || (effSections as string[]).includes(s)).map((s) => (
-                      <span key={s} className="lt-ws__pvsec">{SECTION_MARK_LABEL[s]}</span>
-                    ))}
-                  </div>
                 </div>
 
                 {shortfall && !blocker && (
@@ -743,20 +746,24 @@ const WS_CSS = `
 .lt-ws__custom { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
 
-/* Item 2 — MI-enrich: a VISIBLE, inviting, contained field inside the build-mode
-   card. Green-tinted when available, neutral when locked; always present so the
-   feature is discoverable. */
-.lt-ws__mi { margin: 10px 0; border: 1px solid var(--ws-green-b); border-radius: 12px; padding: 12px 13px; background: var(--ws-green-soft); }
-.lt-ws__mi.locked { border-color: var(--ws-line); background: var(--ws-surface-2); }
-.lt-ws__mi-cta { display: inline-block; margin-top: 2px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 600; text-decoration: none; }
-.lt-ws__mi-cta:hover { background: hsl(152, 60%, 38%); }
-.lt-ws__mi-hint { margin: 0; font-size: 12px; color: var(--ws-muted); line-height: 1.45; }
-.lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: var(--ws-green-fg); }
-.lt-ws__mi.locked .lt-ws__mi-title { color: var(--ws-fg); }
-.lt-ws__mi-desc { margin: 5px 0 11px; font-size: 12px; color: var(--ws-muted); line-height: 1.5; }
-.lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: var(--ws-fg); cursor: pointer; }
-.lt-ws__mi.locked .lt-ws__mi-toggle { cursor: not-allowed; color: var(--ws-muted); }
+/* Item 5 — MI-enrich is the page's single NAVY anchor: a deliberately-emphasized,
+   discoverable ACTION block sitting after the (pale, calm) "Will be generated"
+   snapshot. Navy is the product's real MI/sidebar grammar (hsl(220,25%,12%)), so
+   it's on-grammar, not decoration. ONLY this block is darkened — the form, fields
+   and preview stay light. White title + soft-light body, green accent for actions.
+   Same navy in all three states so the locked state reads as intentional. */
+.lt-ws__mi { margin: 12px 0; border: 1px solid hsl(220, 25%, 12%); border-radius: 12px; padding: 14px 15px; background: hsl(220, 25%, 12%); }
+.lt-ws__mi.locked { border-color: hsl(220, 25%, 12%); background: hsl(220, 25%, 12%); }
+.lt-ws__mi-cta { display: inline-block; margin-top: 2px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 700; text-decoration: none; }
+.lt-ws__mi-cta:hover { background: hsl(152, 60%, 40%); }
+.lt-ws__mi-hint { margin: 0; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.45; }
+.lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: #ffffff; }
+.lt-ws__mi.locked .lt-ws__mi-title { color: #ffffff; }
+.lt-ws__mi-desc { margin: 5px 0 11px; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.5; }
+.lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: hsl(220, 18%, 88%); cursor: pointer; }
+.lt-ws__mi.locked .lt-ws__mi-toggle { cursor: not-allowed; color: hsl(220, 18%, 82%); }
 .lt-ws__mi-toggletext { flex: 1; min-width: 0; line-height: 1.45; }
+.lt-ws__mi-toggletext strong { color: #ffffff; }
 /* Hard-scope the real checkbox so the global input{width:100%;appearance:none}
    rule cannot balloon it into a floating empty box. */
 .lt-ws__mi-check {
