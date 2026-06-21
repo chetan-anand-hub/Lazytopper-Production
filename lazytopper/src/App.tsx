@@ -69,7 +69,6 @@ const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 
 // Mobile baseline pages (#437 — real implementations)
 const Intent            = lazy(() => import("./pages/app/Intent"));
-const Worksheets        = lazy(() => import("./pages/app/Worksheets"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
 const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
 const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
@@ -84,9 +83,13 @@ const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 const ExamTrendsRanked = lazy(() => import("./pages/ExamTrendsRanked"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
-// Desktop Phase 7 — locked desktop Worksheet workspace (>=1024px only).
-// Mobile width keeps rendering the existing Worksheets generator unchanged.
-const DesktopWorksheetsPage = lazy(() => import("./pages/desktop/DesktopWorksheetsPage"));
+// PR-E2a — ONE responsive worksheet generator (replaces the desktop + mobile
+// twins DesktopWorksheetsPage + app/Worksheets). Renders at every width; App
+// wraps it in DesktopShell at desktop width (isDesktopShellRoute) and the global
+// mobile BottomNav handles mobile nav — same convention as ExamTrendsRanked.
+// The retired twins remain on disk for PR-G deletion (imports removed so tsc
+// noUnusedLocals stays green).
+const WorksheetGenerator = lazy(() => import("./components/worksheet/WorksheetGenerator"));
 // Desktop Phase 6 — locked desktop Me / Progress page (>=1024px only).
 // Mobile width keeps rendering MobileMe unchanged.
 const DesktopMePage = lazy(() => import("./pages/desktop/DesktopMePage"));
@@ -915,20 +918,17 @@ export default function App() {
           />
 
           {/* Worksheets flow — ready must be before the parent to avoid partial match.
-              Desktop Phase 7 (PR-D): at desktop width (>=1024px) /practice/worksheets
-              renders the locked DesktopWorksheetsPage inside DesktopShell (the
-              conditional shell wrap is applied above by isDesktopShellRoute).
-              At mobile width, the existing mobile Worksheets generator renders
-              unchanged. The /practice/worksheets/ready route is shared by both
-              paths (desktop and mobile both navigate to it with { state: { opts } }). */}
+              PR-E2a: /practice/worksheets renders the ONE responsive
+              WorksheetGenerator at EVERY width (build → generated states in-place).
+              At desktop width it mounts inside DesktopShell (isDesktopShellRoute
+              keeps "/practice/worksheets" shell-wrapped); at mobile width it reflows
+              fluidly and the global BottomNav provides nav. The legacy
+              /practice/worksheets/ready route is retained for the old mobile flow
+              and any deep-links (the new in-place flow does not navigate to it). */}
           <Route path="/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
           <Route
             path="/practice/worksheets"
-            element={
-              isDesktop
-                ? withRouteSuspense(<DesktopWorksheetsPage />)
-                : withRouteSuspense(<Worksheets />)
-            }
+            element={withRouteSuspense(<WorksheetGenerator />)}
           />
 
           {/* Check & Improve — Desktop Phase 5: at desktop width (>=1024px)
