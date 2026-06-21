@@ -20,7 +20,7 @@ import {
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
-import WorksheetPrintDoc from "./WorksheetPrintDoc";
+import { exportWorksheetPdf } from "./worksheetPdfExport";
 
 /**
  * WorksheetGenerator — PR-E2a: ONE responsive worksheet generator that replaces
@@ -163,9 +163,8 @@ export default function WorksheetGenerator() {
   const [view, setView] = useState<"build" | "generated">("build");
   const [generated, setGenerated] = useState<PersistedWorksheet | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
-  // FIX 1 — which print doc (if any) is mounted for window.print(). Rendering the
-  // worksheet to HTML + KaTeX (MathText) and printing keeps math symbols real.
-  const [printKind, setPrintKind] = useState<"questions" | "answers" | null>(null);
+  // E2a.2 — which PDF (if any) is currently being generated for download.
+  const [downloading, setDownloading] = useState<"questions" | "answers" | null>(null);
 
   // Keep single/multi selections valid when the visible catalogue changes.
   const topicKeysSig = topics.map((t) => t.key).join(",");
@@ -321,37 +320,22 @@ export default function WorksheetGenerator() {
     }
   }
 
-  function runDownload(kind: "questions" | "answers") {
-    if (!generated) return;
+  async function runDownload(kind: "questions" | "answers") {
+    if (!generated || downloading) return;
     setDownloadError(null);
-    setPrintKind(kind);
+    setDownloading(kind);
+    try {
+      // Renders the worksheet (real math via MathText/KaTeX) into a detached
+      // offscreen node and rasterises it into a jsPDF FILE — worksheet only,
+      // never the app page. The persisted `generated.questions` array is the
+      // single source, so the PDF count matches the header count exactly.
+      await exportWorksheetPdf(generated, kind);
+    } catch {
+      setDownloadError("Couldn’t build the PDF — please try again.");
+    } finally {
+      setDownloading(null);
+    }
   }
-
-  // Mount the print doc, let it paint (KaTeX renders synchronously in MathText),
-  // then open the browser print dialog. Reset on afterprint (or after print()
-  // returns in browsers where it blocks) so the print-area unmounts.
-  useEffect(() => {
-    if (!printKind || !generated) return;
-    let done = false;
-    const reset = () => {
-      if (done) return;
-      done = true;
-      setPrintKind(null);
-    };
-    window.addEventListener("afterprint", reset);
-    const t = window.setTimeout(() => {
-      try {
-        window.print();
-      } catch {
-        setDownloadError("Couldn’t open the print dialog — please try again.");
-      }
-      reset();
-    }, 80);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("afterprint", reset);
-    };
-  }, [printKind, generated]);
 
   // ── Generated-state derived breakdowns (real counts) ──────────────────────
   const genSectionRows = useMemo(() => {
@@ -371,10 +355,6 @@ export default function WorksheetGenerator() {
         <span aria-hidden="true">←</span>
         <span>{backLabel}</span>
       </Link>
-
-      {/* FIX 1 — print-area for the questions / answer-key PDF (real math via
-          MathText/KaTeX). Mounted only while printing; screen-hidden by print.css. */}
-      {printKind && generated && <WorksheetPrintDoc ws={generated} kind={printKind} />}
 
       {view === "build" ? (
         <>
@@ -528,8 +508,10 @@ export default function WorksheetGenerator() {
                   </div>
                 )}
 
-                {/* MI enrich — quiet toggle */}
-                <div className={`lt-ws__more${canEnrich ? "" : " off"}`}>
+                {/* MI enrich — a labelled, contained field inside the build-mode
+                    card (FIX 3: was reading as detached / "hanging in air"). */}
+                <div className={`lt-ws__more${canEnrich ? "" : " off"}`} data-testid="mi-enrich-box">
+                  <div className="lt-ws__lbl">Personalise (optional)</div>
                   <label className="lt-ws__morerow" title={canEnrich ? `Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.` : "Grade an answer in Check & Improve and pick a multi-topic / full-subject scope that includes a weak topic to unlock."}>
                     <input type="checkbox" checked={miEnrich && canEnrich} disabled={!canEnrich} onChange={(e) => setMiEnrich(e.target.checked)} className="lt-ws__check" />
                     <span className="lt-ws__moretext">
@@ -619,12 +601,12 @@ export default function WorksheetGenerator() {
             )}
 
             <div className="lt-ws__dlgrid">
-              <button type="button" className="lt-ws__dl lt-ws__dl--primary" onClick={() => runDownload("questions")}>
-                <span className="lt-ws__dlt">↓ Worksheet (questions)</span>
+              <button type="button" className="lt-ws__dl lt-ws__dl--primary" onClick={() => runDownload("questions")} disabled={!!downloading}>
+                <span className="lt-ws__dlt">{downloading === "questions" ? "Preparing PDF…" : "↓ Worksheet (questions)"}</span>
                 <span className="lt-ws__dld">{generated?.questions.length} numbered questions · sections A–E. No answers — attempt honestly.</span>
               </button>
-              <button type="button" className="lt-ws__dl" onClick={() => runDownload("answers")}>
-                <span className="lt-ws__dlt">↓ Answer key + solutions</span>
+              <button type="button" className="lt-ws__dl" onClick={() => runDownload("answers")} disabled={!!downloading}>
+                <span className="lt-ws__dlt">{downloading === "answers" ? "Preparing PDF…" : "↓ Answer key + solutions"}</span>
                 <span className="lt-ws__dld">Step-by-step solutions with CBSE mark weights. Open after you attempt.</span>
               </button>
             </div>

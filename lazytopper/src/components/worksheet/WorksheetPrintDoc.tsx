@@ -2,27 +2,27 @@ import { MathText } from "../question/MathText";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 
 /**
- * WorksheetPrintDoc — PR-E2a.1 FIX 1: the print-area that renders a worksheet to
- * the locked PDF design (docs/design/worksheet_PDF_design_mockup_v1) using the
- * app's EXISTING math renderer (MathText / KaTeX) so symbols are REAL (√, ², θ,
- * fractions) — NOT ASCII-ified.
+ * WorksheetPrintDoc — the worksheet rendered to the locked PDF design
+ * (docs/design/worksheet_PDF_design_mockup_v1) using the app's EXISTING math
+ * renderer (MathText / KaTeX) so symbols are REAL (√, ², θ, fractions).
  *
- * The previous E2a path used jsPDF + Helvetica (Latin-1 only), whose sanitize()
- * turned √→"sqrt" and unmappable symbols (e.g. the unicode minus −) into "?". The
- * question bank stores unicode math, so for a maths worksheet that was unusable.
+ * PR-E2a.2: this is now a CAPTURE-ready document. The PR-E2a.1 window.print() /
+ * #print-area path was broken (print.css used visibility:hidden, which keeps the
+ * whole app in the printed layout, and a printer-less browser prompted "install a
+ * printer"). It is replaced by a real client-side PDF FILE download
+ * (worksheetPdfExport.ts): this doc is rendered into a DETACHED offscreen host,
+ * rasterised with html2canvas, and written into a jsPDF document — so the PDF
+ * contains ONLY the worksheet (clean isolation by construction; never the app).
  *
- * This is the SHARED, subject-agnostic fix: every question / option / solution
- * step / final answer renders through <MathText> regardless of subject (Maths √/²,
- * Physics units, Chemistry subscripts), so it is consistent everywhere — no
- * per-subject branching. Rendering goes through the established window.print() /
- * #print-area mechanism (src/print.css), the same approach the notes/mocks use.
+ * Therefore this component is fully self-contained (no #print-area, no print.css
+ * coupling — those stay reserved for notes/mocks): white page background, an
+ * absolutely-positioned tiled watermark BEHIND the content (z-index), and NO
+ * footer element (the per-page footer + "Page N of M" are drawn crisply by jsPDF
+ * after rasterisation). Dark-green tokens keep it legible in black-and-white.
  *
- * The LOCKED design is preserved: LazyTopper masthead (logo + name + CBSE line +
- * subject + date, green underline), subtle diagonal watermark (fainter on
- * questions, stronger on the answer key), footer attribution, numbered by section,
- * "label your answers" instruction, answer-key step-marking — only the RENDERING
- * engine changed (HTML/KaTeX/print instead of jsPDF-ASCII) so symbols are real.
- * Dark-green tokens keep it legible in black-and-white.
+ * Subject-agnostic / shared: every question / option / step / final answer flows
+ * through <MathText>, so Maths √/², Physics units and Chemistry subscripts all
+ * render consistently — no per-subject branching.
  */
 
 const SECTION_LABEL: Record<string, string> = {
@@ -90,14 +90,16 @@ export interface WorksheetPrintDocProps {
 export function WorksheetPrintDoc({ ws, kind }: WorksheetPrintDocProps) {
   const isAnswers = kind === "answers";
   const groups = groupBySection(ws.questions);
+  // Enough watermark tiles to cover a multi-page worksheet (overflow clips extras).
+  const wmCount = Math.min(300, Math.max(45, ws.questions.length * 6));
 
   return (
-    <div id="print-area" className="lt-wsp" aria-hidden="true" data-kind={kind}>
+    <div className="lt-wsp" data-kind={kind} data-question-count={ws.questions.length}>
       <style>{PRINT_CSS}</style>
 
-      {/* Subtle tiled diagonal watermark (behind content) */}
+      {/* Subtle tiled diagonal watermark — absolute, BEHIND content (z-index 0). */}
       <div className={`lt-wsp__wm ${isAnswers ? "lt-wsp__wm--key" : "lt-wsp__wm--light"}`} aria-hidden="true">
-        {Array.from({ length: 24 }).map((_, i) => (
+        {Array.from({ length: wmCount }).map((_, i) => (
           <span key={i}>LazyTopper</span>
         ))}
       </div>
@@ -162,11 +164,6 @@ export function WorksheetPrintDoc({ ws, kind }: WorksheetPrintDocProps) {
           </section>
         ))}
       </div>
-
-      {/* Footer (repeats each printed page via position:fixed) */}
-      <footer className="lt-wsp__foot" aria-hidden="true">
-        <span className="lt-wsp__footbr">LazyTopper</span> · lazytopper.com · © LazyTopper
-      </footer>
     </div>
   );
 }
@@ -245,9 +242,6 @@ function AnswerBlock({ q }: { q: PersistedWorksheetQuestion }) {
 }
 
 const PRINT_CSS = `
-/* Screen-hidden, print-visible (print.css makes #print-area the only visible node). */
-@media screen { #print-area.lt-wsp { display: none !important; } }
-
 .lt-wsp {
   --p-green: hsl(152, 55%, 30%);
   --p-green-d: hsl(152, 55%, 22%);
@@ -256,15 +250,19 @@ const PRINT_CSS = `
   --p-line: #d8d8d8;
   --p-fd: "Fraunces", Georgia, serif;
   --p-fb: "Inter", ui-sans-serif, system-ui, sans-serif;
-  font-family: var(--p-fb);
+  position: relative;
+  background: #ffffff;
   color: var(--p-ink);
+  font-family: var(--p-fb);
   font-size: 12px;
   line-height: 1.5;
+  padding: 24px 26px;
+  overflow: hidden;
 }
 .lt-wsp__content { position: relative; z-index: 1; }
 
-.lt-wsp__wm { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-  display: grid; grid-template-columns: repeat(3, 1fr); align-content: center; gap: 90px 0; }
+.lt-wsp__wm { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  display: grid; grid-template-columns: repeat(3, 1fr); align-content: start; gap: 64px 0; padding-top: 70px; }
 .lt-wsp__wm span { font-family: var(--p-fd); font-weight: 600; font-size: 30px; color: var(--p-green);
   transform: rotate(-30deg); text-align: center; letter-spacing: 0.05em; white-space: nowrap; }
 .lt-wsp__wm--light span { opacity: 0.05; }
@@ -290,13 +288,12 @@ const PRINT_CSS = `
   padding: 7px 10px; margin: 8px 0 14px; background: #fafafa; }
 .lt-wsp__instr b { color: var(--p-ink); }
 
-.lt-wsp__section { break-inside: auto; }
 .lt-wsp__sechead { font-family: var(--p-fd); font-weight: 600; font-size: 12.5px; color: var(--p-green-d);
   border-bottom: 1px solid var(--p-line); padding-bottom: 3px; margin: 14px 0 10px;
-  display: flex; justify-content: space-between; break-after: avoid; }
+  display: flex; justify-content: space-between; }
 .lt-wsp__sechint { font-family: var(--p-fb); font-size: 10px; font-weight: 500; color: var(--p-muted); }
 
-.lt-wsp__q { display: flex; gap: 9px; margin-bottom: 11px; break-inside: avoid; }
+.lt-wsp__q { display: flex; gap: 9px; margin-bottom: 11px; }
 .lt-wsp__qn { font-weight: 700; flex-shrink: 0; min-width: 24px; }
 .lt-wsp__qbody { flex: 1; min-width: 0; }
 .lt-wsp__qtext { font-size: 12px; }
@@ -307,7 +304,7 @@ const PRINT_CSS = `
 .lt-wsp__ans { margin-top: 5px; display: flex; flex-direction: column; gap: 8px; }
 .lt-wsp__rule { display: block; border-bottom: 1px dotted var(--p-line); height: 0; }
 
-.lt-wsp__sol { margin-bottom: 12px; break-inside: avoid; }
+.lt-wsp__sol { margin-bottom: 12px; }
 .lt-wsp__solhead { display: flex; justify-content: space-between; align-items: baseline; }
 .lt-wsp__sqn { font-weight: 700; color: var(--p-green-d); }
 .lt-wsp__solmk { font-size: 10px; color: var(--p-muted); }
@@ -316,13 +313,6 @@ const PRINT_CSS = `
 .lt-wsp__stepmk { color: var(--p-muted); font-size: 10px; }
 .lt-wsp__final { margin-top: 4px; font-weight: 600; color: var(--p-green-d); font-size: 12px; }
 .lt-wsp__nosol { margin-top: 4px; font-size: 11px; color: var(--p-muted); }
-
-.lt-wsp__foot { position: fixed; bottom: 6px; left: 0; right: 0; z-index: 1;
-  display: flex; justify-content: space-between; font-size: 9px; color: var(--p-muted);
-  border-top: 1px solid var(--p-line); padding-top: 5px; }
-.lt-wsp__footbr { font-weight: 700; color: var(--p-green-d); }
-
-@page { margin: 14mm 12mm 16mm; }
 `;
 
 export default WorksheetPrintDoc;
