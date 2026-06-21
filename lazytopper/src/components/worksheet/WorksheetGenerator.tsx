@@ -141,6 +141,15 @@ export default function WorksheetGenerator() {
   }, [location.search]);
   const backLabel = backHref === "/practice-hub" ? "Back to Practice" : "Back";
 
+  // Item 3 — MI personalisation needs a real (non-local) signed-in account that
+  // has recorded mistakes. Distinguish "signed out" (→ route to login, returning
+  // here after) from "signed in but no in-scope hotspot yet" (→ explain how to
+  // unlock), so the locked state never dead-ends or misleads.
+  const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  const loginHref = `/login?reason=mistake-aware&redirect=${encodeURIComponent(
+    location.pathname + location.search,
+  )}`;
+
   const [subject, setSubject] = useState<LTSubjectKey>((ctx.subject as LTSubjectKey) || "Maths");
   const [stream, setStream] = useState<ScienceStream>("All");
   const [scope, setScope] = useState<PaperScope>("topic");
@@ -351,10 +360,20 @@ export default function WorksheetGenerator() {
     <div className="lt-ws">
       <style>{WS_CSS}</style>
 
-      <Link to={backHref} className="lt-ws__back">
-        <span aria-hidden="true">←</span>
-        <span>{backLabel}</span>
-      </Link>
+      {/* FIX (Item 3) — view-aware Back: on the generated view, Back returns to
+          the generator (same component, build-form state intact), NOT to the
+          returnTo origin; on the build view it follows returnTo (default hub). */}
+      {view === "generated" ? (
+        <button type="button" className="lt-ws__back" onClick={() => setView("build")}>
+          <span aria-hidden="true">←</span>
+          <span>Back to generator</span>
+        </button>
+      ) : (
+        <Link to={backHref} className="lt-ws__back">
+          <span aria-hidden="true">←</span>
+          <span>{backLabel}</span>
+        </Link>
+      )}
 
       {view === "build" ? (
         <>
@@ -508,18 +527,6 @@ export default function WorksheetGenerator() {
                   </div>
                 )}
 
-                {/* MI enrich — a labelled, contained field inside the build-mode
-                    card (FIX 3: was reading as detached / "hanging in air"). */}
-                <div className={`lt-ws__more${canEnrich ? "" : " off"}`} data-testid="mi-enrich-box">
-                  <div className="lt-ws__lbl">Personalise (optional)</div>
-                  <label className="lt-ws__morerow" title={canEnrich ? `Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.` : "Grade an answer in Check & Improve and pick a multi-topic / full-subject scope that includes a weak topic to unlock."}>
-                    <input type="checkbox" checked={miEnrich && canEnrich} disabled={!canEnrich} onChange={(e) => setMiEnrich(e.target.checked)} className="lt-ws__check" />
-                    <span className="lt-ws__moretext">
-                      Enrich from Mistake Intelligence
-                      <span className="lt-ws__morehint">{canEnrich ? `weighting toward ${hotspot?.label}` : "weighting toward weak topics (locked)"}</span>
-                    </span>
-                  </label>
-                </div>
               </section>
             </div>
 
@@ -557,6 +564,42 @@ export default function WorksheetGenerator() {
                       <span key={s} className="lt-ws__pvsec">{SECTION_MARK_LABEL[s]}</span>
                     ))}
                   </div>
+                </div>
+
+                {/* MI enrich — AFTER the complete "Will be generated" snapshot (chips
+                    + distribution + sections), as its OWN distinct block, so the
+                    compact snapshot stays intact and the MI reads as a separate
+                    ACTION. Styled as the page's single NAVY anchor (Item 5) so it is
+                    discoverable on the otherwise-pale page. Always VISIBLE + titled +
+                    explained in all three states (signed-out → login returning here;
+                    enriched → toggle; signed-in-no-hotspot → how-to-unlock note), so
+                    the locked state reads as intentional, not a broken empty box. The
+                    real <input> is hard-scoped so the global input{...} rule can't
+                    balloon it. */}
+                <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
+                  <div className="lt-ws__mi-title"><span aria-hidden="true">✨</span> Personalise this worksheet</div>
+                  <p className="lt-ws__mi-desc">
+                    Weight it toward the topics you&rsquo;ve lost the most marks on (from your Mistake Intelligence) — it re-weights the distribution toward your weak topics, and these worksheets feed your Me / Progress growth.
+                  </p>
+                  {!isSignedIn ? (
+                    <Link to={loginHref} className="lt-ws__mi-cta">Sign in to personalise →</Link>
+                  ) : canEnrich ? (
+                    <label className="lt-ws__mi-toggle" title={`Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.`}>
+                      <input
+                        type="checkbox"
+                        className="lt-ws__mi-check"
+                        checked={miEnrich}
+                        onChange={(e) => setMiEnrich(e.target.checked)}
+                      />
+                      <span className="lt-ws__mi-toggletext">
+                        Enrich from Mistake Intelligence — weight toward <strong>{hotspot?.label}</strong>.
+                      </span>
+                    </label>
+                  ) : (
+                    <p className="lt-ws__mi-hint">
+                      Grade a worksheet or use Check &amp; Improve first — then pick a multi-topic or full-subject scope, and this focuses the worksheet on the topics you&rsquo;ve lost the most marks on.
+                    </p>
+                  )}
                 </div>
 
                 {shortfall && !blocker && (
@@ -657,6 +700,9 @@ const WS_CSS = `
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 13px; font-weight: 600; color: var(--ws-muted);
   text-decoration: none; margin-bottom: 14px;
+  /* works identically whether rendered as <a> (build) or <button> (generated) */
+  appearance: none; border: none; background: none; padding: 0; cursor: pointer;
+  font-family: var(--ws-fb);
 }
 .lt-ws__back:hover { color: var(--ws-fg); }
 .lt-ws__head { margin-bottom: 18px; }
@@ -700,15 +746,32 @@ const WS_CSS = `
 .lt-ws__custom { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
 
-/* FIX 2 — MI-enrich is its own contained box inside the build-mode card (was a
-   bare divider row that read as "hanging in air"). */
-.lt-ws__more { margin-top: 14px; border: 1px solid var(--ws-line); border-radius: 12px; padding: 12px 14px; background: var(--ws-surface-2); }
-.lt-ws__more.off { opacity: 0.9; }
-.lt-ws__morerow { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ws-fg); cursor: pointer; }
-.lt-ws__more.off .lt-ws__morerow { cursor: not-allowed; }
-.lt-ws__check { accent-color: var(--ws-green); flex-shrink: 0; }
-.lt-ws__moretext { display: flex; flex-direction: column; }
-.lt-ws__morehint { font-size: 11.5px; color: var(--ws-hint); }
+/* Item 5 — MI-enrich is the page's single NAVY anchor: a deliberately-emphasized,
+   discoverable ACTION block sitting after the (pale, calm) "Will be generated"
+   snapshot. Navy is the product's real MI/sidebar grammar (hsl(220,25%,12%)), so
+   it's on-grammar, not decoration. ONLY this block is darkened — the form, fields
+   and preview stay light. White title + soft-light body, green accent for actions.
+   Same navy in all three states so the locked state reads as intentional. */
+.lt-ws__mi { margin: 12px 0; border: 1px solid hsl(220, 25%, 12%); border-radius: 12px; padding: 14px 15px; background: hsl(220, 25%, 12%); }
+.lt-ws__mi.locked { border-color: hsl(220, 25%, 12%); background: hsl(220, 25%, 12%); }
+.lt-ws__mi-cta { display: inline-block; margin-top: 2px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 700; text-decoration: none; }
+.lt-ws__mi-cta:hover { background: hsl(152, 60%, 40%); }
+.lt-ws__mi-hint { margin: 0; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.45; }
+.lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: #ffffff; }
+.lt-ws__mi.locked .lt-ws__mi-title { color: #ffffff; }
+.lt-ws__mi-desc { margin: 5px 0 11px; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.5; }
+.lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: hsl(220, 18%, 88%); cursor: pointer; }
+.lt-ws__mi.locked .lt-ws__mi-toggle { cursor: not-allowed; color: hsl(220, 18%, 82%); }
+.lt-ws__mi-toggletext { flex: 1; min-width: 0; line-height: 1.45; }
+.lt-ws__mi-toggletext strong { color: #ffffff; }
+/* Hard-scope the real checkbox so the global input{width:100%;appearance:none}
+   rule cannot balloon it into a floating empty box. */
+.lt-ws__mi-check {
+  width: 18px; height: 18px; min-width: 18px; flex: 0 0 auto;
+  margin: 1px 0 0; padding: 0; border: none; border-radius: 0; box-shadow: none;
+  appearance: auto; -webkit-appearance: checkbox; background: none;
+  accent-color: var(--ws-green); cursor: inherit;
+}
 
 .lt-ws__previewwrap { min-width: 0; }
 .lt-ws__preview { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 16px; padding: 16px; position: sticky; top: 18px; }
