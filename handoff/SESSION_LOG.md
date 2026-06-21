@@ -1,5 +1,17 @@
 ---
 
+## 2026-06-21 — Worksheet rebuild E2a → E2a.3 MERGED (#280 `d065922`, #283 `9a080a0`, #284 `cfff277`)
+
+**Trunk after merge: `cfff277`.** The worksheet **foundation** is complete across three merged product PRs (#281 closed — superseded by #283). Full architecture + PR-E2b plan + gotchas: **`handoff/WORKSHEET_TRACK_HANDOFF.md`**. Each PR built in its own isolated worktree; owner live-verified on the Vercel preview before each merge; no self-merge.
+
+- **#280 PR-E2a** — ONE responsive `WorksheetGenerator` (build→generated in-place) replacing the desktop+mobile twins; distribution fix (multi-topic EVEN, full-subject BOARD-WEIGHTAGE, MI-enrich ×1.5 re-weight, largest-remainder capped at availability → honest counts); deleted-topics filter (heredity-and-evolution, magnetic-effects); two PDFs; persist-by-`worksheetId` (`worksheetSessionStore` — the PR-E2b grade contract). Legacy twins un-routed (kept for PR-G).
+- **#283 PR-E2a.1+.2** — math made REAL via the existing MathText/KaTeX (the E2a jsPDF-ASCII path had stripped √→"sqrt", −→"?"); then the `window.print()` path (printed the whole page + clipped to one page) REPLACED with a real client-side PDF FILE download (Option B: `WorksheetPrintDoc` → detached offscreen host → html2canvas → jsPDF, paginated, clean isolation). Count identity locked (header == array == rendered == pdf). No new deps.
+- **#284 PR-E2a.3** — view-aware Back (generated→builder; build→returnTo); MI-enrich relocated into the RIGHT preview AFTER the snapshot as the page's single NAVY anchor (`hsl(220,25%,12%)`) with three honest states (signed-out → `/login?...&redirect=<here>` CTA; in-scope hotspot → toggle; signed-in-no-hotspot → how-to-unlock note). Root cause of the "MI box hanging in air" found + fixed = the global `input{width:100%;appearance:none}` (styles.css:265) ballooning the bare checkbox (hard-scoped `.lt-ws__mi-check`). **Missing-symbol verdict = SOURCE-DATA gap, FLAGGED not fixed** (`src/data` gated): `real-numbers.pyq*.ts` shipped 11 irrationality questions with √/expressions stripped from `questionText` (clean camelCase `realNumbers.*.ts` are fine) → goes to the parallel symbol-fix agent; full id/year/paper-ref list in `diff/worksheet-bank-symbol-data-gaps-2026-06-21.md`.
+- **Gotchas locked** (handoff): agent-blind-to-UI → owner Vercel-verify; the global `input{width:100%}` CSS trap; backticks-in-WS_CSS-comments break the template literal; verify-with-real-data; recover-don't-fabricate for bank data; vitest not in CI (Codespaces only).
+- **NEXT: PR-E2b** — the AI grade loop (extend `server/routes/checkSolution.cjs` for structured one-PDF grading keyed to `worksheetId`/Q1…QN via `getWorksheetSession`; wire `recordMistake` through the MI front door so worksheets feed Me/Progress + unlock the MI toggle; mandatory 5-Q live-verify). New follow-ups: **[FU-PITFALL-DATA]**, **[FU-WORKSHEET-PDF-SERVERSIDE]**, the PYQ √-data audit (all subjects).
+
+---
+
 ## 2026-06-21 — CLAUDE.md governance refresh MERGED (#278, trunk `f7170ef`)
 
 **Trunk after merge: `f7170ef`** (#278, squash; `chore/claude-md-refresh`, isolated worktree off `b4163ef`, commit `ea837d4`; **product PR — root file — owner-merged, no self-merge**). A surgical edit to **`CLAUDE.md` ONLY** (+37/−9) — de-stale + add the missing invariant rules every agent reads at session start. Report: shown in-thread (no separate `report-*.md`; the full diff was relayed to the owner).
