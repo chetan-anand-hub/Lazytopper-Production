@@ -425,7 +425,7 @@ import { electricityPYQ2024 } from './questionBanks/class10/science/electricity.
 import { magneticEffectsPYQ2024 } from './questionBanks/class10/science/magneticEffects.pyq2024';
 import { ourEnvironmentPYQ2024 } from './questionBanks/class10/science/ourEnvironment.pyq2024';
 
-export const canonicalQuestionBank: CanonicalQuestion[] = [
+const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
   ...TR3_PACK3,
@@ -1514,6 +1514,78 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
     "isCompetencyBased": false
   }
 ];
+
+// ---------------------------------------------------------------------------
+// WITHHELD questions — honest omission > broken question (owner decision 2026-06-21)
+// ---------------------------------------------------------------------------
+// Subject-blind rule: a question whose BODY is unservable — bilingual/CID
+// extraction gibberish, a blank/missing expression, a garbled expression, or a
+// questionText that contradicts its own marking-scheme answer — is WITHHELD from
+// every surface so a learner never sees a broken, unanswerable question. (Merely
+// symbol-dropped-but-answerable questions are KEPT and fixed in place — they are
+// NOT here.)
+//
+// Corrupt source objects are kept INTACT in their `*.pyq*` packs (so the
+// re-extraction / owner-lookup pass has the artifact to compare against).
+// Lifecycle: as each id's real text is supplied/fixed, delete it from this set.
+// Tracked as an id-set (NOT a field on the gated CanonicalQuestion type in
+// predictionTypes.ts) — same idiom as AI_GENERATED_QUESTION_IDS below.
+//
+// Reason tag per id: bilingual = Hindi/English column bleed (re-extract);
+// mojibake = subset-font Devanagari-as-Latin gibberish; blank = expression(s)
+// missing entirely; garbled = expression scrambled beyond recovery;
+// answer-mismatch = questionText contradicts its own answer.
+export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
+  // ---- Science: bilingual column bleed / wrong-question pasted in (re-extract) ----
+  "PYQ-S-2025-ACID-008",     // bilingual
+  "PYQ-S-2025-ACID-009",     // bilingual
+  "PYQ-S-2025-ACID-011",     // bilingual
+  "PYQ-S-2025-ACID-012",     // bilingual
+  "PYQ-S-2025-CHEMRXN-016",  // bilingual
+  "PYQ-S-2025-CHEMRXN-017",  // bilingual
+  "PYQ-S-2025-CHEMRXN-022",  // bilingual
+  "PYQ-S-2025-CHEMRXN-023",  // bilingual
+  "PYQ-S-2026-CHEMRXN-009",  // bilingual
+  "PYQ-S-2026-CHEMRXN-010",  // bilingual
+  "PYQ-S-2026-CHEMRXN-015",  // bilingual
+  "PYQ-S-2026-CHEMRXN-017",  // bilingual
+  "PYQ-S-2025-REPR-009",     // bilingual
+  "PYQ-S-2025-REPR-010",     // bilingual
+  "PYQ-S-2025-LIFEP-008",    // bilingual
+  "PYQ-S-2025-LIGHT-021",    // bilingual
+  "PYQ-S-2025-METAL-006",    // bilingual
+  // ---- Maths: blank / garbled expression / answer-mismatch (owner real-paper lookup) ----
+  "PYQ-M-2025-REALNUM-003",  // blank — both expressions missing
+  "PYQ-M-2024-REALNUM-004",  // answer-mismatch — answer proves (2−√3)/5, body reads 5√3−2
+  "PYQ-M-2024-REALNUM-005b", // garbled — (√2+√3)² bracket/exponent unrecoverable
+  "PYQ-M-2025-QE-001",       // garbled — second root missing
+  "PYQ-M-2025-TRIG-001",     // blank — tan A value and expression both missing
+  "PYQ-M-2025-CG-003",       // garbled — mid-sentence scramble
+  "PYQ-M-CG-002",            // garbled — coordinate fractions/signs lost
+  "PYQ-M-POLY-001",          // garbled — Greek α/β + ± signs dropped
+  "PYQ-M-2025-POLY-003",     // garbled — operator signs lost
+  "PYQ-M-TRIG-002",          // garbled — evaluate expression token order destroyed
+  "PYQ-M-TRIG-003",          // garbled — evaluate expression scrambled
+  "PYQ-M-TRIG-006",          // garbled — prove (A) numerator/denominator scrambled
+  "PYQ-M-TRIG-007",          // garbled — prove (A) scrambled (dup of -006 + bleed)
+  "PYQ-M-2024-TRIG-012",     // garbled — evaluate expression token order destroyed
+  "PYQ-M-2024-TRIG-011a",    // garbled — evaluate expression token order destroyed
+  // ---- Maths: subset-font mojibake (Hindi-as-Latin gibberish body) ----
+  "PYQ-M-TRIG-005",          // mojibake
+  "PYQ-M-2024-TRIG-010a",    // mojibake
+  "PYQ-M-2024-TRIG-010b",    // mojibake
+  "PYQ-M-2024-TRIG-013",     // mojibake
+  "PYQ-M-2024-TRIG-019",     // mojibake
+  "PYQ-M-AP-003",            // mojibake — part (B) Hindi gibberish (dup of clean AP-002)
+]);
+
+/**
+ * The live question bank: the raw concatenation MINUS the withheld
+ * (extraction-corrupted) questions. Every consumer imports `canonicalQuestionBank`,
+ * so filtering here removes the corrupt questions from all surfaces at once.
+ */
+export const canonicalQuestionBank: CanonicalQuestion[] =
+  RAW_CANONICAL_QUESTION_BANK.filter((q) => !WITHHELD_QUESTION_IDS.has(q.id));
 
 // ---------------------------------------------------------------------------
 // AI-tier source provenance (AI-tier PR2a)
