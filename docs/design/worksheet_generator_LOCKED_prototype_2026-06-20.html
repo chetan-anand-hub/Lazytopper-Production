@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LazyTopper — Worksheet generator (LOCKED prototype)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:hsl(152,55%,45%); --green-dark:hsl(152,55%,28%); --green-tint:hsl(152,55%,96%); --green-b:hsl(152,45%,80%);
+    --navy:#15233a; --navy-soft:#1d2f49; --navy-text:#c5cfdb; --navy-dim:#8593a6; --navy-active:rgba(46,196,140,0.16);
+    --ink:#16241d; --muted:#5d6c64; --hint:#8a978f; --line:#e4e9e6; --line-soft:#eef2ef;
+    --surface:#fff; --surface-2:#f5f8f6; --page:#eef2f0;
+    --amber-tint:#fdf5e5; --amber-b:#efd9a6; --amber-text:#8a6012;
+    --blue-tint:#e8f0fb; --blue-b:#cfe0f5; --blue-text:#1d5fa5;
+    --red-tint:#fdecec; --red-b:#f3c9c9; --red-text:#a4302f;
+    --r-md:10px; --r-lg:16px; --fd:'Fraunces',serif; --fb:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--fb);line-height:1.5;-webkit-font-smoothing:antialiased;padding:24px 18px 60px;}
+  .ph{max-width:1320px;margin:0 auto 6px;}
+  .ph h1{font-family:var(--fd);font-weight:500;font-size:25px;margin:0 0 6px;}
+  .ph p{color:var(--muted);font-size:13.5px;margin:0;max-width:960px;}
+  .seclabel{max-width:1320px;margin:30px auto 12px;font-family:var(--fd);font-weight:600;font-size:18px;color:var(--ink);padding-bottom:7px;border-bottom:2px solid var(--green-b);}
+  .frames{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start;}
+  .flabel{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:0 0 10px;}
+  .dcol{flex:1;min-width:720px;}
+  .mcol{width:340px;flex-shrink:0;}
+
+  .dshell{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;box-shadow:0 1px 3px rgba(20,40,30,.04);}
+  .rail{width:196px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column;padding:18px 13px;}
+  .rbrand{display:flex;align-items:center;gap:10px;padding:0 6px 22px;}
+  .rlogo{width:32px;height:32px;border-radius:9px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+  .rname{font-family:var(--fd);font-weight:600;font-size:15px;color:#fff;}
+  .rsub{font-size:10.5px;color:var(--navy-dim);}
+  .rnav{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;font-size:13.5px;color:var(--navy-text);margin-bottom:2px;}
+  .rnav.active{background:var(--navy-active);color:#fff;font-weight:500;}
+  .mi{margin-top:auto;background:var(--navy-soft);border-radius:var(--r-md);padding:11px;}
+  .mihead{font-size:10.5px;font-weight:600;color:var(--green);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+  .mibody{font-size:11.5px;color:var(--navy-text);}.mibody b{color:#fff;}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line-soft);}
+  .search{flex:1;max-width:430px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 14px;color:var(--hint);font-size:13px;}
+  .prem{background:var(--green-tint);color:var(--green-dark);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid var(--green-b);}
+  .av{width:31px;height:31px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;}
+
+  .head{padding:20px 26px 4px;}
+  .crumb{font-size:11px;font-weight:600;color:var(--green-dark);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
+  .head h2{font-family:var(--fd);font-weight:500;font-size:26px;margin:0 0 6px;}
+  .head .lead{color:var(--muted);font-size:13.5px;max-width:560px;}
+
+  .body{padding:16px 26px 24px;display:flex;gap:22px;min-width:0;}
+  .build{flex:1;min-width:0;}
+  .pvwrap{width:300px;flex-shrink:0;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;margin-bottom:14px;}
+  .ct{font-family:var(--fd);font-weight:500;font-size:17px;margin:0 0 14px;}
+  .lbl{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px;}
+  .fieldgap{margin-bottom:16px;}.fieldgap:last-child{margin-bottom:0;}
+
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;}
+  .seg button{border:none;background:var(--surface);padding:9px 18px;font-size:13.5px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line);}
+  .seg button:last-child{border-right:none;}
+  .seg button.on{background:var(--green-tint);color:var(--green-dark);font-weight:500;}
+
+  .ddrop{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:var(--r-md);padding:11px 14px;font-size:14px;cursor:pointer;background:var(--surface);}
+  .ddrop .v{font-weight:500;}.ddrop .ch{color:var(--hint);}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:6px 13px;font-size:13px;cursor:pointer;color:var(--muted);}
+  .chip.on{background:var(--green-tint);border-color:var(--green-b);color:var(--green-dark);font-weight:500;}
+
+  .presets{display:flex;flex-direction:column;gap:9px;}
+  .preset{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:var(--r-md);padding:13px 15px;cursor:pointer;}
+  .preset.on{border-color:var(--green);background:var(--green-tint);}
+  .pradio{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;position:relative;}
+  .preset.on .pradio{border-color:var(--green);}
+  .preset.on .pradio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--green);}
+  .pmeta .pt{font-size:14px;font-weight:500;}.pmeta .pd{font-size:12px;color:var(--muted);}
+  .custom-link{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:13px;color:var(--green-dark);cursor:pointer;font-weight:500;}
+  .more{margin-top:12px;border-top:1px solid var(--line-soft);padding-top:12px;}
+  .more-row{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);cursor:pointer;}
+  .more-row .ar{margin-left:auto;color:var(--hint);}
+  .toggle{width:40px;height:23px;border-radius:20px;background:#cdd4cf;position:relative;flex-shrink:0;}
+  .toggle.on{background:var(--green);}
+  .toggle::after{content:"";position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;}
+  .toggle.on::after{left:20px;}
+
+  .pvcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;position:sticky;top:18px;}
+  .pvh{font-size:11px;font-weight:600;color:var(--green-dark);letter-spacing:.05em;text-transform:uppercase;margin:0 0 10px;}
+  .pvchip{display:inline-block;background:var(--green-tint);border:1px solid var(--green-b);color:var(--green-dark);font-size:12px;font-weight:500;padding:3px 9px;border-radius:14px;margin:0 4px 4px 0;}
+  .pvbreak{background:var(--surface-2);border-radius:var(--r-md);padding:10px 12px;margin:10px 0;}
+  .pvbreak .bh{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px;}
+  .pvb{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;color:var(--muted);}.pvb b{color:var(--ink);font-weight:500;}
+  .distbar{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;}
+  .distbar .nm{width:78px;color:var(--muted);flex-shrink:0;}
+  .distbar .bar{flex:1;height:7px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .distbar .fill{height:100%;background:var(--green);}.distbar .ct{width:18px;text-align:right;font-weight:500;}
+  .gen{width:100%;border:none;background:var(--green);color:#fff;border-radius:var(--r-md);padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--fd);}
+  .pvnote{font-size:11px;color:var(--hint);margin-top:10px;line-height:1.5;}
+
+  /* downloads + grade panels */
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;margin-bottom:14px;}
+  .panel-h{font-family:var(--fd);font-weight:500;font-size:18px;margin:0 0 4px;}
+  .panel-s{font-size:13px;color:var(--muted);margin:0 0 16px;}
+  .dlgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .dl{border:1px solid var(--line);border-radius:var(--r-md);padding:15px;display:flex;flex-direction:column;gap:4px;}
+  .dl.primary{border-color:var(--green-b);background:var(--green-tint);}
+  .dl .di{font-size:20px;}
+  .dl .dt{font-size:14px;font-weight:500;margin-top:3px;}
+  .dl .dd{font-size:12px;color:var(--muted);}
+  .dl .dbtn{margin-top:9px;border:1px solid var(--green);background:var(--surface);color:var(--green-dark);border-radius:8px;padding:8px;font-size:12.5px;font-weight:500;text-align:center;cursor:pointer;}
+  .dl.primary .dbtn{background:var(--green);color:#fff;border-color:var(--green);}
+
+  .upbox{border:1.5px dashed var(--blue-b);background:var(--blue-tint);border-radius:var(--r-md);padding:18px;text-align:center;}
+  .upbox .ui{font-size:26px;color:var(--blue-text);}
+  .upbox .ut{font-size:14px;font-weight:500;color:var(--blue-text);margin-top:6px;}
+  .upbox .ud{font-size:12px;color:#3a567a;margin-top:3px;}
+  .upbtn{margin-top:12px;border:none;background:var(--blue-text);color:#fff;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;}
+  .instr{font-size:12px;color:var(--muted);margin-top:10px;background:var(--surface-2);border-radius:8px;padding:9px 12px;}
+  .instr b{color:var(--ink);font-weight:600;}
+
+  /* graded result */
+  .scorehead{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .scoredial{width:58px;height:58px;border-radius:50%;border:5px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:600;font-size:18px;color:var(--green-dark);flex-shrink:0;}
+  .scoremeta .sm1{font-size:15px;font-weight:600;}.scoremeta .sm2{font-size:12.5px;color:var(--muted);}
+  .qrow{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;margin-bottom:9px;}
+  .qmark{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:600;}
+  .qmark.ok{background:var(--green-tint);color:var(--green-dark);}
+  .qmark.part{background:var(--amber-tint);color:var(--amber-text);}
+  .qmark.no{background:var(--red-tint);color:var(--red-text);}
+  .qmark.unread{background:var(--surface-2);color:var(--hint);}
+  .qbody{flex:1;min-width:0;}
+  .qt{font-size:13.5px;font-weight:500;}
+  .qd{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .qscore{font-size:13px;font-weight:600;flex-shrink:0;}
+  .qscore.ok{color:var(--green-dark);}.qscore.part{color:var(--amber-text);}.qscore.no{color:var(--red-text);}.qscore.unread{color:var(--hint);}
+
+  /* mobile */
+  .mshell{background:#0d1512;border-radius:30px;padding:9px;box-shadow:0 4px 18px rgba(20,40,30,.12);}
+  .mscreen{background:var(--page);border-radius:22px;overflow:hidden;}
+  .mtop{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--line-soft);}
+  .mlogo{width:28px;height:28px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;}
+  .mbr{font-family:var(--fd);font-weight:600;font-size:15px;flex:1;}
+  .mhead{padding:14px 14px 4px;}
+  .mhead .mc{font-size:10px;font-weight:600;color:var(--green-dark);letter-spacing:.06em;text-transform:uppercase;}
+  .mhead h3{font-family:var(--fd);font-weight:500;font-size:19px;margin:3px 0 0;}
+  .mmain{padding:12px 14px;}
+  .mcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:11px;}
+  .msticky{background:var(--surface);border-top:1px solid var(--line);padding:11px 14px;}
+  .mprev{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px;}.mprev b{color:var(--ink);}
+  .mgen{width:100%;border:none;background:var(--green);color:#fff;border-radius:var(--r-md);padding:13px;font-size:14px;font-weight:600;font-family:var(--fd);}
+  .mtab{display:flex;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line-soft);padding:8px 0 6px;}
+  .mt{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9.5px;color:var(--navy-dim);}
+  .mt.on{color:var(--green);}
+  @media(max-width:1120px){.dcol{min-width:100%;}.mcol{width:100%;max-width:340px;margin:0 auto;}}
+</style>
+</head>
+<body>
+
+<div class="ph">
+  <h1>Worksheet generator — final locked prototype</h1>
+  <p>Matches the locked spec. Three states shown: (1) the optimized BUILD form — progressive disclosure, presets primary, compact preview with live distribution; (2) the GENERATED state — two separate downloads (questions / answer-key) + the one-PDF upload-to-grade box with the "label your answers" instruction; (3) the GRADED result — per-question breakdown keyed to the worksheet's known questions, with an honest "couldn't read" state. Mobile mirrors all of it.</p>
+</div>
+
+<!-- STATE 1: BUILD -->
+<div class="seclabel">State 1 — Build (optimized, low decision-load)</div>
+<div class="frames">
+  <div class="dcol">
+    <div class="flabel">Desktop</div>
+    <div class="dshell">
+      <div class="rail">
+        <div class="rbrand"><div class="rlogo">🎓</div><div><div class="rname">LazyTopper</div><div class="rsub">CBSE · Class 10</div></div></div>
+        <div class="rnav">⌂ &nbsp;Home</div><div class="rnav">↗ &nbsp;Exam Trends</div><div class="rnav active">▤ &nbsp;Practice</div><div class="rnav">⊡ &nbsp;Check &amp; Improve</div><div class="rnav">◔ &nbsp;Me / Progress</div>
+        <div class="mi"><div class="mihead">✶ Mistake Intel</div><div class="mibody">Last 7 days: <b>12 checked, 15 lost.</b> Top: <b>concept gaps.</b></div></div>
+      </div>
+      <div class="main">
+        <div class="topbar"><div class="search">Search topics, chapters, questions…</div><div class="prem">Premium active</div><div class="av">C</div></div>
+        <div class="head"><div class="crumb">← Practice · Worksheet</div><h2>What worksheet do you want?</h2><div class="lead">Pick what to cover and a build mode. Nothing generates until you press Generate.</div></div>
+        <div class="body">
+          <div class="build">
+            <div class="card">
+              <div class="ct">What to cover</div>
+              <div class="fieldgap"><div class="lbl">Subject</div><div class="seg"><button class="on">Maths</button><button>Science</button></div></div>
+              <div class="fieldgap"><div class="lbl">Scope</div><div class="seg"><button>Single topic</button><button class="on">Multi-topic</button><button>Full subject</button></div></div>
+              <div class="fieldgap"><div class="lbl">Topics — pick one or more</div><div class="chips"><span class="chip on">Trigonometry</span><span class="chip on">Statistics</span><span class="chip">Circles</span><span class="chip">Coordinate Geometry</span><span class="chip">Quadratic Equations</span></div></div>
+            </div>
+            <div class="card">
+              <div class="ct">Build mode</div>
+              <div class="presets">
+                <div class="preset on"><span class="pradio"></span><div class="pmeta"><div class="pt">Board exam mix</div><div class="pd">All sections A–E · all difficulty · 25 questions</div></div></div>
+                <div class="preset"><span class="pradio"></span><div class="pmeta"><div class="pt">Quick drill</div><div class="pd">Sections A–B · all difficulty · 15 questions</div></div></div>
+                <div class="preset"><span class="pradio"></span><div class="pmeta"><div class="pt">High-marks focus</div><div class="pd">Sections C–E · hard · 20 questions</div></div></div>
+              </div>
+              <div class="custom-link">⚙ Custom filters — set your own sections, difficulty &amp; count →</div>
+              <div class="more"><div class="more-row"><span class="toggle on"></span> Enrich from Mistake Intelligence <span class="ar">weighting toward weak topics ▾</span></div></div>
+            </div>
+          </div>
+          <div class="pvwrap">
+            <div class="pvcard">
+              <div class="pvh">▤ Will be generated</div>
+              <div><span class="pvchip">2 topics</span><span class="pvchip">A–E</span><span class="pvchip">25 Q</span></div>
+              <div class="pvbreak">
+                <div class="bh">Distribution (even · MI-weighted)</div>
+                <div class="distbar"><span class="nm">Trigonometry</span><span class="bar"><span class="fill" style="width:60%;"></span></span><span class="ct">15</span></div>
+                <div class="distbar"><span class="nm">Statistics</span><span class="bar"><span class="fill" style="width:40%;"></span></span><span class="ct">10</span></div>
+              </div>
+              <div class="pvbreak">
+                <div class="bh">Section breakdown</div>
+                <div class="pvb"><span>A · MCQ (1m)</span><b>8</b></div><div class="pvb"><span>B · Short I (2m)</span><b>5</b></div><div class="pvb"><span>C · Short II (3m)</span><b>6</b></div><div class="pvb"><span>D · Long (5m)</span><b>4</b></div><div class="pvb"><span>E · Case (4m)</span><b>2</b></div>
+              </div>
+              <button class="gen">▤ Generate worksheet →</button>
+              <div class="pvnote">Solve on paper, then upload one PDF to get it graded with solutions.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mcol">
+    <div class="flabel">Mobile</div>
+    <div class="mshell"><div class="mscreen">
+      <div class="mtop"><div class="mlogo">LT</div><div class="mbr">LazyTopper</div><div class="av" style="width:28px;height:28px;">C</div></div>
+      <div class="mhead"><div class="mc">‹ Practice · Worksheet</div><h3>Build a worksheet</h3></div>
+      <div class="mmain">
+        <div class="mcard">
+          <div class="lbl">Subject</div><div class="seg" style="width:100%;margin-bottom:12px;"><button class="on" style="flex:1;">Maths</button><button style="flex:1;">Science</button></div>
+          <div class="lbl">Scope</div><div class="seg" style="width:100%;margin-bottom:12px;"><button style="flex:1;padding:9px 3px;">Single</button><button class="on" style="flex:1;padding:9px 3px;">Multi</button><button style="flex:1;padding:9px 3px;">Subject</button></div>
+          <div class="lbl">Topics</div><div class="chips"><span class="chip on">Trigonometry</span><span class="chip on">Statistics</span><span class="chip">Circles</span></div>
+        </div>
+        <div class="mcard">
+          <div class="ct" style="font-size:15px;margin-bottom:10px;">Build mode</div>
+          <div class="presets">
+            <div class="preset on"><span class="pradio"></span><div class="pmeta"><div class="pt">Board exam mix</div><div class="pd">A–E · all · 25 Q</div></div></div>
+            <div class="preset"><span class="pradio"></span><div class="pmeta"><div class="pt">Quick drill</div><div class="pd">A–B · 15 Q</div></div></div>
+            <div class="preset"><span class="pradio"></span><div class="pmeta"><div class="pt">High-marks focus</div><div class="pd">C–E · hard · 20 Q</div></div></div>
+          </div>
+          <div class="custom-link" style="font-size:12.5px;">⚙ Custom filters →</div>
+        </div>
+        <div class="mcard" style="padding:12px 14px;">
+          <div class="pvh" style="margin-bottom:7px;">Distribution</div>
+          <div class="distbar"><span class="nm">Trigonometry</span><span class="bar"><span class="fill" style="width:60%;"></span></span><span class="ct">15</span></div>
+          <div class="distbar"><span class="nm">Statistics</span><span class="bar"><span class="fill" style="width:40%;"></span></span><span class="ct">10</span></div>
+        </div>
+      </div>
+      <div class="msticky"><div class="mprev"><b>25 questions</b> · 2 topics · Board mix</div><button class="mgen">Generate worksheet →</button></div>
+      <div class="mtab"><div class="mt">⌂<span>Home</span></div><div class="mt">↗<span>Trends</span></div><div class="mt on">▤<span>Practice</span></div><div class="mt">⊡<span>Check</span></div><div class="mt">◔<span>Me</span></div></div>
+    </div></div>
+  </div>
+</div>
+
+<!-- STATE 2: GENERATED -->
+<div class="seclabel">State 2 — Generated (two downloads + one-PDF upload to grade)</div>
+<div class="frames">
+  <div class="dcol">
+    <div class="flabel">Desktop</div>
+    <div class="dshell">
+      <div class="rail" style="opacity:.55;">
+        <div class="rbrand"><div class="rlogo">🎓</div><div><div class="rname">LazyTopper</div><div class="rsub">CBSE · Class 10</div></div></div>
+        <div class="rnav active">▤ &nbsp;Practice</div>
+      </div>
+      <div class="main">
+        <div class="topbar"><div class="search">Search…</div><div class="prem">Premium active</div><div class="av">C</div></div>
+        <div class="body" style="display:block;">
+          <div class="panel">
+            <div class="panel-h">✓ Your Trigonometry + Statistics worksheet is ready</div>
+            <div class="panel-s">25 questions · sections A–E. Download, solve on paper, then upload to grade.</div>
+            <div class="dlgrid">
+              <div class="dl primary"><span class="di">📄</span><span class="dt">Worksheet (questions)</span><span class="dd">25 numbered questions · sections A–E. No answers — attempt honestly.</span><div class="dbtn">⤓ Download questions PDF</div></div>
+              <div class="dl"><span class="di">🔑</span><span class="dt">Answer key + solutions</span><span class="dd">Step-by-step solutions with mark weights. Open after you attempt.</span><div class="dbtn">⤓ Download answer key</div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h">Grade my answers</div>
+            <div class="panel-s">Solved it on paper? Upload one PDF of all your answers — we grade it against this worksheet.</div>
+            <div class="upbox">
+              <div class="ui">⬆</div><div class="ut">Upload your solved worksheet (one PDF)</div><div class="ud">PDF · up to 25 MB · all answers in one file</div>
+              <button class="upbtn">Choose PDF to upload</button>
+            </div>
+            <div class="instr">📝 <b>Tip:</b> label each answer with its question number (Q1, Q2 …) — it helps us match and grade each answer accurately.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mcol">
+    <div class="flabel">Mobile</div>
+    <div class="mshell"><div class="mscreen">
+      <div class="mtop"><div class="mlogo">LT</div><div class="mbr">Worksheet ready</div></div>
+      <div class="mmain">
+        <div class="mcard"><div class="panel-h" style="font-size:16px;">✓ Ready</div><div class="panel-s" style="margin-bottom:12px;">25 questions · A–E.</div>
+          <div class="dl primary" style="margin-bottom:9px;"><span class="dt">📄 Worksheet (questions)</span><span class="dd">25 Q · no answers</span><div class="dbtn">⤓ Questions PDF</div></div>
+          <div class="dl"><span class="dt">🔑 Answer key + solutions</span><span class="dd">Open after attempting</span><div class="dbtn">⤓ Answer key</div></div>
+        </div>
+        <div class="mcard"><div class="panel-h" style="font-size:16px;">Grade my answers</div><div class="panel-s" style="margin-bottom:12px;">Upload one PDF of all answers.</div>
+          <div class="upbox" style="padding:14px;"><div class="ui">⬆</div><div class="ut" style="font-size:13px;">Upload solved PDF</div><div class="ud">one file · up to 25 MB</div><button class="upbtn">Choose PDF</button></div>
+          <div class="instr" style="margin-top:9px;">📝 <b>Tip:</b> label answers Q1, Q2 … for accurate grading.</div>
+        </div>
+      </div>
+      <div class="mtab"><div class="mt">⌂<span>Home</span></div><div class="mt">↗<span>Trends</span></div><div class="mt on">▤<span>Practice</span></div><div class="mt">⊡<span>Check</span></div><div class="mt">◔<span>Me</span></div></div>
+    </div></div>
+  </div>
+</div>
+
+<!-- STATE 3: GRADED -->
+<div class="seclabel">State 3 — Graded (per-question, keyed to known questions, honest "couldn't read")</div>
+<div class="frames">
+  <div class="dcol">
+    <div class="flabel">Desktop</div>
+    <div class="dshell">
+      <div class="rail" style="opacity:.55;"><div class="rbrand"><div class="rlogo">🎓</div><div><div class="rname">LazyTopper</div></div></div><div class="rnav active">▤ &nbsp;Practice</div></div>
+      <div class="main">
+        <div class="topbar"><div class="search">Search…</div><div class="prem">Premium active</div><div class="av">C</div></div>
+        <div class="body" style="display:block;">
+          <div class="panel">
+            <div class="scorehead">
+              <div class="scoredial">61<span style="font-size:11px;">%</span></div>
+              <div class="scoremeta"><div class="sm1">48 / 79 marks</div><div class="sm2">Trigonometry + Statistics worksheet · graded against your uploaded PDF</div></div>
+            </div>
+            <div class="qrow"><div class="qmark ok">✓</div><div class="qbody"><div class="qt">Q1 · Evaluate sin30° + cos60°</div><div class="qd">Correct — clean working, units stated.</div></div><div class="qscore ok">1 / 1</div></div>
+            <div class="qrow"><div class="qmark part">≈</div><div class="qbody"><div class="qt">Q7 · Prove (1 + tan²θ) = sec²θ</div><div class="qd">Right identity used, but a step is skipped — partial credit per the marking scheme.</div></div><div class="qscore part">2 / 3</div></div>
+            <div class="qrow"><div class="qmark no">✕</div><div class="qbody"><div class="qt">Q14 · Mean of grouped data (step-deviation)</div><div class="qd">Assumed-mean chosen wrongly → final value off. Conceptual mistake → logged to weak areas.</div></div><div class="qscore no">1 / 5</div></div>
+            <div class="qrow"><div class="qmark unread">?</div><div class="qbody"><div class="qt">Q19 · Heights &amp; distances application</div><div class="qd">Couldn't read your answer clearly in the PDF (page faint / cut off). Re-upload this page to grade it.</div></div><div class="qscore unread">— / 5</div></div>
+            <div class="pvnote" style="margin-top:12px;">Mistakes from this worksheet now feed your Mistake Intelligence. Careless marks (units, presentation) show as careless mark-loss on Me — not weaknesses.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mcol">
+    <div class="flabel">Mobile</div>
+    <div class="mshell"><div class="mscreen">
+      <div class="mtop"><div class="mlogo">LT</div><div class="mbr">Graded</div></div>
+      <div class="mmain">
+        <div class="mcard">
+          <div class="scorehead" style="margin-bottom:12px;"><div class="scoredial" style="width:48px;height:48px;font-size:15px;">61<span style="font-size:9px;">%</span></div><div class="scoremeta"><div class="sm1" style="font-size:14px;">48 / 79 marks</div><div class="sm2">your uploaded PDF</div></div></div>
+          <div class="qrow" style="padding:10px 12px;"><div class="qmark ok">✓</div><div class="qbody"><div class="qt">Q1 · sin30° + cos60°</div></div><div class="qscore ok">1/1</div></div>
+          <div class="qrow" style="padding:10px 12px;"><div class="qmark part">≈</div><div class="qbody"><div class="qt">Q7 · sec²θ identity</div><div class="qd">step skipped</div></div><div class="qscore part">2/3</div></div>
+          <div class="qrow" style="padding:10px 12px;"><div class="qmark no">✕</div><div class="qbody"><div class="qt">Q14 · grouped mean</div><div class="qd">→ weak areas</div></div><div class="qscore no">1/5</div></div>
+          <div class="qrow" style="padding:10px 12px;"><div class="qmark unread">?</div><div class="qbody"><div class="qt">Q19 · heights</div><div class="qd">couldn't read — re-upload</div></div><div class="qscore unread">—/5</div></div>
+        </div>
+      </div>
+      <div class="mtab"><div class="mt">⌂<span>Home</span></div><div class="mt">↗<span>Trends</span></div><div class="mt on">▤<span>Practice</span></div><div class="mt">⊡<span>Check</span></div><div class="mt">◔<span>Me</span></div></div>
+    </div></div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.preset').forEach(function(p){p.addEventListener('click',function(){this.parentNode.querySelectorAll('.preset').forEach(function(x){x.classList.remove('on');});this.classList.add('on');});});
+  document.querySelectorAll('.toggle').forEach(function(t){t.addEventListener('click',function(){this.classList.toggle('on');});});
+</script>
+</body>
+</html>
