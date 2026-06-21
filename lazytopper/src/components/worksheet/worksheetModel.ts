@@ -25,8 +25,9 @@
 //      planned split and the generated set always agree (honest counts — the
 //      shown number is the number generated, never "up to 25" when fewer exist).
 //
-// React/UI lives in WorksheetGenerator.tsx; PDF rendering in worksheetPdf.ts;
-// later-grading persistence in services/worksheetSessionStore.ts.
+// React/UI lives in WorksheetGenerator.tsx; the downloadable PDFs render via
+// WorksheetPrintDoc.tsx (HTML + MathText/KaTeX through window.print(), so math
+// symbols are real); later-grading persistence in services/worksheetSessionStore.ts.
 
 import {
   generatePracticeQuestions,

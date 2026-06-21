@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import type { LTSubjectKey } from "../../data/predictionTypes";
@@ -20,7 +20,7 @@ import {
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
-import { downloadQuestionsPdf, downloadAnswerKeyPdf } from "./worksheetPdf";
+import WorksheetPrintDoc from "./WorksheetPrintDoc";
 
 /**
  * WorksheetGenerator — PR-E2a: ONE responsive worksheet generator that replaces
@@ -117,9 +117,29 @@ function readMistakeHotspot(uid: string | null | undefined, topics: WorksheetTop
   return bestLost > 0 ? best : null;
 }
 
+/** Reject any non-relative / protocol-bearing redirect (safe-redirect doctrine). */
+function safeInternalReturnTo(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return null;
+  return value;
+}
+
 export default function WorksheetGenerator() {
   const { user } = useAuth();
   const ctx = useSubjectContext();
+  const location = useLocation();
+
+  // FIX 3 — origin-aware back navigation. The worksheet path carries `returnTo`
+  // from its caller (e.g. TopicActions → buildDesktopWorksheetPath, which sets
+  // returnTo). Honor it (validated) so "Back" returns where the student came from
+  // — on BOTH the build and the in-place generated view — instead of always the
+  // generic practice hub. Default to /practice-hub when no safe origin is given.
+  const backHref = useMemo(() => {
+    const rt = new URLSearchParams(location.search).get("returnTo");
+    return safeInternalReturnTo(rt) ?? "/practice-hub";
+  }, [location.search]);
+  const backLabel = backHref === "/practice-hub" ? "Back to Practice" : "Back";
 
   const [subject, setSubject] = useState<LTSubjectKey>((ctx.subject as LTSubjectKey) || "Maths");
   const [stream, setStream] = useState<ScienceStream>("All");
@@ -143,6 +163,9 @@ export default function WorksheetGenerator() {
   const [view, setView] = useState<"build" | "generated">("build");
   const [generated, setGenerated] = useState<PersistedWorksheet | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  // FIX 1 — which print doc (if any) is mounted for window.print(). Rendering the
+  // worksheet to HTML + KaTeX (MathText) and printing keeps math symbols real.
+  const [printKind, setPrintKind] = useState<"questions" | "answers" | null>(null);
 
   // Keep single/multi selections valid when the visible catalogue changes.
   const topicKeysSig = topics.map((t) => t.key).join(",");
@@ -298,16 +321,37 @@ export default function WorksheetGenerator() {
     }
   }
 
-  async function runDownload(kind: "questions" | "answers") {
+  function runDownload(kind: "questions" | "answers") {
     if (!generated) return;
     setDownloadError(null);
-    try {
-      if (kind === "questions") await downloadQuestionsPdf(generated);
-      else await downloadAnswerKeyPdf(generated);
-    } catch {
-      setDownloadError("Download failed — please try again.");
-    }
+    setPrintKind(kind);
   }
+
+  // Mount the print doc, let it paint (KaTeX renders synchronously in MathText),
+  // then open the browser print dialog. Reset on afterprint (or after print()
+  // returns in browsers where it blocks) so the print-area unmounts.
+  useEffect(() => {
+    if (!printKind || !generated) return;
+    let done = false;
+    const reset = () => {
+      if (done) return;
+      done = true;
+      setPrintKind(null);
+    };
+    window.addEventListener("afterprint", reset);
+    const t = window.setTimeout(() => {
+      try {
+        window.print();
+      } catch {
+        setDownloadError("Couldn’t open the print dialog — please try again.");
+      }
+      reset();
+    }, 80);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("afterprint", reset);
+    };
+  }, [printKind, generated]);
 
   // ── Generated-state derived breakdowns (real counts) ──────────────────────
   const genSectionRows = useMemo(() => {
@@ -323,10 +367,14 @@ export default function WorksheetGenerator() {
     <div className="lt-ws">
       <style>{WS_CSS}</style>
 
-      <Link to="/practice-hub" className="lt-ws__back">
+      <Link to={backHref} className="lt-ws__back">
         <span aria-hidden="true">←</span>
-        <span>Back to Practice</span>
+        <span>{backLabel}</span>
       </Link>
+
+      {/* FIX 1 — print-area for the questions / answer-key PDF (real math via
+          MathText/KaTeX). Mounted only while printing; screen-hidden by print.css. */}
+      {printKind && generated && <WorksheetPrintDoc ws={generated} kind={printKind} />}
 
       {view === "build" ? (
         <>
@@ -670,8 +718,10 @@ const WS_CSS = `
 .lt-ws__custom { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
 
-.lt-ws__more { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 12px; }
-.lt-ws__more.off { opacity: 0.8; }
+/* FIX 2 — MI-enrich is its own contained box inside the build-mode card (was a
+   bare divider row that read as "hanging in air"). */
+.lt-ws__more { margin-top: 14px; border: 1px solid var(--ws-line); border-radius: 12px; padding: 12px 14px; background: var(--ws-surface-2); }
+.lt-ws__more.off { opacity: 0.9; }
 .lt-ws__morerow { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ws-fg); cursor: pointer; }
 .lt-ws__more.off .lt-ws__morerow { cursor: not-allowed; }
 .lt-ws__check { accent-color: var(--ws-green); flex-shrink: 0; }
