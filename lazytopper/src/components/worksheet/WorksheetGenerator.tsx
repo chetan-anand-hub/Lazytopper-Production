@@ -351,10 +351,20 @@ export default function WorksheetGenerator() {
     <div className="lt-ws">
       <style>{WS_CSS}</style>
 
-      <Link to={backHref} className="lt-ws__back">
-        <span aria-hidden="true">←</span>
-        <span>{backLabel}</span>
-      </Link>
+      {/* FIX (Item 3) — view-aware Back: on the generated view, Back returns to
+          the generator (same component, build-form state intact), NOT to the
+          returnTo origin; on the build view it follows returnTo (default hub). */}
+      {view === "generated" ? (
+        <button type="button" className="lt-ws__back" onClick={() => setView("build")}>
+          <span aria-hidden="true">←</span>
+          <span>Back to generator</span>
+        </button>
+      ) : (
+        <Link to={backHref} className="lt-ws__back">
+          <span aria-hidden="true">←</span>
+          <span>{backLabel}</span>
+        </Link>
+      )}
 
       {view === "build" ? (
         <>
@@ -508,15 +518,36 @@ export default function WorksheetGenerator() {
                   </div>
                 )}
 
-                {/* MI enrich — a labelled, contained field inside the build-mode
-                    card (FIX 3: was reading as detached / "hanging in air"). */}
-                <div className={`lt-ws__more${canEnrich ? "" : " off"}`} data-testid="mi-enrich-box">
-                  <div className="lt-ws__lbl">Personalise (optional)</div>
-                  <label className="lt-ws__morerow" title={canEnrich ? `Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.` : "Grade an answer in Check & Improve and pick a multi-topic / full-subject scope that includes a weak topic to unlock."}>
-                    <input type="checkbox" checked={miEnrich && canEnrich} disabled={!canEnrich} onChange={(e) => setMiEnrich(e.target.checked)} className="lt-ws__check" />
-                    <span className="lt-ws__moretext">
-                      Enrich from Mistake Intelligence
-                      <span className="lt-ws__morehint">{canEnrich ? `weighting toward ${hotspot?.label}` : "weighting toward weak topics (locked)"}</span>
+                {/* MI enrich (Item 2) — a VISIBLE, inviting, contained field inside
+                    the build-mode card. Titled + explained so students understand
+                    the benefit (it feeds Me/Progress); the real <input> is hard-
+                    scoped so the global `input{width:100%;appearance:none}` rule
+                    can't balloon it into a floating empty box. Locked state stays
+                    visible + explained so the feature is discoverable before unlock. */}
+                <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
+                  <div className="lt-ws__mi-title"><span aria-hidden="true">✨</span> Personalise this worksheet</div>
+                  <p className="lt-ws__mi-desc">
+                    Focus it on the topics you&rsquo;ve lost the most marks on, from your Mistake Intelligence — these worksheets feed your Me / Progress growth.
+                  </p>
+                  <label
+                    className="lt-ws__mi-toggle"
+                    title={canEnrich
+                      ? `Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.`
+                      : "Grade an answer in Check & Improve, then pick a multi-topic or full-subject scope that includes a weak topic, to unlock."}
+                  >
+                    <input
+                      type="checkbox"
+                      className="lt-ws__mi-check"
+                      checked={miEnrich && canEnrich}
+                      disabled={!canEnrich}
+                      onChange={(e) => setMiEnrich(e.target.checked)}
+                    />
+                    <span className="lt-ws__mi-toggletext">
+                      {canEnrich ? (
+                        <>Enrich from Mistake Intelligence — weight toward <strong>{hotspot?.label}</strong>.</>
+                      ) : (
+                        <>Enrich from Mistake Intelligence <em>(locked)</em> — grade an answer in Check &amp; Improve, then choose a multi-topic or full-subject scope that includes a weak topic.</>
+                      )}
                     </span>
                   </label>
                 </div>
@@ -657,6 +688,9 @@ const WS_CSS = `
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 13px; font-weight: 600; color: var(--ws-muted);
   text-decoration: none; margin-bottom: 14px;
+  /* works identically whether rendered as <a> (build) or <button> (generated) */
+  appearance: none; border: none; background: none; padding: 0; cursor: pointer;
+  font-family: var(--ws-fb);
 }
 .lt-ws__back:hover { color: var(--ws-fg); }
 .lt-ws__head { margin-bottom: 18px; }
@@ -700,15 +734,25 @@ const WS_CSS = `
 .lt-ws__custom { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
 
-/* FIX 2 — MI-enrich is its own contained box inside the build-mode card (was a
-   bare divider row that read as "hanging in air"). */
-.lt-ws__more { margin-top: 14px; border: 1px solid var(--ws-line); border-radius: 12px; padding: 12px 14px; background: var(--ws-surface-2); }
-.lt-ws__more.off { opacity: 0.9; }
-.lt-ws__morerow { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ws-fg); cursor: pointer; }
-.lt-ws__more.off .lt-ws__morerow { cursor: not-allowed; }
-.lt-ws__check { accent-color: var(--ws-green); flex-shrink: 0; }
-.lt-ws__moretext { display: flex; flex-direction: column; }
-.lt-ws__morehint { font-size: 11.5px; color: var(--ws-hint); }
+/* Item 2 — MI-enrich: a VISIBLE, inviting, contained field inside the build-mode
+   card. Green-tinted when available, neutral when locked; always present so the
+   feature is discoverable. */
+.lt-ws__mi { margin-top: 14px; border: 1px solid var(--ws-green-b); border-radius: 12px; padding: 13px 15px; background: var(--ws-green-soft); }
+.lt-ws__mi.locked { border-color: var(--ws-line); background: var(--ws-surface-2); }
+.lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: var(--ws-green-fg); }
+.lt-ws__mi.locked .lt-ws__mi-title { color: var(--ws-fg); }
+.lt-ws__mi-desc { margin: 5px 0 11px; font-size: 12px; color: var(--ws-muted); line-height: 1.5; }
+.lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: var(--ws-fg); cursor: pointer; }
+.lt-ws__mi.locked .lt-ws__mi-toggle { cursor: not-allowed; color: var(--ws-muted); }
+.lt-ws__mi-toggletext { flex: 1; min-width: 0; line-height: 1.45; }
+/* Hard-scope the real checkbox so the global input{width:100%;appearance:none}
+   rule cannot balloon it into a floating empty box. */
+.lt-ws__mi-check {
+  width: 18px; height: 18px; min-width: 18px; flex: 0 0 auto;
+  margin: 1px 0 0; padding: 0; border: none; border-radius: 0; box-shadow: none;
+  appearance: auto; -webkit-appearance: checkbox; background: none;
+  accent-color: var(--ws-green); cursor: inherit;
+}
 
 .lt-ws__previewwrap { min-width: 0; }
 .lt-ws__preview { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 16px; padding: 16px; position: sticky; top: 18px; }
