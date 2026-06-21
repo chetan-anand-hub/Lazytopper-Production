@@ -2,6 +2,20 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-21 — Post-PR #284 roadmap update (Worksheet rebuild E2a → E2a.3 MERGED)
+
+Trunk `cfff277`. Worksheet **foundation** delivered across #280 (`d065922`) + #283 (`9a080a0`) + #284 (`cfff277`); #281 closed (superseded). Each owner Vercel-verified + merged; no self-merge. Full detail/architecture/gotchas: **`handoff/WORKSHEET_TRACK_HANDOFF.md`**.
+
+**Topic Hub rebuild — PR-E2 foundation DONE:**
+- ✅ **PR-E2a (#280)** — ONE responsive `WorksheetGenerator` (replaced desktop+mobile twins; un-routed for PR-G) + distribution fix (even/board-weightage/MI ×1.5, largest-remainder capped at availability → honest counts) + deleted-topics filter + two PDFs + persist-by-`worksheetId`.
+- ✅ **PR-E2a.1+.2 (#283)** — real math (MathText/KaTeX) + real PDF FILE download (Option B: offscreen render → html2canvas → jsPDF, paginated, clean isolation) + count identity.
+- ✅ **PR-E2a.3 (#284)** — view-aware Back; MI-enrich navy anchor in the right preview with honest signed-out/locked states; missing-symbol traced to a SOURCE-DATA gap → FLAGGED for the parallel symbol-fix agent (not fixed; `src/data` gated).
+- ⏳ **PR-E2b (NEXT): the AI grade loop** — extend `server/routes/checkSolution.cjs` for structured one-PDF grading keyed to `worksheetId`/Q1…QN (`getWorksheetSession`); wire `recordMistake` (MI front door); mandatory 5-Q live-verify.
+- ⏳ PR-F: content fill (Examiner's tips + Notes). ⏳ PR-G: delete dead old-mobile + retired MockBuilder/TutorDrawerV2/MentorPanel + the un-routed worksheet twins.
+- Carried follow-ups: [FU-PITFALL-DATA], [FU-WORKSHEET-PDF-SERVERSIDE], PYQ √-data audit (all subjects).
+
+---
+
 ## 2026-06-20 — Post-PR #276 roadmap update (Topic Hub PR-E1 practise-filter + chapter-test wiring + MockBuilder un-route MERGED)
 
 Reports: `report-pr-e1-practise-filter-chaptertest-2026-06-20.md` + `report-pr-e1-amendment-exact-marks-backnav-2026-06-20.md` + `report-pr-e1-fix-two-pool-count-divergence-2026-06-20.md`. Trunk `1de6f3e` (#276, squash; owner LIVE-VERIFIED + merged; branch+worktree cleaned up; 3 commits = one impl + two owner-found round-trips).

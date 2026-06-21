@@ -1,3 +1,18 @@
+## 2026-06-21 — Post-PR #280/#283/#284 (Worksheet rebuild E2a → E2a.3; trunk `cfff277`)
+
+### ✅ RESOLVED / DELIVERED
+- **Worksheet FOUNDATION (E2a → E2a.3)** — ONE responsive generator + distribution (even/weightage/MI, honest counts) + deleted-topics filter + real-math Option-B PDF file download + persist-by-`worksheetId` + view-aware Back + MI-enrich as a navy preview anchor with honest signed-out/locked states. Full detail: **`handoff/WORKSHEET_TRACK_HANDOFF.md`**. #281 closed (superseded by #283).
+
+### 🆕 NEW FOLLOW-UPS
+- **PYQ √-data audit (HIGH; separate symbol-fix agent, all subjects)** — `real-numbers.pyq*.ts` (and ~31 lines across maths `*pyq*.ts`) shipped questions with `√`/expressions stripped from `questionText` (clean camelCase `realNumbers.*.ts` are fine). SOURCE-DATA gap — flagged, NOT fixed (`src/data` gated). Full id/year/CBSE-paper-ref list + recoverable-vs-unrecoverable split: `diff/worksheet-bank-symbol-data-gaps-2026-06-21.md`. RULE: recover from twin/source, never invent, flag unrecoverables.
+- **[FU-PITFALL-DATA]** — answer-key "⚠ where students lose marks" annotations omitted (no real per-question pitfall data). Add when real data exists.
+- **[FU-WORKSHEET-PDF-SERVERSIDE]** — the PDF math is a raster image (not selectable text); acceptable for print. A server-side text PDF is a future upgrade if client quality proves insufficient.
+
+### 🔭 NEXT (worksheet track)
+- **PR-E2b (NEXT)** — the AI grade loop: extend `server/routes/checkSolution.cjs` for structured one-PDF grading keyed to `worksheetId`/Q1…QN (via `getWorksheetSession`); wire `recordMistake` through the MI front door so graded worksheets feed Me/Progress + unlock the MI-enrich toggle; **mandatory 5-Q live-verify** (AI round-trip). Then PR-F (content), PR-G (delete dead twins + retired set).
+
+---
+
 ## 2026-06-20 — Post-PR #276 (Topic Hub PR-E1 practise-filter + chapter-test wiring + MockBuilder un-route; trunk `1de6f3e`)
 
 ### ✅ RESOLVED / DELIVERED
