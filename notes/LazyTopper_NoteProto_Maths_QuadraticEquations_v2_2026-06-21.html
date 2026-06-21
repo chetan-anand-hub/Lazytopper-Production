@@ -1,0 +1,433 @@
+<!DOCTYPE html><!-- LazyTopper Note Prototype | Maths / Quadratic Equations | v2 | 2026-06-21 | generated discriminant-parabola SVGs (bucket C) · KaTeX · third tab = Proof | static Download-PDF button | STRUCTURE+FIGURE+PRINT canonical base (verbatim source-ledger enrichment still PENDING per Step 1) | supersedes quadratics_note_FINAL.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LazyTopper · Quadratic Equations — FINAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  :root{
+    --green:hsl(152,55%,45%);--green-deep:hsl(152,60%,30%);--green-tint:hsl(152,50%,96%);--green-line:hsl(152,40%,84%);
+    --navy:#0f2444;--ink:#1a2433;--ink-soft:#566173;--ink-faint:#8b94a3;
+    --bg:#f6f8fa;--card:#fff;--line:#e7ebf0;
+    --amber-tint:#fdf6e9;--amber-line:#f0e0bf;--amber-ink:#8a6d2f;--amber:#d99a2b;
+    --rose-tint:#fdf0f0;--rose-line:#f3d4d4;--rose-ink:#a8484a;--rose:#c75c5c;
+    --blue:#3a6ea5;--violet:#7a5fb0;--orange:#e0883b;
+    --radius:18px;--radius-sm:12px;--shadow:0 1px 2px rgba(15,36,68,.04),0 8px 24px rgba(15,36,68,.05);
+    --serif:'Fraunces',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;padding:24px}
+  .wrap{max-width:780px;margin:0 auto}
+  .katex{font-size:1.04em}
+
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--ink-soft);font-size:13px;font-weight:500}
+  .topbar a{color:var(--ink-soft);text-decoration:none}.topbar a:hover{color:var(--green-deep)}
+  .eyebrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px}
+  .chip{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:#eef1f5;color:var(--ink-soft);white-space:nowrap}
+  .chip.unit{background:var(--green-tint);color:var(--green-deep)}
+  h1.title{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.08;letter-spacing:-.02em;color:var(--navy);margin-bottom:10px}
+  .board-asks{display:flex;gap:12px;align-items:flex-start;background:var(--green-tint);border:1px solid var(--green-line);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:22px}
+  .board-asks .ic{flex:none;width:26px;height:26px;border-radius:7px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:14px;margin-top:1px}
+  .board-asks p{font-size:14px;margin:0}.board-asks b{color:var(--green-deep)}
+
+  .tabs{display:flex;gap:4px;background:#eceff3;padding:4px;border-radius:12px;margin-bottom:24px;position:sticky;top:12px;z-index:20}
+  .tab{flex:1;text-align:center;font-size:14px;font-weight:600;padding:9px 12px;border-radius:9px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);transition:.15s}
+  .tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(15,36,68,.1)}
+
+  .panel{display:none}.panel.show{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  section.block{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .sec-label{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green-deep);margin-bottom:10px}
+  h2.sec{font-family:var(--serif);font-weight:600;font-size:23px;color:var(--navy);margin-bottom:12px;letter-spacing:-.01em}
+  p{font-size:15px;margin-bottom:10px}p:last-child{margin-bottom:0}
+  b.t{color:var(--navy);font-weight:600}
+  .hint{font-size:13px;color:var(--ink-faint);font-style:italic;margin-bottom:12px}
+
+  .defs{display:grid;gap:10px;margin-top:6px}
+  .def{border:1px solid var(--line);border-left:3px solid var(--green);border-radius:10px;padding:13px 15px;background:#fcfdfe}
+  .def .name{font-weight:700;color:var(--navy);font-size:14.5px;margin-bottom:3px}
+  .def .body{font-size:14px;color:var(--ink-soft)}
+
+  .concepts{display:grid;gap:10px}
+  .concept{display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start;padding:13px 15px;border:1px solid var(--line);border-radius:11px;background:#fcfdfe}
+  .concept .dot{flex:none;width:28px;height:28px;border-radius:8px;background:var(--green-tint);color:var(--green-deep);display:grid;place-items:center;font-weight:700;font-size:13px;margin-top:1px}
+  .concept .ctitle{font-weight:600;color:var(--navy);font-size:14.5px}
+  .concept .cbody{font-size:13.5px;color:var(--ink-soft);margin-top:3px}
+  .concept .tested{display:inline-block;margin-top:7px;font-size:12px;font-weight:600;color:var(--green-deep);background:var(--green-tint);padding:3px 9px;border-radius:999px}
+  .bridge{margin-top:6px;font-size:12px;color:var(--amber-ink);background:var(--amber-tint);border:1px solid var(--amber-line);padding:3px 9px;border-radius:7px;display:inline-block}
+
+  /* embedded static diagram */
+  .figure{margin-top:14px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fcfdfe}
+  .figure .fcap{padding:9px 14px;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px}
+  .figure .fcap .ft{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green-deep)}
+  .triptych{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+  .gcol{border-right:1px solid var(--line)}.gcol:last-child{border-right:none}
+  .gcol .gh{padding:9px 11px;text-align:center}
+  .gcol .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;margin-bottom:4px}
+  .b-distinct{background:var(--green-tint);color:var(--green-deep)}.b-equal{background:var(--amber-tint);color:var(--amber-ink)}.b-none{background:var(--rose-tint);color:var(--rose)}
+  .gcol .gt{font-size:12px;font-weight:600;color:var(--navy);line-height:1.3}
+  .gcol svg{display:block;width:100%;height:auto}
+  .figure .flink{padding:9px 14px;border-top:1px solid var(--line);font-size:12.5px}
+  .figure .flink a{color:var(--green-deep);font-weight:600;text-decoration:none}
+
+  .ex{border:1px solid var(--line);border-radius:13px;margin-bottom:13px;overflow:hidden;background:#fff}
+  .ex:last-child{margin-bottom:0}
+  .ex-head{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--navy);color:#eaf0f8;cursor:pointer;user-select:none}
+  .ex-head .shape{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7fd6ab}
+  .ex-head .qmeta{margin-left:auto;font-size:11.5px;color:#9fb3cf;font-weight:600}
+  .ex-head .caret{margin-left:8px;transition:.2s;color:#9fb3cf}
+  .ex.open .caret{transform:rotate(90deg)}
+  .ex-q{padding:14px 16px;font-family:var(--serif);font-style:italic;font-size:15.5px;color:var(--navy);background:#fbfdff;border-bottom:1px solid var(--line)}
+  .ex-body{display:none;padding:14px 16px}.ex.open .ex-body{display:block;animation:fade .2s}
+  .steps{display:grid;gap:9px}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
+  .step .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px}
+  .step .sbody{font-size:14px}.step .lead{font-weight:600;color:var(--navy)}
+  .step .ctag{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:600;color:var(--ink-soft);background:#eef1f5;padding:2px 8px;border-radius:6px}
+  .marklogic{margin-top:13px;border:1px dashed var(--green-line);background:var(--green-tint);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--green-deep)}
+
+  .strat{display:grid;gap:9px}
+  .strat .row{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;font-size:14px}
+  .strat .arrow{color:var(--green);font-weight:700;margin-top:1px}.strat .cue{font-weight:600;color:var(--navy)}
+
+  .pitfalls{background:var(--rose-tint);border-color:var(--rose-line)}
+  .pitfalls .sec-label{color:var(--rose-ink)}.pitfalls h2.sec{color:#7a2f31}
+  .pit{display:grid;grid-template-columns:auto 1fr;gap:11px;font-size:14px;padding:9px 0;border-bottom:1px solid var(--rose-line)}
+  .pit:last-child{border-bottom:none}.pit .x{color:var(--rose-ink);font-weight:700}.pit b{color:#7a2f31}
+
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .fitem{background:#fcfdfe;border:1px solid var(--green-line);border-radius:11px;padding:13px 15px}
+  .fitem.full{grid-column:1/-1}
+  .fitem .flabel{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--green-deep);margin-bottom:7px}
+  .fitem .fval{font-size:16px;color:var(--navy)}
+
+  /* ── MINDMAP (D3, responsive) ── */
+  .mm-intro{font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;text-align:center}
+  .mm-controls{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+  .mm-btn{font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);cursor:pointer;font-family:var(--sans)}
+  .mm-btn:hover{border-color:var(--green-line);color:var(--green-deep)}
+  #mmStage{width:100%;height:600px;background:#fcfdfe;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  #mmStage svg{width:100%;height:100%;display:block;cursor:grab}
+  #mmStage svg:active{cursor:grabbing}
+  .mm-link{fill:none;stroke-width:2px;opacity:.45}
+  .node-card{cursor:pointer}
+  .node-card rect{rx:11}
+  .node-label{font-family:var(--sans);font-weight:600;fill:var(--navy)}
+  .node-root rect{fill:var(--navy)}
+  .node-root .node-label{fill:#fff;font-family:var(--serif);font-weight:600}
+  .leaf .node-label{fill:var(--ink-soft);font-weight:500}
+  .mk-pill{font-size:10px;font-weight:700;fill:var(--green-deep)}
+
+  .footnote{text-align:center;font-size:12px;color:var(--ink-faint);font-style:italic;margin:20px 0 4px}
+
+  @media print{
+    .tabs,.mm-controls{display:none}
+    .panel{display:block!important}
+    #mmStage{height:auto}
+    body{padding:0}
+  }
+  @media(max-width:560px){
+    body{padding:14px}h1.title{font-size:30px}
+    section.block{padding:18px 16px}.frow{grid-template-columns:1fr}
+    .triptych{grid-template-columns:1fr}.gcol{border-right:none;border-bottom:1px solid var(--line)}.gcol:last-child{border-bottom:none}
+    #mmStage{height:520px}.tabs{top:6px}
+  }
+.pdf-btn{flex:0 0 auto;margin-left:6px;font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:9px;border:1px solid var(--green-line);background:#fff;color:var(--green-deep);cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);white-space:nowrap}.pdf-btn:hover{background:var(--green-tint)}@media print{@page{margin:14mm}.topbar,.tabs,.mm-intro,.mm-controls,.pdf-btn{display:none!important}.panel{display:none!important}.panel.show{display:block!important}#mmStage{height:auto;min-height:55vh;overflow:visible}#mmStage svg{width:100%;height:auto}body{padding:0}.wrap{max-width:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.figure img,.figure svg{max-height:235mm;width:auto;max-width:100%;margin:0 auto}.block,.def,.concept,.figure,.ex,.rulei,.pit{break-inside:avoid}h1.title,.board-asks{break-inside:avoid}}</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar"><a href="#">← Topic Hub</a><span>·</span><span>Maths</span><span>·</span><span>Algebra</span></div>
+  <div class="eyebrow">
+    <span class="chip unit">Unit II · Algebra</span><span class="chip">Class 10 · CBSE 2026–27</span><span class="chip">High weightage</span>
+  </div>
+  <h1 class="title">Quadratic Equations</h1>
+  <div class="board-asks"><div class="ic">★</div><p><b>What the board actually asks:</b> solving by factorisation &amp; the quadratic formula, the discriminant (nature of roots), and word problems — these carry almost every mark here.</p></div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('note',this)">Note</button>
+    <button class="tab" onclick="show('mind',this)">Mindmap</button>
+    <button class="tab" onclick="show('proof',this)">Proof</button>
+  <button class="pdf-btn" onclick="window.print()" title="Save this tab as PDF / print">⤓ Download PDF</button></div>
+
+  <!-- ════ NOTE ════ -->
+  <div class="panel show" id="note">
+    <section class="block">
+      <div class="sec-label">The Big Idea</div>
+      <h2 class="sec">One question, a few tools.</h2>
+      <p>A quadratic equation is any equation you can write as $ax^2 + bx + c = 0$, where $a \neq 0$. The whole chapter answers one question: <b class="t">what values of $x$ make this true?</b> Those values are the <b class="t">roots</b>.</p>
+      <p>You'll learn to find them (factorisation, the quadratic formula), decide whether they exist (the discriminant), relate them to the coefficients, and turn real situations into equations you can solve.</p>
+    </section>
+
+    <section class="block">
+      <div class="sec-label">Definitions the board rewards</div>
+      <h2 class="sec">State these exactly</h2>
+      <p class="hint">CBSE often gives 1 mark for the precise textbook statement. Learn them word-for-word.</p>
+      <div class="defs">
+        <div class="def"><div class="name">Standard form</div><div class="body">A quadratic equation in $x$ is of the form $ax^2 + bx + c = 0$, where $a, b, c$ are real and $a \neq 0$.</div></div>
+        <div class="def"><div class="name">Root</div><div class="body">A real number $\alpha$ is a root of $ax^2 + bx + c = 0$ if $a\alpha^2 + b\alpha + c = 0$. The zeroes of the polynomial and the roots of the equation are the same.</div></div>
+        <div class="def"><div class="name">Discriminant</div><div class="body">For $ax^2 + bx + c = 0$, the quantity $D = b^2 - 4ac$ is the discriminant. It decides whether real roots exist.</div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-label">Must-know concepts</div>
+      <h2 class="sec">…and where they're tested</h2>
+      <div class="concepts">
+        <div class="concept"><div class="dot">1</div><div><div class="ctitle">Solving by factorisation</div><div class="cbody">Split the middle term into two linear factors, set each to zero.</div><span class="tested">2–3 mark "find the roots"</span></div></div>
+        <div class="concept"><div class="dot">2</div><div><div class="ctitle">Quadratic formula</div><div class="cbody">$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$, valid when $b^2 - 4ac \ge 0$. The fallback when factorisation is hard.</div><span class="tested">2–3 marks</span></div></div>
+        <div class="concept"><div class="dot">3</div><div><div class="ctitle">Nature of roots via the discriminant</div><div class="cbody">$D>0$ → two distinct real roots · $D=0$ → two equal real roots · $D<0$ → no real roots. <b class="t">The graph shows it best:</b></div>
+          <!-- EMBEDDED STATIC TRIPTYCH -->
+          <div class="figure">
+            <div class="fcap"><span class="ft">Figure</span> · $y = ax^2 + bx + c$ — where the curve meets the x-axis = the real roots</div>
+            <div class="triptych">
+              <div class="gcol"><div class="gh"><span class="badge b-distinct">D &gt; 0</span><div class="gt">two distinct roots<br>(cuts twice)</div></div><svg data-a="1" data-b="0" data-c="-4"></svg></div>
+              <div class="gcol"><div class="gh"><span class="badge b-equal">D = 0</span><div class="gt">two equal roots<br>(just touches)</div></div><svg data-a="1" data-b="-4" data-c="4"></svg></div>
+              <div class="gcol"><div class="gh"><span class="badge b-none">D &lt; 0</span><div class="gt">no real roots<br>(never meets)</div></div><svg data-a="1" data-b="0" data-c="3"></svg></div>
+            </div>
+            <div class="flink">▸ <a href="#">Open the interactive grapher</a> to drag $a, b, c$ and watch $D$ change &nbsp;<span style="color:var(--ink-faint)">(teaching tool — screen only)</span></div>
+          </div>
+          <span class="tested" style="margin-top:10px">Most-tested · often 5-mark "find k"</span>
+        </div></div>
+        <div class="concept"><div class="dot">4</div><div><div class="ctitle">Roots &amp; coefficients (sum &amp; product)</div><div class="cbody">For roots $\alpha, \beta$: $\alpha + \beta = -\dfrac{b}{a}$ and $\alpha\beta = \dfrac{c}{a}$. Build an equation from given roots: $x^2 - (\alpha+\beta)x + \alpha\beta = 0$.</div><span class="tested">Verify roots · form-the-equation</span><br><span class="bridge">⚑ Syllabus note: catalogued under Polynomials — applied here</span></div></div>
+        <div class="concept"><div class="dot">5</div><div><div class="ctitle">Word problems → equation</div><div class="cbody">Translate a situation (area, age, speed, numbers) into $ax^2 + bx + c = 0$, solve, reject the invalid root.</div><span class="tested">One long word problem every year</span></div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-label">Worked CBSE questions — decoded</div>
+      <h2 class="sec">One example per question-shape</h2>
+      <p class="hint">Tap each to expand. Watch which concept does the work at every step.</p>
+
+      <div class="ex open">
+        <div class="ex-head" onclick="tex(this)"><span class="shape">Shape 1 · Factorisation</span><span class="qmeta">3 marks</span><span class="caret">▸</span></div>
+        <div class="ex-q">Find the roots of $6x^2 - x - 2 = 0$ by factorisation.</div>
+        <div class="ex-body"><div class="steps">
+          <div class="step"><div class="n">1</div><div class="sbody"><span class="lead">Find the split.</span> $a\cdot c = 6\times(-2) = -12$. Two numbers with product $-12$, sum $-1$: $-4$ and $+3$.<span class="ctag">Concept: split the middle term</span></div></div>
+          <div class="step"><div class="n">2</div><div class="sbody"><span class="lead">Rewrite &amp; group.</span> $6x^2 - 4x + 3x - 2 = 0 \Rightarrow 2x(3x-2) + 1(3x-2) = 0$.<span class="ctag">Concept: factor by grouping</span></div></div>
+          <div class="step"><div class="n">3</div><div class="sbody"><span class="lead">Factor &amp; solve.</span> $(3x-2)(2x+1) = 0 \Rightarrow x = \dfrac{2}{3}$ or $x = -\dfrac{1}{2}$.<span class="ctag">Concept: zero-product rule</span></div></div>
+        </div><div class="marklogic"><b>Mark-scheme logic:</b> 1 for the split, 1 for the factorisation, 1 for both roots. Write <i>both</i> roots — a common lost mark.</div></div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-head" onclick="tex(this)"><span class="shape">Shape 2 · Discriminant (find k)</span><span class="qmeta">CBSE 2024 · 5 marks</span><span class="caret">▸</span></div>
+        <div class="ex-q">Find the value of $k$ for which $(k+1)x^2 - 6(k+1)x + 3(k+9) = 0,\ k \neq -1$, has real and equal roots.</div>
+        <div class="ex-body"><div class="steps">
+          <div class="step"><div class="n">1</div><div class="sbody"><span class="lead">Recognise the trigger.</span> "Real and equal roots" → $D = 0$.<span class="ctag">Concept: nature of roots</span></div></div>
+          <div class="step"><div class="n">2</div><div class="sbody"><span class="lead">Write the discriminant.</span> $a=(k+1),\ b=-6(k+1),\ c=3(k+9)$. Set $b^2 - 4ac = 0$: $\;36(k+1)^2 - 12(k+1)(k+9) = 0$.<span class="ctag">Concept: substitute into D</span></div></div>
+          <div class="step"><div class="n">3</div><div class="sbody"><span class="lead">Simplify — don't expand blindly.</span> $12(k+1)\big[3(k+1) - (k+9)\big] = 0 \Rightarrow 12(k+1)(2k-6) = 0$.<span class="ctag">Concept: factor, don't expand</span></div></div>
+          <div class="step"><div class="n">4</div><div class="sbody"><span class="lead">Solve &amp; reject.</span> $k=-1$ is excluded — reject. $2k-6=0 \Rightarrow \mathbf{k = 3}$.<span class="ctag">Concept: honour the constraint — the trap most miss</span></div></div>
+        </div><div class="marklogic"><b>Mark-scheme logic:</b> 1 for $D=0$ · 2 for simplification · 1 for solving · 1 for rejecting $k=-1$. Miss the rejection and you lose the final mark.</div></div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-head" onclick="tex(this)"><span class="shape">Shape 3 · Word problem</span><span class="qmeta">3–4 marks</span><span class="caret">▸</span></div>
+        <div class="ex-q">The product of two consecutive positive integers is 306. Find the integers.</div>
+        <div class="ex-body"><div class="steps">
+          <div class="step"><div class="n">1</div><div class="sbody"><span class="lead">Name the unknown.</span> Let the integers be $x$ and $x+1$.<span class="ctag">Concept: set up the variable</span></div></div>
+          <div class="step"><div class="n">2</div><div class="sbody"><span class="lead">Build the equation.</span> $x(x+1) = 306 \Rightarrow x^2 + x - 306 = 0$.<span class="ctag">Concept: translate to standard form</span></div></div>
+          <div class="step"><div class="n">3</div><div class="sbody"><span class="lead">Solve.</span> $(x+18)(x-17) = 0 \Rightarrow x = 17$ or $x = -18$.<span class="ctag">Concept: factorise</span></div></div>
+          <div class="step"><div class="n">4</div><div class="sbody"><span class="lead">Reject the invalid root.</span> Positive integers → reject $x=-18$. Answer: $\mathbf{17}$ and $\mathbf{18}$.<span class="ctag">Concept: reject the impossible root</span></div></div>
+        </div><div class="marklogic"><b>Mark-scheme logic:</b> 1 for the equation, 1–2 for solving, 1 for the rejection + answer. Forgetting to reject $-18$ costs the last mark.</div></div>
+      </div>
+
+      <div class="ex">
+        <div class="ex-head" onclick="tex(this)"><span class="shape">Shape 4 · Given roots → form the equation</span><span class="qmeta">2 marks</span><span class="caret">▸</span></div>
+        <div class="ex-q">Form the quadratic equation whose roots are $3$ and $-2$.</div>
+        <div class="ex-body"><div class="steps">
+          <div class="step"><div class="n">1</div><div class="sbody"><span class="lead">Sum and product.</span> $\alpha+\beta = 1$; $\alpha\beta = -6$.<span class="ctag">Concept: roots &amp; coefficients</span></div></div>
+          <div class="step"><div class="n">2</div><div class="sbody"><span class="lead">Use the standard form.</span> $x^2 - (\alpha+\beta)x + \alpha\beta = 0$.<span class="ctag">Concept: the form-the-equation identity</span></div></div>
+          <div class="step"><div class="n">3</div><div class="sbody"><span class="lead">Substitute.</span> $x^2 - (1)x + (-6) = 0 \Rightarrow \mathbf{x^2 - x - 6 = 0}$.<span class="ctag">Concept: simplify</span></div></div>
+        </div><div class="marklogic"><b>Mark-scheme logic:</b> 1 for sum &amp; product, 1 for the equation. Watch the middle-term sign — it's $-(\alpha+\beta)$.</div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-label">Problem-solving strategies</div>
+      <h2 class="sec">How to attack any quadratic under pressure</h2>
+      <div class="strat">
+        <div class="row"><span class="arrow">→</span><div><span class="cue">"real / equal / no roots" or "find k"?</span> Go straight to $D = b^2 - 4ac$. Don't solve for $x$.</div></div>
+        <div class="row"><span class="arrow">→</span><div><span class="cue">"Find the roots"?</span> Factorise first; if the middle term won't split, use the formula.</div></div>
+        <div class="row"><span class="arrow">→</span><div><span class="cue">"Roots given / form the equation"?</span> Sum &amp; product → $x^2 - (\alpha+\beta)x + \alpha\beta = 0$.</div></div>
+        <div class="row"><span class="arrow">→</span><div><span class="cue">Word problem?</span> Name $x$ → build equation → standard form → solve → reject the impossible root.</div></div>
+        <div class="row"><span class="arrow">→</span><div><span class="cue">Coefficient holds the unknown (like $(k+1)x^2$)?</span> Check $a \neq 0$.</div></div>
+      </div>
+    </section>
+
+    <section class="block pitfalls">
+      <div class="sec-label">Common mistakes that cost marks</div>
+      <h2 class="sec">Where students lose easy marks</h2>
+      <div class="pit"><span class="x">✕</span><div><b>Forgetting to reject the invalid root</b> — negative length / age / count, or an excluded value like $k \neq -1$.</div></div>
+      <div class="pit"><span class="x">✕</span><div><b>Sign slips in $D$</b> — when $b$ is negative, $(-6)^2 = +36$, not $-36$.</div></div>
+      <div class="pit"><span class="x">✕</span><div><b>Sign error in form-the-equation</b> — the middle term is $-(\alpha+\beta)$, not $+$.</div></div>
+      <div class="pit"><span class="x">✕</span><div><b>Writing "no roots" when $D<0$</b> — say "no <i>real</i> roots".</div></div>
+    </section>
+
+    <section class="block">
+      <div class="sec-label">Formula strip</div>
+      <h2 class="sec">One-screen recall</h2>
+      <div class="frow">
+        <div class="fitem"><div class="flabel">Standard form</div><div class="fval">$ax^2 + bx + c = 0,\ a \neq 0$</div></div>
+        <div class="fitem"><div class="flabel">Quadratic formula</div><div class="fval">$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$</div></div>
+        <div class="fitem"><div class="flabel">Discriminant</div><div class="fval">$D = b^2 - 4ac$</div></div>
+        <div class="fitem"><div class="flabel">Nature of roots</div><div class="fval">$D{>}0$: distinct · $D{=}0$: equal · $D{<}0$: none</div></div>
+        <div class="fitem full"><div class="flabel">Roots &amp; coefficients</div><div class="fval">$\alpha+\beta = -\dfrac{b}{a} \quad\cdot\quad \alpha\beta = \dfrac{c}{a} \quad\cdot\quad x^2-(\alpha+\beta)x+\alpha\beta=0$</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ════ MINDMAP ════ -->
+  <div class="panel" id="mind">
+    <p class="mm-intro">The whole chapter as a map. Tap a node to expand/collapse · drag to pan · scroll to zoom.</p>
+    <div class="mm-controls">
+      <button class="mm-btn" onclick="mmExpand(true)">Expand all</button>
+      <button class="mm-btn" onclick="mmExpand(false)">Collapse all</button>
+      <button class="mm-btn" onclick="mmFit()">Fit</button>
+    </div>
+    <div id="mmStage"><svg></svg></div>
+  </div>
+
+  <!-- ════ PROOF ════ -->
+  <div class="panel" id="proof">
+    <section class="block">
+      <div class="sec-label">Proof / Derivation</div>
+      <h2 class="sec">The quadratic formula, by completing the square</h2>
+      <p class="hint">CBSE can ask you to derive this directly. Every line earns method marks — show all of them.</p>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div class="sbody"><span class="lead">Start from standard form.</span> $ax^2 + bx + c = 0,\quad a \neq 0$.</div></div>
+        <div class="step"><div class="n">2</div><div class="sbody"><span class="lead">Divide through by $a$.</span> $x^2 + \dfrac{b}{a}x + \dfrac{c}{a} = 0$.</div></div>
+        <div class="step"><div class="n">3</div><div class="sbody"><span class="lead">Move the constant across.</span> $x^2 + \dfrac{b}{a}x = -\dfrac{c}{a}$.</div></div>
+        <div class="step"><div class="n">4</div><div class="sbody"><span class="lead">Complete the square.</span> Add $\left(\dfrac{b}{2a}\right)^2$ to both sides: $\;x^2 + \dfrac{b}{a}x + \left(\dfrac{b}{2a}\right)^2 = \left(\dfrac{b}{2a}\right)^2 - \dfrac{c}{a}$.</div></div>
+        <div class="step"><div class="n">5</div><div class="sbody"><span class="lead">Write the left as a perfect square.</span> $\left(x + \dfrac{b}{2a}\right)^2 = \dfrac{b^2 - 4ac}{4a^2}$.</div></div>
+        <div class="step"><div class="n">6</div><div class="sbody"><span class="lead">Take square roots.</span> $x + \dfrac{b}{2a} = \pm\dfrac{\sqrt{b^2 - 4ac}}{2a}$ &nbsp;(real only when $b^2 - 4ac \ge 0$).</div></div>
+        <div class="step"><div class="n">7</div><div class="sbody"><span class="lead">Isolate $x$.</span> $x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}.\quad\blacksquare$</div></div>
+      </div>
+      <div class="marklogic" style="margin-top:16px"><b>Note on this topic's Proof tab:</b> Quadratics has no formal "theorem to prove" like Geometry — this completing-the-square derivation is the one formal piece the board assesses. (Topics with no board-assessed proof show their key derivation here, or none.)</div>
+    </section>
+  </div>
+
+  <p class="footnote">FINAL Quadratics reference · Note + Mindmap + Proof · the locked Maths template · content validated against NCERT + PYQ bank</p>
+</div>
+
+<script>
+  /* ── static parabola plotter (print-safe SVG, computed from coefficients) ── */
+  function plotStatic(svg,a,b,c){
+    const W=200,H=160,pad=8,xR=6,yR=8;
+    const X=x=>pad+(x+xR)/(2*xR)*(W-2*pad), Y=y=>H-(pad+(y+yR)/(2*yR)*(H-2*pad));
+    const C={grid:'#eef1f5',axis:'#c3cbd6',curve:'#0f2444',root:'#16b96a',eq:'#d99a2b',lab:'#8b94a3'};
+    let s=`<rect width="${W}" height="${H}" fill="#fcfdfe"/>`;
+    for(let g=-xR;g<=xR;g+=2)s+=`<line x1="${X(g)}" y1="${pad}" x2="${X(g)}" y2="${H-pad}" stroke="${C.grid}"/>`;
+    for(let g=-yR;g<=yR;g+=2)s+=`<line x1="${pad}" y1="${Y(g)}" x2="${W-pad}" y2="${Y(g)}" stroke="${C.grid}"/>`;
+    s+=`<line x1="${pad}" y1="${Y(0)}" x2="${W-pad}" y2="${Y(0)}" stroke="${C.axis}" stroke-width="1.4"/>`;
+    s+=`<line x1="${X(0)}" y1="${pad}" x2="${X(0)}" y2="${H-pad}" stroke="${C.axis}" stroke-width="1.4"/>`;
+    let d='';for(let p=0;p<=200;p++){const x=-xR+(2*xR)*p/200,y=a*x*x+b*x+c;d+=(p?'L ':'M ')+X(x).toFixed(1)+' '+Y(y).toFixed(1)+' ';}
+    s+=`<path d="${d}" fill="none" stroke="${C.curve}" stroke-width="2.5"/>`;
+    const D=b*b-4*a*c;
+    if(D>1e-9){[(-b+Math.sqrt(D))/(2*a),(-b-Math.sqrt(D))/(2*a)].forEach(r=>{if(r>=-xR&&r<=xR)s+=`<circle cx="${X(r)}" cy="${Y(0)}" r="4.5" fill="${C.root}" stroke="#fff" stroke-width="1.5"/>`;});}
+    else if(Math.abs(D)<=1e-9){const r=-b/(2*a);if(r>=-xR&&r<=xR)s+=`<circle cx="${X(r)}" cy="${Y(0)}" r="4.5" fill="${C.eq}" stroke="#fff" stroke-width="1.5"/>`;}
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=s;
+  }
+  function drawTriptych(){document.querySelectorAll('.triptych svg').forEach(sv=>plotStatic(sv,+sv.dataset.a,+sv.dataset.b,+sv.dataset.c));}
+
+  /* ── tabs ── */
+  function show(id,btn){
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
+    document.getElementById(id).classList.add('show');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    if(id==='mind') setTimeout(initMind,40);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function tex(h){h.parentElement.classList.toggle('open')}
+
+  /* ── D3 responsive mindmap ── */
+  const MM={name:'Quadratic Equations',sub:'ax² + bx + c = 0',children:[
+    {name:'Factorisation',mk:'2–3 mk',color:'#e0883b',children:[{name:'Split the middle term'},{name:'Factor by grouping'},{name:'Zero-product → two roots'}]},
+    {name:'Quadratic Formula',mk:'2–3 mk',color:'#3a6ea5',children:[{name:'x = (−b ± √(b²−4ac)) / 2a'},{name:'Valid when b²−4ac ≥ 0'},{name:'Fallback when it won\u2019t factor'}]},
+    {name:'Discriminant — nature of roots',mk:'5 mk',color:'#16b96a',children:[{name:'D = b² − 4ac'},{name:'D > 0 → two distinct real'},{name:'D = 0 → two equal real'},{name:'D < 0 → no real roots'},{name:'"find k" lives here'}]},
+    {name:'Roots & Coefficients',mk:'2 mk',color:'#7a5fb0',children:[{name:'α + β = −b/a'},{name:'αβ = c/a'},{name:'x² − (α+β)x + αβ = 0'},{name:'⚑ under Polynomials'}]},
+    {name:'Word Problems',mk:'3–5 mk',color:'#c2683f',children:[{name:'Name unknown → build eqn'},{name:'Reduce to standard form'},{name:'REJECT impossible root'}]},
+    {name:'Don\u2019t lose marks on…',mk:'traps',color:'#c75c5c',children:[{name:'Forgetting to reject root'},{name:'Sign slips in D'},{name:'"no real roots"'},{name:'Check a ≠ 0'}]},
+  ]};
+  let mmRoot,mmSvg,mmG,mmZoom,mmInited=false;
+  function isMobile(){return window.innerWidth<=760;}
+  function nodeW(d){const base=d.depth===0?150:d.children||d._children?d.data.name.length*7.2+54:d.data.name.length*6.4+22;return Math.min(260,Math.max(90,base));}
+  function initMind(){
+    const stage=document.getElementById('mmStage');
+    mmSvg=d3.select('#mmStage svg');
+    mmSvg.selectAll('*').remove();
+    mmG=mmSvg.append('g');
+    mmZoom=d3.zoom().scaleExtent([0.4,2]).on('zoom',e=>mmG.attr('transform',e.transform));
+    mmSvg.call(mmZoom);
+    mmRoot=d3.hierarchy(MM);
+    mmRoot.x0=0;mmRoot.y0=0;
+    mmRoot.children&&mmRoot.children.forEach(c=>{if(c.children){c._all=c.children;}});
+    // default: open discriminant + factorisation so it reads as a map
+    mmRoot.children.forEach((c,i)=>{if(i!==0&&i!==2&&c.children){c._children=c.children;c.children=null;}});
+    mmInited=true;
+    updateMind(mmRoot);
+    setTimeout(mmFit,60);
+  }
+  function updateMind(source){
+    const mobile=isMobile();
+    const tree=d3.tree().nodeSize(mobile?[120,90]:[46,230]);
+    tree(mmRoot);
+    const nodes=mmRoot.descendants(),links=mmRoot.links();
+    // orientation: desktop L→R (x=horiz depth via y, y=vert via x); mobile top-down (x=horiz, y=vert depth)
+    function pos(d){return mobile?[d.x,d.depth*120]:[d.y,d.x];}
+    const dur=400;
+    // links
+    const link=mmG.selectAll('path.mm-link').data(links,d=>d.target.data.name+d.target.depth+d.target.x);
+    const linkEnter=link.enter().append('path').attr('class','mm-link')
+      .attr('stroke',d=>d.target.data.color||d.source.data.color||'#16b96a')
+      .attr('d',()=>{const[sx,sy]=pos(source.__o||source);return curve(sx,sy,sx,sy,mobile);});
+    link.merge(linkEnter).transition().duration(dur).attr('stroke',d=>d.target.data.color||d.source.data.color||'#16b96a')
+      .attr('d',d=>{const[sx,sy]=pos(d.source),[tx,ty]=pos(d.target);return curve(sx,sy,tx,ty,mobile);});
+    link.exit().transition().duration(dur).attr('d',()=>{const[sx,sy]=pos(source);return curve(sx,sy,sx,sy,mobile);}).remove();
+    // nodes
+    const node=mmG.selectAll('g.node-card').data(nodes,d=>d.data.name+d.depth);
+    const nEnter=node.enter().append('g').attr('class',d=>'node-card'+(d.depth===0?' node-root':'')+(!d.children&&!d._children?' leaf':''))
+      .attr('transform',()=>{const[sx,sy]=pos(source.__o||source);return`translate(${sx},${sy})`;})
+      .on('click',(e,d)=>{if(d.children){d._children=d.children;d.children=null;}else if(d._children){d.children=d._children;d._children=null;}updateMind(d);});
+    nEnter.append('rect').attr('height',30).attr('rx',11).attr('y',-15)
+      .attr('fill',d=>d.depth===0?'#0f2444':'#fff')
+      .attr('stroke',d=>d.depth===0?'#0f2444':(d.data.color||'#e7ebf0')).attr('stroke-width',d=>d.depth===1?2:1.3);
+    nEnter.append('text').attr('class','node-label').attr('dy','0.32em').attr('x',12).style('font-size',d=>d.depth===0?'14px':'12.5px');
+    const nUpd=nEnter.merge(node);
+    nUpd.transition().duration(dur).attr('transform',d=>{const[x,y]=pos(d);return`translate(${x},${y})`;});
+    nUpd.select('text').text(d=>(d.data.mk?'':'')+d.data.name+(d._children?'  +':d.children&&d.depth>0?'  −':''));
+    nUpd.select('rect').attr('width',d=>nodeW(d)).attr('x',0);
+    node.exit().transition().duration(dur).attr('transform',()=>{const[sx,sy]=pos(source);return`translate(${sx},${sy})`;}).style('opacity',0).remove();
+    nodes.forEach(d=>{d.__o={x:d.x,depth:d.depth,y:d.y};});
+  }
+  function curve(sx,sy,tx,ty,mobile){
+    if(mobile){const my=(sy+ty)/2;return`M ${sx} ${sy} C ${sx} ${my}, ${tx} ${my}, ${tx} ${ty}`;}
+    const mx=(sx+tx)/2;return`M ${sx} ${sy} C ${mx} ${sy}, ${mx} ${ty}, ${tx} ${ty}`;
+  }
+  function mmExpand(open){
+    function rec(d){if(open){if(d._children){d.children=d._children;d._children=null;}}else{if(d.children&&d.depth>0){d._children=d.children;d.children=null;}}(d.children||d._children||[]).forEach(rec);}
+    rec(mmRoot);updateMind(mmRoot);setTimeout(mmFit,60);
+  }
+  function mmFit(){
+    if(!mmInited)return;
+    const stage=document.getElementById('mmStage'),sw=stage.clientWidth,sh=stage.clientHeight;
+    const b=mmG.node().getBBox();
+    if(!b.width||!b.height)return;
+    const pad=30,scale=Math.min((sw-pad*2)/b.width,(sh-pad*2)/b.height,1.3);
+    const tx=(sw-b.width*scale)/2-b.x*scale, ty=(sh-b.height*scale)/2-b.y*scale;
+    mmSvg.transition().duration(400).call(mmZoom.transform,d3.zoomIdentity.translate(tx,ty).scale(scale));
+  }
+
+  function renderMath(root){if(window.renderMathInElement)renderMathInElement(root||document.body,{delimiters:[{left:'$',right:'$',display:false}],throwOnError:false});}
+  window.addEventListener('load',()=>{drawTriptych();renderMath();});
+  let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{if(document.getElementById('mind').classList.contains('show')){initMind();}},250);});
+window.addEventListener("beforeprint",function(){var m=document.getElementById("mind");if(m&&m.classList.contains("show")&&typeof mmFit==="function"){try{mmFit();}catch(e){}}});</script>
+</body>
+</html>
