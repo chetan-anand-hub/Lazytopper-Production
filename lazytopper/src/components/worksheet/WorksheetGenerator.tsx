@@ -141,6 +141,15 @@ export default function WorksheetGenerator() {
   }, [location.search]);
   const backLabel = backHref === "/practice-hub" ? "Back to Practice" : "Back";
 
+  // Item 3 — MI personalisation needs a real (non-local) signed-in account that
+  // has recorded mistakes. Distinguish "signed out" (→ route to login, returning
+  // here after) from "signed in but no in-scope hotspot yet" (→ explain how to
+  // unlock), so the locked state never dead-ends or misleads.
+  const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  const loginHref = `/login?reason=mistake-aware&redirect=${encodeURIComponent(
+    location.pathname + location.search,
+  )}`;
+
   const [subject, setSubject] = useState<LTSubjectKey>((ctx.subject as LTSubjectKey) || "Maths");
   const [stream, setStream] = useState<ScienceStream>("All");
   const [scope, setScope] = useState<PaperScope>("topic");
@@ -518,39 +527,6 @@ export default function WorksheetGenerator() {
                   </div>
                 )}
 
-                {/* MI enrich (Item 2) — a VISIBLE, inviting, contained field inside
-                    the build-mode card. Titled + explained so students understand
-                    the benefit (it feeds Me/Progress); the real <input> is hard-
-                    scoped so the global `input{width:100%;appearance:none}` rule
-                    can't balloon it into a floating empty box. Locked state stays
-                    visible + explained so the feature is discoverable before unlock. */}
-                <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
-                  <div className="lt-ws__mi-title"><span aria-hidden="true">✨</span> Personalise this worksheet</div>
-                  <p className="lt-ws__mi-desc">
-                    Focus it on the topics you&rsquo;ve lost the most marks on, from your Mistake Intelligence — these worksheets feed your Me / Progress growth.
-                  </p>
-                  <label
-                    className="lt-ws__mi-toggle"
-                    title={canEnrich
-                      ? `Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.`
-                      : "Grade an answer in Check & Improve, then pick a multi-topic or full-subject scope that includes a weak topic, to unlock."}
-                  >
-                    <input
-                      type="checkbox"
-                      className="lt-ws__mi-check"
-                      checked={miEnrich && canEnrich}
-                      disabled={!canEnrich}
-                      onChange={(e) => setMiEnrich(e.target.checked)}
-                    />
-                    <span className="lt-ws__mi-toggletext">
-                      {canEnrich ? (
-                        <>Enrich from Mistake Intelligence — weight toward <strong>{hotspot?.label}</strong>.</>
-                      ) : (
-                        <>Enrich from Mistake Intelligence <em>(locked)</em> — grade an answer in Check &amp; Improve, then choose a multi-topic or full-subject scope that includes a weak topic.</>
-                      )}
-                    </span>
-                  </label>
-                </div>
               </section>
             </div>
 
@@ -579,6 +555,39 @@ export default function WorksheetGenerator() {
                     ))}
                   </div>
                 )}
+
+                {/* MI enrich (Item 2 + 4) — placed in the right preview, next to the
+                    live Distribution it controls (toggle on → distribution re-weights
+                    toward the weak topic), so the cause-and-effect is visible. Always
+                    VISIBLE + explained; the real <input> is hard-scoped so the global
+                    input{width:100%;appearance:none} rule can't balloon it. Three
+                    honest states: signed-out → login (returns here); enriched →
+                    toggle; signed-in-but-no-hotspot → how-to-unlock message. */}
+                <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
+                  <div className="lt-ws__mi-title"><span aria-hidden="true">✨</span> Personalise this worksheet</div>
+                  <p className="lt-ws__mi-desc">
+                    Weight it toward the topics you&rsquo;ve lost the most marks on (from your Mistake Intelligence) — it re-weights the distribution toward your weak topics, and these worksheets feed your Me / Progress growth.
+                  </p>
+                  {!isSignedIn ? (
+                    <Link to={loginHref} className="lt-ws__mi-cta">Sign in to personalise →</Link>
+                  ) : canEnrich ? (
+                    <label className="lt-ws__mi-toggle" title={`Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.`}>
+                      <input
+                        type="checkbox"
+                        className="lt-ws__mi-check"
+                        checked={miEnrich}
+                        onChange={(e) => setMiEnrich(e.target.checked)}
+                      />
+                      <span className="lt-ws__mi-toggletext">
+                        Enrich from Mistake Intelligence — weight toward <strong>{hotspot?.label}</strong>.
+                      </span>
+                    </label>
+                  ) : (
+                    <p className="lt-ws__mi-hint">
+                      Grade a worksheet or use Check &amp; Improve first — then pick a multi-topic or full-subject scope, and this focuses the worksheet on the topics you&rsquo;ve lost the most marks on.
+                    </p>
+                  )}
+                </div>
 
                 {/* Sections in scope */}
                 <div className="lt-ws__pvbreak">
@@ -737,8 +746,11 @@ const WS_CSS = `
 /* Item 2 — MI-enrich: a VISIBLE, inviting, contained field inside the build-mode
    card. Green-tinted when available, neutral when locked; always present so the
    feature is discoverable. */
-.lt-ws__mi { margin-top: 14px; border: 1px solid var(--ws-green-b); border-radius: 12px; padding: 13px 15px; background: var(--ws-green-soft); }
+.lt-ws__mi { margin: 10px 0; border: 1px solid var(--ws-green-b); border-radius: 12px; padding: 12px 13px; background: var(--ws-green-soft); }
 .lt-ws__mi.locked { border-color: var(--ws-line); background: var(--ws-surface-2); }
+.lt-ws__mi-cta { display: inline-block; margin-top: 2px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 600; text-decoration: none; }
+.lt-ws__mi-cta:hover { background: hsl(152, 60%, 38%); }
+.lt-ws__mi-hint { margin: 0; font-size: 12px; color: var(--ws-muted); line-height: 1.45; }
 .lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: var(--ws-green-fg); }
 .lt-ws__mi.locked .lt-ws__mi-title { color: var(--ws-fg); }
 .lt-ws__mi-desc { margin: 5px 0 11px; font-size: 12px; color: var(--ws-muted); line-height: 1.5; }

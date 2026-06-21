@@ -1,39 +1,62 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-// PR-E2a.3 — Item 2 (MI-enrich VISIBLE + contained inside the build card) and
-// Item 3 (view-aware Back). Asserts against the real rendered DOM. Runs in
-// CI/Codespaces vitest.
+// PR-E2a.3 — Item 2/4 (MI-enrich VISIBLE + placed in the right preview, by the
+// Distribution it controls) and Item 3 (honest locked states + view-aware Back).
+// Asserts against the real rendered DOM. Runs in CI/Codespaces vitest.
 
-vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
+const useAuthMock = vi.fn();
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => useAuthMock() }));
 vi.mock("../../hooks/useSubjectContext", () => ({ useSubjectContext: () => ({ subject: "Maths" }) }));
 
 import WorksheetGenerator from "./WorksheetGenerator";
 
+beforeEach(() => useAuthMock.mockReturnValue({ user: null }));
 afterEach(cleanup);
 
-describe("WorksheetGenerator — MI-enrich visible + contained (Item 2)", () => {
-  it("renders a visible, titled MI field INSIDE the build-mode card", () => {
-    const { getByTestId, container } = render(
+describe("WorksheetGenerator — MI-enrich visible + in the preview (Item 2/4)", () => {
+  it("renders the MI field inside the right preview (next to Distribution), titled + explained", () => {
+    const { getByTestId } = render(
       <MemoryRouter>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
     const mi = getByTestId("mi-enrich-box");
-
-    // Contained: descendant of the "Build mode" card.
-    const card = mi.closest(".lt-ws__card");
-    expect(card).not.toBeNull();
-    expect(card?.textContent).toContain("Build mode");
-
-    // Visible + explained: title, one-line benefit, the real checkbox, the label.
+    // Placed in the right preview panel (not the build card).
+    expect(mi.closest(".lt-ws__preview")).not.toBeNull();
+    expect(mi.closest(".lt-ws__card")).toBeNull();
+    // Visible + explained.
     expect(mi.textContent).toContain("Personalise this worksheet");
     expect(mi.textContent).toContain("Mistake Intelligence");
-    expect(mi.querySelector("input.lt-ws__mi-check")).not.toBeNull();
-    // Locked state (no user/mistakes) stays visible + explained, not hidden.
+  });
+
+  it("signed-out: shows a Sign-in CTA that returns to the worksheet (no dead-end, no bare checkbox)", () => {
+    const { getByTestId } = render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths"]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    const mi = getByTestId("mi-enrich-box");
+    const cta = mi.querySelector("a.lt-ws__mi-cta") as HTMLAnchorElement | null;
+    expect(cta).not.toBeNull();
+    expect(cta?.getAttribute("href")).toContain("/login");
+    expect(cta?.getAttribute("href")).toContain("redirect=");
+    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull();
+  });
+
+  it("signed-in but no in-scope hotspot: explains how to unlock (not a bare 'locked')", () => {
+    useAuthMock.mockReturnValue({ user: { uid: "u1", isLocalSession: false } });
+    const { getByTestId } = render(
+      <MemoryRouter>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    const mi = getByTestId("mi-enrich-box");
     expect(mi.className).toContain("locked");
-    expect(mi.textContent?.toLowerCase()).toContain("locked");
+    expect(mi.textContent).toMatch(/Check & Improve|Check &amp; Improve|grade a worksheet/i);
+    // No enabled toggle when there is nothing to weight toward.
+    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull();
   });
 });
 
@@ -44,17 +67,13 @@ describe("WorksheetGenerator — view-aware Back (Item 3)", () => {
         <WorksheetGenerator />
       </MemoryRouter>,
     );
-    // Build view.
     expect(getByText("What worksheet do you want?")).toBeTruthy();
 
-    // Generate (sync — plan + generate + persist + setView happen in the handler).
     fireEvent.click(getAllByText(/Generate worksheet/i)[0]);
 
-    // Generated view: Back-to-generator affordance present, build header gone.
     expect(getByText("Back to generator")).toBeTruthy();
     expect(queryByText("What worksheet do you want?")).toBeNull();
 
-    // Back → builder restored (selections intact, same component).
     fireEvent.click(getByText("Back to generator"));
     expect(getByText("What worksheet do you want?")).toBeTruthy();
   });
