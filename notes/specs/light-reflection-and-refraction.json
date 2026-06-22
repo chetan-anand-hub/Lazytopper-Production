@@ -1,0 +1,582 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "topic_key": "light-reflection-and-refraction",
+    "subject": "physics",
+    "chapter_no": 9,
+    "title": "Light – Reflection and Refraction",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Rules",
+      "kind": "rules"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 9"
+  },
+  "board_asks": "ray diagrams for mirrors &amp; lenses, the mirror/lens formula numericals (with sign convention), refractive index, and power of a lens — these carry almost every mark here.",
+  "big_idea": {
+    "tagline": null,
+    "body": null
+  },
+  "definitions": [
+    {
+      "id": "def_laws_of_reflection_of_li",
+      "tier": "headline",
+      "term": "Laws of reflection of light",
+      "verbatim": "(i) The angle of incidence is equal to the angle of reflection, and (ii) The incident ray, the normal to the mirror at the point of incidence and the reflected ray, all lie in the same plane.",
+      "plain": "the ray comes in and bounces off at the same angle to the normal ($\\angle i = \\angle r$), and the incident ray, normal and reflected ray are all flat in one plane.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 135,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "def_laws_of_refraction_of_li",
+      "tier": "headline",
+      "term": "Laws of refraction of light (Snell's law)",
+      "verbatim": "(i) The incident ray, the refracted ray and the normal to the interface of two transparent media at the point of incidence, all lie in the same plane. (ii) The ratio of sine of angle of incidence to the sine of angle of refraction is a constant, for the light of a given colour and for the given pair of media. This law is also known as Snell's law of refraction.",
+      "plain": "$\\dfrac{\\sin i}{\\sin r}$ stays the same for a given colour of light and a given pair of media — that constant is the refractive index.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 148,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "def_absolute_refractive_inde",
+      "tier": "headline",
+      "term": "Absolute refractive index",
+      "verbatim": "If medium 1 is vacuum or air, then the refractive index of medium 2 is considered with respect to vacuum. This is called the absolute refractive index of the medium.",
+      "plain": "measured against vacuum/air, $n_m = \\dfrac{\\text{Speed of light in air}}{\\text{Speed of light in the medium}} = \\dfrac{c}{v}$ (NCERT p.149). A larger $n$ means light slows more — the medium is optically denser.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 148,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "def_principal_focus_amp_foca",
+      "tier": "headline",
+      "term": "Principal focus &amp; focal length of a spherical mirror",
+      "verbatim": "[Rays parallel to the principal axis] are all meeting/intersecting at a point on the principal axis of the mirror. This point is called the principal focus of the concave mirror. … The distance between the pole and the principal focus of a spherical mirror is called the focal length.",
+      "plain": "parallel rays converge at F (concave) — focal length $f$ = pole-to-F distance, and $R = 2f$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 136,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "def_magnification_produced_b",
+      "tier": "headline",
+      "term": "Magnification produced by a spherical mirror",
+      "verbatim": "Magnification produced by a spherical mirror gives the relative extent to which the image of an object is magnified with respect to the object size. It is expressed as the ratio of the height of the image to the height of the object.",
+      "plain": "$m = \\dfrac{h'}{h} = -\\dfrac{v}{u}$. A negative $m$ means a real, inverted image; positive means virtual, erect.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 143,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "def_power_of_a_lens_amp_the_",
+      "tier": "headline",
+      "term": "Power of a lens &amp; the dioptre",
+      "verbatim": "The power of a lens is defined as the reciprocal of its focal length. … The SI unit of power of a lens is 'dioptre'. It is denoted by the letter D. … 1 dioptre is the power of a lens whose focal length is 1 metre. 1D = 1 m⁻¹.",
+      "plain": "$P = \\dfrac{1}{f\\,(\\text{metres})}$. Convex lens → positive power, concave → negative.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 158,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_pole",
+      "tier": "key-term",
+      "term": "Pole",
+      "verbatim": "The centre of the reflecting surface of a spherical mirror is a point called the pole.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 135,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_centre_of_curvature",
+      "tier": "key-term",
+      "term": "Centre of curvature",
+      "verbatim": "…This point is called the centre of curvature of the spherical mirror.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 136,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_radius_of_curvature",
+      "tier": "key-term",
+      "term": "Radius of curvature",
+      "verbatim": "The radius of the sphere of which the reflecting surface of a spherical mirror forms a part, is called the radius of curvature of the mirror.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 136,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_principal_axis",
+      "tier": "key-term",
+      "term": "Principal axis",
+      "verbatim": "[A straight line passing through the pole and the centre of curvature…] This line is called the principal axis.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 136,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_aperture",
+      "tier": "key-term",
+      "term": "Aperture",
+      "verbatim": "The diameter of the reflecting surface of spherical mirror is called its aperture.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 137,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_r_f",
+      "tier": "key-term",
+      "term": "R = 2f",
+      "verbatim": "…the radius of curvature is found to be equal to twice the focal length. We put this as R = 2f.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 137,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_lens",
+      "tier": "key-term",
+      "term": "Lens",
+      "verbatim": "A transparent material bound by two surfaces, of which one or both surfaces are spherical, forms a lens.\"",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 150,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    },
+    {
+      "id": "kt_optical_centre",
+      "tier": "key-term",
+      "term": "Optical centre",
+      "verbatim": "The central point of a lens is its optical centre. … A ray of light through the optical centre of a lens passes without suffering any deviation.\" (p.150–151)",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 150,
+        "edition": "2026-27",
+        "chapter": 9
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Image formation by spherical mirrors",
+      "body": "Trace two standard rays; where they meet is the image. The case below — object beyond C in a concave mirror — gives a real, inverted, diminished image.",
+      "tested": "3–5 mark \"draw the ray diagram",
+      "figure_ref": "fig_97b"
+    },
+    {
+      "id": "c2",
+      "title": "Mirror formula &amp; magnification",
+      "body": "$\\dfrac{1}{v} + \\dfrac{1}{u} = \\dfrac{1}{f}$ and $m = \\dfrac{h'}{h} = -\\dfrac{v}{u}$. Apply the sign convention before substituting.",
+      "tested": "3-mark numerical",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Refraction &amp; refractive index",
+      "body": "Light bends toward the normal entering a denser medium. $n = \\dfrac{c}{v} = \\dfrac{\\sin i}{\\sin r}$.",
+      "tested": "2–3 marks",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Apparent depth &amp; everyday refraction",
+      "body": "Because light bends when leaving a denser medium, objects in water look shallower / raised and a pencil looks bent. The relation: $\\;n = \\dfrac{\\text{real depth}}{\\text{apparent depth}}$. Real depth is always greater than apparent depth.",
+      "tested": "2-mark \"explain why\" · everyday-phenomenon",
+      "figure_ref": "fig_910"
+    },
+    {
+      "id": "c5",
+      "title": "Lens formula, magnification &amp; power",
+      "body": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$, $\\;m = \\dfrac{v}{u}$, and power $P = \\dfrac{1}{f\\,(\\text{metres})}$ in dioptres (D).",
+      "tested": "3-mark numerical · power 1-mark",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_92",
+      "shape": "Concave mirror",
+      "kind": "numerical",
+      "problem_verbatim": "An object, 4.0 cm in size, is placed at 25.0 cm in front of a concave mirror of focal length 15.0 cm. At what distance from the mirror should a screen be placed in order to obtain a sharp image? Find the nature and the size of the image.",
+      "solution_steps": [
+        {
+          "lead": "List with signs (NCERT).",
+          "text": "$h = +4.0$ cm, $u = -25.0$ cm, $f = -15.0$ cm.",
+          "concept_tag": "New Cartesian signs"
+        },
+        {
+          "lead": "Mirror formula.",
+          "text": "$\\dfrac{1}{v} = \\dfrac{1}{f} - \\dfrac{1}{u} = \\dfrac{1}{-15.0} - \\dfrac{1}{-25.0} = \\dfrac{-5.0+3.0}{75.0} = \\dfrac{-2.0}{75.0}$.",
+          "concept_tag": "substitute with signs"
+        },
+        {
+          "lead": "Solve.",
+          "text": "$v = -37.5$ cm → the screen should be placed <b>37.5 cm in front of the mirror</b>; the image is <b>real</b>.",
+          "concept_tag": "sign tells nature"
+        },
+        {
+          "lead": "Size.",
+          "text": "$h' = -\\dfrac{v\\,h}{u} = -\\dfrac{(-37.5)(4.0)}{(-25.0)} = -6.0$ cm → the image is <b>inverted and enlarged</b>.",
+          "concept_tag": "h′ sign + size"
+        }
+      ],
+      "mark_logic": "1 for signed data, 1 for formula + solving $v$, 1 for nature + size with sign. Stating \"real, inverted, enlarged\" is where the last mark sits.",
+      "source": {
+        "ncert_example": "9.2",
+        "ncert_page": 144,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "ex_94",
+      "shape": "Convex lens",
+      "kind": "numerical",
+      "problem_verbatim": "A 2.0 cm tall object is placed perpendicular to the principal axis of a convex lens of focal length 10 cm. The distance of the object from the lens is 15 cm. Find the nature, position and size of the image. Also find its magnification.",
+      "solution_steps": [
+        {
+          "lead": "List with signs (NCERT).",
+          "text": "$h = +2.0$ cm, $f = +10$ cm, $u = -15$ cm.",
+          "concept_tag": "lens sign convention"
+        },
+        {
+          "lead": "Lens formula.",
+          "text": "$\\dfrac{1}{v} = \\dfrac{1}{u} + \\dfrac{1}{f} = \\dfrac{1}{-15} + \\dfrac{1}{10} = \\dfrac{-2+3}{30} = \\dfrac{1}{30}$.",
+          "concept_tag": "substitute"
+        },
+        {
+          "lead": "Solve.",
+          "text": "$v = +30$ cm → image is <b>30 cm on the other side</b> of the lens; <b>real and inverted</b>.",
+          "concept_tag": "read the sign"
+        },
+        {
+          "lead": "Magnification &amp; size.",
+          "text": "$m = \\dfrac{v}{u} = \\dfrac{30}{-15} = -2$; $\\;h' = h\\dfrac{v}{u} = -4.0$ cm → real, inverted, <b>two times enlarged</b>.",
+          "concept_tag": "m for lens"
+        }
+      ],
+      "mark_logic": "1 signs · 1 formula + solve · 1 nature/size. Lens magnification is $+v/u$ (no minus, unlike the mirror's $m=-v/u$).",
+      "source": {
+        "ncert_example": "9.4",
+        "ncert_page": 156,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Numerical?",
+      "text": "Write down $u, v, f$ with signs before touching the formula. Most marks are lost at the sign step, not the algebra."
+    },
+    {
+      "cue": "Draw the ray diagram\"?",
+      "text": "Use any two of the three standard rays; the image is where the reflected/refracted rays meet."
+    },
+    {
+      "cue": "Mirror vs lens magnification?",
+      "text": "Mirror $m=-v/u$; lens $m=+v/u$. Don't mix them."
+    },
+    {
+      "cue": "Power question?",
+      "text": "Convert $f$ to metres first, then $P=1/f$ in dioptres."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "✕Sign convention errors — the #1 lost mark. Object distance $u$ is always negative; concave $f$ negative, convex $f$ positive.",
+      "owner_verified": true
+    },
+    {
+      "text": "✕Mixing mirror and lens magnification — mirror $m=-v/u$, lens $m=+v/u$.",
+      "owner_verified": true
+    },
+    {
+      "text": "✕Forgetting to convert to metres for power — $P=1/f$ needs $f$ in metres, not cm.",
+      "owner_verified": true
+    },
+    {
+      "text": "✕Not stating the nature — a numerical answer needs \"real/virtual, erect/inverted, magnified/diminished\" for full marks.",
+      "owner_verified": true
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Mirror formula",
+      "math": "$\\dfrac{1}{v} + \\dfrac{1}{u} = \\dfrac{1}{f}$"
+    },
+    {
+      "label": "Lens formula",
+      "math": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$"
+    },
+    {
+      "label": "Magnification",
+      "math": "mirror $m=-\\dfrac{v}{u}$ · lens $m=\\dfrac{v}{u}$"
+    },
+    {
+      "label": "Refractive index",
+      "math": "$n = \\dfrac{c}{v} = \\dfrac{\\sin i}{\\sin r}$"
+    },
+    {
+      "label": "Apparent depth",
+      "math": "$n = \\dfrac{\\text{real depth}}{\\text{apparent depth}}$"
+    },
+    {
+      "label": "Power of lens",
+      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D)"
+    },
+    {
+      "label": "Mirror relation",
+      "math": "$R = 2f$"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "rules",
+    "intro": "CBSE does not require the mirror/lens formula derivation here — the formal core is the sign convention and ray rules that make every numerical and diagram correct.",
+    "figure_ref": "fig_99",
+    "blocks": [
+      {
+        "heading": "Distances (along principal axis)",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "•",
+            "text": "All distances measured from the pole / optical centre."
+          },
+          {
+            "sign": "−",
+            "text": "Distances against the incident light (object side) are negative."
+          },
+          {
+            "sign": "+",
+            "text": "Distances along the incident light are positive."
+          }
+        ]
+      },
+      {
+        "heading": "What this means in practice",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "−",
+            "text": "Object distance $u$ is always negative (real object)."
+          },
+          {
+            "sign": "−",
+            "text": "Concave mirror / concave lens focal length: negative."
+          },
+          {
+            "sign": "+",
+            "text": "Convex mirror / convex lens focal length: positive."
+          },
+          {
+            "sign": "±",
+            "text": "Heights above axis +, below axis −."
+          }
+        ]
+      },
+      {
+        "heading": "Ray-diagram construction — the three standard rays (use any two)",
+        "type": "rule-list",
+        "items": [
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ]
+  },
+  "figures": {
+    "fig_97b": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 9.7(b)",
+      "caption": "Concave mirror · object beyond C → real, inverted, diminished image",
+      "legend": null,
+      "source": {
+        "pdf": "jesc109",
+        "edition": "2026-27",
+        "ncert_fig": "9.7(b)",
+        "note": "crop+luminance-clean via kit ncert_figure(); confirm by eye"
+      },
+      "asset": "light/fig_97b.webp"
+    },
+    "fig_910": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 9.10",
+      "caption": "Refraction through a glass slab — the ray shifts sideways &amp; emerges parallel (why a pencil in water looks bent)",
+      "legend": null,
+      "source": {
+        "pdf": "jesc109",
+        "edition": "2026-27",
+        "ncert_fig": "9.10",
+        "note": "crop+luminance-clean via kit ncert_figure(); confirm by eye"
+      },
+      "asset": "light/fig_910.webp"
+    },
+    "fig_99": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 9.9",
+      "caption": "The New Cartesian Sign Convention for spherical mirrors",
+      "legend": null,
+      "source": {
+        "pdf": "jesc109",
+        "edition": "2026-27",
+        "ncert_fig": "9.9",
+        "note": "crop+luminance-clean via kit ncert_figure(); confirm by eye",
+        "page_pdf": 10,
+        "crop": [
+          830,
+          465,
+          1560,
+          960
+        ],
+        "clean": "luminance@193"
+      },
+      "asset": "light/fig_99.webp"
+    }
+  },
+  "mindmap": {
+    "_TODO": "lift D3 tree from note JS in the kit back-conversion; shape = {root, branches:[{label, children:[...]}]}"
+  },
+  "source_ledger": [
+    {
+      "item": "Laws of reflection of light",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.135"
+    },
+    {
+      "item": "Laws of refraction of light (Snell's law)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.148"
+    },
+    {
+      "item": "Absolute refractive index",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.148"
+    },
+    {
+      "item": "Principal focus &amp; focal length of a spherical mirror",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.136"
+    },
+    {
+      "item": "Magnification produced by a spherical mirror",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.143"
+    },
+    {
+      "item": "Power of a lens &amp; the dioptre",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.158"
+    },
+    {
+      "item": "Pole",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.135"
+    },
+    {
+      "item": "Centre of curvature",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.136"
+    },
+    {
+      "item": "Radius of curvature",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.136"
+    },
+    {
+      "item": "Principal axis",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.136"
+    },
+    {
+      "item": "Aperture",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.137"
+    },
+    {
+      "item": "R = 2f",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.137"
+    },
+    {
+      "item": "Lens",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.150"
+    },
+    {
+      "item": "Optical centre",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch9 p.150"
+    },
+    {
+      "item": "Concave mirror",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch9 Ex 9.2 p.144"
+    },
+    {
+      "item": "Convex lens",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch9 Ex 9.4 p.156"
+    },
+    {
+      "item": "NCERT Fig 9.7(b)",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch9 9.7(b)"
+    },
+    {
+      "item": "NCERT Fig 9.10",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch9 9.10"
+    },
+    {
+      "item": "NCERT Fig 9.9",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch9 9.9"
+    }
+  ]
+}
