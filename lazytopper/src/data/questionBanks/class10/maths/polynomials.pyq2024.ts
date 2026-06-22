@@ -46,7 +46,7 @@ export const POLYNOMIALS_PYQ_2024: CanonicalQuestion[] = [
     ncertRef: "PYQ 30(B) Q27(a)", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-M-2024-POLY-005b", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes and Coefficients", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Find the zeroes of the polynomial f(t) = t2 + 4 3 t – 15 and verify the relationship between the zeroes and the coefficients of the polynomial. $",
+    questionText: "Find the zeroes of the polynomial f(t) = t2 + 4√3 t – 15 and verify the relationship between the zeroes and the coefficients of the polynomial. $",
     answer: "f (t) = t2 + 4√3 t– 15 = t2 + 5√3 t – √3 t– 15 = (t– √3) (t + 5√3) Zeroes of given polynomial are – 5√3, √3 Sum of the zeroes = (– 5√3 + √3) = – 4√3 1 = −(𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡) 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡2 Product of the zeroes = (– 5√3) × √3) = –15 1 = 𝑐𝑜𝑛𝑠𝑡𝑎𝑛𝑡 𝑡𝑒𝑟𝑚 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡2",
     solutionSteps: ["f (t) = t2 + 4√3 t– 15 = t2 + 5√3 t – √3 t– 15 = (t– √3) (t + 5√3) Zeroes of given polynomial are – 5√3, √3 Sum of the zeroes = (– 5√3 + √3) = – 4√3 1 = −(𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡) 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡2 Product of the zeroes = (– 5√3) × √3) = –15 1 = 𝑐𝑜𝑛𝑠𝑡𝑎𝑛𝑡 𝑡𝑒𝑟𝑚 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡2"],
     finalAnswer: "f (t) = t2 + 4√3 t– 15 = t2 + 5√3 t – √3 t– 15 = (t– √3) (t + 5√3) Zeroes of given polynomial are – 5√3, √3 Sum of the zeroes = (– 5√3 + √3) = – 4√3 1 = −(𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡) 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡2 Product of the zeroes = (– 5√3) × √3) = –15 1 = 𝑐𝑜𝑛𝑠𝑡𝑎𝑛𝑡 𝑡𝑒𝑟𝑚 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡 𝑜𝑓 𝑡2",

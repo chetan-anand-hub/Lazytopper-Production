@@ -25,7 +25,7 @@ export const REAL_NUMBERS_PYQ_2024: CanonicalQuestion[] = [
     ncertRef: "PYQ 30(B) Q21", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-M-2024-REALNUM-003", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proof", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Prove that 3 is an irrational number.",
+    questionText: "Prove that √3 is an irrational number.",
     answer: "p2 is divisible by 3 ⟹ p is divisible by 3  (i) ⟹ p = 3a, where 'a' is some integer 9a2 = 3q2 ⟹ q2 = 3a2 ⟹q2 is divisible by 3 ⟹ q is divisible by 3  (ii) (i) and (ii) leads to contradiction as 'p' and 'q' are coprime. ∴ √𝟑 is an irrational number.",
     solutionSteps: ["Let √𝟑 be a rational number.", "√𝟑= 𝐩 𝐪 , where q≠0 and p & q are coprime. 3q2 = p2", "p2 is divisible by 3 ⟹ p is divisible by 3  (i) ⟹ p = 3a, where 'a' is some integer 9a2 = 3q2 ⟹ q2 = 3a2 ⟹q2 is divisible by 3 ⟹ q is divisible by 3  (ii) (i) and (ii) leads to contradiction as 'p' and 'q' are coprime. ∴ √𝟑 is an irrational number."],
     finalAnswer: "p2 is divisible by 3 ⟹ p is divisible by 3  (i) ⟹ p = 3a, where 'a' is some integer 9a2 = 3q2 ⟹ q2 = 3a2 ⟹q2 is divisible by 3 ⟹ q is divisible by 3  (ii) (i) and (ii) leads to contradiction as 'p' and 'q' are coprime. ∴ √𝟑 is an irrational number.",

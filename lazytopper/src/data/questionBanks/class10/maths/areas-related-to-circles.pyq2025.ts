@@ -9,7 +9,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const AREAS_RELATED_TO_CIRCLES_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-ARC-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Sector", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If a sector of a circle has an area of 40 sq. units and a central angle of 72 , the radius of the circle is :",
+    questionText: "If a sector of a circle has an area of 40 sq. units and a central angle of 72°, the radius of the circle is :",
     options: ["200 units", "100 units", "20 units", "10 2 units"],
     answer: "10√2 units",
     solutionSteps: ["Correct option: (d) 10√2 units."],
@@ -17,7 +17,7 @@ export const AREAS_RELATED_TO_CIRCLES_PYQ_2025: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/1/1 Q15", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },
   { id: "PYQ-M-2025-ARC-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If an arc of a circle of diameter 10 cm subtends an angle of 144 at the centre of the circle, then the length of the arc is :",
+    questionText: "If an arc of a circle of diameter 10 cm subtends an angle of 144° at the centre of the circle, then the length of the arc is :",
     options: ["2 cm", "4 cm", "5 cm", "6 cm"],
     answer: "4 𝜋 cm",
     solutionSteps: ["Correct option: (b) 4 𝜋 cm."],
