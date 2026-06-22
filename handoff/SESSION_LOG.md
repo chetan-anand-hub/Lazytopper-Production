@@ -1,5 +1,18 @@
 ---
 
+## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, squash `de2a616`) — parallel content track
+
+**#282 merged 2026-06-21 13:42Z — the FIRST of the recent cluster (before the worksheet #283/#284 and the PYQ-symbol #286); a separate PARALLEL CONTENT track the worksheet docs #285 + symbol docs #287 did not cover, logged here now.** PR-B (this docs update) was cut fresh from the current trunk tip `a9eac09` (post-#287), so it sits on top of the worksheet + symbol work. Built in the isolated worktree `C:/Projects/LT-worktrees/notes-gen` (`feat/notes-generation`, off `883e904`, local checkpoint `1273b90`); pushed + PR-A opened + owner-merged; **no self-merge**.
+
+- **What merged (#282, content-generation ONLY — no app wiring):** 14 files, ALL under `notes/`. The locked renderer/figure toolkit **`lazytopper_notes_kit.py`** (`ncert_figure`/`clean_watermark`/`refill_rect`; verified running); **5 v2 prototypes** (Light, Electricity, Chemical Reactions, Life Processes [3 real NCERT figures], Quadratic Equations); the **Light enriched exemplar** = the finished reference STANDARD (6 verbatim NCERT definition cards + 8-term key-terms cluster + 4 real NCERT worked examples + 3 real NCERT figures incl. Fig 9.9 sign convention + AUTHORED-vs-NCERT legend + source ledger; cites reconciled directly to NCERT Reprint 2026-27 Ch 9 `jesc109.pdf`); and the track docs (canonical index, cite-map, dispatch + v2 brief, all-flags rulings, `HANDOFF_notes_track_2026-06-21.md`, enrichment report).
+- **Two-PR ritual (§8/§10):** PR-A = notes CONTENT (`feat/notes-generation`, zero `handoff/`, zero `lazytopper/src/`); THIS = PR-B = the docs-only handoff update (only `handoff/`). One PR per concern; docs and product never bundled.
+- **Gates (PR-A, run in the notes-gen worktree):** `check:mojibake` PASS · root `scripts` `test:matrix:all` **181/181** · lazytopper `test:matrix:all` all suites PASS · `scope:guard --mode product` OK · `git diff --check` clean · forbidden-file check PASS (none touched). vite build is linux-only → **CI `quality-gate` GREEN**. Owner-merged.
+- **DECISION (settled, owner-approved):** notes ship as a shared React **`<Note spec={…}/>`** fed by a structured note-spec (`notes/specs/<topic_key>.json`), NOT standalone HTML; the tutor + PR-F consume the spec as data; **Step 2 authors specs (JSON), not HTML**. [FU-NOTES-INTEGRATION] RESOLVED.
+- **NEXT (notes track — gated, do NOT reorder):** (1) `notes/validate_spec.py` (validator → note-spec schema v1.1); (2) content PR under `notes/` (validated Light reference spec + schema doc + validator; kit → `render_note(spec)`; finish Light figure + mindmap lift); (3) then in parallel PR-F (`<Note>` component + Topic Hub wiring) AND Step-2 spec authoring (the 4 prototype enrichments → ~35 notes), validator-gated. Do NOT start Step-2 or PR-F before the validator + content PR land. New follow-up: [FU-NOTES-MATHS-MAP].
+- **Report:** `report-notes-track-push-pr-2026-06-21.md` (in the `…\diff\` folder).
+
+---
+
 ## 2026-06-22 — PYQ symbol-integrity pass MERGED (#286 `b600e2b`)
 
 **Trunk after merge: `b600e2b`.** The parallel symbol-fix track that resolves the SOURCE-DATA gap #284 flagged. Audited ALL 103 PYQ packs / 759 questions (Maths + Science) in an isolated worktree (`fix/pyq-symbol-integrity`); 3 commits squash-merged. Owner reviewed + squash-merged; no self-merge. Doctrine throughout: **recover from twin/answer, never fabricate; honest omission > broken question.**

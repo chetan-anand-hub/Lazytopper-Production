@@ -1,3 +1,23 @@
+## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, `de2a616`) — parallel content track
+
+### ✅ RESOLVED / DELIVERED
+- **Notes track Step-1 (#282, `de2a616`)** — the locked note kit + 5 v2 prototypes + the **Light enriched exemplar** (the finished reference standard), generated from the official NCERT 2026-27 PDFs in the locked note grammar with verbatim-definition discipline. **14 files, ALL under `notes/`; content-generation ONLY (no app wiring).** Merged 2026-06-21 13:42Z (the FIRST of the recent cluster; a parallel track not covered by the worksheet docs #285 / symbol docs #287). Gates GREEN + CI GREEN; owner-merged, no self-merge. Full track handoff: **`handoff/NOTES_TRACK_HANDOFF.md`**.
+
+### ✅ DECISION — notes integration (settled, owner-approved)
+- **[FU-NOTES-INTEGRATION] — RESOLVED.** Notes ship as a shared React **`<Note spec={…}/>`** component fed by a structured **note-spec** (`notes/specs/<topic_key>.json`) as the single source of truth — **NOT standalone HTML**. The tutor and PR-F both consume the spec as data, and **Step 2 authors specs (JSON), not HTML**. The note-spec schema (v1.1) + the `<Note>` contract are the foundation; the gated build order below makes the ~35-note fan-out safe to parallelize. (The Step-1 prototypes are standalone HTML — they become the seed for the Light reference spec.)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-NOTES-MATHS-MAP]** — the Maths NCERT folder (`…\NCERT Books\Mathematics class 10\`) is not yet content-mapped/unzipped; do that when the track reaches the Maths notes (Quadratic Equations etc.). Map files by CONTENT, never filename.
+- **`topics.ts` trig-key collapse** — `topics.ts` collapses intro-trig + applications-of-trig into ONE `trigonometry` topic key (the repo wins over the brief's two trig keys); a note's `topic_key` must match `topics.ts`.
+- **`magnetic-effects` = generate-TRIMMED** — when the track reaches it: include magnetic field / field lines / field-due-to-conductor·solenoid / right-hand-rule / force-on-a-conductor; EXCLUDE Motor / EMI / Generator (formative). Re-read `syllabusGuard.ts` for the exact retained sub-topics first.
+
+### 🔭 NEXT (notes track — gated order, owner-authorized separately, do NOT reorder)
+1. **`notes/validate_spec.py`** — source-required validator to note-spec schema v1.1 (rejects unsourced verbatim/example/figure; checks `topic_key` ↔ `topics.ts`, banned keywords via `syllabusGuard.ts`, mojibake, third_tab/example `kind` shape, source_ledger count).
+2. **Content PR (under `notes/`)** — validated Light reference spec `light-reflection-and-refraction.json` + the schema-v1.1 doc + the validator; evolve the kit to `render_note(spec)`; finish Light's figure (base64→WebP) + mindmap (JS→spec) lift.
+3. **Then in parallel** — **PR-F** (`<Note>` component + Topic Hub wiring; reads `notes/specs`+`notes/assets`, writes `src/`) AND **Step-2 spec authoring** (the 4 prototype enrichments → ~35 notes), validator-gated. **Do NOT start Step-2 or PR-F before the validator + content PR land.**
+
+---
+
 ## 2026-06-22 — Post-PR #286 (PYQ symbol-integrity pass; trunk `b600e2b`)
 
 ### ✅ RESOLVED / DELIVERED
