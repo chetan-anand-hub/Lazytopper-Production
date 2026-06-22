@@ -2,6 +2,18 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-22 — Note-spec validator gate MERGED (#289, `c525b2a`) — notes track, gated step 1
+
+Trunk `c525b2a`. The notes track's gated-build-order **step 1**: `notes/validate_spec.py` (the anti-fabrication gate that makes the ~35-note fan-out safe) + the schema v1.1 contract + the validated Light reference spec + negative fixtures. Isolated worktree; owner squash-merged; no self-merge. Report: `report-validate-spec-2026-06-21.md`. Full track detail: **`handoff/NOTES_TRACK_HANDOFF.md`**.
+
+**Notes track — gated build order:**
+- ✅ **Step 1 (#289): `notes/validate_spec.py`** — 9-rule validator (source-required; topic_key ∈ topics.ts; banned-phrase via the trap-safe `SURFACE_BANNED_PHRASES`; third_tab kind+shape; example kind; mojibake; ledger count; figure manifest; figure_ref resolution). stdlib only, no bypass. Reads `syllabusGuard.ts` + `topics.ts` live. Light VALID; 5 negative fixtures each trip exactly one rule. Committed `notes/NoteSpec_Schema.md` (schema v1.1) + `notes/specs/light-reflection-and-refraction.json` (reference spec) — **the contract PR-F builds against**.
+- ⏭️ **Step 2 (NEXT): content PR under `notes/`** — evolve the kit to `render_note(spec)` (preview HTML generated from the spec); finish Light's figure (base64→WebP) + mindmap (D3-JS→`spec.mindmap`) lift; un-route the `_TODO`.
+- ⏳ **Step 3 (parallel, after step 2): PR-F** (`<Note>` component + Topic Hub wiring; reads `notes/specs`+`notes/assets`, writes `src/`) AND **Step-2 spec authoring** (the 4 prototype enrichments → ~35 notes), validator-gated.
+- ⏳ Later: wire `validate_spec.py --json` as a `SubagentStop` hook (not yet done).
+
+---
+
 ## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, `de2a616`) — parallel content track
 
 Trunk content `de2a616` (#282; merged 2026-06-21 13:42Z, the FIRST of the recent cluster but a separate PARALLEL CONTENT track). Generating Class-10 CBSE chapter notes from the official NCERT 2026-27 PDFs in the locked LazyTopper note grammar, with verbatim-definition discipline (notes are tutor infrastructure). Built in an isolated worktree; owner-merged; no self-merge. Full detail/architecture: **`handoff/NOTES_TRACK_HANDOFF.md`**.

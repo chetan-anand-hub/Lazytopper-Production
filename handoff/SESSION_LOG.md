@@ -1,5 +1,21 @@
 ---
 
+## 2026-06-22 — Note-spec validator gate MERGED (#289, squash `c525b2a`) — notes track, gated step 1
+
+**Trunk after merge: `c525b2a`.** The notes track's gated-build-order **step 1** — the anti-fabrication validator that makes the ~35-note parallel fan-out safe. Built in the isolated worktree `notes-validate` (`feat/notes-validate-spec`, off `f53b259`); owner squash-merged; **no self-merge**. Report: `report-validate-spec-2026-06-21.md`.
+
+- **`notes/validate_spec.py`** — 9-rule validator, **stdlib only, NO bypass/force flag** (never force-green). Reads two LIVE dependencies and never hardcodes them:
+  - `SURFACE_BANNED_PHRASES` from `scripts/src/syllabusGuard.ts` — the **trap-safe PROSE list**, NOT the question-bank `bannedSubtopics` generics (which hold bare "Evolution"/"Constructions"/"Stakeholders" meant only for exact `subtopic:` field matching and would false-flag prose). `//` comments are stripped before extraction, so the `"Evolution"/"Fossil"/"Darwin"` words sitting inside a comment are not mistaken for phrases. Word-boundary + case-insensitive (mirrors the guard's `scanContentForPhrases`), so the syllabus traps hold by construction (*homologous series* IN vs *organs* OUT; *sum/product of roots* IN).
+  - the `slug` set from `lazytopper/src/lib/desktop/topics.ts`.
+- **9 rules:** source-required (definitions both tiers / examples / ncert figures; `formula_strip` source OPTIONAL per v1.1) · `topic_key` ∈ topics.ts · banned-phrase · `third_tab` kind+shape · example kind per subject · mojibake/cid/U+FFFD · `source_ledger` count == sourced fields · figure manifest · structural + figure_ref resolution. **NOT checked in v1 (owner-review/pending):** asset-file existence, mindmap completeness (`_TODO` accepted), pitfall realness, authored pedagogy.
+- **CLI:** `<spec.json>` · `--all` (`notes/specs/*.json`) · `--json` (machine mode, ready to wire as a `SubagentStop` hook later — not yet done).
+- **Also committed:** `notes/NoteSpec_Schema.md` (the schema v1.1 contract), `notes/specs/light-reflection-and-refraction.json` (validated reference spec), 5 negative fixtures + `run_negative_tests.py` self-test under `notes/specs/_test/`.
+- **Acceptance:** Light → VALID (all 9 rules, exit 0); each negative fixture FAILS on EXACTLY its rule (`SELF-TEST: OK`). 9 files, ALL under `notes/`; gates GREEN (diff-check, name-only=notes, lazytopper `check:mojibake`); CI `quality-gate` GREEN.
+- **Provenance note:** the chat-pasted schema + Light JSON were transit-mojibake'd; the clean disk originals were committed byte-for-byte (the `(1)` schema is v1.1; non-`(1)` was older v1.0). `validate_spec.py` intentionally contains the mojibake marker bytes as detection constants — it lives under `notes/`, outside the lazytopper-scoped checker, so no gate flags it.
+- **→ PR-F UNBLOCKED.** **NEXT (gated step 2):** a content PR evolving the kit to `render_note(spec)` + Light figure (base64→WebP) + mindmap (JS→spec) lift; THEN PR-F + Step-2 spec authoring (validator-gated).
+
+---
+
 ## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, squash `de2a616`) — parallel content track
 
 **#282 merged 2026-06-21 13:42Z — the FIRST of the recent cluster (before the worksheet #283/#284 and the PYQ-symbol #286); a separate PARALLEL CONTENT track the worksheet docs #285 + symbol docs #287 did not cover, logged here now.** PR-B (this docs update) was cut fresh from the current trunk tip `a9eac09` (post-#287), so it sits on top of the worksheet + symbol work. Built in the isolated worktree `C:/Projects/LT-worktrees/notes-gen` (`feat/notes-generation`, off `883e904`, local checkpoint `1273b90`); pushed + PR-A opened + owner-merged; **no self-merge**.
