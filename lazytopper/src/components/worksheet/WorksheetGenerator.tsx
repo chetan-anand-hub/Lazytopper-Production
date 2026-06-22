@@ -21,6 +21,7 @@ import {
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
+import WorksheetGradePanel from "./WorksheetGradePanel";
 
 /**
  * WorksheetGenerator — PR-E2a: ONE responsive worksheet generator that replaces
@@ -614,7 +615,7 @@ export default function WorksheetGenerator() {
                   {generating ? "Generating…" : "Generate worksheet →"}
                 </button>
                 {blocker && <div className="lt-ws__note">{blocker}</div>}
-                <p className="lt-ws__pvnote">Solve on paper, then download the answer key to check — or (soon) upload one PDF to get it graded with solutions.</p>
+                <p className="lt-ws__pvnote">Solve on paper, then download the answer key to check — or upload one PDF to get every answer graded with solutions.</p>
               </div>
             </aside>
           </div>
@@ -656,12 +657,11 @@ export default function WorksheetGenerator() {
             {downloadError && <div className="lt-ws__note lt-ws__note--err" role="alert">{downloadError}</div>}
           </section>
 
-          <section className="lt-ws__card">
-            <h2 className="lt-ws__ct">Check your answers</h2>
-            <p className="lt-ws__lead">Solved it on paper? Upload your answer to Check &amp; Improve for real CBSE-style grading. (One-PDF whole-worksheet grading is coming next.)</p>
-            <Link to="/check-improve?source=worksheet" className="lt-ws__uplink">Upload your answers →</Link>
-            <p className="lt-ws__pvnote">Tip: label each answer with its question number (Q1, Q2 …) — it helps us match and grade each answer accurately.</p>
-          </section>
+          {generated && (
+            <section className="lt-ws__card">
+              <WorksheetGradePanel ws={generated} />
+            </section>
+          )}
 
           <button type="button" className="lt-ws__buildanother" onClick={() => { setView("build"); setGenerated(null); }}>
             ← Build another worksheet

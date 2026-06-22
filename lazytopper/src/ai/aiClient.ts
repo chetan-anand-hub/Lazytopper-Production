@@ -337,6 +337,74 @@ export async function detectQuestion(req: {
   return handleJsonResponse<DetectQuestionResponse>(res);
 }
 
+// ─── Worksheet structured grading (PR-E2b — one-PDF grade loop) ────────────────
+
+/** One known worksheet question + its scheme, sent to the structured grader. The
+ *  caller fetches this from the persisted worksheet (getWorksheetSession) and
+ *  passes it in — the grader is surface-agnostic and grades against this set. */
+export interface WorksheetGradeQuestionInput {
+  qNumber: number;
+  marks: number;
+  topic?: string;
+  topicLabel?: string;
+  questionText: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
+}
+
+/** A single per-question grade result, keyed to its worksheet question number.
+ *  When `couldNotRead` is true the answer was illegible/absent — it carries NO
+ *  grade and is NEVER counted as 0 (honest-failure contract). When false, the
+ *  graded fields form a CheckSolutionResponse-compatible result that can be fed
+ *  straight into the Mistake-Intelligence front door. */
+export interface WorksheetQuestionGrade {
+  qNumber: number;
+  couldNotRead: boolean;
+  totalMarks: number;
+  /** Present only when couldNotRead is false. */
+  ok?: boolean;
+  marksAwarded?: number;
+  percentage?: number;
+  annotatedSteps?: CheckSolutionAnnotatedStep[];
+  mistakeSummary?: CheckSolutionMistakeSummary;
+  teacherNote?: string;
+  /** Present only when couldNotRead is true. */
+  note?: string;
+}
+
+export interface WorksheetGradeResponse {
+  ok: boolean;
+  worksheetId?: string;
+  results: WorksheetQuestionGrade[];
+  totalQuestions: number;
+  gradedCount: number;
+  pendingCount: number;
+  /** Honest, SEPARATE totals — the graded subtotal excludes pending questions so
+   *  unreadable pages never deflate a final mark presented as complete. */
+  gradedMarksAwarded: number;
+  gradedMarksTotal: number;
+  worksheetTotalMarks: number;
+  summary?: string;
+  error?: string;
+}
+
+/** Grade a whole worksheet from ONE uploaded PDF against its known question set,
+ *  in a single structured call (spec §6). */
+export async function gradeWorksheet(req: {
+  worksheetId: string;
+  subject?: string;
+  questions: WorksheetGradeQuestionInput[];
+  imageBase64: string;
+  imageMimeType?: string;
+}): Promise<WorksheetGradeResponse> {
+  const res = await fetch(`${API_BASE}/grade-worksheet`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return handleJsonResponse<WorksheetGradeResponse>(res);
+}
+
 export interface GenerateVisualRequest {
   topic: string;
   concept?: string;
