@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "topic_key": "electricity",
+    "subject": "physics",
+    "chapter_no": 11,
+    "title": "Electricity",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Rules",
+      "kind": "rules"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 11"
+  },
+  "board_asks": "Ohm's law numericals, series and parallel resistance, and heating effect.",
+  "big_idea": {
+    "tagline": null,
+    "body": null
+  },
+  "definitions": [
+    {
+      "id": "def_ohms_law",
+      "tier": "headline",
+      "term": "Ohm's law",
+      "verbatim": "The potential difference across the ends of a resistor is directly proportional to the current through it, provided its temperature remains the same.",
+      "plain": "V is proportional to I at constant temperature, so V = IR.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 200,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Resistance in series and parallel",
+      "body": "In series the resistances add; in parallel the reciprocals add.",
+      "tested": "3-mark numerical",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_1",
+      "shape": "Ohm's law numerical",
+      "kind": "numerical",
+      "problem_verbatim": "A current of 0.5 A flows through a resistor of 20 ohm. Find the potential difference.",
+      "solution_steps": [
+        {
+          "lead": "List values.",
+          "text": "I = 0.5 A, R = 20 ohm.",
+          "concept_tag": "given"
+        },
+        {
+          "lead": "Apply V = IR.",
+          "text": "V = 0.5 * 20 = 10 V.",
+          "concept_tag": "substitute"
+        }
+      ],
+      "mark_logic": "1 for formula, 1 for substitution + answer with unit.",
+      "source": {
+        "ncert_example": "12.1",
+        "ncert_page": 201,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Numerical?",
+      "text": "Write the given values with units before applying the formula."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Forgetting the unit on the final answer loses half a mark.",
+      "owner_verified": true
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Ohm's law",
+      "math": "$V = IR$"
+    }
+  ],
+  "mindmap": {
+    "_TODO": "lift tree in the kit back-conversion"
+  },
+  "third_tab_content": {
+    "kind": "rules",
+    "intro": "Conventions for circuit problems.",
+    "figure_ref": null,
+    "blocks": [
+      {
+        "heading": "Working rules",
+        "type": "rule-list",
+        "items": [
+          "Convert all values to SI units first.",
+          "Series: add R; parallel: add 1/R."
+        ]
+      }
+    ]
+  },
+  "figures": {},
+  "source_ledger": [
+    {
+      "item": "Ohm's law",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.200"
+    }
+  ]
+}
