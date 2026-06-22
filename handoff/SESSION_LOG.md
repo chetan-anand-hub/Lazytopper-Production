@@ -1,5 +1,19 @@
 ---
 
+## 2026-06-22 — PYQ symbol-integrity pass MERGED (#286 `b600e2b`)
+
+**Trunk after merge: `b600e2b`.** The parallel symbol-fix track that resolves the SOURCE-DATA gap #284 flagged. Audited ALL 103 PYQ packs / 759 questions (Maths + Science) in an isolated worktree (`fix/pyq-symbol-integrity`); 3 commits squash-merged. Owner reviewed + squash-merged; no self-merge. Doctrine throughout: **recover from twin/answer, never fabricate; honest omission > broken question.**
+
+- **Batch 1 — 12 √/operator recoveries** in `real-numbers`/`quadratic-equations`/`polynomials` `questionText`, each verified against the question's own marking-scheme answer or a clean twin (RN-003/005/008, REALNUM-2024-003, REALNUM-2025-001 twin, REALNUM-2026-002/003/004/005, QE-003/004, POLY-2024-005b). Correctly excluded ~35 false-positives where √ lives only in the *answer* (e.g. "find length TA" → answer "2√3 cm"; the question is right).
+- **Withhold 38 unservable Qs** via a single source-level filter `canonicalQuestionBank = RAW_CANONICAL_QUESTION_BANK.filter(q => !WITHHELD_QUESTION_IDS.has(q.id))`: 17 Science (bilingual/CID bleed) + 21 Maths (blank / garbled / answer-mismatch / subset-font mojibake). Reason-tagged inline. Corrupt source objects kept INTACT for re-extraction; un-withhold per-id as fixed.
+- **§7 — normalize ° / π / √** in 5 `areas-related-to-circles` `questionText` (answer-verified).
+- **Fragile-file evidence** (the export is a 349-line `...PACK` spread — a dropped spread silently vanishes a topic): spreads BYTE-IDENTICAL to trunk; runtime `RAW 6579 → LIVE 6541, delta == WITHHELD 38`; 0 leaked / 0 collateral / 0 dup-ids; every withheld id present in raw.
+- **Subset-font mojibake detector built** (`mojibake_scan.py`, signatures `H$/VWm/{gÕ/¡/Õ`) — caught Maths Hindi-as-Latin gibberish the Devanagari-codepoint detector was blind to (the corruption is mangled-to-ASCII). Kept-and-served the answerable cosmetic cases (SAV-005, 2024-CG-007 trailing label; `Ð`→`∠` items).
+- **SCOPE:** `questionText` + `WITHHELD_QUESTION_IDS` only — `predictionTypes.ts` + all id/marks/year/set/answer/options/solutionSteps untouched. Gates GREEN: tsc · mojibake · scope:guard · root matrix 181/181 · lazytopper ops matrix · withhold runtime check · CI quality-gate (linux build). ⚠️ Withheld Qs stop being served on **MERGE + REDEPLOY**, not on push.
+- **New follow-ups:** [FU-PYQ-OWNER-LOOKUP] (14 unrecoverable Maths expressions, batched by paper code), [FU-PYQ-REEXTRACT-SCIENCE] (the 17 bilingual Science Qs), [FU-PYQ-ANSWER-FIELD-SYMBOLS] (answer/solution fields still √-stripped), [FU-PYQ-CORRUPTION-DETECTOR] (both-subject mojibake + answer-consistency; `mismatch_scan.py` √-regex reads one char → under-reads multi-digit surds), [FU-PYQ-ANGLE-NORMALIZE] (`Ð`→`∠` + residual °/π/superscript, bank-wide). **PYQ √-data audit (from #284) RESOLVED.** Reports: `Desktop/diff/report-pyq-withhold-and-followups-2026-06-21.md` + the owner-lookup + re-extraction docs.
+
+---
+
 ## 2026-06-21 — Worksheet rebuild E2a → E2a.3 MERGED (#280 `d065922`, #283 `9a080a0`, #284 `cfff277`)
 
 **Trunk after merge: `cfff277`.** The worksheet **foundation** is complete across three merged product PRs (#281 closed — superseded by #283). Full architecture + PR-E2b plan + gotchas: **`handoff/WORKSHEET_TRACK_HANDOFF.md`**. Each PR built in its own isolated worktree; owner live-verified on the Vercel preview before each merge; no self-merge.

@@ -2,6 +2,19 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-22 — Post-PR #286 roadmap update (PYQ symbol-integrity pass MERGED)
+
+Trunk `b600e2b`. The parallel PYQ symbol-fix track (off the Topic Hub stage line) that closes the SOURCE-DATA gap #284 flagged. Isolated worktree; owner squash-merged; no self-merge. Reports in `Desktop/diff/`.
+
+**PYQ bank corruption pass — DONE:**
+- ✅ **Batch 1 (12 √/operator recoveries)** — `questionText` only, each verified vs the question's own answer or a clean twin; ~35 answer-only-√ false-positives correctly left alone.
+- ✅ **Withhold 38 unservable Qs** — single source-level `WITHHELD_QUESTION_IDS` filter on `canonicalQuestionBank` (17 Science bilingual bleed + 21 Maths blank/garbled/answer-mismatch/mojibake); 349 `...PACK` spreads byte-identical to trunk; RAW 6579 → LIVE 6541 (Δ38). Corrupt source kept for re-extraction; un-withhold per-id as fixed. ⚠️ Live effect on MERGE + REDEPLOY.
+- ✅ **§7 °/π/√ normalization** — 5 `areas-related-to-circles` Qs, answer-verified.
+- ⏳ **[FU-PYQ-OWNER-LOOKUP]** (owner supplies 14 unrecoverable Maths expressions from real papers → 2nd-pass patch + un-withhold), **[FU-PYQ-REEXTRACT-SCIENCE]** (17 bilingual Science Qs), **[FU-PYQ-ANSWER-FIELD-SYMBOLS]**, **[FU-PYQ-CORRUPTION-DETECTOR]**, **[FU-PYQ-ANGLE-NORMALIZE]**.
+- The Topic Hub stage line is unchanged: **PR-E2b (NEXT)** → PR-F → PR-G.
+
+---
+
 ## 2026-06-21 — Post-PR #284 roadmap update (Worksheet rebuild E2a → E2a.3 MERGED)
 
 Trunk `cfff277`. Worksheet **foundation** delivered across #280 (`d065922`) + #283 (`9a080a0`) + #284 (`cfff277`); #281 closed (superseded). Each owner Vercel-verified + merged; no self-merge. Full detail/architecture/gotchas: **`handoff/WORKSHEET_TRACK_HANDOFF.md`**.
