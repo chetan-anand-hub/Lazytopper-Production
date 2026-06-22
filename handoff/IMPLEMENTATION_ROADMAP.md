@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, `de2a616`) — parallel content track
+
+Trunk content `de2a616` (#282; merged 2026-06-21 13:42Z, the FIRST of the recent cluster but a separate PARALLEL CONTENT track). Generating Class-10 CBSE chapter notes from the official NCERT 2026-27 PDFs in the locked LazyTopper note grammar, with verbatim-definition discipline (notes are tutor infrastructure). Built in an isolated worktree; owner-merged; no self-merge. Full detail/architecture: **`handoff/NOTES_TRACK_HANDOFF.md`**.
+
+**DECISION (settled, owner-approved):** notes ship as a shared React **`<Note spec={…}/>`** fed by a structured note-spec (`notes/specs/<topic_key>.json`) — NOT standalone HTML; the tutor + PR-F consume the spec as data; **Step 2 authors specs (JSON), not HTML**. ([FU-NOTES-INTEGRATION] RESOLVED.)
+
+**Notes track — Step 1 (kit + prototypes + reference exemplar) DONE:**
+- ✅ **Locked note kit (`notes/lazytopper_notes_kit.py`)** — renderer + figure toolkit (`ncert_figure`/`clean_watermark`/`refill_rect`); verified running.
+- ✅ **5 v2 prototypes** — Light, Electricity, Chemical Reactions, Life Processes (3 real NCERT figures), Quadratic Equations.
+- ✅ **Light enriched exemplar = the finished reference STANDARD** — verbatim NCERT definition cards + real NCERT worked examples + 3 real NCERT figures (incl. Fig 9.9 sign convention) + AUTHORED-vs-NCERT legend + source ledger; cites reconciled to NCERT Reprint 2026-27 Ch 9 (`jesc109.pdf`). The template for the standard; becomes the seed for the Light reference spec.
+
+**Next build order (gated — do NOT reorder; owner-authorized separately):**
+1. ⏳ **`notes/validate_spec.py`** — source-required validator to note-spec schema v1.1 (rejects unsourced verbatim/example/figure; checks `topic_key` ↔ `topics.ts`, banned keywords via `syllabusGuard.ts`, mojibake, kind shape, ledger count). Makes the ~35-note fan-out safe to parallelize.
+2. ⏳ **Content PR (under `notes/`)** — validated Light reference spec `light-reflection-and-refraction.json` + the schema-v1.1 doc + the validator; evolve the kit to `render_note(spec)`; finish Light's figure (base64→WebP) + mindmap (JS→spec) lift.
+3. ⏳ **Then in parallel** — **PR-F** (`<Note>` component + Topic Hub wiring; reads `notes/specs`+`notes/assets`, writes `src/`) AND **Step-2 spec authoring** (the 4 prototype enrichments — Electricity/Chemical Reactions/Life Processes [keep 3 figures]/Quadratic Equations — → ~35 notes), validator-gated. `magnetic-effects` = generate-TRIMMED (exclude Motor/EMI/Generator). **Do NOT start Step-2 or PR-F before the validator + content PR land.**
+- Follow-up: **[FU-NOTES-MATHS-MAP]** (Maths NCERT folder not yet content-mapped); `topics.ts` collapses the two trig keys into one `trigonometry`.
+
+---
+
 ## 2026-06-22 — Post-PR #286 roadmap update (PYQ symbol-integrity pass MERGED)
 
 Trunk `b600e2b`. The parallel PYQ symbol-fix track (off the Topic Hub stage line) that closes the SOURCE-DATA gap #284 flagged. Isolated worktree; owner squash-merged; no self-merge. Reports in `Desktop/diff/`.
