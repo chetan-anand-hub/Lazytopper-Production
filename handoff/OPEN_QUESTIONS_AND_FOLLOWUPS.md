@@ -1,3 +1,21 @@
+## 2026-06-22 — Post-PR #286 (PYQ symbol-integrity pass; trunk `b600e2b`)
+
+### ✅ RESOLVED / DELIVERED
+- **PYQ √-data audit (from #284) RESOLVED** — audited all 103 PYQ packs / 759 questions. Recoverable set FIXED (12 √/operator recoveries in real-numbers/quadratics/polynomials `questionText`, each answer-/twin-verified); §7 normalized °/π/√ in 5 areas Qs. Unrecoverables WITHHELD + queued for owner real-paper lookup. Built in an isolated worktree; owner squash-merged #286 (`b600e2b`); no self-merge.
+- **38 unservable questions WITHHELD** via a single source-level `WITHHELD_QUESTION_IDS` filter on `canonicalQuestionBank` (17 Science bilingual bleed + 21 Maths blank/garbled/answer-mismatch/mojibake). Honest omission > broken question. RAW 6579 → LIVE 6541 (delta == 38, evidence in the report). ⚠️ Takes effect on MERGE + REDEPLOY.
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-PYQ-OWNER-LOOKUP] (HIGH; owner action)** — 14 unrecoverable Maths expressions (blank / garbled / answer-contradicts-its-own-answer, incl. the most-dangerous `PYQ-M-2024-REALNUM-004` whose body contradicts its `(2−√3)/5` answer). Currently WITHHELD. Owner supplies correct text from the real papers (batched by CBSE paper code in `diff/PYQ_batch_for_owner_lookup_2026-06-21.md`); 2nd-pass patch un-withholds each. RULE: recover, never fabricate.
+- **[FU-PYQ-REEXTRACT-SCIENCE] (MED)** — re-extract the 2025/26 bilingual Science papers (the 17 withheld Science Qs); their body is bilingual/CID gibberish, not a symbol drop. A pipeline fix (English-medium PDFs / drop the Hindi column) prevents recurrence. `diff/PYQ_REEXTRACTION_followup_2026-06-21.md`.
+- **[FU-PYQ-ANSWER-FIELD-SYMBOLS] (MED)** — this pass fixed `questionText` ONLY; the `answer`/`solutionSteps` fields still carry dropped √ (e.g. RN-003/005/008 answers read "2 + 3", "6 – 7"), so revealed solutions are still corrupted. Separate answer-field symbol-integrity pass.
+- **[FU-PYQ-CORRUPTION-DETECTOR] (MED)** — a sturdier corruption detector: mojibake-by-subset-font across BOTH subjects (the Devanagari-codepoint detector is blind to mangled-to-ASCII Hindi; the new `mojibake_scan.py` covers it) + an answer-consistency check. NB `mismatch_scan.py`'s `√\s*\w` regex captures only one char after the radical (`√15`→`√1`), so multi-digit surds are under-read — "only REALNUM-2024-004 is a true text-answer mismatch" is a SCREEN, not a guarantee (no full numeric re-solve done).
+- **[FU-PYQ-ANGLE-NORMALIZE] (LOW)** — `Ð`→`∠` mojibake is bank-wide in geometry Qs (readable, so kept/served), plus the remaining °/π/superscript normalization (e.g. ARC-2026-001's garbled Reason formula, `cm²`/`x²`). Bank-wide normalization sub-batches, verify-against-answer discipline.
+
+### 🔭 NEXT
+- Worksheet track NEXT unchanged: **PR-E2b** (the AI grade loop). PYQ track is owner-driven from here ([FU-PYQ-OWNER-LOOKUP] → 2nd-pass patch + un-withhold).
+
+---
+
 ## 2026-06-21 — Post-PR #280/#283/#284 (Worksheet rebuild E2a → E2a.3; trunk `cfff277`)
 
 ### ✅ RESOLVED / DELIVERED
