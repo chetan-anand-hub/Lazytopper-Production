@@ -1,3 +1,13 @@
+## 2026-06-22 — Note-spec validator gate MERGED (#289, `c525b2a`) — notes track, gated step 1
+
+### ✅ RESOLVED / DELIVERED
+- **Note-spec validator gate (#289, `c525b2a`)** — `notes/validate_spec.py`, the 9-rule anti-fabrication gate that makes the ~35-note fan-out safe. stdlib only, NO bypass flag; reads `SURFACE_BANNED_PHRASES` from `syllabusGuard.ts` (trap-safe prose list, `//`-comments stripped) + slugs from `topics.ts` live, never hardcoded. Committed alongside the schema v1.1 contract + the validated Light reference spec + 5 negative fixtures + a self-test. Light VALID; negatives each trip exactly one rule. **PR-F is now UNBLOCKED.**
+
+### 🔭 NEXT (notes track — gated step 2)
+- **Content PR under `notes/`:** evolve the kit to `render_note(spec)`; finish Light's figure (base64→WebP) + mindmap (JS→spec) lift. THEN in parallel PR-F (`<Note>` component + wiring) AND Step-2 spec authoring (4 prototype enrichments → ~35 notes), validator-gated. Later: wire `validate_spec.py --json` as a `SubagentStop` hook.
+
+---
+
 ## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, `de2a616`) — parallel content track
 
 ### ✅ RESOLVED / DELIVERED
