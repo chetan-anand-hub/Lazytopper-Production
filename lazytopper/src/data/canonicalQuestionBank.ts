@@ -124,6 +124,7 @@ import { SAV_EXEMPLAR2 } from './questionBanks/class10/maths/surfaceAreasAndVolu
 // Bank Expansion Phase 1, Batch 2 (2026-06-18) — Coordinate-Geometry + Areas-Related-to-Circles
 import { CG_EXEMPLAR2 } from './questionBanks/class10/maths/coordinateGeometry.exemplar2';
 import { ARC_EXEMPLAR2 } from './questionBanks/class10/maths/areasRelatedToCircles.exemplar2';
+import { Z3_COMPETENCY_QUESTIONS } from './questionBanks/class10/maths/competency.z3';
 
 // P0 diff/ pack registration (2026-05-23) — 62 questions closing triangles/trig/electricity/life-processes gaps
 import { TRIANGLES_AR_QUESTIONS } from './questionBanks/class10/maths/triangles.assertionReasoning';
@@ -542,6 +543,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   // Bank Expansion Phase 1, Batch 2 (2026-06-18) — authentic Exemplar questions, AI solutions (pending owner verification)
   ...CG_EXEMPLAR2,
   ...ARC_EXEMPLAR2,
+  // Z3 Competency pilot (2026-06-23) — authentic transcribed competency/case-based
+  // questions, AI-authored step-marked solutions (pending owner/teacher verification).
+  // Authentic tier (".z3" suffix, NOT a ".pack"; absent from AI_GENERATED_PACK_SOURCES).
+  ...Z3_COMPETENCY_QUESTIONS,
   // P0 diff/ pack registration (2026-05-23) — 62 questions (AR Sec A + Proof Sec C/D)
   ...TRIANGLES_AR_QUESTIONS,
   ...TRIGONOMETRY_AR_QUESTIONS,
