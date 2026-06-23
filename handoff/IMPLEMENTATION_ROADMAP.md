@@ -2,6 +2,17 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-24 — Worksheet PR-E2b: one-PDF AI grade loop + MI wiring MERGED (#291, `60c5bf9`) — ⚠ owner live-verify PENDING
+
+Trunk `60c5bf9`. The SECOND half of the worksheet (E2a foundation merged) — the AI grade loop. One uploaded PDF graded in ONE structured call against the KNOWN scheme keyed Q1…QN, per-question results with honest "graded X/Y + N pending" totals, each legible mistake fed to MI via the single front door. Isolated worktree; rebased post-Z3 with ZERO conflicts; cofounder review clean; owner merged; no self-merge. Report: `report-pr-e2b-worksheet-grade-loop-2026-06-23.md`.
+
+**Topic Hub PR-E2 (Worksheet) — now CODE-COMPLETE:**
+- ✅ **PR-E2a → E2a.3 (#280/#283/#284)** — the foundation (responsive generator, distribution, real-math PDFs, persist-by-`worksheetId`, view-aware Back, MI-enrich anchor).
+- ✅ **PR-E2b (#291)** — the AI grade loop: additive `gradeStructuredSet` core + `handleGradeWorksheet` in `checkSolution.cjs` (**existing Check & Improve grader byte-unchanged → zero regression**), `POST /api/grade-worksheet`; client `gradeWorksheet()` + `worksheetGradeService` (map-by-number, persist, single `recordMistake` + `recordAttempt` front door, stable `ws:<id>:q<N>` idempotency) + `WorksheetGradePanel`. Honest-failure `couldNotRead` (never fabricate a mark, never zero an unreadable answer); trusted per-question marks; grade core surface-agnostic (Chapter Test / Full Mock reuse). Gates GREEN + CI quality-gate GREEN; no forbidden files.
+- ⏳ **OWNER LIVE-VERIFY PENDING** — the AI round-trip on the Firebase-authorized trunk URL (5-Q drill; honest pending path; MI feed + careless/knowledge-gap routing; Check & Improve non-regression; no double-count on re-upload; phone). After it passes the worksheet (E2a+E2b) is DONE.
+- ⏳ **PR-F (NEXT after live-verify): content fill** (Examiner's tips + Notes). ⏳ **PR-G:** delete dead old-mobile + retired MockBuilder/TutorDrawerV2/MentorPanel + the un-routed worksheet twins.
+- New follow-up **[FU-ASYNC-GRADING]** (large worksheets may truncate the one structured call — sync now, async deferred); carried [FU-PITFALL-DATA], [FU-WORKSHEET-PDF-SERVERSIDE].
+
 ## 2026-06-23 — Z3 Competency extraction MERGED (#292, `b1d3e46`) — bank-extraction PILOT (new parallel content track)
 
 Trunk `b1d3e46`. The **EXTRACTION PILOT** — proving the extract→classify→syllabus-filter→schema→bank→verify pipeline on the cleanest content slice (`Z3. Competency Based Questions`, Maths) so it can scale to the worksheet folders with confidence. **102 net-new AUTHENTIC competency/case-based Maths questions** in NEW `questionBanks/class10/maths/competency.z3.ts`, wired by ONE import + ONE spread. Isolated worktree; owner-approved + squash-merged; no self-merge (gated `src/data`). Report: `Desktop\Content\extraction\report-z3-competency-extraction-2026-06-23.md`.
