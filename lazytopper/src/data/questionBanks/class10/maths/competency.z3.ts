@@ -162,6 +162,8 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Let A = grams of Mix A, B = grams of Mix B. Protein: 0.10A + 0.20B = 20.", "[1 mark] Fat: 0.06A + 0.02B = 6.", "[1 mark] Multiply the fat equation by 10: 0.6A + 0.2B = 60. Subtract the protein equation (0.10A + 0.20B = 20): 0.5A = 40.", "[1 mark] A = 40/0.5 = 80 grams of Mix A.", "[1 mark] Substitute into 0.10A + 0.20B = 20: 8 + 0.20B = 20 => 0.20B = 12 => B = 60 grams of Mix B."],
     finalAnswer: "80 grams of Mix A and 60 grams of Mix B",
     isCompetencyBased: true, requiresDiagram: false },
+  // AUTHORED (Z4 blank): the source answer key left this alloy problem blank; solution authored from
+  // first principles (x + y = 10, pure-gold balance) - pending teacher check.
   { id: "Z3-PLE-009", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Linear Equations in Two Variables (Alloy Problem)",
     section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A jeweller has two bars of gold alloy in stock, one of 12 carats and the other of 18 carats (24-carat gold is pure gold, so 12-carat is 12/24 pure and 18-carat is 18/24 pure). How many grams of each alloy must be mixed to obtain 10 grams of 14-carat gold?",
@@ -186,11 +188,16 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (i) h(5) = -16(5)^2 + 240(5) + 544 = -400 + 1200 + 544 = 1344 feet. (ii) h(10) = -16(10)^2 + 240(10) + 544 = -1600 + 2400 + 544 = 1344 feet.", "[1 mark] (iii) The graph is a downward parabola symmetric about its vertex t = -240/(2 x -16) = 7.5 sec; t = 5 and t = 10 are equidistant from 7.5, so the rocket is at the same height (1344 ft) going up at t = 5 and coming down at t = 10.", "[1 mark] (iv) Maximum height is at the vertex t = 7.5: h(7.5) = -16(7.5)^2 + 240(7.5) + 544 = -900 + 1800 + 544 = 1444 feet.", "[1 mark] (v) Airborne until h(t) = 0: -16t^2 + 240t + 544 = 0 => t^2 - 15t - 34 = 0 => (t - 17)(t + 2) = 0 => t = 17 (reject t = -2). The rocket was airborne 17 sec."],
     finalAnswer: "(i) 1344 ft  (ii) 1344 ft  (iii) equal heights by parabolic symmetry about t = 7.5  (iv) 1444 ft  (v) 17 sec",
     isCompetencyBased: true, requiresDiagram: false },
+  // PENDING OWNER VERIFICATION: the source question and its answer key are cross-contaminated.
+  // The printed function P(x) = -0.5x^2 + 175x - 330 gives P(0) = -330 (not -3300) and break-even
+  // roots x ~ 1.9, 348.1 (not 20 & 330) and a vertex value ~ Rs 14982.5 (not 12012.5) -- the key's
+  // -3300 / 20 / 330 / 12012.5 values belong to a different problem. ONLY sub-part (iii), the vertex
+  // x = 175, is internally verified. Owner must confirm the intended function/answers for (i),(ii),(iv).
   { id: "Z3-QE-003", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Quadratic Functions (Maximum Profit Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Maximum Profit: A kitchen utensils manufacturer can produce up to 200 utensils per day. The profit from the sale of these utensils can be modelled by P(x) = -0.5x^2 + 175x - 330, where P(x) is the profit in Rupees and x is the number of utensils made and sold. Based on this model:\n(i) Find the y-intercept and explain what it means in this context.\n(ii) Find the x-intercepts and explain what they mean in this context.\n(iii) How many utensils should be sold to maximize profit?\n(iv) What is the maximum profit?",
-    solutionSteps: ["[1 mark] (i) The y-intercept is P(0), the profit when no utensils are sold. Per the source answer key, P(0) = -3300, meaning a loss of Rs 3300 when nothing is sold. (NOTE: with the printed coefficient -330 the value would be -330; the answer key uses -3300 and is followed here.)", "[1 mark] (ii) The x-intercepts are where P(x) = 0 (the break-even points): per the source key x = 20 and x = 330. If fewer than 20 or more than 330 utensils are made-and-sold there is no profit, so these are the break-even points.", "[1 mark] (iii) Profit is maximum at the vertex x = -175/(2 x -0.5) = 175. So 175 utensils should be sold to maximize profit.", "[1 mark] (iv) Maximum profit (per the source answer key) is Rs 12012.5 at x = 175."],
-    finalAnswer: "(i) y-intercept = loss of Rs 3300 (per source key)  (ii) break-even x = 20 and x = 330 (per source key)  (iii) 175 utensils  (iv) Rs 12012.5 (per source key)",
+    solutionSteps: ["[1 mark] (i) The y-intercept is P(0), the profit when no utensils are sold (numeric value pending verification - see note).", "[1 mark] (ii) The x-intercepts are where P(x) = 0; they are the break-even points, beyond/below which there is no profit (numeric values pending verification - see note).", "[1 mark] (iii) Profit is maximum at the vertex x = -175/(2 * -0.5) = 175. So 175 utensils should be sold to maximize profit.", "[1 mark] (iv) Maximum profit is the value P(175) at the vertex (numeric value pending verification - see note)."],
+    finalAnswer: "(iii) 175 utensils (verified). Sub-parts (i), (ii) and (iv) are pending verification (see note).",
     isCompetencyBased: true, requiresDiagram: false },
   { id: "Z3-QE-004", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Quadratic Functions (Projectile Height Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
@@ -422,15 +429,17 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     ],
     finalAnswer: "Speed of the other ship = 8 knots (8 nautical miles/hr)",
     isCompetencyBased: true, requiresDiagram: false },
+  // PROVENANCE: Z4 source key prints 6 m, which is mathematically inconsistent with the data
+  // (156/39 = 4, shadow 4 m => h = 4*400 = 1600 cm = 16 m). Owner-confirmed override to 16 m.
   { id: "Z3-TR-009", subject: "Maths", topicKey: "triangles", subtopic: "Similar Triangles (Shadow and Height)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Ishita wanted to find the height of a statue of a pineapple. She measured the pineapple's shadow and her own shadow. Her height is 156 cm and casts a shadow of 39 cm. The length of the shadow of the pineapple is 4 m. What is the height of the pineapple?",
     solutionSteps: [
       "[1 mark] The Sun's rays make equal angles, so Ishita-with-shadow and pineapple-with-shadow form similar triangles (AA): pineapple height / pineapple shadow = Ishita height / Ishita shadow.",
       "[1 mark] Convert to common units: Ishita height = 156 cm, shadow = 39 cm; pineapple shadow = 4 m = 400 cm. So h / 400 = 156 / 39 = 4.",
-      "[1 mark] h = 4 * 400 = 1600 cm = 16 m. (Source answer key prints 6 m, which is inconsistent with the given data; the correct similar-triangles result is 16 m.)",
+      "[1 mark] h = 4 * 400 = 1600 cm = 16 m.",
     ],
-    finalAnswer: "Height of the pineapple = 16 m  (NOTE: Z4 prints 6 m; that value is mathematically inconsistent with 156/39 and a 4 m shadow - the correct answer is 16 m)",
+    finalAnswer: "Height of the pineapple = 16 m",
     isCompetencyBased: true, requiresDiagram: false },
   { id: "Z3-TR-010", subject: "Maths", topicKey: "triangles", subtopic: "Similar Triangles (Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
@@ -482,6 +491,8 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     finalAnswer: "(i) AB = 3 sqrt(2) ~ 4.24  (ii) CD = 3 sqrt(2) ~ 4.24  (iii) AC = 6  (iv) DB = 6 (units)",
     isCompetencyBased: true, requiresDiagram: true,
     diagramDescription: "A 10x10 coordinate grid showing four students in the assembly: A at (3,4), B at (6,7), C at (9,4) and D at (6,1)." },
+  // AUTHORED (Z4 blank): the source key left all sub-parts blank; coordinates read from the figure and
+  // distances/section point authored - pending teacher check.
   { id: "Z3-CG-007", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula and Section/Mid-point (Seating Grid)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Bhigu marks the classroom seating of three friends on a coordinate system with the centre of the class as origin. From his diagram, Ajay is at A(-2, 2), Bhigu at B(-1, -2) and Colin at C(3, 0).\n(i) What are the coordinates of point A?\n(ii) What is the distance of point A from the origin?\n(iii) What is the distance between A and B?\n(iv) What is the distance between B and C?\n(v) A point D lies on segment AB such that AD : DB = 4 : 3. What are the coordinates of D?",
@@ -585,11 +596,15 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (i) Height = 324 * tan 45 = 324 m.", "[1 mark] Let h = 324 m. When the depression is 30 deg, the car's distance from the base = h / tan 30 = h * sqrt(3). When it is 60 deg, distance = h / tan 60 = h / sqrt(3). Distance covered in 15 min = h*sqrt(3) - h/sqrt(3) = h(3-1)/sqrt(3) = 2h/sqrt(3).", "[1 mark] Remaining distance (from the 60 deg point to the base) = h / sqrt(3). The car covers 2h/sqrt(3) in 15 min, so its speed = (2h/sqrt(3)) / 15 per min.", "[1 mark] Time for remaining h/sqrt(3) = (h/sqrt(3)) / ((2h/sqrt(3))/15) = 15/2 = 7.5 minutes."],
     finalAnswer: "(i) 324 m  (ii) 7.5 minutes",
     isCompetencyBased: true, requiresDiagram: false },
+  // PENDING OWNER VERIFICATION: datum conflict on the deck height. The source question text states
+  // 200 m, but the source answers (86.6 m, 63.4 m) are only consistent with a 150 m deck. The working
+  // below uses 150 m to match the answers; the owner must confirm whether the intended height is 150 m
+  // or 200 m (at 200 m the answers become 115.5 m and 84.5 m).
   { id: "Z3-TG-104", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances (Application)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "Two Fishing Boats: From the observation deck of a seaside building, Jignesh sees two fishing boats in the line of the sea directly in front. The angle of depression to the nearer boat is 60 deg and to the farther boat is 45 deg. (Take the deck height consistent with the source answers, 150 m.)\n(i) How far out to sea is the nearer boat from the foot of the building?\n(ii) How far apart are the two boats?",
-    solutionSteps: ["[1 mark] Let H = height of the deck. Nearer boat (depression 60 deg): distance d1 = H / tan 60 = H / sqrt(3). Farther boat (depression 45 deg): distance d2 = H / tan 45 = H.", "[1 mark] Using H = 150 m (the value consistent with the source's answer key): d1 = 150 / sqrt(3) = 86.6 m.", "[1 mark] (i) Nearer boat is 86.6 m from the foot of the building.", "[1 mark] (ii) d2 = 150 m, so distance apart = d2 - d1 = 150 - 86.6 = 63.4 m."],
-    finalAnswer: "(i) 86.6 m  (ii) 63.4 m",
+    questionText: "Two Fishing Boats: From the observation deck of a seaside building 150 m high, Jignesh sees two fishing boats in the line of the sea directly in front. The angle of depression to the nearer boat is 60 deg and to the farther boat is 45 deg.\n(i) How far out to sea is the nearer boat from the foot of the building?\n(ii) How far apart are the two boats?",
+    solutionSteps: ["[1 mark] Let H = height of the deck = 150 m. Nearer boat (depression 60 deg): distance d1 = H / tan 60 = H / sqrt(3). Farther boat (depression 45 deg): distance d2 = H / tan 45 = H.", "[1 mark] d1 = 150 / sqrt(3) = 86.6 m.", "[1 mark] (i) Nearer boat is 86.6 m from the foot of the building.", "[1 mark] (ii) d2 = 150 m, so distance apart = d2 - d1 = 150 - 86.6 = 63.4 m."],
+    finalAnswer: "(i) 86.6 m  (ii) 63.4 m  (deck height 150 m - pending verification, see note)",
     isCompetencyBased: true, requiresDiagram: false },
   { id: "Z3-TG-105", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances (Application)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -639,20 +654,23 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
   { id: "Z3-ARC-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Areas of Circles and Sectors (Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(Take pi = 22/7.) Eshika wants to cover the cushions of her papasan chair. There are seven circular cushions of the same size with diameter 32 cm arranged around one centre cushion of diameter 46 cm. She covers both sides of every cushion and allows an extra 5 cm of fabric around each cushion.\nIn the same living room, Dhriti's pendulum clock has a minute hand 9 cm long and an hour hand 6 cm long; the pendulum is 45 cm long.\n(i) Find the total area of fabric needed to cover both sides of all the cushions (with the 5 cm allowance).\n(ii) Find the area swept by the minute hand in 14 minutes.\n(iii) Find the angle described by the hour hand in 10 minutes.\n(iv) If the tip of the pendulum covers a distance of 66 cm in one complete oscillation, find the angle described by the pendulum at the centre.",
-    solutionSteps: ["[2 marks] (i) With 5 cm allowance, the seven outer cushions have radius 16 + 5 = 21 cm and the centre cushion radius 23 + 5 = 28 cm. Both sides => factor 2. Fabric = 2*[7*pi*21^2 + pi*28^2] = 2*(22/7)*[7*441 + 784] = (44/7)*(3087 + 784) = (44/7)*3871 = 44*553 = 24332 cm^2.", "[1 mark] (ii) Minute hand turns 6 deg/min, so 14 min => 84 deg. Area = (84/360)*pi*9^2 = (84/360)*(22/7)*81 = 59.4 cm^2.", "[1/2 mark] (iii) Hour hand turns 360 deg in 12 h = 0.5 deg/min, so in 10 min it turns 0.5*10 = 5 degrees.", "[1/2 mark] (iv) 66 = (theta/360)*2*(22/7)*45 => theta = 66*360*7/(2*22*45) = 84 degrees."],
+    solutionSteps: ["[2 marks] (i) With 5 cm allowance, the seven outer cushions have radius 16 + 5 = 21 cm and the centre cushion radius 23 + 5 = 28 cm. Both sides => factor 2. Fabric = 2*[7*pi*21^2 + pi*28^2] = 2*(22/7)*[7*441 + 784] = (44/7)*(3087 + 784) = (44/7)*3871 = 44*553 = 24332 cm^2.", "[1 mark] (ii) Minute hand turns 6 deg/min, so 14 min => 84 deg. Area = (84/360)*pi*9^2 = (84/360)*(22/7)*81 = 59.4 cm^2.", "[1 mark] (iii) Hour hand turns 360 deg in 12 h = 0.5 deg/min, so in 10 min it turns 0.5*10 = 5 degrees. (iv) For the pendulum, 66 = (theta/360)*2*(22/7)*45 => theta = 66*360*7/(2*22*45) = 84 degrees."],
     finalAnswer: "(i) 24332 cm^2  (ii) 59.4 cm^2  (iii) 5 degrees  (iv) 84 degrees",
     isCompetencyBased: true, requiresDiagram: false },
   { id: "Z3-ARC-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area and Circumference of a Circle (Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "(Take pi = 22/7.) A circular swimming pool has an area of 616 square metres. The owner wants to replace the tiling at the edge of the pool. The edging is 25 cm wide.\n(i) She plans to use square tiles to form a continuous inner edge around the pool. Find the radius and circumference of the pool, and how many square tiles are needed around the edge.\n(ii) Once the square tiles are in place around the circular edge there will be small extra spaces between adjacent tiles. What shape of tile best fills these gaps, and how many such tiles should she purchase?",
-    solutionSteps: ["[1 mark] Area = pi*r^2 = 616 => r^2 = 616*7/22 = 196 => r = 14 m. Circumference = 2*pi*r = 2*(22/7)*14 = 88 m.", "[1 mark] (i) The square edging tiles are laid end-to-end around the circular edge; with a 25 cm wide edging, the number of square tiles required works out to about 176 tiles.", "[1/2 mark] (ii) Because the edge is curved, wedge-shaped gaps remain between the straight-sided square tiles; these are best filled with triangular tiles.", "[1 1/2 marks] (ii) The number of triangular gap tiles needed is 4 times the number of square tiles = 4*176 = 704 triangular tiles."],
+    solutionSteps: ["[1 mark] Area = pi*r^2 = 616 => r^2 = 616*7/22 = 196 => r = 14 m. Circumference = 2*pi*r = 2*(22/7)*14 = 88 m.", "[1 mark] (i) The square edging tiles are laid end-to-end around the circular edge; with a 25 cm wide edging, the number of square tiles required works out to about 176 tiles.", "[2 marks] (ii) Because the edge is curved, wedge-shaped gaps remain between the straight-sided square tiles; these are best filled with triangular tiles. The number of triangular gap tiles needed is 4 times the number of square tiles = 4*176 = 704 triangular tiles."],
     finalAnswer: "(i) r = 14 m, circumference = 88 m, about 176 square tiles  (ii) triangular tiles, 704 of them",
     isCompetencyBased: true, requiresDiagram: false },
+  // PENDING OWNER VERIFICATION: two candidate values are unresolved. The border (outer - inner)
+  // method gives 12150 - 9196 = 2954 cm^2; the Z4 source key prints 2912 cm^2 (a 42 cm^2 gap whose
+  // origin is unclear). Not presented as confident either way until the owner picks the correct value.
   { id: "Z3-ARC-004", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of a Border Region",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Varsha's dining-room table has a hardwood border around the outside. The outer dimensions of the table are 135 cm by 90 cm, and the wooden edge is 7 cm wide all around. Find the area of the wood (the border) around the edge of the table.",
-    solutionSteps: ["[1 mark] Outer area = 135 * 90 = 12150 cm^2.", "[1 mark] Inner (table top inside the border) dimensions = (135 - 2*7) by (90 - 2*7) = 121 by 76, inner area = 121 * 76 = 9196 cm^2.", "[1 mark] Area of wooden border = outer area - inner area = 12150 - 9196 = 2954 cm^2 (source answer key reports 2912 cm^2)."],
-    finalAnswer: "2912 cm^2 (per source key; clean frame method gives 2954 cm^2)",
+    solutionSteps: ["[1 mark] Outer area = 135 * 90 = 12150 cm^2.", "[1 mark] Inner (table top inside the border) dimensions = (135 - 2*7) by (90 - 2*7) = 121 by 76, inner area = 121 * 76 = 9196 cm^2.", "[1 mark] Area of wooden border = outer area - inner area = 12150 - 9196 = 2954 cm^2. (A value of 2912 cm^2 is also under review - pending verification.)"],
+    finalAnswer: "2954 cm^2 by the border method; a value of 2912 cm^2 is also under review - pending verification.",
     isCompetencyBased: true, requiresDiagram: false },
   { id: "Z3-ARC-005", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Comparing Areas of Circles (Value for Money)",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -667,13 +685,20 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     finalAnswer: "(i) No, it will not overflow (33.5 cm^3 < 41.9 cm^3)  (ii) about 80% filled",
     isCompetencyBased: true, requiresDiagram: true,
     diagramDescription: "A right circular cone pointing downward (an ice-cream cone), depth 10 cm and top diameter 4 cm, with a sphere (scoop of ice cream) of diameter 4 cm resting on the open top." },
+  // PENDING OWNER VERIFICATION: the source is internally inconsistent on the bore volume. With r = 7 m
+  // and L = 450 m the cylinder volume is pi*r^2*L = (22/7)*49*450 = 69300 m^3, but the Z4 key prints
+  // 6900 m^3 (and the excavation cost implies 6930) - off by a factor of ~10. Sub-parts (iii) coated
+  // area = 14850 m^2 and (iv) cost = Rs 445500 ARE correct (curved surface of the 270-deg major arc,
+  // L = 450). Owner must confirm (i) bore volume, (ii) excavation cost and (v) the debris-segment volume.
   { id: "Z3-SAV-005", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder Volume and Curved Surface with a Sector Cross-Section",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(Take pi = 22/7.) A railway tunnel is a cylinder of radius 7 m and length 450 m. In its circular cross-section the centre is O and a level surface AB is laid for the railway lines, with angle AOB = 90 degrees. The space below AB is filled with rubble.\n(i) How much volume of earth is removed to make the tunnel (the cylindrical bore)?\n(ii) If excavation costs Rs 250 per cubic metre, what is the total cost of excavation?\n(iii) A coating is applied to the inner curved part of the tunnel (the major-arc curved surface, above AB). What is the area to be coated?\n(iv) If coating costs Rs 30 per m^2, what is the total cost of coating?\n(v) How much volume of debris (rubble) is required to fill the space below AB?",
-    solutionSteps: ["[1 mark] (i) Volume of the cylindrical bore = pi*r^2*L. Using the source's figures this is reported as 6900 m^3 (the answer key is internally inconsistent on the length used; the curved-surface part below uses L = 450 m).", "[1 mark] (ii) Cost of excavation = volume * 250 = 6930 * 250 = Rs 1732500.", "[1 mark] (iii) Coated surface = curved surface of the major arc (360 - 90 = 270 deg). Area = (270/360)*2*pi*r*L = (3/4)*2*(22/7)*7*450 = (3/4)*44*450 = 33*450 = 14850 m^2.", "[1/2 mark] (iv) Cost of coating = 14850 * 30 = Rs 445500.", "[1/2 mark] (v) Volume of debris to fill the space below AB (the minor segment, angle 90 deg) extended along the length = reported as 7000 m^3 in the source key."],
-    finalAnswer: "(i) 6900 m^3  (ii) Rs 1732500  (iii) 14850 m^2  (iv) Rs 445500  (v) 7000 m^3",
+    solutionSteps: ["[1 mark] (i) Volume of the cylindrical bore = pi*r^2*L with r = 7 m and L = 450 m (numeric value pending verification - see note).", "[1 mark] (ii) Cost of excavation = bore volume * Rs 250 per m^3 (numeric value pending verification - see note).", "[1 mark] (iii) Area to be coated = curved surface of the major arc (360 - 90 = 270 deg) = (270/360)*2*pi*r*L = (3/4)*2*(22/7)*7*450 = (3/4)*44*450 = 33*450 = 14850 m^2.", "[1 mark] (iv) Cost of coating = 14850 * 30 = Rs 445500. (v) Volume of debris filling the space below AB (the 90-deg minor segment, extended along the length) is pending verification - see note."],
+    finalAnswer: "(iii) 14850 m^2 and (iv) Rs 445500 (verified). (i), (ii) and (v) are pending verification (see note).",
     isCompetencyBased: true, requiresDiagram: true,
     diagramDescription: "Circular cross-section of a tunnel: circle with centre O. A horizontal chord AB near the bottom, with radii OA and OB drawn so that angle AOB = 90 degrees. The space below chord AB (minor segment) is shaded as rubble; the curved part above AB is the tunnel interior to be coated." },
+  // AUTHORED (Z4 blank): the source key gave only formula stubs; numeric answers authored using the
+  // sphere surface-area/volume formulas with the stated diameters - pending teacher check.
   { id: "Z3-SAV-006", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Surface Area and Volume of a Sphere (Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(Treat the Earth as a sphere; use pi = 22/7.) The diameter of Earth is d1 = 7900 miles from the North Pole to the South Pole, and d2 = 7926 miles between opposite points on the equator.\n(i) Find the surface area of Earth using each measure (surface area of a sphere = pi*d^2).\n(ii) About 75% of Earth's surface is covered by water. Using the mean of the two diameters, find the surface area covered by water.\n(iii) The atmosphere extends about 100 miles above the surface. Using the mean diameter, find the surface area of the outer atmosphere sphere.\n(iv) Using the mean diameter, find the volume of the sphere bounded by the outer atmosphere.",
@@ -751,6 +776,8 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     finalAnswer: "(i) 0.19  (ii) 0.61  (iii) 0.42  (iv) 0.39",
     isCompetencyBased: true, requiresDiagram: true,
     diagramDescription: "A 70 cm (wide) by 90 cm (tall) rectangle. A circle is inscribed touching the left and right sides (diameter 70 cm, radius 35 cm). An isosceles triangle is inscribed in the circle with base along the horizontal diameter (base 70 cm) and apex at the top of the circle (height 35 cm)." },
+  // PROVENANCE: the source image prints the Green Party total as 5; the correct row sum is 6+3=9 and
+  // the grand total (100) is consistent only with 9, so 9 is used here.
   { id: "Z3-PR-002", subject: "Maths", topicKey: "probability", subtopic: "Probability of Single Events (Two-Way Table)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A political survey of 100 voters recorded their gender and party affiliation as shown in the table. One voter out of the 100 is drawn at random to be interviewed.\nParty (Women, Men, Total): Republican (17, 20, 37); Democrat (22, 17, 39); Independent (8, 7, 15); Green Party (6, 3, 9); Total (53, 47, 100).\n(i) What is the probability the person is a woman or a Republican?\n(ii) What is the probability the person is a Democrat?\n(iii) What is the probability the person is an Independent man?\n(iv) What is the probability the person is an Independent man or a Green Party man?\n(v) What is the probability the person is not an Independent woman and not a Republican man?",
@@ -762,7 +789,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) 0.73  (ii) 0.39  (iii) 0.07  (iv) 0.10  (v) 0.72",
     isCompetencyBased: true, requiresDiagram: true,
-    diagramDescription: "Two-way table. Columns: Women, Men, Totals. Rows: Republican (17, 20, 37), Democrat (22, 17, 39), Independent (8, 7, 15), Green Party (6, 3, 9), Totals (53, 47, 100). NOTE: source image prints Green Party total as 5; correct row sum is 6+3=9 and the grand total is consistent only with 9." },
+    diagramDescription: "Two-way table. Columns: Women, Men, Totals. Rows: Republican (17, 20, 37), Democrat (22, 17, 39), Independent (8, 7, 15), Green Party (6, 3, 9), Totals (53, 47, 100)." },
   { id: "Z3-PR-003", subject: "Maths", topicKey: "probability", subtopic: "Probability of an Event and its Complement",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A water bottling plant stays in full production as long as at least one of its two generators is functioning. The probability the main generator fails is 0.05, the probability the secondary generator fails is 0.01, and the probability both fail is 0.007. What is the probability the plant remains in full production today?",
@@ -773,6 +800,8 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     ],
     finalAnswer: "0.993 (99.3%)",
     isCompetencyBased: true, requiresDiagram: false },
+  // PROVENANCE: Z4 source key prints 99.7%, which is unreachable from the stated data
+  // (P(completes) = 1 - P(both fail) = 1 - 0.013 = 0.987). Owner-confirmed override to 98.7%.
   { id: "Z3-PR-004", subject: "Maths", topicKey: "probability", subtopic: "Probability of an Event and its Complement",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A hydrofoil craft is powered by two engines (one forward, one aft) and operates if either engine functions. The probability the aft engine fails is 0.05, the probability the forward engine fails is 0.03, and the probability both fail is 0.013. What is the probability the hydrofoil completes its next trip?",
@@ -790,8 +819,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
       "[1 mark] Total outcomes = 15. P(eight ball) = 1/15 = 0.067 (approx).",
       "[1 mark] No ball is numbered greater than 15, so favourable outcomes = 0. P(> 15) = 0/15 = 0.",
       "[1 mark] Even numbers from 1 to 15: {2,4,6,8,10,12,14} = 7 outcomes. P(even) = 7/15 = 0.467 (approx).",
-      "[1/2 mark] Multiples of three: {3,6,9,12,15} = 5 outcomes. P(multiple of 3) = 5/15 = 1/3 = 0.333 (approx).",
-      "[1/2 mark] Solid (1-8) AND even = {2,4,6,8} = 4 outcomes. P(solid and even) = 4/15 = 0.267 (approx)."
+      "[1 mark] (iv) Multiples of three: {3,6,9,12,15} = 5 outcomes. P(multiple of 3) = 5/15 = 1/3 = 0.333 (approx). (v) Solid (1-8) AND even = {2,4,6,8} = 4 outcomes. P(solid and even) = 4/15 = 0.267 (approx)."
     ],
     finalAnswer: "(i) 1/15  (ii) 0  (iii) 7/15  (iv) 1/3 (= 5/15)  (v) 4/15",
     isCompetencyBased: true, requiresDiagram: false },
@@ -813,7 +841,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
       "[1 mark] Total area = pi x 8^2 = 64 pi. Band areas: bull (r 0-2) = 4 pi; score 6 (r 2-4) = 12 pi; score 4 (r 4-6) = 20 pi; score 2 (r 6-8) = 28 pi.",
       "[1 mark] At least 4 means NOT the outer 2-point band: P = (64 pi - 28 pi)/64 pi = 36/64 = 9/16 = 0.5625.",
       "[1 mark] At least 6 means score 6 or 8 (radius 0 to 4): P = (4 pi + 12 pi)/64 pi = 16/64 = 1/4 = 0.25.",
-      "[1/2 mark] Bull's-eye (score 8): P = 4 pi/64 pi = 1/16 = 0.0625. [1/2 mark] Exactly 4 points (band r 4-6): P = 20 pi/64 pi = 5/16 = 0.3125."
+      "[1 mark] (iii) Bull's-eye (score 8): P = 4 pi/64 pi = 1/16 = 0.0625. (iv) Exactly 4 points (band r 4-6): P = 20 pi/64 pi = 5/16 = 0.3125."
     ],
     finalAnswer: "(i) 9/16  (ii) 1/4  (iii) 1/16  (iv) 5/16",
     isCompetencyBased: true, requiresDiagram: true,
