@@ -1,3 +1,18 @@
+## 2026-06-23 — Z3 Competency extraction MERGED (#292, `b1d3e46`) — bank-extraction PILOT
+
+### ✅ RESOLVED / DELIVERED
+- **Z3 Competency extraction (#292, `b1d3e46`)** — 102 net-new AUTHENTIC competency/case-based Maths questions in NEW `questionBanks/class10/maths/competency.z3.ts`, wired by ONE import + ONE spread. THE DECOUPLE (verbatim questions + AI step-marked solutions, pending verify; all marks inferred). Source 117 → 102 (15 dropped: 10 Polynomials out-of-syllabus, 1 complementary-trig, 3 solid-conversion; HCF rewritten to prime factorization). Authentic tier (`.z3`, absent from `AI_GENERATED_PACK_SOURCES`, "others" bucket). Silent-zero floor test added. Fix pass `0e8b1f4`: integer mark-schemes + audit notes moved to `//` comments + disputed/authored rows flagged-but-served. Gates GREEN + CI GREEN; owner-merged, no self-merge. **The pilot is proven → scales to the worksheet folders.**
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-Z3-TEACHER-VERIFY]** — the 7 explicitly-flagged rows + EVERY inferred mark + EVERY AI-authored solution need a teacher/examiner pass before treated as exam-certain. **4 `// PENDING OWNER VERIFICATION`** (source key wrong/blank): `QE-003` (function↔key cross-contaminated; only (iii)=175 verified), `ARC-004` (2954 by border method vs key's 2912), `TG-104` (200 m text vs 150 m datum implied by the answers), `SAV-005` (bore-volume inconsistency: r=7/L=450 ⇒ 69300 m³ vs key 6900; (iii)/(iv) coated-area parts are correct). **3 `// AUTHORED (Z4 blank)`:** `PLE-009` (alloy), `CG-007` (seating grid from figure), `SAV-006` (Earth sphere). Settled overrides already shipped clean: `TR-009` → 16 m, `PR-004` → 98.7%. All 7 are SERVED (not withheld) so they surface for review; resolve final values in a later tidy pass.
+- **[FU-Z3-FIGURE-BIND]** — 28 rows carry `requiresDiagram:true` + a precise `diagramDescription`; 119 figures are staged to WebP (by question id + by source index) with a `figure_question_map.csv` under `Desktop\Content\extraction\z3-figures\`. Binding them to a renderer is a separate later step (no new asset-path field was added to `CanonicalQuestion` — staging + `diagramDescription` is the seam).
+- **[FU-Z3-SOLUTION-IDS]** — OPTIONAL: Z3's AI-authored solutions were NOT registered in `AI_GENERATED_SOLUTION_IDS` (task scoped the PR to one import + one spread). If an "AI solution" badge is wanted (mirroring the `*.exemplar2` DECOUPLE), register the ids in a small follow-up.
+
+### 🔭 NEXT (this track)
+- **Scale the pipeline to the worksheet folders** — same recipe (extract → syllabus-filter at the question level → schema → bank → gates → STOP for owner verify), folder by folder, each its own gated PR. Owner-authorized separately.
+
+---
+
 ## 2026-06-22 — Note-spec validator gate MERGED (#289, `c525b2a`) — notes track, gated step 1
 
 ### ✅ RESOLVED / DELIVERED

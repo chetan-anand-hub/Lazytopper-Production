@@ -2,6 +2,17 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-23 — Z3 Competency extraction MERGED (#292, `b1d3e46`) — bank-extraction PILOT (new parallel content track)
+
+Trunk `b1d3e46`. The **EXTRACTION PILOT** — proving the extract→classify→syllabus-filter→schema→bank→verify pipeline on the cleanest content slice (`Z3. Competency Based Questions`, Maths) so it can scale to the worksheet folders with confidence. **102 net-new AUTHENTIC competency/case-based Maths questions** in NEW `questionBanks/class10/maths/competency.z3.ts`, wired by ONE import + ONE spread. Isolated worktree; owner-approved + squash-merged; no self-merge (gated `src/data`). Report: `Desktop\Content\extraction\report-z3-competency-extraction-2026-06-23.md`.
+
+**Bank-extraction track — what this proves:**
+- ✅ **Pipeline proven end-to-end** — DOCX (python-docx + ftfy) → topic-classify (topic-headed) → syllabus-filter at the QUESTION level (drop/rewrite vs the live `syllabusGuard.ts`) → `CanonicalQuestion` schema (enums, `[N mark]` sums) → bank wiring (fragile two-place import+spread) → gates + a silent-zero floor test. THE DECOUPLE held: authentic verbatim questions + AI-authored step-marked solutions, PENDING owner/teacher verify; all marks inferred.
+- ✅ **Authentic tier** (`.z3` non-`.pack`, absent from `AI_GENERATED_PACK_SOURCES`, no `pyqYear` → "others" bucket). Source 117 → 102 kept (15 dropped: 10 Polynomials, 1 complementary-trig, 3 solid-conversion). 28 `requiresDiagram` rows with data read from the embedded figures + 119 staged WebP.
+- ⏭️ **NEXT (this track, when owner authorizes): scale to the worksheet folders** — the same recipe, folder by folder, each its own gated PR + STOP for owner verification; bind the staged Z3 figures ([FU-Z3-FIGURE-BIND]); teacher-verify the flagged rows ([FU-Z3-TEACHER-VERIFY]).
+
+---
+
 ## 2026-06-22 — Note-spec validator gate MERGED (#289, `c525b2a`) — notes track, gated step 1
 
 Trunk `c525b2a`. The notes track's gated-build-order **step 1**: `notes/validate_spec.py` (the anti-fabrication gate that makes the ~35-note fan-out safe) + the schema v1.1 contract + the validated Light reference spec + negative fixtures. Isolated worktree; owner squash-merged; no self-merge. Report: `report-validate-spec-2026-06-21.md`. Full track detail: **`handoff/NOTES_TRACK_HANDOFF.md`**.
