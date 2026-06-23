@@ -1,3 +1,18 @@
+## 2026-06-24 — Worksheet PR-E2b: one-PDF AI grade loop + MI wiring MERGED (#291, `60c5bf9`) — ⚠ owner live-verify PENDING
+
+### ✅ RESOLVED / DELIVERED
+- **Worksheet PR-E2b (#291, `60c5bf9`)** — the AI grade loop. Additive `gradeStructuredSet` core + `handleGradeWorksheet` in `checkSolution.cjs` (**existing Check & Improve grader byte-unchanged → zero regression**), `POST /api/grade-worksheet`; client `gradeWorksheet()` + `worksheetGradeService` (map-by-number, persist, single `recordMistake` + score-twin `recordAttempt` front door, stable `ws:<id>:q<N>` idempotency) + `WorksheetGradePanel` (honest "graded X/Y + N pending" totals). Honest-failure `couldNotRead` (never fabricate a mark, never zero an unreadable answer); trusted per-question marks; grade core surface-agnostic (Chapter Test / Full Mock reuse). 9 files +1201/−10; rebased post-Z3 ZERO conflicts; gates GREEN + CI quality-gate GREEN; no forbidden files; cofounder review clean; owner merged, no self-merge.
+
+### ⚠ STILL OPEN — mandatory owner live-verify (the worksheet is not "done" until this passes)
+- **[E2b-LIVE-VERIFY]** — the AI round-trip is unverifiable by static gates. On the Firebase-authorized trunk URL (NOT an unauthorized preview — auth fails there), START SMALL (5-Q): generate → solve a few by hand → scan to ONE PDF → upload → (1) each answer maps to the RIGHT question + sensible marks + correct solution shown; (2) an illegible page → honest "couldn't read Qn" + total reads "graded X/Y + N pending" (NOT a deflated/fabricated mark); (3) result feeds Me/Progress AND unlocks the MI-enrich toggle for that topic; (4) careless (silly/presentation) → careless insight NOT a weakness, knowledge-gap (conceptual/calculation) → weak-area for the right topic; (5) **Check & Improve still grades + feeds MI (shared-grader non-regression)**; (6) re-upload the same worksheet → MI does NOT double-count; (7) phone end-to-end. Owner-driven; backend auto-redeployed on merge.
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-ASYNC-GRADING]** — the whole worksheet is graded SYNCHRONOUSLY in ONE structured call (design decision (c): sync now, async deferred; premature at 5-Q test-group scale). A large worksheet (e.g. 25 Q) may push grade time up or truncate the single response (`maxOutputTokens` 32000 + one parse-retry). Revisit async/notify infra only if large-worksheet grade times prove painful.
+
+### 🔭 NEXT (worksheet track)
+- Owner live-verify of #291 → worksheet (E2a+E2b) COMPLETE → Topic Hub queue resumes at **PR-F** (Notes + Examiner's-tips content) → PR-G (deletions: dead old-mobile + retired MockBuilder/TutorDrawerV2/MentorPanel + un-routed worksheet twins). Carried: [FU-PITFALL-DATA], [FU-WORKSHEET-PDF-SERVERSIDE].
+---
+
 ## 2026-06-23 — Z3 Competency extraction MERGED (#292, `b1d3e46`) — bank-extraction PILOT
 
 ### ✅ RESOLVED / DELIVERED

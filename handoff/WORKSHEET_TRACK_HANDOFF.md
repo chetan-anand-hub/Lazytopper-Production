@@ -1,7 +1,7 @@
-# Worksheet track — HANDOFF (E2a → E2a.3 complete; PR-E2b next)
+# Worksheet track — HANDOFF (E2a → E2b merged; ⚠ E2b owner live-verify PENDING)
 
-**Last updated:** 2026-06-21 · **Trunk:** `base/approved-thru-437` @ **`cfff277`** (post-#284).
-For the next worksheet agent. The worksheet **foundation is DONE and merged** (E2a → E2a.3); the next chunk is **PR-E2b — the AI grade loop**.
+**Last updated:** 2026-06-24 · **Trunk:** `base/approved-thru-437` @ **`60c5bf9`** (post-#291).
+For the next worksheet agent. The worksheet is **CODE-COMPLETE and merged** (E2a foundation → E2b grade loop). The ONE remaining gate before the track is "done" is the **mandatory owner live-verify of #291** (AI round-trip on the Firebase-authorized trunk URL — see §4 + §6). After it passes, no further worksheet PR is queued; the Topic Hub queue resumes at **PR-F** (Notes + Examiner's-tips content).
 
 ## 1. State of play (PRs)
 | PR | what | status |
@@ -10,8 +10,9 @@ For the next worksheet agent. The worksheet **foundation is DONE and merged** (E
 | #283 | **PR-E2a.1+.2** — real math via MathText/KaTeX; then real PDF **file** download (html2canvas→jsPDF, Option B); count identity | **MERGED** (`9a080a0`) |
 | #281 | PR-E2a.1 standalone | **CLOSED** (superseded by #283); branch deleted |
 | #284 | **PR-E2a.3** — view-aware Back; MI-box visible + in right preview as a NAVY anchor + honest locked states (login-return); missing-symbol = source-data FLAG | **MERGED** (`cfff277`) |
+| #291 | **PR-E2b** — one-PDF AI grade loop + MI wiring: additive `gradeStructuredSet` core + `handleGradeWorksheet` (existing grader byte-unchanged), `POST /api/grade-worksheet`, `gradeWorksheet()` client, `worksheetGradeService` + `WorksheetGradePanel`, honest "graded X/Y + N pending" totals, single `recordMistake`+`recordAttempt` front door, stable `ws:<id>:q<N>` idempotency | **MERGED** (`60c5bf9`) · ⚠ **owner live-verify PENDING** |
 
-Worktrees after this handoff: main checkout + `notes-gen` (separate track). The worksheet worktrees were removed post-merge.
+Worktrees after this handoff: main checkout + `notes-gen` (separate track). The worksheet worktrees were removed post-merge (the E2b worktree `feat/worksheet-grade-loop` + the docs worktree should be removed once this handoff merges).
 
 ## 2. Architecture (all `lazytopper/src/components/worksheet/` unless noted)
 - **`WorksheetGenerator.tsx`** — the ONE responsive page at `/practice/worksheets`, every width (App wraps in DesktopShell on desktop; global BottomNav on mobile). Single component, `view: "build" | "generated"` (in-place, no route nav). Class-driven scoped `<style>` (`WS_CSS`), pure `@media(max-width:1023px)` reflow, NO inline style objects. Legacy twins `pages/desktop/DesktopWorksheetsPage.tsx` + `pages/app/Worksheets.tsx` UN-ROUTED (kept for PR-G deletion).
@@ -28,11 +29,15 @@ Worktrees after this handoff: main checkout + `notes-gen` (separate track). The 
 - **`[FU-PITFALL-DATA]`** — answer-key "⚠ where students lose marks" annotations omitted (no real per-question pitfall data). Add when real data exists.
 - **`[FU-WORKSHEET-PDF-SERVERSIDE]`** — PDF math is a raster image (not selectable text). Acceptable for print; a server-side text PDF is a future upgrade if client quality proves insufficient.
 
-## 4. PR-E2b — the grade loop (NEXT)
-- **Contract:** read the persisted worksheet by `worksheetId` via `getWorksheetSession(id)` — each question has its number, text, marks, `solutionSteps`, `finalAnswer`. Grade the ONE uploaded PDF as a STRUCTURED SET keyed to Q1…QN.
-- **Server:** EXTEND `lazytopper/server/routes/checkSolution.cjs` (the per-question Gemini grader) to loop the known questions and locate/grade each numbered answer against its scheme; honest "couldn't read Qn" — never fabricate a mark. Do NOT build a separate blob-grader.
-- **MI wiring:** route graded mistakes through the SINGLE front door `services/mistakeIntelligence.ts` `recordMistake` (+ `recordAttempt`) so worksheets feed weak-areas + Me/Progress. The worksheet is a major MI source — this ALSO unlocks the MI-enrich toggle (currently shows the "grade a worksheet first" locked state for students with no mistakes yet). Never bypass the front door.
-- **Mandatory live-verify:** AI round-trip — generate a 5-Q quick drill → solve a few → scan to one PDF → upload → grading maps to the right questions/schemes + honest unreadable path + feeds MI.
+## 4. PR-E2b — the grade loop (MERGED #291 `60c5bf9`; ⚠ owner live-verify PENDING)
+What landed (additive — the live Check & Improve grader is byte-unchanged):
+- **Contract (as built):** the CLIENT reads the persisted worksheet via `getWorksheetSession(id)` and posts its question set (number, text, marks, `solutionSteps`, `finalAnswer`) + the ONE PDF to `POST /api/grade-worksheet`. The grade CORE (`gradeStructuredSet` in `checkSolution.cjs`) is surface-AGNOSTIC — it takes `(PDF, known question set)` and never reaches into any session store, so Chapter Test / Full Mock reuse it by posting their own set.
+- **Server:** `checkSolution.cjs` gained `gradeStructuredSet` + `handleGradeWorksheet` + a deterministic stub + a per-question normaliser. ONE structured Gemini call grades all questions keyed Q1…QN against their schemes. Honest "couldn't read Qn" (`couldNotRead` flag) — never fabricates a mark, never folds an unreadable/absent answer into a 0. Trusted marks (per-question `totalMarks` = scheme `q.marks`; model awards within). `readJson` 8 MB cap on this route only. `questions.cjs` + `index.cjs` register the route (+OPTIONS/CORS).
+- **MI wiring:** `services/worksheetGradeService.ts` fans each LEGIBLE result through the SINGLE front door `recordMistake` + score-twin `recordAttempt`, with a STABLE `ws:<worksheetId>:q<N>` id so a re-upload with the same result is deduped (idempotency via the front door's EXISTING dedup — no parallel layer). Routing (conceptual/calculation → weak-area; silly/presentation → careless insight) stays inside `recordMistake`, derived from each result's per-step `mistakeType` exactly like Check & Improve. `RecordMistakeContext` left UNCHANGED (the future optional `source` field is a later deliberate MI-engine change).
+- **UI:** `components/worksheet/WorksheetGradePanel.tsx` (upload → sync progress → per-question results → honest "graded X/Y + N pending" totals SEPARATE from the worksheet total → MI evidence line), wired into `WorksheetGenerator.tsx`. Grade revisit via `worksheetSessionStore` `save/getWorksheetGrade`.
+- **`recordAttempt` note:** the E2b instruction said it didn't exist yet — on trunk it DOES (used by `SolutionChecker`), so both `recordMistake` and `recordAttempt` are wired (no `[FU-SCORECARD]`).
+- **⚠ STILL OWED — mandatory live-verify (AI round-trip, static gates can't prove it):** on the Firebase-authorized trunk URL, generate a 5-Q drill → solve a few → scan to ONE PDF → upload → grading maps to the right questions/schemes; an illegible page → honest "couldn't read Qn" + graded X/Y + N pending (NOT a deflated mark); feeds Me/Progress + unlocks the MI-enrich toggle; careless vs knowledge-gap route correctly; **Check & Improve still grades + feeds MI (shared-grader non-regression)**; re-upload does NOT double-count; phone end-to-end.
+- **Carried follow-ups:** [FU-ASYNC-GRADING] (large worksheets may truncate the one structured call — sync now, async deferred), [FU-PITFALL-DATA], [FU-WORKSHEET-PDF-SERVERSIDE].
 
 ## 5. Gotchas (read before you start)
 - **Agent is BLIND to the running UI.** Windows dev box CANNOT run vite/vitest/a browser (linux-pinned rollup/esbuild binaries stripped by the workspace). tsc + static gates pass ≠ UI works. Verify on the **Vercel PR preview** with REAL bank questions, desktop + phone. (This bit the worksheet track repeatedly.)
