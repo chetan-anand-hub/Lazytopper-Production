@@ -5,9 +5,9 @@ const { createCheckSolutionRoute } = require('./checkSolution.cjs');
 function createQuestionRoutes(deps) {
   const { handleMoreLikeThis } = createMoreLikeThisRoute(deps);
   const { handleStepSolution } = createStepSolutionRoute(deps);
-  const { handleCheckSolution, handleDetectQuestion } = createCheckSolutionRoute(deps);
+  const { handleCheckSolution, handleDetectQuestion, handleGradeWorksheet } = createCheckSolutionRoute(deps);
 
-  return { handleMoreLikeThis, handleStepSolution, handleCheckSolution, handleDetectQuestion };
+  return { handleMoreLikeThis, handleStepSolution, handleCheckSolution, handleDetectQuestion, handleGradeWorksheet };
 }
 
 module.exports = { createQuestionRoutes, extractVariantsJson };

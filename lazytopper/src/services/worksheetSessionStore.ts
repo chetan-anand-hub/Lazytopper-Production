@@ -109,3 +109,56 @@ export function listWorksheetSessions(): PersistedWorksheetMeta[] {
     totalMarks: w.totalMarks,
   }));
 }
+
+// ── PR-E2b: persist a worksheet's GRADE result so the student can revisit it ──
+// Keyed by worksheetId (device-local, same as the question set). The stored shape
+// is whatever the grade service produced — kept loosely typed here so the store
+// stays free of the AI-client types (the service owns the contract); the service
+// re-validates on read.
+
+const GRADE_STORE_KEY = "lazytopper.worksheetGrades.v1";
+const MAX_GRADES = 25;
+
+interface StoredGradeRow {
+  worksheetId: string;
+  gradedAt: string;
+  grade: unknown;
+}
+
+function readAllGrades(): StoredGradeRow[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(GRADE_STORE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (r): r is StoredGradeRow =>
+        !!r && typeof r === "object" && typeof r.worksheetId === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Persist (or replace) the grade result for a worksheet. Best-effort. */
+export function saveWorksheetGrade(worksheetId: string, grade: unknown): void {
+  if (typeof window === "undefined" || !worksheetId) return;
+  try {
+    const list = readAllGrades().filter((r) => r.worksheetId !== worksheetId);
+    const next: StoredGradeRow[] = [
+      { worksheetId, gradedAt: new Date().toISOString(), grade },
+      ...list,
+    ].slice(0, MAX_GRADES);
+    window.localStorage.setItem(GRADE_STORE_KEY, JSON.stringify(next));
+  } catch {
+    /* quota / SSR — persistence is best-effort and never blocks the grade UI */
+  }
+}
+
+/** Look up a previously-saved grade for a worksheet (null if none). */
+export function getWorksheetGrade<T = unknown>(worksheetId: string): T | null {
+  if (!worksheetId) return null;
+  const row = readAllGrades().find((r) => r.worksheetId === worksheetId);
+  return row ? (row.grade as T) : null;
+}

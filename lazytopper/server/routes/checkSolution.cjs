@@ -500,7 +500,361 @@ function createCheckSolutionRoute(deps) {
     }
   }
 
-  return { handleCheckSolution, handleDetectQuestion };
+  // ── Structured-set grading (PR-E2b — one-PDF worksheet grade loop) ─────────
+  // Grade a WHOLE known question set from ONE uploaded PDF in a SINGLE structured
+  // Gemini call (spec §6, design decision (a)). This is the reusable core that
+  // Chapter Test / Full Mock will later share: it is surface-AGNOSTIC — it takes
+  // (uploaded PDF, known question set + schemes) and returns per-question results
+  // keyed Q1…QN. It knows NOTHING about "worksheet"; the caller fetches its own
+  // question set (the worksheet caller from getWorksheetSession) and passes it in.
+  //
+  // It REUSES the per-question grader's grading principles (the mistakeType
+  // taxonomy + step-marking + honest-read), restated below so the live
+  // `handleCheckSolution` path stays byte-identical — this is a NEW additive path,
+  // never a modification of the shared grader's entry point (its signature,
+  // behavior and output are unchanged). The mistakeType definitions mirror
+  // `handleCheckSolution` rule 3 and must be kept in sync if that rule changes.
+  const STRUCTURED_MISTAKE_TAXONOMY =
+    'For each mistake choose the type by the CAUSE the error reveals about understanding, not by where it appears:\n' +
+    '- "conceptual": the METHOD or understanding is wrong — wrong formula/law/theorem, confused concepts, misread the question, (Science) wrong principle/organ/law.\n' +
+    '- "calculation": the METHOD is right but the arithmetic/algebra is wrong.\n' +
+    '- "silly": the student CLEARLY understands but made a mechanical slip — a sign misread off their OWN correct working, a dropped negative, a copying error.\n' +
+    '- "presentation": mathematically/chemically RIGHT but board-format short — missing formula, missing units, no conclusion/"verified" line, working not shown, (Science) a correct reaction left UNBALANCED, missing state symbols.\n' +
+    'A CORRECT step has mistakeType null. A step left ENTIRELY BLANK gets status "missing" and mistakeType null (marks simply not earned, never a typed mistake). An alternative valid method that reaches the answer is NOT a mistake — award full marks.';
+
+  // Validate + normalise one model-returned per-question result against the KNOWN
+  // scheme. Marks scale is ALWAYS the trusted scheme value (q.marks) — the model
+  // only awards WITHIN it. Mirrors handleCheckSolution's per-step normalisation +
+  // additive-floor mistakeSummary reconcile, so MI routing is identical to the
+  // wired Check & Improve path.
+  function normaliseStructuredResult(q, raw) {
+    const VALID_MISTAKE_TYPES = new Set(['conceptual', 'calculation', 'silly', 'presentation']);
+    const totalMarks = Number(q.marks) > 0 ? Number(q.marks) : 1;
+
+    // Honest failure: the model could not locate/read this answer in the upload.
+    // NEVER fabricate a mark, NEVER fold it into a 0 (design decision (b)).
+    const couldNotRead = !raw || raw.couldNotRead === true || raw.couldNotRead === 'true';
+    if (couldNotRead) {
+      return {
+        qNumber: q.qNumber,
+        couldNotRead: true,
+        totalMarks,
+        note: String((raw && raw.note) || '').trim() ||
+          "We couldn't read your answer for this question clearly — re-upload this page.",
+      };
+    }
+
+    const annotatedSteps = (Array.isArray(raw.annotatedSteps) ? raw.annotatedSteps : [])
+      .filter((s) => s && s.description)
+      .map((s, i) => ({
+        stepNumber: i + 1,
+        description: String(s.description || '').trim(),
+        studentWork: String(s.studentWork || '').trim(),
+        status: ['correct', 'partial', 'incorrect', 'missing'].includes(s.status) ? s.status : 'partial',
+        marksAwarded: Math.max(0, Math.round(Number(s.marksAwarded || 0) * 2) / 2),
+        marksDeducted: Math.max(0, Math.round(Number(s.marksDeducted || 0) * 2) / 2),
+        teacherAnnotation: String(s.teacherAnnotation || '').trim(),
+        mistakeType: VALID_MISTAKE_TYPES.has(s.mistakeType) ? s.mistakeType : null,
+        correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
+      }));
+
+    const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
+    const capped = Math.min(totalAwarded, totalMarks);
+
+    // Additive-floor reconcile (mirror of handleCheckSolution): take the MAX of the
+    // model's self-reported summary and the per-step mistakeType counts.
+    const rawSummary = raw.mistakeSummary || {};
+    const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+    for (const s of annotatedSteps) {
+      if (s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
+        stepFloor[s.mistakeType] += 1;
+      }
+    }
+    const mistakeSummary = {
+      conceptual: Math.max(0, Number(rawSummary.conceptual || 0), stepFloor.conceptual),
+      calculation: Math.max(0, Number(rawSummary.calculation || 0), stepFloor.calculation),
+      silly: Math.max(0, Number(rawSummary.silly || 0), stepFloor.silly),
+      presentation: Math.max(0, Number(rawSummary.presentation || 0), stepFloor.presentation),
+    };
+
+    return {
+      qNumber: q.qNumber,
+      couldNotRead: false,
+      ok: true,
+      totalMarks,
+      marksAwarded: capped,
+      percentage: Math.round((capped / totalMarks) * 100),
+      annotatedSteps,
+      mistakeSummary,
+      teacherNote: String(raw.teacherNote || '').trim(),
+    };
+  }
+
+  // Surface-agnostic stub: a deterministic structured grade so dev/Codespaces and
+  // a stub-mode preview can exercise the full upload→grade→display→MI loop without
+  // a key. Representative — partial marks + a per-step mistakeType so MI routing is
+  // visible; the LAST question is marked unreadable so the honest-pending path and
+  // the "graded X/Y + N pending" totals are exercised too.
+  function buildStructuredStub(questions) {
+    const results = questions.map((q, idx) => {
+      const isLast = idx === questions.length - 1 && questions.length > 1;
+      if (isLast) {
+        return {
+          qNumber: q.qNumber,
+          couldNotRead: true,
+          totalMarks: Number(q.marks) > 0 ? Number(q.marks) : 1,
+          note: "We couldn't read your answer for this question clearly — re-upload this page.",
+        };
+      }
+      const totalMarks = Number(q.marks) > 0 ? Number(q.marks) : 1;
+      // Alternate the mistake type so both MI routes are demonstrated:
+      // conceptual (knowledge gap → weak-area) vs presentation (careless insight).
+      const isConceptual = idx % 2 === 0;
+      const mistakeType = isConceptual ? 'conceptual' : 'presentation';
+      const awarded = Math.round(totalMarks * 0.6 * 2) / 2;
+      return {
+        qNumber: q.qNumber,
+        marksAwarded: awarded,
+        annotatedSteps: [
+          {
+            description: 'Approach and setup',
+            studentWork: 'Attempted',
+            status: 'partial',
+            marksAwarded: awarded,
+            marksDeducted: Math.max(0, Math.round((totalMarks - awarded) * 2) / 2),
+            teacherAnnotation: isConceptual
+              ? '× Method needs review for this question.'
+              : '½ Right idea — tighten the presentation (units / final line).',
+            mistakeType,
+            correctedWorking: isConceptual ? 'Re-derive using the correct method.' : 'Add units and box the final answer.',
+          },
+        ],
+        mistakeSummary: {
+          conceptual: isConceptual ? 1 : 0,
+          calculation: 0,
+          silly: 0,
+          presentation: isConceptual ? 0 : 1,
+        },
+        teacherNote: 'Stub grade (no AI key configured) — representative result so the grade loop and Mistake Intelligence wiring can be exercised end to end.',
+      };
+    });
+    return { results, summary: 'Stub summary — configure a Gemini key for real grading.' };
+  }
+
+  // The reusable structured-grade core. `questions` is the KNOWN set (each with
+  // qNumber, marks, questionText, optional topic + solutionSteps + finalAnswer).
+  // Returns { ok, results } where results is one normalised entry per known
+  // question (graded OR couldNotRead). Throws nothing — returns { ok:false } on a
+  // whole-PDF failure so the caller renders a clean error, not a partial grade.
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType }) {
+    const isPdf = imageMimeType === 'application/pdf';
+
+    if (isStubMode()) {
+      const stub = buildStructuredStub(questions);
+      return {
+        ok: true,
+        results: questions.map((q) => {
+          const raw = stub.results.find((r) => Number(r.qNumber) === Number(q.qNumber));
+          return normaliseStructuredResult(q, raw);
+        }),
+        summary: stub.summary,
+      };
+    }
+
+    const systemPrompt =
+      "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
+      'The attached PDF contains the student\'s handwritten answers to ALL the questions below, ' +
+      'with each answer labelled by its question number (Q1, Q2 …). ' +
+      'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
+      'Respond ONLY with valid JSON, no markdown fences.';
+
+    const questionBlocks = questions
+      .map((q) => {
+        const scheme = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
+          ? '\n     Marking scheme:\n' +
+            q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
+            (q.finalAnswer ? '\n       Final answer: ' + String(q.finalAnswer) : '')
+          : '';
+        return (
+          '  Q' + q.qNumber + '. [' + (Number(q.marks) || 1) + ' mark(s)' +
+          (q.topicLabel || q.topic ? ' · ' + String(q.topicLabel || q.topic) : '') + ']\n' +
+          '     ' + String(q.questionText || '').replace(/\n/g, ' ') +
+          scheme
+        );
+      })
+      .join('\n\n');
+
+    const rules =
+      'GRADING RULES:\n' +
+      '1. For EACH question Q1…QN, locate that numbered answer in the PDF and grade it against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n' +
+      '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
+      '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
+      '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes.\n' +
+      '5. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read.\n' +
+      '6. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).';
+
+    const jsonSchema =
+      'RESPOND with this exact JSON shape:\n' +
+      '{\n' +
+      '  "results": [\n' +
+      '    {\n' +
+      '      "qNumber": 1,\n' +
+      '      "couldNotRead": false,\n' +
+      '      "marksAwarded": <number>,\n' +
+      '      "annotatedSteps": [\n' +
+      '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "..." }\n' +
+      '      ],\n' +
+      '      "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
+      '      "teacherNote": "1-2 sentence per-question summary"\n' +
+      '    }\n' +
+      '    // ...one object per question. For an unreadable answer: { "qNumber": N, "couldNotRead": true }\n' +
+      '  ],\n' +
+      '  "summary": "2-3 sentence encouraging whole-worksheet summary"\n' +
+      '}';
+
+    const userPrompt =
+      'Grade this student\'s worksheet. There are ' + questions.length + ' questions.\n\n' +
+      'QUESTIONS AND MARKING SCHEMES:\n' + questionBlocks + '\n\n' +
+      'The attached ' + (isPdf ? 'PDF' : 'image') + ' is the student\'s handwritten answers, labelled by question number. ' +
+      'Read ALL pages carefully and grade every question you can read.\n\n' +
+      jsonSchema + '\n\n' + rules;
+
+    const parts = [
+      { text: systemPrompt + '\n\n' + userPrompt },
+      buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 }),
+    ];
+    const contents = [{ role: 'user', parts }];
+
+    // A whole worksheet of structured grades is far larger than one question — give
+    // it room and, like the per-question grader, retry ONCE on a parse miss
+    // (most often a maxOutputTokens truncation). Large worksheets may still
+    // truncate → [FU-ASYNC-GRADING] (sync now, async deferred — design decision (c)).
+    const genConfig = { temperature: 0.15, maxOutputTokens: 32000, responseMimeType: 'application/json' };
+    const gradeOnce = async () => {
+      const r = await callGemini(GEMINI_MODEL, contents, genConfig);
+      return { reply: r, parsed: extractJsonObjectFromText(r.text) };
+    };
+    const isGoodParse = (p) => !!(p && Array.isArray(p.results));
+    const finishReasonOf = (r) =>
+      (r && r.raw && r.raw.candidates && r.raw.candidates[0] && r.raw.candidates[0].finishReason) || null;
+
+    let { reply, parsed } = await gradeOnce();
+    if (!isGoodParse(parsed)) {
+      console.warn(
+        '[grade-worksheet] parse miss (attempt 1) — retrying once.',
+        'finishReason:', finishReasonOf(reply),
+        'len:', reply.text ? reply.text.length : 0,
+        'tail:', reply.text ? reply.text.slice(-200) : '(empty)',
+      );
+      ({ reply, parsed } = await gradeOnce());
+    }
+
+    if (!isGoodParse(parsed)) {
+      console.warn(
+        '[grade-worksheet] unparseable reply after retry —',
+        'finishReason:', finishReasonOf(reply),
+        'len:', reply.text ? reply.text.length : 0,
+        'tail:', reply.text ? reply.text.slice(-200) : '(empty)',
+      );
+      return { ok: false };
+    }
+
+    // Map the model's results back onto the KNOWN set by qNumber — the student's
+    // upload is matched Q1…QN to the persisted scheme, never blind-segmented. A
+    // question the model omitted entirely is treated as couldNotRead (honest
+    // pending), never silently zeroed.
+    const byNumber = new Map();
+    for (const r of parsed.results) {
+      if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
+    }
+    const results = questions.map((q) =>
+      normaliseStructuredResult(q, byNumber.get(Number(q.qNumber)) || null),
+    );
+    return { ok: true, results, summary: String(parsed.summary || '').trim() };
+  }
+
+  // HTTP handler. Thin wrapper: validates the request + the ONE uploaded PDF, then
+  // delegates to the surface-agnostic gradeStructuredSet core. The worksheet's
+  // known question set is fetched at the CLIENT (getWorksheetSession) and posted
+  // here — the core never reaches into any session store, so Chapter Test / Full
+  // Mock can reuse it by posting their own question set.
+  async function handleGradeWorksheet(req, res) {
+    let payload;
+    try {
+      // A 5 MB PDF base64-inflates to ~6.7 MB, plus the question-set JSON — raise
+      // the body cap above the default 5 MB so a full-size scan is accepted.
+      payload = await readJson(req, 8 * 1024 * 1024);
+    } catch (e) {
+      return sendJson(res, 400, { ok: false, error: 'Upload too large or invalid. Keep the PDF under 5 MB.' });
+    }
+
+    const worksheetId = String(payload.worksheetId || '').trim();
+    const imageBase64 = String(payload.imageBase64 || '').trim();
+    const imageMimeType = String(payload.imageMimeType || 'application/pdf').trim();
+
+    const questions = (Array.isArray(payload.questions) ? payload.questions : [])
+      .map((q) => ({
+        qNumber: Number(q && q.qNumber) || 0,
+        marks: Number(q && q.marks) > 0 ? Number(q.marks) : 1,
+        topic: String((q && q.topic) || '').trim(),
+        topicLabel: String((q && q.topicLabel) || '').trim(),
+        questionText: String((q && q.questionText) || '').trim(),
+        solutionSteps: Array.isArray(q && q.solutionSteps) ? q.solutionSteps.map(String) : null,
+        finalAnswer: q && q.finalAnswer ? String(q.finalAnswer).trim() : null,
+      }))
+      .filter((q) => q.qNumber > 0 && q.questionText);
+
+    if (questions.length === 0) {
+      return sendJson(res, 400, { ok: false, error: 'No worksheet questions supplied to grade against.' });
+    }
+    if (!imageBase64) {
+      return sendJson(res, 400, { ok: false, error: 'Upload one PDF of your answers to grade.' });
+    }
+    const imgCheck = validateMentorImagePayload(payload);
+    if (!imgCheck || !imgCheck.ok) {
+      return sendJson(res, 400, { ok: false, error: imgCheck ? imgCheck.error : 'Invalid upload' });
+    }
+
+    try {
+      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType });
+      if (!graded.ok) {
+        return sendJson(res, 200, {
+          ok: false,
+          error: "We couldn't grade this worksheet — please try a clearer scan, or try again.",
+        });
+      }
+
+      const results = graded.results;
+      const gradedResults = results.filter((r) => !r.couldNotRead);
+      const pendingResults = results.filter((r) => r.couldNotRead);
+      const gradedMarksAwarded = gradedResults.reduce((s, r) => s + (Number(r.marksAwarded) || 0), 0);
+      const gradedMarksTotal = gradedResults.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
+      const worksheetTotalMarks = results.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
+
+      return sendJson(res, 200, {
+        ok: true,
+        worksheetId,
+        results,
+        totalQuestions: results.length,
+        gradedCount: gradedResults.length,
+        pendingCount: pendingResults.length,
+        // Honest totals (design decision (b)): the graded subtotal is SEPARATE
+        // from the full worksheet total so unreadable pages never deflate a final
+        // mark presented as complete.
+        gradedMarksAwarded: Math.round(gradedMarksAwarded * 2) / 2,
+        gradedMarksTotal: Math.round(gradedMarksTotal * 2) / 2,
+        worksheetTotalMarks: Math.round(worksheetTotalMarks * 2) / 2,
+        summary: graded.summary || '',
+        provider: ACTIVE_PROVIDER,
+        model: GEMINI_MODEL,
+      });
+    } catch (err) {
+      console.error('[grade-worksheet]', err);
+      return sendJson(res, 500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
+    }
+  }
+
+  return { handleCheckSolution, handleDetectQuestion, handleGradeWorksheet };
 }
 
 module.exports = { createCheckSolutionRoute };
