@@ -15,10 +15,12 @@
 // so symbols are crisp and B&W-legible. A future server-side text PDF is logged as
 // [FU-WORKSHEET-PDF-SERVERSIDE].
 
-import { createElement } from "react";
+import { createElement, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import { WorksheetPrintDoc } from "./WorksheetPrintDoc";
+import { WorksheetGradedPrintDoc } from "./WorksheetGradedPrintDoc";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
+import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
 type Doc = import("jspdf").jsPDF;
 
@@ -62,19 +64,18 @@ function drawFooter(pdf: Doc, page: number, total: number): void {
 }
 
 /**
- * Render + download one worksheet PDF (questions-only or answer-key) as a real
- * file. Returns the filename saved (handy for tests / telemetry).
+ * Shared core: render a React element into a DETACHED offscreen host containing
+ * ONLY that element, rasterise it, paginate across A4 with a crisp jsPDF footer,
+ * and save as `filename`. Every worksheet PDF (questions / answer-key / graded
+ * sheet) goes through this one path — no per-variant PDF mechanism.
  */
-export async function exportWorksheetPdf(
-  ws: PersistedWorksheet,
-  kind: "questions" | "answers",
-): Promise<string> {
+async function renderElementToPdf(element: ReactElement, filename: string): Promise<string> {
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
     import("html2canvas"),
     import("jspdf"),
   ]);
 
-  // 1. Detached offscreen host containing ONLY the worksheet doc.
+  // 1. Detached offscreen host containing ONLY the print doc.
   const host = document.createElement("div");
   host.setAttribute("aria-hidden", "true");
   host.style.position = "fixed";
@@ -88,7 +89,7 @@ export async function exportWorksheetPdf(
 
   const root = createRoot(host);
   try {
-    root.render(createElement(WorksheetPrintDoc, { ws, kind }));
+    root.render(element);
     await waitForRenderReady();
 
     const canvas = await html2canvas(host, {
@@ -129,12 +130,44 @@ export async function exportWorksheetPdf(
       drawFooter(pdf, page + 1, totalPages);
     }
 
-    const suffix = kind === "answers" ? "answer-key" : "questions";
-    const filename = `lazytopper-${slug(ws.title)}-${suffix}.pdf`;
     pdf.save(filename);
     return filename;
   } finally {
     root.unmount();
     if (host.parentNode) host.parentNode.removeChild(host);
   }
+}
+
+/**
+ * Render + download one worksheet PDF (questions-only or answer-key) as a real
+ * file. Returns the filename saved (handy for tests / telemetry).
+ */
+export async function exportWorksheetPdf(
+  ws: PersistedWorksheet,
+  kind: "questions" | "answers",
+): Promise<string> {
+  const suffix = kind === "answers" ? "answer-key" : "questions";
+  const filename = `lazytopper-${slug(ws.title)}-${suffix}.pdf`;
+  return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind }), filename);
+}
+
+/**
+ * PR-A: render + download the BRANDED GRADED sheet. Renders the SAME grade
+ * `response` already on screen (a snapshot, never a re-grade — honesty §2(3)) via
+ * the shared html2canvas → jsPDF path. `name`/`code` are the worksheet's
+ * nomenclature; `coaching` is the product-voice footer line.
+ */
+export async function exportGradedWorksheetPdf(args: {
+  ws: PersistedWorksheet;
+  response: WorksheetGradeResponse;
+  name: string;
+  code: string;
+  coaching: string;
+}): Promise<string> {
+  const { ws, response, name, code, coaching } = args;
+  const filename = `lazytopper-${slug(name || ws.title)}-graded.pdf`;
+  return renderElementToPdf(
+    createElement(WorksheetGradedPrintDoc, { ws, response, name, code, coaching }),
+    filename,
+  );
 }

@@ -110,6 +110,24 @@ export function listWorksheetSessions(): PersistedWorksheetMeta[] {
   }));
 }
 
+/** PR-A nomenclature input: every stored worksheet reduced to what
+ *  `worksheetNomenclature` needs to compute the device-local sequence number. */
+export function listStoredWorksheetsLite(): Array<{
+  worksheetId: string;
+  subject: string;
+  createdAt: string;
+  title: string;
+  topicKeys: string[];
+}> {
+  return readAll().map((w) => ({
+    worksheetId: w.worksheetId,
+    subject: w.subject,
+    createdAt: w.createdAt,
+    title: w.title,
+    topicKeys: Array.from(new Set(w.questions.map((q) => q.topicKey).filter(Boolean))),
+  }));
+}
+
 // ── PR-E2b: persist a worksheet's GRADE result so the student can revisit it ──
 // Keyed by worksheetId (device-local, same as the question set). The stored shape
 // is whatever the grade service produced — kept loosely typed here so the store
