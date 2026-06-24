@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
-import { getWorksheetGrade } from "../../services/worksheetSessionStore";
+import { getWorksheetGrade, listStoredWorksheetsLite } from "../../services/worksheetSessionStore";
+import { worksheetNomenclature } from "./worksheetModel";
+import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
+import WorksheetScorecard from "./WorksheetScorecard";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -37,6 +41,61 @@ const MISTAKE_LABEL: Record<MistakeType, string> = {
   silly: "Silly",
   presentation: "Presentation",
 };
+
+const SECTION_ORDER = ["A", "B", "C", "D", "E"];
+const SECTION_LABEL: Record<string, string> = {
+  A: "Section A · objective",
+  B: "Section B · short answer",
+  C: "Section C · short answer",
+  D: "Section D · long answer",
+  E: "Section E · case-based",
+};
+
+/**
+ * Suppress a model-meta `summary` (display-only, §A6). The grader's `summary` can
+ * carry first-person meta-prose — most often a refusal when the whole PDF is
+ * unreadable ("I am unable to access the PDF…"). Never render that to a student:
+ * hide it when nothing was graded, or when it reads as model meta/refusal text.
+ */
+function isLeakySummary(summary: string | undefined, gradedCount: number): boolean {
+  if (!summary || !summary.trim()) return true;
+  if (gradedCount === 0) return true; // all-pending → never show raw summary
+  return /\b(I am|I'm|I cannot|I can't|I could not|unable to|as an AI|the (PDF|image|document|file)|access the)\b/i.test(
+    summary,
+  );
+}
+
+/** Product-voice coaching line, derived from the counts already on screen (never
+ *  raw model prose). Honest about what was lost, forward-pointing. */
+function buildCoaching(response: WorksheetGradeResponse): string {
+  let knowledge = 0;
+  let careless = 0;
+  for (const r of response.results) {
+    if (r.couldNotRead || !r.mistakeSummary) continue;
+    knowledge += (r.mistakeSummary.conceptual || 0) + (r.mistakeSummary.calculation || 0);
+    careless += (r.mistakeSummary.silly || 0) + (r.mistakeSummary.presentation || 0);
+  }
+  const parts: string[] = [];
+  if (careless > 0) {
+    parts.push(
+      `You lost marks to ${careless} careless ${careless === 1 ? "slip" : "slips"} — your method was right, just slow down on the final line and units.`,
+    );
+  }
+  if (knowledge > 0) {
+    parts.push(
+      `The real thing to work on is ${knowledge} knowledge ${knowledge === 1 ? "gap" : "gaps"} — practise this topic to close ${knowledge === 1 ? "it" : "them"}.`,
+    );
+  }
+  if (response.pendingCount > 0) {
+    parts.push(
+      `Re-upload the ${response.pendingCount} pending ${response.pendingCount === 1 ? "page" : "pages"} to complete your score.`,
+    );
+  }
+  if (parts.length === 0) {
+    return "Clean sheet — every question you uploaded scored full marks. Keep this up.";
+  }
+  return parts.join(" ");
+}
 
 type MiBanner = "saved" | "no-mistakes" | "local-only" | "none";
 
@@ -119,6 +178,7 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
 
 export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -129,8 +189,15 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   const [error, setError] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<WorksheetGradeOutcome | null>(null);
   const [fromCache, setFromCache] = useState(false);
+  // PR-A: the auto scorecard popup + the tap-to-reveal sheet state.
+  const [scorecardOpen, setScorecardOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({});
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
-  // Restore a previously-saved grade for this worksheet (revisit).
+  // Restore a previously-saved grade for this worksheet (revisit). The scorecard
+  // does NOT auto-open on a cache restore (it would be jarring on mount); a "View
+  // scorecard" affordance reopens it. It auto-opens only after a FRESH grade.
   useEffect(() => {
     const saved = getWorksheetGrade<WorksheetGradeResponse>(ws.worksheetId);
     if (saved && saved.ok) {
@@ -141,6 +208,65 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
 
   const response = outcome?.response ?? null;
   const miBanner = useMemo(() => miBannerFrom(outcome), [outcome]);
+
+  // Device-local nomenclature (name + code) for this worksheet (§A7).
+  const nomen = useMemo(
+    () => worksheetNomenclature(ws, listStoredWorksheetsLite()),
+    [ws],
+  );
+
+  // Group the per-question results into collapsible sections (tap-to-reveal §A4).
+  const sections = useMemo(() => {
+    if (!response) return [] as Array<{ sec: string; label: string; rows: WorksheetQuestionGrade[] }>;
+    const secOf = new Map(ws.questions.map((q) => [q.qNumber, String(q.section || "").toUpperCase()]));
+    const groups = new Map<string, WorksheetQuestionGrade[]>();
+    for (const r of response.results) {
+      const sec = secOf.get(r.qNumber) || "";
+      const key = SECTION_ORDER.includes(sec) ? sec : "?";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(r);
+    }
+    const ordered = [...SECTION_ORDER.filter((s) => groups.has(s)), ...(groups.has("?") ? ["?"] : [])];
+    return ordered.map((sec) => ({
+      sec,
+      label: sec === "?" ? "Other questions" : SECTION_LABEL[sec] || `Section ${sec}`,
+      rows: groups.get(sec)!,
+    }));
+  }, [response, ws.questions]);
+
+  // First section open by default so the student sees something; rest tap-to-reveal.
+  useEffect(() => {
+    if (sections.length > 0) setOpenSecs({ [sections[0].sec]: true });
+  }, [sections]);
+
+  const handleDownload = useCallback(async () => {
+    if (!response || downloading) return;
+    setDownloadError(null);
+    setDownloading(true);
+    try {
+      await exportGradedWorksheetPdf({
+        ws,
+        response,
+        name: nomen.name,
+        code: nomen.code,
+        coaching: buildCoaching(response),
+      });
+    } catch {
+      setDownloadError("Couldn’t build the PDF — please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }, [response, downloading, ws, nomen]);
+
+  const handlePractise = useCallback(() => {
+    const subjectLower = /sci/i.test(ws.subject) ? "science" : "maths";
+    const distinct = Array.from(new Set(ws.questions.map((q) => q.topicKey).filter(Boolean)));
+    if (distinct.length === 1) {
+      navigate(`/practice/10/${subjectLower}?topic=${encodeURIComponent(distinct[0])}`);
+    } else {
+      navigate(`/practice-hub`);
+    }
+  }, [navigate, ws]);
 
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,6 +306,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
       } else {
         setOutcome(result);
         setFromCache(false);
+        setScorecardOpen(true); // auto scorecard popup on grade-complete (§A2)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to grade the worksheet.");
@@ -194,6 +321,8 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     setOutcome(null);
     setFromCache(false);
     setError(null);
+    setScorecardOpen(false);
+    setDownloadError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
@@ -248,7 +377,23 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
         </>
       )}
 
-      {/* ── Results ── */}
+      {/* ── Auto scorecard popup (on grade-complete) ── */}
+      {response && response.ok && scorecardOpen && (
+        <WorksheetScorecard
+          name={nomen.name}
+          code={nomen.code}
+          response={response}
+          downloading={downloading}
+          onClose={() => setScorecardOpen(false)}
+          onRead={() => setScorecardOpen(false)}
+          onDownload={() => {
+            setScorecardOpen(false);
+            void handleDownload();
+          }}
+        />
+      )}
+
+      {/* ── The graded sheet (behind the popup; revealed on dismiss) ── */}
       {response && response.ok && (
         <div className="lt-wg__results">
           {fromCache && (
@@ -258,6 +403,12 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
             </div>
           )}
 
+          {/* Nomenclature header */}
+          <div className="lt-wg__sheethead">
+            <div className="lt-wg__sheetname">{nomen.name}</div>
+            <div className="lt-wg__sheetcode">{nomen.code}</div>
+          </div>
+
           {/* Honest totals — graded subtotal kept SEPARATE from the worksheet total */}
           <div className="lt-wg__totals">
             <div className="lt-wg__totmain">
@@ -265,6 +416,9 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
               <span className="lt-wg__totlbl">
                 across {response.gradedCount} of {response.totalQuestions} question{response.totalQuestions === 1 ? "" : "s"} graded
               </span>
+              <button type="button" className="lt-wg__viewsc" onClick={() => setScorecardOpen(true)}>
+                View scorecard
+              </button>
             </div>
             {response.pendingCount > 0 && (
               <div className="lt-wg__totpending">
@@ -284,13 +438,49 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
             </div>
           )}
 
-          {response.summary && <div className="lt-wg__summary">{response.summary}</div>}
+          {/* Summary — suppressed when it is model meta-prose (§A6, display-only) */}
+          {!isLeakySummary(response.summary, response.gradedCount) && (
+            <div className="lt-wg__summary">{response.summary}</div>
+          )}
 
-          <div className="lt-wg__qlist">
-            {response.results.map((g) => (
-              <QuestionResult key={g.qNumber} ws={ws} g={g} />
-            ))}
+          {/* Tap-to-reveal per-section question list */}
+          <div className="lt-wg__seclist">
+            {sections.map(({ sec, label, rows }) => {
+              const open = !!openSecs[sec];
+              return (
+                <div key={sec} className="lt-wg__sec">
+                  <button
+                    type="button"
+                    className="lt-wg__sectoggle"
+                    aria-expanded={open}
+                    onClick={() => setOpenSecs((prev) => ({ ...prev, [sec]: !prev[sec] }))}
+                  >
+                    <span className="lt-wg__seccaret" aria-hidden="true">{open ? "▾" : "▸"}</span>
+                    <span className="lt-wg__seclbl">{label}</span>
+                    <span className="lt-wg__seccount">{rows.length} Q</span>
+                  </button>
+                  {open && (
+                    <div className="lt-wg__qlist">
+                      {rows.map((g) => (
+                        <QuestionResult key={g.qNumber} ws={ws} g={g} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {/* Action row — Download (primary) + Practise (ghost) */}
+          <div className="lt-wg__actions">
+            <button type="button" className="lt-wg__act lt-wg__act--primary" onClick={handleDownload} disabled={downloading}>
+              {downloading ? "Preparing PDF…" : "↓ Download graded sheet (PDF)"}
+            </button>
+            <button type="button" className="lt-wg__act lt-wg__act--ghost" onClick={handlePractise}>
+              Practise this topic
+            </button>
+          </div>
+          {downloadError && <div className="lt-wg__err" role="alert">{downloadError}</div>}
 
           <button type="button" className="lt-wg__again" onClick={handleReset}>
             Upload a different scan
@@ -422,5 +612,41 @@ const WG_CSS = `
 .lt-wg__again {
   width: 100%; margin-top: 14px; border: 1px solid var(--wg-line); background: #fff; color: var(--wg-fg);
   border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--wg-fb);
+}
+
+/* ── PR-A: nomenclature header + scorecard re-open + tap-to-reveal + actions ── */
+.lt-wg__sheethead { margin-bottom: 10px; }
+.lt-wg__sheetname { font-family: var(--wg-fd); font-weight: 700; font-size: 16px; color: var(--wg-navy); }
+.lt-wg__sheetcode { font-size: 11px; color: var(--wg-muted); letter-spacing: 0.04em; margin-top: 2px; }
+
+.lt-wg__totmain { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.lt-wg__viewsc {
+  margin-left: auto; border: 1px solid hsl(220, 20%, 30%); background: transparent; color: #fff;
+  border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: var(--wg-fb);
+}
+
+.lt-wg__seclist { display: flex; flex-direction: column; gap: 8px; }
+.lt-wg__sec { border: 1px solid var(--wg-line); border-radius: 11px; overflow: hidden; }
+.lt-wg__sectoggle {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer;
+  background: var(--wg-surface-2); border: none; font-family: var(--wg-fb); text-align: left;
+}
+.lt-wg__seccaret { color: var(--wg-muted); font-size: 11px; }
+.lt-wg__seclbl { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700; color: var(--wg-fg);
+  text-transform: uppercase; letter-spacing: 0.04em; }
+.lt-wg__seccount { font-size: 11.5px; font-weight: 700; color: var(--wg-muted); }
+.lt-wg__sec .lt-wg__qlist { padding: 10px 12px; }
+
+.lt-wg__actions { display: flex; gap: 12px; margin-top: 16px; }
+.lt-wg__act {
+  flex: 1; border-radius: 11px; padding: 12px 14px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+  font-family: var(--wg-fb); text-align: center; border: none;
+}
+.lt-wg__act--primary { background: var(--wg-green); color: #fff; }
+.lt-wg__act--primary:disabled { background: hsl(152, 25%, 72%); cursor: not-allowed; }
+.lt-wg__act--ghost { background: #fff; color: var(--wg-fg); border: 1.5px solid var(--wg-line); }
+
+@media (max-width: 1023px) {
+  .lt-wg__actions { flex-direction: column; }
 }
 `;
