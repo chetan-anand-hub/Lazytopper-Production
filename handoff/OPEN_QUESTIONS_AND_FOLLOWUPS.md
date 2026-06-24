@@ -1,3 +1,15 @@
+## 2026-06-24 — Worksheet PR-A: grade-results redesign (presentation only) MERGED (#295, `1a85186`) — ⚠ owner live-verify PENDING
+
+### ✅ RESOLVED / DELIVERED
+- **Worksheet PR-A (#295, `1a85186`)** — the worksheet grade UI rebuilt to the LOCKED redesign spec, **PRESENTATION ONLY** (grader `checkSolution.cjs` BYTE-UNCHANGED / absent from the diff). Auto scorecard popup (`WorksheetScorecard.tsx`, desktop modal ↔ mobile bottom sheet, four-type breakdown from `mistakeSummary`, all-pending disable) + tap-to-reveal sheet + branded graded PDF (`WorksheetGradedPrintDoc.tsx` + `exportGradedWorksheetPdf` via the shared `renderElementToPdf` refactor — `exportWorksheetPdf` behaviour-identical, no second grade call) + summary-leak fix (`isLeakySummary`, display-only) + `WS-{S}-{TOPIC}-{NN}` nomenclature (device-local count). 6 files +1003/−20; gates GREEN + CI quality-gate GREEN; no forbidden files; cofounder-reviewed clean; owner-merged, no self-merge.
+
+### ⚠ STILL OPEN — mandatory owner live-verify (the worksheet UI redesign isn't "done" until this passes)
+- **[PR-A-LIVE-VERIFY]** — the UI/PDF round-trip is unverifiable by static gates. On a real device + the stable URL: scorecard auto-pops after grading (desktop centered modal + mobile bottom sheet); four-type breakdown correct (Knowledge gaps vs Careless); ✕/Read/Download all close it; Read reveals the tap-to-reveal per-section sheet; Download → a branded PDF whose marks + pending match the screen exactly (snapshot, no re-grade); the all-pending case disables both buttons; name + code (`WS-…`) show on the scorecard, the sheet, and the PDF; **Check & Improve still grades (grader non-regression)**. Note: E2b's own `[E2b-LIVE-VERIFY]` is also still open — both worksheet round-trips await one owner pass.
+
+### 🔭 NEXT (worksheet track)
+- Owner live-verify of #295 → **PR-B**: the durable per-student worksheet record (Firestore-by-UID — nomenclature made durable + cross-device, the seen-set question-uniqueness that excludes already-served questions, the Me/Progress journey, scorecard persistence, and the parent/teacher storage foundation with §B6 **wellbeing-framing-not-surveillance** + **minor-data consent/transparency** constraints baked in). Then the parent/teacher VIEW (a later, deliberate feature). Carried: [FU-ASYNC-GRADING], [FU-PITFALL-DATA], [FU-WORKSHEET-PDF-SERVERSIDE].
+---
+
 ## 2026-06-24 — Worksheet PR-E2b: one-PDF AI grade loop + MI wiring MERGED (#291, `60c5bf9`) — ⚠ owner live-verify PENDING
 
 ### ✅ RESOLVED / DELIVERED
