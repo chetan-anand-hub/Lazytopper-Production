@@ -1,5 +1,22 @@
 ---
 
+## 2026-06-24 — Worksheet PR-A: grade-results redesign (presentation only) MERGED (#295, squash `1a85186`) — ⚠ owner live-verify PENDING
+
+**Trunk after merge: `1a85186`.** The worksheet grade UI rebuilt to the LOCKED redesign spec (`LazyTopper_Worksheet_Grade_Redesign_Spec_LOCKED_2026-06-24.md`), on top of the E2b grade loop. Built in the isolated worktree `ws-redesign-pra` (`feat/worksheet-grade-redesign-pra`, off `f526d95`); opened as a DRAFT; cofounder-reviewed clean; owner marked ready + squash-merged; **no self-merge**. Report: `report-pr-a-worksheet-grade-redesign-2026-06-24.md`. 6 files +1003/−20.
+
+- **THE HARD INVARIANT HELD** — `server/routes/checkSolution.cjs` / the grader is **BYTE-UNCHANGED (absent from the PR diff)**. PR-A reorganises how the EXISTING grade output is presented; it never re-grades.
+- **(1) Auto scorecard popup** (NEW `WorksheetScorecard.tsx`) — appears the moment `response.ok` resolves (the Quick-Practice session-scorecard auto-appear pattern, rendered as the LOCKED navy overlay). Responsive at 1024px: **desktop centered modal ↔ mobile bottom sheet** (grab handle). Name+code header; big Fraunces `gradedMarksAwarded/gradedMarksTotal`; amber pending strip; **four-type breakdown** aggregated from `results.filter(!couldNotRead)[].mistakeSummary` → Knowledge gaps (conceptual+calculation) / Careless mark-loss (silly+presentation, "not weak topics"); Read (ghost) + Download (primary), ✕/Read/Download all close; **all-pending (`gradedCount===0`) → both buttons DISABLED**.
+- **(2) Tap-to-reveal sheet** (`WorksheetGradePanel.tsx`) — the always-open dump → collapsible per-section expanders (first open); Download (PDF) + Practise action row; View-scorecard re-open.
+- **(3) Branded graded PDF** (NEW `WorksheetGradedPrintDoc.tsx` + `exportGradedWorksheetPdf`) — reuses the EXISTING `worksheetPdfExport.ts` `html2canvas → jsPDF` + KaTeX path; the render→rasterise→paginate→save core factored into a shared `renderElementToPdf` so `exportWorksheetPdf` is behaviour-identical (cofounder-verified non-regressive). Renders the SAME response (no second grade call); pending stays "couldn't read — not graded, not scored 0"; coaching footer; "Marks shown match your on-screen result."
+- **(4) Summary-leak fix** (display-only) — `isLeakySummary` suppresses model meta/refusal prose ("I am unable to access the PDF…"), esp. all-`couldNotRead`. Grader + response shape untouched.
+- **(5) Nomenclature** — `worksheetNomenclature` (`worksheetModel.ts`) → `WS-{S}-{TOPIC}-{NN}` (e.g. `WS-M-RN-03`) + `{Topic} · Worksheet {N}` (MIX multi / FULL full-subject); `#NN` = device-local count via `listStoredWorksheetsLite` (`worksheetSessionStore.ts`). On scorecard + sheet + PDF. (PR-B makes it durable.)
+- **Four-type source = `WorksheetQuestionGrade.mistakeSummary` (not invented).**
+- **Gates ALL GREEN:** tsc, mojibake 0, scope:guard product, lazytopper ops matrix, root matrix **181/181**, `git diff --check` clean. **CI `quality-gate` GREEN** (1m17s, incl. linux `vite build`). `checkSolution.cjs` diff EMPTY; no forbidden files (`predictionTypes.ts`/`vite.config`/`firebase.json`/`App.tsx`/`main.tsx`/`src/data/**` untouched). Branch was already on the trunk tip → the pre-merge rebase was a clean no-op.
+- **⚠ STILL OWED — owner live-verify** (UI/PDF round-trip; static gates can't prove it): scorecard auto-pops (desktop modal + mobile bottom sheet); four-type correct; ✕/Read/Download close; Read reveals the tap-to-reveal sheet; Download → branded PDF whose marks/pending match the screen; all-pending disables both; name/code everywhere; **Check & Improve still grades**.
+- **NEXT:** owner live-verify of #295 → **PR-B** (durable per-student worksheet record). Files: `WorksheetScorecard.tsx` + `WorksheetGradedPrintDoc.tsx` (NEW); `WorksheetGradePanel.tsx`, `worksheetPdfExport.ts`, `worksheetModel.ts`, `worksheetSessionStore.ts` (modified).
+
+---
+
 ## 2026-06-24 — Worksheet PR-E2b: one-PDF AI grade loop + MI wiring MERGED (#291, squash `60c5bf9`) — ⚠ owner live-verify PENDING
 
 **Trunk after merge: `60c5bf9`.** The SECOND half of the worksheet (E2a foundation already merged): a real upload → grade → display → Mistake-Intelligence round-trip. Built in the isolated worktree `pr-e2b` (`feat/worksheet-grade-loop`, off `22499db`); rebased onto trunk `2cab012` (post-Z3) with ZERO conflicts (file-disjoint from the Z3 `src/data` merge); cofounder review = clean; owner merged; **no self-merge**. Report: `report-pr-e2b-worksheet-grade-loop-2026-06-23.md`. 9 files +1201/−10.

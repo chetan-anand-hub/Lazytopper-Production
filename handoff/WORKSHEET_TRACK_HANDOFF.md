@@ -1,7 +1,7 @@
-# Worksheet track — HANDOFF (E2a → E2b merged; ⚠ E2b owner live-verify PENDING)
+# Worksheet track — HANDOFF (E2a → E2b → PR-A merged; ⚠ E2b + PR-A live-verify PENDING; PR-B next)
 
-**Last updated:** 2026-06-24 · **Trunk:** `base/approved-thru-437` @ **`60c5bf9`** (post-#291).
-For the next worksheet agent. The worksheet is **CODE-COMPLETE and merged** (E2a foundation → E2b grade loop). The ONE remaining gate before the track is "done" is the **mandatory owner live-verify of #291** (AI round-trip on the Firebase-authorized trunk URL — see §4 + §6). After it passes, no further worksheet PR is queued; the Topic Hub queue resumes at **PR-F** (Notes + Examiner's-tips content).
+**Last updated:** 2026-06-24 · **Trunk:** `base/approved-thru-437` @ **`1a85186`** (post-#295).
+For the next worksheet agent. The worksheet grade loop + its UI redesign are **CODE-COMPLETE and merged** (E2a foundation → E2b grade loop → PR-A grade-results redesign). **TWO owner live-verifies are still owed** — E2b's AI round-trip (#291) and PR-A's UI/PDF round-trip (#295); both await one owner pass on the Firebase-authorized URL (see §4 + §6). The **next build is PR-B** — the durable per-student worksheet record (Firestore-by-UID: nomenclature durable + seen-set question-uniqueness + Me/Progress journey + scorecard persistence + parent/teacher storage foundation with §B6 wellbeing-framing + minor-consent constraints), per `LazyTopper_Worksheet_Grade_Redesign_Spec_LOCKED_2026-06-24.md` §B. The separate Topic Hub queue (PR-F Notes/Examiner's-tips → PR-G deletions) is unaffected.
 
 ## 1. State of play (PRs)
 | PR | what | status |
@@ -11,8 +11,20 @@ For the next worksheet agent. The worksheet is **CODE-COMPLETE and merged** (E2a
 | #281 | PR-E2a.1 standalone | **CLOSED** (superseded by #283); branch deleted |
 | #284 | **PR-E2a.3** — view-aware Back; MI-box visible + in right preview as a NAVY anchor + honest locked states (login-return); missing-symbol = source-data FLAG | **MERGED** (`cfff277`) |
 | #291 | **PR-E2b** — one-PDF AI grade loop + MI wiring: additive `gradeStructuredSet` core + `handleGradeWorksheet` (existing grader byte-unchanged), `POST /api/grade-worksheet`, `gradeWorksheet()` client, `worksheetGradeService` + `WorksheetGradePanel`, honest "graded X/Y + N pending" totals, single `recordMistake`+`recordAttempt` front door, stable `ws:<id>:q<N>` idempotency | **MERGED** (`60c5bf9`) · ⚠ **owner live-verify PENDING** |
+| #295 | **PR-A** — grade-results redesign (PRESENTATION ONLY; grader BYTE-UNCHANGED): auto scorecard popup `WorksheetScorecard.tsx` (desktop modal ↔ mobile bottom sheet, four-type breakdown from `mistakeSummary`, all-pending disable), tap-to-reveal sheet, branded graded PDF `WorksheetGradedPrintDoc.tsx` via the shared `renderElementToPdf` refactor (`exportWorksheetPdf` behaviour-identical; no second grade call), summary-leak fix, `WS-{S}-{TOPIC}-{NN}` nomenclature | **MERGED** (`1a85186`) · ⚠ **owner live-verify PENDING** |
 
-Worktrees after this handoff: main checkout + `notes-gen` (separate track). The worksheet worktrees were removed post-merge (the E2b worktree `feat/worksheet-grade-loop` + the docs worktree should be removed once this handoff merges).
+## 1a. PR-A grade-results redesign (#295 `1a85186`) — what landed
+Presentation only — the grade UI rebuilt to the LOCKED redesign spec (`LazyTopper_Worksheet_Grade_Redesign_Spec_LOCKED_2026-06-24.md` §A). **The grader is BYTE-UNCHANGED (absent from the diff).**
+- **Auto scorecard popup** (`WorksheetScorecard.tsx`, NEW) on grade-complete; navy LOCKED design; four-type breakdown aggregated from `results.filter(!couldNotRead)[].mistakeSummary` → Knowledge gaps (conceptual+calculation) / Careless (silly+presentation); responsive desktop modal ↔ mobile bottom sheet; Read+Download footer; all-pending disables both.
+- **Tap-to-reveal sheet** (`WorksheetGradePanel.tsx`) — collapsible per-section expanders + Download/Practise actions + View-scorecard re-open.
+- **Branded graded PDF** (`WorksheetGradedPrintDoc.tsx`, NEW + `exportGradedWorksheetPdf`) — reuses the existing `worksheetPdfExport.ts` path; the core was factored into a shared `renderElementToPdf` so `exportWorksheetPdf` is behaviour-identical. Renders the SAME response (no re-grade); pending stays honest.
+- **Summary-leak fix** (`isLeakySummary`, display-only) + **nomenclature** (`worksheetNomenclature` in `worksheetModel.ts` + `listStoredWorksheetsLite` in `worksheetSessionStore.ts`; device-local count).
+- **⚠ live-verify owed (§6):** scorecard both widths; four-type; Read/Download/✕ close; PDF marks match screen; all-pending disable; name/code everywhere; Check & Improve non-regression.
+
+## 1b. PR-B — the durable per-student record (NEXT build)
+Per the LOCKED spec §B: a Firestore-by-UID worksheet record `{ code, worksheetId, subject, topics[], scope, createdAt, questionIds[], status, scorecard? }` driving four jobs — (1) durable nomenclature sequence (`#NN` cross-device; extend to `CT-`/`FM-`), (2) **question-uniqueness** (the union of `questionIds` = the seen-set; the generator EXCLUDES it so a student never repeats a topic's questions; honest exhaustion message when the unique pool depletes), (3) the **Me/Progress journey** (records → "Real Numbers · 4 worksheets · 72% avg," each re-openable; trajectory framing), (4) **scorecard persistence** + the **parent/teacher storage foundation** (the VIEW is a later feature; §B6 constraints — wellbeing-framing-not-surveillance + minor-data consent/transparency — baked in from the start). PR-A already ships the device-local nomenclature; PR-B migrates it to durable.
+
+Worktrees after this handoff: main checkout + `notes-gen` (separate track). The worksheet worktrees were removed post-merge (the E2b worktree `feat/worksheet-grade-loop`, the PR-A worktree `feat/worksheet-grade-redesign-pra`, and the docs worktrees should be removed once this handoff merges).
 
 ## 2. Architecture (all `lazytopper/src/components/worksheet/` unless noted)
 - **`WorksheetGenerator.tsx`** — the ONE responsive page at `/practice/worksheets`, every width (App wraps in DesktopShell on desktop; global BottomNav on mobile). Single component, `view: "build" | "generated"` (in-place, no route nav). Class-driven scoped `<style>` (`WS_CSS`), pure `@media(max-width:1023px)` reflow, NO inline style objects. Legacy twins `pages/desktop/DesktopWorksheetsPage.tsx` + `pages/app/Worksheets.tsx` UN-ROUTED (kept for PR-G deletion).

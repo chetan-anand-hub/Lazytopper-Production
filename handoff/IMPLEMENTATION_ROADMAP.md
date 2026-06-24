@@ -2,6 +2,19 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-06-24 — Worksheet PR-A: grade-results redesign (presentation only) MERGED (#295, `1a85186`) — ⚠ owner live-verify PENDING
+
+Trunk `1a85186`. The worksheet grade UI rebuilt to the LOCKED redesign spec, on top of the E2b grade loop. **PRESENTATION ONLY — the grader (`checkSolution.cjs`) is BYTE-UNCHANGED (absent from the diff).** Isolated worktree; opened as a draft; cofounder-reviewed clean; owner-merged; no self-merge. Report: `report-pr-a-worksheet-grade-redesign-2026-06-24.md`.
+
+**Worksheet grade UI redesign — what this delivers (the worksheet *UI* redesign closes here):**
+- ✅ **Auto scorecard popup** (NEW `WorksheetScorecard.tsx`) — on grade-complete, navy LOCKED design, four-type breakdown from `mistakeSummary` (Knowledge gaps / Careless), responsive **desktop modal ↔ mobile bottom sheet**, all-pending disables both buttons.
+- ✅ **Tap-to-reveal sheet** (`WorksheetGradePanel.tsx`) — collapsible per-section expanders + Download/Practise action row.
+- ✅ **Branded graded PDF** (NEW `WorksheetGradedPrintDoc.tsx` + `exportGradedWorksheetPdf`) — the EXISTING `html2canvas→jsPDF`+KaTeX path (shared `renderElementToPdf` refactor; `exportWorksheetPdf` behaviour-identical); renders the SAME response (no second grade call); pending stays honest.
+- ✅ **Summary-leak fix** (display-only) + **`WS-{S}-{TOPIC}-{NN}` nomenclature** (device-local count) on scorecard + sheet + PDF.
+- Gates GREEN + CI quality-gate GREEN; `checkSolution.cjs` diff EMPTY; no forbidden files. 6 files +1003/−20.
+- ⏳ **OWNER LIVE-VERIFY PENDING** — the UI/PDF round-trip (scorecard popup both widths; four-type; Read/Download/✕ close; PDF marks match screen; all-pending disable; name/code; Check & Improve non-regression).
+- ⏳ **NEXT (after live-verify): PR-B** — the DURABLE per-student worksheet record (Firestore-by-UID: nomenclature durable + seen-set question-uniqueness + Me/Progress journey + scorecard persistence + parent/teacher storage foundation, §B6 wellbeing-framing + minor-consent). Then the parent/teacher VIEW (later, deliberate). The separate Topic Hub queue (PR-F → PR-G) is unaffected.
+
 ## 2026-06-24 — Worksheet PR-E2b: one-PDF AI grade loop + MI wiring MERGED (#291, `60c5bf9`) — ⚠ owner live-verify PENDING
 
 Trunk `60c5bf9`. The SECOND half of the worksheet (E2a foundation merged) — the AI grade loop. One uploaded PDF graded in ONE structured call against the KNOWN scheme keyed Q1…QN, per-question results with honest "graded X/Y + N pending" totals, each legible mistake fed to MI via the single front door. Isolated worktree; rebased post-Z3 with ZERO conflicts; cofounder review clean; owner merged; no self-merge. Report: `report-pr-e2b-worksheet-grade-loop-2026-06-23.md`.
