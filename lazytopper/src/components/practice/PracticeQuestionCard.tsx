@@ -84,6 +84,35 @@ function formatStepMarkLabel(marks: number): string {
   return `${rounded} ${rounded === 1 ? "mark" : "marks"}`;
 }
 
+// Parse a numeric mark value from an authored tag token: "1", "1.5", "1 1/2",
+// "1/2", "\u00BD" (half), "1\u00BD". Returns null if unparseable.
+function parseMarkValue(token: string): number | null {
+  const t = token.replace(/\u00BD/g, " 1/2").trim();
+  let total: number | null = null;
+  const mixed = t.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  const frac = t.match(/^(\d+)\/(\d+)$/);
+  if (mixed) total = Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
+  else if (frac) total = Number(frac[1]) / Number(frac[2]);
+  else if (/^\d+(?:\.\d+)?$/.test(t)) total = Number(t);
+  return total !== null && Number.isFinite(total) && total > 0 ? total : null;
+}
+
+// A solution step authored in the CBSE step-marking scheme carries a leading
+// "[N mark]" / "[N marks]" / "[\u00BD mark]" / "[1 1/2 marks]" tag stating the
+// marks for THAT step. The runtime's distributed step.marks can disagree with it
+// (e.g. a [1 mark] step rendered as "\u00BD mark"), and the raw tag also leaks
+// into the displayed body. Parse the authored tag so the pill reflects it and
+// the body is clean. No leading tag (older packs) -> {marks:null, body:text}
+// unchanged, so the existing distributed behavior is preserved.
+function parseLeadingMarkTag(text: string): { marks: number | null; body: string } {
+  if (!text) return { marks: null, body: text };
+  const m = text.match(/^\s*\[\s*(.+?)\s*marks?\s*\]\s*/i);
+  if (!m) return { marks: null, body: text };
+  const marks = parseMarkValue(m[1]);
+  if (marks === null) return { marks: null, body: text };
+  return { marks, body: text.slice(m[0].length) };
+}
+
 export function PracticeQuestionCard({
   q, idx, subjectKey, topicLabel,
   isOpen, selfAssessment, solutionLoading, solutionError, solutionData,
@@ -521,6 +550,7 @@ export function PracticeQuestionCard({
         topicKey={topicLabel}
         questionText={q.questionText}
         marks={q.marks}
+        questionId={String(q.id)}
       />
 
       <div style={{
@@ -654,7 +684,14 @@ export function PracticeQuestionCard({
           )}
           {solutionData && (
             <div>
-              {solutionData.steps.map((step) => (
+              {solutionData.steps.map((step) => {
+                // Prefer the AUTHORED "[N mark]" tag (CBSE step-marking scheme)
+                // for the pill, and strip it from the displayed body so the pill
+                // and text never disagree. Falls back to the distributed
+                // step.marks when no tag is present (older packs).
+                const tag = parseLeadingMarkTag(step.working);
+                const pillMarks = tag.marks ?? Number(step.marks);
+                return (
                 <div key={step.stepNumber} style={{
                   display: "flex", gap: 10, marginBottom: 8,
                   padding: "10px 12px", background: CARD_BG,
@@ -669,7 +706,7 @@ export function PracticeQuestionCard({
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "0.8rem", fontWeight: 700, color: TEXT_FG, marginBottom: 2 }}>
                       <MathText text={step.description} />
-                      {hasSafeStepMarks && Number(step.marks) > 0 && (
+                      {hasSafeStepMarks && pillMarks > 0 && (
                         <span style={{
                           marginLeft: 8,
                           fontSize: "0.7rem",
@@ -680,16 +717,17 @@ export function PracticeQuestionCard({
                           borderRadius: 999,
                           padding: "1px 7px",
                         }}>
-                          {formatStepMarkLabel(Number(step.marks))}
+                          {formatStepMarkLabel(pillMarks)}
                         </span>
                       )}
                     </div>
                     <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, lineHeight: 1.5 }}>
-                      <MathText text={step.working} />
+                      <MathText text={tag.body} />
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
 
               {solutionData.commonMistakes && solutionData.commonMistakes.length > 0 && (
                 <div style={{
