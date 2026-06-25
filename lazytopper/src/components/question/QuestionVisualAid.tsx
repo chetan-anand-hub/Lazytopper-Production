@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
+import type { VisualConcept } from "../../data/visualConceptRegistry";
 
 export interface QuestionVisualAidProps {
   subject?: string;
@@ -6,6 +8,66 @@ export interface QuestionVisualAidProps {
   questionText?: string;
   kind?: string;
   marks?: number;
+  // When set and the question has bound RASTER source figure(s) (extracted exam
+  // diagrams/tables/photos), those are rendered as <img> in source order and take
+  // priority over the synthetic SVG/AI fallback. No binding → unchanged behavior.
+  questionId?: string;
+}
+
+const FIG_BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+function figureSrc(filePath: string): string {
+  if (/^(blob:|https?:)/.test(filePath)) return filePath;
+  return filePath.startsWith("/") ? `${FIG_BASE}${filePath}` : filePath;
+}
+
+// Renders the bound raster source figure(s) for a question, in order, as plain
+// images (a real exam figure — not a synthetic aid). Click an image to enlarge.
+function SourceFigures({ figures }: { figures: VisualConcept[] }): React.ReactElement {
+  const [zoomed, setZoomed] = useState<string | null>(null);
+  return (
+    <div className="qva-container" style={{ maxWidth: 360, margin: "6px auto 8px" }}>
+      <div style={{ fontSize: "0.72rem", color: "#475569", marginBottom: 4 }}>
+        {figures.length > 1 ? "Figures from the question paper" : "Figure from the question paper"}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {figures.map((fig) => (
+          <button
+            key={fig.id}
+            type="button"
+            onClick={() => setZoomed(fig.filePath)}
+            title="Tap to enlarge"
+            style={{
+              padding: 6, border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
+              background: "#ffffff", cursor: "zoom-in", lineHeight: 0, width: "100%",
+            }}
+          >
+            <img
+              src={figureSrc(fig.filePath)}
+              alt={fig.title}
+              loading="lazy"
+              style={{ width: "100%", height: "auto", borderRadius: 8, display: "block" }}
+            />
+          </button>
+        ))}
+      </div>
+      {zoomed && (
+        <div
+          onClick={() => setZoomed(null)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 10000,
+            background: "rgba(15,23,42,0.82)", display: "flex",
+            alignItems: "center", justifyContent: "center", padding: 24, cursor: "zoom-out",
+          }}
+        >
+          <img
+            src={figureSrc(zoomed)}
+            alt="Enlarged figure"
+            style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, background: "#fff" }}
+          />
+        </div>
+      )}
+    </div>
+  );
 }
 
 type VisualKind =
@@ -1288,6 +1350,14 @@ function shouldPreferAiDiagram(qt: string, kind: VisualKind): boolean {
 
 export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactElement | null {
   ensureResponsiveStyle();
+
+  // A bound RASTER source figure (a real extracted exam diagram/table/photo) is
+  // authoritative — show it instead of the synthetic SVG/AI heuristic.
+  const boundFigures = getFiguresForQuestion(props.questionId);
+  if (boundFigures.length > 0) {
+    return <SourceFigures figures={boundFigures} />;
+  }
+
   const kind = inferVisualKind(props);
 
   const containerStyle: React.CSSProperties = {

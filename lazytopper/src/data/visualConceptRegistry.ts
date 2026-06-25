@@ -6,6 +6,11 @@ export interface VisualConcept {
   filePath: string;
   keywords: string[];
   isInteractive: boolean;
+  // Set on RASTER source figures (extracted exam diagrams/tables/photos). When
+  // present, this concept belongs to a specific question and is resolved by
+  // questionId (see getFiguresForQuestion), not by keyword heuristics. A raster
+  // figure has isInteractive:false and a non-".html" filePath (e.g. ".webp").
+  questionId?: string;
 }
 
 export interface ChapterVisuals {
@@ -318,6 +323,143 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
 ];
 
 export const ALL_VISUALS: ChapterVisuals[] = [...MATHS_VISUALS, ...SCIENCE_VISUALS];
+
+// =============================================================================
+// RASTER SOURCE FIGURES — extracted exam diagrams/tables/photos, one or more per
+// question, bound by questionId (NOT keyword heuristics). These are deliberately
+// kept OUT of MATHS_VISUALS/concepts so they never pollute the interactive-
+// explainer keyword scoring; resolve them only via getFiguresForQuestion().
+// filePath points at a committed raster under public/visuals; isInteractive:false.
+// Source: Z3 Competency bank (see questionBanks/.../competency.z3.ts). The render
+// surface (QuestionVisualAid) shows these as <img>, in source order.
+// =============================================================================
+export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
+  { id: "maths-real-numbers-fig-z3-rn-003", title: "Source figure", chapter: "Real Numbers", subject: "maths", filePath: "/visuals/maths/real-numbers/z3-rn-003.webp", keywords: [], isInteractive: false, questionId: "Z3-RN-003" },
+  { id: "maths-real-numbers-fig-z3-rn-004", title: "Source figure", chapter: "Real Numbers", subject: "maths", filePath: "/visuals/maths/real-numbers/z3-rn-004.webp", keywords: [], isInteractive: false, questionId: "Z3-RN-004" },
+  { id: "maths-linear-equations-fig-z3-ple-001", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-001.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-001" },
+  { id: "maths-linear-equations-fig-z3-ple-002", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-002.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-002" },
+  { id: "maths-linear-equations-fig-z3-ple-003", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-003.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-003" },
+  { id: "maths-linear-equations-fig-z3-ple-004", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-004.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-004" },
+  { id: "maths-linear-equations-fig-z3-ple-005", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-005.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-005" },
+  { id: "maths-linear-equations-fig-z3-ple-006", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-006.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-006" },
+  { id: "maths-linear-equations-fig-z3-ple-007", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-007.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-007" },
+  { id: "maths-linear-equations-fig-z3-ple-008", title: "Source figure 1", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-008.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-008" },
+  { id: "maths-linear-equations-fig-z3-ple-008-2", title: "Source figure 2", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-008-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-008" },
+  { id: "maths-linear-equations-fig-z3-ple-009", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-009.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-009" },
+  { id: "maths-linear-equations-fig-z3-ple-010", title: "Source figure", chapter: "Pair of Linear Equations", subject: "maths", filePath: "/visuals/maths/linear-equations/z3-ple-010.webp", keywords: [], isInteractive: false, questionId: "Z3-PLE-010" },
+  { id: "maths-quadratic-equations-fig-z3-qe-001", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-001.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-001" },
+  { id: "maths-quadratic-equations-fig-z3-qe-002", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-002.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-002" },
+  { id: "maths-quadratic-equations-fig-z3-qe-003", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-003.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-003" },
+  { id: "maths-quadratic-equations-fig-z3-qe-004", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-004.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-004" },
+  { id: "maths-quadratic-equations-fig-z3-qe-005", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-005.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-005" },
+  { id: "maths-quadratic-equations-fig-z3-qe-006", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-006.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-006" },
+  { id: "maths-quadratic-equations-fig-z3-qe-007", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-007.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-007" },
+  { id: "maths-quadratic-equations-fig-z3-qe-008", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-008.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-008" },
+  { id: "maths-quadratic-equations-fig-z3-qe-009", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-009.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-009" },
+  { id: "maths-quadratic-equations-fig-z3-qe-010", title: "Source figure", chapter: "Quadratic Equations", subject: "maths", filePath: "/visuals/maths/quadratic-equations/z3-qe-010.webp", keywords: [], isInteractive: false, questionId: "Z3-QE-010" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-001", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-001.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-001" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-002", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-002.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-002" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-003", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-003.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-003" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-004", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-004.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-004" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-005", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-005.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-005" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-006", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-006.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-006" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-007", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-007.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-007" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-008", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-008.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-008" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-009", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-009.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-009" },
+  { id: "maths-arithmetic-progression-fig-z3-ap-010", title: "Source figure", chapter: "Arithmetic Progression", subject: "maths", filePath: "/visuals/maths/arithmetic-progression/z3-ap-010.webp", keywords: [], isInteractive: false, questionId: "Z3-AP-010" },
+  { id: "maths-triangles-fig-z3-tr-001", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-001.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-001" },
+  { id: "maths-triangles-fig-z3-tr-002", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-002.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-002" },
+  { id: "maths-triangles-fig-z3-tr-003", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-003.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-003" },
+  { id: "maths-triangles-fig-z3-tr-004", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-004.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-004" },
+  { id: "maths-triangles-fig-z3-tr-005", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-005.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-005" },
+  { id: "maths-triangles-fig-z3-tr-006", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-006.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-006" },
+  { id: "maths-triangles-fig-z3-tr-007", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-007.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-007" },
+  { id: "maths-triangles-fig-z3-tr-008", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-008.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-008" },
+  { id: "maths-triangles-fig-z3-tr-009", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-009.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-009" },
+  { id: "maths-triangles-fig-z3-tr-010", title: "Source figure", chapter: "Triangles", subject: "maths", filePath: "/visuals/maths/triangles/z3-tr-010.webp", keywords: [], isInteractive: false, questionId: "Z3-TR-010" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-001", title: "Source figure", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-001.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-001" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-002", title: "Source figure 1", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-002.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-002" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-002-2", title: "Source figure 2", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-002-2.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-002" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-003", title: "Source figure", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-003.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-003" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-004", title: "Source figure 1", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-004.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-004" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-004-2", title: "Source figure 2", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-004-2.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-004" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-005", title: "Source figure", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-005.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-005" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-006", title: "Source figure 1", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-006.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-006" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-006-2", title: "Source figure 2", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-006-2.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-006" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-007", title: "Source figure", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-007.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-007" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-008", title: "Source figure 1", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-008.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-008" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-008-2", title: "Source figure 2", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-008-2.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-008" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-009", title: "Source figure", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-009.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-009" },
+  { id: "maths-coordinate-geometry-fig-z3-cg-010", title: "Source figure", chapter: "Coordinate Geometry", subject: "maths", filePath: "/visuals/maths/coordinate-geometry/z3-cg-010.webp", keywords: [], isInteractive: false, questionId: "Z3-CG-010" },
+  { id: "maths-trigonometry-fig-z3-tg-001", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-001.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-001" },
+  { id: "maths-trigonometry-fig-z3-tg-003", title: "Source figure 1", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-003.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-003" },
+  { id: "maths-trigonometry-fig-z3-tg-003-2", title: "Source figure 2", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-003-2.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-003" },
+  { id: "maths-trigonometry-fig-z3-tg-004", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-004.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-004" },
+  { id: "maths-trigonometry-fig-z3-tg-005", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-005.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-005" },
+  { id: "maths-trigonometry-fig-z3-tg-006", title: "Source figure 1", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-006.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-006" },
+  { id: "maths-trigonometry-fig-z3-tg-006-2", title: "Source figure 2", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-006-2.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-006" },
+  { id: "maths-trigonometry-fig-z3-tg-007", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-007.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-007" },
+  { id: "maths-trigonometry-fig-z3-tg-008", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-008.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-008" },
+  { id: "maths-trigonometry-fig-z3-tg-009", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-009.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-009" },
+  { id: "maths-trigonometry-fig-z3-tg-010", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-010.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-010" },
+  { id: "maths-trigonometry-fig-z3-tg-101", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-101.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-101" },
+  { id: "maths-trigonometry-fig-z3-tg-102", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-102.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-102" },
+  { id: "maths-trigonometry-fig-z3-tg-103", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-103.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-103" },
+  { id: "maths-trigonometry-fig-z3-tg-104", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-104.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-104" },
+  { id: "maths-trigonometry-fig-z3-tg-105", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-105.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-105" },
+  { id: "maths-trigonometry-fig-z3-tg-106", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-106.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-106" },
+  { id: "maths-trigonometry-fig-z3-tg-108", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-108.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-108" },
+  { id: "maths-trigonometry-fig-z3-tg-109", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-109.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-109" },
+  { id: "maths-trigonometry-fig-z3-tg-110", title: "Source figure", chapter: "Trigonometry", subject: "maths", filePath: "/visuals/maths/trigonometry/z3-tg-110.webp", keywords: [], isInteractive: false, questionId: "Z3-TG-110" },
+  { id: "maths-circles-fig-z3-ci-001", title: "Source figure", chapter: "Circles", subject: "maths", filePath: "/visuals/maths/circles/z3-ci-001.webp", keywords: [], isInteractive: false, questionId: "Z3-CI-001" },
+  { id: "maths-areas-circles-fig-z3-arc-001", title: "Source figure 1", chapter: "Areas Related to Circles", subject: "maths", filePath: "/visuals/maths/areas-circles/z3-arc-001.webp", keywords: [], isInteractive: false, questionId: "Z3-ARC-001" },
+  { id: "maths-areas-circles-fig-z3-arc-001-2", title: "Source figure 2", chapter: "Areas Related to Circles", subject: "maths", filePath: "/visuals/maths/areas-circles/z3-arc-001-2.webp", keywords: [], isInteractive: false, questionId: "Z3-ARC-001" },
+  { id: "maths-areas-circles-fig-z3-arc-002", title: "Source figure", chapter: "Areas Related to Circles", subject: "maths", filePath: "/visuals/maths/areas-circles/z3-arc-002.webp", keywords: [], isInteractive: false, questionId: "Z3-ARC-002" },
+  { id: "maths-areas-circles-fig-z3-arc-003", title: "Source figure", chapter: "Areas Related to Circles", subject: "maths", filePath: "/visuals/maths/areas-circles/z3-arc-003.webp", keywords: [], isInteractive: false, questionId: "Z3-ARC-003" },
+  { id: "maths-areas-circles-fig-z3-arc-004", title: "Source figure", chapter: "Areas Related to Circles", subject: "maths", filePath: "/visuals/maths/areas-circles/z3-arc-004.webp", keywords: [], isInteractive: false, questionId: "Z3-ARC-004" },
+  { id: "maths-areas-circles-fig-z3-arc-005", title: "Source figure", chapter: "Areas Related to Circles", subject: "maths", filePath: "/visuals/maths/areas-circles/z3-arc-005.webp", keywords: [], isInteractive: false, questionId: "Z3-ARC-005" },
+  { id: "maths-surface-areas-volumes-fig-z3-sav-004", title: "Source figure", chapter: "Surface Areas and Volumes", subject: "maths", filePath: "/visuals/maths/surface-areas-volumes/z3-sav-004.webp", keywords: [], isInteractive: false, questionId: "Z3-SAV-004" },
+  { id: "maths-surface-areas-volumes-fig-z3-sav-005", title: "Source figure 1", chapter: "Surface Areas and Volumes", subject: "maths", filePath: "/visuals/maths/surface-areas-volumes/z3-sav-005.webp", keywords: [], isInteractive: false, questionId: "Z3-SAV-005" },
+  { id: "maths-surface-areas-volumes-fig-z3-sav-005-2", title: "Source figure 2", chapter: "Surface Areas and Volumes", subject: "maths", filePath: "/visuals/maths/surface-areas-volumes/z3-sav-005-2.webp", keywords: [], isInteractive: false, questionId: "Z3-SAV-005" },
+  { id: "maths-surface-areas-volumes-fig-z3-sav-006", title: "Source figure", chapter: "Surface Areas and Volumes", subject: "maths", filePath: "/visuals/maths/surface-areas-volumes/z3-sav-006.webp", keywords: [], isInteractive: false, questionId: "Z3-SAV-006" },
+  { id: "maths-statistics-fig-z3-st-002", title: "Source figure 1", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-002.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-002" },
+  { id: "maths-statistics-fig-z3-st-002-2", title: "Source figure 2", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-002-2.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-002" },
+  { id: "maths-statistics-fig-z3-st-003", title: "Source figure 1", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-003.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-003" },
+  { id: "maths-statistics-fig-z3-st-003-2", title: "Source figure 2", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-003-2.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-003" },
+  { id: "maths-statistics-fig-z3-st-004", title: "Source figure 1", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-004.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-004" },
+  { id: "maths-statistics-fig-z3-st-004-2", title: "Source figure 2", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-004-2.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-004" },
+  { id: "maths-statistics-fig-z3-st-005", title: "Source figure 1", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-005.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-005" },
+  { id: "maths-statistics-fig-z3-st-005-2", title: "Source figure 2", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-005-2.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-005" },
+  { id: "maths-statistics-fig-z3-st-005-3", title: "Source figure 3", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-005-3.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-005" },
+  { id: "maths-statistics-fig-z3-st-005-4", title: "Source figure 4", chapter: "Statistics", subject: "maths", filePath: "/visuals/maths/statistics/z3-st-005-4.webp", keywords: [], isInteractive: false, questionId: "Z3-ST-005" },
+  { id: "maths-probability-fig-z3-pr-001", title: "Source figure 1", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-001.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-001" },
+  { id: "maths-probability-fig-z3-pr-001-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-001-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-001" },
+  { id: "maths-probability-fig-z3-pr-002", title: "Source figure 1", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-002.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-002" },
+  { id: "maths-probability-fig-z3-pr-002-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-002-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-002" },
+  { id: "maths-probability-fig-z3-pr-003", title: "Source figure", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-003.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-003" },
+  { id: "maths-probability-fig-z3-pr-004", title: "Source figure", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-004.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-004" },
+  { id: "maths-probability-fig-z3-pr-005", title: "Source figure", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-005.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-005" },
+  { id: "maths-probability-fig-z3-pr-006", title: "Source figure", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-006.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-006" },
+  { id: "maths-probability-fig-z3-pr-007", title: "Source figure 1", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-007.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-007" },
+  { id: "maths-probability-fig-z3-pr-007-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-007-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-007" },
+  { id: "maths-probability-fig-z3-pr-008", title: "Source figure 1", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-008.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-008" },
+  { id: "maths-probability-fig-z3-pr-008-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-008-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-008" },
+  { id: "maths-probability-fig-z3-pr-009", title: "Source figure", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-009.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-009" },
+  { id: "maths-probability-fig-z3-pr-010", title: "Source figure 1", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-010.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-010" },
+  { id: "maths-probability-fig-z3-pr-010-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-010-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-010" },
+];
+
+/**
+ * Resolve the RASTER source figure(s) bound to a specific question id, in source
+ * order. Returns [] when the question has no bound figure (the common case for
+ * the 6,500+ questions that carry none) — callers fall back to their existing
+ * heuristic visual. Exact, id-keyed, and never heuristic: a wrong figure is
+ * worse than none.
+ */
+export function getFiguresForQuestion(questionId: string | undefined | null): VisualConcept[] {
+  if (!questionId) return [];
+  return MATHS_FIGURE_VISUALS.filter((f) => f.questionId === questionId);
+}
 
 import { class10TopicRegistry } from "./class10TopicRegistry";
 
