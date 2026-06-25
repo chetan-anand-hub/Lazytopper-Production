@@ -8,7 +8,7 @@ This is the **glanceable "are we there yet" view** that the per-PR CURRENT_STATE
 Soft launch = **every CORE student surface is Built + Redesigned (to the new grammar) + responsive on Desktop AND Mobile + MI-connected (where applicable) + owner Live-verified.**
 Goal ORDER (owner-set): **(1)** finish & converge the surfaces + make everything responsive on both widths + wire MI through-and-through (the *architecture & plumbing*) → **(2)** then enrich data gradually (extraction, notes authoring). Data enrichment is a PARALLEL track and is NOT part of the architecture gate — a surface can be "done" structurally with a thin-but-honest bank.
 
-**Legend:** ✅ done · 🟡 partial / in progress · ⬜ not started · ⚠️ done-but-owner-live-verify-pending · ➖ not applicable
+**Legend:** ✅ done · 🟡 partial / in progress · ⬜ not started · ⚠️ done-but-owner-live-verify-pending · — not applicable
 **Mobile column rule:** ✅ only if the surface renders the CURRENT design on mobile (one responsive component or verified mobile build). 🟡 if it still routes to an OLD/dead mobile surface — that drift is the known launch risk and must reach ✅.
 
 **⚠️ THE SCOPE-IS-NOT-FIXED PRINCIPLE (read before trusting any row).** A surface's definition-of-done is NOT known in full up front. Building a surface *discovers* necessary pieces — the worksheet generator revealed the scorecard, the nomenclature, the durable record, the parent/teacher foundation; none was in the original plan, all proved necessary. This is scope *discovery*, not scope creep. So every row carries a **Scope** status, and the completion cells (✅/🟡) are read **against the surface's CURRENTLY-KNOWN scope** — which can grow.
@@ -21,18 +21,18 @@ Cells are read against each surface's CURRENTLY-KNOWN scope (see the Scope colum
 |---|---|---|---|---|---|---|---|---|
 | **Check & Improve** | Locked | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | none — mature; the MI/grader reference surface |
 | **Quick Practice** | Locked | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | none — mature (finish-session scorecard, exact mark-band) |
-| **Exam Trends** | Locked | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | confirm mobile parity |
-| **HPQ / Predicted** | Locked | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | confirm mobile parity |
-| **Topic Hub** | Settling | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | PR-F content (Notes + Examiner's tips) → PR-G delete dead old surfaces |
+| **Exam Trends** | Locked | ✅ | ✅ | ✅ | 🟡 | — | 🟡 | confirm mobile parity |
+| **HPQ / Predicted** | Locked | ✅ | ✅ | ✅ | 🟡 | — | 🟡 | confirm mobile parity |
+| **Topic Hub** | Settling | ✅ | ✅ | ✅ | ✅ | — | ✅ | PR-F content (Notes + Examiner's tips) → PR-G delete dead old surfaces |
 | **Worksheet** | Settling | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | **owner live-verify #291+#295**; then PR-B durable record (discovered scope — see §4) |
 | **Chapter Test** | Settling | ✅(old) | ⬜ | 🟡 | 🟡 | 🟡 | ⬜ | **REDESIGN (next design)** — board-pattern paper, scorecard-and-sheet pattern, E2b upload grade for subjective+MI |
 | **Full Mock** | Settling | ✅(old) | ⬜ | 🟡 | 🟡 | ⬜ | ⬜ | rebuild — re-source pool onto `canonicalQuestionBank` (keep prediction overlay) + E2b grade seam + redesign |
 | **Me / Progress** | Settling | ✅ | ⬜ | 🟡 | 🟡 | ✅ | ⬜ | REDESIGN to a visual progress *journey* (houses My Tests); reads scorecard data |
-| **Tutor / Learn (TeachFlow)** | Settling | ✅ | 🟡 | ✅ | 🟡 | ✅ | 🟡 | PR-D.1 mobile tutor toggle; [FU-CONTEXTUAL-TUTOR-REBUILD] |
-| **Home** | Settling | ✅ | 🟡 | 🟡 | ✅ | ✅ | 🟡 | converge to orient-first; real-insights wiring; confirm desktop |
-| **Landing** | Locked | ✅ | ✅ | ✅ | ✅ | ➖ | 🟡 | confirm both widths |
-| **Login** | Locked | ✅ | ✅ | ✅ | ✅ | ➖ | ✅ | none (Firebase live) |
-| **Notes** (content track) | Settling | 🟡 | ➖ | ➖ | ➖ | ➖ | ➖ | infra done (validator/schema/exemplar); PR-F `<Note>` component + spec authoring — DATA track, parallel |
+| **Tutor / Learn (TeachFlow)** | Settling | ✅ | 🟡 | ✅ | 🟡 | — | 🟡 | PR-D.1 mobile tutor toggle; [FU-CONTEXTUAL-TUTOR-REBUILD] |
+| **Home** | Settling | ✅ | 🟡 | 🟡 | ✅ | — | 🟡 | converge to orient-first; real-insights wiring; confirm desktop |
+| **Landing** | Locked | ✅ | ✅ | ✅ | ✅ | — | 🟡 | confirm both widths |
+| **Login** | Locked | ✅ | ✅ | ✅ | ✅ | — | ✅ | none (Firebase live) |
+| **Notes** (content track) | Settling | 🟡 | — | — | — | — | — | infra done (validator/schema/exemplar); PR-F `<Note>` component + spec authoring — DATA track, parallel |
 
 ## 2a · DISCOVERED-SCOPE LOG (scope that emerged AFTER a surface was first planned)
 The record of how each surface revealed its true shape. Each entry: what was discovered · why it became necessary · where it went (PR / queued). This is not noise — it is the most reusable artifact here: it teaches us to predict the *next* surface's hidden scope (Chapter Test will discover its own equivalents).
