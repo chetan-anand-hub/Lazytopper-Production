@@ -1,3 +1,16 @@
+## 2026-06-25 — Z3 figure-binding golden slice MERGED (#297, `449d686`) — owner live-verified
+
+### ✅ RESOLVED / DELIVERED
+- **Z3 figure-binding (#297, `449d686`)** — bound every Z3 source figure (113 rasters → 93 Qs) to its question and render it in the question body as `<img>`, plus the step-mark pill fix. **[FU-Z3-FIGURE-BIND] CLOSED.** Built the contained raster `<img>` path the brief wrongly assumed already existed (`VisualExplainer` is HTML-only; `public/visuals` had zero rasters): `visualConceptRegistry.ts` (+`questionId`/`MATHS_FIGURE_VISUALS`/`getFiguresForQuestion`, exact id-keyed, kept out of the heuristic pool), `QuestionVisualAid.tsx` (+`questionId` → `<img>`, priority over synthetic SVG), `PracticeQuestionCard.tsx` (passes `questionId` + `parseLeadingMarkTag` step-mark fix), `competency.z3.ts` (93 rows +`visualExplainerId`+`requiresDiagram`; still 102 rows / 6,643 served, no drift), 113 `public/visuals/maths/**` assets. `predictionTypes.ts`/`canonicalQuestionBank` untouched. All 113 eye-confirmed (no mismatches). Gates GREEN + CI quality-gate GREEN (incl. vitest floor test); cofounder byte-level clean; owner live-verified + merged; no self-merge.
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-Z3-EMF-SVG]** — 8 Z3 Real-Numbers questions (`Z3-RN-001/002/005/006/007/008/009/010`) had EMF-only source figures (vector equation objects, unrasterizable) → no WebP to bind; `requiresDiagram` left honest (false). Candidates for AUTHORED SVGs later (never fabricate/substitute a lookalike). The figure-binding pattern + EMF limitation are documented in `handoff/PATTERN_extraction_figure_binding.md`.
+
+### 🔭 NEXT
+- Figure binding now scales to the worksheet-folder extractions via the documented pattern. A few bound figures are weak/generic scene-setters (esp. `Z3-PLE-002` "Production Planning" banner, `Z3-PR-003` generic interior) — bound per the owner's "every source figure" policy; worth a glance but not errors.
+
+---
+
 ## 2026-06-24 — Worksheet PR-A: grade-results redesign (presentation only) MERGED (#295, `1a85186`) — ⚠ owner live-verify PENDING
 
 ### ✅ RESOLVED / DELIVERED
