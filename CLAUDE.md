@@ -209,6 +209,7 @@ Update these files in `handoff/`:
 - `SESSION_LOG.md` — prepend new entry at the TOP (newest-first)
 - `IMPLEMENTATION_ROADMAP.md` — mark completed stage
 - `OPEN_QUESTIONS_AND_FOLLOWUPS.md` — add any new follow-ups
+- `SURFACE_TRACKER.md` — flip cells for any surface this PR moved; if scope was discovered, log it in `DECISION_LOG` + the tracker's §2a and set that surface's Scope to Settling; if none moved, state so
 
 Never append SESSION_LOG entries at the bottom — always prepend at the top.
 
