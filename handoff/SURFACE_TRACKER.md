@@ -1,5 +1,5 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
-**Home:** this file lives at `handoff/SURFACE_TRACKER.md` in the repo (version-controlled, beside CURRENT_STATE). **Trunk at last sync:** `e6a9f44`. **Maintainer ritual:** see §3 — it is updated in the SAME post-PR handoff the agent already does, reconciled by the cofounder each session, and the Verified column flipped by the owner.
+**Home:** this file lives at `handoff/SURFACE_TRACKER.md` in the repo (version-controlled, beside CURRENT_STATE). **Trunk at last sync:** `449d686` (post-#297 Z3 figure-binding — Quick Practice now renders bound source figures as `<img>` for Z3 case-based questions). **Maintainer ritual:** see §3 — it is updated in the SAME post-PR handoff the agent already does, reconciled by the cofounder each session, and the Verified column flipped by the owner.
 
 This is the **glanceable "are we there yet" view** that the per-PR CURRENT_STATE/ROADMAP can't give. CURRENT_STATE answers "what did the last PR do"; THIS answers "how complete is each surface, and what's left to soft launch."
 
