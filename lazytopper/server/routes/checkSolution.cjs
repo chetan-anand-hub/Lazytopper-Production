@@ -147,16 +147,17 @@ function createCheckSolutionRoute(deps) {
         '4. ERROR PROPAGATION → ONE root cause. If a single upstream slip makes later steps wrong, that is ONE mistake attributed to the SOURCE step. Mark each downstream step as following correctly from the wrong value (error carried forward): status "incorrect" but mistakeType null. This includes a verification/check step that only "fails" because it was correctly applied to the carried-forward wrong value (e.g. the student plugs their own wrong root into the sum check and honestly notes it does not match) — that is carried forward (mistakeType null), not a presentation or conceptual fault of its own. Do NOT label each propagated step as a fresh mistake, and never inflate one slip into several (especially several conceptual) mistakes.\n' +
         '5. A CORRECT step ALWAYS has mistakeType null. Never invent a mistake on a right step.\n' +
         '6. MISSING is ALWAYS mistakeType null. A required step the student left ENTIRELY BLANK / did not attempt gets status "missing" and mistakeType null — the marks are simply not earned; it is never a typed mistake (not presentation, not conceptual), even when the thing left out is a required formula, unit, conclusion, or verification line. Do NOT manufacture extra "missing" steps; only list a step as missing if that whole step was genuinely required and wholly absent.\n' +
-        '7. ALTERNATIVE VALID METHOD is NOT a mistake. If the student reaches the answer by a correct method the marking scheme did not anticipate (e.g. quadratic formula instead of factoring, completing the square), award full marks — the scheme is the reference, not a straitjacket.\n' +
-        '8. PRESENTATION vs MISSING. If the student ACTUALLY WROTE a step and the math is right but a required FORMAT element is short (e.g. computed the value but did not show the −b/a comparison, missing units, no "verified"/conclusion line, working not shown), keep it as ONE step with status "partial" and mistakeType "presentation" — fold the short format element INTO that attempted step; do NOT split it off into a separate "missing" step. (Format short on work the student DID write = presentation; a whole step left blank = missing per rule 6.) Right answer with weak or no justification → presentation, not conceptual.\n' +
-        '9. correctedWorking: for incorrect/partial steps ONLY — write EXACTLY what the student should have written.\n' +
-        '10. teacherNote: 3–4 plain-English sentences — start with overall assessment, mention what was done well, state the single most important thing to fix.\n' +
+        '7. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
+        '8. ALTERNATIVE VALID METHOD is NOT a mistake. If the student reaches the answer by a correct method the marking scheme did not anticipate (e.g. quadratic formula instead of factoring, completing the square), award full marks — the scheme is the reference, not a straitjacket.\n' +
+        '9. PRESENTATION vs MISSING. If the student ACTUALLY WROTE a step and the math is right but a required FORMAT element is short (e.g. computed the value but did not show the −b/a comparison, missing units, no "verified"/conclusion line, working not shown), keep it as ONE step with status "partial" and mistakeType "presentation" — fold the short format element INTO that attempted step; do NOT split it off into a separate "missing" step. (Format short on work the student DID write = presentation; a whole step left blank = missing per rule 6.) Right answer with weak or no justification → presentation, not conceptual.\n' +
+        '10. correctedWorking: for incorrect/partial steps ONLY — write EXACTLY what the student should have written.\n' +
+        '11. teacherNote: 3–4 plain-English sentences — start with overall assessment, mention what was done well, state the single most important thing to fix.\n' +
         (autoDetect
-          ? '11. Apply the checks for the subject you detect — Maths: formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable. Science: terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n'
+          ? '12. Apply the checks for the subject you detect — Maths: formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable. Science: terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n'
           : isMaths
-          ? '11. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable.\n'
-          : '11. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
-        '12. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.';
+          ? '12. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable.\n'
+          : '12. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
+        '13. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.';
 
       const jsonSchema =
         'RESPOND with this exact JSON:\n' +
@@ -301,6 +302,31 @@ function createCheckSolutionRoute(deps) {
             correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
           }));
 
+        // No-working honesty guard (MI integrity): a WRONG step with NO visible
+        // working is undiagnosable — the cause cannot be known from a bare wrong
+        // answer (e.g. a wrong MCQ option with no working), so mistakeType MUST be
+        // null even if the model guessed one. This makes the invariant hold
+        // deterministically regardless of the prompt. ONLY the type is suppressed:
+        // status stays "incorrect", marks (awarded/deducted) and every total are
+        // untouched — the attempt still records in full. Runs BEFORE the stepFloor
+        // count below, so these steps contribute 0 to each mistakeSummary bucket.
+        // The map above already coerces studentWork to a trimmed string (absent/
+        // undefined/null/whitespace → ""); the `!s.studentWork?.trim()` test catches
+        // all of those in one check, so the guard does not depend on that upstream
+        // coercion staying in place. We also tally, per category, the fabricated
+        // type we are nulling (`noWorkingNulled`) so the additive-floor reconcile
+        // below can subtract it from the LLM's self-reported summary — otherwise a
+        // model that ignores rule 7 leaks its fabricated count through rawSummary.
+        const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+        for (const s of annotatedSteps) {
+          if (s.status === 'incorrect' && !s.studentWork?.trim()) {
+            if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
+              noWorkingNulled[s.mistakeType] += 1;
+            }
+            s.mistakeType = null;
+          }
+        }
+
         const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
         const capped = Math.min(totalAwarded, effectiveMarks);
 
@@ -309,11 +335,15 @@ function createCheckSolutionRoute(deps) {
         // deducted marks and tagged steps with a mistakeType (the root of the
         // Quick-Practice "mistake not logged" bug). For each category, take the
         // MAX of the LLM's count and the number of annotatedSteps carrying that
-        // mistakeType. ADDITIVE FLOOR ONLY — we never subtract or reclassify the
-        // LLM's explicit counts; if no step carries a mistakeType the floor is 0
-        // and the LLM summary passes through unchanged. The step→category map is
-        // 1:1 (annotatedSteps[].mistakeType is already one of the four
-        // categories, validated above).
+        // mistakeType. ADDITIVE FLOOR for legitimately-tagged worked steps — if no
+        // step carries a mistakeType the floor is 0 and the LLM summary passes
+        // through unchanged. The ONE thing we subtract first is `noWorkingNulled`:
+        // counts the guard just suppressed because the step had no working. Without
+        // that subtraction, max(rawSummary, stepFloor) would re-introduce the
+        // fabricated count via rawSummary even though we nulled the per-step type —
+        // the no-working honesty guard must drive the bucket to 0 from BOTH sources.
+        // The step→category map is 1:1 (annotatedSteps[].mistakeType is already one
+        // of the four categories, validated above).
         const rawSummary = parsed.mistakeSummary || {};
         const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
         for (const s of annotatedSteps) {
@@ -321,11 +351,12 @@ function createCheckSolutionRoute(deps) {
             stepFloor[s.mistakeType] += 1;
           }
         }
+        const rawAdjusted = (cat) => Number(rawSummary[cat] || 0) - noWorkingNulled[cat];
         const mistakeSummary = {
-          conceptual: Math.max(0, Number(rawSummary.conceptual || 0), stepFloor.conceptual),
-          calculation: Math.max(0, Number(rawSummary.calculation || 0), stepFloor.calculation),
-          silly: Math.max(0, Number(rawSummary.silly || 0), stepFloor.silly),
-          presentation: Math.max(0, Number(rawSummary.presentation || 0), stepFloor.presentation),
+          conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
+          calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
+          silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
+          presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
         };
 
         return sendJson(res, 200, {
