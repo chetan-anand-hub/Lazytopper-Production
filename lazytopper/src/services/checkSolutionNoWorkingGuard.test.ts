@@ -145,6 +145,51 @@ describe("grader no-working guard: a bare wrong answer is undiagnosable, not con
     expect(steps[1].marksDeducted).toBe(2);
   });
 
+  it("(d) adversarial: model ignores rule 7 — no-working step tagged conceptual AND mistakeSummary.conceptual:1 -> final bucket 0", async () => {
+    // The deterministic guarantee must hold even when the model fights it: it both
+    // tags the no-working step conceptual AND self-reports conceptual:1 in its
+    // summary. With no legitimately-worked conceptual step to protect, the floor is
+    // 0 and the fabricated rawSummary count must be subtracted away → final 0.
+    // (The other cases canned mistakeSummary to all-zeros, so they cannot catch a
+    // rawSummary leak; this one can.)
+    const grade = {
+      totalMarks: 1,
+      marksAwarded: 0,
+      annotatedSteps: [
+        {
+          stepNumber: 1,
+          description: "Chosen MCQ option (no working)",
+          studentWork: "",
+          status: "incorrect",
+          marksAwarded: 0,
+          marksDeducted: 1,
+          teacherAnnotation: "wrong",
+          mistakeType: "conceptual",
+          correctedWorking: null,
+        },
+      ],
+      // Model ignores rule 7 and leaks a fabricated conceptual into its own summary.
+      mistakeSummary: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+      teacherNote: "Show your working.",
+    };
+    const { body } = await buildRoute(grade).run({ ...payload, marks: 1 });
+    const s = body.annotatedSteps[0];
+
+    // Per-step type nulled, AND the rawSummary leak is closed → bucket is 0.
+    expect(s.mistakeType).toBeNull();
+    expect(body.mistakeSummary.conceptual).toBe(0);
+    expect(body.mistakeSummary).toEqual({
+      conceptual: 0,
+      calculation: 0,
+      silly: 0,
+      presentation: 0,
+    });
+    // Attempt still records fully.
+    expect(s.status).toBe("incorrect");
+    expect(s.marksDeducted).toBe(1);
+    expect(body.totalMarks).toBe(1);
+  });
+
   // Guard-breadth: the no-working signal can arrive as an empty string,
   // whitespace-only, OR (the real MCQ defect) a studentWork key that is entirely
   // ABSENT/undefined on the raw step. Each must null the type while preserving the

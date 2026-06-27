@@ -313,9 +313,16 @@ function createCheckSolutionRoute(deps) {
         // The map above already coerces studentWork to a trimmed string (absent/
         // undefined/null/whitespace → ""); the `!s.studentWork?.trim()` test catches
         // all of those in one check, so the guard does not depend on that upstream
-        // coercion staying in place.
+        // coercion staying in place. We also tally, per category, the fabricated
+        // type we are nulling (`noWorkingNulled`) so the additive-floor reconcile
+        // below can subtract it from the LLM's self-reported summary — otherwise a
+        // model that ignores rule 7 leaks its fabricated count through rawSummary.
+        const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
         for (const s of annotatedSteps) {
           if (s.status === 'incorrect' && !s.studentWork?.trim()) {
+            if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
+              noWorkingNulled[s.mistakeType] += 1;
+            }
             s.mistakeType = null;
           }
         }
@@ -328,11 +335,15 @@ function createCheckSolutionRoute(deps) {
         // deducted marks and tagged steps with a mistakeType (the root of the
         // Quick-Practice "mistake not logged" bug). For each category, take the
         // MAX of the LLM's count and the number of annotatedSteps carrying that
-        // mistakeType. ADDITIVE FLOOR ONLY — we never subtract or reclassify the
-        // LLM's explicit counts; if no step carries a mistakeType the floor is 0
-        // and the LLM summary passes through unchanged. The step→category map is
-        // 1:1 (annotatedSteps[].mistakeType is already one of the four
-        // categories, validated above).
+        // mistakeType. ADDITIVE FLOOR for legitimately-tagged worked steps — if no
+        // step carries a mistakeType the floor is 0 and the LLM summary passes
+        // through unchanged. The ONE thing we subtract first is `noWorkingNulled`:
+        // counts the guard just suppressed because the step had no working. Without
+        // that subtraction, max(rawSummary, stepFloor) would re-introduce the
+        // fabricated count via rawSummary even though we nulled the per-step type —
+        // the no-working honesty guard must drive the bucket to 0 from BOTH sources.
+        // The step→category map is 1:1 (annotatedSteps[].mistakeType is already one
+        // of the four categories, validated above).
         const rawSummary = parsed.mistakeSummary || {};
         const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
         for (const s of annotatedSteps) {
@@ -340,11 +351,12 @@ function createCheckSolutionRoute(deps) {
             stepFloor[s.mistakeType] += 1;
           }
         }
+        const rawAdjusted = (cat) => Number(rawSummary[cat] || 0) - noWorkingNulled[cat];
         const mistakeSummary = {
-          conceptual: Math.max(0, Number(rawSummary.conceptual || 0), stepFloor.conceptual),
-          calculation: Math.max(0, Number(rawSummary.calculation || 0), stepFloor.calculation),
-          silly: Math.max(0, Number(rawSummary.silly || 0), stepFloor.silly),
-          presentation: Math.max(0, Number(rawSummary.presentation || 0), stepFloor.presentation),
+          conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
+          calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
+          silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
+          presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
         };
 
         return sendJson(res, 200, {
