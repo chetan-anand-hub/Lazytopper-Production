@@ -1,3 +1,69 @@
+## 2026-06-28 - D-PROG-2 / Build Step 1 CLOSED (grader no-working honesty — subjective deterministic; MCQ residual tracked)
+
+Decision (owner + cofounder, recorded post-PR #301 + #302 + #303):
+Build step 1 of the locked critical path (D-PROG-7) is closed for its designed scope. The no-working honesty
+fix is deterministic on subjective answers across both grading surfaces. Three residuals are tracked as
+separate queued PRs — none are regressions.
+
+### What shipped
+
+**PR #301 (trunk `19b4ef8`) — Check & Improve path (`handleCheckSolution`):**
+- Prompt rule 7: no working shown → `mistakeType` null, never auto-"conceptual"; status stays incorrect.
+- Deterministic guard: `status === 'incorrect' && !studentWork?.trim()` → null the type, tally `noWorkingNulled`.
+- `rawAdjusted` reconcile: `max(0, rawSummary[cat] - noWorkingNulled[cat], stepFloor[cat])` — closes the
+  `rawSummary` leak so a model that ignores rule 7 can't fabricate a bucket via its self-reported summary.
+- 7/7 vitest (Codespace, Node 22), CI green, owner live-verified C&I.
+
+**PR #302 (trunk `c5e148d`) — Worksheet path (`gradeStructuredSet` / `normaliseStructuredResult`):**
+- Mirrors #301 exactly: prompt rule 5 (same wording + MCQ "(d)" example), same guard, same reconcile.
+- `handleCheckSolution` left byte-identical (confirmed by byte-review of pushed diff).
+- 7/7 vitest driving `handleGradeWorksheet` (not `handleCheckSolution`), CI green.
+- Owner dual live-verified: no-working subjective → 0 in four-type breakdown every time; worked wrong →
+  typed correctly; scorecard math unchanged; Check & Improve unchanged.
+
+**Key architectural finding (recorded for all future grader work):**
+`checkSolution.cjs` contains TWO separate grading functions — `handleCheckSolution` (C&I, single question)
+and `gradeStructuredSet` → `normaliseStructuredResult` (Worksheet + future Chapter Test / Full Mock,
+multi-question). They carry an in-file "keep in sync" comment (~line 547). A change to one is NOT a change
+to both. Any future grader change must patch + test BOTH in one PR.
+
+**`mistakeSummary` leak rule (recorded for all future grader work):**
+`mistakeSummary = max(LLM rawSummary, stepFloor)`. Suppressing a per-step `mistakeType` fixes `stepFloor`
+but NOT `rawSummary`. Every per-step suppression must also subtract the suppressed count from `rawSummary`
+before the max (`noWorkingNulled` pattern), in BOTH functions, or the fabricated bucket leaks to the student.
+
+### Three tracked residuals (not regressions — queued PRs)
+
+**[FU-WORKSHEET-MCQ-OBJECTIVE-GUARD] — Deterministic MCQ honesty (MUST land before PR-B)**
+A wrong MCQ writes the chosen option ("(d)") into `studentWork` (non-empty), so the empty-working guard
+can't fire. Honesty rides on the prompt rule only (~40% effective on live runs). The fix is deterministic:
+forward `section`/`format` from the client payload through the server mapper, then apply the existing
+`isObjectiveType(qType, section)` helper in `serverUtils.cjs` — a wrong objective step → `mistakeType`
+null regardless of `studentWork`. The Quick Practice surface fixed this as G1 (June 21 session, "MI-Loop
+Stage 2 PR 3 — MCQ honest capture"); this PR applies the same principle to the worksheet grader.
+Scope: `worksheetGradeService.ts` (client payload) + `checkSolution.cjs` (server mapper + guard extension).
+Do NOT use `marks === 1` as a proxy (fragile — 1-mark subjective answers exist). Use `isObjectiveType`.
+Must land before PR-B so the durable history is built on honest MCQ data from day one.
+
+**[FU-WORKSHEET-NON-ATTEMPT-TEXT] — "Don't know" / explicit non-attempt text**
+A student writing "Don't know" / "Dont know" / "I don't know" produces non-empty `studentWork`, so the
+guard can't fire; the model tags it "Concept gap." Semantically identical to no working — the cause is
+undiagnosable. Needs a small additional rule: detect explicit non-attempt phrases → `mistakeType` null.
+Separate PR, smaller scope than the MCQ guard. Sequence: after the MCQ guard, before PR-B preferred.
+
+**[FU-BANK-ANSWER-POLLUTION] — Bank answer / model-answer junk (~26 files / ~54 strings)**
+~26 question bank files in `src/data/questionBanks` carry raw marking-scheme junk in `answer`,
+`solutionSteps`, and `finalAnswer`: raw mark-allocation fractions (`1 ½ ½ 1 1 2 3`), stray scheme labels
+(`Red Violet`), and source/page anchors (`X_086_31/4/3_Science#Page-`). Student-facing and may skew
+grading (the grader reads these polluted model answers). Needs a content-cleaning PR with a mechanical
+junk-detector + owner verification. Content lane (`src/data/`), disjoint from the grader PRs.
+
+### Sequencing locked
+MCQ objective guard → (non-attempt text, bank cleaning as parallel content lane) → PR-B (step 2).
+PR-B must NOT start until the MCQ guard lands — "honest MI before anything persists it" is the invariant.
+
+---
+
 ## 2026-06-20 - MockBuilder RETIRED (un-routed + tagged for PR-G deletion; code kept)
 
 Decision (owner, recorded post-PR-D #274):
