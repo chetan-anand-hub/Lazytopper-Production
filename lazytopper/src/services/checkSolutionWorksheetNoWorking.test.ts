@@ -166,3 +166,78 @@ describe("worksheet grader: no-working honesty (port of #301)", () => {
     expect(r.annotatedSteps[0].marksDeducted).toBe(2);
   });
 });
+
+// Deterministic OBJECTIVE (MCQ / AR / Section A) honesty — the residual #302's (b2)
+// documented now CLOSED. The client carries `section`, so a wrong MCQ "(d)" is nulled
+// by the guard REGARDLESS of its non-empty studentWork. Same harness, same canonical
+// isObjectiveType classifier the server reuses (no fork).
+describe("worksheet grader: objective (MCQ/AR) deterministic honesty", () => {
+  // A Section-A objective question (MCQ) — section drives isObjectiveType.
+  const objQ = (marks: number) => [
+    { qNumber: 1, marks, section: "A", format: "MCQ", topic: "t", topicLabel: "T", questionText: "Q1?" },
+  ];
+  // A subjective question (no objective signal) — section is a worked band.
+  const subjQ = (marks: number) => [
+    { qNumber: 1, marks, section: "C", topic: "t", topicLabel: "T", questionText: "Q1?" },
+  ];
+
+  // (e) THE FIX: a wrong MCQ option "(d)" (non-empty studentWork) on a Section-A
+  //     question -> mistakeType nulled DETERMINISTICALLY, 0 buckets, marks still lost,
+  //     attempt still recorded. This is exactly #302's (b2) residual, now closed.
+  it("(e) wrong MCQ '(d)' on a Section-A question -> mistakeType null deterministically, marks lost", async () => {
+    const grade = oneResult(
+      [{
+        description: "chosen option", studentWork: "(d)", status: "incorrect",
+        marksAwarded: 0, marksDeducted: 1, teacherAnnotation: "wrong option",
+        mistakeType: "conceptual", correctedWorking: "Snell's law",
+      }],
+      { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    );
+    const { body } = await buildRoute(grade).run(basePayload(objQ(1)));
+    const r = body.results[0];
+    expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective -> deterministically nulled
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // Mark still lost; attempt still recorded.
+    expect(r.annotatedSteps[0].status).toBe("incorrect");
+    expect(r.annotatedSteps[0].marksAwarded).toBe(0);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(1);
+    expect(r.totalMarks).toBe(1);
+    expect(r.marksAwarded).toBe(0);
+  });
+
+  // (f) leak closed for MCQ too: wrong MCQ "(d)" + model self-reports conceptual:1 in
+  //     mistakeSummary -> final bucket 0 (rawAdjusted subtracts the nulled count).
+  it("(f) wrong MCQ '(d)' + model self-reports conceptual:1 -> final bucket 0", async () => {
+    const grade = oneResult(
+      [{
+        description: "chosen option", studentWork: "(d)", status: "incorrect",
+        marksAwarded: 0, marksDeducted: 1, teacherAnnotation: "wrong option",
+        mistakeType: "conceptual", correctedWorking: "Snell's law",
+      }],
+      { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+    );
+    const { body } = await buildRoute(grade).run(basePayload(objQ(1)));
+    const r = body.results[0];
+    expect(r.annotatedSteps[0].mistakeType).toBeNull();
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+  });
+
+  // (g) REGRESSION: a wrong SUBJECTIVE worked answer must STILL keep its real type and
+  //     marks — the objective guard must NOT touch non-objective questions.
+  it("(g) wrong subjective worked answer -> keeps real type and marks (objective guard inert)", async () => {
+    const grade = oneResult(
+      [{
+        description: "method", studentWork: "used F=ma here (wrong)", status: "incorrect",
+        marksAwarded: 0, marksDeducted: 3, teacherAnnotation: "wrong method",
+        mistakeType: "conceptual", correctedWorking: "...",
+      }],
+      { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, // model under-reports
+    );
+    const { body } = await buildRoute(grade).run(basePayload(subjQ(3)));
+    const r = body.results[0];
+    expect(r.annotatedSteps[0].mistakeType).toBe("conceptual"); // subjective -> guard inert
+    expect(r.mistakeSummary.conceptual).toBe(1); // floor protects it
+    expect(r.annotatedSteps[0].marksAwarded).toBe(0);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(3);
+  });
+});
