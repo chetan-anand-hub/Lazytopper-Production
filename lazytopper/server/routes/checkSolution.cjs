@@ -1,3 +1,9 @@
+// Canonical objective-question classifier (MCQ / Assertion-Reason / Section A).
+// REUSED here — never forked — so the worksheet grader's honesty guard agrees
+// byte-for-byte with stepSolution/stubHandlers. serverUtils has no dependency on
+// this route, so the require is acyclic.
+const { isObjectiveType } = require('../services/serverUtils.cjs');
+
 function createCheckSolutionRoute(deps) {
   const {
     sendJson,
@@ -589,20 +595,27 @@ function createCheckSolutionRoute(deps) {
         correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
       }));
 
-    // No-working honesty guard (MI integrity) — byte-aligned mirror of
-    // handleCheckSolution: a WRONG step with NO visible working is undiagnosable, so
-    // mistakeType MUST be null even if the model guessed one. ONLY the type is
-    // suppressed — status, marks (awarded/deducted) and every total are untouched.
+    // No-working / objective honesty guard (MI integrity). A WRONG step gets its
+    // fabricated mistakeType nulled — ONLY the type is suppressed; status, marks
+    // (awarded/deducted) and every total are untouched. It fires in two cases:
+    //   (1) NO visible working (empty/whitespace studentWork) — undiagnosable, the
+    //       byte-aligned mirror of handleCheckSolution's guard; and
+    //   (2) the question is OBJECTIVE (MCQ / Assertion-Reason / Section A), REGARDLESS
+    //       of studentWork. This is the deterministic MCQ fix: a wrong MCQ writes its
+    //       chosen option (e.g. "(d)") into studentWork (non-empty, per STEP-0 ground
+    //       truth), so the empty check alone can't reach it — but a bare objective pick
+    //       has no working to classify, so it is attempt-only, NEVER a fabricated type.
+    //       This is the exact Quick-Practice MCQ principle (G1), applied here off the
+    //       canonical isObjectiveType(qType||format, section); the worksheet carries
+    //       section ("A" for MCQ/AR). Subjective questions are untouched.
     // We tally noWorkingNulled per category so the reconcile below can subtract the
     // fabricated count from the model's self-reported summary too (otherwise
-    // max(rawSummary, stepFloor) re-introduces it). NOTE: this fires only when
-    // studentWork is empty/whitespace; a wrong MCQ writes the chosen option (e.g.
-    // "(d)") into studentWork (non-empty, confirmed by STEP-0 ground truth), so MCQ
-    // honesty rides on prompt rule 5 above, not this guard — no objective/section
-    // flag reaches this grader to make it deterministic.
+    // max(rawSummary, stepFloor) re-introduces it).
+    const questionIsObjective = isObjectiveType(q.qType || q.format, q.section);
     const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
     for (const s of annotatedSteps) {
-      if (s.status === 'incorrect' && !s.studentWork?.trim()) {
+      const noWorking = !s.studentWork?.trim();
+      if (s.status === 'incorrect' && (noWorking || questionIsObjective)) {
         if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
           noWorkingNulled[s.mistakeType] += 1;
         }
@@ -857,6 +870,12 @@ function createCheckSolutionRoute(deps) {
         topic: String((q && q.topic) || '').trim(),
         topicLabel: String((q && q.topicLabel) || '').trim(),
         questionText: String((q && q.questionText) || '').trim(),
+        // Objective signal for the honesty guard. The client carries `section`
+        // ("A" for MCQ/AR); `format`/`qType` are kept too so a future poster
+        // (Chapter Test / Full Mock) that sends them is classified the same way.
+        section: String((q && q.section) || '').trim(),
+        format: String((q && q.format) || '').trim(),
+        qType: String((q && q.qType) || '').trim(),
         solutionSteps: Array.isArray(q && q.solutionSteps) ? q.solutionSteps.map(String) : null,
         finalAnswer: q && q.finalAnswer ? String(q.finalAnswer).trim() : null,
       }))

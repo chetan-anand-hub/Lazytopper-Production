@@ -93,6 +93,10 @@ export async function gradeWorksheetAndRecord(
       topic: q.topicLabel,
       topicLabel: q.topicLabel,
       questionText: q.questionText,
+      // Carry the section so the server can deterministically treat a wrong
+      // objective answer (MCQ / AR / Section A) as attempt-only, never a
+      // fabricated mistake type. Additive — no other field changes.
+      section: q.section,
       solutionSteps: q.solutionSteps,
       finalAnswer: q.finalAnswer,
     })),

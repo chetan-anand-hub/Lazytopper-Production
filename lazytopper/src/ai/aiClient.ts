@@ -348,6 +348,10 @@ export interface WorksheetGradeQuestionInput {
   topic?: string;
   topicLabel?: string;
   questionText: string;
+  /** Section letter ("A" for MCQ/AR). Carried so the server honesty guard can
+   *  classify an objective question and never fabricate a mistake type for a bare
+   *  wrong MCQ pick. */
+  section?: string;
   solutionSteps?: string[];
   finalAnswer?: string;
 }
