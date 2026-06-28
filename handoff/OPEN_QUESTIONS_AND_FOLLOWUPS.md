@@ -1,3 +1,15 @@
+## 2026-06-28 — Worksheet no-working honesty ported → D-PROG-2 / step 1 CLOSED MERGED (#302, `c5e148d`) — owner dual live-verified
+
+### ✅ RESOLVED / DELIVERED
+- **Worksheet no-working honesty (#302, `c5e148d`)** — ported #301's fix from `handleCheckSolution` into the SEPARATE worksheet grader `gradeStructuredSet` → `normaliseStructuredResult` (worksheet prompt rule 5 + `noWorkingNulled` guard + `rawAdjusted` reconcile; `handleCheckSolution` byte-identical). Deterministic empty/whitespace/absent no-working → null + 0 buckets + marks preserved; rawSummary leak → 0; worked-wrong keeps type+marks. Codespace vitest 7/7; owner dual live-verified (Maths Mixed Worksheet 16). **Closes step 1 for its designed (subjective no-working) scope.**
+
+### 🔭 NEW FOLLOW-UPS (tracked; none are regressions)
+- **[FU-WORKSHEET-MCQ-OBJECTIVE-GUARD] — the one tracked deterministic gap; MUST land before PR-B.** A wrong MCQ's `studentWork` is the bare option letter "(d)" (NON-EMPTY), so the empty-working guard can't fire; MCQ honesty rides on prompt rule 5 and is **non-deterministic live (~40%: 5 runs = 2 null / 3 conceptual)**. STEP-0 ground truth: the clean objective signal (`section`/`options`, "empty/undefined for subjective") exists on `PredictedQuestion`/`PersistedWorksheetQuestion` but is dropped before the grader — client `worksheetGradeService.ts:90-98` forwards only 7 fields, server `checkSolution.cjs:826-836` keeps only `marks`; `marks===1` correlates (blueprint A=1mk MCQ/AR) but is a fragile heuristic, NOT used. **Fix (decided, option 1):** forward `section`/`format` client→server (frontend + server) then apply the existing `isObjectiveType(qType, section)` helper in `serverUtils.cjs` (no forked classifier) in `normaliseStructuredResult` — "incorrect objective step → mistakeType null, regardless of studentWork." Cofounder-gated; own PR off `c5e148d` with its own STEP 0.
+- **[FU-WORKSHEET-NONATTEMPT-TEXT]** — explicit "don't know" / non-attempt prose is non-empty, so the deterministic guard doesn't fire, and the model tags it "Concept gap" though it's semantically identical to no-working (undiagnosable). Separate small fix; scope TBD (detect explicit non-attempt phrases → treat as undiagnosable).
+- **[FU-WORKSHEET-BANK-ANSWER-POLLUTION]** — ~26 files / ~54 strings of marking-scheme junk in model answers may skew grading. Separate content lane.
+
+---
+
 ## 2026-06-25 — Z3 figure-binding golden slice MERGED (#297, `449d686`) — owner live-verified
 
 ### ✅ RESOLVED / DELIVERED
