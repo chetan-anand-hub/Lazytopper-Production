@@ -589,11 +589,36 @@ function createCheckSolutionRoute(deps) {
         correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
       }));
 
+    // No-working honesty guard (MI integrity) — byte-aligned mirror of
+    // handleCheckSolution: a WRONG step with NO visible working is undiagnosable, so
+    // mistakeType MUST be null even if the model guessed one. ONLY the type is
+    // suppressed — status, marks (awarded/deducted) and every total are untouched.
+    // We tally noWorkingNulled per category so the reconcile below can subtract the
+    // fabricated count from the model's self-reported summary too (otherwise
+    // max(rawSummary, stepFloor) re-introduces it). NOTE: this fires only when
+    // studentWork is empty/whitespace; a wrong MCQ writes the chosen option (e.g.
+    // "(d)") into studentWork (non-empty, confirmed by STEP-0 ground truth), so MCQ
+    // honesty rides on prompt rule 5 above, not this guard — no objective/section
+    // flag reaches this grader to make it deterministic.
+    const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+    for (const s of annotatedSteps) {
+      if (s.status === 'incorrect' && !s.studentWork?.trim()) {
+        if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
+          noWorkingNulled[s.mistakeType] += 1;
+        }
+        s.mistakeType = null;
+      }
+    }
+
     const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
     const capped = Math.min(totalAwarded, totalMarks);
 
     // Additive-floor reconcile (mirror of handleCheckSolution): take the MAX of the
-    // model's self-reported summary and the per-step mistakeType counts.
+    // model's self-reported summary and the per-step mistakeType counts — but first
+    // subtract noWorkingNulled from the raw summary, so a no-working step the model
+    // wrongly tagged is removed from BOTH the floor and the raw summary (mirror of
+    // handleCheckSolution's rawAdjusted; keep stepFloor in the max so legitimately
+    // tagged worked steps are still protected).
     const rawSummary = raw.mistakeSummary || {};
     const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
     for (const s of annotatedSteps) {
@@ -601,11 +626,12 @@ function createCheckSolutionRoute(deps) {
         stepFloor[s.mistakeType] += 1;
       }
     }
+    const rawAdjusted = (cat) => Number(rawSummary[cat] || 0) - noWorkingNulled[cat];
     const mistakeSummary = {
-      conceptual: Math.max(0, Number(rawSummary.conceptual || 0), stepFloor.conceptual),
-      calculation: Math.max(0, Number(rawSummary.calculation || 0), stepFloor.calculation),
-      silly: Math.max(0, Number(rawSummary.silly || 0), stepFloor.silly),
-      presentation: Math.max(0, Number(rawSummary.presentation || 0), stepFloor.presentation),
+      conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
+      calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
+      silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
+      presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
     };
 
     return {
@@ -721,8 +747,9 @@ function createCheckSolutionRoute(deps) {
       '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
       '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
       '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes.\n' +
-      '5. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read.\n' +
-      '6. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).';
+      '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
+      '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read.\n' +
+      '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).';
 
     const jsonSchema =
       'RESPOND with this exact JSON shape:\n' +
