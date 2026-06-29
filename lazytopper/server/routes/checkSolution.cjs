@@ -489,6 +489,11 @@ function createCheckSolutionRoute(deps) {
         temperature: 0.1,
         maxOutputTokens: 400,
         responseMimeType: 'application/json',
+        // gemini-2.5-flash is a thinking model and thinking tokens count against
+        // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
+        // leaving 1-5 tokens for the JSON → truncated → "couldn't read the question".
+        // Disable thinking on this detect-only call (the reasoning sites stay dynamic).
+        thinkingConfig: { thinkingBudget: 0 },
       });
       const parsed = extractJsonObjectFromText(reply.text);
       if (!parsed) {
