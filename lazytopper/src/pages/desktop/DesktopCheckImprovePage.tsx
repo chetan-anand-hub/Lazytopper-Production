@@ -3,9 +3,13 @@ import { useNavigate } from "react-router-dom";
 import {
   checkSolutionImage,
   detectQuestion,
+  gradeWorksheet,
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
   type MistakeType,
+  type DetectedQuestion,
+  type WorksheetGradeResponse,
+  type WorksheetQuestionGrade,
 } from "../../ai/aiClient";
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
@@ -150,6 +154,52 @@ interface GradedContext {
   marksSource: "stated" | "inferred" | "fallback" | "user" | null;
   /** Non-null only when the student corrected the AI's detection. */
   detectionOverride: DetectionOverrideLog | null;
+}
+
+/* ──────────── multi-question (Check & Improve) helpers ──────────── */
+
+// Device-local sequence for the CI session code — a flat count of prior C&I
+// multi-question sessions (PR-B makes this durable + cross-device).
+const CI_MULTI_SEQ_KEY = "lt:ci-multi-seq";
+function nextCiMultiSequence(): number {
+  try {
+    const n = parseInt(localStorage.getItem(CI_MULTI_SEQ_KEY) || "0", 10);
+    const next = (Number.isFinite(n) && n > 0 ? n : 0) + 1;
+    localStorage.setItem(CI_MULTI_SEQ_KEY, String(next));
+    return next;
+  } catch {
+    return 1;
+  }
+}
+
+// Short topic token for the code: first four letters of the canonical slug, or
+// MIX when no single topic resolved (CI-{S}-{TOPIC}-{NN}, e.g. CI-M-POLY-01).
+function ciTopicToken(slug: string): string {
+  const t = String(slug || "").replace(/[^a-z]/gi, "").slice(0, 4).toUpperCase();
+  return t || "MIX";
+}
+
+// Build the session code ONCE per multi-question session (the sequence increments
+// here), then reuse it for the result header AND the stable MI question ids so a
+// re-grade of the same session is deduped.
+function buildCiSessionCode(subject: string, topicSlug: string): string {
+  const s = /sci/i.test(String(subject || "")) ? "S" : "M";
+  return `CI-${s}-${ciTopicToken(topicSlug)}-${String(nextCiMultiSequence()).padStart(2, "0")}`;
+}
+
+// Adapt one legible per-question grade into the CheckSolutionResponse shape the
+// MI front door consumes — the SAME shape single-question Check & Improve feeds
+// it, so routing + dedup behave identically (mirror of worksheetGradeService).
+function multiQuestionToCsr(g: WorksheetQuestionGrade): CheckSolutionResponse {
+  return {
+    ok: true,
+    totalMarks: Number(g.totalMarks) || 0,
+    marksAwarded: Number(g.marksAwarded) || 0,
+    percentage: Number(g.percentage) || 0,
+    annotatedSteps: g.annotatedSteps ?? [],
+    mistakeSummary: g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    teacherNote: g.teacherNote ?? "",
+  };
 }
 
 /* ────────────────── inline SVG glyphs ────────────────── */
@@ -619,12 +669,27 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [resultCtx, setResultCtx] = useState<GradedContext | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
+  // ── multi-question detect (additive; single-question path untouched) ──
+  // Every question read from the upload. `length > 1` switches the UI to the
+  // multi-question grade path (grade ALL via the worksheet structured grader).
+  const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+  // The whole-paper grade result + its session code (CI-{S}-{TOPIC}-{NN}).
+  const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
+  const [ciCode, setCiCode] = useState<string | null>(null);
+
   const hasQuestion =
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
+  // Two or more questions were read from the upload → grade the whole paper.
+  const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
   // Grade only after the question has been read + confirmed AND an answer exists.
-  const canGrade = Boolean(confirmed) && hasAnswer && status !== "loading";
+  // Multi-question grading REQUIRES an uploaded answer sheet (image or PDF) — the
+  // whole-paper grader reads the answers from that one upload.
+  const canGrade =
+    Boolean(confirmed) &&
+    (isMultiQuestion ? Boolean(imageBase64) : hasAnswer) &&
+    status !== "loading";
 
   function handleFileChosen(file: File) {
     const reader = new FileReader();
@@ -673,6 +738,11 @@ const DesktopCheckImprovePage: React.FC = () => {
     setConfirmed(null);
     setEditing(false);
     setDetectError(null);
+    // A NEW question read starts a fresh session — drop the prior multi-question
+    // detection, its grade, and its code (the next grade gets a new CI sequence).
+    setDetectedQuestions(null);
+    setWsResult(null);
+    setCiCode(null);
   }
 
   // Read the question ALONE (one deliberate, cheap call) → show the detected chip.
@@ -699,6 +769,9 @@ const DesktopCheckImprovePage: React.FC = () => {
       setDetected(cd);
       setConfirmed(cd);
       setEditing(false);
+      // Multi-question: keep every detected question. A single-item (or absent)
+      // array leaves the existing single-question flow exactly as before.
+      setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
     } catch {
       setDetectError("We couldn't read the question — please try again.");
     } finally {
@@ -739,6 +812,10 @@ const DesktopCheckImprovePage: React.FC = () => {
     setResult(null);
     setResultCtx(null);
     setSaveStatus("idle");
+    // Drop the multi-question grade but KEEP ciCode/detectedQuestions so a re-grade
+    // of the SAME session reuses the same code + stable MI ids (dedup). A brand-new
+    // question (clearDetection) is what resets the code.
+    setWsResult(null);
   }
 
   async function persistMistakeLog(
@@ -781,8 +858,92 @@ const DesktopCheckImprovePage: React.FC = () => {
     }
   }
 
+  // Multi-question grade: grade the WHOLE detected paper in one structured call
+  // (the surface-agnostic worksheet grader), then fan each legible result through
+  // Mistake Intelligence exactly as the worksheet grade loop does.
+  async function gradeMultiQuestion() {
+    if (!confirmed || !detectedQuestions || !imageBase64) return;
+    setErrorMessage(null);
+    setStatus("loading");
+    setSaveStatus("idle");
+
+    // One code per session; reuse it if this session was already graded once so a
+    // re-grade reuses the same stable MI ids (dedup) instead of double-counting.
+    const sessionCode = ciCode ?? buildCiSessionCode(confirmed.subject, confirmed.topicSlug);
+    if (!ciCode) setCiCode(sessionCode);
+
+    try {
+      const response = await gradeWorksheet({
+        worksheetId: `ci:${sessionCode}`,
+        subject: confirmed.subject,
+        questions: detectedQuestions.map((q) => ({
+          qNumber: q.questionNumber,
+          marks: q.marks,
+          topic: confirmed.topicName || undefined,
+          topicLabel: confirmed.topicName || undefined,
+          questionText: q.questionText,
+        })),
+        imageBase64,
+        imageMimeType: imageMime,
+      });
+      if (!response || response.ok === false) {
+        setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
+        setStatus("error");
+        return;
+      }
+
+      setWsResult(response);
+      setStatus("ready");
+      setSaveStatus("saving");
+
+      // MI parity with the worksheet loop: every LEGIBLE per-question grade feeds
+      // the SINGLE front door (recordMistake) + its score twin (recordAttempt) on a
+      // stable, session-scoped id. couldNotRead (pending) is skipped — never a 0,
+      // never a fabricated mistake.
+      let anyRecorded = false;
+      for (const g of response.results) {
+        if (g.couldNotRead) continue;
+        const csr = multiQuestionToCsr(g);
+        const questionId = `ci:${sessionCode}:q${g.qNumber}`;
+        const qText =
+          detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
+          `${sessionCode} · Q${g.qNumber}`;
+        // eslint-disable-next-line no-await-in-loop
+        const rec = await recordMistake(user, csr, {
+          subject: confirmed.subject,
+          topic: confirmed.topicName,
+          topicKey: confirmed.topicSlug,
+          question: qText,
+          questionId,
+        });
+        recordAttempt(user, {
+          subject: confirmed.subject,
+          topic: confirmed.topicName,
+          topicKey: confirmed.topicSlug,
+          question: qText,
+          questionId,
+          marksScored: csr.marksAwarded,
+          marksAvailable: csr.totalMarks,
+          mode: "graded",
+        });
+        if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
+          anyRecorded = true;
+        }
+      }
+      setSaveStatus(anyRecorded ? "saved" : "no-user");
+    } catch {
+      setErrorMessage("Grading unavailable — please try again.");
+      setStatus("error");
+    }
+  }
+
   async function handleGrade() {
     if (!canGrade || !confirmed) return;
+    // Multi-question paper → grade the whole set via the structured grader.
+    if (isMultiQuestion) {
+      void gradeMultiQuestion();
+      return;
+    }
     setErrorMessage(null);
     setStatus("loading");
     setSaveStatus("idle");
@@ -921,7 +1082,7 @@ const DesktopCheckImprovePage: React.FC = () => {
 
   /* ────────────────── INPUT VIEW ────────────────── */
 
-  if (status !== "ready" || !result || !resultCtx) {
+  if (status !== "ready" || (!wsResult && (!result || !resultCtx))) {
     return (
       <div
         style={{
@@ -968,7 +1129,7 @@ const DesktopCheckImprovePage: React.FC = () => {
                         fontFamily: FONT_SANS, fontWeight: 600, fontSize: 12.5, cursor: "pointer",
                       }}
                     >
-                      {t === "type" ? "Type / paste" : "Photo of the question"}
+                      {t === "type" ? "Type / paste" : "Upload question(s)"}
                     </button>
                   );
                 })}
@@ -995,10 +1156,10 @@ const DesktopCheckImprovePage: React.FC = () => {
                     }}
                   />
                   <button type="button" style={buttonOutline} onClick={() => qFileInputRef.current?.click()}>
-                    {qImageName ? `Question photo: ${qImageName}` : "Choose a photo of the question"}
+                    {qImageName ? `Question file: ${qImageName}` : "Upload question paper (image or PDF)"}
                   </button>
                   <div style={{ fontSize: 12, color: TEXT_MUTED }}>
-                    A clear photo lets us read the printed marks (e.g. “[3]”) straight off the page.
+                    Upload a photo or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.
                   </div>
                 </div>
               )}
@@ -1020,8 +1181,30 @@ const DesktopCheckImprovePage: React.FC = () => {
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{detectError}</div>
               )}
 
+              {/* Multi-question summary chip — N questions detected; grade the whole
+                  paper. Replaces the single-question correctable chip in this mode. */}
+              {confirmed && isMultiQuestion && detectedQuestions && (
+                <div
+                  style={{
+                    background: MUTED_BG,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 10,
+                    padding: "12px 14px",
+                    fontSize: 13,
+                    color: TEXT_FG,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <strong>{detectedQuestions.length} questions detected</strong> · {confirmed.subject}
+                  {confirmed.topicName ? ` · ${confirmed.topicName}` : ""}
+                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
+                    Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
+                  </div>
+                </div>
+              )}
+
               {/* Confirmation chip — the detected values, always visible + correctable */}
-              {confirmed && (
+              {confirmed && !isMultiQuestion && (
                 <div
                   style={{
                     background: MUTED_BG,
@@ -1170,7 +1353,9 @@ const DesktopCheckImprovePage: React.FC = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    /* Multi-question answers are a whole sheet — accept a PDF too;
+                       single-question stays image-only (byte-identical). */
+                    accept={isMultiQuestion ? "image/*,application/pdf" : "image/*"}
                     style={{ display: "none" }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
@@ -1403,7 +1588,142 @@ const DesktopCheckImprovePage: React.FC = () => {
     );
   }
 
+  /* ──────────── MULTI-QUESTION RESULT VIEW (whole paper) ──────────── */
+
+  if (wsResult) {
+    const ws = wsResult;
+    return (
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: isNarrow ? "20px 16px 56px" : "32px 32px 64px",
+          fontFamily: FONT_SANS,
+          minWidth: 0,
+        }}
+      >
+        <PageHeader
+          isNarrow={isNarrow}
+          showBack
+          onBack={resetToInput}
+          eyebrow="Check & Improve · Graded paper"
+          title={`${ciCode ?? "Graded paper"} · ${ws.gradedCount}/${ws.totalQuestions} graded`}
+          description="Examiner-style grading of your whole question paper. Any page we couldn't read is marked pending — it is never scored 0."
+          actions={
+            <>
+              <button type="button" style={buttonOutline} onClick={resetToInput}>
+                Grade another
+              </button>
+              <button type="button" style={buttonAccent} onClick={gotoMe}>
+                See your progress <ChevronRightGlyph />
+              </button>
+            </>
+          }
+        />
+
+        {/* Honest totals — the graded subtotal excludes pending pages. */}
+        <div style={{ ...cardStyle, padding: 24, marginTop: 20 }}>
+          <div style={sectionEyebrow}>Score (graded questions)</div>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: 36,
+              fontWeight: 700,
+              color: TEXT_FG,
+              lineHeight: 1.1,
+              marginTop: 6,
+            }}
+          >
+            {ws.gradedMarksAwarded}
+            <span style={{ fontSize: 18, color: TEXT_MUTED, fontWeight: 500 }}>
+              /{ws.gradedMarksTotal}
+            </span>
+          </div>
+          {ws.pendingCount > 0 && (
+            <div style={{ fontSize: 12.5, color: WARNING_FG, marginTop: 8 }}>
+              {ws.pendingCount} page{ws.pendingCount === 1 ? "" : "s"} couldn&rsquo;t be read — re-upload
+              {ws.pendingCount === 1 ? " it" : " them"} to grade. Not scored 0.
+            </div>
+          )}
+          {ws.summary && (
+            <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
+              {ws.summary}
+            </p>
+          )}
+        </div>
+
+        {/* Per-question list — marks + honest pending + mistake grouping. */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
+          {ws.results.map((g) => {
+            const m = g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+            const knowledge = m.conceptual + m.calculation;
+            const careless = m.silly + m.presentation;
+            return (
+              <div key={g.qNumber} style={{ ...cardStyle, padding: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 700, color: TEXT_FG }}>
+                    Q{g.qNumber}
+                  </div>
+                  {g.couldNotRead ? (
+                    <span style={{ ...chipBase, color: WARNING_FG }}>
+                      Couldn&rsquo;t read — re-upload this page
+                    </span>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      {knowledge > 0 && (
+                        <span style={{ ...chipBase, color: DANGER_FG }}>Knowledge gap ×{knowledge}</span>
+                      )}
+                      {careless > 0 && (
+                        <span style={{ ...chipBase, color: WARNING_FG }}>Careless ×{careless}</span>
+                      )}
+                      <span
+                        style={{
+                          fontFamily: FONT_DISPLAY,
+                          fontWeight: 700,
+                          fontSize: 16,
+                          color: TEXT_FG,
+                        }}
+                      >
+                        {g.marksAwarded}
+                        <span style={{ fontSize: 13, color: TEXT_MUTED, fontWeight: 500 }}>
+                          /{g.totalMarks}
+                        </span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {!g.couldNotRead && g.teacherNote && (
+                  <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_MUTED, lineHeight: 1.55 }}>
+                    {g.teacherNote}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {saveStatus === "no-user" && (
+          <div style={{ fontSize: 12.5, color: TEXT_MUTED, marginTop: 14 }}>
+            Sign in to save these mistakes to your progress.
+          </div>
+        )}
+      </div>
+    );
+  }
+
   /* ────────────────── RESULT VIEW ────────────────── */
+
+  // Defensive: the gate above guarantees result+resultCtx here (wsResult already
+  // returned), but the compound condition no longer narrows them for the compiler.
+  if (!result || !resultCtx) return null;
 
   const totalMarks = result.totalMarks;
   const marksAwarded = result.marksAwarded;

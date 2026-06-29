@@ -170,12 +170,79 @@ describe("detect-question call site sends thinkingBudget:0", () => {
 
     expect(capturedConfig).not.toBeNull();
     expect(capturedConfig.thinkingConfig).toEqual({ thinkingBudget: 0 });
-    // The rest of the detect config is untouched.
+    // The rest of the detect config is untouched, EXCEPT maxOutputTokens which was
+    // raised (400 → 2048) so multi-question detect can return every question's full
+    // text without truncating (thinking is off, so the whole budget is the JSON).
     expect(capturedConfig.temperature).toBe(0.1);
-    expect(capturedConfig.maxOutputTokens).toBe(400);
+    expect(capturedConfig.maxOutputTokens).toBe(2048);
     expect(capturedConfig.responseMimeType).toBe("application/json");
     // Route still responded ok.
     expect(captured?.status).toBe(200);
     expect(captured?.body.ok).toBe(true);
+  });
+});
+
+describe("detect-question returns a multi-question array (additive)", () => {
+  function buildDetectRoute(modelJson: unknown) {
+    let capturedPrompt = "";
+    let captured: { status: number; body: any } | null = null;
+    const deps = {
+      sendJson: (_res: unknown, status: number, body: any) => {
+        captured = { status, body };
+      },
+      readJson: async (req: unknown) => req,
+      callGemini: async (_model: unknown, contents: any) => {
+        capturedPrompt = String(contents?.[0]?.parts?.[0]?.text || "");
+        return { text: JSON.stringify(modelJson), raw: {} };
+      },
+      GEMINI_MODEL: "test-model",
+      ACTIVE_PROVIDER: "test",
+      isStubMode: () => false,
+      extractJsonObjectFromText: (t: string) => JSON.parse(t),
+      buildGeminiImagePart: () => ({}),
+      validateMentorImagePayload: () => ({ ok: true }),
+    };
+    const { handleDetectQuestion } = createCheckSolutionRoute(deps as never);
+    return {
+      run: async (payload: unknown) => {
+        await handleDetectQuestion(payload as never, {} as never);
+        return { prompt: capturedPrompt, captured };
+      },
+    };
+  }
+
+  it("(d) the detect prompt instructs the multi-question array + the RESPOND schema includes \"questions\"", async () => {
+    const route = buildDetectRoute({ detectedMarks: 2, detectedSubject: "Maths", detectedTopic: null, questions: [] });
+    const { prompt } = await route.run({ question: "Q1 …" });
+    expect(prompt).toContain("MULTIPLE questions");
+    expect(prompt).toContain('"questions"');
+    expect(prompt).toContain('"questionNumber"');
+    expect(prompt).toContain('"questionText"');
+  });
+
+  it("(e) a multi-question model reply is normalised + returned (marks clamped, textless dropped); single-question read still works", async () => {
+    const route = buildDetectRoute({
+      detectedMarks: 3,
+      detectedSubject: "Maths",
+      detectedTopic: null,
+      marksSource: "stated",
+      questions: [
+        { questionNumber: 1, questionText: "Find the HCF of 6 and 20.", marks: 2, marksSource: "stated" },
+        { questionNumber: 2, questionText: "Solve x^2 - 7x + 12 = 0.", marks: 99, marksSource: "inferred" }, // out-of-range → clamps to detectedMarks
+        { questionNumber: 3, questionText: "   ", marks: 3, marksSource: "inferred" }, // blank → dropped
+      ],
+    });
+    const { captured } = await route.run({ question: "paper" });
+    expect(captured?.status).toBe(200);
+    expect(captured?.body.ok).toBe(true);
+    const qs = captured?.body.questions;
+    expect(Array.isArray(qs)).toBe(true);
+    expect(qs).toHaveLength(2); // blank dropped
+    expect(qs[0]).toMatchObject({ questionNumber: 1, marks: 2, marksSource: "stated" });
+    expect(qs[0].questionText).toBe("Find the HCF of 6 and 20.");
+    expect(qs[1].marks).toBe(3); // out-of-range fell back to detectedMarks
+    // Backward-compatible single-question fields are still present.
+    expect(captured?.body.detectedMarks).toBe(3);
+    expect(captured?.body.detectedSubject).toBe("Maths");
   });
 });
