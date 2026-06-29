@@ -314,12 +314,26 @@ export async function checkSolutionImage(req: {
 /** Detect-then-confirm (Claim 2 UX): read marks/subject/topic from the QUESTION
  *  alone (text or an uploaded photo), before the student commits an answer. A
  *  focused, cheap call — no grading. The grade then runs on the confirmed values. */
+/** One detected question from a (possibly multi-question) upload. Additive — the
+ *  single-question Check & Improve flow ignores this and reads the top-level
+ *  detected* fields; the multi-question flow grades the whole array via
+ *  `gradeWorksheet`. */
+export interface DetectedQuestion {
+  questionNumber: number;
+  questionText: string;
+  marks: number;
+  marksSource: "stated" | "inferred";
+}
+
 export interface DetectQuestionResponse {
   ok: boolean;
   detectedMarks?: number;
   detectedSubject?: "Maths" | "Science" | null;
   detectedTopic?: string | null;
   marksSource?: CheckSolutionMarksSource | null;
+  /** Every question read from the upload. A single-question read yields a
+   *  single-item array; `length > 1` drives the multi-question grade path. */
+  questions?: DetectedQuestion[];
   error?: string;
 }
 

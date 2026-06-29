@@ -4,8 +4,12 @@ import MobileShell from "../../components/mobile/MobileShell";
 import {
   checkSolutionImage,
   detectQuestion,
+  gradeWorksheet,
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
+  type DetectedQuestion,
+  type WorksheetGradeResponse,
+  type WorksheetQuestionGrade,
 } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake } from "../../services/mistakeIntelligence";
@@ -35,6 +39,41 @@ const CANONICAL_TOPIC_VOCAB = [
 
 type View = "upload" | "graded";
 type Tab  = "upload" | "type";
+
+/* ──────────── multi-question (Check & Improve) helpers ──────────── */
+// Mirror of the desktop helpers (kept inline — this PR is scoped to exactly these
+// page files + the detect test, so no shared module is added).
+
+const CI_MULTI_SEQ_KEY = "lt:ci-multi-seq";
+function nextCiMultiSequence(): number {
+  try {
+    const n = parseInt(localStorage.getItem(CI_MULTI_SEQ_KEY) || "0", 10);
+    const next = (Number.isFinite(n) && n > 0 ? n : 0) + 1;
+    localStorage.setItem(CI_MULTI_SEQ_KEY, String(next));
+    return next;
+  } catch {
+    return 1;
+  }
+}
+function ciTopicToken(slug: string): string {
+  const t = String(slug || "").replace(/[^a-z]/gi, "").slice(0, 4).toUpperCase();
+  return t || "MIX";
+}
+function buildCiSessionCode(subject: string, topicSlug: string): string {
+  const s = /sci/i.test(String(subject || "")) ? "S" : "M";
+  return `CI-${s}-${ciTopicToken(topicSlug)}-${String(nextCiMultiSequence()).padStart(2, "0")}`;
+}
+function multiQuestionToCsr(g: WorksheetQuestionGrade): CheckSolutionResponse {
+  return {
+    ok: true,
+    totalMarks: Number(g.totalMarks) || 0,
+    marksAwarded: Number(g.marksAwarded) || 0,
+    percentage: Number(g.percentage) || 0,
+    annotatedSteps: g.annotatedSteps ?? [],
+    mistakeSummary: g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    teacherNote: g.teacherNote ?? "",
+  };
+}
 
 function detectionSourceLabel(
   source: "stated" | "inferred" | "fallback" | "user" | null,
@@ -77,9 +116,16 @@ export default function CheckImprove() {
   const [gradeError, setGradeError]   = useState<string | null>(null);
   const [saved, setSaved]             = useState<"idle" | "saved" | "no-user">("idle");
 
+  // ── multi-question detect (additive; single-question path untouched) ──
+  const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+  const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
+  const [ciCode, setCiCode]     = useState<string | null>(null);
+
   const hasContent = tab === "upload" ? fileLoaded : textAnswer.trim().length > 10;
   const hasQuestion = questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
-  const canGrade   = Boolean(confirmed) && hasContent;
+  const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
+  // Multi-question grading requires an uploaded answer sheet (image or PDF).
+  const canGrade   = Boolean(confirmed) && (isMultiQuestion ? fileLoaded : hasContent);
 
   function handleFileChange(file: File) {
     const reader = new FileReader();
@@ -99,6 +145,10 @@ export default function CheckImprove() {
     setConfirmed(null);
     setEditing(false);
     setDetectError(null);
+    // A new question read starts a fresh session (new CI sequence on next grade).
+    setDetectedQuestions(null);
+    setWsResult(null);
+    setCiCode(null);
   }
 
   function handleQuestionFile(file: File) {
@@ -138,6 +188,7 @@ export default function CheckImprove() {
       setDetected(cd);
       setConfirmed(cd);
       setEditing(false);
+      setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
     } catch {
       setDetectError("We couldn't read the question — please try again.");
     } finally {
@@ -168,8 +219,83 @@ export default function CheckImprove() {
     setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
   }
 
+  // Multi-question grade: grade the WHOLE detected paper in one structured call,
+  // then fan each legible result through Mistake Intelligence (worksheet parity).
+  async function gradeMultiQuestion() {
+    if (!confirmed || !detectedQuestions || !fileBase64) return;
+    setGradeError(null);
+    setSaved("idle");
+    setGrading(true);
+
+    const sessionCode = ciCode ?? buildCiSessionCode(confirmed.subject, confirmed.topicSlug);
+    if (!ciCode) setCiCode(sessionCode);
+
+    try {
+      const response = await gradeWorksheet({
+        worksheetId: `ci:${sessionCode}`,
+        subject: confirmed.subject,
+        questions: detectedQuestions.map((q) => ({
+          qNumber: q.questionNumber,
+          marks: q.marks,
+          topic: confirmed.topicName || undefined,
+          topicLabel: confirmed.topicName || undefined,
+          questionText: q.questionText,
+        })),
+        imageBase64: fileBase64,
+        imageMimeType: fileMime,
+      });
+      if (!response || response.ok === false) {
+        setGradeError("Grading unavailable — please try a clearer scan, or try again.");
+        return;
+      }
+
+      setWsResult(response);
+      setView("graded");
+
+      let anyRecorded = false;
+      for (const g of response.results) {
+        if (g.couldNotRead) continue;
+        const csr = multiQuestionToCsr(g);
+        const questionId = `ci:${sessionCode}:q${g.qNumber}`;
+        const qText =
+          detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
+          `${sessionCode} · Q${g.qNumber}`;
+        // eslint-disable-next-line no-await-in-loop
+        const rec = await recordMistake(user, csr, {
+          subject: confirmed.subject,
+          topic: confirmed.topicName,
+          topicKey: confirmed.topicSlug,
+          question: qText,
+          questionId,
+        });
+        recordAttempt(user, {
+          subject: confirmed.subject,
+          topic: confirmed.topicName,
+          topicKey: confirmed.topicSlug,
+          question: qText,
+          questionId,
+          marksScored: csr.marksAwarded,
+          marksAvailable: csr.totalMarks,
+          mode: "graded",
+        });
+        if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
+          anyRecorded = true;
+        }
+      }
+      setSaved(anyRecorded ? "saved" : "no-user");
+    } catch {
+      setGradeError("Grading unavailable — please try again.");
+    } finally {
+      setGrading(false);
+    }
+  }
+
   async function handleGrade() {
     if (!confirmed) return;
+    if (isMultiQuestion) {
+      void gradeMultiQuestion();
+      return;
+    }
     setGradeError(null);
     setSaved("idle");
     setGrading(true);
@@ -258,6 +384,72 @@ export default function CheckImprove() {
     }
   }
 
+  // Multi-question (whole-paper) result — compact per-question list + CI code.
+  if (wsResult) {
+    const ws = wsResult;
+    return (
+      <MobileShell title="Check & Improve" subtitle="Graded paper" showNav>
+        <div style={{ paddingBottom: 120, display: "flex", flexDirection: "column", gap: 12 }}>
+          <button
+            onClick={() => { setView("upload"); setWsResult(null); }}
+            style={{ alignSelf: "flex-start", background: "none", border: "none", padding: 0, color: "var(--mob-fg-muted)", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer" }}
+          >
+            ← Grade another
+          </button>
+
+          <div className="card-soft" style={{ padding: "14px 16px" }}>
+            <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              {ciCode ?? "Graded paper"} · {ws.gradedCount}/{ws.totalQuestions} graded
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.6rem", color: "var(--mob-fg)", marginTop: 4 }}>
+              {ws.gradedMarksAwarded}
+              <span style={{ fontSize: "0.95rem", color: "var(--mob-fg-muted)", fontWeight: 500 }}>/{ws.gradedMarksTotal}</span>
+            </div>
+            {ws.pendingCount > 0 && (
+              <div style={{ fontSize: "0.72rem", color: "var(--mob-warning, #b45309)", marginTop: 6, lineHeight: 1.5 }}>
+                {ws.pendingCount} page{ws.pendingCount === 1 ? "" : "s"} couldn&rsquo;t be read — re-upload to grade. Not scored 0.
+              </div>
+            )}
+            {ws.summary && (
+              <p style={{ margin: "8px 0 0", fontSize: "0.78rem", color: "var(--mob-fg)", lineHeight: 1.55 }}>{ws.summary}</p>
+            )}
+          </div>
+
+          {ws.results.map((g) => {
+            const m = g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+            const knowledge = m.conceptual + m.calculation;
+            const careless = m.silly + m.presentation;
+            return (
+              <div key={g.qNumber} className="card-soft" style={{ padding: "12px 14px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontWeight: 700, fontSize: "0.86rem", color: "var(--mob-fg)" }}>Q{g.qNumber}</span>
+                  {g.couldNotRead ? (
+                    <span style={{ fontSize: "0.72rem", color: "var(--mob-warning, #b45309)" }}>Couldn&rsquo;t read — re-upload</span>
+                  ) : (
+                    <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      {knowledge > 0 && <span style={{ fontSize: "0.68rem", color: "var(--mob-danger, #dc2626)", fontWeight: 600 }}>Knowledge gap ×{knowledge}</span>}
+                      {careless > 0 && <span style={{ fontSize: "0.68rem", color: "var(--mob-warning, #b45309)", fontWeight: 600 }}>Careless ×{careless}</span>}
+                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.95rem", color: "var(--mob-fg)" }}>
+                        {g.marksAwarded}<span style={{ fontSize: "0.78rem", color: "var(--mob-fg-muted)", fontWeight: 500 }}>/{g.totalMarks}</span>
+                      </span>
+                    </span>
+                  )}
+                </div>
+                {!g.couldNotRead && g.teacherNote && (
+                  <p style={{ margin: "8px 0 0", fontSize: "0.74rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>{g.teacherNote}</p>
+                )}
+              </div>
+            );
+          })}
+
+          {saved === "no-user" && (
+            <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)" }}>Sign in to save these mistakes to your progress.</div>
+          )}
+        </div>
+      </MobileShell>
+    );
+  }
+
   if (view === "graded" && gradeResult) {
     return (
       <GradedResult
@@ -326,7 +518,9 @@ export default function CheckImprove() {
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              /* Multi-question answers are a whole sheet — accept a PDF too;
+                 single-question stays image-only (byte-identical). */
+              accept={isMultiQuestion ? "image/*,application/pdf" : "image/*"}
               style={{ display: "none" }}
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -447,7 +641,7 @@ export default function CheckImprove() {
                   fontWeight: 600, fontSize: "0.78rem", cursor: "pointer",
                 }}
               >
-                {t === "type" ? "Type / paste" : "Photo of question"}
+                {t === "type" ? "Type / paste" : "Upload question(s)"}
               </button>
             ))}
           </div>
@@ -484,10 +678,10 @@ export default function CheckImprove() {
                   padding: "8px 12px", cursor: "pointer",
                 }}
               >
-                {qImageName ? `Question photo: ${qImageName}` : "Choose a photo of the question"}
+                {qImageName ? `Question file: ${qImageName}` : "Upload question paper (image or PDF)"}
               </button>
               <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
-                A clear photo lets us read the printed marks (e.g. “[3]”) off the page.
+                Upload a photo or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.
               </div>
             </>
           )}
@@ -509,7 +703,22 @@ export default function CheckImprove() {
             <div style={{ fontSize: "0.78rem", color: "var(--mob-danger, #d4351c)" }}>{detectError}</div>
           )}
 
-          {confirmed && (
+          {confirmed && isMultiQuestion && detectedQuestions && (
+            <div
+              style={{
+                background: "var(--mob-muted)", border: `1px solid var(--mob-card-border)`,
+                borderRadius: 10, padding: "10px 12px", fontSize: "0.82rem", color: "var(--mob-fg)", lineHeight: 1.5,
+              }}
+            >
+              <strong>{detectedQuestions.length} questions detected</strong> · {confirmed.subject}
+              {confirmed.topicName ? ` · ${confirmed.topicName}` : ""}
+              <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", marginTop: 4 }}>
+                Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
+              </div>
+            </div>
+          )}
+
+          {confirmed && !isMultiQuestion && (
             <div
               style={{
                 background: "var(--mob-muted)", border: `1px solid var(--mob-card-border)`,

@@ -457,6 +457,11 @@ function createCheckSolutionRoute(deps) {
         detectedSubject: 'Maths',
         detectedTopic: null,
         marksSource: 'inferred',
+        // Single-item array so the client's questions[] shape is consistent in
+        // dev/stub mode too (a single question → existing single-question flow).
+        questions: [
+          { questionNumber: 1, questionText: question || 'Sample question', marks: 3, marksSource: 'inferred' },
+        ],
       });
     }
 
@@ -478,9 +483,10 @@ function createCheckSolutionRoute(deps) {
       '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
+      '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, and marks (apply the SAME stated-vs-inferred rule per question). If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic to the FIRST question\'s values for backward compatibility.\n' +
       topicListBlock +
       '\nRESPOND with this exact JSON:\n' +
-      '{ "detectedMarks": <number>, "marksSource": "stated" | "inferred", "detectedSubject": "Maths" | "Science", "detectedTopic": "<canonical key or null>" }';
+      '{ "detectedMarks": <number>, "marksSource": "stated" | "inferred", "detectedSubject": "Maths" | "Science", "detectedTopic": "<canonical key or null>", "questions": [ { "questionNumber": <number>, "questionText": "<full question text as printed>", "marks": <number>, "marksSource": "stated" | "inferred" } ] }';
 
     try {
       const parts = hasImage
@@ -488,7 +494,12 @@ function createCheckSolutionRoute(deps) {
         : [{ text: prompt }];
       const reply = await callGemini(GEMINI_MODEL, [{ role: 'user', parts }], {
         temperature: 0.1,
-        maxOutputTokens: 400,
+        // Multi-question detect returns the FULL text of every question in the
+        // upload, so the JSON can be far larger than a single-question read. With
+        // thinking disabled (below) the whole budget is available for that JSON;
+        // 2048 comfortably holds a multi-question paper. (A single-question read
+        // still returns the same small JSON — the cap is only an upper bound.)
+        maxOutputTokens: 2048,
         responseMimeType: 'application/json',
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
@@ -526,12 +537,36 @@ function createCheckSolutionRoute(deps) {
           ? String(dt).trim()
           : null;
 
+      // Multi-question array (additive). Each entry is normalised the SAME way the
+      // single-question detectedMarks is: marks clamped to the CBSE 1–6 range
+      // (falling back to the top-level detectedMarks when the model omits/garbles a
+      // per-question value), marksSource limited to stated/inferred, and the text
+      // trimmed. Entries without readable text are dropped (never fabricated). The
+      // existing single-question fields above are UNCHANGED — a single-question read
+      // simply yields a single-item array and the client's existing flow is untouched.
+      const rawQuestions = Array.isArray(parsed.questions) ? parsed.questions : [];
+      const questions = rawQuestions
+        .map((q, i) => {
+          const text = String((q && q.questionText) || '').trim();
+          const qm = Number(q && q.marks);
+          const marks = Number.isFinite(qm) && qm >= 1 && qm <= 6 ? Math.round(qm) : detectedMarks;
+          const qn = Number(q && q.questionNumber);
+          return {
+            questionNumber: Number.isFinite(qn) && qn >= 1 ? Math.round(qn) : i + 1,
+            questionText: text,
+            marks,
+            marksSource: q && q.marksSource === 'stated' ? 'stated' : 'inferred',
+          };
+        })
+        .filter((q) => q.questionText.length > 0);
+
       return sendJson(res, 200, {
         ok: true,
         detectedMarks,
         detectedSubject,
         detectedTopic,
         marksSource,
+        questions,
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
       });
