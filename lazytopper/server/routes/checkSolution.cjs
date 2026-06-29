@@ -483,10 +483,13 @@ function createCheckSolutionRoute(deps) {
       '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
-      '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, and marks (apply the SAME stated-vs-inferred rule per question). If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic to the FIRST question\'s values for backward compatibility.\n' +
       topicListBlock +
+      // The multi-question instruction is placed LAST (after the topic list, right
+      // before RESPOND) so the model reads it most recently — recency keeps it from
+      // stopping after the first question on a multi-question paper.
+      '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, and marks (apply the SAME stated-vs-inferred rule per question). List EVERY question you find — do not stop after the first. If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic to the FIRST question\'s values for backward compatibility.\n' +
       '\nRESPOND with this exact JSON:\n' +
-      '{ "detectedMarks": <number>, "marksSource": "stated" | "inferred", "detectedSubject": "Maths" | "Science", "detectedTopic": "<canonical key or null>", "questions": [ { "questionNumber": <number>, "questionText": "<full question text as printed>", "marks": <number>, "marksSource": "stated" | "inferred" } ] }';
+      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred" }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred" }, ... one object per question found ] }';
 
     try {
       const parts = hasImage
@@ -497,9 +500,11 @@ function createCheckSolutionRoute(deps) {
         // Multi-question detect returns the FULL text of every question in the
         // upload, so the JSON can be far larger than a single-question read. With
         // thinking disabled (below) the whole budget is available for that JSON;
-        // 2048 comfortably holds a multi-question paper. (A single-question read
-        // still returns the same small JSON — the cap is only an upper bound.)
-        maxOutputTokens: 2048,
+        // 4096 gives safe headroom for a full paper whose later questions are
+        // 5-mark long-answers with lengthy text (2048 could clip Q4/Q5). (A
+        // single-question read returns the same small JSON — the cap is only an
+        // upper bound.)
+        maxOutputTokens: 4096,
         responseMimeType: 'application/json',
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
