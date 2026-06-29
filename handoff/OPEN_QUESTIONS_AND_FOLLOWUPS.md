@@ -1,3 +1,14 @@
+## 2026-06-29 — Worksheet MCQ DETERMINISTIC honesty MERGED (#305, `93f1594`) — owner live-verified
+
+### ✅ RESOLVED / DELIVERED
+- **Worksheet MCQ deterministic honesty (#305, `93f1594`)** — closed the MCQ residual #302 documented. Carried `section` client→server (`worksheetGradeService.ts` mapper + additive `section?` on `WorksheetGradeQuestionInput` in `ai/aiClient.ts`; server `handleGradeWorksheet` keeps `section`/`format`/`qType`) and extended `normaliseStructuredResult`'s no-working pass: an `incorrect` step on an OBJECTIVE question (`isObjectiveType(qType||format, section)` — REUSED from `serverUtils.cjs` via a direct acyclic require, NOT forked) is nulled REGARDLESS of `studentWork` and tallied into `noWorkingNulled` (so `rawAdjusted` zeroes leaked MCQ buckets). Marks/status/totals/attempt untouched; `handleCheckSolution` byte-identical. 4 files +112/−10; Codespace vitest 10/10; **owner live-verified — all-zero mistake buckets EVERY run (the ~40% intermittency is gone)**. **[FU-WORKSHEET-MCQ-OBJECTIVE-GUARD] CLOSED.**
+
+### 🆕 NEW FOLLOW-UPS (from live testing; NOT blockers — do NOT gate PR-B)
+- **[FU-MCQ-ANSWER-OPTION-FIELD]** — MCQ **scoring** (correct/incorrect) is still non-deterministic because the bank's `finalAnswer` stores the answer **text**, not the option **letter**, so the grader cannot do a deterministic string comparison of the student's picked option against the key. #305 fixed the **honesty** path (a wrong MCQ never fabricates a mistake type); it does NOT make the **score** deterministic. Fix direction: give MCQ questions a canonical option-letter answer field (or derive the letter from `options` + `finalAnswer`) so the grader can compare the picked letter exactly. Touches the bank/data shape → its own scoped PR (likely a `src/data` lane — gated).
+- **[FU-GRADING-RELIABILITY]** — grader temperature `0.15` causes OCR-cascade variance on borderline partial-credit answers, and `couldNotRead` fires inconsistently on legible "Don't know" / explicit non-attempt responses (related to [FU-WORKSHEET-NONATTEMPT-TEXT]). Fix direction: lower/zero the temperature for grading, harden the detect/`couldNotRead` path, and consider a `thinkingBudget` so borderline reads are stable run-to-run. **This is the immediate next product PR (the grading-reliability PR), ahead of the detect/thinkingBudget fix and PR-B.**
+
+---
+
 ## 2026-06-28 — Worksheet no-working honesty ported → D-PROG-2 / step 1 CLOSED MERGED (#302, `c5e148d`) — owner dual live-verified
 
 ### ✅ RESOLVED / DELIVERED
