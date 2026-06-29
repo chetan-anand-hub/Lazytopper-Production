@@ -216,6 +216,26 @@ describe("grading reliability — config + prompt changes on BOTH paths", () => 
     expect(ws.calls[0].prompt).toContain("PARTIAL CREDIT: award marks strictly by the step weights");
     expect(ws.calls[0].prompt).toContain("never redistribute or re-weight marks across steps");
   });
+
+  it("(j) the QUESTION MISCOPY rule is present in BOTH prompts", async () => {
+    // The miscopy rule must land on BOTH grading functions (rule 15 in
+    // handleCheckSolution, rule 9 in gradeStructuredSet) — never one and not the
+    // other. A correctly-solved WRONG problem (the student miscopied the question
+    // from the paper) earns 0 and is classified 'silly'.
+    const check = buildCheckRoute(oneStepGrade);
+    await check.run(checkPayload);
+    expect(check.calls[0].prompt).toContain("QUESTION MISCOPY");
+    expect(check.calls[0].prompt).toContain("solves a DIFFERENT equation/expression/problem");
+    expect(check.calls[0].prompt).toContain("classify mistakeType as 'silly'");
+    expect(check.calls[0].prompt).toContain("A correctly solved wrong problem earns no credit");
+
+    const ws = buildWorksheetRoute(worksheetGrade);
+    await ws.run(worksheetPayload);
+    expect(ws.calls[0].prompt).toContain("QUESTION MISCOPY");
+    expect(ws.calls[0].prompt).toContain("solves a DIFFERENT equation/expression/problem");
+    expect(ws.calls[0].prompt).toContain("classify mistakeType as 'silly'");
+    expect(ws.calls[0].prompt).toContain("A correctly solved wrong problem earns no credit");
+  });
 });
 
 describe("(e) existing grading behavior is unchanged (additive PR — no logic change)", () => {
@@ -428,5 +448,61 @@ describe("follow-up fixes — crossed-out NO-ATTEMPT (A) + partial credit by ste
     // The worked wrong step keeps its diagnosable type (control on the guard).
     expect(body.annotatedSteps[2].mistakeType).toBe("calculation");
     expect(body.mistakeSummary.calculation).toBe(1);
+  });
+
+  it("(k) a miscopied question (correct working for the WRONG equation) scores 0 with mistakeType 'silly' — survives the honesty guard (worksheet)", async () => {
+    // Live evidence (WS-M-MIX-22 Q1): the question stated 4x²-4x-3=0 but the student
+    // solved 4x²-4x-5=0 — internally-correct working for a DIFFERENT equation. Rule 9
+    // (gradeStructuredSet) tells the model to award 0 for the whole question and
+    // classify 'silly'. Drive the route with that canned model result and assert the
+    // normaliser PRESERVES it: 0 marks, type 'silly'. The honesty guard must NOT fire
+    // (working IS visible and the question is NOT objective), so 'silly' is the control
+    // that the worked-answer path keeps a diagnosable type.
+    const grade = {
+      results: [
+        {
+          qNumber: 1,
+          couldNotRead: false,
+          marksAwarded: 0,
+          annotatedSteps: [
+            {
+              stepNumber: 1,
+              description: "Solved a different equation than the one asked",
+              studentWork: "4x²-4x-5=0 → (2x-... ) → x = 5/2, x = -1/2", // correct for the WRONG equation
+              status: "incorrect",
+              marksAwarded: 0,
+              marksDeducted: 2,
+              teacherAnnotation: "Miscopied -3 as -5; solved a different equation.",
+              mistakeType: "silly",
+              correctedWorking: "The equation is 4x²-4x-3=0; solve that.",
+            },
+          ],
+          mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+          teacherNote: "Careful copying the question from the paper.",
+        },
+      ],
+      summary: "s",
+    };
+    const payload = {
+      worksheetId: "t",
+      imageBase64: PDF_B64,
+      imageMimeType: "application/pdf",
+      questions: [
+        { qNumber: 1, marks: 2, section: "B", topic: "t", topicLabel: "T", questionText: "Find the roots of 4x² - 4x - 3 = 0" },
+      ],
+    };
+    const { body } = await buildWorksheetRoute(grade).run(payload);
+    const r = body.results[0];
+
+    // Graded (never couldNotRead), zero credit for the whole question.
+    expect(r.couldNotRead).toBe(false);
+    expect(r.annotatedSteps[0].status).toBe("incorrect");
+    expect(r.marksAwarded).toBe(0);
+    expect(r.totalMarks).toBe(2);
+    // 'silly' SURVIVES — visible working + non-objective question means the no-working
+    // / objective honesty guard leaves the diagnosable type intact.
+    expect(r.annotatedSteps[0].mistakeType).toBe("silly");
+    expect(r.mistakeSummary.silly).toBe(1);
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 1, presentation: 0 });
   });
 });
