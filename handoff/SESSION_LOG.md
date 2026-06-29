@@ -1,5 +1,23 @@
 ---
 
+## 2026-06-29 — thinkingBudget detect fix (#310 `7276d31`) + standalone grader eval harness (#311 `2bc545c`) MERGED & LIVE-VERIFIED
+
+**Trunk after both merges: `2bc545c`.**
+
+**#310 (`7276d31`) — forward thinkingConfig through the gateway + thinkingBudget:0 on detect.** `gemini-2.5-flash` is a thinking model and thinking tokens count against `maxOutputTokens`. The detect-question call capped at 400; `thoughtsTokenCount ~383` ate the budget → 1–5 tokens for the JSON → truncated → `extractJsonObjectFromText` null → "We couldn't read the question this time." The gateway forwarded only temperature/maxOutputTokens/responseMimeType, with no way to pass thinking control.
+- **STEP 0 (Rule 1):** confirmed both body builders (`callGemini` → `buildBody`, `callGeminiStream` → inline body) forwarded only temperature/maxOutputTokens (+ responseMimeType non-stream); the detect site was `{ temperature: 0.1, maxOutputTokens: 400, responseMimeType: 'application/json' }`; and from Google docs the field is `generationConfig.thinkingConfig.thinkingBudget` (camelCase), `0` disables thinking on flash.
+- **Change 1 (geminiClient.cjs, ENABLING, additive):** thread an optional `thinkingConfig` into `generationConfig` in BOTH `callGemini` and `callGeminiStream`. **INVARIANT (the whole point — it's a shared gateway): when no `thinkingConfig` is passed, the outgoing body is BYTE-IDENTICAL to before.** The key is only ever ADDED; no reorder/reformat of existing fields.
+- **Change 2 (checkSolution.cjs, detect only):** `handleDetectQuestion`'s `callGemini` config gains `thinkingConfig: { thinkingBudget: 0 }`. Nothing else on that call changes. Reasoning sites (grade @16000, tutor, stepSolution, explain-repairs) stay dynamic — out of scope.
+- **Test (new `geminiThinkingConfig.test.ts`, stubs global fetch, drives the real body builders):** (a) `callGemini` AND `callGeminiStream` WITH `thinkingConfig` → built body has `generationConfig.thinkingConfig.thinkingBudget === 0`; (b) both WITHOUT → no `thinkingConfig` key + generationConfig byte-identical (stringify-equality); (c) the detect site sends `thinkingBudget:0`. **Codespace vitest 5/5.**
+- 3 files; no new packages / no lockfile change. Gates GREEN (tsc; root **181/181**; ops llm-path 5/5; mojibake; scope product; diff-check); CI `quality-gate` GREEN; cofounder byte-reviewed (focus: the additive invariant). Merged on owner approval; Railway auto-redeployed.
+- **OWNER DUAL LIVE-VERIFIED:** (1) Check & Improve → "Photo of the question" → Q1.png now READS (marks/subject/topic, no "couldn't read"); (2) worksheet grading + tutor regression CLEAN (no `thinkingConfig` → byte-identical body → zero behaviour change). **Multi-question PDF reading only the first question = by-design, NOT a bug** → [FU-MULTI-QUESTION-DETECT]. The LIVE-PROOF diagnostic re-run was not reproducible by the agent (Codespace recreated — `/tmp/Q1.png`/`/tmp/Q.pdf` gone, no key in env); folded into the owner live-verify, which passed.
+
+**#311 (`2bc545c`) — standalone worksheet-grader eval harness (PR-A), MERGED (cofounder PR).** Lands the [FU-GRADE-EVAL-SCRIPT] follow-up: a standalone harness so future prompt-only grader PRs can be verified against FIXED synthetic inputs without the owner generating new worksheets each time.
+
+**NEXT:** **the grader miscopy fix** (prompt-only, BOTH grading functions, rule 15 / rule 9 — a miscopied question scores 0 + `silly`, NOT a concept gap; [FU-MISCOPY-CLASSIFICATION]) → the MCQ `correctOption` code side ([FU-MCQ-ANSWER-OPTION-FIELD]) → **PR-B** (the DURABLE per-student worksheet time-series record). New follow-ups: [FU-MISCOPY-CLASSIFICATION], [FU-MULTI-QUESTION-DETECT], [FU-GRADE-ANY-WORKSHEET].
+
+---
+
 ## 2026-06-29 — Grading-reliability prompt+config hardening MERGED & LIVE-VERIFIED (#307 `195ecf7` + #308 `54c959e`) — temperature 0.05 · legible non-attempt · crossed-out · partial-credit-by-step-weight
 
 **Trunk after both merges: `54c959e`.** Two additive, PROMPT-ONLY PRs to the shared grader `lazytopper/server/routes/checkSolution.cjs`, applied to BOTH grading paths and kept in sync — the single-question `handleCheckSolution` and the worksheet `gradeStructuredSet`. NO logic changes: the no-working honesty guard / `noWorkingNulled` / `rawAdjusted` reconcile are untouched. Each PR's diff = `checkSolution.cjs` + the one reliability test file ONLY. Cofounder byte-reviewed both; owner live-verified both.
