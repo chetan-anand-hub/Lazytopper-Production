@@ -1,3 +1,15 @@
+## 2026-06-29 — Grading-reliability prompt+config hardening MERGED & LIVE-VERIFIED (#307 `195ecf7` + #308 `54c959e`)
+
+### ✅ RESOLVED / DELIVERED
+- **Grading-reliability hardening (#307 `195ecf7` + #308 `54c959e` → trunk `54c959e`)** — two additive PROMPT-ONLY PRs to the shared grader `lazytopper/server/routes/checkSolution.cjs`, applied to BOTH grading paths (`handleCheckSolution` + `gradeStructuredSet`), no logic change. #307: temperature 0.15→0.05 on both grading calls; legible-non-attempt exception ("Don't know"/"DK" → incorrect/full-deduction/`mistakeType null`, never `couldNotRead`; verbatim on `gradeStructuredSet` rule 6, adapted note on `handleCheckSolution` rule 6 which has no `couldNotRead` field); word-problem closure rule (≤½ mark if root-in-context omitted). #308: crossed-out = NO-ATTEMPT (`gradeStructuredSet` rule 6 only); PARTIAL-CREDIT-by-step-weight (both prompts). Tests in `checkSolutionGradingReliability.test.ts` (a–i; Codespace vitest 28/28 with existing guards, no regression). Cofounder byte-reviewed; **owner live-verified — "Don't know" → 0 every run (never couldNotRead), crossed-out handled, scores stable** (runs 2&3 identical; run 1 ±0.5 on a genuine borderline partial-credit case).
+- **[FU-GRADING-RELIABILITY] CLOSED** — temperature OCR-cascade variance fixed (0.05) and the inconsistent `couldNotRead` on legible "Don't know" responses fixed (the non-attempt exception). Done by #307.
+- **[FU-WORKSHEET-NONATTEMPT-TEXT] CLOSED** — a legible non-attempt phrase ("Don't know") and a clearly crossed-out answer are now graded as explicit non-attempts (incorrect / full marks deducted / `mistakeType null`), never silently mis-typed or flagged unreadable. Done by #307 (Don't-know) + #308 (crossed-out).
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-GRADE-EVAL-SCRIPT]** — build a Codespace-runnable Node eval script that calls the LIVE grader (`/api/check-solution` and/or `/api/grade-worksheet`) with a FIXED set of synthetic inputs (known answers + expected score bands, incl. the "Don't know" / crossed-out / partial-credit cases) and asserts the outputs, so future prompt-only grader PRs can be **agent-verified without the owner having to generate and hand-grade new worksheets each time**. Motivation: #307/#308 each needed an owner 3-run live-verify; a deterministic eval harness would let the agent self-verify prompt changes pre-merge (the static gates can't exercise the live model). Likely lives under `lazytopper/scripts/ops/` or a `notes/`-style eval dir; reads a key from the Codespace env; NOT wired into CI (it makes live model calls).
+
+---
+
 ## 2026-06-29 — Worksheet MCQ DETERMINISTIC honesty MERGED (#305, `93f1594`) — owner live-verified
 
 ### ✅ RESOLVED / DELIVERED
