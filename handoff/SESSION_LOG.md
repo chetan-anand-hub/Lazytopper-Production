@@ -1,5 +1,29 @@
 ---
 
+## 2026-06-29 — Grading-reliability prompt+config hardening MERGED & LIVE-VERIFIED (#307 `195ecf7` + #308 `54c959e`) — temperature 0.05 · legible non-attempt · crossed-out · partial-credit-by-step-weight
+
+**Trunk after both merges: `54c959e`.** Two additive, PROMPT-ONLY PRs to the shared grader `lazytopper/server/routes/checkSolution.cjs`, applied to BOTH grading paths and kept in sync — the single-question `handleCheckSolution` and the worksheet `gradeStructuredSet`. NO logic changes: the no-working honesty guard / `noWorkingNulled` / `rawAdjusted` reconcile are untouched. Each PR's diff = `checkSolution.cjs` + the one reliability test file ONLY. Cofounder byte-reviewed both; owner live-verified both.
+
+**#307 (`195ecf7`) — from WS-M-MIX-18 live evidence (3 runs):**
+- **STEP 0 (Rule 1):** confirmed both grading calls were `temperature: 0.15` (`handleCheckSolution` `gradingGenConfig`, maxOutputTokens 16000; `gradeStructuredSet` `genConfig`, maxOutputTokens 32000). **Surfaced a discrepancy:** only `gradeStructuredSet` has a `couldNotRead` rule-6; `handleCheckSolution` has NO `couldNotRead` field (its rule 6 is the MISSING-steps rule; single-answer failure is a whole-call `ok:false`). Owner chose "adapt wording, keep intent."
+- **Change 1 — temperature 0.15 → 0.05** on BOTH calls (kills the OCR-cascade that misread a correct completing-the-square step and swung the grade 0/3 ↔ 2/3; 0.05 keeps just enough flex for genuinely ambiguous handwriting).
+- **Change 2 — legible non-attempt exception:** a written "Don't know"/"Dont know"/"I don't know"/"DK" is `status incorrect`, full marks deducted, `mistakeType null`, NEVER `couldNotRead`. Verbatim on `gradeStructuredSet` rule 6; adapted parallel NOTE on `handleCheckSolution` rule 6.
+- **Change 3 — word-problem closure rule** (rule 14 / rule 8): stating which root fits the context (e.g. "N=8, reject N=−20") is a required final step worth ≤½ mark if omitted.
+- Test (new `lazytopper/src/services/checkSolutionGradingReliability.test.ts`): 7 cases (a–e) capturing genConfig + prompt text on both paths (temp 0.05; exception + closure rule present; pre-existing honesty invariants unchanged).
+- Gates GREEN (tsc; root matrix **181/181**; lazytopper ops matrix incl. llm-path 5/5; mojibake; scope product; diff-check); Codespace vitest 7/7 + existing guards 17/17; CI `quality-gate` GREEN. Merged mid-flow on the explicit "Merge #307" instruction (Railway redeploys from trunk, so live-verify ran against the deployed merge).
+
+**#308 (`54c959e`) — follow-up from WS-M-MIX-21 live evidence (3 runs → 3 different totals 2.5/3/3.5 of 14):**
+- **Fix A — crossed-out = NO-ATTEMPT** (`gradeStructuredSet` rule 6 only): a clearly & completely crossed-out answer with no replacement → graded incorrect / full-deduction / `mistakeType null`, NEVER `couldNotRead`/pending.
+- **Fix B — PARTIAL-CREDIT step-weight rule** (both prompts, appended to the word-problem rule): award strictly by scheme step weights; a correctly-attempted step keeps its marks even when a later step is wrong; a calc-error step earns 0 for that step only; never redistribute/re-weight; even split when no explicit weight.
+- Test (+4 cases, f–i): crossed-out rule worksheet-only/absent from the check prompt; PARTIAL-CREDIT in both; crossed-out → graded-not-pending (couldNotRead never fires); deterministic 2/3 partial credit. File now **11 tests**.
+- Built as a FRESH follow-up PR off `195ecf7` (a merged #307 cannot be amended; owner chose Option 1). Gates GREEN (root **181/181**; llm-path 5/5; etc.); Codespace vitest 11/11 + existing guards 17/17 = **28/28, no regression**; CI `quality-gate` GREEN.
+
+**OWNER LIVE-VERIFIED (both critical fixes):** "Don't know" answers grade as 0 every run (never `couldNotRead`); crossed-out handled correctly; scores stable — runs 2 & 3 identical, run 1 differs only 0.5 on a genuine borderline partial-credit case (acceptable). **[FU-GRADING-RELIABILITY] CLOSED** (temperature + couldNotRead); **[FU-WORKSHEET-NONATTEMPT-TEXT] CLOSED** (legible non-attempt + crossed-out).
+
+**NEXT:** the **detect/`thinkingBudget` fix** (`handleDetectQuestion` / `geminiClient.cjs` / `thinkingBudget` — separate instruction already written), THEN PR-B. **New follow-up [FU-GRADE-EVAL-SCRIPT]:** a Codespace-runnable Node eval script that calls the live grader with FIXED synthetic inputs, so future prompt-only PRs can be agent-verified without the owner generating new worksheets each time.
+
+---
+
 ## 2026-06-29 — Worksheet MCQ DETERMINISTIC honesty MERGED (#305, squash `93f1594`) — owner live-verified; step 1 now fully deterministic incl. the objective guard
 
 **Trunk after merge: `93f1594`.** The follow-on to #302 that closes its documented MCQ residual. #302 made no-working honesty deterministic for SUBJECTIVE answers, but a wrong **MCQ** writes its chosen option ("(d)") into `studentWork` (NON-EMPTY) so the empty-working guard could not fire — MCQ honesty rode on prompt rule 5 and was non-deterministic live (~40%). #305 makes it **deterministic** by carrying ONE field one more hop and reusing the EXISTING canonical classifier — carry-one-field + apply-it, no new plumbing, no forked classifier. Built in the isolated worktree `worksheet-mcq-honest` (`feat/grader-worksheet-mcq-deterministic`, off the post-#302 tip `0ddc4c5`); cofounder byte-reviewed; **owner live-verified + squash-merged; no self-merge**. 4 files +112/−10.
