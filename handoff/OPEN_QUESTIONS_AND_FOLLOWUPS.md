@@ -1,3 +1,16 @@
+## 2026-06-29 — thinkingBudget detect fix (#310 `7276d31`) + grader eval harness (#311 `2bc545c`) MERGED & LIVE-VERIFIED
+
+### ✅ RESOLVED / DELIVERED
+- **thinkingBudget detect fix (#310 `7276d31`)** — `geminiClient.cjs` forwards an optional `thinkingConfig` into `generationConfig` in BOTH `callGemini` and `callGeminiStream` (byte-identical body when absent), and `handleDetectQuestion` sets `thinkingConfig: { thinkingBudget: 0 }` (gemini-2.5-flash thinking tokens were eating the 400-token detect cap → truncated JSON → "couldn't read the question"). 3 files; Codespace vitest 5/5; cofounder byte-reviewed; **owner dual live-verified** (Q1.png reads; worksheet grading + tutor regression clean).
+- **[FU-GRADE-EVAL-SCRIPT] DELIVERED** — #311 (cofounder PR `2bc545c`) landed a standalone worksheet-grader eval harness (PR-A) so future prompt-only grader PRs verify against FIXED synthetic inputs without the owner generating new worksheets.
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-MISCOPY-CLASSIFICATION]** — the grader misclassifies a **miscopied question** (student copies the question wrong, then solves their wrong version) as a **concept gap**. It should be scored **0 marks + `silly`** (a careless transcription slip), NOT conceptual (no knowledge gap is implied). Fix direction: prompt-only, BOTH grading functions, added as `handleCheckSolution` **rule 15** / `gradeStructuredSet` **rule 9** (keep the two prompts in sync). **This is the immediate-next prompt-only PR** (branch fresh off `2bc545c`), ahead of the MCQ `correctOption` code side and PR-B.
+- **[FU-MULTI-QUESTION-DETECT]** — Check & Improve "Photo of the question" detect reads only the **first** question from a **multi-question PDF** (confirmed by-design today, not a bug). To support multi-question uploads it needs a **backend array response** (detect → list of questions) + a **frontend selection UI** (student picks which detected question to grade). Spec in progress. Prerequisite for [FU-GRADE-ANY-WORKSHEET].
+- **[FU-GRADE-ANY-WORKSHEET]** — students need to grade **non-system-generated** papers (their own / school worksheets), not just LazyTopper-generated worksheets with a known scheme. Depends on [FU-MULTI-QUESTION-DETECT] (the grader currently keys off the KNOWN question set; an arbitrary paper has none). Larger effort — backend + UX; sequenced after the multi-question detect work.
+
+---
+
 ## 2026-06-29 — Grading-reliability prompt+config hardening MERGED & LIVE-VERIFIED (#307 `195ecf7` + #308 `54c959e`)
 
 ### ✅ RESOLVED / DELIVERED
