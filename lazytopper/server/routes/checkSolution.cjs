@@ -152,7 +152,7 @@ function createCheckSolutionRoute(deps) {
         '   - "presentation": mathematically/chemically RIGHT but board-format short — missing the required formula (e.g. −b/a), missing units, no conclusion/"verified" line, working not shown, required diagram absent, (Science) a correct reaction left UNBALANCED, missing state symbols. The answer is right; only the formal presentation is incomplete. A correct but unbalanced equation is PRESENTATION, not conceptual.\n' +
         '4. ERROR PROPAGATION → ONE root cause. If a single upstream slip makes later steps wrong, that is ONE mistake attributed to the SOURCE step. Mark each downstream step as following correctly from the wrong value (error carried forward): status "incorrect" but mistakeType null. This includes a verification/check step that only "fails" because it was correctly applied to the carried-forward wrong value (e.g. the student plugs their own wrong root into the sum check and honestly notes it does not match) — that is carried forward (mistakeType null), not a presentation or conceptual fault of its own. Do NOT label each propagated step as a fresh mistake, and never inflate one slip into several (especially several conceptual) mistakes.\n' +
         '5. A CORRECT step ALWAYS has mistakeType null. Never invent a mistake on a right step.\n' +
-        '6. MISSING is ALWAYS mistakeType null. A required step the student left ENTIRELY BLANK / did not attempt gets status "missing" and mistakeType null — the marks are simply not earned; it is never a typed mistake (not presentation, not conceptual), even when the thing left out is a required formula, unit, conclusion, or verification line. Do NOT manufacture extra "missing" steps; only list a step as missing if that whole step was genuinely required and wholly absent.\n' +
+        '6. MISSING is ALWAYS mistakeType null. A required step the student left ENTIRELY BLANK / did not attempt gets status "missing" and mistakeType null — the marks are simply not earned; it is never a typed mistake (not presentation, not conceptual), even when the thing left out is a required formula, unit, conclusion, or verification line. Do NOT manufacture extra "missing" steps; only list a step as missing if that whole step was genuinely required and wholly absent. NOTE ON NON-ATTEMPTS: if the student\'s response is a legible phrase like \'Don\'t know\', \'Dont know\', \'I don\'t know\', or \'DK\', this IS a readable response — grade it as a single step with status "incorrect", full marks deducted, mistakeType null (no working shown, undiagnosable). Never treat a legible non-attempt phrase as a missing or unreadable submission.\n' +
         '7. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
         '8. ALTERNATIVE VALID METHOD is NOT a mistake. If the student reaches the answer by a correct method the marking scheme did not anticipate (e.g. quadratic formula instead of factoring, completing the square), award full marks — the scheme is the reference, not a straitjacket.\n' +
         '9. PRESENTATION vs MISSING. If the student ACTUALLY WROTE a step and the math is right but a required FORMAT element is short (e.g. computed the value but did not show the −b/a comparison, missing units, no "verified"/conclusion line, working not shown), keep it as ONE step with status "partial" and mistakeType "presentation" — fold the short format element INTO that attempted step; do NOT split it off into a separate "missing" step. (Format short on work the student DID write = presentation; a whole step left blank = missing per rule 6.) Right answer with weak or no justification → presentation, not conceptual.\n' +
@@ -163,7 +163,8 @@ function createCheckSolutionRoute(deps) {
           : isMaths
           ? '12. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable.\n'
           : '12. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
-        '13. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.';
+        '13. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.\n' +
+        '14. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct.';
 
       const jsonSchema =
         'RESPOND with this exact JSON:\n' +
@@ -231,7 +232,7 @@ function createCheckSolutionRoute(deps) {
       //       not a target: short grades cost the same; only truncated ones change);
       //   (b) on a parse-gate miss, re-issue the grading call ONCE before giving up.
       const gradingGenConfig = {
-        temperature: 0.15,
+        temperature: 0.05,
         maxOutputTokens: 16000,
         responseMimeType: 'application/json',
       };
@@ -761,8 +762,9 @@ function createCheckSolutionRoute(deps) {
       '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
       '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes.\n' +
       '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
-      '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read.\n' +
-      '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).';
+      '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read. IMPORTANT EXCEPTION: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — it is NOT couldNotRead. Grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Never set couldNotRead for a clearly-written non-attempt phrase.\n' +
+      '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).\n' +
+      '8. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct.';
 
     const jsonSchema =
       'RESPOND with this exact JSON shape:\n' +
@@ -800,7 +802,7 @@ function createCheckSolutionRoute(deps) {
     // it room and, like the per-question grader, retry ONCE on a parse miss
     // (most often a maxOutputTokens truncation). Large worksheets may still
     // truncate → [FU-ASYNC-GRADING] (sync now, async deferred — design decision (c)).
-    const genConfig = { temperature: 0.15, maxOutputTokens: 32000, responseMimeType: 'application/json' };
+    const genConfig = { temperature: 0.05, maxOutputTokens: 32000, responseMimeType: 'application/json' };
     const gradeOnce = async () => {
       const r = await callGemini(GEMINI_MODEL, contents, genConfig);
       return { reply: r, parsed: extractJsonObjectFromText(r.text) };
