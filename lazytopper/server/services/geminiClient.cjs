@@ -67,6 +67,15 @@ function createGeminiClient(cfg) {
       ) {
         body.generationConfig.responseMimeType = config.responseMimeType.trim();
       }
+      // Thinking control (additive, opt-in). Forwarded ONLY when the caller passes
+      // a thinkingConfig object — e.g. the detect-question call sets
+      // { thinkingBudget: 0 } to stop gemini-2.5-flash's thinking tokens from
+      // eating its tiny maxOutputTokens budget. INVARIANT: when no thinkingConfig
+      // is supplied (grade, tutor, diagrams, warm-pool — every other call) the body
+      // is byte-identical to before; this only ever ADDS the key.
+      if (config && config.thinkingConfig && typeof config.thinkingConfig === 'object') {
+        body.generationConfig.thinkingConfig = config.thinkingConfig;
+      }
       return body;
     };
 
@@ -217,12 +226,19 @@ function createGeminiClient(cfg) {
       throw new Error('No Gemini auth available for streaming.');
     }
 
+    const generationConfig = {
+      temperature: config && typeof config.temperature === 'number' ? config.temperature : 0.7,
+      maxOutputTokens: config && typeof config.maxOutputTokens === 'number' ? config.maxOutputTokens : 4096,
+    };
+    // Thinking control (additive, opt-in) — same invariant as callGemini's buildBody:
+    // forwarded ONLY when the caller supplies thinkingConfig, so a caller that passes
+    // none gets a byte-identical body (temperature + maxOutputTokens, same order).
+    if (config && config.thinkingConfig && typeof config.thinkingConfig === 'object') {
+      generationConfig.thinkingConfig = config.thinkingConfig;
+    }
     const body = {
       contents: finalContents,
-      generationConfig: {
-        temperature: config && typeof config.temperature === 'number' ? config.temperature : 0.7,
-        maxOutputTokens: config && typeof config.maxOutputTokens === 'number' ? config.maxOutputTokens : 4096,
-      },
+      generationConfig,
     };
 
     const proxyStreamUrl = HAS_REPLIT_PROXY
