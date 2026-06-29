@@ -1,5 +1,21 @@
 ---
 
+## 2026-06-29 — Grader miscopy fix (#313 `129a73e`) MERGED & LIVE-VERIFIED
+
+**Trunk after merge: `129a73e`.** Prompt-only, additive, applied to BOTH grading paths in `lazytopper/server/routes/checkSolution.cjs` and kept in sync.
+
+- **STEP 0 (Rule 1):** confirmed the current last rule numbers — `handleCheckSolution` ended at **rule 14**, `gradeStructuredSet` at **rule 8** (both the WORD-PROBLEM/PARTIAL-CREDIT rule from #307/#308). New rule appends as **rule 15** / **rule 9** respectively.
+- **The rule (identical wording in both functions):** "QUESTION MISCOPY: if the student's working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as 'silly'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student's equation/values do not match the question's stated coefficients/values, yet their algebraic steps are internally correct for what they wrote."
+- **Why:** live evidence WS-M-MIX-22 Q1 — student miscopied 4x²-4x-3 as 4x²-4x-5, solved the wrong polynomial correctly, was classified "Concept gap." Owner ruling: miscopying THE QUESTION ITSELF is a careless-reading (silly) error and earns 0 (the student answered a different question than asked). The existing rules covered copying slips inside the student's OWN working — not miscopying the question from the paper.
+- **No logic change** — the model applies the rule; the no-working/objective honesty guard, `noWorkingNulled`, and the `rawAdjusted` reconcile are untouched.
+- **Tests (`checkSolutionGradingReliability.test.ts`, +2):** (j) the QUESTION MISCOPY rule is present in BOTH prompts (guards the both-functions invariant); (k) a miscopied-question answer (correct working for the WRONG equation) normalises to 0 marks + mistakeType 'silly', surviving the honesty guard (visible working + non-objective → diagnosable type kept; the control contrast with the no-working guard).
+- **2 files** (`checkSolution.cjs` + the reliability test). Gates GREEN (Codespace, Node 22): tsc; **vitest 13/13** (11 existing + j,k); root matrix **181/181**; lazytopper ops matrix incl. llm-path **5/5**; mojibake; production `vite build` + verifier all-checks-passed; `git diff --check`. (The ops matrix first read llm-path 4/5 purely because the fresh Codespace lacked `ripgrep` — that audit greps via `rg` for `MENTOR_ENDPOINT`/`generateMoreLikeThis`, which DO exist in `src/ai/aiClient.ts`; `apt-get install ripgrep` → 5/5. Environment false-negative, unrelated to the 2 changed files.) Cofounder byte-reviewed (PASS).
+- **Merged on owner instruction → squash `129a73e`** (Railway auto-redeploys).
+- **OWNER-DIRECTED LIVE-VERIFY — 3/3, stable ×3.** Driven against the REAL merged `handleCheckSolution` (rule 15, wording identical to the worksheet's rule 9) calling live Gemini `gemini-2.5-flash` — the same model Railway runs (the worksheet path needs a PDF, so the text path was the faithful live proxy for the rule's wording; vitest case (k) covers the worksheet normaliser): **(1) miscopy** (4x²-4x-3 stated, student solved 4x²-4x-5 correctly) → **0/2, `silly`** (not Concept gap, not partial); **(2) worked-wrong, no miscopy** (LCM of 6&20, student got 30 dropping the 2²) → **1/2, `conceptual`** (real type + correct partial, NOT silly-miscopy, NOT 0); **(3) "Don't know"** (HCF of 6&20) → **0/2, no type**, not couldNotRead.
+- **[FU-MISCOPY-CLASSIFICATION] CLOSED.** NEXT: multi-question detect for Check & Improve ([FU-MULTI-QUESTION-DETECT]; instruction `AGENT_ci_multi_question_detect_2026-06-29.md` queued — backend array response + frontend selection UI).
+
+---
+
 ## 2026-06-29 — thinkingBudget detect fix (#310 `7276d31`) + standalone grader eval harness (#311 `2bc545c`) MERGED & LIVE-VERIFIED
 
 **Trunk after both merges: `2bc545c`.**
