@@ -1,3 +1,13 @@
+## 2026-06-30 — MCQ `correctOption` — deterministic worksheet MCQ scoring (code side) MERGED (#319, `a71c81e`)
+
+### ✅ RESOLVED / DELIVERED
+- **[FU-MCQ-ANSWER-OPTION-FIELD] code side DONE** — the additive pipeline that lets the worksheet grader do a DETERMINISTIC normalised string compare of the student's picked MCQ option against a bank-supplied correct option. 3 product files + 1 test: `aiClient.ts` (`correctOption?: string` on `WorksheetGradeQuestionInput`), `worksheetGradeService.ts` (carry it client→server), `checkSolution.cjs` (server mapper + the deterministic compare in `normaliseStructuredResult`, gated on `isObjectiveType` AND `correctOption` present; full marks on hit, 0 + full deduction on miss; `couldNotRead`/empty-`studentWork` untouched; existing honesty reconcile unchanged after). **Ships LATENT** — no bank entries carry `correctOption` yet, so the absent-field path is byte-unchanged. Test now 13 (h/i/j added). Gates GREEN; CI GREEN; Codespace vitest 13/13; cofounder byte-reviewed; owner-instructed squash-merge.
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-MCQ-CORRECTOPTION-VERIFY]** — the DEFERRED live-verify for #319 (no quick live test exists today because the code ships latent — no bank entries carry `correctOption` yet). **GATE:** when the first batch of MCQ bank entries is annotated with `correctOption`, run a worksheet containing those MCQs **3 times** and confirm the score is **IDENTICAL across all three runs**. This gates the content-annotation task (annotating MCQ bank entries with their canonical option letter) — do NOT treat the annotation work as "done" until this 3×-identical check passes on real annotated MCQs.
+
+---
+
 ## 2026-06-30 — Multi-question Check & Improve detect COMPLETE (#315 `91b5f83` + #316 `fdadd41` + #317 `cd5c8ca`) MERGED & LIVE-VERIFIED
 
 ### ✅ RESOLVED / DELIVERED

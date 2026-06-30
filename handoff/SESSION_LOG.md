@@ -1,5 +1,22 @@
 ---
 
+## 2026-06-30 — MCQ `correctOption` — deterministic worksheet MCQ scoring (code side) (#319) MERGED
+
+**Trunk after: `a71c81e`.** The [FU-MCQ-ANSWER-OPTION-FIELD] **code side**. The worksheet bank's `finalAnswer` stores answer TEXT ("Snell's law"), not the option letter ("(a)"), so the grader had to INFER which MCQ option the student picked → MCQ scores were non-deterministic across runs. #319 adds an additive pipeline field so the worksheet grader can do a DETERMINISTIC normalised string compare of the picked letter against a bank-supplied correct option. **Ships LATENT** — no bank entries carry `correctOption` yet, so the absent-field path is BYTE-UNCHANGED (falls back to existing model judgment + the objective honesty guard). Content annotation of MCQ bank entries is a SEPARATE future task this code unblocks.
+
+- **3 product files + 1 test (exactly 4):**
+  - **`ai/aiClient.ts`** — additive optional `correctOption?: string` on `WorksheetGradeQuestionInput` (after `section?`).
+  - **`services/worksheetGradeService.ts`** — carry `correctOption` in the client→server mapper (after `section: q.section`; safe cast — the field is not yet on the shared canonical question type).
+  - **`server/routes/checkSolution.cjs`** — (a) server mapper inside `handleGradeWorksheet` carries `correctOption` (after `finalAnswer`); (b) `normaliseStructuredResult` deterministic compare, inserted after `questionIsObjective` / before the `noWorkingNulled` loop: when the question is OBJECTIVE (`isObjectiveType`) AND `correctOption` is present, override the model's per-step status + marks by a normalised compare (strip parens/brackets, trim, lowercase → "(a)"/"A"/"a" all match) — full marks on hit, 0 + full deduction on miss — trusting the deterministic compare over model judgment. `couldNotRead`/empty-`studentWork` steps are left UNTOUCHED. The existing `noWorkingNulled` / `rawAdjusted` honesty reconcile runs unchanged afterward (still nulls `mistakeType` for objective Qs — a bare option pick gives no classifiable type).
+- **Test (`checkSolutionWorksheetNoWorking.test.ts`, now 13 = 10 existing + 3 new):** **(h)** correct pick → status correct + full marks (overrides a model under-award); **(i)** wrong pick → incorrect + 0 marks + `mistakeType` null (overrides a model over-award); **(j)** `correctOption` absent → model-judgment path unchanged (objective guard still nulls the type, marks untouched).
+- **Out of scope / untouched:** subjective questions; the C&I single-question path (`handleCheckSolution`) and `handleDetectQuestion` BYTE-IDENTICAL; `src/lib/desktop/` and `src/data/` (no bank annotation in this PR).
+- Built in an isolated worktree off `e2247d2`. Gates ALL GREEN: tsc; root matrix **181/181** (26 suites); lazytopper ops matrix incl. llm-path **5/5**; mojibake; scope:guard product; `git diff --check` clean; exactly 4 files. **CI `quality-gate` GREEN** (1m9s, linux build) + Vercel pass. **Codespace vitest 13/13** (raw per-case output pasted to PR #319). Cofounder **byte-review PASSED**. **OWNER-INSTRUCTED squash-merge → `a71c81e`**; feature branch + worktree deleted.
+- **LIVE-VERIFY DEFERRED** — no quick live test exists because no bank entries carry `correctOption` yet (the code ships latent). Logged **[FU-MCQ-CORRECTOPTION-VERIFY]**: when the first batch of MCQ bank entries is annotated, run a worksheet with those MCQs ×3 and confirm the score is IDENTICAL across runs (this gates the content-annotation task).
+- **[FU-MCQ-ANSWER-OPTION-FIELD] code side DONE** (annotation pending). **IMMEDIATE NEXT = PR-B — the DURABLE per-student worksheet time-series record** (`AGENT_PR_B_durable_time_series_2026-06-28.md`).
+- Report: `report-mcq-correctoption-2026-06-30.md`.
+
+---
+
 ## 2026-06-30 — Multi-question Check & Improve detect COMPLETE end-to-end (#315 + #316 + #317) MERGED & LIVE-VERIFIED
 
 **Trunk after all three: `cd5c8ca`.** A student can now upload a multi-question question paper (image or PDF) to Check & Improve and grade the WHOLE thing, alongside the unchanged single-question flow. Three PRs:
