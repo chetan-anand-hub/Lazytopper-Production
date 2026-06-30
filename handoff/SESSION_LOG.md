@@ -1,5 +1,28 @@
 ---
 
+## 2026-06-30 — Multi-question Check & Improve detect COMPLETE end-to-end (#315 + #316 + #317) MERGED & LIVE-VERIFIED
+
+**Trunk after all three: `cd5c8ca`.** A student can now upload a multi-question question paper (image or PDF) to Check & Improve and grade the WHOLE thing, alongside the unchanged single-question flow. Three PRs:
+
+- **#315 (`91b5f83`) — multi-question detect + whole-paper grade.**
+  - **Backend `handleDetectQuestion` (detect path ONLY; grading functions untouched; `thinkingBudget:0` preserved):** additive `questions[]` in the prompt + RESPOND schema — each question's number, full text, marks (single question → single-item array). The existing `detectedMarks`/`detectedSubject`/`detectedTopic` are unchanged (first question's values, backward-compatible). `maxOutputTokens` 400 → 2048.
+  - **`aiClient.ts`:** additive `DetectedQuestion` type + `questions?` on `DetectQuestionResponse`.
+  - **Both pages (`DesktopCheckImprovePage.tsx` + `CheckImprove.tsx`), identical UX:** "Upload question(s)" labels; 2+ questions → a "N questions detected · Subject · Topic" chip; the answer input also accepts a PDF (single-Q stays image-only); grading calls the EXISTING `/grade-worksheet` (`gradeStructuredSet`) with the detected set; **CI nomenclature `CI-{S}-{TOPIC}-{NN}`** (device-local sequence) on a compact per-question result (marks + knowledge-gap/careless chips + honest graded X/Y + N pending — pending never scored 0); **MI parity** with the worksheet loop — each legible per-question grade feeds the single front door `recordMistake` + `recordAttempt` on a stable `ci:<code>:q<N>` id (re-grade dedups). **Single-question path BYTE-IDENTICAL.**
+  - **Tests (`geminiThinkingConfig.test.ts`):** (d) the detect prompt instructs the multi-question array + the schema includes `"questions"`; (e) a multi-question reply is normalised (marks clamped, textless dropped) and returned with single-question fields intact.
+  - 5 files; gates GREEN (tsc; vitest 7/7; root **181/181**; lazytopper matrix incl. llm-path 5/5; mojibake; build + verifier); cofounder byte-reviewed; owner-merged.
+
+- **#316 (`fdadd41`) — detect prompt fix (return ALL questions).** On a real paper, detect often stopped after Q1. Three prompt-only changes to `handleDetectQuestion`: (1) the RESPOND schema now shows a TWO-item example + a `... one object per question found` ellipsis (was single-item); (2) the questions instruction moved to AFTER the topic list, immediately before RESPOND (recency) + an explicit "List EVERY question you find — do not stop after the first"; (3) `maxOutputTokens` 2048 → 4096 (a full paper whose later questions are 5-mark long-answers can clip Q4/Q5 at 2048). `thinkingBudget:0` preserved. The owner-approved 2nd file: `geminiThinkingConfig.test.ts` test (c) `maxOutputTokens` assertion 2048 → 4096 (the test guards the detect config; leaving it stale defeats its purpose). Verified: grader eval **5/5** (grader unaffected — detect-only change); a synthetic 5-question Light PDF through the REAL merged `handleDetectQuestion` + live `gemini-2.5-flash` → `questions[].length === 5`, stable ×3. Gates GREEN; cofounder byte-reviewed; owner-merged.
+
+- **#317 (`cd5c8ca`) — per-question marks chip (display-only).** The multi-Q chip now lists each detected question's marks (`Q1 · 1 mark   Q2 · 2 marks …`, via `detectedQuestions.map`) between the subject/topic line and the "Upload your answer sheet" prompt — desktop + mobile, identical content. 2 files; gates GREEN (tsc; root **181/181**; lazytopper matrix incl. llm-path 5/5); cofounder byte-reviewed; owner-merged.
+
+**OWNER LIVE-VERIFIED on Vercel + mobile** — the Light-Reflection-Refraction PDF shows "5 questions detected · Science · Light - Reflection & Refraction", then "Q1 · 1 mark  Q2 · 2 marks  Q3 · 3 marks  Q4 · 5 marks  Q5 · 5 marks", then "Upload your answer sheet below to grade all 5"; same on mobile.
+
+**[FU-MULTI-QUESTION-DETECT] CLOSED** — multi-question C&I is complete end-to-end (detect ALL questions · per-question marks chip · whole-paper grade · CI nomenclature · MI parity). NEXT: the MCQ `correctOption` code side ([FU-MCQ-ANSWER-OPTION-FIELD]; `AGENT_eval_and_mcq_option_2026-06-29.md` PR-B section), then PR-B durable per-student time-series (`AGENT_PR_B_durable_time_series_2026-06-28.md`). [FU-GRADE-ANY-WORKSHEET] remains open.
+
+Cleanup: #315/#316/#317 branches + worktrees removed (the `ci-multiq`, `ci-detect-promptfix`, `ci-chip-marks` worktrees de-registered; Windows node_modules-lock leaves the `.git/worktrees/<name>` admin folders lingering harmlessly).
+
+---
+
 ## 2026-06-29 — Grader miscopy fix (#313 `129a73e`) MERGED & LIVE-VERIFIED
 
 **Trunk after merge: `129a73e`.** Prompt-only, additive, applied to BOTH grading paths in `lazytopper/server/routes/checkSolution.cjs` and kept in sync.

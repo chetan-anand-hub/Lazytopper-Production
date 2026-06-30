@@ -1,3 +1,13 @@
+## 2026-06-30 — Multi-question Check & Improve detect COMPLETE (#315 `91b5f83` + #316 `fdadd41` + #317 `cd5c8ca`) MERGED & LIVE-VERIFIED
+
+### ✅ RESOLVED / DELIVERED
+- **[FU-MULTI-QUESTION-DETECT] CLOSED** — multi-question Check & Improve detect is complete end-to-end across three PRs: **#315** (detect ALL questions via additive `questions[]` from `handleDetectQuestion`; whole-paper grade through the existing `/grade-worksheet`; CI nomenclature `CI-{S}-{TOPIC}-{NN}`; MI parity via `recordMistake`+`recordAttempt`; single-question path byte-identical), **#316** (prompt fix so detect returns ALL questions, not just Q1 — multi-item ellipsis schema + recency + `maxOutputTokens` 4096), **#317** (per-question marks chip). **Owner live-verified on Vercel + mobile** with the Light-Reflection-Refraction PDF ("5 questions detected · Science · Light - Reflection & Refraction" → "Q1 · 1 mark  Q2 · 2 marks  Q3 · 3 marks  Q4 · 5 marks  Q5 · 5 marks" → "Upload your answer sheet below to grade all 5"). NOTE: the original ask named a "frontend selection UI (pick which detected question to grade)" — shipped instead as **grade-the-whole-paper** (one upload grades all detected questions), which proved the better UX.
+
+### 🔁 STILL OPEN
+- **[FU-GRADE-ANY-WORKSHEET]** — REMAINS OPEN. Grading **non-system-generated** papers (a student's own / school worksheets) is now UNBLOCKED by the multi-question work (the whole-paper grader already accepts an arbitrary DETECTED question set — no pre-known scheme required), but a dedicated "grade any worksheet" surface/flow is still a future feature, not yet built.
+
+---
+
 ## 2026-06-29 — thinkingBudget detect fix (#310 `7276d31`) + grader eval harness (#311 `2bc545c`) MERGED & LIVE-VERIFIED
 
 ### ✅ RESOLVED / DELIVERED
