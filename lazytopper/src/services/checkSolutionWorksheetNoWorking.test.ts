@@ -241,3 +241,84 @@ describe("worksheet grader: objective (MCQ/AR) deterministic honesty", () => {
     expect(r.annotatedSteps[0].marksDeducted).toBe(3);
   });
 });
+
+// Deterministic MCQ scoring via `correctOption`. When the bank supplies the canonical
+// option letter the server overrides the model's per-step status/marks on a normalised
+// string compare (so "(a)", "A", "a" all match) — trusting the deterministic compare
+// over model judgment. Absent the field, behavior is unchanged (the model-judgment /
+// objective guard path). Same harness, same canonical isObjectiveType classifier.
+describe("worksheet grader: deterministic MCQ scoring (correctOption)", () => {
+  // A Section-A MCQ carrying the canonical correct option letter.
+  const objQWithKey = (marks: number, correctOption: string) => [
+    { qNumber: 1, marks, section: "A", format: "MCQ", correctOption,
+      topic: "t", topicLabel: "T", questionText: "Q1?" },
+  ];
+  // Same MCQ with NO key — the deterministic path must stay inert.
+  const objQNoKey = (marks: number) => [
+    { qNumber: 1, marks, section: "A", format: "MCQ", topic: "t", topicLabel: "T", questionText: "Q1?" },
+  ];
+
+  // (h) correctOption present + student wrote the CORRECT letter -> status correct, full
+  //     marks, mistakeType null. The model UNDER-awarded (said incorrect, 0 marks); the
+  //     deterministic compare overrides it. Mixed-case "A" vs key "(a)" still matches.
+  it("(h) correct pick -> overridden to correct + full marks (model under-award ignored)", async () => {
+    const grade = oneResult(
+      [{
+        description: "chosen option", studentWork: "A", status: "incorrect",
+        marksAwarded: 0, marksDeducted: 1, teacherAnnotation: "model thought wrong",
+        mistakeType: null, correctedWorking: null,
+      }],
+      { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    );
+    const { body } = await buildRoute(grade).run(basePayload(objQWithKey(1, "(a)")));
+    const r = body.results[0];
+    expect(r.annotatedSteps[0].status).toBe("correct");
+    expect(r.annotatedSteps[0].marksAwarded).toBe(1);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(0);
+    expect(r.annotatedSteps[0].mistakeType).toBeNull();
+    expect(r.marksAwarded).toBe(1);
+    expect(r.totalMarks).toBe(1);
+  });
+
+  // (i) correctOption present + student wrote the WRONG letter -> status incorrect, 0
+  //     marks, mistakeType null. The model OVER-awarded (said correct, full marks); the
+  //     deterministic compare overrides it, then the objective guard nulls the type.
+  it("(i) wrong pick -> overridden to incorrect + 0 marks, mistakeType null", async () => {
+    const grade = oneResult(
+      [{
+        description: "chosen option", studentWork: "(b)", status: "correct",
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: "model thought right",
+        mistakeType: null, correctedWorking: null,
+      }],
+      { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    );
+    const { body } = await buildRoute(grade).run(basePayload(objQWithKey(1, "(a)")));
+    const r = body.results[0];
+    expect(r.annotatedSteps[0].status).toBe("incorrect");
+    expect(r.annotatedSteps[0].marksAwarded).toBe(0);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(1);
+    expect(r.annotatedSteps[0].mistakeType).toBeNull();
+    expect(r.marksAwarded).toBe(0);
+  });
+
+  // (j) REGRESSION: correctOption ABSENT -> deterministic path inert, existing behavior
+  //     unchanged. A wrong MCQ "(d)" the model tagged conceptual is still nulled by the
+  //     OBJECTIVE guard (not the new compare), and the model's marks are untouched.
+  it("(j) correctOption absent -> model-judgment path unchanged (objective guard still nulls type)", async () => {
+    const grade = oneResult(
+      [{
+        description: "chosen option", studentWork: "(d)", status: "incorrect",
+        marksAwarded: 0, marksDeducted: 1, teacherAnnotation: "wrong option",
+        mistakeType: "conceptual", correctedWorking: "Snell's law",
+      }],
+      { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+    );
+    const { body } = await buildRoute(grade).run(basePayload(objQNoKey(1)));
+    const r = body.results[0];
+    expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective guard, not the new compare
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    expect(r.annotatedSteps[0].status).toBe("incorrect"); // status NOT touched by the inert compare
+    expect(r.annotatedSteps[0].marksAwarded).toBe(0);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(1);
+  });
+});

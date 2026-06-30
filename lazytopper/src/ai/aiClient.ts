@@ -366,6 +366,11 @@ export interface WorksheetGradeQuestionInput {
    *  classify an objective question and never fabricate a mistake type for a bare
    *  wrong MCQ pick. */
   section?: string;
+  /** The canonical correct option letter for MCQ/AR questions, e.g. "(a)", "(b)", "(c)",
+   *  "(d)". When present the grader performs a deterministic string compare instead of
+   *  relying on model judgment. Absent for subjective questions and any MCQ not yet
+   *  annotated. */
+  correctOption?: string;
   solutionSteps?: string[];
   finalAnswer?: string;
 }
