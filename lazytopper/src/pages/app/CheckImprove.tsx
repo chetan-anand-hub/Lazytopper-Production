@@ -712,6 +712,13 @@ export default function CheckImprove() {
             >
               <strong>{detectedQuestions.length} questions detected</strong> · {confirmed.subject}
               {confirmed.topicName ? ` · ${confirmed.topicName}` : ""}
+              <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 12px" }}>
+                {detectedQuestions.map((q) => (
+                  <span key={q.questionNumber}>
+                    Q{q.questionNumber} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
+                  </span>
+                ))}
+              </div>
               <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", marginTop: 4 }}>
                 Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
               </div>
