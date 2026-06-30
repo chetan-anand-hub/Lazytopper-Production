@@ -659,6 +659,34 @@ function createCheckSolutionRoute(deps) {
     // fabricated count from the model's self-reported summary too (otherwise
     // max(rawSummary, stepFloor) re-introduces it).
     const questionIsObjective = isObjectiveType(q.qType || q.format, q.section);
+    // Deterministic MCQ scoring: when the bank supplies the correct option letter,
+    // override the model's per-step status based on a normalised string compare.
+    // Normalise: strip parens/brackets, trim, lowercase — so "(a)", "A", "a" all match.
+    // Falls back to model-judgment (the noWorkingNulled loop below) when absent.
+    if (questionIsObjective && q.correctOption) {
+      const normOpt = (s) =>
+        String(s || '').replace(/[()[\]\s]/g, '').toLowerCase();
+      const correctPick = normOpt(q.correctOption);
+      if (correctPick) {
+        for (const s of annotatedSteps) {
+          const studentPick = normOpt(s.studentWork);
+          if (studentPick) {
+            const hit = studentPick === correctPick;
+            s.status = hit ? 'correct' : 'incorrect';
+            // Marks: full on hit, 0 on miss (the model's award may be wrong;
+            // we trust the deterministic compare over model judgment here).
+            if (hit) {
+              s.marksAwarded = Math.round(totalMarks / Math.max(annotatedSteps.length, 1));
+              s.marksDeducted = 0;
+            } else {
+              s.marksAwarded = 0;
+              s.marksDeducted = Math.round(totalMarks / Math.max(annotatedSteps.length, 1));
+            }
+          }
+          // If studentWork is absent (couldNotRead path) leave s untouched.
+        }
+      }
+    }
     const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
     for (const s of annotatedSteps) {
       const noWorking = !s.studentWork?.trim();
@@ -927,6 +955,7 @@ function createCheckSolutionRoute(deps) {
         qType: String((q && q.qType) || '').trim(),
         solutionSteps: Array.isArray(q && q.solutionSteps) ? q.solutionSteps.map(String) : null,
         finalAnswer: q && q.finalAnswer ? String(q.finalAnswer).trim() : null,
+        correctOption: q && q.correctOption ? String(q.correctOption).trim() : null,
       }))
       .filter((q) => q.qNumber > 0 && q.questionText);
 

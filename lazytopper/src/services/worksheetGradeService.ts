@@ -97,6 +97,11 @@ export async function gradeWorksheetAndRecord(
       // objective answer (MCQ / AR / Section A) as attempt-only, never a
       // fabricated mistake type. Additive — no other field changes.
       section: q.section,
+      // Deterministic MCQ scoring: carry the correct option letter when the bank
+      // has it. The server compares it against the student's chosen option.
+      // `q` is typed as the canonical question — correctOption is an optional
+      // addition not yet in the shared type; cast safely.
+      correctOption: (q as unknown as { correctOption?: string }).correctOption,
       solutionSteps: q.solutionSteps,
       finalAnswer: q.finalAnswer,
     })),
