@@ -1197,6 +1197,13 @@ const DesktopCheckImprovePage: React.FC = () => {
                 >
                   <strong>{detectedQuestions.length} questions detected</strong> · {confirmed.subject}
                   {confirmed.topicName ? ` · ${confirmed.topicName}` : ""}
+                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 16px" }}>
+                    {detectedQuestions.map((q) => (
+                      <span key={q.questionNumber}>
+                        Q{q.questionNumber} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
+                      </span>
+                    ))}
+                  </div>
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
                     Upload your answer sheet (image or PDF) below to grade all {detectedQuestions.length}.
                   </div>
