@@ -44,12 +44,24 @@ function saveMockScoreHistory(history: MockScoreHistory): void {
 
 export function saveMockScore(entry: Omit<MockScoreEntry, "id" | "timestamp">): void {
   const history = loadMockScoreHistory();
-  history.entries.push({
+  const newEntry: MockScoreEntry = {
     ...entry,
     id: `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     timestamp: Date.now(),
-  });
+  };
+  history.entries.push(newEntry);
   saveMockScoreHistory(history);
+
+  // PR-B: durable per-mock record (mirror of the attempt subcollection). Keep the
+  // existing blob write above; this is the additional queryable layer. Fire-and-forget.
+  const uid = getActiveProgressUser();
+  if (firestoreDb && uid && uid !== "anonymous") {
+    void setDoc(
+      doc(firestoreDb, "mockScoreHistory", uid, "entries", newEntry.id),
+      { ...newEntry, updatedAt: new Date().toISOString() },
+      { merge: true },
+    ).catch(() => {});
+  }
 }
 
 export function getMockScoresForSubject(subject: "Maths" | "Science"): MockScoreEntry[] {

@@ -5,7 +5,7 @@
  * Daily Mix and Weekly Wrapped.
  */
 
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import type { AuthUser } from "../context/AuthContext";
 import {
   buildProgressScopeKey,
@@ -275,7 +275,7 @@ export function recordAttempt(
   // ── Build + persist ───────────────────────────────────────────────────
   const topicLabel = String(ctx.topic ?? ctx.topicKey ?? "").trim();
   const isCorrect = scored >= available;
-  appendAttempt({
+  const attemptDoc = {
     questionId: ctx.questionId?.trim() || "",
     topicKey: topicLabel,
     topicName: topicLabel || undefined,
@@ -285,12 +285,30 @@ export function recordAttempt(
     correct: isCorrect,
     marksScored: scored,
     marksAvailable: available,
-    mode: ctx.mode,
+    mode: ctx.mode,                       // AttemptMode: "graded" | "mcq" | "self-assess" — UNCHANGED
     ...(ctx.marksSource ? { marksSource: ctx.marksSource } : {}),
     ...(ctx.detectionOverride ? { detectionOverride: ctx.detectionOverride } : {}),
     timestamp: Number(ctx.timestamp) || Date.now(),
-  });
+  };
+  appendAttempt(attemptDoc);
   writeAttemptDedup([key, ...seen.filter((k) => k !== key)]);
+
+  // PR-B: durable per-attempt time-series. Write each recorded attempt as an
+  // independently queryable Firestore document. Idempotent BY CONSTRUCTION — the
+  // doc id derives from the same dedup signature `key`, so a cache-restore replay
+  // overwrites the same doc (never duplicates). Fire-and-forget, mirrors the
+  // blob-write guard in saveInsights. The root blob still loads on app start;
+  // this subcollection is the new durable, range-queryable layer.
+  if (firestoreDb && user.uid !== "anonymous") {
+    // `key` is `uid::qid::scored/available::mode` — sanitize Firestore-illegal chars
+    // ("/", ".", "#", "$", "[", "]", whitespace) to "_" so it is a valid doc id.
+    const attemptId = key.replace(/[/.#$[\]\s]/g, "_");
+    void setDoc(
+      doc(firestoreDb, "practiceInsights", user.uid, "attempts", attemptId),
+      { ...attemptDoc, id: attemptId },
+      { merge: true },
+    ).catch(() => {});
+  }
 
   // ── Loop-closer (MI-Loop Stage 2 PR 2) ────────────────────────────────
   // A FULLY-correct attempt shrinks the topic's active weakness by one. This
@@ -325,6 +343,30 @@ export function recordAttempt(
   }
 
   return "recorded";
+}
+
+/**
+ * PR-B: durable cloud-backed attempt query. Reads the per-attempt subcollection
+ * `practiceInsights/{uid}/attempts`, filtered by timestamp range — the durable,
+ * cross-device source the Progress engine reads. Additive: the synchronous
+ * getAttempts() (localStorage) is unchanged and stays the fast-path for quick surfaces.
+ */
+export async function getAttemptsFromCloud(
+  uid: string,
+  options: { start?: number; end?: number } = {},
+): Promise<PracticeAttempt[]> {
+  if (!firestoreDb || !uid || uid === "anonymous") return [];
+  try {
+    const col = collection(firestoreDb, "practiceInsights", uid, "attempts");
+    const clauses = [];
+    if (typeof options.start === "number") clauses.push(where("timestamp", ">=", options.start));
+    if (typeof options.end === "number") clauses.push(where("timestamp", "<=", options.end));
+    const snap = await getDocs(clauses.length ? query(col, ...clauses) : query(col));
+    return snap.docs.map((d) => d.data() as PracticeAttempt);
+  } catch (err) {
+    console.warn("getAttemptsFromCloud failed:", err);
+    return [];
+  }
 }
 
 /**

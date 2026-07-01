@@ -13,6 +13,7 @@ export type DashboardPrefs = {
   examDate?: string;
   examDateSource?: "official" | "predicted";
   updatedAt?: string;
+  timeWindow?: "week" | "2week" | "month" | "4month";
 };
 
 function localProfileKey(uid: string): string {
@@ -62,6 +63,10 @@ function sanitizePrefs(input: unknown): DashboardPrefs | null {
     examDateSource:
       String(rec.examDateSource || "predicted") === "official" ? "official" : "predicted",
     updatedAt: typeof rec.updatedAt === "string" ? rec.updatedAt : undefined,
+    timeWindow: (() => {
+      const v = String(rec.timeWindow || "");
+      return v === "week" || v === "2week" || v === "4month" ? v : "month";
+    })(),
   };
 }
 
