@@ -480,7 +480,52 @@
     }
   },
   "mindmap": {
-    "_TODO": "lift D3 tree from note JS in the kit back-conversion; shape = {root, branches:[{label, children:[...]}]}"
+    "root": "Light — Reflection &amp; Refraction",
+    "branches": [
+      {
+        "label": "Reflection (mirrors)",
+        "children": [
+          "Laws of reflection (∠i = ∠r)",
+          "Concave / convex mirrors",
+          "Image formation — ray diagrams",
+          "R = 2f"
+        ]
+      },
+      {
+        "label": "Mirror formula (3 mk)",
+        "children": [
+          "1/v + 1/u = 1/f",
+          "m = −v/u",
+          "Sign convention first"
+        ]
+      },
+      {
+        "label": "Refraction (2–3 mk)",
+        "children": [
+          "Bends toward normal (denser)",
+          "Snell: sin i / sin r = n",
+          "n = c / v"
+        ]
+      },
+      {
+        "label": "Lenses (3 mk)",
+        "children": [
+          "Convex / concave lens",
+          "1/v − 1/u = 1/f",
+          "m = +v/u",
+          "Power P = 1/f(m), dioptre"
+        ]
+      },
+      {
+        "label": "Don’t lose marks on…",
+        "children": [
+          "Sign convention errors",
+          "Mirror vs lens m",
+          "cm not converted to m (power)",
+          "Nature not stated"
+        ]
+      }
+    ]
   },
   "source_ledger": [
     {
