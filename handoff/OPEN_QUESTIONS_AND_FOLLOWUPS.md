@@ -147,6 +147,19 @@
 
 ---
 
+## 2026-07-03 — Notes track: `<Note>` render (#324) + quadratic spec (#325) MERGED; Light completion DRAFT (#326)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-NOTE-PDF-EXPORT]** — the Step-1 prototype's Download-PDF is `window.print`-based; port it into the React `<Note>` component so the rendered note has a working Download-PDF. Its own small PR in the PR-F code lane — reference the prototype's print approach (`notes/light_note_ENRICHED_v2_2026-06-21.html`).
+- **[FU-NOTE-GENERATED-FIG]** — PR-F (#324) deferred the d3 rendering of `generated`-bucket figures, so the quadratic-equations discriminant figure currently shows a **placeholder** in `<Note>`. Wire the generated-figure renderer (d3) so `bucket:"generated"` figures draw.
+- **[FU-NOTES-LIGHT-COMPLETE]** — completing the Light spec (LIFT the 3 figures base64 PNG→WebP + the mindmap D3→spec from the owner-approved prototype, no PDF re-extraction) is opened as **DRAFT #326** (`feat/notes-light-complete`). **CLOSE on #326 merge.**
+
+### ✅ DELIVERED
+- **#324 (`9c7fa81`)** — PR-F `<Note spec={…}/>` renders note-specs in Topic Hub via `import.meta.glob`; honest empty state for spec-less topics. Owner-merged, no self-merge.
+- **#325 (`52dd77b`)** — `notes/specs/quadratic-equations.json` (NCERT-verbatim, VALID 9/9, 6 examples, real mindmap, generated figure). Owner-merged, no self-merge.
+
+---
+
 ## 2026-06-22 — Notes-generation track Step-1 MERGED (#282, `de2a616`) — parallel content track
 
 ### ✅ RESOLVED / DELIVERED

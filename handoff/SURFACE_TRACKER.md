@@ -32,7 +32,7 @@ Cells are read against each surface's CURRENTLY-KNOWN scope (see the Scope colum
 | **Home** | Settling | ✅ | 🟡 | 🟡 | ✅ | — | 🟡 | converge to orient-first; real-insights wiring; confirm desktop |
 | **Landing** | Locked | ✅ | ✅ | ✅ | ✅ | — | 🟡 | confirm both widths |
 | **Login** | Locked | ✅ | ✅ | ✅ | ✅ | — | ✅ | none (Firebase live) |
-| **Notes** (content track) | Settling | 🟡 | — | — | — | — | — | infra done (validator/schema/exemplar); PR-F `<Note>` component + spec authoring — DATA track, parallel |
+| **Notes** (content track) | Settling | ✅ | — | ✅ | 🟡 | — | ⬜ | RENDERS via `<Note>` (#324); Quadratic spec (#325) complete, Light figures+mindmap in DRAFT #326; ~30 chapters remain (spec authoring, parallel DATA track) |
 
 ## 2a · DISCOVERED-SCOPE LOG (scope that emerged AFTER a surface was first planned)
 The record of how each surface revealed its true shape. Each entry: what was discovered · why it became necessary · where it went (PR / queued). This is not noise — it is the most reusable artifact here: it teaches us to predict the *next* surface's hidden scope (Chapter Test will discover its own equivalents).

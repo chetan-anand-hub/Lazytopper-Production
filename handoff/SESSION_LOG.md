@@ -1,5 +1,17 @@
 ---
 
+## 2026-07-03 — Notes track: `<Note>` render (#324) + quadratic spec (#325) MERGED; Light completion DRAFT (#326)
+
+**Trunk after #324+#325: `52dd77b`.** Two notes-track PRs merged; the Light note-spec completion opened as a DRAFT for owner review.
+
+- **#324 (`9c7fa81`) — PR-F `<Note spec={…}/>`.** Renders note-specs in Topic Hub via `import.meta.glob(notes/specs/*.json)`, honest empty state for spec-less topics, shared KaTeX/D3 bundle. `generated`-bucket figure d3 render deferred → placeholder. Owner-merged, no self-merge.
+- **#325 (`52dd77b`) — quadratic-equations spec.** `notes/specs/quadratic-equations.json`, VALID (9/9), 6 examples incl. the NCERT Ex 4.1 Q2(ii) form-the-equation, real mindmap, generated discriminant figure. Owner-merged, no self-merge.
+- **#326 (DRAFT, `feat/notes-light-complete`, base `52dd77b`) — Light note-spec COMPLETION.** Completes `[FU-NOTES-LIGHT-COMPLETE]` by **LIFTING** from the owner-approved prototype `notes/light_note_ENRICHED_v2_2026-06-21.html` (NOT re-extracting from the NCERT PDF): **TASK A** — the 3 base64 PNG figures → WebP q82 at `notes/assets/light/{fig_97b,fig_910,fig_99}.webp` (the exact paths `figures{}` already references; manifests unchanged); **TASK B** — the D3 mindmap tree → `spec.mindmap` `{root, branches:[{label, children}]}` (shape matched to the quadratic sibling; `_TODO` removed). Gates: `validate_spec.py` VALID 9/9; `run_negative_tests.py` OK; spec diff surgical (mindmap +46/−1); `notes/` only. Owner-merged content lane, **no self-merge** — awaiting owner review.
+
+**Topic Hub Notes now RENDERS** (Light + Quadratic; ~30 chapters remain — spec authoring is the parallel DATA track). New follow-ups: **[FU-NOTE-PDF-EXPORT]**, **[FU-NOTE-GENERATED-FIG]**, **[FU-NOTES-LIGHT-COMPLETE]** (close on #326 merge). Content PR report: `report-notes-light-complete-2026-07-03.md`.
+
+---
+
 ## 2026-07-03 — Firestore undefined-field persistence fix (#322) MERGED — PR-B (#321) now LIVE end-to-end
 
 **Trunk after: `706cc12`.** Root-caused and fixed the silent Firestore write failure that made PR-B non-functional despite being merged. **Root cause (confirmed live):** `firebaseClient.ts` initialised Firestore with `getFirestore(app)`, which does NOT set `ignoreUndefinedProperties`; the Firestore JS SDK therefore **throws** `"Unsupported field value: undefined"` on any document carrying an `undefined` field. Every attempt doc carries `undefined` (`bloomSkill` on the C&I/MCQ paths, `topicName` when absent), so ALL three attempt writes — the `practiceInsights/{uid}` blob (`saveInsights`), the PR-B `practiceInsights/{uid}/attempts/{id}` subcollection (`recordAttempt`), and the `learnerProgress` attempts segment — threw and were silently swallowed by fire-and-forget `.catch(() => {})`. localStorage worked (`JSON.stringify` drops `undefined`) and `recordMistake` worked (no `undefined` fields); that asymmetry was the whole bug, and it predated PR-B (the blob write never worked; PR-B inherited it). **Fix (2 files, additive/surgical):** (1) `firebaseClient.ts` — `getFirestore(app)` → `initializeFirestore(app, { ignoreUndefinedProperties: true })` (the root fix; `firebaseClient` is the SOLE Firestore init — verified `getFirestore`/`initializeFirestore` appears in no other file — so this is the first Firestore call and cannot throw "already started"). (2) `practiceInsights.ts` — un-muted the two write `.catch(() => {})` to `console.warn(...)` for observability. No change to Firestore paths/payloads/guards, PR-B's write logic, `firestore.rules`, the grader, or any UI.
