@@ -318,6 +318,38 @@
       }
     },
     {
+      "id": "ex_ncert_ex41_2ii",
+      "shape": "Form the equation · NCERT Exercise 4.1 Q2(ii)",
+      "kind": "numerical",
+      "problem_verbatim": "Represent the following situations in the form of quadratic equations : … (ii) The product of two consecutive positive integers is 306. We need to find the integers.",
+      "solution_steps": [
+        {
+          "lead": "Name the unknown.",
+          "text": "Let the first positive integer be $x$; consecutive means the next is $x + 1$.",
+          "concept_tag": "set up the variable"
+        },
+        {
+          "lead": "Build the equation.",
+          "text": "Their product is 306: $x(x + 1) = 306$.",
+          "concept_tag": "translate the condition"
+        },
+        {
+          "lead": "Reduce to standard form.",
+          "text": "$x^2 + x - 306 = 0$ — this is the required representation. The question asks only to FORM the equation, not to solve it.",
+          "concept_tag": "standard form is the answer"
+        }
+      ],
+      "mark_logic": "2-mark shape: 1 for naming the unknown and writing the product condition $x(x+1)=306$, 1 for the standard form $x^2 + x - 306 = 0$. Solving is NOT asked — stop at the equation; time spent solving earns nothing here.",
+      "source": {
+        "ncert_exercise": "4.1",
+        "question": "2(ii)",
+        "ncert_page": 42,
+        "edition": "2026-27",
+        "chapter": 4,
+        "note": "exercise stem on p.41 (“…in the form of quadratic equations :” — NCERT's spacing preserved), item (ii) on p.42; both eye-verified on the rasterized pages"
+      }
+    },
+    {
       "id": "ex_pyq_2024_findk",
       "shape": "“Find k” for equal roots · CBSE 2024 board paper",
       "kind": "numerical",
@@ -605,6 +637,11 @@
       "item": "Word problem · NCERT Example 8",
       "type": "example",
       "source": "NCERT 2026-27 Ch4 Example 8 p.45–46"
+    },
+    {
+      "item": "Form the equation · NCERT Exercise 4.1 Q2(ii)",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch4 Exercise 4.1 Q2(ii) p.41–42"
     },
     {
       "item": "“Find k” for equal roots · CBSE 2024",
