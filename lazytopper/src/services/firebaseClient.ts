@@ -1,6 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import { initializeFirestore, type Firestore } from "firebase/firestore";
 
 type FirebaseConfig = {
   apiKey: string;
@@ -40,7 +40,10 @@ let firestoreDb: Firestore | null = null;
 if (firebaseConfigured) {
   app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
   authClient = getAuth(app);
-  firestoreDb = getFirestore(app);
+  // ignoreUndefinedProperties: the SDK otherwise THROWS on any `undefined` field
+  // value, which silently killed every practiceInsights/attempts write (attempt docs
+  // carry optional undefined fields like bloomSkill/topicName). Do NOT remove this.
+  firestoreDb = initializeFirestore(app, { ignoreUndefinedProperties: true });
 }
 
 export { app, authClient, firestoreDb };

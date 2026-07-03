@@ -122,7 +122,7 @@ export function saveInsights(data: PracticeInsights): void {
     if (uid) {
       void saveLearnerProgressSegment(uid, "attempts", data.attempts);
       if (firestoreDb && uid !== "anonymous") {
-        void setDoc(doc(firestoreDb, "practiceInsights", uid), { ...data, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+        void setDoc(doc(firestoreDb, "practiceInsights", uid), { ...data, updatedAt: new Date().toISOString() }, { merge: true }).catch((e) => console.warn("[practiceInsights] blob write failed", e));
       }
     }
   } catch (err) {
@@ -307,7 +307,7 @@ export function recordAttempt(
       doc(firestoreDb, "practiceInsights", user.uid, "attempts", attemptId),
       { ...attemptDoc, id: attemptId },
       { merge: true },
-    ).catch(() => {});
+    ).catch((e) => console.warn("[practiceInsights] attempt write failed", e));
   }
 
   // ── Loop-closer (MI-Loop Stage 2 PR 2) ────────────────────────────────
