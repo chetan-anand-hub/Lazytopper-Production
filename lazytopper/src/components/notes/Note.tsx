@@ -421,7 +421,7 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
     <figure className="lt-note__figure">
       {(figure.tag || figure.caption) && (
         <figcaption className="lt-note__fcap">
-          {figure.tag && <span className="lt-note__ft">{figure.tag}</span>}
+          {figure.tag && <span className="lt-note__ft"><NoteRichText text={figure.tag} /></span>}
           {figure.caption && <NoteRichText text={figure.caption} />}
         </figcaption>
       )}
@@ -436,7 +436,7 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
           <span className="lt-note__fpending-ic" aria-hidden="true">◫</span>
           <span>
             Figure asset pending extraction — the sourced original is
-            {figure.tag ? <> <code>{figure.tag}</code></> : " recorded in the spec"}.
+            {figure.tag ? <> <code><NoteRichText text={figure.tag} /></code></> : " recorded in the spec"}.
           </span>
         </div>
       )}
@@ -497,7 +497,7 @@ function ExampleCard({
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="lt-note__ex-shape">{example.shape}</span>
+        <span className="lt-note__ex-shape"><NoteRichText text={example.shape} /></span>
         {cite && <span className="lt-note__ex-meta">{cite}</span>}
         <span className="lt-note__ex-caret" aria-hidden="true">▸</span>
       </button>
@@ -511,7 +511,7 @@ function ExampleCard({
               <div key={i} className="lt-note__step">
                 <div className="lt-note__step-n" aria-hidden="true">{i + 1}</div>
                 <div className="lt-note__step-body">
-                  {step.lead && <span className="lt-note__step-lead">{step.lead}</span>}
+                  {step.lead && <span className="lt-note__step-lead"><NoteRichText text={step.lead} /></span>}
                   <NoteRichText text={step.text} />
                   {step.equation && (
                     <div>
@@ -524,7 +524,7 @@ function ExampleCard({
                     </div>
                   )}
                   {step.concept_tag && (
-                    <span className="lt-note__step-ctag">Concept: {step.concept_tag}</span>
+                    <span className="lt-note__step-ctag">Concept: <NoteRichText text={step.concept_tag} /></span>
                   )}
                 </div>
               </div>
@@ -576,7 +576,7 @@ function MindmapPanel({ mindmap }: { mindmap: NoteMindmap }) {
   return (
     <section className="lt-note__block">
       <div className="lt-note__sec-label">Mindmap</div>
-      <div className="lt-note__mm-root">{mindmap.root}</div>
+      <div className="lt-note__mm-root"><NoteRichText text={mindmap.root ?? ""} /></div>
       <div className="lt-note__mm-branches">
         {(mindmap.branches ?? []).map((branch, i) => (
           <div key={i} className="lt-note__mm-branch">
@@ -639,11 +639,11 @@ function ThirdTabPanel({
               <div key={i} className="lt-note__signtable">
                 {run.blocks.map((block, j) => (
                   <div key={j} className="lt-note__signcard">
-                    <h4>{block.heading}</h4>
+                    <h4><NoteRichText text={block.heading} /></h4>
                     <ul>
                       {block.rows.map((row, k) => (
                         <li key={k}>
-                          <span className="lt-note__sign">{row.sign}</span>
+                          <span className="lt-note__sign"><NoteRichText text={row.sign} /></span>
                           <NoteRichText text={row.text} />
                         </li>
                       ))}
@@ -653,7 +653,7 @@ function ThirdTabPanel({
               </div>
             ) : (
               <div key={i}>
-                <div className="lt-note__sec-label">{run.block.heading}</div>
+                <div className="lt-note__sec-label"><NoteRichText text={run.block.heading} /></div>
                 <div className="lt-note__rulelist">
                   {run.block.items.map((item, j) => (
                     <div key={j} className="lt-note__rulei">
@@ -673,7 +673,7 @@ function ThirdTabPanel({
     case "proof":
       return (
         <section className="lt-note__block">
-          {content.name && <h2 className="lt-note__sec">{content.name}</h2>}
+          {content.name && <h2 className="lt-note__sec"><NoteRichText text={content.name} /></h2>}
           {intro}
           {headerFigure && <FigureCard figure={headerFigure} />}
           <div className="lt-note__steps">
@@ -705,7 +705,7 @@ function ThirdTabPanel({
           {headerFigure && <FigureCard figure={headerFigure} />}
           {content.derivations.map((derivation, i) => (
             <div key={i}>
-              <h2 className="lt-note__sec">{derivation.name}</h2>
+              <h2 className="lt-note__sec"><NoteRichText text={derivation.name} /></h2>
               <div className="lt-note__steps">
                 {derivation.steps.map((step, j) => (
                   <div key={j} className="lt-note__step">
@@ -740,7 +740,7 @@ function ThirdTabPanel({
               <div key={i} className="lt-note__rulei">
                 <div className="lt-note__rulei-n" aria-hidden="true">{i + 1}</div>
                 <div>
-                  <b>{reaction.name}</b>
+                  <b><NoteRichText text={reaction.name} /></b>
                   <div>
                     <NoteRichText text={reaction.equation} />
                   </div>
@@ -795,7 +795,7 @@ export function Note({ spec }: NoteProps) {
         <span className="lt-note__chip">Class 10 · CBSE 2026–27</span>
         <span className="lt-note__chip">{WEIGHTAGE_LABEL[meta.weightage]}</span>
       </div>
-      <h2 className="lt-note__title">{meta.title}</h2>
+      <h2 className="lt-note__title"><NoteRichText text={meta.title} /></h2>
       {spec.board_asks && (
         <div className="lt-note__board-asks">
           <div className="lt-note__board-asks-ic" aria-hidden="true">★</div>
@@ -841,7 +841,7 @@ export function Note({ spec }: NoteProps) {
           className={`lt-note__tab${tab === "third" ? " lt-note__tab--active" : ""}`}
           onClick={() => setTab("third")}
         >
-          {meta.third_tab.label}
+          <NoteRichText text={meta.third_tab.label} />
         </button>
       </div>
 
@@ -854,7 +854,7 @@ export function Note({ spec }: NoteProps) {
                 The Big Idea <span className="lt-note__tag-auth">AUTHORED</span>
               </div>
               {spec.big_idea.tagline && (
-                <h3 className="lt-note__sec">{spec.big_idea.tagline}</h3>
+                <h3 className="lt-note__sec"><NoteRichText text={spec.big_idea.tagline} /></h3>
               )}
               {spec.big_idea.body && (
                 <p className="lt-note__body-text">
@@ -969,7 +969,7 @@ export function Note({ spec }: NoteProps) {
                     <span className="lt-note__strat-arrow" aria-hidden="true">→</span>
                     <div>
                       {strategy.cue && (
-                        <span className="lt-note__strat-cue">{strategy.cue}</span>
+                        <span className="lt-note__strat-cue"><NoteRichText text={strategy.cue} /></span>
                       )}
                       <NoteRichText text={strategy.text} />
                     </div>
@@ -1000,7 +1000,7 @@ export function Note({ spec }: NoteProps) {
               <div className="lt-note__frow">
                 {spec.formula_strip.map((item, i) => (
                   <div key={i} className="lt-note__fitem">
-                    <div className="lt-note__flabel">{item.label}</div>
+                    <div className="lt-note__flabel"><NoteRichText text={item.label} /></div>
                     <div className="lt-note__fval">
                       <NoteRichText text={item.math} />
                     </div>
@@ -1027,7 +1027,7 @@ export function Note({ spec }: NoteProps) {
             Source ledger <span className="lt-note__tag-src">PROVENANCE</span>
           </div>
           <p className="lt-note__hint">
-            Source edition: {meta.source_edition}. One row per sourced item —
+            Source edition: <NoteRichText text={meta.source_edition} />. One row per sourced item —
             every verbatim, example and NCERT figure traces to its page.
           </p>
           <div className="lt-note__ledger-wrap">
@@ -1047,8 +1047,8 @@ export function Note({ spec }: NoteProps) {
                         <NoteRichText text={row.item} />
                       </b>
                     </td>
-                    <td>{row.type}</td>
-                    <td className="lt-note__ledger-src">{row.source}</td>
+                    <td><NoteRichText text={row.type} /></td>
+                    <td className="lt-note__ledger-src"><NoteRichText text={row.source} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -1058,7 +1058,7 @@ export function Note({ spec }: NoteProps) {
       )}
 
       <p className="lt-note__footnote">
-        {meta.title} · spec-rendered note · {meta.source_edition}
+        <NoteRichText text={meta.title} /> · spec-rendered note · <NoteRichText text={meta.source_edition} />
       </p>
     </div>
   );
