@@ -184,3 +184,23 @@ every changed `lazytopper/src/**` file because, in this combined repo, `git diff
 path-prefix artifact, not a real lane violation (same family as the D23-era scope:guard path issue).
 Do not "fix" it by editing the policy in a product PR; in a canonical app-root checkout the paths are
 `src/...` and it passes.
+
+## D32 — Firestore init MUST use `initializeFirestore(app, { ignoreUndefinedProperties: true })` — never revert
+Plain `getFirestore(app)` does NOT set `ignoreUndefinedProperties`, so the Firestore JS SDK **throws**
+`"Unsupported field value: undefined"` on ANY document that carries an `undefined` field. Attempt docs
+routinely carry `undefined` (`bloomSkill` on the C&I/MCQ paths, `topicName` when absent), so with plain
+`getFirestore` every `practiceInsights` / `attempts` write threw — and because the writes are
+fire-and-forget with `.catch(() => {})`, the error was silently swallowed for **weeks**. localStorage
+worked (`JSON.stringify` drops `undefined`) and `recordMistake` worked (its docs have no `undefined`);
+that asymmetry masked the bug. `firebaseClient.ts` is the SOLE Firestore init (`getFirestore`/
+`initializeFirestore` appears in no other file), so `initializeFirestore(app, { ignoreUndefinedProperties:
+true })` is safe as the first Firestore call and fixes the entire class across every collection. Fixed in
+#322 (`706cc12`). **Never revert to `getFirestore`, and never re-mute the write `.catch` to `() => {}`**
+— a bare catch is exactly what hid this. A unit test CANNOT catch a regression here: the in-memory
+Firestore mock accepts `undefined`, unlike real Firestore — the real gate is an owner live-verify.
+
+## D33 — A new top-level Firestore collection doesn't appear in the console left-nav until you reload
+When the FIRST document of a brand-new top-level collection is written, the Firestore console's left-nav
+collection list does NOT live-update — the collection only shows after a **page reload**. "I can't see the
+collection" therefore does NOT mean "the write failed." When live-verifying a first-ever write (as with
+`practiceInsights` in #322), reload the console before concluding anything is broken.

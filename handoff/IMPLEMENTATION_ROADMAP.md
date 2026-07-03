@@ -2,6 +2,12 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-03 — Firestore undefined-field persistence fix MERGED (#322, `706cc12`) — PR-B (#321) now LIVE end-to-end
+
+Trunk `706cc12`. The durable per-student attempt record (PR-B, #321) was merged but **non-functional**: `firebaseClient.ts` initialised Firestore with `getFirestore(app)` (no `ignoreUndefinedProperties`), so the SDK threw `"Unsupported field value: undefined"` on every attempt doc (they carry `undefined` `bloomSkill`/`topicName`), and fire-and-forget `.catch(() => {})` silently swallowed it. #322 (2 files) switched to `initializeFirestore(app, { ignoreUndefinedProperties: true })` and un-muted the two write catches to `console.warn`. Isolated worktree; cofounder byte-reviewed; owner LIVE-VERIFIED end-to-end on production (`practiceInsights/{uid}/attempts` now writes with all fields; repeat grade = no duplicate; `mistakeLogs` regression clean). See D32/D33.
+
+**Progress-build staging:** step 1 (recordAttempt front door) + step 2 (durable subcollection, PR-B) are now genuinely LIVE. **NEXT = step 3, the Universal `<ResultsScorecard>`** (spec `LazyTopper_Universal_Scorecard_Spec_2026-06-25.md`) — the shared honest results surface across Quick Practice / Worksheet / Check & Improve / Chapter Test.
+
 ## 2026-06-24 — Worksheet PR-A: grade-results redesign (presentation only) MERGED (#295, `1a85186`) — ⚠ owner live-verify PENDING
 
 Trunk `1a85186`. The worksheet grade UI rebuilt to the LOCKED redesign spec, on top of the E2b grade loop. **PRESENTATION ONLY — the grader (`checkSolution.cjs`) is BYTE-UNCHANGED (absent from the diff).** Isolated worktree; opened as a draft; cofounder-reviewed clean; owner-merged; no self-merge. Report: `report-pr-a-worksheet-grade-redesign-2026-06-24.md`.

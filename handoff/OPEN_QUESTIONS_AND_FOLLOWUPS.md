@@ -1,10 +1,27 @@
+## 2026-07-03 — Firestore undefined-field persistence fix MERGED (#322, `706cc12`) — PR-B (#321) now genuinely LIVE end-to-end
+
+### ✅ RESOLVED / DELIVERED
+- **Silent Firestore persistence failure ROOT-CAUSED + FIXED (#322 `706cc12`)** — `firebaseClient.ts` initialised Firestore with `getFirestore(app)` (no `ignoreUndefinedProperties`), so the SDK **threw** `"Unsupported field value: undefined"` on any doc with an `undefined` field. Every attempt doc carries `undefined` (`bloomSkill` on the C&I/MCQ paths, `topicName` when absent), so ALL attempt writes threw and were silently swallowed by fire-and-forget `.catch(() => {})`. Fix: `initializeFirestore(app, { ignoreUndefinedProperties: true })` (sole init — verified) + un-muted the two write catches to `console.warn`. 2 files; gates GREEN; CI GREEN (linux build); Codespace vitest 190 pass / 3 pre-existing-unrelated (`worksheetPdfExport.test.ts`, proven on base `c5b4de6`); cofounder byte-reviewed.
+- **[FU-PROGRESS-PERSISTENCE] / PR-B (#321) now LIVE-VERIFIED end-to-end** — PR-B was merged but **non-functional** (the blob write never worked; PR-B inherited the same undefined-rejection). **Owner live-verified on production after #322:** a fresh graded attempt now writes `practiceInsights/{uid}/attempts` and it appears in the console; the durable record carries all fields (subject, topicKey, marksScored/Available, `mode:"graded"`, correct, difficulty, questionId, timestamp); a repeat grade shows NO duplicate (PR-B idempotency, now actually exercised); `learnerProfiles/{uid}/mistakeLogs` still writes (regression clean). PR-B is now genuinely live.
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-PROGRESS-SURFACE-BREAKDOWN]** — an attempt does not record WHICH surface it came from (Quick Practice vs Worksheet vs Check & Improve vs Chapter Test). Surface is a **different axis** from `AttemptMode` (`graded`/`mcq`/`self-assess`). **DEFER** surface tagging until step 3/4 (the Universal Scorecard / Progress work) proves it actually needs which-surface an attempt originated from — owner ruling required before adding a field to the attempt shape.
+
+### 🔁 STILL OPEN (separate, logged — not addressed by #322)
+- **[FU-XUSERID-PROXY-STRIP]** — the Vercel→Railway proxy drops the `X-User-ID` header, breaking the backend focus/XP/streak sync (backend never sees the signed-in uid). Separate backend/proxy bug; not a device fork.
+- **[FU-MULTIQ-CI-GRADE-THROW]** — `multiQuestionToCsr` throws client-side on a multi-question Check & Improve grade. Separate from the persistence fix.
+- **[FU-MCQ-ATTEMPTS-NOT-RECORDED]** — un-annotated MCQs have `correctIdx < 0`, so the click never reaches `recordAttempt` → no score recorded. Needs `correctOption` bank annotation (ties to [FU-MCQ-CORRECTOPTION-VERIFY] / [FU-MCQ-ANSWER-OPTION-FIELD]).
+- **[FU-GRADING-RELIABILITY]** — NEW instance (distinct from the temperature one CLOSED by #307): cross-run **partial-credit variance** — the SAME solution scored **0.5 on one run and 1.5 on another**. This is grader **determinism**, not a device fork. Fix direction: tighten the partial-credit step-weight prompt and/or reduce model latitude on borderline steps so repeated grades of an identical answer converge.
+
+---
+
 ## 2026-06-30 — MCQ `correctOption` — deterministic worksheet MCQ scoring (code side) MERGED (#319, `a71c81e`)
 
 ### ✅ RESOLVED / DELIVERED
 - **[FU-MCQ-ANSWER-OPTION-FIELD] code side DONE** — the additive pipeline that lets the worksheet grader do a DETERMINISTIC normalised string compare of the student's picked MCQ option against a bank-supplied correct option. 3 product files + 1 test: `aiClient.ts` (`correctOption?: string` on `WorksheetGradeQuestionInput`), `worksheetGradeService.ts` (carry it client→server), `checkSolution.cjs` (server mapper + the deterministic compare in `normaliseStructuredResult`, gated on `isObjectiveType` AND `correctOption` present; full marks on hit, 0 + full deduction on miss; `couldNotRead`/empty-`studentWork` untouched; existing honesty reconcile unchanged after). **Ships LATENT** — no bank entries carry `correctOption` yet, so the absent-field path is byte-unchanged. Test now 13 (h/i/j added). Gates GREEN; CI GREEN; Codespace vitest 13/13; cofounder byte-reviewed; owner-instructed squash-merge.
 
 ### 🆕 NEW FOLLOW-UP
-- **[FU-MCQ-CORRECTOPTION-VERIFY]** — the DEFERRED live-verify for #319 (no quick live test exists today because the code ships latent — no bank entries carry `correctOption` yet). **GATE:** when the first batch of MCQ bank entries is annotated with `correctOption`, run a worksheet containing those MCQs **3 times** and confirm the score is **IDENTICAL across all three runs**. This gates the content-annotation task (annotating MCQ bank entries with their canonical option letter) — do NOT treat the annotation work as "done" until this 3×-identical check passes on real annotated MCQs.
+- **[FU-MCQ-CORRECTOPTION-VERIFY]** — the DEFERRED live-verify for #319 (no quick live test exists today because the code ships latent — no bank entries carry `correctOption` yet). **GATE:** when the first batch of MCQ bank entries is annotated with `correctOption`, run a worksheet containing those MCQs **3 times** and confirm the score is **IDENTICAL across all three runs** AND that **a correct pick actually scores correct** (full marks) and a wrong pick scores 0 — determinism alone is not enough; the deterministic compare must also be RIGHT. This gates the content-annotation task (annotating MCQ bank entries with their canonical option letter) — do NOT treat the annotation work as "done" until BOTH the 3×-identical check and the correct-pick-scores-correct check pass on real annotated MCQs.
 
 ---
 
@@ -26,7 +43,6 @@
 
 ### 🆕 NEW FOLLOW-UPS
 - **[FU-MISCOPY-CLASSIFICATION]** — the grader misclassifies a **miscopied question** (student copies the question wrong, then solves their wrong version) as a **concept gap**. It should be scored **0 marks + `silly`** (a careless transcription slip), NOT conceptual (no knowledge gap is implied). Fix direction: prompt-only, BOTH grading functions, added as `handleCheckSolution` **rule 15** / `gradeStructuredSet` **rule 9** (keep the two prompts in sync). **This is the immediate-next prompt-only PR** (branch fresh off `2bc545c`), ahead of the MCQ `correctOption` code side and PR-B.
-- **[FU-MULTI-QUESTION-DETECT]** — Check & Improve "Photo of the question" detect reads only the **first** question from a **multi-question PDF** (confirmed by-design today, not a bug). To support multi-question uploads it needs a **backend array response** (detect → list of questions) + a **frontend selection UI** (student picks which detected question to grade). Spec in progress. Prerequisite for [FU-GRADE-ANY-WORKSHEET].
 - **[FU-GRADE-ANY-WORKSHEET]** — students need to grade **non-system-generated** papers (their own / school worksheets), not just LazyTopper-generated worksheets with a known scheme. Depends on [FU-MULTI-QUESTION-DETECT] (the grader currently keys off the KNOWN question set; an arbitrary paper has none). Larger effort — backend + UX; sequenced after the multi-question detect work.
 
 ---
