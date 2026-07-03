@@ -426,6 +426,13 @@ import { electricityPYQ2024 } from './questionBanks/class10/science/electricity.
 import { magneticEffectsPYQ2024 } from './questionBanks/class10/science/magneticEffects.pyq2024';
 import { ourEnvironmentPYQ2024 } from './questionBanks/class10/science/ourEnvironment.pyq2024';
 
+// Foundation-pack extraction PILOT (2026-07-03) — authentic Light questions
+// (semantic extraction, de-duped), step-marked solutions. 99 AI-authored
+// solutions PENDING OWNER VERIFICATION — tracked via
+// LGHT_FND_AUTHORED_SOLUTION_IDS in AI_GENERATED_SOLUTION_IDS below. "others"
+// bucket (no pyqYear). Authentic tier — NOT in AI_GENERATED_PACK_SOURCES.
+import { LGHT_FND, LGHT_FND_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.fnd';
+
 const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -804,6 +811,9 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...howOrganismsReproducePYQ2024,
   ...heredityPYQ2024,
   ...lightReflectionPYQ2024,
+  // Foundation-pack extraction PILOT (2026-07-03) — authentic Light questions,
+  // mixed sourced/AI-authored solutions (see LGHT_FND_AUTHORED_SOLUTION_IDS)
+  ...LGHT_FND,
   ...humanEyePYQ2024,
   ...electricityPYQ2024,
   ...magneticEffectsPYQ2024,
@@ -1699,6 +1709,10 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   ARC_EXEMPLAR2,
 ] as const;
 
-export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set(
-  AI_GENERATED_SOLUTION_SOURCES.flatMap((source) => source.map((q) => q.id))
-);
+export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
+  ...AI_GENERATED_SOLUTION_SOURCES.flatMap((source) => source.map((q) => q.id)),
+  // Foundation-pack Light PILOT (2026-07-03): authentic questions whose
+  // solutions were AI-authored (the pack carried no worked solution for them);
+  // the remaining 132 rows of LGHT_FND have pack-sourced, re-verified solutions.
+  ...LGHT_FND_AUTHORED_SOLUTION_IDS,
+]);

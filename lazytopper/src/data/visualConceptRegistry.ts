@@ -449,6 +449,32 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
   { id: "maths-probability-fig-z3-pr-010-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-010-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-010" },
 ];
 
+// Raster source figures for SCIENCE questions — same contract as
+// MATHS_FIGURE_VISUALS above (id-keyed via questionId, isInteractive:false,
+// deliberately outside SCIENCE_VISUALS/concepts so keyword-heuristic explainer
+// scoring never sees them). Light figures: Foundation-pack extraction PILOT
+// (2026-07-03), every binding eye-confirmed against its question.
+export const SCIENCE_FIGURE_VISUALS: VisualConcept[] = [
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-002", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-002.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-002" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-004", title: "Source figure 1", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-004.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-004" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-004-2", title: "Source figure 2", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-004-2.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-004" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-025", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-025.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-025" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-029", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-029.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-029" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-030", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-030.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-030" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-042", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-042.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-042" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-043", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-043.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-043" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-057", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-057.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-057" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-086", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-086.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-086" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-090", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-090.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-090" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-093", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-093.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-093" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-098", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-098.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-098" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-106", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-106.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-106" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-107", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-107.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-107" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-qb-157", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-qb-157.webp", keywords: [], isInteractive: false, questionId: "FND-L-QB-157" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-bd-01", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-bd-01.webp", keywords: [], isInteractive: false, questionId: "FND-L-BD-01" },
+  { id: "science-light-reflection-and-refraction-fig-fnd-l-bd-06", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/fnd-l-bd-06.webp", keywords: [], isInteractive: false, questionId: "FND-L-BD-06" },
+];
+
 /**
  * Resolve the RASTER source figure(s) bound to a specific question id, in source
  * order. Returns [] when the question has no bound figure (the common case for
@@ -458,7 +484,9 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
  */
 export function getFiguresForQuestion(questionId: string | undefined | null): VisualConcept[] {
   if (!questionId) return [];
-  return MATHS_FIGURE_VISUALS.filter((f) => f.questionId === questionId);
+  return [...MATHS_FIGURE_VISUALS, ...SCIENCE_FIGURE_VISUALS].filter(
+    (f) => f.questionId === questionId
+  );
 }
 
 import { class10TopicRegistry } from "./class10TopicRegistry";
