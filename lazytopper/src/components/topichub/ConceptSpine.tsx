@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import ConceptTeachDrawer from "../tutor/ConceptTeachDrawer";
+import Note from "../notes/Note";
+import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
 import type {
@@ -421,6 +423,11 @@ export function ConceptSpine({
   const [tipsOpen, setTipsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
 
+  // PR-F — the pre-authored note-spec for this topic (notes/specs/<slug>.json),
+  // or null → the honest "coming soon" empty state below. Content arrives only
+  // via validated specs; nothing is generated or invented here.
+  const noteSpec = getNoteSpecForTopic(topic.slug);
+
   const concepts = actionable.boardEssentials;
   const trendTier = topic.trendTier;
 
@@ -501,12 +508,16 @@ export function ConceptSpine({
         </div>
         {notesOpen && (
           <div className="lt-spine__notes-panel">
-            <p className="lt-spine__panel-note">
-              Notes coming soon. One unified view will gather this topic&rsquo;s
-              formula sheet, board-format proofs and a mind-map (with a downloadable
-              PDF). No notes are authored here yet — the content arrives pre-generated
-              in a later stage.
-            </p>
+            {noteSpec ? (
+              <Note spec={noteSpec} />
+            ) : (
+              <p className="lt-spine__panel-note">
+                Notes coming soon. One unified view will gather this topic&rsquo;s
+                formula sheet, board-format proofs and a mind-map (with a downloadable
+                PDF). No notes are authored here yet — the content arrives pre-generated
+                in a later stage.
+              </p>
+            )}
           </div>
         )}
       </Card>
