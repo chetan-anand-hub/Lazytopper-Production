@@ -41,7 +41,7 @@ The record of how each surface revealed its true shape. Each entry: what was dis
   - *Worksheet nomenclature `WS-{S}-{TOPIC}-{NN}`* — durable records and "which worksheet" need a stable identity → PR-A device-local, PR-B durable.
   - *Four-type breakdown on the scorecard* — the MI moat had to be reflected at the worksheet surface → PR-A.
   - *Branded graded PDF* — students wanted to keep/share the graded sheet → PR-A.
-  - *Durable per-student record (uniqueness + journey + scorecard persistence)* — device-local couldn't guarantee fresh questions or a Me/Progress journey → PR-B (queued).
+  - *Durable per-student record (uniqueness + journey + scorecard persistence)* — device-local couldn't guarantee fresh questions or a Me/Progress journey → PR-B (#321) MERGED, and now genuinely LIVE end-to-end after **#322** (`706cc12`). *Discovered while live-verifying PR-B:* the record was merged but non-functional — Firestore's `getFirestore` init threw on every `undefined`-bearing attempt doc and fire-and-forget `.catch` hid it (see D32). #322's `initializeFirestore(..., { ignoreUndefinedProperties: true })` fixed it; owner live-verified the durable `practiceInsights/{uid}/attempts` write on production. This does NOT flip Me/Progress to ✅ (the visual journey redesign is still pending) — it makes the persistence FOUNDATION the redesign reads from actually work.
   - *Parent/teacher view foundation* — once a durable record existed, seeding the parent/teacher storage became cheap and obvious → PR-B foundation; the VIEW is a later deliberate feature.
 - **Topic Hub** (originally "an IA layout"):
   - *Exact mark-band filter* — concept-row Practise leaked wrong-mark questions through coarse buckets → PR-E1.
