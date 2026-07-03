@@ -1,0 +1,652 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "topic_key": "quadratic-equations",
+    "subject": "maths",
+    "chapter_no": 4,
+    "title": "Quadratic Equations",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 4 (jemh104.pdf, printed pages 38–48)"
+  },
+  "board_asks": "solving by factorisation &amp; the quadratic formula, the discriminant (nature of roots), and word problems — these carry almost every mark here.",
+  "big_idea": {
+    "tagline": "One question, a few tools.",
+    "body": "A quadratic equation is any equation you can write as $ax^2 + bx + c = 0$, where $a \\neq 0$. The whole chapter answers one question: <b>what values of $x$ make this true?</b> Those values are the <b>roots</b>. You'll learn to find them (factorisation, the quadratic formula), decide whether they exist (the discriminant), relate them to the coefficients, and turn real situations into equations you can solve."
+  },
+  "definitions": [
+    {
+      "id": "def_quadratic_equation",
+      "tier": "headline",
+      "term": "Quadratic equation",
+      "verbatim": "A quadratic equation in the variable x is an equation of the form ax² + bx + c = 0, where a, b, c are real numbers, a ≠ 0.",
+      "plain": "any equation that simplifies to degree 2. If the $x^2$ term survives simplification, it is quadratic — always simplify FIRST before deciding (NCERT's Example 2 warning).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 39,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "def_root",
+      "tier": "headline",
+      "term": "Root of a quadratic equation",
+      "verbatim": "In general, a real number α is called a root of the quadratic equation ax² + bx + c = 0, a ≠ 0 if aα² + bα + c = 0. We also say that x = α is a solution of the quadratic equation, or that α satisfies the quadratic equation.",
+      "plain": "a value of $x$ that makes the equation true — plug it in and the LHS becomes $0$. Same thing as a zero of the polynomial $ax^2+bx+c$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 42,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "def_discriminant",
+      "tier": "headline",
+      "term": "Discriminant",
+      "verbatim": "Since b² – 4ac determines whether the quadratic equation ax² + bx + c = 0 has real roots or not, b² – 4ac is called the discriminant of this quadratic equation.",
+      "plain": "$D = b^2 - 4ac$. When a question asks about the NATURE of roots (or “find $k$”), compute $D$ first — its sign answers the question without solving for $x$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 45,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "def_nature_of_roots",
+      "tier": "headline",
+      "term": "Nature of roots",
+      "verbatim": "So, a quadratic equation ax² + bx + c = 0 has (i) two distinct real roots, if b² – 4ac > 0, (ii) two equal real roots, if b² – 4ac = 0, (iii) no real roots, if b² – 4ac < 0.",
+      "plain": "$D>0$: cuts the x-axis twice · $D=0$: just touches it · $D<0$: never meets it. In answers, always say “no <b>real</b> roots”, not “no roots”.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 45,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "def_quadratic_formula",
+      "tier": "headline",
+      "term": "Quadratic formula",
+      "verbatim": "Quadratic formula: The roots of a quadratic equation ax² + bx + c = 0 are given by (−b ± √(b² − 4ac)) / 2a, provided b² – 4ac ≥ 0.",
+      "plain": "$x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ — the fallback that always works when $b^2 - 4ac \\ge 0$, e.g. when the middle term won't split.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 47,
+        "edition": "2026-27",
+        "chapter": 4,
+        "note": "Summary point 4; the printed stacked fraction is linearised with brackets"
+      }
+    },
+    {
+      "id": "kt_standard_form",
+      "tier": "key-term",
+      "term": "Standard form",
+      "verbatim": "That is, ax² + bx + c = 0, a ≠ 0 is called the standard form of a quadratic equation.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 39,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "kt_zeroes_are_roots",
+      "tier": "key-term",
+      "term": "Zeroes = roots",
+      "verbatim": "Note that the zeroes of the quadratic polynomial ax² + bx + c and the roots of the quadratic equation ax² + bx + c = 0 are the same.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 42,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "kt_atmost_two_roots",
+      "tier": "key-term",
+      "term": "At most two roots",
+      "verbatim": "You have observed, in Chapter 2, that a quadratic polynomial can have at most two zeroes. So, any quadratic equation can have atmost two roots.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 42,
+        "edition": "2026-27",
+        "chapter": 4,
+        "note": "“atmost” is NCERT's own spelling in the second sentence — preserved verbatim"
+      }
+    },
+    {
+      "id": "kt_factorisation_principle",
+      "tier": "key-term",
+      "term": "Roots by factorisation",
+      "verbatim": "If we can factorise ax² + bx + c, a ≠ 0, into a product of two linear factors, then the roots of the quadratic equation ax² + bx + c = 0 can be found by equating each factor to zero.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 47,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Solving by factorisation",
+      "body": "Split the middle term so the product of the two parts equals $a \\cdot c$, factor by grouping into two linear factors, then equate each factor to zero — the roots fall out.",
+      "tested": "2–3 mark “find the roots”",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "The quadratic formula",
+      "body": "$x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$, valid when $b^2 - 4ac \\ge 0$. The fallback when factorisation is hard — write $a$, $b$, $c$ with their signs before substituting.",
+      "tested": "2–3 marks",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Nature of roots via the discriminant",
+      "body": "$D = b^2 - 4ac$. $D>0$ → two distinct real roots · $D=0$ → two equal real roots · $D<0$ → no real roots. <b>The graph shows it best:</b>",
+      "tested": "“find k” for equal roots — up to 5 marks (CBSE 2024, 30/5/1 Q32a)",
+      "figure_ref": "fig_disc_triptych"
+    },
+    {
+      "id": "c4",
+      "title": "Roots &amp; coefficients (sum &amp; product)",
+      "body": "For roots $\\alpha, \\beta$: $\\alpha + \\beta = -\\dfrac{b}{a}$ and $\\alpha\\beta = \\dfrac{c}{a}$. Build an equation from given roots: $x^2 - (\\alpha+\\beta)x + \\alpha\\beta = 0$. ⚑ Syllabus note: catalogued under Polynomials (quadratic zeroes–coefficient relationship) — applied here.",
+      "tested": "Verify roots · form-the-equation",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Word problems → equation",
+      "body": "Translate the situation (area, ages, speed, consecutive numbers) into $ax^2 + bx + c = 0$, solve, and REJECT the root the situation forbids — a negative length or age, or an excluded value like $k \\neq -1$.",
+      "tested": "Long applied problem — a fixture of Sections C/D",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_4",
+      "shape": "Factorisation · NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "Find the roots of the quadratic equation 6x² – x – 2 = 0.",
+      "solution_steps": [
+        {
+          "lead": "Split the middle term (NCERT's split).",
+          "text": "$6x^2 - x - 2 = 6x^2 + 3x - 4x - 2$ — the two parts multiply to $6x^2 \\times (-2)…$ i.e. product $-12x^2$, sum $-x$.",
+          "concept_tag": "split the middle term"
+        },
+        {
+          "lead": "Group and factor.",
+          "text": "$= 3x(2x + 1) - 2(2x + 1) = (3x - 2)(2x + 1)$.",
+          "concept_tag": "factor by grouping"
+        },
+        {
+          "lead": "Equate each factor to zero.",
+          "text": "The roots of $6x^2 - x - 2 = 0$ are the values of $x$ for which $(3x - 2)(2x + 1) = 0$: so $3x - 2 = 0$ or $2x + 1 = 0$.",
+          "concept_tag": "zero-product rule"
+        },
+        {
+          "lead": "State BOTH roots.",
+          "text": "$x = \\dfrac{2}{3}$ or $x = -\\dfrac{1}{2}$. NCERT then verifies both satisfy the equation.",
+          "concept_tag": "verify both roots"
+        }
+      ],
+      "mark_logic": "3-mark shape: 1 for the split, 1 for the factorisation, 1 for BOTH roots. Writing only one root is the classic lost mark — NCERT itself verifies both.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 43,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "ex_ncert_7",
+      "shape": "Discriminant → nature · NCERT Example 7",
+      "kind": "numerical",
+      "problem_verbatim": "Find the discriminant of the quadratic equation 2x² – 4x + 3 = 0, and hence find the nature of its roots.",
+      "solution_steps": [
+        {
+          "lead": "Identify a, b, c.",
+          "text": "The equation is of the form $ax^2 + bx + c = 0$ with $a = 2$, $b = -4$, $c = 3$.",
+          "concept_tag": "read the coefficients"
+        },
+        {
+          "lead": "Compute the discriminant.",
+          "text": "$b^2 - 4ac = (-4)^2 - (4 \\times 2 \\times 3) = 16 - 24 = -8 < 0$.",
+          "concept_tag": "sign-safe substitution"
+        },
+        {
+          "lead": "Conclude in words.",
+          "text": "$D < 0$ → the given equation has <b>no real roots</b>.",
+          "concept_tag": "nature from the sign of D"
+        }
+      ],
+      "mark_logic": "2-mark shape: 1 for computing $D$ with correct signs — $(-4)^2 = +16$ — and 1 for the conclusion stated in words (“no real roots”).",
+      "source": {
+        "ncert_example": "7",
+        "ncert_page": 45,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "ex_ncert_9",
+      "shape": "Equal roots — find them · NCERT Example 9",
+      "kind": "numerical",
+      "problem_verbatim": "Find the discriminant of the equation 3x² – 2x + 1/3 = 0 and hence find the nature of its roots. Find them, if they are real.",
+      "solution_steps": [
+        {
+          "lead": "Identify a, b, c.",
+          "text": "$a = 3$, $b = -2$, $c = \\dfrac{1}{3}$.",
+          "concept_tag": "read the coefficients"
+        },
+        {
+          "lead": "Discriminant.",
+          "text": "$b^2 - 4ac = (-2)^2 - 4 \\times 3 \\times \\dfrac{1}{3} = 4 - 4 = 0$.",
+          "concept_tag": "substitute into D"
+        },
+        {
+          "lead": "Nature.",
+          "text": "$D = 0$ → the equation has <b>two equal real roots</b>.",
+          "concept_tag": "nature from D"
+        },
+        {
+          "lead": "Find them.",
+          "text": "The roots are $-\\dfrac{b}{2a}, -\\dfrac{b}{2a}$, i.e. $\\dfrac{2}{6}, \\dfrac{2}{6}$, i.e. $\\dfrac{1}{3}, \\dfrac{1}{3}$.",
+          "concept_tag": "equal roots = −b/2a"
+        }
+      ],
+      "mark_logic": "3-mark shape: 1 for $D$ computed, 1 for “two equal real roots”, 1 for actually finding them via $-b/2a$ — the “find them, if they are real” half is where the last mark sits.",
+      "source": {
+        "ncert_example": "9",
+        "ncert_page": 46,
+        "edition": "2026-27",
+        "chapter": 4
+      }
+    },
+    {
+      "id": "ex_ncert_8",
+      "shape": "Word problem · NCERT Example 8 (pole on a circular park)",
+      "kind": "numerical",
+      "problem_verbatim": "A pole has to be erected at a point on the boundary of a circular park of diameter 13 metres in such a way that the differences of its distances from two diametrically opposite fixed gates A and B on the boundary is 7 metres. Is it possible to do so? If yes, at what distances from the two gates should the pole be erected?",
+      "solution_steps": [
+        {
+          "lead": "Model it (NCERT).",
+          "text": "Let $P$ be the pole with $BP = x$ m; the difference of distances is 7 m, so $AP = (x + 7)$ m. $AB = 13$ m is a diameter, so $\\angle APB = 90°$.",
+          "concept_tag": "set up the variable"
+        },
+        {
+          "lead": "Pythagoras → standard form.",
+          "text": "$AP^2 + PB^2 = AB^2$: $(x + 7)^2 + x^2 = 13^2$ → $2x^2 + 14x - 120 = 0$ → $x^2 + 7x - 60 = 0$.",
+          "concept_tag": "translate to standard form"
+        },
+        {
+          "lead": "Is it possible? Ask the discriminant.",
+          "text": "$b^2 - 4ac = 7^2 - 4 \\times 1 \\times (-60) = 289 > 0$ → two real roots, so the pole CAN be erected.",
+          "concept_tag": "discriminant answers feasibility"
+        },
+        {
+          "lead": "Quadratic formula.",
+          "text": "$x = \\dfrac{-7 \\pm \\sqrt{289}}{2} = \\dfrac{-7 \\pm 17}{2}$ → $x = 5$ or $x = -12$.",
+          "concept_tag": "solve"
+        },
+        {
+          "lead": "Reject the invalid root.",
+          "text": "$x$ is a distance, so it must be positive — ignore $-12$. The pole goes <b>5 m from gate B and 12 m from gate A</b>.",
+          "concept_tag": "reject the impossible root"
+        }
+      ],
+      "mark_logic": "Case/competency shape (4–5 marks): modelling + the equation (1–2) · discriminant feasibility check (1) · solving (1) · rejecting the negative root and stating BOTH distances (1).",
+      "source": {
+        "ncert_example": "8",
+        "ncert_page": 45,
+        "edition": "2026-27",
+        "chapter": 4,
+        "note": "problem on p.45, solution runs to p.46"
+      }
+    },
+    {
+      "id": "ex_ncert_ex41_2ii",
+      "shape": "Form the equation · NCERT Exercise 4.1 Q2(ii)",
+      "kind": "numerical",
+      "problem_verbatim": "Represent the following situations in the form of quadratic equations : … (ii) The product of two consecutive positive integers is 306. We need to find the integers.",
+      "solution_steps": [
+        {
+          "lead": "Name the unknown.",
+          "text": "Let the first positive integer be $x$; consecutive means the next is $x + 1$.",
+          "concept_tag": "set up the variable"
+        },
+        {
+          "lead": "Build the equation.",
+          "text": "Their product is 306: $x(x + 1) = 306$.",
+          "concept_tag": "translate the condition"
+        },
+        {
+          "lead": "Reduce to standard form.",
+          "text": "$x^2 + x - 306 = 0$ — this is the required representation. The question asks only to FORM the equation, not to solve it.",
+          "concept_tag": "standard form is the answer"
+        }
+      ],
+      "mark_logic": "2-mark shape: 1 for naming the unknown and writing the product condition $x(x+1)=306$, 1 for the standard form $x^2 + x - 306 = 0$. Solving is NOT asked — stop at the equation; time spent solving earns nothing here.",
+      "source": {
+        "ncert_exercise": "4.1",
+        "question": "2(ii)",
+        "ncert_page": 42,
+        "edition": "2026-27",
+        "chapter": 4,
+        "note": "exercise stem on p.41 (“…in the form of quadratic equations :” — NCERT's spacing preserved), item (ii) on p.42; both eye-verified on the rasterized pages"
+      }
+    },
+    {
+      "id": "ex_pyq_2024_findk",
+      "shape": "“Find k” for equal roots · CBSE 2024 board paper",
+      "kind": "numerical",
+      "problem_verbatim": "Find the value of 'k' for which the quadratic equation (k + 1)x² – 6(k + 1)x + 3(k + 9) = 0, k ≠ – 1 has real and equal roots.",
+      "solution_steps": [
+        {
+          "lead": "Recognise the trigger.",
+          "text": "“Real and equal roots” → set $D = b^2 - 4ac = 0$.",
+          "concept_tag": "nature of roots"
+        },
+        {
+          "lead": "Substitute.",
+          "text": "$a = (k+1)$, $b = -6(k+1)$, $c = 3(k+9)$: $\\;36(k+1)^2 - 12(k+1)(k+9) = 0$.",
+          "concept_tag": "substitute into D"
+        },
+        {
+          "lead": "Simplify (as the mark scheme does).",
+          "text": "Dividing out the common factor: $k^2 - 2k - 3 = 0$.",
+          "concept_tag": "reduce"
+        },
+        {
+          "lead": "Solve.",
+          "text": "$(k - 3)(k + 1) = 0$ → $k = 3$ or $k = -1$.",
+          "concept_tag": "factorise"
+        },
+        {
+          "lead": "Honour the constraint — the trap.",
+          "text": "The paper itself excludes $k = -1$ (it would kill the $x^2$ term). Reject it: <b>$k = 3$</b>.",
+          "concept_tag": "reject the excluded value"
+        }
+      ],
+      "mark_logic": "Board mark scheme (Section D, 5 marks): $D = 0$ stated (1) · substitution (1) · simplification to $k^2 - 2k - 3 = 0$ (1) · solving (1) · rejecting $k = -1$ and concluding $k = 3$ (1). Miss the rejection and you lose the final mark.",
+      "source": {
+        "pyq_year": "2024",
+        "paper": "30/5/1",
+        "question": "32(a)",
+        "marks": 5,
+        "bank_id": "PYQ-M-2024-QE-006a",
+        "note": "repo PYQ bank: lazytopper/src/data/questionBanks/class10/maths/quadratic-equations.pyq2024.ts (typo ¹ in bank normalised to ≠ here)"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "“real / equal / no roots” or “find k”?",
+      "text": "Go straight to $D = b^2 - 4ac$. Don't solve for $x$."
+    },
+    {
+      "cue": "“Find the roots”?",
+      "text": "Factorise first; if the middle term won't split, use the formula."
+    },
+    {
+      "cue": "“Roots given / form the equation”?",
+      "text": "Sum &amp; product → $x^2 - (\\alpha+\\beta)x + \\alpha\\beta = 0$."
+    },
+    {
+      "cue": "Word problem?",
+      "text": "Name $x$ → build the equation → standard form → solve → reject the impossible root."
+    },
+    {
+      "cue": "Coefficient holds the unknown (like $(k+1)x^2$)?",
+      "text": "Check $a \\neq 0$ — an excluded value in the question is a mark waiting to be lost."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Forgetting to reject the invalid root</b> — negative length / age / count, or an excluded value like $k \\neq -1$.",
+      "owner_verified": true
+    },
+    {
+      "text": "<b>Sign slips in $D$</b> — when $b$ is negative, $(-4)^2 = +16$, not $-16$.",
+      "owner_verified": true
+    },
+    {
+      "text": "<b>Sign error in form-the-equation</b> — the middle term is $-(\\alpha+\\beta)$, not $+$.",
+      "owner_verified": true
+    },
+    {
+      "text": "<b>Writing “no roots” when $D < 0$</b> — say “no <i>real</i> roots”.",
+      "owner_verified": true
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Standard form",
+      "math": "$ax^2 + bx + c = 0,\\ a \\neq 0$"
+    },
+    {
+      "label": "Quadratic formula",
+      "math": "$x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$"
+    },
+    {
+      "label": "Discriminant",
+      "math": "$D = b^2 - 4ac$"
+    },
+    {
+      "label": "Nature of roots",
+      "math": "$D{>}0$: distinct · $D{=}0$: equal · $D{<}0$: none real"
+    },
+    {
+      "label": "Roots &amp; coefficients",
+      "math": "$\\alpha+\\beta = -\\dfrac{b}{a} \\;\\cdot\\; \\alpha\\beta = \\dfrac{c}{a} \\;\\cdot\\; x^2-(\\alpha+\\beta)x+\\alpha\\beta=0$"
+    }
+  ],
+  "mindmap": {
+    "root": "Quadratic Equations — ax² + bx + c = 0",
+    "branches": [
+      {
+        "label": "Factorisation (2–3 mk)",
+        "children": [
+          "Split the middle term",
+          "Factor by grouping",
+          "Zero-product → two roots"
+        ]
+      },
+      {
+        "label": "Quadratic formula (2–3 mk)",
+        "children": [
+          "x = (−b ± √(b²−4ac)) / 2a",
+          "Valid when b²−4ac ≥ 0",
+          "Fallback when it won't factor"
+        ]
+      },
+      {
+        "label": "Discriminant — nature of roots (up to 5 mk)",
+        "children": [
+          "D = b² − 4ac",
+          "D > 0 → two distinct real",
+          "D = 0 → two equal real",
+          "D < 0 → no real roots",
+          "“find k” lives here"
+        ]
+      },
+      {
+        "label": "Roots &amp; coefficients (bridge)",
+        "children": [
+          "α + β = −b/a",
+          "αβ = c/a",
+          "x² − (α+β)x + αβ = 0",
+          "⚑ catalogued under Polynomials"
+        ]
+      },
+      {
+        "label": "Word problems (3–5 mk)",
+        "children": [
+          "Name the unknown → build the equation",
+          "Reduce to standard form",
+          "REJECT the impossible root"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "Forgetting to reject a root",
+          "Sign slips in D",
+          "Say “no REAL roots”",
+          "Check a ≠ 0"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "The quadratic formula — where it comes from",
+    "intro": "NCERT's history box (p.39) credits Sridharacharya (C.E. 1025) with the quadratic formula, derived “by the method of completing the square”. In the 2026-27 syllabus, completing the square is NOT an assessed solution method — you solve by factorisation or the formula. Use this derivation to understand where the formula and the $b^2 - 4ac \\ge 0$ condition come from, not as an exam technique.",
+    "steps": [
+      {
+        "claim": "Start from the standard form.",
+        "math": "$ax^2 + bx + c = 0,\\quad a \\neq 0$"
+      },
+      {
+        "claim": "Divide through by $a$ — allowed precisely because $a \\neq 0$.",
+        "math": "$x^2 + \\dfrac{b}{a}x + \\dfrac{c}{a} = 0$"
+      },
+      {
+        "claim": "Move the constant across.",
+        "math": "$x^2 + \\dfrac{b}{a}x = -\\dfrac{c}{a}$"
+      },
+      {
+        "claim": "Complete the square: add $\\left(\\dfrac{b}{2a}\\right)^2$ to both sides.",
+        "math": "$x^2 + \\dfrac{b}{a}x + \\left(\\dfrac{b}{2a}\\right)^2 = \\left(\\dfrac{b}{2a}\\right)^2 - \\dfrac{c}{a}$"
+      },
+      {
+        "claim": "The left side is now a perfect square.",
+        "math": "$\\left(x + \\dfrac{b}{2a}\\right)^2 = \\dfrac{b^2 - 4ac}{4a^2}$"
+      },
+      {
+        "claim": "Take square roots.",
+        "math": "$x + \\dfrac{b}{2a} = \\pm\\dfrac{\\sqrt{b^2 - 4ac}}{2a}$",
+        "justification": "Real only when $b^2 - 4ac \\ge 0$ — this is exactly where the discriminant condition comes from."
+      },
+      {
+        "claim": "Isolate $x$.",
+        "math": "$x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$"
+      }
+    ],
+    "source": {
+      "ncert_page": 39,
+      "edition": "2026-27",
+      "chapter": 4,
+      "note": "historical attribution only — the rationalised 2026-27 chapter no longer prints this derivation; the formula itself is Summary point 4, p.47"
+    }
+  },
+  "figures": {
+    "fig_disc_triptych": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "y = ax² + bx + c — where the curve meets the x-axis = the real roots",
+      "legend": "Left: D &gt; 0 cuts twice (two distinct roots) · Middle: D = 0 just touches (two equal roots) · Right: D &lt; 0 never meets (no real roots).",
+      "generator": "parabola_triptych",
+      "params": {
+        "panels": [
+          { "a": 1, "b": 0, "c": -4, "badge": "D > 0", "note": "two distinct roots (cuts twice)" },
+          { "a": 1, "b": -4, "c": 4, "badge": "D = 0", "note": "two equal roots (just touches)" },
+          { "a": 1, "b": 0, "c": 3, "badge": "D < 0", "note": "no real roots (never meets)" }
+        ],
+        "x_range": [-6, 6],
+        "y_range": [-8, 8]
+      },
+      "asset": "quadratic-equations/fig_disc_triptych.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Quadratic equation",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.39"
+    },
+    {
+      "item": "Root of a quadratic equation",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.42"
+    },
+    {
+      "item": "Discriminant",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.45"
+    },
+    {
+      "item": "Nature of roots",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.45"
+    },
+    {
+      "item": "Quadratic formula",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.47 (Summary 4)"
+    },
+    {
+      "item": "Standard form",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.39"
+    },
+    {
+      "item": "Zeroes = roots",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.42"
+    },
+    {
+      "item": "At most two roots",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.42"
+    },
+    {
+      "item": "Roots by factorisation",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch4 p.47 (Summary 3)"
+    },
+    {
+      "item": "Factorisation · NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch4 Example 4 p.43"
+    },
+    {
+      "item": "Discriminant → nature · NCERT Example 7",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch4 Example 7 p.45"
+    },
+    {
+      "item": "Equal roots — find them · NCERT Example 9",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch4 Example 9 p.46"
+    },
+    {
+      "item": "Word problem · NCERT Example 8",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch4 Example 8 p.45–46"
+    },
+    {
+      "item": "Form the equation · NCERT Exercise 4.1 Q2(ii)",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch4 Exercise 4.1 Q2(ii) p.41–42"
+    },
+    {
+      "item": "“Find k” for equal roots · CBSE 2024",
+      "type": "example",
+      "source": "CBSE 2024 board paper 30/5/1 Q32(a) · repo bank PYQ-M-2024-QE-006a"
+    }
+  ]
+}
