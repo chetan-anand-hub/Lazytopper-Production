@@ -252,37 +252,48 @@ export default function CheckImprove() {
       setWsResult(response);
       setView("graded");
 
-      let anyRecorded = false;
-      for (const g of response.results) {
-        if (g.couldNotRead) continue;
-        const csr = multiQuestionToCsr(g);
-        const questionId = `ci:${sessionCode}:q${g.qNumber}`;
-        const qText =
-          detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
-          `${sessionCode} · Q${g.qNumber}`;
-        // eslint-disable-next-line no-await-in-loop
-        const rec = await recordMistake(user, csr, {
-          subject: confirmed.subject,
-          topic: confirmed.topicName,
-          topicKey: confirmed.topicSlug,
-          question: qText,
-          questionId,
-        });
-        recordAttempt(user, {
-          subject: confirmed.subject,
-          topic: confirmed.topicName,
-          topicKey: confirmed.topicSlug,
-          question: qText,
-          questionId,
-          marksScored: csr.marksAwarded,
-          marksAvailable: csr.totalMarks,
-          mode: "graded",
-        });
-        if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
-          anyRecorded = true;
+      // MI recording is DECOUPLED from the shown grade: a persistence failure must
+      // never wipe the graded paper. The recording work runs in its OWN try/catch so
+      // a thrown recordMistake only downgrades the save status (grade preserved) and
+      // never reaches the outer catch (reserved for genuine grade-call failures).
+      try {
+        let anyRecorded = false;
+        for (const g of response.results) {
+          if (g.couldNotRead) continue;
+          const csr = multiQuestionToCsr(g);
+          const questionId = `ci:${sessionCode}:q${g.qNumber}`;
+          const qText =
+            detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
+            `${sessionCode} · Q${g.qNumber}`;
+          // eslint-disable-next-line no-await-in-loop
+          const rec = await recordMistake(user, csr, {
+            subject: confirmed.subject,
+            topic: confirmed.topicName,
+            topicKey: confirmed.topicSlug,
+            question: qText,
+            questionId,
+          });
+          recordAttempt(user, {
+            subject: confirmed.subject,
+            topic: confirmed.topicName,
+            topicKey: confirmed.topicSlug,
+            question: qText,
+            questionId,
+            marksScored: csr.marksAwarded,
+            marksAvailable: csr.totalMarks,
+            mode: "graded",
+          });
+          if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
+            anyRecorded = true;
+          }
         }
+        setSaved(anyRecorded ? "saved" : "no-user");
+      } catch (e) {
+        // Grade stays on screen; only the save state is affected. The `saved` union
+        // has no failure member, so fall back to "no-user" (honest: not saved).
+        console.warn("[check-improve] MI recording failed (grade preserved):", e);
+        setSaved("no-user");
       }
-      setSaved(anyRecorded ? "saved" : "no-user");
     } catch {
       setGradeError("Grading unavailable — please try again.");
     } finally {
@@ -346,35 +357,46 @@ export default function CheckImprove() {
       // `learnerProfiles/{uid}/mistakeLogs` fire-and-forget. Keyed on uid, so the
       // graded mistake surfaces in BOTH mobile Me and desktop Me. Only persists
       // when signed in (no fabricated/anonymous history).
-      if (user) {
-        const rec = await recordMistake(user, result, {
-          subject: detectedSubject,
-          topic: detectedTopicName,
-          topicKey: detectedTopicSlug,
-          question: trimmedQuestion,
-        });
-        // Score-twin: persist the graded score as an attempt so it feeds the
-        // (shared) Me scorecard / accuracy alongside the mistake log.
-        recordAttempt(user, {
-          subject: detectedSubject,
-          topic: detectedTopicName,
-          topicKey: detectedTopicSlug,
-          question: trimmedQuestion,
-          marksScored: result.marksAwarded,
-          marksAvailable: result.totalMarks,
-          mode: "graded",
-          marksSource: confirmed.marksSource ?? undefined,
-          detectionOverride: overrideLog,
-        });
-        // logged / duplicate (already saved) / skipped-clean (graded, no mistake
-        // to save) all read as success; signed-out / local / error read as
-        // "not saved — sign in".
-        const ok =
-          rec.outcome === "logged" ||
-          rec.outcome === "duplicate" ||
-          rec.outcome === "skipped-clean";
-        setSaved(ok ? "saved" : "no-user");
-      } else {
+      //
+      // Recording is DECOUPLED from the shown grade: the grade is already displayed
+      // (setGradeResult + setView("graded") ran above), so a persistence failure must
+      // only downgrade the save status — never reach the outer catch and wipe the
+      // grade. The `saved` union has no failure member, so a throw falls back to
+      // "no-user" (honest: not saved).
+      try {
+        if (user) {
+          const rec = await recordMistake(user, result, {
+            subject: detectedSubject,
+            topic: detectedTopicName,
+            topicKey: detectedTopicSlug,
+            question: trimmedQuestion,
+          });
+          // Score-twin: persist the graded score as an attempt so it feeds the
+          // (shared) Me scorecard / accuracy alongside the mistake log.
+          recordAttempt(user, {
+            subject: detectedSubject,
+            topic: detectedTopicName,
+            topicKey: detectedTopicSlug,
+            question: trimmedQuestion,
+            marksScored: result.marksAwarded,
+            marksAvailable: result.totalMarks,
+            mode: "graded",
+            marksSource: confirmed.marksSource ?? undefined,
+            detectionOverride: overrideLog,
+          });
+          // logged / duplicate (already saved) / skipped-clean (graded, no mistake
+          // to save) all read as success; signed-out / local / error read as
+          // "not saved — sign in".
+          const ok =
+            rec.outcome === "logged" ||
+            rec.outcome === "duplicate" ||
+            rec.outcome === "skipped-clean";
+          setSaved(ok ? "saved" : "no-user");
+        } else {
+          setSaved("no-user");
+        }
+      } catch (e) {
+        console.warn("[check-improve] MI recording failed (grade preserved):", e);
         setSaved("no-user");
       }
     } catch {

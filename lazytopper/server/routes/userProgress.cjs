@@ -60,7 +60,18 @@ async function ensureTable() {
   }
 }
 
-function getUid(req) {
+// Resolve the caller's Firebase uid. Prefer a verified `Authorization: Bearer <idToken>`
+// (survives the Vercel->Railway proxy rewrite, which drops the custom X-User-ID header)
+// and fall back to the X-User-ID header for local/dev and defensive coverage.
+async function resolveUid(req, firebaseAdmin) {
+  const authHeader = String(req.headers['authorization'] || '');
+  const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  if (idToken && firebaseAdmin) {
+    try {
+      const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+      if (decoded && decoded.uid) return decoded.uid;
+    } catch (_verifyErr) {}
+  }
   return (req.headers['x-user-id'] || '').trim();
 }
 
@@ -72,8 +83,8 @@ function badUid(res, sendJson) {
   return sendJson(res, 400, { ok: false, error: 'X-User-ID header required' });
 }
 
-async function handleGet(req, res, { sendJson }) {
-  const uid = getUid(req);
+async function handleGet(req, res, { sendJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -88,8 +99,8 @@ async function handleGet(req, res, { sendJson }) {
   }
 }
 
-async function handleSync(req, res, { sendJson, readJson }) {
-  const uid = getUid(req);
+async function handleSync(req, res, { sendJson, readJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -125,8 +136,8 @@ async function handleSync(req, res, { sendJson, readJson }) {
   }
 }
 
-async function handleXP(req, res, { sendJson, readJson }) {
-  const uid = getUid(req);
+async function handleXP(req, res, { sendJson, readJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -145,8 +156,8 @@ async function handleXP(req, res, { sendJson, readJson }) {
   }
 }
 
-async function handleStreak(req, res, { sendJson, readJson }) {
-  const uid = getUid(req);
+async function handleStreak(req, res, { sendJson, readJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -165,8 +176,8 @@ async function handleStreak(req, res, { sendJson, readJson }) {
   }
 }
 
-async function handleFocus(req, res, { sendJson, readJson }) {
-  const uid = getUid(req);
+async function handleFocus(req, res, { sendJson, readJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -190,8 +201,8 @@ async function handleFocus(req, res, { sendJson, readJson }) {
   }
 }
 
-async function handleMastery(req, res, { sendJson, readJson }) {
-  const uid = getUid(req);
+async function handleMastery(req, res, { sendJson, readJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -214,8 +225,8 @@ async function handleMastery(req, res, { sendJson, readJson }) {
   }
 }
 
-async function handleMission(req, res, { sendJson, readJson }) {
-  const uid = getUid(req);
+async function handleMission(req, res, { sendJson, readJson, firebaseAdmin }) {
+  const uid = await resolveUid(req, firebaseAdmin);
   if (!uid) return badUid(res, sendJson);
   await ensureTable();
   const pool = getPool();
@@ -239,8 +250,8 @@ async function handleMission(req, res, { sendJson, readJson }) {
 }
 
 function createUserProgressRoutes(deps) {
-  const { sendJson, readJson } = deps;
-  const wrap = (fn) => (req, res) => fn(req, res, { sendJson, readJson });
+  const { sendJson, readJson, firebaseAdmin } = deps;
+  const wrap = (fn) => (req, res) => fn(req, res, { sendJson, readJson, firebaseAdmin });
   return {
     handleGet:     wrap(handleGet),
     handleSync:    wrap(handleSync),

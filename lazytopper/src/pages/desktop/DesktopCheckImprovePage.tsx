@@ -823,38 +823,47 @@ const DesktopCheckImprovePage: React.FC = () => {
     graded: CheckSolutionResponse,
   ) {
     setSaveStatus("saving");
-    const rec = await recordMistake(user, graded, {
-      subject: ctx.subject,
-      topic: ctx.topicName,
-      topicKey: ctx.topicSlug, // canonical slug → aligns the weak-area bridge
-      question: ctx.question,
-    });
-    // Score-twin: persist the graded score as an attempt (feeds the Me
-    // scorecard / accuracy). Every graded answer, including full marks. Carries the
-    // detect-then-confirm telemetry (mark-scale source + any student override).
-    recordAttempt(user, {
-      subject: ctx.subject,
-      topic: ctx.topicName,
-      topicKey: ctx.topicSlug,
-      question: ctx.question,
-      marksScored: graded.marksAwarded,
-      marksAvailable: graded.totalMarks,
-      mode: "graded",
-      marksSource: ctx.marksSource ?? undefined,
-      detectionOverride: ctx.detectionOverride,
-    });
-    switch (rec.outcome) {
-      case "logged":
-      case "duplicate":
-      case "skipped-clean":
-        setSaveStatus("saved");
-        break;
-      case "skipped-no-user":
-      case "skipped-local":
-        setSaveStatus("no-user");
-        break;
-      default:
-        setSaveStatus("save-failed");
+    // Recording is DECOUPLED from the shown grade: the grade is already on screen
+    // (setResult ran before this fire-and-forget call), so a persistence failure must
+    // only downgrade the save status — never surface a grading error, and never leave
+    // the status stuck on "saving" via an unhandled rejection.
+    try {
+      const rec = await recordMistake(user, graded, {
+        subject: ctx.subject,
+        topic: ctx.topicName,
+        topicKey: ctx.topicSlug, // canonical slug → aligns the weak-area bridge
+        question: ctx.question,
+      });
+      // Score-twin: persist the graded score as an attempt (feeds the Me
+      // scorecard / accuracy). Every graded answer, including full marks. Carries the
+      // detect-then-confirm telemetry (mark-scale source + any student override).
+      recordAttempt(user, {
+        subject: ctx.subject,
+        topic: ctx.topicName,
+        topicKey: ctx.topicSlug,
+        question: ctx.question,
+        marksScored: graded.marksAwarded,
+        marksAvailable: graded.totalMarks,
+        mode: "graded",
+        marksSource: ctx.marksSource ?? undefined,
+        detectionOverride: ctx.detectionOverride,
+      });
+      switch (rec.outcome) {
+        case "logged":
+        case "duplicate":
+        case "skipped-clean":
+          setSaveStatus("saved");
+          break;
+        case "skipped-no-user":
+        case "skipped-local":
+          setSaveStatus("no-user");
+          break;
+        default:
+          setSaveStatus("save-failed");
+      }
+    } catch (e) {
+      console.warn("[check-improve] MI recording failed (grade preserved):", e);
+      setSaveStatus("save-failed");
     }
   }
 
@@ -896,41 +905,50 @@ const DesktopCheckImprovePage: React.FC = () => {
       setStatus("ready");
       setSaveStatus("saving");
 
-      // MI parity with the worksheet loop: every LEGIBLE per-question grade feeds
-      // the SINGLE front door (recordMistake) + its score twin (recordAttempt) on a
-      // stable, session-scoped id. couldNotRead (pending) is skipped — never a 0,
-      // never a fabricated mistake.
-      let anyRecorded = false;
-      for (const g of response.results) {
-        if (g.couldNotRead) continue;
-        const csr = multiQuestionToCsr(g);
-        const questionId = `ci:${sessionCode}:q${g.qNumber}`;
-        const qText =
-          detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
-          `${sessionCode} · Q${g.qNumber}`;
-        // eslint-disable-next-line no-await-in-loop
-        const rec = await recordMistake(user, csr, {
-          subject: confirmed.subject,
-          topic: confirmed.topicName,
-          topicKey: confirmed.topicSlug,
-          question: qText,
-          questionId,
-        });
-        recordAttempt(user, {
-          subject: confirmed.subject,
-          topic: confirmed.topicName,
-          topicKey: confirmed.topicSlug,
-          question: qText,
-          questionId,
-          marksScored: csr.marksAwarded,
-          marksAvailable: csr.totalMarks,
-          mode: "graded",
-        });
-        if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
-          anyRecorded = true;
+      // MI recording is DECOUPLED from the shown grade: a persistence failure must
+      // NEVER wipe the graded result. The recording work runs in its OWN try/catch,
+      // so a thrown recordMistake only downgrades the save status (grade preserved)
+      // and never reaches the outer catch (reserved for genuine grade-call failures).
+      try {
+        // MI parity with the worksheet loop: every LEGIBLE per-question grade feeds
+        // the SINGLE front door (recordMistake) + its score twin (recordAttempt) on a
+        // stable, session-scoped id. couldNotRead (pending) is skipped — never a 0,
+        // never a fabricated mistake.
+        let anyRecorded = false;
+        for (const g of response.results) {
+          if (g.couldNotRead) continue;
+          const csr = multiQuestionToCsr(g);
+          const questionId = `ci:${sessionCode}:q${g.qNumber}`;
+          const qText =
+            detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
+            `${sessionCode} · Q${g.qNumber}`;
+          // eslint-disable-next-line no-await-in-loop
+          const rec = await recordMistake(user, csr, {
+            subject: confirmed.subject,
+            topic: confirmed.topicName,
+            topicKey: confirmed.topicSlug,
+            question: qText,
+            questionId,
+          });
+          recordAttempt(user, {
+            subject: confirmed.subject,
+            topic: confirmed.topicName,
+            topicKey: confirmed.topicSlug,
+            question: qText,
+            questionId,
+            marksScored: csr.marksAwarded,
+            marksAvailable: csr.totalMarks,
+            mode: "graded",
+          });
+          if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
+            anyRecorded = true;
+          }
         }
+        setSaveStatus(anyRecorded ? "saved" : "no-user");
+      } catch (e) {
+        console.warn("[check-improve] MI recording failed (grade preserved):", e);
+        setSaveStatus("save-failed");
       }
-      setSaveStatus(anyRecorded ? "saved" : "no-user");
     } catch {
       setErrorMessage("Grading unavailable — please try again.");
       setStatus("error");
@@ -1717,6 +1735,12 @@ const DesktopCheckImprovePage: React.FC = () => {
           })}
         </div>
 
+        {saveStatus === "save-failed" && (
+          <div style={{ fontSize: 12.5, color: DANGER_FG, marginTop: 14 }}>
+            Result shown, save unavailable. Your grading is fine — we just
+            couldn't write to your mistake history this time.
+          </div>
+        )}
         {saveStatus === "no-user" && (
           <div style={{ fontSize: 12.5, color: TEXT_MUTED, marginTop: 14 }}>
             Sign in to save these mistakes to your progress.
