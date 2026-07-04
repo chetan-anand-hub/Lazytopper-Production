@@ -431,7 +431,9 @@ import { ourEnvironmentPYQ2024 } from './questionBanks/class10/science/ourEnviro
 // solutions PENDING OWNER VERIFICATION — tracked via
 // LGHT_FND_AUTHORED_SOLUTION_IDS in AI_GENERATED_SOLUTION_IDS below. "others"
 // bucket (no pyqYear). Authentic tier — NOT in AI_GENERATED_PACK_SOURCES.
-import { LGHT_FND, LGHT_FND_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.fnd';
+import { LGHT_FND, LGHT_FND_BEYOND_BOARD, LGHT_FND_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.fnd';
+// CBSE-official additions (2026-07-04): CFPQ ch.10 (official rubrics) + SQP 2025-26 (official MS)
+import { LGHT_CFPQ_SQP25, LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.cfpq-sqp25';
 
 const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
@@ -814,6 +816,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   // Foundation-pack extraction PILOT (2026-07-03) — authentic Light questions,
   // mixed sourced/AI-authored solutions (see LGHT_FND_AUTHORED_SOLUTION_IDS)
   ...LGHT_FND,
+  // Beyond-board tier — owner-approved inclusion 2026-07-04 (separate array for later badging/filtering)
+  ...LGHT_FND_BEYOND_BOARD,
+  // CBSE-official additions 2026-07-04 — CFPQ ch.10 + SQP 2025-26 (official key/rubrics/MS)
+  ...LGHT_CFPQ_SQP25,
   ...humanEyePYQ2024,
   ...electricityPYQ2024,
   ...magneticEffectsPYQ2024,
@@ -1711,8 +1717,11 @@ const AI_GENERATED_SOLUTION_SOURCES = [
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
   ...AI_GENERATED_SOLUTION_SOURCES.flatMap((source) => source.map((q) => q.id)),
-  // Foundation-pack Light PILOT (2026-07-03): authentic questions whose
-  // solutions were AI-authored (the pack carried no worked solution for them);
-  // the remaining 132 rows of LGHT_FND have pack-sourced, re-verified solutions.
+  // Foundation-pack Light PILOT (2026-07-03, incl. the beyond-board tier):
+  // authentic questions whose solutions were AI-authored (the pack carried no
+  // worked solution for them); the remaining LGHT_FND rows have pack-sourced,
+  // re-verified solutions.
   ...LGHT_FND_AUTHORED_SOLUTION_IDS,
+  // CFPQ/SQP25 additions (2026-07-04): key-anchored MCQ steps + one rubric override
+  ...LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS,
 ]);
