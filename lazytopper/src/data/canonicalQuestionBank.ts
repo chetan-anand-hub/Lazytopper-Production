@@ -434,6 +434,8 @@ import { ourEnvironmentPYQ2024 } from './questionBanks/class10/science/ourEnviro
 import { LGHT_FND, LGHT_FND_BEYOND_BOARD, LGHT_FND_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.fnd';
 // CBSE-official additions (2026-07-04): CFPQ ch.10 (official rubrics) + SQP 2025-26 (official MS)
 import { LGHT_CFPQ_SQP25, LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.cfpq-sqp25';
+// gdrive high-marks extraction (2026-07-04): essay/numericals/guide/worksheet sources, 2-5 mark only
+import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD, LGHT_GDR_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.gdr';
 
 const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
@@ -820,6 +822,9 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...LGHT_FND_BEYOND_BOARD,
   // CBSE-official additions 2026-07-04 — CFPQ ch.10 + SQP 2025-26 (official key/rubrics/MS)
   ...LGHT_CFPQ_SQP25,
+  // gdrive high-marks extraction 2026-07-04 — 2-5 mark items only (see LGHT_GDR_AUTHORED_SOLUTION_IDS)
+  ...LGHT_GDR,
+  ...LGHT_GDR_BEYOND_BOARD,
   ...humanEyePYQ2024,
   ...electricityPYQ2024,
   ...magneticEffectsPYQ2024,
@@ -1724,4 +1729,6 @@ export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
   ...LGHT_FND_AUTHORED_SOLUTION_IDS,
   // CFPQ/SQP25 additions (2026-07-04): key-anchored MCQ steps + one rubric override
   ...LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS,
+  // gdrive high-marks batch (2026-07-04): sources carry no printed solutions for these rows
+  ...LGHT_GDR_AUTHORED_SOLUTION_IDS,
 ]);

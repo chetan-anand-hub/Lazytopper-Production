@@ -490,6 +490,7 @@ export const SCIENCE_FIGURE_VISUALS: VisualConcept[] = [
   { id: "science-light-reflection-and-refraction-fig-cfpq-s-lght-018", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/cfpq-s-lght-018.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-LGHT-018" },
   { id: "science-light-reflection-and-refraction-fig-sqp-s-2025-lght-033", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/sqp-s-2025-lght-033.webp", keywords: [], isInteractive: false, questionId: "SQP-S-2025-LGHT-033" },
   { id: "science-light-reflection-and-refraction-fig-sqp-s-2025-lght-038", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/sqp-s-2025-lght-038.webp", keywords: [], isInteractive: false, questionId: "SQP-S-2025-LGHT-038" },
+  { id: "science-light-reflection-and-refraction-fig-gdr-l-cbj-032", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/gdr-l-cbj-032.webp", keywords: [], isInteractive: false, questionId: "GDR-L-CBJ-032" },
 ];
 
 /**
