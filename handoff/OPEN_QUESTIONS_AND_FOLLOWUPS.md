@@ -1,3 +1,17 @@
+## 2026-07-05 — Grading-path bugs MERGED (#331, `2484cff`)
+
+### ✅ CLOSED
+- **[FU-MULTIQ-CI-GRADE-THROW]** — Bug 2. C&I recording (`recordMistake`/`recordAttempt`, incl. `multiQuestionToCsr`) decoupled into its own inner try/catch → a client-side throw during recording no longer reaches the grade-display error path, so the multi-question grade persists on screen (honest "pending" on unreadable pages). Owner live-verified.
+- **[FU-GRADING-RELIABILITY] (partial-credit variance)** — Bug 3. Owner-approved ERROR-CARRIED-FORWARD MARKING clause added to Rule 4 in BOTH grader functions → a step that correctly applied the right method to a carried-forward wrong value earns its method marks; only the final-answer mark is withheld. Owner live-verified: cascading quadratic → **2/3** with a proper "Error Carried Forward" step + ½-mark deduction (previously 0.5 vs 1.5).
+
+### 🔄 SUPERSEDED
+- **[FU-XUSERID-PROXY-STRIP] → done at the auth layer.** The Bearer-token auth fix (Bug 1) merged in #331 and is correct: the deployed `artifacts/api-server` strips `x-user-id` but forwards `Authorization`, and `userProgress.cjs` now resolves the uid from the verified Firebase Bearer token. The proxy-strip is no longer the blocker. (`questionReport.cjs` was left byte-identical — report auth is already handled at the api-server gateway.)
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-BACKEND-DATABASE-URL-UNSET]** — with auth fixed, progress sync now returns **503 "Database unavailable"**: `DATABASE_URL` is unset on the backend. This is a **legacy backend-Postgres path that the Progress-Journey arc supersedes → do NOT provision a DB for it.** Bug 1's feature is therefore DEFERRED (auth merged, correct, not a regression). Firestore-based persistence (PR-B, live since #322) is the live progress store.
+
+---
+
 ## 2026-07-03 — Firestore undefined-field persistence fix MERGED (#322, `706cc12`) — PR-B (#321) now genuinely LIVE end-to-end
 
 ### ✅ RESOLVED / DELIVERED
@@ -8,10 +22,10 @@
 - **[FU-PROGRESS-SURFACE-BREAKDOWN]** — an attempt does not record WHICH surface it came from (Quick Practice vs Worksheet vs Check & Improve vs Chapter Test). Surface is a **different axis** from `AttemptMode` (`graded`/`mcq`/`self-assess`). **DEFER** surface tagging until step 3/4 (the Universal Scorecard / Progress work) proves it actually needs which-surface an attempt originated from — owner ruling required before adding a field to the attempt shape.
 
 ### 🔁 STILL OPEN (separate, logged — not addressed by #322)
-- **[FU-XUSERID-PROXY-STRIP]** — the Vercel→Railway proxy drops the `X-User-ID` header, breaking the backend focus/XP/streak sync (backend never sees the signed-in uid). Separate backend/proxy bug; not a device fork.
-- **[FU-MULTIQ-CI-GRADE-THROW]** — `multiQuestionToCsr` throws client-side on a multi-question Check & Improve grade. Separate from the persistence fix.
+- **[FU-XUSERID-PROXY-STRIP]** — ~~the Vercel→Railway proxy drops the `X-User-ID` header~~ **SUPERSEDED by #331** (auth fixed via Bearer token) → the live blocker is now **[FU-BACKEND-DATABASE-URL-UNSET]** (503, `DATABASE_URL` unset; Progress-Journey arc supersedes). See the 2026-07-05 section above.
+- **[FU-MULTIQ-CI-GRADE-THROW]** — **CLOSED by #331 (Bug 2).** `multiQuestionToCsr` throwing client-side no longer wipes the grade (recording decoupled into its own try/catch). See 2026-07-05 above.
 - **[FU-MCQ-ATTEMPTS-NOT-RECORDED]** — un-annotated MCQs have `correctIdx < 0`, so the click never reaches `recordAttempt` → no score recorded. Needs `correctOption` bank annotation (ties to [FU-MCQ-CORRECTOPTION-VERIFY] / [FU-MCQ-ANSWER-OPTION-FIELD]).
-- **[FU-GRADING-RELIABILITY]** — NEW instance (distinct from the temperature one CLOSED by #307): cross-run **partial-credit variance** — the SAME solution scored **0.5 on one run and 1.5 on another**. This is grader **determinism**, not a device fork. Fix direction: tighten the partial-credit step-weight prompt and/or reduce model latitude on borderline steps so repeated grades of an identical answer converge.
+- **[FU-GRADING-RELIABILITY]** — **CLOSED by #331 (Bug 3).** The cross-run partial-credit variance (same solution 0.5 vs 1.5) is fixed by the owner-approved ERROR-CARRIED-FORWARD MARKING clause on Rule 4 in both grader functions; owner live-verified (cascading quadratic → consistent 2/3). See 2026-07-05 above.
 
 ---
 
