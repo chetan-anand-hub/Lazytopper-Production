@@ -30,6 +30,13 @@ import {
   type DesktopRouteContext,
   type DesktopSubject,
 } from "../../lib/desktop/navigation";
+import { exportGradedCheckImprovePdf } from "../../components/worksheet/worksheetPdfExport";
+import {
+  CheckImproveGradedPrintDoc,
+  buildCiCoaching,
+  type CiGradedQuestion,
+  type CheckImproveGradedPrintDocProps,
+} from "../../components/checkimprove/CheckImproveGradedPrintDoc";
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -677,6 +684,13 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
   const [ciCode, setCiCode] = useState<string | null>(null);
 
+  // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [readProps, setReadProps] = useState<CheckImproveGradedPrintDocProps | null>(null);
+  // ── PART A: which multi-question cards are expanded to show per-step working ──
+  const [expandedQ, setExpandedQ] = useState<Record<number, boolean>>({});
+
   const hasQuestion =
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   // Two or more questions were read from the upload → grade the whole paper.
@@ -816,6 +830,117 @@ const DesktopCheckImprovePage: React.FC = () => {
     // of the SAME session reuses the same code + stable MI ids (dedup). A brand-new
     // question (clearDetection) is what resets the code.
     setWsResult(null);
+    // Clear the graded-solution download/read state for the next grade.
+    setReadProps(null);
+    setDownloadError(null);
+    setExpandedQ({});
+  }
+
+  // ── PART B helpers: build the branded graded-solution props (single OR multi),
+  // then download it as a PDF or reveal it on screen. BOTH paths feed the SAME
+  // <CheckImproveGradedPrintDoc> and the SAME worksheet PDF-export core, so the
+  // two stay consistent (a bridge toward the Universal <ResultsScorecard>). The
+  // grade shown is a snapshot of what is already on screen — never a re-grade.
+  function buildSinglePrintProps(): CheckImproveGradedPrintDocProps | null {
+    if (!result || !resultCtx) return null;
+    const code = ciCode ?? buildCiSessionCode(resultCtx.subject, resultCtx.topicSlug);
+    if (!ciCode) setCiCode(code);
+    const ms = result.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+    const knowledge = ms.conceptual + ms.calculation;
+    const careless = ms.silly + ms.presentation;
+    return {
+      code,
+      name: `${resultCtx.topicName || resultCtx.subject} · Check & Improve`,
+      metaLine: `Check & Improve · ${resultCtx.marks} mark${resultCtx.marks === 1 ? "" : "s"}`,
+      questions: [
+        {
+          questionText: resultCtx.question,
+          totalMarks: result.totalMarks,
+          marksAwarded: result.marksAwarded,
+          couldNotRead: false,
+          annotatedSteps: result.annotatedSteps,
+          mistakeSummary: result.mistakeSummary,
+          teacherNote: result.teacherNote,
+        },
+      ],
+      gradedMarksAwarded: result.marksAwarded,
+      gradedMarksTotal: result.totalMarks,
+      pendingCount: 0,
+      coaching: buildCiCoaching({
+        gradedMarksAwarded: result.marksAwarded,
+        gradedMarksTotal: result.totalMarks,
+        knowledge,
+        careless,
+        pendingCount: 0,
+      }),
+    };
+  }
+
+  function buildMultiPrintProps(): CheckImproveGradedPrintDocProps | null {
+    if (!wsResult) return null;
+    const ws = wsResult;
+    const code = ciCode ?? "CI";
+    const agg = ws.results.reduce(
+      (a, g) => {
+        if (g.couldNotRead || !g.mistakeSummary) return a;
+        a.k += (g.mistakeSummary.conceptual || 0) + (g.mistakeSummary.calculation || 0);
+        a.c += (g.mistakeSummary.silly || 0) + (g.mistakeSummary.presentation || 0);
+        return a;
+      },
+      { k: 0, c: 0 },
+    );
+    const questions: CiGradedQuestion[] = ws.results.map((g) => ({
+      qNumber: g.qNumber,
+      questionText: detectedQuestions?.find((q) => q.questionNumber === g.qNumber)?.questionText,
+      totalMarks: g.totalMarks,
+      marksAwarded: g.marksAwarded,
+      couldNotRead: g.couldNotRead,
+      annotatedSteps: g.annotatedSteps,
+      mistakeSummary: g.mistakeSummary,
+      teacherNote: g.teacherNote,
+    }));
+    return {
+      code,
+      name: `${confirmed?.topicName || confirmed?.subject || "Check & Improve"} · Check & Improve paper`,
+      metaLine: `Check & Improve · ${ws.totalQuestions} question${ws.totalQuestions === 1 ? "" : "s"} · ${ws.worksheetTotalMarks} marks`,
+      questions,
+      gradedMarksAwarded: ws.gradedMarksAwarded,
+      gradedMarksTotal: ws.gradedMarksTotal,
+      pendingCount: ws.pendingCount,
+      coaching: buildCiCoaching({
+        gradedMarksAwarded: ws.gradedMarksAwarded,
+        gradedMarksTotal: ws.gradedMarksTotal,
+        knowledge: agg.k,
+        careless: agg.c,
+        pendingCount: ws.pendingCount,
+      }),
+    };
+  }
+
+  // Download the branded graded-solution PDF. Never blocks the shown grade: a
+  // failure only surfaces a small inline notice.
+  async function downloadGraded(props: CheckImproveGradedPrintDocProps | null) {
+    if (!props) return;
+    setDownloadError(null);
+    setDownloading(true);
+    try {
+      await exportGradedCheckImprovePdf(props);
+    } catch {
+      setDownloadError("Couldn't build the PDF — please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  // Toggle the on-screen "Read" view of the same branded graded solution. `build`
+  // is invoked OUTSIDE the state updater (it may setCiCode) so the updater stays
+  // pure and StrictMode's double-invoke can't run it twice.
+  function toggleRead(build: () => CheckImproveGradedPrintDocProps | null) {
+    if (readProps) {
+      setReadProps(null);
+      return;
+    }
+    setReadProps(build());
   }
 
   async function persistMistakeLog(
@@ -1677,24 +1802,75 @@ const DesktopCheckImprovePage: React.FC = () => {
           )}
         </div>
 
-        {/* Per-question list — marks + honest pending + mistake grouping. */}
+        {/* PART B — graded-solution actions: download the branded PDF + read the
+            same branded sheet on screen (mirrors the worksheet, shares the export). */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
+          <button
+            type="button"
+            style={{ ...buttonAccent, opacity: downloading ? 0.7 : 1 }}
+            disabled={downloading}
+            onClick={() => void downloadGraded(buildMultiPrintProps())}
+          >
+            {downloading ? "Preparing PDF…" : "↓ Download graded solution"}
+          </button>
+          <button type="button" style={buttonOutline} onClick={() => toggleRead(buildMultiPrintProps)}>
+            {readProps ? "Hide graded sheet" : "Read on screen"}
+          </button>
+        </div>
+        {downloadError && (
+          <div style={{ fontSize: 12.5, color: DANGER_FG, marginTop: 8 }}>{downloadError}</div>
+        )}
+        {readProps && (
+          <div style={{ ...cardStyle, padding: 0, marginTop: 14, overflowX: "auto" }}>
+            <CheckImproveGradedPrintDoc {...readProps} />
+          </div>
+        )}
+
+        {/* Per-question list — marks + honest pending + mistake grouping + per-step working. */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
-          {ws.results.map((g) => {
+          {ws.results.map((g, qi) => {
             const m = g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
             const knowledge = m.conceptual + m.calculation;
             const careless = m.silly + m.presentation;
+            // PART A: per-question steps (same AnnotatedStepRow as single-Q),
+            // expandable so a multi-question paper isn't a wall of steps. Keyed by
+            // array index (not qNumber) so a grader-mislabelled duplicate qNumber
+            // can't collide the React key or expand two cards in lockstep.
+            const steps = g.annotatedSteps ?? [];
+            const canExpand = !g.couldNotRead && steps.length > 0;
+            const open = !!expandedQ[qi];
+            const qText = detectedQuestions?.find((q) => q.questionNumber === g.qNumber)?.questionText;
+            const toggle = () => setExpandedQ((p) => ({ ...p, [qi]: !p[qi] }));
             return (
-              <div key={g.qNumber} style={{ ...cardStyle, padding: 16 }}>
+              <div key={qi} style={{ ...cardStyle, padding: 16 }}>
                 <div
+                  role={canExpand ? "button" : undefined}
+                  tabIndex={canExpand ? 0 : undefined}
+                  aria-expanded={canExpand ? open : undefined}
+                  onClick={canExpand ? toggle : undefined}
+                  onKeyDown={
+                    canExpand
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggle();
+                          }
+                        }
+                      : undefined
+                  }
                   style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     gap: 12,
                     flexWrap: "wrap",
+                    cursor: canExpand ? "pointer" : "default",
                   }}
                 >
-                  <div style={{ fontSize: 14, fontWeight: 700, color: TEXT_FG }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: TEXT_FG }}>
+                    {canExpand && (
+                      <span style={{ color: TEXT_MUTED, fontSize: 12 }}>{open ? "▾" : "▸"}</span>
+                    )}
                     Q{g.qNumber}
                   </div>
                   {g.couldNotRead ? (
@@ -1729,6 +1905,37 @@ const DesktopCheckImprovePage: React.FC = () => {
                   <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_MUTED, lineHeight: 1.55 }}>
                     {g.teacherNote}
                   </p>
+                )}
+                {canExpand && !open && (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    style={{
+                      marginTop: 10,
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      color: PRIMARY_GREEN,
+                      fontFamily: FONT_SANS,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Show step-by-step working ▸
+                  </button>
+                )}
+                {canExpand && open && (
+                  <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                    {qText && (
+                      <div style={{ fontSize: 13, color: TEXT_FG, lineHeight: 1.5, fontFamily: FONT_SERIF }}>
+                        {qText}
+                      </div>
+                    )}
+                    {steps.map((step) => (
+                      <AnnotatedStepRow key={step.stepNumber} step={step} />
+                    ))}
+                  </div>
                 )}
               </div>
             );
@@ -1865,6 +2072,28 @@ const DesktopCheckImprovePage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* PART B — graded-solution actions: download the branded PDF + read the
+              same branded sheet on screen (shares the worksheet export core). */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              style={{ ...buttonAccent, opacity: downloading ? 0.7 : 1 }}
+              disabled={downloading}
+              onClick={() => void downloadGraded(buildSinglePrintProps())}
+            >
+              {downloading ? "Preparing PDF…" : "↓ Download graded solution"}
+            </button>
+            <button type="button" style={buttonOutline} onClick={() => toggleRead(buildSinglePrintProps)}>
+              {readProps ? "Hide graded sheet" : "Read on screen"}
+            </button>
+          </div>
+          {downloadError && <div style={{ fontSize: 12.5, color: DANGER_FG }}>{downloadError}</div>}
+          {readProps && (
+            <div style={{ ...cardStyle, padding: 0, overflowX: "auto" }}>
+              <CheckImproveGradedPrintDoc {...readProps} />
+            </div>
+          )}
 
           <div style={{ ...cardStyle, padding: 24 }}>
             <div
