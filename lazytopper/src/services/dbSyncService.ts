@@ -7,11 +7,26 @@
  */
 
 import type { DailyFocusRecord } from "./focusTracker";
+import { authClient } from "./firebaseClient";
 
 const BASE = "/api/user/progress";
 
-function headers(uid: string): HeadersInit {
-  return { "Content-Type": "application/json", "X-User-ID": uid };
+/**
+ * Build request headers. Attaches a verified Firebase `Authorization: Bearer <idToken>`
+ * when a user is signed in — this survives the Vercel->Railway proxy rewrite, which
+ * drops the custom X-User-ID header in production. X-User-ID is kept as a local/dev
+ * and defensive fallback. Never throws: on any token failure it degrades to X-User-ID.
+ */
+async function authHeaders(uid: string): Promise<HeadersInit> {
+  const base: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-User-ID": uid,
+  };
+  const token = authClient?.currentUser
+    ? await authClient.currentUser.getIdToken().catch(() => null)
+    : null;
+  if (token) base.Authorization = `Bearer ${token}`;
+  return base;
 }
 
 /**
@@ -20,7 +35,7 @@ function headers(uid: string): HeadersInit {
  */
 export async function restoreFromDB(uid: string): Promise<void> {
   try {
-    const res = await fetch(BASE, { headers: headers(uid) });
+    const res = await fetch(BASE, { headers: await authHeaders(uid) });
     if (!res.ok) return;
     const json = await res.json() as { ok: boolean; data: Record<string, unknown> | null };
     if (!json.ok || !json.data) return;
@@ -57,45 +72,55 @@ export async function restoreFromDB(uid: string): Promise<void> {
 
 /** Sync current XP total to the database (fire-and-forget). */
 export function syncXP(uid: string, xp: number): void {
-  fetch(`${BASE}/xp`, {
-    method: "POST",
-    headers: headers(uid),
-    body: JSON.stringify({ xp }),
-  }).catch(() => {});
+  void (async () => {
+    await fetch(`${BASE}/xp`, {
+      method: "POST",
+      headers: await authHeaders(uid),
+      body: JSON.stringify({ xp }),
+    });
+  })().catch(() => {});
 }
 
 /** Sync current streak count to the database (fire-and-forget). */
 export function syncStreak(uid: string, streak: number): void {
-  fetch(`${BASE}/streak`, {
-    method: "POST",
-    headers: headers(uid),
-    body: JSON.stringify({ streak }),
-  }).catch(() => {});
+  void (async () => {
+    await fetch(`${BASE}/streak`, {
+      method: "POST",
+      headers: await authHeaders(uid),
+      body: JSON.stringify({ streak }),
+    });
+  })().catch(() => {});
 }
 
 /** Replace the stored focus_daily records with the current client records (fire-and-forget). */
 export function syncFocus(uid: string, records: DailyFocusRecord[]): void {
-  fetch(`${BASE}/focus`, {
-    method: "POST",
-    headers: headers(uid),
-    body: JSON.stringify({ records }),
-  }).catch(() => {});
+  void (async () => {
+    await fetch(`${BASE}/focus`, {
+      method: "POST",
+      headers: await authHeaders(uid),
+      body: JSON.stringify({ records }),
+    });
+  })().catch(() => {});
 }
 
 /** Merge a single topic's mastery data into the database (fire-and-forget). */
 export function syncMastery(uid: string, topicKey: string, masteryData: unknown): void {
-  fetch(`${BASE}/mastery`, {
-    method: "POST",
-    headers: headers(uid),
-    body: JSON.stringify({ topicKey, masteryData }),
-  }).catch(() => {});
+  void (async () => {
+    await fetch(`${BASE}/mastery`, {
+      method: "POST",
+      headers: await authHeaders(uid),
+      body: JSON.stringify({ topicKey, masteryData }),
+    });
+  })().catch(() => {});
 }
 
 /** Merge a single mission key's progress into the database (fire-and-forget). */
 export function syncMissionProgress(uid: string, missionKey: string, progress: unknown): void {
-  fetch(`${BASE}/mission`, {
-    method: "POST",
-    headers: headers(uid),
-    body: JSON.stringify({ missionKey, progress }),
-  }).catch(() => {});
+  void (async () => {
+    await fetch(`${BASE}/mission`, {
+      method: "POST",
+      headers: await authHeaders(uid),
+      body: JSON.stringify({ missionKey, progress }),
+    });
+  })().catch(() => {});
 }
