@@ -3,7 +3,7 @@ import { render, screen, cleanup, within, fireEvent } from "@testing-library/rea
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 import { ConceptSpine } from "./ConceptSpine";
-import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { desktopTopicBySlug, type DesktopTopicSummary } from "../../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHubContent";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 
@@ -45,11 +45,24 @@ afterEach(cleanup);
  * targets the right selector rather than measuring pixels.
  */
 
-// Real data: a seeded topic (isSamplePreview:false) and a sample-preview topic.
+// Real data: a seeded topic (isSamplePreview:false). Every topic in topics.ts is now
+// seeded, so the sample-preview fallback is exercised with a SYNTHETIC topic whose slug
+// is deliberately absent from topics.ts and the SEEDED map — this keeps the preview-label
+// mechanism under test without relying on a specific real topic staying unseeded.
 const trig = desktopTopicBySlug("trigonometry")!;
 const trigContent = buildActionableDesktopTopicHubContent(trig)!;
-const realNumbers = desktopTopicBySlug("real-numbers")!;
-const realNumbersContent = buildActionableDesktopTopicHubContent(realNumbers)!;
+const previewTopic: DesktopTopicSummary = {
+  slug: "__sample-preview-fixture__",
+  name: "Sample Preview Fixture",
+  subject: "Maths",
+  stream: "All",
+  trendTier: "medium",
+  weight: 4,
+  marks: "~4 marks",
+  blurb:
+    "Synthetic topic used only to exercise the sample-preview fallback. It carries two sentences. This is the second.",
+};
+const previewContent = buildActionableDesktopTopicHubContent(previewTopic)!;
 
 function renderSpine(
   topic = trig,
@@ -152,11 +165,11 @@ describe("ConceptSpine — Examiner's tips (expandable container, no fabrication
   });
 
   it("does NOT seed the sample-preview placeholder as if it were a real tip", () => {
-    // real-numbers is a sample-preview topic; its examinerWarning is a placeholder.
-    expect(realNumbersContent.isSamplePreview).toBe(true);
-    renderSpine(realNumbers, realNumbersContent);
+    // The synthetic fixture is a sample-preview topic; its examinerWarning is a placeholder.
+    expect(previewContent.isSamplePreview).toBe(true);
+    renderSpine(previewTopic, previewContent);
     fireEvent.click(screen.getByRole("button", { name: /Examiner.s tips/ }));
-    expect(screen.queryByText(realNumbersContent.examinerWarning)).toBeNull();
+    expect(screen.queryByText(previewContent.examinerWarning)).toBeNull();
     // Still shows the honest "coming soon" line.
     expect(screen.getByText(/More examiner.s tips/)).toBeInTheDocument();
   });
@@ -279,8 +292,8 @@ describe("ConceptSpine — per-row visual badge (PR-D item 8, honest)", () => {
 
 describe("ConceptSpine — sample-preview honesty", () => {
   it("labels a sample-preview topic and omits the label on a seeded topic", () => {
-    expect(realNumbersContent.isSamplePreview).toBe(true);
-    renderSpine(realNumbers, realNumbersContent);
+    expect(previewContent.isSamplePreview).toBe(true);
+    renderSpine(previewTopic, previewContent);
     expect(screen.getByText("Sample preview")).toBeInTheDocument();
     cleanup();
 
