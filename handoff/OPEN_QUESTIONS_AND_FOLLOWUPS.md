@@ -1,3 +1,17 @@
+## 2026-07-06 — Progress-Journey ARC · PR-1 session-record data layer merged (#338, `d704b1c`)
+
+### ✅ CLOSED
+- **[FU-SESSIONRECORDS-RULES]** — the new `sessionRecords/{uid}` Firestore collection needed a rules block or its cloud write/read is denied by the catch-all deny. **CLOSED:** owner added + deployed the block via Console and committed it to trunk (**`dc73360`**). (Lesson for future new-collection work: `sessionRecords` is the FIRST genuinely-new top-level collection in the arc — every prior persistence feature reused an existing collection precisely to avoid a `firestore.rules` edit. A new top-level collection ALWAYS needs a companion rules block deployed before its cloud half works.)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-SESSIONRECORDS-REGRADE-JSDOM-TEST]** — add a jsdom/browser-env test that persists a worksheet via `saveWorksheetSession`, grades it, then re-grades and asserts a SINGLE `sessionRecords` doc under the same id. The current node-env `sessionRecords.test.ts` can't exercise the `getWorksheetSession` freeze-recovery short-circuit (no `window`), so the idempotent-re-grade path is proven by reasoning + the review, not by an executed test. Non-blocking.
+- **[FU-SESSIONRECORDS-SEEN-SET]** — the uniqueness seen-set (union of `questionIds` across a student's records for (subject, topic) → the worksheet generator EXCLUDES it, with HONEST EXHAUSTION when the pool depletes) is the deliberate FOLLOW-ON on this same store. The `questionIds` field is LOCKED into the §1 contract now, so no migration is needed later. (§1c.)
+
+### ℹ️ NOTE
+- **#180** (`docs/backlog-stale-branch-review`, a month-stale June-2 "triage branches later" docs PR) also edits `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`. It does NOT touch SESSION_LOG. This #338 handoff merged first (active work), so #180 will need a rebase or a close — flagged to the owner.
+
+---
+
 ## 2026-07-06 — Topic Hub boardEssentials seeding merged (#337, `1caa25d`)
 
 ### 🆕 NEW FOLLOW-UPS

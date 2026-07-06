@@ -2,6 +2,20 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-06 — PROGRESS-JOURNEY ARC · PR-1 (session-record data layer) MERGED (#338, `d704b1c`)
+
+The Progress-Journey ARC (Universal Scorecard → per-surface histories → Me/Progress → Home nudge →
+Topic Hub before→now) builds to `LazyTopper_Progress_Journey_Design_Package_LOCKED_2026-07-03.md` §4
+in **sequenced PRs**. **Step 1 = the DATA LAYER — DONE (#338):** `services/sessionRecords.ts` (the
+`sessionRecords/{uid}/records/{code}` store — idempotent, honest-failure, `perQuestionRef` per-question
+payload, durable cross-device `#NN`) + `services/progressStore.ts` (the ONE aggregation reader) + the
+code printed on both worksheet sheets. The write fires in `gradeWorksheetAndRecord`. Grader byte-unchanged;
+no scorecard/history/Me/Home UI. New Firestore collection → owner deployed the `sessionRecords` rule
+(`dc73360`). **Arc build order (unchanged):** PR-1 data layer ✅ → **PR-2 Universal `<ResultsScorecard>`**
+(refactor from `WorksheetScorecard`, worksheet-variant-identical non-regression gate; WRITES the record) →
+PR-3 per-surface histories → PR-4 Me/Progress redesign → PR-5 Home nudge → PR-6 Topic Hub before→now.
+Seen-set uniqueness = a follow-on on the same store (`questionIds` locked in).
+
 ## 2026-07-06 — CONTENT LANE: Light extraction PILOT merged (#330, `83b1268`) — bank 326 → 767
 
 The extraction pilot (Content-folder + CBSE-official + gdrive sources) is DONE for Light: +441 authentic
