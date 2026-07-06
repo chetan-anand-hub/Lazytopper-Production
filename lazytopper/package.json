@@ -109,6 +109,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "d3-hierarchy": "^3.1.2",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.7.0",
     "html-to-image": "^1.10.7",
@@ -130,6 +131,7 @@
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
+    "@types/d3-hierarchy": "^3.1.7",
     "@types/node": "^24.10.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.2",

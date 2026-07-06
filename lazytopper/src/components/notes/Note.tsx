@@ -4,7 +4,6 @@ import type {
   NoteExample,
   NoteFigure,
   NoteMindmap,
-  NoteMindmapBranch,
   NoteSpec,
   NoteSubject,
   RulesBlock,
@@ -12,6 +11,8 @@ import type {
 } from "./noteSpec.types";
 import { getNoteAssetUrl } from "./noteSpecRegistry";
 import { NoteRichText } from "./NoteRichText";
+import { NoteMindmapTree } from "./NoteMindmapTree";
+import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -401,6 +402,88 @@ const NOTE_CSS = `
   .lt-note__keyterms dl { grid-template-columns: 1fr; }
   .lt-note__block { padding: 16px 14px; }
 }
+
+/* ── tab bar + Download-PDF button (Part 3) ────────────────────────── */
+.lt-note__tabbar {
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--lt-note-line); margin-bottom: 18px; flex-wrap: wrap;
+}
+.lt-note__tabbar .lt-note__tabs { border-bottom: none; margin-bottom: 0; flex: 1 1 auto; }
+.lt-note__pdf-btn {
+  flex: 0 0 auto; font-family: var(--lt-note-sans); font-size: 12.5px; font-weight: 600;
+  padding: 8px 12px; border-radius: 9px; border: 1px solid var(--lt-note-green-line);
+  background: #fff; color: var(--lt-note-green-deep); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+}
+.lt-note__pdf-btn:hover { background: var(--lt-note-green-tint); }
+
+/* tab panels — all rendered; only the active shows on screen (print shows all) */
+.lt-note__panel { display: none; }
+.lt-note__panel--active { display: block; }
+
+/* ── mindmap visual tree (Part 1) ──────────────────────────────────── */
+.lt-note__mm-scroll {
+  overflow: auto; max-height: 560px;
+  background: #fcfdfe; border: 1px solid var(--lt-note-line); border-radius: 12px;
+}
+.lt-note__mm-canvas { position: relative; }
+.lt-note__mm-links { position: absolute; inset: 0; pointer-events: none; }
+.lt-note__mm-node {
+  position: absolute; transform: translateY(-50%); box-sizing: border-box;
+  padding: 6px 11px; border-radius: 11px; background: #fff; border: 1.3px solid #e7ebf0;
+  font-family: var(--lt-note-sans); font-weight: 600; font-size: 12.5px;
+  line-height: 1.25; color: var(--lt-note-ink-soft);
+}
+.lt-note__mm-node--root {
+  background: var(--lt-note-navy); border-color: var(--lt-note-navy); color: #fff;
+  font-family: var(--lt-note-serif); font-size: 13.5px;
+}
+.lt-note__mm-node--branch { border-width: 2px; color: var(--lt-note-navy); font-weight: 700; }
+.lt-note__mm-node--leaf { font-weight: 500; }
+
+/* ── generated figure: parabola triptych (Part 2) ──────────────────── */
+.lt-note__fgen { margin: 4px 0; }
+.lt-note__triptych {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border: 1px solid var(--lt-note-line); border-radius: 12px; overflow: hidden; background: #fff;
+}
+.lt-note__gcol { border-right: 1px solid var(--lt-note-line); }
+.lt-note__gcol:last-child { border-right: none; }
+.lt-note__gh { padding: 9px 11px; text-align: center; }
+.lt-note__badge {
+  display: inline-block; font-size: 10.5px; font-weight: 700;
+  padding: 2px 8px; border-radius: 999px; margin-bottom: 4px;
+}
+.lt-note__badge--distinct { background: var(--lt-note-green-tint); color: var(--lt-note-green-deep); }
+.lt-note__badge--equal { background: var(--lt-note-amber-tint); color: var(--lt-note-amber-ink); }
+.lt-note__badge--none { background: #fbe9e7; color: #c0392b; }
+.lt-note__gt { font-size: 12px; font-weight: 600; color: var(--lt-note-navy); line-height: 1.3; }
+.lt-note__gsvg { display: block; width: 100%; height: auto; }
+@media (max-width: 560px) {
+  .lt-note__triptych { grid-template-columns: 1fr; }
+  .lt-note__gcol { border-right: none; border-bottom: 1px solid var(--lt-note-line); }
+  .lt-note__gcol:last-child { border-bottom: none; }
+}
+
+/* ── print: isolate the note, show every tab, drop app chrome (Part 3) ── */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff !important; }
+  body * { visibility: hidden !important; }
+  .lt-note, .lt-note * { visibility: visible !important; }
+  .lt-note {
+    position: absolute !important; left: 0; top: 0; width: 100% !important;
+    max-width: none !important; margin: 0 !important; padding: 0 !important;
+    box-shadow: none !important; border: none !important;
+  }
+  .lt-note__tabbar, .lt-note__pdf-btn { display: none !important; }
+  .lt-note__panel { display: block !important; }
+  .lt-note__mm-scroll { overflow: visible !important; max-height: none !important; }
+  .lt-note__figure img, .lt-note__gsvg { max-height: 235mm; }
+  .lt-note__block, .lt-note__figure, .lt-note__def, .lt-note__concept,
+  .lt-note__ex, .lt-note__pit, .lt-note__signcard, .lt-note__gcol { break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
 `;
 
 /* ── small building blocks ─────────────────────────────────────────── */
@@ -417,6 +500,7 @@ function citeLine(source: NoteFigure["source"] | NoteExample["source"]): string 
 
 function FigureCard({ figure }: { figure: NoteFigure }) {
   const assetUrl = getNoteAssetUrl(figure.asset);
+  const generated = hasGeneratedRenderer(figure);
   return (
     <figure className="lt-note__figure">
       {(figure.tag || figure.caption) && (
@@ -425,7 +509,11 @@ function FigureCard({ figure }: { figure: NoteFigure }) {
           {figure.caption && <NoteRichText text={figure.caption} />}
         </figcaption>
       )}
-      {assetUrl ? (
+      {generated ? (
+        <div className="lt-note__fgen">
+          <NoteGeneratedFigure figure={figure} />
+        </div>
+      ) : assetUrl ? (
         <img
           className="lt-note__fimg"
           src={assetUrl}
@@ -546,51 +634,18 @@ function MindmapPanel({ mindmap }: { mindmap: NoteMindmap }) {
   const hasTree =
     !!mindmap && !mindmap._TODO && !!mindmap.root && Array.isArray(mindmap.branches) &&
     mindmap.branches.length > 0;
-  if (!hasTree) {
-    return (
-      <section className="lt-note__block">
-        <div className="lt-note__sec-label">Mindmap</div>
+  return (
+    <section className="lt-note__block">
+      <div className="lt-note__sec-label">Mindmap</div>
+      {hasTree ? (
+        <NoteMindmapTree mindmap={mindmap} />
+      ) : (
         <p className="lt-note__pending">
           The mind-map for this chapter is still being distilled from the note
           — it will appear here once it lands in the spec. Nothing is invented
           in the meantime.
         </p>
-      </section>
-    );
-  }
-  const renderChild = (child: string | NoteMindmapBranch, key: number) =>
-    typeof child === "string" ? (
-      <li key={key}>
-        <NoteRichText text={child} />
-      </li>
-    ) : (
-      <li key={key}>
-        <NoteRichText text={child.label} />
-        {child.children && child.children.length > 0 && (
-          <ul className="lt-note__mm-children">
-            {child.children.map(renderChild)}
-          </ul>
-        )}
-      </li>
-    );
-  return (
-    <section className="lt-note__block">
-      <div className="lt-note__sec-label">Mindmap</div>
-      <div className="lt-note__mm-root"><NoteRichText text={mindmap.root ?? ""} /></div>
-      <div className="lt-note__mm-branches">
-        {(mindmap.branches ?? []).map((branch, i) => (
-          <div key={i} className="lt-note__mm-branch">
-            <div className="lt-note__mm-branch-label">
-              <NoteRichText text={branch.label} />
-            </div>
-            {branch.children && branch.children.length > 0 && (
-              <ul className="lt-note__mm-children">
-                {branch.children.map(renderChild)}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
+      )}
     </section>
   );
 }
@@ -814,8 +869,9 @@ export function Note({ spec }: NoteProps) {
         </span>
       </div>
 
-      {/* tabs */}
-      <div className="lt-note__tabs" role="tablist">
+      {/* tabs + Download-PDF */}
+      <div className="lt-note__tabbar">
+        <div className="lt-note__tabs" role="tablist">
         <button
           type="button"
           role="tab"
@@ -843,10 +899,19 @@ export function Note({ spec }: NoteProps) {
         >
           <NoteRichText text={meta.third_tab.label} />
         </button>
+        </div>
+        <button
+          type="button"
+          className="lt-note__pdf-btn"
+          onClick={() => window.print()}
+          title="Save this note as PDF / print"
+        >
+          {"⤓"} Download PDF
+        </button>
       </div>
 
       {/* ── Note tab — the 7-part spine ── */}
-      {tab === "note" && (
+      <div className={"lt-note__panel" + (tab === "note" ? " lt-note__panel--active" : "")}>
         <div>
           {hasBigIdea && (
             <section className="lt-note__block">
@@ -1010,15 +1075,17 @@ export function Note({ spec }: NoteProps) {
             </section>
           )}
         </div>
-      )}
+      </div>
 
       {/* ── Mindmap tab ── */}
-      {tab === "mind" && <MindmapPanel mindmap={spec.mindmap} />}
+      <div className={"lt-note__panel" + (tab === "mind" ? " lt-note__panel--active" : "")}>
+        <MindmapPanel mindmap={spec.mindmap} />
+      </div>
 
       {/* ── Third tab (kind-switched) ── */}
-      {tab === "third" && (
+      <div className={"lt-note__panel" + (tab === "third" ? " lt-note__panel--active" : "")}>
         <ThirdTabPanel content={spec.third_tab_content} figures={figures} />
-      )}
+      </div>
 
       {/* ── Source ledger — provenance, visible under every tab ── */}
       {spec.source_ledger.length > 0 && (
