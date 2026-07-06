@@ -2,6 +2,15 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-06 — CONTENT LANE: Light extraction PILOT merged (#330, `83b1268`) — bank 326 → 767
+
+The extraction pilot (Content-folder + CBSE-official + gdrive sources) is DONE for Light: +441 authentic
+questions across three tier files, 35 eye-confirmed bound figures (first science raster figures), ship-tracked
+review queue at `docs/light-extraction-review-queue.md` (230 authored solutions + 52 flagged diagrams → trusted-
+student QC post-launch). **Content-lane staging: Light ✅ → Electricity (on explicit owner go) → one Biology
+topic — one at a time, same pipeline.** Deferred: gdrive 1-mark pass (757 AR / 821 objective / 2022-23 PYQ
+residual / CBSE Practise Papers); AI-question retirement pass once authentic supply is proven in QC.
+
 ## 2026-07-03 — Firestore undefined-field persistence fix MERGED (#322, `706cc12`) — PR-B (#321) now LIVE end-to-end
 
 Trunk `706cc12`. The durable per-student attempt record (PR-B, #321) was merged but **non-functional**: `firebaseClient.ts` initialised Firestore with `getFirestore(app)` (no `ignoreUndefinedProperties`), so the SDK threw `"Unsupported field value: undefined"` on every attempt doc (they carry `undefined` `bloomSkill`/`topicName`), and fire-and-forget `.catch(() => {})` silently swallowed it. #322 (2 files) switched to `initializeFirestore(app, { ignoreUndefinedProperties: true })` and un-muted the two write catches to `console.warn`. Isolated worktree; cofounder byte-reviewed; owner LIVE-VERIFIED end-to-end on production (`practiceInsights/{uid}/attempts` now writes with all fields; repeat grade = no duplicate; `mistakeLogs` regression clean). See D32/D33.

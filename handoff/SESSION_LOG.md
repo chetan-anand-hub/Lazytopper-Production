@@ -1,5 +1,17 @@
 ---
 
+## 2026-07-06 — Light extraction PILOT MERGED (#330): bank 326 → 767, ship-tracked review queue
+
+**Trunk after: `83b1268` (squash).** The Content-lane pilot (goal: replace AI questions with authentic high-marks + diagram questions; semantic extraction, no Q-marker counting) shipped as ONE PR, 4 commits, built in an isolated worktree:
+
+- **v1 — Foundation pack (231 rows, `light-reflection-and-refraction.fnd.ts`).** 5-agent semantic fan-out over 6 sources (MCQ QB w/ explanations 184Q, SP-1 module Ch.1, WS-4/CBSE-X worksheets, Board QP; WORKSHEET_LIGHT_OCTOBER excluded — a Class-VIII paper; ground-truth sample check on WS-4 confirmed Word auto-list numbering = the historical 7×-undercount cause). 18 WebP figures bound + eye-confirmed via NEW `SCIENCE_FIGURE_VISUALS` (id-keyed, z3 contract).
+- **v2 — owner-directed:** the 51 surviving quarantined beyond-board rows shipped as a SEPARATE `LGHT_FND_BEYOND_BOARD` array (badgeable later); + `light-reflection-and-refraction.cfpq-sqp25.ts` — 15 CFPQ ch.10 rows (official CBSE marking rubrics as sourced step-marked solutions; image-based pages eye-transcribed) + 4 SQP-2025-26 rows (official MS). Options-aware de-dupe rescan restored 2 wrongly-excluded rows and removed 6 more dups.
+- **v3 — gdrive high-marks (138 rows, `light-reflection-and-refraction.gdr.ts`, all 2-5 mark).** 4-agent fan-out: printed numericals scans 852+4240 eye-transcribed (94; the handwritten solved-notebook 853 REJECTED as a source; 5 wrong student answers shipped physics-correct), cbse.online guide SA/LA (43, mostly sourced), 818 essay worksheet (6 after cluster de-dupe), Meridian RLT-1 (8). Cross-source dup CLUSTERS resolved keeping the best-sourced member; 1 more figure bound (GDR-L-CBJ-032).
+- **v4 — close-out:** rebased onto re-derived trunk `b5a62be` (#331/#332) — clean, zero conflicts; bug-fix files byte-identical to trunk (checkSolution.cjs ECF=2); footprint proven content-only (41 paths). All 10 checkpoint tests re-run vs the CURRENT trunk reference — ALL PASS, 0 new collisions; 7347 unique ids. **Owner decision SHIP-TRACKED:** merge not blocked on the authored queue; committed manifest **`docs/light-extraction-review-queue.md`** = the exact 230 authored-solution ids + 52 authored-SVG-later diagram ids + priority-eyeball sublist (9 wrong source keys, CFPQ-013 official-rubric error 18.6→15.7 mm, 5 notebook discrepancies).
+
+**Net effect:** Light 326→767 (1mk 112→340, 2mk 84→155, 3mk 67→176, 4mk 12→16, 5mk 51→80); diagram-flagged 10→97 with 35 questions rendering real eye-confirmed figures; AI share 31.6%→13.4% (AI rows untouched — retirement is a later pass). De-dupe ledger: 91 exclusions, all named. Gates green throughout (tsc, mojibake, scope:guard, root matrix 181/181, ops matrix, validate:banks, dup-ids); CI linux build on the PR. Cofounder byte-review + owner merge; no self-merge. Report: `report-light-extraction-pilot-2026-07-03.md` (v1-v4 sections). **4-mark case-based band remains thin (16) — flagged as the honest residual gap.**
+
+
 ## 2026-07-05 — Grading-path bugs: Bug 2 + Bug 3 FIXED & LIVE-VERIFIED; Bug 1 auth MERGED, feature DEFERRED (#331)
 
 **Trunk after: `2484cff`.** ONE PR, three file-disjoint grading-path fixes (owner directive), built in an isolated worktree off the **re-derived origin tip `bfe8e7e`** — the shared local checkout was **22 commits stale** (at `#306` / `66ccf13`); do NOT proceed from stale local HEAD. 5 files. Orchestrated: 3 file-disjoint subagents + 3 adversarial skeptic reviewers.

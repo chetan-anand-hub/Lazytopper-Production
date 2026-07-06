@@ -1,3 +1,12 @@
+## 2026-07-06 — Light extraction PILOT merged (#330, `83b1268`)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-LIGHT-REVIEW-QUEUE]** — ship-tracked owner decision: the **230 AI-authored solutions** (`AI_GENERATED_SOLUTION_IDS`) and **52 authored-SVG-later diagram flags** went live for trusted-student QC. The committed manifest `docs/light-extraction-review-queue.md` is the authoritative verification list (incl. the priority-eyeball sublist: 9 wrong source keys overridden, `CFPQ-S-LGHT-013` official-rubric error 18.6→15.7 mm, 5 handwritten-notebook discrepancies). The post-launch correction pass works this queue; solved items get removed from the manifest + the id-sets.
+- **[FU-LIGHT-4MK-CASE-GAP]** — the 4-mark case-based band is the one thin band after the pilot (16 total): case-based material is scarce in every source swept so far. Candidate: a dedicated case-based authoring/extraction pass.
+- **[FU-GDRIVE-LIGHT-1MK-PASS]** — deferred gdrive leftovers for Light: `757_A-R...25Q.docx` (25 AR — a format gap), `821_REFLECTION AND REFRACTION.docx` (51 objective), the 2022-23 PYQ residual sets (+official MS), `CBSE Practise Papers\Science.pdf` (unsized). Same pipeline, low priority.
+- **[FU-BEYOND-BOARD-BADGE]** — `LGHT_FND_BEYOND_BOARD` + `LGHT_GDR_BEYOND_BOARD` (52 rows) ship unmarked in the pool; a later UI pass can badge/filter them (the arrays keep them addressable).
+- **[FU-AI-RETIRE-LIGHT]** — with authentic supply at 664 non-AI rows, the 103 AI Light questions (`light.pack1/2`) are retirement candidates once QC proves the authentic tier — per doctrine, NOT done in the extraction PR.
+
 ## 2026-07-05 — Grading-path bugs MERGED (#331, `2484cff`)
 
 ### ✅ CLOSED
