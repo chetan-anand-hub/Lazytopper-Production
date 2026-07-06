@@ -22,6 +22,13 @@ import {
   SHOW_DETECTION_META,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
+import { exportGradedCheckImprovePdf } from "../../components/worksheet/worksheetPdfExport";
+import {
+  CheckImproveGradedPrintDoc,
+  buildCiCoaching,
+  type CiGradedQuestion,
+  type CheckImproveGradedPrintDocProps,
+} from "../../components/checkimprove/CheckImproveGradedPrintDoc";
 
 // Persistence (entry building + policy + dedup + the weak-area bridge) now lives
 // behind the single front door `recordMistake`. The old local buildMobileLogEntry
@@ -121,11 +128,123 @@ export default function CheckImprove() {
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
   const [ciCode, setCiCode]     = useState<string | null>(null);
 
+  // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
+  const [downloading, setDownloading]     = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [readProps, setReadProps]         = useState<CheckImproveGradedPrintDocProps | null>(null);
+  // ── PART A: which multi-question cards are expanded to show per-step working ──
+  const [expandedQ, setExpandedQ]         = useState<Record<number, boolean>>({});
+
   const hasContent = tab === "upload" ? fileLoaded : textAnswer.trim().length > 10;
   const hasQuestion = questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
   // Multi-question grading requires an uploaded answer sheet (image or PDF).
   const canGrade   = Boolean(confirmed) && (isMultiQuestion ? fileLoaded : hasContent);
+
+  // ── PART B helpers: build the branded graded-solution props (single OR multi),
+  // then download it as a PDF or reveal it on screen. BOTH paths feed the SAME
+  // <CheckImproveGradedPrintDoc> and the SAME worksheet PDF-export core as desktop,
+  // so the surfaces stay consistent. A snapshot of the shown grade, never a re-grade.
+  function buildSinglePrintProps(): CheckImproveGradedPrintDocProps | null {
+    if (!gradeResult || !confirmed) return null;
+    const code = ciCode ?? buildCiSessionCode(confirmed.subject, confirmed.topicSlug);
+    if (!ciCode) setCiCode(code);
+    const ms = gradeResult.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+    const knowledge = ms.conceptual + ms.calculation;
+    const careless = ms.silly + ms.presentation;
+    return {
+      code,
+      name: `${confirmed.topicName || confirmed.subject} · Check & Improve`,
+      // Use the grader's totalMarks (not confirmed.marks) so the meta line matches
+      // the score hero denominator, mirroring desktop.
+      metaLine: `Check & Improve · ${gradeResult.totalMarks} mark${gradeResult.totalMarks === 1 ? "" : "s"}`,
+      questions: [
+        {
+          questionText: question.trim() || undefined,
+          totalMarks: gradeResult.totalMarks,
+          marksAwarded: gradeResult.marksAwarded,
+          couldNotRead: false,
+          annotatedSteps: gradeResult.annotatedSteps,
+          mistakeSummary: gradeResult.mistakeSummary,
+          teacherNote: gradeResult.teacherNote,
+        },
+      ],
+      gradedMarksAwarded: gradeResult.marksAwarded,
+      gradedMarksTotal: gradeResult.totalMarks,
+      pendingCount: 0,
+      coaching: buildCiCoaching({
+        gradedMarksAwarded: gradeResult.marksAwarded,
+        gradedMarksTotal: gradeResult.totalMarks,
+        knowledge,
+        careless,
+        pendingCount: 0,
+      }),
+    };
+  }
+
+  function buildMultiPrintProps(): CheckImproveGradedPrintDocProps | null {
+    if (!wsResult) return null;
+    const ws = wsResult;
+    const code = ciCode ?? "CI";
+    const agg = ws.results.reduce(
+      (a, g) => {
+        if (g.couldNotRead || !g.mistakeSummary) return a;
+        a.k += (g.mistakeSummary.conceptual || 0) + (g.mistakeSummary.calculation || 0);
+        a.c += (g.mistakeSummary.silly || 0) + (g.mistakeSummary.presentation || 0);
+        return a;
+      },
+      { k: 0, c: 0 },
+    );
+    const questions: CiGradedQuestion[] = ws.results.map((g) => ({
+      qNumber: g.qNumber,
+      questionText: detectedQuestions?.find((q) => q.questionNumber === g.qNumber)?.questionText,
+      totalMarks: g.totalMarks,
+      marksAwarded: g.marksAwarded,
+      couldNotRead: g.couldNotRead,
+      annotatedSteps: g.annotatedSteps,
+      mistakeSummary: g.mistakeSummary,
+      teacherNote: g.teacherNote,
+    }));
+    return {
+      code,
+      name: `${confirmed?.topicName || confirmed?.subject || "Check & Improve"} · Check & Improve paper`,
+      metaLine: `Check & Improve · ${ws.totalQuestions} question${ws.totalQuestions === 1 ? "" : "s"} · ${ws.worksheetTotalMarks} marks`,
+      questions,
+      gradedMarksAwarded: ws.gradedMarksAwarded,
+      gradedMarksTotal: ws.gradedMarksTotal,
+      pendingCount: ws.pendingCount,
+      coaching: buildCiCoaching({
+        gradedMarksAwarded: ws.gradedMarksAwarded,
+        gradedMarksTotal: ws.gradedMarksTotal,
+        knowledge: agg.k,
+        careless: agg.c,
+        pendingCount: ws.pendingCount,
+      }),
+    };
+  }
+
+  async function downloadGraded(props: CheckImproveGradedPrintDocProps | null) {
+    if (!props) return;
+    setDownloadError(null);
+    setDownloading(true);
+    try {
+      await exportGradedCheckImprovePdf(props);
+    } catch {
+      setDownloadError("Couldn't build the PDF — please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  // `build` runs OUTSIDE the state updater (it may setCiCode) so the updater stays
+  // pure and StrictMode's double-invoke can't run it twice.
+  function toggleRead(build: () => CheckImproveGradedPrintDocProps | null) {
+    if (readProps) {
+      setReadProps(null);
+      return;
+    }
+    setReadProps(build());
+  }
 
   function handleFileChange(file: File) {
     const reader = new FileReader();
@@ -413,7 +532,7 @@ export default function CheckImprove() {
       <MobileShell title="Check & Improve" subtitle="Graded paper" showNav>
         <div style={{ paddingBottom: 120, display: "flex", flexDirection: "column", gap: 12 }}>
           <button
-            onClick={() => { setView("upload"); setWsResult(null); }}
+            onClick={() => { setView("upload"); setWsResult(null); setReadProps(null); setExpandedQ({}); setDownloadError(null); }}
             style={{ alignSelf: "flex-start", background: "none", border: "none", padding: 0, color: "var(--mob-fg-muted)", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer" }}
           >
             ← Grade another
@@ -437,14 +556,58 @@ export default function CheckImprove() {
             )}
           </div>
 
-          {ws.results.map((g) => {
+          {/* PART B — graded-solution actions: download the branded PDF + read it on screen. */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={() => void downloadGraded(buildMultiPrintProps())}
+              disabled={downloading}
+              style={{ flex: "1 1 auto", minHeight: 44, borderRadius: 12, border: "none", background: "var(--mob-success, #16a34a)", color: "#fff", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", opacity: downloading ? 0.7 : 1 }}
+            >
+              {downloading ? "Preparing PDF…" : "↓ Download graded solution"}
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleRead(buildMultiPrintProps)}
+              style={{ flex: "1 1 auto", minHeight: 44, borderRadius: 12, border: "1px solid var(--mob-card-border)", background: "var(--mob-card)", color: "var(--mob-fg)", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer" }}
+            >
+              {readProps ? "Hide graded sheet" : "Read on screen"}
+            </button>
+          </div>
+          {downloadError && <div style={{ fontSize: "0.72rem", color: "var(--mob-danger, #dc2626)" }}>{downloadError}</div>}
+          {readProps && (
+            <div className="card-soft" style={{ padding: 0, overflowX: "auto" }}>
+              <CheckImproveGradedPrintDoc {...readProps} />
+            </div>
+          )}
+
+          {ws.results.map((g, qi) => {
             const m = g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
             const knowledge = m.conceptual + m.calculation;
             const careless = m.silly + m.presentation;
+            // PART A: per-question steps (with corrected working), expandable so a
+            // multi-question paper isn't a wall of steps. Keyed by array index (not
+            // qNumber) so a grader-mislabelled duplicate qNumber can't collide the
+            // React key or expand two cards in lockstep.
+            const steps = g.annotatedSteps ?? [];
+            const canExpand = !g.couldNotRead && steps.length > 0;
+            const open = !!expandedQ[qi];
+            const qText = detectedQuestions?.find((q) => q.questionNumber === g.qNumber)?.questionText;
+            const toggle = () => setExpandedQ((p) => ({ ...p, [qi]: !p[qi] }));
             return (
-              <div key={g.qNumber} className="card-soft" style={{ padding: "12px 14px" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                  <span style={{ fontWeight: 700, fontSize: "0.86rem", color: "var(--mob-fg)" }}>Q{g.qNumber}</span>
+              <div key={qi} className="card-soft" style={{ padding: "12px 14px" }}>
+                <div
+                  role={canExpand ? "button" : undefined}
+                  tabIndex={canExpand ? 0 : undefined}
+                  aria-expanded={canExpand ? open : undefined}
+                  onClick={canExpand ? toggle : undefined}
+                  onKeyDown={canExpand ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } } : undefined}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", cursor: canExpand ? "pointer" : "default" }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, fontSize: "0.86rem", color: "var(--mob-fg)" }}>
+                    {canExpand && <span style={{ color: "var(--mob-fg-muted)", fontSize: "0.7rem" }}>{open ? "▾" : "▸"}</span>}
+                    Q{g.qNumber}
+                  </span>
                   {g.couldNotRead ? (
                     <span style={{ fontSize: "0.72rem", color: "var(--mob-warning, #b45309)" }}>Couldn&rsquo;t read — re-upload</span>
                   ) : (
@@ -459,6 +622,33 @@ export default function CheckImprove() {
                 </div>
                 {!g.couldNotRead && g.teacherNote && (
                   <p style={{ margin: "8px 0 0", fontSize: "0.74rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>{g.teacherNote}</p>
+                )}
+                {canExpand && !open && (
+                  <button type="button" onClick={toggle} style={{ marginTop: 8, background: "none", border: "none", padding: 0, color: "var(--mob-success, #16a34a)", fontWeight: 600, fontSize: "0.74rem", cursor: "pointer" }}>
+                    Show step-by-step working ▸
+                  </button>
+                )}
+                {canExpand && open && (
+                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+                    {qText && <div style={{ fontSize: "0.76rem", color: "var(--mob-fg)", lineHeight: 1.5 }}>{qText}</div>}
+                    {steps.map((step) => (
+                      <div key={step.stepNumber} className="card-soft" style={{ padding: "10px 12px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "0.7rem", color: "var(--mob-fg-muted)", fontWeight: 700 }}>Step {step.stepNumber}</span>
+                          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <StatusBadge status={step.status} />
+                            <span style={{ fontSize: "0.68rem", color: "var(--mob-fg-muted)" }}>
+                              +{step.marksAwarded}{step.marksDeducted > 0 ? ` −${step.marksDeducted}` : ""}
+                            </span>
+                          </span>
+                        </div>
+                        {step.description && <div style={{ fontSize: "0.78rem", color: "var(--mob-fg)", lineHeight: 1.5, marginBottom: 4 }}>{step.description}</div>}
+                        {step.studentWork && <div style={{ fontFamily: "var(--font-display)", fontSize: "0.76rem", color: "var(--mob-fg)", background: "var(--mob-card)", border: "1px solid var(--mob-card-border)", borderRadius: 8, padding: "6px 8px", marginBottom: 4, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{step.studentWork}</div>}
+                        {step.teacherAnnotation && <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontStyle: "italic", marginBottom: 4 }}>↳ {step.teacherAnnotation}</div>}
+                        {step.correctedWorking && <div style={{ fontSize: "0.74rem", color: "var(--mob-success)", background: "var(--mob-success-soft)", borderRadius: 8, padding: "6px 8px", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>✓ {step.correctedWorking}</div>}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             );
@@ -477,8 +667,13 @@ export default function CheckImprove() {
       <GradedResult
         result={gradeResult}
         saved={saved}
-        onBack={() => { setView("upload"); setGradeResult(null); }}
+        onBack={() => { setView("upload"); setGradeResult(null); setReadProps(null); setDownloadError(null); }}
         navigate={navigate}
+        onDownload={() => void downloadGraded(buildSinglePrintProps())}
+        onToggleRead={() => toggleRead(buildSinglePrintProps)}
+        readProps={readProps}
+        downloading={downloading}
+        downloadError={downloadError}
       />
     );
   }
@@ -925,11 +1120,21 @@ function GradedResult({
   saved,
   onBack,
   navigate,
+  onDownload,
+  onToggleRead,
+  readProps,
+  downloading,
+  downloadError,
 }: {
   result: CheckSolutionResponse;
   saved: "idle" | "saved" | "no-user";
   onBack: () => void;
   navigate: ReturnType<typeof useNavigate>;
+  onDownload: () => void;
+  onToggleRead: () => void;
+  readProps: CheckImproveGradedPrintDocProps | null;
+  downloading: boolean;
+  downloadError: string | null;
 }) {
   const correct   = result.annotatedSteps.filter((s) => s.status === "correct").length;
   const partial   = result.annotatedSteps.filter((s) => s.status === "partial").length;
@@ -1023,6 +1228,31 @@ function GradedResult({
             Sign in to save this to your progress →
           </button>
         ) : null}
+
+        {/* PART B — graded-solution actions: download the branded PDF + read it on screen. */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            type="button"
+            onClick={onDownload}
+            disabled={downloading}
+            style={{ flex: "1 1 auto", minHeight: 44, borderRadius: 12, border: "none", background: "var(--mob-success, #16a34a)", color: "#fff", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", opacity: downloading ? 0.7 : 1 }}
+          >
+            {downloading ? "Preparing PDF…" : "↓ Download graded solution"}
+          </button>
+          <button
+            type="button"
+            onClick={onToggleRead}
+            style={{ flex: "1 1 auto", minHeight: 44, borderRadius: 12, border: "1px solid var(--mob-card-border)", background: "var(--mob-card)", color: "var(--mob-fg)", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer" }}
+          >
+            {readProps ? "Hide graded sheet" : "Read on screen"}
+          </button>
+        </div>
+        {downloadError && <div style={{ fontSize: "0.72rem", color: "var(--mob-danger, #dc2626)" }}>{downloadError}</div>}
+        {readProps && (
+          <div className="card-soft" style={{ padding: 0, overflowX: "auto" }}>
+            <CheckImproveGradedPrintDoc {...readProps} />
+          </div>
+        )}
 
         {/* ── Where you lost marks ──────────────────────────────── */}
         {lost.length > 0 && (

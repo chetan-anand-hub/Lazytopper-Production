@@ -19,6 +19,10 @@ import { createElement, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import { WorksheetPrintDoc } from "./WorksheetPrintDoc";
 import { WorksheetGradedPrintDoc } from "./WorksheetGradedPrintDoc";
+import {
+  CheckImproveGradedPrintDoc,
+  type CheckImproveGradedPrintDocProps,
+} from "../checkimprove/CheckImproveGradedPrintDoc";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
@@ -170,4 +174,19 @@ export async function exportGradedWorksheetPdf(args: {
     createElement(WorksheetGradedPrintDoc, { ws, response, name, code, coaching }),
     filename,
   );
+}
+
+/**
+ * Render + download the branded Check & Improve GRADED solution sheet. Reuses the
+ * SAME shared html2canvas → jsPDF core (`renderElementToPdf`) as the worksheet
+ * export, so the two stay visually consistent (a bridge toward the Universal
+ * <ResultsScorecard>). Renders the grade already on screen — a snapshot, never a
+ * re-grade. Works for both the single-question and multi-question C&I paths (the
+ * caller normalises either into `CheckImproveGradedPrintDocProps.questions`).
+ */
+export async function exportGradedCheckImprovePdf(
+  props: CheckImproveGradedPrintDocProps,
+): Promise<string> {
+  const filename = `lazytopper-${slug(props.name || props.code || "check-improve")}-graded.pdf`;
+  return renderElementToPdf(createElement(CheckImproveGradedPrintDoc, props), filename);
 }
