@@ -209,11 +209,19 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   const response = outcome?.response ?? null;
   const miBanner = useMemo(() => miBannerFrom(outcome), [outcome]);
 
-  // Device-local nomenclature (name + code) for this worksheet (§A7).
-  const nomen = useMemo(
-    () => worksheetNomenclature(ws, listStoredWorksheetsLite()),
-    [ws],
-  );
+  // Worksheet nomenclature (name + code) for this worksheet (§A7). PR-1 makes the
+  // code DURABLE + cross-device: prefer the code minted for the completed grade
+  // (outcome.sessionCode), then the frozen value on the worksheet, else the
+  // device-local compute — so the scorecard, graded PDF, and header all agree with
+  // the persisted session-record id.
+  const nomen = useMemo(() => {
+    const local = worksheetNomenclature(ws, listStoredWorksheetsLite());
+    return {
+      ...local,
+      code: outcome?.sessionCode ?? ws.code ?? local.code,
+      name: outcome?.sessionName ?? ws.name ?? local.name,
+    };
+  }, [ws, outcome?.sessionCode, outcome?.sessionName]);
 
   // Group the per-question results into collapsible sections (tap-to-reveal §A4).
   const sections = useMemo(() => {

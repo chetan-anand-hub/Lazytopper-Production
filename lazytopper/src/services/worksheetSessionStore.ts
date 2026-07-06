@@ -42,6 +42,16 @@ export interface PersistedWorksheet {
   sectionFilter: string;
   totalMarks: number;
   questions: PersistedWorksheetQuestion[];
+  /**
+   * Progress-Journey PR-1 — the DURABLE session nomenclature, minted once from the
+   * cross-device `sessionRecords` count (see services/sessionRecords.ts) and frozen
+   * here so the downloadable questions sheet, the graded sheet, and the eventual
+   * session-record id all agree on the SAME `WS-{S}-{TOPIC}-{NN}` code. Absent on
+   * worksheets generated before PR-1 (backwards-compatible — read-guarded everywhere).
+   */
+  code?: string;
+  name?: string;
+  sequence?: number;
 }
 
 /** Lightweight list-row (no question bodies) for a "your worksheets" view. */
@@ -96,6 +106,35 @@ export function saveWorksheetSession(ws: PersistedWorksheet): void {
 /** Look up a persisted worksheet by id (PR-E2b grade loop entry point). */
 export function getWorksheetSession(worksheetId: string): PersistedWorksheet | null {
   return readAll().find((w) => w.worksheetId === worksheetId) ?? null;
+}
+
+/**
+ * PR-1 — freeze the durable session nomenclature (code/name/#NN) onto a stored
+ * worksheet. Idempotent by construction: a worksheet that already carries a `code`
+ * is left untouched (mint-once), so the downloadable sheet, graded sheet, and
+ * session-record id never disagree. Best-effort localStorage update — the code is
+ * recomputed on next need if this fails, so it never blocks download or grade.
+ * Preserves list order (no ring-buffer reshuffle).
+ */
+export function updateStoredWorksheetCode(
+  worksheetId: string,
+  code: string,
+  name: string,
+  sequence: number,
+): void {
+  if (typeof window === "undefined" || !worksheetId || !code) return;
+  try {
+    const list = readAll();
+    let changed = false;
+    const next = list.map((w) => {
+      if (w.worksheetId !== worksheetId || w.code) return w;
+      changed = true;
+      return { ...w, code, name, sequence };
+    });
+    if (changed) writeAll(next);
+  } catch {
+    /* best-effort — a frozen code is a convenience, not a correctness requirement */
+  }
 }
 
 /** List stored worksheets (newest first) as lightweight metadata rows. */

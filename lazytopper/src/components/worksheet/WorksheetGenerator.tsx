@@ -17,9 +17,11 @@ import {
 import {
   mintWorksheetId,
   saveWorksheetSession,
+  listStoredWorksheetsLite,
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
+import { ensureWorksheetSessionCode } from "../../services/sessionRecords";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 import WorksheetGradePanel from "./WorksheetGradePanel";
 
@@ -335,11 +337,20 @@ export default function WorksheetGenerator() {
     setDownloadError(null);
     setDownloading(kind);
     try {
+      // PR-1 — mint (once) the DURABLE session code and print it on the sheet, so
+      // each solved worksheet carries the same ID it will later be graded under.
+      // Best-effort: a code-mint miss must never block the download.
+      let code: string | undefined;
+      try {
+        code = (await ensureWorksheetSessionCode(generated, user, listStoredWorksheetsLite())).code;
+      } catch {
+        /* keep downloading without a code rather than fail the PDF */
+      }
       // Renders the worksheet (real math via MathText/KaTeX) into a detached
       // offscreen node and rasterises it into a jsPDF FILE — worksheet only,
       // never the app page. The persisted `generated.questions` array is the
       // single source, so the PDF count matches the header count exactly.
-      await exportWorksheetPdf(generated, kind);
+      await exportWorksheetPdf(generated, kind, code);
     } catch {
       setDownloadError("Couldn’t build the PDF — please try again.");
     } finally {

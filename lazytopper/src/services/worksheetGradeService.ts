@@ -28,9 +28,15 @@ import {
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
-import { saveWorksheetGrade } from "./worksheetSessionStore";
+import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { recordAttempt } from "./practiceInsights";
+import {
+  ensureWorksheetSessionCode,
+  writeSessionRecord,
+  writeSessionPerQuestion,
+  buildWorksheetSessionRecord,
+} from "./sessionRecords";
 
 /**
  * Stable per-question id for MI dedup / idempotency. STABLE across re-grades of
@@ -51,6 +57,12 @@ export interface WorksheetMiOutcome {
 export interface WorksheetGradeOutcome {
   response: WorksheetGradeResponse;
   miOutcomes: WorksheetMiOutcome[];
+  /** PR-1 — the DURABLE session code/name minted for this completed grade
+   *  (`WS-{S}-{TOPIC}-{NN}`), so the scorecard + graded PDF can show the SAME
+   *  cross-device id the persisted session record carries. Absent when signed out /
+   *  local (no durable identity) or if code minting failed. */
+  sessionCode?: string;
+  sessionName?: string;
 }
 
 /** Adapt one legible per-question grade into the CheckSolutionResponse shape the
@@ -154,5 +166,35 @@ export async function gradeWorksheetAndRecord(
     miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
   }
 
-  return { response, miOutcomes };
+  // ── Progress-Journey PR-1: write ONE durable session record ────────────────
+  // The connectivity spine every progress surface reads. Mint the DURABLE code
+  // (cross-device #NN from sessionRecords, frozen once), then persist the record +
+  // the per-question payload the `perQuestionRef` points at. Idempotent (id = code)
+  // and honest-failure gated inside the store (no record for a signed-out / local
+  // session). Best-effort: a persistence miss NEVER breaks the grade UX.
+  let sessionCode: string | undefined;
+  let sessionName: string | undefined;
+  try {
+    const nomen = await ensureWorksheetSessionCode(worksheet, user, listStoredWorksheetsLite());
+    sessionCode = nomen.code;
+    sessionName = nomen.name;
+
+    const uid = user?.uid;
+    if (uid && !user?.isLocalSession) {
+      const record = buildWorksheetSessionRecord(worksheet, response, nomen, uid);
+      writeSessionRecord(user, record);
+      writeSessionPerQuestion(user, {
+        ref: record.perQuestionRef,
+        code: nomen.code,
+        worksheetId: worksheet.worksheetId,
+        surface: "worksheet",
+        gradedAt: record.gradedAt,
+        response,
+      });
+    }
+  } catch (error) {
+    console.warn("[worksheetGradeService] session record write failed", error);
+  }
+
+  return { response, miOutcomes, sessionCode, sessionName };
 }

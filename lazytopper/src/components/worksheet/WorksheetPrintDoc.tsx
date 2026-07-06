@@ -85,9 +85,13 @@ const OPTION_LETTERS = ["a", "b", "c", "d", "e"];
 export interface WorksheetPrintDocProps {
   ws: PersistedWorksheet;
   kind: "questions" | "answers";
+  /** PR-1 — the durable session code (`WS-{S}-{TOPIC}-{NN}`) printed on the sheet so
+   *  each solved worksheet carries its ID (the same id it will be graded under).
+   *  Optional/read-guarded: honest-empty when absent (never a fabricated placeholder). */
+  code?: string;
 }
 
-export function WorksheetPrintDoc({ ws, kind }: WorksheetPrintDocProps) {
+export function WorksheetPrintDoc({ ws, kind, code }: WorksheetPrintDocProps) {
   const isAnswers = kind === "answers";
   const groups = groupBySection(ws.questions);
   // Enough watermark tiles to cover a multi-page worksheet (overflow clips extras).
@@ -114,6 +118,7 @@ export function WorksheetPrintDoc({ ws, kind }: WorksheetPrintDocProps) {
           </span>
           <span className="lt-wsp__right">
             <span className="lt-wsp__subj">{ws.subject}</span>
+            {code && <span className="lt-wsp__code">{code}</span>}
             <span className="lt-wsp__date">Generated {formatDate(ws.createdAt)}</span>
           </span>
         </header>
@@ -277,6 +282,7 @@ const PRINT_CSS = `
 .lt-wsp__tag { font-size: 9.5px; color: var(--p-muted); }
 .lt-wsp__right { margin-left: auto; text-align: right; display: flex; flex-direction: column; }
 .lt-wsp__subj { font-size: 11px; font-weight: 700; color: var(--p-green-d); }
+.lt-wsp__code { font-size: 9px; font-weight: 600; color: var(--p-muted); letter-spacing: 0.06em; }
 .lt-wsp__date { font-size: 9px; color: var(--p-muted); }
 
 .lt-wsp__titlerow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 12px 0 4px; flex-wrap: wrap; }

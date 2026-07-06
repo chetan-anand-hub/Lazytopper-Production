@@ -149,10 +149,11 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
 export async function exportWorksheetPdf(
   ws: PersistedWorksheet,
   kind: "questions" | "answers",
+  code?: string,
 ): Promise<string> {
   const suffix = kind === "answers" ? "answer-key" : "questions";
   const filename = `lazytopper-${slug(ws.title)}-${suffix}.pdf`;
-  return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind }), filename);
+  return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind, code }), filename);
 }
 
 /**
