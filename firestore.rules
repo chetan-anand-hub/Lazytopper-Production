@@ -20,6 +20,13 @@ service cloud.firestore {
     }
 
     // Learner profiles and all subcollections (sessions, messages, mistakeLogs)
+    match /sessionRecords/{uid} {
+      allow read, write: if isOwner(uid);
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
     match /learnerProfiles/{uid} {
       allow read, write: if isOwner(uid);
 
