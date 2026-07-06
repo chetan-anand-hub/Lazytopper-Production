@@ -10,6 +10,10 @@ const gradeWorksheetMock = vi.fn();
 const recordMistakeMock = vi.fn();
 const recordAttemptMock = vi.fn();
 const saveWorksheetGradeMock = vi.fn();
+const ensureCodeMock = vi.fn();
+const writeRecordMock = vi.fn();
+const writePerQMock = vi.fn();
+const buildRecordMock = vi.fn();
 
 vi.mock("../ai/aiClient", () => ({ gradeWorksheet: (...a: unknown[]) => gradeWorksheetMock(...a) }));
 vi.mock("./mistakeIntelligence", () => ({
@@ -21,6 +25,13 @@ vi.mock("./practiceInsights", () => ({
 vi.mock("./worksheetSessionStore", () => ({
   saveWorksheetGrade: (...a: unknown[]) => saveWorksheetGradeMock(...a),
   getWorksheetGrade: () => null,
+  listStoredWorksheetsLite: () => [],
+}));
+vi.mock("./sessionRecords", () => ({
+  ensureWorksheetSessionCode: (...a: unknown[]) => ensureCodeMock(...a),
+  writeSessionRecord: (...a: unknown[]) => writeRecordMock(...a),
+  writeSessionPerQuestion: (...a: unknown[]) => writePerQMock(...a),
+  buildWorksheetSessionRecord: (...a: unknown[]) => buildRecordMock(...a),
 }));
 
 import {
@@ -71,8 +82,15 @@ beforeEach(() => {
   recordMistakeMock.mockReset();
   recordAttemptMock.mockReset();
   saveWorksheetGradeMock.mockReset();
+  ensureCodeMock.mockReset();
+  writeRecordMock.mockReset();
+  writePerQMock.mockReset();
+  buildRecordMock.mockReset();
   recordMistakeMock.mockResolvedValue({ outcome: "logged", bridged: true });
   recordAttemptMock.mockReturnValue("recorded");
+  ensureCodeMock.mockResolvedValue({ code: "WS-M-RN-01", name: "Real Numbers · Worksheet 1", kind: "single", sequence: 1 });
+  buildRecordMock.mockReturnValue({ id: "WS-M-RN-01", surface: "worksheet", perQuestionRef: "ws:WS-M-RN-01", gradedAt: 123, dedupKey: "u1::WS-M-RN-01" });
+  writeRecordMock.mockReturnValue("recorded");
 });
 
 describe("worksheetQuestionId — stable, namespaced", () => {
@@ -133,5 +151,49 @@ describe("gradeWorksheetAndRecord", () => {
     expect(saveWorksheetGradeMock).not.toHaveBeenCalled();
     expect(recordMistakeMock).not.toHaveBeenCalled();
     expect(miOutcomes).toEqual([]);
+  });
+});
+
+describe("gradeWorksheetAndRecord — PR-1 session record", () => {
+  it("mints the durable code and writes ONE session record + its per-question payload", async () => {
+    gradeWorksheetMock.mockResolvedValue(buildResponse());
+    const outcome = await gradeWorksheetAndRecord(USER, WS, { imageBase64: "B", imageMimeType: "application/pdf" });
+
+    // Durable code minted (with the device-local fallback list) and surfaced on the outcome.
+    expect(ensureCodeMock).toHaveBeenCalledTimes(1);
+    expect(outcome.sessionCode).toBe("WS-M-RN-01");
+    expect(outcome.sessionName).toBe("Real Numbers · Worksheet 1");
+
+    // Exactly one record built + written (idempotent, id = code) and its payload persisted.
+    expect(buildRecordMock).toHaveBeenCalledTimes(1);
+    expect(buildRecordMock.mock.calls[0][3]).toBe("u1"); // uid joined into the record
+    expect(writeRecordMock).toHaveBeenCalledTimes(1);
+    expect(writeRecordMock.mock.calls[0][0]).toBe(USER);
+    expect(writePerQMock).toHaveBeenCalledTimes(1);
+    expect(writePerQMock.mock.calls[0][1]).toMatchObject({
+      ref: "ws:WS-M-RN-01",
+      surface: "worksheet",
+      worksheetId: "ws-abc",
+    });
+  });
+
+  it("does NOT write a session record for a local/browse session (honest-failure), but still yields a code", async () => {
+    gradeWorksheetMock.mockResolvedValue(buildResponse());
+    const LOCAL = { uid: "u1", isLocalSession: true } as never;
+    const outcome = await gradeWorksheetAndRecord(LOCAL, WS, { imageBase64: "B", imageMimeType: "application/pdf" });
+    expect(outcome.sessionCode).toBe("WS-M-RN-01"); // a code is still produced (device-local)
+    expect(writeRecordMock).not.toHaveBeenCalled(); // but nothing persisted
+    expect(writePerQMock).not.toHaveBeenCalled();
+  });
+
+  it("a session-record write failure never breaks grading (best-effort)", async () => {
+    gradeWorksheetMock.mockResolvedValue(buildResponse());
+    ensureCodeMock.mockRejectedValue(new Error("firestore down"));
+    const outcome = await gradeWorksheetAndRecord(USER, WS, { imageBase64: "B", imageMimeType: "application/pdf" });
+    // Grade result + MI wiring are intact; the session block swallowed its own error.
+    expect(outcome.response.ok).toBe(true);
+    expect(recordMistakeMock).toHaveBeenCalledTimes(2);
+    expect(outcome.sessionCode).toBeUndefined();
+    expect(writeRecordMock).not.toHaveBeenCalled();
   });
 });
