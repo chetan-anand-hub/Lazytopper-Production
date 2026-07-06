@@ -426,6 +426,17 @@ import { electricityPYQ2024 } from './questionBanks/class10/science/electricity.
 import { magneticEffectsPYQ2024 } from './questionBanks/class10/science/magneticEffects.pyq2024';
 import { ourEnvironmentPYQ2024 } from './questionBanks/class10/science/ourEnvironment.pyq2024';
 
+// Foundation-pack extraction PILOT (2026-07-03) — authentic Light questions
+// (semantic extraction, de-duped), step-marked solutions. 99 AI-authored
+// solutions PENDING OWNER VERIFICATION — tracked via
+// LGHT_FND_AUTHORED_SOLUTION_IDS in AI_GENERATED_SOLUTION_IDS below. "others"
+// bucket (no pyqYear). Authentic tier — NOT in AI_GENERATED_PACK_SOURCES.
+import { LGHT_FND, LGHT_FND_BEYOND_BOARD, LGHT_FND_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.fnd';
+// CBSE-official additions (2026-07-04): CFPQ ch.10 (official rubrics) + SQP 2025-26 (official MS)
+import { LGHT_CFPQ_SQP25, LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.cfpq-sqp25';
+// gdrive high-marks extraction (2026-07-04): essay/numericals/guide/worksheet sources, 2-5 mark only
+import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD, LGHT_GDR_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.gdr';
+
 const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
@@ -804,6 +815,16 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...howOrganismsReproducePYQ2024,
   ...heredityPYQ2024,
   ...lightReflectionPYQ2024,
+  // Foundation-pack extraction PILOT (2026-07-03) — authentic Light questions,
+  // mixed sourced/AI-authored solutions (see LGHT_FND_AUTHORED_SOLUTION_IDS)
+  ...LGHT_FND,
+  // Beyond-board tier — owner-approved inclusion 2026-07-04 (separate array for later badging/filtering)
+  ...LGHT_FND_BEYOND_BOARD,
+  // CBSE-official additions 2026-07-04 — CFPQ ch.10 + SQP 2025-26 (official key/rubrics/MS)
+  ...LGHT_CFPQ_SQP25,
+  // gdrive high-marks extraction 2026-07-04 — 2-5 mark items only (see LGHT_GDR_AUTHORED_SOLUTION_IDS)
+  ...LGHT_GDR,
+  ...LGHT_GDR_BEYOND_BOARD,
   ...humanEyePYQ2024,
   ...electricityPYQ2024,
   ...magneticEffectsPYQ2024,
@@ -1699,6 +1720,15 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   ARC_EXEMPLAR2,
 ] as const;
 
-export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set(
-  AI_GENERATED_SOLUTION_SOURCES.flatMap((source) => source.map((q) => q.id))
-);
+export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
+  ...AI_GENERATED_SOLUTION_SOURCES.flatMap((source) => source.map((q) => q.id)),
+  // Foundation-pack Light PILOT (2026-07-03, incl. the beyond-board tier):
+  // authentic questions whose solutions were AI-authored (the pack carried no
+  // worked solution for them); the remaining LGHT_FND rows have pack-sourced,
+  // re-verified solutions.
+  ...LGHT_FND_AUTHORED_SOLUTION_IDS,
+  // CFPQ/SQP25 additions (2026-07-04): key-anchored MCQ steps + one rubric override
+  ...LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS,
+  // gdrive high-marks batch (2026-07-04): sources carry no printed solutions for these rows
+  ...LGHT_GDR_AUTHORED_SOLUTION_IDS,
+]);
