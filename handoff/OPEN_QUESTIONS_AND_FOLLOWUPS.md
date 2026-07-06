@@ -1,3 +1,11 @@
+## 2026-07-06 — C&I holistic scorecard merged (#333, `c3f6084`)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-CI-EXPAND-DISCOVERABILITY]** — the multi-Q per-question steps are collapsed by default behind a "Show step-by-step working ▸" affordance (also: tap the question / Enter-Space). Confirm this is discoverable enough for students — **owner to eyeball in QC**. If under-discovered, options: default-expand the first question, or add a persistent "expand all" control.
+- **[FU-UNIVERSAL-SCORECARD]** — the three grade renderers (Check & Improve single-Q, Check & Improve multi-Q, and the Worksheet) still each render results their own way. #333 is the **bridge** (a shared `CheckImproveGradedPrintDoc` + the shared `worksheetPdfExport` core); the arc's **2nd PR** unifies them into the Universal `<ResultsScorecard>` (spec `LazyTopper_Universal_Scorecard_Spec_2026-06-25.md`).
+
+---
+
 ## 2026-07-06 — Light extraction PILOT merged (#330, `83b1268`)
 
 ### 🆕 NEW FOLLOW-UPS

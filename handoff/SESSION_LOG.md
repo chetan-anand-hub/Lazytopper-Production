@@ -1,5 +1,17 @@
 ---
 
+## 2026-07-06 — C&I holistic scorecard MERGED (#333): multi-Q per-step annotation + graded-solution download/read
+
+**Trunk after: `c3f6084` (squash).** Frontend-only; grader/backend untouched; **4 files** (1 new + 3 modified); built in an isolated worktree off `b5a62be`; adversarially reviewed (4 lanes) with fixes applied; **owner byte-review + LIVE-VERIFIED** (multi-Q per-step expand works, download works, no Bug-2/#328 regression).
+
+- **PART A — multi-Q Check & Improve now shows per-step annotation, matching single-Q.** Each legible question card is EXPANDABLE (collapsed by default; tap the question / Enter-Space / a "Show step-by-step working ▸" affordance) and reveals its `annotatedSteps` — status, marks, mistake/ECF tag, and the **corrected working (the corrected solution)** — via the existing `AnnotatedStepRow` (desktop) / inline step cards incl. corrected working (mobile). `couldNotRead` stays honest pending (never scored 0). **STEP-0:** `annotatedSteps` was already in the frontend response (`gradeWorksheet` is a pass-through; the server normaliser returns it) → PART A is display-only.
+- **PART B — "Download graded solution" (PDF) + "Read on screen" on BOTH single-Q and multi-Q, desktop + mobile.** A NEW branded `CheckImproveGradedPrintDoc` (CSS classes, scoped `.lt-cigp`) renders the student's per-step corrected solution + score + examiner note + the **CI code `CI-{S}-{TOPIC}-{NN}`** header; the PDF rasterises it through the **shared** `worksheetPdfExport` core (`renderElementToPdf`) — no new PDF mechanism, so C&I and the worksheet stay consistent (a **bridge toward the Universal `<ResultsScorecard>`**). A snapshot of the grade already on screen — never a re-grade.
+- **Files:** NEW `components/checkimprove/CheckImproveGradedPrintDoc.tsx`; `components/worksheet/worksheetPdfExport.ts` (+`exportGradedCheckImprovePdf`); `pages/desktop/DesktopCheckImprovePage.tsx`; `pages/app/CheckImprove.tsx`.
+- **Gates GREEN:** tsc; mojibake; scope:guard product; root matrix **181/181**; lazytopper ops **6/6** (llm-path 5/5); `git diff --check`; no `console.log`; new component uses CSS classes. `vite build` + vitest = CI/Codespace. **Adversarial review (4 lanes):** Bug-2 (grade-wipe #331) non-regression **CLEAN**; applied fixes — coaching footer counts-not-marks (doctrine), mobile meta-line uses grader `totalMarks`, `aria-expanded` on the new disclosure, index-keyed expand state.
+- **Owner byte-review + squash-merged #333 → `c3f6084`; no self-merge.** New follow-ups: **[FU-CI-EXPAND-DISCOVERABILITY]** (is the collapsed "Show step-by-step working" affordance discoverable enough — owner eyeball in QC), **[FU-UNIVERSAL-SCORECARD]** (unify the three grade renderers — C&I ×2 + worksheet — into the Universal `<ResultsScorecard>`; #333 is the bridge). Full write-up in PR #333.
+
+---
+
 ## 2026-07-06 — Light extraction PILOT MERGED (#330): bank 326 → 767, ship-tracked review queue
 
 **Trunk after: `83b1268` (squash).** The Content-lane pilot (goal: replace AI questions with authentic high-marks + diagram questions; semantic extraction, no Q-marker counting) shipped as ONE PR, 4 commits, built in an isolated worktree:

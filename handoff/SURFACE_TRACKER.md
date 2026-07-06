@@ -19,7 +19,7 @@ Goal ORDER (owner-set): **(1)** finish & converge the surfaces + make everything
 Cells are read against each surface's CURRENTLY-KNOWN scope (see the Scope column + §4 discovered-scope log).
 | Surface | Scope | Built | Redesigned | Desktop | Mobile | MI | Verified | Next action |
 |---|---|---|---|---|---|---|---|---|
-| **Check & Improve** | Locked | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | mature; MI/grader reference. #331 fixed the multi-Q grade-wipe (Bug 2) + grader ECF marking (Bug 3), owner live-verified — no cells moved (already ✅) |
+| **Check & Improve** | Locked | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | mature; MI/grader reference. #333: multi-Q now shows per-step annotation (expandable) + Download/Read graded solution on both paths (bridge to Universal Scorecard), owner live-verified. #331 fixed Bug 2/3. No cells moved (already ✅) |
 | **Quick Practice** | Locked | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | none — mature (finish-session scorecard, exact mark-band) |
 | **Exam Trends** | Locked | ✅ | ✅ | ✅ | 🟡 | — | 🟡 | confirm mobile parity |
 | **HPQ / Predicted** | Locked | ✅ | ✅ | ✅ | 🟡 | — | 🟡 | confirm mobile parity |
