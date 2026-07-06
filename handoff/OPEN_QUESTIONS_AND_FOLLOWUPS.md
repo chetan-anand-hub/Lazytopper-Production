@@ -181,9 +181,9 @@
 ## 2026-07-03 — Notes track: `<Note>` render (#324) + quadratic spec (#325) MERGED; Light completion DRAFT (#326)
 
 ### 🆕 NEW FOLLOW-UPS
-- **[FU-NOTE-PDF-EXPORT]** — the Step-1 prototype's Download-PDF is `window.print`-based; port it into the React `<Note>` component so the rendered note has a working Download-PDF. Its own small PR in the PR-F code lane — reference the prototype's print approach (`notes/light_note_ENRICHED_v2_2026-06-21.html`).
-- **[FU-NOTE-GENERATED-FIG]** — PR-F (#324) deferred the d3 rendering of `generated`-bucket figures, so the quadratic-equations discriminant figure currently shows a **placeholder** in `<Note>`. Wire the generated-figure renderer (d3) so `bucket:"generated"` figures draw.
-- **[FU-NOTES-LIGHT-COMPLETE]** — completing the Light spec (LIFT the 3 figures base64 PNG→WebP + the mindmap D3→spec from the owner-approved prototype, no PDF re-extraction) is opened as **DRAFT #326** (`feat/notes-light-complete`). **CLOSE on #326 merge.**
+- **[FU-NOTE-PDF-EXPORT] — CLOSED (#329).** Download-PDF (`window.print()` + `@media print`) shipped in the React `<Note>`: button by the tabs, all three tab panels rendered for print, note isolated from app chrome via the `visibility` trick (DesktopShell/App are forbidden, so the note isolates itself). Owner live-verify of print output pending — if app chrome shows or content clips, log **[FU-NOTE-PDF-PRINT-CHROME]** (small follow-up).
+- **[FU-NOTE-GENERATED-FIG] — CLOSED (#329).** A generator registry keyed by `figure.generator` (`NoteGeneratedFigure.tsx`) now DRAWS `bucket:"generated"` figures: the Quadratic discriminant triptych (`parabola_triptych`, ported from the prototype's `plotStatic`) renders instead of the placeholder. `bucket:"ncert"` placeholder unchanged.
+- **[FU-NOTES-LIGHT-COMPLETE] — CLOSED (#326 spec + #329 render).** The Light spec figures (base64 PNG→WebP) + mindmap (D3→spec) were lifted from the approved prototype in #326; #329 completed the in-app render (figures show, visual mindmap, PDF) — Light now renders every tab with no placeholder.
 
 ### ✅ DELIVERED
 - **#324 (`9c7fa81`)** — PR-F `<Note spec={…}/>` renders note-specs in Topic Hub via `import.meta.glob`; honest empty state for spec-less topics. Owner-merged, no self-merge.

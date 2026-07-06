@@ -1,5 +1,20 @@
 ---
 
+## 2026-07-06 — Notes render completion MERGED (#329): visual mindmap + generated figures + Download-PDF
+
+**Trunk after: `97a4949` (squash).** PR-F code lane; closes the last three `<Note>` render gaps, each lifted from the LOCKED prototypes. Rebased onto trunk before merge (byte-reviewed clean: 5 notes files only — `Note.tsx` + `NoteMindmapTree.tsx` + `NoteGeneratedFigure.tsx` + `package.json` + `pnpm-lock.yaml`; all #331 bug-fix files + `handoff/*` byte-identical to trunk, `checkSolution.cjs` ECF=2 intact).
+
+- **Part 1 — visual mindmap** (`NoteMindmapTree.tsx`): replaces the text outline with the prototype's node-link tree. Uses `d3-hierarchy` for the Reingold–Tilford layout + React JSX (HTML node cards over an SVG bezier-connector layer) rather than d3-selection, so every label still routes through `<NoteRichText>` (preserves the #328 entity/math-decode invariant an imperative d3 text node can't host). Navy root, per-branch accents, curved connectors; horizontal tree in an `overflow:auto` container (no clip on mobile ≤380px). `_TODO` fallback kept.
+- **Part 2 — generated figures** (`NoteGeneratedFigure.tsx`): a generator registry keyed by `figure.generator`; `parabola_triptych` ported from the Quadratic prototype's `plotStatic(a,b,c)` → the discriminant triptych DRAWS instead of the "pending extraction" placeholder. `bucket:"ncert"` placeholder unchanged.
+- **Part 3 — Download-PDF** (`Note.tsx` + `NOTE_CSS`): `window.print()` button by the tabs; all three tab panels always rendered (CSS visibility toggle) so the PDF has the whole note; `@media print` isolates the note (the `visibility` trick — app chrome lives in forbidden DesktopShell/App), shows every panel, avoids figure page-breaks.
+- **Deps:** `+ d3-hierarchy ^3.1.2`, `+ @types/d3-hierarchy ^3.1.7` (pnpm-lock +17 lines). **Gates:** tsc PASS; mojibake PASS; lazytopper ops matrix PASS; root guard matrix 181/181; diff --check clean. Build linux-CI-gated; no Note-specific vitest test. Owner-merged, **no self-merge**.
+
+**Notes now render FULLY** — Light + Quadratic: NCERT figures + visual mindmap + generated figures + Download-PDF, every tab, no placeholders. Closes **[FU-NOTE-GENERATED-FIG]**, **[FU-NOTE-PDF-EXPORT]**, **[FU-NOTES-LIGHT-COMPLETE]**. Report: `report-notes-render-completion-2026-07-03.md`.
+
+**OWNER LIVE-VERIFY** (visual/print behaviours static gates can't prove — non-blocking): mindmap visual tree desktop AND mobile ≤380px (no overflow); Quadratic discriminant DRAWS; Download-PDF clean on both (no app chrome); entities show "&"; NCERT figures + text render. If the PDF shows app chrome or clips → log **[FU-NOTE-PDF-PRINT-CHROME]** (small follow-up; render + mindmap + figures are the substance).
+
+---
+
 ## 2026-07-06 — C&I holistic scorecard MERGED (#333): multi-Q per-step annotation + graded-solution download/read
 
 **Trunk after: `c3f6084` (squash).** Frontend-only; grader/backend untouched; **4 files** (1 new + 3 modified); built in an isolated worktree off `b5a62be`; adversarially reviewed (4 lanes) with fixes applied; **owner byte-review + LIVE-VERIFIED** (multi-Q per-step expand works, download works, no Bug-2/#328 regression).
