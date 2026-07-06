@@ -1,5 +1,18 @@
 ---
 
+## 2026-07-06 — Topic Hub boardEssentials seeding MERGED (#337): all 12 unseeded topics authored (26/26 seeded)
+
+**Trunk after: `1caa25d` (squash).** Content/plumbing lane (GATED `src/lib/desktop`). Only 14 Topic Hub topics had real authored `boardEssentials`; the other 12 fell back to the generic `buildSampleActionable` blurb-derived "core ideas" rows. This PR authors real, CBSE-2026-27-accurate `boardEssentials` (full `ActionableSeed`) for **every** unseeded `topics.ts` topic → **26/26 topics now resolve `isSamplePreview=false`**; no live topic renders the generic fallback. `buildSampleActionable` retained as the safety net. **Data + one test file only** (2-file diff).
+
+- **12 topics seeded** — Maths (8): real-numbers, polynomials, pair-of-linear-equations, arithmetic-progression, circles, areas-related-to-circles, statistics, probability; Science (4): metals-and-non-metals, human-eye-and-colourful-world, how-do-organisms-reproduce, our-environment. 3–6 real board-essential concepts each (name · one-line-use · marks), matching the shape/tone of the 14 already-done.
+- **Anti-fabrication:** authored, then an **adversarial syllabus/fact-check** pass (independent skeptic per topic) — 6 clean / 6 corrected. Defects caught + fixed: scrambled NCERT §-numbers (statistics/probability/metals), a circles proof mis-attribution, a presbyopia framing slip, stray-quote artifacts. Banned subtopics from `syllabusGuard.ts` (copied verbatim) excluded; the syllabus surface scan over the new file is green. Science stayed in-scope (our-environment = Ch15 only, no deleted Ch16 management-of-resources; reproduce = no evolution creep).
+- **Test re-point (owner Option A):** `ConceptSpine.test.tsx` hard-coded `real-numbers` as its sample-preview exemplar; seeding it broke 3 assertions. Owner authorized re-pointing them to a synthetic unseeded fixture `__sample-preview-fixture__` (coverage preserved, not deleted) — so the diff stays exactly 2 files.
+- **Gates GREEN:** tsc; mojibake; scope:guard product; root guard matrix **181/181** (incl. the syllabus surface scan of the new file); lazytopper ops matrix (llm-path 5/5 etc.); `git diff --check`; diff = exactly 2 files; tsx data-layer verify **26/26** seeded, synthetic fixture → preview. **Could NOT run on Windows** (linux platform-pin): the ConceptSpine **vitest render suite** (`@rollup/rollup-win32-x64-msvc` stripped) + `vite build` — CI/Codespaces-gated; the data-layer basis of the re-pointed assertions verified via tsx. Owner-merged, **no self-merge**. Report: `report-topichub-boardessentials-seed-2026-07-06.md`.
+
+**Topic Hub concept spine is now FULLY SEEDED** (26/26) — every topic shows real board-essential concepts, not the generic fallback. Pedagogy sign-off (concept selection + mark bands) **deferred to student-QC** → **[FU-TOPICHUB-PEDAGOGY-REVIEW]** (concepts shipped fact-checked). **[FU-TOPICHUB-PREVIEW-LABEL]** moot (26/26 seeded → label dormant for live topics, mechanism still correct + tested).
+
+---
+
 ## 2026-07-06 — Notes render completion MERGED (#329): visual mindmap + generated figures + Download-PDF
 
 **Trunk after: `97a4949` (squash).** PR-F code lane; closes the last three `<Note>` render gaps, each lifted from the LOCKED prototypes. Rebased onto trunk before merge (byte-reviewed clean: 5 notes files only — `Note.tsx` + `NoteMindmapTree.tsx` + `NoteGeneratedFigure.tsx` + `package.json` + `pnpm-lock.yaml`; all #331 bug-fix files + `handoff/*` byte-identical to trunk, `checkSolution.cjs` ECF=2 intact).

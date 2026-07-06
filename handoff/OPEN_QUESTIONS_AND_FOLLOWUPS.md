@@ -1,3 +1,17 @@
+## 2026-07-06 — Topic Hub boardEssentials seeding merged (#337, `1caa25d`)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-TOPICHUB-PEDAGOGY-REVIEW]** — the owner's ONE holistic pedagogy review of the 12 seeded topics' **concept selection + mark bands** is **DEFERRED to the student-QC stage**. The concepts shipped **fact-checked** (authored + an adversarial syllabus/accuracy pass, 6 clean / 6 corrected), so this is a final teacher/examiner sign-off, not a correctness blocker — **surface it during QC**. The per-topic table (concept · one-line-use · marks · NCERT source) + the skeptic-pass issue log is in `Desktop/diff/report-topichub-boardessentials-seed-2026-07-06.md`.
+- **[FU-TOPICHUB-PREVIEW-LABEL]** — the `isSamplePreview` "Sample preview" label mechanism renders correctly (`ConceptSpine.tsx:462`; asserted by `ConceptSpine.test.tsx` via the synthetic `__sample-preview-fixture__`). **Now moot for live topics** — with 26/26 `topics.ts` topics seeded, no live topic is a preview, so the label is dormant (mechanism still correct + under test for any future/edge topic outside `topics.ts`). No action; logged for completeness.
+
+### ℹ️ NOTE (pre-existing, untouched)
+- **`surface-areas-and-volumes` has only 2 `boardEssentials`** — one of the *original 14* seeds, authored that way (2 concepts). NOT touched by #337 (out of scope); flagged for awareness during the pedagogy review in case a 3rd concept is wanted.
+
+### ⚠️ COORDINATION
+- **#180 (`docs/backlog-stale-branch-review`)** also edits this file but is **stale** (last updated 2026-06-02, ~100 commits behind trunk) and will need a rebase/reconcile if ever revived. #337's docs handoff was written against current trunk `1caa25d`.
+
+---
+
 ## 2026-07-06 — C&I holistic scorecard merged (#333, `c3f6084`)
 
 ### 🆕 NEW FOLLOW-UPS

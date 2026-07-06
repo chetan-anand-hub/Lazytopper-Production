@@ -46,6 +46,7 @@ The record of how each surface revealed its true shape. Each entry: what was dis
 - **Topic Hub** (originally "an IA layout"):
   - *Exact mark-band filter* — concept-row Practise leaked wrong-mark questions through coarse buckets → PR-E1.
   - *Two-pool count divergence fix* — the "N available" hint and the displayed set drew from different samples → PR-E1.
+  - *Concept rows FULLY SEEDED* — only 14 topics had real authored `boardEssentials`; the other 12 fell back to the generic `buildSampleActionable` "core ideas" rows → #337 authored real CBSE-2026-27 concepts for all 12, so **26/26 topics now render real board-essential concepts** (none on the fallback; `buildSampleActionable` retained as the net). Pedagogy sign-off (selection + mark bands) deferred to student-QC ([FU-TOPICHUB-PEDAGOGY-REVIEW]).
 - **Chapter Test / Full Mock / Me-Progress:** *(none yet — Settling; expect discoveries during their redesign; log them here as they surface.)*
 
 ## 2b · OPEN DISCOVERED ITEMS NOT YET PLACED
