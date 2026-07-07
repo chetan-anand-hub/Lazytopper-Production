@@ -43,6 +43,12 @@
   PROMPTLY, or REBASE right before merge and confirm `git diff --name-only origin/base...HEAD` is ONLY its own
   files + the bug-fix/handoff files are byte-identical to trunk. A GitHub squash-merge applies only the branch's
   diff-from-merge-base, so a disjoint stale branch is SAFE if verified content-only — but VERIFY, never merge on faith.
+- **CLOSE, don't hoard.** A PR that isn't merging SOON should be CLOSED, not left draft-open. An open PR left across a
+  moving trunk doesn't just go stale — it becomes an active revert-bomb (its April copies of Dockerfile / grader /
+  App.tsx would roll back months on merge). Audit any long-open PR against current trunk (staleness + what it reverts
+  + whether its intent is already met/superseded); salvage-by-rebase ONLY if there's unbuilt intent, else close +
+  delete the branch. Keep the open-PR count near zero. (Learned from 5 stale branches — #180/#1/#2/#17/#69 — all
+  pre-#338, all superseded, all closed.)
 
 ## BYTE-REVIEW RECIPE (never rubber-stamp a report)
 1. Pull the branch tarball. 2. `diff -rq` against the branch's TRUE base (mind base drift — diff vs CURRENT trunk,
