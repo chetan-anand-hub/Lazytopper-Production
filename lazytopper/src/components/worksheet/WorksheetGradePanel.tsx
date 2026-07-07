@@ -5,7 +5,8 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import { getWorksheetGrade, listStoredWorksheetsLite } from "../../services/worksheetSessionStore";
 import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
-import WorksheetScorecard from "./WorksheetScorecard";
+import ResultsScorecard from "../results/ResultsScorecard";
+import { worksheetScorecardVariant } from "../results/scorecardVariants";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -385,19 +386,22 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
         </>
       )}
 
-      {/* ── Auto scorecard popup (on grade-complete) ── */}
+      {/* ── Auto scorecard popup (on grade-complete) — the Universal <ResultsScorecard>,
+             worksheet variant (behaviour-identical to the shipped WorksheetScorecard) ── */}
       {response && response.ok && scorecardOpen && (
-        <WorksheetScorecard
-          name={nomen.name}
-          code={nomen.code}
-          response={response}
-          downloading={downloading}
+        <ResultsScorecard
+          variant={worksheetScorecardVariant({
+            name: nomen.name,
+            code: nomen.code,
+            response,
+            downloading,
+            onRead: () => setScorecardOpen(false),
+            onDownload: () => {
+              setScorecardOpen(false);
+              void handleDownload();
+            },
+          })}
           onClose={() => setScorecardOpen(false)}
-          onRead={() => setScorecardOpen(false)}
-          onDownload={() => {
-            setScorecardOpen(false);
-            void handleDownload();
-          }}
         />
       )}
 
