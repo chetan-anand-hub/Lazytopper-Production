@@ -1,5 +1,17 @@
 ---
 
+## 2026-07-07 — Progress-Journey ARC · PR-2: the Universal `<ResultsScorecard>` MERGED (#341)
+
+**Trunk after: `8c4c159` (squash).** FRONTEND lane. Owner live-verified: worksheet non-regression held; Quick Practice showed honest attempts + fallback menu; NO durable record written for Quick Practice.
+
+- **`components/results/ResultsScorecard.tsx`** (new) — ONE responsive `<ResultsScorecard>` extracted from the shipped `WorksheetScorecard`: the shared shell (navy `#15233a` body + white footer; centered ~540px modal desktop → grab-handle bottom sheet mobile at 1024px via CSS reflow; Fraunces hero + Inter; ✕/primary/secondary/dim/Escape all CLOSE — a summary, not a gate). Honesty verbatim: pending sacred (never a deflated 0), all-pending → honest message + disabled actions, four-type "Where your marks went" (Knowledge gaps vs Careless "not a weakness"). Renders a per-surface variant; a `deferred` variant is a no-op (returns null).
+- **`components/results/scorecardVariants.ts`** (new) — the PURE, typed 4-surface variant interface covering all four flex-points (score model / framing line / four-type / actions). Two LIVE builders: `worksheetScorecardVariant` (behaviour-identical = the NON-REGRESSION gate — verified byte-identical `SC_CSS`, `comm -23` = 0 original lines dropped, QP-only classes purely additive) and `quickPracticeScorecardVariant` (§2.1: "X of N attempted" not marks/total, honest 0-attempted empty, NO graded-sheet download, MI four-type ONLY when typed mistakes exist, personalized what-next primary from the real signal + fixed floor menu). Chapter Test + Full Mock = `deferred:true` config seams (never rendered — no board-readiness/upload invented).
+- **`components/results/scorecardVariants.test.ts`** (new) — unit tests on the pure builders (Codespaces vitest).
+- **`WorksheetGradePanel.tsx`** + **`PracticePage.tsx`** repointed to `<ResultsScorecard>`. PracticePage reuses the #249 finish-session trigger + adds a `scorecardDismissed` flag so the auto-appearing modal dismisses without fighting the derived trigger. Old **`WorksheetScorecard.tsx` DELETED** (fully absorbed).
+- **PRESENTATIONAL — the scorecard WRITES NOTHING.** Quick Practice writes NO session record (LOCKED §1a); the worksheet write stays upstream in `gradeWorksheetAndRecord`. **Frontend only** — no `src/data`, grader, or `worksheetPdfExport.ts` changes. 4-dim adversarial review = 0 confirmed findings. Report: `Desktop\diff\report-scorecard-pr2-2026-07-07.md`. **NEXT = arc PR-3, per-surface histories** (Worksheet/CT/FM pages read `sessionRecords` via `progressStore`; design pkg §3a / §4-step-3).
+
+---
+
 ## 2026-07-06 — Progress-Journey ARC · PR-1: the session-record DATA LAYER MERGED (#338)
 
 **Trunk after: `d704b1c` (squash).** DATA/plumbing lane. The connectivity spine the Universal Scorecard → per-surface histories → Me/Progress → Home-nudge arc reads — built exactly to `LazyTopper_Progress_Journey_Design_Package_LOCKED_2026-07-03.md` §1–§2. **No scorecard/history/Me/Home UI** (later arc PRs); **grader `server/routes/checkSolution.cjs` byte-unchanged**.

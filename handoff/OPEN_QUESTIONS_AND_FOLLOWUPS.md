@@ -1,3 +1,13 @@
+## 2026-07-07 — Progress-Journey ARC · PR-2 Universal `<ResultsScorecard>` merged (#341, `8c4c159`)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-MODEL-ANSWER-QUALITY]** — surfaced during the #341 owner live-verify (NOT a PR-2 bug): the **worksheet grader's generated MODEL ANSWERS can be garbled/incoherent even when the final value is right**. Instance: Real Numbers `WS-M-MIX-22` Q2 (HCF working) — the model-answer prose was incoherent though the final answer/mark was correct. This is a **model-answer GENERATION quality** problem, distinct from the mark grading (which was correct here). Related to **[FU-Z3-TEACHER-VERIFY]** + **[FU-LIGHT-REVIEW-QUEUE]**. Action: sample generated model answers during content QC (spot-check coherence, not just the final value). Non-blocking; content/AI-quality track, not a scorecard defect.
+
+### ℹ️ NOTE — deferred scorecard variants
+- **Chapter Test + Full Mock `<ResultsScorecard>` variants remain `deferred:true` config seams** (`scorecardVariants.ts`), by design (#341): their surfaces are still being rebuilt and their board-readiness (CT) / section-breakdown + E2b-upload (FM) dependencies don't exist yet. When those surfaces are rebuilt (arc PRs / their own redesigns), the rebuild FILLS the deferred config (score model / framing / actions), not re-architects — the shell + interface already accommodate them. The shell no-ops a deferred variant (returns null) as a guard, so a premature wiring can't render a half-built card.
+
+---
+
 ## 2026-07-06 — Progress-Journey ARC · PR-1 session-record data layer merged (#338, `d704b1c`)
 
 ### ✅ CLOSED
