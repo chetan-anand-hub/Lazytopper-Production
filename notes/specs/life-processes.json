@@ -1,0 +1,735 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "topic_key": "life-processes",
+    "subject": "biology",
+    "chapter_no": 5,
+    "title": "Life Processes",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Diagrams",
+      "kind": "diagrams"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 5"
+  },
+  "board_asks": "label-and-explain diagrams (the human digestive system, heart, nephron and respiratory system), the four life processes traced stage-by-stage, comparison tables (xylem vs phloem, aerobic vs anaerobic, arteries vs veins), and \"why is it necessary\" reasoning - one of the highest-weight Biology chapters.",
+  "big_idea": {
+    "tagline": "Four processes keep a living body from falling apart - nutrition, respiration, transportation, excretion.",
+    "body": "Every living body must take in food and energy, break it down to power its cells, move materials to where they are needed, and clear out the waste. In Class 10 these four life processes are examined mostly through labelled diagrams and stage-by-stage explanations, so most marks reward the exact NCERT terms and correctly drawn, correctly labelled structures."
+  },
+  "definitions": [
+    {
+      "id": "def_life_processes",
+      "tier": "headline",
+      "term": "Life processes",
+      "verbatim": "The processes which together perform this maintenance job are life processes.",
+      "plain": "The basic functions - nutrition, respiration, transportation, excretion - that every living body runs continuously to stay organised and alive.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 80,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_nutrition",
+      "tier": "headline",
+      "term": "Nutrition",
+      "verbatim": "So there must be a process to transfer a source of energy from outside the body of the organism, which we call food, to the inside, a process we commonly call nutrition.",
+      "plain": "Taking in food from outside to supply the body with energy and raw materials.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 80,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_autotrophic_nutrition",
+      "tier": "headline",
+      "term": "Autotrophic nutrition (photosynthesis)",
+      "verbatim": "Carbon and energy requirements of the autotrophic organism are fulfilled by photosynthesis. It is the process by which autotrophs take in substances from the outside and convert them into stored forms of energy.",
+      "plain": "Green plants and some bacteria make their own food from CO2 and water using sunlight and chlorophyll.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 81,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_respiration",
+      "tier": "headline",
+      "term": "Respiration",
+      "verbatim": "The process of acquiring oxygen from outside the body, and to use it in the process of break-down of food sources for cellular needs, is what we call respiration.",
+      "plain": "Breaking down glucose (usually with oxygen) inside cells to release energy for life activities.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 80,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_transportation",
+      "tier": "headline",
+      "term": "Transportation",
+      "verbatim": "This situation creates a need for a transportation system for carrying food and oxygen from one place to another in the body.",
+      "plain": "The system (blood in animals, vascular tissue in plants) that moves food, oxygen and wastes between the parts that supply them and the parts that need them.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 80,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_excretion",
+      "tier": "headline",
+      "term": "Excretion",
+      "verbatim": "The biological process involved in the removal of these harmful metabolic wastes from the body is called excretion.",
+      "plain": "Getting rid of the poisonous nitrogenous wastes (like urea) that the body's chemical reactions produce.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 96,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_stomata",
+      "tier": "key-term",
+      "term": "Stomata",
+      "verbatim": "...stomata ... which are tiny pores present on the surface of the leaves.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 83,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_aerobic_respiration",
+      "tier": "key-term",
+      "term": "Aerobic respiration",
+      "verbatim": "Since this process takes place in the presence of air (oxygen), it is called aerobic respiration.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 88,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_anaerobic_respiration",
+      "tier": "key-term",
+      "term": "Anaerobic respiration",
+      "verbatim": "Since this process takes place in the absence of air (oxygen), it is called anaerobic respiration.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 87,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_alveoli",
+      "tier": "key-term",
+      "term": "Alveoli",
+      "verbatim": "balloon-like structures which are called alveoli (singular - alveolus). The alveoli provide a surface where the exchange of gases can take place.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 90,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_haemoglobin",
+      "tier": "key-term",
+      "term": "Haemoglobin",
+      "verbatim": "In human beings, the respiratory pigment is haemoglobin which has a very high affinity for oxygen.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 90,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_xylem",
+      "tier": "key-term",
+      "term": "Xylem",
+      "verbatim": "One, the xylem moves water and minerals obtained from the soil.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 94,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_phloem",
+      "tier": "key-term",
+      "term": "Phloem",
+      "verbatim": "The other, phloem transports products of photosynthesis from the leaves where they are synthesised to other parts of the plant.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 94,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_nephrons",
+      "tier": "key-term",
+      "term": "Nephrons",
+      "verbatim": "Each kidney has large numbers of these filtration units called nephrons packed close together.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 97,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Autotrophic vs heterotrophic nutrition",
+      "body": "Autotrophs (green plants, some bacteria) build their own food from inorganic CO2 and water; heterotrophs (animals, fungi) take in the complex food made by others and break it down with enzymes.",
+      "tested": "3-mark: differentiate autotrophic and heterotrophic nutrition with examples.",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "Photosynthesis",
+      "body": "In the leaf, chlorophyll in chloroplasts absorbs light; the three events are absorption of light energy, conversion to chemical energy plus splitting of water, and reduction of CO2 to carbohydrate. Raw materials: CO2 (through stomata), water (from roots) and sunlight.",
+      "tested": "necessary conditions and by-products of autotrophic nutrition; role of stomata and guard cells.",
+      "figure_ref": "fig_leaf_cross_section"
+    },
+    {
+      "id": "c3",
+      "title": "Human digestive system",
+      "body": "A long alimentary canal (mouth to oesophagus to stomach to small intestine to large intestine to anus) with region-specific enzymes; the small intestine is the site of complete digestion and its villi maximise absorption.",
+      "tested": "5-mark: label the human alimentary canal and name the enzymes and their functions; role of saliva / HCl / bile.",
+      "figure_ref": "fig_digestive_system"
+    },
+    {
+      "id": "c4",
+      "title": "Respiration - aerobic vs anaerobic",
+      "body": "Glucose (6 carbon) first splits to pyruvate (3 carbon) in the cytoplasm; then either aerobic (in mitochondria, giving CO2 + water and more energy) or anaerobic (yeast gives ethanol + CO2; muscle gives lactic acid, causing cramps).",
+      "tested": "differences between aerobic and anaerobic respiration with organisms; site of pyruvate breakdown.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Human circulatory system and double circulation",
+      "body": "The four-chambered heart keeps oxygenated and de-oxygenated blood separate; blood (plasma plus cells) is pumped through arteries, capillaries and veins and passes through the heart twice per cycle.",
+      "tested": "5-mark: describe double circulation and why it is necessary; why oxygenated and de-oxygenated blood are separated in birds and mammals.",
+      "figure_ref": "fig_heart"
+    },
+    {
+      "id": "c6",
+      "title": "Transport in plants - xylem and phloem",
+      "body": "Xylem carries water and minerals upward from the roots (root pressure plus transpiration pull); phloem translocates soluble food from the leaves in both directions, using energy from ATP.",
+      "tested": "differences between transport in xylem and phloem; how water and how food are transported in plants.",
+      "figure_ref": null
+    },
+    {
+      "id": "c7",
+      "title": "Excretion in humans - the nephron",
+      "body": "Kidneys filter nitrogenous wastes (urea, uric acid); each nephron performs filtration in the Bowman's capsule then selective re-absorption along the tubule; urine passes through ureters to the bladder and out via the urethra.",
+      "tested": "5-mark: structure and functioning of the nephron; how the amount of urine is regulated; compare alveoli and nephron.",
+      "figure_ref": "fig_nephron"
+    }
+  ],
+  "examples": [
+    {
+      "id": "amoeba-nutrition",
+      "shape": "Nutrition in Amoeba",
+      "kind": "process",
+      "problem_verbatim": "Trace how an Amoeba ingests and digests its food. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Ingestion.",
+          "text": "Amoeba takes in food using temporary finger-like extensions (pseudopodia) of the cell surface, which fuse over the food particle to form a food-vacuole."
+        },
+        {
+          "lead": "Digestion.",
+          "text": "Inside the food-vacuole, complex substances are broken down into simpler ones."
+        },
+        {
+          "lead": "Absorption.",
+          "text": "The simpler substances then diffuse into the cytoplasm."
+        },
+        {
+          "lead": "Egestion.",
+          "text": "The remaining undigested material is moved to the surface of the cell and thrown out."
+        }
+      ],
+      "mark_logic": "CBSE 3-mark - 1 mark each for pseudopodia/food-vacuole (ingestion), intracellular digestion, and egestion of undigested matter.",
+      "source": {
+        "ncert_example": "Fig. 5.5 walkthrough",
+        "ncert_page": 84,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "human-digestion",
+      "shape": "Digestion in the human alimentary canal",
+      "kind": "process",
+      "problem_verbatim": "Trace how food is digested as it passes mouth to stomach to small intestine. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Mouth.",
+          "text": "Teeth crush the food; saliva from the salivary glands wets it and its enzyme salivary amylase breaks down starch into simple sugar; the tongue mixes it."
+        },
+        {
+          "lead": "Oesophagus.",
+          "text": "Peristaltic (rhythmic muscular) movements push the food from mouth to stomach through the food-pipe (oesophagus)."
+        },
+        {
+          "lead": "Stomach.",
+          "text": "Gastric glands release hydrochloric acid (creating an acidic medium), the protein-digesting enzyme pepsin, and mucus (which protects the stomach lining)."
+        },
+        {
+          "lead": "Small intestine - liver and pancreas.",
+          "text": "Bile from the liver makes the acidic food alkaline and emulsifies fats into small globules; pancreatic juice supplies trypsin (for proteins) and lipase (for emulsified fats)."
+        },
+        {
+          "lead": "Small intestine - completion and absorption.",
+          "text": "Intestinal juice completes digestion - proteins to amino acids, carbohydrates to glucose, fats to fatty acids and glycerol; finger-like villi increase surface area and absorb the digested food into the blood."
+        },
+        {
+          "lead": "Large intestine.",
+          "text": "Unabsorbed food passes to the large intestine, which absorbs water; the rest is egested via the anus, regulated by the anal sphincter."
+        }
+      ],
+      "mark_logic": "5-mark long answer - marks for naming each region with its enzyme/secretion (amylase; pepsin + HCl; bile; trypsin/lipase) and the role of villi in absorption.",
+      "source": {
+        "ncert_example": "Fig. 5.6 walkthrough",
+        "ncert_page": 85,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "gas-exchange-alveoli",
+      "shape": "Exchange of gases in the alveoli",
+      "kind": "process",
+      "problem_verbatim": "Explain how gases are exchanged in the human lungs during breathing. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Air intake.",
+          "text": "Air enters through the nostrils, is filtered by fine hairs and mucus, and passes down the throat (kept open by rings of cartilage) into the lungs."
+        },
+        {
+          "lead": "Reaching the alveoli.",
+          "text": "Inside the lungs the passage divides into finer and finer tubes ending in balloon-like alveoli, whose walls carry an extensive network of blood vessels."
+        },
+        {
+          "lead": "Inhalation mechanics.",
+          "text": "On breathing in, the ribs lift and the diaphragm flattens, enlarging the chest cavity so air is sucked in and fills the expanded alveoli."
+        },
+        {
+          "lead": "Diffusion of gases.",
+          "text": "Blood brings CO2 from the body to release into the alveoli, while oxygen in the alveolar air is taken up by the blood in the alveolar vessels."
+        },
+        {
+          "lead": "Transport by haemoglobin.",
+          "text": "Oxygen is carried by the respiratory pigment haemoglobin (in the red blood corpuscles) to the tissues; CO2, being more soluble, is carried mostly dissolved in the blood."
+        }
+      ],
+      "mark_logic": "5-mark - marks for the air passage, alveolar structure (large surface + rich blood supply), diaphragm/rib mechanics, and O2/CO2 diffusion with haemoglobin transport.",
+      "source": {
+        "ncert_example": "Fig. 5.9 walkthrough",
+        "ncert_page": 89,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "double-circulation",
+      "shape": "Double circulation through the human heart",
+      "kind": "process",
+      "problem_verbatim": "Trace the path of blood through the four chambers of the human heart. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Left atrium.",
+          "text": "Oxygen-rich blood from the lungs enters the thin-walled left atrium, which relaxes to collect it, then contracts."
+        },
+        {
+          "lead": "Left ventricle.",
+          "text": "The left ventricle relaxes to receive this blood, then contracts and pumps the oxygenated blood out to the whole body (its walls are thick and muscular)."
+        },
+        {
+          "lead": "Right atrium.",
+          "text": "De-oxygenated blood returning from the body enters the right atrium as it relaxes; on contracting, it passes the blood down."
+        },
+        {
+          "lead": "Right ventricle.",
+          "text": "The right ventricle dilates to receive it, then pumps this blood to the lungs for oxygenation."
+        },
+        {
+          "lead": "Valves and double circulation.",
+          "text": "Valves prevent backflow; because the blood passes through the heart twice in one full cycle (once de-oxygenated, once oxygenated) the two streams stay separate - this is double circulation."
+        }
+      ],
+      "mark_logic": "5-mark - 1 mark each for the correct role of the 4 chambers plus 1 for valves/no-mixing and the meaning of double circulation.",
+      "source": {
+        "ncert_example": "Figs. 5.10-5.11 walkthrough",
+        "ncert_page": 92,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "water-transport-plants",
+      "shape": "Transport of water in plants (transpiration pull)",
+      "kind": "process",
+      "problem_verbatim": "Explain how water rises from the roots to the top of a tall plant. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Ion uptake at the roots.",
+          "text": "Root cells in contact with the soil actively take up ions, creating a concentration difference between root and soil."
+        },
+        {
+          "lead": "Root pressure.",
+          "text": "Water moves into the root from the soil to remove this difference, building a column of water in the root xylem that is steadily pushed upward (more important at night)."
+        },
+        {
+          "lead": "Continuous xylem channels.",
+          "text": "Xylem vessels and tracheids of roots, stems and leaves interconnect into a continuous water-conducting system reaching all parts of the plant."
+        },
+        {
+          "lead": "Transpiration pull.",
+          "text": "During the day the stomata are open; evaporation of water from the leaf cells (transpiration) creates a suction that pulls water up the xylem - the major driving force by day."
+        }
+      ],
+      "mark_logic": "3-mark - marks for root pressure (ion uptake), the continuous xylem column, and transpiration pull as the main daytime force.",
+      "source": {
+        "ncert_example": "Fig. 5.12 walkthrough",
+        "ncert_page": 94,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "urine-formation-nephron",
+      "shape": "Urine formation in the nephron",
+      "kind": "process",
+      "problem_verbatim": "Describe how urine is formed in the nephron. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Filtration.",
+          "text": "Each nephron's cluster of thin-walled blood capillaries (glomerulus) sits in the cup-shaped Bowman's capsule, which filters the blood and collects the filtrate."
+        },
+        {
+          "lead": "Selective re-absorption.",
+          "text": "As the filtrate flows along the tube, useful substances - glucose, amino acids, salts and much of the water - are selectively re-absorbed back into the blood."
+        },
+        {
+          "lead": "Variable water re-absorption.",
+          "text": "How much water is re-absorbed depends on how much excess water the body has and on how much dissolved waste has to be excreted."
+        },
+        {
+          "lead": "Collection and storage.",
+          "text": "The urine formed enters the ureter, which carries it to the urinary bladder, where it is stored until released through the urethra under nervous control."
+        }
+      ],
+      "mark_logic": "5-mark - marks for Bowman's capsule + glomerulus filtration, selective re-absorption, and the ureter-bladder-urethra path. Fact hook: about 180 L of filtrate a day but only 1-2 L excreted.",
+      "source": {
+        "ncert_example": "Figs. 5.13-5.14 walkthrough",
+        "ncert_page": 96,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Diagram question?",
+      "text": "Draw it large, label with straight ruled lines, and use exact NCERT terms - write \"oesophagus\" not \"food pipe\", \"alveoli\" not \"air sacs\"."
+    },
+    {
+      "cue": "\"Differences between\" asked?",
+      "text": "Answer in a two-column table (xylem vs phloem, aerobic vs anaerobic, arteries vs veins) - one clear point per row scores faster than a paragraph."
+    },
+    {
+      "cue": "Enzyme / organ question?",
+      "text": "Pair every organ with its secretion and function - saliva to amylase to starch, stomach to pepsin + HCl to protein, pancreas to trypsin/lipase - examiners award the enzyme name AND its substrate separately."
+    },
+    {
+      "cue": "\"Why is it necessary?\" add-on?",
+      "text": "Board answers want the reason, not just the process - e.g. double circulation is needed to stop oxygenated and de-oxygenated blood mixing, giving an efficient O2 supply for high energy needs."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Writing \"food pipe\" instead of oesophagus, or \"wind pipe / air sacs\" instead of trachea / alveoli - CBSE demands the exact technical term.",
+      "owner_verified": false
+    },
+    {
+      "text": "Confusing xylem and phloem: xylem = water + minerals, roots upward (one-way); phloem = food, both directions. Reversing them loses the whole mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "Mislabelling heart chambers - putting oxygenated blood on the right, or swapping atria and ventricles. Remember: LEFT side = oxygen-rich, and ventricles have thicker walls than atria.",
+      "owner_verified": false
+    },
+    {
+      "text": "Saying anaerobic respiration in muscles gives ethanol - in human muscle cells pyruvate becomes lactic acid (ethanol + CO2 is only in yeast/fermentation).",
+      "owner_verified": false
+    },
+    {
+      "text": "Describing filtration only and forgetting that in the nephron useful substances (glucose, amino acids, salts, water) are RE-ABSORBED.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Photosynthesis (standard equation)",
+      "math": "6CO2 + 6H2O --(sunlight, chlorophyll)--&gt; C6H12O6 + 6O2 &nbsp;(standard CBSE equation - NCERT states the three events, not this balanced line)"
+    },
+    {
+      "label": "Glucose breakdown",
+      "math": "Glucose (6C) to Pyruvate (3C) in cytoplasm; then aerobic to CO2 + H2O + energy, or anaerobic - yeast to ethanol + CO2, muscle to lactic acid"
+    },
+    {
+      "label": "ATP",
+      "math": "ATP is the energy currency of the cell; breaking its terminal phosphate bond releases about 30.5 kJ/mol"
+    },
+    {
+      "label": "Heart chambers",
+      "math": "4 chambers - left/right atrium + left/right ventricle. Fish 2-chambered, amphibians/many reptiles 3-chambered, birds &amp; mammals 4-chambered"
+    },
+    {
+      "label": "Blood pressure",
+      "math": "Systolic about 120 mm Hg, diastolic about 80 mm Hg (measured with a sphygmomanometer)"
+    },
+    {
+      "label": "Alveolar surface",
+      "math": "Spread out, the alveolar surface would cover about 80 m2 - maximising gas exchange"
+    },
+    {
+      "label": "Kidney filtrate",
+      "math": "About 180 L of initial filtrate a day, but only 1-2 L excreted - the rest is re-absorbed"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "diagrams",
+    "intro": "The diagrams you must be able to draw and label - Life Processes is examined heavily through labelled figures. Learn each one in the exact NCERT form.",
+    "diagrams": [
+      "fig_leaf_cross_section",
+      "fig_amoeba_nutrition",
+      "fig_digestive_system",
+      "fig_respiratory",
+      "fig_heart",
+      "fig_excretory_system",
+      "fig_nephron"
+    ]
+  },
+  "figures": {
+    "fig_leaf_cross_section": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.1",
+      "caption": "Cross-section of a leaf",
+      "legend": "Shows the leaf shape (midrib, lamina, vein with xylem/phloem bundle) and the cellular section (upper/lower epidermis, waxy cuticle, chloroplast, air spaces, guard cell) - the site of photosynthesis and gas exchange.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.1",
+        "page_pdf": 3,
+        "printed_page": 82,
+        "crop": [48, 155, 263, 390],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; eye-confirmed"
+      },
+      "asset": "life-processes/fig_leaf_cross_section.webp"
+    },
+    "fig_amoeba_nutrition": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.5",
+      "caption": "Nutrition in Amoeba",
+      "legend": "Stages (a)-(d): pseudopodia engulf the food particle into a food-vacuole, then intracellular digestion and egestion. Labels: nucleus, food particle, pseudopodia, food vacuole.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.5",
+        "page_pdf": 5,
+        "printed_page": 84,
+        "crop": [52, 415, 175, 598],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; eye-confirmed"
+      },
+      "asset": "life-processes/fig_amoeba_nutrition.webp"
+    },
+    "fig_digestive_system": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.6",
+      "caption": "Human alimentary canal",
+      "legend": "The full canal - mouth (buccal cavity), tongue, oesophagus, stomach, liver, gall bladder, bile duct, pancreas, small intestine, large intestine (colon), appendix, anus.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.6",
+        "page_pdf": 6,
+        "printed_page": 85,
+        "crop": [250, 315, 550, 580],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; extended right edge to recover 'Large intestine (Colon)'; eye-confirmed"
+      },
+      "asset": "life-processes/fig_digestive_system.webp"
+    },
+    "fig_respiratory": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.9",
+      "caption": "Human respiratory system",
+      "legend": "Torso view with the alveoli inset - nasal passage, throat, bronchi, lungs, diaphragm, and the balloon-like alveoli where gas exchange occurs.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.9",
+        "page_pdf": 11,
+        "printed_page": 90,
+        "crop": [70, 64, 495, 314],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; eye-confirmed"
+      },
+      "asset": "life-processes/fig_respiratory.webp"
+    },
+    "fig_heart": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.10",
+      "caption": "Schematic sectional view of the human heart",
+      "legend": "Four chambers with the vessels labelled - aorta, vena cava (upper/lower), pulmonary arteries and veins, left/right atrium, left/right ventricle, and the dividing septum. Pale-blue = de-oxygenated, peach = oxygenated.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.10",
+        "page_pdf": 13,
+        "printed_page": 92,
+        "crop": [43, 84, 318, 268],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; saturation mode preserves the pale chamber colours; eye-confirmed"
+      },
+      "asset": "life-processes/fig_heart.webp"
+    },
+    "fig_excretory_system": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.13",
+      "caption": "Excretory system in human beings",
+      "legend": "The pair of kidneys with the vena cava and aorta, the ureters carrying urine to the urinary bladder, and the urethra.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.13",
+        "page_pdf": 17,
+        "printed_page": 96,
+        "crop": [45, 448, 250, 650],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; faint residual watermark ghost, ink intact; eye-confirmed"
+      },
+      "asset": "life-processes/fig_excretory_system.webp"
+    },
+    "fig_nephron": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 5.14",
+      "caption": "Structure of a nephron",
+      "legend": "The filtration unit - branch of renal artery/vein, glomerulus, Bowman's capsule, the tubular part, surrounding capillaries and the collecting duct.",
+      "source": {
+        "pdf": "jesc105",
+        "edition": "2026-27",
+        "ncert_fig": "5.14",
+        "page_pdf": 18,
+        "printed_page": 97,
+        "crop": [335, 60, 545, 293],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at z=3; adjusted left edge to recover 'Branch of renal artery' and trimmed the caption line; eye-confirmed"
+      },
+      "asset": "life-processes/fig_nephron.webp"
+    }
+  },
+  "mindmap": {
+    "root": "Life Processes",
+    "branches": [
+      {
+        "label": "Nutrition",
+        "children": [
+          "Autotrophic - photosynthesis (CO2 + water + sunlight + chlorophyll)",
+          "Heterotrophic - animals &amp; fungi; enzymes break down complex food",
+          "Human digestion - mouth to stomach to small intestine; villi absorb",
+          "Amoeba - pseudopodia + food-vacuole"
+        ]
+      },
+      {
+        "label": "Respiration",
+        "children": [
+          "Glucose to pyruvate (cytoplasm)",
+          "Aerobic (mitochondria) to CO2 + water + more energy",
+          "Anaerobic - yeast to ethanol + CO2; muscle to lactic acid",
+          "Energy stored as ATP"
+        ]
+      },
+      {
+        "label": "Transportation",
+        "children": [
+          "Human - 4-chambered heart, double circulation",
+          "Blood vessels - arteries, veins, capillaries",
+          "Plants - xylem (water, up) &amp; phloem (food, both ways)",
+          "Transpiration pull + root pressure"
+        ]
+      },
+      {
+        "label": "Excretion",
+        "children": [
+          "Human - kidney, nephron (filtration + re-absorption)",
+          "Path - ureter to bladder to urethra",
+          "Plants - waste in vacuoles, resins/gums, falling leaves"
+        ]
+      },
+      {
+        "label": "Don't lose marks on",
+        "children": [
+          "Use NCERT terms - oesophagus, alveoli, not slang",
+          "Xylem vs phloem direction",
+          "Correct heart-chamber labels",
+          "Nephron = filtration + RE-ABSORPTION"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    { "item": "Life processes", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.80" },
+    { "item": "Nutrition", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.80" },
+    { "item": "Autotrophic nutrition (photosynthesis)", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.81" },
+    { "item": "Respiration", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.80" },
+    { "item": "Transportation", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.80" },
+    { "item": "Excretion", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.96" },
+    { "item": "Stomata", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.83" },
+    { "item": "Aerobic respiration", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.88" },
+    { "item": "Anaerobic respiration", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.87" },
+    { "item": "Alveoli", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.90" },
+    { "item": "Haemoglobin", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.90" },
+    { "item": "Xylem", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.94" },
+    { "item": "Phloem", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.94" },
+    { "item": "Nephrons", "type": "verbatim", "source": "NCERT 2026-27 Ch5 p.97" },
+    { "item": "Nutrition in Amoeba", "type": "example", "source": "NCERT 2026-27 Ch5 Fig 5.5 p.84" },
+    { "item": "Digestion in the human alimentary canal", "type": "example", "source": "NCERT 2026-27 Ch5 Fig 5.6 pp.85-86" },
+    { "item": "Exchange of gases in the alveoli", "type": "example", "source": "NCERT 2026-27 Ch5 Fig 5.9 pp.89-90" },
+    { "item": "Double circulation through the human heart", "type": "example", "source": "NCERT 2026-27 Ch5 Figs 5.10-5.11 p.92" },
+    { "item": "Transport of water in plants (transpiration pull)", "type": "example", "source": "NCERT 2026-27 Ch5 Fig 5.12 pp.94-95" },
+    { "item": "Urine formation in the nephron", "type": "example", "source": "NCERT 2026-27 Ch5 Figs 5.13-5.14 pp.96-97" },
+    { "item": "NCERT Fig 5.1", "type": "figure", "source": "NCERT 2026-27 Ch5 5.1 p.82" },
+    { "item": "NCERT Fig 5.5", "type": "figure", "source": "NCERT 2026-27 Ch5 5.5 p.84" },
+    { "item": "NCERT Fig 5.6", "type": "figure", "source": "NCERT 2026-27 Ch5 5.6 p.85" },
+    { "item": "NCERT Fig 5.9", "type": "figure", "source": "NCERT 2026-27 Ch5 5.9 p.90" },
+    { "item": "NCERT Fig 5.10", "type": "figure", "source": "NCERT 2026-27 Ch5 5.10 p.92" },
+    { "item": "NCERT Fig 5.13", "type": "figure", "source": "NCERT 2026-27 Ch5 5.13 p.96" },
+    { "item": "NCERT Fig 5.14", "type": "figure", "source": "NCERT 2026-27 Ch5 5.14 p.97" }
+  ]
+}
