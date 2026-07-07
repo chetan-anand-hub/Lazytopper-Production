@@ -275,6 +275,8 @@ import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPane
 import { PracticeQuestionList } from "../components/practice/PracticeQuestionList";
 import type { SessionStats } from "../components/practice/SessionProgressBar";
 import { downloadWorksheet } from "../components/practice/worksheetGenerator";
+import ResultsScorecard from "../components/results/ResultsScorecard";
+import { quickPracticeScorecardVariant } from "../components/results/scorecardVariants";
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
 
@@ -514,6 +516,10 @@ const PracticePage: React.FC = () => {
   // scorecard. `allDone` (every question attempted) remains a convenience
   // auto-offer. Reset on every fresh build/regenerate (see the fetch effect).
   const [sessionFinished, setSessionFinished] = useState<boolean>(false);
+  // The Universal <ResultsScorecard> presents as an auto-appearing modal; this lets the
+  // student dismiss it (✕ / dim / Escape) without fighting the derived trigger. Reset on
+  // an explicit Finish tap and on every fresh build/regenerate.
+  const [scorecardDismissed, setScorecardDismissed] = useState<boolean>(false);
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -962,6 +968,7 @@ const packTopicKey = useMemo(() => {
         if (!cancelled) {
           setQuestions(next);
           setSessionFinished(false);
+          setScorecardDismissed(false);
           setExpandedAnswers({});
           setSelfAssessments({});
           setMcqSelections({});
@@ -1254,7 +1261,8 @@ const packTopicKey = useMemo(() => {
   // the primary, always-available trigger; `allDone` (every question attempted)
   // is a convenience auto-offer. Either surfaces the same scorecard.
   const allDone = questions.length > 0 && sessionStats.attemptedInSet >= questions.length;
-  const showScorecard = (sessionFinished || allDone) && questions.length > 0;
+  const showScorecard =
+    (sessionFinished || allDone) && questions.length > 0 && !scorecardDismissed;
 
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
@@ -1559,6 +1567,7 @@ const packTopicKey = useMemo(() => {
                   attempted: sessionStats.attemptedInSet,
                   total: questions.length,
                 });
+                setScorecardDismissed(false);
                 setSessionFinished(true);
               }}
               style={{
@@ -1584,85 +1593,34 @@ const packTopicKey = useMemo(() => {
 
 {(() => {
   if (!showScorecard) return null;
+  // Quick Practice variant of the Universal <ResultsScorecard> (§2.1): "X of N
+  // attempted" (never marks/total), honest empty state, NO graded-sheet download, a
+  // personalized what-next menu. Figures come from existing session state (no new
+  // plumbing); Quick Practice writes NO session record (LOCKED §1a) — this only
+  // DISPLAYS. Reuses the #249 finish-session trigger above.
   const topicK = canonicalTopicKey || topicParam;
-  const nextActions = [
-    { label: "Build a fresh set", icon: "New", action: () => regenerateQuestions() },
-  ];
-  // A manual Finish on a partial set must not trap the student — let them
-  // return to the same set. (Not offered on the allDone auto-offer: there is
-  // nothing left to attempt in this set.)
-  if (!allDone) {
-    nextActions.unshift({ label: "Keep practicing this set", icon: "Back", action: () => setSessionFinished(false) });
-  }
-  nextActions.push({ label: "Chapter Test", icon: "Test", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
-  nextActions.push({ label: "Predicted Questions", icon: "HPQ", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
-  nextActions.push({ label: "Study this chapter", icon: "Hub", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
-  // End-of-session scorecard figures (from existing session state — no new plumbing).
-  const scAttempted = sessionStats.attemptedInSet;
-  const scMcqAnswered = sessionStats.localMcqAnswered;
-  const scMcqCorrect = sessionStats.localMcqCorrect;
-  const scMcqMissed = scMcqAnswered - scMcqCorrect;
-  const scMcqAccuracy = scMcqAnswered > 0 ? Math.round((scMcqCorrect / scMcqAnswered) * 100) : null;
-  // One honest, locally-derived MI nudge — no fabricated insight.
-  const scNudge =
-    scMcqMissed > 0
-      ? `You missed ${scMcqMissed} MCQ${scMcqMissed === 1 ? "" : "s"} - open "Check my answer" on those to log your working.`
-      : scMcqAnswered > 0
-        ? `All ${scMcqAnswered} MCQ${scMcqAnswered === 1 ? "" : "s"} correct this session.`
-        : null;
+  const back = { state: { back: location.pathname + location.search, backLabel: "Back to practice" } };
   return (
-    <div style={{
-      marginTop: 20,
-      borderRadius: 14,
-      padding: "20px 18px",
-      background: "#ffffff",
-      border: "1px solid hsl(220, 18%, 90%)",
-      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-    }}>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "hsl(152, 45%, 32%)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
-          Session scorecard
-        </div>
-        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 700, color: "hsl(220, 25%, 12%)", margin: "0 0 6px", lineHeight: 1.35 }}>
-          {scAttempted} of {questions.length} attempted
-          {scMcqAnswered > 0 ? ` · ${scMcqCorrect}/${scMcqAnswered} MCQs correct` : ""}
-          {scMcqAccuracy !== null ? ` · ${scMcqAccuracy}% accuracy` : ""}
-        </h3>
-        {scAttempted === 0 ? (
-          <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
-            You finished without attempting any questions yet - nothing is counted against you. Jump back in whenever you're ready.
-          </p>
-        ) : !allDone ? (
-          <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
-            Here's how those {scAttempted} went. The {questions.length - scAttempted} you didn't reach aren't counted - finish whenever you like.
-          </p>
-        ) : null}
-        {scNudge && (
-          <p style={{ fontSize: "0.84rem", color: "hsl(220, 20%, 28%)", margin: "0 0 6px", lineHeight: 1.5, fontWeight: 600 }}>
-            {scNudge}
-          </p>
-        )}
-        <p style={{ fontSize: "0.8rem", color: "hsl(220, 15%, 42%)", margin: 0, lineHeight: 1.5 }}>
-          MCQ results and answers you check are saved to your progress. Self-marked notes stay in this session.
-        </p>
-      </div>
-      <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "hsl(220, 15%, 42%)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
-        What should I do next?
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {nextActions.map((a) => (
-          <button key={a.label} onClick={a.action} style={{
-            display: "flex", alignItems: "center", gap: 10, padding: "11px 12px", borderRadius: 10,
-            border: "1px solid hsl(220, 18%, 90%)",
-            background: "hsl(210, 33%, 96%)",
-            color: "hsl(220, 25%, 12%)", fontSize: "0.86rem", fontWeight: 700, cursor: "pointer", textAlign: "left",
-          }}>
-            <span style={{ fontSize: 11, color: "hsl(220, 15%, 42%)", minWidth: 34, fontWeight: 800 }}>{a.icon}</span>
-            {a.label}
-          </button>
-        ))}
-      </div>
-    </div>
+    <ResultsScorecard
+      variant={quickPracticeScorecardVariant({
+        attempted: sessionStats.attemptedInSet,
+        totalInSet: questions.length,
+        mcqAnswered: sessionStats.localMcqAnswered,
+        mcqCorrect: sessionStats.localMcqCorrect,
+        allDone,
+        // A manual Finish on a partial set must not trap the student — let them
+        // return to the same set. The builder omits this on the allDone auto-offer.
+        onKeepPracticing: () => setSessionFinished(false),
+        onFreshSet: () => regenerateQuestions(),
+        onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
+        onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
+        onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
+      })}
+      onClose={() => {
+        setScorecardDismissed(true);
+        setSessionFinished(false);
+      }}
+    />
   );
 })()}
 
