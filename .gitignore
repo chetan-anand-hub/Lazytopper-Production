@@ -91,3 +91,4 @@ attached_assets/
 
 # Claude Code local config
 .mcp.json
+.claude/
