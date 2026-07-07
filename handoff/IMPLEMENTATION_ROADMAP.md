@@ -2,6 +2,21 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-07 — PROGRESS-JOURNEY ARC · PR-2 (Universal `<ResultsScorecard>`) MERGED (#341, `8c4c159`)
+
+**Step 2 = the Universal `<ResultsScorecard>` — DONE (#341).** Extracted ONE responsive `<ResultsScorecard>`
+from the shipped `WorksheetScorecard`: the shared shell (`components/results/ResultsScorecard.tsx`) + a PURE
+typed 4-surface variant interface (`scorecardVariants.ts`, covering the four flex-points: score model / framing
+line / four-type / actions). TWO LIVE variants — **worksheet** (behaviour-identical = the non-regression gate,
+proven byte-identical `SC_CSS`) + **quick-practice** (§2.1: "X of N attempted", honest empty, no graded-sheet,
+personalized what-next + floor menu). Chapter Test + Full Mock = `deferred:true` config seams (never rendered;
+their rebuilds FILL config, not re-architect). **PRESENTATIONAL — writes nothing:** Quick Practice writes no
+session record (§1a); the worksheet write stays upstream in `gradeWorksheetAndRecord`. Old `WorksheetScorecard.tsx`
+deleted (absorbed). Owner live-verified; 4-dim adversarial review 0 findings; CI + Vercel green.
+**Arc build order:** PR-1 data layer ✅ → PR-2 Universal `<ResultsScorecard>` ✅ → **PR-3 per-surface histories**
+(Worksheet/CT/FM read `sessionRecords` via `progressStore`; design pkg §3a / §4-step-3) → PR-4 Me/Progress
+redesign → PR-5 Home nudge → PR-6 Topic Hub before→now.
+
 ## 2026-07-06 — PROGRESS-JOURNEY ARC · PR-1 (session-record data layer) MERGED (#338, `d704b1c`)
 
 The Progress-Journey ARC (Universal Scorecard → per-surface histories → Me/Progress → Home nudge →
