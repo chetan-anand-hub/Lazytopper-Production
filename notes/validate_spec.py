@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-validate_spec.py — the note-spec validator gate (schema v1.1).
+validate_spec.py — the note-spec validator gate (schema v1.2).
 
 The anti-fabrication gate that makes the ~35-note parallel fan-out safe: it
 mechanically rejects any spec with unsourced NCERT content, out-of-syllabus
@@ -35,7 +35,7 @@ SYLLABUS_GUARD = REPO_ROOT / "scripts" / "src" / "syllabusGuard.ts"
 TOPICS_TS = REPO_ROOT / "lazytopper" / "src" / "lib" / "desktop" / "topics.ts"
 SPECS_DIR = NOTES_DIR / "specs"
 
-# ── Schema v1.1 constants ──
+# ── Schema v1.2 constants ──
 REQUIRED_TOP_LEVEL = [
     "schema_version", "meta", "board_asks", "big_idea", "definitions",
     "concepts", "examples", "strategies", "pitfalls", "formula_strip",
@@ -142,7 +142,7 @@ def phrase_regex(phrase):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# The validator — 9 rules. Each appends {rule, path, detail} on failure.
+# The validator — 10 rules. Each appends {rule, path, detail} on failure.
 # ─────────────────────────────────────────────────────────────────────────────
 def validate(spec, banned_phrases, topic_keys):
     v = []  # violations
@@ -298,6 +298,50 @@ def validate(spec, banned_phrases, topic_keys):
             if fig.get("params") is None:
                 fail(8, f"$.figures.{fid}.params", "generated figure missing params")
 
+    # ── Rule 10 (v1.2) — per-step marks sum to marks_total ──
+    # Fires ONLY for examples that carry mark data. When an example declares a
+    # `marks_total` OR any solution step carries a `mark`, BOTH must be present
+    # and the per-step marks (a step with no `mark` contributes 0) must sum to
+    # marks_total. Half-mark steps are real in the CBSE step-marking scheme, so
+    # each present mark must be a positive multiple of 0.5. Examples that carry
+    # no mark data at all are untouched (backward-compatible with pre-v1.2 specs).
+    def _is_num(x):
+        return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+    for i, e in enumerate(spec.get("examples") or []):
+        steps = [s for s in (e.get("solution_steps") or []) if isinstance(s, dict)]
+        present = [(j, s.get("mark")) for j, s in enumerate(steps) if s.get("mark") is not None]
+        total = e.get("marks_total")
+        has_total = total is not None
+        if not present and not has_total:
+            continue  # no mark data on this example — allowed
+        ex_id = e.get("id", i)
+        if not has_total:
+            fail(10, f"$.examples[{i}].marks_total",
+                 f"example '{ex_id}' has per-step marks but no marks_total to sum to")
+            continue
+        if not _is_num(total) or total <= 0:
+            fail(10, f"$.examples[{i}].marks_total",
+                 f"example '{ex_id}' marks_total must be a positive number, got {total!r}")
+            continue
+        if not present:
+            fail(10, f"$.examples[{i}].solution_steps",
+                 f"example '{ex_id}' declares marks_total={total} but no solution step carries a mark")
+            continue
+        running = 0.0
+        bad = False
+        for j, m in present:
+            if not _is_num(m) or m <= 0 or round(m * 2) != m * 2:
+                fail(10, f"$.examples[{i}].solution_steps[{j}].mark",
+                     f"step mark must be a positive multiple of 0.5, got {m!r}")
+                bad = True
+            else:
+                running += m
+        if not bad and abs(running - total) > 1e-9:
+            fail(10, f"$.examples[{i}].solution_steps",
+                 f"per-step marks sum to {running:g} but marks_total is {total:g} "
+                 f"(CBSE step marks must sum to the example total)")
+
     return v
 
 
@@ -314,6 +358,7 @@ RULES = {
     7: "source_ledger row-count == number of sourced fields",
     8: "figure manifest buckets + required keys are valid",
     9: "required keys present + every figure_ref resolves",
+    10: "per-step marks (when present) sum to the example's marks_total",
 }
 
 

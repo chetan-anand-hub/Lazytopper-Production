@@ -1,6 +1,6 @@
-# LazyTopper Note-Spec — Schema Contract v1.1
-**Date:** 2026-06-21 · **Status:** validated against the locked Light note · **Author:** Claude (cofounder)
-**v1.1** folds in eight refinements found by back-converting Light — see **"v1.1 — changes from the Light stress-test"** at the bottom; those overrides are authoritative where they touch a field below. The worked reference spec is **`light-reflection-and-refraction.json`**.
+# LazyTopper Note-Spec — Schema Contract v1.2
+**Date:** 2026-06-21 (v1.1) · 2026-07-08 (v1.2) · **Status:** validated against the locked Light note · **Author:** Claude (cofounder)
+**v1.2** adds per-step marks to worked examples — see **"v1.2 — per-step marks"** at the bottom. **v1.1** folds in eight refinements found by back-converting Light — see **"v1.1 — changes from the Light stress-test"**; those overrides are authoritative where they touch a field below. The worked reference spec is **`light-reflection-and-refraction.json`**.
 
 ## Why this exists
 A **note-spec** is the structured single source of truth for one chapter note. It replaces hand-authored HTML. From one spec we render **two targets** and feed **one consumer**:
@@ -138,6 +138,8 @@ A spec is **invalid** (REJECT — fails the `SubagentStop` hook) if any of these
 6. **Mojibake / cid artifacts** present in any text field.
 7. `source_ledger` row-count ≠ number of sourced fields.
 8. A `figure(bucket:authored_svg)` references a non-existent `svg_ref`, or `bucket:generated` lacks `generator`+`params`.
+9. A required top-level / `meta` key is **missing**, or a used `figure_ref` does **not resolve** into `figures{}`.
+10. **(v1.2)** An example carries per-step marks but they do **not sum to `marks_total`** — or `marks_total` and per-step marks are not both present, or a step `mark` is not a positive multiple of 0.5. Fires only when the example carries mark data (backward-compatible with pre-v1.2 specs).
 
 What the validator **cannot** check (stays owner-review): whether a `pitfall` is genuinely a real CBSE mistake, and whether authored pedagogy is sound. That's the irreducible human-review core — small, and now isolated.
 
@@ -189,3 +191,19 @@ Back-converting the locked Light note into `light-reflection-and-refraction.json
 - **Mindmap:** Light's tree currently lives in the note's D3 JS; the kit's back-conversion lifts it into `spec.mindmap = {root, branches:[{label, children:[…]}]}`. Marked `_TODO` in the Light spec until the kit does this.
 
 **Verdict:** schema is sound. Light fits cleanly with these eight field-level edits. Safe to (a) write `validate_spec.py` to these rules, (b) evolve the kit to `render_note(spec)` and finish Light's figure/mindmap lift, then (c) build `<Note>` (PR-F) against `light-reflection-and-refraction.json`.
+
+---
+
+## v1.2 — per-step marks
+The notes-v1.2 template pass adds **where each mark is earned** to worked examples. This **reverses v1.1 point 3** ("marks live in `mark_logic`, not per step"): marks now live BOTH per-step (the detail) and in `mark_logic` (the authored overview). Two field changes, both additive/backward-compatible:
+
+1. **`examples[].marks_total`** (number) — the example's total CBSE marks. Present whenever the solution steps carry per-step marks.
+2. **`examples[].solution_steps[].mark`** (number) — the marks that step earns in the CBSE step-marking scheme. **Half-marks are real** (stating a formula alone earns 0.5), so `0.5` is valid; a step may carry `2` where it bundles two separately-credited elements. **Steps that earn no independent mark simply OMIT `mark`** (e.g. a pure-method line, or a process stage not separately credited in that mark scheme) — they contribute 0 to the sum and render without a chip.
+
+**Anti-fabrication:** the per-step split must trace to the real CBSE scheme captured in that example's `mark_logic` string — don't invent marks; the per-step marks must sum to `marks_total`.
+
+**Validator (Rule 10):** fires only when an example carries mark data. When it does, `marks_total` and at least one step `mark` must both be present, every step `mark` must be a positive multiple of 0.5, and the per-step marks (absent = 0) must sum to `marks_total`. Examples with no mark data are untouched.
+
+**Render (`<Note>`):** each worked example shows its total on the header (e.g. "3 marks"), and each scoring step shows a small mark chip (e.g. "½ mark", "1 mark", "2 marks") so a student sees where each mark lands; the chips visibly sum to the header total. `mark_logic` still renders as the authored overview line below the steps.
+
+**Also in the v1.2 UI pass** (component-only, not schema): the Mindmap tab is a responsive, collapsible vertical tree; `<Note>` opens as a popup (`NoteModal`) over the Topic Hub rather than inline; and cited NCERT page refs ("p.144") are clickable, opening an `NcertPageModal` that embeds the page-aligned chapter PDF from Firebase Storage with an honest "coming soon" fallback until the PDFs are hosted ([FU-NOTES-NCERT-PDF-HOSTING]).

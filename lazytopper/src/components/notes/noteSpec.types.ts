@@ -1,6 +1,6 @@
 /**
  * noteSpec.types.ts — TypeScript mirror of the note-spec contract
- * (`notes/NoteSpec_Schema.md`, schema v1.1) as enforced by
+ * (`notes/NoteSpec_Schema.md`, schema v1.2) as enforced by
  * `notes/validate_spec.py`.
  *
  * The spec JSON under `notes/specs/<topic_key>.json` is the single source of
@@ -11,11 +11,18 @@
  *
  * v1.1 field-level rules baked in here:
  *   - definitions carry `tier` ("headline" | "key-term"); `plain` is optional.
- *   - solution steps carry optional `lead` / `concept_tag`; per-step `mark`
- *     is optional — marks live in the authored `mark_logic` string.
+ *   - solution steps carry optional `lead` / `concept_tag`.
  *   - `third_tab_content` for kind "rules" is an array of typed sub-blocks.
  *   - `formula_strip[]` items need no per-item source.
  *   - `strategies[]` carry an optional `cue`; `big_idea` has a `tagline`.
+ *
+ * v1.2 (per-step marks) — reverses v1.1's "marks live only in mark_logic":
+ *   - each worked example carries `marks_total` (its CBSE mark value) and each
+ *     scoring `solution_steps[].mark` (a number of marks; CBSE half-marks are
+ *     real, so 0.5 is valid). Steps that earn no independent mark simply omit
+ *     `mark`. When an example carries mark data, validator Rule 10 enforces the
+ *     per-step marks sum to `marks_total`. `mark_logic` stays as the authored
+ *     overview; the per-step marks are the where-each-mark-lands detail.
  */
 
 export type NoteSubject = "physics" | "chemistry" | "biology" | "maths";
@@ -90,6 +97,13 @@ export interface NoteSolutionStep {
   equation?: string | null;
   math?: string | null;
   concept_tag?: string | null;
+  /**
+   * v1.2 — marks this step earns in the CBSE step-marking scheme (a number;
+   * 0.5 is valid — stating a formula alone earns half a mark). Omit on steps
+   * that carry no independent mark. When any step in an example carries a
+   * `mark`, all present marks must sum to the example's `marks_total`
+   * (validator Rule 10).
+   */
   mark?: number | null;
 }
 
@@ -100,6 +114,11 @@ export interface NoteExample {
   /** EXACT NCERT/CBSE problem text. */
   problem_verbatim: string;
   solution_steps: NoteSolutionStep[];
+  /**
+   * v1.2 — the example's total CBSE marks. Present whenever the solution steps
+   * carry per-step marks; the per-step `mark` values must sum to it (Rule 10).
+   */
+  marks_total?: number | null;
   /** AUTHORED string tracing to the real mark scheme. */
   mark_logic?: string | null;
   source: NoteSource;

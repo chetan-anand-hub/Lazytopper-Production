@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import ConceptTeachDrawer from "../tutor/ConceptTeachDrawer";
-import Note from "../notes/Note";
+import NoteModal from "../notes/NoteModal";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
@@ -493,12 +493,14 @@ export function ConceptSpine({
           </div>
         )}
 
-        {/* Notes — ONE unified toggle (formulae + proofs + mind-map in one view) */}
+        {/* Notes — ONE unified toggle. When a note exists it opens as a POPUP over
+            the hub (NoteModal); otherwise an inline honest "coming soon". */}
         <div className="lt-spine__notes-row">
           <button
             type="button"
             className="lt-spine__notes-btn"
             aria-expanded={notesOpen}
+            aria-haspopup={noteSpec ? "dialog" : undefined}
             onClick={() => setNotesOpen((v) => !v)}
           >
             <span aria-hidden="true">▤</span>
@@ -506,19 +508,24 @@ export function ConceptSpine({
           </button>
           <span className="lt-spine__notes-hint">formulae · proofs · mind-map — one view</span>
         </div>
-        {notesOpen && (
-          <div className="lt-spine__notes-panel">
-            {noteSpec ? (
-              <Note spec={noteSpec} />
-            ) : (
+        {noteSpec ? (
+          <NoteModal
+            open={notesOpen}
+            onClose={() => setNotesOpen(false)}
+            spec={noteSpec}
+            title={topic.name}
+          />
+        ) : (
+          notesOpen && (
+            <div className="lt-spine__notes-panel">
               <p className="lt-spine__panel-note">
                 Notes coming soon. One unified view will gather this topic&rsquo;s
                 formula sheet, board-format proofs and a mind-map (with a downloadable
                 PDF). No notes are authored here yet — the content arrives pre-generated
                 in a later stage.
               </p>
-            )}
-          </div>
+            </div>
+          )
         )}
       </Card>
 

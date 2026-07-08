@@ -27,6 +27,7 @@ EXPECT = {
     TEST_DIR / "03_bad_topic_key.json": 2,
     TEST_DIR / "04_ledger_count.json": 7,
     TEST_DIR / "05_third_tab_mismatch.json": 4,
+    TEST_DIR / "06_marks_sum_mismatch.json": 10,
 }
 
 
