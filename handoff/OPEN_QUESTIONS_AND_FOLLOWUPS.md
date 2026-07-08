@@ -1,3 +1,15 @@
+## 2026-07-08 — Notes v1.2 template merged (#345, `17fea57`)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-NOTES-NCERT-PDF-HOSTING]** — C4's clickable NCERT page refs build a Firebase Storage URL (`ncert/{subject}/ch{N}.pdf#page=N`) and show an HONEST "coming soon" fallback because nothing is hosted yet. The separate infra PR uploads the ~26 Class-10 NCERT chapter PDFs to Storage, **PAGE-ALIGNED** (textbook page == PDF page), **public-read + CORS** (so the fetch-HEAD probe resolves), at `ncert/{subject}/ch{N}.pdf`; then C4 auto-activates with ZERO deploy. **⚠ COPYRIGHT — owner sign-off REQUIRED before hosting:** serving NCERT page images/PDFs commercially is a step beyond citing page numbers. No PDFs are committed to the repo (repo-bloat forbidden).
+- **[FU-NOTE-MODAL-FOCUS-TRAP]** — NoteModal + NcertPageModal do focus-in-on-open + restore-on-close but no full Tab focus-trap (matches the existing ConceptTeachDrawer/ResultsScorecard norm). Add a proper Tab-trap to the note modals (and optionally the existing drawers) for complete dialog a11y. Non-blocking.
+- **[FU-DROP-D3-HIERARCHY]** — the C1 mindmap rewrite no longer imports `d3-hierarchy`; the dep is still in `lazytopper/package.json`. Prune it (+ lockfile) in a hygiene PR — needs a linux/Codespaces install to regen the frozen lockfile.
+
+### ℹ️ NOTE — notes v1.3 follow-up (owner-found REFINEMENTS, not v1.2 regressions)
+- During #345 review the owner surfaced 2 items being addressed in a **separate v1.3 follow-up PR** (dispatched separately), NOT v1.2 regressions: (1) the **mindmap tree should be VISIBLE by default** (surfaced rather than behind the collapsed/tab state); (2) the **note modal should be FULL-SCREEN** for diagram-heavy notes (the current large-centered/desktop-sheet is cramped for figure-dense chapters like Life Processes). Refinements to the shipped v1.2 template — logged so the v1.3 PR isn't mistaken for a v1.2 regression.
+
+---
+
 ## 2026-07-08 — Progress-Journey ARC · PR-3 per-surface Worksheet history merged (#344, `a4c3eec`)
 
 ### 🆕 NEW FOLLOW-UP
