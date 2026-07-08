@@ -1,5 +1,19 @@
 ---
 
+## 2026-07-08 — Progress-Journey ARC · PR-3: per-surface Worksheet HISTORY MERGED (#344)
+
+**Trunk after: `a4c3eec` (squash).** FRONTEND lane. Owner-QA'd. Renders the durable session records the store already writes (PR-1/#338) as a per-surface history on the Worksheet page — the store is **CONSUMED, never modified or recomputed**.
+
+- **`components/results/SurfaceHistory.tsx`** (new) — ONE responsive "Your worksheets" section on the WorksheetGenerator BUILD view (CSS reflow, no `useIsDesktop` twin; navy `#15233a` heads, Fraunces + Inter, green accent).
+  - **C1 list** — reads `getSurfaceHistory("worksheet", uid)`; each row = `code` + `title` + `date` (from `gradedAt`) + a tone-coloured score chip (`marksAwarded/marksTotal`) OR an honest "awaiting your answer sheet" pill when `status === "pending-upload"` + a compact four-type dot-strip ("✓ clean" when none). Honest empty state ("Your graded worksheets will appear here."); a `partial` record shows its real graded portion + a subtle "partial" tag (never hidden behind a pill).
+  - **C2 vs-last-time** — from `getSubjectProgress` (the designated source): a small "↑/↓ N% this month" chip on the newest row of each subject, **honest-or-silent** (absent when the trend reader returns `null`; never a fake 0). NOTE: this is a **subject-level month trend**, not a literal per-worksheet session-to-session delta (a small fast-follow if the owner wants the latter — logged in OPEN_QUESTIONS).
+  - **C3 tap-row re-open** — rebuilds the STORED record into a READ-ONLY `<ResultsScorecard>` (score + four-type + code, all from the record — invents nothing); a "Download graded sheet" affordance appears ONLY when the local worksheet + grade caches resolve (reuses `exportGradedWorksheetPdf`), absent otherwise. **No per-question reconstruction from `perQuestionRef`** (out of scope).
+- **PR-2 files edited ADDITIVELY** — `scorecardVariants.ts` (+`storedWorksheetScorecardVariant`; marks `gradedCount`/`totalQuestions` made OPTIONAL so a stored re-open omits, never fabricates, a graded-count) + `ResultsScorecard.tsx` (ScoreHero renders the "across G of T graded" desc only when both counts present → LIVE worksheet/QP unchanged, no regression). `WorksheetGenerator.tsx` mounts the section; CT/FM copy is a deferred `SURFACE_COPY` seam (not mounted).
+- **3 self-caught defects fixed pre-ship** (3-dim adversarial review, all CONFIRMED): a `pending-upload` re-open must NOT offer "Download graded sheet" (an all-unreadable scan still caches an `ok` grade) → now Done-only + a `status` gate on the handler; and its copy is the honest "we couldn't read any answers", not "you haven't uploaded".
+- **Frontend only** — no store mutation, no `src/data`/`notes`/grader/`worksheetPdfExport.ts`/forbidden-file changes. Gates GREEN (tsc; mojibake; scope product; root **181/181**; ops matrix; diff-check) + **CI quality-gate GREEN** (linux build) + Vercel preview PASS. 5 files. Report: `Desktop\diff\report-progress-pr3-surface-histories-2026-07-08.md`. **NEXT = arc PR-4, Me/Progress redesign** (§3b / §4-step-4). SEPARATELY: 3 owner-found worksheet bugs (grader MCQ all-or-nothing + PDF filename + history placement) are being fixed in their own follow-up PR — NOT PR-3 regressions.
+
+---
+
 ## 2026-07-07 — Progress-Journey ARC · PR-2: the Universal `<ResultsScorecard>` MERGED (#341)
 
 **Trunk after: `8c4c159` (squash).** FRONTEND lane. Owner live-verified: worksheet non-regression held; Quick Practice showed honest attempts + fallback menu; NO durable record written for Quick Practice.

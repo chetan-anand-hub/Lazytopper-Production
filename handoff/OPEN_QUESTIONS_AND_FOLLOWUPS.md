@@ -1,3 +1,13 @@
+## 2026-07-08 — Progress-Journey ARC · PR-3 per-surface Worksheet history merged (#344, `a4c3eec`)
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-HISTORY-C2-PER-WORKSHEET-DELTA]** — the PR-3 "vs last time" chip uses `getSubjectProgress` (the designated source), which is a **subject-level MONTH trend** (marks% before→now over the window, from the attempts stream) attached to the newest row of each subject and labelled "this month" — NOT a literal per-worksheet session-to-session delta (this worksheet's marks% vs the previous same-topic worksheet's). It is honest-or-silent (absent when thin; never a fake 0). If the owner prefers a literal per-session delta on every row, that is a small fast-follow computable from the stored records themselves (no store change). Non-blocking; owner decides at/after C2 live-verify.
+
+### ℹ️ NOTE — 3 owner-found worksheet bugs are a SEPARATE follow-up PR (not PR-3 regressions)
+- During #344 QA the owner surfaced 3 worksheet issues being fixed in their **own follow-up PR** (dispatched separately), NOT caused by PR-3: (1) **grader MCQ all-or-nothing** scoring; (2) **PDF filename**; (3) **history placement**. PR-3 is the read-layer that renders records; these are grader/export/placement concerns on adjacent surfaces. Logged here so the follow-up PR isn't mistaken for a PR-3 regression.
+
+---
+
 ## 2026-07-07 — Progress-Journey ARC · PR-2 Universal `<ResultsScorecard>` merged (#341, `8c4c159`)
 
 ### 🆕 NEW FOLLOW-UPS

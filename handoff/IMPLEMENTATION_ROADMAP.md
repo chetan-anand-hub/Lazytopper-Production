@@ -2,6 +2,20 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-08 — PROGRESS-JOURNEY ARC · PR-3 (per-surface Worksheet history) MERGED (#344, `a4c3eec`)
+
+**Step 3 = the per-surface HISTORY section — DONE (#344).** `components/results/SurfaceHistory.tsx` renders the
+durable session records (PR-1 store) as a "Your worksheets" section on the WorksheetGenerator BUILD view —
+**CONSUMES `progressStore` read-only, never mutates or recomputes**. C1 rows (code/title/date/score-chip-or-
+awaiting-pill/four-type dot-strip + honest empty + partial handling); C2 honest-or-silent vs-last-time chip via
+`getSubjectProgress` (subject-level month trend — [FU-HISTORY-C2-PER-WORKSHEET-DELTA] tracks a possible literal
+per-worksheet delta); C3 tap-row → READ-ONLY `<ResultsScorecard>` rebuilt from the stored record (additive
+`storedWorksheetScorecardVariant`; no `perQuestionRef` reconstruction; Download only when local caches resolve).
+PR-2 files edited additively (no live-scorecard regression). CT/FM history = deferred `SURFACE_COPY` seams.
+3 self-caught defects fixed pre-ship. **Arc build order:** PR-1 data layer ✅ → PR-2 Universal `<ResultsScorecard>`
+✅ → PR-3 per-surface histories ✅ → **PR-4 Me/Progress redesign** (§3b: ONE responsive component — recent strip +
+rolled-up before→now, retires the 6 legacy widgets + replaces 2 pages) → PR-5 Home nudge → PR-6 Topic Hub before→now.
+
 ## 2026-07-07 — PROGRESS-JOURNEY ARC · PR-2 (Universal `<ResultsScorecard>`) MERGED (#341, `8c4c159`)
 
 **Step 2 = the Universal `<ResultsScorecard>` — DONE (#341).** Extracted ONE responsive `<ResultsScorecard>`
