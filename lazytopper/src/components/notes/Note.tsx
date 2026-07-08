@@ -4,6 +4,7 @@ import type {
   NoteExample,
   NoteFigure,
   NoteMindmap,
+  NoteSource,
   NoteSpec,
   NoteSubject,
   RulesBlock,
@@ -13,6 +14,7 @@ import { getNoteAssetUrl } from "./noteSpecRegistry";
 import { NoteRichText } from "./NoteRichText";
 import { NoteMindmapTree } from "./NoteMindmapTree";
 import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
+import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -264,9 +266,26 @@ const NOTE_CSS = `
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; color: #7fd6ab;
 }
-.lt-note__ex-meta { margin-left: auto; font-size: 11.5px; color: #9fb3cf; font-weight: 600; }
-.lt-note__ex-caret { margin-left: 8px; transition: 0.2s; color: #9fb3cf; }
+.lt-note__ex-total {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap;
+  padding: 2px 9px; border-radius: 999px;
+  color: #dff3e8; background: rgba(127, 214, 171, 0.18); border: 1px solid rgba(127, 214, 171, 0.4);
+}
+.lt-note__ex-caret { margin-left: auto; transition: 0.2s; color: #9fb3cf; }
 .lt-note__ex--open .lt-note__ex-caret { transform: rotate(90deg); }
+/* cite / source strip under the head — dark-on-light, holds the clickable page ref */
+.lt-note__ex-cite {
+  display: block; padding: 8px 16px; font-size: 11.5px; font-weight: 600;
+  color: var(--lt-note-ink-faint); background: #fbfdff;
+  border-bottom: 1px solid var(--lt-note-line);
+}
+/* clickable NCERT page reference (opens the page popup) — inline link inside a cite */
+.lt-note__pageref {
+  font: inherit; color: var(--lt-note-green-deep); background: none; border: none;
+  padding: 0; cursor: pointer; text-decoration: underline dotted var(--lt-note-green-line);
+  text-underline-offset: 2px;
+}
+.lt-note__pageref:hover { text-decoration: underline solid var(--lt-note-green); color: var(--lt-note-green); }
 .lt-note__ex-q {
   padding: 14px 16px; font-family: var(--lt-note-serif); font-style: italic;
   font-size: 15px; color: var(--lt-note-navy); background: #fbfdff;
@@ -275,13 +294,21 @@ const NOTE_CSS = `
 .lt-note__ex-body { padding: 14px 16px; }
 .lt-note__steps { display: grid; gap: 9px; }
 .lt-note__step {
-  display: grid; grid-template-columns: auto 1fr; gap: 12px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px;
   padding: 11px 13px; border: 1px solid var(--lt-note-line); border-radius: 10px;
 }
 .lt-note__step-n {
   flex: none; width: 24px; height: 24px; border-radius: 50%;
   background: var(--lt-note-green); color: #fff;
   display: grid; place-items: center; font-weight: 700; font-size: 12px;
+}
+/* per-step mark chip (v1.2) — shows where each mark is earned; chips sum to the total */
+.lt-note__step-mark {
+  grid-column: 3; align-self: start; white-space: nowrap;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 2px 8px; border-radius: 999px;
+  color: var(--lt-note-green-deep); background: var(--lt-note-green-tint);
+  border: 1px solid var(--lt-note-green-line);
 }
 .lt-note__step-body { font-size: 14px; }
 .lt-note__step-lead { font-weight: 600; color: var(--lt-note-navy); margin-right: 4px; }
@@ -326,24 +353,6 @@ const NOTE_CSS = `
   text-transform: uppercase; color: var(--lt-note-green-deep); margin-bottom: 7px;
 }
 .lt-note__fval { font-size: 16px; color: var(--lt-note-navy); }
-
-/* mindmap */
-.lt-note__mm-root {
-  display: inline-block; font-family: var(--lt-note-serif); font-weight: 600;
-  font-size: 16px; background: var(--lt-note-navy); color: #fff;
-  border-radius: 10px; padding: 9px 16px; margin-bottom: 14px;
-}
-.lt-note__mm-branches { display: grid; gap: 10px; }
-.lt-note__mm-branch {
-  border: 1px solid var(--lt-note-line); border-left: 3px solid var(--lt-note-green);
-  border-radius: 11px; padding: 12px 15px; background: #fcfdfe;
-}
-.lt-note__mm-branch-label { font-weight: 700; color: var(--lt-note-navy); font-size: 14px; }
-.lt-note__mm-children { list-style: none; margin: 7px 0 0; padding: 0 0 0 14px; }
-.lt-note__mm-children li {
-  position: relative; font-size: 13px; color: var(--lt-note-ink-soft); padding: 2.5px 0;
-}
-.lt-note__mm-children li::before { content: "–"; position: absolute; left: -13px; color: var(--lt-note-ink-faint); }
 
 /* third tab */
 .lt-note__signtable { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
@@ -421,25 +430,43 @@ const NOTE_CSS = `
 .lt-note__panel { display: none; }
 .lt-note__panel--active { display: block; }
 
-/* ── mindmap visual tree (Part 1) ──────────────────────────────────── */
+/* ── mindmap: responsive, collapsible vertical tree (v1.2) ──────────── */
 .lt-note__mm-scroll {
-  overflow: auto; max-height: 560px;
+  overflow-y: auto; overflow-x: hidden; max-height: 560px;
   background: #fcfdfe; border: 1px solid var(--lt-note-line); border-radius: 12px;
+  padding: 12px 14px;
 }
-.lt-note__mm-canvas { position: relative; }
-.lt-note__mm-links { position: absolute; inset: 0; pointer-events: none; }
+.lt-note__mm-tree, .lt-note__mm-item { list-style: none; margin: 0; padding: 0; }
+/* a parent's children: indented, with a connector rail down the left edge */
+.lt-note__mm-kids {
+  list-style: none; margin: 3px 0 5px; padding: 3px 0 0 16px;
+  border-left: 2px solid var(--lt-note-line); display: grid; gap: 3px;
+}
+.lt-note__mm-kids--collapsed { display: none; }
 .lt-note__mm-node {
-  position: absolute; transform: translateY(-50%); box-sizing: border-box;
-  padding: 6px 11px; border-radius: 11px; background: #fff; border: 1.3px solid #e7ebf0;
+  box-sizing: border-box; width: 100%; text-align: left;
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 7px 12px; margin: 2px 0; border-radius: 10px;
+  background: #fff; border: 1.3px solid #e7ebf0;
   font-family: var(--lt-note-sans); font-weight: 600; font-size: 12.5px;
-  line-height: 1.25; color: var(--lt-note-ink-soft);
+  line-height: 1.35; color: var(--lt-note-ink-soft);
 }
+button.lt-note__mm-node { cursor: pointer; }
+button.lt-note__mm-node:hover { border-color: var(--lt-note-green-line); background: #fcfdfe; }
 .lt-note__mm-node--root {
   background: var(--lt-note-navy); border-color: var(--lt-note-navy); color: #fff;
-  font-family: var(--lt-note-serif); font-size: 13.5px;
+  font-family: var(--lt-note-serif); font-size: 14px; font-weight: 600;
 }
-.lt-note__mm-node--branch { border-width: 2px; color: var(--lt-note-navy); font-weight: 700; }
+button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a; }
+.lt-note__mm-node--branch {
+  border-left-width: 4px; color: var(--lt-note-navy); font-weight: 700; font-size: 13px;
+}
 .lt-note__mm-node--leaf { font-weight: 500; }
+.lt-note__mm-caret {
+  flex: none; font-size: 10px; line-height: 1.7; color: currentColor; opacity: 0.6;
+  transition: transform 0.18s ease;
+}
+.lt-note__mm-caret--open { transform: rotate(90deg); }
 
 /* ── generated figure: parabola triptych (Part 2) ──────────────────── */
 .lt-note__fgen { margin: 4px 0; }
@@ -479,6 +506,7 @@ const NOTE_CSS = `
   .lt-note__tabbar, .lt-note__pdf-btn { display: none !important; }
   .lt-note__panel { display: block !important; }
   .lt-note__mm-scroll { overflow: visible !important; max-height: none !important; }
+  .lt-note__mm-kids--collapsed { display: grid !important; }
   .lt-note__figure img, .lt-note__gsvg { max-height: 235mm; }
   .lt-note__block, .lt-note__figure, .lt-note__def, .lt-note__concept,
   .lt-note__ex, .lt-note__pit, .lt-note__signcard, .lt-note__gcol { break-inside: avoid; }
@@ -488,14 +516,71 @@ const NOTE_CSS = `
 
 /* ── small building blocks ─────────────────────────────────────────── */
 
-function citeLine(source: NoteFigure["source"] | NoteExample["source"]): string {
-  if (!source || typeof source === "string") return "";
+/** Format a CBSE mark count for a chip: 0.5 → "½ mark", 1 → "1 mark", 1.5 → "1½ marks". */
+function formatMark(m: number): string {
+  const whole = Math.floor(m + 1e-9);
+  const hasHalf = m - whole >= 0.5 - 1e-9;
+  let num = "";
+  if (whole > 0) num += String(whole);
+  if (hasHalf) num += "½";
+  if (num === "") num = "0";
+  return `${num} ${m > 1 ? "marks" : "mark"}`;
+}
+
+/**
+ * CiteLine — renders a source citation ("Ch 9, Example 9.2, p.144") in which the
+ * PAGE ref ("p.144") is a clickable button that opens the NCERT page popup
+ * (C4). The non-page bits stay plain text. Renders nothing when the source has
+ * no citable field. `subject` comes from meta; `chapterFallback` is meta's
+ * chapter_no, used when the source itself omits `chapter` (per-chapter note).
+ */
+function CiteLine({
+  source,
+  subject,
+  chapterFallback,
+  onOpenPage,
+  className,
+  prefix,
+  suffix,
+}: {
+  source: NoteSource | null | undefined;
+  subject: NoteSubject;
+  chapterFallback: number;
+  onOpenPage: (ref: NcertPageRef) => void;
+  className?: string;
+  prefix?: string;
+  suffix?: string;
+}) {
+  if (!source || typeof source === "string") return null;
   const bits: string[] = [];
   if (source.chapter != null) bits.push(`Ch ${source.chapter}`);
   if (source.ncert_example) bits.push(`Example ${source.ncert_example}`);
   if (source.ncert_fig) bits.push(`Fig ${source.ncert_fig}`);
-  if (source.ncert_page != null) bits.push(`p.${source.ncert_page}`);
-  return bits.join(", ");
+  const page = source.ncert_page;
+  const hasText = bits.length > 0;
+  if (!hasText && page == null) return null;
+  return (
+    <span className={className}>
+      {prefix}
+      {bits.join(", ")}
+      {page != null && (
+        <>
+          {hasText ? ", " : ""}
+          <button
+            type="button"
+            className="lt-note__pageref"
+            onClick={() =>
+              onOpenPage({ subject, chapter: source.chapter ?? chapterFallback, page })
+            }
+            title={`Open NCERT page ${page}`}
+          >
+            p.{page}
+          </button>
+        </>
+      )}
+      {suffix}
+    </span>
+  );
 }
 
 function FigureCard({ figure }: { figure: NoteFigure }) {
@@ -571,12 +656,17 @@ function ConceptRow({
 function ExampleCard({
   example,
   defaultOpen,
+  subject,
+  chapterNo,
+  onOpenPage,
 }: {
   example: NoteExample;
   defaultOpen: boolean;
+  subject: NoteSubject;
+  chapterNo: number;
+  onOpenPage: (ref: NcertPageRef) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const cite = citeLine(example.source);
   return (
     <div className={`lt-note__ex${open ? " lt-note__ex--open" : ""}`}>
       <button
@@ -586,9 +676,20 @@ function ExampleCard({
         onClick={() => setOpen((v) => !v)}
       >
         <span className="lt-note__ex-shape"><NoteRichText text={example.shape} /></span>
-        {cite && <span className="lt-note__ex-meta">{cite}</span>}
+        {example.marks_total != null && (
+          <span className="lt-note__ex-total">{formatMark(example.marks_total)}</span>
+        )}
         <span className="lt-note__ex-caret" aria-hidden="true">▸</span>
       </button>
+      {/* cite strip sits OUTSIDE the head button so the clickable page ref is
+          never a <button> nested inside the head <button> (invalid HTML). */}
+      <CiteLine
+        source={example.source}
+        subject={subject}
+        chapterFallback={chapterNo}
+        onOpenPage={onOpenPage}
+        className="lt-note__ex-cite"
+      />
       <div className="lt-note__ex-q">
         &ldquo;<NoteRichText text={example.problem_verbatim} />&rdquo;
       </div>
@@ -615,6 +716,9 @@ function ExampleCard({
                     <span className="lt-note__step-ctag">Concept: <NoteRichText text={step.concept_tag} /></span>
                   )}
                 </div>
+                {step.mark != null && step.mark > 0 && (
+                  <span className="lt-note__step-mark">{formatMark(step.mark)}</span>
+                )}
               </div>
             ))}
           </div>
@@ -832,6 +936,9 @@ export interface NoteProps {
 
 export function Note({ spec }: NoteProps) {
   const [tab, setTab] = useState<NoteTab>("note");
+  // C4 — the NCERT page-ref whose popup is open (null = closed). Set by any
+  // clickable "p.N" cite (CiteLine); rendered by <NcertPageModal> below.
+  const [pageRef, setPageRef] = useState<NcertPageRef | null>(null);
 
   const { meta, figures } = spec;
   const headlineDefs = spec.definitions.filter((d) => d.tier !== "key-term");
@@ -945,9 +1052,14 @@ export function Note({ spec }: NoteProps) {
                     <div className="lt-note__vbtag">
                       <span aria-hidden="true">📖</span>
                       <span>NCERT verbatim — memorise this exact wording</span>
-                      {citeLine(def.source) && (
-                        <span className="lt-note__cite">· {citeLine(def.source)}</span>
-                      )}
+                      <CiteLine
+                        source={def.source}
+                        subject={meta.subject}
+                        chapterFallback={meta.chapter_no}
+                        onOpenPage={setPageRef}
+                        className="lt-note__cite"
+                        prefix="· "
+                      />
                     </div>
                     <div className="lt-note__quote">
                       &ldquo;<NoteRichText text={def.verbatim} />&rdquo;
@@ -974,9 +1086,15 @@ export function Note({ spec }: NoteProps) {
                         </dt>
                         <dd>
                           <NoteRichText text={def.verbatim} />
-                          {citeLine(def.source) && (
-                            <span className="lt-note__cite"> ({citeLine(def.source)})</span>
-                          )}
+                          <CiteLine
+                            source={def.source}
+                            subject={meta.subject}
+                            chapterFallback={meta.chapter_no}
+                            onOpenPage={setPageRef}
+                            className="lt-note__cite"
+                            prefix=" ("
+                            suffix=")"
+                          />
                         </dd>
                       </Fragment>
                     ))}
@@ -1018,7 +1136,14 @@ export function Note({ spec }: NoteProps) {
                 LazyTopper-authored coaching.
               </p>
               {spec.examples.map((example, i) => (
-                <ExampleCard key={example.id} example={example} defaultOpen={i === 0} />
+                <ExampleCard
+                  key={example.id}
+                  example={example}
+                  defaultOpen={i === 0}
+                  subject={meta.subject}
+                  chapterNo={meta.chapter_no}
+                  onOpenPage={setPageRef}
+                />
               ))}
             </section>
           )}
@@ -1127,6 +1252,15 @@ export function Note({ spec }: NoteProps) {
       <p className="lt-note__footnote">
         <NoteRichText text={meta.title} /> · spec-rendered note · <NoteRichText text={meta.source_edition} />
       </p>
+
+      {/* C4 — NCERT page popup, opened by any clickable "p.N" cite above. A
+          per-page `key` remounts it fresh each open, so its probe/status never
+          paints a stale frame carried over from a previously-opened page. */}
+      <NcertPageModal
+        key={pageRef ? `${pageRef.subject}-${pageRef.chapter}-${pageRef.page}` : "closed"}
+        pageRef={pageRef}
+        onClose={() => setPageRef(null)}
+      />
     </div>
   );
 }

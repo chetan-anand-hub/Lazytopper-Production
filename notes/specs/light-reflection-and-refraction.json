@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "meta": {
     "topic_key": "light-reflection-and-refraction",
     "subject": "physics",
@@ -248,24 +248,29 @@
         {
           "lead": "List with signs (NCERT).",
           "text": "$h = +4.0$ cm, $u = -25.0$ cm, $f = -15.0$ cm.",
-          "concept_tag": "New Cartesian signs"
+          "concept_tag": "New Cartesian signs",
+          "mark": 1
         },
         {
           "lead": "Mirror formula.",
           "text": "$\\dfrac{1}{v} = \\dfrac{1}{f} - \\dfrac{1}{u} = \\dfrac{1}{-15.0} - \\dfrac{1}{-25.0} = \\dfrac{-5.0+3.0}{75.0} = \\dfrac{-2.0}{75.0}$.",
-          "concept_tag": "substitute with signs"
+          "concept_tag": "substitute with signs",
+          "mark": 0.5
         },
         {
           "lead": "Solve.",
           "text": "$v = -37.5$ cm → the screen should be placed <b>37.5 cm in front of the mirror</b>; the image is <b>real</b>.",
-          "concept_tag": "sign tells nature"
+          "concept_tag": "sign tells nature",
+          "mark": 0.5
         },
         {
           "lead": "Size.",
           "text": "$h' = -\\dfrac{v\\,h}{u} = -\\dfrac{(-37.5)(4.0)}{(-25.0)} = -6.0$ cm → the image is <b>inverted and enlarged</b>.",
-          "concept_tag": "h′ sign + size"
+          "concept_tag": "h′ sign + size",
+          "mark": 1
         }
       ],
+      "marks_total": 3,
       "mark_logic": "1 for signed data, 1 for formula + solving $v$, 1 for nature + size with sign. Stating \"real, inverted, enlarged\" is where the last mark sits.",
       "source": {
         "ncert_example": "9.2",
@@ -282,24 +287,29 @@
         {
           "lead": "List with signs (NCERT).",
           "text": "$h = +2.0$ cm, $f = +10$ cm, $u = -15$ cm.",
-          "concept_tag": "lens sign convention"
+          "concept_tag": "lens sign convention",
+          "mark": 1
         },
         {
           "lead": "Lens formula.",
           "text": "$\\dfrac{1}{v} = \\dfrac{1}{u} + \\dfrac{1}{f} = \\dfrac{1}{-15} + \\dfrac{1}{10} = \\dfrac{-2+3}{30} = \\dfrac{1}{30}$.",
-          "concept_tag": "substitute"
+          "concept_tag": "substitute",
+          "mark": 0.5
         },
         {
           "lead": "Solve.",
           "text": "$v = +30$ cm → image is <b>30 cm on the other side</b> of the lens; <b>real and inverted</b>.",
-          "concept_tag": "read the sign"
+          "concept_tag": "read the sign",
+          "mark": 0.5
         },
         {
           "lead": "Magnification &amp; size.",
           "text": "$m = \\dfrac{v}{u} = \\dfrac{30}{-15} = -2$; $\\;h' = h\\dfrac{v}{u} = -4.0$ cm → real, inverted, <b>two times enlarged</b>.",
-          "concept_tag": "m for lens"
+          "concept_tag": "m for lens",
+          "mark": 1
         }
       ],
+      "marks_total": 3,
       "mark_logic": "1 signs · 1 formula + solve · 1 nature/size. Lens magnification is $+v/u$ (no minus, unlike the mirror's $m=-v/u$).",
       "source": {
         "ncert_example": "9.4",
