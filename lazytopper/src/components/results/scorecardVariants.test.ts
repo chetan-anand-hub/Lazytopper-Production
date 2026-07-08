@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
+import type { SessionRecord } from "../../services/sessionRecords";
 import {
   aggregateFourType,
   worksheetScorecardVariant,
   quickPracticeScorecardVariant,
+  storedWorksheetScorecardVariant,
   chapterTestScorecardVariantStub,
   fullMockScorecardVariantStub,
 } from "./scorecardVariants";
@@ -198,5 +200,91 @@ describe("deferred config seams", () => {
     expect(fullMockScorecardVariantStub({ title: "FM" }).deferred).toBe(true);
     expect(chapterTestScorecardVariantStub({ title: "CT" }).surface).toBe("chapter-test");
     expect(fullMockScorecardVariantStub({ title: "FM" }).surface).toBe("full-mock");
+  });
+});
+
+describe("storedWorksheetScorecardVariant (PR-3 read-only re-open)", () => {
+  function record(over: Partial<SessionRecord> = {}): SessionRecord {
+    return {
+      id: "WS-M-QE-03",
+      worksheetId: "ws-abc",
+      surface: "worksheet",
+      title: "Quadratic Equations — Mixed Worksheet",
+      subject: "maths",
+      topicKeys: ["quadratic-equations"],
+      questionIds: ["q1", "q2", "q3", "q4"],
+      marksAwarded: 12,
+      marksTotal: 20,
+      status: "graded",
+      fourType: { conceptual: 1, calculation: 0, silly: 2, presentation: 0 },
+      sectionBreakdown: null,
+      gradedAt: 1751500000000,
+      perQuestionRef: "ws:WS-M-QE-03",
+      dedupKey: "uid::WS-M-QE-03",
+      ...over,
+    };
+  }
+  const noop = () => {};
+
+  it("rebuilds a graded record: marks from the stored record, four-type, code+date subtitle", () => {
+    const v = storedWorksheetScorecardVariant(record(), { gradedDateLabel: "3 Jul 2026", onDone: noop });
+    expect(v.surface).toBe("worksheet");
+    expect(v.subtitle).toBe("WS-M-QE-03 · graded 3 Jul 2026");
+    expect(v.score).toEqual({ kind: "marks", awarded: 12, total: 20, gradedCount: 4, totalQuestions: 4 });
+    expect(v.fourType).toEqual({ conceptual: 1, calculation: 0, silly: 2, presentation: 0 });
+    expect(v.allPending).toBeNull();
+    // Only a "Done" action when no graded sheet is resolvable.
+    expect(v.actions.map((a) => a.label)).toEqual(["Done"]);
+  });
+
+  it("adds a Download action (busy-aware) only when onDownload is supplied", () => {
+    const v = storedWorksheetScorecardVariant(record(), {
+      gradedDateLabel: "3 Jul 2026",
+      onDone: noop,
+      onDownload: noop,
+      downloading: true,
+    });
+    expect(v.actions.map((a) => a.tone)).toEqual(["primary", "ghost"]);
+    const download = v.actions[0];
+    expect(download.label).toBe("Download graded sheet");
+    expect(download.busy).toBe(true);
+    expect(download.disabled).toBe(true);
+  });
+
+  it("a partial record shows its real graded portion WITHOUT a fabricated graded-count", () => {
+    const v = storedWorksheetScorecardVariant(record({ status: "partial", marksAwarded: 6, marksTotal: 10 }), {
+      gradedDateLabel: "3 Jul 2026",
+      onDone: noop,
+    });
+    expect(v.score).toEqual({ kind: "marks", awarded: 6, total: 10 });
+    expect(v.score).not.toHaveProperty("gradedCount");
+    expect(v.message).toMatch(/some pages were pending/i);
+  });
+
+  it("a pending-upload record shows the honest 'couldn't read' state, never a fake 0", () => {
+    const v = storedWorksheetScorecardVariant(
+      record({ status: "pending-upload", marksAwarded: 0, marksTotal: 0, fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 } }),
+      { gradedDateLabel: "3 Jul 2026", onDone: noop },
+    );
+    expect(v.allPending?.title).toMatch(/couldn’t read any answers/);
+    expect(v.fourType).toBeNull();
+    expect(v.subtitle).not.toMatch(/graded/);
+  });
+
+  it("a pending-upload record NEVER offers a Download (no graded sheet exists) even if onDownload is passed", () => {
+    const v = storedWorksheetScorecardVariant(
+      record({ status: "pending-upload", marksAwarded: 0, marksTotal: 0 }),
+      { gradedDateLabel: "3 Jul 2026", onDone: noop, onDownload: noop },
+    );
+    // Done only — no "Download graded sheet" on an all-unreadable session.
+    expect(v.actions.map((a) => a.label)).toEqual(["Done"]);
+  });
+
+  it("omits the graded-count when questionIds is empty (older record) — no fabricated count", () => {
+    const v = storedWorksheetScorecardVariant(record({ questionIds: [] }), {
+      gradedDateLabel: "3 Jul 2026",
+      onDone: noop,
+    });
+    expect(v.score).toEqual({ kind: "marks", awarded: 12, total: 20 });
   });
 });
