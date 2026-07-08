@@ -24,6 +24,7 @@ import {
 import { ensureWorksheetSessionCode } from "../../services/sessionRecords";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 import WorksheetGradePanel from "./WorksheetGradePanel";
+import SurfaceHistory from "../results/SurfaceHistory";
 
 /**
  * WorksheetGenerator — PR-E2a: ONE responsive worksheet generator that replaces
@@ -638,6 +639,10 @@ export default function WorksheetGenerator() {
               {generating ? "Generating…" : "Generate worksheet →"}
             </button>
           </div>
+
+          {/* Per-surface HISTORY (Progress-Journey arc PR-3, §3a) — your past graded
+              worksheets, each re-opening its stored scorecard read-only. */}
+          <SurfaceHistory surface="worksheet" uid={user?.uid} />
         </>
       ) : (
         // ── GENERATED ──────────────────────────────────────────────────────

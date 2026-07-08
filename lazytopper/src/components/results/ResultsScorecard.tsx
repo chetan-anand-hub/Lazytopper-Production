@@ -28,17 +28,23 @@ interface ResultsScorecardProps {
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
 function ScoreHero({ score }: { score: ScorecardScore }) {
   if (score.kind === "marks") {
+    // The "across G of T graded" descriptor renders only when both counts are present
+    // (the LIVE worksheet variant always passes them; a stored re-open may omit them to
+    // avoid a fabricated count — honest-or-silent).
+    const hasCounts = score.gradedCount != null && score.totalQuestions != null;
     return (
       <div className="lt-sc__top">
         <div className="lt-sc__big">
           {score.awarded}
           <small> / {score.total}</small>
         </div>
-        <div className="lt-sc__desc">
-          across {score.gradedCount} of {score.totalQuestions}
-          <br />
-          question{score.totalQuestions === 1 ? "" : "s"} graded
-        </div>
+        {hasCounts && (
+          <div className="lt-sc__desc">
+            across {score.gradedCount} of {score.totalQuestions}
+            <br />
+            question{score.totalQuestions === 1 ? "" : "s"} graded
+          </div>
+        )}
       </div>
     );
   }

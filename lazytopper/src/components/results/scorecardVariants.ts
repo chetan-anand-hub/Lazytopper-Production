@@ -22,7 +22,7 @@
 // testable; <ResultsScorecard> is the shell that renders a variant.
 
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
-import type { SessionFourType } from "../../services/sessionRecords";
+import type { SessionFourType, SessionRecord } from "../../services/sessionRecords";
 
 export type ScorecardSurface = "worksheet" | "quick-practice" | "chapter-test" | "full-mock";
 
@@ -36,8 +36,12 @@ export type ScorecardScore =
       kind: "marks";
       awarded: number;
       total: number;
-      gradedCount: number;
-      totalQuestions: number;
+      /** The "across G of T questions graded" descriptor. Both present on the LIVE
+       *  worksheet variant; OMITTED on a stored re-open when the graded count can't be
+       *  honestly reconstructed (a partial/older record) — the shell then shows the
+       *  score without a fabricated count. */
+      gradedCount?: number;
+      totalQuestions?: number;
     }
   | {
       kind: "attempts";
@@ -324,6 +328,97 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     stackActions: true,
     footnote:
       "MCQ results and answers you check are saved to your progress. Self-marked notes stay in this session.",
+    actions,
+  };
+}
+
+// ── STORED re-open variant: a read-only worksheet scorecard from a SessionRecord (PR-3) ──
+
+export interface StoredWorksheetVariantInput {
+  /** A pre-formatted date label (the host formats `gradedAt`; keeps this builder pure). */
+  gradedDateLabel: string;
+  /** Close the read-only re-open. */
+  onDone: () => void;
+  /** Download the graded-sheet PDF. Present ONLY when the graded sheet is locally
+   *  resolvable (the original worksheet + its grade response are still cached) — absent
+   *  otherwise, so the affordance never promises a sheet it can't produce (honest, §3a). */
+  onDownload?: () => void;
+  downloading?: boolean;
+}
+
+/**
+ * Rebuild a STORED `SessionRecord` into a READ-ONLY worksheet scorecard (PR-3 · §3a) —
+ * score + four-type + code, ALL from the stored record (invent nothing). It does NOT
+ * reconstruct per-question working (that heavier read-back is out of scope); the only
+ * graded-sheet access is the optional download, wired by the host when the local caches
+ * resolve. A `pending-upload` record (nothing graded yet) shows an honest "awaiting your
+ * answer sheet" state, never a fabricated 0. A `partial` record shows its real graded
+ * portion WITHOUT a fabricated graded-count.
+ */
+export function storedWorksheetScorecardVariant(
+  record: SessionRecord,
+  input: StoredWorksheetVariantInput,
+): ScorecardVariant {
+  const { gradedDateLabel, onDone, onDownload, downloading = false } = input;
+  const totalQuestions = record.questionIds?.length ?? 0;
+  const pendingUpload = record.status === "pending-upload";
+  const partial = record.status === "partial";
+
+  const doneAction: ScorecardAction = { label: "Done", tone: "ghost", onClick: onDone };
+
+  if (pendingUpload) {
+    // Nothing was readable → there is NO graded sheet: honest "couldn't read" copy
+    // (mirrors the LIVE all-pending state) and NO download action, only Done. A
+    // pending-upload record exists only AFTER a scan that graded zero questions.
+    return {
+      surface: "worksheet",
+      title: record.title,
+      subtitle: `${record.id} · ${gradedDateLabel}`,
+      score: { kind: "marks", awarded: 0, total: 0 }, // not rendered — allPending below
+      fourType: null,
+      pending: null,
+      allPending: {
+        title: "We couldn’t read any answers",
+        detail:
+          "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
+      },
+      actions: [doneAction],
+    };
+  }
+
+  // Graded / partial: a real graded sheet may exist → offer Download when the host
+  // resolves one (onDownload present), always with Done.
+  const actions: ScorecardAction[] = [];
+  if (onDownload) {
+    actions.push({
+      label: "Download graded sheet",
+      tone: "primary",
+      onClick: onDownload,
+      disabled: downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    });
+  }
+  actions.push(doneAction);
+
+  return {
+    surface: "worksheet",
+    title: record.title,
+    subtitle: `${record.id} · graded ${gradedDateLabel}`,
+    score: {
+      kind: "marks",
+      awarded: record.marksAwarded,
+      total: record.marksTotal,
+      // Claim a graded-count ONLY when the whole session was read (a full "graded" record) —
+      // a partial/older record omits it rather than fabricate one.
+      ...(!partial && totalQuestions > 0
+        ? { gradedCount: totalQuestions, totalQuestions }
+        : {}),
+    },
+    message: partial ? "Graded portion shown — some pages were pending on this session." : null,
+    fourType: record.fourType,
+    pending: null,
+    allPending: null,
     actions,
   };
 }
