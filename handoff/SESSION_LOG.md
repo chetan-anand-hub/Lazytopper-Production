@@ -1,5 +1,18 @@
 ---
 
+## 2026-07-08 — Notes v1.2 template MERGED (#345)
+
+**Trunk after: `17fea57` (squash).** NOTES-track schema + UX pass (notes/ + notes-components + ConceptSpine) — closes the Biology pilot as the TRUE template so every future note inherits the 4 structural fixes. Owner-reviewed + merged. No PDFs committed; grader untouched; no `src/data`/forbidden changes.
+
+- **C1 — Mindmap responsive + collapsible** (`NoteMindmapTree.tsx`): the fixed d3-hierarchy absolute canvas (overlapped on narrow screens, no collapse) → a recursive **vertical indented tree** — reflows at any width incl. ≤380px (no overlap, no horizontal scroll); every parent toggles (`aria-expanded` + caret); root + top branches open by default; collapse is CSS-driven and force-shown under `@media print` so a printed note shows the FULL tree. Labels still via `<NoteRichText>` (#328). d3-hierarchy import dropped (dep still in package.json → [FU-DROP-D3-HIERARCHY]).
+- **C2 — Per-step marks (the SCHEMA change)**: `schema_version → "1.2"`. Kept `solution_steps[].mark` NUMERIC (the schema doc's own example uses `"mark": 1`; the validator sums them; CBSE half-marks need `0.5`) and added `examples[].marks_total`. **Validator Rule 10** (now 10 rules) enforces per-step marks sum to `marks_total` when an example carries mark data (backward-compatible; new `06_marks_sum_mismatch.json` negative fixture trips ONLY rule 10). Rendered as a per-example total badge + a per-step mark chip. **All 14 examples across the 3 specs backfilled** (life-processes/light/quadratic) from each `mark_logic` — no invented marks; every sum verified.
+- **C3 — Note opens as a POPUP** (`NoteModal.tsx` new; `ConceptSpine.tsx`): `<Note>` moved inline-in-the-hub → a dimmed overlay (large centered desktop → full-height mobile sheet; ✕/Escape/dim close; body-scroll-lock; focus-in + restore). `<Note>` internals UNCHANGED — only mounting moved. Null-spec topics keep the inline honest "coming soon".
+- **C4 — Clickable NCERT page refs + honest fallback** (`NcertPageModal.tsx` new; `CiteLine` in `Note.tsx`): cited "p.N" refs are clickable → popup builds the Firebase Storage URL for the page-aligned chapter PDF and embeds it, with a fetch-probe → HONEST "coming soon" placeholder (never a broken frame). Auto-activates when PDFs land ([FU-NOTES-NCERT-PDF-HOSTING]).
+- **Gates GREEN**: tsc 0; `validate_spec.py --all` VALID×3; negative self-test OK (6 fixtures incl. the Rule-10 one); per-step sum audit 14/14; mojibake; scope `--mode mixed`; root matrix **181/181**; lazytopper ops matrix; `git diff --check` clean; **no forbidden files**; **CI quality-gate GREEN**. 13 files (10 M + 3 A). **10-agent adversarial review** — cbse-marks + doctrine-scope ZERO findings; 5 minor/nit fixed (NcertPageModal stale-status `key`; focus-in/restore both modals; "9→10 rules" comment; Rule-10 fixture). Report: `Desktop\diff\report-notes-v12-template-2026-07-08.md`.
+- **NEXT (dispatched separately): notes v1.3 follow-up** — owner-found REFINEMENTS (NOT v1.2 regressions): the mindmap tree should be VISIBLE by default, and the note modal should be FULL-SCREEN for diagram-heavy notes. Content lane stays PARKED until owner gives the Fable notes-scaling go.
+
+---
+
 ## 2026-07-08 — Progress-Journey ARC · PR-3: per-surface Worksheet HISTORY MERGED (#344)
 
 **Trunk after: `a4c3eec` (squash).** FRONTEND lane. Owner-QA'd. Renders the durable session records the store already writes (PR-1/#338) as a per-surface history on the Worksheet page — the store is **CONSUMED, never modified or recomputed**.
