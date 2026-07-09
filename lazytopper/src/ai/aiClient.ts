@@ -302,6 +302,16 @@ export async function checkSolutionImage(req: {
   textAnswer?: string;
   solutionSteps?: string[];
   finalAnswer?: string;
+  /** Objective signals (ALL optional, ADDITIVE). Bank-sourced Check & Improve forwards
+   *  `section`/`format`/`answer`/`options` so the grader scores the MCQ deterministically
+   *  (0 or full); a keyless upload forwards `objective` (from the detect step) so the
+   *  grader clamps a ≤1-mark objective question off the model's binary verdict. When
+   *  none are sent, grading is byte-identical to before. */
+  section?: string;
+  format?: string;
+  answer?: string;
+  options?: string[];
+  objective?: boolean;
 }): Promise<CheckSolutionResponse> {
   const res = await fetch(`${API_BASE}/check-solution`, {
     method: "POST",
@@ -323,6 +333,9 @@ export interface DetectedQuestion {
   questionText: string;
   marks: number;
   marksSource: "stated" | "inferred";
+  /** True for a multiple-choice / assertion-reason question. Forwarded to the grade
+   *  call so a keyless objective question is clamped to 0/full (≤1-mark rail). */
+  objective?: boolean;
 }
 
 export interface DetectQuestionResponse {
@@ -331,6 +344,8 @@ export interface DetectQuestionResponse {
   detectedSubject?: "Maths" | "Science" | null;
   detectedTopic?: string | null;
   marksSource?: CheckSolutionMarksSource | null;
+  /** First question's objective flag (backward-compat mirror of questions[0].objective). */
+  detectedObjective?: boolean;
   /** Every question read from the upload. A single-question read yields a
    *  single-item array; `length > 1` drives the multi-question grade path. */
   questions?: DetectedQuestion[];
@@ -366,11 +381,20 @@ export interface WorksheetGradeQuestionInput {
    *  classify an objective question and never fabricate a mistake type for a bare
    *  wrong MCQ pick. */
   section?: string;
-  /** The canonical correct option letter for MCQ/AR questions, e.g. "(a)", "(b)", "(c)",
-   *  "(d)". When present the grader performs a deterministic string compare instead of
-   *  relying on model judgment. Absent for subjective questions and any MCQ not yet
-   *  annotated. */
+  /** The canonical bank answer key — the correct OPTION TEXT (e.g. "7", "Acidic
+   *  solution"), matching one entry of `options`. When present (with `options`) the
+   *  grader scores the MCQ deterministically (0 or full) instead of relying on model
+   *  judgment. Absent for subjective questions. */
+  answer?: string;
+  /** The MCQ option list, so the grader can bridge a letter pick ("(b)") to the
+   *  option text `answer` compares against. */
+  options?: string[];
+  /** Optional legacy correct-option LETTER (e.g. "(a)"). Accepted as a fallback answer
+   *  key; canonical banks carry `answer` (option text) instead. */
   correctOption?: string;
+  /** Objective flag from a keyless Check & Improve detect step. When true the grader
+   *  clamps a ≤1-mark question to 0/full off the model's binary verdict. */
+  objective?: boolean;
   solutionSteps?: string[];
   finalAnswer?: string;
 }

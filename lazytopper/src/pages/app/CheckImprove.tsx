@@ -359,6 +359,9 @@ export default function CheckImprove() {
           topic: confirmed.topicName || undefined,
           topicLabel: confirmed.topicName || undefined,
           questionText: q.questionText,
+          // Keyless objective flag from the detect step — the grader clamps a ≤1-mark
+          // objective question to 0/full off the model's binary verdict (no key here).
+          objective: q.objective === true,
         })),
         imageBase64: fileBase64,
         imageMimeType: fileMime,
@@ -438,6 +441,10 @@ export default function CheckImprove() {
         subject: confirmed.subject,
         topic: confirmed.topicName,
         marks: confirmed.marks,
+        // Keyless objective flag from the detect step — the grader clamps a ≤1-mark
+        // objective question to 0/full off the model's binary verdict (never a
+        // fraction). Omitted (non-objective) → grading is byte-identical to before.
+        ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
         ...(tab === "upload" && fileBase64
           ? { imageBase64: fileBase64, imageMimeType: fileMime }
           : { textAnswer: textAnswer.trim() }),

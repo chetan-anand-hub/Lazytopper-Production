@@ -105,15 +105,18 @@ export async function gradeWorksheetAndRecord(
       topic: q.topicLabel,
       topicLabel: q.topicLabel,
       questionText: q.questionText,
-      // Carry the section so the server can deterministically treat a wrong
-      // objective answer (MCQ / AR / Section A) as attempt-only, never a
-      // fabricated mistake type. Additive — no other field changes.
+      // Objective signals for the server's deterministic 0/full clamp + honesty guard.
+      // `section` ("A" for MCQ/AR) classifies the question; `answer` is the canonical
+      // bank answer key — the correct OPTION TEXT — and `options` is the option list,
+      // so the server can bridge a letter pick to that text and score the MCQ
+      // deterministically (0 or full, never fractional). All three are declared on
+      // PersistedWorksheetQuestion, so this read is type-checked. This REPLACES the old
+      // `correctOption` cast (`as unknown as`), which asserted a field the canonical /
+      // persisted type never declares and so resolved to `undefined` for every real
+      // bank MCQ — leaving the server's objective guard dead code.
       section: q.section,
-      // Deterministic MCQ scoring: carry the correct option letter when the bank
-      // has it. The server compares it against the student's chosen option.
-      // `q` is typed as the canonical question — correctOption is an optional
-      // addition not yet in the shared type; cast safely.
-      correctOption: (q as unknown as { correctOption?: string }).correctOption,
+      answer: q.answer,
+      options: q.options,
       solutionSteps: q.solutionSteps,
       finalAnswer: q.finalAnswer,
     })),

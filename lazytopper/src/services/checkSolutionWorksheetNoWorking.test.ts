@@ -197,10 +197,12 @@ describe("worksheet grader: objective (MCQ/AR) deterministic honesty", () => {
     const r = body.results[0];
     expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective -> deterministically nulled
     expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
-    // Mark still lost; attempt still recorded.
+    // Mark still lost at the QUESTION level; attempt still recorded. Per-step marks are
+    // now STRIPPED for objective questions (steps carry no marks — the whole-question
+    // clamp owns the 0/full verdict), so marksDeducted is 0 at the step.
     expect(r.annotatedSteps[0].status).toBe("incorrect");
     expect(r.annotatedSteps[0].marksAwarded).toBe(0);
-    expect(r.annotatedSteps[0].marksDeducted).toBe(1);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(0);
     expect(r.totalMarks).toBe(1);
     expect(r.marksAwarded).toBe(0);
   });
@@ -242,11 +244,12 @@ describe("worksheet grader: objective (MCQ/AR) deterministic honesty", () => {
   });
 });
 
-// Deterministic MCQ scoring via `correctOption`. When the bank supplies the canonical
-// option letter the server overrides the model's per-step status/marks on a normalised
-// string compare (so "(a)", "A", "a" all match) — trusting the deterministic compare
-// over model judgment. Absent the field, behavior is unchanged (the model-judgment /
-// objective guard path). Same harness, same canonical isObjectiveType classifier.
+// Deterministic MCQ scoring via the SHARED objective clamp. When the question carries
+// an answer key (the bank `answer` = option text + `options`, OR a legacy `correctOption`
+// letter) the server OVERRIDES the model on a normalised compare (so "(a)", "A", "a" all
+// match) — trusting the deterministic compare over model judgment. Objective steps carry
+// NO marks (stripped); the whole-question verdict is 0/full. With NO key the clamp still
+// runs off the model's binary verdict. Same harness, same canonical isObjectiveType.
 describe("worksheet grader: deterministic MCQ scoring (correctOption)", () => {
   // A Section-A MCQ carrying the canonical correct option letter.
   const objQWithKey = (marks: number, correctOption: string) => [
@@ -273,7 +276,9 @@ describe("worksheet grader: deterministic MCQ scoring (correctOption)", () => {
     const { body } = await buildRoute(grade).run(basePayload(objQWithKey(1, "(a)")));
     const r = body.results[0];
     expect(r.annotatedSteps[0].status).toBe("correct");
-    expect(r.annotatedSteps[0].marksAwarded).toBe(1);
+    // Per-step marks are stripped for objective questions; the whole-question verdict
+    // (r.marksAwarded === totalMarks) carries the mark.
+    expect(r.annotatedSteps[0].marksAwarded).toBe(0);
     expect(r.annotatedSteps[0].marksDeducted).toBe(0);
     expect(r.annotatedSteps[0].mistakeType).toBeNull();
     expect(r.marksAwarded).toBe(1);
@@ -296,15 +301,17 @@ describe("worksheet grader: deterministic MCQ scoring (correctOption)", () => {
     const r = body.results[0];
     expect(r.annotatedSteps[0].status).toBe("incorrect");
     expect(r.annotatedSteps[0].marksAwarded).toBe(0);
-    expect(r.annotatedSteps[0].marksDeducted).toBe(1);
+    // Per-step marks stripped for objective questions (whole-question clamp owns the verdict).
+    expect(r.annotatedSteps[0].marksDeducted).toBe(0);
     expect(r.annotatedSteps[0].mistakeType).toBeNull();
     expect(r.marksAwarded).toBe(0);
   });
 
-  // (j) REGRESSION: correctOption ABSENT -> deterministic path inert, existing behavior
-  //     unchanged. A wrong MCQ "(d)" the model tagged conceptual is still nulled by the
-  //     OBJECTIVE guard (not the new compare), and the model's marks are untouched.
-  it("(j) correctOption absent -> model-judgment path unchanged (objective guard still nulls type)", async () => {
+  // (j) NO KEY (section A, no answer/correctOption): the deterministic clamp STILL runs
+  //     for an objective question — with no key it takes the MODEL's binary verdict
+  //     (wrong here), strips per-step marks and aligns status; the guard then nulls the
+  //     fabricated type. A wrong MCQ "(d)" the model tagged conceptual ends 0 marks, null.
+  it("(j) objective, NO answer key -> model binary verdict clamped 0/full, type nulled", async () => {
     const grade = oneResult(
       [{
         description: "chosen option", studentWork: "(d)", status: "incorrect",
@@ -315,10 +322,10 @@ describe("worksheet grader: deterministic MCQ scoring (correctOption)", () => {
     );
     const { body } = await buildRoute(grade).run(basePayload(objQNoKey(1)));
     const r = body.results[0];
-    expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective guard, not the new compare
+    expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective guard nulls the bare pick's type
     expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
-    expect(r.annotatedSteps[0].status).toBe("incorrect"); // status NOT touched by the inert compare
+    expect(r.annotatedSteps[0].status).toBe("incorrect"); // model's binary verdict was incorrect
     expect(r.annotatedSteps[0].marksAwarded).toBe(0);
-    expect(r.annotatedSteps[0].marksDeducted).toBe(1);
+    expect(r.annotatedSteps[0].marksDeducted).toBe(0); // per-step marks stripped for objective
   });
 });

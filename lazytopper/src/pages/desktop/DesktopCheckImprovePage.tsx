@@ -1016,6 +1016,9 @@ const DesktopCheckImprovePage: React.FC = () => {
           topic: confirmed.topicName || undefined,
           topicLabel: confirmed.topicName || undefined,
           questionText: q.questionText,
+          // Keyless objective flag from the detect step — the grader clamps a ≤1-mark
+          // objective question to 0/full off the model's binary verdict (no key here).
+          objective: q.objective === true,
         })),
         imageBase64,
         imageMimeType: imageMime,
@@ -1109,6 +1112,10 @@ const DesktopCheckImprovePage: React.FC = () => {
         subject: confirmed.subject,
         topic: confirmed.topicName,
         marks: confirmed.marks,
+        // Keyless objective flag from the detect step — the grader clamps a ≤1-mark
+        // objective question to 0/full off the model's binary verdict (never a
+        // fraction). Omitted (non-objective) → grading is byte-identical to before.
+        ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
         ...answerPart,
       });
       if (!graded || graded.ok === false) {

@@ -1,8 +1,15 @@
-// Canonical objective-question classifier (MCQ / Assertion-Reason / Section A).
-// REUSED here — never forked — so the worksheet grader's honesty guard agrees
-// byte-for-byte with stepSolution/stubHandlers. serverUtils has no dependency on
-// this route, so the require is acyclic.
-const { isObjectiveType } = require('../services/serverUtils.cjs');
+// Uniform OBJECTIVE (MCQ / AR / Section A) scoring — the SINGLE source of truth for
+// the invariant "an objective question scores 0 or FULL, never fractional / step-
+// distributed; working is analysed only to classify the mistake type". BOTH grader
+// functions below (handleCheckSolution AND normaliseStructuredResult) call the exact
+// same clamp + guard from here, so their objective logic cannot drift. The module
+// reuses the canonical isObjectiveType classifier (serverUtils.cjs) internally — never
+// forked — so classification agrees byte-for-byte across every grading surface.
+const {
+  isObjective,
+  clampObjectiveResult,
+  applyObjectiveMistakeGuard,
+} = require('./objectiveScoring.cjs');
 
 function createCheckSolutionRoute(deps) {
   const {
@@ -69,6 +76,25 @@ function createCheckSolutionRoute(deps) {
     const textAnswer = String(payload.textAnswer || '').trim();
     const solutionSteps = Array.isArray(payload.solutionSteps) ? payload.solutionSteps.map(String) : null;
     const finalAnswer = payload.finalAnswer ? String(payload.finalAnswer).trim() : null;
+
+    // Objective signals (ALL optional, ADDITIVE). When a caller forwards them —
+    // bank-sourced Check & Improve carries section/format/answer/options; a keyless
+    // detect step sets `objective` — the deterministic 0/full clamp applies. When
+    // NONE are present (every legacy caller) `objectiveMeta` classifies as
+    // non-objective and this path is byte-identical to before.
+    const objectiveMeta = {
+      section: String(payload.section || '').trim(),
+      format: String(payload.format || '').trim(),
+      qType: String(payload.qType || '').trim(),
+      answer: payload.answer != null ? String(payload.answer).trim() : null,
+      options: Array.isArray(payload.options) ? payload.options.map(String) : null,
+      correctOption: payload.correctOption ? String(payload.correctOption).trim() : null,
+    };
+    // A keyless external upload (standalone Check & Improve) can only learn objectivity
+    // from the detect step's model flag — clamp off the model's binary verdict, but
+    // ONLY for a ≤1-mark item (the safety rail so a multi-mark subjective is never
+    // clamped on a model guess).
+    const detectedObjective = payload.objective === true || payload.objective === 'true';
 
     // Claim-2 auto-detect: when the caller cannot supply an authoritative mark
     // value (Check & Improve — a student shouldn't decide "is this a 3-mark
@@ -164,7 +190,7 @@ function createCheckSolutionRoute(deps) {
           ? '12. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable.\n'
           : '12. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
         '13. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.\n' +
-        '14. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps.\n' +
+        '14. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.\n' +
         '15. QUESTION MISCOPY: if the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as \'silly\'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.';
 
       const jsonSchema =
@@ -310,33 +336,41 @@ function createCheckSolutionRoute(deps) {
             correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
           }));
 
-        // No-working honesty guard (MI integrity): a WRONG step with NO visible
-        // working is undiagnosable — the cause cannot be known from a bare wrong
-        // answer (e.g. a wrong MCQ option with no working), so mistakeType MUST be
-        // null even if the model guessed one. This makes the invariant hold
-        // deterministically regardless of the prompt. ONLY the type is suppressed:
-        // status stays "incorrect", marks (awarded/deducted) and every total are
-        // untouched — the attempt still records in full. Runs BEFORE the stepFloor
-        // count below, so these steps contribute 0 to each mistakeSummary bucket.
-        // The map above already coerces studentWork to a trimmed string (absent/
-        // undefined/null/whitespace → ""); the `!s.studentWork?.trim()` test catches
-        // all of those in one check, so the guard does not depend on that upstream
-        // coercion staying in place. We also tally, per category, the fabricated
-        // type we are nulling (`noWorkingNulled`) so the additive-floor reconcile
-        // below can subtract it from the LLM's self-reported summary — otherwise a
-        // model that ignores rule 7 leaks its fabricated count through rawSummary.
-        const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-        for (const s of annotatedSteps) {
-          if (s.status === 'incorrect' && !s.studentWork?.trim()) {
-            if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
-              noWorkingNulled[s.mistakeType] += 1;
-            }
-            s.mistakeType = null;
-          }
+        // ── Uniform OBJECTIVE handling — BYTE-ALIGNED with normaliseStructuredResult ─
+        // Both graders call the SAME shared clamp + guard (one impl, two callers) so
+        // their objective logic cannot drift. Objectivity is known here from EITHER a
+        // forwarded bank signal (section/format/answer/options — bank-sourced Check &
+        // Improve) OR a keyless detect-step flag gated to ≤1 mark. When NEITHER is
+        // present this whole block is byte-identical to the prior no-working guard:
+        // applyObjectiveMistakeGuard with objective:false nulls a fabricated type only
+        // on an incorrect step with empty studentWork — exactly the old behaviour — so
+        // every legacy caller (Quick Practice / TopicHub / standalone Check & Improve)
+        // is unchanged.
+        const bankObjective = isObjective(objectiveMeta);
+        const flaggedObjective = detectedObjective && effectiveMarks <= 1;
+        const questionIsObjective = bankObjective || flaggedObjective;
+
+        // C) The deterministic 0/full clamp (objective only): with a forwarded answer
+        //    key it OVERRIDES the model on a normalised compare; keyless it takes the
+        //    model's binary verdict. Strips per-step marks and aligns status. Runs
+        //    unconditionally for objective questions — never fractional/step-distributed.
+        let objectiveMarksAwarded = null;
+        if (questionIsObjective) {
+          objectiveMarksAwarded = clampObjectiveResult(objectiveMeta, annotatedSteps, effectiveMarks).marksAwarded;
         }
 
+        // D) The shared mistake-type honesty guard. Nulls a fabricated mistakeType only
+        //    where there is no working to classify (empty studentWork for any question;
+        //    a bare option pick for an objective one). A wrong MCQ WITH real working
+        //    KEEPS its type so MI learns. Returns the per-category nulled tally so the
+        //    additive-floor reconcile below can subtract it from the model's summary.
+        const noWorkingNulled = applyObjectiveMistakeGuard(annotatedSteps, {
+          objective: questionIsObjective,
+          options: objectiveMeta.options,
+        });
+
         const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
-        const capped = Math.min(totalAwarded, effectiveMarks);
+        const capped = questionIsObjective ? objectiveMarksAwarded : Math.min(totalAwarded, effectiveMarks);
 
         // Additive-floor reconcile: the LLM's self-reported mistakeSummary is
         // unreliable — it frequently leaves the four counters at 0 even when it
@@ -457,10 +491,11 @@ function createCheckSolutionRoute(deps) {
         detectedSubject: 'Maths',
         detectedTopic: null,
         marksSource: 'inferred',
+        detectedObjective: false,
         // Single-item array so the client's questions[] shape is consistent in
         // dev/stub mode too (a single question → existing single-question flow).
         questions: [
-          { questionNumber: 1, questionText: question || 'Sample question', marks: 3, marksSource: 'inferred' },
+          { questionNumber: 1, questionText: question || 'Sample question', marks: 3, marksSource: 'inferred', objective: false },
         ],
       });
     }
@@ -483,13 +518,14 @@ function createCheckSolutionRoute(deps) {
       '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
+      '- objective: true ONLY if the question is a multiple-choice question (lettered options like (a)/(b)/(c)/(d)) or an assertion-reason question; false for any question that needs written working, a derivation, a proof, or step-by-step reasoning. Apply this per question.\n' +
       topicListBlock +
       // The multi-question instruction is placed LAST (after the topic list, right
       // before RESPOND) so the model reads it most recently — recency keeps it from
       // stopping after the first question on a multi-question paper.
-      '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, and marks (apply the SAME stated-vs-inferred rule per question). List EVERY question you find — do not stop after the first. If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic to the FIRST question\'s values for backward compatibility.\n' +
+      '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, marks (apply the SAME stated-vs-inferred rule per question), and its objective flag. List EVERY question you find — do not stop after the first. If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic/detectedObjective to the FIRST question\'s values for backward compatibility.\n' +
       '\nRESPOND with this exact JSON:\n' +
-      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred" }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred" }, ... one object per question found ] }';
+      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "detectedObjective": <true|false>, "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false> }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false> }, ... one object per question found ] }';
 
     try {
       const parts = hasImage
@@ -541,6 +577,11 @@ function createCheckSolutionRoute(deps) {
         dt && String(dt).trim() && String(dt).trim().toLowerCase() !== 'null'
           ? String(dt).trim()
           : null;
+      // Objective flag (additive) — the keyless Check & Improve grade call forwards it
+      // so the grader can clamp a ≤1-mark objective question to 0/full off the model's
+      // binary verdict. Defaults to false, so a model that omits it leaves grading
+      // byte-unchanged.
+      const detectedObjective = parsed.detectedObjective === true || parsed.detectedObjective === 'true';
 
       // Multi-question array (additive). Each entry is normalised the SAME way the
       // single-question detectedMarks is: marks clamped to the CBSE 1–6 range
@@ -561,6 +602,7 @@ function createCheckSolutionRoute(deps) {
             questionText: text,
             marks,
             marksSource: q && q.marksSource === 'stated' ? 'stated' : 'inferred',
+            objective: q && (q.objective === true || q.objective === 'true') ? true : false,
           };
         })
         .filter((q) => q.questionText.length > 0);
@@ -571,6 +613,7 @@ function createCheckSolutionRoute(deps) {
         detectedSubject,
         detectedTopic,
         marksSource,
+        detectedObjective,
         questions,
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
@@ -642,64 +685,49 @@ function createCheckSolutionRoute(deps) {
         correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
       }));
 
-    // No-working / objective honesty guard (MI integrity). A WRONG step gets its
-    // fabricated mistakeType nulled — ONLY the type is suppressed; status, marks
-    // (awarded/deducted) and every total are untouched. It fires in two cases:
-    //   (1) NO visible working (empty/whitespace studentWork) — undiagnosable, the
-    //       byte-aligned mirror of handleCheckSolution's guard; and
-    //   (2) the question is OBJECTIVE (MCQ / Assertion-Reason / Section A), REGARDLESS
-    //       of studentWork. This is the deterministic MCQ fix: a wrong MCQ writes its
-    //       chosen option (e.g. "(d)") into studentWork (non-empty, per STEP-0 ground
-    //       truth), so the empty check alone can't reach it — but a bare objective pick
-    //       has no working to classify, so it is attempt-only, NEVER a fabricated type.
-    //       This is the exact Quick-Practice MCQ principle (G1), applied here off the
-    //       canonical isObjectiveType(qType||format, section); the worksheet carries
-    //       section ("A" for MCQ/AR). Subjective questions are untouched.
-    // We tally noWorkingNulled per category so the reconcile below can subtract the
-    // fabricated count from the model's self-reported summary too (otherwise
-    // max(rawSummary, stepFloor) re-introduces it).
-    const questionIsObjective = isObjectiveType(q.qType || q.format, q.section);
-    // Deterministic MCQ scoring: when the bank supplies the correct option letter,
-    // override the model's per-step status based on a normalised string compare.
-    // Normalise: strip parens/brackets, trim, lowercase — so "(a)", "A", "a" all match.
-    // Falls back to model-judgment (the noWorkingNulled loop below) when absent.
-    if (questionIsObjective && q.correctOption) {
-      const normOpt = (s) =>
-        String(s || '').replace(/[()[\]\s]/g, '').toLowerCase();
-      const correctPick = normOpt(q.correctOption);
-      if (correctPick) {
-        for (const s of annotatedSteps) {
-          const studentPick = normOpt(s.studentWork);
-          if (studentPick) {
-            const hit = studentPick === correctPick;
-            s.status = hit ? 'correct' : 'incorrect';
-            // Marks: full on hit, 0 on miss (the model's award may be wrong;
-            // we trust the deterministic compare over model judgment here).
-            if (hit) {
-              s.marksAwarded = Math.round(totalMarks / Math.max(annotatedSteps.length, 1));
-              s.marksDeducted = 0;
-            } else {
-              s.marksAwarded = 0;
-              s.marksDeducted = Math.round(totalMarks / Math.max(annotatedSteps.length, 1));
-            }
-          }
-          // If studentWork is absent (couldNotRead path) leave s untouched.
-        }
-      }
-    }
-    const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-    for (const s of annotatedSteps) {
-      const noWorking = !s.studentWork?.trim();
-      if (s.status === 'incorrect' && (noWorking || questionIsObjective)) {
-        if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
-          noWorkingNulled[s.mistakeType] += 1;
-        }
-        s.mistakeType = null;
-      }
+    // ── Uniform OBJECTIVE (MCQ / AR / Section A) handling ─────────────────────
+    // Deterministic 0/full clamp + shared mistake-type honesty guard, BOTH from the
+    // single-source objectiveScoring module — so this worksheet grader and the
+    // per-question handleCheckSolution grader apply BYTE-IDENTICAL logic (one impl,
+    // two callers). The worksheet carries `section` ("A" for MCQ/AR) and now the bank
+    // answer key (`q.answer` = the option text) + `q.options`, so the compare is
+    // deterministic. Subjective questions are untouched.
+    //   • bankObjective:    section/format known from the bank → deterministic compare.
+    //   • flaggedObjective: a keyless Check & Improve detect step marked the question
+    //     objective — clamp off the model's binary verdict, but ONLY for a ≤1-mark item
+    //     (the safety rail: a multi-mark subjective is never clamped on a model guess).
+    const bankObjective = isObjective(q);
+    const flaggedObjective = q.objective === true && totalMarks <= 1;
+    const questionIsObjective = bankObjective || flaggedObjective;
+
+    // C) THE DETERMINISTIC CLAMP (defense-in-depth; independent of the prompt). For an
+    //    objective question it collapses the model's per-step awards into ONE whole-
+    //    question verdict (0 or totalMarks — NEVER a fraction, NEVER totalMarks/steps),
+    //    strips per-step marks, and aligns each step's status. With an answer key it
+    //    OVERRIDES the model on a normalised compare; without one it takes the model's
+    //    binary verdict. It runs unconditionally for objective questions — so no
+    //    objective question can exit the grader fractional or step-distributed.
+    let objectiveMarksAwarded = null;
+    if (questionIsObjective) {
+      objectiveMarksAwarded = clampObjectiveResult(q, annotatedSteps, totalMarks).marksAwarded;
     }
 
+    // D) THE SHARED MISTAKE-TYPE HONESTY GUARD (MI integrity). Nulls a fabricated
+    //    mistakeType ONLY where there is no working to classify: empty studentWork for
+    //    ANY question, or — for an objective question — a bare option pick (letter or
+    //    option text, nothing more). A wrong MCQ WITH real written working KEEPS its
+    //    type so MI can learn (the feature). Marks are already fixed (objective by the
+    //    clamp above, subjective by the step sum). Returns the per-category nulled
+    //    tally so the reconcile below can subtract it from the model's raw summary.
+    const noWorkingNulled = applyObjectiveMistakeGuard(annotatedSteps, {
+      objective: questionIsObjective,
+      options: q.options,
+    });
+
+    // Total marks. Objective → the whole-question verdict (0/full) from the clamp.
+    // Subjective → the (capped) sum of per-step awards, UNCHANGED.
     const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
-    const capped = Math.min(totalAwarded, totalMarks);
+    const capped = questionIsObjective ? objectiveMarksAwarded : Math.min(totalAwarded, totalMarks);
 
     // Additive-floor reconcile (mirror of handleCheckSolution): take the MAX of the
     // model's self-reported summary and the per-step mistakeType counts — but first
@@ -838,7 +866,7 @@ function createCheckSolutionRoute(deps) {
       '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
       '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read. IMPORTANT EXCEPTION: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — it is NOT couldNotRead. Grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Never set couldNotRead for a clearly-written non-attempt phrase. Similarly, an answer that is clearly and completely crossed out with no replacement written is a NO-ATTEMPT — grade it as: status "incorrect", marks deducted = question marks, mistakeType null. Never set couldNotRead for a clearly crossed-out answer with no replacement.\n' +
       '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).\n' +
-      '8. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps.\n' +
+      '8. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.\n' +
       '9. QUESTION MISCOPY: if the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as \'silly\'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.';
 
     const jsonSchema =
@@ -947,12 +975,23 @@ function createCheckSolutionRoute(deps) {
         topic: String((q && q.topic) || '').trim(),
         topicLabel: String((q && q.topicLabel) || '').trim(),
         questionText: String((q && q.questionText) || '').trim(),
-        // Objective signal for the honesty guard. The client carries `section`
-        // ("A" for MCQ/AR); `format`/`qType` are kept too so a future poster
-        // (Chapter Test / Full Mock) that sends them is classified the same way.
+        // Objective signal for the honesty guard + deterministic clamp. The client
+        // carries `section` ("A" for MCQ/AR); `format`/`qType` are kept too so a
+        // future poster (Chapter Test / Full Mock) that sends them is classified the
+        // same way. `answer` is the canonical bank answer key (the OPTION TEXT) and
+        // `options` bridges a letter pick to that text — together they make the MCQ
+        // compare deterministic. `correctOption` (a letter) is still accepted as a
+        // fallback key for any future bank that carries one.
         section: String((q && q.section) || '').trim(),
         format: String((q && q.format) || '').trim(),
         qType: String((q && q.qType) || '').trim(),
+        answer: q && q.answer != null ? String(q.answer).trim() : null,
+        options: Array.isArray(q && q.options) ? q.options.map(String) : null,
+        // Objective flag from a keyless detect step (Check & Improve multi-question):
+        // when the detected question is objective the clamp still applies off the
+        // model's binary verdict — but only for a ≤1-mark item (the safety rail so a
+        // multi-mark subjective is never clamped on a model guess).
+        objective: q && (q.objective === true || q.objective === 'true') ? true : false,
         solutionSteps: Array.isArray(q && q.solutionSteps) ? q.solutionSteps.map(String) : null,
         finalAnswer: q && q.finalAnswer ? String(q.finalAnswer).trim() : null,
         correctOption: q && q.correctOption ? String(q.correctOption).trim() : null,
