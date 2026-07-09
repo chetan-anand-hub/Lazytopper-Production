@@ -90,6 +90,22 @@ describe("exportWorksheetPdf — real file download (Option B)", () => {
     expect(filename).toMatch(/answer-key\.pdf$/);
   });
 
+  it("FIX D — carries the unique CODE in the filename so worksheets don't collide", async () => {
+    const a = await exportWorksheetPdf(ws, "questions", "WS-M-RN-03");
+    const b = await exportWorksheetPdf(ws, "questions", "WS-M-RN-04");
+    // Same topic/title, but the code makes the two downloads distinct (the bug fixed).
+    expect(a).toContain("WS-M-RN-03");
+    expect(b).toContain("WS-M-RN-04");
+    expect(a).not.toBe(b);
+    expect(a).toMatch(/questions\.pdf$/);
+  });
+
+  it("FIX D — falls back to the code-less name when no code is supplied (never crashes)", async () => {
+    const filename = await exportWorksheetPdf(ws, "questions");
+    expect(filename).toMatch(/^lazytopper-.*-questions\.pdf$/);
+    expect(filename).not.toMatch(/WS-/);
+  });
+
   it("removes the offscreen host after export (no DOM leak)", async () => {
     const before = document.body.childElementCount;
     await exportWorksheetPdf(ws, "questions");
