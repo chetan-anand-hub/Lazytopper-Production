@@ -10,7 +10,8 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const SURFACE_AREAS_AND_VOLUMES_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-SAV-001", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Surface Area of Solids", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Assertion (A) : If we join two hemispheres of same radius along their bases, then we get a sphere. Reason (R): Total Surface Area of a sphere of radius r is 3 r2.",
-    answer: "Assertion (A) is true, but Reason (R) is false.",
+    options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
+    answer: "Assertion (A) is true but Reason (R) is false.",
     solutionSteps: ["Correct option: (c) Assertion (A) is true, but Reason (R) is false.."],
     finalAnswer: "(c) Assertion (A) is true, but Reason (R) is false.",
     ncertRef: "PYQ 30/1/2 Q19", isCompetencyBased: true,

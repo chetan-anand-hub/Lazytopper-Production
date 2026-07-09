@@ -20,7 +20,7 @@ export const TRIANGLES_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-TRI-002", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In the given figure, in D ABC, DE || BC. If AD = 2·4 cm, DB = 4 cm and AE = 2 cm, then the length of AC is :",
     options: ["3 10 cm", "10 3 cm", "3 16 cm", "1·2 cm 1530/5/1"],
-    answer: "16 3 cm",
+    answer: "3 16 cm",
     solutionSteps: ["Correct option: (c) 16 3 cm."],
     finalAnswer: "(c) 16 3 cm",
     ncertRef: "PYQ 30/5/1 Q17", isCompetencyBased: true,

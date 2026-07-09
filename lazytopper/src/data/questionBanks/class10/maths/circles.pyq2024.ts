@@ -52,7 +52,7 @@ export const CIRCLES_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-CIRC-006", subject: "Maths", topicKey: "circles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In the given figure, RJ and RL are two tangents to the circle. If Ð RJL = 42°, then the measure of Ð JOL is :",
     options: ["42°", "84°", "96°", "138°"],
-    answer: "840",
+    answer: "84°",
     solutionSteps: ["Correct option: (b) 840."],
     finalAnswer: "(b) 840",
     ncertRef: "PYQ 30/5/1 Q16", isCompetencyBased: true,

@@ -27,7 +27,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-S-REPR-003", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "STIs and Safe Sex", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The bacterial and the viral infections that may be caused due to unsafe sex respectively are :",
     options: ["Warts and HIV-AIDS", "HIV-AIDS and Warts", "Gonorrhoea and Syphilis", "Syphilis and Warts"],
-    answer: "d) 1 1",
+    answer: "Syphilis and Warts",
     solutionSteps: ["d) 1 1"],
     finalAnswer: "d) 1 1",
     ncertRef: "PYQ 31/5/1 Q12", isCompetencyBased: true,

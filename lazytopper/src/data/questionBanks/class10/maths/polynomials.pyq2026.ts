@@ -20,7 +20,7 @@ export const POLYNOMIALS_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-POLY-002", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If the zeroes of a polynomial p(x) are –3 and 8, then p(x) equals",
     options: ["x2 + 5x – 4", "(x + 3) (–x + 8)", "a(x2 + 5x – 24)", "x2 – 24"],
-    answer: "(x + 3)(−x + 8)",
+    answer: "(x + 3) (–x + 8)",
     solutionSteps: ["Correct option: (b) (x + 3)(−x + 8)."],
     finalAnswer: "(b) (x + 3)(−x + 8)",
     ncertRef: "PYQ 30/5/1 Q3", isCompetencyBased: true,

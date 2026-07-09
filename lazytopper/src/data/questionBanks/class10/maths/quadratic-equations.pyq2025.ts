@@ -11,7 +11,7 @@ export const QUADRATIC_EQUATIONS_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The quadratic equation whose roots are 7 and is :",
     options: ["7x2 50x + 7 = 0", "7x2 50x + 1 = 0", "7x2 + 50x 7 = 0", "7x2 + 50x 1 = 0"],
-    answer: "7x2 – 50 x + 7 = 0",
+    answer: "7x2 50x + 7 = 0",
     solutionSteps: ["Correct option: (a) 7x2 – 50 x + 7 = 0."],
     finalAnswer: "(a) 7x2 – 50 x + 7 = 0",
     ncertRef: "PYQ 30/2/1 Q3", isCompetencyBased: true,

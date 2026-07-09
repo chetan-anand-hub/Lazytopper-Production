@@ -59,7 +59,7 @@ export const lightReflectionPYQ2025: CanonicalQuestion[] = [
   { id: "PYQ-S-2025-LIGHT-007", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refractive Index", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Absolute refractive index of water and glass is 4 3 and 3 2 respectively. If the speed of light in glass is 2 108 m/s, the speed of light in water is :",
     options: ["9 4 m/s", "7 3 m/s", "16 9 m/s", "9 8 m/s"],
-    answer: "See marking scheme.",
+    answer: "9 4 m/s",
     solutionSteps: ["See marking scheme."],
     finalAnswer: "See marking scheme.",
     ncertRef: "PYQ 31/3/1 Q11", isCompetencyBased: true,

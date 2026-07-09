@@ -28,7 +28,7 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-QE-003", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If the quadratic equation ax2 + bx + c = 0 has real and equal roots, then the value of c is :",
     options: ["a 2 b", "– a 2 b", "a 4 b2", "– a 4 b2 1530/5/2"],
-    answer: "𝑏2 4𝑎",
+    answer: "a 4 b2",
     solutionSteps: ["Correct option: (c) 𝑏2 4𝑎."],
     finalAnswer: "(c) 𝑏2 4𝑎",
     ncertRef: "PYQ 30/5/2 Q6", isCompetencyBased: true,

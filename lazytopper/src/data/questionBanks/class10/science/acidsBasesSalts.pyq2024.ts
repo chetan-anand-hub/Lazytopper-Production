@@ -28,7 +28,7 @@ export const acidsBasesSaltsPYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-ACID-003", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "pH Scale", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An aqueous solution of sodium chloride is prepared in distilled water. The pH of this solution is :",
     options: ["6", "8", "7", "3"],
-    answer: "The Marking scheme carries only suggested value points for the answers These are in the nature of Guidelines only and do not constitute the complete answer. The students can have their own expression and if the expression is correct, the due marks should be awarded accordingly.",
+    answer: "7",
     solutionSteps: ["The Marking scheme carries only suggested value points for the answers These are in the nature of Guidelines only and do not constitute the complete answer. The students can have their own expression and if the expression is correct, the due marks should be awarded accordingly."],
     finalAnswer: "The Marking scheme carries only suggested value points for the answers These are in the nature of Guidelines only and do not constitute the complete answer. The students can have their own expression and if the expression is correct, the due marks should be awarded accordingly.",
     ncertRef: "PYQ 31/5/1 Q4", isCompetencyBased: true,
