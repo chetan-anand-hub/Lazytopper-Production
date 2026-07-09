@@ -1,3 +1,13 @@
+## 2026-07-09 — Uniform OBJECTIVE (MCQ/AR) scoring merged (#348, `27eaa8f`)
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-OBJECTIVE-COST-SKIP]** — model-skip cost saving DEFERRED. On the PDF/photo upload paths (Worksheet, Check & Improve) the student's MCQ pick is only knowable AFTER the model reads the handwriting, so an objective question CANNOT be excluded from the model batch without losing correctness (the deterministic clamp still discards the model's marks, so the invariant holds regardless). True model-skip pays off only on future CLICK-BASED surfaces where the pick is captured digitally (Chapter Test / Full Mock on-screen MCQs); Quick Practice already grades MCQs client-side (zero API). Wire the skip when those surfaces move server-side. Correctness first, per the task's own escape hatch.
+- **[FU-BANK-CORRUPT-KEYS]** — data-quality task for the Fable bank lane. The STEP-0 census found **~86 objective questions (concentrated in `.pyq*` extraction files) whose `answer` is CORRUPT** (mark-scheme fragments like "a) 1 1", "30 1", "96° 1" — matches NO option even after normalisation), plus **~15 maths Assertion-Reason `.pyq` rows with NO `options[]`** (the four choices are in prose; `answer` holds the full AR statement). These currently DEFER to the model (never a false 0), but can never be scored DETERMINISTICALLY until the keys are cleaned / options backfilled. Exact affected files + counts are in the report (`report-objective-scoring-uniform-2026-07-09.md`) + the STEP-0 bank census. Not a regression — pre-existing extraction debt surfaced by this PR.
+- **[FU-CI-SCORECARD-VARIANT]** — Check & Improve has **no `<ResultsScorecard>` variant** and is not in `SessionSurface` (`"worksheet" | "chapter-test" | "full-mock"`), so it shows a bespoke graded-paper view (`CheckImproveGradedPrintDoc`, #333) and **writes no session record** — its results don't feed the per-surface histories / progress arc. Not a regression — a GAP. Design pass pending (decide whether C&I becomes a 4th `SessionSurface` with its own scorecard variant + record, or stays intentionally ephemeral). Surfaced while wiring the C&I objective plumbing.
+- **[FU-CI-SOLUTION-CACHE]** — carried from `SURFACE_TRACKER.md`: a two-tier solution cache is the STRUCTURAL fix for **[FU-MODEL-ANSWER-QUALITY]** (garbled model answers). Logged here for the follow-up queue.
+
+---
+
 ## 2026-07-08 — Notes v1.2 template merged (#345, `17fea57`)
 
 ### 🆕 NEW FOLLOW-UPS
