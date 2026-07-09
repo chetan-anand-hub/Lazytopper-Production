@@ -10,6 +10,7 @@ import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
 import { VisualExplainer } from "../VisualExplainer";
 import { useAuth } from "../../context/AuthContext";
 import { recordAttempt } from "../../services/practiceInsights";
+import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 
 const REPORT_TYPES = [
   "Wrong answer given",
@@ -267,20 +268,17 @@ export function PracticeQuestionCard({
     const qId = String(q.id);
     const selected = mcqSelection;
     const result = mcqResult;
-    const correctIdx = (() => {
-      const co = (q as PracticeQuestion & { correctOption?: string }).correctOption;
-      if (co && typeof co === "string" && co.length === 1) {
-        return co.charCodeAt(0) - 65;
-      }
-      if (q.answer) {
-        const ansLower = q.answer.trim().toLowerCase();
-        const ai = opts.findIndex(o => o.trim().toLowerCase() === ansLower);
-        if (ai >= 0) return ai;
-        const pi = opts.findIndex(o => ansLower.includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(ansLower));
-        if (pi >= 0) return pi;
-      }
-      return -1;
-    })();
+    // Client-side MCQ grading via the SHARED objective-scoring helper (the same one
+    // the server graders use, parity-tested) so no surface diverges. Resolves the
+    // canonical correct index from a legacy correctOption letter or the bank `answer`
+    // (option text), against the options — returns -1 when it cannot be determined
+    // (grading stays honest, no guess). Behaviour is unchanged for real bank MCQs
+    // (whose `answer` exactly matches an option).
+    const correctIdx = resolveCorrectOptionIndex(
+      (q as PracticeQuestion & { correctOption?: string }).correctOption,
+      q.answer,
+      opts,
+    );
     const handleMcqClick = (oi: number) => {
       if (result) return;
       onMcqSelect(qId, oi);
@@ -630,6 +628,13 @@ export function PracticeQuestionCard({
           questionId={String(q.id)}
           solutionSteps={q.solutionSteps}
           finalAnswer={q.finalAnswer}
+          // Objective signals from the bank question, so if the student submits written
+          // working for an MCQ the grader scores it deterministically 0/full (never a
+          // fraction) and only classifies the mistake type from the working.
+          section={q.section}
+          format={q.format}
+          options={q.options}
+          answer={q.answer}
           onRequestStepSolution={handleRequestStepSolution}
         />
       )}

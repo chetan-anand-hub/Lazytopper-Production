@@ -47,6 +47,14 @@ interface SolutionCheckerProps {
   questionId?: string;
   solutionSteps?: string[];
   finalAnswer?: string;
+  /** Objective signals (ALL optional). When a bank-sourced caller forwards them
+   *  (section/format + the answer key `answer` + `options`), the grader scores an
+   *  objective question (MCQ / AR / Section A) deterministically as 0/full instead of
+   *  step-marking it. Omitted by non-bank callers → grading is unchanged. */
+  section?: string;
+  format?: string;
+  options?: string[];
+  answer?: string;
   onRequestStepSolution?: () => void;
   onResult?: (result: CheckSolutionResponse) => void;
 }
@@ -209,7 +217,7 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
 }
 
 export function SolutionChecker({
-  question, marks, subject, topic, questionId, solutionSteps, finalAnswer, onRequestStepSolution, onResult,
+  question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -354,6 +362,13 @@ export function SolutionChecker({
         ...(hasText && !hasImage ? { textAnswer: textAnswer.trim() } : {}),
         ...(solutionSteps && solutionSteps.length > 0 ? { solutionSteps } : {}),
         ...(finalAnswer ? { finalAnswer } : {}),
+        // Objective signals — forwarded only when a bank-sourced caller supplies them,
+        // so the grader can score an MCQ/AR deterministically (0/full). Omitted → the
+        // grade call is byte-identical to before.
+        ...(section ? { section } : {}),
+        ...(format ? { format } : {}),
+        ...(options && options.length > 0 ? { options } : {}),
+        ...(answer ? { answer } : {}),
       });
 
       if (response.ok) {
@@ -390,7 +405,7 @@ export function SolutionChecker({
     } finally {
       setLoading(false);
     }
-  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId, solutionSteps, finalAnswer]);
+  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId, solutionSteps, finalAnswer, section, format, options, answer]);
 
   const handleClear = useCallback(() => {
     setImagePreview(null);
