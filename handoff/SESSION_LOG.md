@@ -1,5 +1,18 @@
 ---
 
+## 2026-07-09 — Uniform OBJECTIVE (MCQ/AR) scoring MERGED (#348)
+
+**Trunk after: `27eaa8f` (squash).** Owner **live-verified BOTH paths** — worksheet (deterministic key compare) and Check & Improve (model-verdict clamp); **no partial marks on MCQs**. This closes the "grader MCQ all-or-nothing" owner-found worksheet bug flagged in the PR-3 (#344) entry.
+
+- **Root cause:** `worksheetGradeService.ts` mapped the grader answer key via `(q as unknown as {correctOption?}).correctOption` — a cast for a field the banks NEVER carry (`correctOption` = **0/353**; the real key is `q.answer` = the option TEXT). It was ALWAYS `undefined`, so the server's objective guard was DEAD CODE and every MCQ was model-graded and step-distributed → the reported 0.5 partial-marks bug.
+- **Fix — the invariant:** an OBJECTIVE question (MCQ / AR / Section A) scores **0 or FULL, never fractional, never step-distributed**; working is analysed ONLY to classify the mistake type. NEW shared `server/routes/objectiveScoring.cjs` (+ client twin `src/lib/objectiveScoring.ts`, parity-pinned by a test) is called by BOTH grader functions (`handleCheckSolution` + `normaliseStructuredResult`) → **byte-aligned by construction** (one impl, two callers). Deterministic clamp: objective ⇒ 0-or-full, per-step marks **STRIPPED**. The real `q.answer` + `q.options` are now forwarded (compare bridges a letter pick ↔ the option text; corrupt `.pyq` keys / no-`options` AR rows defer to the model, never a false 0).
+- **Mistake Intelligence:** a wrong MCQ **with real written working KEEPS its `mistakeType`** (MI learns); a bare option pick / empty working is nulled (undiagnosable). **Subjective step-marking untouched.**
+- **Check & Improve (owner-authorized plumbing):** `SolutionChecker` + both `CheckImprove` pages forward optional ADDITIVE objective signals — bank-sourced (`section/format/options/answer`) ⇒ deterministic; keyless uploads ⇒ a detect-step `objective` flag + the model's **BINARY verdict** clamped, with a **≤1-mark safety rail** so a multi-mark subjective is never clamped on a model guess. **C&I is byte-unchanged when the signals are absent.**
+- **`ECF=2` preserved.** Gates GREEN (tsc; mojibake 3/3; scope product; root matrix **181/181**; lazytopper ops matrix incl. llm-path 5/5; diff-check; no forbidden/gated files) + **CI quality-gate GREEN** + Vercel preview PASS. vitest is Codespaces-only → logic self-verified in node (module 41/41; real-grader scenarios 21/21; exact worksheet vitest-scenario replay 48/48; twin↔cjs parity 741/0). 12 files (8 M + 4 A: `objectiveScoring.cjs`, `objectiveScoring.ts`, `objectiveScoring.test.ts`, `objectiveScoring.parity.test.ts`). Report: `Desktop\diff\report-objective-scoring-uniform-2026-07-09.md`.
+- **New follow-ups:** [FU-OBJECTIVE-COST-SKIP], [FU-BANK-CORRUPT-KEYS], [FU-CI-SCORECARD-VARIANT], [FU-CI-SOLUTION-CACHE].
+
+---
+
 ## 2026-07-08 — Notes v1.2 template MERGED (#345)
 
 **Trunk after: `17fea57` (squash).** NOTES-track schema + UX pass (notes/ + notes-components + ConceptSpine) — closes the Biology pilot as the TRUE template so every future note inherits the 4 structural fixes. Owner-reviewed + merged. No PDFs committed; grader untouched; no `src/data`/forbidden changes.
