@@ -11,7 +11,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-TRIG-001", subject: "Maths", topicKey: "trigonometry", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "sec θ when expressed in terms of cot θ, is equal to :",
     options: ["2 1+cot cot θ θ", "2 1+cot θ", "2 1+cot θ cotθ", "2 1 cot cot − θ θ"],
-    answer: "  + cot cot 1 2",
+    answer: "2 1+cot θ cotθ",
     solutionSteps: ["Correct option: (c)   + cot cot 1 2."],
     finalAnswer: "(c)   + cot cot 1 2",
     ncertRef: "PYQ 30/4/1 Q10", isCompetencyBased: true,

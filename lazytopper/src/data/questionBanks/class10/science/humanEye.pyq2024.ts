@@ -12,7 +12,7 @@ export const humanEyePYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-EYE-001", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Rainbow Formation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The phenomena of light involved in the formation of rainbow are :",
     options: ["Refraction, reflection and dispersion", "Refraction, dispersion and internal reflection", "Reflection, dispersion and internal reflection", "Refraction, dispersion, scattering and total internal reflection"],
-    answer: "Every examiner has to necessarily do evaluation work for full working hours i.e., 8 hours every day and evaluate 20 answer books per day in main subjects and 25 answer books per day in other subjects (Details are given in Spot Guidelines).This is in view of the reduced syllabus and number of questions in question paper.",
+    answer: "Refraction, dispersion and internal reflection",
     solutionSteps: ["Every examiner has to necessarily do evaluation work for full working hours i.e., 8 hours every day and evaluate 20 answer books per day in main subjects and 25 answer books per day in other subjects (Details are given in Spot Guidelines).This is in view of the reduced syllabus and number of questions in question paper."],
     finalAnswer: "Every examiner has to necessarily do evaluation work for full working hours i.e., 8 hours every day and evaluate 20 answer books per day in main subjects and 25 answer books per day in other subjects (Details are given in Spot Guidelines).This is in view of the reduced syllabus and number of questions in question paper.",
     ncertRef: "PYQ 31/5/1 Q12", isCompetencyBased: true,

@@ -10,7 +10,8 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const ARITHMETIC_PROGRESSION_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-AP-001", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Common Difference", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Assertion (A) : Common difference of the AP : 5, 1, 3, Reason (R): Common difference of the AP : a1, a2, a3 an is obtained by d = an an 1.",
-    answer: "Assertion (A) is false, but Reason (R) is true.",
+    options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
+    answer: "Assertion (A) is false but Reason (R) is true.",
     solutionSteps: ["Correct option: (d) Assertion (A) is false, but Reason (R) is true.."],
     finalAnswer: "(d) Assertion (A) is false, but Reason (R) is true.",
     ncertRef: "PYQ 30/2/1 Q19", isCompetencyBased: true,

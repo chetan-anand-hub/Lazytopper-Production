@@ -12,7 +12,7 @@ export const TRIANGLES_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity of Triangles", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Devansh proved that ABC ~ PQR using SAS similarity criteria. If he found C = R, then which of the following was proved true ?",
     options: ["AC AB = PR PQ", "BC AC = PR QR", "AC BC = PR PQ", "AC BC = PR QR"],
-    answer: "୅େ ୆େ= ୔ୖ ୕ୖ",
+    answer: "AC BC = PR QR",
     solutionSteps: ["Correct option: (d) ୅େ ୆େ= ୔ୖ ୕ୖ."],
     finalAnswer: "(d) ୅େ ୆େ= ୔ୖ ୕ୖ",
     ncertRef: "PYQ 30/5/1 Q5", isCompetencyBased: true,

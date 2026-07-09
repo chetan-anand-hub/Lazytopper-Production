@@ -11,7 +11,7 @@ export const COORDINATE_GEOMETRY_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-CG-001", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Midpoint Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The midpoint of the line segment joining the points P( 4, 5) and Q(4, 6) lies on :",
     options: ["xaxis", "yaxis", "origin", "neither xaxis nor yaxis"],
-    answer: "y – axis",
+    answer: "yaxis",
     solutionSteps: ["Correct option: (b) y – axis."],
     finalAnswer: "(b) y – axis",
     ncertRef: "PYQ 30/1/1 Q3", isCompetencyBased: true,

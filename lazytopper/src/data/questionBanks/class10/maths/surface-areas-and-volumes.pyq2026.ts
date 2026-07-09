@@ -12,7 +12,7 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-SAV-001", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Surface Area of Solids", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A conical cavity of maximum volume is carved out from a wooden solid hemisphere of radius 10 cm. Curved surface area of the cavity carved out is (use = 3.14)",
     options: ["314 2 cm2", "314 cm2", "3140 3 cm2", "3140 2 cm2"],
-    answer: "314√2 cm2",
+    answer: "314 2 cm2",
     solutionSteps: ["Correct option: (a) 314√2 cm2."],
     finalAnswer: "(a) 314√2 cm2",
     ncertRef: "PYQ 30/5/1 Q7", isCompetencyBased: true,

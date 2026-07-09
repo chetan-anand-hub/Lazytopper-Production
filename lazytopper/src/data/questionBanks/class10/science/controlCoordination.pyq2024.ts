@@ -12,7 +12,7 @@ export const controlCoordinationPYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-CTRL-001", subject: "Science", topicKey: "control-and-coordination", subtopic: "Endocrine System", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A plant growth inhibitor hormone which causes wilting of leaves is called :",
     options: ["Auxin", "Cytokinin", "Abscisic acid", "Gibberellin"],
-    answer: "If a question has parts, please award marks on the right-hand side for each part. Marks awarded for different parts of the question should then be totaled up and written in the left-hand margin and encircled. This may be followed strictly.",
+    answer: "Abscisic acid",
     solutionSteps: ["If a question has parts, please award marks on the right-hand side for each part. Marks awarded for different parts of the question should then be totaled up and written in the left-hand margin and encircled. This may be followed strictly."],
     finalAnswer: "If a question has parts, please award marks on the right-hand side for each part. Marks awarded for different parts of the question should then be totaled up and written in the left-hand margin and encircled. This may be followed strictly.",
     ncertRef: "PYQ 31/4/1 Q7", isCompetencyBased: true,

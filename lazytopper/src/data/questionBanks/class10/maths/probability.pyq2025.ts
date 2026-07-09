@@ -10,7 +10,8 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const PROBABILITY_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-PROB-001", subject: "Maths", topicKey: "probability", subtopic: "General", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Assertion (A) : The probability of selecting a number at random from the numbers 1 to 20 is 1. Reason (R): For any event E, if P(E) = 1, then E is called a sure event.",
-    answer: "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of the Assertion (A). 1 20 Sol. (C) Assertion (A) is true, but Reason (R) is false.",
+    options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
+    answer: "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).",
     solutionSteps: ["Correct option: (a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of the Assertion (A). 1 20 Sol. (C) Assertion (A) is true, but Reason (R) is false.."],
     finalAnswer: "(a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of the Assertion (A). 1 20 Sol. (C) Assertion (A) is true, but Reason (R) is false.",
     ncertRef: "PYQ 30/1/1 Q19", isCompetencyBased: true,

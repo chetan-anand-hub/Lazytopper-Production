@@ -11,7 +11,8 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const AREAS_RELATED_TO_CIRCLES_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-ARC-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Sector", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Assertion (A) : In a circle of radius 21 cm, an arc of length 22 cm subtends an angle of 60 at the centre. Reason (R) : The length of arc of a sector of a circle of radius r and central angle is 2r 360 .",
-    answer: "Both, Assertion (A) and Reason (R) are true and Reason (R) is correct explanation of Assertion (A).",
+    options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
+    answer: "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).",
     solutionSteps: ["Correct option: (a) Both, Assertion (A) and Reason (R) are true and Reason (R) is correct explanation of Assertion (A).."],
     finalAnswer: "(a) Both, Assertion (A) and Reason (R) are true and Reason (R) is correct explanation of Assertion (A).",
     ncertRef: "PYQ 30(B) Q19", isCompetencyBased: true,

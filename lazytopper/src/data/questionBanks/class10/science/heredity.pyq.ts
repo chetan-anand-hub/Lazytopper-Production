@@ -11,7 +11,7 @@ export const HEREDITY_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-S-HERED-001", subject: "Science", topicKey: "heredity", subtopic: "Mendelian Crosses", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Consider the following two statements : (i) The trait that expresses itself in F1 generation. (ii) The trait that keeps on passing from one generation to another. The appropriate terms for the statements (i) and (ii) respectively are :",
     options: ["Recessive trait, Dominant trait", "Dominant trait, Recessive trait", "Dominant trait, Inherited trait", "Recessive trait, Inherited trait"],
-    answer: "c) 1 1",
+    answer: "Dominant trait, Inherited trait",
     solutionSteps: ["c) 1 1"],
     finalAnswer: "c) 1 1",
     ncertRef: "PYQ 31/5/1 Q10", isCompetencyBased: true,

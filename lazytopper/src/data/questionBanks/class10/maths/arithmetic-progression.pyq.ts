@@ -11,7 +11,7 @@ export const ARITHMETIC_PROGRESSION_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-AP-001", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The common difference of the A.P. whose nth term is given by an = 3n + 7, is :",
     options: ["7", "3", "3n", "1"],
-    answer: "3 1",
+    answer: "3",
     solutionSteps: ["Correct option: (b) 3 1."],
     finalAnswer: "(b) 3 1",
     ncertRef: "PYQ 30/5/1 Q3", isCompetencyBased: true,

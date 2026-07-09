@@ -12,7 +12,7 @@ export const magneticEffectsPYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-MAG-001", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Bar Magnet", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The current carrying device which produces a magnetic field similar to that of a bar magnet is :",
     options: ["A straight conductor", "A circular loop", "A solenoid", "A circular coil"],
-    answer: "While evaluating the answer books if the answer is found to be totally incorrect, it should be marked as cross (X) and awarded zero (0)Marks.",
+    answer: "A solenoid",
     solutionSteps: ["While evaluating the answer books if the answer is found to be totally incorrect, it should be marked as cross (X) and awarded zero (0)Marks."],
     finalAnswer: "While evaluating the answer books if the answer is found to be totally incorrect, it should be marked as cross (X) and awarded zero (0)Marks.",
     ncertRef: "PYQ 31/5/1 Q14", isCompetencyBased: true,
