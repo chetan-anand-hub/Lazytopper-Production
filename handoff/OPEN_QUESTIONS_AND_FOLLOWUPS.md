@@ -1,3 +1,15 @@
+## 2026-07-09 — Worksheet BUILDER redesign merged (#349, `b4f2162`)
+
+### 🆕 NEW FOLLOW-UPS (all being fixed in the dispatched-separately follow-up PR)
+- **[FU-MI-SCOPE-RELATIVE]** — MI enrichment currently compares one GLOBAL hotspot to the chosen scope (`canEnrich = hotspotInScope`, `WorksheetGenerator.tsx` ~L240), so a student WITH MI data sees a locked box, and the locked copy falsely says "Grade a worksheet or use Check & Improve first". MI must be computed WITHIN the selected scope. Fixed in the follow-up PR.
+- **[FU-MI-ENRICH-WITHIN-TOPIC]** — `worksheetModel.ts` (~L232/L245) defines MI re-weight as a boost to the weak TOPIC, i.e. cross-topic only. Single-topic worksheets therefore can't enrich today. Within-topic enrichment (weight toward the sections / question-types / mark-bands where the student loses marks) is the real unlock — conditional on MI storing sub-topic granularity; the follow-up PR investigates and either builds or flags it.
+- **[FU-BUILDER-PREVIEW-AFFORDANCE]** — the action bar (`.lt-ws__sticky`, ~L730) is mobile-only, so DESKTOP users must scroll back to the hero to preview after customising. Fixed in the follow-up PR.
+
+### ℹ️ NOTE — closes 2 of the 3 owner-found worksheet bugs from #344
+- The 3 owner-found worksheet bugs logged post-#344 are now resolved across two PRs: **#349 fixes PDF filename (FIX D) + history placement (FIX B)**; **#348 fixed grader MCQ all-or-nothing**. The [FU-MI-*] items above are NEW, surfaced during #349 review — refinements to the shipped redesign, not #349 regressions.
+
+---
+
 ## 2026-07-09 — Uniform OBJECTIVE (MCQ/AR) scoring merged (#348, `27eaa8f`)
 
 ### 🆕 NEW FOLLOW-UPS
