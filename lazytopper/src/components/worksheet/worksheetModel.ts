@@ -242,8 +242,18 @@ export interface WorksheetPlanParams {
   sections?: string[]; // undefined = all sections
   difficulty?: DifficultyChoice;
   requested: number;
-  /** Weak-topic slug to boost when MI-enrich is on (must be in `topics`). */
+  /** Weak-topic slug to boost when MI-enrich is on (must be in `topics`). Drives the
+   *  cross-TOPIC re-weight (multi-topic / full-subject scope). */
   miBoostTopicKey?: string | null;
+  /**
+   * FIX A — WITHIN-topic section skew (single-topic scope): CBSE section letter →
+   * draw-weight multiplier (≥1) for the student's weak sections, from the derived
+   * Mistake-Intelligence selector (worksheetMiSelector.sectionBoostsFor). ADDITIVE:
+   * when present it biases each topic's own draw toward the boosted sections (capped
+   * at real per-section availability — never fabricated); when absent the draw is the
+   * original uniform pool sample, so the cross-topic boost behaviour is unchanged.
+   */
+  sectionBoosts?: Record<string, number> | null;
 }
 
 export interface WorksheetPlan {
@@ -253,6 +263,9 @@ export interface WorksheetPlan {
   totalAllocated: number;
   /** Unique pools per topic key (already filtered) — reused for generation. */
   pools: Map<string, PracticeQuestion[]>;
+  /** FIX A — within-topic section-skew weights carried onto the plan so
+   *  generateFromPlan can bias each topic's draw (null / absent = uniform draw). */
+  sectionBoosts?: Record<string, number> | null;
 }
 
 const POOL_OVERSAMPLE = 999;
@@ -305,7 +318,14 @@ export function planWorksheet(params: WorksheetPlanParams): WorksheetPlan {
   const totalAvailable = inputs.reduce((s, r) => s + r.available, 0);
   const totalAllocated = rows.reduce((s, r) => s + r.allocated, 0);
 
-  return { rows, requested: params.requested, totalAvailable, totalAllocated, pools };
+  return {
+    rows,
+    requested: params.requested,
+    totalAvailable,
+    totalAllocated,
+    pools,
+    sectionBoosts: params.sectionBoosts ?? null,
+  };
 }
 
 // ── PR-A: worksheet nomenclature (code + friendly name) ──────────────────────
@@ -450,20 +470,80 @@ function shuffleInPlace<T>(arr: T[]): T[] {
   return arr;
 }
 
+/** Does this boost map actually raise any section above the neutral 1.0? */
+function hasEffectiveBoost(sectionBoosts?: Record<string, number> | null): boolean {
+  return !!sectionBoosts && Object.values(sectionBoosts).some((w) => Number(w) > 1);
+}
+
+/**
+ * FIX A — order a single topic's pool so that taking the first `allocated` questions
+ * yields a section mix skewed toward the boosted (weak) sections. Reuses the tested
+ * `allocateCounts` over the pool's SECTIONS: each section's base weight is its natural
+ * share of the pool (so with no boost the mix ≈ the pool's own composition) times its
+ * boost multiplier; the allocation is capped at each section's REAL availability, so
+ * the skew is honest — a weak section with no questions in the filtered pool simply
+ * contributes nothing (never fabricated). Sections not present in the pool are absent.
+ * Returns the pool reordered as [skewed head … remainder], both internally shuffled.
+ */
+function orderPoolBySectionBoost(
+  pool: PracticeQuestion[],
+  allocated: number,
+  sectionBoosts: Record<string, number>,
+): PracticeQuestion[] {
+  const bySection = new Map<string, PracticeQuestion[]>();
+  for (const q of pool) {
+    const s = String(q.section || "").toUpperCase();
+    const arr = bySection.get(s);
+    if (arr) arr.push(q);
+    else bySection.set(s, [q]);
+  }
+  if (bySection.size <= 1) return shuffleInPlace([...pool]); // nothing to skew between
+  for (const arr of bySection.values()) shuffleInPlace(arr);
+
+  const total = pool.length || 1;
+  const inputs: TopicAllocInput[] = [...bySection.entries()].map(([s, arr]) => ({
+    key: s,
+    label: s,
+    weight: (arr.length / total) * (Number(sectionBoosts[s]) > 0 ? Number(sectionBoosts[s]) : 1),
+    available: arr.length,
+  }));
+  const alloc = allocateCounts(inputs, allocated);
+
+  const head: PracticeQuestion[] = [];
+  const tail: PracticeQuestion[] = [];
+  for (const row of alloc) {
+    const arr = bySection.get(row.key) ?? [];
+    head.push(...arr.slice(0, row.allocated));
+    tail.push(...arr.slice(row.allocated));
+  }
+  // head.length === min(allocated, total), so taking the first `allocated` from the
+  // returned list yields exactly the boosted per-section counts.
+  return [...shuffleInPlace(head), ...shuffleInPlace(tail)];
+}
+
 /**
  * Generate the worksheet question set from a plan: take exactly `allocated`
  * unique questions per topic (randomly chosen from that topic's pool), dedupe
  * across topics by id, then shuffle the combined set so it is not clumped by
  * topic. The output length equals the plan's totalAllocated == the shown count.
+ *
+ * When the plan carries `sectionBoosts` (single-topic within-topic enrichment), each
+ * topic's draw is skewed toward the boosted sections via `orderPoolBySectionBoost`;
+ * otherwise the draw is the original uniform pool sample (cross-topic behaviour
+ * unchanged).
  */
 export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
+  const boost = hasEffectiveBoost(plan.sectionBoosts);
   const seen = new Set<string>();
   const collected: PracticeQuestion[] = [];
   for (const row of plan.rows) {
     if (row.allocated <= 0) continue;
-    const pool = shuffleInPlace([...(plan.pools.get(row.key) ?? [])]);
+    const basePool = plan.pools.get(row.key) ?? [];
+    const ordered = boost
+      ? orderPoolBySectionBoost(basePool, row.allocated, plan.sectionBoosts as Record<string, number>)
+      : shuffleInPlace([...basePool]);
     let taken = 0;
-    for (const q of pool) {
+    for (const q of ordered) {
       if (taken >= row.allocated) break;
       if (seen.has(q.id)) continue;
       seen.add(q.id);
