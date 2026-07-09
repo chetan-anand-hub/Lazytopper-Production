@@ -39,6 +39,20 @@ function slug(s: string): string {
   return out || "worksheet";
 }
 
+/**
+ * FIX D — the unique worksheet CODE (e.g. `WS-M-MIX-04`) as a filename segment, so
+ * every worksheet of a topic downloads under a DISTINCT name (slug(title) alone is
+ * identical for every worksheet of a topic). The code is already filename-safe
+ * (`[A-Za-z0-9-]`); case is preserved so it matches the code printed on the sheet.
+ * Returns "" when no code is available so the download falls back to the old name
+ * rather than crashing.
+ */
+function codeToken(code: string | undefined | null): string {
+  if (!code) return "";
+  const t = String(code).replace(/[^A-Za-z0-9-]+/g, "").replace(/(^-|-$)/g, "");
+  return t ? `${t}-` : "";
+}
+
 async function waitForRenderReady(): Promise<void> {
   // Fonts (Inter / Fraunces / KaTeX) must be loaded so symbols rasterise crisply.
   try {
@@ -152,7 +166,7 @@ export async function exportWorksheetPdf(
   code?: string,
 ): Promise<string> {
   const suffix = kind === "answers" ? "answer-key" : "questions";
-  const filename = `lazytopper-${slug(ws.title)}-${suffix}.pdf`;
+  const filename = `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
   return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind, code }), filename);
 }
 
@@ -170,7 +184,7 @@ export async function exportGradedWorksheetPdf(args: {
   coaching: string;
 }): Promise<string> {
   const { ws, response, name, code, coaching } = args;
-  const filename = `lazytopper-${slug(name || ws.title)}-graded.pdf`;
+  const filename = `lazytopper-${slug(name || ws.title)}-${codeToken(code)}graded.pdf`;
   return renderElementToPdf(
     createElement(WorksheetGradedPrintDoc, { ws, response, name, code, coaching }),
     filename,

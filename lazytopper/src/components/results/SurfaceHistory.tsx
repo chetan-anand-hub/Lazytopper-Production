@@ -47,6 +47,12 @@ const SUBJECTS: SessionSubject[] = ["maths", "science"];
 interface SurfaceHistoryProps {
   surface: SessionSurface;
   uid: string | null | undefined;
+  /** Rendered inside the worksheet history OVERLAY panel (FIX B): the panel supplies
+   *  the heading + padding, so drop this component's own header and top margin. The
+   *  rows, dot-strip, pill, trend chip and read-only scorecard re-open are unchanged. */
+  embedded?: boolean;
+  /** Show only ungraded rows (status ≠ graded) — the pending banner's "See all N →". */
+  pendingOnly?: boolean;
 }
 
 function formatDate(ms: number): string {
@@ -122,12 +128,15 @@ function TrendChip({ subject, trend }: { subject: SessionSubject; trend: Progres
   );
 }
 
-export default function SurfaceHistory({ surface, uid }: SurfaceHistoryProps) {
+export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: SurfaceHistoryProps) {
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   const [downloading, setDownloading] = useState(false);
   const downloadingRef = useRef(false);
 
-  const records = useMemo(() => getSurfaceHistory(surface, uid), [surface, uid]);
+  const records = useMemo(() => {
+    const all = getSurfaceHistory(surface, uid);
+    return pendingOnly ? all.filter((r) => r.status !== "graded") : all;
+  }, [surface, uid, pendingOnly]);
 
   // C2 — honest "vs last time": one subject-level trend, attached to the newest row of
   // each subject (the freshest, peak-motivation moment). Honest-or-silent.
@@ -177,17 +186,20 @@ export default function SurfaceHistory({ surface, uid }: SurfaceHistoryProps) {
   );
 
   const copy = SURFACE_COPY[surface];
+  const emptyText = pendingOnly ? "No worksheets are awaiting your answer sheet." : copy.empty;
 
   return (
-    <section className="lt-sh" aria-label={copy.heading}>
+    <section className={`lt-sh${embedded ? " lt-sh--embedded" : ""}`} aria-label={copy.heading}>
       <style>{SH_CSS}</style>
-      <div className="lt-sh__head">
-        <h2 className="lt-sh__h">{copy.heading}</h2>
-        {records.length > 0 && <span className="lt-sh__count">{records.length}</span>}
-      </div>
+      {!embedded && (
+        <div className="lt-sh__head">
+          <h2 className="lt-sh__h">{copy.heading}</h2>
+          {records.length > 0 && <span className="lt-sh__count">{records.length}</span>}
+        </div>
+      )}
 
       {records.length === 0 ? (
-        <div className="lt-sh__empty">{copy.empty}</div>
+        <div className="lt-sh__empty">{emptyText}</div>
       ) : (
         <ul className="lt-sh__list">
           {records.map((r) => {
@@ -258,6 +270,8 @@ const SH_CSS = `
   color: var(--sh-fg);
   margin-top: 28px;
 }
+/* FIX B — inside the overlay panel the container supplies the header + padding. */
+.lt-sh--embedded { margin-top: 0; }
 .lt-sh__head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
 .lt-sh__h { font-family: var(--sh-fd); font-weight: 700; font-size: 19px; margin: 0; color: var(--sh-navy); }
 .lt-sh__count {

@@ -18,39 +18,45 @@ import {
   mintWorksheetId,
   saveWorksheetSession,
   listStoredWorksheetsLite,
+  getWorksheetSession,
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
-import { ensureWorksheetSessionCode } from "../../services/sessionRecords";
+import { ensureWorksheetSessionCode, type SessionRecord } from "../../services/sessionRecords";
+import { getSurfaceHistory } from "../../services/progressStore";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 import WorksheetGradePanel from "./WorksheetGradePanel";
-import SurfaceHistory from "../results/SurfaceHistory";
+import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
+import WorksheetPendingBanner from "./WorksheetPendingBanner";
 
 /**
- * WorksheetGenerator — PR-E2a: ONE responsive worksheet generator that replaces
- * the desktop + mobile twins (DesktopWorksheetsPage 2278ln + app/Worksheets
- * 509ln). Built to the locked prototype
- * (docs/design/worksheet_generator_LOCKED_prototype_2026-06-20.html) and spec:
+ * WorksheetGenerator — the ONE responsive worksheet builder. Redesigned to the
+ * LOCKED "A · Smart default" prototype (LazyTopper_WorksheetFlow_endtoend_prototype_
+ * 2026-07-08.html):
  *
- *   • Progressive disclosure — Subject → Scope → Topic(s) → Build mode → compact
- *     preview → Generate, all on one screen.
- *   • Presets PRIMARY; Custom filters TUCKED behind a quiet link.
- *   • Live distribution preview (even / board-weightage / MI-weighted) with HONEST
- *     counts — the shown number is exactly what generation produces.
- *   • Deleted topics never offered (worksheetModel.getTopics).
- *   • Two SEPARATE downloads (questions PDF + answer-key PDF) on Generate.
- *   • The generated question-set + marking schemes persist by worksheetId so the
- *     PR-E2b grade loop can grade later.
+ *   • BUILD view — a smart-default HERO ("Board exam mix · {Topic}") carrying the
+ *     REAL chip line (count · sections · difficulty · marks) next to a primary
+ *     "Preview worksheet →". Every other control (subject / scope / topic / build
+ *     mode / advanced custom filters) is progressively disclosed behind "Customise"
+ *     — nothing is removed, just pre-set to the sensible default. MI personalisation
+ *     is one honest toggle (default ON when it can apply; OFF + disabled with an
+ *     honest hint otherwise — never a toggle that silently does nothing).
+ *   • PREVIEW step (new) — the exact drawn set shown BEFORE anything is created: a
+ *     proportional section bar + per-section counts/marks, the (computed, never
+ *     fabricated) enrichment callout, 3 real sample questions, an honest bank-shortfall
+ *     line, and Generate / Change settings / Shuffle.
+ *   • GENERATED view — UNCHANGED (download buttons + <WorksheetGradePanel>).
+ *   • History lives in a HEADER CONTROL + overlay panel (FIX B); a pending banner
+ *     (FIX C) deep-links ungraded worksheets to their upload flow.
  *
- * Class-driven styling via a single scoped <style> block with a pure-CSS
+ * ONE responsive component, class-driven scoped styling with a pure-CSS
  * @media(max-width:1023px) reflow — SAME markup desktop → 360px, no inline style
- * objects, no JS width branch (the ConceptSpine grammar pattern). The page is
- * shell-agnostic: App wraps it in DesktopShell at desktop width and the global
- * mobile BottomNav handles mobile nav (same convention as ExamTrendsRanked /
- * DesktopTopicHubPage).
+ * objects, no JS width branch. Honest counts throughout: the number shown is exactly
+ * the number generated (the preview IS the set that Generate persists).
  */
 
 type Mode = "preset" | "custom";
+type View = "build" | "preview" | "generated";
 
 interface PresetConfig {
   key: string;
@@ -76,6 +82,13 @@ const SECTION_MARK_LABEL: Record<SectionId, string> = {
   C: "C · Short II (3m)",
   D: "D · Long (5m)",
   E: "E · Case (4m)",
+};
+const SECTION_NAME: Record<SectionId, string> = {
+  A: "MCQ / AR",
+  B: "Short I",
+  C: "Short II",
+  D: "Long",
+  E: "Case study",
 };
 const DIFFICULTIES: DifficultyChoice[] = ["All", "Easy", "Medium", "Hard"];
 
@@ -129,26 +142,23 @@ function safeInternalReturnTo(value: string | null | undefined): string | null {
   return value;
 }
 
+/** Round a fraction (0..1) to a 5%-step width for the class-driven section bar. */
+function widthStep(fraction: number): number {
+  return Math.max(0, Math.min(100, Math.round(fraction * 20) * 5));
+}
+
 export default function WorksheetGenerator() {
   const { user } = useAuth();
   const ctx = useSubjectContext();
   const location = useLocation();
 
-  // FIX 3 — origin-aware back navigation. The worksheet path carries `returnTo`
-  // from its caller (e.g. TopicActions → buildDesktopWorksheetPath, which sets
-  // returnTo). Honor it (validated) so "Back" returns where the student came from
-  // — on BOTH the build and the in-place generated view — instead of always the
-  // generic practice hub. Default to /practice-hub when no safe origin is given.
+  // Origin-aware back navigation (validated returnTo; default practice hub).
   const backHref = useMemo(() => {
     const rt = new URLSearchParams(location.search).get("returnTo");
     return safeInternalReturnTo(rt) ?? "/practice-hub";
   }, [location.search]);
   const backLabel = backHref === "/practice-hub" ? "Back to Practice" : "Back";
 
-  // Item 3 — MI personalisation needs a real (non-local) signed-in account that
-  // has recorded mistakes. Distinguish "signed out" (→ route to login, returning
-  // here after) from "signed in but no in-scope hotspot yet" (→ explain how to
-  // unlock), so the locked state never dead-ends or misleads.
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const loginHref = `/login?reason=mistake-aware&redirect=${encodeURIComponent(
     location.pathname + location.search,
@@ -165,19 +175,28 @@ export default function WorksheetGenerator() {
 
   const [mode, setMode] = useState<Mode>("preset");
   const [preset, setPreset] = useState<string>("board-mix");
-  const [showCustom, setShowCustom] = useState(false);
+  const [showCustom, setShowCustom] = useState(false); // Advanced (custom filters) inside the drawer
   const [customSections, setCustomSections] = useState<SectionId[]>([...ALL_SECTIONS]);
   const [customDifficulty, setCustomDifficulty] = useState<DifficultyChoice>("All");
   const [customCount, setCustomCount] = useState(20);
-  const [miEnrich, setMiEnrich] = useState(false);
+  // MI personalisation defaults ON — it only takes effect when it can apply
+  // (canEnrich), so a default-ON toggle never silently does nothing.
+  const [miEnrich, setMiEnrich] = useState(true);
+  const [customiseOpen, setCustomiseOpen] = useState(false);
 
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [view, setView] = useState<"build" | "generated">("build");
+  const [view, setView] = useState<View>("build");
+  const [drawNonce, setDrawNonce] = useState(0); // bumped by Shuffle to redraw the candidate
   const [generated, setGenerated] = useState<PersistedWorksheet | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
-  // E2a.2 — which PDF (if any) is currently being generated for download.
   const [downloading, setDownloading] = useState<"questions" | "answers" | null>(null);
+
+  // History (FIX B) + pending banner (FIX C) state.
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyPendingOnly, setHistoryPendingOnly] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [historyNonce, setHistoryNonce] = useState(0);
 
   // Keep single/multi selections valid when the visible catalogue changes.
   const topicKeysSig = topics.map((t) => t.key).join(",");
@@ -256,13 +275,83 @@ export default function WorksheetGenerator() {
   }, [scope, topics, singleTopic, inScopeTopics, subject, stream]);
 
   const modeLabel = usingCustom ? "Custom filters" : activePreset.label;
-  const totalCount = plan?.totalAllocated ?? 0;
-  const shortfall = !!plan && plan.totalAllocated < effCount;
+
+  // ── THE CANDIDATE SET ────────────────────────────────────────────────────
+  // The single drawn set that the hero chips, the preview step, and Generate all
+  // read — so every number shown is exactly the number generated (honest counts).
+  // Redrawn only when the plan-affecting inputs change or Shuffle bumps drawNonce.
+  const candidate: PersistedWorksheetQuestion[] = useMemo(() => {
+    if (blocker || !plan) return [];
+    const labelFor = (key: string) => topics.find((t) => t.key === key)?.label ?? key;
+    const ordered = [...generateFromPlan(plan)].sort(
+      (a, b) => (SECTION_RANK[a.section] ?? 9) - (SECTION_RANK[b.section] ?? 9),
+    );
+    return ordered.map((q, i) => ({
+      qNumber: i + 1,
+      id: q.id,
+      subject: String(q.subject),
+      topicKey: q.topicKey,
+      topicLabel: labelFor(q.topicKey),
+      section: String(q.section || "").toUpperCase(),
+      marks: Number(q.marks) || 1,
+      questionText: q.questionText,
+      options: q.options,
+      solutionSteps: q.solutionSteps,
+      finalAnswer: q.finalAnswer,
+      answer: q.answer,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan, blocker, drawNonce]);
+
+  const totalCount = candidate.length;
+  const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
+  const shortfall = totalCount > 0 && totalCount < effCount;
+  const noQuestions = !blocker && totalCount === 0;
+
+  // Per-section breakdown of the candidate (real counts + marks).
+  const previewSections = useMemo(() => {
+    const agg = new Map<string, { count: number; marks: number }>();
+    for (const q of candidate) {
+      const s = q.section;
+      const cur = agg.get(s) ?? { count: 0, marks: 0 };
+      cur.count += 1;
+      cur.marks += q.marks;
+      agg.set(s, cur);
+    }
+    return ALL_SECTIONS.filter((s) => agg.has(s)).map((s) => ({ section: s, ...agg.get(s)! }));
+  }, [candidate]);
+
+  // 3 real sample questions, spread across the ordered set.
+  const previewSamples = useMemo(() => {
+    const n = candidate.length;
+    if (n === 0) return [];
+    if (n <= 3) return candidate;
+    const picks = Array.from(new Set([0, Math.floor(n / 2), n - 1]));
+    return picks.map((i) => candidate[i]);
+  }, [candidate]);
+
+  // Enrichment count — how many drawn questions come from the weak (boosted) topic.
+  // Computed from the real set; zero (and the callout omitted) when enrich is off.
+  const enrichCount = useMemo(() => {
+    if (!miBoostTopicKey || !hotspot) return 0;
+    return candidate.filter((q) => q.topicKey === hotspot.key).length;
+  }, [candidate, miBoostTopicKey, hotspot]);
+
+  // ── History + pending (FIX B/C) ──────────────────────────────────────────
+  const records = useMemo(
+    () => getSurfaceHistory("worksheet", user?.uid),
+    // recompute when returning from a grade (view change) or after opening the panel
+    [user?.uid, view, historyNonce],
+  );
+  const pending = useMemo(
+    () => records.filter((r) => r.status === "pending-upload" || r.status === "partial"),
+    [records],
+  );
 
   function switchSubject(s: LTSubjectKey) {
     setSubject(s);
     if (s === "Maths") setStream("All");
-    setMiEnrich(false);
+    setMiEnrich(true);
   }
   function toggleSection(id: SectionId) {
     setCustomSections((prev) => {
@@ -279,40 +368,34 @@ export default function WorksheetGenerator() {
     setShowCustom(false);
   }
 
-  function handleGenerate() {
+  function handlePreview() {
     setError(null);
     setDownloadError(null);
     if (blocker) {
       setError(blocker);
       return;
     }
+    if (totalCount === 0) {
+      setError(`No questions match ${sectionScopeLabel(effSections)} in this scope. Widen the section filter, or pick "Board exam mix".`);
+      return;
+    }
+    setView("preview");
+  }
+
+  function handleShuffle() {
+    setDrawNonce((n) => n + 1);
+  }
+
+  function handleGenerate() {
+    setError(null);
+    setDownloadError(null);
+    if (blocker || candidate.length === 0) {
+      setError(blocker ?? "No questions to generate. Change the settings and try again.");
+      return;
+    }
     setGenerating(true);
     try {
-      const p = plan ?? planWorksheet({ subject, scope, topics: inScopeTopics, sections: sectionsArg, difficulty: effDifficulty, requested: effCount, miBoostTopicKey });
-      const qs = generateFromPlan(p);
-      if (qs.length === 0) {
-        setError(`No questions found for ${sectionScopeLabel(effSections)} in this scope. Try a different topic, widen the section filter, or pick "Board exam mix".`);
-        setGenerating(false);
-        return;
-      }
-      // Order by section A→E for numbering + PDF grouping.
-      const ordered = [...qs].sort((a, b) => (SECTION_RANK[a.section] ?? 9) - (SECTION_RANK[b.section] ?? 9));
-      const labelFor = (key: string) => topics.find((t) => t.key === key)?.label ?? key;
-      const questions: PersistedWorksheetQuestion[] = ordered.map((q, i) => ({
-        qNumber: i + 1,
-        id: q.id,
-        subject: String(q.subject),
-        topicKey: q.topicKey,
-        topicLabel: labelFor(q.topicKey),
-        section: String(q.section || "").toUpperCase(),
-        marks: Number(q.marks) || 1,
-        questionText: q.questionText,
-        options: q.options,
-        solutionSteps: q.solutionSteps,
-        finalAnswer: q.finalAnswer,
-        answer: q.answer,
-      }));
-      const totalMarks = questions.reduce((s, q) => s + q.marks, 0);
+      const questions = candidate;
       const ws: PersistedWorksheet = {
         worksheetId: mintWorksheetId(),
         createdAt: new Date().toISOString(),
@@ -320,7 +403,7 @@ export default function WorksheetGenerator() {
         subject: String(subject),
         grade: "10",
         sectionFilter: sectionScopeLabel(effSections),
-        totalMarks,
+        totalMarks: questions.reduce((s, q) => s + q.marks, 0),
         questions,
       };
       saveWorksheetSession(ws);
@@ -338,8 +421,8 @@ export default function WorksheetGenerator() {
     setDownloadError(null);
     setDownloading(kind);
     try {
-      // PR-1 — mint (once) the DURABLE session code and print it on the sheet, so
-      // each solved worksheet carries the same ID it will later be graded under.
+      // Mint (once) the DURABLE session code and print it on the sheet, so each
+      // solved worksheet carries the same ID it will later be graded under.
       // Best-effort: a code-mint miss must never block the download.
       let code: string | undefined;
       try {
@@ -347,16 +430,34 @@ export default function WorksheetGenerator() {
       } catch {
         /* keep downloading without a code rather than fail the PDF */
       }
-      // Renders the worksheet (real math via MathText/KaTeX) into a detached
-      // offscreen node and rasterises it into a jsPDF FILE — worksheet only,
-      // never the app page. The persisted `generated.questions` array is the
-      // single source, so the PDF count matches the header count exactly.
       await exportWorksheetPdf(generated, kind, code);
     } catch {
       setDownloadError("Couldn’t build the PDF — please try again.");
     } finally {
       setDownloading(null);
     }
+  }
+
+  // FIX C deep-link — re-open a pending worksheet in the (unchanged) generated view
+  // so its EXISTING WorksheetGradePanel handles the upload; re-grading attaches to the
+  // same session record (frozen-code idempotency, #338), never creating a new one.
+  function openUploadFor(record: SessionRecord) {
+    const ws = getWorksheetSession(record.worksheetId);
+    if (ws) {
+      setGenerated(ws);
+      setView("generated");
+      return;
+    }
+    // The stored worksheet was evicted from the local ring buffer — fall back to the
+    // history panel (its row still re-opens the stored read-only scorecard).
+    setHistoryPendingOnly(true);
+    setHistoryOpen(true);
+  }
+
+  function openHistory(pendingOnly = false) {
+    setHistoryPendingOnly(pendingOnly);
+    setHistoryNonce((n) => n + 1); // fresh read on open
+    setHistoryOpen(true);
   }
 
   // ── Generated-state derived breakdowns (real counts) ──────────────────────
@@ -369,17 +470,30 @@ export default function WorksheetGenerator() {
 
   const maxAlloc = plan ? Math.max(1, ...plan.rows.map((r) => r.allocated)) : 1;
 
+  // The header history control renders across build + preview (shared chrome).
+  const historyControl = (
+    <button type="button" className="lt-ws__histbtn" onClick={() => openHistory(false)}>
+      <span className="lt-ws__histmain">Your worksheets</span>
+      <span className="lt-ws__histcnt">· {records.length}</span>
+      {pending.length > 0 && <span className="lt-ws__histawait">{pending.length} awaiting</span>}
+      <span className="lt-ws__histcaret" aria-hidden="true">⌄</span>
+    </button>
+  );
+
   return (
     <div className="lt-ws">
       <style>{WS_CSS}</style>
 
-      {/* FIX (Item 3) — view-aware Back: on the generated view, Back returns to
-          the generator (same component, build-form state intact), NOT to the
-          returnTo origin; on the build view it follows returnTo (default hub). */}
+      {/* View-aware Back: generated/preview return within the component; build follows returnTo. */}
       {view === "generated" ? (
         <button type="button" className="lt-ws__back" onClick={() => setView("build")}>
           <span aria-hidden="true">←</span>
           <span>Back to generator</span>
+        </button>
+      ) : view === "preview" ? (
+        <button type="button" className="lt-ws__back" onClick={() => setView("build")}>
+          <span aria-hidden="true">←</span>
+          <span>Back to builder</span>
         </button>
       ) : (
         <Link to={backHref} className="lt-ws__back">
@@ -388,104 +502,165 @@ export default function WorksheetGenerator() {
         </Link>
       )}
 
-      {view === "build" ? (
+      {view === "build" && (
         <>
           <header className="lt-ws__head">
-            <div className="lt-ws__crumb">Practice · Worksheet</div>
-            <h1 className="lt-ws__title">What worksheet do you want?</h1>
-            <p className="lt-ws__lead">Pick what to cover and a build mode. Nothing generates until you press Generate — the preview shows exactly what will come out.</p>
+            <div className="lt-ws__headrow">
+              <div className="lt-ws__headtx">
+                <div className="lt-ws__crumb">Practice · Worksheet</div>
+                <h1 className="lt-ws__title">{scopeLabel} worksheet</h1>
+                <p className="lt-ws__lead">A board-pattern worksheet, ready to generate. Solve on paper, upload, get it graded.</p>
+              </div>
+              {historyControl}
+            </div>
           </header>
 
-          <div className="lt-ws__grid">
-            {/* LEFT — build column */}
-            <div className="lt-ws__build">
-              {/* What to cover */}
-              <section className="lt-ws__card">
-                <h2 className="lt-ws__ct">What to cover</h2>
+          {pending.length > 0 && !bannerDismissed && (
+            <WorksheetPendingBanner
+              pending={pending}
+              onUpload={openUploadFor}
+              onSeeAll={() => openHistory(true)}
+              onDismiss={() => setBannerDismissed(true)}
+            />
+          )}
 
+          {/* ── Smart-default hero ─────────────────────────────────────────── */}
+          <section className="lt-ws__hero">
+            <div className="lt-ws__herotop">
+              <h2 className="lt-ws__heroh">{modeLabel} · {scopeLabel}</h2>
+              <p className="lt-ws__herosub">The default most students want — a full board-pattern set across every section.</p>
+              <div className="lt-ws__herochips">
+                <span className="lt-ws__pvchip lt-ws__pvchip--count">{totalCount} question{totalCount === 1 ? "" : "s"}</span>
+                <span className="lt-ws__pvchip">{sectionScopeLabel(effSections)}</span>
+                <span className="lt-ws__pvchip">{effDifficulty === "All" ? "All difficulty" : effDifficulty}</span>
+                {totalMarks > 0 && <span className="lt-ws__pvchip lt-ws__pvchip--n">{totalMarks} marks</span>}
+              </div>
+            </div>
+            <div className="lt-ws__herobot">
+              <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+                Preview worksheet →
+              </button>
+              <button type="button" className="lt-ws__btnt" onClick={() => setCustomiseOpen((o) => !o)} aria-expanded={customiseOpen}>
+                {customiseOpen ? "Done customising" : "Customise"}
+              </button>
+            </div>
+          </section>
+
+          {/* MI personalise — one honest toggle. Default ON where it can apply; a
+              sign-in CTA when signed out; OFF + disabled with an honest hint when
+              there is nothing to weight toward (never a no-op toggle). */}
+          <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
+            <div className="lt-ws__mi-title"><span aria-hidden="true">⚡</span> Personalise this worksheet</div>
+            {!isSignedIn ? (
+              <>
+                <p className="lt-ws__mi-hint">Weight it toward the topics you&rsquo;ve lost the most marks on (from your Mistake Intelligence).</p>
+                <Link to={loginHref} className="lt-ws__mi-cta">Sign in to personalise →</Link>
+              </>
+            ) : canEnrich ? (
+              <>
+                <label className="lt-ws__mi-toggle">
+                  <input
+                    type="checkbox"
+                    className="lt-ws__mi-check"
+                    checked={miEnrich}
+                    onChange={(e) => setMiEnrich(e.target.checked)}
+                  />
+                  <span className="lt-ws__mi-toggletext">
+                    Enrich from my weak areas — weight toward <strong>{hotspot?.label}</strong>.
+                  </span>
+                </label>
+                <p className="lt-ws__mi-hint">Weighted by your Mistake Intelligence — leans toward the topics you&rsquo;ve lost the most marks on.</p>
+              </>
+            ) : (
+              <p className="lt-ws__mi-hint">
+                Grade a worksheet or use Check &amp; Improve first — then pick a multi-topic or full-subject scope, and this focuses the worksheet on the topics you&rsquo;ve lost the most marks on.
+              </p>
+            )}
+          </div>
+
+          {/* ── Customise drawer (progressive disclosure) ──────────────────── */}
+          {customiseOpen && (
+            <section className="lt-ws__drawer">
+              <div className="lt-ws__field">
+                <div className="lt-ws__lbl">Subject</div>
+                <div className="lt-ws__seg">
+                  {(["Maths", "Science"] as LTSubjectKey[]).map((s) => (
+                    <button key={s} type="button" className={`lt-ws__segbtn${subject === s ? " on" : ""}`} onClick={() => switchSubject(s)}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {subject === "Science" && (
                 <div className="lt-ws__field">
-                  <div className="lt-ws__lbl">Subject</div>
+                  <div className="lt-ws__lbl">Stream</div>
                   <div className="lt-ws__seg">
-                    {(["Maths", "Science"] as LTSubjectKey[]).map((s) => (
-                      <button key={s} type="button" className={`lt-ws__segbtn${subject === s ? " on" : ""}`} onClick={() => switchSubject(s)}>
-                        {s}
+                    {(["All", "Physics", "Chemistry", "Biology"] as ScienceStream[]).map((st) => (
+                      <button key={st} type="button" className={`lt-ws__segbtn${stream === st ? " on" : ""}`} onClick={() => setStream(st)}>
+                        {st}
                       </button>
                     ))}
                   </div>
                 </div>
+              )}
 
-                {subject === "Science" && (
-                  <div className="lt-ws__field">
-                    <div className="lt-ws__lbl">Stream</div>
-                    <div className="lt-ws__seg">
-                      {(["All", "Physics", "Chemistry", "Biology"] as ScienceStream[]).map((st) => (
-                        <button key={st} type="button" className={`lt-ws__segbtn${stream === st ? " on" : ""}`} onClick={() => setStream(st)}>
-                          {st}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div className="lt-ws__field">
+                <div className="lt-ws__lbl">Scope</div>
+                <div className="lt-ws__seg">
+                  {(["topic", "multi-topic", "full-subject"] as PaperScope[]).map((sc) => (
+                    <button
+                      key={sc}
+                      type="button"
+                      className={`lt-ws__segbtn${scope === sc ? " on" : ""}`}
+                      onClick={() => {
+                        setScope(sc);
+                        if (sc === "multi-topic" && multiTopics.length === 0 && singleTopic) setMultiTopics([singleTopic]);
+                      }}
+                    >
+                      {sc === "topic" ? "Single topic" : sc === "multi-topic" ? "Multi-topic" : "Full subject"}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
+              {scope === "topic" && (
                 <div className="lt-ws__field">
-                  <div className="lt-ws__lbl">Scope</div>
-                  <div className="lt-ws__seg">
-                    {(["topic", "multi-topic", "full-subject"] as PaperScope[]).map((sc) => (
-                      <button
-                        key={sc}
-                        type="button"
-                        className={`lt-ws__segbtn${scope === sc ? " on" : ""}`}
-                        onClick={() => {
-                          setScope(sc);
-                          if (sc === "multi-topic" && multiTopics.length === 0 && singleTopic) setMultiTopics([singleTopic]);
-                        }}
-                      >
-                        {sc === "topic" ? "Single topic" : sc === "multi-topic" ? "Multi-topic" : "Full subject"}
+                  <div className="lt-ws__lbl">Topic</div>
+                  <select className="lt-ws__select" value={singleTopic} onChange={(e) => setSingleTopic(e.target.value)}>
+                    {topics.map((t) => (
+                      <option key={t.key} value={t.key}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {scope === "multi-topic" && (
+                <div className="lt-ws__field">
+                  <div className="lt-ws__lbl">Topics — pick one or more ({multiTopics.length} selected)</div>
+                  <div className="lt-ws__chips">
+                    {topics.map((t) => (
+                      <button key={t.key} type="button" className={`lt-ws__chip${multiTopics.includes(t.key) ? " on" : ""}`} onClick={() => toggleMulti(t.key)}>
+                        {t.label}
                       </button>
                     ))}
                   </div>
                 </div>
+              )}
 
-                {/* Topic picker */}
-                {scope === "topic" && (
-                  <div className="lt-ws__field">
-                    <div className="lt-ws__lbl">Topic</div>
-                    <select className="lt-ws__select" value={singleTopic} onChange={(e) => setSingleTopic(e.target.value)}>
-                      {topics.map((t) => (
-                        <option key={t.key} value={t.key}>{t.label}</option>
-                      ))}
-                    </select>
+              {scope === "full-subject" && (
+                <div className="lt-ws__field">
+                  <div className="lt-ws__lbl">Topics in scope ({topics.length})</div>
+                  <div className="lt-ws__chips lt-ws__chips--readonly">
+                    {topics.map((t) => (
+                      <span key={t.key} className="lt-ws__chip lt-ws__chip--static">{t.label}</span>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                {scope === "multi-topic" && (
-                  <div className="lt-ws__field">
-                    <div className="lt-ws__lbl">Topics — pick one or more ({multiTopics.length} selected)</div>
-                    <div className="lt-ws__chips">
-                      {topics.map((t) => (
-                        <button key={t.key} type="button" className={`lt-ws__chip${multiTopics.includes(t.key) ? " on" : ""}`} onClick={() => toggleMulti(t.key)}>
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {scope === "full-subject" && (
-                  <div className="lt-ws__field">
-                    <div className="lt-ws__lbl">Topics in scope ({topics.length})</div>
-                    <div className="lt-ws__chips lt-ws__chips--readonly">
-                      {topics.map((t) => (
-                        <span key={t.key} className="lt-ws__chip lt-ws__chip--static">{t.label}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
-
-              {/* Build mode */}
-              <section className="lt-ws__card">
-                <h2 className="lt-ws__ct">Build mode</h2>
+              <div className="lt-ws__field">
+                <div className="lt-ws__lbl">Build mode</div>
                 <div className="lt-ws__presets">
                   {PRESETS.map((p) => (
                     <button key={p.key} type="button" className={`lt-ws__preset${!usingCustom && preset === p.key ? " on" : ""}`} onClick={() => pickPreset(p.key)}>
@@ -497,155 +672,167 @@ export default function WorksheetGenerator() {
                     </button>
                   ))}
                 </div>
-
-                <button
-                  type="button"
-                  className="lt-ws__customlink"
-                  aria-expanded={usingCustom || showCustom}
-                  onClick={() => {
-                    const next = !(usingCustom || showCustom);
-                    setShowCustom(next);
-                    setMode(next ? "custom" : "preset");
-                  }}
-                >
-                  {usingCustom ? "▾" : "▸"} Custom filters — set your own sections, difficulty &amp; count
-                </button>
-
-                {usingCustom && (
-                  <div className="lt-ws__custom">
-                    <div className="lt-ws__field">
-                      <div className="lt-ws__lbl">Sections</div>
-                      <div className="lt-ws__chips">
-                        {ALL_SECTIONS.map((s) => (
-                          <button key={s} type="button" className={`lt-ws__chip${customSections.includes(s) ? " on" : ""}`} onClick={() => toggleSection(s)}>
-                            {SECTION_MARK_LABEL[s]}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="lt-ws__field">
-                      <div className="lt-ws__lbl">Difficulty</div>
-                      <div className="lt-ws__chips">
-                        {DIFFICULTIES.map((d) => (
-                          <button key={d} type="button" className={`lt-ws__chip${customDifficulty === d ? " on" : ""}`} onClick={() => setCustomDifficulty(d)}>
-                            {d}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="lt-ws__field">
-                      <div className="lt-ws__lbl">Question count: {customCount}</div>
-                      <input type="range" min={5} max={50} step={5} value={customCount} onChange={(e) => setCustomCount(Number(e.target.value))} className="lt-ws__range" />
-                    </div>
-                  </div>
-                )}
-
-              </section>
-            </div>
-
-            {/* RIGHT — compact preview */}
-            <aside className="lt-ws__previewwrap">
-              <div className="lt-ws__preview">
-                <div className="lt-ws__pvh">Will be generated</div>
-
-                <div className="lt-ws__pvchips">
-                  <span className="lt-ws__pvchip">{scope === "topic" ? "1 topic" : scope === "multi-topic" ? `${inScopeTopics.length} topics` : `${topics.length} topics`}</span>
-                  <span className="lt-ws__pvchip">{sectionScopeLabel(effSections)}</span>
-                  <span className="lt-ws__pvchip">{effDifficulty === "All" ? "All difficulty" : effDifficulty}</span>
-                  <span className="lt-ws__pvchip lt-ws__pvchip--count">{totalCount} Q</span>
-                </div>
-
-                {/* Distribution (multi / full only) */}
-                {plan && plan.rows.length > 1 && (
-                  <div className="lt-ws__pvbreak">
-                    <div className="lt-ws__bh">Distribution ({scope === "full-subject" ? "board weightage" : "even"}{miBoostTopicKey ? " · MI-weighted" : ""})</div>
-                    {plan.rows.filter((r) => r.allocated > 0).map((r) => (
-                      <div key={r.key} className="lt-ws__dist">
-                        <span className="lt-ws__distnm">{r.label}</span>
-                        <span className="lt-ws__distbar"><span className="lt-ws__distfill" data-w={Math.round((r.allocated / maxAlloc) * 20) * 5} /></span>
-                        <span className="lt-ws__distct">{r.allocated}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Sections in scope */}
-                <div className="lt-ws__pvbreak">
-                  <div className="lt-ws__bh">Sections in scope</div>
-                  <div className="lt-ws__pvsecs">
-                    {ALL_SECTIONS.filter((s) => effSections === "All" || (effSections as string[]).includes(s)).map((s) => (
-                      <span key={s} className="lt-ws__pvsec">{SECTION_MARK_LABEL[s]}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* MI enrich — AFTER the complete "Will be generated" snapshot (chips
-                    + distribution + sections), as its OWN distinct block, so the
-                    compact snapshot stays intact and the MI reads as a separate
-                    ACTION. Styled as the page's single NAVY anchor (Item 5) so it is
-                    discoverable on the otherwise-pale page. Always VISIBLE + titled +
-                    explained in all three states (signed-out → login returning here;
-                    enriched → toggle; signed-in-no-hotspot → how-to-unlock note), so
-                    the locked state reads as intentional, not a broken empty box. The
-                    real <input> is hard-scoped so the global input{...} rule can't
-                    balloon it. */}
-                <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
-                  <div className="lt-ws__mi-title"><span aria-hidden="true">✨</span> Personalise this worksheet</div>
-                  <p className="lt-ws__mi-desc">
-                    Weight it toward the topics you&rsquo;ve lost the most marks on (from your Mistake Intelligence) — it re-weights the distribution toward your weak topics, and these worksheets feed your Me / Progress growth.
-                  </p>
-                  {!isSignedIn ? (
-                    <Link to={loginHref} className="lt-ws__mi-cta">Sign in to personalise →</Link>
-                  ) : canEnrich ? (
-                    <label className="lt-ws__mi-toggle" title={`Weight this worksheet toward ${hotspot?.label} — your most marked-down in-scope topic.`}>
-                      <input
-                        type="checkbox"
-                        className="lt-ws__mi-check"
-                        checked={miEnrich}
-                        onChange={(e) => setMiEnrich(e.target.checked)}
-                      />
-                      <span className="lt-ws__mi-toggletext">
-                        Enrich from Mistake Intelligence — weight toward <strong>{hotspot?.label}</strong>.
-                      </span>
-                    </label>
-                  ) : (
-                    <p className="lt-ws__mi-hint">
-                      Grade a worksheet or use Check &amp; Improve first — then pick a multi-topic or full-subject scope, and this focuses the worksheet on the topics you&rsquo;ve lost the most marks on.
-                    </p>
-                  )}
-                </div>
-
-                {shortfall && !blocker && (
-                  <div className="lt-ws__note lt-ws__note--warn">
-                    Only {plan?.totalAllocated} unique question{plan?.totalAllocated === 1 ? "" : "s"} match this scope (you asked for {effCount}). The worksheet uses the real available set — honest counts, no padding.
-                  </div>
-                )}
-
-                {error && <div className="lt-ws__note lt-ws__note--err" role="alert">{error}</div>}
-
-                <button type="button" className="lt-ws__gen" onClick={handleGenerate} disabled={generating || !!blocker} title={blocker ?? undefined}>
-                  {generating ? "Generating…" : "Generate worksheet →"}
-                </button>
-                {blocker && <div className="lt-ws__note">{blocker}</div>}
-                <p className="lt-ws__pvnote">Solve on paper, then download the answer key to check — or upload one PDF to get every answer graded with solutions.</p>
               </div>
-            </aside>
-          </div>
 
-          {/* Sticky mobile generate bar */}
+              <button
+                type="button"
+                className="lt-ws__customlink"
+                aria-expanded={usingCustom || showCustom}
+                onClick={() => {
+                  const next = !(usingCustom || showCustom);
+                  setShowCustom(next);
+                  setMode(next ? "custom" : "preset");
+                }}
+              >
+                {usingCustom ? "▾" : "▸"} Advanced — set your own sections, difficulty &amp; count
+              </button>
+
+              {usingCustom && (
+                <div className="lt-ws__custom">
+                  <div className="lt-ws__field">
+                    <div className="lt-ws__lbl">Sections</div>
+                    <div className="lt-ws__chips">
+                      {ALL_SECTIONS.map((s) => (
+                        <button key={s} type="button" className={`lt-ws__chip${customSections.includes(s) ? " on" : ""}`} onClick={() => toggleSection(s)}>
+                          {SECTION_MARK_LABEL[s]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="lt-ws__field">
+                    <div className="lt-ws__lbl">Difficulty</div>
+                    <div className="lt-ws__chips">
+                      {DIFFICULTIES.map((d) => (
+                        <button key={d} type="button" className={`lt-ws__chip${customDifficulty === d ? " on" : ""}`} onClick={() => setCustomDifficulty(d)}>
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="lt-ws__field">
+                    <div className="lt-ws__lbl">Question count: {customCount}</div>
+                    <input type="range" min={5} max={50} step={5} value={customCount} onChange={(e) => setCustomCount(Number(e.target.value))} className="lt-ws__range" />
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {noQuestions && (
+            <div className="lt-ws__note lt-ws__note--warn">
+              No questions match {sectionScopeLabel(effSections)} for this scope. Widen the section filter or pick &ldquo;Board exam mix&rdquo;.
+            </div>
+          )}
+          {blocker && <div className="lt-ws__note">{blocker}</div>}
+          {error && <div className="lt-ws__note lt-ws__note--err" role="alert">{error}</div>}
+
+          {/* Sticky mobile action bar */}
           <div className="lt-ws__sticky">
-            <div className="lt-ws__stickyprev"><strong>{totalCount} questions</strong> · {scopeLabel} · {modeLabel}</div>
-            <button type="button" className="lt-ws__gen" onClick={handleGenerate} disabled={generating || !!blocker}>
-              {generating ? "Generating…" : "Generate worksheet →"}
+            <div className="lt-ws__stickyprev"><strong>{totalCount} question{totalCount === 1 ? "" : "s"}</strong> · {scopeLabel} · {modeLabel}</div>
+            <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+              Preview worksheet →
             </button>
           </div>
-
-          {/* Per-surface HISTORY (Progress-Journey arc PR-3, §3a) — your past graded
-              worksheets, each re-opening its stored scorecard read-only. */}
-          <SurfaceHistory surface="worksheet" uid={user?.uid} />
         </>
-      ) : (
-        // ── GENERATED ──────────────────────────────────────────────────────
+      )}
+
+      {view === "preview" && (
+        <>
+          <header className="lt-ws__head">
+            <div className="lt-ws__headrow">
+              <div className="lt-ws__headtx">
+                <div className="lt-ws__crumb">Practice · Worksheet · Preview</div>
+                <h1 className="lt-ws__title">Here&rsquo;s what will be generated</h1>
+                <p className="lt-ws__lead">Nothing is created until you press Generate. Check the mix, then go.</p>
+              </div>
+              {historyControl}
+            </div>
+          </header>
+
+          <section className="lt-ws__pvcard">
+            <div className="lt-ws__pvhead">
+              <div>
+                <h2 className="lt-ws__pvtitle">{scopeLabel} — {modeLabel}</h2>
+                <div className="lt-ws__pvmeta">
+                  {totalCount} question{totalCount === 1 ? "" : "s"} · {totalMarks} marks{enrichCount > 0 ? " · enriched from your weak areas" : ""}
+                </div>
+              </div>
+              <span className="lt-ws__pvready">Ready</span>
+            </div>
+
+            {/* Proportional section bar + legend (real per-section counts/marks). */}
+            {previewSections.length > 0 && (
+              <>
+                <div className="lt-ws__secbar">
+                  {previewSections.map((r) => (
+                    <span key={r.section} className={`lt-ws__segfill lt-ws__c--${r.section}`} data-w={widthStep(r.count / totalCount)} />
+                  ))}
+                </div>
+                <div className="lt-ws__seclegend">
+                  {previewSections.map((r) => (
+                    <div key={r.section} className="lt-ws__legitem">
+                      <span className={`lt-ws__legsw lt-ws__c--${r.section}`} />
+                      {r.section} · {SECTION_NAME[r.section as SectionId]} — {r.count} × {r.count > 0 ? Math.round(r.marks / r.count) : 0}m
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Topic distribution (multi / full scope) — reuses the honest allocation. */}
+            {plan && plan.rows.length > 1 && (
+              <div className="lt-ws__pvbreak">
+                <div className="lt-ws__bh">Topic mix ({scope === "full-subject" ? "board weightage" : "even"}{miBoostTopicKey ? " · MI-weighted" : ""})</div>
+                {plan.rows.filter((r) => r.allocated > 0).map((r) => (
+                  <div key={r.key} className="lt-ws__dist">
+                    <span className="lt-ws__distnm">{r.label}</span>
+                    <span className="lt-ws__distbar"><span className="lt-ws__distfill" data-w={widthStep(r.allocated / maxAlloc)} /></span>
+                    <span className="lt-ws__distct">{r.allocated}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {enrichCount > 0 && hotspot && (
+              <div className="lt-ws__warn">
+                <span aria-hidden="true">⚡</span> <strong>Enriched:</strong> {enrichCount} of {totalCount} question{enrichCount === 1 ? "" : "s"} target {hotspot.label} — your weakest in-scope topic, where you&rsquo;ve lost the most marks.
+              </div>
+            )}
+
+            {shortfall && (
+              <div className="lt-ws__note lt-ws__note--warn">
+                Only {totalCount} unique question{totalCount === 1 ? "" : "s"} available for this scope (you asked for {effCount}). This worksheet will generate {totalCount} — honest counts, no padding.
+              </div>
+            )}
+
+            <div className="lt-ws__lbl lt-ws__pvsamplbl">Sample of what&rsquo;s coming</div>
+            {previewSamples.map((q) => (
+              <div key={q.qNumber} className="lt-ws__qprev">
+                <div className="lt-ws__qprevhead">
+                  <span>Q{q.qNumber} · Section {q.section}</span>
+                  <span>{q.marks} mark{q.marks === 1 ? "" : "s"}</span>
+                </div>
+                <div className="lt-ws__qprevtext">{q.questionText}</div>
+              </div>
+            ))}
+            {totalCount > previewSamples.length && (
+              <div className="lt-ws__more">…{totalCount - previewSamples.length} more question{totalCount - previewSamples.length === 1 ? "" : "s"}</div>
+            )}
+          </section>
+
+          <div className="lt-ws__pvactions">
+            <button type="button" className="lt-ws__gen" onClick={handleGenerate} disabled={generating || candidate.length === 0}>
+              {generating ? "Generating…" : "Generate worksheet →"}
+            </button>
+            <button type="button" className="lt-ws__btnt" onClick={() => setView("build")}>Change settings</button>
+            <button type="button" className="lt-ws__btnt" onClick={handleShuffle}>⟳ Shuffle questions</button>
+          </div>
+          {error && <div className="lt-ws__note lt-ws__note--err" role="alert">{error}</div>}
+        </>
+      )}
+
+      {view === "generated" && (
+        // ── GENERATED (UNCHANGED design + behaviour) ──────────────────────────
         <div className="lt-ws__generated">
           <section className="lt-ws__card">
             <div className="lt-ws__gtick" aria-hidden="true">✓</div>
@@ -684,6 +871,15 @@ export default function WorksheetGenerator() {
           </button>
         </div>
       )}
+
+      {historyOpen && (
+        <WorksheetHistoryPanel
+          uid={user?.uid}
+          count={records.length}
+          pendingOnly={historyPendingOnly}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -704,11 +900,12 @@ const WS_CSS = `
   --ws-amber-bg: hsl(38, 92%, 95%);
   --ws-amber-b: hsl(38, 60%, 82%);
   --ws-amber-fg: hsl(33, 70%, 32%);
+  --ws-blue: hsl(222, 64%, 53%);
   --ws-fd: "Fraunces", Georgia, serif;
   --ws-fb: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-family: var(--ws-fb);
   color: var(--ws-fg);
-  max-width: 1180px;
+  max-width: 820px;
   margin: 0 auto;
   padding: 22px clamp(16px, 4vw, 32px) 64px;
 }
@@ -716,23 +913,71 @@ const WS_CSS = `
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 13px; font-weight: 600; color: var(--ws-muted);
   text-decoration: none; margin-bottom: 14px;
-  /* works identically whether rendered as <a> (build) or <button> (generated) */
   appearance: none; border: none; background: none; padding: 0; cursor: pointer;
   font-family: var(--ws-fb);
 }
 .lt-ws__back:hover { color: var(--ws-fg); }
-.lt-ws__head { margin-bottom: 18px; }
+.lt-ws__head { margin-bottom: 16px; }
+.lt-ws__headrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.lt-ws__headtx { min-width: 0; }
 .lt-ws__crumb { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ws-green-fg); margin-bottom: 6px; }
 .lt-ws__title { font-family: var(--ws-fd); font-size: 25px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
-.lt-ws__lead { font-size: 13.5px; color: var(--ws-muted); margin: 0; max-width: 620px; line-height: 1.55; }
+.lt-ws__lead { font-size: 13.5px; color: var(--ws-muted); margin: 0; max-width: 560px; line-height: 1.55; }
 
-.lt-ws__grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
-.lt-ws__build { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+/* Header history control (FIX B) */
+.lt-ws__histbtn {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px;
+  background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 12px;
+  padding: 9px 13px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ws-fg);
+  font-family: var(--ws-fb); box-shadow: 0 1px 3px rgba(21, 35, 58, 0.05);
+}
+.lt-ws__histbtn:hover { border-color: var(--ws-green); }
+.lt-ws__histcnt { color: var(--ws-hint); font-weight: 500; }
+.lt-ws__histawait {
+  font-size: 10.5px; font-weight: 700; color: var(--ws-blue);
+  background: hsl(222, 70%, 96%); padding: 3px 7px; border-radius: 6px;
+}
+.lt-ws__histcaret { color: var(--ws-hint); font-size: 11px; }
 
-.lt-ws__card { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 16px; padding: 18px 20px; }
-.lt-ws__ct { font-family: var(--ws-fd); font-weight: 600; font-size: 17px; margin: 0 0 14px; }
-.lt-ws__field { margin-bottom: 16px; }
-.lt-ws__field:last-child { margin-bottom: 0; }
+/* ── Smart-default hero ─────────────────────────────────────────────────── */
+.lt-ws__hero {
+  background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 18px;
+  overflow: hidden; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(21, 35, 58, 0.05), 0 4px 16px rgba(21, 35, 58, 0.04);
+}
+.lt-ws__herotop { padding: 22px 22px 18px; }
+.lt-ws__heroh { font-family: var(--ws-fd); font-size: 20px; font-weight: 600; margin: 0 0 3px; }
+.lt-ws__herosub { font-size: 13.5px; color: var(--ws-muted); margin: 0 0 15px; line-height: 1.5; }
+.lt-ws__herochips { display: flex; flex-wrap: wrap; gap: 7px; }
+.lt-ws__herobot {
+  background: var(--ws-surface-2); border-top: 1px solid var(--ws-line);
+  padding: 15px 22px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.lt-ws__herobot .lt-ws__gen { width: auto; margin-top: 0; }
+
+.lt-ws__pvchip { display: inline-block; background: var(--ws-green-soft); border: 1px solid var(--ws-green-b); color: var(--ws-green-fg); font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+.lt-ws__pvchip--count { background: var(--ws-green); border-color: var(--ws-green); color: #fff; }
+.lt-ws__pvchip--n { background: var(--ws-surface-2); border-color: var(--ws-line); color: var(--ws-muted); }
+
+/* ── MI personalise (navy dark card → a toggle + one hint line) ─────────── */
+.lt-ws__mi { margin: 0 0 14px; border: 1px solid hsl(220, 25%, 12%); border-radius: 14px; padding: 15px 17px; background: hsl(220, 25%, 12%); }
+.lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: #ffffff; margin-bottom: 9px; }
+.lt-ws__mi-cta { display: inline-block; margin-top: 4px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 700; text-decoration: none; }
+.lt-ws__mi-cta:hover { background: hsl(152, 60%, 40%); }
+.lt-ws__mi-hint { margin: 8px 0 0; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.5; }
+.lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: hsl(220, 18%, 88%); cursor: pointer; }
+.lt-ws__mi.locked .lt-ws__mi-toggle { cursor: not-allowed; }
+.lt-ws__mi-toggletext { flex: 1; min-width: 0; line-height: 1.45; }
+.lt-ws__mi-toggletext strong { color: #ffffff; }
+/* Hard-scope the real checkbox so the global input{width:100%;appearance:none} rule can't balloon it. */
+.lt-ws__mi-check {
+  width: 18px; height: 18px; min-width: 18px; flex: 0 0 auto;
+  margin: 1px 0 0; padding: 0; border: none; border-radius: 0; box-shadow: none;
+  appearance: auto; -webkit-appearance: checkbox; background: none;
+  accent-color: var(--ws-green); cursor: inherit;
+}
+
+/* ── Customise drawer + fields ──────────────────────────────────────────── */
+.lt-ws__drawer { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 16px; padding: 18px 20px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 16px; }
 .lt-ws__lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ws-muted); margin-bottom: 8px; }
 
 .lt-ws__seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--ws-line); border-radius: 10px; overflow: hidden; }
@@ -758,96 +1003,109 @@ const WS_CSS = `
 .lt-ws__pt { font-size: 14px; font-weight: 600; color: var(--ws-fg); }
 .lt-ws__pd { font-size: 12px; color: var(--ws-muted); margin-top: 2px; }
 
-.lt-ws__customlink { appearance: none; border: none; background: none; display: flex; align-items: center; gap: 7px; margin-top: 12px; font-size: 13px; color: var(--ws-green-fg); cursor: pointer; font-weight: 600; font-family: var(--ws-fb); padding: 0; }
-.lt-ws__custom { margin-top: 12px; border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.lt-ws__customlink { appearance: none; border: none; background: none; display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ws-green-fg); cursor: pointer; font-weight: 600; font-family: var(--ws-fb); padding: 0; }
+.lt-ws__custom { border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
 
-/* Item 5 — MI-enrich is the page's single NAVY anchor: a deliberately-emphasized,
-   discoverable ACTION block sitting after the (pale, calm) "Will be generated"
-   snapshot. Navy is the product's real MI/sidebar grammar (hsl(220,25%,12%)), so
-   it's on-grammar, not decoration. ONLY this block is darkened — the form, fields
-   and preview stay light. White title + soft-light body, green accent for actions.
-   Same navy in all three states so the locked state reads as intentional. */
-.lt-ws__mi { margin: 12px 0; border: 1px solid hsl(220, 25%, 12%); border-radius: 12px; padding: 14px 15px; background: hsl(220, 25%, 12%); }
-.lt-ws__mi.locked { border-color: hsl(220, 25%, 12%); background: hsl(220, 25%, 12%); }
-.lt-ws__mi-cta { display: inline-block; margin-top: 2px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 700; text-decoration: none; }
-.lt-ws__mi-cta:hover { background: hsl(152, 60%, 40%); }
-.lt-ws__mi-hint { margin: 0; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.45; }
-.lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: #ffffff; }
-.lt-ws__mi.locked .lt-ws__mi-title { color: #ffffff; }
-.lt-ws__mi-desc { margin: 5px 0 11px; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.5; }
-.lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: hsl(220, 18%, 88%); cursor: pointer; }
-.lt-ws__mi.locked .lt-ws__mi-toggle { cursor: not-allowed; color: hsl(220, 18%, 82%); }
-.lt-ws__mi-toggletext { flex: 1; min-width: 0; line-height: 1.45; }
-.lt-ws__mi-toggletext strong { color: #ffffff; }
-/* Hard-scope the real checkbox so the global input{width:100%;appearance:none}
-   rule cannot balloon it into a floating empty box. */
-.lt-ws__mi-check {
-  width: 18px; height: 18px; min-width: 18px; flex: 0 0 auto;
-  margin: 1px 0 0; padding: 0; border: none; border-radius: 0; box-shadow: none;
-  appearance: auto; -webkit-appearance: checkbox; background: none;
-  accent-color: var(--ws-green); cursor: inherit;
-}
-
-.lt-ws__previewwrap { min-width: 0; }
-.lt-ws__preview { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 16px; padding: 16px; position: sticky; top: 18px; }
-.lt-ws__pvh { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ws-green-fg); margin-bottom: 10px; }
-.lt-ws__pvchips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
-.lt-ws__pvchip { display: inline-block; background: var(--ws-green-soft); border: 1px solid var(--ws-green-b); color: var(--ws-green-fg); font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 14px; }
-.lt-ws__pvchip--count { background: var(--ws-green); border-color: var(--ws-green); color: #fff; }
-
-.lt-ws__pvbreak { background: var(--ws-surface-2); border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
-.lt-ws__bh { font-size: 10.5px; font-weight: 700; color: var(--ws-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
-.lt-ws__dist { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
-.lt-ws__dist:last-child { margin-bottom: 0; }
-.lt-ws__distnm { width: 92px; color: var(--ws-muted); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lt-ws__distbar { flex: 1; height: 7px; background: var(--ws-line); border-radius: 4px; overflow: hidden; }
-.lt-ws__distfill { display: block; height: 100%; background: var(--ws-green); width: 0; }
-.lt-ws__distct { width: 20px; text-align: right; font-weight: 600; color: var(--ws-fg); }
-.lt-ws__pvsecs { display: flex; flex-direction: column; gap: 4px; }
-.lt-ws__pvsec { font-size: 12px; color: var(--ws-muted); }
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.lt-ws__gen { border: none; background: var(--ws-green); color: #fff; border-radius: 11px; padding: 13px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--ws-fd); }
+.lt-ws__gen:hover { background: hsl(152, 60%, 38%); }
+.lt-ws__gen:disabled { background: hsl(152, 25%, 78%); cursor: not-allowed; }
+.lt-ws__btnt { background: var(--ws-surface); border: 1px solid var(--ws-line); color: var(--ws-fg); border-radius: 11px; padding: 12px 16px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: var(--ws-fb); }
+.lt-ws__btnt:hover { border-color: var(--ws-hint); }
 
 .lt-ws__note { font-size: 12px; line-height: 1.5; border-radius: 9px; padding: 9px 11px; margin: 8px 0; color: var(--ws-muted); background: var(--ws-surface-2); }
 .lt-ws__note--warn { background: var(--ws-amber-bg); border: 1px solid var(--ws-amber-b); color: var(--ws-amber-fg); }
 .lt-ws__note--err { background: hsl(0, 75%, 97%); border: 1px solid hsl(0, 70%, 88%); color: hsl(0, 65%, 38%); }
 
-.lt-ws__gen { width: 100%; border: none; background: var(--ws-green); color: #fff; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--ws-fd); margin-top: 8px; }
-.lt-ws__gen:hover { background: hsl(152, 60%, 38%); }
-.lt-ws__gen:disabled { background: hsl(152, 25%, 78%); cursor: not-allowed; }
-.lt-ws__pvnote { font-size: 11px; color: var(--ws-hint); margin: 10px 0 0; line-height: 1.5; }
+/* ── Preview step ───────────────────────────────────────────────────────── */
+.lt-ws__pvcard { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 18px; padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(21, 35, 58, 0.05); }
+.lt-ws__pvhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.lt-ws__pvtitle { font-family: var(--ws-fd); font-size: 17px; font-weight: 600; margin: 0 0 3px; }
+.lt-ws__pvmeta { font-size: 12.5px; color: var(--ws-muted); }
+.lt-ws__pvready { flex-shrink: 0; font-size: 11.5px; font-weight: 700; color: var(--ws-green-fg); background: var(--ws-green-soft); border: 1px solid var(--ws-green-b); border-radius: 999px; padding: 4px 11px; }
 
-.lt-ws__sticky { display: none; }
+.lt-ws__secbar { display: flex; gap: 2px; height: 9px; margin: 4px 0 12px; overflow: hidden; border-radius: 5px; }
+.lt-ws__segfill { flex: 0 0 auto; height: 100%; border-radius: 3px; min-width: 4px; }
+.lt-ws__c--A { background: hsl(222, 64%, 53%); }
+.lt-ws__c--B { background: var(--ws-green); }
+.lt-ws__c--C { background: hsl(38, 80%, 50%); }
+.lt-ws__c--D { background: hsl(348, 72%, 58%); }
+.lt-ws__c--E { background: hsl(265, 50%, 58%); }
+.lt-ws__seclegend { display: flex; flex-wrap: wrap; gap: 9px 16px; margin-bottom: 16px; }
+.lt-ws__legitem { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ws-muted); }
+.lt-ws__legsw { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
 
-/* ── Generated state ─────────────────────────────────────────────────── */
+.lt-ws__pvbreak { background: var(--ws-surface-2); border-radius: 10px; padding: 10px 12px; margin: 0 0 14px; }
+.lt-ws__bh { font-size: 10.5px; font-weight: 700; color: var(--ws-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.lt-ws__dist { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
+.lt-ws__dist:last-child { margin-bottom: 0; }
+.lt-ws__distnm { width: 120px; color: var(--ws-muted); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lt-ws__distbar { flex: 1; height: 7px; background: var(--ws-line); border-radius: 4px; overflow: hidden; }
+.lt-ws__distfill { display: block; height: 100%; background: var(--ws-green); width: 0; }
+.lt-ws__distct { width: 20px; text-align: right; font-weight: 600; color: var(--ws-fg); }
+
+.lt-ws__warn { background: var(--ws-amber-bg); border: 1px solid var(--ws-amber-b); border-radius: 11px; padding: 11px 13px; font-size: 12.5px; color: var(--ws-amber-fg); margin-bottom: 14px; line-height: 1.5; }
+.lt-ws__warn strong { color: hsl(33, 75%, 26%); }
+
+.lt-ws__pvsamplbl { margin-bottom: 8px; }
+.lt-ws__qprev { border: 1px solid var(--ws-line); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; background: var(--ws-surface-2); }
+.lt-ws__qprevhead { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--ws-hint); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 5px; }
+.lt-ws__qprevtext { font-size: 13.5px; color: var(--ws-fg); line-height: 1.5; }
+.lt-ws__more { font-size: 12.5px; color: var(--ws-hint); font-style: italic; text-align: center; padding: 6px; }
+
+.lt-ws__pvactions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Generated state (UNCHANGED) ────────────────────────────────────────── */
+.lt-ws__card { background: var(--ws-surface); border: 1px solid var(--ws-line); border-radius: 16px; padding: 18px 20px; }
 .lt-ws__generated { display: flex; flex-direction: column; gap: 16px; max-width: 760px; }
 .lt-ws__gtick { width: 44px; height: 44px; border-radius: 50%; background: var(--ws-green-soft); color: var(--ws-green-fg); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
 .lt-ws__gsecs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 14px; }
+.lt-ws__pvsec { font-size: 12px; color: var(--ws-muted); }
 .lt-ws__dlgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .lt-ws__dl { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--ws-line); border-radius: 10px; padding: 15px; cursor: pointer; background: var(--ws-surface); text-align: left; font-family: var(--ws-fb); }
 .lt-ws__dl--primary { border-color: var(--ws-green-b); background: var(--ws-green-soft); }
 .lt-ws__dlt { font-size: 14px; font-weight: 600; color: var(--ws-fg); }
 .lt-ws__dld { font-size: 12px; color: var(--ws-muted); line-height: 1.45; }
-.lt-ws__uplink { display: inline-block; margin: 4px 0 10px; border: 1px solid var(--ws-green); background: var(--ws-green-soft); color: var(--ws-green-fg); border-radius: 9px; padding: 9px 15px; font-size: 13px; font-weight: 600; text-decoration: none; }
 .lt-ws__buildanother { appearance: none; border: 1px solid var(--ws-line); background: var(--ws-surface); color: var(--ws-fg); border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ws-fb); }
 
-/* distribution fill widths via data-w (0..100, step 5) — avoids inline styles */
-.lt-ws__distfill[data-w="0"]{width:0}
-.lt-ws__distfill[data-w="5"]{width:5%}.lt-ws__distfill[data-w="10"]{width:10%}.lt-ws__distfill[data-w="15"]{width:15%}
-.lt-ws__distfill[data-w="20"]{width:20%}.lt-ws__distfill[data-w="25"]{width:25%}.lt-ws__distfill[data-w="30"]{width:30%}
-.lt-ws__distfill[data-w="35"]{width:35%}.lt-ws__distfill[data-w="40"]{width:40%}.lt-ws__distfill[data-w="45"]{width:45%}
-.lt-ws__distfill[data-w="50"]{width:50%}.lt-ws__distfill[data-w="55"]{width:55%}.lt-ws__distfill[data-w="60"]{width:60%}
-.lt-ws__distfill[data-w="65"]{width:65%}.lt-ws__distfill[data-w="70"]{width:70%}.lt-ws__distfill[data-w="75"]{width:75%}
-.lt-ws__distfill[data-w="80"]{width:80%}.lt-ws__distfill[data-w="85"]{width:85%}.lt-ws__distfill[data-w="90"]{width:90%}
-.lt-ws__distfill[data-w="95"]{width:95%}.lt-ws__distfill[data-w="100"]{width:100%}
+/* distribution / section-bar fill widths via data-w (0..100, step 5) — no inline styles */
+.lt-ws__distfill[data-w="0"]{width:0}.lt-ws__segfill[data-w="0"]{width:0}
+.lt-ws__distfill[data-w="5"]{width:5%}.lt-ws__segfill[data-w="5"]{width:5%}
+.lt-ws__distfill[data-w="10"]{width:10%}.lt-ws__segfill[data-w="10"]{width:10%}
+.lt-ws__distfill[data-w="15"]{width:15%}.lt-ws__segfill[data-w="15"]{width:15%}
+.lt-ws__distfill[data-w="20"]{width:20%}.lt-ws__segfill[data-w="20"]{width:20%}
+.lt-ws__distfill[data-w="25"]{width:25%}.lt-ws__segfill[data-w="25"]{width:25%}
+.lt-ws__distfill[data-w="30"]{width:30%}.lt-ws__segfill[data-w="30"]{width:30%}
+.lt-ws__distfill[data-w="35"]{width:35%}.lt-ws__segfill[data-w="35"]{width:35%}
+.lt-ws__distfill[data-w="40"]{width:40%}.lt-ws__segfill[data-w="40"]{width:40%}
+.lt-ws__distfill[data-w="45"]{width:45%}.lt-ws__segfill[data-w="45"]{width:45%}
+.lt-ws__distfill[data-w="50"]{width:50%}.lt-ws__segfill[data-w="50"]{width:50%}
+.lt-ws__distfill[data-w="55"]{width:55%}.lt-ws__segfill[data-w="55"]{width:55%}
+.lt-ws__distfill[data-w="60"]{width:60%}.lt-ws__segfill[data-w="60"]{width:60%}
+.lt-ws__distfill[data-w="65"]{width:65%}.lt-ws__segfill[data-w="65"]{width:65%}
+.lt-ws__distfill[data-w="70"]{width:70%}.lt-ws__segfill[data-w="70"]{width:70%}
+.lt-ws__distfill[data-w="75"]{width:75%}.lt-ws__segfill[data-w="75"]{width:75%}
+.lt-ws__distfill[data-w="80"]{width:80%}.lt-ws__segfill[data-w="80"]{width:80%}
+.lt-ws__distfill[data-w="85"]{width:85%}.lt-ws__segfill[data-w="85"]{width:85%}
+.lt-ws__distfill[data-w="90"]{width:90%}.lt-ws__segfill[data-w="90"]{width:90%}
+.lt-ws__distfill[data-w="95"]{width:95%}.lt-ws__segfill[data-w="95"]{width:95%}
+.lt-ws__distfill[data-w="100"]{width:100%}.lt-ws__segfill[data-w="100"]{width:100%}
 
-/* ── Mobile reflow (same markup) ─────────────────────────────────────── */
+.lt-ws__sticky { display: none; }
+
+/* ── Mobile reflow (same markup) ─────────────────────────────────────────── */
 @media (max-width: 1023px) {
   .lt-ws { padding-bottom: 110px; }
-  .lt-ws__grid { grid-template-columns: 1fr; }
-  .lt-ws__preview { position: static; }
-  /* The build-column Generate button is hidden in favour of the sticky bar. */
-  .lt-ws__previewwrap .lt-ws__gen { display: none; }
-  .lt-ws__previewwrap .lt-ws__pvnote { display: none; }
+  .lt-ws__headrow { flex-direction: column; }
+  .lt-ws__histbtn { align-self: flex-start; }
+  /* The hero's Preview button is hidden in favour of the sticky bar (no duplicate CTA). */
+  .lt-ws__herobot .lt-ws__gen { display: none; }
+  .lt-ws__herobot .lt-ws__btnt { flex: 1; }
+  .lt-ws__pvactions .lt-ws__gen { flex: 1 1 100%; }
+  .lt-ws__dlgrid { grid-template-columns: 1fr; }
+  .lt-ws__seg { display: flex; width: 100%; }
+  .lt-ws__segbtn { flex: 1; padding: 9px 6px; }
   .lt-ws__sticky {
     display: block; position: fixed; left: 0; right: 0; bottom: var(--mob-nav-height, 56px);
     background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -855,9 +1113,6 @@ const WS_CSS = `
   }
   .lt-ws__stickyprev { font-size: 12px; color: var(--ws-muted); text-align: center; margin-bottom: 8px; }
   .lt-ws__stickyprev strong { color: var(--ws-fg); }
-  .lt-ws__sticky .lt-ws__gen { margin-top: 0; }
-  .lt-ws__dlgrid { grid-template-columns: 1fr; }
-  .lt-ws__seg { display: flex; width: 100%; }
-  .lt-ws__segbtn { flex: 1; padding: 9px 6px; }
+  .lt-ws__sticky .lt-ws__gen { width: 100%; }
 }
 `;
