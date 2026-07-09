@@ -1,5 +1,19 @@
 ---
 
+## 2026-07-09 — Objective ANSWER KEYS repaired MERGED (#352)
+
+**Trunk after: `b9a7817` (squash).** Owner live-verified. Closes the live hole in #348's deterministic objective-scoring guarantee: objective rows whose answer key (`q.answer`, the option TEXT) did not resolve against `q.options` were silently falling back to the model.
+
+- **Defect list re-derived** (not the estimated ~101) with an **AST scanner using the grader's OWN `normaliseOption` / `resolveOptionIndex` / `isObjectiveType`** over every `questionBanks/**` file: **89 in-scope = 74 corrupt MCQ keys + 15 Assertion-Reason rows with no `options[]`**.
+- **Fixed 76** — 61 corrupt MCQ keys (each question SOLVED, `q.answer` set to the EXACT text of the correct EXISTING option — never a new value) + 15 AR rows given the 4 standard CBSE `options[]` with the verdict-matched answer. **`correctOption` never introduced — the key stays `q.answer`.**
+- **13 left honestly unresolved** in `docs/objective-answer-key-review-queue.md` (corrupted/duplicated options + figure-dependent) — the grader defers to the model there; queued for a real-paper lookup.
+- **Anti-fabrication held:** nothing guessed. **Two subagent "fixes" overridden back to the manifest** (`PROB-006` keyed to a rubric-contaminated option; `PROB-010` duplicated options) rather than accept plausible-but-unverified keys. Also fixed a PUA-degree-glyph blocker (`CIRC-007`) + a contaminated AR answer (`2025-PROB-001`).
+- **Verification:** after repair **0** in-scope rows resolve incorrectly; **61 of 76 fixes corroborated by the row's original `finalAnswer` option-letter — 0 mismatches** (the other 15 science rows, no clean letter, solved + spot-checked); TypeScript parse diagnostics **clean (0)**.
+- **43 bank files + 1 manifest**; only `q.answer` values changed + `options[]` inserted on the 15 AR rows; no other fields; **grader `server/routes/*` byte-untouched**; no new mojibake; all under `src/data/questionBanks/` + `docs/`. Built by 3 file-disjoint subagents (maths G1 / maths G2 / science); orchestrator applied 4 manual corrections + verified. Local static + resolve verification green; `tsc`/mojibake/matrix/build **CI-gated** (Windows-unrunnable; string-value-only, syllabus-neutral). Owner squash-merged **#352 → `b9a7817`; no self-merge**. Report: `Desktop\diff\report-bank-corrupt-keys-2026-07-09.md`.
+- **[FU-BANK-CORRUPT-KEYS] CLOSED** (except the 13 queued rows). New follow-ups: **[FU-BANK-KEY-REVIEW-QUEUE]**, **[FU-SECTION-A-VSA-HALFMARK]**, **[FU-BANK-GARBLED-DISPLAY-TEXT]**.
+
+---
+
 ## 2026-07-09 — Worksheet BUILDER redesign MERGED (#349)
 
 **Trunk after: `b4f2162` (squash).** Owner live-verified. The worksheet **BUILD view** is redesigned to the locked "**A · Smart default**" prototype; the generated "worksheet is ready" view, `WorksheetGradePanel`, the Practice hub and the Topic Hub were **NOT touched**. Closes 2 of the 3 owner-found worksheet bugs flagged post-#344 (**PDF filename** + **history placement**); the 3rd (grader MCQ all-or-nothing) was #348.

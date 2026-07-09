@@ -1,3 +1,15 @@
+## 2026-07-09 — Objective ANSWER KEYS repaired merged (#352, `b9a7817`)
+
+### ✅ RESOLVED
+- **[FU-BANK-CORRUPT-KEYS] → CLOSED** (except the 13 queued rows below). 89 in-scope objective rows re-derived with an AST scanner using the grader's own `normaliseOption`/`resolveOptionIndex`/`isObjectiveType`; 76 fixed (61 corrupt MCQ keys set to the exact correct EXISTING option + 15 AR rows given the standard CBSE `options[]`), 13 honestly manifested. `correctOption` never introduced — the key stays `q.answer`. Grader byte-untouched.
+
+### 🆕 NEW FOLLOW-UPS
+- **[FU-BANK-KEY-REVIEW-QUEUE]** — the 13 objective rows that could not be resolved from the source (corrupted/duplicated options, figure-dependent) are listed in `docs/objective-answer-key-review-queue.md`; the grader defers to the model for them. Needs a real-paper lookup / teacher pass. Same class as [FU-MODEL-ANSWER-QUALITY] and [FU-Z3-TEACHER-VERIFY] — fold into the student-QC review pass.
+- **[FU-SECTION-A-VSA-HALFMARK]** — the scanner found **99 written-answer rows (VSA/Short/Long/Case) classified objective only by `section === "A"`**. Cofounder check: all **1,950 Section-A rows carry `marks: 1`**, so #348's ≤1-mark rail means they can only ever be clamped to 0-or-1 — **no live correctness hole**. Residual: CBSE sometimes awards ½ on a 1-mark VSA; those rows now get 0 or 1. **Accepted simplification** — revisit only if half-marks matter or a multi-mark row ever lands in Section A.
+- **[FU-BANK-GARBLED-DISPLAY-TEXT]** — the scanner's out-of-scope observations: on ~20 fixed rows the correct option's DISPLAY text is itself symbol-stripped (key resolves correctly, but the option renders garbled), and many rows still carry garbled `solutionSteps`/`finalAnswer`. Content-QC / symbol-integrity pass (like the PYQ symbol track); not a scoring defect.
+
+---
+
 ## 2026-07-09 — Worksheet BUILDER redesign merged (#349, `b4f2162`)
 
 ### 🆕 NEW FOLLOW-UPS (all being fixed in the dispatched-separately follow-up PR)
