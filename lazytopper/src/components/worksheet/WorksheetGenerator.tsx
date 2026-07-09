@@ -24,6 +24,13 @@ import {
 } from "../../services/worksheetSessionStore";
 import { ensureWorksheetSessionCode, type SessionRecord } from "../../services/sessionRecords";
 import { getSurfaceHistory } from "../../services/progressStore";
+import {
+  readWorksheetMi,
+  weakestTopic,
+  weakSections,
+  sectionBoostsFor,
+  type MistakeSection,
+} from "./worksheetMiSelector";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 import WorksheetGradePanel from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
@@ -92,48 +99,6 @@ const SECTION_NAME: Record<SectionId, string> = {
 };
 const DIFFICULTIES: DifficultyChoice[] = ["All", "Easy", "Medium", "Hard"];
 
-// ── Mistake hotspot (real Check & Improve log; no fabricated data) ────────────
-const MISTAKE_LOG_PREFIX = "lazytopper.mistakeLogs.v1";
-
-function normalizeLabel(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-/** The in-scope topic the student has lost the most marks on (last 30 days),
- *  resolved against the supplied (already deleted-filtered) topic list. */
-function readMistakeHotspot(uid: string | null | undefined, topics: WorksheetTopic[]): WorksheetTopic | null {
-  if (!uid || typeof window === "undefined") return null;
-  let entries: Array<{ topic?: string; subject?: string; timestamp?: string; marksLost?: number }> = [];
-  try {
-    const raw = window.localStorage.getItem(`${MISTAKE_LOG_PREFIX}:${uid}`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return null;
-    entries = parsed;
-  } catch {
-    return null;
-  }
-  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
-  const lost = new Map<string, number>();
-  for (const e of entries) {
-    const t = e.timestamp ? new Date(e.timestamp).getTime() : NaN;
-    if (Number.isFinite(t) && t < cutoff) continue;
-    const label = normalizeLabel(String(e.topic || ""));
-    if (!label) continue;
-    lost.set(label, (lost.get(label) ?? 0) + (Number(e.marksLost) || 0));
-  }
-  let best: WorksheetTopic | null = null;
-  let bestLost = 0;
-  for (const t of topics) {
-    const v = lost.get(normalizeLabel(t.label)) ?? 0;
-    if (v > bestLost) {
-      bestLost = v;
-      best = t;
-    }
-  }
-  return bestLost > 0 ? best : null;
-}
-
 /** Reject any non-relative / protocol-bearing redirect (safe-redirect doctrine). */
 function safeInternalReturnTo(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -145,6 +110,13 @@ function safeInternalReturnTo(value: string | null | undefined): string | null {
 /** Round a fraction (0..1) to a 5%-step width for the class-driven section bar. */
 function widthStep(fraction: number): number {
   return Math.max(0, Math.min(100, Math.round(fraction * 20) * 5));
+}
+
+/** "C" · "C & D" · "C, D & E" — human-readable section list for enrichment copy. */
+function formatSectionList(sections: string[]): string {
+  if (sections.length === 0) return "";
+  if (sections.length === 1) return sections[0];
+  return `${sections.slice(0, -1).join(", ")} & ${sections[sections.length - 1]}`;
 }
 
 export default function WorksheetGenerator() {
@@ -230,15 +202,27 @@ export default function WorksheetGenerator() {
     return topics;
   }, [scope, topics, singleTopic, multiTopics]);
 
-  // MI hotspot for the active subject/stream.
-  const hotspot = useMemo(
-    () => readMistakeHotspot(user?.uid, topics),
+  // ── FIX A — SCOPE-RELATIVE Mistake-Intelligence ─────────────────────────────
+  // Read the student's real mistake log once against the whole subject, then resolve
+  // weakness RELATIVE to what they picked — never one global hotspot compared to the
+  // scope. `scopeHotspot` is the weakest topic among the in-scope topics; `globalHotspot`
+  // is the weakest across the subject (used only to name the true weak area when the
+  // chosen scope has none). `selectedTopicMi` powers single-topic section weighting.
+  const mi = useMemo(
+    () => readWorksheetMi(user?.uid, topics),
     [user?.uid, topicKeysSig], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const hotspotInScope =
-    !!hotspot && inScopeTopics.some((t) => t.key === hotspot.key) && scope !== "topic";
-  const canEnrich = hotspotInScope;
-  const miBoostTopicKey = miEnrich && hotspotInScope ? hotspot!.key : null;
+  const scopeHotspot = useMemo(() => weakestTopic(mi, inScopeTopics), [mi, inScopeTopics]);
+  const globalHotspot = useMemo(() => weakestTopic(mi, topics), [mi, topics]);
+  const selectedTopicMi = scope === "topic" ? mi.byTopic.get(singleTopic) ?? null : null;
+  const topicSectionBoosts = useMemo(() => sectionBoostsFor(selectedTopicMi), [selectedTopicMi]);
+  const weakSecs = useMemo(() => weakSections(selectedTopicMi), [selectedTopicMi]);
+
+  // Cross-TOPIC boost (multi/full) — the scope-relative weakest in-scope topic. Feeds the
+  // plan directly (allocateCounts weight). The WITHIN-topic section skew is resolved BELOW,
+  // after the plan, because it must gate on the topic's real drawable pool (§ section-skew).
+  const miBoostTopicKey =
+    scope !== "topic" && miEnrich && scopeHotspot ? scopeHotspot.key : null;
 
   // Block reasons.
   const blocker: string | null = (() => {
@@ -263,6 +247,52 @@ export default function WorksheetGenerator() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, miBoostTopicKey, blocker]);
 
+  // ── FIX A — WITHIN-topic section skew, GATED ON THE REAL DRAWABLE POOL ───────
+  // Section weighting is only honest when the topic's filtered pool actually holds
+  // questions in the weak section AND spans >1 section to skew between — otherwise the
+  // toggle would promise a weighting the bank can't deliver (a silent no-op, which the
+  // doctrine forbids). Derived from plan.pools; boosts only REORDER the draw, never change
+  // pool membership, so reading the pool here creates no circular dependency.
+  const poolSections = useMemo<Set<string>>(() => {
+    if (scope !== "topic" || !plan) return new Set<string>();
+    return new Set((plan.pools.get(singleTopic) ?? []).map((q) => String(q.section || "").toUpperCase()));
+  }, [scope, plan, singleTopic]);
+
+  // The skew can only CHANGE the drawn set when the plan takes FEWER than the whole pool —
+  // if the topic's filtered pool is exhausted (allocated ≥ pool size) every question is
+  // taken regardless of weighting, so the toggle would be a no-op. Depends on plan.rows /
+  // plan.pools only (both skew-independent), so no circular dependency.
+  const skewHasHeadroom = useMemo(() => {
+    if (scope !== "topic" || !plan) return false;
+    const poolSize = plan.pools.get(singleTopic)?.length ?? 0;
+    const allocated = plan.rows.find((r) => r.key === singleTopic)?.allocated ?? 0;
+    return allocated > 0 && allocated < poolSize;
+  }, [scope, plan, singleTopic]);
+
+  // The student's weak sections that are BOTH inside the section filter AND actually
+  // present in the drawable pool — the only ones a single-topic skew can honestly target.
+  const weakSecsInScope = useMemo<MistakeSection[]>(
+    () =>
+      weakSecs.filter(
+        (s) => (effSections === "All" || (effSections as string[]).includes(s)) && poolSections.has(s),
+      ),
+    [weakSecs, effSections, poolSections],
+  );
+  // Skew is meaningful only when a drawable weak section exists, the pool spans >1 section
+  // to skew between (mirrors orderPoolBySectionBoost's bySection.size<=1 short-circuit), AND
+  // the draw doesn't take the whole pool (skewHasHeadroom) — so the toggle is never a no-op.
+  const canSectionSkew =
+    scope === "topic" && weakSecsInScope.length > 0 && poolSections.size > 1 && skewHasHeadroom;
+
+  // Enrichment is available (a live toggle) when there is something honest to weight
+  // toward: a weak in-scope topic (multi/full → cross-topic boost) or weak, drawable
+  // sections within the chosen single topic (topic → section skew).
+  const canEnrich = scope === "topic" ? canSectionSkew : !!scopeHotspot;
+  // WITHIN-topic section skew (single topic) — injected onto the (skew-independent) plan
+  // at candidate-generation time.
+  const sectionBoosts =
+    scope === "topic" && miEnrich && canSectionSkew ? topicSectionBoosts : null;
+
   const scopeLabel = useMemo(() => {
     if (scope === "topic") return topics.find((t) => t.key === singleTopic)?.label ?? "Topic";
     if (scope === "multi-topic") {
@@ -283,7 +313,9 @@ export default function WorksheetGenerator() {
   const candidate: PersistedWorksheetQuestion[] = useMemo(() => {
     if (blocker || !plan) return [];
     const labelFor = (key: string) => topics.find((t) => t.key === key)?.label ?? key;
-    const ordered = [...generateFromPlan(plan)].sort(
+    // Inject the within-topic section skew onto the (skew-independent) plan just for the
+    // draw; plan.pools/rows are unchanged, so the honest counts and distribution hold.
+    const ordered = [...generateFromPlan({ ...plan, sectionBoosts })].sort(
       (a, b) => (SECTION_RANK[a.section] ?? 9) - (SECTION_RANK[b.section] ?? 9),
     );
     return ordered.map((q, i) => ({
@@ -301,7 +333,7 @@ export default function WorksheetGenerator() {
       answer: q.answer,
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, blocker, drawNonce]);
+  }, [plan, blocker, drawNonce, JSON.stringify(sectionBoosts)]);
 
   const totalCount = candidate.length;
   const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
@@ -330,12 +362,27 @@ export default function WorksheetGenerator() {
     return picks.map((i) => candidate[i]);
   }, [candidate]);
 
-  // Enrichment count — how many drawn questions come from the weak (boosted) topic.
-  // Computed from the real set; zero (and the callout omitted) when enrich is off.
+  // The weak sections the DRAWN set actually targets — a pool-present, boosted section can
+  // still land zero slots under a thin allocation, so the callout names ONLY these (never
+  // over-states which sections the generated worksheet covers).
+  const drawnWeakSecs = useMemo<MistakeSection[]>(
+    () => (sectionBoosts ? weakSecsInScope.filter((s) => candidate.some((q) => q.section === s)) : []),
+    [sectionBoosts, weakSecsInScope, candidate],
+  );
+
+  // Enrichment count — how many DRAWN questions the enrichment actually targets.
+  // Computed from the real set; zero (and the callout omitted) when enrich is off or
+  // the bank can't honour it. Multi/full → questions from the weak in-scope topic;
+  // single-topic → questions in the student's actually-drawn weak sections.
   const enrichCount = useMemo(() => {
-    if (!miBoostTopicKey || !hotspot) return 0;
-    return candidate.filter((q) => q.topicKey === hotspot.key).length;
-  }, [candidate, miBoostTopicKey, hotspot]);
+    if (miBoostTopicKey && scopeHotspot) {
+      return candidate.filter((q) => q.topicKey === scopeHotspot.key).length;
+    }
+    if (drawnWeakSecs.length > 0) {
+      return candidate.filter((q) => drawnWeakSecs.includes(q.section as MistakeSection)).length;
+    }
+    return 0;
+  }, [candidate, miBoostTopicKey, scopeHotspot, drawnWeakSecs]);
 
   // ── History + pending (FIX B/C) ──────────────────────────────────────────
   const records = useMemo(
@@ -546,17 +593,65 @@ export default function WorksheetGenerator() {
             </div>
           </section>
 
-          {/* MI personalise — one honest toggle. Default ON where it can apply; a
-              sign-in CTA when signed out; OFF + disabled with an honest hint when
-              there is nothing to weight toward (never a no-op toggle). */}
+          {/* FIX A — MI personalise, SCOPE-RELATIVE with SPLIT honest states. Never one
+              "grade a worksheet first" message for three different situations: the copy
+              names the TRUE reason (no data at all / weak area is elsewhere / this topic
+              is the weak area / enrich here) and, where the weak area sits outside the
+              chosen scope, offers a one-tap remedy. The toggle only appears when there
+              is something real to weight toward — never a no-op. */}
           <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
             <div className="lt-ws__mi-title"><span aria-hidden="true">⚡</span> Personalise this worksheet</div>
             {!isSignedIn ? (
               <>
-                <p className="lt-ws__mi-hint">Weight it toward the topics you&rsquo;ve lost the most marks on (from your Mistake Intelligence).</p>
+                <p className="lt-ws__mi-hint">Weight it toward the topics &amp; sections you&rsquo;ve lost the most marks on (from your Mistake Intelligence).</p>
                 <Link to={loginHref} className="lt-ws__mi-cta">Sign in to personalise →</Link>
               </>
-            ) : canEnrich ? (
+            ) : !mi.hasData ? (
+              // (1) No mistake data for THIS subject — the only honest place for the "do it
+              //     first" copy. Named by subject so it stays accurate even for a student
+              //     whose graded history is all in the other subject (nothing to weight a
+              //     {subject} worksheet toward yet).
+              <p className="lt-ws__mi-hint">
+                Grade a {subject} worksheet or use Check &amp; Improve first — then this focuses the worksheet on the {subject} topics &amp; sections you&rsquo;ve lost the most marks on.
+              </p>
+            ) : scope === "topic" ? (
+              canSectionSkew ? (
+                // (2a) The chosen topic is a weak area with skewable sections → section-skew toggle.
+                <>
+                  <label className="lt-ws__mi-toggle">
+                    <input
+                      type="checkbox"
+                      className="lt-ws__mi-check"
+                      checked={miEnrich}
+                      onChange={(e) => setMiEnrich(e.target.checked)}
+                    />
+                    <span className="lt-ws__mi-toggletext">
+                      Focus on your weak spots in <strong>{selectedTopicMi?.label}</strong> — weight toward Section{weakSecsInScope.length === 1 ? "" : "s"} {formatSectionList(weakSecsInScope)}.
+                    </span>
+                  </label>
+                  <p className="lt-ws__mi-hint">From your Mistake Intelligence — the sections of this topic where you&rsquo;ve lost the most marks.</p>
+                </>
+              ) : selectedTopicMi ? (
+                // (2b) The chosen topic IS a weak area but has no skewable section signal.
+                <p className="lt-ws__mi-hint">
+                  <strong>{selectedTopicMi.label}</strong> is one of your weak areas — the whole worksheet already targets it.
+                </p>
+              ) : globalHotspot ? (
+                // (2c) The chosen single topic is NOT a weak area; name the true one + one-tap remedy.
+                <>
+                  <p className="lt-ws__mi-hint">
+                    Your weak area is <strong>{globalHotspot.label}</strong>, not {scopeLabel}. Focus this worksheet there, or widen to multi-topic / full subject.
+                  </p>
+                  <button type="button" className="lt-ws__mi-cta" onClick={() => setSingleTopic(globalHotspot.key)}>
+                    Focus on {globalHotspot.label} →
+                  </button>
+                </>
+              ) : (
+                // Safety fallback (has data, nothing resolvable in this subject) — never assert "do it first".
+                <p className="lt-ws__mi-hint">Pick a topic you&rsquo;ve been graded on to personalise this worksheet.</p>
+              )
+            ) : scopeHotspot ? (
+              // (3a) multi/full with a weak in-scope topic → scope-relative cross-topic boost.
               <>
                 <label className="lt-ws__mi-toggle">
                   <input
@@ -566,15 +661,23 @@ export default function WorksheetGenerator() {
                     onChange={(e) => setMiEnrich(e.target.checked)}
                   />
                   <span className="lt-ws__mi-toggletext">
-                    Enrich from my weak areas — weight toward <strong>{hotspot?.label}</strong>.
+                    Enrich from my weak areas — weight toward <strong>{scopeHotspot.label}</strong>.
                   </span>
                 </label>
-                <p className="lt-ws__mi-hint">Weighted by your Mistake Intelligence — leans toward the topics you&rsquo;ve lost the most marks on.</p>
+                <p className="lt-ws__mi-hint">Weighted by your Mistake Intelligence — the in-scope topic where you&rsquo;ve lost the most marks.</p>
+              </>
+            ) : globalHotspot ? (
+              // (3b) A weak area exists but isn't in this multi-topic selection → one-tap add.
+              <>
+                <p className="lt-ws__mi-hint">
+                  Your weak area is <strong>{globalHotspot.label}</strong>, which isn&rsquo;t in this selection. Add it to focus this worksheet there.
+                </p>
+                <button type="button" className="lt-ws__mi-cta" onClick={() => toggleMulti(globalHotspot.key)}>
+                  Add {globalHotspot.label} →
+                </button>
               </>
             ) : (
-              <p className="lt-ws__mi-hint">
-                Grade a worksheet or use Check &amp; Improve first — then pick a multi-topic or full-subject scope, and this focuses the worksheet on the topics you&rsquo;ve lost the most marks on.
-              </p>
+              <p className="lt-ws__mi-hint">Pick topics you&rsquo;ve been graded on to personalise this worksheet.</p>
             )}
           </div>
 
@@ -715,6 +818,18 @@ export default function WorksheetGenerator() {
                   </div>
                 </div>
               )}
+
+              {/* FIX B — a Preview action at the FOOT of the drawer, beside "Done
+                  customising", so the next step sits where the student finishes editing
+                  (no scroll back up to the hero). Same handler + disabled logic as the hero. */}
+              <div className="lt-ws__drawerfoot">
+                <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+                  Preview worksheet →
+                </button>
+                <button type="button" className="lt-ws__btnt" onClick={() => setCustomiseOpen(false)}>
+                  Done customising
+                </button>
+              </div>
             </section>
           )}
 
@@ -793,9 +908,14 @@ export default function WorksheetGenerator() {
               </div>
             )}
 
-            {enrichCount > 0 && hotspot && (
+            {enrichCount > 0 && miBoostTopicKey && scopeHotspot && (
               <div className="lt-ws__warn">
-                <span aria-hidden="true">⚡</span> <strong>Enriched:</strong> {enrichCount} of {totalCount} question{enrichCount === 1 ? "" : "s"} target {hotspot.label} — your weakest in-scope topic, where you&rsquo;ve lost the most marks.
+                <span aria-hidden="true">⚡</span> <strong>Enriched:</strong> {enrichCount} of {totalCount} question{enrichCount === 1 ? "" : "s"} target {scopeHotspot.label} — your weakest in-scope topic, where you&rsquo;ve lost the most marks.
+              </div>
+            )}
+            {enrichCount > 0 && drawnWeakSecs.length > 0 && (
+              <div className="lt-ws__warn">
+                <span aria-hidden="true">⚡</span> <strong>Enriched:</strong> {enrichCount} of {totalCount} question{enrichCount === 1 ? "" : "s"} target Section{drawnWeakSecs.length === 1 ? "" : "s"} {formatSectionList(drawnWeakSecs)} — where you&rsquo;ve lost the most marks in {scopeLabel}.
               </div>
             )}
 
@@ -961,7 +1081,9 @@ const WS_CSS = `
 /* ── MI personalise (navy dark card → a toggle + one hint line) ─────────── */
 .lt-ws__mi { margin: 0 0 14px; border: 1px solid hsl(220, 25%, 12%); border-radius: 14px; padding: 15px 17px; background: hsl(220, 25%, 12%); }
 .lt-ws__mi-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: #ffffff; margin-bottom: 9px; }
-.lt-ws__mi-cta { display: inline-block; margin-top: 4px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 700; text-decoration: none; }
+/* Shared by the sign-in <Link> and the one-tap-remedy <button> — button-safe resets
+   so both render identically (FIX A). */
+.lt-ws__mi-cta { display: inline-block; margin-top: 4px; border: 1px solid var(--ws-green); background: var(--ws-green); color: #fff; border-radius: 9px; padding: 8px 13px; font-size: 12.5px; font-weight: 700; text-decoration: none; appearance: none; cursor: pointer; font-family: var(--ws-fb); }
 .lt-ws__mi-cta:hover { background: hsl(152, 60%, 40%); }
 .lt-ws__mi-hint { margin: 8px 0 0; font-size: 12px; color: hsl(220, 18%, 82%); line-height: 1.5; }
 .lt-ws__mi-toggle { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: hsl(220, 18%, 88%); cursor: pointer; }
@@ -1006,6 +1128,9 @@ const WS_CSS = `
 .lt-ws__customlink { appearance: none; border: none; background: none; display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ws-green-fg); cursor: pointer; font-weight: 600; font-family: var(--ws-fb); padding: 0; }
 .lt-ws__custom { border-top: 1px solid var(--ws-line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .lt-ws__range { width: 100%; accent-color: var(--ws-green); }
+/* FIX B — drawer-foot actions (Preview + Done customising). */
+.lt-ws__drawerfoot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--ws-line-soft); padding-top: 16px; }
+.lt-ws__drawerfoot .lt-ws__gen { width: auto; }
 
 /* ── Buttons ────────────────────────────────────────────────────────────── */
 .lt-ws__gen { border: none; background: var(--ws-green); color: #fff; border-radius: 11px; padding: 13px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--ws-fd); }
@@ -1092,7 +1217,21 @@ const WS_CSS = `
 .lt-ws__distfill[data-w="95"]{width:95%}.lt-ws__segfill[data-w="95"]{width:95%}
 .lt-ws__distfill[data-w="100"]{width:100%}.lt-ws__segfill[data-w="100"]{width:100%}
 
-.lt-ws__sticky { display: none; }
+/* FIX B — on DESKTOP the action bar is a slim sticky footer while the build view is
+   open, so a Preview CTA stays reachable after the Customise drawer pushes the hero
+   off-screen. position:sticky keeps it inside the content column (never overlapping
+   the navy shell sidebar); z-index sits well below the history overlay (900). Mobile
+   overrides this to the original fixed full-width bar above the bottom nav. */
+.lt-ws__sticky {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  position: sticky; bottom: 12px; z-index: 20; margin-top: 16px;
+  background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--ws-line); border-radius: 14px; padding: 10px 10px 10px 16px;
+  box-shadow: 0 8px 24px rgba(21, 35, 58, 0.12);
+}
+.lt-ws__stickyprev { font-size: 12.5px; color: var(--ws-muted); }
+.lt-ws__stickyprev strong { color: var(--ws-fg); }
+.lt-ws__sticky .lt-ws__gen { width: auto; flex-shrink: 0; }
 
 /* ── Mobile reflow (same markup) ─────────────────────────────────────────── */
 @media (max-width: 1023px) {
@@ -1108,8 +1247,9 @@ const WS_CSS = `
   .lt-ws__segbtn { flex: 1; padding: 9px 6px; }
   .lt-ws__sticky {
     display: block; position: fixed; left: 0; right: 0; bottom: var(--mob-nav-height, 56px);
-    background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border-top: 1px solid var(--ws-line); padding: 10px 16px; z-index: 30;
+    margin-top: 0; border: none; border-top: 1px solid var(--ws-line); border-radius: 0;
+    box-shadow: none; padding: 10px 16px; z-index: 30;
+    background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .lt-ws__stickyprev { font-size: 12px; color: var(--ws-muted); text-align: center; margin-bottom: 8px; }
   .lt-ws__stickyprev strong { color: var(--ws-fg); }
