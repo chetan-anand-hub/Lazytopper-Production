@@ -430,24 +430,34 @@ const NOTE_CSS = `
 .lt-note__panel { display: none; }
 .lt-note__panel--active { display: block; }
 
-/* ── mindmap: responsive, collapsible vertical tree (v1.2) ──────────── */
+/* ── mindmap: responsive, collapsible tree that READS as a tree (v1.3) ── */
 .lt-note__mm-scroll {
   overflow-y: auto; overflow-x: hidden; max-height: 560px;
   background: #fcfdfe; border: 1px solid var(--lt-note-line); border-radius: 12px;
-  padding: 12px 14px;
+  padding: 14px 16px;
 }
 .lt-note__mm-tree, .lt-note__mm-item { list-style: none; margin: 0; padding: 0; }
-/* a parent's children: indented, with a connector rail down the left edge */
+.lt-note__mm-item { position: relative; }
+/* a parent's children: indented under a vertical accent rail (the "trunk"),
+   each child tied back to the rail by a short horizontal elbow — so the
+   parent > child branching is legible, not a flat stack of cards. The rail and
+   elbow colour come from the branch's --mm-accent (neutral fallback for the
+   root's own group, which has no single accent). */
 .lt-note__mm-kids {
-  list-style: none; margin: 3px 0 5px; padding: 3px 0 0 16px;
-  border-left: 2px solid var(--lt-note-line); display: grid; gap: 3px;
+  list-style: none; margin: 2px 0 6px; padding: 4px 0 2px 22px;
+  border-left: 2px solid var(--mm-accent, var(--lt-note-line));
+  display: grid; gap: 4px;
 }
 .lt-note__mm-kids--collapsed { display: none; }
+.lt-note__mm-kids > .lt-note__mm-item::before {
+  content: ""; position: absolute; left: -22px; top: 16px; width: 20px; height: 0;
+  border-top: 2px solid var(--mm-accent, var(--lt-note-line));
+}
 .lt-note__mm-node {
   box-sizing: border-box; width: 100%; text-align: left;
-  display: flex; align-items: flex-start; gap: 7px;
+  display: flex; align-items: flex-start; gap: 8px;
   padding: 7px 12px; margin: 2px 0; border-radius: 10px;
-  background: #fff; border: 1.3px solid #e7ebf0;
+  background: #fff; border: 1.3px solid var(--lt-note-line);
   font-family: var(--lt-note-sans); font-weight: 600; font-size: 12.5px;
   line-height: 1.35; color: var(--lt-note-ink-soft);
 }
@@ -455,18 +465,31 @@ button.lt-note__mm-node { cursor: pointer; }
 button.lt-note__mm-node:hover { border-color: var(--lt-note-green-line); background: #fcfdfe; }
 .lt-note__mm-node--root {
   background: var(--lt-note-navy); border-color: var(--lt-note-navy); color: #fff;
-  font-family: var(--lt-note-serif); font-size: 14px; font-weight: 600;
+  font-family: var(--lt-note-serif); font-size: 14.5px; font-weight: 600;
 }
 button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a; }
 .lt-note__mm-node--branch {
-  border-left-width: 4px; color: var(--lt-note-navy); font-weight: 700; font-size: 13px;
+  border-left: 4px solid var(--mm-accent, var(--lt-note-navy));
+  color: var(--lt-note-navy); font-weight: 700; font-size: 13px;
 }
-.lt-note__mm-node--leaf { font-weight: 500; }
+/* leaf: visibly subordinate to its branch — lighter, smaller, no hard card edge */
+.lt-note__mm-node--leaf {
+  font-weight: 500; font-size: 12px; color: var(--lt-note-ink-soft);
+  background: var(--lt-note-bg); border-color: transparent; padding: 6px 11px;
+}
 .lt-note__mm-caret {
-  flex: none; font-size: 10px; line-height: 1.7; color: currentColor; opacity: 0.6;
+  flex: none; font-size: 10px; line-height: 1.7; color: currentColor; opacity: 0.55;
   transition: transform 0.18s ease;
 }
 .lt-note__mm-caret--open { transform: rotate(90deg); }
+/* mobile: cap indentation so deep nodes never run off-screen; labels wrap */
+@media (max-width: 380px) {
+  .lt-note__mm-scroll { padding: 11px 12px; }
+  .lt-note__mm-kids { padding-left: 16px; }
+  .lt-note__mm-kids > .lt-note__mm-item::before { left: -16px; width: 14px; }
+  .lt-note__mm-node { font-size: 12px; padding: 6px 10px; gap: 6px; }
+  .lt-note__mm-node--leaf { padding: 5px 9px; }
+}
 
 /* ── generated figure: parabola triptych (Part 2) ──────────────────── */
 .lt-note__fgen { margin: 4px 0; }
