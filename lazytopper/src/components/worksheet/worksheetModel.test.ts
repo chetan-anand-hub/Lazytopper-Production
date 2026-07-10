@@ -1,11 +1,16 @@
 import { describe, it, expect } from "vitest";
 import {
   allocateCounts,
+  allocateMiCounts,
+  miCapFractionFor,
+  MI_CAP_FRACTION_MANY,
+  MI_CAP_FRACTION_TWO,
   getTopics,
   weightFor,
   DELETED_TOPIC_KEYS,
   MI_BOOST,
   type TopicAllocInput,
+  type MiTopicAllocInput,
 } from "./worksheetModel";
 
 // PR-E2a — distribution + content-correctness unit tests. Pure, deterministic
@@ -67,6 +72,77 @@ describe("allocateCounts — honest counts (availability cap)", () => {
   it("allocates nothing when requested is zero", () => {
     const out = allocateCounts(rows(["a", 1, 9]), 0);
     expect(out[0].allocated).toBe(0);
+  });
+});
+
+const miRows = (...specs: Array<[string, number, number, number]>): MiTopicAllocInput[] =>
+  specs.map(([key, weight, available, marksLost]) => ({ key, label: key, weight, available, marksLost }));
+
+describe("miCapFractionFor — cap engages only at 3+ topics (owner decision 2026-07-10)", () => {
+  it("2 topics keep the ~60% ceiling; 3+ cap at ~50%", () => {
+    expect(miCapFractionFor(1)).toBe(MI_CAP_FRACTION_TWO);
+    expect(miCapFractionFor(2)).toBe(MI_CAP_FRACTION_TWO);
+    expect(miCapFractionFor(3)).toBe(MI_CAP_FRACTION_MANY);
+    expect(miCapFractionFor(4)).toBe(MI_CAP_FRACTION_MANY);
+    expect(MI_CAP_FRACTION_TWO).toBe(0.6);
+    expect(MI_CAP_FRACTION_MANY).toBe(0.5);
+  });
+});
+
+describe("allocateMiCounts — proportional enrichment with floor + cap (FIX-3)", () => {
+  it("2-topic single-weak preserves the locked ~60/40 tilt (15:10 of 25)", () => {
+    // even base weights (1,1); only topic a has marks lost → keeps the shipped prototype.
+    const out = allocateMiCounts(miRows(["a", 1, 99, 8], ["b", 1, 99, 0]), 25, miCapFractionFor(2));
+    const byKey = Object.fromEntries(out.map((r) => [r.key, r.allocated]));
+    expect(byKey.a).toBe(15);
+    expect(byKey.b).toBe(10);
+    expect(out.reduce((s, r) => s + r.allocated, 0)).toBe(25);
+  });
+
+  it("3+ topics: no single topic exceeds ~50% however lopsided the marks lost", () => {
+    const out = allocateMiCounts(
+      miRows(["a", 1, 99, 100], ["b", 1, 99, 1], ["c", 1, 99, 1]),
+      25,
+      miCapFractionFor(3),
+    );
+    const byKey = Object.fromEntries(out.map((r) => [r.key, r.allocated]));
+    expect(byKey.a).toBeLessThanOrEqual(Math.floor(25 * 0.5)); // ≤ 12 — a tilt, not a takeover
+    expect(byKey.b).toBeGreaterThanOrEqual(1); // floors kept for the other chosen topics
+    expect(byKey.c).toBeGreaterThanOrEqual(1);
+    expect(out.reduce((s, r) => s + r.allocated, 0)).toBe(25);
+  });
+
+  it("a zero-MI chosen topic is never dropped — the selection is intent, MI only tilts", () => {
+    const out = allocateMiCounts(
+      miRows(["weak", 1, 99, 50], ["chosen", 1, 99, 0], ["also", 1, 99, 0]),
+      20,
+      miCapFractionFor(3),
+    );
+    const byKey = Object.fromEntries(out.map((r) => [r.key, r.allocated]));
+    expect(byKey.chosen).toBeGreaterThanOrEqual(1);
+    expect(byKey.also).toBeGreaterThanOrEqual(1);
+    expect(byKey.weak).toBeLessThanOrEqual(Math.floor(20 * 0.5));
+    expect(out.reduce((s, r) => s + r.allocated, 0)).toBe(20);
+  });
+
+  it("honest counts: total == min(requested, capacity); availability is never exceeded", () => {
+    const out = allocateMiCounts(miRows(["a", 1, 4, 10], ["b", 1, 3, 0]), 25, miCapFractionFor(2));
+    const byKey = Object.fromEntries(out.map((r) => [r.key, r.allocated]));
+    expect(byKey.a).toBeLessThanOrEqual(4);
+    expect(byKey.b).toBeLessThanOrEqual(3);
+    expect(out.reduce((s, r) => s + r.allocated, 0)).toBe(7); // 4 + 3 capacity, never 25
+  });
+
+  it("weak topics keep the larger (proportional) share within the cap", () => {
+    const out = allocateMiCounts(
+      miRows(["a", 1, 99, 9], ["b", 1, 99, 3], ["c", 1, 99, 0]),
+      24,
+      miCapFractionFor(3),
+    );
+    const byKey = Object.fromEntries(out.map((r) => [r.key, r.allocated]));
+    expect(byKey.a).toBeGreaterThan(byKey.b);
+    expect(byKey.b).toBeGreaterThan(byKey.c);
+    expect(byKey.c).toBeGreaterThanOrEqual(1); // floor
   });
 });
 

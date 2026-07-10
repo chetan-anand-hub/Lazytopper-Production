@@ -191,6 +191,38 @@ export function weakestTopic(mi: WorksheetMi, candidates: WorksheetTopic[]): Top
   return best;
 }
 
+/** One in-scope weak topic with its real marks-lost weight (FIX-3, level 1). */
+export interface WeakTopicWeight {
+  key: string;
+  label: string;
+  /** Real marks lost on this topic in the window (>0). The between-topic weight. */
+  marksLost: number;
+}
+
+/**
+ * FIX-3 — the scope-relative multi-topic analogue of `weakestTopic`: the FULL ranked
+ * set of in-scope topics that carry attributable marks lost, most-marks-lost first.
+ * Where `weakestTopic` names only the single weakest, this names EVERY weak in-scope
+ * topic so the worksheet can weight BETWEEN them proportionally to real marks lost
+ * (level 1) — and it is what the honest copy enumerates ("… Real Numbers and
+ * Polynomials, where you've lost the most marks"). Topics with no recorded loss are
+ * omitted (never named, never boosted). Ties keep the candidate order (deterministic).
+ * `weakestTopic` is retained unchanged for its existing single-topic callers.
+ */
+export function rankedInScopeWeakTopics(
+  mi: WorksheetMi,
+  candidates: WorksheetTopic[],
+): WeakTopicWeight[] {
+  const rows: Array<{ w: WeakTopicWeight; i: number }> = [];
+  candidates.forEach((t, i) => {
+    const m = mi.byTopic.get(t.key);
+    if (m && m.marksLost > 0) rows.push({ w: { key: t.key, label: t.label, marksLost: m.marksLost }, i });
+  });
+  return rows
+    .sort((a, b) => b.w.marksLost - a.w.marksLost || a.i - b.i)
+    .map((r) => r.w);
+}
+
 /** A topic's known weak sections, most-marks-lost first (unknown-band loss excluded). */
 export function weakSections(topicMi: TopicMi | null | undefined): MistakeSection[] {
   if (!topicMi) return [];

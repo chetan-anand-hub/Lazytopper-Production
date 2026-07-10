@@ -3,6 +3,7 @@ import {
   sectionFromTotalMarks,
   aggregateMistakeLog,
   weakestTopic,
+  rankedInScopeWeakTopics,
   weakSections,
   sectionBoostsFor,
   SECTION_BOOST_STRENGTH,
@@ -139,6 +140,47 @@ describe("weakestTopic — scope-relative weakest, honest null", () => {
   it("returns null when no candidate has any loss", () => {
     const trigOnly = TOPICS.filter((t) => t.key === "trigonometry");
     expect(weakestTopic(mi, trigOnly)).toBeNull();
+  });
+});
+
+describe("rankedInScopeWeakTopics — the full ranked in-scope weak set (FIX-3)", () => {
+  const mi = aggregateMistakeLog(
+    [
+      entry({ topic: "real-numbers", totalMarks: 3, marksLost: 6 }),
+      entry({ topic: "circles", totalMarks: 3, marksLost: 2 }),
+      // trigonometry: no loss → never named
+    ],
+    TOPICS,
+    NOW,
+  );
+
+  it("ranks every in-scope weak topic by marks lost (desc), omitting no-loss topics", () => {
+    const ranked = rankedInScopeWeakTopics(mi, TOPICS);
+    expect(ranked.map((t) => t.key)).toEqual(["real-numbers", "circles"]);
+    expect(ranked.map((t) => t.marksLost)).toEqual([6, 2]);
+  });
+
+  it("is scope-relative: only ranks the supplied candidates", () => {
+    const circlesOnly = TOPICS.filter((t) => t.key === "circles");
+    expect(rankedInScopeWeakTopics(mi, circlesOnly).map((t) => t.key)).toEqual(["circles"]);
+  });
+
+  it("returns [] when no candidate has any loss (never fabricates a weak topic)", () => {
+    const trigOnly = TOPICS.filter((t) => t.key === "trigonometry");
+    expect(rankedInScopeWeakTopics(mi, trigOnly)).toEqual([]);
+  });
+
+  it("breaks ties by candidate order (deterministic)", () => {
+    const tie = aggregateMistakeLog(
+      [
+        entry({ topic: "circles", totalMarks: 3, marksLost: 4 }),
+        entry({ topic: "real-numbers", totalMarks: 3, marksLost: 4 }),
+      ],
+      TOPICS,
+      NOW,
+    );
+    // TOPICS order is real-numbers, circles → an equal-marks tie keeps that order.
+    expect(rankedInScopeWeakTopics(tie, TOPICS).map((t) => t.key)).toEqual(["real-numbers", "circles"]);
   });
 });
 
