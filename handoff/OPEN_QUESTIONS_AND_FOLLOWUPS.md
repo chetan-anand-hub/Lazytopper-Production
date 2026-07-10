@@ -1,3 +1,23 @@
+## 2026-07-09 — Worksheet scope-relative MI + section enrichment + Preview affordance merged (#353, `f8c1536`)
+
+### ✅ RESOLVED (closed by #353 — NOT #349 regressions; refinements surfaced in #349 review)
+- **[FU-MI-SCOPE-RELATIVE] → CLOSED.** MI is now computed WITHIN the chosen scope (new pure `worksheetMiSelector.ts`; `scopeHotspot` = weakest in-scope topic vs `globalHotspot`). The single locked box was SPLIT into its true causes — a student WITH MI data now sees the real weak topic NAMED + a one-tap remedy, never the false "grade a worksheet first".
+- **[FU-MI-ENRICH-WITHIN-TOPIC] → CLOSED.** Single-topic worksheets now enrich by SECTION — derived from each mistake's `totalMarks` via the CBSE band proxy (honest-unknown for non-band values, never a fabricated section); additive `orderPoolBySectionBoost` in `worksheetModel.ts` reusing `allocateCounts`, capped at real per-section availability, gated on the drawable pool so the toggle is never a no-op. Cross-topic `MI_BOOST` byte-unchanged. No schema change / no new writes.
+- **[FU-BUILDER-PREVIEW-AFFORDANCE] → CLOSED.** Desktop `position:sticky` Preview footer + a Preview at the foot of the Customise drawer.
+
+### 🆕 NEW FOLLOW-UPS (owner findings surfaced in #353 live-verify — a dispatched-separately follow-up PR, NOT #353 regressions)
+- **[FU-WS-ENTRY-CONTEXT]** — the builder ignores the topic the student ARRIVED with: `WorksheetGenerator()` takes NO props and defaults to `topics[0]`; both entry paths lose the origin context, and there is no topic control on the first (smart-default) screen. The builder should honour the entry topic and expose a topic control up front.
+- **[FU-WS-MULTITOPIC-MI-AGGREGATE]** — `weakestTopic()` returns ONE topic, so multi-topic scope names/boosts only the single weakest in-scope topic. Multi-topic MI should aggregate/weight across ALL the selected weak topics, not just the weakest.
+- **[FU-WS-PREVIEW-BUTTONS]** — three Preview affordances now render (hero + desktop sticky + drawer-foot). Keep the hero + drawer-foot; DROP the sticky bar (redundant on desktop).
+- **[FU-WS-MI-SWITCH]** — the MI enrich control is a raw `<input type="checkbox">`; promote it to an accessible switch (role/aria + keyboard) matching the product's control grammar.
+- **[FU-WS-MI-COPY]** — soften the out-of-scope wording in the split MI states (the "your weak area is X, not {scope}" copy reads slightly blunt).
+- **[FU-MOBILE-VERIFY-GAP]** — the surfaces are built as ONE responsive component, but mobile (≤360px) has never been mockup-designed or live-verified. **DOCTRINE:** every future mockup ships a mobile frame, and every live-verify includes a 360px check.
+
+### ℹ️ NOTE — carried
+- **[FU-CI-SOLUTION-CACHE]** carried: giving C&I uploads a canonical `questionId` enables the exact `questionIds`→`canonicalQuestionBank` section join, superseding the `totalMarks` band proxy #353 uses for MI section derivation.
+
+---
+
 ## 2026-07-09 — Objective ANSWER KEYS repaired merged (#352, `b9a7817`)
 
 ### ✅ RESOLVED
