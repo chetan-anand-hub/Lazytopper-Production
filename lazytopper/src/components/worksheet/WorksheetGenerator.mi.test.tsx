@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 
 // Worksheet BUILDER redesign ("A · Smart default") + FIX A (scope-relative Mistake
 // Intelligence with SPLIT honest states). Asserts against the real rendered DOM.
@@ -15,6 +15,14 @@ import WorksheetGenerator from "./WorksheetGenerator";
 const MISTAKE_KEY = "lazytopper.mistakeLogs.v1:u1";
 const signedIn = { user: { uid: "u1", isLocalSession: false } };
 const now = () => new Date().toISOString();
+
+/** Surfaces the live router search string so URL-sync assertions can read it. */
+function LocationProbe() {
+  const loc = useLocation();
+  return <div data-testid="loc">{loc.search}</div>;
+}
+/** Find the drawer topic CHIP (not an MI-box mention) for a topic label. */
+const chip = (els: HTMLElement[]) => els.find((el) => el.classList.contains("lt-ws__chip"))!;
 
 // FIX-1 — the builder never invents a topic; it opens from a valid subject + topic in the
 // URL (else it redirects to the hub). Every render below supplies real entry context — the
@@ -165,14 +173,14 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
   it("(3a) multi-topic: the cross-topic toggle names the weakest IN-SCOPE topic (scope-relative)", () => {
     useAuthMock.mockReturnValue(signedIn);
     seedMistakes([{ topic: "circles", subject: "Maths", totalMarks: 3, marksLost: 5 }]);
-    const { getByText, getAllByText, getByTestId } = render(
+    const { getAllByText, getByText, getByTestId } = render(
       <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
-    fireEvent.click(getByText("Customise")); // open the drawer (scope control lives there)
-    fireEvent.click(getByText("Multi-topic")); // switch scope → seeds multiTopics=[Real Numbers]
-    // Add the weak topic (click its drawer CHIP, not the MI-box mention).
+    fireEvent.click(getByText("Customise")); // open the drawer (unified topic picker lives there)
+    // Ticking a 2nd topic DERIVES multi-topic scope — no separate Scope control anymore.
+    // (Click the drawer CHIP, not the MI-box mention of "Circles".)
     fireEvent.click(getAllByText("Circles").find((el) => el.classList.contains("lt-ws__chip"))!);
     const mi = getByTestId("mi-enrich-box");
     expect(mi.className).not.toContain("locked");
@@ -190,8 +198,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
       </MemoryRouter>,
     );
     fireEvent.click(getByText("Customise"));
-    fireEvent.click(getByText("Multi-topic")); // multiTopics=[Real Numbers]
-    // Add a NON-weak 2nd topic so the weak area (Triangles) is out of the selection.
+    // Tick a NON-weak 2nd topic → derives multi-topic scope, weak area (Triangles) out of scope.
     fireEvent.click(getAllByText("Polynomials").find((el) => el.classList.contains("lt-ws__chip"))!);
     const mi = getByTestId("mi-enrich-box");
     expect(mi.textContent).toMatch(/your weak area is/i);
@@ -277,7 +284,7 @@ describe("WorksheetGenerator — FIX-3 multi-topic MI names the FULL weak set", 
       </MemoryRouter>,
     );
     fireEvent.click(getByText("Customise"));
-    fireEvent.click(getByText("Multi-topic")); // seeds multiTopics=[Real Numbers]
+    // Tick a 2nd topic → multi-topic scope derived from the selection (both topics in scope).
     fireEvent.click(getAllByText("Circles").find((el) => el.classList.contains("lt-ws__chip"))!);
     const mi = getByTestId("mi-enrich-box");
     expect(mi.textContent).toMatch(/weight toward/i);
@@ -285,5 +292,51 @@ describe("WorksheetGenerator — FIX-3 multi-topic MI names the FULL weak set", 
     expect(mi.textContent).toContain("Real Numbers");
     expect(mi.textContent).toContain("Circles");
     expect(mi.querySelector('[role="switch"]')).not.toBeNull();
+  });
+});
+
+describe("WorksheetGenerator — FIX (derive-scope): scope follows the selection, never a stale control", () => {
+  it("ticking a 2nd topic promotes to multi-topic; unticking back to one reverts to single", () => {
+    const { getByText, getAllByText } = render(
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(getByText("Customise"));
+    // Entry is a single topic (Real Numbers) — the derived label says so.
+    expect(getByText(/1 selected .* single topic/i)).toBeTruthy();
+    // Tick a 2nd topic WITHOUT touching any scope control → derives multi-topic.
+    fireEvent.click(chip(getAllByText("Polynomials")));
+    expect(getByText(/2 selected .* multi-topic/i)).toBeTruthy();
+    // Untick it → reverts to single topic (never stuck in multi).
+    fireEvent.click(chip(getAllByText("Polynomials")));
+    expect(getByText(/1 selected .* single topic/i)).toBeTruthy();
+  });
+
+  it("keeps the URL in sync with the derived scope — no ticked topic is dropped", () => {
+    const { getByText, getAllByText, getByTestId } = render(
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
+        <WorksheetGenerator />
+        <LocationProbe />
+      </MemoryRouter>,
+    );
+    fireEvent.click(getByText("Customise"));
+    fireEvent.click(chip(getAllByText("Polynomials")));
+    const search = getByTestId("loc").textContent ?? "";
+    expect(search).toMatch(/scope=multi-topic/);
+    // BOTH ticked topics survive into the URL (the #357 live-verify defect: a subset was dropped).
+    expect(search).toContain("real-numbers");
+    expect(search).toContain("polynomials");
+  });
+
+  it("'All topics' derives full-subject scope (every topic in scope)", () => {
+    const { getByText } = render(
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(getByText("Customise"));
+    fireEvent.click(getByText(/^All topics/));
+    expect(getByText(/full subject/i)).toBeTruthy();
   });
 });
