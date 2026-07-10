@@ -1,3 +1,15 @@
+## 2026-07-10 — Notes v1.3: visible mindmap tree + full-screen note modal merged (#356, `629457e`)
+
+### ✅ RESOLVED (closed by #356 — v1.3 refinements from the #345 live-review, NOT regressions)
+- **Notes v1.3 mindmap default-visible → DONE.** The mindmap now reads as a TREE by default (per-branch `--mm-accent` rail + connector elbows + root › branch › leaf weight). ⚠️ The brief's premise ("branches render COLLAPSED / 5 flat closed rows") was **WRONG** — all three specs (life-processes/light/quadratic) are **depth-2** mindmaps already fully expanded at the existing `useState(depth <= 1)` (no branch ever rendered a closed caret). The real defect was **visual legibility**, so the open-state was PRESERVED and only the visuals changed. Kept the v1.2 ≤380px no-overlap responsive win (did not revert to the fixed d3 canvas).
+- **Notes v1.3 full-screen note modal → DONE.** `NoteModal` opens a 92vw × 92vh sheet (capped 1280px for readable line length) on desktop, full-screen on mobile; `<Note>` internals + all close affordances (✕/Escape/dim-click), scroll-lock and focus-restore unchanged — sizing only.
+- **[FU-MOBILE-VERIFY-GAP] → FIRST REAL PASS CLOSED.** This PR's static 360px layout audit was **confirmed by the owner on a real viewport** (mindmap: no horizontal scroll / no overlap; modal: full-screen with ✕ reachable). The DOCTRINE stands and is now mandatory: **every surface's live-verify includes a 360px check**, and every future mockup ships a mobile frame.
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-PNPM-PACKAGEMANAGER-PIN] (supersedes gotcha D42)** — root `package.json` has **no `packageManager` field**, so Corepack falls back to whatever pnpm is on PATH in a fresh worktree (here 9.15.9). `pnpm-workspace.yaml:59` sets `autoInstallPeers: false` and the lockfile records the same, but a different pnpm resolves the settings differently → **`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` on `--frozen-lockfile`**. **Fix:** add `"packageManager": "pnpm@10.32.1"` to root `package.json` — `quality-gate.yml:38` already names this as the follow-up and line 40 works around it with `corepack prepare`. **The current `--no-frozen-lockfile` + restore-lockfile workaround is risky:** if an agent forgets to restore, a lockfile written by the wrong pnpm enters the diff. **Own tiny chore PR** (owner-gated; not bundled into a feature PR). Supersedes D42.
+
+---
+
 ## 2026-07-10 — Worksheet CONTEXT-AWARE ENTRY + multi-topic MI aggregate + preview/switch/360px merged (#357, `aa7e778`)
 
 ### ✅ RESOLVED (closed by #357)
