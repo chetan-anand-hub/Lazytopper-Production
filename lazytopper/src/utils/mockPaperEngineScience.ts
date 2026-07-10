@@ -6,6 +6,7 @@ import type {
   SciDifficultyKey,
 } from "../data/predictedQuestionsScience";
 import { class10ScienceTopicTrends } from "../data/class10ScienceTopicTrends";
+import { resolveCanonicalSlug, resolveCanonicalSlugSet } from "../data/syllabus/canonicalTopicSlug";
 import {
   buildConstrainedPaper,
   type ConstrainedPaperCandidate,
@@ -109,8 +110,8 @@ function pickQuestionsForSection(
   let candidates = bank.filter((q) => q.section === sectionKey);
 
   if (focusTopics && focusTopics.length > 0) {
-    const topicSet = new Set(focusTopics);
-    const focused = candidates.filter((q) => topicSet.has(q.topicKey));
+    const topicSet = resolveCanonicalSlugSet(focusTopics);
+    const focused = candidates.filter((q) => topicSet.has(resolveCanonicalSlug(q.topicKey)));
     if (focused.length > 0) {
       candidates = focused;
     }
@@ -211,10 +212,10 @@ export function buildScienceMockPaperFromBank(
       : bank;
   const historicalItems = getCanonicalHistoricalDataset().items;
   const topicFilter = paperMeta.focusTopics?.length
-    ? new Set(paperMeta.focusTopics)
+    ? resolveCanonicalSlugSet(paperMeta.focusTopics)
     : null;
   const candidateBank = topicFilter
-    ? eligibleBank.filter((question) => topicFilter.has(question.topicKey))
+    ? eligibleBank.filter((question) => topicFilter.has(resolveCanonicalSlug(question.topicKey)))
     : eligibleBank;
 
   const byId = new Map(candidateBank.map((question) => [question.id, question]));

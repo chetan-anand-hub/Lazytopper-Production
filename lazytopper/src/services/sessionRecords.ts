@@ -25,6 +25,7 @@
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { firestoreDb } from "./firebaseClient";
 import { getActiveProgressUser } from "./studentProgressStore";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import type { AuthUser } from "../context/AuthContext";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
@@ -443,7 +444,7 @@ export function buildWorksheetSessionRecord(
     surface: "worksheet",
     title: worksheet.title,
     subject: /sci/i.test(String(worksheet.subject || "")) ? "science" : "maths",
-    topicKeys: Array.from(new Set(worksheet.questions.map((q) => q.topicKey).filter(Boolean))),
+    topicKeys: Array.from(new Set(worksheet.questions.map((q) => resolveCanonicalSlug(q.topicKey)).filter(Boolean))),
     questionIds: worksheet.questions.map((q) => q.id).filter(Boolean),
     marksAwarded: Number(response.gradedMarksAwarded) || 0,
     marksTotal: Number(response.gradedMarksTotal) || 0,

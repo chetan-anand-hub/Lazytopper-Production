@@ -12,6 +12,7 @@
 
 import type { Class10TopicKey } from "./class10MathTopicTrends";
 import type { Class10ScienceTopicKey } from "./class10ScienceTopicTrends";
+import { canonicalSlugMatches } from "./syllabus/canonicalTopicSlug";
 
 import type {
   PredictedQuestion,
@@ -440,7 +441,7 @@ export function generateUnifiedPracticeQuestions(
   if (wantsBank && remaining > 0) {
     if (req.subject === "Science") {
       const pool = predictedQuestionsScience.filter((q) => {
-        if (q.topicKey !== (req.topicKey as Class10ScienceTopicKey)) return false;
+        if (!canonicalSlugMatches(q.topicKey, req.topicKey)) return false;
         if (req.section && q.section !== req.section) return false;
         if (req.difficulty && q.difficulty !== req.difficulty) return false;
         return true;
@@ -454,7 +455,7 @@ export function generateUnifiedPracticeQuestions(
       }
     } else if (req.subject === "Maths") {
       const pool = ALL_MATHS_BANK_QUESTIONS.filter((q) => {
-        if (q.topicKey !== (req.topicKey as Class10TopicKey)) return false;
+        if (!canonicalSlugMatches(q.topicKey, req.topicKey)) return false;
         if (req.section && q.section !== req.section) return false;
         if (req.difficulty && q.difficulty !== req.difficulty) return false;
         return true;

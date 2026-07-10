@@ -32,7 +32,7 @@ import type { AuthUser } from "../context/AuthContext";
 import { logMistakes, type MistakeLogEntry } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { recordWrongAnswer } from "./adaptivePracticeEngine";
-import { normalizeTopicKey } from "../utils/topicResolver";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 
 export interface RecordMistakeContext {
   subject: string;
@@ -243,7 +243,7 @@ export async function recordMistake(
     );
   if (isKnowledgeGap) {
     const topicKey =
-      normalizeTopicKey(context.topicKey ?? context.topic) ||
+      resolveCanonicalSlug(context.topicKey ?? context.topic) ||
       String(context.topicKey ?? context.topic ?? "");
     if (topicKey) {
       // When the surface has a real questionId, key the concept on it (mirrors

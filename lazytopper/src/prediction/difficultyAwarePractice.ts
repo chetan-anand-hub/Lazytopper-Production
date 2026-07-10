@@ -5,6 +5,7 @@
 //          wiring yet.
 
 import { PredictionCore } from "../data/predictionCore";
+import { canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
 import {
   suggestDifficulty,
   type CanonicalQuestionLike,
@@ -56,10 +57,7 @@ export function generateDifficultyBalancedSet(
   const tagged = tagAllQuestionsWithDifficulty();
 
   const filtered = topicKey
-    ? tagged.filter((t) => {
-        const qTopicKey = String(t.question.topicKey ?? "").trim();
-        return qTopicKey === topicKey;
-      })
+    ? tagged.filter((t) => canonicalSlugMatches(String(t.question.topicKey ?? ""), topicKey))
     : tagged;
 
   const byDifficulty: Record<DifficultyLabel, DifficultyTaggedQuestion[]> = {
