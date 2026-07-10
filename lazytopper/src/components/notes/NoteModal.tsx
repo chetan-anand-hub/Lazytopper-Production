@@ -1,11 +1,12 @@
 /**
  * NoteModal — mounts <Note> as an overlay POPUP over the Topic Hub.
  *
- * A chapter note is a long document; rendering it inline expanded the Topic Hub
- * page (confusing). ConceptSpine now opens it here instead: the hub dims behind,
- * the note sits in a large scrollable centered panel on desktop → a full-height
- * sheet on mobile. ✕ / Escape / dim-click all close, returning to the hub exactly
- * as it was; body-scroll-lock while open.
+ * A chapter note is a long, often diagram-heavy document; rendering it inline
+ * expanded the Topic Hub page (confusing). ConceptSpine now opens it here
+ * instead: the hub dims behind, the note fills a near-full-screen sheet
+ * (~92vw × ~92vh) on desktop → a full-screen sheet on mobile, so the figures,
+ * mindmap and examples have room. ✕ / Escape / dim-click all close, returning to
+ * the hub exactly as it was; body-scroll-lock while open.
  *
  * <Note> itself is UNCHANGED — only its MOUNTING moves from inline to inside this
  * modal. Overlay grammar mirrors the proven ResultsScorecard / ConceptTeachDrawer
@@ -95,14 +96,18 @@ const NOTEMODAL_CSS = `
 .lt-notemodal__dim {
   position: fixed; inset: 0; z-index: 2000;
   background: rgba(15, 36, 68, 0.5);
-  display: flex; align-items: center; justify-content: center; padding: 28px;
+  display: flex; align-items: center; justify-content: center; padding: 18px;
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
   animation: lt-notemodal-fade 0.18s ease;
 }
 @keyframes lt-notemodal-fade { from { opacity: 0; } to { opacity: 1; } }
+/* Near-full-screen sheet: diagram-heavy notes (7 NCERT figures + mindmap +
+   examples) need room. Cap the width so prose lines stay readable on very wide
+   monitors; on a laptop 92vw sits below the cap, so it reads as near-full. */
 .lt-notemodal__card {
-  background: #f6f8fa; border-radius: 20px; width: 100%; max-width: 960px;
-  max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
+  background: #f6f8fa; border-radius: 20px;
+  width: 92vw; max-width: 1280px; height: 92vh; max-height: 92vh;
+  display: flex; flex-direction: column; overflow: hidden;
   box-shadow: 0 30px 90px rgba(15, 36, 68, 0.5);
 }
 .lt-notemodal__head {
@@ -119,7 +124,9 @@ const NOTEMODAL_CSS = `
 
 @media (max-width: 640px) {
   .lt-notemodal__dim { align-items: stretch; padding: 0; }
-  .lt-notemodal__card { max-width: 100%; max-height: 100%; height: 100%; border-radius: 0; }
+  .lt-notemodal__card {
+    width: 100%; max-width: 100%; height: 100%; max-height: 100%; border-radius: 0;
+  }
   .lt-notemodal__body { padding: 12px; }
 }
 `;
