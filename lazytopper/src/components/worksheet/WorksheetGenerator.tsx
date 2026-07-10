@@ -126,6 +126,10 @@ const VALID_SUBJECTS: LTSubjectKey[] = ["Maths", "Science"];
 const VALID_SCOPES: PaperScope[] = ["topic", "multi-topic", "full-subject"];
 const VALID_STREAMS: ScienceStream[] = ["All", "Physics", "Chemistry", "Biology"];
 
+/** Stable empty reference for the derived `multiTopics` when the scope isn't multi-topic —
+ *  keeps every downstream useMemo/useEffect dep referentially stable across renders. */
+const EMPTY_TOPICS: string[] = [];
+
 interface EntryContext {
   subject: LTSubjectKey | null;
   stream: ScienceStream;
@@ -213,15 +217,35 @@ export default function WorksheetGenerator() {
 
   const [subject, setSubject] = useState<LTSubjectKey>(entry.subject ?? ((ctx.subject as LTSubjectKey) || "Maths"));
   const [stream, setStream] = useState<ScienceStream>(entry.stream);
-  const [scope, setScope] = useState<PaperScope>(entry.scope);
 
   const topics = useMemo(() => getTopics(subject, stream), [subject, stream]);
 
-  // FIX-1 — initial single/multi selections come from the validated URL context, NOT
-  // topics[0]. The catalogue-validity effect below re-seeds only on IN-APP subject /
-  // stream switches (a user action), never at entry (the entry topic is always valid).
-  const [singleTopic, setSingleTopic] = useState<string>(entry.singleTopic);
-  const [multiTopics, setMultiTopics] = useState<string[]>(entry.multiTopics);
+  // FIX (derive-scope) — the topic SELECTION is the single source of truth. `selectedTopics`
+  // holds the ticked topics; `allTopics` is the full-subject toggle. Both seed from the
+  // validated URL context (FIX-1), NOT topics[0]. There is no independent `scope` state that
+  // could silently contradict the selection — scope is DERIVED just below.
+  const [selectedTopics, setSelectedTopics] = useState<string[]>(() =>
+    entry.scope === "multi-topic" ? entry.multiTopics : entry.singleTopic ? [entry.singleTopic] : [],
+  );
+  const [allTopics, setAllTopics] = useState<boolean>(entry.scope === "full-subject");
+
+  // FIX (derive-scope) — SCOPE IS DERIVED FROM THE SELECTION, never a separately-settable
+  // control. A student's ticks ARE the scope: 1 topic → "topic", 2+ → "multi-topic", the
+  // "All topics" toggle → "full-subject". This deletes a whole bug class — the worksheet can
+  // never be built from a subset of what was ticked (the #357 live-verify defect). `singleTopic`
+  // / `multiTopics` are derived views over the same source, so every downstream consumer below
+  // is UNCHANGED; only the setters and the picker UI change. `multiTopics` reuses the stable
+  // `selectedTopics` / EMPTY_TOPICS reference so memo/effect deps stay referentially stable.
+  const scope: PaperScope = allTopics ? "full-subject" : selectedTopics.length >= 2 ? "multi-topic" : "topic";
+  const singleTopic = allTopics ? "" : selectedTopics[0] ?? "";
+  const multiTopics = scope === "multi-topic" ? selectedTopics : EMPTY_TOPICS;
+  const scopeHint = allTopics
+    ? `all ${topics.length} · full subject`
+    : selectedTopics.length >= 2
+      ? `${selectedTopics.length} selected · multi-topic`
+      : selectedTopics.length === 1
+        ? "1 selected · single topic"
+        : "pick at least one topic";
 
   const [mode, setMode] = useState<Mode>("preset");
   const [preset, setPreset] = useState<string>("board-mix");
@@ -248,14 +272,18 @@ export default function WorksheetGenerator() {
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [historyNonce, setHistoryNonce] = useState(0);
 
-  // Keep single/multi selections valid when the visible catalogue changes via an IN-APP
-  // subject / stream switch (a user action inside Customise). This never fires at entry:
-  // the URL-seeded singleTopic is always in the initial catalogue, so the guard is false
-  // on mount — the deleted topics[0] ENTRY fallback is NOT reintroduced here (FIX-1).
+  // Keep the selection valid when the visible catalogue changes via an IN-APP subject /
+  // stream switch (a user action inside Customise). The URL-seeded selection is always in
+  // the initial catalogue, so this is a no-op on mount (returns `prev` unchanged) — the
+  // deleted topics[0] ENTRY fallback is NOT reintroduced; the topics[0] default here only
+  // rescues an IN-APP switch that emptied the selection, never guesses a topic at entry (FIX-1).
   const topicKeysSig = topics.map((t) => t.key).join(",");
   useEffect(() => {
-    if (!topics.find((t) => t.key === singleTopic)) setSingleTopic(topics[0]?.key ?? "");
-    setMultiTopics((prev) => prev.filter((k) => topics.some((t) => t.key === k)));
+    setSelectedTopics((prev) => {
+      const valid = prev.filter((k) => topics.some((t) => t.key === k));
+      if (valid.length === prev.length) return prev; // all still valid → no churn
+      return valid.length ? valid : topics[0] ? [topics[0].key] : [];
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topicKeysSig]);
 
@@ -528,6 +556,11 @@ export default function WorksheetGenerator() {
   // worksheet covers (a weak topic can draw zero under a filter that empties its pool).
   // Mirrors the single-topic `drawnWeakSecs` drawn-gate.
   const drawnWeakTopics = useMemo(
+    // TODO(P0-topickey): raw `q.topicKey === t.key` compare. For the 25 Title-Case bank
+    // chapters the keys never match, so this drawn-gate silently names nothing. The shared
+    // resolver / bankQuery helper + Guard B in AGENT_P0_universal_topickey_2026-07-10.md
+    // replace this (the sibling `rankedWeakKeys.has(q.topicKey)` compare shares the issue).
+    // Do NOT resolve here — it belongs to the P0 topic-key PR.
     () => rankedWeak.filter((t) => candidate.some((q) => q.topicKey === t.key)),
     [rankedWeak, candidate],
   );
@@ -570,8 +603,41 @@ export default function WorksheetGenerator() {
       return next.length === 0 ? prev : next;
     });
   }
-  function toggleMulti(key: string) {
-    setMultiTopics((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+  // FIX (derive-scope) — ticking a topic IS the scope. Narrowing from "all topics" collapses
+  // to the ticked topic; otherwise add/remove, but never below one (0 topics is an invalid
+  // build). No tick is ever silently discarded — the whole worksheet honours the selection.
+  function toggleTopic(key: string) {
+    if (allTopics) {
+      setAllTopics(false);
+      setSelectedTopics([key]);
+      return;
+    }
+    setSelectedTopics((prev) => {
+      if (prev.includes(key)) {
+        const next = prev.filter((k) => k !== key);
+        return next.length === 0 ? prev : next; // keep at least one selected
+      }
+      return [...prev, key];
+    });
+  }
+  // One-tap "add the weak area alongside" (multi-topic remedy) — brings a topic INTO the
+  // selection without dropping the rest, promoting scope to multi-topic.
+  function addTopic(key: string) {
+    setAllTopics(false);
+    setSelectedTopics((prev) => (prev.includes(key) ? prev : [...prev, key]));
+  }
+  // One-tap "focus this worksheet on the true weak area" (single-topic remedy) — replaces the
+  // selection with just that topic, deriving scope back to single-topic.
+  function focusSingleTopic(key: string) {
+    setAllTopics(false);
+    setSelectedTopics([key]);
+  }
+  // The "All topics" toggle → full-subject. Turning it OFF with nothing remembered falls back
+  // to a single valid topic so the builder never lands in the 0-topics dead-end.
+  function toggleAllTopics() {
+    const next = !allTopics;
+    if (!next && selectedTopics.length === 0 && topics[0]) setSelectedTopics([topics[0].key]);
+    setAllTopics(next);
   }
   function pickPreset(key: string) {
     setMode("preset");
@@ -820,11 +886,13 @@ export default function WorksheetGenerator() {
                 </p>
               ) : globalHotspot ? (
                 // (2c) The chosen single topic is NOT a weak area; name the true one + one-tap remedy.
+                // [FU-WS-MI-COPY] — locked wording: state the honest fact (no marks lost here yet)
+                // before naming the real weak area; the one-tap remedy (behaviour unchanged) focuses there.
                 <>
                   <p className="lt-ws__mi-hint">
-                    Your weak area is <strong>{globalHotspot.label}</strong>, not {scopeLabel}. Focus this worksheet there, or widen to multi-topic / full subject.
+                    You haven&rsquo;t lost marks in <strong>{scopeLabel}</strong> yet. Right now your weak area is <strong>{globalHotspot.label}</strong> — focus this worksheet there, or add it alongside.
                   </p>
-                  <button type="button" className="lt-ws__mi-cta" onClick={() => setSingleTopic(globalHotspot.key)}>
+                  <button type="button" className="lt-ws__mi-cta" onClick={() => focusSingleTopic(globalHotspot.key)}>
                     Focus on {globalHotspot.label} →
                   </button>
                 </>
@@ -851,7 +919,7 @@ export default function WorksheetGenerator() {
                 <p className="lt-ws__mi-hint">
                   Your weak area is <strong>{globalHotspot.label}</strong>, which isn&rsquo;t in this selection. Add it to focus this worksheet there.
                 </p>
-                <button type="button" className="lt-ws__mi-cta" onClick={() => toggleMulti(globalHotspot.key)}>
+                <button type="button" className="lt-ws__mi-cta" onClick={() => addTopic(globalHotspot.key)}>
                   Add {globalHotspot.label} →
                 </button>
               </>
@@ -887,59 +955,38 @@ export default function WorksheetGenerator() {
                 </div>
               )}
 
+              {/* FIX (derive-scope) — ONE topic picker replaces the old three-way Scope
+                  segmented control + separate topic dropdown / chip lists. Ticking topics IS
+                  the scope (1 → single · 2+ → multi · "All topics" → full-subject), so a
+                  control can never silently contradict the selection and no tick is ever
+                  discarded. The derived scope is surfaced honestly in the label. */}
               <div className="lt-ws__field">
-                <div className="lt-ws__lbl">Scope</div>
-                <div className="lt-ws__seg">
-                  {(["topic", "multi-topic", "full-subject"] as PaperScope[]).map((sc) => (
-                    <button
-                      key={sc}
-                      type="button"
-                      className={`lt-ws__segbtn${scope === sc ? " on" : ""}`}
-                      onClick={() => {
-                        setScope(sc);
-                        if (sc === "multi-topic" && multiTopics.length === 0 && singleTopic) setMultiTopics([singleTopic]);
-                      }}
-                    >
-                      {sc === "topic" ? "Single topic" : sc === "multi-topic" ? "Multi-topic" : "Full subject"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {scope === "topic" && (
-                <div className="lt-ws__field">
-                  <div className="lt-ws__lbl">Topic</div>
-                  <select className="lt-ws__select" value={singleTopic} onChange={(e) => setSingleTopic(e.target.value)}>
-                    {topics.map((t) => (
-                      <option key={t.key} value={t.key}>{t.label}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {scope === "multi-topic" && (
-                <div className="lt-ws__field">
-                  <div className="lt-ws__lbl">Topics — pick one or more ({multiTopics.length} selected)</div>
-                  <div className="lt-ws__chips">
-                    {topics.map((t) => (
-                      <button key={t.key} type="button" className={`lt-ws__chip${multiTopics.includes(t.key) ? " on" : ""}`} onClick={() => toggleMulti(t.key)}>
+                <div className="lt-ws__lbl">Topics — {scopeHint}</div>
+                <div className="lt-ws__chips">
+                  <button
+                    type="button"
+                    className={`lt-ws__chip lt-ws__chip--all${allTopics ? " on" : ""}`}
+                    aria-pressed={allTopics}
+                    onClick={toggleAllTopics}
+                  >
+                    All topics ({topics.length})
+                  </button>
+                  {topics.map((t) => {
+                    const active = allTopics || selectedTopics.includes(t.key);
+                    return (
+                      <button
+                        key={t.key}
+                        type="button"
+                        className={`lt-ws__chip${active ? " on" : ""}`}
+                        aria-pressed={active}
+                        onClick={() => toggleTopic(t.key)}
+                      >
                         {t.label}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
-
-              {scope === "full-subject" && (
-                <div className="lt-ws__field">
-                  <div className="lt-ws__lbl">Topics in scope ({topics.length})</div>
-                  <div className="lt-ws__chips lt-ws__chips--readonly">
-                    {topics.map((t) => (
-                      <span key={t.key} className="lt-ws__chip lt-ws__chip--static">{t.label}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
+              </div>
 
               <div className="lt-ws__field">
                 <div className="lt-ws__lbl">Build mode</div>
@@ -1288,13 +1335,11 @@ const WS_CSS = `
 .lt-ws__segbtn:last-child { border-right: none; }
 .lt-ws__segbtn.on { background: var(--ws-green-soft); color: var(--ws-green-fg); font-weight: 600; }
 
-.lt-ws__select { width: 100%; border: 1px solid var(--ws-line); border-radius: 10px; padding: 11px 14px; font-size: 14px; font-family: var(--ws-fb); color: var(--ws-fg); background: var(--ws-surface); cursor: pointer; }
-
 .lt-ws__chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.lt-ws__chips--readonly { padding: 10px 12px; border: 1px dashed var(--ws-line); border-radius: 10px; background: var(--ws-surface-2); }
 .lt-ws__chip { appearance: none; border: 1px solid var(--ws-line); background: var(--ws-surface); border-radius: 999px; padding: 6px 13px; font-size: 13px; cursor: pointer; color: var(--ws-muted); font-family: var(--ws-fb); }
 .lt-ws__chip.on { background: var(--ws-green-soft); border-color: var(--ws-green-b); color: var(--ws-green-fg); font-weight: 600; }
-.lt-ws__chip--static { cursor: default; color: var(--ws-fg); background: var(--ws-surface); }
+/* FIX (derive-scope) — the "All topics" (full-subject) toggle leads the unified topic picker. */
+.lt-ws__chip--all { font-weight: 600; }
 
 .lt-ws__presets { display: flex; flex-direction: column; gap: 9px; }
 .lt-ws__preset { display: flex; align-items: center; gap: 13px; border: 1px solid var(--ws-line); border-radius: 10px; padding: 13px 15px; cursor: pointer; background: var(--ws-surface); text-align: left; font-family: var(--ws-fb); }
