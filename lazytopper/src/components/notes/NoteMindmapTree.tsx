@@ -1,5 +1,6 @@
 /**
- * NoteMindmapTree — the chapter mind-map as a RESPONSIVE, COLLAPSIBLE tree.
+ * NoteMindmapTree — the chapter mind-map as a RESPONSIVE, COLLAPSIBLE tree that
+ * READS AS A TREE on load.
  *
  * v1.2 rewrite. The earlier version laid the tree out with d3-hierarchy at a
  * FIXED absolute width (maxDepth × column-width) inside a horizontal scroller,
@@ -8,15 +9,22 @@
  * vertical, indented node tree that:
  *   - REFLOWS at any width — a plain nested block layout with no fixed canvas,
  *     so it works down to ≤360px with no horizontal scroll and no overlap, and
- *   - COLLAPSES — every parent node toggles its children open/closed. Root and
- *     the top-level branches are open by default; deeper branches start
- *     collapsed (sensible-default per the v1.2 brief).
+ *   - COLLAPSES — every parent node toggles its children open/closed.
+ *
+ * v1.3 visible-tree pass. The v1.2 collapse win is kept, but the default no
+ * longer reads flat: root + branches + their children are EXPANDED on load
+ * (open when depth <= 1, so the primary two levels show), and the branching is
+ * drawn with a per-branch accent rail + connector elbows and a clear
+ * root > branch > leaf weight — so it LOOKS like a tree, not an accordion of
+ * closed headers. Deeper levels (depth >= 3) still start collapsed; the caret
+ * toggles any node, and the responsive/no-overlap ≤360px win is untouched.
  *
  * ONE responsive component (no useIsDesktop twin). Every label routes through
  * <NoteRichText> (the #328 entity + KaTeX decode invariant), exactly as before.
- * Styling is class-driven (`.lt-note__mm-*` in Note.tsx's scoped <style>).
+ * Styling is class-driven (`.lt-note__mm-*` in Note.tsx's scoped <style>); a
+ * depth-1 branch sets --mm-accent, which cascades to its rail, elbows and edge.
  */
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type { NoteMindmap, NoteMindmapBranch } from "./noteSpec.types";
 import { NoteRichText } from "./NoteRichText";
 
@@ -46,7 +54,8 @@ function MindmapNode({
   color: string;
 }) {
   const hasChildren = node.children.length > 0;
-  // Root (0) + top-level branches (1) open by default; deeper branches collapse.
+  // Root (0) + top-level branches (1) open by default so the primary two levels
+  // show as a tree on load; deeper branches (>= 2) start collapsed.
   const [open, setOpen] = useState(depth <= 1);
 
   const roleClass =
@@ -55,16 +64,18 @@ function MindmapNode({
       : depth === 1
       ? "lt-note__mm-node--branch"
       : "lt-note__mm-node--leaf";
-  // The branch card carries its accent on the left edge.
-  const nodeStyle = depth === 1 ? { borderLeftColor: color } : undefined;
+  // A depth-1 branch seeds --mm-accent for its whole subtree; the branch edge,
+  // the child rail and the connector elbows all read var(--mm-accent), so each
+  // branch shows one colour. Deeper nodes inherit the value via the CSS cascade.
+  const itemStyle =
+    depth === 1 ? ({ "--mm-accent": color } as CSSProperties) : undefined;
 
   return (
-    <li className="lt-note__mm-item">
+    <li className="lt-note__mm-item" style={itemStyle}>
       {hasChildren ? (
         <button
           type="button"
           className={`lt-note__mm-node ${roleClass} lt-note__mm-node--toggle`}
-          style={nodeStyle}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
@@ -77,17 +88,14 @@ function MindmapNode({
           <NoteRichText text={node.label} />
         </button>
       ) : (
-        <div className={`lt-note__mm-node ${roleClass}`} style={nodeStyle}>
+        <div className={`lt-note__mm-node ${roleClass}`}>
           <NoteRichText text={node.label} />
         </div>
       )}
       {hasChildren && (
         // Children always render (toggled via CSS, not unmounted) so a printed /
         // PDF'd note shows the FULL tree even when a branch is collapsed on screen.
-        <ul
-          className={`lt-note__mm-kids${open ? "" : " lt-note__mm-kids--collapsed"}`}
-          style={depth >= 1 ? { borderLeftColor: color } : undefined}
-        >
+        <ul className={`lt-note__mm-kids${open ? "" : " lt-note__mm-kids--collapsed"}`}>
           {node.children.map((child, i) => (
             <MindmapNode
               key={i}

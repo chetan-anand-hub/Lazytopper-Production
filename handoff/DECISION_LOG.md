@@ -1,3 +1,23 @@
+## 2026-07-10 - Worksheet context-aware entry + multi-topic MI (#357, trunk `aa7e778`)
+
+Decisions (owner, via AskUserQuestion during #357 STEP 0) + discoveries (owner #357 live-verify):
+
+### Owner decisions
+- **MI per-topic CAP engages at 3+ topics only.** FIX-3's ~50% cap would have lowered the shipped/owner-verified 2-topic enrichment from 60% (`MI_BOOST=1.5`, the locked "15:10 of 25" prototype) to 50%. Owner chose: cap = **50% at N≥3**, and **N=2 keeps ~60/40**. Implemented as `miCapFractionFor(n) = n≥3 ? 0.5 : 0.6` in `worksheetModel.ts`; `allocateMiCounts` layers a floor + this cap + an availability gate on the tested `allocateCounts` primitive (untouched).
+- **Home "Worksheets" card → `/practice-hub`** (D1) — destination-only. The card is a topic-less entry, so it lands on the hub where the student picks; the hub's worksheet action then opens the builder autofiltered (it already passes the params). No `intent` param. Consequence flagged: the card now shares `/practice-hub` with the Practice card (landing worksheet-focused would be a hub-side follow-up).
+
+### Reasoned deviation from the task spec (FIX-1.2)
+- The task said delete BOTH the `topics[0]` entry fallback AND the L176 catalogue-validity reset effect. **Only the ENTRY fallback was deleted.** The reset effect was KEPT because recon proved it is a no-op at entry (the URL-seeded topic is always in the initial catalogue → its guard is false on mount) and it is required for in-app subject/stream switching (deleting it strands a stale topic → permanent blocker). Recorded so a future reader doesn't "finish" the deletion and break in-app subject switching.
+
+### Discovered scope (owner #357 live-verify) — do NOT fix piecemeal
+- **[FU-TOPICKEY-UNIVERSAL] (P0).** Surfaces match RAW topic slugs, but the bank stores **51 distinct `topicKey` for ~26 chapters** (25 Title-Case + 26 slug). Four Science chapters (`chemical-reactions-equations`, `acids-bases-salts`, `metals-non-metals`, `reproduction` ≈ **1,180 questions**) return ZERO; `WorksheetGenerator.tsx`'s `q.topicKey === t.key` raw compare also disables enrichment on Title-Case chapters. **Chapter Test and Full Mock carry the SAME defect latently.** A prior audit established the cure: **Phase 1 resolve-everywhere (read AND write) + CI guards; Phase 2 data consolidation** ([FU-BANK-TOPICKEY-NORMALISE], [FU-MI-TOPICKEY-BACKFILL]). Prior piecemeal fixes failed because no guard existed → new variants reappeared. Its own scoped PR.
+- **[FU-WS-SCOPE-DERIVE].** Ticking topics in Customise calls `setMultiTopics` but never `setScope`, so scope stays `"topic"`, the URL-sync builds from `validMulti[0]` and discards the other ticks, and `enrichActive` short-circuits. The URL entry path already promotes scope. Fix in the immediate follow-up PR (a tick ⇒ derive scope) alongside [FU-WS-MI-COPY] state 2c.
+
+### Product principle (logged — three instances found in #357 live-verify)
+- **A student's selection is intent. If we cannot honour it, we say so. We never silently do something smaller.** Instances: the `topics[0]` guess (fixed); the Customise tick that never derives scope ([FU-WS-SCOPE-DERIVE]); the raw-slug topic match returning zero for Title-Case chapters ([FU-TOPICKEY-UNIVERSAL]).
+
+---
+
 ## 2026-06-28 - D-PROG-2 / Build Step 1 CLOSED (grader no-working honesty — subjective deterministic; MCQ residual tracked)
 
 Decision (owner + cofounder, recorded post-PR #301 + #302 + #303):

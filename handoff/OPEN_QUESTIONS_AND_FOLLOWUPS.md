@@ -1,3 +1,38 @@
+## 2026-07-10 — Notes v1.3: visible mindmap tree + full-screen note modal merged (#356, `629457e`)
+
+### ✅ RESOLVED (closed by #356 — v1.3 refinements from the #345 live-review, NOT regressions)
+- **Notes v1.3 mindmap default-visible → DONE.** The mindmap now reads as a TREE by default (per-branch `--mm-accent` rail + connector elbows + root › branch › leaf weight). ⚠️ The brief's premise ("branches render COLLAPSED / 5 flat closed rows") was **WRONG** — all three specs (life-processes/light/quadratic) are **depth-2** mindmaps already fully expanded at the existing `useState(depth <= 1)` (no branch ever rendered a closed caret). The real defect was **visual legibility**, so the open-state was PRESERVED and only the visuals changed. Kept the v1.2 ≤380px no-overlap responsive win (did not revert to the fixed d3 canvas).
+- **Notes v1.3 full-screen note modal → DONE.** `NoteModal` opens a 92vw × 92vh sheet (capped 1280px for readable line length) on desktop, full-screen on mobile; `<Note>` internals + all close affordances (✕/Escape/dim-click), scroll-lock and focus-restore unchanged — sizing only.
+- **[FU-MOBILE-VERIFY-GAP] → FIRST REAL PASS CLOSED.** This PR's static 360px layout audit was **confirmed by the owner on a real viewport** (mindmap: no horizontal scroll / no overlap; modal: full-screen with ✕ reachable). The DOCTRINE stands and is now mandatory: **every surface's live-verify includes a 360px check**, and every future mockup ships a mobile frame.
+
+### 🆕 NEW FOLLOW-UP
+- **[FU-PNPM-PACKAGEMANAGER-PIN] (supersedes gotcha D42)** — root `package.json` has **no `packageManager` field**, so Corepack falls back to whatever pnpm is on PATH in a fresh worktree (here 9.15.9). `pnpm-workspace.yaml:59` sets `autoInstallPeers: false` and the lockfile records the same, but a different pnpm resolves the settings differently → **`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` on `--frozen-lockfile`**. **Fix:** add `"packageManager": "pnpm@10.32.1"` to root `package.json` — `quality-gate.yml:38` already names this as the follow-up and line 40 works around it with `corepack prepare`. **The current `--no-frozen-lockfile` + restore-lockfile workaround is risky:** if an agent forgets to restore, a lockfile written by the wrong pnpm enters the diff. **Own tiny chore PR** (owner-gated; not bundled into a feature PR). Supersedes D42.
+
+---
+
+## 2026-07-10 — Worksheet CONTEXT-AWARE ENTRY + multi-topic MI aggregate + preview/switch/360px merged (#357, `aa7e778`)
+
+### ✅ RESOLVED (closed by #357)
+- **[FU-WS-ENTRY-CONTEXT] → CLOSED.** The builder now reads `scope/subject/stream/topic/topics` from the URL (validated against `topics.ts`), seeds state from it, DELETES the `topics[0]` fallback, and redirects ONCE to `/practice-hub` when no valid topic is present. Recon finding: the desktop hub already emitted the params via `buildDesktopWorksheetPath` — the bug was the builder ignoring them, so App.tsx was never touched.
+- **[FU-WS-MULTITOPIC-MI-AGGREGATE] → CLOSED.** New `rankedInScopeWeakTopics` + `allocateMiCounts`: proportional marks-lost split across ALL in-scope weak topics with a FLOOR (a chosen topic is never dropped), a CAP (≈50% at N≥3; N=2 keeps the owner-verified 60/40 from `MI_BOOST=1.5`), an AVAILABILITY gate, and per-topic level-2 section skew. `weakestTopic`/`allocateCounts`/`MI_BOOST` retained unchanged.
+- **[FU-WS-PREVIEW-BUTTONS] → CLOSED.** Sticky bar + its CSS deleted; hero + drawer-foot Preview kept; the mobile `@media` that hid the hero button is gone so mobile keeps a Preview CTA.
+- **[FU-WS-MI-SWITCH] → CLOSED.** Both `<input type="checkbox">` replaced by an accessible `role="switch"` button (aria-checked, keyboard-operable, visible focus ring).
+
+### 🟡 STILL OPEN (only half landed)
+- **[FU-WS-MI-COPY] — KEEP OPEN.** State 2a (single-topic weak-section toggle) was softened, but **state 2c still reads "Your weak area is X, not {topic}"** — the blunt out-of-scope wording. Finish in the follow-up PR alongside [FU-WS-SCOPE-DERIVE].
+
+### 🆕 NEW FOLLOW-UPS (owner findings from #357 live-verify)
+- **[FU-WS-SCOPE-DERIVE]** — ticking topics in Customise calls `setMultiTopics` but **never `setScope`**, so `scope` stays `"topic"`; the URL-sync then builds from `validMulti[0]` and silently DISCARDS the student's other ticked topics, and `enrichActive` (gated on `scope !== "topic"`) short-circuits so the correct multi-topic MI path is never reached. The URL entry path already promotes scope (`parseEntryContext` infers multi from >1 `topics`). Owner-confirmed: with the Scope control explicitly on multi-topic/full-subject, MI works and honestly names only topics that have mistake data. Fix in the follow-up PR (a tick ⇒ derive scope). A direct instance of the product principle below.
+- **[FU-TOPICKEY-UNIVERSAL] (P0)** — surfaces match RAW topic slugs, so four Science chapters (`chemical-reactions-equations`, `acids-bases-salts`, `metals-non-metals`, `reproduction` ≈ **1,180 questions**) return ZERO. The bank stores **51 distinct `topicKey` for ~26 chapters** (25 Title-Case + 26 slug). Chapter Test and Full Mock carry the SAME defect, latent. Also `WorksheetGenerator.tsx` `q.topicKey === t.key` (enrichCount / drawnWeakTopics) is a raw compare that silently disables enrichment on Title-Case chapters. Owner-confirmed live on Chemical Reactions. **Cure (from a prior audit): Phase 1 = resolve-everywhere (read AND write) + CI guards; Phase 2 = data consolidation ([FU-BANK-TOPICKEY-NORMALISE], [FU-MI-TOPICKEY-BACKFILL]).** Prior piecemeal fixes FAILED because no guard existed → new variants reappeared. **Do NOT attempt this in a small PR** — it needs the resolve-everywhere + guard shape.
+
+### 🧭 PRODUCT PRINCIPLE (logged from #357 — three instances found today)
+- **A student's selection is intent. If we cannot honour it, we say so. We never silently do something smaller.** Instances found: the `topics[0]` guess (fixed by #357); the Customise tick that never derives scope ([FU-WS-SCOPE-DERIVE]); the raw-slug topic match returning zero for Title-Case chapters ([FU-TOPICKEY-UNIVERSAL]).
+
+### ℹ️ NOTE — [FU-MOBILE-VERIFY-GAP]
+- The worksheet builder now ships a **360px reflow** (#357 FIX-6), but the DOCTRINE stands: every future mockup ships a mobile frame + every live-verify includes a 360px check.
+
+---
+
 ## 2026-07-09 — Worksheet scope-relative MI + section enrichment + Preview affordance merged (#353, `f8c1536`)
 
 ### ✅ RESOLVED (closed by #353 — NOT #349 regressions; refinements surfaced in #349 review)
