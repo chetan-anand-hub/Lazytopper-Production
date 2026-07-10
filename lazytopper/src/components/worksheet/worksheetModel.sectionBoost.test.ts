@@ -74,6 +74,53 @@ describe("generateFromPlan — single-topic section skew (FIX A)", () => {
   });
 });
 
+describe("generateFromPlan — PER-TOPIC section skew (FIX-3 level-2 stacking)", () => {
+  it("skews EACH topic's own draw toward its OWN weak sections", () => {
+    const pools = new Map([
+      ["real-numbers", pool({ A: 10, B: 10, C: 10 }, "real-numbers")],
+      ["circles", pool({ A: 10, D: 10, E: 10 }, "circles")],
+    ]);
+    const rows: TopicAllocRow[] = [
+      { key: "real-numbers", label: "Real Numbers", weight: 1, available: 30, allocated: 12 },
+      { key: "circles", label: "Circles", weight: 1, available: 30, allocated: 12 },
+    ];
+    const plan: WorksheetPlan = {
+      rows,
+      requested: 24,
+      totalAvailable: 60,
+      totalAllocated: 24,
+      pools,
+      sectionBoosts: null,
+      topicSectionBoosts: { "real-numbers": { C: 1.5 }, circles: { D: 1.5 } },
+    };
+    const out = generateFromPlan(plan);
+    expect(out.length).toBe(24); // honest count preserved
+    const rn = out.filter((x) => x.topicKey === "real-numbers");
+    const ci = out.filter((x) => x.topicKey === "circles");
+    // Each topic's own weak section dominates ITS OWN draw (not the other's).
+    expect(countBy(rn, "C")).toBeGreaterThan(countBy(rn, "A"));
+    expect(countBy(ci, "D")).toBeGreaterThan(countBy(ci, "A"));
+  });
+
+  it("topicSectionBoosts[key] takes precedence over the shared sectionBoosts for that topic", () => {
+    const pools = new Map([["real-numbers", pool({ A: 10, B: 10, C: 10 }, "real-numbers")]]);
+    const rows: TopicAllocRow[] = [
+      { key: "real-numbers", label: "Real Numbers", weight: 1, available: 30, allocated: 12 },
+    ];
+    const plan: WorksheetPlan = {
+      rows,
+      requested: 12,
+      totalAvailable: 30,
+      totalAllocated: 12,
+      pools,
+      sectionBoosts: { A: 2 }, // shared map would push A …
+      topicSectionBoosts: { "real-numbers": { C: 2 } }, // … but the per-topic map wins → C.
+    };
+    const out = generateFromPlan(plan);
+    expect(countBy(out, "C")).toBeGreaterThan(countBy(out, "A"));
+  });
+});
+
 describe("generateFromPlan — cross-topic behaviour is UNCHANGED when no section boosts", () => {
   it("respects each topic's per-row allocation exactly", () => {
     const pools = new Map([

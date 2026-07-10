@@ -85,7 +85,12 @@ export const PRIMARY_CARDS: QuickCard[] = [
     label: "Exam Trends", sub: "Tier-ranked topics with one-click actions." },
   { to: `/practice-hub${HOME_QS_LEAD}`, icon: LayersIcon,
     label: "Practice", sub: "Quick practice or full mock." },
-  { to: `/practice/worksheets${HOME_QS_LEAD}`, icon: ClipboardListIcon,
+  // D1 (FIX-1) — the Home Worksheets card lands on the Practice hub, where the student
+  // picks subject + topic; the hub's worksheet action then opens the builder autofiltered
+  // (subject/topics in the URL). The builder never invents a topic, so this card must NOT
+  // deep-link straight into the builder without a chosen topic (it would redirect to the
+  // hub anyway). Destination change only — Home keeps its existing design.
+  { to: `/practice-hub${HOME_QS_LEAD}`, icon: ClipboardListIcon,
     label: "Worksheets", sub: "Build a worksheet by topic or subject." },
   { to: `/check-improve${HOME_QS_LEAD}`, icon: ClipboardCheckIcon,
     label: "Check & Improve", sub: "Get feedback on your answer." },

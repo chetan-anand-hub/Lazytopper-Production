@@ -231,8 +231,109 @@ export function allocateCounts(
 
 /** MI re-weight: the boost applied to the student's weak topic when MI-enrich is
  *  on. 1.5 makes a 2-topic even split (1:1) become roughly 3:2 (e.g. 15:10 of
- *  25), matching the locked prototype's "even · MI-weighted" example. */
+ *  25), matching the locked prototype's "even · MI-weighted" example. Retained for
+ *  the single-target `miBoostTopicKey` path + its unit test; FIX-3 multi-topic
+ *  enrichment uses `allocateMiCounts` (proportional across all weak topics). */
 export const MI_BOOST = 1.5;
+
+// ── FIX-3: MI-aware BETWEEN-topic allocation (proportional · floor · cap) ─────
+/** Per-topic MI cap for 3+ in-scope topics: no single topic exceeds ~half the
+ *  worksheet (a tilt, not a takeover — stops a multi-topic sheet degenerating to
+ *  one topic). */
+export const MI_CAP_FRACTION_MANY = 0.5;
+/** Per-topic MI cap for a 2-topic mix: the looser ~60% ceiling preserves the locked
+ *  15:10-of-25 enrichment tilt (owner decision 2026-07-10 — cap engages at 3+ only). */
+export const MI_CAP_FRACTION_TWO = 0.6;
+
+/** The MI per-topic cap fraction for `topicCount` in-scope topics. */
+export function miCapFractionFor(topicCount: number): number {
+  return topicCount >= 3 ? MI_CAP_FRACTION_MANY : MI_CAP_FRACTION_TWO;
+}
+
+export interface MiTopicAllocInput extends TopicAllocInput {
+  /** Real marks lost on this in-scope topic (0 = no MI signal → no boost, keeps floor). */
+  marksLost: number;
+}
+
+/**
+ * FIX-3 — allocate `requested` questions across in-scope topics with THREE guarantees
+ * layered on the tested largest-remainder primitive (`allocateCounts`):
+ *   1. FLOOR — every topic the student chose keeps a minimum (~half its no-MI fair
+ *      share, never below 1 while its pool allows). A zero-MI topic gets no boost but
+ *      keeps its floor — the selection is intent; MI only tilts, never overrules it.
+ *   2. PROPORTIONAL enrichment — the ABOVE-FLOOR remainder is split proportionally to
+ *      real marks lost, so the topics the student loses the most marks on get the extra
+ *      weight (level 1).
+ *   3. CAP + AVAILABILITY — no topic exceeds `capFraction` of the total, and nothing
+ *      exceeds a topic's REAL drawable pool (the #353 lesson: an un-suppliable boost is
+ *      never fabricated). If per-topic caps would leave the sheet short while real
+ *      questions remain, the gap is filled honestly rather than the count under-drawn.
+ * Total allocated == min(requested, total availability). Deterministic (unit-testable).
+ */
+export function allocateMiCounts(
+  rows: MiTopicAllocInput[],
+  requested: number,
+  capFraction: number,
+): TopicAllocRow[] {
+  const out: TopicAllocRow[] = rows.map((r) => ({ ...r, allocated: 0 }));
+  if (out.length === 0 || requested <= 0) return out;
+
+  const capacity = out.reduce((s, r) => s + Math.max(0, r.available), 0);
+  const target = Math.min(requested, capacity);
+  if (target <= 0) return out;
+
+  const baseRows: TopicAllocInput[] = rows.map((r) => ({
+    key: r.key,
+    label: r.label,
+    weight: r.weight,
+    available: r.available,
+  }));
+
+  // No-MI fair share (even / weightage) → the FLOOR baseline.
+  const base = allocateCounts(baseRows, target);
+
+  // Per-topic hard ceiling: the cap AND real availability.
+  const capCount = Math.max(1, Math.floor(target * capFraction));
+  const hi = out.map((r) => Math.min(Math.max(0, r.available), capCount));
+
+  // Floors: ~half the fair share, never below 1 while the pool allows; 0 only when the
+  // fair share is itself 0 (more topics than questions — honest, not everyone gets one).
+  const floors = out.map((_, i) =>
+    base[i].allocated > 0 ? Math.min(hi[i], Math.max(1, Math.floor(base[i].allocated * 0.5))) : 0,
+  );
+  for (let i = 0; i < out.length; i += 1) out[i].allocated = floors[i];
+
+  // Enrichment remainder → proportional to marks lost, within the residual (cap−floor) room.
+  const usedFloor = floors.reduce((s, v) => s + v, 0);
+  const remainder = allocateCounts(
+    rows.map((r, i) => ({
+      key: r.key,
+      label: r.label,
+      weight: Math.max(0, r.marksLost),
+      available: hi[i] - floors[i],
+    })),
+    target - usedFloor,
+  );
+  for (let i = 0; i < out.length; i += 1) out[i].allocated += remainder[i].allocated;
+
+  // Honest top-up: if per-topic caps blocked the target while real questions remain,
+  // fill the gap (availability-bound) so the sheet is never short when the bank is not.
+  const placed = out.reduce((s, r) => s + r.allocated, 0);
+  if (placed < target) {
+    const top = allocateCounts(
+      rows.map((r, i) => ({
+        key: r.key,
+        label: r.label,
+        weight: r.marksLost > 0 ? r.marksLost : 1,
+        available: Math.max(0, r.available) - out[i].allocated,
+      })),
+      target - placed,
+    );
+    for (let i = 0; i < out.length; i += 1) out[i].allocated += top[i].allocated;
+  }
+
+  return out;
+}
 
 export interface WorksheetPlanParams {
   subject: LTSubjectKey;
@@ -243,8 +344,17 @@ export interface WorksheetPlanParams {
   difficulty?: DifficultyChoice;
   requested: number;
   /** Weak-topic slug to boost when MI-enrich is on (must be in `topics`). Drives the
-   *  cross-TOPIC re-weight (multi-topic / full-subject scope). */
+   *  single-target cross-TOPIC re-weight (legacy path; FIX-3 prefers miTopicWeights). */
   miBoostTopicKey?: string | null;
+  /**
+   * FIX-3 — BETWEEN-topic marks-lost weights (multi-topic / full-subject scope): topic
+   * key → real marks lost (0 or absent = no MI signal → no boost, keeps its floor).
+   * When present (and non-empty) the plan allocates via `allocateMiCounts` (proportional
+   * enrichment with a floor + cap), superseding the single-target `miBoostTopicKey`.
+   */
+  miTopicWeights?: Record<string, number> | null;
+  /** Per-topic MI cap fraction (see `miCapFractionFor`); defaults from the topic count. */
+  miCapFraction?: number;
   /**
    * FIX A — WITHIN-topic section skew (single-topic scope): CBSE section letter →
    * draw-weight multiplier (≥1) for the student's weak sections, from the derived
@@ -254,6 +364,13 @@ export interface WorksheetPlanParams {
    * original uniform pool sample, so the cross-topic boost behaviour is unchanged.
    */
   sectionBoosts?: Record<string, number> | null;
+  /**
+   * FIX-3 — PER-TOPIC within-topic section skew (multi-topic / full-subject scope):
+   * topic key → its own section-boost map. Stacks level 2 ON TOP of the level-1
+   * between-topic allocation, so each in-scope topic's own draw skews toward the
+   * sections that topic loses the most marks on. A topic absent here draws uniformly.
+   */
+  topicSectionBoosts?: Record<string, Record<string, number>> | null;
 }
 
 export interface WorksheetPlan {
@@ -266,6 +383,9 @@ export interface WorksheetPlan {
   /** FIX A — within-topic section-skew weights carried onto the plan so
    *  generateFromPlan can bias each topic's draw (null / absent = uniform draw). */
   sectionBoosts?: Record<string, number> | null;
+  /** FIX-3 — per-topic within-topic section-skew (multi/full scope); topic key → its
+   *  own section-boost map. Takes precedence over `sectionBoosts` for that topic. */
+  topicSectionBoosts?: Record<string, Record<string, number>> | null;
 }
 
 const POOL_OVERSAMPLE = 999;
@@ -301,21 +421,35 @@ export function planWorksheet(params: WorksheetPlanParams): WorksheetPlan {
   const weightMode: "even" | "weightage" =
     params.scope === "full-subject" ? "weightage" : "even";
 
-  const inputs: TopicAllocInput[] = params.topics.map((t) => {
-    let weight = weightMode === "weightage" ? weightFor(params.subject, t.key) ?? 1 : 1;
-    if (params.miBoostTopicKey && t.key === params.miBoostTopicKey) {
-      weight *= MI_BOOST;
-    }
-    return {
-      key: t.key,
-      label: t.label,
-      weight,
-      available: pools.get(t.key)?.length ?? 0,
-    };
-  });
+  const baseInputs: TopicAllocInput[] = params.topics.map((t) => ({
+    key: t.key,
+    label: t.label,
+    weight: weightMode === "weightage" ? weightFor(params.subject, t.key) ?? 1 : 1,
+    available: pools.get(t.key)?.length ?? 0,
+  }));
 
-  const rows = allocateCounts(inputs, params.requested);
-  const totalAvailable = inputs.reduce((s, r) => s + r.available, 0);
+  // FIX-3 — proportional marks-lost enrichment (floor + cap) when in-scope MI weights
+  // are supplied; otherwise the base split, optionally the legacy single-target boost.
+  const miWeights = params.miTopicWeights;
+  let rows: TopicAllocRow[];
+  if (miWeights && Object.keys(miWeights).length > 0) {
+    const miInputs: MiTopicAllocInput[] = baseInputs.map((r) => ({
+      ...r,
+      marksLost: Math.max(0, miWeights[r.key] ?? 0),
+    }));
+    rows = allocateMiCounts(
+      miInputs,
+      params.requested,
+      params.miCapFraction ?? miCapFractionFor(baseInputs.length),
+    );
+  } else {
+    const inputs = baseInputs.map((r) => ({
+      ...r,
+      weight: params.miBoostTopicKey && r.key === params.miBoostTopicKey ? r.weight * MI_BOOST : r.weight,
+    }));
+    rows = allocateCounts(inputs, params.requested);
+  }
+  const totalAvailable = baseInputs.reduce((s, r) => s + r.available, 0);
   const totalAllocated = rows.reduce((s, r) => s + r.allocated, 0);
 
   return {
@@ -325,6 +459,7 @@ export function planWorksheet(params: WorksheetPlanParams): WorksheetPlan {
     totalAllocated,
     pools,
     sectionBoosts: params.sectionBoosts ?? null,
+    topicSectionBoosts: params.topicSectionBoosts ?? null,
   };
 }
 
@@ -527,20 +662,20 @@ function orderPoolBySectionBoost(
  * across topics by id, then shuffle the combined set so it is not clumped by
  * topic. The output length equals the plan's totalAllocated == the shown count.
  *
- * When the plan carries `sectionBoosts` (single-topic within-topic enrichment), each
+ * When a topic carries section boosts — `topicSectionBoosts[key]` (FIX-3 per-topic
+ * multi/full enrichment) or the shared `sectionBoosts` (FIX A single-topic) — that
  * topic's draw is skewed toward the boosted sections via `orderPoolBySectionBoost`;
- * otherwise the draw is the original uniform pool sample (cross-topic behaviour
- * unchanged).
+ * otherwise the draw is the original uniform pool sample (unchanged behaviour).
  */
 export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
-  const boost = hasEffectiveBoost(plan.sectionBoosts);
   const seen = new Set<string>();
   const collected: PracticeQuestion[] = [];
   for (const row of plan.rows) {
     if (row.allocated <= 0) continue;
     const basePool = plan.pools.get(row.key) ?? [];
-    const ordered = boost
-      ? orderPoolBySectionBoost(basePool, row.allocated, plan.sectionBoosts as Record<string, number>)
+    const boosts = plan.topicSectionBoosts?.[row.key] ?? plan.sectionBoosts ?? null;
+    const ordered = hasEffectiveBoost(boosts)
+      ? orderPoolBySectionBoost(basePool, row.allocated, boosts as Record<string, number>)
       : shuffleInPlace([...basePool]);
     let taken = 0;
     for (const q of ordered) {

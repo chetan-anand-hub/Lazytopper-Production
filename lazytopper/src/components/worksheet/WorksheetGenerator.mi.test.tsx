@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 // Worksheet BUILDER redesign ("A · Smart default") + FIX A (scope-relative Mistake
 // Intelligence with SPLIT honest states). Asserts against the real rendered DOM.
@@ -15,6 +15,11 @@ import WorksheetGenerator from "./WorksheetGenerator";
 const MISTAKE_KEY = "lazytopper.mistakeLogs.v1:u1";
 const signedIn = { user: { uid: "u1", isLocalSession: false } };
 const now = () => new Date().toISOString();
+
+// FIX-1 — the builder never invents a topic; it opens from a valid subject + topic in the
+// URL (else it redirects to the hub). Every render below supplies real entry context — the
+// default single-topic Real Numbers, matching the pre-FIX-1 topics[0] default the suite assumed.
+const SINGLE_ENTRY = "/practice/worksheets?subject=Maths&scope=topic&topic=real-numbers";
 
 /** Seed the real Mistake-Intelligence log the selector reads. */
 function seedMistakes(entries: Array<Record<string, unknown>>) {
@@ -33,19 +38,20 @@ afterEach(cleanup);
 describe("WorksheetGenerator — smart-default hero + honest MI toggle", () => {
   it("leads with the smart-default hero + a Preview CTA (nothing generated yet)", () => {
     const { getByText, getAllByText, queryByText } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
     expect(getByText(/Board exam mix ·/)).toBeTruthy();
-    // Hero + desktop sticky footer both carry a Preview CTA (FIX B).
+    // The hero carries the Preview CTA (the drawer-foot one appears when Customise opens;
+    // the old sticky bar was removed in FIX-4).
     expect(getAllByText(/Preview worksheet/i).length).toBeGreaterThanOrEqual(1);
     expect(queryByText(/worksheet is ready/i)).toBeNull();
   });
 
   it("MI toggle is always visible (outside the Customise drawer), titled + explained", () => {
     const { getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -57,7 +63,7 @@ describe("WorksheetGenerator — smart-default hero + honest MI toggle", () => {
 
   it("signed-out: shows a Sign-in CTA that returns to the worksheet (no bare checkbox)", () => {
     const { getByTestId } = render(
-      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths"]}>
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=real-numbers"]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -66,20 +72,20 @@ describe("WorksheetGenerator — smart-default hero + honest MI toggle", () => {
     expect(cta).not.toBeNull();
     expect(cta?.getAttribute("href")).toContain("/login");
     expect(cta?.getAttribute("href")).toContain("redirect=");
-    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull();
+    expect(mi.querySelector('[role="switch"]')).toBeNull();
   });
 
   it("signed-in + NO mistake data at all: the honest 'do it first' copy (locked, no toggle)", () => {
     useAuthMock.mockReturnValue(signedIn); // localStorage cleared → no MI data
     const { getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
     const mi = getByTestId("mi-enrich-box");
     expect(mi.className).toContain("locked");
     expect(mi.textContent).toMatch(/Check & Improve|grade a worksheet/i);
-    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull();
+    expect(mi.querySelector('[role="switch"]')).toBeNull();
   });
 });
 
@@ -92,13 +98,13 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
       { topic: "real-numbers", subject: "Maths", totalMarks: 3, marksLost: 1 },
     ]);
     const { getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
     const mi = getByTestId("mi-enrich-box");
     expect(mi.className).not.toContain("locked");
-    expect(mi.querySelector("input.lt-ws__mi-check")).not.toBeNull(); // a real, live toggle
+    expect(mi.querySelector('[role="switch"]')).not.toBeNull(); // a real, live toggle
     expect(mi.textContent).toMatch(/weak spots in/i);
     expect(mi.textContent).toContain("Section C");
     expect(mi.textContent).toContain("Real Numbers");
@@ -109,7 +115,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     // The weak area is Circles, but the default selected topic is Real Numbers.
     seedMistakes([{ topic: "circles", subject: "Maths", totalMarks: 3, marksLost: 6 }]);
     const { getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -122,14 +128,14 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     const cta = mi.querySelector("button.lt-ws__mi-cta");
     expect(cta).not.toBeNull();
     expect(cta?.textContent).toMatch(/Focus on Circles/i);
-    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull();
+    expect(mi.querySelector('[role="switch"]')).toBeNull();
   });
 
   it("the one-tap remedy focuses the worksheet on the real weak topic", () => {
     useAuthMock.mockReturnValue(signedIn);
     seedMistakes([{ topic: "circles", subject: "Maths", totalMarks: 3, marksLost: 6 }]);
     const { getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -145,7 +151,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     // Real Numbers (default topic) has loss, but from a non-band totalMarks (unknown section).
     seedMistakes([{ topic: "real-numbers", subject: "Maths", totalMarks: 0, marksLost: 4 }]);
     const { getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -153,14 +159,14 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     expect(mi.className).toContain("locked");
     expect(mi.textContent).toMatch(/already targets it/i);
     expect(mi.textContent).toContain("Real Numbers");
-    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull(); // never a section toggle with no signal
+    expect(mi.querySelector('[role="switch"]')).toBeNull(); // never a section toggle with no signal
   });
 
   it("(3a) multi-topic: the cross-topic toggle names the weakest IN-SCOPE topic (scope-relative)", () => {
     useAuthMock.mockReturnValue(signedIn);
     seedMistakes([{ topic: "circles", subject: "Maths", totalMarks: 3, marksLost: 5 }]);
     const { getByText, getAllByText, getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -170,7 +176,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     fireEvent.click(getAllByText("Circles").find((el) => el.classList.contains("lt-ws__chip"))!);
     const mi = getByTestId("mi-enrich-box");
     expect(mi.className).not.toContain("locked");
-    expect(mi.querySelector("input.lt-ws__mi-check")).not.toBeNull(); // live cross-topic toggle
+    expect(mi.querySelector('[role="switch"]')).not.toBeNull(); // live cross-topic toggle
     expect(mi.textContent).toMatch(/weight toward/i);
     expect(mi.textContent).toContain("Circles");
   });
@@ -179,7 +185,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     useAuthMock.mockReturnValue(signedIn);
     seedMistakes([{ topic: "triangles", subject: "Maths", totalMarks: 3, marksLost: 5 }]);
     const { getByText, getAllByText, getByTestId } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -192,7 +198,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
     expect(mi.textContent).toContain("Triangles");
     const add = mi.querySelector("button.lt-ws__mi-cta");
     expect(add?.textContent).toMatch(/Add Triangles/i);
-    expect(mi.querySelector("input.lt-ws__mi-check")).toBeNull();
+    expect(mi.querySelector('[role="switch"]')).toBeNull();
     // The one-tap Add brings Triangles into scope → it becomes the in-scope weak topic (3a).
     fireEvent.click(add!);
     expect(getByTestId("mi-enrich-box").textContent).toMatch(/weight toward/i);
@@ -202,7 +208,7 @@ describe("WorksheetGenerator — FIX A: scope-relative MI with split honest stat
 describe("WorksheetGenerator — Preview step + view-aware Back", () => {
   it("Build → Preview → Generate lands on the ready view; Back returns to the builder", () => {
     const { getByText, getAllByText, queryByText } = render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
         <WorksheetGenerator />
       </MemoryRouter>,
     );
@@ -217,5 +223,67 @@ describe("WorksheetGenerator — Preview step + view-aware Back", () => {
 
     fireEvent.click(getByText("Back to generator"));
     expect(getByText(/Board exam mix ·/)).toBeTruthy();
+  });
+});
+
+describe("WorksheetGenerator — FIX-1 context-aware entry (the invariant)", () => {
+  it("opens autofiltered to the URL topic (never a guessed topics[0])", () => {
+    const { getByText } = render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=quadratic-equations"]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    // Hero + title reflect the URL topic, not the first catalogue entry (Real Numbers).
+    expect(getByText(/Board exam mix · Quadratic Equations/)).toBeTruthy();
+    expect(getByText(/Quadratic Equations worksheet/)).toBeTruthy();
+  });
+
+  it("no valid subject+topic in the URL → redirects once to the hub (no invented topic)", () => {
+    const { getByText, queryByText } = render(
+      <MemoryRouter initialEntries={["/practice/worksheets"]}>
+        <Routes>
+          <Route path="/practice/worksheets" element={<WorksheetGenerator />} />
+          <Route path="/practice-hub" element={<div>HUB LANDING</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(getByText("HUB LANDING")).toBeTruthy();
+    expect(queryByText(/Board exam mix/)).toBeNull(); // the builder never rendered a guess
+  });
+
+  it("drops unknown topic keys and redirects when none survive", () => {
+    const { getByText } = render(
+      <MemoryRouter initialEntries={["/practice/worksheets?subject=Maths&scope=topic&topic=not-a-real-topic"]}>
+        <Routes>
+          <Route path="/practice/worksheets" element={<WorksheetGenerator />} />
+          <Route path="/practice-hub" element={<div>HUB LANDING</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(getByText("HUB LANDING")).toBeTruthy();
+  });
+});
+
+describe("WorksheetGenerator — FIX-3 multi-topic MI names the FULL weak set", () => {
+  it("names every in-scope weak topic (not just the single weakest)", () => {
+    useAuthMock.mockReturnValue(signedIn);
+    seedMistakes([
+      { topic: "real-numbers", subject: "Maths", totalMarks: 3, marksLost: 6 },
+      { topic: "circles", subject: "Maths", totalMarks: 3, marksLost: 4 },
+    ]);
+    const { getByText, getAllByText, getByTestId } = render(
+      <MemoryRouter initialEntries={[SINGLE_ENTRY]}>
+        <WorksheetGenerator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(getByText("Customise"));
+    fireEvent.click(getByText("Multi-topic")); // seeds multiTopics=[Real Numbers]
+    fireEvent.click(getAllByText("Circles").find((el) => el.classList.contains("lt-ws__chip"))!);
+    const mi = getByTestId("mi-enrich-box");
+    expect(mi.textContent).toMatch(/weight toward/i);
+    // BOTH weak in-scope topics are named — the honest aggregate, not a single hotspot.
+    expect(mi.textContent).toContain("Real Numbers");
+    expect(mi.textContent).toContain("Circles");
+    expect(mi.querySelector('[role="switch"]')).not.toBeNull();
   });
 });
