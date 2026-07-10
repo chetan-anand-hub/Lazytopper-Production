@@ -1,3 +1,26 @@
+## 2026-07-10 — Worksheet CONTEXT-AWARE ENTRY + multi-topic MI aggregate + preview/switch/360px merged (#357, `aa7e778`)
+
+### ✅ RESOLVED (closed by #357)
+- **[FU-WS-ENTRY-CONTEXT] → CLOSED.** The builder now reads `scope/subject/stream/topic/topics` from the URL (validated against `topics.ts`), seeds state from it, DELETES the `topics[0]` fallback, and redirects ONCE to `/practice-hub` when no valid topic is present. Recon finding: the desktop hub already emitted the params via `buildDesktopWorksheetPath` — the bug was the builder ignoring them, so App.tsx was never touched.
+- **[FU-WS-MULTITOPIC-MI-AGGREGATE] → CLOSED.** New `rankedInScopeWeakTopics` + `allocateMiCounts`: proportional marks-lost split across ALL in-scope weak topics with a FLOOR (a chosen topic is never dropped), a CAP (≈50% at N≥3; N=2 keeps the owner-verified 60/40 from `MI_BOOST=1.5`), an AVAILABILITY gate, and per-topic level-2 section skew. `weakestTopic`/`allocateCounts`/`MI_BOOST` retained unchanged.
+- **[FU-WS-PREVIEW-BUTTONS] → CLOSED.** Sticky bar + its CSS deleted; hero + drawer-foot Preview kept; the mobile `@media` that hid the hero button is gone so mobile keeps a Preview CTA.
+- **[FU-WS-MI-SWITCH] → CLOSED.** Both `<input type="checkbox">` replaced by an accessible `role="switch"` button (aria-checked, keyboard-operable, visible focus ring).
+
+### 🟡 STILL OPEN (only half landed)
+- **[FU-WS-MI-COPY] — KEEP OPEN.** State 2a (single-topic weak-section toggle) was softened, but **state 2c still reads "Your weak area is X, not {topic}"** — the blunt out-of-scope wording. Finish in the follow-up PR alongside [FU-WS-SCOPE-DERIVE].
+
+### 🆕 NEW FOLLOW-UPS (owner findings from #357 live-verify)
+- **[FU-WS-SCOPE-DERIVE]** — ticking topics in Customise calls `setMultiTopics` but **never `setScope`**, so `scope` stays `"topic"`; the URL-sync then builds from `validMulti[0]` and silently DISCARDS the student's other ticked topics, and `enrichActive` (gated on `scope !== "topic"`) short-circuits so the correct multi-topic MI path is never reached. The URL entry path already promotes scope (`parseEntryContext` infers multi from >1 `topics`). Owner-confirmed: with the Scope control explicitly on multi-topic/full-subject, MI works and honestly names only topics that have mistake data. Fix in the follow-up PR (a tick ⇒ derive scope). A direct instance of the product principle below.
+- **[FU-TOPICKEY-UNIVERSAL] (P0)** — surfaces match RAW topic slugs, so four Science chapters (`chemical-reactions-equations`, `acids-bases-salts`, `metals-non-metals`, `reproduction` ≈ **1,180 questions**) return ZERO. The bank stores **51 distinct `topicKey` for ~26 chapters** (25 Title-Case + 26 slug). Chapter Test and Full Mock carry the SAME defect, latent. Also `WorksheetGenerator.tsx` `q.topicKey === t.key` (enrichCount / drawnWeakTopics) is a raw compare that silently disables enrichment on Title-Case chapters. Owner-confirmed live on Chemical Reactions. **Cure (from a prior audit): Phase 1 = resolve-everywhere (read AND write) + CI guards; Phase 2 = data consolidation ([FU-BANK-TOPICKEY-NORMALISE], [FU-MI-TOPICKEY-BACKFILL]).** Prior piecemeal fixes FAILED because no guard existed → new variants reappeared. **Do NOT attempt this in a small PR** — it needs the resolve-everywhere + guard shape.
+
+### 🧭 PRODUCT PRINCIPLE (logged from #357 — three instances found today)
+- **A student's selection is intent. If we cannot honour it, we say so. We never silently do something smaller.** Instances found: the `topics[0]` guess (fixed by #357); the Customise tick that never derives scope ([FU-WS-SCOPE-DERIVE]); the raw-slug topic match returning zero for Title-Case chapters ([FU-TOPICKEY-UNIVERSAL]).
+
+### ℹ️ NOTE — [FU-MOBILE-VERIFY-GAP]
+- The worksheet builder now ships a **360px reflow** (#357 FIX-6), but the DOCTRINE stands: every future mockup ships a mobile frame + every live-verify includes a 360px check.
+
+---
+
 ## 2026-07-09 — Worksheet scope-relative MI + section enrichment + Preview affordance merged (#353, `f8c1536`)
 
 ### ✅ RESOLVED (closed by #353 — NOT #349 regressions; refinements surfaced in #349 review)
