@@ -1,94 +1,94 @@
-# CONTENT_LANE_STATE.md — Fable content-orchestrator handoff
+# CONTENT_LANE_STATE.md — Fable notes-orchestrator handoff
 
-**Written:** 2026-07-10 · **Trunk at handoff:** `5ac4a44` (re-derive before you start — it moves).
-**Why this file exists:** the outgoing orchestrator stopped at ~20–25% context after Task 1 rather than start
-Task 2 depleted. A degraded orchestrator ships errors. A FRESH orchestrator resumes from this file.
+**Written:** 2026-07-11 · **Lane:** notes generation (the ~30-chapter NCERT note fan-out).
+**Trunk at handoff:** `308be871` (re-derive before you start — it moves: `git rev-parse origin/base/approved-thru-437`).
+**Why this file exists:** a FRESH orchestrator resumes the notes lane from here. Operate per
+`AGENT_FABLE_notes_orchestrator_2026-07-11.md` (delegate all NCERT reads to subagents; keep your own
+context lean; enforce the six-gate stack; internal skeptic; never self-merge; every batch goes to a FRESH
+independent Opus auditor, then owner merge). The one-time first-batch eyeball is DONE — batches now flow
+gates → skeptic → PR + report → independent auditor → owner merge, no eyeball.
 
-## Where I stopped (state)
-- **No task in flight. Working tree clean.**
-- Branches `fix/bank-corrupt-objective-keys` (#352) and `docs/post-pr-352-corrupt-keys` (#354) MERGED and DELETED
-  (local + remote + worktrees; verified empty via `git ls-remote --heads`).
-- Trunk at `5ac4a44` plus whatever merged since — **re-derive `git rev-parse origin/base/approved-thru-437`**.
+## THE GATE (Task 0, MERGED #362 + hardened since)
+`notes/` has THREE deterministic checkers, all live-dependency-driven, no `--force`:
+- `validate_spec.py` (schema v1.2, 10 rules).
+- `verify_note_fidelity.py` — every NCERT verbatim literally present at its cited page (pymupdf; alnum
+  skeleton match; 2D-typeset math emits an honest "math region not linearly verifiable" flag, never a
+  silent pass). Page map = constant-offset detection (fixes low-numbered chapters). stdout forced UTF-8
+  (Windows cp1252 print-crash fix, batch 2).
+- `verify_note_conformance.py` — structure/discriminators/depth ≥ the subject's LOCKED exemplar.
+  EXEMPLAR_BY_SUBJECT: physics→light, maths→quadratic-equations, biology→life-processes,
+  **chemistry→chemical-reactions-and-equations** (locked in batch 2; tighter than the old ABS_MIN).
+Each has a `--selftest` (3 goldens VALID, 6 `_test/` fixtures INVALID). Run all + `run_negative_tests.py`
+as the golden-regression gate after ANY gate-script change. Always run gates with `PYTHONUTF8=1` on Windows.
 
----
+## DONE (11 of 26 chapters) — all merged on trunk
+- Goldens (pre-existing): light-reflection-and-refraction, life-processes, quadratic-equations.
+- **Batch 1 (#365):** electricity, chemical-reactions-and-equations. (chemical-reactions is the LOCKED
+  chemistry exemplar.)
+- **Batch 2 (#368):** real-numbers, polynomials, human-eye-and-colourful-world, acids-bases-and-salts,
+  how-do-organisms-reproduce, metals-and-non-metals. Auditor PASS; both gate changes validated.
 
-## Tasks COMPLETED (with PR numbers + what each proved)
+## IN FLIGHT — Batch 3 (branch `feat/notes-batch3`, 6 chapters, readers dispatched)
+carbon-and-its-compounds (chem), control-and-coordination (bio), pair-of-linear-equations (maths),
+arithmetic-progression (maths), triangles (maths), coordinate-geometry (maths).
+Process per chapter: reader authors spec+figures → orchestrator re-runs all 3 gates → adversarial SKEPTIC
+(separate instance) → fix any skeptic finding → when all green, batch PR + verification report → FRESH
+independent auditor. If you inherit mid-batch: check `notes/specs/` in the worktree for which specs exist,
+re-run the 3 gates on each, and dispatch skeptics for any not yet skeptic-verified.
 
-### #342 — Biology "Life Processes" notes pilot (MERGED)
-Proved the subject-adaptive note path end-to-end: `meta.subject:"biology"` + `third_tab.kind:"diagrams"` +
-`examples[].kind:"process"`. `notes/specs/life-processes.json` — validator **VALID, all 9 rules, no `--force`**.
-7 real NCERT figures extracted + eye-confirmed. (Notes lane is now schema-proven for physics/maths/biology.)
+## REMAINING AFTER BATCH 3 (9 chapters → ~2 batches)
+- **Batch 4 (maths, ~5):** trigonometry (ch8, jemh108), circles (ch10, jemh110),
+  areas-related-to-circles (ch11, jemh111), surface-areas-and-volumes (ch12, jemh112),
+  statistics (ch13, jemh113).
+- **Batch 5 (final, ~4):** probability (ch14, jemh114), our-environment (ch13 sci, jesc113), and the TWO
+  trimmed chapters (below).
 
-### #352 — [FU-BANK-CORRUPT-KEYS] repair corrupt objective answer keys (MERGED → `b9a7817`; docs #354 → `5ac4a44`)
-Closed the live hole in PR #348's deterministic objective-scoring guarantee (objective = 0-or-FULL; a key that
-doesn't resolve against `q.options` falls back to the model).
-- **Defect list RE-DERIVED** with an AST scanner using the grader's OWN `normaliseOption` / `resolveOptionIndex` /
-  `isObjectiveType` (from `lazytopper/server/routes/objectiveScoring.cjs` + `server/services/serverUtils.cjs`).
-  **89 in-scope — NOT the ~101 estimated.** Re-deriving rather than trusting the estimate was correct; do the same
-  for Task 2's counts.
-- **76 fixed** = 61 corrupt MCQ keys (each question SOLVED, `q.answer` set to the EXACT text of the correct
-  EXISTING option) + 15 Assertion-Reason rows given the 4 standard CBSE `options[]`.
-- **`correctOption` was NEVER introduced. The answer key is `q.answer` (the option TEXT) and it MUST stay that way**
-  — `correctOption` appears in 0/353 bank files; introducing it would silently break the grader.
-- **61/76 fixes corroborated** by the row's original `finalAnswer` option-letter — **0 mismatches**.
-- Method: 3 file-disjoint subagents (maths G1 / maths G2 / science) solved + edited their own files; orchestrator
-  applied 4 manual corrections + verified. Grader `server/routes/*` byte-untouched.
+## TWO CHAPTERS NEED EXTRA SYLLABUS-TRIMMING CARE (owner directive — call them out at the TOP of their
+   batch's verification report so the auditor scrutinises them first):
+- **heredity** (slug `heredity`, NOT `heredity-and-evolution`; ch8 science, jesc108). CBSE DELETED the
+  evolution half. Keep OUT everything downstream of heredity/inheritance: Darwin/natural selection,
+  speciation, "basis for evolution," homologous/analogous/vestigial ORGANS, fossils, evolution-by-stages.
+  When a verbatim's NCERT sentence continues into evolution content, TRUNCATE before it (the reproduction
+  spec already did this with "basis for evolution" — that's the pattern). Re-read syllabusGuard.ts LIVE.
+- **magnetic-effects-of-electric-current** (slug `magnetic-effects-of-electric-current`; ch12 sci,
+  jesc112). Deletions here too (electric motor/generator details; Fleming's-rule scope varies). Re-read the
+  guard LIVE for THIS chapter and honour its banned list exactly; do NOT carry full-chapter NCERT unfiltered.
 
----
+## PER-CHAPTER BANNED EXCLUSIONS ALREADY KNOWN (maths, from syllabusGuard SURFACE_BANNED_PHRASES)
+trigonometry → "Trigonometric Ratios of Complementary Angles"; surface-areas-and-volumes → "Frustum of a
+Cone", "Conversion of Solids"; statistics → "Ogive", "Cumulative Frequency Graph/Curve"; circles →
+"Construction of Tangents". Batch 3: pair-of-linear-equations → "Cross-Multiplication Method";
+coordinate-geometry → "Area of a Triangle in Coordinate Geometry"; triangles → "Construction of Similar
+Triangles" + "Division of a Line Segment". Always re-read the guard LIVE per chapter — do not trust this
+list from memory.
 
-## The 13 UNRESOLVED rows — and why they MUST stay unresolved
-They live in **`docs/objective-answer-key-review-queue.md`** and are **deliberately unfixed**: corrupted/duplicated
-options, or figure-dependent questions whose correct option cannot be established from the source text.
+## CONVENTIONS / GOTCHAS discovered (carry forward)
+- **Generated-figure webps are NOT committed.** `bucket:"generated"` figures declare `asset`+`generator`
+  +`params` and render at runtime; the merged golden quadratic-equations ships its generated figure without
+  a webp. Only commit `bucket:"ncert"` extraction webps. Stage EXPLICITLY (never `git add -A`); exclude
+  `notes/__pycache__/` and generated webps.
+- **Figures:** extract with the kit (`rasterize`→`.crop`→`clean_watermark`), save WebP, then READ the webp
+  to EYE-CONFIRM (right figure, clean, no body-text bleed) before shipping. Faint residual © watermarks on
+  colour figures are acceptable IF disclosed in the figure `clean`/`note` field and labels stay legible.
+- **`page_pdf`** is a provenance annotation only (the gate uses the authoritative printed `ncert_page`);
+  0-based is the batch-1 convention (human-eye drifted to 1-based — cosmetic, flagged, not fixed).
+- **Process/authored examples:** biology process examples + any authored practice prompt must prefix
+  `problem_verbatim` with "[authored prompt]" so fidelity SKIPS them (never mislabel authored as NCERT).
+- **Any gate-script change** → surface at the TOP of the verification report for the auditor's first
+  scrutiny (batch-2 precedent: cp1252 print fix + chemistry-mapping tightening).
+- Reports go to `C:\Users\Chetan\OneDrive\Desktop\diff\report-notes-batch<N>-verification-*.md`.
+- Worktree per batch: `C:/Projects/LT-worktrees/notes-batch<N>` off re-derived trunk; branch
+  `feat/notes-batch<N>`. Windows `git worktree remove` hits a lock gotcha but de-registers anyway.
+- CI on a batch PR runs `quality-gate` + `lane-overlap` (both must be green); notes python gates are NOT in
+  CI (run them locally). A batch PR of new `notes/` files is normally MERGEABLE even a few commits behind
+  base (infra/other-lane commits don't touch `notes/`); no rebase needed unless a real `notes/` overlap.
 
-**A successor must NOT "helpfully" fill them in.** Anti-fabrication is absolute: **a fabricated answer key is worse
-than a corrupt one.** A corrupt key fails LOUDLY into the model fallback; a wrong-but-confident key silently marks a
-right answer wrong. These need a real-paper lookup or a teacher's eye → **[FU-BANK-KEY-REVIEW-QUEUE]**.
+## STANDING RULES
+Anti-fabrication ABSOLUTE; verbatim NCERT only (verbatim/plain strictly separate); honest empty over
+padding. topicKey = exact `lib/desktop/topics.ts` slug. syllabusGuard.ts re-read LIVE per chapter. One Fable
+orchestrator only. Never self-merge. Hand off below ~20% context by refreshing THIS file.
 
-I **personally overrode two subagent "fixes" back to the manifest** — `PYQ-M-PROB-006` (keyed to an option
-contaminated with the next section's rubric text) and `PYQ-M-PROB-010` (duplicated/garbled options) — rather than
-accept plausible-but-unverified keys. **That is the standard: when in doubt, manifest.**
-
----
-
-## Task queue (do IN ORDER; each is its own draft PR, owner-merged between; do NOT start until owner releases it)
-
-### TASK 2 — [FU-CT-BANK-DEPTH] raise per-topic question depth — **NEXT, GATED**
-Chapter Test is design-locked and needs enough questions per topic that two generated tests don't overlap heavily.
-**The FIRST step is a DECISION, not execution: report the CURRENT per-topic question counts, then STOP for the owner
-to set the depth floor.** Do NOT extract a single question before that number exists — extracting first guesses at
-scope and wastes the lane. After the floor is set: CBSE-origin first, third-party TAGGED `source:"others"`,
-step-marked solutions, `topicKey` matching `topics.ts`, `syllabusGuard.ts` re-read LIVE per chapter, all 10
-checkpoint tests pass or no PR.
-
-### TASK 3 — case-based / competency extraction (the thin 4-mark band)
-Per `AGENT_FABLE_casebased_extraction_2026-07-04.md`. Full scenario + ALL sub-questions as **ONE set, never split**,
-`format="Case-Based"`.
-
-### Notes scaling — UNBLOCKED but NOT released
-The notes **v1.2 template merged (#345)**, so notes scaling is no longer schema-blocked. A **notes-v1.3 polish**
-(mindmap tree visibility + full-screen note modal) is queued AHEAD of it. Scaling awaits a **separate owner go** —
-and if released, new notes MUST use the v1.2 template (per-step numeric marks; validator has 10 rules incl. the
-Rule-10 sum check). See the `notes-generation-track` memory.
-
----
-
-## STANDING RULES (full — you need nothing else)
-- **You are an ORCHESTRATOR:** subagents do ALL heavy source-reading (PDFs, transcription); you assemble, gate, and
-  open the PR. **Never load raw PDF pages into your own context.** Keep your context lean; hand off below ~20%.
-- **Write ONLY:** `src/data/**`, `canonicalQuestionBank.ts`, `visualConceptRegistry.ts`, `public/visuals/**`,
-  `docs/` manifests. **Never** components / pages / services / grader / notes.
-- **`src/data` is GATED:** explicit owner authorization per PR; **stage explicitly (never `git add -A`).**
-- **Re-derive the trunk tip + take a FRESH worktree per task.** A stale base nearly reverted a PR TWICE this week —
-  **confirm `lazytopper/server/routes/objectiveScoring.cjs` exists on your branch before you start** (post-#348 marker).
-- **One task → one draft PR → STOP** for owner review + merge. **Never self-merge. Never batch tasks.**
-- **Anti-fabrication absolute.** Provenance tagged: CBSE-origin first (PYQ / sample / practice); third-party tagged
-  `source:"others"`, **never mislabelled as CBSE**. Step-marked solutions. `topicKey` matches `topics.ts`.
-  `syllabusGuard.ts` re-read LIVE per chapter. All 10 checkpoint tests pass or no PR.
-- **The bank answer key is `q.answer` (option text). `correctOption` does not exist — never introduce it.**
-- **Report per task:** before/after table · checkpoint results · `git diff --name-only` · manifest path ·
-  remaining-context estimate.
-
-## Pointers
-- Memory: `content-lane-queue-2026-07` (this queue), `notes-generation-track` (notes lane), `worktree-removal-windows-lock`.
-- Reports: `Desktop\diff\report-bank-corrupt-keys-2026-07-09.md`, `report-objective-scoring-uniform-2026-07-09.md` (#348).
-- Grader contract to replicate for any objective-key work: `lazytopper/server/routes/objectiveScoring.cjs`.
+## POINTERS
+Briefs: `AGENT_FABLE_notes_orchestrator_2026-07-11.md`, `AGENT_notes_TASKS_2026-07-11.md`,
+`AGENT_notes_INDEPENDENT_AUDIT_2026-07-11.md`. Schema: `notes/NoteSpec_Schema.md`. Memory:
+`notes-generation-track`, `content-lane-queue-2026-07`.

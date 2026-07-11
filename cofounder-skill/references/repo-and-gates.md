@@ -80,6 +80,15 @@ real round-trip, ratifying a scope/pedagogy call. Automation PREPARES a merge to
   precisely for those). One-line test: "my own words in a text file, revertible → push; code, config, data, CI, or
   an agent's work → PR."
 
+- **SOLO-OWNER APPROVAL — required approvals = 0 BY DESIGN (`[FU-SOLO-OWNER-APPROVAL]`).** The trunk ruleset
+  requires **0** approving reviews, NOT because review is skipped but because GitHub forbids a PR author from
+  approving their own PR — and the owner is both the sole code-owner AND the author of most PRs, so a mandatory
+  foreign approval is structurally unsatisfiable and blocks every merge. Do NOT "helpfully" re-enable required
+  approvals or Code-Owner approval — it would wall the owner out again. The review that matters is carried by the
+  MECHANICAL required checks (`lane-overlap` + `quality-gate` + up-to-date-before-merge) plus the mandatory
+  INDEPENDENT AUDITOR on every substantive batch; agents never self-merge and lack write access, so agent work is
+  gated by auditor-then-owner-merge regardless of the approval count. CODEOWNERS still LABELS ownership (surfaces
+  sensitive-lane PRs) even at 0 approvals.
 ## BYTE-REVIEW RECIPE (never rubber-stamp a report)
 1. Pull the branch tarball. 2. `diff -rq` against the branch's TRUE base (mind base drift — diff vs CURRENT trunk,
 and explain any extra "differs" as stale-base vs real modification). 3. Confirm exact scope (only its files).
