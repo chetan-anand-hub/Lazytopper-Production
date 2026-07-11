@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import type { ScorecardVariant, ScorecardScore, ScorecardFourType } from "./scorecardVariants";
+import type {
+  ScorecardVariant,
+  ScorecardScore,
+  ScorecardFourType,
+  ScorecardSectionLensRow,
+} from "./scorecardVariants";
 
 /**
  * ResultsScorecard — Progress-Journey ARC · PR-2: the ONE Universal <ResultsScorecard>,
@@ -71,6 +76,25 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
         )}
       </div>
     </div>
+  );
+}
+
+/** The chapter-test BY-SECTION lens (A–D) — spec §5. Derived at render (D3). */
+function SectionLensBlock({ rows }: { rows: ScorecardSectionLensRow[] }) {
+  return (
+    <>
+      <div className="lt-sc__mbk">By section</div>
+      <div className="lt-sc__seclens">
+        {rows.map((r) => (
+          <div className="lt-sc__seclens-row" key={r.section}>
+            <span className="lt-sc__seclens-lbl">{r.label}</span>
+            <span className="lt-sc__seclens-mk">
+              {r.awarded}/{r.total}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -170,6 +194,9 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
               {variant.message && <p className="lt-sc__msg">{variant.message}</p>}
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
 
+              {variant.sectionLens && variant.sectionLens.length > 0 && (
+                <SectionLensBlock rows={variant.sectionLens} />
+              )}
               {variant.fourType && <FourTypeBlock ft={variant.fourType} />}
             </>
           )}
@@ -253,6 +280,13 @@ const SC_CSS = `
 .lt-sc__note { font-size: 13px; color: #cfd7e2; margin: 0 0 4px; line-height: 1.55; }
 
 .lt-sc__mbk { font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #8294ad; margin-bottom: 16px; }
+
+/* Chapter-test by-section lens (A–D). */
+.lt-sc__seclens { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 22px; margin-bottom: 24px; }
+.lt-sc__seclens-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lt-sc__seclens-lbl { font-size: 13.5px; color: #cfd7e2; }
+.lt-sc__seclens-mk { font-weight: 700; color: #fff; font-size: 15px; font-variant-numeric: tabular-nums; }
+
 .lt-sc__groups { display: flex; gap: 34px; }
 .lt-sc__col { flex: 1; min-width: 0; }
 .lt-sc__gh { font-size: 12.5px; font-weight: 700; margin-bottom: 13px; }
@@ -307,6 +341,7 @@ const SC_CSS = `
   .lt-sc__head { margin: 14px 0 18px; }
   .lt-sc__big { font-size: 50px; }
   .lt-sc__big small { font-size: 24px; }
+  .lt-sc__seclens { grid-template-columns: 1fr; gap: 8px; }
   .lt-sc__groups { flex-direction: column; gap: 18px; }
   .lt-sc__actions { flex-direction: column; gap: 10px; padding: 16px 20px 22px; }
   .lt-sc__btn--primary { order: 1; }

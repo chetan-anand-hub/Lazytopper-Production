@@ -23,6 +23,7 @@
 
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import type { SessionFourType, SessionRecord } from "../../services/sessionRecords";
+import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 
 export type ScorecardSurface = "worksheet" | "quick-practice" | "chapter-test" | "full-mock";
 
@@ -82,6 +83,15 @@ export interface ScorecardAllPending {
  *  checked-answers produced typed mistakes — today QP produces none, so it is null). */
 export type ScorecardFourType = SessionFourType;
 
+/** One row of the chapter-test BY-SECTION lens (spec §5) — awarded/total per CBSE
+ *  board section. DERIVED at render (decision D3), never persisted. */
+export interface ScorecardSectionLensRow {
+  section: string;
+  label: string;
+  awarded: number;
+  total: number;
+}
+
 /**
  * The per-surface config the shell renders. Populated by the builders below. A
  * `deferred` variant is a config seam only (chapter-test / full-mock) — never handed
@@ -100,6 +110,9 @@ export interface ScorecardVariant {
   /** A secondary honest note (QP: the MCQ nudge). */
   note?: string | null;
   fourType?: ScorecardFourType | null;
+  /** Chapter-test BY-SECTION lens (A–D), rendered by the shell above the four-type
+   *  block. Derived at render (D3); other surfaces leave it null. */
+  sectionLens?: ScorecardSectionLensRow[] | null;
   pending?: ScorecardPending | null;
   allPending?: ScorecardAllPending | null;
   /** Optional footer heading for the stacked what-next menu (QP: "What next?"). */
@@ -464,5 +477,273 @@ export function fullMockScorecardVariantStub(input: DeferredVariantInput): Score
     pending: null,
     allPending: null,
     actions: [],
+  };
+}
+
+// ── LIVE variant: CHAPTER TEST (fills PR-2's deferred seam — spec §5) ──────────────
+//
+// Two-phase on the SAME Universal shell: PARTIAL (objective only, NO four-type / MI —
+// an MCQ is right/wrong, not a WHY) → FULL (total + BY-SECTION A–D lens + four-type
+// from the written work) after the answer sheet is uploaded. It is CONFIG on the
+// existing shell, not a re-architecture: the only new shell capability is the
+// `sectionLens` block.
+
+const CT_SECTION_LABEL: Record<string, string> = {
+  A: "A · Objective",
+  B: "B · VSA",
+  C: "C · SA",
+  D: "D · LA / Case",
+};
+
+/**
+ * Derive the A–D by-section lens from a chapter-test response's per-question marks —
+ * decision D3: NOT persisted (a chapter-test SessionRecord's sectionBreakdown stays
+ * null), DERIVED at render via the SHIPPED #353 CBSE mark-band proxy
+ * (`sectionFromTotalMarks`: 1→A · 2→B · 3→C · 5→D · 4→E case). The CT board shape is
+ * A–D, so the case band (E) folds into D. Only GRADED (legible) questions contribute;
+ * a mark value that maps to no canonical band is an HONEST UNKNOWN — it still counts
+ * in the total score but sits in NO section bucket (never a fabricated section).
+ * Returns null when nothing is attributable (e.g. an all-pending partial).
+ */
+export function deriveChapterTestSectionLens(
+  response: WorksheetGradeResponse,
+): ScorecardSectionLensRow[] | null {
+  const buckets = new Map<string, { awarded: number; total: number }>();
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const band = sectionFromTotalMarks(r.totalMarks);
+    if (!band) continue; // honest unknown — never a fabricated section
+    const sec = band === "E" ? "D" : band; // CT groups the case band under D
+    const b = buckets.get(sec) ?? { awarded: 0, total: 0 };
+    b.awarded += Number(r.marksAwarded) || 0;
+    b.total += Number(r.totalMarks) || 0;
+    buckets.set(sec, b);
+  }
+  const rows = ["A", "B", "C", "D"]
+    .filter((s) => buckets.has(s))
+    .map((s) => ({
+      section: s,
+      label: CT_SECTION_LABEL[s] ?? s,
+      awarded: buckets.get(s)!.awarded,
+      total: buckets.get(s)!.total,
+    }));
+  return rows.length > 0 ? rows : null;
+}
+
+export interface ChapterTestVariantInput {
+  /** The CT name — `{Topic} · Test #N`. */
+  name: string;
+  /** The durable `CT-{S}-{TOPIC}-{NN}` code. */
+  code: string;
+  /** The UNIFIED response (objective + subjective). In "partial" the subjective rows
+   *  are pending; in "full" they carry grades. */
+  response: WorksheetGradeResponse;
+  phase: "partial" | "full";
+  downloading?: boolean;
+  // Partial-phase handlers:
+  onUpload?: () => void;
+  onUploadLater?: () => void;
+  // Full-phase handlers:
+  onReadSheet?: () => void;
+  onPractise?: () => void;
+  onDownloadGraded?: () => void;
+  onDownloadSolution?: () => void;
+  onRevisit?: () => void;
+}
+
+/**
+ * Build the LIVE chapter-test variant. PARTIAL: objective marks only, an honest
+ * "upload to complete" prompt, and NO four-type block (spec §5 — MCQs are not an MI
+ * signal). FULL: the whole-test total, the BY-SECTION A–D lens, the four-type "from
+ * written answers", and the what-next menu. Pending pages surface honestly; nothing
+ * is fabricated.
+ */
+export function chapterTestScorecardVariant(input: ChapterTestVariantInput): ScorecardVariant {
+  const { name, code, response, phase, downloading = false } = input;
+
+  if (phase === "partial") {
+    const objectiveMarks = `${response.gradedMarksAwarded}/${response.gradedMarksTotal}`;
+    return {
+      surface: "chapter-test",
+      title: name,
+      subtitle: `${code} · submitted & scored`,
+      score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      message:
+        `Objective section scored (${objectiveMarks}). Upload your written answers ` +
+        `(Sections B–D) to complete your score — with a full mistake breakdown.`,
+      // NO four-type in partial: MCQs tell us right/wrong, not why (spec §5).
+      fourType: null,
+      sectionLens: null,
+      pending: null,
+      allPending: null,
+      actionsHeading: "For now",
+      stackActions: true,
+      footnote:
+        "No mistake breakdown yet — the “where your marks went” view appears once your written work is graded.",
+      actions: [
+        {
+          label: "Upload written answers for full result",
+          tag: "Upload",
+          tone: "primary",
+          onClick: input.onUpload ?? (() => {}),
+          disabled: !input.onUpload,
+        },
+        {
+          label: "Upload later — I’ll see “⏳ Awaiting sheet” in my history",
+          tag: "Later",
+          tone: "secondary",
+          onClick: input.onUploadLater ?? (() => {}),
+          disabled: !input.onUploadLater,
+        },
+      ],
+    };
+  }
+
+  // FULL
+  const menu: ScorecardAction[] = [
+    {
+      label: "Read my graded answer sheet",
+      tag: "Sheet",
+      tone: "primary",
+      onClick: input.onReadSheet ?? (() => {}),
+      disabled: !input.onReadSheet,
+    },
+    {
+      label: "Practise the marks you lost",
+      tag: "Practise",
+      tone: "secondary",
+      onClick: input.onPractise ?? (() => {}),
+      disabled: !input.onPractise,
+    },
+    {
+      label: "Download graded answer sheet (PDF)",
+      tag: "Graded",
+      tone: "secondary",
+      onClick: input.onDownloadGraded ?? (() => {}),
+      disabled: !input.onDownloadGraded || downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    },
+    {
+      label: "Download solution key — CBSE step-marked",
+      tag: "Key",
+      tone: "secondary",
+      onClick: input.onDownloadSolution ?? (() => {}),
+      disabled: !input.onDownloadSolution,
+    },
+    {
+      label: "Revisit this chapter in the Topic Hub",
+      tag: "Study",
+      tone: "secondary",
+      onClick: input.onRevisit ?? (() => {}),
+      disabled: !input.onRevisit,
+    },
+  ];
+
+  return {
+    surface: "chapter-test",
+    title: name,
+    subtitle: `${code} · fully graded`,
+    score: {
+      kind: "marks",
+      awarded: response.gradedMarksAwarded,
+      total: response.gradedMarksTotal,
+      gradedCount: response.gradedCount,
+      totalQuestions: response.totalQuestions,
+    },
+    fourType: aggregateFourType(response),
+    sectionLens: deriveChapterTestSectionLens(response),
+    pending:
+      response.pendingCount > 0
+        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
+        : null,
+    allPending: null,
+    actionsHeading: "What next?",
+    stackActions: true,
+    actions: menu,
+  };
+}
+
+// ── STORED re-open variant: read-only chapter-test scorecard from a SessionRecord ──
+
+export interface StoredChapterTestVariantInput {
+  gradedDateLabel: string;
+  /** The resolved per-question payload response (objective + subjective), if the host
+   *  could load it — enables the A–D lens + graded-sheet download. Absent → a lighter
+   *  re-open (score + four-type from the stored record only). */
+  response?: WorksheetGradeResponse | null;
+  onDone: () => void;
+  onDownloadGraded?: () => void;
+  onDownloadSolution?: () => void;
+  downloading?: boolean;
+}
+
+/**
+ * Rebuild a STORED chapter-test `SessionRecord` into a READ-ONLY scorecard (spec §2 —
+ * the PR-3 light re-open). A pending-upload / not-yet-uploaded partial shows an honest
+ * "awaiting your answer sheet" state (never a fabricated 0). A graded record shows the
+ * stored total + four-type; the A–D lens is DERIVED from the resolved payload when the
+ * host supplies it (else omitted — honest, never guessed).
+ */
+export function storedChapterTestScorecardVariant(
+  record: SessionRecord,
+  input: StoredChapterTestVariantInput,
+): ScorecardVariant {
+  const { gradedDateLabel, response, onDone, onDownloadGraded, onDownloadSolution, downloading = false } = input;
+  const doneAction: ScorecardAction = { label: "Done", tone: "ghost", onClick: onDone };
+  const pendingUpload = record.status === "pending-upload";
+  const awaitingWritten = record.status === "partial" && !response;
+
+  if (pendingUpload || awaitingWritten) {
+    return {
+      surface: "chapter-test",
+      title: record.title,
+      subtitle: `${record.id} · ${gradedDateLabel}`,
+      score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
+      message:
+        "Objective section scored — upload your written answers (Sections B–D) to complete this test.",
+      fourType: null,
+      sectionLens: null,
+      pending: null,
+      allPending: null,
+      actions: [doneAction],
+    };
+  }
+
+  const totalQuestions = response?.totalQuestions ?? record.questionIds?.length ?? 0;
+  const actions: ScorecardAction[] = [];
+  if (onDownloadGraded && response) {
+    actions.push({
+      label: "Download graded answer sheet",
+      tone: "primary",
+      onClick: onDownloadGraded,
+      disabled: downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    });
+  }
+  if (onDownloadSolution) {
+    actions.push({ label: "Download solution key", tone: "secondary", onClick: onDownloadSolution });
+  }
+  actions.push(doneAction);
+
+  return {
+    surface: "chapter-test",
+    title: record.title,
+    subtitle: `${record.id} · graded ${gradedDateLabel}`,
+    score: {
+      kind: "marks",
+      awarded: record.marksAwarded,
+      total: record.marksTotal,
+      ...(record.status === "graded" && totalQuestions > 0
+        ? { gradedCount: totalQuestions, totalQuestions }
+        : {}),
+    },
+    message: record.status === "partial" ? "Graded portion shown — some pages were pending on this test." : null,
+    fourType: record.fourType,
+    sectionLens: response ? deriveChapterTestSectionLens(response) : null,
+    pending: null,
+    allPending: null,
+    actions,
   };
 }

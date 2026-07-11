@@ -30,6 +30,7 @@ import type { AuthUser } from "../context/AuthContext";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
   worksheetNomenclature,
+  topicAbbr,
   type StoredWorksheetLite,
   type WorksheetNomenclature,
 } from "../components/worksheet/worksheetModel";
@@ -453,6 +454,145 @@ export function buildWorksheetSessionRecord(
     sectionBreakdown: null,
     gradedAt: Date.now(),
     perQuestionRef: `ws:${code}`,
+    dedupKey: `${uid}::${code}`,
+  };
+}
+
+// ── Chapter Test (surface "chapter-test") — durable CT-{S}-{TOPIC}-{NN} / #NN ─────
+//
+// The chapter-test analogue of the worksheet nomenclature + record builder above.
+// A chapter test is NOT a PersistedWorksheet in the worksheet store (decision D2 —
+// its in-memory paper is never saved there), so its durable #NN cannot come from
+// `listStoredWorksheetsLite`; it is the count of this student's EXISTING
+// (subject, topic) chapter-test SessionRecords + 1, read cross-device from the same
+// `sessionRecords/{uid}` store. The token reuses `topicAbbr` so a student sees a
+// consistent scheme across surfaces (`WS-M-RN-03` ↔ `CT-M-RN-03`). Additive: the
+// worksheet path above is left byte-unchanged.
+
+export interface ChapterTestNomenclature {
+  /** `CT-{S}-{TOPIC}-{NN}` — e.g. `CT-M-RN-02`. */
+  code: string;
+  /** Friendly name — e.g. `Real Numbers · Test #2` (spec §3). */
+  name: string;
+  sequence: number;
+}
+
+/** Durable #NN base: 1 + the count of this student's existing (subject, topic)
+ *  chapter-test records. Pure — the caller supplies the fetched records. */
+export function chapterTestSequence(
+  records: SessionRecord[],
+  subject: SessionSubject,
+  topicKey: string,
+): number {
+  const slug = resolveCanonicalSlug(topicKey);
+  const count = records.filter(
+    (r) =>
+      r.surface === "chapter-test" &&
+      r.subject === subject &&
+      r.topicKeys.some((k) => resolveCanonicalSlug(k) === slug),
+  ).length;
+  return count + 1;
+}
+
+/** Build the CT code + name from a resolved sequence (pure). */
+export function chapterTestNomenclature(
+  subject: SessionSubject,
+  topicKey: string,
+  topicLabel: string,
+  sequence: number,
+): ChapterTestNomenclature {
+  const sl = subject === "science" ? "S" : "M";
+  const token = topicAbbr(topicKey);
+  const code = `CT-${sl}-${token}-${String(sequence).padStart(2, "0")}`;
+  const name = `${topicLabel || "Chapter"} · Test #${sequence}`;
+  return { code, name, sequence };
+}
+
+/**
+ * Mint the DURABLE chapter-test nomenclature ONCE, from the cross-device record
+ * count. MUST be called exactly once per test, BEFORE the first (partial) record is
+ * written — otherwise the just-written record would inflate its own #NN. The caller
+ * freezes the returned code in page state and reuses it for BOTH the partial and the
+ * full record (record id = code → idempotent overwrite, never a double-count).
+ * Honest-degrade: on a signed-out / offline read it falls back to sequence 1.
+ */
+export async function ensureChapterTestSessionCode(
+  subject: SessionSubject,
+  topicKey: string,
+  topicLabel: string,
+  user?: AuthUser | null,
+): Promise<ChapterTestNomenclature> {
+  let records: SessionRecord[] = [];
+  try {
+    const uid = writableUid(user) ?? readableUid();
+    if (uid) records = await getSessionRecordsFromCloud(uid);
+  } catch (error) {
+    console.warn("[sessionRecords] CT durable count read failed; using fallback", error);
+  }
+  const sequence = chapterTestSequence(records, subject, topicKey);
+  return chapterTestNomenclature(subject, topicKey, topicLabel, sequence);
+}
+
+/**
+ * Assemble the §1 record for a chapter test from its UNIFIED response — objective
+ * (Section A, graded on submit) + subjective (B–D) results in ONE
+ * WorksheetGradeResponse (built by chapterTestGradeService). This mirrors
+ * buildWorksheetSessionRecord: honest graded subtotal (pending excluded, never a
+ * fabricated 0), fourType from per-question mistakeSummary (objective carries none —
+ * MCQs are never an MI signal), status from graded/pending counts. Two phases fall
+ * out of the same shape: at submit the subjective questions are `couldNotRead`
+ * (pending) → status "partial"; after upload they carry real grades → "graded".
+ * `sectionBreakdown` is ALWAYS null for chapter-test (decision D3 — the A–D lens is
+ * DERIVED at render from the stored per-question marks, never denormalised here).
+ */
+export function buildChapterTestSessionRecord(args: {
+  paper: PersistedWorksheet;
+  code: string;
+  subject: SessionSubject;
+  topicKey: string;
+  response: WorksheetGradeResponse;
+  uid: string;
+}): SessionRecord {
+  const { paper, code, subject, topicKey, response, uid } = args;
+
+  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  for (const r of response.results) {
+    if (r.couldNotRead || !r.mistakeSummary) continue;
+    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
+    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
+    fourType.silly += Number(r.mistakeSummary.silly) || 0;
+    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
+  }
+
+  const status: SessionStatus =
+    response.gradedCount <= 0
+      ? "pending-upload"
+      : response.pendingCount > 0
+        ? "partial"
+        : "graded";
+
+  return {
+    id: code,
+    worksheetId: paper.worksheetId,
+    surface: "chapter-test",
+    title: paper.name ?? paper.title,
+    subject,
+    topicKeys: Array.from(
+      new Set(
+        [
+          resolveCanonicalSlug(topicKey),
+          ...paper.questions.map((q) => resolveCanonicalSlug(q.topicKey)),
+        ].filter(Boolean),
+      ),
+    ),
+    questionIds: paper.questions.map((q) => q.id).filter(Boolean),
+    marksAwarded: Number(response.gradedMarksAwarded) || 0,
+    marksTotal: Number(response.gradedMarksTotal) || 0,
+    status,
+    fourType,
+    sectionBreakdown: null,
+    gradedAt: Date.now(),
+    perQuestionRef: `ct:${code}`,
     dedupKey: `${uid}::${code}`,
   };
 }

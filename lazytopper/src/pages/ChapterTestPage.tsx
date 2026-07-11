@@ -1,746 +1,823 @@
+// src/pages/ChapterTestPage.tsx
+//
+// CHAPTER TEST — built to LazyTopper_ChapterTest_Design_Spec_LOCKED_2026-07-07 +
+// mockup v4. The legacy practice-set implementation (generatePracticeSet + Math.random
+// draw + self-marking + masteryLevelService) is fully REPLACED — those are abandoned
+// concepts (D-PROG-10 + a past fabrication finding), not reused. The route/entry in
+// App.tsx is untouched; this is the page it points at.
+//
+// Sourcing: the canonical bank via chapterTestBlueprint (decision D1, native path —
+// no fabricated field). Grading: two-phase (spec §5) — Section A objective auto-graded
+// 0-or-full on submit (PR-348 invariant); Sections B–D subjective via answer-sheet
+// upload through the SHARED grader (chapterTestGradeService, byte-unchanged grader).
+// Scorecard: the Universal <ResultsScorecard> chapter-test variant (partial → full with
+// the by-section A–D lens). Records: sessionRecords surface "chapter-test" + durable
+// CT-{S}-{TOPIC}-{NN}. ONE responsive component (pure-CSS reflow, no useIsDesktop twin).
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { generatePracticeSet } from "../data/practiceSetGenerator";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
-import ReturnContextBar from "../components/ux/ReturnContextBar";
-import { trackUxEvent } from "../services/uxTelemetry";
-import { ConfettiCelebration, MasteredBadge } from "../components/celebrations";
-import * as gam from "../utils/gamification";
-import { useSmartLearning } from "../engine/smartLearningStore";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { useAuth } from "../context/AuthContext";
-import type { CanonicalQuestion } from "../data/predictionTypes";
+import { trackUxEvent } from "../services/uxTelemetry";
+import { MathText } from "../components/question/MathText";
+import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
-  recordQuizResult,
-  computeWeightedAccuracy,
-  MASTERY_LABELS,
-  MASTERY_COLORS,
-  MASTERY_ICONS,
-  MASTERY_POINTS,
-  getChapterMasteryLevel,
-  markNewlyMastered,
-  type QuizResult,
-} from "../services/masteryLevelService";
+  getSessionRecordsFromCloud,
+  getSessionPerQuestion,
+  chapterTestSequence,
+  chapterTestNomenclature,
+  type SessionRecord,
+  type SessionSubject,
+} from "../services/sessionRecords";
+import {
+  drawChapterTest,
+  objectiveQuestions,
+  subjectiveQuestions,
+  type DrawnChapterTest,
+} from "../components/chaptertest/chapterTestBlueprint";
+import {
+  scoreObjectiveSection,
+  buildChapterTestResponse,
+  writeChapterTestPartialRecord,
+  gradeChapterTestUpload,
+  type ObjectiveScore,
+} from "../services/chapterTestGradeService";
+import {
+  chapterTestScorecardVariant,
+  storedChapterTestScorecardVariant,
+} from "../components/results/scorecardVariants";
+import ResultsScorecard from "../components/results/ResultsScorecard";
+import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
+import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
+import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
+import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
+import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
+import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
 
-type Phase = "preview" | "taking" | "review";
+type Phase = "setup" | "taking" | "results";
 type SubjectKey = "Maths" | "Science";
 
-const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
-function areAllConceptsCompleted(topicKey: string): boolean {
-  try {
-    const raw = window.localStorage.getItem(TOPIC_MASTERY_KEY_PREFIX + topicKey);
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    return data?.lessonCompleted === true;
-  } catch { return false; }
-}
+const SECTION_HEAD: Record<string, string> = {
+  A: "Section A · Objective · 1 mark each",
+  B: "Section B · Very short answer · 2 marks",
+  C: "Section C · Short answer · 3 marks",
+  D: "Section D · Long / case",
+};
+const SECTION_MARK_HINT: Record<string, string> = {
+  B: "write on paper ✍️",
+  C: "write on paper ✍️",
+  D: "write on paper ✍️",
+};
 
 function subjectFromParam(raw: string): SubjectKey {
   return raw?.toLowerCase().includes("science") ? "Science" : "Maths";
 }
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
+function formatClock(totalSeconds: number): string {
+  const s = Math.max(0, Math.round(totalSeconds));
+  const m = Math.floor(s / 60);
+  return `${m}:${(s % 60).toString().padStart(2, "0")}`;
 }
-
+function mintChapterTestId(): string {
+  return `ct-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+/** Product-voice coaching line for the graded PDF, from the counts (never raw model
+ *  prose). Honest about what was lost, forward-pointing. */
+function coachingLine(resp: WorksheetGradeResponse): string {
+  let knowledge = 0;
+  let careless = 0;
+  for (const r of resp.results) {
+    if (r.couldNotRead || !r.mistakeSummary) continue;
+    knowledge += (r.mistakeSummary.conceptual || 0) + (r.mistakeSummary.calculation || 0);
+    careless += (r.mistakeSummary.silly || 0) + (r.mistakeSummary.presentation || 0);
+  }
+  const parts: string[] = [];
+  if (careless > 0)
+    parts.push(`${careless} careless slip${careless === 1 ? "" : "s"} — your method was right, slow down on the final line and units.`);
+  if (knowledge > 0)
+    parts.push(`${knowledge} knowledge gap${knowledge === 1 ? "" : "s"} — practise this chapter to close ${knowledge === 1 ? "it" : "them"}.`);
+  if (resp.pendingCount > 0)
+    parts.push(`Re-upload the ${resp.pendingCount} pending page${resp.pendingCount === 1 ? "" : "s"} to complete your score.`);
+  return parts.length ? parts.join(" ") : "Clean sheet — every question you uploaded scored full marks. Keep this up.";
+}
 
 export default function ChapterTestPage() {
   const params = useParams<"grade" | "subject" | "topicKey">();
   const [sp] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const smartLearning = useSmartLearning();
   const { user } = useAuth();
 
   const grade = params.grade || "10";
   const subject = subjectFromParam(params.subject || sp.get("subject") || "Maths");
+  const sessionSubject: SessionSubject = subject === "Science" ? "science" : "maths";
   const rawTopicKey = params.topicKey || sp.get("topic") || "";
   const topicKey = normalizeTopicKey(rawTopicKey) || rawTopicKey;
   const topicName = resolveTopicDisplayName(subject, topicKey);
-  const chapterKey = `${grade}-${subject}-${topicKey}`;
+  const isSignedIn = !!user?.uid && !user?.isLocalSession;
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
-  const backLabel = navState?.backLabel || "Back to topic";
+  const backLabel = navState?.backLabel || `Back to ${topicName} · Topic Hub`;
 
-  const [phase, setPhase] = useState<Phase>("preview");
-  const [elapsed, setElapsed] = useState(0);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, { selected: string; correct: boolean; isMcq: boolean }>>({});
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [timerEnabled, setTimerEnabled] = useState(true);
-  const [testSize, setTestSize] = useState<10 | 15 | 20>(10);
-  const [sectionMode, setSectionMode] = useState<"mixed" | "mcq" | "subjective">("mixed");
+  // ── Durable identity + the fresh draw ────────────────────────────────────────
+  const [nomen, setNomen] = useState<{ code: string; name: string } | null>(null);
+  const [records, setRecords] = useState<SessionRecord[]>([]);
+  const [recordsLoading, setRecordsLoading] = useState(true);
+  const [drawNonce] = useState(0);
 
-  const questions = useMemo<CanonicalQuestion[]>(() => {
-    const normalizedKey = normalizeTopicKey(topicKey) || topicKey;
-    const pool = generatePracticeSet({
-      subject,
-      topicKey: normalizedKey,
-      totalQuestions: 30,
-      shuffle: true,
-      // Fix B: chapter tests are timed mocks — keep the 50% competency floor.
-      enforceCompetencyFloor: true,
-    });
-    const valid = (pool.questions || []).filter(
-      (q) => Boolean(q.questionText) && Boolean(q.answer)
-    );
-    const mcqs = valid.filter((q) => Array.isArray(q.options) && q.options.length >= 2);
-    const nonMcqs = valid.filter((q) => !Array.isArray(q.options) || q.options.length < 2);
-
-    const selected: CanonicalQuestion[] = [];
-    const used = new Set<string>();
-    const pick = (arr: CanonicalQuestion[], count: number) => {
-      let remaining = count;
-      for (const q of arr) {
-        if (remaining <= 0) break;
-        const key = q.id || q.questionText;
-        if (!used.has(key)) { used.add(key); selected.push(q); remaining--; }
-      }
-    };
-
-    if (sectionMode === "mcq") {
-      pick(mcqs, testSize);
-    } else if (sectionMode === "subjective") {
-      pick(nonMcqs, testSize);
-    } else {
-      pick(mcqs, 4);
-      pick(nonMcqs, 4);
-      const remaining = [...mcqs, ...nonMcqs].filter((q) => !used.has(q.id || q.questionText));
-      pick(remaining, testSize - selected.length);
+  const loadRecords = useCallback(async () => {
+    try {
+      const all = await getSessionRecordsFromCloud(user?.uid);
+      setRecords(all);
+      return all;
+    } catch {
+      setRecords([]);
+      return [] as SessionRecord[];
     }
+  }, [user?.uid]);
 
-    for (let i = selected.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [selected[i], selected[j]] = [selected[j], selected[i]];
-    }
-    return selected.slice(0, testSize);
-  }, [subject, topicKey, testSize, sectionMode]);
-
-  const timeLimitSeconds = Math.round(testSize * 1.5 * 60);
-
+  // On mount: read the cross-device records ONCE, mint the durable CT code/#NN from
+  // them (mint-once, BEFORE any record is written), and populate the history rail.
   useEffect(() => {
-    if (phase === "taking" && timerEnabled) {
-      timerRef.current = setInterval(() => {
-        setElapsed((e) => {
-          if (e + 1 >= timeLimitSeconds) {
-            finishTest();
-            return e + 1;
-          }
-          return e + 1;
-        });
-      }, 1000);
-    } else if (phase === "taking" && !timerEnabled) {
-      timerRef.current = setInterval(() => {
-        setElapsed((e) => e + 1);
-      }, 1000);
+    let live = true;
+    (async () => {
+      setRecordsLoading(true);
+      const all = await loadRecords();
+      if (!live) return;
+      const seq = chapterTestSequence(all, sessionSubject, topicKey);
+      const nm = chapterTestNomenclature(sessionSubject, topicKey, topicName, seq);
+      setNomen({ code: nm.code, name: nm.name });
+      setRecordsLoading(false);
+    })();
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid, topicKey, sessionSubject]);
+
+  const draw: DrawnChapterTest | null = useMemo(() => {
+    if (!nomen) return null;
+    return drawChapterTest({
+      subject,
+      topicKey,
+      topicLabel: topicName,
+      grade,
+      worksheetId: mintChapterTestId(),
+      code: nomen.code,
+      name: nomen.name,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nomen, subject, topicKey, grade, drawNonce]);
+
+  const topicRecords = useMemo(() => {
+    const slug = resolveCanonicalSlug(topicKey);
+    return records
+      .filter(
+        (r) =>
+          r.surface === "chapter-test" &&
+          r.subject === sessionSubject &&
+          r.topicKeys.some((k) => resolveCanonicalSlug(k) === slug),
+      )
+      .sort((a, b) => b.gradedAt - a.gradedAt);
+  }, [records, topicKey, sessionSubject]);
+
+  // ── Test-taking state ────────────────────────────────────────────────────────
+  const [phase, setPhase] = useState<Phase>("setup");
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [flags, setFlags] = useState<Set<number>>(new Set());
+  const [currentQNumber, setCurrentQNumber] = useState(1);
+  const [timerEnabled, setTimerEnabled] = useState(true);
+  const [elapsed, setElapsed] = useState(0);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ── Results state (two-phase) ────────────────────────────────────────────────
+  const [objective, setObjective] = useState<ObjectiveScore | null>(null);
+  const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
+  const [scorecardOpen, setScorecardOpen] = useState(false);
+  const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
+  const [grading, setGrading] = useState(false);
+  const [gradeError, setGradeError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [reopen, setReopen] = useState<{ record: SessionRecord; response: WorksheetGradeResponse | null } | null>(null);
+
+  const paper = draw?.paper ?? null;
+  const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
+  const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
+
+  // Autosave restore (honest "✓ saved"): pull any in-flight answers for this test.
+  useEffect(() => {
+    if (!progressKey || typeof window === "undefined") return;
+    try {
+      const raw = window.sessionStorage.getItem(progressKey);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { answers?: Record<number, string>; flags?: number[]; elapsed?: number };
+      if (saved.answers) setAnswers(saved.answers);
+      if (Array.isArray(saved.flags)) setFlags(new Set(saved.flags));
+      if (typeof saved.elapsed === "number") setElapsed(saved.elapsed);
+    } catch {
+      /* best-effort */
     }
+  }, [progressKey]);
+
+  // Autosave write while taking.
+  useEffect(() => {
+    if (phase !== "taking" || !progressKey || typeof window === "undefined") return;
+    try {
+      window.sessionStorage.setItem(progressKey, JSON.stringify({ answers, flags: [...flags], elapsed }));
+    } catch {
+      /* quota — best-effort */
+    }
+  }, [answers, flags, elapsed, phase, progressKey]);
+
+  const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
+  const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
+
+  const unansweredObjective = objectiveQs.filter((q) => !(answers[q.qNumber] && answers[q.qNumber] !== "")).length;
+
+  // ── Submit → partial ─────────────────────────────────────────────────────────
+  const finishToPartial = useCallback(() => {
+    if (!paper || !nomen) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+    const obj = scoreObjectiveSection(objectiveQs, answers);
+    setObjective(obj);
+    const partialResponse = buildChapterTestResponse({
+      paper,
+      objective: obj,
+      subjectiveQuestions: subjectiveQs,
+      subjectiveResponse: null,
+    });
+    writeChapterTestPartialRecord({
+      user,
+      paper,
+      code: nomen.code,
+      subject: sessionSubject,
+      topicKey,
+      response: partialResponse,
+    });
+    if (progressKey && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(progressKey);
+      } catch {
+        /* best-effort */
+      }
+    }
+    setResultsPhase("partial");
+    setScorecardOpen(true);
+    setPhase("results");
+    void loadRecords();
+  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, topicKey, progressKey, loadRecords]);
+
+  // Keep a LIVE ref to the latest finishToPartial so the timer's auto-submit scores
+  // with CURRENT answers — the interval effect must NOT re-subscribe on every keystroke
+  // (that would reset the clock), so it can't close over finishToPartial directly.
+  const finishRef = useRef(finishToPartial);
+  useEffect(() => {
+    finishRef.current = finishToPartial;
+  }, [finishToPartial]);
+
+  // Timer.
+  useEffect(() => {
+    if (phase !== "taking") return;
+    timerRef.current = setInterval(() => {
+      setElapsed((e) => {
+        const next = e + 1;
+        if (timerEnabled && next >= timeLimitSeconds) {
+          // Time up → auto-submit (like a real exam), once, with current answers.
+          if (timerRef.current) clearInterval(timerRef.current);
+          setTimeout(() => finishRef.current(), 0);
+        }
+        return next;
+      });
+    }, 1000);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [phase, timerEnabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, timerEnabled, timeLimitSeconds]);
 
   const startTest = useCallback(() => {
     setPhase("taking");
-    setElapsed(0);
-    setCurrentIdx(0);
-    setAnswers({});
+    setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
   }, [topicKey, subject]);
 
-  const handleAnswer = useCallback(
-    (idx: number, selected: string) => {
-      const q = questions[idx];
-      if (!q) return;
-      const isMcq = Array.isArray(q.options) && q.options.length >= 2;
-      const isSelfMark = selected === "correct" || selected === "incorrect";
-      const correct = isSelfMark
-        ? selected === "correct"
-        : selected.trim().toLowerCase() === (q.answer || "").trim().toLowerCase();
-      setAnswers((prev) => ({ ...prev, [idx]: { selected, correct, isMcq } }));
-      if (correct) {
-        gam.awardXP(10);
-      }
-    },
-    [questions]
-  );
-
-  const finishTest = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setPhase("review");
-    gam.awardXP(50);
-    gam.incrementDailyGoal();
+  const pickOption = useCallback((qNumber: number, optionText: string) => {
+    setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
+  }, []);
+  const toggleFlag = useCallback((qNumber: number) => {
+    setFlags((prev) => {
+      const next = new Set(prev);
+      if (next.has(qNumber)) next.delete(qNumber);
+      else next.add(qNumber);
+      return next;
+    });
   }, []);
 
-  const goNext = useCallback(() => {
-    if (currentIdx < questions.length - 1) {
-      setCurrentIdx((i) => i + 1);
-    } else {
-      finishTest();
-    }
-  }, [currentIdx, questions.length, finishTest]);
-
-  const quizResult = useMemo<QuizResult>(() => {
-    let mcqCount = 0;
-    let mcqCorrect = 0;
-    let nonMcqCount = 0;
-    let nonMcqCorrect = 0;
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      const isMcq = Array.isArray(q.options) && q.options.length >= 2;
-      const a = answers[i];
-      if (isMcq) {
-        mcqCount++;
-        if (a?.correct) mcqCorrect++;
-      } else {
-        nonMcqCount++;
-        if (a?.correct) nonMcqCorrect++;
-      }
-    }
-    return {
-      totalQuestions: questions.length,
-      correctAnswers: Object.values(answers).filter((a) => a.correct).length,
-      mcqCount,
-      mcqCorrect,
-      nonMcqCount,
-      nonMcqCorrect,
-    };
-  }, [answers, questions]);
-
-  const [masteryRecord, setMasteryRecord] = useState<ReturnType<typeof recordQuizResult> | null>(null);
-
-  useEffect(() => {
-    if (phase === "review" && quizResult.totalQuestions > 0) {
-      const rec = recordQuizResult(chapterKey, quizResult, true);
-      setMasteryRecord(rec);
-      if (rec.level === "mastered") {
-        markNewlyMastered(chapterKey);
-      }
-      for (const [idxStr, ans] of Object.entries(answers)) {
-        const q = questions[Number(idxStr)];
-        if (!q) continue;
-        smartLearning.recordHpqAttempt({
-          userId: user?.uid || "local",
-          chapterId: chapterKey,
-          grade,
-          subject,
-          questionId: q.id,
-          marks: q.marks,
-          difficulty: (q.difficulty as "Easy" | "Medium" | "Hard") || undefined,
-          isCorrect: ans.correct,
-          timeTakenSeconds: Math.round(elapsed / Math.max(1, quizResult.totalQuestions)),
-          source: "other",
-          attemptedAt: new Date().toISOString(),
+  // ── Upload → full ────────────────────────────────────────────────────────────
+  const handleGrade = useCallback(
+    async (upload: { imageBase64: string; imageMimeType: string }) => {
+      if (!paper || !nomen || !objective || grading) return;
+      setGrading(true);
+      setGradeError(null);
+      try {
+        const outcome = await gradeChapterTestUpload({
+          user,
+          paper,
+          code: nomen.code,
+          subject: sessionSubject,
+          topicKey,
+          objective,
+          subjectiveQuestions: subjectiveQs,
+          upload,
         });
+        if (!outcome.ok) {
+          setGradeError(outcome.response.error || "We couldn’t grade your answers. Try a clearer scan, or try again.");
+        } else {
+          setFullResponse(outcome.response);
+          setResultsPhase("full");
+          setScorecardOpen(true);
+          trackUxEvent("chapter_test_complete", "ChapterTestPage", {
+            topicKey,
+            score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
+          });
+          void loadRecords();
+        }
+      } catch (err) {
+        setGradeError(err instanceof Error ? err.message : "Failed to grade your answers.");
+      } finally {
+        setGrading(false);
       }
-      trackUxEvent("chapter_test_complete", "ChapterTestPage", {
-        topicKey,
-        score: computeWeightedAccuracy(quizResult),
-        totalSeconds: elapsed,
-      });
+    },
+    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords],
+  );
+
+  // ── Downloads ────────────────────────────────────────────────────────────────
+  const downloadTest = useCallback(async () => {
+    if (!paper || !nomen || downloading) return;
+    setDownloading(true);
+    try {
+      await exportWorksheetPdf(paper, "questions", nomen.code);
+    } catch {
+      /* best-effort */
+    } finally {
+      setDownloading(false);
     }
-  }, [phase]);
+  }, [paper, nomen, downloading]);
+  const downloadSolution = useCallback(async () => {
+    if (!paper || !nomen || downloading) return;
+    setDownloading(true);
+    try {
+      await exportWorksheetPdf(paper, "answers", nomen.code);
+    } catch {
+      /* best-effort */
+    } finally {
+      setDownloading(false);
+    }
+  }, [paper, nomen, downloading]);
+  const downloadGraded = useCallback(async () => {
+    if (!paper || !nomen || !fullResponse || downloading) return;
+    setDownloading(true);
+    try {
+      await exportGradedWorksheetPdf({
+        ws: paper,
+        response: fullResponse,
+        name: nomen.name,
+        code: nomen.code,
+        coaching: coachingLine(fullResponse),
+      });
+    } catch {
+      /* best-effort */
+    } finally {
+      setDownloading(false);
+    }
+  }, [paper, nomen, fullResponse, downloading]);
 
-  const answeredCount = Object.keys(answers).length;
-  const timeRemaining = timerEnabled ? Math.max(0, timeLimitSeconds - elapsed) : elapsed;
-  const isTimeLow = timerEnabled && timeRemaining < 120;
+  const practiseTopic = useCallback(() => {
+    navigate(`/practice/${grade}/${subject.toLowerCase()}?topic=${encodeURIComponent(topicKey)}`);
+  }, [navigate, grade, subject, topicKey]);
 
-  const currentLevel = getChapterMasteryLevel(chapterKey);
+  // ── Re-open a stored test read-only ──────────────────────────────────────────
+  const openStored = useCallback(
+    async (record: SessionRecord) => {
+      let response: WorksheetGradeResponse | null = null;
+      if (record.status !== "pending-upload") {
+        const payload = await getSessionPerQuestion(user?.uid, record.perQuestionRef);
+        response = payload?.response ?? null;
+      }
+      setReopen({ record, response });
+    },
+    [user?.uid],
+  );
+
+  const currentQuestion = paper?.questions.find((q) => q.qNumber === currentQNumber) ?? null;
+  const currentIsObjective = currentQuestion ? String(currentQuestion.section).toUpperCase() === "A" : false;
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  //  RENDER
+  // ══════════════════════════════════════════════════════════════════════════════
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: "16px 16px 32px" }}>
-        <ReturnContextBar backTo={backTo} backLabel={backLabel} />
+    <div className="lt-ct">
+      <style>{CT_CSS}</style>
 
-        {phase === "preview" && (
-          <div style={{ marginTop: 24 }}>
-            <div
-              style={{
-                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                borderRadius: 20,
-                padding: "28px 24px",
-                color: "var(--text)",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "0.7rem",
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  opacity: 0.85,
-                  marginBottom: 6,
-                }}
-              >
-                Chapter Test
-              </div>
-              <h1 style={{ fontSize: "1.8rem", fontWeight: 800, margin: "0 0 8px" }}>{topicName}</h1>
-              <p style={{ fontSize: "0.88rem", opacity: 0.92, lineHeight: 1.5 }}>
-                {testSize} questions &middot; {timerEnabled ? `${Math.round(testSize * 1.5)} min` : "untimed"} &middot; CBSE format
-              </p>
-              <p style={{ fontSize: "0.82rem", opacity: 0.8, marginTop: 8 }}>
-                Score 100% while Proficient to reach <strong>Mastered</strong> level
-              </p>
+      {/* Read-only re-open scorecard (from a history card), any phase. */}
+      {reopen && (
+        <ResultsScorecard
+          variant={storedChapterTestScorecardVariant(reopen.record, {
+            gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }),
+            response: reopen.response,
+            onDone: () => setReopen(null),
+          })}
+          onClose={() => setReopen(null)}
+        />
+      )}
 
-              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, background: "var(--text-muted)" }}>
-                  <span style={{ fontSize: 16 }}>{MASTERY_ICONS[currentLevel]}</span>
-                  <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>Current: {MASTERY_LABELS[currentLevel]}</span>
+      {/* ─────────────── SETUP ─────────────── */}
+      {phase === "setup" && (
+        <>
+          <div className="lt-ct__pagebar">
+            <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
+              ← {backLabel}
+            </button>
+            <span className="lt-ct__pagetitle">Chapter Test</span>
+          </div>
+
+          <div className="lt-ct__setup">
+            <ChapterTestHistoryRail
+              topicLabel={topicName}
+              records={topicRecords}
+              loading={recordsLoading}
+              onOpen={openStored}
+            />
+
+            <div className="lt-ct__setup-main">
+              <div className="lt-ct__card">
+                <div className="lt-ct__eyebrow">Chapter Test · {topicName}</div>
+                <div className="lt-ct__title lt-ct__fr">Ready for a board-pattern test?</div>
+                <div className="lt-ct__sub">
+                  Objective questions are scored the moment you submit. Write the rest on paper, upload, and
+                  get your full graded result with a mistake breakdown.
                 </div>
 
-                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  <span style={{ fontSize: "0.75rem", opacity: 0.7, marginRight: 4 }}>Questions:</span>
-                  {([10, 15, 20] as const).map((n) => (
-                    <button key={n} onClick={() => setTestSize(n)} style={{
-                      padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      background: testSize === n ? "var(--bg-card)" : "var(--bg-card-border)",
-                      color: testSize === n ? "#16a34a" : "var(--text)",
-                      fontWeight: 700, fontSize: "0.8rem", transition: "all 0.15s",
-                    }}>{n}</button>
-                  ))}
-                </div>
-
-                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  <span style={{ fontSize: "0.75rem", opacity: 0.7, marginRight: 4 }}>Section:</span>
-                  {([["mixed", "Mixed"], ["mcq", "MCQ Only"], ["subjective", "Subjective"]] as const).map(([val, label]) => (
-                    <button key={val} onClick={() => setSectionMode(val)} style={{
-                      padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      background: sectionMode === val ? "var(--bg-card)" : "var(--bg-card-border)",
-                      color: sectionMode === val ? "#16a34a" : "var(--text)",
-                      fontWeight: 700, fontSize: "0.75rem", transition: "all 0.15s",
-                    }}>{label}</button>
-                  ))}
-                </div>
-
-                <button onClick={() => setTimerEnabled((p) => !p)} style={{
-                  display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px",
-                  borderRadius: 10, border: "none", cursor: "pointer",
-                  background: "var(--text-muted)", color: "var(--text)",
-                  fontSize: "0.78rem", fontWeight: 600,
-                }}>
-                  {timerEnabled ? "⏱ Timed" : "📖 Untimed"} — tap to switch
-                </button>
-              </div>
-
-              <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                <button
-                  onClick={startTest}
-                  disabled={questions.length === 0}
-                  style={{
-                    padding: "12px 36px",
-                    borderRadius: 14,
-                    border: "none",
-                    cursor: questions.length === 0 ? "not-allowed" : "pointer",
-                    background: "var(--bg-card)",
-                    color: "#16a34a",
-                    fontWeight: 800,
-                    fontSize: "1rem",
-                    opacity: questions.length === 0 ? 0.5 : 1,
-                  }}
-                >
-                  Start Chapter Test
-                </button>
-                {!areAllConceptsCompleted(topicKey) && (
-                  <div style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--text-muted)", maxWidth: 320 }}>
-                    Tip: Completing all concepts in the Chapter Hub first will help you score better.{" "}
-                    <button
-                      type="button"
-                      onClick={() => navigate(backTo)}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-accent)", fontWeight: 600, fontSize: "0.78rem", padding: 0 }}
-                    >
-                      Go to Chapter Hub
-                    </button>
+                {!draw ? (
+                  <div className="lt-ct__empty">Building your test…</div>
+                ) : !draw.enoughQuestions ? (
+                  <div className="lt-ct__empty">
+                    We don’t have enough {topicName} questions in the bank to build a fair test yet. This
+                    chapter is still being expanded — check back soon.
                   </div>
+                ) : (
+                  <>
+                    <div className="lt-ct__metarow">
+                      <span className="lt-ct__chip">
+                        <b>{draw.paper.questions.length}</b> questions
+                      </span>
+                      <span className="lt-ct__chip">
+                        <b>{draw.totalMarks}</b> marks
+                      </span>
+                      <span className="lt-ct__chip">
+                        <b>~{Math.round(timeLimitSeconds / 60)}</b> min
+                      </span>
+                      <span className="lt-ct__chip">
+                        Sections <b>A–D</b>
+                      </span>
+                    </div>
+
+                    <div className="lt-ct__blueprint">
+                      {draw.blueprint.map((row) => (
+                        <div
+                          key={row.section}
+                          className={`lt-ct__bp-row${row.actualCount === 0 ? " lt-ct__bp-row--empty" : ""}`}
+                        >
+                          <span>
+                            <span className="lt-ct__sec-tag">{row.section}</span>
+                            {row.label}
+                          </span>
+                          <span className="lt-ct__bp-meta">
+                            {row.actualCount > 0
+                              ? `${row.actualCount} × ${row.marksEach} = ${row.actualMarks} · ${
+                                  row.autoGraded ? "scored instantly" : "write & upload"
+                                }`
+                              : "none available yet"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="lt-ct__toggle">
+                      <div className="lt-ct__toggle-lab">
+                        <b>⏱ Timed (board practice)</b>
+                        <p>{Math.round(timeLimitSeconds / 60)}-min countdown. Turn off to practise without the clock.</p>
+                      </div>
+                      <button
+                        type="button"
+                        className={`lt-ct__tg${timerEnabled ? "" : " lt-ct__tg--off"}`}
+                        aria-pressed={timerEnabled}
+                        aria-label="Toggle timer"
+                        onClick={() => setTimerEnabled((p) => !p)}
+                      />
+                    </div>
+
+                    <div className="lt-ct__startrow">
+                      <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
+                        Start the test →
+                      </button>
+                      <button
+                        type="button"
+                        className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                        onClick={downloadTest}
+                        disabled={downloading}
+                      >
+                        {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
+                      </button>
+                    </div>
+
+                    <div className="lt-ct__honest">
+                      <span>·</span>
+                      <span>
+                        Prefer paper? Download this test, solve it, and upload the whole thing. Opens
+                        full-screen so you can focus. <b>Each test is a fresh draw</b> — different questions
+                        from your last {topicName} test.
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
           </div>
-        )}
+        </>
+      )}
 
-        {phase === "taking" && (
-          <div style={{ marginTop: 24 }}>
-            <div
-              style={{
-                position: "sticky",
-                top: 0,
-                zIndex: 10,
-                background: "var(--bg-card)",
-                padding: "10px 16px",
-                borderRadius: 12,
-                marginBottom: 16,
-                border: "1px solid var(--bg-card-border)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <span
-                  style={{
-                    fontSize: "0.82rem",
-                    fontWeight: 600,
-                    color: isTimeLow ? "#ef4444" : "var(--text-muted)",
-                  }}
-                >
-                  {timerEnabled ? `Time: ${formatTime(timeRemaining)}` : `Elapsed: ${formatTime(elapsed)}`}
-                </span>
-                <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                  Q{currentIdx + 1}/{questions.length} &middot; {answeredCount} answered
-                </span>
-              </div>
-              <div style={{ height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
-                <div
-                  style={{
-                    height: "100%",
-                    borderRadius: 999,
-                    width: `${(answeredCount / questions.length) * 100}%`,
-                    background: "#22c55e",
-                    transition: "width 0.3s ease",
-                  }}
-                />
-              </div>
+      {/* ─────────────── TAKING (full screen) ─────────────── */}
+      {phase === "taking" && paper && currentQuestion && (
+        <div className="lt-ct__fs">
+          <div className="lt-ct__fsbar">
+            <div className="lt-ct__fsbar-l">
+              {topicName} · Chapter Test
+              <small>
+                Section {currentQuestion.section} · Q{currentQNumber} of {paper.questions.length}
+              </small>
             </div>
-
-            <TestQuestion
-              question={questions[currentIdx]}
-              idx={currentIdx}
-              answer={answers[currentIdx]}
-              onAnswer={(sel) => handleAnswer(currentIdx, sel)}
-              onNext={goNext}
-              isLast={currentIdx === questions.length - 1}
-            />
-
-            <div style={{ marginTop: 16, display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
-              {questions.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentIdx(i)}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    border: i === currentIdx ? "2px solid #22c55e" : "1px solid var(--bg-card-border)",
-                    background: answers[i]
-                      ? answers[i].correct
-                        ? "rgba(34,197,94,0.2)"
-                        : "rgba(239,68,68,0.2)"
-                      : "var(--bg-card)",
-                    color: i === currentIdx ? "#22c55e" : "var(--text-muted)",
-                    fontWeight: 700,
-                    fontSize: "0.75rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  {i + 1}
-                </button>
-              ))}
+            <div className="lt-ct__timer">
+              <span className="lt-ct__save">✓ saved</span>
+              <button
+                type="button"
+                className="lt-ct__minitg"
+                onClick={() => setTimerEnabled((p) => !p)}
+                aria-pressed={timerEnabled}
+              >
+                <span className={`d${timerEnabled ? "" : " off"}`} />
+                Timer
+              </button>
+              <span
+                className={`lt-ct__clock${!timerEnabled ? " lt-ct__clock--off" : ""}${
+                  timerEnabled && timeLimitSeconds - elapsed < 120 ? " lt-ct__clock--low" : ""
+                }`}
+              >
+                {timerEnabled ? `⏱ ${formatClock(timeLimitSeconds - elapsed)}` : `⏱ ${formatClock(elapsed)} · off`}
+              </span>
+              <button type="button" className="lt-ct__exit" onClick={() => setShowConfirm(true)}>
+                Submit &amp; exit →
+              </button>
             </div>
           </div>
-        )}
 
-        {phase === "review" && masteryRecord && (
-          <div style={{ marginTop: 24 }}>
-            <ConfettiCelebration visible={masteryRecord.level === "mastered"} duration={3500} />
-            <div
-              style={{
-                background: "var(--bg-card)",
-                borderRadius: 20,
-                padding: "28px 24px",
-                textAlign: "center",
-                border: "1px solid var(--bg-card-border)",
-              }}
-            >
-              <div style={{ fontSize: 48, marginBottom: 8 }}>
-                {quizResult.correctAnswers === quizResult.totalQuestions ? "🏆" : quizResult.correctAnswers >= Math.ceil(quizResult.totalQuestions * 0.7) ? "🎯" : "📝"}
-              </div>
-              <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--text)", margin: "0 0 8px" }}>
-                Chapter Test Complete
-              </h2>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: computeWeightedAccuracy(quizResult) >= 70 ? "#22c55e" : "#f59e0b" }}>
-                {quizResult.correctAnswers}/{quizResult.totalQuestions}
-              </div>
-              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: 4 }}>
-                {computeWeightedAccuracy(quizResult)}% weighted accuracy &middot; {formatTime(elapsed)}
-              </div>
+          {/* Class-driven segmented progress (no inline style — §7): one segment per
+              question, filled up to the current question. */}
+          <div className="lt-ct__track">
+            {paper.questions.map((q) => (
+              <span key={q.qNumber} className={`lt-ct__seg${q.qNumber <= currentQNumber ? " lt-ct__seg--on" : ""}`} />
+            ))}
+          </div>
 
-              <div
-                style={{
-                  marginTop: 20,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "12px 20px",
-                  borderRadius: 14,
-                  background: `${MASTERY_COLORS[masteryRecord.level]}15`,
-                  border: `1px solid ${MASTERY_COLORS[masteryRecord.level]}40`,
-                }}
-              >
-                <span style={{ fontSize: 20 }}>{MASTERY_ICONS[masteryRecord.level]}</span>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Your Progress</div>
-                  {masteryRecord.level === "mastered" ? (
-                    <MasteredBadge animate={true} />
-                  ) : (
-                    <div style={{ fontSize: "1rem", fontWeight: 800, color: MASTERY_COLORS[masteryRecord.level] }}>
-                      {MASTERY_LABELS[masteryRecord.level]}
-                    </div>
-                  )}
-                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{MASTERY_POINTS[masteryRecord.level]}pts</div>
-                </div>
+          <div className="lt-ct__fsbody">
+            <div className="lt-ct__fsq">
+              <div className="lt-ct__sechead">
+                {SECTION_HEAD[currentQuestion.section] ?? `Section ${currentQuestion.section}`}
               </div>
-
-              <div style={{ marginTop: 24, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+              <div className="lt-ct__qhead">
+                <div className="lt-ct__qnum lt-ct__fr">Q{currentQNumber}.</div>
                 <button
-                  onClick={startTest}
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: 14,
-                    border: "1px solid var(--bg-card-border)",
-                    background: "var(--bg-card)",
-                    color: "var(--text)",
-                    fontWeight: 700,
-                    fontSize: "0.88rem",
-                    cursor: "pointer",
-                  }}
+                  type="button"
+                  className={`lt-ct__flag${flags.has(currentQNumber) ? " lt-ct__flag--on" : ""}`}
+                  onClick={() => toggleFlag(currentQNumber)}
                 >
-                  Retake Test
-                </button>
-                <button
-                  onClick={() => navigate(backTo)}
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: 14,
-                    border: "none",
-                    background: "#22c55e",
-                    color: "var(--text)",
-                    fontWeight: 800,
-                    fontSize: "0.88rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  Back to Chapter
+                  ⚑ {flags.has(currentQNumber) ? "Flagged" : "Flag for review"}
                 </button>
               </div>
-            </div>
+              <span className={`lt-ct__qtag${currentIsObjective ? "" : " lt-ct__qtag--sa"}`}>
+                {currentIsObjective
+                  ? `Objective · ${currentQuestion.marks} mark · auto-graded`
+                  : `${currentQuestion.marks}-mark · ${SECTION_MARK_HINT[currentQuestion.section] ?? "write on paper ✍️"}`}
+              </span>
+              <div className="lt-ct__qtext">
+                <MathText text={currentQuestion.questionText} />
+              </div>
 
-            <div style={{ marginTop: 24 }}>
-              <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", marginBottom: 16 }}>Review Answers</h3>
-              {questions.map((q, i) => {
-                const ans = answers[i];
-                const isMcq = Array.isArray(q.options) && q.options.length >= 2;
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      marginBottom: 16,
-                      padding: "16px",
-                      background: "var(--bg-card)",
-                      borderRadius: 14,
-                      border: `1px solid ${ans?.correct ? "rgba(34,197,94,0.2)" : ans ? "rgba(239,68,68,0.2)" : "var(--bg-card-border)"}`,
-                    }}
-                  >
-                    <div style={{ fontSize: "0.85rem", color: "var(--text)", lineHeight: 1.6, marginBottom: 8 }}>
-                      <strong style={{ color: ans?.correct ? "#22c55e" : "#ef4444" }}>Q{i + 1}.</strong> {q.questionText}
-                    </div>
-                    {isMcq &&
-                      q.options?.map((opt, oi) => {
-                        const isCorrectOpt = opt.trim().toLowerCase() === (q.answer || "").trim().toLowerCase();
-                        const isSelectedOpt = ans?.selected === opt;
-                        return (
-                          <div
-                            key={oi}
-                            style={{
-                              padding: "6px 12px",
-                              borderRadius: 8,
-                              marginBottom: 4,
-                              fontSize: "0.82rem",
-                              background: isCorrectOpt
-                                ? "rgba(34,197,94,0.12)"
-                                : isSelectedOpt
-                                  ? "rgba(239,68,68,0.12)"
-                                  : "transparent",
-                              color: isCorrectOpt ? "#22c55e" : isSelectedOpt ? "#ef4444" : "var(--text-muted)",
-                            }}
-                          >
-                            ({String.fromCharCode(97 + oi)}) {opt}
-                            {isCorrectOpt && " ✓"}
-                            {isSelectedOpt && !isCorrectOpt && " ✗"}
-                          </div>
-                        );
-                      })}
-                    {!isMcq && ans && (
-                      <div style={{ fontSize: "0.82rem", color: ans.correct ? "#22c55e" : "#ef4444" }}>
-                        Your answer: {ans.selected} {ans.correct ? "✓" : "✗"}
-                      </div>
-                    )}
-                    {q.answer && (
-                      <div style={{ marginTop: 6, fontSize: "0.78rem", color: "rgba(34,197,94,0.8)" }}>
-                        Answer: {q.answer}
-                      </div>
-                    )}
+              {currentIsObjective && currentQuestion.options ? (
+                <div>
+                  {currentQuestion.options.map((opt, oi) => {
+                    const sel = answers[currentQNumber] === opt;
+                    return (
+                      <button
+                        key={oi}
+                        type="button"
+                        className={`lt-ct__opt${sel ? " lt-ct__opt--sel" : ""}`}
+                        onClick={() => pickOption(currentQNumber, opt)}
+                      >
+                        <span className="lt-ct__opt-k">{String.fromCharCode(65 + oi)}</span>
+                        <MathText text={opt} />
+                      </button>
+                    );
+                  })}
+                  <div className="lt-ct__honest">
+                    <span>·</span>
+                    <span>MCQs are scored instantly — no working needed (just like a real board paper).</span>
                   </div>
-                );
-              })}
+                </div>
+              ) : (
+                <div className="lt-ct__subjbox">
+                  <b>Write this one on paper ✍️</b>
+                  Label it “Q{currentQNumber}”. Upload all written answers at the end — shows as “to upload”
+                  in the navigator.
+                </div>
+              )}
+
+              <div className="lt-ct__fsactions">
+                <button
+                  type="button"
+                  className="lt-ct__btn lt-ct__btn--ghost"
+                  onClick={() => setCurrentQNumber((n) => Math.max(1, n - 1))}
+                  disabled={currentQNumber <= 1}
+                >
+                  ← Previous
+                </button>
+                {currentQNumber < paper.questions.length ? (
+                  <button
+                    type="button"
+                    className="lt-ct__btn lt-ct__btn--primary"
+                    onClick={() => setCurrentQNumber((n) => Math.min(paper.questions.length, n + 1))}
+                  >
+                    Next →
+                  </button>
+                ) : (
+                  <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setShowConfirm(true)}>
+                    Submit &amp; exit →
+                  </button>
+                )}
+              </div>
             </div>
+
+            <ChapterTestNavigator
+              questions={paper.questions}
+              currentQNumber={currentQNumber}
+              answers={answers}
+              flags={flags}
+              onJump={setCurrentQNumber}
+            />
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
-function TestQuestion({
-  question,
-  idx,
-  answer,
-  onAnswer,
-  onNext,
-  isLast,
-}: {
-  question: CanonicalQuestion;
-  idx: number;
-  answer?: { selected: string; correct: boolean };
-  onAnswer: (selected: string) => void;
-  onNext: () => void;
-  isLast: boolean;
-}) {
-  if (!question) return null;
-  const isMcq = Array.isArray(question.options) && question.options.length >= 2;
-  const answered = Boolean(answer);
-
-  return (
-    <div
-      style={{
-        background: "var(--bg-card)",
-        borderRadius: 18,
-        padding: "22px",
-        border: "1px solid var(--bg-card-border)",
-      }}
-    >
-      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 8 }}>
-        Question {idx + 1} &middot; {question.marks || 1} mark{(question.marks || 1) > 1 ? "s" : ""} &middot;{" "}
-        {question.difficulty || "Medium"}
-      </div>
-
-      <div style={{ fontSize: "0.92rem", color: "var(--text)", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
-        {question.questionText}
-      </div>
-
-      {isMcq ? (
-        <div style={{ display: "grid", gap: 8 }}>
-          {question.options!.map((opt, oi) => {
-            const isSelected = answer?.selected === opt;
-            const isCorrect = answered && opt.trim().toLowerCase() === (question.answer || "").trim().toLowerCase();
-            let bg = "var(--bg-card)";
-            let borderColor = "var(--bg-card)";
-            let textColor = "var(--text)";
-            if (answered && isCorrect) {
-              bg = "rgba(34,197,94,0.12)";
-              borderColor = "rgba(34,197,94,0.3)";
-              textColor = "#22c55e";
-            } else if (answered && isSelected && !isCorrect) {
-              bg = "rgba(239,68,68,0.12)";
-              borderColor = "rgba(239,68,68,0.3)";
-              textColor = "#ef4444";
-            } else if (isSelected) {
-              bg = "rgba(99,102,241,0.12)";
-              borderColor = "rgba(99,102,241,0.3)";
-            }
-            return (
-              <button
-                key={oi}
-                onClick={() => !answered && onAnswer(opt)}
-                disabled={answered}
-                style={{
-                  padding: "12px 16px",
-                  borderRadius: 12,
-                  border: `2px solid ${borderColor}`,
-                  background: bg,
-                  color: textColor,
-                  fontWeight: 500,
-                  fontSize: "0.85rem",
-                  cursor: answered ? "default" : "pointer",
-                  textAlign: "left",
-                }}
-              >
-                <span style={{ fontWeight: 700, marginRight: 8 }}>{String.fromCharCode(65 + oi)}.</span>
-                {opt}
-              </button>
-            );
-          })}
-        </div>
-      ) : (
-        <div>
-          {!answered ? (
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                onClick={() => onAnswer("correct")}
-                style={{
-                  padding: "8px 18px",
-                  borderRadius: 10,
-                  border: "1px solid #22c55e",
-                  background: "rgba(34,197,94,0.08)",
-                  color: "#22c55e",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                I got it right
-              </button>
-              <button
-                onClick={() => onAnswer("incorrect")}
-                style={{
-                  padding: "8px 18px",
-                  borderRadius: 10,
-                  border: "1px solid #ef4444",
-                  background: "rgba(239,68,68,0.08)",
-                  color: "#ef4444",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                I got it wrong
-              </button>
-            </div>
-          ) : (
-            <div
-              style={{
-                padding: "8px 14px",
-                borderRadius: 10,
-                background: answer?.correct ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
-                fontSize: "0.82rem",
-                color: answer?.correct ? "#22c55e" : "#ef4444",
-                fontWeight: 600,
+          {showConfirm && (
+            <PreSubmitConfirm
+              unanswered={unansweredObjective}
+              flagged={flags.size}
+              onKeepWorking={() => setShowConfirm(false)}
+              onSubmit={() => {
+                setShowConfirm(false);
+                finishToPartial();
               }}
-            >
-              Self-marked: {answer?.correct ? "Correct ✓" : "Incorrect ✗"}
-            </div>
-          )}
-          {answered && question.answer && (
-            <div style={{ marginTop: 8, fontSize: "0.82rem", color: "rgba(34,197,94,0.8)" }}>
-              Answer: {question.answer}
-            </div>
+            />
           )}
         </div>
       )}
 
-      {answered && (
-        <button
-          onClick={onNext}
-          style={{
-            marginTop: 16,
-            padding: "10px 28px",
-            borderRadius: 14,
-            border: "none",
-            background: "#22c55e",
-            color: "var(--text)",
-            fontWeight: 700,
-            fontSize: "0.88rem",
-            cursor: "pointer",
-          }}
-        >
-          {isLast ? "Finish Test" : "Next Question →"}
-        </button>
+      {/* ─────────────── RESULTS (two-phase) ─────────────── */}
+      {phase === "results" && paper && nomen && objective && (
+        <>
+          <div className="lt-ct__pagebar">
+            <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
+              ← {backLabel}
+            </button>
+            <span className="lt-ct__pagetitle">Chapter Test · Result</span>
+          </div>
+
+          {resultsPhase === "partial" ? (
+            <ChapterTestUploadPanel
+              name={nomen.name}
+              code={nomen.code}
+              objective={{ awarded: objective.awarded, total: objective.total }}
+              grading={grading}
+              error={gradeError}
+              isSignedIn={isSignedIn}
+              onGrade={handleGrade}
+              onSkip={() => navigate(backTo)}
+            />
+          ) : (
+            <div className="lt-ct__upload">
+              <div className="lt-ct__uploadcard">
+                <div className="lt-ct__eyebrow">Chapter Test · Result</div>
+                <div className="lt-ct__title lt-ct__fr">{nomen.name}</div>
+                <div className="lt-ct__sub">
+                  {nomen.code} · fully graded —{" "}
+                  <b>
+                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
+                  </b>
+                  {fullResponse && fullResponse.pendingCount > 0
+                    ? ` · ${fullResponse.pendingCount} page(s) pending`
+                    : ""}
+                </div>
+                <div className="lt-ct__startrow">
+                  <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
+                    View scorecard
+                  </button>
+                  <button
+                    type="button"
+                    className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                    onClick={downloadGraded}
+                    disabled={downloading}
+                  >
+                    {downloading ? "Preparing…" : "↓ Graded sheet"}
+                  </button>
+                  <button
+                    type="button"
+                    className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                    onClick={downloadSolution}
+                    disabled={downloading}
+                  >
+                    ↓ Solution key
+                  </button>
+                </div>
+                <div className="lt-ct__startrow">
+                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={practiseTopic}>
+                    Practise this chapter
+                  </button>
+                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={() => navigate(backTo)}>
+                    Revisit in Topic Hub
+                  </button>
+                </div>
+                <div className="lt-ct__honest">
+                  <span>·</span>
+                  <span>
+                    Solution-key marks follow the <b>real CBSE scheme per step</b> (variable, not a flat
+                    1/step). Saved as <b>{nomen.name}</b> — now in “Your {topicName} tests”.
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {scorecardOpen && resultsPhase === "partial" && (
+            <ResultsScorecard
+              variant={chapterTestScorecardVariant({
+                name: nomen.name,
+                code: nomen.code,
+                phase: "partial",
+                response: buildChapterTestResponse({
+                  paper,
+                  objective,
+                  subjectiveQuestions: subjectiveQs,
+                  subjectiveResponse: null,
+                }),
+                onUpload: () => setScorecardOpen(false),
+                onUploadLater: () => {
+                  setScorecardOpen(false);
+                  navigate(backTo);
+                },
+              })}
+              onClose={() => setScorecardOpen(false)}
+            />
+          )}
+
+          {scorecardOpen && resultsPhase === "full" && fullResponse && (
+            <ResultsScorecard
+              variant={chapterTestScorecardVariant({
+                name: nomen.name,
+                code: nomen.code,
+                phase: "full",
+                response: fullResponse,
+                downloading,
+                onReadSheet: () => setScorecardOpen(false),
+                onPractise: practiseTopic,
+                onDownloadGraded: () => {
+                  setScorecardOpen(false);
+                  void downloadGraded();
+                },
+                onDownloadSolution: () => {
+                  setScorecardOpen(false);
+                  void downloadSolution();
+                },
+                onRevisit: () => navigate(backTo),
+              })}
+              onClose={() => setScorecardOpen(false)}
+            />
+          )}
+        </>
       )}
     </div>
   );
