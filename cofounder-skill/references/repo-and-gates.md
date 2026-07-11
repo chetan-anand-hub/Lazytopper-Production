@@ -70,6 +70,16 @@ real round-trip, ratifying a scope/pedagogy call. Automation PREPARES a merge to
 - **CODEOWNERS enforces gated lanes** (`src/data/**`, forbidden files, `cofounder-skill/**`) — a prose rule that
   isn't a gate eventually gets missed.
 
+- **DIRECT PUSH TO TRUNK — scope (owner only, via the ruleset bypass).** The owner (Repository admin, on the
+  ruleset bypass list) may push straight to trunk, skipping the PR gate, ONLY when ALL hold: (a) it's the OWNER,
+  not an agent — agent output ALWAYS goes through a PR + byte-review, regardless of size; (b) it's docs/handoff/
+  skill/ledger TEXT (`*.md`, `handoff/`, `cofounder-skill/`, `ledger/`) — words a human reads; (c) it cannot break
+  a build or change behavior — NEVER `lazytopper/src/**`, `.github/**`, config, `firestore.rules`, or any data; (d)
+  a mistake is one `git revert` away. Everything else — any `src/**`, the question bank / `src/data/**`, `.github/**`,
+  config, or ANY agent-produced change — goes through a PR (the byte-review + live-verify + census/guard loop exists
+  precisely for those). One-line test: "my own words in a text file, revertible → push; code, config, data, CI, or
+  an agent's work → PR."
+
 ## BYTE-REVIEW RECIPE (never rubber-stamp a report)
 1. Pull the branch tarball. 2. `diff -rq` against the branch's TRUE base (mind base drift — diff vs CURRENT trunk,
 and explain any extra "differs" as stale-base vs real modification). 3. Confirm exact scope (only its files).
