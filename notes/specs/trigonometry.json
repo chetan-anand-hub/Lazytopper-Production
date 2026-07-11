@@ -1,0 +1,548 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "trigonometry",
+    "subject": "maths",
+    "chapter_no": 8,
+    "title": "Introduction to Trigonometry",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 8 (jemh108.pdf, printed pages 113-132)"
+  },
+  "board_asks": "finding all six ratios from one, evaluating expressions at the specific angles (0/30/45/60/90), and proving trigonometric identities. The identity manipulations and the specific-angle table carry almost every mark here.",
+  "big_idea": {
+    "tagline": "Sides become numbers.",
+    "body": "Fix an acute angle in a right triangle and the ratios of its sides stop depending on how big the triangle is - they depend only on the angle. Those six fixed numbers are the <b>trigonometric ratios</b> (sin, cos, tan and their reciprocals cosec, sec, cot). This chapter does three things: defines the ratios, pins down their exact values at $0°, 30°, 45°, 60°, 90°$, and proves the identity $\\sin^2 A + \\cos^2 A = 1$ (with its two cousins) that turns messy expressions into $1$."
+  },
+  "definitions": [
+    {
+      "id": "def_trigonometry",
+      "tier": "headline",
+      "term": "Trigonometry",
+      "verbatim": "Trigonometry is the study of relationships between the sides and angles of a triangle.",
+      "plain": "the word comes from the Greek $tri$ (three), $gon$ (sides), $metron$ (measure). In Class 10 we study it for the <b>acute angles of a right triangle</b> only.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 114,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_opp_adj_hyp",
+      "tier": "headline",
+      "term": "Opposite, adjacent, hypotenuse",
+      "verbatim": "We call it the side opposite to angle A. AC is the hypotenuse of the right triangle and the side AB is a part of ∠A. So, we call it the side adjacent to angle A.",
+      "plain": "name the three sides <b>relative to the angle you are working with</b>: the side facing the angle is opposite, the longest side (facing the right angle) is the hypotenuse, the third is adjacent. Switch to angle C and opposite/adjacent swap.",
+      "memorise": true,
+      "figure_ref": "fig_ratio_triangle_84",
+      "source": {
+        "ncert_page": 114,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_trig_ratios",
+      "tier": "headline",
+      "term": "Trigonometric ratios",
+      "verbatim": "So, the trigonometric ratios of an acute angle in a right triangle express the relationship between the angle and the length of its sides.",
+      "plain": "$\\sin A = \\dfrac{\\text{opp}}{\\text{hyp}}$, $\\cos A = \\dfrac{\\text{adj}}{\\text{hyp}}$, $\\tan A = \\dfrac{\\text{opp}}{\\text{adj}}$. Memorise them against the labelled triangle, not as isolated letters.",
+      "memorise": true,
+      "figure_ref": "fig_ratio_triangle_84",
+      "source": {
+        "ncert_page": 115,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_ratios_invariant",
+      "tier": "headline",
+      "term": "Ratios independent of side length",
+      "verbatim": "The values of the trigonometric ratios of an angle do not vary with the lengths of the sides of the triangle, if the angle remains the same.",
+      "plain": "this is <b>why</b> the ratios are well defined - proved by AA similarity. It lets you set the sides as $k, 2k, \\dots$ (any positive $k$): the ratio cancels $k$, so the answer never depends on your choice.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 117,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_trig_identity",
+      "tier": "headline",
+      "term": "Trigonometric identity",
+      "verbatim": "An equation involving trigonometric ratios of an angle is called a trigonometric identity, if it is true for all values of the angle(s) involved.",
+      "plain": "an identity holds for <b>every</b> valid angle, so you prove it by algebra, not by plugging in one value. To prove one, transform the LHS until it becomes the RHS.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 128,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "kt_reciprocals",
+      "tier": "key-term",
+      "term": "Reciprocal ratios",
+      "verbatim": "The ratios defined above are abbreviated as sin A, cos A, tan A, cosec A, sec A and cot A respectively. Note that the ratios cosec A, sec A and cot A are respectively, the reciprocals of the ratios sin A, cos A and tan A.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 115,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "kt_sincos_bound",
+      "tier": "key-term",
+      "term": "sin A, cos A never exceed 1",
+      "verbatim": "Since the hypotenuse is the longest side in a right triangle, the value of sin A or cos A is always less than 1 (or, in particular, equal to 1).",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 118,
+        "edition": "2026-27",
+        "chapter": 8,
+        "note": "NCERT's printed phrasing 'less than 1 (or, in particular, equal to 1)' means sin A, cos A are at most 1; preserved verbatim"
+      }
+    },
+    {
+      "id": "kt_sin_notation",
+      "tier": "key-term",
+      "term": "sin A is not sin times A",
+      "verbatim": "sin A is not the product of ‘sin’ and A. ‘sin’ separated from A has no meaning.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 116,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Find every ratio from one",
+      "body": "Given one ratio, draw a right triangle and mark the two sides in that ratio as multiples of $k$ (e.g. $\\tan A = \\tfrac43 \\Rightarrow$ opposite $=4k$, adjacent $=3k$). Get the third side by Pythagoras, then read all six ratios straight off - $k$ always cancels.",
+      "tested": "2-3 mark “find the other trigonometric ratios”",
+      "figure_ref": "fig_ratio_triangle_84"
+    },
+    {
+      "id": "c2",
+      "title": "Ratios of the specific angles",
+      "body": "The exact values at $0°, 30°, 45°, 60°, 90°$ come from the $45$-$45$-$90$ and $30$-$60$-$90$ triangles (Table 8.1). $\\sin$ rises $0 \\to 1$, $\\cos$ falls $1 \\to 0$; $\\tan 90°$, $\\cot 0°$, $\\sec 90°$, $\\csc 0°$ are <b>not defined</b>. Learn the table cold - it is assumed in every evaluation question.",
+      "tested": "“Evaluate” expressions in specific angles (Exercise 8.2)",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "The three Pythagorean identities",
+      "body": "$\\sin^2 A + \\cos^2 A = 1$; $\\;1 + \\tan^2 A = \\sec^2 A$ (for $0° \\le A < 90°$); $\\;1 + \\cot^2 A = \\csc^2 A$ (for $0° < A \\le 90°$). All three come from Pythagoras. Mind the angle ranges - $\\tan/\\sec$ break at $90°$, $\\cot/\\csc$ break at $0°$.",
+      "tested": "MCQ simplifications like $9\\sec^2 A - 9\\tan^2 A$ (Exercise 8.3 Q3)",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Proving identities (LHS → RHS)",
+      "body": "Convert everything to $\\sin$ and $\\cos$, take a common denominator, and use $\\sin^2 A + \\cos^2 A = 1$ (often via $1 - \\sin^2 A = \\cos^2 A$). Work on <b>one side only</b> until it becomes the other - never manipulate both sides at once.",
+      "tested": "3-5 mark “prove that …” (Exercise 8.3 Q4)",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "All ratios from one · NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Given tan A = 4/3, find the other trigonometric ratios of the angle A.",
+      "solution_steps": [
+        {
+          "lead": "Set up from tan A.",
+          "text": "$\\tan A = \\dfrac{BC}{AB} = \\dfrac{4}{3}$, so take $BC = 4k$ and $AB = 3k$ for a positive number $k$.",
+          "concept_tag": "assign sides in the given ratio",
+          "mark": 0.5
+        },
+        {
+          "lead": "Third side by Pythagoras.",
+          "text": "$AC^2 = AB^2 + BC^2 = (4k)^2 + (3k)^2 = 25k^2$, so $AC = 5k$.",
+          "concept_tag": "Pythagoras for the missing side",
+          "mark": 0.5
+        },
+        {
+          "lead": "Read off sin and cos.",
+          "text": "$\\sin A = \\dfrac{BC}{AC} = \\dfrac{4}{5}$ and $\\cos A = \\dfrac{AB}{AC} = \\dfrac{3}{5}$.",
+          "concept_tag": "opposite/hypotenuse, adjacent/hypotenuse",
+          "mark": 1
+        },
+        {
+          "lead": "Reciprocals give the rest.",
+          "text": "$\\cot A = \\dfrac{3}{4}$, $\\csc A = \\dfrac{5}{4}$ and $\\sec A = \\dfrac{5}{3}$.",
+          "concept_tag": "cosec/sec/cot are reciprocals",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: correct side ratio + Pythagoras (1) · $\\sin A$ and $\\cos A$ (1) · the three reciprocal ratios (1). Setting the sides as $4k, 3k$ keeps the answer independent of $k$ - the whole point of the ratios.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 118,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Evaluate cos² + sin² · NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "Consider △ACB, right-angled at C, in which AB = 29 units, BC = 21 units and ∠ABC = θ (see Fig. 8.10). Determine the values of (i) cos²θ + sin²θ, (ii) cos²θ – sin²θ",
+      "solution_steps": [
+        {
+          "lead": "Find the third side.",
+          "text": "$AC = \\sqrt{AB^2 - BC^2} = \\sqrt{29^2 - 21^2} = \\sqrt{(29-21)(29+21)} = \\sqrt{8 \\times 50} = \\sqrt{400} = 20$ units.",
+          "concept_tag": "Pythagoras (difference of squares)",
+          "mark": 1
+        },
+        {
+          "lead": "Write the two ratios for the angle.",
+          "text": "With $\\angle ABC = \\theta$: $\\sin\\theta = \\dfrac{AC}{AB} = \\dfrac{20}{29}$ and $\\cos\\theta = \\dfrac{BC}{AB} = \\dfrac{21}{29}$.",
+          "concept_tag": "identify opposite/adjacent for the angle",
+          "mark": 0.5
+        },
+        {
+          "lead": "(i) Evaluate cos²θ + sin²θ.",
+          "text": "$\\cos^2\\theta + \\sin^2\\theta = \\dfrac{21^2 + 20^2}{29^2} = \\dfrac{441 + 400}{841} = \\dfrac{841}{841} = 1$.",
+          "concept_tag": "the identity in action",
+          "mark": 1
+        },
+        {
+          "lead": "(ii) Evaluate cos²θ − sin²θ.",
+          "text": "$\\cos^2\\theta - \\sin^2\\theta = \\dfrac{441 - 400}{841} = \\dfrac{41}{841}$.",
+          "concept_tag": "same denominator, subtract",
+          "mark": 0.5
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: finding $AC = 20$ by Pythagoras (1) · the two ratios plus part (i) $=1$ (1) · part (ii) $=\\tfrac{41}{841}$ (1). Part (i) is exactly $\\sin^2\\theta + \\cos^2\\theta = 1$ - recognise it and it is a free mark.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 119,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "ex_ncert_6",
+      "shape": "Specific angle 30° · NCERT Example 6",
+      "kind": "numerical",
+      "problem_verbatim": "In △ABC, right-angled at B, AB = 5 cm and ∠ACB = 30° (see Fig. 8.19). Determine the lengths of the sides BC and AC.",
+      "solution_steps": [
+        {
+          "lead": "Pick the ratio linking the known and unknown.",
+          "text": "$BC$ is adjacent to $\\angle C$ and $AB$ is opposite to it, so $\\dfrac{AB}{BC} = \\tan C$.",
+          "concept_tag": "choose the right ratio",
+          "mark": 1
+        },
+        {
+          "lead": "Solve for BC using tan 30°.",
+          "text": "$\\dfrac{5}{BC} = \\tan 30° = \\dfrac{1}{\\sqrt3}$, which gives $BC = 5\\sqrt3$ cm.",
+          "concept_tag": "specific-angle value from Table 8.1",
+          "mark": 1
+        },
+        {
+          "lead": "Find AC using sin 30°.",
+          "text": "$\\sin 30° = \\dfrac{AB}{AC} \\Rightarrow \\dfrac{1}{2} = \\dfrac{5}{AC} \\Rightarrow AC = 10$ cm.",
+          "concept_tag": "second ratio for the hypotenuse",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: correct ratio for $BC$ (1) · $BC = 5\\sqrt3$ from $\\tan 30°$ (1) · $AC = 10$ from $\\sin 30°$ (1). Table 8.1 values must be recalled exactly - a wrong $\\tan 30°$ loses the later marks too.",
+      "source": {
+        "ncert_example": "6",
+        "ncert_page": 125,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "ex_ncert_10",
+      "shape": "Prove an identity · NCERT Example 10",
+      "kind": "numerical",
+      "problem_verbatim": "Prove that sec A (1 – sin A)(sec A + tan A) = 1.",
+      "solution_steps": [
+        {
+          "lead": "Convert everything to sin and cos.",
+          "text": "$\\text{LHS} = \\sec A\\,(1 - \\sin A)(\\sec A + \\tan A) = \\dfrac{1}{\\cos A}(1 - \\sin A)\\left(\\dfrac{1}{\\cos A} + \\dfrac{\\sin A}{\\cos A}\\right)$.",
+          "concept_tag": "rewrite sec and tan",
+          "mark": 1
+        },
+        {
+          "lead": "Combine into a difference of squares.",
+          "text": "$= \\dfrac{(1 - \\sin A)(1 + \\sin A)}{\\cos^2 A} = \\dfrac{1 - \\sin^2 A}{\\cos^2 A}$.",
+          "concept_tag": "(1−sinA)(1+sinA) = 1−sin²A",
+          "mark": 1
+        },
+        {
+          "lead": "Apply the identity.",
+          "text": "Since $1 - \\sin^2 A = \\cos^2 A$, this is $\\dfrac{\\cos^2 A}{\\cos^2 A} = 1 = \\text{RHS}$.",
+          "concept_tag": "sin²A + cos²A = 1",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: sec/tan rewritten in $\\sin,\\cos$ (1) · the $(1-\\sin A)(1+\\sin A) = 1-\\sin^2 A$ step (1) · using $1-\\sin^2 A = \\cos^2 A$ to reach $1$ (1). Transform the LHS only - never operate on both sides at once.",
+      "source": {
+        "ncert_example": "10",
+        "ncert_page": 129,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Given one ratio, want the others?",
+      "text": "Draw the triangle, set the two sides as $k$-multiples, get the third by Pythagoras, read off all six."
+    },
+    {
+      "cue": "“Evaluate …” at specific angles?",
+      "text": "Substitute straight from Table 8.1. Do not re-derive - recall $\\sin, \\cos, \\tan$ at $0/30/45/60/90$ instantly."
+    },
+    {
+      "cue": "“Prove that …” (identity)?",
+      "text": "Turn everything into $\\sin$ and $\\cos$, take a common denominator, apply $\\sin^2 A + \\cos^2 A = 1$. Work one side only."
+    },
+    {
+      "cue": "A ratio looks like it could be $>1$?",
+      "text": "Check: $\\sin A$ and $\\cos A$ are at most $1$; $\\sec A$ and $\\csc A$ are at least $1$. If not, re-check opposite vs adjacent."
+    },
+    {
+      "cue": "Angle changes from A to C?",
+      "text": "Opposite and adjacent swap. Re-label before writing the ratio - this is the most common slip."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Swapping opposite and adjacent</b> when the angle changes (angle A vs angle C) - re-label the sides against the new angle first.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Claiming $\\sin A > 1$ or $\\cos A > 1$</b> - impossible, since the hypotenuse is the longest side.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Reading $\\sin A$ as $\\sin \\times A$</b> - ‘sin’ with no angle is meaningless.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Writing $0$ or $\\infty$ for undefined ratios</b> - $\\tan 90°$, $\\cot 0°$, $\\sec 90°$, $\\csc 0°$ are ‘not defined’.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Ignoring the identity's angle range</b> - $1 + \\cot^2 A = \\csc^2 A$ holds for $0° < A \\le 90°$, not at $A = 0°$.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Six ratios",
+      "math": "$\\sin A = \\dfrac{\\text{opp}}{\\text{hyp}},\\ \\cos A = \\dfrac{\\text{adj}}{\\text{hyp}},\\ \\tan A = \\dfrac{\\text{opp}}{\\text{adj}}$"
+    },
+    {
+      "label": "Reciprocals",
+      "math": "$\\csc A = \\dfrac{1}{\\sin A},\\ \\sec A = \\dfrac{1}{\\cos A},\\ \\cot A = \\dfrac{1}{\\tan A} = \\dfrac{\\cos A}{\\sin A}$"
+    },
+    {
+      "label": "sin at 0/30/45/60/90",
+      "math": "$0,\\ \\tfrac12,\\ \\tfrac{1}{\\sqrt2},\\ \\tfrac{\\sqrt3}{2},\\ 1$"
+    },
+    {
+      "label": "cos at 0/30/45/60/90",
+      "math": "$1,\\ \\tfrac{\\sqrt3}{2},\\ \\tfrac{1}{\\sqrt2},\\ \\tfrac12,\\ 0$"
+    },
+    {
+      "label": "tan at 0/30/45/60/90",
+      "math": "$0,\\ \\tfrac{1}{\\sqrt3},\\ 1,\\ \\sqrt3,\\ \\text{not defined}$"
+    },
+    {
+      "label": "Identities",
+      "math": "$\\sin^2 A + \\cos^2 A = 1;\\ \\ 1 + \\tan^2 A = \\sec^2 A;\\ \\ 1 + \\cot^2 A = \\csc^2 A$"
+    }
+  ],
+  "mindmap": {
+    "root": "Introduction to Trigonometry",
+    "branches": [
+      {
+        "label": "Trigonometric ratios (of an acute angle)",
+        "children": [
+          "sin = opp/hyp, cos = adj/hyp, tan = opp/adj",
+          "cosec, sec, cot = reciprocals",
+          "Depend on the angle, not the triangle's size",
+          "sin A, cos A never exceed 1"
+        ]
+      },
+      {
+        "label": "Find all six from one",
+        "children": [
+          "Set sides as k-multiples in the given ratio",
+          "Third side by Pythagoras",
+          "Read off every ratio (k cancels)"
+        ]
+      },
+      {
+        "label": "Specific angles (Table 8.1)",
+        "children": [
+          "0, 30, 45, 60, 90",
+          "From 45-45-90 and 30-60-90 triangles",
+          "tan 90, cot 0, sec 90, cosec 0 not defined"
+        ]
+      },
+      {
+        "label": "Pythagorean identities",
+        "children": [
+          "sin²A + cos²A = 1",
+          "1 + tan²A = sec²A (0 ≤ A < 90)",
+          "1 + cot²A = cosec²A (0 < A ≤ 90)",
+          "Prove others by LHS → RHS"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "Opposite/adjacent swap when the angle changes",
+          "Ratio wrongly > 1",
+          "Undefined ≠ 0 or ∞",
+          "Ignoring an identity's angle range"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "The Pythagorean trigonometric identities",
+    "intro": "NCERT proves one identity, $\\sin^2 A + \\cos^2 A = 1$, directly from the Pythagoras theorem, then derives the other two by dividing the same relation differently. Every identity in the chapter ultimately rests on these three (p.128-129).",
+    "steps": [
+      {
+        "claim": "Start from Pythagoras in △ABC, right-angled at B.",
+        "math": "$AB^2 + BC^2 = AC^2 \\quad (1)$"
+      },
+      {
+        "claim": "Divide each term of (1) by $AC^2$.",
+        "math": "$\\left(\\dfrac{AB}{AC}\\right)^2 + \\left(\\dfrac{BC}{AC}\\right)^2 = 1 \\;\\Rightarrow\\; \\cos^2 A + \\sin^2 A = 1$",
+        "justification": "True for all A with $0° \\le A \\le 90°$, so it is a trigonometric identity."
+      },
+      {
+        "claim": "Divide (1) by $AB^2$ instead.",
+        "math": "$1 + \\left(\\dfrac{BC}{AB}\\right)^2 = \\left(\\dfrac{AC}{AB}\\right)^2 \\;\\Rightarrow\\; 1 + \\tan^2 A = \\sec^2 A$",
+        "justification": "$\\tan A, \\sec A$ are undefined at $90°$, so this holds for $0° \\le A < 90°$."
+      },
+      {
+        "claim": "Divide (1) by $BC^2$.",
+        "math": "$\\left(\\dfrac{AB}{BC}\\right)^2 + 1 = \\left(\\dfrac{AC}{BC}\\right)^2 \\;\\Rightarrow\\; \\cot^2 A + 1 = \\csc^2 A$",
+        "justification": "$\\cot A, \\csc A$ are undefined at $0°$, so this holds for $0° < A \\le 90°$."
+      }
+    ],
+    "source": {
+      "ncert_page": 128,
+      "edition": "2026-27",
+      "chapter": 8,
+      "note": "identity derivation runs p.128-129 (section 8.4); the three results are collected in Summary point 6, p.132"
+    }
+  },
+  "figures": {
+    "fig_ratio_triangle_84": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 8.4",
+      "caption": "Right triangle ABC (right-angled at B): AC is the hypotenuse, BC the side opposite to angle A, AB the side adjacent to angle A - the labels the six ratios are built on.",
+      "legend": "Relative to angle A at the bottom-left: the side across from it (BC) is 'opposite', the longest side (AC, across from the right angle) is the 'hypotenuse', the remaining side (AB) is 'adjacent'.",
+      "source": {
+        "pdf": "jemh108",
+        "edition": "2026-27",
+        "ncert_fig": "8.4",
+        "page_printed": 114,
+        "page_pdf_index": 1,
+        "crop": [276, 456, 446, 628],
+        "crop_units": "PDF points (page 468x684)",
+        "render_matrix": 4,
+        "clean": "none",
+        "refill": null,
+        "note": "clip taken from pdf index 1 (printed p.114); rendered at 4x with pymupdf, saved to WebP 680x688 (Pillow, q80). Eye-confirmed: vertices A/B/C, right-angle mark at B, angle arc at A, and all three labels (Hypotenuse, Side opposite to angle A, Side adjacent to angle A) plus the 'Fig. 8.4' caption. No watermark overlap."
+      },
+      "asset": "trigonometry/fig_ratio_triangle_84.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Trigonometry",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.114"
+    },
+    {
+      "item": "Opposite, adjacent, hypotenuse",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.114"
+    },
+    {
+      "item": "Trigonometric ratios",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.115"
+    },
+    {
+      "item": "Ratios independent of side length",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.117"
+    },
+    {
+      "item": "Trigonometric identity",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.128"
+    },
+    {
+      "item": "Reciprocal ratios",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.115"
+    },
+    {
+      "item": "sin A, cos A never exceed 1",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.118"
+    },
+    {
+      "item": "sin A is not sin times A",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch8 p.116"
+    },
+    {
+      "item": "All ratios from one · NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch8 Example 1 p.118"
+    },
+    {
+      "item": "Evaluate cos² + sin² · NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch8 Example 3 p.119"
+    },
+    {
+      "item": "Specific angle 30° · NCERT Example 6",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch8 Example 6 p.125"
+    },
+    {
+      "item": "Prove an identity · NCERT Example 10",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch8 Example 10 p.129"
+    },
+    {
+      "item": "fig_ratio_triangle_84",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch8 Fig. 8.4 p.114"
+    }
+  ]
+}

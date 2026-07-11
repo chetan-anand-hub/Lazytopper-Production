@@ -1,0 +1,628 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "areas-related-to-circles",
+    "subject": "maths",
+    "chapter_no": 11,
+    "title": "Areas Related to Circles",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 11 (jemh111.pdf, printed pages 154-160)"
+  },
+  "board_asks": "almost every mark here comes from three moves — the length of an arc, the area of a sector (the fraction &theta;/360 of the circle), and the area of a segment (that sector minus triangle OAB). Get the central angle and the value of &pi; right, and know when to leave &radic;3 in surd form. The 2026-27 chapter is trimmed to sectors and segments only — combinations of plane figures are no longer in it.",
+  "big_idea": {
+    "tagline": "A slice of the circle — measured by its angle.",
+    "body": "Every result in this chapter is one idea: a part of a circle is the fraction $\\dfrac{\\theta}{360}$ of the whole, where $\\theta$ is the angle it makes at the centre. Take that fraction of the circumference $2\\pi r$ and you get an <b>arc length</b>; take it of the area $\\pi r^2$ and you get a <b>sector</b>; cut a chord across and the leftover piece is a <b>segment</b>, found by subtracting triangle $OAB$ from the sector."
+  },
+  "definitions": [
+    {
+      "id": "def_sector",
+      "tier": "headline",
+      "term": "Sector of a circle",
+      "verbatim": "the portion (or part) of the circular region enclosed by two radii and the corresponding arc is called a sector of the circle",
+      "plain": "A 'pizza slice' of the disc — the region boxed in by two radii and the arc between them, with its pointed corner at the centre $O$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 154,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_segment",
+      "tier": "headline",
+      "term": "Segment of a circle",
+      "verbatim": "the portion (or part) of the circular region enclosed between a chord and the corresponding arc is called a segment of the circle",
+      "plain": "The region cut off by a straight chord and the arc it subtends — like the slice of melon left after one straight cut. No radius is involved.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 154,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_area_of_sector",
+      "tier": "headline",
+      "term": "Area of a sector",
+      "verbatim": "Area of a sector of a circle with radius r and angle with degree measure θ is (θ/360) × πr²",
+      "plain": "Take the fraction $\\dfrac{\\theta}{360}$ of the whole circle's area $\\pi r^2$. Convert the central angle to degrees first.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 160,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "Summary point 2; the printed fraction is linearised with brackets (math region flagged by the fidelity gate)"
+      }
+    },
+    {
+      "id": "def_length_of_arc",
+      "tier": "headline",
+      "term": "Length of an arc of a sector",
+      "verbatim": "Length of an arc of a sector of a circle with radius r and angle with degree measure θ is (θ/360) × 2πr",
+      "plain": "The same fraction $\\dfrac{\\theta}{360}$, but of the whole circumference $2\\pi r$ — the curved boundary of the sector, measured in length (cm), not area.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 160,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "Summary point 1; the printed fraction is linearised (math region flagged by the fidelity gate)"
+      }
+    },
+    {
+      "id": "def_area_of_segment",
+      "tier": "headline",
+      "term": "Area of a segment",
+      "verbatim": "Area of segment of a circle = Area of the corresponding sector – Area of the corresponding triangle.",
+      "plain": "There is no direct formula — always subtract: segment $=$ its sector $-$ triangle $OAB$. Finding the triangle (the chord and the perpendicular height) is the hard part.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 160,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "Summary point 3"
+      }
+    },
+    {
+      "id": "kt_minor_major_sector",
+      "tier": "key-term",
+      "term": "Minor &amp; major sector",
+      "verbatim": "OAPB is called the minor sector and OAQB is called the major sector.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 154,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_minor_major_segment",
+      "tier": "key-term",
+      "term": "Minor &amp; major segment",
+      "verbatim": "APB is called the minor segment and AQB is called the major segment.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 154,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_angle_of_sector",
+      "tier": "key-term",
+      "term": "Angle of the sector",
+      "verbatim": "∠ AOB is called the angle of the sector.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 154,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_minor_default",
+      "tier": "key-term",
+      "term": "'Segment' / 'sector' mean the minor one",
+      "verbatim": "When we write 'segment' and 'sector' we will mean the 'minor segment' and the 'minor sector' respectively, unless stated otherwise.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 154,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "the Remark on p.154"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Sector — minor and major",
+      "body": "Two radii plus the arc between them cut the disc into two sectors. The smaller one (shaded, $OAPB$) is the <b>minor sector</b> and carries the angle $\\theta = \\angle AOB$; the larger one ($OAQB$) is the <b>major sector</b> with angle $360^\\circ - \\theta$.",
+      "tested": "2-mark 'find the area of the sector' (Section A/B)",
+      "figure_ref": "fig_sector_111"
+    },
+    {
+      "id": "c2",
+      "title": "Segment — minor and major",
+      "body": "A <b>chord</b> $AB$ (not a radius) splits the disc into two segments. The piece between the chord and its arc is the <b>minor segment</b> ($APB$, shaded); the rest is the <b>major segment</b> ($AQB$). A segment always needs the triangle $OAB$ to measure it.",
+      "tested": "3-mark 'find the area of the segment' (Section C)",
+      "figure_ref": "fig_segment_112"
+    },
+    {
+      "id": "c3",
+      "title": "Length of an arc",
+      "body": "The curved edge of a sector of angle $\\theta$ is the fraction $\\dfrac{\\theta}{360}$ of the full circumference: $\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r$. It is a <b>length</b> (cm), so never square it.",
+      "tested": "1-2 mark direct, or part (i) of a case-based problem",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Area of a sector",
+      "body": "The same fraction, taken of the area: $\\dfrac{\\theta}{360}\\times \\pi r^2$. For the <b>major sector</b> the fast route is $\\pi r^2 - (\\text{minor sector})$, which avoids re-substituting $360^\\circ-\\theta$.",
+      "tested": "2-3 mark direct 'find the area of the sector'",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Area of a segment = sector − triangle",
+      "body": "There is <b>no direct formula</b>. Area of the minor segment $= \\dfrac{\\theta}{360}\\times\\pi r^2 - \\text{area of }\\triangle OAB$. Get the triangle from a perpendicular dropped from $O$ to the chord (using $\\cos$ and $\\sin$ of half the angle), or — when $\\theta = 60^\\circ$ — as an equilateral triangle of side $r$.",
+      "tested": "3-5 mark long answer (Section C/D)",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "Area of a sector + major sector · NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Find the area of the sector of a circle with radius 4 cm and of angle 30°. Also, find the area of the corresponding major sector (Use π = 3.14).",
+      "solution_steps": [
+        {
+          "lead": "Apply the sector-area formula.",
+          "text": "Area of the sector $= \\dfrac{\\theta}{360}\\times\\pi r^2 = \\dfrac{30}{360}\\times 3.14\\times 4^2 = \\dfrac{12.56}{3}\\ \\text{cm}^2$.",
+          "concept_tag": "fraction of the circle",
+          "mark": 1
+        },
+        {
+          "lead": "Evaluate the minor sector.",
+          "text": "$= 4.19\\ \\text{cm}^2$ (approx.).",
+          "concept_tag": "answer with unit",
+          "mark": 1
+        },
+        {
+          "lead": "Major sector = whole − minor.",
+          "text": "Area of the major sector $= \\pi r^2 - 4.19 = 3.14\\times 16 - 4.19 = 46.05 \\approx 46.1\\ \\text{cm}^2$ (approx.).",
+          "concept_tag": "major = whole − minor",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the sector formula with correct substitution, 1 for the minor-sector value $4.19\\text{ cm}^2$, 1 for the major sector via $\\pi r^2 - \\text{minor}$. NCERT also gives the alternative $\\dfrac{360-30}{360}\\pi r^2$ route — either earns the last mark.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 156,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "ex_ex111_q1",
+      "shape": "Area of a sector · NCERT Exercise 11.1 Q1",
+      "kind": "numerical",
+      "problem_verbatim": "Find the area of a sector of a circle with radius 6 cm if angle of the sector is 60°.",
+      "solution_steps": [
+        {
+          "lead": "Substitute into the sector formula (π = 22/7 by default).",
+          "text": "Area $= \\dfrac{\\theta}{360}\\times\\pi r^2 = \\dfrac{60}{360}\\times\\dfrac{22}{7}\\times 6^2 = \\dfrac{1}{6}\\times\\dfrac{22}{7}\\times 36$.",
+          "concept_tag": "fraction of the circle",
+          "mark": 1
+        },
+        {
+          "lead": "Simplify.",
+          "text": "$= \\dfrac{22}{7}\\times 6 = \\dfrac{132}{7} = 18\\dfrac{6}{7}\\ \\text{cm}^2 \\approx 18.86\\ \\text{cm}^2$.",
+          "concept_tag": "answer with unit",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for substituting into $\\dfrac{\\theta}{360}\\pi r^2$ with $\\pi=\\dfrac{22}{7}$ (the exercise's default), 1 for the simplified answer $\\dfrac{132}{7}\\text{ cm}^2$ with unit.",
+      "source": {
+        "ncert_exercise": "11.1",
+        "question": "1",
+        "ncert_page": 158,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "exercise question; NCERT leaves it unsolved — the step-marked solution here is authored to the CBSE scheme"
+      }
+    },
+    {
+      "id": "ex_ncert_2",
+      "shape": "Area of a segment · NCERT Example 2",
+      "kind": "numerical",
+      "problem_verbatim": "Find the area of the segment AYB shown in Fig. 11.6, if radius of the circle is 21 cm and ∠ AOB = 120°. (Use π = 22/7)",
+      "solution_steps": [
+        {
+          "lead": "Set up: segment = sector − triangle.",
+          "text": "Area of segment $AYB = $ Area of sector $OAYB - $ Area of $\\triangle OAB$. Sector $OAYB = \\dfrac{120}{360}\\times\\dfrac{22}{7}\\times 21^2 = 462\\ \\text{cm}^2$.",
+          "concept_tag": "segment = sector − triangle",
+          "mark": 1
+        },
+        {
+          "lead": "Drop OM ⊥ AB and use the half-angle.",
+          "text": "$OA = OB$, so by RHS congruence $M$ is the mid-point of $AB$ and $\\angle AOM = \\angle BOM = 60^\\circ$. Then $OM = OA\\cos 60^\\circ = \\dfrac{21}{2}$ and $AM = OA\\sin 60^\\circ = \\dfrac{21\\sqrt{3}}{2}$, so $AB = 2AM = 21\\sqrt{3}$.",
+          "concept_tag": "perpendicular from the centre",
+          "mark": 1
+        },
+        {
+          "lead": "Area of triangle OAB.",
+          "text": "Area of $\\triangle OAB = \\dfrac{1}{2}\\times AB\\times OM = \\dfrac{1}{2}\\times 21\\sqrt{3}\\times\\dfrac{21}{2} = \\dfrac{441\\sqrt{3}}{4}\\ \\text{cm}^2$.",
+          "concept_tag": "triangle area = ½ × base × height",
+          "mark": 1
+        },
+        {
+          "lead": "Subtract.",
+          "text": "Area of segment $AYB = 462 - \\dfrac{441\\sqrt{3}}{4} = \\dfrac{21}{4}\\left(88 - 21\\sqrt{3}\\right)\\ \\text{cm}^2$.",
+          "concept_tag": "final subtraction",
+          "mark": 1
+        }
+      ],
+      "marks_total": 4,
+      "mark_logic": "Long-answer shape (4 marks): 1 for the sector area $462\\text{ cm}^2$ and the 'sector − triangle' setup, 1 for the perpendicular construction giving $OM$ and $AB$, 1 for the triangle area $\\dfrac{441\\sqrt3}{4}\\text{ cm}^2$, 1 for the final subtracted answer. Leaving $\\sqrt3$ in surd form is correct here — no value of $\\sqrt3$ is given.",
+      "source": {
+        "ncert_example": "2",
+        "ncert_page": 157,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "problem on p.157; solution runs to p.158"
+      }
+    },
+    {
+      "id": "ex_ex111_q3",
+      "shape": "Area swept by a minute hand (arc application) · NCERT Exercise 11.1 Q3",
+      "kind": "numerical",
+      "problem_verbatim": "The length of the minute hand of a clock is 14 cm. Find the area swept by the minute hand in 5 minutes.",
+      "solution_steps": [
+        {
+          "lead": "Turn the time into a central angle.",
+          "text": "The minute hand sweeps $360^\\circ$ in $60$ minutes, so in $5$ minutes it turns $\\dfrac{5}{60}\\times 360^\\circ = 30^\\circ$. The area swept is a sector of radius $r = 14$ cm and angle $30^\\circ$.",
+          "concept_tag": "time → central angle",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute into the sector formula.",
+          "text": "Area $= \\dfrac{\\theta}{360}\\times\\pi r^2 = \\dfrac{30}{360}\\times\\dfrac{22}{7}\\times 14^2 = \\dfrac{1}{12}\\times\\dfrac{22}{7}\\times 196$.",
+          "concept_tag": "sector area",
+          "mark": 1
+        },
+        {
+          "lead": "Simplify.",
+          "text": "$= \\dfrac{22\\times 28}{12} = \\dfrac{616}{12} = \\dfrac{154}{3}\\ \\text{cm}^2 = 51\\dfrac{1}{3}\\ \\text{cm}^2$.",
+          "concept_tag": "answer with unit",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for converting 5 minutes to a $30^\\circ$ central angle (the step most students skip), 1 for substituting into $\\dfrac{\\theta}{360}\\pi r^2$, 1 for the simplified $\\dfrac{154}{3}\\text{ cm}^2$ with unit.",
+      "source": {
+        "ncert_exercise": "11.1",
+        "question": "3",
+        "ncert_page": 158,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "exercise question; NCERT leaves it unsolved — the step-marked solution here is authored to the CBSE scheme (π = 22/7 by the exercise default)"
+      }
+    },
+    {
+      "id": "ex_ex111_q5",
+      "shape": "Arc length + sector + segment · NCERT Exercise 11.1 Q5",
+      "kind": "numerical",
+      "problem_verbatim": "In a circle of radius 21 cm, an arc subtends an angle of 60° at the centre. Find: (i) the length of the arc (ii) area of the sector formed by the arc (iii) area of the segment formed by the corresponding chord",
+      "solution_steps": [
+        {
+          "lead": "(i) Length of the arc.",
+          "text": "$\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r = \\dfrac{60}{360}\\times 2\\times\\dfrac{22}{7}\\times 21 = \\dfrac{1}{6}\\times 132 = 22\\ \\text{cm}$.",
+          "concept_tag": "arc length",
+          "mark": 1
+        },
+        {
+          "lead": "(ii) Area of the sector.",
+          "text": "$= \\dfrac{\\theta}{360}\\times\\pi r^2 = \\dfrac{60}{360}\\times\\dfrac{22}{7}\\times 21^2 = \\dfrac{1}{6}\\times\\dfrac{22}{7}\\times 441 = 231\\ \\text{cm}^2$.",
+          "concept_tag": "sector area",
+          "mark": 1
+        },
+        {
+          "lead": "(iii) Area of the segment.",
+          "text": "Two radii with a $60^\\circ$ angle make $\\triangle OAB$ equilateral of side $21$, so its area $= \\dfrac{\\sqrt{3}}{4}\\times 21^2 = \\dfrac{441\\sqrt{3}}{4}\\ \\text{cm}^2$. Segment $= $ sector $-$ triangle $= \\left(231 - \\dfrac{441\\sqrt{3}}{4}\\right)\\ \\text{cm}^2$.",
+          "concept_tag": "segment = sector − triangle",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape (one per part): 1 for the arc length $22\\text{ cm}$, 1 for the sector area $231\\text{ cm}^2$, 1 for the segment as sector minus the equilateral triangle $OAB$. The $60^\\circ$ angle making $\\triangle OAB$ equilateral is the key insight in (iii).",
+      "source": {
+        "ncert_exercise": "11.1",
+        "question": "5",
+        "ncert_page": 158,
+        "edition": "2026-27",
+        "chapter": 11,
+        "note": "exercise question; NCERT leaves it unsolved — the step-marked solution here is authored to the CBSE scheme (π = 22/7 by the exercise default; √3 left in surd form as no value is given)"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Arc, sector or segment?",
+      "text": "All three start from the fraction $\\dfrac{\\theta}{360}$. Multiply it by $2\\pi r$ for an arc (length), by $\\pi r^2$ for a sector (area)."
+    },
+    {
+      "cue": "'Area of the segment'?",
+      "text": "There is no direct formula — compute sector $-$ triangle $OAB$. Find the triangle separately."
+    },
+    {
+      "cue": "60° at the centre?",
+      "text": "Two radii with a $60^\\circ$ angle make an equilateral triangle — its area is $\\dfrac{\\sqrt{3}}{4}a^2$ with $a = r$."
+    },
+    {
+      "cue": "'Major sector / segment'?",
+      "text": "Major $=$ whole $-$ minor: $\\pi r^2 - (\\text{minor sector})$, or $\\pi r^2 - (\\text{minor segment})$. Or use the angle $360^\\circ - \\theta$."
+    },
+    {
+      "cue": "Which value of π?",
+      "text": "Use what the question states — $\\dfrac{22}{7}$ by default in this exercise, $3.14$ when told. Keep $\\sqrt{3}$ in surd form unless a value is given."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Reaching for a 'segment formula'</b> — there isn't one. A segment is always sector $-$ triangle $OAB$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Forgetting to turn a time / fraction into a central angle</b> — 5 minutes on a clock is $30^\\circ$, not $5^\\circ$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Mixing up arc length ($\\times 2\\pi r$) with sector area ($\\times \\pi r^2$)</b> — check the unit: cm for an arc, cm$^2$ for an area.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Rounding π early or dropping the unit</b> — state cm$^2$ and keep $\\sqrt{3}$ exact unless a numerical value is supplied.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Circumference of a circle",
+      "math": "$C = 2\\pi r$"
+    },
+    {
+      "label": "Area of a circle",
+      "math": "$A = \\pi r^2$"
+    },
+    {
+      "label": "Length of an arc (angle θ)",
+      "math": "$\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r$"
+    },
+    {
+      "label": "Area of a sector (angle θ)",
+      "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2$"
+    },
+    {
+      "label": "Area of a segment",
+      "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2 - \\text{area of }\\triangle OAB$"
+    }
+  ],
+  "mindmap": {
+    "root": "Areas Related to Circles — sector, segment, arc",
+    "branches": [
+      {
+        "label": "The one idea: fraction θ/360",
+        "children": [
+          "A part of a circle = θ/360 of the whole",
+          "θ = angle at the centre (in degrees)",
+          "× 2πr → length · × πr² → area"
+        ]
+      },
+      {
+        "label": "Sector (two radii + arc)",
+        "children": [
+          "Minor sector = angle θ (shaded)",
+          "Major sector = angle 360° − θ",
+          "Area = (θ/360) × πr²"
+        ]
+      },
+      {
+        "label": "Length of an arc",
+        "children": [
+          "ℓ = (θ/360) × 2πr",
+          "It is a length (cm) — never square it"
+        ]
+      },
+      {
+        "label": "Segment (chord + arc)",
+        "children": [
+          "No direct formula",
+          "Segment = sector − triangle OAB",
+          "Minor / major segment about chord AB"
+        ]
+      },
+      {
+        "label": "Finding triangle OAB",
+        "children": [
+          "Drop OM ⊥ AB → cos, sin of half-angle",
+          "θ = 60° ⇒ equilateral, area (√3/4)r²"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "Segment ≠ a single formula",
+          "Convert time/fraction → central angle",
+          "cm for arc, cm² for area",
+          "Use the stated π; keep √3 exact"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Where the sector, arc and segment formulae come from",
+    "intro": "NCERT derives all three results by the Unitary Method (pp.155-156): scale the whole circle down by the fraction of the angle at the centre. This is the reasoning behind the formulae in the formula strip — worth understanding, not just memorising.",
+    "steps": [
+      {
+        "claim": "A full circle subtends 360° at the centre, and the area of the circular region is πr².",
+        "math": "$\\text{area of circle} = \\pi r^2$"
+      },
+      {
+        "claim": "Unitary Method: when the angle at the centre is 360° the sector area is πr², so when the angle is 1° the sector area is πr²/360.",
+        "math": "$\\dfrac{\\pi r^2}{360}$"
+      },
+      {
+        "claim": "Therefore for an angle θ at the centre, the sector area is θ times the 1° value.",
+        "math": "$\\text{Area of the sector of angle }\\theta = \\dfrac{\\theta}{360}\\times \\pi r^2$",
+        "justification": "This is the area-of-a-sector formula (NCERT p.155)."
+      },
+      {
+        "claim": "The same Unitary-Method argument on the whole circumference 2πr (which corresponds to 360°) gives the arc length.",
+        "math": "$\\text{length of an arc of angle }\\theta = \\dfrac{\\theta}{360}\\times 2\\pi r$"
+      },
+      {
+        "claim": "The minor segment is what remains of the sector after triangle OAB is removed, so its area is the sector minus that triangle.",
+        "math": "$\\text{Area of segment }APB = \\dfrac{\\theta}{360}\\times\\pi r^2 - \\text{area of }\\triangle OAB$",
+        "justification": "NCERT p.156 — segment = sector − corresponding triangle."
+      }
+    ],
+    "source": {
+      "ncert_page": 155,
+      "edition": "2026-27",
+      "chapter": 11,
+      "note": "Unitary-Method derivation, pp.155-156"
+    }
+  },
+  "figures": {
+    "fig_sector_111": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 11.1",
+      "caption": "Sector of a circle · shaded OAPB is the minor sector (angle ∠AOB), OAQB the major sector.",
+      "legend": "The two radii OA, OB and the arc APB bound the shaded minor sector; the rest of the disc is the major sector.",
+      "source": {
+        "pdf": "jemh111",
+        "edition": "2026-27",
+        "ncert_fig": "11.1",
+        "page_pdf": 0,
+        "printed_page": 154,
+        "crop": [300, 258, 460, 404],
+        "crop_units": "PDF points (x0,y0,x1,y1); rendered at matrix 5x to 800px wide",
+        "clean": null,
+        "refill": null
+      },
+      "asset": "areas-related-to-circles/fig_sector_111.webp"
+    },
+    "fig_segment_112": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 11.2",
+      "caption": "Segment of a circle · shaded APB is the minor segment cut off by chord AB, AQB the major segment.",
+      "legend": "The chord AB and the arc APB bound the shaded minor segment; no radius is involved.",
+      "source": {
+        "pdf": "jemh111",
+        "edition": "2026-27",
+        "ncert_fig": "11.2",
+        "page_pdf": 0,
+        "printed_page": 154,
+        "crop": [300, 460, 460, 602],
+        "crop_units": "PDF points (x0,y0,x1,y1); rendered at matrix 5x to 800px wide",
+        "clean": null,
+        "refill": null
+      },
+      "asset": "areas-related-to-circles/fig_segment_112.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Sector of a circle",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.154"
+    },
+    {
+      "item": "Segment of a circle",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.154"
+    },
+    {
+      "item": "Area of a sector",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.160 (Summary 2)"
+    },
+    {
+      "item": "Length of an arc of a sector",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.160 (Summary 1)"
+    },
+    {
+      "item": "Area of a segment",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.160 (Summary 3)"
+    },
+    {
+      "item": "Minor &amp; major sector",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.154"
+    },
+    {
+      "item": "Minor &amp; major segment",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.154"
+    },
+    {
+      "item": "Angle of the sector",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.154"
+    },
+    {
+      "item": "'Segment' / 'sector' mean the minor one",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.154 (Remark)"
+    },
+    {
+      "item": "Area of a sector + major sector · NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Example 1 p.156"
+    },
+    {
+      "item": "Area of a sector · NCERT Exercise 11.1 Q1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Exercise 11.1 Q1 p.158"
+    },
+    {
+      "item": "Area of a segment · NCERT Example 2",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Example 2 p.157-158"
+    },
+    {
+      "item": "Area swept by a minute hand · NCERT Exercise 11.1 Q3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Exercise 11.1 Q3 p.158"
+    },
+    {
+      "item": "Arc length + sector + segment · NCERT Exercise 11.1 Q5",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Exercise 11.1 Q5 p.158"
+    },
+    {
+      "item": "fig_sector_111",
+      "type": "ncert-figure",
+      "source": "NCERT 2026-27 Ch11 Fig 11.1 p.154"
+    },
+    {
+      "item": "fig_segment_112",
+      "type": "ncert-figure",
+      "source": "NCERT 2026-27 Ch11 Fig 11.2 p.154"
+    }
+  ]
+}
