@@ -1,0 +1,643 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "magnetic-effects-of-electric-current",
+    "subject": "physics",
+    "chapter_no": 12,
+    "title": "Magnetic Effects of Electric Current",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Rules",
+      "kind": "rules"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 12"
+  },
+  "board_asks": "the two direction rules (right-hand thumb rule for the field around a wire, Fleming's left-hand rule for the force on a wire), the properties of magnetic field lines, the field pattern of a solenoid compared with a bar magnet, and why a current-carrying conductor in a magnetic field feels a force. These are mostly 1-3 mark direction-and-reasoning questions, not numericals.",
+  "big_idea": {
+    "tagline": "A current makes a magnet; a magnet pushes a current.",
+    "body": "Every electric current wraps a magnetic field around itself, and a current-carrying wire placed in someone else's magnetic field feels a sideways push. Two hand rules capture the geometry: the right-hand thumb rule tells you which way the field curls around a wire, and Fleming's left-hand rule tells you which way the force pushes the wire."
+  },
+  "definitions": [
+    {
+      "id": "def_magnetic_field",
+      "tier": "headline",
+      "term": "Magnetic field",
+      "verbatim": "The region surrounding a magnet, in which the force of the magnet can be detected, is said to have a magnetic field.",
+      "plain": "the space around a magnet where its pull or push can be felt. It is a vector — it has both a direction and a magnitude.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 196,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_magnetic_field_lines",
+      "tier": "headline",
+      "term": "Magnetic field lines",
+      "verbatim": "The lines along which the iron filings align themselves represent magnetic field lines.",
+      "plain": "the imaginary curves that map a magnetic field. A tiny compass placed on a line points along it, so a field line is the path a free north pole would follow.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 196,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_field_direction",
+      "tier": "headline",
+      "term": "Direction of the magnetic field",
+      "verbatim": "Magnetic field is a quantity that has both direction and magnitude. The direction of the magnetic field is taken to be the direction in which a north pole of the compass needle moves inside it.",
+      "plain": "point a compass anywhere in the field — the way its north pole turns is the field direction at that spot.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 197,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_field_lines_closed_curves",
+      "tier": "headline",
+      "term": "Field lines are closed curves",
+      "verbatim": "Therefore it is taken by convention that the field lines emerge from north pole and merge at the south pole (note the arrows marked on the field lines in Fig. 12.4). Inside the magnet, the direction of field lines is from its south pole to its north pole. Thus the magnetic field lines are closed curves.",
+      "plain": "outside the magnet field lines run N → S; inside they run S → N, so each line closes on itself. They never simply start or stop in mid-air.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 197,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_field_strength_closeness",
+      "tier": "headline",
+      "term": "Field strength and closeness of lines",
+      "verbatim": "The relative strength of the magnetic field is shown by the degree of closeness of the field lines. The field is stronger, that is, the force acting on the pole of another magnet placed is greater where the field lines are crowded (see Fig. 12.4).",
+      "plain": "crowded lines mean a strong field (near the poles); widely spaced lines mean a weak field.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 197,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_right_hand_thumb_rule",
+      "tier": "headline",
+      "term": "Right-hand thumb rule",
+      "verbatim": "Imagine that you are holding a current-carrying straight conductor in your right hand such that the thumb points towards the direction of current. Then your fingers will wrap around the conductor in the direction of the field lines of the magnetic field, as shown in Fig. 12.7. This is known as the right-hand thumb rule.",
+      "plain": "grip the wire with your right hand, thumb along the current; your curled fingers show which way the circular field lines go around the wire.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 200,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_solenoid",
+      "tier": "headline",
+      "term": "Solenoid",
+      "verbatim": "A coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder is called a solenoid.",
+      "plain": "a long, tightly wound cylindrical coil. Carrying current, it behaves like a bar magnet.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 201,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_solenoid_field_uniform",
+      "tier": "headline",
+      "term": "Uniform field inside a solenoid",
+      "verbatim": "The field lines inside the solenoid are in the form of parallel straight lines. This indicates that the magnetic field is the same at all points inside the solenoid. That is, the field is uniform inside the solenoid.",
+      "plain": "deep inside the coil the field is the same everywhere — same strength and direction (a uniform field).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 201,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_electromagnet",
+      "tier": "headline",
+      "term": "Electromagnet",
+      "verbatim": "A strong magnetic field produced inside a solenoid can be used to magnetise a piece of magnetic material, like soft iron, when placed inside the coil (Fig. 12.11). The magnet so formed is called an electromagnet.",
+      "plain": "put a soft-iron core inside a current-carrying solenoid and it becomes a strong magnet — an electromagnet — only while the current flows.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 201,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_flemings_left_hand_rule",
+      "tier": "headline",
+      "term": "Fleming's left-hand rule",
+      "verbatim": "According to this rule, stretch the thumb, forefinger and middle finger of your left hand such that they are mutually perpendicular (Fig. 12.13). If the first finger points in the direction of magnetic field and the second finger in the direction of current, then the thumb will point in the direction of motion or the force acting on the conductor.",
+      "plain": "left hand, three fingers at right angles: First finger = Field, seCond finger = Current, thuMb = Motion (force). It gives the direction of the push on the wire.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 203,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_no_two_cross",
+      "tier": "key-term",
+      "term": "No two field lines cross",
+      "verbatim": "No two field-lines are found to cross each other. If they did, it would mean that at the point of intersection, the compass needle would point towards two directions, which is not possible.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 197,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_field_around_wire",
+      "tier": "key-term",
+      "term": "Field around a straight wire",
+      "verbatim": "The field lines about the wire consist of a series of concentric circles whose direction is given by the right-hand rule.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 206,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_force_largest",
+      "tier": "key-term",
+      "term": "When the force is largest",
+      "verbatim": "Experiments have shown that the displacement of the rod is largest (or the magnitude of the force is the highest) when the direction of current is at right angles to the direction of the magnetic field.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 203,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Magnetic field lines and their properties",
+      "body": "Field lines picture the field: they run from N to S outside a magnet and close inside it, they are crowded where the field is strong, and no two ever cross. These four properties are the standard short-answer.",
+      "tested": "2–3 mark \"list the properties of magnetic field lines\" / \"why don't two field lines cross?\"",
+      "figure_ref": "fig_field_lines_bar_magnet_124"
+    },
+    {
+      "id": "c2",
+      "title": "Magnetic field due to a straight current-carrying conductor",
+      "body": "A straight wire is surrounded by concentric circular field lines. Their direction is found by the right-hand thumb rule; the field grows with the current ($B \\propto I$) and weakens with distance ($B \\propto 1/r$).",
+      "tested": "2-mark \"find the direction of the field\" using the right-hand thumb rule",
+      "figure_ref": "fig_right_hand_thumb_127"
+    },
+    {
+      "id": "c3",
+      "title": "Field due to a circular loop and a coil",
+      "body": "Bend the wire into a loop and every part of it pushes the field the same way through the centre, so the field there is strong and nearly straight. A coil of $n$ turns gives $n$ times the field of a single turn, because each turn adds up.",
+      "tested": "2-mark reasoning \"why is the field stronger at the centre of a coil?\"",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Solenoid and the electromagnet",
+      "body": "A current-carrying solenoid has a field pattern identical to a bar magnet — one end a north pole, the other a south pole — and a uniform field inside. A soft-iron core inside it becomes a strong electromagnet.",
+      "tested": "3-mark \"compare the field of a solenoid with a bar magnet\" / electromagnet",
+      "figure_ref": "fig_solenoid_field_1210"
+    },
+    {
+      "id": "c5",
+      "title": "Force on a current-carrying conductor",
+      "body": "A wire carrying current in a magnetic field feels a force perpendicular to both. The force is largest when the current is at right angles to the field, and it reverses if either the current or the field is reversed. Its direction is read off Fleming's left-hand rule.",
+      "tested": "2–3 mark \"state the rule / find the direction of the force\"",
+      "figure_ref": "fig_flemings_left_hand_1213"
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_121",
+      "shape": "Right-hand thumb rule — field near a power line",
+      "kind": "numerical",
+      "problem_verbatim": "A current through a horizontal power line flows in east to west direction. What is the direction of magnetic field at a point directly below it and at a point directly above it?",
+      "solution_steps": [
+        {
+          "lead": "Note the current direction.",
+          "text": "The current is along the wire, from east to west.",
+          "concept_tag": "set up the rule",
+          "mark": null
+        },
+        {
+          "lead": "Apply the right-hand thumb rule.",
+          "text": "Point the right thumb from east to west (along the current); the curled fingers give the field, which lies in a plane perpendicular to the wire.",
+          "concept_tag": "right-hand thumb rule",
+          "mark": 1
+        },
+        {
+          "lead": "Read off the direction.",
+          "text": "The magnetic field turns clockwise when viewed from the east end and anti-clockwise when viewed from the west end — so at the point below the wire and the point above it, the field points in opposite directions.",
+          "concept_tag": "below vs above",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "1 mark for correctly applying the right-hand thumb rule, 1 mark for the clockwise/anti-clockwise sense (equivalently, that the field is oppositely directed below and above the wire).",
+      "source": {
+        "ncert_example": "12.1",
+        "ncert_page": 200,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "ex_122",
+      "shape": "Fleming's left-hand rule — force on a moving electron",
+      "kind": "numerical",
+      "problem_verbatim": "An electron enters a magnetic field at right angles to it, as shown in Fig. 12.14. The direction of force acting on the electron will be (a) to the right. (b) to the left. (c) out of the page. (d) into the page.",
+      "solution_steps": [
+        {
+          "lead": "Fix the current direction.",
+          "text": "Conventional current is taken opposite to the electron's direction of motion.",
+          "concept_tag": "current vs electron motion",
+          "mark": null
+        },
+        {
+          "lead": "Apply Fleming's left-hand rule.",
+          "text": "First finger along the field and second finger along the (conventional) current make the thumb — the force — point into the page. Answer: option (d).",
+          "concept_tag": "Fleming's left-hand rule",
+          "mark": 1
+        }
+      ],
+      "marks_total": 1,
+      "mark_logic": "1 mark for option (d) with the Fleming's left-hand-rule justification — the key trap is remembering that conventional current is opposite to the electron's motion.",
+      "source": {
+        "ncert_example": "12.2",
+        "ncert_page": 203,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Field AROUND a wire?",
+      "text": "Right hand — thumb along the current, curled fingers give the circular field. Reverse the current and the field reverses."
+    },
+    {
+      "cue": "Force ON a wire?",
+      "text": "Fleming's LEFT hand — First finger Field, seCond finger Current, thuMb Motion/force. Don't reach for the right hand here."
+    },
+    {
+      "cue": "Solenoid question?",
+      "text": "Say it out loud: its field is identical to a bar magnet, uniform inside, one end N and one end S; a soft-iron core makes an electromagnet."
+    },
+    {
+      "cue": "\"Properties of field lines\"?",
+      "text": "Four marks-earners: N→S outside / closed curves / crowded = strong / never cross."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "✗ Swapping the two rules — use the RIGHT hand for the field around a wire, the LEFT hand for the force on a wire.",
+      "owner_verified": false
+    },
+    {
+      "text": "✗ In the electron problem, forgetting that conventional current is opposite to the electron's motion — it flips the force direction.",
+      "owner_verified": false
+    },
+    {
+      "text": "✗ Calling field lines open — they are closed curves (S→N inside the magnet).",
+      "owner_verified": false
+    },
+    {
+      "text": "✗ Drawing two field lines that cross — impossible, since a compass can't point two ways at once.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Field vs current (straight wire)",
+      "math": "$B \\propto I$"
+    },
+    {
+      "label": "Field vs distance (straight wire)",
+      "math": "$B \\propto \\dfrac{1}{r}$"
+    },
+    {
+      "label": "Coil of $n$ turns",
+      "math": "$B_{\\text{coil}} = n \\times B_{\\text{single turn}}$"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "rules",
+    "intro": "This chapter is about DIRECTIONS, not formulas. Two hand rules do almost all the work — keep them straight, and note how the field's size changes with current and distance.",
+    "figure_ref": "fig_right_hand_thumb_127",
+    "blocks": [
+      {
+        "heading": "Right-hand thumb rule — direction of the field around a straight wire",
+        "type": "rule-list",
+        "items": [
+          "Grip the wire with your right hand.",
+          "Point the thumb along the direction of the current.",
+          "The curled fingers give the direction of the circular field lines.",
+          "Reverse the current and the field direction reverses."
+        ]
+      },
+      {
+        "heading": "Fleming's left-hand rule — direction of the force on the wire",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "First finger",
+            "text": "points along the magnetic Field."
+          },
+          {
+            "sign": "seCond finger",
+            "text": "points along the Current (conventional)."
+          },
+          {
+            "sign": "thuMb",
+            "text": "points along the Motion / force on the conductor."
+          }
+        ]
+      },
+      {
+        "heading": "Properties of magnetic field lines",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "N→S",
+            "text": "Outside the magnet lines run north to south; inside, south to north — so they are closed curves."
+          },
+          {
+            "sign": "≠",
+            "text": "No two field lines ever cross (a compass cannot point two ways)."
+          },
+          {
+            "sign": "≡",
+            "text": "Crowded lines = strong field; widely spaced lines = weak field."
+          }
+        ]
+      },
+      {
+        "heading": "How the field strength changes",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "+",
+            "text": "Larger current → stronger field ($B \\propto I$)."
+          },
+          {
+            "sign": "−",
+            "text": "Farther from the wire → weaker field ($B \\propto 1/r$)."
+          },
+          {
+            "sign": "×n",
+            "text": "A coil of $n$ turns gives $n$ times the field of one turn."
+          }
+        ]
+      }
+    ]
+  },
+  "figures": {
+    "fig_field_lines_bar_magnet_124": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 12.4",
+      "caption": "Field lines around a bar magnet — they emerge from N, merge at S, are crowded near the poles and never cross.",
+      "legend": "Arrows run north → south outside the magnet; the lines close on themselves inside it.",
+      "source": {
+        "pdf": "jesc112",
+        "edition": "2026-27",
+        "ncert_fig": "12.4",
+        "page_pdf": 3,
+        "printed_page": 197,
+        "crop": [
+          875,
+          585,
+          1585,
+          940
+        ],
+        "clean": "saturation",
+        "dpi": 200,
+        "note": "rasterize@200dpi -> crop -> saturation-clean via kit; eye-confirmed"
+      },
+      "asset": "magnetic-effects-of-electric-current/fig_field_lines_bar_magnet_124.webp"
+    },
+    "fig_right_hand_thumb_127": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 12.7",
+      "caption": "Right-hand thumb rule — thumb along the current, curled fingers give the circular magnetic field.",
+      "legend": "The circle of arrows shows the field wrapping around the straight current-carrying conductor.",
+      "source": {
+        "pdf": "jesc112",
+        "edition": "2026-27",
+        "ncert_fig": "12.7",
+        "page_pdf": 6,
+        "printed_page": 200,
+        "crop": [
+          120,
+          160,
+          455,
+          452
+        ],
+        "clean": "saturation",
+        "dpi": 200,
+        "note": "rasterize@200dpi -> crop -> saturation-clean via kit; a stray cyan tick at the right edge was white-filled; eye-confirmed"
+      },
+      "asset": "magnetic-effects-of-electric-current/fig_right_hand_thumb_127.webp"
+    },
+    "fig_solenoid_field_1210": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 12.10",
+      "caption": "Field lines through and around a current-carrying solenoid — identical to a bar magnet, uniform inside.",
+      "legend": "One end of the solenoid acts as a north pole, the other as a south pole; inside, the lines are parallel.",
+      "source": {
+        "pdf": "jesc112",
+        "edition": "2026-27",
+        "ncert_fig": "12.10",
+        "page_pdf": 7,
+        "printed_page": 201,
+        "crop": [
+          1090,
+          915,
+          1545,
+          1185
+        ],
+        "clean": "saturation",
+        "dpi": 200,
+        "note": "rasterize@200dpi -> crop -> saturation-clean via kit; eye-confirmed"
+      },
+      "asset": "magnetic-effects-of-electric-current/fig_solenoid_field_1210.webp"
+    },
+    "fig_flemings_left_hand_1213": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 12.13",
+      "caption": "Fleming's left-hand rule — forefinger = field, second finger = current, thumb = force/motion.",
+      "legend": "The three fingers of the left hand are held mutually perpendicular to give the three directions.",
+      "source": {
+        "pdf": "jesc112",
+        "edition": "2026-27",
+        "ncert_fig": "12.13",
+        "page_pdf": 9,
+        "printed_page": 203,
+        "crop": [
+          840,
+          455,
+          1490,
+          862
+        ],
+        "clean": "saturation",
+        "dpi": 200,
+        "note": "rasterize@200dpi -> crop -> saturation-clean via kit; cropped above the body text so no deleted-topic sentence bleeds in; eye-confirmed"
+      },
+      "asset": "magnetic-effects-of-electric-current/fig_flemings_left_hand_1213.webp"
+    }
+  },
+  "mindmap": {
+    "root": "Magnetic Effects of Electric Current",
+    "branches": [
+      {
+        "label": "Magnetic field & field lines",
+        "children": [
+          "Field = region where a magnet's force is felt",
+          "Lines emerge N, merge S — closed curves",
+          "Crowded = strong; spaced = weak",
+          "No two lines cross"
+        ]
+      },
+      {
+        "label": "Field due to a current",
+        "children": [
+          "Straight wire → concentric circles",
+          "Right-hand thumb rule (direction)",
+          "B ∝ I ; B ∝ 1/r",
+          "Solenoid = bar magnet, uniform inside",
+          "Soft-iron core → electromagnet"
+        ]
+      },
+      {
+        "label": "Force on a conductor (2–3 mk)",
+        "children": [
+          "Current in a field feels a force",
+          "Largest when current ⊥ field",
+          "Fleming's left-hand rule (direction)",
+          "Force reverses if I or field reverses"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "Right-hand (field) vs left-hand (force)",
+          "Field lines are closed, not open",
+          "Current is opposite to electron motion"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    {
+      "item": "Magnetic field",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.196"
+    },
+    {
+      "item": "Magnetic field lines",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.196"
+    },
+    {
+      "item": "Direction of the magnetic field",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.197"
+    },
+    {
+      "item": "Field lines are closed curves",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.197"
+    },
+    {
+      "item": "Field strength and closeness of lines",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.197"
+    },
+    {
+      "item": "Right-hand thumb rule",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.200"
+    },
+    {
+      "item": "Solenoid",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.201"
+    },
+    {
+      "item": "Uniform field inside a solenoid",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.201"
+    },
+    {
+      "item": "Electromagnet",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.201"
+    },
+    {
+      "item": "Fleming's left-hand rule",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.203"
+    },
+    {
+      "item": "No two field lines cross",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.197"
+    },
+    {
+      "item": "Field around a straight wire",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.206"
+    },
+    {
+      "item": "When the force is largest",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.203"
+    },
+    {
+      "item": "Right-hand thumb rule — field near a power line",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch12 Ex 12.1 p.200"
+    },
+    {
+      "item": "Fleming's left-hand rule — force on a moving electron",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch12 Ex 12.2 p.203"
+    },
+    {
+      "item": "NCERT Fig 12.4",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch12 Fig 12.4 p.197"
+    },
+    {
+      "item": "NCERT Fig 12.7",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch12 Fig 12.7 p.200"
+    },
+    {
+      "item": "NCERT Fig 12.10",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch12 Fig 12.10 p.201"
+    },
+    {
+      "item": "NCERT Fig 12.13",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch12 Fig 12.13 p.203"
+    }
+  ]
+}

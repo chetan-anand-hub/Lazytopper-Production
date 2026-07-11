@@ -1,0 +1,627 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "probability",
+    "subject": "maths",
+    "chapter_no": 14,
+    "title": "Probability",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 14 (jemh114.pdf, printed pages 202-217)"
+  },
+  "board_asks": "single-event probability from a bag, die, coin or a deck of cards, the complement rule P(not E) = 1 - P(E), and the impossible-0 / sure-1 / 0 to 1 range facts - together these carry almost every mark in this chapter.",
+  "big_idea": {
+    "tagline": "Count the wanted, count the total, divide.",
+    "body": "Probability measures how likely an event is, on a scale from $0$ (impossible) to $1$ (certain). When every outcome of an experiment is <b>equally likely</b>, the theoretical (classical) probability of an event $E$ is just $P(E) = \\dfrac{\\text{favourable outcomes}}{\\text{all possible outcomes}}$. The whole chapter is that one idea applied to coins, dice, cards and bags of marbles - plus one shortcut, the <b>complement</b> $P(\\text{not }E) = 1 - P(E)$, and one sanity check, $0 \\le P(E) \\le 1$."
+  },
+  "definitions": [
+    {
+      "id": "def_theoretical_probability",
+      "tier": "headline",
+      "term": "Theoretical (classical) probability",
+      "verbatim": "The theoretical probability (also called classical probability) of an event E, written as P(E), is defined as P(E) = Number of outcomes favourable to E / Number of all possible outcomes of the experiment, where we assume that the outcomes of the experiment are equally likely.",
+      "plain": "$P(E) = \\dfrac{\\text{outcomes favourable to }E}{\\text{all possible outcomes}}$. It ONLY applies when the outcomes are equally likely - check that first, or the formula is invalid.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 203,
+        "edition": "2026-27",
+        "chapter": 14,
+        "note": "the printed 2D fraction is linearised with a slash; skeleton fidelity confirmed on p.203"
+      }
+    },
+    {
+      "id": "def_elementary_event",
+      "tier": "headline",
+      "term": "Elementary event",
+      "verbatim": "An event having only one outcome of the experiment is called an elementary event.",
+      "plain": "an event with exactly ONE outcome (e.g. 'the die shows 5'). Across an experiment, the probabilities of all elementary events add up to $1$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 205,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "def_complementary_events",
+      "tier": "headline",
+      "term": "Complement / complementary events",
+      "verbatim": "The event E̅, representing 'not E', is called the complement of the event E. We also say that E and E̅ are complementary events.",
+      "plain": "'not $E$' is everything in the sample space outside $E$. Because $E$ and $\\overline{E}$ together fill the whole space, $P(\\overline{E}) = 1 - P(E)$ - the workhorse shortcut for 'not' and 'at least one' questions.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 206,
+        "edition": "2026-27",
+        "chapter": 14,
+        "note": "NCERT prints the complement as E with an overbar; reproduced here as E̅ (combining overline)"
+      }
+    },
+    {
+      "id": "def_impossible_event",
+      "tier": "headline",
+      "term": "Impossible event",
+      "verbatim": "the probability of an event which is impossible to occur is 0. Such an event is called an impossible event.",
+      "plain": "an event with NO favourable outcome (e.g. getting an $8$ on an ordinary die). Its probability is exactly $0$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 207,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "def_sure_event",
+      "tier": "headline",
+      "term": "Sure (certain) event",
+      "verbatim": "the probability of an event which is sure (or certain) to occur is 1. Such an event is called a sure event or a certain event.",
+      "plain": "an event whose favourable outcomes are ALL the outcomes (e.g. getting a number less than $7$ on a die). Its probability is exactly $1$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 207,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "kt_equally_likely",
+      "tier": "key-term",
+      "term": "Equally likely outcomes",
+      "verbatim": "We refer to this by saying that the outcomes head and tail, are equally likely.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 202,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "kt_sum_elementary_is_one",
+      "tier": "key-term",
+      "term": "Sum of elementary events = 1",
+      "verbatim": "the sum of the probabilities of all the elementary events of an experiment is 1.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 205,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "kt_probability_range",
+      "tier": "key-term",
+      "term": "Range of P(E)",
+      "verbatim": "the numerator (number of outcomes favourable to the event E) is always less than or equal to the denominator (the number of all possible outcomes).",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 207,
+        "edition": "2026-27",
+        "chapter": 14,
+        "note": "this is the reasoning NCERT gives immediately before stating 0 <= P(E) <= 1"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Classical probability = favourable / total",
+      "body": "List every outcome of the experiment, confirm they are <b>equally likely</b>, count the favourable ones, and divide: $P(E) = \\dfrac{\\text{favourable}}{\\text{total}}$. Always simplify the fraction.",
+      "tested": "1-mark MCQ + 2-3 mark 'find the probability' (bag / die / coin / cards)",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "Sample space and elementary events",
+      "body": "The sample space is the set of all possible outcomes. An <b>elementary event</b> has just one outcome. A useful check: the probabilities of all the elementary events of an experiment add to $1$.",
+      "tested": "listing outcomes for one/two coins or dice before counting",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Complementary events - the shortcut",
+      "body": "$E$ and 'not $E$' together cover the whole sample space, so $P(\\text{not }E) = 1 - P(E)$. When a question says 'not', 'at least one', or gives you the opposite event, the complement is usually the fast route.",
+      "tested": "'not an ace', 'at least one head', 'not a 5' - complement saves counting",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Impossible (0), sure (1), and the range",
+      "body": "An <b>impossible event</b> has probability $0$; a <b>sure event</b> has probability $1$; every probability lies in between: $0 \\le P(E) \\le 1$. A value below $0$ or above $1$ can never be a probability.",
+      "tested": "'which of these cannot be a probability?' MCQ (e.g. -1.5, 15%, 0.7)",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Two-dice / two-coin sample spaces",
+      "body": "For two dice, list ordered pairs - order matters, so $(1,4) \\ne (4,1)$ - giving $6 \\times 6 = 36$ equally likely outcomes. Then count the pairs favourable to the event. Two coins give $\\{(H,H),(H,T),(T,H),(T,T)\\}$.",
+      "tested": "'sum on two dice' (NCERT Example 13) - a Section C/D fixture",
+      "figure_ref": "fig_dice_sample_space"
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "Coin toss - a head, and a tail - NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Find the probability of getting a head when a coin is tossed once. Also find the probability of getting a tail.",
+      "solution_steps": [
+        {
+          "lead": "Write the sample space.",
+          "text": "Tossing a coin once has two possible outcomes - Head (H) and Tail (T) - and they are equally likely.",
+          "concept_tag": "list equally likely outcomes"
+        },
+        {
+          "lead": "Probability of a head.",
+          "text": "Let $E$ = 'getting a head'. Favourable outcomes $= 1$, total $= 2$, so $P(\\text{head}) = \\dfrac{1}{2}$.",
+          "concept_tag": "favourable / total",
+          "mark": 1
+        },
+        {
+          "lead": "Probability of a tail.",
+          "text": "Let $F$ = 'getting a tail'. Favourable outcomes $= 1$, total $= 2$, so $P(\\text{tail}) = \\dfrac{1}{2}$.",
+          "concept_tag": "favourable / total",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for P(head) = 1/2 and 1 for P(tail) = 1/2, each with the sample space named. Writing the outcomes {H, T} is the method line and is not separately credited.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 204,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Single die - grouped events - NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "Suppose we throw a die once. (i) What is the probability of getting a number greater than 4 ? (ii) What is the probability of getting a number less than or equal to 4 ?",
+      "solution_steps": [
+        {
+          "lead": "Sample space.",
+          "text": "Throwing a die once has six equally likely outcomes: $1, 2, 3, 4, 5, 6$.",
+          "concept_tag": "list equally likely outcomes"
+        },
+        {
+          "lead": "(i) Number greater than 4.",
+          "text": "Favourable outcomes are $5$ and $6$, i.e. $2$ of them. So $P(E) = \\dfrac{2}{6} = \\dfrac{1}{3}$.",
+          "concept_tag": "count favourable, simplify",
+          "mark": 1
+        },
+        {
+          "lead": "(ii) Number less than or equal to 4.",
+          "text": "Favourable outcomes are $1, 2, 3, 4$, i.e. $4$ of them. So $P(F) = \\dfrac{4}{6} = \\dfrac{2}{3}$.",
+          "concept_tag": "count favourable, simplify",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for each part - correct favourable count over 6, simplified. These events have 2 and 4 outcomes, so neither is an elementary event.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 205,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "Cards - ace / not-ace via the complement - NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "One card is drawn from a well-shuffled deck of 52 cards. Calculate the probability that the card will (i) be an ace, (ii) not be an ace.",
+      "solution_steps": [
+        {
+          "lead": "Set up the deck.",
+          "text": "Well-shuffling makes the $52$ outcomes equally likely; a deck holds $4$ aces.",
+          "concept_tag": "equally likely outcomes"
+        },
+        {
+          "lead": "(i) Probability the card is an ace.",
+          "text": "Let $E$ = 'the card is an ace'. Favourable $= 4$, total $= 52$, so $P(E) = \\dfrac{4}{52} = \\dfrac{1}{13}$.",
+          "concept_tag": "favourable / total",
+          "mark": 1
+        },
+        {
+          "lead": "(ii) Probability the card is not an ace.",
+          "text": "'Not an ace' is the complement of $E$, so $P(\\overline{E}) = 1 - P(E) = 1 - \\dfrac{1}{13} = \\dfrac{12}{13}$ (equivalently $\\dfrac{48}{52}$).",
+          "concept_tag": "complement rule",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for P(ace) = 1/13, 1 for P(not ace) = 12/13. NCERT models part (ii) as the complement 1 - P(E) - the quicker route than recounting 48 cards.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 207,
+        "edition": "2026-27",
+        "chapter": 14,
+        "note": "problem on p.207; solution runs to p.208"
+      }
+    },
+    {
+      "id": "ex_ncert_5",
+      "shape": "Complementary events - a tennis match - NCERT Example 5",
+      "kind": "numerical",
+      "problem_verbatim": "Two players, Sangeeta and Reshma, play a tennis match. It is known that the probability of Sangeeta winning the match is 0.62. What is the probability of Reshma winning the match?",
+      "solution_steps": [
+        {
+          "lead": "Spot the complementary events.",
+          "text": "Exactly one player wins, so 'Reshma wins' is the complement of 'Sangeeta wins': $P(R) = 1 - P(S)$.",
+          "concept_tag": "complementary events",
+          "mark": 1
+        },
+        {
+          "lead": "Compute.",
+          "text": "$P(R) = 1 - 0.62 = 0.38$.",
+          "concept_tag": "apply the complement rule",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for recognising R and S are complementary (P(R) = 1 - P(S)), 1 for 1 - 0.62 = 0.38. No counting of outcomes is needed - the complement rule works directly on the given probability.",
+      "source": {
+        "ncert_example": "5",
+        "ncert_page": 208,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "ex_ncert_8",
+      "shape": "Marbles - three colours - NCERT Example 8",
+      "kind": "numerical",
+      "problem_verbatim": "A box contains 3 blue, 2 white, and 4 red marbles. If a marble is drawn at random from the box, what is the probability that it will be (i) white? (ii) blue? (iii) red?",
+      "solution_steps": [
+        {
+          "lead": "Total outcomes.",
+          "text": "Drawing at random makes all marbles equally likely; total outcomes $= 3 + 2 + 4 = 9$.",
+          "concept_tag": "count the sample space"
+        },
+        {
+          "lead": "(i) White.",
+          "text": "Favourable $= 2$, so $P(W) = \\dfrac{2}{9}$.",
+          "concept_tag": "favourable / total",
+          "mark": 1
+        },
+        {
+          "lead": "(ii) Blue.",
+          "text": "Favourable $= 3$, so $P(B) = \\dfrac{3}{9} = \\dfrac{1}{3}$.",
+          "concept_tag": "favourable / total, simplify",
+          "mark": 1
+        },
+        {
+          "lead": "(iii) Red.",
+          "text": "Favourable $= 4$, so $P(R) = \\dfrac{4}{9}$. Check: $P(W) + P(B) + P(R) = 1$.",
+          "concept_tag": "favourable / total, sanity check",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 per colour, each favourable count over the total 9 (simplified where possible). The three probabilities summing to 1 is the built-in check.",
+      "source": {
+        "ncert_example": "8",
+        "ncert_page": 209,
+        "edition": "2026-27",
+        "chapter": 14
+      }
+    },
+    {
+      "id": "ex_ncert_13",
+      "shape": "Two dice - sum of the faces (incl. impossible + sure) - NCERT Example 13",
+      "kind": "numerical",
+      "problem_verbatim": "Two dice, one blue and one grey, are thrown at the same time. Write down all the possible outcomes. What is the probability that the sum of the two numbers appearing on the top of the dice is (i) 8? (ii) 13? (iii) less than or equal to 12?",
+      "solution_steps": [
+        {
+          "lead": "Build the sample space.",
+          "text": "Each die shows $1$ to $6$; outcomes are ordered pairs (blue, grey), so the total is $6 \\times 6 = 36$ equally likely outcomes.",
+          "concept_tag": "ordered-pair sample space",
+          "mark": 1
+        },
+        {
+          "lead": "(i) Sum = 8.",
+          "text": "Favourable pairs are $(2,6),(3,5),(4,4),(5,3),(6,2)$, i.e. $5$ of them, so $P(\\text{sum }8) = \\dfrac{5}{36}$.",
+          "concept_tag": "count favourable pairs",
+          "mark": 2
+        },
+        {
+          "lead": "(ii) Sum = 13 (impossible).",
+          "text": "The largest possible sum is $6 + 6 = 12$, so no pair gives $13$: $P(\\text{sum }13) = \\dfrac{0}{36} = 0$ - an impossible event.",
+          "concept_tag": "impossible event = 0",
+          "mark": 1
+        },
+        {
+          "lead": "(iii) Sum less than or equal to 12 (sure).",
+          "text": "Every one of the $36$ pairs has sum $\\le 12$, so $P(\\text{sum} \\le 12) = \\dfrac{36}{36} = 1$ - a sure event.",
+          "concept_tag": "sure event = 1",
+          "mark": 1
+        }
+      ],
+      "marks_total": 5,
+      "mark_logic": "Case/long shape (5 marks): 1 for the 36-outcome sample space, 2 for listing the five sum-8 pairs and P = 5/36, 1 for recognising sum 13 is impossible (0), 1 for sum <= 12 being sure (1). This single question exercises the classical formula, the impossible event and the sure event together.",
+      "source": {
+        "ncert_example": "13",
+        "ncert_page": 212,
+        "edition": "2026-27",
+        "chapter": 14,
+        "note": "problem stated on p.212; the outcome table (Fig 14.3) and answers are on p.213"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "'Find the probability'?",
+      "text": "Count favourable outcomes, count ALL equally likely outcomes, divide, then simplify the fraction."
+    },
+    {
+      "cue": "'not' / 'at least one'?",
+      "text": "Use the complement: $P(\\text{not }E) = 1 - P(E)$ - usually far quicker than counting the event directly."
+    },
+    {
+      "cue": "Two dice or two coins?",
+      "text": "Write the full sample space first - $36$ ordered pairs for dice, $4$ for two coins - then count favourable."
+    },
+    {
+      "cue": "'Which cannot be a probability'?",
+      "text": "Reject anything below $0$ or above $1$. A negative value or one greater than $1$ is impossible."
+    },
+    {
+      "cue": "A deck of cards?",
+      "text": "$52 = 4$ suits $\\times 13$: $26$ red, $26$ black, $12$ face cards, $4$ of each rank. Pick out the count you need."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Applying the formula when outcomes are not equally likely</b> - e.g. 'the car starts or does not start'. The classical formula only holds for equally likely outcomes.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Treating two-dice outcomes as unordered</b> - $(1,4)$ and $(4,1)$ are different, so the sample space has $36$ pairs, not $21$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Not writing 0 for an impossible event or 1 for a sure event</b> - these are exact numbers, not 'no answer'.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Leaving the fraction unsimplified, or giving a probability above 1</b> - always reduce, and sanity-check that $0 \\le P(E) \\le 1$.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Classical probability",
+      "math": "$P(E) = \\dfrac{\\text{Number of outcomes favourable to }E}{\\text{Number of all possible outcomes}}$"
+    },
+    {
+      "label": "Complement rule",
+      "math": "$P(\\overline{E}) = 1 - P(E)$"
+    },
+    {
+      "label": "Range of probability",
+      "math": "$0 \\le P(E) \\le 1$"
+    },
+    {
+      "label": "Impossible / sure event",
+      "math": "$P(\\text{impossible}) = 0 \\;\\cdot\\; P(\\text{sure}) = 1$"
+    },
+    {
+      "label": "Elementary events",
+      "math": "$\\sum P(\\text{elementary events}) = 1$"
+    }
+  ],
+  "mindmap": {
+    "root": "Probability - P(E) = favourable / total",
+    "branches": [
+      {
+        "label": "Classical probability (1-3 mk)",
+        "children": [
+          "P(E) = favourable / all outcomes",
+          "Assumes outcomes equally likely",
+          "Always simplify the fraction"
+        ]
+      },
+      {
+        "label": "Sample space & elementary events",
+        "children": [
+          "List every equally likely outcome",
+          "Elementary event = one outcome",
+          "Sum of all elementary probs = 1"
+        ]
+      },
+      {
+        "label": "Complementary events",
+        "children": [
+          "P(not E) = 1 - P(E)",
+          "'not' / 'at least' -> use complement",
+          "E and (not E) fill the whole space"
+        ]
+      },
+      {
+        "label": "Impossible / sure / range",
+        "children": [
+          "Impossible event -> 0",
+          "Sure event -> 1",
+          "0 <= P(E) <= 1 always"
+        ]
+      },
+      {
+        "label": "Standard experiments (2-5 mk)",
+        "children": [
+          "Coin(s): H, T",
+          "Die: 1-6",
+          "Cards: 52 = 4 x 13",
+          "Two dice: 36 ordered pairs"
+        ]
+      },
+      {
+        "label": "Don't lose marks on...",
+        "children": [
+          "Outcomes must be equally likely",
+          "(1,4) != (4,1): 36 not 21",
+          "Give 0 / 1, never a blank",
+          "Never P > 1 or P < 0"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Why 0 <= P(E) <= 1, and why P(E) + P(not E) = 1",
+    "intro": "These two facts are not memorised rules - they fall straight out of the definition P(E) = favourable / total. NCERT derives them by reasoning about the favourable count against the total count (pp.206-207). Understanding the argument means you never doubt a bound or a complement in the exam.",
+    "steps": [
+      {
+        "claim": "Start from the definition of probability.",
+        "math": "$P(E) = \\dfrac{\\text{favourable outcomes}}{\\text{all possible outcomes}}$",
+        "justification": "The classical definition, valid because the outcomes are equally likely (p.203)."
+      },
+      {
+        "claim": "The favourable count is never negative, and the total count is positive, so P(E) is never below 0.",
+        "math": "$P(E) \\ge 0$",
+        "justification": "The least it can be is 0, when NO outcome is favourable - an impossible event, e.g. getting an 8 on a die: 0/6 = 0 (pp.206-207)."
+      },
+      {
+        "claim": "The favourable outcomes are part of all the outcomes, so their count is at most the total; hence P(E) is never above 1.",
+        "math": "$P(E) \\le 1$",
+        "justification": "NCERT: the numerator is always less than or equal to the denominator. The most it can be is 1, when EVERY outcome is favourable - a sure event, e.g. a number less than 7 on a die: 6/6 = 1 (p.207)."
+      },
+      {
+        "claim": "Combining the two bounds gives the range of any probability.",
+        "math": "$0 \\le P(E) \\le 1$",
+        "justification": "Stated in NCERT immediately after the numerator/denominator argument (p.207)."
+      },
+      {
+        "claim": "Now the complement: 'not E' is exactly the outcomes NOT favourable to E, so the two favourable counts add up to the total.",
+        "math": "$(\\text{favourable to }E) + (\\text{favourable to not }E) = \\text{total}$",
+        "justification": "E and 'not E' together cover the whole sample space with no overlap (p.206)."
+      },
+      {
+        "claim": "Divide through by the total count to get the complement rule.",
+        "math": "$P(E) + P(\\overline{E}) = 1 \\;\\Rightarrow\\; P(\\overline{E}) = 1 - P(E)$",
+        "justification": "NCERT: P(E) + P(not E) = 1, which gives P(not E) = 1 - P(E) (p.206)."
+      }
+    ],
+    "source": {
+      "ncert_page": 207,
+      "edition": "2026-27",
+      "chapter": 14,
+      "note": "reasoning drawn from NCERT pp.206-207 (complement on p.206, the 0 <= P(E) <= 1 bounds on p.207); authored derivation, cited - not verbatim"
+    }
+  },
+  "figures": {
+    "fig_dice_sample_space": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "Two dice (blue and grey): the 36 equally likely ordered pairs, with the five cells whose sum is 8 shaded.",
+      "legend": "Every cell is one equally likely outcome. P(sum = 8) = 5/36 - count the shaded anti-diagonal and divide by the 36 total cells.",
+      "generator": "dice_sample_grid",
+      "params": {
+        "rows": [1, 2, 3, 4, 5, 6],
+        "cols": [1, 2, 3, 4, 5, 6],
+        "cell": "ordered pair (blue, grey)",
+        "total": 36,
+        "highlight_rule": "blue + grey == 8",
+        "highlight_cells": [[2, 6], [3, 5], [4, 4], [5, 3], [6, 2]],
+        "highlight_label": "sum = 8  ->  5 / 36"
+      },
+      "asset": "probability/fig_dice_sample_space.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Theoretical (classical) probability",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.203"
+    },
+    {
+      "item": "Elementary event",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.205"
+    },
+    {
+      "item": "Complement / complementary events",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.206"
+    },
+    {
+      "item": "Impossible event",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.207"
+    },
+    {
+      "item": "Sure (certain) event",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.207"
+    },
+    {
+      "item": "Equally likely outcomes",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.202"
+    },
+    {
+      "item": "Sum of elementary events = 1",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.205"
+    },
+    {
+      "item": "Range of P(E)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch14 p.207"
+    },
+    {
+      "item": "Coin toss - a head, and a tail - NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch14 Example 1 p.204"
+    },
+    {
+      "item": "Single die - grouped events - NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch14 Example 3 p.205"
+    },
+    {
+      "item": "Cards - ace / not-ace via the complement - NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch14 Example 4 p.207-208"
+    },
+    {
+      "item": "Complementary events - a tennis match - NCERT Example 5",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch14 Example 5 p.208"
+    },
+    {
+      "item": "Marbles - three colours - NCERT Example 8",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch14 Example 8 p.209"
+    },
+    {
+      "item": "Two dice - sum of the faces - NCERT Example 13",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch14 Example 13 p.212-213"
+    }
+  ]
+}
