@@ -1,0 +1,660 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "arithmetic-progression",
+    "subject": "maths",
+    "chapter_no": 5,
+    "title": "Arithmetic Progressions",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 5 (jemh105.pdf, printed pages 49-72)"
+  },
+  "board_asks": "finding the nth term (or which term / how many terms), the sum of the first n terms, and modelling a real situation as an AP -- these three carry almost every mark here.",
+  "big_idea": {
+    "tagline": "Add the same step, again and again.",
+    "body": "An <b>arithmetic progression</b> is a list of numbers where each term is the previous one plus a fixed step $d$ (the <b>common difference</b>). Pin down just two numbers -- the first term $a$ and the common difference $d$ -- and the whole list is fixed: $a,\\ a+d,\\ a+2d,\\dots$. The chapter answers three questions: <b>what is the nth term?</b> ($a_n = a+(n-1)d$), <b>which term / how many terms?</b> (solve that formula for $n$), and <b>what is the sum of the first n terms?</b> ($S_n = \\dfrac{n}{2}[2a+(n-1)d]$)."
+  },
+  "definitions": [
+    {
+      "id": "def_ap",
+      "tier": "headline",
+      "term": "Arithmetic Progression (AP)",
+      "verbatim": "So, an arithmetic progression is a list of numbers in which each term is obtained by adding a fixed number to the preceding term except the first term.",
+      "plain": "A running list where you reach the next number by adding the SAME fixed amount every time. To test a list, check that consecutive differences are all equal.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 51,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_common_difference",
+      "tier": "headline",
+      "term": "Common difference",
+      "verbatim": "This fixed number is called the common difference of the AP. Remember that it can be positive, negative or zero.",
+      "plain": "$d = a_{k+1} - a_k$ -- subtract any term from the one AFTER it (not before). The sign of $d$ tells you whether the AP rises ($d>0$), falls ($d<0$) or stays flat ($d=0$).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 51,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_general_form",
+      "tier": "headline",
+      "term": "General form of an AP",
+      "verbatim": "a, a + d, a + 2d, a + 3d, . . . represents an arithmetic progression where a is the first term and d the common difference. This is called the general form of an AP.",
+      "plain": "Every AP is captured by two numbers: the first term $a$ and the common difference $d$. Know those and you can write the whole list.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 52,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_nth_term",
+      "tier": "headline",
+      "term": "nth term of an AP",
+      "verbatim": "So, the nth term an of the AP with first term a and common difference d is given by an = a + (n – 1) d.",
+      "plain": "$a_n = a + (n-1)d$ -- take $(n-1)$ steps of size $d$ from the first term. This single formula answers 'find the 20th term', 'which term is 78?', and 'how many terms?' (rearrange for $n$).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 57,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "def_sum_n_terms",
+      "tier": "headline",
+      "term": "Sum of the first n terms",
+      "verbatim": "So, the sum of the first n terms of an AP is given by S = n/2 [2a + (n – 1) d]",
+      "plain": "$S_n = \\dfrac{n}{2}[2a+(n-1)d]$. If the last term $l$ is already known, the shortcut $S_n = \\dfrac{n}{2}(a+l)$ is faster. Note $S_n$ needs the number of terms $n$, not a term's value.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 64,
+        "edition": "2026-27",
+        "chapter": 5,
+        "note": "printed stacked fraction n/2 linearised as n/2 with brackets"
+      }
+    },
+    {
+      "id": "kt_term",
+      "tier": "key-term",
+      "term": "Term",
+      "verbatim": "Each of the numbers in the list is called a term.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 51,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_finite_ap",
+      "tier": "key-term",
+      "term": "Finite AP",
+      "verbatim": "Note that in examples (a) to (e) above, there are only a finite number of terms. Such an AP is called a finite AP.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 52,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_infinite_ap",
+      "tier": "key-term",
+      "term": "Infinite AP",
+      "verbatim": "The APs in examples (i) to (v) in this section, are not finite APs and so they are called infinite Arithmetic Progressions. Such APs do not have a last term.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 52,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_general_term_last_term",
+      "tier": "key-term",
+      "term": "General term and last term (l)",
+      "verbatim": "an is also called the general term of the AP. If there are m terms in the AP, then am represents the last term which is sometimes also denoted by l.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 58,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "kt_arithmetic_mean",
+      "tier": "key-term",
+      "term": "Arithmetic mean",
+      "verbatim": "If a, b, c are in AP, then b = (a + c)/2 and b is called the arithmetic mean of a and c.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 72,
+        "edition": "2026-27",
+        "chapter": 5,
+        "note": "A Note to the Reader; printed stacked fraction (a+c)/2 linearised"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Recognise an AP",
+      "body": "A list is an AP only if the gap between consecutive terms is constant: $a_2-a_1 = a_3-a_2 = \\dots = d$. Compute one or two differences before assuming -- squares ($1,4,9,\\dots$) and doubling lists ($2,4,8,\\dots$) are the classic traps that look regular but are NOT APs.",
+      "tested": "MCQ / 'which of these forms an AP'",
+      "figure_ref": "fig_ap_number_line"
+    },
+    {
+      "id": "c2",
+      "title": "The nth term",
+      "body": "$a_n = a + (n-1)d$. Read off the first term $a$ and common difference $d$, then substitute the position $n$. This is the most-used tool in the chapter.",
+      "tested": "1-2 mark 'find the term'",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Sum of the first n terms",
+      "body": "$S_n = \\dfrac{n}{2}[2a+(n-1)d]$, or $\\dfrac{n}{2}(a+l)$ when the last term $l$ is known. The formula links four quantities $S_n, a, d, n$ -- given any three you can find the fourth.",
+      "tested": "3 mark 'find the sum'",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Solve for n -- which term / how many terms",
+      "body": "Set $a_n$ (or $S_n$) equal to the target value and solve for $n$. $n$ MUST come out a positive integer -- a fractional or negative $n$ means the value is simply not a term of the AP. A sum condition gives a quadratic in $n$, which can yield two valid answers.",
+      "tested": "2-3 mark",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Model a real situation as an AP",
+      "body": "A fixed-increment salary, uniform monthly savings, rows of plants decreasing by a constant, a penalty rising by a fixed step -- extract the first term $a$ and the constant change $d$, then apply the term or the sum formula. Reject any answer the situation forbids (you cannot have a fractional number of rows).",
+      "tested": "3-5 mark applied / case-based",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_3",
+      "shape": "Find the nth term . NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "Find the 10th term of the AP : 2, 7, 12, . . .",
+      "solution_steps": [
+        {
+          "lead": "Read off a, d, n and write the formula.",
+          "text": "$a = 2$, $d = 7 - 2 = 5$, $n = 10$; the nth term is $a_n = a + (n-1)d$.",
+          "concept_tag": "identify a and d",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute and evaluate.",
+          "text": "$a_{10} = 2 + (10-1)\\times 5 = 2 + 45 = 47$. So the 10th term is $47$.",
+          "concept_tag": "substitute into the nth-term formula",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape (Section B): 1 for the correct data + formula $a_n=a+(n-1)d$, 1 for the signed substitution and the answer.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 58,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "Which term is -81? Is any term 0? . NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "Which term of the AP : 21, 18, 15, . . . is – 81? Also, is any term 0? Give reason for your answer.",
+      "solution_steps": [
+        {
+          "lead": "Set up the nth-term equation.",
+          "text": "$a = 21$, $d = 18 - 21 = -3$, $a_n = -81$. Using $a_n = a + (n-1)d$: $\\;-81 = 21 + (n-1)(-3)$.",
+          "concept_tag": "identify a and d",
+          "mark": 1
+        },
+        {
+          "lead": "Solve for n.",
+          "text": "$-81 = 24 - 3n \\Rightarrow -105 = -3n \\Rightarrow n = 35$. So the 35th term is $-81$.",
+          "concept_tag": "solve for n",
+          "mark": 1
+        },
+        {
+          "lead": "Now test whether any term equals 0.",
+          "text": "Put $a_n = 0$: $21 + (n-1)(-3) = 0 \\Rightarrow 3(n-1) = 21 \\Rightarrow n = 8$. So the eighth term is $0$.",
+          "concept_tag": "solve for n (second condition)",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape (Section C): 1 for the equation from $a_n=a+(n-1)d$, 1 for solving to $n=35$, 1 for the second part ($n=8$, so the 8th term is 0). $n$ must be a positive integer -- that is the 'give reason' the question wants.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 58,
+        "edition": "2026-27",
+        "chapter": 5,
+        "note": "problem on p.58, solution runs to p.59"
+      }
+    },
+    {
+      "id": "ex_ncert_11",
+      "shape": "Sum of first n terms . NCERT Example 11",
+      "kind": "numerical",
+      "problem_verbatim": "Find the sum of the first 22 terms of the AP : 8, 3, –2, . . .",
+      "solution_steps": [
+        {
+          "lead": "Read off a, d, n and write the sum formula.",
+          "text": "$a = 8$, $d = 3 - 8 = -5$, $n = 22$; the sum is $S_n = \\dfrac{n}{2}[2a + (n-1)d]$.",
+          "concept_tag": "identify a, d, n",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute and evaluate.",
+          "text": "$S = \\dfrac{22}{2}[16 + 21(-5)] = 11(16 - 105) = 11(-89) = -979$. So the sum of the first 22 terms is $-979$.",
+          "concept_tag": "substitute into the sum formula",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape (Section B): 1 for the data + formula $S_n=\\frac{n}{2}[2a+(n-1)d]$, 1 for the signed substitution and the answer $-979$.",
+      "source": {
+        "ncert_example": "11",
+        "ncert_page": 65,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "ex_ncert_13",
+      "shape": "How many terms give a required sum . NCERT Example 13",
+      "kind": "numerical",
+      "problem_verbatim": "How many terms of the AP : 24, 21, 18, . . . must be taken so that their sum is 78?",
+      "solution_steps": [
+        {
+          "lead": "Write the sum condition.",
+          "text": "$a = 24$, $d = 21 - 24 = -3$, $S_n = 78$. So $78 = \\dfrac{n}{2}[48 + (n-1)(-3)] = \\dfrac{n}{2}(51 - 3n)$.",
+          "concept_tag": "set up the sum equation",
+          "mark": 1
+        },
+        {
+          "lead": "Reduce to a quadratic in n.",
+          "text": "$3n^2 - 51n + 156 = 0 \\Rightarrow n^2 - 17n + 52 = 0 \\Rightarrow (n-4)(n-13) = 0$.",
+          "concept_tag": "quadratic in n",
+          "mark": 1
+        },
+        {
+          "lead": "Read off n -- both roots are valid.",
+          "text": "$n = 4$ or $n = 13$; both are admissible, so the number of terms is either $4$ or $13$ (the terms from the 5th to the 13th sum to zero).",
+          "concept_tag": "interpret both roots",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape (Section C): 1 for the sum equation, 1 for reducing to $n^2-17n+52=0$, 1 for both admissible values $n=4$ or $13$. Reporting only one value is the classic lost mark.",
+      "source": {
+        "ncert_example": "13",
+        "ncert_page": 66,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "ex_ncert_10",
+      "shape": "Word problem -- how many rows . NCERT Example 10",
+      "kind": "numerical",
+      "problem_verbatim": "In a flower bed, there are 23 rose plants in the first row, 21 in the second, 19 in the third, and so on. There are 5 rose plants in the last row. How many rows are there in the flower bed?",
+      "solution_steps": [
+        {
+          "lead": "Model the rows as an AP.",
+          "text": "The counts $23, 21, 19, \\dots, 5$ form an AP with $a = 23$, $d = 21 - 23 = -2$, and last term $a_n = 5$.",
+          "concept_tag": "model the situation",
+          "mark": 1
+        },
+        {
+          "lead": "Write the nth-term equation.",
+          "text": "Using $a_n = a + (n-1)d$: $\\;5 = 23 + (n-1)(-2)$.",
+          "concept_tag": "apply the nth-term formula",
+          "mark": 1
+        },
+        {
+          "lead": "Solve for the number of rows.",
+          "text": "$-18 = (n-1)(-2) \\Rightarrow n - 1 = 9 \\Rightarrow n = 10$. So there are $10$ rows in the flower bed.",
+          "concept_tag": "solve for n",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape (Section C): 1 for recognising the AP and reading $a$, $d$, last term; 1 for the equation $5 = 23 + (n-1)(-2)$; 1 for solving to $n = 10$ rows (a count, so a positive integer).",
+      "source": {
+        "ncert_example": "10",
+        "ncert_page": 61,
+        "edition": "2026-27",
+        "chapter": 5
+      }
+    },
+    {
+      "id": "ex_ncert_16",
+      "shape": "Multi-part word problem -- production . NCERT Example 16",
+      "kind": "numerical",
+      "problem_verbatim": "A manufacturer of TV sets produced 600 sets in the third year and 700 sets in the seventh year. Assuming that the production increases uniformly by a fixed number every year, find : (i) the production in the 1st year (ii) the production in the 10th year (iii) the total production in first 7 years",
+      "solution_steps": [
+        {
+          "lead": "Model production as an AP and use the two given terms.",
+          "text": "Let $a_n$ be the sets made in year $n$. Uniform increase means an AP. Given $a_3 = 600$ and $a_7 = 700$: $\\;a + 2d = 600$ and $a + 6d = 700$.",
+          "concept_tag": "model the situation",
+          "mark": 1
+        },
+        {
+          "lead": "Solve the pair -- (i) first-year production.",
+          "text": "Subtracting: $4d = 100 \\Rightarrow d = 25$, and $a = 550$. So the production in the 1st year is $550$.",
+          "concept_tag": "solve for a and d",
+          "mark": 1
+        },
+        {
+          "lead": "(ii) Production in the 10th year.",
+          "text": "$a_{10} = a + 9d = 550 + 9\\times 25 = 775$ sets.",
+          "concept_tag": "nth-term formula",
+          "mark": 1
+        },
+        {
+          "lead": "(iii) Set up the sum for the first 7 years.",
+          "text": "$S_7 = \\dfrac{7}{2}[2\\times 550 + (7-1)\\times 25] = \\dfrac{7}{2}[1100 + 150]$.",
+          "concept_tag": "apply the sum formula",
+          "mark": 1
+        },
+        {
+          "lead": "Evaluate the total production.",
+          "text": "$S_7 = \\dfrac{7}{2}\\times 1250 = 4375$ sets in the first 7 years.",
+          "concept_tag": "evaluate the sum",
+          "mark": 1
+        }
+      ],
+      "marks_total": 5,
+      "mark_logic": "5-mark shape (Section D): 1 for modelling + the two equations, 1 for solving to $a=550$ (part i), 1 for $a_{10}=775$ (part ii), 1 for the sum set-up, 1 for $S_7 = 4375$ (part iii). Each of the three parts carries its own credit.",
+      "source": {
+        "ncert_example": "16",
+        "ncert_page": 67,
+        "edition": "2026-27",
+        "chapter": 5,
+        "note": "problem on p.67, solution runs to p.68"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Given a list -- is it an AP?",
+      "text": "Check the differences: $a_2-a_1$, $a_3-a_2$. Equal every time means AP with that value as $d$; one mismatch means it is not."
+    },
+    {
+      "cue": "Find a particular term?",
+      "text": "Read off $a$ and $d$, then $a_n = a + (n-1)d$."
+    },
+    {
+      "cue": "Which term / how many terms?",
+      "text": "Set $a_n$ (or $S_n$) equal to the target and solve for $n$. $n$ must be a positive integer."
+    },
+    {
+      "cue": "Sum asked?",
+      "text": "$S_n = \\dfrac{n}{2}[2a+(n-1)d]$; if the last term $l$ is known, $S_n = \\dfrac{n}{2}(a+l)$ is quicker."
+    },
+    {
+      "cue": "Word problem?",
+      "text": "Pull the first term $a$ and the fixed change $d$ from the situation, apply the term or sum formula, then reject any impossible answer."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Subtracting the wrong way for $d$</b> -- always (later term $-$ earlier term). For $6, 3, 0, -3, \\dots$ the common difference is $-3$, not $+3$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Confusing a term's value with its position $n$</b> -- 'which term is 78?' asks for $n$, not for a value.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Putting a term value where $n$ belongs</b> inside $S_n = \\dfrac{n}{2}[2a+(n-1)d]$ -- the sum formula uses the number of terms.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Forgetting $n$ must be a positive integer</b> -- a fractional or negative $n$ means the number is NOT a term of the AP.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Mixing the two sum forms</b> -- $\\dfrac{n}{2}[2a+(n-1)d]$ needs $a$ and $d$; $\\dfrac{n}{2}(a+l)$ needs the last term $l$.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "General form",
+      "math": "$a,\\ a+d,\\ a+2d,\\ a+3d,\\ \\dots$"
+    },
+    {
+      "label": "Common difference",
+      "math": "$d = a_{k+1} - a_k$"
+    },
+    {
+      "label": "nth term",
+      "math": "$a_n = a + (n-1)d$"
+    },
+    {
+      "label": "Sum of n terms",
+      "math": "$S_n = \\dfrac{n}{2}\\,[2a + (n-1)d]$"
+    },
+    {
+      "label": "Sum with last term l",
+      "math": "$S_n = \\dfrac{n}{2}\\,(a + l)$"
+    }
+  ],
+  "mindmap": {
+    "root": "Arithmetic Progressions -- a, a+d, a+2d, . . .",
+    "branches": [
+      {
+        "label": "What is an AP?",
+        "children": [
+          "Constant common difference d",
+          "d = a(k+1) - a(k), any consecutive pair",
+          "d can be +, - or 0",
+          "General form a, a+d, a+2d, . . ."
+        ]
+      },
+      {
+        "label": "nth term (1-2 mk)",
+        "children": [
+          "a(n) = a + (n-1)d",
+          "general term; last term = l",
+          "find a specific term"
+        ]
+      },
+      {
+        "label": "Sum of n terms (3 mk)",
+        "children": [
+          "S(n) = n/2 [2a + (n-1)d]",
+          "S(n) = n/2 (a + l) when l known",
+          "links S, a, d, n -- any 3 give the 4th"
+        ]
+      },
+      {
+        "label": "Solve for n (2-3 mk)",
+        "children": [
+          "which term / how many terms",
+          "set a(n) or S(n) = target",
+          "n must be a positive integer",
+          "sum -> quadratic in n -> two answers possible"
+        ]
+      },
+      {
+        "label": "Word problems (3-5 mk)",
+        "children": [
+          "salary / savings / rows / penalty",
+          "pull a and d from the situation",
+          "apply term or sum formula",
+          "reject the impossible answer"
+        ]
+      },
+      {
+        "label": "Don't lose marks on...",
+        "children": [
+          "wrong-way subtraction for d",
+          "term value vs position n",
+          "n must be a whole number",
+          "pick the right sum form"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Sum of the first n terms -- where the formula comes from",
+    "intro": "NCERT motivates the sum formula with Gauss's schoolboy trick (p.63): to add 1 to 100 he wrote the list forwards, then backwards, and added the two lines so every column gave the same total 101. The same reversal turns the sum of ANY AP into n identical pairs -- that is the whole derivation.",
+    "steps": [
+      {
+        "claim": "Write the sum of the first n terms.",
+        "math": "$S = a + (a+d) + (a+2d) + \\dots + [a + (n-1)d]$"
+      },
+      {
+        "claim": "Write the same sum again, terms reversed.",
+        "math": "$S = [a + (n-1)d] + [a + (n-2)d] + \\dots + (a+d) + a$"
+      },
+      {
+        "claim": "Add the two lines term by term -- each of the n column-pairs gives the same total.",
+        "math": "$2S = [2a + (n-1)d] + \\dots + [2a + (n-1)d]\\quad (n\\text{ times})$",
+        "justification": "First+last, second+second-last, and so on each equal 2a + (n-1)d."
+      },
+      {
+        "claim": "There are n equal pairs.",
+        "math": "$2S = n\\,[2a + (n-1)d]$"
+      },
+      {
+        "claim": "Divide by 2 -- the sum formula.",
+        "math": "$S = \\dfrac{n}{2}\\,[2a + (n-1)d]$"
+      },
+      {
+        "claim": "Regroup a + (n-1)d as the last term to get the a-and-l form.",
+        "math": "$S = \\dfrac{n}{2}(a + a_n) = \\dfrac{n}{2}(a + l)$",
+        "justification": "Useful when the first term a and last term l are known but d is not (NCERT form (4), p.64)."
+      }
+    ],
+    "source": {
+      "ncert_page": 64,
+      "edition": "2026-27",
+      "chapter": 5,
+      "note": "Gauss motivation on p.63; the reversal derivation and both forms on p.64 (Summary points 4-5, p.72)"
+    }
+  },
+  "figures": {
+    "fig_ap_number_line": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "An AP on the number line -- every hop adds the same common difference d",
+      "legend": "Terms a, a+d, a+2d, . . . sit at equal gaps of d. A constant hop is exactly what makes a list an AP; change the hop and it stops being one.",
+      "generator": "ap_number_line",
+      "params": {
+        "a": 2,
+        "d": 3,
+        "n": 6,
+        "hop_label": "+d",
+        "note": "renders 2, 5, 8, 11, 14, 17 as equally-spaced ticks with +d arcs between consecutive terms"
+      },
+      "asset": "arithmetic-progression/fig_ap_number_line.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Arithmetic Progression (AP)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.51"
+    },
+    {
+      "item": "Common difference",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.51"
+    },
+    {
+      "item": "General form of an AP",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.52"
+    },
+    {
+      "item": "nth term of an AP",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.57"
+    },
+    {
+      "item": "Sum of the first n terms",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.64"
+    },
+    {
+      "item": "Term",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.51"
+    },
+    {
+      "item": "Finite AP",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.52"
+    },
+    {
+      "item": "Infinite AP",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.52"
+    },
+    {
+      "item": "General term and last term (l)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.58"
+    },
+    {
+      "item": "Arithmetic mean",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch5 p.72 (A Note to the Reader)"
+    },
+    {
+      "item": "Find the nth term . NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch5 Example 3 p.58"
+    },
+    {
+      "item": "Which term is -81? Is any term 0? . NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch5 Example 4 p.58-59"
+    },
+    {
+      "item": "Sum of first n terms . NCERT Example 11",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch5 Example 11 p.65"
+    },
+    {
+      "item": "How many terms give a required sum . NCERT Example 13",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch5 Example 13 p.66"
+    },
+    {
+      "item": "Word problem -- how many rows . NCERT Example 10",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch5 Example 10 p.61"
+    },
+    {
+      "item": "Multi-part word problem -- production . NCERT Example 16",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch5 Example 16 p.67-68"
+    }
+  ]
+}

@@ -1,0 +1,664 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "control-and-coordination",
+    "subject": "biology",
+    "chapter_no": 6,
+    "title": "Control and Coordination",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Diagrams",
+      "kind": "diagrams"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 6"
+  },
+  "board_asks": "label-and-explain diagrams (the neuron, the reflex arc, the human brain and the endocrine glands), the reflex-action pathway traced step-by-step, comparison questions (reflex vs voluntary action, nervous vs hormonal control, plant movement by touch vs by growth), the plant and animal hormones with their glands and functions (Table 6.1), and short why/how reasoning - a diagram-rich chapter where most marks reward the exact NCERT terms.",
+  "big_idea": {
+    "tagline": "Living bodies stay coordinated in two ways - fast electrical nerve signals and slower chemical hormones.",
+    "body": "A multicellular body must recognise changes around it and respond with just the right action. Animals do this with a nervous system that carries information as electrical impulses and with hormones carried in the blood; plants, having no nerves or muscles, rely on changes in water content and on hormones that direct their growth. In Class 10 this chapter is examined mainly through labelled diagrams and step-by-step explanations, so most marks reward the exact NCERT terms and correctly labelled structures."
+  },
+  "definitions": [
+    {
+      "id": "def_receptors",
+      "tier": "headline",
+      "term": "Receptors",
+      "verbatim": "These receptors are usually located in our sense organs, such as the inner ear, the nose, the tongue, and so on.",
+      "plain": "Specialised nerve-cell tips in the sense organs that detect a particular kind of stimulus - gustatory receptors detect taste, olfactory receptors detect smell.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 101,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_nervous_tissue",
+      "tier": "headline",
+      "term": "Nervous tissue",
+      "verbatim": "Nervous tissue is made up of an organised network of nerve cells or neurons, and is specialised for conducting information via electrical impulses from one part of the body to another.",
+      "plain": "The tissue built from neurons that carries information rapidly, as electrical impulses, from one part of the body to another.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 101,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_reflex_arc",
+      "tier": "headline",
+      "term": "Reflex arc",
+      "verbatim": "Such a connection is commonly called a reflex arc.",
+      "plain": "The short nerve pathway - receptor to sensory neuron to spinal cord to motor neuron to effector - that gives a quick automatic response without waiting for the brain to think.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 102,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_cns",
+      "tier": "headline",
+      "term": "Central nervous system",
+      "verbatim": "The brain and spinal cord constitute the central nervous system.",
+      "plain": "The brain plus the spinal cord - the main coordinating centre that receives information from all parts of the body and integrates it.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 103,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_cerebellum",
+      "tier": "headline",
+      "term": "Cerebellum",
+      "verbatim": "These are possible due to a part of the hind-brain called the cerebellum. It is responsible for precision of voluntary actions and maintaining the posture and balance of the body.",
+      "plain": "The part of the hind-brain that fine-tunes voluntary movements and keeps the body balanced - it lets you walk in a straight line, ride a bicycle or pick up a pencil.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 104,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_phototropism",
+      "tier": "headline",
+      "term": "Phototropism",
+      "verbatim": "So, in two different kinds of phototropic movement, shoots respond by bending towards light while roots respond by bending away from it.",
+      "plain": "Directional growth of a plant part in response to light - the shoot grows towards it (positive), the root grows away from it (negative).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 107,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_auxin",
+      "tier": "headline",
+      "term": "Auxin",
+      "verbatim": "When growing plants detect light, a hormone called auxin, synthesised at the shoot tip, helps the cells to grow longer.",
+      "plain": "A plant hormone made at the shoot tip that makes cells elongate; by collecting on the shady side of the shoot it bends the shoot towards light.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 108,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_adrenaline",
+      "tier": "headline",
+      "term": "Adrenaline",
+      "verbatim": "This is done in many animals, including human beings, using a hormone called adrenaline that is secreted from the adrenal glands.",
+      "plain": "The fight-or-flight hormone from the adrenal glands - it makes the heart beat faster, raises the breathing rate and diverts blood to the skeletal muscles to ready the body for action.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 109,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_synapse",
+      "tier": "key-term",
+      "term": "Synapse",
+      "verbatim": "These chemicals cross the gap, or synapse, and start a similar electrical impulse in a dendrite of the next neuron.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 101,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_peripheral",
+      "tier": "key-term",
+      "term": "Peripheral nervous system",
+      "verbatim": "The communication between the central nervous system and the other parts of the body is facilitated by the peripheral nervous system consisting of cranial nerves arising from the brain and spinal nerves arising from the spinal cord.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 103,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_medulla",
+      "tier": "key-term",
+      "term": "Medulla",
+      "verbatim": "All these involuntary actions including blood pressure, salivation and vomiting are controlled by the medulla in the hind-brain.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 104,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_geotropism",
+      "tier": "key-term",
+      "term": "Geotropism",
+      "verbatim": "This upward and downward growth of shoots and roots, respectively, in response to the pull of earth or gravity is, obviously, geotropism.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 107,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_abscisic_acid",
+      "tier": "key-term",
+      "term": "Abscisic acid",
+      "verbatim": "Abscisic acid is one example of a hormone which inhibits growth. Its effects include wilting of leaves.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 108,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_thyroxin",
+      "tier": "key-term",
+      "term": "Thyroxin",
+      "verbatim": "Iodine is necessary for the thyroid gland to make thyroxin hormone. Thyroxin regulates carbohydrate, protein and fat metabolism in the body so as to provide the best balance for growth.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 110,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_insulin",
+      "tier": "key-term",
+      "term": "Insulin",
+      "verbatim": "This is a hormone which is produced by the pancreas and helps in regulating blood sugar levels.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 110,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_feedback_mechanism",
+      "tier": "key-term",
+      "term": "Feedback mechanism",
+      "verbatim": "The timing and amount of hormone released are regulated by feedback mechanisms.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 111,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "The neuron and the nerve impulse",
+      "body": "Receptors in the sense organs pick up a stimulus at the dendritic tip of a neuron; this sets off an electrical impulse that travels dendrite to cell body to axon. At the axon end the impulse releases chemicals that cross the synapse to start a fresh impulse in the next neuron (or in a muscle or gland).",
+      "tested": "5-mark: draw and label a neuron and explain its function; what happens at the synapse between two neurons.",
+      "figure_ref": "fig_neuron"
+    },
+    {
+      "id": "c2",
+      "title": "Reflex action and the reflex arc",
+      "body": "A reflex is a quick, automatic response to a stimulus. Because conscious thinking would be too slow, the sensory nerve is connected to the motor nerve in the spinal cord, forming a reflex arc: receptor to sensory neuron to spinal cord (relay) to motor neuron to effector. The information still travels on to the brain, but the response does not wait for it.",
+      "tested": "5-mark: what is a reflex arc; trace a reflex action; how are reflex actions different from voluntary and involuntary actions.",
+      "figure_ref": "fig_reflex_arc"
+    },
+    {
+      "id": "c3",
+      "title": "The human brain and its protection",
+      "body": "The brain has three regions - fore-brain (main thinking part; sensory areas, voluntary motor control, and a hunger centre), mid-brain and hind-brain. Involuntary actions such as blood pressure, salivation and vomiting are controlled by the medulla; posture, balance and precision of voluntary movement are controlled by the cerebellum. The brain sits in a bony box (cranium) cushioned by fluid, and the vertebral column protects the spinal cord.",
+      "tested": "5-mark: label the human brain and give the functions of cerebrum, cerebellum and medulla; how are the brain and spinal cord protected.",
+      "figure_ref": "fig_brain"
+    },
+    {
+      "id": "c4",
+      "title": "Coordination in plants - two kinds of movement",
+      "body": "Plants have neither nerves nor muscles, yet they respond. Some movements are immediate and independent of growth - the sensitive plant (touch-me-not) folds its leaves by changing the amount of water in its cells, so they swell or shrink. Other movements are directional and caused by growth (tropisms), and are much slower.",
+      "tested": "3-mark: how is the movement of the sensitive plant different from the movement of a shoot towards light; how do plants respond without a nervous system.",
+      "figure_ref": "fig_geotropism"
+    },
+    {
+      "id": "c5",
+      "title": "Tropisms and plant hormones",
+      "body": "Directional growth movements are named after the trigger: phototropism (light), geotropism (gravity), hydrotropism (water) and chemotropism (chemicals). Plant hormones coordinate this: auxin (made at the shoot tip) causes elongation and bending towards light, gibberellins help stem growth, cytokinins promote cell division (abundant in fruits and seeds), and abscisic acid inhibits growth and causes wilting.",
+      "tested": "3-mark: define phototropism and geotropism; name plant hormones and their functions; how does auxin make a shoot bend towards light.",
+      "figure_ref": "fig_phototropism"
+    },
+    {
+      "id": "c6",
+      "title": "Hormones and the endocrine system in animals",
+      "body": "Animal hormones are secreted by endocrine glands directly into the blood and act on target organs. Adrenaline (adrenal glands) prepares the body for fight-or-flight; thyroxin (thyroid, needs iodine) regulates metabolism, and its deficiency causes goitre; insulin (pancreas) regulates blood sugar, and its deficiency causes diabetes; growth hormone (pituitary) controls growth, and its deficiency in childhood causes dwarfism; testosterone and oestrogen bring about the changes of puberty. A feedback mechanism keeps each hormone at the right level.",
+      "tested": "3-5 mark: match hormone-gland-function (Table 6.1); why is iodised salt advisable; how does the body respond to adrenaline; why are diabetics given insulin injections.",
+      "figure_ref": "fig_endocrine"
+    }
+  ],
+  "examples": [
+    {
+      "id": "reflex-arc-hot-object",
+      "shape": "Reflex action - withdrawing the hand from a hot object",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Trace, step by step, what happens in the reflex arc when you touch a hot object and pull your hand back.",
+      "solution_steps": [
+        {
+          "lead": "Receptor detects the stimulus.",
+          "text": "Heat and pain receptors in the skin of the hand detect the dangerous stimulus and generate a nerve impulse.",
+          "mark": 1
+        },
+        {
+          "lead": "Sensory neuron carries the input.",
+          "text": "The sensory neuron carries this impulse from the receptor towards the spinal cord.",
+          "mark": 1
+        },
+        {
+          "lead": "Relay in the spinal cord (the reflex arc).",
+          "text": "In the spinal cord the impulse is passed - through a relay neuron - straight from the incoming sensory nerve to the outgoing motor nerve, forming the reflex arc; the information also travels on to the brain.",
+          "mark": 1
+        },
+        {
+          "lead": "Motor neuron carries the output.",
+          "text": "The motor neuron carries the impulse from the spinal cord to the effector.",
+          "mark": 1
+        },
+        {
+          "lead": "Effector responds.",
+          "text": "The effector - the muscle in the arm - contracts and the hand is pulled back, all before the brain has consciously felt the pain.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 5,
+      "mark_logic": "CBSE 5-mark - 1 mark each for the receptor, the sensory neuron, the spinal-cord relay (the reflex arc), the motor neuron and the effector muscle response. The reflex arc is formed in the spinal cord so the response is quick; the signal still reaches the brain but the action does not wait for it.",
+      "source": {
+        "ncert_example": "Fig. 6.2 reflex-arc walkthrough",
+        "ncert_page": 102,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "nerve-impulse-synapse",
+      "shape": "Transmission of a nerve impulse across a synapse",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Explain how a nerve impulse is generated in a neuron and passed on to the next neuron across a synapse.",
+      "solution_steps": [
+        {
+          "lead": "Information picked up at the dendrite.",
+          "text": "Information acquired at the dendritic tip of a nerve cell sets off a chemical reaction that creates an electrical impulse.",
+          "mark": 1
+        },
+        {
+          "lead": "Impulse travels through the neuron.",
+          "text": "This impulse travels from the dendrite to the cell body, and then along the axon to its end.",
+          "mark": 1
+        },
+        {
+          "lead": "Chemical crossing at the synapse.",
+          "text": "At the end of the axon the impulse releases some chemicals; these cross the gap, the synapse, and start a similar electrical impulse in a dendrite of the next neuron.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the impulse being generated at the dendritic tip, 1 for its passage dendrite to cell body to axon, and 1 for the chemical transmission across the synapse to the next neuron. The one-way chemical crossing at the synapse is the point examiners look for.",
+      "source": {
+        "ncert_example": "Fig. 6.1 neuron walkthrough",
+        "ncert_page": 101,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "phototropism-shoot-bending",
+      "shape": "How a shoot bends towards light (phototropism)",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Explain, using the hormone auxin, how the shoot of a plant bends towards light coming from one side.",
+      "solution_steps": [
+        {
+          "lead": "Light detected from one side.",
+          "text": "A growing shoot detects light coming from one side of the plant.",
+          "mark": 0.5
+        },
+        {
+          "lead": "Auxin is made at the tip.",
+          "text": "The hormone auxin is synthesised at the shoot tip.",
+          "mark": 0.5
+        },
+        {
+          "lead": "Auxin redistributes.",
+          "text": "Auxin diffuses towards the shady side of the shoot, away from the light.",
+          "mark": 1
+        },
+        {
+          "lead": "Unequal growth bends the shoot.",
+          "text": "The higher concentration of auxin makes the cells on the shady side grow longer, so the shoot appears to bend towards the light.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - half a mark for detecting one-sided light, half for auxin made at the shoot tip, 1 for auxin diffusing to the shady side, and 1 for the greater elongation on the shady side that bends the shoot towards light. The key idea is that auxin collects on the side away from the light.",
+      "source": {
+        "ncert_example": "Section 6.2 auxin walkthrough",
+        "ncert_page": 108,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "blood-sugar-feedback",
+      "shape": "Hormonal control of blood sugar (feedback)",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Describe how the level of sugar in the blood is controlled by insulin through a feedback mechanism.",
+      "solution_steps": [
+        {
+          "lead": "Rise detected by the pancreas.",
+          "text": "When the sugar level in the blood rises, it is detected by the cells of the pancreas.",
+          "mark": 1
+        },
+        {
+          "lead": "Insulin is secreted.",
+          "text": "The pancreas responds by producing more of the hormone insulin, which is carried in the blood and helps to regulate (lower) the blood sugar level.",
+          "mark": 1
+        },
+        {
+          "lead": "Feedback switches secretion down.",
+          "text": "As the blood sugar level falls, insulin secretion is reduced - this feedback keeps the hormone at just the right amount.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the pancreas sensing the rise in blood sugar, 1 for secreting insulin to bring it down, and 1 for the feedback that lowers insulin secretion once the sugar level falls. This is the standard example of a hormone controlled by a feedback mechanism.",
+      "source": {
+        "ncert_example": "Section 6.3 feedback walkthrough",
+        "ncert_page": 111,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Diagram question?",
+      "text": "Draw it large and label with straight ruled lines, using the exact NCERT terms - cerebellum not balance centre, medulla not brain stem, axon not tail. The neuron, reflex arc, human brain and endocrine-gland diagrams are the ones most often asked."
+    },
+    {
+      "cue": "Differences between asked?",
+      "text": "Answer in a two-column table - reflex action vs walking (voluntary), reflex vs involuntary action, nervous vs hormonal control, sensitive-plant movement vs growth movement. One crisp point per row scores faster than a paragraph."
+    },
+    {
+      "cue": "Hormone question?",
+      "text": "Pair every hormone with its gland AND its function (Table 6.1): adrenaline-adrenal gland-fight or flight, thyroxin-thyroid-metabolism (needs iodine), insulin-pancreas-blood sugar, growth hormone-pituitary-growth. Examiners credit the gland and the function separately."
+    },
+    {
+      "cue": "Why or how add-on?",
+      "text": "Board answers want the reason, not just the description - a reflex arc is quicker because the response is decided in the spinal cord, not the brain; iodised salt is advised because iodine is needed to make thyroxin. State the cause."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Writing that a reflex action is controlled by the brain - it is completed by the spinal-cord reflex arc; the impulse also reaches the brain, but the response does not wait for it.",
+      "owner_verified": false
+    },
+    {
+      "text": "Swapping the neuron parts: the dendrite RECEIVES information, the axon CARRIES the impulse away, and the gap between two neurons is the synapse (not the axon).",
+      "owner_verified": false
+    },
+    {
+      "text": "Mixing up cerebellum and medulla: the cerebellum controls posture, balance and precision of voluntary movement; the medulla controls involuntary actions such as blood pressure, salivation and vomiting.",
+      "owner_verified": false
+    },
+    {
+      "text": "Confusing plant hormones: auxin, gibberellin and cytokinin PROMOTE growth, while abscisic acid INHIBITS growth (it causes wilting). Naming abscisic acid as a growth promoter loses the mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "Calling insulin or adrenaline a plant hormone - the plant hormones are auxin, gibberellin, cytokinin and abscisic acid; insulin, adrenaline, thyroxin and growth hormone are animal hormones.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Neuron path",
+      "math": "Dendrite (receives) to cell body to axon to nerve ending; the gap to the next cell is the synapse"
+    },
+    {
+      "label": "Reflex arc",
+      "math": "Receptor to sensory neuron to spinal cord (relay) to motor neuron to effector muscle"
+    },
+    {
+      "label": "Brain regions",
+      "math": "Fore-brain - thinking, senses, voluntary action, hunger; mid-brain and hind-brain - involuntary; cerebellum - posture and balance; medulla - blood pressure, salivation, vomiting"
+    },
+    {
+      "label": "Plant tropisms",
+      "math": "Phototropism (light), geotropism (gravity), hydrotropism (water), chemotropism (chemicals)"
+    },
+    {
+      "label": "Plant hormones",
+      "math": "Auxin - elongation and bending; gibberellin - stem growth; cytokinin - cell division; abscisic acid - inhibits growth (wilting)"
+    },
+    {
+      "label": "Animal hormones (Table 6.1)",
+      "math": "Growth hormone - pituitary; thyroxin - thyroid (needs iodine); insulin - pancreas (blood sugar); adrenaline - adrenal gland; testosterone - testes; oestrogen - ovaries"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "diagrams",
+    "intro": "The diagrams you must be able to draw and label - Control and Coordination is examined heavily through labelled figures. Learn each one in the exact NCERT form.",
+    "diagrams": [
+      "fig_neuron",
+      "fig_reflex_arc",
+      "fig_brain",
+      "fig_phototropism",
+      "fig_geotropism",
+      "fig_endocrine"
+    ]
+  },
+  "figures": {
+    "fig_neuron": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 6.1(a)",
+      "caption": "Structure of a neuron",
+      "legend": "The nerve cell - dendrites (receive information) around the cell body with its nucleus, the long axon that carries the impulse, ending in the nerve endings that pass it on.",
+      "source": {
+        "pdf": "jesc106",
+        "edition": "2026-27",
+        "ncert_fig": "6.1(a)",
+        "page_pdf": 2,
+        "printed_page": 101,
+        "crop": [906, 198, 1704, 600],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
+      },
+      "asset": "control-and-coordination/fig_neuron.webp"
+    },
+    "fig_reflex_arc": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 6.2",
+      "caption": "Reflex arc",
+      "legend": "The pathway of a reflex - heat/pain receptors in the skin, the sensory neuron to the spinal cord (CNS), the relay and motor neurons, and the effector muscle in the arm; the message also travels on to the brain.",
+      "source": {
+        "pdf": "jesc106",
+        "edition": "2026-27",
+        "ncert_fig": "6.2",
+        "page_pdf": 4,
+        "printed_page": 103,
+        "crop": [360, 204, 1596, 840],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
+      },
+      "asset": "control-and-coordination/fig_reflex_arc.webp"
+    },
+    "fig_brain": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 6.3",
+      "caption": "Human brain",
+      "legend": "Sectional view - fore-brain (cerebrum) inside the cranium, mid-brain, and the hind-brain parts (pons, medulla, cerebellum) leading to the spinal cord; the hypothalamus and pituitary gland are also labelled.",
+      "source": {
+        "pdf": "jesc106",
+        "edition": "2026-27",
+        "ncert_fig": "6.3",
+        "page_pdf": 5,
+        "printed_page": 104,
+        "crop": [336, 522, 1560, 1218],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
+      },
+      "asset": "control-and-coordination/fig_brain.webp"
+    },
+    "fig_phototropism": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 6.5",
+      "caption": "Response of the plant to the direction of light",
+      "legend": "A germinated seedling in a flask inside a box open towards a window - the shoot bends towards the light while the roots grow away from it (phototropism).",
+      "source": {
+        "pdf": "jesc106",
+        "edition": "2026-27",
+        "ncert_fig": "6.5",
+        "page_pdf": 8,
+        "printed_page": 107,
+        "crop": [996, 270, 1704, 732],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
+      },
+      "asset": "control-and-coordination/fig_phototropism.webp"
+    },
+    "fig_geotropism": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 6.6",
+      "caption": "Plant showing geotropism",
+      "legend": "A potted plant laid on its side - the shoot turns upward, away from gravity (negatively geotropic) while the root turns downward, towards gravity (positively geotropic).",
+      "source": {
+        "pdf": "jesc106",
+        "edition": "2026-27",
+        "ncert_fig": "6.6",
+        "page_pdf": 8,
+        "printed_page": 107,
+        "crop": [1140, 924, 1704, 1266],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
+      },
+      "asset": "control-and-coordination/fig_geotropism.webp"
+    },
+    "fig_endocrine": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 6.7",
+      "caption": "Endocrine glands in human beings (a) male, (b) female",
+      "legend": "The endocrine glands and their positions - hypothalamus, pineal and pituitary glands, thyroid and parathyroid glands, thymus, pancreas, adrenal glands, and the testis (male) or ovaries and uterus (female).",
+      "source": {
+        "pdf": "jesc106",
+        "edition": "2026-27",
+        "ncert_fig": "6.7",
+        "page_pdf": 11,
+        "printed_page": 110,
+        "crop": [132, 180, 1632, 1002],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; both male and female panels captured; eye-confirmed, no watermark or text bleed"
+      },
+      "asset": "control-and-coordination/fig_endocrine.webp"
+    }
+  },
+  "mindmap": {
+    "root": "Control and Coordination",
+    "branches": [
+      {
+        "label": "Nervous system (animals)",
+        "children": [
+          "Receptors in the sense organs detect stimuli",
+          "Neuron - dendrite to cell body to axon; the synapse passes it on",
+          "Reflex action - reflex arc formed in the spinal cord (quick)",
+          "Brain - fore / mid / hind; cerebellum (balance), medulla (involuntary)",
+          "Protected by the skull, fluid and the vertebral column"
+        ]
+      },
+      {
+        "label": "Coordination in plants",
+        "children": [
+          "Immediate movement - touch (sensitive plant folds by changing water content)",
+          "Growth movement - tropisms (slower)",
+          "Phototropism (light), geotropism (gravity), hydrotropism, chemotropism",
+          "No nerves or muscles - uses electrical-chemical and hormonal signals"
+        ]
+      },
+      {
+        "label": "Chemical coordination - hormones",
+        "children": [
+          "Plant hormones - auxin, gibberellin, cytokinin, abscisic acid",
+          "Auxin makes the shoot bend towards light",
+          "Animal hormones - endocrine glands secrete into the blood",
+          "Adrenaline, thyroxin, insulin, growth hormone, sex hormones",
+          "A feedback mechanism keeps the amount right"
+        ]
+      },
+      {
+        "label": "Don't lose marks on",
+        "children": [
+          "A reflex action is completed by the spinal cord, not the brain",
+          "Dendrite receives, axon carries, the synapse is the gap",
+          "Cerebellum = balance; medulla = involuntary actions",
+          "Abscisic acid INHIBITS growth"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    { "item": "Receptors", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.101" },
+    { "item": "Nervous tissue", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.101" },
+    { "item": "Reflex arc", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.102" },
+    { "item": "Central nervous system", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.103" },
+    { "item": "Cerebellum", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.104" },
+    { "item": "Phototropism", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.107" },
+    { "item": "Auxin", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.108" },
+    { "item": "Adrenaline", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.109" },
+    { "item": "Synapse", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.101" },
+    { "item": "Peripheral nervous system", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.103" },
+    { "item": "Medulla", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.104" },
+    { "item": "Geotropism", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.107" },
+    { "item": "Abscisic acid", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.108" },
+    { "item": "Thyroxin", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.110" },
+    { "item": "Insulin", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.110" },
+    { "item": "Feedback mechanism", "type": "verbatim", "source": "NCERT 2026-27 Ch6 p.111" },
+    { "item": "Reflex action - withdrawing the hand from a hot object", "type": "example", "source": "NCERT 2026-27 Ch6 Fig 6.2 pp.102-103" },
+    { "item": "Transmission of a nerve impulse across a synapse", "type": "example", "source": "NCERT 2026-27 Ch6 Fig 6.1 p.101" },
+    { "item": "How a shoot bends towards light (phototropism)", "type": "example", "source": "NCERT 2026-27 Ch6 Section 6.2 p.108" },
+    { "item": "Hormonal control of blood sugar (feedback)", "type": "example", "source": "NCERT 2026-27 Ch6 Section 6.3 pp.110-111" },
+    { "item": "NCERT Fig 6.1(a)", "type": "figure", "source": "NCERT 2026-27 Ch6 6.1(a) p.101" },
+    { "item": "NCERT Fig 6.2", "type": "figure", "source": "NCERT 2026-27 Ch6 6.2 p.103" },
+    { "item": "NCERT Fig 6.3", "type": "figure", "source": "NCERT 2026-27 Ch6 6.3 p.104" },
+    { "item": "NCERT Fig 6.5", "type": "figure", "source": "NCERT 2026-27 Ch6 6.5 p.107" },
+    { "item": "NCERT Fig 6.6", "type": "figure", "source": "NCERT 2026-27 Ch6 6.6 p.107" },
+    { "item": "NCERT Fig 6.7", "type": "figure", "source": "NCERT 2026-27 Ch6 6.7 p.110" }
+  ]
+}

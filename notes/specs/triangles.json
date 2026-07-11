@@ -1,0 +1,590 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "triangles",
+    "subject": "maths",
+    "chapter_no": 6,
+    "title": "Triangles",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 6 (jemh106.pdf, printed pages 73-98)"
+  },
+  "board_asks": "the three similarity criteria (AAA/AA, SSS, SAS), the Basic Proportionality Theorem (Thales) and its converse, and similar-triangle applications (heights, shadows, distances) - plus the ONE proof CBSE can ask you to write here: Theorem 6.1 (BPT). The rationalised 2026-27 chapter stops at the SAS criterion - areas of similar triangles and the Pythagoras proofs are no longer in this chapter.",
+  "big_idea": {
+    "tagline": "Same shape, any size.",
+    "body": "Two figures are <b>similar</b> when they have the same shape but not necessarily the same size - one is a scaled copy of the other. For triangles this means <b>equal corresponding angles</b> and <b>proportional corresponding sides</b>. The chapter gives you shortcuts (the AAA, SSS and SAS criteria) to decide similarity from just three facts, the <b>Basic Proportionality Theorem</b> to split sides in ratio, and a way to measure the unmeasurable - heights of towers and lengths of shadows - by comparing similar triangles."
+  },
+  "definitions": [
+    {
+      "id": "def_similar_figures",
+      "tier": "headline",
+      "term": "Similar figures",
+      "verbatim": "Two figures having the same shape but not necessarily the same size are called similar figures.",
+      "plain": "same shape, any size. Every pair of congruent figures is automatically similar, but similar figures need not be congruent (a small photo and its enlargement are similar, not congruent).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 97,
+        "edition": "2026-27",
+        "chapter": 6,
+        "note": "Summary point 1"
+      }
+    },
+    {
+      "id": "def_similar_polygons",
+      "tier": "headline",
+      "term": "Similar polygons",
+      "verbatim": "Two polygons of the same number of sides are similar, if (i) their corresponding angles are equal and (ii) their corresponding sides are in the same ratio (or proportion).",
+      "plain": "for polygons you need BOTH conditions: every corresponding angle equal AND every corresponding side in the same ratio. Either one alone is not enough (a square and a rectangle share angles but not ratios; a square and a rhombus share ratios but not angles).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 75,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_similar_triangles",
+      "tier": "headline",
+      "term": "Similar triangles",
+      "verbatim": "Two triangles are similar, if (i) their corresponding angles are equal and (ii) their corresponding sides are in the same ratio (or proportion).",
+      "plain": "the same two conditions as polygons - but for triangles, verifying ONE of them automatically forces the other. That is exactly what the AAA/SSS/SAS criteria below exploit, so you never have to check all six pairs.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 85,
+        "edition": "2026-27",
+        "chapter": 6,
+        "note": "restated at the head of Section 6.4; the same statement first appears in Section 6.3 (p.79)"
+      }
+    },
+    {
+      "id": "def_bpt",
+      "tier": "headline",
+      "term": "Basic Proportionality Theorem (Theorem 6.1)",
+      "verbatim": "Theorem 6.1 : If a line is drawn parallel to one side of a triangle to intersect the other two sides in distinct points, the other two sides are divided in the same ratio.",
+      "plain": "the Thales Theorem: a line parallel to one side of a triangle cuts the other two sides proportionally, $\\dfrac{AD}{DB}=\\dfrac{AE}{EC}$. This is the ONE theorem in this chapter CBSE can ask you to PROVE - see the Proof tab.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 80,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_aaa",
+      "tier": "headline",
+      "term": "AAA (Angle-Angle-Angle) similarity criterion (Theorem 6.3)",
+      "verbatim": "Theorem 6.3 : If in two triangles, corresponding angles are equal, then their corresponding sides are in the same ratio (or proportion) and hence the two triangles are similar.",
+      "plain": "equal angles $\\Rightarrow$ proportional sides $\\Rightarrow$ similar. Since a triangle's third angle is fixed once two are known, two equal pairs of angles are already enough - that shorter form is the <b>AA criterion</b>.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 87,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "def_sas",
+      "tier": "headline",
+      "term": "SAS (Side-Angle-Side) similarity criterion (Theorem 6.5)",
+      "verbatim": "Theorem 6.5 : If one angle of a triangle is equal to one angle of the other triangle and the sides including these angles are proportional, then the two triangles are similar.",
+      "plain": "one equal angle that sits BETWEEN two pairs of sides in the same ratio $\\Rightarrow$ similar. The equal angle must be the <b>included</b> angle - the one between the two proportional sides.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 90,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_scale_factor",
+      "tier": "key-term",
+      "term": "Scale factor",
+      "verbatim": "Note that the same ratio of the corresponding sides is referred to as the scale factor (or the Representative Fraction) for the polygons.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 76,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_converse_bpt",
+      "tier": "key-term",
+      "term": "Converse of BPT (Theorem 6.2)",
+      "verbatim": "Theorem 6.2 : If a line divides any two sides of a triangle in the same ratio, then the line is parallel to the third side.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 82,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "kt_sss",
+      "tier": "key-term",
+      "term": "SSS (Side-Side-Side) similarity criterion (Theorem 6.4)",
+      "verbatim": "If in two triangles, corresponding sides are in the same ratio, then their corresponding angles are equal and hence the triangles are similar.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 98,
+        "edition": "2026-27",
+        "chapter": 6,
+        "note": "Summary point 8 (SSS criterion); the same result is Theorem 6.4, p.88"
+      }
+    },
+    {
+      "id": "kt_aa",
+      "tier": "key-term",
+      "term": "AA similarity criterion",
+      "verbatim": "If two angles of one triangle are respectively equal to two angles of another triangle, then the two triangles are similar.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 88,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Similar vs congruent - same shape, any size",
+      "body": "Congruent figures match in shape AND size; similar figures match in shape only. So <b>all congruent figures are similar, but the converse is not true</b>. All circles are similar, all squares are similar, all equilateral triangles are similar - because their shape is fixed.",
+      "tested": "1-mark fill-in-the-blank / MCQ (Exercise 6.1 style)",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "The two similarity conditions (and why triangles are special)",
+      "body": "For any pair of polygons, similarity needs BOTH equal corresponding angles AND proportional corresponding sides. For <b>triangles only</b>, one condition automatically brings the other - which is why the three criteria each need just three facts. When you write the similarity, match vertices in order: $\\triangle ABC \\sim \\triangle DEF$ means $\\angle A=\\angle D$, $\\angle B=\\angle E$, $\\angle C=\\angle F$.",
+      "tested": "State the criterion + write the similarity in correct vertex order (Exercise 6.3 Q1)",
+      "figure_ref": "fig_similar_622"
+    },
+    {
+      "id": "c3",
+      "title": "Basic Proportionality Theorem (Thales) and its converse",
+      "body": "BPT (Theorem 6.1): a line parallel to one side divides the other two sides in the same ratio, $\\dfrac{AD}{DB}=\\dfrac{AE}{EC}$. Its converse (Theorem 6.2) runs backwards: if a line divides two sides in the same ratio, it must be parallel to the third side. Use BPT to find a missing length; use the converse to <b>prove</b> two lines parallel.",
+      "tested": "2-3 mark find EC/AD when DE || BC; prove a line is parallel (Exercise 6.2)",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Picking a criterion - AAA/AA, SSS, SAS",
+      "body": "<b>AA</b>: two pairs of equal angles. <b>SSS</b>: all three pairs of sides in the same ratio. <b>SAS</b>: one pair of equal angles with the two <i>including</i> sides in the same ratio. Scan the figure for what you are given - equal angles (from parallels, vertically opposite, or common angles) point to AA; three known side-ratios point to SSS.",
+      "tested": "State which pairs of triangles are similar and name the criterion (Exercise 6.3 Q1)",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Measuring the unmeasurable - heights, shadows, distances",
+      "body": "Similar triangles let you find a height or distance you cannot reach: set up two triangles that share equal angles (usually AA - a common angle plus two right angles), then equate a pair of corresponding sides and solve. This is the principle behind finding heights of towers, lengths of shadows, and even distances of far-off objects.",
+      "tested": "3-4 mark height-of-tower / length-of-shadow word problem (Example 7, Exercise 6.3 Q15)",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "Apply BPT (Theorem 6.1) - NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "If a line intersects sides AB and AC of a △ABC at D and E respectively and is parallel to BC, prove that AD/AB = AE/AC (see Fig. 6.13).",
+      "solution_steps": [
+        {
+          "lead": "Apply BPT to the given parallel line.",
+          "text": "Since $DE \\parallel BC$, Theorem 6.1 gives $\\dfrac{AD}{DB}=\\dfrac{AE}{EC}$.",
+          "concept_tag": "BPT sets up the ratio",
+          "mark": 1
+        },
+        {
+          "lead": "Take reciprocals and add 1 to both sides.",
+          "text": "$\\dfrac{DB}{AD}=\\dfrac{EC}{AE}\\;\\Rightarrow\\;\\dfrac{DB}{AD}+1=\\dfrac{EC}{AE}+1\\;\\Rightarrow\\;\\dfrac{AB}{AD}=\\dfrac{AC}{AE}$ (since $DB+AD=AB$ and $EC+AE=AC$).",
+          "concept_tag": "convert DB, EC into whole sides AB, AC",
+          "mark": 1
+        },
+        {
+          "lead": "Invert to reach the required result.",
+          "text": "Taking reciprocals again, $\\dfrac{AD}{AB}=\\dfrac{AE}{AC}$, as required.",
+          "concept_tag": "finish the proof",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark proof: 1 for invoking Theorem 6.1 (BPT) on the parallel line, 1 for the reciprocal-and-add-1 step that turns DB and EC into the full sides AB and AC, 1 for inverting to the stated result.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 82,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Converse of BPT -> isosceles - NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "In Fig. 6.16, PS/SQ = PT/TR and ∠PST = ∠PRQ. Prove that PQR is an isosceles triangle.",
+      "solution_steps": [
+        {
+          "lead": "Equal ratio => parallel (converse of BPT).",
+          "text": "Given $\\dfrac{PS}{SQ}=\\dfrac{PT}{TR}$, so by Theorem 6.2 (converse of BPT), $ST \\parallel QR$.",
+          "concept_tag": "converse of BPT gives a parallel",
+          "mark": 1
+        },
+        {
+          "lead": "Read off corresponding angles.",
+          "text": "$ST \\parallel QR \\Rightarrow \\angle PST=\\angle PQR$ (corresponding angles) $\\;\\ldots(1)$. It is also given that $\\angle PST=\\angle PRQ \\;\\ldots(2)$.",
+          "concept_tag": "corresponding angles from the parallel",
+          "mark": 1
+        },
+        {
+          "lead": "Equal angles => equal sides.",
+          "text": "From (1) and (2), $\\angle PRQ=\\angle PQR$, so $PQ=PR$ (sides opposite equal angles). Hence $\\triangle PQR$ is isosceles.",
+          "concept_tag": "isosceles from equal base angles",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark proof: 1 for using the converse of BPT (Theorem 6.2) to get ST || QR, 1 for combining the two corresponding-angle facts, 1 for concluding PQ = PR (isosceles). Skipping the 'sides opposite equal angles' reason is the usual lost mark.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 83,
+        "edition": "2026-27",
+        "chapter": 6,
+        "note": "problem on p.83, solution completes on p.84"
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "AAA similarity via parallels - NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "In Fig. 6.29, if PQ || RS, prove that △POQ ~ △SOR.",
+      "solution_steps": [
+        {
+          "lead": "Parallels give two pairs of equal angles.",
+          "text": "$PQ \\parallel RS \\Rightarrow \\angle P=\\angle S$ and $\\angle Q=\\angle R$ (alternate angles).",
+          "concept_tag": "alternate angles from parallels",
+          "mark": 1
+        },
+        {
+          "lead": "Add the vertical angle and conclude.",
+          "text": "$\\angle POQ=\\angle SOR$ (vertically opposite angles), so all three angle pairs are equal; hence $\\triangle POQ \\sim \\triangle SOR$ by the AAA similarity criterion.",
+          "concept_tag": "AAA similarity",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark proof: 1 for the two pairs of equal alternate angles, 1 for adding the vertically-opposite angle and quoting the AAA similarity criterion with the vertices in correct order.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 91,
+        "edition": "2026-27",
+        "chapter": 6
+      }
+    },
+    {
+      "id": "ex_ncert_7",
+      "shape": "Real-world AA application (shadow) - NCERT Example 7",
+      "kind": "numerical",
+      "problem_verbatim": "A girl of height 90 cm is walking away from the base of a lamp-post at a speed of 1.2 m/s. If the lamp is 3.6 m above the ground, find the length of her shadow after 4 seconds.",
+      "solution_steps": [
+        {
+          "lead": "Model the situation.",
+          "text": "Let $AB$ be the lamp-post and $CD$ the girl after 4 s; let her shadow $DE=x$ m. She has walked $BD=1.2 \\times 4=4.8$ m.",
+          "concept_tag": "set up the two triangles",
+          "mark": 1
+        },
+        {
+          "lead": "Prove the triangles similar (AA).",
+          "text": "In $\\triangle ABE$ and $\\triangle CDE$: $\\angle B=\\angle D$ (each $90°$, both stand vertical) and $\\angle E=\\angle E$ (common). So $\\triangle ABE \\sim \\triangle CDE$ (AA similarity).",
+          "concept_tag": "AA similarity",
+          "mark": 1
+        },
+        {
+          "lead": "Equate corresponding sides.",
+          "text": "$\\dfrac{BE}{DE}=\\dfrac{AB}{CD}\\;\\Rightarrow\\;\\dfrac{4.8+x}{x}=\\dfrac{3.6}{0.9}$ (using $90$ cm $=0.9$ m).",
+          "concept_tag": "corresponding sides in ratio",
+          "mark": 1
+        },
+        {
+          "lead": "Solve for the shadow.",
+          "text": "$4.8+x=4x \\Rightarrow 3x=4.8 \\Rightarrow x=1.6$. The shadow is $1.6$ m long.",
+          "concept_tag": "solve + state with unit",
+          "mark": 1
+        }
+      ],
+      "marks_total": 4,
+      "mark_logic": "4-mark application: 1 for modelling (naming x, computing BD = 4.8 m), 1 for the AA similarity, 1 for equating corresponding sides into an equation, 1 for solving to x = 1.6 m with the unit. Dropping the unit costs 0.5 by the CBSE scheme.",
+      "source": {
+        "ncert_example": "7",
+        "ncert_page": 92,
+        "edition": "2026-27",
+        "chapter": 6,
+        "note": "problem on p.92, solution completes on p.93"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Two triangles - are they similar?",
+      "text": "Hunt for equal angles first (from parallels, vertically opposite, or a common angle) -> AA. No angles? Check if all three side pairs share a ratio -> SSS. One angle plus its two including sides in ratio -> SAS."
+    },
+    {
+      "cue": "Need to PROVE two lines parallel?",
+      "text": "Show the line divides two sides of the triangle in the same ratio, then quote Theorem 6.2 (converse of BPT)."
+    },
+    {
+      "cue": "A line is drawn parallel to a side?",
+      "text": "Quote Theorem 6.1 (BPT) at once: it splits the other two sides in the same ratio."
+    },
+    {
+      "cue": "Height / shadow / distance you cannot measure?",
+      "text": "Build two similar triangles (usually AA - a common angle and two right angles), then equate a pair of corresponding sides and solve."
+    },
+    {
+      "cue": "Writing the similarity statement?",
+      "text": "Match vertices in order. $\\angle A=\\angle D$ forces $\\triangle ABC \\sim \\triangle DEF$ - never $\\triangle ABC \\sim \\triangle EDF$. The ratio chain follows the same order."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Wrong vertex order in the similarity</b> - writing $\\triangle ABC \\sim \\triangle EDF$ instead of $\\triangle ABC \\sim \\triangle DEF$ breaks every ratio and angle that follows.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Assuming one condition is enough for polygons</b> - a square and a rectangle have equal angles but not equal ratios; a square and a rhombus have equal ratios but not equal angles. Only for TRIANGLES does one condition imply the other.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Confusing BPT with its converse</b> - Theorem 6.1 needs the line GIVEN parallel and concludes a ratio; Theorem 6.2 needs the ratio GIVEN equal and concludes parallel. Quote the right direction.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Pairing the wrong sides in the ratio</b> - after $\\triangle ABC \\sim \\triangle DEF$, the ratio is $\\frac{AB}{DE}=\\frac{BC}{EF}=\\frac{CA}{FD}$, not $\\frac{AB}{EF}$. Follow the vertex correspondence.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>In SAS, using a non-included angle</b> - the equal angle must sit BETWEEN the two proportional sides, or SAS does not apply.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Basic Proportionality Theorem",
+      "math": "$DE \\parallel BC \\Rightarrow \\dfrac{AD}{DB}=\\dfrac{AE}{EC}$"
+    },
+    {
+      "label": "Similar triangles - sides",
+      "math": "$\\triangle ABC \\sim \\triangle DEF \\Rightarrow \\dfrac{AB}{DE}=\\dfrac{BC}{EF}=\\dfrac{CA}{FD}$"
+    },
+    {
+      "label": "Similar triangles - angles",
+      "math": "$\\angle A=\\angle D,\\;\\angle B=\\angle E,\\;\\angle C=\\angle F$"
+    },
+    {
+      "label": "Criteria",
+      "math": "AAA / AA $\\cdot$ SSS $\\cdot$ SAS (included angle)"
+    }
+  ],
+  "mindmap": {
+    "root": "Triangles - same shape, (maybe) different size ( ~ )",
+    "branches": [
+      {
+        "label": "Similar figures & polygons",
+        "children": [
+          "Same shape, not necessarily same size",
+          "Congruent => similar (not conversely)",
+          "Polygons need BOTH: equal angles AND proportional sides",
+          "Scale factor = ratio of corresponding sides"
+        ]
+      },
+      {
+        "label": "BPT / Thales (Theorem 6.1)",
+        "children": [
+          "Line || a side => splits the other two in same ratio",
+          "AD/DB = AE/EC",
+          "The ONE theorem you can be asked to PROVE",
+          "Area-ratio proof (see Proof tab)"
+        ]
+      },
+      {
+        "label": "Converse of BPT (Theorem 6.2)",
+        "children": [
+          "Equal ratio => line || third side",
+          "Use it to PROVE lines parallel",
+          "Runs backwards from Theorem 6.1"
+        ]
+      },
+      {
+        "label": "Similarity criteria",
+        "children": [
+          "AAA / AA - two equal angle pairs",
+          "SSS - three side pairs in same ratio",
+          "SAS - equal included angle + two sides in ratio",
+          "For triangles, one condition implies the other"
+        ]
+      },
+      {
+        "label": "Applications (3-4 mk)",
+        "children": [
+          "Heights of towers, lengths of shadows",
+          "Distances of far objects (indirect measurement)",
+          "Set up AA similarity, equate corresponding sides"
+        ]
+      },
+      {
+        "label": "Don't lose marks on...",
+        "children": [
+          "Wrong vertex order in ~",
+          "BPT vs its converse",
+          "Both conditions needed for polygons",
+          "SAS needs the INCLUDED angle"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Basic Proportionality Theorem (Theorem 6.1) - the area proof",
+    "intro": "In the rationalised 2026-27 syllabus, BPT (Theorem 6.1) is the one theorem in this chapter marked '(Prove)' - its formal proof is examinable. The three criteria (AAA/SSS/SAS) and the converse are '(Motivate)' - you must know the statements but are not asked for their formal proofs. Below is NCERT's area-ratio proof of BPT.",
+    "steps": [
+      {
+        "claim": "Given: $\\triangle ABC$ with a line $DE \\parallel BC$ meeting $AB$ at $D$ and $AC$ at $E$. To prove that the two sides are divided in the same ratio.",
+        "math": "$\\dfrac{AD}{DB}=\\dfrac{AE}{EC}$"
+      },
+      {
+        "claim": "Join $BE$ and $CD$, and drop perpendiculars $DM \\perp AC$ and $EN \\perp AB$ to serve as the heights."
+      },
+      {
+        "claim": "Write the areas of the two triangles on base $AD$ and $DB$ (common height $EN$).",
+        "math": "$\\text{ar}(ADE)=\\tfrac{1}{2}\\,AD \\times EN,\\qquad \\text{ar}(BDE)=\\tfrac{1}{2}\\,DB \\times EN$"
+      },
+      {
+        "claim": "Likewise for the two triangles on base $AE$ and $EC$ (common height $DM$).",
+        "math": "$\\text{ar}(ADE)=\\tfrac{1}{2}\\,AE \\times DM,\\qquad \\text{ar}(DEC)=\\tfrac{1}{2}\\,EC \\times DM$"
+      },
+      {
+        "claim": "Divide each pair - the common heights cancel, leaving the side ratios.",
+        "math": "$\\dfrac{\\text{ar}(ADE)}{\\text{ar}(BDE)}=\\dfrac{AD}{DB}\\;\\;(1),\\qquad \\dfrac{\\text{ar}(ADE)}{\\text{ar}(DEC)}=\\dfrac{AE}{EC}\\;\\;(2)$"
+      },
+      {
+        "claim": "$\\triangle BDE$ and $\\triangle DEC$ sit on the same base $DE$ and between the same parallels $BC$ and $DE$, so they have equal area.",
+        "math": "$\\text{ar}(BDE)=\\text{ar}(DEC)\\;\\;(3)$",
+        "justification": "Triangles on the same base and between the same parallels are equal in area (Class IX result)."
+      },
+      {
+        "claim": "From (1), (2) and (3): the numerators are the same $\\text{ar}(ADE)$ and the denominators are equal, so the two ratios are equal.",
+        "math": "$\\dfrac{AD}{DB}=\\dfrac{AE}{EC}$",
+        "justification": "This proves BPT; the converse (Theorem 6.2) is obtained by running the argument backwards."
+      }
+    ],
+    "source": {
+      "ncert_page": 80,
+      "edition": "2026-27",
+      "chapter": 6,
+      "note": "area-ratio proof printed on pp.80-81 (Fig. 6.10)"
+    }
+  },
+  "figures": {
+    "fig_similar_622": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 6.22",
+      "caption": "Similar triangles: △ABC ~ △DEF - equal corresponding angles (matching arc marks), proportional corresponding sides.",
+      "legend": "Single arc at A/D, double at B/E, triple at C/F mark the equal corresponding angles; the two triangles are the same shape at different sizes.",
+      "source": {
+        "pdf": "jemh106",
+        "edition": "2026-27",
+        "ncert_fig": "6.22",
+        "page_pdf": 12,
+        "page_printed": 85,
+        "clip_pts": [103, 512, 366, 600],
+        "render_matrix": "4x",
+        "clean": "watermark removed where saturation<0.25 and luminance>150 -> white",
+        "refill": null
+      },
+      "asset": "triangles/fig_similar_622.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Similar figures",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.97 (Summary 1)"
+    },
+    {
+      "item": "Similar polygons",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.75"
+    },
+    {
+      "item": "Similar triangles",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.85"
+    },
+    {
+      "item": "Basic Proportionality Theorem (Theorem 6.1)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.80"
+    },
+    {
+      "item": "AAA similarity criterion (Theorem 6.3)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.87"
+    },
+    {
+      "item": "SAS similarity criterion (Theorem 6.5)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.90"
+    },
+    {
+      "item": "Scale factor",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.76"
+    },
+    {
+      "item": "Converse of BPT (Theorem 6.2)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.82"
+    },
+    {
+      "item": "SSS similarity criterion (Theorem 6.4)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.98 (Summary 8)"
+    },
+    {
+      "item": "AA similarity criterion",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch6 p.88"
+    },
+    {
+      "item": "Apply BPT - NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch6 Example 1 p.82"
+    },
+    {
+      "item": "Converse of BPT -> isosceles - NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch6 Example 3 p.83-84"
+    },
+    {
+      "item": "AAA similarity via parallels - NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch6 Example 4 p.91"
+    },
+    {
+      "item": "Real-world AA application (shadow) - NCERT Example 7",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch6 Example 7 p.92-93"
+    },
+    {
+      "item": "Similar triangles figure",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch6 Fig. 6.22 p.85"
+    }
+  ]
+}

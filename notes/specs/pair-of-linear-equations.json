@@ -1,0 +1,586 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "pair-of-linear-equations",
+    "subject": "maths",
+    "chapter_no": 3,
+    "title": "Pair of Linear Equations in Two Variables",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 3 (jemh103.pdf, printed pages 24–37)"
+  },
+  "board_asks": "solving a pair by substitution and by elimination, reading a solution off a graph, and classifying a pair as consistent / inconsistent / dependent from the coefficient ratios &mdash; the two algebraic methods plus a word-problem application carry almost every mark here.",
+  "big_idea": {
+    "tagline": "Two conditions, one point.",
+    "body": "A <b>pair of linear equations in two variables</b> is two straight-line equations $a_1x + b_1y + c_1 = 0$ and $a_2x + b_2y + c_2 = 0$ that you solve together. Geometrically each is a line, so the whole chapter answers one question: <b>where do the two lines meet?</b> They can cross once (one solution), run parallel (no solution), or lie on top of each other (infinitely many). You learn to find that meeting point three ways &mdash; by graph, by <b>substitution</b>, and by <b>elimination</b> &mdash; and to predict the outcome just from the coefficient ratios."
+  },
+  "definitions": [
+    {
+      "id": "def_consistent",
+      "tier": "headline",
+      "term": "Consistent pair of linear equations",
+      "verbatim": "A pair of linear equations in two variables, which has a solution, is called a consistent pair of linear equations.",
+      "plain": "any pair that HAS at least one solution &mdash; the lines either cross once (unique) or coincide (infinitely many). “Has a solution” is the whole test.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 25,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_inconsistent",
+      "tier": "headline",
+      "term": "Inconsistent pair of linear equations",
+      "verbatim": "A pair of linear equations which has no solution, is called an inconsistent pair of linear equations.",
+      "plain": "the lines are <b>parallel</b> and never meet, so there is NO common $(x,y)$. In working, a false statement like $0 = 9$ signals this.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 25,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_dependent",
+      "tier": "headline",
+      "term": "Dependent pair of linear equations",
+      "verbatim": "A pair of linear equations which are equivalent has infinitely many distinct common solutions. Such a pair is called a dependent pair of linear equations in two variables. Note that a dependent pair of linear equations is always consistent.",
+      "plain": "the two equations are really the SAME line (coincident), so every point on it solves both &mdash; infinitely many solutions. A dependent pair is a special case of consistent, never inconsistent.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 25,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_substitution",
+      "tier": "headline",
+      "term": "Substitution method",
+      "verbatim": "We have substituted the value of one variable by expressing it in terms of the other variable to solve the pair of linear equations. That is why the method is known as the substitution method.",
+      "plain": "isolate one variable in one equation ($x = \\dots$), then <b>substitute</b> it into the other so only one variable is left. Fastest when a coefficient is already $1$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 31,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "the substitution-method Remark that closes Section 3.3.1"
+      }
+    },
+    {
+      "id": "def_elimination",
+      "tier": "headline",
+      "term": "Elimination method",
+      "verbatim": "The method used in solving the example above is called the elimination method, because we eliminate one variable first, to get a linear equation in one variable.",
+      "plain": "multiply the equations so one variable’s coefficients match, then <b>add or subtract</b> to cancel that variable. Best when neither variable is already isolated.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 34,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "Remark 1 in Section 3.3.2"
+      }
+    },
+    {
+      "id": "kt_graphical_two_lines",
+      "tier": "key-term",
+      "term": "Graph = two lines",
+      "verbatim": "The graph of a pair of linear equations in two variables is represented by two lines.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 37,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "Summary point 2"
+      }
+    },
+    {
+      "id": "kt_algebraic_methods",
+      "tier": "key-term",
+      "term": "Algebraic methods",
+      "verbatim": "Algebraic Methods : We have discussed the following methods for finding the solution(s) of a pair of linear equations : (i) Substitution Method (ii) Elimination Method",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 37,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "Summary point 3 — the only two algebraic methods in the rationalised 2026-27 chapter"
+      }
+    },
+    {
+      "id": "kt_reducible",
+      "tier": "key-term",
+      "term": "Reducible to a linear pair",
+      "verbatim": "There are several situations which can be mathematically represented by two equations that are not linear to start with. But we alter them so that they are reduced to a pair of linear equations.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 37,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "Summary point 5"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Graphical method — three cases",
+      "body": "Plot both lines. They either <b>intersect</b> at one point (unique solution, consistent), <b>coincide</b> (infinitely many, dependent), or are <b>parallel</b> (no solution, inconsistent). The meeting point read off the graph IS the solution.",
+      "tested": "Graphically solve / find the triangle formed with an axis — 3 marks",
+      "figure_ref": "fig_graph_31"
+    },
+    {
+      "id": "c2",
+      "title": "Classify from the coefficient ratios",
+      "body": "For $a_1x+b_1y+c_1=0$ and $a_2x+b_2y+c_2=0$: $\\dfrac{a_1}{a_2}\\neq\\dfrac{b_1}{b_2}$ → intersecting (one solution) · $\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}\\neq\\dfrac{c_1}{c_2}$ → parallel (none) · $\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}=\\dfrac{c_1}{c_2}$ → coincident (infinitely many). <b>Compare the ratios best on a diagram:</b>",
+      "tested": "“Without solving, state whether the pair is consistent” — 1–2 marks",
+      "figure_ref": "fig_line_pair_cases"
+    },
+    {
+      "id": "c3",
+      "title": "Substitution method",
+      "body": "Express one variable from one equation ($x = 3 - 2y$), substitute into the other to get a single-variable equation, solve it, then back-substitute for the second variable. A no-variable TRUE statement means infinitely many solutions; a FALSE one means no solution.",
+      "tested": "“Solve by substitution” — 2–3 marks",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Elimination method",
+      "body": "Multiply the two equations by suitable non-zero constants to make one variable’s coefficients numerically equal, then add or subtract to eliminate it. Solve the resulting one-variable equation and back-substitute. Often quicker than substitution when nothing is pre-isolated.",
+      "tested": "“Solve by elimination” / solve by BOTH methods — 2–3 marks",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Word problems → a pair of equations",
+      "body": "Translate the situation (ages, digits, fractions, incomes, fixed-plus-variable charges) into TWO equations in two unknowns, solve by substitution or elimination, and check the answer against the story. Some non-linear situations are first <b>reduced</b> to a linear pair before solving.",
+      "tested": "Applied problem — a fixture of Sections C/D, 3–5 marks",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "Graphical consistency check · NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Check graphically whether the pair of equations x + 3y = 6 and 2x – 3y = 12 is consistent. If so, solve them graphically.",
+      "solution_steps": [
+        {
+          "lead": "Two solutions of each line.",
+          "text": "$x+3y=6$ gives $(0,2)$ and $(6,0)$; $2x-3y=12$ gives $(0,-4)$ and $(3,-2)$ (Table 3.2).",
+          "concept_tag": "make a value table",
+          "mark": 1
+        },
+        {
+          "lead": "Plot and join.",
+          "text": "Plot $A(0,2),\\;B(6,0),\\;P(0,-4),\\;Q(3,-2)$ and draw lines $AB$ and $PQ$ (Fig. 3.1).",
+          "concept_tag": "draw both lines",
+          "mark": 1
+        },
+        {
+          "lead": "Read the common point.",
+          "text": "The lines meet at $B(6,0)$, so $x=6,\\;y=0$; the given pair is <b>consistent</b>.",
+          "concept_tag": "intersection = solution",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark graphical shape: 1 for a correct table of two solutions per line, 1 for plotting both lines accurately, 1 for reading the common point $(6,0)$ and stating the pair is consistent.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 26,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "problem stated on p.26; solution table (Table 3.2) and graph (Fig. 3.1) on p.27"
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "Substitution method · NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "Solve the following pair of equations by substitution method: 7x – 15y = 2 x + 2y = 3",
+      "solution_steps": [
+        {
+          "lead": "Isolate one variable.",
+          "text": "From the second equation $x+2y=3$, write $x=3-2y$.",
+          "concept_tag": "express x in terms of y",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute and solve.",
+          "text": "Put into $7x-15y=2$: $7(3-2y)-15y=2\\Rightarrow 21-29y=2\\Rightarrow y=\\dfrac{19}{29}$.",
+          "concept_tag": "reduce to one variable",
+          "mark": 1
+        },
+        {
+          "lead": "Back-substitute for the other.",
+          "text": "$x=3-2\\left(\\dfrac{19}{29}\\right)=\\dfrac{49}{29}$. Solution: $x=\\dfrac{49}{29},\\;y=\\dfrac{19}{29}$.",
+          "concept_tag": "state both values",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark substitution: 1 for expressing one variable in terms of the other, 1 for substituting and solving for $y$, 1 for back-substituting to get $x$ and stating both values. NCERT verifies both equations are satisfied.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 30,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_ncert_8",
+      "shape": "Elimination method · NCERT Example 8 (incomes)",
+      "kind": "numerical",
+      "problem_verbatim": "The ratio of incomes of two persons is 9 : 7 and the ratio of their expenditures is 4 : 3. If each of them manages to save ₹ 2000 per month, find their monthly incomes.",
+      "solution_steps": [
+        {
+          "lead": "Model the ratios into two equations.",
+          "text": "Incomes $9x,\\,7x$; expenditures $4y,\\,3y$; each saves $2000$: $9x-4y=2000$ and $7x-3y=2000$.",
+          "concept_tag": "set up the pair",
+          "mark": 1
+        },
+        {
+          "lead": "Equalise a coefficient and eliminate.",
+          "text": "$\\times 3$ and $\\times 4$: $27x-12y=6000$, $28x-12y=8000$; subtract $\\Rightarrow x=2000$.",
+          "concept_tag": "eliminate y",
+          "mark": 1
+        },
+        {
+          "lead": "Back-substitute and interpret.",
+          "text": "In $9x-4y=2000$: $y=4000$. Monthly incomes are <b>₹18,000</b> and <b>₹14,000</b>.",
+          "concept_tag": "solve and report",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark elimination: 1 for forming the pair from the ratios, 1 for making the $y$-coefficients equal and eliminating to get $x$, 1 for back-substituting for $y$ and reporting the two incomes ₹18,000 and ₹14,000.",
+      "source": {
+        "ncert_example": "8",
+        "ncert_page": 34,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_ncert_10",
+      "shape": "Word problem · NCERT Example 10 (two-digit number)",
+      "kind": "numerical",
+      "problem_verbatim": "The sum of a two-digit number and the number obtained by reversing the digits is 66. If the digits of the number differ by 2, find the number. How many such numbers are there?",
+      "solution_steps": [
+        {
+          "lead": "Name the digits.",
+          "text": "Ten’s digit $x$, unit’s digit $y$: the number is $10x+y$ and the reversed number is $10y+x$.",
+          "concept_tag": "set up the variables",
+          "mark": 1
+        },
+        {
+          "lead": "Use both given conditions.",
+          "text": "Sum is $66$: $(10x+y)+(10y+x)=66\\Rightarrow 11(x+y)=66\\Rightarrow x+y=6$. Digits differ by $2$: $x-y=2$ or $y-x=2$.",
+          "concept_tag": "translate the conditions",
+          "mark": 1
+        },
+        {
+          "lead": "Solve each case; state BOTH numbers.",
+          "text": "$x+y=6$ with $x-y=2\\Rightarrow(4,2)\\to 42$; with $y-x=2\\Rightarrow(2,4)\\to 24$. So there are <b>two</b> such numbers: 42 and 24.",
+          "concept_tag": "both solutions",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark word problem: 1 for expressing the number as $10x+y$ and forming $x+y=6$, 1 for setting up both difference conditions, 1 for solving each case by elimination and stating both numbers 42 and 24. Reporting only one number is the classic lost mark — NCERT verifies both.",
+      "source": {
+        "ncert_example": "10",
+        "ncert_page": 35,
+        "edition": "2026-27",
+        "chapter": 3,
+        "note": "problem on p.35, solution runs to p.36"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "One variable already isolated (coefficient 1)?",
+      "text": "Use substitution — write that variable in terms of the other and plug it in."
+    },
+    {
+      "cue": "Nothing pre-isolated / coefficients line up?",
+      "text": "Use elimination — scale to match one variable’s coefficients, then add or subtract."
+    },
+    {
+      "cue": "Graph would give ugly / non-integer coordinates?",
+      "text": "Switch to an algebraic method — NCERT’s own reason for introducing them (p.30)."
+    },
+    {
+      "cue": "Asked only to classify (consistent / inconsistent)?",
+      "text": "Compare $\\tfrac{a_1}{a_2},\\tfrac{b_1}{b_2},\\tfrac{c_1}{c_2}$ — don’t solve for $x,y$."
+    },
+    {
+      "cue": "Hit a statement with no variable?",
+      "text": "TRUE (e.g. $18=18$) ⇒ infinitely many solutions; FALSE (e.g. $0=9$) ⇒ no solution."
+    },
+    {
+      "cue": "Word problem?",
+      "text": "Name two variables → form two equations → solve → verify against the story."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Misreading a graphical intersection</b> — non-integer coordinates are easy to read wrong; if the crossing isn’t on clean grid points, solve algebraically instead.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Swapping the no-solution / infinite-solution verdict</b> — a TRUE no-variable line ($18=18$) means infinitely many; a FALSE one ($0=9$) means no solution. Students reverse these.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Eliminating without matching coefficients</b> — you must first scale so one variable’s coefficients are numerically equal (and mind the sign: add if opposite, subtract if same).",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Confusing the ratio conditions</b> — parallel/inconsistent is $\\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}\\neq\\tfrac{c_1}{c_2}$; coincident/dependent needs ALL three ratios equal.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Stopping at one answer in a two-case word problem</b> — e.g. the two-digit number gives 42 AND 24; report every valid solution.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "General form",
+      "math": "$a_1x+b_1y+c_1=0,\\;\\; a_2x+b_2y+c_2=0$"
+    },
+    {
+      "label": "Unique solution (intersecting)",
+      "math": "$\\dfrac{a_1}{a_2}\\neq\\dfrac{b_1}{b_2}$"
+    },
+    {
+      "label": "No solution (parallel)",
+      "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}\\neq\\dfrac{c_1}{c_2}$"
+    },
+    {
+      "label": "Infinitely many (coincident)",
+      "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}=\\dfrac{c_1}{c_2}$"
+    }
+  ],
+  "mindmap": {
+    "root": "Pair of Linear Equations — a₁x+b₁y+c₁=0, a₂x+b₂y+c₂=0",
+    "branches": [
+      {
+        "label": "Graphical method (3 mk)",
+        "children": [
+          "Plot both lines",
+          "Intersect → unique (consistent)",
+          "Coincide → infinitely many (dependent)",
+          "Parallel → none (inconsistent)"
+        ]
+      },
+      {
+        "label": "Classify by ratios (1–2 mk)",
+        "children": [
+          "a₁/a₂ ≠ b₁/b₂ → one solution",
+          "a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → no solution",
+          "a₁/a₂ = b₁/b₂ = c₁/c₂ → infinitely many"
+        ]
+      },
+      {
+        "label": "Substitution (2–3 mk)",
+        "children": [
+          "Express one variable",
+          "Substitute into the other",
+          "Solve, then back-substitute"
+        ]
+      },
+      {
+        "label": "Elimination (2–3 mk)",
+        "children": [
+          "Match a coefficient",
+          "Add / subtract to cancel a variable",
+          "Solve, then back-substitute"
+        ]
+      },
+      {
+        "label": "Word problems (3–5 mk)",
+        "children": [
+          "Two variables → two equations",
+          "Solve by substitution / elimination",
+          "Reduce non-linear situations first",
+          "Verify against the story"
+        ]
+      },
+      {
+        "label": "Don’t lose marks on…",
+        "children": [
+          "TRUE = infinite, FALSE = none",
+          "Match coefficients before eliminating",
+          "Report EVERY valid answer",
+          "Non-integer graph → solve algebraically"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Why the coefficient ratios decide the fate of a pair",
+    "intro": "NCERT establishes the ratio conditions inductively — it tabulates three sample pairs (Table 3.1, p.26), reads off $\\tfrac{a_1}{a_2},\\tfrac{b_1}{b_2},\\tfrac{c_1}{c_2}$ for each, and states that “the converse is also true for any pair of lines.” Here is the slope reasoning behind that table, so the three ratio rules are understood rather than memorised. The conditions themselves are exactly NCERT’s (Table 3.1 and Summary point 4).",
+    "steps": [
+      {
+        "claim": "Write the pair in general form — each equation is a straight line.",
+        "math": "$a_1x+b_1y+c_1=0,\\quad a_2x+b_2y+c_2=0$"
+      },
+      {
+        "claim": "Rearranged to slope–intercept form, a line has slope $-a/b$ and $y$-intercept $-c/b$ (for $b\\neq 0$).",
+        "math": "$y=-\\dfrac{a}{b}\\,x-\\dfrac{c}{b}$",
+        "justification": "Two lines cross exactly once iff their slopes differ, are parallel iff slopes match but intercepts differ, and are the same line iff both match."
+      },
+      {
+        "claim": "Different slopes ⇒ the lines intersect at one point ⇒ a unique solution (consistent).",
+        "math": "$\\dfrac{a_1}{a_2}\\neq\\dfrac{b_1}{b_2}$",
+        "justification": "NCERT: intersecting lines give exactly one solution (Table 3.1, p.26; Summary 4(i), p.37)."
+      },
+      {
+        "claim": "Equal slopes but different intercepts ⇒ parallel lines that never meet ⇒ no solution (inconsistent).",
+        "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}\\neq\\dfrac{c_1}{c_2}$",
+        "justification": "No common point, so the pair has no solution (p.26; Summary 4(ii), p.37)."
+      },
+      {
+        "claim": "All three ratios equal ⇒ the two equations describe the SAME line ⇒ infinitely many solutions (dependent, hence consistent).",
+        "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}=\\dfrac{c_1}{c_2}$",
+        "justification": "Every point of the line satisfies both equations (p.26; Summary 4(iii), p.37)."
+      }
+    ],
+    "source": {
+      "ncert_page": 26,
+      "edition": "2026-27",
+      "chapter": 3,
+      "note": "conditions stated in Table 3.1 and the paragraph after it (p.26) and again as Summary point 4 (p.37); the slope reasoning is the standard justification, which NCERT presents inductively across three worked pairs."
+    }
+  },
+  "figures": {
+    "fig_graph_31": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 3.1",
+      "caption": "The intersecting case — x + 3y = 6 and 2x – 3y = 12 meet at B(6, 0), the unique solution (Example 1).",
+      "legend": "Two lines that cross at exactly one point → a consistent pair with the unique solution x = 6, y = 0.",
+      "source": {
+        "pdf": "jemh103",
+        "edition": "2026-27",
+        "ncert_fig": "3.1",
+        "page_printed": 27,
+        "page_pdf_index": 3,
+        "crop": [210, 176, 442, 366],
+        "crop_units": "PDF points (page 468x684)",
+        "render_matrix": 2.6,
+        "clean": "none",
+        "refill": null,
+        "note": "clip taken from pdf index 3 (printed p.27); rendered at 2.6x with pymupdf, saved to WebP 604x495 (Pillow, q70). Eye-confirmed: both lines, A(0,2)/B(6,0)/P(0,-4)/Q(3,-2), axes and intersection at B(6,0)."
+      },
+      "asset": "pair-of-linear-equations/fig_graph_31.webp"
+    },
+    "fig_line_pair_cases": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "One pair, three fates — the graph of a₁x+b₁y+c₁=0 and a₂x+b₂y+c₂=0",
+      "legend": "Left: intersecting lines → one solution (consistent). Middle: coincident lines → infinitely many (dependent). Right: parallel lines → no solution (inconsistent).",
+      "generator": "line_pair_triptych",
+      "params": {
+        "panels": [
+          {
+            "equations": ["x - 2y = 0", "3x + 4y - 20 = 0"],
+            "badge": "Intersecting",
+            "note": "a1/a2 ≠ b1/b2 → unique solution (consistent)"
+          },
+          {
+            "equations": ["2x + 3y - 9 = 0", "4x + 6y - 18 = 0"],
+            "badge": "Coincident",
+            "note": "a1/a2 = b1/b2 = c1/c2 → infinitely many (dependent)"
+          },
+          {
+            "equations": ["x + 2y - 4 = 0", "2x + 4y - 12 = 0"],
+            "badge": "Parallel",
+            "note": "a1/a2 = b1/b2 ≠ c1/c2 → no solution (inconsistent)"
+          }
+        ],
+        "x_range": [-4, 8],
+        "y_range": [-4, 8],
+        "source_note": "the three sample pairs are exactly NCERT Table 3.1 (p.25-26)"
+      },
+      "asset": "pair-of-linear-equations/fig_line_pair_cases.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Consistent pair of linear equations",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.25"
+    },
+    {
+      "item": "Inconsistent pair of linear equations",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.25"
+    },
+    {
+      "item": "Dependent pair of linear equations",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.25"
+    },
+    {
+      "item": "Substitution method",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.31 (Remark, Section 3.3.1)"
+    },
+    {
+      "item": "Elimination method",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.34 (Remark 1, Section 3.3.2)"
+    },
+    {
+      "item": "Graph = two lines",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.37 (Summary 2)"
+    },
+    {
+      "item": "Algebraic methods",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.37 (Summary 3)"
+    },
+    {
+      "item": "Reducible to a linear pair",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch3 p.37 (Summary 5)"
+    },
+    {
+      "item": "Graphical consistency check · NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch3 Example 1 p.26-27"
+    },
+    {
+      "item": "Substitution method · NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch3 Example 4 p.30"
+    },
+    {
+      "item": "Elimination method · NCERT Example 8",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch3 Example 8 p.34"
+    },
+    {
+      "item": "Word problem · NCERT Example 10",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch3 Example 10 p.35-36"
+    },
+    {
+      "item": "NCERT Fig. 3.1 (intersecting lines)",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch3 Fig. 3.1 p.27"
+    }
+  ]
+}
