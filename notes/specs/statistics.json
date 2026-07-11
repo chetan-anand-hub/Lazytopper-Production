@@ -1,0 +1,660 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "statistics",
+    "subject": "maths",
+    "chapter_no": 13,
+    "title": "Statistics",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 13 (jemh113.pdf, printed pages 171-201)"
+  },
+  "board_asks": "the mean of grouped data (direct, assumed-mean, step-deviation), the mode of grouped data, and the median of grouped data via a cumulative-frequency table &amp; class marks — plus the reverse question &ldquo;the median is given, find the missing frequency&rdquo;. Almost every mark here is a plug-into-the-formula computation, so identifying the right class (modal / median) and reading off $l, f, cf, h$ correctly is where the marks live.",
+  "big_idea": {
+    "tagline": "One dataset, three &lsquo;typical&rsquo; values.",
+    "body": "In Class IX you found the mean, median and mode of <b>ungrouped</b> data. This chapter extends all three <b>measures of central tendency</b> to <b>grouped</b> data — data bundled into class intervals like $40{-}55$. Because you no longer see individual observations, each method works on a <b>representative</b> of the class: the <b>class mark</b> (mid-point) for the mean, the <b>modal class</b> for the mode, and the <b>median class</b> (located with cumulative frequencies) for the median. Learn to spot the right class and substitute into the right formula, and every question in this chapter falls out."
+  },
+  "definitions": [
+    {
+      "id": "def_mean_grouped",
+      "tier": "headline",
+      "term": "Mean (average) of observations",
+      "verbatim": "The mean (or average) of observations, as we know, is the sum of the values of all the observations divided by the total number of observations.",
+      "plain": "for grouped data you cannot see each value, so you use the <b>class mark</b> $x_i$ of each class as its stand-in: $\\bar{x} = \\dfrac{\\Sigma f_i x_i}{\\Sigma f_i}$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 171,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_class_mark",
+      "tier": "headline",
+      "term": "Class mark (mid-point)",
+      "verbatim": "It is assumed that the frequency of each class-interval is centred around its mid-point. So the mid-point (or class mark) of each class can be chosen to represent the observations falling in the class.",
+      "plain": "$\\text{class mark} = \\dfrac{\\text{upper limit} + \\text{lower limit}}{2}$. This single number represents the whole class in the mean calculation — it is your $x_i$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 173,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_mode",
+      "tier": "headline",
+      "term": "Mode",
+      "verbatim": "Recall from Class IX, a mode is that value among the observations which occurs most often, that is, the value of the observation having the maximum frequency.",
+      "plain": "the most-frequent value. For grouped data you cannot read it off directly — you locate the <b>modal class</b> (the class with the greatest frequency) and use the mode formula.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 183,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_median",
+      "tier": "headline",
+      "term": "Median",
+      "verbatim": "the median is a measure of central tendency which gives the value of the middle-most observation in the data.",
+      "plain": "the middle value once the data is ordered. For grouped data the middle observation sits inside a class, so you find the <b>median class</b> using cumulative frequencies and the median formula.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 188,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_modal_class",
+      "tier": "headline",
+      "term": "Modal class",
+      "verbatim": "In a grouped frequency distribution, it is not possible to determine the mode by looking at the frequencies. Here, we can only locate a class with the maximum frequency, called the modal class.",
+      "plain": "the class interval with the highest frequency. Its lower limit $l$ and the frequencies $f_1$ (modal), $f_0$ (preceding), $f_2$ (succeeding) feed the mode formula.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 184,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_direct_method",
+      "tier": "key-term",
+      "term": "Direct Method",
+      "verbatim": "This new method of finding the mean is known as the Direct Method.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 174,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_assumed_mean_method",
+      "tier": "key-term",
+      "term": "Assumed Mean Method",
+      "verbatim": "The method discussed above is called the Assumed Mean Method.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 176,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_step_deviation_method",
+      "tier": "key-term",
+      "term": "Step-deviation Method",
+      "verbatim": "the step-deviation method will be convenient to apply if all the di's have a common factor.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 177,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "companion statement on p.177: \"The method discussed above is called the Step-deviation method.\"; \"di's\" is NCERT's own notation for the deviations, preserved verbatim"
+      }
+    },
+    {
+      "id": "kt_median_class",
+      "tier": "key-term",
+      "term": "Median class",
+      "verbatim": "We now locate the class whose cumulative frequency is greater than (and nearest to) [n/2] This is called the median class.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 193,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "the 2D-typeset fraction n/2 is bracketed as an editorial insert; both prose runs are verbatim on p.193"
+      }
+    },
+    {
+      "id": "kt_cumulative_frequency",
+      "tier": "key-term",
+      "term": "Cumulative frequency",
+      "verbatim": "The cumulative frequency of a class is the frequency obtained by adding the frequencies of all the classes preceding the given class.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 201,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "Summary point 3, p.201"
+      }
+    },
+    {
+      "id": "kt_empirical_relation",
+      "tier": "key-term",
+      "term": "Empirical relationship",
+      "verbatim": "There is a empirical relationship between the three measures of central tendency : [3 Median = Mode + 2 Mean]",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 197,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "NCERT Remark, p.197; \"a empirical\" is NCERT's own wording, preserved verbatim; the formula 3 Median = Mode + 2 Mean is bracketed as an editorial insert"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Mean of grouped data — three methods, same answer",
+      "body": "Replace each class by its <b>class mark</b> $x_i$, then use whichever method keeps the arithmetic small: <b>Direct</b> $\\bar{x}=\\dfrac{\\Sigma f_i x_i}{\\Sigma f_i}$ · <b>Assumed-mean</b> $\\bar{x}=a+\\dfrac{\\Sigma f_i d_i}{\\Sigma f_i}$ (with $d_i=x_i-a$) · <b>Step-deviation</b> $\\bar{x}=a+h\\!\\left(\\dfrac{\\Sigma f_i u_i}{\\Sigma f_i}\\right)$ (with $u_i=\\dfrac{x_i-a}{h}$). All three give the identical mean — step-deviation is fastest when the $d_i$ share a common factor $h$.",
+      "tested": "3-mark &ldquo;find the mean of the following distribution&rdquo; — a fixture of every board paper",
+      "figure_ref": "fig_mean_table_133"
+    },
+    {
+      "id": "c2",
+      "title": "Mode of grouped data — find the modal class first",
+      "body": "Spot the <b>modal class</b> (highest frequency), read off $l$ (its lower limit), $h$ (class size), $f_1$ (modal frequency), $f_0$ (preceding), $f_2$ (succeeding), then $\\text{Mode}=l+\\left(\\dfrac{f_1-f_0}{2f_1-f_0-f_2}\\right)h$. The commonest slip is a sign error in the denominator $2f_1-f_0-f_2$.",
+      "tested": "3-mark &ldquo;find the mode&rdquo;, often paired with &ldquo;compare and interpret the mode and the mean&rdquo;",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Median of grouped data — locate the median class via cumulative frequency",
+      "body": "Build the <b>cumulative frequency</b> column, compute $\\dfrac{n}{2}$, and pick the <b>median class</b> — the first class whose cumulative frequency is $\\ge \\dfrac{n}{2}$. Then $\\text{Median}=l+\\left(\\dfrac{\\frac{n}{2}-cf}{f}\\right)h$, where $cf$ is the cumulative frequency of the class <b>preceding</b> the median class. Watch: $cf$ is from the class before, not the median class itself.",
+      "tested": "3-mark &ldquo;find the median&rdquo;, and the reverse 5-mark &ldquo;median given, find the missing frequency&rdquo;",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Which measure, and the empirical bridge",
+      "body": "<b>Mean</b> uses every observation but is dragged by extreme values; <b>median</b> resists extremes (best for &lsquo;typical&rsquo; wage/productivity); <b>mode</b> answers &lsquo;most popular / most frequent&rsquo;. When two are known, the empirical relation $3\\,\\text{Median}=\\text{Mode}+2\\,\\text{Mean}$ estimates the third. ⚑ Syllabus note (2026-27): the graphical method of finding the median is OUT of the rationalised syllabus — here the median is computed by formula only, from a cumulative-frequency table.",
+      "tested": "&ldquo;compare and interpret the two measures&rdquo; parts; estimate-the-third using $3\\,\\text{Median}=\\text{Mode}+2\\,\\text{Mean}$",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_2",
+      "shape": "Mean by all three methods · NCERT Example 2",
+      "kind": "numerical",
+      "problem_verbatim": "The table below gives the percentage distribution of female teachers in the primary schools of rural areas of various states and union territories (U.T.) of India. Find the mean percentage of female teachers by all the three methods discussed in this section.",
+      "solution_steps": [
+        {
+          "lead": "Set up class marks and totals.",
+          "text": "Class marks $x_i = 20, 30, 40, 50, 60, 70, 80$ with frequencies $f_i = 6, 11, 7, 4, 4, 2, 1$. Taking $a = 50$, $h = 10$: $\\Sigma f_i = 35$, $\\Sigma f_i x_i = 1390$, $\\Sigma f_i d_i = -360$, $\\Sigma f_i u_i = -36$.",
+          "concept_tag": "class marks + column sums",
+          "mark": 1
+        },
+        {
+          "lead": "Direct method.",
+          "text": "$\\bar{x} = \\dfrac{\\Sigma f_i x_i}{\\Sigma f_i} = \\dfrac{1390}{35} = 39.71$.",
+          "concept_tag": "direct method",
+          "mark": 1
+        },
+        {
+          "lead": "Assumed-mean method.",
+          "text": "$\\bar{x} = a + \\dfrac{\\Sigma f_i d_i}{\\Sigma f_i} = 50 + \\dfrac{-360}{35} = 39.71$ — same answer.",
+          "concept_tag": "assumed-mean method",
+          "mark": 0.5
+        },
+        {
+          "lead": "Step-deviation method.",
+          "text": "$\\bar{x} = a + h\\!\\left(\\dfrac{\\Sigma f_i u_i}{\\Sigma f_i}\\right) = 50 + 10\\times\\dfrac{-36}{35} = 39.71$. So the mean percentage of female teachers is $39.71$.",
+          "concept_tag": "step-deviation method",
+          "mark": 0.5
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the class-mark table and column sums, 1 for computing the mean by one method, 1 shared for confirming the other two methods give the identical 39.71. NCERT's point is that the choice of method is a convenience, not a different answer.",
+      "source": {
+        "ncert_example": "2",
+        "ncert_page": 178,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "problem on p.178, worked table + all three methods on p.179"
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Step-deviation with unequal classes · NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "The distribution below shows the number of wickets taken by bowlers in one-day cricket matches. Find the mean number of wickets by choosing a suitable method. What does the mean signify?",
+      "solution_steps": [
+        {
+          "lead": "Choose the step-deviation method (classes are unequal, $x_i$ large).",
+          "text": "Take $a = 200$, $h = 20$. Class marks $x_i = 40, 80, 125, 200, 300, 400$; $u_i = \\dfrac{x_i - 200}{20}$; frequencies $f_i = 7, 5, 16, 12, 2, 3$.",
+          "concept_tag": "step-deviation setup",
+          "mark": 1
+        },
+        {
+          "lead": "Column sum.",
+          "text": "$\\Sigma f_i = 45$ and $\\Sigma f_i u_i = -106$, so $\\bar{u} = \\dfrac{-106}{45}$.",
+          "concept_tag": "sum of f_i u_i",
+          "mark": 1
+        },
+        {
+          "lead": "Apply the formula and interpret.",
+          "text": "$\\bar{x} = 200 + \\dfrac{-106}{45}\\times 20 = 200 - 47.11 = 152.89$. This tells us that, on average, these 45 bowlers took about 153 wickets each in one-day cricket.",
+          "concept_tag": "compute + signify",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for choosing step-deviation and building the $u_i$ column, 1 for $\\Sigma f_i u_i = -106$, 1 for $\\bar{x} = 152.89$ with the interpretation. The step-deviation method still works with unequal classes when a suitable $h$ divides the $d_i$.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 180,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "ex_ncert_5",
+      "shape": "Mode of grouped data · NCERT Example 5",
+      "kind": "numerical",
+      "problem_verbatim": "A survey conducted on 20 households in a locality by a group of students resulted in the following frequency table for the number of family members in a household: ... Find the mode of this data.",
+      "solution_steps": [
+        {
+          "lead": "Locate the modal class.",
+          "text": "The maximum frequency is 8, in the class $3-5$, so the modal class is $3-5$: $l = 3$, $h = 2$, $f_1 = 8$, $f_0 = 7$ (class before), $f_2 = 2$ (class after).",
+          "concept_tag": "identify modal class",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute into the mode formula.",
+          "text": "$\\text{Mode} = l + \\left(\\dfrac{f_1 - f_0}{2f_1 - f_0 - f_2}\\right)h = 3 + \\left(\\dfrac{8 - 7}{2\\times 8 - 7 - 2}\\right)\\times 2$.",
+          "concept_tag": "mode formula",
+          "mark": 1
+        },
+        {
+          "lead": "Simplify.",
+          "text": "$= 3 + \\dfrac{1}{7}\\times 2 = 3.286$. So the mode of the data is $3.286$.",
+          "concept_tag": "final value",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for identifying the modal class $3-5$ and reading off $l, h, f_1, f_0, f_2$, 1 for correct substitution into the mode formula, 1 for the value $3.286$. The classic lost mark is a sign slip in the denominator $2f_1 - f_0 - f_2$.",
+      "source": {
+        "ncert_example": "5",
+        "ncert_page": 184,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "problem stem on p.183, solution on p.184-185; the frequency table is elided (\"...\") and acknowledged non-verbatim"
+      }
+    },
+    {
+      "id": "ex_ncert_7",
+      "shape": "Median from a less-than table · NCERT Example 7",
+      "kind": "numerical",
+      "problem_verbatim": "A survey regarding the heights (in cm) of 51 girls of Class X of a school was conducted and the following data was obtained: ... Find the median height.",
+      "solution_steps": [
+        {
+          "lead": "Convert less-than data to class frequencies + cumulative frequency.",
+          "text": "Classes below 140, 140-145, 145-150, 150-155, 155-160, 160-165 have frequencies $4, 7, 18, 11, 6, 5$, with cumulative frequencies $4, 11, 29, 40, 46, 51$.",
+          "concept_tag": "build cumulative frequency",
+          "mark": 1
+        },
+        {
+          "lead": "Find the median class.",
+          "text": "$n = 51$, so $\\dfrac{n}{2} = 25.5$. The class $145-150$ is the first with cumulative frequency $(29) \\ge 25.5$, so it is the median class: $l = 145$, $cf = 11$ (preceding class), $f = 18$, $h = 5$.",
+          "concept_tag": "locate median class",
+          "mark": 1
+        },
+        {
+          "lead": "Apply the median formula.",
+          "text": "$\\text{Median} = l + \\left(\\dfrac{\\frac{n}{2} - cf}{f}\\right)h = 145 + \\left(\\dfrac{25.5 - 11}{18}\\right)\\times 5 = 145 + \\dfrac{72.5}{18} = 149.03$. So the median height is $149.03$ cm.",
+          "concept_tag": "median formula",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for turning the less-than table into class frequencies and cumulative frequencies, 1 for locating the median class $145-150$ and reading off $l, cf, f, h$, 1 for the value $149.03$ cm. $cf$ must be the cumulative frequency of the class BEFORE the median class.",
+      "source": {
+        "ncert_example": "7",
+        "ncert_page": 194,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "problem on p.194, solution on p.194-195; the less-than data table is elided (\"...\") and acknowledged non-verbatim"
+      }
+    },
+    {
+      "id": "ex_ncert_8",
+      "shape": "Reverse: median given, find missing frequencies · NCERT Example 8",
+      "kind": "numerical",
+      "problem_verbatim": "The median of the following data is 525. Find the values of x and y, if the total frequency is 100.",
+      "solution_steps": [
+        {
+          "lead": "Write the cumulative frequency column in terms of x and y.",
+          "text": "The cumulative frequencies run $2, 7, 7+x, 19+x, 36+x, 56+x, 56+x+y, 65+x+y, 72+x+y, 76+x+y$.",
+          "concept_tag": "cumulative frequency with unknowns",
+          "mark": 1
+        },
+        {
+          "lead": "Use the total frequency.",
+          "text": "$n = 100 \\Rightarrow 76 + x + y = 100 \\Rightarrow x + y = 24$. (Equation 1)",
+          "concept_tag": "total-frequency equation",
+          "mark": 1
+        },
+        {
+          "lead": "Identify the median class.",
+          "text": "Median $= 525$ lies in the class $500-600$, so $l = 500$, $f = 20$, $cf = 36 + x$, $h = 100$, and $\\dfrac{n}{2} = 50$.",
+          "concept_tag": "locate median class",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute into the median formula and solve for x.",
+          "text": "$525 = 500 + \\left(\\dfrac{50 - (36 + x)}{20}\\right)\\times 100 \\Rightarrow 25 = (14 - x)\\times 5 \\Rightarrow 5x = 45 \\Rightarrow x = 9$.",
+          "concept_tag": "solve the formula for x",
+          "mark": 1
+        },
+        {
+          "lead": "Back-substitute for y.",
+          "text": "From Equation 1: $9 + y = 24 \\Rightarrow y = 15$. So $x = 9$ and $y = 15$.",
+          "concept_tag": "solve for y",
+          "mark": 1
+        }
+      ],
+      "marks_total": 5,
+      "mark_logic": "5-mark shape: 1 for the cumulative-frequency column in $x, y$ · 1 for $x + y = 24$ from the total · 1 for locating the median class $500-600$ and reading $l, f, cf, h$ · 1 for substituting into the median formula and solving $x = 9$ · 1 for $y = 15$. Miss the total-frequency equation and you cannot close for both unknowns.",
+      "source": {
+        "ncert_example": "8",
+        "ncert_page": 195,
+        "edition": "2026-27",
+        "chapter": 13,
+        "note": "problem on p.195, solution on p.195-196"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "&ldquo;Find the mean&rdquo;?",
+      "text": "Write class marks $x_i$, then pick the lightest arithmetic: direct if $x_i, f_i$ small; assumed-mean / step-deviation if they are large or the $d_i$ share a common factor $h$."
+    },
+    {
+      "cue": "&ldquo;Find the mode&rdquo;?",
+      "text": "Circle the modal class (max frequency), read off $l, h, f_1, f_0, f_2$, then $\\text{Mode}=l+\\left(\\dfrac{f_1-f_0}{2f_1-f_0-f_2}\\right)h$."
+    },
+    {
+      "cue": "&ldquo;Find the median&rdquo;?",
+      "text": "Build the cumulative frequency column, compute $\\frac{n}{2}$, locate the median class (first $cf \\ge \\frac{n}{2}$), then plug $l, cf, f, h$ into the median formula."
+    },
+    {
+      "cue": "Classes look discontinuous (e.g. 118-126, 127-135)?",
+      "text": "Convert to continuous classes (117.5-126.5, 126.5-135.5, ...) BEFORE applying the mode or median formula."
+    },
+    {
+      "cue": "&ldquo;Median given, find the missing frequency&rdquo;?",
+      "text": "Set up the cumulative frequency column with the unknowns, use $n$ for one equation and the median formula for another, then solve the pair."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>$cf$ is the cumulative frequency of the class PRECEDING the median class</b> — not of the median class itself. Reading the wrong row is the commonest median error.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Not converting to continuous classes</b> before the mode/median formula (e.g. 118-126 must become 117.5-126.5) — the formulae assume continuous intervals.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Sign slip in the mode denominator</b> $2f_1 - f_0 - f_2$ — subtract BOTH $f_0$ and $f_2$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Picking the wrong class</b> — the modal class is the one with the maximum frequency; the median class is the first whose cumulative frequency reaches $\\frac{n}{2}$. Confusing the two wrecks the answer.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Mean — direct method",
+      "math": "$\\bar{x} = \\dfrac{\\Sigma f_i x_i}{\\Sigma f_i}$"
+    },
+    {
+      "label": "Mean — assumed-mean method",
+      "math": "$\\bar{x} = a + \\dfrac{\\Sigma f_i d_i}{\\Sigma f_i},\\ d_i = x_i - a$"
+    },
+    {
+      "label": "Mean — step-deviation method",
+      "math": "$\\bar{x} = a + h\\!\\left(\\dfrac{\\Sigma f_i u_i}{\\Sigma f_i}\\right),\\ u_i = \\dfrac{x_i - a}{h}$"
+    },
+    {
+      "label": "Class mark",
+      "math": "$x_i = \\dfrac{\\text{upper limit} + \\text{lower limit}}{2}$"
+    },
+    {
+      "label": "Mode",
+      "math": "$\\text{Mode} = l + \\left(\\dfrac{f_1 - f_0}{2f_1 - f_0 - f_2}\\right)h$"
+    },
+    {
+      "label": "Median",
+      "math": "$\\text{Median} = l + \\left(\\dfrac{\\frac{n}{2} - cf}{f}\\right)h$"
+    },
+    {
+      "label": "Empirical relation",
+      "math": "$3\\,\\text{Median} = \\text{Mode} + 2\\,\\text{Mean}$"
+    }
+  ],
+  "mindmap": {
+    "root": "Statistics — mean, mode &amp; median of grouped data",
+    "branches": [
+      {
+        "label": "Mean of grouped data (3 mk)",
+        "children": [
+          "Class mark x_i = (upper + lower)/2",
+          "Direct: x̄ = Σf_i x_i / Σf_i",
+          "Assumed-mean: x̄ = a + Σf_i d_i / Σf_i",
+          "Step-deviation: x̄ = a + h(Σf_i u_i / Σf_i)",
+          "All three give the same mean"
+        ]
+      },
+      {
+        "label": "Mode of grouped data (3 mk)",
+        "children": [
+          "Modal class = max frequency",
+          "Mode = l + [(f1 − f0)/(2f1 − f0 − f2)] h",
+          "l, h, f1, f0, f2 read off the modal class"
+        ]
+      },
+      {
+        "label": "Median of grouped data (3-5 mk)",
+        "children": [
+          "Build cumulative frequency column",
+          "n/2 → median class (first cf ≥ n/2)",
+          "Median = l + [(n/2 − cf)/f] h",
+          "cf = preceding class's cumulative frequency",
+          "Reverse: median given → find missing frequency"
+        ]
+      },
+      {
+        "label": "Choosing the measure",
+        "children": [
+          "Mean uses all data, pulled by extremes",
+          "Median resists extremes (typical value)",
+          "Mode = most frequent / most popular",
+          "3 Median = Mode + 2 Mean"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "cf is the PRECEDING class",
+          "Make classes continuous first",
+          "Sign in 2f1 − f0 − f2",
+          "Pick the right modal / median class"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Why the assumed-mean &amp; step-deviation formulas work",
+    "intro": "NCERT derives the assumed-mean and step-deviation formulas from the direct method (pp.174-177) — they are just simplified forms that shrink the arithmetic, not different definitions of the mean. Following the derivation shows WHY the mean comes out identical whichever method you choose, and why any convenient $a$ and $h$ work.",
+    "steps": [
+      {
+        "claim": "Pick an assumed mean $a$ (a convenient class mark) and take the deviation of each class mark from it.",
+        "math": "$d_i = x_i - a$"
+      },
+      {
+        "claim": "Define the mean of the deviations.",
+        "math": "$\\bar{d} = \\dfrac{\\Sigma f_i d_i}{\\Sigma f_i}$"
+      },
+      {
+        "claim": "Substitute $d_i = x_i - a$ and split the sum — $a$ is constant, so it factors out.",
+        "math": "$\\bar{d} = \\dfrac{\\Sigma f_i (x_i - a)}{\\Sigma f_i} = \\dfrac{\\Sigma f_i x_i}{\\Sigma f_i} - a = \\bar{x} - a$",
+        "justification": "$\\dfrac{\\Sigma f_i x_i}{\\Sigma f_i}$ is exactly the direct-method mean $\\bar{x}$, and $\\dfrac{a\\,\\Sigma f_i}{\\Sigma f_i}=a$."
+      },
+      {
+        "claim": "Rearrange to get the Assumed Mean Method.",
+        "math": "$\\bar{x} = a + \\bar{d} = a + \\dfrac{\\Sigma f_i d_i}{\\Sigma f_i}$"
+      },
+      {
+        "claim": "To shrink the numbers further, scale the deviations by the class size $h$.",
+        "math": "$u_i = \\dfrac{x_i - a}{h},\\qquad \\bar{u} = \\dfrac{\\Sigma f_i u_i}{\\Sigma f_i} = \\dfrac{1}{h}(\\bar{x} - a)$"
+      },
+      {
+        "claim": "Rearrange to get the Step-deviation Method — and note $a, h$ may be any convenient numbers.",
+        "math": "$\\bar{x} = a + h\\,\\bar{u} = a + h\\!\\left(\\dfrac{\\Sigma f_i u_i}{\\Sigma f_i}\\right)$",
+        "justification": "The formula still holds for any non-zero $h$, so you choose $a$ and $h$ to make the columns small — that is the whole point of the method."
+      }
+    ],
+    "source": {
+      "ncert_page": 175,
+      "edition": "2026-27",
+      "chapter": 13,
+      "note": "derivation runs across pp.174-177 (assumed-mean relation d̄ = x̄ − a on p.175; step-deviation relation x̄ = a + h·ū on pp.176-177)"
+    }
+  },
+  "figures": {
+    "fig_mean_table_133": {
+      "bucket": "ncert",
+      "tag": "NCERT Table 13.3",
+      "caption": "Grouped-frequency table for the Direct Method — class marks x_i and the f_i·x_i column that sums to Σf_i x_i = 1860.",
+      "legend": "Each class is represented by its class mark x_i (mid-point); the last column f_i·x_i sums to 1860 over Σf_i = 30, giving the mean x̄ = 1860/30 = 62.",
+      "source": {
+        "pdf": "jemh113",
+        "edition": "2026-27",
+        "ncert_fig": "Table 13.3",
+        "page_pdf": 3,
+        "page_printed": 174,
+        "crop": [40, 90, 430, 262],
+        "clean": null,
+        "refill": null,
+        "note": "rendered at 3x zoom via pymupdf get_pixmap(clip); eye-confirmed all six class rows + Total row"
+      },
+      "asset": "statistics/fig_mean_table_133.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Mean (average) of observations",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.171"
+    },
+    {
+      "item": "Class mark (mid-point)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.173"
+    },
+    {
+      "item": "Mode",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.183"
+    },
+    {
+      "item": "Median",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.188"
+    },
+    {
+      "item": "Modal class",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.184"
+    },
+    {
+      "item": "Direct Method",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.174"
+    },
+    {
+      "item": "Assumed Mean Method",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.176"
+    },
+    {
+      "item": "Step-deviation Method",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.177"
+    },
+    {
+      "item": "Median class",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.193"
+    },
+    {
+      "item": "Cumulative frequency",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.201 (Summary 3)"
+    },
+    {
+      "item": "Empirical relationship",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch13 p.197 (Remark)"
+    },
+    {
+      "item": "Mean by all three methods · NCERT Example 2",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch13 Example 2 p.178-179"
+    },
+    {
+      "item": "Step-deviation with unequal classes · NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch13 Example 3 p.180"
+    },
+    {
+      "item": "Mode of grouped data · NCERT Example 5",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch13 Example 5 p.183-185"
+    },
+    {
+      "item": "Median from a less-than table · NCERT Example 7",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch13 Example 7 p.194-195"
+    },
+    {
+      "item": "Reverse: median given, find missing frequencies · NCERT Example 8",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch13 Example 8 p.195-196"
+    },
+    {
+      "item": "fig_mean_table_133",
+      "type": "ncert-figure",
+      "source": "NCERT 2026-27 Ch13 Table 13.3 p.174 (jemh113 pdf idx 3)"
+    }
+  ]
+}
