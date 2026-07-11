@@ -9,3 +9,4 @@ plumbing -- newest row first, directly under the marker below.
 | Date (UTC) | SHA | PR | Subject | Files | Top-level dirs |
 | --- | --- | --- | --- | --- | --- |
 <!-- LEDGER:INSERT (newest rows are added directly below this line) -->
+| 2026-07-11T10:12:05Z | `b920440` | #366 | ci(coordination): lane-overlap guard + state-board ledger + CODEOWNERS | 6 | .github, ledger, scripts |
