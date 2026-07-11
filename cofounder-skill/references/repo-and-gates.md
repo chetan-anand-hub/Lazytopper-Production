@@ -50,11 +50,35 @@
   delete the branch. Keep the open-PR count near zero. (Learned from 5 stale branches — #180/#1/#2/#17/#69 — all
   pre-#338, all superseded, all closed.)
 
+## COORDINATION & MERGE DISCIPLINE (automate the deterministic; keep human the judgment)
+The line: AUTOMATE the mechanical + error-prone-by-hand — rebasing onto current trunk, detecting lane collisions,
+re-running proofs, recording the real merged SHA. KEEP HUMAN the judgment — merge approval, live-verification of a
+real round-trip, ratifying a scope/pedagogy call. Automation PREPARES a merge to a quick owner yes; it never decides.
+- **MERGE QUEUE mechanizes the stale-base rule.** An approved PR enters a serial queue; GitHub rebases onto current
+  trunk (+ any PR ahead), re-runs CI on the rebased result, merges only if green (= stale-base + serial-merge in one
+  setting). Until it's on, hand-rebase the SECOND PR onto trunk+first, re-run its proof, THEN merge.
+- **LANE-OVERLAP CI CHECK catches collisions.** It intersects a PR's changed paths with every other open PR's and
+  fails on overlap. File-disjoint lanes (content vs `src/data` vs CI) parallelize; two PRs on `src/data/**` do NOT —
+  sequence them. Mechanical, not held-in-head.
+- **The written SHA is stale by design** (one-commit doc lag) — re-derive, never trust it. An AUTO-STATE-BOARD Action
+  records the real merged SHA + files to a ledger on every merge (machine-recorded, not hand-copied).
+- **Every "I manually verified X" becomes a committed CI check.** Once a proof is import-based and wired into
+  `test:matrix:all` (e.g. `topickey_runtime_proof.mjs`), a green check MEANS something — stop re-deriving by hand.
+- **INDEPENDENT AUDIT is a STANDING step for substantive PRs** — a separate agent (not the author, no write access)
+  re-runs the checks + adversarially samples → PASS/REJECT; the owner reviews the VERDICT (minutes), not the raw diff.
+  Review bandwidth is the real bottleneck; this is the biggest lever on it.
+- **CODEOWNERS enforces gated lanes** (`src/data/**`, forbidden files, `cofounder-skill/**`) — a prose rule that
+  isn't a gate eventually gets missed.
+
 ## BYTE-REVIEW RECIPE (never rubber-stamp a report)
 1. Pull the branch tarball. 2. `diff -rq` against the branch's TRUE base (mind base drift — diff vs CURRENT trunk,
 and explain any extra "differs" as stale-base vs real modification). 3. Confirm exact scope (only its files).
 4. Confirm forbidden files untouched / byte-identical. 5. Confirm shared-infra changes are ADDITIVE (grep the
 existing exports/behaviour intact). 6. No fabrication. 7. PASS/FAIL with specific checks. 8. Live-verify still required.
+- **PROVE COVERAGE, NOT JUST GREEN.** A static check that SCANS SOURCE is convention-blind — it silently misses
+  whatever its pattern doesn't match (factory questions, JSON-style keys). A proof/census/guard that covers a SUBSET
+  is the exact failure mode being cured. Verify by reading the ASSEMBLED artifact (import), never a green text-scan;
+  if a green result and the assembled artifact disagree, the artifact wins.
 
 ## KNOWN GOTCHAS (durable ones; new ones accrue in handoff/OPEN_QUESTIONS)
 - GRADER: TWO functions in `checkSolution.cjs` (`handleCheckSolution` + `gradeStructuredSet`) — patch BOTH; keep in sync.
