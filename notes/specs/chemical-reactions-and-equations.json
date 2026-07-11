@@ -1,0 +1,831 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "chemical-reactions-and-equations",
+    "subject": "chemistry",
+    "chapter_no": 1,
+    "title": "Chemical Reactions and Equations",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Reactions",
+      "kind": "reactions"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 1"
+  },
+  "board_asks": "balance a skeletal equation and add the physical-state symbols (s)/(l)/(g)/(aq); identify the reaction type (combination, decomposition, displacement, double displacement/precipitation, or oxidation-reduction); classify a decomposition by its energy source (heat, light or electricity); say which substance is oxidised and which is reduced; and explain the everyday effects of oxidation - corrosion and rancidity. The balanced equation IS the answer in most questions here.",
+  "big_idea": {
+    "tagline": "New substances form - and we record them as a balanced equation.",
+    "body": "A chemical reaction makes one or more new substances; you notice it as a change in state, colour or temperature, or a gas being given off. We write the change as a chemical equation and then balance it, because atoms are only rearranged, never created or destroyed. Almost every reaction in this chapter sorts into one of five types, and many are also redox reactions - oxygen or hydrogen changing hands. Most marks sit in writing the correct balanced equation with the right classification."
+  },
+  "definitions": [
+    {
+      "id": "def_balanced_equation",
+      "tier": "headline",
+      "term": "Balanced chemical equation",
+      "verbatim": "A chemical equation is balanced so that the numbers of atoms of each type involved in a chemical reaction are the same on the reactant and product sides of the equation.",
+      "plain": "The same number of atoms of every element on the left and the right of the arrow - it must obey the law of conservation of mass.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 14,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_combination",
+      "tier": "headline",
+      "term": "Combination reaction",
+      "verbatim": "Such a reaction in which a single product is formed from two or more reactants is known as a combination reaction.",
+      "plain": "Two or more reactants join to give a single product, e.g. calcium oxide + water gives slaked lime.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 6,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_decomposition",
+      "tier": "headline",
+      "term": "Decomposition reaction",
+      "verbatim": "a single reactant breaks down to give simpler products. This is a decomposition reaction.",
+      "plain": "The opposite of combination - one reactant breaks down into two or more simpler products, usually needing heat, light or electricity.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 8,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_displacement",
+      "tier": "headline",
+      "term": "Displacement reaction",
+      "verbatim": "When an element displaces another element from its compound, a displacement reaction occurs.",
+      "plain": "A more reactive element pushes a less reactive one out of its compound - iron displaces copper from copper sulphate solution.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 14,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_double_displacement",
+      "tier": "headline",
+      "term": "Double displacement reaction",
+      "verbatim": "Such reactions in which there is an exchange of ions between the reactants are called double displacement reactions.",
+      "plain": "The two reactants swap their ions/partners; an insoluble product often drops out as a precipitate.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 12,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_oxidation_reduction",
+      "tier": "headline",
+      "term": "Oxidation and reduction",
+      "verbatim": "if a substance gains oxygen or loses hydrogen during a reaction, it is oxidised. If a substance loses oxygen or gains hydrogen during a reaction, it is reduced.",
+      "plain": "Oxidation adds oxygen (or removes hydrogen); reduction removes oxygen (or adds hydrogen). When one substance is oxidised and the other reduced in the same reaction it is a redox reaction.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 13,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_redox",
+      "tier": "headline",
+      "term": "Redox reaction (oxidation-reduction)",
+      "verbatim": "one reactant gets oxidised while the other gets reduced during a reaction. Such reactions are called oxidation-reduction reactions or redox reactions.",
+      "plain": "A reaction in which one substance is oxidised and, at the same time, another substance is reduced.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 12,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_exothermic",
+      "tier": "headline",
+      "term": "Exothermic reaction",
+      "verbatim": "Reactions in which heat is released along with the formation of products are called exothermic chemical reactions.",
+      "plain": "A reaction that gives out heat to the surroundings - respiration, combustion, and quicklime added to water are examples.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 7,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_endothermic",
+      "tier": "headline",
+      "term": "Endothermic reaction",
+      "verbatim": "Reactions in which energy is absorbed are known as endothermic reactions.",
+      "plain": "A reaction that takes in energy from the surroundings - most decomposition reactions are endothermic.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 10,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_corrosion",
+      "tier": "headline",
+      "term": "Corrosion",
+      "verbatim": "When a metal is attacked by substances around it such as moisture, acids, etc., it is said to corrode and this process is called corrosion.",
+      "plain": "The slow eating-away of a metal by air, moisture or acids - the rusting of iron is the everyday example.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 13,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "def_rancidity",
+      "tier": "headline",
+      "term": "Rancidity",
+      "verbatim": "When fats and oils are oxidised, they become rancid and their smell and taste change.",
+      "plain": "The oxidation of fats and oils in food, which spoils their smell and taste; slowed by antioxidants or by flushing the pack with nitrogen.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 13,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "kt_skeletal_equation",
+      "tier": "key-term",
+      "term": "Skeletal chemical equation",
+      "verbatim": "Such a chemical equation is a skeletal chemical equation for a reaction.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 3,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "kt_precipitation",
+      "tier": "key-term",
+      "term": "Precipitation reaction",
+      "verbatim": "Any reaction that produces a precipitate can be called a precipitation reaction.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 11,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Writing and balancing an equation",
+      "body": "Write the reactants on the left and products on the right of an arrow, using chemical formulae. Balance by the hit-and-trial method - start with the compound that has the most atoms and change only the coefficients, never the formula itself. Finally add state symbols (s), (l), (g), (aq) to make the equation informative.",
+      "tested": "3-mark: balance a skeletal equation and write it with correct state symbols.",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "Combination reactions",
+      "body": "Two or more reactants combine to form a single product, for example calcium oxide + water gives slaked lime, or magnesium burns in air to give magnesium oxide. Combination reactions are usually exothermic - heat is given out.",
+      "tested": "identify a combination reaction, write the equation, and state whether it is exothermic.",
+      "figure_ref": "fig_mg_ribbon_burning"
+    },
+    {
+      "id": "c3",
+      "title": "Decomposition reactions",
+      "body": "A single reactant breaks down into two or more simpler products. The energy needed is supplied as heat (thermal, e.g. limestone to quicklime), light (photolytic, e.g. silver chloride in sunlight), or electricity (electrolytic, e.g. electrolysis of water). Decomposition reactions are usually endothermic.",
+      "tested": "classify a decomposition by its energy source (heat/light/electricity) and write one equation for each.",
+      "figure_ref": "fig_electrolysis_water"
+    },
+    {
+      "id": "c4",
+      "title": "Displacement reactions",
+      "body": "A more reactive metal displaces a less reactive metal from its salt solution, for example iron displaces copper from copper sulphate solution. The iron nail turns brownish and the blue colour of the copper sulphate solution fades.",
+      "tested": "reactivity comparison plus the colour changes observed with the iron nail and copper sulphate.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Double displacement and precipitation",
+      "body": "The reactants exchange ions; when an insoluble salt forms it drops out as a precipitate, for example sodium sulphate + barium chloride gives a white precipitate of barium sulphate. Any reaction that produces a precipitate is a precipitation reaction.",
+      "tested": "name the precipitate and write the balanced equation with state symbols.",
+      "figure_ref": "fig_precipitation_baso4"
+    },
+    {
+      "id": "c6",
+      "title": "Oxidation-reduction (redox)",
+      "body": "In a redox reaction one substance is oxidised (gains oxygen or loses hydrogen) while the other is reduced (loses oxygen or gains hydrogen) at the same time. For example, when hydrogen is passed over heated copper(II) oxide, CuO is reduced to copper and hydrogen is oxidised to water.",
+      "tested": "state which substance is oxidised and which is reduced, with the reason.",
+      "figure_ref": null
+    },
+    {
+      "id": "c7",
+      "title": "Effects of oxidation in everyday life",
+      "body": "Corrosion is the slow attack of a metal by moisture and acids in its surroundings - the rusting of iron is the commonest example, and it damages railings, bridges, ships and car bodies. Rancidity is the oxidation of fats and oils in food, which changes their smell and taste; it is slowed by adding antioxidants, using air-tight packs, or flushing the pack with nitrogen.",
+      "tested": "2-mark: define corrosion and rancidity with an example each; why food packs are flushed with nitrogen.",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_balancing_iron_steam",
+      "shape": "Balancing a skeletal equation",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Balance the skeletal equation Fe + H2O -> Fe3O4 + H2 by the hit-and-trial method and write it with physical states.",
+      "solution_steps": [
+        {
+          "lead": "Count the atoms.",
+          "text": "LHS: Fe 1, H 2, O 1. RHS: Fe 3, H 2, O 4 - the skeletal equation is unbalanced.",
+          "mark": 0.5
+        },
+        {
+          "lead": "Start with the biggest formula.",
+          "text": "Fe3O4 has 4 oxygen atoms, so balance oxygen by putting 4 before H2O.",
+          "equation": "Fe + 4H2O -> Fe3O4 + H2",
+          "concept_tag": "start with the most atoms",
+          "mark": 0.5
+        },
+        {
+          "lead": "Balance hydrogen.",
+          "text": "There are now 8 H atoms on the left, so put 4 before H2 on the right.",
+          "equation": "Fe + 4H2O -> Fe3O4 + 4H2",
+          "mark": 0.5
+        },
+        {
+          "lead": "Balance iron.",
+          "text": "There are 3 Fe atoms on the right, so put 3 before Fe on the left.",
+          "equation": "3Fe + 4H2O -> Fe3O4 + 4H2",
+          "mark": 0.5
+        },
+        {
+          "lead": "Add physical states.",
+          "text": "Water is used here as steam, so the complete balanced equation is:",
+          "equation": "3Fe(s) + 4H2O(g) -> Fe3O4(s) + 4H2(g)",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark: the correct coefficients reached stage by stage (2 - about half a mark per balanced element/step) plus a fully balanced equation carrying correct state symbols (1). Never change a formula - only the coefficients.",
+      "source": {
+        "ncert_example": "Balancing worked example (Steps I-VII, Eq. 1.10)",
+        "ncert_page": 5,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_combination_slaked_lime",
+      "shape": "Combination + energy classification",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Quicklime (calcium oxide) is added to water and the beaker becomes warm. Write the balanced equation and classify the reaction.",
+      "solution_steps": [
+        {
+          "lead": "Equation.",
+          "text": "Calcium oxide reacts vigorously with water to give slaked lime, releasing heat:",
+          "equation": "CaO(s) + H2O(l) -> Ca(OH)2(aq) + Heat",
+          "mark": 1
+        },
+        {
+          "lead": "Type.",
+          "text": "Two reactants form a single product, so it is a combination reaction.",
+          "concept_tag": "combination",
+          "mark": 0.5
+        },
+        {
+          "lead": "Energy.",
+          "text": "Heat is given out, so the reaction is also exothermic.",
+          "concept_tag": "exothermic",
+          "mark": 0.5
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark: the balanced equation for slaked lime (1) plus both classifications - combination and exothermic (0.5 + 0.5).",
+      "source": {
+        "ncert_example": "Activity 1.4, Eq. 1.13",
+        "ncert_page": 6,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_decomposition_three_sources",
+      "shape": "Decomposition by energy source",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Give one decomposition reaction each that is brought about by heat, by light, and by electricity, naming the type in each case.",
+      "solution_steps": [
+        {
+          "lead": "Thermal (heat).",
+          "text": "Limestone decomposes on strong heating to quicklime and carbon dioxide:",
+          "equation": "CaCO3(s) --Heat--> CaO(s) + CO2(g)",
+          "concept_tag": "thermal decomposition",
+          "mark": 1
+        },
+        {
+          "lead": "Photolytic (light).",
+          "text": "White silver chloride turns grey in sunlight, decomposing to silver and chlorine:",
+          "equation": "2AgCl(s) --Sunlight--> 2Ag(s) + Cl2(g)",
+          "concept_tag": "photolytic decomposition",
+          "mark": 1
+        },
+        {
+          "lead": "Electrolytic (electricity).",
+          "text": "Passing electricity through acidified water decomposes it (Activity 1.7); hydrogen and oxygen are collected in a 2:1 volume ratio.",
+          "equation": "2H2O(l) --Electricity--> 2H2(g) + O2(g)",
+          "concept_tag": "electrolytic decomposition",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark (exercise-type): one correct example/equation for each energy source - heat, light and electricity (1 each). All three are endothermic, since energy must be supplied to break the reactant down.",
+      "source": {
+        "ncert_example": "Eqs. 1.20 and 1.22; Activity 1.7 (Fig. 1.6)",
+        "ncert_page": 9,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_displacement_iron_copper",
+      "shape": "Displacement + observations",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] An iron nail is left in copper sulphate solution for some time. Write the balanced equation, name the reaction type, and state the two colour changes observed.",
+      "solution_steps": [
+        {
+          "lead": "Equation.",
+          "text": "Iron is more reactive than copper, so it displaces copper from the solution:",
+          "equation": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+          "mark": 1
+        },
+        {
+          "lead": "Type.",
+          "text": "One element displaces another from its compound, so it is a displacement reaction.",
+          "concept_tag": "displacement",
+          "mark": 1
+        },
+        {
+          "lead": "Observations.",
+          "text": "The iron nail becomes brownish as copper deposits on it, and the blue colour of the copper sulphate solution fades.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: the balanced displacement equation (1) + naming the reaction type (1) + both colour changes, the brownish nail and the fading blue solution (1).",
+      "source": {
+        "ncert_example": "Activity 1.9, Eq. 1.24",
+        "ncert_page": 11,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_double_displacement_baso4",
+      "shape": "Double displacement / precipitation",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Sodium sulphate solution is mixed with barium chloride solution. State what is observed, write the balanced equation with state symbols, and classify the reaction.",
+      "solution_steps": [
+        {
+          "lead": "Observation.",
+          "text": "A white substance that is insoluble in water - a precipitate of barium sulphate - is formed.",
+          "mark": 1
+        },
+        {
+          "lead": "Equation.",
+          "text": "The two solutions exchange ions:",
+          "equation": "Na2SO4(aq) + BaCl2(aq) -> BaSO4(s) + 2NaCl(aq)",
+          "mark": 1
+        },
+        {
+          "lead": "Type.",
+          "text": "The reactants exchange ions and an insoluble product forms, so it is a double displacement (precipitation) reaction.",
+          "concept_tag": "double displacement",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: observing/naming the white precipitate BaSO4 (1) + the balanced equation with state symbols (1) + classifying it as double displacement / precipitation (1).",
+      "source": {
+        "ncert_example": "Activity 1.10, Eq. 1.27",
+        "ncert_page": 11,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_redox_cuo_h2",
+      "shape": "Identify oxidised and reduced",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] In the reaction CuO + H2 -> Cu + H2O, identify the substance that is oxidised and the one that is reduced, giving a reason.",
+      "solution_steps": [
+        {
+          "lead": "Copper(II) oxide.",
+          "text": "CuO loses oxygen, so it is reduced to copper.",
+          "concept_tag": "reduction = loss of oxygen",
+          "mark": 1
+        },
+        {
+          "lead": "Hydrogen.",
+          "text": "H2 gains oxygen, so it is oxidised to water.",
+          "concept_tag": "oxidation = gain of oxygen",
+          "mark": 1
+        },
+        {
+          "lead": "Overall.",
+          "text": "Oxidation and reduction happen together, so the reaction is a redox reaction:",
+          "equation": "CuO + H2 --Heat--> Cu + H2O"
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark: CuO is reduced because it loses oxygen (1) + H2 is oxidised because it gains oxygen (1). State the rule - gain of oxygen is oxidation, loss of oxygen is reduction - and note that both together make it a redox reaction.",
+      "source": {
+        "ncert_example": "Eq. 1.29",
+        "ncert_page": 12,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Balance first.",
+      "text": "Draw a box around each formula and change only the coefficients, never the subscripts. Start with the compound that has the most atoms, then work through the other elements."
+    },
+    {
+      "cue": "Which type is it?",
+      "text": "Count reactants and products - one product means combination; one reactant means decomposition; a single element swapped out means displacement; ions exchanged between two compounds means double displacement."
+    },
+    {
+      "cue": "Redox?",
+      "text": "Track the oxygen (or hydrogen): whichever substance gains oxygen or loses hydrogen is oxidised; the other is reduced."
+    },
+    {
+      "cue": "Complete equation asked?",
+      "text": "Add the state symbols (s), (l), (g), (aq) and write the condition - Heat, Sunlight or Electricity - above the arrow when the question wants a complete equation."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Changing a formula to balance an equation - e.g. writing H2O4 instead of putting a 4 before H2O. Only the coefficients may be changed, never the subscripts inside a formula.",
+      "owner_verified": false
+    },
+    {
+      "text": "Leaving out the state symbols (s)/(l)/(g)/(aq) when the question asks for a complete or a balanced-with-states equation.",
+      "owner_verified": false
+    },
+    {
+      "text": "Confusing displacement (a single element is displaced) with double displacement (ions are exchanged between two compounds).",
+      "owner_verified": false
+    },
+    {
+      "text": "Reversing oxidation and reduction. Remember it by the oxygen: gain of oxygen is oxidation, loss of oxygen is reduction.",
+      "owner_verified": false
+    },
+    {
+      "text": "Calling a precipitation reaction a combination reaction. A white insoluble product means a double displacement (precipitation) reaction, not a combination.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Combination",
+      "math": "A + B -> AB  (two or more reactants -> a single product)"
+    },
+    {
+      "label": "Decomposition",
+      "math": "AB -> A + B  (one reactant -> two or more products)"
+    },
+    {
+      "label": "Displacement",
+      "math": "A + BC -> AC + B  (A more reactive than B)"
+    },
+    {
+      "label": "Double displacement",
+      "math": "AB + CD -> AD + CB  (ions exchanged)"
+    },
+    {
+      "label": "Oxidation / Reduction",
+      "math": "Oxidation: gain O or lose H  .  Reduction: lose O or gain H"
+    },
+    {
+      "label": "Conservation of mass",
+      "math": "atoms of each element (reactants) = atoms of each element (products)"
+    },
+    {
+      "label": "Everyday oxidation",
+      "math": "Corrosion (rusting of iron)  .  Rancidity (fats/oils oxidise) - slowed by antioxidants / nitrogen flush"
+    }
+  ],
+  "mindmap": {
+    "root": "Chemical Reactions and Equations",
+    "branches": [
+      {
+        "label": "Chemical equation",
+        "children": [
+          "Reactants -> Products (arrow)",
+          "Skeletal vs balanced equation",
+          "Balance: change coefficients only",
+          "State symbols (s)(l)(g)(aq)"
+        ]
+      },
+      {
+        "label": "Five reaction types",
+        "children": [
+          "Combination (A+B -> AB)",
+          "Decomposition (AB -> A+B)",
+          "Displacement (A+BC -> AC+B)",
+          "Double displacement (ion swap)",
+          "Precipitation (insoluble salt)"
+        ]
+      },
+      {
+        "label": "Decomposition by...",
+        "children": [
+          "Heat - thermal (CaCO3 -> CaO + CO2)",
+          "Light - photolytic (2AgCl -> 2Ag + Cl2)",
+          "Electricity - electrolytic (water)"
+        ]
+      },
+      {
+        "label": "Oxidation and reduction",
+        "children": [
+          "Oxidation = gain O / lose H",
+          "Reduction = lose O / gain H",
+          "2Cu + O2 -> 2CuO",
+          "CuO + H2 -> Cu + H2O (redox)"
+        ]
+      },
+      {
+        "label": "Energy change",
+        "children": [
+          "Exothermic - heat given out (respiration)",
+          "Endothermic - energy absorbed (most decompositions)"
+        ]
+      },
+      {
+        "label": "Everyday effects",
+        "children": [
+          "Corrosion - rusting of iron",
+          "Rancidity - fats/oils oxidise",
+          "Slowed by antioxidants / nitrogen flush"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "reactions",
+    "intro": "For Chemistry the subject-adaptive third tab holds the chapter's key balanced equations - the formal core you must be able to reproduce, grouped by reaction type. Every equation is a real NCERT Ch 1 reaction; the condition sits above/beside the arrow.",
+    "reactions": [
+      {
+        "name": "Combination - slaked lime",
+        "equation": "CaO(s) + H2O(l) -> Ca(OH)2(aq) + Heat",
+        "conditions": "Quicklime + water -> slaked lime; strongly exothermic",
+        "source": {
+          "ncert_page": 6,
+          "ncert_equation": "1.13",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Combination - burning of coal",
+        "equation": "C(s) + O2(g) -> CO2(g)",
+        "conditions": "Carbon burns in oxygen",
+        "source": {
+          "ncert_page": 7,
+          "ncert_equation": "1.15",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Combination - formation of water",
+        "equation": "2H2(g) + O2(g) -> 2H2O(l)",
+        "conditions": "Hydrogen burns in oxygen",
+        "source": {
+          "ncert_page": 7,
+          "ncert_equation": "1.16",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Exothermic - respiration",
+        "equation": "C6H12O6(aq) + 6O2(aq) -> 6CO2(aq) + 6H2O(l) + energy",
+        "conditions": "Glucose is broken down with oxygen in the cells; exothermic",
+        "source": {
+          "ncert_page": 7,
+          "ncert_equation": "1.18",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Thermal decomposition - ferrous sulphate",
+        "equation": "2FeSO4(s) --Heat--> Fe2O3(s) + SO2(g) + SO3(g)",
+        "conditions": "Green crystals lose colour; smell of burning sulphur (Activity 1.5)",
+        "source": {
+          "ncert_page": 8,
+          "ncert_equation": "1.19",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Thermal decomposition - limestone",
+        "equation": "CaCO3(s) --Heat--> CaO(s) + CO2(g)",
+        "conditions": "Limestone -> quicklime; used in the cement industry",
+        "source": {
+          "ncert_page": 8,
+          "ncert_equation": "1.20",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Thermal decomposition - lead nitrate",
+        "equation": "2Pb(NO3)2(s) --Heat--> 2PbO(s) + 4NO2(g) + O2(g)",
+        "conditions": "Brown fumes of nitrogen dioxide given off (Activity 1.6)",
+        "source": {
+          "ncert_page": 9,
+          "ncert_equation": "1.21",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Photolytic decomposition - silver chloride",
+        "equation": "2AgCl(s) --Sunlight--> 2Ag(s) + Cl2(g)",
+        "conditions": "White silver chloride turns grey in sunlight; used in photography",
+        "source": {
+          "ncert_page": 9,
+          "ncert_equation": "1.22",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Photolytic decomposition - silver bromide",
+        "equation": "2AgBr(s) --Sunlight--> 2Ag(s) + Br2(g)",
+        "conditions": "Behaves like silver chloride; used in black-and-white photography",
+        "source": {
+          "ncert_page": 10,
+          "ncert_equation": "1.23",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Electrolytic decomposition - water",
+        "equation": "2H2O(l) --Electricity--> 2H2(g) + O2(g)",
+        "conditions": "Electrolysis of acidified water; H2:O2 collected in a 2:1 volume ratio (Activity 1.7, Fig. 1.6 - the balanced equation is the standard form of this printed activity, not a printed equation)",
+        "source": {
+          "ncert_page": 9,
+          "ncert_example": "Activity 1.7 (Fig. 1.6)",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Displacement - iron and copper sulphate",
+        "equation": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+        "conditions": "Iron is more reactive than copper; blue solution fades, nail turns brown",
+        "source": {
+          "ncert_page": 11,
+          "ncert_equation": "1.24",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Displacement - zinc and copper sulphate",
+        "equation": "Zn(s) + CuSO4(aq) -> ZnSO4(aq) + Cu(s)",
+        "conditions": "Zinc is more reactive than copper",
+        "source": {
+          "ncert_page": 11,
+          "ncert_equation": "1.25",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Double displacement - precipitation of barium sulphate",
+        "equation": "Na2SO4(aq) + BaCl2(aq) -> BaSO4(s) + 2NaCl(aq)",
+        "conditions": "White precipitate of barium sulphate (insoluble)",
+        "source": {
+          "ncert_page": 11,
+          "ncert_equation": "1.27",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Redox - oxidation of copper",
+        "equation": "2Cu + O2 --Heat--> 2CuO",
+        "conditions": "Copper gains oxygen (oxidised); black coating of copper oxide forms",
+        "source": {
+          "ncert_page": 12,
+          "ncert_equation": "1.28",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      },
+      {
+        "name": "Redox - reduction of copper oxide",
+        "equation": "CuO + H2 --Heat--> Cu + H2O",
+        "conditions": "CuO is reduced (loses oxygen); H2 is oxidised (gains oxygen)",
+        "source": {
+          "ncert_page": 12,
+          "ncert_equation": "1.29",
+          "edition": "2026-27",
+          "chapter": 1
+        }
+      }
+    ]
+  },
+  "figures": {
+    "fig_mg_ribbon_burning": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 1.1",
+      "caption": "Burning of a magnesium ribbon in air and collection of magnesium oxide in a watch-glass.",
+      "legend": "A combination (and redox) reaction: magnesium burns with a dazzling white flame; Mg + O2 -> MgO. Labels: tong, magnesium ribbon, burner, watch-glass, magnesium oxide.",
+      "source": {
+        "pdf": "jesc101",
+        "edition": "2026-27",
+        "ncert_fig": "1.1",
+        "page_pdf": 0,
+        "printed_page": 1,
+        "crop": [500, 965, 1140, 1300],
+        "clean": "saturation@v205s0.12; matrix=2x (144dpi); eye-confirmed clean, all labels, no text bleed"
+      },
+      "asset": "chemical-reactions-and-equations/fig_mg_ribbon_burning.webp"
+    },
+    "fig_electrolysis_water": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 1.6",
+      "caption": "Electrolysis of water.",
+      "legend": "Electrolytic decomposition: passing electricity through acidified water gives hydrogen and oxygen in a 2:1 volume ratio. Labels: plastic mug, oxygen, hydrogen, test tube, water, graphite rod, rubber stopper, anode, cathode, switch, 6 V battery.",
+      "source": {
+        "pdf": "jesc101",
+        "edition": "2026-27",
+        "ncert_fig": "1.6",
+        "page_pdf": 8,
+        "printed_page": 9,
+        "crop": [628, 318, 1098, 668],
+        "clean": "saturation@v205s0.12; matrix=2x (144dpi); eye-confirmed clean, all labels, no text bleed"
+      },
+      "asset": "chemical-reactions-and-equations/fig_electrolysis_water.webp"
+    },
+    "fig_precipitation_baso4": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 1.9",
+      "caption": "Formation of barium sulphate and sodium chloride.",
+      "legend": "A double displacement (precipitation) reaction: mixing sodium sulphate and barium chloride solutions gives a white precipitate of barium sulphate. Labels: test tube containing solution of sodium sulphate, test tube containing solution of barium chloride.",
+      "source": {
+        "pdf": "jesc101",
+        "edition": "2026-27",
+        "ncert_fig": "1.9",
+        "page_pdf": 10,
+        "printed_page": 11,
+        "crop": [693, 918, 1092, 1251],
+        "clean": "saturation@v205s0.12; matrix=2x (144dpi); caption trimmed; eye-confirmed clean, both labels, no text bleed"
+      },
+      "asset": "chemical-reactions-and-equations/fig_precipitation_baso4.webp"
+    }
+  },
+  "source_ledger": [
+    { "item": "Balanced chemical equation", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.14" },
+    { "item": "Combination reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.6" },
+    { "item": "Decomposition reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.8" },
+    { "item": "Displacement reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.14" },
+    { "item": "Double displacement reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.12" },
+    { "item": "Oxidation and reduction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.13" },
+    { "item": "Redox reaction (oxidation-reduction)", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.12" },
+    { "item": "Exothermic reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.7" },
+    { "item": "Endothermic reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.10" },
+    { "item": "Corrosion", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.13" },
+    { "item": "Rancidity", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.13" },
+    { "item": "Skeletal chemical equation", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.3" },
+    { "item": "Precipitation reaction", "type": "verbatim", "source": "NCERT 2026-27 Ch1 p.11" },
+    { "item": "Balancing a skeletal equation", "type": "example", "source": "NCERT 2026-27 Ch1 Steps I-VII, Eq. 1.10, p.5" },
+    { "item": "Combination + energy classification", "type": "example", "source": "NCERT 2026-27 Ch1 Activity 1.4, Eq. 1.13, p.6" },
+    { "item": "Decomposition by energy source", "type": "example", "source": "NCERT 2026-27 Ch1 Eqs. 1.20/1.22, Activity 1.7, pp.8-9" },
+    { "item": "Displacement + observations", "type": "example", "source": "NCERT 2026-27 Ch1 Activity 1.9, Eq. 1.24, p.11" },
+    { "item": "Double displacement / precipitation", "type": "example", "source": "NCERT 2026-27 Ch1 Activity 1.10, Eq. 1.27, p.11" },
+    { "item": "Identify oxidised and reduced", "type": "example", "source": "NCERT 2026-27 Ch1 Eq. 1.29, p.12" },
+    { "item": "NCERT Fig 1.1", "type": "figure", "source": "NCERT 2026-27 Ch1 Fig 1.1 p.1" },
+    { "item": "NCERT Fig 1.6", "type": "figure", "source": "NCERT 2026-27 Ch1 Fig 1.6 p.9" },
+    { "item": "NCERT Fig 1.9", "type": "figure", "source": "NCERT 2026-27 Ch1 Fig 1.9 p.11" }
+  ]
+}

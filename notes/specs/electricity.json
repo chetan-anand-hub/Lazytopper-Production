@@ -1,0 +1,721 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "electricity",
+    "subject": "physics",
+    "chapter_no": 11,
+    "title": "Electricity",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Rules",
+      "kind": "rules"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 11"
+  },
+  "board_asks": "resistance combinations (series &amp; parallel), Ohm's-law and $R=\\rho l/A$ numericals with correct units, electric power ($P=VI=I^2R=V^2/R$) and energy in kW h, and Joule's-law heating — the numericals here carry almost every mark.",
+  "big_idea": {
+    "tagline": "A potential difference pushes charge; resistance decides how much flows — and the leftover energy turns to heat.",
+    "body": "One relation, $V=IR$, ties together current, potential difference and resistance. Combine resistors (series adds, parallel reciprocals add), then track the energy: $P=VI$ and $H=I^2Rt$. Almost every board mark here is a numerical, so signs, units and the right formula choice are what score."
+  },
+  "definitions": [
+    {
+      "id": "def_electric_current",
+      "tier": "headline",
+      "term": "Electric current",
+      "verbatim": "A stream of electrons moving through a conductor constitutes an electric current. Conventionally, the direction of current is taken opposite to the direction of flow of electrons.",
+      "plain": "Charge in motion. Quantitatively $I=\\dfrac{Q}{t}$ (charge per unit time); SI unit ampere (A). Conventional current runs from + to − — opposite to the electrons.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 192,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_potential_difference",
+      "tier": "headline",
+      "term": "Electric potential difference",
+      "verbatim": "We define the electric potential difference between two points in an electric circuit carrying some current as the work done to move a unit charge from one point to the other",
+      "plain": "$V=\\dfrac{W}{Q}$ — the work done per unit charge moved between two points. SI unit volt (V), where $1\\,\\text{V}=1\\,\\text{J C}^{-1}$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 173,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_ohms_law",
+      "tier": "headline",
+      "term": "Ohm's law",
+      "verbatim": "The potential difference, V, across the ends of a given metallic wire in an electric circuit is directly proportional to the current flowing through it, provided its temperature remains the same. This is called Ohm's law.",
+      "plain": "$V\\propto I$, so $V=IR$ with $R$ constant at fixed temperature. On a $V$–$I$ graph this is a straight line through the origin whose slope is $R$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 176,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_resistance",
+      "tier": "headline",
+      "term": "Resistance",
+      "verbatim": "R is a constant for the given metallic wire at a given temperature and is called its resistance. It is the property of a conductor to resist the flow of charges through it.",
+      "plain": "How strongly a conductor opposes current: $R=\\dfrac{V}{I}$. SI unit ohm ($\\Omega$). Double $R$ and (at fixed $V$) the current halves.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 176,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_resistivity",
+      "tier": "headline",
+      "term": "Electrical resistivity",
+      "verbatim": "where ρ (rho) is a constant of proportionality and is called the electrical resistivity of the material of the conductor. The SI unit of resistivity is Ω m. It is a characteristic property of the material.",
+      "plain": "The material's own opposition, independent of shape: $R=\\rho\\dfrac{l}{A}$. Metals/alloys $\\sim10^{-8}$–$10^{-6}\\,\\Omega\\,\\text{m}$; insulators far higher.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 178,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_heating_effect",
+      "tier": "headline",
+      "term": "Heating effect of electric current",
+      "verbatim": "if the electric circuit is purely resistive, that is, a configuration of resistors only connected to a battery; the source energy continually gets dissipated entirely in the form of heat. This is known as the heating effect of electric current.",
+      "plain": "In a resistor-only circuit all the supplied energy becomes heat: $H=VIt$. This is what electric heaters, irons, toasters and bulb filaments use.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 188,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_joules_law",
+      "tier": "headline",
+      "term": "Joule's law of heating",
+      "verbatim": "This is known as Joule's law of heating. The law implies that heat produced in a resistor is (i) directly proportional to the square of current for a given resistance, (ii) directly proportional to resistance for a given current, and (iii) directly proportional to the time for which the current flows through the resistor.",
+      "plain": "$H=I^2Rt$. Heat rises with the square of current, linearly with resistance, and linearly with time.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 189,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "def_electric_power",
+      "tier": "headline",
+      "term": "Electric power",
+      "verbatim": "Equation (11.21) gives the rate at which electric energy is dissipated or consumed in an electric circuit. This is also termed as electric power.",
+      "plain": "The rate of using electrical energy: $P=VI=I^2R=\\dfrac{V^2}{R}$. SI unit watt (W); the commercial unit of energy is the kilowatt hour (kW h).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 191,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_ampere",
+      "tier": "key-term",
+      "term": "Ampere",
+      "verbatim": "One ampere is constituted by the flow of one coulomb of charge per second",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 172,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_volt",
+      "tier": "key-term",
+      "term": "Volt",
+      "verbatim": "One volt is the potential difference between two points in a current carrying conductor when 1 joule of work is done to move a charge of 1 coulomb from one point to the other.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 173,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_ohm_unit",
+      "tier": "key-term",
+      "term": "Ohm (unit)",
+      "verbatim": "If the potential difference across the two ends of a conductor is 1 V and the current through it is 1 A, then the resistance R, of the conductor is 1 Ω.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 176,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_rheostat",
+      "tier": "key-term",
+      "term": "Rheostat",
+      "verbatim": "In an electric circuit, a device called rheostat is often used to change the resistance in the circuit.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 176,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_series_equiv",
+      "tier": "key-term",
+      "term": "Equivalent resistance in series",
+      "verbatim": "The equivalent resistance of several resistors in series is equal to the sum of their individual resistances.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 192,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    },
+    {
+      "id": "kt_parallel_equiv",
+      "tier": "key-term",
+      "term": "Equivalent resistance in parallel",
+      "verbatim": "the reciprocal of the equivalent resistance of a group of resistances joined in parallel is equal to the sum of the reciprocals of the individual resistances.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 186,
+        "edition": "2026-27",
+        "chapter": 11
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Electric current, charge &amp; the circuit",
+      "body": "Charge flows only around a continuous, closed path (an electric circuit). Current is the rate of that flow, $I=\\dfrac{Q}{t}$, measured by an ammeter placed in series. The schematic below fixes the standard symbols and the +→− direction of conventional current.",
+      "tested": "1-mark define-the-unit / direction-of-current",
+      "figure_ref": "fig_11_1"
+    },
+    {
+      "id": "c2",
+      "title": "Ohm's law &amp; resistance",
+      "body": "$V=IR$: at constant temperature the potential difference is proportional to the current, so a $V$–$I$ plot is a straight line through the origin with slope $R$. A voltmeter (in parallel) reads $V$; an ammeter (in series) reads $I$.",
+      "tested": "2–3 mark Ohm's-law numerical / V–I graph",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "What resistance depends on — resistivity",
+      "body": "$R=\\rho\\dfrac{l}{A}$: resistance grows with length, falls with cross-sectional area, and depends on the material through its resistivity $\\rho$. Alloys have higher $\\rho$ (and don't oxidise), so heating elements use them.",
+      "tested": "3-mark $R=\\rho l/A$ numerical (watch the $A=\\pi r^2$)",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Combining resistors — series vs parallel",
+      "body": "Series (same current everywhere): $R_s=R_1+R_2+R_3$, larger than any one resistor. Parallel (same voltage across each): $\\dfrac{1}{R_p}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}+\\dfrac{1}{R_3}$, smaller than the smallest. Household wiring is parallel so each device gets full voltage and works independently.",
+      "tested": "3–5 mark combination numerical + derivation",
+      "figure_ref": "fig_11_6"
+    },
+    {
+      "id": "c5",
+      "title": "Power, Joule heating &amp; energy billed",
+      "body": "Power is the rate of energy use: $P=VI=I^2R=\\dfrac{V^2}{R}$ (watt). Heat dissipated in a resistor follows Joule's law $H=I^2Rt$. Energy sold commercially is in kilowatt hours, where $1\\,\\text{kW h}=3.6\\times10^6\\,\\text{J}$.",
+      "tested": "3–5 mark power/heating numerical + cost in kW h",
+      "figure_ref": "fig_11_7"
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_11_2",
+      "shape": "Work done to move a charge",
+      "kind": "numerical",
+      "problem_verbatim": "How much work is done in moving a charge of 2 C across two points having a potential difference 12 V?",
+      "solution_steps": [
+        {
+          "lead": "Given + relation.",
+          "text": "$Q=2\\,\\text{C}$, $V=12\\,\\text{V}$. From $V=\\dfrac{W}{Q}$, rearrange to $W=VQ$.",
+          "concept_tag": "definition of potential difference",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute + answer.",
+          "text": "$W=12\\,\\text{V}\\times2\\,\\text{C}=24\\,\\text{J}$.",
+          "concept_tag": "answer with unit",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "1 for the correct relation $W=VQ$ from $V=W/Q$; 1 for the substitution and the answer stated with its unit (J).",
+      "source": {
+        "ncert_example": "11.2",
+        "ncert_page": 173,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "ex_11_7",
+      "shape": "Resistors in series — total R, current, p.d.",
+      "kind": "numerical",
+      "problem_verbatim": "An electric lamp, whose resistance is 20 Ω, and a conductor of 4 Ω resistance are connected to a 6 V battery (Fig. 11.9). Calculate (a) the total resistance of the circuit, (b) the current through the circuit, and (c) the potential difference across the electric lamp and conductor.",
+      "solution_steps": [
+        {
+          "lead": "Total resistance (series adds).",
+          "text": "$R_s=R_1+R_2=20\\,\\Omega+4\\,\\Omega=24\\,\\Omega$.",
+          "concept_tag": "series combination",
+          "mark": 1
+        },
+        {
+          "lead": "Current (Ohm's law, whole circuit).",
+          "text": "$I=\\dfrac{V}{R_s}=\\dfrac{6\\,\\text{V}}{24\\,\\Omega}=0.25\\,\\text{A}$.",
+          "concept_tag": "same current in series",
+          "mark": 1
+        },
+        {
+          "lead": "Potential difference across each.",
+          "text": "$V_1=IR_1=0.25\\times20=5\\,\\text{V}$; $V_2=IR_2=0.25\\times4=1\\,\\text{V}$ (and $V_1+V_2=6\\,\\text{V}$).",
+          "concept_tag": "voltages add to source",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "1 for $R_s=24\\,\\Omega$; 1 for the circuit current $0.25\\,\\text{A}$; 1 for the two potential differences (5 V and 1 V) — the check $V_1+V_2=6\\,\\text{V}$ confirms the split.",
+      "source": {
+        "ncert_example": "11.7",
+        "ncert_page": 184,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "ex_11_8",
+      "shape": "Resistors in parallel — branch currents, total R",
+      "kind": "numerical",
+      "problem_verbatim": "In the circuit diagram given in Fig. 11.10, suppose the resistors R1, R2 and R3 have the values 5 Ω, 10 Ω, 30 Ω, respectively, which have been connected to a battery of 12 V. Calculate (a) the current through each resistor, (b) the total current in the circuit, and (c) the total circuit resistance.",
+      "solution_steps": [
+        {
+          "lead": "Branch currents (same 12 V across each).",
+          "text": "$I_1=\\dfrac{12}{5}=2.4\\,\\text{A}$, $I_2=\\dfrac{12}{10}=1.2\\,\\text{A}$, $I_3=\\dfrac{12}{30}=0.4\\,\\text{A}$.",
+          "concept_tag": "same voltage in parallel",
+          "mark": 1
+        },
+        {
+          "lead": "Total current (currents add).",
+          "text": "$I=I_1+I_2+I_3=(2.4+1.2+0.4)\\,\\text{A}=4\\,\\text{A}$.",
+          "concept_tag": "junction rule",
+          "mark": 1
+        },
+        {
+          "lead": "Equivalent resistance.",
+          "text": "$\\dfrac{1}{R_p}=\\dfrac{1}{5}+\\dfrac{1}{10}+\\dfrac{1}{30}=\\dfrac{1}{3}\\Rightarrow R_p=3\\,\\Omega$ (smaller than the smallest branch).",
+          "concept_tag": "parallel combination",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "1 for the three branch currents; 1 for the total current $4\\,\\text{A}$; 1 for $R_p=3\\,\\Omega$. Note $R_p$ is less than the smallest branch (5 Ω) — a quick sanity check.",
+      "source": {
+        "ncert_example": "11.8",
+        "ncert_page": 186,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "ex_11_11",
+      "shape": "Joule's law — find p.d. from heat produced",
+      "kind": "numerical",
+      "problem_verbatim": "100 J of heat is produced each second in a 4 Ω resistance. Find the potential difference across the resistor.",
+      "solution_steps": [
+        {
+          "lead": "Given + Joule's law.",
+          "text": "$H=100\\,\\text{J}$, $R=4\\,\\Omega$, $t=1\\,\\text{s}$. From $H=I^2Rt$, $I=\\sqrt{\\dfrac{H}{Rt}}$.",
+          "concept_tag": "Joule's law of heating",
+          "mark": 1
+        },
+        {
+          "lead": "Solve for current.",
+          "text": "$I=\\sqrt{\\dfrac{100}{4\\times1}}=\\sqrt{25}=5\\,\\text{A}$.",
+          "concept_tag": "substitute + solve",
+          "mark": 1
+        },
+        {
+          "lead": "Potential difference (Ohm's law).",
+          "text": "$V=IR=5\\,\\text{A}\\times4\\,\\Omega=20\\,\\text{V}$.",
+          "concept_tag": "answer with unit",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "1 for choosing $H=I^2Rt$ and rearranging to $I$; 1 for $I=5\\,\\text{A}$; 1 for $V=IR=20\\,\\text{V}$ stated with unit.",
+      "source": {
+        "ncert_example": "11.11",
+        "ncert_page": 189,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Numerical?",
+      "text": "List every quantity with its SI unit before substituting — convert minutes to seconds, kW to W, mm diameter to m. Most lost marks are unit/conversion slips, not algebra."
+    },
+    {
+      "cue": "Series or parallel?",
+      "text": "Series: same current, resistances add ($R_s$ bigger than the largest). Parallel: same voltage, reciprocals add ($R_p$ smaller than the smallest). Check your answer against those two bounds."
+    },
+    {
+      "cue": "Which power formula?",
+      "text": "Pick the form matching the data: $P=VI$ (given V and I), $P=I^2R$ (given I and R), $P=V^2/R$ (given V and R). All three are the same equation."
+    },
+    {
+      "cue": "Energy or cost question?",
+      "text": "Work in kilowatt hours: energy (kW h) = power (kW) × time (h); cost = units × rate. Remember $1\\,\\text{kW h}=3.6\\times10^6\\,\\text{J}$."
+    },
+    {
+      "cue": "Resistivity numerical?",
+      "text": "In $R=\\rho l/A$ the area is $A=\\pi r^2$ — halve the diameter to get the radius first, or you will be off by a factor of four."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "✕ Adding parallel resistances directly ($R_1+R_2$) instead of adding reciprocals — the #1 combination error.",
+      "owner_verified": false
+    },
+    {
+      "text": "✕ Dropping units on the final answer (A, V, Ω, J, W) — a numerical answer without its unit loses a mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "✕ Using the diameter as the radius in $A=\\pi r^2$ when applying $R=\\rho l/A$ — gives an area four times too big.",
+      "owner_verified": false
+    },
+    {
+      "text": "✕ Not converting time or power units — minutes must become seconds, and kilowatts must become watts, before substituting.",
+      "owner_verified": false
+    },
+    {
+      "text": "✕ Confusing where meters go — the ammeter is in series and the voltmeter is in parallel, not the reverse.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Electric current",
+      "math": "$I=\\dfrac{Q}{t}$"
+    },
+    {
+      "label": "Ohm's law",
+      "math": "$V=IR$"
+    },
+    {
+      "label": "Resistance from resistivity",
+      "math": "$R=\\rho\\dfrac{l}{A}$"
+    },
+    {
+      "label": "Resistors in series",
+      "math": "$R_s=R_1+R_2+R_3$"
+    },
+    {
+      "label": "Resistors in parallel",
+      "math": "$\\dfrac{1}{R_p}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}+\\dfrac{1}{R_3}$"
+    },
+    {
+      "label": "Electric power",
+      "math": "$P=VI=I^2R=\\dfrac{V^2}{R}$"
+    },
+    {
+      "label": "Joule's heating",
+      "math": "$H=I^2Rt$"
+    },
+    {
+      "label": "Commercial energy unit",
+      "math": "$1\\,\\text{kW h}=3.6\\times10^6\\,\\text{J}$"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "rules",
+    "intro": "The core skills here are wiring the meters correctly, reading circuit symbols, and knowing exactly how current, voltage and resistance behave in series vs parallel. These rules make every numerical and circuit-diagram question fall out.",
+    "figure_ref": "fig_11_7",
+    "blocks": [
+      {
+        "heading": "Meters &amp; current direction",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "A",
+            "text": "Ammeter measures current — always connected in series."
+          },
+          {
+            "sign": "V",
+            "text": "Voltmeter measures potential difference — always connected in parallel across the two points."
+          },
+          {
+            "sign": "→",
+            "text": "Conventional current flows from the + terminal to the − terminal (opposite to electron flow)."
+          }
+        ]
+      },
+      {
+        "heading": "Series combination",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "I",
+            "text": "Same current through every resistor."
+          },
+          {
+            "sign": "V",
+            "text": "Potential differences add: $V=V_1+V_2+V_3$."
+          },
+          {
+            "sign": "R",
+            "text": "Resistances add: $R_s=R_1+R_2+R_3$ — bigger than the largest resistor."
+          }
+        ]
+      },
+      {
+        "heading": "Parallel combination",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "V",
+            "text": "Same potential difference across every resistor."
+          },
+          {
+            "sign": "I",
+            "text": "Currents add: $I=I_1+I_2+I_3$."
+          },
+          {
+            "sign": "R",
+            "text": "Reciprocals add: $\\dfrac{1}{R_p}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}+\\dfrac{1}{R_3}$ — smaller than the smallest resistor."
+          }
+        ]
+      },
+      {
+        "heading": "Reading a circuit diagram (Table 11.1 symbols)",
+        "type": "rule-list",
+        "items": [
+          "Cell: long thin line is the + terminal, short thick line is the − terminal; several cells in a row make a battery.",
+          "Plug key / switch: open (○) means no current; closed (⊙) completes the circuit.",
+          "A resistor is a zig-zag (or a plain rectangle); a rheostat is a resistor with a sliding arrow for variable resistance.",
+          "A dot at a wire crossing means the wires are joined; no dot means they cross without connecting."
+        ]
+      }
+    ]
+  },
+  "figures": {
+    "fig_11_1": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 11.1",
+      "caption": "Schematic of a simple electric circuit — cell, electric bulb, ammeter and plug key",
+      "legend": "Conventional current leaves the cell's + terminal, passes through the bulb and the in-series ammeter (A), and returns to the − terminal.",
+      "source": {
+        "pdf": "jesc111",
+        "edition": "2026-27",
+        "ncert_fig": "11.1",
+        "page_pdf": 1,
+        "printed_page": 172,
+        "crop": [150, 735, 785, 1100],
+        "clean": "luminance@150"
+      },
+      "asset": "electricity/fig_11_1.webp"
+    },
+    "fig_11_6": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 11.6",
+      "caption": "Resistors in series — three resistors R1, R2, R3 joined end to end between X and Y",
+      "legend": "The ammeter (in series) reads the one current common to all three resistors; the voltmeter reads the potential difference across the combination.",
+      "source": {
+        "pdf": "jesc111",
+        "edition": "2026-27",
+        "ncert_fig": "11.6",
+        "page_pdf": 10,
+        "printed_page": 181,
+        "crop": [360, 1604, 1112, 2074],
+        "clean": "luminance@150"
+      },
+      "asset": "electricity/fig_11_6.webp"
+    },
+    "fig_11_7": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 11.7",
+      "caption": "Resistors in parallel — three resistors R1, R2, R3 connected between the common points X and Y",
+      "legend": "Each resistor sees the same potential difference; the branch currents add to the total current read by the ammeter.",
+      "source": {
+        "pdf": "jesc111",
+        "edition": "2026-27",
+        "ncert_fig": "11.7",
+        "page_pdf": 11,
+        "printed_page": 182,
+        "crop": [654, 366, 1416, 888],
+        "clean": "luminance@150"
+      },
+      "asset": "electricity/fig_11_7.webp"
+    }
+  },
+  "mindmap": {
+    "root": "Electricity",
+    "branches": [
+      {
+        "label": "Current &amp; potential difference",
+        "children": [
+          "I = Q/t · unit ampere",
+          "V = W/Q · unit volt",
+          "Ammeter (series) · Voltmeter (parallel)"
+        ]
+      },
+      {
+        "label": "Ohm's law &amp; resistance",
+        "children": [
+          "V = IR · straight-line V–I graph",
+          "R = V/I · unit ohm (Ω)",
+          "R = ρ l / A (resistivity)"
+        ]
+      },
+      {
+        "label": "Combining resistors",
+        "children": [
+          "Series: Rs = R1 + R2 + R3",
+          "Parallel: 1/Rp = 1/R1 + 1/R2 + 1/R3",
+          "Series same I · Parallel same V"
+        ]
+      },
+      {
+        "label": "Power &amp; heating",
+        "children": [
+          "P = VI = I²R = V²/R (watt)",
+          "Joule: H = I²Rt",
+          "1 kW h = 3.6 × 10⁶ J"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "Parallel added like series",
+          "Missing SI units",
+          "Diameter used as radius",
+          "Unconverted min / kW"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    {
+      "item": "Electric current",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.192"
+    },
+    {
+      "item": "Electric potential difference",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.173"
+    },
+    {
+      "item": "Ohm's law",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "item": "Resistance",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "item": "Electrical resistivity",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.178"
+    },
+    {
+      "item": "Heating effect of electric current",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.188"
+    },
+    {
+      "item": "Joule's law of heating",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.189"
+    },
+    {
+      "item": "Electric power",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.191"
+    },
+    {
+      "item": "Ampere",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.172"
+    },
+    {
+      "item": "Volt",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.173"
+    },
+    {
+      "item": "Ohm (unit)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "item": "Rheostat",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.176"
+    },
+    {
+      "item": "Equivalent resistance in series",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.192"
+    },
+    {
+      "item": "Equivalent resistance in parallel",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch11 p.186"
+    },
+    {
+      "item": "Work done to move a charge",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Ex 11.2 p.173"
+    },
+    {
+      "item": "Resistors in series — total R, current, p.d.",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Ex 11.7 p.184"
+    },
+    {
+      "item": "Resistors in parallel — branch currents, total R",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Ex 11.8 p.186"
+    },
+    {
+      "item": "Joule's law — find p.d. from heat produced",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch11 Ex 11.11 p.189"
+    },
+    {
+      "item": "NCERT Fig 11.1",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch11 Fig 11.1 p.172"
+    },
+    {
+      "item": "NCERT Fig 11.6",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch11 Fig 11.6 p.181"
+    },
+    {
+      "item": "NCERT Fig 11.7",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch11 Fig 11.7 p.182"
+    }
+  ]
+}
