@@ -1,0 +1,620 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "real-numbers",
+    "subject": "maths",
+    "chapter_no": 1,
+    "title": "Real Numbers",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 1 (jemh101.pdf, printed pages 1-9)"
+  },
+  "board_asks": "the Fundamental Theorem of Arithmetic and its two workhorses: HCF &amp; LCM by prime factorisation (with HCF × LCM = product of the two numbers), and proving numbers like √2, √3, √5 irrational by contradiction. In the rationalised 2026-27 syllabus this chapter is short and mark-dense — prime-factorisation HCF/LCM and one irrationality proof carry almost every mark.",
+  "big_idea": {
+    "tagline": "Break every number into primes — the rest follows.",
+    "body": "The Fundamental Theorem of Arithmetic says every composite number is a product of primes in exactly one way (order aside). That single fact is the master key to this whole chapter: it gives you HCF and LCM by comparing prime powers, it explains why HCF × LCM = product of two numbers, and it powers the proofs that $\\sqrt{2}$, $\\sqrt{3}$ and $\\sqrt{5}$ are irrational."
+  },
+  "definitions": [
+    {
+      "id": "def_fta",
+      "tier": "headline",
+      "term": "Fundamental Theorem of Arithmetic",
+      "verbatim": "Every composite number can be expressed (factorised) as a product of primes, and this factorisation is unique, apart from the order in which the prime factors occur.",
+      "plain": "Any composite number breaks into primes in exactly ONE way — only the order can differ. This uniqueness is what makes prime factorisation a reliable tool for HCF, LCM and irrationality proofs.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 3,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "Theorem 1.1 (Fundamental Theorem of Arithmetic)"
+      }
+    },
+    {
+      "id": "def_theorem_1_2",
+      "tier": "headline",
+      "term": "Prime divides a square",
+      "verbatim": "Let p be a prime number. If p divides a², then p divides a, where a is a positive integer.",
+      "plain": "If a prime divides $a^2$, it must already divide $a$ itself. This is the engine of every irrationality proof — it lets you conclude $2\\mid a$ from $2\\mid a^2$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 6,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "Theorem 1.2; superscript a² printed, linearised here"
+      }
+    },
+    {
+      "id": "def_irrational",
+      "tier": "headline",
+      "term": "Irrational number",
+      "verbatim": "a number 's' is called irrational if it cannot be written in the form p/q, where p and q are integers and q ≠ 0.",
+      "plain": "A number you simply cannot write as one integer over another (with non-zero denominator). $\\sqrt{2}$, $\\sqrt{3}$, $\\pi$ are irrational; every terminating or repeating decimal is NOT.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 6,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "the 2D fraction p/q is reordered by pymupdf; prose runs verify"
+      }
+    },
+    {
+      "id": "kt_prime_factorisation_unique",
+      "tier": "key-term",
+      "term": "Prime factorisation is unique",
+      "verbatim": "The prime factorisation of a natural number is unique, except for the order of its factors.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 3,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "kt_hcf_smallest",
+      "tier": "key-term",
+      "term": "HCF = smallest powers",
+      "verbatim": "Product of the smallest power of each common prime factor in the numbers.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 4,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "NCERT's rule for HCF via prime factorisation (Example 2 note)"
+      }
+    },
+    {
+      "id": "kt_lcm_greatest",
+      "tier": "key-term",
+      "term": "LCM = greatest powers",
+      "verbatim": "Product of the greatest power of each prime factor, involved in the numbers.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 4,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "NCERT's rule for LCM via prime factorisation (Example 2 note)"
+      }
+    },
+    {
+      "id": "kt_hcf_lcm_product",
+      "tier": "key-term",
+      "term": "HCF × LCM = product",
+      "verbatim": "for any two positive integers a and b, HCF (a, b) × LCM (a, b) = a × b.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 4,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "holds for TWO numbers only — not three (see NCERT's note to the reader, p.9)"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Fundamental Theorem of Arithmetic",
+      "body": "Every composite number splits into primes in exactly one way (order aside). Build a factor tree — keep dividing by the smallest prime — until only primes remain, then collect them as powers, e.g. $32760 = 2^3 \\times 3^2 \\times 5 \\times 7 \\times 13$.",
+      "tested": "1-2 mark 'express as a product of primes' / composite-number reasoning",
+      "figure_ref": "fig_factor_tree",
+      "source": {
+        "ncert_page": 3,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "c2",
+      "title": "HCF &amp; LCM by prime factorisation",
+      "body": "Prime-factorise each number. <b>HCF</b> = product of the smallest power of each COMMON prime; <b>LCM</b> = product of the greatest power of EVERY prime that appears. Line the powers up in a column and read them off.",
+      "tested": "2-3 mark 'find the HCF and LCM by prime factorisation'",
+      "figure_ref": null,
+      "source": {
+        "ncert_page": 4,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "c3",
+      "title": "HCF × LCM = product of the two numbers",
+      "body": "For any two positive integers, $\\text{HCF}(a,b) \\times \\text{LCM}(a,b) = a \\times b$. So once you have the HCF you can get the LCM without re-factorising: $\\text{LCM} = \\dfrac{a \\times b}{\\text{HCF}}$. ⚑ Warning: this holds for TWO numbers only, never three.",
+      "tested": "1-2 mark 'given HCF, find LCM' (e.g. HCF(306,657)=9 → find LCM)",
+      "figure_ref": null,
+      "source": {
+        "ncert_page": 4,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "c4",
+      "title": "Proving irrationality by contradiction",
+      "body": "To prove $\\sqrt{p}$ irrational: assume it is rational, $\\sqrt{p} = a/b$ with $a,b$ coprime. Square and rearrange to get $p \\mid a^2$, so (by Theorem 1.2) $p \\mid a$; substitute back to force $p \\mid b$ too. Now $a$ and $b$ share the factor $p$ — contradicting 'coprime'. Hence $\\sqrt{p}$ is irrational.",
+      "tested": "3-mark 'prove that √2 / √3 / √5 is irrational'",
+      "figure_ref": null,
+      "source": {
+        "ncert_page": 6,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "c5",
+      "title": "'Can it end in 0/5?' — uniqueness in action",
+      "body": "A number ends in 0 only if its prime factorisation contains BOTH 2 and 5. Since $4^n = 2^{2n}$ has no factor 5, it can never end in 0. The uniqueness half of the theorem is what lets you rule this out for every $n$ at once.",
+      "tested": "1-2 mark competency: 'check whether 6ⁿ (or 4ⁿ) can end with the digit 0'",
+      "figure_ref": null,
+      "source": {
+        "ncert_page": 4,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_2",
+      "shape": "HCF &amp; LCM by prime factorisation · NCERT Example 2",
+      "kind": "numerical",
+      "problem_verbatim": "Find the LCM and HCF of 6 and 20 by the prime factorisation method.",
+      "solution_steps": [
+        {
+          "lead": "Prime-factorise both numbers.",
+          "text": "$6 = 2^1 \\times 3^1$ and $20 = 2 \\times 2 \\times 5 = 2^2 \\times 5^1$.",
+          "concept_tag": "prime factorisation",
+          "mark": 1
+        },
+        {
+          "lead": "HCF = smallest power of each COMMON prime.",
+          "text": "The only common prime is 2, smallest power $2^1$. So $\\text{HCF}(6,20) = 2$.",
+          "concept_tag": "smallest common powers",
+          "mark": 0.5
+        },
+        {
+          "lead": "LCM = greatest power of EVERY prime.",
+          "text": "$\\text{LCM}(6,20) = 2^2 \\times 3 \\times 5 = 60$.",
+          "concept_tag": "greatest powers",
+          "mark": 0.5
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for the two prime factorisations, ½ for the HCF (smallest common power) and ½ for the LCM (greatest powers of all primes).",
+      "source": {
+        "ncert_example": "2",
+        "ncert_page": 4,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "HCF then LCM via HCF×LCM=product · NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "Find the HCF of 96 and 404 by the prime factorisation method. Hence, find their LCM.",
+      "solution_steps": [
+        {
+          "lead": "Prime-factorise both.",
+          "text": "$96 = 2^5 \\times 3$ and $404 = 2^2 \\times 101$.",
+          "concept_tag": "prime factorisation",
+          "mark": 1
+        },
+        {
+          "lead": "HCF = smallest power of the common prime.",
+          "text": "Only 2 is common; smallest power $2^2$. So $\\text{HCF}(96,404) = 2^2 = 4$.",
+          "concept_tag": "smallest common powers",
+          "mark": 1
+        },
+        {
+          "lead": "Use HCF × LCM = product to get the LCM.",
+          "text": "$\\text{LCM}(96,404) = \\dfrac{96 \\times 404}{\\text{HCF}(96,404)} = \\dfrac{96 \\times 404}{4} = 9696$.",
+          "concept_tag": "HCF×LCM=product",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the factorisations, 1 for HCF = 4, 1 for using HCF × LCM = product to get LCM = 9696 (the 'hence' signals you must NOT re-factorise).",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 4,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "problem on p.4; solution (LCM = 9696) completes on p.5"
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "HCF &amp; LCM of three numbers · NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "Find the HCF and LCM of 6, 72 and 120, using the prime factorisation method.",
+      "solution_steps": [
+        {
+          "lead": "Prime-factorise all three.",
+          "text": "$6 = 2 \\times 3$, $\\;72 = 2^3 \\times 3^2$, $\\;120 = 2^3 \\times 3 \\times 5$.",
+          "concept_tag": "prime factorisation",
+          "mark": 1
+        },
+        {
+          "lead": "HCF = smallest power of each common prime.",
+          "text": "$2^1$ and $3^1$ are the smallest powers of the common factors 2 and 3, so $\\text{HCF}(6,72,120) = 2^1 \\times 3^1 = 6$.",
+          "concept_tag": "smallest common powers",
+          "mark": 1
+        },
+        {
+          "lead": "LCM = greatest power of every prime.",
+          "text": "$2^3,\\ 3^2,\\ 5^1$ are the greatest powers, so $\\text{LCM}(6,72,120) = 2^3 \\times 3^2 \\times 5^1 = 360$.",
+          "concept_tag": "greatest powers",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the three factorisations, 1 for HCF = 6, 1 for LCM = 360. Trap: for THREE numbers, HCF × LCM ≠ product — you must read the powers off directly.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 5,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_ncert_5",
+      "shape": "Prove irrationality by contradiction · NCERT Example 5",
+      "kind": "numerical",
+      "problem_verbatim": "Prove that √3 is irrational.",
+      "solution_steps": [
+        {
+          "lead": "Assume the opposite.",
+          "text": "Suppose $\\sqrt{3}$ is rational: $\\sqrt{3} = a/b$ with integers $a, b\\ (b \\neq 0)$ taken coprime.",
+          "concept_tag": "proof by contradiction",
+          "mark": 1
+        },
+        {
+          "lead": "Square and rearrange.",
+          "text": "$b\\sqrt{3} = a \\Rightarrow 3b^2 = a^2$, so $3 \\mid a^2$, and by Theorem 1.2, $3 \\mid a$. Write $a = 3c$.",
+          "concept_tag": "prime divides a square",
+          "mark": 1
+        },
+        {
+          "lead": "Force a shared factor, then contradict.",
+          "text": "Substituting: $3b^2 = 9c^2 \\Rightarrow b^2 = 3c^2$, so $3 \\mid b$ too. Then 3 divides both $a$ and $b$ — contradicting coprimeness. Hence $\\sqrt{3}$ is irrational.",
+          "concept_tag": "reach the contradiction",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the coprime assumption, 1 for $3\\mid a$ via Theorem 1.2, 1 for forcing $3\\mid b$ and stating the contradiction. Skipping 'coprime' or the Theorem-1.2 justification loses marks.",
+      "source": {
+        "ncert_example": "5",
+        "ncert_page": 7,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "√3 printed as a radical (Symbol-font glyph drops in extraction); prose + '3' skeleton verify"
+      }
+    },
+    {
+      "id": "ex_ncert_6",
+      "shape": "Rational ± irrational is irrational · NCERT Example 6",
+      "kind": "numerical",
+      "problem_verbatim": "Show that 5 – √3 is irrational.",
+      "solution_steps": [
+        {
+          "lead": "Assume the opposite.",
+          "text": "Suppose $5 - \\sqrt{3}$ is rational: $5 - \\sqrt{3} = a/b$ with coprime integers $a, b\\ (b \\neq 0)$.",
+          "concept_tag": "proof by contradiction",
+          "mark": 1
+        },
+        {
+          "lead": "Isolate the irrational part.",
+          "text": "Rearranging, $\\sqrt{3} = 5 - \\dfrac{a}{b} = \\dfrac{5b - a}{b}$.",
+          "concept_tag": "isolate √3",
+          "mark": 1
+        },
+        {
+          "lead": "Contradiction.",
+          "text": "The right side is a ratio of integers, so it is rational — making $\\sqrt{3}$ rational. But $\\sqrt{3}$ is irrational. So our assumption is wrong: $5 - \\sqrt{3}$ is irrational.",
+          "concept_tag": "reach the contradiction",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for assuming rational, 1 for isolating $\\sqrt{3} = (5b-a)/b$, 1 for the contradiction against $\\sqrt{3}$ irrational. You must CITE that $\\sqrt{3}$ is already proved irrational.",
+      "source": {
+        "ncert_example": "6",
+        "ncert_page": 8,
+        "edition": "2026-27",
+        "chapter": 1
+      }
+    },
+    {
+      "id": "ex_ncert_1",
+      "shape": "Uniqueness / 'ends with 0' reasoning · NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Consider the numbers 4ⁿ, where n is a natural number. Check whether there is any value of n for which 4ⁿ ends with the digit zero.",
+      "solution_steps": [
+        {
+          "lead": "State the ending-in-0 condition.",
+          "text": "A number ends in 0 only if it is divisible by 5 — i.e. 5 appears in its prime factorisation.",
+          "concept_tag": "divisibility by 10",
+          "mark": 0.5
+        },
+        {
+          "lead": "Factorise $4^n$.",
+          "text": "$4^n = (2^2)^n = 2^{2n}$ — the only prime factor is 2.",
+          "concept_tag": "prime factorisation",
+          "mark": 0.5
+        },
+        {
+          "lead": "Invoke uniqueness, conclude.",
+          "text": "By the uniqueness of the Fundamental Theorem of Arithmetic there is no other prime, so 5 never divides $4^n$. Hence there is NO natural number $n$ for which $4^n$ ends with 0.",
+          "concept_tag": "uniqueness rules it out",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark competency shape: ½ for the 'must contain 5' condition, ½ for $4^n = 2^{2n}$, 1 for citing uniqueness to conclude no such $n$ exists. The same argument answers Exercise 1.1 Q5 ('can 6ⁿ end in 0?').",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 4,
+        "edition": "2026-27",
+        "chapter": 1,
+        "note": "4ⁿ printed with superscript n; skeleton normalises the superscript to 'n'"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "'Find HCF and LCM'?",
+      "text": "Prime-factorise, stack the powers in a column: HCF = smallest common power, LCM = greatest power of every prime."
+    },
+    {
+      "cue": "'Given HCF, find LCM' (two numbers)?",
+      "text": "Use $\\text{LCM} = \\dfrac{a \\times b}{\\text{HCF}}$ — don't re-factorise. (Two numbers ONLY.)"
+    },
+    {
+      "cue": "'Prove √p is irrational'?",
+      "text": "Assume $= a/b$ coprime → square → $p\\mid a^2 \\Rightarrow p\\mid a$ (Theorem 1.2) → sub back → $p\\mid b$ → contradiction."
+    },
+    {
+      "cue": "'Show rational ± irrational is irrational'?",
+      "text": "Assume rational, isolate the surd = ratio of integers → 'rational surd' contradicts the known irrational."
+    },
+    {
+      "cue": "'Can it end in 0 / prove composite'?",
+      "text": "Prime-factorise: ends in 0 needs BOTH 2 and 5; a sum with a common factor is composite."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Claiming HCF × LCM = product for THREE numbers.</b> It holds for two numbers only.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Forgetting 'coprime' in an irrationality proof.</b> The whole contradiction rests on assuming $a, b$ share no factor — skip it and the proof collapses.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Jumping from $p \\mid a^2$ straight to $a = pc$ without citing Theorem 1.2.</b> The step $p\\mid a^2 \\Rightarrow p\\mid a$ is exactly what earns the mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Swapping the HCF/LCM rules</b> — HCF takes the SMALLEST powers of COMMON primes; LCM takes the GREATEST powers of ALL primes.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Fundamental Theorem of Arithmetic",
+      "math": "composite $= p_1^{a_1} p_2^{a_2} \\cdots p_k^{a_k}$ (unique, order aside)"
+    },
+    {
+      "label": "HCF",
+      "math": "product of the \\textbf{smallest} power of each \\textbf{common} prime"
+    },
+    {
+      "label": "LCM",
+      "math": "product of the \\textbf{greatest} power of \\textbf{every} prime"
+    },
+    {
+      "label": "HCF × LCM (two numbers)",
+      "math": "$\\text{HCF}(a,b) \\times \\text{LCM}(a,b) = a \\times b$"
+    },
+    {
+      "label": "Prime divides a square",
+      "math": "$p \\text{ prime},\\ p \\mid a^2 \\Rightarrow p \\mid a$"
+    }
+  ],
+  "mindmap": {
+    "root": "Real Numbers — everything from prime factorisation",
+    "branches": [
+      {
+        "label": "Fundamental Theorem of Arithmetic",
+        "children": [
+          "Every composite = product of primes",
+          "Unique, apart from order",
+          "Factor tree → powers of primes"
+        ]
+      },
+      {
+        "label": "HCF & LCM by prime factorisation (2-3 mk)",
+        "children": [
+          "HCF = smallest power of common primes",
+          "LCM = greatest power of all primes",
+          "Stack the powers in a column"
+        ]
+      },
+      {
+        "label": "HCF × LCM = product (two numbers)",
+        "children": [
+          "LCM = a×b / HCF",
+          "Two numbers ONLY",
+          "'Given HCF find LCM'"
+        ]
+      },
+      {
+        "label": "Irrationality proofs (3 mk)",
+        "children": [
+          "√2, √3, √5 by contradiction",
+          "p | a² ⇒ p | a (Theorem 1.2)",
+          "assume coprime → force shared factor",
+          "rational ± irrational = irrational"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "HCF×LCM=product for 3 numbers (wrong)",
+          "forgetting 'coprime'",
+          "skipping the Theorem-1.2 citation",
+          "swapping smallest/greatest powers"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "√2 is irrational — the proof by contradiction",
+    "intro": "This is NCERT's Theorem 1.3 (p.6-7). It is the model every irrationality proof in this chapter follows, and rests entirely on Theorem 1.2 ($p \\mid a^2 \\Rightarrow p \\mid a$), which itself comes from the Fundamental Theorem of Arithmetic. Learn this one and √3, √5 are the same argument with a different prime.",
+    "steps": [
+      {
+        "claim": "Assume, to the contrary, that √2 is rational.",
+        "justification": "Proof by contradiction: we suppose the negation and drive it to an impossibility.",
+        "math": "$\\sqrt{2} = \\dfrac{r}{s},\\quad s \\neq 0$"
+      },
+      {
+        "claim": "Reduce to lowest terms, so the numerator and denominator are coprime.",
+        "justification": "Divide out any common factor to get a and b with no common factor other than 1.",
+        "math": "$\\sqrt{2} = \\dfrac{a}{b},\\quad a, b \\text{ coprime}$"
+      },
+      {
+        "claim": "Multiply across and square.",
+        "justification": "From b√2 = a, squaring gives 2b² = a².",
+        "math": "$2b^2 = a^2 \\;\\Rightarrow\\; 2 \\mid a^2$"
+      },
+      {
+        "claim": "So 2 divides a.",
+        "justification": "By Theorem 1.2, since the prime 2 divides a², it divides a. Write a = 2c.",
+        "math": "$2 \\mid a \\;\\Rightarrow\\; a = 2c$"
+      },
+      {
+        "claim": "Substitute back — now 2 divides b as well.",
+        "justification": "2b² = 4c² gives b² = 2c², so 2 | b² and (again by Theorem 1.2) 2 | b.",
+        "math": "$b^2 = 2c^2 \\;\\Rightarrow\\; 2 \\mid b$"
+      },
+      {
+        "claim": "Contradiction: a and b share the factor 2, yet we chose them coprime.",
+        "justification": "The contradiction arose from assuming √2 rational — so that assumption is false.",
+        "math": "$\\therefore\\ \\sqrt{2}\\ \\text{is irrational.}$"
+      }
+    ],
+    "source": {
+      "ncert_page": 6,
+      "edition": "2026-27",
+      "chapter": 1,
+      "note": "Theorem 1.3 statement + proof, pp.6-7; radicals are Symbol-font glyphs in the PDF"
+    }
+  },
+  "figures": {
+    "fig_factor_tree": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "Factor tree · 32760 = 2³ × 3² × 5 × 7 × 13",
+      "legend": "Split off the smallest prime at each step; the green leaves (2, 2, 2, 3, 3, 5, 7, 13) are the prime factors — collected as powers this is the Fundamental Theorem of Arithmetic in action.",
+      "generator": "factor_tree",
+      "params": {
+        "number": 32760,
+        "prime_splits": [2, 2, 2, 3, 3, 5, 7, 13],
+        "quotients": [16380, 8190, 4095, 1365, 455, 91, 13],
+        "factorisation": "2^3 x 3^2 x 5 x 7 x 13"
+      },
+      "asset": "real-numbers/fig_factor_tree.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Fundamental Theorem of Arithmetic",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.3 (Theorem 1.1)"
+    },
+    {
+      "item": "Prime divides a square",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.6 (Theorem 1.2)"
+    },
+    {
+      "item": "Irrational number",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.6"
+    },
+    {
+      "item": "Prime factorisation is unique",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.3"
+    },
+    {
+      "item": "HCF = smallest powers",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.4"
+    },
+    {
+      "item": "LCM = greatest powers",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.4"
+    },
+    {
+      "item": "HCF × LCM = product",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch1 p.4"
+    },
+    {
+      "item": "HCF & LCM by prime factorisation · NCERT Example 2",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch1 Example 2 p.4"
+    },
+    {
+      "item": "HCF then LCM via HCF×LCM=product · NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch1 Example 3 p.4-5"
+    },
+    {
+      "item": "HCF & LCM of three numbers · NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch1 Example 4 p.5"
+    },
+    {
+      "item": "Prove irrationality by contradiction · NCERT Example 5",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch1 Example 5 p.7"
+    },
+    {
+      "item": "Rational ± irrational is irrational · NCERT Example 6",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch1 Example 6 p.8"
+    },
+    {
+      "item": "Uniqueness / 'ends with 0' reasoning · NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch1 Example 1 p.4"
+    }
+  ]
+}
