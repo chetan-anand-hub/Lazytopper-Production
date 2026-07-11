@@ -180,7 +180,7 @@
     {
       "id": "c3",
       "title": "Dihybrid cross and independent inheritance - 9:3:3:1",
-      "body": "When two traits are followed together - seed shape (round/wrinkled) and seed colour (yellow/green) - the F1 shows both dominant traits (round, yellow), and the F2 gives four phenotypes in a 9:3:3:1 ratio. New combinations such as round-green and wrinkled-yellow appear because the two traits are inherited independently of each other.",
+      "body": "When two traits are followed together - seed shape (round/wrinkled) and seed colour (yellow/green) - the F1 shows both dominant traits (round, yellow), and the F2 gives four phenotypes in a 9:3:3:1 ratio. New combinations such as round-yellow and wrinkled-green appear because the two traits are inherited independently of each other.",
       "tested": "how two traits are inherited independently; the 9:3:3:1 F2 dihybrid ratio; the appearance of new trait combinations in the F2.",
       "figure_ref": "fig_dihybrid_cross"
     },
