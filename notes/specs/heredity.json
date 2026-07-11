@@ -1,0 +1,537 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "heredity",
+    "subject": "biology",
+    "chapter_no": 8,
+    "title": "Heredity",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Diagrams",
+      "kind": "diagrams"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 8"
+  },
+  "board_asks": "Mendel's monohybrid and dihybrid pea-plant crosses (dominant vs recessive traits, the 3:1 and 9:3:3:1 F2 ratios), how genes carried on chromosomes are inherited equally from both parents and expressed, and sex determination in human beings (XX/XY) - examined through Punnett-square crosses, 'is the trait dominant or recessive?' reasoning, and 'how is the sex of the child determined?' questions.",
+  "big_idea": {
+    "tagline": "Traits pass from parents to offspring by predictable rules - Mendel worked them out with pea plants.",
+    "body": "A child carries the basic body design of its parents yet is never identical to them, because each parent passes on one copy of every gene. Mendel's crosses with garden peas revealed the rules of this inheritance: some traits are dominant and hide a recessive partner, each trait is inherited independently of the others, and the F2 generation reappears in fixed proportions - 3:1 for one trait and 9:3:3:1 for two. The same 'two copies of every gene, carried on chromosomes' logic also explains how the sex of a human child is fixed by the X or Y chromosome it inherits from its father."
+  },
+  "definitions": [
+    {
+      "id": "def_heredity",
+      "tier": "headline",
+      "term": "Heredity",
+      "verbatim": "The rules of heredity determine the process by which traits and characteristics are reliably inherited.",
+      "plain": "The set of rules by which characteristics pass reliably from parents to their offspring.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 129,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_inheritance_rules",
+      "tier": "headline",
+      "term": "Rules for the inheritance of traits",
+      "verbatim": "The rules for inheritance of such traits in human beings are related to the fact that both the father and the mother contribute practically equal amounts of genetic material to the child.",
+      "plain": "Because the father and mother each give an equal share of genetic material, every trait comes in two versions - one from each parent.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 129,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_gene",
+      "tier": "headline",
+      "term": "Gene",
+      "verbatim": "A section of DNA that provides information for one protein is called the gene for that protein.",
+      "plain": "A stretch of DNA that carries the instructions for making one particular protein.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 131,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_dominant_recessive",
+      "tier": "headline",
+      "term": "Dominant and recessive traits",
+      "verbatim": "Traits like ‘T’ are called dominant traits, while those that behave like ‘t’ are called recessive traits.",
+      "plain": "A dominant trait shows up even when only one copy is present; a recessive trait appears only when both copies are the recessive form.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 130,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_genes_control_traits",
+      "tier": "headline",
+      "term": "Genes control characteristics",
+      "verbatim": "Thus, genes control characteristics, or traits.",
+      "plain": "Genes work by making proteins (such as enzymes), and those proteins decide the visible traits of the organism.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 131,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_chromosome",
+      "tier": "headline",
+      "term": "Chromosome",
+      "verbatim": "This is explained by the fact that each gene set is present, not as a single long thread of DNA, but as separate independent pieces, each called a chromosome.",
+      "plain": "Each set of genes is carried as separate thread-like pieces called chromosomes; body cells have them in pairs, one of each pair coming from each parent.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 132,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "def_sex_determination",
+      "tier": "headline",
+      "term": "Sex determination in humans",
+      "verbatim": "Women have a perfect pair of sex chromosomes, both called X. But men have a mismatched pair in which one is a normal-sized X while the other is a short one called Y. So women are XX, while men are XY.",
+      "plain": "Human females carry two X chromosomes; males carry one X and one Y - this difference decides the sex of a child.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 132,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "kt_genes_two_copies",
+      "tier": "key-term",
+      "term": "Genes (Mendel's factors)",
+      "verbatim": "This led Mendel to propose that two copies of factor (now called genes) controlling traits are present in sexually reproducing organism.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 130,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "kt_independent_inheritance",
+      "tier": "key-term",
+      "term": "Independent inheritance of traits",
+      "verbatim": "Thus, the tall/short trait and the round seed/wrinkled seed trait are independently inherited.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 131,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "kt_germ_cell",
+      "tier": "key-term",
+      "term": "Germ cell - one gene set",
+      "verbatim": "For this mechanism to work, each germ cell must have only one gene set.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 131,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    },
+    {
+      "id": "kt_restore_chromosomes",
+      "tier": "key-term",
+      "term": "Restoring the chromosome number",
+      "verbatim": "When two germ cells combine, they will restore the normal number of chromosomes in the progeny, ensuring the stability of the DNA of the species.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 132,
+        "edition": "2026-27",
+        "chapter": 8
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Inherited traits and variation",
+      "body": "A child shares the basic body design of its parents but is never identical to them, and sexually reproducing populations show a great deal of variation. This is because each individual receives one of the two copies of every gene from each parent. Working out which traits reappear in the offspring, and in what proportion, is how the rules of inheritance were discovered.",
+      "tested": "why offspring resemble yet differ from their parents; free vs attached earlobes as an inherited human trait.",
+      "figure_ref": "fig_earlobes"
+    },
+    {
+      "id": "c2",
+      "title": "Mendel's monohybrid cross - dominant, recessive and 3:1",
+      "body": "Crossing a pure tall pea plant (TT) with a short one (tt) gives an F1 that is entirely tall (Tt) - only the dominant trait is seen. Self-pollinating the F1 gives an F2 in which tall and short reappear in a 3:1 phenotype ratio (genotypes TT:Tt:tt = 1:2:1), proving the recessive 'short' factor was hidden in the F1, not lost.",
+      "tested": "3-mark: a monohybrid cross showing a dominant trait masking a recessive one; the 3:1 F2 phenotype (1:2:1 genotype) ratio.",
+      "figure_ref": "fig_monohybrid_cross"
+    },
+    {
+      "id": "c3",
+      "title": "Dihybrid cross and independent inheritance - 9:3:3:1",
+      "body": "When two traits are followed together - seed shape (round/wrinkled) and seed colour (yellow/green) - the F1 shows both dominant traits (round, yellow), and the F2 gives four phenotypes in a 9:3:3:1 ratio. New combinations such as round-green and wrinkled-yellow appear because the two traits are inherited independently of each other.",
+      "tested": "how two traits are inherited independently; the 9:3:3:1 F2 dihybrid ratio; the appearance of new trait combinations in the F2.",
+      "figure_ref": "fig_dihybrid_cross"
+    },
+    {
+      "id": "c4",
+      "title": "How traits are expressed - genes, proteins and chromosomes",
+      "body": "A gene is a section of DNA that codes for one protein; proteins (for example an enzyme that controls a growth hormone) determine a characteristic such as plant height. Because every organism carries two copies of each gene - one from each parent - packed on paired chromosomes, and each germ cell carries only one copy, both parents contribute equally to every trait, and fertilisation restores the paired chromosome number.",
+      "tested": "genes control characteristics; the role of chromosomes; how the equal genetic contribution of both parents is ensured in the progeny.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Sex determination in human beings (XX / XY)",
+      "body": "Of the 23 chromosome pairs in a human cell, 22 are matched; the 23rd is the pair of sex chromosomes. Females are XX and males are XY. Every egg carries an X, while sperm carry either X or Y - so a child's sex depends on the father: an X-bearing sperm gives a girl (XX), a Y-bearing sperm gives a boy (XY).",
+      "tested": "3/5-mark: how the sex of a child is determined in human beings; why the father's chromosome decides the sex.",
+      "figure_ref": "fig_sex_determination"
+    }
+  ],
+  "examples": [
+    {
+      "id": "monohybrid-cross",
+      "shape": "Monohybrid cross - tall x short pea plants",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Trace a monohybrid cross: a pure tall pea plant (TT) crossed with a short one (tt), through the F1 and F2 generations.",
+      "solution_steps": [
+        {
+          "lead": "Parental cross (P).",
+          "text": "Cross a homozygous tall plant (TT) with a homozygous short plant (tt). Each parent passes on one factor, so every gamete carries either T or t.",
+          "mark": 1
+        },
+        {
+          "lead": "F1 generation.",
+          "text": "All F1 plants are Tt and are tall, because a single copy of the dominant 'T' is enough to make the plant tall - the recessive 't' is present but not expressed.",
+          "mark": 1
+        },
+        {
+          "lead": "F2 generation.",
+          "text": "Self-pollinating the F1 (Tt x Tt) gives genotypes TT : Tt : tt in a 1:2:1 ratio; since TT and Tt are both tall and only tt is short, the phenotype ratio is 3 tall : 1 short.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the parental genotypes and gametes, 1 for the all-tall Tt F1 (dominant masking recessive), and 1 for the F2 3:1 phenotype (1:2:1 genotype) ratio.",
+      "source": {
+        "ncert_example": "Fig. 8.3 walkthrough",
+        "ncert_page": 130,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "dihybrid-cross",
+      "shape": "Dihybrid cross - seed shape and colour (9:3:3:1)",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Trace a dihybrid cross between a round-green-seeded plant (RRyy) and a wrinkled-yellow-seeded plant (rrYY) to the F2 generation.",
+      "solution_steps": [
+        {
+          "lead": "Parents (P).",
+          "text": "Cross a round, green plant (RRyy) with a wrinkled, yellow plant (rrYY). Round (R) and yellow (Y) are dominant; wrinkled (r) and green (y) are recessive.",
+          "mark": 1
+        },
+        {
+          "lead": "F1 generation.",
+          "text": "All F1 seeds are Rr Yy - round and yellow - because both dominant traits are expressed.",
+          "mark": 1
+        },
+        {
+          "lead": "F2 generation.",
+          "text": "Self-pollinating the F1 (Rr Yy x Rr Yy) gives four phenotypes - round-yellow, round-green, wrinkled-yellow and wrinkled-green - in a 9:3:3:1 ratio (Mendel counted 315 : 108 : 101 : 32 out of 556 seeds).",
+          "mark": 1
+        },
+        {
+          "lead": "Independent inheritance.",
+          "text": "New combinations such as round-yellow and wrinkled-green appear because seed shape and seed colour are inherited independently of each other."
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the parental cross, 1 for the all round-yellow Rr Yy F1, and 1 for the F2 9:3:3:1 phenotype ratio. The closing point that the new combinations prove independent inheritance completes the trace but is folded into the F2 mark.",
+      "source": {
+        "ncert_example": "Fig. 8.5 walkthrough",
+        "ncert_page": 131,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "gene-to-trait",
+      "shape": "How a gene decides tall vs short",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Explain how a gene decides whether a pea plant is tall or short.",
+      "solution_steps": [
+        {
+          "lead": "Gene to protein.",
+          "text": "A gene is a section of DNA that carries the information for making one protein - here, an enzyme needed to make a plant growth hormone.",
+          "mark": 1
+        },
+        {
+          "lead": "Efficient enzyme gives a tall plant.",
+          "text": "If the enzyme works efficiently, a lot of the growth hormone is made and the plant grows tall.",
+          "mark": 1
+        },
+        {
+          "lead": "Altered gene gives a short plant.",
+          "text": "If the gene is altered so that the enzyme is less efficient, less hormone is made and the plant stays short - so the gene, through its protein, controls the trait.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for gene to protein/enzyme, 1 for efficient enzyme to more hormone to tall, and 1 for altered gene to less hormone to short, showing that genes control characteristics.",
+      "source": {
+        "ncert_example": "Section 8.2.3 walkthrough",
+        "ncert_page": 131,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "sex-determination",
+      "shape": "Sex determination in human beings",
+      "kind": "process",
+      "problem_verbatim": "[authored prompt] Trace how the sex of a human child is determined, using the parents' sex chromosomes.",
+      "solution_steps": [
+        {
+          "lead": "Sex chromosomes.",
+          "text": "Of the 23 pairs of chromosomes in a human cell, 22 pairs are matched; the remaining pair is the sex chromosomes. Females are XX and males are XY.",
+          "mark": 1
+        },
+        {
+          "lead": "Gametes.",
+          "text": "Every egg from the mother carries an X chromosome, while sperm from the father are of two kinds - half carry X and half carry Y.",
+          "mark": 1
+        },
+        {
+          "lead": "The father decides the sex.",
+          "text": "A child always inherits one X from the mother; if the fertilising sperm carries X the child is a girl (XX), and if it carries Y the child is a boy (XY). So the sex of the child is determined by what it inherits from the father.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the 22 matched pairs plus the XX/XY sex chromosomes, 1 for the two kinds of sperm (X or Y) versus the single X egg, and 1 for the father's chromosome deciding the sex (X gives a girl, Y gives a boy).",
+      "source": {
+        "ncert_example": "Fig. 8.6 walkthrough",
+        "ncert_page": 132,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Cross question?",
+      "text": "Write the parents' genotypes and their gametes first, then combine them in a Punnett square - marks are given for the gametes and the F2 ratio, not just the final answer."
+    },
+    {
+      "cue": "'Dominant or recessive?' asked?",
+      "text": "The trait that appears in the F1 (and in three-quarters of the F2) is dominant; the one that disappears in the F1 and returns in one-quarter of the F2 is recessive."
+    },
+    {
+      "cue": "Ratio to remember?",
+      "text": "One trait gives 3:1 in the F2; two traits give 9:3:3:1. Reaching these ratios is what shows the cross has been done correctly."
+    },
+    {
+      "cue": "Sex-determination question?",
+      "text": "State that the mother is XX (all eggs carry X) and the father is XY (sperm carry X or Y), so it is the father's chromosome that fixes the child's sex - a common 3-mark point."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Writing that the F1 is a 'mixture' or a 'medium-height' plant. In a monohybrid cross the F1 shows only the dominant trait - there are no blended halfway forms.",
+      "owner_verified": false
+    },
+    {
+      "text": "Confusing genotype with phenotype: the F2 genotype ratio is 1:2:1 (TT:Tt:tt) but the phenotype ratio is 3:1 (tall:short). Quoting 3:1 as the genotype ratio loses the mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "Saying the mother decides the child's sex. The egg always carries X; it is the father's X- or Y-bearing sperm that determines the sex.",
+      "owner_verified": false
+    },
+    {
+      "text": "Forgetting that a recessive trait is hidden, not lost, in the F1 - it reappears in the F2, which is the whole point of Mendel's experiment.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Monohybrid F2 ratio",
+      "math": "Tt x Tt -> 1 TT : 2 Tt : 1 tt = 3 tall : 1 short (phenotype 3:1, genotype 1:2:1)"
+    },
+    {
+      "label": "Dihybrid F2 ratio",
+      "math": "Rr Yy x Rr Yy -> 9 round-yellow : 3 round-green : 3 wrinkled-yellow : 1 wrinkled-green (9:3:3:1)"
+    },
+    {
+      "label": "Mendel's dihybrid count",
+      "math": "315 : 108 : 101 : 32 out of 556 seeds, close to a 9:3:3:1 ratio"
+    },
+    {
+      "label": "Human sex chromosomes",
+      "math": "Female = XX (all eggs X) . Male = XY (sperm X or Y) -> the father determines the sex"
+    },
+    {
+      "label": "Gene copies",
+      "math": "Two copies of every gene per body cell (one from each parent); each germ cell carries only one copy"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "diagrams",
+    "intro": "The diagrams you must be able to read and reproduce for Heredity - each Mendelian cross and the human sex-determination cross. Learn the genotypes and the F2 ratios in the exact NCERT form.",
+    "diagrams": [
+      "fig_monohybrid_cross",
+      "fig_dihybrid_cross",
+      "fig_sex_determination",
+      "fig_earlobes"
+    ]
+  },
+  "figures": {
+    "fig_earlobes": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 8.2",
+      "caption": "Free and attached earlobes",
+      "legend": "(a) A free earlobe and (b) an attached earlobe - the lowest part of the ear is closely attached to the side of the head in some people and hangs free in others. Free and attached earlobes are two inherited variants found in human populations.",
+      "source": {
+        "pdf": "jesc108",
+        "edition": "2026-27",
+        "ncert_fig": "8.2",
+        "page_pdf": 1,
+        "printed_page": 129,
+        "crop": [1298, 1168, 1615, 1715],
+        "clean": "saturation",
+        "note": "rasterize dpi=220, crop in pixel space, saturation-clean via pymupdf; eye-confirmed - both ear photos with (a)/(b) labels, no text bleed, no out-of-syllabus (deleted-section) content"
+      },
+      "asset": "heredity/fig_earlobes.webp"
+    },
+    "fig_monohybrid_cross": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 8.3",
+      "caption": "Inheritance of traits over two generations (monohybrid cross)",
+      "legend": "Top row (F1): Tall (TT) x Short (tt) gives all tall offspring (Tt). Bottom row (F2): F1 x F1 (Tt x Tt) gives Tall (TT), Tall (Tt), Tall (Tt) and Short (tt) - a 3 tall : 1 short ratio.",
+      "source": {
+        "pdf": "jesc108",
+        "edition": "2026-27",
+        "ncert_fig": "8.3",
+        "page_pdf": 2,
+        "printed_page": 130,
+        "crop": [110, 922, 762, 1600],
+        "clean": "saturation",
+        "note": "rasterize dpi=220, crop in pixel space, saturation-clean via pymupdf; trimmed top edge to drop the 'generation, or F1' body-text bleed; eye-confirmed - no text bleed, no out-of-syllabus (deleted-section) content"
+      },
+      "asset": "heredity/fig_monohybrid_cross.webp"
+    },
+    "fig_dihybrid_cross": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 8.5",
+      "caption": "Independent inheritance of two separate traits, shape and colour of seeds",
+      "legend": "RR yy (round, green) x rr YY (wrinkled, yellow) gives an F1 that is all Rr Yy (round, yellow); the F2 Punnett square gives 315 round-yellow (9) : 108 round-green (3) : 101 wrinkled-yellow (3) : 32 wrinkled-green (1) out of 556 seeds - a 9:3:3:1 ratio.",
+      "source": {
+        "pdf": "jesc108",
+        "edition": "2026-27",
+        "ncert_fig": "8.5",
+        "page_pdf": 3,
+        "printed_page": 131,
+        "crop": [1205, 705, 1740, 1850],
+        "clean": "saturation",
+        "note": "rasterize dpi=220, crop in pixel space, saturation-clean via pymupdf; eye-confirmed - full 4x4 Punnett square with the 9:3:3:1 counts and '556 seeds', no text bleed, no out-of-syllabus (deleted-section) content"
+      },
+      "asset": "heredity/fig_dihybrid_cross.webp"
+    },
+    "fig_sex_determination": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 8.6",
+      "caption": "Sex determination in human beings",
+      "legend": "Male (XY) and Female (XX). Gametes: the mother gives only X eggs, the father gives X or Y sperm; the resulting zygotes are XX (a girl) or XY (a boy) - so the father's chromosome decides the sex.",
+      "source": {
+        "pdf": "jesc108",
+        "edition": "2026-27",
+        "ncert_fig": "8.6",
+        "page_pdf": 4,
+        "printed_page": 132,
+        "crop": [125, 900, 700, 2010],
+        "clean": "saturation",
+        "note": "rasterize dpi=220, crop in pixel space, saturation-clean via pymupdf; eye-confirmed - Male/Female, gametes, zygotes and offspring labels intact, no text bleed, no out-of-syllabus (deleted-section) content"
+      },
+      "asset": "heredity/fig_sex_determination.webp"
+    }
+  },
+  "mindmap": {
+    "root": "Heredity",
+    "branches": [
+      {
+        "label": "Inheritance basics",
+        "children": [
+          "A child shares its parents' body design but is not identical",
+          "Both parents contribute practically equal genetic material",
+          "Two copies (versions) of every gene per trait - one from each parent",
+          "Free vs attached earlobes - an inherited human trait"
+        ]
+      },
+      {
+        "label": "Mendel's monohybrid cross",
+        "children": [
+          "Tall (TT) x short (tt) -> F1 all tall (Tt)",
+          "Dominant trait masks the recessive one",
+          "F2: 3 tall : 1 short (genotype 1:2:1)",
+          "Recessive factor hidden in F1, reappears in F2"
+        ]
+      },
+      {
+        "label": "Dihybrid cross",
+        "children": [
+          "Round-green (RRyy) x wrinkled-yellow (rrYY)",
+          "F1 all round and yellow (Rr Yy)",
+          "F2: 9:3:3:1 - four phenotypes",
+          "New combinations -> traits inherited independently"
+        ]
+      },
+      {
+        "label": "Genes, chromosomes and expression",
+        "children": [
+          "Gene = a section of DNA coding for one protein",
+          "Proteins/enzymes control characteristics (e.g. plant height)",
+          "Genes carried on paired chromosomes",
+          "Each germ cell carries one copy; fertilisation restores the pair"
+        ]
+      },
+      {
+        "label": "Sex determination (humans)",
+        "children": [
+          "22 matched pairs + 1 sex-chromosome pair",
+          "Female XX (all X eggs), Male XY (X or Y sperm)",
+          "Father's chromosome decides sex: X -> girl, Y -> boy",
+          "Don't say the mother decides the sex"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    { "item": "Heredity", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.129" },
+    { "item": "Rules for the inheritance of traits", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.129" },
+    { "item": "Gene", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.131" },
+    { "item": "Dominant and recessive traits", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.130" },
+    { "item": "Genes control characteristics", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.131" },
+    { "item": "Chromosome", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.132" },
+    { "item": "Sex determination in humans", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.132" },
+    { "item": "Genes (Mendel's factors)", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.130" },
+    { "item": "Independent inheritance of traits", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.131" },
+    { "item": "Germ cell - one gene set", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.131" },
+    { "item": "Restoring the chromosome number", "type": "verbatim", "source": "NCERT 2026-27 Ch8 p.132" },
+    { "item": "Monohybrid cross - tall x short pea plants", "type": "example", "source": "NCERT 2026-27 Ch8 Fig 8.3 p.130" },
+    { "item": "Dihybrid cross - seed shape and colour (9:3:3:1)", "type": "example", "source": "NCERT 2026-27 Ch8 Fig 8.5 p.131" },
+    { "item": "How a gene decides tall vs short", "type": "example", "source": "NCERT 2026-27 Ch8 Sec 8.2.3 p.131" },
+    { "item": "Sex determination in human beings", "type": "example", "source": "NCERT 2026-27 Ch8 Fig 8.6 p.132" },
+    { "item": "NCERT Fig 8.2", "type": "figure", "source": "NCERT 2026-27 Ch8 8.2 p.129" },
+    { "item": "NCERT Fig 8.3", "type": "figure", "source": "NCERT 2026-27 Ch8 8.3 p.130" },
+    { "item": "NCERT Fig 8.5", "type": "figure", "source": "NCERT 2026-27 Ch8 8.5 p.131" },
+    { "item": "NCERT Fig 8.6", "type": "figure", "source": "NCERT 2026-27 Ch8 8.6 p.132" }
+  ]
+}
