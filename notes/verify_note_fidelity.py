@@ -159,56 +159,65 @@ class Chapter:
     """One chapter PDF: page skeletons + printed-page -> pdf-index map.
 
     NCERT prints the page number as a standalone line, but figure/activity/
-    exercise labels also extract as standalone numbers. The genuine page numbers
-    are a long CONSECUTIVE run; the spurious ones are sparse. We keep only the
-    longest consecutive run as the chapter's printed-page range, so a cite to a
-    page outside the real chapter (a provable cite error) does not resolve."""
+    exercise labels and (in chemistry/maths) bare coefficients, ratios and
+    subscripts also extract as standalone integers. A first-occurrence map is
+    therefore poisoned on low-numbered chapters (ch.1 prints pp.1-16, which
+    collide constantly with content integers).
+
+    Instead we detect the chapter's CONSTANT page-number offset k, where
+    printed_page(pdf_index i) = i + k. The genuine page number is printed on
+    EVERY page, so k_true collects one vote from every page (support ==
+    page_count) while spurious integers scatter across other offsets with low
+    support -- k_true cannot be beaten. printed page N then maps deterministically
+    to pdf index N - k, and the printed range is [k, k + page_count - 1]."""
     def __init__(self, path):
         self.path = path
         self.doc = fitz.open(path)
         self.page_skel = [skeleton(self.doc[i].get_text()) for i in range(self.doc.page_count)]
-        raw = {}
+        self._page_nums = []
         for i in range(self.doc.page_count):
+            nums = set()
             for ln in self.doc[i].get_text().splitlines():
                 ln = ln.strip()
                 if re.fullmatch(r"\d{1,3}", ln):
-                    raw.setdefault(int(ln), i)  # first occurrence wins
-        self.printed = self._longest_consecutive(raw)
-        if self.printed:
-            self.page_lo = min(self.printed)
-            self.page_hi = max(self.printed)
+                    nums.add(int(ln))
+            self._page_nums.append(nums)
+        self.offset = self._detect_offset()
+        if self.offset is not None:
+            self.page_lo = self.offset
+            self.page_hi = self.offset + self.doc.page_count - 1
         else:
             self.page_lo = self.page_hi = None
 
-    @staticmethod
-    def _longest_consecutive(raw):
-        if not raw:
-            return {}
-        keys = sorted(raw)
-        best = cur = [keys[0]]
-        for k in keys[1:]:
-            if k == cur[-1] + 1:
-                cur.append(k)
-            else:
-                cur = [k]
-            if len(cur) > len(best):
-                best = cur
-        return {n: raw[n] for n in best}
+    def _detect_offset(self):
+        """Vote for the constant offset k s.t. printed(i) = i + k. Each page's
+        genuine page number votes for k_true, so k_true wins with support ==
+        page_count; require majority support to trust it."""
+        votes = {}
+        for i, nums in enumerate(self._page_nums):
+            for n in nums:
+                k = n - i
+                if k >= 1:                 # printed page of pdf[0] is >= 1
+                    votes[k] = votes.get(k, 0) + 1
+        if not votes:
+            return None
+        k_best = max(votes, key=lambda k: (votes[k], -k))
+        if votes[k_best] < max(3, self.doc.page_count // 2):
+            return None                    # too weak to trust -> no reliable map
+        return k_best
 
     def close(self):
         self.doc.close()
 
     def page_status(self, printed_page):
-        """('located', window) | ('gap', None) | ('out_of_range', (lo,hi)) | ('no_map', None)."""
-        if self.page_lo is None:
+        """('located', window) | ('out_of_range', (lo,hi)) | ('no_map', None)."""
+        if self.offset is None:
             return ("no_map", None)
-        if printed_page in self.printed:
-            idx = self.printed[printed_page]
+        idx = printed_page - self.offset
+        if 0 <= idx < self.doc.page_count:
             win = [i for i in range(idx - PAGE_WINDOW, idx + PAGE_WINDOW + 1)
                    if 0 <= i < self.doc.page_count]
             return ("located", win)
-        if self.page_lo <= printed_page <= self.page_hi:
-            return ("gap", None)   # inside the chapter but that number didn't extract
         return ("out_of_range", (self.page_lo, self.page_hi))
 
     def find_contiguous(self, text, pages):
