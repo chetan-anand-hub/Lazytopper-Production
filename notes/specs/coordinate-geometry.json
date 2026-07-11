@@ -1,0 +1,566 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "coordinate-geometry",
+    "subject": "maths",
+    "chapter_no": 7,
+    "title": "Coordinate Geometry",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 7 (jemh107.pdf, printed pages 99–112)"
+  },
+  "board_asks": "the Distance Formula (length of a side, type of triangle or quadrilateral, collinearity, equidistant points) and the Section Formula for internal division — including the mid-point and the points of trisection. In the rationalised 2026-27 chapter these two formulas carry essentially every mark; area-of-a-triangle by coordinates has been removed from the syllabus.",
+  "big_idea": {
+    "tagline": "Geometry you can compute.",
+    "body": "Coordinate geometry turns points into number-pairs so that lengths and dividing-points become arithmetic. Two tools do all the work: the <b>Distance Formula</b> gives the length between any two points $P(x_1, y_1)$ and $Q(x_2, y_2)$, and the <b>Section Formula</b> gives the point that splits the segment $AB$ internally in a chosen ratio $m_1 : m_2$ (with the mid-point as the special $1:1$ case). Everything else here — proving a triangle's type, testing whether three points are collinear, finding a missing vertex — is one of these two formulas applied."
+  },
+  "definitions": [
+    {
+      "id": "def_distance_formula",
+      "tier": "headline",
+      "term": "Distance formula",
+      "verbatim": "So, the distance between the points P(x₁, y₁) and Q(x₂, y₂) is PQ = √((x₂ – x₁)² + (y₂ – y₁)²), which is called the distance formula.",
+      "plain": "The straight-line distance between two points: square the gap in $x$, square the gap in $y$, add them, take the positive square root — $PQ=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$. The order of subtraction doesn't matter because each difference is squared.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 102,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_section_formula",
+      "tier": "headline",
+      "term": "Section formula (internal)",
+      "verbatim": "So, the coordinates of the point P(x, y) which divides the line segment joining the points A(x₁, y₁) and B(x₂, y₂), internally, in the ratio m₁ : m₂ are ((m₁x₂ + m₂x₁)/(m₁ + m₂), (m₁y₂ + m₂y₁)/(m₁ + m₂)). This is known as the section formula.",
+      "plain": "Where a point lands when it splits the segment from $A$ to $B$ internally in the ratio $m_1 : m_2$ — a weighted average of the endpoints. Watch the cross-pattern: the weight $m_1$ (the $PA$ part) multiplies $x_2$, the coordinate of $B$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 107,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_midpoint",
+      "tier": "headline",
+      "term": "Mid-point formula",
+      "verbatim": "Special Case : The mid-point of a line segment divides the line segment in the ratio 1 : 1. Therefore, the coordinates of the mid-point P of the join of the points A(x₁, y₁) and B(x₂, y₂) is ((x₁ + x₂)/2, (y₁ + y₂)/2).",
+      "plain": "Just average the two $x$'s and the two $y$'s — $\\left(\\dfrac{x_1+x_2}{2}, \\dfrac{y_1+y_2}{2}\\right)$. It is the section formula at ratio $1:1$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 107,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_abscissa",
+      "tier": "key-term",
+      "term": "Abscissa (x-coordinate)",
+      "verbatim": "The distance of a point from the y-axis is called its x-coordinate, or abscissa.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 99,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_ordinate",
+      "tier": "key-term",
+      "term": "Ordinate (y-coordinate)",
+      "verbatim": "The distance of a point from the x-axis is called its y-coordinate, or ordinate.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 99,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_origin_distance",
+      "tier": "key-term",
+      "term": "Distance from the origin",
+      "verbatim": "In particular, the distance of a point P(x, y) from the origin O(0, 0) is given by OP = √(x² + y²).",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 102,
+        "edition": "2026-27",
+        "chapter": 7,
+        "note": "Remark 1 following the distance formula, p.102"
+      }
+    },
+    {
+      "id": "kt_k1_form",
+      "tier": "key-term",
+      "term": "Section formula in k : 1 form",
+      "verbatim": "If the ratio in which P divides AB is k : 1, then the coordinates of the point P will be ((kx₂ + x₁)/(k + 1), (ky₂ + y₁)/(k + 1)).",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 107,
+        "edition": "2026-27",
+        "chapter": 7,
+        "note": "the single-unknown form used to FIND an unknown ratio"
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Distance between two points",
+      "body": "$PQ=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$ — the length of the segment joining $P(x_1,y_1)$ and $Q(x_2,y_2)$. The distance from the origin is the special case $OP=\\sqrt{x^2+y^2}$. Read the two differences straight off the coordinates, then square, add, and take the positive root.",
+      "tested": "2–3 mark “find the distance / length of a side”",
+      "figure_ref": "fig_distance_plane"
+    },
+    {
+      "id": "c2",
+      "title": "The distance formula in disguise — triangles, squares, collinearity",
+      "body": "Most questions never say “distance”. To name a triangle, compare its three side-lengths (and check a Pythagoras relation for a right angle); to prove a square, show four equal sides and equal diagonals; to test collinearity, check that the two shorter distances add to the longest ($AB+BC=AC$). All of it is the distance formula, applied a few times.",
+      "tested": "prove the type of a triangle / quadrilateral, or show three points are collinear (2–3 marks)",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Section formula — internal division",
+      "body": "The point $P$ that splits $AB$ internally in the ratio $m_1:m_2$ is $\\left(\\dfrac{m_1x_2+m_2x_1}{m_1+m_2}, \\dfrac{m_1y_2+m_2y_1}{m_1+m_2}\\right)$. The weights cross over — $m_1$ multiplies the coordinates of $B$. In the rationalised syllabus only internal division is examined; external division is left for higher classes.",
+      "tested": "find the dividing point, or the ratio — including case-study setups (2–3 marks)",
+      "figure_ref": "fig_section_divide"
+    },
+    {
+      "id": "c4",
+      "title": "Mid-point & points of trisection",
+      "body": "The mid-point is just the average of the coordinates: $\\left(\\dfrac{x_1+x_2}{2}, \\dfrac{y_1+y_2}{2}\\right)$. The two points of trisection split $AB$ into three equal parts — apply the section formula at ratios $1:2$ and $2:1$. A common exam use: a missing vertex of a parallelogram, since its diagonals bisect each other (equal mid-points).",
+      "tested": "mid-point, points of trisection, or the missing vertex of a parallelogram",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Working backwards — find a ratio or a coordinate",
+      "body": "When the ratio is unknown, assume it is $k:1$, apply the section formula, and solve the coordinate you already know. A point on the $y$-axis has $x=0$; a point on the $x$-axis has $y=0$ — that single fact becomes the equation you solve. Equidistant conditions ($AP=BP$) square to a neat linear relation between $x$ and $y$.",
+      "tested": "“in what ratio does the y-axis divide…”, find $k$, or an equidistant-point relation",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "Distance formula → type of triangle · NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Do the points (3, 2), (–2, –3) and (2, 3) form a triangle? If so, name the type of triangle formed.",
+      "solution_steps": [
+        {
+          "lead": "Apply the distance formula to all three pairs.",
+          "text": "With $P(3,2)$, $Q(-2,-3)$, $R(2,3)$: $PQ=\\sqrt{5^2+5^2}=\\sqrt{50}$, $QR=\\sqrt{(-4)^2+(-6)^2}=\\sqrt{52}$, $PR=\\sqrt{1^2+(-1)^2}=\\sqrt{2}$.",
+          "concept_tag": "distance formula",
+          "mark": 1.5
+        },
+        {
+          "lead": "Is it a triangle?",
+          "text": "The sum of any two of these distances is greater than the third, so $P$, $Q$, $R$ form a triangle.",
+          "concept_tag": "triangle inequality",
+          "mark": 0.5
+        },
+        {
+          "lead": "Name the type.",
+          "text": "$PQ^2+PR^2=50+2=52=QR^2$, so by the converse of the Pythagoras theorem $\\angle P=90°$ — it is a <b>right triangle</b>.",
+          "concept_tag": "converse of Pythagoras",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1½ for the three side-lengths via the distance formula, ½ for the triangle-inequality conclusion, 1 for naming it a right triangle by the converse of Pythagoras ($PQ^2+PR^2=QR^2$).",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 102,
+        "edition": "2026-27",
+        "chapter": 7,
+        "note": "problem + first distances on p.102; right-angle conclusion at top of p.103"
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Collinearity via distances · NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "Fig. 7.6 shows the arrangement of desks in a classroom. Ashima, Bharti and Camella are seated at A(3, 1), B(6, 4) and C(8, 6) respectively. Do you think they are seated in a line? Give reasons for your answer.",
+      "solution_steps": [
+        {
+          "lead": "Distances between the pairs.",
+          "text": "$AB=\\sqrt{3^2+3^2}=3\\sqrt2$, $BC=\\sqrt{2^2+2^2}=2\\sqrt2$, $AC=\\sqrt{5^2+5^2}=5\\sqrt2$.",
+          "concept_tag": "distance formula",
+          "mark": 1
+        },
+        {
+          "lead": "Collinearity test.",
+          "text": "$AB+BC=3\\sqrt2+2\\sqrt2=5\\sqrt2=AC$, so $A$, $B$, $C$ are collinear — they are seated in a line.",
+          "concept_tag": "AB+BC=AC ⇒ collinear",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for the three distances, 1 for the collinearity conclusion $AB+BC=AC$. No area calculation is needed — the distance test alone settles whether the points lie on one line.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 103,
+        "edition": "2026-27",
+        "chapter": 7,
+        "note": "problem (with Fig. 7.6) on p.103; solution on p.104"
+      }
+    },
+    {
+      "id": "ex_ncert_5",
+      "shape": "Equidistant point on the y-axis · NCERT Example 5",
+      "kind": "numerical",
+      "problem_verbatim": "Find a point on the y-axis which is equidistant from the points A(6, 5) and B(– 4, 3).",
+      "solution_steps": [
+        {
+          "lead": "A point on the y-axis is $(0, y)$.",
+          "text": "Let $P(0,y)$ be equidistant from $A(6,5)$ and $B(-4,3)$, so $AP^2=BP^2$.",
+          "concept_tag": "point on an axis has x = 0",
+          "mark": 1
+        },
+        {
+          "lead": "Expand with the distance formula.",
+          "text": "$(6-0)^2+(5-y)^2=(-4-0)^2+(3-y)^2$, i.e. $36+25-10y=16+9-6y$.",
+          "concept_tag": "distance formula",
+          "mark": 1
+        },
+        {
+          "lead": "Solve for y.",
+          "text": "$4y=36$, so $y=9$ — the required point is $(0, 9)$.",
+          "concept_tag": "solve",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for using the form $(0, y)$ and setting $AP^2=BP^2$, 1 for the expanded equation, 1 for solving to $y=9$ and stating the point $(0, 9)$.",
+      "source": {
+        "ncert_example": "5",
+        "ncert_page": 104,
+        "edition": "2026-27",
+        "chapter": 7,
+        "note": "problem on p.104; solution completes on p.105"
+      }
+    },
+    {
+      "id": "ex_ncert_6",
+      "shape": "Section formula (internal, 3:1) · NCERT Example 6",
+      "kind": "numerical",
+      "problem_verbatim": "Find the coordinates of the point which divides the line segment joining the points (4, – 3) and (8, 5) in the ratio 3 : 1 internally.",
+      "solution_steps": [
+        {
+          "lead": "Set up the section formula.",
+          "text": "With $A(4,-3)$, $B(8,5)$ and $m_1:m_2=3:1$.",
+          "concept_tag": "section formula",
+          "mark": 0.5
+        },
+        {
+          "lead": "x-coordinate.",
+          "text": "$x=\\dfrac{3(8)+1(4)}{3+1}=\\dfrac{28}{4}=7$.",
+          "concept_tag": "weights cross over",
+          "mark": 0.5
+        },
+        {
+          "lead": "y-coordinate.",
+          "text": "$y=\\dfrac{3(5)+1(-3)}{3+1}=\\dfrac{12}{4}=3$.",
+          "concept_tag": "substitute",
+          "mark": 0.5
+        },
+        {
+          "lead": "State the point.",
+          "text": "The required point is $(7, 3)$.",
+          "concept_tag": "answer",
+          "mark": 0.5
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: ½ for the correct section-formula set-up, ½ + ½ for the x- and y-coordinates, ½ for stating the point $(7, 3)$.",
+      "source": {
+        "ncert_example": "6",
+        "ncert_page": 108,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "ex_ncert_8",
+      "shape": "Points of trisection · NCERT Example 8",
+      "kind": "numerical",
+      "problem_verbatim": "Find the coordinates of the points of trisection (i.e., points dividing in three equal parts) of the line segment joining the points A(2, – 2) and B(– 7, 4).",
+      "solution_steps": [
+        {
+          "lead": "P is the first trisection point — ratio 1 : 2.",
+          "text": "$P=\\left(\\dfrac{1(-7)+2(2)}{1+2}, \\dfrac{1(4)+2(-2)}{1+2}\\right)=(-1, 0)$.",
+          "concept_tag": "section formula at 1:2",
+          "mark": 1
+        },
+        {
+          "lead": "Q is the second — ratio 2 : 1.",
+          "text": "$Q=\\left(\\dfrac{2(-7)+1(2)}{2+1}, \\dfrac{2(4)+1(-2)}{2+1}\\right)=(-4, 2)$.",
+          "concept_tag": "section formula at 2:1",
+          "mark": 1
+        },
+        {
+          "lead": "State both trisection points.",
+          "text": "The points of trisection are $(-1, 0)$ and $(-4, 2)$.",
+          "concept_tag": "answer",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for $P$ at ratio $1:2$, 1 for $Q$ at ratio $2:1$, 1 for stating both trisection points. Applying the section formula twice — not the mid-point — is the key.",
+      "source": {
+        "ncert_example": "8",
+        "ncert_page": 109,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Need a length or the type of a shape?",
+      "text": "Distance formula on every relevant pair, then compare. Equal sides, equal diagonals, or a Pythagoras relation names the figure."
+    },
+    {
+      "cue": "Three points — collinear?",
+      "text": "Compute the three distances; if the two smaller ones sum to the largest, the points are collinear — no area needed."
+    },
+    {
+      "cue": "Split a segment in a ratio?",
+      "text": "Section formula. Keep the weights straight: $m_1$ pairs with the FAR point (the cross pattern)."
+    },
+    {
+      "cue": "Mid-point or trisection?",
+      "text": "Mid-point = average the coordinates. Trisection = section formula at $1:2$ and again at $2:1$."
+    },
+    {
+      "cue": "“In what ratio…” or “find k”?",
+      "text": "Assume the ratio is $k:1$, apply the section formula, and use the coordinate you know — $0$ on an axis — as the equation to solve."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Swapping the section-formula weights</b> — writing $m_1x_1$ instead of $m_1x_2$. The ratio's first part multiplies the SECOND point's coordinate.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Sign slips with negative coordinates</b> — $(x_2-x_1)$ with $x_1$ negative becomes a sum, e.g. $3-(-2)=5$, not $1$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Dropping the square root</b>, or taking the negative root — distance is always the <i>positive</i> square root.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Forgetting the axis condition</b> — a point on the $y$-axis has $x=0$ (on the $x$-axis, $y=0$); that is the equation you solve for the ratio or the point.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Distance formula",
+      "math": "$PQ=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$"
+    },
+    {
+      "label": "Distance from origin",
+      "math": "$OP=\\sqrt{x^2+y^2}$"
+    },
+    {
+      "label": "Section formula (internal, $m_1:m_2$)",
+      "math": "$\\left(\\dfrac{m_1x_2+m_2x_1}{m_1+m_2},\\ \\dfrac{m_1y_2+m_2y_1}{m_1+m_2}\\right)$"
+    },
+    {
+      "label": "Mid-point",
+      "math": "$\\left(\\dfrac{x_1+x_2}{2},\\ \\dfrac{y_1+y_2}{2}\\right)$"
+    }
+  ],
+  "mindmap": {
+    "root": "Coordinate Geometry — points as (x, y)",
+    "branches": [
+      {
+        "label": "Distance Formula",
+        "children": [
+          "PQ = √((x₂−x₁)² + (y₂−y₁)²)",
+          "From origin: √(x² + y²)",
+          "Always the positive root"
+        ]
+      },
+      {
+        "label": "Distance at work (2–3 mk)",
+        "children": [
+          "Length of a side",
+          "Type of triangle / quadrilateral",
+          "Collinear: AB + BC = AC",
+          "Equidistant → a relation in x, y"
+        ]
+      },
+      {
+        "label": "Section Formula — internal (2–3 mk)",
+        "children": [
+          "P = ((m₁x₂+m₂x₁)/(m₁+m₂), …)",
+          "Weights cross over",
+          "k : 1 form to find a ratio"
+        ]
+      },
+      {
+        "label": "Mid-point & trisection",
+        "children": [
+          "Mid-point = average of coordinates",
+          "Trisection at 1:2 and 2:1",
+          "Missing vertex of a parallelogram"
+        ]
+      },
+      {
+        "label": "Don't lose marks on…",
+        "children": [
+          "Swapping the section weights",
+          "Sign slips with negatives",
+          "Dropping the square root",
+          "On an axis: x = 0 or y = 0"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "The Distance Formula — straight from Pythagoras",
+    "intro": "NCERT builds the distance formula on p.102 by dropping perpendiculars to the x-axis and reading off a right triangle (Fig. 7.5). The two legs come directly from the coordinates, and one application of the Pythagoras theorem gives the length — this is exactly why the formula has that squared-differences shape.",
+    "steps": [
+      {
+        "claim": "Set up the two points and drop perpendiculars.",
+        "math": "$P(x_1, y_1),\\quad Q(x_2, y_2)$",
+        "justification": "Draw PR and QS perpendicular to the x-axis; a perpendicular from P meets QS at T (NCERT Fig. 7.5)."
+      },
+      {
+        "claim": "Read the horizontal leg from the x-coordinates.",
+        "math": "$PT = RS = x_2 - x_1$"
+      },
+      {
+        "claim": "Read the vertical leg from the y-coordinates.",
+        "math": "$QT = y_2 - y_1$"
+      },
+      {
+        "claim": "Apply the Pythagoras theorem in right triangle PTQ.",
+        "math": "$PQ^2 = PT^2 + QT^2 = (x_2 - x_1)^2 + (y_2 - y_1)^2$"
+      },
+      {
+        "claim": "Take the positive square root — distance is non-negative.",
+        "math": "$PQ = \\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$",
+        "justification": "This is the distance formula."
+      }
+    ],
+    "source": {
+      "ncert_page": 102,
+      "edition": "2026-27",
+      "chapter": 7,
+      "note": "derivation via the Fig. 7.5 construction, p.102"
+    }
+  },
+  "figures": {
+    "fig_distance_plane": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "The distance between P(x₁, y₁) and Q(x₂, y₂) is the hypotenuse of a right triangle whose legs are the coordinate differences.",
+      "legend": "Horizontal leg = x₂ − x₁, vertical leg = y₂ − y₁; PQ = √(sum of their squares).",
+      "generator": "cartesian_distance_segment",
+      "params": {
+        "points": [
+          { "label": "P", "x": 4, "y": 6 },
+          { "label": "Q", "x": 6, "y": 8 }
+        ],
+        "foot_label": "T",
+        "show_right_triangle": true,
+        "leg_labels": { "horizontal": "x₂ − x₁", "vertical": "y₂ − y₁" },
+        "x_range": [0, 9],
+        "y_range": [0, 9]
+      },
+      "asset": "coordinate-geometry/fig_distance_plane.webp"
+    },
+    "fig_section_divide": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "P divides AB internally in the ratio m₁ : m₂ — shown for A(4, −3), B(8, 5), ratio 3 : 1, giving P(7, 3).",
+      "legend": "P lies on segment AB with AP : PB = m₁ : m₂; its coordinates are the weighted average of A and B.",
+      "generator": "section_internal_divide",
+      "params": {
+        "A": { "x": 4, "y": -3 },
+        "B": { "x": 8, "y": 5 },
+        "ratio": [3, 1],
+        "P": { "x": 7, "y": 3 },
+        "x_range": [0, 9],
+        "y_range": [-4, 6]
+      },
+      "asset": "coordinate-geometry/fig_section_divide.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Distance formula",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.102"
+    },
+    {
+      "item": "Section formula (internal)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.107"
+    },
+    {
+      "item": "Mid-point formula",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.107 (Special Case)"
+    },
+    {
+      "item": "Abscissa (x-coordinate)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.99"
+    },
+    {
+      "item": "Ordinate (y-coordinate)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.99"
+    },
+    {
+      "item": "Distance from the origin",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.102 (Remark 1)"
+    },
+    {
+      "item": "Section formula in k : 1 form",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch7 p.107"
+    },
+    {
+      "item": "Distance formula → type of triangle · NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch7 Example 1 p.102–103"
+    },
+    {
+      "item": "Collinearity via distances · NCERT Example 3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch7 Example 3 p.103–104"
+    },
+    {
+      "item": "Equidistant point on the y-axis · NCERT Example 5",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch7 Example 5 p.104–105"
+    },
+    {
+      "item": "Section formula (internal, 3:1) · NCERT Example 6",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch7 Example 6 p.108"
+    },
+    {
+      "item": "Points of trisection · NCERT Example 8",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch7 Example 8 p.109"
+    }
+  ]
+}
