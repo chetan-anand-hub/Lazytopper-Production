@@ -70,3 +70,27 @@ describe("bankQuery — canonical resolution over the live bank", () => {
     expect(selectBankQuestions({ topicKeys: [] })).toEqual([]);
   });
 });
+
+// AUTHORITATIVE runtime proof (Commit 3, P0 [FU-TOPICKEY-UNIVERSAL]). Reads the ASSEMBLED
+// bank, so it covers literal + JSON-literal + factory-generated + inline-in-aggregator + any
+// future construction — nothing is hand-enumerated (that would re-create the exact blind spot
+// this P0 cures). This green (in Codespaces) is the 100%-coverage completion gate. Counts are
+// REPORTED via a collapse floor, never asserted as an exact target (a legit +/-N must not
+// false-fail); the invariants that matter are 0 orphans + 0 duplicate ids.
+describe("bankQuery — runtime bank is 100% canonical (Guard A at runtime, all styles)", () => {
+  it("has zero duplicate question ids across the whole served bank", () => {
+    const ids = canonicalQuestionBank.map((q) => q.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("every served topicKey IS a canonical topics.ts slug — 0 orphans (incl. factory + inline)", () => {
+    const orphans = [...new Set(canonicalQuestionBank.map((q) => q.topicKey))].filter(
+      (k) => !TOPICS_TS_SLUGS.has(k),
+    );
+    expect(orphans, `non-canonical topicKeys served by the bank: ${orphans.join(", ")}`).toEqual([]);
+  });
+
+  it("serves a full bank (collapse floor — detects a broken import / partial load, not an exact count)", () => {
+    expect(canonicalQuestionBank.length).toBeGreaterThan(5000);
+  });
+});

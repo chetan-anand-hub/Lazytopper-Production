@@ -341,6 +341,15 @@ const TOPIC_ALIASES: Record<string, string> = {
   "ourenvironment": "our-environment",
   "science-light-reflection-refraction": "light-reflection-and-refraction",
   "science-reproduction": "how-do-organisms-reproduce",
+
+  // P0 [FU-TOPICKEY-UNIVERSAL] owner-approved mappings (2026-07-11). The bank DATA is
+  // migrated to canonical slugs (Commit 2), so these no longer appear as bank keys — but
+  // they may still arrive from a stored MI record, a URL param, or a legacy link, so the
+  // runtime resolver covers them too. `desktopTopicBySlug` normalizes before lookup, so the
+  // keys are the normalized ("the" included) spellings of the approved variants.
+  "introduction-to-trigonometry": "trigonometry",
+  "applications-of-trigonometry": "trigonometry",
+  "human-eye-and-the-colourful-world": "human-eye-and-colourful-world",
 };
 
 export const desktopTopicBySlug = (
