@@ -1,35 +1,35 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
-  { id: "EL-E01", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The SI unit of electric current is:", options: ["Volt", "Ohm", "Ampere", "Watt"], answer: "Ampere", explanation: "The correct answer is Ampere. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ampere" , isCompetencyBased: false,
+  { id: "EL-E01", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The SI unit of electric current is:", options: ["Volt", "Ohm", "Ampere", "Watt"], answer: "Ampere", explanation: "The correct answer is Ampere. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ampere" , isCompetencyBased: false,
     solutionSteps: [
       "Ohm's Law states V = IR, where V is voltage, I is current, and R is resistance.",
       "From V=IR, if R is constant, V is directly proportional to I. If V is constant, I is inversely proportional to R. If I is constant, R is directly proportional to V.",
       "Therefore, all given statements are true interpretations of Ohm's Law.",
     ],
   },
-  { id: "EL-E02", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "According to Ohm's law, V = IR. If V = 12 V and I = 3 A, then R is:", options: ["4 Ω", "36 Ω", "15 Ω", "9 Ω"], answer: "4 Ω", explanation: "The correct answer is 4 Ω. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "4 Ω" , isCompetencyBased: false,
+  { id: "EL-E02", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "According to Ohm's law, V = IR. If V = 12 V and I = 3 A, then R is:", options: ["4 Ω", "36 Ω", "15 Ω", "9 Ω"], answer: "4 Ω", explanation: "The correct answer is 4 Ω. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "4 Ω" , isCompetencyBased: false,
     solutionSteps: [
       "Identify the given values: Voltage (V) = 5 V, Resistance (R) = 10 ohms.",
       "Apply Ohm's Law formula: Current (I) = V / R.",
       "Substitute the values: I = 5 V / 10 ohms = 0.5 A.",
     ],
   },
-  { id: "EL-E03", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a series circuit, the current is:", options: ["Different in each component", "Same throughout", "Zero", "Infinite"], answer: "Same throughout", explanation: "The correct answer is Same throughout. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Same throughout" , isCompetencyBased: false,
+  { id: "EL-E03", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a series circuit, the current is:", options: ["Different in each component", "Same throughout", "Zero", "Infinite"], answer: "Same throughout", explanation: "The correct answer is Same throughout. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Same throughout" , isCompetencyBased: false,
     solutionSteps: [
       "In a series circuit, components are connected end-to-end, forming a single path for current.",
       "The total (equivalent) resistance in a series circuit is the sum of individual resistances (Rs = R1 + R2 + ...).",
       "Adding resistors in series always increases the total resistance of the circuit.",
     ],
   },
-  { id: "EL-E04", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The resistance of a conductor depends on:", options: ["Current only", "Voltage only", "Length, area, and material", "Temperature only"], answer: "Length, area, and material", explanation: "The correct answer is Length, area, and material. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Length, area, and material" , isCompetencyBased: false,
+  { id: "EL-E04", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The resistance of a conductor depends on:", options: ["Current only", "Voltage only", "Length, area, and material", "Temperature only"], answer: "Length, area, and material", explanation: "The correct answer is Length, area, and material. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Length, area, and material" , isCompetencyBased: false,
     solutionSteps: [
       "Recall the formula for resistance: R = rho * L / A, where rho is resistivity, L is length, A is area.",
       "Identify factors affecting resistance: length, area of cross-section, and material (resistivity).",
       "Conclude that current flowing through the wire does not determine its resistance.",
     ],
   },
-  { id: "EL-E05", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The commercial unit of electrical energy is:", options: ["Joule", "Watt", "Kilowatt-hour (kWh)", "Calorie"], answer: "Kilowatt-hour (kWh)", explanation: "The correct answer is Kilowatt-hour (kWh). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Kilowatt-hour (kWh)" , isCompetencyBased: false,
+  { id: "EL-E05", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The commercial unit of electrical energy is:", options: ["Joule", "Watt", "Kilowatt-hour (kWh)", "Calorie"], answer: "Kilowatt-hour (kWh)", explanation: "The correct answer is Kilowatt-hour (kWh). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Kilowatt-hour (kWh)" , isCompetencyBased: false,
     solutionSteps: [
       "Calculate the resistance of the bulb using rated values: R = V^2/P = (220V)^2 / 100W.",
       "R = 48400 / 100 = 484 ohms (resistance remains constant).",
@@ -37,33 +37,33 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "P' = 12100 / 484 = 25W.",
     ],
   },
-  { id: "EL-E06", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): An ammeter is connected in series in a circuit.\nReason (R): An ammeter has very low resistance so it does not change the current.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "EL-E06", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): An ammeter is connected in series in a circuit.\nReason (R): An ammeter has very low resistance so it does not change the current.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Evaluate Assertion (A): Ohm's law is applicable only to ohmic conductors, not all conducting materials. So, A is false.",
       "Evaluate Reason (R): For ohmic conductors, resistance is constant and independent of applied voltage. So, R is true.",
       "Conclusion: Assertion (A) is false, but Reason (R) is true.",
     ],
   },
-  { id: "EL-E07", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a parallel circuit, the voltage across each component is:", options: ["Different", "Same", "Zero", "Doubled"], answer: "Same", explanation: "The correct answer is Same. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Same" , isCompetencyBased: false,
+  { id: "EL-E07", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a parallel circuit, the voltage across each component is:", options: ["Different", "Same", "Zero", "Doubled"], answer: "Same", explanation: "The correct answer is Same. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Same" , isCompetencyBased: false,
     solutionSteps: [
       "Identify the connection type: Resistors are connected in parallel.",
       "Apply the formula for equivalent resistance in parallel: 1/Req = 1/R1 + 1/R2 + 1/R3.",
       "Substitute R1=R2=R3=R: 1/Req = 1/R + 1/R + 1/R = 3/R. Therefore, Req = R/3.",
     ],
   },
-  { id: "EL-E08", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Electric power is given by the formula:", options: ["P = V/I", "P = V × I", "P = V + I", "P = V − I"], answer: "P = V × I", explanation: "The correct answer is P = V × I. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "P = V × I" , isCompetencyBased: false,
+  { id: "EL-E08", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Electric power is given by the formula:", options: ["P = V/I", "P = V × I", "P = V + I", "P = V − I"], answer: "P = V × I", explanation: "The correct answer is P = V × I. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "P = V × I" , isCompetencyBased: false,
     solutionSteps: [
       "Recall the basic formula for electric power: P = VI.",
       "Using Ohm's Law (V=IR), substitute V into P=VI to get P = (IR)I = I^2R.",
       "Using Ohm's Law (I=V/R), substitute I into P=VI to get P = V(V/R) = V^2/R. The expression IR^2 does not represent electric power.",
     ],
   },
-  { id: "EL-E09", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is the difference between a conductor and an insulator? Give one example of each.", solutionSteps: [
+  { id: "EL-E09", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is the difference between a conductor and an insulator? Give one example of each.", solutionSteps: [
       "Conductor: allows electric current to flow easily; e.g., copper [½]",
       "Insulator: does not allow current to flow; e.g., rubber [½]",
       "Conductors have free electrons; insulators do not [1]",
     ], finalAnswer: "Conductor (copper): allows current; Insulator (rubber): blocks current" , isCompetencyBased: false },
-  { id: "EL-E10", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A voltmeter is connected in:", options: ["Series", "Parallel", "Both", "Neither"], answer: "Parallel", explanation: "The correct answer is Parallel. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Parallel" , isCompetencyBased: false,
+  { id: "EL-E10", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A voltmeter is connected in:", options: ["Series", "Parallel", "Both", "Neither"], answer: "Parallel", explanation: "The correct answer is Parallel. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Parallel" , isCompetencyBased: false,
     solutionSteps: [
       "State Ohm's Law: V = IR, where V is potential difference, I is current, and R is resistance.",
       "Identify the given values: Potential difference (V) = 12 V, Resistance (R) = 3 Ohm.",
@@ -71,7 +71,7 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Substitute the values: I = 12 V / 3 Ohm = 4 A.",
     ],
   },
-  { id: "EL-E11", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): An electric fuse protects electrical appliances.\nReason (R): A fuse wire melts and breaks the circuit when excess current flows.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "EL-E11", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): An electric fuse protects electrical appliances.\nReason (R): A fuse wire melts and breaks the circuit when excess current flows.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Analyze Assertion (A): Electric heater coils are made of alloys (like nichrome) to produce more heat. This statement is true.",
       "Analyze Reason (R): Alloys have higher resistivity and higher melting points, and resist oxidation at high temperatures. This statement is true.",
@@ -79,7 +79,7 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Conclusion: Both A and R are true and R is the correct explanation of A.",
     ],
   },
-  { id: "EL-E12", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The resistivity of a material depends on:", options: ["Length of the conductor", "Area of cross-section", "Nature of the material", "Applied voltage"], answer: "Nature of the material", explanation: "The correct answer is Nature of the material. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Nature of the material" , isCompetencyBased: false,
+  { id: "EL-E12", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The resistivity of a material depends on:", options: ["Length of the conductor", "Area of cross-section", "Nature of the material", "Applied voltage"], answer: "Nature of the material", explanation: "The correct answer is Nature of the material. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Nature of the material" , isCompetencyBased: false,
     solutionSteps: [
       "Recall the formula for resistance: R = ρL/A, where ρ is resistivity, L is length, A is area of cross-section.",
       "Identify factors from the formula: Resistance depends on length (L), area of cross-section (A), and material (ρ).",
@@ -87,11 +87,11 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Conclusion: Current flowing through the conductor does NOT affect its resistance; rather, resistance determines current for a given voltage.",
     ],
   },
-  { id: "EL-E13", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A bulb is rated 60 W, 220 V. Find the current drawn when it operates at rated voltage.", solutionSteps: [
+  { id: "EL-E13", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A bulb is rated 60 W, 220 V. Find the current drawn when it operates at rated voltage.", solutionSteps: [
       "State the formula relating power, voltage, and current: P = V x I. [1]",
       "Substitute values and calculate current: I = P/V = 60 W / 220 V = 0.27 A (approx). [1]",
     ], finalAnswer: "I ≈ 0.27 A" , isCompetencyBased: true },
-  { id: "EL-E14", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The heating effect of electric current is used in:", options: ["Electric motor", "Generator", "Electric iron", "Voltmeter"], answer: "Electric iron", explanation: "The correct answer is Electric iron. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Electric iron" , isCompetencyBased: false,
+  { id: "EL-E14", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The heating effect of electric current is used in:", options: ["Electric motor", "Generator", "Electric iron", "Voltmeter"], answer: "Electric iron", explanation: "The correct answer is Electric iron. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Electric iron" , isCompetencyBased: false,
     solutionSteps: [
       "Recall Joule's Law of Heating formula: H = I^2Rt.",
       "From the formula, heat (H) is directly proportional to the square of current (I^2).",
@@ -100,66 +100,66 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Conclusion: Heat produced is directly proportional to I^2, R, and t.",
     ],
   },
-  { id: "EL-E15", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If one bulb in a parallel circuit blows, what happens to the other bulbs?", options: ["All go off", "They continue to glow", "They glow brighter", "They glow dimmer"], answer: "They continue to glow", explanation: "The correct answer is They continue to glow. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "They continue to glow" , isCompetencyBased: false,
+  { id: "EL-E15", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If one bulb in a parallel circuit blows, what happens to the other bulbs?", options: ["All go off", "They continue to glow", "They glow brighter", "They glow dimmer"], answer: "They continue to glow", explanation: "The correct answer is They continue to glow. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "They continue to glow" , isCompetencyBased: false,
     solutionSteps: [
       "A voltmeter measures potential difference and has very high resistance, so it must be connected in parallel across the component.",
       "An ammeter measures current and has very low resistance, so it must be connected in series in the circuit path.",
       "Therefore, a voltmeter is connected in parallel, and an ammeter is connected in series.",
     ],
   },
-  { id: "EL-M01", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Three resistors of 2 Ω, 3 Ω, and 6 Ω are connected in parallel. Find the equivalent resistance.", solutionSteps: [
+  { id: "EL-M01", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Three resistors of 2 Ω, 3 Ω, and 6 Ω are connected in parallel. Find the equivalent resistance.", solutionSteps: [
       "1/R = 1/R₁ + 1/R₂ + 1/R₃ = 1/2 + 1/3 + 1/6 [1]",
       "1/R = 3/6 + 2/6 + 1/6 = 6/6 = 1 [1]",
       "R = 1 Ω [1]",
     ], finalAnswer: "R = 1 Ω" , isCompetencyBased: true },
-  { id: "EL-M02", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A conductor has a resistance of 10 Ω. If a potential difference of 20 V is applied, find the current. If the conductor is replaced by one with double the length (same material and area), find the new resistance.", solutionSteps: [
+  { id: "EL-M02", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A conductor has a resistance of 10 Ω. If a potential difference of 20 V is applied, find the current. If the conductor is replaced by one with double the length (same material and area), find the new resistance.", solutionSteps: [
       "I = V/R = 20/10 = 2 A [1]",
       "R ∝ length → new R = 2 × 10 = 20 Ω [1]",
       "New current I = 20/20 = 1 A [1]",
     ], finalAnswer: "I = 2 A; new R = 20 Ω; new I = 1 A" , isCompetencyBased: true },
-  { id: "EL-M03", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "An electric heater of resistance 20 Ω draws a current of 5 A. Calculate the heat produced in 30 seconds.", solutionSteps: [
+  { id: "EL-M03", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "An electric heater of resistance 20 Ω draws a current of 5 A. Calculate the heat produced in 30 seconds.", solutionSteps: [
       "State the formula for heat produced: H = I²Rt. [1]",
       "Substitute the given values: H = (5 A)² x 20 Ω x 30 s. [1]",
       "Calculate the heat produced: H = 25 x 20 x 30 = 15000 J. [1]",
     ], finalAnswer: "H = 15,000 J = 15 kJ" , isCompetencyBased: true },
-  { id: "EL-M04", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Household appliances are connected in parallel.\nReason (R): Parallel connection ensures each appliance gets the same voltage and can operate independently.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "EL-M04", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Household appliances are connected in parallel.\nReason (R): Parallel connection ensures each appliance gets the same voltage and can operate independently.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A) is true: In a series circuit, there is only one path for the current to flow, so the current is the same through every part.",
       "Reason (R) is true: The total resistance in a series circuit is indeed the sum of the individual resistances (Rs = R1 + R2 + ...).",
       "However, Reason (R) does not explain why the current is the same in a series circuit. The constant current is due to the single path, not the sum of resistances.",
     ],
   },
-  { id: "EL-M05", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In a physics lab, students connected three resistors (R₁=4Ω, R₂=8Ω, R₃=8Ω) in various configurations.\n(i) Find the equivalent resistance when all three are in series.\n(ii) Find the equivalent resistance when all three are in parallel.\n(iii) If R₂ and R₃ are in parallel and this combination is in series with R₁, find the total resistance.\n(iv) Which configuration has the least resistance?", solutionSteps: [
+  { id: "EL-M05", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "In a physics lab, students connected three resistors (R₁=4Ω, R₂=8Ω, R₃=8Ω) in various configurations.\n(i) Find the equivalent resistance when all three are in series.\n(ii) Find the equivalent resistance when all three are in parallel.\n(iii) If R₂ and R₃ are in parallel and this combination is in series with R₁, find the total resistance.\n(iv) Which configuration has the least resistance?", solutionSteps: [
       "(i) Series: R = 4+8+8 = 20 Ω [1]",
       "(ii) Parallel: 1/R = 1/4+1/8+1/8 = 2/8+1/8+1/8 = 4/8 = 1/2 → R = 2 Ω [1]",
       "(iii) R₂ ∥ R₃ = 1/(1/8+1/8) = 1/(2/8) = 4 Ω; Total = 4+4 = 8 Ω [1]",
       "(iv) All parallel = 2 Ω (least) [1]",
     ], finalAnswer: "(i) 20 Ω (ii) 2 Ω (iii) 8 Ω (iv) Parallel (2 Ω)" , isCompetencyBased: true },
-  { id: "EL-M06", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A 100 W bulb is used for 10 hours daily. Calculate the electrical energy consumed in 30 days and the cost at ₹5 per unit (kWh).", solutionSteps: [
+  { id: "EL-M06", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A 100 W bulb is used for 10 hours daily. Calculate the electrical energy consumed in 30 days and the cost at ₹5 per unit (kWh).", solutionSteps: [
       "Convert power to kW: P = 100 W = 0.1 kW. Calculate daily energy: E_daily = P x t = 0.1 kW x 10 h = 1 kWh. [1]",
       "Calculate total energy consumed in 30 days: E_total = 1 kWh/day x 30 days = 30 kWh. [1]",
       "Calculate the total cost: Cost = 30 kWh x ₹5/kWh = ₹150. [1]",
     ], finalAnswer: "30 kWh; ₹150" , isCompetencyBased: true },
-  { id: "EL-M07", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "The V-I graph for an ohmic conductor is:", options: ["A curve", "A straight line through origin", "A parabola", "A horizontal line"], answer: "A straight line through origin", explanation: "The correct answer is A straight line through origin. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "A straight line through origin" , isCompetencyBased: false,
+  { id: "EL-M07", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "The V-I graph for an ohmic conductor is:", options: ["A curve", "A straight line through origin", "A parabola", "A horizontal line"], answer: "A straight line through origin", explanation: "The correct answer is A straight line through origin. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "A straight line through origin" , isCompetencyBased: false,
     solutionSteps: [
       "According to Ohm's Law, the current (I) flowing through a resistor is given by I = V/R, where V is potential difference and R is resistance.",
       "Given potential difference (V) = 10 V and resistance (R) = 5 Ω.",
       "Substitute the values into the formula: I = 10 V / 5 Ω = 2 A.",
     ],
   },
-  { id: "EL-M08", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A wire of resistance R is stretched to double its original length.\n(i) By what factor does its area of cross-section change?\n(ii) What is the new resistance?\n(iii) If R was 5 Ω, what is the new resistance?\n(iv) Does the resistivity change? Why or why not?", solutionSteps: [
+  { id: "EL-M08", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A wire of resistance R is stretched to double its original length.\n(i) By what factor does its area of cross-section change?\n(ii) What is the new resistance?\n(iii) If R was 5 Ω, what is the new resistance?\n(iv) Does the resistivity change? Why or why not?", solutionSteps: [
       "(i) Volume = length × area remains constant; if l doubles, A halves [1]",
       "(ii) R' = ρ(2l)/(A/2) = 4ρl/A = 4R [1]",
       "(iii) R' = 4 × 5 = 20 Ω [1]",
       "(iv) Resistivity does not change — it depends on material, not dimensions [1]",
     ], finalAnswer: "(i) Halves (ii) 4R (iii) 20 Ω (iv) No, resistivity depends on material" , isCompetencyBased: true },
-  { id: "EL-M09", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why is tungsten used as the filament in electric bulbs?", solutionSteps: [
+  { id: "EL-M09", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why is tungsten used as the filament in electric bulbs?", solutionSteps: [
       "Tungsten has a very high melting point (3380°C) — does not melt at high temperatures [½]",
       "Has high resistivity — produces more heat and light [½]",
       "Does not oxidise easily when heated in inert gas (argon/nitrogen) [1]",
     ], finalAnswer: "High melting point, high resistivity, does not oxidise in inert gas" , isCompetencyBased: false },
-  { id: "EL-M10", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two resistors of 4 Ω and 12 Ω are connected in parallel. Their equivalent resistance is:", options: ["16 Ω", "3 Ω", "8 Ω", "48 Ω"], answer: "3 Ω", explanation: "1/R = 1/4+1/12 = 3/12+1/12 = 4/12 = 1/3 → R = 3 Ω. Therefore, the correct answer is 3 Ω.", solutionSteps: ["1/R = 1/4+1/12 = 3/12+1/12 = 4/12 = 1/3 → R = 3 Ω"], finalAnswer: "3 Ω" , isCompetencyBased: true },
-  { id: "EL-M11", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A 60 W bulb glows less brightly than a 100 W bulb when connected to the same voltage.\nReason (R): The 100 W bulb draws more current and dissipates more energy per second.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "EL-M10", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two resistors of 4 Ω and 12 Ω are connected in parallel. Their equivalent resistance is:", options: ["16 Ω", "3 Ω", "8 Ω", "48 Ω"], answer: "3 Ω", explanation: "1/R = 1/4+1/12 = 3/12+1/12 = 4/12 = 1/3 → R = 3 Ω. Therefore, the correct answer is 3 Ω.", solutionSteps: ["1/R = 1/4+1/12 = 3/12+1/12 = 4/12 = 1/3 → R = 3 Ω"], finalAnswer: "3 Ω" , isCompetencyBased: true },
+  { id: "EL-M11", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A 60 W bulb glows less brightly than a 100 W bulb when connected to the same voltage.\nReason (R): The 100 W bulb draws more current and dissipates more energy per second.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A) states that the heating element of an electric iron is made of nichrome, which is true.",
       "Reason (R) states that nichrome has a high resistivity and a high melting point, which is also true.",
@@ -167,11 +167,11 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Therefore, Reason (R) correctly explains why nichrome is used for heating elements (Assertion A).",
     ],
   },
-  { id: "EL-M12", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Calculate the resistance of a copper wire 1 m long and 0.5 mm² in cross-sectional area. (Resistivity of copper = 1.7 × 10⁻⁸ Ω·m)", solutionSteps: [
+  { id: "EL-M12", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Calculate the resistance of a copper wire 1 m long and 0.5 mm² in cross-sectional area. (Resistivity of copper = 1.7 × 10⁻⁸ Ω·m)", solutionSteps: [
       "R = ρl/A = (1.7×10⁻⁸ × 1) / (0.5×10⁻⁶) [1]",
       "R = 1.7×10⁻⁸ / 5×10⁻⁷ = 0.034 Ω [1]",
     ], finalAnswer: "R = 0.034 Ω" , isCompetencyBased: true },
-  { id: "EL-M13", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Joule's law of heating states that heat produced is proportional to:", options: ["I²Rt", "V/I", "R/I²", "V²/R²"], answer: "I²Rt", explanation: "The correct answer is I²Rt. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "I²Rt" , isCompetencyBased: false,
+  { id: "EL-M13", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Joule's law of heating states that heat produced is proportional to:", options: ["I²Rt", "V/I", "R/I²", "V²/R²"], answer: "I²Rt", explanation: "The correct answer is I²Rt. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "I²Rt" , isCompetencyBased: false,
     solutionSteps: [
       "The heating effect of electric current converts electrical energy into heat energy.",
       "Electric iron, electric heater, and electric bulb (filament) primarily work on the heating effect.",
@@ -179,12 +179,12 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Thus, the electric motor is not a practical application of the heating effect of electric current.",
     ],
   },
-  { id: "EL-M14", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why are household circuits provided with earth wire? What is its function?", solutionSteps: [
+  { id: "EL-M14", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why are household circuits provided with earth wire? What is its function?", solutionSteps: [
       "Earth wire provides a low-resistance path to the ground; If a metallic body of an appliance becomes live due to a fault [½]",
       "Current flows through earth wire to ground → prevents electric shock [½]",
       "Also triggers the fuse/MCB to break the circuit [1]",
     ], finalAnswer: "Provides low-resistance path to ground; prevents shock during fault" , isCompetencyBased: false },
-  { id: "EL-M15", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Which of the following is a non-ohmic conductor?", options: ["Copper wire", "Nichrome wire", "LED (Light Emitting Diode)", "Silver wire"], answer: "LED (Light Emitting Diode)", explanation: "The correct answer is LED (Light Emitting Diode). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "LED (Light Emitting Diode)" , isCompetencyBased: false,
+  { id: "EL-M15", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Which of the following is a non-ohmic conductor?", options: ["Copper wire", "Nichrome wire", "LED (Light Emitting Diode)", "Silver wire"], answer: "LED (Light Emitting Diode)", explanation: "The correct answer is LED (Light Emitting Diode). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "LED (Light Emitting Diode)" , isCompetencyBased: false,
     solutionSteps: [
       "Given current (I) = 0.5 A and time (t) = 10 minutes.",
       "Convert time to seconds: t = 10 minutes * 60 seconds/minute = 600 s.",
@@ -192,72 +192,72 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "Substitute the values: Q = 0.5 A * 600 s = 300 C.",
     ],
   },
-  { id: "EL-H01", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Derive the expression for the equivalent resistance when three resistors R₁, R₂, and R₃ are connected: (a) in series (b) in parallel.", solutionSteps: [
+  { id: "EL-H01", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Derive the expression for the equivalent resistance when three resistors R₁, R₂, and R₃ are connected: (a) in series (b) in parallel.", solutionSteps: [
       "(a) Series: Same current I through all. V = V₁+V₂+V₃ = IR₁+IR₂+IR₃ = I(R₁+R₂+R₃) [1]",
       "V = IR_eq → R_eq = R₁+R₂+R₃ [1]",
       "(b) Parallel: Same voltage V across all. I = I₁+I₂+I₃ = V/R₁+V/R₂+V/R₃ [1]",
       "I = V(1/R₁+1/R₂+1/R₃) = V/R_eq [1]",
       "1/R_eq = 1/R₁+1/R₂+1/R₃ [1]",
     ], finalAnswer: "Series: R_eq=R₁+R₂+R₃; Parallel: 1/R_eq=1/R₁+1/R₂+1/R₃" , isCompetencyBased: true },
-  { id: "EL-H02", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Two bulbs of 40 W and 60 W are connected in series to a 220 V supply. Which bulb will glow brighter? Justify.", solutionSteps: [
+  { id: "EL-H02", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Two bulbs of 40 W and 60 W are connected in series to a 220 V supply. Which bulb will glow brighter? Justify.", solutionSteps: [
       "In series, current is same through both bulbs; R = V²/P → R₁ = 220²/40 = 1210 Ω; R₂ = 220²/60 = 806.67 Ω [1]",
       "Power dissipated P = I²R → higher resistance = more power; 40 W bulb has higher resistance → dissipates more power in series [1]",
       "So 40 W bulb glows brighter in series! [1]",
     ], finalAnswer: "40 W bulb glows brighter (higher resistance → more power dissipated in series)" , isCompetencyBased: true },
-  { id: "EL-H03", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain why an alloy like nichrome is used in heating elements rather than a pure metal.", solutionSteps: [
+  { id: "EL-H03", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain why an alloy like nichrome is used in heating elements rather than a pure metal.", solutionSteps: [
       "Alloys have higher resistivity than pure metals → more heat for given current; Alloys do not oxidise (burn) easily at high temperatures [1]",
       "Alloys have high melting points suitable for heating elements; Pure metals like copper have low resistivity → less heat generation [1]",
       "Nichrome: resistivity ≈ 100 × 10⁻⁶ Ω·m vs copper ≈ 1.7 × 10⁻⁸ Ω·m [1]",
     ], finalAnswer: "High resistivity, oxidation resistance, high melting point" , isCompetencyBased: true },
-  { id: "EL-H04", subject: "Science", topicKey: "Electricity", subtopic: "Ohm's Law", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student performed an experiment to verify Ohm's law using a resistor, ammeter, voltmeter, and battery.\n(i) Draw the circuit diagram for the experiment.\n(ii) What is the nature of the V-I graph for an ohmic conductor?\n(iii) The student obtained: V=2V,I=0.4A; V=4V,I=0.8A; V=6V,I=1.2A. Find the resistance.\n(iv) What would happen to the V-I graph if a non-ohmic conductor like a filament lamp were used?", solutionSteps: [
+  { id: "EL-H04", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student performed an experiment to verify Ohm's law using a resistor, ammeter, voltmeter, and battery.\n(i) Draw the circuit diagram for the experiment.\n(ii) What is the nature of the V-I graph for an ohmic conductor?\n(iii) The student obtained: V=2V,I=0.4A; V=4V,I=0.8A; V=6V,I=1.2A. Find the resistance.\n(iv) What would happen to the V-I graph if a non-ohmic conductor like a filament lamp were used?", solutionSteps: [
       "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.; (i) Battery-rheostat-ammeter-resistor in series; voltmeter across resistor [1]",
       "(ii) Straight line through origin (V ∝ I) [1]",
       "(iii) R = V/I = 2/0.4 = 4/0.8 = 6/1.2 = 5 Ω [1]",
       "(iv) Non-linear curve (resistance increases with temperature for filament) [1]",
     ], finalAnswer: "(i) Circuit diagram (ii) Straight line (iii) R = 5 Ω (iv) Non-linear curve" , visualExplainerId: "science-electricity-circuit-diagram-builder", isCompetencyBased: true },
-  { id: "EL-H05", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "In a household circuit, a 1000 W heater, a 200 W TV, and five 60 W bulbs are used for 5 hours daily. Calculate: (i) total power consumed (ii) energy consumed per day in kWh (iii) monthly electricity bill at ₹6 per unit (30 days) (iv) the current drawn from a 220 V supply.", solutionSteps: [
+  { id: "EL-H05", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "In a household circuit, a 1000 W heater, a 200 W TV, and five 60 W bulbs are used for 5 hours daily. Calculate: (i) total power consumed (ii) energy consumed per day in kWh (iii) monthly electricity bill at ₹6 per unit (30 days) (iv) the current drawn from a 220 V supply.", solutionSteps: [
       "Circuit Diagram: Draw the circuit for the given setup using standard symbols for all components mentioned. [1]",
       "(i) Total power = 1000+200+(5×60) = 1000+200+300 = 1500 W = 1.5 kW [1]",
       "(ii) Energy/day = 1.5 kW × 5 h = 7.5 kWh [1]",
       "(iii) Monthly = 7.5 × 30 = 225 kWh; Cost = 225 × 6 = ₹1350 [1]",
       "(iv) I = P/V = 1500/220 ≈ 6.82 A [1]",
     ], finalAnswer: "(i) 1500 W (ii) 7.5 kWh (iii) ₹1350 (iv) ≈6.82 A" , visualExplainerId: "science-electricity-electric-power-and-energy", isCompetencyBased: true },
-  { id: "EL-H06", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why does the cord of an electric heater not glow while the heating element does, even though the same current flows through both?", solutionSteps: [
+  { id: "EL-H06", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why does the cord of an electric heater not glow while the heating element does, even though the same current flows through both?", solutionSteps: [
       "Both carry the same current (series connection); Heating element (nichrome) has high resistance → more heat per Joule's law (H=I²Rt) [1]",
       "Cord is made of copper/aluminium with very low resistance → negligible heat [1]",
       "Element reaches incandescence temperature; cord stays cool [1]",
     ], finalAnswer: "Element: high resistance → more heat → glows; Cord: low resistance → minimal heat" , isCompetencyBased: true },
-  { id: "EL-H07", subject: "Science", topicKey: "Electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student has 12 resistors, each of 2 Ω.\n(i) What is the minimum resistance he can obtain?\n(ii) What is the maximum resistance he can obtain?\n(iii) How should he connect 4 resistors to get 2 Ω?\n(iv) Can he get a total resistance of 3 Ω using some of these? Show how.", solutionSteps: [
+  { id: "EL-H07", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student has 12 resistors, each of 2 Ω.\n(i) What is the minimum resistance he can obtain?\n(ii) What is the maximum resistance he can obtain?\n(iii) How should he connect 4 resistors to get 2 Ω?\n(iv) Can he get a total resistance of 3 Ω using some of these? Show how.", solutionSteps: [
       "(i) All 12 in parallel: R = 2/12 = 1/6 Ω [1]",
       "(ii) All 12 in series: R = 12 × 2 = 24 Ω [1]",
       "(iii) 2 pairs of 2 in series (4Ω each), connected in parallel: R = 4/2 = 2 Ω [1]",
       "(iv) 3 resistors in series = 6 Ω; another 3 in series = 6 Ω; these two in parallel = 6/2 = 3 Ω [1]",
     ], finalAnswer: "(i) 1/6 Ω (ii) 24 Ω (iii) 2 series pairs in parallel (iv) Two groups of 3 series in parallel = 3 Ω" , isCompetencyBased: true },
-  { id: "EL-H08", subject: "Science", topicKey: "Electricity", subtopic: "Power", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Derive the expression P = I²R and P = V²/R from P = VI using Ohm's law.", solutionSteps: [
+  { id: "EL-H08", subject: "Science", topicKey: "electricity", subtopic: "Power", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Derive the expression P = I²R and P = V²/R from P = VI using Ohm's law.", solutionSteps: [
       "P = VI (basic formula); From Ohm's law: V = IR [1]",
       "Substituting V = IR: P = (IR)I = I²R; From Ohm's law: I = V/R [1]",
       "Substituting I = V/R: P = V(V/R) = V²/R [1]",
     ], finalAnswer: "P = VI → using V=IR → P=I²R; using I=V/R → P=V²/R" , isCompetencyBased: true },
-  { id: "EL-H09", subject: "Science", topicKey: "Electricity", subtopic: "Circuits", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why are fuses connected in series with the live wire and not with the neutral wire?", solutionSteps: [
+  { id: "EL-H09", subject: "Science", topicKey: "electricity", subtopic: "Circuits", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why are fuses connected in series with the live wire and not with the neutral wire?", solutionSteps: [
       "Live wire carries the high potential (220V); neutral is at ~0V; Fuse in live wire cuts off the high potential connection during overload [1]",
       "This makes the appliance safe to touch (no high potential anywhere) [1]",
       "If fuse were in neutral, live wire still connected → appliance casing could be at high potential → shock risk [1]",
     ], finalAnswer: "Live wire has high potential; fuse there disconnects high voltage, preventing shock" , isCompetencyBased: true },
-  { id: "EL-H10", subject: "Science", topicKey: "Electricity", subtopic: "Heating Effect", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Explain the heating effect of electric current. Derive H = I²Rt. List three applications of the heating effect.", solutionSteps: [
+  { id: "EL-H10", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Explain the heating effect of electric current. Derive H = I²Rt. List three applications of the heating effect.", solutionSteps: [
       "When current flows through a resistor, electrical energy converts to heat; Work done W = VIt (V = potential difference, I = current, t = time) [1]",
       "By Ohm's law, V = IR → W = (IR)It = I²Rt [1]",
       "So H = I²Rt (Joule's law of heating) [1]",
       "Applications: 1. Electric iron 2. Electric heater 3. Electric fuse [1]",
       "Fuse wire melts when I exceeds safe limit → breaks circuit [1]",
     ], finalAnswer: "H = VIt = I²Rt (derived); Applications: iron, heater, fuse" , isCompetencyBased: true },
-  { id: "EL-AR05", subject: "Science", topicKey: "Electricity", subtopic: "Resistance and Ohm's Law", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Doubling the length of a wire doubles its resistance.\nReason (R): Resistance is directly proportional to the length of the conductor.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "EL-AR05", subject: "Science", topicKey: "electricity", subtopic: "Resistance and Ohm's Law", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Doubling the length of a wire doubles its resistance.\nReason (R): Resistance is directly proportional to the length of the conductor.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): The resistance of a conductor increases with an increase in its length. This statement is true, as resistance R is directly proportional to length L (R = ρL/A).",
       "Reason (R): Resistance is directly proportional to the length of the conductor. This statement is also true, as per the formula R = ρL/A, where ρ and A are constant.",
       "Since R is directly proportional to L, an increase in length directly causes an increase in resistance. Therefore, Reason (R) correctly explains Assertion (A).",
     ],
   },
-  { id: "EL-D04", subject: "Science", topicKey: "Electricity", subtopic: "Electric Power", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A circuit has a 60 W bulb and an 100 W bulb connected to a 220 V supply. (i) Which bulb has higher resistance? (ii) Calculate the resistance of each. (iii) If used for 5 hours per day for 30 days, calculate the energy consumed by each bulb in kWh and the cost at Rs 6 per unit.", solutionSteps: [
+  { id: "EL-D04", subject: "Science", topicKey: "electricity", subtopic: "Electric Power", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A circuit has a 60 W bulb and an 100 W bulb connected to a 220 V supply. (i) Which bulb has higher resistance? (ii) Calculate the resistance of each. (iii) If used for 5 hours per day for 30 days, calculate the energy consumed by each bulb in kWh and the cost at Rs 6 per unit.", solutionSteps: [
       "Circuit Diagram: Draw the circuit for the given setup using standard symbols for all components mentioned. [1]",
       "(i) P = V2/R; so R = V2/P. Higher resistance for lower power — the 60 W bulb has higher resistance [1]",
       "(ii) R(60W) = 220^2/60 = 48400/60 = 806.7 O; R(100W) = 220^2/100 = 48400/100 = 484 O [1]",

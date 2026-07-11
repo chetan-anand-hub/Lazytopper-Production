@@ -4,7 +4,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-001",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-002",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -62,7 +62,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-003",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "A",
     "marks": 1,
@@ -91,7 +91,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-004",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "A",
     "marks": 1,
@@ -121,7 +121,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-005",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "B",
     "marks": 2,
@@ -146,7 +146,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-006",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "B",
     "marks": 2,
@@ -171,7 +171,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-007",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "A",
     "marks": 1,
@@ -200,7 +200,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-008",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "B",
     "marks": 2,
@@ -225,7 +225,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-014",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "B",
     "marks": 2,
@@ -252,7 +252,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-015",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "B",
     "marks": 2,
@@ -278,7 +278,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-017",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "A",
     "marks": 1,
@@ -309,7 +309,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-019",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "A",
     "marks": 1,
@@ -340,7 +340,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-021",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -370,7 +370,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-023",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "E",
     "marks": 4,
@@ -398,7 +398,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-025",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "A",
     "marks": 1,
@@ -430,7 +430,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-026",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -460,7 +460,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-027",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -491,7 +491,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-028",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "A",
     "marks": 1,
@@ -523,7 +523,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-029",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "B",
     "marks": 2,
@@ -551,7 +551,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-030",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -582,7 +582,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-031",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "B",
     "marks": 2,
@@ -613,7 +613,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-032",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "B",
     "marks": 2,
@@ -639,7 +639,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-040",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "B",
     "marks": 2,
@@ -670,7 +670,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-041",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -702,7 +702,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-042",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "B",
     "marks": 2,
@@ -737,7 +737,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-044",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -771,7 +771,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-046",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "B",
     "marks": 2,
@@ -804,7 +804,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-048",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity Rules",
     "section": "B",
     "marks": 2,
@@ -832,7 +832,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-050",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -863,7 +863,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-051",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -884,7 +884,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-052",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "A",
     "marks": 1,
@@ -905,7 +905,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-053",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "A",
     "marks": 1,
@@ -926,7 +926,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-054",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Hereditary Material",
     "section": "A",
     "marks": 1,
@@ -947,7 +947,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-055",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "C",
     "marks": 3,
@@ -969,7 +969,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-056",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "C",
     "marks": 3,
@@ -991,7 +991,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-057",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "C",
     "marks": 3,
@@ -1013,7 +1013,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-058",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Hereditary Material",
     "section": "C",
     "marks": 3,
@@ -1034,7 +1034,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-059",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "C",
     "marks": 3,
@@ -1056,7 +1056,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-061",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "D",
     "marks": 5,
@@ -1078,7 +1078,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-062",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "D",
     "marks": 5,
@@ -1100,7 +1100,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-063",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "D",
     "marks": 5,
@@ -1122,7 +1122,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-064",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Hereditary Material",
     "section": "D",
     "marks": 5,
@@ -1143,7 +1143,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-065",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Mendel Experiments",
     "section": "E",
     "marks": 4,
@@ -1165,7 +1165,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HE2-066",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Sex Determination",
     "section": "E",
     "marks": 4,

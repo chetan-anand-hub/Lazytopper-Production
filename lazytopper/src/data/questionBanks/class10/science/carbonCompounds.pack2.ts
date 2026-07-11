@@ -4,7 +4,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-001",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -35,7 +35,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-002",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -65,7 +65,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-003",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "A",
     "marks": 1,
@@ -96,7 +96,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-004",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "A",
     "marks": 1,
@@ -127,7 +127,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-005",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "A",
     "marks": 1,
@@ -159,7 +159,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-006",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "B",
     "marks": 2,
@@ -191,7 +191,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-007",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -222,7 +222,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-008",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -254,7 +254,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-009",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -282,7 +282,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-010",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -313,7 +313,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-011",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "C",
     "marks": 3,
@@ -345,7 +345,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-012",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "C",
     "marks": 3,
@@ -377,7 +377,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-013",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "C",
     "marks": 3,
@@ -409,7 +409,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-014",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "B",
     "marks": 2,
@@ -442,7 +442,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-015",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "B",
     "marks": 2,
@@ -474,7 +474,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-016",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "B",
     "marks": 2,
@@ -506,7 +506,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-017",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "C",
     "marks": 3,
@@ -538,7 +538,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-018",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "C",
     "marks": 3,
@@ -571,7 +571,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-019",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "C",
     "marks": 3,
@@ -604,7 +604,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-020",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "E",
     "marks": 4,
@@ -632,7 +632,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-021",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "E",
     "marks": 4,
@@ -663,7 +663,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-022",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series, Nomenclature, Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -704,7 +704,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-023",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -735,7 +735,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-024",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "B",
     "marks": 2,
@@ -762,7 +762,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-025",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "B",
     "marks": 2,
@@ -791,7 +791,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-026",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -821,7 +821,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-027",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -851,7 +851,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-028",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -882,7 +882,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-029",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -913,7 +913,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-030",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "B",
     "marks": 2,
@@ -943,7 +943,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-031",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "B",
     "marks": 2,
@@ -973,7 +973,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-032",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "B",
     "marks": 2,
@@ -1003,7 +1003,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-033",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "C",
     "marks": 3,
@@ -1034,7 +1034,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-034",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "C",
     "marks": 3,
@@ -1064,7 +1064,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-035",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "C",
     "marks": 3,
@@ -1096,7 +1096,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-036",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -1126,7 +1126,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-037",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -1157,7 +1157,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-038",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -1188,7 +1188,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-039",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -1220,7 +1220,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-040",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "A",
     "marks": 1,
@@ -1251,7 +1251,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-041",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "A",
     "marks": 1,
@@ -1282,7 +1282,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-042",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "A",
     "marks": 1,
@@ -1313,7 +1313,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-043",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "A",
     "marks": 1,
@@ -1344,7 +1344,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-044",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon",
     "section": "A",
     "marks": 1,
@@ -1375,7 +1375,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-045",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "B",
     "marks": 2,
@@ -1406,7 +1406,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-046",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -1438,7 +1438,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-047",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Nomenclature",
     "section": "C",
     "marks": 3,
@@ -1466,7 +1466,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-048",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Chemical Properties",
     "section": "D",
     "marks": 5,
@@ -1492,7 +1492,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-049",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Soaps and Detergents",
     "section": "E",
     "marks": 4,
@@ -1521,7 +1521,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-050",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Bonding in Carbon and Chemical Properties",
     "section": "A",
     "marks": 1,
@@ -1558,7 +1558,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-051",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series and Nomenclature",
     "section": "B",
     "marks": 2,
@@ -1602,7 +1602,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-052",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Covalent Bonds",
     "section": "A",
     "marks": 1,
@@ -1623,7 +1623,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-053",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Functional Groups",
     "section": "A",
     "marks": 1,
@@ -1644,7 +1644,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-054",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Reactions",
     "section": "A",
     "marks": 1,
@@ -1665,7 +1665,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CC2-055",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Homologous Series",
     "section": "A",
     "marks": 1,

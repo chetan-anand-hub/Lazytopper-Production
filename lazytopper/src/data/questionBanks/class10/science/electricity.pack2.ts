@@ -4,7 +4,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-001",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Current",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-002",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Current",
     "section": "A",
     "marks": 1,
@@ -62,7 +62,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-003",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Current",
     "section": "A",
     "marks": 1,
@@ -86,7 +86,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-004",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Ohm's Law",
     "section": "A",
     "marks": 1,
@@ -116,7 +116,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-005",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Ohm's Law",
     "section": "B",
     "marks": 2,
@@ -140,7 +140,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-006",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "B",
     "marks": 2,
@@ -172,7 +172,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-007",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "B",
     "marks": 2,
@@ -197,7 +197,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-008",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "B",
     "marks": 2,
@@ -228,7 +228,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-009",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "B",
     "marks": 2,
@@ -259,7 +259,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-010",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "C",
     "marks": 3,
@@ -284,7 +284,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-011",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "A",
     "marks": 1,
@@ -315,7 +315,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-012",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "B",
     "marks": 2,
@@ -339,7 +339,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-013",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "B",
     "marks": 2,
@@ -363,7 +363,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-014",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "A",
     "marks": 1,
@@ -393,7 +393,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-015",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "B",
     "marks": 2,
@@ -423,7 +423,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-016",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "B",
     "marks": 2,
@@ -449,7 +449,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-017",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Current",
     "section": "C",
     "marks": 3,
@@ -479,7 +479,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-018",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "C",
     "marks": 3,
@@ -510,7 +510,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-019",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "C",
     "marks": 3,
@@ -543,7 +543,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-020",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "E",
     "marks": 4,
@@ -571,7 +571,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-021",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "E",
     "marks": 4,
@@ -602,7 +602,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-022",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "D",
     "marks": 5,
@@ -636,7 +636,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-023",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Ohm's Law",
     "section": "C",
     "marks": 3,
@@ -661,7 +661,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-024",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "C",
     "marks": 3,
@@ -687,7 +687,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-025",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Current",
     "section": "C",
     "marks": 3,
@@ -715,7 +715,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-028",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Current",
     "section": "B",
     "marks": 2,
@@ -740,7 +740,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-030",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Ohm's Law",
     "section": "B",
     "marks": 2,
@@ -770,7 +770,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-031",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "A",
     "marks": 1,
@@ -801,7 +801,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-032",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "A",
     "marks": 1,
@@ -834,7 +834,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-033",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "B",
     "marks": 2,
@@ -861,7 +861,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-034",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "A",
     "marks": 1,
@@ -892,7 +892,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-035",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "A",
     "marks": 1,
@@ -923,7 +923,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-036",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "B",
     "marks": 2,
@@ -953,7 +953,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-037",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "B",
     "marks": 2,
@@ -983,7 +983,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-038",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "C",
     "marks": 3,
@@ -1009,7 +1009,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-039",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "A",
     "marks": 1,
@@ -1040,7 +1040,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-040",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "B",
     "marks": 2,
@@ -1070,7 +1070,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-041",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "B",
     "marks": 2,
@@ -1097,7 +1097,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-042",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "A",
     "marks": 1,
@@ -1128,7 +1128,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-043",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "A",
     "marks": 1,
@@ -1160,7 +1160,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-044",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "B",
     "marks": 2,
@@ -1190,7 +1190,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-045",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "B",
     "marks": 2,
@@ -1218,7 +1218,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-046",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Heating Effect",
     "section": "C",
     "marks": 3,
@@ -1252,7 +1252,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-047",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "C",
     "marks": 3,
@@ -1286,7 +1286,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-048",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "E",
     "marks": 4,
@@ -1313,7 +1313,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-049",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "D",
     "marks": 5,
@@ -1348,7 +1348,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-050",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Series and Parallel",
     "section": "D",
     "marks": 5,
@@ -1393,7 +1393,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-051",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Ohm's Law",
     "section": "A",
     "marks": 1,
@@ -1414,7 +1414,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-052",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "A",
     "marks": 1,
@@ -1435,7 +1435,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-053",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Circuit Analysis",
     "section": "A",
     "marks": 1,
@@ -1456,7 +1456,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-054",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "A",
     "marks": 1,
@@ -1477,7 +1477,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-055",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Resistance",
     "section": "A",
     "marks": 1,
@@ -1498,7 +1498,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-056",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "A",
     "marks": 1,
@@ -1519,7 +1519,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-057",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Ohm's Law",
     "section": "A",
     "marks": 1,
@@ -1540,7 +1540,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "EL2-058",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electric Power",
     "section": "D",
     "marks": 5,

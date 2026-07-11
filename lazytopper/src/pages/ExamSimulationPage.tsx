@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
   generateUnlimitedPaper,
   computeExamAnalytics,
@@ -170,7 +171,7 @@ export default function ExamSimulationPage() {
       maxMarks: result.totalMarks,
       percent: result.percentScore,
       topicBreakdown: Object.fromEntries(
-        result.topicHeatmap.map(t => [t.topicKey, { scored: t.marks, maxPossible: t.maxMarks }])
+        result.topicHeatmap.map(t => [resolveCanonicalSlug(t.topicKey), { scored: t.marks, maxPossible: t.maxMarks }])
       ),
     });
 

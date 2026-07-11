@@ -21,6 +21,7 @@ import {
   buildHPQUrl,
 } from "../utils/buildUrl";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
+import { canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
 
 // ----- Shared/local types -----
 
@@ -308,8 +309,9 @@ const MockBuilder: React.FC = () => {
 
       const normHint = normalise(rawHint);
 
-      // First pass: direct topicKey equality
-      let filtered = fullBank.filter((q: any) => q.topicKey === rawHint);
+      // First pass: canonical-slug match (P0 [FU-TOPICKEY-UNIVERSAL]) — resolves both
+      // sides, so the local PascalCase fuzzy fallback below is now rarely needed.
+      let filtered = fullBank.filter((q: any) => canonicalSlugMatches(q.topicKey, rawHint));
 
       // Second pass: fuzzy match against known Science topic keys
       if (filtered.length === 0) {
@@ -348,7 +350,7 @@ const MockBuilder: React.FC = () => {
         }
 
         if (matchedCanonical) {
-          filtered = fullBank.filter((q: any) => q.topicKey === matchedCanonical);
+          filtered = fullBank.filter((q: any) => canonicalSlugMatches(q.topicKey, matchedCanonical));
         }
       }
 
@@ -382,8 +384,8 @@ const MockBuilder: React.FC = () => {
       if (activeChapterKey && q.chapterKey !== activeChapterKey) {
         return false;
       }
-      // If topic filter is present, require match on topicKey
-      if (activeTopicKey && q.topicKey !== activeTopicKey) {
+      // If topic filter is present, require match on topicKey (canonical-slug resolved)
+      if (activeTopicKey && !canonicalSlugMatches(q.topicKey, activeTopicKey)) {
         return false;
       }
       return true;

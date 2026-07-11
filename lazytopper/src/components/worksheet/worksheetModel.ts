@@ -68,16 +68,23 @@ export const MATHS_TOPICS: WorksheetTopic[] = [
 // Science includes the two board-excluded entries here ONLY so the deleted-topics
 // filter has something to strip; getTopics() never returns them. Keeping them in
 // the raw list documents exactly what is being removed and why.
+// Keys are the canonical `lib/desktop/topics.ts` slugs (P0 [FU-TOPICKEY-UNIVERSAL]).
+// They previously used a THIRD vocabulary (`chemical-reactions-equations`,
+// `reproduction`, `light`, …) that `topicMatches` could not bridge to the bank's
+// `chemical-reactions-and-equations` / `how-do-organisms-reproduce` /
+// `light-reflection-and-refraction` — so those four chapters returned ZERO. The
+// two board-excluded entries keep their deleted keys ONLY so DELETED_TOPIC_KEYS
+// still strips them; getTopics() never returns them (menu preserved).
 const SCIENCE_TOPICS_RAW: WorksheetTopic[] = [
-  { key: "chemical-reactions-equations", label: "Chemical Reactions", stream: "Chemistry" },
-  { key: "acids-bases-salts", label: "Acids, Bases & Salts", stream: "Chemistry" },
-  { key: "metals-non-metals", label: "Metals & Non-Metals", stream: "Chemistry" },
+  { key: "chemical-reactions-and-equations", label: "Chemical Reactions", stream: "Chemistry" },
+  { key: "acids-bases-and-salts", label: "Acids, Bases & Salts", stream: "Chemistry" },
+  { key: "metals-and-non-metals", label: "Metals & Non-Metals", stream: "Chemistry" },
   { key: "carbon-and-its-compounds", label: "Carbon Compounds", stream: "Chemistry" },
   { key: "life-processes", label: "Life Processes", stream: "Biology" },
   { key: "control-and-coordination", label: "Control & Coordination", stream: "Biology" },
-  { key: "reproduction", label: "Reproduction", stream: "Biology" },
+  { key: "how-do-organisms-reproduce", label: "Reproduction", stream: "Biology" },
   { key: "heredity-and-evolution", label: "Heredity & Evolution", stream: "Biology" }, // DELETED — see DELETED_TOPIC_KEYS
-  { key: "light", label: "Light – Reflection & Refraction", stream: "Physics" },
+  { key: "light-reflection-and-refraction", label: "Light – Reflection & Refraction", stream: "Physics" },
   { key: "electricity", label: "Electricity", stream: "Physics" },
   { key: "magnetic-effects", label: "Magnetic Effects of Current", stream: "Physics" }, // DELETED — see DELETED_TOPIC_KEYS
   { key: "our-environment", label: "Our Environment", stream: "Biology" },
@@ -133,14 +140,14 @@ const MATHS_KEY_TO_WEIGHT_NAME: Record<string, string> = {
 
 // Science worksheet slugs → Class10ScienceTopicKey in class10ScienceTopicTrends.
 const SCIENCE_KEY_TO_TREND_KEY: Record<string, string> = {
-  "chemical-reactions-equations": "ChemicalReactions",
-  "acids-bases-salts": "AcidsBasesSalts",
-  "metals-non-metals": "MetalsNonMetals",
+  "chemical-reactions-and-equations": "ChemicalReactions",
+  "acids-bases-and-salts": "AcidsBasesSalts",
+  "metals-and-non-metals": "MetalsNonMetals",
   "carbon-and-its-compounds": "CarbonCompounds",
   "life-processes": "LifeProcesses",
   "control-and-coordination": "ControlAndCoordination",
-  reproduction: "Reproduction",
-  light: "Light",
+  "how-do-organisms-reproduce": "Reproduction",
+  "light-reflection-and-refraction": "Light",
   electricity: "Electricity",
   "our-environment": "OurEnvironment",
 };

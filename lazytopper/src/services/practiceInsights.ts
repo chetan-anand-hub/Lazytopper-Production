@@ -13,7 +13,7 @@ import {
   saveLearnerProgressSegment,
 } from "./studentProgressStore";
 import { clearWrongAnswer, getWrongConceptsForTopic } from "./adaptivePracticeEngine";
-import { normalizeTopicKey } from "../utils/topicResolver";
+import { resolveCanonicalSlug, canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
 import { firestoreDb } from "./firebaseClient";
 
 export type LTSubject = "maths" | "science";
@@ -274,10 +274,15 @@ export function recordAttempt(
 
   // ── Build + persist ───────────────────────────────────────────────────
   const topicLabel = String(ctx.topic ?? ctx.topicKey ?? "").trim();
+  // Canonicalise ONLY the key to the topics.ts slug (P0 [FU-TOPICKEY-UNIVERSAL]);
+  // keep the human-readable label verbatim in topicName. Read-time aggregation
+  // re-resolves both old (label-keyed) and new (slug-keyed) attempts to the same
+  // canonical bucket, so no historical backfill is needed.
+  const canonicalTopicKey = resolveCanonicalSlug(ctx.topicKey ?? ctx.topic) || topicLabel;
   const isCorrect = scored >= available;
   const attemptDoc = {
     questionId: ctx.questionId?.trim() || "",
-    topicKey: topicLabel,
+    topicKey: canonicalTopicKey,
     topicName: topicLabel || undefined,
     subject: toLTSubject(ctx.subject),
     difficulty: toDifficulty(ctx.difficulty),
@@ -319,14 +324,13 @@ export function recordAttempt(
   // shrinks anything.
   //
   // Key-matching is the critical detail (the G9 alias-fragility class): the
-  // weakness was keyed by the bridge as `normalizeTopicKey(topicKey ?? topic)`,
-  // so we resolve the SAME canonical key here (NOT the raw human label — the
-  // weak-area lookup keeps hyphens but turns spaces into "_", so a raw label
-  // would miss the canonical entry). We then decrement the stored entry using
-  // its OWN keys, so the map key matches exactly.
+  // wrong-answer weakness is keyed by the bridge as the canonical topics.ts slug
+  // (`resolveCanonicalSlug(topicKey ?? topic)`), so we resolve the SAME canonical
+  // key here (NOT the raw human label) and decrement the stored entry using its
+  // OWN key, so the map key matches exactly (P0 [FU-TOPICKEY-UNIVERSAL]).
   if (isCorrect) {
     try {
-      const canonicalKey = normalizeTopicKey(ctx.topicKey ?? ctx.topic) || "";
+      const canonicalKey = resolveCanonicalSlug(ctx.topicKey ?? ctx.topic) || "";
       if (canonicalKey) {
         const gaps = getWrongConceptsForTopic(canonicalKey);
         if (gaps.length > 0) {
@@ -414,9 +418,9 @@ export function computePracticeInsights(options: {
   const weakCounts: Record<string, number> = {};
   for (const a of attempts) {
     if (options.subject && a.subject !== options.subject.toLowerCase()) continue;
-    if (options.topic && a.topicKey !== options.topic) continue;
+    if (options.topic && !canonicalSlugMatches(a.topicKey, options.topic)) continue;
     if (!a.correct) {
-      const key = a.topicKey;
+      const key = resolveCanonicalSlug(a.topicKey) || a.topicKey;
       weakCounts[key] = (weakCounts[key] ?? 0) + 1;
     }
   }

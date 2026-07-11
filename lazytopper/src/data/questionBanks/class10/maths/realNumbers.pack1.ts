@@ -2,7 +2,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
   {
-    id: "RN-E02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-E02", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The prime factorisation of 156 is:",
     options: ["2² × 3 × 13", "2 × 3² × 13", "2² × 3² × 13", "2 × 3 × 26"],
@@ -13,7 +13,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E03", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-E03", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "If HCF(a, b) = 12 and a × b = 1800, then LCM(a, b) is:",
     options: ["150", "900", "90", "1800"],
@@ -24,7 +24,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E04", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-E04", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Which of the following is NOT an irrational number?",
     options: ["√3", "√5", "√9", "√7"],
@@ -35,7 +35,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-E05", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "Which of the following is an irrational number?",
     options: ["√4", "√9/√16", "√5", "0.¯3"],
@@ -46,7 +46,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E07", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-E07", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The HCF of two consecutive even numbers is:",
     options: ["1", "2", "4", "Cannot be determined"],
@@ -61,7 +61,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   {
-    id: "RN-E08", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-E08", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "The Fundamental Theorem of Arithmetic states that every composite number can be expressed as a product of primes in:",
     options: ["exactly one way", "exactly two ways", "a unique way (except for order)", "infinitely many ways"],
@@ -76,7 +76,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   {
-    id: "RN-E09", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-E09", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The product of a non-zero rational number and an irrational number is always:",
     options: ["Rational", "Irrational", "An integer", "Zero"],
@@ -87,7 +87,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E11", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-E11", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the LCM of 12, 15, and 21.",
     options: ["420", "180", "360", "840"],
@@ -98,7 +98,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E12", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-E12", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The number of prime factors of 3 × 5 × 7 + 7 is:",
     options: ["1", "2", "3", "4"],
@@ -109,7 +109,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E13", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-E13", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "For the number 7 × 11 × 13 + 13, which of the following is true?",
     options: ["It is a prime number", "It is a composite number", "It equals 1001", "It is odd"],
@@ -120,7 +120,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E14", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-E14", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Assertion (A): √2 is an irrational number.\nReason (R): The square root of every prime number is irrational.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -135,7 +135,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   {
-    id: "RN-E15", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-E15", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the HCF and LCM of 6 and 20 by the prime factorisation method.",
     solutionSteps: [
@@ -147,7 +147,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-E17", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-E17", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Assertion (A): 6ⁿ can never end with digit 0 for any natural number n.\nReason (R): 6ⁿ = (2 × 3)ⁿ, which has no factor of 5.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -163,7 +163,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   {
-      id: "RN-E18", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+      id: "RN-E18", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
       section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
       questionText: "Prove that √7 is irrational.",
       solutionSteps: [
@@ -175,7 +175,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
     },
   {
-    id: "RN-E19", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-E19", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "If HCF(306, 657) = 9, then LCM(306, 657) is:",
     options: ["22338", "1749", "23490", "20502"],
@@ -186,7 +186,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E20", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-E20", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "The product of a non-zero rational number and an irrational number is:",
     options: ["Always rational", "Always irrational", "Sometimes rational, sometimes irrational", "Always zero"],
@@ -202,7 +202,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   {
-    id: "RN-M02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-M02", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the HCF and LCM of 26 and 91 using the prime factorisation method. Verify that HCF × LCM = product of the two numbers.",
     solutionSteps: [
@@ -214,7 +214,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-M03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-M03", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that √3 is irrational.",
     solutionSteps: [
@@ -226,7 +226,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-M04", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-M04", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the largest number that divides 245 and 1029, leaving remainder 5 in each case.",
     solutionSteps: [
@@ -238,7 +238,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-M05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-M05", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Explain why 7 × 11 × 13 + 13 and 7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 are composite numbers.",
     solutionSteps: [
@@ -249,7 +249,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-      id: "RN-M06", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+      id: "RN-M06", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
       section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
       questionText: "Prove that 5 − √3 is irrational, given that √3 is irrational.",
       solutionSteps: [
@@ -261,7 +261,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
     },
   {
-    id: "RN-M07", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-M07", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that 3 + 2√5 is irrational.",
     solutionSteps: [
@@ -273,7 +273,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-M08", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-M08", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "There is a circular path around a sports field. Sonia takes 18 minutes to drive one round, while Ravi takes 12 minutes. If they both start at the same point and same time, going in the same direction, after how many minutes will they meet again at the starting point?",
     solutionSteps: [
@@ -285,7 +285,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-M10", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-M10", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): The HCF of two numbers is 18 and their product is 12960. Then their LCM is 720.\nReason (R): HCF × LCM = Product of two numbers.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -295,7 +295,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-M11", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-M11", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that √2 is irrational.",
     solutionSteps: [
@@ -307,7 +307,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-      id: "RN-M12", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+      id: "RN-M12", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
       section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
       questionText: "Assertion (A): √3 + √5 is irrational.\nReason (R): The sum of two irrational numbers is always irrational.",
       options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -322,7 +322,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       isCompetencyBased: true,
     },
   {
-    id: "RN-M13", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-M13", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Three bells toll at intervals of 9, 12 and 15 minutes respectively. If they start tolling together, after what time will they next toll together?",
     solutionSteps: [
@@ -334,7 +334,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-M15", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-M15", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): √2 + √3 is irrational.\nReason (R): Sum of two irrational numbers is always irrational.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
@@ -349,7 +349,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   {
-    id: "RN-M16", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-M16", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the HCF and LCM of 510 and 92 using prime factorisation.",
     solutionSteps: [
@@ -361,7 +361,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-      id: "RN-M17", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+      id: "RN-M17", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
       section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
       questionText: "Three traffic lights on a road change at intervals of 30, 45, and 60 seconds respectively. All three turn green together at 9:00 AM.\n(i) Find the LCM of 30, 45, and 60 using prime factorisation.\n(ii) After how many seconds will all three turn green together again?\n(iii) At what time will they next all turn green together?\n(iv) If they continue until 10:00 AM, how many times do they turn green together (excluding 9:00 AM)?",
       solutionSteps: [
@@ -374,7 +374,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       isCompetencyBased: true,
     },
   {
-    id: "RN-M18", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-M18", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "A shopkeeper has 120 pens, 168 pencils and 192 erasers. He wants to arrange them in such a way that each box has the same number of items, and each box contains items of only one type.\n(i) What is the maximum number of items he can put in each box?\n(ii) How many boxes of pens will there be?\n(iii) How many boxes of erasers will there be?\n(iv) What is the total number of boxes?",
     solutionSteps: [
@@ -387,7 +387,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-M19", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-M19", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that √5 is irrational.",
     solutionSteps: [
@@ -399,7 +399,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-H01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-H01", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Prove that √2 + √5 is irrational.",
     solutionSteps: [
@@ -411,7 +411,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-H03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-H03", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Find the HCF and LCM of 6, 72 and 120 using the prime factorisation method. Also verify HCF × LCM ≠ product of three numbers (explain why the property fails for three numbers).",
     solutionSteps: [
@@ -423,7 +423,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-H04", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-H04", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Prove that 1/(2 + √3) is irrational.",
     solutionSteps: [
@@ -435,7 +435,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-      id: "RN-H05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+      id: "RN-H05", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
       section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
       questionText: "Prove that (3 + √5) is irrational, given that √5 is irrational. Hence show that (3 + √5)(3 − √5) is rational.",
       solutionSteps: [
@@ -447,7 +447,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
     },
   {
-    id: "RN-H07", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-H07", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Prove that √p is irrational for any prime p.",
     solutionSteps: [
@@ -459,7 +459,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-H08", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-H08", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Two tankers contain 850 litres and 680 litres of petrol respectively. Find the maximum capacity of a container which can measure the petrol of each tanker in exact number of times.",
     solutionSteps: [
@@ -471,7 +471,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-H09", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-H09", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Check whether 12ⁿ can end with the digit 0 for any natural number n.",
     solutionSteps: [
@@ -483,7 +483,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-H10", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-H10", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Prove that √3 is irrational. Hence show that 5 − 2√3 is also irrational.",
     solutionSteps: [
@@ -497,7 +497,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-H11", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
+    id: "RN-H11", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "A Mathematics teacher of a school has a group of 108, 162 and 270 students in three different sections. She wants to divide each section into groups of equal number of students for an activity.\n(i) Find the maximum number of students in each group.\n(ii) Find how many groups are formed from each section.\n(iii) Find the LCM of 108 and 162.\n(iv) If 3ⁿ divides the LCM found in (iii), find the maximum value of n.",
     solutionSteps: [
@@ -510,7 +510,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-H12", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-H12", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Prove that √2/3 is irrational.",
     solutionSteps: [
@@ -522,7 +522,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
-    id: "RN-H14", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
+    id: "RN-H14", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Two alarm clocks ring their alarms at regular intervals of 50 seconds and 48 seconds respectively. If they first beep together at 12 noon, at what time will they beep again for the first time? Also find at what time they will beep together for the 5th time.",
     solutionSteps: [
@@ -536,7 +536,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-H15", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
+    id: "RN-H15", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Prove that 7 − 3√2 is irrational, given that √2 is irrational.",
     solutionSteps: [
@@ -547,7 +547,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "7 − 3√2 is irrational",
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
-  { id: "RN-N01", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "HCF of 72 and 120 is:", options: ["24","12","36","48"], answer: "24", explanation: "The correct answer is 24. 72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", finalAnswer: "72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", isCompetencyBased: false,
+  { id: "RN-N01", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "HCF of 72 and 120 is:", options: ["24","12","36","48"], answer: "24", explanation: "The correct answer is 24. 72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", finalAnswer: "72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", isCompetencyBased: false,
     solutionSteps: [
       "Find the prime factorization of 72: 72 = 2 x 36 = 2 x 2 x 18 = 2 x 2 x 2 x 9 = 2^3 x 3^2.",
       "Find the prime factorization of 120: 120 = 2 x 60 = 2 x 2 x 30 = 2 x 2 x 2 x 15 = 2^3 x 3 x 5.",
@@ -555,14 +555,14 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "HCF(72, 120) = 2^3 x 3^1 = 8 x 3 = 24.",
     ],
   },
-  { id: "RN-N02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is irrational?", options: ["√4","√9","√2","0.5"], answer: "√2", explanation: "The correct answer is √2. √2 is irrational; its decimal expansion is non-terminating, non-repeating.", finalAnswer: "√2 is irrational; its decimal expansion is non-terminating, non-repeating.", isCompetencyBased: false,
+  { id: "RN-N02", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is irrational?", options: ["√4","√9","√2","0.5"], answer: "√2", explanation: "The correct answer is √2. √2 is irrational; its decimal expansion is non-terminating, non-repeating.", finalAnswer: "√2 is irrational; its decimal expansion is non-terminating, non-repeating.", isCompetencyBased: false,
     solutionSteps: [
       "An irrational number cannot be expressed as a fraction p/q where p, q are integers and q is not zero. Its decimal expansion is non-terminating and non-repeating.",
       "Numbers like sqrt(4)=2, sqrt(9)=3, sqrt(16)=4 are rational as they are integers.",
       "sqrt(2) is a non-perfect square root, and its decimal expansion is non-terminating and non-repeating (1.414...). Therefore, sqrt(2) is irrational.",
     ],
   },
-  { id: "RN-ND02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: [
+  { id: "RN-ND02", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: [
       "Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.; Squaring: 5 = p²/q² → p² = 5q². [1]",
       "5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.; Then (5m)² = 5q² → 25m² = 5q² → 5m² = q². [1]",
       "5 divides q², so 5 divides q. But then 5 is a common factor of p and q, contradicting HCF = 1.; Contradiction! So √5 is irrational. ✓ [1]",

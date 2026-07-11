@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
   predictedQuestions as predictedMathQuestions,
   predictedQuestionsById,
@@ -168,7 +169,7 @@ const MockPaperPage: React.FC = () => {
     const topicBreakdown: Record<string, { scored: number; maxPossible: number }> = {};
     for (const sec of Object.values(sections)) {
       for (const q of (sec as { questions: AnyPredictedQuestion[] }).questions) {
-        const tk = q.topicKey || "unknown";
+        const tk = resolveCanonicalSlug(q.topicKey) || "unknown";
         if (!topicBreakdown[tk]) topicBreakdown[tk] = { scored: 0, maxPossible: 0 };
         topicBreakdown[tk].maxPossible += q.marks ?? 0;
       }

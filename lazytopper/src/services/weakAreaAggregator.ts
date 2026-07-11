@@ -4,6 +4,7 @@ import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEng
 import { loadTopicMasterySnapshot, type TopicHubNodeMasteryState } from "./topicHubMastery";
 import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import { normalizeTopicKey } from "../utils/topicResolver";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { getMockTopicScores } from "./mockScoreHistory";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { firestoreDb } from "./firebaseClient";
@@ -29,6 +30,9 @@ export interface WeakAreaSummary {
   overallMasteryPercent: number;
 }
 
+// Keyed by canonical topics.ts slugs (P0 [FU-TOPICKEY-UNIVERSAL]) — the same
+// vocabulary weak-areas now bucket under. Genuinely-missing keys fall back to a
+// title-cased slug in getTopicDisplayName.
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers",
   polynomials: "Polynomials",
@@ -43,18 +47,18 @@ const TOPIC_NAMES: Record<string, string> = {
   trigonometry: "Trigonometry",
   statistics: "Statistics",
   probability: "Probability",
-  "chemical-reactions-equations": "Chemical Reactions",
-  "acids-bases-salts": "Acids, Bases & Salts",
-  "metals-non-metals": "Metals & Non-metals",
+  "chemical-reactions-and-equations": "Chemical Reactions",
+  "acids-bases-and-salts": "Acids, Bases & Salts",
+  "metals-and-non-metals": "Metals & Non-metals",
   "carbon-and-its-compounds": "Carbon Compounds",
   "life-processes": "Life Processes",
   "how-do-organisms-reproduce": "Reproduction",
-  "human-eye-colourful-world": "Human Eye",
+  "human-eye-and-colourful-world": "Human Eye",
   electricity: "Electricity",
   "magnetic-effects-of-electric-current": "Magnetic Effects",
-  "light-reflection-refraction": "Light & Refraction",
+  "light-reflection-and-refraction": "Light & Refraction",
   "control-and-coordination": "Control & Coordination",
-  "heredity-and-evolution": "Heredity",
+  heredity: "Heredity",
   "our-environment": "Our Environment",
 };
 
@@ -86,7 +90,7 @@ function computeTopicMastery(topicKey: string): { percent: number; state: TopicH
 function aggregateAttemptsByTopic(attempts: PracticeAttempt[]): Map<string, { correct: number; total: number; lastTs: number }> {
   const map = new Map<string, { correct: number; total: number; lastTs: number }>();
   for (const a of attempts) {
-    const key = normalizeTopicKey(a.topicKey) || a.topicKey;
+    const key = resolveCanonicalSlug(a.topicKey) || a.topicKey;
     const prev = map.get(key) || { correct: 0, total: 0, lastTs: 0 };
     prev.total++;
     if (a.correct) prev.correct++;
@@ -99,7 +103,7 @@ function aggregateAttemptsByTopic(attempts: PracticeAttempt[]): Map<string, { co
 function aggregateWrongAnswersByTopic(entries: WrongAnswerEntry[]): Map<string, { count: number; concepts: string[] }> {
   const map = new Map<string, { count: number; concepts: string[] }>();
   for (const e of entries) {
-    const key = normalizeTopicKey(e.topicKey) || e.topicKey;
+    const key = resolveCanonicalSlug(e.topicKey) || e.topicKey;
     const prev = map.get(key) || { count: 0, concepts: [] };
     prev.count += e.count;
     if (e.conceptKey && !prev.concepts.includes(e.conceptKey)) {
@@ -118,8 +122,13 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
   const wrongMap = aggregateWrongAnswersByTopic(Object.values(wrongLog.entries));
   const mockTopicScores = getMockTopicScores();
 
+  // topicKey = canonical topics.ts slug — the vocabulary the bank and the
+  // worksheet-enrichment JOIN share (P0 [FU-TOPICKEY-UNIVERSAL]). masteryKey keeps
+  // the PRE-EXISTING mastery-snapshot lookup vocabulary so no stored mastery
+  // orphans (the mastery subsystem behaviour is unchanged).
   const allTopics = canonicalChapters.map((ch) => ({
-    topicKey: normalizeTopicKey(ch.canonicalSlug) || ch.canonicalSlug,
+    topicKey: resolveCanonicalSlug(ch.canonicalSlug) || ch.canonicalSlug,
+    masteryKey: normalizeTopicKey(ch.canonicalSlug) || ch.canonicalSlug,
     subject: (ch.subjectId === "science" ? "Science" : "Maths") as "Maths" | "Science",
   }));
 
@@ -127,10 +136,10 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
   let totalMastery = 0;
   let topicCount = 0;
 
-  for (const { topicKey, subject } of allTopics) {
+  for (const { topicKey, masteryKey, subject } of allTopics) {
     if (options?.subject && subject !== options.subject) continue;
 
-    const { percent: masteryPercent, state: masteryState } = computeTopicMastery(topicKey);
+    const { percent: masteryPercent, state: masteryState } = computeTopicMastery(masteryKey);
     const attemptData = attemptMap.get(topicKey) || { correct: 0, total: 0, lastTs: 0 };
     const wrongData = wrongMap.get(topicKey) || { count: 0, concepts: [] };
 
@@ -199,8 +208,8 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
   const uid = getActiveProgressUser();
   if (firestoreDb && uid && uid !== "anonymous") {
     const topicMasteryMap: Record<string, number> = {};
-    for (const { topicKey } of allTopics) {
-      const { percent } = computeTopicMastery(topicKey);
+    for (const { topicKey, masteryKey } of allTopics) {
+      const { percent } = computeTopicMastery(masteryKey);
       topicMasteryMap[topicKey] = Math.round(percent);
     }
     void setDoc(doc(firestoreDb, "weakAreaSummary", uid), { ...result, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});

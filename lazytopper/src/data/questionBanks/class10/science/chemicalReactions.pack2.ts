@@ -4,7 +4,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-001",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-002",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -64,7 +64,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-003",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "A",
     "marks": 1,
@@ -95,7 +95,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-004",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "A",
     "marks": 1,
@@ -125,7 +125,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-005",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -156,7 +156,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-006",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "A",
     "marks": 1,
@@ -187,7 +187,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-007",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "A",
     "marks": 1,
@@ -218,7 +218,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-008",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "A",
     "marks": 1,
@@ -248,7 +248,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-009",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "A",
     "marks": 1,
@@ -279,7 +279,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-010",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "A",
     "marks": 1,
@@ -309,7 +309,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-011",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "B",
     "marks": 2,
@@ -332,7 +332,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-012",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "B",
     "marks": 2,
@@ -358,7 +358,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-013",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "B",
     "marks": 2,
@@ -382,7 +382,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-014",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "B",
     "marks": 2,
@@ -407,7 +407,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-015",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "B",
     "marks": 2,
@@ -433,7 +433,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-016",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "C",
     "marks": 3,
@@ -464,7 +464,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-017",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "C",
     "marks": 3,
@@ -495,7 +495,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-018",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "C",
     "marks": 3,
@@ -526,7 +526,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-019",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "E",
     "marks": 4,
@@ -554,7 +554,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-020",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "E",
     "marks": 4,
@@ -583,7 +583,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-021",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "D",
     "marks": 5,
@@ -634,7 +634,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-022",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "A",
     "marks": 1,
@@ -665,7 +665,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-023",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -697,7 +697,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-024",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "B",
     "marks": 2,
@@ -721,7 +721,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-025",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "B",
     "marks": 2,
@@ -748,7 +748,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-027",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "A",
     "marks": 1,
@@ -780,7 +780,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-029",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "A",
     "marks": 1,
@@ -811,7 +811,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-030",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "A",
     "marks": 1,
@@ -842,7 +842,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-031",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "B",
     "marks": 2,
@@ -869,7 +869,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-032",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "B",
     "marks": 2,
@@ -900,7 +900,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-033",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "B",
     "marks": 2,
@@ -932,7 +932,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-034",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "B",
     "marks": 2,
@@ -963,7 +963,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-035",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "B",
     "marks": 2,
@@ -994,7 +994,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-036",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "B",
     "marks": 2,
@@ -1019,7 +1019,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-037",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "C",
     "marks": 3,
@@ -1051,7 +1051,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-038",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "C",
     "marks": 3,
@@ -1076,7 +1076,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-039",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "C",
     "marks": 3,
@@ -1109,7 +1109,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-040",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "C",
     "marks": 3,
@@ -1141,7 +1141,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-041",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "C",
     "marks": 3,
@@ -1166,7 +1166,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-042",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "C",
     "marks": 3,
@@ -1198,7 +1198,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-043",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "D",
     "marks": 5,
@@ -1227,7 +1227,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-044",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "D",
     "marks": 5,
@@ -1257,7 +1257,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-045",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "D",
     "marks": 5,
@@ -1284,7 +1284,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-046",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Corrosion and Rancidity",
     "section": "D",
     "marks": 5,
@@ -1310,7 +1310,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-047",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "E",
     "marks": 4,
@@ -1338,7 +1338,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-048",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
     "section": "D",
     "marks": 5,
@@ -1370,7 +1370,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-049",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation-Reduction",
     "section": "D",
     "marks": 5,
@@ -1405,7 +1405,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-050",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -1426,7 +1426,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-051",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation and Reduction",
     "section": "A",
     "marks": 1,
@@ -1447,7 +1447,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-052",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -1468,7 +1468,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-053",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Types of Reactions",
     "section": "A",
     "marks": 1,
@@ -1489,7 +1489,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CR2-054",
     "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Oxidation and Reduction",
     "section": "A",
     "marks": 1,

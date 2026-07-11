@@ -4,7 +4,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-001",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-002",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -62,7 +62,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-003",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -89,7 +89,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-004",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -119,7 +119,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-005",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -148,7 +148,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-006",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -175,7 +175,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-007",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -204,7 +204,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-008",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -233,7 +233,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-009",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -259,7 +259,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-013",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "C",
     "marks": 3,
@@ -289,7 +289,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-014",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "C",
     "marks": 3,
@@ -319,7 +319,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-016",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -349,7 +349,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-017",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -379,7 +379,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-019",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "E",
     "marks": 4,
@@ -411,7 +411,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-020",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median and Mode of Grouped Data",
     "section": "E",
     "marks": 4,
@@ -443,7 +443,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-021",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "D",
     "marks": 5,
@@ -484,7 +484,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-024",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -515,7 +515,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-025",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -546,7 +546,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-026",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -575,7 +575,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-027",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -606,7 +606,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-028",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -639,7 +639,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-029",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -668,7 +668,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-030",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -698,7 +698,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-031",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -730,7 +730,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-032",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -756,7 +756,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-036",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "C",
     "marks": 3,
@@ -787,7 +787,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-037",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "C",
     "marks": 3,
@@ -819,7 +819,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-038",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "C",
     "marks": 3,
@@ -852,7 +852,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-040",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -884,7 +884,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-041",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -917,7 +917,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-042",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -950,7 +950,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-043",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean, Median, Mode",
     "section": "E",
     "marks": 4,
@@ -980,7 +980,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-044",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean of Grouped Data",
     "section": "D",
     "marks": 5,
@@ -1018,7 +1018,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
 {
     "id": "ST2-045",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median and Mode of Grouped Data",
     "section": "D",
     "marks": 5,
@@ -1060,7 +1060,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R02",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "B",
     "marks": 2,
@@ -1079,7 +1079,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R03",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -1098,7 +1098,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R04",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean (Step Deviation)",
     "section": "C",
     "marks": 3,
@@ -1117,7 +1117,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R05",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "E",
     "marks": 4,
@@ -1136,7 +1136,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R07",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mode of Grouped Data",
     "section": "C",
     "marks": 3,
@@ -1155,7 +1155,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R08",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Median of Grouped Data",
     "section": "A",
     "marks": 1,
@@ -1174,7 +1174,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
   {
     "id": "STAT2-R09",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Mean (Step Deviation)",
     "section": "D",
     "marks": 5,

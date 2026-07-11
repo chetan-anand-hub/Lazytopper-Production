@@ -4,7 +4,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-001",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-002",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "A",
     "marks": 1,
@@ -65,7 +65,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-003",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Reflex Arc",
     "section": "A",
     "marks": 1,
@@ -95,7 +95,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-004",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Reflex Arc",
     "section": "B",
     "marks": 2,
@@ -120,7 +120,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-005",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "A",
     "marks": 1,
@@ -150,7 +150,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-006",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "A",
     "marks": 1,
@@ -180,7 +180,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-007",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "B",
     "marks": 2,
@@ -211,7 +211,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-008",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "A",
     "marks": 1,
@@ -241,7 +241,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-009",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "A",
     "marks": 1,
@@ -272,7 +272,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-010",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "B",
     "marks": 2,
@@ -297,7 +297,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-011",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "B",
     "marks": 2,
@@ -328,7 +328,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-012",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "A",
     "marks": 1,
@@ -359,7 +359,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-013",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "A",
     "marks": 1,
@@ -390,7 +390,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-014",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -415,7 +415,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-015",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -446,7 +446,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-016",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "B",
     "marks": 2,
@@ -471,7 +471,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-017",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Reflex Arc",
     "section": "C",
     "marks": 3,
@@ -497,7 +497,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-018",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "C",
     "marks": 3,
@@ -523,7 +523,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-019",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "E",
     "marks": 4,
@@ -550,7 +550,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-020",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "E",
     "marks": 4,
@@ -578,7 +578,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-021",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System & Hormones",
     "section": "D",
     "marks": 5,
@@ -609,7 +609,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-022",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -635,7 +635,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-023",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "A",
     "marks": 1,
@@ -666,7 +666,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-024",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "B",
     "marks": 2,
@@ -692,7 +692,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-025",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "A",
     "marks": 1,
@@ -726,7 +726,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-026",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "A",
     "marks": 1,
@@ -756,7 +756,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-027",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "A",
     "marks": 1,
@@ -786,7 +786,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-028",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Reflex Arc",
     "section": "A",
     "marks": 1,
@@ -816,7 +816,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-029",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Reflex Arc",
     "section": "B",
     "marks": 2,
@@ -846,7 +846,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-030",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "B",
     "marks": 2,
@@ -876,7 +876,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-031",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "B",
     "marks": 2,
@@ -906,7 +906,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-032",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "A",
     "marks": 1,
@@ -936,7 +936,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-033",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "B",
     "marks": 2,
@@ -966,7 +966,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-034",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "B",
     "marks": 2,
@@ -996,7 +996,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-035",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "A",
     "marks": 1,
@@ -1026,7 +1026,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-036",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -1057,7 +1057,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-037",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -1087,7 +1087,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-038",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -1117,7 +1117,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-039",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "B",
     "marks": 2,
@@ -1142,7 +1142,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-040",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Reflex Arc",
     "section": "B",
     "marks": 2,
@@ -1171,7 +1171,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-041",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Brain Structure",
     "section": "B",
     "marks": 2,
@@ -1195,7 +1195,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-042",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "B",
     "marks": 2,
@@ -1220,7 +1220,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-043",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "B",
     "marks": 2,
@@ -1245,7 +1245,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-044",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "C",
     "marks": 3,
@@ -1276,7 +1276,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-045",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones in Animals",
     "section": "C",
     "marks": 3,
@@ -1303,7 +1303,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-046",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "C",
     "marks": 3,
@@ -1329,7 +1329,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-047",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "E",
     "marks": 4,
@@ -1357,7 +1357,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-048",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Control and Coordination",
     "section": "D",
     "marks": 5,
@@ -1387,7 +1387,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-049",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "D",
     "marks": 5,
@@ -1418,7 +1418,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-050",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "A",
     "marks": 1,
@@ -1439,7 +1439,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-051",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones",
     "section": "A",
     "marks": 1,
@@ -1460,7 +1460,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-052",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Plant Hormones",
     "section": "A",
     "marks": 1,
@@ -1481,7 +1481,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-053",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "A",
     "marks": 1,
@@ -1502,7 +1502,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-054",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Hormones",
     "section": "C",
     "marks": 3,
@@ -1523,7 +1523,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CNC2-055",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Nervous System",
     "section": "D",
     "marks": 5,

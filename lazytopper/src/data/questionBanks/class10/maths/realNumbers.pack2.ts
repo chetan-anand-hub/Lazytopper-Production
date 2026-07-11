@@ -4,7 +4,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-003",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "A",
     "marks": 1,
@@ -32,7 +32,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-004",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "B",
     "marks": 2,
@@ -58,7 +58,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-006",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "A",
     "marks": 1,
@@ -86,7 +86,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-008",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "A",
       "marks": 1,
@@ -106,7 +106,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-009",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Fundamental Theorem of Arithmetic",
       "section": "A",
       "marks": 1,
@@ -126,7 +126,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-010",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "B",
       "marks": 2,
@@ -154,7 +154,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-011",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "B",
     "marks": 2,
@@ -183,7 +183,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-012",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "A",
     "marks": 1,
@@ -213,7 +213,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-013",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "B",
     "marks": 2,
@@ -241,7 +241,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-015",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "A",
     "marks": 1,
@@ -270,7 +270,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-016",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "A",
       "marks": 1,
@@ -299,7 +299,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-017",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "E",
     "marks": 4,
@@ -326,7 +326,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-018",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "E",
     "marks": 4,
@@ -353,7 +353,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-020",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "B",
     "marks": 2,
@@ -379,7 +379,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-022",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "B",
       "marks": 2,
@@ -406,7 +406,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-023",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "B",
     "marks": 2,
@@ -432,7 +432,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-026",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "A",
     "marks": 1,
@@ -460,7 +460,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-027",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "B",
     "marks": 2,
@@ -488,7 +488,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-028",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "A",
     "marks": 1,
@@ -518,7 +518,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-029",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "B",
     "marks": 2,
@@ -545,7 +545,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-030",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "A",
     "marks": 1,
@@ -574,7 +574,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-031",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Fundamental Theorem of Arithmetic",
       "section": "A",
       "marks": 1,
@@ -603,7 +603,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-032",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Fundamental Theorem of Arithmetic",
       "section": "B",
       "marks": 2,
@@ -629,7 +629,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-033",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "A",
       "marks": 1,
@@ -659,7 +659,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-034",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "B",
     "marks": 2,
@@ -689,7 +689,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-035",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "A",
     "marks": 1,
@@ -723,7 +723,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-036",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "B",
     "marks": 2,
@@ -750,7 +750,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-037",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "B",
     "marks": 2,
@@ -777,7 +777,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-039",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "A",
       "marks": 1,
@@ -806,7 +806,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-040",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Assertion-Reasoning",
     "section": "A",
     "marks": 1,
@@ -837,7 +837,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-041",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Assertion-Reasoning",
     "section": "A",
     "marks": 1,
@@ -868,7 +868,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-042",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "D",
     "marks": 5,
@@ -900,7 +900,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-043",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "D",
     "marks": 5,
@@ -931,7 +931,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
       "id": "RN2-044",
       "subject": "Maths",
-      "topicKey": "Real Numbers",
+      "topicKey": "real-numbers",
       "subtopic": "Irrationality Proofs",
       "section": "B",
       "marks": 2,
@@ -958,7 +958,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-045",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "A",
     "marks": 1,
@@ -989,7 +989,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-050",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "C",
     "marks": 3,
@@ -1019,7 +1019,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-051",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "C",
     "marks": 3,
@@ -1046,7 +1046,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-052",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "C",
     "marks": 3,
@@ -1074,7 +1074,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-053",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "C",
     "marks": 3,
@@ -1100,7 +1100,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-054",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "C",
     "marks": 3,
@@ -1131,7 +1131,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-055",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Fundamental Theorem of Arithmetic",
     "section": "C",
     "marks": 3,
@@ -1159,7 +1159,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-056",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Decimal Expansions",
     "section": "A",
     "marks": 1,
@@ -1190,7 +1190,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-057",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Decimal Expansions",
     "section": "A",
     "marks": 1,
@@ -1220,7 +1220,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-058",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Decimal Expansions",
     "section": "A",
     "marks": 1,
@@ -1250,7 +1250,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-059",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "Irrationality Proofs",
     "section": "D",
     "marks": 5,
@@ -1285,7 +1285,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-060",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "D",
     "marks": 5,
@@ -1315,7 +1315,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
   {
     "id": "RN2-061",
     "subject": "Maths",
-    "topicKey": "Real Numbers",
+    "topicKey": "real-numbers",
     "subtopic": "HCF and LCM",
     "section": "E",
     "marks": 4,

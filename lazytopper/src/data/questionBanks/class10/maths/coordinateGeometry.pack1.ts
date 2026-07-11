@@ -1,210 +1,210 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
-  { id: "CG-E01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The distance between the points (2, 3) and (5, 7) is:", options: ["5", "7", "25", "√7"], answer: "5", explanation: "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", solutionSteps: ["√[(5−2)²+(7−3)²] = √(9+16) = 5"], finalAnswer: "5" , isCompetencyBased: true },
-  { id: "CG-E02", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mid-point of (4, 6) and (2, 8) is:", options: ["(3, 7)", "(6, 14)", "(2, 2)", "(1, 1)"], answer: "(3, 7)", explanation: "The correct answer is (3, 7). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "(3, 7)" , isCompetencyBased: false,
+  { id: "CG-E01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The distance between the points (2, 3) and (5, 7) is:", options: ["5", "7", "25", "√7"], answer: "5", explanation: "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", solutionSteps: ["√[(5−2)²+(7−3)²] = √(9+16) = 5"], finalAnswer: "5" , isCompetencyBased: true },
+  { id: "CG-E02", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mid-point of (4, 6) and (2, 8) is:", options: ["(3, 7)", "(6, 14)", "(2, 2)", "(1, 1)"], answer: "(3, 7)", explanation: "The correct answer is (3, 7). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "(3, 7)" , isCompetencyBased: false,
     solutionSteps: [
       "Midpoint formula: M = ((x₁+x₂)/2, (y₁+y₂)/2) for points (x₁, y₁) and (x₂, y₂).",
       "Given points are (4, 6) and (2, 8). Midpoint x = (4+2)/2 = 6/2 = 3.",
       "Midpoint y = (6+8)/2 = 14/2 = 7. Therefore, the midpoint is (3, 7).",
     ],
   },
-  { id: "CG-E03", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The distance of the point (3, 4) from the origin is:", options: ["5", "7", "1", "25"], answer: "5", explanation: "√(9+16) = 5. Therefore, the correct answer is 5.", solutionSteps: ["√(9+16) = 5"], finalAnswer: "5" , isCompetencyBased: true },
-  { id: "CG-E04", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The point which divides the join of (1, −2) and (−3, 4) in the ratio 2:3 internally is:", options: ["(−3/5, 2/5)", "(3/5, −2/5)", "(−1, 1)", "(0, 0)"], answer: "(−3/5, 2/5)", explanation: "x = (2(−3)+3(1))/5 = −3/5. y = (2(4)+3(−2))/5 = 2/5. Therefore, the correct answer is (−3/5, 2/5).", solutionSteps: ["x = (2(−3)+3(1))/5 = −3/5", "y = (2(4)+3(−2))/5 = 2/5"], finalAnswer: "(−3/5, 2/5)" , isCompetencyBased: true },
-  { id: "CG-E06", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Show that the points A(1, −1), B(5, 2) and C(9, 5) are collinear.", solutionSteps: [
+  { id: "CG-E03", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The distance of the point (3, 4) from the origin is:", options: ["5", "7", "1", "25"], answer: "5", explanation: "√(9+16) = 5. Therefore, the correct answer is 5.", solutionSteps: ["√(9+16) = 5"], finalAnswer: "5" , isCompetencyBased: true },
+  { id: "CG-E04", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The point which divides the join of (1, −2) and (−3, 4) in the ratio 2:3 internally is:", options: ["(−3/5, 2/5)", "(3/5, −2/5)", "(−1, 1)", "(0, 0)"], answer: "(−3/5, 2/5)", explanation: "x = (2(−3)+3(1))/5 = −3/5. y = (2(4)+3(−2))/5 = 2/5. Therefore, the correct answer is (−3/5, 2/5).", solutionSteps: ["x = (2(−3)+3(1))/5 = −3/5", "y = (2(4)+3(−2))/5 = 2/5"], finalAnswer: "(−3/5, 2/5)" , isCompetencyBased: true },
+  { id: "CG-E06", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Show that the points A(1, −1), B(5, 2) and C(9, 5) are collinear.", solutionSteps: [
       "AB = √[(5−1)²+(2+1)²] = √(16+9) = √25 = 5; BC = √[(9−5)²+(5−2)²] = √(16+9) = √25 = 5 [½]",
       "AC = √[(9−1)²+(5+1)²] = √(64+36) = √100 = 10; AB + BC = 5 + 5 = 10 = AC [½]",
       "Since AB + BC = AC, the three points are collinear. [1]",
     ], answer: "AB + BC = AC, hence collinear", finalAnswer: "Points are collinear" , isCompetencyBased: true },
-  { id: "CG-E07", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The distance between (a, 0) and (0, b) is:", options: ["√(a²+b²)", "a+b", "|a−b|", "√(a²−b²)"], answer: "√(a²+b²)", explanation: "The correct answer is √(a²+b²). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "√(a²+b²)" , isCompetencyBased: true,
+  { id: "CG-E07", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The distance between (a, 0) and (0, b) is:", options: ["√(a²+b²)", "a+b", "|a−b|", "√(a²−b²)"], answer: "√(a²+b²)", explanation: "The correct answer is √(a²+b²). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "√(a²+b²)" , isCompetencyBased: true,
     solutionSteps: [
       "Apply the distance formula to points (a, 0) and (0, b): d = √[(0−a)²+(b−0)²].",
       "d = √[(−a)²+(b)²] = √[a²+b²].",
       "Therefore, the distance between (a, 0) and (0, b) is √(a²+b²).",
     ],
   },
-  { id: "CG-E08", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The mid-point of (−1, 3) and (3, −1) is (1, 1).\nReason (R): Mid-point = ((x₁+x₂)/2, (y₁+y₂)/2).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "CG-E08", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The mid-point of (−1, 3) and (3, −1) is (1, 1).\nReason (R): Mid-point = ((x₁+x₂)/2, (y₁+y₂)/2).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): Apply the midpoint formula to (−1, 3) and (3, −1). Midpoint x = (−1+3)/2 = 2/2 = 1. Midpoint y = (3+(−1))/2 = 2/2 = 1. So midpoint = (1, 1). Assertion (A) is true.",
       "Reason (R): The midpoint formula M = ((x₁+x₂)/2, (y₁+y₂)/2) is the standard formula used above. Reason (R) is true.",
       "Reason (R) correctly explains Assertion (A) — it is precisely the midpoint formula stated in R that was applied to verify A.",
     ],
   },
-  { id: "CG-E09", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "AOBC is a rectangle with O at origin, A(0, 3) and B(5, 0). The length of diagonal AB is:", options: ["√34", "8", "√64", "4"], answer: "√34", explanation: "AB = √(25+9) = √34. Therefore, the correct answer is √34.", solutionSteps: ["AB = √(25+9) = √34"], finalAnswer: "√34" , isCompetencyBased: true },
-  { id: "CG-E11", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the distance between (2, −3) and (10, y) is 10, then y =", options: ["3 or −9", "3", "−9", "6"], answer: "3 or −9", explanation: "64 + (y+3)² = 100 → (y+3)² = 36 → y = 3 or −9. Therefore, the correct answer is 3 or −9.", solutionSteps: ["64 + (y+3)² = 100 → (y+3)² = 36 → y = 3 or −9"], finalAnswer: "3 or −9" , isCompetencyBased: false },
-  { id: "CG-E12", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the ratio in which the y-axis divides the join of (5, −6) and (−1, −4).", solutionSteps: [
+  { id: "CG-E09", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "AOBC is a rectangle with O at origin, A(0, 3) and B(5, 0). The length of diagonal AB is:", options: ["√34", "8", "√64", "4"], answer: "√34", explanation: "AB = √(25+9) = √34. Therefore, the correct answer is √34.", solutionSteps: ["AB = √(25+9) = √34"], finalAnswer: "√34" , isCompetencyBased: true },
+  { id: "CG-E11", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the distance between (2, −3) and (10, y) is 10, then y =", options: ["3 or −9", "3", "−9", "6"], answer: "3 or −9", explanation: "64 + (y+3)² = 100 → (y+3)² = 36 → y = 3 or −9. Therefore, the correct answer is 3 or −9.", solutionSteps: ["64 + (y+3)² = 100 → (y+3)² = 36 → y = 3 or −9"], finalAnswer: "3 or −9" , isCompetencyBased: false },
+  { id: "CG-E12", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the ratio in which the y-axis divides the join of (5, −6) and (−1, −4).", solutionSteps: [
       "x-coordinate = 0: (−k+5)/(k+1) = 0 → k = 5 [1]",
       "Ratio = 5:1 [1]",
     ], finalAnswer: "5:1" , isCompetencyBased: true },
-  { id: "CG-E14", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The point on the x-axis equidistant from (2, −5) and (−2, 9) is:", options: ["(−7, 0)", "(7, 0)", "(0, 7)", "(0, −7)"], answer: "(−7, 0)", explanation: "(h−2)²+25 = (h+2)²+81 → −8h = 56 → h = −7. Therefore, the correct answer is (−7, 0).", solutionSteps: ["(h−2)²+25 = (h+2)²+81 → −8h = 56 → h = −7"], finalAnswer: "(−7, 0)" , isCompetencyBased: true },
-  { id: "CG-E15", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The centroid of a triangle with vertices (1, −1), (0, 6) and (−3, 0) is:", options: ["(−2/3, 5/3)", "(2/3, −5/3)", "(1, 2)", "(−1, 5)"], answer: "(−2/3, 5/3)", explanation: "G = ((1+0−3)/3, (−1+6+0)/3) = (−2/3, 5/3). Therefore, the correct answer is (−2/3, 5/3).", solutionSteps: ["G = ((1+0−3)/3, (−1+6+0)/3) = (−2/3, 5/3)"], finalAnswer: "(−2/3, 5/3)" , isCompetencyBased: true },
-  { id: "CG-E16", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Check whether (5, −2), (6, 4) and (7, −2) are the vertices of an isosceles triangle.", solutionSteps: [
+  { id: "CG-E14", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The point on the x-axis equidistant from (2, −5) and (−2, 9) is:", options: ["(−7, 0)", "(7, 0)", "(0, 7)", "(0, −7)"], answer: "(−7, 0)", explanation: "(h−2)²+25 = (h+2)²+81 → −8h = 56 → h = −7. Therefore, the correct answer is (−7, 0).", solutionSteps: ["(h−2)²+25 = (h+2)²+81 → −8h = 56 → h = −7"], finalAnswer: "(−7, 0)" , isCompetencyBased: true },
+  { id: "CG-E15", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The centroid of a triangle with vertices (1, −1), (0, 6) and (−3, 0) is:", options: ["(−2/3, 5/3)", "(2/3, −5/3)", "(1, 2)", "(−1, 5)"], answer: "(−2/3, 5/3)", explanation: "G = ((1+0−3)/3, (−1+6+0)/3) = (−2/3, 5/3). Therefore, the correct answer is (−2/3, 5/3).", solutionSteps: ["G = ((1+0−3)/3, (−1+6+0)/3) = (−2/3, 5/3)"], finalAnswer: "(−2/3, 5/3)" , isCompetencyBased: true },
+  { id: "CG-E16", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Check whether (5, −2), (6, 4) and (7, −2) are the vertices of an isosceles triangle.", solutionSteps: [
       "AB = √(1+36) = √37; BC = √(1+36) = √37 [½]",
       "AC = √(4+0) = 2 [½]",
       "AB = BC → isosceles ✓ [1]",
     ], finalAnswer: "Yes, isosceles (AB = BC = √37)" , isCompetencyBased: true },
-  { id: "CG-E18", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance formula between two points (x₁, y₁) and (x₂, y₂) is:", options: ["√[(x₂−x₁)²+(y₂−y₁)²]", "(x₂−x₁)²+(y₂−y₁)²", "|x₂−x₁|+|y₂−y₁|", "√[(x₂+x₁)²+(y₂+y₁)²]"], answer: "√[(x₂−x₁)²+(y₂−y₁)²]", explanation: "The correct answer is √[(x₂−x₁)²+(y₂−y₁)²]. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "√[(x₂−x₁)²+(y₂−y₁)²]" , isCompetencyBased: false,
+  { id: "CG-E18", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance formula between two points (x₁, y₁) and (x₂, y₂) is:", options: ["√[(x₂−x₁)²+(y₂−y₁)²]", "(x₂−x₁)²+(y₂−y₁)²", "|x₂−x₁|+|y₂−y₁|", "√[(x₂+x₁)²+(y₂+y₁)²]"], answer: "√[(x₂−x₁)²+(y₂−y₁)²]", explanation: "The correct answer is √[(x₂−x₁)²+(y₂−y₁)²]. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "√[(x₂−x₁)²+(y₂−y₁)²]" , isCompetencyBased: false,
     solutionSteps: [
       "State the distance formula: d = sqrt[(x2-x1)^2 + (y2-y1)^2].",
       "Substitute the given coordinates into the formula and calculate the value.",
       "Simplify the result to find the distance and choose the correct option.",
     ],
   },
-  { id: "CG-E19", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the coordinates of the point which divides the join of (−1, 7) and (4, −3) in the ratio 2:3.", solutionSteps: [
+  { id: "CG-E19", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the coordinates of the point which divides the join of (−1, 7) and (4, −3) in the ratio 2:3.", solutionSteps: [
       "x = (2×4+3×(−1))/5 = 5/5 = 1 [1]",
       "y = (2×(−3)+3×7)/5 = 15/5 = 3 [1]",
     ], finalAnswer: "(1, 3)" , isCompetencyBased: true },
-  { id: "CG-M01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the point on the y-axis which is equidistant from the points A(6, 5) and B(−4, 3).", solutionSteps: [
+  { id: "CG-M01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the point on the y-axis which is equidistant from the points A(6, 5) and B(−4, 3).", solutionSteps: [
       "Let point be (0, y); (6²+(y−5)²) = (4²+(y−3)²) [1]",
       "36+y²−10y+25 = 16+y²−6y+9 [1]",
       "61−10y = 25−6y → −4y = −36 → y = 9 [1]",
     ], finalAnswer: "(0, 9)" , isCompetencyBased: true },
-  { id: "CG-M02", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If A(1, 2), B(4, 3) and C(6, 6) are three vertices of a parallelogram ABCD, find the coordinates of D.", solutionSteps: [
+  { id: "CG-M02", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If A(1, 2), B(4, 3) and C(6, 6) are three vertices of a parallelogram ABCD, find the coordinates of D.", solutionSteps: [
       "In a parallelogram, midpoint of AC = midpoint of BD; Mid AC = ((1+6)/2, (2+6)/2) = (7/2, 4) [1]",
       "Mid BD = ((4+x)/2, (3+y)/2) = (7/2, 4) [1]",
       "4+x = 7 → x = 3, 3+y = 8 → y = 5 [1]",
     ], finalAnswer: "D(3, 5)" , isCompetencyBased: true },
-  { id: "CG-M04", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Prove that the points (−3, 0), (1, −3) and (4, 1) are vertices of an isosceles right triangle.", solutionSteps: [
+  { id: "CG-M04", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Prove that the points (−3, 0), (1, −3) and (4, 1) are vertices of an isosceles right triangle.", solutionSteps: [
       "Plot: Mark the three points A(−3, 0), B(1, −3) and C(4, 1) on a coordinate grid. This visual helps identify whether the triangle is isosceles and right-angled.; AB² = (1+3)²+(−3)² = 16+9 = 25 [1]",
       "BC² = (4−1)²+(1+3)² = 9+16 = 25; AC² = (4+3)²+(1)² = 49+1 = 50 [1]",
       "AB = BC = 5 (isosceles); AB²+BC² = 50 = AC² (right angle at B) ✓ [1]",
     ], finalAnswer: "Isosceles right triangle (proved)" , visualExplainerId: "maths-coordinate-geometry-distance-formula", isCompetencyBased: true },
-  { id: "CG-M05", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The point (−2, 4) divides the line segment joining (−4, 6) and (2, 0) in the ratio 1:2.\nReason (R): Section formula: P = ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["x = (1×2+2×(−4))/3 = −6/3 = −2 ✓", "y = (1×0+2×6)/3 = 12/3 = 4 ✓"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
-  { id: "CG-M07", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Name the type of quadrilateral formed by the points (−1, −2), (1, 0), (−1, 2) and (−3, 0).", solutionSteps: [
+  { id: "CG-M05", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The point (−2, 4) divides the line segment joining (−4, 6) and (2, 0) in the ratio 1:2.\nReason (R): Section formula: P = ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["x = (1×2+2×(−4))/3 = −6/3 = −2 ✓", "y = (1×0+2×6)/3 = 12/3 = 4 ✓"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
+  { id: "CG-M07", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Name the type of quadrilateral formed by the points (−1, −2), (1, 0), (−1, 2) and (−3, 0).", solutionSteps: [
       "AB = √(4+4) = 2√2, BC = √(4+4) = 2√2, CD = √(4+4) = 2√2, DA = √(4+4) = 2√2 [½]",
       "All sides equal. AC = √(0+16) = 4, BD = √(16+0) = 4 [½]",
       "Diagonals equal → Square [1]",
     ], finalAnswer: "Square" , isCompetencyBased: true },
-  { id: "CG-M08", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the ratio in which the line 2x + y − 4 = 0 divides the line segment joining A(2, −2) and B(3, 7).", solutionSteps: [
+  { id: "CG-M08", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the ratio in which the line 2x + y − 4 = 0 divides the line segment joining A(2, −2) and B(3, 7).", solutionSteps: [
       "Let ratio = k:1. Point = ((3k+2)/(k+1), (7k−2)/(k+1)); Substitute in 2x+y−4=0: [1]",
       "2(3k+2)/(k+1) + (7k−2)/(k+1) − 4 = 0 [1]",
       "6k+4+7k−2−4k−4 = 0 → 9k−2 = 0 → k = 2/9 [1]",
     ], finalAnswer: "2:9" , isCompetencyBased: true },
-  { id: "CG-M10", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If A(5, 1), B(1, 5) and C(−3, −1) are vertices of △ABC, find the length of the median from A.", solutionSteps: [
+  { id: "CG-M10", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If A(5, 1), B(1, 5) and C(−3, −1) are vertices of △ABC, find the length of the median from A.", solutionSteps: [
       "Find the midpoint D of BC. D = ((1-3)/2, (5-1)/2) = (-1, 2). [1]",
       "Use the distance formula for AD, where A=(5,1) and D=(-1,2). [1]",
       "Length AD = √((5 - (-1))^2 + (1 - 2)^2) = √(6^2 + (-1)^2) = √37 units. [1]",
     ], finalAnswer: "√37" , isCompetencyBased: true },
-  { id: "CG-M11", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the points of trisection of the line segment joining (4, −1) and (−2, −3).", solutionSteps: [
+  { id: "CG-M11", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the points of trisection of the line segment joining (4, −1) and (−2, −3).", solutionSteps: [
       "P divides in 1:2: P = ((−2+8)/3, (−3−2)/3) = (2, −5/3) [1]",
       "Q divides in 2:1: Q = ((−4+4)/3, (−6−1)/3) = (0, −7/3) [1]",
     ], finalAnswer: "(2, −5/3) and (0, −7/3)" , isCompetencyBased: true },
-  { id: "CG-M12", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the point (x, y) is equidistant from (7, 1) and (3, 5), then:", options: ["x − y = 2", "x + y = 2", "x − y = −2", "2x − y = 0"], answer: "x − y = 2", explanation: "(x−7)²+(y−1)² = (x−3)²+(y−5)². −14x+49−2y+1 = −6x+9−10y+25. −8x+8y = −16 → x−y = 2. Therefore, the correct answer is x − y = 2.", solutionSteps: ["(x−7)²+(y−1)² = (x−3)²+(y−5)²", "−14x+49−2y+1 = −6x+9−10y+25", "−8x+8y = −16 → x−y = 2"], finalAnswer: "x − y = 2" , isCompetencyBased: true },
-  { id: "CG-M14", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Show that the points (1, 7), (4, 2), (−1, −1) and (−4, 4) are vertices of a square.", solutionSteps: [
+  { id: "CG-M12", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the point (x, y) is equidistant from (7, 1) and (3, 5), then:", options: ["x − y = 2", "x + y = 2", "x − y = −2", "2x − y = 0"], answer: "x − y = 2", explanation: "(x−7)²+(y−1)² = (x−3)²+(y−5)². −14x+49−2y+1 = −6x+9−10y+25. −8x+8y = −16 → x−y = 2. Therefore, the correct answer is x − y = 2.", solutionSteps: ["(x−7)²+(y−1)² = (x−3)²+(y−5)²", "−14x+49−2y+1 = −6x+9−10y+25", "−8x+8y = −16 → x−y = 2"], finalAnswer: "x − y = 2" , isCompetencyBased: true },
+  { id: "CG-M14", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Show that the points (1, 7), (4, 2), (−1, −1) and (−4, 4) are vertices of a square.", solutionSteps: [
       "AB = √(9+25) = √34; BC = √(25+9) = √34 [1]",
       "CD = √(9+25) = √34; DA = √(25+9) = √34 [1]",
       "AC = √(4+64) = √68, BD = √(64+4) = √68; All sides equal, diagonals equal → Square [1]",
     ], finalAnswer: "Square (proved)" , isCompetencyBased: true },
-  { id: "CG-M15", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Three friends are seated at A(−2, −3), B(4, 1) and C(2, 5) in a triangular seating arrangement.\n(i) Find AB, BC and CA.\n(ii) Is the triangle equilateral, isosceles or scalene?\n(iii) Find the centroid of △ABC.\n(iv) Find the midpoint of the longest side.", solutionSteps: [
+  { id: "CG-M15", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Three friends are seated at A(−2, −3), B(4, 1) and C(2, 5) in a triangular seating arrangement.\n(i) Find AB, BC and CA.\n(ii) Is the triangle equilateral, isosceles or scalene?\n(iii) Find the centroid of △ABC.\n(iv) Find the midpoint of the longest side.", solutionSteps: [
       "(i) AB = √(36+16) = √52, BC = √(4+16) = √20, CA = √(16+64) = √80 [1]",
       "(ii) All different → Scalene [1]",
       "(iii) G = ((−2+4+2)/3, (−3+1+5)/3) = (4/3, 1) [1]",
       "(iv) Longest = CA. Midpoint = ((−2+2)/2, (−3+5)/2) = (0, 1) [1]",
     ], finalAnswer: "(i) √52, √20, √80 (ii) Scalene (iii) (4/3, 1) (iv) (0, 1)" , isCompetencyBased: true },
-  { id: "CG-M16", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find a relation between x and y such that the point (x, y) is equidistant from (3, 6) and (−3, 4).", solutionSteps: [
+  { id: "CG-M16", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find a relation between x and y such that the point (x, y) is equidistant from (3, 6) and (−3, 4).", solutionSteps: [
       "(x−3)²+(y−6)² = (x+3)²+(y−4)² [½]",
       "−6x+9−12y+36 = 6x+9−8y+16 [½]",
       "−12x−4y+20 = 0 → 3x+y = 5 [1]",
     ], finalAnswer: "3x + y = 5" , isCompetencyBased: true },
-  { id: "CG-M17", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In what ratio does the point (−4, 6) divide the line segment joining A(−6, 10) and B(3, −8)?", solutionSteps: [
+  { id: "CG-M17", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In what ratio does the point (−4, 6) divide the line segment joining A(−6, 10) and B(3, −8)?", solutionSteps: [
       "Let ratio = k:1 [1]",
       "−4 = (3k−6)/(k+1) → −4k−4 = 3k−6 → 7k = 2 → k = 2/7 [1]",
     ], finalAnswer: "2:7" , isCompetencyBased: true },
-  { id: "CG-M18", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If (1, 2), (4, y), (x, 6) and (3, 5) are vertices of a parallelogram taken in order, then (x, y) =", options: ["(6, 3)", "(3, 6)", "(5, 4)", "(2, 5)"], answer: "(6, 3)", explanation: "Midpoint of diagonals must be equal. ((1+x)/2, (2+6)/2) = ((4+3)/2, (y+5)/2). 1+x = 7 → x=6, 8 = y+5 → y=3. Therefore, the correct answer is (6, 3).", solutionSteps: ["Midpoint of diagonals must be equal", "((1+x)/2, (2+6)/2) = ((4+3)/2, (y+5)/2)", "1+x = 7 → x=6, 8 = y+5 → y=3"], finalAnswer: "(6, 3)" , isCompetencyBased: true },
-  { id: "CG-M19", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the distances of P(x, y) from A(5, 1) and B(−1, 5) are equal, find 3x = 2y.", solutionSteps: [
+  { id: "CG-M18", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If (1, 2), (4, y), (x, 6) and (3, 5) are vertices of a parallelogram taken in order, then (x, y) =", options: ["(6, 3)", "(3, 6)", "(5, 4)", "(2, 5)"], answer: "(6, 3)", explanation: "Midpoint of diagonals must be equal. ((1+x)/2, (2+6)/2) = ((4+3)/2, (y+5)/2). 1+x = 7 → x=6, 8 = y+5 → y=3. Therefore, the correct answer is (6, 3).", solutionSteps: ["Midpoint of diagonals must be equal", "((1+x)/2, (2+6)/2) = ((4+3)/2, (y+5)/2)", "1+x = 7 → x=6, 8 = y+5 → y=3"], finalAnswer: "(6, 3)" , isCompetencyBased: true },
+  { id: "CG-M19", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the distances of P(x, y) from A(5, 1) and B(−1, 5) are equal, find 3x = 2y.", solutionSteps: [
       "(x−5)²+(y−1)² = (x+1)²+(y−5)² [1]",
       "−10x+25−2y+1 = 2x+1−10y+25 [1]",
       "−12x+8y = 0 → 3x = 2y [1]",
     ], finalAnswer: "3x = 2y (proved)" , isCompetencyBased: true },
-  { id: "CG-H01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the coordinates of a point A, where AB is the diameter of a circle with centre (2, −3) and B is (1, 4).", solutionSteps: [
+  { id: "CG-H01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the coordinates of a point A, where AB is the diameter of a circle with centre (2, −3) and B is (1, 4).", solutionSteps: [
       "Let A be (x, y). The center (2, -3) is the midpoint of the diameter AB. [1]",
       "Using the midpoint formula: (x+1)/2 = 2 and (y+4)/2 = -3. [1]",
       "Solving for x and y: x+1=4 => x=3; y+4=-6 => y=-10. So A is (3, -10). [1]",
     ], finalAnswer: "A(3, −10)" , isCompetencyBased: true },
-  { id: "CG-H03", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If the point P(k, 0) divides the line segment joining A(2, −2) and B(−7, 4) in the ratio 1:2, find the point P and the value of k.", solutionSteps: [
+  { id: "CG-H03", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If the point P(k, 0) divides the line segment joining A(2, −2) and B(−7, 4) in the ratio 1:2, find the point P and the value of k.", solutionSteps: [
       "Using section formula for ratio 1:2 internally:; x = (1×(−7) + 2×2)/(1+2) = (−7+4)/3 = −1 [1]",
       "y = (1×4 + 2×(−2))/(1+2) = (4−4)/3 = 0 [1]",
       "Since P = (k, 0), k = −1 [1]",
     ], finalAnswer: "P(−1, 0), k = −1" , isCompetencyBased: true },
-  { id: "CG-H05", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "A(3, 2) and B(−2, 1) are two vertices of a triangle ABC whose centroid G has coordinates (5/3, −1/3). Find the coordinates of C.", solutionSteps: [
+  { id: "CG-H05", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "A(3, 2) and B(−2, 1) are two vertices of a triangle ABC whose centroid G has coordinates (5/3, −1/3). Find the coordinates of C.", solutionSteps: [
       "((3−2+x)/3, (2+1+y)/3) = (5/3, −1/3) [1]",
       "1+x = 5 → x = 4 [1]",
       "3+y = −1 → y = −4 [1]",
     ], finalAnswer: "C(4, −4)" , isCompetencyBased: true },
-  { id: "CG-H07", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The two opposite vertices of a square are (−1, 2) and (3, 2). Find the coordinates of the other two vertices.", solutionSteps: [
+  { id: "CG-H07", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The two opposite vertices of a square are (−1, 2) and (3, 2). Find the coordinates of the other two vertices.", solutionSteps: [
       "Centre = midpoint = (1, 2); Side of square: diagonal = √(16+0) = 4, side = 4/√2 = 2√2 [1]",
       "Other vertices are perpendicular to diagonal at midpoint [1]",
       "Since diagonal is horizontal, other vertices are at (1, 2±2) = (1, 4) and (1, 0) [1]",
     ], finalAnswer: "(1, 4) and (1, 0)" , isCompetencyBased: true },
-  { id: "CG-H08", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In what ratio does the line x − y − 2 = 0 divide the line segment joining (3, −1) and (8, 9)?", solutionSteps: [
+  { id: "CG-H08", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In what ratio does the line x − y − 2 = 0 divide the line segment joining (3, −1) and (8, 9)?", solutionSteps: [
       "Let ratio = k:1; P = ((8k+3)/(k+1), (9k−1)/(k+1)) [1]",
       "Substitute in x−y−2 = 0: [1]",
       "(8k+3)/(k+1) − (9k−1)/(k+1) − 2 = 0 [1]",
       "8k+3−9k+1−2k−2 = 0 [1]",
       "−3k+2 = 0 → k = 2/3 [1]",
     ], finalAnswer: "2:3" , isCompetencyBased: true },
-  { id: "CG-H10", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the circumcentre of the triangle with vertices (0, 0), (−4, 0) and (0, 6).", solutionSteps: [
+  { id: "CG-H10", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the circumcentre of the triangle with vertices (0, 0), (−4, 0) and (0, 6).", solutionSteps: [
       "The triangle is right-angled at the origin (legs along axes); Circumcentre is the midpoint of the hypotenuse [1]",
       "Hypotenuse from (−4, 0) to (0, 6) [1]",
       "Circumcentre = (−2, 3) [1]",
     ], finalAnswer: "(−2, 3)" , isCompetencyBased: true },
-  { id: "CG-H11", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If the points A(6, 1), B(8, 2), C(9, 4) and D(p, 3) are the vertices of a parallelogram, taken in order, find p.", solutionSteps: [
+  { id: "CG-H11", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If the points A(6, 1), B(8, 2), C(9, 4) and D(p, 3) are the vertices of a parallelogram, taken in order, find p.", solutionSteps: [
       "Mid AC = Mid BD; ((6+9)/2, (1+4)/2) = ((8+p)/2, (2+3)/2) [1]",
       "(15/2, 5/2) = ((8+p)/2, 5/2) [1]",
       "8+p = 15 → p = 7 [1]",
     ], finalAnswer: "p = 7" , isCompetencyBased: true },
-  { id: "CG-H13", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "If A(−2, 1), B(a, 0), C(4, b) and D(1, 2) are the vertices of a parallelogram ABCD, find a and b.", solutionSteps: [
+  { id: "CG-H13", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "If A(−2, 1), B(a, 0), C(4, b) and D(1, 2) are the vertices of a parallelogram ABCD, find a and b.", solutionSteps: [
       "Mid AC = Mid BD: ((−2+4)/2, (1+b)/2) = ((a+1)/2, (0+2)/2); (1, (1+b)/2) = ((a+1)/2, 1) [1]",
       "a+1 = 2 → a = 1 [1]",
       "1+b = 2 → b = 1 [1]",
     ], finalAnswer: "a = 1, b = 1" , isCompetencyBased: true },
-  { id: "CG-H14", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A flag is placed at each corner of a triangular park at A(2, 3), B(8, 5) and C(4, 9). A pole is to be placed at P such that PA = PB = PC.\n(i) What is P called?\n(ii) Write two equations using PA² = PB² and PB² = PC².\n(iii) Solve for P.\n(iv) Find PA.", solutionSteps: [
+  { id: "CG-H14", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A flag is placed at each corner of a triangular park at A(2, 3), B(8, 5) and C(4, 9). A pole is to be placed at P such that PA = PB = PC.\n(i) What is P called?\n(ii) Write two equations using PA² = PB² and PB² = PC².\n(iii) Solve for P.\n(iv) Find PA.", solutionSteps: [
       "(i) Circumcentre; (ii) (x−2)²+(y−3)² = (x−8)²+(y−5)²: 12x+4y = 76 → 3x+y = 19 [1]",
       "(x−8)²+(y−5)² = (x−4)²+(y−9)²: −8x+8y = 72 → −x+y = 9 [1]",
       "(iii) From 3x+y=19 and −x+y=9: 4x=10 → x=5/2, y=23/2 [1]",
       "(iv) PA = √((5/2−2)²+(23/2−3)²) = √(1/4+289/4) = √(290/4) = √290/2 [1]",
     ], finalAnswer: "(i) Circumcentre (ii) 3x+y=19, −x+y=9 (iii) (5/2, 23/2) (iv) √290/2" , isCompetencyBased: true },
-  { id: "CG-CB01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A school corridor runs in a straight line from gate A(1, 3) to the main building B(9, 7). The school plans to place benches and a water fountain along this corridor.\n(i) Find the coordinates of the midpoint M of AB.\n(ii) A bench is placed at point P that divides AB in ratio 3:1. Find the coordinates of P.\n(iii) Find the distance AP.\n(iv) Is the bench closer to A or to B? Justify.", solutionSteps: [
+  { id: "CG-CB01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A school corridor runs in a straight line from gate A(1, 3) to the main building B(9, 7). The school plans to place benches and a water fountain along this corridor.\n(i) Find the coordinates of the midpoint M of AB.\n(ii) A bench is placed at point P that divides AB in ratio 3:1. Find the coordinates of P.\n(iii) Find the distance AP.\n(iv) Is the bench closer to A or to B? Justify.", solutionSteps: [
       "(i) M = ((1+9)/2, (3+7)/2) = (5, 5) [1]",
       "(ii) P divides AB in 3:1: x = (3×9+1×1)/4 = 28/4 = 7, y = (3×7+1×3)/4 = 24/4 = 6. So P(7, 6). [1]",
       "(iii) AP = √((7−1)²+(6−3)²) = √(36+9) = √45 = 3√5 [1]",
       "(iv) AB = √((9−1)²+(7−3)²) = √(64+16) = √80 = 4√5. PB = AB − AP = √5. Since AP = 3√5 > PB = √5, the bench is closer to B. [1]",
     ], finalAnswer: "(i) (5,5) (ii) (7,6) (iii) 3√5 (iv) Closer to B, since PB = √5 < AP = 3√5", ncertRef: "Ex 7.2, Ex 7.3", isCompetencyBased: true },
-  { id: "CG-CB02", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A GPS application maps two delivery hubs at A(−3, 2) and B(5, 6). A warehouse W divides AB in the ratio 1:3, and a sorting centre S divides AB in the ratio 3:1.\n(i) Find the coordinates of W.\n(ii) Find the coordinates of S.\n(iii) Find the distance WS.\n(iv) Verify that W, M (midpoint of AB) and S are collinear.", solutionSteps: [
+  { id: "CG-CB02", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A GPS application maps two delivery hubs at A(−3, 2) and B(5, 6). A warehouse W divides AB in the ratio 1:3, and a sorting centre S divides AB in the ratio 3:1.\n(i) Find the coordinates of W.\n(ii) Find the coordinates of S.\n(iii) Find the distance WS.\n(iv) Verify that W, M (midpoint of AB) and S are collinear.", solutionSteps: [
       "(i) W divides AB in 1:3: x = (1×5+3×(−3))/4 = (5−9)/4 = −1, y = (1×6+3×2)/4 = 12/4 = 3. W(−1, 3). [1]",
       "(ii) S divides AB in 3:1: x = (3×5+1×(−3))/4 = 12/4 = 3, y = (3×6+1×2)/4 = 20/4 = 5. S(3, 5). [1]",
       "(iii) WS = √((3−(−1))²+(5−3)²) = √(16+4) = √20 = 2√5. [1]",
       "(iv) M = ((−3+5)/2, (2+6)/2) = (1, 4). Slope WM = (4−3)/(1−(−1)) = 1/2. Slope MS = (5−4)/(3−1) = 1/2. Equal slopes → W, M, S are collinear. ✓ [1]",
     ], finalAnswer: "(i) W(−1,3) (ii) S(3,5) (iii) 2√5 (iv) Both slopes = 1/2, hence collinear", ncertRef: "Ex 7.2, Ex 7.3", isCompetencyBased: true },
-  { id: "CG-L01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Three recreational zones in a township are located at P(−2, 4), Q(4, 4) and R(1, −2).\n(i) Compute PQ, QR and PR.\n(ii) Classify △PQR as equilateral, isosceles or scalene.\n(iii) Find the perimeter of △PQR.\n(iv) Find the coordinates of the centroid G of △PQR.\n(v) Verify that G lies on the median from P to the midpoint of QR.", solutionSteps: [
+  { id: "CG-L01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Three recreational zones in a township are located at P(−2, 4), Q(4, 4) and R(1, −2).\n(i) Compute PQ, QR and PR.\n(ii) Classify △PQR as equilateral, isosceles or scalene.\n(iii) Find the perimeter of △PQR.\n(iv) Find the coordinates of the centroid G of △PQR.\n(v) Verify that G lies on the median from P to the midpoint of QR.", solutionSteps: [
       "(i) PQ = √((4−(−2))²+(4−4)²) = √36 = 6. QR = √((1−4)²+(−2−4)²) = √(9+36) = √45 = 3√5. PR = √((1−(−2))²+(−2−4)²) = √(9+36) = √45 = 3√5. [1]",
       "(ii) QR = PR = 3√5 and PQ = 6. Two sides equal → Isosceles. [1]",
       "(iii) Perimeter = 6 + 3√5 + 3√5 = 6 + 6√5. [1]",
       "(iv) G = ((−2+4+1)/3, (4+4−2)/3) = (3/3, 6/3) = (1, 2). [1]",
       "(v) Midpoint of QR: M = ((4+1)/2, (4+(−2))/2) = (5/2, 1). G divides median PM in ratio 2:1 from P: Gx = (2×(5/2)+1×(−2))/(2+1) = (5−2)/3 = 1 ✓. Gy = (2×1+1×4)/3 = 6/3 = 2 ✓. G lies on the median. [1]",
     ], finalAnswer: "(i) PQ=6, QR=PR=3√5 (ii) Isosceles (iii) 6+6√5 (iv) G(1,2) (v) Verified", ncertRef: "Ex 7.1", isCompetencyBased: true },
-  { id: "CG-N01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between points (3, 4) and (0, 0) is:", options: ["5 units","7 units","4 units","3 units"], answer: "5 units", explanation: "The correct answer is 5 units. d = √(3² + 4²) = √25 = 5 units.", finalAnswer: "d = √(3² + 4²) = √25 = 5 units.", isCompetencyBased: false,
+  { id: "CG-N01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between points (3, 4) and (0, 0) is:", options: ["5 units","7 units","4 units","3 units"], answer: "5 units", explanation: "The correct answer is 5 units. d = √(3² + 4²) = √25 = 5 units.", finalAnswer: "d = √(3² + 4²) = √25 = 5 units.", isCompetencyBased: false,
     solutionSteps: [
       "State the distance formula: d = sqrt[(x2-x1)^2 + (y2-y1)^2].",
       "Substitute the given coordinates into the formula and calculate the value.",
       "Simplify the result to find the distance and choose the correct option.",
     ],
   },
-  { id: "CG-N02", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The midpoint of the segment joining (2, 6) and (8, 4) is:", options: ["(5, 5)","(6, 5)","(4, 5)","(5, 4)"], answer: "(5, 5)", explanation: "The correct answer is (5, 5). Midpoint = ((2+8)/2, (6+4)/2) = (5, 5).", finalAnswer: "Midpoint = ((2+8)/2, (6+4)/2) = (5, 5).", isCompetencyBased: false,
+  { id: "CG-N02", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The midpoint of the segment joining (2, 6) and (8, 4) is:", options: ["(5, 5)","(6, 5)","(4, 5)","(5, 4)"], answer: "(5, 5)", explanation: "The correct answer is (5, 5). Midpoint = ((2+8)/2, (6+4)/2) = (5, 5).", finalAnswer: "Midpoint = ((2+8)/2, (6+4)/2) = (5, 5).", isCompetencyBased: false,
     solutionSteps: [
       "State the section formula: P(x,y) = ((mx2+nx1)/(m+n), (my2+ny1)/(m+n)).",
       "Substitute the given coordinates of the points and the ratio into the formula.",
       "Calculate the coordinates of the point and choose the correct option.",
     ],
   },
-  { id: "CG-N03", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Points A(1, 2), B(4, 6), C(5, 7) are collinear if AB + BC equals:", options: ["AC","AB","BC","AB − BC"], answer: "AC", explanation: "The correct answer is AC. Three points are collinear when the sum of two distances equals the third: AB + BC = AC.", finalAnswer: "Three points are collinear when the sum of two distances equals the third: AB + BC = AC.", isCompetencyBased: false,
+  { id: "CG-N03", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Points A(1, 2), B(4, 6), C(5, 7) are collinear if AB + BC equals:", options: ["AC","AB","BC","AB − BC"], answer: "AC", explanation: "The correct answer is AC. Three points are collinear when the sum of two distances equals the third: AB + BC = AC.", finalAnswer: "Three points are collinear when the sum of two distances equals the third: AB + BC = AC.", isCompetencyBased: false,
     solutionSteps: [
       "Apply the distance formula: d = sqrt((x2-x1)^2 + (y2-y1)^2).",
       "Substitute the points (2,3) and (4,1): d = sqrt((4-2)^2 + (1-3)^2) = sqrt(2^2 + (-2)^2).",
       "Calculate d = sqrt(4+4) = sqrt(8) = 2sqrt(2). Therefore, option (B) is correct.",
     ],
   },
-  { id: "CG-N04", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A point P divides the segment joining A(1, 1) and B(7, 4) in ratio 2:1 internally. The coordinates of P are:", options: ["(5, 3)","(3, 2)","(4, 3)","(5, 2)"], answer: "(5, 3)", explanation: "The correct answer is (5, 3). P = ((2×7+1×1)/3, (2×4+1×1)/3) = (15/3, 9/3) = (5, 3).", finalAnswer: "P = ((2×7+1×1)/3, (2×4+1×1)/3) = (15/3, 9/3) = (5, 3).", isCompetencyBased: false,
+  { id: "CG-N04", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A point P divides the segment joining A(1, 1) and B(7, 4) in ratio 2:1 internally. The coordinates of P are:", options: ["(5, 3)","(3, 2)","(4, 3)","(5, 2)"], answer: "(5, 3)", explanation: "The correct answer is (5, 3). P = ((2×7+1×1)/3, (2×4+1×1)/3) = (15/3, 9/3) = (5, 3).", finalAnswer: "P = ((2×7+1×1)/3, (2×4+1×1)/3) = (15/3, 9/3) = (5, 3).", isCompetencyBased: false,
     solutionSteps: [
       "Apply the section formula for internal division: P(x,y) = ((m1x2 + m2x1)/(m1+m2), (m1y2 + m2y1)/(m1+m2)).",
       "Substitute (x1,y1)=(1,-3), (x2,y2)=(4,6), m1=1, m2=2 into the formula.",
@@ -212,7 +212,7 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "The coordinates are (2,0). Therefore, option (A) is correct.",
     ],
   },
-  { id: "CG-N05", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Area of Triangle", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of the triangle with vertices (0,0), (4,0) and (0,3) is:", options: ["6 sq units","12 sq units","7 sq units","3.5 sq units"], answer: "6 sq units", explanation: "The correct answer is 6 sq units. Area = ½|base × height| = ½ × 4 × 3 = 6 sq units.", finalAnswer: "Area = ½|base × height| = ½ × 4 × 3 = 6 sq units.", isCompetencyBased: false,
+  { id: "CG-N05", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Area of Triangle", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of the triangle with vertices (0,0), (4,0) and (0,3) is:", options: ["6 sq units","12 sq units","7 sq units","3.5 sq units"], answer: "6 sq units", explanation: "The correct answer is 6 sq units. Area = ½|base × height| = ½ × 4 × 3 = 6 sq units.", finalAnswer: "Area = ½|base × height| = ½ × 4 × 3 = 6 sq units.", isCompetencyBased: false,
     solutionSteps: [
       "Apply the area of triangle formula: Area = 1/2 |x1(y2-y3) + x2(y3-y1) + x3(y1-y2)|.",
       "Substitute vertices (1,-1), (-4,6), (-3,-5) into the formula.",
@@ -221,7 +221,7 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "The area is 24 sq units. Therefore, option (A) is correct.",
     ],
   },
-  { id: "CG-N06", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is equidistant from A(1, 0) and B(5, 0)?", options: ["(3, 0)","(2, 0)","(4, 0)","(1, 5)"], answer: "(3, 0)", explanation: "The correct answer is (3, 0). The perpendicular bisector of AB passes through midpoint ((1+5)/2, 0) = (3, 0).", finalAnswer: "The perpendicular bisector of AB passes through midpoint ((1+5)/2, 0) = (3, 0).", isCompetencyBased: false,
+  { id: "CG-N06", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is equidistant from A(1, 0) and B(5, 0)?", options: ["(3, 0)","(2, 0)","(4, 0)","(1, 5)"], answer: "(3, 0)", explanation: "The correct answer is (3, 0). The perpendicular bisector of AB passes through midpoint ((1+5)/2, 0) = (3, 0).", finalAnswer: "The perpendicular bisector of AB passes through midpoint ((1+5)/2, 0) = (3, 0).", isCompetencyBased: false,
     solutionSteps: [
       "Identify the coordinates of the given point P(3, -4) and the origin O(0, 0).",
       "Apply the distance formula: d = sqrt[(x2-x1)^2 + (y2-y1)^2].",
@@ -230,14 +230,14 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
       "The distance of point P(3, -4) from the origin is 5 units.",
     ],
   },
-  { id: "CG-ND01", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A(2, −2) and B(−7, 4) are two points. P divides AB in ratio 1:2. Q divides AB in ratio 2:1. Find the coordinates of P and Q, and verify that the midpoint of PQ equals the midpoint of AB.", solutionSteps: [
+  { id: "CG-ND01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A(2, −2) and B(−7, 4) are two points. P divides AB in ratio 1:2. Q divides AB in ratio 2:1. Find the coordinates of P and Q, and verify that the midpoint of PQ equals the midpoint of AB.", solutionSteps: [
       "P (1:2 from A): P = ((1×(−7)+2×2)/(1+2), (1×4+2×(−2))/(1+2)) = ((−7+4)/3, (4−4)/3) = (−1, 0) [1]",
       "Q (2:1 from A): Q = ((2×(−7)+1×2)/3, (2×4+1×(−2))/3) = ((−14+2)/3, (8−2)/3) = (−4, 2) [1]",
       "Midpoint of PQ = ((−1+(−4))/2, (0+2)/2) = (−5/2, 1) [1]",
       "Midpoint of AB = ((2+(−7))/2, (−2+4)/2) = (−5/2, 1) ✓ [1]",
       "Both midpoints are (−5/2, 1), verifying the result. [1]",
     ], answer: "P = (−1, 0), Q = (−4, 2); midpoint of PQ = midpoint of AB = (−5/2, 1).", explanation: "See solution steps for full working.", finalAnswer: "P = (−1, 0), Q = (−4, 2); midpoint of PQ = midpoint of AB = (−5/2, 1).", isCompetencyBased: true },
-  { id: "CG-ND02", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Area of Triangle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Using coordinate geometry, show that the points A(1, 2), B(3, 6), and C(5, 10) are collinear. Then find the ratio in which B divides AC.", solutionSteps: [
+  { id: "CG-ND02", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Area of Triangle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Using coordinate geometry, show that the points A(1, 2), B(3, 6), and C(5, 10) are collinear. Then find the ratio in which B divides AC.", solutionSteps: [
       "Area of △ABC = ½ |x_A(y_B − y_C) + x_B(y_C − y_A) + x_C(y_A − y_B)|; = ½ |1(6−10) + 3(10−2) + 5(2−6)| [1]",
       "= ½ |1(−4) + 3(8) + 5(−4)|; = ½ |−4 + 24 − 20| = ½ × 0 = 0 [1]",
       "Since area = 0, A, B, C are collinear. ✓; B divides AC: using section formula, if B = (3, 6) divides A(1,2) to C(5,10) in ratio k:1 [1]",

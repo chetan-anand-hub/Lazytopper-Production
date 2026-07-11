@@ -4,7 +4,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-001",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-002",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "A",
     "marks": 1,
@@ -64,7 +64,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-003",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Impossible and Sure Events",
     "section": "A",
     "marks": 1,
@@ -94,7 +94,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-004",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -125,7 +125,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-005",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "A",
     "marks": 1,
@@ -155,7 +155,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-006",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -180,7 +180,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-007",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "B",
     "marks": 2,
@@ -205,7 +205,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-008",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -236,7 +236,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-009",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -267,7 +267,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-010",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Impossible and Sure Events",
     "section": "B",
     "marks": 2,
@@ -292,7 +292,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-011",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -317,7 +317,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-012",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "B",
     "marks": 2,
@@ -342,7 +342,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-013",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -372,7 +372,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-014",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -398,7 +398,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-015",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -429,7 +429,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-016",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "C",
     "marks": 3,
@@ -460,7 +460,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-017",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -491,7 +491,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-018",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "D",
     "marks": 5,
@@ -517,7 +517,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-019",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "E",
     "marks": 4,
@@ -545,7 +545,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-020",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "E",
     "marks": 4,
@@ -573,7 +573,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-021",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "D",
     "marks": 5,
@@ -604,7 +604,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-022",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -630,7 +630,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-023",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -661,7 +661,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-024",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "A",
     "marks": 1,
@@ -691,7 +691,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-025",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Impossible and Sure Events",
     "section": "A",
     "marks": 1,
@@ -722,7 +722,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-026",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "A",
     "marks": 1,
@@ -752,7 +752,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-027",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "A",
     "marks": 1,
@@ -783,7 +783,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-028",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Impossible and Sure Events",
     "section": "A",
     "marks": 1,
@@ -813,7 +813,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-029",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -846,7 +846,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-030",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -877,7 +877,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-032",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -902,7 +902,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-033",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "B",
     "marks": 2,
@@ -927,7 +927,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-034",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "B",
     "marks": 2,
@@ -958,7 +958,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-035",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Impossible and Sure Events",
     "section": "B",
     "marks": 2,
@@ -989,7 +989,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-036",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -1021,7 +1021,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-037",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -1047,7 +1047,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-038",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "C",
     "marks": 3,
@@ -1079,7 +1079,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-039",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "C",
     "marks": 3,
@@ -1104,7 +1104,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-041",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Impossible and Sure Events",
     "section": "C",
     "marks": 3,
@@ -1136,7 +1136,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-042",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "E",
     "marks": 4,
@@ -1167,7 +1167,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-043",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "D",
     "marks": 5,
@@ -1200,7 +1200,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-044",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Complementary Events",
     "section": "D",
     "marks": 5,
@@ -1235,7 +1235,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PR2-045",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Classical Probability",
     "section": "A",
     "marks": 1,
@@ -1262,21 +1262,21 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "I",
     "ncertRef": "Ex 15.1"
   },
-  { id: "PR2-046", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A die is thrown once. The probability of getting a prime number is:", options: ["1/2","1/3","2/3","1/6"], answer: "1/2", explanation: "The correct answer is 1/2. Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", finalAnswer: "Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", isCompetencyBased: false,
+  { id: "PR2-046", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A die is thrown once. The probability of getting a prime number is:", options: ["1/2","1/3","2/3","1/6"], answer: "1/2", explanation: "The correct answer is 1/2. Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", finalAnswer: "Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", isCompetencyBased: false,
     solutionSteps: [
       "Identify the total number of possible outcomes. Total balls = 3 (red) + 5 (blue) = 8.",
       "Identify the number of favorable outcomes. Number of red balls = 3.",
       "Calculate the probability: P(red ball) = (Favorable outcomes) / (Total outcomes) = 3/8.",
     ],
   },
-  { id: "PR2-047", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn from a pack of 52 cards. The probability of drawing a spade is:", options: ["1/4","1/13","1/52","3/4"], answer: "1/4", explanation: "The correct answer is 1/4. There are 13 spades in 52 cards. P = 13/52 = 1/4.", finalAnswer: "There are 13 spades in 52 cards. P = 13/52 = 1/4.", isCompetencyBased: false,
+  { id: "PR2-047", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn from a pack of 52 cards. The probability of drawing a spade is:", options: ["1/4","1/13","1/52","3/4"], answer: "1/4", explanation: "The correct answer is 1/4. There are 13 spades in 52 cards. P = 13/52 = 1/4.", finalAnswer: "There are 13 spades in 52 cards. P = 13/52 = 1/4.", isCompetencyBased: false,
     solutionSteps: [
       "List all possible outcomes when a die is thrown: {1, 2, 3, 4, 5, 6}. Total outcomes = 6.",
       "List favorable outcomes (even numbers): {2, 4, 6}. Number of favorable outcomes = 3.",
       "Calculate the probability: P(even number) = (Favorable outcomes) / (Total outcomes) = 3/6 = 1/2.",
     ],
   },
-  { id: "PR2-048", subject: "Maths", topicKey: "Probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.3, then P(Ē) is:", options: ["0.7","0.3","0","1"], answer: "0.7", explanation: "The correct answer is 0.7. P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", finalAnswer: "P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", isCompetencyBased: false,
+  { id: "PR2-048", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.3, then P(Ē) is:", options: ["0.7","0.3","0","1"], answer: "0.7", explanation: "The correct answer is 0.7. P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", finalAnswer: "P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", isCompetencyBased: false,
     solutionSteps: [
       "Let E be the event that it will rain tomorrow. Given P(E) = 0.75.",
       "The event that it will not rain tomorrow is the complementary event, E'.",
@@ -1284,46 +1284,46 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Substitute the given probability: P(E') = 1 - 0.75 = 0.25.",
     ],
   },
-  { id: "PR2-049", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two coins are tossed simultaneously. The probability of getting exactly one head is:", options: ["1/2","1/4","3/4","2/3"], answer: "1/2", explanation: "The correct answer is 1/2. Sample space: HH, HT, TH, TT. Exactly one head: HT, TH. P = 2/4 = 1/2.", finalAnswer: "Sample space: HH, HT, TH, TT. Exactly one head: HT, TH. P = 2/4 = 1/2.", isCompetencyBased: false,
+  { id: "PR2-049", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two coins are tossed simultaneously. The probability of getting exactly one head is:", options: ["1/2","1/4","3/4","2/3"], answer: "1/2", explanation: "The correct answer is 1/2. Sample space: HH, HT, TH, TT. Exactly one head: HT, TH. P = 2/4 = 1/2.", finalAnswer: "Sample space: HH, HT, TH, TT. Exactly one head: HT, TH. P = 2/4 = 1/2.", isCompetencyBased: false,
     solutionSteps: [
       "The question text is missing, so a specific solution cannot be generated.",
       "The final answer is copied verbatim from the input, which is an empty string.",
     ],
   },
-  { id: "PR2-050", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A bag contains 3 red, 5 blue, and 2 green balls. The probability of drawing a blue ball is:", options: ["1/2","1/5","5/10","3/10"], answer: "1/2", explanation: "The correct answer is 1/2. P = 5/10 = 1/2.", finalAnswer: "P = 5/10 = 1/2.", isCompetencyBased: false,
+  { id: "PR2-050", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A bag contains 3 red, 5 blue, and 2 green balls. The probability of drawing a blue ball is:", options: ["1/2","1/5","5/10","3/10"], answer: "1/2", explanation: "The correct answer is 1/2. P = 5/10 = 1/2.", finalAnswer: "P = 5/10 = 1/2.", isCompetencyBased: false,
     solutionSteps: [
       "The question text is missing, so a specific solution cannot be generated.",
       "The final answer is copied verbatim from the input, which is an empty string.",
     ],
   },
-  { id: "PR2-051", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A letter is selected at random from the word \"MATHEMATICS\". The probability of selecting a vowel is:", options: ["4/11","5/11","3/11","7/11"], answer: "4/11", explanation: "The correct answer is 4/11. MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", finalAnswer: "MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", isCompetencyBased: false,
+  { id: "PR2-051", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A letter is selected at random from the word \"MATHEMATICS\". The probability of selecting a vowel is:", options: ["4/11","5/11","3/11","7/11"], answer: "4/11", explanation: "The correct answer is 4/11. MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", finalAnswer: "MATHEMATICS has 11 letters. Vowels: A, E, A, I = 4 vowels. P = 4/11.", isCompetencyBased: false,
     solutionSteps: [
       "The question text is missing, so a specific solution cannot be generated.",
       "The final answer is copied verbatim from the input, which is an empty string.",
     ],
   },
-  { id: "PR2-052", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From a pack of 52 cards, a card is drawn. The probability that it is a king or a queen is:", options: ["2/13","1/13","4/52","8/52"], answer: "2/13", explanation: "The correct answer is 2/13. Kings: 4, Queens: 4. Total: 8. P = 8/52 = 2/13.", finalAnswer: "Kings: 4, Queens: 4. Total: 8. P = 8/52 = 2/13.", isCompetencyBased: false,
+  { id: "PR2-052", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From a pack of 52 cards, a card is drawn. The probability that it is a king or a queen is:", options: ["2/13","1/13","4/52","8/52"], answer: "2/13", explanation: "The correct answer is 2/13. Kings: 4, Queens: 4. Total: 8. P = 8/52 = 2/13.", finalAnswer: "Kings: 4, Queens: 4. Total: 8. P = 8/52 = 2/13.", isCompetencyBased: false,
     solutionSteps: [
       "Total number of cards in a pack = 52.",
       "Number of kings = 4, Number of queens = 4. So, favorable outcomes (king or queen) = 4 + 4 = 8.",
       "Probability P(King or Queen) = (Favorable outcomes) / (Total outcomes) = 8/52 = 2/13.",
     ],
   },
-  { id: "PR2-053", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two dice are thrown simultaneously. The probability of getting a sum of 7 is:", options: ["1/6","5/36","7/36","1/9"], answer: "1/6", explanation: "The correct answer is 1/6. Favorable outcomes for sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6. P = 6/36 = 1/6.", finalAnswer: "Favorable outcomes for sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6. P = 6/36 = 1/6.", isCompetencyBased: false,
+  { id: "PR2-053", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two dice are thrown simultaneously. The probability of getting a sum of 7 is:", options: ["1/6","5/36","7/36","1/9"], answer: "1/6", explanation: "The correct answer is 1/6. Favorable outcomes for sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6. P = 6/36 = 1/6.", finalAnswer: "Favorable outcomes for sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6. P = 6/36 = 1/6.", isCompetencyBased: false,
     solutionSteps: [
       "Total possible outcomes when two dice are thrown = 6 * 6 = 36.",
       "Favorable outcomes for a sum of 7 are: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). There are 6 such outcomes.",
       "Probability P(sum of 7) = (Favorable outcomes) / (Total outcomes) = 6/36 = 1/6.",
     ],
   },
-  { id: "PR2-054", subject: "Maths", topicKey: "Probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The probability of an event that is certain to happen is:", options: ["0","0.5","1",">1"], answer: "1", explanation: "The correct answer is 1. A certain event has P = 1 — it always occurs.", finalAnswer: "A certain event has P = 1 — it always occurs.", isCompetencyBased: false,
+  { id: "PR2-054", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The probability of an event that is certain to happen is:", options: ["0","0.5","1",">1"], answer: "1", explanation: "The correct answer is 1. A certain event has P = 1 — it always occurs.", finalAnswer: "A certain event has P = 1 — it always occurs.", isCompetencyBased: false,
     solutionSteps: [
       "An event that is certain to happen is called a sure event.",
       "For a sure event, the number of favorable outcomes is equal to the total number of possible outcomes.",
       "Therefore, the probability of a certain event is (Total outcomes) / (Total outcomes) = 1.",
     ],
   },
-  { id: "PR2-055", subject: "Maths", topicKey: "Probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The probability of getting a number greater than 3 when a die is thrown is 1/2.\nReason (R): Numbers greater than 3 on a die are 4, 5, 6 — which are 3 out of 6 outcomes.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "P(>3) = 3/6 = 1/2. R identifies the favorable outcomes, explaining A correctly.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "PR2-055", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The probability of getting a number greater than 3 when a die is thrown is 1/2.\nReason (R): Numbers greater than 3 on a die are 4, 5, 6 — which are 3 out of 6 outcomes.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "P(>3) = 3/6 = 1/2. R identifies the favorable outcomes, explaining A correctly.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): The probability of an event E is always between 0 and 1, inclusive. This statement is true, as 0 <= P(E) <= 1 for any event E.",
       "Reason (R): The number of favorable outcomes for an event E is always less than or equal to the total number of possible outcomes. This statement is also true, as n(E) <= n(S).",

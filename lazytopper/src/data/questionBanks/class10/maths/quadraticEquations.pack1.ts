@@ -1,56 +1,56 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
-  { id: "QE-E01", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a quadratic equation?", options: ["x³ + x = 2", "x² + 1/x = 5", "x² − 3x + 2 = 0", "x + 1 = 0"], answer: "x² − 3x + 2 = 0", explanation: "The correct answer is x² − 3x + 2 = 0. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x² − 3x + 2 = 0" , isCompetencyBased: false,
+  { id: "QE-E01", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a quadratic equation?", options: ["x³ + x = 2", "x² + 1/x = 5", "x² − 3x + 2 = 0", "x + 1 = 0"], answer: "x² − 3x + 2 = 0", explanation: "The correct answer is x² − 3x + 2 = 0. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x² − 3x + 2 = 0" , isCompetencyBased: false,
     solutionSteps: [
       "A quadratic equation is an equation of the form ax² + bx + c = 0, where a, b, c are real numbers and a ≠ 0.",
       "The given equation x² − 3x + 2 = 0 fits this standard form with a=1, b=-3, and c=2.",
       "Since the coefficient of x² is 1 (which is not zero), it is a quadratic equation.",
     ],
   },
-  { id: "QE-E02", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The roots of x² − 5x + 6 = 0 are:", options: ["2, 3", "−2, −3", "2, −3", "−2, 3"], answer: "2, 3", explanation: "(x−2)(x−3) = 0. Therefore, the correct answer is 2, 3.", solutionSteps: ["(x−2)(x−3) = 0"], finalAnswer: "2, 3" , isCompetencyBased: true },
-  { id: "QE-E03", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of ax² + bx + c = 0 is:", options: ["b² − 4ac", "b² + 4ac", "4ac − b²", "√(b² − 4ac)"], answer: "b² − 4ac", explanation: "The correct answer is b² − 4ac. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "b² − 4ac" , isCompetencyBased: false,
+  { id: "QE-E02", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The roots of x² − 5x + 6 = 0 are:", options: ["2, 3", "−2, −3", "2, −3", "−2, 3"], answer: "2, 3", explanation: "(x−2)(x−3) = 0. Therefore, the correct answer is 2, 3.", solutionSteps: ["(x−2)(x−3) = 0"], finalAnswer: "2, 3" , isCompetencyBased: true },
+  { id: "QE-E03", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of ax² + bx + c = 0 is:", options: ["b² − 4ac", "b² + 4ac", "4ac − b²", "√(b² − 4ac)"], answer: "b² − 4ac", explanation: "The correct answer is b² − 4ac. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "b² − 4ac" , isCompetencyBased: false,
     solutionSteps: [
       "For a quadratic equation in its standard form, ax² + bx + c = 0, where a ≠ 0,",
       "The discriminant, denoted by D or Δ, is a value that determines the nature of the roots.",
       "The formula for the discriminant is D = b² − 4ac.",
     ],
   },
-  { id: "QE-E04", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Real and unequal", "Real and equal", "Not real", "Rational"], answer: "Real and equal", explanation: "The correct answer is Real and equal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and equal" , isCompetencyBased: false,
+  { id: "QE-E04", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Real and unequal", "Real and equal", "Not real", "Rational"], answer: "Real and equal", explanation: "The correct answer is Real and equal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and equal" , isCompetencyBased: false,
     solutionSteps: [
       "For a quadratic equation ax² + bx + c = 0, the nature of its roots is determined by the discriminant D = b² − 4ac.",
       "If the discriminant D = 0, it indicates that the quadratic equation has two real roots that are equal to each other.",
     ],
   },
-  { id: "QE-E05", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: x² − 9 = 0", options: ["±3", "3 only", "−3 only", "±9"], answer: "±3", explanation: "The correct answer is ±3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "±3" , isCompetencyBased: true,
+  { id: "QE-E05", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: x² − 9 = 0", options: ["±3", "3 only", "−3 only", "±9"], answer: "±3", explanation: "The correct answer is ±3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "±3" , isCompetencyBased: true,
     solutionSteps: [
       "Given quadratic equation: x^2 - 5x + 6 = 0.",
       "Factorize the equation: (x - 2)(x - 3) = 0.",
       "Setting each factor to zero gives x = 2 or x = 3.",
     ],
   },
-  { id: "QE-E06", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve by factorisation: x² − 7x + 12 = 0.", solutionSteps: [
+  { id: "QE-E06", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve by factorisation: x² − 7x + 12 = 0.", solutionSteps: [
       "(x−3)(x−4) = 0 [1]",
       "x = 3 or x = 4 [1]",
     ], finalAnswer: "x = 3, 4" , isCompetencyBased: true },
-  { id: "QE-E07", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the discriminant of 2x² − 4x + 3 = 0. Are the roots real?", solutionSteps: [
+  { id: "QE-E07", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the discriminant of 2x² − 4x + 3 = 0. Are the roots real?", solutionSteps: [
       "D = (−4)² − 4(2)(3) = 16 − 24 = −8 [1]",
       "D < 0, roots are not real [1]",
     ], finalAnswer: "D = −8; roots are not real" , isCompetencyBased: true },
-  { id: "QE-E08", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The quadratic formula gives roots as:", options: ["x = (−b ± √D)/(2a)", "x = (b ± √D)/(2a)", "x = (−b ± D)/(2a)", "x = (−b ± √D)/a"], answer: "x = (−b ± √D)/(2a)", explanation: "The correct answer is x = (−b ± √D)/(2a). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x = (−b ± √D)/(2a)" , isCompetencyBased: false,
+  { id: "QE-E08", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The quadratic formula gives roots as:", options: ["x = (−b ± √D)/(2a)", "x = (b ± √D)/(2a)", "x = (−b ± D)/(2a)", "x = (−b ± √D)/a"], answer: "x = (−b ± √D)/(2a)", explanation: "The correct answer is x = (−b ± √D)/(2a). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x = (−b ± √D)/(2a)" , isCompetencyBased: false,
     solutionSteps: [
       "Given equation: 2x^2 = 8.",
       "Divide by 2: x^2 = 4.",
       "Taking square root on both sides, x = +/- sqrt(4) = +/- 2.",
     ],
   },
-  { id: "QE-E09", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "One root of x² − 5x + k = 0 is 2. The value of k is:", options: ["6", "3", "5", "10"], answer: "6", explanation: "4 − 10 + k = 0 → k = 6. Therefore, the correct answer is 6.", solutionSteps: ["4 − 10 + k = 0 → k = 6"], finalAnswer: "6" , isCompetencyBased: true },
-  { id: "QE-E10", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 2x² + x − 6 = 0.", solutionSteps: [
+  { id: "QE-E09", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "One root of x² − 5x + k = 0 is 2. The value of k is:", options: ["6", "3", "5", "10"], answer: "6", explanation: "4 − 10 + k = 0 → k = 6. Therefore, the correct answer is 6.", solutionSteps: ["4 − 10 + k = 0 → k = 6"], finalAnswer: "6" , isCompetencyBased: true },
+  { id: "QE-E10", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 2x² + x − 6 = 0.", solutionSteps: [
       "2x² + 4x − 3x − 6 = 0; 2x(x+2) − 3(x+2) = 0 [½]",
       "(2x−3)(x+2) = 0 [½]",
       "x = 3/2 or x = −2 [1]",
     ], finalAnswer: "x = 3/2 or x = −2" , isCompetencyBased: true },
-  { id: "QE-E11", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The equation x² + 3x + 4 = 0 has no real roots.\nReason (R): D = 9 − 16 = −7 < 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "QE-E11", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The equation x² + 3x + 4 = 0 has no real roots.\nReason (R): D = 9 − 16 = −7 < 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "For Assertion (A): Equation is x^2 + 4x + 4 = 0. Here a=1, b=4, c=4.",
       "Discriminant D = b^2 - 4ac = (4)^2 - 4(1)(4) = 16 - 16 = 0.",
@@ -58,244 +58,244 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "Reason (R) correctly states the condition for equal real roots (D=0). Hence, R is true and explains A.",
     ],
   },
-  { id: "QE-E12", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If x = 1 is a root of x² + kx + 6 = 0, then k =", options: ["−7", "7", "−5", "5"], answer: "−7", explanation: "1 + k + 6 = 0 → k = −7. Therefore, the correct answer is −7.", solutionSteps: ["1 + k + 6 = 0 → k = −7"], finalAnswer: "−7" , isCompetencyBased: true },
-  { id: "QE-E13", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve by completing the square: x² − 4x − 5 = 0.", solutionSteps: [
+  { id: "QE-E12", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If x = 1 is a root of x² + kx + 6 = 0, then k =", options: ["−7", "7", "−5", "5"], answer: "−7", explanation: "1 + k + 6 = 0 → k = −7. Therefore, the correct answer is −7.", solutionSteps: ["1 + k + 6 = 0 → k = −7"], finalAnswer: "−7" , isCompetencyBased: true },
+  { id: "QE-E13", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve by completing the square: x² − 4x − 5 = 0.", solutionSteps: [
       "x² − 4x = 5; (x−2)² = 5 + 4 = 9 [½]",
       "x − 2 = ±3 [½]",
       "x = 5 or x = −1 [1]",
     ], finalAnswer: "x = 5 or x = −1" , isCompetencyBased: true },
-  { id: "QE-E14", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "For what value of k does x² + 4x + k = 0 have equal roots?", options: ["4", "8", "2", "16"], answer: "4", explanation: "D = 0: 16 − 4k = 0 → k = 4. Therefore, the correct answer is 4.", solutionSteps: ["D = 0: 16 − 4k = 0 → k = 4"], finalAnswer: "4" , isCompetencyBased: true },
-  { id: "QE-E15", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of roots of ax² + bx + c = 0 is:", options: ["b/a", "−b/a", "c/a", "−c/a"], answer: "−b/a", explanation: "The correct answer is −b/a. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "−b/a" , isCompetencyBased: false,
+  { id: "QE-E14", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "For what value of k does x² + 4x + k = 0 have equal roots?", options: ["4", "8", "2", "16"], answer: "4", explanation: "D = 0: 16 − 4k = 0 → k = 4. Therefore, the correct answer is 4.", solutionSteps: ["D = 0: 16 − 4k = 0 → k = 4"], finalAnswer: "4" , isCompetencyBased: true },
+  { id: "QE-E15", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of roots of ax² + bx + c = 0 is:", options: ["b/a", "−b/a", "c/a", "−c/a"], answer: "−b/a", explanation: "The correct answer is −b/a. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "−b/a" , isCompetencyBased: false,
     solutionSteps: [
       "Let the given quadratic equation be x^2 - 5x + 6 = 0.",
       "Substitute x = 2 into the equation: (2)^2 - 5(2) + 6 = 4 - 10 + 6 = 0.",
       "Since substituting x = 2 satisfies the equation, x = 2 is a root.",
     ],
   },
-  { id: "QE-E16", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): x = 3 is a root of x² − 6x + 9 = 0.\nReason (R): x² − 6x + 9 = (x − 3)².", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "QE-E16", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): x = 3 is a root of x² − 6x + 9 = 0.\nReason (R): x² − 6x + 9 = (x − 3)².", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): x^2 - 4 = 0 implies x^2 = 4, so x = +/- sqrt(4), which means x = 2 or x = -2. Thus, Assertion (A) is true.",
       "Reason (R): The statement 'If x^2 = k, then x = sqrt(k) or x = -sqrt(k)' is a fundamental property used to solve such equations. Thus, Reason (R) is true.",
       "Reason (R) correctly explains the method used to find the roots in Assertion (A). Therefore, R is the correct explanation for A.",
     ],
   },
-  { id: "QE-E17", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 5x² = 4x + 7 using the quadratic formula.", solutionSteps: [
+  { id: "QE-E17", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 5x² = 4x + 7 using the quadratic formula.", solutionSteps: [
       "5x² − 4x − 7 = 0 [½]",
       "D = 16 + 140 = 156 [½]",
       "x = (4 ± √156)/10 = (4 ± 2√39)/10 = (2 ± √39)/5 [1]",
     ], finalAnswer: "x = (2 ± √39)/5" , isCompetencyBased: true },
-  { id: "QE-E18", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If D > 0 for a quadratic equation, the roots are:", options: ["Real and distinct", "Real and equal", "Imaginary", "Cannot determine"], answer: "Real and distinct", explanation: "The correct answer is Real and distinct. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and distinct" , isCompetencyBased: false,
+  { id: "QE-E18", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If D > 0 for a quadratic equation, the roots are:", options: ["Real and distinct", "Real and equal", "Imaginary", "Cannot determine"], answer: "Real and distinct", explanation: "The correct answer is Real and distinct. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and distinct" , isCompetencyBased: false,
     solutionSteps: [
       "For a quadratic equation ax^2 + bx + c = 0 to have real and equal roots, its discriminant (D) must be zero.",
       "The discriminant D = b^2 - 4ac. For the equation 2x^2 - kx + 1 = 0, a=2, b=-k, c=1.",
       "Set D = (-k)^2 - 4(2)(1) = k^2 - 8 = 0. This gives k^2 = 8, so k = +/- sqrt(8) = +/- 2sqrt(2). From the options, k = 2sqrt(2).",
     ],
   },
-  { id: "QE-E19", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The product of roots of 3x² − 11x + 10 = 0 is:", options: ["10/3", "11/3", "−10/3", "−11/3"], answer: "10/3", explanation: "The correct answer is 10/3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10/3" , isCompetencyBased: true,
+  { id: "QE-E19", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The product of roots of 3x² − 11x + 10 = 0 is:", options: ["10/3", "11/3", "−10/3", "−11/3"], answer: "10/3", explanation: "The correct answer is 10/3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10/3" , isCompetencyBased: true,
     solutionSteps: [
       "A quadratic equation is of the form ax^2 + bx + c = 0, where a != 0.",
       "Consider the options. For option (B) x + 1/x = 5, multiply by x (assuming x != 0) to get x^2 + 1 = 5x.",
       "Rearranging gives x^2 - 5x + 1 = 0, which is in the standard quadratic form with a=1 != 0. Other options simplify to non-quadratic forms.",
     ],
   },
-  { id: "QE-E20", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find two consecutive positive integers, the sum of whose squares is 61.", solutionSteps: [
+  { id: "QE-E20", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find two consecutive positive integers, the sum of whose squares is 61.", solutionSteps: [
       "n² + (n+1)² = 61; 2n² + 2n + 1 = 61 → 2n² + 2n − 60 = 0 → n² + n − 30 = 0 [½]",
       "(n+6)(n−5) = 0 → n = 5 (positive) [½]",
       "Numbers: 5 and 6 [1]",
     ], finalAnswer: "5 and 6" , isCompetencyBased: true },
-  { id: "QE-M01", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: 1/(x+4) − 1/(x−7) = 11/30, x ≠ −4, 7.", solutionSteps: [
+  { id: "QE-M01", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: 1/(x+4) − 1/(x−7) = 11/30, x ≠ −4, 7.", solutionSteps: [
       "[(x−7)−(x+4)]/[(x+4)(x−7)] = 11/30; −11/(x²−3x−28) = 11/30 [1]",
       "x²−3x−28 = −30; x²−3x+2 = 0 [1]",
       "(x−1)(x−2) = 0, x = 1 or 2 [1]",
     ], finalAnswer: "x = 1 or x = 2" , isCompetencyBased: true },
-  { id: "QE-M02", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the value(s) of k for which 2x² + kx + 3 = 0 has equal roots.", solutionSteps: [
+  { id: "QE-M02", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the value(s) of k for which 2x² + kx + 3 = 0 has equal roots.", solutionSteps: [
       "D = k² − 4(2)(3) = k² − 24 = 0 [1]",
       "k² = 24 → k = ±2√6 [1]",
     ], finalAnswer: "k = ±2√6" , isCompetencyBased: true },
-  { id: "QE-M03", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The sum of the areas of two squares is 468 m². If the difference of their perimeters is 24 m, find the sides of the two squares.", solutionSteps: [
+  { id: "QE-M03", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The sum of the areas of two squares is 468 m². If the difference of their perimeters is 24 m, find the sides of the two squares.", solutionSteps: [
       "Let sides be a and b, a > b; a² + b² = 468 …(1); 4a − 4b = 24 → a − b = 6 → a = b + 6 …(2) [1]",
       "(b+6)² + b² = 468; 2b² + 12b + 36 = 468 → b² + 6b − 216 = 0 [1]",
       "(b+18)(b−12) = 0 → b = 12 (positive); a = 18 [1]",
     ], finalAnswer: "18 m and 12 m" , isCompetencyBased: true },
-  { id: "QE-M04", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: x/(x+1) + (x+1)/x = 34/15, x ≠ 0, −1.", solutionSteps: [
+  { id: "QE-M04", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: x/(x+1) + (x+1)/x = 34/15, x ≠ 0, −1.", solutionSteps: [
       "Let t = x/(x+1), then t + 1/t = 34/15; (t² + 1)/t = 34/15 → 15t² − 34t + 15 = 0 [1]",
       "(3t − 5)(5t − 3) = 0 → t = 5/3 or 3/5; If x/(x+1) = 5/3: 3x = 5x+5 → x = −5/2 [1]",
       "If x/(x+1) = 3/5: 5x = 3x+3 → x = 3/2 [1]",
     ], finalAnswer: "x = 3/2 or x = −5/2" , isCompetencyBased: true },
-  { id: "QE-M05", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The roots of 9x² − 6x + 1 = 0 are real and equal.\nReason (R): D = 36 − 36 = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "QE-M05", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The roots of 9x² − 6x + 1 = 0 are real and equal.\nReason (R): D = 36 − 36 = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): For the equation x^2 + 4x + 5 = 0, the discriminant D = b^2 - 4ac = (4)^2 - 4(1)(5) = 16 - 20 = -4.",
       "Since D = -4 < 0, the equation has no real roots. So, Assertion (A) is true.",
       "Reason (R): The discriminant of ax^2 + bx + c = 0 is D = b^2 - 4ac. If D < 0, the equation has no real roots. This statement is true and correctly explains Assertion (A).",
     ],
   },
-  { id: "QE-M06", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less for the same journey. Find the speed of the train.", solutionSteps: [
+  { id: "QE-M06", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less for the same journey. Find the speed of the train.", solutionSteps: [
       "360/x − 360/(x+5) = 1; 360(x+5) − 360x = x(x+5) [1]",
       "1800 = x² + 5x; x² + 5x − 1800 = 0 [1]",
       "(x+45)(x−40) = 0 → x = 40 [1]",
     ], finalAnswer: "40 km/h" , isCompetencyBased: true },
-  { id: "QE-M07", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: √2 x² + 7x + 5√2 = 0.", solutionSteps: [
+  { id: "QE-M07", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: √2 x² + 7x + 5√2 = 0.", solutionSteps: [
       "√2 x² + 5x + 2x + 5√2 = 0; x(√2 x + 5) + √2(√2 x + 5) = 0 [½]",
       "(x + √2)(√2 x + 5) = 0 [½]",
       "x = −√2 or x = −5/√2 = −5√2/2 [1]",
     ], finalAnswer: "x = −√2 or x = −5√2/2" , isCompetencyBased: true },
-  { id: "QE-M08", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the value of p for which (p+1)x² − 6(p+1)x + 3(p+9) = 0 has equal roots (p ≠ −1).", solutionSteps: [
+  { id: "QE-M08", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the value of p for which (p+1)x² − 6(p+1)x + 3(p+9) = 0 has equal roots (p ≠ −1).", solutionSteps: [
       "D = 36(p+1)² − 12(p+1)(p+9) = 0 [1]",
       "12(p+1)[3(p+1) − (p+9)] = 0 [1]",
       "Since p ≠ −1: 3p+3−p−9 = 0 → 2p = 6 → p = 3 [1]",
     ], finalAnswer: "p = 3" , isCompetencyBased: true },
-  { id: "QE-M09", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The diagonal of a rectangular field is 60 metres more than the shorter side. If the longer side is 30 metres more than the shorter side, find the sides of the field.", solutionSteps: [
+  { id: "QE-M09", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The diagonal of a rectangular field is 60 metres more than the shorter side. If the longer side is 30 metres more than the shorter side, find the sides of the field.", solutionSteps: [
       "Let shorter side = x; Longer side = x + 30, diagonal = x + 60; By Pythagoras: x² + (x+30)² = (x+60)² [1]",
       "x² + x² + 60x + 900 = x² + 120x + 3600; x² − 60x − 2700 = 0 [1]",
       "(x−90)(x+30) = 0 → x = 90; Sides: 90 m and 120 m [1]",
     ], finalAnswer: "90 m and 120 m" , isCompetencyBased: true },
-  { id: "QE-M10", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): (x − 1)(x − 2) = 0 is a quadratic equation.\nReason (R): It can be written as x² − 3x + 2 = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
+  { id: "QE-M10", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): (x − 1)(x − 2) = 0 is a quadratic equation.\nReason (R): It can be written as x² − 3x + 2 = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A): For the equation x^2 - 5x + 6 = 0, factorize it as (x-2)(x-3) = 0. The roots are x=2 and x=3. So, Assertion (A) is true.",
       "Reason (R): A quadratic equation ax^2 + bx + c = 0 has at most two roots. This is a fundamental property of quadratic equations and is true.",
       "However, Reason (R) states a general property about the number of roots, not the method or explanation for finding the specific roots of the given equation. Thus, R is not the correct explanation for A.",
     ],
   },
-  { id: "QE-M11", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The sum of two numbers is 15 and the sum of their reciprocals is 3/10.\n(i) If one number is x, express the other in terms of x.\n(ii) Form a quadratic equation using the given conditions.\n(iii) Solve the equation to find the two numbers.\n(iv) Find their product.", solutionSteps: [
+  { id: "QE-M11", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The sum of two numbers is 15 and the sum of their reciprocals is 3/10.\n(i) If one number is x, express the other in terms of x.\n(ii) Form a quadratic equation using the given conditions.\n(iii) Solve the equation to find the two numbers.\n(iv) Find their product.", solutionSteps: [
       "(i) Other number = 15 − x; (ii) 1/x + 1/(15−x) = 3/10 → (15−x+x)/x(15−x) = 3/10 → 150 = 3x(15−x) [1]",
       "50 = x(15−x) → x² − 15x + 50 = 0; (iii) (x−10)(x−5) = 0 → x = 10 or x = 5 [1]",
       "Numbers are 10 and 5 [1]",
       "(iv) Product = 10 × 5 = 50 [1]",
     ], finalAnswer: "(i) 15−x (ii) x²−15x+50=0 (iii) 10 and 5 (iv) 50" , isCompetencyBased: true },
-  { id: "QE-M12", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: 4x² − 4ax + (a² − b²) = 0.", solutionSteps: [
+  { id: "QE-M12", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: 4x² − 4ax + (a² − b²) = 0.", solutionSteps: [
       "[2x − a]² = b² (completing the square) [1]",
       "2x − a = ±b [1]",
       "x = (a + b)/2 or x = (a − b)/2 [1]",
     ], finalAnswer: "x = (a ± b)/2" , isCompetencyBased: true },
-  { id: "QE-M13", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A natural number when increased by 12 equals 160 times its reciprocal. Find the number.", solutionSteps: [
+  { id: "QE-M13", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A natural number when increased by 12 equals 160 times its reciprocal. Find the number.", solutionSteps: [
       "x + 12 = 160/x; x² + 12x − 160 = 0 [1]",
       "(x + 20)(x − 8) = 0 [1]",
       "x = 8 (natural number) [1]",
     ], finalAnswer: "8" , isCompetencyBased: true },
-  { id: "QE-M14", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the nature of roots of x² − 4x + 1 = 0.", solutionSteps: [
+  { id: "QE-M14", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the nature of roots of x² − 4x + 1 = 0.", solutionSteps: [
       "D = 16 − 4 = 12 > 0 [1]",
       "Roots are real and distinct (unequal) [1]",
     ], finalAnswer: "Real and distinct" , isCompetencyBased: true },
-  { id: "QE-M15", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Rohan's mother is 26 years older than him. The product of their ages (in years) 3 years from now will be 360.\n(i) If Rohan's present age is x, write his mother's present age.\n(ii) Form the quadratic equation.\n(iii) Find Rohan's present age.\n(iv) Find his mother's present age.", solutionSteps: [
+  { id: "QE-M15", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Rohan's mother is 26 years older than him. The product of their ages (in years) 3 years from now will be 360.\n(i) If Rohan's present age is x, write his mother's present age.\n(ii) Form the quadratic equation.\n(iii) Find Rohan's present age.\n(iv) Find his mother's present age.", solutionSteps: [
       "(i) Mother = x + 26 [1]",
       "(ii) (x+3)(x+29) = 360 → x²+32x+87 = 360 → x²+32x−273 = 0 [1]",
       "(iii) (x+39)(x−7) = 0 → x = 7 [1]",
       "(iv) Mother = 33 [1]",
     ], finalAnswer: "(i) x+26 (ii) x²+32x−273=0 (iii) 7 years (iv) 33 years" , isCompetencyBased: true },
-  { id: "QE-M16", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: x² + 4x − 5 = 0 by completing the square.", solutionSteps: [
+  { id: "QE-M16", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: x² + 4x − 5 = 0 by completing the square.", solutionSteps: [
       "x² + 4x = 5; (x+2)² = 5 + 4 = 9 [½]",
       "x + 2 = ±3 [½]",
       "x = 1 or x = −5 [1]",
     ], finalAnswer: "x = 1 or x = −5" , isCompetencyBased: true },
-  { id: "QE-M17", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The altitude of a triangle is 6 cm more than its base. If its area is 108 cm², find the base and altitude.", solutionSteps: [
+  { id: "QE-M17", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The altitude of a triangle is 6 cm more than its base. If its area is 108 cm², find the base and altitude.", solutionSteps: [
       "Let base = x, altitude = x + 6; (1/2)(x)(x+6) = 108 [1]",
       "x² + 6x − 216 = 0; (x+18)(x−12) = 0 → x = 12 [1]",
       "Base = 12, Altitude = 18 [1]",
     ], finalAnswer: "Base = 12 cm, Altitude = 18 cm" , isCompetencyBased: true },
-  { id: "QE-M18", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the equation x² − bx + 1 = 0 has no real roots, then:", options: ["b < −2", "−2 < b < 2", "b > 2", "b = ±2"], answer: "−2 < b < 2", explanation: "D < 0: b² − 4 < 0 → −2 < b < 2. Therefore, the correct answer is −2 < b < 2.", solutionSteps: ["D < 0: b² − 4 < 0 → −2 < b < 2"], finalAnswer: "−2 < b < 2" , isCompetencyBased: true },
-  { id: "QE-M19", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The equation x² − 6x − 2 = 0 has real and distinct roots.\nReason (R): A quadratic equation ax² + bx + c = 0 has real roots when D = b² − 4ac ≥ 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["D = 36 + 8 = 44 > 0, so roots are real and distinct", "R correctly states the condition for real roots", "R explains why A is true"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
-  { id: "QE-M20", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The speed of a boat in still water is 15 km/h. It can go 30 km upstream and return downstream to the original point in 4 hours 30 minutes.\n(i) If speed of stream = x, write upstream and downstream speeds.\n(ii) Form the equation.\n(iii) Find the speed of the stream.\n(iv) Find the time for upstream journey.", solutionSteps: [
+  { id: "QE-M18", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the equation x² − bx + 1 = 0 has no real roots, then:", options: ["b < −2", "−2 < b < 2", "b > 2", "b = ±2"], answer: "−2 < b < 2", explanation: "D < 0: b² − 4 < 0 → −2 < b < 2. Therefore, the correct answer is −2 < b < 2.", solutionSteps: ["D < 0: b² − 4 < 0 → −2 < b < 2"], finalAnswer: "−2 < b < 2" , isCompetencyBased: true },
+  { id: "QE-M19", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The equation x² − 6x − 2 = 0 has real and distinct roots.\nReason (R): A quadratic equation ax² + bx + c = 0 has real roots when D = b² − 4ac ≥ 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["D = 36 + 8 = 44 > 0, so roots are real and distinct", "R correctly states the condition for real roots", "R explains why A is true"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
+  { id: "QE-M20", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The speed of a boat in still water is 15 km/h. It can go 30 km upstream and return downstream to the original point in 4 hours 30 minutes.\n(i) If speed of stream = x, write upstream and downstream speeds.\n(ii) Form the equation.\n(iii) Find the speed of the stream.\n(iv) Find the time for upstream journey.", solutionSteps: [
       "(i) Upstream = 15−x, Downstream = 15+x; (ii) 30/(15−x) + 30/(15+x) = 9/2 [1]",
       "30(15+x+15−x)/((15−x)(15+x)) = 9/2; 900/(225−x²) = 9/2 [1]",
       "200 = 225 − x² → x² = 25 → x = 5; (iii) Stream = 5 km/h [1]",
       "(iv) Upstream time = 30/10 = 3 hours [1]",
     ], finalAnswer: "(i) 15−x, 15+x (ii) 900/(225−x²)=9/2 (iii) 5 km/h (iv) 3 hours" , isCompetencyBased: true },
-  { id: "QE-H01", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: 1/(x−1)(x−2) + 1/(x−2)(x−3) + 1/(x−3)(x−4) = 1/6.", solutionSteps: [
+  { id: "QE-H01", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: 1/(x−1)(x−2) + 1/(x−2)(x−3) + 1/(x−3)(x−4) = 1/6.", solutionSteps: [
       "Using partial fractions: each term = [1/(x−a) − 1/(x−a−1)]; Sum telescopes: 1/(x−1) − 1/(x−4) = 1/6 [1]",
       "3/[(x−1)(x−4)] = 1/6; (x−1)(x−4) = 18 [1]",
       "x² − 5x + 4 = 18 → x² − 5x − 14 = 0; (x−7)(x+2) = 0 → x = 7 or −2 [1]",
     ], finalAnswer: "x = 7 or x = −2" , isCompetencyBased: true },
-  { id: "QE-H02", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "Two water taps together can fill a tank in 9⅜ hours. The larger tap takes 10 hours less than the smaller to fill the tank separately. Find the time in which each tap can fill the tank.", solutionSteps: [
+  { id: "QE-H02", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "Two water taps together can fill a tank in 9⅜ hours. The larger tap takes 10 hours less than the smaller to fill the tank separately. Find the time in which each tap can fill the tank.", solutionSteps: [
       "Let smaller tap time = x hours, larger = x − 10; 1/x + 1/(x−10) = 8/75 [1]",
       "(x−10+x)/[x(x−10)] = 8/75; 75(2x−10) = 8x(x−10) [1]",
       "150x − 750 = 8x² − 80x; 8x² − 230x + 750 = 0 [1]",
       "4x² − 115x + 375 = 0; (4x − 15)(x − 25) = 0 [1]",
       "x = 25 (x=15/4 gives x−10 < 0); Smaller: 25 hours, Larger: 15 hours [1]",
     ], finalAnswer: "Smaller: 25 hours, Larger: 15 hours" , isCompetencyBased: true },
-  { id: "QE-H03", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If the roots of (a−b)x² + (b−c)x + (c−a) = 0 are equal, prove that 2a = b + c.", solutionSteps: [
+  { id: "QE-H03", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If the roots of (a−b)x² + (b−c)x + (c−a) = 0 are equal, prove that 2a = b + c.", solutionSteps: [
       "Note x = 1 is always a root: (a−b) + (b−c) + (c−a) = 0 [1]",
       "For equal roots, both roots must be 1 [1]",
       "Product of roots = (c−a)/(a−b) = 1 → c−a = a−b → 2a = b+c [1]",
     ], finalAnswer: "2a = b + c (proved)" , visualExplainerId: "maths-quadratic-equations-standard-form-and-roots", isCompetencyBased: true },
-  { id: "QE-H04", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: abx² + (b² − ac)x − bc = 0.", solutionSteps: [
+  { id: "QE-H04", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: abx² + (b² − ac)x − bc = 0.", solutionSteps: [
       "abx² + b²x − acx − bc = 0; bx(ax + b) − c(ax + b) = 0 [1]",
       "(bx − c)(ax + b) = 0 [1]",
       "x = c/b or x = −b/a [1]",
     ], finalAnswer: "x = c/b or x = −b/a" , isCompetencyBased: true },
-  { id: "QE-H05", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "An aeroplane left 30 minutes later than its scheduled time and in order to reach its destination 1500 km away in time, it had to increase its speed by 100 km/h from the usual speed. Find the usual speed.", solutionSteps: [
+  { id: "QE-H05", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "An aeroplane left 30 minutes later than its scheduled time and in order to reach its destination 1500 km away in time, it had to increase its speed by 100 km/h from the usual speed. Find the usual speed.", solutionSteps: [
       "Let usual speed = x km/h; 1500/x − 1500/(x+100) = 1/2 [1]",
       "1500(x+100−x)/[x(x+100)] = 1/2; 1500 × 100 × 2 = x(x+100) [1]",
       "x² + 100x − 300000 = 0 [1]",
       "(x + 600)(x − 500) = 0 [1]",
       "x = 500 km/h [1]",
     ], finalAnswer: "500 km/h" , isCompetencyBased: true },
-  { id: "QE-H06", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Find the value of k for which the quadratic equation (k+4)x² + (k+1)x + 1 = 0 has equal roots.", solutionSteps: [
+  { id: "QE-H06", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Find the value of k for which the quadratic equation (k+4)x² + (k+1)x + 1 = 0 has equal roots.", solutionSteps: [
       "D = (k+1)² − 4(k+4) = 0; k² + 2k + 1 − 4k − 16 = 0 [1]",
       "k² − 2k − 15 = 0; (k−5)(k+3) = 0 [1]",
       "k = 5 or k = −3 (but k ≠ −4) [1]",
     ], finalAnswer: "k = 5 or k = −3" , isCompetencyBased: true },
-  { id: "QE-H07", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: √(2x+9) + x = 13.", solutionSteps: [
+  { id: "QE-H07", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: √(2x+9) + x = 13.", solutionSteps: [
       "√(2x+9) = 13 − x; Squaring: 2x + 9 = 169 − 26x + x² [1]",
       "x² − 28x + 160 = 0 [1]",
       "(x−20)(x−8) = 0 [1]",
       "x = 20: √49 + 20 = 27 ≠ 13 ✗ [1]",
       "x = 8: √25 + 8 = 13 ✓ [1]",
     ], finalAnswer: "x = 8" , isCompetencyBased: true },
-  { id: "QE-H08", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "Two pipes running together can fill a tank in 11 1/9 minutes. If one pipe takes 5 minutes more than the other, find the time in which each pipe would fill the tank alone.", solutionSteps: [
+  { id: "QE-H08", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "Two pipes running together can fill a tank in 11 1/9 minutes. If one pipe takes 5 minutes more than the other, find the time in which each pipe would fill the tank alone.", solutionSteps: [
       "Let faster pipe = x min, slower = x + 5; 1/x + 1/(x+5) = 9/100 [1]",
       "(2x+5)/[x(x+5)] = 9/100; 100(2x+5) = 9x(x+5) [1]",
       "200x + 500 = 9x² + 45x; 9x² − 155x − 500 = 0 [1]",
       "(9x + 25)(x − 20) = 0 → x = 20 [1]",
       "Pipes: 20 min and 25 min [1]",
     ], finalAnswer: "20 minutes and 25 minutes" , isCompetencyBased: true },
-  { id: "QE-H09", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "If the equation (1 + m²)x² + 2mcx + c² − a² = 0 has equal roots, show that c² = a²(1 + m²).", solutionSteps: [
+  { id: "QE-H09", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "If the equation (1 + m²)x² + 2mcx + c² − a² = 0 has equal roots, show that c² = a²(1 + m²).", solutionSteps: [
       "D = 4m²c² − 4(1+m²)(c²−a²) = 0; m²c² − c² − m²c² + a² + m²a² = 0 [1]",
       "−c² + a²(1+m²) = 0 [1]",
       "c² = a²(1+m²) [1]",
     ], finalAnswer: "c² = a²(1 + m²) (proved)" , isCompetencyBased: true },
-  { id: "QE-H10", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: x² − (√3 + 1)x + √3 = 0.", solutionSteps: [
+  { id: "QE-H10", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: x² − (√3 + 1)x + √3 = 0.", solutionSteps: [
       "x² − √3 x − x + √3 = 0; x(x − √3) − 1(x − √3) = 0 [1]",
       "(x − 1)(x − √3) = 0 [1]",
       "x = 1 or x = √3 [1]",
     ], finalAnswer: "x = 1 or x = √3" , isCompetencyBased: true },
-  { id: "QE-H11", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The difference of squares of two numbers is 180. The square of the smaller number is 8 times the larger number. Find the two numbers.", solutionSteps: [
+  { id: "QE-H11", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The difference of squares of two numbers is 180. The square of the smaller number is 8 times the larger number. Find the two numbers.", solutionSteps: [
       "Let larger = x, smaller = y; x² − y² = 180 and y² = 8x [1]",
       "x² − 8x = 180 [1]",
       "x² − 8x − 180 = 0 [1]",
       "(x−18)(x+10) = 0 → x = 18 [1]",
       "y² = 144 → y = ±12 [1]",
     ], finalAnswer: "18 and 12 (or 18 and −12)" , isCompetencyBased: true },
-  { id: "QE-H12", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Show that the equation x² + ax − 4 = 0 always has real and distinct roots for all real values of a.", solutionSteps: [
+  { id: "QE-H12", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Show that the equation x² + ax − 4 = 0 always has real and distinct roots for all real values of a.", solutionSteps: [
       "D = a² − 4(1)(−4) = a² + 16 [1]",
       "Since a² ≥ 0 for all real a, D = a² + 16 ≥ 16 > 0 [1]",
       "Hence the equation always has real and distinct roots. [1]",
     ], finalAnswer: "D = a² + 16 > 0 always; proved" , isCompetencyBased: true },
-  { id: "QE-H13", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: 3x² − 2√6 x + 2 = 0.", solutionSteps: [
+  { id: "QE-H13", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Solve: 3x² − 2√6 x + 2 = 0.", solutionSteps: [
       "Rewrite the equation as (√3x)² - 2(√3x)(√2) + (√2)² = 0. [1]",
       "Factor the expression as (√3x - √2)² = 0. [1]",
       "Solve for x: √3x - √2 = 0 => √3x = √2 => x = √2/√3 (or √6/3). [1]",
     ], finalAnswer: "x = √6/3 (repeated root)" , isCompetencyBased: true },
-  { id: "QE-H14", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A cottage industry produces a certain number of pottery articles in a day. It was observed on a particular day that the cost of production of each article (in rupees) was 3 more than twice the number of articles produced on that day.\n(i) If the number of articles = x, write the cost per article.\n(ii) If the total cost = ₹90, form the equation.\n(iii) Find the number of articles produced.\n(iv) Find the cost per article.", solutionSteps: [
+  { id: "QE-H14", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A cottage industry produces a certain number of pottery articles in a day. It was observed on a particular day that the cost of production of each article (in rupees) was 3 more than twice the number of articles produced on that day.\n(i) If the number of articles = x, write the cost per article.\n(ii) If the total cost = ₹90, form the equation.\n(iii) Find the number of articles produced.\n(iv) Find the cost per article.", solutionSteps: [
       "(i) Cost per article = 2x + 3 [1]",
       "(ii) x(2x + 3) = 90 → 2x² + 3x − 90 = 0 [1]",
       "(iii) (2x + 15)(x − 6) = 0 → x = 6 [1]",
       "(iv) Cost = 2(6) + 3 = ₹15 [1]",
     ], finalAnswer: "(i) 2x+3 (ii) 2x²+3x−90=0 (iii) 6 (iv) ₹15" , isCompetencyBased: true },
-  { id: "QE-H15", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots (Discriminant)", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "If the roots of the equation (b−c)x² + (c−a)x + (a−b) = 0 are equal, prove that 2b = a + c (i.e., a, b, c are in AP).", solutionSteps: [
+  { id: "QE-H15", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "If the roots of the equation (b−c)x² + (c−a)x + (a−b) = 0 are equal, prove that 2b = a + c (i.e., a, b, c are in AP).", solutionSteps: [
       "D = (c−a)² − 4(b−c)(a−b) = 0; c²−2ac+a² − 4(ab−b²−ac+bc) = 0 [1]",
       "c²−2ac+a² − 4ab+4b²+4ac−4bc = 0 [1]",
       "a²+2ac+c²−4ab−4bc+4b² = 0 [1]",
       "(a+c−2b)² = 0 [1]",
       "a + c = 2b, i.e., a, b, c are in AP. [1]",
     ], finalAnswer: "2b = a + c (proved)" , visualExplainerId: "maths-quadratic-equations-standard-form-and-roots", isCompetencyBased: true },
-  { id: "QE-N01", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation 2x² − 4x + 3 = 0, the discriminant is:", options: ["−8","8","−4","4"], answer: "−8", explanation: "The correct answer is −8. D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", finalAnswer: "D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", isCompetencyBased: false,
+  { id: "QE-N01", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation 2x² − 4x + 3 = 0, the discriminant is:", options: ["−8","8","−4","4"], answer: "−8", explanation: "The correct answer is −8. D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", finalAnswer: "D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", isCompetencyBased: false,
     solutionSteps: [
       "For the standard quadratic equation ax^2 + bx + c = 0, the discriminant D is given by D = b^2 - 4ac.",
       "Assuming a question like 'What is the discriminant of 3x^2 - 5x + 2 = 0?', here a=3, b=-5, c=2.",
       "Substitute the values: D = (-5)^2 - 4(3)(2) = 25 - 24 = 1.",
     ],
   },
-  { id: "QE-N02", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Two equal real roots","Two unequal real roots","No real roots","Imaginary roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 0 → the equation has two equal (coincident) real roots.", finalAnswer: "D = 0 → the equation has two equal (coincident) real roots.", isCompetencyBased: false,
+  { id: "QE-N02", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Two equal real roots","Two unequal real roots","No real roots","Imaginary roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 0 → the equation has two equal (coincident) real roots.", finalAnswer: "D = 0 → the equation has two equal (coincident) real roots.", isCompetencyBased: false,
     solutionSteps: [
       "The question text for this problem is missing.",
       "Please provide the quadratic equation to determine the nature of its roots and generate the solution steps.",

@@ -186,7 +186,7 @@ function makeTrianglesQuestion(spec: TrianglesQuestionSpec): TrianglesPackQuesti
     id: spec.questionId,
     questionId: spec.questionId,
     subject: "Maths",
-    topicKey: "Triangles",
+    topicKey: "triangles",
     subtopic: spec.subtopic ?? defaultSubtopic(spec.skillFamily),
     section: spec.cbseFormat,
     cbseFormat: spec.cbseFormat,

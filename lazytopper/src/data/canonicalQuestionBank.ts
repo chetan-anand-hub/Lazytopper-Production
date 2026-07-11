@@ -832,7 +832,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",
-    "topicKey": "Applications of Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Applications of Trigonometry",
     "section": "C",
     "marks": 3,
@@ -861,7 +861,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-ARC-SA-01",
     "subject": "Maths",
-    "topicKey": "Areas Related to Circles",
+    "topicKey": "areas-related-to-circles",
     "subtopic": "Areas Related to Circles",
     "section": "C",
     "marks": 3,
@@ -889,7 +889,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-AP-SA-01",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progressions",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Arithmetic Progressions",
     "section": "C",
     "marks": 3,
@@ -917,7 +917,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-CIRC-SA-01",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Circles",
     "section": "C",
     "marks": 3,
@@ -945,7 +945,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-CG-SA-01",
     "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
+    "topicKey": "coordinate-geometry",
     "subtopic": "Coordinate Geometry",
     "section": "C",
     "marks": 3,
@@ -973,7 +973,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-TRIG-SA-01",
     "subject": "Maths",
-    "topicKey": "Introduction to Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Introduction to Trigonometry",
     "section": "C",
     "marks": 3,
@@ -1001,7 +1001,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-PLE-SA-02",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Pair of Linear Equations in Two Variables",
     "section": "C",
     "marks": 3,
@@ -1031,7 +1031,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-PROB-SA-01",
     "subject": "Maths",
-    "topicKey": "Probability",
+    "topicKey": "probability",
     "subtopic": "Probability",
     "section": "C",
     "marks": 3,
@@ -1057,7 +1057,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-QE-SA-01",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Equations",
     "section": "C",
     "marks": 3,
@@ -1084,7 +1084,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-STAT-SA-02",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Statistics",
     "section": "C",
     "marks": 3,
@@ -1114,7 +1114,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-STAT-SA-03",
     "subject": "Maths",
-    "topicKey": "Statistics",
+    "topicKey": "statistics",
     "subtopic": "Statistics",
     "section": "C",
     "marks": 3,
@@ -1144,7 +1144,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-SAV-SA-01",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Surface Areas and Volumes",
     "section": "C",
     "marks": 3,
@@ -1172,7 +1172,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-chem-acids-2m-2022-01",
     "subject": "Science",
-    "topicKey": "Acids, Bases & Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Acids, Bases and Salts",
     "section": "B",
     "marks": 2,
@@ -1197,7 +1197,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-chem-carbon-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Carbon and its Compounds",
+    "topicKey": "carbon-and-its-compounds",
     "subtopic": "Carbon and its Compounds",
     "section": "C",
     "marks": 3,
@@ -1223,7 +1223,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-chem-chemreactions-1m-2023-01",
     "subject": "Science",
-    "topicKey": "Chemical Reactions & Equations",
+    "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Chemical Reactions and Equations",
     "section": "A",
     "marks": 1,
@@ -1250,7 +1250,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-bio-cc-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Control and Coordination",
+    "topicKey": "control-and-coordination",
     "subtopic": "Control and Coordination",
     "section": "C",
     "marks": 3,
@@ -1278,7 +1278,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-phy-elec-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Electricity",
+    "topicKey": "electricity",
     "subtopic": "Electricity",
     "section": "C",
     "marks": 3,
@@ -1304,7 +1304,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-bio-heredity-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Heredity",
+    "topicKey": "heredity",
     "subtopic": "Heredity",
     "section": "C",
     "marks": 3,
@@ -1332,7 +1332,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-bio-repro-3m-2026-01",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce?",
+    "topicKey": "how-do-organisms-reproduce",
     "subtopic": "How do Organisms Reproduce?",
     "section": "C",
     "marks": 3,
@@ -1358,7 +1358,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-phy-eye-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Human Eye and the Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "The Human Eye and the Colourful World",
     "section": "C",
     "marks": 3,
@@ -1385,7 +1385,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-bio-lp-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Life Processes",
     "section": "C",
     "marks": 3,
@@ -1413,7 +1413,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-phy-light-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Light – Reflection & Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Light – Reflection and Refraction",
     "section": "C",
     "marks": 3,
@@ -1440,7 +1440,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-phy-magnetic-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Effects of Electric Current",
     "section": "C",
     "marks": 3,
@@ -1465,7 +1465,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "2026-MNM-01",
     "subject": "Science",
-    "topicKey": "Metals and Non-Metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Metals and Non-Metals",
     "section": "A",
     "marks": 1,
@@ -1489,7 +1489,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-chem-mnm-3m-2026-02",
     "subject": "Science",
-    "topicKey": "Metals and Non-Metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Metals and Non-Metals",
     "section": "C",
     "marks": 3,
@@ -1515,7 +1515,7 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   {
     "id": "sci-env-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Our Environment",
+    "topicKey": "our-environment",
     "subtopic": "Our Environment",
     "section": "C",
     "marks": 3,

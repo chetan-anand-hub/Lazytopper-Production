@@ -4,7 +4,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-001",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -35,7 +35,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-002",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -65,7 +65,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-003",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -96,7 +96,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-004",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "B",
     "marks": 2,
@@ -122,7 +122,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-014",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "C",
     "marks": 3,
@@ -150,7 +150,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-018",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -181,7 +181,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-019",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "E",
     "marks": 4,
@@ -211,7 +211,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-022",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -241,7 +241,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-024",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -271,7 +271,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-025",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "A",
     "marks": 1,
@@ -301,7 +301,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-026",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "B",
     "marks": 2,
@@ -328,7 +328,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-027",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "B",
     "marks": 2,
@@ -353,7 +353,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-028",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "B",
     "marks": 2,
@@ -385,7 +385,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-029",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "B",
     "marks": 2,
@@ -417,7 +417,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-039",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "E",
     "marks": 4,
@@ -443,7 +443,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-042",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "D",
     "marks": 5,
@@ -479,7 +479,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-044",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "B",
     "marks": 2,
@@ -512,7 +512,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
 {
     "id": "SAV2-046",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combined Solids",
     "section": "C",
     "marks": 3,
@@ -539,7 +539,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R01",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "A",
     "marks": 1,
@@ -558,7 +558,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R02",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "C",
     "marks": 3,
@@ -577,7 +577,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R03",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "B",
     "marks": 2,
@@ -596,7 +596,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R04",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "E",
     "marks": 4,
@@ -615,7 +615,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R05",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "A",
     "marks": 1,
@@ -634,7 +634,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R06",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "D",
     "marks": 5,
@@ -653,7 +653,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R07",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "C",
     "marks": 3,
@@ -672,7 +672,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R08",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "A",
     "marks": 1,
@@ -691,7 +691,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R09",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "B",
     "marks": 2,
@@ -710,7 +710,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R10",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "C",
     "marks": 3,
@@ -729,7 +729,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R11",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "A",
     "marks": 1,
@@ -748,7 +748,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R12",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "E",
     "marks": 4,
@@ -767,7 +767,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R13",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "D",
     "marks": 5,
@@ -786,7 +786,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R14",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Combination/Transformation",
     "section": "A",
     "marks": 1,
@@ -805,7 +805,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
   {
     "id": "SAV2-R15",
     "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
+    "topicKey": "surface-areas-and-volumes",
     "subtopic": "Cylinder/Cone/Sphere",
     "section": "C",
     "marks": 3,
@@ -821,28 +821,28 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
-  { id: "SAV2-R16", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The total surface area of a cube with side a is:", options: ["6a²","4a²","2a²","a³"], answer: "6a²", explanation: "The correct answer is 6a². A cube has 6 faces, each of area a². Total SA = 6a².", finalAnswer: "A cube has 6 faces, each of area a². Total SA = 6a².", isCompetencyBased: false,
+  { id: "SAV2-R16", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The total surface area of a cube with side a is:", options: ["6a²","4a²","2a²","a³"], answer: "6a²", explanation: "The correct answer is 6a². A cube has 6 faces, each of area a². Total SA = 6a².", finalAnswer: "A cube has 6 faces, each of area a². Total SA = 6a².", isCompetencyBased: false,
     solutionSteps: [
       "Identify the formula for Total Surface Area (TSA) of a cube: TSA = 6 * side^2.",
       "Substitute the given side length (5 cm) into the formula: TSA = 6 * (5 cm)^2.",
       "Calculate the value: TSA = 6 * 25 cm^2 = 150 cm^2.",
     ],
   },
-  { id: "SAV2-R17", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Volume", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A sphere of radius r is melted and recast into a cylinder of radius r. The height of the cylinder is:", options: ["4r/3","2r/3","r","4r"], answer: "4r/3", explanation: "The correct answer is 4r/3. Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", finalAnswer: "Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", isCompetencyBased: false,
+  { id: "SAV2-R17", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Volume", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A sphere of radius r is melted and recast into a cylinder of radius r. The height of the cylinder is:", options: ["4r/3","2r/3","r","4r"], answer: "4r/3", explanation: "The correct answer is 4r/3. Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", finalAnswer: "Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the formula for volume of a cylinder (V_cyl = pi * r^2 * h) and a cone (V_cone = (1/3) * pi * r^2 * h).",
       "Since radius and height are the same, V_cone = (1/3) * V_cyl.",
       "Substitute the given cylinder volume: V_cone = (1/3) * 90 cm^3 = 30 cm^3.",
     ],
   },
-  { id: "SAV2-R18", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Curved Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The curved surface area of a hemisphere of radius r is:", options: ["2πr²","4πr²","πr²","3πr²"], answer: "2πr²", explanation: "The correct answer is 2πr². CSA of hemisphere = 2πr².", finalAnswer: "CSA of hemisphere = 2πr².", isCompetencyBased: false,
+  { id: "SAV2-R18", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Curved Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The curved surface area of a hemisphere of radius r is:", options: ["2πr²","4πr²","πr²","3πr²"], answer: "2πr²", explanation: "The correct answer is 2πr². CSA of hemisphere = 2πr².", finalAnswer: "CSA of hemisphere = 2πr².", isCompetencyBased: false,
     solutionSteps: [
       "Identify the formula for Curved Surface Area (CSA) of a cylinder: CSA = 2 * pi * r * h.",
       "Substitute the given values: r = 7 cm, h = 10 cm, and pi = 22/7.",
       "Calculate: CSA = 2 * (22/7) * 7 * 10 = 2 * 22 * 10 = 440 cm^2.",
     ],
   },
-  { id: "SAV2-R19", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When a cone is placed on a cylinder with the same base radius, the CSA of the solid is πrl + 2πrh.\nReason (R): The total curved surface area is obtained by adding the lateral surface areas of the individual solids.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "CSA of combined solid = CSA of cone + CSA of cylinder = πrl + 2πrh. R explains the additive method used in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "SAV2-R19", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When a cone is placed on a cylinder with the same base radius, the CSA of the solid is πrl + 2πrh.\nReason (R): The total curved surface area is obtained by adding the lateral surface areas of the individual solids.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "CSA of combined solid = CSA of cone + CSA of cylinder = πrl + 2πrh. R explains the additive method used in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "The 'questionText' field is empty, so the Assertion and Reason statements are not provided.",
       "The 'answer' field is also empty, so the expected final answer is unknown.",

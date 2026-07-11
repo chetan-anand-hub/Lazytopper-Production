@@ -1,6 +1,7 @@
 import { doc, setDoc } from "firebase/firestore";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { firestoreDb } from "./firebaseClient";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 
 export interface MockScoreEntry {
   id: string;
@@ -81,7 +82,10 @@ export function getMockTopicScores(): Map<string, { avgPercent: number; attempts
 
   for (const entry of history.entries) {
     if (!entry.topicBreakdown) continue;
-    for (const [topicKey, data] of Object.entries(entry.topicBreakdown)) {
+    for (const [rawTopicKey, data] of Object.entries(entry.topicBreakdown)) {
+      // Resolve at read so historical raw-key mock records bucket with new
+      // canonical-key ones (P0 [FU-TOPICKEY-UNIVERSAL]).
+      const topicKey = resolveCanonicalSlug(rawTopicKey) || rawTopicKey;
       const prev = map.get(topicKey) || { totalPercent: 0, count: 0 };
       const pct = data.maxPossible > 0 ? (data.scored / data.maxPossible) * 100 : 0;
       prev.totalPercent += pct;

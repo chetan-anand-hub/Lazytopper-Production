@@ -24,6 +24,7 @@ import {
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
 import { ensureWorksheetSessionCode, type SessionRecord } from "../../services/sessionRecords";
+import { canonicalSlugMatches, resolveCanonicalSlug, resolveCanonicalSlugSet } from "../../data/syllabus/canonicalTopicSlug";
 import { getSurfaceHistory } from "../../services/progressStore";
 import {
   readWorksheetMi,
@@ -359,7 +360,12 @@ export default function WorksheetGenerator() {
     () => (scope === "topic" ? [] : rankedInScopeWeakTopics(mi, inScopeTopics)),
     [scope, mi, inScopeTopics],
   );
-  const rankedWeakKeys = useMemo(() => new Set(rankedWeak.map((t) => t.key)), [rankedWeak]);
+  // Canonical slugs of the weak topics — so the drawn-gate below matches a bank
+  // question regardless of its stored spelling (P0 [FU-TOPICKEY-UNIVERSAL]).
+  const rankedWeakKeys = useMemo(
+    () => resolveCanonicalSlugSet(rankedWeak.map((t) => t.key)),
+    [rankedWeak],
+  );
   const selectedTopicMi = scope === "topic" ? mi.byTopic.get(singleTopic) ?? null : null;
   const selectedSectionBoosts = useMemo(() => sectionBoostsFor(selectedTopicMi), [selectedTopicMi]);
   const weakSecs = useMemo(() => weakSections(selectedTopicMi), [selectedTopicMi]);
@@ -556,12 +562,9 @@ export default function WorksheetGenerator() {
   // worksheet covers (a weak topic can draw zero under a filter that empties its pool).
   // Mirrors the single-topic `drawnWeakSecs` drawn-gate.
   const drawnWeakTopics = useMemo(
-    // TODO(P0-topickey): raw `q.topicKey === t.key` compare. For the 25 Title-Case bank
-    // chapters the keys never match, so this drawn-gate silently names nothing. The shared
-    // resolver / bankQuery helper + Guard B in AGENT_P0_universal_topickey_2026-07-10.md
-    // replace this (the sibling `rankedWeakKeys.has(q.topicKey)` compare shares the issue).
-    // Do NOT resolve here — it belongs to the P0 topic-key PR.
-    () => rankedWeak.filter((t) => candidate.some((q) => q.topicKey === t.key)),
+    // P0 [FU-TOPICKEY-UNIVERSAL]: resolve BOTH sides to the canonical slug so the
+    // drawn-gate matches a weak topic against a bank question of any stored spelling.
+    () => rankedWeak.filter((t) => candidate.some((q) => canonicalSlugMatches(q.topicKey, t.key))),
     [rankedWeak, candidate],
   );
 
@@ -573,7 +576,7 @@ export default function WorksheetGenerator() {
     if (enrichActive) {
       // Questions drawn on the weak in-scope topics (the ones MI weighted up) — counted
       // from the REAL drawn set, never estimated or fabricated.
-      return candidate.filter((q) => rankedWeakKeys.has(q.topicKey)).length;
+      return candidate.filter((q) => rankedWeakKeys.has(resolveCanonicalSlug(q.topicKey))).length;
     }
     if (drawnWeakSecs.length > 0) {
       return candidate.filter((q) => drawnWeakSecs.includes(q.section as MistakeSection)).length;
