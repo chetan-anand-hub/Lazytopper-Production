@@ -1,0 +1,553 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "surface-areas-and-volumes",
+    "subject": "maths",
+    "chapter_no": 12,
+    "title": "Surface Areas and Volumes",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 12 (jemh112.pdf, printed pages 161-170)"
+  },
+  "board_asks": "surface area and volume of a COMBINATION of solids — cone-on-hemisphere toys, capsules, cylinders with hemispherical ends, a cuboid surmounted by a half-cylinder. Break the object into the basic solids you already know (cuboid, cube, cylinder, cone, sphere, hemisphere), add only the EXPOSED areas for surface area, and simply ADD the volumes.",
+  "big_idea": {
+    "tagline": "Break it into shapes you already know.",
+    "body": "Every object in this chapter is two basic solids stuck together. Nothing new to memorise — you already know the surface areas and volumes of the cuboid, cube, cylinder, cone, sphere and hemisphere from Class IX. The whole skill is: <b>see the pieces</b>, then combine them by two rules. For <b>surface area</b>, add only the faces you can still see (the join hides some area). For <b>volume</b>, just add the pieces up (nothing disappears)."
+  },
+  "definitions": [
+    {
+      "id": "def_sa_combination",
+      "tier": "headline",
+      "term": "Surface area of a combination of solids",
+      "verbatim": "the total surface area of the new solid is the sum of the curved surface areas of each of the individual parts.",
+      "plain": "add up only the surfaces you can still SEE after joining — for a cylinder capped by two hemispheres, that is the two curved hemispheres plus the curved cylinder; the flat circular faces vanish inside the join.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 162,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_vol_combination",
+      "tier": "headline",
+      "term": "Volume of a combination of solids",
+      "verbatim": "The volume of the solid formed by joining two basic solids will actually be the sum of the volumes of the constituents, as we see in the examples below.",
+      "plain": "unlike surface area, volume loses nothing at the join — just ADD the volume of each basic solid. This is the one place where you literally sum the pieces with no subtraction for the shared face.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 167,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_sa_not_added",
+      "tier": "headline",
+      "term": "Why surface areas are not simply added",
+      "verbatim": "in calculating the surface area, we have not added the surface areas of the two constituents, because some part of the surface area disappeared in the process of joining them.",
+      "plain": "when two solids are stuck together, the faces that touch are hidden inside and no longer count. That is exactly why surface area is NOT the plain sum of the two full surface areas.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 167,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "def_tsa_not_additive",
+      "tier": "headline",
+      "term": "Total surface area is not additive",
+      "verbatim": "You may note that 'total surface area of the top' is not the sum of the total surface areas of the cone and hemisphere.",
+      "plain": "the sharp warning NCERT prints after Example 1. Do not add TSA(cone) + TSA(hemisphere) — that double-counts the hidden circular base. Add only the exposed curved surfaces.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 164,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_tsa_container",
+      "tier": "key-term",
+      "term": "TSA of a cylinder with two hemispherical ends",
+      "verbatim": "TSA of new solid = CSA of one hemisphere + CSA of cylinder + CSA of other hemisphere",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 162,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_tsa_toy",
+      "tier": "key-term",
+      "term": "TSA of a cone-and-hemisphere toy",
+      "verbatim": "Total surface area of the toy = CSA of hemisphere + CSA of cone",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 163,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_summary_sa",
+      "tier": "key-term",
+      "term": "Surface area of a combination (Summary)",
+      "verbatim": "To determine the surface area of an object formed by combining any two of the basic solids, namely, cuboid, cone, cylinder, sphere and hemisphere.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 170,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_summary_vol",
+      "tier": "key-term",
+      "term": "Volume of a combination (Summary)",
+      "verbatim": "To find the volume of objects formed by combining any two of a cuboid, cone, cylinder, sphere and hemisphere.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 170,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "kt_combination_of_solids",
+      "tier": "key-term",
+      "term": "Combination of solids",
+      "verbatim": "we come across a number of solids made up of combinations of two or more of the basic solids",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 161,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Break a combination into basic solids",
+      "body": "Every object here is two basic solids joined at a shared face. Name the pieces first — e.g. a medicine capsule is a <b>cylinder with a hemisphere on each end</b>; a toy top is a <b>cone surmounted by a hemisphere</b>. Once you can see the pieces, all the formulas are ones you already know.",
+      "tested": "the setup mark on essentially every combination-solid question",
+      "figure_ref": "fig_capsule_1210"
+    },
+    {
+      "id": "c2",
+      "title": "Surface area = only the EXPOSED faces",
+      "body": "Add the curved (and any still-visible flat) surfaces that remain after joining; drop the faces hidden inside the join. Never add the two full total surface areas — that double-counts the buried circle. When a solid is scooped out, the removed curved surface is <i>added</i> and the flat opening is handled carefully.",
+      "tested": "2-3 mark 'find the surface area / area to be painted' problems",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Volume = simply ADD the constituents",
+      "body": "Volume is the friendly rule: the volume of the joined solid is the plain sum of the pieces' volumes, because no volume is lost at the join. For a scooped/hollow solid, subtract the volume of the removed piece.",
+      "tested": "3-5 mark volume and capacity problems",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "The cone's slant height comes first",
+      "body": "Any combination with a cone needs its curved surface area $\\pi r l$, which needs the slant height $l = \\sqrt{r^2 + h^2}$. Compute $l$ BEFORE the CSA. And the cone's height is usually the whole solid's height minus the attached hemisphere's radius, not the whole height.",
+      "tested": "any combination containing a cone (toy top, tent, rocket)",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Capacity, and hollowed / scooped solids",
+      "body": "When a hemisphere is scooped out of a cylinder (a glass, a bird-bath), the <b>capacity</b> drops by the removed hemisphere's volume, while the <b>surface</b> gains the hemisphere's curved area in place of a flat lid. Read whether the question wants apparent capacity or actual capacity.",
+      "tested": "capacity and 'surface area of the remaining solid' problems",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_1",
+      "shape": "Cone surmounted by a hemisphere - area to colour - NCERT Example 1",
+      "kind": "numerical",
+      "problem_verbatim": "Rasheed got a playing top (lattu) as his birthday present, which surprisingly had no colour on it. He wanted to colour it with his crayons. The top is shaped like a cone surmounted by a hemisphere (see Fig 12.6). The entire top is 5 cm in height and the diameter of the top is 3.5 cm. Find the area he has to colour. (Take π = 22/7)",
+      "solution_steps": [
+        {
+          "lead": "Use the combination result.",
+          "text": "$\\text{TSA of the toy} = \\text{CSA of hemisphere} + \\text{CSA of cone}$ — only the two curved surfaces are exposed.",
+          "concept_tag": "exposed surfaces only",
+          "mark": 0.5
+        },
+        {
+          "lead": "Read the dimensions.",
+          "text": "Radius $r = \\dfrac{3.5}{2} = 1.75$ cm. Height of the cone $= 5 - 1.75 = 3.25$ cm (subtract the hemisphere's radius from the total height).",
+          "concept_tag": "cone height = total minus hemisphere radius",
+          "mark": 0.5
+        },
+        {
+          "lead": "Slant height first.",
+          "text": "$l = \\sqrt{r^2 + h^2} = \\sqrt{1.75^2 + 3.25^2} \\approx 3.7$ cm.",
+          "concept_tag": "slant height before CSA",
+          "mark": 1
+        },
+        {
+          "lead": "Add the two curved areas.",
+          "text": "$\\text{TSA} = 2\\pi r^2 + \\pi r l = \\pi r(2r + l) = \\dfrac{11}{2}(3.5 + 3.7) = 39.6\\ \\text{cm}^2$ (approx.).",
+          "concept_tag": "sum of curved areas",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 0.5 for the combination result (only the curved surfaces show), 0.5 for the correct cone height (whole height minus the hemisphere's radius), 1 for the slant height, 1 for adding the two curved areas to 39.6 cm². Classic lost mark: using 5 cm as the cone's height.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 163,
+        "edition": "2026-27",
+        "chapter": 12,
+        "note": "problem on p.163; solution runs to p.164"
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "Cylinder with a hemispherical depression - TSA - NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "Mayank made a bird-bath for his garden in the shape of a cylinder with a hemispherical depression at one end (see Fig. 12.9). The height of the cylinder is 1.45 m and its radius is 30 cm. Find the total surface area of the bird-bath. (Take π = 22/7)",
+      "solution_steps": [
+        {
+          "lead": "Only two curved surfaces show.",
+          "text": "$\\text{TSA} = \\text{CSA of cylinder} + \\text{CSA of hemisphere} = 2\\pi r h + 2\\pi r^2 = 2\\pi r(h + r)$.",
+          "concept_tag": "exposed surfaces only",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute with consistent units.",
+          "text": "$r = 30$ cm, $h = 1.45\\ \\text{m} = 145$ cm: $\\;2 \\times \\dfrac{22}{7} \\times 30(145 + 30) = 33000\\ \\text{cm}^2 = 3.3\\ \\text{m}^2$.",
+          "concept_tag": "convert to one unit first",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for the exposed-area formula $2\\pi r(h + r)$, 1 for substituting with consistent units (1.45 m = 145 cm) to 33000 cm² = 3.3 m². The classic slip is mixing metres and centimetres.",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 166,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    },
+    {
+      "id": "ex_ncert_5",
+      "shape": "Cuboid surmounted by a half-cylinder - volume of air - NCERT Example 5",
+      "kind": "numerical",
+      "problem_verbatim": "Shanta runs an industry in a shed which is in the shape of a cuboid surmounted by a half cylinder (see Fig. 12.12). If the base of the shed is of dimension 7 m × 15 m, and the height of the cuboidal portion is 8 m, find the volume of air that the shed can hold. Further, suppose the machinery in the shed occupies a total space of 300 m³, and there are 20 workers, each of whom occupy about 0.08 m³ space on an average. Then, how much air is in the shed? (Take π = 22/7)",
+      "solution_steps": [
+        {
+          "lead": "Volumes simply add.",
+          "text": "Volume of air $=$ volume of the cuboid $+ \\dfrac{1}{2}$ volume of the cylinder.",
+          "concept_tag": "add the constituent volumes",
+          "mark": 1
+        },
+        {
+          "lead": "Substitute.",
+          "text": "Cuboid $15 \\times 7 \\times 8$; half-cylinder $r = 3.5$, length $= 15$: $\\;(15 \\times 7 \\times 8) + \\dfrac{1}{2}\\times\\dfrac{22}{7}\\times 3.5^2 \\times 15 = 1128.75\\ \\text{m}^3$.",
+          "concept_tag": "half a cylinder",
+          "mark": 1
+        },
+        {
+          "lead": "Subtract machinery and workers.",
+          "text": "Machinery $300\\ \\text{m}^3$, workers $20 \\times 0.08 = 1.6\\ \\text{m}^3$: air $= 1128.75 - 301.6 = 827.15\\ \\text{m}^3$.",
+          "concept_tag": "read what is subtracted",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for adding the cuboid and half-cylinder volumes (volume loses nothing at the join), 1 for the arithmetic to 1128.75 m³, 1 for subtracting the space taken by machinery and workers to reach 827.15 m³.",
+      "source": {
+        "ncert_example": "5",
+        "ncert_page": 167,
+        "edition": "2026-27",
+        "chapter": 12,
+        "note": "problem on p.167; solution runs to p.168"
+      }
+    },
+    {
+      "id": "ex_ncert_7",
+      "shape": "Hemisphere surmounted by a cone - volume and cylinder difference - NCERT Example 7",
+      "kind": "numerical",
+      "problem_verbatim": "A solid toy is in the form of a hemisphere surmounted by a right circular cone. The height of the cone is 2 cm and the diameter of the base is 4 cm. Determine the volume of the toy. If a right circular cylinder circumscribes the toy, find the difference of the volumes of the cylinder and the toy. (Take π = 3.14)",
+      "solution_steps": [
+        {
+          "lead": "Volumes add - cone plus hemisphere.",
+          "text": "Volume of the toy $= \\dfrac{2}{3}\\pi r^3 + \\dfrac{1}{3}\\pi r^2 h$, with $r = 2$ cm and $h = 2$ cm.",
+          "concept_tag": "add the constituent volumes",
+          "mark": 1
+        },
+        {
+          "lead": "Evaluate.",
+          "text": "$= \\dfrac{2}{3}(3.14)(2)^3 + \\dfrac{1}{3}(3.14)(2)^2(2) = 25.12\\ \\text{cm}^3$.",
+          "concept_tag": "substitute r and h",
+          "mark": 1
+        },
+        {
+          "lead": "Circumscribing cylinder, then subtract.",
+          "text": "The circumscribing cylinder has $r = 2$ and height $= 4$: $\\;3.14 \\times 2^2 \\times 4 - 25.12 = 25.12\\ \\text{cm}^3$.",
+          "concept_tag": "difference of volumes",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the sum-of-volumes setup (hemisphere + cone), 1 for evaluating the toy's volume to 25.12 cm³, 1 for the circumscribing cylinder's volume and taking the difference (also 25.12 cm³).",
+      "source": {
+        "ncert_example": "7",
+        "ncert_page": 169,
+        "edition": "2026-27",
+        "chapter": 12
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "New shape you can't name?",
+      "text": "Break it into two basic solids (cuboid, cube, cylinder, cone, sphere, hemisphere) — every object here is a combination of ones you already know."
+    },
+    {
+      "cue": "Surface area?",
+      "text": "Add only the EXPOSED faces. Drop the circles hidden at the join; never add the two full total surface areas."
+    },
+    {
+      "cue": "Volume?",
+      "text": "Simply ADD the pieces' volumes. For a scooped/hollow solid, subtract the removed piece."
+    },
+    {
+      "cue": "A cone is involved?",
+      "text": "Find the slant height $l = \\sqrt{r^2 + h^2}$ first, and take the cone's height as the whole height minus the attached hemisphere's radius."
+    },
+    {
+      "cue": "Units differ (m and cm)?",
+      "text": "Convert everything to one unit BEFORE substituting — a mixed-unit substitution is a guaranteed lost mark."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Adding the two full surface areas</b> — TSA of a combination is NOT TSA(part 1) + TSA(part 2); the buried join circle is double-counted. Add only the exposed curved/flat areas.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Wrong cone height</b> — for a cone on a hemisphere, the cone's height is the total height minus the hemisphere's radius, not the whole height.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Mixing units</b> — combining a 1.45 m height with a 30 cm radius without converting. Bring everything to one unit first.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Subtracting for volume</b> — volumes of joined solids simply ADD; nothing disappears at the join. Only SCOOPED-out solids involve subtraction.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Cylinder",
+      "math": "$\\text{CSA} = 2\\pi r h \\;\\cdot\\; \\text{TSA} = 2\\pi r(r + h) \\;\\cdot\\; V = \\pi r^2 h$"
+    },
+    {
+      "label": "Cone",
+      "math": "$\\text{CSA} = \\pi r l \\;\\cdot\\; \\text{TSA} = \\pi r(r + l) \\;\\cdot\\; V = \\dfrac{1}{3}\\pi r^2 h \\;\\cdot\\; l = \\sqrt{r^2 + h^2}$"
+    },
+    {
+      "label": "Sphere",
+      "math": "$\\text{Surface area} = 4\\pi r^2 \\;\\cdot\\; V = \\dfrac{4}{3}\\pi r^3$"
+    },
+    {
+      "label": "Hemisphere",
+      "math": "$\\text{CSA} = 2\\pi r^2 \\;\\cdot\\; \\text{TSA} = 3\\pi r^2 \\;\\cdot\\; V = \\dfrac{2}{3}\\pi r^3$"
+    },
+    {
+      "label": "Cuboid & Cube",
+      "math": "$\\text{Cuboid TSA} = 2(lb + bh + hl),\\ V = lbh \\;\\cdot\\; \\text{Cube TSA} = 6a^2,\\ V = a^3$"
+    },
+    {
+      "label": "Combination rule",
+      "math": "$\\text{Surface: add EXPOSED areas} \\;\\cdot\\; \\text{Volume: add the constituents}$"
+    }
+  ],
+  "mindmap": {
+    "root": "Surface Areas and Volumes - combination of solids",
+    "branches": [
+      {
+        "label": "Surface area of a combination",
+        "children": [
+          "Add only the EXPOSED faces",
+          "Hidden join circles don't count",
+          "Not TSA(part 1) + TSA(part 2)"
+        ]
+      },
+      {
+        "label": "Volume of a combination",
+        "children": [
+          "Simply ADD the constituents",
+          "Nothing lost at the join",
+          "Scooped solid -> subtract the removed piece"
+        ]
+      },
+      {
+        "label": "Basic-solid formulas",
+        "children": [
+          "Cylinder: 2(pi)rh, (pi)r^2 h",
+          "Cone: (pi)rl, (1/3)(pi)r^2 h",
+          "Sphere: 4(pi)r^2, (4/3)(pi)r^3",
+          "Hemisphere: 2(pi)r^2, (2/3)(pi)r^3"
+        ]
+      },
+      {
+        "label": "The cone in the mix",
+        "children": [
+          "Slant height l = sqrt(r^2 + h^2) first",
+          "Cone height = total - hemisphere radius"
+        ]
+      },
+      {
+        "label": "Don't lose marks on...",
+        "children": [
+          "Adding the two full surface areas",
+          "Wrong cone height",
+          "Mixing m and cm",
+          "Subtracting for volume"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Why the surface area of a combination is a sum of curved areas",
+    "intro": "This is the core reasoning of the chapter, worked on NCERT's cone-on-hemisphere toy (pp. 162-164). It shows WHY you add only the exposed curved surfaces, and why the total surface area is not the plain sum of the two solids' total surface areas.",
+    "steps": [
+      {
+        "claim": "Whenever we meet a new solid, break it into basic solids we have already solved.",
+        "justification": "NCERT's method for a combination: reduce the new problem to smaller problems already solved (p.162)."
+      },
+      {
+        "claim": "Build the toy by bringing the flat face of a cone and the flat face of a hemisphere together, with equal base radii.",
+        "justification": "The two flat circular faces meet exactly and are sealed inside the join, so neither is on the outside surface (p.163)."
+      },
+      {
+        "claim": "Only the curved surfaces remain visible, so the surface area is their sum.",
+        "math": "$\\text{TSA of the toy} = \\text{CSA of hemisphere} + \\text{CSA of cone} = 2\\pi r^2 + \\pi r l$",
+        "justification": "The exposed surface is exactly the curved hemisphere plus the curved cone (p.163)."
+      },
+      {
+        "claim": "Therefore the total surface area is NOT the sum of the two solids' full total surface areas.",
+        "justification": "TSA(cone) + TSA(hemisphere) would count the shared base circle twice; NCERT prints this warning after Example 1 (p.164)."
+      },
+      {
+        "claim": "For volume the same join hides nothing, so volumes simply add.",
+        "math": "$V_{\\text{toy}} = \\dfrac{2}{3}\\pi r^3 + \\dfrac{1}{3}\\pi r^2 h$",
+        "justification": "No volume disappears at the join, so the combined volume is the sum of the constituents (p.167)."
+      }
+    ],
+    "source": {
+      "ncert_page": 163,
+      "edition": "2026-27",
+      "chapter": 12,
+      "note": "worked derivation drawn from NCERT pp.162-164 (surface-area reasoning) with the volume note from p.167"
+    }
+  },
+  "figures": {
+    "fig_capsule_1210": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 12.10",
+      "caption": "Medicine capsule - a cylinder with a hemisphere stuck to each end; length 14 mm, diameter 5 mm.",
+      "legend": "The straight middle is the cylinder; the two rounded ends are the hemispheres. Surface = curved cylinder + two curved hemispheres.",
+      "source": {
+        "pdf": "jemh112",
+        "edition": "2026-27",
+        "ncert_fig": "12.10",
+        "page_pdf": 6,
+        "crop": [838, 1655, 1300, 1815],
+        "clean": "saturation (keeps the blue fill; lifts the 'not to be republished' watermark)",
+        "note": "rasterize@dpi220 -> crop -> clean_watermark(mode='saturation') via kit; confirmed by eye"
+      },
+      "asset": "surface-areas-and-volumes/fig_capsule_1210.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Surface area of a combination of solids",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.162"
+    },
+    {
+      "item": "Volume of a combination of solids",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.167"
+    },
+    {
+      "item": "Why surface areas are not simply added",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.167"
+    },
+    {
+      "item": "Total surface area is not additive",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.164"
+    },
+    {
+      "item": "TSA of a cylinder with two hemispherical ends",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.162"
+    },
+    {
+      "item": "TSA of a cone-and-hemisphere toy",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.163"
+    },
+    {
+      "item": "Surface area of a combination (Summary)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.170"
+    },
+    {
+      "item": "Volume of a combination (Summary)",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.170"
+    },
+    {
+      "item": "Combination of solids",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch12 p.161"
+    },
+    {
+      "item": "Cone surmounted by a hemisphere - area to colour - NCERT Example 1",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch12 Example 1 p.163-164"
+    },
+    {
+      "item": "Cylinder with a hemispherical depression - TSA - NCERT Example 4",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch12 Example 4 p.166"
+    },
+    {
+      "item": "Cuboid surmounted by a half-cylinder - volume of air - NCERT Example 5",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch12 Example 5 p.167-168"
+    },
+    {
+      "item": "Hemisphere surmounted by a cone - volume and cylinder difference - NCERT Example 7",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch12 Example 7 p.169"
+    },
+    {
+      "item": "fig_capsule_1210",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch12 Fig. 12.10 p.166"
+    }
+  ]
+}

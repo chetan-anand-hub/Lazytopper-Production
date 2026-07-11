@@ -1,0 +1,584 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "circles",
+    "subject": "maths",
+    "chapter_no": 10,
+    "title": "Circles",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 10 (jemh110.pdf, printed pages 144–153)"
+  },
+  "board_asks": "the two tangent theorems — the tangent is perpendicular to the radius at the point of contact (Theorem 10.1) and the two tangents from an external point are equal (Theorem 10.2) — plus “find the length of the tangent / radius” numericals and circumscribed-figure proofs. Almost every mark here rides on those two theorems.",
+  "big_idea": {
+    "tagline": "One point of contact, one right angle.",
+    "body": "A <b>tangent</b> touches a circle at exactly one point; a <b>secant</b> cuts it at two. The whole chapter hangs on two facts: at the point of contact the tangent is <b>perpendicular to the radius</b> (Theorem 10.1), and from a point <b>outside</b> the circle you can draw exactly <b>two</b> tangents whose <b>lengths are equal</b> (Theorem 10.2). Together they turn tangent questions into right-triangle and congruence problems you already know how to solve."
+  },
+  "definitions": [
+    {
+      "id": "def_tangent",
+      "tier": "headline",
+      "term": "Tangent to a circle",
+      "verbatim": "a tangent to a circle is a line that intersects the circle at only one point.",
+      "plain": "A line that grazes the circle at a single <b>point of contact</b>. Contrast a secant (2 common points) and a non-intersecting line (0). The word comes from the Latin <i>tangere</i>, “to touch”.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 145,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_secant",
+      "tier": "headline",
+      "term": "Secant of a circle",
+      "verbatim": "there are two common points A and B that the line PQ and the circle have. In this case, we call the line PQ a secant of the circle.",
+      "plain": "A line that cuts the circle at <b>two</b> points. Slide a secant until its two crossing points merge into one and it becomes a tangent — that limiting idea is the bridge to the whole chapter.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 144,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_theorem_10_1",
+      "tier": "headline",
+      "term": "Theorem 10.1 — tangent ⊥ radius",
+      "verbatim": "The tangent at any point of a circle is perpendicular to the radius through the point of contact.",
+      "plain": "At the point of contact, radius ⊥ tangent — a guaranteed $90°$. This right angle is the workhorse of almost every numerical and proof in the chapter (it hands you a right triangle for Pythagoras).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 146,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_theorem_10_2",
+      "tier": "headline",
+      "term": "Theorem 10.2 — equal tangents from an external point",
+      "verbatim": "The lengths of tangents drawn from an external point to a circle are equal.",
+      "plain": "From a point outside, the two tangent segments are equal ($PQ = PR$). This is what powers the circumscribed-quadrilateral and inscribed-circle proofs; the centre also lies on the bisector of the angle between the two tangents.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 149,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_length_of_tangent",
+      "tier": "headline",
+      "term": "Length of the tangent",
+      "verbatim": "The length of the segment of the tangent from the external point P and the point of contact with the circle is called the length of the tangent from the point P to the circle.",
+      "plain": "The distance from the external point to where the tangent touches the circle. With radius ⊥ tangent it is the leg of a right triangle, so $\\ell = \\sqrt{d^2 - r^2}$ (d = distance of the point from the centre, r = radius).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 148,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_non_intersecting",
+      "tier": "key-term",
+      "term": "Non-intersecting line",
+      "verbatim": "In Fig. 10.1 (i), the line PQ and the circle have no common point. In this case, PQ is called a non-intersecting line with respect to the circle.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 144,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_point_of_contact",
+      "tier": "key-term",
+      "term": "Point of contact",
+      "verbatim": "The common point of the tangent and the circle is called the point of contact",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 146,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_tangent_limiting_secant",
+      "tier": "key-term",
+      "term": "Tangent = limiting secant",
+      "verbatim": "The tangent to a circle is a special case of the secant, when the two end points of its corresponding chord coincide.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 145,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "A line and a circle — three positions",
+      "body": "Given a circle and a line, exactly three things can happen: the line misses the circle (<b>non-intersecting</b>, 0 common points), cuts it at two points (<b>secant</b>), or touches it at one point (<b>tangent</b>). A tangent is the limiting case of a secant whose two crossing points have merged.",
+      "tested": "1-mark fill-in-the-blank / MCQ (Exercise 10.1 Q2)",
+      "figure_ref": "fig_positions_101"
+    },
+    {
+      "id": "c2",
+      "title": "Tangent ⊥ radius (Theorem 10.1)",
+      "body": "At the point of contact, the tangent is perpendicular to the radius. Two consequences NCERT flags in the Remarks: there is <b>one and only one</b> tangent at a point of a circle, and the line along that radius is called the <b>normal</b> at the point.",
+      "tested": "cited inside almost every circle proof; the $90°$ carries the mark",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "How many tangents from a point? 0, 1 or 2",
+      "body": "From a point <b>inside</b> the circle you can draw <b>no</b> tangent; from a point <b>on</b> the circle exactly <b>one</b>; from a point <b>outside</b> exactly <b>two</b>. State which case you are in before you start computing.",
+      "tested": "1-mark conceptual; sets up the length-of-tangent numericals",
+      "figure_ref": "fig_num_tangents_106"
+    },
+    {
+      "id": "c4",
+      "title": "Equal tangents from an external point (Theorem 10.2)",
+      "body": "The two tangents from an outside point have equal length ($PQ = PR$), so they form an <b>isosceles</b> triangle and the centre lies on the bisector of the angle between them. Labelling equal tangent segments from each vertex is the key move in circumscribed-figure proofs.",
+      "tested": "circumscribed quadrilateral/triangle proofs, e.g. $AB+CD=AD+BC$ — Sections C/D",
+      "figure_ref": "fig_equal_tangents_107"
+    },
+    {
+      "id": "c5",
+      "title": "Length of a tangent — the right-triangle numerical",
+      "body": "Because radius ⊥ tangent, the radius, the tangent segment and the line from the point to the centre form a right triangle. Pythagoras gives the length of the tangent $\\ell = \\sqrt{d^2 - r^2}$, where $d$ is the distance of the point from the centre and $r$ the radius.",
+      "tested": "2–3 mark “find the tangent length / find the radius” (Exercise 10.2 Q1, Q6)",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ex101_q3",
+      "shape": "Length of a tangent · NCERT Exercise 10.1 Q3",
+      "kind": "numerical",
+      "problem_verbatim": "A tangent PQ at a point P of a circle of radius 5 cm meets a line through the centre O at a point Q so that OQ = 12 cm. Length PQ is :",
+      "solution_steps": [
+        {
+          "lead": "Set up the right triangle.",
+          "text": "The radius $OP$ is perpendicular to the tangent $PQ$ at $P$ (Theorem 10.1), so $\\triangle OPQ$ is right-angled at $P$ with hypotenuse $OQ$.",
+          "concept_tag": "radius ⊥ tangent",
+          "mark": 0.5
+        },
+        {
+          "lead": "Apply Pythagoras.",
+          "text": "$PQ = \\sqrt{OQ^2 - OP^2} = \\sqrt{12^2 - 5^2} = \\sqrt{144 - 25} = \\sqrt{119}\\ \\text{cm}$ — option (D).",
+          "concept_tag": "Pythagoras on radius–tangent right triangle",
+          "mark": 0.5
+        }
+      ],
+      "marks_total": 1,
+      "mark_logic": "1-mark MCQ (Section A): radius ⊥ tangent makes $\\triangle OPQ$ right-angled at $P$, then $PQ = \\sqrt{OQ^2 - OP^2} = \\sqrt{119}$ cm, option (D). The trap is choosing (B) 13 by adding the squares instead of subtracting.",
+      "source": {
+        "ncert_exercise": "10.1",
+        "question": "3",
+        "ncert_page": 147,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "ex_ncert_1",
+      "shape": "Proof · NCERT Example 1 (concentric circles, chord bisected)",
+      "kind": "numerical",
+      "problem_verbatim": "Prove that in two concentric circles, the chord of the larger circle, which touches the smaller circle, is bisected at the point of contact.",
+      "solution_steps": [
+        {
+          "lead": "Set up the figure.",
+          "text": "Two concentric circles $C_1$ (larger) and $C_2$ (smaller) with centre $O$; a chord $AB$ of $C_1$ touches $C_2$ at $P$. To prove: $AP = BP$.",
+          "concept_tag": "model the configuration",
+          "mark": 1
+        },
+        {
+          "lead": "Use Theorem 10.1.",
+          "text": "$AB$ is a tangent to $C_2$ at $P$ and $OP$ is its radius, so by Theorem 10.1, $OP \\perp AB$.",
+          "concept_tag": "tangent ⊥ radius",
+          "mark": 1
+        },
+        {
+          "lead": "Perpendicular from the centre bisects the chord.",
+          "text": "$AB$ is a chord of $C_1$ and $OP \\perp AB$ passes through the centre $O$; the perpendicular from the centre bisects the chord, so $AP = BP$.",
+          "concept_tag": "perpendicular from centre bisects chord",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark proof (Section C): 1 for the correct set-up/figure, 1 for $OP \\perp AB$ via Theorem 10.1, 1 for concluding $AP = BP$ by the perpendicular-from-the-centre-bisects-the-chord property. Not citing Theorem 10.1 by name is the common lost mark.",
+      "source": {
+        "ncert_example": "1",
+        "ncert_page": 149,
+        "edition": "2026-27",
+        "chapter": 10,
+        "note": "problem on p.149, solution runs to p.150"
+      }
+    },
+    {
+      "id": "ex_ncert_2",
+      "shape": "Proof · NCERT Example 2 (angle between tangents)",
+      "kind": "numerical",
+      "problem_verbatim": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
+      "solution_steps": [
+        {
+          "lead": "Equal tangents → isosceles.",
+          "text": "Let $\\angle PTQ = \\theta$. By Theorem 10.2, $TP = TQ$, so $\\triangle TPQ$ is isosceles.",
+          "concept_tag": "equal tangents → isosceles",
+          "mark": 1
+        },
+        {
+          "lead": "Base angles of the isosceles triangle.",
+          "text": "$\\angle TPQ = \\angle TQP = \\tfrac{1}{2}(180° - \\theta) = 90° - \\tfrac{1}{2}\\theta$.",
+          "concept_tag": "isosceles base angles",
+          "mark": 1
+        },
+        {
+          "lead": "Use ∠OPT = 90° and chase the angle.",
+          "text": "By Theorem 10.1, $\\angle OPT = 90°$, so $\\angle OPQ = \\angle OPT - \\angle TPQ = 90° - (90° - \\tfrac{1}{2}\\theta) = \\tfrac{1}{2}\\theta = \\tfrac{1}{2}\\angle PTQ$. Hence $\\angle PTQ = 2\\angle OPQ$.",
+          "concept_tag": "radius ⊥ tangent → angle chase",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark proof (Section C): 1 for $TP = TQ ⇒$ isosceles $\\triangle TPQ$ (Theorem 10.2), 1 for the base angles $90° - \\tfrac{1}{2}\\theta$, 1 for using $\\angle OPT = 90°$ (Theorem 10.1) to reach $\\angle OPQ = \\tfrac{1}{2}\\angle PTQ$. Skipping the isosceles step breaks the angle-chase and loses marks.",
+      "source": {
+        "ncert_example": "2",
+        "ncert_page": 150,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Numerical · NCERT Example 3 (find the tangent length TP)",
+      "kind": "numerical",
+      "problem_verbatim": "PQ is a chord of length 8 cm of a circle of radius 5 cm. The tangents at P and Q intersect at a point T (see Fig. 10.10). Find the length TP.",
+      "solution_steps": [
+        {
+          "lead": "Equal tangents force a perpendicular bisector.",
+          "text": "Join $OT$; let it meet $PQ$ at $R$. Since $TP = TQ$ (equal tangents) and $TO$ bisects $\\angle PTQ$, we get $OT \\perp PQ$ and $OT$ bisects $PQ$, so $PR = RQ = 4$ cm.",
+          "concept_tag": "equal tangents → isosceles",
+          "mark": 1
+        },
+        {
+          "lead": "Find OR by Pythagoras.",
+          "text": "In right $\\triangle OPR$: $OR = \\sqrt{OP^2 - PR^2} = \\sqrt{5^2 - 4^2} = \\sqrt{25 - 16} = 3$ cm.",
+          "concept_tag": "Pythagoras for OR",
+          "mark": 1
+        },
+        {
+          "lead": "Similar right triangles give TP.",
+          "text": "Right $\\triangle TRP \\sim$ right $\\triangle PRO$ (AA), so $\\dfrac{TP}{PO} = \\dfrac{RP}{RO}$, i.e. $\\dfrac{TP}{5} = \\dfrac{4}{3}$, giving $TP = \\dfrac{20}{3}$ cm.",
+          "concept_tag": "similar triangles → TP",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for $PR = RQ = 4$ cm (equal tangents ⇒ $OT \\perp PQ$ and bisects it), 1 for $OR = 3$ cm by Pythagoras, 1 for $TP = \\tfrac{20}{3}$ cm via the similar right triangles. NCERT notes a Pythagoras route to the same $TP$.",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 150,
+        "edition": "2026-27",
+        "chapter": 10,
+        "note": "problem on p.150, solution runs to p.151"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Tangent + radius in the figure?",
+      "text": "Mark the point of contact and draw the radius to it — it is ⊥ to the tangent (Theorem 10.1). That $90°$ unlocks Pythagoras or a right triangle."
+    },
+    {
+      "cue": "Two tangents from one outside point?",
+      "text": "They are equal (Theorem 10.2). Equal tangents ⇒ an isosceles triangle, and the centre sits on the bisector of the angle between them."
+    },
+    {
+      "cue": "Find a tangent length, radius or distance?",
+      "text": "Build the radius–tangent–(line-to-centre) right triangle, then apply Pythagoras: $(\\text{tangent})^2 = (\\text{distance to centre})^2 - (\\text{radius})^2$."
+    },
+    {
+      "cue": "Circle inscribed in a quadrilateral or triangle?",
+      "text": "Label the equal tangent segments from each vertex; the opposite-side sums come out equal, e.g. $AB + CD = AD + BC$."
+    },
+    {
+      "cue": "How many tangents?",
+      "text": "Inside → 0, on the circle → 1, outside → 2. State the case before you compute."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Dropping the perpendicular to the wrong point</b> — the tangent is ⊥ to the radius only at the <i>point of contact</i>, not at any other point of the circle.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Adding instead of subtracting</b> in the tangent right triangle: $(\\text{tangent})^2 = OQ^2 - OP^2$, so $PQ = \\sqrt{d^2 - r^2}$, never $\\sqrt{d^2 + r^2}$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Skipping the theorem citation in a proof</b> — stating “the tangents are equal” without invoking Theorem 10.2 (or “radius ⊥ tangent” without Theorem 10.1) forfeits the reasoning mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Forgetting the isosceles step</b> in an angle problem — equal tangents make the triangle isosceles; without that, the base-angle relation and the whole angle-chase collapse.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Tangent ⊥ radius",
+      "math": "$OP \\perp XY$ at the point of contact $P$"
+    },
+    {
+      "label": "Length of a tangent",
+      "math": "$\\ell = \\sqrt{d^2 - r^2}$  ($d$ = distance of point from centre, $r$ = radius)"
+    },
+    {
+      "label": "Equal tangents",
+      "math": "$PQ = PR$  (from external point $P$)"
+    },
+    {
+      "label": "Number of tangents",
+      "math": "inside $0$ · on $1$ · outside $2$"
+    },
+    {
+      "label": "Circumscribed quadrilateral",
+      "math": "$AB + CD = AD + BC$"
+    }
+  ],
+  "mindmap": {
+    "root": "Circles — tangents & their two theorems",
+    "branches": [
+      {
+        "label": "A line meets a circle (0 / 1 / 2 points)",
+        "children": [
+          "Non-intersecting → 0 common points",
+          "Secant → 2 common points (A, B)",
+          "Tangent → 1 point (point of contact)",
+          "Tangent = limiting secant"
+        ]
+      },
+      {
+        "label": "Theorem 10.1 — tangent ⊥ radius",
+        "children": [
+          "⊥ at the point of contact",
+          "One and only one tangent at a point",
+          "Radius line at contact = ‘normal’"
+        ]
+      },
+      {
+        "label": "Number of tangents from a point",
+        "children": [
+          "Inside → 0",
+          "On the circle → 1",
+          "Outside → 2",
+          "Length of tangent = √(d² − r²)"
+        ]
+      },
+      {
+        "label": "Theorem 10.2 — equal tangents",
+        "children": [
+          "PQ = PR from external P",
+          "⇒ isosceles triangle",
+          "Centre on the angle bisector",
+          "Circumscribed quad: AB + CD = AD + BC"
+        ]
+      },
+      {
+        "label": "Don’t lose marks on…",
+        "children": [
+          "Cite Theorem 10.1 / 10.2 by name",
+          "Subtract in √(d² − r²), never add",
+          "State the case (0 / 1 / 2) first"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Theorem 10.2 — the lengths of tangents from an external point are equal",
+    "intro": "The chapter’s workhorse result, proved by RHS congruence of the two right triangles the radii create. NCERT’s Remarks add two facts: the same result follows from the Pythagoras Theorem ($PQ^2 = OP^2 - OQ^2 = OP^2 - OR^2 = PR^2$), and since $\\angle OPQ = \\angle OPR$, the centre lies on the bisector of the angle between the two tangents.",
+    "steps": [
+      {
+        "claim": "Set up what is given and what to prove.",
+        "justification": "A circle with centre O, a point P outside it, and two tangents PQ, PR from P. Required: PQ = PR.",
+        "math": null
+      },
+      {
+        "claim": "Join OP, OQ and OR.",
+        "justification": "OQ and OR are radii to the points of contact Q and R.",
+        "math": null
+      },
+      {
+        "claim": "The radius–tangent angles are right angles.",
+        "justification": "Each is the angle between a radius and the tangent at its point of contact, so by Theorem 10.1 they are right angles.",
+        "math": "$\\angle OQP = \\angle ORP = 90°$"
+      },
+      {
+        "claim": "Compare right triangles OQP and ORP.",
+        "justification": "OQ = OR (radii of the same circle) and OP = OP (common hypotenuse).",
+        "math": "$OQ = OR,\\quad OP = OP$"
+      },
+      {
+        "claim": "The triangles are congruent.",
+        "justification": "Right angle, hypotenuse and one side equal — RHS congruence.",
+        "math": "$\\triangle OQP \\cong \\triangle ORP$"
+      },
+      {
+        "claim": "Hence the tangent lengths are equal.",
+        "justification": "PQ and PR are corresponding parts of the congruent triangles (CPCT).",
+        "math": "$PQ = PR$"
+      }
+    ],
+    "source": {
+      "ncert_page": 149,
+      "edition": "2026-27",
+      "chapter": 10,
+      "note": "Theorem 10.2 with its printed RHS/CPCT proof and the two Remarks, p.149"
+    }
+  },
+  "figures": {
+    "fig_positions_101": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 10.1",
+      "caption": "A line and a circle: (i) non-intersecting (0 points) · (ii) secant (cuts at A, B) · (iii) tangent (touches at A).",
+      "legend": "Left to right the line PQ moves from missing the circle, to cutting it twice, to just touching it at one point — the tangent.",
+      "source": {
+        "pdf": "jemh110",
+        "edition": "2026-27",
+        "ncert_fig": "10.1",
+        "page_pdf": 0,
+        "page_printed": 144,
+        "clip_pts": [42, 376, 426, 521],
+        "render_matrix": "4x",
+        "clean": "watermark removed where value>200 and saturation<0.12 -> white (saturation mode keeps the cyan line art)",
+        "refill": null
+      },
+      "asset": "circles/fig_positions_101.webp"
+    },
+    "fig_num_tangents_106": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 10.6",
+      "caption": "Number of tangents from a point: (i) inside → no tangent · (ii) on the circle → one · (iii) outside → exactly two (PT₁, PT₂).",
+      "legend": "Every line through an interior point is a secant (0 tangents); a point on the circle gives 1; an outside point P gives 2 tangents touching at T₁ and T₂.",
+      "source": {
+        "pdf": "jemh110",
+        "edition": "2026-27",
+        "ncert_fig": "10.6",
+        "page_pdf": 4,
+        "page_printed": 148,
+        "clip_pts": [266, 90, 432, 523],
+        "render_matrix": "4x",
+        "clean": "watermark removed where value>200 and saturation<0.12 -> white (saturation mode keeps the cyan line art)",
+        "refill": null
+      },
+      "asset": "circles/fig_num_tangents_106.webp"
+    },
+    "fig_equal_tangents_107": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig. 10.7",
+      "caption": "Theorem 10.2 set-up: tangents PQ, PR from external point P with radii OQ, OR and OP joined — the two right triangles OQP, ORP are congruent (RHS), so PQ = PR.",
+      "legend": "Solid PQ, PR are the tangents; dashed OQ, OR, OP are joined for the proof. RHS congruence of △OQP and △ORP gives PQ = PR.",
+      "source": {
+        "pdf": "jemh110",
+        "edition": "2026-27",
+        "ncert_fig": "10.7",
+        "page_pdf": 5,
+        "page_printed": 149,
+        "clip_pts": [272, 105, 428, 220],
+        "render_matrix": "4x",
+        "clean": "watermark removed where value>200 and saturation<0.12 -> white (saturation mode keeps the cyan line art)",
+        "refill": null
+      },
+      "asset": "circles/fig_equal_tangents_107.webp"
+    }
+  },
+  "source_ledger": [
+    {
+      "item": "Tangent to a circle",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.145"
+    },
+    {
+      "item": "Secant of a circle",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.144"
+    },
+    {
+      "item": "Theorem 10.1 — tangent ⊥ radius",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.146"
+    },
+    {
+      "item": "Theorem 10.2 — equal tangents from an external point",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.149"
+    },
+    {
+      "item": "Length of the tangent",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.148"
+    },
+    {
+      "item": "Non-intersecting line",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.144"
+    },
+    {
+      "item": "Point of contact",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.146"
+    },
+    {
+      "item": "Tangent = limiting secant",
+      "type": "verbatim",
+      "source": "NCERT 2026-27 Ch10 p.145"
+    },
+    {
+      "item": "Length of a tangent · NCERT Exercise 10.1 Q3",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch10 Exercise 10.1 Q3 p.147"
+    },
+    {
+      "item": "Proof · NCERT Example 1 (concentric circles, chord bisected)",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch10 Example 1 p.149"
+    },
+    {
+      "item": "Proof · NCERT Example 2 (angle between tangents)",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch10 Example 2 p.150"
+    },
+    {
+      "item": "Numerical · NCERT Example 3 (find the tangent length TP)",
+      "type": "example",
+      "source": "NCERT 2026-27 Ch10 Example 3 p.150"
+    },
+    {
+      "item": "NCERT Fig. 10.1 — line and circle: three positions",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch10 Fig. 10.1 p.144"
+    },
+    {
+      "item": "NCERT Fig. 10.6 — number of tangents from a point",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch10 Fig. 10.6 p.148"
+    },
+    {
+      "item": "NCERT Fig. 10.7 — Theorem 10.2 set-up",
+      "type": "figure",
+      "source": "NCERT 2026-27 Ch10 Fig. 10.7 p.149"
+    }
+  ]
+}
