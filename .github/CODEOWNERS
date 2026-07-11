@@ -1,0 +1,31 @@
+# CODEOWNERS -- mechanizes the gated-lane rule.
+#
+# Any PR that touches a path below auto-requests review from @chetan-anand-hub. This turns
+# the prose rule in CLAUDE.md section 4 (globally-forbidden files) + the gated data / skill /
+# CI lanes into a GitHub gate. It only ADDS a required reviewer; it restricts nothing else.
+#
+# ENFORCEMENT: the file alone auto-REQUESTS the review. To make owner approval a merge
+# blocker, enable branch protection -> "Require review from Code Owners" on the trunk
+# (owner-console; see the PR body, section D). CODEOWNERS also only takes effect once it is
+# on the default branch (trunk), so it does not gate this PR itself.
+#
+# Last matching pattern wins; all patterns here map to the same owner, so order is neutral.
+
+# --- Content data lane: question banks, predictionTypes.ts, every file under src/data ---
+/lazytopper/src/data/                                  @chetan-anand-hub
+
+# --- Globally-forbidden app files (CLAUDE.md section 4) ---
+/lazytopper/src/pages/Welcome.tsx                      @chetan-anand-hub
+/lazytopper/src/App.tsx                                @chetan-anand-hub
+/lazytopper/src/components/desktop/DesktopShell.tsx    @chetan-anand-hub
+/lazytopper/src/main.tsx                               @chetan-anand-hub
+/lazytopper/vite.config.ts                             @chetan-anand-hub
+/firebase.json                                         @chetan-anand-hub
+/firestore.rules                                       @chetan-anand-hub
+
+# --- The operating skill ---
+/cofounder-skill/                                      @chetan-anand-hub
+
+# --- CI is sensitive: the owner reviews every change to workflows, ownership, and CI scripts ---
+/.github/                                              @chetan-anand-hub
+/scripts/ops/                                          @chetan-anand-hub

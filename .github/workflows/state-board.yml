@@ -1,0 +1,65 @@
+name: State Board
+
+# Kills the stale-SHA trap. After every push to the trunk it appends one machine-generated
+# row (date, SHA, PR#, subject, files-changed, top-level dirs) to handoff/MERGE_LEDGER.md --
+# so "what merged when" is generated, never hand-copied. The record is ALSO written to the
+# run summary, so even if the trunk push-back is not yet permitted the record is never lost.
+# Additive -- it does not touch quality-gate.yml.
+#
+# TRUNK WRITE (owner ratifies -- see the PR body, section D): to commit the ledger back to the
+# protected trunk the Actions bot must be on the branch-protection bypass allowlist. Until then
+# the push step WARNS (non-fatal) and the record lives only in the run summary. The bot commits
+# with [skip ci] and GITHUB_TOKEN pushes do not re-trigger workflows, so there is no loop.
+
+on:
+  push:
+    branches: [base/approved-thru-437]
+  workflow_dispatch: {}
+
+# Serialize ledger appends so two quick merges cannot race on the push-back. Do NOT cancel --
+# every merge must be recorded.
+concurrency:
+  group: state-board
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  state-board:
+    runs-on: ubuntu-latest
+    # Never act on the ledger's own [skip ci] commit (belt-and-suspenders; GitHub already
+    # skips [skip ci] pushes and GITHUB_TOKEN pushes do not re-trigger).
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip ci]') }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Build ledger record
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: node scripts/ops/state_board.mjs
+
+      - name: Commit + push ledger (resilient)
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add handoff/MERGE_LEDGER.md
+          if git diff --cached --quiet; then
+            echo "No ledger change to commit."
+            exit 0
+          fi
+          SHORT=$(git rev-parse --short=7 "$GITHUB_SHA")
+          git commit -m "chore(ledger): record ${SHORT} [skip ci]"
+          if git push origin "HEAD:refs/heads/base/approved-thru-437"; then
+            echo "Ledger row pushed to trunk."
+          else
+            echo "::warning::Ledger push blocked -- add the Actions bot to the branch-protection bypass allowlist (PR body, section D), or trunk advanced mid-run. The record is preserved in this run's summary."
+          fi
+        env:
+          GITHUB_SHA: ${{ github.sha }}
