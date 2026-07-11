@@ -1,3 +1,22 @@
+## 2026-07-11 -- P0 Topic-Key Root Cure REBUILD merged (#363, `6ecf15f`)
+
+### RESOLVED (closed by #363)
+- **[FU-TOPICKEY-UNIVERSAL] (P0) -> CLOSED.** One product, one topic key. C2 migrated every non-canonical topicKey to its `topics.ts` slug (2,514 literals / 52 files, both object styles + factory + the 26 inline aggregator questions), proven lossless. C3 made it non-regenerable: a **dual-style Guard A** + an **authoritative import-based runtime proof** are wired into the CI matrix, so a non-canonical key can no longer enter the served bank. The 4 previously-zeroed Science chapters (Chemical Reactions, Acids-Bases-Salts, Metals-Non-Metals, Reproduction) now return questions; circles != areas-related-to-circles and light != human-eye stay disjoint. Owner independently confirmed 7084 / 0 dup / 0 orphan / 26 keys and live-verified. The prior attempt's blind spot -- a `\btopicKey:` regex skipping 124 JSON-style files, plus a hardcoded `length === 5146` -- is fixed and negative-tested.
+
+### NEW FOLLOW-UPS (surfaced by #363; none lost)
+- **[FU-AGGREGATOR-INLINE-QUESTIONS]** -- `canonicalQuestionBank.ts` holds **26 inline JSON-style served questions** (9 of the 34 orphan keys, incl. all 3 approved singletons). They had to be migrated in C2 (0-orphans is impossible without them), which exceeded 3A's "questionBanks-only" scope (owner-RATIFIED). Relocate them to a `questionBanks/**` pack so 3A holds literally; then the data commit is purely under questionBanks again.
+- **[FU-TOPICHUB-MASTERY-STORAGE-KEY]** -- `services/topicHubMastery.ts` (mastery snapshots to localStorage + Firestore) and the dormant `services/spacedRepetitionEngine.ts` key their records with `normalizeTopicKeyForStorage` / a `${topicKey}::${conceptKey}` composite, NOT `resolveCanonicalSlug`. C1 deliberately preserved this key so already-stored mastery is not orphaned (no backfill). A writer/reader asymmetry exists (TeachFlow writes the raw key; ProfilePage reads the alias-collapsed canonical). Reconcile the storage-key scheme with the canonical vocabulary -- migration-sensitive, needs a stored-data-safe plan. Guard D honestly reports this layer as out-of-scope rather than silently claiming coverage.
+
+### STILL OPEN (carried, related to the P0)
+- **[FU-MI-TOPICKEY-BACKFILL]** -- weak-area unification normalises at the boundary (new writes + read-time aggregation) with **no backfill**; already-stored MI records under variant keys are not rewritten. A one-time backfill would need the same migration-safety care as the mastery-storage FU.
+- **[FU-MENU-HEREDITY-MAGNETIC]** -- the worksheet menu keeps Heredity + Magnetic Effects OFF (owner decision 2A); the canonical vocabulary uses `heredity` (never the banned `heredity-and-evolution`) and `magnetic-effects-of-electric-current`.
+- **[FU-DELETE-SHARED-DATA-DUPE]** -- the `lib/shared-data/` duplicate bank was NOT migrated (out of the served path); propose deletion.
+- **[FU-RETIRE-CBSE10CANONICAL-VOCAB]** -- `topicAliasMap.resolveCanonicalTopicKey` is demoted (it emits the banned `heredity-and-evolution` + a rival vocabulary); retire it in favour of the single `topics.ts`-slug authority once all consumers are migrated.
+- **[FU-PREINSTALL-GUARD-SH]** (carried from #360) -- root `preinstall` shells out to `sh`; replace with a Node guard. Own tiny chore PR.
+- **[FU-HANDOFF-DOC-DRIFT]** -- `CURRENT_STATE.md` / `NEXT_ACTION.md` / `IMPLEMENTATION_ROADMAP.md` are drifted (CURRENT_STATE line 1 also carries pre-existing mojibake + the top entries are out of order). This docs PR prepends an accurate #363 record but does NOT rewrite the drifted body; a dedicated docs-hygiene pass is still owed.
+
+---
+
 ## 2026-07-10 — Worksheet: scope DERIVED from the topic selection + MI 2c copy merged (#360, `b096a8a`)
 
 ### ✅ RESOLVED (closed by #360)
