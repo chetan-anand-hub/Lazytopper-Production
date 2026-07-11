@@ -2,9 +2,10 @@
 
 **Written:** 2026-07-11 · **Lane:** notes generation (the ~30-chapter NCERT note fan-out).
 **Trunk at handoff:** `cbc561c` (re-derive before you start — it moves: `git rev-parse origin/base/approved-thru-437`).
-**STATUS: the fan-out is COMPLETE — all 26 chapters specced.** Batches 1–3 merged (#365/#368/#370);
-batches 4 (#371) and 5 (#372) are draft PRs awaiting their (separate) independent auditors + owner merge.
-Nothing left to author — see "THE FAN-OUT IS COMPLETE" below for the only remaining work (auditor verdicts).
+**STATUS: the fan-out is COMPLETE — all 26 chapters specced; all auditor-PASS.** Batches 1–4 MERGED
+(#365/#368/#370/#371, each auditor-PASS). Batch 5 (#372) is all-4-chapters auditor-PASS and
+owner-mergeable (heredity was REJECTed on one within-syllabus genetics line, fixed, and re-audited PASS).
+Nothing left to author or verify — the only remaining step is the owner merging #372.
 **Why this file exists:** a FRESH orchestrator resumes the notes lane from here. Operate per
 `AGENT_FABLE_notes_orchestrator_2026-07-11.md` (delegate all NCERT reads to subagents; keep your own
 context lean; enforce the six-gate stack; internal skeptic; never self-merge; every batch goes to a FRESH
@@ -34,17 +35,18 @@ as the golden-regression gate after ANY gate-script change. Always run gates wit
 - **Batch 3 (#370):** carbon-and-its-compounds, control-and-coordination, pair-of-linear-equations,
   arithmetic-progression, triangles, coordinate-geometry. Auditor PASS.
 
-## THE FAN-OUT IS COMPLETE — all 26 chapters specced
-- **Batch 4 (PR #371, draft — awaiting independent auditor + owner merge):** trigonometry, circles,
-  areas-related-to-circles, surface-areas-and-volumes, statistics. 5/5 internal skeptics PASS.
-- **Batch 5 (PR #372, draft — awaiting SEPARATE independent auditor + owner merge):** probability,
-  our-environment, heredity (evolution-trimmed), magnetic-effects-of-electric-current (motor/generator-
-  trimmed). 4/4 internal skeptics PASS; the two trimmed chapters verified deleted-content-free by skeptic +
-  independent grep, and flagged at the TOP of the batch-5 report.
-- **Nothing left to author.** If you inherit here: watch PRs #371 + #372 for auditor verdicts. On a REJECT,
-  fix per the auditor's evidence in that batch's worktree (`C:/Projects/LT-worktrees/notes-batch{4,5}`) and
-  re-submit; on PASS, the owner merges. Batches 4 and 5 are independent (separate auditors) — a REJECT in one
-  cannot block the other.
+## THE FAN-OUT IS COMPLETE — all 26 chapters specced, all auditor-PASS
+- **Batch 4 (PR #371, MERGED, auditor PASS):** trigonometry, circles, areas-related-to-circles,
+  surface-areas-and-volumes, statistics. On trunk.
+- **Batch 5 (PR #372, all-4 auditor-PASS, owner-mergeable):** probability, our-environment,
+  heredity (evolution-trimmed), magnetic-effects-of-electric-current (motor/generator-trimmed).
+  The two trimmed chapters' deleted-content boundaries passed the independent auditor's own greps + source
+  checks clean. Heredity was REJECTed on ONE within-syllabus genetics line (concepts[c3] named the PARENTAL
+  phenotypes as the F2 "new combinations" for the RRyy×rrYY cross — a semantic error no static gate catches);
+  fixed to the true recombinants (round-yellow & wrinkled-green, matching the example/formula_strip/Fig 8.5),
+  re-verified VALID, re-audited PASS. PR #372 is marked ready, CLEAN, MERGEABLE.
+- **Nothing left to author or verify — the only remaining step is the owner merging #372.** If you inherit
+  here and #372 is already merged, the notes lane is fully closed (26/26 on trunk).
 
 ## HOW THE TWO TRIMMED CHAPTERS WERE HANDLED (reference, now done)
 - **heredity** (`heredity`, ch8 jesc108): the 2026-27 PDF is already titled just "Heredity" (evolution half
