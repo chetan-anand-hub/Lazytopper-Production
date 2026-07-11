@@ -437,6 +437,15 @@ def run_selftest():
 
 
 def main(argv):
+    # The human report can print NCERT math glyphs (e.g. the U+2260 "!=" from a
+    # math-region flag). On a Windows cp1252 console that raises UnicodeEncodeError
+    # mid-report, hiding the VERDICT. Force UTF-8 with replacement so the gate is
+    # honest on any console (no effect on linux/CI, which is UTF-8 already).
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     args = argv[1:]
     if "--selftest" in args:
         return run_selftest()

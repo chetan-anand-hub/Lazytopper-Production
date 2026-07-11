@@ -1,0 +1,938 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "metals-and-non-metals",
+    "subject": "chemistry",
+    "chapter_no": 3,
+    "title": "Metals and Non-metals",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Reactions",
+      "kind": "reactions"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 3"
+  },
+  "board_asks": "Distinguish metals from non-metals by their physical properties (lustre, malleability, ductility, conductivity, sonority) and their chemical behaviour; write and balance the equations for metals reacting with oxygen, water, dilute acids and salt solutions; use the reactivity (activity) series to predict displacement and to choose the right extraction method; explain how metals occur as minerals and ores and how they are enriched, reduced (by carbon or electrolysis) and refined; show how an ionic (electrovalent) compound forms by the transfer of electrons and list its properties; and explain corrosion, its prevention and alloys. The balanced equation and activity-series reasoning carry most of the marks here.",
+  "big_idea": {
+    "tagline": "Metals give up electrons - and that one habit explains all their chemistry.",
+    "body": "Metals are lustrous, malleable, ductile conductors that tend to LOSE electrons and form positive ions, so they react with oxygen, water and acids and can push a less reactive metal out of its salt. Ordering metals by how readily they react gives the reactivity (activity) series, and that single list then tells us how each metal occurs in nature and how it must be extracted and refined. Non-metals behave in the opposite way - they gain electrons - so a metal and a non-metal together form an ionic compound. Most board marks here come from writing the correct balanced equation and reasoning with the activity series."
+  },
+  "definitions": [
+    {
+      "id": "def_metallic_lustre",
+      "tier": "headline",
+      "term": "Metallic lustre",
+      "verbatim": "Metals, in their pure state, have a shining surface. This property is called metallic lustre.",
+      "plain": "The natural shine of a clean metal surface - which is why freshly rubbed iron or copper looks bright.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 37,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_malleability",
+      "tier": "headline",
+      "term": "Malleability",
+      "verbatim": "Some metals can be beaten into thin sheets. This property is called malleability.",
+      "plain": "The ability to be hammered into thin sheets without breaking - gold and silver are the most malleable metals.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 38,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_ductility",
+      "tier": "headline",
+      "term": "Ductility",
+      "verbatim": "The ability of metals to be drawn into thin wires is called ductility.",
+      "plain": "The ability to be pulled out into thin wires - gold is the most ductile metal.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 38,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_amphoteric_oxides",
+      "tier": "headline",
+      "term": "Amphoteric oxides",
+      "verbatim": "Such metal oxides which react with both acids as well as bases to produce salts and water are known as amphoteric oxides.",
+      "plain": "Oxides that behave both as a base (with acids) and as an acid (with bases) - aluminium oxide and zinc oxide are the standard examples.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 41,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_reactivity_series",
+      "tier": "headline",
+      "term": "Reactivity (activity) series",
+      "verbatim": "The reactivity series is a list of metals arranged in the order of their decreasing activities.",
+      "plain": "The ranking K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au - a more reactive metal displaces a less reactive one.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 45,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_ionic_compounds",
+      "tier": "headline",
+      "term": "Ionic (electrovalent) compounds",
+      "verbatim": "The compounds formed in this manner by the transfer of electrons from a metal to a non-metal are known as ionic compounds or electrovalent compounds.",
+      "plain": "Compounds like NaCl or MgCl2 made when a metal donates electrons to a non-metal, giving oppositely charged ions held by strong electrostatic attraction.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 48,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_minerals",
+      "tier": "headline",
+      "term": "Minerals",
+      "verbatim": "The elements or compounds, which occur naturally in the earth's crust, are known as minerals.",
+      "plain": "Naturally occurring elements or compounds in the earth's crust that contain a metal.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 49,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_ores",
+      "tier": "headline",
+      "term": "Ores",
+      "verbatim": "At some places, minerals contain a very high percentage of a particular metal and the metal can be profitably extracted from it. These minerals are called ores.",
+      "plain": "The minerals from which a metal can be extracted profitably - every ore is a mineral, but not every mineral is rich enough to be an ore.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 49,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_metallurgy",
+      "tier": "headline",
+      "term": "Metallurgy",
+      "verbatim": "The extraction of metals from their ores and then refining them for use is known as metallurgy.",
+      "plain": "The whole process of getting a pure, usable metal from its ore - enrichment, then reduction, then refining.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 55,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_corrosion",
+      "tier": "headline",
+      "term": "Corrosion",
+      "verbatim": "The surface of some metals, such as iron, is corroded when they are exposed to moist air for a long period of time. This phenomenon is known as corrosion.",
+      "plain": "The slow eating-away of a metal surface by air and moisture - the rusting of iron is the everyday example, and it needs BOTH air and water.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 55,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "def_alloy",
+      "tier": "headline",
+      "term": "Alloy",
+      "verbatim": "An alloy is a homogeneous mixture of two or more metals, or a metal and a non-metal.",
+      "plain": "A uniform mixture made by melting a base metal and dissolving other elements in it - e.g. steel (iron + carbon), brass, bronze, solder.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 54,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "kt_sonorous",
+      "tier": "key-term",
+      "term": "Sonorous",
+      "verbatim": "The metals that produce a sound on striking a hard surface are said to be sonorous.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 39,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "kt_allotrope",
+      "tier": "key-term",
+      "term": "Allotrope",
+      "verbatim": "Carbon is a non-metal that can exist in different forms. Each form is called an allotrope.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 40,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "kt_gangue",
+      "tier": "key-term",
+      "term": "Gangue",
+      "verbatim": "Ores mined from the earth are usually contaminated with large amounts of impurities such as soil, sand, etc., called gangue.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 50,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "kt_roasting",
+      "tier": "key-term",
+      "term": "Roasting",
+      "verbatim": "The sulphide ores are converted into oxides by heating strongly in the presence of excess air. This process is known as roasting.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 51,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "kt_calcination",
+      "tier": "key-term",
+      "term": "Calcination",
+      "verbatim": "The carbonate ores are changed into oxides by heating strongly in limited air. This process is known as calcination.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 51,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "kt_amalgam",
+      "tier": "key-term",
+      "term": "Amalgam",
+      "verbatim": "If one of the metals is mercury, then the alloy is known as an amalgam.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 54,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Physical properties of metals",
+      "body": "Metals in their pure state have a shining surface (metallic lustre), are generally hard, and are malleable (beaten into sheets) and ductile (drawn into wires). They are good conductors of heat and electricity, have high melting points, are sonorous, and are solids at room temperature - mercury is the one liquid exception. Silver and copper are the best conductors of heat.",
+      "tested": "1-mark: name a metal that is liquid / can be cut with a knife / is the best conductor; or explain malleable and ductile.",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "Physical properties of non-metals",
+      "body": "Non-metals show properties opposite to metals: they are neither malleable nor ductile and are bad conductors of heat and electricity. There are exceptions worth remembering - iodine is a lustrous non-metal, graphite (an allotrope of carbon) conducts electricity, and diamond (another allotrope) is the hardest natural substance. Non-metals are solids or gases, except bromine which is a liquid.",
+      "tested": "2-mark: state exceptions (iodine lustrous, graphite conducts) and differentiate metals from non-metals.",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Reaction of metals with oxygen",
+      "body": "Almost all metals combine with oxygen to form metal oxides, which are generally basic. Different metals react at different rates: sodium and potassium catch fire in air (so they are kept in kerosene), while silver and gold do not react even at high temperatures. Aluminium oxide and zinc oxide are amphoteric - they react with both acids and bases. Some oxides (sodium oxide, potassium oxide) dissolve in water to form alkalis.",
+      "tested": "3-mark: write equations for metals burning in oxygen; define amphoteric oxides with two examples.",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Reaction of metals with water and acids",
+      "body": "Metals react with water to give a metal oxide (or hydroxide) and hydrogen, but not all metals react. Potassium and sodium react violently with cold water; calcium reacts less violently and floats; magnesium reacts with hot water; aluminium, iron and zinc react only with steam; lead, copper, silver and gold do not react at all. With dilute acids the reactivity order is Mg > Al > Zn > Fe, while copper gives no reaction. Hydrogen is usually not evolved with nitric acid, because HNO3 is a strong oxidising agent.",
+      "tested": "3-mark: write equations for iron with steam and calcium/potassium with water; explain why sodium is stored in kerosene.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Reactivity series and displacement",
+      "body": "Arranging metals in decreasing order of reactivity gives the activity series (K at the top, Au at the bottom). Displacement reactions give the clearest evidence of reactivity: if metal A displaces metal B from its salt solution, A is more reactive than B. For example, an iron nail placed in copper sulphate solution displaces copper, whereas a copper wire in iron sulphate solution shows no reaction - so iron is more reactive than copper.",
+      "tested": "3-mark: tabulated reactivity comparison (metals A, B, C, D); predict displacement and arrange in decreasing reactivity.",
+      "figure_ref": null
+    },
+    {
+      "id": "c6",
+      "title": "Ionic (electrovalent) compounds and their properties",
+      "body": "When a metal transfers electrons to a non-metal, oppositely charged ions form and are held by strong electrostatic forces - for example sodium loses one electron to chlorine to give Na+ and Cl-, which aggregate as sodium chloride. Such ionic compounds are solids that are hard and brittle, have high melting and boiling points, are generally soluble in water but not in petrol or kerosene, and conduct electricity in the molten or aqueous state (ions free to move) but not as solids.",
+      "tested": "3-mark: show the formation of Na2O or MgO by electron transfer; give the ions present; explain the high melting point.",
+      "figure_ref": "fig_nacl_formation"
+    },
+    {
+      "id": "c7",
+      "title": "Occurrence and extraction of metals",
+      "body": "Metals occur either free (gold, silver, platinum, copper) or as compounds; the naturally occurring forms are minerals, and a mineral rich enough to extract the metal profitably is an ore. Ores are first enriched to remove the gangue. The extraction method follows the activity series: metals high up (K, Na, Ca, Mg, Al) are obtained by electrolysis of their molten compounds; middle metals (Zn, Fe, Pb, Cu) have their sulphide/carbonate ores converted to oxides by roasting or calcination and then reduced to metal with carbon; metals low down are found native or obtained by heating alone.",
+      "tested": "3-mark: define mineral, ore, gangue; state the chemical process used to obtain a metal from its oxide.",
+      "figure_ref": "fig_extraction_steps"
+    },
+    {
+      "id": "c8",
+      "title": "Refining of metals",
+      "body": "The metals produced by reduction are impure and are purified, most commonly by electrolytic refining. The impure metal is made the anode, a thin strip of pure metal the cathode, and a solution of the metal's salt the electrolyte; on passing current, pure metal dissolves from the anode and deposits on the cathode. Soluble impurities stay in solution while insoluble impurities collect below the anode as anode mud. Copper, zinc, tin, nickel, silver and gold are all refined this way.",
+      "tested": "3-mark: in the electrolytic refining of a metal M, state what is taken as anode, cathode and electrolyte.",
+      "figure_ref": "fig_electrolytic_refining"
+    },
+    {
+      "id": "c9",
+      "title": "Corrosion, its prevention and alloys",
+      "body": "Corrosion is the attack on a metal by moisture and acids around it - iron rusts, silver blackens, copper gains a green coat. Activity 3.14 shows iron rusts only when BOTH air and water are present. Rusting is prevented by painting, oiling, greasing, galvanising (a zinc coat), chrome plating, anodising or alloying. Alloying also improves a metal's properties: iron mixed with a little carbon becomes hard steel, and iron with nickel and chromium becomes rust-resistant stainless steel. If mercury is one of the metals, the alloy is an amalgam.",
+      "tested": "2-mark: state two ways to prevent rusting; explain the conditions needed for iron to rust; what are alloys.",
+      "figure_ref": "fig_iron_rusting"
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_metals_with_oxygen",
+      "shape": "Metals burnt in air (metal + oxygen)",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Copper and aluminium are each heated strongly in air. Write the balanced equation for each reaction and state the nature of the oxides formed.",
+      "solution_steps": [
+        {
+          "lead": "Copper.",
+          "text": "Copper heated in air combines with oxygen to form a black layer of copper(II) oxide.",
+          "equation": "2Cu + O2 -> 2CuO",
+          "concept_tag": "metal + oxygen -> metal oxide",
+          "mark": 1
+        },
+        {
+          "lead": "Aluminium.",
+          "text": "Aluminium combines with oxygen to form aluminium oxide.",
+          "equation": "4Al + 3O2 -> 2Al2O3",
+          "mark": 1
+        },
+        {
+          "lead": "Nature of the oxides.",
+          "text": "Metal oxides are generally basic; but aluminium oxide is amphoteric, reacting with both acids and bases.",
+          "concept_tag": "basic vs amphoteric oxide",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: the balanced equation for copper (1) + the balanced equation for aluminium (1) + stating the oxides are basic, with Al2O3 amphoteric (1). Balance oxygen first, then the metal.",
+      "source": {
+        "ncert_page": 41,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_metals_with_water",
+      "shape": "Metals react with water / steam",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Sodium, calcium and iron are each brought into contact with water. Write a balanced equation in each case and state which metal reacts with cold water and which reacts only with steam.",
+      "solution_steps": [
+        {
+          "lead": "Sodium - cold water.",
+          "text": "Sodium reacts violently and exothermically with cold water; the hydrogen evolved catches fire.",
+          "equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g) + heat energy",
+          "concept_tag": "very reactive metal",
+          "mark": 1
+        },
+        {
+          "lead": "Calcium - cold water.",
+          "text": "Calcium reacts less violently and starts floating as hydrogen bubbles stick to it.",
+          "equation": "Ca(s) + 2H2O(l) -> Ca(OH)2(aq) + H2(g)",
+          "mark": 1
+        },
+        {
+          "lead": "Iron - steam only.",
+          "text": "Iron does not react with cold or hot water; it reacts only with steam to give the oxide and hydrogen.",
+          "equation": "3Fe(s) + 4H2O(g) -> Fe3O4(s) + 4H2(g)",
+          "concept_tag": "reacts only with steam",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: one correct balanced equation each for sodium (1), calcium (1) and iron with steam (1). Note the reactivity trend - sodium/calcium react with cold water, iron only with steam.",
+      "source": {
+        "ncert_page": 43,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_metals_with_acid",
+      "shape": "Metals react with dilute acid + reactivity order",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Magnesium, zinc and copper are each added to dilute hydrochloric acid (Activity 3.11). Write the equation for the reaction of zinc, arrange Mg, Al, Zn and Fe in decreasing order of reactivity, and explain the observation with copper.",
+      "solution_steps": [
+        {
+          "lead": "Reaction (zinc).",
+          "text": "A reactive metal reacts with a dilute acid to give a salt and hydrogen gas. For zinc:",
+          "equation": "Zn(s) + 2HCl(aq) -> ZnCl2(aq) + H2(g)",
+          "concept_tag": "metal + dilute acid -> salt + hydrogen",
+          "mark": 1
+        },
+        {
+          "lead": "Reactivity order.",
+          "text": "The rate of bubble formation (and the temperature rise) was fastest for magnesium, so the reactivity decreases in the order Mg > Al > Zn > Fe.",
+          "mark": 1
+        },
+        {
+          "lead": "Copper.",
+          "text": "With copper no bubbles were seen and the temperature did not change - copper does not react with dilute HCl, as it lies below hydrogen in the activity series.",
+          "concept_tag": "below hydrogen -> no H2",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: the balanced equation for zinc with dilute HCl (1) + the decreasing reactivity order Mg > Al > Zn > Fe (1) + explaining that copper does not react (1).",
+      "source": {
+        "ncert_page": 44,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_displacement_iron_copper",
+      "shape": "Displacement (metal + salt solution)",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] In Activity 3.12 an iron nail is placed in copper sulphate solution and a copper wire in iron sulphate solution. In which test tube does a reaction occur? Write the balanced equation and name the type of reaction.",
+      "solution_steps": [
+        {
+          "lead": "Where the reaction occurs.",
+          "text": "Iron is more reactive than copper, so the iron nail displaces copper from copper sulphate solution; the copper wire in iron sulphate solution shows no reaction.",
+          "equation": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+          "mark": 1
+        },
+        {
+          "lead": "Observation.",
+          "text": "A reddish-brown deposit of copper forms on the iron nail and the blue colour of the copper sulphate solution fades.",
+          "mark": 1
+        },
+        {
+          "lead": "Type of reaction.",
+          "text": "A more reactive metal displaces a less reactive metal from its salt solution, so this is a displacement reaction.",
+          "concept_tag": "displacement -> reactivity evidence",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: the balanced displacement equation (1) + the observed colour changes (1) + naming it a displacement reaction and stating iron is more reactive than copper (1).",
+      "source": {
+        "ncert_page": 45,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_thermit_reduction",
+      "shape": "Thermit reaction (reduction / redox in extraction)",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] The thermit reaction between iron(III) oxide and aluminium is used to join railway tracks. Write the balanced equation, state which substance is oxidised and which is reduced, and explain why the iron is produced in the molten state.",
+      "solution_steps": [
+        {
+          "lead": "Equation.",
+          "text": "Aluminium, being more reactive, reduces iron(III) oxide to iron:",
+          "equation": "Fe2O3(s) + 2Al(s) -> 2Fe(l) + Al2O3(s) + Heat",
+          "mark": 1
+        },
+        {
+          "lead": "Oxidised / reduced.",
+          "text": "Aluminium gains oxygen, so it is oxidised to Al2O3; iron(III) oxide loses oxygen, so it is reduced to iron.",
+          "concept_tag": "gain O = oxidised, lose O = reduced",
+          "mark": 1
+        },
+        {
+          "lead": "Why molten.",
+          "text": "The displacement reaction is highly exothermic; the large amount of heat evolved produces the iron in the molten state, which welds the cracked tracks together.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: the balanced thermit equation (1) + identifying aluminium as oxidised and iron(III) oxide as reduced (1) + explaining the exothermic heat gives molten iron (1).",
+      "source": {
+        "ncert_page": 52,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    },
+    {
+      "id": "ex_extraction_zinc",
+      "shape": "Extraction of zinc from its ores",
+      "kind": "reaction",
+      "problem_verbatim": "[authored prompt] Zinc occurs as zinc sulphide and as zinc carbonate. Write the balanced equation for converting each ore to zinc oxide, name the two processes, and give the equation for reducing zinc oxide to zinc metal.",
+      "solution_steps": [
+        {
+          "lead": "Roasting (sulphide ore).",
+          "text": "The sulphide ore is heated strongly in excess air to give the oxide - this is roasting.",
+          "equation": "2ZnS(s) + 3O2(g) --Heat--> 2ZnO(s) + 2SO2(g)",
+          "concept_tag": "roasting = sulphide + excess air",
+          "mark": 1
+        },
+        {
+          "lead": "Calcination (carbonate ore).",
+          "text": "The carbonate ore is heated strongly in limited air to give the oxide - this is calcination.",
+          "equation": "ZnCO3(s) --Heat--> ZnO(s) + CO2(g)",
+          "concept_tag": "calcination = carbonate + limited air",
+          "mark": 1
+        },
+        {
+          "lead": "Reduction.",
+          "text": "The zinc oxide is then reduced to metallic zinc by heating with carbon.",
+          "equation": "ZnO(s) + C(s) -> Zn(s) + CO(g)",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark: the roasting equation (1) + the calcination equation (1) + the reduction of the oxide by carbon (1). Carbonate/sulphide ores are always converted to the oxide before reduction.",
+      "source": {
+        "ncert_page": 51,
+        "edition": "2026-27",
+        "chapter": 3
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Metal or non-metal?",
+      "text": "Test for lustre, malleability/ductility and conductivity - metals shine, bend and conduct. Keep the exceptions ready: mercury is a liquid metal, iodine is a lustrous non-metal, and graphite (carbon) conducts electricity."
+    },
+    {
+      "cue": "Which metal reacts?",
+      "text": "Read down the activity series. K and Na react even with cold water, Mg with hot water, Al/Fe/Zn only with steam, and Cu/Ag/Au not with water at all. With dilute acids the order is Mg > Al > Zn > Fe, and copper does not react."
+    },
+    {
+      "cue": "Which extraction method?",
+      "text": "Tie the method to the series: top metals (K, Na, Ca, Mg, Al) -> electrolysis of the molten compound; middle metals (Zn, Fe, Pb, Cu) -> roast or calcine the ore to the oxide, then reduce with carbon; bottom metals (Ag, Au) -> found native or reduced by heat alone."
+    },
+    {
+      "cue": "Roasting or calcination?",
+      "text": "Sulphide ore heated in EXCESS air is roasting; carbonate ore heated in LIMITED air is calcination. Both give the metal oxide, which is the easy form to reduce."
+    },
+    {
+      "cue": "Oxidised or reduced?",
+      "text": "Follow the oxygen. The substance that GAINS oxygen is oxidised; the one that LOSES oxygen is reduced. In the thermit reaction aluminium is oxidised and iron(III) oxide is reduced."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Swapping roasting and calcination. Roasting = sulphide ore + excess air; calcination = carbonate ore + limited air.",
+      "owner_verified": false
+    },
+    {
+      "text": "Saying metals form acidic oxides. Metals form BASIC oxides; aluminium oxide and zinc oxide are the amphoteric exceptions. Non-metals form acidic or neutral oxides.",
+      "owner_verified": false
+    },
+    {
+      "text": "Claiming all metals react with water. Lead, copper, silver and gold do not react with water at all, and aluminium, iron and zinc react only with steam, not with cold or hot water.",
+      "owner_verified": false
+    },
+    {
+      "text": "Reversing the electrodes. In electrolytic reduction and refining the metal is deposited at the cathode (negative electrode); chlorine is liberated at the anode (positive electrode), where the impure metal dissolves.",
+      "owner_verified": false
+    },
+    {
+      "text": "Expecting hydrogen gas when a metal reacts with nitric acid. HNO3 is a strong oxidising agent, so it usually oxidises the hydrogen to water and no H2 is evolved (very dilute HNO3 with Mg or Mn is the exception).",
+      "owner_verified": false
+    },
+    {
+      "text": "Thinking ionic compounds conduct as solids. They conduct only in the molten or aqueous state, when the ions are free to move; in the solid state the ions are locked in a rigid structure.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Metal + Oxygen",
+      "math": "Metal + Oxygen -> Metal oxide  (mostly basic; Al2O3 and ZnO are amphoteric)"
+    },
+    {
+      "label": "Metal + Water",
+      "math": "Metal + Water -> Metal oxide + Hydrogen  .  Metal oxide + Water -> Metal hydroxide"
+    },
+    {
+      "label": "Metal + Acid",
+      "math": "Metal + Dilute acid -> Salt + Hydrogen"
+    },
+    {
+      "label": "Displacement",
+      "math": "Metal A + Salt solution of B -> Salt solution of A + Metal B  (A more reactive than B)"
+    },
+    {
+      "label": "Activity series",
+      "math": "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au"
+    },
+    {
+      "label": "Roasting / Calcination",
+      "math": "Roasting: sulphide ore + excess air -> oxide  .  Calcination: carbonate ore + limited air -> oxide"
+    },
+    {
+      "label": "Thermit reaction",
+      "math": "Fe2O3 + 2Al -> 2Fe + Al2O3 + Heat  (aluminium reduces iron(III) oxide)"
+    }
+  ],
+  "mindmap": {
+    "root": "Metals and Non-metals",
+    "branches": [
+      {
+        "label": "Physical properties",
+        "children": [
+          "Metals: lustrous, malleable, ductile, sonorous",
+          "Metals: good conductors, high m.p., solids (except mercury)",
+          "Non-metals: brittle, poor conductors (graphite conducts)",
+          "Exceptions: mercury liquid, iodine lustrous, diamond hardest"
+        ]
+      },
+      {
+        "label": "Chemical properties",
+        "children": [
+          "With oxygen -> metal oxide (basic; Al2O3/ZnO amphoteric)",
+          "With water -> oxide/hydroxide + H2 (Na/K violent, Al/Fe steam)",
+          "With dilute acid -> salt + H2 (Mg > Al > Zn > Fe)",
+          "With salt solution -> displacement"
+        ]
+      },
+      {
+        "label": "Reactivity (activity) series",
+        "children": [
+          "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au",
+          "More reactive metal displaces less reactive one",
+          "Above hydrogen -> displaces H2 from dilute acids"
+        ]
+      },
+      {
+        "label": "Ionic (electrovalent) compounds",
+        "children": [
+          "Metal transfers electrons to non-metal (Na+ + Cl- -> NaCl)",
+          "High melting and boiling points; hard, brittle solids",
+          "Soluble in water, not in petrol/kerosene",
+          "Conduct in molten / aqueous state, not as solids"
+        ]
+      },
+      {
+        "label": "Occurrence and extraction",
+        "children": [
+          "Minerals and ores; gangue removed by enrichment",
+          "Top metals -> electrolysis of molten compound",
+          "Middle metals -> roasting/calcination then reduction with carbon",
+          "Refining -> electrolytic refining (anode mud)"
+        ]
+      },
+      {
+        "label": "Corrosion and alloys",
+        "children": [
+          "Rusting of iron needs both air and water",
+          "Prevention: painting, oiling, galvanising, alloying",
+          "Alloys: steel, stainless steel, brass, bronze, solder",
+          "Amalgam = alloy containing mercury"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "reactions",
+    "intro": "For Chemistry the third tab holds the chapter's key balanced equations - the formal core you must be able to reproduce, grouped by the way metals react and by how they are extracted. Every equation is a real NCERT Ch 3 reaction; the condition (Heat, Electricity) sits above or beside the arrow.",
+    "reactions": [
+      {
+        "name": "Metal + oxygen (general)",
+        "equation": "Metal + Oxygen -> Metal oxide",
+        "conditions": "Almost all metals combine with oxygen to form metal oxides (mostly basic)",
+        "source": {
+          "ncert_page": 41,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Copper burnt in air",
+        "equation": "2Cu + O2 -> 2CuO",
+        "conditions": "Copper heated in air forms a black layer of copper(II) oxide",
+        "source": {
+          "ncert_page": 41,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Aluminium burnt in air",
+        "equation": "4Al + 3O2 -> 2Al2O3",
+        "conditions": "Aluminium combines with oxygen to form aluminium oxide",
+        "source": {
+          "ncert_page": 41,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Amphoteric oxide with an acid",
+        "equation": "Al2O3 + 6HCl -> 2AlCl3 + 3H2O",
+        "conditions": "Aluminium oxide (amphoteric) behaves as a base towards acid",
+        "source": {
+          "ncert_page": 41,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Amphoteric oxide with a base",
+        "equation": "Al2O3 + 2NaOH -> 2NaAlO2 + H2O",
+        "conditions": "Aluminium oxide (amphoteric) behaves as an acid towards base; gives sodium aluminate",
+        "source": {
+          "ncert_page": 41,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Soluble metal oxide -> alkali",
+        "equation": "Na2O(s) + H2O(l) -> 2NaOH(aq)",
+        "conditions": "Sodium oxide dissolves in water to form an alkali",
+        "source": {
+          "ncert_page": 41,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Sodium + cold water",
+        "equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g) + heat energy",
+        "conditions": "Violent and exothermic; the evolved hydrogen catches fire",
+        "source": {
+          "ncert_page": 43,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Calcium + water",
+        "equation": "Ca(s) + 2H2O(l) -> Ca(OH)2(aq) + H2(g)",
+        "conditions": "Less violent; calcium floats on the hydrogen bubbles",
+        "source": {
+          "ncert_page": 43,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Iron + steam",
+        "equation": "3Fe(s) + 4H2O(g) -> Fe3O4(s) + 4H2(g)",
+        "conditions": "Iron reacts only with steam, not with cold or hot water",
+        "source": {
+          "ncert_page": 43,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Metal + dilute acid (general)",
+        "equation": "Metal + Dilute acid -> Salt + Hydrogen",
+        "conditions": "Reactivity Mg > Al > Zn > Fe; copper does not react with dilute HCl",
+        "source": {
+          "ncert_page": 44,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Displacement (general)",
+        "equation": "Metal A + Salt solution of B -> Salt solution of A + Metal B",
+        "conditions": "A more reactive metal (A) displaces a less reactive one (B) from its salt",
+        "source": {
+          "ncert_page": 45,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Roasting - zinc sulphide",
+        "equation": "2ZnS(s) + 3O2(g) --Heat--> 2ZnO(s) + 2SO2(g)",
+        "conditions": "Sulphide ore heated in excess air is converted to the oxide (roasting)",
+        "source": {
+          "ncert_page": 51,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Calcination - zinc carbonate",
+        "equation": "ZnCO3(s) --Heat--> ZnO(s) + CO2(g)",
+        "conditions": "Carbonate ore heated in limited air is converted to the oxide (calcination)",
+        "source": {
+          "ncert_page": 51,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Reduction by carbon - zinc oxide",
+        "equation": "ZnO(s) + C(s) -> Zn(s) + CO(g)",
+        "conditions": "The metal oxide is reduced to metal by heating with carbon",
+        "source": {
+          "ncert_page": 51,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Extraction of mercury (low reactivity)",
+        "equation": "2HgS(s) + 3O2(g) --Heat--> 2HgO(s) + 2SO2(g) ; 2HgO(s) --Heat--> 2Hg(l) + O2(g)",
+        "conditions": "Cinnabar is roasted to the oxide, which is then reduced to mercury by heat alone",
+        "source": {
+          "ncert_page": 51,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Thermit reaction",
+        "equation": "Fe2O3(s) + 2Al(s) -> 2Fe(l) + Al2O3(s) + Heat",
+        "conditions": "Highly exothermic; molten iron produced is used to join railway tracks",
+        "source": {
+          "ncert_page": 52,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Electrolytic reduction - at cathode",
+        "equation": "Na+ + e- -> Na",
+        "conditions": "Reactive metals obtained by electrolysis of the molten chloride; metal deposits at the cathode",
+        "source": {
+          "ncert_page": 52,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Electrolytic reduction - at anode",
+        "equation": "2Cl- -> Cl2 + 2e-",
+        "conditions": "Chlorine is liberated at the anode",
+        "source": {
+          "ncert_page": 52,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      },
+      {
+        "name": "Formation of an ionic compound",
+        "equation": "Na -> Na+ + e- ; Cl + e- -> Cl- ; Na+ + Cl- -> NaCl",
+        "conditions": "Electron transfer from the metal to the non-metal gives oppositely charged ions",
+        "source": {
+          "ncert_page": 47,
+          "edition": "2026-27",
+          "chapter": 3
+        }
+      }
+    ]
+  },
+  "figures": {
+    "fig_extraction_steps": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 3.10",
+      "caption": "Steps involved in the extraction of metals from ores.",
+      "legend": "The extraction route branches on the activity series: high-reactivity metals -> electrolysis of molten ore -> pure metal; medium-reactivity metals -> carbonate ore (calcination) or sulphide ore (roasting) -> oxide of metal -> reduction to metal -> purification; low-reactivity metals -> sulphide ores -> roasting -> metal -> refining.",
+      "source": {
+        "pdf": "jesc103",
+        "edition": "2026-27",
+        "ncert_fig": "3.10",
+        "page_pdf": 13,
+        "printed_page": 50,
+        "crop": [395, 630, 1045, 1255],
+        "clean": "luminance@150; 150dpi; eye-confirmed clean, all flowchart labels, no text bleed"
+      },
+      "asset": "metals-and-non-metals/fig_extraction_steps.webp"
+    },
+    "fig_electrolytic_refining": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 3.12",
+      "caption": "Electrolytic refining of copper.",
+      "legend": "The electrolyte is a solution of acidified copper sulphate; the anode is impure copper and the cathode is a strip of pure copper. On passing current, pure copper dissolves from the anode and is deposited on the cathode, while insoluble impurities settle below the anode as anode mud. Labels: Key, Cathode, Anode, Acidified copper sulphate solution, Cu2+, Tank, Impurities (anode mud).",
+      "source": {
+        "pdf": "jesc103",
+        "edition": "2026-27",
+        "ncert_fig": "3.12",
+        "page_pdf": 15,
+        "printed_page": 52,
+        "crop": [86, 1014, 476, 1279],
+        "clean": "luminance@150; 150dpi; eye-confirmed clean, all labels, no text bleed"
+      },
+      "asset": "metals-and-non-metals/fig_electrolytic_refining.webp"
+    },
+    "fig_iron_rusting": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 3.13",
+      "caption": "Investigating the conditions under which iron rusts (Activity 3.14).",
+      "legend": "Three test tubes with clean iron nails: A has both air and water (nails rust); B has boiled distilled water under a layer of oil so no air is dissolved (no rust); C has dry air over anhydrous calcium chloride, a drying agent (no rust). Rusting therefore needs BOTH air and water. Labels: A/B/C, Air, Air, Dry air, Rusty iron nails, Water, Layer of oil.",
+      "source": {
+        "pdf": "jesc103",
+        "edition": "2026-27",
+        "ncert_fig": "3.13",
+        "page_pdf": 16,
+        "printed_page": 53,
+        "crop": [735, 800, 1110, 1216],
+        "clean": "saturation@v205s0.12; 150dpi; colour figure - coloured ink kept; eye-confirmed clean, tube labels present, no text bleed (long descriptive sub-labels trimmed and carried in the legend)"
+      },
+      "asset": "metals-and-non-metals/fig_iron_rusting.webp"
+    },
+    "fig_nacl_formation": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 3.5",
+      "caption": "Formation of sodium chloride.",
+      "legend": "Sodium (2,8,1) loses one electron to become the sodium cation Na+ (2,8); chlorine (2,8,7) gains that electron to become the chloride anion Cl- (2,8,8). The oppositely charged ions attract to form the ionic compound sodium chloride (electron-dot / cross diagram shown).",
+      "source": {
+        "pdf": "jesc103",
+        "edition": "2026-27",
+        "ncert_fig": "3.5",
+        "page_pdf": 10,
+        "printed_page": 47,
+        "crop": [310, 965, 700, 1245],
+        "clean": "luminance@150; 150dpi; eye-confirmed clean, all labels, no text bleed"
+      },
+      "asset": "metals-and-non-metals/fig_nacl_formation.webp"
+    }
+  },
+  "source_ledger": [
+    { "item": "Metallic lustre", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.37" },
+    { "item": "Malleability", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.38" },
+    { "item": "Ductility", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.38" },
+    { "item": "Amphoteric oxides", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.41" },
+    { "item": "Reactivity (activity) series", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.45" },
+    { "item": "Ionic (electrovalent) compounds", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.48" },
+    { "item": "Minerals", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.49" },
+    { "item": "Ores", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.49" },
+    { "item": "Metallurgy", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.55" },
+    { "item": "Corrosion", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.55" },
+    { "item": "Alloy", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.54" },
+    { "item": "Sonorous", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.39" },
+    { "item": "Allotrope", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.40" },
+    { "item": "Gangue", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.50" },
+    { "item": "Roasting", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.51" },
+    { "item": "Calcination", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.51" },
+    { "item": "Amalgam", "type": "verbatim", "source": "NCERT 2026-27 Ch3 p.54" },
+    { "item": "Metals burnt in air (metal + oxygen)", "type": "example", "source": "NCERT 2026-27 Ch3 Eqs. on p.41" },
+    { "item": "Metals react with water / steam", "type": "example", "source": "NCERT 2026-27 Ch3 Eqs. on p.43" },
+    { "item": "Metals react with dilute acid + reactivity order", "type": "example", "source": "NCERT 2026-27 Ch3 Activity 3.11, p.44" },
+    { "item": "Displacement (metal + salt solution)", "type": "example", "source": "NCERT 2026-27 Ch3 Activity 3.12, p.45" },
+    { "item": "Thermit reaction (reduction / redox in extraction)", "type": "example", "source": "NCERT 2026-27 Ch3 Eq. on p.52" },
+    { "item": "Extraction of zinc from its ores", "type": "example", "source": "NCERT 2026-27 Ch3 Eqs. on p.51" },
+    { "item": "NCERT Fig 3.10", "type": "figure", "source": "NCERT 2026-27 Ch3 Fig 3.10 p.50" },
+    { "item": "NCERT Fig 3.12", "type": "figure", "source": "NCERT 2026-27 Ch3 Fig 3.12 p.52" },
+    { "item": "NCERT Fig 3.13", "type": "figure", "source": "NCERT 2026-27 Ch3 Fig 3.13 p.53" },
+    { "item": "NCERT Fig 3.5", "type": "figure", "source": "NCERT 2026-27 Ch3 Fig 3.5 p.47" }
+  ]
+}

@@ -1,0 +1,734 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "how-do-organisms-reproduce",
+    "subject": "biology",
+    "chapter_no": 7,
+    "title": "How do Organisms Reproduce?",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Diagrams",
+      "kind": "diagrams"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 7"
+  },
+  "board_asks": "draw-and-label diagrams (longitudinal section of a flower, the human male and female reproductive systems), the asexual modes traced stage-by-stage (fission, budding, fragmentation, regeneration, spore formation, vegetative propagation), clear \"difference between\" answers (pollination vs fertilisation, binary vs multiple fission, self- vs cross-pollination), why DNA copying and variation matter, why menstruation occurs, and the basics of contraception and reproductive health - a high-weight Biology chapter examined heavily through labelled figures and reasoning.",
+  "big_idea": {
+    "tagline": "Every organism makes copies of itself - some need one parent, some need two.",
+    "body": "Reproduction is the one life process a single organism can live without, yet it is what keeps a species going. It always begins with a cell copying its DNA - the blueprint of body design - and the small errors in that copying create variation. Simple organisms reproduce asexually from one parent (fission, budding, fragmentation, regeneration, spore formation, vegetative propagation); more complex organisms use sexual reproduction, combining germ-cells from two parents so offspring carry a fresh mix of DNA. In Class 10 this chapter is mostly examined through labelled diagrams and stage-by-stage explanations, so most marks reward the exact NCERT terms and correctly labelled structures."
+  },
+  "definitions": [
+    {
+      "id": "def_reproduction_dna",
+      "tier": "headline",
+      "term": "Reproduction - the basic event (DNA copy)",
+      "verbatim": "Therefore, a basic event in reproduction is the creation of a DNA copy.",
+      "plain": "Before a cell can reproduce it must first copy its DNA - the blueprint of body design - so this DNA copy is the starting event of all reproduction.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 113,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_fission",
+      "tier": "headline",
+      "term": "Fission",
+      "verbatim": "For unicellular organisms, cell division, or fission, leads to the creation of new individuals.",
+      "plain": "In single-celled organisms the whole cell divides - binary fission gives two daughter cells (Amoeba, bacteria), while multiple fission gives many at once (Plasmodium).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 115,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_regeneration",
+      "tier": "headline",
+      "term": "Regeneration",
+      "verbatim": "simple animals like Hydra and Planaria can be cut into any number of pieces and each piece grows into a complete organism. This is known as regeneration.",
+      "plain": "Some simple animals (Hydra, Planaria) can regrow a whole body from a cut piece; specialised cells proliferate and re-form the missing parts. NCERT stresses this is NOT the normal way they reproduce.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 116,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_budding",
+      "tier": "headline",
+      "term": "Budding",
+      "verbatim": "In Hydra, a bud develops as an outgrowth due to repeated cell division at one specific site.",
+      "plain": "In Hydra an outgrowth (bud) forms by repeated cell division at one spot, grows into a tiny Hydra, then detaches to become a new independent individual.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 117,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_vegetative",
+      "tier": "headline",
+      "term": "Vegetative propagation",
+      "verbatim": "This property of vegetative propagation is used in methods such as layering or grafting to grow many plants like sugarcane, roses, or grapes for agricultural purposes.",
+      "plain": "New plants are raised from a root, stem or leaf of the parent (layering, grafting, cuttings); all offspring are genetically identical to the parent and can bear flowers and fruit earlier than seed-grown plants.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 117,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_asexual",
+      "tier": "headline",
+      "term": "Asexual reproduction",
+      "verbatim": "All the modes of reproduction that we have discussed so far allow new generations to be created from a single individual. This is known as asexual reproduction.",
+      "plain": "Reproduction that needs only one parent and makes offspring genetically identical to it - fission, budding, fragmentation, regeneration, spore formation and vegetative propagation are all asexual.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 119,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_sexual",
+      "tier": "headline",
+      "term": "Sexual reproduction",
+      "verbatim": "Sexual reproduction involves two individuals for the creation of a new individual.",
+      "plain": "Reproduction that needs two parents (male and female); germ-cells from each combine, so the offspring receive a fresh mix of DNA and show greater variation.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 126,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "def_fertilisation",
+      "tier": "headline",
+      "term": "Fertilisation",
+      "verbatim": "This fusion of the germ-cells or fertilisation gives us the zygote which is capable of growing into a new plant.",
+      "plain": "The fusion of the male germ-cell with the female gamete (egg) to form a single cell, the zygote, which grows into a new individual.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 121,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_variation",
+      "tier": "key-term",
+      "term": "Variation",
+      "verbatim": "Variation is thus useful for the survival of species over time.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 114,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_spores",
+      "tier": "key-term",
+      "term": "Spores (spore formation)",
+      "verbatim": "The blobs are sporangia, which contain cells, or spores, that can eventually develop into new Rhizopus individuals.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 118,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_pollination",
+      "tier": "key-term",
+      "term": "Pollination",
+      "verbatim": "Reproduction in flowering plants involves transfer of pollen grains from the anther to the stigma which is referred to as pollination.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 126,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_germination",
+      "tier": "key-term",
+      "term": "Germination",
+      "verbatim": "The seed contains the future plant or embryo which develops into a seedling under appropriate conditions. This process is known as germination.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 121,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_puberty",
+      "tier": "key-term",
+      "term": "Puberty",
+      "verbatim": "This period during adolescence is called puberty.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 122,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_menstruation",
+      "tier": "key-term",
+      "term": "Menstruation",
+      "verbatim": "This cycle takes place roughly every month and is known as menstruation. It usually lasts for about two to eight days.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 124,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    },
+    {
+      "id": "kt_placenta",
+      "tier": "key-term",
+      "term": "Placenta",
+      "verbatim": "The embryo gets nutrition from the mother's blood with the help of a special tissue called placenta.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 124,
+        "edition": "2026-27",
+        "chapter": 7
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Why reproduce? DNA copying and variation",
+      "body": "Reproduction is not needed to keep an individual alive, but it keeps the species going. Its most basic event is copying the DNA that carries the body-design blueprint. No copying reaction is perfectly accurate, so each DNA copy carries small variations. Consistent copying keeps a population suited to its niche, while the variations give a few individuals a chance to survive if conditions change.",
+      "tested": "2-3 mark: importance of DNA copying in reproduction; why variation is useful for a species but not necessarily for the individual.",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "Asexual reproduction - modes in single and simple organisms",
+      "body": "A single parent creates offspring with no fusion of germ-cells. Fission: unicellular organisms split - binary fission (two daughters, Amoeba) or multiple fission (many daughters, Plasmodium). Budding: an outgrowth in Hydra detaches as a new individual. Fragmentation: Spirogyra breaks into pieces that grow. Regeneration: a cut piece of Hydra/Planaria regrows a whole body (not the normal mode of reproduction). Spore formation: Rhizopus sporangia release spores.",
+      "tested": "how binary fission differs from multiple fission; how spore formation benefits an organism; why complex organisms cannot reproduce by regeneration.",
+      "figure_ref": "fig_budding_hydra"
+    },
+    {
+      "id": "c3",
+      "title": "Vegetative propagation and tissue culture",
+      "body": "In many plants the root, stem or leaf grows into a new plant. This is used in layering and grafting (sugarcane, roses, grapes) and lets banana, orange, rose and jasmine that no longer make seeds be propagated. Plants raised this way are genetically identical to the parent and flower/fruit earlier. In tissue culture, cells from the growing tip divide to form a callus, which is grown on a hormone medium into disease-free plantlets.",
+      "tested": "why vegetative propagation is practised for some plants; advantages over growing from seed; the steps of tissue culture.",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Why sexual reproduction? Gametes and meiosis",
+      "body": "Combining DNA from two individuals creates new combinations of variants faster than copying errors alone. To stop the DNA amount doubling each generation, germ-cells (gametes) are made with half the chromosomes by a cell division called meiosis; fusion at fertilisation restores the full number. The motile germ-cell is the male gamete and the larger, food-storing germ-cell is the female gamete.",
+      "tested": "advantages of sexual over asexual reproduction; role of meiosis in keeping chromosome number constant; male vs female gamete.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Sexual reproduction in flowering plants",
+      "body": "The flower carries the reproductive parts: the stamen (anther + filament) is male and makes pollen; the pistil (stigma, style, ovary with ovules) is female. Pollination transfers pollen from anther to stigma (self- or cross-pollination, by wind, water or animals). A pollen tube grows through the style to the ovary, the male germ-cell fuses with the egg (fertilisation) to form the zygote; the ovule becomes the seed and the ovary ripens into the fruit.",
+      "tested": "5-mark: draw and label the longitudinal section of a flower; difference between pollination and fertilisation; formation of seed and fruit.",
+      "figure_ref": "fig_flower_ls"
+    },
+    {
+      "id": "c6",
+      "title": "The human reproductive systems and puberty",
+      "body": "At puberty, reproductive tissues mature. The male system makes sperms in the testes (in the scrotum, needing a lower temperature); sperms travel through the vas deferens, gain secretions from the prostate and seminal vesicles, and leave via the urethra and penis. The female system makes eggs in the ovaries; an egg travels down the oviduct (fallopian tube) to the uterus, which opens into the vagina through the cervix.",
+      "tested": "5-mark: label the human male / female reproductive system; functions of the testis, seminal vesicles and prostate; changes at puberty in boys and girls.",
+      "figure_ref": "fig_male_repro"
+    },
+    {
+      "id": "c7",
+      "title": "Fertilisation, menstruation and reproductive health",
+      "body": "If a sperm meets the egg in the oviduct, the zygote implants in the thick uterus lining and is nourished through the placenta for about nine months. If the egg is not fertilised, the unneeded lining breaks down and leaves the body as menstruation. Reproductive health covers avoiding sexually transmitted infections (condoms help) and contraception - barrier methods (condom), intra-uterine devices (the copper-T or loop, placed in the uterus), hormonal pills, and surgical methods that block the vas deferens or fallopian tube.",
+      "tested": "why menstruation occurs; how the embryo is nourished in the mother's body; methods of contraception; how a copper-T does and does not protect.",
+      "figure_ref": "fig_female_repro"
+    }
+  ],
+  "examples": [
+    {
+      "id": "binary-fission-amoeba",
+      "shape": "Binary fission in Amoeba",
+      "kind": "process",
+      "problem_verbatim": "Trace how a new Amoeba is produced by binary fission. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "DNA copying.",
+          "text": "The parent Amoeba first builds a copy of its DNA, since the basic event in reproduction is the creation of a DNA copy.",
+          "mark": 1
+        },
+        {
+          "lead": "Nuclear division.",
+          "text": "The nucleus divides into two, so that each future daughter cell will receive a full set of information.",
+          "mark": 1
+        },
+        {
+          "lead": "Splitting of the cell.",
+          "text": "The cytoplasm then divides and the cell splits into two; in Amoeba this splitting can take place in any plane, giving two new individuals similar to the parent.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for DNA copying, 1 for division of the nucleus, 1 for splitting of the cytoplasm into two daughter Amoebae (splitting in any plane is the point that distinguishes Amoeba).",
+      "source": {
+        "ncert_example": "Fig. 7.1(a) walkthrough",
+        "ncert_page": 115,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "budding-hydra",
+      "shape": "Budding in Hydra",
+      "kind": "process",
+      "problem_verbatim": "Trace how a new Hydra is produced by budding. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Bud formation.",
+          "text": "Repeated cell division at one specific site on the parent Hydra produces an outgrowth called a bud, using regenerative cells.",
+          "mark": 1
+        },
+        {
+          "lead": "Growth of the bud.",
+          "text": "The bud grows and develops into a tiny individual, forming its own tentacles and body while still attached to the parent.",
+          "mark": 1
+        },
+        {
+          "lead": "Detachment.",
+          "text": "When fully mature, the bud detaches from the parent body and becomes a new, independent Hydra.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark each for the bud arising by repeated cell division at one site, the bud growing into a tiny individual, and the mature bud detaching as a new independent organism.",
+      "source": {
+        "ncert_example": "Fig. 7.4 walkthrough",
+        "ncert_page": 117,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "fertilisation-flower",
+      "shape": "Fertilisation in a flower",
+      "kind": "process",
+      "problem_verbatim": "Trace the events from pollination to seed formation in a flowering plant. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Pollen production.",
+          "text": "The stamen is the male part; its anther produces pollen grains, each carrying the male germ-cell.",
+          "mark": 1
+        },
+        {
+          "lead": "Pollination.",
+          "text": "Pollen is transferred from the stamen to the stigma - self-pollination within the same flower, or cross-pollination between flowers, carried by wind, water or animals.",
+          "mark": 1
+        },
+        {
+          "lead": "Pollen tube growth.",
+          "text": "After the pollen lands on a suitable stigma, a pollen tube grows out of the pollen grain and travels down through the style to reach the ovary.",
+          "mark": 1
+        },
+        {
+          "lead": "Fertilisation.",
+          "text": "The male germ-cell fuses with the female gamete (egg cell) inside the ovule; this fusion of germ-cells is fertilisation and it forms the zygote.",
+          "mark": 1
+        },
+        {
+          "lead": "Seed and fruit.",
+          "text": "The zygote divides several times to form an embryo within the ovule; the ovule becomes the seed and the ovary ripens into the fruit, while petals, sepals, stamens, style and stigma may shrivel and fall off.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 5,
+      "mark_logic": "CBSE 5-mark - 1 mark each for pollen from the anther, pollination (transfer to stigma, self vs cross), pollen tube down the style, fertilisation (fusion of male germ-cell with egg forming the zygote), and the ovule-to-seed / ovary-to-fruit conversion.",
+      "source": {
+        "ncert_example": "Figs. 7.7-7.8 walkthrough",
+        "ncert_page": 121,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "sperm-path-male",
+      "shape": "Path of the sperm in the human male reproductive system",
+      "kind": "process",
+      "problem_verbatim": "Trace the path of a sperm from where it is made to where it leaves the male body. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Sperm formation.",
+          "text": "Sperms are formed in the testes, which lie in the scrotum outside the abdominal cavity because sperm formation needs a temperature lower than normal body temperature.",
+          "mark": 1
+        },
+        {
+          "lead": "Passage through the vas deferens.",
+          "text": "The sperms are delivered through the vas deferens, which unites with a tube from the urinary bladder, so the urethra becomes a common passage for both sperms and urine.",
+          "mark": 1
+        },
+        {
+          "lead": "Addition of secretions and release.",
+          "text": "Along the way, glands like the prostate and seminal vesicles add secretions that form a fluid easing sperm transport and providing nutrition; the sperms, each with a long tail, finally leave through the penis.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for sperm formation in the testes (scrotum, lower temperature), 1 for delivery through the vas deferens and the shared urethra, 1 for the prostate/seminal-vesicle secretions and release via the penis.",
+      "source": {
+        "ncert_example": "Fig. 7.10 walkthrough",
+        "ncert_page": 123,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "egg-fate-menstruation",
+      "shape": "What happens when the egg is / is not fertilised",
+      "kind": "process",
+      "problem_verbatim": "Explain what happens to the egg and the uterus lining when the egg is fertilised, and when it is not. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Egg release.",
+          "text": "On reaching puberty, one egg is produced every month by one of the ovaries and is carried from the ovary to the uterus through the oviduct or fallopian tube.",
+          "mark": 1
+        },
+        {
+          "lead": "If fertilised - zygote and implantation.",
+          "text": "If sperms reach the egg in the oviduct, the fertilised egg (zygote) divides into a ball of cells (embryo) and is implanted in the thick, blood-rich lining of the uterus.",
+          "mark": 1
+        },
+        {
+          "lead": "Nourishment via the placenta.",
+          "text": "The embryo gets nutrition from the mother's blood through a special tissue, the placenta, and develops inside the mother for about nine months.",
+          "mark": 1
+        },
+        {
+          "lead": "If not fertilised - the egg breaks down.",
+          "text": "If the egg is not fertilised it lives for about one day, and the thick lining the uterus had prepared is no longer needed.",
+          "mark": 1
+        },
+        {
+          "lead": "Menstruation.",
+          "text": "The unneeded lining slowly breaks and comes out through the vagina as blood and mucous; this monthly cycle is menstruation and usually lasts about two to eight days.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 5,
+      "mark_logic": "CBSE 5-mark - 1 mark each for monthly release of the egg down the oviduct, fertilisation forming the zygote and its implantation, nourishment through the placenta over nine months, the fate of the unfertilised egg, and menstruation (breakdown of the lining when fertilisation has not occurred).",
+      "source": {
+        "ncert_example": "Fig. 7.11 walkthrough",
+        "ncert_page": 124,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Diagram question?",
+      "text": "Draw it large, label with straight ruled lines and use the exact NCERT terms - \"vas deferens\", \"seminal vesicle\", \"oviduct / fallopian tube\", \"stigma\", not slang. The LS of a flower and the two reproductive systems are the most-drawn figures."
+    },
+    {
+      "cue": "\"Difference between\" asked?",
+      "text": "Answer in a two-column table - pollination vs fertilisation, binary vs multiple fission, self- vs cross-pollination, asexual vs sexual - one clear point per row scores faster than a paragraph."
+    },
+    {
+      "cue": "Naming / one-word term?",
+      "text": "Pin the exact word to the exact process: fission (Amoeba), multiple fission (Plasmodium), budding (Hydra, Yeast), fragmentation (Spirogyra), regeneration (Planaria), spore formation (Rhizopus). Examiners award the specific term."
+    },
+    {
+      "cue": "\"Why / how\" reasoning add-on?",
+      "text": "Give the reason, not just the fact - e.g. testes lie in the scrotum because sperm formation needs a lower temperature; menstruation occurs because the prepared uterus lining is not needed when the egg is not fertilised."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Confusing pollination with fertilisation. Pollination = transfer of pollen from anther to stigma; fertilisation = fusion of the male germ-cell with the egg to form the zygote. They are different steps (exercise Q1 asks exactly this).",
+      "owner_verified": false
+    },
+    {
+      "text": "Saying budding occurs in Amoeba. Amoeba reproduces by binary fission; budding is seen in Yeast and Hydra (exercise MCQ Q1).",
+      "owner_verified": false
+    },
+    {
+      "text": "Putting the vas deferens in the female reproductive system. The vas deferens is a male organ; the female system has ovary, oviduct/fallopian tube, uterus and vagina (exercise MCQ Q2).",
+      "owner_verified": false
+    },
+    {
+      "text": "Mixing up binary and multiple fission. Binary fission gives two daughter cells (Amoeba); multiple fission gives many daughter cells at once (Plasmodium).",
+      "owner_verified": false
+    },
+    {
+      "text": "Calling regeneration a normal method of reproduction. NCERT states regeneration is NOT the same as reproduction, since organisms do not normally depend on being cut up to reproduce.",
+      "owner_verified": false
+    },
+    {
+      "text": "Forgetting why menstruation happens - it occurs only because the egg is NOT fertilised, so the thick uterus lining is no longer needed and is shed.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Asexual modes (single parent)",
+      "math": "Fission &middot; Budding &middot; Fragmentation &middot; Regeneration &middot; Spore formation &middot; Vegetative propagation - offspring genetically identical to the parent"
+    },
+    {
+      "label": "Fission types",
+      "math": "Binary fission = 2 daughter cells (Amoeba, in any plane); Multiple fission = many daughters at once (Plasmodium)"
+    },
+    {
+      "label": "Flower parts",
+      "math": "Male = Stamen (Anther + Filament) makes pollen; Female = Pistil (Stigma + Style + Ovary with ovules/egg)"
+    },
+    {
+      "label": "Pollination vs Fertilisation",
+      "math": "Pollination = pollen transferred anther &rarr; stigma; Fertilisation = male germ-cell fuses with egg &rarr; zygote"
+    },
+    {
+      "label": "Male reproductive system",
+      "math": "Testes (in scrotum) &rarr; vas deferens &rarr; (prostate + seminal vesicle secretions) &rarr; urethra &rarr; penis"
+    },
+    {
+      "label": "Female reproductive system",
+      "math": "Ovary &rarr; oviduct / fallopian tube (site of fertilisation) &rarr; uterus &rarr; cervix &rarr; vagina"
+    },
+    {
+      "label": "Egg &amp; menstrual cycle",
+      "math": "One egg released per month; unfertilised egg lives about 1 day; menstruation lasts about 2-8 days; development takes about 9 months"
+    },
+    {
+      "label": "Contraception categories",
+      "math": "Barrier (condom) &middot; Intra-uterine device (copper-T/loop) &middot; Hormonal (oral pills) &middot; Surgical (block vas deferens or fallopian tube) - condom also lowers STD transmission"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "diagrams",
+    "intro": "The diagrams you must be able to draw and label - this chapter is examined heavily through labelled figures. Learn each one in the exact NCERT form, especially the longitudinal section of a flower and the two human reproductive systems.",
+    "diagrams": [
+      "fig_binary_fission_amoeba",
+      "fig_multiple_fission_plasmodium",
+      "fig_budding_hydra",
+      "fig_flower_ls",
+      "fig_pollen_germination",
+      "fig_male_repro",
+      "fig_female_repro"
+    ]
+  },
+  "figures": {
+    "fig_binary_fission_amoeba": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.1(a)",
+      "caption": "Binary fission in Amoeba",
+      "legend": "The parent Amoeba copies its DNA, the nucleus divides, and the cell splits into two daughter Amoebae; the splitting can take place in any plane.",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.1(a)",
+        "page_pdf": 3,
+        "printed_page": 115,
+        "crop": [912, 1458, 1512, 1688],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; trimmed top text bleed; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_binary_fission_amoeba.webp"
+    },
+    "fig_multiple_fission_plasmodium": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.2",
+      "caption": "Multiple fission in Plasmodium",
+      "legend": "The single-celled malarial parasite divides into many daughter cells simultaneously inside a common membrane - many nuclei form before the cytoplasm splits.",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.2",
+        "page_pdf": 4,
+        "printed_page": 116,
+        "crop": [170, 195, 400, 475],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_multiple_fission_plasmodium.webp"
+    },
+    "fig_budding_hydra": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.4",
+      "caption": "Budding in Hydra",
+      "legend": "A bud (labelled) arises as an outgrowth on the parent body, grows its own tentacles, and finally detaches as a new independent Hydra.",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.4",
+        "page_pdf": 5,
+        "printed_page": 117,
+        "crop": [350, 1030, 1420, 1485],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; faint residual watermark ghost, ink intact; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_budding_hydra.webp"
+    },
+    "fig_flower_ls": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.7",
+      "caption": "Longitudinal section of a flower",
+      "legend": "The reproductive parts labelled - Pistil (Stigma, Style, Ovary) and Stamen (Anther, Filament), with Petal and Sepal. The most-drawn diagram of this chapter (exercise Q7).",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.7",
+        "page_pdf": 8,
+        "printed_page": 120,
+        "crop": [130, 1558, 900, 2015],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; trimmed the caption line; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_flower_ls.webp"
+    },
+    "fig_pollen_germination": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.8",
+      "caption": "Germination of pollen on stigma",
+      "legend": "Pollen grains on the stigma grow a pollen tube down through the style, carrying the male germ-cell to the female germ-cell in the ovary. Labels: pollen grain, stigma, male germ-cell, pollen tube, ovary, female germ-cell.",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.8",
+        "page_pdf": 9,
+        "printed_page": 121,
+        "crop": [1190, 345, 1655, 985],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; widened right edge to recover the germ-cell labels; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_pollen_germination.webp"
+    },
+    "fig_male_repro": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.10",
+      "caption": "Human male reproductive system",
+      "legend": "The organs labelled - testis (in scrotum), vas deferens, seminal vesicle, prostate gland, bladder, ureter, urethra and penis.",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.10",
+        "page_pdf": 11,
+        "printed_page": 123,
+        "crop": [850, 745, 1658, 1348],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; extended right and bottom to recover 'Prostate gland' and 'Scrotum'; faint watermark ghost, ink intact; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_male_repro.webp"
+    },
+    "fig_female_repro": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 7.11",
+      "caption": "Human female reproductive system",
+      "legend": "The organs labelled - ovary, oviduct or fallopian tube, uterus, cervix and vagina.",
+      "source": {
+        "pdf": "jesc107",
+        "edition": "2026-27",
+        "ncert_fig": "7.11",
+        "page_pdf": 11,
+        "printed_page": 123,
+        "crop": [900, 1475, 1645, 2015],
+        "clean": "saturation",
+        "note": "rasterize@220dpi + saturation-clean via pymupdf; extended bottom to recover the 'Vagina' label; eye-confirmed"
+      },
+      "asset": "how-do-organisms-reproduce/fig_female_repro.webp"
+    }
+  },
+  "mindmap": {
+    "root": "How do Organisms Reproduce?",
+    "branches": [
+      {
+        "label": "Why reproduce?",
+        "children": [
+          "Basic event = making a DNA copy",
+          "Copying is not perfect &rarr; variation",
+          "Variation helps a species survive changing niches",
+          "Not essential for the individual, but keeps the species going"
+        ]
+      },
+      {
+        "label": "Asexual reproduction (one parent)",
+        "children": [
+          "Fission - binary (Amoeba), multiple (Plasmodium)",
+          "Budding (Hydra, Yeast)",
+          "Fragmentation (Spirogyra)",
+          "Regeneration (Hydra, Planaria) - not a normal mode",
+          "Spore formation (Rhizopus)",
+          "Vegetative propagation + tissue culture"
+        ]
+      },
+      {
+        "label": "Sexual reproduction in plants",
+        "children": [
+          "Flower - stamen (male), pistil (female)",
+          "Pollination - self / cross (wind, water, animals)",
+          "Pollen tube &rarr; ovary; fertilisation &rarr; zygote",
+          "Ovule &rarr; seed, ovary &rarr; fruit"
+        ]
+      },
+      {
+        "label": "Human reproduction",
+        "children": [
+          "Puberty - reproductive tissues mature",
+          "Male - testes, vas deferens, prostate, urethra, penis",
+          "Female - ovary, oviduct, uterus, cervix, vagina",
+          "Fertilisation in oviduct &rarr; embryo &rarr; placenta (~9 months)",
+          "No fertilisation &rarr; menstruation"
+        ]
+      },
+      {
+        "label": "Reproductive health / Don't lose marks on",
+        "children": [
+          "Pollination is NOT fertilisation",
+          "Vas deferens is a MALE organ",
+          "Binary (2) vs multiple (many) fission",
+          "Contraception - barrier, intra-uterine device (copper-T), hormonal, surgical; condom lowers STDs"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    { "item": "Reproduction - the basic event (DNA copy)", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.113" },
+    { "item": "Fission", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.115" },
+    { "item": "Regeneration", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.116" },
+    { "item": "Budding", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.117" },
+    { "item": "Vegetative propagation", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.117" },
+    { "item": "Asexual reproduction", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.119" },
+    { "item": "Sexual reproduction", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.126" },
+    { "item": "Fertilisation", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.121" },
+    { "item": "Variation", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.114" },
+    { "item": "Spores (spore formation)", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.118" },
+    { "item": "Pollination", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.126" },
+    { "item": "Germination", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.121" },
+    { "item": "Puberty", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.122" },
+    { "item": "Menstruation", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.124" },
+    { "item": "Placenta", "type": "verbatim", "source": "NCERT 2026-27 Ch7 p.124" },
+    { "item": "Binary fission in Amoeba", "type": "example", "source": "NCERT 2026-27 Ch7 Fig 7.1(a) p.115" },
+    { "item": "Budding in Hydra", "type": "example", "source": "NCERT 2026-27 Ch7 Fig 7.4 p.117" },
+    { "item": "Fertilisation in a flower", "type": "example", "source": "NCERT 2026-27 Ch7 Figs 7.7-7.8 pp.120-121" },
+    { "item": "Path of the sperm in the human male reproductive system", "type": "example", "source": "NCERT 2026-27 Ch7 Fig 7.10 p.123" },
+    { "item": "What happens when the egg is / is not fertilised", "type": "example", "source": "NCERT 2026-27 Ch7 Fig 7.11 pp.123-124" },
+    { "item": "NCERT Fig 7.1(a)", "type": "figure", "source": "NCERT 2026-27 Ch7 7.1(a) p.115" },
+    { "item": "NCERT Fig 7.2", "type": "figure", "source": "NCERT 2026-27 Ch7 7.2 p.116" },
+    { "item": "NCERT Fig 7.4", "type": "figure", "source": "NCERT 2026-27 Ch7 7.4 p.117" },
+    { "item": "NCERT Fig 7.7", "type": "figure", "source": "NCERT 2026-27 Ch7 7.7 p.120" },
+    { "item": "NCERT Fig 7.8", "type": "figure", "source": "NCERT 2026-27 Ch7 7.8 p.121" },
+    { "item": "NCERT Fig 7.10", "type": "figure", "source": "NCERT 2026-27 Ch7 7.10 p.123" },
+    { "item": "NCERT Fig 7.11", "type": "figure", "source": "NCERT 2026-27 Ch7 7.11 p.123" }
+  ]
+}

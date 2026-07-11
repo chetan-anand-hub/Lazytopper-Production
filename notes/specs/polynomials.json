@@ -1,0 +1,474 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "polynomials",
+    "subject": "maths",
+    "chapter_no": 2,
+    "title": "Polynomials",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Proof",
+      "kind": "proof"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Mathematics, Ch 2 (jemh102.pdf, printed pages 10-23)"
+  },
+  "board_asks": "finding the zeroes of a quadratic polynomial and verifying the sum/product relationship with its coefficients, reading the number of zeroes off a graph (the geometrical meaning), and forming a quadratic from a given sum and product of zeroes.",
+  "big_idea": {
+    "tagline": "Zeroes are where the graph lands on the x-axis.",
+    "body": "A polynomial's <b>zeroes</b> are the values of $x$ that make it $0$ - and geometrically, they are exactly the points where the graph $y=p(x)$ crosses the $x$-axis. This short chapter ties three views of one idea together: the <b>algebra</b> (factorise to find the zeroes), the <b>geometry</b> (count the $x$-axis crossings), and the <b>coefficients</b> (for a quadratic, $\\alpha+\\beta=-\\dfrac{b}{a}$ and $\\alpha\\beta=\\dfrac{c}{a}$). Master the quadratic case - that is what the board assesses."
+  },
+  "definitions": [
+    {
+      "id": "def_degree",
+      "tier": "headline",
+      "term": "Degree of a polynomial",
+      "verbatim": "Recall that if p(x) is a polynomial in x, the highest power of x in p(x) is called the degree of the polynomial p(x).",
+      "plain": "the highest power of the variable. $4x+2$ has degree 1; $2y^2-3y+4$ has degree 2. Degree tells you the polynomial's family - and caps how many zeroes it can have.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 10,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "def_quadratic_polynomial",
+      "tier": "headline",
+      "term": "Quadratic polynomial",
+      "verbatim": "More generally, any quadratic polynomial in x is of the form ax2 + bx + c, where a, b, c are real numbers and a ≠ 0.",
+      "plain": "a degree-2 polynomial, $ax^2+bx+c$ with $a\\neq 0$. This is the case the whole chapter (and the board) focuses on.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 10,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "def_zero",
+      "tier": "headline",
+      "term": "Zero of a polynomial",
+      "verbatim": "More generally, a real number k is said to be a zero of a polynomial p(x), if p(k) = 0.",
+      "plain": "a value of $x$ that makes the polynomial equal $0$. Same idea as a root of the equation $p(x)=0$. Note: a <b>zero</b> is not the value $p(0)$.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 11,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "def_geometrical_meaning",
+      "tier": "headline",
+      "term": "Geometrical meaning of the zeroes",
+      "verbatim": "the zeroes of a quadratic polynomial ax2 + bx + c, a ≠ 0, are precisely the x-coordinates of the points where the parabola representing y = ax2 + bx + c intersects the x-axis.",
+      "plain": "draw $y=p(x)$ and look at where it meets the $x$-axis - each crossing is a zero. This is why the number of zeroes can be read straight off a graph.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 13,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "kt_value_pk",
+      "tier": "key-term",
+      "term": "Value p(k)",
+      "verbatim": "If p(x) is a polynomial in x, and if k is any real number, then the value obtained by replacing x by k in p(x), is called the value of p(x) at x = k, and is denoted by p(k).",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 11,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "kt_linear_polynomial",
+      "tier": "key-term",
+      "term": "Linear polynomial",
+      "verbatim": "A polynomial of degree 1 is called a linear polynomial.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 10,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "kt_cubic_polynomial",
+      "tier": "key-term",
+      "term": "Cubic polynomial",
+      "verbatim": "A polynomial of degree 3 is called a cubic polynomial.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 10,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Zeroes of a polynomial",
+      "body": "A <b>zero</b> of $p(x)$ is any value $k$ with $p(k)=0$ - substitute it and the polynomial collapses to $0$. For a quadratic, factorise $ax^2+bx+c$ into two linear factors and set each to zero; the two values you get are the zeroes.",
+      "tested": "1-mark 'is $k$ a zero of $p(x)$?' and 2-mark 'find the zeroes'.",
+      "figure_ref": "fig_parabola_zeroes"
+    },
+    {
+      "id": "c2",
+      "title": "Geometrical meaning - zeroes are x-axis crossings",
+      "body": "The zeroes of $p(x)$ are exactly the $x$-coordinates where the graph $y=p(x)$ crosses the $x$-axis. A parabola $y=ax^2+bx+c$ can meet the axis at <b>two points</b> (two distinct zeroes), <b>touch</b> it at one point (two equal zeroes), or <b>miss</b> it entirely (no zero).",
+      "tested": "1-mark MCQ 'number of zeroes from the graph' (Exercise 2.1 style).",
+      "figure_ref": "fig_zeroes_cases"
+    },
+    {
+      "id": "c3",
+      "title": "A quadratic has at most two zeroes",
+      "body": "Degree bounds the count: the graph of a degree-$n$ polynomial meets the $x$-axis at most $n$ times, so a quadratic has <b>at most two</b> zeroes and a linear polynomial has exactly one.",
+      "tested": "Reasoning / MCQ on the maximum number of zeroes.",
+      "figure_ref": null
+    },
+    {
+      "id": "c4",
+      "title": "Zeroes and coefficients (quadratic)",
+      "body": "For zeroes $\\alpha,\\beta$ of $ax^2+bx+c$: $\\alpha+\\beta=-\\dfrac{b}{a}$ (sum) and $\\alpha\\beta=\\dfrac{c}{a}$ (product). This lets you <b>verify</b> computed zeroes without solving again.",
+      "tested": "2-3 mark 'find the zeroes and verify the relationship' - the chapter's staple.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Building a quadratic from its zeroes",
+      "body": "Given the sum $s$ and product $p$ of the zeroes, a quadratic is $x^2 - s\\,x + p$ (and any real multiple $k$ of it also works). So sum $-3$, product $2$ gives $x^2+3x+2$.",
+      "tested": "2-3 mark 'form the quadratic polynomial'.",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_ncert_2",
+      "shape": "Find zeroes + verify relationship · NCERT Example 2",
+      "kind": "numerical",
+      "problem_verbatim": "Find the zeroes of the quadratic polynomial x2 + 7x + 10, and verify the relationship between the zeroes and the coefficients.",
+      "solution_steps": [
+        {
+          "lead": "Factorise.",
+          "text": "$x^2 + 7x + 10 = (x + 2)(x + 5)$.",
+          "concept_tag": "factorise into two linear factors",
+          "mark": 1
+        },
+        {
+          "lead": "Set each factor to zero.",
+          "text": "$x^2+7x+10=0$ when $x+2=0$ or $x+5=0$, i.e. $x=-2$ or $x=-5$. So the zeroes are $-2$ and $-5$.",
+          "concept_tag": "read off both zeroes",
+          "mark": 1
+        },
+        {
+          "lead": "Verify sum and product.",
+          "text": "Sum $=-2+(-5)=-7=-\\dfrac{7}{1}=-\\dfrac{b}{a}$; product $=(-2)(-5)=10=\\dfrac{10}{1}=\\dfrac{c}{a}$.",
+          "concept_tag": "check against the coefficients",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for the factorisation, 1 for stating BOTH zeroes, 1 for verifying sum $=-b/a$ and product $=c/a$. The verification is explicitly asked - skip it and the last mark is gone.",
+      "source": {
+        "ncert_example": "2",
+        "ncert_page": 20,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "ex_ncert_3",
+      "shape": "Irrational zeroes via a2-b2 · NCERT Example 3",
+      "kind": "numerical",
+      "problem_verbatim": "Find the zeroes of the polynomial x2 – 3 and verify the relationship between the zeroes and the coefficients.",
+      "solution_steps": [
+        {
+          "lead": "Use the identity a^2 - b^2.",
+          "text": "$x^2-3=(x-\\sqrt{3})(x+\\sqrt{3})$.",
+          "concept_tag": "difference of squares",
+          "mark": 1
+        },
+        {
+          "lead": "Read off the zeroes.",
+          "text": "$x^2-3=0$ when $x=\\sqrt{3}$ or $x=-\\sqrt{3}$. So the zeroes are $\\sqrt{3}$ and $-\\sqrt{3}$.",
+          "concept_tag": "both zeroes",
+          "mark": 1
+        },
+        {
+          "lead": "Verify.",
+          "text": "Here $b=0$: sum $=\\sqrt{3}+(-\\sqrt{3})=0=-\\dfrac{b}{a}$; product $=(\\sqrt{3})(-\\sqrt{3})=-3=\\dfrac{c}{a}$.",
+          "concept_tag": "check against the coefficients",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for factorising with $a^2-b^2$, 1 for both zeroes $\\pm\\sqrt{3}$, 1 for the sum/product check (note $b=0$, so the sum is $0$).",
+      "source": {
+        "ncert_example": "3",
+        "ncert_page": 20,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "ex_ncert_4",
+      "shape": "Form a quadratic from sum & product · NCERT Example 4",
+      "kind": "numerical",
+      "problem_verbatim": "Find a quadratic polynomial, the sum and product of whose zeroes are – 3 and 2, respectively.",
+      "solution_steps": [
+        {
+          "lead": "Write the relationships.",
+          "text": "Let the polynomial be $ax^2+bx+c$ with zeroes $\\alpha,\\beta$: $\\alpha+\\beta=-3=-\\dfrac{b}{a}$ and $\\alpha\\beta=2=\\dfrac{c}{a}$.",
+          "concept_tag": "sum = -b/a, product = c/a",
+          "mark": 1
+        },
+        {
+          "lead": "Choose a and read off the polynomial.",
+          "text": "Take $a=1$, so $b=3$ and $c=2$. One polynomial that fits is $x^2+3x+2$; any $k(x^2+3x+2)$, $k$ real, also works.",
+          "concept_tag": "build x^2 - (sum)x + product",
+          "mark": 1
+        }
+      ],
+      "marks_total": 2,
+      "mark_logic": "2-mark shape: 1 for writing sum $=-b/a$ and product $=c/a$, 1 for the polynomial $x^2+3x+2$ (stating the general $k$-multiple earns the mark cleanly).",
+      "source": {
+        "ncert_example": "4",
+        "ncert_page": 21,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    },
+    {
+      "id": "ex_ncert_ex22_1i",
+      "shape": "Find zeroes + verify · NCERT Exercise 2.2 Q1(i)",
+      "kind": "numerical",
+      "problem_verbatim": "Find the zeroes of the following quadratic polynomials and verify the relationship between the zeroes and the coefficients. (i) x2 – 2x – 8",
+      "solution_steps": [
+        {
+          "lead": "Factorise.",
+          "text": "$x^2-2x-8=(x-4)(x+2)$.",
+          "concept_tag": "split the middle term",
+          "mark": 1
+        },
+        {
+          "lead": "Set each factor to zero.",
+          "text": "$x-4=0$ or $x+2=0$, i.e. $x=4$ or $x=-2$. The zeroes are $4$ and $-2$.",
+          "concept_tag": "both zeroes",
+          "mark": 1
+        },
+        {
+          "lead": "Verify.",
+          "text": "Sum $=4+(-2)=2=-\\dfrac{-2}{1}=-\\dfrac{b}{a}$; product $=(4)(-2)=-8=\\dfrac{-8}{1}=\\dfrac{c}{a}$.",
+          "concept_tag": "check against the coefficients",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "3-mark shape: 1 for factorising, 1 for both zeroes, 1 for verifying sum $=-b/a$ and product $=c/a$. (Solution authored to the standard 3-mark scheme; the problem is NCERT Exercise 2.2 Q1(i).)",
+      "source": {
+        "ncert_exercise": "2.2",
+        "question": "1(i)",
+        "ncert_page": 23,
+        "edition": "2026-27",
+        "chapter": 2
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "'Find the zeroes'?",
+      "text": "Factorise the quadratic into two linear factors, set each to zero, and read off BOTH zeroes."
+    },
+    {
+      "cue": "'...and verify the relationship'?",
+      "text": "Check $\\alpha+\\beta=-\\dfrac{b}{a}$ and $\\alpha\\beta=\\dfrac{c}{a}$ - it is a separate mark, never skip it."
+    },
+    {
+      "cue": "'Form a quadratic with these zeroes'?",
+      "text": "Use $x^2-(\\text{sum})x+(\\text{product})$; add that any real $k$-multiple also fits."
+    },
+    {
+      "cue": "Graph given, 'how many zeroes'?",
+      "text": "Count the points where the curve crosses the $x$-axis - that is the number of zeroes."
+    },
+    {
+      "cue": "'Is $k$ a zero of $p(x)$?'",
+      "text": "Compute $p(k)$; it is a zero exactly when $p(k)=0$."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "<b>Giving only one zero</b> of a quadratic - always solve both linear factors and state both values.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Sign slip in the sum</b>: $\\alpha+\\beta=-\\dfrac{b}{a}$ carries a minus; the product $\\alpha\\beta=\\dfrac{c}{a}$ does not.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Confusing a 'zero' with $p(0)$</b> - a zero is where $p(x)=0$, not where $x=0$.",
+      "owner_verified": false
+    },
+    {
+      "text": "<b>Counting a touch-point as two crossings</b> - when the parabola just touches the axis, that is two <i>equal</i> zeroes (one point), not two distinct ones.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Quadratic polynomial",
+      "math": "$ax^2+bx+c,\\ a\\neq 0$"
+    },
+    {
+      "label": "Zero",
+      "math": "$p(k)=0$"
+    },
+    {
+      "label": "Sum of zeroes",
+      "math": "$\\alpha+\\beta=-\\dfrac{b}{a}$"
+    },
+    {
+      "label": "Product of zeroes",
+      "math": "$\\alpha\\beta=\\dfrac{c}{a}$"
+    },
+    {
+      "label": "Build from zeroes",
+      "math": "$x^2-(\\alpha+\\beta)x+\\alpha\\beta$"
+    }
+  ],
+  "mindmap": {
+    "root": "Polynomials - zeroes & their meaning",
+    "branches": [
+      {
+        "label": "Zeroes of p(x)",
+        "children": [
+          "p(k) = 0 makes k a zero",
+          "Factorise, then set each factor to 0",
+          "Linear: one zero; quadratic: at most two"
+        ]
+      },
+      {
+        "label": "Geometrical meaning",
+        "children": [
+          "Zeroes = x-axis crossings of y = p(x)",
+          "Two points to two distinct zeroes",
+          "Touches to two equal zeroes",
+          "Misses to no zero"
+        ]
+      },
+      {
+        "label": "Zeroes & coefficients (quadratic)",
+        "children": [
+          "Sum = -b/a",
+          "Product = c/a",
+          "Verify computed zeroes"
+        ]
+      },
+      {
+        "label": "Build a quadratic",
+        "children": [
+          "x^2 - (sum)x + product",
+          "Any real k-multiple also works"
+        ]
+      },
+      {
+        "label": "Don't lose marks on...",
+        "children": [
+          "Give BOTH zeroes",
+          "Minus sign in the sum",
+          "A 'zero' is not p(0)"
+        ]
+      }
+    ]
+  },
+  "third_tab_content": {
+    "kind": "proof",
+    "name": "Zeroes & coefficients of a quadratic - why sum = -b/a and product = c/a",
+    "intro": "The relationship you use to verify zeroes is not a rule to memorise blindly - NCERT derives it by writing the quadratic in terms of its factors and comparing coefficients. The 2026-27 syllabus keeps this QUADRATIC relationship (the cubic version is out of scope).",
+    "steps": [
+      {
+        "claim": "If $\\alpha$ and $\\beta$ are the zeroes of $p(x)=ax^2+bx+c$, then $(x-\\alpha)$ and $(x-\\beta)$ are its factors.",
+        "math": "$p(x)=ax^2+bx+c,\\ a\\neq 0$"
+      },
+      {
+        "claim": "So $p(x)$ is a constant $k$ times the product of those factors.",
+        "math": "$ax^2+bx+c=k(x-\\alpha)(x-\\beta)$"
+      },
+      {
+        "claim": "Expand the right-hand side.",
+        "math": "$=kx^2-k(\\alpha+\\beta)x+k\\alpha\\beta$"
+      },
+      {
+        "claim": "Compare the coefficients of $x^2$, of $x$, and the constant term on both sides.",
+        "math": "$a=k,\\quad b=-k(\\alpha+\\beta),\\quad c=k\\alpha\\beta$"
+      },
+      {
+        "claim": "Divide through by $k=a$ to isolate the sum and product.",
+        "math": "$\\alpha+\\beta=-\\dfrac{b}{a},\\qquad \\alpha\\beta=\\dfrac{c}{a}$",
+        "justification": "b/a and c/a fall straight out - this is exactly the relationship used to verify a pair of zeroes."
+      }
+    ],
+    "source": {
+      "ncert_page": 19,
+      "edition": "2026-27",
+      "chapter": 2,
+      "note": "NCERT's general derivation on pp.19-20 (Section 2.3); the Greek letters alpha, beta are NCERT's own notation"
+    }
+  },
+  "figures": {
+    "fig_zeroes_cases": {
+      "bucket": "generated",
+      "tag": "Figure",
+      "caption": "y = p(x) - the zeroes are where the parabola meets the x-axis",
+      "legend": "Left: two distinct zeroes (cuts twice) · Middle: two equal zeroes (just touches) · Right: no real zero (never meets).",
+      "generator": "parabola_triptych",
+      "params": {
+        "panels": [
+          { "a": 1, "b": -3, "c": -4, "badge": "two zeroes", "note": "cuts at x = -1 and x = 4 (NCERT's y = x^2 - 3x - 4)" },
+          { "a": 1, "b": -4, "c": 4, "badge": "one point", "note": "touches at x = 2 (two equal zeroes)" },
+          { "a": 1, "b": 0, "c": 2, "badge": "no zero", "note": "stays above the x-axis" }
+        ],
+        "x_range": [-6, 6],
+        "y_range": [-8, 8]
+      },
+      "asset": "polynomials/fig_zeroes_cases.webp"
+    },
+    "fig_parabola_zeroes": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 2.2",
+      "caption": "Graph of y = x^2 - 3x - 4 · the curve cuts the x-axis at x = -1 and x = 4 - its two zeroes.",
+      "legend": "The two x-axis crossings, (-1, 0) and (4, 0), are exactly the zeroes of the polynomial.",
+      "source": {
+        "pdf": "jemh102",
+        "edition": "2026-27",
+        "ncert_fig": "2.2",
+        "ncert_page": 13,
+        "page_pdf": 3,
+        "crop": [196, 176, 430, 520],
+        "clean": null,
+        "refill": null
+      },
+      "asset": "polynomials/fig_parabola_zeroes.webp"
+    }
+  },
+  "source_ledger": [
+    { "item": "Degree of a polynomial", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.10" },
+    { "item": "Quadratic polynomial", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.10" },
+    { "item": "Zero of a polynomial", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.11" },
+    { "item": "Geometrical meaning of the zeroes", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.13" },
+    { "item": "Value p(k)", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.11" },
+    { "item": "Linear polynomial", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.10" },
+    { "item": "Cubic polynomial", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.10" },
+    { "item": "Find zeroes + verify · NCERT Example 2", "type": "example", "source": "NCERT 2026-27 Ch2 Example 2 p.20" },
+    { "item": "Irrational zeroes · NCERT Example 3", "type": "example", "source": "NCERT 2026-27 Ch2 Example 3 p.20" },
+    { "item": "Form a quadratic · NCERT Example 4", "type": "example", "source": "NCERT 2026-27 Ch2 Example 4 p.21" },
+    { "item": "Find zeroes + verify · NCERT Exercise 2.2 Q1(i)", "type": "example", "source": "NCERT 2026-27 Ch2 Exercise 2.2 Q1(i) p.23" },
+    { "item": "NCERT Fig 2.2 (graph of y = x^2 - 3x - 4)", "type": "ncert-figure", "source": "NCERT 2026-27 Ch2 Fig 2.2 p.13 (jemh102 pdf idx 3)" }
+  ]
+}

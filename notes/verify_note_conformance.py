@@ -10,9 +10,9 @@ rejects a stub or a shape that drifts from the subject-adaptive template:
   physics   -> light-reflection-and-refraction
   maths     -> quadratic-equations
   biology   -> life-processes
-  chemistry -> the ChemicalReactions prototype (no JSON twin yet -> a structural
-               baseline of absolute minimums is used; the first chemistry chapter
-               is additionally eyeballed by the owner + auditor). See CHEMISTRY note.
+  chemistry -> chemical-reactions-and-equations (locked exemplar from batch 1, #365;
+               it replaced the ABS_MIN baseline once auditor+owner-validated, so every
+               later chemistry chapter is now gated against the real exemplar).
 
 WHAT IT CHECKS
   1. STRUCTURE   - every required top-level + meta section is present and (for the
@@ -57,7 +57,7 @@ EXEMPLAR_BY_SUBJECT = {
     "physics": "light-reflection-and-refraction",
     "maths": "quadratic-equations",
     "biology": "life-processes",
-    "chemistry": None,   # no locked JSON twin yet -> baseline of ABS_MIN (see CHEMISTRY)
+    "chemistry": "chemical-reactions-and-equations",  # locked exemplar (batch 1, #365)
 }
 
 # Subject-adaptive discriminators (mirror the schema + validate_spec).

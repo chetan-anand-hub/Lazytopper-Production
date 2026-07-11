@@ -1,0 +1,534 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "human-eye-and-colourful-world",
+    "subject": "physics",
+    "chapter_no": 10,
+    "title": "The Human Eye and the Colourful World",
+    "weightage": "high",
+    "third_tab": {
+      "label": "Rules",
+      "kind": "rules"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 10"
+  },
+  "board_asks": "the defect-to-lens question (myopia to concave, hypermetropia to convex, presbyopia to bi-focal) with its corrective ray diagram, power/focal-length numericals for a corrective lens, and 'explain why' reasoning on the twinkling of stars, advance sunrise, the blue of the sky and the red Sun at sunrise and sunset. This chapter is almost entirely reasoning plus one short numerical.",
+  "big_idea": {
+    "tagline": "One lens focuses your world; the sky paints it.",
+    "body": "The eye lens focuses light onto the retina, and by changing its focal length (accommodation) it lets you see both near and far. When that adjustment fails you get myopia, hypermetropia or presbyopia, each corrected by a specific spectacle lens. The 'colourful world' half is pure refraction of sunlight: a prism splits white light into VIBGYOR (dispersion), the atmosphere bends starlight and sunlight (so stars twinkle and the Sun is seen about two minutes early at sunrise), and tiny particles scatter short-wavelength light more (so the clear sky looks blue and the Sun looks red at sunrise and sunset)."
+  },
+  "definitions": [
+    {
+      "id": "def_accommodation",
+      "tier": "headline",
+      "term": "Accommodation (power of accommodation)",
+      "verbatim": "The ability of the eye lens to adjust its focal length is called accommodation.",
+      "plain": "The ciliary muscles squeeze or relax the eye lens to change its focal length: relaxed muscles give a thin lens (long focal length, distant objects clear); contracted muscles give a thick lens (short focal length, near objects clear).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 162,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_near_point",
+      "tier": "headline",
+      "term": "Least distance of distinct vision (near point)",
+      "verbatim": "The minimum distance, at which objects can be seen most distinctly without strain, is called the least distance of distinct vision. It is also called the near point of the eye.",
+      "plain": "The closest an object can be while still looking sharp without strain. For a normal young adult eye it is about 25 cm.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 162,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_myopia",
+      "tier": "headline",
+      "term": "Myopia (near-sightedness)",
+      "verbatim": "Myopia is also known as near-sightedness. A person with myopia can see nearby objects clearly but cannot see distant objects distinctly.",
+      "plain": "The image of a distant object falls in front of the retina (eyeball too long or lens too curved). Corrected with a concave (diverging) lens that pushes the image back onto the retina.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 163,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_hypermetropia",
+      "tier": "headline",
+      "term": "Hypermetropia (far-sightedness)",
+      "verbatim": "Hypermetropia is also known as far-sightedness. A person with hypermetropia can see distant objects clearly but cannot see nearby objects distinctly.",
+      "plain": "The image of a nearby object would form behind the retina (eyeball too short or lens focal length too long). Corrected with a convex (converging) lens that adds the missing focusing power.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 163,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_presbyopia",
+      "tier": "headline",
+      "term": "Presbyopia",
+      "verbatim": "The power of accommodation of the eye usually decreases with ageing. … This defect is called Presbyopia.",
+      "plain": "An age-related loss of accommodation, so the near point recedes. Often it comes with myopia too, and is corrected with bi-focal lenses (concave upper part for distance, convex lower part for reading).",
+      "memorise": true,
+      "source": {
+        "ncert_page": 163,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_angle_of_deviation",
+      "tier": "headline",
+      "term": "Angle of deviation (through a prism)",
+      "verbatim": "The peculiar shape of the prism makes the emergent ray bend at an angle to the direction of the incident ray. This angle is called the angle of deviation.",
+      "plain": "How much the prism turns the light from its original path. Because a prism's faces are inclined (not parallel like a slab), the emergent ray does not stay parallel to the incident ray.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 166,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "def_dispersion",
+      "tier": "headline",
+      "term": "Dispersion of light",
+      "verbatim": "The splitting of light into its component colours is called dispersion.",
+      "plain": "Different colours bend by different amounts in a prism (red the least, violet the most), so white light fans out into its VIBGYOR components.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 167,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_far_point",
+      "tier": "key-term",
+      "term": "Far point",
+      "verbatim": "The farthest point upto which the eye can see objects clearly is called the far point of the eye.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 162,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_iris",
+      "tier": "key-term",
+      "term": "Iris",
+      "verbatim": "Iris is a dark muscular diaphragm that controls the size of the pupil.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 161,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_cataract",
+      "tier": "key-term",
+      "term": "Cataract",
+      "verbatim": "Sometimes, the crystalline lens of people at old age becomes milky and cloudy. This condition is called cataract.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 162,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_spectrum",
+      "tier": "key-term",
+      "term": "Spectrum",
+      "verbatim": "The band of the coloured components of a light beam is called its spectrum.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 167,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "kt_tyndall_effect",
+      "tier": "key-term",
+      "term": "Tyndall effect",
+      "verbatim": "The phenomenon of scattering of light by the colloidal particles gives rise to Tyndall effect which you have studied in Class IX.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 169,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "The human eye and its parts",
+      "body": "Light enters through the cornea (where most refraction happens), the iris controls the pupil size and hence how much light gets in, and the crystalline lens fine-tunes the focus to form a real, inverted image on the light-sensitive retina. The ciliary muscles change the lens's shape; the optic nerve carries the signal to the brain.",
+      "tested": "1-mark MCQ on which part does what (cornea / retina / ciliary muscles) and label-the-diagram",
+      "figure_ref": "fig_eye"
+    },
+    {
+      "id": "c2",
+      "title": "Accommodation, near point and far point",
+      "body": "The eye adjusts its focal length by changing the curvature of the lens (accommodation). A normal eye sees clearly from its near point (about 25 cm) out to its far point (infinity). The focal length cannot fall below a minimum, which is why a page held too close looks blurred.",
+      "tested": "1-mark 'what is power of accommodation' + stating the 25 cm near point and infinity far point",
+      "figure_ref": null
+    },
+    {
+      "id": "c3",
+      "title": "Defects of vision and their correction",
+      "body": "Three common refractive defects: myopia (distant image before the retina) is corrected with a concave lens; hypermetropia (near image beyond the retina) with a convex lens; presbyopia (ageing loss of accommodation) often needs bi-focal lenses. Identify the defect, then pick the lens and draw the corrective ray diagram.",
+      "tested": "3-mark identify-the-defect + corrective-lens ray diagram + power numerical",
+      "figure_ref": "fig_myopia"
+    },
+    {
+      "id": "c4",
+      "title": "Prism, dispersion and the spectrum",
+      "body": "A prism's inclined faces deviate light and, because each colour deviates by a different amount, split white light into the VIBGYOR spectrum (red bends least, violet most). A second inverted prism can recombine the colours back into white light, which is how Newton proved sunlight is made of seven colours. A rainbow is nature's spectrum from water droplets acting as tiny prisms.",
+      "tested": "2-3 mark dispersion / VIBGYOR reasoning and 'why does a prism disperse but a slab does not'",
+      "figure_ref": "fig_dispersion"
+    },
+    {
+      "id": "c5",
+      "title": "Atmospheric refraction and scattering of light",
+      "body": "Atmospheric refraction (light bending through air of changing density) explains why stars twinkle but planets do not, and why the Sun is seen about 2 minutes before actual sunrise and 2 minutes after actual sunset. Scattering explains colour: fine particles scatter shorter (blue) wavelengths more, so the clear sky is blue, while near the horizon the long path scatters away the blue and the Sun looks red at sunrise and sunset.",
+      "tested": "2-3 mark 'why do stars twinkle / why is the sky blue / why is the Sun red at sunrise' reasoning",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "ex_myopia_power",
+      "shape": "Myopia — power of the correcting lens",
+      "kind": "numerical",
+      "problem_verbatim": "The far point of a myopic person is 80 cm in front of the eye. What is the nature and power of the lens required to correct the problem?",
+      "solution_steps": [
+        {
+          "lead": "Set up (with signs).",
+          "text": "The correcting concave lens must form the image of a very distant object at the eye's own far point. So the object is at infinity and its image sits at the far point, on the same side as the object.",
+          "math": "$u = -\\infty,\\; v = -80\\text{ cm} = -0.80\\text{ m}$",
+          "concept_tag": "far point becomes the image position",
+          "mark": 1
+        },
+        {
+          "lead": "Lens formula.",
+          "text": "Substitute into the lens formula to get the focal length.",
+          "math": "$\\dfrac{1}{f} = \\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{-0.80} - 0 = -1.25\\text{ m}^{-1} \\Rightarrow f = -0.80\\text{ m}$",
+          "concept_tag": "lens formula",
+          "mark": 1
+        },
+        {
+          "lead": "Power and nature.",
+          "text": "The power is the reciprocal of the focal length in metres.",
+          "math": "$P = \\dfrac{1}{f} = \\dfrac{1}{-0.80} = -1.25\\text{ D}$ — a concave (diverging) lens.",
+          "concept_tag": "P = 1/f; sign gives nature",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "1 mark for putting the object at infinity and the image at the far point with correct signs, 1 for the lens formula giving f, 1 for P = -1.25 D with its negative sign and naming it a concave lens.",
+      "source": {
+        "ncert_exercise": "Q6",
+        "ncert_page": 170,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    },
+    {
+      "id": "ex_hypermetropia_power",
+      "shape": "Hypermetropia — power of the correcting lens",
+      "kind": "numerical",
+      "problem_verbatim": "Make a diagram to show how hypermetropia is corrected. The near point of a hypermetropic eye is 1 m. What is the power of the lens required to correct this defect? Assume that the near point of the normal eye is 25 cm.",
+      "solution_steps": [
+        {
+          "lead": "Set up (with signs).",
+          "text": "The correcting convex lens must take an object at the normal near point (25 cm) and form its virtual image at the defective eye's near point (1 m), so the eye can focus it.",
+          "math": "$u = -25\\text{ cm} = -0.25\\text{ m},\\; v = -100\\text{ cm} = -1\\text{ m}$",
+          "concept_tag": "object at 25 cm, image at the far near-point",
+          "mark": 1
+        },
+        {
+          "lead": "Lens formula.",
+          "text": "Substitute into the lens formula to get the focal length.",
+          "math": "$\\dfrac{1}{f} = \\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{-1} - \\dfrac{1}{-0.25} = -1 + 4 = +3\\text{ m}^{-1}$",
+          "concept_tag": "lens formula",
+          "mark": 1
+        },
+        {
+          "lead": "Power and nature.",
+          "text": "The power is the reciprocal of the focal length in metres.",
+          "math": "$P = \\dfrac{1}{f} = +3\\text{ D}$ — a convex (converging) lens, with $f = +\\tfrac{1}{3}\\text{ m} \\approx +0.33\\text{ m}$.",
+          "concept_tag": "P = 1/f; positive means convex",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "1 mark for the object-at-25 cm / image-at-1 m setup with signs (plus the corrective ray diagram), 1 for the lens formula, 1 for P = +3 D and naming it a convex lens.",
+      "source": {
+        "ncert_exercise": "Q7",
+        "ncert_page": 170,
+        "edition": "2026-27",
+        "chapter": 10
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "Defect question?",
+      "text": "Name the defect, then map it: myopia goes to a concave lens, hypermetropia to a convex lens, presbyopia to bi-focal. Always add the corrective ray diagram if the marks allow."
+    },
+    {
+      "cue": "Corrective-lens numerical?",
+      "text": "Myopia: object at infinity, image at the far point, f = -(far point in metres). Hypermetropia: object at 25 cm, image at the eye's near point. Then P = 1/f with f in metres."
+    },
+    {
+      "cue": "Why does the sky look blue / Sun red?",
+      "text": "Both are scattering. Fine particles scatter short (blue) wavelengths most, so the sky is blue; at sunrise/sunset the long air path scatters the blue away and mostly red reaches you."
+    },
+    {
+      "cue": "Why do stars twinkle but planets do not?",
+      "text": "Stars are point sources, so atmospheric refraction makes their tiny light flicker; planets are extended sources whose many points average out, so they do not twinkle."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Swapping the corrective lenses — myopia needs a concave (diverging) lens, hypermetropia needs a convex (converging) lens. Mixing them up loses the whole mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "Forgetting the sign / units in the power numerical — f must be in metres and a diverging lens gives a negative power (e.g. -1.25 D), not a positive one.",
+      "owner_verified": false
+    },
+    {
+      "text": "Saying the eye lens 'moves' to focus — it does not move; the ciliary muscles change its curvature (focal length). That is accommodation.",
+      "owner_verified": false
+    },
+    {
+      "text": "Confusing dispersion with scattering — a prism disperses white light by colour-dependent refraction; the sky is blue because of scattering by tiny particles. They are different phenomena.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "Power of a lens",
+      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D)"
+    },
+    {
+      "label": "Lens formula",
+      "math": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$"
+    },
+    {
+      "label": "Myopia correction",
+      "math": "$f = -(\\text{far point in m}),\\; P<0$ (concave)"
+    },
+    {
+      "label": "Hypermetropia correction",
+      "math": "object at $25\\text{ cm}$, image at the near point; $P>0$ (convex)"
+    },
+    {
+      "label": "Normal vision range",
+      "math": "near point $\\approx 25\\text{ cm}$ → far point $\\infty$"
+    },
+    {
+      "label": "Colour bending in a prism",
+      "math": "red bends least · violet bends most (VIBGYOR)"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "rules",
+    "intro": "This chapter is examined on rules, not derivations: how the eye adjusts focus, which lens fixes which defect, and how a prism bends light. Lock these in and every ray diagram, defect question and 'explain why' falls into place.",
+    "figure_ref": "fig_hypermetropia",
+    "blocks": [
+      {
+        "heading": "How the eye focuses (accommodation)",
+        "type": "rule-list",
+        "items": [
+          "Ciliary muscles relaxed → lens thin → focal length LONGER → distant objects clear.",
+          "Ciliary muscles contracted → lens thicker → focal length SHORTER → nearby objects clear.",
+          "Near point of a normal eye ≈ 25 cm; far point = infinity.",
+          "Focal length cannot drop below a minimum — so an object held closer than 25 cm looks blurred."
+        ]
+      },
+      {
+        "heading": "Defect → corrective lens (sign of power)",
+        "type": "sign-table",
+        "rows": [
+          {
+            "sign": "−",
+            "text": "Myopia (near-sightedness): concave (diverging) lens of suitable power — negative power."
+          },
+          {
+            "sign": "+",
+            "text": "Hypermetropia (far-sightedness): convex (converging) lens of appropriate power — positive power."
+          },
+          {
+            "sign": "±",
+            "text": "Presbyopia: bi-focal lenses — concave upper part for distant vision, convex lower part for near vision."
+          }
+        ]
+      },
+      {
+        "heading": "Refraction of light through a prism",
+        "type": "rule-list",
+        "items": [
+          "At the first face (air → glass) the ray bends TOWARDS the normal.",
+          "At the second face (glass → air) the ray bends AWAY from the normal.",
+          "The emergent ray is turned from the incident direction by the angle of deviation (∠D).",
+          "Unlike a parallel-sided slab, a prism's inclined faces mean the emergent ray is NOT parallel to the incident ray — and different colours deviate by different amounts (dispersion)."
+        ]
+      }
+    ]
+  },
+  "figures": {
+    "fig_eye": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 10.1",
+      "caption": "The human eye — cornea, iris, pupil, crystalline lens, ciliary muscles and the retina",
+      "legend": "Light enters at the cornea, the pupil controls its amount, the lens focuses a real inverted image on the retina, and the optic nerve carries it to the brain.",
+      "source": {
+        "pdf": "jesc110",
+        "edition": "2026-27",
+        "ncert_fig": "10.1",
+        "page_pdf": 1,
+        "printed_page": 161,
+        "crop": [900, 1490, 1670, 1965],
+        "clean": "saturation@v200,s0.10"
+      },
+      "asset": "human-eye-and-colourful-world/fig_eye.webp"
+    },
+    "fig_myopia": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 10.2",
+      "caption": "The myopic eye and its correction — (a) far point, (b) image formed in front of the retina, (c) a concave lens brings it back onto the retina",
+      "legend": "In myopia a distant object focuses before the retina; a concave (diverging) lens diverges the rays so the image lands on the retina.",
+      "source": {
+        "pdf": "jesc110",
+        "edition": "2026-27",
+        "ncert_fig": "10.2",
+        "page_pdf": 3,
+        "printed_page": 163,
+        "crop": [948, 210, 1712, 850],
+        "clean": "saturation@v200,s0.10"
+      },
+      "asset": "human-eye-and-colourful-world/fig_myopia.webp"
+    },
+    "fig_hypermetropia": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 10.3",
+      "caption": "The hypermetropic eye and its correction — (a) near point beyond normal, (b) near image formed behind the retina, (c) a convex lens brings it onto the retina",
+      "legend": "In hypermetropia a nearby object would focus behind the retina; a convex (converging) lens adds the missing focusing power. N = near point of the defective eye, N' = normal near point.",
+      "source": {
+        "pdf": "jesc110",
+        "edition": "2026-27",
+        "ncert_fig": "10.3",
+        "page_pdf": 3,
+        "printed_page": 163,
+        "crop": [1020, 1050, 1712, 1770],
+        "clean": "saturation@v200,s0.10"
+      },
+      "asset": "human-eye-and-colourful-world/fig_hypermetropia.webp"
+    },
+    "fig_dispersion": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 10.5",
+      "caption": "Dispersion of white light by a glass prism into the VIBGYOR spectrum",
+      "legend": "White light entering the prism splits by colour — red deviates least, violet most — forming the visible spectrum.",
+      "source": {
+        "pdf": "jesc110",
+        "edition": "2026-27",
+        "ncert_fig": "10.5",
+        "page_pdf": 7,
+        "printed_page": 167,
+        "crop": [890, 195, 1716, 575],
+        "clean": "saturation@v200,s0.10"
+      },
+      "asset": "human-eye-and-colourful-world/fig_dispersion.webp"
+    }
+  },
+  "mindmap": {
+    "root": "The Human Eye and the Colourful World",
+    "branches": [
+      {
+        "label": "The human eye",
+        "children": [
+          "Cornea (most refraction) → pupil → lens → retina",
+          "Iris controls pupil size",
+          "Ciliary muscles reshape the lens",
+          "Real, inverted image on the retina"
+        ]
+      },
+      {
+        "label": "Accommodation and defects",
+        "children": [
+          "Accommodation = adjust focal length",
+          "Near point 25 cm, far point infinity",
+          "Myopia → concave lens",
+          "Hypermetropia → convex lens",
+          "Presbyopia → bi-focal"
+        ]
+      },
+      {
+        "label": "Prism and dispersion",
+        "children": [
+          "Angle of deviation (prism)",
+          "White light → VIBGYOR spectrum",
+          "Red bends least, violet most",
+          "Recombination → white; rainbow"
+        ]
+      },
+      {
+        "label": "Atmospheric refraction",
+        "children": [
+          "Twinkling of stars (planets do not)",
+          "Advance sunrise, delayed sunset (~2 min)",
+          "Apparent star position raised"
+        ]
+      },
+      {
+        "label": "Scattering of light",
+        "children": [
+          "Tyndall effect (colloidal particles)",
+          "Blue sky = short wavelengths scattered",
+          "Red Sun at sunrise/sunset",
+          "Danger signals red (least scattered)"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    { "item": "Accommodation (power of accommodation)", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.162" },
+    { "item": "Least distance of distinct vision (near point)", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.162" },
+    { "item": "Myopia (near-sightedness)", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.163" },
+    { "item": "Hypermetropia (far-sightedness)", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.163" },
+    { "item": "Presbyopia", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.163" },
+    { "item": "Angle of deviation (through a prism)", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.166" },
+    { "item": "Dispersion of light", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.167" },
+    { "item": "Far point", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.162" },
+    { "item": "Iris", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.161" },
+    { "item": "Cataract", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.162" },
+    { "item": "Spectrum", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.167" },
+    { "item": "Tyndall effect", "type": "verbatim", "source": "NCERT 2026-27 Ch10 p.169" },
+    { "item": "Myopia — power of the correcting lens", "type": "example", "source": "NCERT 2026-27 Ch10 Exercise Q6 p.170" },
+    { "item": "Hypermetropia — power of the correcting lens", "type": "example", "source": "NCERT 2026-27 Ch10 Exercise Q7 p.170" },
+    { "item": "NCERT Fig 10.1", "type": "figure", "source": "NCERT 2026-27 Ch10 Fig 10.1 p.161" },
+    { "item": "NCERT Fig 10.2", "type": "figure", "source": "NCERT 2026-27 Ch10 Fig 10.2 p.163" },
+    { "item": "NCERT Fig 10.3", "type": "figure", "source": "NCERT 2026-27 Ch10 Fig 10.3 p.163" },
+    { "item": "NCERT Fig 10.5", "type": "figure", "source": "NCERT 2026-27 Ch10 Fig 10.5 p.167" }
+  ]
+}
