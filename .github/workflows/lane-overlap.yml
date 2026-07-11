@@ -1,0 +1,42 @@
+name: Lane Overlap
+
+# Collision guard. On every PR into the trunk it checks whether this PR edits any file
+# that another OPEN PR also edits -- an overlap means the two branches will conflict on
+# merge, so the check FAILS to force sequencing. It also WARNS when the PR touches a
+# gated lane (data / forbidden files / cofounder-skill / .github). READ-ONLY: it lists
+# PRs and diffs via the API and mutates nothing. Additive -- does not touch quality-gate.yml.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [base/approved-thru-437]
+
+# A newer push to the same PR supersedes an in-flight run.
+concurrency:
+  group: lane-overlap-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lane-overlap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Lane-overlap check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/ops/lane_overlap.mjs
