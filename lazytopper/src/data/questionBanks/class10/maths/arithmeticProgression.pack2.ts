@@ -4,7 +4,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-001",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-002",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -63,7 +63,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-003",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -88,7 +88,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-004",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -115,7 +115,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-005",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -146,7 +146,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-006",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "A",
     "marks": 1,
@@ -177,7 +177,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-007",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -202,7 +202,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-008",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -228,7 +228,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-009",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -259,7 +259,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-010",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -285,7 +285,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-011",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -311,7 +311,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-012",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -340,7 +340,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-013",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -366,7 +366,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-014",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -396,7 +396,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-015",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -426,7 +426,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-016",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -456,7 +456,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-017",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "E",
     "marks": 4,
@@ -483,7 +483,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-018",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "E",
     "marks": 4,
@@ -513,7 +513,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-019",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "C",
     "marks": 3,
@@ -563,7 +563,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-020",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -588,7 +588,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-021",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -614,7 +614,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-022",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -645,7 +645,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-023",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -675,7 +675,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-024",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -707,7 +707,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-025",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -737,7 +737,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-026",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -767,7 +767,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-027",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -798,7 +798,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-028",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -828,7 +828,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-029",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -853,7 +853,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-030",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -885,7 +885,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-031",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -916,7 +916,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-032",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -947,7 +947,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-033",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -973,7 +973,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-034",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "C",
     "marks": 3,
@@ -999,7 +999,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-035",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -1029,7 +1029,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-036",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "E",
     "marks": 4,
@@ -1058,7 +1058,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-037",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "C",
     "marks": 3,
@@ -1090,7 +1090,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-038",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "D",
     "marks": 5,
@@ -1121,7 +1121,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-039",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "D",
     "marks": 5,
@@ -1147,7 +1147,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-040",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "A",
     "marks": 1,
@@ -1177,7 +1177,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-041",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Sum of n Terms",
     "section": "B",
     "marks": 2,
@@ -1209,7 +1209,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-042",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "Word Problems on AP",
     "section": "C",
     "marks": 3,
@@ -1243,7 +1243,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "AP2-043",
     "subject": "Maths",
-    "topicKey": "Arithmetic Progression",
+    "topicKey": "arithmetic-progression",
     "subtopic": "nth Term of AP",
     "section": "B",
     "marks": 2,
@@ -1272,21 +1272,21 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 5.1"
   },
-  { id: "AP2-044", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 10th term of the AP 3, 7, 11, 15, … is:", options: ["39","40","37","43"], answer: "39", explanation: "The correct answer is 39. a_n = a + (n−1)d = 3 + 9×4 = 39.", finalAnswer: "a_n = a + (n−1)d = 3 + 9×4 = 39.", isCompetencyBased: false,
+  { id: "AP2-044", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 10th term of the AP 3, 7, 11, 15, … is:", options: ["39","40","37","43"], answer: "39", explanation: "The correct answer is 39. a_n = a + (n−1)d = 3 + 9×4 = 39.", finalAnswer: "a_n = a + (n−1)d = 3 + 9×4 = 39.", isCompetencyBased: false,
     solutionSteps: [
       "Given the nth term of an AP, an = 3n + 5.",
       "To find the 10th term, substitute n = 10 into the formula.",
       "a10 = 3(10) + 5 = 30 + 5 = 35.",
     ],
   },
-  { id: "AP2-045", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Common Difference", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is an AP?", options: ["1, 2, 4, 8, …","2, 4, 6, 8, …","1, 4, 9, 16, …","1, 1, 2, 3, 5, …"], answer: "2, 4, 6, 8, …", explanation: "The correct answer is 2, 4, 6, 8, …. The sequence 2, 4, 6, 8 has constant difference d = 2 — it is an AP.", finalAnswer: "The sequence 2, 4, 6, 8 has constant difference d = 2 — it is an AP.", isCompetencyBased: false,
+  { id: "AP2-045", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Common Difference", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is an AP?", options: ["1, 2, 4, 8, …","2, 4, 6, 8, …","1, 4, 9, 16, …","1, 1, 2, 3, 5, …"], answer: "2, 4, 6, 8, …", explanation: "The correct answer is 2, 4, 6, 8, …. The sequence 2, 4, 6, 8 has constant difference d = 2 — it is an AP.", finalAnswer: "The sequence 2, 4, 6, 8 has constant difference d = 2 — it is an AP.", isCompetencyBased: false,
     solutionSteps: [
       "Given AP is 3, 1, -1, -3, ...",
       "The common difference (d) is the difference between any term and its preceding term.",
       "d = a2 - a1 = 1 - 3 = -2.",
     ],
   },
-  { id: "AP2-046", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first 20 natural numbers is:", options: ["210","200","190","220"], answer: "210", explanation: "The correct answer is 210. S = n(n+1)/2 = 20×21/2 = 210.", finalAnswer: "S = n(n+1)/2 = 20×21/2 = 210.", isCompetencyBased: false,
+  { id: "AP2-046", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first 20 natural numbers is:", options: ["210","200","190","220"], answer: "210", explanation: "The correct answer is 210. S = n(n+1)/2 = 20×21/2 = 210.", finalAnswer: "S = n(n+1)/2 = 20×21/2 = 210.", isCompetencyBased: false,
     solutionSteps: [
       "Given S5 = 25, n = 5, a = 1. The formula for sum of n terms is Sn = n/2 [2a + (n-1)d].",
       "Substitute the given values: 25 = 5/2 [2(1) + (5-1)d] => 25 = 5/2 [2 + 4d].",
@@ -1294,77 +1294,77 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Divide by 4: d = 2.",
     ],
   },
-  { id: "AP2-047", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the nth term of an AP is (2n − 1), the 15th term is:", options: ["29","30","31","28"], answer: "29", explanation: "The correct answer is 29. a_15 = 2(15)−1 = 30−1 = 29.", finalAnswer: "a_15 = 2(15)−1 = 30−1 = 29.", isCompetencyBased: false,
+  { id: "AP2-047", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the nth term of an AP is (2n − 1), the 15th term is:", options: ["29","30","31","28"], answer: "29", explanation: "The correct answer is 29. a_15 = 2(15)−1 = 30−1 = 29.", finalAnswer: "a_15 = 2(15)−1 = 30−1 = 29.", isCompetencyBased: false,
     solutionSteps: [
       "The formula for the nth term is given as an = 3n + 2.",
       "To find the 5th term, substitute n = 5 into the formula.",
       "a5 = 3(5) + 2 = 15 + 2 = 17.",
     ],
   },
-  { id: "AP2-048", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first n odd natural numbers is:", options: ["n²","n(n+1)/2","n(n−1)","2n−1"], answer: "n²", explanation: "The correct answer is n². Sum of first n odd numbers = 1+3+5+…+(2n−1) = n².", finalAnswer: "Sum of first n odd numbers = 1+3+5+…+(2n−1) = n².", isCompetencyBased: false,
+  { id: "AP2-048", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of first n odd natural numbers is:", options: ["n²","n(n+1)/2","n(n−1)","2n−1"], answer: "n²", explanation: "The correct answer is n². Sum of first n odd numbers = 1+3+5+…+(2n−1) = n².", finalAnswer: "Sum of first n odd numbers = 1+3+5+…+(2n−1) = n².", isCompetencyBased: false,
     solutionSteps: [
       "Given first term (a) = 2 and common difference (d) = 3.",
       "The first two terms are a1 = 2 and a2 = a1 + d = 2 + 3 = 5.",
       "The sum of the first 2 terms (S2) = a1 + a2 = 2 + 5 = 7.",
     ],
   },
-  { id: "AP2-049", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Common Difference", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In an AP, if a = 5 and d = −2, the 8th term is:", options: ["−9","9","−5","5"], answer: "−9", explanation: "The correct answer is −9. a_8 = 5 + 7×(−2) = 5−14 = −9.", finalAnswer: "a_8 = 5 + 7×(−2) = 5−14 = −9.", isCompetencyBased: false,
+  { id: "AP2-049", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Common Difference", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In an AP, if a = 5 and d = −2, the 8th term is:", options: ["−9","9","−5","5"], answer: "−9", explanation: "The correct answer is −9. a_8 = 5 + 7×(−2) = 5−14 = −9.", finalAnswer: "a_8 = 5 + 7×(−2) = 5−14 = −9.", isCompetencyBased: false,
     solutionSteps: [
       "The given AP is 3, 7, 11, 15, ...",
       "The common difference (d) is the difference between any term and its preceding term.",
       "d = a2 - a1 = 7 - 3 = 4.",
     ],
   },
-  { id: "AP2-050", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If a = 2, d = 3, n = 10, the sum S_10 is:", options: ["155","150","145","160"], answer: "155", explanation: "The correct answer is 155. S_10 = (10/2)[2×2 + 9×3] = 5[4+27] = 5×31 = 155.", finalAnswer: "S_10 = (10/2)[2×2 + 9×3] = 5[4+27] = 5×31 = 155.", isCompetencyBased: false,
+  { id: "AP2-050", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If a = 2, d = 3, n = 10, the sum S_10 is:", options: ["155","150","145","160"], answer: "155", explanation: "The correct answer is 155. S_10 = (10/2)[2×2 + 9×3] = 5[4+27] = 5×31 = 155.", finalAnswer: "S_10 = (10/2)[2×2 + 9×3] = 5[4+27] = 5×31 = 155.", isCompetencyBased: false,
     solutionSteps: [
       "The given series is the first 10 natural numbers: 1, 2, ..., 10. Here, the first term (a) = 1, common difference (d) = 1, and number of terms (n) = 10.",
       "The last term (l) is 10. Using the sum formula Sn = n/2 * (a + l), we get S10 = 10/2 * (1 + 10).",
       "S10 = 5 * 11 = 55. Therefore, the sum of the first 10 natural numbers is 55.",
     ],
   },
-  { id: "AP2-051", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "How many two-digit numbers are divisible by 7?", options: ["12","13","14","11"], answer: "13", explanation: "The correct answer is 13. Two-digit multiples of 7: 14, 21, 28, …, 98. Number of terms = (98 − 14)/7 + 1 = 84/7 + 1 = 12 + 1 = 13.", finalAnswer: "13", isCompetencyBased: false,
+  { id: "AP2-051", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "How many two-digit numbers are divisible by 7?", options: ["12","13","14","11"], answer: "13", explanation: "The correct answer is 13. Two-digit multiples of 7: 14, 21, 28, …, 98. Number of terms = (98 − 14)/7 + 1 = 84/7 + 1 = 12 + 1 = 13.", finalAnswer: "13", isCompetencyBased: false,
     solutionSteps: [
       "For the given AP: 2, 7, 12, ..., the first term (a) = 2 and the common difference (d) = 7 - 2 = 5.",
       "We need to find the 5th term (n=5). The formula for the nth term of an AP is an = a + (n-1)d.",
       "Substituting the values: a5 = 2 + (5-1)*5 = 2 + 4*5 = 2 + 20 = 22.",
     ],
   },
-  { id: "AP2-052", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 7th term of an AP is 32 and its 13th term is 62. What is the first term?", options: ["2","5","7","10"], answer: "2", explanation: "The correct answer is 2. a_7 = a+6d = 32 and a_13 = a+12d = 62. Subtracting: 6d = 30 → d = 5. Then a = 32 − 6×5 = 2.", finalAnswer: "2", isCompetencyBased: false,
+  { id: "AP2-052", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The 7th term of an AP is 32 and its 13th term is 62. What is the first term?", options: ["2","5","7","10"], answer: "2", explanation: "The correct answer is 2. a_7 = a+6d = 32 and a_13 = a+12d = 62. Subtracting: 6d = 30 → d = 5. Then a = 32 − 6×5 = 2.", finalAnswer: "2", isCompetencyBased: false,
     solutionSteps: [
       "Given: First term (a) = 5, common difference (d) = 3, and number of terms (n) = 4.",
       "The formula for the sum of n terms of an AP is Sn = n/2 * (2a + (n-1)d).",
       "Substituting the values: S4 = 4/2 * (2*5 + (4-1)*3) = 2 * (10 + 3*3) = 2 * (10 + 9) = 2 * 19 = 38.",
     ],
   },
-  { id: "AP2-053", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of terms in the AP 7, 13, 19, …, 205 is:", options: ["33","34","35","32"], answer: "34", explanation: "The correct answer is 34. a = 7, d = 6, a_n = 205. n = (205−7)/6 + 1 = 198/6 + 1 = 33 + 1 = 34.", finalAnswer: "34", isCompetencyBased: false,
+  { id: "AP2-053", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of terms in the AP 7, 13, 19, …, 205 is:", options: ["33","34","35","32"], answer: "34", explanation: "The correct answer is 34. a = 7, d = 6, a_n = 205. n = (205−7)/6 + 1 = 198/6 + 1 = 33 + 1 = 34.", finalAnswer: "34", isCompetencyBased: false,
     solutionSteps: [
       "For a given AP, identify the first term 'a' and the common difference 'd'.",
       "Use the formula for the nth term of an AP: an = a + (n-1)d.",
       "Substitute the values of 'a', 'd', and 'n' into the formula and calculate the term.",
     ],
   },
-  { id: "AP2-054", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of all multiples of 3 between 1 and 100 is:", options: ["1683","1650","1782","1716"], answer: "1683", explanation: "The correct answer is 1683. Multiples of 3: 3, 6, 9, …, 99. n=33. S = (33/2)(3+99) = (33/2)×102 = 33×51 = 1683.", finalAnswer: "Multiples of 3: 3, 6, 9, …, 99. n=33. S = (33/2)(3+99) = (33/2)×102 = 33×51 = 1683.", isCompetencyBased: false,
+  { id: "AP2-054", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sum of all multiples of 3 between 1 and 100 is:", options: ["1683","1650","1782","1716"], answer: "1683", explanation: "The correct answer is 1683. Multiples of 3: 3, 6, 9, …, 99. n=33. S = (33/2)(3+99) = (33/2)×102 = 33×51 = 1683.", finalAnswer: "Multiples of 3: 3, 6, 9, …, 99. n=33. S = (33/2)(3+99) = (33/2)×102 = 33×51 = 1683.", isCompetencyBased: false,
     solutionSteps: [
       "For a given AP, identify the first term 'a', the common difference 'd', and the number of terms 'n'.",
       "Use the formula for the sum of the first n terms of an AP: Sn = n/2 [2a + (n-1)d].",
       "Substitute the values of 'a', 'd', and 'n' into the formula and calculate the sum.",
     ],
   },
-  { id: "AP2-055", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The sequence 1, 3, 5, 7, … is an AP with common difference 2.\nReason (R): In an arithmetic progression, the difference between consecutive terms is constant.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = 3−1 = 5−3 = 2 (constant). R defines what an AP is and explains why the sequence in A qualifies.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "AP2-055", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The sequence 1, 3, 5, 7, … is an AP with common difference 2.\nReason (R): In an arithmetic progression, the difference between consecutive terms is constant.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = 3−1 = 5−3 = 2 (constant). R defines what an AP is and explains why the sequence in A qualifies.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "Evaluate Assertion (A) by calculating the stated term of the AP using the nth term formula.",
       "Evaluate Reason (R) to check if the statement or formula provided is correct.",
       "Determine if Reason (R) correctly explains Assertion (A) based on the calculation and formula.",
     ],
   },
-  { id: "AP2-056", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The sum of first n terms of an AP is S_n = 3n² + 5n. Find the AP, its first term, common difference, and the 20th term.", solutionSteps: [
+  { id: "AP2-056", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The sum of first n terms of an AP is S_n = 3n² + 5n. Find the AP, its first term, common difference, and the 20th term.", solutionSteps: [
       "S_n = 3n² + 5n. a_n = S_n − S_{n−1} for n ≥ 2.; a_n = 3n²+5n − [3(n−1)²+5(n−1)] = 3n²+5n − [3n²−6n+3+5n−5] = 3n²+5n − 3n²+6n−3−5n+5 = 6n+2 [1]",
       "So a_n = 6n + 2. Check: a_1 = 8, a_2 = 14, a_3 = 20 (d = 6). ✓ [1]",
       "Also, S_1 = 3(1)+5(1) = 8 = a_1. ✓ [1]",
       "First term a = 8, common difference d = 6. [1]",
       "a_20 = 6(20)+2 = 122. [1]",
     ], answer: "AP: 8, 14, 20, … with a = 8, d = 6, a_20 = 122.", explanation: "See solution steps for full working.", finalAnswer: "AP: 8, 14, 20, … with a = 8, d = 6, a_20 = 122.", isCompetencyBased: true },
-  { id: "AP2-057", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "200 logs are stacked in a pile with 20 logs in the bottom row, each row having one less log than the row below. How many rows are there? Find the number of logs in the top row.", solutionSteps: [
+  { id: "AP2-057", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "200 logs are stacked in a pile with 20 logs in the bottom row, each row having one less log than the row below. How many rows are there? Find the number of logs in the top row.", solutionSteps: [
       "Let n be the number of rows. Bottom row = 20, d = −1, so a_n = 20 − (n−1) = 21 − n.; Total logs = S_n = (n/2)(a_1 + a_n) = (n/2)(20 + 21 − n) = (n/2)(41 − n). [1]",
       "Set S_n = 200: n(41−n)/2 = 200 → n(41−n) = 400 → 41n − n² = 400 → n² − 41n + 400 = 0. [1]",
       "Discriminant = 1681 − 1600 = 81. n = (41 ± 9)/2. n = 25 or n = 16. [1]",

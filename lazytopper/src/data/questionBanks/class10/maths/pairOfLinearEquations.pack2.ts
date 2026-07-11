@@ -4,7 +4,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-001",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "A",
     "marks": 1,
@@ -35,7 +35,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-002",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "A",
     "marks": 1,
@@ -65,7 +65,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-003",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "A",
     "marks": 1,
@@ -96,7 +96,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-004",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "B",
     "marks": 2,
@@ -125,7 +125,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-005",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "A",
     "marks": 1,
@@ -158,7 +158,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-006",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "B",
     "marks": 2,
@@ -187,7 +187,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-009",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "B",
     "marks": 2,
@@ -215,7 +215,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-010",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -245,7 +245,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-011",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "B",
     "marks": 2,
@@ -271,7 +271,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-012",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "C",
     "marks": 3,
@@ -301,7 +301,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-013",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -332,7 +332,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-014",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "A",
     "marks": 1,
@@ -366,7 +366,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-015",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "A",
     "marks": 1,
@@ -398,7 +398,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-017",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "E",
     "marks": 4,
@@ -429,7 +429,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-018",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "E",
     "marks": 4,
@@ -458,7 +458,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-019",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "B",
     "marks": 2,
@@ -486,7 +486,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-020",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "D",
     "marks": 5,
@@ -555,7 +555,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-021",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "C",
     "marks": 3,
@@ -590,7 +590,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-022",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "B",
     "marks": 2,
@@ -633,7 +633,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-023",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "A",
     "marks": 1,
@@ -663,7 +663,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-024",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "A",
     "marks": 1,
@@ -695,7 +695,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-025",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "A",
     "marks": 1,
@@ -725,7 +725,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-026",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "B",
     "marks": 2,
@@ -752,7 +752,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-027",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "A",
     "marks": 1,
@@ -782,7 +782,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-028",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "B",
     "marks": 2,
@@ -809,7 +809,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-033",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -841,7 +841,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-034",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "A",
     "marks": 1,
@@ -872,7 +872,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-035",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "A",
     "marks": 1,
@@ -903,7 +903,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-037",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "E",
     "marks": 4,
@@ -945,7 +945,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-038",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "C",
     "marks": 3,
@@ -977,7 +977,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-039",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "D",
     "marks": 5,
@@ -1017,7 +1017,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-040",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "C",
     "marks": 3,
@@ -1045,7 +1045,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-041",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "C",
     "marks": 3,
@@ -1075,7 +1075,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PLE2-043",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "B",
     "marks": 2,
@@ -1111,7 +1111,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R01",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "C",
     "marks": 3,
@@ -1130,7 +1130,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R02",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Elimination Method",
     "section": "C",
     "marks": 3,
@@ -1149,7 +1149,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R03",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "D",
     "marks": 5,
@@ -1175,7 +1175,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R04",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Graphical Method",
     "section": "A",
     "marks": 1,
@@ -1194,7 +1194,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R05",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "E",
     "marks": 4,
@@ -1213,7 +1213,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R06",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Substitution Method",
     "section": "B",
     "marks": 2,
@@ -1232,7 +1232,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PLE2-R07",
     "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
+    "topicKey": "pair-of-linear-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -1248,35 +1248,35 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"
   },
-  { id: "PLE2-R08", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The pair 2x + 3y = 7 and 4x + 6y = 14 has:", options: ["Infinitely many solutions","No solution","Exactly one solution","Exactly two solutions"], answer: "Infinitely many solutions", explanation: "The correct answer is Infinitely many solutions. 4x+6y=14 is exactly 2×(2x+3y=7). The lines are coincident, giving infinitely many solutions.", finalAnswer: "4x+6y=14 is exactly 2×(2x+3y=7). The lines are coincident, giving infinitely many solutions.", isCompetencyBased: false,
+  { id: "PLE2-R08", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The pair 2x + 3y = 7 and 4x + 6y = 14 has:", options: ["Infinitely many solutions","No solution","Exactly one solution","Exactly two solutions"], answer: "Infinitely many solutions", explanation: "The correct answer is Infinitely many solutions. 4x+6y=14 is exactly 2×(2x+3y=7). The lines are coincident, giving infinitely many solutions.", finalAnswer: "4x+6y=14 is exactly 2×(2x+3y=7). The lines are coincident, giving infinitely many solutions.", isCompetencyBased: false,
     solutionSteps: [
       "The first equation y = 0 represents the x-axis.",
       "The second equation y = -7 represents a line parallel to the x-axis, 7 units below it.",
       "Since the two lines are parallel, they will never intersect, meaning there is no solution.",
     ],
   },
-  { id: "PLE2-R09", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If x + y = 10 and x − y = 2, then x equals:", options: ["6","8","4","5"], answer: "6", explanation: "The correct answer is 6. Adding: 2x = 12 → x = 6.", finalAnswer: "Adding: 2x = 12 → x = 6.", isCompetencyBased: false,
+  { id: "PLE2-R09", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If x + y = 10 and x − y = 2, then x equals:", options: ["6","8","4","5"], answer: "6", explanation: "The correct answer is 6. Adding: 2x = 12 → x = 6.", finalAnswer: "Adding: 2x = 12 → x = 6.", isCompetencyBased: false,
     solutionSteps: [
       "From the second equation, x - y = 3, express x in terms of y: x = y + 3.",
       "Substitute this expression for x into the first equation: (y + 3) + y = 7, which simplifies to 2y + 3 = 7.",
       "Solve for y: 2y = 4, so y = 2. Then substitute y = 2 back into x = y + 3 to find x = 2 + 3 = 5.",
     ],
   },
-  { id: "PLE2-R10", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Elimination Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of k for which the pair kx + 2y = 3 and 3x + 6y = 9 is consistent with infinitely many solutions:", options: ["1","3","2","−1"], answer: "1", explanation: "The correct answer is 1. For infinite solutions: k/3 = 2/6 = 3/9 → k/3 = 1/3 → k = 1.", finalAnswer: "For infinite solutions: k/3 = 2/6 = 3/9 → k/3 = 1/3 → k = 1.", isCompetencyBased: false,
+  { id: "PLE2-R10", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Elimination Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The value of k for which the pair kx + 2y = 3 and 3x + 6y = 9 is consistent with infinitely many solutions:", options: ["1","3","2","−1"], answer: "1", explanation: "The correct answer is 1. For infinite solutions: k/3 = 2/6 = 3/9 → k/3 = 1/3 → k = 1.", finalAnswer: "For infinite solutions: k/3 = 2/6 = 3/9 → k/3 = 1/3 → k = 1.", isCompetencyBased: false,
     solutionSteps: [
       "Given equations are 2x + 3y = 10 (1) and 2x - 2y = 0 (2).",
       "Subtract equation (2) from equation (1) to eliminate x: (2x + 3y) - (2x - 2y) = 10 - 0.",
       "Simplify the resulting equation: 2x + 3y - 2x + 2y = 10, which gives 5y = 10. Solve for y: y = 2.",
     ],
   },
-  { id: "PLE2-R11", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two lines a₁x+b₁y+c₁=0 and a₂x+b₂y+c₂=0 have no solution when:", options: ["a₁/a₂ = b₁/b₂ ≠ c₁/c₂","a₁/a₂ ≠ b₁/b₂","a₁/a₂ = b₁/b₂ = c₁/c₂","a₁b₂ ≠ a₂b₁"], answer: "a₁/a₂ = b₁/b₂ ≠ c₁/c₂", explanation: "The correct answer is a₁/a₂ = b₁/b₂ ≠ c₁/c₂. Parallel (inconsistent) lines: same slope ratios but different constant ratios.", finalAnswer: "Parallel (inconsistent) lines: same slope ratios but different constant ratios.", isCompetencyBased: false,
+  { id: "PLE2-R11", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two lines a₁x+b₁y+c₁=0 and a₂x+b₂y+c₂=0 have no solution when:", options: ["a₁/a₂ = b₁/b₂ ≠ c₁/c₂","a₁/a₂ ≠ b₁/b₂","a₁/a₂ = b₁/b₂ = c₁/c₂","a₁b₂ ≠ a₂b₁"], answer: "a₁/a₂ = b₁/b₂ ≠ c₁/c₂", explanation: "The correct answer is a₁/a₂ = b₁/b₂ ≠ c₁/c₂. Parallel (inconsistent) lines: same slope ratios but different constant ratios.", finalAnswer: "Parallel (inconsistent) lines: same slope ratios but different constant ratios.", isCompetencyBased: false,
     solutionSteps: [
       "The equation x = 0 represents the y-axis.",
       "The equation y = -7 represents a line parallel to the x-axis, passing through the point (0, -7).",
       "The intersection of the y-axis (x=0) and the line y = -7 is the point (0, -7). Thus, the lines intersect at (0, -7).",
     ],
   },
-  { id: "PLE2-R12", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If 2x − y = 3 and x + y = 6, then y equals:", options: ["3","4","2","1"], answer: "3", explanation: "The correct answer is 3. Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", finalAnswer: "Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", isCompetencyBased: false,
+  { id: "PLE2-R12", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If 2x − y = 3 and x + y = 6, then y equals:", options: ["3","4","2","1"], answer: "3", explanation: "The correct answer is 3. Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", finalAnswer: "Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", isCompetencyBased: false,
     solutionSteps: [
       "Given equations are x + y = 7 (1) and x - y = 3 (2).",
       "From equation (2), express x in terms of y: x = 3 + y.",
@@ -1284,7 +1284,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Substitute y = 2 back into x = 3 + y: x = 3 + 2 = 5.",
     ],
   },
-  { id: "PLE2-R13", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The solution of x + 2y = 8 and 3x − 2y = 0 is:", options: ["x=2, y=3","x=3, y=2","x=4, y=2","x=1, y=4"], answer: "x=2, y=3", explanation: "The correct answer is x=2, y=3. Adding the equations: 4x = 8 → x = 2. Then 2 + 2y = 8 → y = 3. Verify in eq2: 3(2) − 2(3) = 6 − 6 = 0. ✓", finalAnswer: "x = 2, y = 3", isCompetencyBased: false,
+  { id: "PLE2-R13", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The solution of x + 2y = 8 and 3x − 2y = 0 is:", options: ["x=2, y=3","x=3, y=2","x=4, y=2","x=1, y=4"], answer: "x=2, y=3", explanation: "The correct answer is x=2, y=3. Adding the equations: 4x = 8 → x = 2. Then 2 + 2y = 8 → y = 3. Verify in eq2: 3(2) − 2(3) = 6 − 6 = 0. ✓", finalAnswer: "x = 2, y = 3", isCompetencyBased: false,
     solutionSteps: [
       "Given equations are x + 2y = 5 (1) and x = 3y - 5 (2).",
       "Substitute the expression for x from equation (2) into equation (1).",
@@ -1292,14 +1292,14 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Solve for y: 5y = 10 => y = 2.",
     ],
   },
-  { id: "PLE2-R14", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The system 3x + 2y = 12 and 6x + 4y = 24 is consistent.\nReason (R): When the ratio of coefficients and constants are equal, the system has infinitely many solutions.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "6x+4y=24 is 2×(3x+2y=12): all ratios equal, infinite solutions. R explains why A is consistent.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "PLE2-R14", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The system 3x + 2y = 12 and 6x + 4y = 24 is consistent.\nReason (R): When the ratio of coefficients and constants are equal, the system has infinitely many solutions.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "6x+4y=24 is 2×(3x+2y=12): all ratios equal, infinite solutions. R explains why A is consistent.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "The 'questionText' field for this question is empty.",
       "Therefore, a solution cannot be generated.",
       "Please provide the complete question text and its corresponding answer.",
     ],
   },
-  { id: "PLE2-R15", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: [
+  { id: "PLE2-R15", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: [
       "Let Jacob's present age = x; son's present age = y.; Five years hence: x+5 = 3(y+5) → x+5 = 3y+15 → x−3y = 10 …(1) [1]",
       "Five years ago: x−5 = 7(y−5) → x−5 = 7y−35 → x−7y = −30 …(2) [1]",
       "Subtracting (2) from (1): 4y = 40 → y = 10. [1]",

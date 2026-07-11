@@ -4,7 +4,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-001",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-002",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "A",
     "marks": 1,
@@ -63,7 +63,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-003",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "A",
     "marks": 1,
@@ -93,7 +93,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-004",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Completing the Square",
     "section": "A",
     "marks": 1,
@@ -122,7 +122,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-005",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Completing the Square",
     "section": "B",
     "marks": 2,
@@ -155,7 +155,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-006",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "A",
     "marks": 1,
@@ -183,7 +183,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-007",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "B",
     "marks": 2,
@@ -214,7 +214,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-008",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "B",
     "marks": 2,
@@ -245,7 +245,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-009",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "A",
     "marks": 1,
@@ -274,7 +274,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-010",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "B",
     "marks": 2,
@@ -304,7 +304,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-011",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "B",
     "marks": 2,
@@ -335,7 +335,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-012",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "C",
     "marks": 3,
@@ -364,7 +364,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-013",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "B",
     "marks": 2,
@@ -391,7 +391,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-014",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "B",
     "marks": 2,
@@ -417,7 +417,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-015",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "B",
     "marks": 2,
@@ -444,7 +444,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-016",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "B",
     "marks": 2,
@@ -469,7 +469,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-017",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Completing the Square",
     "section": "B",
     "marks": 2,
@@ -497,7 +497,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-018",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "B",
     "marks": 2,
@@ -521,7 +521,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-019",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "B",
     "marks": 2,
@@ -546,7 +546,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-020",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -575,7 +575,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-021",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -605,7 +605,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-022",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "C",
     "marks": 3,
@@ -629,7 +629,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-023",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "C",
     "marks": 3,
@@ -658,7 +658,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-024",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "A",
     "marks": 1,
@@ -689,7 +689,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-025",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "B",
     "marks": 2,
@@ -719,7 +719,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-026",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "B",
     "marks": 2,
@@ -749,7 +749,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-027",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "C",
     "marks": 3,
@@ -780,7 +780,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-028",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Assertion-Reasoning",
     "section": "C",
     "marks": 3,
@@ -810,7 +810,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-029",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "D",
     "marks": 5,
@@ -839,7 +839,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-030",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "D",
     "marks": 5,
@@ -868,7 +868,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-031",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "D",
     "marks": 5,
@@ -898,7 +898,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-032",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "C",
     "marks": 3,
@@ -925,7 +925,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-033",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Completing the Square",
     "section": "C",
     "marks": 3,
@@ -953,7 +953,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-034",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "E",
     "marks": 4,
@@ -984,7 +984,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-035",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "E",
     "marks": 4,
@@ -1014,7 +1014,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-036",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "E",
     "marks": 4,
@@ -1045,7 +1045,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-037",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "B",
     "marks": 2,
@@ -1075,7 +1075,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-038",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "C",
     "marks": 3,
@@ -1101,7 +1101,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-039",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Factorisation Method",
     "section": "A",
     "marks": 1,
@@ -1131,7 +1131,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-040",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "B",
     "marks": 2,
@@ -1160,7 +1160,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-041",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "C",
     "marks": 3,
@@ -1188,7 +1188,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-042",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Quadratic Formula",
     "section": "B",
     "marks": 2,
@@ -1217,7 +1217,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-043",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Completing the Square",
     "section": "C",
     "marks": 3,
@@ -1248,7 +1248,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-044",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Word Problems",
     "section": "C",
     "marks": 3,
@@ -1280,7 +1280,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
   {
     "id": "QE2-045",
     "subject": "Maths",
-    "topicKey": "Quadratic Equations",
+    "topicKey": "quadratic-equations",
     "subtopic": "Nature of Roots",
     "section": "B",
     "marks": 2,
@@ -1306,21 +1306,21 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 4.4"
   },
-  { id: "QE2-046", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of x² − 5x + 6 = 0 are:", options: ["2 and 3","−2 and −3","2 and −3","−2 and 3"], answer: "2 and 3", explanation: "The correct answer is 2 and 3. x²−5x+6 = (x−2)(x−3) = 0. Roots: x = 2, x = 3.", finalAnswer: "x²−5x+6 = (x−2)(x−3) = 0. Roots: x = 2, x = 3.", isCompetencyBased: false,
+  { id: "QE2-046", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of x² − 5x + 6 = 0 are:", options: ["2 and 3","−2 and −3","2 and −3","−2 and 3"], answer: "2 and 3", explanation: "The correct answer is 2 and 3. x²−5x+6 = (x−2)(x−3) = 0. Roots: x = 2, x = 3.", finalAnswer: "x²−5x+6 = (x−2)(x−3) = 0. Roots: x = 2, x = 3.", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic equation is x^2 - 5x + 6 = 0.",
       "Factorize the equation: x^2 - 2x - 3x + 6 = 0 => x(x - 2) - 3(x - 2) = 0 => (x - 2)(x - 3) = 0.",
       "Setting each factor to zero, we get x - 2 = 0 or x - 3 = 0. Thus, x = 2 or x = 3. The roots are 2 and 3.",
     ],
   },
-  { id: "QE2-047", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of 3x² − 5x + 2 = 0 is:", options: ["1","−1","25−24=1","0"], answer: "1", explanation: "The correct answer is 1. D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", finalAnswer: "D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", isCompetencyBased: false,
+  { id: "QE2-047", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The discriminant of 3x² − 5x + 2 = 0 is:", options: ["1","−1","25−24=1","0"], answer: "1", explanation: "The correct answer is 1. D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", finalAnswer: "D = b²−4ac = 25−24 = 1. Since D > 0, two distinct real roots.", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic equation is 3x^2 - 7x + 2 = 0. Comparing with ax^2 + bx + c = 0, we have a = 3, b = -7, c = 2.",
       "The discriminant D is given by the formula D = b^2 - 4ac.",
       "Substitute the values: D = (-7)^2 - 4(3)(2) = 49 - 24 = 25. The discriminant is 25.",
     ],
   },
-  { id: "QE2-048", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "D = 16−16 = 0 → two equal roots: x = −2.", isCompetencyBased: false,
+  { id: "QE2-048", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "D = 16−16 = 0 → two equal roots: x = −2.", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic equation is 2x^2 - 4x + 3 = 0. Comparing with ax^2 + bx + c = 0, we have a = 2, b = -4, c = 3.",
       "Calculate the discriminant D = b^2 - 4ac.",
@@ -1328,42 +1328,42 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Since the discriminant D < 0 (D = -8), the quadratic equation has no real roots.",
     ],
   },
-  { id: "QE2-049", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Roots by Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 2x² − 7x + 3 = 0 are:", options: ["3 and 1/2","3 and 2","1/2 and −3","−3 and 1/2"], answer: "3 and 1/2", explanation: "The correct answer is 3 and 1/2. x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", finalAnswer: "x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", isCompetencyBased: false,
+  { id: "QE2-049", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 2x² − 7x + 3 = 0 are:", options: ["3 and 1/2","3 and 2","1/2 and −3","−3 and 1/2"], answer: "3 and 1/2", explanation: "The correct answer is 3 and 1/2. x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", finalAnswer: "x = (7 ± √(49−24))/4 = (7 ± 5)/4. x = 3 or x = 1/2.", isCompetencyBased: false,
     solutionSteps: [
       "Identify the coefficients from the quadratic equation x^2 - 4x + 1 = 0 as a=1, b=-4, c=1.",
       "Apply the quadratic formula: x = [-b +/- sqrt(b^2 - 4ac)] / 2a.",
       "Substitute the values: x = [ -(-4) +/- sqrt((-4)^2 - 4*1*1) ] / (2*1) = [4 +/- sqrt(16 - 4)] / 2 = [4 +/- sqrt(12)] / 2 = [4 +/- 2sqrt(3)] / 2 = 2 +/- sqrt(3).",
     ],
   },
-  { id: "QE2-050", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For what value of k does x² − kx + 9 = 0 have equal roots?", options: ["6 or −6","3 or −3","9 or −9","0"], answer: "6 or −6", explanation: "The correct answer is 6 or −6. Equal roots: D = 0 → k²−36 = 0 → k = ±6.", finalAnswer: "Equal roots: D = 0 → k²−36 = 0 → k = ±6.", isCompetencyBased: false,
+  { id: "QE2-050", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For what value of k does x² − kx + 9 = 0 have equal roots?", options: ["6 or −6","3 or −3","9 or −9","0"], answer: "6 or −6", explanation: "The correct answer is 6 or −6. Equal roots: D = 0 → k²−36 = 0 → k = ±6.", finalAnswer: "Equal roots: D = 0 → k²−36 = 0 → k = ±6.", isCompetencyBased: false,
     solutionSteps: [
       "For real and equal roots, the discriminant D = b^2 - 4ac must be equal to 0.",
       "From the equation 2x^2 - kx + 3 = 0, identify a=2, b=-k, c=3. Set D = (-k)^2 - 4(2)(3) = 0.",
       "Simplify the equation: k^2 - 24 = 0 => k^2 = 24 => k = +/- sqrt(24) = +/- 2sqrt(6).",
     ],
   },
-  { id: "QE2-051", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a quadratic equation?", options: ["x³ + 2x + 1 = 0","x + 1/x = 2","√x + 1 = 2","(x+1)(x−1) = x² + 1"], answer: "x + 1/x = 2", explanation: "The correct answer is x + 1/x = 2. x + 1/x = 2 → x² − 2x + 1 = 0. This is a quadratic equation.", finalAnswer: "x + 1/x = 2 → x² − 2x + 1 = 0. This is a quadratic equation.", isCompetencyBased: false,
+  { id: "QE2-051", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is a quadratic equation?", options: ["x³ + 2x + 1 = 0","x + 1/x = 2","√x + 1 = 2","(x+1)(x−1) = x² + 1"], answer: "x + 1/x = 2", explanation: "The correct answer is x + 1/x = 2. x + 1/x = 2 → x² − 2x + 1 = 0. This is a quadratic equation.", finalAnswer: "x + 1/x = 2 → x² − 2x + 1 = 0. This is a quadratic equation.", isCompetencyBased: false,
     solutionSteps: [
       "A quadratic equation is an equation of the form ax^2 + bx + c = 0, where a is not equal to 0.",
       "Expand each given option to determine its highest power of x.",
       "For option (C): (x+1)^3 = x^3 + 2x expands to x^3 + 3x^2 + 3x + 1 = x^3 + 2x. Subtracting x^3 from both sides gives 3x^2 + x + 1 = 0, which is a quadratic equation.",
     ],
   },
-  { id: "QE2-052", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 4x² = 9 are:", options: ["3/2 and −3/2","3/4 and −3/4","9/4 and −9/4","±3"], answer: "3/2 and −3/2", explanation: "The correct answer is 3/2 and −3/2. 4x² = 9 → x² = 9/4 → x = ±3/2.", finalAnswer: "4x² = 9 → x² = 9/4 → x = ±3/2.", isCompetencyBased: false,
+  { id: "QE2-052", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of 4x² = 9 are:", options: ["3/2 and −3/2","3/4 and −3/4","9/4 and −9/4","±3"], answer: "3/2 and −3/2", explanation: "The correct answer is 3/2 and −3/2. 4x² = 9 → x² = 9/4 → x = ±3/2.", finalAnswer: "4x² = 9 → x² = 9/4 → x = ±3/2.", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic equation is x^2 - 5x + 6 = 0.",
       "Factorize the quadratic expression: (x - 2)(x - 3) = 0.",
       "Setting each factor to zero gives roots x = 2 and x = 3. This matches option (A).",
     ],
   },
-  { id: "QE2-053", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If one root of 3x² − 10x + k = 0 is 1/3, find k.", options: ["1","−1","3","−3"], answer: "1", explanation: "The correct answer is 1. If x = 1/3: 3(1/9)−10(1/3)+k = 0 → 1/3−10/3+k = 0 → −9/3+k = 0 → k = 3. Wait: 3/9−10/3+k=0 → 1/3−10/3+k=0 → −3+k=0 → k=3. Answer is 3.", finalAnswer: "If x = 1/3: 3(1/9)−10(1/3)+k = 0 → 1/3−10/3+k = 0 → −9/3+k = 0 → k = 3. Wait: 3/9−10/3+k=0 → 1/3−10/3+k=0 → −3+k=0 → k=3. Answer is 3.", isCompetencyBased: false,
+  { id: "QE2-053", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If one root of 3x² − 10x + k = 0 is 1/3, find k.", options: ["1","−1","3","−3"], answer: "1", explanation: "The correct answer is 1. If x = 1/3: 3(1/9)−10(1/3)+k = 0 → 1/3−10/3+k = 0 → −9/3+k = 0 → k = 3. Wait: 3/9−10/3+k=0 → 1/3−10/3+k=0 → −3+k=0 → k=3. Answer is 3.", finalAnswer: "If x = 1/3: 3(1/9)−10(1/3)+k = 0 → 1/3−10/3+k = 0 → −9/3+k = 0 → k = 3. Wait: 3/9−10/3+k=0 → 1/3−10/3+k=0 → −3+k=0 → k=3. Answer is 3.", isCompetencyBased: false,
     solutionSteps: [
       "For the quadratic equation 2x^2 - 7x + 3 = 0, identify a=2, b=-7, c=3.",
       "The sum of the roots is given by the formula -b/a.",
       "Substitute the values: Sum = -(-7)/2 = 7/2. This matches option (A).",
     ],
   },
-  { id: "QE2-054", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of x² + x + 1 = 0 are:", options: ["Not real","1 and 1","0 and −1","−1 and −1"], answer: "Not real", explanation: "The correct answer is Not real. D = 1−4 = −3 < 0. No real roots exist.", finalAnswer: "D = 1−4 = −3 < 0. No real roots exist.", isCompetencyBased: false,
+  { id: "QE2-054", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The roots of x² + x + 1 = 0 are:", options: ["Not real","1 and 1","0 and −1","−1 and −1"], answer: "Not real", explanation: "The correct answer is Not real. D = 1−4 = −3 < 0. No real roots exist.", finalAnswer: "D = 1−4 = −3 < 0. No real roots exist.", isCompetencyBased: false,
     solutionSteps: [
       "For the quadratic equation 3x^2 - 4x + 5 = 0, identify a=3, b=-4, c=5.",
       "The discriminant D is given by the formula b^2 - 4ac.",
@@ -1371,28 +1371,28 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Calculate the discriminant: D = -44. This matches option (B).",
     ],
   },
-  { id: "QE2-055", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic equation has roots 5 and −3. The equation is:", options: ["x²−2x−15=0","x²+2x−15=0","x²−2x+15=0","x²+2x+15=0"], answer: "x²−2x−15=0", explanation: "The correct answer is x²−2x−15=0. Sum = 2, Product = −15. Equation: x²−2x−15 = 0.", finalAnswer: "Sum = 2, Product = −15. Equation: x²−2x−15 = 0.", isCompetencyBased: false,
+  { id: "QE2-055", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots by Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic equation has roots 5 and −3. The equation is:", options: ["x²−2x−15=0","x²+2x−15=0","x²−2x+15=0","x²+2x+15=0"], answer: "x²−2x−15=0", explanation: "The correct answer is x²−2x−15=0. Sum = 2, Product = −15. Equation: x²−2x−15 = 0.", finalAnswer: "Sum = 2, Product = −15. Equation: x²−2x−15 = 0.", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic equation is x^2 - 5x + 6 = 0.",
       "Factorize the equation: x^2 - 2x - 3x + 6 = 0 => x(x - 2) - 3(x - 2) = 0 => (x - 2)(x - 3) = 0.",
       "Setting each factor to zero, we get x - 2 = 0 or x - 3 = 0, which gives roots x = 2 and x = 3.",
     ],
   },
-  { id: "QE2-056", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The equation (x+2)² = 2(x+3) in standard form is:", options: ["x²+2x−2=0","x²+2x+2=0","x²−2x−2=0","x²−2x+2=0"], answer: "x²+2x−2=0", explanation: "The correct answer is x²+2x−2=0. x²+4x+4 = 2x+6 → x²+2x−2 = 0.", finalAnswer: "x²+4x+4 = 2x+6 → x²+2x−2 = 0.", isCompetencyBased: false,
+  { id: "QE2-056", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Standard Form", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The equation (x+2)² = 2(x+3) in standard form is:", options: ["x²+2x−2=0","x²+2x+2=0","x²−2x−2=0","x²−2x+2=0"], answer: "x²+2x−2=0", explanation: "The correct answer is x²+2x−2=0. x²+4x+4 = 2x+6 → x²+2x−2 = 0.", finalAnswer: "x²+4x+4 = 2x+6 → x²+2x−2 = 0.", isCompetencyBased: false,
     solutionSteps: [
       "A quadratic equation is of the form ax^2 + bx + c = 0, where a is non-zero.",
       "Consider option (C): (x+2)^3 = x^3 - 4. Expanding the LHS gives x^3 + 6x^2 + 12x + 8.",
       "Substituting and simplifying: x^3 + 6x^2 + 12x + 8 = x^3 - 4 => 6x^2 + 12x + 12 = 0. This is a quadratic equation.",
     ],
   },
-  { id: "QE2-057", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Discriminant", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The equation 2x² + 3x + 1 = 0 has two distinct real roots.\nReason (R): A quadratic equation has two distinct real roots when its discriminant is positive.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "D = 9−8 = 1 > 0, so two distinct real roots exist. R gives the condition that confirms A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "QE2-057", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The equation 2x² + 3x + 1 = 0 has two distinct real roots.\nReason (R): A quadratic equation has two distinct real roots when its discriminant is positive.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "D = 9−8 = 1 > 0, so two distinct real roots exist. R gives the condition that confirms A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "For Assertion (A), calculate the discriminant D = b^2 - 4ac for x^2 + 4x + 5 = 0. Here a=1, b=4, c=5.",
       "D = (4)^2 - 4(1)(5) = 16 - 20 = -4. Since D < 0, the equation has no real roots. So, Assertion (A) is true.",
       "Reason (R) correctly states that a quadratic equation has real roots if and only if b^2 - 4ac >= 0. Since A is true due to D < 0, R is the correct explanation for A.",
     ],
   },
-  { id: "QE2-058", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.", solutionSteps: [
+  { id: "QE2-058", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.", solutionSteps: [
       "Let speed = x km/h. Time = 360/x hours.; New speed = (x+5) km/h. New time = 360/(x+5) hours. [1]",
       "Given: 360/x − 360/(x+5) = 1.; 360(x+5) − 360x = x(x+5) [1]",
       "360x + 1800 − 360x = x² + 5x; x² + 5x − 1800 = 0 [1]",

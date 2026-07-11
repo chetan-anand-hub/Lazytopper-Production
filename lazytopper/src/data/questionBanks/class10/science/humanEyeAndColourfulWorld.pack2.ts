@@ -4,7 +4,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-001",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-002",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -64,7 +64,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-003",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -94,7 +94,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-004",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "A",
     "marks": 1,
@@ -124,7 +124,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-005",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "A",
     "marks": 1,
@@ -154,7 +154,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-006",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -185,7 +185,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-007",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -216,7 +216,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-008",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "B",
     "marks": 2,
@@ -247,7 +247,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-009",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "B",
     "marks": 2,
@@ -278,7 +278,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-010",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion",
     "section": "A",
     "marks": 1,
@@ -309,7 +309,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-011",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion",
     "section": "B",
     "marks": 2,
@@ -340,7 +340,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-012",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "A",
     "marks": 1,
@@ -371,7 +371,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-013",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "B",
     "marks": 2,
@@ -402,7 +402,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-014",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "B",
     "marks": 2,
@@ -428,7 +428,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-015",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -454,7 +454,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-016",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "C",
     "marks": 3,
@@ -481,7 +481,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-017",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion",
     "section": "B",
     "marks": 2,
@@ -508,7 +508,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-018",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "B",
     "marks": 2,
@@ -534,7 +534,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-019",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -566,7 +566,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-020",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -598,7 +598,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-021",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "C",
     "marks": 3,
@@ -631,7 +631,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-022",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure, Defects of Vision",
     "section": "E",
     "marks": 4,
@@ -669,7 +669,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-023",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction, Dispersion, Scattering",
     "section": "E",
     "marks": 4,
@@ -710,7 +710,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-026",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -740,7 +740,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-027",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -770,7 +770,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-028",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -800,7 +800,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-029",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -831,7 +831,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-030",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -862,7 +862,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-031",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -893,7 +893,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-032",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -924,7 +924,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-033",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -950,7 +950,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-034",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "C",
     "marks": 3,
@@ -981,7 +981,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-035",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "C",
     "marks": 3,
@@ -1012,7 +1012,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-036",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "C",
     "marks": 3,
@@ -1044,7 +1044,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-037",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion",
     "section": "D",
     "marks": 5,
@@ -1075,7 +1075,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-038",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion",
     "section": "D",
     "marks": 5,
@@ -1106,7 +1106,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-039",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion",
     "section": "D",
     "marks": 5,
@@ -1133,7 +1133,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-040",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "A",
     "marks": 1,
@@ -1164,7 +1164,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-041",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "A",
     "marks": 1,
@@ -1196,7 +1196,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-042",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Scattering of Light",
     "section": "A",
     "marks": 1,
@@ -1227,7 +1227,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-043",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye Structure",
     "section": "A",
     "marks": 1,
@@ -1258,7 +1258,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-044",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -1290,7 +1290,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-045",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Atmospheric Refraction",
     "section": "C",
     "marks": 3,
@@ -1322,7 +1322,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-046",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion and Scattering",
     "section": "E",
     "marks": 4,
@@ -1347,7 +1347,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-047",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "B",
     "marks": 2,
@@ -1372,7 +1372,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-048",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Dispersion and Atmospheric Effects",
     "section": "D",
     "marks": 5,
@@ -1399,7 +1399,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-049",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Human Eye",
     "section": "A",
     "marks": 1,
@@ -1420,7 +1420,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-050",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "A",
     "marks": 1,
@@ -1441,7 +1441,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-051",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Light Scattering",
     "section": "A",
     "marks": 1,
@@ -1462,7 +1462,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-052",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Prism and Dispersion",
     "section": "A",
     "marks": 1,
@@ -1483,7 +1483,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
   {
     "id": "HEC2-053",
     "subject": "Science",
-    "topicKey": "Human Eye and Colourful World",
+    "topicKey": "human-eye-and-colourful-world",
     "subtopic": "Defects of Vision",
     "section": "A",
     "marks": 1,

@@ -4,7 +4,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-001",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-002",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "A",
     "marks": 1,
@@ -64,7 +64,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-003",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "A",
     "marks": 1,
@@ -94,7 +94,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-004",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
     "section": "A",
     "marks": 1,
@@ -124,7 +124,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-005",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
     "section": "A",
     "marks": 1,
@@ -154,7 +154,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-006",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
@@ -185,7 +185,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-007",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
@@ -209,7 +209,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-008",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "B",
     "marks": 2,
@@ -240,7 +240,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-009",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "B",
     "marks": 2,
@@ -270,7 +270,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-010",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "B",
     "marks": 2,
@@ -298,7 +298,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-011",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "B",
     "marks": 2,
@@ -329,7 +329,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-012",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "B",
     "marks": 2,
@@ -360,7 +360,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-013",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "B",
     "marks": 2,
@@ -385,7 +385,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-014",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "C",
     "marks": 3,
@@ -416,7 +416,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-015",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "C",
     "marks": 3,
@@ -447,7 +447,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-016",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "C",
     "marks": 3,
@@ -478,7 +478,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-017",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "C",
     "marks": 3,
@@ -504,7 +504,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-018",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "C",
     "marks": 3,
@@ -531,7 +531,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-019",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "E",
     "marks": 4,
@@ -558,7 +558,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-020",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "E",
     "marks": 4,
@@ -584,7 +584,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-021",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "D",
     "marks": 5,
@@ -616,7 +616,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-022",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "B",
     "marks": 2,
@@ -648,7 +648,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-023",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "B",
     "marks": 2,
@@ -680,7 +680,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-024",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
     "section": "C",
     "marks": 3,
@@ -709,7 +709,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-025",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "D",
     "marks": 5,
@@ -738,7 +738,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-027",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "A",
     "marks": 1,
@@ -768,7 +768,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-028",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
@@ -798,7 +798,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-029",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
@@ -828,7 +828,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-030",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
     "section": "A",
     "marks": 1,
@@ -858,7 +858,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-031",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
     "section": "B",
     "marks": 2,
@@ -888,7 +888,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-032",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "A",
     "marks": 1,
@@ -918,7 +918,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-033",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "B",
     "marks": 2,
@@ -943,7 +943,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-034",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "B",
     "marks": 2,
@@ -973,7 +973,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-035",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "A",
     "marks": 1,
@@ -1003,7 +1003,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-036",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "B",
     "marks": 2,
@@ -1033,7 +1033,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-037",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "B",
     "marks": 2,
@@ -1057,7 +1057,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-038",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "B",
     "marks": 2,
@@ -1087,7 +1087,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-039",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "A",
     "marks": 1,
@@ -1117,7 +1117,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-040",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "A",
     "marks": 1,
@@ -1147,7 +1147,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-041",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "B",
     "marks": 2,
@@ -1172,7 +1172,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-042",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "B",
     "marks": 2,
@@ -1203,7 +1203,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-043",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "E",
     "marks": 4,
@@ -1227,7 +1227,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-044",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electric Motor",
     "section": "D",
     "marks": 5,
@@ -1259,7 +1259,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-045",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "D",
     "marks": 5,
@@ -1290,7 +1290,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-046",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Fleming Rules",
     "section": "B",
     "marks": 2,
@@ -1320,7 +1320,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-047",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Magnetic Field",
     "section": "B",
     "marks": 2,
@@ -1347,7 +1347,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-048",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "AC and DC",
     "section": "B",
     "marks": 2,
@@ -1377,7 +1377,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-049",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "B",
     "marks": 2,
@@ -1405,7 +1405,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-050",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
@@ -1426,7 +1426,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-051",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "A",
     "marks": 1,
@@ -1447,7 +1447,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-052",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnet",
     "section": "A",
     "marks": 1,
@@ -1468,7 +1468,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-053",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Domestic Circuits",
     "section": "A",
     "marks": 1,
@@ -1489,7 +1489,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ME2-054",
     "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
+    "topicKey": "magnetic-effects-of-electric-current",
     "subtopic": "Electromagnetic Induction",
     "section": "A",
     "marks": 1,

@@ -4,7 +4,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-001",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-002",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "A",
     "marks": 1,
@@ -61,7 +61,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-003",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "A",
     "marks": 1,
@@ -90,7 +90,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-004",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -119,7 +119,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-005",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -148,7 +148,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-007",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -174,7 +174,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-008",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "B",
     "marks": 2,
@@ -200,7 +200,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-010",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -225,7 +225,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-011",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "B",
     "marks": 2,
@@ -250,7 +250,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-012",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -275,7 +275,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-014",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "B",
     "marks": 2,
@@ -300,7 +300,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-015",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
@@ -329,7 +329,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-016",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "C",
     "marks": 3,
@@ -359,7 +359,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-018",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
@@ -385,7 +385,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-020",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "C",
     "marks": 3,
@@ -410,7 +410,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-021",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "D",
     "marks": 5,
@@ -440,7 +440,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-022",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "D",
     "marks": 5,
@@ -470,7 +470,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-024",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "D",
     "marks": 5,
@@ -501,7 +501,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-025",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "D",
     "marks": 5,
@@ -532,7 +532,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-027",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "E",
     "marks": 4,
@@ -557,7 +557,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-028",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "E",
     "marks": 4,
@@ -582,7 +582,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-030",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "A",
     "marks": 1,
@@ -612,7 +612,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-031",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -642,7 +642,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-033",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -667,7 +667,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-034",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "B",
     "marks": 2,
@@ -691,7 +691,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-035",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
@@ -721,7 +721,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-037",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "C",
     "marks": 3,
@@ -747,7 +747,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-038",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
@@ -774,7 +774,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-040",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
@@ -802,7 +802,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-041",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "B",
     "marks": 2,
@@ -828,7 +828,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-042",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -853,7 +853,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
 {
     "id": "PL2-044",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "C",
     "marks": 3,
@@ -883,7 +883,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R01",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -902,7 +902,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R02",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -921,7 +921,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R03",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -940,7 +940,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R04",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "C",
     "marks": 3,
@@ -959,7 +959,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R05",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "B",
     "marks": 2,
@@ -978,7 +978,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R06",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "E",
     "marks": 4,
@@ -997,7 +997,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R07",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -1016,7 +1016,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R08",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "A",
     "marks": 1,
@@ -1035,7 +1035,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R09",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "C",
     "marks": 3,
@@ -1054,7 +1054,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R10",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Graph & Type of Polynomial",
     "section": "C",
     "marks": 3,
@@ -1073,7 +1073,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R11",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Zeroes of Polynomial",
     "section": "B",
     "marks": 2,
@@ -1092,7 +1092,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   {
     "id": "PL2-R12",
     "subject": "Maths",
-    "topicKey": "Polynomials",
+    "topicKey": "polynomials",
     "subtopic": "Relationship between Zeroes and Coefficients",
     "section": "A",
     "marks": 1,
@@ -1108,28 +1108,28 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": false,
     "ncertRef": "Ex 2.2"
   },
-  { id: "PL2-R13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The zeros of the polynomial x² − 3x + 2 are:", options: ["1 and 2","−1 and −2","2 and −1","−2 and 1"], answer: "1 and 2", explanation: "The correct answer is 1 and 2. x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", finalAnswer: "x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", isCompetencyBased: false,
+  { id: "PL2-R13", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The zeros of the polynomial x² − 3x + 2 are:", options: ["1 and 2","−1 and −2","2 and −1","−2 and 1"], answer: "1 and 2", explanation: "The correct answer is 1 and 2. x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", finalAnswer: "x²−3x+2 = (x−1)(x−2). Zeros: x=1 and x=2.", isCompetencyBased: false,
     solutionSteps: [
       "To find a zero of a polynomial P(x), we set P(x) = 0.",
       "For a generic polynomial like P(x) = x - k, setting P(x) = 0 gives x - k = 0.",
       "Solving for x, we find x = k. Thus, k is a zero of the polynomial.",
     ],
   },
-  { id: "PL2-R14", subject: "Maths", topicKey: "Polynomials", subtopic: "Degree of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The degree of the polynomial 2x³ − x² + 5x − 3 is:", options: ["3","2","1","4"], answer: "3", explanation: "The correct answer is 3. The highest power of x is 3, so the degree is 3.", finalAnswer: "The highest power of x is 3, so the degree is 3.", isCompetencyBased: false,
+  { id: "PL2-R14", subject: "Maths", topicKey: "polynomials", subtopic: "Degree of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The degree of the polynomial 2x³ − x² + 5x − 3 is:", options: ["3","2","1","4"], answer: "3", explanation: "The correct answer is 3. The highest power of x is 3, so the degree is 3.", finalAnswer: "The highest power of x is 3, so the degree is 3.", isCompetencyBased: false,
     solutionSteps: [
       "The degree of a polynomial is the highest power of the variable in the polynomial.",
       "For example, in a polynomial like 5x^3 + 2x^2 - 7, the powers of x are 3, 2, and 0 (for the constant term).",
       "The highest power among these is 3, so the degree of the polynomial is 3.",
     ],
   },
-  { id: "PL2-R15", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of 2x² − 5x + 3, then α + β equals:", options: ["5/2","3/2","5","−5/2"], answer: "5/2", explanation: "The correct answer is 5/2. Sum of zeros = −b/a = −(−5)/2 = 5/2.", finalAnswer: "Sum of zeros = −b/a = −(−5)/2 = 5/2.", isCompetencyBased: false,
+  { id: "PL2-R15", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of 2x² − 5x + 3, then α + β equals:", options: ["5/2","3/2","5","−5/2"], answer: "5/2", explanation: "The correct answer is 5/2. Sum of zeros = −b/a = −(−5)/2 = 5/2.", finalAnswer: "Sum of zeros = −b/a = −(−5)/2 = 5/2.", isCompetencyBased: false,
     solutionSteps: [
       "For a quadratic polynomial of the form ax^2 + bx + c, let its zeros be alpha and beta.",
       "The sum of the zeros is given by the formula: alpha + beta = -b/a.",
       "The product of the zeros is given by the formula: alpha * beta = c/a.",
     ],
   },
-  { id: "PL2-R16", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of x² − 4x + 3, then αβ is:", options: ["3","−3","4","−4"], answer: "3", explanation: "The correct answer is 3. Product of zeros = c/a = 3/1 = 3.", finalAnswer: "Product of zeros = c/a = 3/1 = 3.", isCompetencyBased: false,
+  { id: "PL2-R16", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If α and β are zeros of x² − 4x + 3, then αβ is:", options: ["3","−3","4","−4"], answer: "3", explanation: "The correct answer is 3. Product of zeros = c/a = 3/1 = 3.", finalAnswer: "Product of zeros = c/a = 3/1 = 3.", isCompetencyBased: false,
     solutionSteps: [
       "The given quadratic polynomial is P(x) = 2x^2 - 5x + 7.",
       "Comparing with ax^2 + bx + c, we have a=2, b=-5, c=7.",
@@ -1138,7 +1138,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Therefore, the value of alpha + beta is 5/2.",
     ],
   },
-  { id: "PL2-R17", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", isCompetencyBased: false,
+  { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", isCompetencyBased: false,
     solutionSteps: [
       "To find the zero of the polynomial P(x) = 5x - 10, set P(x) = 0.",
       "So, 5x - 10 = 0.",
@@ -1147,21 +1147,21 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Therefore, the zero of the polynomial P(x) = 5x - 10 is 2.",
     ],
   },
-  { id: "PL2-R18", subject: "Maths", topicKey: "Polynomials", subtopic: "Polynomial Division", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If p(x) = q(x)·g(x) + r(x), then:", options: ["degree r < degree g","degree r = degree g","degree r > degree g","degree r = degree p"], answer: "degree r < degree g", explanation: "The correct answer is degree r < degree g. The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", finalAnswer: "The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", isCompetencyBased: false,
+  { id: "PL2-R18", subject: "Maths", topicKey: "polynomials", subtopic: "Polynomial Division", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If p(x) = q(x)·g(x) + r(x), then:", options: ["degree r < degree g","degree r = degree g","degree r > degree g","degree r = degree p"], answer: "degree r < degree g", explanation: "The correct answer is degree r < degree g. The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", finalAnswer: "The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", isCompetencyBased: false,
     solutionSteps: [
       "The Division Algorithm for Polynomials states that for any polynomials P(x) and G(x) (where G(x) is not 0), we can find Q(x) and R(x) such that P(x) = G(x) * Q(x) + R(x).",
       "The condition for the remainder R(x) is that R(x) = 0 or the degree of R(x) is less than the degree of G(x).",
       "This ensures that the division process terminates when the remainder's degree is too small to be further divided by G(x).",
     ],
   },
-  { id: "PL2-R19", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of zeros of the polynomial (x−1)²(x+2) is:", options: ["3","2","1","0"], answer: "3", explanation: "The correct answer is 3. Zeros: x=1 (multiplicity 2) and x=−2. Total 3 zeros counting multiplicity.", finalAnswer: "Zeros: x=1 (multiplicity 2) and x=−2. Total 3 zeros counting multiplicity.", isCompetencyBased: false,
+  { id: "PL2-R19", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of zeros of the polynomial (x−1)²(x+2) is:", options: ["3","2","1","0"], answer: "3", explanation: "The correct answer is 3. Zeros: x=1 (multiplicity 2) and x=−2. Total 3 zeros counting multiplicity.", finalAnswer: "Zeros: x=1 (multiplicity 2) and x=−2. Total 3 zeros counting multiplicity.", isCompetencyBased: false,
     solutionSteps: [
       "To find the zeros of the polynomial, set the expression (x-1)²(x+2) equal to zero.",
       "This implies (x-1)² = 0 or (x+2) = 0. From (x-1)² = 0, we get x=1 (a zero with multiplicity 2).",
       "From (x+2) = 0, we get x=-2 (a zero with multiplicity 1). The zeros are 1, 1, and -2. Thus, the total number of zeros is 3.",
     ],
   },
-  { id: "PL2-R20", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If the product of zeros of x² + kx + 8 is −4, then k² − 32 = 0.\nReason (R): For ax² + bx + c, the product of zeros is c/a.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "A is false, R is true.", explanation: "Product = 8/1 = 8 (from the polynomial), not −4. So k²−32=0 is not implied. But R (product = c/a) is a true statement. A is false, R is true.", finalAnswer: "A is false, R is true.", isCompetencyBased: true,
+  { id: "PL2-R20", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): If the product of zeros of x² + kx + 8 is −4, then k² − 32 = 0.\nReason (R): For ax² + bx + c, the product of zeros is c/a.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "A is false, R is true.", explanation: "Product = 8/1 = 8 (from the polynomial), not −4. So k²−32=0 is not implied. But R (product = c/a) is a true statement. A is false, R is true.", finalAnswer: "A is false, R is true.", isCompetencyBased: true,
     solutionSteps: [
       "The question text for Assertion (A) and Reason (R) is missing, so a specific solution cannot be provided.",
       "However, for a 1-mark Assertion-Reasoning question on 'Polynomials - Relationship Between Zeros', a student would typically:",

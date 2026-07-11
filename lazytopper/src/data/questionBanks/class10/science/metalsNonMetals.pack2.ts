@@ -4,7 +4,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-001",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-002",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -65,7 +65,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-003",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -95,7 +95,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-004",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -125,7 +125,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-005",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -155,7 +155,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-006",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -185,7 +185,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-007",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "B",
     "marks": 2,
@@ -216,7 +216,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-008",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "B",
     "marks": 2,
@@ -246,7 +246,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-009",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "C",
     "marks": 3,
@@ -276,7 +276,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-010",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "C",
     "marks": 3,
@@ -306,7 +306,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-011",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "C",
     "marks": 3,
@@ -337,7 +337,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-012",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "D",
     "marks": 5,
@@ -367,7 +367,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-013",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "D",
     "marks": 5,
@@ -397,7 +397,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-014",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "D",
     "marks": 5,
@@ -428,7 +428,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-015",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -451,7 +451,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-016",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -478,7 +478,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-017",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "B",
     "marks": 2,
@@ -503,7 +503,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-018",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "C",
     "marks": 3,
@@ -528,7 +528,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-019",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -559,7 +559,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-020",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "B",
     "marks": 2,
@@ -590,7 +590,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-021",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "D",
     "marks": 5,
@@ -621,7 +621,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-022",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "E",
     "marks": 4,
@@ -647,7 +647,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-023",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "E",
     "marks": 4,
@@ -673,7 +673,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-024",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "C",
     "marks": 3,
@@ -713,7 +713,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-025",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -745,7 +745,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-027",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -775,7 +775,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-028",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -805,7 +805,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-029",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -835,7 +835,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-030",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -865,7 +865,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-031",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -889,7 +889,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-032",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "C",
     "marks": 3,
@@ -919,7 +919,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-033",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "C",
     "marks": 3,
@@ -949,7 +949,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-034",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "C",
     "marks": 3,
@@ -973,7 +973,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-035",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "D",
     "marks": 5,
@@ -1003,7 +1003,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-036",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "D",
     "marks": 5,
@@ -1033,7 +1033,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-037",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "D",
     "marks": 5,
@@ -1057,7 +1057,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-038",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "D",
     "marks": 5,
@@ -1087,7 +1087,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-039",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "A",
     "marks": 1,
@@ -1117,7 +1117,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-040",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "A",
     "marks": 1,
@@ -1147,7 +1147,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-041",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "B",
     "marks": 2,
@@ -1172,7 +1172,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-042",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -1202,7 +1202,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-043",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -1232,7 +1232,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-044",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "C",
     "marks": 3,
@@ -1262,7 +1262,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-045",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "E",
     "marks": 4,
@@ -1287,7 +1287,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-046",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -1317,7 +1317,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-047",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Corrosion",
     "section": "D",
     "marks": 5,
@@ -1349,7 +1349,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-048",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -1379,7 +1379,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-049",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "B",
     "marks": 2,
@@ -1404,7 +1404,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-050",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Extraction of Metals",
     "section": "D",
     "marks": 5,
@@ -1436,7 +1436,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-051",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Physical Properties",
     "section": "A",
     "marks": 1,
@@ -1457,7 +1457,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-052",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "A",
     "marks": 1,
@@ -1478,7 +1478,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-053",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Reactivity Series",
     "section": "A",
     "marks": 1,
@@ -1499,7 +1499,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-054",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "A",
     "marks": 1,
@@ -1520,7 +1520,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-055",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Ionic Bonds",
     "section": "A",
     "marks": 1,
@@ -1541,7 +1541,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-056",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "A",
     "marks": 1,
@@ -1562,7 +1562,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-057",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "A",
     "marks": 1,
@@ -1583,7 +1583,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-058",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "A",
     "marks": 1,
@@ -1604,7 +1604,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
   {
     "id": "MNM2-059",
     "subject": "Science",
-    "topicKey": "Metals and Non-metals",
+    "topicKey": "metals-and-non-metals",
     "subtopic": "Chemical Properties",
     "section": "A",
     "marks": 1,

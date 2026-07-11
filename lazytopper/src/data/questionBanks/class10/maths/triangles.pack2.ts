@@ -1,14 +1,14 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const trianglesPack2Questions: CanonicalQuestion[] = [
-  { id: "TRI2-E01", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In △ABC, if D and E are points on AB and AC respectively such that DE ∥ BC, then △ADE is similar to △ABC by:", options: ["AA similarity", "SSS similarity", "SAS similarity", "RHS congruence"], answer: "AA similarity", explanation: "The correct answer is AA similarity. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "AA similarity",
+  { id: "TRI2-E01", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In △ABC, if D and E are points on AB and AC respectively such that DE ∥ BC, then △ADE is similar to △ABC by:", options: ["AA similarity", "SSS similarity", "SAS similarity", "RHS congruence"], answer: "AA similarity", explanation: "The correct answer is AA similarity. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "AA similarity",
     solutionSteps: [
       "Given DE || BC in triangle ABC. By Basic Proportionality Theorem (BPT), AD/DB = AE/EC.",
       "Substitute the given values: 3/2 = 6/EC.",
       "Cross-multiply to solve for EC: 3 * EC = 2 * 6 => 3EC = 12 => EC = 4 cm.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E02", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The ratio of the corresponding medians of two similar triangles is equal to:", options: ["Ratio of corresponding sides", "Square of ratio of corresponding sides", "Ratio of areas", "Ratio of perimeters squared"], answer: "Ratio of corresponding sides", explanation: "The correct answer is Ratio of corresponding sides. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ratio of corresponding sides",
+  { id: "TRI2-E02", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The ratio of the corresponding medians of two similar triangles is equal to:", options: ["Ratio of corresponding sides", "Square of ratio of corresponding sides", "Ratio of areas", "Ratio of perimeters squared"], answer: "Ratio of corresponding sides", explanation: "The correct answer is Ratio of corresponding sides. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ratio of corresponding sides",
     solutionSteps: [
       "Given triangle ABC is similar to triangle PQR. This implies corresponding angles are equal.",
       "So, angle A = angle P = 47 degrees and angle B = angle Q = 83 degrees.",
@@ -16,7 +16,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Calculate angle C: 130 + angle C = 180 => angle C = 180 - 130 = 50 degrees.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E03", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle with legs 6 cm and 8 cm, the hypotenuse is:", options: ["10 cm", "12 cm", "14 cm", "7 cm"], answer: "10 cm", explanation: "The correct answer is 10 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10 cm",
+  { id: "TRI2-E03", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle with legs 6 cm and 8 cm, the hypotenuse is:", options: ["10 cm", "12 cm", "14 cm", "7 cm"], answer: "10 cm", explanation: "The correct answer is 10 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "10 cm",
     solutionSteps: [
       "The ladder, wall, and ground form a right-angled triangle. The ladder is the hypotenuse.",
       "Let the distance of the foot of the ladder from the wall be x. By Pythagoras Theorem: (distance from wall)^2 + (height of window)^2 = (length of ladder)^2.",
@@ -24,14 +24,14 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Solve for x: x^2 + 64 = 100 => x^2 = 100 - 64 => x^2 = 36 => x = 6 m.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E04", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "In △ABC, D is on AB and E is on AC such that DE ∥ BC. If AD = 2 cm and DB = 3 cm, then AE:EC is:", options: ["2:3", "3:2", "2:5", "5:2"], answer: "2:3", explanation: "The correct answer is 2:3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "2:3",
+  { id: "TRI2-E04", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "In △ABC, D is on AB and E is on AC such that DE ∥ BC. If AD = 2 cm and DB = 3 cm, then AE:EC is:", options: ["2:3", "3:2", "2:5", "5:2"], answer: "2:3", explanation: "The correct answer is 2:3. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "2:3",
     solutionSteps: [
       "State BPT: If a line is parallel to one side of a triangle and intersects the other two sides, it divides the two sides proportionally. (e.g., In triangle ABC, if DE || BC, then AD/DB = AE/EC).",
       "Substitute given values into the proportion (e.g., if AD=3, DB=2, AE=4.5, then 3/2 = 4.5/EC).",
       "Solve for the unknown side: EC = (4.5 * 2) / 3 = 9 / 3 = 3 cm.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E05", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is NOT a criterion for similarity of triangles?", options: ["AAA", "SSS", "SAS", "ASA"], answer: "ASA", explanation: "The correct answer is ASA. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "ASA",
+  { id: "TRI2-E05", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is NOT a criterion for similarity of triangles?", options: ["AAA", "SSS", "SAS", "ASA"], answer: "ASA", explanation: "The correct answer is ASA. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "ASA",
     solutionSteps: [
       "Identify given conditions: For example, if angle A = angle P and angle B = angle Q in triangles ABC and PQR.",
       "Apply AA similarity criterion: If two angles of one triangle are respectively equal to two angles of another triangle, then the triangles are similar.",
@@ -39,16 +39,16 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Conclude similarity: Therefore, triangle ABC ~ triangle PQR.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E06", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △ABC, DE ∥ BC. If AD = 4 cm and AB = 12 cm, find DB and the ratio AD:DB.", solutionSteps: [
+  { id: "TRI2-E06", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △ABC, DE ∥ BC. If AD = 4 cm and AB = 12 cm, find DB and the ratio AD:DB.", solutionSteps: [
       "DB = AB − AD = 12 − 4 = 8 cm [1]",
       "AD:DB = 4:8 = 1:2 [1]",
     ], finalAnswer: "DB = 8 cm, AD:DB = 1:2" , isCompetencyBased: false},
-  { id: "TRI2-E07", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A ladder 13 m long is placed against a wall. The foot of the ladder is 5 m from the wall. Find the height reached by the ladder on the wall.", solutionSteps: [
+  { id: "TRI2-E07", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "A ladder 13 m long is placed against a wall. The foot of the ladder is 5 m from the wall. Find the height reached by the ladder on the wall.", solutionSteps: [
       "By Pythagoras: h² + 5² = 13² [½]",
       "h² = 169 − 25 = 144 [½]",
       "h = 12 m [1]",
     ], finalAnswer: "12 m" , isCompetencyBased: true},
-  { id: "TRI2-E08", subject: "Maths", topicKey: "Triangles", subtopic: "Area ratio of similar triangles", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If two similar triangles have sides in the ratio 1:3, then the ratio of their areas is:", options: ["1:9", "1:3", "1:6", "3:9"], answer: "1:9", explanation: "The correct answer is 1:9. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1:9",
+  { id: "TRI2-E08", subject: "Maths", topicKey: "triangles", subtopic: "Area ratio of similar triangles", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If two similar triangles have sides in the ratio 1:3, then the ratio of their areas is:", options: ["1:9", "1:3", "1:6", "3:9"], answer: "1:9", explanation: "The correct answer is 1:9. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1:9",
     solutionSteps: [
       "State the theorem for areas of similar triangles: The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
       "Apply the theorem: area(ABC) / area(PQR) = (AB/PQ)^2.",
@@ -56,7 +56,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Calculate the final ratio: area(ABC) / area(PQR) = 1/4.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E09", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The converse of Pythagoras Theorem states that if the square of one side equals the sum of squares of the other two sides, then the triangle is:", options: ["Right-angled", "Equilateral", "Isosceles", "Scalene"], answer: "Right-angled", explanation: "The correct answer is Right-angled. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Right-angled",
+  { id: "TRI2-E09", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The converse of Pythagoras Theorem states that if the square of one side equals the sum of squares of the other two sides, then the triangle is:", options: ["Right-angled", "Equilateral", "Isosceles", "Scalene"], answer: "Right-angled", explanation: "The correct answer is Right-angled. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Right-angled",
     solutionSteps: [
       "Let the two legs of the right-angled triangle be a=3 cm and b=4 cm.",
       "By Pythagoras theorem, Hypotenuse^2 = a^2 + b^2.",
@@ -64,11 +64,11 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Hypotenuse = sqrt(25) = 5 cm.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-E10", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △PQR, ST ∥ QR where S is on PQ and T is on PR. If PS = 3, SQ = 6 and PT = 2, find TR.", solutionSteps: [
+  { id: "TRI2-E10", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "In △PQR, ST ∥ QR where S is on PQ and T is on PR. If PS = 3, SQ = 6 and PT = 2, find TR.", solutionSteps: [
       "By BPT: PS/SQ = PT/TR [1]",
       "3/6 = 2/TR → TR = 4 [1]",
     ], finalAnswer: "TR = 4" , isCompetencyBased: false},
-  { id: "TRI2-E11", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Two triangles are similar if their corresponding angles are equal. This is known as:", options: ["AA criterion", "SAS criterion", "SSS criterion", "RHS criterion"], answer: "AA criterion", explanation: "The correct answer is AA criterion. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "AA criterion",
+  { id: "TRI2-E11", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Two triangles are similar if their corresponding angles are equal. This is known as:", options: ["AA criterion", "SAS criterion", "SSS criterion", "RHS criterion"], answer: "AA criterion", explanation: "The correct answer is AA criterion. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "AA criterion",
     solutionSteps: [
       "If triangle ABC is similar to triangle PQR, their corresponding sides are proportional.",
       "The correspondence of vertices is A<->P, B<->Q, C<->R.",
@@ -76,7 +76,7 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "The correct statement is AB/PQ = BC/QR.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-AR01", subject: "Maths", topicKey: "Triangles", subtopic: "Area ratio of similar triangles", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Analysing", questionText: "Assertion (A): If the ratio of corresponding sides of two similar triangles is 2:3, then the ratio of their areas is 4:9.\nReason (R): The ratio of areas of two similar triangles is equal to the square of the ratio of their corresponding sides.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+  { id: "TRI2-AR01", subject: "Maths", topicKey: "triangles", subtopic: "Area ratio of similar triangles", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Analysing", questionText: "Assertion (A): If the ratio of corresponding sides of two similar triangles is 2:3, then the ratio of their areas is 4:9.\nReason (R): The ratio of areas of two similar triangles is equal to the square of the ratio of their corresponding sides.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Assertion (A): The ratio of areas of two similar triangles is equal to the ratio of the squares of their corresponding sides. This statement is TRUE.",
       "Reason (R): The ratio of the areas of two similar triangles is equal to the ratio of the squares of their corresponding altitudes. This statement is FALSE as written.",
@@ -84,175 +84,175 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "Therefore, Assertion is true, but Reason is false.",
     ], isCompetencyBased: true,
   },
-  { id: "TRI2-AR02", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In △ABC, D is on AB and E is on AC. If AD/DB = AE/EC, then DE ∥ BC.\nReason (R): This follows from the converse of the Basic Proportionality Theorem.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+  { id: "TRI2-AR02", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In △ABC, D is on AB and E is on AC. If AD/DB = AE/EC, then DE ∥ BC.\nReason (R): This follows from the converse of the Basic Proportionality Theorem.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Assertion (A) states the Basic Proportionality Theorem (BPT), which is a true statement.",
       "Reason (R) states the Converse of the Basic Proportionality Theorem, which is also a true statement.",
       "However, (R) is a separate theorem and does not provide the explanation for (A).",
     ], isCompetencyBased: true,
   },
-  { id: "TRI2-AR03", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a triangle with sides 5, 12, 13 cm, the angle opposite to the side 13 cm is 90°.\nReason (R): By the converse of Pythagoras theorem, if AB² + BC² = AC², then ∠B = 90°.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+  { id: "TRI2-AR03", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a triangle with sides 5, 12, 13 cm, the angle opposite to the side 13 cm is 90°.\nReason (R): By the converse of Pythagoras theorem, if AB² + BC² = AC², then ∠B = 90°.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: [
       "Assertion (A) is the statement of the Pythagoras Theorem, which is a true statement.",
       "Reason (R) is the statement of the Converse of the Pythagoras Theorem, which is also a true statement.",
       "However, (R) does not explain (A); it states a condition for a right-angled triangle.",
     ], isCompetencyBased: true,
   },
-  { id: "TRI2-M01", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC and △DEF, AB/DE = BC/EF = CA/FD = 3/5. State the similarity criterion and write the similarity statement.", solutionSteps: [
+  { id: "TRI2-M01", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC and △DEF, AB/DE = BC/EF = CA/FD = 3/5. State the similarity criterion and write the similarity statement.", solutionSteps: [
       "All three pairs of corresponding sides are proportional [1]",
       "By SSS similarity criterion, △ABC ~ △DEF [1]",
     ], finalAnswer: "△ABC ~ △DEF by SSS similarity" , isCompetencyBased: false},
-  { id: "TRI2-M02", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, DE ∥ BC. If AD = 3 cm, AB = 7.5 cm and AE = 4 cm, find AC and DE/BC.", solutionSteps: [
+  { id: "TRI2-M02", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, DE ∥ BC. If AD = 3 cm, AB = 7.5 cm and AE = 4 cm, find AC and DE/BC.", solutionSteps: [
       "By BPT: AD/AB = AE/AC → 3/7.5 = 4/AC [1]",
       "AC = 4 × 7.5/3 = 10 cm [1]",
       "By similarity: DE/BC = AD/AB = 3/7.5 = 2/5 [1]",
     ], finalAnswer: "AC = 10 cm, DE/BC = 2/5" , isCompetencyBased: false},
-  { id: "TRI2-M03", subject: "Maths", topicKey: "Triangles", subtopic: "Area ratio of similar triangles", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The areas of two similar triangles are 81 cm² and 49 cm² respectively. If the altitude of the larger triangle is 4.5 cm, find the corresponding altitude of the smaller triangle.", solutionSteps: [
+  { id: "TRI2-M03", subject: "Maths", topicKey: "triangles", subtopic: "Area ratio of similar triangles", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The areas of two similar triangles are 81 cm² and 49 cm² respectively. If the altitude of the larger triangle is 4.5 cm, find the corresponding altitude of the smaller triangle.", solutionSteps: [
       "Ratio of areas = 81:49 [1]",
       "Ratio of corresponding sides = √(81/49) = 9:7 [1]",
       "Altitudes are in the same ratio: altitude₂ = 4.5 × 7/9 = 3.5 cm [1]",
     ], finalAnswer: "3.5 cm" , isCompetencyBased: false},
-  { id: "TRI2-M04", subject: "Maths", topicKey: "Triangles", subtopic: "Proof structure and CPST", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, ∠A = ∠D = 50° and ∠B = ∠E = 70°. If AB = 5 cm and DE = 10 cm, find BC/EF.", solutionSteps: [
+  { id: "TRI2-M04", subject: "Maths", topicKey: "triangles", subtopic: "Proof structure and CPST", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, ∠A = ∠D = 50° and ∠B = ∠E = 70°. If AB = 5 cm and DE = 10 cm, find BC/EF.", solutionSteps: [
       "By AA similarity: △ABC ~ △DEF [½]",
       "AB/DE = BC/EF → 5/10 = BC/EF [½]",
       "BC/EF = 1/2 [1]",
     ], finalAnswer: "BC/EF = 1/2" , isCompetencyBased: false},
-  { id: "TRI2-M05", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, ∠B = 90°, BD ⊥ AC. If AD = 4 cm and CD = 9 cm, find BD.", solutionSteps: [
+  { id: "TRI2-M05", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, ∠B = 90°, BD ⊥ AC. If AD = 4 cm and CD = 9 cm, find BD.", solutionSteps: [
       "In a right triangle, the altitude to the hypotenuse creates similar triangles [1]",
       "BD² = AD × CD = 4 × 9 = 36 [1]",
       "BD = 6 cm [1]",
     ], finalAnswer: "6 cm" , isCompetencyBased: false},
-  { id: "TRI2-M06", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "ABCD is a trapezium with AB ∥ DC. Diagonals AC and BD intersect at O. If OA = 6 cm, OC = 8 cm and OB = 9 cm, find OD.", solutionSteps: [
+  { id: "TRI2-M06", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "ABCD is a trapezium with AB ∥ DC. Diagonals AC and BD intersect at O. If OA = 6 cm, OC = 8 cm and OB = 9 cm, find OD.", solutionSteps: [
       "In trapezium with AB ∥ DC, △AOB ~ △COD (AA similarity) [1]",
       "OA/OC = OB/OD → 6/8 = 9/OD [1]",
       "OD = 9 × 8/6 = 12 cm [1]",
     ], finalAnswer: "OD = 12 cm" , isCompetencyBased: false},
-  { id: "TRI2-H02", subject: "Maths", topicKey: "Triangles", subtopic: "Proof structure and CPST", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, if AD is the median to BC, prove that AB² + AC² = 2(AD² + BD²).", solutionSteps: [
+  { id: "TRI2-H02", subject: "Maths", topicKey: "triangles", subtopic: "Proof structure and CPST", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, if AD is the median to BC, prove that AB² + AC² = 2(AD² + BD²).", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.; Draw AE ⊥ BC (E on BC) [1]",
       "In △ABE: AB² = AE² + BE² = AE² + (BD − DE)² = AE² + BD² − 2·BD·DE + DE²; In △ACE: AC² = AE² + CE² = AE² + (BD + DE)² = AE² + BD² + 2·BD·DE + DE² [1]",
       "Adding: AB² + AC² = 2AE² + 2BD² + 2DE² [1]",
       "But AE² + DE² = AD² (from △ADE) [1]",
       "So AB² + AC² = 2AD² + 2BD² [1]",
     ], finalAnswer: "AB² + AC² = 2(AD² + BD²) (proved)", visualExplainerId: "maths-triangles-similar-triangles-and-criteria" , isCompetencyBased: true},
-  { id: "TRI2-H03", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In a school project, two triangular frames are made such that △PQR ~ △XYZ with PQ = 6 cm, QR = 8 cm, PR = 10 cm and XY = 9 cm.\n(i) Find YZ and XZ.\n(ii) Find the ratio of their perimeters.\n(iii) Find the ratio of their areas.\n(iv) If the area of △PQR is 24 cm², find the area of △XYZ.", solutionSteps: [
+  { id: "TRI2-H03", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In a school project, two triangular frames are made such that △PQR ~ △XYZ with PQ = 6 cm, QR = 8 cm, PR = 10 cm and XY = 9 cm.\n(i) Find YZ and XZ.\n(ii) Find the ratio of their perimeters.\n(iii) Find the ratio of their areas.\n(iv) If the area of △PQR is 24 cm², find the area of △XYZ.", solutionSteps: [
       "(i) Scale factor = XY/PQ = 9/6 = 3/2; YZ = 8 × 3/2 = 12 cm, XZ = 10 × 3/2 = 15 cm [1]",
       "(ii) Perimeter ratio = ratio of sides = 2:3 (PQR:XYZ) [1]",
       "(iii) Area ratio = (2/3)² = 4:9 [1]",
       "(iv) 24/Area(XYZ) = 4/9 → Area(XYZ) = 54 cm² [1]",
     ], finalAnswer: "(i) YZ=12 cm, XZ=15 cm (ii) 2:3 (iii) 4:9 (iv) 54 cm²" , isCompetencyBased: true},
-  { id: "TRI2-H04", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that in a right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides (Pythagoras Theorem).", solutionSteps: [
+  { id: "TRI2-H04", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that in a right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides (Pythagoras Theorem).", solutionSteps: [
       "Construction: Draw right-angled △ABC with the right angle at B. Mark hypotenuse AC and both legs AB and BC.; Given: △ABC with ∠B = 90° [1]",
       "Construction: Draw BD ⊥ AC; In △ADB and △ABC: ∠A is common, ∠ADB = ∠ABC = 90° → △ADB ~ △ABC (AA) [1]",
       "So AD/AB = AB/AC → AB² = AD × AC …(1); In △BDC and △ABC: ∠C is common, ∠BDC = ∠ABC = 90° → △BDC ~ △ABC (AA) [1]",
       "So DC/BC = BC/AC → BC² = DC × AC …(2); Adding (1) and (2): AB² + BC² = AD × AC + DC × AC = AC(AD + DC) = AC² [1]",
       "Hence AB² + BC² = AC² [1]",
     ], finalAnswer: "Proved", visualExplainerId: "maths-triangles-pythagoras-theorem-visual-proof" , isCompetencyBased: true},
-  { id: "TRI2-E12", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Check whether 7, 24, 25 form a Pythagorean triplet.", solutionSteps: [
+  { id: "TRI2-E12", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Check whether 7, 24, 25 form a Pythagorean triplet.", solutionSteps: [
       "7² + 24² = 49 + 576 = 625 = 25² [1]",
       "Yes, they form a Pythagorean triplet [1]",
     ], finalAnswer: "Yes" , isCompetencyBased: false},
-  { id: "TRI2-E13", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "All equilateral triangles are:", options: ["Similar", "Congruent", "Neither similar nor congruent", "Both similar and congruent"], answer: "Similar", explanation: "The correct answer is Similar. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Similar",
+  { id: "TRI2-E13", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "All equilateral triangles are:", options: ["Similar", "Congruent", "Neither similar nor congruent", "Both similar and congruent"], answer: "Similar", explanation: "The correct answer is Similar. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Similar",
     solutionSteps: [
       "For similar triangles ABC ~ PQR, the corresponding vertices are A-P, B-Q, C-R.",
       "The ratios of corresponding sides must be equal: AB/PQ = BC/QR = CA/RP.",
       "Comparing this condition with the given options, option (c) is the correct statement.",
     ], isCompetencyBased: false,
   },
-  { id: "TRI2-M07", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In an equilateral triangle ABC with side 2a, prove that the altitude AD = a√3.", solutionSteps: [
+  { id: "TRI2-M07", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In an equilateral triangle ABC with side 2a, prove that the altitude AD = a√3.", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.; D is the midpoint of BC, so BD = a [1]",
       "In right △ABD: AB² = AD² + BD²; 4a² = AD² + a² → AD² = 3a² [1]",
       "AD = a√3 [1]",
     ], finalAnswer: "AD = a√3 (proved)", visualExplainerId: "maths-triangles-similar-triangles-and-criteria" , isCompetencyBased: false},
-  { id: "TRI2-M08", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two poles of heights 6 m and 11 m stand on a plane ground. If the distance between the feet is 12 m, find the distance between their tops.", solutionSteps: [
+  { id: "TRI2-M08", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two poles of heights 6 m and 11 m stand on a plane ground. If the distance between the feet is 12 m, find the distance between their tops.", solutionSteps: [
       "Draw a diagram. Form a right-angled triangle with sides: difference in heights (11-6)m and distance between feet 12m. [1]",
       "Difference in heights = 11 - 6 = 5 m. Let 'd' be the distance between tops. By Pythagoras theorem, d^2 = 5^2 + 12^2. [1]",
       "d^2 = 25 + 144 = 169. So, d = sqrt(169) = 13 m. [1]",
     ], finalAnswer: "13 m" , isCompetencyBased: false},
-  { id: "TRI2-M09", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, D and E are points on sides AB and AC respectively. If AB = 12 cm, AD = 8 cm, AE = 12 cm and AC = 18 cm, check whether DE ∥ BC.", solutionSteps: [
+  { id: "TRI2-M09", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, D and E are points on sides AB and AC respectively. If AB = 12 cm, AD = 8 cm, AE = 12 cm and AC = 18 cm, check whether DE ∥ BC.", solutionSteps: [
       "AD/DB = 8/4 = 2 [1]",
       "AE/EC = 12/6 = 2 [1]",
       "Since AD/DB = AE/EC, by converse of BPT, DE ∥ BC [1]",
     ], finalAnswer: "Yes, DE ∥ BC" , isCompetencyBased: false},
-  { id: "TRI2-H05", subject: "Maths", topicKey: "Triangles", subtopic: "Proof structure and CPST", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In a right triangle ABC right-angled at B, D and E are any two points on AB and BC respectively. Prove that AE² + CD² = AC² + DE².", solutionSteps: [
+  { id: "TRI2-H05", subject: "Maths", topicKey: "triangles", subtopic: "Proof structure and CPST", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In a right triangle ABC right-angled at B, D and E are any two points on AB and BC respectively. Prove that AE² + CD² = AC² + DE².", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.; In right △ABE: AE² = AB² + BE² …(1) [1]",
       "In right △DBC: CD² = DB² + BC² …(2); Adding: AE² + CD² = AB² + BE² + DB² + BC² [1]",
       "In right △ABC: AC² = AB² + BC² …(3); In right △DBE: DE² = DB² + BE² …(4) [1]",
       "From (3) + (4): AC² + DE² = AB² + BC² + DB² + BE² [1]",
       "= AE² + CD² [1]",
     ], finalAnswer: "AE² + CD² = AC² + DE² (proved)", visualExplainerId: "maths-triangles-similar-triangles-and-criteria" , isCompetencyBased: true},
-  { id: "TRI2-H06", subject: "Maths", topicKey: "Triangles", subtopic: "Area ratio of similar triangles", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The sides of two similar triangles are in the ratio 4:9. Find the ratio of their areas and the ratio of their altitudes.", solutionSteps: [
+  { id: "TRI2-H06", subject: "Maths", topicKey: "triangles", subtopic: "Area ratio of similar triangles", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The sides of two similar triangles are in the ratio 4:9. Find the ratio of their areas and the ratio of their altitudes.", solutionSteps: [
       "For similar triangles, the ratio of areas is the square of the ratio of their corresponding sides. [1]",
       "Ratio of areas = (4/9)^2 = 16/81. [1]",
       "For similar triangles, the ratio of altitudes is the same as the ratio of their sides = 4:9. [1]",
     ], finalAnswer: "Areas = 16:81, Altitudes = 4:9" , isCompetencyBased: false},
-  { id: "TRI2-H07", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠ABC = 90° and BD ⊥ AC. Prove that (i) △ADB ~ △ABC (ii) △BDC ~ △ABC (iii) BD² = AD × DC.", solutionSteps: [
+  { id: "TRI2-H07", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠ABC = 90° and BD ⊥ AC. Prove that (i) △ADB ~ △ABC (ii) △BDC ~ △ABC (iii) BD² = AD × DC.", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices. [1]",
       "(i) In △ADB and △ABC: ∠A is common, ∠ADB = ∠ABC = 90° → △ADB ~ △ABC (AA) [1]",
       "(ii) In △BDC and △ABC: ∠C is common, ∠BDC = ∠ABC = 90° → △BDC ~ △ABC (AA) [1]",
       "(iii) From (i): △ADB ~ △ABC → AD/BD = BD/DC (via △ADB ~ △BDC since both ~ △ABC) [1]",
       "BD² = AD × DC [1]",
     ], finalAnswer: "Proved", visualExplainerId: "maths-triangles-similar-triangles-and-criteria" , isCompetencyBased: true},
-  { id: "TRI2-CB01", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A surveyor uses a map where △ABC represents a triangular park. A straight road DE runs parallel to the boundary BC, cutting AB at D and AC at E, dividing the park into two zones.\nGiven: AD = 4 cm, DB = 6 cm, AE = 3 cm.\n(i) Find EC.\n(ii) Find the ratio DE:BC.\n(iii) Find the ratio of areas of △ADE and △ABC.\n(iv) If the area of △ABC is 250 m², find the area of △ADE.", solutionSteps: [
+  { id: "TRI2-CB01", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A surveyor uses a map where △ABC represents a triangular park. A straight road DE runs parallel to the boundary BC, cutting AB at D and AC at E, dividing the park into two zones.\nGiven: AD = 4 cm, DB = 6 cm, AE = 3 cm.\n(i) Find EC.\n(ii) Find the ratio DE:BC.\n(iii) Find the ratio of areas of △ADE and △ABC.\n(iv) If the area of △ABC is 250 m², find the area of △ADE.", solutionSteps: [
       "(i) By BPT: AD/DB = AE/EC → 4/6 = 3/EC → EC = 4.5 cm [1]",
       "(ii) △ADE ~ △ABC (AA), DE/BC = AD/AB = 4/10 = 2/5 [1]",
       "(iii) Ratio of areas = (2/5)² = 4/25 [1]",
       "(iv) Area of △ADE = (4/25) × 250 = 40 m² [1]",
     ], finalAnswer: "(i) 4.5 cm (ii) 2:5 (iii) 4:25 (iv) 40 m²" , isCompetencyBased: true},
-  { id: "TRI2-CB02", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A 10 m long ladder is placed against a building. The foot of the ladder is 6 m from the building.\n(i) How high does the ladder reach on the building?\n(ii) If the foot is moved 2 m closer, how high will it reach now?\n(iii) In case (ii), by how much did the height increase?\n(iv) Can the ladder reach a window 11 m high? Justify.", solutionSteps: [
+  { id: "TRI2-CB02", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A 10 m long ladder is placed against a building. The foot of the ladder is 6 m from the building.\n(i) How high does the ladder reach on the building?\n(ii) If the foot is moved 2 m closer, how high will it reach now?\n(iii) In case (ii), by how much did the height increase?\n(iv) Can the ladder reach a window 11 m high? Justify.", solutionSteps: [
       "Construction: Draw a right-angled triangle with hypotenuse = 10 m (ladder), base = 6 m (ground distance), and vertical height h (wall). Label all sides clearly.; (i) h² = 10² − 6² = 100 − 36 = 64 → h = 8 m [1]",
       "(ii) Distance = 4 m, h² = 100 − 16 = 84 → h = √84 = 2√21 ≈ 9.17 m [1]",
       "(iii) Increase = 9.17 − 8 = 1.17 m [1]",
       "(iv) No. Max height = 10 m (when foot is at base), which is less than 11 m. [1]",
     ], finalAnswer: "(i) 8 m (ii) 2√21 ≈ 9.17 m (iii) ≈ 1.17 m (iv) No, max = 10 m", visualExplainerId: "maths-triangles-pythagoras-theorem-visual-proof" , isCompetencyBased: true},
-  { id: "TRI2-H08", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, D is the midpoint of BC and E is the midpoint of AD. Line BE is produced to meet AC at F. Using BPT and the midpoint theorem, prove that AF = (1/3)AC.", solutionSteps: [
+  { id: "TRI2-H08", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, D is the midpoint of BC and E is the midpoint of AD. Line BE is produced to meet AC at F. Using BPT and the midpoint theorem, prove that AF = (1/3)AC.", solutionSteps: [
       "Construction: Draw △ABC with line DE ∥ BC, where D is on AB and E is on AC. Label all given measurements.; Draw DG ∥ BF where G is on AC.; In △BCF, D is midpoint of BC and DG ∥ BF (by construction). [1]",
       "By the midpoint theorem (converse of BPT), G is the midpoint of CF. So CG = GF …(1).; Now in △ADG, E is the midpoint of AD and the line through E parallel to DG passes through F on AG (since B, E, F are collinear and DG ∥ BF).; By the midpoint theorem in △ADG, F is the midpoint of AG. So AF = FG …(2). [1]",
       "From (1) and (2): AF = FG = GC.; Therefore AF = (1/3)AC. ✓ [1]",
     ], finalAnswer: "AF = (1/3)AC (proved)", visualExplainerId: "maths-triangles-basic-proportionality-theorem" , isCompetencyBased: true},
-  { id: "TRI2-E21", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two triangles are similar if their corresponding angles are equal. This is the:", options: ["AA similarity criterion","SSS similarity criterion","SAS similarity criterion","RHS criterion"], answer: "AA similarity criterion", explanation: "The correct answer is AA similarity criterion. If all corresponding angles are equal, the triangles satisfy the Angle-Angle (AA) similarity criterion.", finalAnswer: "If all corresponding angles are equal, the triangles satisfy the Angle-Angle (AA) similarity criterion.", isCompetencyBased: false,
+  { id: "TRI2-E21", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two triangles are similar if their corresponding angles are equal. This is the:", options: ["AA similarity criterion","SSS similarity criterion","SAS similarity criterion","RHS criterion"], answer: "AA similarity criterion", explanation: "The correct answer is AA similarity criterion. If all corresponding angles are equal, the triangles satisfy the Angle-Angle (AA) similarity criterion.", finalAnswer: "If all corresponding angles are equal, the triangles satisfy the Angle-Angle (AA) similarity criterion.", isCompetencyBased: false,
     solutionSteps: [
       "Question text and answer are missing. Cannot generate solution steps or final answer.",
     ],
   },
-  { id: "TRI2-E14", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In △ABC, if DE ∥ BC and AD/DB = 2/3, then AE/AC equals:", options: ["2/5","3/5","2/3","3/2"], answer: "2/5", explanation: "The correct answer is 2/5. By BPT, AD/AB = AE/AC. AD/AB = 2/(2+3) = 2/5. So AE/AC = 2/5.", finalAnswer: "By BPT, AD/AB = AE/AC. AD/AB = 2/(2+3) = 2/5. So AE/AC = 2/5.", isCompetencyBased: false,
+  { id: "TRI2-E14", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In △ABC, if DE ∥ BC and AD/DB = 2/3, then AE/AC equals:", options: ["2/5","3/5","2/3","3/2"], answer: "2/5", explanation: "The correct answer is 2/5. By BPT, AD/AB = AE/AC. AD/AB = 2/(2+3) = 2/5. So AE/AC = 2/5.", finalAnswer: "By BPT, AD/AB = AE/AC. AD/AB = 2/(2+3) = 2/5. So AE/AC = 2/5.", isCompetencyBased: false,
     solutionSteps: [
       "Question text and answer are missing. Cannot generate solution steps or final answer.",
     ],
   },
-  { id: "TRI2-E15", subject: "Maths", topicKey: "Triangles", subtopic: "Area Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The ratio of areas of two similar triangles is 16:25. The ratio of their corresponding sides is:", options: ["4:5","16:25","2:5","8:25"], answer: "4:5", explanation: "The correct answer is 4:5. Area ratio = (side ratio)². So side ratio = √(16/25) = 4/5 = 4:5.", finalAnswer: "Area ratio = (side ratio)². So side ratio = √(16/25) = 4/5 = 4:5.", isCompetencyBased: false,
+  { id: "TRI2-E15", subject: "Maths", topicKey: "triangles", subtopic: "Area Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The ratio of areas of two similar triangles is 16:25. The ratio of their corresponding sides is:", options: ["4:5","16:25","2:5","8:25"], answer: "4:5", explanation: "The correct answer is 4:5. Area ratio = (side ratio)². So side ratio = √(16/25) = 4/5 = 4:5.", finalAnswer: "Area ratio = (side ratio)². So side ratio = √(16/25) = 4/5 = 4:5.", isCompetencyBased: false,
     solutionSteps: [
       "Question text and answer are missing. Cannot generate solution steps or final answer.",
     ],
   },
-  { id: "TRI2-E16", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle, if one leg is 8 cm and hypotenuse is 17 cm, the other leg is:", options: ["15 cm","9 cm","12 cm","√(17²+8²) cm"], answer: "15 cm", explanation: "The correct answer is 15 cm. By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", finalAnswer: "By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", isCompetencyBased: false,
+  { id: "TRI2-E16", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "In a right triangle, if one leg is 8 cm and hypotenuse is 17 cm, the other leg is:", options: ["15 cm","9 cm","12 cm","√(17²+8²) cm"], answer: "15 cm", explanation: "The correct answer is 15 cm. By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", finalAnswer: "By Pythagoras: leg² = 17²−8² = 289−64 = 225. Leg = 15 cm.", isCompetencyBased: false,
     solutionSteps: [
       "Let the legs of the right triangle be 'a' and 'b', and the hypotenuse be 'c'.",
       "According to Pythagoras theorem, a^2 + b^2 = c^2.",
       "Given a = 8 cm, c = 17 cm. So, 8^2 + b^2 = 17^2 => 64 + b^2 = 289 => b^2 = 225 => b = 15 cm.",
     ],
   },
-  { id: "TRI2-E17", subject: "Maths", topicKey: "Triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If △ABC ~ △PQR with AB/PQ = BC/QR = CA/RP = 3/2, then the triangles are:", options: ["Similar with scale factor 3/2","Congruent","Equal in area","Not related"], answer: "Similar with scale factor 3/2", explanation: "The correct answer is Similar with scale factor 3/2. All corresponding sides are in ratio 3:2, so the triangles are similar with scale factor 3/2.", finalAnswer: "All corresponding sides are in ratio 3:2, so the triangles are similar with scale factor 3/2.", isCompetencyBased: false,
+  { id: "TRI2-E17", subject: "Maths", topicKey: "triangles", subtopic: "Similarity criteria and correspondence", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If △ABC ~ △PQR with AB/PQ = BC/QR = CA/RP = 3/2, then the triangles are:", options: ["Similar with scale factor 3/2","Congruent","Equal in area","Not related"], answer: "Similar with scale factor 3/2", explanation: "The correct answer is Similar with scale factor 3/2. All corresponding sides are in ratio 3:2, so the triangles are similar with scale factor 3/2.", finalAnswer: "All corresponding sides are in ratio 3:2, so the triangles are similar with scale factor 3/2.", isCompetencyBased: false,
     solutionSteps: [
       "The symbol '~' indicates that the triangles △ABC and △PQR are similar.",
       "The given ratios of corresponding sides AB/PQ = BC/QR = CA/RP = 3/2 confirm their similarity.",
       "The common ratio of corresponding sides (3/2) is defined as the scale factor of similarity.",
     ],
   },
-  { id: "TRI2-E18", subject: "Maths", topicKey: "Triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which theorem states: if a line divides two sides of a triangle in the same ratio, it is parallel to the third side?", options: ["Converse of BPT","BPT (Thales theorem)","Midpoint theorem","Pythagoras theorem"], answer: "Converse of BPT", explanation: "The correct answer is Converse of BPT. The converse of the Basic Proportionality Theorem states that if a line divides two sides proportionally, it is parallel to the third side.", finalAnswer: "The converse of the Basic Proportionality Theorem states that if a line divides two sides proportionally, it is parallel to the third side.", isCompetencyBased: false,
+  { id: "TRI2-E18", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which theorem states: if a line divides two sides of a triangle in the same ratio, it is parallel to the third side?", options: ["Converse of BPT","BPT (Thales theorem)","Midpoint theorem","Pythagoras theorem"], answer: "Converse of BPT", explanation: "The correct answer is Converse of BPT. The converse of the Basic Proportionality Theorem states that if a line divides two sides proportionally, it is parallel to the third side.", finalAnswer: "The converse of the Basic Proportionality Theorem states that if a line divides two sides proportionally, it is parallel to the third side.", isCompetencyBased: false,
     solutionSteps: [
       "The Basic Proportionality Theorem (BPT) states that if a line is parallel to one side of a triangle, it divides the other two sides proportionally.",
       "The given statement describes the reverse condition: if a line divides two sides proportionally, then it is parallel to the third side.",
       "This specific statement is known as the Converse of the Basic Proportionality Theorem (BPT).",
     ],
   },
-  { id: "TRI2-E19", subject: "Maths", topicKey: "Triangles", subtopic: "Area Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two similar triangles have corresponding sides in ratio 3:4. The ratio of their altitudes is:", options: ["3:4","9:16","4:3","√3:2"], answer: "3:4", explanation: "The correct answer is 3:4. In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", finalAnswer: "In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", isCompetencyBased: false,
+  { id: "TRI2-E19", subject: "Maths", topicKey: "triangles", subtopic: "Area Ratio", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two similar triangles have corresponding sides in ratio 3:4. The ratio of their altitudes is:", options: ["3:4","9:16","4:3","√3:2"], answer: "3:4", explanation: "The correct answer is 3:4. In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", finalAnswer: "In similar triangles, the ratio of corresponding altitudes equals the ratio of corresponding sides: 3:4.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the theorem: The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
       "Apply the theorem: If the ratio of corresponding sides is a:b, then the ratio of their areas is a^2:b^2.",
       "Calculate the ratio: For example, if side ratio is 3:5, then area ratio = (3/5)^2 = 9/25.",
     ],
   },
-  { id: "TRI2-E20", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a right triangle with legs a and b and hypotenuse c, a² + b² = c².\nReason (R): This relationship is called the Pythagoras Theorem and holds for any right-angled triangle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "R names and states the Pythagoras Theorem, which is exactly the relationship expressed in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "TRI2-E20", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): In a right triangle with legs a and b and hypotenuse c, a² + b² = c².\nReason (R): This relationship is called the Pythagoras Theorem and holds for any right-angled triangle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "R names and states the Pythagoras Theorem, which is exactly the relationship expressed in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "Assertion (A) states the Pythagoras Theorem, which is a fundamental property of right-angled triangles and is true.",
       "Reason (R) correctly identifies the relationship as the Pythagoras Theorem and states that it holds for any right-angled triangle, which is also true.",

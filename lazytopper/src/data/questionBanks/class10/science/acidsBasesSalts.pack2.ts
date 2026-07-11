@@ -4,7 +4,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-001",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "A",
     "marks": 1,
@@ -36,7 +36,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-002",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "A",
     "marks": 1,
@@ -68,7 +68,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-003",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,
@@ -100,7 +100,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-004",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,
@@ -132,7 +132,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-005",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "B",
     "marks": 2,
@@ -163,7 +163,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-006",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "B",
     "marks": 2,
@@ -195,7 +195,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-007",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "B",
     "marks": 2,
@@ -226,7 +226,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-008",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "B",
     "marks": 2,
@@ -257,7 +257,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-009",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "B",
     "marks": 2,
@@ -288,7 +288,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-010",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "B",
     "marks": 2,
@@ -314,7 +314,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-011",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "B",
     "marks": 2,
@@ -339,7 +339,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-012",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "C",
     "marks": 3,
@@ -370,7 +370,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-013",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "C",
     "marks": 3,
@@ -401,7 +401,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-014",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "C",
     "marks": 3,
@@ -432,7 +432,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-015",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "C",
     "marks": 3,
@@ -463,7 +463,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-016",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "C",
     "marks": 3,
@@ -494,7 +494,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-017",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "C",
     "marks": 3,
@@ -525,7 +525,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-018",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "E",
     "marks": 4,
@@ -559,7 +559,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-019",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "E",
     "marks": 4,
@@ -597,7 +597,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-020",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "D",
     "marks": 5,
@@ -651,7 +651,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-021",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "A",
     "marks": 1,
@@ -682,7 +682,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-022",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "B",
     "marks": 2,
@@ -708,7 +708,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-023",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "B",
     "marks": 2,
@@ -737,7 +737,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-024",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "B",
     "marks": 2,
@@ -765,7 +765,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-025",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "C",
     "marks": 3,
@@ -797,7 +797,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-027",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "A",
     "marks": 1,
@@ -827,7 +827,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-028",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,
@@ -858,7 +858,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-029",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,
@@ -889,7 +889,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-030",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "A",
     "marks": 1,
@@ -919,7 +919,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-031",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "B",
     "marks": 2,
@@ -950,7 +950,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-032",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "B",
     "marks": 2,
@@ -981,7 +981,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-033",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "B",
     "marks": 2,
@@ -1012,7 +1012,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-034",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "B",
     "marks": 2,
@@ -1043,7 +1043,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-035",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "B",
     "marks": 2,
@@ -1068,7 +1068,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-036",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "B",
     "marks": 2,
@@ -1093,7 +1093,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-037",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "C",
     "marks": 3,
@@ -1124,7 +1124,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-038",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "C",
     "marks": 3,
@@ -1149,7 +1149,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-039",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "C",
     "marks": 3,
@@ -1180,7 +1180,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-040",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "C",
     "marks": 3,
@@ -1205,7 +1205,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-041",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "C",
     "marks": 3,
@@ -1237,7 +1237,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-042",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "E",
     "marks": 4,
@@ -1262,7 +1262,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-043",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "D",
     "marks": 5,
@@ -1289,7 +1289,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-044",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "D",
     "marks": 5,
@@ -1319,7 +1319,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-045",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "D",
     "marks": 5,
@@ -1349,7 +1349,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-046",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "D",
     "marks": 5,
@@ -1380,7 +1380,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-047",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Salts and their Properties",
     "section": "D",
     "marks": 5,
@@ -1405,7 +1405,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-048",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties of Acids and Bases",
     "section": "D",
     "marks": 5,
@@ -1432,7 +1432,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-049",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Neutralisation",
     "section": "D",
     "marks": 5,
@@ -1465,7 +1465,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-050",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,
@@ -1486,7 +1486,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-051",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties & Identification",
     "section": "A",
     "marks": 1,
@@ -1507,7 +1507,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-052",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Reactions",
     "section": "A",
     "marks": 1,
@@ -1528,7 +1528,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-053",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties & Identification",
     "section": "A",
     "marks": 1,
@@ -1549,7 +1549,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-054",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties & Identification",
     "section": "A",
     "marks": 1,
@@ -1570,7 +1570,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-055",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties & Identification",
     "section": "A",
     "marks": 1,
@@ -1591,7 +1591,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-056",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,
@@ -1612,7 +1612,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-057",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Reactions",
     "section": "A",
     "marks": 1,
@@ -1633,7 +1633,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-058",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Reactions",
     "section": "A",
     "marks": 1,
@@ -1654,7 +1654,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-059",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "Properties & Identification",
     "section": "A",
     "marks": 1,
@@ -1675,7 +1675,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
   {
     "id": "ABS2-060",
     "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
+    "topicKey": "acids-bases-and-salts",
     "subtopic": "pH Scale",
     "section": "A",
     "marks": 1,

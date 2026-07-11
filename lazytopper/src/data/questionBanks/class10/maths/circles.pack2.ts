@@ -4,7 +4,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-001",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-002",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "A",
     "marks": 1,
@@ -64,7 +64,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-003",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "A",
     "marks": 1,
@@ -94,7 +94,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-004",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "A",
     "marks": 1,
@@ -124,7 +124,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-005",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "A",
     "marks": 1,
@@ -155,7 +155,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-006",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -182,7 +182,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-007",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -210,7 +210,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-008",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "B",
     "marks": 2,
@@ -235,7 +235,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-009",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -265,7 +265,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-010",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "B",
     "marks": 2,
@@ -297,7 +297,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-011",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -328,7 +328,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-012",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "C",
     "marks": 3,
@@ -356,7 +356,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-013",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "C",
     "marks": 3,
@@ -385,7 +385,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-014",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "C",
     "marks": 3,
@@ -416,7 +416,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-015",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "C",
     "marks": 3,
@@ -447,7 +447,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-016",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "E",
     "marks": 4,
@@ -479,7 +479,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-017",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "E",
     "marks": 4,
@@ -517,7 +517,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-018",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "D",
     "marks": 5,
@@ -571,7 +571,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-019",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -605,7 +605,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-020",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "B",
     "marks": 2,
@@ -638,7 +638,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-021",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "A",
     "marks": 1,
@@ -669,7 +669,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-022",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -700,7 +700,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-024",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "A",
     "marks": 1,
@@ -729,7 +729,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-026",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "A",
     "marks": 1,
@@ -758,7 +758,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-027",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "B",
     "marks": 2,
@@ -783,7 +783,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-029",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -816,7 +816,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-031",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "B",
     "marks": 2,
@@ -844,7 +844,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-032",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -878,7 +878,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-033",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "C",
     "marks": 3,
@@ -907,7 +907,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-034",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "C",
     "marks": 3,
@@ -936,7 +936,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-035",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "C",
     "marks": 3,
@@ -967,7 +967,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-036",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "C",
     "marks": 3,
@@ -998,7 +998,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-037",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "E",
     "marks": 4,
@@ -1043,7 +1043,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-038",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "D",
     "marks": 5,
@@ -1086,7 +1086,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-039",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "D",
     "marks": 5,
@@ -1136,7 +1136,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-040",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "A",
     "marks": 1,
@@ -1166,7 +1166,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-041",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "A",
     "marks": 1,
@@ -1195,7 +1195,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-042",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "B",
     "marks": 2,
@@ -1224,7 +1224,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-043",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Number of Tangents from External Point",
     "section": "B",
     "marks": 2,
@@ -1256,7 +1256,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-044",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent-Radius Perpendicularity",
     "section": "C",
     "marks": 3,
@@ -1286,7 +1286,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   {
     "id": "CI2-045",
     "subject": "Maths",
-    "topicKey": "Circles",
+    "topicKey": "circles",
     "subtopic": "Tangent Properties",
     "section": "C",
     "marks": 3,
@@ -1308,7 +1308,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 10.2"
   },
-  { id: "CI2-046", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From a point P, 10 cm from the centre of a circle of radius 6 cm, the length of the tangent is:", options: ["8 cm","10 cm","6 cm","4 cm"], answer: "8 cm", explanation: "The correct answer is 8 cm. PT² = OP² − r² = 100 − 36 = 64. PT = 8 cm.", finalAnswer: "PT² = OP² − r² = 100 − 36 = 64. PT = 8 cm.", isCompetencyBased: false,
+  { id: "CI2-046", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From a point P, 10 cm from the centre of a circle of radius 6 cm, the length of the tangent is:", options: ["8 cm","10 cm","6 cm","4 cm"], answer: "8 cm", explanation: "The correct answer is 8 cm. PT² = OP² − r² = 100 − 36 = 64. PT = 8 cm.", finalAnswer: "PT² = OP² − r² = 100 − 36 = 64. PT = 8 cm.", isCompetencyBased: false,
     solutionSteps: [
       "Let O be the centre, P be the external point, and T be the point of tangency.",
       "In right-angled triangle OTP, OP^2 = OT^2 + PT^2 (Pythagoras theorem).",
@@ -1316,40 +1316,40 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Calculate PT^2 = 100 - 36 = 64, so PT = sqrt(64) = 8 cm.",
     ],
   },
-  { id: "CI2-047", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A tangent to a circle is perpendicular to:", options: ["The diameter at the point of contact","The radius at the point of contact","Any chord of the circle","The chord through the centre"], answer: "The radius at the point of contact", explanation: "The correct answer is The radius at the point of contact. A tangent at any point of a circle is perpendicular to the radius through that point of contact.", finalAnswer: "A tangent at any point of a circle is perpendicular to the radius through that point of contact.", isCompetencyBased: false,
+  { id: "CI2-047", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A tangent to a circle is perpendicular to:", options: ["The diameter at the point of contact","The radius at the point of contact","Any chord of the circle","The chord through the centre"], answer: "The radius at the point of contact", explanation: "The correct answer is The radius at the point of contact. A tangent at any point of a circle is perpendicular to the radius through that point of contact.", finalAnswer: "A tangent at any point of a circle is perpendicular to the radius through that point of contact.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the theorem: The tangent at any point of a circle is perpendicular to the radius through the point of contact.",
       "Therefore, a tangent to a circle is perpendicular to the radius at the point of contact.",
     ],
   },
-  { id: "CI2-048", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two tangents drawn from an external point to a circle are:", options: ["Equal in length","Parallel to each other","Perpendicular to each other","Not equal in length"], answer: "Equal in length", explanation: "The correct answer is Equal in length. The two tangents drawn from any external point to a circle are equal in length.", finalAnswer: "The two tangents drawn from any external point to a circle are equal in length.", isCompetencyBased: false,
+  { id: "CI2-048", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two tangents drawn from an external point to a circle are:", options: ["Equal in length","Parallel to each other","Perpendicular to each other","Not equal in length"], answer: "Equal in length", explanation: "The correct answer is Equal in length. The two tangents drawn from any external point to a circle are equal in length.", finalAnswer: "The two tangents drawn from any external point to a circle are equal in length.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the theorem: The lengths of tangents drawn from an external point to a circle are equal.",
       "Thus, two tangents drawn from an external point to a circle are equal in length.",
     ],
   },
-  { id: "CI2-049", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA and PB are tangents from P to a circle with centre O, then ∠AOB + ∠APB equals:", options: ["180°","90°","270°","360°"], answer: "180°", explanation: "The correct answer is 180°. ∠OAP = ∠OBP = 90°. In quadrilateral AOBP: ∠AOB + ∠APB = 360° − 90° − 90° = 180°.", finalAnswer: "∠OAP = ∠OBP = 90°. In quadrilateral AOBP: ∠AOB + ∠APB = 360° − 90° − 90° = 180°.", isCompetencyBased: false,
+  { id: "CI2-049", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA and PB are tangents from P to a circle with centre O, then ∠AOB + ∠APB equals:", options: ["180°","90°","270°","360°"], answer: "180°", explanation: "The correct answer is 180°. ∠OAP = ∠OBP = 90°. In quadrilateral AOBP: ∠AOB + ∠APB = 360° − 90° − 90° = 180°.", finalAnswer: "∠OAP = ∠OBP = 90°. In quadrilateral AOBP: ∠AOB + ∠APB = 360° − 90° − 90° = 180°.", isCompetencyBased: false,
     solutionSteps: [
       "Let O be the centre, T be the point of tangency. Triangle OTQ is right-angled at T.",
       "By Pythagoras theorem: OQ^2 = OT^2 + QT^2. So, 25^2 = r^2 + 24^2.",
       "625 = r^2 + 576 => r^2 = 49 => r = 7 cm.",
     ],
   },
-  { id: "CI2-050", subject: "Maths", topicKey: "Circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The angle between a tangent to a circle and the chord drawn from the point of tangency equals:", options: ["The angle in the alternate segment","Half the arc subtended by the chord","The angle between tangent and diameter","The inscribed angle of the chord"], answer: "The angle in the alternate segment", explanation: "The correct answer is The angle in the alternate segment. This is the Tangent-Chord angle theorem (Alternate Segment Theorem).", finalAnswer: "This is the Tangent-Chord angle theorem (Alternate Segment Theorem).", isCompetencyBased: false,
+  { id: "CI2-050", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The angle between a tangent to a circle and the chord drawn from the point of tangency equals:", options: ["The angle in the alternate segment","Half the arc subtended by the chord","The angle between tangent and diameter","The inscribed angle of the chord"], answer: "The angle in the alternate segment", explanation: "The correct answer is The angle in the alternate segment. This is the Tangent-Chord angle theorem (Alternate Segment Theorem).", finalAnswer: "This is the Tangent-Chord angle theorem (Alternate Segment Theorem).", isCompetencyBased: false,
     solutionSteps: [
       "Let the chord be AB and centre O. OA = OB = radius = 10 cm. Angle AOB = 90°.",
       "In right-angled triangle AOB, by Pythagoras theorem: AB^2 = OA^2 + OB^2.",
       "AB^2 = 10^2 + 10^2 = 100 + 100 = 200. So, AB = sqrt(200) = 10sqrt(2) cm.",
     ],
   },
-  { id: "CI2-051", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadrilateral ABCD is circumscribed about a circle. Then AB + CD equals:", options: ["BC + DA","2(AB)","2(CD)","AB − CD"], answer: "BC + DA", explanation: "The correct answer is BC + DA. For a tangential quadrilateral: AB + CD = BC + DA (tangent segments from each vertex are equal).", finalAnswer: "For a tangential quadrilateral: AB + CD = BC + DA (tangent segments from each vertex are equal).", isCompetencyBased: false,
+  { id: "CI2-051", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadrilateral ABCD is circumscribed about a circle. Then AB + CD equals:", options: ["BC + DA","2(AB)","2(CD)","AB − CD"], answer: "BC + DA", explanation: "The correct answer is BC + DA. For a tangential quadrilateral: AB + CD = BC + DA (tangent segments from each vertex are equal).", finalAnswer: "For a tangential quadrilateral: AB + CD = BC + DA (tangent segments from each vertex are equal).", isCompetencyBased: false,
     solutionSteps: [
       "OA is perpendicular to PA, OB is perpendicular to PB. Angle APB = 80°.",
       "In quadrilateral OAPB, Angle AOB + Angle APB = 180°. So, Angle AOB = 180° - 80° = 100°.",
       "OP bisects Angle AOB. Therefore, Angle POA = (1/2) * Angle AOB = (1/2) * 100° = 50°.",
     ],
   },
-  { id: "CI2-052", subject: "Maths", topicKey: "Circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two circles of radii 5 cm and 3 cm touch externally. The distance between their centres is:", options: ["8 cm","2 cm","15 cm","4 cm"], answer: "8 cm", explanation: "The correct answer is 8 cm. External tangent: distance = r₁ + r₂ = 5 + 3 = 8 cm.", finalAnswer: "External tangent: distance = r₁ + r₂ = 5 + 3 = 8 cm.", isCompetencyBased: false,
+  { id: "CI2-052", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Two circles of radii 5 cm and 3 cm touch externally. The distance between their centres is:", options: ["8 cm","2 cm","15 cm","4 cm"], answer: "8 cm", explanation: "The correct answer is 8 cm. External tangent: distance = r₁ + r₂ = 5 + 3 = 8 cm.", finalAnswer: "External tangent: distance = r₁ + r₂ = 5 + 3 = 8 cm.", isCompetencyBased: false,
     solutionSteps: [
       "Let the radius be 'r'. The perpendicular from the centre bisects the chord.",
       "Half the chord length = 16 cm / 2 = 8 cm.",
@@ -1357,7 +1357,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, r = sqrt(100) = 10 cm.",
     ],
   },
-  { id: "CI2-053", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", isCompetencyBased: false,
+  { id: "CI2-053", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", isCompetencyBased: false,
     solutionSteps: [
       "Let the radius be 'r'. The radius is perpendicular to the tangent at the point of contact.",
       "This forms a right-angled triangle with the radius, tangent, and distance from Q to the centre.",
@@ -1366,7 +1366,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "r^2 = 625 - 576 = 49. Therefore, r = sqrt(49) = 7 cm.",
     ],
   },
-  { id: "CI2-054", subject: "Maths", topicKey: "Circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of tangents that can be drawn from a point inside a circle is:", options: ["0","1","2","Infinite"], answer: "0", explanation: "The correct answer is 0. No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", finalAnswer: "No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", isCompetencyBased: false,
+  { id: "CI2-054", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of tangents that can be drawn from a point inside a circle is:", options: ["0","1","2","Infinite"], answer: "0", explanation: "The correct answer is 0. No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", finalAnswer: "No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", isCompetencyBased: false,
     solutionSteps: [
       "Recall the theorem regarding intersecting equal chords in a circle.",
       "The theorem states that if two equal chords of a circle intersect within the circle, then the segments of one chord are equal to the corresponding segments of the other chord.",
@@ -1374,7 +1374,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, the given statement is true.",
     ],
   },
-  { id: "CI2-055", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The tangent to a circle at any point is unique.\nReason (R): Only one line can be drawn perpendicular to a radius at a given point on the circle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A unique perpendicular to the radius at the point of contact gives the unique tangent — R directly explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+  { id: "CI2-055", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The tangent to a circle at any point is unique.\nReason (R): Only one line can be drawn perpendicular to a radius at a given point on the circle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A unique perpendicular to the radius at the point of contact gives the unique tangent — R directly explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
       "Let's assume the question is: Assertion (A): The length of tangents drawn from an external point to a circle are equal. Reason (R): The tangent at any point of a circle is perpendicular to the radius through the point of contact.",
       "Assertion (A) is a fundamental theorem (Theorem 10.2) in circles, stating that tangents from an external point are equal in length. Thus, A is true.",
@@ -1382,7 +1382,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "While both A and R are true statements, R is a prerequisite for proving A (using RHS congruence for triangles formed by tangents, radii, and the line joining the external point to the center). R does not directly explain *why* the lengths are equal. Therefore, R is not the correct explanation for A.",
     ],
   },
-  { id: "CI2-056", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the tangents drawn from an external point to a circle are equal in length. Use this to prove that if a parallelogram circumscribes a circle, it must be a rhombus.", solutionSteps: [
+  { id: "CI2-056", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the tangents drawn from an external point to a circle are equal in length. Use this to prove that if a parallelogram circumscribes a circle, it must be a rhombus.", solutionSteps: [
       "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.; Given: PA and PB are tangents from external point P to a circle with centre O. [1]",
       "Proof: In △OAP and △OBP: OA = OB (radii), OP = OP (common), ∠OAP = ∠OBP = 90° (radius ⊥ tangent).; By RHS congruence: △OAP ≅ △OBP. Therefore PA = PB. ✓ [1]",
       "Now, let ABCD be a parallelogram circumscribing a circle, with the circle touching AB, BC, CD, DA at P, Q, R, S.; Using the tangent-equality theorem: AP = AS, BP = BQ, CR = CQ, DR = DS. [1]",

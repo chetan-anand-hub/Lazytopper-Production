@@ -4,7 +4,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-001",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-002",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -61,7 +61,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-003",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -90,7 +90,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-004",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -116,7 +116,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-005",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -143,7 +143,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-006",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "A",
     "marks": 1,
@@ -171,7 +171,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-007",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "A",
     "marks": 1,
@@ -201,7 +201,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-008",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "B",
     "marks": 2,
@@ -226,7 +226,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-009",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "B",
     "marks": 2,
@@ -251,7 +251,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-010",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "A",
     "marks": 1,
@@ -279,7 +279,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-011",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "A",
     "marks": 1,
@@ -307,7 +307,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-012",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "A",
     "marks": 1,
@@ -337,7 +337,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-013",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "B",
     "marks": 2,
@@ -363,7 +363,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-014",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "B",
     "marks": 2,
@@ -390,7 +390,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-015",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "C",
     "marks": 3,
@@ -418,7 +418,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-016",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "A",
     "marks": 1,
@@ -446,7 +446,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-017",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "A",
     "marks": 1,
@@ -474,7 +474,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-018",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "B",
     "marks": 2,
@@ -497,7 +497,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-019",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "B",
     "marks": 2,
@@ -522,7 +522,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-020",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -546,7 +546,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-021",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "C",
     "marks": 3,
@@ -573,7 +573,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-022",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "C",
     "marks": 3,
@@ -599,7 +599,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-023",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -630,7 +630,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-024",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "A",
     "marks": 1,
@@ -661,7 +661,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-025",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "A",
     "marks": 1,
@@ -692,7 +692,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-026",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "E",
     "marks": 4,
@@ -720,7 +720,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-027",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "E",
     "marks": 4,
@@ -747,7 +747,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-028",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "D",
     "marks": 5,
@@ -782,7 +782,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-029",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -807,7 +807,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-035",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -835,7 +835,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-036",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -863,7 +863,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-037",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -887,7 +887,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-038",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "A",
     "marks": 1,
@@ -915,7 +915,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-039",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "B",
     "marks": 2,
@@ -939,7 +939,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-040",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "B",
     "marks": 2,
@@ -964,7 +964,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-041",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "A",
     "marks": 1,
@@ -994,7 +994,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-042",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "A",
     "marks": 1,
@@ -1024,7 +1024,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-043",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "B",
     "marks": 2,
@@ -1050,7 +1050,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-044",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "B",
     "marks": 2,
@@ -1075,7 +1075,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-045",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "A",
     "marks": 1,
@@ -1103,7 +1103,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-046",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "B",
     "marks": 2,
@@ -1129,7 +1129,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-047",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "C",
     "marks": 3,
@@ -1154,7 +1154,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-048",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -1182,7 +1182,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-049",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "C",
     "marks": 3,
@@ -1209,7 +1209,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-050",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "C",
     "marks": 3,
@@ -1236,7 +1236,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-051",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "C",
     "marks": 3,
@@ -1262,7 +1262,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-052",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "A",
     "marks": 1,
@@ -1292,7 +1292,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-053",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "A",
     "marks": 1,
@@ -1322,7 +1322,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-054",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "A",
     "marks": 1,
@@ -1351,7 +1351,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-055",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -1375,7 +1375,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-056",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "B",
     "marks": 2,
@@ -1399,7 +1399,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-057",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem",
     "section": "C",
     "marks": 3,
@@ -1424,7 +1424,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-058",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Areas of Similar Triangles",
     "section": "B",
     "marks": 2,
@@ -1449,7 +1449,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-059",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "E",
     "marks": 4,
@@ -1478,7 +1478,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-060",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "D",
     "marks": 5,
@@ -1507,7 +1507,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-061",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Basic Proportionality Theorem and Similarity",
     "section": "D",
     "marks": 5,
@@ -1537,7 +1537,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-062",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Similarity Criteria",
     "section": "B",
     "marks": 2,
@@ -1561,7 +1561,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TR3-063",
     "subject": "Maths",
-    "topicKey": "Triangles",
+    "topicKey": "triangles",
     "subtopic": "Pythagoras Theorem",
     "section": "C",
     "marks": 3,
@@ -1584,7 +1584,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 6.5"
   },
-  { id: "TR3-064", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠B = 90°. D is the midpoint of BC. Prove that AC² = AD² + 3CD².", solutionSteps: [
+  { id: "TR3-064", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠B = 90°. D is the midpoint of BC. Prove that AC² = AD² + 3CD².", solutionSteps: [
       "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.; Given: △ABC with ∠B = 90°, D is midpoint of BC so BD = DC = CD. [1]",
       "In △ABD (right-angled at B): AD² = AB² + BD² …(1) [1]",
       "In △ABC (right-angled at B): AC² = AB² + BC² = AB² + (BD+DC)² = AB² + (2DC)² = AB² + 4DC² …(2) [1]",

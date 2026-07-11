@@ -4,7 +4,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-001",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -33,7 +33,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-002",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -63,7 +63,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-003",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -92,7 +92,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-004",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "B",
     "marks": 2,
@@ -121,7 +121,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-005",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "B",
     "marks": 2,
@@ -151,7 +151,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-006",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "B",
     "marks": 2,
@@ -175,7 +175,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-007",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "B",
     "marks": 2,
@@ -202,7 +202,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-008",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "B",
     "marks": 2,
@@ -231,7 +231,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-009",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "C",
     "marks": 3,
@@ -262,7 +262,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-010",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -291,7 +291,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-011",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -322,7 +322,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-012",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -348,7 +348,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-013",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -378,7 +378,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-014",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -408,7 +408,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-015",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -439,7 +439,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-016",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -465,7 +465,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-017",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -496,7 +496,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-018",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -527,7 +527,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-019",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "E",
     "marks": 4,
@@ -553,7 +553,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-020",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "E",
     "marks": 4,
@@ -581,7 +581,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-021",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "D",
     "marks": 5,
@@ -620,7 +620,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-022",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -650,7 +650,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-023",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "B",
     "marks": 2,
@@ -679,7 +679,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-024",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -706,7 +706,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-025",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -736,7 +736,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-026",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -765,7 +765,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-027",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -796,7 +796,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-028",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "B",
     "marks": 2,
@@ -825,7 +825,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-029",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "B",
     "marks": 2,
@@ -856,7 +856,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-030",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "B",
     "marks": 2,
@@ -888,7 +888,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-031",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "B",
     "marks": 2,
@@ -915,7 +915,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-032",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "C",
     "marks": 3,
@@ -946,7 +946,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-033",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "B",
     "marks": 2,
@@ -977,7 +977,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-034",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "B",
     "marks": 2,
@@ -1007,7 +1007,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-035",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -1038,7 +1038,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-036",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "B",
     "marks": 2,
@@ -1068,7 +1068,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-037",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "B",
     "marks": 2,
@@ -1100,7 +1100,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-038",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "B",
     "marks": 2,
@@ -1129,7 +1129,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-039",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "C",
     "marks": 3,
@@ -1158,7 +1158,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-040",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "C",
     "marks": 3,
@@ -1190,7 +1190,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-041",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "C",
     "marks": 3,
@@ -1226,7 +1226,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-042",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "E",
     "marks": 4,
@@ -1251,7 +1251,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-043",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirror Formula",
     "section": "D",
     "marks": 5,
@@ -1281,7 +1281,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-044",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "D",
     "marks": 5,
@@ -1311,7 +1311,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-045",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Laws of Reflection",
     "section": "A",
     "marks": 1,
@@ -1341,7 +1341,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-046",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "B",
     "marks": 2,
@@ -1369,7 +1369,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-047",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Spherical Mirrors",
     "section": "C",
     "marks": 3,
@@ -1397,7 +1397,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-048",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lens Formula",
     "section": "C",
     "marks": 3,
@@ -1429,7 +1429,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-049",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirrors",
     "section": "A",
     "marks": 1,
@@ -1450,7 +1450,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-050",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "A",
     "marks": 1,
@@ -1471,7 +1471,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-051",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lenses",
     "section": "A",
     "marks": 1,
@@ -1492,7 +1492,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-052",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirrors",
     "section": "A",
     "marks": 1,
@@ -1513,7 +1513,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-053",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lenses",
     "section": "A",
     "marks": 1,
@@ -1534,7 +1534,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-054",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "A",
     "marks": 1,
@@ -1555,7 +1555,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-055",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirrors",
     "section": "A",
     "marks": 1,
@@ -1576,7 +1576,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-056",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirrors",
     "section": "A",
     "marks": 1,
@@ -1597,7 +1597,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-057",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Refraction",
     "section": "A",
     "marks": 1,
@@ -1618,7 +1618,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-058",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lenses",
     "section": "A",
     "marks": 1,
@@ -1639,7 +1639,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-059",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Defects of Vision",
     "section": "A",
     "marks": 1,
@@ -1660,7 +1660,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-060",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Lenses",
     "section": "A",
     "marks": 1,
@@ -1681,7 +1681,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LT2-061",
     "subject": "Science",
-    "topicKey": "Light – Reflection and Refraction",
+    "topicKey": "light-reflection-and-refraction",
     "subtopic": "Mirrors",
     "section": "A",
     "marks": 1,

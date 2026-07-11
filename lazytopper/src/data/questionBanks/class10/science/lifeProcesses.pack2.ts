@@ -4,7 +4,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-001",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -34,7 +34,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-002",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -64,7 +64,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-003",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -94,7 +94,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-004",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "B",
     "marks": 2,
@@ -126,7 +126,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-005",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "B",
     "marks": 2,
@@ -150,7 +150,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-006",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "B",
     "marks": 2,
@@ -180,7 +180,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-007",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "C",
     "marks": 3,
@@ -211,7 +211,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-008",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
@@ -241,7 +241,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-009",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
@@ -271,7 +271,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-010",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
@@ -301,7 +301,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-011",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "B",
     "marks": 2,
@@ -332,7 +332,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-012",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "B",
     "marks": 2,
@@ -356,7 +356,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-013",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "B",
     "marks": 2,
@@ -386,7 +386,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-014",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "C",
     "marks": 3,
@@ -417,7 +417,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-015",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "A",
     "marks": 1,
@@ -448,7 +448,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-016",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "A",
     "marks": 1,
@@ -478,7 +478,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-017",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "B",
     "marks": 2,
@@ -503,7 +503,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-018",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "B",
     "marks": 2,
@@ -534,7 +534,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-019",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "B",
     "marks": 2,
@@ -565,7 +565,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-020",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "C",
     "marks": 3,
@@ -596,7 +596,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-021",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "A",
     "marks": 1,
@@ -627,7 +627,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-022",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "A",
     "marks": 1,
@@ -658,7 +658,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-023",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "E",
     "marks": 4,
@@ -684,7 +684,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-024",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "B",
     "marks": 2,
@@ -715,7 +715,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-025",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "C",
     "marks": 3,
@@ -744,7 +744,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-026",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "E",
     "marks": 4,
@@ -771,7 +771,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-054",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -801,7 +801,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-027",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -830,7 +830,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-028",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "B",
     "marks": 2,
@@ -853,7 +853,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-029",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "B",
     "marks": 2,
@@ -882,7 +882,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-030",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "B",
     "marks": 2,
@@ -911,7 +911,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-031",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "C",
     "marks": 3,
@@ -936,7 +936,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-032",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "C",
     "marks": 3,
@@ -966,7 +966,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-033",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
@@ -995,7 +995,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-035",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "B",
     "marks": 2,
@@ -1019,7 +1019,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-036",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "B",
     "marks": 2,
@@ -1049,7 +1049,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-037",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "C",
     "marks": 3,
@@ -1074,7 +1074,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-038",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "C",
     "marks": 3,
@@ -1104,7 +1104,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-039",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "A",
     "marks": 1,
@@ -1135,7 +1135,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-041",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "B",
     "marks": 2,
@@ -1159,7 +1159,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-042",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "B",
     "marks": 2,
@@ -1188,7 +1188,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-043",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "C",
     "marks": 3,
@@ -1218,7 +1218,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-044",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "C",
     "marks": 3,
@@ -1243,7 +1243,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-045",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "D",
     "marks": 5,
@@ -1273,7 +1273,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-046",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "A",
     "marks": 1,
@@ -1303,7 +1303,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-047",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "A",
     "marks": 1,
@@ -1333,7 +1333,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-048",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "B",
     "marks": 2,
@@ -1357,7 +1357,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-049",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "B",
     "marks": 2,
@@ -1387,7 +1387,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-050",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "C",
     "marks": 3,
@@ -1412,7 +1412,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-051",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "E",
     "marks": 4,
@@ -1437,7 +1437,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-052",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition, Respiration, Transportation",
     "section": "D",
     "marks": 5,
@@ -1468,7 +1468,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-053",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration, Transportation, Excretion",
     "section": "D",
     "marks": 5,
@@ -1499,7 +1499,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-059",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -1520,7 +1520,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-055",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Respiration",
     "section": "A",
     "marks": 1,
@@ -1541,7 +1541,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-056",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Nutrition",
     "section": "A",
     "marks": 1,
@@ -1562,7 +1562,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-057",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Transportation",
     "section": "A",
     "marks": 1,
@@ -1583,7 +1583,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "LP2-058",
     "subject": "Science",
-    "topicKey": "Life Processes",
+    "topicKey": "life-processes",
     "subtopic": "Excretion",
     "section": "D",
     "marks": 5,
