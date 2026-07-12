@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "./test/setup";
-import { BottomNav, isMobileSelfChromedRoute } from "./App";
+import { BottomNav, isMobileSelfChromedRoute, isBareFullScreenRoute } from "./App";
 
 afterEach(cleanup);
 
@@ -95,6 +95,14 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
     }
   });
 
+  it("returns null on /chapter-test (bare full-screen — no bottom nav during a test)", () => {
+    setMatchMediaMatches(false); // mobile
+    renderNav("/chapter-test/10/Maths/quadratic-equations");
+    for (const label of TABS) {
+      expect(screen.queryByText(label)).toBeNull();
+    }
+  });
+
   it("returns null on /welcome (visibility gate intact)", () => {
     setMatchMediaMatches(false);
     renderNav("/welcome");
@@ -121,5 +129,19 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
     expect(isMobileSelfChromedRoute("/exam-trends", false)).toBe(false);
     expect(isMobileSelfChromedRoute("/me", false)).toBe(false);
     expect(isMobileSelfChromedRoute("/", false)).toBe(false);
+  });
+});
+
+describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT)", () => {
+  it("is true for /chapter-test and its param routes (width-agnostic)", () => {
+    expect(isBareFullScreenRoute("/chapter-test")).toBe(true);
+    expect(isBareFullScreenRoute("/chapter-test/10/Maths/quadratic-equations")).toBe(true);
+  });
+
+  it("is false for other routes (including near-miss prefixes)", () => {
+    expect(isBareFullScreenRoute("/")).toBe(false);
+    expect(isBareFullScreenRoute("/practice-hub")).toBe(false);
+    expect(isBareFullScreenRoute("/chapter-tests")).toBe(false); // not the /chapter-test/ boundary
+    expect(isBareFullScreenRoute("/full-mock")).toBe(false); // reserved for later, not active yet
   });
 });
