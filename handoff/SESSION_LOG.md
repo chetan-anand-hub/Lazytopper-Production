@@ -1,5 +1,23 @@
 ---
 
+## 2026-07-12 -- #380: CT by-concept scorecard lens + bare full-screen (trunk `5bd148c`), owner-merged
+
+**Trunk after: `5bd148c` (#380).** Two owner-dispatched Chapter-Test fast-follows -- the pre-`MockViewGate`-flip work the #374 handoff named. Cofounder byte-reviewed clean; owner squash-merged; **no self-merge**. Cut AFTER #374 + its #379 handoff, off the re-derived trunk `ebc95d7`.
+
+**Part A -- by-CONCEPT lens [FU-CT-CONCEPT-LENS].** The CT full scorecard gains a subtopic-level lens BETWEEN the by-section (A-D) lens and the four-type MI (Full-Mock arrangement). New pure `deriveChapterTestConceptLens(response, questions)` in `scorecardVariants.ts` joins each graded question `qNumber -> paper questionId -> canonical subtopic`, aggregates awarded/total per subtopic, sorts by marks lost. Owner decision: show ALL resolved concepts (not loss-only). **Derive-don't-persist (D3):** computed at render, `sectionBreakdown` stays null, nothing written. Anti-fabrication: an unresolvable subtopic counts in the hero total but forms NO concept row (honest unknown); null when none resolve -> shell omits. `ResultsScorecard`'s `SectionLensBlock` generalized into a shared `LensBlock` (section output byte-identical); `canonicalQuestionBank` imported READ-ONLY.
+
+**Verified-against-code correction (Law 1).** The brief's `deriveChapterTestConceptLens(response)` can't work: `WorksheetQuestionGrade` (aiClient.ts) is keyed by `qNumber`, carrying NO `questionId`/`subtopic`, and the drawn `PersistedWorksheetQuestion` carries `id` but NOT `subtopic`. So the fn takes `(response, questions)` -- fed `paper.questions` (id-bearing) live, and `record.questionIds` (guarded 1:1 length, else omit) on stored reopen. Flagged to the owner before coding.
+
+**Part B/C -- bare full-screen CT [FU-CT-HEADER-UNIFORMITY], route-scoped.** New `isBareFullScreenRoute` in `App.tsx` suppresses the legacy dark header AND the mobile BottomNav on `/chapter-test` at both widths, via one helper. Owner authorized the BottomNav suppression (a 2nd App.tsx branch beyond the brief's "header-only") and chose chrome-less test over a global restyle. **Recon reframe:** the chrome was the NON-shell legacy navbar, not `DesktopShell` (byte-unchanged); and CT already renders a full-bleed `min-h-screen` surface, so no structural CT change was needed -- App.tsx suppression alone delivers full-screen.
+
+**Files (6; no sacred file touched except the authorized App.tsx):** M `App.tsx` (helper + header condition + BottomNav condition + one compute line -- no route table, no other branch), M (additive) `components/results/scorecardVariants.ts`, M `components/results/ResultsScorecard.tsx`, M `pages/ChapterTestPage.tsx` (+1 field), + tests `scorecardVariants.test.ts` + `App.bottomNav.test.tsx`. Byte-unchanged: grader/`checkSolution.cjs`, worksheet gen/grade, `sessionRecords`, `chapterTestBlueprint`, `worksheetSessionStore`, `DesktopShell.tsx`, `firestore.rules`, `src/data/**`.
+
+**Gates -- ALL GREEN.** tsc (`tsconfig.app.json`), mojibake, scope:guard `--mode product`, root `test:matrix:all` **181/181**, lazytopper `test:matrix:all` (incl. topickey runtime 7084/0-dup/0-orphan), `git diff --check`; CI **quality-gate PASS (1m38s)** + **lane-overlap PASS** + Vercel preview. STOP-for-owner-confirm honored before coding (the brief's own gate); no self-merge.
+
+**Closed:** [FU-CT-CONCEPT-LENS], [FU-CT-HEADER-UNIFORMITY]. **New open:** [FU-RETIRE-OLD-GLOBAL-HEADER] (product-wide legacy-header retirement -- deliberate, later). CT can be flipped live at `MockViewGate` at the owner's discretion. Report: `Desktop\diff\report-ct-concept-lens-fullscreen-2026-07-12.md`.
+
+---
+
 ## 2026-07-12 -- Chapter Test BUILT to the locked spec (#374 -> `e54ab8c`), owner live-verified
 
 **Trunk after: `e54ab8c` (#374).** The Chapter Test surface is built to `LazyTopper_ChapterTest_Design_Spec_LOCKED_2026-07-07` + mockup v4, owner live-verified (two-phase grading; `CT-{S}-{TOPIC}-{NN}`; navigator/timer/history working), behind `MockViewGate`. Cofounder byte-reviewed; owner squash-merged; **no self-merge**.

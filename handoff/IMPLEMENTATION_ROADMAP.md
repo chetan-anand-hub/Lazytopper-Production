@@ -2,6 +2,24 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-12 — CHAPTER TEST fast-follows MERGED (#380, `5bd148c`) — concept lens + bare full-screen
+
+The two pre-`MockViewGate`-flip fast-follows named by the #374 build are DONE:
+- **Part A — by-CONCEPT scorecard lens ([FU-CT-CONCEPT-LENS]).** `deriveChapterTestConceptLens(response, questions)`
+  joins each graded question `qNumber → paper questionId → canonical subtopic`, aggregates awarded/total per subtopic,
+  sorts by marks lost (ALL resolved concepts). Rendered between the A–D section lens and the four-type. Derived at
+  render, never persisted (`sectionBreakdown` null); honest-unknown; null when none resolve. The response carries
+  `qNumber` not `questionId`, so the fn takes the id-bearing questions as a 2nd arg.
+- **Part B/C — chrome-less full-screen CT ([FU-CT-HEADER-UNIFORMITY], route-scoped).** `isBareFullScreenRoute`
+  (App.tsx, owner-authorized bare-route exception) suppresses the legacy dark header + the mobile BottomNav on
+  `/chapter-test`, both widths. The chrome was the NON-shell legacy navbar, so `DesktopShell` is byte-unchanged; CT
+  already rendered a full-bleed `min-h-screen` surface.
+
+**Chapter Test is now section + concept + four-type on the scorecard and chrome-less full-screen — ready to flip live
+at `MockViewGate` at the owner's discretion.** New open [FU-RETIRE-OLD-GLOBAL-HEADER] (product-wide legacy-header
+retirement — deliberate, later). Next on the surface critical path: the **Full Mock rebuild** (reuses the CT
+scorecard-and-sheet + upload-grade + section/concept lens pattern) → **Me/Progress redesign** (arc PR-4).
+
 ## 2026-07-08 — PROGRESS-JOURNEY ARC · PR-3 (per-surface Worksheet history) MERGED (#344, `a4c3eec`)
 
 **Step 3 = the per-surface HISTORY section — DONE (#344).** `components/results/SurfaceHistory.tsx` renders the
