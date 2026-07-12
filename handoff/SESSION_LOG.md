@@ -1,5 +1,25 @@
 ---
 
+## 2026-07-12 -- #384 + #385: bank-expansion Batch 2 + 3 (trunk `ce34b3e`), owner-merged
+
+**Trunk after: `ce34b3e` (#385) on `63c6b04` (#384).** Two more bank-expansion batches, same orchestrator +
+file-disjoint subagents (extract + author + adversarial skeptic + gate runner) model; assembled bank 7,126 -> 7,262.
+
+- **#384 real-numbers CORRECTIVE (+12):** owner flagged Batch 1's A/B/C as under-extracted (10 from 2 files).
+  Corrective EXHAUSTIVE sweep across ALL sources (Content 11/13/14 + cbse-papers cbjemacq01/jeep201/Maths-Std)
+  with a per-source table → 13 net-new; skeptic dropped 2 structural twins → 11. Plus a D/E distinct-scenario
+  EXHAUSTION AUDIT (owner item): inventoried 27 real-numbers scarce methods, all covered except perfect-cube FTA
+  → authored 1. Proves the scarce ceiling ≈24 distinct methods (syllabus-bounded). 2 source items with WRONG
+  printed answers dropped (anti-fabrication).
+- **#385 life-processes (+136), first SCIENCE batch:** exhaustive sweep → 75 net-new A/B/C (per-source: cbjescco06
+  28 / cbjesccq06 21 / foundation-QB 21 / WS1 5 / practise 2; 100 cand → 77 → skeptic dropped 2 → 75). Scarce
+  distinct-authored: Section-D ×22 (→53), case-based ×39 (→54) — both CLEAR ≥50 without padding (rich reservoir
+  vs saturated real-numbers). 3 skeptics on all 139 → dropped LPX-A-015 (bad key), LPX-C-013 (redundant), LPSE-004
+  (out-of-scope). All gates + CI green each batch. Never self-merged.
+- **Exhaustive-sweep fix CONFIRMED:** 75 A/B/C (life-processes) vs 23 (real-numbers) = real reservoir depth, not
+  method. Per-source-table discipline now standing for every topic. New FIGURE-PENDING safeguard doctrine (see
+  CURRENT_STATE + lane-state); Batch 3's 2 diagram-flagged items classified ENRICHMENT (ship as-is).
+
 ## 2026-07-12 -- #381: bank-expansion Batch 1 -- real-numbers +30 (trunk `3866a94`), owner-merged
 
 **Trunk after: `3866a94` (#381).** Bank-expansion lane opened (Fable orchestrator + file-disjoint subagents: extract + author + adversarial skeptic + gate runner; worktree `LT-worktrees/bank-expansion`). Assembled bank **7,084 -> 7,114**; real-numbers 195 -> 225.

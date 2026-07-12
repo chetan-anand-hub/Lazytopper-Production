@@ -70,17 +70,34 @@ A fresh subagent independently re-solves every question, checks answer-consisten
 - Case-based (E) is the highest fabrication-risk category (authored scenarios, no owner content review) —
   student QA is load-bearing here; every id is manifested.
 
+## EXHAUSTIVE-SWEEP DISCIPLINE (standing, per owner — [FU-BANK-EXPANSION-SOURCE-SWEEP])
+Before concluding a net-new count for ANY topic, sweep ALL sources: the whole `Content\` folder (14 study-package
+folders; docx incl. TABLES, pdf) + all `diff\cbse-papers\` (Practise Papers, PYQ+MS pairs, Exemplar, chapter-wise
+online). Fingerprint every candidate vs the CURRENT bank; produce a MANDATORY per-source table
+(candidates / DUP / borderline / NET-NEW). Prove a low yield by exhaustion, never by sampling. Confirmed working:
+life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
+
+## FIGURE-PENDING SAFEGUARD (standing, per owner — [FU-FIGURE-PENDING-SAFEGUARD])
+- Un-answerable-without-a-PROVIDED-figure ("identify structure X") ⇒ ship the real figure (Bucket A extraction
+  preferred; B/C only if skeptic-verified to match) OR add id to `WITHHELD_QUESTION_IDS`. Never ship answer-less.
+- Text-answerable + figure-enriched ⇒ may ship now; figure is a later enhancement.
+### Running figure-pending list (classify each; none silently forgotten)
+| id | topic | question | bucket | action |
+|---|---|---|---|---|
+| LPSD-009 | life-processes | describe air passage + alveolar adaptation | ENRICHMENT (text-answerable) | reference figure later |
+| LPSD-018 | life-processes | "draw a labelled diagram of the heart" + describe | ENRICHMENT (student-produced diagram) | reference figure later |
+
 ## Batch queue status
-- **Batch 1 — real-numbers: PR #381 OPEN** (awaiting owner merge; never self-merge — `src/data` CODEOWNERS).
-  195→225 (+30): extract A×4/B×4/C×2 (10) + authored D×6/proof×2/case×12 (20). Honest-stop: case ≈25,
-  D ≈21 (chapter saturated). Skeptic dropped 3; all gates green. Manifest: docs/bank-expansion-review-queue.md.
-- **Next batches** (Maths, then Science): per topic, one PR. Method now proven — extract-max A/B/C, then
-  distinct-author scarce D/E/proofs with skeptic + my gate + assembled-bank runtime proof. Science topics have
-  a much larger extraction reservoir (Pass-1: life-processes 226, our-environment 172, reproduce 146, etc.) so
-  their A/B/C extract-max yield will dwarf real-numbers' 10; their scarce-band authoring headroom is also larger.
-- **Tooling (scratchpad, reusable):** gate.mjs (dedup vs 7,084 + mechanical), rewrite.mjs (drop rejected ids),
-  AUTHORING_SPEC.md, the assembled-bank runtime proof one-liner. assembled_bank_dump.json must be regenerated
-  after each merge (bank grows) so dedup stays against the CURRENT bank.
+- **Batch 1 — real-numbers +30: MERGED #381 (`3866a94`), docs #383 (`c4c7032`).** extract 10 + authored 20.
+- **Batch 2 — real-numbers corrective +12: MERGED #384 (`63c6b04`).** Exhaustive re-sweep 11 + perfect-cube D 1.
+  Real-numbers A/B/C reservoir proven ≈23 net-new by exhaustion; scarce ceiling ≈24 distinct methods (audit).
+- **Batch 3 — life-processes +136: MERGED #385 (`ce34b3e`).** extract-max 75 A/B/C + scarce D×22 (→53) + case×39 (→54).
+- **Bank now = 7,262.** This bundled docs handoff covers #384 + #385.
+- **NEXT: another Science topic** (our-environment / how-do-organisms-reproduce — large reservoirs). Same
+  exhaustive per-source sweep + table; extract-max A/B/C; ≥50-distinct D/E/proofs with honest-stop + inventory.
+- **Tooling (scratchpad, reusable):** gate.mjs (dedup + mechanical), rewrite.mjs (drop rejected ids),
+  AUTHORING_SPEC.md, dump_batch*.mjs (regenerate the bank dump vs CURRENT bank after each merge — dedup must be
+  vs the latest), the assembled-bank runtime proof one-liner. **Regenerate the dump before each new topic.**
 
 ## Follow-ups opened this batch
 - [FU-EXTRACT-CONTENT-F13] — Content-folder "Question Bank" (folder 13) real-numbers file not swept; small
@@ -89,6 +106,9 @@ A fresh subagent independently re-solves every question, checks answer-consisten
   groups PRE-EXISTING (not from this batch; my 30 contribute 0). Data-quality cleanup candidate, separate lane.
 
 ## Progress log (newest first)
+- 2026-07-12: Batch 3 (life-processes) MERGED #385 — first Science batch, +136, exhaustive-sweep fix confirmed
+  (75 A/B/C vs 23). Batch 2 (real-numbers corrective) MERGED #384 — exhaustive re-sweep + D/E exhaustion audit.
+  Bundled docs handoff (#384+#385) done. Figure-pending safeguard doctrine adopted.
 - 2026-07-12: Batch 1 (real-numbers) COMPLETE → PR #381. Floor policy corrected mid-batch to band-scarcity
   (owner). Authored-to-flat-floor packs discarded; re-did as extract-max A/B/C + distinct-author scarce D/E/proofs.
 - 2026-07-12: Lane opened. Worktree `LT-worktrees/bank-expansion`. Census + gap table + gate tooling built.
