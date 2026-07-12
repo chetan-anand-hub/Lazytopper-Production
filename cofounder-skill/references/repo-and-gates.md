@@ -70,6 +70,17 @@ real round-trip, ratifying a scope/pedagogy call. Automation PREPARES a merge to
 - **CODEOWNERS enforces gated lanes** (`src/data/**`, forbidden files, `cofounder-skill/**`) — a prose rule that
   isn't a gate eventually gets missed.
 
+- **PER-PR HANDOFF RULE — every merged PR is IMMEDIATELY followed by a handoff update in the SAME work session**
+  (no batching, no "later"). Prepend a newest-first entry to `handoff/CURRENT_STATE.md` + `handoff/SESSION_LOG.md`,
+  update `handoff/SURFACE_TRACKER.md` if a surface moved, add/resolve FUs in `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`,
+  and **record the merged SHA in `CURRENT_STATE`** — the machine `ledger/MERGE_LEDGER.md` auto-append is
+  SUMMARY-ONLY (`[FU-STATE-BOARD-SUMMARY-ONLY]`: `github-actions[bot]` can't be added to the ruleset bypass, so
+  it can't push to trunk), so the human narrative is the AUTHORITATIVE merge record. The handoff PR is SEPARATE
+  from the product PR (§8) and self-merge-eligible (§6a). **Why this is a rule, not a nicety:** the multi-PR
+  catch-up backlog that required a dedicated reconstruction task (#377 — docs stale from #364 through #375) is the
+  exact failure mode this prevents; a stale handoff forces a future agent to re-derive the merge history from
+  `git log`, which is avoidable waste.
+
 - **DIRECT PUSH TO TRUNK — scope (owner only, via the ruleset bypass).** The owner (Repository admin, on the
   ruleset bypass list) may push straight to trunk, skipping the PR gate, ONLY when ALL hold: (a) it's the OWNER,
   not an agent — agent output ALWAYS goes through a PR + byte-review, regardless of size; (b) it's docs/handoff/
