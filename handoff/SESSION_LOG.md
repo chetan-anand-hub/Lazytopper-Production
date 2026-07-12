@@ -1,5 +1,14 @@
 ---
 
+## 2026-07-12 -- #381: bank-expansion Batch 1 -- real-numbers +30 (trunk `3866a94`), owner-merged
+
+**Trunk after: `3866a94` (#381).** Bank-expansion lane opened (Fable orchestrator + file-disjoint subagents: extract + author + adversarial skeptic + gate runner; worktree `LT-worktrees/bank-expansion`). Assembled bank **7,084 -> 7,114**; real-numbers 195 -> 225.
+
+- **Floor policy corrected mid-batch to BAND-SCARCITY** (owner): A/B/C extract-max (no floor); scarce E/D/proofs floor >=50 GENUINELY DISTINCT + honest-stop + hard anti-redundancy. Trigger: authoring real-numbers to a flat >=50 produced 15 outright bank-dups + many number-swaps -> a flat floor forces redundancy on saturated thin chapters.
+- **Delivered:** 10 extract A/B/C (cbjemacq01 + jeep201; deduped vs 7,084 -- 5 dup + 5 borderline + ~40 banned Euclid/decimal dropped) + 8 scarce-D (6 long + 2 distinct proofs) + 12 distinct case-based. Skeptic dropped 3 (out-of-syllabus 3-number gcd-lcm identity; 2 redundant seeds). All gates + CI green. Honest-stop: case ~25, long ~21.
+- **Never self-merged** (`src/data` CODEOWNERS); owner merged. Manifest `docs/bank-expansion-review-queue.md`; surfaces GATED until student QA.
+- **CORRECTION for all future batches:** A/B/C extract-max must EXHAUSTIVELY sweep ALL sources (whole Content folder incl. docx tables + all of diff\cbse-papers: Practise Papers, PYQ+MS pairs, Exemplar, chapter-wise online) with a per-source table -- "10 from 2 files" is not extract-max. `[FU-BANK-EXPANSION-SOURCE-SWEEP]`. Corrective real-numbers re-sweep queued.
+
 ## 2026-07-12 -- #380: CT by-concept scorecard lens + bare full-screen (trunk `5bd148c`), owner-merged
 
 **Trunk after: `5bd148c` (#380).** Two owner-dispatched Chapter-Test fast-follows -- the pre-`MockViewGate`-flip work the #374 handoff named. Cofounder byte-reviewed clean; owner squash-merged; **no self-merge**. Cut AFTER #374 + its #379 handoff, off the re-derived trunk `ebc95d7`.
