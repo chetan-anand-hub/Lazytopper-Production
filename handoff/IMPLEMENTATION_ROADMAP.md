@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — FT FINALIZE MERGED (#391, `25257c0`) — Full Test linked + cross-device upload-later
+
+The Full Mock / Full Test surface work opened by #387 is COMPLETE:
+- **[FU-FM-HUB-ENTRY]** — practice-hub "Full Test" card (locked copy, PLAIN navigation — MockViewGate on the route
+  is the ONLY gate) + DesktopHome per-subject tiles + the MI-panel link; every old-engine entry retired (the
+  /exam-simulation card, the circular un-routed /mock-builder "Practice Paper" card, and a third discovered dead
+  link on Home's mistake-strip). Executable RTL nav proof shipped (`DesktopPracticePage.fullTestNav.test.tsx` —
+  both subjects, both widths, no second gate).
+- **[FU-FM-CROSS-DEVICE-UPLOAD]** — `services/fullMockPaperStore.ts` text-only paper snapshot (never the answer
+  image or typed answers) under `sessionRecords/{uid}/fullMockPapers/{code}` (existing recursive rule —
+  firestore.rules byte-untouched); fetch + re-seed on pending re-open (also cures localStorage eviction); the
+  verbatim "sat on another device" fallback stays for true misses.
+- Cosmetics closed: [FU-TOPIC-DISPLAY-TITLECASE] + [FU-SCORECARD-STALE-HEADER-COMMENTS].
+
+**Surface critical path now: the Me/Progress redesign (arc PR-4)** — CT + FM are both built, linked and behind
+`MockViewGate` for the owner's flip (owner live-verify on the stable link = the FM Verified cell). Parallel lanes:
+bank expansion (next Science topic), [FU-CT-BALANCED-MIX] (CT lane), new [FU-RETIRE-EXAM-SIMULATION-LINKS] +
+[FU-VITEST-PREEXISTING-FAILURES].
+
 ## 2026-07-12 — CHAPTER TEST fast-follows MERGED (#380, `5bd148c`) — concept lens + bare full-screen
 
 The two pre-`MockViewGate`-flip fast-follows named by the #374 build are DONE:
