@@ -1,3 +1,22 @@
+## 2026-07-12 -- #384 + #385: bank-expansion Batch 2 + 3 MERGED (trunk `ce34b3e`)
+
+### NEW (open)
+- **[FU-FIGURE-PENDING-SAFEGUARD] (standing doctrine).** A question un-answerable without a PROVIDED figure
+  ("label the parts", "identify structure X") must NOT ship answer-less — ship the real figure (notes toolkit,
+  Bucket A extraction preferred; B/C only if skeptic-verified to match) or add its id to `WITHHELD_QUESTION_IDS`
+  until the figure lands. A TEXT-answerable question merely enriched by a figure may ship. Maintain a running
+  figure-pending list in `handoff/BANK_EXPANSION_LANE_STATE.md`. **Batch 3's 2 flagged items classified
+  ENRICHMENT** (LPSD-009 respiratory: describe-in-words; LPSD-018 heart: "draw a labelled diagram" is
+  student-produced, not provided-figure-dependent) → both ship as-is, reference figure a later enhancement.
+- **[FU-BANK-EXPANSION-SOURCE-SWEEP] — WORKING/confirmed.** Per-source exhaustive sweep + table is now standing
+  for every batch (Batch 2 corrected real-numbers; Batch 3 life-processes proved reservoir depth 75 vs 23).
+- **[FU-BANK-EXPANSION-RESWEEP-REALNUMBERS] — CLOSED by #384.** Corrective sweep done; real-numbers A/B/C reservoir
+  proven ≈23 net-new by exhaustion (chapter saturated). Scarce ceiling ≈24 distinct methods (audit in #384).
+
+### Carried from Batch 1
+- **[FU-EXTRACT-CONTENT-F13]** — folded into the standing source-sweep discipline (Content folder 13 now swept per topic).
+- **[FU-BANK-EXACTNORM-DUPS]** — ~114 PRE-EXISTING exact-norm dup groups in the bank (batches contribute 0); data-quality cleanup, separate lane.
+
 ## 2026-07-12 -- #381: bank-expansion Batch 1 MERGED (trunk `3866a94`)
 
 ### NEW (open)

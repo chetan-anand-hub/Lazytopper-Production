@@ -1,6 +1,18 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #381 merged -- bank-expansion Batch 1 (real-numbers +30) -- trunk `3866a94`
+## [CURRENT] #384 + #385 merged -- bank-expansion Batch 2 + 3 -- trunk `ce34b3e`
+
+**Post-merge code trunk: `ce34b3e` (squash of #385), on top of #384 `63c6b04`.** Re-derive the tip after this docs PR merges.
+
+**Bank-expansion lane — 3 batches shipped. Assembled bank 7,084 -> 7,262.**
+- **#384 (`63c6b04`) — Batch 2, real-numbers CORRECTIVE +12** (225 -> 237). Fixed Batch 1's A/B/C under-extraction: an EXHAUSTIVE per-source re-sweep (11 kept; 2 wrong-answer source items dropped) + a D/E distinct-scenario EXHAUSTION AUDIT that inventoried 27 methods and proved the real-numbers scarce ceiling is ~24 distinct method-classes (only perfect-cube FTA was missing → authored). real-numbers scarce bands genuinely cap below 50 by syllabus (no Euclid/decimal/CRT) — honest ceiling, not a shortfall.
+- **#385 (`ce34b3e`) — Batch 3, life-processes +136** (354 -> 490; first SCIENCE batch). **Confirms the exhaustive-sweep fix works:** extract-max yielded 75 net-new A/B/C vs saturated real-numbers' ~23 (real reservoir depth). Scarce bands CLEAR the ≥50 distinct floor without padding: Section-D 31→53 (22 authored), case-based 15→54 (39 authored). 3 adversarial skeptics re-solved all 139 → 137 pass, 3 dropped.
+- **STANDING DISCIPLINE [FU-BANK-EXPANSION-SOURCE-SWEEP]:** every batch EXHAUSTIVELY sweeps ALL sources (whole Content folder + all `diff\cbse-papers`) with a per-source candidate/DUP/borderline/NET-NEW table before concluding a count. Band-scarcity floor: A/B/C extract-max (no floor); scarce E/D/proofs ≥50 GENUINELY DISTINCT + honest-stop.
+- **Manifest for trusted-student QA:** `docs/bank-expansion-review-queue.md` (all 178 ids across the 3 batches). **Surfaces stay GATED until student QA.** Provenance: authored → `AI_GENERATED_PACK_SOURCES`; extracted (reconstructed solutions) → `AI_GENERATED_SOLUTION_IDS`.
+- **FIGURE-PENDING SAFEGUARD (new doctrine):** a question un-answerable without a PROVIDED figure ("identify structure X") must NOT ship answer-less → ship the real figure or add to `WITHHELD_QUESTION_IDS`. Text-answerable + figure-enriched may ship. Running figure-pending list in `handoff/BANK_EXPANSION_LANE_STATE.md`. Batch 3's 2 flagged items (LPSD-009 respiratory, LPSD-018 heart) classified ENRICHMENT (text-answerable; "draw a labelled diagram" is student-produced, not provided-figure-dependent) — ship as-is, reference figure later.
+- **Lane state:** `handoff/BANK_EXPANSION_LANE_STATE.md`. **NEXT:** another Science topic (our-environment / how-do-organisms-reproduce — large reservoirs) with the same exhaustive per-source-table discipline.
+
+## #381 merged -- bank-expansion Batch 1 (real-numbers +30) -- trunk `3866a94`
 
 **Post-merge code trunk: `3866a94` (squash of #381), on top of #380 `5bd148c`.** Re-derive the tip after this docs PR merges.
 
