@@ -1,3 +1,25 @@
+## 2026-07-12 -- #381: bank-expansion Batch 1 MERGED (trunk `3866a94`)
+
+### NEW (open)
+- **[FU-BANK-EXPANSION-SOURCE-SWEEP] (standing discipline for every future batch).** Batch 1 A/B/C was
+  UNDER-EXTRACTED -- it pulled net-new from only TWO files (cbjemacq01 + jeep201 -> 10 net-new), which is NOT
+  extract-max. For EVERY topic from now on, before concluding a net-new count, EXHAUSTIVELY sweep ALL sources:
+  the whole `Content\` folder (all 14 study-package folders -- docx incl. TABLES, pdf, pptx) AND all of
+  `diff\cbse-papers\` (CBSE Practise Papers [Maths Std 234pp / Science 321pp], PYQ+MS pairs, NCERT Exemplar,
+  chapter-wise online MCQ + Previous-year, "together with"). Fingerprint every candidate vs the current 7,114+
+  bank; extract every genuine net-new (differs in more than numbers). MANDATORY per-topic report: the sources
+  SWEPT + per-source counts (candidates / DUP / borderline / NET-NEW). A saturated topic may still yield few --
+  but PROVE it by exhaustion + the per-source table, never by sampling 2 files.
+- **[FU-BANK-EXPANSION-RESWEEP-REALNUMBERS]** -- Batch 1 under-swept real-numbers A/B/C; do a corrective pass
+  across ALL sources and open the missed net-new as a small follow-up batch, with the per-source table.
+- **[FU-DBAND-DISTINCT-CEILING]** -- before honest-stopping a scarce band below 50, EXHAUST the distinct-scenario
+  space and report the distinct-method inventory + WHY it caps (Batch 1 stopped at case ~25 / long ~21; verify
+  that IS the ceiling by inventorying every distinct method tried, not a soft stop).
+- **[FU-EXTRACT-CONTENT-F13]** -- Content "Question Bank" (folder 13) not swept in Batch 1 (folded into the
+  source-sweep discipline above).
+- **[FU-BANK-EXACTNORM-DUPS]** -- the assembled bank has ~114 PRE-EXISTING exact-normalized-questionText dup
+  groups (not from Batch 1; the +30 contribute 0). Data-quality cleanup candidate, separate lane.
+
 ## 2026-07-12 -- #380: CT concept-lens + bare full-screen MERGED (trunk `5bd148c`)
 
 ### CLOSED by #380

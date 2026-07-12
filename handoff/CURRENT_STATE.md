@@ -1,6 +1,16 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #380 merged -- CT is full-screen distraction-free + the scorecard derives a by-CONCEPT lens -- trunk `5bd148c`
+## [CURRENT] #381 merged -- bank-expansion Batch 1 (real-numbers +30) -- trunk `3866a94`
+
+**Post-merge code trunk: `3866a94` (squash of #381), on top of #380 `5bd148c`.** Re-derive the tip after this docs PR merges.
+
+**Bank-expansion lane OPENED + Batch 1 shipped.** Assembled bank **7,084 -> 7,114** (real-numbers 195 -> 225).
+- **Band-scarcity floor is ACTIVE** (owner-set, replaced the original flat >=50): Sections A/B/C = EXTRACT-MAX (no floor); scarce categories (Section E case-based, Section D long, PROOF-type) = floor >=50 GENUINELY DISTINCT with HONEST STOP + hard anti-redundancy (distinct differs in more than numbers). Flat floor forces redundancy on saturated chapters (proven in Batch 1: 15 authored real-numbers items were outright bank-dups).
+- **Batch 1 = real-numbers +30:** 10 extract A/B/C (authentic questions, solutions decoupled -> pending QA) + 8 scarce-D (6 long + 2 proofs) + 12 scarce-E case-based. Skeptic re-solved all 33, dropped 3; my gate + assembled runtime proof (7114/0-dup/0-orphan/26-of-26) + root matrix 181/181 + ops matrix + mojibake + scope:guard all green; CI (quality-gate + lane-overlap) green. Honest-stop: case ~25, long ~21 (chapter saturated).
+- **Manifest for trusted-student QA:** `docs/bank-expansion-review-queue.md` (30 ids). **Surfaces stay GATED until student QA.** Provenance: authored -> `AI_GENERATED_PACK_SOURCES`; extract solutions -> `AI_GENERATED_SOLUTION_IDS`.
+- **Lane state:** `handoff/BANK_EXPANSION_LANE_STATE.md`. **CORRECTION carried forward:** Batch 1 A/B/C was UNDER-EXTRACTED (only 2 source files). Every future batch MUST exhaustively sweep ALL sources (whole Content folder + all of diff\cbse-papers) with a per-source candidate/DUP/borderline/NET-NEW table before concluding a net-new count. `[FU-BANK-EXPANSION-SOURCE-SWEEP]`. A corrective real-numbers A/B/C re-sweep is queued as a small follow-up batch.
+
+## #380 merged -- CT is full-screen distraction-free + the scorecard derives a by-CONCEPT lens -- trunk `5bd148c`
 
 **Post-merge code trunk: `5bd148c` (squash of #380), on top of #374 `e54ab8c`.** Two owner-dispatched Chapter-Test fast-follows shipped (byte-review clean, owner-merged, no self-merge). Re-derive the tip after this docs PR merges.
 
