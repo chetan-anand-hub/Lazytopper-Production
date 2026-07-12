@@ -1,7 +1,11 @@
 # CONTENT_LANE_STATE.md — Fable notes-orchestrator handoff
 
 **Written:** 2026-07-11 · **Lane:** notes generation (the ~30-chapter NCERT note fan-out).
-**Trunk at handoff:** `308be871` (re-derive before you start — it moves: `git rev-parse origin/base/approved-thru-437`).
+**Trunk at handoff:** `cbc561c` (re-derive before you start — it moves: `git rev-parse origin/base/approved-thru-437`).
+**STATUS: the fan-out is COMPLETE — all 26 chapters specced; all auditor-PASS.** Batches 1–4 MERGED
+(#365/#368/#370/#371, each auditor-PASS). Batch 5 (#372) is all-4-chapters auditor-PASS and
+owner-mergeable (heredity was REJECTed on one within-syllabus genetics line, fixed, and re-audited PASS).
+Nothing left to author or verify — the only remaining step is the owner merging #372.
 **Why this file exists:** a FRESH orchestrator resumes the notes lane from here. Operate per
 `AGENT_FABLE_notes_orchestrator_2026-07-11.md` (delegate all NCERT reads to subagents; keep your own
 context lean; enforce the six-gate stack; internal skeptic; never self-merge; every batch goes to a FRESH
@@ -28,31 +32,30 @@ as the golden-regression gate after ANY gate-script change. Always run gates wit
 - **Batch 2 (#368):** real-numbers, polynomials, human-eye-and-colourful-world, acids-bases-and-salts,
   how-do-organisms-reproduce, metals-and-non-metals. Auditor PASS; both gate changes validated.
 
-## IN FLIGHT — Batch 3 (branch `feat/notes-batch3`, 6 chapters, readers dispatched)
-carbon-and-its-compounds (chem), control-and-coordination (bio), pair-of-linear-equations (maths),
-arithmetic-progression (maths), triangles (maths), coordinate-geometry (maths).
-Process per chapter: reader authors spec+figures → orchestrator re-runs all 3 gates → adversarial SKEPTIC
-(separate instance) → fix any skeptic finding → when all green, batch PR + verification report → FRESH
-independent auditor. If you inherit mid-batch: check `notes/specs/` in the worktree for which specs exist,
-re-run the 3 gates on each, and dispatch skeptics for any not yet skeptic-verified.
+- **Batch 3 (#370):** carbon-and-its-compounds, control-and-coordination, pair-of-linear-equations,
+  arithmetic-progression, triangles, coordinate-geometry. Auditor PASS.
 
-## REMAINING AFTER BATCH 3 (9 chapters → ~2 batches)
-- **Batch 4 (maths, ~5):** trigonometry (ch8, jemh108), circles (ch10, jemh110),
-  areas-related-to-circles (ch11, jemh111), surface-areas-and-volumes (ch12, jemh112),
-  statistics (ch13, jemh113).
-- **Batch 5 (final, ~4):** probability (ch14, jemh114), our-environment (ch13 sci, jesc113), and the TWO
-  trimmed chapters (below).
+## THE FAN-OUT IS COMPLETE — all 26 chapters specced, all auditor-PASS
+- **Batch 4 (PR #371, MERGED, auditor PASS):** trigonometry, circles, areas-related-to-circles,
+  surface-areas-and-volumes, statistics. On trunk.
+- **Batch 5 (PR #372, all-4 auditor-PASS, owner-mergeable):** probability, our-environment,
+  heredity (evolution-trimmed), magnetic-effects-of-electric-current (motor/generator-trimmed).
+  The two trimmed chapters' deleted-content boundaries passed the independent auditor's own greps + source
+  checks clean. Heredity was REJECTed on ONE within-syllabus genetics line (concepts[c3] named the PARENTAL
+  phenotypes as the F2 "new combinations" for the RRyy×rrYY cross — a semantic error no static gate catches);
+  fixed to the true recombinants (round-yellow & wrinkled-green, matching the example/formula_strip/Fig 8.5),
+  re-verified VALID, re-audited PASS. PR #372 is marked ready, CLEAN, MERGEABLE.
+- **Nothing left to author or verify — the only remaining step is the owner merging #372.** If you inherit
+  here and #372 is already merged, the notes lane is fully closed (26/26 on trunk).
 
-## TWO CHAPTERS NEED EXTRA SYLLABUS-TRIMMING CARE (owner directive — call them out at the TOP of their
-   batch's verification report so the auditor scrutinises them first):
-- **heredity** (slug `heredity`, NOT `heredity-and-evolution`; ch8 science, jesc108). CBSE DELETED the
-  evolution half. Keep OUT everything downstream of heredity/inheritance: Darwin/natural selection,
-  speciation, "basis for evolution," homologous/analogous/vestigial ORGANS, fossils, evolution-by-stages.
-  When a verbatim's NCERT sentence continues into evolution content, TRUNCATE before it (the reproduction
-  spec already did this with "basis for evolution" — that's the pattern). Re-read syllabusGuard.ts LIVE.
-- **magnetic-effects-of-electric-current** (slug `magnetic-effects-of-electric-current`; ch12 sci,
-  jesc112). Deletions here too (electric motor/generator details; Fleming's-rule scope varies). Re-read the
-  guard LIVE for THIS chapter and honour its banned list exactly; do NOT carry full-chapter NCERT unfiltered.
+## HOW THE TWO TRIMMED CHAPTERS WERE HANDLED (reference, now done)
+- **heredity** (`heredity`, ch8 jesc108): the 2026-27 PDF is already titled just "Heredity" (evolution half
+  deleted). def_heredity/def_inheritance_rules were drawn from the SAFE upper part of p.129 to avoid the
+  §8.1 evolution-bridge sentence at that page's bottom; Fig 8.1 (evolution tree) not used; zero evolution
+  matches by grep.
+- **magnetic-effects-of-electric-current** (ch12 jesc112): Fleming's-left-hand-rule verbatim TRUNCATED before
+  the deleted "electric motor, electric generator…" sentence; only Fleming's LEFT-hand rule; zero
+  motor/generator/induction matches by grep (only the in-syllabus "electromagnet").
 
 ## PER-CHAPTER BANNED EXCLUSIONS ALREADY KNOWN (maths, from syllabusGuard SURFACE_BANNED_PHRASES)
 trigonometry → "Trigonometric Ratios of Complementary Angles"; surface-areas-and-volumes → "Frustum of a

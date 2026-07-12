@@ -1,3 +1,21 @@
+## 2026-07-12 -- Notes fan-out COMPLETE + NCERT click-through LIVE; ledger-cites PR #376 in review (#364 -> #376)
+
+### RESOLVED
+- **[FU-NOTES-NCERT-PDF-HOSTING] -> RESOLVED.** The 26 NCERT chapter PDFs are hosted at Firebase Storage `ncert/{subject}/ch{N}.pdf` (bucket `lazzyy-topper.firebasestorage.app`); the `ncert/` public-read Storage rule is published; bucket CORS is set (origin `*`, GET/HEAD). With the #375 per-chapter offset map (`ncertPdfOffsets.ts`) live, the note's `p.N` cite opens the correct printed page -- owner-verified (Trigonometry p.114, Heredity p.129). Copyright: owner confirmed NCERT is publicly available.
+- **[FU-CHEMISTRY-EXEMPLAR-WIRE] -> RESOLVED.** Chemistry chapters gate on the merged Chemical Reactions exemplar (#365); the conformance mapping was wired at #368 (floors 5/3/1/1/2 -> 7/4/3/2/3).
+- **[FU-SOLO-OWNER-APPROVAL] -> RESOLVED (by design).** The trunk ruleset sets **required approvals = 0** deliberately: GitHub forbids a PR author from approving their own PR, and the owner is the sole code-owner AND the author, so any >0 requirement would hard-block every merge. Mechanical checks (`quality-gate` + `lane-overlap`, required) + the independent auditor carry the review load. **Do NOT re-enable approvals.**
+- **[FU-COORD-LEDGER-IN-HANDOFF] -> RESOLVED.** The machine merge ledger was relocated out of `handoff/` to `ledger/MERGE_LEDGER.md` (machine-only, do NOT hand-edit).
+
+### NEW FOLLOW-UPS
+- **[FU-LEDGER-CLICKABLE-CITES]** -- Part A of this task, **PR #376 IN REVIEW** (not self-merged). The Source-Ledger table's `p.N` is now clickable, reusing the body cites' `CiteLine`/`NcertPageModal` path (new `LedgerSource` in `Note.tsx`). Anti-fabrication: links ONLY a real in-this-chapter NCERT page; 470/474 rows clickable, 4 correctly stay plain (3 figure-only refs + 1 non-NCERT PYQ); page ranges (`pp.8-9`) link to the first page; display byte-unchanged. No spec/schema/grader change; `validate_spec.py --all` VALID.
+- **[FU-STATE-BOARD-SUMMARY-ONLY]** -- `github-actions[bot]` cannot be added to the ruleset bypass list, so the state-board workflow cannot push to trunk; `ledger/MERGE_LEDGER.md` auto-append is therefore **summary-only**. Harmless -- the human narrative (`CURRENT_STATE.md` / `SESSION_LOG.md`) carries the merge record (SHAs #364 -> #375 logged there). Revisit only if GitHub exposes the Actions actor for the bypass list.
+
+### STILL OPEN (carried)
+- **[FU-HANDOFF-DOC-DRIFT]** (from #363) -- still owed. This catch-up PR prepends accurate #364 -> #376 records to `CURRENT_STATE` / `SESSION_LOG` / `OPEN_QUESTIONS` / `SURFACE_TRACKER` and refreshes `NEXT_ACTION`'s pointer, but does NOT rewrite the drifted bodies below (or the pre-existing mojibake in `CURRENT_STATE` line 1). A dedicated docs-hygiene pass is still owed.
+- **Content lane depth-floor** -- PENDING Pass-2 of the bank-extraction audit (Content-folder survey + all mark-bands). Case-based is an AUTHORING lane (Z3), not extraction.
+
+---
+
 ## 2026-07-11 -- P0 Topic-Key Root Cure REBUILD merged (#363, `6ecf15f`)
 
 ### RESOLVED (closed by #363)

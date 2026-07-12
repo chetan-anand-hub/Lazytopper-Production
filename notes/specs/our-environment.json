@@ -1,0 +1,547 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "topic_key": "our-environment",
+    "subject": "biology",
+    "chapter_no": 13,
+    "title": "Our Environment",
+    "weightage": "medium",
+    "third_tab": {
+      "label": "Diagrams",
+      "kind": "diagrams"
+    },
+    "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 13"
+  },
+  "board_asks": "define-and-distinguish the components of an ecosystem (biotic vs abiotic; producers, consumers, decomposers), read food chains and food webs and name their trophic levels, apply the 10% law of energy flow (and explain why food chains have only three or four steps), explain biological magnification, describe the ozone layer and how CFCs deplete it, and separate biodegradable from non-biodegradable waste with their effects - a short but high-yield Unit V chapter examined mostly through 2-3 mark reasoning and one assertion-reason or case item.",
+  "big_idea": {
+    "tagline": "Everything is linked - energy flows one way, matter cycles, and what we dump comes back to us.",
+    "body": "An ecosystem is living organisms plus their non-living surroundings interacting as one balanced unit. Energy from the Sun enters through green producers and passes up the food chain, but only about a tenth carries over at each step, so food chains stay short. The same chains carry our mistakes upward - non-degradable pesticides concentrate in the top consumer (us), CFCs thin the protective ozone layer, and non-biodegradable waste piles up. Most marks here reward clear reasoning and the exact NCERT terms, not long descriptions."
+  },
+  "definitions": [
+    {
+      "id": "def_ecosystem",
+      "tier": "headline",
+      "term": "Ecosystem",
+      "verbatim": "All the interacting organisms in an area together with the non-living constituents of the environment form an ecosystem. Thus, an ecosystem consists of biotic components comprising living organisms and abiotic components comprising physical factors like temperature, rainfall, wind, soil and minerals.",
+      "plain": "A community of living things (biotic) plus their non-living surroundings (abiotic) interacting as one balanced unit - a garden, forest, pond or aquarium.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 208,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_producers",
+      "tier": "headline",
+      "term": "Producers",
+      "verbatim": "All green plants and certain bacteria which can produce food by photosynthesis come under this category and are called the producers.",
+      "plain": "Green plants and some bacteria that make their own food by photosynthesis - the first link that brings energy into every food chain.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 209,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_consumers",
+      "tier": "headline",
+      "term": "Consumers",
+      "verbatim": "These organisms which consume the food produced, either directly from producers or indirectly by feeding on other consumers are the consumers.",
+      "plain": "Organisms that cannot make their own food and instead eat producers or other consumers - classed as herbivores, carnivores, omnivores and parasites.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 209,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_decomposers",
+      "tier": "headline",
+      "term": "Decomposers",
+      "verbatim": "These microorganisms are the decomposers as they break-down the complex organic substances into simple inorganic substances that go into the soil and are used up once more by the plants.",
+      "plain": "Bacteria and fungi that break down dead remains and wastes into simple substances returned to the soil, so nutrients are recycled to the producers.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 209,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_trophic_level",
+      "tier": "headline",
+      "term": "Trophic level",
+      "verbatim": "Each step or level of the food chain forms a trophic level.",
+      "plain": "Each feeding step of a food chain - producers are the first level, primary consumers the second, secondary the third and tertiary the fourth.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 210,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_biological_magnification",
+      "tier": "headline",
+      "term": "Biological magnification",
+      "verbatim": "As human beings occupy the top level in any food chain, the maximum concentration of these chemicals get accumulated in our bodies. This phenomenon is known as biological magnification.",
+      "plain": "The progressive build-up of non-degradable chemicals (like pesticides) at each higher trophic level, reaching its maximum in the top consumer - us.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 212,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "def_ozone",
+      "tier": "headline",
+      "term": "Ozone",
+      "verbatim": "Ozone (O3) is a molecule formed by three atoms of oxygen.",
+      "plain": "A molecule of three oxygen atoms; high in the atmosphere it forms a shield against the Sun's harmful UV radiation, though near the ground it is a deadly poison.",
+      "memorise": true,
+      "source": {
+        "ncert_page": 212,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_food_web",
+      "tier": "key-term",
+      "term": "Food web",
+      "verbatim": "So instead of a straight line food chain, the relationship can be shown as a series of branching lines called a food web.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 210,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_cfc",
+      "tier": "key-term",
+      "term": "Chlorofluorocarbons (CFCs)",
+      "verbatim": "This decrease has been linked to synthetic chemicals like chlorofluorocarbons (CFCs) which are used as refrigerants and in fire extinguishers.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 213,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_biodegradable",
+      "tier": "key-term",
+      "term": "Biodegradable",
+      "verbatim": "Substances that are broken down by biological processes are said to be biodegradable.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 214,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    },
+    {
+      "id": "kt_non_biodegradable",
+      "tier": "key-term",
+      "term": "Non-biodegradable",
+      "verbatim": "Substances that are not broken down in this manner are said to be non-biodegradable.",
+      "plain": null,
+      "memorise": true,
+      "source": {
+        "ncert_page": 214,
+        "edition": "2026-27",
+        "chapter": 13
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c1",
+      "title": "Ecosystem and its components",
+      "body": "Every ecosystem has biotic components (all the living organisms) and abiotic components (physical factors like temperature, rainfall, wind, soil and minerals). The living organisms group by how they feed: producers (green plants, some bacteria) make food by photosynthesis, consumers (herbivores, carnivores, omnivores, parasites) eat others, and decomposers (bacteria, fungi) break down the dead into simple substances the plants reuse. Natural ecosystems are forests, ponds and lakes; gardens and crop-fields are human-made.",
+      "tested": "3-mark: list the biotic and abiotic components of an ecosystem; role of decomposers in the ecosystem.",
+      "figure_ref": null
+    },
+    {
+      "id": "c2",
+      "title": "Food chains, food webs and trophic levels",
+      "body": "A food chain is a series of organisms feeding on one another; each feeding step is a trophic level, with producers at the first level, primary consumers (herbivores) at the second, secondary consumers at the third and tertiary consumers at the fourth. In nature an organism is usually eaten by several kinds of organisms, so the many chains interconnect into a branching food web rather than a single straight line.",
+      "tested": "2-3 mark: identify a valid food chain and name its trophic levels; difference between a food chain and a food web.",
+      "figure_ref": "fig_food_chain"
+    },
+    {
+      "id": "c3",
+      "title": "Flow of energy and the 10% law",
+      "body": "Energy flow is one-way: green plants in a terrestrial ecosystem capture only about 1% of the sunlight falling on their leaves and store it as food energy. When that food is eaten, an average of only 10% of the food is built into the consumer's own body and passed on - the rest is lost as heat, digestion and work. Because so little energy reaches the next level, food chains generally have only three or four steps, and the energy never returns to a lower level.",
+      "tested": "3-mark: state the 10% law and explain why food chains are limited to three or four trophic levels; why energy flow is unidirectional.",
+      "figure_ref": "fig_energy_flow"
+    },
+    {
+      "id": "c4",
+      "title": "Biological magnification",
+      "body": "Pesticides and other chemicals sprayed on crops wash into the soil and water and are taken up by plants and aquatic plants, entering the food chain. Because these chemicals are not degradable, they are not broken down or thrown out but accumulate progressively at each higher trophic level. As human beings sit at the top of most food chains, the maximum concentration collects in us - this is biological magnification, and it cannot always be washed off our food.",
+      "tested": "3-mark: what is biological magnification and why is its level different at different trophic levels.",
+      "figure_ref": null
+    },
+    {
+      "id": "c5",
+      "title": "Ozone layer and its depletion",
+      "body": "Ozone (O3) high in the atmosphere shields the Earth from the Sun's ultraviolet (UV) radiation, which causes skin cancer. It forms when high-energy UV splits molecular oxygen (O2) into free atoms that then join O2 to make O3. From the 1980s the ozone amount dropped sharply, linked to synthetic CFCs used as refrigerants and in fire extinguishers; in 1987 UNEP forged an agreement to freeze CFC production at 1986 levels.",
+      "tested": "2-3 mark: how is ozone formed and why is damage to the ozone layer a cause for concern; which chemicals cause its depletion.",
+      "figure_ref": null
+    },
+    {
+      "id": "c6",
+      "title": "Managing the garbage we produce",
+      "body": "Substances broken down by biological processes (the action of bacteria and saprophytes) are biodegradable; those that are not are non-biodegradable. Enzymes are specific, so micro-organisms cannot break down man-made materials like plastics, which persist for a long time and may harm members of the ecosystem. Changes in life-style and packaging have made more of our waste non-biodegradable, so separating and disposing of waste has become a serious environmental problem.",
+      "tested": "3-mark: distinguish biodegradable and non-biodegradable substances with examples; two ways each type affects the environment.",
+      "figure_ref": null
+    }
+  ],
+  "examples": [
+    {
+      "id": "energy-flow-food-chain",
+      "shape": "Tracing energy along a food chain (10% law)",
+      "kind": "process",
+      "problem_verbatim": "Trace how energy passes along the food chain grass to deer to tiger, and explain why so little reaches the top carnivore. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Energy enters at the producers.",
+          "text": "Grass, a green producer, captures only about 1% of the sunlight that falls on its leaves and stores it as food energy - this is the energy that enters the food chain.",
+          "mark": 1
+        },
+        {
+          "lead": "First transfer to the herbivore.",
+          "text": "When the deer (primary consumer) eats the grass, an average of only 10% of the food eaten is turned into its own body; the rest is lost as heat to the environment and used in digestion and work.",
+          "mark": 1
+        },
+        {
+          "lead": "Second transfer to the carnivore.",
+          "text": "When the tiger (secondary consumer) eats the deer, again only about 10% carries over, so the energy available drops to roughly a tenth at each successive trophic level.",
+          "mark": 1
+        },
+        {
+          "lead": "Why chains stay short.",
+          "text": "Because the loss at each step is so great, very little usable energy remains after four trophic levels, so food chains generally consist of only three or four steps."
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for ~1% capture by producers, 1 mark for the 10% transfer to the primary consumer, and 1 mark for the 10% transfer to the next level. The closing point on why chains are limited to three or four steps completes the reasoning but is not separately credited in the 3-mark scheme.",
+      "source": {
+        "ncert_example": "Section 13.1.1 (flow of energy) walkthrough",
+        "ncert_page": 210,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "biological-magnification",
+      "shape": "How biological magnification concentrates up the food chain",
+      "kind": "process",
+      "problem_verbatim": "Trace how a non-degradable pesticide sprayed on a crop ends up most concentrated in human beings. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Entry into the food chain.",
+          "text": "Pesticides and other chemicals used to protect crops are washed down into the soil or into water bodies, then absorbed by plants along with water and minerals and taken up by aquatic plants - this is how they enter the food chain.",
+          "mark": 1
+        },
+        {
+          "lead": "Accumulation at each level.",
+          "text": "Because these chemicals are not degradable, they are not broken down or excreted; they get accumulated progressively at each trophic level as one organism eats another.",
+          "mark": 1
+        },
+        {
+          "lead": "Maximum in the top consumer.",
+          "text": "As human beings occupy the top level in any food chain, the maximum concentration of these chemicals collects in our bodies - this phenomenon is biological magnification, and it cannot always be removed by washing.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for how the chemicals enter the food chain (soil/water to plants), 1 mark for progressive accumulation at each trophic level because they are non-degradable, and 1 mark for the maximum concentration reaching human beings at the top.",
+      "source": {
+        "ncert_example": "Section 13.1.1 (biological magnification) walkthrough",
+        "ncert_page": 212,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "ozone-formation-depletion",
+      "shape": "How ozone forms in the upper atmosphere and how it is depleted",
+      "kind": "process",
+      "problem_verbatim": "Explain how ozone is formed high in the atmosphere and how human activity has depleted it. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "Formation of ozone.",
+          "text": "High-energy UV radiation splits some molecular oxygen (O2) into free oxygen (O) atoms; these atoms then combine with molecular oxygen to form ozone (O3).",
+          "mark": 1
+        },
+        {
+          "lead": "Why the layer matters.",
+          "text": "At the higher levels of the atmosphere this ozone shields the surface of the Earth from the Sun's ultraviolet (UV) radiation, which is highly damaging - for example it is known to cause skin cancer in human beings.",
+          "mark": 1
+        },
+        {
+          "lead": "Depletion by CFCs.",
+          "text": "From the 1980s the amount of ozone dropped sharply, linked to synthetic CFCs used as refrigerants and in fire extinguishers; in 1987 UNEP forged an agreement to freeze CFC production at 1986 levels.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the formation of ozone from UV splitting O2 and recombination, 1 mark for its role in shielding the Earth from harmful UV, and 1 mark for depletion by CFCs and the control measure (UNEP 1987 freeze).",
+      "source": {
+        "ncert_example": "Section 13.2.1 walkthrough",
+        "ncert_page": 213,
+        "edition": "2026-27"
+      }
+    },
+    {
+      "id": "biodegradable-vs-non",
+      "shape": "The fate of biodegradable vs non-biodegradable waste",
+      "kind": "process",
+      "problem_verbatim": "A vegetable peel and a plastic bag are buried in the same pit - explain what happens to each and how they affect the environment. [authored prompt]",
+      "solution_steps": [
+        {
+          "lead": "The peel is biodegradable.",
+          "text": "The vegetable peel is broken down by biological processes - the action of bacteria and other saprophytes - so it is biodegradable and its material returns to the soil.",
+          "mark": 1
+        },
+        {
+          "lead": "The plastic is non-biodegradable.",
+          "text": "Enzymes are specific in their action, so micro-organisms cannot break down man-made plastic; it is non-biodegradable and, under ambient conditions, persists in the environment for a long time.",
+          "mark": 1
+        },
+        {
+          "lead": "Effect on the environment.",
+          "text": "Non-biodegradable waste simply accumulates and may harm the various members of the ecosystem, while even biodegradable waste in excess pollutes soil and water - together making waste disposal a serious problem.",
+          "mark": 1
+        }
+      ],
+      "marks_total": 3,
+      "mark_logic": "CBSE 3-mark - 1 mark for the peel being broken down by biological processes (biodegradable), 1 mark for plastic resisting the specific enzymes and persisting (non-biodegradable), and 1 mark for the environmental effects of each.",
+      "source": {
+        "ncert_example": "Section 13.2.2 walkthrough",
+        "ncert_page": 214,
+        "edition": "2026-27"
+      }
+    }
+  ],
+  "strategies": [
+    {
+      "cue": "\"Which is a food chain?\" MCQ?",
+      "text": "A valid chain must run producer to consumer to consumer with each eating the one before it - reject options that are all plants or all animals (e.g. grass, wheat, mango is NOT a chain; grass, goat, human IS)."
+    },
+    {
+      "cue": "10% numerical asked?",
+      "text": "Take a tenth at every step: if producers hold 10000 J, herbivores get about 1000 J, small carnivores about 100 J, top carnivores about 10 J - then explain the loss is why chains rarely pass four levels."
+    },
+    {
+      "cue": "\"Differences between\" asked?",
+      "text": "Answer in a two-column table (biodegradable vs non-biodegradable, food chain vs food web) - one clear contrasting point per row scores faster than a paragraph."
+    },
+    {
+      "cue": "\"Why is it a concern?\" add-on?",
+      "text": "Give the reason, not just the fact - ozone depletion matters because the layer shields us from the Sun's UV that causes skin cancer; biological magnification matters because we are at the top and get the most concentrated dose."
+    }
+  ],
+  "pitfalls": [
+    {
+      "text": "Mixing up the 1% and the 10%: producers capture about 1% of the SUNLIGHT that falls on leaves, but only about 10% of the FOOD energy transfers from one trophic level to the next. Stating either figure for the wrong step loses the mark.",
+      "owner_verified": false
+    },
+    {
+      "text": "Confusing a food chain with a food web - a chain is a single straight line of who-eats-whom; a web is many interconnected chains. Examiners deduct if the two terms are swapped.",
+      "owner_verified": false
+    },
+    {
+      "text": "Reversing the direction of energy flow. Energy flow is unidirectional - it never returns from a consumer back to the producer or to a previous level.",
+      "owner_verified": false
+    },
+    {
+      "text": "Calling all ozone harmful (or all helpful). Ozone high in the atmosphere is a protective shield; the same molecule at ground level is a poison - say WHERE the ozone is.",
+      "owner_verified": false
+    },
+    {
+      "text": "Writing that plastics or DDT are biodegradable. Man-made plastics and non-degradable pesticides are non-biodegradable and persist for a long time - only substances broken down by biological processes are biodegradable.",
+      "owner_verified": false
+    }
+  ],
+  "formula_strip": [
+    {
+      "label": "10% law of energy transfer",
+      "math": "About 10% of the energy at one trophic level passes to the next; the other ~90% is lost as heat, digestion and work"
+    },
+    {
+      "label": "Energy captured by producers",
+      "math": "Green plants capture only about 1% of the sunlight falling on their leaves and store it as food energy"
+    },
+    {
+      "label": "Length of a food chain",
+      "math": "Food chains generally have only 3 or 4 trophic levels - little usable energy remains after four levels"
+    },
+    {
+      "label": "Trophic levels (order)",
+      "math": "Producers (1st) to Primary consumers / herbivores (2nd) to Secondary consumers (3rd) to Tertiary consumers (4th)"
+    },
+    {
+      "label": "Ozone formation",
+      "math": "O2 --(UV)--&gt; O + O (free oxygen atoms); then O + O2 --&gt; O3 (ozone)"
+    }
+  ],
+  "third_tab_content": {
+    "kind": "diagrams",
+    "intro": "The four figures this chapter is examined through - be able to read a food chain and food web, name the trophic levels on the pyramid, and describe the one-way flow of energy. Learn each in the exact NCERT form.",
+    "diagrams": [
+      "fig_food_chain",
+      "fig_trophic_pyramid",
+      "fig_food_web",
+      "fig_energy_flow"
+    ]
+  },
+  "figures": {
+    "fig_food_chain": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 13.1",
+      "caption": "Food chain in nature (a) in forest, (b) in grassland and (c) in a pond",
+      "legend": "Three food chains, each read bottom-to-top from the producer: (a) forest - tree to deer to tiger; (b) grassland - grass to grasshopper to frog to snake to a bird of prey; (c) pond - aquatic plant to scorpion/insect to fish to heron.",
+      "source": {
+        "pdf": "jesc113",
+        "edition": "2026-27",
+        "ncert_fig": "13.1",
+        "page_pdf": 3,
+        "printed_page": 210,
+        "crop": [110, 210, 640, 875],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at dpi 220; eye-confirmed, no text bleed"
+      },
+      "asset": "our-environment/fig_food_chain.webp"
+    },
+    "fig_trophic_pyramid": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 13.2",
+      "caption": "Trophic levels",
+      "legend": "The four feeding levels stacked as a pyramid - Producers at the wide base, then Primary consumers, Secondary consumers, and Tertiary consumers at the narrow top - showing there are more individuals at the lower levels.",
+      "source": {
+        "pdf": "jesc113",
+        "edition": "2026-27",
+        "ncert_fig": "13.2",
+        "page_pdf": 3,
+        "printed_page": 210,
+        "crop": [122, 1130, 550, 1602],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at dpi 220; right-edge list bullets whited out (398,0,428,420) clear of the pyramid; eye-confirmed"
+      },
+      "asset": "our-environment/fig_trophic_pyramid.webp"
+    },
+    "fig_food_web": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 13.3",
+      "caption": "Food web, consisting of many food chains",
+      "legend": "Many food chains interconnected - a single organism is eaten by two or more others, so the arrows branch into a web rather than one straight line; the blue lines mark the successive trophic levels.",
+      "source": {
+        "pdf": "jesc113",
+        "edition": "2026-27",
+        "ncert_fig": "13.3",
+        "page_pdf": 4,
+        "printed_page": 211,
+        "crop": [885, 200, 1660, 1200],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at dpi 220; eye-confirmed, no text bleed"
+      },
+      "asset": "our-environment/fig_food_web.webp"
+    },
+    "fig_energy_flow": {
+      "bucket": "ncert",
+      "tag": "NCERT Fig 13.4",
+      "caption": "Diagram showing flow of energy in an ecosystem",
+      "legend": "Stacked bars narrowing upward - Sunlight to Producers to Herbivores to Carnivores to Top Carnivores - each bar shorter than the one below it, picturing the loss of energy at every trophic level.",
+      "source": {
+        "pdf": "jesc113",
+        "edition": "2026-27",
+        "ncert_fig": "13.4",
+        "page_pdf": 4,
+        "printed_page": 211,
+        "crop": [400, 1220, 1420, 2080],
+        "clean": "saturation",
+        "note": "crop+saturation-clean via pymupdf at dpi 220; adjacent Fig 13.3 caption whited out (835,0,1020,145) at top-right; eye-confirmed"
+      },
+      "asset": "our-environment/fig_energy_flow.webp"
+    }
+  },
+  "mindmap": {
+    "root": "Our Environment",
+    "branches": [
+      {
+        "label": "Ecosystem",
+        "children": [
+          "Biotic (living) + abiotic (temperature, rainfall, wind, soil, minerals)",
+          "Producers - green plants &amp; some bacteria (photosynthesis)",
+          "Consumers - herbivores, carnivores, omnivores, parasites",
+          "Decomposers - bacteria &amp; fungi recycle the dead to the soil",
+          "Natural (forest, pond) vs human-made (garden, crop-field)"
+        ]
+      },
+      {
+        "label": "Food chain, web &amp; trophic levels",
+        "children": [
+          "Food chain - series of who-eats-whom",
+          "Trophic level - each feeding step (producer 1st ... tertiary 4th)",
+          "Food web - many chains branching together"
+        ]
+      },
+      {
+        "label": "Flow of energy",
+        "children": [
+          "Producers capture ~1% of sunlight",
+          "~10% transfers to each next level (10% law)",
+          "Unidirectional - never returns to a lower level",
+          "So chains stay to 3-4 steps"
+        ]
+      },
+      {
+        "label": "Biological magnification",
+        "children": [
+          "Non-degradable pesticides enter via soil &amp; water",
+          "Accumulate more at each higher level",
+          "Maximum in humans at the top"
+        ]
+      },
+      {
+        "label": "Ozone &amp; waste",
+        "children": [
+          "Ozone (O3) shields Earth from the Sun's UV",
+          "CFCs deplete it (UNEP 1987 freeze)",
+          "Biodegradable - broken down by microbes",
+          "Non-biodegradable (plastics) persist &amp; harm the ecosystem"
+        ]
+      }
+    ]
+  },
+  "source_ledger": [
+    { "item": "Ecosystem", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.208" },
+    { "item": "Producers", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.209" },
+    { "item": "Consumers", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.209" },
+    { "item": "Decomposers", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.209" },
+    { "item": "Trophic level", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.210" },
+    { "item": "Biological magnification", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.212" },
+    { "item": "Ozone", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.212" },
+    { "item": "Food web", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.210" },
+    { "item": "Chlorofluorocarbons (CFCs)", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.213" },
+    { "item": "Biodegradable", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.214" },
+    { "item": "Non-biodegradable", "type": "verbatim", "source": "NCERT 2026-27 Ch13 p.214" },
+    { "item": "Tracing energy along a food chain (10% law)", "type": "example", "source": "NCERT 2026-27 Ch13 Section 13.1.1 p.210" },
+    { "item": "How biological magnification concentrates up the food chain", "type": "example", "source": "NCERT 2026-27 Ch13 Section 13.1.1 p.212" },
+    { "item": "How ozone forms in the upper atmosphere and how it is depleted", "type": "example", "source": "NCERT 2026-27 Ch13 Section 13.2.1 p.213" },
+    { "item": "The fate of biodegradable vs non-biodegradable waste", "type": "example", "source": "NCERT 2026-27 Ch13 Section 13.2.2 p.214" },
+    { "item": "NCERT Fig 13.1", "type": "figure", "source": "NCERT 2026-27 Ch13 13.1 p.210" },
+    { "item": "NCERT Fig 13.2", "type": "figure", "source": "NCERT 2026-27 Ch13 13.2 p.210" },
+    { "item": "NCERT Fig 13.3", "type": "figure", "source": "NCERT 2026-27 Ch13 13.3 p.211" },
+    { "item": "NCERT Fig 13.4", "type": "figure", "source": "NCERT 2026-27 Ch13 13.4 p.211" }
+  ]
+}

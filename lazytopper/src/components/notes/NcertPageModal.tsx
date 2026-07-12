@@ -15,6 +15,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { NoteSubject } from "./noteSpec.types";
+import { ncertPdfPage } from "./ncertPdfOffsets";
 
 /** What a clicked NCERT page-ref carries into the modal. */
 export interface NcertPageRef {
@@ -31,24 +32,28 @@ const SUBJECT_LABEL: Record<NoteSubject, string> = {
 };
 
 /**
- * Build the Firebase Storage download URL for a page-aligned NCERT chapter PDF.
+ * Build the Firebase Storage download URL for a PER-CHAPTER NCERT PDF.
  *
- * PAGE-ALIGNED ASSUMPTION: the uploaded PDF's page N == the printed textbook
- * page N, so the note's `ncert_page` is used DIRECTLY as the PDF `#page=`
- * fragment. Storage layout: `ncert/{subject}/ch{chapter}.pdf`.
+ * PER-CHAPTER PAGING: the uploaded PDFs are one file per chapter
+ * (`ncert/{subject}/ch{chapter}.pdf`), so the file's internal page 1 is the
+ * chapter's FIRST page — NOT textbook page N. The note keeps CITING the printed
+ * textbook page (`ncert_page`, shown to the student unchanged); only the PDF
+ * `#page=` fragment is translated into a page WITHIN the chapter file via the
+ * empirically-derived per-chapter offset (see `ncertPdfOffsets.ts`).
  *
  * Returns null when no Storage bucket is configured (→ honest fallback). See
- * [FU-NOTES-NCERT-PDF-HOSTING]: a separate infra PR uploads the ~26 Class-10
- * chapter PDFs (page-aligned, public-read + CORS so this URL is fetch-probeable);
- * once they land, this URL resolves and the modal lights up with zero code change.
+ * [FU-NOTES-NCERT-PDF-HOSTING]: a separate infra PR uploads the 26 Class-10
+ * chapter PDFs (public-read + CORS so this URL is fetch-probeable); once they
+ * land, this URL resolves and the modal lights up with zero code change.
  */
 export function buildNcertPdfUrl(ref: NcertPageRef): string | null {
   const bucket = String(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "").trim();
   if (!bucket) return null;
   const objectPath = `ncert/${ref.subject}/ch${ref.chapter}.pdf`;
+  const pdfPage = ncertPdfPage(ref.subject, ref.chapter, ref.page);
   return (
     `https://firebasestorage.googleapis.com/v0/b/${bucket}` +
-    `/o/${encodeURIComponent(objectPath)}?alt=media#page=${ref.page}`
+    `/o/${encodeURIComponent(objectPath)}?alt=media#page=${pdfPage}`
   );
 }
 
