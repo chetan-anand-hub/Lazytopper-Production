@@ -1,5 +1,34 @@
 ---
 
+## 2026-07-12 -- #387: FULL TEST (Full Mock) BUILT + MERGED (trunk `f6522d0`), owner byte-reviewed
+
+**Trunk after: `f6522d0` (squash of #387; feature `720f7e5` off `c4c7032`).** The Full Test lane went
+pre-flight-plan → owner review (6 decisions ratified) → build → all-gates-green PR → owner byte-review → merge,
+in one session. Built in isolated worktree `LT-worktrees/fullmock-build`; parallel-safe with the bank-expansion
+lane (lane-overlap check green — file-disjoint held).
+
+- **The shared helper, for the CT-mix follow-up ([FU-CT-BALANCED-MIX])** — `src/utils/balancedMockDraw.ts`:
+  `drawBalancedSet<T>({ pool, count, pyqTargetFraction = 0.5, seed }) → { drawn, pyqDrawn, freshDrawn, pyqTargetFraction }`
+  Pure, seeded (mulberry32), read-only; PYQ classification = the shipped `isPYQQuestion`. Honest fallbacks:
+  too few PYQ → all PYQ + fresh fill; zero PYQ → an all-fresh paper is still valid; never pads or hides a class.
+- **The stochastic-rounding fix (caught by a tsx runtime smoke, not the unit tests):** per-(section×chapter)
+  cells draw 1–2 questions, and `Math.round(0.5)=1` made EVERY 1-question cell prefer PYQ → the first smoke drew
+  32 PYQ / 6 fresh (84%, far off the ~50% target). Fix: round the fractional part of the per-cell PYQ target UP
+  with probability equal to that fraction, using the SEEDED PRNG — still deterministic per seed, and the
+  aggregate lands on target (21/17 Maths, 17/21 Science). Lesson: unit tests with integer-ideal cells missed it;
+  the whole-paper smoke over the real banks found it.
+- **The DesktopActionSource ripple (honest back-nav):** the scorecard's "Worksheet on {chapter}" hand-off passes
+  `source="full-mock"` + `returnTo`. Adding `"full-mock"` to the `DesktopActionSource` union forced entries in
+  its two exhaustive Records — `components/desktop/l2/BackToParent.tsx` + `pages/desktop/DesktopPracticePage.tsx`
+  (3 lines) — so the builder shows an honest "Back to Full Mock" instead of a mislabeled fallback.
+- Reuse held at byte level: CT navigator/pre-submit-confirm/upload-panel (additive copy props only, CT defaults
+  byte-identical), `scoreObjectiveSection` + `buildChapterTestResponse` imported (no fork), grader byte-unchanged,
+  CT_CSS shared (the page renders in `.lt-ct.lt-fm`; FM_CSS carries only deltas). §7 held the hard way: chapter
+  bars + weightage segments use QUANTISED width/flex classes, no inline style objects.
+- 25 files (+3,905/−11): 11 new (blueprint + session store + focus hook + panel + banner + styles + page +
+  grade service + draw helper, with tests where pure) · 14 modified (additive). Full detail in CURRENT_STATE
+  and the PR #387 body.
+
 ## 2026-07-12 -- #384 + #385: bank-expansion Batch 2 + 3 (trunk `ce34b3e`), owner-merged
 
 **Trunk after: `ce34b3e` (#385) on `63c6b04` (#384).** Two more bank-expansion batches, same orchestrator +

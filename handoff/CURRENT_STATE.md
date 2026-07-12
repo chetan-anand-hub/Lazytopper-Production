@@ -1,6 +1,22 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #384 + #385 merged -- bank-expansion Batch 2 + 3 -- trunk `ce34b3e`
+## [CURRENT] #387 merged — FULL TEST (Full Mock) LIVE — trunk `f6522d0`
+
+**Post-merge code trunk: `f6522d0` (squash of #387, feature branch `720f7e5`).** Re-derive the tip after this docs PR merges (the usual one-commit lag).
+
+**#387 merged — Full Test live.** Per-subject 3-hour board mock (38Q/80mk, Sections A–E: 20×1/5×2/6×3/4×5/3×4), built to `LazyTopper_FullMock_Design_Spec_LOCKED_2026-07-09` + mockup v1, inheriting the merged Chapter Test (#374/#380) — deltas only. Owner byte-review clean: sacred files byte-identical; **App.tsx exactly the 3 authorized lines** (lazy import · `/full-mock/:grade/:subject` route under `MockViewGate` · the bare-route entry).
+
+- **DUAL-SOURCE (resolves [FU-FM-RESOURCE-PREDICTED]):** the draw unions `canonicalQuestionBank` + the live predicted banks (`predictedQuestions` Maths / `sciencePredictedQuestions` Science; planner-only `predictedScienceQuestions.ts` excluded) — never predicted-only, never pyqOnly. Chapter allocation by trends `weightagePercent` via the KEPT (now-exported) `allocateByPercent`; registry = trends ∩ canonical `topics.ts` (a banned/unknown chapter key can never reach the weightage legend or the draw); Section-A eligibility requires the answer key to RESOLVE against the options (the #352 bar); exact numeric mark bands (§7).
+- **`src/utils/balancedMockDraw.ts` — THE shared draw helper** (pure, seeded mulberry32, read-only; the CT-mix follow-up [FU-CT-BALANCED-MIX] reuses it verbatim): `drawBalancedSet({pool, count, pyqTargetFraction=0.5, seed}) → {drawn, pyqDrawn, freshDrawn, pyqTargetFraction}`. Honest fallback chain (too few PYQ → all PYQ + fresh fill; zero PYQ → valid all-fresh paper; never pads/hides a class); SEEDED STOCHASTIC rounding of the fractional target (a runtime smoke caught `Math.round(0.5)=1` biasing every 1-question cell to PYQ → aggregate 32/6; fixed → ~21/17 Maths / ~17/21 Science, deterministic per seed). Setup shows the draw's REAL mix.
+- **§8a interruption-safety:** ALWAYS-ON persisted WALL-CLOCK (`startedAt`+`durationMs`, remaining computed on load — never a ticking counter that dies with the tab); per-interaction autosave; WHOLE-PAPER resume (⏸ Resume card — a re-draw would be a fake resume); guarded exit; expired-while-away → honest auto-submit of the saved answers; upload-later keeps the paper cached on-device.
+- **§8b focus:** aggregates ONLY (`activeMs/awayMs/awayEventCount/longestAwayMs`) as ONE additive OPTIONAL `focus?` field on `SessionRecord` (owner decision 2, the worksheetId-anchor precedent); neutral on-return line; explicit Pause records intent, the clock never stops; NO keystrokes/screenshots; timed surface only (legacy site-wide `focusTracker.ts` untouched).
+- **Scorecard:** the `full-mock` `<ResultsScorecard>` variant fills the #341 seam — section lens EXACT from the paper's real sections + **BY-CHAPTER marks-lost bars DERIVED at render** (`sectionBreakdown` stays null — owner decision 3, §6 derive-don't-denormalize) + the one biggest-loss sentence + honest-or-silent mock delta + the §8b focus line + MI-led what-next (`Worksheet on {chapter}` → the builder's `?subject=&topics=`, with an honest "Back to Full Mock"). **NO board-readiness projection.**
+- **History/records:** subject-scoped OVERLAY panel + pending banner (locked worksheet pattern, locked CT card shape); `FM-{M|S}-{NN}` durable codes; surface `"full-mock"` sessionRecords + perQuestion + mistakeLog through the SHARED grader (`checkSolution.cjs` byte-unchanged; objective 0-or-full client-side via the exported CT `scoreObjectiveSection` — reuse, no fork).
+- **Gates:** tsc · mojibake · scope:guard product · root 181/181 · lazytopper ops matrix (runtime proof) · diff-check all PASS; CI quality-gate (1m25s) + lane-overlap + Vercel green; tsx runtime draw smoke both subjects (38Q/80mk, all 13 chapters, ~50/50 mix, predicted-sourced questions on paper). Owner merged after byte-review.
+- **Honest limitations (intended, tracked):** the `/full-mock` route is LIVE but UNLINKED → [FU-FM-HUB-ENTRY]; cross-device upload-later shows the objective score + a plain "sat on another device" line, never a fabricated paper → [FU-FM-CROSS-DEVICE-UPLOAD].
+- Reports: `Desktop/diff/report-fullmock-build-2026-07-12.md` (+ pre-flight plan `report-fullmock-plan-2026-07-12.md`).
+
+## [PREV] #384 + #385 merged -- bank-expansion Batch 2 + 3 -- trunk `ce34b3e`
 
 **Post-merge code trunk: `ce34b3e` (squash of #385), on top of #384 `63c6b04`.** Re-derive the tip after this docs PR merges.
 
