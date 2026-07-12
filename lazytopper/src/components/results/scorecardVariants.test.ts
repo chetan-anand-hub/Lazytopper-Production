@@ -11,6 +11,12 @@ import {
   fullMockScorecardVariantStub,
   chapterTestScorecardVariant,
   deriveChapterTestConceptLens,
+  deriveFullMockSectionLens,
+  deriveFullMockChapterLens,
+  fullMockChapterLensNote,
+  fullMockFocusLine,
+  fullMockScorecardVariant,
+  storedFullMockScorecardVariant,
 } from "./scorecardVariants";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
@@ -409,5 +415,205 @@ describe("chapterTestScorecardVariant — concept lens wiring", () => {
       response: resp,
     });
     expect(full.conceptLens).toBeNull();
+  });
+});
+
+// ── FULL MOCK live variant (Full Mock build — fills the PR-2 seam) ────────────────
+
+describe("deriveFullMockSectionLens", () => {
+  it("is EXACT from the paper's sections when questions are supplied", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 1, marksAwarded: 1 },
+        { qNumber: 2, couldNotRead: false, totalMarks: 4, marksAwarded: 2 },
+      ],
+    });
+    const rows = deriveFullMockSectionLens(resp, [
+      { qNumber: 1, section: "A" },
+      { qNumber: 2, section: "E" },
+    ])!;
+    expect(rows.map((r) => r.section)).toEqual(["A", "E"]);
+    expect(rows[1]).toMatchObject({ awarded: 2, total: 4 });
+  });
+
+  it("falls back to the CBSE band proxy without questions (exact for FM bands) and skips pending", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 2, marksAwarded: 2 }, // → B
+        { qNumber: 2, couldNotRead: false, totalMarks: 5, marksAwarded: 3 }, // → D
+        { qNumber: 3, couldNotRead: true, totalMarks: 3 }, // pending — excluded
+      ],
+    });
+    const rows = deriveFullMockSectionLens(resp)!;
+    expect(rows.map((r) => r.section)).toEqual(["B", "D"]);
+  });
+});
+
+describe("deriveFullMockChapterLens + note", () => {
+  const questions = [
+    { qNumber: 1, topicKey: "trigonometry", topicLabel: "Trigonometry" },
+    { qNumber: 2, topicKey: "trigonometry", topicLabel: "Trigonometry" },
+    { qNumber: 3, topicKey: "real-numbers", topicLabel: "Real Numbers" },
+    { qNumber: 4 }, // no chapter — honest unknown, must not appear
+  ];
+  const resp = response({
+    results: [
+      { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 1 },
+      { qNumber: 2, couldNotRead: false, totalMarks: 4, marksAwarded: 2 },
+      { qNumber: 3, couldNotRead: false, totalMarks: 3, marksAwarded: 3 },
+      { qNumber: 4, couldNotRead: false, totalMarks: 2, marksAwarded: 0 },
+    ],
+  });
+
+  it("rolls up per chapter, sorts by marks LOST, skips unknowns (never fabricated)", () => {
+    const rows = deriveFullMockChapterLens(resp, questions)!;
+    expect(rows).toHaveLength(2); // q4's unknown chapter is absent
+    expect(rows[0]).toMatchObject({ label: "Trigonometry", awarded: 3, total: 9, lost: 6 });
+    expect(rows[1]).toMatchObject({ label: "Real Numbers", awarded: 3, total: 3, lost: 0 });
+  });
+
+  it("the note names the single biggest loss — and is SILENT on a clean paper", () => {
+    const rows = deriveFullMockChapterLens(resp, questions)!;
+    expect(fullMockChapterLensNote(rows)).toBe(
+      "Trigonometry cost you 6 marks — the single biggest loss on this paper.",
+    );
+    const clean = deriveFullMockChapterLens(
+      response({
+        results: [{ qNumber: 3, couldNotRead: false, totalMarks: 3, marksAwarded: 3 }],
+      }),
+      questions,
+    );
+    expect(fullMockChapterLensNote(clean)).toBeNull();
+  });
+});
+
+describe("fullMockFocusLine (§8b — measurement, neutral, aggregates only)", () => {
+  it("formats active/away/breaks; null when unmeasured", () => {
+    expect(
+      fullMockFocusLine({ activeMs: 161 * 60000, awayMs: 19 * 60000, awayEventCount: 4 }),
+    ).toBe("Focus time (on-screen) · 2h 41m of 3h 0m · away 19m across 4 breaks.");
+    expect(fullMockFocusLine({ activeMs: 0, awayMs: 0, awayEventCount: 0 })).toBeNull();
+    expect(fullMockFocusLine({ activeMs: 30 * 60000, awayMs: 0, awayEventCount: 0 })).toBe(
+      "Focus time (on-screen) · 30m — you never left the exam screen.",
+    );
+  });
+});
+
+describe("fullMockScorecardVariant", () => {
+  it("PARTIAL: objective marks only, NO four-type, no lenses, upload-led actions", () => {
+    const v = fullMockScorecardVariant({
+      name: "Maths · Mock #4",
+      code: "FM-M-04",
+      phase: "partial",
+      response: response({
+        gradedMarksAwarded: 17,
+        gradedMarksTotal: 20,
+        worksheetTotalMarks: 80,
+      }),
+      onUpload: noop,
+      onUploadLater: noop,
+    });
+    expect(v.surface).toBe("full-mock");
+    expect(v.deferred).toBeUndefined();
+    expect(v.fourType).toBeNull();
+    expect(v.sectionLens).toBeNull();
+    expect(v.chapterLens).toBeNull();
+    expect(v.message).toContain("Sections B–E, 60 marks");
+    expect(v.actions[0].label).toContain("Upload answer sheet");
+  });
+
+  it("FULL: section + chapter lenses + four-type + honest delta passthrough + MI-led practise label", () => {
+    const resp = response({
+      results: [
+        {
+          qNumber: 1,
+          couldNotRead: false,
+          totalMarks: 5,
+          marksAwarded: 1,
+          mistakeSummary: { conceptual: 2, calculation: 0, silly: 0, presentation: 0 },
+        },
+        { qNumber: 2, couldNotRead: false, totalMarks: 3, marksAwarded: 3 },
+      ],
+      gradedCount: 2,
+      pendingCount: 0,
+      gradedMarksAwarded: 4,
+      gradedMarksTotal: 8,
+    });
+    const v = fullMockScorecardVariant({
+      name: "Maths · Mock #4",
+      code: "FM-M-04",
+      phase: "full",
+      response: resp,
+      questions: [
+        { qNumber: 1, section: "D", topicKey: "trigonometry", topicLabel: "Trigonometry" },
+        { qNumber: 2, section: "C", topicKey: "real-numbers", topicLabel: "Real Numbers" },
+      ],
+      deltaLine: "▲ 9 marks vs Maths · Mock #3",
+      onReadSheet: noop,
+      onPractiseChapter: noop,
+      onDownloadGraded: noop,
+      onDownloadSolution: noop,
+    });
+    expect(v.sectionLens!.map((r) => r.section)).toEqual(["C", "D"]);
+    expect(v.chapterLens![0].label).toBe("Trigonometry");
+    expect(v.chapterLensNote).toContain("Trigonometry cost you 4 marks");
+    expect(v.message).toBe("▲ 9 marks vs Maths · Mock #3");
+    expect(v.fourType).toEqual({ conceptual: 2, calculation: 0, silly: 0, presentation: 0 });
+    expect(v.actions[1].label).toBe("Worksheet on Trigonometry — your biggest loss");
+    // NO board-readiness projection anywhere (spec §5).
+    const allText = JSON.stringify(v);
+    expect(allText).not.toMatch(/readiness|projected/i);
+  });
+});
+
+describe("storedFullMockScorecardVariant", () => {
+  const record = (over: Partial<SessionRecord> = {}): SessionRecord => ({
+    id: "FM-M-03",
+    worksheetId: "fm-x",
+    surface: "full-mock",
+    title: "Maths · Mock #3",
+    subject: "maths",
+    topicKeys: ["trigonometry"],
+    questionIds: [],
+    marksAwarded: 17,
+    marksTotal: 20,
+    status: "partial",
+    fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    sectionBreakdown: null,
+    gradedAt: 1,
+    perQuestionRef: "fm:FM-M-03",
+    dedupKey: "u::FM-M-03",
+    ...over,
+  });
+
+  it("awaiting-sheet re-open: real objective score + honest upload state, never a 0", () => {
+    const v = storedFullMockScorecardVariant(record(), {
+      gradedDateLabel: "12 Jul 2026",
+      onDone: noop,
+    });
+    expect(v.score).toMatchObject({ kind: "marks", awarded: 17, total: 20 });
+    expect(v.message).toContain("upload your written answers");
+    expect(v.fourType).toBeNull();
+  });
+
+  it("cross-device awaiting re-open: the honest override line renders, nothing fabricated", () => {
+    const v = storedFullMockScorecardVariant(record(), {
+      gradedDateLabel: "12 Jul 2026",
+      awaitingDetail: "This mock was sat on another device — open LazyTopper there.",
+      onDone: noop,
+    });
+    expect(v.message).toContain("another device");
+    expect(v.chapterLens).toBeNull();
+  });
+
+  it("graded re-open surfaces the stored §8b focus aggregates as the neutral line", () => {
+    const v = storedFullMockScorecardVariant(
+      record({
+        status: "graded",
+        focus: { activeMs: 60 * 60000, awayMs: 10 * 60000, awayEventCount: 2, longestAwayMs: 6 * 60000 },
+      }),
+      { gradedDateLabel: "12 Jul 2026", onDone: noop },
+    );
+    expect(v.note).toBe("Focus time (on-screen) · 1h 0m of 1h 10m · away 10m across 2 breaks.");
   });
 });

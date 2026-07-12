@@ -58,6 +58,17 @@ export interface SessionFourType {
 /** Full-mock-only examiner lens: per-section {awarded, total}. null for other surfaces. */
 export type SessionSectionBreakdown = Record<string, { a: number; t: number }>;
 
+/** Full Mock §8b FOCUS aggregates — a measurement of on-screen exam time, NOT
+ *  anti-cheat: `visibilitychange`/blur can't see a second device or a book and we
+ *  never claim they can. AGGREGATES ONLY (no event log, no keystrokes, no
+ *  screenshots — these are minors); student-facing; timed test surfaces only. */
+export interface SessionFocusAggregates {
+  activeMs: number;
+  awayMs: number;
+  awayEventCount: number;
+  longestAwayMs: number;
+}
+
 /** One durable record per completed graded session. Fields per the §1 contract, plus
  *  ONE additive internal anchor (`worksheetId`) documented below. */
 export interface SessionRecord {
@@ -89,6 +100,10 @@ export interface SessionRecord {
   perQuestionRef: string;
   /** Idempotent write key (mirrors recordAttempt dedup). */
   dedupKey: string;
+  /** Full Mock §8b focus aggregates — ADDITIVE OPTIONAL (the worksheetId-anchor
+   *  precedent, owner-ratified 2026-07-12): absent on every pre-existing record and
+   *  on surfaces that don't measure it; readers that don't use it ignore it. */
+  focus?: SessionFocusAggregates;
 }
 
 /** The per-question grade payload the `perQuestionRef` points at (§1b — a DATA
@@ -594,5 +609,97 @@ export function buildChapterTestSessionRecord(args: {
     gradedAt: Date.now(),
     perQuestionRef: `ct:${code}`,
     dedupKey: `${uid}::${code}`,
+  };
+}
+
+// ── Full Mock (surface "full-mock") — durable FM-{S}-{NN} / Mock #N ──────────────
+//
+// The full-mock analogue of the chapter-test trio above. A mock is SUBJECT-scoped
+// (whole-subject board paper, no topic), so its #NN counts this student's existing
+// full-mock records for the SUBJECT. The in-memory paper is never saved to the
+// worksheet store (the CT D2 precedent), so the durable count reads the same
+// cross-device `sessionRecords/{uid}` store. Additive: the worksheet and
+// chapter-test paths above are byte-unchanged.
+
+export interface FullMockNomenclature {
+  /** `FM-{M|S}-{NN}` — e.g. `FM-M-04`. */
+  code: string;
+  /** Friendly name — e.g. `Maths · Mock #4` (spec §2). */
+  name: string;
+  sequence: number;
+}
+
+/** Durable #NN base: 1 + the count of this student's existing full-mock records
+ *  for the subject. Pure — the caller supplies the fetched records. */
+export function fullMockSequence(records: SessionRecord[], subject: SessionSubject): number {
+  return records.filter((r) => r.surface === "full-mock" && r.subject === subject).length + 1;
+}
+
+/** Build the FM code + name from a resolved sequence (pure). */
+export function fullMockNomenclature(
+  subject: SessionSubject,
+  sequence: number,
+): FullMockNomenclature {
+  const sl = subject === "science" ? "S" : "M";
+  const code = `FM-${sl}-${String(sequence).padStart(2, "0")}`;
+  const name = `${subjectToNameableLabel(subject)} · Mock #${sequence}`;
+  return { code, name, sequence };
+}
+
+/**
+ * Assemble the §1 record for a Full Mock from its UNIFIED response (objective
+ * Section A graded at submit + subjective B–E graded-or-pending) — the same
+ * honest reduction as the chapter-test builder: graded subtotal excludes pending
+ * (never a fabricated 0), fourType from per-question mistakeSummary (objective
+ * carries none — MCQs are never an MI signal), status from graded/pending counts.
+ * `sectionBreakdown` stays NULL (owner decision 3, 2026-07-12): both the section
+ * and the chapter lens are DERIVED at render from questionIds/marks — §6
+ * derive-don't-denormalize. `focus` carries the §8b aggregates when measured.
+ */
+export function buildFullMockSessionRecord(args: {
+  paper: PersistedWorksheet;
+  code: string;
+  subject: SessionSubject;
+  response: WorksheetGradeResponse;
+  uid: string;
+  focus?: SessionFocusAggregates;
+}): SessionRecord {
+  const { paper, code, subject, response, uid, focus } = args;
+
+  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  for (const r of response.results) {
+    if (r.couldNotRead || !r.mistakeSummary) continue;
+    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
+    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
+    fourType.silly += Number(r.mistakeSummary.silly) || 0;
+    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
+  }
+
+  const status: SessionStatus =
+    response.gradedCount <= 0
+      ? "pending-upload"
+      : response.pendingCount > 0
+        ? "partial"
+        : "graded";
+
+  return {
+    id: code,
+    worksheetId: paper.worksheetId,
+    surface: "full-mock",
+    title: paper.name ?? paper.title,
+    subject,
+    topicKeys: Array.from(
+      new Set(paper.questions.map((q) => resolveCanonicalSlug(q.topicKey)).filter(Boolean)),
+    ),
+    questionIds: paper.questions.map((q) => q.id).filter(Boolean),
+    marksAwarded: Number(response.gradedMarksAwarded) || 0,
+    marksTotal: Number(response.gradedMarksTotal) || 0,
+    status,
+    fourType,
+    sectionBreakdown: null,
+    gradedAt: Date.now(),
+    perQuestionRef: `fm:${code}`,
+    dedupKey: `${uid}::${code}`,
+    ...(focus ? { focus } : {}),
   };
 }

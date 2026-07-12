@@ -54,6 +54,7 @@ const HighlyProbableQuestions = lazy(() => import("./pages/HighlyProbableQuestio
 const PracticePage = lazy(() => import("./pages/PracticePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
+const FullMockPage = lazy(() => import("./pages/FullMockPage"));
 const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
@@ -182,7 +183,7 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
  * A prefix list so Full Mock (`/full-mock`) can join later with one entry. Exported as a
  * pure predicate for unit testing.
  */
-const BARE_FULLSCREEN_PREFIXES = ["/chapter-test"] as const;
+const BARE_FULLSCREEN_PREFIXES = ["/chapter-test", "/full-mock"] as const;
 export function isBareFullScreenRoute(pathname: string): boolean {
   return BARE_FULLSCREEN_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -846,6 +847,7 @@ export default function App() {
           {/* Topic Mock → redirect to Chapter Test */}
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={<TopicMockRedirect />} />
           <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<ChapterTestPage />)}</SectionErrorBoundary></MockViewGate>} />
+          <Route path="/full-mock/:grade/:subject" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<FullMockPage />)}</SectionErrorBoundary></MockViewGate>} />
 
           {/* PR-E1 item 4 / PR-G-deletion-pending: Mock Builder is UN-ROUTED from the
               live product — students can no longer reach it (MI now serves its
