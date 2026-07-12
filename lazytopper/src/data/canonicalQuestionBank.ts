@@ -68,6 +68,10 @@ import { CARBON_COMPOUNDS_NCERT } from './questionBanks/class10/science/carbonCo
 import { CARBON_COMPOUNDS_EXEMPLAR } from './questionBanks/class10/science/carbonCompounds.exemplar';
 import { LIFE_PROCESSES_NCERT } from './questionBanks/class10/science/lifeProcesses.ncert';
 import { LIFE_PROCESSES_EXEMPLAR } from './questionBanks/class10/science/lifeProcesses.exemplar';
+// Bank-expansion Batch 3 (life-processes, 2026-07-12): extract-max A/B/C + distinct-authored scarce D/E.
+import { LP_EXTRACT } from './questionBanks/class10/science/lifeProcesses.extract';
+import { LP_SCARCE_D } from './questionBanks/class10/science/lifeProcesses.scarceD';
+import { LP_SCARCE_E } from './questionBanks/class10/science/lifeProcesses.scarceE';
 import { CONTROL_COORDINATION_NCERT } from './questionBanks/class10/science/controlAndCoordination.ncert';
 import { CONTROL_COORDINATION_EXEMPLAR } from './questionBanks/class10/science/controlAndCoordination.exemplar';
 import { REPRODUCTION_NCERT } from './questionBanks/class10/science/reproduction.ncert';
@@ -510,6 +514,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CARBON_COMPOUNDS_EXEMPLAR,
   ...LIFE_PROCESSES_NCERT,
   ...LIFE_PROCESSES_EXEMPLAR,
+  // Bank-expansion Batch 3 — life-processes (2026-07-12): 75 extracted A/B/C + 22 scarce-D + 39 case-based.
+  ...LP_EXTRACT,
+  ...LP_SCARCE_D,
+  ...LP_SCARCE_E,
   ...CONTROL_COORDINATION_NCERT,
   ...CONTROL_COORDINATION_EXEMPLAR,
   ...REPRODUCTION_NCERT,
@@ -1713,6 +1721,9 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
   RN_SCARCE_E,
   // Bank-expansion Batch 2 (2026-07-12) — real-numbers perfect-cube D, authored.
   RN_SCARCE2,
+  // Bank-expansion Batch 3 (2026-07-12) — life-processes scarce categories, authored (question + solution).
+  LP_SCARCE_D,
+  LP_SCARCE_E,
 ];
 
 /**
@@ -1745,6 +1756,8 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   RN_EXTRACT,
   // Batch 2 (2026-07-12): real-numbers corrective exhaustive-sweep extract — same decouple rationale.
   RN_EXTRACT2,
+  // Batch 3 (2026-07-12): life-processes exhaustive extract — authentic questions, reconstructed solutions.
+  LP_EXTRACT,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
