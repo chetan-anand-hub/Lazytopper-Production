@@ -88,6 +88,10 @@ import { MAG_EXEMPLAR } from './questionBanks/class10/science/magneticEffects.ex
 // Maths NCERT + Exemplar — Agent A chapters (expansion-03, added 2026-05-22)
 import { RN_NCERT } from './questionBanks/class10/maths/realNumbers.ncert';
 import { RN_EXEMPLAR } from './questionBanks/class10/maths/realNumbers.exemplar';
+// Bank-expansion Batch 1 (real-numbers, 2026-07-12): extract-max A/B/C + distinct-authored scarce D/E/proofs.
+import { RN_EXTRACT } from './questionBanks/class10/maths/realNumbers.extract';
+import { RN_SCARCE_D } from './questionBanks/class10/maths/realNumbers.scarceD';
+import { RN_SCARCE_E } from './questionBanks/class10/maths/realNumbers.scarceE';
 import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
 import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
 import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
@@ -521,6 +525,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   // Maths Agent A chapters NCERT + Exemplar (expansion-03, added 2026-05-22)
   ...RN_NCERT,
   ...RN_EXEMPLAR,
+  // Bank-expansion Batch 1 — real-numbers (2026-07-12): 10 extracted A/B/C + 8 scarce D/proofs + 12 case-based.
+  ...RN_EXTRACT,
+  ...RN_SCARCE_D,
+  ...RN_SCARCE_E,
   ...PLE_NCERT,
   ...PLE_EXEMPLAR,
   ...QE_NCERT,
@@ -1692,6 +1700,11 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
   // *.pack3 (AI-generated, batch 3)
   TR3_PACK3,
   TG3_PACK3,
+  // Bank-expansion Batch 1 (2026-07-12) — real-numbers scarce categories, fully AUTHORED
+  // (question + solution AI-generated). Extract pack (RN_EXTRACT) is NOT here: its questions
+  // are authentic (extracted from published compilations) — only its solutions decouple below.
+  RN_SCARCE_D,
+  RN_SCARCE_E,
 ];
 
 /**
@@ -1718,6 +1731,10 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   SAV_EXEMPLAR2,
   CG_EXEMPLAR2,
   ARC_EXEMPLAR2,
+  // Bank-expansion Batch 1 (2026-07-12): real-numbers extract pack — authentic questions from
+  // published compilations, but their worked solutions were reconstructed/reformatted into the
+  // CBSE step scheme from an unverified source, so they are decoupled as pending student QA.
+  RN_EXTRACT,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
