@@ -1,5 +1,29 @@
 ---
 
+## 2026-07-12 -- Chapter Test BUILT to the locked spec (#374 -> `e54ab8c`), owner live-verified
+
+**Trunk after: `e54ab8c` (#374).** The Chapter Test surface is built to `LazyTopper_ChapterTest_Design_Spec_LOCKED_2026-07-07` + mockup v4, owner live-verified (two-phase grading; `CT-{S}-{TOPIC}-{NN}`; navigator/timer/history working), behind `MockViewGate`. Cofounder byte-reviewed; owner squash-merged; **no self-merge**.
+
+**Pre-flight (the reframe).** The dispatch said "complete the existing page." Recon proved the existing `ChapterTestPage.tsx` was a LEGACY practice-set implementation (`generatePracticeSet` + `Math.random` draw + self-marking + `masteryLevelService`) with NONE of the locked architecture -- flagged; owner confirmed a REBUILD (KEEP route/entry only; DELETE the legacy concepts from the CT flow; BUILD to spec). The worksheet path (`worksheetGradeService` -> `gradeWorksheet` -> MI -> `sessionRecords`) was the working analog to build on.
+
+**Decisions (owner-resolved before writing code):**
+- **D1 -- sourcing = NATIVE (zero fabrication).** mockPaperEngine is typed to `PredictedQuestion`; the only field with no honest `CanonicalQuestion` source is `kind`, and single-topic tests don't need the engine's cross-chapter weightage -- so per the zero-fabrication mandate sourcing is NATIVE via `bankQuery.selectBankQuestions` + a CBSE A--D blueprint drawer (`chapterTestBlueprint.ts`). **No adapter exists** -> byte-review "the adapter fabricates nothing" is trivially clean. Exact numeric mark bands (§7), fresh shuffle per test (§8).
+- **D2 -- downloads via an IN-MEMORY `PersistedWorksheet`** carrying the CT- code (never WS-), driving `WorksheetPrintDoc` (test / solution key) + `WorksheetGradedPrintDoc` + the grader; **never persisted to the worksheet store** (no `#NN` pollution).
+- **D3 -- A--D lens DERIVED, not persisted.** `buildChapterTestSessionRecord` sets `sectionBreakdown: null`; the lens is derived at render via the shipped #353 `sectionFromTotalMarks` proxy (`deriveChapterTestSectionLens`), honest-unknown for un-banded marks. The whole test is modelled as ONE unified `WorksheetGradeResponse` (objective folded in as graded rows + subjective graded-or-pending) so one artifact drives the record, scorecard hero/four-type/lens, graded PDF, and re-open payload.
+- **D4 -- new `chapterTestGradeService.ts`.** `worksheetGradeService.ts`, `gradeWorksheet`, `checkSolution.cjs` are CALL-ONLY, byte-unchanged.
+
+**Behaviour built (spec).** Two-phase grading (Section A objective auto 0-or-full on submit, PR-348 invariant; B--D subjective via upload through the shared grader) -> Universal `<ResultsScorecard>` chapter-test variant flipped live (partial: objective only, NO four-type/MI -> full: total + by-section A--D lens + four-type from written); `sessionRecords` surface `"chapter-test"` + durable `CT-{S}-{TOPIC}-{NN}`/#NN (reuses the existing `sessionRecords/{uid}` collection + rule, **no `firestore.rules` change**); topic-scoped history rail (read-only reopen), pre-submit confirm gating score reveal, navigator (4 states), flag mirrored live, autosave (`sessionStorage`), downloads (test / graded / step-marked solution key with VARIABLE authored per-step marks via `WorksheetPrintDoc`'s `hasOwnMark` branch). ONE responsive component, class-driven CSS (no inline style, §7), no `useIsDesktop` twin.
+
+**Bug caught + fixed pre-push (self-review, byte-review discipline).** The timer auto-submit closure captured a stale `finishToPartial` (the interval effect deliberately does NOT re-subscribe on keystrokes), so a time-up submit would have scored with STALE/empty answers -> routed through a live `finishRef` + clear-interval-on-timeout. Manual submit was always correct.
+
+**Files (6 areas · 11 files · none forbidden):** M `pages/ChapterTestPage.tsx`; M (additive) `services/sessionRecords.ts`; new `services/chapterTestGradeService.ts`; M (additive) `components/results/scorecardVariants.ts`; M (additive) `components/results/ResultsScorecard.tsx`; new `components/chaptertest/{chapterTestBlueprint.ts, chapterTestStyles.ts, ChapterTestNavigator.tsx, PreSubmitConfirm.tsx, ChapterTestUploadPanel.tsx, ChapterTestHistoryRail.tsx}`. Untouched/byte-identical: `App.tsx`, `firestore.rules`, `worksheetGradeService.ts`, `checkSolution.cjs`, `predictionTypes.ts`, `src/data/**` (read-only), `vite.config.ts`.
+
+**Gates -- ALL GREEN.** Local: tsc (`tsconfig.app.json`), check:mojibake, scope:guard `--mode product`, lazytopper `test:matrix:all` (incl. topickey runtime 7084/0-dup/0-orphan/26), root scripts `test:matrix:all` **181/181**, `git diff --check`. CI: **quality-gate PASS (1m26s -- linux `vite build` + matrices + mojibake)**, **lane-overlap PASS** (file-disjoint from the notes/`src/data` lanes), Vercel preview built. Fresh worktree off the re-derived trunk `0a2f677`; `--no-frozen-lockfile` + restore lockfile; tsc via `./node_modules/.bin/tsc`.
+
+**New FUs:** [FU-CT-CONCEPT-LENS], [FU-CT-HEADER-UNIFORMITY], [FU-CT-REOPEN-DOWNLOAD], [FU-CT-CODE-TOKEN]. Report: `Desktop\diff\report-chaptertest-build-2026-07-12.md`.
+
+---
+
 ## 2026-07-12 -- HANDOFF CATCH-UP #364->#376: Notes fan-out COMPLETE, coordination automation LIVE, NCERT click-through LIVE
 
 **Trunk after: `8fb1ad6` (#375).** This entry back-fills the docs, which were stale since #363; the SHA/PR spine is reconstructed from `git log origin/base/approved-thru-437` + the Desktop\diff reports + the cofounder session. All PRs owner-merged (squash), no self-merge; each notes batch cleared an independent-auditor PASS.

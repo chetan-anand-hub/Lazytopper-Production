@@ -1,3 +1,15 @@
+## 2026-07-12 -- Chapter Test BUILT to the locked spec (#374, `e54ab8c`), owner live-verified
+
+### NEW FOLLOW-UPS (fast-follow before the `MockViewGate` flips)
+- **[FU-CT-CONCEPT-LENS]** -- the chapter-test scorecard lands a by-section (A–D) lens + the four-type MI, but NOT a subtopic-level ("concept") weak-area breakdown. `subtopic` IS a field on `CanonicalQuestion`, so a concept lens is DERIVABLE (Full-Mock parity) at render from the graded per-question results joined to the bank -- the same derive-don't-persist discipline as the A–D lens (D3). Owner wants this before the CT gate flips live.
+- **[FU-CT-HEADER-UNIFORMITY]** -- the full-screen test-taking view is meant to be chrome-less, but the DesktopShell GLOBAL product header still renders on top. Removing/restyling it is a **forbidden-file** change (`DesktopShell.tsx`). OWNER DECISION needed: a global header restyle (applies everywhere) vs a chrome-less test surface (route/shell exception). Fast-follow before the gate flips.
+
+### DEFERRED (non-blocking, agent-surfaced)
+- **[FU-CT-REOPEN-DOWNLOAD]** -- reopening a stored test from the history rail is the PR-3 **light** re-open (score + four-type + derived A–D lens + Done). Graded-sheet / solution-key downloads on a reopen would need reconstructing the in-memory `PersistedWorksheet` from the record's `questionIds` (join to `canonicalQuestionBank`) -- deferred; the live post-grade path has both downloads.
+- **[FU-CT-CODE-TOKEN]** -- the CT code reuses `topicAbbr` for cross-surface consistency (`WS-M-RN-03` <-> `CT-M-RN-02`), so the token is `RN`, not the mockup's illustrative `REALNO`. By design; logged in case the owner prefers the longer token later.
+
+---
+
 ## 2026-07-12 -- Notes fan-out COMPLETE + NCERT click-through LIVE; ledger-cites PR #376 in review (#364 -> #376)
 
 ### RESOLVED
