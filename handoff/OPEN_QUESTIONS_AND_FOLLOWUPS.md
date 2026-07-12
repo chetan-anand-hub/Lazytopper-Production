@@ -1,3 +1,15 @@
+## 2026-07-13 -- #391: FT finalize MERGED (trunk `25257c0`)
+
+### CLOSED by #391
+- **[FU-FM-HUB-ENTRY] — CLOSED.** Practice-hub "Full Test" card (locked copy) + DesktopHome per-subject tiles + the MI-panel link all navigate PLAINLY to `/full-mock/:grade/:subject` — MockViewGate on the route is the ONLY gate. Old-engine entries retired: "Open existing full-mock engine" (→ /exam-simulation), the circular "Practice Paper" card (→ un-routed /mock-builder), and a third DISCOVERED dead link (DesktopHome mistake-strip). Executable RTL nav proof in-repo: `DesktopPracticePage.fullTestNav.test.tsx` (both subjects, both widths, no second gate).
+- **[FU-FM-CROSS-DEVICE-UPLOAD] — CLOSED.** `services/fullMockPaperStore.ts` persists the drawn paper (TEXT only — never the uploaded answer image, not even typed answers) at `sessionRecords/{uid}/fullMockPapers/{code}` under the EXISTING recursive owner-only rule (**firestore.rules byte-untouched**); `openPendingUpload` fetches + re-seeds when the local session is gone (cross-device AND the 3-session eviction); best-effort delete after full grade. The verbatim "sat on another device" line remains for true misses — no fabricated paper, ever.
+- **[FU-TOPIC-DISPLAY-TITLECASE] — CLOSED.** The fallback keeps connectives lowercase ("Pair of Linear Equations", "Control and Coordination"); registry titles win; keys untouched; `topicResolver.test.ts` proves it.
+- **[FU-SCORECARD-STALE-HEADER-COMMENTS] — CLOSED.** Comment-only truth-updates in `scorecardVariants.ts` + `ResultsScorecard.tsx` (all four variants LIVE; the `deferred` stubs are legacy PR-2 seams + the render-guard's fixtures).
+
+### NEW (open)
+- **[FU-RETIRE-EXAM-SIMULATION-LINKS]** (owner-directed 2026-07-13) — 6 legacy pages still link the old `/exam-simulation` engine: `pages/app/PracticeHome.tsx`, mobile `pages/Home.tsx`, `ProfilePage.tsx`, `PredictivePapers.tsx`, `DailyMixPage.tsx`, `components/dashboard/ExploreMorePanel.tsx` (+ the App.tsx command palette `navigateToMockTest` — App.tsx is forbidden, owner-authorized-lines-only). #391 removed every hub/Home entry; this is the broader old-surface retirement lane (the route + `ExamSimulationPage` stay live behind `RequirePremium` until then).
+- **[FU-VITEST-PREEXISTING-FAILURES]** — 6 vitest failures in 3 files reproduce IDENTICALLY on trunk `17b4c34` (pre-#391): `worksheetPdfExport.test.ts` ×5 ("pdf.addImage is not a function" — jspdf mock/environment rot), `ConceptSpine.test.tsx` ×1, `objectiveScoring.parity.test.ts` (module-level error). **Invisible to CI** — quality-gate runs the matrices, NOT vitest — so they linger silently. Fix in a scoped hygiene PR; consider wiring vitest into CI once green.
+
 ## 2026-07-12 -- #387: Full Test (Full Mock) MERGED (trunk `f6522d0`)
 
 ### NEW (open) — all intended scope boundaries, NOT defects; close each as its own scoped follow-up PR
