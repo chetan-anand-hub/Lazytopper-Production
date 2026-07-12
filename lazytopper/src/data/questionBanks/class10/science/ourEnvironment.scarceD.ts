@@ -131,7 +131,7 @@ export const OE_SCARCE_D: CanonicalQuestion[] = [
     "finalAnswer": "T1 = 1,00,000 J, T2 = 10,000 J, T3 = 1,000 J, T4 = 100 J, T5 = 10 J; the rapid ten-fold drop per level leaves too little energy after 4-5 links, so food chains stay short.",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "An upright pyramid of energy with five horizontal tiers, widest at the base and narrowing to the top: base Grass 1,00,000 J, then Grasshopper 10,000 J, Lizard 1,000 J, Snake 100 J, apex Hawk 10 J. Each tier labelled with organism, trophic level (T1-T5) and its energy value, illustrating the ten-fold decrease at each step."
+    "diagramDescription": "A horizontal food chain illustrating the ten per cent law: Grass (T1, 1,00,000 J) -> Grasshopper (T2, 10,000 J) -> Lizard (T3, 1,000 J) -> Snake (T4, 100 J) -> Hawk (T5, 10 J). Each arrow is labelled to show that only about 10% of the energy passes to the next level while about 90% is lost as heat and in respiration, so the energy available decreases ten-fold along the chain."
   },
   {
     "id": "OESD-006",
