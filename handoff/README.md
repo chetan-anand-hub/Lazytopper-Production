@@ -12,6 +12,20 @@ Every GPT session must update this folder incrementally before ending, especiall
 - operating-rule change
 - environment lesson
 
+## PER-PR HANDOFF RULE (non-negotiable)
+
+**Every merged PR is IMMEDIATELY followed by a handoff update in the SAME work session** — no batching, no "later":
+
+1. Prepend a newest-first entry to `CURRENT_STATE.md` **and** `SESSION_LOG.md`.
+2. Update `SURFACE_TRACKER.md` if a surface moved (flip the cell + note it in §2a if scope was discovered).
+3. Add/resolve follow-ups in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+4. **Record the merged SHA in `CURRENT_STATE.md`** — the machine `ledger/MERGE_LEDGER.md` auto-append is
+   SUMMARY-ONLY (`[FU-STATE-BOARD-SUMMARY-ONLY]`), so the narrative here is the authoritative merge record.
+
+Docs/handoff PRs are SEPARATE from product PRs (CLAUDE.md §8) and are self-merge-eligible (§6a) once the diff shows
+zero code/config files. The multi-PR catch-up backlog that once required a dedicated reconstruction task (#377 —
+docs left stale from #364 through #375) is the failure mode this rule exists to prevent.
+
 ## Why this exists
 
 Future GPT sessions must not rely only on:
