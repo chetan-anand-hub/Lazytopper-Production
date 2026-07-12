@@ -139,3 +139,38 @@ saturated in the 9 banked) + case-based ×22. Skeptic dropped 4 (3 "ecological p
 **Extracted (51):** OEX-A-001,003–026,028–037 · OEX-B-001–009,012–015 · OEX-C-001–003.
 **Authored Section-D (7):** OESD-001…007.  **Authored case-based (22):** OESE-001–005,007–014,017–024,026.
 **Diagram-pass needed (2, ENRICHMENT — text/numeric-answerable):** OESD-001 (food web), OESD-005 (energy-flow pyramid).
+
+## Batch 5 — how-do-organisms-reproduce (2026-07-13) · 148 items
+
+Ch8 (large reservoir). E-band lifted off its floor of 8; D honest-stops (chapter already deeply covered on
+5-mark items). how-do-organisms-reproduce **265 → 413**.
+
+| Band | Section | Before | +Extracted | +Authored | After | Floor status |
+|---|---|--:|--:|--:|--:|---|
+| A | 1-mark | 112 | +28 | 0 | 140 | extract-max (no floor) |
+| B | 2-mark | 71 | +13 | 0 | 84 | extract-max (no floor) |
+| C | 3-mark | 37 | +13 | 0 | 50 | extract-max (no floor) |
+| D | 5-mark long | 37 | 0 | +30 | 67 | **HONEST STOP** — chapter already deeply covered; distinct methods exhausted below 75 |
+| E | 4-mark case | 8 | 0 | +64 | 72 | **HONEST STOP at 72 distinct** — 3 structural twins dropped in preference to padding to 75 |
+
+**Exhaustive sweep (extract-max, 54 kept):** per-source — `03_Biology.pdf` module (repro section) primary A/B/C ·
+NCERT Solutions Ch8 (3 exact-text DUP dropped) · `13. Question Bank MCQ` REPRODUCTION (147 MCQs, richest A-band;
+1 DUP + 4 near-twin dropped) · `11. Chapter-Wise` WS_2 heavily Class-12/wrong-chapter contaminated → minimal ·
+`14. Additional QB` has NO reproduction chapter (proven by full listing) · gdrive PYQ/MS/Class-X = thin slice,
+overlaps the 26 banked PYQ rows → 0 unique. Candidate pool 62 → 4 mechanical DUP + 4 near-twin borderline dropped
+= 54 (A×28 B×13 C×13). Rejected as Class-12/deleted: triple fusion/double fertilisation/endosperm ploidy,
+embryo-sac cells, micro/megasporogenesis, detailed FSH/LH/estrogen/progesterone cycle timing, ART/IVF,
+geitonogamy, figure-dependent diagram-MCQs, life-processes contamination in WS_2. No evolution content.
+**Scarce authoring (distinct):** Section-D ×30 (honest ceiling — 37 banked D already span plant + human
+reproduction; ~8 more would have been number-swaps) + case-based ×64 (E1 plant/asexual ×34 + E2 human/health ×30).
+3 skeptics independently re-solved all 151 → 54/54 + 30/30 + 67/67 PASS on correctness/syllabus/format; then
+1 factual FIX (E1-004 Plasmodium "cyst" → schizogony) + 3 structural twins dropped (E1-022 Planaria≈E1-003,
+E2-023 contraception≈E2-007, E2-019 undescended-testis≈E2-006 & a banked D item). Net 148 kept.
+
+**Extracted (54):** BX-REP-EX-A-001–011,013–024,028–032 · BX-REP-EX-B-001–004,006,007,009,010,012–016 ·
+BX-REP-EX-C-001–006,008–014.
+**Authored Section-D (30):** BX-REP-D-001…030.
+**Authored case-based (64):** BX-REP-E1-001–021,023–035 (plant/asexual, excl E1-022) ·
+BX-REP-E2-001–018,020–022,024–032 (human/health, excl E2-019,E2-023).
+**Diagram-pass needed: none** — all "draw & label" items are student-produced (text-answerable); no
+question depends on a figure the student must be shown.
