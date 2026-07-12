@@ -1,3 +1,29 @@
+## 2026-07-12 -- #387: Full Test (Full Mock) MERGED (trunk `f6522d0`)
+
+### NEW (open) — all intended scope boundaries, NOT defects; close each as its own scoped follow-up PR
+- **[FU-FM-HUB-ENTRY]** — the `/full-mock/:grade/:subject` route is LIVE (MockViewGate, bare full-screen) but
+  UNLINKED: no Practice-hub / Home entry card yet. Owner verifies via `/full-mock/10/Maths` · `/full-mock/10/Science`.
+  A nav/hub entry card is a small follow-up PR (touches the hub, deliberately out of #387's scope).
+- **[FU-FM-CROSS-DEVICE-UPLOAD]** — cross-device "upload later": the drawn paper exists only on the device that
+  sat the mock (device-local session cache), so a cross-device re-open shows the REAL objective score + an honest
+  "sat on another device" line — never a fabricated paper (owner-ratified anti-fabrication call). Closing it
+  properly needs a durable paper snapshot; decide alongside the [FU-CI-SOLUTION-CACHE]-family storage questions.
+- **[FU-CT-BALANCED-MIX]** — the Chapter Test can now reuse `drawBalancedSet` (`src/utils/balancedMockDraw.ts`,
+  shipped standalone by design; signature in SESSION_LOG). Small follow-up PR wires the CT draw to the same
+  PYQ/fresh balance + shows the honest mix line on CT setup.
+
+### Deferred/observed during the build (small, cosmetic or pre-existing)
+- **[FU-SCORECARD-STALE-HEADER-COMMENTS]** — `scorecardVariants.ts` + `ResultsScorecard.tsx` header comments still
+  describe CT/FM as "deferred config seams / never rendered" — stale since #374, doubly so after #387. Cosmetic
+  comment-only cleanup; left untouched to keep both diffs scoped.
+- **[FU-TOPIC-DISPLAY-TITLECASE]** — `resolveTopicDisplayName`'s fallback title-cases every word ("Pair Of Linear
+  Equations", "Control And Coordination") where the canonical chapter title has no entry; visible in the FM
+  weightage legend for a few chapters. Cosmetic: either add the missing canonical titles or lowercase the
+  connective words in the fallback.
+- **[FU-FM-DELTA-SAME-TOTAL-ONLY]** — the honest-or-silent mock-to-mock delta compares only when both mocks share
+  the same graded total (a fair /80 comparison); a mock with unreadable pages (partial total) stays silent.
+  Intended honesty rule; noted so nobody "fixes" the silence into a misleading cross-total delta.
+
 ## 2026-07-12 -- #384 + #385: bank-expansion Batch 2 + 3 MERGED (trunk `ce34b3e`)
 
 ### NEW (open)
