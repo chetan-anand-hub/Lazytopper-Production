@@ -25,6 +25,8 @@ import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import type { SessionFourType, SessionRecord } from "../../services/sessionRecords";
 import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
+import { resolveTopicDisplayName } from "../../utils/topicResolver";
 
 export type ScorecardSurface = "worksheet" | "quick-practice" | "chapter-test" | "full-mock";
 
@@ -133,6 +135,14 @@ export interface ScorecardVariant {
    *  BETWEEN the section lens and the four-type (the Full-Mock arrangement:
    *  section → concept → four-type). Derived at render; other surfaces leave it null. */
   conceptLens?: ScorecardConceptLensRow[] | null;
+  /** Full-mock BY-CHAPTER lens (spec §5 — "the point of a mock"): per-chapter
+   *  score bars, rendered by the shell between the section lens and the
+   *  four-type. DERIVED at render (sectionBreakdown stays null — owner decision
+   *  2026-07-12); other surfaces leave it null. Reuses the concept-row shape. */
+  chapterLens?: ScorecardConceptLensRow[] | null;
+  /** The one sentence under the chapter lens — "«X» cost you N marks — the
+   *  biggest loss on this paper." Honest-or-silent: null when nothing was lost. */
+  chapterLensNote?: string | null;
   pending?: ScorecardPending | null;
   allPending?: ScorecardAllPending | null;
   /** Optional footer heading for the stacked what-next menu (QP: "What next?"). */
@@ -857,6 +867,437 @@ export function storedChapterTestScorecardVariant(
     fourType: record.fourType,
     sectionLens: response ? deriveChapterTestSectionLens(response) : null,
     conceptLens: conceptQuestions ? deriveChapterTestConceptLens(response!, conceptQuestions) : null,
+    pending: null,
+    allPending: null,
+    actions,
+  };
+}
+
+// ── LIVE variant: FULL MOCK (fills PR-2's deferred seam — Full Mock spec §5) ───────
+//
+// Two-phase on the SAME Universal shell, the CT pattern extended by the lens that
+// is the POINT of a mock: PARTIAL (objective only — NO four-type, an MCQ is
+// right/wrong, not a WHY) → FULL (total + honest mock-to-mock delta + BY-SECTION
+// A–E + BY-CHAPTER marks-lost bars + four-type from written answers). All lenses
+// are DERIVED at render (sectionBreakdown stays null — owner decision 2026-07-12).
+// NO board-readiness projection, ever (spec §5 — a fabricated "68/80" to a student
+// who scores 52 is harm; [FU-BOARD-READINESS-MODEL] tracks any future model).
+
+const FM_SECTION_LABEL: Record<string, string> = {
+  A: "A · Objective",
+  B: "B · VSA",
+  C: "C · SA",
+  D: "D · Long",
+  E: "E · Case",
+};
+
+/** A full-mock question's identity for the render-time lens joins: qNumber (to
+ *  match a grade row) + the paper's REAL section + canonical chapter. Satisfied
+ *  structurally by the drawn paper's PersistedWorksheetQuestion. */
+export interface FullMockLensQuestion {
+  qNumber: number;
+  section?: string;
+  topicKey?: string;
+  topicLabel?: string;
+}
+
+/**
+ * Derive the A–E by-section lens for a full mock. With the paper's questions at
+ * hand (live scorecard) the section is EXACT — read off each question. Without
+ * them (a stored re-open) it falls back to the #353 CBSE mark-band proxy, which
+ * for a full-mock paper is also exact by construction (the FM bands ARE the
+ * five canonical bands: 1→A · 2→B · 3→C · 5→D · 4→E). Only graded questions
+ * contribute; an unmappable mark is an honest unknown (in the hero total, no
+ * section row). Returns null when nothing is attributable.
+ */
+export function deriveFullMockSectionLens(
+  response: WorksheetGradeResponse,
+  questions?: FullMockLensQuestion[],
+): ScorecardSectionLensRow[] | null {
+  const sectionByQNumber = new Map<number, string>();
+  if (questions) {
+    for (const q of questions) {
+      if (q.section) sectionByQNumber.set(q.qNumber, String(q.section).toUpperCase());
+    }
+  }
+  const buckets = new Map<string, { awarded: number; total: number }>();
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const sec = sectionByQNumber.get(r.qNumber) ?? sectionFromTotalMarks(r.totalMarks);
+    if (!sec || !FM_SECTION_LABEL[sec]) continue; // honest unknown — never fabricated
+    const b = buckets.get(sec) ?? { awarded: 0, total: 0 };
+    b.awarded += Number(r.marksAwarded) || 0;
+    b.total += Number(r.totalMarks) || 0;
+    buckets.set(sec, b);
+  }
+  const rows = ["A", "B", "C", "D", "E"]
+    .filter((s) => buckets.has(s))
+    .map((s) => ({
+      section: s,
+      label: FM_SECTION_LABEL[s],
+      awarded: buckets.get(s)!.awarded,
+      total: buckets.get(s)!.total,
+    }));
+  return rows.length > 0 ? rows : null;
+}
+
+/**
+ * Derive the BY-CHAPTER lens from a full-mock response + the paper's questions —
+ * the topic-level rollup a mock exists to show ("Trigonometry cost you 9 marks").
+ * The drawn paper carries each question's canonical `topicKey` (BOTH sources —
+ * predicted questions resolve too), so the live join is exact, no band proxy.
+ * Only graded questions contribute; a question with no chapter is an honest
+ * unknown (hero total only). Sorted by marks LOST, worst first.
+ */
+export function deriveFullMockChapterLens(
+  response: WorksheetGradeResponse,
+  questions: FullMockLensQuestion[],
+): ScorecardConceptLensRow[] | null {
+  const byQNumber = new Map<number, FullMockLensQuestion>();
+  for (const q of questions) byQNumber.set(q.qNumber, q);
+
+  const buckets = new Map<string, { label: string; awarded: number; total: number }>();
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const q = byQNumber.get(r.qNumber);
+    const slug = q?.topicKey ? resolveCanonicalSlug(q.topicKey) : "";
+    if (!slug) continue; // honest unknown — never a fabricated chapter
+    const b = buckets.get(slug) ?? {
+      label: q?.topicLabel || resolveTopicDisplayName("", slug),
+      awarded: 0,
+      total: 0,
+    };
+    b.awarded += Number(r.marksAwarded) || 0;
+    b.total += Number(r.totalMarks) || 0;
+    buckets.set(slug, b);
+  }
+  if (buckets.size === 0) return null;
+
+  const rows: ScorecardConceptLensRow[] = [...buckets.entries()].map(([slug, b]) => ({
+    key: slug,
+    label: b.label,
+    awarded: b.awarded,
+    total: b.total,
+    lost: Math.max(0, b.total - b.awarded),
+  }));
+  rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
+  return rows;
+}
+
+/** Lazily-built canonical questionId → topicKey index for the STORED re-open
+ *  chapter join (the paper is gone; only `questionIds` survive). A
+ *  predicted-sourced id has no bank row → honest unknown, skipped. */
+let _topicKeyByQuestionId: Map<string, string> | null = null;
+function topicKeyForQuestionId(id: string): string | null {
+  if (!_topicKeyByQuestionId) {
+    const map = new Map<string, string>();
+    for (const q of canonicalQuestionBank) {
+      if (q.id && q.topicKey) map.set(q.id, q.topicKey);
+    }
+    _topicKeyByQuestionId = map;
+  }
+  return _topicKeyByQuestionId.get(id) ?? null;
+}
+
+/**
+ * STORED-re-open chapter lens: rebuild `{qNumber, topicKey}` from the record's
+ * qNumber-ordered `questionIds` via the canonical bank. Only trustworthy when the
+ * payload's rows align 1:1 with the stored ids (checked by the caller). A
+ * predicted-sourced id doesn't join — it stays in the hero total with no chapter
+ * row (honest unknown), exactly the spec §6 rule.
+ */
+export function deriveStoredFullMockChapterLens(
+  response: WorksheetGradeResponse,
+  questionIds: string[],
+): ScorecardConceptLensRow[] | null {
+  const questions: FullMockLensQuestion[] = questionIds.map((id, i) => {
+    const topicKey = topicKeyForQuestionId(id) ?? undefined;
+    return { qNumber: i + 1, topicKey };
+  });
+  return deriveFullMockChapterLens(response, questions);
+}
+
+/** The one honest sentence under the chapter bars — from the worst row, only
+ *  when marks were actually lost (silent on a clean paper, never invented). */
+export function fullMockChapterLensNote(rows: ScorecardConceptLensRow[] | null): string | null {
+  const worst = rows?.[0];
+  if (!worst || worst.lost <= 0) return null;
+  return `${worst.label} cost you ${worst.lost} mark${worst.lost === 1 ? "" : "s"} — the single biggest loss on this paper.`;
+}
+
+/** Format the §8b focus aggregates into the neutral scorecard line —
+ *  "Focus time (on-screen) · 2h 41m of 3h 0m · away 19m across 4 breaks".
+ *  Measurement, not judgement; null when nothing was measured. */
+export function fullMockFocusLine(focus: {
+  activeMs: number;
+  awayMs: number;
+  awayEventCount: number;
+}): string | null {
+  const total = (Number(focus.activeMs) || 0) + (Number(focus.awayMs) || 0);
+  if (total <= 0) return null;
+  const fmt = (ms: number): string => {
+    const mins = Math.round(ms / 60000);
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+  if ((Number(focus.awayMs) || 0) <= 0) {
+    return `Focus time (on-screen) · ${fmt(focus.activeMs)} — you never left the exam screen.`;
+  }
+  const breaks = Number(focus.awayEventCount) || 0;
+  return `Focus time (on-screen) · ${fmt(focus.activeMs)} of ${fmt(total)} · away ${fmt(focus.awayMs)} across ${breaks} break${breaks === 1 ? "" : "s"}.`;
+}
+
+export interface FullMockVariantInput {
+  /** The FM name — `{Subject} · Mock #N`. */
+  name: string;
+  /** The durable `FM-{M|S}-{NN}` code. */
+  code: string;
+  /** The UNIFIED response (objective + subjective). */
+  response: WorksheetGradeResponse;
+  phase: "partial" | "full";
+  /** The paper's questions (qNumber + section + topicKey) for the FULL-phase
+   *  section + chapter joins. Omit in partial. */
+  questions?: FullMockLensQuestion[];
+  /** Honest-or-silent mock-to-mock delta line, computed by the host from the
+   *  previous COMPLETED mock of the same subject (e.g. "▲ 9 marks vs Mock #3").
+   *  null/omitted when there is no fair comparison — the shell then shows nothing. */
+  deltaLine?: string | null;
+  /** §8b focus line — measured aggregates only, neutral framing; null when
+   *  unmeasured (see fullMockFocusLine). */
+  focusLine?: string | null;
+  downloading?: boolean;
+  // Partial-phase handlers:
+  onUpload?: () => void;
+  onUploadLater?: () => void;
+  // Full-phase handlers:
+  onReadSheet?: () => void;
+  /** Opens the worksheet builder targeted at the biggest-loss chapter. */
+  onPractiseChapter?: () => void;
+  onDownloadGraded?: () => void;
+  onDownloadSolution?: () => void;
+}
+
+/**
+ * Build the LIVE full-mock variant. PARTIAL: objective marks only, the upload
+ * prompt, NO four-type (spec §5). FULL: whole-paper total + honest delta + the
+ * three lenses in spec order (section → chapter → four-type "from written
+ * answers") + the what-next menu LED by the MI-driven action ("Worksheet on
+ * {chapter} — your biggest loss"). Pending pages surface honestly.
+ */
+export function fullMockScorecardVariant(input: FullMockVariantInput): ScorecardVariant {
+  const { name, code, response, phase, downloading = false } = input;
+
+  if (phase === "partial") {
+    const objectiveMarks = `${response.gradedMarksAwarded}/${response.gradedMarksTotal}`;
+    const notYetGraded = Math.max(
+      0,
+      (Number(response.worksheetTotalMarks) || 0) - (Number(response.gradedMarksTotal) || 0),
+    );
+    return {
+      surface: "full-mock",
+      title: name,
+      subtitle: `${code} · submitted & scored`,
+      score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      message:
+        `Objective section scored (${objectiveMarks}). Upload your written answers ` +
+        `(Sections B–E, ${notYetGraded} marks) to complete your score — with a ` +
+        `chapter-wise breakdown and mistake analysis.`,
+      note: input.focusLine ?? null,
+      fourType: null, // MCQs tell us right/wrong, not why (spec §5)
+      sectionLens: null,
+      chapterLens: null,
+      chapterLensNote: null,
+      pending: null,
+      allPending: null,
+      actionsHeading: "For now",
+      stackActions: true,
+      footnote:
+        "No mistake breakdown yet — MCQs only tell us right or wrong, not why. That view appears once your written work is graded.",
+      actions: [
+        {
+          label: "Upload answer sheet for the full result",
+          tag: "Upload",
+          tone: "primary",
+          onClick: input.onUpload ?? (() => {}),
+          disabled: !input.onUpload,
+        },
+        {
+          label: "Upload later — I’ll see “⏳ Awaiting sheet” in my mocks",
+          tag: "Later",
+          tone: "secondary",
+          onClick: input.onUploadLater ?? (() => {}),
+          disabled: !input.onUploadLater,
+        },
+      ],
+    };
+  }
+
+  // FULL
+  const chapterLens = input.questions ? deriveFullMockChapterLens(response, input.questions) : null;
+  const chapterLensNote = fullMockChapterLensNote(chapterLens);
+  const worstChapter = chapterLens?.[0];
+  const practiseLabel =
+    worstChapter && worstChapter.lost > 0
+      ? `Worksheet on ${worstChapter.label} — your biggest loss`
+      : "Build a worksheet on this subject";
+
+  const menu: ScorecardAction[] = [
+    {
+      label: "Read my graded answer sheet",
+      tag: "Sheet",
+      tone: "primary",
+      onClick: input.onReadSheet ?? (() => {}),
+      disabled: !input.onReadSheet,
+    },
+    {
+      label: practiseLabel,
+      tag: "Practise",
+      tone: "secondary",
+      onClick: input.onPractiseChapter ?? (() => {}),
+      disabled: !input.onPractiseChapter,
+    },
+    {
+      label: "Download graded answer sheet (PDF)",
+      tag: "Graded",
+      tone: "secondary",
+      onClick: input.onDownloadGraded ?? (() => {}),
+      disabled: !input.onDownloadGraded || downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    },
+    {
+      label: "Download solution key — CBSE step-marked",
+      tag: "Key",
+      tone: "secondary",
+      onClick: input.onDownloadSolution ?? (() => {}),
+      disabled: !input.onDownloadSolution,
+    },
+  ];
+
+  return {
+    surface: "full-mock",
+    title: name,
+    subtitle: `${code} · fully graded · saved to your progress`,
+    score: {
+      kind: "marks",
+      awarded: response.gradedMarksAwarded,
+      total: response.gradedMarksTotal,
+      gradedCount: response.gradedCount,
+      totalQuestions: response.totalQuestions,
+    },
+    message: input.deltaLine ?? null,
+    note: input.focusLine ?? null,
+    fourType: aggregateFourType(response),
+    sectionLens: deriveFullMockSectionLens(response, input.questions),
+    chapterLens,
+    chapterLensNote,
+    pending:
+      response.pendingCount > 0
+        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
+        : null,
+    allPending: null,
+    actionsHeading: "What next?",
+    stackActions: true,
+    actions: menu,
+  };
+}
+
+// ── STORED re-open variant: read-only full-mock scorecard from a SessionRecord ──
+
+export interface StoredFullMockVariantInput {
+  gradedDateLabel: string;
+  /** The resolved per-question payload, if the host could load it — enables the
+   *  section + chapter lenses and the graded-sheet download. Absent → a lighter
+   *  re-open (stored score + four-type only; honest, never guessed). */
+  response?: WorksheetGradeResponse | null;
+  onDone: () => void;
+  onDownloadGraded?: () => void;
+  downloading?: boolean;
+  /** Override for the awaiting-sheet detail — the host sets the honest
+   *  cross-device line when this device has no cached paper to grade against. */
+  awaitingDetail?: string;
+}
+
+/**
+ * Rebuild a STORED full-mock `SessionRecord` into a READ-ONLY scorecard. An
+ * awaiting-sheet mock shows its real objective score + an honest upload state
+ * (never a fabricated 0). A graded record shows the stored total + four-type +
+ * §8b focus line; lenses derive from the resolved payload when present (the
+ * chapter join uses the canonical bank — a predicted-sourced id is an honest
+ * unknown). Nothing is invented.
+ */
+export function storedFullMockScorecardVariant(
+  record: SessionRecord,
+  input: StoredFullMockVariantInput,
+): ScorecardVariant {
+  const { gradedDateLabel, response, onDone, onDownloadGraded, downloading = false } = input;
+  const doneAction: ScorecardAction = { label: "Done", tone: "ghost", onClick: onDone };
+  const pendingUpload = record.status === "pending-upload";
+  const awaitingWritten = record.status === "partial" && !response;
+
+  const focusLine = record.focus ? fullMockFocusLine(record.focus) : null;
+
+  if (pendingUpload || awaitingWritten) {
+    return {
+      surface: "full-mock",
+      title: record.title,
+      subtitle: `${record.id} · ${gradedDateLabel}`,
+      score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
+      message:
+        input.awaitingDetail ??
+        "Objective section scored — upload your written answers (Sections B–E) to complete this mock.",
+      note: focusLine,
+      fourType: null,
+      sectionLens: null,
+      chapterLens: null,
+      chapterLensNote: null,
+      pending: null,
+      allPending: null,
+      actions: [doneAction],
+    };
+  }
+
+  const totalQuestions = response?.totalQuestions ?? record.questionIds?.length ?? 0;
+  const actions: ScorecardAction[] = [];
+  if (onDownloadGraded && response) {
+    actions.push({
+      label: "Download graded answer sheet",
+      tone: "primary",
+      onClick: onDownloadGraded,
+      disabled: downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    });
+  }
+  actions.push(doneAction);
+
+  // Chapter lens on re-open — only when the payload's rows align 1:1 with the
+  // record's qNumber-ordered questionIds (paper order), so the index → qNumber →
+  // id map is trustworthy. Otherwise omit rather than mis-attribute a chapter.
+  const chapterLens =
+    response && Array.isArray(record.questionIds) && record.questionIds.length === response.results.length
+      ? deriveStoredFullMockChapterLens(response, record.questionIds)
+      : null;
+
+  return {
+    surface: "full-mock",
+    title: record.title,
+    subtitle: `${record.id} · graded ${gradedDateLabel}`,
+    score: {
+      kind: "marks",
+      awarded: record.marksAwarded,
+      total: record.marksTotal,
+      ...(record.status === "graded" && totalQuestions > 0
+        ? { gradedCount: totalQuestions, totalQuestions }
+        : {}),
+    },
+    message: record.status === "partial" ? "Graded portion shown — some pages were pending on this mock." : null,
+    note: focusLine,
+    fourType: record.fourType,
+    sectionLens: response ? deriveFullMockSectionLens(response) : null,
+    chapterLens,
+    chapterLensNote: fullMockChapterLensNote(chapterLens),
     pending: null,
     allPending: null,
     actions,

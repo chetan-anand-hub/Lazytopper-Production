@@ -32,6 +32,9 @@ const SOURCE_MAP: Record<DesktopActionSource, { path: string; label: string }> =
   topicHub: { path: "/topic-hub", label: "Back to Topic Hub" },
   check: { path: "/check-improve", label: "Back to Check & Improve" },
   me: { path: "/me", label: "Back to Me" },
+  // Full Mock build: the worksheet builder's MI-led entry from a mock scorecard
+  // carries source="full-mock" + an explicit returnTo (the subject-exact path).
+  "full-mock": { path: "/full-mock/10/Maths", label: "Back to Full Mock" },
 };
 
 const isKnownSource = (value: string | null): value is DesktopActionSource => {

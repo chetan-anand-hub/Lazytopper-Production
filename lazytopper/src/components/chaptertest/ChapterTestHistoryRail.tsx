@@ -34,7 +34,9 @@ function weakSpot(record: SessionRecord): string | null {
   return conceptual >= calculation ? "conceptual" : "calculation";
 }
 
-function ScoreRing({ value, fillPct }: { value: string; fillPct: number }) {
+/** Exported (additive, Full Mock build): the FM history panel reuses the LOCKED
+ *  Chapter-Test card shape — ring · dot-strip · pending pill — verbatim. */
+export function ScoreRing({ value, fillPct }: { value: string; fillPct: number }) {
   const r = 15.5;
   const circumference = 2 * Math.PI * r;
   const dash = (Math.max(0, Math.min(100, fillPct)) / 100) * circumference;
@@ -59,7 +61,8 @@ function ScoreRing({ value, fillPct }: { value: string; fillPct: number }) {
   );
 }
 
-function DotStrip({ record }: { record: SessionRecord }) {
+/** Exported (additive, Full Mock build) — see ScoreRing above. */
+export function DotStrip({ record }: { record: SessionRecord }) {
   const { conceptual, calculation, silly, presentation } = record.fourType;
   const cells: Array<{ cls: string; on: boolean }> = [
     { cls: "con", on: conceptual > 0 },

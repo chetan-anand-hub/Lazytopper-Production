@@ -132,16 +132,22 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
   });
 });
 
-describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT)", () => {
+describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT + FM)", () => {
   it("is true for /chapter-test and its param routes (width-agnostic)", () => {
     expect(isBareFullScreenRoute("/chapter-test")).toBe(true);
     expect(isBareFullScreenRoute("/chapter-test/10/Maths/quadratic-equations")).toBe(true);
+  });
+
+  it("is true for /full-mock and its param routes (Full Mock build — the reserved entry is live)", () => {
+    expect(isBareFullScreenRoute("/full-mock")).toBe(true);
+    expect(isBareFullScreenRoute("/full-mock/10/Maths")).toBe(true);
+    expect(isBareFullScreenRoute("/full-mock/10/Science")).toBe(true);
   });
 
   it("is false for other routes (including near-miss prefixes)", () => {
     expect(isBareFullScreenRoute("/")).toBe(false);
     expect(isBareFullScreenRoute("/practice-hub")).toBe(false);
     expect(isBareFullScreenRoute("/chapter-tests")).toBe(false); // not the /chapter-test/ boundary
-    expect(isBareFullScreenRoute("/full-mock")).toBe(false); // reserved for later, not active yet
+    expect(isBareFullScreenRoute("/full-mocks")).toBe(false); // not the /full-mock/ boundary
   });
 });

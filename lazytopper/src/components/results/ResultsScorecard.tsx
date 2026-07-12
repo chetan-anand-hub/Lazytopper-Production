@@ -107,6 +107,49 @@ function LensBlock({ heading, rows }: { heading: string; rows: LensRow[] }) {
   );
 }
 
+/** The full-mock BY-CHAPTER lens (spec §5): per-chapter score BARS + the one
+ *  honest sentence ("Trigonometry cost you 9 marks — the biggest loss"). Fully
+ *  class-driven (§7 — no inline style objects): the fill width is the real
+ *  awarded/total ratio quantised to 5% width classes (visually lossless on a
+ *  6px bar), the tone by the same ratio. Derived upstream; renders only what it
+ *  is given. */
+function ChapterLensBlock({
+  rows,
+  note,
+}: {
+  rows: Array<{ id: string; label: string; awarded: number; total: number }>;
+  note?: string | null;
+}) {
+  return (
+    <>
+      <div className="lt-sc__mbk">
+        By chapter <span className="lt-sc__mbk-soft">· where the paper hurt</span>
+      </div>
+      <div className="lt-sc__chlens">
+        {rows.map((r) => {
+          const ratio = r.total > 0 ? Math.max(0, Math.min(1, r.awarded / r.total)) : 0;
+          const tone = ratio < 0.5 ? "low" : ratio < 0.75 ? "mid" : "good";
+          const step = Math.round(ratio * 20) * 5; // 0..100 in 5% steps
+          return (
+            <div className="lt-sc__chb" key={r.id}>
+              <div className="lt-sc__chb-hd">
+                <span>{r.label}</span>
+                <b>
+                  {r.awarded}/{r.total}
+                </b>
+              </div>
+              <div className="lt-sc__chtrack">
+                <i className={`lt-sc__chfill lt-sc__chfill--${tone} lt-sc__chw-${step}`} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {note && <div className="lt-sc__chnote">{note}</div>}
+    </>
+  );
+}
+
 /** The MI four-type block — "Where your marks went" (Knowledge gaps vs Careless). */
 function FourTypeBlock({ ft }: { ft: ScorecardFourType }) {
   return (
@@ -214,6 +257,17 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
                   }))}
                 />
               )}
+              {variant.chapterLens && variant.chapterLens.length > 0 && (
+                <ChapterLensBlock
+                  rows={variant.chapterLens.map((r) => ({
+                    id: r.key,
+                    label: r.label,
+                    awarded: r.awarded,
+                    total: r.total,
+                  }))}
+                  note={variant.chapterLensNote}
+                />
+              )}
               {variant.conceptLens && variant.conceptLens.length > 0 && (
                 <LensBlock
                   heading="By concept"
@@ -314,6 +368,26 @@ const SC_CSS = `
 .lt-sc__seclens-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .lt-sc__seclens-lbl { font-size: 13.5px; color: #cfd7e2; }
 .lt-sc__seclens-mk { font-weight: 700; color: #fff; font-size: 15px; font-variant-numeric: tabular-nums; }
+
+/* Full-mock by-chapter lens — score bars (§7: fully class-driven; 5% width steps). */
+.lt-sc__mbk-soft { font-weight: 500; text-transform: none; letter-spacing: 0; }
+.lt-sc__chlens { margin-bottom: 8px; }
+.lt-sc__chb { margin-bottom: 11px; }
+.lt-sc__chb-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12.5px; color: #c7d0dd; margin-bottom: 5px; }
+.lt-sc__chb-hd b { color: #fff; font-variant-numeric: tabular-nums; }
+.lt-sc__chtrack { height: 6px; background: rgba(255,255,255,.12); border-radius: 4px; overflow: hidden; }
+.lt-sc__chfill { display: block; height: 100%; border-radius: 4px; }
+.lt-sc__chfill--good { background: #34c78a; }
+.lt-sc__chfill--mid { background: #e0912f; }
+.lt-sc__chfill--low { background: #e0495f; }
+.lt-sc__chw-0 { width: 0%; } .lt-sc__chw-5 { width: 5%; } .lt-sc__chw-10 { width: 10%; }
+.lt-sc__chw-15 { width: 15%; } .lt-sc__chw-20 { width: 20%; } .lt-sc__chw-25 { width: 25%; }
+.lt-sc__chw-30 { width: 30%; } .lt-sc__chw-35 { width: 35%; } .lt-sc__chw-40 { width: 40%; }
+.lt-sc__chw-45 { width: 45%; } .lt-sc__chw-50 { width: 50%; } .lt-sc__chw-55 { width: 55%; }
+.lt-sc__chw-60 { width: 60%; } .lt-sc__chw-65 { width: 65%; } .lt-sc__chw-70 { width: 70%; }
+.lt-sc__chw-75 { width: 75%; } .lt-sc__chw-80 { width: 80%; } .lt-sc__chw-85 { width: 85%; }
+.lt-sc__chw-90 { width: 90%; } .lt-sc__chw-95 { width: 95%; } .lt-sc__chw-100 { width: 100%; }
+.lt-sc__chnote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: 2px 0 22px; line-height: 1.5; }
 
 .lt-sc__groups { display: flex; gap: 34px; }
 .lt-sc__col { flex: 1; min-width: 0; }

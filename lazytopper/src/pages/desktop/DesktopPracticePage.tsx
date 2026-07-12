@@ -310,6 +310,7 @@ const SOURCE_LABEL: Record<DesktopActionSource, string> = {
   worksheet: "Back to Worksheet",
   check: "Back to Check & Improve",
   me: "Back to Me",
+  "full-mock": "Back to Full Mock",
 };
 
 interface BackInfo {
@@ -343,6 +344,7 @@ function resolveBack(returnTo: string | null, source: string | null): BackInfo {
       worksheet: "/practice/worksheets",
       check: "/check-improve",
       me: "/me",
+      "full-mock": "/full-mock/10/Maths",
     };
     return { to: fallbackPath[key], label: SOURCE_LABEL[key] };
   }
