@@ -24,6 +24,7 @@
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import type { SessionFourType, SessionRecord } from "../../services/sessionRecords";
 import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
+import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 
 export type ScorecardSurface = "worksheet" | "quick-practice" | "chapter-test" | "full-mock";
 
@@ -92,6 +93,21 @@ export interface ScorecardSectionLensRow {
   total: number;
 }
 
+/** One row of the chapter-test BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]) — the
+ *  single-chapter analog of Full Mock's chapter lens: awarded/total per SUBTOPIC
+ *  (the concept level), so a student sees which concept within this chapter cost
+ *  marks. DERIVED at render (never persisted; sectionBreakdown stays null), from
+ *  the graded per-question marks joined to the canonical bank's `subtopic`. */
+export interface ScorecardConceptLensRow {
+  /** The subtopic string — the concept, and the row's stable React key. */
+  key: string;
+  label: string;
+  awarded: number;
+  total: number;
+  /** Marks lost on this concept (total − awarded, clamped ≥ 0) — drives the sort. */
+  lost: number;
+}
+
 /**
  * The per-surface config the shell renders. Populated by the builders below. A
  * `deferred` variant is a config seam only (chapter-test / full-mock) — never handed
@@ -113,6 +129,10 @@ export interface ScorecardVariant {
   /** Chapter-test BY-SECTION lens (A–D), rendered by the shell above the four-type
    *  block. Derived at render (D3); other surfaces leave it null. */
   sectionLens?: ScorecardSectionLensRow[] | null;
+  /** Chapter-test BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]), rendered by the shell
+   *  BETWEEN the section lens and the four-type (the Full-Mock arrangement:
+   *  section → concept → four-type). Derived at render; other surfaces leave it null. */
+  conceptLens?: ScorecardConceptLensRow[] | null;
   pending?: ScorecardPending | null;
   allPending?: ScorecardAllPending | null;
   /** Optional footer heading for the stacked what-next menu (QP: "What next?"). */
@@ -530,6 +550,86 @@ export function deriveChapterTestSectionLens(
   return rows.length > 0 ? rows : null;
 }
 
+// ── BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]) ─────────────────────────────────────
+//
+// The single-chapter analog of Full Mock's chapter lens: "which concept WITHIN this
+// chapter cost you marks." The grade response is keyed by qNumber and carries no
+// subtopic, so we recover the concept by joining each graded question's canonical
+// `id` (carried on the drawn paper question) → the canonical bank's `subtopic`
+// (CanonicalQuestion carries it; subtopic IS the concept level). DERIVED at render —
+// nothing persisted, `sectionBreakdown` stays null.
+
+/** A graded question's identity for the concept join: its qNumber (to match a grade
+ *  result) + its canonical questionId (to look up the subtopic). Satisfied structurally
+ *  by a PersistedWorksheetQuestion (paper.questions) or a `{qNumber, id}` from a stored
+ *  record's qNumber-ordered questionIds. */
+export interface ConceptLensQuestion {
+  qNumber: number;
+  id: string;
+}
+
+/** Lazily-built canonical questionId → subtopic index (built once on first use; the
+ *  bank is a static in-memory array, so this stays pure/synchronous). */
+let _subtopicByQuestionId: Map<string, string> | null = null;
+function subtopicForQuestionId(id: string): string | null {
+  if (!_subtopicByQuestionId) {
+    const map = new Map<string, string>();
+    for (const q of canonicalQuestionBank) {
+      if (q.id && typeof q.subtopic === "string" && q.subtopic.trim()) {
+        map.set(q.id, q.subtopic.trim());
+      }
+    }
+    _subtopicByQuestionId = map;
+  }
+  return _subtopicByQuestionId.get(id) ?? null;
+}
+
+/**
+ * Derive the BY-CONCEPT (subtopic) lens from a chapter-test response + the test's
+ * questions. Only GRADED (legible) questions contribute; each is joined qNumber →
+ * questionId → canonical `subtopic`, and awarded/total are aggregated per subtopic.
+ *
+ * ANTI-FABRICATION: a question whose subtopic can't be resolved (no matching id / a
+ * blank bank subtopic) is an HONEST UNKNOWN — it still counts in the total score (the
+ * hero) but sits in NO concept row, never a fabricated concept. When NO question
+ * resolves to any subtopic the lens is null (honest absence) and the shell omits it.
+ *
+ * Rows cover ALL resolved concepts (owner decision — mirror the by-section lens),
+ * sorted by marks LOST descending so the concept that cost the most reads first.
+ */
+export function deriveChapterTestConceptLens(
+  response: WorksheetGradeResponse,
+  questions: ConceptLensQuestion[],
+): ScorecardConceptLensRow[] | null {
+  const idByQNumber = new Map<number, string>();
+  for (const q of questions) idByQNumber.set(q.qNumber, q.id);
+
+  const buckets = new Map<string, { awarded: number; total: number }>();
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const id = idByQNumber.get(r.qNumber);
+    if (!id) continue; // no matching paper question — skip (still in the hero total)
+    const subtopic = subtopicForQuestionId(id);
+    if (!subtopic) continue; // honest unknown — never a fabricated concept
+    const b = buckets.get(subtopic) ?? { awarded: 0, total: 0 };
+    b.awarded += Number(r.marksAwarded) || 0;
+    b.total += Number(r.totalMarks) || 0;
+    buckets.set(subtopic, b);
+  }
+  if (buckets.size === 0) return null; // no concept resolved — honest absence
+
+  const rows: ScorecardConceptLensRow[] = [...buckets.entries()].map(([subtopic, b]) => ({
+    key: subtopic,
+    label: subtopic,
+    awarded: b.awarded,
+    total: b.total,
+    lost: Math.max(0, b.total - b.awarded),
+  }));
+  // Marks lost, worst first; ties → larger section first, then A→Z for a stable order.
+  rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
+  return rows;
+}
+
 export interface ChapterTestVariantInput {
   /** The CT name — `{Topic} · Test #N`. */
   name: string;
@@ -539,6 +639,9 @@ export interface ChapterTestVariantInput {
    *  are pending; in "full" they carry grades. */
   response: WorksheetGradeResponse;
   phase: "partial" | "full";
+  /** The test's questions (qNumber + canonical id) for the FULL-phase by-concept
+   *  lens join. Omit in partial (objective-only — no concept lens). */
+  questions?: ConceptLensQuestion[];
   downloading?: boolean;
   // Partial-phase handlers:
   onUpload?: () => void;
@@ -574,6 +677,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
       // NO four-type in partial: MCQs tell us right/wrong, not why (spec §5).
       fourType: null,
       sectionLens: null,
+      conceptLens: null,
       pending: null,
       allPending: null,
       actionsHeading: "For now",
@@ -653,6 +757,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     },
     fourType: aggregateFourType(response),
     sectionLens: deriveChapterTestSectionLens(response),
+    conceptLens: input.questions ? deriveChapterTestConceptLens(response, input.questions) : null,
     pending:
       response.pendingCount > 0
         ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
@@ -727,6 +832,15 @@ export function storedChapterTestScorecardVariant(
   }
   actions.push(doneAction);
 
+  // By-concept lens on re-open — only when the resolved payload's per-question results
+  // align 1:1 with the record's qNumber-ordered `questionIds` (paper order), so the
+  // index → qNumber → id map is trustworthy. Otherwise omit rather than risk
+  // mis-attributing a concept (anti-fabrication).
+  const conceptQuestions: ConceptLensQuestion[] | null =
+    response && Array.isArray(record.questionIds) && record.questionIds.length === response.results.length
+      ? record.questionIds.map((id, i) => ({ qNumber: i + 1, id }))
+      : null;
+
   return {
     surface: "chapter-test",
     title: record.title,
@@ -742,6 +856,7 @@ export function storedChapterTestScorecardVariant(
     message: record.status === "partial" ? "Graded portion shown — some pages were pending on this test." : null,
     fourType: record.fourType,
     sectionLens: response ? deriveChapterTestSectionLens(response) : null,
+    conceptLens: conceptQuestions ? deriveChapterTestConceptLens(response!, conceptQuestions) : null,
     pending: null,
     allPending: null,
     actions,

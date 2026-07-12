@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import type { SessionRecord } from "../../services/sessionRecords";
+import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import {
   aggregateFourType,
   worksheetScorecardVariant,
@@ -8,6 +9,8 @@ import {
   storedWorksheetScorecardVariant,
   chapterTestScorecardVariantStub,
   fullMockScorecardVariantStub,
+  chapterTestScorecardVariant,
+  deriveChapterTestConceptLens,
 } from "./scorecardVariants";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
@@ -286,5 +289,125 @@ describe("storedWorksheetScorecardVariant (PR-3 read-only re-open)", () => {
       onDone: noop,
     });
     expect(v.score).toEqual({ kind: "marks", awarded: 12, total: 20 });
+  });
+});
+
+describe("deriveChapterTestConceptLens ([FU-CT-CONCEPT-LENS])", () => {
+  // Two real bank questions with DISTINCT subtopics, taken live from the bank so the
+  // test exercises the true questionId → subtopic join (not a hardcoded id).
+  const bySubtopic = new Map<string, (typeof canonicalQuestionBank)[number]>();
+  for (const q of canonicalQuestionBank) {
+    if (q.id && typeof q.subtopic === "string" && q.subtopic.trim() && !bySubtopic.has(q.subtopic)) {
+      bySubtopic.set(q.subtopic, q);
+    }
+  }
+  const [qA, qB] = [...bySubtopic.values()];
+
+  it("aggregates awarded/total per subtopic and sorts by marks LOST (worst first)", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 2 }, // subtopic A
+        { qNumber: 2, couldNotRead: false, totalMarks: 5, marksAwarded: 5 }, // subtopic B (clean)
+        { qNumber: 3, couldNotRead: false, totalMarks: 3, marksAwarded: 1 }, // subtopic A
+      ],
+    });
+    const rows = deriveChapterTestConceptLens(resp, [
+      { qNumber: 1, id: qA.id },
+      { qNumber: 2, id: qB.id },
+      { qNumber: 3, id: qA.id },
+    ]);
+    expect(rows).not.toBeNull();
+    // A: awarded 3 / total 8 (lost 5); B: awarded 5 / total 5 (lost 0). Worst first → A, then B.
+    expect(rows!.map((r) => r.key)).toEqual([qA.subtopic, qB.subtopic]);
+    expect(rows![0]).toMatchObject({ key: qA.subtopic, awarded: 3, total: 8, lost: 5 });
+    expect(rows![1]).toMatchObject({ key: qB.subtopic, awarded: 5, total: 5, lost: 0 });
+  });
+
+  it("includes ALL resolved concepts, even full-mark ones (owner decision — mirror by-section)", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 5 },
+        { qNumber: 2, couldNotRead: false, totalMarks: 5, marksAwarded: 5 },
+      ],
+    });
+    const rows = deriveChapterTestConceptLens(resp, [
+      { qNumber: 1, id: qA.id },
+      { qNumber: 2, id: qB.id },
+    ]);
+    expect(rows).not.toBeNull();
+    expect(rows!.length).toBe(2);
+    expect(rows!.every((r) => r.lost === 0)).toBe(true);
+  });
+
+  it("HONEST unknown: an unresolvable id + couldNotRead form no concept row", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 2 }, // resolves
+        { qNumber: 2, couldNotRead: false, totalMarks: 5, marksAwarded: 0 }, // id not in bank
+        { qNumber: 3, couldNotRead: true, totalMarks: 5 }, // illegible — never counted
+      ],
+    });
+    const rows = deriveChapterTestConceptLens(resp, [
+      { qNumber: 1, id: qA.id },
+      { qNumber: 2, id: "not-a-real-question-id-xyz" },
+      { qNumber: 3, id: qB.id },
+    ]);
+    expect(rows).not.toBeNull();
+    // Only the one resolvable, legible question forms a row (no fabricated concept).
+    expect(rows!.map((r) => r.key)).toEqual([qA.subtopic]);
+    expect(rows![0]).toMatchObject({ awarded: 2, total: 5 });
+  });
+
+  it("returns null when NO question resolves to a subtopic (honest absence → shell omits)", () => {
+    const resp = response({
+      results: [{ qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 3 }],
+    });
+    const rows = deriveChapterTestConceptLens(resp, [{ qNumber: 1, id: "nope-not-in-bank" }]);
+    expect(rows).toBeNull();
+  });
+});
+
+describe("chapterTestScorecardVariant — concept lens wiring", () => {
+  const firstReal = canonicalQuestionBank.find((q) => q.id && typeof q.subtopic === "string" && q.subtopic.trim())!;
+
+  it("FULL: derives conceptLens when questions are supplied; partial never has one", () => {
+    const resp = response({
+      results: [{ qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 3 }],
+      totalQuestions: 1,
+      gradedCount: 1,
+      pendingCount: 0,
+      gradedMarksAwarded: 3,
+      gradedMarksTotal: 5,
+    });
+    const full = chapterTestScorecardVariant({
+      name: "Light · Test #1",
+      code: "CT-S-LIGHT-01",
+      phase: "full",
+      response: resp,
+      questions: [{ qNumber: 1, id: firstReal.id }],
+    });
+    expect(full.conceptLens).not.toBeNull();
+    expect(full.conceptLens![0].key).toBe(firstReal.subtopic);
+
+    const partial = chapterTestScorecardVariant({
+      name: "Light · Test #1",
+      code: "CT-S-LIGHT-01",
+      phase: "partial",
+      response: resp,
+    });
+    expect(partial.conceptLens).toBeNull();
+  });
+
+  it("FULL without questions → conceptLens null (host didn't pass the paper)", () => {
+    const resp = response({
+      results: [{ qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 3 }],
+    });
+    const full = chapterTestScorecardVariant({
+      name: "Light · Test #1",
+      code: "CT-S-LIGHT-01",
+      phase: "full",
+      response: resp,
+    });
+    expect(full.conceptLens).toBeNull();
   });
 });

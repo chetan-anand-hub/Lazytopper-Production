@@ -173,6 +173,23 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
 }
 
 /**
+ * isBareFullScreenRoute — routes that render as a BARE, distraction-free full-screen
+ * surface at BOTH desktop and mobile width: NO global chrome at all — no legacy dark
+ * header, no DesktopShell, no mobile BottomNav. The Chapter Test owns its whole viewport
+ * (its own back button + minimal test bar), so a student sits the test with no app chrome
+ * around it. Width-agnostic on purpose — the surface reflows itself.
+ *
+ * A prefix list so Full Mock (`/full-mock`) can join later with one entry. Exported as a
+ * pure predicate for unit testing.
+ */
+const BARE_FULLSCREEN_PREFIXES = ["/chapter-test"] as const;
+export function isBareFullScreenRoute(pathname: string): boolean {
+  return BARE_FULLSCREEN_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
+/**
  * BottomNav — mobile tab bar: Home / Exam Trends / Practice / Check / Me.
  *
  * Recoloured to the app's light grammar (PR D): white surface, soft border,
@@ -216,7 +233,12 @@ export function BottomNav() {
     return null;
   }
 
-  if (current === "/welcome" || current === "/pricing" || current.startsWith("/intent")) {
+  if (
+    current === "/welcome" ||
+    current === "/pricing" ||
+    current.startsWith("/intent") ||
+    isBareFullScreenRoute(current) // Chapter Test is bare full-screen — no bottom nav either.
+  ) {
     return null;
   }
 
@@ -569,6 +591,7 @@ export default function App() {
     (location.pathname === "/" && !user);
   const shouldUseDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
   const mobileSelfChromed = isMobileSelfChromedRoute(location.pathname, isDesktop);
+  const isBareFullScreen = isBareFullScreenRoute(location.pathname);
   const pricingUrl = (source: string) => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
     return `/pricing?source=${encodeURIComponent(source)}&returnTo=${encodeURIComponent(returnTo)}`;
@@ -598,7 +621,7 @@ export default function App() {
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
-      {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && !mobileSelfChromed && (
+      {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && !mobileSelfChromed && !isBareFullScreen && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{

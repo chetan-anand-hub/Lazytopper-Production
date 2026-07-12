@@ -801,6 +801,10 @@ export default function ChapterTestPage() {
                 code: nomen.code,
                 phase: "full",
                 response: fullResponse,
+                // qNumber + canonical id per question → the by-concept lens join
+                // ([FU-CT-CONCEPT-LENS]); PersistedWorksheetQuestion satisfies
+                // ConceptLensQuestion structurally.
+                questions: paper.questions,
                 downloading,
                 onReadSheet: () => setScorecardOpen(false),
                 onPractise: practiseTopic,

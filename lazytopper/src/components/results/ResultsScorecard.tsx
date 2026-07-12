@@ -3,7 +3,6 @@ import type {
   ScorecardVariant,
   ScorecardScore,
   ScorecardFourType,
-  ScorecardSectionLensRow,
 } from "./scorecardVariants";
 
 /**
@@ -79,14 +78,24 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
   );
 }
 
-/** The chapter-test BY-SECTION lens (A–D) — spec §5. Derived at render (D3). */
-function SectionLensBlock({ rows }: { rows: ScorecardSectionLensRow[] }) {
+/** One row of a scorecard lens (by-section A–D, or by-concept subtopics). */
+interface LensRow {
+  id: string;
+  label: string;
+  awarded: number;
+  total: number;
+}
+
+/** A scorecard lens block — the shared "label · awarded/total" grid used by BOTH the
+ *  chapter-test BY-SECTION lens (spec §5) and the BY-CONCEPT lens ([FU-CT-CONCEPT-LENS]).
+ *  Derived at render (D3); presentational only, writes nothing. */
+function LensBlock({ heading, rows }: { heading: string; rows: LensRow[] }) {
   return (
     <>
-      <div className="lt-sc__mbk">By section</div>
+      <div className="lt-sc__mbk">{heading}</div>
       <div className="lt-sc__seclens">
         {rows.map((r) => (
-          <div className="lt-sc__seclens-row" key={r.section}>
+          <div className="lt-sc__seclens-row" key={r.id}>
             <span className="lt-sc__seclens-lbl">{r.label}</span>
             <span className="lt-sc__seclens-mk">
               {r.awarded}/{r.total}
@@ -195,7 +204,26 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
 
               {variant.sectionLens && variant.sectionLens.length > 0 && (
-                <SectionLensBlock rows={variant.sectionLens} />
+                <LensBlock
+                  heading="By section"
+                  rows={variant.sectionLens.map((r) => ({
+                    id: r.section,
+                    label: r.label,
+                    awarded: r.awarded,
+                    total: r.total,
+                  }))}
+                />
+              )}
+              {variant.conceptLens && variant.conceptLens.length > 0 && (
+                <LensBlock
+                  heading="By concept"
+                  rows={variant.conceptLens.map((r) => ({
+                    id: r.key,
+                    label: r.label,
+                    awarded: r.awarded,
+                    total: r.total,
+                  }))}
+                />
               )}
               {variant.fourType && <FourTypeBlock ft={variant.fourType} />}
             </>
