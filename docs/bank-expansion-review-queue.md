@@ -59,3 +59,30 @@ small extra A/B/C extract-max source [FU-EXTRACT-CONTENT-F13].
 | RNSE-012 | E | 4 | authored | Fundamental Theorem of Arithmetic |
 | RNSE-013 | E | 4 | authored | Fundamental Theorem of Arithmetic |
 | RNSE-014 | E | 4 | authored | Fundamental Theorem of Arithmetic |
+
+## Batch 2 — real-numbers CORRECTIVE (2026-07-12) · 12 items
+
+Corrective exhaustive re-sweep after Batch 1 under-extracted A/B/C (per [FU-BANK-EXPANSION-SOURCE-SWEEP]).
+real-numbers 225 → 237. **Per-source sweep table** (candidates / DUP / banned-dropped / net-new kept):
+QB_MCQ 2 · WS_2 3 · ADDQB 2 · cbjemacq01 4 · Maths-Std-practice 2 · jeep201 (shared) — total 13 kept, skeptic
+dropped 2 structural twins (RNX2-C-003/-005) → **11 extracted A/B/C**. Plus a **D/E distinct-scenario
+exhaustion audit** (owner item #4): inventoried 27 distinct real-numbers scarce methods, found ALL covered
+except **perfect-cube FTA** → authored 1 (RN2SD-001). **Ceiling proven:** real-numbers supports only ~24
+distinct D+E method-classes total (syllabus bars Euclid/decimal/CRT-staggered-start), so the scarce bands cap
+far below 50 — this is the honest ceiling, not a shortfall. Two source items with WRONG printed answers were
+dropped (anti-fabrication), not banked.
+
+| id | section | marks | mode | subtopic |
+|---|---|--:|---|---|
+| RNX2-A-001 | A | 1 | extracted | HCF and LCM by Prime Factorisation |
+| RNX2-A-002 | A | 1 | extracted | Fundamental Theorem of Arithmetic |
+| RNX2-A-003 | A | 1 | extracted | Fundamental Theorem of Arithmetic |
+| RNX2-A-004 | A | 1 | extracted | Fundamental Theorem of Arithmetic |
+| RNX2-B-001 | B | 2 | extracted | HCF and LCM by Prime Factorisation |
+| RNX2-B-002 | B | 2 | extracted | HCF and LCM by Prime Factorisation |
+| RNX2-B-003 | B | 2 | extracted | Fundamental Theorem of Arithmetic |
+| RNX2-C-001 | C | 3 | extracted | Fundamental Theorem of Arithmetic |
+| RNX2-C-002 | C | 3 | extracted | HCF and LCM by Prime Factorisation |
+| RNX2-C-004 | C | 3 | extracted | HCF and LCM by Prime Factorisation |
+| RNX2-C-006 | C | 3 | extracted | HCF and LCM by Prime Factorisation |
+| RN2SD-001 | D | 5 | authored | Fundamental Theorem of Arithmetic |
