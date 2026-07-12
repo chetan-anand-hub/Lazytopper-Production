@@ -92,6 +92,9 @@ import { RN_EXEMPLAR } from './questionBanks/class10/maths/realNumbers.exemplar'
 import { RN_EXTRACT } from './questionBanks/class10/maths/realNumbers.extract';
 import { RN_SCARCE_D } from './questionBanks/class10/maths/realNumbers.scarceD';
 import { RN_SCARCE_E } from './questionBanks/class10/maths/realNumbers.scarceE';
+// Bank-expansion Batch 2 (real-numbers corrective, 2026-07-12): exhaustive A/B/C re-sweep + perfect-cube D.
+import { RN_EXTRACT2 } from './questionBanks/class10/maths/realNumbers.extract2';
+import { RN_SCARCE2 } from './questionBanks/class10/maths/realNumbers.scarce2';
 import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
 import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
 import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
@@ -529,6 +532,9 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...RN_EXTRACT,
   ...RN_SCARCE_D,
   ...RN_SCARCE_E,
+  // Bank-expansion Batch 2 — real-numbers corrective (2026-07-12): 11 exhaustive-swept A/B/C + 1 perfect-cube D.
+  ...RN_EXTRACT2,
+  ...RN_SCARCE2,
   ...PLE_NCERT,
   ...PLE_EXEMPLAR,
   ...QE_NCERT,
@@ -1705,6 +1711,8 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
   // are authentic (extracted from published compilations) — only its solutions decouple below.
   RN_SCARCE_D,
   RN_SCARCE_E,
+  // Bank-expansion Batch 2 (2026-07-12) — real-numbers perfect-cube D, authored.
+  RN_SCARCE2,
 ];
 
 /**
@@ -1735,6 +1743,8 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   // published compilations, but their worked solutions were reconstructed/reformatted into the
   // CBSE step scheme from an unverified source, so they are decoupled as pending student QA.
   RN_EXTRACT,
+  // Batch 2 (2026-07-12): real-numbers corrective exhaustive-sweep extract — same decouple rationale.
+  RN_EXTRACT2,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
