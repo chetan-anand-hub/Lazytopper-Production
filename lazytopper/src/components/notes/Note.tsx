@@ -606,6 +606,63 @@ function CiteLine({
   );
 }
 
+/**
+ * LedgerSource — renders one Source-Ledger provenance string
+ * ("NCERT 2026-27 Ch11 Fig 11.1 p.172") with its trailing page ref made
+ * clickable, opening the SAME NCERT-page popup the inline body cites use
+ * (shared onOpenPage -> NcertPageModal; ncertPdfOffsets handles the #page). The
+ * full string is displayed unchanged — only the "p.N" token becomes a button.
+ *
+ * Anti-fabrication: the page is clickable ONLY when the row is a real NCERT
+ * citation whose chapter is THIS note's chapter, so it maps to a real
+ * {subject, chapter, page}. Anything else — a non-NCERT PYQ, a figure ref with
+ * no page, a cross-chapter ref whose subject we cannot know — renders plain and
+ * byte-unchanged, never a dead or guessed link. A page RANGE ("pp.8-9") links
+ * to the first page while the range stays visible.
+ */
+const LEDGER_PAGE_RE = /\bpp?\.?\s*(\d+)/;
+const LEDGER_CH_RE = /\bCh\.?\s*(\d+)/;
+
+function LedgerSource({
+  source,
+  subject,
+  chapterFallback,
+  onOpenPage,
+}: {
+  source: string;
+  subject: NoteSubject;
+  chapterFallback: number;
+  onOpenPage: (ref: NcertPageRef) => void;
+}) {
+  const pageMatch = /^\s*NCERT/i.test(source) ? LEDGER_PAGE_RE.exec(source) : null;
+  const chMatch = LEDGER_CH_RE.exec(source);
+  const chapter = chMatch ? Number(chMatch[1]) : chapterFallback;
+  // Only an in-this-chapter NCERT page resolves to a real Storage PDF page.
+  if (!pageMatch || chapter !== chapterFallback) {
+    return <NoteRichText text={source} />;
+  }
+  const page = Number(pageMatch[1]);
+  const start = pageMatch.index;
+  const end = start + pageMatch[0].length;
+  const before = source.slice(0, start);
+  const label = source.slice(start, end); // exact "p.172" / "pp.8" — display preserved
+  const after = source.slice(end);
+  return (
+    <>
+      {before && <NoteRichText text={before} />}
+      <button
+        type="button"
+        className="lt-note__pageref"
+        onClick={() => onOpenPage({ subject, chapter, page })}
+        title={`Open NCERT page ${page}`}
+      >
+        {label}
+      </button>
+      {after && <NoteRichText text={after} />}
+    </>
+  );
+}
+
 function FigureCard({ figure }: { figure: NoteFigure }) {
   const assetUrl = getNoteAssetUrl(figure.asset);
   const generated = hasGeneratedRenderer(figure);
@@ -1263,7 +1320,14 @@ export function Note({ spec }: NoteProps) {
                       </b>
                     </td>
                     <td><NoteRichText text={row.type} /></td>
-                    <td className="lt-note__ledger-src"><NoteRichText text={row.source} /></td>
+                    <td className="lt-note__ledger-src">
+                      <LedgerSource
+                        source={row.source}
+                        subject={meta.subject}
+                        chapterFallback={meta.chapter_no}
+                        onOpenPage={setPageRef}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
