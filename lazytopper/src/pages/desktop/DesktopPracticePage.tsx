@@ -65,9 +65,9 @@ import {
  *   4. Two-column grid (main + aside):
  *      MAIN
  *        a. "Choose what to do" — 4 primary cards:
- *           Quick Practice / Worksheet / Predicted-HPQs / Full Mock
+ *           Quick Practice / Worksheet / Predicted-HPQs / Full Test
  *        b. "More practice options" accordion (native <details>):
- *           Timed Drill / Chapter Test / Practice Paper
+ *           Timed Drill / Chapter Test
  *        c. PaperBlueprint preview (when a topic is in scope or
  *           full-subject is chosen).
  *        d. Predicted questions — 3 tabs (Topic HPQs / Selected /
@@ -87,9 +87,8 @@ import {
  *   - /practice/:grade/:subject (PracticePage)        — Quick / Timed
  *   - /practice/worksheets       (DesktopWorksheetsPage / mobile)
  *   - /highly-probable/:grade/:subject                — Predicted/HPQs
- *   - /exam-simulation                                — Full Mock
+ *   - /full-mock/:grade/:subject                      — Full Test
  *   - /chapter-test/:grade/:subject/:topicKey         — Chapter Test
- *   - /mock-builder/:grade/:subject                   — Practice Paper
  *   - /check-improve / /me / /login (?reason=&redirect=)
  * All carry source=practice and returnTo=/practice-hub for back-nav.
  *
@@ -187,16 +186,6 @@ function IconScroll({ size = 18 }: { size?: number }) {
       <path d="M8 3h11a2 2 0 0 1 2 2v3H8" />
       <path d="M3 8h13v11a2 2 0 0 1-2 2H6a3 3 0 0 1-3-3V8z" />
       <path d="M21 8v8a3 3 0 0 1-3 3" />
-    </svg>
-  );
-}
-function IconFileText({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="9" y1="13" x2="15" y2="13" />
-      <line x1="9" y1="17" x2="13" y2="17" />
     </svg>
   );
 }
@@ -1496,7 +1485,7 @@ function MistakeIntelligencePanel({
             gap: 6,
           }}
         >
-          <IconLayers size={14} /> Add weak-area to mock
+          <IconGraduation size={14} /> Open Full Test
         </Link>
         <Link
           to={checkPath}
@@ -1718,7 +1707,6 @@ export default function DesktopPracticePage() {
 
   // Parity options (local UI checkboxes).
   const [worksheetMistakeMini, setWorksheetMistakeMini] = useState(false);
-  const [mockWeakArea, setMockWeakArea] = useState(false);
   const [drillTargeted, setDrillTargeted] = useState(false);
 
   // PR-C2.1 legacy in-page Quick Practice panel state. K2G routes the primary
@@ -1969,13 +1957,13 @@ export default function DesktopPracticePage() {
       sp.set("topics", scope.selectedTopicSlugs.join(","));
     return withQuery(`/highly-probable/${grade}/${scope.subject}`, sp);
   };
-  const buildExamSimulationPath = (mistakeMini?: boolean): string => {
+  // Full Test — the NEW /full-mock surface. MockViewGate on the route is the
+  // ONLY gate; entries navigate plainly (mirrors the Chapter Test card).
+  const buildFullTestPath = (): string => {
     const sp = new URLSearchParams();
     sp.set("source", SOURCE);
     sp.set("returnTo", returnTo);
-    sp.set("subject", scope.subject);
-    if (mistakeMini) sp.set("mistakeMini", "1");
-    return withQuery(`/exam-simulation`, sp);
+    return withQuery(`/full-mock/${grade}/${scope.subject}`, sp);
   };
   const buildChapterTestPath = (topicSlug: string): string => {
     const sp = new URLSearchParams();
@@ -1986,14 +1974,6 @@ export default function DesktopPracticePage() {
       sp,
     );
   };
-  const buildMockBuilderPath = (mistakeMini?: boolean): string => {
-    const sp = new URLSearchParams();
-    sp.set("source", SOURCE);
-    sp.set("returnTo", returnTo);
-    if (mistakeMini) sp.set("mistakeMini", "1");
-    return withQuery(`/mock-builder/${grade}/${scope.subject}`, sp);
-  };
-
   // Worksheet path — uses the real L2 helper that already targets
   // /practice/worksheets and forwards scope to that page.
   const worksheetPath = useMemo(() => {
@@ -2047,10 +2027,6 @@ export default function DesktopPracticePage() {
             })
           : buildLegacyPracticePath({});
 
-  const fullMockPath: string = !isSignedIn
-    ? loginUrl("start-full-mock", buildExamSimulationPath(mockWeakArea))
-    : buildExamSimulationPath(mockWeakArea);
-
   const timedDrillPath: string | null = !validScope
     ? null
     : !isSignedIn && drillTargeted
@@ -2078,10 +2054,6 @@ export default function DesktopPracticePage() {
     if (!topicForChapter) return null;
     return buildChapterTestPath(topicForChapter);
   })();
-
-  const practicePaperPath: string = !isSignedIn
-    ? loginUrl("start-full-mock", buildMockBuilderPath())
-    : buildMockBuilderPath();
 
   // Quick-links paths — Check / Progress / Worksheet (sign-in-aware).
   const checkLinkPath = isSignedIn
@@ -2141,14 +2113,12 @@ export default function DesktopPracticePage() {
     !isSignedIn && topicHubFocusContext && quickPracticePath
       ? loginUrl("start-focused-practice", currentPracticeUrl)
       : quickPracticePath;
-  const previewLine = (mode: "practice-set" | "worksheet" | "predicted" | "full-mock" | "timed" | "chapter-test" | "practice-paper"): string => {
+  const previewLine = (mode: "practice-set" | "worksheet" | "predicted" | "full-mock" | "timed" | "chapter-test"): string => {
     if (mode === "practice-set" && topicHubFocusContext && focusParam) {
       return `practice set from ${selectedTopic?.name ?? scope.subject} - focus: ${focusParam}`;
     }
     if (mode === "full-mock") {
-      return `Full ${scope.subject} mock · 80 marks · Sections A–E${
-        mockWeakArea && buckets.topRow ? ` · + weak-area mini-section (${buckets.topRow.label.toLowerCase()})` : ""
-      }`;
+      return `Full ${scope.subject} board paper · 3 hours · 80 marks · Sections A–E`;
     }
     if (mode === "worksheet" && worksheetMistakeMini && buckets.topRow) {
       const scopePart =
@@ -2189,7 +2159,6 @@ export default function DesktopPracticePage() {
     // Mode is implied by the most-recent CTA the learner is set up for.
     if (drillTargeted) return "timed (targeted)";
     if (worksheetMistakeMini) return "worksheet (mistake-aware)";
-    if (mockWeakArea) return "full mock (+ weak area)";
     return "intent-first";
   })();
   const chips: PracticeChip[] = [
@@ -2410,40 +2379,13 @@ export default function DesktopPracticePage() {
                 />
                 <PrimaryCard
                   icon={<IconGraduation />}
-                  title="Full Mock"
-                  desc={`Full ${scope.subject} mock · 80 marks.`}
+                  title="Full Test"
+                  desc="3-hour board paper · 80 marks."
                   preview={previewLine("full-mock")}
-                  cta="Open existing full-mock engine"
-                  to={fullMockPath}
-                  lockChip={!isSignedIn ? "Sign in" : undefined}
+                  cta="Open Full Test"
+                  to={buildFullTestPath()}
                   onActivate={(to) => navigate(to)}
-                  honestNote="Opens the existing /exam-simulation engine. The mock UI is not yet locked-prototype aligned."
-                  extra={
-                    <label
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        fontSize: 11,
-                        color: buckets.topRow ? TEXT_FG : TEXT_MUTED,
-                        cursor: buckets.topRow ? "pointer" : "not-allowed",
-                      }}
-                      title={
-                        buckets.topRow
-                          ? "Adds a weak-area mini-section to your mock"
-                          : "Available after you save a graded answer in Check & Improve"
-                      }
-                    >
-                      <input
-                        type="checkbox"
-                        checked={mockWeakArea && !!buckets.topRow}
-                        onChange={(e) => setMockWeakArea(e.target.checked)}
-                        disabled={!buckets.topRow}
-                        style={{ accentColor: PRIMARY_GREEN }}
-                      />
-                      Add weak-area mini-section
-                    </label>
-                  }
+                  honestNote={`Opens the Full Test — the full board-pattern ${scope.subject} paper (Sections A–E). The 3-hour clock starts on that page, not here.`}
                 />
               </div>
             </section>
@@ -3072,7 +3014,7 @@ export default function DesktopPracticePage() {
               >
                 More practice options
                 <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                  Timed · Chapter Test · Practice Paper
+                  Timed · Chapter Test
                 </span>
               </summary>
               <div className="lt-practice-more-grid">
@@ -3123,18 +3065,6 @@ export default function DesktopPracticePage() {
                   onActivate={(to) => navigate(to)}
                   ctaTone="secondary"
                   honestNote="Opens the existing /chapter-test engine on the topic you picked."
-                />
-                <PrimaryCard
-                  icon={<IconFileText />}
-                  title="Practice Paper"
-                  desc="Build a custom paper in the Mock Builder."
-                  preview={previewLine("practice-paper")}
-                  cta="Open existing Mock Builder"
-                  to={practicePaperPath}
-                  lockChip={!isSignedIn ? "Sign in" : "Premium"}
-                  onActivate={(to) => navigate(to)}
-                  ctaTone="secondary"
-                  honestNote="Opens the existing /mock-builder. The builder UI is not yet locked-prototype aligned."
                 />
               </div>
             </details>
@@ -3730,11 +3660,7 @@ export default function DesktopPracticePage() {
               grade={grade}
               subject={scope.subject}
               worksheetMistakeAwarePath={mistakeAwareWorksheetPath}
-              mockPath={
-                isSignedIn
-                  ? buildExamSimulationPath(true)
-                  : loginUrl("start-full-mock", buildExamSimulationPath(true))
-              }
+              mockPath={buildFullTestPath()}
               checkPath={checkLinkPath}
               drillPath={drillFromMistakePath}
               currentPracticeUrl={currentPracticeUrl}

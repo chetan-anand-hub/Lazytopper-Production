@@ -40,6 +40,11 @@ import {
   gradeFullMockUpload,
 } from "../services/fullMockGradeService";
 import {
+  saveFullMockPaperSnapshot,
+  fetchFullMockPaperSnapshot,
+  deleteFullMockPaperSnapshot,
+} from "../services/fullMockPaperStore";
+import {
   FM_DURATION_MS,
   drawFullMock,
   fullMockObjectiveQuestions,
@@ -386,6 +391,23 @@ export default function FullMockPage() {
         freshCount: a.freshCount,
         updatedAt: Date.now(),
       });
+      // …and persist the SAME paper server-side (text only — never an answer
+      // image, not even the typed answers) so a later upload from ANY signed-in
+      // device re-grades the REAL paper [FU-FM-CROSS-DEVICE-UPLOAD]. Best-effort:
+      // a miss keeps the device-local path and the honest cross-device fallback.
+      saveFullMockPaperSnapshot(user, {
+        code: a.code,
+        name: a.name,
+        subject,
+        grade,
+        paper: a.paper,
+        startedAt: a.startedAt,
+        durationMs: a.durationMs,
+        objective: obj,
+        focus,
+        pyqCount: a.pyqCount,
+        freshCount: a.freshCount,
+      });
       focusRef.current = focus;
       setObjective(obj);
       setResultsPhase("partial");
@@ -525,6 +547,9 @@ export default function FullMockPage() {
           setResultsPhase("full");
           setScorecardOpen(true);
           clearFullMockSession(sessionUid, a.code);
+          // Fully graded — the durable record + perQuestion payload exist; the
+          // cross-device paper snapshot has done its job.
+          deleteFullMockPaperSnapshot(user, a.code);
           trackUxEvent("full_mock_complete", "FullMockPage", {
             subject,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -542,9 +567,38 @@ export default function FullMockPage() {
 
   // ── Pending deep-link (banner / panel): attach to the EXISTING record ────────
   const openPendingUpload = useCallback(
-    (record: SessionRecord) => {
+    async (record: SessionRecord) => {
       setPanelOpen(false);
-      const s = loadFullMockSession(sessionUid, record.id);
+      let s = loadFullMockSession(sessionUid, record.id);
+      if (!(s && s.phase === "awaiting-upload" && s.objective)) {
+        // Not on this device (or evicted): retrieve the SAME drawn paper from
+        // the server-side snapshot so the upload grades the REAL paper
+        // [FU-FM-CROSS-DEVICE-UPLOAD]. No snapshot → the honest fallback below.
+        const snap = await fetchFullMockPaperSnapshot(user, record.id);
+        if (snap) {
+          s = {
+            code: snap.code,
+            name: snap.name,
+            subject: snap.subject,
+            grade: snap.grade,
+            paper: snap.paper,
+            startedAt: snap.startedAt,
+            durationMs: snap.durationMs,
+            answers: {},
+            flags: [],
+            currentQNumber: 1,
+            focus: { ...EMPTY_FOCUS, ...snap.focus },
+            phase: "awaiting-upload",
+            objective: snap.objective,
+            pyqCount: snap.pyqCount,
+            freshCount: snap.freshCount,
+            updatedAt: Date.now(),
+          };
+          // Re-seed this device's session so the rest of the upload flow (and
+          // a later revisit) behaves exactly like the sitting device.
+          saveFullMockSession(sessionUid, s);
+        }
+      }
       if (s && s.phase === "awaiting-upload" && s.objective) {
         const a: ActiveMock = {
           paper: s.paper,
@@ -565,8 +619,9 @@ export default function FullMockPage() {
         setScorecardOpen(false);
         setPhase("results");
       } else {
-        // The paper only exists on the device that sat this mock — say so
-        // plainly; never fabricate a paper to grade against (owner-ratified).
+        // The paper is genuinely unavailable (pre-snapshot mock, offline, or a
+        // failed snapshot write) — say so plainly; never fabricate a paper to
+        // grade against (owner-ratified).
         setReopen({
           record,
           response: null,
@@ -576,7 +631,7 @@ export default function FullMockPage() {
         });
       }
     },
-    [sessionUid],
+    [sessionUid, user],
   );
 
   // ── Re-open a stored mock read-only ──────────────────────────────────────────

@@ -20,8 +20,9 @@ import type {
  * record is written UPSTREAM by the grading service (worksheets) — Quick Practice writes
  * none (LOCKED §1a) — so this component performs no writes.
  *
- * Two LIVE variants are wired (Quick Practice, Worksheet). Chapter Test + Full Mock are
- * defined-but-`deferred` config seams; a deferred variant is treated as a no-op here.
+ * All FOUR LIVE variants are wired: Quick Practice, Worksheet, Chapter Test (#374/#380)
+ * and Full Mock (#387). The legacy `deferred` stubs remain defined in
+ * scorecardVariants.ts; a deferred variant is still treated as a no-op here (the guard).
  */
 
 interface ResultsScorecardProps {
