@@ -14,19 +14,25 @@ holds; only notes/chapter-test surfaces moved between them).
 Assembled bank = **7,084** (Maths 3,088 / Science 3,996; 26 topics). Census by {topic × section} taken from
 the import-based `assembled_bank_dump.json` (7,084 rows). Floors target **≥50 per A/B/C/D/E per topic**.
 
-## FLOOR POLICY — band-scarcity split (AUTHORITATIVE, per updated task §4, 2026-07-12)
+## FLOOR POLICY (AUTHORITATIVE — REVISED 2026-07-12, supersedes the earlier ≥50 wording)
 - **Sections A, B, C (1-mark MCQ/AR · 2-mark VSA · 3-mark SA, non-proof): NO forced floor. EXTRACT-MAX.**
-  Extract every GENUINELY net-new item the Content + gdrive sources hold (abundant). Do NOT author these,
-  do NOT pad. Extracting the maximum honest net-new IS the job for these bands.
-- **SCARCE, high-value categories — 4-mark CASE-BASED (E), 5-mark LONG-ANSWER (D), and PROOF-type
-  (wherever they sit): floor ≥50 per topic, GENUINELY DISTINCT.** Extract what exists, then AUTHOR the
-  remainder. Authoring headroom lives here.
-- **ANTI-REDUNDANCY (hard):** reject number-swapped OR structural variants — of each other AND of the
-  banked 7,084. "Distinct" must differ in MORE THAN numbers/surface-context (different method or a real
-  twist in sub-part composition). The skeptic enforces this.
-- **HONEST STOP:** if a scarce category cannot reach 50 genuinely-distinct even with authoring, stop at the
-  honest count and REPORT — never pad. (Real-numbers C/D — and, for a thin chapter, even E and proofs —
-  will honest-stop well below 50; that is expected and correct.)
+  Exhaustively sweep ALL sources; extract every GENUINELY net-new. MANDATORY per-source table every batch.
+  Do NOT author or pad A/B/C.
+- **SCARCE, high-value categories — 4-mark CASE-BASED (E), 5-mark LONG-ANSWER (D), and PROOF-type:
+  floor ≥ 75 per topic, GENUINELY DISTINCT** (raised from 50). Extract what exists, then AUTHOR the remainder.
+- **ANTI-REDUNDANCY (hard):** reject number-swapped OR structural variants — of each other AND of the banked
+  questions. "Distinct" = differs in MORE THAN numbers/surface-context (different method or a real sub-part
+  twist). The skeptic enforces this.
+- **HONEST STOP:** if a scarce category cannot reach 75 genuinely-distinct even with authoring, stop at the
+  honest count and REPORT the distinct-method inventory — NEVER pad. Most topics will honest-stop below 75 on
+  D/E (e.g. real-numbers D≈21/E≈25, our-environment D=16/E=32, life-processes D=53/E=54). That is expected.
+- **SYLLABUS = HARD GATE, TWO DIRECTIONS, EVERY BATCH:** (1) deleted chapters/subtopics (run `syllabusGuard.ts`
+  live + as a gate), AND (2) the **Class-11/12 adjacency boundary** — concepts sharing vocabulary with the
+  Class-10 chapter but taught in Class-12. Skeptic scans for the CONCEPT, not just the literal phrase.
+  Known trap (our-environment): "energy pyramid"/"pyramid of biomass"/"ecological efficiency"/"productivity"/
+  "succession"/detritus-vs-grazing-chain = Class-12 OUT; 10% energy-flow law + trophic levels = Class-10 IN.
+  If a chapter has no Class-12 exclusion entries yet, PROPOSE them for owner (NCERT-verifier) confirmation
+  BEFORE committing, then add entries + a test case. See the C12 scan snippet in the scratchpad tooling.
 
 ## Prior flat-floor gap table (now SUPERSEDED — kept for reference only)
 The earlier flat-≥50 gap (A 0 · B 137 · C 77 · D 544 · E 890 = 1,648) drove the wrong strategy: it treated
@@ -86,15 +92,41 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
 |---|---|---|---|---|
 | LPSD-009 | life-processes | describe air passage + alveolar adaptation | ENRICHMENT (text-answerable) | reference figure later |
 | LPSD-018 | life-processes | "draw a labelled diagram of the heart" + describe | ENRICHMENT (student-produced diagram) | reference figure later |
+| OESD-001 | our-environment | food chain vs food web + why chains short | ENRICHMENT (text-answerable) | reference food-web figure later |
+| OESD-005 | our-environment | 10%-law trophic energy calc (diagram = horizontal food-chain energy-flow, NOT a pyramid) | ENRICHMENT (numeric-answerable) | reference figure later |
 
 ## Batch queue status
 - **Batch 1 — real-numbers +30: MERGED #381 (`3866a94`), docs #383 (`c4c7032`).** extract 10 + authored 20.
 - **Batch 2 — real-numbers corrective +12: MERGED #384 (`63c6b04`).** Exhaustive re-sweep 11 + perfect-cube D 1.
   Real-numbers A/B/C reservoir proven ≈23 net-new by exhaustion; scarce ceiling ≈24 distinct methods (audit).
 - **Batch 3 — life-processes +136: MERGED #385 (`ce34b3e`).** extract-max 75 A/B/C + scarce D×22 (→53) + case×39 (→54).
-- **Bank now = 7,262.** This bundled docs handoff covers #384 + #385.
-- **NEXT: another Science topic** (our-environment / how-do-organisms-reproduce — large reservoirs). Same
-  exhaustive per-source sweep + table; extract-max A/B/C; ≥50-distinct D/E/proofs with honest-stop + inventory.
+- **Batch 4 — our-environment +80: MERGED #388 (`99b1d2a`).** extract 51 A/B/C + scarce D×7 (→16) + case×22 (→32);
+  both scarce bands honest-stop (Ch15 narrow). Owner byte-review → 4 Class-12 "pyramid" items reframed to 10%
+  energy-flow; two-direction syllabus boundary now standard.
+- **Bank now = 7,342. 4 topics done: real-numbers, life-processes, our-environment (+ real-numbers corrective).**
+
+## TOPICS REMAINING (~22) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+Maths (12): polynomials · pair-of-linear-equations · quadratic-equations · arithmetic-progression · triangles ·
+coordinate-geometry · trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics ·
+probability. Science (10): chemical-reactions-and-equations · acids-bases-and-salts · metals-and-non-metals ·
+carbon-and-its-compounds · light-reflection-and-refraction · human-eye-and-colourful-world · electricity ·
+magnetic-effects-of-electric-current · control-and-coordination · how-do-organisms-reproduce · heredity.
+**NEXT = reproduce or heredity** (Science, large reservoirs).
+
+## RESUME (for a fresh Fable window — this file + the task file are the source of truth)
+1. Re-derive trunk; `corepack pnpm@10.32.1 install --no-frozen-lockfile` in a fresh worktree from CURRENT trunk;
+   `git checkout -- pnpm-lock.yaml`; run tsc via `./node_modules/.bin/tsc`.
+2. Regenerate the bank dump vs the CURRENT bank (scratchpad `dump_batch*.mjs` → `assembled_bank_dump_v*.json`);
+   dedup MUST be vs the latest bank. Repoint `gate.mjs`/`rewrite.mjs` LAZY + DUMP consts to the new worktree/dump.
+3. Per topic: dispatch (a) an EXTRACT-MAX A/B/C subagent (all sources, per-source table, dedup, syllabus TWO-way),
+   (b) scarce D + E (+ proof) distinct-authoring subagents to ≥75 or honest-stop, (c) skeptics (independent
+   re-solve + syllabus Class-12 scan + distinctness). Subagents return COMPACT (counts/table/reject-ids), NOT text.
+4. Drop rejects (`rewrite.mjs`), my gate, wire imports+spread+provenance, run FULL gate stack (§F), manifest,
+   PR from current trunk (never self-merge — `src/data` CODEOWNERS). Docs handoff after each merge (bundle if
+   several merge together). Owner byte-reviews each batch.
+- **Tooling (scratchpad, reusable):** `gate.mjs` (dedup + mechanical), `rewrite.mjs` (drop ids), `AUTHORING_SPEC.md`
+  (schema + step-marking + TWO-direction syllabus rule), `dump_batch*.mjs`, the runtime-proof one-liner, the C12
+  boundary scan snippet. Regenerate the dump before each new topic.
 - **Tooling (scratchpad, reusable):** gate.mjs (dedup + mechanical), rewrite.mjs (drop rejected ids),
   AUTHORING_SPEC.md, dump_batch*.mjs (regenerate the bank dump vs CURRENT bank after each merge — dedup must be
   vs the latest), the assembled-bank runtime proof one-liner. **Regenerate the dump before each new topic.**
@@ -106,6 +138,8 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   groups PRE-EXISTING (not from this batch; my 30 contribute 0). Data-quality cleanup candidate, separate lane.
 
 ## Progress log (newest first)
+- 2026-07-12: Batch 4 (our-environment) MERGED #388 +80 — both scarce bands honest-stop; owner byte-review caught
+  Class-12 pyramid content → 4 reframed; two-direction syllabus boundary + ≥75 floor now standard. Bank → 7,342.
 - 2026-07-12: Batch 3 (life-processes) MERGED #385 — first Science batch, +136, exhaustive-sweep fix confirmed
   (75 A/B/C vs 23). Batch 2 (real-numbers corrective) MERGED #384 — exhaustive re-sweep + D/E exhaustion audit.
   Bundled docs handoff (#384+#385) done. Figure-pending safeguard doctrine adopted.
