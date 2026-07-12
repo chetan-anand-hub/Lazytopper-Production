@@ -1,6 +1,18 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #387 merged — FULL TEST (Full Mock) LIVE — trunk `f6522d0`
+## [CURRENT] #388 merged — bank-expansion Batch 4 (our-environment +80) — trunk `99b1d2a`
+
+**Post-merge code trunk: `99b1d2a` (squash of #388), on top of #387 `f6522d0` (Full Mock).** Re-derive the tip after this docs PR merges.
+
+**Bank-expansion lane — 4 topic-batches shipped. Assembled bank 7,084 → 7,342.**
+- **#388 (`99b1d2a`) — Batch 4, our-environment +80** (169 → 249): extract-max 51 A/B/C (per-source table; ~10 Ch16/Ch14 drift dropped; 1 wrong source key corrected) + scarce D×7 (→16) + case-based ×22 (→32). Both scarce bands HONEST-STOP with inventories — Ch15 ecology is intrinsically narrow. **Owner byte-review caught a Class-12 boundary gap** (energy pyramid / pyramid of biomass are Class-12, not Class-10) → 4 items reframed to in-syllabus 10% energy-flow; **two-direction syllabus check (deleted-chapter list + Class-11/12 adjacency) is now standard**, enforced by extract/author/skeptic.
+- Prior batches: **#381** real-numbers +30, **#384** real-numbers corrective +12, **#385** life-processes +136 (bundled docs #386).
+- **REVISED FLOOR (owner, authoritative):** A/B/C extract-max (no ceiling); scarce **D + E + PROOF ≥ 75 GENUINELY DISTINCT** per topic (was 50), honest-stop + inventory if a narrow topic caps below 75. Strict anti-redundancy.
+- **syllabusGuard is a HARD GATE every batch** (read LIVE + run as a gate + two-direction boundary; propose+owner-confirm any missing Class-12 exclusion entries before committing).
+- **Manifest:** `docs/bank-expansion-review-queue.md` (all 258 ids across 4 batches). **Review-free: every question is LIVE on merge**; owner does whole-product QA later. Provenance: authored → `AI_GENERATED_PACK_SOURCES`; extracted → `AI_GENERATED_SOLUTION_IDS`.
+- **Lane state / resume point:** `handoff/BANK_EXPANSION_LANE_STATE.md` (topics done/remaining, floors, boundary + figure-pending rules, tooling paths). **NEXT: a Science topic (reproduce / heredity).** ~22 topics remain.
+
+## #387 merged — FULL TEST (Full Mock) LIVE — trunk `f6522d0`
 
 **Post-merge code trunk: `f6522d0` (squash of #387, feature branch `720f7e5`).** Re-derive the tip after this docs PR merges (the usual one-commit lag).
 

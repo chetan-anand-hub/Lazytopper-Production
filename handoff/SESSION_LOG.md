@@ -1,5 +1,19 @@
 ---
 
+## 2026-07-12 -- #388: bank-expansion Batch 4 — our-environment +80 (trunk `99b1d2a`), owner-merged
+
+**Trunk after: `99b1d2a` (#388) on `f6522d0` (#387 Full Mock).** Assembled bank 7,262 → 7,342.
+- our-environment 169 → 249: exhaustive extract-max 51 A/B/C (per-source table; ~10 Ch16/Ch14 drift dropped; a
+  wrong source answer key corrected) + scarce D×7 (→16) + case-based ×22 (→32). Both scarce bands HONEST-STOP with
+  distinct-method inventories — Ch15 intrinsically narrow (the counterpart to life-processes clearing the floor).
+- **Owner byte-review caught a Class-12 boundary gap:** the skeptic dropped explicit "ecological pyramid" case
+  items but kept "energy pyramid"/"pyramid of biomass" content (Class-12). Corrective: 4 items reframed to
+  in-syllabus 10% energy-flow (no drops). **Two-direction syllabus boundary (deleted-chapter list + Class-11/12
+  adjacency) is now standard**, baked into the authoring spec for extract/author/skeptic.
+- **New authoritative floor: scarce D/E/proof ≥ 75 distinct** (was 50); syllabusGuard is a hard gate every batch.
+- 3 skeptics / 2 passes over the batch; 8 dropped pre-merge + 4 reframed post-review. All gates + CI green. Never
+  self-merged. Manifest `docs/bank-expansion-review-queue.md`.
+
 ## 2026-07-12 -- #387: FULL TEST (Full Mock) BUILT + MERGED (trunk `f6522d0`), owner byte-reviewed
 
 **Trunk after: `f6522d0` (squash of #387; feature `720f7e5` off `c4c7032`).** The Full Test lane went

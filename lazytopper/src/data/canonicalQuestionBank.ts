@@ -56,6 +56,10 @@ import { HEC2_PACK2 } from './questionBanks/class10/science/humanEyeAndColourful
 import { EL2_PACK2 } from './questionBanks/class10/science/electricity.pack2';
 import { ME2_PACK2 } from './questionBanks/class10/science/magneticEffects.pack2';
 import { OE2_PACK2 } from './questionBanks/class10/science/ourEnvironment.pack2';
+// Bank-expansion Batch 4 (our-environment, 2026-07-12): extract-max A/B/C + distinct-authored scarce D/E.
+import { OE_EXTRACT } from './questionBanks/class10/science/ourEnvironment.extract';
+import { OE_SCARCE_D } from './questionBanks/class10/science/ourEnvironment.scarceD';
+import { OE_SCARCE_E } from './questionBanks/class10/science/ourEnvironment.scarceE';
 
 // Science chapters 1–7 NCERT + Exemplar extractions (added 2026-05-22 — wires PR #98 content into engine pool)
 import { CHEM_REACTIONS_NCERT } from './questionBanks/class10/science/chemicalReactions.ncert';
@@ -503,6 +507,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...ME2_PACK2,
   ...OUR_ENVIRONMENT_PACK1,
   ...OE2_PACK2,
+  // Bank-expansion Batch 4 — our-environment (2026-07-12): 51 extracted A/B/C + 7 scarce-D + 22 case-based.
+  ...OE_EXTRACT,
+  ...OE_SCARCE_D,
+  ...OE_SCARCE_E,
   // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
   ...CHEM_REACTIONS_NCERT,
   ...CHEM_REACTIONS_EXEMPLAR,
@@ -1724,6 +1732,9 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
   // Bank-expansion Batch 3 (2026-07-12) — life-processes scarce categories, authored (question + solution).
   LP_SCARCE_D,
   LP_SCARCE_E,
+  // Bank-expansion Batch 4 (2026-07-12) — our-environment scarce categories, authored (question + solution).
+  OE_SCARCE_D,
+  OE_SCARCE_E,
 ];
 
 /**
@@ -1758,6 +1769,8 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   RN_EXTRACT2,
   // Batch 3 (2026-07-12): life-processes exhaustive extract — authentic questions, reconstructed solutions.
   LP_EXTRACT,
+  // Batch 4 (2026-07-12): our-environment exhaustive extract — authentic questions, reconstructed solutions.
+  OE_EXTRACT,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([

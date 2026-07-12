@@ -113,3 +113,29 @@ life-processes has the rich reservoir real-numbers lacked. Provenance → `AI_GE
 **Authored Section-D (22):** LPSD-001…022.
 **Authored case-based (39):** LPSE-001…040 (excl LPSE-004).
 **Diagram-pass needed (2):** LPSD-009 (respiratory system), LPSD-018 (human heart) — `requiresDiagram:true`, described, figure deferred.
+
+## Batch 4 — our-environment (2026-07-12) · 80 items
+
+Ch15 (ecology). Demonstrates HONEST-STOP on both scarce bands (narrow chapter) vs life-processes clearing the
+floor. our-environment **169 → 249**.
+
+| Band | Section | Before | +Extracted | +Authored | After | Floor status |
+|---|---|--:|--:|--:|--:|---|
+| A | 1-mark | 85 | +35 | 0 | 120 | extract-max (no floor) |
+| B | 2-mark | 37 | +13 | 0 | 50 | extract-max (no floor) |
+| C | 3-mark | 28 | +3 | 0 | 31 | extract-max (no floor) |
+| D | 5-mark long | 9 | 0 | +7 | 16 | **HONEST STOP** — 11 distinct methods, 4 pre-saturated |
+| E | 4-mark case | 10 | 0 | +22 | 32 | **HONEST STOP** — 9 concept clusters exhausted |
+
+**Exhaustive sweep (extract-max, 51 kept):** per-source — cbjesccq15 25 · cbjescco15 14 · QB_MCQ 16 (some
+pruned in dedup); ~10 Ch16/Ch14 drift items dropped (forests/Chipko/fossil-fuel/energy-sources — the boundary
+held); 1 source with a WRONG key corrected (OEX-A-006 "greatest biomass = Producers", not the source's
+"herbivores"). Skeptic dropped 4 (2 ambiguous/beyond-depth A, 2 near-dup B). A×35 B×13 C×3.
+**Scarce authoring (distinct, 29 kept):** Section-D ×7 (honest ceiling — 11 distinct 5-mark methods, 4 already
+saturated in the 9 banked) + case-based ×22. Skeptic dropped 4 (3 "ecological pyramid" items = Class-12 scope,
+1 near-dup). Both scarce bands honest-stop well below 50 — Ch15 is intrinsically narrow (correct, not a shortfall).
+3 skeptics/2 passes over all 88 → 80 kept, 8 dropped (all syllabus-scope or redundancy; no factual errors).
+
+**Extracted (51):** OEX-A-001,003–026,028–037 · OEX-B-001–009,012–015 · OEX-C-001–003.
+**Authored Section-D (7):** OESD-001…007.  **Authored case-based (22):** OESE-001–005,007–014,017–024,026.
+**Diagram-pass needed (2, ENRICHMENT — text/numeric-answerable):** OESD-001 (food web), OESD-005 (energy-flow pyramid).
