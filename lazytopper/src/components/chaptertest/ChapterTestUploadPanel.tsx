@@ -21,6 +21,8 @@ export default function ChapterTestUploadPanel({
   isSignedIn,
   onGrade,
   onSkip,
+  eyebrow = "Chapter Test · Result",
+  sectionsLabel = "Sections B–D",
 }: {
   name: string;
   code: string;
@@ -30,6 +32,10 @@ export default function ChapterTestUploadPanel({
   isSignedIn: boolean;
   onGrade: (upload: { imageBase64: string; imageMimeType: string }) => void;
   onSkip: () => void;
+  /** Surface wording overrides (Full Mock: "Full Mock · Result" / "Sections
+   *  B–E"). Additive — defaults keep the Chapter Test byte-identical. */
+  eyebrow?: string;
+  sectionsLabel?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -68,11 +74,11 @@ export default function ChapterTestUploadPanel({
   return (
     <div className="lt-ct__upload">
       <div className="lt-ct__uploadcard">
-        <div className="lt-ct__eyebrow">Chapter Test · Result</div>
+        <div className="lt-ct__eyebrow">{eyebrow}</div>
         <div className="lt-ct__title lt-ct__fr">{name}</div>
         <div className="lt-ct__sub">
           {code} · objective scored <b>{objective.awarded}/{objective.total}</b>. Upload your written
-          answers (Sections B–D) and we’ll grade them against this test’s marking scheme — with a full
+          answers ({sectionsLabel}) and we’ll grade them against this test’s marking scheme — with a full
           mistake breakdown.
         </div>
 

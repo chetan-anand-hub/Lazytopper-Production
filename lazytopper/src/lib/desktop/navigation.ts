@@ -1,4 +1,4 @@
-export type DesktopActionSource = "home" | "practice" | "trends" | "topicHub" | "worksheet" | "check" | "me";
+export type DesktopActionSource = "home" | "practice" | "trends" | "topicHub" | "worksheet" | "check" | "me" | "full-mock";
 export type DesktopSubject = "Maths" | "Science";
 export type DesktopStream = "All" | "Physics" | "Chemistry" | "Biology";
 export type DesktopPracticeMode = "practice-set" | "worksheet" | "predicted" | "full-mock" | "timed" | "chapter-test" | "practice-paper";

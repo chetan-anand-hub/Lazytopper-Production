@@ -14,8 +14,12 @@ export interface QuestionSpec {
 /**
  * Helper: allocate integer counts from percentages
  * in a way that sums exactly to `total`.
+ *
+ * Exported (additive, Full Mock build): fullMockBlueprint reuses this EXACT
+ * allocation math to distribute each section's question count across chapters
+ * by `weightagePercent` — the engine's encoding of the real CBSE distribution.
  */
-function allocateByPercent<T extends string>(
+export function allocateByPercent<T extends string>(
   total: number,
   items: { key: T; percent: number }[]
 ): Record<T, number> {
