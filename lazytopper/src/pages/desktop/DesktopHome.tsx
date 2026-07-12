@@ -24,9 +24,9 @@ import { loginUrl, PRIMARY_CARDS } from "../../lib/desktop/homeDestinations";
  *     readLandingMemory().lastAttempt (saved worksheet PLAN, not a graded score)
  *   - prototype 4 primary cards  → /practice-hub, /practice/worksheets,
  *     /exam-trends, /check-improve
- *   - prototype quick-generate   → /mock-builder/{grade}/Maths, /mock-builder/
- *     {grade}/Science, /exam-trends (predicted), /practice/worksheets
- *     (multi-topic)
+ *   - prototype quick-generate   → /full-mock/{grade}/Maths, /full-mock/
+ *     {grade}/Science (Full Test), /exam-trends (predicted),
+ *     /practice/worksheets (multi-topic)
  *   - prototype MistakeIntelligencePanel → inline panel with three real
  *     states (logged-out / no real bucket / has real bucket) backed by
  *     getMistakeLogs(uid, 7) aggregation. Does NOT import the PR #17-only
@@ -43,8 +43,9 @@ import { loginUrl, PRIMARY_CARDS } from "../../lib/desktop/homeDestinations";
  *     counts.
  *   - Auth-required CTAs route through reason-aware /login URLs that
  *     match the PR-LANDING canonical reason set (start-trial,
- *     mistake-aware, mistake-aware-worksheet, open-progress, open-check,
- *     start-full-mock).
+ *     mistake-aware, mistake-aware-worksheet, open-progress, open-check).
+ *     Full Test entries navigate plainly — MockViewGate on /full-mock is
+ *     the ONLY gate (it handles signed-out + free-limit itself).
  *
  * Design constraints:
  *   - Inline styles only — no Tailwind / shadcn / Radix.
@@ -279,7 +280,7 @@ export default function DesktopHome() {
 
   // Default subject for quick-generate predicted/multi-topic when no
   // memory exists. We never invent a subject in the visible label, but
-  // we do need a target subject for the mock-builder URL — Maths is the
+  // we do need a target subject for the quick-generate URLs — Maths is the
   // production catalogue default and is the safest neutral value.
   const fallbackSubject: "Maths" | "Science" =
     memorySubject === "Science" || lastAttempt?.subject === "Science"
@@ -565,7 +566,7 @@ export default function DesktopHome() {
                       <ClipboardListIcon size={13} /> Mistake-aware worksheet
                     </Link>
                     <Link
-                      to={`/mock-builder/${encodeURIComponent(fallbackGrade)}/${encodeURIComponent(lastAttempt.subject)}?focus=mistakes&${HOME_QS}`}
+                      to={`/full-mock/${encodeURIComponent(fallbackGrade)}/${encodeURIComponent(lastAttempt.subject)}?${HOME_QS}`}
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -579,7 +580,7 @@ export default function DesktopHome() {
                         fontWeight: 600,
                       }}
                     >
-                      Add weak-area to next mock
+                      Open Full Test
                     </Link>
                   </div>
                   <div
@@ -730,26 +731,18 @@ export default function DesktopHome() {
             >
               {[
                 {
-                  to: isSignedIn
-                    ? `/mock-builder/${encodeURIComponent(fallbackGrade)}/Maths?mode=full-mock&${HOME_QS}`
-                    : loginUrl(
-                        "start-full-mock",
-                        `/mock-builder/${fallbackGrade}/Maths`,
-                      ),
-                  kicker: "Full mock",
+                  // Full Test — the NEW /full-mock surface; MockViewGate on the
+                  // route is the ONLY gate, so the tile navigates plainly.
+                  to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Maths?${HOME_QS}`,
+                  kicker: "Full Test",
                   title: "Maths · 80 marks",
-                  detail: "Sections A–E · 3 hours",
+                  detail: "3-hour board paper · Sections A–E",
                 },
                 {
-                  to: isSignedIn
-                    ? `/mock-builder/${encodeURIComponent(fallbackGrade)}/Science?mode=full-mock&${HOME_QS}`
-                    : loginUrl(
-                        "start-full-mock",
-                        `/mock-builder/${fallbackGrade}/Science`,
-                      ),
-                  kicker: "Full mock",
+                  to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Science?${HOME_QS}`,
+                  kicker: "Full Test",
                   title: "Science · 80 marks",
-                  detail: "Phy + Chem + Bio · 3 hours",
+                  detail: "3-hour board paper · Phy + Chem + Bio",
                 },
                 {
                   to: `/exam-trends?subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,

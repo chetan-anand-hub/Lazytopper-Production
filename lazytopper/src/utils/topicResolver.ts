@@ -69,13 +69,31 @@ export function resolveRuntimeTopicKey(
   return candidates[0] || normalizeTopicKey(rawTopicKey);
 }
 
+/** Connectives the display-name fallback keeps lowercase (CBSE chapter-title
+ *  style: "Pair of Linear Equations", "Control and Coordination") — except as
+ *  the first word. [FU-TOPIC-DISPLAY-TITLECASE] */
+const FALLBACK_MINOR_WORDS = new Set([
+  "a", "an", "and", "as", "at", "but", "by", "for", "from",
+  "in", "into", "nor", "of", "on", "or", "the", "to", "with",
+]);
+
 /**
  * Convert a canonical topic key (slug) into a display name.
- * Example: "pair-of-linear-equations" -> "Pair Of Linear Equations"
+ * A canonical registry title wins; the fallback title-cases the slug words but
+ * keeps connectives lowercase. Example: "pair-of-linear-equations" ->
+ * "Pair of Linear Equations". Display-only — never used to derive keys.
  */
 export function resolveTopicDisplayName(_subjectKey: string, topicKey: string): string {
   const chapter = getCanonicalChapterBySlug(topicKey);
   if (chapter?.title) return chapter.title;
-  const withSpaces = normalizeTopicSlug(topicKey).replace(/-+/g, " ");
-  return withSpaces.replace(/\b\w/g, (char) => char.toUpperCase());
+  // normalizeTopicSlug output is a pure lowercase hyphen-slug ([a-z0-9-]).
+  return normalizeTopicSlug(topicKey)
+    .split(/-+/)
+    .filter(Boolean)
+    .map((word, i) =>
+      i > 0 && FALLBACK_MINOR_WORDS.has(word)
+        ? word
+        : word.charAt(0).toUpperCase() + word.slice(1),
+    )
+    .join(" ");
 }

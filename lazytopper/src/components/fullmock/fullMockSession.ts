@@ -13,13 +13,16 @@
 //   • UPLOAD-LATER: after submit the state flips to "awaiting-upload" and KEEPS
 //     the paper + frozen objective score, so the pending banner's "Upload now →"
 //     can re-grade the ORIGINAL paper against the EXISTING record on this device.
-//     (Cross-device the paper genuinely doesn't exist — the re-open says so
-//     plainly; we never fabricate a paper. Owner-ratified 2026-07-12.)
+//     (Cross-device / after eviction, the SAME paper is retrieved from the
+//     server-side snapshot — services/fullMockPaperStore, closing
+//     [FU-FM-CROSS-DEVICE-UPLOAD]; when even that is missing the re-open says
+//     so plainly; we never fabricate a paper. Owner-ratified 2026-07-12.)
 //
 // localStorage only (keyed per uid + FM code), capped to the most recent few
 // sessions — this is a device-local safety net, NOT the durable record store
-// (sessionRecords is; nothing here reaches Firestore). Honest failure: any
-// unreadable blob returns null and the caller offers the download path (§8a.4).
+// (sessionRecords is; nothing in THIS module reaches Firestore — the cross-
+// device paper snapshot lives in services/fullMockPaperStore). Honest failure:
+// any unreadable blob returns null and the caller offers the download path (§8a.4).
 
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { SessionFocusAggregates } from "../../services/sessionRecords";

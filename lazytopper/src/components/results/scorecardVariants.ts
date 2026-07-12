@@ -9,11 +9,11 @@
 //   3. actions        — worksheet: Read + Download graded sheet · QP: personalized what-next
 //   4. graded-sheet?  — worksheet: yes · quick practice: no
 //
-// LIVE (fully populated here): worksheet + quick-practice.
-// DEFERRED (defined-but-stubbed): chapter-test + full-mock — their surfaces are still
-// being rebuilt and their board-readiness / upload-state dependencies do NOT exist yet,
-// so they carry `deferred: true` and are NEVER rendered by a live host in this PR. They
-// exist so later insertion is FILLING CONFIG, not re-architecting (§2).
+// LIVE (fully populated here): all FOUR surfaces — worksheet + quick-practice (PR-2)
+// and chapter-test + full-mock (their surfaces shipped: CT #374/#380, FM #387; their
+// live variants are built by the §5 builders later in this file). The original
+// chapter-test / full-mock `deferred: true` STUBS are retained below as the PR-2
+// config seams + the render-guard's fixtures — still never handed to a live host.
 //
 // HONESTY (verbatim from the shipped worksheet scorecard — no fabricated numbers):
 // pending is sacred (never a deflated 0); the four-type block renders ONLY when typed
@@ -112,8 +112,8 @@ export interface ScorecardConceptLensRow {
 
 /**
  * The per-surface config the shell renders. Populated by the builders below. A
- * `deferred` variant is a config seam only (chapter-test / full-mock) — never handed
- * to a live host in this PR.
+ * `deferred` variant is a legacy config-seam stub only — chapter-test / full-mock
+ * have LIVE builders in this file — and is never handed to a live host.
  */
 export interface ScorecardVariant {
   surface: ScorecardSurface;
@@ -466,13 +466,13 @@ export function storedWorksheetScorecardVariant(
   };
 }
 
-// ── DEFERRED config seams: CHAPTER TEST + FULL MOCK (defined, never rendered here) ──
+// ── LEGACY deferred stubs: CHAPTER TEST + FULL MOCK (kept, still never rendered) ────
 //
-// These surfaces are still being rebuilt; their board-readiness (chapter test) and
-// E2b answer-sheet upload (full mock) dependencies do NOT exist yet. They are DEFINED
-// as `deferred` stubs so the type covers all four surfaces and later insertion is
-// filling in the real score / framing / actions — NOT re-architecting the shell. A
-// deferred variant must never be handed to a live host in this PR; <ResultsScorecard>
+// HISTORICAL (PR-2): these stubs predate the rebuilt surfaces. Both are LIVE now —
+// chapter test (#374/#380) and full mock (#387) build real variants via the §5
+// builders below — so the stubs' remaining jobs are (a) the render-guard's test
+// fixtures and (b) covering the defined-but-unrenderable state in the type. A
+// deferred variant must never be handed to a live host; <ResultsScorecard>
 // treats a rendered deferred variant as a no-op (returns null) as a guard.
 
 export interface DeferredVariantInput {
@@ -480,7 +480,7 @@ export interface DeferredVariantInput {
   subtitle?: string;
 }
 
-/** DEFERRED — chapter test. Board-readiness + upload-grade seams unbuilt. Do not render. */
+/** LEGACY deferred stub — the LIVE chapter-test variant is built below (§5). Do not render. */
 export function chapterTestScorecardVariantStub(input: DeferredVariantInput): ScorecardVariant {
   return {
     surface: "chapter-test",
@@ -495,7 +495,7 @@ export function chapterTestScorecardVariantStub(input: DeferredVariantInput): Sc
   };
 }
 
-/** DEFERRED — full mock. Section-breakdown + upload-grade seams unbuilt. Do not render. */
+/** LEGACY deferred stub — the LIVE full-mock variant is built below (§5). Do not render. */
 export function fullMockScorecardVariantStub(input: DeferredVariantInput): ScorecardVariant {
   return {
     surface: "full-mock",
