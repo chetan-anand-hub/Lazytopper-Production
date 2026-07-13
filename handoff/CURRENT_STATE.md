@@ -1,6 +1,17 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #397 merged — CT balanced PYQ+fresh mix [FU-CT-BALANCED-MIX] — trunk `6db7f1d`
+## [CURRENT] #402 merged — bank-expansion Batch 7 (chemical-reactions-and-equations +136) — trunk `85b292f`
+
+**Post-merge code trunk: `85b292f` (squash of #402), on top of the #399 docs / #397 `6db7f1d` (CT balanced-mix) lineage.** Re-derive the tip after this docs PR merges (the usual one-commit lag).
+
+**Bank-expansion lane — 7 topic-batches shipped, 6 DISTINCT topics done. Assembled bank 7,534 → 7,670.**
+- **#402 (`85b292f`) — Batch 7, chemical-reactions-and-equations +136** (319 → 455): a LARGE, clean reservoir — the counterpoint to the narrow saturated chapters. Extract-max 36 A/B/C (A29·B3·C4; exhaustive per-source sweep; ~15 Class-11/12 Level-III items — oxidation-number/ion-electron balancing, disproportionation, oxidation-state calc — rejected wholesale; 1 figure-dependent MCQ dropped + 1 corrupted-key item dropped, neither shipped answer-less or silently re-keyed). Authored scarce **D 39→75 (+36)** (12 construction families) + **case-based E 11→75 (+64)** (9 scenario families) — the **FIRST topic where BOTH scarce bands REACHED the ≥75 distinct floor with NO honest-stop**.
+- **3 independent adversarial skeptics:** extract 36/36 clean; D 35/36 → 6 fixes (a Class-11 electron-transfer redox item reframed to Class-10 O/H basis; a reaction-type relabel; 3 template/subset overlaps differentiated; a rust-formula consistency fix); E 61/64 → 3 fixes (limescale re-scoped from wrong double-displacement to thermal decomposition of Ca(HCO3)2; malachite label dropped to match the CuCO3 equation; Fe+CuSO4 colour corrected to pale-green); 1 ambiguous MCQ distractor swapped.
+- **Two-direction syllabus CLEAN** (no deleted-chapter drift; no Class-11/12 leak). **Every MCQ/AR key resolves to exactly one option — NO [FU-BANK-UNRESOLVABLE-MCQ-KEYS] regression** (the tightened exact-option-text authoring rule held on its first batch since the FU surfaced). Zero figure-pending — all 136 text-answerable.
+- **Gates:** all green + CI quality-gate PASS; ops matrix runtime proof **7,670 / 0 dup / 0 orphan / 26 topics**. Scope = the canonical wiring + packs + manifest; no forbidden files. Never self-merged — owner byte-reviewed CLEAN + merged. **Manifest:** `docs/bank-expansion-review-queue.md` (all ids). Review-free; surfaces GATED until trusted-student QA.
+- **Lane state / resume:** `handoff/BANK_EXPANSION_LANE_STATE.md`. **~19 topics remain (12 Maths + 7 Science). NEXT = quadratic-equations** (Maths — pipeline balance, only real-numbers has been a Maths batch so far; rich scarce D/E word-problem + discriminant reservoir). Regenerate the per-topic census from a fresh dump (bank is now 7,670). Lane is at a CLEAN BOUNDARY — safe for a fresh Fable window to resume.
+
+## #397 merged — CT balanced PYQ+fresh mix [FU-CT-BALANCED-MIX] — trunk `6db7f1d`
 
 **Post-merge code trunk: `6db7f1d` (squash of #397; feature `feat/desktop-pr-ct-balanced-mix` @ `adf79fe` off `f4d1b37`, update-branch a no-op — the 2 CT files are disjoint from #395/#396).** Re-derive the tip after this docs PR merges (the usual one-commit lag).
 

@@ -118,10 +118,24 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   Net 44 kept. Owner byte-review CLEAN (read every boundary grep hit: "homologous" = homologous CHROMOSOMES [IN],
   ABO/linkage/codominance = substring false positives; 162 in-syllabus Mendel refs, correctOption 0). Chapter 219→263.
   Docs handoff = this PR.
-- **Bank now = 7,534. 5 DISTINCT topics done across 6 batches** (real-numbers has 2 batches — original + corrective):
-  **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity.** (Verified against the
-  `*.expand.*`/`*.extract.*`/`*.scarce*` pack files on trunk — those five slugs are the only ones with expansion packs;
-  NO probability/polynomials/etc. pack exists yet. Do NOT read "6 batches" as "6 distinct topics.")
+- **Batch 7 — chemical-reactions-and-equations +136: MERGED #402 (`85b292f`).** extract-max 36 A/B/C (A29·B3·C4;
+  exhaustive per-source sweep; ~15 Class-11/12 Level-III items — oxidation-number/ion-electron balancing, disproportionation,
+  oxidation-state calc — rejected wholesale; 1 figure-dependent MCQ dropped + 1 corrupted-key item dropped, NEITHER shipped
+  answer-less or silently re-keyed) + scarce **D 39→75 (+36)** (12 construction families) + **E 11→75 (+64)** (9 scenario
+  families). **FIRST topic where BOTH scarce bands REACHED the ≥75 distinct floor with NO honest-stop** — a large clean
+  reservoir, the counterpoint to the narrow saturated chapters. 3 independent adversarial skeptics: extract 36/36 clean;
+  D 35/36 → 6 fixes (a Class-11 electron-transfer redox item reframed to Class-10 O/H basis; a reaction-type relabel; 3
+  template/subset overlaps differentiated; a rust-formula consistency fix); E 61/64 → 3 fixes (limescale re-scoped from
+  wrong double-displacement to thermal decomposition of Ca(HCO3)2; malachite label dropped to match the CuCO3 equation;
+  Fe+CuSO4 colour corrected to pale-green); 1 ambiguous MCQ distractor swapped. Two-direction syllabus CLEAN (no
+  deleted-chapter drift; no Class-11/12 leak). **Every MCQ/AR key resolves to exactly one option — NO
+  [FU-BANK-UNRESOLVABLE-MCQ-KEYS] regression** (the tightened exact-option-text authoring rule held on its first batch).
+  Zero figure-pending — all 136 text-answerable. All ids manifested. Owner byte-review CLEAN + merged. Chapter 319→455.
+  Docs handoff = this PR.
+- **Bank now = 7,670. 6 DISTINCT topics done across 7 batches** (real-numbers has 2 batches — original + corrective):
+  **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity, chemical-reactions-and-equations.**
+  (Verified against the `*.expand.*`/`*.extract.*`/`*.scarce*` pack files on trunk — those six slugs are the only ones with
+  expansion packs; NO quadratic/polynomials/etc. pack exists yet. Do NOT read "7 batches" as "7 distinct topics.")
 
 ## BEFORE-LAUNCH CORRECTIVE (tracked, SEPARATE from topic expansion — do NOT bury under Batch 7)
 ### [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — 34 bank MCQs whose `answer` matches NO option
@@ -151,22 +165,23 @@ Failure classes + fix rule:
 This is a data-quality corrective (same spirit as [FU-BANK-EXACTNORM-DUPS] and the SCQ-S-HERED-041 evolution leak),
 run as its OWN small PR before launch — NOT folded into a topic-expansion batch.
 
-## TOPICS REMAINING (~20) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+## TOPICS REMAINING (~19) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
 Maths (12): polynomials · pair-of-linear-equations · quadratic-equations · arithmetic-progression · triangles ·
 coordinate-geometry · trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics ·
-probability. Science (8): chemical-reactions-and-equations · acids-bases-and-salts · metals-and-non-metals ·
-carbon-and-its-compounds · light-reflection-and-refraction · human-eye-and-colourful-world · electricity ·
-magnetic-effects-of-electric-current · control-and-coordination.
-**NEXT = chemical-reactions-and-equations** (Science, large reservoir; recommended — owner/next window may pick any
-remaining topic, incl. pivoting to Maths for pipeline balance). Two-direction boundary for chemical-reactions:
-no deleted-chapter overlap; Class-12 traps to reject = electrochemistry / electrode-potential / electrolysis detail,
-thermochemistry / enthalpy, reaction-rate/equilibrium kinetics, detailed redox half-equations — Class-10 stays at
-combination/decomposition/displacement/double-displacement + oxidation-reduction (basic) + corrosion + rancidity.
+probability. Science (7): acids-bases-and-salts · metals-and-non-metals · carbon-and-its-compounds ·
+light-reflection-and-refraction · human-eye-and-colourful-world · electricity · magnetic-effects-of-electric-current.
+**NEXT = quadratic-equations** (Maths — picked for PIPELINE BALANCE: only real-numbers has been a Maths batch so far,
+so alternate subjects; quadratic-equations has a rich scarce D/E word-problem + discriminant reservoir. Owner/next
+window may pick any remaining topic). Two-direction boundary for quadratic-equations: no deleted-chapter overlap;
+Class-11/12 traps to reject = complex/imaginary roots, quadratic inequalities, relation-between-roots-and-coefficients
+beyond the basic sum/product, theory-of-equations depth — Class-10 stays at standard form, factorisation, the quadratic
+formula, discriminant / nature of roots, and word problems.
 **READ + RUN syllabusGuard live for whichever chapter is chosen** (the Science bannedSubtopics list is chapter-wide;
 Sources of Energy / Periodic Classification / Management of Natural Resources / Evolution are the deleted ones).
 NARROW-CHAPTER NOTE: several remaining topics are saturated/narrow (like real-numbers, our-environment, heredity) —
-expect scarce-band HONEST-STOPS well below 75; that is correct, not a shortfall. Regenerate the census per topic
-from the fresh dump (do NOT trust a written per-topic count — the bank grew to 7,534).
+expect scarce-band HONEST-STOPS well below 75; that is correct, not a shortfall (chemical-reactions was the FIRST topic
+where BOTH scarce bands reached ≥75 with no honest-stop — a large-reservoir exception, not the norm). Regenerate the
+census per topic from the fresh dump (do NOT trust a written per-topic count — the bank grew to 7,670).
 
 ## RESUME (for a fresh Fable window — this file + the task file are the source of truth)
 1. Re-derive trunk; `corepack pnpm@10.32.1 install --no-frozen-lockfile` in a fresh worktree from CURRENT trunk;
@@ -185,6 +200,9 @@ from the fresh dump (do NOT trust a written per-topic count — the bank grew to
 - **Tooling (scratchpad, reusable):** gate.mjs (dedup + mechanical), rewrite.mjs (drop rejected ids),
   AUTHORING_SPEC.md, dump_batch*.mjs (regenerate the bank dump vs CURRENT bank after each merge — dedup must be
   vs the latest), the assembled-bank runtime proof one-liner. **Regenerate the dump before each new topic.**
+- **Tooling gotcha (Windows, from Batch 7):** `gate.mjs`'s transpile+import must reference the questionBank BARREL
+  with a RELATIVE specifier and NO `.ts` extension (Node ESM resolves the barrel's re-exports); an absolute path or a
+  `.ts` suffix fails to resolve on Windows. Keep the barrel-relative-no-`.ts` form when re-pointing LAZY/DUMP consts.
 
 ## Follow-ups (standing)
 - [FU-EXTRACT-CONTENT-F13] — Content-folder "Question Bank" (folder 13) real-numbers file not swept; small
@@ -203,6 +221,15 @@ from the fresh dump (do NOT trust a written per-topic count — the bank grew to
   rule); re-point LAZY→new worktree and DUMP→new v-dump. A prior session's scratchpad may be inaccessible.
 
 ## Progress log (newest first)
+- 2026-07-13: Batch 7 (chemical-reactions-and-equations) MERGED #402 (`85b292f`) +136 — LARGE clean reservoir; the
+  FIRST topic where BOTH scarce bands reached the ≥75 floor with NO honest-stop (D 39→75 via 12 construction families,
+  E 11→75 via 9 scenario families) + extract-max 36 A/B/C (A29·B3·C4; ~15 Class-11/12 Level-III redox items rejected
+  wholesale, 1 figure-dependent MCQ + 1 corrupted-key item dropped not shipped). 3 skeptics: extract 36/36 clean, D
+  35/36→6 fixes, E 61/64→3 fixes (limescale→thermal decomposition of Ca(HCO3)2, malachite label dropped, Fe+CuSO4
+  colour→pale-green) + 1 MCQ distractor swap. Two-direction syllabus CLEAN; every MCQ/AR key resolves to one option
+  (NO [FU-BANK-UNRESOLVABLE-MCQ-KEYS] regression — the exact-option-text rule held on its first batch); zero
+  figure-pending. Owner byte-review CLEAN. Bank → 7,670. Chapter 319→455. NEXT = quadratic-equations (Maths, pipeline
+  balance). Docs handoff = #<this PR>.
 - 2026-07-13: Batch 6 (heredity) MERGED #396 (`ae5e671`) +44 — narrow saturated chapter; extract-max 21 A/B/C
   (every source is the pre-2026 "Heredity AND Evolution" chapter → ~75+ evolution items rejected at extraction) +
   authored D×11 (honest-stop 32) + case×12 (honest-stop 22). 3 skeptics re-solved every Punnett/pedigree; caught a

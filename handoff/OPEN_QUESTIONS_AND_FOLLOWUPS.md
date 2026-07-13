@@ -1,3 +1,12 @@
+## 2026-07-13 -- #402: bank-expansion Batch 7 (chemical-reactions-and-equations +136) MERGED (trunk `85b292f`)
+
+### Updated
+- **[FU-BANK-UNRESOLVABLE-MCQ-KEYS] — corrective UPDATED (still OPEN, still its OWN small PR before launch, NOT folded into a topic batch).** Two adjudications now resolved: (1) **magnetic-effects-of-electric-current is a RETAINED Class-10 chapter under the official CBSE 2026-27 syllabus** (the syllabus guard passes with it present; CLAUDE.md §5's "deleted/banned" wording is stale on this chapter). So the 2 items sitting under it (CBE-S-MAGN-A-001, PYQ-S-2024-MAG-002) are **KEY-FIXED like the other 32 — NOT dropped/withheld.** The earlier "HOLD for owner adjudication" on these two is closed: treat them as normal key-normalisation. (2) **[FU-FM-BLUEPRINT-TEST-SEED-LUCK] folds INTO this same corrective PR** — relaxing `fullMockBlueprint.test.ts` to the real options+key-present contract is part of the before-launch key fix (do it alongside repairing the 34 keys, so the strict seed-luck assertion can't redden CI on a later bank PR). The full 34-id list + failure-class breakdown remain in the #397 entry below and in `report-ct-balanced-mix-2026-07-13.md`.
+- **Batch 7 held the exact-option-text authoring rule with ZERO new unresolvable keys** — every MCQ/AR key in chemical-reactions +136 resolves to exactly one option. The corrective is a fix to LEGACY bank data only; the expansion authoring template is proven clean on its first batch since the FU surfaced.
+
+### No new open follow-ups from #402
+Batch 7 was a clean large-reservoir topic: two-direction syllabus clean, both scarce bands reached ≥75 with no honest-stop, zero figure-pending, no key regressions. Standing bank-lane FUs ([FU-D-BAND-HONEST-CEILING], [FU-BANK-EXACTNORM-DUPS], [FU-EXTRACT-CONTENT-F13], [FU-FIGURE-PENDING-SAFEGUARD]) are unchanged.
+
 ## 2026-07-13 -- #397: CT balanced PYQ+fresh mix MERGED (trunk `6db7f1d`)
 
 ### CLOSED by #397
