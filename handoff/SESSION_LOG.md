@@ -1,5 +1,17 @@
 ---
 
+## 2026-07-13 -- #423: FINAL MOBILE-PARITY SWEEP — one-header on all live desktop-shell routes at mobile width, owner merged + LIVE-VERIFIED — trunk `a8f36ab`
+
+**Merged as `a8f36ab` (squash of #423; feature `feat/desktop-pr-mobile-parity-sweep` @ `0e60dae` off `0c5f75d`). This docs-only PR (`docs/post-pr-423-mobile-parity-sweep`) records the merge.** Isolated worktree `LT-worktrees/mobile-parity-sweep`; built to `AGENT_mobile_parity_final_sweep_2026-07-13.md`; never self-merged — owner merged + **live-verified at 360px**. CI green. **Closes the LIVE subset of [FU-MOBILE-OLD-HEADER-STRAGGLERS]: no live user-facing route shows the old global brand bar at mobile width any more.**
+
+- Exactly **2 files** (+141/−37): `App.tsx` (predicate + wrapper + route wiring) + `App.bottomNav.test.tsx`. Pages, gates, `DesktopShell`, grader, `src/data`, `firestore.rules` byte-untouched.
+- `isMobileSelfChromedRoute` + 4 families whose matchers MIRROR `isDesktopShellRoute`: exact `/practice/worksheets` · `/topic-hub*` · `/highly-probable*` · runner regex `^/practice/(?!worksheets/)[^/]+/[^/]+$`. New route-level **`<MobileSelfChrome>`**: desktop pass-through; mobile wraps in the shared `MobileShell` avatar header (reuses `accountStatus.ts` — no fork). Wrapper AROUND the gates so premium-upsell / daily-limit states carry the header. BottomNav preserved; CT/FM bare-fullscreen untouched.
+- Confirm-and-report: `/pricing` already own-chromed (`isPublicLandingRoute` + ReturnContextBar) · `/profile` = redirect alias · all legacy/retire routes have NO live inbound (none chromed, none unexpectedly live). Pre-flight caught a dispatch-audit error (WorksheetGenerator did NOT already use MobileShell).
+- Gates: tsc · mojibake · scope:guard product · root 181/181 · ops matrix · diff-check PASS; Codespace build + verifier PASS; predicate vitest 15/15; full vitest 475 pass / 6 pre-existing fails ([FU-VITEST-PREEXISTING-FAILURES] signature).
+- SURFACE_TRACKER: **Exam Trends Verified 🟡→✅ · HPQ Mobile 🟡→✅ + Verified 🟡→✅** (owner live-verify of the one-header pass). New non-gating FUs: **[FU-LEGAL-FOOTER-LINK]** + **[FU-MOBILE-SHELL-PADDING-STACK]**. Report: `Desktop/diff/report-mobile-parity-sweep-2026-07-13.md`.
+
+---
+
 ## 2026-07-13 -- #419: bank-expansion Batch 11 — triangles + coordinate-geometry + metals-and-non-metals (+315, SECOND 3-topics-per-PR), owner byte-reviewed CLEAN + merged — trunk `69e319d`
 
 **Merged as `69e319d` (squash of #419). This docs-only PR (`docs/post-pr-419-bank-batch11`) records the merge.** Isolated worktree per the lane process; resumed from `handoff/BANK_EXPANSION_LANE_STATE.md`. Manifest = `docs/bank-expansion-review-queue.md` (already merged). Review-free; surfaces GATED until trusted-student QA. Never self-merged — owner byte-reviewed CLEAN + merged; CI green. **Assembled bank 8,282 → 8,597. 14 DISTINCT topics done across 11 batches; 12 remain (exactly half — 6 Maths + 6 Science = 4 more 3-topic batches).**

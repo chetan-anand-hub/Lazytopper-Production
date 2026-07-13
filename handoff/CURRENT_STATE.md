@@ -1,6 +1,20 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #419 merged — bank-expansion Batch 11: triangles + coordinate-geometry + metals-and-non-metals (+315, SECOND 3-topics-per-PR) — trunk `69e319d`
+## [CURRENT] #423 merged + OWNER LIVE-VERIFIED — FINAL MOBILE-PARITY SWEEP: one-header on ALL live desktop-shell routes at mobile width — trunk `a8f36ab`
+
+**Post-merge code trunk: `a8f36ab` (squash of #423; feature `feat/desktop-pr-mobile-parity-sweep` @ `0e60dae` off `0c5f75d`). This docs-only PR records the merge. Re-derive the tip after it merges (the usual one-commit lag).**
+
+**#423 merged + owner live-verified (360px) — the mobile-parity rule now HOLDS PRODUCT-WIDE: no live user-facing route shows the OLD global brand bar (LT · LazyTopper · Search · old "C" avatar) at mobile width; every mobile header is the shared MobileShell avatar header (the #410 `accountStatus.ts` dropdown).** Closes the LIVE subset of **[FU-MOBILE-OLD-HEADER-STRAGGLERS]**. Exactly **2 files** (+141/−37): `App.tsx` + `App.bottomNav.test.tsx`. Isolated worktree `LT-worktrees/mobile-parity-sweep`; never self-merged; CI (quality-gate + lane-overlap + Vercel) green.
+
+- **Predicate:** `isMobileSelfChromedRoute` grew the four live desktop-shell families with matchers that **MIRROR `isDesktopShellRoute` exactly** (lockstep by construction): exact `/practice/worksheets` · prefix `/topic-hub`(+`/*`) · prefix `/highly-probable`(+`/*`) · runner regex `^/practice/(?!worksheets/)[^/]+/[^/]+$`.
+- **Route-level `<MobileSelfChrome title subtitle?>`** (new, in App.tsx): desktop pass-through (these are DesktopShell routes — desktop chrome byte-identical); mobile wraps the route element in the shared `MobileShell` header → `MobileAccountMenu` → `deriveAccountStatus` (**reuse, no fork**; read-only subscription, never activates a trial). **Deliberately wraps AROUND `RequirePremium`/`PracticeLimitGate`** so the blocked states (premium upsell, daily-limit) carry the header too — the #416 in-page pattern would have left gate-blocked states headerless, and patching the gates instead would double-chrome the legacy retire routes that share them. BottomNav preserved; bare-fullscreen CT/FM untouched.
+- **Confirm-and-report (no change needed):** `/pricing` was already navbar-suppressed (`isPublicLandingRoute`) + owns a `ReturnContextBar`; `/profile` is a pure `<Navigate to="/me">` alias. **Legacy/retire routes verified dead-or-retiring with NO live inbound** (exam-simulation [matches FU-RETIRE-EXAM-SIMULATION-LINKS] · mock-builder/topic-mock/mentor redirects · mock-paper unreachable · weak-area-practice · teacher · legal · admin/*) — none chromed (wasted-work rule), none unexpectedly live. **Pre-flight caught a dispatch-audit error:** WorksheetGenerator did NOT already use MobileShell (the dispatch assumed it did) — always re-verify dispatch audits against current trunk.
+- **Gates @ `0e60dae`:** tsc · mojibake · scope:guard product · root **181/181** · lazytopper ops matrix (bank 8,597) · diff-check all PASS; Codespace linux build + bundle verifier PASS; vitest predicate file **15/15**; full vitest 475 pass / 6 fail in 3 UNTOUCHED files = the standing [FU-VITEST-PREEXISTING-FAILURES] signature.
+- **Owner live-verified** on the stable link at 360px: new avatar-dropdown header on HPQ / worksheet generator / topic-hub / practice runner; logout + manage-subscription; BottomNav intact; bodies reflow. **SURFACE_TRACKER: Exam Trends Verified 🟡→✅, HPQ Mobile 🟡→✅ + Verified 🟡→✅.**
+- **New follow-ups (non-gating):** **[FU-LEGAL-FOOTER-LINK]** (the /legal/* pages have NO live inbound link — a live footer entry is probably needed pre-launch for compliance) + **[FU-MOBILE-SHELL-PADDING-STACK]** (cosmetic: MobileShell 20px + HPQ/runner page padding stack at 360px; optional page-side slim-down).
+- Report: `Desktop/diff/report-mobile-parity-sweep-2026-07-13.md`.
+
+## #419 merged — bank-expansion Batch 11: triangles + coordinate-geometry + metals-and-non-metals (+315, SECOND 3-topics-per-PR) — trunk `69e319d`
 
 **Post-merge trunk: `69e319d` (squash of #419). This docs-only PR (`docs/post-pr-419-bank-batch11`) records the merge. Re-derive the tip after it merges (the usual one-commit lag).**
 
