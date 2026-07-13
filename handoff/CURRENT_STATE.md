@@ -1,6 +1,18 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #403 merged — PR-B: cross-device multi-rung progress memory layer (launch-blocker) — trunk `894ef6a`
+## [CURRENT] #405 merged — bank-expansion Batch 8 (quadratic-equations +110) — trunk `1b7c7aa`
+
+**Post-merge code trunk: `1b7c7aa` (squash of #405), on top of #403 `894ef6a` (PR-B) / #404 docs.** Re-derive the tip after this docs PR merges (the usual one-commit lag).
+
+**Bank-expansion lane — 8 topic-batches shipped, 7 DISTINCT topics done. Assembled bank 7,670 → 7,780.**
+- **#405 (`1b7c7aa`) — Batch 8, quadratic-equations +110** (224 → 334): the FIRST Maths topic since real-numbers (pipeline balance). Extract-max A/B/C **+19** (9 A · 3 B · 7 C; the whole NCERT Exemplar ch4 was already banked → 0 from it). Authored scarce **D 29→76 (+47)** REACHED ≥75 across ~13 application families + case-based **E 22→66 (+44)** HONEST-STOP across ~18 scenario families (the Class-10 quadratic case space is combinatorially finite — padding would force twins).
+- **3 independent adversarial skeptics re-solved every quadratic:** extract 1 distinctness drop (A-006 clone of banked QE2-050); D 2 correctness fixes (D-028 broken numbers "5 more pens"→"6 more pens"→x²+6x−720; D-011 rejected-root display −12/11→−6/11) + trimmed 2 of 3 identical reciprocal-schema items + added 2 distinct non-reciprocal items to hold ≥75; E 44/44 clean. **The consolidation CROSS-PACK gate caught 3 extracted-C vs authored-D twins → 3 authored D dropped** (real extracted content preferred). Standing lesson: run a combined cross-pack gate over ALL packs before wiring.
+- **Owner byte-review CLEAN after two corrections:** (a) the ~22 Vieta sum/product-of-roots items were correctly kept OUT of the quadratic-equations chapter, BUT the "Class-11" label was FACTUALLY WRONG — per official CBSE 2026-27, "Relationship between zeros and coefficients of quadratic polynomials" (sum/product of roots) is **Class-10 2026-27 CORE under POLYNOMIALS**; those items are IN-SYLLABUS and must be EXTRACTED in the upcoming POLYNOMIALS batch (which MUST include sum/product-of-roots as core). (b) A suspected complex/imaginary-roots leak was a FALSE POSITIVE — an exhaustive 110-item scan found only a file-header doctrine comment; zero actual leaks, no √-of-negative anywhere → #405 shipped as-is.
+- **STANDING PROCESS-FIX (owner):** anchor EVERY syllabus-boundary call to the OFFICIAL CBSE 2026-27 syllabus (cbseacademic.nic.in) AND the repo `scripts/src/syllabusGuard.ts` (read/run live per chapter) — NEVER memory or a prior year (2025-26). The 2027 board cohort is governed by 2026-27 ONLY; if syllabusGuard lacks a boundary entry, PROPOSE it for owner confirmation before acting. (Also settled: Class-10 2026-27 Quadratics is REAL ROOTS ONLY — D<0 ⇒ "no real roots", never complex/imaginary; magnetic-effects is RETAINED, not deleted.)
+- **Gates:** all green + CI quality-gate PASS. Scope = the canonical wiring + packs + manifest; no forbidden files. Never self-merged — owner byte-reviewed CLEAN + merged. **Manifest:** `docs/bank-expansion-review-queue.md` (all ids). Review-free; surfaces GATED until trusted-student QA.
+- **Lane state / resume:** `handoff/BANK_EXPANSION_LANE_STATE.md`. **19 topics remain (11 Maths + 8 Science). NEXT = polynomials** (Maths — and it MUST include the ~22 sum/product-of-roots items as CORE 2026-27 content, absorbing what was filed out of quadratics). Regenerate the per-topic census from a fresh dump (bank is now 7,780). Lane is at a CLEAN BOUNDARY — safe for a fresh Fable window to resume.
+
+## #403 merged — PR-B: cross-device multi-rung progress memory layer (launch-blocker) — trunk `894ef6a`
 
 **Post-merge code trunk: `894ef6a` (squash of #403), on top of #402 `85b292f` (bank Batch 7) / #404 docs.** Re-derive the tip after this docs PR merges (the usual one-commit lag).
 
