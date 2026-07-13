@@ -120,6 +120,10 @@ import { RN_SCARCE2 } from './questionBanks/class10/maths/realNumbers.scarce2';
 import { QUADRATIC_EQUATIONS_EXPAND_EXTRACT } from './questionBanks/class10/maths/quadraticEquations.expand.extract';
 import { QUADRATIC_EQUATIONS_EXPAND_LONG_D } from './questionBanks/class10/maths/quadraticEquations.expand.longD';
 import { QUADRATIC_EQUATIONS_EXPAND_CASE_E } from './questionBanks/class10/maths/quadraticEquations.expand.caseE';
+// Bank-expansion Batch 9 (polynomials, 2026-07-13): extract-max A/B/C + distinct-authored scarce D/E (quadratic zeroes-coefficient only; honest-stop).
+import { POLYNOMIALS_EXPAND_EXTRACT } from './questionBanks/class10/maths/polynomials.expand.extract';
+import { POLYNOMIALS_EXPAND_LONG_D } from './questionBanks/class10/maths/polynomials.expand.longD';
+import { POLYNOMIALS_EXPAND_CASE_E } from './questionBanks/class10/maths/polynomials.expand.caseE';
 import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
 import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
 import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
@@ -546,6 +550,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...QUADRATIC_EQUATIONS_EXPAND_EXTRACT,
   ...QUADRATIC_EQUATIONS_EXPAND_LONG_D,
   ...QUADRATIC_EQUATIONS_EXPAND_CASE_E,
+  // Bank-expansion Batch 9 — polynomials (2026-07-13): 13 extracted A/B/C (chapter saturated, honest-stop) + 22 distinct-authored scarce-D + 27 case-based E (both honest-stop — low-weight chapter, quadratic zeroes-coefficient only).
+  ...POLYNOMIALS_EXPAND_EXTRACT,
+  ...POLYNOMIALS_EXPAND_LONG_D,
+  ...POLYNOMIALS_EXPAND_CASE_E,
   // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
   ...CHEM_REACTIONS_NCERT,
   ...CHEM_REACTIONS_EXEMPLAR,
