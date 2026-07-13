@@ -2,6 +2,53 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — C&I PR-3: the model-solution CACHE MERGED (#420, code `cc84ae5`) — **the Check & Improve ARC is COMPLETE** (PR-1 #395 → PR-2 #416 → PR-3 #420; nothing remains)
+
+[FU-CI-SOLUTION-CACHE] CLOSED via the owner-ratified SCHEME-FIRST design (pre-flight caught the spec's wrap-point error — the grader has no discrete solution-generation step; its one Gemini call includes the student answer, uncacheable by Gate 3). 8 files (+1,380/−228); grader `checkSolution.cjs` = +95/−4 deps-injected hooks ONLY (owner byte-review "textbook-clean"); no client files; no forbidden files.
+
+- **The cache:** keyless SUBJECTIVE questions grade against a STUDENT-AGNOSTIC solution from the EXISTING `step_solutions` Postgres cache — hash → read → generate-from-question-ONLY on miss → **Gate-2a quality gate** → write-if-pass — injected into the grader's EXISTING marking-scheme slot (single + structured). Same question = ONE shared solution across students; interoperates with `/api/step-solution`.
+- **Gate 2a at EVERY write path** (display endpoint model+prewritten, grader hook, admin regenerate): FAIL ⇒ served once, never persisted, reason-coded. Structurally addresses [FU-MODEL-ANSWER-QUALITY].
+- **Gate 2b:** `POST /api/admin/solution-cache/evict|regenerate` behind a fail-closed `ADMIN_FIREBASE_UIDS` Bearer allowlist (first wiring in `lazytopper/server/`) → new **[FU-ADMIN-UIDS-DEPLOY-ENV]** (one-time owner env step).
+- **Also:** CACHE_VERSION prefix extended to ALL hashes (latent staleness bug fixed); generation core extraction PROVEN behavior-preserving (old-vs-new prompts byte-identical, 4 variants).
+- **Gates:** tsc · mojibake · scope:guard · root 181/181 · ops 8/8 · diff-check PASS; Codespace build + verifier + vitest 62/62 (dispatch tests (a)–(e)); CI green. Owner live-verify pending.
+
+## 2026-07-13 — C&I PR-2: the FINAL Check & Improve frontend PR MERGED (#416, code `a1eaebc`) — surface COMPLETE desktop+mobile
+
+The last frontend PR on the Check & Improve arc (PR-1 #395 → **PR-2 #416** → the owner-gated solution cache PR-3/4 is all that remains). 12 product files (+571/−90); grader `checkSolution.cjs` / `worksheetGradeService` / `DesktopShell` / `firestore.rules` / `src/data` / `progressStore` byte-untouched; `App.tsx` limited to `isMobileSelfChromedRoute`; `DesktopCheckImprovePage.tsx` additive-only.
+
+- **Item A — per-question topic (route A2):** `resolvePerQuestionGradeTopics()` re-runs the EXISTING `/detect-question` per question (the detect endpoint lives inside the sacred grader → NO server edit); unresolvable → empty (never guessed). **[FU-CI-PERQUESTION-TOPIC] closed.**
+- **Item B — counted chip + by-topic lens:** `topicCount` additive-optional on `SessionRecord` (display-only; mixed feeds no single-topic progress); history chip `Mixed topics` → `N topics`; live + stored scorecard reuse the FM `chapterLens` slot.
+- **Item C — PDF solution upload** on both surfaces (`/check-solution` reads PDF natively).
+- **Item D — mobile parity (D-ii):** mobile composes the shared services (durable code minting retiring the device-local collision counter, persist, scorecard variant, history overlay, per-Q topics); #437 stub deleted; no forked grader. **[FU-MOBILE-CI-PARITY] closed.**
+- **Item E — one-header on `/exam-trends` + `/practice-hub`:** `isMobileSelfChromedRoute` + `!isDesktop` MobileShell wrapper. **[FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE] closed.** New **[FU-MOBILE-OLD-HEADER-STRAGGLERS]** (11 remaining routes — pre-launch pass).
+- **Gates:** tsc · mojibake · scope:guard product · root 181/181 · lazytopper ops matrix (bank 7,842) · diff-check; CI green. Owner byte-reviewed CLEAN + merged; live-verify pending.
+## 2026-07-13 — bank-expansion Batch 9 (polynomials +62) MERGED (#411, `9749fc9`) + Batch 10 (PLE / AP / ABS +440, FIRST 3-topics-per-PR) MERGED (#415, `ae2b447`)
+
+Two bank-expansion merges. **Assembled bank 7,780 → 7,842 → 8,282. 11 DISTINCT topics done across 10 batches; 15 remain
+(8 Maths + 7 Science).** Data-enrichment parallel track — no surface architecture-gate cell moves. Manifest
+`docs/bank-expansion-review-queue.md`; surfaces GATED until trusted-student QA.
+
+- **Batch 9 — polynomials +62** (190→252). FIRST topic to absorb the sum/product-of-roots (zeros↔coefficients of QUADRATIC
+  polynomials) items as **Class-10 2026-27 CORE** — what Batch 8 correctly filed OUT of quadratic-equations, confirming the
+  "Class-11" label was wrong. extract-max A/B/C +13 (saturated → honest-stop) + authored D 12→34 + E 10→37, BOTH honest-stop
+  (low-weight narrow chapter). Scope held to quadratic zeros-coefficient ONLY (cubic relations / higher-degree division algorithm /
+  complex zeros excluded). Owner byte-review CLEAN.
+- **Batch 10 — +440, the FIRST 3-topics-per-PR batch (owner SPEED directive):** one branch / one `canonicalQuestionBank.ts`
+  wire / one PR, per-topic discipline unchanged (own source table, own syllabusGuard boundary, own skeptic, ≥75-or-honest-stop;
+  combined cross-pack gate over all packs before wiring). **pair-of-linear-equations +163** (223→386: extract 42 A/B/C + D 39 +
+  E 52 + a reducible-to-linear pack +30; final scarce D 29→77 · E 16→81) · **arithmetic-progression +114** (235→349: extract
+  20 A/B/C + D 20→72 + E 28→70; AP only, no GP) · **acids-bases-and-salts +163** (302→465: extract 67 A/B/C + D 27→63 + E 12→72;
+  qualitative Class-10). Skeptics dropped 16+3 twins + fixed a chem MCQ collision (ABS EX-A-015) + 1 reducible coeff-clone (C-003).
+- **BOUNDARY CORRECTION (owner):** "equations reducible to a pair of linear equations" (1/x=p, 1/y=q substitution) is IN the
+  official CBSE 2026-27 syllabus — the main sweep wrongly excluded it; added on-branch. A proposal to add it to `syllabusGuard.ts`
+  was **WITHDRAWN → syllabusGuard UNTOUCHED** (Cross-Multiplication Method stays OUT). Mirrors the Batch-8 lesson: never reject
+  in-syllabus content; flag guard changes, never auto-commit.
+- **New FUs:** [FU-AP-BANKED-GP-ITEM] (pre-existing AP ball-bounce item is geometric — later cleanup) + [FU-ABS-WASP-STING-ALKALINE]
+  (textbook "wasp sting alkaline" claim — owner-awareness only). [FU-SYLLABUS-GUARD-PLE-REDUCIBLE] WITHDRAWN/REJECTED.
+
+**NEXT batch (3-per-PR, continuous run) = triangles + coordinate-geometry + one Science (metals-and-non-metals OR
+carbon-and-its-compounds).** Lane at a CLEAN BOUNDARY — regenerate the per-topic census from a fresh dump vs the 8,282 bank.
+
 ## 2026-07-13 — PR-B-v2: the progress ENGINE made real MERGED (#412, code `1228c95`) — owner LIVE-VERIFIED ✅, launch-domino #3 CLOSED
 
 The engine fixes under arc PR-4's correct UI. 5 files (+858/−157), `progressStore` read-side only (grader /

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
 import {
@@ -19,6 +19,7 @@ import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   buildConfirmedDetection,
   clampDetectedMarks,
+  resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
@@ -29,6 +30,28 @@ import {
   type CiGradedQuestion,
   type CheckImproveGradedPrintDocProps,
 } from "../../components/checkimprove/CheckImproveGradedPrintDoc";
+// C&I PR-2 (item D) — the SAME first-class SessionSurface plumbing the desktop C&I
+// surface uses (PR-1). Mobile composes these SHARED services + components (D-ii, owner
+// ratified 2026-07-13) — it does NOT fork a second grading/persistence path.
+import {
+  ensureCheckImproveSessionCode,
+  getSessionRecordsFromCloud,
+  getSessionPerQuestion,
+  type SessionRecord,
+  type SessionTopicSource,
+} from "../../services/sessionRecords";
+import {
+  persistCheckImproveSession,
+  singleCheckToWorksheetResponse,
+  toSessionSubject,
+  deriveTopicSource,
+} from "../../services/checkImproveGradeService";
+import ResultsScorecard from "../../components/results/ResultsScorecard";
+import {
+  checkImproveScorecardVariant,
+  storedCheckImproveScorecardVariant,
+} from "../../components/results/scorecardVariants";
+import CheckImproveHistoryPanel from "../../components/checkimprove/CheckImproveHistoryPanel";
 
 // Persistence (entry building + policy + dedup + the weak-area bridge) now lives
 // behind the single front door `recordMistake`. The old local buildMobileLogEntry
@@ -48,28 +71,12 @@ type View = "upload" | "graded";
 type Tab  = "upload" | "type";
 
 /* ──────────── multi-question (Check & Improve) helpers ──────────── */
-// Mirror of the desktop helpers (kept inline — this PR is scoped to exactly these
-// page files + the detect test, so no shared module is added).
+// C&I PR-2 (item D): the device-local `nextCiMultiSequence()` / `buildCiSessionCode()`
+// are RETIRED — that flat localStorage counter was the exact cross-device collision bug
+// PR-1 fixed on desktop (the same paper graded on phone + laptop collided). Mobile now
+// mints the DURABLE cross-device code through the SHARED `ensureCheckImproveSessionCode`,
+// identical to desktop.
 
-const CI_MULTI_SEQ_KEY = "lt:ci-multi-seq";
-function nextCiMultiSequence(): number {
-  try {
-    const n = parseInt(localStorage.getItem(CI_MULTI_SEQ_KEY) || "0", 10);
-    const next = (Number.isFinite(n) && n > 0 ? n : 0) + 1;
-    localStorage.setItem(CI_MULTI_SEQ_KEY, String(next));
-    return next;
-  } catch {
-    return 1;
-  }
-}
-function ciTopicToken(slug: string): string {
-  const t = String(slug || "").replace(/[^a-z]/gi, "").slice(0, 4).toUpperCase();
-  return t || "MIX";
-}
-function buildCiSessionCode(subject: string, topicSlug: string): string {
-  const s = /sci/i.test(String(subject || "")) ? "S" : "M";
-  return `CI-${s}-${ciTopicToken(topicSlug)}-${String(nextCiMultiSequence()).padStart(2, "0")}`;
-}
 function multiQuestionToCsr(g: WorksheetQuestionGrade): CheckSolutionResponse {
   return {
     ok: true,
@@ -128,6 +135,38 @@ export default function CheckImprove() {
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
   const [ciCode, setCiCode]     = useState<string | null>(null);
 
+  // ── C&I PR-2 (item D): the SessionSurface plumbing state — mirrors DesktopCheckImprovePage
+  // (durable code+name, provenance, the 5th scorecard variant, and the checked-papers
+  // overlay). Mobile composes the SAME shared services (D-ii), not a forked path.
+  const [ciName, setCiName]                 = useState<string | null>(null);
+  const [ciTopicSource, setCiTopicSource]   = useState<SessionTopicSource | null>(null);
+  const [topicTouched, setTopicTouched]     = useState(false);
+  const [ciSaved, setCiSaved]               = useState(false);
+  const [scorecardOpen, setScorecardOpen]   = useState(false);
+  const [ciRecords, setCiRecords]           = useState<SessionRecord[]>([]);
+  const [ciRecordsLoading, setCiRecordsLoading] = useState(true);
+  const [panelOpen, setPanelOpen]           = useState(false);
+  const [reopen, setReopen]                 = useState<SessionRecord | null>(null);
+  // The resolved payload for the re-opened record — powers the by-topic lens on re-open
+  // (item A/B); loaded lazily when a card is tapped, honest-null until then.
+  const [reopenResponse, setReopenResponse] = useState<WorksheetGradeResponse | null>(null);
+
+  const loadCiRecords = useCallback(async () => {
+    try {
+      const all = await getSessionRecordsFromCloud(user?.uid);
+      setCiRecords(all.filter((r) => r.surface === "check-improve"));
+    } catch {
+      /* honest-degrade — the store already fell back to the local mirror */
+    } finally {
+      setCiRecordsLoading(false);
+    }
+  }, [user?.uid]);
+
+  useEffect(() => {
+    setCiRecordsLoading(true);
+    void loadCiRecords();
+  }, [loadCiRecords]);
+
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading]     = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -147,8 +186,8 @@ export default function CheckImprove() {
   // so the surfaces stay consistent. A snapshot of the shown grade, never a re-grade.
   function buildSinglePrintProps(): CheckImproveGradedPrintDocProps | null {
     if (!gradeResult || !confirmed) return null;
-    const code = ciCode ?? buildCiSessionCode(confirmed.subject, confirmed.topicSlug);
-    if (!ciCode) setCiCode(code);
+    // The durable code is minted at grade time (handleGrade); fall back only defensively.
+    const code = ciCode ?? "CI";
     const ms = gradeResult.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
     const knowledge = ms.conceptual + ms.calculation;
     const careless = ms.silly + ms.presentation;
@@ -246,6 +285,94 @@ export default function CheckImprove() {
     setReadProps(build());
   }
 
+  // ── C&I PR-2 (item D): the shared <ResultsScorecard> + history overlays ──
+  // The LIVE 5th scorecard variant, opened on every completed grade (single OR multi) —
+  // the bespoke graded views stay underneath as "the graded sheet" (onReadSheet closes
+  // it). Composes the SAME shared builder desktop uses, so the by-topic lens (item A) +
+  // counted "N topics" head (item B) render identically.
+  function liveScorecardEl() {
+    if (!scorecardOpen || !confirmed || !ciCode) return null;
+    const response = wsResult ?? (gradeResult ? singleCheckToWorksheetResponse(gradeResult) : null);
+    if (!response) return null;
+    return (
+      <ResultsScorecard
+        variant={checkImproveScorecardVariant({
+          topicName: confirmed.topicName,
+          code: ciCode,
+          topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
+          response,
+          saved: ciSaved,
+          downloading,
+          onReadSheet: () => setScorecardOpen(false),
+          onDownloadGraded: () =>
+            void downloadGraded(wsResult ? buildMultiPrintProps() : buildSinglePrintProps()),
+          ...(confirmed.topicSlug
+            ? {
+                onPractiseTopic: () =>
+                  navigate(
+                    `/practice/worksheets?subject=${encodeURIComponent(confirmed.subject)}&topics=${encodeURIComponent(confirmed.topicSlug)}`,
+                  ),
+              }
+            : {}),
+        })}
+        onClose={() => setScorecardOpen(false)}
+      />
+    );
+  }
+
+  // Re-open a stored checked paper read-only; lazily load its per-question payload so
+  // the by-topic lens can render on re-open (item A/B) — honest-null until it arrives.
+  async function openReopen(r: SessionRecord) {
+    setPanelOpen(false);
+    setReopen(r);
+    setReopenResponse(null);
+    try {
+      const payload = await getSessionPerQuestion(user?.uid, r.perQuestionRef);
+      setReopenResponse(payload?.response ?? null);
+    } catch {
+      setReopenResponse(null);
+    }
+  }
+
+  // The "Your checked papers" overlay + the read-only stored-scorecard reopen. Rendered
+  // from the upload view (where the student browses history); fixed-inset, so placement
+  // in the flow is presentation-neutral.
+  function historyOverlaysEl() {
+    return (
+      <>
+        {panelOpen && (
+          <CheckImproveHistoryPanel
+            records={ciRecords}
+            loading={ciRecordsLoading}
+            defaultSubject={ciRecords[0]?.subject ?? "maths"}
+            onOpen={(r) => void openReopen(r)}
+            onClose={() => setPanelOpen(false)}
+          />
+        )}
+        {reopen && (
+          <ResultsScorecard
+            variant={storedCheckImproveScorecardVariant(reopen, {
+              gradedDateLabel: new Date(reopen.gradedAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              onDone: () => {
+                setReopen(null);
+                setReopenResponse(null);
+              },
+              response: reopenResponse,
+            })}
+            onClose={() => {
+              setReopen(null);
+              setReopenResponse(null);
+            }}
+          />
+        )}
+      </>
+    );
+  }
+
   function handleFileChange(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
@@ -264,10 +391,15 @@ export default function CheckImprove() {
     setConfirmed(null);
     setEditing(false);
     setDetectError(null);
-    // A new question read starts a fresh session (new CI sequence on next grade).
+    // A new question read starts a fresh session (a fresh durable code on next grade).
     setDetectedQuestions(null);
     setWsResult(null);
     setCiCode(null);
+    setCiName(null);
+    setCiTopicSource(null);
+    setTopicTouched(false);
+    setCiSaved(false);
+    setScorecardOpen(false);
   }
 
   function handleQuestionFile(file: File) {
@@ -317,12 +449,14 @@ export default function CheckImprove() {
 
   function correctSubject(next: DesktopSubject) {
     const first = CANONICAL_TOPIC_VOCAB.find((t) => t.subject === next);
+    setTopicTouched(true); // touching the correction upgrades provenance inferred → confirmed
     setConfirmed((c) =>
       c ? { ...c, subject: next, topicSlug: first?.slug ?? "", topicName: first?.name ?? "" } : c,
     );
   }
   function correctTopic(slug: string) {
     const t = CANONICAL_TOPIC_VOCAB.find((x) => x.slug === slug);
+    setTopicTouched(true);
     setConfirmed((c) =>
       c
         ? {
@@ -346,8 +480,23 @@ export default function CheckImprove() {
     setSaved("idle");
     setGrading(true);
 
-    const sessionCode = ciCode ?? buildCiSessionCode(confirmed.subject, confirmed.topicSlug);
-    if (!ciCode) setCiCode(sessionCode);
+    // Mint the DURABLE cross-device code once (shared with desktop); reuse it on a
+    // re-grade so the record overwrites (idempotent) instead of duplicating.
+    const sessionSubject = toSessionSubject(confirmed.subject);
+    let sessionCode = ciCode;
+    let sessionTitle = ciName;
+    if (!sessionCode) {
+      const nomen = await ensureCheckImproveSessionCode(
+        sessionSubject,
+        confirmed.topicSlug,
+        confirmed.topicName,
+        user,
+      );
+      sessionCode = nomen.code;
+      sessionTitle = nomen.name;
+      setCiCode(nomen.code);
+      setCiName(nomen.name);
+    }
 
     try {
       const response = await gradeWorksheet({
@@ -371,8 +520,50 @@ export default function CheckImprove() {
         return;
       }
 
+      // C&I PR-2 (item A) — resolve a per-QUESTION topic by re-running the EXISTING
+      // /detect-question read once per question (route A2 — no grader edit) and attach
+      // it to each graded result, so the by-topic lens + counted "N topics" chip light
+      // up. Unresolved stays empty (honest). Best-effort: a miss never blocks the grade.
+      try {
+        const perQTopics = await resolvePerQuestionGradeTopics(
+          detectedQuestions.map((q) => ({
+            questionNumber: q.questionNumber,
+            questionText: q.questionText,
+          })),
+          CANONICAL_TOPIC_VOCAB,
+        );
+        const topicByQ = new Map(perQTopics.map((t) => [t.qNumber, t]));
+        for (const r of response.results) {
+          const t = topicByQ.get(r.qNumber);
+          if (t && t.topicSlug) {
+            r.topicSlug = t.topicSlug;
+            r.topicLabel = t.topicName;
+          }
+        }
+      } catch (e) {
+        console.warn("[check-improve] per-question topic resolution failed (grade preserved):", e);
+      }
+
       setWsResult(response);
       setView("graded");
+
+      // C&I PR-2 (item D) — persist the session record via the SAME shared service the
+      // desktop surface uses (idempotent by id = the durable code; a mixed paper writes
+      // topicKeys [] — never a majority-guessed topic). Decoupled from the shown grade.
+      const topicSource = deriveTopicSource(confirmed.topicSlug, topicTouched);
+      setCiTopicSource(topicSource);
+      const persistOutcome = persistCheckImproveSession({
+        user,
+        code: sessionCode,
+        title: sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        subject: sessionSubject,
+        topicSlug: confirmed.topicSlug,
+        topicSource,
+        response,
+      });
+      setCiSaved(persistOutcome === "recorded");
+      if (persistOutcome === "recorded") void loadCiRecords();
+      setScorecardOpen(true);
 
       // MI recording is DECOUPLED from the shown grade: a persistence failure must
       // never wipe the graded paper. The recording work runs in its OWN try/catch so
@@ -465,6 +656,40 @@ export default function CheckImprove() {
       setGradeResult(result);
       setView("graded");
 
+      // C&I PR-2 (item D) — mint the durable code + persist the single-question session
+      // via the SAME shared service desktop uses (the single grade adapted into the
+      // unified one-question response). Every graded single now leaves a durable record
+      // (the vanish-on-close bug PR-1 fixed). Decoupled from the shown grade + from MI.
+      const sessionSubject = toSessionSubject(confirmed.subject);
+      let sessionCode = ciCode;
+      let sessionTitle = ciName;
+      if (!sessionCode) {
+        const nomen = await ensureCheckImproveSessionCode(
+          sessionSubject,
+          confirmed.topicSlug,
+          confirmed.topicName,
+          user,
+        );
+        sessionCode = nomen.code;
+        sessionTitle = nomen.name;
+        setCiCode(nomen.code);
+        setCiName(nomen.name);
+      }
+      const singleTopicSource = deriveTopicSource(confirmed.topicSlug, topicTouched);
+      setCiTopicSource(singleTopicSource);
+      const singlePersist = persistCheckImproveSession({
+        user,
+        code: sessionCode,
+        title: sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        subject: sessionSubject,
+        topicSlug: confirmed.topicSlug,
+        topicSource: singleTopicSource,
+        response: singleCheckToWorksheetResponse(result),
+      });
+      setCiSaved(singlePersist === "recorded");
+      if (singlePersist === "recorded") void loadCiRecords();
+      setScorecardOpen(true);
+
       const detectedSubject = confirmed.subject;
       const detectedTopicName = confirmed.topicName;
       const detectedTopicSlug = confirmed.topicSlug;
@@ -537,6 +762,7 @@ export default function CheckImprove() {
     const ws = wsResult;
     return (
       <MobileShell title="Check & Improve" subtitle="Graded paper" showNav>
+        {liveScorecardEl()}
         <div style={{ paddingBottom: 120, display: "flex", flexDirection: "column", gap: 12 }}>
           <button
             onClick={() => { setView("upload"); setWsResult(null); setReadProps(null); setExpandedQ({}); setDownloadError(null); }}
@@ -671,17 +897,20 @@ export default function CheckImprove() {
 
   if (view === "graded" && gradeResult) {
     return (
-      <GradedResult
-        result={gradeResult}
-        saved={saved}
-        onBack={() => { setView("upload"); setGradeResult(null); setReadProps(null); setDownloadError(null); }}
-        navigate={navigate}
-        onDownload={() => void downloadGraded(buildSinglePrintProps())}
-        onToggleRead={() => toggleRead(buildSinglePrintProps)}
-        readProps={readProps}
-        downloading={downloading}
-        downloadError={downloadError}
-      />
+      <>
+        <GradedResult
+          result={gradeResult}
+          saved={saved}
+          onBack={() => { setView("upload"); setGradeResult(null); setReadProps(null); setDownloadError(null); }}
+          navigate={navigate}
+          onDownload={() => void downloadGraded(buildSinglePrintProps())}
+          onToggleRead={() => toggleRead(buildSinglePrintProps)}
+          readProps={readProps}
+          downloading={downloading}
+          downloadError={downloadError}
+        />
+        {liveScorecardEl()}
+      </>
     );
   }
 
@@ -691,7 +920,30 @@ export default function CheckImprove() {
       subtitle="Board-style examiner grading"
       showNav
     >
+      {historyOverlaysEl()}
       <div style={{ paddingBottom: 120, display: "flex", flexDirection: "column", gap: 14 }}>
+
+        {/* ── Your checked papers (C&I PR-2, item D) — the overlay history control,
+             mirroring desktop's "Your papers · N". Honest: only shown once at least one
+             paper has been checked. ── */}
+        {ciRecords.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setPanelOpen(true)}
+            className="card-soft tap"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              width: "100%", minHeight: 44, padding: "10px 14px",
+              border: `1px solid var(--mob-card-border)`, background: "var(--mob-card)",
+              color: "var(--mob-fg)", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
+            }}
+          >
+            <span>Your checked papers</span>
+            <span style={{ color: "var(--mob-fg-muted)", fontWeight: 700 }}>
+              {ciRecords.length} ▾
+            </span>
+          </button>
+        )}
 
         {/* ── How it works panel ───────────────────────────────── */}
         <div
@@ -742,9 +994,10 @@ export default function CheckImprove() {
             <input
               ref={fileRef}
               type="file"
-              /* Multi-question answers are a whole sheet — accept a PDF too;
-                 single-question stays image-only (byte-identical). */
-              accept={isMultiQuestion ? "image/*,application/pdf" : "image/*"}
+              /* C&I PR-2 (item C) — the answer/solution upload accepts a PDF for BOTH
+                 single- and multi-question, mirroring the question upload. handleFileChange
+                 derives the PDF mime from the file; /check-solution reads a PDF natively. */
+              accept="image/*,application/pdf"
               style={{ display: "none" }}
               onChange={(e) => {
                 const f = e.target.files?.[0];

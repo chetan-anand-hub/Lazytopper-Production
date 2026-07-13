@@ -153,10 +153,34 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   must be EXTRACTED in the upcoming POLYNOMIALS batch. (b) A suspected complex/imaginary-roots leak was a FALSE POSITIVE (an
   exhaustive 110-item scan found only a file-header doctrine comment; zero actual leaks; no √-of-negative anywhere) — #405 shipped
   as-is. Gates all green + CI quality-gate PASS. Chapter 224→334. Docs handoff = this PR.
-- **Bank now = 7,780. 7 DISTINCT topics done across 8 batches** (real-numbers has 2 batches — original + corrective):
-  **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity, chemical-reactions-and-equations,
-  quadratic-equations.** (Verified against the `*.expand.*`/`*.extract.*`/`*.scarce*` pack files on trunk — those seven slugs are
-  the only ones with expansion packs; NO polynomials/etc. pack exists yet. Do NOT read "8 batches" as "8 distinct topics.")
+- **Batch 9 — polynomials +62: MERGED #411 (`9749fc9`).** FIRST topic to ABSORB the sum/product-of-roots (zeros↔coefficients
+  of QUADRATIC polynomials) items as Class-10 2026-27 CORE — exactly what Batch 8 correctly filed OUT of quadratic-equations, and
+  proof the Batch-8 "Class-11" label was wrong. extract-max A/B/C **+13** (saturated chapter → honest-stop) + authored scarce
+  **D 12→34** + **E 10→37** — BOTH honest-stop (a low-weight, narrow Class-10 chapter). Scope held to QUADRATIC zeros-coefficient
+  ONLY: cubic zeros↔coefficient relations, the division algorithm at higher degree, and complex zeros are all EXCLUDED
+  (Class-11/12 adjacency). Owner byte-review CLEAN. Chapter 190→252. Docs handoff = this PR (#411).
+- **Batch 10 — pair-of-linear-equations + arithmetic-progression + acids-bases-and-salts +440: MERGED #415 (`ae2b447`).**
+  FIRST **3-topics-per-PR** batch (owner SPEED directive — see the 3-PER-PR CADENCE note below). Per-topic discipline UNCHANGED
+  (own source table, own syllabusGuard boundary, own skeptic, ≥75-distinct-or-honest-stop); the three were bundled onto ONE branch /
+  ONE `canonicalQuestionBank.ts` wire / ONE PR.
+  - **pair-of-linear-equations +163** (223→386): extract 42 A/B/C + authored D 39 + E 52 + a **reducible-to-linear follow-on
+    pack** (+30: 8 A/B/C, 9 D, 13 E — see the boundary correction). Final PLE scarce **D 29→77 · E 16→81**.
+  - **arithmetic-progression +114** (235→349): extract 20 A/B/C + **D 20→72** + **E 28→70**. AP ONLY (no GP — geometric
+    progression is Class-11).
+  - **acids-bases-and-salts +163** (302→465): extract 67 A/B/C + **D 27→63** + **E 12→72**. Qualitative Class-10 only.
+  - **BOUNDARY CORRECTION (owner) — "equations reducible to a pair of linear equations"** (the 1/x=p, 1/y=q substitution family)
+    is IN the official CBSE 2026-27 syllabus and board-important; the main sweep WRONGLY excluded it (shipped 0). Added on the same
+    branch as `pairOfLinearEquations.expand.reducible.ts`. A backwards proposal to add reducible-to-linear to `syllabusGuard.ts`
+    was **WITHDRAWN** — **syllabusGuard UNTOUCHED**; the Cross-Multiplication Method stays OUT (correct). This MIRRORS the Batch-8
+    sum/product-of-roots lesson: never REJECT real in-syllabus content, and flag any guard change — never auto-commit it.
+  - **Skeptics dropped 16 twins in the main batch (PLE 5, AP 11) + 3 in the reducible pack; fixed a chem MCQ collision
+    (ABS EX-A-015) + 1 reducible coeff-clone (C-003).** Owner byte-review CLEAN; two-direction syllabus clean; all ids manifested.
+    Docs handoff = this PR (#415).
+- **Bank now = 8,282. 11 DISTINCT topics done across 10 batches** (real-numbers has 2 batches — original + corrective; Batch 10
+  shipped 3 topics on one PR): **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity,
+  chemical-reactions-and-equations, quadratic-equations, polynomials, pair-of-linear-equations, arithmetic-progression,
+  acids-bases-and-salts.** (Count reconciliation: 7 through Batch 8 + polynomials (Batch 9) + PLE/AP/ABS (Batch 10) = 11.)
+  **15 topics remain (8 Maths + 7 Science).**
 
 ## BEFORE-LAUNCH CORRECTIVE (tracked, SEPARATE from topic expansion — do NOT bury under Batch 7)
 ### [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — 34 bank MCQs whose `answer` matches NO option
@@ -186,33 +210,48 @@ Failure classes + fix rule:
 This is a data-quality corrective (same spirit as [FU-BANK-EXACTNORM-DUPS] and the SCQ-S-HERED-041 evolution leak),
 run as its OWN small PR before launch — NOT folded into a topic-expansion batch.
 
-## TOPICS REMAINING (19 = 11 Maths + 8 Science) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
-(Ground truth vs `topics.ts`: 26 canonical slugs = 13 Maths + 13 Science; 7 DONE = real-numbers + quadratic-equations + the 5 Science listed above → 19 remain.)
-Maths (11): polynomials · pair-of-linear-equations · arithmetic-progression · triangles ·
-coordinate-geometry · trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics ·
-probability. Science (8): acids-bases-and-salts · metals-and-non-metals · carbon-and-its-compounds ·
+## TOPICS REMAINING (15 = 8 Maths + 7 Science) — extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+(Ground truth vs `topics.ts`: 26 canonical slugs = 13 Maths + 13 Science; 11 DONE = real-numbers + quadratic-equations +
+polynomials + pair-of-linear-equations + arithmetic-progression [5 Maths] + life-processes + our-environment +
+how-do-organisms-reproduce + heredity + chemical-reactions-and-equations + acids-bases-and-salts [6 Science] → 15 remain.)
+Maths (8): triangles · coordinate-geometry · trigonometry · circles · areas-related-to-circles ·
+surface-areas-and-volumes · statistics · probability. Science (7): metals-and-non-metals · carbon-and-its-compounds ·
 light-reflection-and-refraction · human-eye-and-colourful-world · electricity · magnetic-effects-of-electric-current ·
 control-and-coordination.
-**NEXT = polynomials** (Maths — pipeline balance continues; owner/next window may pick any remaining topic).
-**polynomials MUST include the ~22 sum/product-of-roots (zeros–coefficients of quadratic polynomials) items as CORE
-2026-27 content** — absorbing exactly what Batch 8 correctly filed OUT of quadratic-equations (per official CBSE 2026-27,
-"Relationship between zeros and coefficients of quadratic polynomials" is Class-10 CORE under POLYNOMIALS, not Class-11).
-Two-direction boundary for polynomials: no deleted-chapter overlap; Class-10 stays at zeros of a polynomial (linear +
-quadratic), the geometric meaning of zeros, and the zeros↔coefficients relationship for quadratics; reject Class-11/12
-depth (cubic/higher zeros–coefficient identities beyond the basic quadratic relation, division algorithm at higher degree,
-complex roots). READ + RUN `syllabusGuard.ts` live for polynomials before authoring.
+**NEXT batch (3-per-PR, continuous run) = triangles + coordinate-geometry + ONE Science (metals-and-non-metals OR
+carbon-and-its-compounds).** Owner/next window may re-pick the trio; keep to the per-topic discipline within the bundle.
+READ + RUN `syllabusGuard.ts` live for EACH chosen chapter before authoring (per-topic, per the standing anchor process-fix).
 **READ + RUN syllabusGuard live for whichever chapter is chosen** (the Science bannedSubtopics list is chapter-wide;
 Sources of Energy / Periodic Classification / Management of Natural Resources / Evolution are the deleted ones).
 NARROW-CHAPTER NOTE: several remaining topics are saturated/narrow (like real-numbers, our-environment, heredity) —
 expect scarce-band HONEST-STOPS well below 75; that is correct, not a shortfall (chemical-reactions was the FIRST topic
 where BOTH scarce bands reached ≥75 with no honest-stop — a large-reservoir exception, not the norm). Regenerate the
-census per topic from the fresh dump (do NOT trust a written per-topic count — the bank grew to 7,780).
+census per topic from the fresh dump (do NOT trust a written per-topic count — the bank grew to 8,282). Batch 9
+(polynomials D→34/E→37) is a fresh reminder that low-weight/narrow chapters honest-stop well below 75 — expected, not a shortfall.
 
 ## CONSOLIDATION CROSS-PACK GATE (standing lesson, from Batch 8)
 Before wiring, ALWAYS run a COMBINED cross-pack gate over ALL packs of the batch together (extract + authored-D + authored-E),
 not just each pack in isolation. Batch 8 caught 3 extracted-C vs authored-D twins only because the combined gate compared the
 extract pack against the authored packs — real extracted content is preferred, so the 3 authored D were dropped. A per-pack-only
 gate would have shipped the twins. Run the combined cross-pack gate every batch.
+
+## 3-PER-PR CADENCE (standing, owner SPEED directive — from Batch 10)
+From Batch 10 on, BUNDLE 3 topics per PR: one branch, one `canonicalQuestionBank.ts` wire, one PR, one docs handoff.
+The per-topic discipline is UNCHANGED inside the bundle — each topic keeps its OWN exhaustive source table, its OWN
+two-direction syllabusGuard boundary call (read/run live per chapter), its OWN independent skeptic pass, and its OWN
+≥75-distinct-or-honest-stop scarce-band target. Run the COMBINED cross-pack gate over ALL packs of ALL 3 topics before
+wiring (Batch 10 dropped 16+3 twins and fixed a cross-topic MCQ collision only because the combined gate saw every pack).
+
+## SYLLABUS-BOUNDARY PRECEDENTS (standing — never reject real in-syllabus content)
+Two owner corrections now anchor the rule "flag guard changes, never auto-commit; never reject IN-syllabus content":
+- **Batch 8 → sum/product-of-roots (zeros↔coefficients of quadratic polynomials) is Class-10 2026-27 CORE under POLYNOMIALS**
+  (the "Class-11" label was wrong); absorbed in Batch 9.
+- **Batch 10 → "equations reducible to a pair of linear equations" (1/x=p, 1/y=q substitution) is IN the official CBSE 2026-27
+  syllabus** and board-important; the main sweep wrongly excluded it, so it was added on the same branch as
+  `pairOfLinearEquations.expand.reducible.ts`. A backwards proposal to add reducible-to-linear to `syllabusGuard.ts` was
+  **WITHDRAWN — syllabusGuard was left UNTOUCHED**; the Cross-Multiplication Method correctly stays OUT.
+Both: when a boundary call is uncertain, anchor to the OFFICIAL CBSE 2026-27 PDF + live `syllabusGuard.ts`, propose (never
+silently commit) any guard edit, and prefer INCLUDING genuine in-syllabus content over a memory-driven exclusion.
 
 ## RESUME (for a fresh Fable window — this file + the task file are the source of truth)
 1. Re-derive trunk; `corepack pnpm@10.32.1 install --no-frozen-lockfile` in a fresh worktree from CURRENT trunk;
@@ -252,6 +291,24 @@ gate would have shipped the twins. Run the combined cross-pack gate every batch.
   rule); re-point LAZY→new worktree and DUMP→new v-dump. A prior session's scratchpad may be inaccessible.
 
 ## Progress log (newest first)
+- 2026-07-13: Batch 10 (pair-of-linear-equations + arithmetic-progression + acids-bases-and-salts) MERGED #415 (`ae2b447`) +440 —
+  FIRST 3-topics-per-PR batch (owner SPEED directive: from now bundle 3 topics on ONE branch / ONE canonicalQuestionBank.ts wire /
+  ONE PR; per-topic discipline unchanged — own source table, own syllabusGuard boundary, own skeptic, ≥75-or-honest-stop).
+  PLE +163 (223→386: extract 42 A/B/C + D 39 + E 52 + a reducible-to-linear follow-on pack +30 [8 A/B/C·9 D·13 E]; final scarce
+  D 29→77 · E 16→81) · AP +114 (235→349: extract 20 A/B/C + D 20→72 + E 28→70; AP only, no GP) · ABS +163 (302→465: extract
+  67 A/B/C + D 27→63 + E 12→72; qualitative Class-10 only). BOUNDARY CORRECTION (owner): "equations reducible to a pair of
+  linear equations" (1/x=p, 1/y=q substitution) is IN the official CBSE 2026-27 syllabus + board-important — the main sweep wrongly
+  excluded it (shipped 0), added on the same branch (`pairOfLinearEquations.expand.reducible.ts`); a backwards proposal to add it
+  to syllabusGuard.ts was WITHDRAWN → syllabusGuard UNTOUCHED, Cross-Multiplication Method stays OUT. Mirrors the Batch-8
+  sum/product-of-roots lesson (never reject real in-syllabus content; flag guard changes, never auto-commit). Skeptics dropped 16
+  twins in the main batch (PLE 5, AP 11) + 3 in reducible; fixed a chem MCQ collision (ABS EX-A-015) + 1 reducible coeff-clone
+  (C-003). Owner byte-review CLEAN. Bank → 8,282. NEXT = triangles + coordinate-geometry + one Science (metals-and-non-metals OR
+  carbon-and-its-compounds), 3-per-PR continuous run. Docs handoff = #<this PR>.
+- 2026-07-13: Batch 9 (polynomials) MERGED #411 (`9749fc9`) +62 — FIRST topic to ABSORB the sum/product-of-roots (zeros↔coefficients
+  of QUADRATIC polynomials) items as Class-10 2026-27 CORE, exactly what Batch 8 filed OUT of quadratics (proving the "Class-11"
+  label wrong). extract-max A/B/C +13 (saturated → honest-stop) + authored D 12→34 + E 10→37, BOTH honest-stop (low-weight narrow
+  chapter). Scope held to QUADRATIC zeros-coefficient ONLY (cubic zeros↔coefficient relations, higher-degree division algorithm,
+  and complex zeros all EXCLUDED). Owner byte-review CLEAN. Bank → 7,842. Chapter 190→252. Docs handoff = #<this PR>.
 - 2026-07-13: Batch 8 (quadratic-equations) MERGED #405 (`1b7c7aa`) +110 — FIRST Maths topic since real-numbers (pipeline
   balance). extract-max A/B/C +19 (9A·3B·7C; whole NCERT Exemplar ch4 already banked = 0) + scarce D 29→76 (+47) REACHED ≥75
   (~13 application families) + case-based E 22→66 (+44) HONEST-STOP (~18 scenario families; Class-10 quadratic case space

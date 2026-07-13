@@ -22,6 +22,11 @@ function createCheckSolutionRoute(deps) {
     extractJsonObjectFromText,
     buildGeminiImagePart,
     validateMentorImagePayload,
+    // C&I PR-3 (OPTIONAL, additive): the shared model-solution cache
+    // ({ getOrCreateModelSolution }) injected by questions.cjs. When absent —
+    // every direct/legacy construction — both grade paths are byte-identical
+    // to before: the scheme-first hooks below are skipped entirely.
+    solutionCache,
   } = deps;
 
   function buildStubResponse(marks) {
@@ -221,9 +226,47 @@ function createCheckSolutionRoute(deps) {
         '  "teacherNote": "3–4 sentence plain-language teacher summary"\n' +
         '}';
 
-      const markingSchemeBlock = solutionSteps && solutionSteps.length > 0
+      // ── C&I PR-3 · scheme-first cache hook (read-before-grade) ────────────────
+      // A keyless SUBJECTIVE question (no bank solutionSteps) grades against a
+      // STUDENT-AGNOSTIC model solution obtained through the shared question-hash
+      // cache: read by hash; on miss generate from the question text alone
+      // (Gate-2a quality-checked, write-if-pass), so the same question shares one
+      // solution across students. The scheme feeds the EXISTING marking-scheme
+      // slot below — grading rules, normalisation and clamps are untouched.
+      // Byte-identical paths: bank-sourced calls (solutionSteps present), the
+      // autoDetect path (no trusted marks pre-grade -> no stable hash), objective
+      // questions (the deterministic 0/full clamp governs marks), and every
+      // caller without the injected solutionCache dep. Any cache failure
+      // degrades to the empty scheme slot — grading never blocks on the cache.
+      let schemeSteps = solutionSteps;
+      if (
+        solutionCache &&
+        (!solutionSteps || solutionSteps.length === 0) &&
+        !autoDetect &&
+        !isObjective(objectiveMeta) &&
+        !detectedObjective
+      ) {
+        try {
+          const cached = await solutionCache.getOrCreateModelSolution({
+            question,
+            marks,
+            subject,
+            topic,
+            qType: objectiveMeta.qType,
+            section: objectiveMeta.section,
+            isObjective: false,
+          });
+          if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
+            schemeSteps = cached.schemeSteps;
+          }
+        } catch (e) {
+          console.warn('[check-solution] solution-cache hook failed (grading continues):', e.message);
+        }
+      }
+
+      const markingSchemeBlock = schemeSteps && schemeSteps.length > 0
         ? '\n\nOFFICIAL CBSE MARKING SCHEME (use this as your reference for grading):\n' +
-          solutionSteps.map((step, i) => '  Step ' + (i + 1) + ': ' + step).join('\n') +
+          schemeSteps.map((step, i) => '  Step ' + (i + 1) + ': ' + step).join('\n') +
           (finalAnswer ? '\n  Final answer: ' + finalAnswer : '') +
           '\n\nGrade the student\'s work step-by-step against these official steps. For each official step, assess whether the student hit it (correct), partially hit it (partial), missed it entirely (missing), or got it wrong (incorrect). Award marks according to the weights shown in [brackets] in each step, or distribute evenly if no brackets are present. Note which official steps the student completed and which they skipped.\n'
         : '';
@@ -819,7 +862,7 @@ function createCheckSolutionRoute(deps) {
   // Returns { ok, results } where results is one normalised entry per known
   // question (graded OR couldNotRead). Throws nothing — returns { ok:false } on a
   // whole-PDF failure so the caller renders a clean error, not a partial grade.
-  async function gradeStructuredSet({ questions, imageBase64, imageMimeType }) {
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject }) {
     const isPdf = imageMimeType === 'application/pdf';
 
     if (isStubMode()) {
@@ -832,6 +875,46 @@ function createCheckSolutionRoute(deps) {
         }),
         summary: stub.summary,
       };
+    }
+
+    // ── C&I PR-3 · scheme-first cache hook (read-before-grade) ────────────────
+    // Same rule as handleCheckSolution: each keyless SUBJECTIVE question (no bank
+    // solutionSteps) gets a STUDENT-AGNOSTIC model solution through the shared
+    // question-hash cache (generate-from-question-only on miss, Gate-2a checked,
+    // write-if-pass) injected into its EXISTING per-question scheme slot below.
+    // Bank-sourced questions (solutionSteps present) and objective ones (the
+    // deterministic 0/full clamp governs marks) are byte-identical, as is every
+    // caller without the injected solutionCache dep. Lookups run concurrently;
+    // any per-question failure degrades that one question to its empty scheme
+    // slot — the grade call never blocks on the cache.
+    if (solutionCache) {
+      await Promise.all(
+        questions
+          .filter(
+            (q) =>
+              (!Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0) &&
+              !isObjective(q) &&
+              q.objective !== true,
+          )
+          .map(async (q) => {
+            try {
+              const cached = await solutionCache.getOrCreateModelSolution({
+                question: q.questionText,
+                marks: q.marks,
+                subject: subject || 'Maths',
+                topic: q.topicLabel || q.topic || '',
+                qType: q.qType || '',
+                section: q.section || '',
+                isObjective: false,
+              });
+              if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
+                q.solutionSteps = cached.schemeSteps;
+              }
+            } catch (e) {
+              console.warn('[grade-worksheet] solution-cache hook failed for Q' + q.qNumber + ' (grading continues):', e.message);
+            }
+          }),
+      );
     }
 
     const systemPrompt =
@@ -967,6 +1050,10 @@ function createCheckSolutionRoute(deps) {
     const worksheetId = String(payload.worksheetId || '').trim();
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'application/pdf').trim();
+    // C&I PR-3: the Check & Improve client already posts a top-level `subject`
+    // (previously ignored here) — read it ONLY to steer the scheme-first cache
+    // hook's generation prompt. It plays no part in grading itself.
+    const subject = String(payload.subject || '').trim();
 
     const questions = (Array.isArray(payload.questions) ? payload.questions : [])
       .map((q) => ({
@@ -1010,7 +1097,7 @@ function createCheckSolutionRoute(deps) {
     }
 
     try {
-      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType });
+      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject });
       if (!graded.ok) {
         return sendJson(res, 200, {
           ok: false,
