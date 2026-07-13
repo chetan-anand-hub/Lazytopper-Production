@@ -443,3 +443,48 @@ add reducible-to-linear to `syllabusGuard.ts`. Cross-Multiplication Method stays
   D-006≡E-010); fixed 1 banked coefficient-clone (C-003 → distinct 3/√x,2/√y coefficients). 30 clean.
 - Gates re-run after add: tsc · runtime proof (8,282; 0 dup; 0 orphan) · syllabusGuard · mojibake · scope · both
   matrices · git diff --check — all PASS.
+
+## Batch 11 — triangles + coordinate-geometry + metals-and-non-metals (2026-07-13) · 315 items
+
+Second 3-topics-per-PR batch. One branch, one canonicalQuestionBank.ts wire, one PR; per-topic discipline
+(own source table, own syllabusGuard boundary, own adversarial skeptic, ≥75-or-honest-stop). Served bank 8,282 → 8,597.
+
+### Per-topic before → after
+**triangles (294 → 421):** A 112→122 (+10), B 62→65 (+3), C 57→75 (+18: 5 extract + 13 proof-C), **D 40→91**
+(+44 non-proof + 7 proof-D), **E 23→68** (+45). PROOF band = 20 items (7 D-weight + 13 C-weight).
+**coordinate-geometry (232 → 299):** A 80→82 (+2), B 46→47 (+1), C 67→71 (+4), **D 15→28** (+13, honest-stop —
+thin chapter), **E 24→71** (+47).
+**metals-and-non-metals (299 → 420):** A 123→152 (+29), B 60→72 (+12), C 74→78 (+4), **D 32→60** (+28), **E 10→58** (+48).
+
+### Per-topic syllabus boundary (each verified vs live syllabusGuard.ts + owner-verified 2026-27 encoding)
+- **triangles:** IN = similarity/BPT+converse, AAA/SSS/SAS criteria, **areas-of-similar-triangles (ratio = squares
+  of sides — guard permits it, so IN)**, Pythagoras+converse, and PROOFS of these. OUT = Constructions.
+  **Skeptic adjudication (owner-anchored):** the internal **angle-bisector theorem (BD/DC = AB/AC) is OUT of 2026-27**
+  (not in the prescribed list) — 2 authored D items asserting it were DROPPED (D-007, D-025). Kept PF-015 (proves
+  corresponding angle-bisectors of SIMILAR triangles proportional via AA — that is in-syllabus similarity, NOT the
+  banned theorem) and D-032 (Apollonius/median relation given in-stem as a competency application). All 20 proofs
+  verified logically complete.
+- **coordinate-geometry:** IN = distance + section formula (internal, incl. midpoint/centroid-by-average) ONLY.
+  **OUT = area-of-triangle-from-coordinates (guard-banned), collinearity-via-area=0, external division, slope/line.**
+  Extract dropped ~28 area-from-vertices/collinearity-via-area items across sources; skeptic caught + trimmed one
+  residual area-leak (EX-C-003, then dropped as it collided with a banked item). Thin chapter → D honest-stop at 28.
+- **metals-and-non-metals:** IN = properties/reactivity-series/ionic-bonding(qualitative)/extraction-enrichment/
+  corrosion/alloys. OUT = Periodic Classification (Ch5), covalent-carbon bonding, Class-11/12 metallurgy detail
+  (Mond/zone-refining/Ellingham/quantitative electrode-potential). Skeptic verified all balanced equations + formulae.
+
+### Verification
+- **Cross-pack consolidation gate across all 3 topics** (multi-slug — also catches cross-topic twins): 315, 0 errors.
+- Local stack: tsc · runtime proof (8,597; 0 dup; 0 orphan; 26/26) · syllabusGuard (all 3 boundaries) · mojibake ·
+  scope:guard --mode product · root matrix (181) · ops matrix · git diff --check — all PASS. (tsc caught 8 invalid
+  `format` strings from subagents — `AssertionReason`/`Assertion-Reason`→`Assertion-Reasoning`, `SA`→`Short` — fixed.)
+- **Three per-topic adversarial skeptics** re-solved all 324 candidates: dropped 9 (triangles 3, coord 4 incl. the
+  area-leak, metals 2). Every MCQ/AR key resolves to exactly one option (incl. chemistry-subscript checks); all 20
+  triangle proofs logically complete; zero figure-pending — all text-answerable.
+
+### Manifest — id ranges (gaps = skeptic/consolidation drops)
+**triangles (127):** BX-TRI-EX-A-001…010 · EX-B-001…003 · EX-C-002…006 (EX-C-001 dropped) · BX-TRI-D-001…046
+(gaps 007,025 — angle-bisector-theorem) · BX-TRI-PF-001…020 · BX-TRI-E-001…045.
+**coordinate-geometry (67):** BX-COORD-EX-A-001…002 · EX-B-001 · EX-C-001…005 (EX-C-003 dropped) · BX-COORD-D-001…013 ·
+BX-COORD-E-001…050 (gaps 006,022,049).
+**metals-and-non-metals (121):** BX-MNM-EX-A-001…029 · EX-B-001…012 · EX-C-001…004 · BX-MNM-D-001…028 ·
+BX-MNM-E-002…050 (gaps 001,032).

@@ -130,6 +130,17 @@ import { PLE_EXPAND_LONG_D } from './questionBanks/class10/maths/pairOfLinearEqu
 import { PLE_EXPAND_CASE_E } from './questionBanks/class10/maths/pairOfLinearEquations.expand.caseE';
 // Batch 10 follow-on: reducible-to-linear (1/x=p,1/y=q substitution family) — IN 2026-27 (owner-verified official NCERT); cross-multiplication stays OUT.
 import { PLE_EXPAND_REDUCIBLE } from './questionBanks/class10/maths/pairOfLinearEquations.expand.reducible';
+// Bank-expansion Batch 11 (2026-07-13): triangles + coordinate-geometry + metals-and-non-metals — extract-max A/B/C + distinct-authored scarce D/E (+ triangles PROOF); per-topic 2026-27 boundary, honest-stop.
+import { TRI_EXPAND_EXTRACT } from './questionBanks/class10/maths/triangles.expand.extract';
+import { TRI_EXPAND_LONG_D } from './questionBanks/class10/maths/triangles.expand.longD';
+import { TRI_EXPAND_PROOF } from './questionBanks/class10/maths/triangles.expand.proof';
+import { TRI_EXPAND_CASE_E } from './questionBanks/class10/maths/triangles.expand.caseE';
+import { COORD_EXPAND_EXTRACT } from './questionBanks/class10/maths/coordinateGeometry.expand.extract';
+import { COORD_EXPAND_LONG_D } from './questionBanks/class10/maths/coordinateGeometry.expand.longD';
+import { COORD_EXPAND_CASE_E } from './questionBanks/class10/maths/coordinateGeometry.expand.caseE';
+import { MNM_EXPAND_EXTRACT } from './questionBanks/class10/science/metalsNonMetals.expand.extract';
+import { MNM_EXPAND_LONG_D } from './questionBanks/class10/science/metalsNonMetals.expand.longD';
+import { MNM_EXPAND_CASE_E } from './questionBanks/class10/science/metalsNonMetals.expand.caseE';
 import { AP_EXPAND_EXTRACT } from './questionBanks/class10/maths/arithmeticProgression.expand.extract';
 import { AP_EXPAND_LONG_D } from './questionBanks/class10/maths/arithmeticProgression.expand.longD';
 import { AP_EXPAND_CASE_E } from './questionBanks/class10/maths/arithmeticProgression.expand.caseE';
@@ -576,6 +587,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...ABS_EXPAND_LONG_D,
   ...ABS_EXPAND_CASE_E,
   ...METALS_NON_METALS_NCERT,
+  // Bank-expansion Batch 11 — metals-and-non-metals (2026-07-13): 45 extracted A/B/C + 28 authored-D + 48 case-based E (honest-stop; properties/reactivity/bonding/extraction/corrosion/alloys; Periodic Classification excluded).
+  ...MNM_EXPAND_EXTRACT,
+  ...MNM_EXPAND_LONG_D,
+  ...MNM_EXPAND_CASE_E,
   ...METALS_NON_METALS_EXEMPLAR,
   ...CARBON_COMPOUNDS_NCERT,
   ...CARBON_COMPOUNDS_EXEMPLAR,
@@ -623,6 +638,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRI_NCERT,
   ...TRI_EXEMPLAR,
   ...CG_NCERT,
+  // Bank-expansion Batch 11 — coordinate-geometry (2026-07-13): 7 extracted A/B/C + 13 authored-D + 47 case-based E (honest-stop — thin chapter: distance + section formula only; area-from-coordinates excluded).
+  ...COORD_EXPAND_EXTRACT,
+  ...COORD_EXPAND_LONG_D,
+  ...COORD_EXPAND_CASE_E,
   ...CG_EXEMPLAR,
   ...TRIG_NCERT,
   ...TRIG_EXEMPLAR,
@@ -661,6 +680,11 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_AR_QUESTIONS,
   ...TRIGONOMETRY_AR_QUESTIONS,
   ...TRIANGLES_PROOF_QUESTIONS,
+  // Bank-expansion Batch 11 — triangles (2026-07-13): 18 extracted A/B/C + 44 authored-D + 20 PROOF + 45 case-based E (honest-stop; similarity/BPT/area-ratio/Pythagoras; angle-bisector-theorem excluded per 2026-27).
+  ...TRI_EXPAND_EXTRACT,
+  ...TRI_EXPAND_LONG_D,
+  ...TRI_EXPAND_PROOF,
+  ...TRI_EXPAND_CASE_E,
   ...TRIGONOMETRY_PROOF_QUESTIONS,
   ...SCIENCE_AR_QUESTIONS,
   // P0.5 diff/ pack registration (2026-05-23) — 43 questions (case-based Sec E + circles proof Sec C/D)
