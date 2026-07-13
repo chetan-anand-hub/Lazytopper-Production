@@ -19,6 +19,8 @@ import {
   type HPQStream,
   type HPQTopicBucket,
 } from "../data/highlyProbableQuestions";
+import MobileShell from "../components/mobile/MobileShell";
+import { useIsDesktop } from "../hooks/useIsDesktop";
 
 /**
  * ExamTrendsRanked — ONE responsive Exam Trends page (Option-B convergence).
@@ -1040,6 +1042,10 @@ function PriorityBand({
 export default function ExamTrendsRanked() {
   const navigate = useNavigate();
   const location = useLocation();
+  // C&I PR-2 item E — at mobile width this page owns the shared MobileShell header
+  // (the app-wide avatar-dropdown), retiring the old global brand bar. Desktop width
+  // stays inside DesktopShell, unchanged.
+  const isDesktop = useIsDesktop();
   const [subject, setSubject] = useState<DesktopSubject>("Maths");
   const [stream, setStream] = useState<DesktopStream>("All");
   const [openBands, setOpenBands] = useState<Record<Band, boolean>>(() => ({
@@ -1193,7 +1199,7 @@ export default function ExamTrendsRanked() {
 
   const hasTopics = sortedTopics.length > 0;
 
-  return (
+  const pageBody = (
     <div
       style={{
         width: "100%",
@@ -1263,5 +1269,15 @@ export default function ExamTrendsRanked() {
         ))
       )}
     </div>
+  );
+
+  // Mobile: wrap in the shared header (avatar-dropdown). Desktop: bare — DesktopShell
+  // already provides the chrome (item E).
+  return isDesktop ? (
+    pageBody
+  ) : (
+    <MobileShell title="Exam Trends" subtitle="What to prioritise" showNav>
+      {pageBody}
+    </MobileShell>
   );
 }

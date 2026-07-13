@@ -124,6 +124,10 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
     expect(isMobileSelfChromedRoute("/check-improve", false)).toBe(true);
     expect(isMobileSelfChromedRoute("/intent", false)).toBe(true);
     expect(isMobileSelfChromedRoute("/practice/worksheets/ready", false)).toBe(true);
+    // Added with C&I PR-2 item E ([FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE]) — these two
+    // responsive pages now own a !isDesktop MobileShell header (avatar-dropdown).
+    expect(isMobileSelfChromedRoute("/exam-trends", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/practice-hub", false)).toBe(true);
   });
 
   it("does NOT suppress on desktop — desktop chrome on those routes is unchanged", () => {
@@ -133,11 +137,16 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
     expect(isMobileSelfChromedRoute("/check-improve", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/intent", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/practice/worksheets/ready", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/exam-trends", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/practice-hub", true)).toBe(false);
   });
 
-  it("does NOT suppress the navbar on other mobile routes", () => {
-    expect(isMobileSelfChromedRoute("/practice-hub", false)).toBe(false);
-    expect(isMobileSelfChromedRoute("/exam-trends", false)).toBe(false);
+  it("does NOT suppress the navbar on other mobile routes (still on the old global bar)", () => {
+    // Straggler routes that remain on the OLD global brand bar at mobile width (item E
+    // scoped the fix to /exam-trends + /practice-hub; the rest are reported, not fixed).
+    expect(isMobileSelfChromedRoute("/practice/worksheets", false)).toBe(false);
+    expect(isMobileSelfChromedRoute("/topic-hub", false)).toBe(false);
+    expect(isMobileSelfChromedRoute("/highly-probable", false)).toBe(false);
     expect(isMobileSelfChromedRoute("/", false)).toBe(false);
   });
 });

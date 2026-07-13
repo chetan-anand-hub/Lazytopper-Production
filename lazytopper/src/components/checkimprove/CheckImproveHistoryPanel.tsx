@@ -5,10 +5,11 @@
 // control opens a scrollable panel — the Worksheet/Full-Mock pattern, not a rail).
 // Inside: subject filter tabs, then the LOCKED Chapter-Test card shape (ScoreRing +
 // four-type DotStrip + "Last checked"), imported verbatim from the CT rail exactly
-// as the Full-Mock panel does. A `mixed` paper shows a plain "Mixed topics" chip —
-// NEVER a guessed topic name, and NEVER a topic COUNT: per-question topic does not
-// exist until C&I PR-3, so a count would be a fabricated number (owner decision
-// 2026-07-13; the counted chip lights up in PR-3). Tap a card → the host re-opens
+// as the Full-Mock panel does. A `mixed` paper shows the COUNTED "N topics" chip when
+// the record carries a resolved per-question topic count (C&I PR-2, item B — the real
+// count of DISTINCT resolved topics, never a guessed topic name); it falls back to the
+// plain "Mixed topics" chip when no count exists (a pre-PR-2 record, or a paper whose
+// per-question topics couldn't be resolved). Tap a card → the host re-opens
 // its stored scorecard read-only. Honest empty state before the first paper.
 //
 // Presentational: every number comes from the stored SessionRecords — nothing is
@@ -176,6 +177,10 @@ export default function CheckImproveHistoryPanel({
               visible.map((r) => {
                 const latest = r.id === latestId;
                 const mixed = r.topicSource === "mixed";
+                // Item B — the counted chip: the real distinct-topic count when known,
+                // else the honest plain label (never a fabricated number).
+                const mixChipLabel =
+                  r.topicCount && r.topicCount >= 2 ? `${r.topicCount} topics` : "Mixed topics";
                 const cls = "lt-ct__hcard" + (latest ? " lt-ct__hcard--latest" : "");
                 return (
                   <button key={r.id} type="button" className={cls} onClick={() => onOpen(r)}>
@@ -188,7 +193,7 @@ export default function CheckImproveHistoryPanel({
                           {mixed && (
                             <>
                               {" "}
-                              <span className="lt-ci__mixchip">Mixed topics</span>
+                              <span className="lt-ci__mixchip">{mixChipLabel}</span>
                             </>
                           )}
                         </div>

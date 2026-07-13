@@ -9,7 +9,12 @@
 
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
 import type { DesktopSubject } from "../lib/desktop/navigation";
-import type { CheckSolutionResponse, DetectQuestionResponse } from "../ai/aiClient";
+import {
+  detectQuestion,
+  type CheckSolutionResponse,
+  type CheckSolutionTopicVocab,
+  type DetectQuestionResponse,
+} from "../ai/aiClient";
 
 /**
  * Governs ONLY the detection *meta-display* — the marks-source label
@@ -76,6 +81,69 @@ export function buildConfirmedDetection(
     topicSlug,
     marksSource: d.marksSource ?? null,
   };
+}
+
+/** One question's resolved topic in a multi-question upload (C&I PR-2, item A). */
+export interface PerQuestionTopic {
+  qNumber: number;
+  /** Canonical topics.ts slug, or "" when the model found no confident fit. */
+  topicSlug: string;
+  /** Canonical display name, or "" when unresolved. */
+  topicName: string;
+}
+
+/**
+ * Resolve a per-QUESTION topic for each question of a (multi-question) C&I upload —
+ * item A, route A2 (owner-ratified 2026-07-13): re-run the EXISTING `/detect-question`
+ * read once per question against the SAME topics.ts vocabulary the session-level
+ * detect already uses, then canonicalise through the shared resolver. NO grader edit
+ * (the detect endpoint lives in the sacred checkSolution.cjs — untouched); this only
+ * re-calls the existing client capability.
+ *
+ * HONESTY (spec §3 / §4.4): a question whose topic the model can't confidently place
+ * returns an EMPTY slug — never guessed. Externally uploaded questions carry no bank
+ * questionId, so only the TOPIC is knowable here; the concept (subtopic) stays
+ * unknowable and is never fabricated. A failed detect call degrades that one question
+ * to empty (best-effort), never the whole set.
+ *
+ * The calls run concurrently; each is the same focused, cheap read the confirm step
+ * already makes. Pure w.r.t. state — returns the resolved topics for the caller to
+ * attach to the grade response (it does not mutate anything).
+ */
+export async function resolvePerQuestionGradeTopics(
+  questions: Array<{ questionNumber: number; questionText: string }>,
+  topicVocabulary: CheckSolutionTopicVocab[],
+): Promise<PerQuestionTopic[]> {
+  const settled = await Promise.all(
+    questions.map(async (q): Promise<PerQuestionTopic> => {
+      const text = String(q.questionText || "").trim();
+      if (!text) return { qNumber: q.questionNumber, topicSlug: "", topicName: "" };
+      try {
+        const d = await detectQuestion({ question: text, topicVocabulary });
+        const { topicSlug, topicName } = resolveDetectedGradeTopic({
+          detectedTopic: d.detectedTopic ?? null,
+          detectedSubject: d.detectedSubject ?? null,
+        });
+        return { qNumber: q.questionNumber, topicSlug, topicName };
+      } catch (error) {
+        console.warn("[checkImproveDetection] per-question topic detect failed", error);
+        return { qNumber: q.questionNumber, topicSlug: "", topicName: "" };
+      }
+    }),
+  );
+  return settled;
+}
+
+/** Count the DISTINCT resolved topics across a per-question set (empty slugs — the
+ *  honest unresolved — never count). Powers the "N topics" counted chip + the
+ *  by-topic lens gate. */
+export function countDistinctTopics(perQuestion: Array<{ topicSlug?: string | null }>): number {
+  const seen = new Set<string>();
+  for (const q of perQuestion) {
+    const slug = String(q.topicSlug || "").trim();
+    if (slug) seen.add(slug);
+  }
+  return seen.size;
 }
 
 /**
