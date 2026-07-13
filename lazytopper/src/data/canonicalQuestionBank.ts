@@ -124,6 +124,18 @@ import { QUADRATIC_EQUATIONS_EXPAND_CASE_E } from './questionBanks/class10/maths
 import { POLYNOMIALS_EXPAND_EXTRACT } from './questionBanks/class10/maths/polynomials.expand.extract';
 import { POLYNOMIALS_EXPAND_LONG_D } from './questionBanks/class10/maths/polynomials.expand.longD';
 import { POLYNOMIALS_EXPAND_CASE_E } from './questionBanks/class10/maths/polynomials.expand.caseE';
+// Bank-expansion Batch 10 (2026-07-13): pair-of-linear-equations + arithmetic-progression + acids-bases-and-salts — extract-max A/B/C + distinct-authored scarce D/E (per-topic 2026-27 boundary; honest-stop).
+import { PLE_EXPAND_EXTRACT } from './questionBanks/class10/maths/pairOfLinearEquations.expand.extract';
+import { PLE_EXPAND_LONG_D } from './questionBanks/class10/maths/pairOfLinearEquations.expand.longD';
+import { PLE_EXPAND_CASE_E } from './questionBanks/class10/maths/pairOfLinearEquations.expand.caseE';
+// Batch 10 follow-on: reducible-to-linear (1/x=p,1/y=q substitution family) — IN 2026-27 (owner-verified official NCERT); cross-multiplication stays OUT.
+import { PLE_EXPAND_REDUCIBLE } from './questionBanks/class10/maths/pairOfLinearEquations.expand.reducible';
+import { AP_EXPAND_EXTRACT } from './questionBanks/class10/maths/arithmeticProgression.expand.extract';
+import { AP_EXPAND_LONG_D } from './questionBanks/class10/maths/arithmeticProgression.expand.longD';
+import { AP_EXPAND_CASE_E } from './questionBanks/class10/maths/arithmeticProgression.expand.caseE';
+import { ABS_EXPAND_EXTRACT } from './questionBanks/class10/science/acidsBasesSalts.expand.extract';
+import { ABS_EXPAND_LONG_D } from './questionBanks/class10/science/acidsBasesSalts.expand.longD';
+import { ABS_EXPAND_CASE_E } from './questionBanks/class10/science/acidsBasesSalts.expand.caseE';
 import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
 import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
 import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
@@ -559,6 +571,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CHEM_REACTIONS_EXEMPLAR,
   ...ACIDS_BASES_SALTS_NCERT,
   ...ACIDS_BASES_SALTS_EXEMPLAR,
+  // Bank-expansion Batch 10 — acids-bases-and-salts (2026-07-13): 67 extracted A/B/C + 36 authored-D + 60 case-based E (D honest-stop; qualitative Class-10 only).
+  ...ABS_EXPAND_EXTRACT,
+  ...ABS_EXPAND_LONG_D,
+  ...ABS_EXPAND_CASE_E,
   ...METALS_NON_METALS_NCERT,
   ...METALS_NON_METALS_EXEMPLAR,
   ...CARBON_COMPOUNDS_NCERT,
@@ -596,6 +612,12 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...RN_SCARCE2,
   ...PLE_NCERT,
   ...PLE_EXEMPLAR,
+  // Bank-expansion Batch 10 — pair-of-linear-equations (2026-07-13): 42 extracted A/B/C + 39 authored-D + 52 case-based E (both scarce bands honest-stop; no cross-multiplication / reducible-to-linear).
+  ...PLE_EXPAND_EXTRACT,
+  ...PLE_EXPAND_LONG_D,
+  ...PLE_EXPAND_CASE_E,
+  // Batch 10 follow-on — reducible-to-linear (subtopic "Equations Reducible to a Pair of Linear Equations"): 8 extracted A/B/C + 9 authored-D + 13 case-based E (honest-stop; IN 2026-27).
+  ...PLE_EXPAND_REDUCIBLE,
   ...QE_NCERT,
   ...QE_EXEMPLAR,
   ...TRI_NCERT,
@@ -611,6 +633,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...POLY_EXEMPLAR,
   ...AP_NCERT,
   ...AP_EXEMPLAR,
+  // Bank-expansion Batch 10 — arithmetic-progression (2026-07-13): 20 extracted A/B/C + 52 authored-D + 42 case-based E (both scarce bands honest-stop; AP only — no GP).
+  ...AP_EXPAND_EXTRACT,
+  ...AP_EXPAND_LONG_D,
+  ...AP_EXPAND_CASE_E,
   ...CIRC_NCERT,
   ...CIRC_EXEMPLAR,
   ...ARC_NCERT,
