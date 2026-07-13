@@ -165,11 +165,13 @@ Failure classes + fix rule:
 This is a data-quality corrective (same spirit as [FU-BANK-EXACTNORM-DUPS] and the SCQ-S-HERED-041 evolution leak),
 run as its OWN small PR before launch — NOT folded into a topic-expansion batch.
 
-## TOPICS REMAINING (~19) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+## TOPICS REMAINING (~20 = 12 Maths + 8 Science) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+(Ground truth vs `topics.ts`: 26 canonical slugs = 13 Maths + 13 Science; 6 DONE = real-numbers + the 5 Science listed above → 20 remain. NEXT = quadratic-equations; once it merges, 19 remain.)
 Maths (12): polynomials · pair-of-linear-equations · quadratic-equations · arithmetic-progression · triangles ·
 coordinate-geometry · trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics ·
-probability. Science (7): acids-bases-and-salts · metals-and-non-metals · carbon-and-its-compounds ·
-light-reflection-and-refraction · human-eye-and-colourful-world · electricity · magnetic-effects-of-electric-current.
+probability. Science (8): acids-bases-and-salts · metals-and-non-metals · carbon-and-its-compounds ·
+light-reflection-and-refraction · human-eye-and-colourful-world · electricity · magnetic-effects-of-electric-current ·
+control-and-coordination.
 **NEXT = quadratic-equations** (Maths — picked for PIPELINE BALANCE: only real-numbers has been a Maths batch so far,
 so alternate subjects; quadratic-equations has a rich scarce D/E word-problem + discriminant reservoir. Owner/next
 window may pick any remaining topic). Two-direction boundary for quadratic-equations: no deleted-chapter overlap;
