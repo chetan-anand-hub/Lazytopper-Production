@@ -1,0 +1,301 @@
+import type { CanonicalQuestion } from "../../../predictionTypes";
+
+export const HEREDITY_EXPAND_LONG_D: CanonicalQuestion[] = [
+  {
+    id: "BX-HER-D-001",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Mendel's Laws",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "State Mendel's Law of Dominance. Using a monohybrid cross between a pure tall pea plant (TT) and a pure dwarf pea plant (tt), explain how this law is demonstrated in the F₁ generation. Explain why the dwarf character disappears in F₁ but is not lost.",
+    options: [],
+    answer:
+      "F₁ = 100% tall (Tt); the dominant allele T masks the recessive t, which is not lost and reappears in F₂.",
+    solutionSteps: [
+      "[1 mark] Law of Dominance: in a pair of contrasting alleles for a trait, only one allele — the dominant one — expresses itself in the phenotype of a heterozygote, while the other (recessive) allele stays masked.",
+      "[1 mark] Cross setup: P: TT (tall) × tt (dwarf). One parent supplies gamete T, the other supplies gamete t.",
+      "[1 mark] F₁ Punnett result: every offspring is Tt (heterozygous) — 100% of the F₁ have genotype Tt.",
+      "[1 mark] Phenotype of F₁: all F₁ plants are tall, because the dominant allele T completely masks the recessive allele t; this demonstrates the Law of Dominance.",
+      "[1 mark] The dwarf character is not lost: the recessive allele t is still present in every Tt plant and reappears (¼ dwarf) when two F₁ (Tt) plants are crossed — proving it was only masked, not destroyed.",
+    ],
+    finalAnswer:
+      "F₁ = 100% tall (Tt); dwarf allele t is masked by dominant T, not lost, and reappears in F₂.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-002",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Mendel's Laws",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "State Mendel's Law of Segregation and explain its cellular basis during gamete formation. Then, using the F₁ self-cross Tt × Tt (T = tall dominant, t = dwarf recessive), show with a Punnett square how segregation produces the F₂ genotypic and phenotypic ratios.",
+    options: [],
+    answer:
+      "Alleles separate into different gametes during meiosis; F₂ = 1 TT : 2 Tt : 1 tt genotype, 3 tall : 1 dwarf phenotype.",
+    solutionSteps: [
+      "[1 mark] Law of Segregation: the two alleles of a gene present in an individual separate (segregate) during gamete formation, so each gamete carries only ONE allele of the pair.",
+      "[1 mark] Cellular basis: the two alleles lie on homologous chromosomes; during meiosis the homologous chromosomes move to opposite poles into different gametes, so a Tt plant forms two types of gamete — ½ carrying T and ½ carrying t.",
+      "[1 mark] F₁ self-cross Tt × Tt. Gametes from each parent: T and t. The 2×2 Punnett grid gives the cells TT, Tt, Tt, tt.",
+      "[1 mark] F₂ genotypic ratio = 1 TT : 2 Tt : 1 tt.",
+      "[1 mark] F₂ phenotypic ratio = 3 tall : 1 dwarf; the recessive dwarf reappears intact, proving the alleles segregated cleanly and did not blend.",
+    ],
+    finalAnswer:
+      "Alleles segregate into separate gametes (meiotic basis); F₂ = 1 TT : 2 Tt : 1 tt genotype, 3 tall : 1 dwarf phenotype.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-003",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Mendel's Laws",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Hard",
+    bloomSkill: "Analysing",
+    questionText:
+      "State Mendel's Law of Independent Assortment and explain its cellular basis in terms of chromosome behaviour during meiosis. For a dihybrid RrYy plant (R = round dominant, r = wrinkled; Y = yellow dominant, y = green), list the four types of gametes formed and state the F₂ phenotypic ratio expected on self-crossing.",
+    options: [],
+    answer:
+      "Gene pairs on different chromosome pairs assort independently in meiosis; RrYy → four gametes RY, Ry, rY, ry; F₂ = 9 : 3 : 3 : 1.",
+    solutionSteps: [
+      "[1 mark] Law of Independent Assortment: when two pairs of contrasting traits are inherited together, the alleles of one gene pair assort into gametes independently of the alleles of the other gene pair.",
+      "[1 mark] Cellular basis: the two gene pairs lie on two DIFFERENT pairs of homologous chromosomes; during meiosis each homologous pair orients and separates independently of the other, so an allele of one gene can pass into a gamete with either allele of the second gene.",
+      "[1 mark] Gamete types from RrYy: four kinds in equal proportion — RY, Ry, rY and ry (each ¼).",
+      "[1 mark] Because R/r assorts independently of Y/y, both parental combinations (RY, ry) and new recombinant combinations (Ry, rY) appear among the gametes.",
+      "[1 mark] Self-crossing RrYy × RrYy gives an F₂ phenotypic ratio of 9 round-yellow : 3 round-green : 3 wrinkled-yellow : 1 wrinkled-green (9 : 3 : 3 : 1).",
+    ],
+    finalAnswer:
+      "Gene pairs assort independently (they lie on different chromosome pairs); RrYy → 4 gamete types RY, Ry, rY, ry; F₂ = 9 : 3 : 3 : 1.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-004",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Incomplete Dominance",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Hard",
+    bloomSkill: "Analysing",
+    questionText:
+      "In snapdragon (Antirrhinum), a cross between a red-flowered plant (RR) and a white-flowered plant (rr) produces pink-flowered F₁ plants. Name and explain the phenomenon shown here. Work out the F₂ genotypic and phenotypic ratios when the F₁ pink plants are self-crossed, and state how this differs from a typical Mendelian monohybrid cross.",
+    options: [],
+    answer:
+      "Incomplete dominance: F₁ pink (Rr); F₂ = 1 red : 2 pink : 1 white (1:2:1, phenotype ratio equals genotype ratio), unlike the 3:1 of complete dominance.",
+    solutionSteps: [
+      "[1 mark] The phenomenon is incomplete dominance: neither allele is completely dominant, so the heterozygote (Rr) shows an INTERMEDIATE phenotype (pink) instead of resembling either parent.",
+      "[1 mark] P cross: RR (red) × rr (white) → F₁ all Rr, which are pink — the intermediate expression of the two alleles together.",
+      "[1 mark] F₁ self-cross Rr × Rr; gametes R and r. The Punnett grid gives RR, Rr, Rr, rr.",
+      "[1 mark] F₂ genotypic ratio = 1 RR : 2 Rr : 1 rr, i.e. phenotypes = 1 red : 2 pink : 1 white.",
+      "[1 mark] Difference from a normal Mendelian cross: here the phenotypic ratio (1 : 2 : 1) EQUALS the genotypic ratio because the heterozygote (pink) is distinguishable, whereas a normal monohybrid cross gives a 3 : 1 phenotypic ratio because the heterozygote looks exactly like the dominant parent.",
+    ],
+    finalAnswer:
+      "Incomplete dominance; F₁ = pink (Rr); F₂ = 1 red : 2 pink : 1 white (1:2:1, phenotype = genotype), unlike the 3:1 of complete dominance.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-005",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Test Cross",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "A pea plant showing the dominant tall phenotype may be either homozygous (TT) or heterozygous (Tt), and its genotype cannot be told by looking at it. Describe the test cross used to determine which it is. Show, with Punnett squares, the two possible results and explain how the offspring ratio reveals the unknown genotype.",
+    options: [],
+    answer:
+      "Cross the unknown tall plant with a homozygous dwarf (tt): all-tall offspring → the plant is TT; a 1 tall : 1 dwarf ratio → the plant is Tt.",
+    solutionSteps: [
+      "[1 mark] Test cross defined: cross the individual of unknown dominant genotype with a HOMOZYGOUS RECESSIVE (tt, dwarf); its gametes all carry t and so cannot mask any allele contributed by the unknown plant.",
+      "[1 mark] Case 1 — the plant is TT: TT × tt. Gametes T × t give all offspring Tt.",
+      "[1 mark] Result of Case 1: 100% of offspring are tall (Tt), with no dwarfs ⇒ the tested plant is homozygous TT.",
+      "[1 mark] Case 2 — the plant is Tt: Tt × tt. Gametes T and t × t give offspring Tt and tt in a 1 : 1 ratio.",
+      "[1 mark] Result of Case 2: offspring are 50% tall (Tt) : 50% dwarf (tt), a 1 : 1 ratio ⇒ the appearance of any dwarf offspring shows the tested plant is heterozygous Tt.",
+    ],
+    finalAnswer:
+      "Cross the unknown with tt: all-tall offspring → TT; 1 tall : 1 dwarf → Tt.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-006",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Genotype and Phenotype",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Distinguish between genotype and phenotype. Explain, with a worked example from a monohybrid cross, why two pea plants that look exactly alike (same phenotype) may have different genotypes, and how this hidden difference can show up in their offspring.",
+    options: [],
+    answer:
+      "Genotype = allele makeup; phenotype = expressed trait. TT and Tt are both tall (same phenotype, different genotype); the difference shows only through their offspring.",
+    solutionSteps: [
+      "[1 mark] Genotype is the genetic (allelic) makeup of an organism for a trait (e.g. TT, Tt, tt); phenotype is the observable, expressed characteristic (e.g. tall or dwarf).",
+      "[1 mark] Because T is dominant over t, both a TT plant and a Tt plant are tall — the SAME phenotype (tall) produced by DIFFERENT genotypes (homozygous vs heterozygous).",
+      "[1 mark] By contrast a dwarf plant can only be tt, so for the recessive trait genotype and phenotype correspond one-to-one; the ambiguity exists only for the dominant phenotype.",
+      "[1 mark] The hidden difference shows in the offspring: TT × tt gives all tall offspring, whereas Tt × tt gives 1 tall : 1 dwarf — the recessive t carried silently in Tt reappears as dwarf.",
+      "[1 mark] Hence phenotype alone cannot reveal the genotype of a dominant individual; a cross is needed to distinguish them — confirming that genotype and phenotype are distinct concepts.",
+    ],
+    finalAnswer:
+      "Genotype = allele makeup, phenotype = expressed trait; TT and Tt look identical (tall) but differ genetically, revealed only by their offspring.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-007",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Inheritance of Traits",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Hard",
+    bloomSkill: "Analysing",
+    questionText:
+      "In a family, both parents can roll their tongue (a dominant trait), yet one of their children is a non-roller (recessive). (a) Explain how a recessive trait can appear in a child when it is absent in both parents. (b) Give the genotypes of the parents and children. (c) Explain what is meant by a 'carrier' and why such a trait may seem to skip a generation. (Take R = roller, dominant; r = non-roller, recessive.)",
+    options: [],
+    answer:
+      "Both roller parents are heterozygous carriers (Rr); Rr × Rr gives ¼ rr non-roller. A carrier (Rr) hides the recessive allele, so the trait can skip a generation.",
+    solutionSteps: [
+      "[1 mark] (a) A recessive trait can appear in a child when both parents, though showing the dominant phenotype, are heterozygous CARRIERS (Rr) — each carries one hidden recessive allele that is masked in them.",
+      "[1 mark] (b) Parental genotypes: both mother and father are Rr (roller phenotype, carrying r). Each forms gametes R and r.",
+      "[1 mark] Cross Rr × Rr → offspring RR, Rr, Rr, rr (ratio 1 : 2 : 1). The rr child is the non-roller, so the recessive trait reappears.",
+      "[1 mark] Child genotypes: the non-roller child is rr; the roller children are RR or Rr. A CARRIER is a heterozygote (Rr) that does not show the recessive trait but can pass the recessive allele to its offspring.",
+      "[1 mark] (c) The trait seems to skip a generation because it stays hidden inside carriers (Rr) for one or more generations and becomes visible only when two recessive alleles come together (rr) — so it can be absent in the parents yet present in a child.",
+    ],
+    finalAnswer:
+      "Both parents are heterozygous carriers (Rr); Rr × Rr → ¼ rr non-roller; carriers hide the recessive allele, so the trait can skip a generation.",
+    isCompetencyBased: true,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-008",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Inheritance of Traits",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Hard",
+    bloomSkill: "Analysing",
+    questionText:
+      "Colour blindness is controlled by a recessive allele located on the X chromosome. Using a cross between a carrier mother (XᴾXʳ) and a normal father (XᴾY), explain why colour blindness is more common in males than in females. Show the genotypes of all offspring and identify who is affected and who is a carrier. (Xᴾ = normal allele; Xʳ = colour-blind allele.)",
+    options: [],
+    answer:
+      "Sons: ½ normal, ½ colour-blind; daughters: ½ normal, ½ carrier. A male needs only one recessive allele on his single X to be affected, so colour blindness is commoner in males.",
+    solutionSteps: [
+      "[1 mark] The colour-blind allele is recessive and X-linked. Males are XY (a single X), females are XX (two X chromosomes).",
+      "[1 mark] Cross: mother XᴾXʳ (gametes Xᴾ and Xʳ) × father XᴾY (gametes Xᴾ and Y).",
+      "[1 mark] Female offspring: XᴾXᴾ (normal) and XᴾXʳ (carrier), in a 1 : 1 ratio; no daughter is colour-blind in this cross.",
+      "[1 mark] Male offspring: XᴾY (normal) and XʳY (colour-blind), in a 1 : 1 ratio; half the sons are colour-blind.",
+      "[1 mark] Males are affected more often because a single recessive allele on their one X (XʳY) already causes colour blindness, whereas a female needs the recessive allele on BOTH X chromosomes (XʳXʳ) to be affected — one copy only makes her a carrier.",
+    ],
+    finalAnswer:
+      "Sons: ½ normal (XᴾY), ½ colour-blind (XʳY); daughters: ½ normal (XᴾXᴾ), ½ carrier (XᴾXʳ). Males need only one recessive allele (single X), so it is commoner in males.",
+    isCompetencyBased: true,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-009",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Variation",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Explain why offspring produced by sexual reproduction show more variation than those produced by asexual reproduction. In your answer describe the role of germ cells (gametes), the combination of alleles from two parents, and why each child of the same parents is genetically different. (Do NOT discuss evolution.)",
+    options: [],
+    answer:
+      "Sexual reproduction unites alleles from two parents through gametes, with segregation, independent assortment and random fertilisation, giving each offspring a unique gene combination — far more variation than clonal asexual reproduction.",
+    solutionSteps: [
+      "[1 mark] In sexual reproduction two parents contribute genes through germ cells (gametes) — the egg and the sperm — so the offspring receives a NEW combination of alleles drawn from two different individuals.",
+      "[1 mark] During gamete formation the alleles of each gene segregate and different gene pairs assort independently, so a single parent produces many genetically different gametes.",
+      "[1 mark] Fertilisation randomly unites one egg with one sperm out of many possible types, so a very large number of different allele combinations is possible in the offspring.",
+      "[1 mark] This is why children of the same two parents (except identical twins) differ from one another and from each parent — each results from a different chance combination of parental alleles.",
+      "[1 mark] In asexual reproduction a single parent passes on an identical copy of its genes, so the offspring are genetically almost identical (clones) with only minor variations from copying errors — hence far less variation than sexual reproduction.",
+    ],
+    finalAnswer:
+      "Sexual reproduction combines alleles from two parents via gametes, with segregation, independent assortment and random fertilisation, so each offspring is genetically unique — far more variation than clonal asexual reproduction.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-010",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Mendel's Laws",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Gregor Mendel chose the garden pea (Pisum sativum) for his experiments on inheritance. Explain why the pea plant was a suitable choice and describe the key features of his experimental method that made his conclusions reliable.",
+    options: [],
+    answer:
+      "The pea has clear contrasting traits, self- and cross-pollination, a short life cycle and many offspring; Mendel's controlled crosses of pure lines and statistical counting of F₁/F₂ made his conclusions reliable.",
+    solutionSteps: [
+      "[1 mark] The garden pea has several clearly contrasting characters (e.g. tall/dwarf, round/wrinkled seed, yellow/green seed) that are easy to observe and score without ambiguity.",
+      "[1 mark] Pea plants are normally self-pollinating, which gave Mendel pure-breeding (homozygous) parent lines; yet they can be cross-pollinated by hand when needed, so he could control every cross.",
+      "[1 mark] The pea has a short life cycle and produces many seeds/offspring per generation, providing large numbers needed for reliable ratios.",
+      "[1 mark] Method: he began with pure-breeding parents and made controlled monohybrid and dihybrid crosses, tracing one or two characters at a time through the F₁ and F₂ generations.",
+      "[1 mark] He COUNTED the offspring of each type and analysed the results as numerical ratios (e.g. 3 : 1, 9 : 3 : 3 : 1); this quantitative, controlled approach let him deduce the laws of inheritance reliably.",
+    ],
+    finalAnswer:
+      "Pea has clear contrasting traits, self- and cross-pollination, short life cycle and many offspring; controlled crosses of pure lines plus statistical counting of F₁/F₂ made Mendel's conclusions reliable.",
+    isCompetencyBased: false,
+    requiresDiagram: false,
+  },
+  {
+    id: "BX-HER-D-011",
+    subject: "Science",
+    topicKey: "heredity",
+    subtopic: "Inheritance of Traits",
+    section: "D",
+    marks: 5,
+    format: "Long",
+    difficulty: "Hard",
+    bloomSkill: "Applying",
+    questionText:
+      "A certain inherited condition is caused by a recessive allele (a); individuals with genotype 'aa' show the condition, while 'AA' and 'Aa' individuals are healthy. A healthy man and a healthy woman, both with genotype Aa, plan to have children. (a) Work out the cross with a Punnett square. (b) State the probability that a child will show the condition. (c) Among the healthy children, what fraction are carriers? Explain your reasoning.",
+    options: [],
+    answer:
+      "Aa × Aa → 1 AA : 2 Aa : 1 aa; probability of an affected (aa) child = 25%; among the healthy children, 2 out of 3 are carriers (Aa).",
+    solutionSteps: [
+      "[1 mark] (a) Both parents are heterozygous Aa (healthy carriers); each forms gametes A and a in equal proportion.",
+      "[1 mark] Punnett cross Aa × Aa → offspring genotypes AA, Aa, Aa, aa, in the ratio 1 AA : 2 Aa : 1 aa.",
+      "[1 mark] (b) The condition (aa) appears in ¼ of the offspring, so the probability that a child shows the condition = 25%.",
+      "[1 mark] (c) Healthy children are AA and Aa (3 out of every 4); among these healthy children the carriers (Aa) number 2 out of 3.",
+      "[1 mark] Reasoning: because A is dominant, one A allele is enough to keep an individual healthy, so the recessive condition appears only when a child inherits a recessive allele from BOTH carrier parents (probability ¼).",
+    ],
+    finalAnswer:
+      "Aa × Aa → 1 AA : 2 Aa : 1 aa; 25% of children affected (aa); among healthy children 2/3 are carriers (Aa).",
+    isCompetencyBased: true,
+    requiresDiagram: false,
+  },
+];

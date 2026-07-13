@@ -65,6 +65,11 @@ import { REPRODUCE_EXPAND_EXTRACT } from './questionBanks/class10/science/how-do
 import { REPRODUCE_EXPAND_LONG_D } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.longD';
 import { REPRODUCE_EXPAND_CASE_E1 } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.caseE1';
 import { REPRODUCE_EXPAND_CASE_E2 } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.caseE2';
+// Bank-expansion Batch 6 (heredity, 2026-07-13): extract-max A/B/C + distinct-authored scarce D/E (narrow chapter, honest-stop).
+import { HEREDITY_EXPAND_EXTRACT } from './questionBanks/class10/science/heredity.expand.extract';
+import { HEREDITY_EXPAND_LONG_D } from './questionBanks/class10/science/heredity.expand.longD';
+import { HEREDITY_EXPAND_CASE_E1 } from './questionBanks/class10/science/heredity.expand.caseE1';
+import { HEREDITY_EXPAND_CASE_E2 } from './questionBanks/class10/science/heredity.expand.caseE2';
 
 // Science chapters 1–7 NCERT + Exemplar extractions (added 2026-05-22 — wires PR #98 content into engine pool)
 import { CHEM_REACTIONS_NCERT } from './questionBanks/class10/science/chemicalReactions.ncert';
@@ -521,6 +526,11 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...REPRODUCE_EXPAND_LONG_D,
   ...REPRODUCE_EXPAND_CASE_E1,
   ...REPRODUCE_EXPAND_CASE_E2,
+  // Bank-expansion Batch 6 — heredity (2026-07-13): 21 extracted A/B/C + 11 scarce-D + 12 case-based (E). Narrow chapter, both scarce bands honest-stop.
+  ...HEREDITY_EXPAND_EXTRACT,
+  ...HEREDITY_EXPAND_LONG_D,
+  ...HEREDITY_EXPAND_CASE_E1,
+  ...HEREDITY_EXPAND_CASE_E2,
   // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
   ...CHEM_REACTIONS_NCERT,
   ...CHEM_REACTIONS_EXEMPLAR,
@@ -1749,6 +1759,10 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
   REPRODUCE_EXPAND_LONG_D,
   REPRODUCE_EXPAND_CASE_E1,
   REPRODUCE_EXPAND_CASE_E2,
+  // Bank-expansion Batch 6 (2026-07-13) — heredity scarce categories, authored (question + solution).
+  HEREDITY_EXPAND_LONG_D,
+  HEREDITY_EXPAND_CASE_E1,
+  HEREDITY_EXPAND_CASE_E2,
 ];
 
 /**
@@ -1787,6 +1801,8 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   OE_EXTRACT,
   // Batch 5 (2026-07-13): how-do-organisms-reproduce exhaustive extract — authentic questions, reconstructed solutions.
   REPRODUCE_EXPAND_EXTRACT,
+  // Batch 6 (2026-07-13): heredity exhaustive extract — authentic questions (evolution contamination dropped), reconstructed solutions.
+  HEREDITY_EXPAND_EXTRACT,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([

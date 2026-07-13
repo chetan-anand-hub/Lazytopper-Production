@@ -174,3 +174,38 @@ BX-REP-EX-C-001–006,008–014.
 BX-REP-E2-001–018,020–022,024–032 (human/health, excl E2-019,E2-023).
 **Diagram-pass needed: none** — all "draw & label" items are student-produced (text-answerable); no
 question depends on a figure the student must be shown.
+
+## Batch 6 — heredity (2026-07-13) · 44 items
+
+Ch9-heredity portion (Ch9 evolution section is board-deleted). A NARROW, already-saturated chapter (219 banked) —
+modest yield by design; BOTH scarce bands honest-stop far below 75 (Punnett crosses and pedigrees are structurally
+repetitive, so distinct *principles* are finite). heredity **219 → 263**.
+
+| Band | Section | Before | +Extracted | +Authored | After | Floor status |
+|---|---|--:|--:|--:|--:|---|
+| A | 1-mark | 91 | +15 | 0 | 106 | extract-max (no floor) |
+| B | 2-mark | 45 | +4 | 0 | 49 | extract-max (no floor) |
+| C | 3-mark | 52 | +2 | 0 | 54 | extract-max (no floor) |
+| D | 5-mark long | 21 | 0 | +11 | 32 | **HONEST STOP** — 11 distinct genetic principles; the rest twin existing/authored crosses |
+| E | 4-mark case | 10 | 0 | +12 | 22 | **HONEST STOP** — 7 Mendelian + 5 human-genetics distinct patterns; sex-det/pedigree bands saturated |
+
+**Exhaustive sweep (extract-max, 21 kept):** every local source is the pre-2026 "Heredity AND Evolution" chapter,
+so ~50% of each was BANNED evolution — Bio module `03_Biology.pdf` (pp.28–53) · `13. Question Bank MCQ` (101 MCQ) ·
+NCERT Ch9 solutions (all already banked) · `11.` WS_4 · Meridian chapter set · gdrive PYQ (all already banked).
+Candidate pool 24 → skeptic dropped 3 (BX-HER-EX-C-002 roan-cattle CODOMINANCE mislabelled as incomplete-dominance
+= Class-12 concept; BX-HER-EX-B-002 near-twin of A-009 "why 1:2:1"; BX-HER-EX-C-004 acquired-traits Lamarckian
+boundary-adjacency) = 21 (A×15 B×4 C×2). Rejected at extraction (~75+ items): homologous/analogous/vestigial organs,
+fossils, Darwin/Lamarck/natural selection, speciation + geographical/reproductive isolation, human evolution/origin
+of life/Miller-Urey, Archaeopteryx/connecting links, atavism (all board-deleted evolution) + ABO codominance / Rh /
+linkage (Class-12 depth). The pre-existing bank evolution leak was NOT used as license.
+**Scarce authoring (distinct principles, honest-stop):** Section-D ×11 (law of dominance/segregation/independent-
+assortment, incomplete dominance, test cross, genotype-vs-phenotype, carrier-skip pedigree, X-linked, variation
+[Class-10 framing], Mendel's method, carrier×carrier probability) + case-based ×12 (E1 Mendelian crosses ×7 + E2
+human-genetics ×5). 3 skeptics independently re-solved all 47 (every Punnett ratio + pedigree re-computed) →
+D 11/11, E 12/12 PASS; extract 23/24 (1 hard reject applied) + 2 quality drops. Net 44 kept.
+
+**Extracted (21):** BX-HER-EX-A-001…015 · BX-HER-EX-B-001,003,004,005 · BX-HER-EX-C-001,003.
+**Authored Section-D (11):** BX-HER-D-001…011.
+**Authored case-based (12):** BX-HER-E1-001…007 (Mendelian crosses/laws) · BX-HER-E2-001…005 (human genetics: pedigrees, X-linked, sex determination, hereditary material, heritable-vs-non-heritable variation).
+**Diagram-pass needed: none** — all Punnett squares / pedigrees are student-produced from text (text-answerable);
+no question depends on a figure the student must be shown.
