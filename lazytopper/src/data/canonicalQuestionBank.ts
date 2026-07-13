@@ -60,6 +60,11 @@ import { OE2_PACK2 } from './questionBanks/class10/science/ourEnvironment.pack2'
 import { OE_EXTRACT } from './questionBanks/class10/science/ourEnvironment.extract';
 import { OE_SCARCE_D } from './questionBanks/class10/science/ourEnvironment.scarceD';
 import { OE_SCARCE_E } from './questionBanks/class10/science/ourEnvironment.scarceE';
+// Bank-expansion Batch 5 (how-do-organisms-reproduce, 2026-07-13): extract-max A/B/C + distinct-authored scarce D/E.
+import { REPRODUCE_EXPAND_EXTRACT } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.extract';
+import { REPRODUCE_EXPAND_LONG_D } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.longD';
+import { REPRODUCE_EXPAND_CASE_E1 } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.caseE1';
+import { REPRODUCE_EXPAND_CASE_E2 } from './questionBanks/class10/science/how-do-organisms-reproduce.expand.caseE2';
 
 // Science chapters 1–7 NCERT + Exemplar extractions (added 2026-05-22 — wires PR #98 content into engine pool)
 import { CHEM_REACTIONS_NCERT } from './questionBanks/class10/science/chemicalReactions.ncert';
@@ -511,6 +516,11 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...OE_EXTRACT,
   ...OE_SCARCE_D,
   ...OE_SCARCE_E,
+  // Bank-expansion Batch 5 — how-do-organisms-reproduce (2026-07-13): 54 extracted A/B/C + 30 scarce-D + 64 case-based (E).
+  ...REPRODUCE_EXPAND_EXTRACT,
+  ...REPRODUCE_EXPAND_LONG_D,
+  ...REPRODUCE_EXPAND_CASE_E1,
+  ...REPRODUCE_EXPAND_CASE_E2,
   // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
   ...CHEM_REACTIONS_NCERT,
   ...CHEM_REACTIONS_EXEMPLAR,
@@ -1735,6 +1745,10 @@ const AI_GENERATED_PACK_SOURCES: ReadonlyArray<ReadonlyArray<CanonicalQuestion>>
   // Bank-expansion Batch 4 (2026-07-12) — our-environment scarce categories, authored (question + solution).
   OE_SCARCE_D,
   OE_SCARCE_E,
+  // Bank-expansion Batch 5 (2026-07-13) — how-do-organisms-reproduce scarce categories, authored (question + solution).
+  REPRODUCE_EXPAND_LONG_D,
+  REPRODUCE_EXPAND_CASE_E1,
+  REPRODUCE_EXPAND_CASE_E2,
 ];
 
 /**
@@ -1771,6 +1785,8 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   LP_EXTRACT,
   // Batch 4 (2026-07-12): our-environment exhaustive extract — authentic questions, reconstructed solutions.
   OE_EXTRACT,
+  // Batch 5 (2026-07-13): how-do-organisms-reproduce exhaustive extract — authentic questions, reconstructed solutions.
+  REPRODUCE_EXPAND_EXTRACT,
 ] as const;
 
 export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
