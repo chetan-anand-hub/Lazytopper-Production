@@ -113,18 +113,26 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
 });
 
 describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D addendum)", () => {
-  it("suppresses the global navbar on mobile /browse, /welcome and /me", () => {
+  it("suppresses the global navbar on mobile MobileShell-header routes", () => {
     // Mobile: these pages own their top header (locked brand bar / the arc-PR-4
-    // MobileMePage header) — the global navbar must not also render.
+    // MobileMePage header / the app-wide MobileShell account-avatar header) — the
+    // global navbar must not also render (else the old brand bar double-stacks).
     expect(isMobileSelfChromedRoute("/browse", false)).toBe(true);
     expect(isMobileSelfChromedRoute("/welcome", false)).toBe(true);
     expect(isMobileSelfChromedRoute("/me", false)).toBe(true);
+    // Added with the app-wide mobile avatar-dropdown (one-header treatment):
+    expect(isMobileSelfChromedRoute("/check-improve", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/intent", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/practice/worksheets/ready", false)).toBe(true);
   });
 
   it("does NOT suppress on desktop — desktop chrome on those routes is unchanged", () => {
     expect(isMobileSelfChromedRoute("/browse", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/welcome", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/me", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/check-improve", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/intent", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/practice/worksheets/ready", true)).toBe(false);
   });
 
   it("does NOT suppress the navbar on other mobile routes", () => {
