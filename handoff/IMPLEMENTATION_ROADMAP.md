@@ -2,6 +2,28 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — PR-B PROGRESS MEMORY LAYER MERGED (#403, `894ef6a`) — launch-domino #3 DONE
+
+The launch-blocker DATA layer is LIVE: `getWindowedProgress(uid, window, scope?, nowMs?) => Promise<WindowedProgress>`
+in `progressStore.ts` — the ONE cross-device, multi-rung windowed aggregation arc PR-4 + scorecards consume. Rungs:
+subject / topic / concept (bank-matched only, new pure `progressBankIndex.ts`) / section / mistake-type; **honest-or-silent
+per rung**; over the durable streams honoring uid (`getAttemptsFromCloud` + `getSessionRecordsFromCloud` + additive
+read-only `getAllSessionPerQuestionFromCloud` + `getMistakeLogs`).
+
+- **Pre-flight corrected the spec** (verify-before-build): ~85–90% was already built (`progressStore` had the windowed
+  before→now engine but read DEVICE-LOCAL `void uid`; `getAttemptsFromCloud` existed but was unwired) → wire-up + widen
+  rungs + cross-device + consolidate, NOT from-scratch. subject/topic marks read attempts ONLY (no double-count).
+- **Adversarial 6-lens review caught 1 real bug:** the mistake-type per-question RATE fabricated a trend from pending/
+  partial records → switched to **COMPOSITION SHARE over fully-graded records only** (regression test). No rollup
+  (query-raw); `firestore.rules` untouched; sessionRecords WRITE shape byte-unchanged.
+- **Owner live-verify → 4 CONSUMPTION-surface findings (engine correct, not PR-B bugs).** Findings 1–3 = the arc PR-4
+  requirement set: `[FU-PROGRESS-WINDOW-SPLIT-UX]` · `[FU-TOPICHUB-PROGRESS-ARC]` · **`[FU-MOBILE-ME-PROGRESS-PARITY]`**
+  (the arc is desktop-only ≥1024px; mobile still legacy `pages/app/Me` — MOBILE NON-NEGOTIABLE). Finding 4 =
+  `[FU-MOBILE-CI-PARITY]` (separate lane). All in OPEN_QUESTIONS.
+
+**Surface critical path now: the Me/Progress redesign (arc PR-4)** — reads the merged PR-B engine; must converge mobile
+onto it (not a desktop-only card). Then Home nudge (arc PR-5).
+
 ## 2026-07-13 — CT BALANCED PYQ+FRESH MIX MERGED (#397, `6db7f1d`) — [FU-CT-BALANCED-MIX] CLOSED
 
 The last CT-lane follow-up named by the Full Test work is DONE. The Chapter Test now sources each section (A–D)
@@ -41,10 +63,10 @@ unlocks the by-topic scorecard lens and the counted MIX chip) → **PR-3/4 = the
 `[FU-CI-SOLUTION-CACHE]`, gated on owner sign-off of its 3 safety gates (server-only writes · mandatory
 invalidation/quality-flag · store text-never-the-image).
 
-**Critical path now: PR-B, the progress memory layer (launch-blocker)** — C&I writes into the SAME
-`sessionRecords` stream as worksheet/CT/FM, so PR-B is unblocked to aggregate all four graded surfaces. Dispatch
-to a fresh Opus agent after the file-list disjointness re-check vs the merged #395 diff. Then Me/Progress (arc
-PR-4) + Home nudge (arc PR-5) read it.
+**Critical path now: PR-B → MERGED (#403, `894ef6a`) — see the top section.** C&I writing into the SAME
+`sessionRecords` stream unblocked PR-B to aggregate all four graded surfaces; the engine (`getWindowedProgress`) is
+LIVE. **Me/Progress (arc PR-4)** is now the immediate next domino (reads PR-B; must converge mobile), then Home nudge
+(arc PR-5).
 
 ## 2026-07-13 — FT FINALIZE MERGED (#391, `25257c0`) — Full Test linked + cross-device upload-later
 

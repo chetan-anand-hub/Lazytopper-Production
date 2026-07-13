@@ -2,8 +2,8 @@
 
 **Repo home:** `handoff/LAUNCH_REMAINING.md` (version-controlled — this is the source of truth; the copy in
 `/mnt/user-data/outputs/` is just the export the cofounder session writes for the owner to commit).
-**Trunk at last sync:** `ae5e671` (branch tip; code trunk `e33b9d3`, #395 C&I PR-1; #396 bank Batch 6 after it). _Prior sync `9f5b5c4` (code `25257c0`, #391)._
-**Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#395).
+**Trunk at last sync:** `894ef6a` (code trunk; **#403 PR-B progress memory layer** — launch-domino #3 done). _Prior: `ae5e671` (#395 C&I PR-1 / #396 bank Batch 6); `85b292f` #402 bank Batch 7._
+**Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#403).
 
 ## WHAT THIS FILE IS (and is NOT) — its lane vs the other handoff docs
 This is the single **ordered "what's left till we can flip the switch"** board: the critical-path sequence + the hard
@@ -70,8 +70,8 @@ Locked dependency chain (from the design arc + the 2026-07-12 handoff). Parallel
 
 1. ✅ **FT-FINALIZE (#391) MERGED** — Full Test reachable from hub + Home; chain unblocked. Owner **production live-verify still pending** → flips Full Mock's Verified cell (§5). *(§3.1)*
 2. ✅ **C&I PR-1 (#395) MERGED** — Check & Improve is a first-class SessionSurface (durable records into the SAME stream every surface uses; owner byte-reviewed CLEAN). Closes [FU-CI-SCORECARD-VARIANT] + [FU-CI-DEVICE-LOCAL-SEQUENCE]. Remaining C&I arc = PR-2 per-question topic → PR-3/4 solution cache — **parallel depth, NOT on the launch spine.** *(SURFACE_TRACKER C&I row, Scope→Settling)*
-3. 🟡 **PR-B progress memory layer** — the **launch-blocker**; **NOW the immediate next domino** — and #395 unblocked it to aggregate check-improve alongside worksheet/CT/FM. Dispatch to a fresh Opus agent AFTER the cofounder re-checks PR-B's file-list disjointness vs the merged #395 diff (owner confirms before dispatch). *(§4)*
-4. ⬜ **Progress Arc PR-4 — Me/Progress redesign** — reads PR-B. *(§5)*
+3. ✅ **PR-B progress memory layer (#403) MERGED** — the **launch-blocker DATA layer is done + LIVE**; `getWindowedProgress` is the ONE cross-device multi-rung aggregation (subject/topic/concept-bank-matched/section/mistake-type, honest-or-silent per rung) the arc reads. Owner byte-reviewed CLEAN; mistake-rate→share fix + cross-device verified. The desktop Me arc reads it. **Owner live-verify surfaced 3 arc-PR-4-requirement findings + 1 C&I-parity finding — none are engine bugs** (§4, OPEN_QUESTIONS). *(§4)*
+4. 🟡 **Progress Arc PR-4 — Me/Progress redesign — NOW the immediate next domino.** Reads the merged PR-B engine (`getWindowedProgress`). **Requirement set from PR-B live-verify:** [FU-PROGRESS-WINDOW-SPLIT-UX] (clearer wider-window-silent empty state) · [FU-TOPICHUB-PROGRESS-ARC] (wire `getTopicProgress` into Topic Hub) · **[FU-MOBILE-ME-PROGRESS-PARITY] (MOBILE NON-NEGOTIABLE — the arc renders only in DesktopMePage ≥1024px; mobile still shows the legacy `pages/app/Me`; converge onto the one engine).** *(§5)*
 5. ⬜ **Home nudge PR-5** — orient-first convergence + ungraded nudge; reads PR-B. *(§5)*
 6. 🔒 **Pre-launch gates (§6)** cleared + **MockViewGate flips** (CT, FM) + **mobile-parity confirms** (§5) + owner
    live-verify sweep.
@@ -102,12 +102,12 @@ Legacy faulty-question audit *(§7, after expansion)*.
 - ✅ **C&I PR-1 — MERGED (#395, `e33b9d3`)** — the plumbing landed exactly as specced (record + topicSource + 5th
   variant + history overlay + durable `#NN`; detection/correction/MI byte-intact; shell zero-line-diff). Follow-on
   C&I depth (PR-2 per-question topic → PR-3/4 solution cache, owner 3-gate sign-off) is parallel, not spine.
-- 🟡 **PR-B progress memory layer (launch-blocker) — THE NEXT DOMINO** (unblocked by #395 to aggregate
-  check-improve alongside the other graded surfaces; re-check file-list disjointness vs the merged #395 diff
-  before dispatch) — multi-rung windowed aggregation
-  (subject→topic→concept→section→mistake-type, all derivable from the durable streams), consolidate 4 stores → ONE
-  `progressStore`, honest-or-silent per rung. ~90% infra exists; only visible change = a working week/2wk/month/4mo
-  window selector. Unblocks Me/Progress + Progress Arc + honest "vs last time" everywhere.
+- ✅ **PR-B progress memory layer (#403, `894ef6a`) — MERGED.** `getWindowedProgress(uid, window, scope?)` is the ONE
+  cross-device multi-rung aggregation (subject/topic/concept-bank-matched/section/mistake-type, honest-or-silent per
+  rung) over the durable streams. The pre-flight found ~85–90% was already built → wire-up + widen rungs + cross-device,
+  not from-scratch. mistake-type = composition share over fully-graded only (adversarial review caught a pending-record
+  rate fabrication); no rollup (query-raw), `firestore.rules` untouched. Desktop Me arc (`ProgressWindowArc`) reads it;
+  full redesign + mobile parity = arc PR-4 (§2 domino 4). Unblocked Me/Progress + Home nudge + honest "vs last time".
 - 🟡 **CT-balanced-mix `[FU-CT-BALANCED-MIX]`** — small, SEPARATE CT PR: wire Chapter Test to the shipped
   `drawBalancedSet` (utils/balancedMockDraw.ts). Not folded into FT.
 - ⬜ **Legacy faulty-question audit** — spec **NOT yet written** (decisions locked: WITHHELD-now-delete-later-after-QA,
@@ -119,7 +119,7 @@ Legacy faulty-question audit *(§7, after expansion)*.
 Only surfaces NOT yet fully green are listed. See `SURFACE_TRACKER.md` for the authoritative cells.
 - ⚠️ **Full Mock** — BUILT (#387) + LINKED (#391, hub + Home); ONLY remaining = owner **production live-verify**
   (checklist in `report-ftfinalize-build-2026-07-13.md` §7).
-- ⬜ **Me / Progress** — full **redesign** to the visual journey (Redesigned ⬜, Desktop/Mobile 🟡); blocked on PR-B → arc PR-4.
+- 🟡 **Me / Progress** — the **engine now exists (PR-B #403)** + a desktop before→now arc reads it; full **redesign** to the visual journey is arc PR-4 (Redesigned ⬜, Desktop 🟡 partial, **Mobile 🟡 — the arc is desktop-only ≥1024px; mobile still the legacy `pages/app/Me`, [FU-MOBILE-ME-PROGRESS-PARITY]**). Arc PR-4 requirement set: [FU-PROGRESS-WINDOW-SPLIT-UX] · [FU-TOPICHUB-PROGRESS-ARC] · [FU-MOBILE-ME-PROGRESS-PARITY].
 - 🟡 **Home** — converge to orient-first + real-insights wiring + ungraded nudge (arc PR-5, after PR-B).
 - 🟡 **Tutor / Learn** — rebuild to locked contract + mobile toggle; blocked on owner brainstorm (§3.3).
 - 🔒 **Chapter Test** — matrix-green; behind `MockViewGate` (owner flips at launch) + `[FU-CT-BALANCED-MIX]` (§4).
@@ -159,6 +159,7 @@ These are independent of surface completeness and are each easy to forget.
 ---
 
 ## §8 · CHANGE LOG (append one dated line per change — newest first)
+- **2026-07-13 (post-#403)** — **PR-B progress memory layer #403 MERGED** (code trunk `894ef6a`). **Launch-path domino #3 DONE** → the `getWindowedProgress` cross-device multi-rung engine is LIVE; the desktop Me arc reads it. **Arc PR-4 (Me/Progress) is now the immediate next domino**, with a requirement set from PR-B owner live-verify: `[FU-PROGRESS-WINDOW-SPLIT-UX]` + `[FU-TOPICHUB-PROGRESS-ARC]` + **`[FU-MOBILE-ME-PROGRESS-PARITY]`** (the arc is desktop-only; mobile still legacy — non-negotiable) + `[FU-MOBILE-CI-PARITY]` (separate C&I lane). Engine is CORRECT — the 4 findings are consumption-surface gaps, not PR-B bugs. vitest still Codespaces-only.
 - **2026-07-13 (post-#395)** — **C&I PR-1 #395 MERGED** (code trunk `e33b9d3`; sync tip `ae5e671` incl. #396 bank
   Batch 6). Critical-path domino #2 done → **PR-B is now the immediate next domino** (and #395 unblocked it to
   aggregate check-improve). Closed `[FU-CI-SCORECARD-VARIANT]` + `[FU-CI-DEVICE-LOCAL-SEQUENCE]`; new
