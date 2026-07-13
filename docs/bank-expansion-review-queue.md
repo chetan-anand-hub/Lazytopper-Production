@@ -209,3 +209,45 @@ D 11/11, E 12/12 PASS; extract 23/24 (1 hard reject applied) + 2 quality drops. 
 **Authored case-based (12):** BX-HER-E1-001…007 (Mendelian crosses/laws) · BX-HER-E2-001…005 (human genetics: pedigrees, X-linked, sex determination, hereditary material, heritable-vs-non-heritable variation).
 **Diagram-pass needed: none** — all Punnett squares / pedigrees are student-produced from text (text-answerable);
 no question depends on a figure the student must be shown.
+
+## Batch 7 — chemical-reactions-and-equations (2026-07-13) · 136 items
+
+Before → after (served chemical-reactions count 319 → 455). Large, clean reservoir; both scarce bands reached the ≥75 distinct floor.
+
+| Band | Section | Before | +Extracted | +Authored | After | Floor status |
+|---|---|--:|--:|--:|--:|---|
+| A | 1-mark | 122 | +29 | 0 | 151 | extract-max (no floor) |
+| B | 2-mark | 59 | +3 | 0 | 62 | extract-max (no floor) |
+| C | 3-mark | 88 | +4 | 0 | 92 | extract-max (no floor) |
+| D | 5-mark long | 39 | 0 | +36 | 75 | **≥75 REACHED** — 12 distinct construction families, no padding |
+| E | 4-mark case | 11 | 0 | +64 | 75 | **≥75 REACHED** — 9 distinct real-world scenario families, no padding |
+
+**Exhaustive sweep (extract-max, 36 kept):** per-source table —
+Content folder-13 MCQ bank (`CHEMICAL REACTIONS AND EQUATIONS.docx`): 63 chem blocks → 31 dup + 5 off-topic bio
+misfiles dropped → **29 A**. Content folder-11 worksheets (WS_1/Extra/Advance-redox): ~35 → 12 banked-classic dups +
+**~15 Level-III Class-11/12 dropped wholesale (oxidation-number method, ion-electron/half-reaction balancing,
+disproportionation, oxidation-state calc, redox coefficient balancing)** → **7 (3 B + 4 C)**. NCERT Exemplar Ch-1
+(30 items): all already banked as `CHEM-EXMPLR-1-*` → 0. Content f14/f2/f12 + gdrive QB/Exemplar PDFs: 0 (theory-only /
+image-only, no text layer). One figure-dependent MCQ (four coloured tubes → identify ZnSO₄) DROPPED not shipped
+answer-less; one corrupted-key "Rabidity" item dropped not silently re-keyed.
+**Scarce authoring (distinct methods/scenarios, ≥75 reached):** Section-D ×36 across 12 construction families
+(balance+classify sets, word→symbol balancing, comparative pairs, O/H-redox identification, corrosion mechanism/
+prevention, rancidity, thermal/electrolytic/photolytic decomposition contrasts, observe+explain+balance,
+precipitation sub-types, conservation-of-mass/state-symbols, evidence-of-reaction/reactivity-series prediction,
+lime/oxidation chains) + case-based ×64 across 9 scenario families (corrosion/rusting ×12, rancidity ×5, exo/
+endothermic ×5, decomposition ×11, displacement ×6, double-displacement/precipitation ×9, combination ×5,
+oxidation-in-daily-life ×6, redox-definition/type-classification ×5).
+**Skeptic pass (3 independent adversarial re-solves):** extract 36/36 clean (3 sub-threshold near-dups adjudicated
+DISTINCT + kept; A-006 ambiguous "Dehydrogenation" distractor swapped to "Hydrogenation"). D 35/36 clean → 6 fixes
+applied (D-016(iv) electron-transfer redox → O/H-based `2Mg+O2→2MgO`; D-028(v) Ca(OH)₂+CO₂ relabelled precipitation
+not double-displacement; D-003(i) rust aligned to hydrated form; D-003/D-008/D-027 differentiated off template/subset
+overlaps). E 61/64 clean → 3 fixes applied (E-039 limescale re-scoped from wrong double-displacement to thermal
+decomposition of Ca(HCO₃)₂; E-055 "basic malachite" label dropped to match CuCO₃ equation; E-063 Fe+CuSO₄ colour
+corrected to pale-green). **Two-direction syllabus clean:** no Direction-1 deleted-chapter drift; no Direction-2
+Class-11/12 concept (oxidation numbers, EMF/electrode potential, thermodynamics/ΔH, kinetics/rate law, Kc/Kp
+equilibrium constants, molar-mass stoichiometry). **Diagram-pass needed: none** — all 136 text-answerable
+(`requiresDiagram:false`); zero figure-pending.
+
+**Extracted A/B/C (36):** BX-CHEM-EX-A-001…019, A-022…031 (29; A-020/021/032 removed as gate near-dups) · BX-CHEM-EX-B-001…003 · BX-CHEM-EX-C-001…004.
+**Authored Section-D (36):** BX-CHEM-D-001…036.
+**Authored case-based E (64):** BX-CHEM-E-001…064.

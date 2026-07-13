@@ -70,6 +70,9 @@ import { HEREDITY_EXPAND_EXTRACT } from './questionBanks/class10/science/heredit
 import { HEREDITY_EXPAND_LONG_D } from './questionBanks/class10/science/heredity.expand.longD';
 import { HEREDITY_EXPAND_CASE_E1 } from './questionBanks/class10/science/heredity.expand.caseE1';
 import { HEREDITY_EXPAND_CASE_E2 } from './questionBanks/class10/science/heredity.expand.caseE2';
+import { CHEM_REACTIONS_EXPAND_EXTRACT } from './questionBanks/class10/science/chemicalReactions.expand.extract';
+import { CHEM_REACTIONS_EXPAND_LONG_D } from './questionBanks/class10/science/chemicalReactions.expand.longD';
+import { CHEM_REACTIONS_EXPAND_CASE_E } from './questionBanks/class10/science/chemicalReactions.expand.caseE';
 
 // Science chapters 1–7 NCERT + Exemplar extractions (added 2026-05-22 — wires PR #98 content into engine pool)
 import { CHEM_REACTIONS_NCERT } from './questionBanks/class10/science/chemicalReactions.ncert';
@@ -531,6 +534,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...HEREDITY_EXPAND_LONG_D,
   ...HEREDITY_EXPAND_CASE_E1,
   ...HEREDITY_EXPAND_CASE_E2,
+  // Bank-expansion Batch 7 — chemical-reactions-and-equations (2026-07-13): 36 extracted A/B/C + 36 scarce-D (->75) + 64 case-based E (->75). Both scarce bands reached the >=75 distinct floor.
+  ...CHEM_REACTIONS_EXPAND_EXTRACT,
+  ...CHEM_REACTIONS_EXPAND_LONG_D,
+  ...CHEM_REACTIONS_EXPAND_CASE_E,
   // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
   ...CHEM_REACTIONS_NCERT,
   ...CHEM_REACTIONS_EXEMPLAR,
