@@ -128,6 +128,8 @@ import { POLYNOMIALS_EXPAND_CASE_E } from './questionBanks/class10/maths/polynom
 import { PLE_EXPAND_EXTRACT } from './questionBanks/class10/maths/pairOfLinearEquations.expand.extract';
 import { PLE_EXPAND_LONG_D } from './questionBanks/class10/maths/pairOfLinearEquations.expand.longD';
 import { PLE_EXPAND_CASE_E } from './questionBanks/class10/maths/pairOfLinearEquations.expand.caseE';
+// Batch 10 follow-on: reducible-to-linear (1/x=p,1/y=q substitution family) — IN 2026-27 (owner-verified official NCERT); cross-multiplication stays OUT.
+import { PLE_EXPAND_REDUCIBLE } from './questionBanks/class10/maths/pairOfLinearEquations.expand.reducible';
 import { AP_EXPAND_EXTRACT } from './questionBanks/class10/maths/arithmeticProgression.expand.extract';
 import { AP_EXPAND_LONG_D } from './questionBanks/class10/maths/arithmeticProgression.expand.longD';
 import { AP_EXPAND_CASE_E } from './questionBanks/class10/maths/arithmeticProgression.expand.caseE';
@@ -614,6 +616,8 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...PLE_EXPAND_EXTRACT,
   ...PLE_EXPAND_LONG_D,
   ...PLE_EXPAND_CASE_E,
+  // Batch 10 follow-on — reducible-to-linear (subtopic "Equations Reducible to a Pair of Linear Equations"): 8 extracted A/B/C + 9 authored-D + 13 case-based E (honest-stop; IN 2026-27).
+  ...PLE_EXPAND_REDUCIBLE,
   ...QE_NCERT,
   ...QE_EXEMPLAR,
   ...TRI_NCERT,

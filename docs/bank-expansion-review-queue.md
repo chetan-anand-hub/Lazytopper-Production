@@ -425,3 +425,21 @@ BX-PLE-D-001…042 (gaps 004,005,039) · BX-PLE-E-001…052.
 non-contiguous — author + skeptic drops incl. 002,003,004,008,014,022,037,043,066) · BX-AP-E-002…044 (gap 014).
 **acids-bases-and-salts (163):** BX-ABS-EX-A-001…042 · EX-B-001…014 · EX-C-001…011 · BX-ABS-D-001…036 ·
 BX-ABS-E-001…060.
+
+### Batch 10 follow-on — pair-of-linear-equations reducible-to-linear (+30; PLE 356 → 386)
+**Owner correction:** "equations reducible to a pair of linear equations" (the 1/x=p, 1/y=q substitution family +
+work-rate/boat-reciprocal word problems) is **IN-SYLLABUS** and board-important for CBSE 2026-27 (verified vs the
+official NCERT Reprint). The main Batch-10 sweep wrongly treated it as OUT and shipped 0 such items; this follow-on
+adds it on the same branch. **The earlier [FU-SYLLABUS-GUARD-PLE-REDUCIBLE] guard proposal is WITHDRAWN** — do NOT
+add reducible-to-linear to `syllabusGuard.ts`. Cross-Multiplication Method stays OUT (correct).
+- Subtopic: "Equations Reducible to a Pair of Linear Equations". Bands: A +3, B +2, C +3, D +9, E +13 = **30**.
+- Pack: `pairOfLinearEquations.expand.reducible.ts` (`PLE_EXPAND_REDUCIBLE`). ids `BX-PLE-RED-EX-A/B/C-*`,
+  `BX-PLE-RED-D-*`, `BX-PLE-RED-E-*`.
+- Extract 8 (re-sweep of the previously-rejected reducible items — NCERT Ex 3.6 type + MCQ bank); D 9 + E 13
+  authored, honest-stop (the reducible sub-space = 4 mechanisms: additive-rate 1/x+1/y, reciprocal-speed 1/(u±v),
+  two-speed 1/u,1/v, pure/shifted/sum-diff substitution — all covered).
+- Skeptic re-solved all 33 candidates: all math-correct + all genuinely reducible-to-linear (0 cross-multiplication,
+  0 non-reducible-quadratic, 0 single-equation-fakes). Dropped 3 cross-pack twins (D-003≡C-002, C-004≡E-003,
+  D-006≡E-010); fixed 1 banked coefficient-clone (C-003 → distinct 3/√x,2/√y coefficients). 30 clean.
+- Gates re-run after add: tsc · runtime proof (8,282; 0 dup; 0 orphan) · syllabusGuard · mojibake · scope · both
+  matrices · git diff --check — all PASS.
