@@ -2,6 +2,27 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — CT BALANCED PYQ+FRESH MIX MERGED (#397, `6db7f1d`) — [FU-CT-BALANCED-MIX] CLOSED
+
+The last CT-lane follow-up named by the Full Test work is DONE. The Chapter Test now sources each section (A–D)
+through the SHARED `drawBalancedSet` (`utils/balancedMockDraw.ts`, reused verbatim — the same helper the Full Test
+shipped in #387), mirroring FT's per-cell pass-1 pattern, so a CT paper deliberately mixes real PYQs with fresh
+authored/extracted questions (~50% PYQ target, honest fallback for thin/zero-PYQ topics).
+- **SOURCING-ONLY:** one logic file (`chapterTestBlueprint.ts`) + its new test. Paper shape/marks/grading/scorecard/
+  numbering byte-identical; the `MIN_TEST_QUESTIONS` honest gate confirmed intact after the balanced draw (a
+  below-minimum topic still gates honestly — the helper never pads). Seed minted in-blueprint (FT's exact recipe)
+  with an optional `seed?` test seam, so `ChapterTestPage.tsx` stays byte-unchanged (owner-ratified — keeps the diff
+  to one logic file, strictly better than touching the page for literal FT parity).
+- **New test proves the wire, not seed luck:** same-seed→identical / different-seed→different paper (impossible on
+  the old `Math.random` path) + the exported `drawCTSection` zero/thin-PYQ honest fallback on synthetic pools.
+- **Surfaced (bank lane, pre-existing):** [FU-BANK-UNRESOLVABLE-MCQ-KEYS] (34 MCQs bank-wide whose key matches no
+  option — never scorable in CT/FT Section A; before-launch fix) + [FU-FM-BLUEPRINT-TEST-SEED-LUCK] (the FT test's
+  strict key assertion passes only by seed luck). Both in OPEN_QUESTIONS.
+
+**Surface critical path unchanged: the Me/Progress redesign (arc PR-4).** CT is now fully section+concept+four-type
+on the scorecard, chrome-less full-screen, AND balanced-sourced — ready to flip live at `MockViewGate` at the owner's
+discretion. Owner live-verify on the balanced mix pending.
+
 ## 2026-07-13 — C&I PR-1 MERGED (#395, `e33b9d3`) — Check & Improve is a first-class SessionSurface
 
 The C&I arc's PR-1 (the plumbing gap) is COMPLETE — a graded C&I session no longer vanishes on close:
