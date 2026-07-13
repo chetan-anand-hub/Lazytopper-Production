@@ -19,6 +19,7 @@
 
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { selectBankQuestions } from "../../data/bankQuery";
+import { drawBalancedSet, type BalancedDrawResult } from "../../utils/balancedMockDraw";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -56,17 +57,31 @@ function isMcq(q: CanonicalQuestion): boolean {
   return Array.isArray(q.options) && q.options.length >= 2;
 }
 
-// Fisher–Yates. The spec (§8) MANDATES a fresh random draw per test so no two tests
-// are identical; this shuffles the REAL canonical pool (question ORDER only), never
-// fabricated data — §7's Math.random ban targets invented user-facing METRICS, not a
-// spec-required draw. Mirrors worksheetModel's shipped `shuffleInPlace`.
-function shuffled<T>(arr: T[]): T[] {
-  const out = arr.slice();
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
+/** djb2 — a tiny stable string hash to derive a distinct sub-seed per section from
+ *  the paper's seed. Mirrors the Full Mock blueprint's module-private `hashCell`
+ *  (that file stays byte-untouched, so these five lines are mirrored, not imported). */
+function hashCell(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i += 1) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+/**
+ * Draw one section's questions from its REAL candidate pool through the SHARED
+ * `drawBalancedSet` (the Full Mock helper, reused verbatim — never forked): a
+ * deliberate ~half-PYQ / half-fresh mix where the pool allows, with the helper's
+ * honest fallback (thin/zero PYQ → the shortfall fills from the other class; an
+ * all-fresh section is a valid section; never padded, no class ever hidden).
+ * Shuffling is the helper's own seeded Fisher–Yates — the spec (§8) mandates a
+ * fresh draw per test, which the caller's per-paper seed provides. Exported for
+ * the unit tests: the zero-PYQ fallback is only provable on a synthetic pool.
+ */
+export function drawCTSection<T>(
+  pool: readonly T[],
+  count: number,
+  seed: number,
+): BalancedDrawResult<T> {
+  return drawBalancedSet({ pool, count, seed });
 }
 
 export interface CTBlueprintRow extends CTSectionSpec {
@@ -92,9 +107,12 @@ export interface DrawnChapterTest {
  * Draw one fresh chapter test for a topic from the canonical bank. Each section is
  * filled from the REAL pool by exact numeric marks (never the coarse fused
  * buckets — §7): A = MCQ objective, B = 2-mark, C = 3-mark, D = ≥4-mark (5-mark
- * long answer + 4-mark case-based). Questions are numbered in board order A→B→C→D.
- * Pure apart from the shuffle; the caller supplies the stable ids/code so the same
- * draw survives a re-render.
+ * long answer + 4-mark case-based). Within each section the pick routes through
+ * the shared `drawBalancedSet` for a deliberate PYQ + fresh mix (the Full Mock
+ * pattern; the helper's honest fallback covers thin/zero-PYQ topics). Questions
+ * are numbered in board order A→B→C→D. Deterministic for a given seed; when no
+ * seed is supplied one is minted fresh per call — the spec-required fresh draw.
+ * The caller supplies the stable ids/code so the same draw survives a re-render.
  */
 export function drawChapterTest(args: {
   subject: CTSubject;
@@ -105,31 +123,24 @@ export function drawChapterTest(args: {
   code?: string;
   name?: string;
   createdAt?: string;
+  /** PRNG seed — same seed, same paper (the unit-test seam). Absent → minted
+   *  fresh per draw, the Full Mock page's exact recipe, kept in-blueprint so
+   *  callers stay unchanged. */
+  seed?: number;
 }): DrawnChapterTest {
   const { subject, topicKey, topicLabel } = args;
+  const seed = args.seed ?? (Math.random() * 0xffffffff) >>> 0;
   const all = selectBankQuestions({ subject, topicKeys: [topicKey] });
   // Section A must be auto-gradeable 0-or-full, so an objective question needs a real
   // answer key (the correct option text). An unkeyed MCQ can't be scored honestly, so
   // it is excluded rather than guessed at.
-  const mcqPool = shuffled(all.filter((q) => isMcq(q) && !!(q.answer && q.answer.trim())));
+  const mcqPool = all.filter((q) => isMcq(q) && !!(q.answer && q.answer.trim()));
   const subjectivePool = all.filter((q) => !isMcq(q));
   const byMarks = (min: number, max: number) =>
-    shuffled(subjectivePool.filter((q) => q.marks >= min && q.marks <= max));
+    subjectivePool.filter((q) => q.marks >= min && q.marks <= max);
 
   const used = new Set<string>();
   const chosen: Array<{ q: CanonicalQuestion; section: BoardSection }> = [];
-  const take = (pool: CanonicalQuestion[], section: BoardSection, count: number): number => {
-    let n = 0;
-    for (const q of pool) {
-      if (n >= count) break;
-      const key = q.id || q.questionText;
-      if (used.has(key)) continue;
-      used.add(key);
-      chosen.push({ q, section });
-      n += 1;
-    }
-    return n;
-  };
 
   const pools: Record<BoardSection, CanonicalQuestion[]> = {
     A: mcqPool,
@@ -137,7 +148,17 @@ export function drawChapterTest(args: {
     C: byMarks(3, 3),
     D: byMarks(4, 99),
   };
-  for (const spec of CT_BLUEPRINT) take(pools[spec.section], spec.section, spec.targetCount);
+  // Balanced per-section draw (the Full Mock pass-1 pattern): each section pulls
+  // from its not-yet-used candidates through the shared helper, seeded per
+  // section off the paper seed. The used-set dedupe is retained across sections.
+  for (const spec of CT_BLUEPRINT) {
+    const cell = pools[spec.section].filter((q) => !used.has(q.id || q.questionText));
+    const r = drawCTSection(cell, spec.targetCount, seed ^ hashCell(`CT:${spec.section}`));
+    for (const q of r.drawn) {
+      used.add(q.id || q.questionText);
+      chosen.push({ q, section: spec.section });
+    }
+  }
 
   // Board order A→B→C→D, numbered 1..N.
   const order: BoardSection[] = ["A", "B", "C", "D"];
