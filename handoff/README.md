@@ -18,6 +18,7 @@ Every GPT session must update this folder incrementally before ending, especiall
 
 1. Prepend a newest-first entry to `CURRENT_STATE.md` **and** `SESSION_LOG.md`.
 2. Update `SURFACE_TRACKER.md` if a surface moved (flip the cell + note it in §2a if scope was discovered).
+2b. Update `LAUNCH_REMAINING.md` if a critical-path item advanced or a pre-launch gate flipped (append its change log).
 3. Add/resolve follow-ups in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
 4. **Record the merged SHA in `CURRENT_STATE.md`** — the machine `ledger/MERGE_LEDGER.md` auto-append is
    SUMMARY-ONLY (`[FU-STATE-BOARD-SUMMARY-ONLY]`), so the narrative here is the authoritative merge record.

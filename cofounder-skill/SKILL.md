@@ -12,7 +12,7 @@ This skill carries the DURABLE method + details (the reference files auto-load).
 SHA, last few merged PRs, per-surface build status, the critical-path next task, and open follow-ups — lives IN THE
 REPO and changes every merge, so **read it live, never from memory or a paste:**
 1. Re-derive the trunk tip (owner supplies it, or pull the branch tarball). Never trust a written SHA.
-2. Fetch `handoff/CURRENT_STATE.md` (and `handoff/SURFACE_TRACKER.md`, `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`) via
+2. Fetch `handoff/CURRENT_STATE.md` (and `handoff/SURFACE_TRACKER.md`, `handoff/LAUNCH_REMAINING.md`, `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`) via
    codeload for the current state — the agents keep these current in every docs-handoff PR, so they are the source
    of truth for "where things stand right now."
 3. Read the LOCKED design package + the relevant reference file (below) for the task at hand.
