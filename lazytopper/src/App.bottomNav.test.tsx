@@ -130,6 +130,20 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
     expect(isMobileSelfChromedRoute("/practice-hub", false)).toBe(true);
   });
 
+  it("suppresses on the final-parity-sweep families ([FU-MOBILE-OLD-HEADER-STRAGGLERS])", () => {
+    // The four live desktop-shell families that used to fall through to the old
+    // global brand bar at mobile width; <MobileSelfChrome> now applies the shared
+    // MobileShell header at the route layer. Matchers mirror isDesktopShellRoute.
+    expect(isMobileSelfChromedRoute("/practice/worksheets", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/topic-hub", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/topic-hub/real-numbers", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/topic-hub/10/Maths", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/topic-hub/10/Maths/quadratic-equations", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/highly-probable", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/highly-probable/10/Science", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/practice/10/Maths", false)).toBe(true);
+  });
+
   it("does NOT suppress on desktop — desktop chrome on those routes is unchanged", () => {
     expect(isMobileSelfChromedRoute("/browse", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/welcome", true)).toBe(false);
@@ -139,15 +153,22 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
     expect(isMobileSelfChromedRoute("/practice/worksheets/ready", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/exam-trends", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/practice-hub", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/practice/worksheets", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/topic-hub/10/Maths", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/highly-probable/10/Science", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/practice/10/Maths", true)).toBe(false);
   });
 
   it("does NOT suppress the navbar on other mobile routes (still on the old global bar)", () => {
-    // Straggler routes that remain on the OLD global brand bar at mobile width (item E
-    // scoped the fix to /exam-trends + /practice-hub; the rest are reported, not fixed).
-    expect(isMobileSelfChromedRoute("/practice/worksheets", false)).toBe(false);
-    expect(isMobileSelfChromedRoute("/topic-hub", false)).toBe(false);
-    expect(isMobileSelfChromedRoute("/highly-probable", false)).toBe(false);
+    // Near-misses and non-member routes. The bare-fullscreen test surfaces and
+    // public/auth routes are governed by their own gates, not this predicate.
     expect(isMobileSelfChromedRoute("/", false)).toBe(false);
+    expect(isMobileSelfChromedRoute("/pricing", false)).toBe(false); // public landing — own gate
+    expect(isMobileSelfChromedRoute("/exam-simulation", false)).toBe(false); // retire lane
+    expect(isMobileSelfChromedRoute("/weak-area-practice", false)).toBe(false); // retire lane
+    expect(isMobileSelfChromedRoute("/topic-hubs", false)).toBe(false); // not the /topic-hub/ boundary
+    expect(isMobileSelfChromedRoute("/practice", false)).toBe(false); // bare — catch-all redirect
+    expect(isMobileSelfChromedRoute("/practice/10/Maths/extra", false)).toBe(false); // 3 segments — not the runner
   });
 });
 

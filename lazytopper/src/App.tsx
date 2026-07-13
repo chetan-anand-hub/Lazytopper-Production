@@ -24,6 +24,7 @@ import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
 import { useIsDesktop } from "./hooks/useIsDesktop";
 import { DesktopShell } from "./components/desktop/DesktopShell";
+import MobileShell from "./components/mobile/MobileShell";
 
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
@@ -184,20 +185,71 @@ function RootEntry() {
  *                  `!isDesktop` MobileShell header with the same avatar-dropdown, so
  *                  they join the one-header treatment. Desktop chrome is unchanged
  *                  (both remain DesktopShell routes at >=1024px).
+ *   • `/practice/worksheets`, `/topic-hub`(+ deep variants),
+ *     `/highly-probable`(+ deep variants), `/practice/:grade/:subject`
+ *                — final mobile-parity sweep ([FU-MOBILE-OLD-HEADER-STRAGGLERS]):
+ *                  the four live desktop-shell families that still fell through to
+ *                  the old global brand bar at mobile width. Their matchers MIRROR
+ *                  isDesktopShellRoute so the desktop-shell and mobile one-header
+ *                  treatments stay in lockstep. The header itself is applied at the
+ *                  route layer by <MobileSelfChrome> (below) — around the route
+ *                  gates, so premium-upsell / daily-limit blocked states carry the
+ *                  same header instead of rendering headerless.
  *
  * Exported as a pure predicate for unit testing.
  */
 export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): boolean {
+  if (isDesktop) return false;
+  if (
+    pathname === "/browse" ||
+    pathname === "/welcome" ||
+    pathname === "/me" ||
+    pathname === "/check-improve" ||
+    pathname === "/intent" ||
+    pathname === "/practice/worksheets/ready" ||
+    pathname === "/exam-trends" ||
+    pathname === "/practice-hub"
+  ) {
+    return true;
+  }
+  // Final mobile-parity sweep — matchers mirror isDesktopShellRoute exactly.
+  if (pathname === "/practice/worksheets") return true;
+  if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
+  if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
+  if (/^\/practice\/(?!worksheets\/)[^\/]+\/[^\/]+$/.test(pathname)) return true;
+  return false;
+}
+
+/**
+ * MobileSelfChrome — route-level mobile one-header wrapper (final mobile-parity
+ * sweep, [FU-MOBILE-OLD-HEADER-STRAGGLERS]). At mobile width (<1024px) it wraps
+ * the route element in the shared MobileShell sticky header, which carries the
+ * app-wide account avatar-dropdown (the #410 `utils/accountStatus.ts` dropdown:
+ * status / manage-subscription / log-out) — REUSED, never forked. At desktop
+ * width it renders children unchanged: these routes are DesktopShell routes
+ * (isDesktopShellRoute), so desktop chrome stays byte-identical.
+ *
+ * Applied AROUND the route gates (RequirePremium / PracticeLimitGate) on
+ * purpose: with the old global brand bar suppressed (isMobileSelfChromedRoute),
+ * the gates' blocked states (premium upsell, daily-limit reached, loading)
+ * would otherwise render headerless at mobile width. The mobile BottomNav is
+ * unaffected — it is gated separately in BottomNav and is preserved.
+ */
+function MobileSelfChrome({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  const isDesktop = useIsDesktop();
+  if (isDesktop) return <>{children}</>;
   return (
-    !isDesktop &&
-    (pathname === "/browse" ||
-      pathname === "/welcome" ||
-      pathname === "/me" ||
-      pathname === "/check-improve" ||
-      pathname === "/intent" ||
-      pathname === "/practice/worksheets/ready" ||
-      pathname === "/exam-trends" ||
-      pathname === "/practice-hub")
+    <MobileShell title={title} subtitle={subtitle} showNav>
+      {children}
+    </MobileShell>
   );
 }
 
@@ -830,27 +882,31 @@ export default function App() {
           <Route
             path="/topic-hub/:grade/:subject"
             element={
-              <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
-                <SectionErrorBoundary>
-                  {/* Learn-Flow rebuild PR-B: the responsive concept-spine
-                      (DesktopTopicHubPage) is the Topic Hub main view at EVERY
-                      width — single component, single BoardConcept data source. */}
-                  {withRouteSuspense(<DesktopTopicHubPage />)}
-                </SectionErrorBoundary>
-              </RequirePremium>
+              <MobileSelfChrome title="Topic Hub">
+                <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
+                  <SectionErrorBoundary>
+                    {/* Learn-Flow rebuild PR-B: the responsive concept-spine
+                        (DesktopTopicHubPage) is the Topic Hub main view at EVERY
+                        width — single component, single BoardConcept data source. */}
+                    {withRouteSuspense(<DesktopTopicHubPage />)}
+                  </SectionErrorBoundary>
+                </RequirePremium>
+              </MobileSelfChrome>
             }
           />
           <Route
             path="/topic-hub/:grade/:subject/:topicKey"
             element={
-              <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
-                <SectionErrorBoundary>
-                  {/* Learn-Flow rebuild PR-B: the responsive concept-spine
-                      (DesktopTopicHubPage) is the Topic Hub main view at EVERY
-                      width — single component, single BoardConcept data source. */}
-                  {withRouteSuspense(<DesktopTopicHubPage />)}
-                </SectionErrorBoundary>
-              </RequirePremium>
+              <MobileSelfChrome title="Topic Hub">
+                <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
+                  <SectionErrorBoundary>
+                    {/* Learn-Flow rebuild PR-B: the responsive concept-spine
+                        (DesktopTopicHubPage) is the Topic Hub main view at EVERY
+                        width — single component, single BoardConcept data source. */}
+                    {withRouteSuspense(<DesktopTopicHubPage />)}
+                  </SectionErrorBoundary>
+                </RequirePremium>
+              </MobileSelfChrome>
             }
           />
 
@@ -859,7 +915,11 @@ export default function App() {
                Exam Trends (the topic picker in the new flow). */}
           <Route
             path="/topic-hub"
-            element={withRouteSuspense(<DesktopTopicHubPage />)}
+            element={
+              <MobileSelfChrome title="Topic Hub">
+                {withRouteSuspense(<DesktopTopicHubPage />)}
+              </MobileSelfChrome>
+            }
           />
 
       
@@ -888,12 +948,20 @@ export default function App() {
           {/* Predicted Questions with mandatory grade & subject */}
           <Route
             path="/highly-probable/:grade/:subject"
-            element={<RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>}
+            element={
+              <MobileSelfChrome title="Predicted Questions">
+                <RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>
+              </MobileSelfChrome>
+            }
           />
           {/* Legacy route */}
           <Route
             path="/highly-probable"
-            element={<RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>}
+            element={
+              <MobileSelfChrome title="Predicted Questions">
+                <RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>
+              </MobileSelfChrome>
+            }
           />
 
           {/* SEVER PR: /predictive-papers DISCONNECTED + marked DEFERRED-REVIVE
@@ -916,7 +984,14 @@ export default function App() {
               flow). All marked LEGACY-RETIRED. /parent (ParentAccessPage) is
               DISCONNECTED + marked DEFERRED-REVIVE (future B2B / parent-visibility). */}
 
-          <Route path="/practice/:grade/:subject" element={<PracticeLimitGate><SectionErrorBoundary>{withRouteSuspense(<PracticePage />)}</SectionErrorBoundary></PracticeLimitGate>} />
+          <Route
+            path="/practice/:grade/:subject"
+            element={
+              <MobileSelfChrome title="Quick Practice">
+                <PracticeLimitGate><SectionErrorBoundary>{withRouteSuspense(<PracticePage />)}</SectionErrorBoundary></PracticeLimitGate>
+              </MobileSelfChrome>
+            }
+          />
 
           {/* SEVER PR: /study-plan (StudyPlanPage) RETIRED — reached only from the
               dead MentorPanel + MockBuilder back-nav. The live MockBuilder back path
@@ -981,7 +1056,11 @@ export default function App() {
           <Route path="/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
           <Route
             path="/practice/worksheets"
-            element={withRouteSuspense(<WorksheetGenerator />)}
+            element={
+              <MobileSelfChrome title="Worksheets">
+                {withRouteSuspense(<WorksheetGenerator />)}
+              </MobileSelfChrome>
+            }
           />
 
           {/* Check & Improve — Desktop Phase 5: at desktop width (>=1024px)
@@ -1020,13 +1099,17 @@ export default function App() {
           <Route
             path="/topic-hub"
             element={
-              withRouteSuspense(<DesktopTopicHubPage />)
+              <MobileSelfChrome title="Topic Hub">
+                {withRouteSuspense(<DesktopTopicHubPage />)}
+              </MobileSelfChrome>
             }
           />
           <Route
             path="/topic-hub/:topicName"
             element={
-              withRouteSuspense(<DesktopTopicHubPage />)
+              <MobileSelfChrome title="Topic Hub">
+                {withRouteSuspense(<DesktopTopicHubPage />)}
+              </MobileSelfChrome>
             }
           />
 
