@@ -4,7 +4,7 @@ import type { WindowedProgress, RungTrend } from "../../services/progressStore";
 
 // A data-backed marks rung fixture.
 function rung(key: string): RungTrend {
-  return { key, label: key, before: 40, now: 55, delta: 15, sampleBefore: 3, sampleNow: 4 };
+  return { key, label: key, before: 40, now: 55, delta: 15, sampleBefore: 3, sampleNow: 4, spanDays: 20 };
 }
 
 function wp(overrides: Partial<WindowedProgress> = {}): WindowedProgress {
@@ -16,6 +16,7 @@ function wp(overrides: Partial<WindowedProgress> = {}): WindowedProgress {
     sections: [],
     mistakeTypes: [],
     activity: { worksheets: 0, chapterTests: 0, fullMocks: 0, practiceAttempts: 0 },
+    activitySpanDays: null,
     mistakeLog: { loggedInWindow: 0 },
     ...overrides,
   };

@@ -25,6 +25,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   getWindowedProgress,
+  isShortSpan,
   type ProgressWindow,
   type WindowedProgress,
   type RungTrend,
@@ -334,6 +335,16 @@ export function ProgressWindowArc({ uid }: ProgressWindowArcProps): React.ReactE
             rows={concepts}
           />
           <MistakeComposition rows={mistakeTypes} />
+          {data != null &&
+            data.activitySpanDays != null &&
+            isShortSpan(window, data.activitySpanDays) && (
+              <div className="lt-pwa__span-note">
+                Your practice in this {WINDOW_LABEL[window]} is concentrated in the last{" "}
+                {data.activitySpanDays === 1 ? "day" : `${data.activitySpanDays} days`} — the
+                trends above are your honest short-term movement over that stretch, not the
+                whole {WINDOW_LABEL[window]}.
+              </div>
+            )}
         </div>
       ) : stateKind === "lopsided" ? (
         <div className="lt-pwa__state lt-pwa__state--empty">
@@ -469,6 +480,20 @@ const PWA_STYLE = `
   padding: 0 2px;
 }
 .lt-pwa__overflow { font-size: 11.5px; color: hsl(220, 15%, 50%); padding: 2px 2px 0; }
+
+/* PR-B-v2 honest span label — shown when the window's practice is concentrated in a
+   short recent stretch (isShortSpan), so a "month" view never silently implies a
+   month-long trend. Additive only. */
+.lt-pwa__span-note {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: hsl(35, 60%, 32%);
+  background: hsl(42, 80%, 95%);
+  border: 1px solid hsl(42, 60%, 86%);
+  border-radius: 10px;
+  padding: 10px 12px;
+  max-width: 640px;
+}
 
 .lt-pwa__state {
   font-size: 13px;
