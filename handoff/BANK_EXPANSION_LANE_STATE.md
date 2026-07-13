@@ -103,15 +103,27 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
 - **Batch 4 — our-environment +80: MERGED #388 (`99b1d2a`).** extract 51 A/B/C + scarce D×7 (→16) + case×22 (→32);
   both scarce bands honest-stop (Ch15 narrow). Owner byte-review → 4 Class-12 "pyramid" items reframed to 10%
   energy-flow; two-direction syllabus boundary now standard.
-- **Bank now = 7,342. 4 topics done: real-numbers, life-processes, our-environment (+ real-numbers corrective).**
+- **Batch 5 — how-do-organisms-reproduce +148: MERGED #393 (`820d013`).** extract-max 54 A/B/C (A28 B13 C13,
+  exhaustive per-source sweep) + scarce D×30 (37→67, honest-stop) + case×64 (E1 plant/asexual ×34 + E2
+  human/health ×30; 8→72, honest-stop at 72 DISTINCT — 3 structural twins dropped in preference to padding to 75).
+  3 independent skeptics cleared all 151 (54/54·30/30·67/67); 1 factual FIX (E1-004 Plasmodium schizogony not cyst)
+  + 3 twins dropped → 148 kept. Owner byte-review CLEAN (both syllabus directions clean, all 148 have solutions,
+  correctOption 0, topicKey canonical). Chapter 265→413. Docs handoff = this PR.
+- **Bank now = 7,490. 5 topics done: real-numbers, life-processes, our-environment, how-do-organisms-reproduce
+  (+ real-numbers corrective).**
 
-## TOPICS REMAINING (~22) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+## TOPICS REMAINING (~21) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
 Maths (12): polynomials · pair-of-linear-equations · quadratic-equations · arithmetic-progression · triangles ·
 coordinate-geometry · trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics ·
-probability. Science (10): chemical-reactions-and-equations · acids-bases-and-salts · metals-and-non-metals ·
+probability. Science (9): chemical-reactions-and-equations · acids-bases-and-salts · metals-and-non-metals ·
 carbon-and-its-compounds · light-reflection-and-refraction · human-eye-and-colourful-world · electricity ·
-magnetic-effects-of-electric-current · control-and-coordination · how-do-organisms-reproduce · heredity.
-**NEXT = reproduce or heredity** (Science, large reservoirs).
+magnetic-effects-of-electric-current · control-and-coordination · heredity.
+**NEXT = heredity** (Science, large reservoir). Class-12 boundary: Mendel / laws of inheritance /
+sex-determination are RETAINED (IN); the Ch9 EVOLUTION section is BANNED — Darwin, natural selection, speciation,
+homologous/analogous/vestigial organs, acquired traits, fossils, evidence-of-evolution (syllabusGuard already lists
+these as bannedSubtopics + SURFACE_BANNED_PHRASES; READ + RUN it live). If heredity lacks an explicit
+evolution-boundary test entry, PROPOSE additions for owner (NCERT-verifier) confirmation BEFORE committing, then add
+a test case. Census at 7,490: heredity TOTAL=219 (A91·B45·C52·D21·E10) — scarce bands D21, E10 are the authoring targets.
 
 ## RESUME (for a fresh Fable window — this file + the task file are the source of truth)
 1. Re-derive trunk; `corepack pnpm@10.32.1 install --no-frozen-lockfile` in a fresh worktree from CURRENT trunk;
@@ -131,13 +143,20 @@ magnetic-effects-of-electric-current · control-and-coordination · how-do-organ
   AUTHORING_SPEC.md, dump_batch*.mjs (regenerate the bank dump vs CURRENT bank after each merge — dedup must be
   vs the latest), the assembled-bank runtime proof one-liner. **Regenerate the dump before each new topic.**
 
-## Follow-ups opened this batch
+## Follow-ups (standing)
 - [FU-EXTRACT-CONTENT-F13] — Content-folder "Question Bank" (folder 13) real-numbers file not swept; small
-  extra A/B/C extract-max source.
+  extra A/B/C extract-max source. (Note: folder 13 WAS swept for reproduce in Batch 5 — richest A-band source.)
 - [FU-BANK-EXACTNORM-DUPS] — the assembled bank already has ~114 exact-normalized-questionText duplicate
-  groups PRE-EXISTING (not from this batch; my 30 contribute 0). Data-quality cleanup candidate, separate lane.
+  groups PRE-EXISTING (not from these batches). Data-quality cleanup candidate, separate lane.
+- [FU-D-BAND-HONEST-CEILING] — reproduce D honest-stopped at 67 (chapter already deeply covered). Confirms the
+  band-scarcity policy: mature-chapter D-bands naturally ceiling below 75; do NOT pad. (life-processes D→53,
+  our-environment D→16, reproduce D→67 are all honest ceilings, not shortfalls.)
 
 ## Progress log (newest first)
+- 2026-07-13: Batch 5 (how-do-organisms-reproduce) MERGED #393 (`820d013`) +148 — largest batch yet; extract-max
+  54 A/B/C + authored D×30 (honest-stop 67) + case×64 (honest-stop 72 distinct, 3 twins dropped not padded).
+  3 skeptics + owner byte-review CLEAN on both syllabus directions. Orchestrator stayed lean (all heavy
+  read/author/re-solve in subagents; compact returns). Bank → 7,490. NEXT = heredity.
 - 2026-07-12: Batch 4 (our-environment) MERGED #388 +80 — both scarce bands honest-stop; owner byte-review caught
   Class-12 pyramid content → 4 reframed; two-direction syllabus boundary + ≥75 floor now standard. Bank → 7,342.
 - 2026-07-12: Batch 3 (life-processes) MERGED #385 — first Science batch, +136, exhaustive-sweep fix confirmed
