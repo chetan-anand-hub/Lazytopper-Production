@@ -7,6 +7,31 @@
 
 ### NEW (open) — surfaced by #416
 - **[FU-MOBILE-OLD-HEADER-STRAGGLERS]** (pre-launch mobile-chrome cleanup pass, owner-directed). The item-E straggler sweep found **11 routed mobile surfaces still rendering the OLD global brand bar** (App.tsx `.navbar`) at mobile width — NOT covered by `isMobileSelfChromedRoute` and not using `MobileShell`: `/practice/worksheets` (WorksheetGenerator) · `/practice/:grade/:subject` (PracticePage) · `/topic-hub` + `/topic-hub/*` (DesktopTopicHubPage) · `/highly-probable` + `/highly-probable/*` (HighlyProbableQuestions) · `/exam-simulation` (ExamSimulationPage) · `/weak-area-practice` (WeakAreaPracticePage) · `/mock-paper/:slug` (MockPaper) · `/teacher` (TeacherDashboardPage) · `/onboarding` (Onboarding) · `/legal/:slug` (LegalPage) · `/admin/*` (admin pages). #416 scoped its FIX to the two BottomNav tabs (`/exam-trends` + `/practice-hub`) per the dispatch; these 11 are reported, not fixed. Fix pattern is precedented (add to `isMobileSelfChromedRoute` + `!isDesktop` MobileShell wrapper reusing `accountStatus.ts`); batch them in a pre-launch pass, mind the bare-fullscreen exclusions (CT/FM) and public/auth routes.
+## 2026-07-13 -- #411 + #415: bank-expansion Batch 9 (polynomials +62) + Batch 10 (PLE / AP / ABS +440, FIRST 3-topics-per-PR) MERGED (trunk `ae2b447`)
+
+### NEW (open) — content-quality follow-ups surfaced during Batch 10 (add-only batch; neither blocks the merge)
+- **[FU-AP-BANKED-GP-ITEM]** (content cleanup, later lane). A PRE-EXISTING banked `arithmetic-progression` case item uses an
+  80%-rebound ball-bounce scenario — that is a GEOMETRIC progression (ratio 0.8), not arithmetic, and GP is out of the Class-10
+  syllabus. It predates this batch (Batch 10 was add-only, so it was not touched). Fix belongs in a later bank cleanup lane
+  (re-scope the scenario to a genuine AP, or withdraw the item); flagged so it is not silently forgotten.
+- **[FU-ABS-WASP-STING-ALKALINE]** (owner-awareness only; no forced change). A few `acids-bases-and-salts` items use the
+  persistent textbook claim "a wasp sting is alkaline" — not supported by current NCERT (wasp venom is near-neutral). It is an
+  exam-conventional statement students may still meet, so this is logged for owner awareness rather than a mandated correction.
+
+### WITHDRAWN / REJECTED
+- **[FU-SYLLABUS-GUARD-PLE-REDUCIBLE] — WITHDRAWN/REJECTED (NOT a guard entry).** During Batch 10 a backwards proposal was
+  floated to add "equations reducible to a pair of linear equations" (the 1/x=p, 1/y=q substitution family) to
+  `scripts/src/syllabusGuard.ts`. This was WRONG: reducible-to-linear is **IN** the official CBSE 2026-27 syllabus and
+  board-important — the main sweep had wrongly excluded it, and the cure was to ADD the content (on-branch
+  `pairOfLinearEquations.expand.reducible.ts`), NOT to touch the guard. `syllabusGuard.ts` was left UNTOUCHED; the
+  Cross-Multiplication Method correctly stays OUT. Standing lesson (mirrors the Batch-8 sum/product-of-roots correction): never
+  reject real in-syllabus content, and flag/propose any guard change — never auto-commit it.
+
+### No other new follow-ups from #411/#415
+Batch 9 (polynomials) was a clean narrow chapter: two-direction syllabus clean (quadratic zeros-coefficient only; cubic /
+higher-degree division algorithm / complex zeros excluded), both scarce bands honest-stopped as expected for a low-weight
+chapter, no key regressions. Standing bank-lane FUs ([FU-D-BAND-HONEST-CEILING], [FU-BANK-EXACTNORM-DUPS], [FU-EXTRACT-CONTENT-F13],
+[FU-FIGURE-PENDING-SAFEGUARD], [FU-BANK-UNRESOLVABLE-MCQ-KEYS], [FU-SYLLABUS-ANCHOR-OFFICIAL-2026-27]) are unchanged.
 
 ## 2026-07-13 -- #412: PR-B-v2 — the progress ENGINE made real MERGED (code `1228c95`) + owner LIVE-VERIFIED → the 3 engine FUs CLOSED
 
