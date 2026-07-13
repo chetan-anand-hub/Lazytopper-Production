@@ -17,7 +17,9 @@ import {
   getOrCreateModelSolution,
   getCachedSolution,
   saveSolution,
+  saveSolutionForce,
   deleteSolution,
+  generateModelSolution,
   __setPoolForTests,
 } from "../../server/routes/stepSolution.cjs";
 import { createAdminSolutionCacheRoutes } from "../../server/routes/adminSolutionCache.cjs";
@@ -258,6 +260,15 @@ function buildAdminRoute(replyJson: unknown, opts?: { noFirebase?: boolean }) {
     ACTIVE_PROVIDER: "test",
     isObjectiveType: (t: string, s: string) => /^(MCQ|Objective)$/i.test(t || "") || /^A$/i.test(s || ""),
     extractJsonObjectFromText: (t: string) => JSON.parse(t),
+    // Hand the admin route THIS test's stepSolution instance so the fake-pool
+    // seam is shared (vitest can otherwise instantiate the CJS module twice).
+    solutionCacheLib: {
+      deleteSolution,
+      saveSolutionForce,
+      generateModelSolution,
+      validateSolutionQuality,
+      computeQuestionHash,
+    },
   };
   const routes = createAdminSolutionCacheRoutes(deps as never);
   const run = async (handler: "handleEvict" | "handleRegenerate", headers: Record<string, string>, payload: unknown) => {

@@ -13,13 +13,7 @@
 // uid → the endpoints do nothing. Server-side only; nothing here is ever exposed
 // to a client bundle, and no student data is involved (the cache is
 // student-agnostic by construction).
-const {
-  deleteSolution,
-  saveSolutionForce,
-  generateModelSolution,
-  validateSolutionQuality,
-  computeQuestionHash,
-} = require('./stepSolution.cjs');
+const defaultSolutionCacheLib = require('./stepSolution.cjs');
 
 const HASH_RE = /^[0-9a-f]{64}$/i;
 
@@ -33,7 +27,19 @@ function createAdminSolutionCacheRoutes(deps) {
     ACTIVE_PROVIDER,
     isObjectiveType,
     extractJsonObjectFromText,
+    // Test seam: vitest's module graph can instantiate stepSolution.cjs twice
+    // (ESM-imported by the test vs CJS-required here), which would split the
+    // pool seam across instances — tests inject THEIR instance; production
+    // omits it and gets the plain require above.
+    solutionCacheLib,
   } = deps;
+  const {
+    deleteSolution,
+    saveSolutionForce,
+    generateModelSolution,
+    validateSolutionQuality,
+    computeQuestionHash,
+  } = solutionCacheLib || defaultSolutionCacheLib;
 
   function adminUids() {
     return String(process.env.ADMIN_FIREBASE_UIDS || '')
