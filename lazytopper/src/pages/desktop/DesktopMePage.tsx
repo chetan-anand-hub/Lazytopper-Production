@@ -21,6 +21,7 @@ import {
 import { desktopTopicForWeakAreaKey } from "../../lib/desktop/topics";
 import { getWrongConceptsForTopic } from "../../services/adaptivePracticeEngine";
 import { normalizeTopicKey } from "../../utils/topicResolver";
+import { ProgressWindowArc } from "../../components/progress/ProgressWindowArc";
 
 /**
  * DesktopMePage — Me / Progress page wired to real saved-attempt and
@@ -974,6 +975,11 @@ const DesktopMePage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* PR-B — progress-memory before→now arc + window selector (cross-device,
+          honest-or-silent). Renders only for a real signed-in (non-local) user;
+          the full Me/Progress redesign is arc PR-4. */}
+      <ProgressWindowArc uid={user && !user.isLocalSession ? user.uid : null} />
 
       {/* Signed-out hero */}
       {isSignedOut ? (

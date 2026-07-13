@@ -14,6 +14,10 @@ export type DashboardPrefs = {
   examDateSource?: "official" | "predicted";
   updatedAt?: string;
   timeWindow?: "week" | "2week" | "month" | "4month";
+  /** PR-B: the student's chosen Progress before→now time-window (Me arc + rungs).
+   *  Kept DISTINCT from the planner's `timeWindow` so the two never collide, and
+   *  matches progressStore's `ProgressWindow` vocabulary verbatim. */
+  progressWindow?: "week" | "2wk" | "month" | "4mo";
 };
 
 function localProfileKey(uid: string): string {
@@ -66,6 +70,11 @@ function sanitizePrefs(input: unknown): DashboardPrefs | null {
     timeWindow: (() => {
       const v = String(rec.timeWindow || "");
       return v === "week" || v === "2week" || v === "4month" ? v : "month";
+    })(),
+    progressWindow: (() => {
+      const v = String(rec.progressWindow || "");
+      // undefined (not "month") when unset, so the UI can distinguish "no choice yet".
+      return v === "week" || v === "2wk" || v === "month" || v === "4mo" ? v : undefined;
     })(),
   };
 }
