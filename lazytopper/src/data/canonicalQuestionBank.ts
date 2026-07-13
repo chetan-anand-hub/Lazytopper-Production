@@ -116,6 +116,10 @@ import { RN_SCARCE_E } from './questionBanks/class10/maths/realNumbers.scarceE';
 // Bank-expansion Batch 2 (real-numbers corrective, 2026-07-12): exhaustive A/B/C re-sweep + perfect-cube D.
 import { RN_EXTRACT2 } from './questionBanks/class10/maths/realNumbers.extract2';
 import { RN_SCARCE2 } from './questionBanks/class10/maths/realNumbers.scarce2';
+// Bank-expansion Batch 8 (quadratic-equations, 2026-07-13): extract-max A/B/C + distinct-authored scarce D/E.
+import { QUADRATIC_EQUATIONS_EXPAND_EXTRACT } from './questionBanks/class10/maths/quadraticEquations.expand.extract';
+import { QUADRATIC_EQUATIONS_EXPAND_LONG_D } from './questionBanks/class10/maths/quadraticEquations.expand.longD';
+import { QUADRATIC_EQUATIONS_EXPAND_CASE_E } from './questionBanks/class10/maths/quadraticEquations.expand.caseE';
 import { PLE_NCERT } from './questionBanks/class10/maths/pairOfLinearEquations.ncert';
 import { PLE_EXEMPLAR } from './questionBanks/class10/maths/pairOfLinearEquations.exemplar';
 import { QE_NCERT } from './questionBanks/class10/maths/quadraticEquations.ncert';
@@ -538,6 +542,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CHEM_REACTIONS_EXPAND_EXTRACT,
   ...CHEM_REACTIONS_EXPAND_LONG_D,
   ...CHEM_REACTIONS_EXPAND_CASE_E,
+  // Bank-expansion Batch 8 — quadratic-equations (2026-07-13): 19 extracted A/B/C + 47 scarce-D (->76, >=75) + 44 case-based E (->66, honest-stop; Class-10 quadratic case families combinatorially finite).
+  ...QUADRATIC_EQUATIONS_EXPAND_EXTRACT,
+  ...QUADRATIC_EQUATIONS_EXPAND_LONG_D,
+  ...QUADRATIC_EQUATIONS_EXPAND_CASE_E,
   // Science chapters 1–7 NCERT + Exemplar extractions (PR #98 — 608 questions)
   ...CHEM_REACTIONS_NCERT,
   ...CHEM_REACTIONS_EXEMPLAR,

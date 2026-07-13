@@ -251,3 +251,43 @@ equilibrium constants, molar-mass stoichiometry). **Diagram-pass needed: none** 
 **Extracted A/B/C (36):** BX-CHEM-EX-A-001…019, A-022…031 (29; A-020/021/032 removed as gate near-dups) · BX-CHEM-EX-B-001…003 · BX-CHEM-EX-C-001…004.
 **Authored Section-D (36):** BX-CHEM-D-001…036.
 **Authored case-based E (64):** BX-CHEM-E-001…064.
+
+## Batch 8 — quadratic-equations (2026-07-13) · 110 items
+
+Before → after (served quadratic-equations count 224 → 334). First Maths topic since real-numbers (pipeline balance). D cleared ≥75; E honest-stopped (Class-10 quadratic case families are combinatorially finite).
+
+| Band | Section | Before | +Extracted | +Authored | After | Floor status |
+|---|---|--:|--:|--:|--:|---|
+| A | 1-mark | 78 | +9 | 0 | 87 | extract-max (no floor) |
+| B | 2-mark | 41 | +3 | 0 | 44 | extract-max (no floor) |
+| C | 3-mark | 54 | +7 | 0 | 61 | extract-max (no floor) |
+| D | 5-mark long | 29 | 0 | +47 | 76 | **≥75 REACHED** — ~13 distinct application families |
+| E | 4-mark case | 22 | 0 | +44 | 66 | **HONEST STOP** — ~18 distinct scenario families; finite case space |
+
+**Exhaustive sweep (extract-max, 19 kept):** per-source table —
+Content folder-13 "Question Bank … MCQ" Quadratic Equations.docx (Q1–75): 75 cand → ~43 banked-dup + **~22 Vieta
+sum/product-of-roots rejected (that's Polynomials Ch2 / Class-11)** → 10 A + 2 B. Content Classroom MODULE Unit-1
+solved examples/exercises: ~20 → ~10 banked-dup + ~2 common-roots/formation-from-roots theory → 7 C + 1 B. NCERT
+Exemplar ch4 (44 items): **entire chapter already banked** as `QE-N-EXMPLR-4-*` → 0. NCERT solutions docx: all
+banked → 0. PYQ `_text` 2023 + gdrive 2024–26: all banked/Section-E → 0. The quadratic MCQ reservoir is
+Vieta-heavy and largely saturated; net-new concentrated in specific-stem QB items + module application word-problems.
+**Scarce authoring:** Section-D ×47 across ~13 application families (numbers/consecutive/multiples, ages,
+price-quantity/shared-cost, rectangle area, triangle/Pythagoras area, speed–stream, work–pipes, digits, fractions,
+nature-of-roots-via-discriminant, plot-subdivision area-difference, two-squares sum-of-areas). Section-E ×44 across
+~18 scenario families (rectangle-with-path, perimeter+area, border/frame, projectile height=H-at-time [NOT vertex],
+speed/stream/work, sharing, 3-side fencing, Pythagoras, tournament n(n−1)/2, AP-sum-as-quadratic, revenue=price×qty
+target, numbers/fractions, ages, two-squares, profit%=CP).
+**Skeptic pass (3 independent adversarial re-solves):** every quadratic re-formed, solved, root-rejection and
+back-substitution verified. Extract 18/20 → 1 distinctness drop (A-006 = cosmetic clone of banked QE2-050, k²=36→±6;
+A-008 defensible keep). D 45/47 → 2 correctness fixes (D-028 broken numbers: "5 more pens"→"6 more pens" so
+x²+6x−720=(x+30)(x−24)→24; D-011 rejected-root display −12/11→−6/11) + trimmed 2 of 3 identical reciprocal-schema
+items (dropped D-017/019, kept D-018) + added 2 genuinely-distinct non-reciprocal items (D-051 plot-subdivision,
+D-052 two-squares) to hold ≥75. E 44/44 clean. **Cross-pack gate** (unique to consolidation) caught 3 extracted-C
+vs authored-D twins → 3 authored D dropped (D-006/029/048), extracted versions kept (real content preferred).
+**Syllabus CLEAN:** no Vieta sum/product-of-roots, no complex/imaginary roots, no inequalities, no cubic, no
+vertex optimisation — all rejected at extraction/authoring/skeptic. Every MCQ key resolves to exactly one option.
+**Diagram-pass needed: none** — all 110 text-answerable (`requiresDiagram:false`); zero figure-pending.
+
+**Extracted A/B/C (19):** BX-QUAD-EX-A-001…010 (A-006 dropped → 9) · BX-QUAD-EX-B-001…003 · BX-QUAD-EX-C-001…007.
+**Authored Section-D (47):** BX-QUAD-D-001…052 (gaps at 006/017/019/029/048 — dropped twins/cross-pack dups).
+**Authored case-based E (44):** BX-QUAD-E-001…044.
