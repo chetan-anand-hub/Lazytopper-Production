@@ -128,6 +128,7 @@ const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
+const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -255,6 +256,9 @@ const userProgressRoutes = createUserProgressRoutes(routeDeps);
 const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
+// C&I PR-3 (Gate 2b): admin-gated eviction/regeneration for the model-solution
+// cache — ADMIN_FIREBASE_UIDS Bearer-token identity, fail-closed (see the route).
+const adminSolutionCacheRoutes = createAdminSolutionCacheRoutes(routeDeps);
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -483,6 +487,17 @@ async function handleRequest(req, res) {
     if (req.method === 'PATCH' && resolveMatch) {
       return questionReportRoutes.handleResolveReport(req, res, resolveMatch[1]);
     }
+  }
+
+  // C&I PR-3 (Gate 2b): admin-gated model-solution cache eviction/regeneration
+  // (ADMIN_FIREBASE_UIDS Bearer identity, fail-closed inside the route). Owner
+  // tooling only (curl/Postman) — deliberately NOT in the browser CORS preflight
+  // list above.
+  if (req.method === 'POST' && reqPath === '/api/admin/solution-cache/evict') {
+    return adminSolutionCacheRoutes.handleEvict(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/admin/solution-cache/regenerate') {
+    return adminSolutionCacheRoutes.handleRegenerate(req, res);
   }
 
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
