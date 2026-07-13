@@ -2,6 +2,24 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — FINAL MOBILE-PARITY SWEEP MERGED + OWNER LIVE-VERIFIED (#423, `a8f36ab`) — the one-product-one-website mobile-chrome stage is COMPLETE
+
+The pre-launch mobile-chrome cleanup pass ([FU-MOBILE-OLD-HEADER-STRAGGLERS], opened by #416 item E) is DONE: **no live
+user-facing route shows the OLD global brand bar at mobile width**; every mobile header is the shared MobileShell avatar
+header (#410 `accountStatus.ts` dropdown). Exactly 2 files (`App.tsx` + `App.bottomNav.test.tsx`).
+
+- `isMobileSelfChromedRoute` + 4 families whose matchers MIRROR `isDesktopShellRoute`: exact `/practice/worksheets` ·
+  prefix `/topic-hub*` · prefix `/highly-probable*` · runner regex `^/practice/(?!worksheets/)[^/]+/[^/]+$`.
+- New route-level `<MobileSelfChrome>`: desktop pass-through; mobile wraps in the shared MobileShell header — AROUND
+  `RequirePremium`/`PracticeLimitGate` so premium-upsell / daily-limit states carry the header. BottomNav preserved;
+  bare-fullscreen CT/FM untouched; pages/gates/DesktopShell byte-untouched.
+- Confirm-and-report: `/pricing` already own-chromed (`isPublicLandingRoute`); `/profile` = redirect alias; the other 7
+  of the original 11 straggler routes are dead/retiring with NO live inbound — deliberately not chromed (retire lanes).
+- Gates all PASS (tsc · mojibake · scope:guard · root 181/181 · ops matrix · diff-check · Codespace build+verifier ·
+  predicate vitest 15/15); CI green. **Owner merged + live-verified at 360px → Exam Trends + HPQ fully ✅ in
+  SURFACE_TRACKER; the LAUNCH_REMAINING "mobile-parity confirms" item is closed.** New non-gating
+  [FU-LEGAL-FOOTER-LINK] + [FU-MOBILE-SHELL-PADDING-STACK].
+
 ## 2026-07-13 — bank-expansion Batch 11 (triangles + coordinate-geometry + metals-and-non-metals +315, SECOND 3-topics-per-PR) MERGED (#419, `69e319d`)
 
 Data-enrichment parallel track — no surface architecture-gate cell moves. **Assembled bank 8,282 → 8,597. 14 DISTINCT topics done

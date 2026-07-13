@@ -2,8 +2,8 @@
 
 **Repo home:** `handoff/LAUNCH_REMAINING.md` (version-controlled — this is the source of truth; the copy in
 `/mnt/user-data/outputs/` is just the export the cofounder session writes for the owner to commit).
-**Trunk at last sync:** `cc84ae5` (origin tip; **#420 C&I PR-3 model-solution cache — the whole C&I arc is DONE**, [FU-CI-SOLUTION-CACHE] closed; parallel-depth lane, not spine — no critical-path item moves, but the C&I "remaining arc" notes below are now COMPLETE; new [FU-ADMIN-UIDS-DEPLOY-ENV] owner env step. Over #416 C&I PR-2 `a1eaebc` + #415 bank Batch 10 `ae2b447` + #412 PR-B-v2 `1228c95`). _Prior: `9749fc9` (#412 sync); `25c3cd7` (#408 arc PR-4); `894ef6a` (#403 PR-B)._
-**Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#420).
+**Trunk at last sync:** `a8f36ab` (origin tip; **#423 final mobile-parity sweep MERGED + owner LIVE-VERIFIED at 360px** — the §2-item-6 "mobile-parity confirms" are DONE: no live route shows the old global brand bar at mobile width; Exam Trends + HPQ flipped fully ✅ in SURFACE_TRACKER. Over #419 bank Batch 11 `69e319d` + #420 C&I PR-3 `cc84ae5` + #416 C&I PR-2 `a1eaebc`). _Prior: `cc84ae5` (#420 sync); `9749fc9` (#412 sync); `25c3cd7` (#408 arc PR-4); `894ef6a` (#403 PR-B)._
+**Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#423).
 
 ## WHAT THIS FILE IS (and is NOT) — its lane vs the other handoff docs
 This is the single **ordered "what's left till we can flip the switch"** board: the critical-path sequence + the hard
@@ -73,8 +73,9 @@ Locked dependency chain (from the design arc + the 2026-07-12 handoff). Parallel
 3. ✅ **PR-B progress memory layer (#403) MERGED** — the **launch-blocker DATA layer is done + LIVE**; `getWindowedProgress` is the ONE cross-device multi-rung aggregation (subject/topic/concept-bank-matched/section/mistake-type, honest-or-silent per rung) the arc reads. Owner byte-reviewed CLEAN; mistake-rate→share fix + cross-device verified. The desktop Me arc reads it. **Owner live-verify surfaced 3 arc-PR-4-requirement findings + 1 C&I-parity finding — none are engine bugs** (§4, OPEN_QUESTIONS). *(§4)*
 4. ✅ **Progress Arc PR-4 (#408) + PR-B-v2 engine fixes (#412) MERGED — Me/Progress DONE + OWNER LIVE-VERIFIED (Verified cell ✅).** arc PR-4 shipped the consumption (mobile rebuild + full desktop arc + Topic Hub trend; [FU-MOBILE-ME-PROGRESS-PARITY]/[FU-TOPICHUB-PROGRESS-ARC]/[FU-PROGRESS-WINDOW-SPLIT-UX] done); #412 fixed the engine beneath it ([FU-PROG-TOPIC-KEY-MISMATCH] · [FU-PROG-DATA-COMPLETENESS] · [FU-PROG-WINDOW-MODEL] all CLOSED — unified 4-surface stream, canonical keys both sides, activity-median + honest span label, topic sparkline). Live-verified on the stable link (Polynomials 33.9%→46.9% + sparkline + honest label; Trigonometry honestly empty). Presentation refinement deferred, not launch-gating: [FU-PROGRESS-PRESENTATION-REDESIGN]. *(§5, SURFACE_TRACKER Me/Progress row)*
 5. 🟡 **Home nudge PR-5 — NOW the immediate next domino.** Orient-first convergence + ungraded nudge; reads PR-B (`getPendingSessions` + the windowed engine). *(§5)*
-6. 🔒 **Pre-launch gates (§6)** cleared + **MockViewGate flips** (CT, FM) + **mobile-parity confirms** (§5) + owner
-   live-verify sweep.
+6. 🔒 **Pre-launch gates (§6)** cleared + **MockViewGate flips** (CT, FM) + ~~mobile-parity confirms (§5)~~ **✅ DONE
+   (#423 final mobile-parity sweep, owner live-verified — no live route shows the old global brand bar at mobile width)** +
+   owner live-verify sweep.
 
 **Parallel (do not block the spine):** Tutor rebuild *(§3.3, blocked on owner brainstorm)* · Bank expansion *(§7)* ·
 Legacy faulty-question audit *(§7, after expansion)*.
@@ -125,8 +126,9 @@ Only surfaces NOT yet fully green are listed. See `SURFACE_TRACKER.md` for the a
 - 🟡 **Home** — converge to orient-first + real-insights wiring + ungraded nudge (arc PR-5, after PR-B).
 - 🟡 **Tutor / Learn** — rebuild to locked contract + mobile toggle; blocked on owner brainstorm (§3.3).
 - 🔒 **Chapter Test** — matrix-green; behind `MockViewGate` (owner flips at launch) + `[FU-CT-BALANCED-MIX]` (§4).
-- 🟡 **Exam Trends** — confirm mobile parity + live-verify.
-- 🟡 **HPQ / Predicted** — confirm mobile parity + live-verify.
+- ✅ **Exam Trends** — mobile one-header confirmed + owner live-verified (#416 item E + #423 sweep). Fully green.
+- ✅ **HPQ / Predicted** — mobile one-header (#423 `<MobileSelfChrome>` incl. the premium-upsell state) + owner
+  live-verified at 360px. Fully green.
 - 🟡 **Landing** — confirm both widths.
 
 **Mature / done (no launch work):** Check & Improve · Quick Practice · Topic Hub · Worksheet · Notes · Login.
@@ -161,6 +163,7 @@ These are independent of surface completeness and are each easy to forget.
 ---
 
 ## §8 · CHANGE LOG (append one dated line per change — newest first)
+- **2026-07-13 (post-#423)** — **FINAL MOBILE-PARITY SWEEP #423 MERGED (`a8f36ab`) + OWNER LIVE-VERIFIED (360px) → §2 item 6's "mobile-parity confirms" DONE; §5 Exam Trends + HPQ fully ✅.** Route-level `<MobileSelfChrome>` one-header on `/practice/worksheets` · `/topic-hub*` · `/highly-probable*` · the practice runner (matchers mirror `isDesktopShellRoute`; wrapper around the gates so upsell/limit states carry the header). Closes the live subset of [FU-MOBILE-OLD-HEADER-STRAGGLERS]. New non-gating: [FU-LEGAL-FOOTER-LINK] (pre-launch compliance-flavoured — legal pages have no live inbound link) + [FU-MOBILE-SHELL-PADDING-STACK] (cosmetic).
 - **2026-07-13 (post-#412)** — **PR-B-v2 progress-engine fixes #412 MERGED (`1228c95`) + OWNER LIVE-VERIFIED → Me/Progress Verified ✅; §2 dominoes #3+#4 (progress data + Me/Progress) CLOSED.** The arc shows REAL data across all four surfaces (unified stream incl. CT/FM objective marks; canonical keys both sides; activity-median split + honest short-term label; Topic Hub sparkline). **Next domino = Home nudge (arc PR-5).** New non-gating FUs: `[FU-PROGRESS-PRESENTATION-REDESIGN]` (later presentation pass) + `[FU-PROG-PRE403-QP-BACKFILL]` (historical). Trunk sync `9749fc9` (parallel #410/#411 disjoint).
 - **2026-07-13 (post-#403)** — **PR-B progress memory layer #403 MERGED** (code trunk `894ef6a`). **Launch-path domino #3 DONE** → the `getWindowedProgress` cross-device multi-rung engine is LIVE; the desktop Me arc reads it. **Arc PR-4 (Me/Progress) is now the immediate next domino**, with a requirement set from PR-B owner live-verify: `[FU-PROGRESS-WINDOW-SPLIT-UX]` + `[FU-TOPICHUB-PROGRESS-ARC]` + **`[FU-MOBILE-ME-PROGRESS-PARITY]`** (the arc is desktop-only; mobile still legacy — non-negotiable) + `[FU-MOBILE-CI-PARITY]` (separate C&I lane). Engine is CORRECT — the 4 findings are consumption-surface gaps, not PR-B bugs. vitest still Codespaces-only.
 - **2026-07-13 (post-#395)** — **C&I PR-1 #395 MERGED** (code trunk `e33b9d3`; sync tip `ae5e671` incl. #396 bank
