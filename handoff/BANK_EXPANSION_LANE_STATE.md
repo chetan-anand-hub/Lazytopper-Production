@@ -109,21 +109,34 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   3 independent skeptics cleared all 151 (54/54·30/30·67/67); 1 factual FIX (E1-004 Plasmodium schizogony not cyst)
   + 3 twins dropped → 148 kept. Owner byte-review CLEAN (both syllabus directions clean, all 148 have solutions,
   correctOption 0, topicKey canonical). Chapter 265→413. Docs handoff = this PR.
-- **Bank now = 7,490. 5 topics done: real-numbers, life-processes, our-environment, how-do-organisms-reproduce
-  (+ real-numbers corrective).**
+- **Batch 6 — heredity +44: MERGED #396 (`ae5e671`).** extract-max 21 A/B/C (A15 B4 C2) + scarce D×11 (21→32,
+  honest-stop) + case×12 (E1 Mendelian ×7 + E2 human-genetics ×5; 10→22, honest-stop). NARROW saturated chapter
+  (219 banked) + every source is the pre-2026 "Heredity AND Evolution" chapter → ~75+ evolution items rejected at
+  extraction (the pre-existing bank evolution leak NOT used as license). 3 skeptics re-solved every Punnett/pedigree
+  (D 11/11, E 12/12, extract 23/24); skeptic caught a roan-cattle CODOMINANCE-mislabelled-as-incomplete-dominance
+  (Class-12) → dropped, + 2 quality drops (a "why 1:2:1" near-twin, an acquired-traits Lamarckian-adjacent item).
+  Net 44 kept. Owner byte-review CLEAN (read every boundary grep hit: "homologous" = homologous CHROMOSOMES [IN],
+  ABO/linkage/codominance = substring false positives; 162 in-syllabus Mendel refs, correctOption 0). Chapter 219→263.
+  Docs handoff = this PR.
+- **Bank now = 7,534. 6 topics done: real-numbers, life-processes, our-environment, how-do-organisms-reproduce,
+  heredity (+ real-numbers corrective).**
 
-## TOPICS REMAINING (~21) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+## TOPICS REMAINING (~20) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
 Maths (12): polynomials · pair-of-linear-equations · quadratic-equations · arithmetic-progression · triangles ·
 coordinate-geometry · trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics ·
-probability. Science (9): chemical-reactions-and-equations · acids-bases-and-salts · metals-and-non-metals ·
+probability. Science (8): chemical-reactions-and-equations · acids-bases-and-salts · metals-and-non-metals ·
 carbon-and-its-compounds · light-reflection-and-refraction · human-eye-and-colourful-world · electricity ·
-magnetic-effects-of-electric-current · control-and-coordination · heredity.
-**NEXT = heredity** (Science, large reservoir). Class-12 boundary: Mendel / laws of inheritance /
-sex-determination are RETAINED (IN); the Ch9 EVOLUTION section is BANNED — Darwin, natural selection, speciation,
-homologous/analogous/vestigial organs, acquired traits, fossils, evidence-of-evolution (syllabusGuard already lists
-these as bannedSubtopics + SURFACE_BANNED_PHRASES; READ + RUN it live). If heredity lacks an explicit
-evolution-boundary test entry, PROPOSE additions for owner (NCERT-verifier) confirmation BEFORE committing, then add
-a test case. Census at 7,490: heredity TOTAL=219 (A91·B45·C52·D21·E10) — scarce bands D21, E10 are the authoring targets.
+magnetic-effects-of-electric-current · control-and-coordination.
+**NEXT = chemical-reactions-and-equations** (Science, large reservoir; recommended — owner/next window may pick any
+remaining topic, incl. pivoting to Maths for pipeline balance). Two-direction boundary for chemical-reactions:
+no deleted-chapter overlap; Class-12 traps to reject = electrochemistry / electrode-potential / electrolysis detail,
+thermochemistry / enthalpy, reaction-rate/equilibrium kinetics, detailed redox half-equations — Class-10 stays at
+combination/decomposition/displacement/double-displacement + oxidation-reduction (basic) + corrosion + rancidity.
+**READ + RUN syllabusGuard live for whichever chapter is chosen** (the Science bannedSubtopics list is chapter-wide;
+Sources of Energy / Periodic Classification / Management of Natural Resources / Evolution are the deleted ones).
+NARROW-CHAPTER NOTE: several remaining topics are saturated/narrow (like real-numbers, our-environment, heredity) —
+expect scarce-band HONEST-STOPS well below 75; that is correct, not a shortfall. Regenerate the census per topic
+from the fresh dump (do NOT trust a written per-topic count — the bank grew to 7,534).
 
 ## RESUME (for a fresh Fable window — this file + the task file are the source of truth)
 1. Re-derive trunk; `corepack pnpm@10.32.1 install --no-frozen-lockfile` in a fresh worktree from CURRENT trunk;
@@ -148,11 +161,23 @@ a test case. Census at 7,490: heredity TOTAL=219 (A91·B45·C52·D21·E10) — s
   extra A/B/C extract-max source. (Note: folder 13 WAS swept for reproduce in Batch 5 — richest A-band source.)
 - [FU-BANK-EXACTNORM-DUPS] — the assembled bank already has ~114 exact-normalized-questionText duplicate
   groups PRE-EXISTING (not from these batches). Data-quality cleanup candidate, separate lane.
-- [FU-D-BAND-HONEST-CEILING] — reproduce D honest-stopped at 67 (chapter already deeply covered). Confirms the
-  band-scarcity policy: mature-chapter D-bands naturally ceiling below 75; do NOT pad. (life-processes D→53,
-  our-environment D→16, reproduce D→67 are all honest ceilings, not shortfalls.)
+- [FU-D-BAND-HONEST-CEILING] — mature/narrow chapters honest-ceiling below 75 on scarce bands; do NOT pad.
+  Evidence: life-processes D→53, our-environment D→16, reproduce D→67, heredity D→32 & E→22 (a very narrow chapter).
+  Better an honest low count with a distinct-principle/method inventory than trait-swap/number-swap padding.
+- **SKEPTIC = load-bearing on subtle syllabus mislabels** — Batch 6 the skeptic caught a roan-cattle item that
+  described CODOMINANCE (red+white mosaic) but labelled it "incomplete dominance" (blended pink); codominance is
+  Class-12. A concept-scoped skeptic (not just a phrase grep) is what catches these. Keep the independent re-solve.
+- **Tooling note:** the batch gate (`gate*.mjs`) now carries BOTH the Maths and Science bannedSubtopic sets (added
+  Batch 5). Recreate the reusable tooling (gate/rewrite/dump/runtime-proof/`AUTHORING_SPEC.md`) in the fresh window's
+  scratchpad from the "Mechanical gate stack" spec above + the AUTHORING_SPEC (schema + step-marking + TWO-direction
+  rule); re-point LAZY→new worktree and DUMP→new v-dump. A prior session's scratchpad may be inaccessible.
 
 ## Progress log (newest first)
+- 2026-07-13: Batch 6 (heredity) MERGED #396 (`ae5e671`) +44 — narrow saturated chapter; extract-max 21 A/B/C
+  (every source is the pre-2026 "Heredity AND Evolution" chapter → ~75+ evolution items rejected at extraction) +
+  authored D×11 (honest-stop 32) + case×12 (honest-stop 22). 3 skeptics re-solved every Punnett/pedigree; caught a
+  codominance-mislabel (Class-12) → dropped, +2 quality drops. Owner byte-review CLEAN (read every boundary grep hit).
+  Bank → 7,534. NEXT = chemical-reactions-and-equations (recommended). Docs handoff = #<this PR>.
 - 2026-07-13: Batch 5 (how-do-organisms-reproduce) MERGED #393 (`820d013`) +148 — largest batch yet; extract-max
   54 A/B/C + authored D×30 (honest-stop 67) + case×64 (honest-stop 72 distinct, 3 twins dropped not padded).
   3 skeptics + owner byte-review CLEAN on both syllabus directions. Orchestrator stayed lean (all heavy

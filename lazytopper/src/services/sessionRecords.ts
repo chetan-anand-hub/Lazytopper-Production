@@ -2,7 +2,8 @@
 //
 // Progress-Journey PR-1 — the per-completed-SESSION record store: the connectivity
 // spine the scorecard → histories → Me → Home arc reads. ONE durable record per
-// COMPLETED graded session (worksheet / chapter-test / full-mock). Quick Practice
+// COMPLETED graded session (worksheet / chapter-test / full-mock / check-improve).
+// Quick Practice
 // writes NO session record — it is exploratory, its attempts already persist via
 // recordAttempt (LOCKED contract §1a). Build exactly to the LOCKED
 // `LazyTopper_Progress_Journey_Design_Package_LOCKED_2026-07-03` §1 data contract.
@@ -42,10 +43,21 @@ import {
 
 // ── The LOCKED §1 data contract ──────────────────────────────────────────────
 
-export type SessionSurface = "worksheet" | "chapter-test" | "full-mock";
+export type SessionSurface = "worksheet" | "chapter-test" | "full-mock" | "check-improve";
 /** graded (all read) · pending-upload (nothing graded yet) · partial (some pending). Never a fake 0. */
 export type SessionStatus = "graded" | "pending-upload" | "partial";
 export type SessionSubject = "maths" | "science";
+
+/** Check & Improve topic PROVENANCE (locked C&I spec 2026-07-10 §1) — mirrors the
+ *  detect step's `marksSource`. `bank-matched` = the question resolved to a
+ *  canonicalQuestionBank row; `confirmed` = the AI inferred it and the student
+ *  confirmed/corrected it; `inferred` = the AI chose it from topics.ts, unconfirmed;
+ *  `mixed` = a multi-topic paper where no single topic resolved (the MIX code) —
+ *  feeds marks + four-type only, NEVER single-topic progress by majority guess.
+ *  NOTE: `bank-matched` is intentionally RESERVED, not broken — C&I has no
+ *  bank-match path yet (external uploads carry no questionId), so no writer emits
+ *  it in PR-1; it exists so a future real matcher needs no schema change. */
+export type SessionTopicSource = "bank-matched" | "confirmed" | "inferred" | "mixed";
 
 /** The four-type breakdown, from per-question mistakeSummary (server-reconciled). */
 export interface SessionFourType {
@@ -104,6 +116,10 @@ export interface SessionRecord {
    *  precedent, owner-ratified 2026-07-12): absent on every pre-existing record and
    *  on surfaces that don't measure it; readers that don't use it ignore it. */
   focus?: SessionFocusAggregates;
+  /** Check & Improve topic provenance — ADDITIVE OPTIONAL (same precedent). NEVER
+   *  backfilled onto pre-spec records: absent means "written before provenance
+   *  existed", NOT "inferred" (C&I spec §4.3). Readers must treat absent ≠ inferred. */
+  topicSource?: SessionTopicSource;
 }
 
 /** The per-question grade payload the `perQuestionRef` points at (§1b — a DATA
@@ -154,7 +170,7 @@ function payloadsKey(uid: string): string {
   return `${STORAGE_PREFIX}.${uid}.sessionPerQuestion.v1`;
 }
 
-const VALID_SURFACES: SessionSurface[] = ["worksheet", "chapter-test", "full-mock"];
+const VALID_SURFACES: SessionSurface[] = ["worksheet", "chapter-test", "full-mock", "check-improve"];
 
 function isSessionRecord(v: unknown): v is SessionRecord {
   if (!v || typeof v !== "object") return false;
@@ -701,5 +717,156 @@ export function buildFullMockSessionRecord(args: {
     perQuestionRef: `fm:${code}`,
     dedupKey: `${uid}::${code}`,
     ...(focus ? { focus } : {}),
+  };
+}
+
+// ── Check & Improve (surface "check-improve") — durable CI-{S}-{TOK}-{NN} ────────
+//
+// The C&I analogue of the chapter-test trio above. The CODE FORMAT is the one the
+// page already prints on the graded sheet (`CI-{S}-{TOK4}-{NN}`, token = first four
+// letters of the canonical slug, `MIX` when no single topic resolved) — only the
+// SEQUENCE source changes: the old device-local localStorage count (`lt:ci-multi-seq`,
+// retired — the same paper graded on phone + laptop collided) is replaced by the
+// count of this student's existing check-improve records under the SAME
+// subject+topic-token prefix, read cross-device from `sessionRecords/{uid}` (owner
+// decision 2026-07-13: per subject+topic-token, matching the printed code — never a
+// flat per-subject count that would diverge from it). Additive: the worksheet /
+// chapter-test / full-mock paths above are byte-unchanged.
+
+export interface CheckImproveNomenclature {
+  /** `CI-{S}-{TOK}-{NN}` — e.g. `CI-M-REAL-02`, `CI-S-MIX-01`. */
+  code: string;
+  /** Friendly name — `Real Numbers · Paper #2`, or `Uploaded paper · #1` for MIX. */
+  name: string;
+  sequence: number;
+}
+
+/** Short topic token for the CI code: first four letters of the canonical slug,
+ *  uppercased, or `MIX` when no single topic resolved. Byte-identical to the
+ *  page-local helper it replaces (the printed codes stay continuous). */
+export function ciTopicToken(slug: string): string {
+  const t = String(slug || "").replace(/[^a-z]/gi, "").slice(0, 4).toUpperCase();
+  return t || "MIX";
+}
+
+/** Durable #NN base: 1 + the count of this student's existing check-improve records
+ *  whose id carries the SAME `CI-{S}-{TOK}-` prefix (the printed-code semantics).
+ *  Pure — the caller supplies the fetched records. */
+export function checkImproveSequence(
+  records: SessionRecord[],
+  subject: SessionSubject,
+  topicSlug: string,
+): number {
+  const prefix = `CI-${subject === "science" ? "S" : "M"}-${ciTopicToken(topicSlug)}-`;
+  return records.filter((r) => r.surface === "check-improve" && r.id.startsWith(prefix)).length + 1;
+}
+
+/** Build the CI code + name from a resolved sequence (pure). A MIX session is named
+ *  honestly — "Uploaded paper", never a guessed topic. */
+export function checkImproveNomenclature(
+  subject: SessionSubject,
+  topicSlug: string,
+  topicLabel: string,
+  sequence: number,
+): CheckImproveNomenclature {
+  const sl = subject === "science" ? "S" : "M";
+  const token = ciTopicToken(topicSlug);
+  const code = `CI-${sl}-${token}-${String(sequence).padStart(2, "0")}`;
+  const name =
+    token === "MIX" || !topicLabel
+      ? `Uploaded paper · #${sequence}`
+      : `${topicLabel} · Paper #${sequence}`;
+  return { code, name, sequence };
+}
+
+/**
+ * Mint the DURABLE C&I nomenclature ONCE, from the cross-device record count. MUST
+ * be minted before the session's record is written (a just-written record would
+ * inflate its own #NN); the caller freezes the returned code in page state and
+ * reuses it on a re-grade (record id = code → idempotent overwrite, and the stable
+ * `ci:{code}:q{n}` MI ids keep deduping). Honest-degrade: on a signed-out / offline
+ * read it falls back to sequence 1 — never a device-local shadow counter.
+ */
+export async function ensureCheckImproveSessionCode(
+  subject: SessionSubject,
+  topicSlug: string,
+  topicLabel: string,
+  user?: AuthUser | null,
+): Promise<CheckImproveNomenclature> {
+  let records: SessionRecord[] = [];
+  try {
+    const uid = writableUid(user) ?? readableUid();
+    if (uid) records = await getSessionRecordsFromCloud(uid);
+  } catch (error) {
+    console.warn("[sessionRecords] CI durable count read failed; using fallback", error);
+  }
+  const sequence = checkImproveSequence(records, subject, topicSlug);
+  return checkImproveNomenclature(subject, topicSlug, topicLabel, sequence);
+}
+
+/**
+ * Assemble the §1 record for a graded Check & Improve session from the SAME unified
+ * response shape the other surfaces use (the multi-question path grades through the
+ * shared worksheet grader; the single-question path is adapted by
+ * checkImproveGradeService). Same honest reductions as the builders above: graded
+ * subtotal excludes pending (never a fabricated 0), fourType over LEGIBLE questions
+ * only (a bare wrong MCQ carries no mistakeSummary — #348 invariant, honestly null).
+ *
+ * `questionIds` is ALWAYS [] in PR-1: an externally uploaded question has no bank
+ * `questionId`, so its concept (subtopic) is UNKNOWABLE — never fabricated (C&I
+ * spec §8). Concept derivation stays bank-matched-only; the [] is the honest gap
+ * the solution-cache PR closes later, not a bug.
+ *
+ * `topicKeys` carries the single confirmed/inferred topic — or [] for a `mixed`
+ * session, which NEVER feeds single-topic progress by majority guess (spec §4.1).
+ */
+export function buildCheckImproveSessionRecord(args: {
+  code: string;
+  title: string;
+  subject: SessionSubject;
+  /** The confirmed canonical slug, or "" when no single topic resolved (MIX). */
+  topicSlug: string;
+  topicSource: SessionTopicSource;
+  response: WorksheetGradeResponse;
+  uid: string;
+}): SessionRecord {
+  const { code, title, subject, topicSlug, topicSource, response, uid } = args;
+
+  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  for (const r of response.results) {
+    if (r.couldNotRead || !r.mistakeSummary) continue;
+    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
+    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
+    fourType.silly += Number(r.mistakeSummary.silly) || 0;
+    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
+  }
+
+  const status: SessionStatus =
+    response.gradedCount <= 0
+      ? "pending-upload"
+      : response.pendingCount > 0
+        ? "partial"
+        : "graded";
+
+  const slug = topicSource === "mixed" ? "" : resolveCanonicalSlug(topicSlug);
+  return {
+    id: code,
+    // The same internal anchor the multi-question grade call already uses as its
+    // grader worksheetId — never surfaced to the student.
+    worksheetId: `ci:${code}`,
+    surface: "check-improve",
+    title,
+    subject,
+    topicKeys: slug ? [slug] : [],
+    questionIds: [], // external uploads have no bank identity — see the doc comment
+    marksAwarded: Number(response.gradedMarksAwarded) || 0,
+    marksTotal: Number(response.gradedMarksTotal) || 0,
+    status,
+    fourType,
+    sectionBreakdown: null,
+    gradedAt: Date.now(),
+    perQuestionRef: `ci:${code}`,
+    dedupKey: `${uid}::${code}`,
+    topicSource,
   };
 }

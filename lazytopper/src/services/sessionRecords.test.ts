@@ -17,6 +17,11 @@ import {
   writeSessionRecord,
   worksheetLiteFromRecords,
   ensureWorksheetSessionCode,
+  ciTopicToken,
+  checkImproveSequence,
+  checkImproveNomenclature,
+  ensureCheckImproveSessionCode,
+  buildCheckImproveSessionRecord,
   type SessionRecord,
 } from "./sessionRecords";
 import { worksheetNomenclature } from "../components/worksheet/worksheetModel";
@@ -186,5 +191,128 @@ describe("ensureWorksheetSessionCode — mint once", () => {
     ];
     const nomen = await ensureWorksheetSessionCode(ws(), USER, fallback);
     expect(nomen.code).toBe("WS-M-RN-02");
+  });
+});
+
+// ── Check & Improve (C&I PR-1) — durable CI code + the §1 record ─────────────────
+
+function ciRecord(over: Partial<SessionRecord> = {}): SessionRecord {
+  return record({
+    id: "CI-M-REAL-01",
+    surface: "check-improve",
+    worksheetId: "ci:CI-M-REAL-01",
+    perQuestionRef: "ci:CI-M-REAL-01",
+    dedupKey: "u1::CI-M-REAL-01",
+    questionIds: [],
+    topicSource: "inferred",
+    ...over,
+  });
+}
+
+describe("ciTopicToken — byte-identical to the page helper it replaces", () => {
+  it("takes the first four letters of the canonical slug, uppercased", () => {
+    expect(ciTopicToken("real-numbers")).toBe("REAL");
+    expect(ciTopicToken("polynomials")).toBe("POLY");
+    expect(ciTopicToken("ap")).toBe("AP");
+  });
+  it("is MIX when no single topic resolved (empty / non-alphabetic slug)", () => {
+    expect(ciTopicToken("")).toBe("MIX");
+    expect(ciTopicToken("123")).toBe("MIX");
+  });
+});
+
+describe("checkImproveSequence — durable #NN per subject+topic-token (the printed-code semantics)", () => {
+  const existing = [
+    ciRecord({ id: "CI-M-REAL-01" }),
+    ciRecord({ id: "CI-M-REAL-02" }),
+    ciRecord({ id: "CI-M-POLY-01" }),
+    ciRecord({ id: "CI-S-MIX-01", subject: "science", topicSource: "mixed" }),
+  ];
+  it("counts only the SAME subject+token prefix", () => {
+    expect(checkImproveSequence(existing, "maths", "real-numbers")).toBe(3);
+    expect(checkImproveSequence(existing, "maths", "polynomials")).toBe(2);
+    expect(checkImproveSequence(existing, "science", "real-numbers")).toBe(1);
+  });
+  it("MIX sessions count within their own token, per subject", () => {
+    expect(checkImproveSequence(existing, "science", "")).toBe(2);
+    expect(checkImproveSequence(existing, "maths", "")).toBe(1);
+  });
+  it("ignores other surfaces — a chapter-test record never bumps a CI sequence", () => {
+    const withCt = [...existing, record({ id: "CI-M-REAL-09", surface: "chapter-test" })];
+    expect(checkImproveSequence(withCt, "maths", "real-numbers")).toBe(3);
+  });
+});
+
+describe("checkImproveNomenclature — code + honest name", () => {
+  it("builds CI-{S}-{TOK}-{NN} + a topic name for a resolved topic", () => {
+    const n = checkImproveNomenclature("maths", "real-numbers", "Real Numbers", 3);
+    expect(n.code).toBe("CI-M-REAL-03");
+    expect(n.name).toBe("Real Numbers · Paper #3");
+  });
+  it("names a MIX session 'Uploaded paper' — never a guessed topic", () => {
+    const n = checkImproveNomenclature("science", "", "", 1);
+    expect(n.code).toBe("CI-S-MIX-01");
+    expect(n.name).toBe("Uploaded paper · #1");
+  });
+});
+
+describe("ensureCheckImproveSessionCode — honest-degrade, no device-local shadow counter", () => {
+  it("falls back to sequence 1 when the durable read yields nothing (signed-out / offline)", async () => {
+    const n = await ensureCheckImproveSessionCode("maths", "real-numbers", "Real Numbers", USER);
+    expect(n.code).toBe("CI-M-REAL-01");
+    expect(n.sequence).toBe(1);
+  });
+});
+
+describe("buildCheckImproveSessionRecord — the §1 contract + the C&I honesty rules", () => {
+  it("maps the record: id = code (idempotent), graded subtotal, provenance, ci: refs", () => {
+    const rec = buildCheckImproveSessionRecord({
+      code: "CI-M-REAL-03",
+      title: "Real Numbers · Paper #3",
+      subject: "maths",
+      topicSlug: "real-numbers",
+      topicSource: "confirmed",
+      response: response(),
+      uid: "u1",
+    });
+    expect(rec.id).toBe("CI-M-REAL-03");
+    expect(rec.surface).toBe("check-improve");
+    expect(rec.worksheetId).toBe("ci:CI-M-REAL-03");
+    expect(rec.topicKeys).toEqual(["real-numbers"]);
+    expect(rec.topicSource).toBe("confirmed");
+    expect(rec.marksAwarded).toBe(2);
+    expect(rec.marksTotal).toBe(4);
+    expect(rec.status).toBe("partial"); // 1 pending page — honest, never a fake 0
+    expect(rec.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 0, presentation: 0 });
+    expect(rec.sectionBreakdown).toBeNull();
+    expect(rec.perQuestionRef).toBe("ci:CI-M-REAL-03");
+    expect(rec.dedupKey).toBe("u1::CI-M-REAL-03");
+  });
+
+  it("questionIds is ALWAYS [] — an external upload has no bank identity; its concept is never fabricated (spec §8)", () => {
+    const rec = buildCheckImproveSessionRecord({
+      code: "CI-M-REAL-03",
+      title: "t",
+      subject: "maths",
+      topicSlug: "real-numbers",
+      topicSource: "inferred",
+      response: response(),
+      uid: "u1",
+    });
+    expect(rec.questionIds).toEqual([]);
+  });
+
+  it("a MIXED session writes topicKeys [] — NEVER a majority-guessed topic (spec §4.1)", () => {
+    const rec = buildCheckImproveSessionRecord({
+      code: "CI-M-MIX-01",
+      title: "Uploaded paper · #1",
+      subject: "maths",
+      topicSlug: "",
+      topicSource: "mixed",
+      response: response(),
+      uid: "u1",
+    });
+    expect(rec.topicKeys).toEqual([]);
+    expect(rec.topicSource).toBe("mixed");
   });
 });
