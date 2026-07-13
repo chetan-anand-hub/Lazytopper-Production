@@ -291,3 +291,65 @@ vertex optimisation — all rejected at extraction/authoring/skeptic. Every MCQ 
 **Extracted A/B/C (19):** BX-QUAD-EX-A-001…010 (A-006 dropped → 9) · BX-QUAD-EX-B-001…003 · BX-QUAD-EX-C-001…007.
 **Authored Section-D (47):** BX-QUAD-D-001…052 (gaps at 006/017/019/029/048 — dropped twins/cross-pack dups).
 **Authored case-based E (44):** BX-QUAD-E-001…044.
+
+## Batch 9 — polynomials (2026-07-13) · 62 items
+
+Before → after (served polynomials count 190 → 252):
+
+| Band | Section | Before | +Extracted | +Authored | After | Floor status |
+|---|---|--:|--:|--:|--:|---|
+| A | 1-mark | 77 | +8 | 0 | 85 | extract-max (no floor) |
+| B | 2-mark | 41 | +1 | 0 | 42 | extract-max (no floor) |
+| C | 3-mark | 50 | +4 | 0 | 54 | extract-max (no floor) |
+| D | 5-mark long | 12 | 0 | +22 | 34 | **HONEST STOP** — low-weight chapter; distinct-method ceiling |
+| E | 4-mark case | 10 | 0 | +27 | 37 | **HONEST STOP** — quadratic-parabola ask-mixes are finite |
+
+**Syllabus anchor (CBSE 2026-27, verified vs live `syllabusGuard.ts` + official PDF):** Polynomials is restricted
+to the **QUADRATIC** zeroes–coefficient relationship (sum = −b/a, product = c/a), symmetric functions of the two
+zeros reducible to sum & product, forming a quadratic from its zeros, and the geometric meaning of zeros. The
+~22 sum/product-of-roots (Vieta) items correctly filed OUT of the quadratic-equations batch (Batch 8) belong to
+THIS chapter as core content — the bank already banks ~98 quadratic zeroes–coefficient items in A/B/C, and this
+batch's D/E lean on that relationship. **OUT (rejected at extraction/authoring/skeptic, scanned as CONCEPT):**
+cubic (or higher) zeroes–coefficient relationship (α+β+γ etc.), Division Algorithm for polynomials / finding all
+zeros of a cubic/quartic by dividing a known factor (removed in 2026-27), complex/imaginary zeros (discriminant<0
+stops at "no real zeros"). Reading the *number* of zeros of a cubic from a graph is IN (geometric meaning) — used
+in E-023 only. Live syllabus guard: PASS both directions.
+
+**Exhaustive sweep (extract-max, 13 kept — chapter saturated):** per-source table (candidates / banked-dup /
+out-of-2026-27 / NET-NEW) —
+folder-13 MCQ-with-explanation bank (78 Q): ~40 / ~14 / ~20 cubic+division / **6**; folder-14 Additional QB
+(02_FINAL_Polynomials): ~30 / ~8 / ~18 / **2**; Meridian worksheets 2024: ~25 / ~16 / ~3 / **3**; gdrive
+Chapter-wise MCQ (cbjemaco02): ~21 / ~8 / ~11 / **1**; NCERT Exemplar ch-2: ~25 / ~18 / ~5 / **1**; folder-11
+WS_3_Polynomial: ~20 / ~9 / ~7+figure-only / **0**; gdrive 2298 Ch-2 2019-20: ~30 / ~14 / ~10 / **0**; gdrive
+Previous-year (cbjemacq02): ~20 / ~6 / ~14 / **0**; folder-7 NCERT solutions: ~20 / ~15 / ~5 / **0**. The 190-item
+bank already saturates the symmetric-function / zero-transformation / find-k / form-from-zeroes templates; net-new
+A/B/C are the lexically-distinctive items (type/definition MCQs, factor-condition, "what must be added", squared-
+difference, wrong-coefficient reconstruction, equal-zeroes). Un-readable source: gdrive Exampler `cbjemace02.pdf`
+(scanned, no text layer — OCR needed) [noted, small].
+
+**Scarce authoring — Section-D ×22** across the genuine distinct-method inventory: find-k from a symmetric
+condition (α²+β², 1/α+1/β, 1/α²+1/β², α/β+β/α, α−β, α³+β³, zeros-in-ratio, reciprocal-zeros, sum=product,
+shifted-product (α+2)(β+2)); prove an identity relating a symmetric function to coefficients (α²+β², (α−β)²,
+1/α+1/β, α³+β³, 1/α²+1/β²); form a new quadratic from transformed zeros (scale 2α,2β; shift α+2,β+2; squares
+α²,β²; negate −α,−β; sum-and-product as new zeros; ratio α/β,β/α); graph-read → form+verify (two intercepts;
+repeated/tangent zero). **Section-E ×27** across distinct ask-mixes: recover coefficient from one zero / from a
+condition; symmetric-function evaluation; transform-zeros→new quadratic; form-from-data (sum&product+feasibility,
+perimeter→sum/area→product, table-read); pin leading coeff from y-intercept; compare two parabolas / common zero;
+sign-positivity intervals; vertex=midpoint max (descriptive); symmetry equidistant from axis; graph-read type/count;
+discriminant feasibility→no real zeros; factorise+reject non-physical zero.
+
+**Skeptic pass (independent adversarial re-solve of all 63 candidates):** every item re-solved from scratch —
+0 math errors, 0 bad MCQ keys (all resolve to exactly one option under grader normalization), 0 step-mark errors,
+0 syllabus violations. Redundancy: **dropped D-016** (exact dup of a banked 2α,2β transform of 2x²−5x−3);
+**renumbered E-015** (was numerically identical to D-001 → x²−12x+k, α²+β²=80, k=32, zeros 4,8) and **E-021** (was
+identical to D-020 → zeros 7,−2 → x²+5x−14). Author self-dropped D-018 (reciprocal twin of a banked item) and 3
+E structural twins during authoring. Cross-pack consolidation gate: 0 extract-vs-author twins, 0 id collisions.
+**Diagram-pass needed: none** — all 62 text-answerable (`requiresDiagram:false`); zero figure-pending.
+
+**Honest-stop note:** polynomials is a low-weight chapter — CBSE rarely sets 5-mark (Section D) items on it, so a
+75-floor D band is pedagogically unnatural ([FU-DBAND-PEDAGOGICAL-FLOOR]). D=22 and E=27 are the genuine distinct
+ceilings; every further variant would be a number-swap. Stopped rather than pad.
+
+**Extracted A/B/C (13):** BX-POLY-EX-A-001…008 · BX-POLY-EX-B-001 · BX-POLY-EX-C-001…004.
+**Authored Section-D (22):** BX-POLY-D-001…024 (gaps at 016 dropped-dup, 018 author-dropped twin).
+**Authored case-based E (27):** BX-POLY-E-001…027.
