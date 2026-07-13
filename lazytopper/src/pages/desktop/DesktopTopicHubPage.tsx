@@ -19,6 +19,8 @@ import {
 } from "../../lib/desktop/topicHubContent";
 import { Card } from "../../components/grammar/Card";
 import { ConceptSpine } from "../../components/topichub/ConceptSpine";
+import { TopicProgressTrend } from "../../components/progress/TopicProgressTrend";
+import { normalizeTopicKey } from "../../utils/topicResolver";
 
 /**
  * DesktopTopicHubPage — rebuilt as the Topic Hub concept-spine main view
@@ -240,6 +242,9 @@ export default function DesktopTopicHubPage() {
       practiceAllHref={practiceAllHref}
       chapterTestHref={chapterTestHref}
       practiceHrefForConcept={practiceHrefForConcept}
+      topicProgressSlot={
+        <TopicProgressTrend topicKey={normalizeTopicKey(topic.slug) || topic.slug} />
+      }
     />
   );
 }
