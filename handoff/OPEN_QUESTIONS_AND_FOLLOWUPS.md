@@ -1,3 +1,12 @@
+## 2026-07-13 -- #396: bank-expansion Batch 6 (heredity +44) MERGED (trunk `ae5e671`)
+
+### Updated
+- **[FU-D-BAND-HONEST-CEILING]** — extended: heredity honest-stopped at D→32 AND E→22 (a very narrow, saturated chapter). Evidence now spans life-processes D→53 / our-environment D→16 / reproduce D→67 / heredity D→32 & E→22. The band-scarcity policy is working: extract-max where the reservoir is deep, honest-stop with a distinct-principle/method inventory where it isn't. Not a shortfall; do NOT pad.
+
+### Confirmed clean (no action)
+- Batch 6 owner byte-review: read every syllabus-boundary grep hit — "homologous" = homologous CHROMOSOMES (in-syllabus Mendelian cell basis, NOT the banned homologous ORGANS); ABO/linkage/codominance = substring false positives (aBOut, standard complete-dominance crosses, autosomal pedigrees). 162 in-syllabus Mendel refs, correctOption 0, topicKey heredity. The skeptic's codominance-mislabel catch (roan cattle) validated the concept-scoped (not phrase-only) skeptic as load-bearing.
+- **Note on a pre-existing bank evolution leak:** a banked heredity item (`SCQ-S-HERED-041`, speciation/geographical isolation) is Class-12/board-deleted evolution content that predates this lane. Batch 6 did NOT use it as license (authored/extracted heredity-only). Candidate for a future data-quality cleanup pass (same spirit as [FU-BANK-EXACTNORM-DUPS]); not blocking.
+
 ## 2026-07-13 -- #393: bank-expansion Batch 5 (how-do-organisms-reproduce +148) MERGED (trunk `820d013`)
 
 ### NEW (open)

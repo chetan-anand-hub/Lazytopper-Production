@@ -1,6 +1,18 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #393 merged — bank-expansion Batch 5 (how-do-organisms-reproduce +148) — trunk `820d013`
+## [CURRENT] #396 merged — bank-expansion Batch 6 (heredity +44) — trunk `ae5e671`
+
+**Post-merge code trunk: `ae5e671` (squash of #396), on top of #395 `e33b9d3` (C&I SessionSurface) / #394 `f4d1b37` (Batch-5 docs).** Re-derive the tip after this docs PR merges.
+
+**Bank-expansion lane — 6 topic-batches shipped. Assembled bank 7,490 → 7,534.**
+- **#396 (`ae5e671`) — Batch 6, heredity +44** (219 → 263): a NARROW, already-saturated chapter (219 banked) — modest yield by design. Extract-max 21 A/B/C (A15·B4·C2); every local source is the pre-2026 "Heredity AND Evolution" chapter, so ~75+ board-deleted **evolution** items (Darwin/Lamarck/natural selection, speciation + isolation, homologous/analogous/vestigial organs, fossils, human evolution) + Class-12 depth (ABO codominance, Rh, linkage) were rejected at extraction (the pre-existing bank evolution leak was NOT used as license). Authored scarce **D×11** (21→**32**, honest-stop — 11 distinct genetic principles) + **case-based ×12** (E1 Mendelian ×7 + E2 human-genetics ×5; 10→**22**, honest-stop). Both scarce bands honest-stop far below 75 because Punnett crosses & pedigrees are structurally repetitive (distinct *principles* are finite).
+- **Skeptic caught a subtle syllabus mislabel:** a roan-cattle item describing CODOMINANCE (red+white mosaic) labelled "incomplete dominance" (blended pink) — codominance is Class-12 → dropped; + 2 quality drops (a "why 1:2:1" near-twin, an acquired-traits Lamarckian-adjacent item). 47 produced → 44 kept. 3 skeptics re-solved every Punnett ratio + pedigree (D 11/11, E 12/12, extract 23/24).
+- **Owner byte-review CLEAN:** read every boundary grep hit — "homologous" = homologous CHROMOSOMES (in-syllabus cell basis, NOT homologous organs); ABO/linkage/codominance = substring false positives (aBOut, standard complete-dominance crosses, autosomal pedigrees); 162 in-syllabus Mendel refs, correctOption 0, topicKey heredity.
+- **Gates:** tsc · mojibake · scope:guard product · root **181/181** (incl. `syllabusGuard` + `deletionGuard`) · ops matrix runtime proof **7,534 / 0 dup / 0 orphan / 26 topics** · diff-check clean; CI green. Rebased on current trunk pre-merge (disjoint from #395). Scope = 6 files; no forbidden files.
+- **Manifest:** `docs/bank-expansion-review-queue.md` (now 450 ids across 6 batches). Review-free; surfaces GATED until trusted-student QA.
+- **Lane state / resume:** `handoff/BANK_EXPANSION_LANE_STATE.md`. **~20 topics remain (12 Maths + 8 Science). NEXT recommended = chemical-reactions-and-equations** (owner/next window may pick any remaining topic). Regenerate the per-topic census from a fresh dump (bank is now 7,534). Lane is at a CLEAN BOUNDARY — safe for a fresh Fable window to resume.
+
+## #393 merged — bank-expansion Batch 5 (how-do-organisms-reproduce +148) — trunk `820d013`
 
 **Post-merge code trunk: `820d013` (squash of #393), on top of `075d596` (LAUNCH_REMAINING tracker) / #391 `25257c0`.** Re-derive the tip after this docs PR merges (the usual one-commit lag).
 
