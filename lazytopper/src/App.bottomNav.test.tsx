@@ -113,21 +113,23 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
 });
 
 describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D addendum)", () => {
-  it("suppresses the global navbar on mobile /browse and /welcome", () => {
-    // Mobile: these pages draw their own locked-design brand bar.
+  it("suppresses the global navbar on mobile /browse, /welcome and /me", () => {
+    // Mobile: these pages own their top header (locked brand bar / the arc-PR-4
+    // MobileMePage header) — the global navbar must not also render.
     expect(isMobileSelfChromedRoute("/browse", false)).toBe(true);
     expect(isMobileSelfChromedRoute("/welcome", false)).toBe(true);
+    expect(isMobileSelfChromedRoute("/me", false)).toBe(true);
   });
 
   it("does NOT suppress on desktop — desktop chrome on those routes is unchanged", () => {
     expect(isMobileSelfChromedRoute("/browse", true)).toBe(false);
     expect(isMobileSelfChromedRoute("/welcome", true)).toBe(false);
+    expect(isMobileSelfChromedRoute("/me", true)).toBe(false);
   });
 
   it("does NOT suppress the navbar on other mobile routes", () => {
     expect(isMobileSelfChromedRoute("/practice-hub", false)).toBe(false);
     expect(isMobileSelfChromedRoute("/exam-trends", false)).toBe(false);
-    expect(isMobileSelfChromedRoute("/me", false)).toBe(false);
     expect(isMobileSelfChromedRoute("/", false)).toBe(false);
   });
 });

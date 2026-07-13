@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import ConceptTeachDrawer from "../tutor/ConceptTeachDrawer";
@@ -404,6 +404,10 @@ export interface ConceptSpineProps {
   chapterTestHref: string;
   /** Builds the existing per-concept (concept + mark band) practice route. */
   practiceHrefForConcept: (concept: BoardConcept) => string;
+  /** Optional per-topic before→now progress node (arc PR-4) rendered under the topic
+   *  card. Honest-or-silent — the page passes a node that renders nothing when there is
+   *  no data-backed trend, so ConceptSpine's layout is unchanged when absent. */
+  topicProgressSlot?: ReactNode;
 }
 
 export function ConceptSpine({
@@ -414,6 +418,7 @@ export function ConceptSpine({
   practiceAllHref,
   chapterTestHref,
   practiceHrefForConcept,
+  topicProgressSlot,
 }: ConceptSpineProps) {
   // The concept whose tutor drawer is open (null = closed). ConceptSpine owns this
   // open/close state; opening passes the clicked concept's context to the existing
@@ -528,6 +533,10 @@ export function ConceptSpine({
           )
         )}
       </Card>
+
+      {/* Per-topic before→now trajectory (arc PR-4) — honest-or-silent; renders nothing
+          until there is a real data-backed trend on this topic. */}
+      {topicProgressSlot}
 
       {/* Concept spine — the HERO. Learn first, then practise each. */}
       <div className="lt-spine__concepts-head">

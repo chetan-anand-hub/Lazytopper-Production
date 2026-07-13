@@ -91,10 +91,11 @@ const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckI
 // The retired twins remain on disk for PR-G deletion (imports removed so tsc
 // noUnusedLocals stays green).
 const WorksheetGenerator = lazy(() => import("./components/worksheet/WorksheetGenerator"));
-// Desktop Phase 6 — locked desktop Me / Progress page (>=1024px only).
-// Mobile width keeps rendering MobileMe unchanged.
+// Me / Progress — one surface per width. Desktop (>=1024px) = the locked DesktopMePage;
+// mobile = MobileMePage (arc PR-4 — the cross-device progress arc, replacing the retired
+// legacy streak/XP hero at pages/app/Me.tsx, which is now un-routed for PR-G deletion).
 const DesktopMePage = lazy(() => import("./pages/desktop/DesktopMePage"));
-const MobileMe          = lazy(() => import("./pages/app/Me"));
+const MobileMe          = lazy(() => import("./pages/mobile/MobileMePage"));
 
 function RouteFallback() {
   return (
@@ -159,18 +160,24 @@ function RootEntry() {
 }
 
 /**
- * isMobileSelfChromedRoute — true on routes whose mobile page renders its OWN
- * locked-design brand bar (MobileHome `/browse`, MobileWelcome `/welcome`), so
- * the global public navbar must NOT also render at mobile width (otherwise two
- * brand bars stack — the double-bar issue). Gated on `!isDesktop`, so desktop
- * chrome on these routes is unchanged.
+ * isMobileSelfChromedRoute — true on routes whose mobile page owns its OWN top
+ * header, so the global public navbar must NOT also render at mobile width
+ * (otherwise two bars stack — the double-bar issue). Gated on `!isDesktop`, so
+ * desktop chrome on these routes is unchanged.
  *
- * `/welcome` is already suppressed via `isPublicLandingRoute`; including it here
- * is defensive and documents intent — the new effect is suppressing the global
- * navbar on mobile `/browse`. Exported as a pure predicate for unit testing.
+ * Members:
+ *   • `/browse`  — MobileHome draws its own locked-design brand bar.
+ *   • `/welcome` — MobileWelcome (also suppressed via `isPublicLandingRoute`; kept
+ *                  here defensively to document intent).
+ *   • `/me`      — the arc-PR-4 MobileMePage owns ONE clean header (MobileShell)
+ *                  matching the desktop treatment; the old thin LT brand bar is
+ *                  retired on this surface. (The mobile BottomNav is unaffected —
+ *                  it is gated separately in BottomNav and is preserved.)
+ *
+ * Exported as a pure predicate for unit testing.
  */
 export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): boolean {
-  return !isDesktop && (pathname === "/browse" || pathname === "/welcome");
+  return !isDesktop && (pathname === "/browse" || pathname === "/welcome" || pathname === "/me");
 }
 
 /**
