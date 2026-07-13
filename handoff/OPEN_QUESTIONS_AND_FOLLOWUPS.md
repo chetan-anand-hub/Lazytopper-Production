@@ -1,3 +1,12 @@
+## 2026-07-13 -- #420: C&I PR-3 — the model-solution CACHE MERGED (code `cc84ae5`) → [FU-CI-SOLUTION-CACHE] CLOSED, 1 NEW — the C&I arc is DONE
+
+### CLOSED by #420 (owner byte-reviewed CLEAN + merged)
+- **[FU-CI-SOLUTION-CACHE] — CLOSED.** The owner-signed-off 3-gate cache is LIVE via the ratified SCHEME-FIRST design: keyless SUBJECTIVE C&I questions grade against a STUDENT-AGNOSTIC model solution from the EXISTING `step_solutions` Postgres cache (question-hash → read → generate-from-question-ONLY on miss → Gate-2a quality gate → write-if-pass) injected into the grader's EXISTING marking-scheme slot; same question shares ONE solution across students and interoperates with `/api/step-solution`. Gate 1 (server-only Postgres writes, no client path) + Gate 3 (question-only generation prompt; no student answer/image/PII in the cache — regression-tested) confirmed by construction; Gate 2a = `validateSolutionQuality` at EVERY cache write path (FAIL ⇒ served once, never persisted, reason-coded); Gate 2b = `POST /api/admin/solution-cache/evict|regenerate` behind a fail-closed `ADMIN_FIREBASE_UIDS` Bearer allowlist. Sacred grader diff = +95/−4 deps-injected hooks only ("textbook-clean" byte-review). CACHE_VERSION now prefixes ALL hashes (the objective-only prefix was a latent staleness bug — a bump never busted subjective entries). Owner live-verify pending.
+- **[FU-MODEL-ANSWER-QUALITY] — structurally addressed by #420 (stays OPEN for content-QC spot-checks).** The garbled-model-answer risk can no longer become SYSTEMATIC: no unchecked solution can enter the shared cache (Gate 2a), and a bad one reported by the owner is evictable by hash (Gate 2b). The residual is the one-off live-generation case — content/AI-quality QC track.
+
+### NEW (open) — surfaced by #420
+- **[FU-ADMIN-UIDS-DEPLOY-ENV]** — `ADMIN_FIREBASE_UIDS` (comma-separated Firebase uid allowlist) must be set on the server deployment env (Railway) to ACTIVATE the Gate-2b eviction/regeneration endpoints; until then they return 503 (fail-closed — safe, just non-functional). First wiring of ADMIN_FIREBASE_UIDS in `lazytopper/server/`; documented in `server/.env.example`. Owner deploy step, one-time.
+
 ## 2026-07-13 -- #416: C&I PR-2 — the FINAL Check & Improve frontend PR MERGED (code `a1eaebc`) → 3 FUs CLOSED, 1 NEW
 
 ### CLOSED by #416 (owner byte-reviewed CLEAN + merged)
@@ -160,9 +169,9 @@ Batch 7 was a clean large-reservoir topic: two-direction syllabus clean, both sc
   per question (prompt + response schema surgery on a live grading path — its own PR). Unlocks the by-topic scorecard
   lens for mixed papers, per-question topic progress (the session code stays `MIX` honestly), and the COUNTED
   "N topics" history chip (until then the chip stays a plain "Mixed topics" — a count would be fabricated).
-- *(Pointer)* **[FU-CI-SOLUTION-CACHE]** — now the arc's **PR-3/4**; unchanged: gated on owner sign-off of the 3
-  safety gates (server-only writes [firestore.rules, owner-only file] · mandatory invalidation + quality flag ·
-  store extracted TEXT, never the uploaded image — PII, minors).
+- *(Pointer)* **[FU-CI-SOLUTION-CACHE]** — ✅ **CLOSED by #420 (`cc84ae5`)** — the 3 gates were owner-signed-off and
+  delivered (server-only Postgres writes · Gate-2a quality gate + Gate-2b ADMIN_FIREBASE_UIDS eviction · text-only,
+  student-agnostic by construction). See the #420 section at the top of this file.
 
 ### Confirmed clean (no action)
 - #395 owner byte-review: all six plumbing items landed exactly; forbidden files byte-clean (grader,
@@ -423,7 +432,7 @@ Batch 7 was a clean large-reservoir topic: two-direction syllabus clean, both sc
 - **[FU-OBJECTIVE-COST-SKIP]** — model-skip cost saving DEFERRED. On the PDF/photo upload paths (Worksheet, Check & Improve) the student's MCQ pick is only knowable AFTER the model reads the handwriting, so an objective question CANNOT be excluded from the model batch without losing correctness (the deterministic clamp still discards the model's marks, so the invariant holds regardless). True model-skip pays off only on future CLICK-BASED surfaces where the pick is captured digitally (Chapter Test / Full Mock on-screen MCQs); Quick Practice already grades MCQs client-side (zero API). Wire the skip when those surfaces move server-side. Correctness first, per the task's own escape hatch.
 - **[FU-BANK-CORRUPT-KEYS]** — data-quality task for the Fable bank lane. The STEP-0 census found **~86 objective questions (concentrated in `.pyq*` extraction files) whose `answer` is CORRUPT** (mark-scheme fragments like "a) 1 1", "30 1", "96° 1" — matches NO option even after normalisation), plus **~15 maths Assertion-Reason `.pyq` rows with NO `options[]`** (the four choices are in prose; `answer` holds the full AR statement). These currently DEFER to the model (never a false 0), but can never be scored DETERMINISTICALLY until the keys are cleaned / options backfilled. Exact affected files + counts are in the report (`report-objective-scoring-uniform-2026-07-09.md`) + the STEP-0 bank census. Not a regression — pre-existing extraction debt surfaced by this PR.
 - **[FU-CI-SCORECARD-VARIANT]** — Check & Improve has **no `<ResultsScorecard>` variant** and is not in `SessionSurface` (`"worksheet" | "chapter-test" | "full-mock"`), so it shows a bespoke graded-paper view (`CheckImproveGradedPrintDoc`, #333) and **writes no session record** — its results don't feed the per-surface histories / progress arc. Not a regression — a GAP. Design pass pending (decide whether C&I becomes a 4th `SessionSurface` with its own scorecard variant + record, or stays intentionally ephemeral). Surfaced while wiring the C&I objective plumbing.
-- **[FU-CI-SOLUTION-CACHE]** — carried from `SURFACE_TRACKER.md`: a two-tier solution cache is the STRUCTURAL fix for **[FU-MODEL-ANSWER-QUALITY]** (garbled model answers). Logged here for the follow-up queue.
+- **[FU-CI-SOLUTION-CACHE]** — ✅ **CLOSED by #420** — carried from `SURFACE_TRACKER.md`: the solution cache IS the STRUCTURAL fix for **[FU-MODEL-ANSWER-QUALITY]** (garbled model answers), delivered with the Gate-2a quality gate on every write path. See the #420 section at the top.
 
 ---
 

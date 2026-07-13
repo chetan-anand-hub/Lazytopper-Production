@@ -2,8 +2,8 @@
 
 **Repo home:** `handoff/LAUNCH_REMAINING.md` (version-controlled — this is the source of truth; the copy in
 `/mnt/user-data/outputs/` is just the export the cofounder session writes for the owner to commit).
-**Trunk at last sync:** `9749fc9` (origin tip; **#412 PR-B-v2 progress-engine fixes `1228c95` — owner LIVE-VERIFIED, Me/Progress Verified ✅, the progress dominoes are CLOSED** — the arc shows real data across all four surfaces; plus #410 mobile avatar `f662fbe` + #411 bank Batch 9 polynomials). _Prior: `25c3cd7` (#408 arc PR-4); `1b7c7aa` (#405 bank Batch 8); `894ef6a` (#403 PR-B)._
-**Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#412).
+**Trunk at last sync:** `cc84ae5` (origin tip; **#420 C&I PR-3 model-solution cache — the whole C&I arc is DONE**, [FU-CI-SOLUTION-CACHE] closed; parallel-depth lane, not spine — no critical-path item moves, but the C&I "remaining arc" notes below are now COMPLETE; new [FU-ADMIN-UIDS-DEPLOY-ENV] owner env step. Over #416 C&I PR-2 `a1eaebc` + #415 bank Batch 10 `ae2b447` + #412 PR-B-v2 `1228c95`). _Prior: `9749fc9` (#412 sync); `25c3cd7` (#408 arc PR-4); `894ef6a` (#403 PR-B)._
+**Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#420).
 
 ## WHAT THIS FILE IS (and is NOT) — its lane vs the other handoff docs
 This is the single **ordered "what's left till we can flip the switch"** board: the critical-path sequence + the hard
@@ -69,7 +69,7 @@ child-safe, honest empty-states over fabrication, MI's careless-vs-weakness spli
 Locked dependency chain (from the design arc + the 2026-07-12 handoff). Parallel lanes noted.
 
 1. ✅ **FT-FINALIZE (#391) MERGED** — Full Test reachable from hub + Home; chain unblocked. Owner **production live-verify still pending** → flips Full Mock's Verified cell (§5). *(§3.1)*
-2. ✅ **C&I PR-1 (#395) MERGED** — Check & Improve is a first-class SessionSurface (durable records into the SAME stream every surface uses; owner byte-reviewed CLEAN). Closes [FU-CI-SCORECARD-VARIANT] + [FU-CI-DEVICE-LOCAL-SEQUENCE]. Remaining C&I arc = PR-2 per-question topic → PR-3/4 solution cache — **parallel depth, NOT on the launch spine.** *(SURFACE_TRACKER C&I row, Scope→Settling)*
+2. ✅ **C&I PR-1 (#395) MERGED** — Check & Improve is a first-class SessionSurface (durable records into the SAME stream every surface uses; owner byte-reviewed CLEAN). Closes [FU-CI-SCORECARD-VARIANT] + [FU-CI-DEVICE-LOCAL-SEQUENCE]. Remaining C&I arc = PR-2 per-question topic → PR-3/4 solution cache — **parallel depth, NOT on the launch spine — and now ✅ DONE: PR-2 #416 (`a1eaebc`) + PR-3 #420 (`cc84ae5`, the model-solution cache; [FU-CI-SOLUTION-CACHE] closed) — nothing remains on C&I.** *(SURFACE_TRACKER C&I row)*
 3. ✅ **PR-B progress memory layer (#403) MERGED** — the **launch-blocker DATA layer is done + LIVE**; `getWindowedProgress` is the ONE cross-device multi-rung aggregation (subject/topic/concept-bank-matched/section/mistake-type, honest-or-silent per rung) the arc reads. Owner byte-reviewed CLEAN; mistake-rate→share fix + cross-device verified. The desktop Me arc reads it. **Owner live-verify surfaced 3 arc-PR-4-requirement findings + 1 C&I-parity finding — none are engine bugs** (§4, OPEN_QUESTIONS). *(§4)*
 4. ✅ **Progress Arc PR-4 (#408) + PR-B-v2 engine fixes (#412) MERGED — Me/Progress DONE + OWNER LIVE-VERIFIED (Verified cell ✅).** arc PR-4 shipped the consumption (mobile rebuild + full desktop arc + Topic Hub trend; [FU-MOBILE-ME-PROGRESS-PARITY]/[FU-TOPICHUB-PROGRESS-ARC]/[FU-PROGRESS-WINDOW-SPLIT-UX] done); #412 fixed the engine beneath it ([FU-PROG-TOPIC-KEY-MISMATCH] · [FU-PROG-DATA-COMPLETENESS] · [FU-PROG-WINDOW-MODEL] all CLOSED — unified 4-surface stream, canonical keys both sides, activity-median + honest span label, topic sparkline). Live-verified on the stable link (Polynomials 33.9%→46.9% + sparkline + honest label; Trigonometry honestly empty). Presentation refinement deferred, not launch-gating: [FU-PROGRESS-PRESENTATION-REDESIGN]. *(§5, SURFACE_TRACKER Me/Progress row)*
 5. 🟡 **Home nudge PR-5 — NOW the immediate next domino.** Orient-first convergence + ungraded nudge; reads PR-B (`getPendingSessions` + the windowed engine). *(§5)*
@@ -101,7 +101,9 @@ Legacy faulty-question audit *(§7, after expansion)*.
 ## §4 · QUEUED & SPECCED (files ready in the session outputs / repo)
 - ✅ **C&I PR-1 — MERGED (#395, `e33b9d3`)** — the plumbing landed exactly as specced (record + topicSource + 5th
   variant + history overlay + durable `#NN`; detection/correction/MI byte-intact; shell zero-line-diff). Follow-on
-  C&I depth (PR-2 per-question topic → PR-3/4 solution cache, owner 3-gate sign-off) is parallel, not spine.
+  C&I depth (PR-2 per-question topic → PR-3/4 solution cache, owner 3-gate sign-off) is parallel, not spine —
+  **✅ both DONE: #416 + #420 (the C&I arc is complete; only the owner live-verify pass + the
+  [FU-ADMIN-UIDS-DEPLOY-ENV] env step remain).**
 - ✅ **PR-B progress memory layer (#403, `894ef6a`) — MERGED.** `getWindowedProgress(uid, window, scope?)` is the ONE
   cross-device multi-rung aggregation (subject/topic/concept-bank-matched/section/mistake-type, honest-or-silent per
   rung) over the durable streams. The pre-flight found ~85–90% was already built → wire-up + widen rungs + cross-device,

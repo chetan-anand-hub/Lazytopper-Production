@@ -2,6 +2,16 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — C&I PR-3: the model-solution CACHE MERGED (#420, code `cc84ae5`) — **the Check & Improve ARC is COMPLETE** (PR-1 #395 → PR-2 #416 → PR-3 #420; nothing remains)
+
+[FU-CI-SOLUTION-CACHE] CLOSED via the owner-ratified SCHEME-FIRST design (pre-flight caught the spec's wrap-point error — the grader has no discrete solution-generation step; its one Gemini call includes the student answer, uncacheable by Gate 3). 8 files (+1,380/−228); grader `checkSolution.cjs` = +95/−4 deps-injected hooks ONLY (owner byte-review "textbook-clean"); no client files; no forbidden files.
+
+- **The cache:** keyless SUBJECTIVE questions grade against a STUDENT-AGNOSTIC solution from the EXISTING `step_solutions` Postgres cache — hash → read → generate-from-question-ONLY on miss → **Gate-2a quality gate** → write-if-pass — injected into the grader's EXISTING marking-scheme slot (single + structured). Same question = ONE shared solution across students; interoperates with `/api/step-solution`.
+- **Gate 2a at EVERY write path** (display endpoint model+prewritten, grader hook, admin regenerate): FAIL ⇒ served once, never persisted, reason-coded. Structurally addresses [FU-MODEL-ANSWER-QUALITY].
+- **Gate 2b:** `POST /api/admin/solution-cache/evict|regenerate` behind a fail-closed `ADMIN_FIREBASE_UIDS` Bearer allowlist (first wiring in `lazytopper/server/`) → new **[FU-ADMIN-UIDS-DEPLOY-ENV]** (one-time owner env step).
+- **Also:** CACHE_VERSION prefix extended to ALL hashes (latent staleness bug fixed); generation core extraction PROVEN behavior-preserving (old-vs-new prompts byte-identical, 4 variants).
+- **Gates:** tsc · mojibake · scope:guard · root 181/181 · ops 8/8 · diff-check PASS; Codespace build + verifier + vitest 62/62 (dispatch tests (a)–(e)); CI green. Owner live-verify pending.
+
 ## 2026-07-13 — C&I PR-2: the FINAL Check & Improve frontend PR MERGED (#416, code `a1eaebc`) — surface COMPLETE desktop+mobile
 
 The last frontend PR on the Check & Improve arc (PR-1 #395 → **PR-2 #416** → the owner-gated solution cache PR-3/4 is all that remains). 12 product files (+571/−90); grader `checkSolution.cjs` / `worksheetGradeService` / `DesktopShell` / `firestore.rules` / `src/data` / `progressStore` byte-untouched; `App.tsx` limited to `isMobileSelfChromedRoute`; `DesktopCheckImprovePage.tsx` additive-only.
