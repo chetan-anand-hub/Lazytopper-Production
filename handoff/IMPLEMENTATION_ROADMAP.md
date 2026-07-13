@@ -2,6 +2,17 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — C&I PR-2: the FINAL Check & Improve frontend PR MERGED (#416, code `a1eaebc`) — surface COMPLETE desktop+mobile
+
+The last frontend PR on the Check & Improve arc (PR-1 #395 → **PR-2 #416** → the owner-gated solution cache PR-3/4 is all that remains). 12 product files (+571/−90); grader `checkSolution.cjs` / `worksheetGradeService` / `DesktopShell` / `firestore.rules` / `src/data` / `progressStore` byte-untouched; `App.tsx` limited to `isMobileSelfChromedRoute`; `DesktopCheckImprovePage.tsx` additive-only.
+
+- **Item A — per-question topic (route A2):** `resolvePerQuestionGradeTopics()` re-runs the EXISTING `/detect-question` per question (the detect endpoint lives inside the sacred grader → NO server edit); unresolvable → empty (never guessed). **[FU-CI-PERQUESTION-TOPIC] closed.**
+- **Item B — counted chip + by-topic lens:** `topicCount` additive-optional on `SessionRecord` (display-only; mixed feeds no single-topic progress); history chip `Mixed topics` → `N topics`; live + stored scorecard reuse the FM `chapterLens` slot.
+- **Item C — PDF solution upload** on both surfaces (`/check-solution` reads PDF natively).
+- **Item D — mobile parity (D-ii):** mobile composes the shared services (durable code minting retiring the device-local collision counter, persist, scorecard variant, history overlay, per-Q topics); #437 stub deleted; no forked grader. **[FU-MOBILE-CI-PARITY] closed.**
+- **Item E — one-header on `/exam-trends` + `/practice-hub`:** `isMobileSelfChromedRoute` + `!isDesktop` MobileShell wrapper. **[FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE] closed.** New **[FU-MOBILE-OLD-HEADER-STRAGGLERS]** (11 remaining routes — pre-launch pass).
+- **Gates:** tsc · mojibake · scope:guard product · root 181/181 · lazytopper ops matrix (bank 7,842) · diff-check; CI green. Owner byte-reviewed CLEAN + merged; live-verify pending.
+
 ## 2026-07-13 — PR-B-v2: the progress ENGINE made real MERGED (#412, code `1228c95`) — owner LIVE-VERIFIED ✅, launch-domino #3 CLOSED
 
 The engine fixes under arc PR-4's correct UI. 5 files (+858/−157), `progressStore` read-side only (grader /
