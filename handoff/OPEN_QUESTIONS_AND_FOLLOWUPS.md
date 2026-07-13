@@ -1,3 +1,27 @@
+## 2026-07-13 -- #405: bank-expansion Batch 8 (quadratic-equations +110) MERGED (trunk `1b7c7aa`)
+
+### NEW (standing process-fix + a corrected syllabus boundary)
+- **[FU-SYLLABUS-ANCHOR-OFFICIAL-2026-27] (STANDING PROCESS-FIX, owner-directed).** Anchor EVERY syllabus-boundary call to the
+  OFFICIAL CBSE 2026-27 syllabus (cbseacademic.nic.in) AND the repo `scripts/src/syllabusGuard.ts` — read/run BOTH live, per
+  chapter — **NEVER from memory or a prior year (2025-26).** The 2027 board cohort is governed by 2026-27 ONLY. If `syllabusGuard`
+  lacks a boundary entry, PROPOSE it for owner confirmation BEFORE acting. This became a standing rule after Batch 8 mislabelled a
+  Class-10 core topic as "Class-11" from memory (see the correction below). Applies to every bank-expansion batch and any
+  content-generation task.
+- **CORRECTION — sum/product-of-roots is Class-10 2026-27 CORE under POLYNOMIALS, not Class-11.** In Batch 8 the ~22 Vieta
+  sum/product-of-roots (zeros–coefficients of quadratic polynomials) items were correctly kept OUT of the *quadratic-equations*
+  chapter, but the reason given ("Class-11") was FACTUALLY WRONG. Per official CBSE 2026-27, "Relationship between zeros and
+  coefficients of quadratic polynomials" is **Class-10 CORE under POLYNOMIALS.** ACTION: those items are IN-SYLLABUS and MUST be
+  EXTRACTED in the upcoming **polynomials** batch (Batch 9), which must include sum/product-of-roots as core content. Also settled
+  in the same review: Class-10 2026-27 Quadratics is REAL ROOTS ONLY (D<0 ⇒ "no real roots", never complex/imaginary), and
+  magnetic-effects is a RETAINED Class-10 chapter (not deleted).
+
+### Confirmed clean (no action)
+- Batch 8 owner byte-review: a suspected complex/imaginary-roots leak was a FALSE POSITIVE — an exhaustive 110-item scan found only
+  a file-header doctrine comment; zero actual leaks, no √-of-negative anywhere → #405 shipped as-is, no content change.
+- The consolidation CROSS-PACK gate (combined over extract + authored-D + authored-E packs) caught 3 extracted-C vs authored-D
+  twins → 3 authored D dropped in favour of the real extracted content. Standing lesson, not a follow-up: run the combined
+  cross-pack gate every batch before wiring.
+
 ## 2026-07-13 -- #403: PR-B progress memory layer MERGED (trunk `894ef6a`) — engine live; owner live-verify surfaced the arc PR-4 requirement set
 
 ### CLOSED / DELIVERED by #403 (the launch-blocker DATA layer — the engine is CORRECT)
