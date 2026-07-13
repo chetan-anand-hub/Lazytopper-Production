@@ -1,6 +1,18 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #391 merged — FT FINALIZE: Full Test LINKED + cross-device upload-later — trunk `25257c0`
+## [CURRENT] #393 merged — bank-expansion Batch 5 (how-do-organisms-reproduce +148) — trunk `820d013`
+
+**Post-merge code trunk: `820d013` (squash of #393), on top of `075d596` (LAUNCH_REMAINING tracker) / #391 `25257c0`.** Re-derive the tip after this docs PR merges (the usual one-commit lag).
+
+**Bank-expansion lane — 5 topic-batches shipped. Assembled bank 7,342 → 7,490.**
+- **#393 (`820d013`) — Batch 5, how-do-organisms-reproduce +148** (265 → 413): the largest batch yet. Extract-max 54 A/B/C (A28·B13·C13; exhaustive per-source sweep — Biology module + NCERT solutions + worksheet folders + the folder-13 MCQ bank [richest A source] + gdrive PYQ/practice; per-source table in the manifest) + scarce authored **D×30** (37→**67**, HONEST-STOP — chapter already deeply covered on 5-mark items) + **case-based ×64** (E1 plant/asexual ×34 + E2 human/health ×30; 8→**72**, HONEST-STOP at 72 DISTINCT — 3 structural twins dropped rather than padded to 75).
+- **Method held the full discipline:** orchestrator + 4 file-disjoint authoring/extraction subagents + 3 independent adversarial skeptics (re-solve + two-direction syllabus scan + distinctness) → 151 produced, 148 kept (1 factual FIX: E1-004 Plasmodium schizogony not "cyst"; 3 twins dropped). Orchestrator stayed lean (heavy read/author/re-solve in subagents; compact returns). Rebased on current trunk before merge (not stale).
+- **Owner byte-review CLEAN:** both syllabus directions clean (zero evolution/Darwin AND zero reproduce-specific Class-12 leak — no gametogenesis/hormonal-cascade/embryology detail); ≥75 floor policy held (honest-stop below 75 with inventory, not reverted to 50, not padded); all 148 have solutions; correctOption 0; topicKey canonical.
+- **Gates:** tsc · mojibake · scope:guard product · root **181/181** (incl. `reproductionBankGuard` + `syllabusGuard`) · lazytopper ops matrix with runtime proof **7,490 served / 0 dup / 0 orphan / 26 topics** · diff-check clean; CI quality-gate + lane-overlap green. Scope = 6 files (canonical wiring + 4 packs + manifest); no forbidden files.
+- **Manifest:** `docs/bank-expansion-review-queue.md` (now 406 ids across 5 batches). Review-free: every question LIVE on merge; owner does whole-product QA later; serving surfaces stay GATED until trusted-student QA. Provenance: authored D/E → `AI_GENERATED_PACK_SOURCES`; extracted → `AI_GENERATED_SOLUTION_IDS`.
+- **Lane state / resume point:** `handoff/BANK_EXPANSION_LANE_STATE.md`. **NEXT = heredity** (Science, large reservoir; census A91·B45·C52·D21·E10). Class-12 boundary: Mendel/inheritance/sex-determination RETAINED; the Ch9 evolution section BANNED (already in syllabusGuard). ~21 topics remain.
+
+## #391 merged — FT FINALIZE: Full Test LINKED + cross-device upload-later — trunk `25257c0`
 
 **Post-merge code trunk: `25257c0` (squash of #391; feature `feat/desktop-pr-ft-finalize` @ `728e06a` off `17b4c34`, update-branched over #388/#390 pre-merge).** Re-derive the tip after this docs PR merges (the usual one-commit lag).
 

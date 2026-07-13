@@ -1,3 +1,11 @@
+## 2026-07-13 -- #393: bank-expansion Batch 5 (how-do-organisms-reproduce +148) MERGED (trunk `820d013`)
+
+### NEW (open)
+- **[FU-D-BAND-HONEST-CEILING]** — reproduce Section-D honest-stopped at 67 (below the ≥75 floor) because the chapter's 37 banked D-items already span plant + human reproduction; ~8 more would have been number-swaps. This is the third mature-chapter D honest-ceiling (life-processes D→53, our-environment D→16, reproduce D→67) — confirms the band-scarcity policy: a uniform 75 D-floor is pedagogically unnatural for chapters CBSE rarely sets many distinct 5-mark items on. Not a shortfall; do NOT pad. Flagged for ratification alongside the pre-existing [FU-DBAND-PEDAGOGICAL-FLOOR]; not blocking.
+
+### Confirmed clean (no action)
+- Batch 5 owner byte-review: both syllabus directions clean (zero evolution/Darwin AND zero reproduce-specific Class-12 leak — no gametogenesis / hormonal-cascade / embryology detail), all 148 solutions present, correctOption 0, topicKey canonical. E honest-stopped at 72 DISTINCT (3 structural twins dropped, not padded to 75).
+
 ## 2026-07-13 -- #391: FT finalize MERGED (trunk `25257c0`)
 
 ### CLOSED by #391
