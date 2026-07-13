@@ -6,6 +6,41 @@
 ### Confirmed clean (no action)
 - Batch 6 owner byte-review: read every syllabus-boundary grep hit — "homologous" = homologous CHROMOSOMES (in-syllabus Mendelian cell basis, NOT the banned homologous ORGANS); ABO/linkage/codominance = substring false positives (aBOut, standard complete-dominance crosses, autosomal pedigrees). 162 in-syllabus Mendel refs, correctOption 0, topicKey heredity. The skeptic's codominance-mislabel catch (roan cattle) validated the concept-scoped (not phrase-only) skeptic as load-bearing.
 - **Note on a pre-existing bank evolution leak:** a banked heredity item (`SCQ-S-HERED-041`, speciation/geographical isolation) is Class-12/board-deleted evolution content that predates this lane. Batch 6 did NOT use it as license (authored/extracted heredity-only). Candidate for a future data-quality cleanup pass (same spirit as [FU-BANK-EXACTNORM-DUPS]); not blocking.
+## 2026-07-13 -- #395: C&I PR-1 — Check & Improve is a first-class SessionSurface — MERGED (trunk `e33b9d3`)
+
+### CLOSED by #395
+- **[FU-CI-SCORECARD-VARIANT] — CLOSED.** C&I now writes a `surface:"check-improve"` sessionRecord on every graded
+  session (idempotent by id = the durable code; `couldNotRead`-only sessions write NOTHING — no grade, no fabricated
+  entry) and renders the 5th `<ResultsScorecard>` variant pair (live + stored read-only reopen; **the shell is a
+  zero-line diff**). Four-type lens only for now (the by-topic lens is per-question-topic-gated); quiet provenance
+  line; NO board-readiness projection; NO solution key. The bespoke graded views (#333) stay byte-intact as "the
+  graded sheet" behind the primary action. History = the "Your checked papers" overlay panel (locked CT card shape).
+- **[FU-CI-DEVICE-LOCAL-SEQUENCE] — CLOSED.** The durable cross-device `#NN` counts the student's existing
+  check-improve records under the same `CI-{S}-{TOK}-` prefix (subject+topic-token, the CT pattern — matches the
+  printed code). **`lt:ci-multi-seq` retired ENTIRELY, no offline shadow counter** (owner decision — the localStorage
+  sequence WAS the cross-device collision bug). Code format byte-identical; only the sequence source changed.
+
+### NEW (open)
+- **[FU-CI-TOPICSOURCE-BANK-MATCHED-RESERVED]** (owner-directed 2026-07-13) — `SessionTopicSource`'s
+  `"bank-matched"` value is **RESERVED, NOT emitted**: it is type-level only until a REAL bank-match path exists on
+  the C&I page (external uploads carry no `questionId`; today's page has no bank lookup at all). A reserved-not-broken
+  comment sits on the union in `sessionRecords.ts`. **A later PR must NOT read this as a bug and wire a fake matcher
+  to populate it** — emitting it honestly requires the question actually resolving to a `canonicalQuestionBank` row
+  (the solution-cache arc, or a deliberate matcher PR).
+- **[FU-CI-PERQUESTION-TOPIC]** — the C&I arc's **PR-2** (owner renumbering): extend detect to emit `detectedTopic`
+  per question (prompt + response schema surgery on a live grading path — its own PR). Unlocks the by-topic scorecard
+  lens for mixed papers, per-question topic progress (the session code stays `MIX` honestly), and the COUNTED
+  "N topics" history chip (until then the chip stays a plain "Mixed topics" — a count would be fabricated).
+- *(Pointer)* **[FU-CI-SOLUTION-CACHE]** — now the arc's **PR-3/4**; unchanged: gated on owner sign-off of the 3
+  safety gates (server-only writes [firestore.rules, owner-only file] · mandatory invalidation + quality flag ·
+  store extracted TEXT, never the uploaded image — PII, minors).
+
+### Confirmed clean (no action)
+- #395 owner byte-review: all six plumbing items landed exactly; forbidden files byte-clean (grader,
+  worksheetGradeService, App.tsx, DesktopShell, firestore.rules, src/data/**); detection/correction/MI/graded views
+  byte-intact (only the 2 `setTopicTouched` provenance lines); MIX writes `topicKeys: []` and says so — never a
+  majority guess; `topicSource` never backfilled (absent ≠ inferred); the `SurfaceHistory.tsx` +4 copy-seam ripple
+  ratified (exhaustive `Record<SessionSurface,…>` expansion; component never mounted with check-improve).
 
 ## 2026-07-13 -- #393: bank-expansion Batch 5 (how-do-organisms-reproduce +148) MERGED (trunk `820d013`)
 
