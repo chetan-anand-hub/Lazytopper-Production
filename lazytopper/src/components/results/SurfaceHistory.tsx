@@ -40,6 +40,10 @@ const SURFACE_COPY: Record<SessionSurface, { heading: string; empty: string }> =
   // Deferred seams — defined for parity, mounted only once those surfaces are rebuilt.
   "chapter-test": { heading: "Your chapter tests", empty: "Your graded chapter tests will appear here." },
   "full-mock": { heading: "Your mock tests", empty: "Your graded mock tests will appear here." },
+  // Deferred seam (C&I PR-1): the SessionSurface union requires the entry; C&I's
+  // live history is its own overlay panel (CheckImproveHistoryPanel) — this
+  // component is never mounted with "check-improve" today.
+  "check-improve": { heading: "Your checked papers", empty: "Your checked papers will appear here." },
 };
 
 const SUBJECTS: SessionSubject[] = ["maths", "science"];

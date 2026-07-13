@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   checkSolutionImage,
@@ -37,6 +37,27 @@ import {
   type CiGradedQuestion,
   type CheckImproveGradedPrintDocProps,
 } from "../../components/checkimprove/CheckImproveGradedPrintDoc";
+// C&I PR-1 — the SessionSurface plumbing: durable code + session record + the 5th
+// scorecard variant + the history panel. The detection/correction/MI paths above
+// this seam are byte-unchanged; these imports only ADD persistence around them.
+import {
+  ensureCheckImproveSessionCode,
+  getSessionRecordsFromCloud,
+  type SessionRecord,
+  type SessionTopicSource,
+} from "../../services/sessionRecords";
+import {
+  deriveTopicSource,
+  persistCheckImproveSession,
+  singleCheckToWorksheetResponse,
+  toSessionSubject,
+} from "../../services/checkImproveGradeService";
+import ResultsScorecard from "../../components/results/ResultsScorecard";
+import {
+  checkImproveScorecardVariant,
+  storedCheckImproveScorecardVariant,
+} from "../../components/results/scorecardVariants";
+import CheckImproveHistoryPanel from "../../components/checkimprove/CheckImproveHistoryPanel";
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -165,34 +186,13 @@ interface GradedContext {
 
 /* ──────────── multi-question (Check & Improve) helpers ──────────── */
 
-// Device-local sequence for the CI session code — a flat count of prior C&I
-// multi-question sessions (PR-B makes this durable + cross-device).
-const CI_MULTI_SEQ_KEY = "lt:ci-multi-seq";
-function nextCiMultiSequence(): number {
-  try {
-    const n = parseInt(localStorage.getItem(CI_MULTI_SEQ_KEY) || "0", 10);
-    const next = (Number.isFinite(n) && n > 0 ? n : 0) + 1;
-    localStorage.setItem(CI_MULTI_SEQ_KEY, String(next));
-    return next;
-  } catch {
-    return 1;
-  }
-}
-
-// Short topic token for the code: first four letters of the canonical slug, or
-// MIX when no single topic resolved (CI-{S}-{TOPIC}-{NN}, e.g. CI-M-POLY-01).
-function ciTopicToken(slug: string): string {
-  const t = String(slug || "").replace(/[^a-z]/gi, "").slice(0, 4).toUpperCase();
-  return t || "MIX";
-}
-
-// Build the session code ONCE per multi-question session (the sequence increments
-// here), then reuse it for the result header AND the stable MI question ids so a
-// re-grade of the same session is deduped.
-function buildCiSessionCode(subject: string, topicSlug: string): string {
-  const s = /sci/i.test(String(subject || "")) ? "S" : "M";
-  return `CI-${s}-${ciTopicToken(topicSlug)}-${String(nextCiMultiSequence()).padStart(2, "0")}`;
-}
+// The device-local CI sequence (`lt:ci-multi-seq` + nextCiMultiSequence +
+// buildCiSessionCode) is RETIRED (owner decision 2026-07-13, no shadow path): it
+// was the cross-device collision bug — the same paper graded on phone + laptop
+// minted the same #NN. The code is now minted ONCE per session at grade time via
+// `ensureCheckImproveSessionCode` (sessionRecords.ts — counts this student's
+// existing check-improve records under the same subject+topic-token prefix,
+// cross-device) and frozen in `ciCode`, exactly like the CT/FM surfaces.
 
 // Adapt one legible per-question grade into the CheckSolutionResponse shape the
 // MI front door consumes — the SAME shape single-question Check & Improve feeds
@@ -684,6 +684,41 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
   const [ciCode, setCiCode] = useState<string | null>(null);
 
+  // ── C&I PR-1: SessionSurface plumbing state (additive — around the flows above) ──
+  // The durable nomenclature's friendly name (minted with ciCode, frozen together).
+  const [ciName, setCiName] = useState<string | null>(null);
+  // Topic provenance, stamped at grade time from the detect-then-confirm flow.
+  const [ciTopicSource, setCiTopicSource] = useState<SessionTopicSource | null>(null);
+  // True once the student touches the topic/subject correction — the ONLY signal
+  // that upgrades "inferred" to "confirmed" (provenance tag, not a new picker).
+  const [topicTouched, setTopicTouched] = useState(false);
+  // Whether THIS session's record was persisted (drives the honest "saved" copy).
+  const [ciSaved, setCiSaved] = useState(false);
+  // The 5th <ResultsScorecard> variant, opened on every completed grade.
+  const [scorecardOpen, setScorecardOpen] = useState(false);
+  // "Your checked papers" — durable cross-device records + the overlay panel +
+  // the read-only stored-scorecard reopen.
+  const [ciRecords, setCiRecords] = useState<SessionRecord[]>([]);
+  const [ciRecordsLoading, setCiRecordsLoading] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [reopen, setReopen] = useState<SessionRecord | null>(null);
+
+  const loadCiRecords = useCallback(async () => {
+    try {
+      const all = await getSessionRecordsFromCloud(user?.uid);
+      setCiRecords(all.filter((r) => r.surface === "check-improve"));
+    } catch {
+      /* honest-degrade — the store already fell back to the local mirror */
+    } finally {
+      setCiRecordsLoading(false);
+    }
+  }, [user?.uid]);
+
+  useEffect(() => {
+    setCiRecordsLoading(true);
+    void loadCiRecords();
+  }, [loadCiRecords]);
+
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -757,6 +792,12 @@ const DesktopCheckImprovePage: React.FC = () => {
     setDetectedQuestions(null);
     setWsResult(null);
     setCiCode(null);
+    // C&I PR-1: the fresh session also resets its nomenclature + provenance state.
+    setCiName(null);
+    setCiTopicSource(null);
+    setTopicTouched(false);
+    setCiSaved(false);
+    setScorecardOpen(false);
   }
 
   // Read the question ALONE (one deliberate, cheap call) → show the detected chip.
@@ -783,6 +824,8 @@ const DesktopCheckImprovePage: React.FC = () => {
       setDetected(cd);
       setConfirmed(cd);
       setEditing(false);
+      // A fresh read = a fresh, untouched detection (provenance starts "inferred").
+      setTopicTouched(false);
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
       setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
@@ -802,6 +845,7 @@ const DesktopCheckImprovePage: React.FC = () => {
         ? { ...c, subject: next, topicSlug: first?.slug ?? "", topicName: first?.name ?? "" }
         : c,
     );
+    setTopicTouched(true); // provenance tag: the student engaged the topic (C&I PR-1)
   }
   function correctTopic(slug: string) {
     const t = CANONICAL_TOPIC_VOCAB.find((x) => x.slug === slug);
@@ -815,6 +859,7 @@ const DesktopCheckImprovePage: React.FC = () => {
           }
         : c,
     );
+    setTopicTouched(true); // provenance tag: confirmed/corrected by the student (C&I PR-1)
   }
   function correctMarks(m: number) {
     setConfirmed((c) => (c ? { ...c, marks: clampDetectedMarks(m), marksSource: "user" } : c));
@@ -834,6 +879,9 @@ const DesktopCheckImprovePage: React.FC = () => {
     setReadProps(null);
     setDownloadError(null);
     setExpandedQ({});
+    // C&I PR-1: never carry an open scorecard back to the input view. The session
+    // nomenclature/provenance state stays (same-session re-grade reuses the code).
+    setScorecardOpen(false);
   }
 
   // ── PART B helpers: build the branded graded-solution props (single OR multi),
@@ -843,8 +891,10 @@ const DesktopCheckImprovePage: React.FC = () => {
   // grade shown is a snapshot of what is already on screen — never a re-grade.
   function buildSinglePrintProps(): CheckImproveGradedPrintDocProps | null {
     if (!result || !resultCtx) return null;
-    const code = ciCode ?? buildCiSessionCode(resultCtx.subject, resultCtx.topicSlug);
-    if (!ciCode) setCiCode(code);
+    // The durable code is minted at grade time now (C&I PR-1) — by the time this
+    // sheet is built, ciCode is always frozen; "CI" is the same defensive fallback
+    // the multi sheet uses.
+    const code = ciCode ?? "CI";
     const ms = result.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
     const knowledge = ms.conceptual + ms.calculation;
     const careless = ms.silly + ms.presentation;
@@ -1003,8 +1053,23 @@ const DesktopCheckImprovePage: React.FC = () => {
 
     // One code per session; reuse it if this session was already graded once so a
     // re-grade reuses the same stable MI ids (dedup) instead of double-counting.
-    const sessionCode = ciCode ?? buildCiSessionCode(confirmed.subject, confirmed.topicSlug);
-    if (!ciCode) setCiCode(sessionCode);
+    // Minted DURABLY (cross-device record count) — the retired device-local
+    // localStorage sequence collided across devices (C&I PR-1).
+    const sessionSubject = toSessionSubject(confirmed.subject);
+    let sessionCode = ciCode;
+    let sessionTitle = ciName;
+    if (!sessionCode) {
+      const nomen = await ensureCheckImproveSessionCode(
+        sessionSubject,
+        confirmed.topicSlug,
+        confirmed.topicName,
+        user,
+      );
+      sessionCode = nomen.code;
+      sessionTitle = nomen.name;
+      setCiCode(nomen.code);
+      setCiName(nomen.name);
+    }
 
     try {
       const response = await gradeWorksheet({
@@ -1032,6 +1097,26 @@ const DesktopCheckImprovePage: React.FC = () => {
       setWsResult(response);
       setStatus("ready");
       setSaveStatus("saving");
+
+      // C&I PR-1 — the session record (idempotent by id = the frozen code): every
+      // graded session persists; a session where NOTHING was read writes no record
+      // (the service gates on gradedCount). Provenance is derived from the EXISTING
+      // detect-then-confirm flow; a MIX session writes topicKeys [] — never a
+      // majority-guessed topic. Decoupled from the grade AND from MI below.
+      const topicSource = deriveTopicSource(confirmed.topicSlug, topicTouched);
+      setCiTopicSource(topicSource);
+      const persistOutcome = persistCheckImproveSession({
+        user,
+        code: sessionCode,
+        title: sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        subject: sessionSubject,
+        topicSlug: confirmed.topicSlug,
+        topicSource,
+        response,
+      });
+      setCiSaved(persistOutcome === "recorded");
+      if (persistOutcome === "recorded") void loadCiRecords();
+      setScorecardOpen(true);
 
       // MI recording is DECOUPLED from the shown grade: a persistence failure must
       // NEVER wipe the graded result. The recording work runs in its OWN try/catch,
@@ -1158,10 +1243,47 @@ const DesktopCheckImprovePage: React.FC = () => {
         detectionOverride: overrideLog,
       };
 
+      // C&I PR-1 — mint the durable code at GRADE time (owner decision 2026-07-13:
+      // the lazy export-time mint is retired — every graded session gets a record,
+      // so singles no longer vanish on close). A totally unreadable answer returns
+      // ok:false above and never reaches here — no grade, no record.
+      const sessionSubject = toSessionSubject(confirmed.subject);
+      let sessionCode = ciCode;
+      let sessionTitle = ciName;
+      if (!sessionCode) {
+        const nomen = await ensureCheckImproveSessionCode(
+          sessionSubject,
+          confirmed.topicSlug,
+          confirmed.topicName,
+          user,
+        );
+        sessionCode = nomen.code;
+        sessionTitle = nomen.name;
+        setCiCode(nomen.code);
+        setCiName(nomen.name);
+      }
+
       setResult(graded);
       setResultCtx(ctx);
       setStatus("ready");
       void persistMistakeLog(ctx, graded);
+
+      // The session record — the single grade adapted into the same unified
+      // one-question response shape the record store + stored scorecard consume.
+      const topicSource = deriveTopicSource(confirmed.topicSlug, topicTouched);
+      setCiTopicSource(topicSource);
+      const persistOutcome = persistCheckImproveSession({
+        user,
+        code: sessionCode,
+        title: sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        subject: sessionSubject,
+        topicSlug: confirmed.topicSlug,
+        topicSource,
+        response: singleCheckToWorksheetResponse(graded),
+      });
+      setCiSaved(persistOutcome === "recorded");
+      if (persistOutcome === "recorded") void loadCiRecords();
+      setScorecardOpen(true);
     } catch {
       setErrorMessage("Grading unavailable — please try again.");
       setStatus("error");
@@ -1187,6 +1309,20 @@ const DesktopCheckImprovePage: React.FC = () => {
         scope: resultCtx.topicSlug ? "topic" : "full-subject",
         subject: resultCtx.subject,
         topic: resultCtx.topicSlug || undefined,
+        mistakeAware: true,
+        ...ROUTE_CTX,
+      }),
+    );
+  }
+  // C&I PR-1: the scorecard's "Practise {topic}" deep-link for the multi-question
+  // path (no resultCtx there) — the same worksheet-builder link the single path's
+  // gotoWorksheetForResult produces. Only offered when a single topic resolved.
+  function gotoWorksheetForTopic(subject: DesktopSubject, topicSlug: string) {
+    navigate(
+      buildDesktopWorksheetPath({
+        scope: "topic",
+        subject,
+        topic: topicSlug,
         mistakeAware: true,
         ...ROUTE_CTX,
       }),
@@ -1248,7 +1384,41 @@ const DesktopCheckImprovePage: React.FC = () => {
           eyebrow="Check & Improve"
           title="Grade your answer, examiner-style"
           description="Upload a photo of your handwritten work or type it out. We send it to our examiner-style grader and show exactly where marks were lost — no fake scores, no shortcuts."
+          actions={
+            <button type="button" style={buttonOutline} onClick={() => setPanelOpen(true)}>
+              Your papers · {ciRecordsLoading ? "…" : ciRecords.length} ⌄
+            </button>
+          }
         />
+
+        {/* C&I PR-1 — "Your checked papers": the overlay history panel (spec §6
+            volume rule) + the read-only stored-scorecard reopen. Fixed-inset
+            overlays — DOM placement here is presentation-neutral. */}
+        {panelOpen && (
+          <CheckImproveHistoryPanel
+            records={ciRecords}
+            loading={ciRecordsLoading}
+            defaultSubject={ciRecords[0]?.subject ?? "maths"}
+            onOpen={(r) => {
+              setPanelOpen(false);
+              setReopen(r);
+            }}
+            onClose={() => setPanelOpen(false)}
+          />
+        )}
+        {reopen && (
+          <ResultsScorecard
+            variant={storedCheckImproveScorecardVariant(reopen, {
+              gradedDateLabel: new Date(reopen.gradedAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              onDone: () => setReopen(null),
+            })}
+            onClose={() => setReopen(null)}
+          />
+        )}
 
         <div
           style={{
@@ -1778,6 +1948,31 @@ const DesktopCheckImprovePage: React.FC = () => {
           }
         />
 
+        {/* C&I PR-1 — the 5th <ResultsScorecard> variant, opened on grade. The
+            bespoke graded views below stay byte-intact underneath as "the graded
+            sheet" behind the primary action. */}
+        {scorecardOpen && confirmed && ciCode && (
+          <ResultsScorecard
+            variant={checkImproveScorecardVariant({
+              topicName: confirmed.topicName,
+              code: ciCode,
+              topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
+              response: ws,
+              saved: ciSaved,
+              downloading,
+              onReadSheet: () => setScorecardOpen(false),
+              onDownloadGraded: () => void downloadGraded(buildMultiPrintProps()),
+              ...(confirmed.topicSlug
+                ? {
+                    onPractiseTopic: () =>
+                      gotoWorksheetForTopic(confirmed.subject, confirmed.topicSlug),
+                  }
+                : {}),
+            })}
+            onClose={() => setScorecardOpen(false)}
+          />
+        )}
+
         {/* Honest totals — the graded subtotal excludes pending pages. */}
         <div style={{ ...cardStyle, padding: 24, marginTop: 20 }}>
           <div style={sectionEyebrow}>Score (graded questions)</div>
@@ -2021,6 +2216,26 @@ const DesktopCheckImprovePage: React.FC = () => {
           </>
         }
       />
+
+      {/* C&I PR-1 — the 5th <ResultsScorecard> variant on the single-question
+          path (the grade adapted into the same unified one-question shape). The
+          bespoke graded view below stays byte-intact as "the graded sheet". */}
+      {scorecardOpen && ciCode && (
+        <ResultsScorecard
+          variant={checkImproveScorecardVariant({
+            topicName: resultCtx.topicName,
+            code: ciCode,
+            topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),
+            response: singleCheckToWorksheetResponse(result),
+            saved: ciSaved,
+            downloading,
+            onReadSheet: () => setScorecardOpen(false),
+            onDownloadGraded: () => void downloadGraded(buildSinglePrintProps()),
+            ...(resultCtx.topicSlug ? { onPractiseTopic: gotoWorksheetForResult } : {}),
+          })}
+          onClose={() => setScorecardOpen(false)}
+        />
+      )}
 
       <div
         style={{

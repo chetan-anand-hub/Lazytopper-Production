@@ -9,9 +9,9 @@
 //   3. actions        — worksheet: Read + Download graded sheet · QP: personalized what-next
 //   4. graded-sheet?  — worksheet: yes · quick practice: no
 //
-// LIVE (fully populated here): all FOUR surfaces — worksheet + quick-practice (PR-2)
-// and chapter-test + full-mock (their surfaces shipped: CT #374/#380, FM #387; their
-// live variants are built by the §5 builders later in this file). The original
+// LIVE (fully populated here): all FIVE surfaces — worksheet + quick-practice (PR-2),
+// chapter-test + full-mock (their surfaces shipped: CT #374/#380, FM #387), and
+// check-improve (C&I PR-1 — the 5th surface; builders at the end of this file). The original
 // chapter-test / full-mock `deferred: true` STUBS are retained below as the PR-2
 // config seams + the render-guard's fixtures — still never handed to a live host.
 //
@@ -22,13 +22,22 @@
 // testable; <ResultsScorecard> is the shell that renders a variant.
 
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
-import type { SessionFourType, SessionRecord } from "../../services/sessionRecords";
+import type {
+  SessionFourType,
+  SessionRecord,
+  SessionTopicSource,
+} from "../../services/sessionRecords";
 import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 
-export type ScorecardSurface = "worksheet" | "quick-practice" | "chapter-test" | "full-mock";
+export type ScorecardSurface =
+  | "worksheet"
+  | "quick-practice"
+  | "chapter-test"
+  | "full-mock"
+  | "check-improve";
 
 /**
  * Flex-point 1 — the score hero model. `marks` renders the big awarded/total hero
@@ -1301,5 +1310,196 @@ export function storedFullMockScorecardVariant(
     pending: null,
     allPending: null,
     actions,
+  };
+}
+
+// ── LIVE variant: CHECK & IMPROVE (the 5th surface — C&I PR-1, locked spec §5) ──
+//
+// CONFIG on the existing shell — zero shell changes: title/subtitle/score/message/
+// note/fourType/pending/allPending/actions all pre-exist. Lenses: FOUR-TYPE ONLY in
+// PR-1 — the spec's by-topic lens is Step-2-gated (per-question topic doesn't exist
+// yet: omitted entirely for single-topic papers, unknowable for MIX until PR-3).
+// NO board-readiness projection (spec §5, the Full-Mock reasoning applies as-is).
+// The quiet provenance line is DISPLAY-ONLY in PR-1 (a post-grade "Change"
+// affordance is PR-2's confirm-step scope). The page's bespoke graded views stay
+// byte-intact underneath as "the graded sheet" behind the primary action.
+
+/** The quiet provenance line (spec §5) — one provenance language across the
+ *  surface, mirroring how marks show stated/inferred. `mixed` returns null: its
+ *  honesty statement rides the message line instead. */
+export function ciProvenanceLine(topicSource: SessionTopicSource | undefined): string | null {
+  switch (topicSource) {
+    case "confirmed":
+      return "Topic confirmed by you";
+    case "inferred":
+      return "Topic detected automatically";
+    case "bank-matched":
+      return "Topic matched from the question bank";
+    default:
+      // mixed — or a record written before provenance existed (absent ≠ inferred,
+      // spec §4.3: never backfilled into a claim).
+      return null;
+  }
+}
+
+/** The MIX honesty statement (spec §4.1) — a mixed paper contributes marks +
+ *  mistake types and SAYS so; it never feeds a single topic's progress by guess. */
+const CI_MIXED_MESSAGE =
+  "This paper spans more than one topic — your marks and mistake types are saved, " +
+  "but no single topic's progress is guessed from it.";
+
+export interface CheckImproveVariantInput {
+  /** The confirmed topic display name; "" when no single topic resolved (MIX). */
+  topicName: string;
+  /** The durable CI-{S}-{TOK}-{NN} code. */
+  code: string;
+  topicSource: SessionTopicSource;
+  /** The unified response — the multi path's grade, or the single path adapted via
+   *  singleCheckToWorksheetResponse. */
+  response: WorksheetGradeResponse;
+  /** True when the session record was persisted (signed-in, non-local) — drives the
+   *  honest "saved to your progress" subtitle; never claimed otherwise. */
+  saved: boolean;
+  downloading?: boolean;
+  /** Reveal the bespoke graded views underneath (closes the scorecard). */
+  onReadSheet: () => void;
+  onDownloadGraded?: () => void;
+  /** Deep-link the worksheet builder to the confirmed topic. Omitted for MIX —
+   *  there is no honest single-topic target to practise. */
+  onPractiseTopic?: () => void;
+}
+
+/**
+ * Build the LIVE Check & Improve variant — the FM/CT shape with C&I's content:
+ * marks hero over the honest graded subtotal, the pending strip for unreadable
+ * pages (never a 0), four-type from written answers only (a bare wrong MCQ carries
+ * no mistakeSummary — #348), the quiet provenance line, and a stacked what-next
+ * menu with NO solution key (the questions are the student's own, spec §5).
+ */
+export function checkImproveScorecardVariant(input: CheckImproveVariantInput): ScorecardVariant {
+  const { topicName, code, topicSource, response, saved, downloading = false } = input;
+  const mixed = topicSource === "mixed";
+  const allPending = response.gradedCount === 0;
+
+  const head = mixed
+    ? `Uploaded paper · ${code} · mixed topics`
+    : `${topicName || "Checked paper"} · ${code}`;
+  const subtitle = `${head} · graded just now${saved ? " · saved to your progress" : ""}`;
+
+  if (allPending) {
+    // Nothing was readable — an honest empty state, mirroring the worksheet copy.
+    // (No session record is written for this state; the scorecard still says why.)
+    return {
+      surface: "check-improve",
+      title: "Check & Improve paper",
+      subtitle: `${head} · graded just now`,
+      score: { kind: "marks", awarded: 0, total: 0 }, // not rendered — allPending below
+      fourType: null,
+      pending: null,
+      allPending: {
+        title: "We couldn’t read any answers",
+        detail:
+          "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
+      },
+      actions: [{ label: "Back to my paper", tone: "ghost", onClick: input.onReadSheet }],
+    };
+  }
+
+  const menu: ScorecardAction[] = [
+    {
+      label: "Read my graded answer sheet",
+      tag: "Sheet",
+      tone: "primary",
+      onClick: input.onReadSheet,
+    },
+  ];
+  if (!mixed && topicName && input.onPractiseTopic) {
+    menu.push({
+      label: `Practise ${topicName}`,
+      tag: "Practise",
+      tone: "secondary",
+      onClick: input.onPractiseTopic,
+    });
+  }
+  if (input.onDownloadGraded) {
+    menu.push({
+      label: "Download graded solution (PDF)",
+      tag: "Graded",
+      tone: "secondary",
+      onClick: input.onDownloadGraded,
+      disabled: downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    });
+  }
+
+  return {
+    surface: "check-improve",
+    title: "Check & Improve paper",
+    subtitle,
+    score: {
+      kind: "marks",
+      awarded: response.gradedMarksAwarded,
+      total: response.gradedMarksTotal,
+      gradedCount: response.gradedCount,
+      totalQuestions: response.totalQuestions,
+    },
+    message: mixed ? CI_MIXED_MESSAGE : null,
+    note: ciProvenanceLine(topicSource),
+    fourType: aggregateFourType(response),
+    pending:
+      response.pendingCount > 0
+        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
+        : null,
+    allPending: null,
+    actionsHeading: "What next?",
+    stackActions: true,
+    ...(saved
+      ? {}
+      : {
+          footnote:
+            "Not saved — sign in to keep your checked papers in your history and progress.",
+        }),
+    actions: menu,
+  };
+}
+
+// ── STORED re-open variant: read-only Check & Improve scorecard from a record ──
+
+export interface StoredCheckImproveVariantInput {
+  gradedDateLabel: string;
+  onDone: () => void;
+}
+
+/**
+ * Rebuild a STORED check-improve `SessionRecord` into a READ-ONLY scorecard:
+ * stored score + four-type + the provenance line (absent provenance stays absent —
+ * never backfilled into a claim). No graded-count is claimed: a C&I record's
+ * `questionIds` is honestly [] (external uploads have no bank identity), so the
+ * shell shows the score without a fabricated count. Read-only: Done only.
+ */
+export function storedCheckImproveScorecardVariant(
+  record: SessionRecord,
+  input: StoredCheckImproveVariantInput,
+): ScorecardVariant {
+  const mixed = record.topicSource === "mixed";
+  const messages = [
+    mixed ? CI_MIXED_MESSAGE : null,
+    record.status === "partial"
+      ? "Graded portion shown — some pages couldn’t be read on this session."
+      : null,
+  ].filter(Boolean);
+
+  return {
+    surface: "check-improve",
+    title: record.title,
+    subtitle: `${record.id} · graded ${input.gradedDateLabel}`,
+    score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
+    message: messages.length ? messages.join(" ") : null,
+    note: ciProvenanceLine(record.topicSource),
+    fourType: record.fourType,
+    pending: null,
+    allPending: null,
+    actions: [{ label: "Done", tone: "ghost", onClick: input.onDone }],
   };
 }
