@@ -173,11 +173,23 @@ function RootEntry() {
  *                  matching the desktop treatment; the old thin LT brand bar is
  *                  retired on this surface. (The mobile BottomNav is unaffected —
  *                  it is gated separately in BottomNav and is preserved.)
+ *   • `/check-improve`, `/intent`, `/practice/worksheets/ready`
+ *                — MobileShell surfaces that now carry the app-wide account
+ *                  avatar-dropdown in their own header, so the old global brand
+ *                  bar must not stack above it (same one-header treatment as /me).
  *
  * Exported as a pure predicate for unit testing.
  */
 export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): boolean {
-  return !isDesktop && (pathname === "/browse" || pathname === "/welcome" || pathname === "/me");
+  return (
+    !isDesktop &&
+    (pathname === "/browse" ||
+      pathname === "/welcome" ||
+      pathname === "/me" ||
+      pathname === "/check-improve" ||
+      pathname === "/intent" ||
+      pathname === "/practice/worksheets/ready")
+  );
 }
 
 /**
