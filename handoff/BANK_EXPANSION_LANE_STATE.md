@@ -118,8 +118,38 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   Net 44 kept. Owner byte-review CLEAN (read every boundary grep hit: "homologous" = homologous CHROMOSOMES [IN],
   ABO/linkage/codominance = substring false positives; 162 in-syllabus Mendel refs, correctOption 0). Chapter 219→263.
   Docs handoff = this PR.
-- **Bank now = 7,534. 6 topics done: real-numbers, life-processes, our-environment, how-do-organisms-reproduce,
-  heredity (+ real-numbers corrective).**
+- **Bank now = 7,534. 5 DISTINCT topics done across 6 batches** (real-numbers has 2 batches — original + corrective):
+  **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity.** (Verified against the
+  `*.expand.*`/`*.extract.*`/`*.scarce*` pack files on trunk — those five slugs are the only ones with expansion packs;
+  NO probability/polynomials/etc. pack exists yet. Do NOT read "6 batches" as "6 distinct topics.")
+
+## BEFORE-LAUNCH CORRECTIVE (tracked, SEPARATE from topic expansion — do NOT bury under Batch 7)
+### [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — 34 bank MCQs whose `answer` matches NO option
+A full-bank scan (CT-balanced-mix task, 2026-07-13) found **34 MCQs whose `answer` string resolves to no option**
+under the grader's exact-norm (trim+lowercase) contract → a student who picks the CORRECT option is scored WRONG.
+Any drawn into CT/FT Section A can never be scored correct. This is PRE-EXISTING bank data (distinct from the
+already-repaired [FU-BANK-CORRUPT-KEYS] population in `docs/objective-answer-key-review-queue.md`).
+**Full 34-ID list + failure-class breakdown: `C:\Users\Chetan\OneDrive\Desktop\diff\report-ct-balanced-mix-2026-07-13.md` (§FINDING).**
+Failure classes + fix rule:
+- **AR letter-code answers** (`"A"` / `"D. A is false, R is true."`) vs the four full-text AR statements → set
+  `answer` to the exact full OPTION TEXT. 6 of the 34 are `REP2-*` AR items (REP2-014,018,019,040,042,043) — these
+  are PRE-EXISTING `reproduction.pack2` rows, NOT the Batch-5 expansion (my Batch-5 used `BX-REP-*` ids with the gate
+  enforcing `answer`=exact option text; the report's "from Batch 5" is a misattribution). The expansion authoring
+  template already enforces this rule — the fix is to the legacy REP2 pack.
+- **PYQ extraction artifacts** — trailing marks digit / MS reference swept into the key (`"30-40 1"`, `"96° 1"`,
+  `"8.4 cm 1 MS_X_..."`), spacing/format (`"1 : 2"` vs `"1:2"`, `"2:7 1"` vs `"2 : 7"`) → normalize the key to
+  match an option.
+- **Marking-scheme boilerplate / malformed questions** (PYQ-S-2024-ELEC-001, -MAG-002, -LIGHT-001, -METAL-002 whose
+  options are question parts) + **mangled-glyph / duplicate-junk options** (PYQ-M-PROB-002/003/005/006/008/010,
+  PYQ-M-ARC-003, PYQ-M-QE-001, PYQ-M-TRI-001/003, …) → normalize where recoverable; **WITHHELD_QUESTION_IDS** any
+  genuinely unresolvable.
+- **HOLD for owner adjudication (2 of 34):** CBE-S-MAGN-A-001 + PYQ-S-2024-MAG-002 sit under
+  `magnetic-effects-of-electric-current` — CLAUDE.md §5 calls magnetic-effects deleted/banned yet the guard matrix
+  passes with them present (spec §5 vs syllabusGuard policy). Owner decides; do NOT act unilaterally.
+- **Latent CI landmine:** `fullMockBlueprint.test.ts` carries a strict key-resolves assertion that passes only
+  because the seeded draw misses the bad keys — fixing the 34 (or relaxing that assertion) is part of this FU.
+This is a data-quality corrective (same spirit as [FU-BANK-EXACTNORM-DUPS] and the SCQ-S-HERED-041 evolution leak),
+run as its OWN small PR before launch — NOT folded into a topic-expansion batch.
 
 ## TOPICS REMAINING (~20) — one topic-batch each, extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
 Maths (12): polynomials · pair-of-linear-equations · quadratic-equations · arithmetic-progression · triangles ·
