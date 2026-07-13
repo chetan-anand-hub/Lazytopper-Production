@@ -752,8 +752,12 @@ The structural sever that the two read-only audits (responsive-surface + banned-
   [x] Read-only banned-term-prose audit (`report-banned-term-prose-audit-2026-06-08.md`); Tier-1A fixed in #216
   [x] **SEVER PR (#218)** — disconnect obsolete surfaces; product reaches only live surfaces
   [ ] **(NEXT) Phase-2 responsive divergence punch-list** — reconcile stale mobile twins to the desktop
-      source-of-truth (no invented numbers). Seed items (OPEN_QUESTIONS, soft-launch blockers): mobile Me fabricated
-      sample data; mobile avatar dropdown (Log out / Manage subscription); mobile top-ribbon/trial-banner divergence.
+      source-of-truth (no invented numbers). Seed items (OPEN_QUESTIONS, soft-launch blockers): ~~mobile Me fabricated
+      sample data~~ (DONE — arc PR-4 #408 retired the mobile Me hero); ~~mobile avatar dropdown (Log out / Manage
+      subscription)~~ **DONE — #410 (`f662fbe`): app-wide account avatar-dropdown in the shared `MobileShell` (desktop-parity
+      account status / Manage subscription / Log out; read-only subscription) + one-header treatment on the MobileShell
+      routes. Residual: `/exam-trends` + `/practice` still on the old header → [FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE] (C&I PR-2 item E);**
+      mobile top-ribbon/trial-banner divergence.
   [ ] (later) Phase-2 clean-branch — grep the 46 markers to delete (`LEGACY-RETIRED`) / keep (`DEFERRED-REVIVE`).
 
 ## 2026-06-07 — Post-PR #206 roadmap update (AUTH MIGRATION arc: Clerk → Firebase Auth + phone)

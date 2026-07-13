@@ -1,6 +1,22 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #408 merged — arc PR-4: Me/Progress consumes the memory layer (mobile rebuild + full desktop arc + Topic Hub trend) — code trunk `25c3cd7`
+## [CURRENT] #410 merged — mobile chrome: app-wide account avatar-dropdown parity + one-header treatment — trunk `f662fbe`
+
+**Post-merge code trunk: `f662fbe` (squash of #410; feature `feat/mobile-avatar-dropdown-parity` @ `6ec1ac4` off trunk tip `6886157`).** Re-derive the tip after this docs PR merges (the usual one-commit lag).
+
+**#410 merged — the mobile header now carries the SAME account menu as the desktop shell, added once in the shared `MobileShell` so every mobile page that uses it inherits it, and the old global mobile brand bar no longer double-stacks on the affected routes.** Owner byte-reviewed + live-verified clean → merged. 4 files (+337/−11): 1 new (`utils/accountStatus.ts`), 3 edited (`components/mobile/MobileShell.tsx`, `App.tsx`, `App.bottomNav.test.tsx`).
+
+- **App-wide avatar-dropdown:** new `MobileAccountMenu` in `MobileShell.tsx` mirrors the desktop dropdown — same `useAuth`+`useSubscription` (**READ-ONLY, no trial activation**), same identity/status derivation, same `/pricing?source=account-menu&returnTo=…` manage-subscription URL, same logout path, same click-/tap-outside-to-close, mobile `--mob-*` theme. Composes right of any page `rightSlot` (zero consumers pass one); renders nothing signed-out.
+- **Reuse = Option A:** new pure `deriveAccountStatus` (`utils/accountStatus.ts`) = single source of truth for the status chip; **`DesktopShell.tsx` BYTE-UNCHANGED** (locked sacred file, not scoped) — migrating desktop onto the helper is [FU-DESKTOP-ACCOUNT-MENU-SHARE]. Not a fork (same hooks/URLs/logout; only the display derivation shared now).
+- **Status = fold-into-dropdown, expired kept actionable:** status box inside the dropdown; trial-EXPIRED also surfaces a header "Choose plan" chip → pricing (as discoverable as desktop's pill).
+- **One-header treatment:** `isMobileSelfChromedRoute` += `/check-improve`, `/intent`, `/practice/worksheets/ready` (arc-PR-4's `/me` pattern) → the old global mobile brand bar stops stacking above the MobileShell header. `App.tsx` limited to that predicate + doc comment; BottomNav untouched.
+- **Scope-reality correction (owner-confirmed):** only 4 MobileShell surfaces are actually routed on trunk; the "12+ pages" was stale. Double-bar affected exactly the 3 routes above (`/me` already handled). Fix is app-wide by construction.
+- **COVERAGE GAP from owner live-verify (NOT a #410 defect):** `/exam-trends` + `/practice` still show the OLD global brand bar (not in `isMobileSelfChromedRoute`, don't use MobileShell) → **[FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE]**, folded into C&I PR-2 as item E (reuse `accountStatus.ts`, no fork; + sweep for other straggler mobile routes).
+- **Gates @ `6ec1ac4`:** tsc · mojibake · scope:guard product · root **181/181** · lazytopper ops matrix (topickey runtime 7780/0-dup/0-orphan) · diff-check all PASS; CI quality-gate SUCCESS + lane-overlap SUCCESS; build+vitest Codespaces/CI-gated.
+- **NEW FUs:** **[FU-DESKTOP-ACCOUNT-MENU-SHARE]** + **[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]** + **[FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE]** (folded into C&I PR-2).
+- Reports: `Desktop/diff/report-mobile-avatar-plan-2026-07-13.md` + `report-mobile-avatar-build-2026-07-13.md`.
+
+## #408 merged — arc PR-4: Me/Progress consumes the memory layer (mobile rebuild + full desktop arc + Topic Hub trend) — code trunk `25c3cd7`
 
 **Post-merge code trunk: `25c3cd7` (squash of #408), on top of #405 `1b7c7aa` / #407 docs.** Re-derive the tip after this docs PR merges (the usual one-commit lag).
 
