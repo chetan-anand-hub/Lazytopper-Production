@@ -357,6 +357,37 @@ export async function getSessionPerQuestion(
   }
 }
 
+/**
+ * PR-B (ADDITIVE, READ-ONLY): fetch ALL per-question payloads for a uid in ONE
+ * cloud round-trip, so the progress aggregator can join per-question marks →
+ * concept/section without an N-per-ref read. Local-first union with the durable
+ * subcollection (cloud wins per ref); never throws — honest-degrades to whatever is
+ * available. The record WRITE shape is untouched; this only reads the same
+ * `sessionRecords/{uid}/perQuestion` collection `getSessionPerQuestion` reads.
+ */
+export async function getAllSessionPerQuestionFromCloud(
+  uid?: string | null,
+): Promise<SessionPerQuestionPayload[]> {
+  const id = readableUid(uid);
+  if (!id) return [];
+  const local = Object.values(readLocalPayloads(id));
+  if (!firestoreDb) return local;
+  try {
+    const snap = await getDocs(collection(firestoreDb, "sessionRecords", id, "perQuestion"));
+    const rows = snap.docs
+      .map((d) => d.data() as SessionPerQuestionPayload)
+      .filter((p) => p && typeof p.ref === "string");
+    if (!rows.length) return local;
+    const byRef = new Map<string, SessionPerQuestionPayload>();
+    for (const p of local) byRef.set(p.ref, p);
+    for (const p of rows) byRef.set(p.ref, p); // cloud wins over the local mirror
+    return Array.from(byRef.values());
+  } catch (error) {
+    console.warn("[sessionRecords] all perQuestion read failed", { uid: id, error });
+    return local;
+  }
+}
+
 // ── Durable #NN (§1c — DURABLE + cross-device, replaces the device-local count) ──
 
 function subjectToNameableLabel(subject: SessionSubject): string {
