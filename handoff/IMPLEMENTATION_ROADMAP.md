@@ -12,6 +12,32 @@ The last frontend PR on the Check & Improve arc (PR-1 #395 → **PR-2 #416** →
 - **Item D — mobile parity (D-ii):** mobile composes the shared services (durable code minting retiring the device-local collision counter, persist, scorecard variant, history overlay, per-Q topics); #437 stub deleted; no forked grader. **[FU-MOBILE-CI-PARITY] closed.**
 - **Item E — one-header on `/exam-trends` + `/practice-hub`:** `isMobileSelfChromedRoute` + `!isDesktop` MobileShell wrapper. **[FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE] closed.** New **[FU-MOBILE-OLD-HEADER-STRAGGLERS]** (11 remaining routes — pre-launch pass).
 - **Gates:** tsc · mojibake · scope:guard product · root 181/181 · lazytopper ops matrix (bank 7,842) · diff-check; CI green. Owner byte-reviewed CLEAN + merged; live-verify pending.
+## 2026-07-13 — bank-expansion Batch 9 (polynomials +62) MERGED (#411, `9749fc9`) + Batch 10 (PLE / AP / ABS +440, FIRST 3-topics-per-PR) MERGED (#415, `ae2b447`)
+
+Two bank-expansion merges. **Assembled bank 7,780 → 7,842 → 8,282. 11 DISTINCT topics done across 10 batches; 15 remain
+(8 Maths + 7 Science).** Data-enrichment parallel track — no surface architecture-gate cell moves. Manifest
+`docs/bank-expansion-review-queue.md`; surfaces GATED until trusted-student QA.
+
+- **Batch 9 — polynomials +62** (190→252). FIRST topic to absorb the sum/product-of-roots (zeros↔coefficients of QUADRATIC
+  polynomials) items as **Class-10 2026-27 CORE** — what Batch 8 correctly filed OUT of quadratic-equations, confirming the
+  "Class-11" label was wrong. extract-max A/B/C +13 (saturated → honest-stop) + authored D 12→34 + E 10→37, BOTH honest-stop
+  (low-weight narrow chapter). Scope held to quadratic zeros-coefficient ONLY (cubic relations / higher-degree division algorithm /
+  complex zeros excluded). Owner byte-review CLEAN.
+- **Batch 10 — +440, the FIRST 3-topics-per-PR batch (owner SPEED directive):** one branch / one `canonicalQuestionBank.ts`
+  wire / one PR, per-topic discipline unchanged (own source table, own syllabusGuard boundary, own skeptic, ≥75-or-honest-stop;
+  combined cross-pack gate over all packs before wiring). **pair-of-linear-equations +163** (223→386: extract 42 A/B/C + D 39 +
+  E 52 + a reducible-to-linear pack +30; final scarce D 29→77 · E 16→81) · **arithmetic-progression +114** (235→349: extract
+  20 A/B/C + D 20→72 + E 28→70; AP only, no GP) · **acids-bases-and-salts +163** (302→465: extract 67 A/B/C + D 27→63 + E 12→72;
+  qualitative Class-10). Skeptics dropped 16+3 twins + fixed a chem MCQ collision (ABS EX-A-015) + 1 reducible coeff-clone (C-003).
+- **BOUNDARY CORRECTION (owner):** "equations reducible to a pair of linear equations" (1/x=p, 1/y=q substitution) is IN the
+  official CBSE 2026-27 syllabus — the main sweep wrongly excluded it; added on-branch. A proposal to add it to `syllabusGuard.ts`
+  was **WITHDRAWN → syllabusGuard UNTOUCHED** (Cross-Multiplication Method stays OUT). Mirrors the Batch-8 lesson: never reject
+  in-syllabus content; flag guard changes, never auto-commit.
+- **New FUs:** [FU-AP-BANKED-GP-ITEM] (pre-existing AP ball-bounce item is geometric — later cleanup) + [FU-ABS-WASP-STING-ALKALINE]
+  (textbook "wasp sting alkaline" claim — owner-awareness only). [FU-SYLLABUS-GUARD-PLE-REDUCIBLE] WITHDRAWN/REJECTED.
+
+**NEXT batch (3-per-PR, continuous run) = triangles + coordinate-geometry + one Science (metals-and-non-metals OR
+carbon-and-its-compounds).** Lane at a CLEAN BOUNDARY — regenerate the per-topic census from a fresh dump vs the 8,282 bank.
 
 ## 2026-07-13 — PR-B-v2: the progress ENGINE made real MERGED (#412, code `1228c95`) — owner LIVE-VERIFIED ✅, launch-domino #3 CLOSED
 
