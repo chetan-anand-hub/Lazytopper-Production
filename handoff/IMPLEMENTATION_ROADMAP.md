@@ -2,6 +2,29 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — PR-B-v2: the progress ENGINE made real MERGED (#412, code `1228c95`) — owner LIVE-VERIFIED ✅, launch-domino #3 CLOSED
+
+The engine fixes under arc PR-4's correct UI. 5 files (+858/−157), `progressStore` read-side only (grader /
+DesktopShell / App.tsx / firestore.rules / src/data byte-untouched). Merged in parallel with #410 + #411 (disjoint).
+
+- **[FU-PROG-TOPIC-KEY-MISMATCH] closed:** `resolveCanonicalSlug` on BOTH sides of every topic compare/group (5/26
+  topics could never key-match; legacy label-keyed attempts re-bucket; registry-driven all-slugs regression test).
+- **[FU-PROG-DATA-COMPLETENESS] closed (finding corrected in pre-flight):** the UNIFIED graded stream — cloud attempts
+  ∪ sessionRecords perQuestion payload marks, deduped deterministically by the synthetic `ws:/ct:/fm:` ids. CT/FM
+  objective Section-A now counts; pre-#403 record-only history healed; C&I records skipped by construction (the dual
+  write counts once).
+- **[FU-PROG-WINDOW-MODEL] closed (owner-ratified Option B):** activity-median split everywhere — a wider window never
+  shows less than a narrower one; `spanDays` + `isShortSpan` drive the honest short-term label (Me arc additive note +
+  Topic Hub).
+- **Finding D:** `TopicProgressTrend` → cross-device `getTopicTrendFromCloud` + the running-accuracy SVG sparkline
+  (real scores from 2 points).
+- **Owner live-verify (stable link):** Polynomials Topic Hub 33.9%→46.9% + sparkline + honest label; Trigonometry
+  honestly empty → **the Me/Progress Verified cell flipped ✅** (SURFACE_TRACKER).
+
+**Surface critical path now: Home nudge (arc PR-5).** Deferred/new: [FU-PROGRESS-PRESENTATION-REDESIGN] (owner —
+LATER presentation pass: per-topic trend into the topic HERO card + graphical Me with subject toggle + topic dropdown)
+· [FU-PROG-PRE403-QP-BACKFILL] (historical QP blob recovery).
+
 ## 2026-07-13 — arc PR-4: Me/Progress CONSUMES the memory layer MERGED (#408, code trunk `25c3cd7`) — desktop + MOBILE
 
 The CONSUMPTION layer over PR-B is DONE. Owner byte-reviewed CLEAN + merged. **CONSUMPTION-ONLY** (progressStore /
