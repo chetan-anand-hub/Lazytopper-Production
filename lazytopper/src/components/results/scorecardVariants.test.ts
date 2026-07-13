@@ -17,6 +17,8 @@ import {
   fullMockFocusLine,
   fullMockScorecardVariant,
   storedFullMockScorecardVariant,
+  checkImproveScorecardVariant,
+  storedCheckImproveScorecardVariant,
 } from "./scorecardVariants";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
@@ -615,5 +617,129 @@ describe("storedFullMockScorecardVariant", () => {
       { gradedDateLabel: "12 Jul 2026", onDone: noop },
     );
     expect(v.note).toBe("Focus time (on-screen) · 1h 0m of 1h 10m · away 10m across 2 breaks.");
+  });
+});
+
+// ── CHECK & IMPROVE — the 5th surface (C&I PR-1) ────────────────────────────────
+
+describe("checkImproveScorecardVariant", () => {
+  const base = {
+    topicName: "Real Numbers",
+    code: "CI-M-REAL-03",
+    topicSource: "inferred" as const,
+    response: response(),
+    saved: true,
+    onReadSheet: noop,
+    onDownloadGraded: noop,
+    onPractiseTopic: noop,
+  };
+
+  it("builds the marks hero + four-type + pending strip + the honest saved subtitle", () => {
+    const v = checkImproveScorecardVariant(base);
+    expect(v.surface).toBe("check-improve");
+    expect(v.title).toBe("Check & Improve paper");
+    expect(v.subtitle).toBe(
+      "Real Numbers · CI-M-REAL-03 · graded just now · saved to your progress",
+    );
+    expect(v.score).toEqual({ kind: "marks", awarded: 8, total: 10, gradedCount: 2, totalQuestions: 3 });
+    expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 1, presentation: 2 });
+    expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15 });
+    expect(v.note).toBe("Topic detected automatically"); // quiet provenance line
+    expect(v.actions[0].label).toBe("Read my graded answer sheet");
+    expect(v.actions[1].label).toBe("Practise Real Numbers");
+  });
+
+  it("confirmed provenance shows on the quiet line", () => {
+    const v = checkImproveScorecardVariant({ ...base, topicSource: "confirmed" });
+    expect(v.note).toBe("Topic confirmed by you");
+  });
+
+  it("a MIXED paper: honest header, the §4.1 statement, and NO Practise action (no honest target)", () => {
+    const v = checkImproveScorecardVariant({
+      ...base,
+      topicName: "",
+      code: "CI-M-MIX-01",
+      topicSource: "mixed",
+    });
+    expect(v.subtitle).toContain("Uploaded paper · CI-M-MIX-01 · mixed topics");
+    expect(v.message).toContain("no single topic's progress is guessed");
+    expect(v.note).toBeNull();
+    expect(v.actions.map((a) => a.label)).not.toContainEqual(expect.stringContaining("Practise"));
+  });
+
+  it("a signed-out grade never claims saving", () => {
+    const v = checkImproveScorecardVariant({ ...base, saved: false });
+    expect(v.subtitle).not.toContain("saved to your progress");
+    expect(v.footnote).toContain("Not saved");
+  });
+
+  it("all-pending: the honest couldn't-read state, never a 0", () => {
+    const v = checkImproveScorecardVariant({
+      ...base,
+      response: response({ gradedCount: 0, pendingCount: 3, gradedMarksAwarded: 0, gradedMarksTotal: 0 }),
+    });
+    expect(v.allPending?.title).toBe("We couldn’t read any answers");
+    expect(v.fourType).toBeNull();
+  });
+
+  it("NO board-readiness projection and NO solution key (the questions are the student's own)", () => {
+    const v = checkImproveScorecardVariant(base);
+    const allText = JSON.stringify(v);
+    expect(allText).not.toMatch(/readiness|projected/i);
+    expect(v.actions.map((a) => a.label)).not.toContainEqual(expect.stringContaining("solution key"));
+  });
+});
+
+describe("storedCheckImproveScorecardVariant", () => {
+  const ciRecord = (over: Partial<SessionRecord> = {}): SessionRecord => ({
+    id: "CI-M-REAL-03",
+    worksheetId: "ci:CI-M-REAL-03",
+    surface: "check-improve",
+    title: "Real Numbers · Paper #3",
+    subject: "maths",
+    topicKeys: ["real-numbers"],
+    questionIds: [],
+    marksAwarded: 8,
+    marksTotal: 10,
+    status: "graded",
+    fourType: { conceptual: 1, calculation: 1, silly: 0, presentation: 0 },
+    sectionBreakdown: null,
+    gradedAt: 1,
+    perQuestionRef: "ci:CI-M-REAL-03",
+    dedupKey: "u::CI-M-REAL-03",
+    topicSource: "confirmed",
+    ...over,
+  });
+
+  it("read-only re-open: stored score + four-type + provenance, Done only", () => {
+    const v = storedCheckImproveScorecardVariant(ciRecord(), {
+      gradedDateLabel: "13 Jul 2026",
+      onDone: noop,
+    });
+    expect(v.surface).toBe("check-improve");
+    expect(v.subtitle).toBe("CI-M-REAL-03 · graded 13 Jul 2026");
+    // No graded-count claim: questionIds is honestly [] for external uploads.
+    expect(v.score).toEqual({ kind: "marks", awarded: 8, total: 10 });
+    expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 0, presentation: 0 });
+    expect(v.note).toBe("Topic confirmed by you");
+    expect(v.actions).toHaveLength(1);
+    expect(v.actions[0].label).toBe("Done");
+  });
+
+  it("absent provenance stays absent — never backfilled into a claim (spec §4.3)", () => {
+    const v = storedCheckImproveScorecardVariant(ciRecord({ topicSource: undefined }), {
+      gradedDateLabel: "13 Jul 2026",
+      onDone: noop,
+    });
+    expect(v.note).toBeNull();
+  });
+
+  it("a stored MIXED paper carries the §4.1 statement; partial adds the honest pending line", () => {
+    const v = storedCheckImproveScorecardVariant(
+      ciRecord({ topicSource: "mixed", topicKeys: [], status: "partial" }),
+      { gradedDateLabel: "13 Jul 2026", onDone: noop },
+    );
+    expect(v.message).toContain("no single topic's progress is guessed");
+    expect(v.message).toContain("Graded portion shown");
   });
 });
