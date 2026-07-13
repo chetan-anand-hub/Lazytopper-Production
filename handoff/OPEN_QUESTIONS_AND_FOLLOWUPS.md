@@ -1,3 +1,17 @@
+## 2026-07-13 -- #419: bank-expansion Batch 11 (triangles + coordinate-geometry + metals-and-non-metals +315, SECOND 3-topics-per-PR) MERGED (trunk `69e319d`)
+
+### No NEW follow-ups from this batch
+Add-only batch, clean gates, owner byte-review CLEAN. Standing bank-lane FUs ([FU-D-BAND-HONEST-CEILING], [FU-BANK-EXACTNORM-DUPS],
+[FU-EXTRACT-CONTENT-F13], [FU-FIGURE-PENDING-SAFEGUARD], [FU-BANK-UNRESOLVABLE-MCQ-KEYS], [FU-SYLLABUS-ANCHOR-OFFICIAL-2026-27]) are unchanged.
+
+### RESOLVED / CLOSED adjudication
+- **Angle-bisector-theorem syllabus adjudication — CLOSED (in-syllabus determination made per topic).** Owner-verified 2026-27: the
+  internal ANGLE-BISECTOR THEOREM (BD/DC = AB/AC) is OUT of Triangles ("proof of various theorems" trimmed) — 2 D items asserting it
+  were dropped. The precise both-directions nuance: **PF-015** (corresponding angle bisectors of SIMILAR triangles are proportional,
+  proved via AA similarity) was KEPT — it is in-syllabus similarity, NOT the deleted standalone theorem. Also confirmed OUT (already
+  guard-banned): coordinate-geometry AREA-FROM-COORDINATES (~28 source items dropped) and metals Periodic Classification (Ch5).
+  `syllabusGuard.ts` was NOT edited; no open question remains.
+
 ## 2026-07-13 -- #420: C&I PR-3 — the model-solution CACHE MERGED (code `cc84ae5`) → [FU-CI-SOLUTION-CACHE] CLOSED, 1 NEW — the C&I arc is DONE
 
 ### CLOSED by #420 (owner byte-reviewed CLEAN + merged)

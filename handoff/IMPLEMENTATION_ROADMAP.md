@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — bank-expansion Batch 11 (triangles + coordinate-geometry + metals-and-non-metals +315, SECOND 3-topics-per-PR) MERGED (#419, `69e319d`)
+
+Data-enrichment parallel track — no surface architecture-gate cell moves. **Assembled bank 8,282 → 8,597. 14 DISTINCT topics done
+across 11 batches; 12 remain (exactly half — 6 Maths + 6 Science = 4 more 3-topic batches).** Manifest `docs/bank-expansion-review-queue.md`;
+surfaces GATED until trusted-student QA.
+
+- **triangles +127** (294→421): extract 18 A/B/C + authored D 44 + PROOF 20 (7 D-weight + 13 C-weight) + case-E 45; scarce D 40→91 · E 23→68.
+- **coordinate-geometry +67** (232→299): extract 7 + D 13 + E 47; thin chapter, D honest-stop at 28.
+- **metals-and-non-metals +121** (299→420): extract 45 + D 28 + E 48; D 32→60 · E 10→58.
+- **BOUNDARY PRECEDENTS (owner-verified 2026-27):** internal ANGLE-BISECTOR THEOREM (BD/DC=AB/AC) is OUT ("proof of various theorems"
+  trimmed from Triangles) → 2 D items dropped, BUT PF-015 (corresponding bisectors of SIMILAR triangles proportional via AA) KEPT
+  (in-syllabus similarity, not the deleted theorem); coordinate-geometry AREA-FROM-COORDINATES stays OUT (guard-banned, ~28 dropped);
+  metals Periodic Classification (Ch5) OUT. syllabusGuard NOT edited. 3 skeptics dropped 9; tsc caught 8 invalid `format` strings.
+
+**NEXT batch (Batch 12, 3-per-PR, continuous run) = trigonometry + circles + carbon-and-its-compounds** (2 Maths + 1 Science,
+interleaved). Regenerate the per-topic census from a fresh dump vs the 8,597 bank.
+
 ## 2026-07-13 — C&I PR-3: the model-solution CACHE MERGED (#420, code `cc84ae5`) — **the Check & Improve ARC is COMPLETE** (PR-1 #395 → PR-2 #416 → PR-3 #420; nothing remains)
 
 [FU-CI-SOLUTION-CACHE] CLOSED via the owner-ratified SCHEME-FIRST design (pre-flight caught the spec's wrap-point error — the grader has no discrete solution-generation step; its one Gemini call includes the student answer, uncacheable by Gate 3). 8 files (+1,380/−228); grader `checkSolution.cjs` = +95/−4 deps-injected hooks ONLY (owner byte-review "textbook-clean"); no client files; no forbidden files.

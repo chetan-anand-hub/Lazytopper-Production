@@ -1,5 +1,18 @@
 ---
 
+## 2026-07-13 -- #419: bank-expansion Batch 11 — triangles + coordinate-geometry + metals-and-non-metals (+315, SECOND 3-topics-per-PR), owner byte-reviewed CLEAN + merged — trunk `69e319d`
+
+**Merged as `69e319d` (squash of #419). This docs-only PR (`docs/post-pr-419-bank-batch11`) records the merge.** Isolated worktree per the lane process; resumed from `handoff/BANK_EXPANSION_LANE_STATE.md`. Manifest = `docs/bank-expansion-review-queue.md` (already merged). Review-free; surfaces GATED until trusted-student QA. Never self-merged — owner byte-reviewed CLEAN + merged; CI green. **Assembled bank 8,282 → 8,597. 14 DISTINCT topics done across 11 batches; 12 remain (exactly half — 6 Maths + 6 Science = 4 more 3-topic batches).**
+
+- **triangles +127** (294→421): extract 18 A/B/C + authored D 44 + PROOF 20 (7 D-weight + 13 C-weight) + case-E 45. Scarce **D 40→91 · E 23→68**.
+- **coordinate-geometry +67** (232→299): extract 7 + D 13 + E 47. Thin chapter — **D honest-stop at 28**.
+- **metals-and-non-metals +121** (299→420): extract 45 + D 28 + E 48. **D 32→60 · E 10→58**.
+- **BOUNDARY PRECEDENTS (owner-verified 2026-27):** (a) the internal ANGLE-BISECTOR THEOREM (BD/DC=AB/AC) is OUT of 2026-27 ("proof of various theorems" trimmed from Triangles) — 2 D items dropped; BUT PF-015 (corresponding bisectors of SIMILAR triangles proportional, via AA) was KEPT — in-syllabus similarity, NOT the deleted standalone theorem (a precise both-directions call). (b) coordinate-geometry AREA-FROM-COORDINATES stays OUT (guard-banned; ~28 source items dropped). (c) metals Periodic Classification (Ch5) OUT. syllabusGuard NOT edited.
+- Three per-topic skeptics dropped 9 (triangles 3, coord 4, metals 2); tsc caught 8 invalid `format` strings (fixed). Two-direction syllabus clean; all ids manifested.
+- **Gates:** all green + CI quality-gate PASS. Scope = the canonical wiring + packs + manifest; no forbidden files. **NEXT batch (Batch 12, 3-per-PR, continuous run) = trigonometry + circles + carbon-and-its-compounds** (2 Maths + 1 Science, interleaved). Regenerate the per-topic census from a fresh dump vs the 8,597 bank. Lane state / resume: `handoff/BANK_EXPANSION_LANE_STATE.md`.
+
+---
+
 ## 2026-07-13 -- #420: C&I PR-3 — the model-solution CACHE (scheme-first grading + Gate-2a quality gate + ADMIN_FIREBASE_UIDS eviction), owner byte-reviewed CLEAN + merged — code `cc84ae5` — **the C&I surface is COMPLETE**
 
 **Merged as `cc84ae5` (squash of #420; feature `feat/desktop-pr-ci-pr3-solution-cache` @ `7058c8e` off `874f18b`). This docs-only PR (`docs/post-pr-420-ci-pr3-solution-cache`) records the merge.** Isolated worktree `LT-worktrees/ci-pr3-solution-cache`; verify-before-build pre-flight → owner plan approval (4 decisions) → build → gates → PR #420 → owner byte-review CLEAN ("textbook-clean") → merge. 8 files (+1,380/−228). **Closes [FU-CI-SOLUTION-CACHE]; structurally addresses [FU-MODEL-ANSWER-QUALITY]; opens [FU-ADMIN-UIDS-DEPLOY-ENV] (set the env on the server or the Gate-2b endpoints stay fail-closed-disabled — safe).**

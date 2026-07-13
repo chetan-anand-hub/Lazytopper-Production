@@ -176,11 +176,25 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   - **Skeptics dropped 16 twins in the main batch (PLE 5, AP 11) + 3 in the reducible pack; fixed a chem MCQ collision
     (ABS EX-A-015) + 1 reducible coeff-clone (C-003).** Owner byte-review CLEAN; two-direction syllabus clean; all ids manifested.
     Docs handoff = this PR (#415).
-- **Bank now = 8,282. 11 DISTINCT topics done across 10 batches** (real-numbers has 2 batches — original + corrective; Batch 10
-  shipped 3 topics on one PR): **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity,
+- **Batch 11 — triangles + coordinate-geometry + metals-and-non-metals +315: MERGED #419 (`69e319d`).** SECOND 3-topics-per-PR
+  batch. Bank 8,282→8,597.
+  - **triangles +127** (294→421): extract 18 A/B/C + authored D 44 + PROOF 20 (7 D-weight + 13 C-weight) + case-E 45. Scarce
+    **D 40→91 · E 23→68**.
+  - **coordinate-geometry +67** (232→299): extract 7 + D 13 + E 47. Thin chapter — **D honest-stop at 28**.
+  - **metals-and-non-metals +121** (299→420): extract 45 + D 28 + E 48. **D 32→60 · E 10→58**.
+  - **BOUNDARY PRECEDENTS (owner-verified 2026-27):** (a) the internal ANGLE-BISECTOR THEOREM (BD/DC=AB/AC) is OUT of 2026-27
+    ("proof of various theorems" trimmed from Triangles) — 2 D items asserting it were dropped; BUT PF-015 (corresponding bisectors
+    of SIMILAR triangles are proportional, via AA) was KEPT — it is in-syllabus similarity, NOT the deleted standalone theorem (a
+    precise both-directions call). (b) coordinate-geometry AREA-FROM-COORDINATES stays OUT (guard-banned; ~28 source items dropped).
+    (c) metals Periodic Classification (Ch5) OUT.
+  - Three per-topic skeptics dropped 9 (triangles 3, coord 4, metals 2); tsc caught 8 invalid `format` strings (fixed). Owner
+    byte-review CLEAN; two-direction syllabus clean; all ids manifested. Docs handoff = this PR (#419).
+- **Bank now = 8,597. 14 DISTINCT topics done across 11 batches** (real-numbers has 2 batches — original + corrective; Batches 10 &
+  11 each shipped 3 topics on one PR): **real-numbers, life-processes, our-environment, how-do-organisms-reproduce, heredity,
   chemical-reactions-and-equations, quadratic-equations, polynomials, pair-of-linear-equations, arithmetic-progression,
-  acids-bases-and-salts.** (Count reconciliation: 7 through Batch 8 + polynomials (Batch 9) + PLE/AP/ABS (Batch 10) = 11.)
-  **15 topics remain (8 Maths + 7 Science).**
+  acids-bases-and-salts, triangles, coordinate-geometry, metals-and-non-metals.** (Count reconciliation: 11 distinct through
+  Batch 10 + triangles/coordinate-geometry/metals (Batch 11) = 14 distinct.) **12 topics remain — exactly half the bank left =
+  4 more 3-topic batches (6 Maths + 6 Science).**
 
 ## BEFORE-LAUNCH CORRECTIVE (tracked, SEPARATE from topic expansion — do NOT bury under Batch 7)
 ### [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — 34 bank MCQs whose `answer` matches NO option
@@ -210,16 +224,16 @@ Failure classes + fix rule:
 This is a data-quality corrective (same spirit as [FU-BANK-EXACTNORM-DUPS] and the SCQ-S-HERED-041 evolution leak),
 run as its OWN small PR before launch — NOT folded into a topic-expansion batch.
 
-## TOPICS REMAINING (15 = 8 Maths + 7 Science) — extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
-(Ground truth vs `topics.ts`: 26 canonical slugs = 13 Maths + 13 Science; 11 DONE = real-numbers + quadratic-equations +
-polynomials + pair-of-linear-equations + arithmetic-progression [5 Maths] + life-processes + our-environment +
-how-do-organisms-reproduce + heredity + chemical-reactions-and-equations + acids-bases-and-salts [6 Science] → 15 remain.)
-Maths (8): triangles · coordinate-geometry · trigonometry · circles · areas-related-to-circles ·
-surface-areas-and-volumes · statistics · probability. Science (7): metals-and-non-metals · carbon-and-its-compounds ·
-light-reflection-and-refraction · human-eye-and-colourful-world · electricity · magnetic-effects-of-electric-current ·
-control-and-coordination.
-**NEXT batch (3-per-PR, continuous run) = triangles + coordinate-geometry + ONE Science (metals-and-non-metals OR
-carbon-and-its-compounds).** Owner/next window may re-pick the trio; keep to the per-topic discipline within the bundle.
+## TOPICS REMAINING (12 = 6 Maths + 6 Science) — extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
+(Ground truth vs `topics.ts`: 26 canonical slugs = 13 Maths + 13 Science; 14 DONE = real-numbers + quadratic-equations +
+polynomials + pair-of-linear-equations + arithmetic-progression + triangles + coordinate-geometry [7 Maths] + life-processes +
+our-environment + how-do-organisms-reproduce + heredity + chemical-reactions-and-equations + acids-bases-and-salts +
+metals-and-non-metals [7 Science] → 12 remain.)
+Maths (6): trigonometry · circles · areas-related-to-circles · surface-areas-and-volumes · statistics · probability.
+Science (6): carbon-and-its-compounds · light-reflection-and-refraction · human-eye-and-colourful-world · electricity ·
+magnetic-effects-of-electric-current · control-and-coordination.
+**NEXT batch (Batch 12, 3-per-PR, continuous run) = trigonometry + circles + carbon-and-its-compounds** (2 Maths + 1 Science,
+interleaved for subject balance). Owner/next window may re-pick the trio; keep to the per-topic discipline within the bundle.
 READ + RUN `syllabusGuard.ts` live for EACH chosen chapter before authoring (per-topic, per the standing anchor process-fix).
 **READ + RUN syllabusGuard live for whichever chapter is chosen** (the Science bannedSubtopics list is chapter-wide;
 Sources of Energy / Periodic Classification / Management of Natural Resources / Evolution are the deleted ones).
@@ -250,6 +264,12 @@ Two owner corrections now anchor the rule "flag guard changes, never auto-commit
   syllabus** and board-important; the main sweep wrongly excluded it, so it was added on the same branch as
   `pairOfLinearEquations.expand.reducible.ts`. A backwards proposal to add reducible-to-linear to `syllabusGuard.ts` was
   **WITHDRAWN — syllabusGuard was left UNTOUCHED**; the Cross-Multiplication Method correctly stays OUT.
+- **Batch 11 → the internal ANGLE-BISECTOR THEOREM (BD/DC = AB/AC) is OUT of Triangles for 2026-27** ("proof of various theorems"
+  was trimmed) — 2 D items asserting it were dropped. BUT the CLOSE nuance (a precise both-directions call): PF-015 (corresponding
+  angle bisectors of SIMILAR triangles are proportional, proved via AA similarity) was KEPT — it is in-syllabus similarity, NOT
+  the deleted standalone angle-bisector theorem. Also confirmed OUT (already guard-banned): coordinate-geometry AREA-FROM-COORDINATES
+  (~28 source items dropped) and metals Periodic Classification (Ch5). This adjudication is CLOSED (an in-syllabus determination was
+  made per topic); syllabusGuard was NOT edited.
 Both: when a boundary call is uncertain, anchor to the OFFICIAL CBSE 2026-27 PDF + live `syllabusGuard.ts`, propose (never
 silently commit) any guard edit, and prefer INCLUDING genuine in-syllabus content over a memory-driven exclusion.
 
@@ -291,6 +311,17 @@ silently commit) any guard edit, and prefer INCLUDING genuine in-syllabus conten
   rule); re-point LAZY→new worktree and DUMP→new v-dump. A prior session's scratchpad may be inaccessible.
 
 ## Progress log (newest first)
+- 2026-07-13: Batch 11 (triangles + coordinate-geometry + metals-and-non-metals) MERGED #419 (`69e319d`) +315 — SECOND 3-topics-per-PR
+  batch. triangles +127 (294→421: extract 18 A/B/C + authored D 44 + PROOF 20 [7 D-weight + 13 C-weight] + case-E 45; scarce D 40→91 ·
+  E 23→68) · coordinate-geometry +67 (232→299: extract 7 + D 13 + E 47; thin chapter, D honest-stop at 28) · metals-and-non-metals +121
+  (299→420: extract 45 + D 28 + E 48; D 32→60 · E 10→58). BOUNDARY PRECEDENTS (owner-verified 2026-27): (a) internal ANGLE-BISECTOR
+  THEOREM (BD/DC=AB/AC) is OUT ("proof of various theorems" trimmed from Triangles) → 2 D items dropped; BUT PF-015 (corresponding
+  bisectors of SIMILAR triangles proportional via AA) KEPT — in-syllabus similarity, NOT the deleted standalone theorem; (b)
+  coordinate-geometry AREA-FROM-COORDINATES stays OUT (guard-banned; ~28 source items dropped); (c) metals Periodic Classification
+  (Ch5) OUT. Three per-topic skeptics dropped 9 (triangles 3, coord 4, metals 2); tsc caught 8 invalid `format` strings (fixed).
+  Owner byte-review CLEAN; two-direction syllabus clean; all ids manifested. Bank → 8,597. 14 distinct topics done, 12 remain
+  (exactly half — 4 more 3-topic batches). NEXT = Batch 12 = trigonometry + circles + carbon-and-its-compounds (2 Maths + 1 Science,
+  interleave). Docs handoff = #<this PR>.
 - 2026-07-13: Batch 10 (pair-of-linear-equations + arithmetic-progression + acids-bases-and-salts) MERGED #415 (`ae2b447`) +440 —
   FIRST 3-topics-per-PR batch (owner SPEED directive: from now bundle 3 topics on ONE branch / ONE canonicalQuestionBank.ts wire /
   ONE PR; per-topic discipline unchanged — own source table, own syllabusGuard boundary, own skeptic, ≥75-or-honest-stop).
