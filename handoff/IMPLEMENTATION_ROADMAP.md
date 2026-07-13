@@ -23,6 +23,29 @@ authored/extracted questions (~50% PYQ target, honest fallback for thin/zero-PYQ
 on the scorecard, chrome-less full-screen, AND balanced-sourced — ready to flip live at `MockViewGate` at the owner's
 discretion. Owner live-verify on the balanced mix pending.
 
+## 2026-07-13 — C&I PR-1 MERGED (#395, `e33b9d3`) — Check & Improve is a first-class SessionSurface
+
+The C&I arc's PR-1 (the plumbing gap) is COMPLETE — a graded C&I session no longer vanishes on close:
+- **The six plumbing items** landed exactly per the dispatch (owner byte-review CLEAN): `SessionSurface +=
+  "check-improve"` · `topicSource` provenance tagged onto the EXISTING correction flow (`bank-matched`
+  RESERVED-not-emitted — no bank-match path exists yet) · a sessionRecord on every graded session (idempotent on
+  the durable code; `couldNotRead`-only writes nothing; `questionIds: []` — external uploads' concepts are
+  unknowable, never fabricated) · the 5th `<ResultsScorecard>` variant pair (shell zero-line-diff) · the
+  "Your checked papers" overlay panel (locked CT card shape; MIX = plain "Mixed topics" chip, no count) ·
+  durable cross-device `#NN` per subject+topic-token (`lt:ci-multi-seq` retired, no shadow path).
+- **Closes [FU-CI-SCORECARD-VARIANT] + [FU-CI-DEVICE-LOCAL-SEQUENCE].** Detection / correction / override-log /
+  MI-feed byte-intact; grader / worksheetGradeService / App.tsx / DesktopShell / firestore.rules byte-clean.
+
+**Remaining C&I arc (owner renumbering 2026-07-13):** **PR-2 = per-question topic** (detect prompt + schema —
+unlocks the by-topic scorecard lens and the counted MIX chip) → **PR-3/4 = the two-tier solution cache**
+`[FU-CI-SOLUTION-CACHE]`, gated on owner sign-off of its 3 safety gates (server-only writes · mandatory
+invalidation/quality-flag · store text-never-the-image).
+
+**Critical path now: PR-B, the progress memory layer (launch-blocker)** — C&I writes into the SAME
+`sessionRecords` stream as worksheet/CT/FM, so PR-B is unblocked to aggregate all four graded surfaces. Dispatch
+to a fresh Opus agent after the file-list disjointness re-check vs the merged #395 diff. Then Me/Progress (arc
+PR-4) + Home nudge (arc PR-5) read it.
+
 ## 2026-07-13 — FT FINALIZE MERGED (#391, `25257c0`) — Full Test linked + cross-device upload-later
 
 The Full Mock / Full Test surface work opened by #387 is COMPLETE:
