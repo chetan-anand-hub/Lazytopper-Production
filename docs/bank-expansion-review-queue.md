@@ -353,3 +353,75 @@ ceilings; every further variant would be a number-swap. Stopped rather than pad.
 **Extracted A/B/C (13):** BX-POLY-EX-A-001…008 · BX-POLY-EX-B-001 · BX-POLY-EX-C-001…004.
 **Authored Section-D (22):** BX-POLY-D-001…024 (gaps at 016 dropped-dup, 018 author-dropped twin).
 **Authored case-based E (27):** BX-POLY-E-001…027.
+
+## Batch 10 — pair-of-linear-equations + arithmetic-progression + acids-bases-and-salts (2026-07-13) · 410 items
+
+First 3-topics-per-PR batch (owner speed directive). One branch, one `canonicalQuestionBank.ts` wire, one PR;
+discipline unchanged per topic (own source table, own syllabusGuard boundary, own skeptic, ≥75-or-honest-stop).
+Served bank 7,842 → 8,252.
+
+### Per-topic before → after
+**pair-of-linear-equations (223 → 356):**
+| Band | Before | +Extract | +Author | After | Floor |
+|---|--:|--:|--:|--:|---|
+| A | 79 | +21 | 0 | 100 | extract-max |
+| B | 36 | +4 | 0 | 40 | extract-max |
+| C | 63 | +17 | 0 | 80 | extract-max |
+| D 5-mk | 29 | 0 | +39 | 68 | **honest stop** |
+| E 4-mk | 16 | 0 | +52 | 68 | **honest stop** |
+
+**arithmetic-progression (235 → 349):**
+| Band | Before | +Extract | +Author | After | Floor |
+|---|--:|--:|--:|--:|---|
+| A | 82 | +5 | 0 | 87 | extract-max |
+| B | 41 | +4 | 0 | 45 | extract-max |
+| C | 64 | +11 | 0 | 75 | extract-max |
+| D 5-mk | 20 | 0 | +52 | 72 | **honest stop** (near 75) |
+| E 4-mk | 28 | 0 | +42 | 70 | **honest stop** |
+
+**acids-bases-and-salts (302 → 465):**
+| Band | Before | +Extract | +Author | After | Floor |
+|---|--:|--:|--:|--:|---|
+| A | 144 | +42 | 0 | 186 | extract-max |
+| B | 63 | +14 | 0 | 77 | extract-max |
+| C | 56 | +11 | 0 | 67 | extract-max |
+| D 5-mk | 27 | 0 | +36 | 63 | **honest stop** |
+| E 4-mk | 12 | 0 | +60 | 72 | **honest stop** |
+
+### Per-topic syllabus boundary (each verified separately vs live syllabusGuard.ts + 2026-27 rationalized NCERT)
+- **PLE:** IN = graphical + substitution + elimination + consistency-by-ratios + linear word problems. OUT (rejected):
+  Cross-Multiplication Method (guard-banned) AND **Equations-Reducible-to-a-Pair-of-Linear** (1/x,1/y type — removed
+  in rationalized NCERT Ch3). Skeptic dropped EX-C-004 (reducible 1/u,1/v) on this basis.
+  **[FU-SYLLABUS-GUARD-PLE-REDUCIBLE] — PROPOSAL for owner:** the guard bans only "Cross-Multiplication Method";
+  add "Equations Reducible to a Pair of Linear Equations" (+ a test) to `syllabusGuard.ts`. Treated as OUT here
+  (conservative); not committed to the guard pending owner (NCERT-verifier) confirmation.
+- **AP:** IN = nth term + sum of n terms + applications. OUT (rejected): Geometric Progression / geometric mean /
+  sum-to-infinity / Σn²–Σn³ / harmonic progression. Skeptic confirmed every scenario is genuinely arithmetic.
+  **[FU-AP-BANKED-GP-ITEM]** (pre-existing, NOT this batch): a banked AP case item uses an 80%-rebound ball-bounce
+  which is geometric, not arithmetic — flagged for a later cleanup lane (out of this add-only batch's scope).
+- **ABS:** IN = qualitative pH + everyday pH, indicators, acid/base reactions, salts, chlor-alkali, baking/washing
+  soda, bleaching powder, POP, water of crystallisation. OUT (rejected): quantitative pH=−log[H⁺], molarity/
+  normality/titration calc, Ka/Kb/pKa, buffers, Bronsted-Lowry/Lewis, conjugate pairs, basicity classification.
+  Softened E-005 wording ("titration"→"neutralisation experiment"; no calculation was present). Owner-awareness
+  note (exam-conventional, unchanged): a few items use the persistent textbook "wasp sting is alkaline" claim.
+
+### Verification
+- **Cross-pack consolidation gate across ALL 3 topics** (multi-slug): 410 questions, 0 errors (also catches
+  cross-topic twins). Local gate stack all PASS: tsc · runtime proof (8,252; 0 dup; 0 orphan; 26/26) · syllabusGuard
+  (all 3 boundaries) · mojibake · scope:guard --mode product · root matrix (181) · ops matrix · git diff --check.
+- **Three per-topic adversarial skeptics** independently re-solved every item (PLE 138, AP 125, ABS 163):
+  - PLE: DROP 3 (EX-C-004 reducible; EX-C-015 single-equation-not-a-pair; D-004 banked twin) + 2 D twins of E items
+    dropped (D-005≡E-007, D-039≡E-026). 133 clean.
+  - AP: DROP 9 Section-D banked twins (D-002/003/004/008/014/022/037/043/066 — Jaccard flagged sub-threshold, skeptic
+    confirmed genuine twins) + 2 E dropped for parameter-collision with kept D items (E-001, E-014). 114 clean.
+  - ABS: 0 drop; FIX EX-A-015 MCQ option-normalization collision (MgO/MgO₂→"mgo"; swapped MgO₂→MgSO₄). 163 clean.
+  - Every MCQ/AR key verified to resolve to exactly one option under grader normalization (incl. chemistry-subscript
+    collisions — the [FU-BANK-UNRESOLVABLE-MCQ-KEYS] failure mode). Zero figure-pending — all text-answerable.
+
+### Manifest — id ranges (gaps = skeptic/consolidation drops)
+**pair-of-linear-equations (133):** BX-PLE-EX-A-001…021 · EX-B-001…004 · EX-C-001…020 (gaps 004,013,015) ·
+BX-PLE-D-001…042 (gaps 004,005,039) · BX-PLE-E-001…052.
+**arithmetic-progression (114):** BX-AP-EX-A-001…005 · EX-B-001…004 · EX-C-001…011 · BX-AP-D-001…074 (52 items,
+non-contiguous — author + skeptic drops incl. 002,003,004,008,014,022,037,043,066) · BX-AP-E-002…044 (gap 014).
+**acids-bases-and-salts (163):** BX-ABS-EX-A-001…042 · EX-B-001…014 · EX-C-001…011 · BX-ABS-D-001…036 ·
+BX-ABS-E-001…060.
