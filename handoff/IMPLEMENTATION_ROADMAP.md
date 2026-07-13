@@ -2,6 +2,31 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-13 — arc PR-4: Me/Progress CONSUMES the memory layer MERGED (#408, code trunk `25c3cd7`) — desktop + MOBILE
+
+The CONSUMPTION layer over PR-B is DONE. Owner byte-reviewed CLEAN + merged. **CONSUMPTION-ONLY** (progressStore /
+progressBankIndex / sessionRecords / grader / firestore.rules / src/data byte-untouched). 8 files (+988/−40).
+
+- **§A MOBILE (priority):** new `pages/mobile/MobileMePage` RETIRES the legacy Streak/XP/gamification hero (`pages/app/Me`
+  un-routed for PR-G) → **`[FU-MOBILE-ME-PROGRESS-PARITY]` closed.** Same vision as desktop: the shared responsive
+  `ProgressWindowArc` + honest stat cards + mistake mix + **careless mark-loss (`summarizeCareless`) carried forward** +
+  CTAs. ONE clean header (global `.navbar` retired on mobile `/me` via the `/me` `isMobileSelfChromedRoute` entry — the
+  double-bar is gone); **BottomNav preserved.** Dropped: streak/XP + the trial badge (the `useSubscription`
+  client-`activateTrial` doctrine liability). MI = the Me body's mistake sections (not a ported navy card — doctrine).
+- **§B DESKTOP arc:** `ProgressWindowArc` now renders every rung honest-or-silent (subject/section/topic/concept/
+  mistake-composition, capped w/ honest overflow) + the window empty-state fix ("lopsided" vs "no data" via the pure
+  exported `progressArcStateKind` reading `activity.practiceAttempts`) → **`[FU-PROGRESS-WINDOW-SPLIT-UX]` stopgap.** ONE
+  responsive component reused on both surfaces.
+- **§C TOPIC HUB:** `TopicProgressTrend` consumes `getTopicProgress()`, slotted into `ConceptSpine` → **`[FU-TOPICHUB-PROGRESS-ARC]`
+  wired.** App.tsx = exactly the import repoint + the `/me` self-chromed entry.
+- **⚠️ ENGINE-BLOCKED (PR-B-v2, NOT arc-PR-4 defects — the consumption is CORRECT).** Owner live-verify found the arc
+  renders EMPTY because of 3 PR-B (engine) bugs beneath it: `[FU-PROG-TOPIC-KEY-MISMATCH]` (two canonicalizers disagree →
+  zero topic rows), `[FU-PROG-DATA-COMPLETENESS]` (reads attempts only, not sessionRecords → blind to CT/FT/C&I),
+  `[FU-PROG-WINDOW-MODEL]` (calendar-midpoint → activity-median). All in OPEN_QUESTIONS as PR-B-v2 scope.
+
+**Surface critical path now: PR-B-v2 (the ENGINE fixes)** so the correctly-wired arc renders real data + the Me/Progress
+Verified cell can flip; then Home nudge (arc PR-5).
+
 ## 2026-07-13 — PR-B PROGRESS MEMORY LAYER MERGED (#403, `894ef6a`) — launch-domino #3 DONE
 
 The launch-blocker DATA layer is LIVE: `getWindowedProgress(uid, window, scope?, nowMs?) => Promise<WindowedProgress>`
