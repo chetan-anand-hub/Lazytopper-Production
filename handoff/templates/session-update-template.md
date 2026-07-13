@@ -69,6 +69,7 @@ Timestamp:
 - Does this session add a permanent decision to `DECISION_LOG.md`?
 - Does this session add or close an item in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`?
 - [ ] Update `SURFACE_TRACKER.md`: flip cells for any surface this PR moved; if scope was discovered, log it in `DECISION_LOG` + the tracker's §2a and set that surface's Scope to Settling; if none moved, state so.
+- [ ] Update `LAUNCH_REMAINING.md`: advance any critical-path item or gate this PR moved; if none, state "LAUNCH_REMAINING: no change." Append a dated line to its change log.
 
 ### Known issues / follow-ups
 
