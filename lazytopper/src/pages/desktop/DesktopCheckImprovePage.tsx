@@ -18,6 +18,7 @@ import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
   clampDetectedMarks,
+  resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
@@ -1094,6 +1095,32 @@ const DesktopCheckImprovePage: React.FC = () => {
         return;
       }
 
+      // C&I PR-2 (item A) — resolve a per-QUESTION topic by re-running the EXISTING
+      // /detect-question read once per question (route A2 — no grader edit), then attach
+      // it to each graded result. Unresolved stays empty (honest, never guessed). This
+      // enriches the response the record + payload + scorecard all consume, lighting up
+      // the by-topic lens + counted "N topics" chip for a mixed paper. Best-effort: a
+      // detect miss leaves that question's topic empty and NEVER blocks the shown grade.
+      try {
+        const perQTopics = await resolvePerQuestionGradeTopics(
+          detectedQuestions.map((q) => ({
+            questionNumber: q.questionNumber,
+            questionText: q.questionText,
+          })),
+          CANONICAL_TOPIC_VOCAB,
+        );
+        const topicByQ = new Map(perQTopics.map((t) => [t.qNumber, t]));
+        for (const r of response.results) {
+          const t = topicByQ.get(r.qNumber);
+          if (t && t.topicSlug) {
+            r.topicSlug = t.topicSlug;
+            r.topicLabel = t.topicName;
+          }
+        }
+      } catch (e) {
+        console.warn("[check-improve] per-question topic resolution failed (grade preserved):", e);
+      }
+
       setWsResult(response);
       setStatus("ready");
       setSaveStatus("saving");
@@ -1680,9 +1707,11 @@ const DesktopCheckImprovePage: React.FC = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    /* Multi-question answers are a whole sheet — accept a PDF too;
-                       single-question stays image-only (byte-identical). */
-                    accept={isMultiQuestion ? "image/*,application/pdf" : "image/*"}
+                    /* C&I PR-2 (item C) — the solution upload now accepts a PDF for
+                       BOTH single- and multi-question, mirroring the question upload.
+                       handleFileChosen already derives the PDF mime from the file, and
+                       /check-solution reads a PDF natively (same as SolutionChecker). */
+                    accept="image/*,application/pdf"
                     style={{ display: "none" }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];

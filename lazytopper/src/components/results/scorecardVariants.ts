@@ -1348,6 +1348,59 @@ const CI_MIXED_MESSAGE =
   "This paper spans more than one topic — your marks and mistake types are saved, " +
   "but no single topic's progress is guessed from it.";
 
+/**
+ * Derive the Check & Improve BY-TOPIC lens (spec §5, lens 1) from a grade response
+ * whose per-question results carry the PR-2 per-question topic (item A, client-resolved
+ * via /detect-question). Exactly the Full-Mock chapter-lens shape — per-topic
+ * awarded/total bars, sorted by marks lost — but the topic rides on each result, so no
+ * external questions array is needed. Only GRADED questions with a RESOLVED topic
+ * contribute; an unresolved question stays in the hero total (honest unknown, never a
+ * fabricated topic). Returns null for a single-topic (or no-resolved-topic) paper —
+ * the spec omits the lens entirely there ("Omit entirely for single-topic papers").
+ */
+export function deriveCheckImproveTopicLens(
+  response: WorksheetGradeResponse,
+): ScorecardConceptLensRow[] | null {
+  const buckets = new Map<string, { label: string; awarded: number; total: number }>();
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const raw = String(r.topicSlug || "").trim();
+    if (!raw) continue; // honest unknown — never a fabricated topic
+    const key = resolveCanonicalSlug(raw) || raw;
+    const b = buckets.get(key) ?? {
+      label: r.topicLabel || resolveTopicDisplayName("", key),
+      awarded: 0,
+      total: 0,
+    };
+    b.awarded += Number(r.marksAwarded) || 0;
+    b.total += Number(r.totalMarks) || 0;
+    buckets.set(key, b);
+  }
+  if (buckets.size < 2) return null; // single-topic (or none) → omit the lens (spec §5)
+
+  const rows: ScorecardConceptLensRow[] = [...buckets.entries()].map(([key, b]) => ({
+    key,
+    label: b.label,
+    awarded: b.awarded,
+    total: b.total,
+    lost: Math.max(0, b.total - b.awarded),
+  }));
+  rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
+  return rows;
+}
+
+/** Count DISTINCT resolved per-question topics on a graded response (empty slugs — the
+ *  honest unresolved — never count). Drives the counted "N topics" head/chip. */
+export function countResolvedTopics(response: WorksheetGradeResponse): number {
+  const seen = new Set<string>();
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const raw = String(r.topicSlug || "").trim();
+    if (raw) seen.add(resolveCanonicalSlug(raw) || raw);
+  }
+  return seen.size;
+}
+
 export interface CheckImproveVariantInput {
   /** The confirmed topic display name; "" when no single topic resolved (MIX). */
   topicName: string;
@@ -1381,8 +1434,16 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
   const mixed = topicSource === "mixed";
   const allPending = response.gradedCount === 0;
 
+  // C&I PR-2 (item A/B) — the by-topic lens + counted head, both from the per-question
+  // topics the response now carries. Null lens / <2 count → the honest plain "mixed
+  // topics" fallback (never a fabricated number). A single-topic paper omits the lens.
+  const topicLens = deriveCheckImproveTopicLens(response);
+  const topicCount = countResolvedTopics(response);
+
   const head = mixed
-    ? `Uploaded paper · ${code} · mixed topics`
+    ? topicCount >= 2
+      ? `Uploaded paper · ${code} · ${topicCount} topics`
+      : `Uploaded paper · ${code} · mixed topics`
     : `${topicName || "Checked paper"} · ${code}`;
   const subtitle = `${head} · graded just now${saved ? " · saved to your progress" : ""}`;
 
@@ -1446,6 +1507,10 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     },
     message: mixed ? CI_MIXED_MESSAGE : null,
     note: ciProvenanceLine(topicSource),
+    // By-topic lens (spec §5 lens 1) — reuses the shell's chapter-lens slot, exactly
+    // like Full Mock. Null (single-topic / unresolved) → the shell omits it.
+    chapterLens: topicLens,
+    chapterLensNote: fullMockChapterLensNote(topicLens),
     fourType: aggregateFourType(response),
     pending:
       response.pendingCount > 0
@@ -1469,6 +1534,10 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
 export interface StoredCheckImproveVariantInput {
   gradedDateLabel: string;
   onDone: () => void;
+  /** The resolved per-question payload response, when the host loaded it (item A/B) —
+   *  enables the by-topic lens on RE-OPEN. Absent → the lens is omitted (honest); the
+   *  counted "N topics" head still shows from the record's stored topicCount. */
+  response?: WorksheetGradeResponse | null;
 }
 
 /**
@@ -1490,13 +1559,24 @@ export function storedCheckImproveScorecardVariant(
       : null,
   ].filter(Boolean);
 
+  // C&I PR-2 (item A/B) on RE-OPEN — the counted head from the stored topicCount, and
+  // the by-topic lens DERIVED from the resolved payload when the host loaded it (the
+  // payload's per-question results carry the stored per-question topics). Absent
+  // payload → lens omitted (honest); a pre-PR-2 record with no topicCount → the plain
+  // "mixed topics" fallback.
+  const topicLens = input.response ? deriveCheckImproveTopicLens(input.response) : null;
+  const topicCount = record.topicCount ?? (input.response ? countResolvedTopics(input.response) : 0);
+  const mixLabel = mixed ? (topicCount >= 2 ? ` · ${topicCount} topics` : " · mixed topics") : "";
+
   return {
     surface: "check-improve",
     title: record.title,
-    subtitle: `${record.id} · graded ${input.gradedDateLabel}`,
+    subtitle: `${record.id} · graded ${input.gradedDateLabel}${mixLabel}`,
     score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
     message: messages.length ? messages.join(" ") : null,
     note: ciProvenanceLine(record.topicSource),
+    chapterLens: topicLens,
+    chapterLensNote: fullMockChapterLensNote(topicLens),
     fourType: record.fourType,
     pending: null,
     allPending: null,

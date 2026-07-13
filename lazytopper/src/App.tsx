@@ -177,6 +177,13 @@ function RootEntry() {
  *                — MobileShell surfaces that now carry the app-wide account
  *                  avatar-dropdown in their own header, so the old global brand
  *                  bar must not stack above it (same one-header treatment as /me).
+ *   • `/exam-trends`, `/practice-hub`
+ *                — C&I PR-2 item E ([FU-MOBILE-OLD-HEADER-TRENDS-PRACTICE]): these
+ *                  two still showed the OLD global brand bar at mobile width (owner
+ *                  live-verify after #410). Their responsive pages now render a
+ *                  `!isDesktop` MobileShell header with the same avatar-dropdown, so
+ *                  they join the one-header treatment. Desktop chrome is unchanged
+ *                  (both remain DesktopShell routes at >=1024px).
  *
  * Exported as a pure predicate for unit testing.
  */
@@ -188,7 +195,9 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
       pathname === "/me" ||
       pathname === "/check-improve" ||
       pathname === "/intent" ||
-      pathname === "/practice/worksheets/ready")
+      pathname === "/practice/worksheets/ready" ||
+      pathname === "/exam-trends" ||
+      pathname === "/practice-hub")
   );
 }
 

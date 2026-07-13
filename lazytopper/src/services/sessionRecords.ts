@@ -120,6 +120,13 @@ export interface SessionRecord {
    *  backfilled onto pre-spec records: absent means "written before provenance
    *  existed", NOT "inferred" (C&I spec §4.3). Readers must treat absent ≠ inferred. */
   topicSource?: SessionTopicSource;
+  /** Check & Improve PR-2 — the count of DISTINCT per-question topics resolved on a
+   *  multi-topic (`mixed`) paper (item A/B). ADDITIVE OPTIONAL: absent on every
+   *  pre-PR-2 record and on any session where per-question topics weren't resolved
+   *  → the history chip falls back to the plain "Mixed topics" label. Present (≥2)
+   *  → the chip shows "N topics". A DISPLAY count only — it NEVER feeds single-topic
+   *  progress (topicKeys stays [] for mixed; spec §4.1). */
+  topicCount?: number;
 }
 
 /** The per-question grade payload the `perQuestionRef` points at (§1b — a DATA
@@ -880,6 +887,18 @@ export function buildCheckImproveSessionRecord(args: {
         : "graded";
 
   const slug = topicSource === "mixed" ? "" : resolveCanonicalSlug(topicSlug);
+
+  // C&I PR-2 (item A/B) — count DISTINCT per-question topics from the (client-enriched)
+  // grade response. A DISPLAY count for the "N topics" chip only; it does NOT populate
+  // topicKeys (a mixed paper still feeds no single-topic progress — spec §4.1). Empty
+  // slugs (the honest unresolved) never count. Absent/0 → the plain "Mixed topics" chip.
+  const distinctTopics = new Set<string>();
+  for (const r of response.results) {
+    const s = String(r.topicSlug || "").trim();
+    if (s) distinctTopics.add(resolveCanonicalSlug(s) || s);
+  }
+  const topicCount = distinctTopics.size;
+
   return {
     id: code,
     // The same internal anchor the multi-question grade call already uses as its
@@ -899,5 +918,6 @@ export function buildCheckImproveSessionRecord(args: {
     perQuestionRef: `ci:${code}`,
     dedupKey: `${uid}::${code}`,
     topicSource,
+    ...(topicCount >= 2 ? { topicCount } : {}),
   };
 }

@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
+import MobileShell from "../../components/mobile/MobileShell";
 import {
   isDesktopScopeValueValid,
   type DesktopScopeValue,
@@ -1606,6 +1608,9 @@ export default function DesktopPracticePage() {
   const location = useLocation();
   const [params] = useSearchParams();
   const { user } = useAuth();
+  // C&I PR-2 item E — at mobile width, own the shared MobileShell header (avatar-
+  // dropdown), retiring the old global brand bar. Desktop stays inside DesktopShell.
+  const isDesktop = useIsDesktop();
   const { grade, subject } = useSubjectContext();
   const isSignedIn = !!user;
   const currentPracticeUrl = useMemo(
@@ -2209,7 +2214,7 @@ export default function DesktopPracticePage() {
     : null;
 
   // ── Render ─────────────────────────────────────────────────────────────
-  return (
+  const pageBody = (
     <div
       style={{
         background: SECTION_BG,
@@ -3918,6 +3923,16 @@ export default function DesktopPracticePage() {
         `}</style>
       </div>
     </div>
+  );
+
+  // Mobile: wrap in the shared header (avatar-dropdown). Desktop: bare — DesktopShell
+  // provides the chrome (item E).
+  return isDesktop ? (
+    pageBody
+  ) : (
+    <MobileShell title="Practice" subtitle="Pick a scope, then choose what to do." showNav>
+      {pageBody}
+    </MobileShell>
   );
 }
 

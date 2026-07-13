@@ -417,6 +417,14 @@ export interface WorksheetQuestionGrade {
   teacherNote?: string;
   /** Present only when couldNotRead is true. */
   note?: string;
+  /** Check & Improve PR-2 per-question topic (client-populated AFTER grading — the
+   *  grader NEVER emits these). Resolved by re-running the existing /detect-question
+   *  read per question against the topics.ts vocabulary (A2), canonicalised through
+   *  the shared resolver. Empty/absent = unresolved (honest — never guessed). Drives
+   *  the C&I by-topic scorecard lens + the counted "N topics" chip. Other surfaces
+   *  never set them; every existing reader ignores them. */
+  topicSlug?: string | null;
+  topicLabel?: string | null;
 }
 
 export interface WorksheetGradeResponse {
