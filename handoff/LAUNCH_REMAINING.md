@@ -2,7 +2,7 @@
 
 **Repo home:** `handoff/LAUNCH_REMAINING.md` (version-controlled — this is the source of truth; the copy in
 `/mnt/user-data/outputs/` is just the export the cofounder session writes for the owner to commit).
-**Trunk at last sync:** `894ef6a` (code trunk; **#403 PR-B progress memory layer** — launch-domino #3 done). _Prior: `ae5e671` (#395 C&I PR-1 / #396 bank Batch 6); `85b292f` #402 bank Batch 7._
+**Trunk at last sync:** `25c3cd7` (code trunk; **#408 arc PR-4 — Me/Progress consumes the memory layer**, desktop + mobile; launch-domino #4 shipped — **verify engine-blocked on PR-B-v2**). _Prior: `1b7c7aa` (#405 bank Batch 8); `894ef6a` (#403 PR-B progress memory layer)._
 **Created:** 2026-07-13 · **Last reconciled:** 2026-07-13 (agent docs-handoff, post-#403).
 
 ## WHAT THIS FILE IS (and is NOT) — its lane vs the other handoff docs
@@ -119,7 +119,7 @@ Legacy faulty-question audit *(§7, after expansion)*.
 Only surfaces NOT yet fully green are listed. See `SURFACE_TRACKER.md` for the authoritative cells.
 - ⚠️ **Full Mock** — BUILT (#387) + LINKED (#391, hub + Home); ONLY remaining = owner **production live-verify**
   (checklist in `report-ftfinalize-build-2026-07-13.md` §7).
-- 🟡 **Me / Progress** — the **engine now exists (PR-B #403)** + a desktop before→now arc reads it; full **redesign** to the visual journey is arc PR-4 (Redesigned ⬜, Desktop 🟡 partial, **Mobile 🟡 — the arc is desktop-only ≥1024px; mobile still the legacy `pages/app/Me`, [FU-MOBILE-ME-PROGRESS-PARITY]**). Arc PR-4 requirement set: [FU-PROGRESS-WINDOW-SPLIT-UX] · [FU-TOPICHUB-PROGRESS-ARC] · [FU-MOBILE-ME-PROGRESS-PARITY].
+- 🟡 **Me / Progress** — **arc PR-4 SHIPPED (#408, `25c3cd7`), owner byte-reviewed CLEAN.** Mobile rebuilt (`pages/mobile/MobileMePage` retires the legacy Streak/XP hero → **[FU-MOBILE-ME-PROGRESS-PARITY] closed**); desktop arc completed (all rungs, honest-or-silent); Topic Hub trend wired (**[FU-TOPICHUB-PROGRESS-ARC]**); honest window empty-state (**[FU-PROGRESS-WINDOW-SPLIT-UX] stopgap**); careless carried forward; BottomNav preserved. Built/Redesigned/Desktop/Mobile ✅. **Verified still ⬜ — ENGINE-BLOCKED (PR-B-v2, NOT arc-PR-4 bugs):** the correctly-wired arc renders empty until 3 PR-B fixes land → **[FU-PROG-TOPIC-KEY-MISMATCH] · [FU-PROG-DATA-COMPLETENESS] · [FU-PROG-WINDOW-MODEL]**. **PR-B-v2 is the critical-path next**, then owner live-verify flips Verified.
 - 🟡 **Home** — converge to orient-first + real-insights wiring + ungraded nudge (arc PR-5, after PR-B).
 - 🟡 **Tutor / Learn** — rebuild to locked contract + mobile toggle; blocked on owner brainstorm (§3.3).
 - 🔒 **Chapter Test** — matrix-green; behind `MockViewGate` (owner flips at launch) + `[FU-CT-BALANCED-MIX]` (§4).

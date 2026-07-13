@@ -1,3 +1,18 @@
+## 2026-07-13 -- #408: arc PR-4 — Me/Progress consumes the memory layer MERGED (code trunk `25c3cd7`) — engine bugs surfaced (PR-B-v2 scope)
+
+### DELIVERED by #408 (the arc-PR-4 CONSUMPTION layer — owner byte-reviewed CLEAN; consumption is CORRECT)
+- **[FU-MOBILE-ME-PROGRESS-PARITY] (finding 3) — DONE.** Mobile `/me` now renders the new `pages/mobile/MobileMePage` (the cross-device arc + honest cards), NOT the legacy Streak/XP hero (`pages/app/Me` un-routed for PR-G). ONE responsive engine across both widths.
+- **[FU-TOPICHUB-PROGRESS-ARC] (finding 2) — WIRED (renders once the engine is fixed).** `TopicProgressTrend` consumes `getTopicProgress()`, slotted into `ConceptSpine`. The WIRING is correct + owner-confirmed; it currently renders null on every topic because of the engine key-mismatch below (**[FU-PROG-TOPIC-KEY-MISMATCH]**), not because of the UI.
+- **[FU-PROGRESS-WINDOW-SPLIT-UX] (finding 1) — STOPGAP landed.** The arc empty-state now distinguishes "lopsided" (in-window practice, one-sided split) from "no data" via the pure `progressArcStateKind` reading `activity.practiceAttempts`. This is the honest CONSUMING-UI clarification asked for; the underlying window MODEL fix is **[FU-PROG-WINDOW-MODEL]** (PR-B-v2).
+
+### NEW (open) — PR-B ENGINE bugs surfaced by owner live-verify — **PR-B-v2 SCOPE, NOT arc-PR-4 regressions.** The arc-PR-4 consumption layer is correct; the data layer it reads is incomplete, so the correctly-wired UI renders empty. Do NOT chase these as arc-PR-4 defects.
+- **[FU-PROG-TOPIC-KEY-MISMATCH]** (PR-B-v2 — data-layer). `getTopicProgress` does an EXACT-STRING match between `recordAttempt`'s stored topicKey (`canonicalTopicKey`) and the Topic Hub's `normalizeTopicKey(topic.slug)` — **two different canonicalizers that don't agree** — so the filter returns ZERO rows on EVERY topic. Effect: `TopicProgressTrend` correctly renders null (honest-silent) on every topic, including topics with real data (e.g. Real Numbers shows a subject trend on Me but nothing on its Topic Hub). The component is right; the data filter it calls is broken. Fix in progressStore (single canonicalizer both sides).
+- **[FU-PROG-DATA-COMPLETENESS]** (PR-B-v2 — data-layer). `computeTrend` / `getSubjectProgress` / `getTopicProgress` read the `practiceInsights` attempts stream ONLY, not `sessionRecords`. So Chapter-Test / Full-Test / Check-&-Improve work is INVISIBLE to the trend — the arc is blind to 3 of 4 graded surfaces. Fix: fold the durable sessionRecords marks into the trend WITHOUT double-counting the attempts a surface also records.
+- **[FU-PROG-WINDOW-MODEL]** (PR-B-v2 — data-layer). The calendar-midpoint before/now split makes a WIDER window show LESS than a narrower one when practice is recent-heavy (month goes silent while 2-weeks shows a trend). The arc-PR-4 empty-state ([FU-PROGRESS-WINDOW-SPLIT-UX] stopgap) is a good honest cover; the MODEL itself is fixed here (activity-median split, not calendar-midpoint).
+
+### Still open (unchanged)
+- **[FU-MOBILE-CI-PARITY]** (finding 4 — C&I mobile-parity lane, NOT arc PR-4). Mobile Check & Improve is a different, older page, not at desktop parity. Tracked for the C&I mobile-parity work.
+
 ## 2026-07-13 -- #405: bank-expansion Batch 8 (quadratic-equations +110) MERGED (trunk `1b7c7aa`)
 
 ### NEW (standing process-fix + a corrected syllabus boundary)
