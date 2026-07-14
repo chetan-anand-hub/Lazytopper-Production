@@ -4,9 +4,12 @@ import { useState } from "react";
 import { EquationInput } from "./EquationInput";
 
 // EquationInput is a DROP-IN controlled textarea + math palette. These tests pin the
-// invariants the grader-compat + anti-fabrication guarantees rest on:
+// invariants the friendliness + grader-compat + anti-fabrication guarantees rest on:
 //   - plain typing round-trips verbatim (no-math answers reach the grader unchanged),
-//   - the palette only INSERTS \(...\)-wrapped LaTeX at the caret (never mutates prose),
+//   - the palette inserts READABLE tokens (x^2, sqrt{}, frac{}{}, unicode) — never raw
+//     \(...\) LaTeX, and never an empty/orphaned wrapper (FIX A + FIX B),
+//   - selection is wrapped correctly (x -> x^2); with no selection the token lands at the
+//     caret so the preceding char is the base (5x| -> 5x^2),
 //   - the widget computes nothing (captures input only — anti-fabrication),
 //   - disabled locks both the textarea and the palette.
 // Runs in CI/Codespaces vitest (win32 cannot run vitest/vite).
@@ -25,16 +28,17 @@ function Harness({ initial = "" }: { initial?: string }) {
   );
 }
 
-function openPaletteAndInsert(
-  container: ReturnType<typeof render>,
+function insertWith(
+  view: ReturnType<typeof render>,
   ta: HTMLTextAreaElement,
-  caret: number,
+  selStart: number,
+  selEnd: number,
   keyName: string,
 ) {
+  fireEvent.click(view.getByRole("button", { name: /Insert math/ })); // open palette
   ta.focus();
-  ta.setSelectionRange(caret, caret);
-  fireEvent.click(container.getByRole("button", { name: /Insert math/ }));
-  fireEvent.click(container.getByRole("button", { name: keyName }));
+  ta.setSelectionRange(selStart, selEnd);
+  fireEvent.click(view.getByRole("button", { name: keyName }));
 }
 
 describe("EquationInput", () => {
@@ -45,39 +49,51 @@ describe("EquationInput", () => {
     expect(view.getByTestId("value").textContent).toBe("The reaction is exothermic; heat is released.");
   });
 
-  it("shows the preview only when the value carries math markup", () => {
+  it("shows the preview only when the value carries renderable math", () => {
     const prose = render(<Harness initial="just some prose" />);
     expect(prose.queryByText("Preview")).toBeNull();
     cleanup();
-    const math = render(<Harness initial="Area = \\(x^{2}\\)" />);
+    const math = render(<Harness initial="Area = x^2" />);
     expect(math.queryByText("Preview")).not.toBeNull();
   });
 
-  it("inserts \\(...\\)-wrapped LaTeX at the caret without mutating surrounding prose", () => {
-    const view = render(<Harness initial="side = " />);
+  it("FIX B — wraps the SELECTED base: selecting x then tapping squared yields x^2", () => {
+    const view = render(<Harness initial="5x" />);
     const ta = view.getByLabelText("answer") as HTMLTextAreaElement;
-    openPaletteAndInsert(view, ta, "side = ".length, "Square root");
-    expect(view.getByTestId("value").textContent).toBe("side = \\(\\sqrt{}\\)");
+    insertWith(view, ta, 1, 2, "Power / squared"); // select the "x"
+    expect(view.getByTestId("value").textContent).toBe("5x^2");
   });
 
-  it("builds a single span when inserting again inside existing math", () => {
-    const view = render(<Harness initial="" />);
+  it("FIX B — no selection: the token lands at the caret so the preceding char is the base", () => {
+    const view = render(<Harness initial="5x" />);
     const ta = view.getByLabelText("answer") as HTMLTextAreaElement;
-    // First insert wraps: "\(\sqrt{}\)" with the caret left inside the root braces.
-    openPaletteAndInsert(view, ta, 0, "Square root");
-    // Caret sits inside \sqrt{ | } (position 7). A second insert must NOT open a new span.
-    fireEvent.click(view.getByRole("button", { name: "Pi" }));
+    insertWith(view, ta, 2, 2, "Power / squared"); // caret after "5x"
     const value = view.getByTestId("value").textContent || "";
-    // Exactly one inline span opened/closed — no nested/adjacent \(...\).
-    expect((value.match(/\\\(/g) || []).length).toBe(1);
-    expect((value.match(/\\\)/g) || []).length).toBe(1);
-    expect(value).toContain("\\pi");
+    expect(value).toBe("5x^2"); // NOT "5x^{}" / no empty base
+    expect(value).not.toContain("^{}");
+  });
+
+  it("FIX A — inserts friendly readable tokens, never raw \\(...\\) LaTeX", () => {
+    const view = render(<Harness initial="side = " />);
+    const ta = view.getByLabelText("answer") as HTMLTextAreaElement;
+    insertWith(view, ta, "side = ".length, "side = ".length, "Square root");
+    const value = view.getByTestId("value").textContent || "";
+    expect(value).toBe("side = sqrt{}");
+    expect(value).not.toContain("\\(");
+    expect(value).not.toContain("\\)");
+  });
+
+  it("inserts a unicode symbol directly (readable, no LaTeX)", () => {
+    const view = render(<Harness initial="x " />);
+    const ta = view.getByLabelText("answer") as HTMLTextAreaElement;
+    insertWith(view, ta, 2, 2, "Less than or equal");
+    expect(view.getByTestId("value").textContent).toBe("x ≤");
   });
 
   it("computes nothing — inserting a symbol never evaluates the expression", () => {
     const view = render(<Harness initial="2+2" />);
     const ta = view.getByLabelText("answer") as HTMLTextAreaElement;
-    openPaletteAndInsert(view, ta, "2+2".length, "Multiply");
+    insertWith(view, ta, "2+2".length, "2+2".length, "Multiply");
     const value = view.getByTestId("value").textContent || "";
     expect(value).toContain("2+2");
     expect(value).not.toContain("4");
