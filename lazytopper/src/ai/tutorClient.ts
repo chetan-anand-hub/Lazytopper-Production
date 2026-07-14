@@ -15,10 +15,17 @@ export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
  *  graded-sheet opener injected on return. Absent/"message" = a normal turn. These
  *  are still tutor prose — never a grade the tutor computed (the numbers come from
  *  the durable sessionRecord, read at return time). */
+/** A round-trip offer the model signalled on THIS turn (Fix 3). ADVISORY to the UI only —
+ *  it gates which single round-trip CTA (if any) renders; it is never a grade, never
+ *  persisted as anything but presentational chrome, and only meaningful on a tutor turn. */
+export type TutorOffer = "practice" | "check-improve";
+
 export interface TutorTurn {
   role: "user" | "tutor";
   content: string;
   kind?: "message" | "away-cue" | "return-result";
+  /** Present on a tutor turn when the model earned a round-trip CTA (Fix 3). */
+  offer?: TutorOffer;
 }
 
 /**
@@ -54,10 +61,23 @@ export interface TutorRequest {
   brief?: TutorBrief | null;
   /** Output language for the explanation. Exam content stays English (Teach-Contract §5). */
   language?: string;
+  /** A real, owner-verified bank question for this concept the tutor solves on the
+   *  "see how it's solved" demonstration (Fix 4). Absent → the tutor self-generates a
+   *  correctness-railed simpler example. */
+  demoQuestion?: TutorDemoQuestion | null;
+}
+
+/** The minimal shape of a verified bank question passed for the demonstration (Fix 4). */
+export interface TutorDemoQuestion {
+  questionText: string;
+  marks?: number;
+  solutionSteps?: string[];
 }
 
 export interface TutorReply {
   reply: string;
+  /** The round-trip offer the model signalled this turn (Fix 3), or null/absent. */
+  offer?: TutorOffer | null;
   model?: string;
   provider?: string;
 }
@@ -95,5 +115,7 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
   if (!parsed || typeof parsed.reply !== "string" || !parsed.reply.trim()) {
     throw new Error("The tutor sent an empty response.");
   }
-  return parsed;
+  // Defensive: only a recognised offer survives (garbled → no CTA, never a crash).
+  const offer = parsed.offer === "practice" || parsed.offer === "check-improve" ? parsed.offer : null;
+  return { ...parsed, offer };
 }

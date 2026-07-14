@@ -33,7 +33,10 @@ export interface TutorCoverage {
 /** The pending round-trip marker (D-TUT-5/11): "I sent the student to surface X for
  *  topic/question Y at departureTs; on return, poll for a graded record newer than that." */
 export interface TutorPendingMarker {
-  surface: "check-improve" | "worksheet";
+  /** "practice" = Quick Practice leg (return-detected via practiceInsights, Fix 1);
+   *  "check-improve" = C&I leg (return-detected via sessionRecords). "worksheet" is a
+   *  legacy value (pre-Fix-1 markers) still resolved via the sessionRecords path. */
+  surface: "check-improve" | "practice" | "worksheet";
   topicKey: string;
   questionId?: string;
   departureTs: number;
