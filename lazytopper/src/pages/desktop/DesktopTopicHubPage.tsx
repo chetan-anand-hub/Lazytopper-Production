@@ -21,6 +21,7 @@ import { Card } from "../../components/grammar/Card";
 import { ConceptSpine } from "../../components/topichub/ConceptSpine";
 import { TopicProgressTrend } from "../../components/progress/TopicProgressTrend";
 import { normalizeTopicKey } from "../../utils/topicResolver";
+import { buildTutorPath } from "../tutor/tutorPath";
 
 /**
  * DesktopTopicHubPage — rebuilt as the Topic Hub concept-spine main view
@@ -233,6 +234,23 @@ export default function DesktopTopicHubPage() {
       ...routeContext,
     });
 
+  // Tutor entries (Stage 1) — the fresh /tutor route. Topic-level "Ask the tutor"
+  // (cold entry -> continuity + fork) + per-concept "Stuck? Ask" (concept pre-loaded).
+  // Additive: the "Teach me" drawer stays as the fallback until the new tutor is
+  // owner-verified (decision #5). source/returnTo (routeContext) power back-nav.
+  const askTutorHref = buildTutorPath({
+    subject: topic.subject,
+    topicKey: topic.slug,
+    ...routeContext,
+  });
+  const tutorHrefForConcept = (concept: BoardConcept): string =>
+    buildTutorPath({
+      subject: topic.subject,
+      topicKey: topic.slug,
+      concept: concept.name,
+      ...routeContext,
+    });
+
   return (
     <ConceptSpine
       topic={topic}
@@ -242,6 +260,8 @@ export default function DesktopTopicHubPage() {
       practiceAllHref={practiceAllHref}
       chapterTestHref={chapterTestHref}
       practiceHrefForConcept={practiceHrefForConcept}
+      askTutorHref={askTutorHref}
+      tutorHrefForConcept={tutorHrefForConcept}
       topicProgressSlot={
         <TopicProgressTrend topicKey={normalizeTopicKey(topic.slug) || topic.slug} />
       }

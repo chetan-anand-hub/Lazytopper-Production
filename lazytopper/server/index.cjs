@@ -129,6 +129,9 @@ const { pickFromPool, markServed, saveToPool } = require('./services/generatedQu
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
+// Tutor surface (Stage 1) — FRESH engine (D-TUT-12), NOT mentor.cjs. Stateless
+// conversation endpoint; writes nothing to Firestore (honesty guard, D-TUT-8).
+const { createTutorRoute } = require('./routes/tutor.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -259,6 +262,7 @@ const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
 // C&I PR-3 (Gate 2b): admin-gated eviction/regeneration for the model-solution
 // cache — ADMIN_FIREBASE_UIDS Bearer-token identity, fail-closed (see the route).
 const adminSolutionCacheRoutes = createAdminSolutionCacheRoutes(routeDeps);
+const tutorRoute = createTutorRoute(routeDeps);
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -271,6 +275,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/mentor/cache-stats' ||
       reqPath === '/api/mentor/stream' ||
       reqPath === '/api/mentor/stream-structured' ||
+      reqPath === '/api/tutor' ||
       reqPath === '/api/more-like-this' ||
       reqPath === '/api/step-solution' ||
       reqPath === '/api/check-solution' ||
@@ -426,6 +431,10 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && req.url === '/api/mentor/stream-structured') {
     return mentorRoute.handleMentorStreamStructuredRequest(req, res);
+  }
+  // Tutor surface (Stage 1) — fresh /api/tutor, NOT /api/mentor (D-TUT-12).
+  if (req.method === 'POST' && req.url === '/api/tutor') {
+    return tutorRoute.handleTutorRequest(req, res);
   }
   if (req.method === 'POST' && req.url === '/api/more-like-this') {
     return questionRoutes.handleMoreLikeThis(req, res);
