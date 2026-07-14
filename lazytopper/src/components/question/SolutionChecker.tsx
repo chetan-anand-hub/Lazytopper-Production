@@ -8,6 +8,7 @@ import {
   getMistakeInsights, getMistakeTrend,
   type MistakeInsights, type MistakeTrend, type CheckerMistakeType,
 } from "../../services/mistakeInsightsService";
+import { EquationInput, EquationRender } from "../equation";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -128,7 +129,7 @@ function AnnotatedStepCard({ step }: { step: CheckSolutionResponse["annotatedSte
           {step.stepNumber}
         </div>
         <div style={{ flex: 1, fontSize: "0.78rem", fontWeight: 600, color: "var(--text)" }}>
-          {step.description}
+          <EquationRender text={step.description} />
         </div>
         <MistakeBadge type={step.mistakeType} />
         <span style={{
@@ -153,7 +154,7 @@ function AnnotatedStepCard({ step }: { step: CheckSolutionResponse["annotatedSte
               background: "rgba(0,0,0,0.06)", borderRadius: 6,
               padding: "5px 8px", fontFamily: "monospace",
             }}>
-              {step.studentWork}
+              <EquationRender text={step.studentWork} />
             </div>
           </div>
         )}
@@ -164,7 +165,7 @@ function AnnotatedStepCard({ step }: { step: CheckSolutionResponse["annotatedSte
             fontSize: "0.76rem", color: ss.badge,
             fontWeight: 600, marginBottom: step.correctedWorking ? 6 : 0,
           }}>
-            {step.teacherAnnotation}
+            <EquationRender text={step.teacherAnnotation} />
           </div>
         )}
 
@@ -191,7 +192,7 @@ function AnnotatedStepCard({ step }: { step: CheckSolutionResponse["annotatedSte
                 fontSize: "0.77rem", color: "#22c55e", lineHeight: 1.5,
                 fontFamily: "monospace",
               }}>
-                {step.correctedWorking}
+                <EquationRender text={step.correctedWorking} />
               </div>
             )}
           </div>
@@ -571,20 +572,15 @@ export function SolutionChecker({
             {hasFile ? "Or add text notes too" : "Or type your answer instead"}
           </button>
           {showTextInput && (
-            <textarea
-              value={textAnswer}
-              onChange={(e) => setTextAnswer(e.target.value)}
-              placeholder="Type your working and answer here..."
-              rows={4}
-              style={{
-                marginTop: 6, width: "100%", boxSizing: "border-box",
-                padding: "8px 10px", borderRadius: 8,
-                border: "1px solid hsl(220, 18%, 82%)",
-                background: "var(--bg-card)", color: "var(--text)",
-                fontSize: "0.8rem", lineHeight: 1.5, resize: "vertical",
-                outline: "none",
-              }}
-            />
+            <div style={{ marginTop: 6 }}>
+              <EquationInput
+                value={textAnswer}
+                onChange={setTextAnswer}
+                placeholder="Type your working and answer here..."
+                rows={4}
+                ariaLabel="Type your working and answer"
+              />
+            </div>
           )}
         </div>
       )}
