@@ -8,6 +8,7 @@
 // the durable sessionRecord written by C&I/Practice; this module only READS + phrases.
 
 import type { SessionRecord } from "../../services/sessionRecords";
+import type { PracticeAttempt } from "../../services/practiceInsights";
 import type { TutorPendingMarker } from "../../services/tutorSessionStore";
 
 /** Encode a query object into a `?a=b` suffix (URLSearchParams — safe-encodes). */
@@ -28,26 +29,30 @@ export function buildCheckImproveRoundTripHref(args: { returnTo: string; topicSl
 }
 
 /**
- * Deep-link to a worksheet for the MI-weighted "Practise" round-trip (decision P-A;
- * a worksheet writes a watchable surface:"worksheet" sessionRecord). Passes the
- * concept `focus` ONLY — NOT a mark-band, which would distort a worksheet's A–D
- * section spread (D-TUT-7 wants the CONCEPT the student misses, not a mark filter).
- * `focus` is consumed by the additive parse in WorksheetGenerator.parseEntryContext
- * (GAP-2, best-effort/guarded — never empties the sheet); harmless (ignored) if absent.
- * With no concept the worksheet is topic-scoped + still MI-weighted (miEnrich).
+ * Deep-link to QUICK PRACTICE, concept-filtered, for the "Practise this" round-trip
+ * (Fix 1 — the worksheet BUILDER killed the loop; Quick Practice keeps it). Mirrors the
+ * EXACT route + param shape the Topic Hub's concept-row uses (buildDesktopConceptPracticePath
+ * → `/practice/:grade/:subject` with `topic`/`focus`/`subtopicHint`), so PracticePage
+ * auto-builds a ready, concept-scoped set on arrival. Quick Practice writes per-question
+ * `practiceInsights/{uid}/attempts` (the return-detection stream — NOT a sessionRecord).
+ *
+ * Carries the concept `focus` ONLY — NOT a mark-band (D-TUT-7 wants the CONCEPT the student
+ * misses, not a mark filter). `source`/`returnTo` are plain string params PracticePage reads
+ * (kept a raw string here, decoupled from the desktop DesktopActionSource enum).
  */
-export function buildWorksheetRoundTripHref(args: {
+export function buildQuickPracticeRoundTripHref(args: {
   returnTo: string;
   subject: "maths" | "science" | "";
   topicKey: string;
   concept?: string;
+  grade?: string;
 }): string {
+  const grade = args.grade || "10";
   const subject = args.subject === "science" ? "Science" : "Maths";
-  return `/practice/worksheets${query({
-    scope: "topic",
-    subject,
+  return `/practice/${grade}/${subject}${query({
     topic: args.topicKey,
     focus: args.concept,
+    subtopicHint: args.concept,
     source: "tutor",
     returnTo: args.returnTo,
   })}`;
@@ -75,11 +80,63 @@ export function matchReturningRecord(
   return candidates[0] ?? null;
 }
 
+/**
+ * The PRACTICE leg's returning attempts (Fix 1): Quick Practice writes per-question
+ * `practiceInsights` attempts, NOT a graded sessionRecord. Select the ones logged after
+ * departure whose canonical topicKey matches the marker's. `canonicalSlugMatches` is the
+ * caller's guard (it lives in canonicalTopicSlug.ts); this module stays pure/testable by
+ * taking the already-filtered set — the hook does the timestamp query + slug match.
+ */
+export function matchReturningAttempts(
+  attempts: PracticeAttempt[],
+  pending: TutorPendingMarker,
+  slugMatches: (a: string, b: string) => boolean,
+): PracticeAttempt[] {
+  return attempts.filter(
+    (a) =>
+      typeof a.timestamp === "number" &&
+      a.timestamp > pending.departureTs &&
+      slugMatches(a.topicKey, pending.topicKey),
+  );
+}
+
 /** The reframed return-opener (D-TUT-6): name the marks, collapse to one root cause,
  *  separate method from presentation, hand back the choice. All facts from the record. */
 export interface ReturnOpener {
   text: string;
   follow?: { label: string; send: string };
+}
+
+/**
+ * The PRACTICE return-opener (Fix 1 / D-TUT-6). Composed from `practiceInsights` attempts
+ * — which carry per-question correctness + marks but NO fourType breakdown — so it names
+ * how the set went honestly and hands back the choice, WITHOUT inventing a method-vs-
+ * presentation split it cannot know (that split is C&I's, from the grader). Read-only:
+ * the tutor never computes a grade (D-TUT-8); these numbers come from Practice's own writes.
+ */
+export function composePracticeReturnOpener(
+  attempts: PracticeAttempt[],
+  topicLabel: string,
+): ReturnOpener {
+  const n = attempts.length;
+  if (n === 0) {
+    return {
+      text: `You're back from practising ${topicLabel}. How did it go — want to work through any that tripped you?`,
+      follow: { label: "Go through one", send: "Yes, let's go through one I got stuck on." },
+    };
+  }
+  const correct = attempts.filter((a) => a.correct).length;
+  if (correct >= n) {
+    return {
+      text: `${correct} out of ${n} — clean, every one. That's landing now. Want a harder one to stretch on, or leave it here?`,
+      follow: { label: "A harder one", send: "Give me a harder one to try." },
+    };
+  }
+  const missed = n - correct;
+  return {
+    text: `You got ${correct} of ${n} on that set — ${missed} slipped. Want to go through the ${missed === 1 ? "one" : "ones"} that got away, together?`,
+    follow: { label: "Go through them", send: "Yes, let's go through the ones I missed." },
+  };
 }
 
 export function composeReturnOpener(

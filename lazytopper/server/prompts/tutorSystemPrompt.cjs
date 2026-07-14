@@ -25,9 +25,13 @@
  * @param {string} [args.concept]   Sub-topic the student opened on (per-row "Stuck?"), if any.
  * @param {object|null} [args.brief] Compact, honest student context brief (see tutorContextBrief.ts).
  * @param {string} [args.language]  Output language for explanation. Exam content stays English.
+ * @param {object|null} [args.demoQuestion] A real, owner-verified bank question for THIS
+ *   concept/topic the tutor solves on the "see how it's solved" demonstration (Fix 4 —
+ *   bank-over-self-invented). `{ questionText, marks?, solutionSteps?[] }`. Absent when the
+ *   bank has nothing usable → the tutor falls back to a correctness-railed simpler example.
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion } = {}) {
   const topic = (topicLabel && String(topicLabel).trim()) || 'this topic';
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   const lang = (language && String(language).trim()) || 'English';
@@ -48,10 +52,17 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language 
     `- Warm but direct and plain. No "Namaste", no kite/cricket analogies as intros, no "you're a topper".\n` +
     `- Organise by what matters to a board student: by marks and structure, with concrete board-style examples.\n` +
     `- Write plain, warm prose in short lines. Use a simple dash for a list. Do NOT use markdown symbols ` +
-    `(**, ##, backticks). For ANY maths, use LaTeX inside \\(...\\) for inline and \\[...\\] for a display ` +
-    `line — NEVER $...$ or $$...$$ (the app renders \\(...\\) / \\[...\\] only; a bare $ shows as a literal ` +
-    `dollar sign to the student). E.g. "\\(\\sin\\theta = \\frac{p}{h}\\)" inline, or a step on its own line ` +
-    `"\\[\\tan 60^\\circ = \\sqrt{3}\\]".\n` +
+    `(**, ##, backticks). WRAP EVERY MATHEMATICAL EXPRESSION IN LATEX DELIMITERS — this is absolute:\n` +
+    `    - inline maths goes inside \\(...\\); a standalone/derivation/multi-line step goes inside \\[...\\] (display).\n` +
+    `    - NEVER write a bare LaTeX command or symbol outside a delimiter — no bare \\text{...}, \\frac{...}, ` +
+    `\\sin, \\cos, \\sqrt, ^ or _ in the open prose. Each list item and EACH derivation LINE that contains ` +
+    `maths must be FULLY wrapped, delimiters included, on that line.\n` +
+    `    - NEVER $...$ or $$...$$ (the app renders \\(...\\) / \\[...\\] only; a bare $ shows as a literal dollar ` +
+    `sign, and a bare \\sin^{2} renders corrupted).\n` +
+    `    - RIGHT: "\\(\\sin\\theta = \\frac{p}{h}\\)" inline; a step on its own line "\\[\\tan 60^\\circ = \\sqrt{3}\\]"; ` +
+    `a derivation line "\\[\\text{LHS} = \\frac{(1+\\sin\\theta)^2 + \\cos^2\\theta}{\\cos\\theta(1+\\sin\\theta)}\\]".\n` +
+    `    - WRONG (bare, will render as raw source): \\text{LHS} = \\frac{...}  or  \\sin^{2}\\theta = ...  — these ` +
+    `MUST be \\[\\text{LHS} = \\frac{...}\\] and \\(\\sin^{2}\\theta = ...\\).\n` +
     `- End a teaching turn with EXACTLY ONE specific, declinable offer — never a menu, never an ` +
     `interrogation. If the student just wants the answer, give it; don't nag or force struggle on an ` +
     `unwilling student. Good offers: "want the step-by-step with CBSE step-marking?" or "want to see how a ` +
@@ -76,16 +87,34 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language 
 
   lines.push(
     `\nWORKED EXAMPLES vs THE STUDENT'S PRACTICE (keep them separate)\n` +
-    `- DEMONSTRATION: if the student accepts "want to see how a question like this is solved?", GENERATE ` +
-    `ONE question on this concept yourself and walk its FULL solution, step by step, with CBSE step-marking, ` +
-    `naming where the marks sit. This is teaching by worked example — allowed and encouraged.\n` +
+    `- DEMONSTRATION: if the student accepts "want to see how a question like this is solved?", solve ONE ` +
+    `question on this concept, step by step, with CBSE step-marking, naming where the marks sit. ` +
+    demoQuestionDirective(demoQuestion) + `\n` +
     `- "TRY ONE YOURSELF": if instead you invite the student to attempt one, GIVE the problem and then STOP ` +
     `and WAIT for their attempt. NEVER solve it for them — that robs the practice. Work from what they send back.\n` +
-    `- Do NOT offer to send them off to "practise a set" of questions — that routed practice does not exist ` +
-    `yet; only the two moves above are available to you.\n` +
-    `- CORRECTNESS RAIL: whenever you generate-and-solve your own example, the maths MUST be correct — a ` +
-    `confidently wrong worked solution is worse than none. If you are not fully certain, use a SIMPLER ` +
-    `standard example you are sure of. Correctness first, mark-weighting second.`
+    `- CORRECTNESS RAIL: whenever you solve an example (a fallback self-generated one especially), the maths ` +
+    `MUST be correct and the QUESTION itself complete before you show it — both sides of a "prove that", all ` +
+    `given data. A confidently wrong or half-stated worked solution is worse than none. If you are not fully ` +
+    `certain, use a SIMPLER standard example you are sure of. Correctness first, mark-weighting second.`
+  );
+
+  lines.push(
+    `\nROUND-TRIP OFFERS (how the app routes the student — READ CAREFULLY)\n` +
+    `Two real surfaces exist that you can hand the student off to, and the app shows the matching button ONLY ` +
+    `when you signal it below. Offer at most ONE, and only when it is earned by the conversation:\n` +
+    `- PRACTICE: after you have taught something and the student is ready to try questions on it, you may offer ` +
+    `"want to try a couple on this?". If the student then AGREES, the app can send them to a concept-filtered ` +
+    `practice set and bring them back to you with the result.\n` +
+    `- CHECK & IMPROVE: if the student raises a SPECIFIC question they got stuck on and you have asked to see ` +
+    `their working / the actual question, and the student AGREES to show it, the app can send them to Check & ` +
+    `Improve to get it board-marked and bring the graded sheet back to you.\n` +
+    `THE SIGNAL (machine-readable, MUST be the VERY LAST line of your reply, nothing after it):\n` +
+    `- Put \`[[offer:practice]]\` on its own final line ONLY on the turn where you have just offered practice and ` +
+    `the student is expected to accept next.\n` +
+    `- Put \`[[offer:check-improve]]\` on its own final line ONLY on the turn where the student has agreed to show ` +
+    `their working and the next step is to open Check & Improve.\n` +
+    `- Otherwise emit NO tag at all. Never emit both. The tag is stripped by the app and NEVER shown to the ` +
+    `student — it is not part of your prose, do not describe it, do not reference "the button".`
   );
 
   lines.push(
@@ -167,6 +196,32 @@ function briefBlock(brief) {
     `If you reference it at all, use ONE gentle spoken line and only after the student has said their first ` +
     `thing (e.g. "the identities are where marks have slipped, so let's nail those"). A careless or ` +
     `presentation pattern is NOT a weakness — say "you know this, you're just rushing the finish", not "you're weak here".`
+  );
+}
+
+/**
+ * The demonstration directive (Fix 4): prefer a real, owner-verified BANK question over a
+ * self-invented one (which is fabrication-prone — an incomplete prompt now, a confidently
+ * wrong proof later). When the client supplies one, instruct the tutor to solve THAT exact
+ * question. When it does not, fall back to a correctness-railed simpler self-generated one.
+ */
+function demoQuestionDirective(demoQuestion) {
+  const q = demoQuestion && typeof demoQuestion === 'object' ? demoQuestion : null;
+  const text = q && typeof q.questionText === 'string' ? q.questionText.trim() : '';
+  if (!text) {
+    return (
+      `Since no verified bank question was provided, GENERATE one yourself — but it MUST be complete and ` +
+      `mathematically correct before you show it (see the correctness rail below); if unsure, use a simpler ` +
+      `standard example you are certain of.`
+    );
+  }
+  const marks = typeof q.marks === 'number' && q.marks > 0 ? ` (${q.marks} marks)` : '';
+  return (
+    `Use THIS real, verified board question${marks} rather than inventing one — it is owner-verified and ` +
+    `NCERT-authoritative, so solve exactly it, verbatim, then walk its full CBSE-marked solution:\n` +
+    `    "${text.slice(0, 600)}"\n` +
+    `Do not alter or "correct" the question; if it looks off, it is not — solve it as written. Present the ` +
+    `question to the student first, then the step-marked solution.`
   );
 }
 

@@ -85,7 +85,6 @@ export default function TutorPage() {
     messages,
     status,
     error,
-    canRoundTrip,
     pending,
     returnFollow,
     send,
@@ -93,6 +92,7 @@ export default function TutorPage() {
     routeToCheckImprove,
     routeToPractice,
     recheckPending,
+    dismissPending,
   } = useTutorSession({
     user,
     topicKey: canonicalTopicKey,
@@ -108,6 +108,18 @@ export default function TutorPage() {
     const el = streamRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, status, pending]);
+
+  // Fix 3: the round-trip CTA is gated on the LATEST tutor turn's intent signal — the
+  // model raises `offer` only when it has just offered practice (student expected to accept)
+  // or the student has agreed to show working for C&I. One CTA at a time, tied to what was
+  // said — never a standing pair. No offer → no CTA (D-TUT-4/5, the v4 prototype).
+  const latestOffer = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role === "tutor" && m.kind !== "away-cue") return m.offer ?? null;
+    }
+    return null;
+  }, [messages]);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -183,6 +195,10 @@ export default function TutorPage() {
                 );
               }
               if (m.kind === "away-cue") {
+                // Fix 2 (de-dupe): while a holding banner is live it carries the same
+                // "holding your place" line — render exactly one, so suppress the away
+                // bubble here. Resolved round-trips (pending cleared) still show it as history.
+                if (pending) return null;
                 return (
                   <div key={i} className="lt-tutor__away">
                     <span aria-hidden="true">⏸</span> {m.content}
@@ -208,15 +224,25 @@ export default function TutorPage() {
               </div>
             )}
 
-            {/* Pending round-trip — holding your place; re-poll on "I'm back" */}
+            {/* Pending round-trip — ONE actionable, dismissable holding banner (Fix 2).
+                Never an indefinite "still waiting": re-engaging (send), checking, or the
+                dismiss all clear it. */}
             {pending && (
               <div className="lt-tutor__pending">
                 <span>
-                  Holding your place — you&rsquo;re in {pending.note || "another surface"}. Come back when it&rsquo;s
-                  graded.
+                  Back from your {pending.note || "practice"}? I&rsquo;ll read the result — or just tell me how it
+                  went.
                 </span>
                 <button type="button" className="lt-tutor__retry" onClick={recheckPending}>
                   I&rsquo;m back — check
+                </button>
+                <button
+                  type="button"
+                  className="lt-tutor__dismiss"
+                  onClick={dismissPending}
+                  aria-label="Dismiss"
+                >
+                  &times;
                 </button>
               </div>
             )}
@@ -238,12 +264,17 @@ export default function TutorPage() {
             )}
           </div>
 
-          {/* Round-trip CTAs — offered once earned, never forced (D-TUT-5) */}
-          {canRoundTrip && !pending && (
+          {/* Round-trip CTA — intent-driven, ONE at a time, never a standing pair (Fix 3 /
+              D-TUT-4/5). Rendered only when the model's latest turn earned it. */}
+          {!pending && latestOffer === "practice" && (
             <div className="lt-tutor__actions">
               <button type="button" className="lt-tutor__action" onClick={routeToPractice}>
                 Practise this
               </button>
+            </div>
+          )}
+          {!pending && latestOffer === "check-improve" && (
+            <div className="lt-tutor__actions">
               <button type="button" className="lt-tutor__action" onClick={routeToCheckImprove}>
                 Get my attempt marked
               </button>
@@ -479,6 +510,19 @@ const TUTOR_CSS = `
   padding: 5px 11px;
   cursor: pointer;
 }
+.lt-tutor__dismiss {
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--lt-amber-ink);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 2px 6px;
+  cursor: pointer;
+  margin-left: auto;
+}
+.lt-tutor__dismiss:hover { background: rgba(0, 0, 0, 0.05); }
 .lt-tutor__actions {
   display: flex;
   gap: 8px;

@@ -40,6 +40,44 @@ function coalesceTurns(turns) {
   return out;
 }
 
+/**
+ * Fix 3 — pull the intent sentinel out of the model's prose. The model is instructed to
+ * put `[[offer:practice]]` or `[[offer:check-improve]]` on its OWN final line when (and
+ * only when) a round-trip is earned. We strip EVERY such tag (defensive against a stray
+ * mid-text one) and return the LAST recognised offer. Robust by construction: no tag, an
+ * unknown value, or a malformed bracket → offer:null and the prose is returned untouched
+ * (minus any well-formed tag). The tag never reaches the student.
+ */
+function extractOfferTag(raw) {
+  let offer = null;
+  const tagRe = /\[\[\s*offer\s*:\s*([a-z-]+)\s*\]\]/gi;
+  const text = String(raw)
+    .replace(tagRe, (_m, value) => {
+      const v = String(value).toLowerCase().trim();
+      if (v === 'practice' || v === 'check-improve') offer = v;
+      return '';
+    })
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+  return { text, offer };
+}
+
+/**
+ * Fix 4 — normalize the optional client-supplied bank question to the minimal shape the
+ * prompt consumes. Anything missing a usable questionText → null (self-gen fallback).
+ */
+function normalizeDemoQuestion(input) {
+  const q = input && typeof input === 'object' ? input : null;
+  const questionText = q && typeof q.questionText === 'string' ? q.questionText.trim() : '';
+  if (!questionText) return null;
+  const out = { questionText };
+  if (typeof q.marks === 'number' && q.marks > 0) out.marks = q.marks;
+  if (Array.isArray(q.solutionSteps) && q.solutionSteps.length) {
+    out.solutionSteps = q.solutionSteps.filter((s) => typeof s === 'string');
+  }
+  return out;
+}
+
 function createTutorRoute(deps) {
   const {
     sendJson,
@@ -70,6 +108,10 @@ function createTutorRoute(deps) {
         ? payload.language.trim()
         : 'English';
     const brief = payload.brief && typeof payload.brief === 'object' ? payload.brief : null;
+    // Fix 4: a real, owner-verified bank question the client pre-selected for the concept,
+    // for the "see how it's solved" demonstration. Additive + optional — normalized to the
+    // minimal shape the prompt consumes; anything malformed becomes null (self-gen fallback).
+    const demoQuestion = normalizeDemoQuestion(payload.demoQuestion);
 
     // Map the conversation to Gemini turns (user | model), dropping empties and
     // capping both history length and per-turn size.
@@ -98,7 +140,7 @@ function createTutorRoute(deps) {
       });
     }
 
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language });
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -131,11 +173,19 @@ function createTutorRoute(deps) {
 
     try {
       const reply = await callGemini(MODEL, contents, { temperature: 0.55, maxOutputTokens: 900 });
-      const text = String((reply && reply.text) || '').trim();
+      const raw = String((reply && reply.text) || '').trim();
+      if (!raw) {
+        return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
+      }
+      // Fix 3: pull the machine-readable intent tag OUT of the prose the student sees, and
+      // return it as a sibling `offer` field the UI gates ONE round-trip CTA on. Robust:
+      // a missing/garbled tag yields offer:null (no CTA, never a crash). Runs on the model
+      // OUTPUT only — orthogonal to the language-steering append (which edits the INPUT).
+      const { text, offer } = extractOfferTag(raw);
       if (!text) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
       }
-      return sendJson(res, 200, { reply: text, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
+      return sendJson(res, 200, { reply: text, offer, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
     } catch (err) {
       console.error('[tutor] generation failed:', err && err.message);
       const status = err && err.status === 504 ? 504 : 500;
@@ -148,4 +198,4 @@ function createTutorRoute(deps) {
   return { handleTutorRequest };
 }
 
-module.exports = { createTutorRoute, coalesceTurns };
+module.exports = { createTutorRoute, coalesceTurns, extractOfferTag, normalizeDemoQuestion };

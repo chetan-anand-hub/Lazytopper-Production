@@ -20,6 +20,8 @@ import { callTutor, type TutorBrief, type TutorTurn } from "../../ai/tutorClient
 import { assembleTutorBrief } from "./tutorContextBrief";
 import type { AuthUser } from "../../context/AuthContext";
 import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
+import { getAttemptsFromCloud } from "../../services/practiceInsights";
+import { canonicalSlugMatches } from "../../data/syllabus/canonicalTopicSlug";
 import {
   loadTutorSessionLocal,
   loadTutorSessionFromCloud,
@@ -30,10 +32,13 @@ import {
 } from "../../services/tutorSessionStore";
 import {
   buildCheckImproveRoundTripHref,
-  buildWorksheetRoundTripHref,
+  buildQuickPracticeRoundTripHref,
   composeReturnOpener,
+  composePracticeReturnOpener,
   matchReturningRecord,
+  matchReturningAttempts,
 } from "./tutorRoundTrip";
+import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
 
 export type TutorStatus = "idle" | "sending" | "error";
 
@@ -74,8 +79,11 @@ export interface UseTutorSession {
   retry: () => void;
   routeToCheckImprove: () => void;
   routeToPractice: () => void;
-  /** Re-poll for a pending round-trip's graded record (student says "I'm back"). */
+  /** Re-poll for a pending round-trip's result (student says "I'm back"). Honest +
+   *  non-blocking: clears the holding state whether or not a result is found (Fix 2). */
   recheckPending: () => void;
+  /** Dismiss the holding banner without checking — re-engaging clears the marker (Fix 2). */
+  dismissPending: () => void;
 }
 
 function buildOpener(topicLabel: string, concept?: string): TutorOpener {
@@ -122,11 +130,29 @@ export function useTutorSession({
   );
   const [returnFollow, setReturnFollow] = useState<TutorFork | null>(null);
 
+  // Mirror `pending` in a ref so callbacks persist the CURRENT marker, never a stale
+  // closure copy (Fix 2 — clearing on re-engage must not be undone by an in-flight
+  // runModel that captured the old value).
+  const pendingRef = useRef<TutorPendingMarker | null>(pending);
+  const updatePending = useCallback((next: TutorPendingMarker | null) => {
+    pendingRef.current = next;
+    setPending(next);
+  }, []);
+
+  // Fix 4: the verified bank question the tutor solves on a "see how it's solved"
+  // demonstration (bank-over-self-invented). Selected once per (subject, topic, concept);
+  // null when the bank has nothing usable → the server prompt self-gens a railed example.
+  const demoQuestion = useMemo(
+    () => selectTutorDemoQuestion({ subject, topicKey, concept }),
+    [subject, topicKey, concept],
+  );
+
   const briefRef = useRef<TutorBrief | null>(null);
   const coverageRef = useRef<TutorCoverage>(
     loadTutorSessionLocal(uid, topicKey)?.coverage ?? { ...EMPTY_COVERAGE },
   );
   const sendingRef = useRef(false);
+  const resolvingRef = useRef(false);
   const mountedRef = useRef(true);
 
   const opener = useMemo(() => buildOpener(topicLabel, concept), [topicLabel, concept]);
@@ -150,31 +176,68 @@ export function useTutorSession({
     [user, topicKey, topicLabel, subject],
   );
 
-  // Poll for the returning graded record and inject the reframed opener (D-TUT-6).
+  // Inject the reframed return-opener + clear the holding state (both legs share this).
+  const injectReturn = useCallback(
+    (opener: { text: string; follow?: TutorFork }) => {
+      updatePending(null);
+      setMessages((prev) => {
+        const next: TutorTurn[] = [...prev, { role: "tutor", content: opener.text, kind: "return-result" }];
+        persist(next, null);
+        return next;
+      });
+      setReturnFollow(opener.follow ?? null);
+    },
+    [updatePending, persist],
+  );
+
+  // Poll for the returning result and inject the reframed opener (D-TUT-6). The PRACTICE
+  // leg watches `practiceInsights` attempts (Fix 1); the C&I / legacy-worksheet leg watches
+  // graded `sessionRecords` (Fix 6 — unchanged). `explicit` = the student tapped "I'm back":
+  // if nothing is found we then unblock honestly (Fix 2), rather than leaving a stuck banner.
   const resolvePendingRoundTrip = useCallback(
-    async (marker: TutorPendingMarker) => {
+    async (marker: TutorPendingMarker, explicit = false) => {
       if (!uid) return;
+      // Guard against overlapping resolves (a double "I'm back" tap, or a tap during the
+      // auto mount poll) injecting two openers.
+      if (resolvingRef.current) return;
+      resolvingRef.current = true;
+      try {
+
       for (let attempt = 0; attempt < 4; attempt++) {
-        const records = await getSessionRecordsFromCloud(uid);
-        if (!mountedRef.current) return;
-        const match = matchReturningRecord(records, marker);
-        if (match) {
-          const reframed = composeReturnOpener(match, topicLabel, marker.surface);
-          setPending(null);
-          setMessages((prev) => {
-            const next: TutorTurn[] = [...prev, { role: "tutor", content: reframed.text, kind: "return-result" }];
-            persist(next, null);
-            return next;
-          });
-          setReturnFollow(reframed.follow ?? null);
-          return;
+        if (marker.surface === "practice") {
+          const attempts = await getAttemptsFromCloud(uid, { start: marker.departureTs });
+          if (!mountedRef.current) return;
+          const mine = matchReturningAttempts(attempts, marker, canonicalSlugMatches);
+          if (mine.length) {
+            injectReturn(composePracticeReturnOpener(mine, topicLabel));
+            return;
+          }
+        } else {
+          const records = await getSessionRecordsFromCloud(uid);
+          if (!mountedRef.current) return;
+          const match = matchReturningRecord(records, marker);
+          if (match) {
+            const surface = marker.surface === "worksheet" ? "worksheet" : "check-improve";
+            injectReturn(composeReturnOpener(match, topicLabel, surface));
+            return;
+          }
         }
         if (attempt < 3) await new Promise((r) => setTimeout(r, 1500));
       }
-      // Not found yet — keep the marker; the UI shows a gentle "still holding your
-      // place" affordance, and a later return re-polls.
+
+      // Nothing found. On an EXPLICIT "I'm back" tap, unblock honestly (never a dead button
+      // or an indefinite banner). On an auto (mount) poll, keep the marker — the banner stays
+      // ACTIONABLE + dismissable and a later return / re-engage re-polls or clears it.
+      if (explicit && mountedRef.current) {
+        injectReturn({
+          text: "I don't see a graded attempt yet — finish the set and tap back in, or just tell me how it went.",
+        });
+      }
+      } finally {
+        resolvingRef.current = false;
+      }
     },
-    [uid, topicLabel, persist],
+    [uid, topicLabel, injectReturn],
   );
 
   // Mount: reconcile the cloud thread + resolve any pending round-trip.
@@ -188,7 +251,7 @@ export function useTutorSession({
       if (session.coverage) coverageRef.current = session.coverage;
       setMessages((prev) => (session.messages.length > prev.length ? session.messages : prev));
       const marker = session.pending ?? null;
-      setPending(marker);
+      updatePending(marker);
       if (marker) void resolvePendingRoundTrip(marker);
     })();
     return () => {
@@ -231,11 +294,17 @@ export function useTutorSession({
           messages: convo.filter((m) => m.kind !== "away-cue"),
           brief: briefRef.current,
           language,
+          demoQuestion,
         });
         if (!mountedRef.current) return;
         setMessages((prev) => {
-          const next: TutorTurn[] = [...prev, { role: "tutor", content: res.reply }];
-          persist(next, pending);
+          const next: TutorTurn[] = [
+            // The model's per-turn intent (Fix 3) rides ON the tutor turn — the UI gates
+            // ONE round-trip CTA off the LATEST tutor turn's offer, never a standing pair.
+            ...prev,
+            { role: "tutor", content: res.reply, ...(res.offer ? { offer: res.offer } : {}) },
+          ];
+          persist(next, pendingRef.current);
           return next;
         });
         setStatus("idle");
@@ -247,7 +316,7 @@ export function useTutorSession({
         sendingRef.current = false;
       }
     },
-    [uid, topicKey, topicLabel, subject, concept, language, persist, pending],
+    [uid, topicKey, topicLabel, subject, concept, language, persist, demoQuestion],
   );
 
   const send = useCallback(
@@ -255,16 +324,19 @@ export function useTutorSession({
       const clean = text.trim();
       if (!clean || sendingRef.current) return;
       setReturnFollow(null);
+      // Fix 2: re-engaging IS the return signal — sending any new message clears a pending
+      // holding marker (the banner never blocks a student who is back and typing).
+      if (pendingRef.current) updatePending(null);
       // Light, honest coverage: mark the opened concept as "worked" once engaged.
       if (concept && !coverageRef.current.worked.includes(concept)) {
         coverageRef.current = { ...coverageRef.current, worked: [...coverageRef.current.worked, concept] };
       }
       const next: TutorTurn[] = [...messages, { role: "user", content: clean }];
       setMessages(next);
-      persist(next, pending);
+      persist(next, null);
       void runModel(next);
     },
-    [messages, runModel, concept, persist, pending],
+    [messages, runModel, concept, persist, updatePending],
   );
 
   const retry = useCallback(() => {
@@ -276,14 +348,14 @@ export function useTutorSession({
   // ── Round-trip route-out (offered, never forced — D-TUT-5) ──────────────────
   const routeOut = useCallback(
     (marker: TutorPendingMarker, cueText: string, href: string) => {
-      setPending(marker);
+      updatePending(marker);
       const cue: TutorTurn = { role: "tutor", content: cueText, kind: "away-cue" };
       const next: TutorTurn[] = [...messages, cue];
       setMessages(next);
       persist(next, marker); // sync local write BEFORE navigating, so the marker survives
       navigate(href);
     },
-    [messages, persist, navigate],
+    [messages, persist, navigate, updatePending],
   );
 
   const routeToCheckImprove = useCallback(() => {
@@ -296,15 +368,27 @@ export function useTutorSession({
 
   const routeToPractice = useCallback(() => {
     routeOut(
-      { surface: "worksheet", topicKey, departureTs: Date.now(), note: "practice set" },
+      { surface: "practice", topicKey, departureTs: Date.now(), note: "practice set" },
       `Holding your place - here's a short practice set on ${concept ? `"${concept}"` : "this"}. Do it, then come back and we'll read the result together.`,
-      buildWorksheetRoundTripHref({ returnTo: selfHref, subject, topicKey, concept }),
+      buildQuickPracticeRoundTripHref({ returnTo: selfHref, subject, topicKey, concept }),
     );
   }, [routeOut, topicKey, subject, concept, selfHref]);
 
   const recheckPending = useCallback(() => {
-    if (pending) void resolvePendingRoundTrip(pending);
-  }, [pending, resolvePendingRoundTrip]);
+    if (pendingRef.current) void resolvePendingRoundTrip(pendingRef.current, true);
+  }, [resolvePendingRoundTrip]);
+
+  const dismissPending = useCallback(() => {
+    // Fix 2: dismissing the banner clears the marker (re-engaging without a check). The
+    // tutor can still read the result on demand later via "I'm back" if the student re-routes.
+    if (pendingRef.current) {
+      updatePending(null);
+      setMessages((prev) => {
+        persist(prev, null);
+        return prev;
+      });
+    }
+  }, [updatePending, persist]);
 
   return {
     opener,
@@ -320,5 +404,6 @@ export function useTutorSession({
     routeToCheckImprove,
     routeToPractice,
     recheckPending,
+    dismissPending,
   };
 }
