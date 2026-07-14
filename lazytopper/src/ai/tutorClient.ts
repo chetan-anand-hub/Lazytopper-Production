@@ -9,10 +9,16 @@
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
 export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
 
-/** One conversation turn. `tutor` = the model's reply; `user` = the student. */
+/** One conversation turn. `tutor` = the model's reply; `user` = the student.
+ *  `kind` is presentational only (Stage 2): "away-cue" = the "holding your place"
+ *  line shown when the tutor routes the student out; "return-result" = the reframed
+ *  graded-sheet opener injected on return. Absent/"message" = a normal turn. These
+ *  are still tutor prose — never a grade the tutor computed (the numbers come from
+ *  the durable sessionRecord, read at return time). */
 export interface TutorTurn {
   role: "user" | "tutor";
   content: string;
+  kind?: "message" | "away-cue" | "return-result";
 }
 
 /**
