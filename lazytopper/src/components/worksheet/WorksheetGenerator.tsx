@@ -203,6 +203,13 @@ export default function WorksheetGenerator() {
   // FIX-1 — the builder's context arrives in the URL (single source of truth). Parsed
   // ONCE at mount; the scope state below seeds from it (never from a guessed topics[0]).
   const [entry] = useState(() => parseEntryContext(location.search));
+  // Stage-2 tutor round-trip (P-A): an OPTIONAL concept focus from the URL — narrows the
+  // pool toward that sub-topic (best-effort + guarded in buildPools). Additive: absent for
+  // every non-tutor entry, so the existing worksheet flow is byte-unchanged. Parsed once,
+  // like `entry` (the concept doesn't change within a session).
+  const [focus] = useState(
+    () => (new URLSearchParams(location.search).get("focus") ?? "").trim() || undefined,
+  );
 
   // Origin-aware back navigation (validated returnTo; default practice hub).
   const backHref = useMemo(() => {
@@ -404,9 +411,10 @@ export default function WorksheetGenerator() {
       requested: effCount,
       miTopicWeights,
       miCapFraction,
+      focus, // ADDITIVE (Stage-2 P-A) — undefined for every non-tutor entry → no-op
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, blocker]);
+  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker]);
 
   // ── FIX A — WITHIN-topic section skew, GATED ON THE REAL DRAWABLE POOL ───────
   // Section weighting is only honest when the topic's filtered pool actually holds
