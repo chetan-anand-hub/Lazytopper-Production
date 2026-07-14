@@ -1,5 +1,23 @@
 ---
 
+## 2026-07-14 -- #425 + #426: TUTOR STAGE 1 — the fresh `/api/tutor` chat shell (+ language/offer follow-up), owner merged + LIVE-VERIFIED — trunk `d3c7be2`
+
+**Merged as `d3c7be2` (#426 follow-up) on `2864be9` (#425 chat shell). This docs-only PR (`docs/post-pr-426-tutor-stage1-handoff`) catches up BOTH tutor merges. Isolated worktrees per PR (`LT-worktrees/tutor-stage1`, `/tutor-s1-fu`); built to `AGENT_tutor_build_stagewise_2026-07-13.md` + the LOCKED Flow v2 + the Teach-Contract/Teach-Style; verify-before-build pre-flight → owner plan approval (5 decisions + both sacred blocks) → build → gates → owner byte-review + 360px live-verify → merge. Never self-merged. CI green on both.**
+
+- **#425 = Stage 1, the chat shell.** FRESH engine (D-TUT-12): new `/api/tutor` (stateless, writes nothing to Firestore → honesty guard structural) + new UI tree; zero old-engine imports. Nameless/warm/board-voiced; continuity opener + diagnostic fork; MI read into an honest client-assembled brief (only after the first message; `resolveCanonicalSlug` only). Two-panel scaffold (explanation panel a CLOSED placeholder for Stage 3). Entry via ConceptSpine "Ask the tutor" + per-row "Stuck? Ask"; "Teach me" kept as fallback. Sacred owner-approved blocks: App.tsx (3 additions) + firestore.rules `tutorSessions/{uid}` (deployed).
+- **#426 = Stage-1 follow-up** (3 owner live-verify fixes): language stickiness (per-turn steering, server-only), native-script input (placeholder invite; no filtering existed), and the demonstrate-not-do closing offer (worked-example DEMONSTRATION vs "try one yourself" that waits; routed practice deferred to Stage 2).
+- **Owner live-verified:** language switching both directions + demonstrate-vs-practice confirmed live. Two findings carry to Stage 2: (a) no memory across close/reopen (EXPECTED — Stage 2 durable session), (b) a real mobile-viewport bug (BARE_FULLSCREEN 100vh gap below the composer at 360px — folded into Stage 2 as a pre-step).
+- **NEXT = Tutor Stage 2 (round-trip + durable session), ONE PR — pre-flight in owner review, not yet building.** Gates on #425/#426: tsc · mojibake · scope:guard · root 181/181 · ops matrix · diff-check + CI quality-gate all PASS. Reports: `Desktop/diff/report-tutor-stage1-{preflight,build}-2026-07-14.md`.
+
+### Session learnings
+- **Gemini has no system role** — the tutor folds the system prompt into a leading user turn + a model primer, then coalesces consecutive same-role turns so the array strictly alternates (Gemini requires it). Language stickiness needs a per-turn steering line as the LAST user content, because a long conversation out-weights the opening instruction.
+- **Honesty guard is easiest to make STRUCTURAL:** keep the tutor server stateless (client persists the thread; server only generates a turn) → the endpoint literally cannot write a grade. Stage 2's durable session is CLIENT-written under `tutorSessions/{uid}` (the deployed rule), and the round-trip "watch" is a POLL on the return navigation event (there is NO `onSnapshot` anywhere in the repo).
+- **Two canonicalizers still bite:** the old tutor code used `resolveCanonicalTopicKey` (topicAliasMap — emits banned `heredity-and-evolution`); the fresh engine normalizes through `resolveCanonicalSlug` ONLY. Never mix them.
+- **`scope:guard` flags `firestore.rules` as `[unclassified]`** (a sacred file) even when the edit is owner-approved — expected; it is a LOCAL advisory (not in CI). The pure-product follow-up #426 passed scope:guard clean.
+- Windows can't run the vite build or vitest (linux-pinned) — both gated by CI's quality-gate; confirm CI green before "done".
+
+---
+
 ## 2026-07-13 -- #423: FINAL MOBILE-PARITY SWEEP — one-header on all live desktop-shell routes at mobile width, owner merged + LIVE-VERIFIED — trunk `a8f36ab`
 
 **Merged as `a8f36ab` (squash of #423; feature `feat/desktop-pr-mobile-parity-sweep` @ `0e60dae` off `0c5f75d`). This docs-only PR (`docs/post-pr-423-mobile-parity-sweep`) records the merge.** Isolated worktree `LT-worktrees/mobile-parity-sweep`; built to `AGENT_mobile_parity_final_sweep_2026-07-13.md`; never self-merged — owner merged + **live-verified at 360px**. CI green. **Closes the LIVE subset of [FU-MOBILE-OLD-HEADER-STRAGGLERS]: no live user-facing route shows the old global brand bar at mobile width any more.**

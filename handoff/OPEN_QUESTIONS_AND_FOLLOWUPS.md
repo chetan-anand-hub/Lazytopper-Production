@@ -1,3 +1,19 @@
+## 2026-07-14 -- #425 + #426: TUTOR STAGE 1 (chat shell) + follow-up MERGED (trunk `d3c7be2`) → language/offer FUs CLOSED; Stage-2 carry-ins logged
+
+### CLOSED by #426 (owner live-verified)
+- **Tutor language stickiness — CLOSED.** After a long conversation in one language the tutor now switches on a selector change (a per-turn steering directive appended as the most-recent user-side content in `tutor.cjs`; server-only, never persisted). Verified both directions.
+- **Tutor native-script input — CLOSED.** The composer already accepted any script (no filtering); the placeholder now invites English/Hindi/Hinglish. Verified.
+- **Tutor closing-offer "do-their-practice" — CLOSED.** Reworded to a DEMONSTRATION offer ("want to see how a question like this is solved?" → the tutor solves its OWN generated example) + an explicit worked-example-vs-practice rule ("try one yourself" = give + WAIT, never self-solve). The routed "practise a set" offer is deferred to Stage 2. Correctness rail kept.
+
+### CARRY INTO STAGE 2 (open — the round-trip PR; pre-flight in owner review)
+- **[FU-TUTOR-DURABLE-SESSION]** — no memory across close/reopen (EXPECTED for Stage 1; the thread is component-local). Stage 2 adds the durable `tutorSessions/{uid}` session (thread + doubts/coverage; NEVER a grade). The `firestore.rules` block is already DEPLOYED.
+- **[FU-TUTOR-MOBILE-VIEWPORT]** — the BARE_FULLSCREEN tutor scrolls past the composer leaving an empty gap at 360px (100vh-on-mobile). Folded into Stage 2 as a pre-step (lock the shell to the viewport; stream the only scroller; composer pinned).
+- **[FU-TUTOR-CI-NO-PRELOAD]** (Stage-2 pre-flight finding) — C&I is auto-detect + MANUAL upload only; it does NOT read a `?topic=`/pre-loaded question (those params feed only the breadcrumb/analytics). So the tutor's "route the question to C&I pre-loaded" is unsupported today. Stage-2 MVP = the tutor deep-links to C&I (+ "holding your place") and the student uploads as usual; on return the tutor polls for the new `check-improve` record. A true pre-load needs a C&I entry change — flagged; owner decides.
+- **[FU-TUTOR-WORKSHEET-CONCEPT-FILTER]** (Stage-2 pre-flight finding) — the `/practice/worksheets` route (`WorksheetGenerator.parseEntryContext`) reads subject/stream/topic(s)/scope only; it does NOT parse a concept `focus` or mark-band (`marksMin`/`marksMax`). P-A's concept-filtered worksheet needs a small additive parse in `parseEntryContext` (mirroring `buildDesktopConceptPracticePath`), else the MVP routes to a TOPIC-scoped worksheet (MI-weighted but not concept-narrowed).
+- **[FU-TUTOR-LEGACY-RETIRE]** — retire the six old engine files + the "Teach me" entry AFTER the new tutor is fully live (post-Stage-3), its own small PR.
+- **[FU-TUTOR-SUBREGION-FOCUS]** — deferred indefinitely (Stage-3 visual sub-region focus; correctly-grained notes/bank figures make it unnecessary).
+- **[FU-EQUATION-INPUT-TUTOR-CONSUME]** — a parallel lane builds a shared `<EquationInput>` (`src/components/equation/**`); align on its API (props + serialized-answer string) so the tutor composer consumes it drop-in (Stage 2 if clean, else a small follow-up). Do NOT build a separate equation input.
+
 ## 2026-07-13 -- #419: bank-expansion Batch 11 (triangles + coordinate-geometry + metals-and-non-metals +315, SECOND 3-topics-per-PR) MERGED (trunk `69e319d`)
 
 ### No NEW follow-ups from this batch
