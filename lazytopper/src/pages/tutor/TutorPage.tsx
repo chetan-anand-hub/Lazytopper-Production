@@ -185,7 +185,7 @@ export default function TutorPage() {
                 className="lt-tutor__input"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={`Ask anything about ${topicLabel.toLowerCase()}...`}
+                placeholder={`Ask about ${topicLabel.toLowerCase()} in English, Hindi, or Hinglish...`}
                 aria-label={`Ask about ${topicLabel}`}
                 disabled={status === "sending"}
                 autoComplete="off"
