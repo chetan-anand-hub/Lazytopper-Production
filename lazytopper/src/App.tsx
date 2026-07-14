@@ -98,6 +98,11 @@ const WorksheetGenerator = lazy(() => import("./components/worksheet/WorksheetGe
 const DesktopMePage = lazy(() => import("./pages/desktop/DesktopMePage"));
 const MobileMe          = lazy(() => import("./pages/mobile/MobileMePage"));
 
+// Tutor surface (Stage 1) — the fresh /tutor route (D-TUT-12): a NEW engine, not the
+// old mentor/TeachFlow. Bare full-screen (see BARE_FULLSCREEN_PREFIXES), premium-gated;
+// internally responsive (chat panel + explanation-panel scaffold, split/overlay at 1024px).
+const TutorPage         = lazy(() => import("./pages/tutor/TutorPage"));
+
 function RouteFallback() {
   return (
     <div style={{ minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -263,7 +268,7 @@ function MobileSelfChrome({
  * A prefix list so Full Mock (`/full-mock`) can join later with one entry. Exported as a
  * pure predicate for unit testing.
  */
-const BARE_FULLSCREEN_PREFIXES = ["/chapter-test", "/full-mock"] as const;
+const BARE_FULLSCREEN_PREFIXES = ["/chapter-test", "/full-mock", "/tutor"] as const;
 export function isBareFullScreenRoute(pathname: string): boolean {
   return BARE_FULLSCREEN_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -936,6 +941,18 @@ export default function App() {
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={<TopicMockRedirect />} />
           <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<ChapterTestPage />)}</SectionErrorBoundary></MockViewGate>} />
           <Route path="/full-mock/:grade/:subject" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<FullMockPage />)}</SectionErrorBoundary></MockViewGate>} />
+
+          {/* Tutor surface (Stage 1) — fresh /tutor (D-TUT-12), premium-gated, bare
+              full-screen (owns its own chrome). Cold entry: /tutor/:grade/:subject;
+              concept pre-loaded via ?concept=. Internally responsive at 1024px. */}
+          <Route
+            path="/tutor/:grade/:subject/:topicKey"
+            element={<RequirePremium featureLabel="Ask the tutor"><SectionErrorBoundary>{withRouteSuspense(<TutorPage />)}</SectionErrorBoundary></RequirePremium>}
+          />
+          <Route
+            path="/tutor/:grade/:subject"
+            element={<RequirePremium featureLabel="Ask the tutor"><SectionErrorBoundary>{withRouteSuspense(<TutorPage />)}</SectionErrorBoundary></RequirePremium>}
+          />
 
           {/* PR-E1 item 4 / PR-G-deletion-pending: Mock Builder is UN-ROUTED from the
               live product — students can no longer reach it (MI now serves its

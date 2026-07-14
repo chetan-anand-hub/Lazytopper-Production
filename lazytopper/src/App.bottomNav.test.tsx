@@ -103,6 +103,14 @@ describe("BottomNav (mobile tab bar — PR D)", () => {
     }
   });
 
+  it("returns null on /tutor (bare full-screen — the tutor owns its own chrome)", () => {
+    setMatchMediaMatches(false); // mobile
+    renderNav("/tutor/10/Maths/trigonometry");
+    for (const label of TABS) {
+      expect(screen.queryByText(label)).toBeNull();
+    }
+  });
+
   it("returns null on /welcome (visibility gate intact)", () => {
     setMatchMediaMatches(false);
     renderNav("/welcome");
@@ -169,6 +177,7 @@ describe("isMobileSelfChromedRoute (global-navbar suppression gate — PR D adde
     expect(isMobileSelfChromedRoute("/topic-hubs", false)).toBe(false); // not the /topic-hub/ boundary
     expect(isMobileSelfChromedRoute("/practice", false)).toBe(false); // bare — catch-all redirect
     expect(isMobileSelfChromedRoute("/practice/10/Maths/extra", false)).toBe(false); // 3 segments — not the runner
+    expect(isMobileSelfChromedRoute("/tutor/10/Maths/trigonometry", false)).toBe(false); // bare full-screen — own gate
   });
 });
 
@@ -184,10 +193,17 @@ describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT
     expect(isBareFullScreenRoute("/full-mock/10/Science")).toBe(true);
   });
 
+  it("is true for /tutor and its param routes (Stage 1 — the tutor is bare full-screen)", () => {
+    expect(isBareFullScreenRoute("/tutor")).toBe(true);
+    expect(isBareFullScreenRoute("/tutor/10/Maths")).toBe(true);
+    expect(isBareFullScreenRoute("/tutor/10/Maths/trigonometry")).toBe(true);
+  });
+
   it("is false for other routes (including near-miss prefixes)", () => {
     expect(isBareFullScreenRoute("/")).toBe(false);
     expect(isBareFullScreenRoute("/practice-hub")).toBe(false);
     expect(isBareFullScreenRoute("/chapter-tests")).toBe(false); // not the /chapter-test/ boundary
     expect(isBareFullScreenRoute("/full-mocks")).toBe(false); // not the /full-mock/ boundary
+    expect(isBareFullScreenRoute("/tutors")).toBe(false); // not the /tutor/ boundary
   });
 });

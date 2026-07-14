@@ -128,6 +128,17 @@ service cloud.firestore {
       }
     }
 
+    // Durable tutor chat sessions — thread + doubts/coverage session-memory,
+    // per student, per topic. D-TUT-8 honesty guard: NEVER a grade/score. Same
+    // per-UID isolation as every other collection (cf. sessionRecords/{uid}).
+    match /tutorSessions/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

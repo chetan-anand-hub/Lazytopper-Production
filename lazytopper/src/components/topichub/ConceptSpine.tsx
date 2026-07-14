@@ -305,6 +305,32 @@ const SPINE_CSS = `
   border-color: hsl(152, 40%, 80%);
 }
 .lt-spine__btn--practise:hover { background: hsl(152, 55%, 92%); }
+/* Concept-level "Stuck? Ask" -> the fresh /tutor route (Stage 1). Solid green so it
+   reads as the primary concept-level tutor entry; "Teach me" stays the quiet fallback
+   until the new tutor is owner-verified (decision #5). */
+.lt-spine__btn--stuck {
+  background: hsl(152, 55%, 45%);
+  color: #ffffff;
+  border-color: hsl(152, 55%, 45%);
+}
+.lt-spine__btn--stuck:hover { background: hsl(152, 60%, 38%); }
+/* Topic-level "Ask the tutor" — prominent entry inside the topic card header. */
+.lt-spine__ask {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  background: hsl(152, 55%, 45%);
+  color: #ffffff;
+  border: 1px solid hsl(152, 55%, 45%);
+}
+.lt-spine__ask:hover { background: hsl(152, 60%, 38%); }
 
 /* ── Action band — receded / quiet (secondary to the concepts) ─────── */
 .lt-spine__band {
@@ -404,6 +430,13 @@ export interface ConceptSpineProps {
   chapterTestHref: string;
   /** Builds the existing per-concept (concept + mark band) practice route. */
   practiceHrefForConcept: (concept: BoardConcept) => string;
+  /** Topic-level tutor entry ("Ask the tutor") -> the fresh /tutor route (Stage 1).
+   *  Additive/optional: the sticky Ask renders only when supplied. The "Teach me"
+   *  drawer stays LIVE as the fallback until the new tutor is owner-verified (v2
+   *  D-TUT-12 / decision #5); its demote to "Ask" is a separate later PR. */
+  askTutorHref?: string;
+  /** Per-concept tutor entry ("Stuck? Ask") -> /tutor with the concept pre-loaded. */
+  tutorHrefForConcept?: (concept: BoardConcept) => string;
   /** Optional per-topic before→now progress node (arc PR-4) rendered under the topic
    *  card. Honest-or-silent — the page passes a node that renders nothing when there is
    *  no data-backed trend, so ConceptSpine's layout is unchanged when absent. */
@@ -418,6 +451,8 @@ export function ConceptSpine({
   practiceAllHref,
   chapterTestHref,
   practiceHrefForConcept,
+  askTutorHref,
+  tutorHrefForConcept,
   topicProgressSlot,
 }: ConceptSpineProps) {
   // The concept whose tutor drawer is open (null = closed). ConceptSpine owns this
@@ -468,6 +503,14 @@ export function ConceptSpine({
             <span className="lt-spine__chip lt-spine__chip--preview">Sample preview</span>
           )}
         </div>
+
+        {/* Topic-level tutor entry (Stage 1) — the fresh /tutor route. Renders only
+            when the page supplies the href. Cold entry: opens on continuity + fork. */}
+        {askTutorHref && (
+          <Link to={askTutorHref} className="lt-spine__ask" title="Ask the tutor about this topic">
+            Ask the tutor
+          </Link>
+        )}
 
         {/* Examiner's tips — clickable / expandable container (content = PR-F) */}
         <button
@@ -571,6 +614,18 @@ export function ConceptSpine({
                   )}
                 </div>
                 <div className="lt-spine__row-actions">
+                  {/* Fresh tutor (Stage 1) — /tutor with this concept pre-loaded.
+                      Renders only when the page supplies the builder; sits beside the
+                      "Teach me" fallback (kept until the new tutor is owner-verified). */}
+                  {tutorHrefForConcept && (
+                    <Link
+                      to={tutorHrefForConcept(concept)}
+                      className="lt-spine__btn lt-spine__btn--stuck"
+                      title={`Ask the tutor about ${concept.name}`}
+                    >
+                      Stuck? Ask
+                    </Link>
+                  )}
                   {/* Opens the concept tutor (concept_teach) — wired in PR-C */}
                   <button
                     type="button"
