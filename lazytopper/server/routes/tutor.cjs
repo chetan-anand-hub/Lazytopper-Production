@@ -100,6 +100,19 @@ function createTutorRoute(deps) {
 
     const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language });
 
+    // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
+    // instruction loses weight against many recent turns in another language, so a selector
+    // switch (e.g. Hindi -> English) would not take effect. Append a SHORT steering directive
+    // as the MOST-RECENT user-side content so it overrides the conversation's recent language
+    // for THIS turn. Server-only: payload.messages (what the client persists/displays) is never
+    // touched — this is a generation-time directive, not a chat message, so it never accumulates.
+    if (language) {
+      const lastUser = convo[convo.length - 1];
+      lastUser.parts[0].text +=
+        `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns. ` +
+        `Keep exam content — the NCERT definition to memorise and the answer to write — in English.]`;
+    }
+
     // Gemini has no system role — fold the system prompt into a leading user turn,
     // answered by a short model primer, then the real conversation. coalesceTurns
     // guarantees the final array strictly alternates user/model.
