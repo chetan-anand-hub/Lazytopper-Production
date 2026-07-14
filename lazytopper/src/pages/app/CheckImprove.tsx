@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
+import { EquationInput, EquationRender } from "../../components/equation";
 import {
   checkSolutionImage,
   detectQuestion,
@@ -875,10 +876,10 @@ export default function CheckImprove() {
                             </span>
                           </span>
                         </div>
-                        {step.description && <div style={{ fontSize: "0.78rem", color: "var(--mob-fg)", lineHeight: 1.5, marginBottom: 4 }}>{step.description}</div>}
-                        {step.studentWork && <div style={{ fontFamily: "var(--font-display)", fontSize: "0.76rem", color: "var(--mob-fg)", background: "var(--mob-card)", border: "1px solid var(--mob-card-border)", borderRadius: 8, padding: "6px 8px", marginBottom: 4, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{step.studentWork}</div>}
-                        {step.teacherAnnotation && <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontStyle: "italic", marginBottom: 4 }}>↳ {step.teacherAnnotation}</div>}
-                        {step.correctedWorking && <div style={{ fontSize: "0.74rem", color: "var(--mob-success)", background: "var(--mob-success-soft)", borderRadius: 8, padding: "6px 8px", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>✓ {step.correctedWorking}</div>}
+                        {step.description && <div style={{ fontSize: "0.78rem", color: "var(--mob-fg)", lineHeight: 1.5, marginBottom: 4 }}><EquationRender text={step.description} /></div>}
+                        {step.studentWork && <div style={{ fontFamily: "var(--font-display)", fontSize: "0.76rem", color: "var(--mob-fg)", background: "var(--mob-card)", border: "1px solid var(--mob-card-border)", borderRadius: 8, padding: "6px 8px", marginBottom: 4, whiteSpace: "pre-wrap", wordBreak: "break-word" }}><EquationRender text={step.studentWork} /></div>}
+                        {step.teacherAnnotation && <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontStyle: "italic", marginBottom: 4 }}>↳ <EquationRender text={step.teacherAnnotation} /></div>}
+                        {step.correctedWorking && <div style={{ fontSize: "0.74rem", color: "var(--mob-success)", background: "var(--mob-success-soft)", borderRadius: 8, padding: "6px 8px", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>✓ <EquationRender text={step.correctedWorking} /></div>}
                       </div>
                     ))}
                   </div>
@@ -1079,24 +1080,12 @@ export default function CheckImprove() {
 
         {/* ── Text answer (type tab) ────────────────────────────── */}
         {tab === "type" && (
-          <textarea
+          <EquationInput
             value={textAnswer}
-            onChange={(e) => setTextAnswer(e.target.value)}
+            onChange={setTextAnswer}
             placeholder="Type your answer here… (minimum 10 characters)"
-            style={{
-              width: "100%",
-              minHeight: 140,
-              borderRadius: 14,
-              border: `1px solid var(--mob-card-border)`,
-              background: "var(--mob-card)",
-              color: "var(--mob-fg)",
-              fontFamily: "var(--font-body)",
-              fontSize: "0.88rem",
-              padding: "14px",
-              resize: "vertical",
-              boxSizing: "border-box",
-              lineHeight: 1.6,
-            }}
+            rows={6}
+            ariaLabel="Type your answer"
           />
         )}
 

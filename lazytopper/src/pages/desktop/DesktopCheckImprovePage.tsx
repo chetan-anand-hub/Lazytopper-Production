@@ -14,6 +14,7 @@ import {
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
+import { EquationInput, EquationRender } from "../../components/equation";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
@@ -555,7 +556,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
             lineHeight: 1.45,
           }}
         >
-          {step.description}
+          <EquationRender text={step.description} />
         </div>
       )}
 
@@ -574,7 +575,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
             wordBreak: "break-word",
           }}
         >
-          {step.studentWork}
+          <EquationRender text={step.studentWork} />
         </div>
       )}
 
@@ -588,7 +589,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
             lineHeight: 1.5,
           }}
         >
-          ↳ {step.teacherAnnotation}
+          ↳ <EquationRender text={step.teacherAnnotation} />
         </div>
       )}
 
@@ -606,7 +607,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
             wordBreak: "break-word",
           }}
         >
-          ✓ {step.correctedWorking}
+          ✓ <EquationRender text={step.correctedWorking} />
         </div>
       )}
     </div>
@@ -1781,25 +1782,12 @@ const DesktopCheckImprovePage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <textarea
+                <EquationInput
                   value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
+                  onChange={setTextAnswer}
                   placeholder="Type your answer here. Include each step on a new line — examiners award method marks even when the final answer slips."
-                  style={{
-                    width: "100%",
-                    minHeight: 180,
-                    borderRadius: 10,
-                    border: `1px solid ${BORDER}`,
-                    background: CARD_BG,
-                    color: TEXT_FG,
-                    fontFamily: FONT_SANS,
-                    fontSize: 14,
-                    padding: "12px 14px",
-                    resize: "vertical",
-                    boxSizing: "border-box",
-                    lineHeight: 1.55,
-                    outline: "none",
-                  }}
+                  rows={8}
+                  ariaLabel="Type your answer"
                 />
               )}
 
