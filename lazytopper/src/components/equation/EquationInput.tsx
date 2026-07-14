@@ -6,25 +6,30 @@ import "./equation.css";
  * <EquationInput> — the shared answer-entry control for typed subjective solutions.
  *
  * A controlled textarea (prose-native — CBSE answers are prose with occasional math)
- * PLUS a compact, collapsible symbol palette that inserts LaTeX at the cursor, with a
- * live KaTeX preview (via the app's existing <MathText>). It is a DROP-IN replacement
- * for a controlled <textarea>: same value/onChange contract, so every consumer swaps
- * with minimal change and the serialized string flows to the grader exactly where the
- * old textarea's text did.
+ * PLUS a compact, collapsible symbol palette that inserts FRIENDLY, READABLE math tokens
+ * at the cursor, with a live KaTeX preview (via the app's existing <MathText>). It is a
+ * DROP-IN replacement for a controlled <textarea>: same value/onChange contract.
  *
- * SERIALIZATION (the one canonical format, shared with <MathText>/<EquationRender>):
- *   prose with inline \(...\) and block \[...\] LaTeX. No math typed -> plain prose, so
- *   an answer with no math is byte-identical to today's textarea (anti-regression). The
- *   grader already reads this grammar in production (bank solutionSteps are authored in
- *   it and injected as the marking scheme), so a serialized answer grades on equal
- *   footing with the plain equivalent -- verified by the grader-compat harness + owner
- *   live-verify. The grader is never modified; the format adapts to it.
+ * WHY FRIENDLY TOKENS (not raw \(...\) LaTeX): a Class-10 student edits the text they see.
+ * <MathText> already auto-promotes human-readable shorthand — `x^2`→x², `sqrt{...}`/`sqrt5`→√,
+ * `frac{a}{b}`/`frac1/2`→fraction, `a_1`→subscript, and unicode symbols (π, ≤, ±, °) pass
+ * through — so the palette inserts THOSE. The student sees editable, readable text
+ * (`5x^2 - (3+k)x + 7 = 0`) that renders as proper math in the preview below — no scary
+ * `\(...\)` delimiters, no empty `^{}` wrappers.
  *
- * The widget captures input only -- it computes/solves nothing (anti-fabrication).
+ * SERIALIZATION (the one canonical format, shared with <MathText>/<EquationRender>): prose
+ * with the readable math shorthand above (and, still supported, inline \(...\) / block
+ * \[...\] LaTeX from other producers such as the tutor). No math typed → plain prose, so an
+ * answer with no math is byte-identical to today's textarea (anti-regression). The grader
+ * reads this grammar in production (bank solutionSteps are authored in it), so a serialized
+ * answer grades on equal footing with the plain equivalent — proven by the grader-compat
+ * harness + owner live-verify. The grader is never modified; the format adapts to it.
+ *
+ * The widget captures input only — it computes/solves nothing (anti-fabrication).
  */
 
 export interface EquationInputProps {
-  /** The serialized answer string (prose + inline \(...\) math). Controlled. */
+  /** The serialized answer string (prose + readable math shorthand). Controlled. */
   value: string;
   /** Emits the full serialized string on every edit -- drop-in for a textarea. */
   onChange: (value: string) => void;
@@ -38,24 +43,24 @@ export interface EquationInputProps {
   ariaLabel?: string;
 }
 
-// Template markers (control chars -- guaranteed absent from student text / LaTeX):
+// Template markers (control chars -- guaranteed absent from student text):
 //   SEL   -- where the current selection is placed (dropped if the template has none)
 //   CARET -- where the caret lands after insertion
 const SEL = String.fromCharCode(2);
 const CARET = String.fromCharCode(1);
 
-// Inline / block LaTeX delimiters -- the app's canonical math grammar.
-const OPEN = "\\(";
-const CLOSE = "\\)";
-
 interface SymKey {
   /** Button face. */
   label: string;
-  /** LaTeX template with optional SEL/CARET markers. */
+  /**
+   * Readable token to insert, with optional SEL/CARET markers. These are the EXACT
+   * shorthand <MathText> auto-promotes (x^2, sqrt{...}, frac{a}{b}, a_1) or plain unicode
+   * symbols — never raw \(...\) LaTeX.
+   */
   tpl: string;
   /** Accessible name. */
   title: string;
-  /** Render the face in the sans/word style (for sin, cos, matrix...). */
+  /** Render the face in the sans/word style (for sin, cos...). */
   word?: boolean;
 }
 
@@ -68,78 +73,70 @@ const GROUPS: SymGroup[] = [
   {
     label: "Basic",
     keys: [
-      { label: "x²", tpl: `${SEL}^{${CARET}}`, title: "Power / superscript" },
-      { label: "xₙ", tpl: `${SEL}_{${CARET}}`, title: "Subscript" },
-      { label: "√", tpl: `\\sqrt{${SEL}${CARET}}`, title: "Square root" },
-      { label: "∛", tpl: `\\sqrt[3]{${SEL}${CARET}}`, title: "Cube root" },
-      { label: "a⁄b", tpl: `\\frac{${SEL}${CARET}}{}`, title: "Fraction" },
-      { label: "±", tpl: "\\pm", title: "Plus-minus" },
-      { label: "×", tpl: "\\times", title: "Multiply" },
-      { label: "÷", tpl: "\\div", title: "Divide" },
-      { label: "·", tpl: "\\cdot", title: "Dot product" },
+      // Selecting a base then tapping wraps it (x -> x^2); with no selection the token is
+      // inserted after the caret so the preceding character becomes the base (5x| -> 5x^2).
+      { label: "x²", tpl: `${SEL}^2${CARET}`, title: "Power / squared" },
+      { label: "x₁", tpl: `${SEL}_1${CARET}`, title: "Subscript" },
+      { label: "√", tpl: `sqrt{${SEL}${CARET}}`, title: "Square root" },
+      { label: "a⁄b", tpl: `frac{${SEL}}{${CARET}}`, title: "Fraction" },
+      { label: "±", tpl: "±", title: "Plus-minus" },
+      { label: "×", tpl: "×", title: "Multiply" },
+      { label: "÷", tpl: "÷", title: "Divide" },
+      { label: "·", tpl: "·", title: "Dot" },
     ],
   },
   {
     label: "Relations",
     keys: [
-      { label: "≤", tpl: "\\leq", title: "Less than or equal" },
-      { label: "≥", tpl: "\\geq", title: "Greater than or equal" },
-      { label: "≠", tpl: "\\neq", title: "Not equal" },
-      { label: "≈", tpl: "\\approx", title: "Approximately" },
-      { label: "→", tpl: "\\rightarrow", title: "Arrow" },
-      { label: "⇒", tpl: "\\Rightarrow", title: "Implies" },
-      { label: "∴", tpl: "\\therefore", title: "Therefore" },
-      { label: "°", tpl: "^{\\circ}", title: "Degree" },
+      { label: "≤", tpl: "≤", title: "Less than or equal" },
+      { label: "≥", tpl: "≥", title: "Greater than or equal" },
+      { label: "≠", tpl: "≠", title: "Not equal" },
+      { label: "≈", tpl: "≈", title: "Approximately" },
+      { label: "→", tpl: "→", title: "Arrow" },
+      { label: "⇒", tpl: "⇒", title: "Implies" },
+      { label: "∴", tpl: "∴", title: "Therefore" },
+      { label: "°", tpl: "°", title: "Degree" },
     ],
   },
   {
     label: "Greek",
     keys: [
-      { label: "π", tpl: "\\pi", title: "Pi" },
-      { label: "θ", tpl: "\\theta", title: "Theta" },
-      { label: "α", tpl: "\\alpha", title: "Alpha" },
-      { label: "β", tpl: "\\beta", title: "Beta" },
-      { label: "Δ", tpl: "\\Delta", title: "Delta" },
-      { label: "λ", tpl: "\\lambda", title: "Lambda" },
-      { label: "μ", tpl: "\\mu", title: "Mu" },
+      { label: "π", tpl: "π", title: "Pi" },
+      { label: "θ", tpl: "θ", title: "Theta" },
+      { label: "α", tpl: "α", title: "Alpha" },
+      { label: "β", tpl: "β", title: "Beta" },
+      { label: "Δ", tpl: "Δ", title: "Delta" },
+      { label: "λ", tpl: "λ", title: "Lambda" },
+      { label: "μ", tpl: "μ", title: "Mu" },
     ],
   },
   {
-    label: "Calculus & big ops",
+    label: "Symbols",
     keys: [
-      { label: "Σ", tpl: `\\sum_{${CARET}}`, title: "Summation" },
-      { label: "∫", tpl: `\\int ${CARET}`, title: "Integral" },
-      { label: "∏", tpl: `\\prod_{${CARET}}`, title: "Product" },
-      { label: "∞", tpl: "\\infty", title: "Infinity" },
+      { label: "Σ", tpl: "Σ", title: "Summation" },
+      { label: "∞", tpl: "∞", title: "Infinity" },
+      { label: "∫", tpl: "∫", title: "Integral" },
+      { label: "∏", tpl: "∏", title: "Product" },
     ],
   },
   {
     label: "Functions",
     keys: [
-      { label: "sin", tpl: `\\sin(${CARET})`, title: "Sine", word: true },
-      { label: "cos", tpl: `\\cos(${CARET})`, title: "Cosine", word: true },
-      { label: "tan", tpl: `\\tan(${CARET})`, title: "Tangent", word: true },
-      { label: "log", tpl: `\\log(${CARET})`, title: "Log", word: true },
-      { label: "ln", tpl: `\\ln(${CARET})`, title: "Natural log", word: true },
+      { label: "sin", tpl: `sin(${SEL}${CARET})`, title: "Sine", word: true },
+      { label: "cos", tpl: `cos(${SEL}${CARET})`, title: "Cosine", word: true },
+      { label: "tan", tpl: `tan(${SEL}${CARET})`, title: "Tangent", word: true },
+      { label: "log", tpl: `log(${SEL}${CARET})`, title: "Log", word: true },
+      { label: "ln", tpl: `ln(${SEL}${CARET})`, title: "Natural log", word: true },
     ],
   },
   {
-    label: "Brackets & matrix",
+    label: "Brackets",
     keys: [
-      { label: "( )", tpl: `\\left(${SEL}${CARET}\\right)`, title: "Auto-size brackets" },
-      { label: "[ ]", tpl: `\\left[${SEL}${CARET}\\right]`, title: "Auto-size square brackets" },
-      { label: "[matrix]", tpl: `\\begin{bmatrix}${SEL}${CARET}\\end{bmatrix}`, title: "Matrix", word: true },
+      { label: "( )", tpl: `(${SEL}${CARET})`, title: "Parentheses" },
+      { label: "[ ]", tpl: `[${SEL}${CARET}]`, title: "Square brackets" },
     ],
   },
 ];
-
-/** True when position `pos` sits inside an open \(...\) or \[...\] math span. */
-function caretInsideMath(text: string, pos: number): boolean {
-  const before = text.slice(0, pos);
-  const lastOpen = Math.max(before.lastIndexOf("\\("), before.lastIndexOf("\\["));
-  const lastClose = Math.max(before.lastIndexOf("\\)"), before.lastIndexOf("\\]"));
-  return lastOpen > lastClose;
-}
 
 /** Build the inserted string + the caret offset within it, from a template + selection. */
 function buildInsertion(tpl: string, selection: string): { text: string; caret: number } {
@@ -154,9 +151,13 @@ function buildInsertion(tpl: string, selection: string): { text: string; caret: 
   return { text: body, caret: caretInBody };
 }
 
-/** Does the value already carry inline/block math markup? (drives the preview). */
+// Signals that the value carries renderable math (drives the preview): the readable
+// shorthand MathText promotes (x^2, a_1, sqrt{, frac{), any inline/block LaTeX from other
+// producers, or a unicode math symbol.
+const MATH_SIGNAL = /\\\(|\\\[|\^\d|_\d|sqrt\{|frac\{|[×÷±·≤≥≠≈→⇒∴∞πθαβγΔλμΣ∫∏°√]/;
+
 function hasMathMarkup(value: string): boolean {
-  return value.includes("\\(") || value.includes("\\[");
+  return MATH_SIGNAL.test(value);
 }
 
 export function EquationInput({
@@ -178,18 +179,15 @@ export function EquationInput({
       const end = ta?.selectionEnd ?? value.length;
       const selection = value.slice(start, end);
 
+      // Insert the readable token as-is (no \(...\) wrapping): the selection becomes the
+      // base/radicand/numerator, or -- with no selection -- the token is placed at the caret
+      // so the preceding character serves as the base. No orphaned or empty wrappers.
       const built = buildInsertion(tpl, selection);
-      const inside = caretInsideMath(value, start);
-      // Wrap in \(...\) only when NOT already inside a math span, so clicking several
-      // symbols in a row builds one span rather than a chain of adjacent ones.
-      const insertText = inside ? built.text : OPEN + built.text + CLOSE;
-      const caretOffset = (inside ? 0 : OPEN.length) + built.caret;
-
-      const next = value.slice(0, start) + insertText + value.slice(end);
+      const next = value.slice(0, start) + built.text + value.slice(end);
       onChange(next);
 
       // Restore focus + caret after the controlled re-render.
-      const caretPos = start + caretOffset;
+      const caretPos = start + built.caret;
       requestAnimationFrame(() => {
         const el = taRef.current;
         if (!el) return;
@@ -228,7 +226,7 @@ export function EquationInput({
           Insert math
         </button>
         <span className="lt-eq__hint">
-          Add fractions, powers, roots, {"π"}, trig -- renders as it appears in the exam.
+          Add fractions, powers, roots, {"π"} — stays readable, previews below.
         </span>
       </div>
 
