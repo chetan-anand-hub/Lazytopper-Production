@@ -48,7 +48,10 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language 
     `- Warm but direct and plain. No "Namaste", no kite/cricket analogies as intros, no "you're a topper".\n` +
     `- Organise by what matters to a board student: by marks and structure, with concrete board-style examples.\n` +
     `- Write plain, warm prose in short lines. Use a simple dash for a list. Do NOT use markdown symbols ` +
-    `(**, ##, backticks) — they show as literal characters to the student.\n` +
+    `(**, ##, backticks). For ANY maths, use LaTeX inside \\(...\\) for inline and \\[...\\] for a display ` +
+    `line — NEVER $...$ or $$...$$ (the app renders \\(...\\) / \\[...\\] only; a bare $ shows as a literal ` +
+    `dollar sign to the student). E.g. "\\(\\sin\\theta = \\frac{p}{h}\\)" inline, or a step on its own line ` +
+    `"\\[\\tan 60^\\circ = \\sqrt{3}\\]".\n` +
     `- End a teaching turn with EXACTLY ONE specific, declinable offer — never a menu, never an ` +
     `interrogation. If the student just wants the answer, give it; don't nag or force struggle on an ` +
     `unwilling student. Good offers: "want the step-by-step with CBSE step-marking?" or "want to see how a ` +
