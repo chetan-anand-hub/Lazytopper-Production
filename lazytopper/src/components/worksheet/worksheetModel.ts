@@ -378,6 +378,15 @@ export interface WorksheetPlanParams {
    * sections that topic loses the most marks on. A topic absent here draws uniformly.
    */
   topicSectionBoosts?: Record<string, Record<string, number>> | null;
+  /**
+   * Stage-2 tutor round-trip (decision P-A, ADDITIVE): a concept `focus` (a
+   * BoardConcept name) to narrow each topic's pool toward that sub-topic, so the
+   * MI-weighted "Practise" set is concept-scoped (D-TUT-7), not just topic-scoped.
+   * Best-effort + GUARDED in buildPools (the full topic pool is kept if the concept
+   * over-narrows, so a worksheet is never emptied). Absent for every existing caller
+   * → no filter, the pools are byte-identical.
+   */
+  focus?: string;
 }
 
 export interface WorksheetPlan {
@@ -396,6 +405,29 @@ export interface WorksheetPlan {
 }
 
 const POOL_OVERSAMPLE = 999;
+/** Keep the full topic pool if a concept `focus` would narrow it below this — a
+ *  worksheet is never emptied by an over-specific concept (honest fallback). */
+const MIN_FOCUS_POOL = 4;
+
+/**
+ * Best-effort concept narrowing for the Stage-2 tutor round-trip (P-A). GUARDED: an
+ * absent `focus` returns the pool UNCHANGED (every existing caller → byte-identical),
+ * and if narrowing leaves too few questions the full pool is kept (never an empty
+ * sheet). Matches on `subtopic` (two-way includes) with a question-text word fallback,
+ * since `concept` is empty in the bank today (predictionTypes Phase 0).
+ */
+function narrowToConcept(pool: PracticeQuestion[], focus?: string): PracticeQuestion[] {
+  const f = (focus || "").toLowerCase().trim();
+  if (!f) return pool;
+  const words = f.split(/[^a-z0-9]+/).filter((w) => w.length >= 4);
+  const matches = pool.filter((q) => {
+    const sub = String(q.subtopic || "").toLowerCase();
+    if (sub && (sub.includes(f) || f.includes(sub))) return true;
+    const qt = String(q.questionText || "").toLowerCase();
+    return words.some((w) => sub.includes(w) || qt.includes(w));
+  });
+  return matches.length >= MIN_FOCUS_POOL ? matches : pool;
+}
 
 /** Build the unique, filter-scoped pool for every in-scope topic (no repeats). */
 function buildPools(params: WorksheetPlanParams): Map<string, PracticeQuestion[]> {
@@ -412,7 +444,9 @@ function buildPools(params: WorksheetPlanParams): Map<string, PracticeQuestion[]
       sections: params.sections,
       allowRepeats: false,
     });
-    pools.set(t.key, pool);
+    // ADDITIVE (Stage-2 P-A): narrow toward the concept focus when the tutor supplies
+    // one; a no-op (pool unchanged) for every existing worksheet entry.
+    pools.set(t.key, narrowToConcept(pool, params.focus));
   }
   return pools;
 }
