@@ -1,3 +1,15 @@
+## 2026-07-15 -- #429 + #430 + #431: SHARED EQUATION INPUT/RENDER INFRA MERGED (trunk `65fdf85`)
+
+### RESOLVED (infra shipped)
+- **[FU-EQUATION-INPUT-TUTOR-CONSUME] — INFRA DONE; only the tutor-consume step remains.** The shared `<EquationInput>`/`<EquationRender>` shipped (#429) and the API + serialized-string contract shipped as `handoff/EQUATION_INPUT_API_CONTRACT.md` (#430). The tutor composer can now drop in `<EquationInput>` (props `value/onChange/placeholder/disabled/rows/className/ariaLabel`; serialization = prose + `\(…\)`/`\[…\]` LaTeX + readable shorthand). Carry-forward renamed → **[FU-TUTOR-CONSUME-EQUATION-INPUT]**: the tutor lane imports it into `TutorPage.tsx` at its own pace (small follow-up); THIS lane did not touch TutorPage.tsx.
+
+### NEW (likely the next lane for the equation/MathText owner)
+- **[FU-MATHTEXT-COMMAND-CORRUPTION]** — MathText's bare-pattern auto-promote corrupts bare LaTeX COMMANDS, and it is **still reproducing live in the tutor** (tutor turns emit `\(…\)`/bare LaTeX including `\cos^{2}`, `\sin^{2}`, `\log_{10}`).
+  - **Mechanism:** in `preprocessBarePatterns` (`MathText.tsx`) the bare promotions — `([a-zA-Z])\^(\d+)`, `([a-zA-Z])_(\d+)`, `(?<![\\a-zA-Z])sqrt…`, `frac…` — run on the RAW string BEFORE the `\(…\)` delimiter parse. For `\cos^{2}` the `s^{2}` tail matches `[a-zA-Z]\^…` → the string becomes `\co\(s^{2}\)`: the `\co` is an orphaned broken command and the wrong glyph renders. (The `\^` promotions guard against being INSIDE an existing `\(…\)` via `isInsideDelimiter`, but NOT against being inside a bare `\command`.)
+  - **My read of the safe fix (I know this renderer best):** mirror the existing `delimitedRanges` mask with a `commandRanges` mask — scan for `\[a-zA-Z]+` command spans first, then have every bare promotion SKIP a match whose offset falls inside a command span (a JS fixed-width lookbehind can't express `\[a-zA-Z]*`, so a pre-computed range mask is the clean way, exactly like `isInsideDelimiter`). Bare `x^2` / `sqrt5` / `frac1/2` (no preceding `\`) are unaffected — they're the intended inputs. Alternatively (belt-and-suspenders) tokenize known `\cos/\sin/\tan/\log/\ln/\sqrt/\frac/...` commands out before promoting.
+  - **Consumers that need a regression test when this is fixed** (ALL render through `<MathText>`): print docs (`CheckImproveGradedPrintDoc`, `WorksheetPrintDoc`, `WorksheetGradedPrintDoc`), practice cards (`PracticeQuestionCard`), HPQ (`HighlyProbableQuestions`), the C&I live views (`SolutionChecker` + mobile/desktop C&I echo fields), and tutor turns (`TutorMessageRenderer`). Add a shared fixture of bare-command inputs (`\cos^2 \theta`, `\sin^2`, `\log_{10}`) asserting no orphaned `\co`/`\si` and a correct render.
+  - **Out of scope for the equation lane** (#429/#431 did not touch MathText); the friendly tokens that lane inserts (x^2, sqrt5, frac1/2) are the promote's intended inputs and do NOT trip it. Likely the next lane for this owner (owns the renderer).
+
 ## 2026-07-14 -- #425 + #426: TUTOR STAGE 1 (chat shell) + follow-up MERGED (trunk `d3c7be2`) → language/offer FUs CLOSED; Stage-2 carry-ins logged
 
 ### CLOSED by #426 (owner live-verified)
@@ -12,7 +24,7 @@
 - **[FU-TUTOR-WORKSHEET-CONCEPT-FILTER]** (Stage-2 pre-flight finding) — the `/practice/worksheets` route (`WorksheetGenerator.parseEntryContext`) reads subject/stream/topic(s)/scope only; it does NOT parse a concept `focus` or mark-band (`marksMin`/`marksMax`). P-A's concept-filtered worksheet needs a small additive parse in `parseEntryContext` (mirroring `buildDesktopConceptPracticePath`), else the MVP routes to a TOPIC-scoped worksheet (MI-weighted but not concept-narrowed).
 - **[FU-TUTOR-LEGACY-RETIRE]** — retire the six old engine files + the "Teach me" entry AFTER the new tutor is fully live (post-Stage-3), its own small PR.
 - **[FU-TUTOR-SUBREGION-FOCUS]** — deferred indefinitely (Stage-3 visual sub-region focus; correctly-grained notes/bank figures make it unnecessary).
-- **[FU-EQUATION-INPUT-TUTOR-CONSUME]** — a parallel lane builds a shared `<EquationInput>` (`src/components/equation/**`); align on its API (props + serialized-answer string) so the tutor composer consumes it drop-in (Stage 2 if clean, else a small follow-up). Do NOT build a separate equation input.
+- **[FU-EQUATION-INPUT-TUTOR-CONSUME]** — ✅ INFRA SHIPPED (#429/#430/#431); superseded by **[FU-TUTOR-CONSUME-EQUATION-INPUT]** (see the 2026-07-15 section above). The shared `<EquationInput>` + `handoff/EQUATION_INPUT_API_CONTRACT.md` exist; the tutor composer imports it drop-in at its own pace. Do NOT build a separate equation input.
 
 ## 2026-07-13 -- #419: bank-expansion Batch 11 (triangles + coordinate-geometry + metals-and-non-metals +315, SECOND 3-topics-per-PR) MERGED (trunk `69e319d`)
 

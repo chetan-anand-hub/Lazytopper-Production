@@ -1,6 +1,19 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #425 + #426 merged + OWNER LIVE-VERIFIED — TUTOR STAGE 1: the fresh `/api/tutor` chat shell (+ language/offer follow-up) — trunk `d3c7be2`
+## [CURRENT] #429 + #430 + #431 merged + OWNER LIVE-VERIFIED — SHARED EQUATION INPUT/RENDER INFRA (+ friendly-token polish) — trunk `65fdf85`
+
+**Post-merge trunk `65fdf85`. The equation lane = 3 PRs: #429 (`bbf02ca`, product) + #430 (`68fbc03`, the API-contract docs) + #431 (`e458832`, the friendly-token + caret polish). This docs-only PR (`docs/post-pr-431-equation-infra-handoff`) closes the lane. NOTE: the tutor Stage-2 lane also merged in the same window (#428 `7ef4bcf` + #432 `65fdf85`) — those are the tutor lane's to document; mentioned here only as trunk context.**
+
+**A shared math INPUT+RENDER pair now lives at `src/components/equation/`, reusing the app's ONE canonical math grammar instead of inventing a second one:**
+- **`<EquationInput>`** — a controlled-textarea DROP-IN (props `value/onChange/placeholder/disabled/rows/className/ariaLabel`) + a collapsible symbol palette + a live KaTeX preview. The palette inserts the FRIENDLY, READABLE shorthand `<MathText>` already auto-promotes — `x^2`, `sqrt{…}`, `frac{a}{b}`, `a_1` — or plain unicode (π θ ≤ ± °), **never raw `\(…\)`**; caret/selection-correct (select `x` → `x^2`; no selection → token lands at the caret so the preceding char is the base; no empty `^{}`). Captures input only — computes nothing (anti-fabrication).
+- **`<EquationRender>` = `MathText` RE-EXPORTED** (NO second renderer). Every display surface already renders through MathText.
+- **Serialization = the app's ONE canonical grammar:** inline `\(…\)` / block `\[…\]` LaTeX + the readable shorthand + prose. No math typed → plain prose, byte-identical to the old textarea (anti-regression). The grader (`checkSolution.cjs`) is UNTOUCHED and receives the student string VERBATIM; it already reads this grammar in production via bank `solutionSteps` injected as the marking scheme — so a serialized answer grades on equal footing with the plain equivalent. Proven by the paired-answer harness `scripts/ops/equation_grader_compat_harness.mjs` (8 pairs: byte-identical / well-formed / semantics-equal / no-fabrication) + owner live-verify.
+- **Wired** (textarea → `<EquationInput>`; the 4 graded echo fields description/studentWork/teacherAnnotation/correctedWorking → `<EquationRender>`): `SolutionChecker` (the SHARED subjective input — Quick Practice / HPQ / Topic Hub inherit it), mobile `CheckImprove.tsx`, `DesktopCheckImprovePage`. The PRINT docs (`CheckImproveGradedPrintDoc`, worksheet docs) already rendered via MathText — untouched. MI displays store classifications only (no raw student prose) → no MI render surface needed.
+- **No new dependency** (KaTeX already present). #430 shipped `handoff/EQUATION_INPUT_API_CONTRACT.md` so the tutor composer can consume `<EquationInput>` drop-in (a later tutor follow-up — this lane did NOT touch `TutorPage.tsx`).
+- Gates on all three PRs: tsc · mojibake · scope · diff-check · root **181/181** · ops matrix · harness **8/8** all PASS; build + vitest gated by CI (linux-pinned). Reports: `Desktop/diff/report-equation-widget-{preflight,build}-2026-07-14.md`.
+- **NEW open follow-up (likely next lane for this owner): [FU-MATHTEXT-COMMAND-CORRUPTION]** (see OPEN_QUESTIONS) — MathText's bare-pattern auto-promote grabs the fragment inside a bare LaTeX COMMAND (`\cos^{2}` → `\co\(s^{2}\)`), still reproducing live in tutor turns. The friendly tokens THIS lane inserts (x^2, sqrt5, frac1/2) are the promote's intended inputs and do NOT trip it.
+
+## #425 + #426 merged + OWNER LIVE-VERIFIED — TUTOR STAGE 1: the fresh `/api/tutor` chat shell (+ language/offer follow-up) — trunk `d3c7be2`
 
 **Post-merge trunk: `d3c7be2` (squash of #426, the Stage-1 follow-up) on top of `2864be9` (squash of #425, the Stage-1 chat shell). This docs-only PR (`docs/post-pr-426-tutor-stage1-handoff`) catches up the handoff for BOTH tutor merges together (per the owner). Re-derive the tip after it merges (the usual one-commit lag).**
 
