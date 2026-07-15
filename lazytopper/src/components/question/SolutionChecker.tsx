@@ -1,13 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
-import {
-  getMistakeInsights, getMistakeTrend,
-  type MistakeInsights, type MistakeTrend, type CheckerMistakeType,
-} from "../../services/mistakeInsightsService";
 import { EquationInput, EquationRender } from "../equation";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
@@ -226,7 +221,6 @@ export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
@@ -244,9 +238,6 @@ export function SolutionChecker({
   const [logStatus, setLogStatus] = useState<LogStatus>("pending");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backfilledRef = useRef<string | null>(null);
-  const [insightData, setInsightData] = useState<MistakeInsights | null>(null);
-  const [insightTrend, setInsightTrend] = useState<MistakeTrend | null>(null);
-  const [insightReady, setInsightReady] = useState(false);
 
   useEffect(() => {
     if (!questionId) return;
@@ -286,31 +277,6 @@ export function SolutionChecker({
     return () => { cancelled = true; };
   }, [result, isFromCache, user, questionId, subject, topic, question]);
 
-  useEffect(() => {
-    if (!result || !user?.uid || user?.isLocalSession) {
-      setInsightData(null);
-      setInsightTrend(null);
-      setInsightReady(false);
-      return;
-    }
-    let cancelled = false;
-    const timer = setTimeout(() => {
-      if (!cancelled) setInsightReady(true);
-    }, 1500);
-    Promise.all([
-      getMistakeInsights(user.uid, 7),
-      getMistakeTrend(user.uid, 7, 7),
-    ]).then(([ins, trend]) => {
-      if (cancelled) return;
-      setInsightData(ins);
-      setInsightTrend(trend);
-      setInsightReady(true);
-      clearTimeout(timer);
-    }).catch(() => {
-      if (!cancelled) setInsightReady(true);
-    });
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [result, user]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -823,147 +789,6 @@ export function SolutionChecker({
             </div>
           )}
 
-          {/* ── Improvement Insight card ── */}
-          {insightReady && insightData?.hasEnoughData && (() => {
-            const ms = result!.mistakeSummary;
-            const totals: Record<string, number> = {
-              conceptual: ms.conceptual, calculation: ms.calculation,
-              silly: ms.silly, presentation: ms.presentation,
-            };
-            const TYPES = ["conceptual","calculation","silly","presentation"] as const;
-            const currentTop = TYPES.reduce<CheckerMistakeType | null>((best, t) =>
-              (totals[t] > (best ? totals[best] : -1)) ? t : best, null);
-            if (!currentTop || totals[currentTop] === 0) return null;
-
-            const historicCount = insightData.mistakeCounts[currentTop] ?? 0;
-            const TYPE_LABEL: Record<string, string> = {
-              conceptual: "Conceptual", calculation: "Calculation",
-              silly: "Silly", presentation: "Presentation",
-            };
-            const TYPE_COLOR: Record<string, string> = {
-              conceptual: "#ef4444", calculation: "#f59e0b",
-              silly: "#f97316", presentation: "#3b82f6",
-            };
-
-            const ordinal = (n: number) => {
-              if (n === 1) return "1st"; if (n === 2) return "2nd"; if (n === 3) return "3rd";
-              return `${n}th`;
-            };
-
-            const recurMsg = insightData.topMistakeType === currentTop && historicCount > 2
-              ? `This is your ${ordinal(historicCount)} ${TYPE_LABEL[currentTop].toLowerCase()} mistake this week.`
-              : historicCount > 1
-              ? `You've had ${historicCount} ${TYPE_LABEL[currentTop].toLowerCase()} mistakes this week.`
-              : null;
-
-            const trend = insightTrend;
-            const trendByType = trend?.byType?.[currentTop];
-            const trendMsg = trendByType !== undefined && trendByType !== null
-              ? trendByType <= -10
-                ? `${TYPE_LABEL[currentTop]} mistakes down ${Math.abs(trendByType)}% vs last week — improving!`
-                : trendByType >= 10
-                ? `${TYPE_LABEL[currentTop]} mistakes up ${trendByType}% vs last week — needs attention.`
-                : `${TYPE_LABEL[currentTop]} mistakes stable vs last week.`
-              : null;
-
-            const ctaLabel = currentTop === "conceptual" ? "Learn this topic"
-              : currentTop === "presentation" ? "Retry with focus on presentation"
-              : "Practice this topic";
-
-            const handleCta = () => {
-              const top = insightData.topHotspot;
-              const t = top?.topic;
-              const s = (top?.subject || subject || "Maths").toLowerCase();
-              if (currentTop === "conceptual" && t) {
-                navigate(`/topic-hub/10/${s}/${encodeURIComponent(t)}`);
-              } else if (t) {
-                navigate(`/practice/10/${s}?topic=${encodeURIComponent(t)}`);
-              } else {
-                navigate(`/practice/10/${s}?topic=${encodeURIComponent(topic)}`);
-              }
-            };
-
-            const handleFixMyMistakes = () => {
-              const top = insightData.topHotspot;
-              const t = top?.topic || topic;
-              const s = (top?.subject || subject || "Maths").toLowerCase();
-              const mistakeTypeForSession = top?.dominantType ?? insightData.topMistakeType ?? currentTop;
-              const diff = mistakeTypeForSession === "conceptual" ? "Easy" : "Medium";
-              navigate(`/practice/10/${s}?topic=${encodeURIComponent(t)}&difficulty=${diff}&targeted=1&targetMistakeType=${mistakeTypeForSession}`);
-            };
-
-            return (
-              <div style={{
-                marginTop: 10, padding: "11px 14px", borderRadius: 10,
-                background: "rgba(99,102,241,0.04)",
-                border: "1px solid rgba(99,102,241,0.18)",
-              }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
-                  💡 Improvement Insight
-                </div>
-
-                {/* Recurrence message */}
-                {recurMsg && (
-                  <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, marginBottom: 4 }}>
-                    <span style={{
-                      display: "inline-block", fontSize: 10, fontWeight: 800,
-                      padding: "1px 7px", borderRadius: 999, marginRight: 6,
-                      color: TYPE_COLOR[currentTop], background: `${TYPE_COLOR[currentTop]}18`,
-                      textTransform: "uppercase", letterSpacing: "0.04em",
-                    }}>
-                      {TYPE_LABEL[currentTop]}
-                    </span>
-                    {recurMsg}
-                  </div>
-                )}
-
-                {/* Trend signal */}
-                {trendMsg && (
-                  <div style={{
-                    fontSize: 11, fontWeight: 600, lineHeight: 1.4, marginBottom: 8,
-                    color: (trendByType ?? 0) <= -10 ? "#22c55e"
-                      : (trendByType ?? 0) >= 10 ? "#ef4444"
-                      : "#f59e0b",
-                    display: "flex", alignItems: "center", gap: 4,
-                  }}>
-                    <span style={{ fontSize: 12 }}>
-                      {(trendByType ?? 0) <= -10 ? "↓" : (trendByType ?? 0) >= 10 ? "↑" : "→"}
-                    </span>
-                    {trendMsg}
-                  </div>
-                )}
-
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    onClick={handleCta}
-                    style={{
-                      padding: "6px 12px", borderRadius: 8, border: "none",
-                      background: "#6366f1", color: "#fff",
-                      fontSize: 11, fontWeight: 700, cursor: "pointer",
-                    }}
-                  >
-                    {ctaLabel}
-                  </button>
-                  {insightData.topHotspot && (
-                    <button
-                      type="button"
-                      onClick={handleFixMyMistakes}
-                      style={{
-                        padding: "6px 12px", borderRadius: 8,
-                        border: "1px solid rgba(99,102,241,0.35)",
-                        background: "rgba(99,102,241,0.08)", color: "#6366f1",
-                        fontSize: 11, fontWeight: 700, cursor: "pointer",
-                        display: "flex", alignItems: "center", gap: 4,
-                      }}
-                    >
-                      <span>🎯</span> Fix My Mistakes
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
 
           {/* See Model Answer CTA */}
           {onRequestStepSolution && (

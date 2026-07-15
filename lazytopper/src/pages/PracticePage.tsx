@@ -327,6 +327,7 @@ import {
   parseFocusBankIds,
   parseBooleanFlag,
 } from "../components/practice/practiceQuestionBuilder";
+import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { PracticeHero } from "../components/practice/PracticeHero";
@@ -942,6 +943,12 @@ const packTopicKey = useMemo(() => {
   // filters on the builder, before the first Build).
   const preBuildAvailableCount = useMemo(() => {
     const sectionForMarks = uiMarksToSectionScope(pendingMarks);
+    // ⚠ DELIBERATELY NO `seenQuestionIds` HERE — do not "complete" this call by adding it.
+    // "N available" is a faithful count of the POOL, not of what is left FOR YOU. Passing
+    // the seen-set would make the number FALL as the student practises ("42 available" →
+    // "31 available" for the same unchanged bank), which reads as the bank shrinking and
+    // is a broken product promise. The seen-set belongs on the two SET-BUILDING fetches
+    // only. Pinned by a test.
     const bankQuestions = buildPracticeQuestionsFromEngine({
       subjectKey,
       topicKey: topicLabel,
@@ -1061,24 +1068,37 @@ const packTopicKey = useMemo(() => {
                   marksFilter: engineMarksFilter,
                   pyqOnly: committedSource === "pyq" || undefined,
                   excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
+                  // The seen-set at the FETCH layer: the engine skips already-attempted
+                  // questions BEFORE its head-take, so repeat sessions walk DOWN the
+                  // predictionScore list instead of re-serving its head forever.
+                  seenQuestionIds,
                 })
               )
             ),
             timeout,
           ]);
 
-          const seen = new Set<string>();
-          const merged: PracticeQuestion[] = [];
-          for (const batch of sectionResults) {
-            for (const q of batch) {
-              const key = String(q.questionText || "").trim().toLowerCase().slice(0, 80);
-              if (key && !seen.has(key)) {
-                seen.add(key);
-                merged.push(q);
-              }
-            }
-          }
-          next = merged.slice(0, questionCount);
+          // Take each section's BLUEPRINT SHARE from its own batch (A3·B2·C2·D2·E1 at
+          // count=10) instead of concatenating and tail-slicing.
+          //
+          // The old `merged.slice(0, questionCount)` looked equivalent and was not: the
+          // MIN_QUESTION_COUNT=3 floor inflates every section's request to 3 (a requested
+          // 3/2/2/2/1 arrives as 3/3/3/3/3 = 15), and the tail slice then kept
+          // A(3)+B(3)+C(3)+D(1)+E(0). Realised shape ≈ A30/B30/C30/D10/E0 — Section E
+          // (case-based) NEVER rendered on the default path and D was starved with it,
+          // against an intended 30/20/20/20/10. See blueprintTake.ts; the shape is now a
+          // pinned property rather than an unguarded product claim.
+          next = takeBlueprintShare(
+            BLUEPRINT.map(({ section, share }, i) => ({
+              section,
+              share,
+              questions: sectionResults[i] ?? [],
+            })),
+            questionCount,
+            // Dedup key mirrors the old merge's (questionText, first 80 chars) so a
+            // question appearing in two batches still resolves to one.
+            (q) => String(q.questionText || "").trim().toLowerCase().slice(0, 80),
+          );
         } else {
           next = await Promise.race([
             buildPracticeQuestionsWithAiTopup({
@@ -1097,6 +1117,8 @@ const packTopicKey = useMemo(() => {
               marksFilter: engineMarksFilter,
               pyqOnly: committedSource === "pyq" || undefined,
               excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
+              // Fetch-layer seen-set — see the blueprint branch above.
+              seenQuestionIds,
             }),
             timeout,
           ]);
