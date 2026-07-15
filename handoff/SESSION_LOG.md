@@ -1,5 +1,22 @@
 ---
 
+## 2026-07-15 -- #429 + #430 + #431: SHARED EQUATION INPUT/RENDER INFRA + friendly-token polish, owner merged + LIVE-VERIFIED — trunk `65fdf85`
+
+**Equation lane, 3 PRs: #429 (`bbf02ca`) shared `<EquationInput>`/`<EquationRender>` + wiring; #430 (`68fbc03`) the API contract for the tutor lane; #431 (`e458832`) the friendly-token + caret polish after owner live-verify. Isolated worktrees per PR (`LT-worktrees/equation-widget`, `/eq-polish`); pre-flight → owner approval (serialization + no-dependency) → build → gates → owner byte-review + live-verify → merge. Never self-merged (docs #430 self-merge-eligible). CI green on all.**
+
+- **Approved pre-flight found the better path:** the app ALREADY had one canonical math grammar (`\(…\)`/`\[…\]` + readable shorthand) rendered by `MathText` (KaTeX, already a dependency) across print docs / practice / HPQ / tutor. So: reuse it — NO new dependency, NO `$…$`, NO second renderer (`EquationRender` = MathText re-export). Grader-compat is safe because `checkSolution.cjs` (FORBIDDEN, untouched) embeds the student answer verbatim and already reads this grammar via bank `solutionSteps`.
+- **#429** = `<EquationInput>` (textarea + palette + KaTeX preview) + `<EquationRender>`; wired SolutionChecker + mobile/desktop C&I (textarea → EquationInput; the 4 graded echo fields → EquationRender). Paired-answer harness (8 pairs) proves anti-regression. **#430** = `handoff/EQUATION_INPUT_API_CONTRACT.md` so the tutor composer consumes `<EquationInput>` drop-in.
+- **#431 polish** (owner live-verify found raw LaTeX in the box + buggy insertion): palette now inserts readable shorthand (x^2, sqrt{}, frac{a}{b}, a_1) / unicode, NEVER `\(…\)`; caret/selection fixed (select x → x^2; no selection → token at caret, preceding char the base; no empty `^{}`). Dropped cube-root + matrix (no friendly form, not Class-10).
+
+### Session learnings
+- **Reuse the render grammar you already have.** The biggest de-risk was discovering `MathText` + KaTeX already shipped AND the grader already ate the grammar (via `solutionSteps`) — so the "new dependency + new format" framing collapsed to zero-dep reuse. Grep for an existing renderer/grammar before adding one.
+- **The friendliness win = insert what the renderer auto-promotes.** MathText promotes bare `x^2` / `sqrt{…}` / `frac{a}{b}` / `a_1`, so inserting THOSE (not `\(…\)`) keeps the textarea readable AND renders — ~80% of a WYSIWYG field with zero MathLive dependency.
+- **A deterministic harness proves serialization equivalence, not the live grade.** The `.mjs` harness proves plain and `\(…\)`-math reduce to the same canonical reading (semantics/prose/no-fabrication) and runs on win32; the actual Gemini grade-identity is the owner live-verify. Be explicit which half each gate covers.
+- **[FU-MATHTEXT-COMMAND-CORRUPTION] surfaced:** MathText's `[a-zA-Z]^\d` promote grabs the tail of a bare LaTeX command (`\cos^{2}` → `\co\(s^{2}\)`). Separate shared-component bug; the friendly tokens here don't trip it (they're the promote's intended inputs).
+- **Control-char template markers vanish through Write/Edit** — define them with `String.fromCharCode(1/2)`, never as literal invisible bytes (the mojibake guard AND Edit-string-match both break on the literals).
+
+---
+
 ## 2026-07-14 -- #425 + #426: TUTOR STAGE 1 — the fresh `/api/tutor` chat shell (+ language/offer follow-up), owner merged + LIVE-VERIFIED — trunk `d3c7be2`
 
 **Merged as `d3c7be2` (#426 follow-up) on `2864be9` (#425 chat shell). This docs-only PR (`docs/post-pr-426-tutor-stage1-handoff`) catches up BOTH tutor merges. Isolated worktrees per PR (`LT-worktrees/tutor-stage1`, `/tutor-s1-fu`); built to `AGENT_tutor_build_stagewise_2026-07-13.md` + the LOCKED Flow v2 + the Teach-Contract/Teach-Style; verify-before-build pre-flight → owner plan approval (5 decisions + both sacred blocks) → build → gates → owner byte-review + 360px live-verify → merge. Never self-merged. CI green on both.**
