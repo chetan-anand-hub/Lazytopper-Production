@@ -1420,6 +1420,18 @@ export interface CheckImproveVariantInput {
   /** Deep-link the worksheet builder to the confirmed topic. Omitted for MIX —
    *  there is no honest single-topic target to practise. */
   onPractiseTopic?: () => void;
+  /** The RETURN TICKET (optional, additive). When the student was sent here from
+   *  another surface, a row is PREPENDED to the what-next menu so they don't have to
+   *  scroll up hunting for the way home at the exact moment they want to leave.
+   *  Omitted (a direct visit) → the menu is byte-identical to before. */
+  returnTicket?: { label: string; onReturn: () => void };
+}
+
+/** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
+ *  primary slot belongs to the session's own next step, and two primaries would leave
+ *  neither reading as the emphasis. `tag` renders as the menu's small leading chip. */
+function returnTicketAction(ticket: { label: string; onReturn: () => void }): ScorecardAction {
+  return { label: ticket.label, tag: "Back", tone: "secondary", onClick: ticket.onReturn };
 }
 
 /**
@@ -1462,11 +1474,22 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
         detail:
           "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
       },
-      actions: [{ label: "Back to my paper", tone: "ghost", onClick: input.onReadSheet }],
+      // The ticket rides this branch too. It is a SEPARATE action array that doesn't
+      // set stackActions (it renders as the 2-up row), so without this line the way
+      // home would vanish at exactly the moment grading failed — the moment a stranded
+      // student most wants it.
+      actions: [
+        ...(input.returnTicket ? [returnTicketAction(input.returnTicket)] : []),
+        { label: "Back to my paper", tone: "ghost", onClick: input.onReadSheet },
+      ],
     };
   }
 
   const menu: ScorecardAction[] = [
+    // PREPENDED so the way home is the FIRST row of the what-next menu — the student
+    // shouldn't scroll past everything else to find it at the moment they want to
+    // leave. Absent on a direct visit → this menu is byte-identical to before.
+    ...(input.returnTicket ? [returnTicketAction(input.returnTicket)] : []),
     {
       label: "Read my graded answer sheet",
       tag: "Sheet",

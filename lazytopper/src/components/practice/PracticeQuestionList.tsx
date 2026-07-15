@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { type PracticeQuestion } from "../../data/predictionDataService";
-import type { StepSolutionResponse } from "../../ai/aiClient";
+import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
 
 export interface PracticeQuestionListProps {
@@ -22,6 +22,8 @@ export interface PracticeQuestionListProps {
   onToggleAnswer: (id: string, q?: PracticeQuestion) => void;
   onMcqSelect: (qId: string, optionIndex: number) => void;
   onMcqResult: (qId: string, result: "correct" | "wrong") => void;
+  /** The graded payload for one subjective answer, forwarded to the page (QP sessions). */
+  onGraded?: (qId: string, result: CheckSolutionResponse) => void;
   onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
   onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
   onOpenConceptDrawer: (q: PracticeQuestion) => void;
@@ -33,7 +35,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     isLoading, error, questions, filteredQuestions, subjectKey, topicLabel, difficultyFilter,
     expandedAnswers, selfAssessments, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
-    onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
+    onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
     onSelfAssessGotIt, onSelfAssessNeedPractice,
     onOpenConceptDrawer, onOpenMentorBoard,
   } = props;
@@ -144,6 +146,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onToggleAnswer={(id, question) => onToggleAnswer(id, question)}
               onMcqSelect={(qId, oi) => onMcqSelect(qId, oi)}
               onMcqResult={(qId, result) => onMcqResult(qId, result)}
+              onGraded={onGraded}
               onSelfAssessGotIt={(question) => onSelfAssessGotIt(question, idx)}
               onSelfAssessNeedPractice={(question) => onSelfAssessNeedPractice(question, idx)}
               onOpenConceptDrawer={onOpenConceptDrawer}

@@ -161,6 +161,10 @@ export function buildPracticeQuestionsFromEngine(args: {
   priorityConceptKeys?: string[];
   marksFilter?: number;
   pyqOnly?: boolean;
+  /** Bank ids already attempted on this topic — the engine prefers UNSEEN (see
+   *  takeFromBucket). Optional/default-off. MUST NOT be passed by the pre-build
+   *  "N available" hint: that number counts the POOL, not what is left for you. */
+  seenQuestionIds?: ReadonlySet<string>;
 }): PracticeQuestion[] {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
   const difficultyMix = difficultyChoiceToMix(args.difficulty);
@@ -176,6 +180,7 @@ export function buildPracticeQuestionsFromEngine(args: {
     adaptiveMix: args.adaptiveMix,
     priorityConceptKeys: args.priorityConceptKeys,
     pyqOnly: args.pyqOnly,
+    seenQuestionIds: args.seenQuestionIds,
   });
 
   let candidates: RawQuestion[] = [...(practiceSet.questions as RawQuestion[])];
@@ -389,7 +394,11 @@ export interface AiTopupArgs {
   adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
   marksFilter?: number;
+  /** DEAD as shipped — see the excludeKeys filter below. [FU-PRACTICE-EXCLUDEKEYS-DEAD] */
   excludeKeys?: Set<string>;
+  /** Bank ids already attempted on this topic — forwarded to the engine so the take
+   *  prefers UNSEEN. Optional/default-off. */
+  seenQuestionIds?: ReadonlySet<string>;
   // PR-K2H-8d: question type and PYQ filters
   questionType?: string;   // "All" | "MCQ" | "Proof" | "Competency" | "AR" | "Case"
   pyqOnly?: boolean;
@@ -443,6 +452,7 @@ export async function buildPracticeQuestionsWithAiTopup(
     priorityConceptKeys: args.priorityConceptKeys,
     marksFilter: args.marksFilter,
     pyqOnly: args.pyqOnly,
+    seenQuestionIds: args.seenQuestionIds,
   });
 
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";

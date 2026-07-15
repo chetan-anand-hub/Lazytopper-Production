@@ -4,7 +4,7 @@ import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
 import { SolutionChecker } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";
-import type { StepSolutionResponse } from "../../ai/aiClient";
+import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
 import { CorrectBurst, WrongShake } from "../celebrations";
 import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
 import { VisualExplainer } from "../VisualExplainer";
@@ -51,6 +51,9 @@ export interface PracticeQuestionCardProps {
   onToggleAnswer: (id: string, q: PracticeQuestion) => void;
   onMcqSelect: (qId: string, optionIdx: number) => void;
   onMcqResult: (qId: string, result: "correct" | "wrong") => void;
+  /** The graded payload for one subjective answer, lifted to the page (QP sessions).
+   *  Optional: a consumer that doesn't record sessions simply omits it. */
+  onGraded?: (qId: string, result: CheckSolutionResponse) => void;
   onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
   onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
   onOpenConceptDrawer: (q: PracticeQuestion) => void;
@@ -118,7 +121,7 @@ export function PracticeQuestionCard({
   q, idx, subjectKey, topicLabel,
   isOpen, selfAssessment, solutionLoading, solutionError, solutionData,
   mcqSelection, mcqResult, difficultyFilter,
-  onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
+  onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onSelfAssessGotIt, onSelfAssessNeedPractice,
   onOpenConceptDrawer, onOpenMentorBoard: _onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
@@ -636,6 +639,12 @@ export function PracticeQuestionCard({
           options={q.options}
           answer={q.answer}
           onRequestStepSolution={handleRequestStepSolution}
+          // Lift the graded payload to the page so a finished session can be recorded
+          // with the real per-step marks. SolutionChecker's own sinks (recordAttempt /
+          // recordMistake) are untouched — this only ADDS a reader; it is not a
+          // second write, and the QP record it feeds is non-counting (LOCKED §1a
+          // as amended).
+          onResult={(result) => onGraded?.(String(q.id), result)}
         />
       )}
 

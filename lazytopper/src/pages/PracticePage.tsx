@@ -9,7 +9,7 @@ import {
   resolveTopicDisplayName,
   resolveTopicKey as resolveCanonicalTopicKey,
 } from "../utils/topicResolver";
-import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
+import { fetchStepSolution, type CheckSolutionResponse, type StepSolutionResponse } from "../ai/aiClient";
 import { lazy, Suspense } from "react";
 import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
@@ -201,6 +201,16 @@ export const questionMatchesFilters = (
   return true;
 };
 
+/** Rotate an array left by `offset` (a stable, non-destructive reordering). Empty and
+ *  single-element arrays are returned as-is. `offset` is normalised, so any integer —
+ *  including one larger than the array — is safe. */
+const rotateBy = <T,>(items: T[], offset: number): T[] => {
+  if (items.length <= 1) return items;
+  const at = ((Math.trunc(offset) % items.length) + items.length) % items.length;
+  if (at === 0) return items;
+  return items.slice(at).concat(items.slice(0, at));
+};
+
 /**
  * PR-E1 FINAL-BUG FIX — single-pool unification. The "N available" hint and the
  * displayed set are derived from ONE shared `pool` so the hint can NEVER promise
@@ -211,6 +221,29 @@ export const questionMatchesFilters = (
  * INVARIANT (unit-tested): displayed.length === Math.min(available, committedCount).
  * Therefore available >= displayed.length always — the hint is a faithful upper
  * bound that the display fills to whenever the pool genuinely has enough.
+ *
+ * ── UNIQUE SETS (2026-07-15) — why this ORDERS and never DROPS ───────────────
+ * The set used to be identical on every visit. The `.slice()` was only the last link:
+ * the engine returns a predictionScore-sorted top-N and the generator's shuffle is
+ * dead code on the default QP path (`isAdaptiveMode` is always true when difficulty is
+ * "All"), so `matched` arrived in the same order forever.
+ *
+ * The fix REORDERS `matched` before the slice — unseen questions first, each partition
+ * rotated by a per-session offset:
+ *   · `available` is still `matched.length`, so the INVARIANT above holds IDENTICALLY
+ *     and the "N available" hint never changes meaning. Dropping seen questions instead
+ *     would shrink `available` and make the hint fall as the student practises — a
+ *     different (and unasked-for) product promise.
+ *   · rotating the SEEN partition delivers exhaustion-recombination for free: once
+ *     everything has been seen, a repeat set is still a different combination rather
+ *     than the identical list. Only real bank questions are ever recombined — nothing
+ *     is fabricated, and the pool is untouched.
+ *   · rotating the UNSEEN partition matters too: the seen-set is built from ATTEMPTS,
+ *     so a question that was DISPLAYED but skipped stays "unseen". Without rotation an
+ *     abandoned set would redraw at the same position — the original complaint.
+ *
+ * Both new params are OPTIONAL and default to today's exact behaviour, so every
+ * existing caller and test is byte-unchanged (that is the no-regression proof).
  */
 export const selectInRangeFromPool = (
   pool: PracticeQuestion[],
@@ -220,11 +253,29 @@ export const selectInRangeFromPool = (
   diff: string,
   range: MarksRange | null,
   committedCount: number,
+  /** Bank ids this student has already attempted on this topic. Omit → no preference. */
+  seenIds?: ReadonlySet<string>,
+  /** Deterministic per-session rotation offset. Omit → no rotation. */
+  rotateOffset?: number,
 ): { available: number; displayed: PracticeQuestion[] } => {
   const matched = pool.filter((q) =>
     questionMatchesFilters(q, marks, style, source, diff, range)
   );
-  return { available: matched.length, displayed: matched.slice(0, committedCount) };
+  const available = matched.length;
+
+  const offset = rotateOffset ?? 0;
+  const hasSeen = !!seenIds && seenIds.size > 0;
+  if (!hasSeen && offset === 0) {
+    return { available, displayed: matched.slice(0, committedCount) };
+  }
+
+  const unseen = hasSeen ? matched.filter((q) => !seenIds!.has(String(q.id))) : matched;
+  const seen = hasSeen ? matched.filter((q) => seenIds!.has(String(q.id))) : [];
+  const ordered = rotateBy(unseen, offset).concat(rotateBy(seen, offset));
+
+  // `ordered` is a permutation of `matched` — same length, same members — so
+  // `available` is untouched and the invariant holds exactly as before.
+  return { available, displayed: ordered.slice(0, committedCount) };
 };
 const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
   if (ui === "1") return "A";
@@ -249,6 +300,14 @@ import type {
 } from "../data/contentStrategy/types";
 import type { StudentMentorIntent } from "../types/studentMentorIntent";
 import { recordDetour } from "../services/guidedJourneyService";
+import { getAttempts, getAttemptsFromCloud } from "../services/practiceInsights";
+import {
+  buildSeenQuestionIds,
+  persistQuickPracticeSession,
+  sessionRotationOffset,
+  type QuickPracticeEntry,
+} from "../services/quickPracticeSessionService";
+import { toSessionSubject } from "../services/checkImproveGradeService";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -268,6 +327,7 @@ import {
   parseFocusBankIds,
   parseBooleanFlag,
 } from "../components/practice/practiceQuestionBuilder";
+import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { PracticeHero } from "../components/practice/PracticeHero";
@@ -511,6 +571,42 @@ const PracticePage: React.FC = () => {
     () => conceptMarksRange
   );
   const [isBuilt, setIsBuilt] = useState<boolean>(false);
+
+  // ── QP SESSION IDENTITY + THE SEEN-SET (unique sets, 2026-07-15) ───────────
+  // When this VISIT began. Captured once per mount: a new visit is a new session, so
+  // it both varies the draw and (at finish) makes the record id idempotent within the
+  // visit while distinct across visits. Never re-read — a changing value would
+  // reshuffle the set under the student mid-session.
+  const [sessionStartedAt] = useState<number>(() => Date.now());
+  // The COMMITTED filters that decide WHICH questions this set contains. Change any of
+  // them and it is a different set → a different session identity → a different draw.
+  // `pending*` is deliberately absent (it hasn't been applied yet), as are nav/display
+  // params (returnTo/backLabel/focus) which change nothing about the questions.
+  const filterSignature = useMemo(
+    () =>
+      [
+        committedMarks,
+        committedStyle,
+        committedSource,
+        committedDifficulty,
+        committedMarksRange ? `${committedMarksRange.min}-${committedMarksRange.max}` : "none",
+        String(committedCount),
+      ].join("|"),
+    [committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount],
+  );
+  // Bank ids already attempted on this topic. Seeded SYNCHRONOUSLY from the local
+  // attempts blob so the very first draw is already informed, then unioned with the
+  // cross-device cloud read below. Honest degradation: if the cloud read fails, the
+  // set is merely smaller → a less-optimal rotation, never a wrong or invented one.
+  const [seenQuestionIds, setSeenQuestionIds] = useState<ReadonlySet<string>>(() => new Set());
+  // Deterministic per-session rotation — NOT Math.random() (CLAUDE.md §7). Seeded from
+  // `topicParam` rather than `canonicalTopicKey` purely for declaration order (the
+  // canonical key is derived further down, after this memo); sessionRotationOffset
+  // canonicalises whatever it is given, so both spellings land on the same offset.
+  const rotationOffset = useMemo(
+    () => sessionRotationOffset(topicParam, filterSignature, sessionStartedAt),
+    [topicParam, filterSignature, sessionStartedAt],
+  );
   // Load-bearing scorecard trigger: the student DECLARES completion (partial or
   // full) by tapping "Finish session", which sets this true and surfaces the
   // scorecard. `allDone` (every question attempted) remains a convenience
@@ -581,8 +677,10 @@ const PracticePage: React.FC = () => {
       committedDifficulty,
       committedMarksRange,
       committedCount,
+      seenQuestionIds,
+      rotationOffset,
     );
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount]);
+  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -628,6 +726,14 @@ const PracticePage: React.FC = () => {
   const [selfAssessments, setSelfAssessments] = useState<Record<string, "got_it" | "need_practice">>({});
   const [mcqSelections, setMcqSelections] = useState<Record<string, number>>({});
   const [mcqResults, setMcqResults] = useState<Record<string, "correct" | "wrong">>({});
+  // The graded payload per question, lifted from SolutionChecker via onGraded. Read
+  // ONLY to assemble the (non-counting) session record at finish — SolutionChecker's
+  // own recordAttempt/recordMistake sinks are the counting path and are untouched.
+  const [gradedResults, setGradedResults] = useState<Record<string, CheckSolutionResponse>>({});
+  // Which session identity has already been written. A one-shot latch: the scorecard
+  // re-renders, and `allDone` can raise it without any click, so without this the
+  // write would fire on every render.
+  const recordedSessionRef = useRef<string | null>(null);
   const [practiceSolutionData, setPracticeSolutionData] = useState<Record<string, StepSolutionResponse>>({});
   const [practiceSolutionLoading, setPracticeSolutionLoading] = useState<Record<string, boolean>>({});
   const [practiceSolutionError, setPracticeSolutionError] = useState<Record<string, string | undefined>>({});
@@ -677,6 +783,38 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
     topicKey: topicKeyParam || explicitFromState || null,
   });
 }, [subjectKey, topicParam, topicKeyParam, navState]);
+
+  // Load the seen-set for THIS topic: the local blob first (synchronous, offline-safe,
+  // and it already carries answers from this very visit), then the durable cloud
+  // subcollection unioned on top for cross-device. There is no hydration path from
+  // cloud → localStorage, so without the cloud read a student who practises on their
+  // phone would see the same set again on their laptop.
+  // Honest degradation: a failed/absent cloud read just leaves the set smaller, which
+  // biases the draw less well — it never produces a wrong or fabricated question.
+  useEffect(() => {
+    let cancelled = false;
+    const topicForSeen = canonicalTopicKey || topicParam;
+    if (!topicForSeen) return;
+    setSeenQuestionIds(buildSeenQuestionIds(getAttempts(), topicForSeen));
+    const uid = authUserForJourney?.uid;
+    if (!uid || authUserForJourney?.isLocalSession) return;
+    void getAttemptsFromCloud(uid)
+      .then((cloudAttempts) => {
+        if (cancelled) return;
+        const fromCloud = buildSeenQuestionIds(cloudAttempts, topicForSeen);
+        setSeenQuestionIds((local) => {
+          const union = new Set(local);
+          for (const id of fromCloud) union.add(id);
+          return union;
+        });
+      })
+      .catch(() => {
+        /* honest degrade: keep the device-local set */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [canonicalTopicKey, topicParam, authUserForJourney?.uid, authUserForJourney?.isLocalSession]);
 
   const strategyTopicSeed = useMemo(() => {
     const explicitFromState = navState.topicKey;
@@ -805,6 +943,12 @@ const packTopicKey = useMemo(() => {
   // filters on the builder, before the first Build).
   const preBuildAvailableCount = useMemo(() => {
     const sectionForMarks = uiMarksToSectionScope(pendingMarks);
+    // ⚠ DELIBERATELY NO `seenQuestionIds` HERE — do not "complete" this call by adding it.
+    // "N available" is a faithful count of the POOL, not of what is left FOR YOU. Passing
+    // the seen-set would make the number FALL as the student practises ("42 available" →
+    // "31 available" for the same unchanged bank), which reads as the bank shrinking and
+    // is a broken product promise. The seen-set belongs on the two SET-BUILDING fetches
+    // only. Pinned by a test.
     const bankQuestions = buildPracticeQuestionsFromEngine({
       subjectKey,
       topicKey: topicLabel,
@@ -924,24 +1068,37 @@ const packTopicKey = useMemo(() => {
                   marksFilter: engineMarksFilter,
                   pyqOnly: committedSource === "pyq" || undefined,
                   excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
+                  // The seen-set at the FETCH layer: the engine skips already-attempted
+                  // questions BEFORE its head-take, so repeat sessions walk DOWN the
+                  // predictionScore list instead of re-serving its head forever.
+                  seenQuestionIds,
                 })
               )
             ),
             timeout,
           ]);
 
-          const seen = new Set<string>();
-          const merged: PracticeQuestion[] = [];
-          for (const batch of sectionResults) {
-            for (const q of batch) {
-              const key = String(q.questionText || "").trim().toLowerCase().slice(0, 80);
-              if (key && !seen.has(key)) {
-                seen.add(key);
-                merged.push(q);
-              }
-            }
-          }
-          next = merged.slice(0, questionCount);
+          // Take each section's BLUEPRINT SHARE from its own batch (A3·B2·C2·D2·E1 at
+          // count=10) instead of concatenating and tail-slicing.
+          //
+          // The old `merged.slice(0, questionCount)` looked equivalent and was not: the
+          // MIN_QUESTION_COUNT=3 floor inflates every section's request to 3 (a requested
+          // 3/2/2/2/1 arrives as 3/3/3/3/3 = 15), and the tail slice then kept
+          // A(3)+B(3)+C(3)+D(1)+E(0). Realised shape ≈ A30/B30/C30/D10/E0 — Section E
+          // (case-based) NEVER rendered on the default path and D was starved with it,
+          // against an intended 30/20/20/20/10. See blueprintTake.ts; the shape is now a
+          // pinned property rather than an unguarded product claim.
+          next = takeBlueprintShare(
+            BLUEPRINT.map(({ section, share }, i) => ({
+              section,
+              share,
+              questions: sectionResults[i] ?? [],
+            })),
+            questionCount,
+            // Dedup key mirrors the old merge's (questionText, first 80 chars) so a
+            // question appearing in two batches still resolves to one.
+            (q) => String(q.questionText || "").trim().toLowerCase().slice(0, 80),
+          );
         } else {
           next = await Promise.race([
             buildPracticeQuestionsWithAiTopup({
@@ -960,6 +1117,8 @@ const packTopicKey = useMemo(() => {
               marksFilter: engineMarksFilter,
               pyqOnly: committedSource === "pyq" || undefined,
               excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
+              // Fetch-layer seen-set — see the blueprint branch above.
+              seenQuestionIds,
             }),
             timeout,
           ]);
@@ -973,6 +1132,11 @@ const packTopicKey = useMemo(() => {
           setSelfAssessments({});
           setMcqSelections({});
           setMcqResults({});
+          setGradedResults({});
+          // A rebuilt/regenerated set is a NEW session: clear the write latch or the
+          // new set would be silently skipped (and clear the grades with it, or they
+          // would leak across the boundary into the next record).
+          recordedSessionRef.current = null;
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
@@ -1264,6 +1428,53 @@ const packTopicKey = useMemo(() => {
   const showScorecard =
     (sessionFinished || allDone) && questions.length > 0 && !scorecardDismissed;
 
+  // ── The QP session record (LOCKED §1a as amended — NON-COUNTING) ───────────
+  // Written when the scorecard FIRST appears, not on the "Finish session" click alone:
+  // `showScorecard` is (sessionFinished || allDone), so a student who answers every
+  // question reaches the scorecard WITHOUT ever tapping Finish — hanging the write off
+  // the click would silently miss exactly the most-complete sessions. Either route is a
+  // finish; both land here.
+  //
+  // Latched by session identity (the scorecard re-renders), so the write is one-shot.
+  // Nothing is written before this point: an ABANDONED session allocates no id and
+  // leaves no record (owner ruling), and there is no unmount/beforeunload hook — a
+  // closed tab writes nothing, by design.
+  useEffect(() => {
+    if (!showScorecard) return;
+    const displayed = committedPoolSelection.displayed;
+    if (displayed.length === 0) return;
+    const identityKey = `${filterSignature}::${displayed.map((q) => String(q.id)).join(",")}`;
+    if (recordedSessionRef.current === identityKey) return;
+    recordedSessionRef.current = identityKey;
+
+    const entries: QuickPracticeEntry[] = displayed.map((q) => {
+      const qId = String(q.id);
+      return {
+        questionId: qId,
+        marks: Number(q.marks) || 0,
+        // A graded result carries real working; a bare MCQ click carries none. Keyed
+        // off which INTERACTION produced the outcome, never off `format === "mcq"` —
+        // a student can submit written working for an MCQ, and that working is real.
+        ...(gradedResults[qId] ? { graded: gradedResults[qId] } : {}),
+        ...(mcqResults[qId] ? { mcq: mcqResults[qId] } : {}),
+      };
+    });
+
+    persistQuickPracticeSession({
+      user: authUserForJourney,
+      title: topicLabel ? `${topicLabel} · Practice set` : "Practice set",
+      subject: toSessionSubject(subjectKey),
+      topicSlug: canonicalTopicKey || topicParam,
+      filterSignature,
+      startedAt: sessionStartedAt,
+      entries,
+    });
+  }, [
+    showScorecard, committedPoolSelection.displayed, gradedResults, mcqResults,
+    authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
+    filterSignature, sessionStartedAt,
+  ]);
+
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
     [getQuestionStrategyDetails, activeQuestion]
@@ -1543,6 +1754,7 @@ const packTopicKey = useMemo(() => {
           onToggleAnswer={handleToggleAnswer}
           onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
+          onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
           onSelfAssessGotIt={(question) => {
             setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
             recordQuestionAnswered();

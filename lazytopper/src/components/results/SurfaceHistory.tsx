@@ -31,19 +31,27 @@ import { storedWorksheetScorecardVariant } from "./scorecardVariants";
  * when the data is thin).
  *
  * ONE responsive component (desktop + mobile via CSS reflow, no useIsDesktop twin).
- * Worksheet is the LIVE surface; Chapter Test + Full Mock copy is DEFINED here as a
- * deferred seam (their host pages aren't rebuilt yet, so those surfaces are never mounted).
+ * Worksheet is the ONLY surface this component is mounted for (WorksheetHistoryPanel).
+ * Every other entry below is a DEFINED-BUT-UNMOUNTED seam: SURFACE_COPY is an
+ * exhaustive Record<SessionSurface, …>, so each new surface is FORCED to declare its
+ * copy here even when its live history lives elsewhere.
  */
 
 const SURFACE_COPY: Record<SessionSurface, { heading: string; empty: string }> = {
   worksheet: { heading: "Your worksheets", empty: "Your graded worksheets will appear here." },
-  // Deferred seams — defined for parity, mounted only once those surfaces are rebuilt.
+  // Defined-but-unmounted: Chapter Test (#374/#380) and Full Mock (#387) SHIPPED, but
+  // each hosts its own bespoke history on its own page (ChapterTestHistoryRail /
+  // FullMockHistoryPanel) rather than adopting this container. Kept for parity.
   "chapter-test": { heading: "Your chapter tests", empty: "Your graded chapter tests will appear here." },
   "full-mock": { heading: "Your mock tests", empty: "Your graded mock tests will appear here." },
-  // Deferred seam (C&I PR-1): the SessionSurface union requires the entry; C&I's
-  // live history is its own overlay panel (CheckImproveHistoryPanel) — this
-  // component is never mounted with "check-improve" today.
+  // Defined-but-unmounted (C&I PR-1): C&I's live history is its own overlay panel
+  // (CheckImproveHistoryPanel) — this component is never mounted with "check-improve".
   "check-improve": { heading: "Your checked papers", empty: "Your checked papers will appear here." },
+  // Defined-but-unmounted (QP sessions, 2026-07-15): QP writes records (LOCKED §1a as
+  // amended) but has NO history surface yet — mounting one is [FU-QP-HISTORY-RAIL],
+  // which carries a real design question (QP's scorecard is "X of N attempted, never
+  // marks/total", so a QP row cannot reuse this container's marks-based card).
+  "quick-practice": { heading: "Your practice sets", empty: "Your finished practice sets will appear here." },
 };
 
 const SUBJECTS: SessionSubject[] = ["maths", "science"];

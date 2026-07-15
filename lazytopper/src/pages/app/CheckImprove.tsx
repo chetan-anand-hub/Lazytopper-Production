@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
+import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import { EquationInput, EquationRender } from "../../components/equation";
 import {
   checkSolutionImage,
@@ -103,6 +104,14 @@ function detectionSourceLabel(
 
 export default function CheckImprove() {
   const navigate = useNavigate();
+  // The return ticket (Section C) — the SAME shared reader the desktop shell uses, so
+  // the two cannot drift. Null on a direct visit → this page renders as it always has
+  // (its MobileShell back control still just resets the view, untouched).
+  const returnTicket = useReturnTicket();
+  const returnTicketInput = useMemo(
+    () => (returnTicket ? { label: returnTicket.label, onReturn: () => navigate(returnTicket.path) } : undefined),
+    [returnTicket, navigate],
+  );
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const qFileRef = useRef<HTMLInputElement>(null);
@@ -298,6 +307,7 @@ export default function CheckImprove() {
     return (
       <ResultsScorecard
         variant={checkImproveScorecardVariant({
+          returnTicket: returnTicketInput,
           topicName: confirmed.topicName,
           code: ciCode,
           topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
@@ -923,6 +933,10 @@ export default function CheckImprove() {
     >
       {historyOverlaysEl()}
       <div style={{ paddingBottom: 120, display: "flex", flexDirection: "column", gap: 14 }}>
+
+        {/* The return ticket's contextual strip (Section C) — the same shared component
+            the desktop shell renders. Nothing on a direct visit. */}
+        <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
 
         {/* ── Your checked papers (C&I PR-2, item D) — the overlay history control,
              mirroring desktop's "Your papers · N". Honest: only shown once at least one

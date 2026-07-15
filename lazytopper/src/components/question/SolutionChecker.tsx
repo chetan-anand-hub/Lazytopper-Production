@@ -1,13 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
-import {
-  getMistakeInsights, getMistakeTrend,
-  type MistakeInsights, type MistakeTrend, type CheckerMistakeType,
-} from "../../services/mistakeInsightsService";
 import { EquationInput, EquationRender } from "../equation";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
@@ -30,6 +25,11 @@ function saveResult(questionId: string, result: CheckSolutionResponse): void {
 }
 
 type LogStatus = "pending" | "saving" | "saved" | "unavailable" | "local-only" | "no-mistakes" | "cached";
+
+/** The two EQUAL answer-input peers. Same shape as C&I's `AnswerTab`
+ *  (DesktopCheckImprovePage) / `Tab` (app/CheckImprove) — one vocabulary across every
+ *  surface that takes a written answer. */
+type AnswerTab = "upload" | "type";
 
 /** Map the single front-door outcome to the evidence-state label. */
 function statusFromOutcome(outcome: RecordMistakeOutcome): LogStatus {
@@ -221,14 +221,16 @@ export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
   const [fileName, setFileName] = useState<string | null>(null);
   const [isPdf, setIsPdf] = useState(false);
   const [textAnswer, setTextAnswer] = useState("");
-  const [showTextInput, setShowTextInput] = useState(false);
+  // Which answer-input peer is showing. Defaults to "upload", matching both shipped
+  // C&I controls. (Typing is no longer hidden by that default — it is an equal,
+  // always-visible peer; the old default hid it behind a disclosure.)
+  const [answerTab, setAnswerTab] = useState<AnswerTab>("upload");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
@@ -236,9 +238,6 @@ export function SolutionChecker({
   const [logStatus, setLogStatus] = useState<LogStatus>("pending");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backfilledRef = useRef<string | null>(null);
-  const [insightData, setInsightData] = useState<MistakeInsights | null>(null);
-  const [insightTrend, setInsightTrend] = useState<MistakeTrend | null>(null);
-  const [insightReady, setInsightReady] = useState(false);
 
   useEffect(() => {
     if (!questionId) return;
@@ -278,31 +277,6 @@ export function SolutionChecker({
     return () => { cancelled = true; };
   }, [result, isFromCache, user, questionId, subject, topic, question]);
 
-  useEffect(() => {
-    if (!result || !user?.uid || user?.isLocalSession) {
-      setInsightData(null);
-      setInsightTrend(null);
-      setInsightReady(false);
-      return;
-    }
-    let cancelled = false;
-    const timer = setTimeout(() => {
-      if (!cancelled) setInsightReady(true);
-    }, 1500);
-    Promise.all([
-      getMistakeInsights(user.uid, 7),
-      getMistakeTrend(user.uid, 7, 7),
-    ]).then(([ins, trend]) => {
-      if (cancelled) return;
-      setInsightData(ins);
-      setInsightTrend(trend);
-      setInsightReady(true);
-      clearTimeout(timer);
-    }).catch(() => {
-      if (!cancelled) setInsightReady(true);
-    });
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [result, user]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -345,8 +319,11 @@ export function SolutionChecker({
   }, []);
 
   const handleCheck = useCallback(async () => {
-    const hasImage = !!imageBase64;
-    const hasText = textAnswer.trim().length > 0;
+    // Send what the ACTIVE tab shows. The grader route is image-XOR-text (it ignores
+    // textAnswer whenever an image is present), so this makes the send match what the
+    // student is looking at instead of letting a stale attachment win invisibly.
+    const hasImage = answerTab === "upload" && !!imageBase64;
+    const hasText = answerTab === "type" && textAnswer.trim().length > 0;
     if (!hasImage && !hasText) return;
 
     setLoading(true);
@@ -360,7 +337,7 @@ export function SolutionChecker({
         subject,
         topic,
         ...(hasImage ? { imageBase64: imageBase64!, imageMimeType } : {}),
-        ...(hasText && !hasImage ? { textAnswer: textAnswer.trim() } : {}),
+        ...(hasText ? { textAnswer: textAnswer.trim() } : {}),
         ...(solutionSteps && solutionSteps.length > 0 ? { solutionSteps } : {}),
         ...(finalAnswer ? { finalAnswer } : {}),
         // Objective signals — forwarded only when a bank-sourced caller supplies them,
@@ -418,7 +395,7 @@ export function SolutionChecker({
     setError(null);
     setLogStatus("pending");
     setTextAnswer("");
-    setShowTextInput(false);
+    setAnswerTab("upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
@@ -432,13 +409,15 @@ export function SolutionChecker({
     setFileName(null);
     setIsPdf(false);
     setTextAnswer("");
-    setShowTextInput(false);
+    setAnswerTab("upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
   const hasFile = imageBase64 !== null;
   const hasText = textAnswer.trim().length > 0;
-  const canCheck = hasFile || hasText;
+  // The ACTIVE tab decides what counts — what you see is what you send. (Before, an
+  // attached file silently beat typed text even while the text box was open.)
+  const canCheck = answerTab === "upload" ? hasFile : hasText;
   const isPerfect = result && result.percentage === 100;
 
   const scoreColor = result
@@ -478,8 +457,59 @@ export function SolutionChecker({
         style={{ display: "none" }}
       />
 
-      {/* ── Hero upload zone ────────────────── */}
-      {!hasFile && !result && (
+      {/* ── Answer-input mode: two EQUAL peers ──────────────────
+          Typing used to be a ~0.72rem borderless "▼ Or type your answer instead" link
+          UNDER a ~66px dashed hero dropzone — ~4.7× the height, so the path a desktop
+          student most often wants was hidden behind the one they didn't. These are now
+          peers: same size, same weight, side by side, no disclosure chevron.
+
+          This is the SAME segmented control Check & Improve already ships
+          (DesktopCheckImprovePage / app/CheckImprove) — matching it rather than
+          inventing a third pattern. It is also more HONEST than what it replaces: the
+          old copy promised "Or add text notes too" alongside a file, but the client
+          (`hasText && !hasImage`) and the grader route both drop text whenever an image
+          is present, so those notes were silently discarded. A tab makes the real
+          image-XOR-text behaviour visible instead of promising something that never
+          worked. (Making both work at once would mean changing the grader — out of
+          scope: [FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE].) */}
+      {!result && (
+        <div
+          style={{
+            display: "flex", background: "hsl(220, 20%, 97%)", borderRadius: 10,
+            padding: 4, gap: 4, border: "1px solid hsl(220, 18%, 90%)", marginBottom: 10,
+          }}
+          role="tablist"
+          aria-label="How to give your answer"
+        >
+          {(["type", "upload"] as AnswerTab[]).map((t) => {
+            const active = answerTab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setAnswerTab(t)}
+                style={{
+                  // flex:1 — equal peers at every width. At 360px the card's inner width
+                  // is ~328px, so each CTA gets ~162px against ~105px of label: it fits
+                  // without stacking, which is also what both C&I controls do.
+                  flex: 1, height: 34, borderRadius: 7, border: "none",
+                  background: active ? "#ffffff" : "transparent",
+                  color: active ? "hsl(220, 25%, 12%)" : "hsl(220, 15%, 42%)",
+                  fontWeight: 600, fontSize: "0.8rem", cursor: "pointer",
+                  boxShadow: active ? "0 1px 2px rgba(15,23,42,0.06)" : "none",
+                }}
+              >
+                {t === "type" ? "Type my working" : "Upload a photo"}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Upload zone ────────────────── */}
+      {answerTab === "upload" && !hasFile && !result && (
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -507,7 +537,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Image preview ────────────────── */}
-      {imagePreview && !isPdf && !result && (
+      {answerTab === "upload" && imagePreview && !isPdf && !result && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
             <img
@@ -531,7 +561,7 @@ export function SolutionChecker({
       )}
 
       {/* ── PDF indicator ────────────────── */}
-      {isPdf && fileName && !result && (
+      {answerTab === "upload" && isPdf && fileName && !result && (
         <div style={{
           display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
           borderRadius: 10, background: "hsl(210, 33%, 96%)",
@@ -556,33 +586,19 @@ export function SolutionChecker({
         </div>
       )}
 
-      {/* ── Text paste secondary option ────────────────── */}
-      {!result && (
-        <div style={{ marginTop: hasFile ? 8 : 10 }}>
-          <button
-            type="button"
-            onClick={() => setShowTextInput((v) => !v)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              fontSize: "0.72rem", color: "hsl(152, 55%, 35%)",
-              fontWeight: 500, padding: "0", display: "flex", alignItems: "center", gap: 4,
-            }}
-          >
-            <span>{showTextInput ? "▲" : "▼"}</span>
-            {hasFile ? "Or add text notes too" : "Or type your answer instead"}
-          </button>
-          {showTextInput && (
-            <div style={{ marginTop: 6 }}>
-              <EquationInput
-                value={textAnswer}
-                onChange={setTextAnswer}
-                placeholder="Type your working and answer here..."
-                rows={4}
-                ariaLabel="Type your working and answer"
-              />
-            </div>
-          )}
-        </div>
+      {/* ── Type panel ──────────────────
+          The shared <EquationInput> (#429) is unchanged — only WHERE it is mounted
+          moved: out from behind the disclosure, into a first-class peer panel. Its
+          props and string contract are untouched (EQUATION_INPUT_API_CONTRACT §"one
+          writer per file" — this lane never edits src/components/equation/**). */}
+      {answerTab === "type" && !result && (
+        <EquationInput
+          value={textAnswer}
+          onChange={setTextAnswer}
+          placeholder="Type your working and answer here..."
+          rows={4}
+          ariaLabel="Type your working and answer"
+        />
       )}
 
       {/* ── Check button ────────────────── */}
@@ -773,147 +789,6 @@ export function SolutionChecker({
             </div>
           )}
 
-          {/* ── Improvement Insight card ── */}
-          {insightReady && insightData?.hasEnoughData && (() => {
-            const ms = result!.mistakeSummary;
-            const totals: Record<string, number> = {
-              conceptual: ms.conceptual, calculation: ms.calculation,
-              silly: ms.silly, presentation: ms.presentation,
-            };
-            const TYPES = ["conceptual","calculation","silly","presentation"] as const;
-            const currentTop = TYPES.reduce<CheckerMistakeType | null>((best, t) =>
-              (totals[t] > (best ? totals[best] : -1)) ? t : best, null);
-            if (!currentTop || totals[currentTop] === 0) return null;
-
-            const historicCount = insightData.mistakeCounts[currentTop] ?? 0;
-            const TYPE_LABEL: Record<string, string> = {
-              conceptual: "Conceptual", calculation: "Calculation",
-              silly: "Silly", presentation: "Presentation",
-            };
-            const TYPE_COLOR: Record<string, string> = {
-              conceptual: "#ef4444", calculation: "#f59e0b",
-              silly: "#f97316", presentation: "#3b82f6",
-            };
-
-            const ordinal = (n: number) => {
-              if (n === 1) return "1st"; if (n === 2) return "2nd"; if (n === 3) return "3rd";
-              return `${n}th`;
-            };
-
-            const recurMsg = insightData.topMistakeType === currentTop && historicCount > 2
-              ? `This is your ${ordinal(historicCount)} ${TYPE_LABEL[currentTop].toLowerCase()} mistake this week.`
-              : historicCount > 1
-              ? `You've had ${historicCount} ${TYPE_LABEL[currentTop].toLowerCase()} mistakes this week.`
-              : null;
-
-            const trend = insightTrend;
-            const trendByType = trend?.byType?.[currentTop];
-            const trendMsg = trendByType !== undefined && trendByType !== null
-              ? trendByType <= -10
-                ? `${TYPE_LABEL[currentTop]} mistakes down ${Math.abs(trendByType)}% vs last week — improving!`
-                : trendByType >= 10
-                ? `${TYPE_LABEL[currentTop]} mistakes up ${trendByType}% vs last week — needs attention.`
-                : `${TYPE_LABEL[currentTop]} mistakes stable vs last week.`
-              : null;
-
-            const ctaLabel = currentTop === "conceptual" ? "Learn this topic"
-              : currentTop === "presentation" ? "Retry with focus on presentation"
-              : "Practice this topic";
-
-            const handleCta = () => {
-              const top = insightData.topHotspot;
-              const t = top?.topic;
-              const s = (top?.subject || subject || "Maths").toLowerCase();
-              if (currentTop === "conceptual" && t) {
-                navigate(`/topic-hub/10/${s}/${encodeURIComponent(t)}`);
-              } else if (t) {
-                navigate(`/practice/10/${s}?topic=${encodeURIComponent(t)}`);
-              } else {
-                navigate(`/practice/10/${s}?topic=${encodeURIComponent(topic)}`);
-              }
-            };
-
-            const handleFixMyMistakes = () => {
-              const top = insightData.topHotspot;
-              const t = top?.topic || topic;
-              const s = (top?.subject || subject || "Maths").toLowerCase();
-              const mistakeTypeForSession = top?.dominantType ?? insightData.topMistakeType ?? currentTop;
-              const diff = mistakeTypeForSession === "conceptual" ? "Easy" : "Medium";
-              navigate(`/practice/10/${s}?topic=${encodeURIComponent(t)}&difficulty=${diff}&targeted=1&targetMistakeType=${mistakeTypeForSession}`);
-            };
-
-            return (
-              <div style={{
-                marginTop: 10, padding: "11px 14px", borderRadius: 10,
-                background: "rgba(99,102,241,0.04)",
-                border: "1px solid rgba(99,102,241,0.18)",
-              }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
-                  💡 Improvement Insight
-                </div>
-
-                {/* Recurrence message */}
-                {recurMsg && (
-                  <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, marginBottom: 4 }}>
-                    <span style={{
-                      display: "inline-block", fontSize: 10, fontWeight: 800,
-                      padding: "1px 7px", borderRadius: 999, marginRight: 6,
-                      color: TYPE_COLOR[currentTop], background: `${TYPE_COLOR[currentTop]}18`,
-                      textTransform: "uppercase", letterSpacing: "0.04em",
-                    }}>
-                      {TYPE_LABEL[currentTop]}
-                    </span>
-                    {recurMsg}
-                  </div>
-                )}
-
-                {/* Trend signal */}
-                {trendMsg && (
-                  <div style={{
-                    fontSize: 11, fontWeight: 600, lineHeight: 1.4, marginBottom: 8,
-                    color: (trendByType ?? 0) <= -10 ? "#22c55e"
-                      : (trendByType ?? 0) >= 10 ? "#ef4444"
-                      : "#f59e0b",
-                    display: "flex", alignItems: "center", gap: 4,
-                  }}>
-                    <span style={{ fontSize: 12 }}>
-                      {(trendByType ?? 0) <= -10 ? "↓" : (trendByType ?? 0) >= 10 ? "↑" : "→"}
-                    </span>
-                    {trendMsg}
-                  </div>
-                )}
-
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    onClick={handleCta}
-                    style={{
-                      padding: "6px 12px", borderRadius: 8, border: "none",
-                      background: "#6366f1", color: "#fff",
-                      fontSize: 11, fontWeight: 700, cursor: "pointer",
-                    }}
-                  >
-                    {ctaLabel}
-                  </button>
-                  {insightData.topHotspot && (
-                    <button
-                      type="button"
-                      onClick={handleFixMyMistakes}
-                      style={{
-                        padding: "6px 12px", borderRadius: 8,
-                        border: "1px solid rgba(99,102,241,0.35)",
-                        background: "rgba(99,102,241,0.08)", color: "#6366f1",
-                        fontSize: 11, fontWeight: 700, cursor: "pointer",
-                        display: "flex", alignItems: "center", gap: 4,
-                      }}
-                    >
-                      <span>🎯</span> Fix My Mistakes
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
 
           {/* See Model Answer CTA */}
           {onRequestStepSolution && (

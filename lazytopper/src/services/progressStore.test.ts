@@ -670,6 +670,89 @@ describe("PR-B-v2 — the unified graded stream ([FU-PROG-DATA-COMPLETENESS])", 
     expect(wp.subjects[0]).toMatchObject({ sampleBefore: 3, sampleNow: 3 }); // NOT 4/6
   });
 
+  // ── LOCKED §1a as amended: QP's record is NON-COUNTING ──────────────────────
+  // These mirror the ratified C&I "dual write counts ONCE" property above. QP is the
+  // sharper case: unlike C&I (questionIds:[]), a QP record carries REAL BANK IDS and a
+  // payload, so it would resolve through conceptForQuestionId and land in the very same
+  // buckets its attempts already filled. PROGRESS_COUNTING_SURFACES is what stops it.
+  it("(§1a amended) QP's dual write counts ONCE — its attempts stay, its record is skipped", async () => {
+    const mk = (id: string, ts: number, scored: number) =>
+      cloudAttempt({ questionId: id, timestamp: ts, marksScored: scored, marksAvailable: 4 });
+    CLOUD_ATTEMPTS = [
+      mk("b1", NOW - 25 * DAY, 1),
+      mk("b1", NOW - 22 * DAY, 1),
+      mk("b1", NOW - 18 * DAY, 1),
+      mk("b1", NOW - 10 * DAY, 3),
+      mk("b1", NOW - 5 * DAY, 3),
+      mk("b1", NOW - 1 * DAY, 3),
+    ];
+    // The SAME session's record — real bank ids + a payload, i.e. every ingredient the
+    // record path needs to double-count. It must contribute NOTHING.
+    CLOUD_RECORDS = [
+      rec({
+        id: "QP-M-REAL-abc12345",
+        surface: "quick-practice",
+        gradedAt: NOW - 1 * DAY,
+        questionIds: ["b1"],
+        perQuestionRef: "qp:QP-M-REAL-abc12345",
+        marksAwarded: 3,
+        marksTotal: 4,
+      }),
+    ];
+    PAYLOADS = [payload("qp:QP-M-REAL-abc12345", [{ qNumber: 1, totalMarks: 4, marksAwarded: 3 }])];
+    const wp = await getWindowedProgress("u1", "month", undefined, NOW);
+    // 6 attempts in, 6 counted — the record adds no 7th point anywhere.
+    expect(wp.subjects[0]).toMatchObject({ sampleBefore: 3, sampleNow: 3 }); // NOT 3/4
+    expect(wp.topics[0]).toMatchObject({ sampleBefore: 3, sampleNow: 3 });
+  });
+
+  it("(§1a amended) a QP record NEVER reaches the concept/section rungs", async () => {
+    BANK = { b1: { subtopic: "HCF and LCM", section: "A", topicKey: "real-numbers" } };
+    const mk = (id: string, ts: number, scored: number) =>
+      cloudAttempt({ questionId: id, timestamp: ts, marksScored: scored, marksAvailable: 4 });
+    CLOUD_ATTEMPTS = [
+      mk("b1", NOW - 25 * DAY, 1),
+      mk("b1", NOW - 22 * DAY, 1),
+      mk("b1", NOW - 18 * DAY, 1),
+      mk("b1", NOW - 10 * DAY, 3),
+      mk("b1", NOW - 5 * DAY, 3),
+      mk("b1", NOW - 1 * DAY, 3),
+    ];
+    const withoutRecord = await getWindowedProgress("u1", "month", undefined, NOW);
+    // Identical data + a QP record on the SAME bank id. buildConceptSectionRungs'
+    // guard is a deny-list naming only "check-improve", so nothing there excludes QP —
+    // only the winRecords boundary does. This asserts the boundary holds.
+    CLOUD_RECORDS = [
+      rec({
+        id: "QP-M-REAL-abc12345",
+        surface: "quick-practice",
+        gradedAt: NOW - 1 * DAY,
+        questionIds: ["b1"],
+        perQuestionRef: "qp:QP-M-REAL-abc12345",
+      }),
+    ];
+    PAYLOADS = [payload("qp:QP-M-REAL-abc12345", [{ qNumber: 1, totalMarks: 4, marksAwarded: 3 }])];
+    const withRecord = await getWindowedProgress("u1", "month", undefined, NOW);
+    // The whole point, stated as an equality: the numbers are IDENTICAL before/after
+    // for the same data. Not "close" — identical.
+    expect(withRecord.concepts).toEqual(withoutRecord.concepts);
+    expect(withRecord.sections).toEqual(withoutRecord.sections);
+    expect(withRecord.subjects).toEqual(withoutRecord.subjects);
+    expect(withRecord.topics).toEqual(withoutRecord.topics);
+    expect(withRecord.mistakeTypes).toEqual(withoutRecord.mistakeTypes);
+    expect(withRecord.activity).toEqual(withoutRecord.activity);
+  });
+
+  it("(§1a amended) QP records never inflate the activity counts", async () => {
+    CLOUD_RECORDS = [
+      rec({ id: "WS-1", surface: "worksheet", gradedAt: NOW - 2 * DAY }),
+      rec({ id: "QP-M-REAL-a", surface: "quick-practice", gradedAt: NOW - 2 * DAY, questionIds: ["b1"] }),
+      rec({ id: "QP-M-REAL-b", surface: "quick-practice", gradedAt: NOW - 1 * DAY, questionIds: ["b2"] }),
+    ];
+    const wp = await getWindowedProgress("u1", "month", undefined, NOW);
+    expect(wp.activity).toMatchObject({ worksheets: 1, chapterTests: 0, fullMocks: 0 });
+  });
+
   it("a worksheet question fanned as an attempt is never re-added from its record", async () => {
     BANK = { w1: { subtopic: "Similar Triangles", section: "C", topicKey: "triangles" } };
     CLOUD_ATTEMPTS = [

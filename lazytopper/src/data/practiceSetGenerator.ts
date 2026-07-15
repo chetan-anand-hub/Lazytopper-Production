@@ -43,6 +43,13 @@ export interface PracticeSetConfig {
   // this share; quick practice should honour the student's filter selection
   // without silently substituting competency questions.
   enforceCompetencyFloor?: boolean;
+  /** Bank ids this student has already ATTEMPTED on this topic. When supplied, the
+   *  take prefers UNSEEN questions (falling back to seen only to avoid a short set),
+   *  so repeat sessions walk DOWN the predictionScore-sorted list instead of returning
+   *  the same head forever — see takeFromBucket. OPTIONAL and default-off: omit it and
+   *  the draw is byte-identical to before (the gate for the shared Daily Mission /
+   *  Topic Hub callers). Quick Practice is the only surface that passes it today. */
+  seenQuestionIds?: ReadonlySet<string>;
 }
 
 export interface ResolvedPracticeSetConfig {
@@ -212,23 +219,55 @@ function groupByDifficulty(
   return buckets;
 }
 
+/**
+ * Head-take `targetCount` items from a bucket the caller has already ordered.
+ *
+ * ── UNSEEN-FIRST (`seenQuestionIds`, 2026-07-15) ────────────────────────────
+ * The bucket arrives sorted by predictionScore and this walks it from the HEAD — so with
+ * no seen-set the SAME top-N came back every session and the rest of the topic was
+ * unreachable (trigonometry: 10 of 419, forever, on the default path).
+ *
+ * Given a seen-set this runs TWO passes: unseen first, then seen only if the set would
+ * otherwise come up short. That is what lets the window WALK DOWN the sorted list across
+ * sessions instead of sitting frozen on its head.
+ *
+ * ★ WHY THIS DOES NOT BETRAY predictionScore ORDER — do NOT "fix" it back to a plain
+ * head-take. predictionScore ordering means "meet the most exam-likely questions FIRST".
+ * Re-showing a question the student has ALREADY ATTEMPTED serves that intent ZERO. This
+ * preserves the intent exactly: highest predictionScore UNSEEN first. The student still
+ * meets the most probable questions first; they just stop meeting the same ten forever.
+ * Recombination only matters once unseen is exhausted — that is what pass 2 is for.
+ *
+ * `seenQuestionIds` is OPTIONAL and DEFAULT-OFF: omit it and the body is byte-identical
+ * to the original single-pass head-take. That is the gate protecting the SHARED callers
+ * of generatePracticeSet (Daily Mission ×4, Topic Hub ×2) — none of which passes it, and
+ * none of which has a test pinning its set size, shares or mix.
+ */
 function takeFromBucket<T>(
   bucket: T[],
   targetCount: number,
   alreadyTaken: Set<string>,
   getId: (item: T) => string,
-  takenTexts?: Set<string>
+  takenTexts?: Set<string>,
+  seenQuestionIds?: ReadonlySet<string>
 ): T[] {
   const result: T[] = [];
   const texts = takenTexts ?? new Set<string>();
-  for (const item of bucket) {
-    const id = getId(item);
-    if (alreadyTaken.has(id)) continue;
-    const qText = String((item as any).questionText ?? (item as any).text ?? "").trim().toLowerCase().slice(0, 120);
-    if (qText && texts.has(qText)) continue;
-    result.push(item);
-    alreadyTaken.add(id);
-    if (qText) texts.add(qText);
+  // ONE pass (legacy path, byte-identical) when no seen-set; otherwise unseen, then seen.
+  const passes: Array<ReadonlySet<string> | undefined> =
+    seenQuestionIds && seenQuestionIds.size > 0 ? [seenQuestionIds, undefined] : [undefined];
+  for (const skipSet of passes) {
+    for (const item of bucket) {
+      const id = getId(item);
+      if (alreadyTaken.has(id)) continue;
+      if (skipSet && skipSet.has(id)) continue; // pass 1 only: unseen first
+      const qText = String((item as any).questionText ?? (item as any).text ?? "").trim().toLowerCase().slice(0, 120);
+      if (qText && texts.has(qText)) continue;
+      result.push(item);
+      alreadyTaken.add(id);
+      if (qText) texts.add(qText);
+      if (result.length >= targetCount) break;
+    }
     if (result.length >= targetCount) break;
   }
   return result;
@@ -321,7 +360,8 @@ export function generatePracticeSet(
     targetEasy,
     takenIds,
     (q) => q.id,
-    takenTexts
+    takenTexts,
+    cfg.seenQuestionIds
   );
   selected.push(...easyPicked);
 
@@ -330,12 +370,13 @@ export function generatePracticeSet(
     targetMedium,
     takenIds,
     (q) => q.id,
-    takenTexts
+    takenTexts,
+    cfg.seenQuestionIds
   );
   selected.push(...mediumPicked);
 
   const hardPicked = targetHard > 0
-    ? takeFromBucket(buckets.Hard, targetHard, takenIds, (q) => q.id, takenTexts)
+    ? takeFromBucket(buckets.Hard, targetHard, takenIds, (q) => q.id, takenTexts, cfg.seenQuestionIds)
     : [];
   selected.push(...hardPicked);
 
@@ -346,12 +387,15 @@ export function generatePracticeSet(
 
   if (selected.length < totalQuestions && !isSingleDifficultyFilter) {
     const remainingNeeded = totalQuestions - selected.length;
+    // The whole-pool top-up — NOT a difficulty bucket. Easy to miss; it needs the
+    // seen-set too, or an exhausted-bucket set would refill with already-seen questions.
     const topUp = takeFromBucket(
       candidates,
       remainingNeeded,
       takenIds,
       (q) => q.id,
-      takenTexts
+      takenTexts,
+      cfg.seenQuestionIds
     );
     selected.push(...topUp);
   }
