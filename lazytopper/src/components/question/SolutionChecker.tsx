@@ -31,6 +31,11 @@ function saveResult(questionId: string, result: CheckSolutionResponse): void {
 
 type LogStatus = "pending" | "saving" | "saved" | "unavailable" | "local-only" | "no-mistakes" | "cached";
 
+/** The two EQUAL answer-input peers. Same shape as C&I's `AnswerTab`
+ *  (DesktopCheckImprovePage) / `Tab` (app/CheckImprove) — one vocabulary across every
+ *  surface that takes a written answer. */
+type AnswerTab = "upload" | "type";
+
 /** Map the single front-door outcome to the evidence-state label. */
 function statusFromOutcome(outcome: RecordMistakeOutcome): LogStatus {
   if (isSavedOutcome(outcome)) return "saved";
@@ -228,7 +233,10 @@ export function SolutionChecker({
   const [fileName, setFileName] = useState<string | null>(null);
   const [isPdf, setIsPdf] = useState(false);
   const [textAnswer, setTextAnswer] = useState("");
-  const [showTextInput, setShowTextInput] = useState(false);
+  // Which answer-input peer is showing. Defaults to "upload", matching both shipped
+  // C&I controls. (Typing is no longer hidden by that default — it is an equal,
+  // always-visible peer; the old default hid it behind a disclosure.)
+  const [answerTab, setAnswerTab] = useState<AnswerTab>("upload");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
@@ -345,8 +353,11 @@ export function SolutionChecker({
   }, []);
 
   const handleCheck = useCallback(async () => {
-    const hasImage = !!imageBase64;
-    const hasText = textAnswer.trim().length > 0;
+    // Send what the ACTIVE tab shows. The grader route is image-XOR-text (it ignores
+    // textAnswer whenever an image is present), so this makes the send match what the
+    // student is looking at instead of letting a stale attachment win invisibly.
+    const hasImage = answerTab === "upload" && !!imageBase64;
+    const hasText = answerTab === "type" && textAnswer.trim().length > 0;
     if (!hasImage && !hasText) return;
 
     setLoading(true);
@@ -360,7 +371,7 @@ export function SolutionChecker({
         subject,
         topic,
         ...(hasImage ? { imageBase64: imageBase64!, imageMimeType } : {}),
-        ...(hasText && !hasImage ? { textAnswer: textAnswer.trim() } : {}),
+        ...(hasText ? { textAnswer: textAnswer.trim() } : {}),
         ...(solutionSteps && solutionSteps.length > 0 ? { solutionSteps } : {}),
         ...(finalAnswer ? { finalAnswer } : {}),
         // Objective signals — forwarded only when a bank-sourced caller supplies them,
@@ -418,7 +429,7 @@ export function SolutionChecker({
     setError(null);
     setLogStatus("pending");
     setTextAnswer("");
-    setShowTextInput(false);
+    setAnswerTab("upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
@@ -432,13 +443,15 @@ export function SolutionChecker({
     setFileName(null);
     setIsPdf(false);
     setTextAnswer("");
-    setShowTextInput(false);
+    setAnswerTab("upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
   const hasFile = imageBase64 !== null;
   const hasText = textAnswer.trim().length > 0;
-  const canCheck = hasFile || hasText;
+  // The ACTIVE tab decides what counts — what you see is what you send. (Before, an
+  // attached file silently beat typed text even while the text box was open.)
+  const canCheck = answerTab === "upload" ? hasFile : hasText;
   const isPerfect = result && result.percentage === 100;
 
   const scoreColor = result
@@ -478,8 +491,59 @@ export function SolutionChecker({
         style={{ display: "none" }}
       />
 
-      {/* ── Hero upload zone ────────────────── */}
-      {!hasFile && !result && (
+      {/* ── Answer-input mode: two EQUAL peers ──────────────────
+          Typing used to be a ~0.72rem borderless "▼ Or type your answer instead" link
+          UNDER a ~66px dashed hero dropzone — ~4.7× the height, so the path a desktop
+          student most often wants was hidden behind the one they didn't. These are now
+          peers: same size, same weight, side by side, no disclosure chevron.
+
+          This is the SAME segmented control Check & Improve already ships
+          (DesktopCheckImprovePage / app/CheckImprove) — matching it rather than
+          inventing a third pattern. It is also more HONEST than what it replaces: the
+          old copy promised "Or add text notes too" alongside a file, but the client
+          (`hasText && !hasImage`) and the grader route both drop text whenever an image
+          is present, so those notes were silently discarded. A tab makes the real
+          image-XOR-text behaviour visible instead of promising something that never
+          worked. (Making both work at once would mean changing the grader — out of
+          scope: [FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE].) */}
+      {!result && (
+        <div
+          style={{
+            display: "flex", background: "hsl(220, 20%, 97%)", borderRadius: 10,
+            padding: 4, gap: 4, border: "1px solid hsl(220, 18%, 90%)", marginBottom: 10,
+          }}
+          role="tablist"
+          aria-label="How to give your answer"
+        >
+          {(["type", "upload"] as AnswerTab[]).map((t) => {
+            const active = answerTab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setAnswerTab(t)}
+                style={{
+                  // flex:1 — equal peers at every width. At 360px the card's inner width
+                  // is ~328px, so each CTA gets ~162px against ~105px of label: it fits
+                  // without stacking, which is also what both C&I controls do.
+                  flex: 1, height: 34, borderRadius: 7, border: "none",
+                  background: active ? "#ffffff" : "transparent",
+                  color: active ? "hsl(220, 25%, 12%)" : "hsl(220, 15%, 42%)",
+                  fontWeight: 600, fontSize: "0.8rem", cursor: "pointer",
+                  boxShadow: active ? "0 1px 2px rgba(15,23,42,0.06)" : "none",
+                }}
+              >
+                {t === "type" ? "Type my working" : "Upload a photo"}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Upload zone ────────────────── */}
+      {answerTab === "upload" && !hasFile && !result && (
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -507,7 +571,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Image preview ────────────────── */}
-      {imagePreview && !isPdf && !result && (
+      {answerTab === "upload" && imagePreview && !isPdf && !result && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
             <img
@@ -531,7 +595,7 @@ export function SolutionChecker({
       )}
 
       {/* ── PDF indicator ────────────────── */}
-      {isPdf && fileName && !result && (
+      {answerTab === "upload" && isPdf && fileName && !result && (
         <div style={{
           display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
           borderRadius: 10, background: "hsl(210, 33%, 96%)",
@@ -556,33 +620,19 @@ export function SolutionChecker({
         </div>
       )}
 
-      {/* ── Text paste secondary option ────────────────── */}
-      {!result && (
-        <div style={{ marginTop: hasFile ? 8 : 10 }}>
-          <button
-            type="button"
-            onClick={() => setShowTextInput((v) => !v)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              fontSize: "0.72rem", color: "hsl(152, 55%, 35%)",
-              fontWeight: 500, padding: "0", display: "flex", alignItems: "center", gap: 4,
-            }}
-          >
-            <span>{showTextInput ? "▲" : "▼"}</span>
-            {hasFile ? "Or add text notes too" : "Or type your answer instead"}
-          </button>
-          {showTextInput && (
-            <div style={{ marginTop: 6 }}>
-              <EquationInput
-                value={textAnswer}
-                onChange={setTextAnswer}
-                placeholder="Type your working and answer here..."
-                rows={4}
-                ariaLabel="Type your working and answer"
-              />
-            </div>
-          )}
-        </div>
+      {/* ── Type panel ──────────────────
+          The shared <EquationInput> (#429) is unchanged — only WHERE it is mounted
+          moved: out from behind the disclosure, into a first-class peer panel. Its
+          props and string contract are untouched (EQUATION_INPUT_API_CONTRACT §"one
+          writer per file" — this lane never edits src/components/equation/**). */}
+      {answerTab === "type" && !result && (
+        <EquationInput
+          value={textAnswer}
+          onChange={setTextAnswer}
+          placeholder="Type your working and answer here..."
+          rows={4}
+          ariaLabel="Type your working and answer"
+        />
       )}
 
       {/* ── Check button ────────────────── */}

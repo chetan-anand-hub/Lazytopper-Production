@@ -184,3 +184,94 @@ describe("selectInRangeFromPool — hint and display share ONE pool (the fixed t
     expect(displayed.length).toBe(0);
   });
 });
+
+/**
+ * UNIQUE SETS (2026-07-15). Every test ABOVE calls with the original 7 args and is
+ * byte-unchanged — that they still pass IS the no-regression proof: omit the seen-set
+ * and the offset and the draw behaves exactly as it always did.
+ */
+describe("selectInRangeFromPool — unique sets (unseen-preference + exhaustion)", () => {
+  // 12 in-range (3–5) questions, ids in-0..in-11.
+  const pool12: PracticeQuestion[] = Array.from({ length: 12 }, (_, i) =>
+    mkQ(`in-${i}`, 3 + (i % 3), "C"),
+  );
+  const idsOf = (qs: PracticeQuestion[]) => qs.map((q) => String((q as { id: string }).id));
+
+  it("no seen-set + no offset → byte-identical to the legacy head-of-pool draw", () => {
+    const legacy = selectInRangeFromPool(pool12, "all", "all", "all", "all", RANGE_3_5, 5);
+    const explicit = selectInRangeFromPool(
+      pool12, "all", "all", "all", "all", RANGE_3_5, 5, new Set(), 0,
+    );
+    expect(idsOf(explicit.displayed)).toEqual(idsOf(legacy.displayed));
+    expect(idsOf(legacy.displayed)).toEqual(["in-0", "in-1", "in-2", "in-3", "in-4"]);
+  });
+
+  it("UNSEEN-PREFERENCE: seen questions are pushed behind every unseen one", () => {
+    const seen = new Set(["in-0", "in-1", "in-2"]);
+    const { displayed } = selectInRangeFromPool(
+      pool12, "all", "all", "all", "all", RANGE_3_5, 5, seen, 0,
+    );
+    // The three seen ids are excluded from a 5-slot draw while 9 unseen remain.
+    expect(idsOf(displayed).some((id) => seen.has(id))).toBe(false);
+    expect(displayed.length).toBe(5);
+  });
+
+  it("EXHAUSTION-RECOMBINATION: everything seen → NOT the identical set, and never fabricated", () => {
+    const allSeen = new Set(idsOf(pool12));
+    const visitA = selectInRangeFromPool(
+      pool12, "all", "all", "all", "all", RANGE_3_5, 5, allSeen, 0,
+    );
+    const visitB = selectInRangeFromPool(
+      pool12, "all", "all", "all", "all", RANGE_3_5, 5, allSeen, 5,
+    );
+    // A repeat visit is still a DIFFERENT practice experience...
+    expect(idsOf(visitB.displayed)).not.toEqual(idsOf(visitA.displayed));
+    // ...but only ever real bank questions, recombined — never invented, never padded.
+    expect(idsOf(visitB.displayed).every((id) => allSeen.has(id))).toBe(true);
+    expect(visitB.displayed.length).toBe(5);
+    expect(visitB.available).toBe(12);
+  });
+
+  it("the seen-set NEVER shrinks `available` — the hint means the same thing as before", () => {
+    const bare = selectInRangeFromPool(pool12, "all", "all", "all", "all", RANGE_3_5, 5);
+    for (const seen of [new Set<string>(), new Set(["in-0"]), new Set(idsOf(pool12))]) {
+      const { available } = selectInRangeFromPool(
+        pool12, "all", "all", "all", "all", RANGE_3_5, 5, seen, 7,
+      );
+      // Rotation is a PERMUTATION, not a filter: `available` is untouched, so the
+      // "N available" hint never falls as the student practises.
+      expect(available).toBe(bare.available);
+    }
+  });
+
+  it("INVARIANT holds under unseen-preference AND exhaustion, at every count", () => {
+    const cases: Array<[string, Set<string>, number]> = [
+      ["no seen", new Set(), 0],
+      ["some seen", new Set(["in-0", "in-3", "in-7"]), 4],
+      ["all seen", new Set(idsOf(pool12)), 9],
+      ["offset > pool length", new Set(["in-1"]), 1000],
+    ];
+    for (const [, seen, offset] of cases) {
+      for (const committedCount of [1, 3, 5, 12, 25]) {
+        const { available, displayed } = selectInRangeFromPool(
+          pool12, "all", "all", "all", "all", RANGE_3_5, committedCount, seen, offset,
+        );
+        expect(displayed.length).toBe(Math.min(available, committedCount));
+        // No duplicates: a permutation can never serve the same question twice.
+        expect(new Set(idsOf(displayed)).size).toBe(displayed.length);
+      }
+    }
+  });
+
+  it("HONEST thin-bank survives rotation: a real 4 stays 4, never padded", () => {
+    const thin: PracticeQuestion[] = [
+      mkQ("in-0", 3, "C"), mkQ("in-1", 4, "E"), mkQ("in-2", 5, "D"), mkQ("in-3", 3, "C"),
+      ...Array.from({ length: 12 }, (_, i) => mkQ(`out-${i}`, 1, "A")),
+    ];
+    const { available, displayed } = selectInRangeFromPool(
+      thin, "all", "all", "all", "all", RANGE_3_5, 10, new Set(["in-0", "in-1"]), 3,
+    );
+    expect(available).toBe(4);
+    expect(displayed.length).toBe(4);
+  });
+});

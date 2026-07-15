@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
   checkSolutionImage,
   detectQuestion,
@@ -624,6 +625,14 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
 
 const DesktopCheckImprovePage: React.FC = () => {
   const navigate = useNavigate();
+  // The return ticket (Section C). Null on a direct visit — this page then renders
+  // exactly as it always has. ROUTE_CTX below is the OUTBOUND context this page hands
+  // to the surfaces it links to; it is not, and was never, a way back INTO here.
+  const returnTicket = useReturnTicket();
+  const returnTicketInput = useMemo(
+    () => (returnTicket ? { label: returnTicket.label, onReturn: () => navigate(returnTicket.path) } : undefined),
+    [returnTicket, navigate],
+  );
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1407,6 +1416,9 @@ const DesktopCheckImprovePage: React.FC = () => {
           minWidth: 0,
         }}
       >
+        {/* The return ticket's contextual strip (Section C) — a quiet line, never a
+            modal, never blocking. Renders nothing on a direct visit. */}
+        <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
         <PageHeader
           isNarrow={isNarrow}
           eyebrow="Check & Improve"
@@ -1971,6 +1983,7 @@ const DesktopCheckImprovePage: React.FC = () => {
         {scorecardOpen && confirmed && ciCode && (
           <ResultsScorecard
             variant={checkImproveScorecardVariant({
+              returnTicket: returnTicketInput,
               topicName: confirmed.topicName,
               code: ciCode,
               topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
@@ -2240,6 +2253,7 @@ const DesktopCheckImprovePage: React.FC = () => {
       {scorecardOpen && ciCode && (
         <ResultsScorecard
           variant={checkImproveScorecardVariant({
+              returnTicket: returnTicketInput,
             topicName: resultCtx.topicName,
             code: ciCode,
             topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),

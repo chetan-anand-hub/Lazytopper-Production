@@ -153,6 +153,7 @@ const D_WRITE_SITES = [
   "services/sessionRecords.ts",        // SessionRecord.topicKeys[]
   "services/weakAreaAggregator.ts",    // weak-area bucket key
   "services/mockScoreHistory.ts",      // mock topicBreakdown read-resolve
+  "services/quickPracticeSessionService.ts", // QP seen-set topic match + record orchestration
   "pages/ExamSimulationPage.tsx",      // mock topicBreakdown write
   "pages/MockPaper.tsx",               // mock topicBreakdown write
 ];

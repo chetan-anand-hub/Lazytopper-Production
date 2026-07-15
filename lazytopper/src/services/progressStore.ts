@@ -2,9 +2,9 @@
 //
 // Progress-Journey PR-1 — the ONE aggregation service. Every progress surface reads
 // its slice HERE, at the right altitude, and NEVER recomputes per page (LOCKED
-// contract Decision #5 + §2 interconnection map). It reads the stores the arc writes
-// — `sessionRecords` (this PR), the `practiceInsights` attempts stream, and
-// `mockScoreHistory` — and hands each surface exactly what it needs:
+// contract Decision #5 + §2 interconnection map). It reads THREE stores — the
+// `sessionRecords` store, the `practiceInsights` attempts stream, and the
+// `mistakeLog` — and hands each surface exactly what it needs:
 //
 //   · Per-surface history (Worksheet / CT / FM pages)  → getSurfaceHistory()
 //   · Me recent-activity strip                          → getRecentSessions() + getActivitySummary()
@@ -14,6 +14,13 @@
 //
 // HONEST-OR-SILENT everywhere: thin data returns null / an empty list, NEVER a
 // fabricated line or number (§2 invariants). No writes here — read-only aggregation.
+//
+// LOCKED §1a as amended (owner-ratified 2026-07-15): Quick Practice contributes to
+// progress/MI ONLY via the recordAttempt stream — exactly as originally ratified. It
+// ALSO writes a NON-COUNTING session record (seen-set / history / tutor anchor), which
+// `PROGRESS_COUNTING_SURFACES` excludes from every rung at the aggregation boundary.
+// Counting a QP record would DOUBLE its marks and mistakes; the counting rule is
+// unchanged, and now enforced structurally rather than by QP writing nothing.
 //
 // PR-B-v2 (the engine fixes under arc PR-4's UI):
 //   • ONE canonical topic vocabulary — every topic compare/group resolves BOTH sides
@@ -63,7 +70,11 @@ export function getSessionRecordById(id: string, uid?: string | null): SessionRe
 // ── Me recent-activity strip (§3b band 2) ────────────────────────────────────
 
 /** The most-recent graded sessions across all surfaces, newest-first — each row
- *  links OUT to its surface history. */
+ *  links OUT to its surface history.
+ *  Quick Practice rows DO appear here (owner-ratified 2026-07-15): a student should see
+ *  their practice in recent activity. This is a DISPLAY read, not a counting stream —
+ *  no marks or mistakes are aggregated from it — so it sits outside the
+ *  PROGRESS_COUNTING_SURFACES boundary by design, not by omission. */
 export function getRecentSessions(uid?: string | null, limit = 8): SessionRecord[] {
   return loadLocalSessionRecords(uid)
     .slice()
@@ -75,15 +86,22 @@ export interface ActivitySummary {
   worksheets: number;
   chapterTests: number;
   fullMocks: number;
-  /** Raw graded-attempt count (Quick Practice writes NO session record — §1a — so a
-   *  practice-SET count is not derivable here; this is the honest per-question figure
-   *  the Me PR can phrase, never a fabricated set count). */
+  /** Raw graded-attempt count — the honest per-question figure the Me PR can phrase,
+   *  never a fabricated set count.
+   *  §1a as amended: QP now DOES write a (non-counting) record, so a practice-SET count
+   *  became derivable — but it is deliberately NOT derived here. Adding one is a Me
+   *  surface change, not plumbing; it would also silently change a live number. If a
+   *  future PR wants it, count `surface === "quick-practice"` records into a NEW field
+   *  and leave `practiceAttempts` alone — the two are different units (questions vs
+   *  sets) and must never be conflated. */
   practiceAttempts: number;
 }
 
 /** Activity-level counts for the recent strip ("3 worksheets · 1 chapter test …" —
  *  Decision #3). Session counts come from durable records; practice is attempt-level
- *  (honest — see ActivitySummary.practiceAttempts). Windowed by `sinceDays`. */
+ *  (honest — see ActivitySummary.practiceAttempts). Windowed by `sinceDays`.
+ *  The per-surface if/else-if has no `else`: a quick-practice record is ignored here
+ *  by construction, so this summary's numbers are unchanged by §1a's amendment. */
 export function getActivitySummary(uid?: string | null, sinceDays?: number): ActivitySummary {
   const cutoff = sinceDays ? Date.now() - sinceDays * DAY_MS : 0;
   const records = loadLocalSessionRecords(uid).filter((r) => r.gradedAt >= cutoff);
@@ -100,7 +118,11 @@ export function getActivitySummary(uid?: string | null, sinceDays?: number): Act
 // ── Home ungraded nudge (§3c) ────────────────────────────────────────────────
 
 /** Sessions still awaiting an answer sheet (status ≠ graded) — powers the soft,
- *  dismissible Home nudge. Honest end-to-end: pending-upload never a fake 0. */
+ *  dismissible Home nudge. Honest end-to-end: pending-upload never a fake 0.
+ *  A quick-practice record can never appear here: QP has no upload cycle, so it always
+ *  writes `status: "graded"` (see SessionStatus). That is why this status-only filter
+ *  needs no surface guard — nudging a student to upload a sheet for a session with
+ *  nothing to upload would be a lie. */
 export function getPendingSessions(uid?: string | null): SessionRecord[] {
   const pendingStatuses: SessionStatus[] = ["pending-upload", "partial"];
   return loadLocalSessionRecords(uid)
@@ -427,12 +449,47 @@ interface GradedPoint {
  *  recordAttempt (worksheetQuestionId / chapterTestQuestionId / fullMockQuestionId).
  *  check-improve is DELIBERATELY absent: its per-question work is already in the
  *  attempts stream and its record carries questionIds:[] — skipping it here is what
- *  makes the C&I dual write count exactly once. */
+ *  makes the C&I dual write count exactly once.
+ *
+ *  ⚠ DO NOT ADD `"quick-practice": "qp"`. The missing entry looks like an oversight;
+ *  it is not. This map is an OPT-IN, and QP must stay out of it twice over:
+ *    1. QP records never reach here at all — PROGRESS_COUNTING_SURFACES gates them out
+ *       at the winRecords boundary (LOCKED §1a as amended).
+ *    2. Even if they did, the dedup below builds `qp:{worksheetId}:q{n}`, which could
+ *       NEVER match a QP attempt's id — QP attempts carry REAL bank ids (`b1`, …), not
+ *       synthetic ones. The dedup would silently miss and every QP mark would count
+ *       TWICE (once from its attempt, once from its record). */
 const SURFACE_QID_PREFIX: Partial<Record<SessionSurface, string>> = {
   worksheet: "ws",
   "chapter-test": "ct",
   "full-mock": "fm",
 };
+
+/**
+ * ── THE COUNTING BOUNDARY (LOCKED §1a as amended, owner-ratified 2026-07-15) ──
+ *
+ * Surfaces whose records feed the COUNTING rungs. Quick Practice is deliberately
+ * absent: its per-question work ALREADY streams through recordAttempt, so counting its
+ * record too would DOUBLE every QP mark and mistake. A QP record is a SESSION/HISTORY
+ * artifact (getSurfaceHistory / getRecentSessions — display), never a counting stream.
+ *
+ * Applied at the `winRecords` filters — the ONLY two places a cloud SessionRecord
+ * enters aggregation. That placement is deliberate and load-bearing: a BOUNDARY guard
+ * cannot be forgotten by a future rung author, whereas a per-function guard must be
+ * re-audited by every one of them. This file already proves the failure mode —
+ * buildConceptSectionRungs' `check-improve` deny-list drifted out of sync with
+ * SURFACE_QID_PREFIX's allow-list above, and a QP record would have double-counted
+ * through exactly that gap. Allow-list, one place, or it drifts again.
+ *
+ * Pinned by "QP's record is skipped — its attempts stay" in progressStore.test.ts,
+ * mirroring the ratified C&I "dual write counts ONCE" property.
+ */
+const PROGRESS_COUNTING_SURFACES: SessionSurface[] = [
+  "worksheet",
+  "chapter-test",
+  "full-mock",
+  "check-improve",
+];
 
 /**
  * Union the attempts stream with the per-question marks stored in sessionRecords
@@ -755,8 +812,14 @@ export async function getWindowedProgress(
       (!subjFilter || normalizeSubject(a.subject) === subjFilter) &&
       (!topicFilter || canonicalKey(a.topicKey || a.topicName) === topicFilter),
   );
+  // The counting boundary: a non-counting surface's record never enters aggregation
+  // (LOCKED §1a as amended — see PROGRESS_COUNTING_SURFACES).
   const winRecords = records.filter(
-    (r) => r.gradedAt >= start && r.gradedAt <= now && (!subjFilter || r.subject === subjFilter),
+    (r) =>
+      PROGRESS_COUNTING_SURFACES.includes(r.surface) &&
+      r.gradedAt >= start &&
+      r.gradedAt <= now &&
+      (!subjFilter || r.subject === subjFilter),
   );
 
   const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, topicFilter);
@@ -831,7 +894,11 @@ export async function getTopicTrendFromCloud(
   const winAttempts = attempts.filter(
     (a) => a.timestamp >= start && a.timestamp <= now && canonicalKey(a.topicKey || a.topicName) === key,
   );
-  const winRecords = records.filter((r) => r.gradedAt >= start && r.gradedAt <= now);
+  // The counting boundary (see getWindowedProgress) — the second and last place a
+  // cloud SessionRecord enters aggregation.
+  const winRecords = records.filter(
+    (r) => PROGRESS_COUNTING_SURFACES.includes(r.surface) && r.gradedAt >= start && r.gradedAt <= now,
+  );
 
   const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, key);
   const t = splitTrendOf(unified);

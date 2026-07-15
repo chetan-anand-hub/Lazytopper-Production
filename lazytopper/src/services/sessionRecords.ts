@@ -2,11 +2,28 @@
 //
 // Progress-Journey PR-1 — the per-completed-SESSION record store: the connectivity
 // spine the scorecard → histories → Me → Home arc reads. ONE durable record per
-// COMPLETED graded session (worksheet / chapter-test / full-mock / check-improve).
-// Quick Practice
-// writes NO session record — it is exploratory, its attempts already persist via
-// recordAttempt (LOCKED contract §1a). Build exactly to the LOCKED
+// COMPLETED graded session (worksheet / chapter-test / full-mock / check-improve /
+// quick-practice). Build exactly to the LOCKED
 // `LazyTopper_Progress_Journey_Design_Package_LOCKED_2026-07-03` §1 data contract.
+//
+// ── LOCKED §1a — NARROW AMENDMENT (owner-ratified 2026-07-15) ────────────────
+// §1a originally read: "Quick Practice writes NO session record — it is exploratory,
+// its attempts already persist via recordAttempt." Its RATIONALE was protecting the
+// counting invariant: QP's per-question work ALREADY streams through recordAttempt,
+// so counting a QP record too would DOUBLE every QP mark and mistake.
+//
+// THE COUNTING RULE STANDS, UNTOUCHED: Quick Practice contributes to progress/MI
+// ONLY via recordAttempt. QP ADDITIONALLY writes a NON-COUNTING session artifact —
+// a seen-set + history + tutor-read anchor. The counting exclusion is enforced
+// STRUCTURALLY, not by convention: `PROGRESS_COUNTING_SURFACES` in progressStore.ts
+// gates the two `winRecords` boundaries (the only places a cloud record enters
+// aggregation), so no current OR FUTURE rung can count a QP record. Pinned by the
+// "QP's record is skipped — its attempts stay" test (progressStore.test.ts), which
+// mirrors the ratified C&I "dual write counts ONCE" property.
+//
+// A QP record therefore: feeds NO rung · always writes `status: "graded"` (QP has no
+// upload-grade cycle — see SessionStatus) · is read by getSurfaceHistory /
+// getRecentSessions (display) and, later, the tutor.
 //
 // Persistence mirrors the PR-B pattern (mockScoreHistory / practiceInsights):
 //   • a localStorage blob per uid  →  fast, offline, synchronous reads;
@@ -43,8 +60,21 @@ import {
 
 // ── The LOCKED §1 data contract ──────────────────────────────────────────────
 
-export type SessionSurface = "worksheet" | "chapter-test" | "full-mock" | "check-improve";
-/** graded (all read) · pending-upload (nothing graded yet) · partial (some pending). Never a fake 0. */
+export type SessionSurface =
+  | "worksheet"
+  | "chapter-test"
+  | "full-mock"
+  | "check-improve"
+  /** NON-COUNTING (LOCKED §1a as amended — see the header). A QP record is a session
+   *  artifact only; its marks/mistakes reach progress via recordAttempt, never here. */
+  | "quick-practice";
+/** graded (all read) · pending-upload (nothing graded yet) · partial (some pending). Never a fake 0.
+ *  This ladder describes the UPLOAD-GRADE cycle. Quick Practice has no upload cycle —
+ *  every QP question is answered-and-graded inline or not attempted, so there is no
+ *  "pending" state and a finished QP session is ALWAYS "graded". ("3 of 10 attempted"
+ *  is a different axis, carried by the scorecard's attempts model — never by status.
+ *  A QP record with `partial` would surface in the Home "awaiting your answer sheet"
+ *  nudge for a session with nothing to upload.) */
 export type SessionStatus = "graded" | "pending-upload" | "partial";
 export type SessionSubject = "maths" | "science";
 
@@ -177,7 +207,16 @@ function payloadsKey(uid: string): string {
   return `${STORAGE_PREFIX}.${uid}.sessionPerQuestion.v1`;
 }
 
-const VALID_SURFACES: SessionSurface[] = ["worksheet", "chapter-test", "full-mock", "check-improve"];
+/** Read-time allow-list for BOTH record read paths (local + cloud). A surface absent
+ *  here is silently dropped on read — so this MUST list every value of SessionSurface.
+ *  (The compiler does not enforce this: it is a plain array, not an exhaustive map.) */
+const VALID_SURFACES: SessionSurface[] = [
+  "worksheet",
+  "chapter-test",
+  "full-mock",
+  "check-improve",
+  "quick-practice",
+];
 
 function isSessionRecord(v: unknown): v is SessionRecord {
   if (!v || typeof v !== "object") return false;
@@ -919,5 +958,135 @@ export function buildCheckImproveSessionRecord(args: {
     dedupKey: `${uid}::${code}`,
     topicSource,
     ...(topicCount >= 2 ? { topicCount } : {}),
+  };
+}
+
+// ── Quick Practice (LOCKED §1a as amended — NON-COUNTING; see the header) ─────
+
+/** FNV-1a (32-bit) → 8 lowercase hex. Deterministic, dependency-free, stable across
+ *  devices and reloads. Used ONLY to derive a session identity from its own facts —
+ *  never for user-facing data (CLAUDE.md §7 forbids Math.random there; this is a pure
+ *  function of its input, not randomness). */
+export function stableHash8(input: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i += 1) {
+    h ^= input.charCodeAt(i);
+    // 32-bit FNV prime multiply via shifts (avoids float precision loss).
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+/** Short topic token for the QP code — mirrors `ciTopicToken`'s shape so the codes
+ *  read as one family. `GEN` when no topic resolved (QP always has one in practice). */
+export function qpTopicToken(slug: string): string {
+  const t = String(slug || "").replace(/[^a-z]/gi, "").slice(0, 4).toUpperCase();
+  return t || "GEN";
+}
+
+/** The facts that IDENTIFY a Quick Practice session. A different set is a different
+ *  session (owner design): change the filters → new signature → new id. */
+export interface QuickPracticeIdentity {
+  /** Canonical slug (resolved by the caller). */
+  topicSlug: string;
+  /** Stable string of the committed filters (marks/style/source/difficulty/range/count). */
+  filterSignature: string;
+  /** The questions actually displayed, in draw order. */
+  questionIds: string[];
+  /** When this VISIT began (ms epoch) — a new visit is a new session. */
+  startedAt: number;
+}
+
+/**
+ * Derive the QP session code from the session's OWN facts, AT FINISH.
+ *
+ * Deliberately NOT the `#NN` sequence the other four surfaces use: a counter is
+ * stateful and order-dependent, which is why those surfaces must mint it exactly once
+ * BEFORE the first write (else the record inflates its own #NN). A content hash needs
+ * no pre-mint, so:
+ *   · an ABANDONED session consumes NO id and writes NO record (nothing is allocated
+ *     until finish — owner ruling);
+ *   · re-finishing the SAME set in the SAME visit → identical facts → identical id →
+ *     the doc-id write OVERWRITES (idempotent, never a duplicate);
+ *   · a new VISIT (`startedAt`) or a new set (`filterSignature`/`questionIds`) is a
+ *     genuinely different session and gets its own id.
+ * Pure — no clock, no counter, no I/O.
+ */
+export function quickPracticeCode(subject: SessionSubject, identity: QuickPracticeIdentity): string {
+  const sl = subject === "science" ? "S" : "M";
+  const token = qpTopicToken(identity.topicSlug);
+  const facts = [
+    resolveCanonicalSlug(identity.topicSlug) || identity.topicSlug,
+    identity.filterSignature,
+    identity.questionIds.join(","),
+    String(identity.startedAt),
+  ].join("|");
+  return `QP-${sl}-${token}-${stableHash8(facts)}`;
+}
+
+/**
+ * Assemble the §1 record for a FINISHED Quick Practice session.
+ *
+ * NON-COUNTING (LOCKED §1a as amended): this record feeds NO progress/MI rung —
+ * `PROGRESS_COUNTING_SURFACES` excludes it structurally at the aggregation boundary.
+ * QP's marks and mistakes already reach progress through recordAttempt, and counting
+ * them again here would double every one. This record exists for the seen-set, the
+ * history, and (later) the tutor read.
+ *
+ * `status` is ALWAYS "graded": QP has no upload-grade cycle (see SessionStatus). A
+ * partially-attempted session is honest — the 7 you didn't reach simply have no
+ * results, and the scorecard says "3 of 10 attempted". Marks are the GRADED subtotal
+ * only (never a fabricated 0 for an unattempted question).
+ *
+ * `questionIds` carries the DISPLAYED set in draw order — real bank ids.
+ */
+export function buildQuickPracticeSessionRecord(args: {
+  code: string;
+  title: string;
+  subject: SessionSubject;
+  /** The canonical slug for this session's topic. */
+  topicSlug: string;
+  /** The displayed questions, in draw order (real bank ids). */
+  questionIds: string[];
+  response: WorksheetGradeResponse;
+  startedAt: number;
+  uid: string;
+}): SessionRecord {
+  const { code, title, subject, topicSlug, questionIds, response, uid } = args;
+
+  const fourType: SessionFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  for (const r of response.results) {
+    if (r.couldNotRead || !r.mistakeSummary) continue;
+    fourType.conceptual += Number(r.mistakeSummary.conceptual) || 0;
+    fourType.calculation += Number(r.mistakeSummary.calculation) || 0;
+    fourType.silly += Number(r.mistakeSummary.silly) || 0;
+    fourType.presentation += Number(r.mistakeSummary.presentation) || 0;
+  }
+
+  const slug = resolveCanonicalSlug(topicSlug) || "";
+
+  return {
+    id: code,
+    // Internal anchor only — QP has no physical worksheet. Never surfaced.
+    worksheetId: `qp:${code}`,
+    surface: "quick-practice",
+    title,
+    subject,
+    topicKeys: slug ? [slug] : [],
+    questionIds,
+    marksAwarded: Number(response.gradedMarksAwarded) || 0,
+    marksTotal: Number(response.gradedMarksTotal) || 0,
+    // Always graded — QP has no upload cycle (see SessionStatus).
+    status: "graded",
+    fourType,
+    sectionBreakdown: null,
+    gradedAt: Date.now(),
+    perQuestionRef: `qp:${code}`,
+    dedupKey: `${uid}::${code}`,
+    // NO topicSource: it is C&I's PROVENANCE concept (how the AI resolved an uploaded
+    // paper's topic). QP's topic is chosen by the student on the route — there is
+    // nothing to infer, so the field does not apply and absent is the honest value
+    // ("absent ≠ inferred" — see SessionTopicSource). `bank-matched` stays RESERVED
+    // for a real matcher; emitting it here would be wiring a fake one.
   };
 }
