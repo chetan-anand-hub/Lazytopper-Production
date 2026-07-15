@@ -2,6 +2,16 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-15 — ✅ MATHTEXT COMMAND CORRUPTION CLOSED + OWNER LIVE-VERIFIED (#435, `fd57db1`) — the shared renderer is sound
+
+**[FU-MATHTEXT-COMMAND-CORRUPTION] CLOSED.** The app's single shared maths renderer (`MathText`, 13 consumers) no longer mangles bare LaTeX commands. Owner live-verified: the tutor renders `\cos²A` / `\sin²A` as real maths; every consumer surface renders exactly as before. **This retires the most visible student-facing rendering defect** — students were seeing broken LaTeX source (`\co`, `\si`) inside a **maths** tutor, which destroys credibility on contact.
+
+- **Fixed by CONSTRUCTION, not by a regex patch.** Protected-span model: scan once (delims `\(…\)` **and** `\[…\]` + command names with balanced nesting-aware args) → promote **only in the gaps** → wrap bare-LaTeX runs **only when KaTeX proves they render**. **No lookbehind**, so bank content (`AB^2`, `CO_2`, `cm^2`) stays byte-identical **by construction** — the no-regression proof is the *absence* of a guard, not a passing test.
+- **Four defects, one root cause** (the report described one): D1 mangle · D2 raw source · D3 **block `\[…\]` delimiters were never protected** — so #432's prompt-hardening belt could never have fixed it; this was always the braces' job · D4 `[^}]+` cutting nested braces into **invalid LaTeX**.
+- **Scope:** 2 files, **zero consumer edits** — which is what kept it disjoint from the live parallel lanes. Dead `renderMathInText` deleted (a second export of shared logic = the grader half-fix shape).
+- **★ Carries forward — [FU-CI-GATE-VITEST] (pre-soft-launch).** Four vitest suites exist and **none run in CI** (`MathText`, `EquationInput`, `tutorRoundTrip`, `WorksheetPrintDoc`). `quality-gate.yml` = root matrix → mojibake → build → ops matrix. A test that never executes is decoration; these guard the shared renderer, the equation widget, the tutor round-trip and the worksheet print doc.
+- **Lane CLOSED — nothing follows from it.** Live lanes: QP-sessions (#436) · QR upload · Fable bank expansion.
+
 ## 2026-07-15 — TUTOR STAGE 2 COMPLETE + OWNER LIVE-VERIFIED (#428 + fixes #432, `65fdf85`) — the round-trip works end-to-end
 
 The fresh-engine tutor's 3-stage staged build (Flow v2) advances: **Stage 1 (chat shell, #425/#426) and Stage 2 (the
