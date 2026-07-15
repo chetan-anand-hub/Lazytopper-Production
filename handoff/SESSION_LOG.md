@@ -1,5 +1,16 @@
 ---
 
+## 2026-07-15 -- #438 OPEN: [FU-BANK-UNRESOLVABLE-MCQ-KEYS] CLOSED (13 withheld, not 34; 0 key-fixes) + reachability verified + the cosec-60 root cause -- base trunk `a5691a7`
+
+**Bank-completion sequence started: MCQ repair (#438) -> then 4 expansion PRs (3 topics each) for the 12 remaining topics.** Scope derived live from the repo, never from memory.
+
+- **#438 (data-only, 1 file, +29/-1, awaiting owner merge):** 13 objective rows whose answer key resolves to NO option, derived through the REAL grader module. **Not 34** (that was an exact trim+lowercase scan; the real contract forgives 21). **Severity claim in the lane state was FALSE and is corrected** — the item silently NEVER SCORES; a correct pick is never marked wrong. **All 13 withheld; ZERO key-fixes** — every row's OPTIONS are destroyed too, so a key-only repair leaves it unanswerable and authoring distractors would fabricate a PYQ (an interim "~4 fixes" estimate from truncated previews was wrong and is retracted). Bank 8,597 -> 8,584. CI landmine cleared; `CBE-S-MAGN-A-001` HOLD + the 168 no-options VSA rows both CLOSED as non-defects.
+- **Reachability verified against a wrong steer:** QP + Worksheet ARE reachable (one transitive hop: `practiceSetGenerator`/`predictionDataService` -> `PredictionCore` -> `unifiedQuestionBank` includes `canonicalQuestionBank`; proven by calling the real fns). **[FU-QP-WORKSHEET-BANK-SOURCING] withdrawn.** Two traps recorded: a local named `bankQuestions` that is not the bank, and a bank mention in a COMMENT that makes `grep -l` imply an import.
+- **Owner's live "cosec 60°" bug root-caused:** `TG3-056` is a canonical bank row (D/5mk/Easy) — the bank serves faithfully; the bank is wrong. **76 MCQ/AR rows sit at section D / 5 marks** (grader clamps 0-or-5) + ~178 under-stepped D/E solutions -> **[FU-BANK-SCARCE-BAND-MISBANDING]**, own PR(s), NOT folded into the expansion.
+- **Syllabus ruling (official 2026-27 PDF, pymupdf):** magnetic-effects RETAINED & EXAMINED (Unit IV = 13 marks); Motor / EMI / Generator OUT of board-prep ("only formatively... without adding to summative assessments"). The "Note for Teachers" trap behind the original wrongful drop is now documented in the lane state. **`CLAUDE.md` §5 STALE — flagged, not edited.**
+- **Packaging ratified: 3 topics/PR (4 PRs)**, rejecting a 6-per-PR proposal on the lane's own evidence.
+- **Stale-base catch (9th):** origin advanced `2864be9` -> `a5691a7` mid-session; re-derived and confirmed the bank was UNTOUCHED across those 8 tutor/equation commits, so the census held.
+
 ## 2026-07-15 -- #429 + #430 + #431: SHARED EQUATION INPUT/RENDER INFRA + friendly-token polish, owner merged + LIVE-VERIFIED — trunk `65fdf85`
 
 **Equation lane, 3 PRs: #429 (`bbf02ca`) shared `<EquationInput>`/`<EquationRender>` + wiring; #430 (`68fbc03`) the API contract for the tutor lane; #431 (`e458832`) the friendly-token + caret polish after owner live-verify. Isolated worktrees per PR (`LT-worktrees/equation-widget`, `/eq-polish`); pre-flight → owner approval (serialization + no-dependency) → build → gates → owner byte-review + live-verify → merge. Never self-merged (docs #430 self-merge-eligible). CI green on all.**
