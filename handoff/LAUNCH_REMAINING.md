@@ -77,7 +77,7 @@ Locked dependency chain (from the design arc + the 2026-07-12 handoff). Parallel
    (#423 final mobile-parity sweep, owner live-verified — no live route shows the old global brand bar at mobile width)** +
    owner live-verify sweep.
 
-**Parallel (do not block the spine):** Tutor rebuild *(§3.3, blocked on owner brainstorm)* · Bank expansion *(§7)* ·
+**Parallel (do not block the spine):** Tutor *(§3.3, Stage 1+2 LIVE; Stage 3 remaining)* · Bank expansion *(§7)* ·
 Legacy faulty-question audit *(§7, after expansion)*.
 
 ---
@@ -93,9 +93,11 @@ Legacy faulty-question audit *(§7, after expansion)*.
 - **§3.2 🔵 BANK EXPANSION (Fable) — ~22 topics remain** (bank 7,084 → **7,342**; 4 topics done). Fresh Fable window
   booted after context-limit rotation. **Watch:** verify its first batch kept the **≥75 distinct floor** + the
   **two-direction syllabus gate** across the handoff. Byte-review each batch. Parallel data track — not an arch gate.
-- **§3.3 🟡 TUTOR (design) — blocked on owner.** Two-panel Trig mockup REJECTED; awaiting the owner's answer on *what*
-  made it bad (concept / visual / conversation-feel / interaction / whole chat-tutor framing). Do **not** rebuild on the
-  rejected concept. `[FU-CONTEXTUAL-TUTOR-REBUILD]` + PR-D.1 mobile toggle downstream of that answer.
+- **§3.3 🟢 TUTOR — Stage 1 + Stage 2 LIVE (owner-verified); Stage 3 remaining.** The rejected two-panel mockup was
+  superseded by the LOCKED Flow v2 fresh-engine build. Stage 1 chat shell (#425/#426) + Stage 2 round-trip (#428 + the
+  six fixes #432, owner-live-verified incl. 360px) are LIVE behind `/tutor` (premium-gated). **Remaining = Stage 3
+  (explanation-panel visuals: `conceptVisualCatalogue` + matcher fix + AI-gen gap-fill) — separate dispatch.**
+  `[FU-CONTEXTUAL-TUTOR-REBUILD]` resolving via the staged build; `[FU-TUTOR-LEGACY-RETIRE]` after Stage 3.
 
 ---
 
@@ -124,7 +126,7 @@ Only surfaces NOT yet fully green are listed. See `SURFACE_TRACKER.md` for the a
   (checklist in `report-ftfinalize-build-2026-07-13.md` §7).
 - ✅ **Me / Progress** — **DONE + OWNER LIVE-VERIFIED (Verified ✅).** arc PR-4 (#408) shipped the consumption; **PR-B-v2 (#412, `1228c95`) fixed the engine** — [FU-PROG-TOPIC-KEY-MISMATCH] · [FU-PROG-DATA-COMPLETENESS] · [FU-PROG-WINDOW-MODEL] all CLOSED (unified 4-surface stream, canonical keys, activity-median + honest span label, topic sparkline). Live-verified: Polynomials hub 33.9%→46.9% + sparkline + honest short-term label. Deferred (not launch-gating): [FU-PROGRESS-PRESENTATION-REDESIGN] (graphical Me + hero-card fold) · [FU-PROG-PRE403-QP-BACKFILL] (historical).
 - 🟡 **Home** — converge to orient-first + real-insights wiring + ungraded nudge (arc PR-5, after PR-B).
-- 🟡 **Tutor / Learn** — rebuild to locked contract + mobile toggle; blocked on owner brainstorm (§3.3).
+- 🟢 **Tutor / Learn** — Stage 1 + Stage 2 LIVE + owner-live-verified (#425/#426 + #428/#432); Stage 3 (explanation-panel visuals) remaining, separate dispatch (§3.3).
 - 🔒 **Chapter Test** — matrix-green; behind `MockViewGate` (owner flips at launch) + `[FU-CT-BALANCED-MIX]` (§4).
 - ✅ **Exam Trends** — mobile one-header confirmed + owner live-verified (#416 item E + #423 sweep). Fully green.
 - ✅ **HPQ / Predicted** — mobile one-header (#423 `<MobileSelfChrome>` incl. the premium-upsell state) + owner
