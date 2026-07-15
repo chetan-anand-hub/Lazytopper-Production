@@ -63,7 +63,152 @@ function renderKatexToHtml(latex: string, displayMode: boolean): string | null {
   }
 }
 
-function preprocessBarePatterns(text: string): string {
+// ---------------------------------------------------------------------------
+// Auto-promotion — the protected-span model
+// ---------------------------------------------------------------------------
+// Promotion turns readable shorthand into rendered maths (x^2, sqrt5, frac1/2,
+// a_1). It used to run as a series of blind regexes over the whole string, which
+// had no notion of where a LaTeX command started or ended. That single omission
+// produced four defects:
+//
+//   D1  `\cos^2 A`            -> `\co\(s^{2}\) A`   (a rule grabbed the `s` INSIDE
+//                                                    the command name)
+//   D2  `\cos^{2} A`          -> shown to the student as literal source: only
+//                               \sqrt and \frac had a wrap path
+//   D3  `\[\cos^2 A\]`        -> mangled INSIDE block delimiters: the old guard
+//                               scanned `\(...\)` only, never `\[...\]`
+//   D4  `\sqrt{\frac{a}{b}}`  -> `\(\sqrt{\frac{a}\){b}}`: every brace rule used
+//                               `[^}]+`, which stops at the FIRST `}`
+//
+// The cure is structural rather than another lookbehind: scan the string ONCE
+// into protected spans, then promote only in the gaps between them. D1 then dies
+// by construction -- the `s` in `\cos` is inside a span and can never be a base.
+//
+// Why not just add `(?<![\\a-zA-Z])` to the ^/_ rules (as the sqrt/frac rules
+// already carry)? Because it rejects a base letter preceded by ANY letter, which
+// silently stops promoting `AB^2 + BC^2 = AC^2` (Pythagoras), `CO_2`, `cm^2` --
+// all over the bank, all rendering correctly today. That trades a bank-wide
+// regression for a trig fix. Gaps need no lookbehind, so those stay byte-identical.
+
+interface ProtectedSpan {
+  start: number;
+  end: number;
+  kind: "delim" | "command";
+  /**
+   * Whether this command needs KaTeX to render at all -- i.e. whether Phase 3
+   * should wrap it. True when it carries {...} arguments or a ^/_ script
+   * (\frac{a}{b}, \text{LHS}, \cos^2), OR when UNICODE_MAP has no glyph for it
+   * (\tan, \ln, \text).
+   *
+   * The second half matters: a lone \tan is not "structural" in any syntactic
+   * sense, but UNICODE_MAP cannot express it, so leaving it alone shows the
+   * student the literal string `\tan`. The real question is not "is it complex"
+   * but "can the proven fallback render it".
+   *
+   * Conversely a LONE symbol command UNICODE_MAP DOES know (\theta, \pi, \degree,
+   * \times) is deliberately left alone. Routing it through KaTeX would swap a
+   * plain text node for a KaTeX span -- same glyph, different font metrics --
+   * i.e. a visual diff on every print doc, bought for nothing. Wrap what is
+   * broken; leave what works untouched. This constraint is load-bearing.
+   */
+  structural: boolean;
+}
+
+/**
+ * Index just past the `}` closing the balanced group at `open`, or -1 if unbalanced.
+ * Nesting-aware: this is what the old `[^}]+` rules could not do (D4).
+ */
+function consumeBalancedGroup(text: string, open: number): number {
+  if (text[open] !== "{") return -1;
+  let depth = 0;
+  for (let i = open; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === "\\") {
+      i++;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return i + 1;
+    }
+  }
+  return -1;
+}
+
+/** Read `\name` plus any trailing {...} arguments and ^/_ scripts, starting at a backslash. */
+function consumeCommandSpan(text: string, start: number): ProtectedSpan {
+  let i = start + 1;
+  while (i < text.length && /[a-zA-Z]/.test(text[i])) i++;
+  const name = text.slice(start, i);
+
+  // No unicode glyph for this command => the fallback would print it verbatim.
+  let structural = !(name in UNICODE_MAP);
+  for (;;) {
+    if (text[i] === "{") {
+      const close = consumeBalancedGroup(text, i);
+      if (close === -1) break;
+      i = close;
+      structural = true;
+      continue;
+    }
+    if (text[i] === "^" || text[i] === "_") {
+      const at = i + 1;
+      let next: number;
+      if (text[at] === "{") {
+        next = consumeBalancedGroup(text, at);
+        if (next === -1) break;
+      } else if (at < text.length && /[A-Za-z0-9]/.test(text[at])) {
+        // A script binds to exactly ONE token in LaTeX: `\cos^2 A` is (cos^2) A.
+        next = at + 1;
+      } else break;
+      i = next;
+      structural = true;
+      continue;
+    }
+    break;
+  }
+
+  return { start, end: i, kind: "command", structural };
+}
+
+/** One left-to-right pass collecting every region promotion must not reach into. */
+function scanProtectedSpans(text: string): ProtectedSpan[] {
+  const spans: ProtectedSpan[] = [];
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] === "\\") {
+      const next = text[i + 1];
+      // Existing maths, inline \(...\) AND block \[...\] -- the block form is what
+      // D3 left exposed, so the tutor's correctly-wrapped block maths got mangled.
+      if (next === "(" || next === "[") {
+        const closer = next === "(" ? "\\)" : "\\]";
+        const close = text.indexOf(closer, i + 2);
+        if (close !== -1) {
+          spans.push({ start: i, end: close + closer.length, kind: "delim", structural: true });
+          i = close + closer.length;
+          continue;
+        }
+      }
+      if (next && /[a-zA-Z]/.test(next)) {
+        const span = consumeCommandSpan(text, i);
+        spans.push(span);
+        i = span.end;
+        continue;
+      }
+    }
+    i++;
+  }
+  return spans;
+}
+
+/**
+ * Promote readable shorthand. Applied ONLY to gap text -- the substrings outside
+ * every protected span -- so it can never see a command name or a delimiter.
+ * The rules and their order are carried over verbatim from the pre-span version,
+ * which is what keeps `AB^2`, `CO_2`, `cm^2` and friends byte-identical.
+ */
+function promoteShorthandInGap(text: string): string {
   let result = text;
 
   result = result.replace(/(?<![\\a-zA-Z])sqrt(\d+)/g, (_m, num) => `\\(\\sqrt{${num}}\\)`);
@@ -72,9 +217,11 @@ function preprocessBarePatterns(text: string): string {
   result = result.replace(/(?<![\\a-zA-Z])frac(\d+)\/(\d+)/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
   result = result.replace(/(?<![\\a-zA-Z])frac\{([^}]+)\}\{([^}]+)\}/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
 
-  const insideDelimiterRe = /\\\(.*?\\\)/gs;
+  // The sqrt/frac rules above just emitted \(...\); the ^/_ rules below must not
+  // fire inside what they created. A gap holds no pre-existing delimiters, so
+  // these ranges are exactly the ones minted a moment ago.
   const delimitedRanges: Array<[number, number]> = [];
-  for (const m of result.matchAll(insideDelimiterRe)) {
+  for (const m of result.matchAll(/\\\(.*?\\\)/gs)) {
     if (m.index !== undefined) delimitedRanges.push([m.index, m.index + m[0].length]);
   }
   function isInsideDelimiter(pos: number): boolean {
@@ -98,16 +245,135 @@ function preprocessBarePatterns(text: string): string {
     return `\\(${base}_{${sub}}\\)`;
   });
 
-  result = result.replace(/(?<![\\(])\\sqrt\{([^}]+)\}(?![\\)])/g, (match, inner, offset) => {
-    if (isInsideDelimiter(offset)) return match;
-    return `\\(\\sqrt{${inner}}\\)`;
-  });
-  result = result.replace(/(?<![\\(])\\frac\{([^}]+)\}\{([^}]+)\}(?![\\)])/g, (match, n, d, offset) => {
-    if (isInsideDelimiter(offset)) return match;
-    return `\\(\\frac{${n}}{${d}}\\)`;
-  });
-
   return result;
+}
+
+/**
+ * Characters allowed to sit between (or after) command spans while still counting
+ * as one maths expression. Deliberately narrow: a word of 2+ letters is prose and
+ * ENDS the run, so `\frac{1}{2} of the class` wraps only the fraction. Under-wrap
+ * rather than swallow a sentence.
+ */
+function consumeGlue(text: string, from: number): number {
+  let i = from;
+  while (i < text.length) {
+    const ch = text[i];
+    if (ch === "\n") break;
+    if (/\s/.test(ch) || /[0-9+\-*/=<>(),.;:|]/.test(ch)) {
+      i++;
+      continue;
+    }
+    if (/[a-zA-Z]/.test(ch)) {
+      let word = i;
+      while (word < text.length && /[a-zA-Z]/.test(text[word])) word++;
+      if (word - i === 1) {
+        i = word; // a single letter is a variable (the `A` in `\cos^2 A`)
+        continue;
+      }
+      break; // a real word -- prose starts here
+    }
+    break;
+  }
+  return i;
+}
+
+/**
+ * Extend a run rightwards from a structural span, absorbing glue and any further
+ * command spans, so `\cos^2 A + \sin^2 A = 1` wraps as ONE expression rather than
+ * as fragments with prose-font operators between them.
+ */
+function findRunEnd(
+  text: string,
+  spans: ProtectedSpan[],
+  startIdx: number,
+): number {
+  let cursor = spans[startIdx].end;
+  let lastSpanEnd = cursor;
+
+  for (;;) {
+    const glueEnd = consumeGlue(text, cursor);
+    const nextSpan = spans.find((s) => s.kind === "command" && s.start === glueEnd);
+    if (nextSpan) {
+      cursor = nextSpan.end;
+      lastSpanEnd = cursor;
+      continue;
+    }
+    cursor = glueEnd;
+    break;
+  }
+
+  // Trailing glue that leads nowhere is prose punctuation, not maths: keep the
+  // full stop in `... = \frac{\sin A}{\cos A}.` outside the wrap. Never trim back
+  // into an absorbed span.
+  let end = cursor;
+  while (end > lastSpanEnd && /[\s.,;:]/.test(text[end - 1])) end--;
+  return end;
+}
+
+/**
+ * Would KaTeX actually render this? Phase 3 only ever promotes bare LaTeX that
+ * PROVES it renders -- anything else is left exactly as it is today.
+ *
+ * Without this gate, an invented command (an LLM writing `\bogus{x}`) would be
+ * wrapped and KaTeX, running with throwOnError:false, would paint it red. Raw
+ * source is bad; a red error box is worse. So the promotion is verified, not
+ * assumed: every command this app actually uses renders (all 46 in UNICODE_MAP
+ * plus the trig/log family were checked against the pinned KaTeX), and anything
+ * outside that set degrades to today's behaviour instead of to a new failure.
+ */
+function katexCanRender(latex: string): boolean {
+  try {
+    katex.renderToString(latex, { throwOnError: true, strict: "ignore", output: "html" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Exported for MathText.test.tsx ONLY -- it pins promote output byte-for-byte,
+ * which the rendered DOM cannot express. Not a product entry point: every surface
+ * renders through <MathText>. Do NOT call this from a component; a second caller
+ * of shared logic is how a later edit ends up fixing one half of a pair.
+ */
+export function preprocessBarePatterns(text: string): string {
+  const spans = scanProtectedSpans(text);
+  if (spans.length === 0) return promoteShorthandInGap(text);
+
+  let out = "";
+  let pos = 0;
+  let idx = 0;
+
+  while (idx < spans.length) {
+    const span = spans[idx];
+    if (span.start < pos) {
+      idx++; // already absorbed into a run
+      continue;
+    }
+
+    if (span.start > pos) out += promoteShorthandInGap(text.slice(pos, span.start));
+
+    if (span.kind === "delim" || !span.structural) {
+      // Existing maths, or a lone symbol command bound for UNICODE_MAP: verbatim.
+      out += text.slice(span.start, span.end);
+      pos = span.end;
+    } else {
+      const runEnd = findRunEnd(text, spans, idx);
+      const run = text.slice(span.start, runEnd);
+      if (katexCanRender(run)) {
+        out += `\\(${run}\\)`;
+        pos = runEnd;
+      } else {
+        // Unrenderable: leave it exactly as today rather than invent a red error.
+        out += text.slice(span.start, span.end);
+        pos = span.end;
+      }
+    }
+    idx++;
+  }
+
+  if (pos < text.length) out += promoteShorthandInGap(text.slice(pos));
+  return out;
 }
 
 function applyUnicodeFallbacks(text: string): string {
@@ -209,8 +475,4 @@ export function MathText({ text, style, className }: MathTextProps) {
       )}
     </span>
   );
-}
-
-export function renderMathInText(text: string): string {
-  return applyUnicodeFallbacks(preprocessBarePatterns(text));
 }

@@ -8,6 +8,7 @@
 // upload affordance, chapter-test-branded. Honest: "upload later" is always allowed.
 
 import { useCallback, useRef, useState } from "react";
+import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
 const MAX_PDF_BYTES = 5 * 1024 * 1024;
@@ -104,6 +105,23 @@ export default function ChapterTestUploadPanel({
               ✕
             </button>
           </div>
+        )}
+
+        {/* Sat the test on paper? Send it straight from your phone instead of
+            emailing it to yourself. Desktop-only + signed-in-only; renders nothing
+            otherwise, so the upload path above is untouched when QR is unused.
+            It fills the SAME state the file input fills, so the grade call below
+            runs exactly as it always has. */}
+        {!imageBase64 && (
+          <QrAnswerHandoff
+            disabled={grading}
+            onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
+              setLocalError(null);
+              setFileName("Photo from your phone");
+              setImageMimeType(mime);
+              setImageBase64(b64);
+            }}
+          />
         )}
 
         {imageBase64 && (

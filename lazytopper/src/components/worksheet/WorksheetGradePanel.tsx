@@ -7,6 +7,7 @@ import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
 import ResultsScorecard from "../results/ResultsScorecard";
 import { worksheetScorecardVariant } from "../results/scorecardVariants";
+import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -369,6 +370,22 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
               <span className="lt-wg__filenm">{fileName}</span>
               <button type="button" className="lt-wg__filex" onClick={handleReset} aria-label="Remove file">✕</button>
             </div>
+          )}
+
+          {/* "Solved it on paper?" (the lead above) is exactly the moment this
+              helps: send the photo from your phone instead of emailing it to
+              yourself. Desktop-only + signed-in-only; renders nothing otherwise,
+              so the upload path above behaves exactly as before when QR is unused.
+              It fills the SAME state the file input fills — handleGrade is untouched. */}
+          {!hasFile && (
+            <QrAnswerHandoff
+              disabled={grading}
+              onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
+                setFileName("Photo from your phone");
+                setImageMimeType(mime);
+                setImageBase64(b64);
+              }}
+            />
           )}
 
           {hasFile && (

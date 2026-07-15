@@ -1683,7 +1683,10 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
 // Reason tag per id: bilingual = Hindi/English column bleed (re-extract);
 // mojibake = subset-font Devanagari-as-Latin gibberish; blank = expression(s)
 // missing entirely; garbled = expression scrambled beyond recovery;
-// answer-mismatch = questionText contradicts its own answer.
+// answer-mismatch = questionText contradicts its own answer;
+// garbled-options = the OPTION SET is destroyed (duplicated/single-token remnants)
+// so no answer key can resolve to exactly one option; figure = unanswerable without
+// a figure the data does not carry; out-of-syllabus = fails the CBSE 2026-27 gate.
 export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // ---- Science: bilingual column bleed / wrong-question pasted in (re-extract) ----
   "PYQ-S-2025-ACID-008",     // bilingual
@@ -1726,6 +1729,31 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-013",     // mojibake
   "PYQ-M-2024-TRIG-019",     // mojibake
   "PYQ-M-AP-003",            // mojibake — part (B) Hindi gibberish (dup of clean AP-002)
+  // ---- [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — objective rows whose answer key resolves to
+  //      NO option under the grader contract (server/routes/objectiveScoring.cjs:
+  //      normaliseOption + letter<->text bridging + >=3-char partial match).
+  //      Derived live 2026-07-15 over the 8,597 bank via that REAL module: 13 rows.
+  //      (The historical "34" came from an exact trim+lowercase scan; the real contract
+  //      forgives 21 of those. See the docs handoff for the severity correction: these
+  //      render garbled and SILENTLY NEVER SCORE — a correct pick is never marked wrong.)
+  //      All 13 are pre-pymupdf PDF-extraction damage. NONE is a key-only fix: in every
+  //      case the OPTIONS are destroyed too, so repairing the key alone would leave the
+  //      item unanswerable, and authoring the distractors would FABRICATE a PYQ. Bodies
+  //      stay intact in their packs for the pymupdf re-extraction pass
+  //      ([FU-BANK-MCQ-REEXTRACT]) — delete each id here as its real text is recovered.
+  "CTRL-EXMPLR-6-MCQ-025",   // figure — options are "Option (a) as in figure" placeholders (Fig. 7.1)
+  "PYQ-M-TRI-001",           // garbled-options — ["2","3","5","2"] dup; stem lost the ∥ in "DE ∥ BC"
+  "PYQ-M-ARC-002",           // garbled-options — ["4","2","35","70"]; key "( 35 2 ) °" = (35/2)°
+  "PYQ-M-ARC-003",           // garbled-options — all four options identical ("2 1 πd")
+  "PYQ-M-PROB-002",          // garbled-options — all four options identical ("8")
+  "PYQ-M-PROB-003",          // garbled-options — all four options identical ("9")
+  "PYQ-M-PROB-005",          // garbled-options — ["1","2","1","1"]; key "1 6 1" = 1/6 + marks digit
+  "PYQ-M-PROB-006",          // garbled-options — ["1","9","4",…]; "/13" denominators lost, MS DIRECTIONS swept into (d)
+  "PYQ-M-PROB-008",          // garbled-options — ["4","2","4","1"]; key "𝟑 𝟒" in mathematical-bold unicode
+  "PYQ-M-PROB-010",          // garbled-options — ["13","52","13","26"] dup; key "𝟒 𝟓𝟐 1"
+  "PYQ-S-2024-LIGHT-001",    // garbled — stem ("2 3 and 3 4") + options both damaged; key = MS boilerplate
+  "PYQ-S-2024-ELEC-001",     // figure — "as shown"; attract-vs-repel is undecidable without the figure; key = MS boilerplate
+  "PYQ-S-2024-MAG-002",      // out-of-syllabus — positron (e⁻/p⁺) is not Class-10 CBSE 2026-27 (owner ruling 2026-07-15)
 ]);
 
 /**

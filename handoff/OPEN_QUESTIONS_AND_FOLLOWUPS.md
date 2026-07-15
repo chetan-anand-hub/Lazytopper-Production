@@ -1,3 +1,167 @@
+## 2026-07-15 -- #435: MATHTEXT COMMAND CORRUPTION **CLOSED** — protect-then-promote (trunk `fd57db1`), owner-live-verified
+
+### CLOSED by #435 (owner byte-review + live-verify)
+- **[FU-MATHTEXT-COMMAND-CORRUPTION] — CLOSED.** `MathText`'s auto-promote no longer reaches inside a LaTeX command. Fixed **by construction** (a protected-span model), not by a regex patch. Owner live-verified: the tutor renders `\cos²A` / `\sin²A` as real maths and every consumer surface is unchanged. Code #435 → `fd57db1`. **Do NOT re-attempt.**
+  - **The prior entry's mechanism was RIGHT about the rule but WRONG about the repro** — worth recording, because the stated repro is what a fixer would have coded against. The rule is `([a-zA-Z])\^(\d+)`: it needs a **digit immediately after `^`**, so `\cos^{2}` (braced) **never matched and was never mangled**. The mangle input is the **unbraced** `\cos^2`. The braced form failed a *different* way — nothing wrapped it, so it printed as literal source. Both look like "broken source" on screen, which is why they were filed as one bug. **A fix aimed at the documented repro would have fixed neither.**
+  - **The defect was ~4x the report.** One root cause (no concept of a protected span) → four defects: **D1** mangle (`\cos^2 A` → `\co\(s^{2}\) A`) · **D2** raw (`\cos^{2} A`, `\text{LHS} = \frac{1}{2}` printed as source; only `\sqrt`/`\frac` had a wrap path) · **D3** **block delimiters were never protected** — the old guard scanned `\(...\)` only, so the tutor's *correctly wrapped* `\[...\]` block maths was mangled anyway (**the prompt-hardening belt could not save it**) · **D4** every brace rule used `[^}]+`, cutting at the first `}` → `\sqrt{\frac{a}{b}}` emitted **invalid LaTeX**.
+  - **The prior "safe fix" proposal (a `commandRanges` mask) was directionally right but would have under-fixed** — it masks the ^/_ rules only, leaving D2/D3/D4 open. The shipped design goes further: `scanProtectedSpans` FIRST (delims `\(...\)` **and** `\[...\]` + command names with **balanced, nesting-aware** args) → promote **only in the gaps** → wrap bare-LaTeX runs.
+  - **★ Why NOT a lookbehind (the load-bearing decision).** Adding `(?<![\\a-zA-Z])` to the ^/_ rules — the guard the `sqrt`/`frac` rules **already carry**, which is how we know the pattern was known and the exponent rules were simply missed — rejects a base letter preceded by **any** letter. That silently stops promoting `AB^2 + BC^2 = AC^2` (Pythagoras), `H_2 O`/`CO_2` (Science bank), `24 cm^2` (grader units) — all over the bank, **all rendering correctly today**. It trades a bank-wide regression for a trig fix. **The no-regression proof is the ABSENCE of a lookbehind, not a test that happens to pass:** gaps never contain a command, so they need no guard and stay byte-identical **by construction**.
+
+### ★ THE LESSON THAT GENERALISES PAST THIS FILE (read this one)
+- **"Wrap what `UNICODE_MAP` cannot express" beat "is it syntactically complex" — and only an ADVERSARIAL CORPUS caught it.**
+  - The first implementation defined *structural* (= should be wrapped) as **"has brace args or a `^`/`_` script."** It passed everything expected of it. It was **wrong**: a lone function command — `\tan A`, `\ln x`, `\sin A` — has neither args nor a script, and `\tan` has **no `UNICODE_MAP` glyph**, so it fell through to the fallback and **printed literal `\tan` on screen. D2 was still open for that whole class.**
+  - The corrected rule: **`structural = has args/script OR the command has no UNICODE_MAP glyph`**. The real question was never *"is it complex"* — it was **"can the proven fallback render it."** Syntax was a proxy; capability was the actual criterion.
+  - **A reasonable-looking, example-based test suite would have gone green while `\tan`/`\ln`/`\sin A` stayed raw in front of students.** The only reason it surfaced was running a corpus of cases chosen to *attack* the rule rather than to confirm it. **This is the strongest argument in this repo for adversarial corpora over example-based tests** — the bug lived exactly in the gap between "the cases I thought of" and "the cases the tutor actually emits."
+  - Generalise: when a rule is a **proxy** for the property you actually care about, the proxy is where the bug hides. State the real property (*can the fallback render it*) and test against inputs designed to separate the two.
+
+### NEW (opened by #435)
+- **★ [FU-CI-GATE-VITEST] — FOUR vitest suites exist and NONE of them run, anywhere. Fix before soft launch.**
+  - **The ungated suites, by name:**
+    1. `lazytopper/src/components/question/MathText.test.tsx` — guards the app's **shared maths renderer** (13 consumers).
+    2. `lazytopper/src/components/equation/EquationInput.test.tsx` — guards the **equation widget**.
+    3. `lazytopper/src/pages/tutor/tutorRoundTrip.test.ts` — guards the **tutor round-trip**.
+    4. `lazytopper/src/components/worksheet/WorksheetPrintDoc.test.tsx` — guards the **worksheet print doc**.
+  - **Confirmed by reading `.github/workflows/quality-gate.yml` (owner independently re-read it):** the steps are **root guard matrix → mojibake → build → ops matrix**. **No vitest anywhere.** `vitest` exists in `lazytopper/package.json` only as `"test": "vitest run"` / `"test:watch"` — **nothing calls either**.
+  - **★ The misread that produced the false claim, recorded so it isn't repeated:** a tutor-lane agent reported "quality-gate pass (1m39s: linux build + **vitest** + matrices)" on its merged PRs. It is wrong, but understandably so — the **root** matrix is `node --import tsx/esm --test src/*.test.ts`, i.e. **Node's BUILT-IN test runner**, which prints `# tests 181 / # pass 181` into the CI log. That scrolls past looking exactly like a suite. **It is not vitest.** Do not infer a gate from CI log shape — read the workflow file.
+  - **Why this matters:** these four suites guard a shared renderer, the equation widget, the tutor round-trip and the worksheet print doc — i.e. the surfaces where a silent regression is most expensive. **A test that never executes is decoration.** It buys false confidence, which is worse than no test.
+  - **Windows cannot run them** (`@rollup/rollup-win32-x64-msvc` is stripped by `pnpm-workspace.yaml`'s linux pin) → today the only route is a **Codespaces** run pasted by the owner, per-PR, by hand. **Wire vitest into `quality-gate.yml` (the linux runner is already there) before soft launch.** Deliberately NOT bundled into #435 (owner: do not widen the PR).
+- **[FU-MATHTEXT-MULTILETTER-BASE]** — `AB^2` promotes to `A\(B^{2}\)`: the leading letter renders in prose font, the rest as KaTeX. Same for `CO_2` → `C\(O_{2}\)` and `cm^2` → `c\(m^{2}\)`. Slightly mismatched fonts; **renders correctly and has shipped for months.**
+  - **#435 preserved this BYTE-IDENTICAL on purpose, and the reasoning is the point:** `\cos` printing literal `\co` is a **credibility bug in a maths tutor**; `AB²` in slightly-off fonts is a **polish nit**. **Never trade a bank-wide regression for a trig fix.** Fixing it means promoting whole tokens (`\(AB^{2}\)`), which changes rendering on **every bank surface + both print docs** — a far bigger blast radius than the bug being fixed, and it needs its own live-verify pass. Own PR, own live-verify. Not urgent.
+- **[FU-MATHTEXT-RENDER-GATE-RATIONALE] — do NOT remove `katexCanRender` as redundant.** #435 wraps a bare-LaTeX run **only if KaTeX proves it renders** (a `throwOnError:true` probe); anything else is left **exactly as it is today**.
+  - **Why it exists:** without it, an invented command (an LLM writing `\bogus{x}`, or a stray `\left(` with no `\right)`) gets wrapped and KaTeX — which runs with `throwOnError:false` — paints it **red**. **Raw source is bad; a red error box is worse.** The gate makes the fix strictly non-regressive: new behaviour **only** where it demonstrably renders, otherwise degrade to today.
+  - It looks redundant because all 46 commands in `UNICODE_MAP` + the trig/log family were probe-verified against the pinned KaTeX and **46/46 render** — so the gate never fires on today's content. **That is exactly the point: it is the guard for TOMORROW's content**, which arrives from an LLM and is not enumerable. The rationale lives in the code comment AND here so nobody deletes it as dead weight.
+## 2026-07-15 -- #438 (bank MCQ repair) + reachability verification + syllabus ruling
+
+### RESOLVED / CLOSED
+- **[FU-BANK-UNRESOLVABLE-MCQ-KEYS] — CLOSED by #438.** 13 rows (NOT 34) withheld; ZERO were key-fixes. The "34" was an exact trim+lowercase scan; the real grader contract (`normaliseOption` + letter<->text bridging + >=3-char partial match) forgives 21. **The recorded severity claim was FALSE** — the item silently NEVER SCORES; a correct pick is never marked wrong. Bank 8,597 -> 8,584. CI landmine (`fullMockBlueprint.test.ts` key-resolves assertion, passing only by seed luck) CLEARED.
+- **[FU-QP-WORKSHEET-BANK-SOURCING] — WITHDRAWN, premise disproven. Do NOT re-file.** QP and Worksheet DO source `canonicalQuestionBank`, one transitive hop below their direct imports. Verified by calling the real fns (10/10 and 8/8 canonical). Full trace + the two traps that caused the wrong conclusion are in `BANK_EXPANSION_LANE_STATE.md`.
+- **HOLD on `CBE-S-MAGN-A-001` — CLOSED.** Never a real defect; it resolves under the real contract and only appeared via the bad scan.
+- **"168 objective rows with no options[]" — CLOSED, not a defect.** `isObjectiveType` returns true for any `section === "A"`, so 1-mark free-text VSA items are objective-classified; with no options they defer to the model's binary verdict — correct for a 1-mark all-or-nothing item. Do not "fix" these.
+- **RULING — magnetic-effects:** chapter RETAINED & EXAMINED (official 2026-27 Unit IV "Effects of Current" = 13 marks); **Motor / Electromagnetic Induction / Electric Generator OUT of board-prep authoring** (assessed "only formatively... without adding to summative assessments"). Honest low stop accepted for that chapter.
+
+### NEW
+- **[FU-BANK-SCARCE-BAND-MISBANDING] (M-L, PRE-LAUNCH)** — the owner's live "5-mark Section D / Easy = 'Find the value of cosec 60°'" bug. **`TG3-056` is a CANONICAL BANK ROW** (`trigonometry.pack3.ts:1478`, D/5mk/Easy, 3 steps): the bank is served faithfully; **the bank itself is wrong**. Systemic — **CLASS (a): 76 rows with `format: MCQ`/`Assertion-Reasoning` + 4 options sitting at section D / 5 marks** (`isObjectiveType` sees MCQ ⇒ grader clamps **0-or-5**; they reach CT/FM Section D) e.g. `MNM2-012` ("What is corrosion?" as a 5-mark long answer), `PL2-021/022`, `TG3-057`, `ABS2-045`; **CLASS (b): ~178 under-stepped D/E solutions** (legitimately 5-mark multi-part items whose `solutionSteps` were never broken out — a DIFFERENT defect, do not conflate). 254/2,211 D+E rows violate CBSE step-marking; 16 topics. **Own PR(s), data-only, class (a) first. NOT folded into a topic-expansion batch** (touches 8 done topics; would wreck an additive byte-review).
+- **[FU-BANK-MCQ-REEXTRACT] (S-M)** — recover the 13 withheld rows from the source papers with **pymupdf** (`pdfplumber` BANNED — it caused this damage). Sources present at `Desktop/diff/cbse-papers/PYQ/X question papers/`; pymupdf verified to extract them with 0 `(cid:` artifacts. Recovered ⇒ delete the id from `WITHHELD_QUESTION_IDS`. **Never guess a distractor.** `PYQ-S-2024-MAG-002` stays withheld regardless (positron = out of syllabus).
+- **[FU-TOPICMATCHES-SUBSTRING-CONFLATION] (S)** — `predictionCore.ts:259` `topicMatches` is `q.includes(r) || r.includes(q)`. Swept all 26 slugs: **exactly one colliding pair, `circles` <-> `areas-related-to-circles`** — both return 456 (= 229 + 227) in QP / Worksheet / TopicHub / dailyMission. **CT/FM immune** (`bankQuery` exact `resolveCanonicalSlugSet`). Not blocking, but **both halves are in the remaining 6 Maths topics** — expect it during QA. Engine file ⇒ another lane.
+- **[FU-REACHABILITY-TEST-SCOPE] (S-M)** — `topickey_runtime_proof.mjs` (this lane's mandatory step 6) asserts bank INTEGRITY only (count>5000, 0 dups, canonical slugs, registry coverage) and **never touches a surface**; it would stay green if a surface stopped sourcing the bank. It hid no bug, but cannot catch the regression class its name implies. Add a surface-sourcing assertion.
+- **[FU-CLAUDEMD-S5-MAGNETIC-STALE] (owner's call — FLAGGED, deliberately NOT edited)** — `CLAUDE.md` §5 calls magnetic-effects deleted/banned. It is a **retained, examined** 2026-27 chapter (13-mark Unit IV) serving 238 live questions, and `syllabusGuard` has no ban entry for it. Almost certainly caused by the official PDF's "Note for Teachers" naming chapter titles loosely; see the lane state for the pattern proof.
+- **[FU-ELEC-001-TOPIC-MISFILE] (XS)** — `PYQ-S-2024-ELEC-001` (force on a current loop near a conductor = magnetic effects) carries `topicKey: electricity`. Now moot in practice (withheld by #438), but fix the topicKey if re-extraction restores it.
+## 2026-07-15 -- #436 OPEN (QP sessions + unique sets + C&I return ticket + type/upload CTA) — ⚠ QR-LANE SEAM (read BEFORE touching SolutionChecker)
+
+### ⚠⚠ SHARED-FILE SEAM — `components/question/SolutionChecker.tsx` (QR lane ↔ this lane)
+The QR desktop→mobile upload lane and #436 are file-disjoint **except this one file**. #436 lands FIRST
+(owner-directed); the QR lane builds on top. The contract, so neither lane edits it blind:
+
+- **#436 OWNS the old L481–586 block** (the hero dropzone + the `▼ Or type your answer instead`
+  disclosure) and has REPLACED it with: a **segmented control** (`type AnswerTab = "upload" | "type"`,
+  `answerTab` state, `role="tablist"`) + an **upload panel** (`answerTab === "upload" && …` guards the
+  dropzone / image preview / PDF indicator) + a **type panel** (`answerTab === "type" && …` mounts the
+  shared `<EquationInput>`). **REBASE ONTO THIS** — do not resurrect the old block.
+- **★ QR ATTACHES INSIDE THE UPLOAD PANEL — NOT AS A THIRD PEER.** A QR handoff produces a FILE: it
+  sets the same `imageBase64` / `imageMimeType` / `imagePreview` / `fileName` / `isPdf` tuple that
+  `handleFileSelect` sets, so it is a **sub-mode of upload**, not a sibling of type-vs-upload.
+  **Why this is a product invariant, not a preference:** the two-peer row is what the owner's
+  screenshot verdict bought (typing was a ~0.72rem borderless link under a ~66px dropzone — ~4.7×
+  the height). At 360px the card's inner width is ~328px → ~162px per CTA against ~105px of label.
+  A THIRD peer drops that to ~105px each and the labels wrap — silently re-breaking the fix.
+- **State QR needs is already local and unchanged:** `setImageBase64` / `setImageMimeType` /
+  `setImagePreview` / `setFileName` / `setIsPdf`. No state refactor is required by either lane.
+  `handleClear` (and `handleRecheck`) must also reset any QR session — both now set
+  `setAnswerTab("upload")`.
+- **`canCheck` + `handleCheck` are now TAB-SCOPED** (`answerTab === "upload" ? hasFile : hasText`).
+  A QR-delivered file lands on the upload tab, so it flows through unchanged — but note the send is
+  now "what you see is what you send", not "an attached file always wins".
+- **NEITHER LANE touches** `src/components/equation/**` (EQUATION_INPUT_API_CONTRACT "one writer per
+  file") or `server/routes/checkSolution.cjs` (the grader).
+- **Already a dependency — do not add one:** `qrcode@^1.5.4` (`lazytopper/package.json`) +
+  `services/referralService.ts` `generateQRDataUrl(text, width)`.
+
+### RESOLVED by #436 (pending merge + owner live-verify)
+- **[FU-QUICK-PRACTICE-DURABLE-SURFACE] — CLOSED by #436.** `SessionSurface` now carries a fifth value
+  `"quick-practice"`; a finished QP set writes a durable record (`QP-{S}-{TOPIC}-{hash8}`) + its
+  perQuestion payload. **LOCKED §1a NARROWLY AMENDED (owner-ratified 2026-07-15):** §1a's COUNTING rule
+  stands untouched — QP feeds progress/MI ONLY via `recordAttempt`; the record is a NON-COUNTING
+  session artifact, excluded structurally by `PROGRESS_COUNTING_SURFACES` at progressStore's two
+  `winRecords` boundaries. The amendment is written into all three files that state the rule.
+  **→ unblocks [FU-TUTOR-READ-QP-RECORD] (below).**
+- **[FU-RETURN-TICKET-CONTRACT] — SUBSTANTIALLY CLOSED by #436; see the correction.** The premise was
+  **STALE**: PracticePage has read + validated + honoured `returnTo` since #428 (`safeReturnTo` →
+  `practiceBackTo`, which puts `returnTo` ABOVE nav-state and the `/practice-hub` default). Only **C&I**
+  was genuinely stranded, and #436 wires it on BOTH shells via one shared `useReturnTicket` +
+  `ReturnTicketStrip` + a prepended `ScorecardAction` (incl. the all-pending branch, which does not use
+  the stacked menu). **The convention is the EXISTING `returnTo` + `backLabel` — no param was minted,
+  and `source` was never reused (it already means pyq/ncert/all on PracticePage).**
+  **Carry-forward → [FU-TUTOR-BACKLABEL] (below).**
+
+### NEW — from #436
+- **[FU-TUTOR-BACKLABEL]** — *the last inch of the tutor's practice leg, and it is ONE LINE in the
+  TUTOR lane's own file.* A tutor-sent student's QP back button already points at
+  `/tutor/10/Maths/trigonometry` — but it reads **"Back"**, not "Back to your tutor", because
+  `backLabel` falls through all four fallback tiers (`routeOut` calls bare `navigate(href)` with no
+  nav-state, and the destination matches neither `/practice-hub` nor `/exam-trends`). Fix: add
+  `backLabel: "Back to your tutor"` to `buildQuickPracticeRoundTripHref` (`pages/tutor/tutorRoundTrip.ts`)
+  — and to `buildCheckImproveRoundTripHref` too, now that C&I honours it (#436). PracticePage needs NO
+  change. Tests use `toContain`, so adding a param breaks nothing. **#436 deliberately did NOT touch
+  `pages/tutor/**` — that is the tutor lane's file.** Pairs with the already-open
+  **[FU-PRACTICE-COUNT-PASSTHROUGH]** (same file, same one-line shape, same PR).
+- **[FU-TUTOR-READ-QP-RECORD]** — now UNBLOCKED by #436's record. The tutor's return detection currently
+  polls the `practiceInsights` attempts stream (`matchReturningAttempts`, `tutorRoundTrip.ts`) *because*
+  QP wrote no record. It can now read the real QP `sessionRecord` + its graded payload instead.
+  ⚠ Two coordinated edits: `tutorSessionStore.ts`'s marker union is its OWN
+  (`"check-improve" | "practice" | "worksheet"`) and `useTutorSession.ts` writes `"practice"` — that
+  string is NOT `SessionSurface`'s `"quick-practice"`, so a naive `r.surface === pending.surface`
+  compare will not match. Tutor lane's call, at its own pace.
+- **[FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE]** — the old copy *"Or add text notes too"* was a **broken
+  promise at BOTH layers**: the client (`hasText && !hasImage`) and `server/routes/checkSolution.cjs`
+  (its prompt branches on `hasImage` and ignores `textAnswer`) each drop typed text whenever an image is
+  attached. Text-alongside-file has never worked. #436 stopped promising it (the segmented control makes
+  the real image-XOR-text behaviour visible); **making it actually work is a grader change** → its own
+  PR, with the two-functions-in-one-file rule in play.
+- **[FU-QP-HISTORY-RAIL]** — QP writes records but has **no history surface**; deliberately deferred from
+  #436 (owner ruling: it is a product feature, not plumbing). **The real design question to rule on with
+  a mockup:** QP's scorecard is **"X of N attempted, never marks/total"** (LOCKED §2.1), so a QP rail
+  **cannot clone ChapterTestHistoryRail's marks `ScoreRing`** — that number would be wrong for QP. This
+  is the one place QP history is not a copy of anything. Container rule points to an **inline rail on
+  PracticePage, filtered to the current canonical topic** (the CT precedent: few records, at the decision
+  moment). `SURFACE_COPY` already carries the compile-forced QP entry (`SurfaceHistory.tsx`), but
+  mounting `SurfaceHistory` would need a `topicKey?` prop + a surface-aware empty state + a
+  surface-aware re-open (it hardcodes `storedWorksheetScorecardVariant`) — i.e. MORE change to shared
+  infra that is live for worksheet.
+- **[FU-SAFE-PATH-VALIDATOR-DUPLICATION]** — the "safe redirects always" doctrine is honoured by
+  **EIGHT copy-pasted validators**, not one helper: `BackToParent.tsx` (strictest — uniquely also
+  rejects `/\` and `\`), `pages/tutor/tutorPath.ts` (**the only EXPORTED one**; #436 reuses it rather
+  than adding a ninth), `DesktopTopicHubPage.tsx`, `PracticePage.tsx` (inline; also the only one that
+  decodes first), `Login.tsx`, `MockBuilder.tsx`, `HighlyProbableQuestions.tsx`,
+  `WorksheetGenerator.tsx`. Promote ONE (harden the exported one with the backslash checks) and migrate.
+  Cheap, but it touches 8 files → its own hygiene PR.
+- **[FU-DELETE-DEAD-PRACTICE-STUB]** — `pages/mobile/MobileAppPracticePage.tsx` is a **dead 25-line stub**
+  ("Practice screen — Task #437") with **ZERO inbound references**, whose doc comment claims **`/app/practice`**
+  — which *looks exactly like* the owner's live QP route. **It is not that route:** QP is
+  `/practice/:grade/:subject` → `PracticePage` (ONE component, both shells; the `/app/` prefix is just
+  `BrowserRouter basename="/app"`). This decoy plausibly caused the earlier Me/Progress desktop-mobile
+  drift. Delete in its own cleanup PR — #436 did not fold a deletion in.
+- **[FU-PROGRESSSTORE-STALE-HEADER] — fixed in passing by #436.** `progressStore.ts`'s header claimed it
+  reads `mockScoreHistory`, which it **never imports**; the real third stream is `mistakeLogService`.
+  Corrected. Logged so the correction is traceable.
+
+### ⚠ OPEN OWNER DECISIONS on #436 (do not merge silently past these)
+1. **No `#NN` on QP codes.** WS/CT/FM/CI all carry a durable `#NN`; QP uses a content hash instead
+   (`QP-{S}-{TOPIC}-{hash8}`) because a counter is stateful and would force the mint-once-before-write
+   dance that a lazily-derived id exists to avoid. A QP session is closer to a log entry (date + topic +
+   "8 of 10 attempted"). Ratify, or ask for `#NN`.
+2. **Section E defaults to the `upload` tab**, matching both shipped C&I controls. Typing is now an equal
+   always-visible peer so it is no longer *hidden* — but if desktop students mostly type, the DEFAULT is
+   a separate product call.
+3. **QP rows now appear in the Me recent strip** (`getRecentSessions` has no surface filter) — the
+   owner-approved display-only exception. Visible on `/me` at live-verify; it is NOT a counting path.
+
+### ⚠ VERIFICATION GAP on #436
+**Vitest was NOT run.** It is linux-pinned — `@rollup/rollup-win32-x64-msvc` is stripped by the
+deliberate `pnpm-workspace.yaml` platform overrides, so it cannot run on a Windows box, and CI runs the
+MATRICES, not the general suite. #436 adds/changes three test files (the QP counts-ONCE property, the
+draw invariant under rotation, the QP service units). **They need ONE Codespace run before merge**
+(`node node_modules/vitest/vitest.mjs run …` — not `pnpm exec`). Everything else is green, incl. CI.
+
 ## 2026-07-15 -- #429 + #430 + #431: SHARED EQUATION INPUT/RENDER INFRA MERGED (trunk `65fdf85`)
 
 ### RESOLVED (infra shipped)
