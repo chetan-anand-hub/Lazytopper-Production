@@ -85,6 +85,11 @@ const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 const ExamTrendsRanked = lazy(() => import("./pages/ExamTrendsRanked"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
+// QR answer handoff — the phone half. Public + bare full-screen ("/u" is in
+// BARE_FULLSCREEN_PREFIXES): the student scans a QR shown on their laptop, sends
+// one photo of their written answer, and it lands in the desktop session. No login
+// on the phone by design — the one-time token is the capability.
+const QrAnswerUploadPage = lazy(() => import("./pages/QrAnswerUploadPage"));
 // PR-E2a — ONE responsive worksheet generator (replaces the desktop + mobile
 // twins DesktopWorksheetsPage + app/Worksheets). Renders at every width; App
 // wraps it in DesktopShell at desktop width (isDesktopShellRoute) and the global
@@ -268,7 +273,7 @@ function MobileSelfChrome({
  * A prefix list so Full Mock (`/full-mock`) can join later with one entry. Exported as a
  * pure predicate for unit testing.
  */
-const BARE_FULLSCREEN_PREFIXES = ["/chapter-test", "/full-mock", "/tutor"] as const;
+const BARE_FULLSCREEN_PREFIXES = ["/chapter-test", "/full-mock", "/tutor", "/u"] as const;
 export function isBareFullScreenRoute(pathname: string): boolean {
   return BARE_FULLSCREEN_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -1143,6 +1148,12 @@ export default function App() {
               </RequireAuth>
             }
           />
+
+          {/* QR answer handoff (phone). Public BY DESIGN — the phone is a different
+              device where the student isn't signed in, and a login wall mid-flow is
+              the friction this removes. The one-time token authorises it: 256-bit,
+              5-minute, single-use, write-only, scoped to one slot. */}
+          <Route path="/u/:token" element={withRouteSuspense(<QrAnswerUploadPage />)} />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<HomeRedirect />} />
