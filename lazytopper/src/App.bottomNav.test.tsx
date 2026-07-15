@@ -199,11 +199,19 @@ describe("isBareFullScreenRoute (bare full-screen chrome-suppression gate — CT
     expect(isBareFullScreenRoute("/tutor/10/Maths/trigonometry")).toBe(true);
   });
 
+  it("is true for /u/:token (QR answer handoff — the phone page owns its whole viewport)", () => {
+    expect(isBareFullScreenRoute("/u")).toBe(true);
+    expect(isBareFullScreenRoute("/u/AbC123_xyz-TOKEN")).toBe(true);
+  });
+
   it("is false for other routes (including near-miss prefixes)", () => {
     expect(isBareFullScreenRoute("/")).toBe(false);
     expect(isBareFullScreenRoute("/practice-hub")).toBe(false);
     expect(isBareFullScreenRoute("/chapter-tests")).toBe(false); // not the /chapter-test/ boundary
     expect(isBareFullScreenRoute("/full-mocks")).toBe(false); // not the /full-mock/ boundary
     expect(isBareFullScreenRoute("/tutors")).toBe(false); // not the /tutor/ boundary
+    // "/u" is a very short prefix — prove it cannot swallow unrelated routes.
+    expect(isBareFullScreenRoute("/upload")).toBe(false);
+    expect(isBareFullScreenRoute("/users")).toBe(false);
   });
 });

@@ -129,6 +129,11 @@ const { pickFromPool, markServed, saveToPool } = require('./services/generatedQu
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
+// QR answer handoff — carries ONE photo from the student's phone into the desktop
+// session they are already in. DELIVERY ONLY: the image lands in the existing answer
+// box and grades exactly as today; nothing here touches the grader.
+const { createQrUploadChannel } = require('./services/qrUploadChannel.cjs');
+const { createQrUploadRoutes } = require('./routes/qrUpload.cjs');
 // Tutor surface (Stage 1) — FRESH engine (D-TUT-12), NOT mentor.cjs. Stateless
 // conversation endpoint; writes nothing to Firestore (honesty guard, D-TUT-8).
 const { createTutorRoute } = require('./routes/tutor.cjs');
@@ -262,6 +267,11 @@ const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
 // C&I PR-3 (Gate 2b): admin-gated eviction/regeneration for the model-solution
 // cache — ADMIN_FIREBASE_UIDS Bearer-token identity, fail-closed (see the route).
 const adminSolutionCacheRoutes = createAdminSolutionCacheRoutes(routeDeps);
+// QR answer handoff. Firestore coordination doc + Storage blob, both written
+// server-side via firebase-admin — no client ever touches either, which is why the
+// deny-all rules on both are correct and unchanged.
+const qrUploadChannel = createQrUploadChannel(routeDeps);
+const qrUploadRoutes = createQrUploadRoutes({ ...routeDeps, qrUploadChannel });
 const tutorRoute = createTutorRoute(routeDeps);
 
 async function handleRequest(req, res) {
@@ -297,6 +307,10 @@ async function handleRequest(req, res) {
       reqPath === '/api/user/progress/mastery' ||
       reqPath === '/api/user/progress/mission' ||
       reqPath === '/api/ai-questions' ||
+      reqPath === '/api/qr-upload/new' ||
+      /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
+      /^\/api\/qr-upload\/[^/]+\/status$/.test(reqPath) ||
+      /^\/api\/qr-upload\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
@@ -327,6 +341,27 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'GET' && String(req.url || '').startsWith('/api/shared-report')) {
     return shareRoutes.handleSharedReport(req, res, SHARE_SECRET);
+  }
+
+  // ── QR answer handoff ────────────────────────────────────────────────────────
+  // ORDER IS LOAD-BEARING: '/api/qr-upload/new' must be matched BEFORE the
+  // POST token pattern, or the literal "new" would be parsed as an upload token.
+  if (req.method === 'POST' && reqPath === '/api/qr-upload/new') {
+    return qrUploadRoutes.handleMint(req, res);
+  }
+  {
+    const qrPickupMatch = reqPath.match(/^\/api\/qr-upload\/pickup\/([^/]+)$/);
+    if (req.method === 'GET' && qrPickupMatch) {
+      return qrUploadRoutes.handlePickup(req, res, qrPickupMatch[1]);
+    }
+    const qrStatusMatch = reqPath.match(/^\/api\/qr-upload\/([^/]+)\/status$/);
+    if (req.method === 'GET' && qrStatusMatch) {
+      return qrUploadRoutes.handleStatus(req, res, qrStatusMatch[1]);
+    }
+    const qrUploadMatch = reqPath.match(/^\/api\/qr-upload\/([^/]+)$/);
+    if (req.method === 'POST' && qrUploadMatch) {
+      return qrUploadRoutes.handleUpload(req, res, qrUploadMatch[1]);
+    }
   }
 
   if (req.method === 'GET' && (req.url === '/health' || req.url === '/api/health')) {
