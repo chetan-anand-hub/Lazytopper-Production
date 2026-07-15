@@ -2,6 +2,24 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-15 — TUTOR STAGE 2 COMPLETE + OWNER LIVE-VERIFIED (#428 + fixes #432, `65fdf85`) — the round-trip works end-to-end
+
+The fresh-engine tutor's 3-stage staged build (Flow v2) advances: **Stage 1 (chat shell, #425/#426) and Stage 2 (the
+round-trip, #428 + the six owner-verified fixes #432) are both LIVE behind `/tutor` (premium-gated) and owner-live-verified
+incl. 360px.** Stage 2 delivers the durable `tutorSessions/{uid}` session (survives close/reopen — real continuity memory)
+and the round-trip: the tutor routes OUT to Quick Practice (concept-filtered, returns via `practiceInsights`) / Check &
+Improve (returns via `sessionRecords`) and receives the student BACK into the SAME thread with a reframed opener. #432
+fixed the six #428-preview bugs: Quick-Practice routing (not the worksheet builder), banner-clears-on-return, ONE
+intent-driven CTA via the `[[offer:…]]` sentinel (server-stripped), verified-bank-question demonstrations, full equation
+wrapping in the prompt, C&I leg intact. Fresh engine throughout (D-TUT-12); honesty guard structural (reads
+`practiceInsights`/`sessionRecords`, never writes a grade).
+
+- **Remaining = Stage 3 (explanation-panel visuals):** the `conceptVisualCatalogue` (D-TUT-14) + matcher fix (D-TUT-15) +
+  `NcertPageModal` reuse + interactive-as-enrichment + the AI-gen gap-fill cache (D-TUT-16). A SEPARATE dispatch with a
+  fresh brief — do NOT start unprompted. Then the cleanup: retire the old engine files ([FU-TUTOR-LEGACY-RETIRE]).
+- These fresh-tutor stages supersede the old-tutor roadmap items below (PR-C `concept_teach`/TeachFlow, PR-D.1 mobile
+  toggle) — kept as historical record.
+
 ## 2026-07-13 — FINAL MOBILE-PARITY SWEEP MERGED + OWNER LIVE-VERIFIED (#423, `a8f36ab`) — the one-product-one-website mobile-chrome stage is COMPLETE
 
 The pre-launch mobile-chrome cleanup pass ([FU-MOBILE-OLD-HEADER-STRAGGLERS], opened by #416 item E) is DONE: **no live
