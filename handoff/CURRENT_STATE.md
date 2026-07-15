@@ -1,6 +1,6 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #435 merged + OWNER LIVE-VERIFIED — MATHTEXT COMMAND CORRUPTION CLOSED: protect-then-promote — trunk `fd57db1`
+## #435 merged + OWNER LIVE-VERIFIED — MATHTEXT COMMAND CORRUPTION CLOSED: protect-then-promote — trunk `fd57db1`
 
 **Post-merge trunk: `fd57db1` (squash of #435) on top of `64a1d69` (tutor visual catalogue + Fable concept-figure curation, parked for Stage 3) and `2ae80ce` (skill: evidence standard + inference-trap rules) — both landed mid-lane, so #435 needed an update-branch before merge. This docs-only PR (`docs/post-pr-435-mathtext-command-corruption`) records the merge. Re-derive the tip after it merges (the usual one-commit lag). NOTE: the tip moved TWICE during this lane — never trust a written SHA.**
 
@@ -19,6 +19,24 @@
 - **Gates:** tsc · mojibake · scope:guard product · root matrix **181/181** · lazytopper ops matrix 8/8 · `git diff --check` clean · **CI quality-gate green** (incl. the linux build) · lane-overlap green. **vitest NOT run — it is NOT gated anywhere → [FU-CI-GATE-VITEST].** Local stand-in: the **real** promote code, mechanically extracted from the committed file, run under Node 22 type-stripping against a **29-case corpus — all green**. Reports: `Desktop/diff/report-mathtext-command-corruption-{preflight,pr435}-2026-07-15.md`.
 - **★ NEW [FU-CI-GATE-VITEST] — FOUR vitest suites exist and NONE run: `MathText.test.tsx` (shared renderer), `EquationInput.test.tsx` (equation widget), `tutorRoundTrip.test.ts` (tutor round-trip), `WorksheetPrintDoc.test.tsx` (worksheet print doc).** `quality-gate.yml` = root guard matrix → mojibake → build → ops matrix. **No vitest.** The prior "vitest runs in CI" claim was a misread of the **root** matrix — Node's **built-in** runner printing `# tests 181 / # pass 181`, which scrolls past looking exactly like a suite. **A test that never executes is decoration. Fix before soft launch.** Also new: [FU-MATHTEXT-MULTILETTER-BASE], [FU-MATHTEXT-RENDER-GATE-RATIONALE] (do NOT delete `katexCanRender` as redundant).
 - **NEXT = nothing from this lane; it is CLOSED.** Three lanes are live and file-disjoint: **QP-sessions (#436, being widened with the fetch fix)** · **QR desktop→mobile upload** · **Fable bank expansion**. Do NOT start anything new here.
+## [CURRENT] #438 merged — bank data-quality: [FU-BANK-UNRESOLVABLE-MCQ-KEYS] CLOSED (13 rows withheld, not 34; ZERO were key-fixes) — base trunk `a5691a7`
+
+**PR #438 (`fix/desktop-pr-mcq-key-repair`, worktree-isolated, branched from live trunk `a5691a7`). 1 file, +29/-1, data-only. Awaiting owner byte-review + merge (`src/data/**` is CODEOWNERS — never self-merged).** First of the bank-completion sequence: MCQ repair -> then 4 expansion PRs (3 topics each).
+
+- **13, not 34.** Derived live over the 8,597 bank through the REAL grader module (`server/routes/objectiveScoring.cjs`), not a re-implementation. The "34" came from an exact trim+lowercase scan; the real contract (`normaliseOption` + letter<->text bridging + >=3-char partial match) forgives 21. **Standing lesson: derive against the real consuming module.**
+- **SEVERITY CORRECTION (the recorded claim was FALSE).** "A student who picks the CORRECT option is scored WRONG" never happens: server `scoreObjective` returns `resolved:false` and defers to the model's binary verdict; client `PracticeQuestionCard` skips the scoring branch entirely when `correctIdx < 0`. **True symptom: garbled options + SILENTLY NEVER SCORES** — a dead question, not a mis-scored one.
+- **ALL 13 WITHHELD; ZERO key-fixes.** An interim "~4 key-fixes" estimate (from 160-char previews) was WRONG — at full fidelity every row has destroyed OPTIONS too, so a key-only repair leaves it unanswerable and authoring distractors would FABRICATE a PYQ. 2 figure-dependent; 1 (`PYQ-S-2024-MAG-002`, positron) fails the syllabus gate. Bank 8,597 -> **8,584**. Bodies kept INTACT for **[FU-BANK-MCQ-REEXTRACT]** (pymupdf; `pdfplumber` BANNED).
+- **CI landmine cleared** (`fullMockBlueprint.test.ts` key-resolves assertion passed only by seed luck; 0 unresolvable keys remain). **`CBE-S-MAGN-A-001` HOLD CLOSED** (a scan artefact, never a defect). **168 no-options rows CLOSED** (legitimate 1-mark VSA).
+- **Gates @ `4009ef7`:** tsc - mojibake - scope:guard product - root **181/181** - ops matrix - **step-6 runtime proof 8,584 / 0 dup / 0 orphan / 26-of-26** - diff --check clean. Forbidden files byte-untouched (`predictionTypes.ts`, `checkSolution.cjs`, `objectiveScoring.cjs`, `syllabusGuard.ts`).
+
+**Also verified this session (details in `handoff/BANK_EXPANSION_LANE_STATE.md`):**
+- **REACHABILITY: all four surfaces source the canonical bank. [FU-QP-WORKSHEET-BANK-SOURCING] WITHDRAWN — premise disproven.** QP + Worksheet reach it one transitive hop below their direct imports (`practiceSetGenerator`/`predictionDataService` -> `PredictionCore` -> `unifiedQuestionBank` includes `canonicalQuestionBank`); proven by calling the real fns (10/10, 8/8 canonical). **The expansion IS visible to students.**
+- **Owner's live "cosec 60°" bug ROOT-CAUSED -> [FU-BANK-SCARCE-BAND-MISBANDING].** `TG3-056` is a CANONICAL BANK ROW (D/5mk/Easy) — the bank is served faithfully; the BANK is wrong. **76 objective-format rows (MCQ/AR, 4 options) at section D / 5 marks** (grader clamps 0-or-5, reaches CT/FM Section D) + ~178 under-stepped D/E solutions, over 16 topics. Own PR(s), pre-launch, class (a) first.
+- **RULING: magnetic-effects is RETAINED & EXAMINED (Unit IV = 13 marks); Motor / Electromagnetic Induction / Electric Generator are OUT of board-prep** (official 2026-27 PDF, pymupdf-extracted: assessed "only formatively... without adding to summative assessments"). The "Note for Teachers" trap that caused the original wrongful drop is documented. **`CLAUDE.md` §5 is STALE — FLAGGED, not edited (owner's call).**
+- New: **[FU-TOPICMATCHES-SUBSTRING-CONFLATION]** (`circles` <-> `areas-related-to-circles`, the only colliding pair of 26 — both in the remaining Maths set) - **[FU-REACHABILITY-TEST-SCOPE]** (step 6 asserts bank integrity, never surface sourcing).
+- **PACKAGING RATIFIED: 3 topics per PR (4 PRs)**, not 2 PRs of 6 — owner byte-review caught real syllabus errors in 2 of 11 batches that skeptics + gates passed; diff size is the remaining variable.
+
+Reports: `Desktop/diff/report-bank-completion-scope-2026-07-15.md` + `report-reachability-and-ruling1-evidence-2026-07-15.md`.
 
 ## #432 merged + OWNER LIVE-VERIFIED — TUTOR STAGE 2 COMPLETE: the six round-trip fixes — trunk `65fdf85`
 
