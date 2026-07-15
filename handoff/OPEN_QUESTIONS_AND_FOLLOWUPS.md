@@ -14,6 +14,121 @@
 - **[FU-REACHABILITY-TEST-SCOPE] (S-M)** — `topickey_runtime_proof.mjs` (this lane's mandatory step 6) asserts bank INTEGRITY only (count>5000, 0 dups, canonical slugs, registry coverage) and **never touches a surface**; it would stay green if a surface stopped sourcing the bank. It hid no bug, but cannot catch the regression class its name implies. Add a surface-sourcing assertion.
 - **[FU-CLAUDEMD-S5-MAGNETIC-STALE] (owner's call — FLAGGED, deliberately NOT edited)** — `CLAUDE.md` §5 calls magnetic-effects deleted/banned. It is a **retained, examined** 2026-27 chapter (13-mark Unit IV) serving 238 live questions, and `syllabusGuard` has no ban entry for it. Almost certainly caused by the official PDF's "Note for Teachers" naming chapter titles loosely; see the lane state for the pattern proof.
 - **[FU-ELEC-001-TOPIC-MISFILE] (XS)** — `PYQ-S-2024-ELEC-001` (force on a current loop near a conductor = magnetic effects) carries `topicKey: electricity`. Now moot in practice (withheld by #438), but fix the topicKey if re-extraction restores it.
+## 2026-07-15 -- #436 OPEN (QP sessions + unique sets + C&I return ticket + type/upload CTA) — ⚠ QR-LANE SEAM (read BEFORE touching SolutionChecker)
+
+### ⚠⚠ SHARED-FILE SEAM — `components/question/SolutionChecker.tsx` (QR lane ↔ this lane)
+The QR desktop→mobile upload lane and #436 are file-disjoint **except this one file**. #436 lands FIRST
+(owner-directed); the QR lane builds on top. The contract, so neither lane edits it blind:
+
+- **#436 OWNS the old L481–586 block** (the hero dropzone + the `▼ Or type your answer instead`
+  disclosure) and has REPLACED it with: a **segmented control** (`type AnswerTab = "upload" | "type"`,
+  `answerTab` state, `role="tablist"`) + an **upload panel** (`answerTab === "upload" && …` guards the
+  dropzone / image preview / PDF indicator) + a **type panel** (`answerTab === "type" && …` mounts the
+  shared `<EquationInput>`). **REBASE ONTO THIS** — do not resurrect the old block.
+- **★ QR ATTACHES INSIDE THE UPLOAD PANEL — NOT AS A THIRD PEER.** A QR handoff produces a FILE: it
+  sets the same `imageBase64` / `imageMimeType` / `imagePreview` / `fileName` / `isPdf` tuple that
+  `handleFileSelect` sets, so it is a **sub-mode of upload**, not a sibling of type-vs-upload.
+  **Why this is a product invariant, not a preference:** the two-peer row is what the owner's
+  screenshot verdict bought (typing was a ~0.72rem borderless link under a ~66px dropzone — ~4.7×
+  the height). At 360px the card's inner width is ~328px → ~162px per CTA against ~105px of label.
+  A THIRD peer drops that to ~105px each and the labels wrap — silently re-breaking the fix.
+- **State QR needs is already local and unchanged:** `setImageBase64` / `setImageMimeType` /
+  `setImagePreview` / `setFileName` / `setIsPdf`. No state refactor is required by either lane.
+  `handleClear` (and `handleRecheck`) must also reset any QR session — both now set
+  `setAnswerTab("upload")`.
+- **`canCheck` + `handleCheck` are now TAB-SCOPED** (`answerTab === "upload" ? hasFile : hasText`).
+  A QR-delivered file lands on the upload tab, so it flows through unchanged — but note the send is
+  now "what you see is what you send", not "an attached file always wins".
+- **NEITHER LANE touches** `src/components/equation/**` (EQUATION_INPUT_API_CONTRACT "one writer per
+  file") or `server/routes/checkSolution.cjs` (the grader).
+- **Already a dependency — do not add one:** `qrcode@^1.5.4` (`lazytopper/package.json`) +
+  `services/referralService.ts` `generateQRDataUrl(text, width)`.
+
+### RESOLVED by #436 (pending merge + owner live-verify)
+- **[FU-QUICK-PRACTICE-DURABLE-SURFACE] — CLOSED by #436.** `SessionSurface` now carries a fifth value
+  `"quick-practice"`; a finished QP set writes a durable record (`QP-{S}-{TOPIC}-{hash8}`) + its
+  perQuestion payload. **LOCKED §1a NARROWLY AMENDED (owner-ratified 2026-07-15):** §1a's COUNTING rule
+  stands untouched — QP feeds progress/MI ONLY via `recordAttempt`; the record is a NON-COUNTING
+  session artifact, excluded structurally by `PROGRESS_COUNTING_SURFACES` at progressStore's two
+  `winRecords` boundaries. The amendment is written into all three files that state the rule.
+  **→ unblocks [FU-TUTOR-READ-QP-RECORD] (below).**
+- **[FU-RETURN-TICKET-CONTRACT] — SUBSTANTIALLY CLOSED by #436; see the correction.** The premise was
+  **STALE**: PracticePage has read + validated + honoured `returnTo` since #428 (`safeReturnTo` →
+  `practiceBackTo`, which puts `returnTo` ABOVE nav-state and the `/practice-hub` default). Only **C&I**
+  was genuinely stranded, and #436 wires it on BOTH shells via one shared `useReturnTicket` +
+  `ReturnTicketStrip` + a prepended `ScorecardAction` (incl. the all-pending branch, which does not use
+  the stacked menu). **The convention is the EXISTING `returnTo` + `backLabel` — no param was minted,
+  and `source` was never reused (it already means pyq/ncert/all on PracticePage).**
+  **Carry-forward → [FU-TUTOR-BACKLABEL] (below).**
+
+### NEW — from #436
+- **[FU-TUTOR-BACKLABEL]** — *the last inch of the tutor's practice leg, and it is ONE LINE in the
+  TUTOR lane's own file.* A tutor-sent student's QP back button already points at
+  `/tutor/10/Maths/trigonometry` — but it reads **"Back"**, not "Back to your tutor", because
+  `backLabel` falls through all four fallback tiers (`routeOut` calls bare `navigate(href)` with no
+  nav-state, and the destination matches neither `/practice-hub` nor `/exam-trends`). Fix: add
+  `backLabel: "Back to your tutor"` to `buildQuickPracticeRoundTripHref` (`pages/tutor/tutorRoundTrip.ts`)
+  — and to `buildCheckImproveRoundTripHref` too, now that C&I honours it (#436). PracticePage needs NO
+  change. Tests use `toContain`, so adding a param breaks nothing. **#436 deliberately did NOT touch
+  `pages/tutor/**` — that is the tutor lane's file.** Pairs with the already-open
+  **[FU-PRACTICE-COUNT-PASSTHROUGH]** (same file, same one-line shape, same PR).
+- **[FU-TUTOR-READ-QP-RECORD]** — now UNBLOCKED by #436's record. The tutor's return detection currently
+  polls the `practiceInsights` attempts stream (`matchReturningAttempts`, `tutorRoundTrip.ts`) *because*
+  QP wrote no record. It can now read the real QP `sessionRecord` + its graded payload instead.
+  ⚠ Two coordinated edits: `tutorSessionStore.ts`'s marker union is its OWN
+  (`"check-improve" | "practice" | "worksheet"`) and `useTutorSession.ts` writes `"practice"` — that
+  string is NOT `SessionSurface`'s `"quick-practice"`, so a naive `r.surface === pending.surface`
+  compare will not match. Tutor lane's call, at its own pace.
+- **[FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE]** — the old copy *"Or add text notes too"* was a **broken
+  promise at BOTH layers**: the client (`hasText && !hasImage`) and `server/routes/checkSolution.cjs`
+  (its prompt branches on `hasImage` and ignores `textAnswer`) each drop typed text whenever an image is
+  attached. Text-alongside-file has never worked. #436 stopped promising it (the segmented control makes
+  the real image-XOR-text behaviour visible); **making it actually work is a grader change** → its own
+  PR, with the two-functions-in-one-file rule in play.
+- **[FU-QP-HISTORY-RAIL]** — QP writes records but has **no history surface**; deliberately deferred from
+  #436 (owner ruling: it is a product feature, not plumbing). **The real design question to rule on with
+  a mockup:** QP's scorecard is **"X of N attempted, never marks/total"** (LOCKED §2.1), so a QP rail
+  **cannot clone ChapterTestHistoryRail's marks `ScoreRing`** — that number would be wrong for QP. This
+  is the one place QP history is not a copy of anything. Container rule points to an **inline rail on
+  PracticePage, filtered to the current canonical topic** (the CT precedent: few records, at the decision
+  moment). `SURFACE_COPY` already carries the compile-forced QP entry (`SurfaceHistory.tsx`), but
+  mounting `SurfaceHistory` would need a `topicKey?` prop + a surface-aware empty state + a
+  surface-aware re-open (it hardcodes `storedWorksheetScorecardVariant`) — i.e. MORE change to shared
+  infra that is live for worksheet.
+- **[FU-SAFE-PATH-VALIDATOR-DUPLICATION]** — the "safe redirects always" doctrine is honoured by
+  **EIGHT copy-pasted validators**, not one helper: `BackToParent.tsx` (strictest — uniquely also
+  rejects `/\` and `\`), `pages/tutor/tutorPath.ts` (**the only EXPORTED one**; #436 reuses it rather
+  than adding a ninth), `DesktopTopicHubPage.tsx`, `PracticePage.tsx` (inline; also the only one that
+  decodes first), `Login.tsx`, `MockBuilder.tsx`, `HighlyProbableQuestions.tsx`,
+  `WorksheetGenerator.tsx`. Promote ONE (harden the exported one with the backslash checks) and migrate.
+  Cheap, but it touches 8 files → its own hygiene PR.
+- **[FU-DELETE-DEAD-PRACTICE-STUB]** — `pages/mobile/MobileAppPracticePage.tsx` is a **dead 25-line stub**
+  ("Practice screen — Task #437") with **ZERO inbound references**, whose doc comment claims **`/app/practice`**
+  — which *looks exactly like* the owner's live QP route. **It is not that route:** QP is
+  `/practice/:grade/:subject` → `PracticePage` (ONE component, both shells; the `/app/` prefix is just
+  `BrowserRouter basename="/app"`). This decoy plausibly caused the earlier Me/Progress desktop-mobile
+  drift. Delete in its own cleanup PR — #436 did not fold a deletion in.
+- **[FU-PROGRESSSTORE-STALE-HEADER] — fixed in passing by #436.** `progressStore.ts`'s header claimed it
+  reads `mockScoreHistory`, which it **never imports**; the real third stream is `mistakeLogService`.
+  Corrected. Logged so the correction is traceable.
+
+### ⚠ OPEN OWNER DECISIONS on #436 (do not merge silently past these)
+1. **No `#NN` on QP codes.** WS/CT/FM/CI all carry a durable `#NN`; QP uses a content hash instead
+   (`QP-{S}-{TOPIC}-{hash8}`) because a counter is stateful and would force the mint-once-before-write
+   dance that a lazily-derived id exists to avoid. A QP session is closer to a log entry (date + topic +
+   "8 of 10 attempted"). Ratify, or ask for `#NN`.
+2. **Section E defaults to the `upload` tab**, matching both shipped C&I controls. Typing is now an equal
+   always-visible peer so it is no longer *hidden* — but if desktop students mostly type, the DEFAULT is
+   a separate product call.
+3. **QP rows now appear in the Me recent strip** (`getRecentSessions` has no surface filter) — the
+   owner-approved display-only exception. Visible on `/me` at live-verify; it is NOT a counting path.
+
+### ⚠ VERIFICATION GAP on #436
+**Vitest was NOT run.** It is linux-pinned — `@rollup/rollup-win32-x64-msvc` is stripped by the
+deliberate `pnpm-workspace.yaml` platform overrides, so it cannot run on a Windows box, and CI runs the
+MATRICES, not the general suite. #436 adds/changes three test files (the QP counts-ONCE property, the
+draw invariant under rotation, the QP service units). **They need ONE Codespace run before merge**
+(`node node_modules/vitest/vitest.mjs run …` — not `pnpm exec`). Everything else is green, incl. CI.
 
 ## 2026-07-15 -- #429 + #430 + #431: SHARED EQUATION INPUT/RENDER INFRA MERGED (trunk `65fdf85`)
 
