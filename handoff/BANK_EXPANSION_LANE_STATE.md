@@ -76,6 +76,43 @@ A fresh subagent independently re-solves every question, checks answer-consisten
 + in-syllabus + not-a-near-dup + (figure matches, if any). Any failure → reject (re-do or drop). Log reasons.
 
 ## Open follow-ups
+- **★ [FU-BANK-SCARCE-BAND-MISBANDING] (NEW 2026-07-15 — pre-launch; the owner's live QP bug)** — the bank itself
+  carries mis-banded scarce-band rows. **Trigger:** the owner saw a 5-mark "Section D / Easy" question that was just
+  *"Find the value of cosec 60°"*. **Diagnosis: `trigonometry.pack3.ts:1478` (`TG3-056`) is a CANONICAL BANK ROW**
+  (`section:"D", marks:5, difficulty:"Easy"`, 3 steps) — **QP is serving the bank faithfully; the BANK is wrong.**
+  (The initial hypothesis "QP serves a legacy AI-generated set" was disproven — see the REACHABILITY section.)
+  Quantified over the 8,597 bank vs CBSE step-marking (CLAUDE.md §13: A=1 B=2 C=3 D=5 E=4 steps):
+  - `section`/`marks` NEVER disagree (0 mismatches) ⇒ this is content-vs-band, not a structural bug.
+  - **254 of 2,211** D+E rows have FEWER `solutionSteps` than their section requires (11.5%); **106** D rows have ≤2.
+  - **CLASS (a) — 76 rows UNAMBIGUOUSLY WRONG-BAND (do FIRST, it is a scoring defect):** `format: MCQ` or
+    `Assertion-Reasoning` with **4 populated options**, at **section D / 5 marks**. An MCQ is by definition a 1-mark
+    Section-A item. `isObjectiveType` sees `format:"MCQ"` ⇒ the grader **clamps 0-or-5 marks**, and they reach CT/FM
+    Section D. Examples: `MNM2-012` (5-mark "long answer" = 4-option MCQ *"What is corrosion?"*), `PL2-021/022`
+    (Assertion-Reasoning at 5 marks), `TG3-057`, `ABS2-045`. Spread over **16 topics** (trigonometry 13, metals 8,
+    life-processes 7, real-numbers 7, carbon 6 …).
+  - **CLASS (b) — ~178 under-stepped D/E solutions (separate, later):** legitimately 5-mark multi-part questions
+    (e.g. `SCQ-S-CHEM-035` "Write balanced chemical equations for… a… b… c…") whose `solutionSteps` were never broken
+    out. Right band, incomplete solution. **A different defect — do not conflate with (a).**
+  **Own PR(s), data-only, NOT folded into a topic-expansion batch** (it touches 8 already-done topics and would wreck
+  the byte-review of an additive expansion). **Owner-endorsed baseline rule:** report expansion before/after on the
+  RAW census (consistent with prior batches) and flag the step-compliant subset SEPARATELY — **never silently restate
+  a baseline** (e.g. trigonometry D 61 → ~51 compliant; statistics D 28 → ~11 is exactly the kind of quiet number
+  change that corrupts the lane's history).
+- **★ [FU-TOPICMATCHES-SUBSTRING-CONFLATION] (NEW 2026-07-15 — hits the Maths batch)** — `predictionCore.ts:259`
+  `topicMatches` is `q.includes(r) || r.includes(q)` — a SUBSTRING match over `normaliseTopic` (which strips
+  hyphens). Swept all 26 `topics.ts` slugs: **exactly ONE colliding pair — `circles` ↔ `areas-related-to-circles`**
+  ("areasrelatedtocircles".includes("circles")). Both return **456 = 229 + 227**, i.e. each topic serves the other's
+  questions in **QP / Worksheet / TopicHub / dailyMission**. **CT/FM are IMMUNE** (`bankQuery.ts:41-45` uses exact
+  `resolveCanonicalSlugSet`). **Does NOT block the expansion** (the bank is the source of truth), **but BOTH halves
+  are in the remaining 6 Maths topics** — expect this while QA'ing Circles / Areas-Related-to-Circles. Engine file ⇒
+  another lane's fix.
+- **★ [FU-REACHABILITY-TEST-SCOPE] (NEW 2026-07-15 — standing validation hole)** —
+  `lazytopper/scripts/ops/topickey_runtime_proof.mjs` (this lane's MANDATORY step 6) asserts only: count > 5000 ·
+  0 duplicate ids · every `topicKey` ∈ `topics.ts` slugs · registry coverage. **It imports `canonicalQuestionBank`
+  DIRECTLY and never touches a surface.** "Reachable" there means *"this topicKey is a canonical slug"* — **bank
+  INTEGRITY, not surface sourcing.** It would pass identically if a surface stopped sourcing the bank, so it cannot
+  catch the regression class its name implies (it did NOT hide a bug — all four surfaces are verified reachable).
+  Fix = assert each live surface's sourcing fn returns canonical rows. Engine-adjacent test code ⇒ another lane.
 - **[FU-DBAND-PEDAGOGICAL-FLOOR]** — a uniform Section-D (5-mark) floor of 50 is pedagogically unnatural for
   thin chapters (Real Numbers, Probability, Human-Eye) that CBSE rarely sets 5-mark items on. Authored D-band
   items for these are multi-part-constructed to earn 5 marks honestly, but the owner may prefer a lower D
@@ -196,33 +233,90 @@ life-processes 75 A/B/C vs real-numbers 23 = real reservoir depth.
   Batch 10 + triangles/coordinate-geometry/metals (Batch 11) = 14 distinct.) **12 topics remain — exactly half the bank left =
   4 more 3-topic batches (6 Maths + 6 Science).**
 
-## BEFORE-LAUNCH CORRECTIVE (tracked, SEPARATE from topic expansion — do NOT bury under Batch 7)
-### [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — 34 bank MCQs whose `answer` matches NO option
-A full-bank scan (CT-balanced-mix task, 2026-07-13) found **34 MCQs whose `answer` string resolves to no option**
-under the grader's exact-norm (trim+lowercase) contract → a student who picks the CORRECT option is scored WRONG.
-Any drawn into CT/FT Section A can never be scored correct. This is PRE-EXISTING bank data (distinct from the
-already-repaired [FU-BANK-CORRUPT-KEYS] population in `docs/objective-answer-key-review-queue.md`).
-**Full 34-ID list + failure-class breakdown: `C:\Users\Chetan\OneDrive\Desktop\diff\report-ct-balanced-mix-2026-07-13.md` (§FINDING).**
-Failure classes + fix rule:
-- **AR letter-code answers** (`"A"` / `"D. A is false, R is true."`) vs the four full-text AR statements → set
-  `answer` to the exact full OPTION TEXT. 6 of the 34 are `REP2-*` AR items (REP2-014,018,019,040,042,043) — these
-  are PRE-EXISTING `reproduction.pack2` rows, NOT the Batch-5 expansion (my Batch-5 used `BX-REP-*` ids with the gate
-  enforcing `answer`=exact option text; the report's "from Batch 5" is a misattribution). The expansion authoring
-  template already enforces this rule — the fix is to the legacy REP2 pack.
-- **PYQ extraction artifacts** — trailing marks digit / MS reference swept into the key (`"30-40 1"`, `"96° 1"`,
-  `"8.4 cm 1 MS_X_..."`), spacing/format (`"1 : 2"` vs `"1:2"`, `"2:7 1"` vs `"2 : 7"`) → normalize the key to
-  match an option.
-- **Marking-scheme boilerplate / malformed questions** (PYQ-S-2024-ELEC-001, -MAG-002, -LIGHT-001, -METAL-002 whose
-  options are question parts) + **mangled-glyph / duplicate-junk options** (PYQ-M-PROB-002/003/005/006/008/010,
-  PYQ-M-ARC-003, PYQ-M-QE-001, PYQ-M-TRI-001/003, …) → normalize where recoverable; **WITHHELD_QUESTION_IDS** any
-  genuinely unresolvable.
-- **HOLD for owner adjudication (2 of 34):** CBE-S-MAGN-A-001 + PYQ-S-2024-MAG-002 sit under
-  `magnetic-effects-of-electric-current` — CLAUDE.md §5 calls magnetic-effects deleted/banned yet the guard matrix
-  passes with them present (spec §5 vs syllabusGuard policy). Owner decides; do NOT act unilaterally.
-- **Latent CI landmine:** `fullMockBlueprint.test.ts` carries a strict key-resolves assertion that passes only
-  because the seeded draw misses the bad keys — fixing the 34 (or relaxing that assertion) is part of this FU.
-This is a data-quality corrective (same spirit as [FU-BANK-EXACTNORM-DUPS] and the SCQ-S-HERED-041 evolution leak),
-run as its OWN small PR before launch — NOT folded into a topic-expansion batch.
+## BEFORE-LAUNCH CORRECTIVE (tracked, SEPARATE from topic expansion)
+### [FU-BANK-UNRESOLVABLE-MCQ-KEYS] — **CLOSED 2026-07-15 by PR #438** (13 rows withheld, not 34)
+**RESOLVED. The prior text on this line was wrong twice over; both errors are recorded below deliberately.**
+
+**COUNT CORRECTION — 13, not 34.** The "34" came from an **exact trim+lowercase** scan. That is NOT the grader's
+contract. The real contract (`server/routes/objectiveScoring.cjs`) is `normaliseOption` (punctuation→space,
+whitespace squeeze) **+ letter↔text bridging + ≥3-char partial match**, which forgives **21** of the 34. A live
+re-derivation over the 8,597 bank **through the real module** found **13**.
+**STANDING LESSON: derive against the REAL consuming module, never a re-implementation of its rules.**
+
+**SEVERITY CORRECTION — the old claim was FALSE** (a wrong recorded claim is worse than a known bug). The retired
+wording said *"a student who picks the CORRECT option is scored WRONG."* **That never happens:**
+- **Server** `scoreObjective` → unresolvable key ⇒ `resolved:false` ⇒ defers to the model's BINARY verdict (still
+  clamped 0/full). It never forces a wrong 0.
+- **Client** `PracticeQuestionCard` → `correctIdx < 0` ⇒ the entire scoring branch is skipped (no `onMcqResult`, no
+  `recordAttempt`).
+**True symptom: the item renders with garbled options and SILENTLY NEVER SCORES — a dead question, not a mis-scored
+one.** Still fix-before-launch, but it was never a correctness lie.
+
+**FIX SHIPPED (PR #438): all 13 WITHHELD; ZERO were key-fixes.** An interim estimate of "~4 true key-fixes" was made
+from 160-char previews and was WRONG — at full fidelity **every one has destroyed OPTIONS too** (duplicated / bare
+single-token remnants / all four identical). Repairing the key alone leaves the item unanswerable, and authoring the
+distractors would **FABRICATE a PYQ**. 2 are figure-dependent (`PYQ-S-2024-ELEC-001` "as shown" — attract-vs-repel is
+undecidable without the figure; `CTRL-EXMPLR-6-MCQ-025` — options are "Option (a) as in figure" placeholders); 1
+(`PYQ-S-2024-MAG-002`, positron) fails the syllabus gate outright. Bank 8,597 → **8,584**. All 13 are **pre-pymupdf
+extraction damage** (mangled fractions `"9 2"`=9/2, `"𝟏 𝟗"`=1/9 in mathematical-bold unicode; MS boilerplate swept
+into the key). Bodies kept INTACT in their packs per the WITHHELD lifecycle.
+**Withheld ids:** CTRL-EXMPLR-6-MCQ-025 · PYQ-M-TRI-001 · PYQ-M-ARC-002 · PYQ-M-ARC-003 · PYQ-M-PROB-002 ·
+PYQ-M-PROB-003 · PYQ-M-PROB-005 · PYQ-M-PROB-006 · PYQ-M-PROB-008 · PYQ-M-PROB-010 · PYQ-S-2024-LIGHT-001 ·
+PYQ-S-2024-ELEC-001 · PYQ-S-2024-MAG-002.
+
+- **CI landmine CLEARED:** `fullMockBlueprint.test.ts`'s strict key-resolves assertion passed only by seed luck.
+  **0 unresolvable keys now remain**, so the draw can no longer surface one.
+- **HOLD CLOSED — `CBE-S-MAGN-A-001` was NEVER a real defect.** It resolves fine under the real contract; it only
+  ever appeared via the bad exact-norm scan. Its CLAUDE.md §5 conflict is moot (see the magnetic-effects ruling).
+- **CLOSED — the "168 objective rows with no `options[]`" are NOT defects.** `isObjectiveType` returns true for **any**
+  `section === "A"`, so 1-mark free-text VSA items (e.g. `2026-TRIG-P1-A-001` *"write sin A"* → *"sin A = BC/AC."*)
+  are classified objective. With no options they defer to the model's binary verdict — correct for a 1-mark
+  all-or-nothing item. **No action; do not "fix" these.**
+- **Superseded:** the retired per-class fix rules and the "6 REP2-* AR items" list — those ids resolve under the real
+  contract. The "~86 broken `.pyq` rows" figure in `objectiveScoring.cjs`'s own comment is likewise an over-count
+  from the same exact-norm method.
+
+### [FU-BANK-MCQ-REEXTRACT] — recover the 13 withheld rows from source (own PR, owner-split)
+Recoverable ONLY by re-extracting from the source papers with **pymupdf** (`pdfplumber` is BANNED — it cannot decode
+CBSE subset fonts and produced this damage). Sources confirmed present: `Desktop/diff/cbse-papers/PYQ/X question
+papers/` (22/23/24/25/26 × math+sci); pymupdf 1.27.2 verified importable, extracts these PDFs with **0 `(cid:`
+artifacts**. Recovered ⇒ real options + real key, delete the id from `WITHHELD_QUESTION_IDS`. Not recoverable ⇒ stays
+withheld. **Never guess a distractor.** Exception: `PYQ-S-2024-MAG-002` stays withheld regardless — positron is out of
+syllabus, not an extraction problem.
+
+## ★ SURFACE REACHABILITY — VERIFIED 2026-07-15. ALL FOUR SURFACES SOURCE THE CANONICAL BANK.
+**[FU-QP-WORKSHEET-BANK-SOURCING] is WITHDRAWN — its premise was disproven. Do NOT re-file it.**
+A prior investigation concluded Quick Practice and the Worksheet Generator were NOT reachable from
+`canonicalQuestionBank` (i.e. the expansion would be invisible on the two surfaces students use most). **That is
+FALSE.** Verified EMPIRICALLY by importing the real modules and CALLING them:
+```
+canonicalQuestionBank            = 8597
+PredictionCore.getAllQuestions() = 8838   (= 8597 canonical ∪ 241 predicted-only)
+  of which are canonical ids     = 8597   ← every bank row is in the engine pool
+generatePracticeSet(...)         → maths/trigonometry 10/10 canonical · science/electricity 10/10 canonical
+generatePracticeQuestions(...)   → Maths/trigonometry 8/8 · Science/electricity 8/8 canonical
+```
+**THE TRANSITIVE-HOP TRACE — read this before concluding anything from a direct-import grep:**
+```
+Quick Practice   practiceQuestionBuilder.ts:3,168  generatePracticeSet(...)
+  → practiceSetGenerator.ts:14   import { PredictionCore } from "./predictionCore"
+  → practiceSetGenerator.ts:248  PredictionCore.getLikelyQuestionsForConcept(...)
+  → predictionCore.ts:345        returns unifiedQuestionBank
+  → predictionCore.ts:193        unifiedQuestionBank = dedupeById([...stampedCanonical, ...predicted])
+  → predictionCore.ts:185        stampedCanonical = canonicalQuestionBank.map(...)     ← THE BANK
+Worksheet Gen    pages/app/Worksheets.tsx:5        generatePracticeQuestions(...)
+  → predictionDataService.ts:9   import { PredictionCore } from "./predictionCore"
+  → predictionDataService.ts:53  pool = PredictionCore.getLikelyQuestionsForConcept(topicKey)   ← THE BANK
+Chapter Test     bankQuery.ts:41-45 selectBankQuestions → canonicalQuestionBank (exact resolveCanonicalSlugSet)
+Full Mock        fullMockBlueprint.ts:6-9 DUAL-SOURCE UNION (canonical + predicted)
+```
+**TWO TRAPS that produced the wrong conclusion — do not fall into them again:**
+1. `practiceQuestionBuilder.ts:455` declares a local named **`bankQuestions`** — it is fed by
+   `engineQuestions`/`packQuestions`, **NOT** the canonical bank. A variable's NAME is not evidence of its SOURCE.
+2. `practiceSetGenerator.ts:6` contains the string `canonicalQuestionBank` **in a COMMENT ONLY**. A `grep -l` for the
+   bank matches this file and implies an import that does not exist. `predictionDataService.ts` imports exactly two
+   things (lines 8–9): a type, and `PredictionCore`. It imports **no** `predictedQuestions`.
+**Conclusion: the expansion lands in QP + Worksheet + CT + FM. Reachability is NOT a launch blocker.**
 
 ## TOPICS REMAINING (12 = 6 Maths + 6 Science) — extract-max A/B/C + scarce D/E/proof ≥75-distinct-or-honest-stop
 (Ground truth vs `topics.ts`: 26 canonical slugs = 13 Maths + 13 Science; 14 DONE = real-numbers + quadratic-equations +
@@ -234,6 +328,32 @@ Science (6): carbon-and-its-compounds · light-reflection-and-refraction · huma
 magnetic-effects-of-electric-current · control-and-coordination.
 **NEXT batch (Batch 12, 3-per-PR, continuous run) = trigonometry + circles + carbon-and-its-compounds** (2 Maths + 1 Science,
 interleaved for subject balance). Owner/next window may re-pick the trio; keep to the per-topic discipline within the bundle.
+
+### ★ LIVE CENSUS of the 12 remaining — emitted 2026-07-15 from `topickey_runtime_proof.mjs --emit` over the 8,597
+bank (i.e. PRE-#438; #438 withholds 13 → 8,584, none of which are D/E rows, so the D/E columns below stand).
+**RAW counts — the honest baseline. Do NOT restate them with the step-compliant numbers** (see
+[FU-BANK-SCARCE-BAND-MISBANDING]; the compliant subset is shown SEPARATELY, never as the baseline).
+
+| topic | Total | A | B | C | **D** | **E** | D compliant | E compliant |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| trigonometry | 419 | 137 | 90 | 95 | **61** | **36** | 51 | 35 |
+| circles | 229 | 81 | 47 | 68 | **23** | **10** | 21 | 10 |
+| areas-related-to-circles | 227 | 89 | 47 | 54 | **20** | **17** | 12 | 14 |
+| surface-areas-and-volumes | 197 | 73 | 24 | 36 | **45** | **19** | 30 | 14 |
+| statistics | 202 | 70 | 26 | 58 | **28** | **20** | 11 | 16 |
+| probability | 221 | 95 | 35 | 53 | **16** | **22** | 10 | 19 |
+| carbon-and-its-compounds | 273 | 112 | 54 | 57 | **39** | **11** | 29 | 9 |
+| light-reflection-and-refraction | 767 | 340 | 155 | 176 | **80** | **16** | 66 | 15 |
+| human-eye-and-colourful-world | 210 | 86 | 47 | 42 | **24** | **11** | 12 | 11 |
+| electricity | 309 | 97 | 74 | 68 | **52** | **18** | 39 | 18 |
+| magnetic-effects-of-electric-current | 238 | 97 | 60 | 46 | **27** | **8** | 21 | 7 |
+| control-and-coordination | 272 | 122 | 72 | 39 | **29** | **10** | 21 | 10 |
+
+Remaining topics hold **3,564** of 8,597 (41%); the 14 done hold 5,033. Nominal scarce-band gap to ≥75 = **1,163**
+(Maths 583 + Science 580) BEFORE honest-stops — **expect far less**. Notes: `light-reflection-and-refraction` needs
+**NO D work** (80 ≥ 75) — extract-max + E only. Circles / areas-related-to-circles / statistics / probability are
+narrow-or-saturated ⇒ expect honest-stops ~40–65. `magnetic-effects` narrows further under the Motor/EMI/Generator
+ruling ⇒ expect a HARD low stop on both bands. **Regenerate the census from a fresh dump before each batch.**
 READ + RUN `syllabusGuard.ts` live for EACH chosen chapter before authoring (per-topic, per the standing anchor process-fix).
 **READ + RUN syllabusGuard live for whichever chapter is chosen** (the Science bannedSubtopics list is chapter-wide;
 Sources of Energy / Periodic Classification / Management of Natural Resources / Evolution are the deleted ones).
@@ -248,6 +368,21 @@ Before wiring, ALWAYS run a COMBINED cross-pack gate over ALL packs of the batch
 not just each pack in isolation. Batch 8 caught 3 extracted-C vs authored-D twins only because the combined gate compared the
 extract pack against the authored packs — real extracted content is preferred, so the 3 authored D were dropped. A per-pack-only
 gate would have shipped the twins. Run the combined cross-pack gate every batch.
+
+## ★ PACKAGING — 3 TOPICS PER PR (4 PRs for the remaining 12). RATIFIED 2026-07-15.
+A proposal to bundle **6 topics per PR** (one all-Maths PR + one all-Science PR) was **considered and REJECTED** by
+the owner on evidence. Recording the reasoning so it is not re-proposed:
+- **OWNER BYTE-REVIEW catches what the skeptics + the full mechanical gate stack pass.** This lane's own batch log:
+  Batch 4 — *"owner byte-review caught Class-12 pyramid content → 4 reframed"*; Batch 8 — the "Class-11" mislabel of
+  sum/product-of-roots, which drove the standing syllabus-anchor process-fix. **2 of 11 batches.**
+- **Student QA CANNOT catch this class** — a 15-year-old cannot know an energy-pyramid item is Class-12.
+- **[FU-BANK-SCARCE-BAND-MISBANDING] proves it again:** 76 mis-banded rows sit in topics that ALREADY passed
+  skeptics + gates + review. The controls are good but not sufficient; **diff size is the remaining variable.**
+- 3-per-PR is this lane's own proven cadence (Batches 10 & 11). 6-per-PR would be **double the largest ever tried**,
+  on the two subjects with the hardest syllabus boundaries.
+**Per-topic RIGOR is unchanged either way** (live syllabusGuard read per chapter, engine-reachability step 6,
+independent skeptics, full gate stack, canonical slugs, pymupdf-only, `isPYQ` omitted). Keep the Maths/Science
+pipeline balance the lane already follows.
 
 ## 3-PER-PR CADENCE (standing, owner SPEED directive — from Batch 10)
 From Batch 10 on, BUNDLE 3 topics per PR: one branch, one `canonicalQuestionBank.ts` wire, one PR, one docs handoff.
@@ -273,9 +408,48 @@ Two owner corrections now anchor the rule "flag guard changes, never auto-commit
 Both: when a boundary call is uncertain, anchor to the OFFICIAL CBSE 2026-27 PDF + live `syllabusGuard.ts`, propose (never
 silently commit) any guard edit, and prefer INCLUDING genuine in-syllabus content over a memory-driven exclusion.
 
+- **★ 2026-07-15 → MAGNETIC-EFFECTS: the chapter is RETAINED and EXAMINED; Motor / Electromagnetic Induction /
+  Electric Generator are OUT of board-prep authoring.** Owner-ruled + confirmed against the OFFICIAL 2026-27 PDF
+  (`cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Science_SecP1_2026-27.pdf`, the exact URL
+  `syllabusGuard.ts` cites; located via the official curriculum index `curriculum_2027.html`; extracted with
+  **pymupdf**, 0 `(cid:` artifacts — WebFetch could not decode it at all).
+  - **Unit IV "Effects of Current" = 13 marks in the Annual Examination** (course-structure table: I 25 · II 25 ·
+    III 12 · **IV 13** · V 05 = 80). The chapter is examined.
+  - **Examinable magnetic content (verbatim):** *"Magnetic effects of current: Magnetic field, field lines, field due
+    to a current carrying conductor, field due to current carrying coil or solenoid; Force on current carrying
+    conductor, Fleming's Left Hand Rule, Direct current. Alternating current: frequency of AC. Advantage of AC over
+    DC. Domestic electric circuits."*
+  - **Formative-only carve-out (verbatim, immediately following):** *"The following topics are included in the
+    syllabus but will be assessed **only formatively** … **without adding to summative assessments** … **Motor,
+    Electromagnetic Induction, Electric Generator**"*. Board-prep = board-EXAM prep ⇒ formative-only content is by
+    definition not board-examined ⇒ **do not author board-prep D/E on it**. syllabusGuard's silence at bank level is
+    an ABSENCE OF ENFORCEMENT, not a licence. Take the honest low stop; report the distinct-method inventory.
+- **★ THE "NOTE FOR TEACHERS" TRAP — why magnetic-effects was wrongly dropped, and why it must not happen a 3rd time.**
+  The same official PDF says (verbatim): *"1. The topics Periodic Classification of Elements; **Heredity and
+  Evolution**; and **Electric Effects of Electric Current** will not be assessed in the year-end examination."*
+  Read LITERALLY that drops the whole magnetic chapter — **this sentence is almost certainly what caused the wrongful
+  drop and what `CLAUDE.md` §5 still encodes.** **It cannot mean that**, on the document's own evidence: Unit IV is
+  worth 13 marks, Unit IV explicitly LISTS the magnetic content above as syllabus, and Unit IV's carve-out names
+  PRECISELY THREE items — Motor, EMI, Generator — not the chapter.
+  **THE PATTERN (the decisive proof):** the Note names **CHAPTER TITLES loosely**, while each Unit's carve-out names
+  **PRECISE SUBTOPICS**. The Heredity pair proves it — Note 1 also says "Heredity and Evolution", yet Unit II's
+  carve-out lists only the *Evolution* subtopics ("Acquired and Inherited Traits, Speciation, … Human Evolution"),
+  which is exactly why **`syllabusGuard` correctly bans only Evolution while KEEPING Heredity/Mendel/sex-determination**
+  — a call the owner independently verified. **Same logic ⇒ only Motor/EMI/Generator are formative-only; the rest of
+  magnetic effects is examinable.** ("Electric Effects of Electric Current" is itself an apparent typo.)
+  **RULE: when the Note for Teachers and a Unit carve-out disagree, the Unit's PRECISE SUBTOPIC list governs.**
+  **`CLAUDE.md` §5 (calling magnetic-effects deleted/banned) is STALE — FLAGGED for the owner, deliberately NOT
+  edited (outside content scope; owner's call). syllabusGuard was NOT edited.**
+
 ## RESUME (for a fresh Fable window — this file + the task file are the source of truth)
+0. **State @ 2026-07-15:** bank **8,584** (post-#438; 8,597 − 13 withheld). **14 topics done, 12 remain.**
+   **NEXT = Batch 12 = trigonometry + circles + carbon-and-its-compounds** (3-per-PR × 4 PRs; see PACKAGING).
+   Live per-topic census for all 12 is in TOPICS REMAINING. Open: #438 (awaiting owner byte-review + merge).
 1. Re-derive trunk; `corepack pnpm@10.32.1 install --no-frozen-lockfile` in a fresh worktree from CURRENT trunk;
    `git checkout -- pnpm-lock.yaml`; run tsc via `./node_modules/.bin/tsc`.
+   **Gotcha (2026-07-15):** a fresh worktree has NO `node_modules` — `tsc` then emits phantom
+   `TS2688 Cannot find type definition file for 'node'/'vite/client'` errors that are NOT your change. Install first,
+   or point tsc at the main checkout's binary for a quick data-only compile.
 2. Regenerate the bank dump vs the CURRENT bank (scratchpad `dump_batch*.mjs` → `assembled_bank_dump_v*.json`);
    dedup MUST be vs the latest bank. Repoint `gate.mjs`/`rewrite.mjs` LAZY + DUMP consts to the new worktree/dump.
 3. Per topic: dispatch (a) an EXTRACT-MAX A/B/C subagent (all sources, per-source table, dedup, syllabus TWO-way),
@@ -311,6 +485,37 @@ silently commit) any guard edit, and prefer INCLUDING genuine in-syllabus conten
   rule); re-point LAZY→new worktree and DUMP→new v-dump. A prior session's scratchpad may be inaccessible.
 
 ## Progress log (newest first)
+- 2026-07-15: **[FU-BANK-UNRESOLVABLE-MCQ-KEYS] CLOSED → PR #438** (branched from live trunk `a5691a7`; origin had
+  advanced from `2864be9` mid-session — bank verified UNTOUCHED across those 8 tutor/equation commits, so the census
+  held). **13 rows WITHHELD, not 34, and ZERO were key-fixes.** Bank 8,597 → **8,584**. Two corrections to the record:
+  (a) the "34" was an exact trim+lowercase scan — the REAL grader contract forgives 21 (derive against the real
+  module, never a re-implementation); (b) the "correct option scored WRONG" claim was FALSE — server defers to the
+  model's binary verdict, client skips scoring entirely ⇒ true symptom = garbled + SILENTLY NEVER SCORES. An interim
+  "~4 key-fixes" estimate (from 160-char previews) was WRONG — at full fidelity every one has destroyed OPTIONS too,
+  so a key-only repair leaves it unanswerable and authoring distractors would fabricate a PYQ. CI landmine cleared
+  (0 unresolvable keys remain). `CBE-S-MAGN-A-001` HOLD CLOSED (never a real defect — a scan artefact); the 168
+  no-options rows CLOSED (legitimate 1-mark VSA under `isObjectiveType`'s `section==="A"`). Gates all green
+  (tsc · mojibake · scope:guard · root **181/181** · ops matrix · step-6 runtime proof 8,584/0/0/26-of-26).
+  Recovery split to **[FU-BANK-MCQ-REEXTRACT]** (pymupdf, own PR).
+- 2026-07-15: **★ REACHABILITY VERIFIED — all four surfaces source the canonical bank; [FU-QP-WORKSHEET-BANK-SOURCING]
+  WITHDRAWN (premise disproven).** QP and Worksheet reach the bank one transitive hop below their direct imports
+  (`practiceSetGenerator`/`predictionDataService` → `PredictionCore` → `unifiedQuestionBank` ⊇ `canonicalQuestionBank`).
+  Proven empirically by calling the real fns (10/10 and 8/8 canonical). Two traps recorded in the REACHABILITY
+  section: a local named `bankQuestions` that is NOT the bank, and a `canonicalQuestionBank` mention in a COMMENT that
+  makes `grep -l` imply a non-existent import. **The expansion IS visible to students.**
+- 2026-07-15: **★ owner's live "cosec 60°" bug ROOT-CAUSED → [FU-BANK-SCARCE-BAND-MISBANDING] filed.** `TG3-056` is a
+  CANONICAL BANK ROW (D/5mk/Easy, 3 steps) — the bank is served faithfully; the BANK is wrong. Systemic: **76
+  objective-format rows (MCQ/AR, 4 options) at section D / 5 marks** (grader clamps 0-or-5; reaches CT/FM Section D)
+  + ~178 under-stepped D/E solutions, across 16 topics. Own PR(s), class (a) first. Also filed
+  **[FU-TOPICMATCHES-SUBSTRING-CONFLATION]** (`circles` ↔ `areas-related-to-circles`, the ONLY colliding pair of 26 —
+  both in the remaining Maths set) and **[FU-REACHABILITY-TEST-SCOPE]** (step 6 asserts bank integrity, never surface
+  sourcing). **Owner ratified 3-TOPICS-PER-PR (4 PRs) over a proposed 6-per-PR** — byte-review caught real syllabus
+  errors in 2 of 11 batches that skeptics+gates passed, and diff size is the remaining variable.
+- 2026-07-15: **★ RULING — magnetic-effects is RETAINED & EXAMINED (Unit IV, 13 marks); Motor / Electromagnetic
+  Induction / Electric Generator are OUT of board-prep authoring** (official 2026-27 PDF: assessed *"only
+  formatively… without adding to summative assessments"*). The "Note for Teachers" trap that caused the original
+  wrongful drop — and that `CLAUDE.md` §5 still encodes — is documented under SYLLABUS-BOUNDARY PRECEDENTS with the
+  Heredity/Evolution pattern proof. §5 FLAGGED, not edited (owner's call). syllabusGuard NOT edited.
 - 2026-07-13: Batch 11 (triangles + coordinate-geometry + metals-and-non-metals) MERGED #419 (`69e319d`) +315 — SECOND 3-topics-per-PR
   batch. triangles +127 (294→421: extract 18 A/B/C + authored D 44 + PROOF 20 [7 D-weight + 13 C-weight] + case-E 45; scarce D 40→91 ·
   E 23→68) · coordinate-geometry +67 (232→299: extract 7 + D 13 + E 47; thin chapter, D honest-stop at 28) · metals-and-non-metals +121
