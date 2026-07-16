@@ -10,6 +10,43 @@ stretched to fill a row — each is an honest "no existing figure explains this 
 This list is a **candidate queue for AI figure generation**, NOT an authored deliverable
 (Fable authors no figures). Owner + Opus decide what actually gets generated.
 
+> ## ★★ READ THIS BEFORE TRUSTING THE COUNTS (added post-#448, 2026-07-16)
+>
+> **"Hard gap" here means CURATION JUDGMENT about OUR catalogue — it is NOT a verified census,
+> and it does NOT mean NCERT has no such figure.** It means: *no existing asset in the repo
+> (notes / bank / interactives) genuinely fits this concept.* Those are different claims.
+>
+> Stage 3 (#448) traced all 7 hard gaps against the **official 2026-27 NCERT PDFs** before
+> authoring anything, and the distinction mattered twice:
+> - **Two "hard gaps" have real NCERT source art to trace** — **#4 atmospheric refraction has
+>   TWO figures** (Fig 10.9 "Apparent star position due to atmospheric refraction" + Fig 10.10
+>   "Atmospheric refraction effects at sunrise and sunset", both p168), and **#6 functional
+>   groups is NCERT's own Table 4.3** (p66, whose formula column is drawn structural formulae).
+>   A figure invented for #4 would have replaced a real textbook figure — caught only because
+>   the trace was required.
+> - **#6 was not a hard gap at all** — a functional-groups **interactive exists**
+>   (`visualConceptRegistry.ts:234` → `/visuals/science/carbon-compounds/functional-groups.html`,
+>   file present) but was recorded `none` as a "keyword-heuristic concept stub". The outcome is
+>   unchanged (a curated figure outranks a whole-chapter interactive) — but **the hard-gap count
+>   was off by one.**
+>
+> **None of this undermines the curation** — precision-over-coverage was the right rule, and the
+> honest `scopeCaveat` notes are exactly what made the trace fast. The fix is framing: *before
+> authoring a figure for any row below, trace it to the ORIGINAL SOURCE first.* Local PDFs:
+> `Desktop\NCERT Books\{Mathematics,Science} class 10\_unzipped\` — they use the **OLD 2018-19
+> numbering, so MAP BY CONTENT, never the filename** (`jemh110`=Circles · `jemh111`=Areas Related
+> to Circles · `jesc104`=Carbon · `jesc109`=Light · `jesc110`=Human Eye). Use **pymupdf**
+> (`import fitz`) — **pdfplumber is BANNED** (it cannot decode CBSE subset fonts). NCERT figures
+> are **vector drawings over a full-page raster**, so `get_images()` returns the whole page —
+> extract via **clipped page renders at the figure bbox**.
+>
+> **Status:** **5 of these 7 are now FILLED and live** (#448) — see the post-#448 addendum in
+> `handoff/TUTOR_VISUAL_CATALOGUE_HANDOFF.md`. The remaining two are **#6 functional groups**
+> and **#2 (whose row is now renamed "Radius from a given circumference, diameter or area")** —
+> tracked as **[FU-TUTOR-LAST-2-GAP-FIGURES]**. ⚠ **#2's scope flag was RULED ON:** the row is
+> **renamed, not retired** — the board deleted the review *section*, but Exercise 11.1 Q2 (p158)
+> still tests the skill.
+
 ## HARD GAPS (best.kind = "none" — no asset at all)
 
 | # | Topic | Concept | Why no figure fits | A simple figure that would help |

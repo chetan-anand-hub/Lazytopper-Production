@@ -1,3 +1,43 @@
+## 2026-07-16 -- #448: TUTOR STAGE 3 — the explanation panel (trunk `0e42e16`)
+
+### ✅ RESOLVED BY #448
+- **Tutor Stage 3 / D-TUT-13 — CLOSED.** The explanation panel is live: split desktop / overlay mobile, wired to the curated concept→figure catalogue. **Tutor Stage 1 + 2 + 3 all live. Do NOT redo.**
+- **[FU-TUTOR-BACKLABEL-COUNT] — CLOSED.** The tutor's Quick Practice round-trip now passes `backLabel: "Back to your tutor"` + a short `count` (both params `PracticePage` already reads at `:424` / `:451`).
+- **D-TUT-15 (the `findVisualForConcept` matcher bug) — CLOSED for the tutor's purposes.** The panel resolves via a NEW resolver that is **exact-match-or-nothing**: unknown concept → `null`, never a substring score, never a `concepts[0]` fallback. The old buggy matcher is untouched (other surfaces still use it) — **the tutor reuses the registry DATA, never its matcher** (D-TUT-12).
+
+### ★★ NEW — [FU-TUTOR-LAST-2-GAP-FIGURES] (small, unblocked, next from this lane)
+5 of 7 hard gaps shipped as committed `.svg`. **Two were held pending the label rulings, which are now settled** ⇒ author → owner-verify → commit → flip the rows:
+- **functional groups** — adapt **NCERT Table 4.3 (p66)**: Cl/Br (`—Cl, —Br`, "substitutes for hydrogen atom") + Oxygen 1. Alcohol `—OH` · 2. Aldehyde · 3. Ketone · 4. Carboxylic acid (the last three are **drawn structures**, which is why text extraction garbles them). NCERT's note: *"Free valency or valencies of the group are shown by the single line."* **Do NOT draw `>C=O` or `–X` into the FIGURE** — NCERT writes neither (the hub LABEL keeps `>C=O` deliberately; see DECIDED below).
+- **radius-from-circumference** — the plain circle with `r` marked and `C = 2πr` / `A = πr²`; NCERT has **no** figure (original diagram), and p155 carries only the single recall sentence *"You know that area of a circle … is πr²."*
+
+### ★★ NEW — [FU-TOPICHUB-LENSPOWER-ANCHOR]
+The Topic-Hub row **"Lens power P = 1/f (dioptre) for the corrective lens"** is filed under **`human-eye-and-colourful-world`**, but NCERT **defines** power in **Light, ch.9, p157–158** (eq 9.11; *"1 dioptre is the power of a lens whose focal length is 1 metre. 1D = 1m⁻¹"*). Human Eye only *applies* it to corrective lenses. A real misfile for the row's NCERT anchor — **deliberately deferred out of #448 to avoid scope creep on a figure-approval PR**. Non-gating.
+
+### ★★ NEW — [FU-GAPS-MD-HEADER-CAVEAT] (Fable's curation lane)
+`handoff/curation/GAPS.md`'s **"hard gap" means CURATION JUDGMENT, not a verified census** — it means *nothing fits in OUR catalogue*, **not** that NCERT lacks a figure. #448 proved both halves:
+- Tracing the 7 "hard gaps" against the official NCERT PDFs found **two DO have real NCERT source art** — atmospheric refraction (Fig 10.9 + 10.10) and functional groups (Table 4.3).
+- **#6 was not a hard gap at all** — a **functional-groups INTERACTIVE exists** (`visualConceptRegistry.ts:234` → `/visuals/science/carbon-compounds/functional-groups.html`, file present); Fable marked it `none` ("keyword-heuristic concept stub"). Outcome unchanged (a curated figure outranks a whole-chapter interactive) but **the hard-gap count was off by one**.
+⇒ A caveat line is added to GAPS.md's own header in this docs PR, so a future reader doesn't over-trust the count.
+
+### ★ CARRIED / RE-SCOPED by #448's findings
+- **[FU-TUTOR-LEGACY-RETIRE] — STILL BLOCKED, and its premise was WRONG.** The dispatch called these "dead pre-Stage-1 engine files"; verified importer-by-importer, **they are LIVE**: `mentor.cjs` (3 routes off `server/index.cjs` — `/api/mentor`, `/stream`, `/stream-structured`) · `tutorOrchestrator.cjs` (injected into mentorRoute deps) · `ConceptTeachDrawer.tsx` (mounted by `ConceptSpine.tsx:692` + `TopicHub.tsx:1789`) · `TeachFlow.tsx` (mounted by ConceptTeachDrawer). **Only `TutorDrawerV2.tsx` is dead** — zero code importers, but **6 UNGATED ops scripts read it as text**, so deleting it goes green in CI while silently breaking them. **D-TUT-12 cannot close until the old Topic Hub tutor is retired.** ⚠ **`TutorPage.tsx` is NOT a ConceptTeachDrawer importer** — its line 3 is a COMMENT (*"NOT TeachFlow / ConceptTeachDrawer / TutorDrawerV2"*); the grep-hit-isn't-an-import trap was hit **twice** in this lane. Also `PracticePage.tsx:804`'s comment claiming the drawer is *"still mounted by … TutorPage and the notes modals"* is **FALSE for both** (prose mentions only).
+- **[FU-TUTOR-INCHAT-QUESTION-UPLOAD]** — still queued (needs the QR channel; out of scope this round).
+- **[FU-TUTOR-READ-QP-RECORD]** — still queued (that record's shape was still settling).
+- **[FU-TUTOR-SUBREGION-FOCUS]** — deferred indefinitely per D-TUT-15.
+- **`<EquationInput>` into the tutor composer** — deliberately NOT folded in. The tutor composer is a single-line ask box; `<EquationInput>` is a multiline editor with a palette + KaTeX preview, i.e. a real composer-UX change that would have widened this PR's review surface. Its own small PR.
+- **[FU-CI-GATE-VITEST]** — reconfirmed live, and it costs this lane directly: `conceptVisualCatalogue.test.ts` (the resolver contract **plus** the interactive-id existence check the Node guard structurally cannot do) **ships unexecuted** — vitest can't run on win32 (rollup's linux-pinned native binary) and CI doesn't gate it. The CI-gated guard is a plain-Node `.mjs` **because of** this.
+
+### ★ DECIDED (recorded so they are not re-litigated)
+- **D-TUT-16 (the AI-diagram cache) — NOT BUILT, deliberately.** It mirrors `stepSolution.cjs`, which **no-ops in production** (`getPool()` → null with `DATABASE_URL` unset; `step_solutions` has **no migration**, only `drizzle-kit push`). Built as specified it would **pass every gate while regenerating a fresh unreviewed diagram per student** — the exact fabrication D-TUT-16 exists to prevent. The gaps are a bounded static list ⇒ offline-authored + owner-verified instead. A Firestore alternative would need a **`firestore.rules` companion (sacred)**. Revisit only if Postgres is ever provisioned — but **[FU-BACKEND-DATABASE-URL-UNSET] says do NOT provision it.**
+- **`>C=O` stays in the hub label** (owner ruling). It is **standard carbonyl shorthand and SHARED student-facing vocabulary** — `carbonCompounds.pack1.ts:259`, `carbonCompounds.exemplar.ts:226`. NCERT Table 4.3 uses neither `>C=O` nor a generic `–X`, but **narrowing the hub label alone would desync it from the answers students read in their own graded work**. Unifying hub+bank vocabulary (if ever) spans **forbidden** bank content and is its own call. `–X` **was** aligned → `–Cl, –Br` (a lone over-reach; the bank already wrote concrete "–Cl, haloalkane").
+- **The area row was RENAMED, not retired** (owner ruling, option d). The 2026-27 reprint deleted the *"Perimeter and Area of a Circle — A Review"* SECTION — ch.11 opens at 11.1 Sector/Segment and "circumference" survives only in **Exercise 11.1 Q2 (p158)** — **but the SKILL is still tested there**, and the in-scope rows *literally embed the facts* (arc `= (θ/360)×2πr`, sector `= (θ/360)×πr²`), so a student cannot do sector/segment without them. Retiring would have lost real tested content to fix a **naming** problem. **No "prerequisite recall folded into an adjacent row" precedent exists** in `topicHubContent` (`boardEssentials` is a flat `{name, oneLineUse, marks}`; "recall" elsewhere means exam-recall).
+- **`conceptKey` is NOT renamed when a label changes.** It is an editorial id, never derived from the label, **and is persisted as the figure signal in durable tutor sessions** ⇒ renaming it would silently blank the panel on existing threads. *A stale-LOOKING identifier can be load-bearing.*
+
+### ★★ NEW PROCESS LESSON — the `package.json` ops-script conflict class
+#447 and #448 each added an ops script **and** appended it to `test:matrix:all` — **the same two lines**. **Any two lanes that add an ops check will ALWAYS collide there.** It is **always additive** (keep both scripts, chain both) — a **known, expected non-collision**. Do not re-diagnose it as a real conflict.
+
+---
+
 ## 2026-07-16 -- #447: QR PR-2 — scan-to-send on QP + HPQ + TopicHub (trunk `d99c14d`), owner-live-verified
 
 ### ✅ RESOLVED BY #447

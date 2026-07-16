@@ -100,6 +100,21 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 - **★ Carries forward — [FU-CI-GATE-VITEST] (pre-soft-launch).** Four vitest suites exist and **none run in CI** (`MathText`, `EquationInput`, `tutorRoundTrip`, `WorksheetPrintDoc`). `quality-gate.yml` = root matrix → mojibake → build → ops matrix. A test that never executes is decoration; these guard the shared renderer, the equation widget, the tutor round-trip and the worksheet print doc.
 - **Lane CLOSED — nothing follows from it.** Live lanes: QP-sessions (#436) · QR upload · Fable bank expansion.
 
+## 2026-07-16 — ✅ TUTOR STAGE 3 COMPLETE (#448, `0e42e16`) — the explanation panel; D-TUT-13 closed, the 3-stage build is DONE
+
+**The fresh-engine tutor's staged build (Flow v2 §4) is complete: Stage 1 (chat shell) + Stage 2 (round-trip) + Stage 3 (panel intelligence) are all LIVE.** The tutor could teach trigonometry without ever showing a triangle; now it shows the right diagram — **or honestly shows none**.
+
+- ✅ **D-TUT-13 (exactly two panels)** — `ExplanationPanel.tsx` fills the closed `<aside>` Stage 1 left; splits on desktop, overlays on mobile (the scaffold's CSS already encoded both).
+- ✅ **D-TUT-14 (visual sourcing, best-fit-first)** — the wired `conceptVisualCatalogue` (Fable's curated 54 rows). NCERT page = an affordance alongside the body (dormant until a curated `ncertPage` lands); notes/bank figures = the workhorse; **interactive = an OFFER, never auto-embedded** (19/54 rows' best asset is a whole-chapter interactive — dumping one on a single-concept question is not an explanation); AI-gen = see D-TUT-16 below.
+- ✅ **D-TUT-15 (concept-correct matching NOW)** — the resolver is **exact-match-or-nothing**: unknown concept → `null`, never a substring score, never `concepts[0]`. Reuses the registry **DATA, never its matcher** (D-TUT-12). Sub-region focus stays deferred indefinitely.
+- ⛔ **D-TUT-16 (AI-diagram cache) — SPECIFIED BUT DELIBERATELY NOT BUILT.** It mirrors `stepSolution.cjs`, which **no-ops in production** (`DATABASE_URL` unset; `step_solutions` has no migration) ⇒ built as specified it would **pass every gate while regenerating an unreviewed diagram per student** — the exact fabrication it exists to prevent. The gaps are a **bounded static list** ⇒ **5 of 7 authored offline, owner-NCERT-verified, committed as ordinary `.svg` rows**; no cache, no Postgres, no unreviewed figure reaching a student. *When a spec's mechanism is dead, satisfy its INTENT, not its letter.*
+- ✅ **The seam** — `buildTutorPath` gained an OPTIONAL `questionId` (omitted ⇒ byte-identical), unblocking the QP lane's contextual return and powering D-TUT-14 #2.
+- ✅ **[FU-TUTOR-BACKLABEL-COUNT]** closed.
+
+**Remaining on this surface (all small / non-gating):** the **last 2 gap figures** ([FU-TUTOR-LAST-2-GAP-FIGURES], now unblocked — the label rulings settled) · **[FU-TUTOR-LEGACY-RETIRE] is BLOCKED and its premise was wrong — those files are NOT dead** (`mentor.cjs` has 3 live routes; `ConceptTeachDrawer` is mounted by ConceptSpine + TopicHub; only `TutorDrawerV2` is dead), so **D-TUT-12's cleanup cannot close until the old Topic Hub tutor is retired** · [FU-TUTOR-INCHAT-QUESTION-UPLOAD] · [FU-TUTOR-READ-QP-RECORD] · [FU-TOPICHUB-LENSPOWER-ANCHOR] · `<EquationInput>` into the composer (deliberately deferred).
+
+**Owner live-verify:** atmospheric refraction (the 2-panel NCERT trace) + the reactions scheme (the "Acid" vs conc. H₂SO₄ fix).
+
 ## 2026-07-15 — TUTOR STAGE 2 COMPLETE + OWNER LIVE-VERIFIED (#428 + fixes #432, `65fdf85`) — the round-trip works end-to-end
 
 The fresh-engine tutor's 3-stage staged build (Flow v2) advances: **Stage 1 (chat shell, #425/#426) and Stage 2 (the
@@ -112,9 +127,10 @@ intent-driven CTA via the `[[offer:…]]` sentinel (server-stripped), verified-b
 wrapping in the prompt, C&I leg intact. Fresh engine throughout (D-TUT-12); honesty guard structural (reads
 `practiceInsights`/`sessionRecords`, never writes a grade).
 
-- **Remaining = Stage 3 (explanation-panel visuals):** the `conceptVisualCatalogue` (D-TUT-14) + matcher fix (D-TUT-15) +
-  `NcertPageModal` reuse + interactive-as-enrichment + the AI-gen gap-fill cache (D-TUT-16). A SEPARATE dispatch with a
-  fresh brief — do NOT start unprompted. Then the cleanup: retire the old engine files ([FU-TUTOR-LEGACY-RETIRE]).
+- ~~**Remaining = Stage 3 (explanation-panel visuals)**~~ — ✅ **DONE in #448 (`0e42e16`), see the Stage 3 entry above.**
+  (D-TUT-14 + D-TUT-15 + `NcertPageModal` reuse + interactive-as-OFFER all shipped; **D-TUT-16's cache deliberately NOT
+  built** — it mirrors a cache that no-ops in prod; gaps offline-authored instead.) The cleanup **[FU-TUTOR-LEGACY-RETIRE]
+  is BLOCKED — those files are NOT dead** (verified importer-by-importer; only `TutorDrawerV2` is).
 - These fresh-tutor stages supersede the old-tutor roadmap items below (PR-C `concept_teach`/TeachFlow, PR-D.1 mobile
   toggle) — kept as historical record.
 
