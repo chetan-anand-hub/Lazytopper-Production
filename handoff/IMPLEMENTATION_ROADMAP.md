@@ -2,6 +2,36 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-16 — ★★ ✅ THE QR LANE IS COMPLETE (#454 `a8be752`) — desktop practice no longer costs a self-email, on EVERY graded surface
+
+  **The arc, in one place — do NOT redo any of it:**
+  [x] **#441 `9ebb87c` — PR-1, the channel.** Storage blob + Firestore coordination doc, both server-side via
+      firebase-admin (the phone never touches Firebase). 4 endpoints · `/u/:token` phone page · `<QrAnswerHandoff/>`.
+      **ONE wire lit THREE surfaces** (CT in-test, CT result, Full Mock) — *wire the shared component, not each page.*
+  [x] **#443 `5aaaeec` — hardening.** Copy follows the HOST (`mode` required, no default) + the real ceiling + an
+      actionable refusal. Fixed the **live pre-existing** "PDF up to 5 MB" that was **never spendable on either path**
+      (base64 ×4/3 vs `readJson`'s 5 MB cap) ⇒ `uploadLimits.ts` @ **3.5 MB**, negative-tested cap assertion.
+  [x] **#447 `d99c14d` — PR-2: QP + HPQ + TopicHub**, one wire in the shared `SolutionChecker`. `mode="photo"`.
+      Also closed SolutionChecker's **own** 5 MB constant (held back for PR-2 by the seam contract — *not* a miss).
+  [x] **#451 `c132f27` — the C&I guard that never existed.** Not a wrong ceiling: **NO ceiling.** Size **and** type,
+      all four inputs, both pages, via the shared `checkUploadFile()`.
+  [x] **#454 `a8be752` — Check & Improve, the LAST wire.** Desktop-only, +47/−0.
+      **`mode={isMultiQuestion ? "document" : "photo"}`** — C&I is the only **bimodal** host; the FU's `mode="photo"`
+      was wrong-shaped. Owner live-verified **the multi-question PDF-leading copy** — the page-1 trap cannot happen.
+
+- **★★ THE TWO LESSONS — they outlive the code, and apply to EVERY future FU:**
+  **(1) CARRY THE QUESTION FORWARD, NEVER THE EXPECTED ANSWER.** Two-for-two here: *"look for a THIRD 5 MB constant"*
+  (there was none — the bug's SHAPE was "no guard at all") and *"use `mode="photo"`"* (C&I is bimodal). **Neither was
+  careless — both were true when written and had ROTTED. A stale instruction is worse than none: it looks like
+  diligence.** ⇒ **strike a spent check IN PLACE**; a grep landing on the old line is how it gets re-run.
+  **(2) CHECK WHAT THE ACTUAL HOST RENDERS, NOT THE SHAPE OF THE LAST WIRE YOU BUILT.** #447 needed **MORE** state
+  than a naive copy (a QR PDF would have rendered broken in an `!isPdf`-gated `<img>`); #454 needed **LESS** (no
+  preview, 3 fields). Both wrong directions are avoided the same way.
+- **Lane CLOSED.** Not in its hands: [FU-QR-STORAGE-LIFECYCLE] (owner infra) · [FU-GRADER-5MB-COPY] +
+  **[FU-GRADER-COULDNOTREAD-REASON]** (both the FORBIDDEN grader — one batched owner-approved pass) ·
+  [FU-UPLOAD-GUARD-CONVERGE] · [FU-QR-CI-QUESTION-PHOTO] · [FU-CI-DROPZONE-PDF-COPY].
+  **Branch cleanup: the owner does ONE sweep** (6 branches + 4 worktrees) when ready — never auto-approved (§3).
+
 ## 2026-07-16 — ✅ CHECK & IMPROVE: THE UPLOAD GUARD THAT NEVER EXISTED (#451 `c132f27`) — a student's file is refused at the picker, not killed at the grader
 
   [x] **#451 — 3 files. PR 1 of 2** (`uploadLimits.ts` +70 · `DesktopCheckImprovePage.tsx` +51/−6 · `CheckImprove.tsx`
@@ -113,9 +143,14 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
   [x] **PR-2 [FU-QR-SOLUTIONCHECKER-WIRE] — ✅ DONE: #447 `d99c14d`, owner LIVE-VERIFIED** (full entry at the TOP of
       this file). One wire → **Quick Practice + HPQ + TopicHub** (**NOT C&I**). ★ This "BLOCKED" line is exactly why
       `SolutionChecker`'s own 5 MB constant outlived #443 — **the contract WORKING, not a miss**; PR-2 closed both.
-  [ ] **[FU-QR-CI-WIRE] — the LAST wire. ⚠ BOTH "assume nothing" checks below are now SPENT — see #451 at the TOP.**
-      C&I needs its OWN wire, `mode="photo"`, **DESKTOP-ONLY** (`QrAnswerHandoff` → `useIsDesktop()` → null <1024px ⇒
-      a QR in mobile `CheckImprove.tsx` could never render; the phone already has a camera). **Mobile gets NO QR.**
+  [x] **[FU-QR-CI-WIRE] — ✅ DONE: #454 `a8be752`, owner byte-reviewed + LIVE-VERIFIED. THE QR LANE IS CLOSED.**
+      1 file, +47/−0, **DESKTOP-ONLY** (`QrAnswerHandoff` → `useIsDesktop()` → null <1024px ⇒ a QR in mobile
+      `CheckImprove.tsx` could never render; the phone already has a camera). **Mobile got NO QR — correct.**
+      ~~`mode="photo"`~~ → **★ WRONG-SHAPED, and the 2nd "rotted instruction" this lane caught.** C&I is **BIMODAL**:
+      multi-question = the answers to a WHOLE PAPER (one multi-page PDF; the page's own `:1765` comment says so), and
+      `"photo"` there is exactly the page-1 failure `mode` was invented to prevent. **Shipped:
+      `mode={isMultiQuestion ? "document" : "photo"}`** — honest in BOTH real states; `isMultiQuestion` (`:756`)
+      settles on the QUESTION upload, BEFORE the answer upload is reachable ⇒ no race.
       ~~(1) look for a THIRD copy of the 5 MB constant~~ → **SPENT + WRONG-SHAPED: there was no third constant; C&I had
       NO guard at all. #451 (`c132f27`) fixed it. Do not re-run — it can only find a bug that no longer exists.**
       ~~(2) if C&I has its own tab-gate, check it for the stale-closure shape~~ → **ANSWERED: C&I is IMMUNE** (both

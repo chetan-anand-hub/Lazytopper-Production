@@ -1,5 +1,38 @@
 ---
 
+## 2026-07-16 -- #454: ★★ THE QR LANE IS COMPLETE — the last wire (Check & Improve) — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED** — trunk `a8be752`
+
+**#454 (`a8be752`, 1 file, +47/−0, purely additive). Isolated worktree `LT-worktrees/qr-ci-wire`, branch `feat/desktop-pr-qr-ci-wire`. PR 2 of 2 (after #451's guard). Process: re-derive tip → fresh collision map → read C&I's CURRENT code → pre-flight → owner ruling → build → gates → push → OWNER BYTE-REVIEW of the pushed diff → owner live-verify → owner merge. Never self-merged.**
+
+### ★★ THE ARC IS DONE — #441 → #443 → #447 → #451 → #454
+The friction is dead on **every** graded surface: desktop shows a QR, the phone scans + sends, the file lands in the SAME answer box and **grades exactly as today — the grader was NEVER touched.** Full table in CURRENT_STATE. **Do not redo any of it.**
+
+### ★★ THE FU'S OWN INSTRUCTION WAS THE BUG — and that is the story of this PR
+It said **`mode="photo"`**. Carrying the **question** (*"what does C&I's answer upload actually ACCEPT?"*) instead of the expected answer caught that it was **wrong-shaped**. **C&I is BIMODAL — the only host so far that is not one shape:** multi-question (`isMultiQuestion`, `:756`) = the answers to a **WHOLE PAPER**, one multi-page PDF (the page's own comment at `:1765`: the solution upload *"accepts a PDF for BOTH single- and multi-question"*). `"photo"` there is **precisely** the failure `QrAnswerHandoff`'s `mode` was invented to prevent — its docblock: *"'photograph your answer' makes a student shoot page 1 of a 20-question mock and walk away believing they are done."*
+⇒ shipped **`mode={isMultiQuestion ? "document" : "photo"}`** — honest in BOTH real states. `isMultiQuestion` derives from the **question** upload's detection, which settles **before** the answer upload is reachable ⇒ **no race, no undefined-mode window.**
+★ **The FU was NOT careless** — `"photo"` was correct reasoning from *"C&I is a single-question checker"*, **true when written and since rotted.** **Same shape as #451's 5 MB constant. Two-for-two in one lane.**
+
+### ★★ CHECK WHAT THE ACTUAL HOST RENDERS — the general form (supersedes "don't assume a sibling's shape transfers")
+I checked whether **my own previous wire's** shape transferred. **It did not.** #447 needed a **five-field tuple** (SolutionChecker has an `!isPdf`-gated `<img>` a QR PDF would render **broken**); **C&I has NO `<img>` preview and 3 state fields** — its dropzone shows a glyph + filename for any accepted type — so 3 fields are correct and complete. **Pattern-matching to my last wire would have added state nothing reads.**
+★ **#447 needed MORE than a naive copy; #454 needed LESS. Both wrong directions are avoided the same way — by checking what the ACTUAL host component renders, not the shape of the last wire you built.** *(The owner's framing; it supersedes my earlier per-instance wording and is usable on a host nobody has seen yet.)*
+
+### The rest held without new code
+**Seam:** QR **inside the upload panel as a sub-mode**, never a third peer. **Reset is STRUCTURAL** — `!imageBase64` gates the mount ⇒ delivery unmounts (cleanup cancels polling), `clearImage` remounts fresh `idle`. **Mobile `CheckImprove.tsx` deliberately UNTOUCHED** — `useIsDesktop()` → null <1024px ⇒ a QR there could never render; **a QR on a phone is meaningless, the camera is already there.** Rides #451's base ⇒ **one ceiling (3.5 MB) for QR-delivered and desktop-picked alike.**
+
+### Deferred, logged not folded in — the #447 test applied correctly
+**QR is not creating either problem**, so "a new feature must not ship beside a promise it breaks" does not apply: **[FU-QR-CI-QUESTION-PHOTO]** (the question-photo input is a 2nd QR candidate — and would need its OWN `mode` decision) · **[FU-CI-DROPZONE-PDF-COPY]** ("PNG or JPG" understates its own PDF support — the *inverse* of the 5 MB lie: that over-promised, this under-promises). **Owner-found while live-verifying: [FU-GRADER-COULDNOTREAD-REASON]** — the "Couldn't read" chip is ONE generic message for illegible/mismatched/corrupted because the grader returns only a boolean; **forbidden file ⇒ batched with [FU-GRADER-5MB-COPY]. Not a regression from this wire.**
+
+### Gates
+tsc · mojibake · scope:guard (product) · root matrix **28 suites / 190 pass / 0 fail** · ops matrix incl. **QR channel 46/46** · diff-check clean · **zero forbidden** · CI `quality-gate` + `lane-overlap` + Vercel green. **Base `ba44ada` stayed current through commit — the first branch tonight that did not go stale** (the 10th and 11th catches both landed in the #451 leg).
+
+### ★ OWNER BYTE-REVIEWED, then LIVE-VERIFIED — all clean
+Byte-review confirmed against the real diff: the ruled `mode` shape; the comment citing `QrAnswerHandoff`'s own docblock as the traceable reason; exactly three fields set with the reason explained. **Live-verify included the multi-question PDF-leading copy — the case the FU's `mode="photo"` would have shipped broken.**
+
+### NEXT
+**NOTHING — the QR lane is CLOSED.** Remaining is not in its hands: [FU-QR-STORAGE-LIFECYCLE] (owner infra) · [FU-GRADER-5MB-COPY] + [FU-GRADER-COULDNOTREAD-REASON] (forbidden grader, one batched pass) · [FU-UPLOAD-GUARD-CONVERGE] · [FU-QR-CI-QUESTION-PHOTO] · [FU-CI-DROPZONE-PDF-COPY]. **Branch cleanup: the owner does ONE sweep** of 6 branches + 4 worktrees when ready (§3 — never auto-approved).
+
+---
+
 ## 2026-07-16 -- #451: CHECK & IMPROVE — the upload guard that never existed — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED** — trunk `c132f27`
 
 **#451 (`c132f27`, 3 files: `uploadLimits.ts` +70 · `DesktopCheckImprovePage.tsx` +51/−6 · `CheckImprove.tsx` +54/−6). Isolated worktree `LT-worktrees/ci-size-guard`, branch `feat/desktop-pr-ci-upload-size-type-guard`. PR 1 of 2 — the sound base [FU-QR-CI-WIRE] rides on. Process: re-derive tip → collision map → read the real code → pre-flight → owner ruling → build → gates → push → OWNER BYTE-REVIEW of the pushed diff → owner live-verify → owner merge. Never self-merged.**
