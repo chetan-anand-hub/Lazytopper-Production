@@ -1,3 +1,36 @@
+## 2026-07-15 -- #441 + #443: QR DESKTOP→MOBILE ANSWER UPLOAD **LIVE** (trunk `5aaaeec`), owner-live-verified
+
+### 🆕 NEW FOLLOW-UPS
+
+- **[FU-QR-STORAGE-LIFECYCLE] — OWNER INFRA, not code.** The QR channel's primary retention control is **delete-on-pickup** (the blob is destroyed the moment the desktop has it; proven in `test:qr:channel`), backed by a 5-min TTL sweep + a per-UID cap. The **24h lifecycle backstop the owner specified is a BUCKET RULE** (Firebase console / `gsutil lifecycle set`) on `qr-uploads/` — **an agent cannot set it**. It is defence-in-depth for the abandoned-upload case (phone uploads, desktop never picks up, TTL sweep somehow misses). **Please add it.** ⚠ Do NOT touch `ncert/` while in there — it serves live student PDFs.
+- **[FU-GRADER-5MB-COPY] — the same arithmetic lie, inside the FORBIDDEN grader.** `checkSolution.cjs` returns `'Upload too large or invalid. Keep the PDF under 5 MB.'` **A 5 MB PDF is 6.67 MB of base64 and can never fit `readJson`'s 5 MB body cap — that instruction is impossible to follow.** #443 fixed every CLIENT surface (`src/services/uploadLimits.ts`, real ceiling 3.5 MB) so this string is now **unreachable from our UI**, which is why it was left alone rather than smuggled into a QR PR. It should be corrected in its **own owner-approved PR** (grader = forbidden; strictly a copy change, no logic).
+
+### ❌ WITHDRAWN — do NOT file, do NOT act on
+
+- **[FU-FULLMOCK-NO-UPLOAD-PANEL] — WITHDRAWN by the owner.** Full Mock **IS** covered. `ChapterTestPage.tsx:711` **and** `FullMockPage.tsx:1172` both render `ChapterTestUploadPanel`, so #441's single wire lit **three** surfaces (CT in-test, CT result, Full Mock) — owner-confirmed live on the Full Mock result screen. The FU came from grepping `components/fullmock/` and concluding from a **directory listing**; **shared components do not live in the consumer's folder.** *(Generalising lesson: "wire the shared component" beats "wire each page" — and a directory listing is not a dependency graph.)*
+
+### ⚠ CORRECTED — `SolutionChecker` does NOT reach Check & Improve
+
+The QR spec (and a later owner note) said `SolutionChecker.tsx` is consumed by C&I. **It is not.** Verified on trunk — its **only** importers are:
+
+| Importer | Line | Surface |
+|---|---|---|
+| `components/practice/PracticeQuestionCard.tsx` | 5 | Quick Practice |
+| `pages/HighlyProbableQuestions.tsx` | 29 | HPQ |
+| `pages/TopicHub.tsx` | 20 | Topic Hub |
+
+`DesktopCheckImprovePage.tsx`'s single mention is a **COMMENT** at **:1714** (`/* /check-solution reads a PDF natively (same as SolutionChecker). */`) and mobile `CheckImprove.tsx` never mentions it at all — **both own their upload code** (the FileReader→base64 logic is duplicated **5×** app-wide). A `git grep -c` returns **1** for the C&I page: **the exact "a grep hit is NOT an import" trap**. ⇒ **The SolutionChecker wire covers QP + HPQ + TopicHub. C&I needs its OWN, separate wire.**
+
+### 🔁 STILL OPEN — the QR lane's remaining work
+
+- **[FU-QR-SOLUTIONCHECKER-WIRE] (PR-2) — BLOCKED on the QP lane vacating the file.** #436 merged, but the QP lane is **still mid-flight in `SolutionChecker.tsx`** (scorecard/self-assess fixes + a grader-touching PR to come) — **do NOT touch it until they are out.** **Seam contract (holds):** #436 replaced the old answer-input block with a **segmented control** (`answerTab: "upload" | "type"`) + an upload panel + a type panel. **★ QR attaches INSIDE the upload panel, NEVER as a third peer** — a QR handoff produces a FILE (the same `imageBase64`/`imageMimeType`/`imagePreview`/`fileName`/`isPdf` tuple `handleFileSelect` sets), so it is a **sub-mode of upload**. At 360px a third peer drops each CTA from ~162px to ~105px against ~105px of label, wrapping them and silently re-breaking the two-peer fix the owner's screenshot verdict bought. Use `mode="photo"` there (a single handwritten answer — one photo IS the answer). `handleClear`/`handleRecheck` must reset any QR session.
+- **[FU-QR-CI-WIRE] — C&I needs its own wire** (see the correction above): `DesktopCheckImprovePage` + mobile `CheckImprove`, both of which own their upload affordance. ⚠ #436 touched **both** C&I pages, so check lane-overlap against any open QP PR before starting. `mode="photo"`.
+
+### ✅ RESOLVED / SUPERSEDED by this lane
+
+- **[FU-ADMIN-UIDS-DEPLOY-ENV] — partially answered.** `FIREBASE_SERVICE_ACCOUNT_KEY` **IS** set on Railway (owner read `credentials: explicit` in the deploy log) — but **it was already set for the pre-existing `[share]` feature.** ⚠ **`ADMIN_FIREBASE_UIDS` is still unset**, so the admin solution-cache endpoints remain 503/fail-closed. Unrelated to QR.
+- **The QR channel needs NO `firestore.rules`/`storage.rules` change and NO deploy step** — firebase-admin bypasses both, and no client touches either, so the existing deny-alls are correct and protective. **Do not "helpfully" add a rule for `qrUploadSlots` or `qr-uploads/`.**
+
 ## 2026-07-15 -- #435: MATHTEXT COMMAND CORRUPTION **CLOSED** — protect-then-promote (trunk `fd57db1`), owner-live-verified
 
 ### CLOSED by #435 (owner byte-review + live-verify)

@@ -1,5 +1,63 @@
 # LazyTopper â€” Current State
 
+## #441 + #443 merged — QR DESKTOP→MOBILE ANSWER UPLOAD is LIVE — trunk `5aaaeec`
+
+**Post-merge trunk: `5aaaeec` (squash of #443) on top of `e07c757` (#436 QP sessions) and `9ebb87c` (squash of #441, the QR PR-1). Re-derive the tip after this docs PR merges — the tip moved FOUR times across this lane (#435 → #438/#439/#440 → #441 → #436 → #443). Never trust a written SHA.**
+
+**The friction is dead:** a student practising on a laptop who solved on paper no longer photographs it, WhatsApp/emails it to themselves, saves it and uploads from the laptop. The desktop shows a QR, the phone scans + sends, and the file lands in the SAME answer box and grades exactly as today. **Owner live-verified on the Full Mock result screen.**
+
+- **#441 (`9ebb87c`) — PR-1, 12 files.** Channel + 4 endpoints + `/u/:token` phone page + `<QrAnswerHandoff/>` + the 3 owner-approved `App.tsx` lines. Wired into `ChapterTestUploadPanel` + `WorksheetGradePanel`.
+  **ONE wire covered THREE surfaces** (CT in-test, CT result, Full Mock) because `ChapterTestUploadPanel` is shared by `ChapterTestPage.tsx:711` **and** `FullMockPage.tsx:1172`. **Wire the shared component, not each page** — that is the reusable lesson.
+- **#443 (`5aaaeec`) — 9 files.** Copy follows the HOST SURFACE; the real upload ceiling; a refusal a student can act on.
+
+### ★ ARCHITECTURE (owner-decided) — Firebase Storage + a Firestore coordination doc, both server-side via firebase-admin
+The phone NEVER touches Firebase: it POSTs to a token-scoped endpoint; the backend writes with admin credentials; the desktop pulls back through the backend. **No client touches Storage or Firestore on this path.**
+- **NO rules change, either side, and NO deploy step.** firebase-admin **bypasses** Firestore AND Storage security rules, so the existing deny-all catch-alls (`firestore.rules:143-145`; the Storage `/{allPaths=**}` deny) are CORRECT and actively protect this path. **Do not add a rule for `qrUploadSlots` or `qr-uploads/`. Do not touch `ncert/`** (it serves live student PDFs).
+- **No new dependency, no new env var, no Vercel change, no Railway change, no Firestore composite index** (both queries are single-field equality).
+- Bucket is derived, not configured: `VITE_FIREBASE_STORAGE_BUCKET || ${VITE_FIREBASE_PROJECT_ID}.firebasestorage.app` → `lazzyy-topper.firebasestorage.app`. (`initializeApp` passes **no** `storageBucket`, so `admin.storage().bucket()` with no argument would throw — the name MUST be passed explicitly.)
+
+### ★★ THE CREDENTIALS TRAP — record this; it WILL be re-derived otherwise
+**`verifyIdToken` working proves NOTHING about service-account credentials.** It needs only the **project id** + Google's **public** certs over HTTPS — **no service account**. Storage and Firestore **writes** do need one, and Railway has **no GCP metadata server**, so an ADC fallback resolves to nothing.
+- The owner's log read **`credentials: explicit`** — but **because `FIREBASE_SERVICE_ACCOUNT_KEY` was already set for the pre-existing `[share]` feature, NOT because auth implied it.** The inference ("admin auth works, so Storage will work") was invalid; the conclusion was true by coincidence.
+- **Proven live** that firebase-admin IS initialised: `requireFirebaseAuth.ts` returns **503 "Auth not configured"** when the app is null (L41-43) but **401** on a bad token (L53), and the no-token 401 fires first (L37) — so a **garbage Bearer token** is the discriminating probe. `/shared-api/admin/cache-stats` returned **401, not 503** ⇒ `VITE_FIREBASE_PROJECT_ID` is set.
+- **Nothing in the repo could settle the credential question:** `adminFirestore` is referenced ONLY in `share.cjs:119-129`, which is dead behind the `SESSION_SECRET` 503. **No live path had ever exercised credentialed admin** — the QR lane is its first consumer.
+
+### ★ POSTGRES IS NOT PROVISIONED — and the C&I "cache" no-ops in production
+`DATABASE_URL` is **unset**. `stepSolution.cjs:6` `getPool()` returns `null` → every read misses, every write silently drops. **Harmless for a cache** (a miss just regenerates) — **fatal for anything that must deliver.** The QR spec's original option (A) ("Postgres, already used for the C&I cache — no new infra") rested on this false premise; building it would have shipped a feature that silently hangs forever.
+- **PR2 (harden) never landed ⇒ every env var on its line is unset.** LIVE PROOF: `POST /api/share-token` → **503 `SESSION_SECRET not configured`**. Same line: `DATABASE_URL`, `ADMIN_FIREBASE_UIDS`, `SESSION_SECRET`. **[FU-BACKEND-DATABASE-URL-UNSET] says do NOT provision.**
+
+### ★ SECURITY — the TWO-TOKEN split makes "write-only" literally true
+A single token would **not** be write-only: whoever held the QR could read the image back. Split at mint:
+- **`uploadToken`** — in the QR, held by the phone. Grants exactly "write ONE image into ONE slot". **Can never read.**
+- **`pickupToken`** — never leaves the desktop that minted it (held in a ref, never in the QR). Reads once, destroying the slot.
+
+A stolen QR buys *"put one image into a slot you cannot read"* for ≤5 min — which the student SEES and can discard. 256-bit `crypto.randomBytes`; **stored sha256-HASHED, never raw** (a Firestore dump yields no usable token); single-use both ends; **delete-on-pickup is the primary retention control** for a minor's handwritten work; never logged. **No `SESSION_SECRET` dependency** — the Map/doc IS the authority, so there is no signature to forge (and depending on it would have shipped the feature dead).
+- **MINT requires auth; UPLOAD is token-only.** Per-UID caps — **never per-IP**: our students share school wifi, coaching-centre networks and carrier NAT, so an IP cap would throttle a whole school while one kid practises. A login wall on the *phone* is the exact friction being removed.
+
+### ★ #443 — "PDF up to 5 MB" was NEVER spendable, on EITHER path (a live PRE-EXISTING bug)
+base64 inflates ~4/3, so a 5 MB PDF is **6.67 MB** on the wire against `readJson`'s 5 MB body cap (`httpUtils.cjs:57`, which destroys the request: *"Request body too large"*). **A student attaching a 4-5 MB PDF ON THE DESKTOP — no QR involved — passed the picker and then died at the grader.** That predated the QR lane.
+- **MEASURED** against the assembled 8,584-row bank (transpile-then-require, never a text scan): the questions array riding alongside the image is only **0.10 MB** worst case (38 Qs; median row ~1,005 bytes) ⇒ **true ceiling ≈ 3.68 MB**. The 3.5 MB cap was already right; **the COPY was the lie.**
+- Limits now live in **ONE** place: `src/services/uploadLimits.ts`, with the arithmetic written down. Both panels' 5 MB allowance dropped to the real number so an over-cap file fails **honestly in the picker / on the phone** — never "uploaded" then dead at the grader.
+- **A PDF cannot be downscaled** (there is no canvas for it), so its limit is a hard wall and must be refused early. Images are downscaled to fit, so theirs is a target.
+
+### ★ #443 — copy follows the HOST SURFACE, not the component
+A Chapter Test / Full Mock / Worksheet wants ONE **multi-page** PDF. The old copy said "Photograph your written answer" with `capture="environment"` making the camera the default ⇒ **a student photographed page 1 of a 20-question mock and believed they were done.** A feature that works and a student cannot use correctly.
+- `QrAnswerHandoff` now takes a **REQUIRED `mode` ("document" | "photo") with NO DEFAULT** — a new host must decide consciously rather than silently inherit misleading copy.
+- **The mode rides on the coordination doc** (set at mint, returned by the existing `/status` peek) because **the phone page is reached by TOKEN ALONE** and cannot otherwise know which surface minted it — and the phone is where the bug bites. It carries no student content, so write-only is intact (gate proves it).
+- **`capture` is OMITTED in document mode** so Files/scanner is a first-class choice. `accept` is deliberately broad — the picker returns camera OR gallery OR a PDF; `capture` only sets the DEFAULT. **Do not "simplify" the accept list** (commented at the input).
+
+### ★ THERE WAS NO QR PDF BUG — diagnosed, not assumed
+The reported *"PDF lands but the grader can't read it"* was **disproven at file:line**, and three theories died in order:
+1. **"The image downscaler mangles PDFs"** — FALSE. A PDF returns at `qrUploadService.ts:174`; the canvas starts at **:181**. It never runs.
+2. **"The channel corrupts the bytes"** — FALSE. Driving the REAL channel with a structurally valid PDF: base64 **identical in==out**, mime preserved, byte length identical, `%PDF-`…`%%EOF` intact.
+3. **"The questions array blows the body cap"** (the agent's OWN best theory) — FALSE, and disproven by measurement (0.10 MB, above).
+**The owner's desktop-direct test settled it:** the grader **REFUSED** an unreadable PDF rather than guessing a mark — **correct behaviour, no QR involved. The channel is sound.** *(Lesson: three plausible stories, all wrong. Only the trace and the measurement were right.)*
+
+### Gotchas worth keeping
+- **`scope:guard --mode product` FAILS** on a PR that adds an ops gate + `package.json` — that is a product **+ tooling** PR. Use **`--mode mixed`** → `SCOPE_GUARD_OK (lanes=product+trackedTooling)`.
+- **vitest cannot run on Windows** (rollup native is linux-pinned) **and CI runs the MATRICES, not vitest** ⇒ a vitest file asserting a security property would **never block a merge**. Put such proofs in `scripts/ops/*.mjs` + wire into `test:matrix:all`. Done: `qr_upload_channel_acceptance.mjs`, **46/46**, incl. a **cap-arithmetic assertion** negative-tested to go red on a 5 MB cap (*"6.86 MB >= 5.00 MB — the advertised PDF limit is UNSPENDABLE"*). **A guard that cannot fail is theatre.**
+- `App.tsx` `BARE_FULLSCREEN_PREFIXES` is the file's **own designed extension point** ("so Full Mock can join later with one entry") — one array entry bought navbar + BottomNav + DesktopShell suppression for `/u`. Routes are flat and **public by default**; `isDesktopShellRoute` is an allowlist.
+
 ## #435 merged + OWNER LIVE-VERIFIED — MATHTEXT COMMAND CORRUPTION CLOSED: protect-then-promote — trunk `fd57db1`
 
 **Post-merge trunk: `fd57db1` (squash of #435) on top of `64a1d69` (tutor visual catalogue + Fable concept-figure curation, parked for Stage 3) and `2ae80ce` (skill: evidence standard + inference-trap rules) — both landed mid-lane, so #435 needed an update-branch before merge. This docs-only PR (`docs/post-pr-435-mathtext-command-corruption`) records the merge. Re-derive the tip after it merges (the usual one-commit lag). NOTE: the tip moved TWICE during this lane — never trust a written SHA.**
