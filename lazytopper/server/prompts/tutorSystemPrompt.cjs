@@ -29,9 +29,12 @@
  *   concept/topic the tutor solves on the "see how it's solved" demonstration (Fix 4 —
  *   bank-over-self-invented). `{ questionText, marks?, solutionSteps?[] }`. Absent when the
  *   bank has nothing usable → the tutor falls back to a correctness-railed simpler example.
+ * @param {Array<{key:string,label:string}>} [args.figures] Stage 3 — the concepts in THIS
+ *   topic that have a curated diagram the app can show in the side panel, each with the exact
+ *   sentinel key. The tutor signals one via `[[figure:<key>]]` when a diagram helps the turn.
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures } = {}) {
   const topic = (topicLabel && String(topicLabel).trim()) || 'this topic';
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   const lang = (language && String(language).trim()) || 'English';
@@ -117,6 +120,8 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `student — it is not part of your prose, do not describe it, do not reference "the button".`
   );
 
+  lines.push(figurePanelBlock(figures));
+
   lines.push(
     `\nWHAT YOU WILL NOT DO\n` +
     `- Syllabus gate: politely decline anything outside the CBSE Class-10 2026-27 syllabus — sections the ` +
@@ -196,6 +201,42 @@ function briefBlock(brief) {
     `If you reference it at all, use ONE gentle spoken line and only after the student has said their first ` +
     `thing (e.g. "the identities are where marks have slipped, so let's nail those"). A careless or ` +
     `presentation pattern is NOT a weakness — say "you know this, you're just rushing the finish", not "you're weak here".`
+  );
+}
+
+/**
+ * Stage 3 — the visual-panel directive. Lists the concepts in this topic that have a curated
+ * diagram (each with its exact sentinel key) and tells the tutor to signal ONE via
+ * `[[figure:<key>]]` when — and only when — a diagram genuinely helps the point this turn.
+ * Empty/absent list → no block (the tutor never invents a figure or references a panel).
+ * Anti-fabrication: the app shows ONLY a curated, verified asset for a signalled key; the
+ * tutor must never describe a diagram it has not signalled, and never signal a key not listed.
+ */
+function figurePanelBlock(figures) {
+  const list = Array.isArray(figures)
+    ? figures.filter((f) => f && typeof f.key === 'string' && typeof f.label === 'string')
+    : [];
+  if (list.length === 0) {
+    return (
+      `\nVISUAL PANEL\n` +
+      `No curated diagram is available for this topic, so do NOT reference a side diagram or ` +
+      `"the figure beside us" — teach in words. Never invent or describe a diagram that is not shown.`
+    );
+  }
+  const items = list.map((f) => `    - ${f.key}: ${f.label}`).join('\n');
+  return (
+    `\nVISUAL PANEL (a real diagram can appear beside the chat — READ CAREFULLY)\n` +
+    `These concepts in this topic have a curated, NCERT-aligned diagram the app can show in a ` +
+    `side panel. Each is listed as "<key>: <what it shows>":\n` +
+    items + `\n` +
+    `THE SIGNAL (machine-readable, on its OWN line): when — and ONLY when — one of these diagrams ` +
+    `genuinely helps the point you are making THIS turn, put \`[[figure:<key>]]\` on its own line, ` +
+    `using EXACTLY one key from the list above. You may then refer to it naturally ("look at the ` +
+    `diagram beside us"). Emit at most ONE figure tag per turn; if none of the listed diagrams fits ` +
+    `what you are explaining, emit NO figure tag and do NOT mention a diagram. NEVER signal a key ` +
+    `that is not in the list, and NEVER describe a figure you have not signalled — the app shows ` +
+    `only the real curated asset for the key you emit. The tag is stripped and never shown; if you ` +
+    `also emit an offer tag, put each on its own separate line (order does not matter to the app).`
   );
 }
 

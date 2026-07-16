@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Oxidation of ethanol to ethanoic acid by alkaline potassium permanganate or acidified potassium dichromate, and the reversible esterification of ethanoic acid with ethanol in the presence of an acid catalyst">
+  <title>Reactions of ethanol and ethanoic acid</title>
+  <desc>Original teaching diagram setting NCERT's verbatim equations. NCERT Science Class 10, Carbon and its Compounds (ch.4): oxidation of ethanol p71, esterification p73. NCERT's esterification arrow is labelled "Acid" (an acid catalyst) and the reaction is reversible; concentrated sulphuric acid appears only in Activity 4.8's reagent list, not in the equation. No NCERT reaction figure exists (Fig. 4.11 is the Activity apparatus).</desc>
+  <rect width="400" height="300" fill="#fcfdfe"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+
+    <!-- ============ OXIDATION ============ -->
+    <text x="14" y="26" font-size="12.5" fill="#0f2444" font-weight="600" font-family="Fraunces, Georgia, serif">Oxidation of ethanol</text>
+
+    <text x="14" y="68" font-size="12.5" fill="#0f2444">CH&#8323;&#8212;CH&#8322;OH</text>
+    <text x="14" y="84" font-size="11" fill="#5a6472">ethanol</text>
+
+    <line x1="98" y1="63" x2="238" y2="63" stroke="#16b96a" stroke-width="2.5"/>
+    <path d="M 246 63 L 233 57 L 233 69 Z" fill="#16b96a"/>
+    <text x="100" y="54" font-size="11" fill="#5a6472">Alkaline KMnO&#8324; + Heat</text>
+    <text x="100" y="82" font-size="11" fill="#5a6472">or acidified K&#8322;Cr&#8322;O&#8327; + Heat</text>
+
+    <text x="256" y="68" font-size="12.5" fill="#0f2444">CH&#8323;COOH</text>
+    <text x="256" y="84" font-size="11" fill="#5a6472">ethanoic acid</text>
+
+    <line x1="14" y1="112" x2="386" y2="112" stroke="#c3cbd6" stroke-width="1.2"/>
+
+    <!-- ============ ESTERIFICATION ============ -->
+    <text x="14" y="146" font-size="12.5" fill="#0f2444" font-weight="600" font-family="Fraunces, Georgia, serif">Esterification</text>
+
+    <text x="14" y="190" font-size="12.5" fill="#0f2444">CH&#8323;&#8212;COOH + CH&#8323;&#8212;CH&#8322;OH</text>
+    <text x="14" y="206" font-size="11" fill="#5a6472">ethanoic acid + absolute ethanol</text>
+
+    <!-- reversible double arrow -->
+    <line x1="242" y1="182" x2="294" y2="182" stroke="#16b96a" stroke-width="2.5"/>
+    <path d="M 300 182 L 289 177 L 289 187 Z" fill="#16b96a"/>
+    <line x1="242" y1="194" x2="294" y2="194" stroke="#16b96a" stroke-width="2.5"/>
+    <path d="M 236 194 L 247 189 L 247 199 Z" fill="#16b96a"/>
+    <text x="254" y="172" font-size="12.5" fill="#0e8f52" font-weight="600">Acid</text>
+
+    <text x="312" y="190" font-size="12.5" fill="#0f2444">Ester</text>
+    <text x="312" y="206" font-size="12.5" fill="#0f2444">+ H&#8322;O</text>
+
+    <text x="14" y="250" font-size="12.5" fill="#0f2444">CH&#8323;&#8212;COO&#8212;CH&#8322;&#8212;CH&#8323;</text>
+    <text x="14" y="266" font-size="11" fill="#5a6472">ethyl ethanoate &#8212; the ester written out</text>
+  </g>
+</svg>

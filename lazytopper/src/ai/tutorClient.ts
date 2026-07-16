@@ -26,6 +26,17 @@ export interface TutorTurn {
   kind?: "message" | "away-cue" | "return-result";
   /** Present on a tutor turn when the model earned a round-trip CTA (Fix 3). */
   offer?: TutorOffer;
+  /** Stage 3 — the conceptKey of a curated diagram the model signalled for THIS turn's
+   *  explanation panel (`[[figure:<key>]]`, server-stripped + validated). Advisory chrome:
+   *  it opens the panel to a real curated asset; never a grade, never invented. */
+  figure?: string;
+}
+
+/** Stage 3 — a concept in the current topic that has a curated diagram. Sent to the server
+ *  so the model can signal one via its stable `key`; `label` tells the model what it shows. */
+export interface TutorFigureOption {
+  key: string;
+  label: string;
 }
 
 /**
@@ -65,6 +76,9 @@ export interface TutorRequest {
    *  "see how it's solved" demonstration (Fix 4). Absent → the tutor self-generates a
    *  correctness-railed simpler example. */
   demoQuestion?: TutorDemoQuestion | null;
+  /** Stage 3 — the concepts in this topic that have a curated diagram (the closed set the
+   *  model picks from to signal a figure). Absent/empty → the tutor signals no figure. */
+  figures?: TutorFigureOption[];
 }
 
 /** The minimal shape of a verified bank question passed for the demonstration (Fix 4). */
@@ -78,6 +92,9 @@ export interface TutorReply {
   reply: string;
   /** The round-trip offer the model signalled this turn (Fix 3), or null/absent. */
   offer?: TutorOffer | null;
+  /** Stage 3 — the curated conceptKey the model signalled for the explanation panel, or
+   *  null/absent. Already validated server-side against the topic's curated set. */
+  figure?: string | null;
   model?: string;
   provider?: string;
 }
@@ -117,5 +134,7 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
   }
   // Defensive: only a recognised offer survives (garbled → no CTA, never a crash).
   const offer = parsed.offer === "practice" || parsed.offer === "check-improve" ? parsed.offer : null;
-  return { ...parsed, offer };
+  // Stage 3: only a non-empty string figure key survives (garbled → no panel).
+  const figure = typeof parsed.figure === "string" && parsed.figure.trim() ? parsed.figure.trim() : null;
+  return { ...parsed, offer, figure };
 }

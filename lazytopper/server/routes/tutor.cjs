@@ -63,6 +63,46 @@ function extractOfferTag(raw) {
 }
 
 /**
+ * Stage 3 — pull the visual-panel sentinel out of the model's prose. Mirrors extractOfferTag
+ * exactly: the model puts `[[figure:<conceptKey>]]` on its own line ONLY when a diagram would
+ * help THIS turn, choosing <conceptKey> from the closed set the client passed in `figures`.
+ * We strip EVERY such tag (defensive) and return the LAST key that is a MEMBER of that set —
+ * a hallucinated/unknown key yields figure:null (no panel), never a wrong figure. The
+ * conceptKey token is a clean kebab slug (regex-safe even when the label carries "[]"/symbols).
+ * validKeys is a Set of the allowed conceptKeys; empty/absent → figure always null.
+ */
+function extractFigureTag(raw, validKeys) {
+  let figure = null;
+  const allow = validKeys instanceof Set ? validKeys : new Set();
+  const tagRe = /\[\[\s*figure\s*:\s*([a-z0-9-]+)\s*\]\]/gi;
+  const text = String(raw)
+    .replace(tagRe, (_m, value) => {
+      const v = String(value).toLowerCase().trim();
+      if (allow.has(v)) figure = v;
+      return '';
+    })
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+  return { text, figure };
+}
+
+/**
+ * Stage 3 — normalize the optional client-supplied figure options to `{ key, label }[]`.
+ * These are the concepts in THIS topic that have a curated visual; the prompt lists them and
+ * the model picks one to signal. Anything malformed is dropped; [] → no figure signalling.
+ */
+function normalizeFigures(input) {
+  if (!Array.isArray(input)) return [];
+  const out = [];
+  for (const f of input) {
+    const key = f && typeof f.key === 'string' ? f.key.trim() : '';
+    const label = f && typeof f.label === 'string' ? f.label.trim() : '';
+    if (/^[a-z0-9-]+$/.test(key) && label) out.push({ key, label });
+  }
+  return out.slice(0, 40); // a topic has a handful; cap defensively
+}
+
+/**
  * Fix 4 — normalize the optional client-supplied bank question to the minimal shape the
  * prompt consumes. Anything missing a usable questionText → null (self-gen fallback).
  */
@@ -112,6 +152,11 @@ function createTutorRoute(deps) {
     // for the "see how it's solved" demonstration. Additive + optional — normalized to the
     // minimal shape the prompt consumes; anything malformed becomes null (self-gen fallback).
     const demoQuestion = normalizeDemoQuestion(payload.demoQuestion);
+    // Stage 3: the concepts in this topic that have a curated visual, as { key, label }[].
+    // The prompt lists them; the model signals one via [[figure:<key>]]; we validate the
+    // returned key against exactly this set so only a real, curated figure can surface.
+    const figures = normalizeFigures(payload.figures);
+    const figureKeys = new Set(figures.map((f) => f.key));
 
     // Map the conversation to Gemini turns (user | model), dropping empties and
     // capping both history length and per-turn size.
@@ -140,7 +185,7 @@ function createTutorRoute(deps) {
       });
     }
 
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion });
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -181,11 +226,17 @@ function createTutorRoute(deps) {
       // return it as a sibling `offer` field the UI gates ONE round-trip CTA on. Robust:
       // a missing/garbled tag yields offer:null (no CTA, never a crash). Runs on the model
       // OUTPUT only — orthogonal to the language-steering append (which edits the INPUT).
-      const { text, offer } = extractOfferTag(raw);
+      const offerOut = extractOfferTag(raw);
+      // Stage 3: strip the figure sentinel too (same OUTPUT pass, order-independent — the
+      // two tags are on their own lines). Validate against the curated set for this topic.
+      const figureOut = extractFigureTag(offerOut.text, figureKeys);
+      const text = figureOut.text;
+      const offer = offerOut.offer;
+      const figure = figureOut.figure;
       if (!text) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
       }
-      return sendJson(res, 200, { reply: text, offer, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
+      return sendJson(res, 200, { reply: text, offer, figure, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
     } catch (err) {
       console.error('[tutor] generation failed:', err && err.message);
       const status = err && err.status === 504 ? 504 : 500;
@@ -198,4 +249,11 @@ function createTutorRoute(deps) {
   return { handleTutorRequest };
 }
 
-module.exports = { createTutorRoute, coalesceTurns, extractOfferTag, normalizeDemoQuestion };
+module.exports = {
+  createTutorRoute,
+  coalesceTurns,
+  extractOfferTag,
+  extractFigureTag,
+  normalizeDemoQuestion,
+  normalizeFigures,
+};

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Right triangle OQP formed by the radius r, the tangent length l, and the distance d from the centre to the external point P">
+  <title>Length of the tangent from an external point</title>
+  <desc>Adapted from NCERT Maths Class 10, Circles, Fig. 10.7 (p149). The single right triangle OQP is isolated from that figure and labelled r, l and d. NCERT states the relation as PQ squared = OP squared minus OQ squared (Remark, p149).</desc>
+  <rect width="400" height="300" fill="#fcfdfe"/>
+
+  <!-- circle, centre O -->
+  <circle cx="215" cy="165" r="62" fill="none" stroke="#0f2444" stroke-width="1.8"/>
+
+  <!-- OP (d) — construction line -->
+  <line x1="215" y1="165" x2="60" y2="165" stroke="#c3cbd6" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <!-- radius OQ (r) -->
+  <line x1="215" y1="165" x2="190" y2="108" stroke="#0f2444" stroke-width="1.8"/>
+
+  <!-- tangent PQ (l) — the taught element -->
+  <line x1="60" y1="165" x2="190" y2="108" stroke="#16b96a" stroke-width="2.5"/>
+
+  <!-- right angle at Q, between QO and QP -->
+  <path d="M 178.4 112.1 L 182.9 122.4 L 193.2 117.9" fill="none" stroke="#c3cbd6" stroke-width="1.2"/>
+
+  <!-- points -->
+  <circle cx="215" cy="165" r="3" fill="#0f2444"/>
+  <circle cx="60" cy="165" r="3" fill="#0f2444"/>
+  <circle cx="190" cy="108" r="3.5" fill="#16b96a"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="222" y="180" font-size="12.5" fill="#0f2444">O</text>
+    <text x="46" y="181" font-size="12.5" fill="#0f2444">P</text>
+    <text x="192" y="99" font-size="12.5" fill="#0e8f52" font-weight="600">Q</text>
+    <text x="209" y="130" font-size="12.5" fill="#0f2444">r</text>
+    <text x="118" y="126" font-size="12.5" fill="#0e8f52" font-weight="600">&#8467;</text>
+    <text x="133" y="181" font-size="11" fill="#5a6472">d</text>
+
+    <text x="30" y="240" font-size="12.5" fill="#0f2444">PQ&#178; = OP&#178; &#8722; OQ&#178;</text>
+    <text x="30" y="256" font-size="11" fill="#5a6472">as NCERT states it</text>
+    <text x="232" y="240" font-size="12.5" fill="#0e8f52" font-weight="600">&#8467; = &#8730;(d&#178; &#8722; r&#178;)</text>
+    <text x="232" y="256" font-size="11" fill="#5a6472">the same fact, solved for &#8467;</text>
+  </g>
+</svg>
