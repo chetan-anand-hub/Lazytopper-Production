@@ -2,6 +2,35 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-16 — ✅ QR PR-2: SCAN-TO-SEND on QUICK PRACTICE + HPQ + TOPIC HUB (#447 `d99c14d`) — the desktop→phone handoff now reaches the surfaces students practise on most
+
+  [x] **#447 — ONE file (`SolutionChecker.tsx`, +62/−7), ONE wire, THREE surfaces.** QP + HPQ + TopicHub all render
+      `SolutionChecker`; the #441 channel was reused verbatim, nothing rebuilt. **NOT C&I** — it owns its own upload
+      code (`DesktopCheckImprovePage:1714` is a COMMENT, re-verified true at `d99c14d`). **Owner LIVE-VERIFIED all
+      four:** round-trip grades on QP · a QR **PDF renders the PDF row, not a broken image** · 360px unchanged ·
+      type/upload unaffected when QR is unused.
+  [x] **The seam contract, honoured.** `mode="photo"` (one handwritten answer ⇒ the photo IS the answer), attached as
+      a **sibling of the dropzone INSIDE the upload block — never a third peer**. 360px safe **twice over**: the
+      segmented control keeps two `flex:1` peers AND `QrAnswerHandoff` returns null <1024px so it cannot render there.
+      **Sibling, not nested** — the dropzone is a `<button>` and nesting interactives is invalid markup.
+  [x] **★★ The CT wire was NOT copy-pasteable.** The phone's picker keeps `accept="...,application/pdf"` in **EVERY**
+      mode — `capture` only HINTS at the camera, it does not restrict the picker ⇒ **a PDF can arrive in `"photo"`
+      mode**. CT has no preview so its 2-field set sufficed; `SolutionChecker` has an `imagePreview` branch gated on
+      `!isPdf` ⇒ the **full FIVE-field tuple** was required or a real student's QR PDF renders **broken** in `<img>`.
+  [x] **The QR-session reset needed NO code** — `!hasFile` gates the mount ⇒ delivery unmounts (cleanup cancels
+      polling), clearing remounts a fresh `idle`. *Make the stale state unreachable rather than remembering to clear it.*
+  [x] **Closed `SolutionChecker`'s OWN 5 MB copy lie** (it had its own `MAX_PDF_BYTES = 5 MB`) → `uploadLimits.ts`,
+      3.5 MB, both copy strings derived from the constants they enforce. ★ **NOT a surface #443 missed** — it was the
+      one correctly HELD BACK for PR-2 while the QP lane owned the file; *the seam contract working as designed.*
+  [x] Gates: tsc · mojibake · scope:guard · root matrix **190/190** · ops matrix incl. **QR channel 46/46** (its
+      negative-tested cap assertion covers the migration) · CI `quality-gate` + `lane-overlap` + Vercel green.
+
+- **NEXT: [FU-QR-CI-WIRE]** — the last wire. New: **[FU-SOLUTIONCHECKER-STALE-ANSWERTAB]** (latent, pre-existing #436;
+  `handleCheck` reads `answerTab` but omits it from its deps ⇒ the send can disagree with the screen — needs
+  gate-vs-deps reasoning **and a negative test proving it fails pre-fix**). **[FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE]**
+  decided for QR's purposes (tab-gated ⇒ moot, no data loss) but stays open on its original terms (a grader change).
+  Live lanes: Fable bank expansion. **Branch cleanup ON HOLD** at the owner's instruction.
+
 ## 2026-07-16 — ✅ GRADER `objective` FLAG + ATTEMPT-DEDUP `mode` DROP (#445 `ad2a9b2`) — the grader stops printing "+0 marks" on a correct MCQ, and one question stops counting twice
 
   [x] **#445 — §2 + §4b as ONE PR (they share ONE root: nothing client-side could tell an objective question from a
@@ -51,10 +80,13 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
       write-only · single-use · delete-on-pickup · TTL · per-uid isolation · hashed tokens · fail-closed · PDF
       byte-identity · variant round-trip · **negative-tested cap arithmetic**. (vitest cannot host this: linux-pinned,
       and CI runs the MATRICES, not vitest — a vitest file would never block a merge.)
-  [ ] **PR-2 [FU-QR-SOLUTIONCHECKER-WIRE] — BLOCKED until the QP lane vacates `SolutionChecker.tsx`.** One wire there
-      covers **Quick Practice + HPQ + TopicHub** (**NOT C&I** — corrected; C&I owns its own upload code). Seam: QR
-      attaches **inside the upload panel, never as a third peer** (360px CTA math). Use `mode="photo"`.
-  [ ] **[FU-QR-CI-WIRE]** — C&I needs its OWN wire (`DesktopCheckImprovePage` + mobile `CheckImprove`).
+  [x] **PR-2 [FU-QR-SOLUTIONCHECKER-WIRE] — ✅ DONE: #447 `d99c14d`, owner LIVE-VERIFIED** (full entry at the TOP of
+      this file). One wire → **Quick Practice + HPQ + TopicHub** (**NOT C&I**). ★ This "BLOCKED" line is exactly why
+      `SolutionChecker`'s own 5 MB constant outlived #443 — **the contract WORKING, not a miss**; PR-2 closed both.
+  [ ] **[FU-QR-CI-WIRE] — the LAST wire.** C&I needs its OWN (`DesktopCheckImprovePage` + mobile `CheckImprove`),
+      `mode="photo"`; #436 touched both → check lane-overlap first. ⚠ **Assume nothing, twice:** (1) look for a THIRD
+      copy of the 5 MB constant — do NOT inherit "the lie is gone everywhere" as a fact twice in one lane; (2) if C&I
+      has its own tab-gate, check it for the same **stale-closure** shape as [FU-SOLUTIONCHECKER-STALE-ANSWERTAB].
   [ ] **[FU-QR-STORAGE-LIFECYCLE] (OWNER INFRA)** — 24h lifecycle rule on `qr-uploads/` (console/gsutil; not code).
   [ ] **[FU-GRADER-5MB-COPY]** — the grader still says "Keep the PDF under 5 MB" (impossible). Forbidden file → own PR.
 

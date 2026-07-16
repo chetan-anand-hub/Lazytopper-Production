@@ -1,5 +1,47 @@
 ---
 
+## 2026-07-16 -- #447: QR PR-2 — SCAN-TO-SEND on QUICK PRACTICE + HPQ + TOPIC HUB — **merged + owner LIVE-VERIFIED** — trunk `d99c14d`
+
+**#447 (`d99c14d`, 1 file, +62/−7). Isolated worktree `LT-worktrees/qr-pr2`, branch `feat/desktop-pr-qr2-solutionchecker-wire`. Process: read handoff → re-derive the tip → re-verify EVERY dispatched claim against live code → pre-flight report → STOP for owner approval → build → gates → push → CI green → owner live-verify → owner merge. Never self-merged. CI `quality-gate` + `lane-overlap` + Vercel all green.**
+
+**ONE wire lit THREE surfaces** (Quick Practice, HPQ, Topic Hub — all render `SolutionChecker`). The #441 channel was reused verbatim. **NOT C&I** — it owns its own upload code; `DesktopCheckImprovePage:1714` is a COMMENT, re-verified true at `d99c14d`.
+
+### What shipped
+- **QR affordance, `mode="photo"`** (one handwritten answer ⇒ the photo IS the answer), attached as a **sibling of the dropzone INSIDE the upload block — never a third peer**. 360px safe twice over: two `flex:1` peers unchanged, and `QrAnswerHandoff` returns null <1024px. **Sibling, not nested** — the dropzone is a `<button>`.
+- **The 5 MB→3.5 MB migration + both copy strings** (`services/uploadLimits.ts`), folded in with owner approval.
+
+### ★ THE PRE-FLIGHT THAT PAID — the dispatch brief was WRONG, and checking it caught a live bug
+The brief asserted *"the '5MB' copy lie is gone from every client surface."* **It was not.** `SolutionChecker` had its **own** `MAX_PDF_BYTES = 5 * 1024 * 1024` (:64), refused with `"under 5 MB"` (:299), and its dropzone read `"Max 3 MB image, 5 MB PDF"` (:539). Never spendable — base64 ×4/3 ⇒ 6.67 MB against `readJson`'s 5 MB cap — so a 4–5 MB PDF **on the desktop, no QR**, passed the picker and died at the grader. **Reported before writing a line; owner approved folding the fix in** (3 lines, same file, same affordance; shipping QR@3.5MB beside a picker promising 5MB IS the forbidden "uploaded, then dead"). *Verify the brief's premises against source; a dispatch is a hypothesis, not a fact.*
+
+### ★★ THE FRAMING CORRECTION — the owner overruled my first draft, and was right
+I initially recorded this as a surface #443 "missed". **It was not.** [FU-QR-SOLUTIONCHECKER-WIRE] was logged **BLOCKED ("do NOT touch it until they are out")** because the QP lane owned the file when #443 shipped; #443 correctly scoped to the three host panels then free. **SolutionChecker was the one correctly HELD BACK for PR-2 — the bug being live until now is the seam contract WORKING AS DESIGNED.** Recording it as an oversight would defame a correct decision and teach the next agent to distrust a contract that just worked. *A deferred fix landing exactly when its lane opens is success, not debt.*
+
+### ★★ THE SHARPEST FINDING — the CT wire is NOT copy-pasteable
+**The phone's picker keeps `accept="...,application/pdf"` in EVERY mode** — `capture` only HINTS at the camera, it does not restrict the picker ⇒ **a PDF can arrive in `mode="photo"`.** CT has no preview so its 2-field set sufficed; **`SolutionChecker` has an `imagePreview` branch gated on `!isPdf`** ⇒ needs the **full FIVE-field tuple** (`fileName`/`isPdf`/`imageMimeType`/`imagePreview`/`imageBase64`). A naive copy would have put a real student's QR PDF into the `<img>` branch, **broken**. Caught by reasoning about `capture`'s actual behaviour rather than assuming the sibling surface's shape transfers — and **owner live-verified** as case 2.
+
+### ★ The reset requirement needed NO code
+Seam contract: "`handleClear`/`handleRecheck` must reset any QR session." **Satisfied structurally** — `!hasFile` gates the mount ⇒ delivery unmounts (cleanup cancels polling), clearing remounts fresh `idle`. *Make the stale state unreachable rather than remembering to clear it.*
+
+### ★ [FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE] — #445 asked PR-2 to decide it. DECIDED: structurally moot, no data loss
+The send is tab-gated (`:343-344`), and QR is reachable only from the upload tab ⇒ a QR image can only be sent from `upload`; typed text is **preserved, not destroyed**. **No silent data-loss path shipped.** FU stays open on its original terms (making text-alongside-image *work* is a grader change).
+
+### ★★ …but auditing the gate found a REAL latent bug → [FU-SOLUTIONCHECKER-STALE-ANSWERTAB]
+The owner asked "is this safe?" — and the answer came from checking **the gate's mechanism**, not its output. `handleCheck` READS `answerTab` (`:343-344`) but **OMITS it from its useCallback deps** (`:404`). Repro: upload+file → switch to type, type (`textAnswer` IS a dep ⇒ rebuilds capturing `"type"`) → switch BACK to upload **with no further edit** (no dep change ⇒ stale tab retained) → Check ⇒ **sends the typed text while the screen shows the image.** That is *exactly* the failure the gate's own comment at `:340-342` says it prevents. **Pre-existing (#436), NOT introduced here.** Held out of #447 with owner approval — it needs its own reasoning (gate vs deps) and a **negative test proving it fails pre-fix**. *When asked "is X safe?", check the MECHANISM that makes it safe, not just today's output.*
+
+### The 9th stale-base catch
+Docs **#446** merged **mid-session**; the branch went stale underneath. It first presented as **seven handoff files appearing in my diff as DELETIONS — indistinguishable from the §2a collision signature** until checked. Verified docs-only + zero overlap with `SolutionChecker.tsx`, rebased onto `c2db430`, re-ran tsc. *Every diff surprise on a shared trunk is a real collision until proven otherwise — check, don't assume, in either direction.*
+
+### Gates
+tsc PASS · mojibake PASS · scope:guard PASS (product) · root matrix **28 suites / 190 pass / 0 fail** · lazytopper ops matrix PASS incl. **QR channel acceptance 46/46** (its **negative-tested cap-arithmetic assertion covers this migration** — restore 5 MB and it goes red) · `git diff --check` clean · **zero forbidden files** · CI `quality-gate` + `lane-overlap` + Vercel green (Vercel's linux build is the production-build gate Windows cannot run locally).
+
+### ★ OWNER LIVE-VERIFIED — all four green
+1. Desktop QR → phone photo → lands + grades on Quick Practice. 2. QR-delivered **PDF renders the PDF row, not a broken image**. 3. **360px unchanged.** 4. **Type/upload unaffected when QR is unused.**
+
+### NEXT
+**[FU-QR-CI-WIRE]** — the last wire (C&I: `DesktopCheckImprovePage` + mobile `CheckImprove`, `mode="photo"`). **Two owner-approved "assume nothing" checks, both earned the hard way in THIS lane:** (1) **look for a THIRD copy of the 5 MB constant** — do NOT inherit "the lie is gone everywhere" as a fact twice in one lane; (2) **if C&I has its own tab-gate, check it for the SAME stale-closure shape** — don't assume it's immune.
+
+---
+
 ## 2026-07-16 -- #445: GRADER `objective` FLAG (§2) + ATTEMPT-DEDUP `mode` DROP (§4b) — **merged + owner LIVE-VERIFIED** — trunk `ad2a9b2`
 
 **#445 (`ad2a9b2`, 11 files: 9 modified + 2 new). Isolated worktree `LT-worktrees/grader-objective-dedup`, branch `feat/desktop-pr-grader-objective-dedup`. Process: read handoff → re-verify EVERY claim against live code → pre-flight report → STOP for owner approval → build → gates → push → CI green → owner live-verify → merge. Never self-merged. CI `quality-gate` + `lane-overlap` + Vercel all green.**

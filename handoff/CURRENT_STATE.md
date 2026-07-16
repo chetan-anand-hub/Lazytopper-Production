@@ -1,5 +1,44 @@
 # LazyTopper â€” Current State
 
+## #447 merged — QR PR-2: SCAN-TO-SEND on QUICK PRACTICE + HPQ + TOPIC HUB — **owner LIVE-VERIFIED** — trunk `d99c14d`
+
+**Post-merge trunk: `d99c14d` (squash of #447) on top of `c2db430` (#446 docs) and `ad2a9b2` (#445). Re-derive the tip after this docs PR merges — never trust a written SHA. #447's own run is the live example: docs #446 merged MID-SESSION and the branch went stale underneath it (the 9th stale-base catch in this project).**
+
+**ONE file (`SolutionChecker.tsx`, +62/−7). ONE wire lit THREE surfaces** — Quick Practice, HPQ and Topic Hub all render `SolutionChecker`. The channel (#441) was reused verbatim; nothing about it was rebuilt. **It does NOT reach C&I** — that surface owns its own upload code (`DesktopCheckImprovePage:1714` is a COMMENT, not an import; re-verified true at `d99c14d`). C&I is **[FU-QR-CI-WIRE]**, still open.
+
+### What shipped
+- **The QR affordance, `mode="photo"`** — one handwritten answer to ONE question, so the photo IS the answer. (Contrast CT/Full Mock's `"document"`: a multi-page PDF, where camera-first copy would have a student shoot page 1 and believe they were done.)
+- **The seam contract, honoured:** QR sits as a **sibling of the dropzone, INSIDE the `answerTab === "upload" && !hasFile && !result` block — never a third peer.** A QR handoff produces a FILE (the same tuple `handleFileSelect` fills) ⇒ it is a **sub-mode of upload**, not a peer of the type/upload segmented control. **360px is safe TWICE over:** the control keeps exactly two `flex:1` peers, AND `QrAnswerHandoff` returns null below 1024px so it *cannot* render there at all. Sibling, **not nested** — the dropzone is a `<button>` and nesting interactives is invalid markup.
+- **The 5 MB promise this panel could never keep — fixed here, deliberately** (see the framing note below). `SolutionChecker` had its **own** `MAX_PDF_BYTES = 5 MB` and told students "Max 3 MB image, 5 MB PDF". Never spendable: base64 inflates ×4/3 ⇒ a 5 MB PDF is 6.67 MB of body against `readJson`'s 5 MB cap. A student attaching a 4–5 MB PDF **on the desktop, with no QR at all**, passed this picker and died at the grader. Now reads `services/uploadLimits.ts` (honest 3.5 MB); both copy strings derive from the constants they enforce.
+
+### ★ THE FRAMING THAT MATTERS — this was NOT a surface #443 "missed"
+The owner corrected an earlier draft of this record, and the correction is the durable lesson: **[FU-QR-SOLUTIONCHECKER-WIRE] was logged BLOCKED — "do NOT touch it until they are out"** — because the QP lane owned `SolutionChecker.tsx` when #443 shipped. #443 correctly scoped itself to **the three host panels that were free at the time** (CT, Full Mock, Worksheet). SolutionChecker was never a forgotten fourth panel; it was **the one correctly held back for PR-2**. **The bug being live until now is the seam contract WORKING AS DESIGNED, not a lapse.** Recording it as an oversight would defame a correct decision and teach the next agent to distrust a contract that just worked. *A deferred fix landing exactly when its lane opens is success, not debt.*
+
+### ★★ THE REUSABLE TRAP — the CT wire is NOT copy-pasteable
+**The phone's picker keeps `accept="image/jpeg,image/png,application/pdf"` in EVERY mode.** `capture` only **hints** at the camera — it does **not** restrict the picker. ⇒ **A PDF can legitimately arrive in `mode="photo"`.** The CT panel has no preview, so its 2-field set was sufficient there. **`SolutionChecker` HAS an `imagePreview` branch gated on `!isPdf`** ⇒ it needs the **full FIVE-field tuple** (`fileName`/`isPdf`/`imageMimeType`/`imagePreview`/`imageBase64`). A naive copy of the CT wire would have dropped a real student's QR-delivered PDF into the `<img>` branch and **rendered it broken** — the owner live-verified this exact case. *Reason about the mechanism's actual behaviour; never assume a sibling surface's shape transfers.*
+
+### ★ QR-session reset is STRUCTURAL — no new code, nothing to forget
+The seam contract said "`handleClear`/`handleRecheck` must reset any QR session." **They needed no edit.** `!hasFile` gates the mount ⇒ delivery unmounts `QrAnswerHandoff` (its cleanup cancels polling), and clearing remounts a fresh `idle` instance. *The best way to satisfy a reset requirement is to make the stale state unreachable, not to remember to clear it.*
+
+### ★ `mode` threads to the phone as `variant`, not `mode`
+`mintQrSlot(idToken, "photo")` → body `{variant:"photo"}` → `qrUploadChannel.mintSlot` persists `variant` on the coordination doc (**defaulting to the SAFER `document`** on anything unrecognised) → `peekQrSlot` → the phone's copy + its `capture="environment"` default. Verified end-to-end, not assumed.
+
+### ★ OWNER LIVE-VERIFIED on the deployed app (not merely CI-green) — all four green
+1. Desktop QR → phone photo → **lands and grades on Quick Practice**.
+2. A QR-delivered **PDF renders the PDF row, not a broken image** (the case a naive CT copy would have shipped broken).
+3. **360px unchanged** — two peers, no QR.
+4. **Type/upload behave exactly as before when QR is unused.**
+
+### ★ [FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE] — #445 asked PR-2 to "decide that interaction deliberately". DECIDED:
+**PR-2 does not compose them, and does not make it worse.** The send is gated on the ACTIVE TAB (`SolutionChecker.tsx:343-344`: `hasImage = answerTab === "upload" && !!imageBase64` / `hasText = answerTab === "type" && ...`), and **QR is reachable only from the upload tab** ⇒ a QR image can only ever be sent from `upload`. **Typed text is PRESERVED in state, not destroyed** — it is still in the textarea on switching back; only `handleClear`/`handleRecheck` clear it. **No silent data-loss path shipped.** The FU stays open on its original terms (making text-alongside-image actually *work* is a grader change → its own PR). **But auditing that gate surfaced a real latent bug — [FU-SOLUTIONCHECKER-STALE-ANSWERTAB], new below.**
+
+### Lane status after #447
+- **QR lane** — PR-1 (#441) + hardening (#443) + PR-2 (#447) all LIVE. **NEXT: [FU-QR-CI-WIRE]** (C&I), the last wire. Then the lane is closed but for owner-infra [FU-QR-STORAGE-LIFECYCLE] and [FU-GRADER-5MB-COPY].
+- **§7 — the PAYWALL PR — REMAINS UN-DISPATCHED** (unchanged by #447; its trap is recorded under #445 below and is untouched).
+- **Branch cleanup is ON HOLD at the owner's explicit instruction** — `feat/desktop-pr-qr2-solutionchecker-wire` (+ worktrees `LT-worktrees/qr-pr2`, `LT-worktrees/docs-447`) plus the earlier merged QR branches await the owner's word. **CLAUDE.md §3: branch deletion is NEVER auto-approved.**
+
+---
+
 ## #445 merged — GRADER `objective` FLAG (§2) + ATTEMPT-DEDUP `mode` DROP (§4b) — **owner LIVE-VERIFIED** — trunk `ad2a9b2`
 
 **Post-merge trunk: `ad2a9b2` (squash of #445) on top of `acf3092` (#444 docs). Re-derive the tip after this docs PR merges — never trust a written SHA. (#445's own pre-flight caught a handoff written against a tip FOUR commits stale, and a shared checkout that was too.)**
