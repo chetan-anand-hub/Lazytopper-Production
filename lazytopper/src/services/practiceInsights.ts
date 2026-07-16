@@ -15,6 +15,7 @@ import {
 import { clearWrongAnswer, getWrongConceptsForTopic } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug, canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
 import { firestoreDb } from "./firebaseClient";
+import { attemptDedupKey } from "./attemptDedupKey";
 
 export type LTSubject = "maths" | "science";
 export type DifficultyLevel = "Easy" | "Medium" | "Hard";
@@ -191,15 +192,6 @@ export type RecordAttemptOutcome =
 const ATTEMPT_DEDUP_KEY = "lazytopper.attempt.dedup.v1";
 const ATTEMPT_DEDUP_MAX = 400;
 
-/** Stable, dependency-free string hash (djb2) for the no-questionId dedup sig. */
-function hashAttemptString(input: string): string {
-  let h = 5381;
-  for (let i = 0; i < input.length; i++) {
-    h = (h * 33) ^ input.charCodeAt(i);
-  }
-  return (h >>> 0).toString(36);
-}
-
 function readAttemptDedup(): string[] {
   if (typeof window === "undefined") return [];
   try {
@@ -224,18 +216,10 @@ function writeAttemptDedup(keys: string[]): void {
   }
 }
 
-function attemptDedupKey(
-  uid: string,
-  ctx: RecordAttemptContext,
-  scored: number,
-  available: number,
-): string {
-  const qid =
-    ctx.questionId && ctx.questionId.trim()
-      ? ctx.questionId.trim()
-      : `t:${hashAttemptString(ctx.question || ctx.topic || "")}`;
-  return [uid, qid, `${scored}/${available}`, ctx.mode].join("::");
-}
+// attemptDedupKey + hashAttemptString now live in ./attemptDedupKey (a dependency-free
+// module) so the key's mode-independence + score-distinctness are provable in the
+// CI-gated ops matrix by importing the REAL function. Behaviour is byte-identical apart
+// from the deliberate `mode` drop documented there.
 
 function toLTSubject(subject: string): LTSubject {
   return String(subject).trim().toLowerCase() === "science" ? "science" : "maths";

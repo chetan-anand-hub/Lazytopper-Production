@@ -452,6 +452,14 @@ function createCheckSolutionRoute(deps) {
           annotatedSteps,
           mistakeSummary,
           teacherNote: String(parsed.teacherNote || '').trim(),
+          // Objective echo (additive; PAIRED with normaliseStructuredResult below —
+          // keep both in sync). For an objective question the clamp above zeroed every
+          // per-step mark BY DESIGN (the whole mark lives at answer level, PR-348), so
+          // "0 marks" on a step is intentional, NOT a student who scored 0. This flag
+          // lets the view suppress the misleading per-step chip while keeping the
+          // annotations. It is exactly `bankObjective || flaggedObjective` — false for
+          // every subjective question by construction, so no subjective render changes.
+          objective: questionIsObjective,
           // Auto-detect echo (null in the trusted-marks path): the client surfaces
           // these read-only and canonicalises detectedTopic before storing.
           detectedSubject,
@@ -803,6 +811,11 @@ function createCheckSolutionRoute(deps) {
       annotatedSteps,
       mistakeSummary,
       teacherNote: String(raw.teacherNote || '').trim(),
+      // Objective echo (additive; PAIRED with handleCheckSolution above — keep both in
+      // sync). Same meaning: the clamp zeroed the per-step marks by design, so the view
+      // suppresses the misleading per-step chip. `bankObjective || flaggedObjective`,
+      // false for every subjective question by construction.
+      objective: questionIsObjective,
     };
   }
 

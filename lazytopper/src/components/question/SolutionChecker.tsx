@@ -92,7 +92,7 @@ function MistakeBadge({ type }: { type: MistakeType | null }) {
   );
 }
 
-function AnnotatedStepCard({ step }: { step: CheckSolutionResponse["annotatedSteps"][0] }) {
+function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["annotatedSteps"][0]; objective?: boolean }) {
   const [showCorrected, setShowCorrected] = useState(false);
   const ss = STATUS_STYLE[step.status] || STATUS_STYLE.partial;
   const isNegative = step.marksAwarded === 0 && step.status !== "correct";
@@ -132,13 +132,18 @@ function AnnotatedStepCard({ step }: { step: CheckSolutionResponse["annotatedSte
           <EquationRender text={step.description} />
         </div>
         <MistakeBadge type={step.mistakeType} />
-        <span style={{
-          fontSize: "0.72rem", fontWeight: 800,
-          padding: "2px 7px", borderRadius: 999,
-          color: marksColor, background: marksBg, flexShrink: 0,
-        }}>
-          {marksLabel} {Math.abs(step.marksAwarded) === 1 ? "mark" : "marks"}
-        </span>
+        {/* Objective questions carry NO per-step marks by design (the whole 0-or-full
+            mark is at answer level, PR-348). Showing "0 marks" per step reads as the
+            student scoring 0 — misleading. Suppress the chip; keep the annotation. */}
+        {!objective && (
+          <span style={{
+            fontSize: "0.72rem", fontWeight: 800,
+            padding: "2px 7px", borderRadius: 999,
+            color: marksColor, background: marksBg, flexShrink: 0,
+          }}>
+            {marksLabel} {Math.abs(step.marksAwarded) === 1 ? "mark" : "marks"}
+          </span>
+        )}
       </div>
 
       {/* Body */}
@@ -753,22 +758,17 @@ export function SolutionChecker({
           {/* Annotated steps */}
           {result.annotatedSteps && result.annotatedSteps.length > 0 && (
             <>
-              {marks === 1 && Array.isArray(result.annotatedSteps) && result.annotatedSteps.some(s => (s.marksAwarded ?? 0) > 0.5) && (
-                <div style={{
-                  marginBottom: 10, padding: "8px 10px",
-                  borderRadius: 8,
-                  background: "hsl(43, 90%, 94%)",
-                  border: "1px solid hsl(38, 75%, 78%)",
-                  color: "hsl(35, 80%, 35%)",
-                  fontSize: "0.74rem",
-                  fontWeight: 600,
-                  lineHeight: 1.4,
-                }}>
-                  This is a 1-mark question. Step marks shown are AI guidance only, not official marking.
-                </div>
-              )}
+              {/* The "1-mark question · step marks are AI guidance only" banner that
+                  used to sit here is removed: it was a vestigial pre-clamp mitigation
+                  for exactly the objective/"+0 marks" confusion that the `objective`
+                  flag now cures at the source. It was also dead in practice — every
+                  1-mark bank row is Section A (so the grader treats it objective and
+                  zeroes the step marks, making the `marksAwarded > 0.5` condition
+                  false), and the two surfaces that could show an unclamped 1-mark
+                  question gate 1-mark items out. Suppressing the chip is the honest
+                  fix; a disclaimer under a misleading chip was not. */}
               {result.annotatedSteps.map((step) => (
-                <AnnotatedStepCard key={step.stepNumber} step={step} />
+                <AnnotatedStepCard key={step.stepNumber} step={step} objective={result.objective} />
               ))}
             </>
           )}

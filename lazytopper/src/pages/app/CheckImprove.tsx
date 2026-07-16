@@ -216,6 +216,7 @@ export default function CheckImprove() {
           annotatedSteps: gradeResult.annotatedSteps,
           mistakeSummary: gradeResult.mistakeSummary,
           teacherNote: gradeResult.teacherNote,
+          objective: gradeResult.objective,
         },
       ],
       gradedMarksAwarded: gradeResult.marksAwarded,
@@ -253,6 +254,7 @@ export default function CheckImprove() {
       annotatedSteps: g.annotatedSteps,
       mistakeSummary: g.mistakeSummary,
       teacherNote: g.teacherNote,
+      objective: g.objective,
     }));
     return {
       code,
@@ -881,9 +883,13 @@ export default function CheckImprove() {
                           <span style={{ fontSize: "0.7rem", color: "var(--mob-fg-muted)", fontWeight: 700 }}>Step {step.stepNumber}</span>
                           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <StatusBadge status={step.status} />
-                            <span style={{ fontSize: "0.68rem", color: "var(--mob-fg-muted)" }}>
-                              +{step.marksAwarded}{step.marksDeducted > 0 ? ` −${step.marksDeducted}` : ""}
-                            </span>
+                            {/* Objective → per-step marks zeroed by design; suppress the
+                                misleading "+0" chip, keep the status badge. */}
+                            {!g.objective && (
+                              <span style={{ fontSize: "0.68rem", color: "var(--mob-fg-muted)" }}>
+                                +{step.marksAwarded}{step.marksDeducted > 0 ? ` −${step.marksDeducted}` : ""}
+                              </span>
+                            )}
                           </span>
                         </div>
                         {step.description && <div style={{ fontSize: "0.78rem", color: "var(--mob-fg)", lineHeight: 1.5, marginBottom: 4 }}><EquationRender text={step.description} /></div>}

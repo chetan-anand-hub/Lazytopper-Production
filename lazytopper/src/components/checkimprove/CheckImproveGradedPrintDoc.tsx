@@ -36,6 +36,9 @@ export interface CiGradedQuestion {
   annotatedSteps?: CheckSolutionAnnotatedStep[];
   mistakeSummary?: CheckSolutionMistakeSummary;
   teacherNote?: string;
+  /** Objective verdict echo — when true the printed per-step mark chip is suppressed
+   *  (the marks were zeroed by design; the whole mark is at answer level). */
+  objective?: boolean;
 }
 
 export interface CheckImproveGradedPrintDocProps {
@@ -267,10 +270,14 @@ export function CheckImproveGradedPrintDoc({
                           {s.mistakeType && MISTAKE_LABEL[s.mistakeType] && (
                             <span className="lt-cigp__sttag">{MISTAKE_LABEL[s.mistakeType]}</span>
                           )}
-                          <span className="lt-cigp__stmk">
-                            +{s.marksAwarded}
-                            {s.marksDeducted > 0 && <span className="lt-cigp__stmkd"> −{s.marksDeducted}</span>}
-                          </span>
+                          {/* Objective → per-step marks zeroed by design; suppress the
+                              misleading "+0" chip, keep the status + annotation. */}
+                          {!q.objective && (
+                            <span className="lt-cigp__stmk">
+                              +{s.marksAwarded}
+                              {s.marksDeducted > 0 && <span className="lt-cigp__stmkd"> −{s.marksDeducted}</span>}
+                            </span>
+                          )}
                         </div>
                         {s.description && (
                           <div className="lt-cigp__stdesc"><MathText text={s.description} /></div>

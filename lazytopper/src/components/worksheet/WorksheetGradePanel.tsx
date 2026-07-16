@@ -117,7 +117,7 @@ function miBannerFrom(outcome: WorksheetGradeOutcome | null): MiBanner {
   return "none";
 }
 
-function StepRow({ step }: { step: CheckSolutionAnnotatedStep }) {
+function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
   const cls =
     step.status === "correct"
       ? "ok"
@@ -133,9 +133,13 @@ function StepRow({ step }: { step: CheckSolutionAnnotatedStep }) {
         {step.mistakeType && (
           <span className="lt-wg__steptag">{MISTAKE_LABEL[step.mistakeType]}</span>
         )}
-        <span className="lt-wg__stepmk">
-          {step.marksAwarded > 0 ? `+${step.marksAwarded}` : step.marksDeducted > 0 ? `−${step.marksDeducted}` : "0"}
-        </span>
+        {/* Objective question → per-step marks are zeroed by design; suppress the
+            misleading "0" chip, keep the annotation. */}
+        {!objective && (
+          <span className="lt-wg__stepmk">
+            {step.marksAwarded > 0 ? `+${step.marksAwarded}` : step.marksDeducted > 0 ? `−${step.marksDeducted}` : "0"}
+          </span>
+        )}
       </div>
       {step.teacherAnnotation && <div className="lt-wg__stepnote">{step.teacherAnnotation}</div>}
       {step.correctedWorking && (
@@ -175,7 +179,7 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
       {g.annotatedSteps && g.annotatedSteps.length > 0 && (
         <ul className="lt-wg__steps">
           {g.annotatedSteps.map((s) => (
-            <StepRow key={s.stepNumber} step={s} />
+            <StepRow key={s.stepNumber} step={s} objective={g.objective} />
           ))}
         </ul>
       )}

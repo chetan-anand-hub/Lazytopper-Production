@@ -279,6 +279,13 @@ export interface CheckSolutionResponse {
   annotatedSteps: CheckSolutionAnnotatedStep[];
   mistakeSummary: CheckSolutionMistakeSummary;
   teacherNote: string;
+  /** The grader's objective verdict for this question (additive echo of
+   *  `bankObjective || flaggedObjective`). When true, the clamp intentionally zeroed
+   *  every per-step mark — the whole mark lives at answer level (PR-348) — so a step's
+   *  "0 marks" is by design, not a student who scored nothing. Views read this to
+   *  suppress the misleading per-step mark chip while keeping the annotations. Absent
+   *  on a pre-this-change stored scorecard (falsy → old chip shown, honestly stale). */
+  objective?: boolean;
   // Auto-detect echo (present only when the request set `detectMarks`).
   detectedSubject?: "Maths" | "Science" | null;
   detectedTopic?: string | null;
@@ -415,6 +422,11 @@ export interface WorksheetQuestionGrade {
   annotatedSteps?: CheckSolutionAnnotatedStep[];
   mistakeSummary?: CheckSolutionMistakeSummary;
   teacherNote?: string;
+  /** The grader's objective verdict (additive echo — same field the single-question
+   *  CheckSolutionResponse carries). True → per-step marks were zeroed by design; the
+   *  worksheet / C&I views suppress the misleading per-step chip. Flows through the
+   *  generic passthrough parse; no grade-service mapping needed. */
+  objective?: boolean;
   /** Present only when couldNotRead is true. */
   note?: string;
   /** Check & Improve PR-2 per-question topic (client-populated AFTER grading — the
