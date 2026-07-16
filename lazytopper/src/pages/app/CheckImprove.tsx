@@ -17,6 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
+import { checkUploadFile } from "../../services/uploadLimits";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   buildConfirmedDetection,
@@ -131,6 +132,12 @@ export default function CheckImprove() {
   const [qImageName, setQImageName]   = useState<string>("");
   const [detecting, setDetecting]     = useState(false);
   const [detectError, setDetectError] = useState<string | null>(null);
+
+  // Picker refusals — DELIBERATELY separate from `gradeError` (the grade-failure
+  // channel). A file refused here never reached the grader, so it must not render as
+  // a grading failure. Two different failures, two different truths.
+  const [answerFileError, setAnswerFileError]     = useState<string | null>(null);
+  const [questionFileError, setQuestionFileError] = useState<string | null>(null);
   const [detected, setDetected]       = useState<ConfirmedDetection | null>(null);
   const [confirmed, setConfirmed]     = useState<ConfirmedDetection | null>(null);
   const [editing, setEditing]         = useState(false);
@@ -387,14 +394,27 @@ export default function CheckImprove() {
   }
 
   function handleFileChange(file: File) {
+    // Same guard as desktop, same words, same constants — a phone student and a laptop
+    // student get the identical promise. Before this there was NO ceiling on this
+    // input: an oversized file base64'd fine and died at the grader afterwards.
+    const check = checkUploadFile(file, "answers");
+    if (!check.ok) {
+      setAnswerFileError(check.message);
+      return;
+    }
+    setAnswerFileError(null);
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      const [prefix, b64] = result.split(",");
-      const mime = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
+      const [, b64] = result.split(",");
       setFileBase64(b64);
-      setFileMime(mime);
+      setFileMime(check.mimeType);
       setFileLoaded(true);
+    };
+    reader.onerror = () => {
+      setFileLoaded(false);
+      setAnswerFileError("We couldn't read that file — please try another.");
     };
     reader.readAsDataURL(file);
   }
@@ -416,15 +436,29 @@ export default function CheckImprove() {
   }
 
   function handleQuestionFile(file: File) {
+    // The question photo rides the SAME request to the SAME body cap as the answer,
+    // so it gets the same guard. "question", not "answers" — the copy names what THIS
+    // input actually wants.
+    const check = checkUploadFile(file, "question");
+    if (!check.ok) {
+      setQuestionFileError(check.message);
+      return;
+    }
+    setQuestionFileError(null);
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      const [prefix, b64] = result.split(",");
-      const mime = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
+      const [, b64] = result.split(",");
       setQImageBase64(b64);
-      setQImageMime(mime);
+      setQImageMime(check.mimeType);
       setQImageName(file.name);
       clearDetection();
+    };
+    reader.onerror = () => {
+      setQImageBase64(null);
+      setQImageName("");
+      setQuestionFileError("We couldn't read that file — please try another.");
     };
     reader.readAsDataURL(file);
   }
@@ -1098,6 +1132,15 @@ export default function CheckImprove() {
           </div>
         )}
 
+        {/* Picker refusal for the ANSWER file. A separate state from gradeError on
+            purpose — this file never reached the grader, so it must not render as a
+            grading failure. Sits under the drop zone, where the refusal happened. */}
+        {answerFileError && (
+          <div style={{ fontSize: "0.78rem", color: "var(--mob-danger, #d4351c)", marginTop: 8 }}>
+            {answerFileError}
+          </div>
+        )}
+
         {/* ── Text answer (type tab) ────────────────────────────── */}
         {tab === "type" && (
           <EquationInput
@@ -1187,6 +1230,11 @@ export default function CheckImprove() {
           </button>
           {detectError && (
             <div style={{ fontSize: "0.78rem", color: "var(--mob-danger, #d4351c)" }}>{detectError}</div>
+          )}
+          {/* Picker refusal for the QUESTION photo — mirrors detectError's shape so the
+              two read as one voice. Not the grade-failure channel: nothing was graded. */}
+          {questionFileError && (
+            <div style={{ fontSize: "0.78rem", color: "var(--mob-danger, #d4351c)" }}>{questionFileError}</div>
           )}
 
           {confirmed && isMultiQuestion && detectedQuestions && (
