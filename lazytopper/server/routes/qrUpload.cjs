@@ -67,8 +67,18 @@ function createQrUploadRoutes(deps) {
     const auth = await requireUid(req);
     if (!auth.ok) return sendJson(res, auth.status, { ok: false, error: auth.error });
 
+    // The host surface tells us which shape it wants ('document' | 'photo') so the
+    // PHONE can lead with the right words. The channel validates + defaults it.
+    let variant;
     try {
-      const slot = await qrUploadChannel.mintSlot(auth.uid);
+      const body = await readJson(req);
+      variant = body && body.variant;
+    } catch (_e) {
+      variant = undefined; // A bodyless/!json mint is fine — the channel defaults it.
+    }
+
+    try {
+      const slot = await qrUploadChannel.mintSlot(auth.uid, variant);
       return sendJson(res, 200, { ok: true, ...slot });
     } catch (e) {
       console.warn('[qr-upload] mint failed:', e && e.message);
@@ -86,7 +96,8 @@ function createQrUploadRoutes(deps) {
     try {
       const result = await qrUploadChannel.peekSlot(uploadToken);
       if (!result.ok) return sendJson(res, 404, { ok: false, reason: result.reason });
-      return sendJson(res, 200, { ok: true, state: result.state });
+      // `variant` = which words the phone should lead with. No student content.
+      return sendJson(res, 200, { ok: true, state: result.state, variant: result.variant });
     } catch (e) {
       console.warn('[qr-upload] status failed:', e && e.message);
       return unavailable(res);

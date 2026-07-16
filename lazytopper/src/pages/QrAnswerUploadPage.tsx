@@ -21,13 +21,45 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { peekQrSlot, prepareQrImage, sendQrImage } from "../services/qrUploadService";
+import {
+  peekQrSlot,
+  prepareQrImage,
+  sendQrImage,
+  type QrHandoffMode,
+} from "../services/qrUploadService";
+import { MAX_UPLOAD_PDF_BYTES, formatUploadLimit } from "../services/uploadLimits";
 
 type Phase = "checking" | "ready" | "sending" | "sent" | "expired" | "used" | "unavailable" | "failed";
+
+/**
+ * THE WORDS FOLLOW THE HOST SURFACE — carried here on the slot, because this page is
+ * reached by token alone and cannot otherwise know which surface minted it.
+ *
+ * This is where getting it wrong actually costs a student marks: for a Chapter Test or
+ * Full Mock the paper is MULTI-PAGE, one photo is ONE page, and "Take a photo" sends
+ * them away believing a 20-question mock is submitted. So in "document" mode the PDF
+ * leads, and the one-photo-is-one-page consequence is stated outright rather than
+ * implied.
+ */
+const COPY: Record<QrHandoffMode, { head: string; lead: string; cta: string; hint: string }> = {
+  document: {
+    head: "Send your answers",
+    lead: "Pick the PDF of your answers — or photograph them. It goes straight to your laptop, with no need to email it to yourself.",
+    cta: "Choose PDF or photo",
+    hint: `You can send ONE file. For a full paper, send a single PDF with every page — one photo sends only one page. PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)}.`,
+  },
+  photo: {
+    head: "Send your answer",
+    lead: "Photograph your written answer. It goes straight to your laptop — no need to email it to yourself.",
+    cta: "Take a photo",
+    hint: "Fit the whole page in the frame, with the writing in focus.",
+  },
+};
 
 export default function QrAnswerUploadPage() {
   const { token } = useParams<{ token: string }>();
   const [phase, setPhase] = useState<Phase>("checking");
+  const [mode, setMode] = useState<QrHandoffMode>("document");
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,8 +72,9 @@ export default function QrAnswerUploadPage() {
         setPhase("expired");
         return;
       }
-      const state = await peekQrSlot(token);
+      const { state, mode: slotMode } = await peekQrSlot(token);
       if (cancelled) return;
+      setMode(slotMode);
       if (state === "pending") setPhase("ready");
       else if (state === "used") setPhase("used");
       else if (state === "unavailable") setPhase("unavailable");
@@ -64,11 +97,13 @@ export default function QrAnswerUploadPage() {
 
       let payload;
       try {
-        // Required, not cosmetic: a full-res phone photo exceeds both the 3MB
-        // server cap and the 5MB body limit. This downscales it to fit.
+        // Required, not cosmetic: a full-res phone photo (2-8MB) exceeds the 3MB cap,
+        // so IMAGES are downscaled to fit. A PDF cannot be downscaled — there is no
+        // canvas for it — so it passes through untouched and an over-limit one is
+        // refused HERE, on the phone, while the student can still act on it.
         payload = await prepareQrImage(file);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not read that photo.");
+        setError(err instanceof Error ? err.message : "Could not read that file.");
         setPhase("failed");
         return;
       }
@@ -101,22 +136,32 @@ export default function QrAnswerUploadPage() {
 
         {(phase === "ready" || phase === "failed") && (
           <>
-            <h1 className="lt-qru__h">Send your answer</h1>
-            <p className="lt-qru__d">
-              Photograph your written answer. It goes straight to your laptop — no need to
-              email it to yourself.
-            </p>
+            <h1 className="lt-qru__h">{COPY[mode].head}</h1>
+            <p className="lt-qru__d">{COPY[mode].lead}</p>
             {phase === "failed" && error && <p className="lt-qru__err">{error}</p>}
             <button type="button" className="lt-qru__cta" onClick={pick}>
-              {phase === "failed" ? "Try again" : "Take a photo"}
+              {phase === "failed" ? "Try again" : COPY[mode].cta}
             </button>
-            <p className="lt-qru__hint">Fit the whole page in the frame, with the writing in focus.</p>
+            <p className="lt-qru__hint">{COPY[mode].hint}</p>
+            {/* DO NOT "SIMPLIFY" THIS INPUT.
+             *
+             *  `accept` is deliberately BROAD: this one picker is how a student sends a
+             *  camera shot, an existing gallery image, OR a PDF from Files / a scanner
+             *  app. Narrowing it to images would silently remove the only way to send a
+             *  multi-page paper.
+             *
+             *  `capture` does NOT restrict the picker — it only asks the browser to
+             *  DEFAULT to the camera. That default is right for a single handwritten
+             *  answer ("photo") and wrong for a whole paper ("document"), where the
+             *  student needs Files to be a first-class choice rather than something to
+             *  hunt for behind the camera. So it is omitted in document mode — on
+             *  purpose, not by oversight. */}
             <input
               ref={fileInputRef}
               className="lt-qru__file"
               type="file"
               accept="image/jpeg,image/png,application/pdf"
-              capture="environment"
+              {...(mode === "photo" ? { capture: "environment" as const } : {})}
               onChange={handleFile}
             />
           </>
@@ -133,7 +178,9 @@ export default function QrAnswerUploadPage() {
           <>
             <p className="lt-qru__tick" aria-hidden="true">✓</p>
             <h1 className="lt-qru__h">Sent</h1>
-            <p className="lt-qru__d">Head back to your laptop — your answer is there.</p>
+            <p className="lt-qru__d">
+              Head back to your laptop — {mode === "document" ? "your file" : "your answer"} is there.
+            </p>
             <p className="lt-qru__hint">You can close this page.</p>
           </>
         )}

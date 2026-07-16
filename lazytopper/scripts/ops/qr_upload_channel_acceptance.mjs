@@ -18,12 +18,16 @@
  *
  * If a future change breaks any of these, this goes red before it reaches a student.
  */
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const LAZY = path.join(__dirname, '..', '..');
 
 process.env.VITE_FIREBASE_PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || 'lazzyy-topper';
 delete process.env.VITE_FIREBASE_STORAGE_BUCKET;
@@ -207,6 +211,97 @@ console.log('\nQR upload channel — acceptance\n');
   check('explicit VITE_FIREBASE_STORAGE_BUCKET wins, gs:// stripped',
     __internals.resolveBucketName() === 'explicit.firebasestorage.app', __internals.resolveBucketName());
   delete process.env.VITE_FIREBASE_STORAGE_BUCKET;
+}
+
+// 9 · PDF fidelity — a PDF is NOT an image and must survive the channel untouched.
+//     Guards the "PDF lands but the grader can't read it" class of bug for good.
+{
+  const { ch } = newChannel();
+  // A structurally real PDF (header, objects, trailer, %%EOF) with pseudo-binary
+  // filler — adversarial bytes, not 'AAAA'.
+  const head = Buffer.from(
+    '%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n' +
+    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+    'latin1',
+  );
+  const tail = Buffer.from('\ntrailer\n<< /Root 1 0 R /Size 4 >>\n%%EOF\n', 'latin1');
+  const pad = Buffer.alloc(64 * 1024);
+  for (let i = 0; i < pad.length; i++) pad[i] = (i * 31 + 7) & 0xff;
+  const pdf = Buffer.concat([head, pad, tail]);
+  const b64In = pdf.toString('base64');
+
+  const slot = await ch.mintSlot('uid-pdf', 'document');
+  check('PDF: upload accepted', (await ch.putBlob(slot.uploadToken, { imageBase64: b64In, imageMimeType: 'application/pdf' })).ok === true);
+  const got = await ch.consumeSlot(slot.pickupToken);
+  check('PDF: base64 is byte-identical in==out', got.ok === true && got.imageBase64 === b64In);
+  check('PDF: mime survives as application/pdf', got.imageMimeType === 'application/pdf');
+  const back = Buffer.from(got.imageBase64 || '', 'base64');
+  check('PDF: still a valid PDF after the round-trip (%PDF … %%EOF)',
+    back.subarray(0, 5).toString('latin1') === '%PDF-' && back.subarray(-6).toString('latin1').includes('%%EOF'));
+  check('PDF: byte length unchanged', back.length === pdf.length);
+}
+
+// 10 · Variant — the host's shape must reach the PHONE, which is reached by token
+//      alone. Wrong words here make a student photograph page 1 of a 20-question mock.
+{
+  const { ch } = newChannel();
+  const doc = await ch.mintSlot('uid-v', 'document');
+  check('variant: mint echoes "document"', doc.variant === 'document');
+  check('variant: peek reports it to the phone', (await ch.peekSlot(doc.uploadToken)).variant === 'document');
+
+  const photo = await ch.mintSlot('uid-v2', 'photo');
+  check('variant: "photo" round-trips', photo.variant === 'photo' && (await ch.peekSlot(photo.uploadToken)).variant === 'photo');
+
+  const junk = await ch.mintSlot('uid-v3', 'nonsense');
+  check('variant: unknown input defaults to the SAFER "document" wording', junk.variant === 'document');
+  const bare = await ch.mintSlot('uid-v4');
+  check('variant: absent input defaults to "document"', bare.variant === 'document');
+
+  const peeked = await ch.peekSlot(doc.uploadToken);
+  check('variant: peek still leaks NO image (write-only intact)', !('imageBase64' in peeked));
+}
+
+// 11 · ★ CAP ARITHMETIC — the guard that makes "PDF up to 5 MB" impossible to reintroduce.
+//      Imports the REAL client constant (transpile-then-require, never a text scan) and
+//      proves it can actually fit the backend body cap. base64 inflates ~4/3, so an
+//      advertised limit that ignores that is a promise the channel cannot keep — a
+//      student passes the picker and then dies at the grader.
+{
+  const out = mkdtempSync(path.join(tmpdir(), 'lt-qrcaps-'));
+  execFileSync('node', [
+    path.join(LAZY, 'node_modules/typescript/bin/tsc'),
+    'src/services/uploadLimits.ts',
+    '--outDir', out, '--rootDir', 'src',
+    '--module', 'commonjs', '--target', 'es2020',
+    '--moduleResolution', 'node', '--skipLibCheck', '--esModuleInterop',
+  ], { cwd: LAZY, stdio: ['ignore', 'ignore', 'inherit'] });
+  writeFileSync(path.join(out, 'package.json'), '{"type":"commonjs"}');
+  const limits = require(path.join(out, 'services/uploadLimits.js'));
+
+  // readJson's default cap — server/services/httpUtils.cjs.
+  const READ_JSON_CAP = 5 * 1024 * 1024;
+  // Worst-case questions payload measured against the assembled 8,584-row bank:
+  // 0.10 MB for the heaviest 38-question draw. Doubled here as headroom.
+  const QUESTIONS_WORST = 200 * 1024;
+  const b64 = (raw) => Math.ceil(raw / 3) * 4;
+  const mb = (b) => `${(b / 1024 / 1024).toFixed(2)} MB`;
+
+  const pdfWire = b64(limits.MAX_UPLOAD_PDF_BYTES) + QUESTIONS_WORST;
+  check(`cap arithmetic: a max-size PDF fits the 5 MB body cap (${mb(pdfWire)})`,
+    pdfWire < READ_JSON_CAP, `${mb(pdfWire)} >= ${mb(READ_JSON_CAP)} — the advertised PDF limit is UNSPENDABLE`);
+
+  const imgWire = b64(limits.MAX_UPLOAD_IMAGE_BYTES) + QUESTIONS_WORST;
+  check(`cap arithmetic: a max-size image fits the 5 MB body cap (${mb(imgWire)})`,
+    imgWire < READ_JSON_CAP, `${mb(imgWire)} >= ${mb(READ_JSON_CAP)}`);
+
+  check('cap arithmetic: the copy sentence states the enforced numbers',
+    limits.UPLOAD_LIMIT_SENTENCE.includes(limits.formatUploadLimit(limits.MAX_UPLOAD_PDF_BYTES)) &&
+    limits.UPLOAD_LIMIT_SENTENCE.includes(limits.formatUploadLimit(limits.MAX_UPLOAD_IMAGE_BYTES)),
+    limits.UPLOAD_LIMIT_SENTENCE);
+
+  // The historical bug, pinned so it can never come back.
+  check('cap arithmetic: the old "5 MB" PDF promise is proven unspendable',
+    b64(5 * 1024 * 1024) > READ_JSON_CAP);
 }
 
 console.log('');
