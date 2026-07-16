@@ -8,9 +8,12 @@
 
 export interface SessionStats {
   total: number;
+  /** Questions the student actually ANSWERED — an MCQ click OR a graded written answer.
+   *  Both count; neither is inferred. */
   attemptedInSet: number;
-  markedUnderstood: number;
-  needsAnotherLook: number;
   localMcqAnswered: number;
   localMcqCorrect: number;
 }
+// `markedUnderstood` / `needsAnotherLook` were removed with the self-assess mechanic
+// (2026-07-15). They were computed from `selfAssessments` and read by NOTHING — already
+// dead fields on a dead mechanic. See [FU-DELETE-DEAD-SELF-ASSESS] in the handoff.

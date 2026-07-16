@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
@@ -6,8 +6,6 @@ import { SolutionChecker } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";
 import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
 import { CorrectBurst, WrongShake } from "../celebrations";
-import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
-import { VisualExplainer } from "../VisualExplainer";
 import { useAuth } from "../../context/AuthContext";
 import { recordAttempt } from "../../services/practiceInsights";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
@@ -40,7 +38,6 @@ export interface PracticeQuestionCardProps {
   subjectKey: string;
   topicLabel: string;
   isOpen: boolean;
-  selfAssessment: string | undefined;
   solutionLoading: boolean;
   solutionError: string | undefined;
   solutionData: StepSolutionResponse | undefined;
@@ -54,9 +51,9 @@ export interface PracticeQuestionCardProps {
   /** The graded payload for one subjective answer, lifted to the page (QP sessions).
    *  Optional: a consumer that doesn't record sessions simply omits it. */
   onGraded?: (qId: string, result: CheckSolutionResponse) => void;
-  onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
-  onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
-  onOpenConceptDrawer: (q: PracticeQuestion) => void;
+  /** Hand this question's concept to the Tutor, with a ticket back to this set.
+   *  Optional: a consumer with no tutor route simply omits it and no link renders. */
+  onAskTutor?: (q: PracticeQuestion) => void;
   onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
@@ -119,13 +116,11 @@ function parseLeadingMarkTag(text: string): { marks: number | null; body: string
 
 export function PracticeQuestionCard({
   q, idx, subjectKey, topicLabel,
-  isOpen, selfAssessment, solutionLoading, solutionError, solutionData,
+  isOpen, solutionLoading, solutionError, solutionData,
   mcqSelection, mcqResult, difficultyFilter,
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
-  onSelfAssessGotIt, onSelfAssessNeedPractice,
-  onOpenConceptDrawer, onOpenMentorBoard: _onOpenMentorBoard,
+  onAskTutor, onOpenMentorBoard: _onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
-  const [showVisual, setShowVisual] = useState(false);
   const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
   const stepSolutionRef = useRef<HTMLDivElement>(null);
@@ -199,20 +194,6 @@ export function PracticeQuestionCard({
     onToggleAnswer(q.id, q);
   }, [isOpen, showChecker, q, onToggleAnswer]);
 
-  const matchedVisual = useMemo(() => {
-    return getVisualConceptForQuestion({
-      id: String(q.id),
-      subject: subjectKey as "Maths" | "Science",
-      topicKey: topicLabel,
-      subtopic: "",
-      section: "",
-      marks: q.marks,
-      format: "Short" as const,
-      difficulty: "Medium" as const,
-      bloomSkill: "Applying" as const,
-      questionText: q.questionText,
-    });
-  }, [q.id, q.questionText, subjectKey, topicLabel, q.marks]);
 
   const hasStructuredOptions = Array.isArray(q.options) && q.options.length > 0;
   const isObjectiveQuestion =
@@ -768,117 +749,39 @@ export function PracticeQuestionCard({
                 </div>
               )}
 
-              <button
-                onClick={() => onOpenConceptDrawer(q)}
-                style={{
-                  marginTop: 10,
-                  padding: 0,
-                  border: "none",
-                  background: "transparent",
-                  color: MARKS_BLUE_FG,
-                  fontSize: "0.78rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  textUnderlineOffset: 3,
-                }}
-              >
-                Revise this topic
-              </button>
-              {matchedVisual && (
-                <div style={{ marginTop: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowVisual((v) => !v)}
-                    style={{
-                      width: "100%", padding: "10px 14px",
-                      borderRadius: 10, border: `1px solid ${BORDER}`,
-                      background: CARD_BG,
-                      color: TEXT_FG, fontSize: "0.82rem", fontWeight: 700,
-                      cursor: "pointer", display: "flex", alignItems: "center",
-                      justifyContent: "center", gap: 8,
-                    }}
-                  >
-                    <span style={{ fontSize: "1rem" }}>{showVisual ? "\u25B2" : "\u25BC"}</span>
-                    {showVisual ? "Hide visual help" : `Visual help: ${matchedVisual.title}`}
-                  </button>
-                  {showVisual && (
-                    <div style={{ marginTop: 8 }}>
-                      <VisualExplainer
-                        src={matchedVisual.filePath}
-                        title={matchedVisual.title}
-                        height={300}
-                        collapsible={false}
-                        defaultCollapsed={false}
-                        topic={matchedVisual.chapter}
-                        concept={matchedVisual.title}
-                        subject={matchedVisual.subject === "science" ? "Science" : "Maths"}
-                        questionText={q.questionText}
-                      />
-                    </div>
-                  )}
-                </div>
+              {/* \u2500\u2500 ONE contextual Tutor link (2026-07-15) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+                  Replaces "Revise this topic" (a Topic Hub duplicate) and "Visual help"
+                  (a Topic Hub / ConceptSpine duplicate).
+                  Quick Practice is for PRACTICE; teaching is the Tutor's surface \u2014 so
+                  this offers ONE way out to the teacher rather than three competing
+                  mini-lessons inside the practice card.
+                  Contract (the ticket built in #436): OFFER-NEVER-AUTO \u2014 it is always
+                  the student's tap; ONE HOP \u2014 the ticket is consumed on return and not
+                  propagated; and it carries `returnTo` back to this exact set, so the
+                  student is never stranded on the tutor. `concept` rides along so the
+                  tutor opens already knowing what they were working on
+                  (useTutorSession threads it into the opener). */}
+              {onAskTutor && (
+                <button
+                  type="button"
+                  onClick={() => onAskTutor(q)}
+                  style={{
+                    marginTop: 10,
+                    padding: 0,
+                    border: "none",
+                    background: "transparent",
+                    color: PRIMARY_GREEN_FG,
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    textUnderlineOffset: 3,
+                  }}
+                >
+                  Ask the tutor about this concept \u2192
+                </button>
               )}
             </div>
-          )}
-        </div>
-      )}
-
-      {isOpen && !selfAssessment && (
-        <div style={{
-          display: "flex", gap: 8, marginTop: 10,
-          padding: "12px 0 2px", borderTop: `1px solid ${BORDER}`,
-          flexWrap: "wrap",
-        }}>
-          <span style={{ fontSize: "0.78rem", color: TEXT_MUTED, alignSelf: "center", fontWeight: 700 }}>
-            Local note:
-          </span>
-          <button
-            type="button"
-            onClick={() => onSelfAssessGotIt(q, idx)}
-            style={{
-              borderRadius: 999, padding: "5px 14px",
-              border: "1px solid hsl(152, 55%, 75%)",
-              backgroundColor: PRIMARY_GREEN_SOFT,
-              fontSize: "0.76rem", color: PRIMARY_GREEN_FG,
-              cursor: "pointer", fontWeight: 700,
-            }}
-          >
-            I understand this
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelfAssessNeedPractice(q, idx)}
-            style={{
-              borderRadius: 999, padding: "5px 14px",
-              border: "1px solid hsl(38, 75%, 78%)",
-              backgroundColor: "hsl(43, 90%, 94%)",
-              fontSize: "0.76rem", color: "hsl(35, 80%, 35%)",
-              cursor: "pointer", fontWeight: 700,
-            }}
-          >
-            Review again in this set
-          </button>
-        </div>
-      )}
-      {selfAssessment && (
-        <div style={{
-          marginTop: 8, fontSize: "0.76rem", fontWeight: 600,
-          color: selfAssessment === "got_it" ? PRIMARY_GREEN_FG : "hsl(35, 80%, 35%)",
-          display: "flex", alignItems: "center", gap: 6,
-        }}>
-          {selfAssessment === "got_it" ? (
-            <>
-              <CorrectBurst visible={true} size={20} />
-              Marked by you for this session
-            </>
-          ) : (
-            <>
-              <WrongShake visible={true}>
-                <span style={{ fontSize: 16 }}>{"\u21BB"}</span>
-              </WrongShake>
-              Marked to review again in this set
-            </>
           )}
         </div>
       )}

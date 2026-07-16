@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { usePracticeLimit } from "../components/auth/PracticeLimitGate";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
 import {
@@ -10,9 +9,6 @@ import {
   resolveTopicKey as resolveCanonicalTopicKey,
 } from "../utils/topicResolver";
 import { fetchStepSolution, type CheckSolutionResponse, type StepSolutionResponse } from "../ai/aiClient";
-import { lazy, Suspense } from "react";
-import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
-const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
 import type { PracticeSectionFilter } from "../navigation/practiceNavigation";
 
 const COUNT_SOFT_MAX = 50;
@@ -328,6 +324,7 @@ import {
   parseBooleanFlag,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
+import { buildTutorPath } from "./tutor/tutorPath";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { PracticeHero } from "../components/practice/PracticeHero";
@@ -364,7 +361,6 @@ const PracticePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams<{ grade?: string; subject?: string }>();
-  const { recordQuestionAnswered } = usePracticeLimit();
   const { user: authUserForJourney } = useAuth();
 
   useEffect(() => {
@@ -723,7 +719,6 @@ const PracticePage: React.FC = () => {
   >({});
   const [regenerationKey, setRegenerationKey] = useState<number>(0);
   const previousQuestionKeys = useRef<Set<string>>(new Set());
-  const [selfAssessments, setSelfAssessments] = useState<Record<string, "got_it" | "need_practice">>({});
   const [mcqSelections, setMcqSelections] = useState<Record<string, number>>({});
   const [mcqResults, setMcqResults] = useState<Record<string, "correct" | "wrong">>({});
   // The graded payload per question, lifted from SolutionChecker via onGraded. Read
@@ -738,19 +733,6 @@ const PracticePage: React.FC = () => {
   const [practiceSolutionLoading, setPracticeSolutionLoading] = useState<Record<string, boolean>>({});
   const [practiceSolutionError, setPracticeSolutionError] = useState<Record<string, string | undefined>>({});
 
-  const [conceptDrawerOpen, setConceptDrawerOpen] = useState(false);
-  const [conceptDrawerContext, setConceptDrawerContext] = useState<ConceptTeachContext | null>(null);
-
-  const openConceptDrawer = (q: PracticeQuestion) => {
-    setConceptDrawerContext({
-      topicKey: q.topicKey || canonicalTopicKey || topicParam,
-      subject: subjectKey,
-      questionText: q.questionText,
-      marks: q.marks,
-      subtopic: q.subtopic,
-    });
-    setConceptDrawerOpen(true);
-  };
 
 // Practice Mentor Drawer (Solve With Me / Board Steps)
 const [mentorDrawerOpen, setMentorDrawerOpen] = useState(false);
@@ -815,6 +797,34 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
       cancelled = true;
     };
   }, [canonicalTopicKey, topicParam, authUserForJourney?.uid, authUserForJourney?.isLocalSession]);
+
+  // ── Hand a question's concept to the TUTOR (2026-07-15) ────────────────────
+  // Replaces QP's own ConceptTeachDrawer mount ("Revise this topic") and the inline
+  // VisualExplainer ("Visual help") — both duplicated the Topic Hub, and teaching is
+  // the Tutor's surface, not Quick Practice's. ConceptTeachDrawer itself is untouched
+  // and still mounted by Topic Hub, ConceptSpine, TutorPage and the notes modals.
+  //
+  // Uses the return-ticket convention: `returnTo` carries the student back to THIS
+  // exact set (same filters, same URL), so leaving to ask is never a dead end. The
+  // tutor already threads `concept` into its opener, so it starts knowing what they
+  // were working on. OFFER-NEVER-AUTO — this only ever fires on the student's tap.
+  //
+  // `questionId` is NOT carried: buildTutorPath has no such param, and adding one is
+  // the TUTOR LANE's change ([FU-TUTOR-QUESTION-CONTEXT]). The concept is the useful
+  // 90% and needs nothing from them.
+  const askTutorAboutQuestion = useCallback((q: PracticeQuestion) => {
+    const here = location.pathname + location.search;
+    navigate(
+      buildTutorPath({
+        subject: subjectKey,
+        topicKey: q.topicKey || canonicalTopicKey || topicParam,
+        grade: String(grade),
+        concept: q.subtopic || conceptFocusLabel || undefined,
+        source: "practice",
+        returnTo: here,
+      }),
+    );
+  }, [navigate, location.pathname, location.search, subjectKey, canonicalTopicKey, topicParam, grade, conceptFocusLabel]);
 
   const strategyTopicSeed = useMemo(() => {
     const explicitFromState = navState.topicKey;
@@ -1129,7 +1139,6 @@ const packTopicKey = useMemo(() => {
           setSessionFinished(false);
           setScorecardDismissed(false);
           setExpandedAnswers({});
-          setSelfAssessments({});
           setMcqSelections({});
           setMcqResults({});
           setGradedResults({});
@@ -1406,20 +1415,24 @@ const packTopicKey = useMemo(() => {
   }, [filteredQuestions, activeQuestion]);
 
   const sessionStats = useMemo<SessionStats>(() => {
+    // An attempt is EITHER path: clicking an MCQ option, OR getting a written answer
+    // graded. `gradedResults` was previously absent here, so a student who worked out
+    // an answer and had it graded saw "0 of 10 attempted" — the set said they had done
+    // nothing. That is backwards: working a question out is the BETTER behaviour, and
+    // it was the only one we discarded. (The attempts stream already recorded it; only
+    // this local scorecard was blind.)
     const attemptedIds = new Set<string>([
       ...Object.keys(mcqSelections),
-      ...Object.keys(selfAssessments),
+      ...Object.keys(gradedResults),
     ]);
     const localMcqAnswered = Object.keys(mcqSelections).length;
     return {
       total: questions.length,
       attemptedInSet: attemptedIds.size,
-      markedUnderstood: Object.values(selfAssessments).filter((r) => r === "got_it").length,
-      needsAnotherLook: Object.values(selfAssessments).filter((r) => r === "need_practice").length,
       localMcqAnswered,
       localMcqCorrect: Object.values(mcqResults).filter((r) => r === "correct").length,
     };
-  }, [questions.length, mcqSelections, selfAssessments, mcqResults]);
+  }, [questions.length, mcqSelections, gradedResults, mcqResults]);
 
   // Scorecard trigger. `sessionFinished` (the explicit "Finish session" tap) is
   // the primary, always-available trigger; `allDone` (every question attempted)
@@ -1744,7 +1757,6 @@ const packTopicKey = useMemo(() => {
           topicLabel={topicLabel}
           difficultyFilter={difficulty}
           expandedAnswers={expandedAnswers}
-          selfAssessments={selfAssessments}
           mcqSelections={mcqSelections}
           mcqResults={mcqResults}
           practiceSolutionLoading={practiceSolutionLoading}
@@ -1755,15 +1767,7 @@ const packTopicKey = useMemo(() => {
           onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
-          onSelfAssessGotIt={(question) => {
-            setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
-            recordQuestionAnswered();
-          }}
-          onSelfAssessNeedPractice={(question) => {
-            setSelfAssessments((prev) => ({ ...prev, [question.id]: "need_practice" }));
-            recordQuestionAnswered();
-          }}
-          onOpenConceptDrawer={openConceptDrawer}
+          onAskTutor={askTutorAboutQuestion}
           onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
         )}
@@ -1847,15 +1851,6 @@ const packTopicKey = useMemo(() => {
   topicKey={canonicalTopicKey}
 />
 
-      {conceptDrawerContext && (
-        <Suspense fallback={null}>
-          <ConceptTeachDrawer
-            open={conceptDrawerOpen}
-            onClose={() => setConceptDrawerOpen(false)}
-            context={conceptDrawerContext}
-          />
-        </Suspense>
-      )}
       </div>
     </div>
   );
