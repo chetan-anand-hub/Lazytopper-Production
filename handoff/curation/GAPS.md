@@ -1,82 +1,155 @@
-# GAPS — concepts with NO fitting existing figure (feeds Opus Stage-3 AI gap-fill lane)
+# GAPS — concepts the tutor's explanation panel cannot show a figure for
 
-Fable curation lane, 2026-07-14. These are Topic Hub `boardEssentials` concept rows
-where **no existing repo asset genuinely fits** (`best.kind: "none"`, `gap: true` in
-`conceptFigureCatalogue.curated.ts`), OR where only a weak/partial/interactive-only
-asset exists and a simple purpose-built figure would obviously help.
+Fable curation lane. Companion to `conceptFigureCatalogue.curated.ts` (and its wired twin
+`lazytopper/src/pages/tutor/conceptVisualCatalogue.data.ts` — the two carry byte-identical rows).
 
-Precision-over-coverage rule: a wrong figure is a wrong explanation. Nothing below was
-stretched to fill a row — each is an honest "no existing figure explains this concept."
-This list is a **candidate queue for AI figure generation**, NOT an authored deliverable
-(Fable authors no figures). Owner + Opus decide what actually gets generated.
+**Precision-over-coverage rule:** a wrong figure is a wrong explanation. Nothing here was
+stretched to fill a row. A concept with no genuinely fitting figure gets **no row at all**
+(the panel simply doesn't open) or a `best.kind:"none"` gap row — never a near-miss picture.
 
-> ## ★★ READ THIS BEFORE TRUSTING THE COUNTS (added post-#448, 2026-07-16)
->
-> **"Hard gap" here means CURATION JUDGMENT about OUR catalogue — it is NOT a verified census,
-> and it does NOT mean NCERT has no such figure.** It means: *no existing asset in the repo
-> (notes / bank / interactives) genuinely fits this concept.* Those are different claims.
->
-> Stage 3 (#448) traced all 7 hard gaps against the **official 2026-27 NCERT PDFs** before
-> authoring anything, and the distinction mattered twice:
-> - **Two "hard gaps" have real NCERT source art to trace** — **#4 atmospheric refraction has
->   TWO figures** (Fig 10.9 "Apparent star position due to atmospheric refraction" + Fig 10.10
->   "Atmospheric refraction effects at sunrise and sunset", both p168), and **#6 functional
->   groups is NCERT's own Table 4.3** (p66, whose formula column is drawn structural formulae).
->   A figure invented for #4 would have replaced a real textbook figure — caught only because
->   the trace was required.
-> - **#6 was not a hard gap at all** — a functional-groups **interactive exists**
->   (`visualConceptRegistry.ts:234` → `/visuals/science/carbon-compounds/functional-groups.html`,
->   file present) but was recorded `none` as a "keyword-heuristic concept stub". The outcome is
->   unchanged (a curated figure outranks a whole-chapter interactive) — but **the hard-gap count
->   was off by one.**
->
-> **None of this undermines the curation** — precision-over-coverage was the right rule, and the
-> honest `scopeCaveat` notes are exactly what made the trace fast. The fix is framing: *before
-> authoring a figure for any row below, trace it to the ORIGINAL SOURCE first.* Local PDFs:
-> `Desktop\NCERT Books\{Mathematics,Science} class 10\_unzipped\` — they use the **OLD 2018-19
-> numbering, so MAP BY CONTENT, never the filename** (`jemh110`=Circles · `jemh111`=Areas Related
-> to Circles · `jesc104`=Carbon · `jesc109`=Light · `jesc110`=Human Eye). Use **pymupdf**
-> (`import fitz`) — **pdfplumber is BANNED** (it cannot decode CBSE subset fonts). NCERT figures
-> are **vector drawings over a full-page raster**, so `get_images()` returns the whole page —
-> extract via **clipped page renders at the figure bbox**.
->
-> **Status:** **5 of these 7 are now FILLED and live** (#448) — see the post-#448 addendum in
-> `handoff/TUTOR_VISUAL_CATALOGUE_HANDOFF.md`. The remaining two are **#6 functional groups**
-> and **#2 (whose row is now renamed "Radius from a given circumference, diameter or area")** —
-> tracked as **[FU-TUTOR-LAST-2-GAP-FIGURES]**. ⚠ **#2's scope flag was RULED ON:** the row is
-> **renamed, not retired** — the board deleted the review *section*, but Exercise 11.1 Q2 (p158)
-> still tests the skill.
+**Status 2026-07-16 (catalogue: 73 rows / 112 boardEssentials concepts).**
+Rewritten after the coverage-expansion pass. The previous version of this file was badly
+stale: 5 of its 7 "hard gaps" were filled by the AI gap-fill lane in **#448**, and it still
+listed pre-rename labels. Do not trust an old copy of this list — regenerate against the
+live catalogue.
 
-## HARD GAPS (best.kind = "none" — no asset at all)
+---
 
-| # | Topic | Concept | Why no figure fits | A simple figure that would help |
-|---|-------|---------|--------------------|---------------------------------|
-| 1 | circles | Length of tangent from external point ℓ = √(d²−r²) | notes c5 figure_ref null; no bank/interactive shows the d/r/ℓ right triangle | Circle, centre O, external point P, radius r to contact T, right angle at T, hypotenuse OP = d, tangent ℓ labelled |
-| 2 | areas-related-to-circles | Circumference & area recap (C = 2πr, A = πr²) | no notes/interactive targets bare C=2πr / A=πr²; bank ARC images are decorative photos | Circle with radius r marked, C and A formulae annotated |
-| 3 | human-eye-and-colourful-world | Lens power P = 1/f (dioptre) | no figure/interactive depicts the P=1/f computation; correction figures show geometry not the formula | Lens with focal length f → dioptre scale, P = 1/f callout |
-| 4 | human-eye-and-colourful-world | Atmospheric refraction (twinkling, advance sunrise, delayed sunset) | spec c5 figure_ref null; no interactive; rainbow interactive is a different phenomenon | Sun below horizon, bent ray through graded atmosphere, apparent vs real position |
-| 5 | human-eye-and-colourful-world | Scattering of light (Tyndall, blue sky, red sun) | nothing addresses scattering; rainbow interactive is dispersion (spec pitfall warns against conflating) | Sunlight → air molecules, short-λ scattered (blue sky) / long-λ transmitted (red sun) |
-| 6 | carbon-and-its-compounds | Functional groups (–OH, –CHO, –COOH, >C=O, –X) | no notes/bank figure; only a keyword-heuristic concept stub | Table/panel of the five functional groups with a representative structure each |
-| 7 | carbon-and-its-compounds | Reactions of ethanol & ethanoic acid | equation-based (esterification/oxidation); live in notes Reactions tab, not as an image | Esterification + oxidation reaction schemes drawn as labelled structural equations |
+## 1. HARD GAPS — rows that exist but have NO figure (`best.kind:"none"`, `gap:true`)
 
-## SOFT GAPS (a real asset exists but is interactive-only or partial — figure would strengthen)
+Only **two** remain (down from seven).
 
-| Topic | Concept | Current best | Note |
-|-------|---------|--------------|------|
-| triangles | Basic Proportionality Theorem (BPT) | interactive only | No static figure of DE∥BC dividing sides in ratio (notes Fig 6.10 not extracted). Static BPT figure would help. |
-| triangles | Areas of similar triangles ∝ (sides)² | interactive only | Also flagged OUT of 2026-27 chapter scope — confirm before generating. |
-| electricity | Electrical power (P = VI = I²R = V²/R) | interactive only | No static figure; formula-only concept. |
-| electricity | Joule's heating (H = I²Rt) | interactive only | A heating-element / fuse figure would help. |
-| life-processes | Transport in plants (xylem vs phloem) | leaf cross-section (partial) | Leaf section shows the bundle but is not a stem/root transport schematic; a xylem-vs-phloem transport diagram would fit better. |
-| control-and-coordination | Tropisms (photo/geo/hydro/chemo) | interactive + 2 static | Static figures cover only photo/geo; no hydrotropism/chemotropism figure. |
+| Topic | Concept | Why nothing fits | A figure that would help |
+|-------|---------|------------------|--------------------------|
+| areas-related-to-circles | Radius from a given circumference, diameter or area | The 2026-27 reprint DELETED the "Perimeter and Area of a Circle — A Review" section; ch.11 now opens at 11.1 Sector/Segment. No notes/interactive targets bare C=2πr / A=πr²; the bank's ARC images are decorative context photos. The skill is still tested (Ex 11.1 Q2). | Circle with radius r marked, C = 2πr and A = πr² annotated, rearranged to r |
+| carbon-and-its-compounds | Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br) | No notes figure and no bank figure; only a keyword-heuristic concept stub. NCERT Table 4.3 (p.66) is a table, not an extracted asset. | Panel of the groups with one representative structure each (match Table 4.3 exactly — no generic –X, no F/I) |
 
-## SCOPE FLAGS (not gaps — concept vs 2026-27 syllabus tension; owner to rule)
+**Filled since the last version (by #448, owner-approved — do NOT re-file these):**
+circles · length of tangent ℓ=√(d²−r²) → `fig_tangent_length.svg`; human-eye · lens power
+P=1/f → `fig_lens_power.svg`; human-eye · atmospheric refraction →
+`fig_atmospheric_refraction.svg`; human-eye · scattering → `fig_scattering.svg`;
+carbon · reactions of ethanol & ethanoic acid → `fig_ethanol_ethanoic_reactions.svg`.
 
-- **coordinate-geometry — "Area of a triangle from coordinates"**: notes `board_asks` says area-of-a-triangle was REMOVED from Class-10 2026-27; boardEssentials/topics.ts/fullFormulaUseMap still cite it. Curated to the collinearity interactive, but the ROW itself may be retired. Also: **both coordinate-geometry note-spec figure assets (`fig_distance_plane`, `fig_section_divide`) are generator specs that DO NOT EXIST on disk** — not referenced in the catalogue; if the notes pipeline renders them later they become the natural best for distance/section rows.
-- **areas-related-to-circles — "Area of combinations of plane figures"**: notes says combinations are OUT of the trimmed 2026-27 chapter; interactive-only, arguably retired.
-- **triangles — areas of similar triangles / Pythagoras proofs**: notes says the chapter stops at SAS; application items remain in the bank.
-- **magnetic-effects — "Electric Motor and Generator" interactive**: OUT of the trimmed 2026-27 chapter; matches no boardEssentials row — do not attach.
+> ★ The old entry for atmospheric refraction claimed "no NCERT figure exists". That was false —
+> NCERT has **two** (Figs 10.9 and 10.10, both p.168). The claim was about *our catalogue*, not
+> about NCERT. When writing a gap, say which is true: "we have no asset" ≠ "NCERT has no figure".
 
-## DATA-QUALITY FLAGS surfaced during curation (not figure gaps)
-- Several bank figures carry PENDING-OWNER-VERIFICATION comments in `competency.z3.ts` and were NOT proposed as primary: Z3-TG-104 (150 vs 200 m datum), Z3-ARC-004 (2954 vs 2912 cm²), Z3-SAV-005 (bore-volume factor-of-10), Z3-SAV-006 (authored, pending teacher check).
-- Many ARC/SAV/CG bank "figures" are decorative context photos, not teaching diagrams (e.g. z3-arc-001/002/003/005, z3-sav-004/005/006, z3-cg-001/003/005). Only the geometry-panel variants (…-2 second figures) were used.
+---
+
+## 2. CONCEPTS WITH NO ROW — checked this pass, deliberately not added (39)
+
+These are live boardEssentials rows whose topic has **no fitting extracted figure**. Adding a
+row would either blank the panel or show a near-miss, so they stay absent.
+
+**No extracted figure anywhere in the topic (17):** `real-numbers` (4), `quadratic-equations`
+(4), `probability` (5) and `arithmetic-progression` (4). Their note-specs declare
+`fig_factor_tree`, `fig_disc_triptych`, `fig_dice_sample_space` and `fig_ap_number_line`, but
+all four are generator specs that **do not exist on disk**.
+⇒ If the notes pipeline ever renders them, they become the natural `best` for those rows.
+
+**Topic has figures, but none fits these concepts (22):**
+
+| Topic | Concepts left without a row | Why |
+|-------|------------------------------|-----|
+| polynomials | zeroes↔coefficients, factorisation, forming a quadratic | The one figure (Fig 2.2 parabola) is the *geometrical meaning* only — it says nothing about α+β = −b/a |
+| pair-of-linear-equations | consistency conditions, substitution, elimination, word problems | Fig 3.1 is one worked graph; the algebraic methods are text/steps, not pictures |
+| statistics | median, mode, empirical relation | Table 13.3 is the *direct-method mean* table only |
+| our-environment | ecosystem components, biological magnification, biodegradable waste, ozone depletion | The 4 figures are all food-chain/energy-flow; the trophic pyramid shows feeding levels, **not** "components" (no decomposers, no abiotic) — that would be the stretch |
+| metals-and-non-metals | reactivity series, reactions of metals | Fig 3.10 *branches on* the activity series but does not present it; no figure for metal+O₂/water/acid |
+| chemical-reactions | balancing equations, effects of oxidation (rancidity/corrosion) | Fig 1.1 is the burning experiment, not the balancing procedure |
+| acids-bases-and-salts | neutralisation, common salts | No neutralisation figure. Fig 2.8 (chlor-alkali) yields NaOH/Cl₂/H₂ — only 1 of the 6 salts the row names; too partial to claim the row |
+| how-do-organisms-reproduce | reproductive health, variation & DNA copying | No figure for either |
+
+---
+
+## 3. REAL FIGURES ON DISK WITH NO CONCEPT TO ATTACH TO
+
+Good NCERT figures that stay unused because **no boardEssentials row names them**. Attaching
+them would fail the CI label-drift guard. Listed so the vocabulary owner can decide whether the
+missing thing is actually the concept row.
+
+| Figure | Page | Note |
+|--------|------|------|
+| `control-and-coordination/fig_brain.webp` | p.104 (Fig 6.3) | Human brain — a heavily-tested diagram with **no** boardEssentials row |
+| `circles/fig_positions_101.webp` | p.144 (Fig 10.1) | Line-and-circle positions (non-intersecting/secant/tangent) — no row |
+| `light/fig_910.webp` | p.147 (Fig 9.10) | Refraction through a glass slab — no row |
+| `heredity/fig_dihybrid_cross.webp` | p.131 (Fig 8.5) | Used as an *alternate* only; no dihybrid row exists |
+
+---
+
+## 4. SOFT GAPS — a row resolves, but the figure is partial (see each row's `scopeCaveat`)
+
+- **triangles · BPT** — interactive only; no static DE∥BC figure (notes Fig 6.10 not extracted).
+- **triangles · areas of similar triangles** — interactive only; **also flagged OUT** of the
+  2026-27 chapter (notes `board_asks`: the chapter stops at SAS).
+- **electricity · power / Joule's heating** — interactive only; formula-only concepts.
+- **life-processes · transport in plants** — the leaf cross-section (p.82) shows the bundle but
+  is not a xylem-vs-phloem transport schematic. (Its `ncertPage` correctly points at p.94,
+  §5.4.2, where the concept is actually taught.)
+- **control-and-coordination · tropisms** — static figures cover photo/geo only; no
+  hydrotropism/chemotropism figure.
+- **how-do-organisms-reproduce · asexual modes** — best shows fission; 3 of 6 modes have no figure.
+- **chemical-reactions · types of reactions** — no single figure covers all four types.
+- **acids-bases · properties of acids and bases** — acid-with-metal only; bases not depicted.
+- **pair-of-linear-equations · graphical method** — intersecting case only.
+- **statistics · mean of grouped data** — direct method only.
+
+---
+
+## 5. ROWS WITH NO NCERT PAGE (honest absence)
+
+`ncertPage` is populated on **65 of 73** rows. The 8 without one, and why — in each case the
+affordance simply hides rather than pointing somewhere wrong:
+
+| Topic | Concept | Why no page |
+|-------|---------|-------------|
+| triangles | Areas of similar triangles ∝ (sides)² | Out of the 2026-27 chapter (stops at SAS) |
+| triangles | Pythagoras theorem (a²+b²=c²) | Proofs no longer in the chapter; applications only |
+| areas-related-to-circles | Radius from a given circumference… | Its source section was deleted in the reprint |
+| areas-related-to-circles | Area of combinations of plane figures | Combinations are out of the trimmed chapter |
+| surface-areas-and-volumes | Cylinder, cone and sphere — SA & volume | ch.12 (2026-27) teaches *combinations*; the individual-solid formulae are Class 9 |
+| trigonometry | Heights & distances setup | Lives in Maths **ch.9** "Some Applications of Trigonometry" — which has **no note-spec and no entry in `ncertPdfOffsets.ts`**, so no PDF can be opened. See §7. |
+| coordinate-geometry | Area of a triangle from coordinates | Removed from Class-10 2026-27 |
+| heredity | Genotype vs phenotype | The words "genotype"/"phenotype" appear **nowhere** in the rationalised ch.8 — the row is editorial vocabulary. Fig 8.3 does show the distinction, so the row exists; the page does not. |
+
+---
+
+## 6. DATA-QUALITY FLAGS surfaced during this pass (not figure gaps)
+
+- ★ **A note-spec's `page_pdf` index is NOT a reliable page source.** Its 0-based/1-based
+  convention **varies per spec** (25 of 62 figures are off by one against `ncertPdfOffsets.ts`),
+  and for Light it is simply wrong: `fig_99` records `page_pdf: 10`, which would derive p.144,
+  but Fig 9.9's caption is on **p.143**. Every `ncertPage` here was instead verified by opening
+  the real chapter PDF and confirming the printed folio **and** the section/caption on the page.
+  Never derive a page from the index.
+- ★ **The spec `source_ledger` is not uniformly reliable either.** electricity's ledger cites
+  "Equivalent resistance in series → p.192" and "Electric current → p.192", but §11.6.1
+  *Resistors in Series* opens on **p.182** (and "Ampere" is correctly p.172). Parallel is cited
+  p.186; §11.6.2 opens **p.185**. Treat ledger pages as candidates to verify, not as truth.
+- The figure page and the concept page are often **not** the same (e.g. §5.4.2 Transportation in
+  Plants opens p.94; its leaf figure sits on p.82). `ncertPage` points at the concept.
+- NCERT defines **lens power / the dioptre in Light ch.9 §9.3.8 (p.157)** — *not* in the human-eye
+  chapter, which only applies it. That row's `ncertPage` is deliberately cross-chapter.
+- Several bank figures still carry PENDING-OWNER-VERIFICATION comments in `competency.z3.ts` and
+  were NOT proposed as primary: Z3-TG-104, Z3-ARC-004, Z3-SAV-005, Z3-SAV-006.
+- Many ARC/SAV/CG bank "figures" are decorative context photos, not teaching diagrams; only the
+  geometry-panel variants (…-2 second figures) were used.
+- Both coordinate-geometry note-spec assets (`fig_distance_plane`, `fig_section_divide`) are
+  generator specs that **do not exist on disk** — not referenced by the catalogue.
+
+---
+
+## 7. FOLLOW-UPS this pass surfaced
+
+- **[FU-NCERT-OFFSETS-MATHS-CH9]** — `ncertPdfOffsets.ts` has no `maths/ch9` entry and there is
+  no note-spec for "Some Applications of Trigonometry", so the trigonometry · heights-&-distances
+  row can never offer a page. The chapter PDF (`jemh109.pdf`) exists locally.
+- **[FU-SCOPE-GUARD-HANDOFF-LANE]** — `repo_boundary_policy.json` lanes are all relative to
+  `lazytopper/`; repo-root `handoff/` matches no lane, so any change here reports
+  `[unclassified]` and fails `scope:guard`. A classification blind spot, not a violation.
+- **[FU-CATALOGUE-SYNC-GUARD]** — nothing enforces the "keep the two in sync" contract between
+  the curated record and the wired copy; they had silently drifted (#448's gap-fill rows and the
+  2026-07-16 label corrections existed only in `data.ts`). A ~10-line CI check comparing the two
+  row arrays would make the contract real.
+- **[FU-TUTOR-VOCAB-BRAIN-ROW]** — the human-brain figure (Fig 6.3) is board-heavy and extracted,
+  but no boardEssentials row names it (see §3).
