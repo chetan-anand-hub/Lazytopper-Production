@@ -12,7 +12,6 @@ export interface PracticeQuestionListProps {
   topicLabel: string;
   difficultyFilter?: string;
   expandedAnswers: Record<string, boolean>;
-  selfAssessments: Record<string, "got_it" | "need_practice">;
   mcqSelections: Record<string, number>;
   mcqResults: Record<string, "correct" | "wrong">;
   practiceSolutionLoading: Record<string, boolean>;
@@ -24,20 +23,18 @@ export interface PracticeQuestionListProps {
   onMcqResult: (qId: string, result: "correct" | "wrong") => void;
   /** The graded payload for one subjective answer, forwarded to the page (QP sessions). */
   onGraded?: (qId: string, result: CheckSolutionResponse) => void;
-  onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
-  onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
-  onOpenConceptDrawer: (q: PracticeQuestion) => void;
+  /** Hand a question's concept to the Tutor, with a ticket back to this set. */
+  onAskTutor?: (q: PracticeQuestion) => void;
   onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
   const {
     isLoading, error, questions, filteredQuestions, subjectKey, topicLabel, difficultyFilter,
-    expandedAnswers, selfAssessments, mcqSelections, mcqResults,
+    expandedAnswers, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
-    onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
-    onSelfAssessGotIt, onSelfAssessNeedPractice,
-    onOpenConceptDrawer, onOpenMentorBoard,
+    onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
+    onOpenMentorBoard,
   } = props;
 
   return (
@@ -136,7 +133,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               topicLabel={topicLabel}
               difficultyFilter={difficultyFilter}
               isOpen={!!expandedAnswers[q.id]}
-              selfAssessment={selfAssessments[q.id]}
               solutionLoading={!!practiceSolutionLoading[q.id]}
               solutionError={practiceSolutionError[q.id]}
               solutionData={practiceSolutionData[q.id]}
@@ -147,9 +143,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onMcqSelect={(qId, oi) => onMcqSelect(qId, oi)}
               onMcqResult={(qId, result) => onMcqResult(qId, result)}
               onGraded={onGraded}
-              onSelfAssessGotIt={(question) => onSelfAssessGotIt(question, idx)}
-              onSelfAssessNeedPractice={(question) => onSelfAssessNeedPractice(question, idx)}
-              onOpenConceptDrawer={onOpenConceptDrawer}
+              onAskTutor={onAskTutor}
               onOpenMentorBoard={(question) => onOpenMentorBoard(question, idx)}
             />
           ))}
