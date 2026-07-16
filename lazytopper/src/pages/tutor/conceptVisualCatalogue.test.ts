@@ -17,6 +17,59 @@ import {
 import { getNoteAssetUrl } from "../../components/notes/noteSpecRegistry";
 import { getFiguresForQuestion, getAllConceptsList } from "../../data/visualConceptRegistry";
 
+describe("★ base-path — the #448 live bug: registry paths must be browser-loadable", () => {
+  // The app is served under Vite's `base: "/app/"`. Registry filePaths are root-relative
+  // ("/visuals/…"), so rendering one raw resolves to the DOMAIN ROOT and the host serves its own
+  // 404 page inside our iframe/img. The CI guard cannot see this — it checks DISK existence,
+  // which is only a proxy for URL reachability. This is where that invariant is actually pinned.
+  const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+
+  it("an interactive body's url carries the base and is not a raw registry path", () => {
+    const row = conceptFigureCatalogue.find((r) => r.best.kind === "interactive")!;
+    const v = resolveConceptVisual({
+      subject: row.subject,
+      topicKey: row.topicKey,
+      conceptKey: row.conceptKey,
+    });
+    expect(v?.body.kind).toBe("interactive");
+    if (v?.body.kind === "interactive") {
+      expect(v.body.url.startsWith(`${BASE}/visuals/`)).toBe(true);
+      // The exact production failure: a bare "/visuals/…" when a base is configured.
+      if (BASE) expect(v.body.url.startsWith("/visuals/")).toBe(false);
+    }
+  });
+
+  it("a bank-figure body's url carries the base too", () => {
+    const row = conceptFigureCatalogue.find((r) => r.best.kind === "bank-figure");
+    if (!row) return; // data-shaped guard
+    const v = resolveConceptVisual({
+      subject: row.subject,
+      topicKey: row.topicKey,
+      conceptKey: row.conceptKey,
+    });
+    if (v?.body.kind === "image") {
+      expect(v.body.url.startsWith(`${BASE}/visuals/`)).toBe(true);
+      if (BASE) expect(v.body.url.startsWith("/visuals/")).toBe(false);
+    }
+  });
+
+  it("a notes-figure body's url is NEVER double-prefixed (it is already based by Vite)", () => {
+    // getNoteAssetUrl() returns a Vite-bundled ?url that already carries the base. Prefixing it
+    // would emit "/app/app/…" and break the rows that work today — the trap inside the fix.
+    const row = conceptFigureCatalogue.find((r) => r.best.kind === "notes-figure")!;
+    const v = resolveConceptVisual({
+      subject: row.subject,
+      topicKey: row.topicKey,
+      conceptKey: row.conceptKey,
+    });
+    expect(v?.body.kind).toBe("image");
+    if (v?.body.kind === "image") {
+      expect(v.body.url).not.toContain("/app/app/");
+      if (BASE) expect(v.body.url.startsWith(`${BASE}${BASE}`)).toBe(false);
+    }
+  });
+});
+
 describe("catalogue integrity — every curated best ref resolves to a real asset", () => {
   const interactiveIds = new Set(getAllConceptsList().map((c) => c.id));
 

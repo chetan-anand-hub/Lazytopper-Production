@@ -17,6 +17,18 @@
 // Plain Node (no Vite/tsx) so it runs in the lazytopper ops matrix, which CI executes.
 // The catalogue and registry are read as TEXT — no module import — so a Vite-only
 // import.meta.glob dependency never blocks this guard.
+//
+// ★★ KNOW WHAT THIS GUARD DOES NOT PROVE — it checks assets exist ON DISK, which is only a
+// PROXY for the property that actually matters: "is it reachable at the URL the browser
+// requests?" #448 shipped a live bug straight through a green run of this guard — every asset
+// was on disk, but the panel rendered raw registry filePaths ("/visuals/…") while the app is
+// served under Vite's `base: "/app/"`, so the browser got the host's 404 page instead. Disk
+// existence was TRUE and the real property was FALSE at the same time.
+// ⇒ A green run here does NOT mean a student can see the figure. The base-prefixing itself is
+// covered by conceptVisualCatalogue.test.ts (vitest, not CI-gated — [FU-CI-GATE-VITEST]) and,
+// decisively, by a LIVE CLICK on each of the three body kinds (notes-figure / bank-figure /
+// interactive) — they resolve through DIFFERENT mechanisms and one working proves nothing about
+// the others. Verify all three; never infer one path's health from another's.
 
 import fs from "node:fs";
 import path from "node:path";
