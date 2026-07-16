@@ -4,6 +4,13 @@ import { useAuth } from "../../context/AuthContext";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
 import { EquationInput, EquationRender } from "../equation";
+import QrAnswerHandoff from "../qr/QrAnswerHandoff";
+import {
+  MAX_UPLOAD_IMAGE_BYTES,
+  MAX_UPLOAD_PDF_BYTES,
+  UPLOAD_LIMIT_SENTENCE,
+  formatUploadLimit,
+} from "../../services/uploadLimits";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -60,8 +67,14 @@ interface SolutionCheckerProps {
   onResult?: (result: CheckSolutionResponse) => void;
 }
 
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
-const MAX_PDF_BYTES = 5 * 1024 * 1024;
+// Limits come from services/uploadLimits.ts — the ONE place they are defined, shared
+// with every other upload affordance and with the QR phone path below. This file used
+// to declare its own 5 MB PDF ceiling, which was never spendable: base64 inflates by
+// ~4/3, so a 5 MB PDF is 6.67 MB of body against readJson's 5 MB cap. A student who
+// attached a 4-5 MB PDF passed this picker and then died at the grader. #443 fixed the
+// three host panels that were free at the time; this file was deliberately held for
+// PR-2 (the QP lane owned it), so it is fixed here — with the QR path that would
+// otherwise have promised 3.5 MB in the same panel this picker promised 5 MB.
 
 const STATUS_STYLE: Record<string, { border: string; bg: string; badge: string; badgeBg: string }> = {
   correct:   { border: "rgba(34,197,94,0.35)",  bg: "rgba(34,197,94,0.05)",   badge: "#22c55e", badgeBg: "rgba(34,197,94,0.12)"  },
@@ -295,8 +308,8 @@ export function SolutionChecker({
       return;
     }
 
-    const maxSize = isFilePdf ? MAX_PDF_BYTES : MAX_IMAGE_BYTES;
-    const maxLabel = isFilePdf ? "5 MB" : "3 MB";
+    const maxSize = isFilePdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES;
+    const maxLabel = formatUploadLimit(maxSize);
     if (file.size > maxSize) {
       setError(`File must be under ${maxLabel}`);
       return;
@@ -515,6 +528,7 @@ export function SolutionChecker({
 
       {/* ── Upload zone ────────────────── */}
       {answerTab === "upload" && !hasFile && !result && (
+        <>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -536,9 +550,47 @@ export function SolutionChecker({
         >
           <span>Upload a photo or PDF of your answer</span>
           <span style={{ fontSize: "0.7rem", fontWeight: 400, opacity: 0.8 }}>
-            JPG · PNG · PDF &nbsp;|&nbsp; Max 3 MB image, 5 MB PDF
+            {UPLOAD_LIMIT_SENTENCE}
           </span>
         </button>
+
+        {/* Solved it on paper? Send it straight from your phone instead of emailing it
+            to yourself. A QR handoff produces a FILE — the same tuple handleFileSelect
+            fills — so it is a SUB-MODE OF UPLOAD, deliberately attached inside this
+            panel and NEVER a third peer beside the type/upload control: at 360px a
+            third CTA drops each from ~162px to ~105px against ~105px of label, silently
+            re-breaking the two-peer fix the owner verified by screenshot.
+
+            Sibling of the dropzone, not nested inside it — that <button> is an
+            interactive element and QrAnswerHandoff renders its own.
+
+            Desktop-only + signed-in-only; renders nothing otherwise, so when QR is
+            unused this panel behaves exactly as it did before. */}
+        <QrAnswerHandoff
+          // "photo": one handwritten answer to ONE question — the photo IS the answer.
+          // (Contrast the Chapter Test, which needs "document": a multi-page PDF, where
+          // camera-first copy would have a student shoot page 1 and believe they were
+          // done.) `mode` rides to the phone as `variant` on the coordination doc and
+          // drives both its copy and its camera default.
+          mode="photo"
+          disabled={loading}
+          onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
+            // The phone's picker keeps accept="...,application/pdf" in EVERY mode —
+            // `capture` only hints at the camera, it does not restrict the picker — so a
+            // PDF can legitimately arrive here even in "photo" mode. Set the full state
+            // tuple the preview/PDF branches below read: a PDF with isPdf unset would
+            // fall into the <img> branch and render broken.
+            const pdf = mime === "application/pdf";
+            setError(null);
+            setResult(null);
+            setFileName(pdf ? "PDF from your phone" : "Photo from your phone");
+            setIsPdf(pdf);
+            setImageMimeType(mime);
+            setImagePreview(pdf ? null : `data:${mime};base64,${b64}`);
+            setImageBase64(b64);
+          }}
+        />
+        </>
       )}
 
       {/* ── Image preview ────────────────── */}
