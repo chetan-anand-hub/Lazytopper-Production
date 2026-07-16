@@ -474,7 +474,7 @@ const STATUS_META: Record<
   missing: { label: "Missing", fg: DANGER_FG, bg: DANGER_SOFT, Icon: XCircleGlyph },
 };
 
-const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step }) => {
+const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?: boolean }> = ({ step, objective }) => {
   const meta = STATUS_META[step.status] ?? STATUS_META.incorrect;
   const Icon = meta.Icon;
   return (
@@ -535,16 +535,20 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep }> = ({ step
             </span>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: TEXT_MUTED }}>
-            +{step.marksAwarded}
-          </span>
-          {step.marksDeducted > 0 && (
-            <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: DANGER_FG }}>
-              −{step.marksDeducted}
+        {/* Objective question → per-step marks are zeroed by design; suppress the
+            misleading "+0" chip, keep the status + annotation. */}
+        {!objective && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: TEXT_MUTED }}>
+              +{step.marksAwarded}
             </span>
-          )}
-        </div>
+            {step.marksDeducted > 0 && (
+              <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: DANGER_FG }}>
+                −{step.marksDeducted}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {step.description && (
@@ -922,6 +926,7 @@ const DesktopCheckImprovePage: React.FC = () => {
           annotatedSteps: result.annotatedSteps,
           mistakeSummary: result.mistakeSummary,
           teacherNote: result.teacherNote,
+          objective: result.objective,
         },
       ],
       gradedMarksAwarded: result.marksAwarded,
@@ -959,6 +964,7 @@ const DesktopCheckImprovePage: React.FC = () => {
       annotatedSteps: g.annotatedSteps,
       mistakeSummary: g.mistakeSummary,
       teacherNote: g.teacherNote,
+      objective: g.objective,
     }));
     return {
       code,
@@ -2165,7 +2171,7 @@ const DesktopCheckImprovePage: React.FC = () => {
                       </div>
                     )}
                     {steps.map((step) => (
-                      <AnnotatedStepRow key={step.stepNumber} step={step} />
+                      <AnnotatedStepRow key={step.stepNumber} step={step} objective={g.objective} />
                     ))}
                   </div>
                 )}
@@ -2371,7 +2377,7 @@ const DesktopCheckImprovePage: React.FC = () => {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {result.annotatedSteps.map((step) => (
-                  <AnnotatedStepRow key={step.stepNumber} step={step} />
+                  <AnnotatedStepRow key={step.stepNumber} step={step} objective={result.objective} />
                 ))}
               </div>
             )}
