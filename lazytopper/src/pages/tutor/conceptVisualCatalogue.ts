@@ -65,18 +65,45 @@ const rowByKey: ReadonlyMap<string, ConceptFigureRow> = (() => {
   return m;
 })();
 
-// Interactive id -> public filePath. makeId() is module-private in the registry and ids
-// are computed at its init, so this Map over the exported list is the only lookup path.
+/**
+ * Turn a REGISTRY `filePath` into a URL the browser can actually load.
+ *
+ * ★ Why this exists (a live #448 bug — a raw Vercel 404 rendered to a student):
+ * the registry's filePaths are ROOT-relative public paths ("/visuals/…"), but the app is served
+ * under Vite's `base: "/app/"` (vite.config.ts:28). A raw filePath therefore resolves to the
+ * DOMAIN ROOT — `…/visuals/…` 404s while the asset really lives at `…/app/visuals/…` — and the
+ * host's own 404 page renders inside our <iframe>/<img>.
+ *
+ * Mirrors the proven idiom at `components/VisualExplainer.tsx:20-26` (`toAbsoluteSrc`), which is
+ * how EVERY other registry consumer already gets this right (they all route their filePath through
+ * VisualExplainer). This is a DELIBERATE, cited duplication rather than importing that helper:
+ * VisualExplainer is part of the old engine under retirement scrutiny (D-TUT-12), and coupling the
+ * fresh tutor to a retiring component is worse debt than one small copy.
+ * [FU-PUBLIC-ASSET-URL-SHARED] — extract a shared `publicAssetUrl()` when VisualExplainer retires.
+ *
+ * ★★ REGISTRY PATHS ONLY (interactive + bank-figure). NEVER apply this to `getNoteAssetUrl()`:
+ * that returns a Vite-BUNDLED `?url` which ALREADY carries the base, so prefixing it would emit
+ * "/app/app/…" and break the notes-figure rows that work today.
+ */
+const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+function publicPath(filePath: string): string {
+  if (filePath.startsWith("blob:") || filePath.startsWith("http")) return filePath;
+  return filePath.startsWith("/") ? `${BASE}${filePath}` : filePath;
+}
+
+// Interactive id -> browser-ready public URL. makeId() is module-private in the registry and ids
+// are computed at its init, so this Map over the exported list is the only lookup path. The base
+// is applied HERE, at the choke point, so every consumer gets a loadable URL.
 const interactivePathById: ReadonlyMap<string, string> = (() => {
   const m = new Map<string, string>();
-  for (const c of getAllConceptsList()) m.set(c.id, c.filePath);
+  for (const c of getAllConceptsList()) m.set(c.id, publicPath(c.filePath));
   return m;
 })();
 
 function firstBankFigureUrl(questionId: string): string | null {
   const figs = getFiguresForQuestion(questionId);
   // Read filePath OFF the entry — never synthesize from questionId (one asset can serve two).
-  return figs.length && figs[0].filePath ? figs[0].filePath : null;
+  return figs.length && figs[0].filePath ? publicPath(figs[0].filePath) : null;
 }
 
 /** Resolve the curated `best` ref to a concrete body, or a gap when its asset is missing. */
