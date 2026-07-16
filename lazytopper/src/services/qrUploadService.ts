@@ -13,21 +13,34 @@
 
 const API_BASE = "/api"; // same origin; Vercel rewrites /api/* to the Railway backend
 
-/** Server cap is 3MB DECODED (validateMentorImagePayload). Stay clear of it. */
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
-/** readJson caps the whole request body at 5MB and base64 inflates ~1.33x, so a
- *  raw PDF above ~3.5MB cannot fit. We refuse it honestly rather than let the
- *  request die halfway with an opaque error. */
-const MAX_PDF_BYTES = 3.5 * 1024 * 1024;
+// The single source of truth for what a student may send — shared with every upload
+// affordance so the enforced number and the promised number can never diverge.
+// See uploadLimits.ts for the base64 arithmetic that makes "5 MB" impossible.
+import {
+  MAX_UPLOAD_IMAGE_BYTES,
+  MAX_UPLOAD_PDF_BYTES,
+  formatUploadLimit,
+} from "./uploadLimits";
 
 /** Long edge to downscale a camera photo to. Comfortably legible handwriting at
  *  a fraction of a modern phone's 2-8MB full-res output. */
 const TARGET_LONG_EDGE = 1600;
 
+/**
+ * What the HOST SURFACE wants — decides the words on BOTH the desktop affordance and
+ * the phone page, and whether the phone defaults to the camera.
+ *
+ *   "document" — Chapter Test / Full Mock / Worksheet: ONE multi-page PDF of a paper.
+ *                One photo is ONE page, so camera-first copy here misleads.
+ *   "photo"    — a single handwritten answer, where one photo IS the whole answer.
+ */
+export type QrHandoffMode = "document" | "photo";
+
 export interface QrSlot {
   uploadToken: string;
   pickupToken: string;
   expiresAt: number;
+  variant: QrHandoffMode;
 }
 
 export interface QrImagePayload {
@@ -58,7 +71,7 @@ export function buildQrUploadUrl(uploadToken: string): string {
  * Mint a slot. Requires a signed-in desktop student: every slot is tied to a real
  * uid so caps are per-UID (an IP cap would throttle a whole school behind one NAT).
  */
-export async function mintQrSlot(idToken: string): Promise<QrSlot | null> {
+export async function mintQrSlot(idToken: string, mode: QrHandoffMode): Promise<QrSlot | null> {
   try {
     const res = await fetch(`${API_BASE}/qr-upload/new`, {
       method: "POST",
@@ -66,7 +79,9 @@ export async function mintQrSlot(idToken: string): Promise<QrSlot | null> {
         "Content-Type": "application/json",
         Authorization: `Bearer ${idToken}`,
       },
-      body: "{}",
+      // The host's shape travels with the slot, so the phone can lead with the right
+      // words — it is reached by token alone and cannot otherwise know.
+      body: JSON.stringify({ variant: mode }),
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -75,6 +90,7 @@ export async function mintQrSlot(idToken: string): Promise<QrSlot | null> {
       uploadToken: String(data.uploadToken),
       pickupToken: String(data.pickupToken),
       expiresAt: Number(data.expiresAt) || 0,
+      variant: data.variant === "photo" ? "photo" : "document",
     };
   } catch {
     return null;
@@ -82,16 +98,22 @@ export async function mintQrSlot(idToken: string): Promise<QrSlot | null> {
 }
 
 /** Phone-side liveness check, so an expired code is reported BEFORE the student
- *  photographs 3MB. Returns no student content. */
-export async function peekQrSlot(uploadToken: string): Promise<QrSlotState> {
+ *  photographs several MB. Returns no student content — only liveness and which
+ *  words to lead with. */
+export async function peekQrSlot(
+  uploadToken: string,
+): Promise<{ state: QrSlotState; mode: QrHandoffMode }> {
   try {
     const res = await fetch(`${API_BASE}/qr-upload/${encodeURIComponent(uploadToken)}/status`);
-    if (res.status === 503) return "unavailable";
     const data = await res.json().catch(() => null);
-    if (!res.ok) return data?.reason === "used" ? "used" : "expired";
-    return data?.state === "pending" ? "pending" : "used";
+    // Absent/unknown -> "document": the safer wording (it never tells a student that
+    // one photo is enough when the paper needs a PDF).
+    const mode: QrHandoffMode = data?.variant === "photo" ? "photo" : "document";
+    if (res.status === 503) return { state: "unavailable", mode };
+    if (!res.ok) return { state: data?.reason === "used" ? "used" : "expired", mode };
+    return { state: data?.state === "pending" ? "pending" : "used", mode };
   } catch {
-    return "expired";
+    return { state: "expired", mode: "document" };
   }
 }
 
@@ -167,8 +189,14 @@ function loadImage(dataUrl: string): Promise<HTMLImageElement> {
  */
 export async function prepareQrImage(file: File): Promise<QrImagePayload> {
   if (file.type === "application/pdf") {
-    if (file.size > MAX_PDF_BYTES) {
-      throw new Error("That PDF is too large to send from your phone. Try a photo instead.");
+    // A PDF CANNOT be downscaled — there is no canvas for it. So this is a hard wall,
+    // and it must be refused HERE, on the phone, while the student is still holding it
+    // — never after they have walked back to the laptop believing they are done.
+    if (file.size > MAX_UPLOAD_PDF_BYTES) {
+      throw new Error(
+        `That PDF is ${formatUploadLimit(file.size)} — the limit is ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)}. ` +
+          `Try scanning at a lower quality, or split it into two.`,
+      );
     }
     const dataUrl = await readAsDataUrl(file);
     return { imageBase64: dataUrl.split(",")[1] || "", imageMimeType: "application/pdf" };
@@ -190,8 +218,9 @@ export async function prepareQrImage(file: File): Promise<QrImagePayload> {
 
   for (const quality of [0.82, 0.7, 0.6, 0.5]) {
     const encoded = canvas.toDataURL("image/jpeg", quality).split(",")[1] || "";
-    // base64 -> decoded byte estimate, mirroring the server's own check.
-    if (Math.floor((encoded.length * 3) / 4) <= MAX_IMAGE_BYTES) {
+    // base64 -> decoded byte estimate, mirroring the server's own check
+    // (mentorImageSupport.cjs rejects on `> maxBytes`, so `<=` is the exact boundary).
+    if (Math.floor((encoded.length * 3) / 4) <= MAX_UPLOAD_IMAGE_BYTES) {
       return { imageBase64: encoded, imageMimeType: "image/jpeg" };
     }
   }

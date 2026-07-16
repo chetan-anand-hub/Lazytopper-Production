@@ -27,6 +27,7 @@ import {
   buildQrUploadUrl,
   mintQrSlot,
   pollQrPickup,
+  type QrHandoffMode,
   type QrImagePayload,
 } from "../../services/qrUploadService";
 
@@ -34,11 +35,38 @@ const POLL_INTERVAL_MS = 2000;
 
 type Phase = "idle" | "starting" | "waiting" | "received" | "expired" | "failed";
 
+/**
+ * COPY FOLLOWS THE HOST SURFACE, NOT THIS COMPONENT.
+ *
+ * The host knows what it actually needs; this component cannot infer it. Getting it
+ * wrong is not cosmetic — a Chapter Test wants ONE multi-page PDF, and "photograph
+ * your answer" makes a student shoot page 1 of a 20-question mock and walk away
+ * believing they are done. So `mode` is REQUIRED and has NO DEFAULT: every host must
+ * decide consciously rather than silently inherit the wrong shape.
+ */
+const COPY: Record<QrHandoffMode, { link: string; head: string; body: string }> = {
+  document: {
+    link: "Send the PDF — or a photo — from your phone",
+    head: "Scan with your phone camera",
+    body: "Then pick the PDF of your answers — or photograph them. It lands here automatically, with no need to email it to yourself.",
+  },
+  photo: {
+    link: "Scan to send from your phone",
+    head: "Scan with your phone camera",
+    body: "Photograph your written answer on your phone — it lands here automatically. No need to email it to yourself.",
+  },
+};
+
 export default function QrAnswerHandoff({
+  mode,
   onImageReceived,
   disabled = false,
   label = "Solved it on paper?",
 }: {
+  /** What the HOST needs — "document" (CT / Full Mock / Worksheet: one multi-page PDF)
+   *  or "photo" (a single handwritten answer). REQUIRED ON PURPOSE: no default, so a
+   *  new host cannot quietly inherit copy that misleads its students. */
+  mode: QrHandoffMode;
   /** Handed the delivered image. The caller owns what happens next (it drops it
    *  into its existing answer state); this component never grades. */
   onImageReceived: (payload: QrImagePayload) => void;
@@ -127,7 +155,7 @@ export default function QrAnswerHandoff({
       return;
     }
 
-    const slot = await mintQrSlot(idToken);
+    const slot = await mintQrSlot(idToken, mode);
     if (cancelledRef.current) return;
     if (!slot) {
       setError("Couldn't create a phone link just now. Please upload from this device.");
@@ -149,7 +177,7 @@ export default function QrAnswerHandoff({
     setQrDataUrl(dataUrl);
     setPhase("waiting");
     timerRef.current = window.setTimeout(poll, POLL_INTERVAL_MS);
-  }, [getToken, poll, stopPolling]);
+  }, [getToken, mode, poll, stopPolling]);
 
   const cancel = useCallback(() => {
     stopPolling();
@@ -170,7 +198,7 @@ export default function QrAnswerHandoff({
       {phase === "idle" && (
         <button type="button" className="lt-qrh__link" onClick={start} disabled={disabled}>
           <span className="lt-qrh__icon" aria-hidden="true">▣</span>
-          {label} <span className="lt-qrh__linku">Scan to send from your phone</span>
+          {label} <span className="lt-qrh__linku">{COPY[mode].link}</span>
         </button>
       )}
 
@@ -180,11 +208,8 @@ export default function QrAnswerHandoff({
         <div className="lt-qrh__panel">
           <img className="lt-qrh__qr" src={qrDataUrl} alt="QR code to open the upload page on your phone" />
           <div className="lt-qrh__body">
-            <p className="lt-qrh__h">Scan with your phone camera</p>
-            <p className="lt-qrh__d">
-              Photograph your written answer on your phone — it lands here automatically.
-              No need to email it to yourself.
-            </p>
+            <p className="lt-qrh__h">{COPY[mode].head}</p>
+            <p className="lt-qrh__d">{COPY[mode].body}</p>
             <p className="lt-qrh__wait">
               <span className="lt-qrh__dot" aria-hidden="true" />
               Waiting for your phone… <span className="lt-qrh__ttl">This code lasts 5 minutes.</span>
