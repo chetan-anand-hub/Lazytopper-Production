@@ -21,6 +21,35 @@ describe("buildTutorPath — mirrors the desktop route encoding for /tutor", () 
     expect(path).toContain("concept=Heights+%26+distances");
   });
 
+  it("carries an optional questionId as ?q= only when present (Stage 3, additive)", () => {
+    // Present → additive `q` segment, ordered after concept and before source.
+    const withQ = buildTutorPath({
+      subject: "Maths",
+      topicKey: "trigonometry",
+      concept: "Heights & distances",
+      questionId: "Z3-TG-101",
+      source: "practice",
+    });
+    expect(withQ).toContain("q=Z3-TG-101");
+    expect(withQ.indexOf("concept=")).toBeLessThan(withQ.indexOf("q="));
+    expect(withQ.indexOf("q=")).toBeLessThan(withQ.indexOf("source="));
+  });
+
+  it("omitting questionId is byte-identical to before the param existed", () => {
+    // The QP lane's existing call omits it — its output must not change at all.
+    expect(buildTutorPath({ subject: "Maths", topicKey: "trigonometry" })).toBe(
+      "/tutor/10/Maths/trigonometry",
+    );
+    const withoutQ = buildTutorPath({
+      subject: "Science",
+      topicKey: "electricity",
+      concept: "Ohm's law",
+      source: "practice",
+      returnTo: "/practice/10/Science",
+    });
+    expect(withoutQ).not.toContain("q=");
+  });
+
   it("carries source + returnTo for back-nav", () => {
     const path = buildTutorPath({
       subject: "Maths",

@@ -39,6 +39,7 @@ import {
   matchReturningAttempts,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
+import { catalogueFiguresForTopic } from "./conceptVisualCatalogue";
 
 export type TutorStatus = "idle" | "sending" | "error";
 
@@ -146,6 +147,10 @@ export function useTutorSession({
     () => selectTutorDemoQuestion({ subject, topicKey, concept }),
     [subject, topicKey, concept],
   );
+
+  // Stage 3: the closed set of concepts in this topic that have a curated diagram — passed to
+  // the model so it can signal one via [[figure:<key>]] (the panel then shows the real asset).
+  const figures = useMemo(() => catalogueFiguresForTopic({ subject, topicKey }), [subject, topicKey]);
 
   const briefRef = useRef<TutorBrief | null>(null);
   const coverageRef = useRef<TutorCoverage>(
@@ -295,14 +300,21 @@ export function useTutorSession({
           brief: briefRef.current,
           language,
           demoQuestion,
+          figures,
         });
         if (!mountedRef.current) return;
         setMessages((prev) => {
           const next: TutorTurn[] = [
-            // The model's per-turn intent (Fix 3) rides ON the tutor turn — the UI gates
-            // ONE round-trip CTA off the LATEST tutor turn's offer, never a standing pair.
+            // The model's per-turn intent (Fix 3) + any curated-figure signal (Stage 3) ride
+            // ON the tutor turn — the UI gates ONE round-trip CTA off the LATEST tutor turn's
+            // offer, and opens the explanation panel to the LATEST tutor turn's figure.
             ...prev,
-            { role: "tutor", content: res.reply, ...(res.offer ? { offer: res.offer } : {}) },
+            {
+              role: "tutor",
+              content: res.reply,
+              ...(res.offer ? { offer: res.offer } : {}),
+              ...(res.figure ? { figure: res.figure } : {}),
+            },
           ];
           persist(next, pendingRef.current);
           return next;
@@ -316,7 +328,7 @@ export function useTutorSession({
         sendingRef.current = false;
       }
     },
-    [uid, topicKey, topicLabel, subject, concept, language, persist, demoQuestion],
+    [uid, topicKey, topicLabel, subject, concept, language, persist, demoQuestion, figures],
   );
 
   const send = useCallback(
@@ -370,7 +382,15 @@ export function useTutorSession({
     routeOut(
       { surface: "practice", topicKey, departureTs: Date.now(), note: "practice set" },
       `Holding your place - here's a short practice set on ${concept ? `"${concept}"` : "this"}. Do it, then come back and we'll read the result together.`,
-      buildQuickPracticeRoundTripHref({ returnTo: selfHref, subject, topicKey, concept }),
+      // [FU-TUTOR-BACKLABEL-COUNT]: name the back button "Back to your tutor" + a short set.
+      buildQuickPracticeRoundTripHref({
+        returnTo: selfHref,
+        subject,
+        topicKey,
+        concept,
+        backLabel: "Back to your tutor",
+        count: 5,
+      }),
     );
   }, [routeOut, topicKey, subject, concept, selfHref]);
 

@@ -19,8 +19,15 @@ import { useAuth } from "../../context/AuthContext";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { MathText } from "../../components/question/MathText";
+import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
 import { useTutorSession } from "./useTutorSession";
 import { safeInternalReturnTo } from "./tutorPath";
+import ExplanationPanel from "./ExplanationPanel";
+import {
+  resolveConceptVisual,
+  conceptKeyForLabel,
+  type NcertPageRefData,
+} from "./conceptVisualCatalogue";
 
 // Language layer (Teach-Contract §5): explanation language is the student's choice;
 // exam content stays English (enforced in the system prompt). Real selector.
@@ -67,6 +74,10 @@ export default function TutorPage() {
   );
 
   const concept = searchParams.get("concept") || undefined;
+  // Stage 3 seam: the specific bank question the student came from (e.g. a Practice question).
+  // Used ONLY to prefer that question's own exam figure over the concept's generic one, and
+  // ONLY for the concept the student arrived on (never a mismatched question figure).
+  const questionId = searchParams.get("q") || undefined;
   const backHref =
     safeInternalReturnTo(searchParams.get("returnTo")) ||
     (subjectParam && topicKeyRaw
@@ -121,6 +132,64 @@ export default function TutorPage() {
     return null;
   }, [messages]);
 
+  // ── Explanation panel (Stage 3, D-TUT-13/14) ──────────────────────────────
+  // The model signals a curated diagram per turn via `figure` (a conceptKey, validated
+  // server-side). `shownKey` is the concept currently in the panel; a NEW signalled figure
+  // opens the panel to it, an explicit close respects the student's choice until the NEXT new
+  // figure (never re-yanks them back to the same one). Resolution is exact-match-or-nothing.
+  const [shownKey, setShownKey] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [ncertRef, setNcertRef] = useState<NcertPageRef | null>(null);
+
+  const latestFigureKey = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role === "tutor" && m.kind !== "away-cue") return m.figure ?? null;
+    }
+    return null;
+  }, [messages]);
+
+  // Seed from a restored thread WITHOUT auto-opening (open-closed on mount, per the locked
+  // prototype — the "Diagram" reopen button surfaces it). Thereafter a genuinely NEW figure
+  // during the session opens the panel to it; an explicit close is respected until the next.
+  const figureSeededRef = useRef(false);
+  useEffect(() => {
+    if (!figureSeededRef.current) {
+      figureSeededRef.current = true;
+      setShownKey(latestFigureKey);
+      return;
+    }
+    if (latestFigureKey && latestFigureKey !== shownKey) {
+      setShownKey(latestFigureKey);
+      setPanelOpen(true);
+    }
+  }, [latestFigureKey, shownKey]);
+
+  // The questionId figure override is only ever correct for the concept the student arrived
+  // on — apply it solely when the shown concept IS that arrival concept.
+  const arrivalKey = useMemo(
+    () => (concept ? conceptKeyForLabel({ topicKey: canonicalTopicKey, conceptLabel: concept }) : null),
+    [concept, canonicalTopicKey],
+  );
+
+  const resolvedVisual = useMemo(() => {
+    if (!shownKey) return null;
+    return resolveConceptVisual({
+      subject,
+      topicKey: canonicalTopicKey,
+      conceptKey: shownKey,
+      questionId: questionId && shownKey === arrivalKey ? questionId : undefined,
+    });
+  }, [shownKey, subject, canonicalTopicKey, questionId, arrivalKey]);
+
+  const showPanel = panelOpen && !!resolvedVisual;
+
+  const openFigure = (key: string) => {
+    setShownKey(key);
+    setPanelOpen(true);
+  };
+  const openNcert = (ref: NcertPageRefData) => setNcertRef(ref);
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
@@ -142,6 +211,15 @@ export default function TutorPage() {
           <div className="lt-tutor__c">{concept ? `${topicLabel} · ${concept}` : topicLabel}</div>
           <div className="lt-tutor__s2">Class 10 · ask anything on this topic</div>
         </div>
+        {resolvedVisual && !panelOpen && (
+          <button
+            type="button"
+            className="lt-tutor__reopen"
+            onClick={() => setPanelOpen(true)}
+          >
+            <span aria-hidden="true">&#128196;</span> Diagram
+          </button>
+        )}
         <label className="lt-tutor__lang">
           <span className="lt-tutor__lang-lbl">Language</span>
           <select
@@ -211,6 +289,15 @@ export default function TutorPage() {
                   className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
                 >
                   <MathText text={m.content} />
+                  {m.figure && (
+                    <button
+                      type="button"
+                      className="lt-tutor__refchip"
+                      onClick={() => m.figure && openFigure(m.figure)}
+                    >
+                      <span aria-hidden="true">&#128196;</span> See the diagram
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -307,10 +394,25 @@ export default function TutorPage() {
           </form>
         </section>
 
-        {/* Explanation panel — CLOSED scaffold (Stage 3 populates it). Split on
-            desktop, overlay on mobile — CSS-driven. */}
-        <aside className="lt-tutor__panel lt-tutor__panel--closed" aria-hidden="true" />
+        {/* Explanation panel (Stage 3, D-TUT-13 panel 2). Split on desktop, overlay on
+            mobile — width toggled by --closed (CSS-driven). Renders the resolved visual;
+            closed when there is nothing to show, so it never occupies space empty. */}
+        <aside
+          className={showPanel ? "lt-tutor__panel" : "lt-tutor__panel lt-tutor__panel--closed"}
+          aria-hidden={!showPanel}
+        >
+          {showPanel && resolvedVisual && (
+            <ExplanationPanel
+              visual={resolvedVisual}
+              onClose={() => setPanelOpen(false)}
+              onOpenNcert={openNcert}
+            />
+          )}
+        </aside>
       </div>
+
+      {/* Exact NCERT page (D-TUT-14 #1) — the shared modal, opened from the panel. */}
+      <NcertPageModal pageRef={ncertRef} onClose={() => setNcertRef(null)} />
     </div>
   );
 }
@@ -590,12 +692,51 @@ const TUTOR_CSS = `
 .lt-tutor__foot { font-size: 10.5px; color: var(--lt-faint); text-align: center; margin-top: 7px; }
 .lt-tutor__panel {
   flex: none;
-  width: 320px;
+  width: 340px;
   border-left: 1px solid var(--lt-line);
   background: var(--lt-bg);
   transition: width 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .lt-tutor__panel--closed { width: 0; border-left: none; overflow: hidden; }
+
+/* Header "Diagram" reopen (shown when a figure exists but the panel is closed). */
+.lt-tutor__reopen {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lt-green-deep);
+  background: var(--lt-green-tint);
+  border: 1px solid var(--lt-green-line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.lt-tutor__reopen:hover { background: #fff; border-color: var(--lt-green); }
+
+/* Inline "See the diagram" chip under a tutor turn that signalled a figure. */
+.lt-tutor__refchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--lt-green-deep);
+  background: #fff;
+  border: 1px dashed var(--lt-green-line);
+  border-radius: 9px;
+  padding: 7px 11px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.lt-tutor__refchip:hover { background: var(--lt-green-tint); }
 
 /* KaTeX: keep long display math from forcing a horizontal page scroll on mobile. */
 .lt-tutor__t .katex-display { overflow-x: auto; overflow-y: hidden; margin: 0.4em 0; }

@@ -14,6 +14,15 @@ export interface TutorPathInput {
   grade?: string;
   /** Sub-topic the student is stuck on (per-row "Stuck?") — pre-loads the tutor. */
   concept?: string;
+  /**
+   * The specific bank `questionId` the student came from (e.g. a Practice question they
+   * got stuck on). OPTIONAL and additive (Stage 3): when present, the tutor's explanation
+   * panel prefers that question's real exam figure over the concept's generic one
+   * (D-TUT-14 #2 — "bank figures via questionId when a specific question is in play").
+   * Absent/undefined → no `?q=` segment and byte-identical behaviour to before this param
+   * existed, so every existing caller that omits it is unaffected.
+   */
+  questionId?: string;
   /** Origin marker, e.g. "topicHub". */
   source?: string;
   /** Safe in-app URL to return to on "back" (validated by the caller). */
@@ -24,6 +33,7 @@ export function buildTutorPath(input: TutorPathInput): string {
   const grade = input.grade || "10";
   const params = new URLSearchParams();
   if (input.concept) params.set("concept", input.concept);
+  if (input.questionId) params.set("q", input.questionId);
   if (input.source) params.set("source", input.source);
   if (input.returnTo) params.set("returnTo", input.returnTo);
   const query = params.toString();

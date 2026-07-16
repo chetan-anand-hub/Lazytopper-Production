@@ -39,6 +39,11 @@ export function buildCheckImproveRoundTripHref(args: { returnTo: string; topicSl
  * Carries the concept `focus` ONLY — NOT a mark-band (D-TUT-7 wants the CONCEPT the student
  * misses, not a mark filter). `source`/`returnTo` are plain string params PracticePage reads
  * (kept a raw string here, decoupled from the desktop DesktopActionSource enum).
+ *
+ * [FU-TUTOR-BACKLABEL-COUNT] (owed from Stage 2): also carries `backLabel` (so Practice's back
+ * button reads "Back to your tutor" instead of a generic default) and a short `count` (the
+ * tutor offers "a couple on this" — a small, honest set the student can extend in Practice).
+ * Both are params PracticePage already reads (backLabel + count).
  */
 export function buildQuickPracticeRoundTripHref(args: {
   returnTo: string;
@@ -46,6 +51,8 @@ export function buildQuickPracticeRoundTripHref(args: {
   topicKey: string;
   concept?: string;
   grade?: string;
+  backLabel?: string;
+  count?: number;
 }): string {
   const grade = args.grade || "10";
   const subject = args.subject === "science" ? "Science" : "Maths";
@@ -55,6 +62,8 @@ export function buildQuickPracticeRoundTripHref(args: {
     subtopicHint: args.concept,
     source: "tutor",
     returnTo: args.returnTo,
+    backLabel: args.backLabel,
+    count: typeof args.count === "number" && args.count > 0 ? String(args.count) : undefined,
   })}`;
 }
 
