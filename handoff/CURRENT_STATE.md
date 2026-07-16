@@ -1,5 +1,45 @@
 # LazyTopper â€” Current State
 
+## #454 merged — ★★ THE QR LANE IS COMPLETE — **owner BYTE-REVIEWED + LIVE-VERIFIED** — trunk `a8be752`
+
+**Post-merge trunk: `a8be752` (squash of #454). Re-derive after this docs PR merges — never trust a written SHA. This lane produced TWO stale-base catches an hour apart (#450 took #451 mid-build; #452 took the #451 docs PR mid-WRITE) — 10th and 11th. *That is the normal condition of a shared trunk, not bad luck.***
+
+### ★★ THE WHOLE ARC, IN ONE PLACE — desktop practice no longer costs a self-email
+A student practising or checking on a laptop, who solved on paper, used to photograph their work → WhatsApp/email it to themselves → save it → upload from the laptop. **That friction is now dead on every graded surface.** The desktop shows a QR, the phone scans + sends, the file lands in the SAME answer box and **grades exactly as today — the grader was NEVER touched. QR is a DELIVERY mechanism, not a grading one.**
+
+| PR | SHA | What it did |
+|---|---|---|
+| **#441** (PR-1) | `9ebb87c` | **The channel.** Firebase Storage blob + a Firestore coordination doc, both server-side via firebase-admin (the phone never touches Firebase). 4 endpoints · `/u/:token` bare full-screen phone page · `<QrAnswerHandoff/>` · 3 owner-approved `App.tsx` lines. Wired into `ChapterTestUploadPanel` + `WorksheetGradePanel` ⇒ **ONE wire lit THREE surfaces** (CT in-test, CT result, **Full Mock**) because `ChapterTestPage:711` **and** `FullMockPage:1172` share that panel. |
+| **#443** | `5aaaeec` | **Hardening.** Copy follows the HOST SURFACE (`mode` required, no default) · the REAL ceiling · an actionable refusal. Fixed a **live PRE-EXISTING** bug: **"PDF up to 5 MB" was never spendable on EITHER path** (base64 ×4/3 ⇒ 6.67 MB vs `readJson`'s 5 MB cap) — a 4–5 MB PDF **on the desktop, no QR**, passed the picker and died at the grader. Limits unified in `src/services/uploadLimits.ts` (**3.5 MB**), guarded by a **negative-tested** cap assertion in `test:qr:channel`. |
+| **#447** (PR-2) | `d99c14d` | **QP + HPQ + TopicHub** — one wire in the shared `SolutionChecker`. `mode="photo"`; QR **inside the upload panel as a sub-mode, never a third peer**. Also closed SolutionChecker's **own** 5 MB constant. |
+| **#451** | `c132f27` | **The C&I guard that never existed** — not a wrong ceiling, **NO ceiling**. Size **and** type, all four inputs, both pages, via the new shared `checkUploadFile()`. |
+| **#454** (last wire) | `a8be752` | **Check & Improve** — 1 file, +47/−0, **desktop-only**. `mode={isMultiQuestion ? "document" : "photo"}`. |
+
+**★ THE LANE IS CLOSED.** Remaining, none of it in this lane's hands: **[FU-QR-STORAGE-LIFECYCLE]** (owner infra — 24h lifecycle on `qr-uploads/`, console/gsutil not code) · **[FU-GRADER-5MB-COPY]** + **[FU-GRADER-COULDNOTREAD-REASON]** (both the FORBIDDEN grader file — one future batched, owner-approved pass) · **[FU-UPLOAD-GUARD-CONVERGE]** · **[FU-QR-CI-QUESTION-PHOTO]** · **[FU-CI-DROPZONE-PDF-COPY]**.
+
+### ★★ THE TWO LESSONS THIS ARC EARNED — they outlive every line of its code
+**1. CARRY THE QUESTION FORWARD, NEVER THE EXPECTED ANSWER.** *Two-for-two in this one lane:*
+- **[#451]** The carried check was *"look for a THIRD copy of the 5 MB constant."* **There was none — and that was the CORRECT result of a REAL, LIVE bug**: the bug had a different SHAPE (no guard at all). Run it literally ⇒ find nothing ⇒ report *"C&I is clean"* ⇒ **close a live bug as a pass.** The question that worked: *"what does C&I ENFORCE?"*
+- **[#454]** The FU said *"Use `mode="photo"`"*. **Wrong-shaped** — C&I is **bimodal**, and `"photo"` on a multi-question paper is exactly the failure `mode` was invented to prevent. The question that worked: *"what does C&I's answer upload actually ACCEPT?"*
+- ★ Neither instruction was careless; **both were true when written and had since ROTTED.** A stale instruction is worse than none — **it looks like diligence.** ⇒ when an instruction is spent, **strike it IN PLACE** (a grep landing on the old line is how it gets re-run), never merely add a note above it.
+
+**2. CHECK WHAT THE ACTUAL HOST RENDERS, NOT THE SHAPE OF THE LAST WIRE YOU BUILT.** *(The general form; it supersedes the earlier per-instance wording of "don't assume a sibling's shape transfers", and it is usable on a host nobody has seen yet.)* **Both wrong directions are avoided the same way:**
+- **#447 needed MORE state than a naive copy** — the CT panel's 2-field set would have dropped a QR-delivered **PDF** into `SolutionChecker`'s `!isPdf`-gated `<img>` and rendered it **broken** (`capture` only HINTS at the camera; the phone's picker keeps `accept="...,application/pdf"` in EVERY mode).
+- **#454 needed LESS** — C&I has **no `<img>` preview** and three state fields, so copying #447's five-field tuple would have added state nothing reads.
+
+### #454 — the last wire
+**`mode={isMultiQuestion ? "document" : "photo"}`.** C&I is **the only bimodal host so far**: multi-question = the answers to a WHOLE PAPER (one multi-page PDF — the page's own comment at `:1765` says the solution upload "accepts a PDF for BOTH single- and multi-question"); single-question = the photo IS the answer. `isMultiQuestion` (`:756`) derives from the **question** upload's detection, which settles **before** the answer upload is reachable ⇒ **no race, no undefined-mode window.** Seam held: QR **inside the upload panel as a sub-mode**, never a third peer; **reset is structural** (`!imageBase64` gates the mount ⇒ delivery unmounts + cancels polling, `clearImage` remounts fresh `idle`). **Mobile `CheckImprove.tsx` deliberately UNTOUCHED** — `QrAnswerHandoff` → `useIsDesktop()` → **null <1024px** ⇒ a QR there could never render; **a QR on a phone is meaningless, the camera is already there.** Mobile got #451's guard and no QR.
+
+### ★ OWNER BYTE-REVIEWED the pushed diff, then LIVE-VERIFIED — all clean
+Including **the multi-question case that mattered most: the QR copy leads with the PDF**, so the page-1 trap cannot happen. *(That is the case the FU's `mode="photo"` would have shipped broken.)*
+
+### Lane status after #454
+- **QR — CLOSED.** Nothing follows from it in this lane's hands.
+- **No COMPLETION cell moves** — C&I was already ✅; §2a cross-surface depth (as #441/#443 and #447 were).
+- **Branch cleanup: the owner will do ONE sweep** of all six branches + four worktrees when ready — **not piecemeal, and never auto-approved (§3).**
+
+---
+
 ## #451 merged — CHECK & IMPROVE: the upload guard that never existed — **owner LIVE-VERIFIED** — trunk `c132f27`
 
 **Post-merge trunk: `c132f27` (squash of #451) on top of `13fc1b0` (#450 docs) and `0e42e16` (#448). Re-derive the tip after this docs PR merges — never trust a written SHA. #451's branch went stale MID-BUILD when docs #450 landed (the 10th such catch), and **THIS DOCS PR then went stale under #452 while being written (the 11th)** — rebased onto `a9798e7` (tutor 404 fix; product-only, zero overlap with these six files). ⇒ **the live trunk at merge is `a9798e7`+, NOT `c132f27`; `c132f27` is #451's own squash SHA and nothing more.** *Two catches in one lane, an hour apart: this is not bad luck, it is the normal condition of a shared trunk.*
