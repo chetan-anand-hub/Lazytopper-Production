@@ -82,6 +82,24 @@ const MAX_PENDING_PER_UID = 5;
 const STATUS_PENDING = 'pending';
 const STATUS_READY = 'ready';
 
+/**
+ * What the HOST SURFACE actually wants — carried on the slot so the PHONE can say it.
+ *
+ *   'document' — Chapter Test / Full Mock / Worksheet want ONE multi-page PDF of a
+ *                whole paper. A single photo captures ONE PAGE, so camera-first copy
+ *                here actively misleads: the student photographs page 1 of a
+ *                20-question mock and believes they are done.
+ *   'photo'    — a single handwritten answer (Check & Improve / SolutionChecker),
+ *                where one photo genuinely IS the whole answer.
+ *
+ * This rides on the SLOT rather than the QR URL because the phone page is reached by
+ * token alone and would otherwise have no idea which surface minted it. It carries NO
+ * student content — only which words to show — so the token stays write-only.
+ */
+const VARIANT_DOCUMENT = 'document';
+const VARIANT_PHOTO = 'photo';
+const VARIANTS = new Set([VARIANT_DOCUMENT, VARIANT_PHOTO]);
+
 function sha256(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex');
 }
@@ -192,25 +210,30 @@ function createQrUploadChannel(deps) {
    * mintSlot — the DESKTOP asks for a slot. Requires an authenticated uid.
    * Returns both tokens; ONLY uploadToken may be put in the QR.
    */
-  async function mintSlot(uid) {
+  async function mintSlot(uid, variant) {
     const now = Date.now();
     await sweepForUid(uid, now);
 
     const uploadToken = mintToken();
     const pickupToken = mintToken();
     const expiresAt = now + SLOT_TTL_MS;
+    // Unknown/absent -> 'document'. Both live hosts (Chapter Test / Full Mock /
+    // Worksheet) want a PDF, and over-promising "just photograph it" is precisely the
+    // failure this variant exists to prevent — so the safer wording is the default.
+    const slotVariant = VARIANTS.has(variant) ? variant : VARIANT_DOCUMENT;
 
     await collection().doc(sha256(uploadToken)).set({
       uid,
       pickupHash: sha256(pickupToken),
       status: STATUS_PENDING,
+      variant: slotVariant,
       storagePath: null,
       imageMimeType: null,
       createdAt: now,
       expiresAt,
     });
 
-    return { uploadToken, pickupToken, expiresAt };
+    return { uploadToken, pickupToken, expiresAt, variant: slotVariant };
   }
 
   /**
@@ -230,7 +253,10 @@ function createQrUploadChannel(deps) {
       return { ok: false, reason: 'expired' };
     }
     if (data.status !== STATUS_PENDING) return { ok: false, reason: 'used' };
-    return { ok: true, state: STATUS_PENDING };
+    // `variant` is the ONLY thing this returns beyond liveness — which words to show,
+    // never any student content. Legacy slots minted before the variant existed read
+    // as 'document', the safer wording.
+    return { ok: true, state: STATUS_PENDING, variant: data.variant || VARIANT_DOCUMENT };
   }
 
   /**
@@ -317,6 +343,9 @@ module.exports = {
   createQrUploadChannel,
   SLOT_TTL_MS,
   MAX_PENDING_PER_UID,
+  VARIANT_DOCUMENT,
+  VARIANT_PHOTO,
+  VARIANTS,
   // Exported for tests only — production code never calls these directly.
   __internals: { sha256, resolveBucketName, extensionFor },
 };

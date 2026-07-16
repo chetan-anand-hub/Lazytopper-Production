@@ -9,9 +9,12 @@
 
 import { useCallback, useRef, useState } from "react";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
-
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
-const MAX_PDF_BYTES = 5 * 1024 * 1024;
+import {
+  MAX_UPLOAD_IMAGE_BYTES,
+  MAX_UPLOAD_PDF_BYTES,
+  UPLOAD_LIMIT_SENTENCE,
+  formatUploadLimit,
+} from "../../services/uploadLimits";
 
 export default function ChapterTestUploadPanel({
   name,
@@ -53,8 +56,16 @@ export default function ChapterTestUploadPanel({
       setLocalError("Upload a PDF (recommended) or a JPG/PNG photo of your answers.");
       return;
     }
-    if (file.size > (isPdf ? MAX_PDF_BYTES : MAX_IMAGE_BYTES)) {
-      setLocalError(`File must be under ${isPdf ? "5 MB" : "3 MB"}.`);
+    // The limit is the REAL one (uploadLimits.ts), not the old unspendable "5 MB":
+    // base64 inflates ~4/3, so a 5 MB PDF became 6.67 MB on the wire and blew the
+    // backend's 5 MB body cap — the student passed this check and then died at the
+    // grader. Refuse it here, honestly, while they can still act on it.
+    if (file.size > (isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES)) {
+      const limit = formatUploadLimit(isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES);
+      setLocalError(
+        `That file is ${formatUploadLimit(file.size)} — the limit is ${limit}. ` +
+          `Try scanning at a lower quality, or split it into two.`,
+      );
       return;
     }
     setLocalError(null);
@@ -95,7 +106,7 @@ export default function ChapterTestUploadPanel({
           <button type="button" className="lt-ct__drop" onClick={() => fileInputRef.current?.click()}>
             <span className="lt-ct__dropt">Upload your written answers (one PDF)</span>
             <span className="lt-ct__dropd">
-              PDF up to 5 MB · or a JPG/PNG photo up to 3 MB · label each answer with its question number
+              {UPLOAD_LIMIT_SENTENCE} · label each answer with its question number
             </span>
           </button>
         ) : (
@@ -114,10 +125,14 @@ export default function ChapterTestUploadPanel({
             runs exactly as it always has. */}
         {!imageBase64 && (
           <QrAnswerHandoff
+            // "document": this paper is MULTI-PAGE, so the phone must lead with the
+            // PDF. Camera-first copy here would have a student photograph page 1 of a
+            // whole test and believe it was submitted.
+            mode="document"
             disabled={grading}
             onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
               setLocalError(null);
-              setFileName("Photo from your phone");
+              setFileName(mime === "application/pdf" ? "PDF from your phone" : "Photo from your phone");
               setImageMimeType(mime);
               setImageBase64(b64);
             }}

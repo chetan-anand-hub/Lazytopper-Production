@@ -9,6 +9,12 @@ import ResultsScorecard from "../results/ResultsScorecard";
 import { worksheetScorecardVariant } from "../results/scorecardVariants";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import {
+  MAX_UPLOAD_IMAGE_BYTES,
+  MAX_UPLOAD_PDF_BYTES,
+  UPLOAD_LIMIT_SENTENCE,
+  formatUploadLimit,
+} from "../../services/uploadLimits";
+import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
 } from "../../services/worksheetGradeService";
@@ -34,8 +40,8 @@ import type {
  * touch it.
  */
 
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
-const MAX_PDF_BYTES = 5 * 1024 * 1024;
+// Limits now live in services/uploadLimits.ts — ONE definition shared by every upload
+// affordance, so the number enforced and the number promised cannot drift apart again.
 
 const MISTAKE_LABEL: Record<MistakeType, string> = {
   conceptual: "Conceptual",
@@ -287,9 +293,15 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
       setError("Upload a PDF (recommended) or a JPG/PNG photo of your answers.");
       return;
     }
-    const max = isPdf ? MAX_PDF_BYTES : MAX_IMAGE_BYTES;
+    // The REAL limit (uploadLimits.ts), not the old unspendable "5 MB": base64 inflates
+    // ~4/3, so a 5 MB PDF became 6.67 MB on the wire and blew the backend's 5 MB body
+    // cap — the student passed this check and then died at the grader. Refuse it here.
+    const max = isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES;
     if (file.size > max) {
-      setError(`File must be under ${isPdf ? "5 MB" : "3 MB"}.`);
+      setError(
+        `That file is ${formatUploadLimit(file.size)} — the limit is ${formatUploadLimit(max)}. ` +
+          `Try scanning at a lower quality, or split it into two.`,
+      );
       return;
     }
     setError(null);
@@ -312,7 +324,20 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     try {
       const result = await gradeWorksheetAndRecord(user, ws, { imageBase64, imageMimeType });
       if (!result.response.ok) {
-        setError(result.response.error || "We couldn’t grade this worksheet. Try a clearer scan, or try again.");
+        // The grader REFUSES rather than guessing a mark — correct, and never to be
+        // softened. But "couldn't grade it" leaves a student with nothing to act on, so
+        // say what to actually check.
+        //
+        // WHY ONE MESSAGE AND NOT TWO: we cannot honestly distinguish "unreadable"
+        // (blurry/corrupt) from "wrong file" here. A whole-file refusal returns a bare
+        // `{ ok: false }` with no reason (checkSolution.cjs) — the per-question
+        // `couldNotRead`/`note` signal only exists once a file HAS been read. Inventing
+        // a specific cause from no signal would be a guess dressed as a diagnosis, so
+        // this names both possibilities and lets the student tell them apart.
+        setError(
+          result.response.error ||
+            "We couldn’t read that file — check it’s a clear photo or PDF of your answer sheet for this worksheet, then try again. We never guess a mark.",
+        );
       } else {
         setOutcome(result);
         setFromCache(false);
@@ -363,7 +388,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
           {!hasFile ? (
             <button type="button" className="lt-wg__drop" onClick={() => fileInputRef.current?.click()}>
               <span className="lt-wg__dropt">Upload your answers (one PDF)</span>
-              <span className="lt-wg__dropd">PDF up to 5 MB · or a JPG/PNG photo up to 3 MB · label each answer Q1, Q2 …</span>
+              <span className="lt-wg__dropd">{UPLOAD_LIMIT_SENTENCE} · label each answer Q1, Q2 …</span>
             </button>
           ) : (
             <div className="lt-wg__filerow">
@@ -379,9 +404,13 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
               It fills the SAME state the file input fills — handleGrade is untouched. */}
           {!hasFile && (
             <QrAnswerHandoff
+              // "document": the lead above asks for ONE PDF of all answers, so the phone
+              // must lead with the PDF too — a single photo would send one page of it.
+              mode="document"
               disabled={grading}
               onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
-                setFileName("Photo from your phone");
+                setError(null);
+                setFileName(mime === "application/pdf" ? "PDF from your phone" : "Photo from your phone");
                 setImageMimeType(mime);
                 setImageBase64(b64);
               }}
