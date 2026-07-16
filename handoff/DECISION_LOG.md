@@ -1,3 +1,26 @@
+## 2026-07-16 - Grader `objective` flag + attempt-dedup `mode` drop (#445, trunk `ad2a9b2`)
+
+Decisions (owner, at #445's pre-flight STOP) + the corrections the pre-flight forced.
+
+### Owner decisions
+- **★ INLINE over EXTRACTION for the five step-mark chips — a SEQUENCING call, not a quality judgement.** The chip is re-implemented inline at five sites with no shared component. The owner ruled: **do the minimal inline patch now; file the extraction as an explicit follow-up.** Reasoning (the agent's, adopted): the `objective` flag is **load-bearing**, and **two lanes (QR PR-2, the §7 paywall gate) were waiting on `SolutionChecker.tsx` specifically** — widening the diff into a cross-surface extraction (C&I ×2, worksheet, print doc) would hold both lanes longer for a change that **alters no behaviour**. **[FU-STEPMARKCHIP-EXTRACTION] filed with the "one fix isn't one fix" framing so it does not get lost.** *Generalising rule: when a narrow fix unblocks other lanes, ship the fix and file the cleanup — never bundle a refactor into a critical-path diff.*
+- **§2 + §4b ship as ONE PR; §7 (paywall) as its own.** Ratified the agent's sequencing: §2/§4b share one root (nothing client-side can tell an objective question), so they belong together; §7 is a **real monetisation behaviour change**, deserves its own reviewable diff and revert handle, must land **after** the urgent cloud-auth lane, and — decisively — **both touch `SolutionChecker.tsx`**, so folding §7 in would mean the agent fighting itself in one diff **and** holding the QR seam hostage to a monetisation review.
+- **The §7.7 test is authored NOW but lands with §7.** Written while the distinction was fresh, parked at `scratchpad/PR2-paywall-7.7-test-DRAFT.mjs`, explicitly **not** merged into #445.
+
+### ★ Corrections the pre-flight forced (a handoff is a CLAIM, not evidence)
+Three of the prior handoff's claims were **right in conclusion, wrong in reasoning** — the owner independently verified all three against source before ruling:
+- **The stale baseline.** The handoff said "#442 is OPEN"; it had **merged** (`c07ce79`), and the shared checkout `C:\Projects\Lazytopper-Production` sat **4 commits behind** `origin/base`. **Re-derive the tip, always** — the doc's own "never trust a written SHA" applied to itself.
+- **The double-count repro ORDER.** "type → grade → click" is **unreachable**: `PracticeQuestionCard:407`'s own comment (*"Discoverability nudge after a wrong MCQ"*) confirms **click-first** is the true gate. The real trigger is click-wrong → reveal → grade.
+- **The "unreachable banner" REASON.** `checkSolution.cjs:401/754` confirm the clamp is gated **only** on `questionIsObjective`, with **no marks condition** — so the "1-mark ⇒ unreachable" justification was false even though *safe to delete* was right.
+
+**Owner's framing, recorded because it is the durable lesson:** *"Right answer, wrong reason — and a future reviewer trusting the wrong reason would draw a wrong lesson from it."* Hence the banner's deletion comment states the **corrected** reason (dead by data invariant + surface gates, **not** by the clamp).
+
+### Discoveries
+- **★ Blast radius beyond the named sites.** The owner's own grep found 12 files touching `marksAwarded`; exactly **five** render the misleading chip — but the flag had to thread through the **TYPES** those chips render (`WorksheetQuestionGrade`, `CiGradedQuestion`, four print-props builders), *not* the grader response directly. Saved by the client's **generic passthrough parse** (no grade-service edit). **Rule: trace to the TYPE the renderer consumes.**
+- **The test home.** Provable properties belong in the **CI-gated matrix** (node — runs on Windows AND in CI), never Codespaces-only vitest ([FU-CI-GATE-VITEST]). To import the REAL dedup function rather than text-scan it, `attemptDedupKey` was extracted to a **dependency-free** module (`practiceInsights.ts` pulls firebase at module load and cannot be transpiled standalone). **Both negative controls were mandatory** — a test that cannot fail is theatre.
+
+---
+
 ## 2026-07-10 - Worksheet context-aware entry + multi-topic MI (#357, trunk `aa7e778`)
 
 Decisions (owner, via AskUserQuestion during #357 STEP 0) + discoveries (owner #357 live-verify):
