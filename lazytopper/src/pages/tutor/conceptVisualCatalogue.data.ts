@@ -76,6 +76,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 6, page: 85 },
   },
   {
     conceptKey: "basic-proportionality-theorem-bpt",
@@ -87,6 +88,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No STATIC figure depicts the BPT DE||BC configuration (notes Fig 6.10 was not extracted; bank TR items are applications, not BPT). Interactive-only. Candidate for AI gap-fill.",
+    ncertPage: { subject: "maths", chapter: 6, page: 80 },
   },
   {
     conceptKey: "areas-of-similar-triangles",
@@ -128,6 +130,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No notes figure isolates the lone 90° at a single contact point (notes c2 figure_ref: null). Interactive-primary.",
+    ncertPage: { subject: "maths", chapter: 10, page: 146 },
   },
   {
     conceptKey: "two-tangents-from-external-point-equal",
@@ -141,6 +144,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 10, page: 149 },
   },
   {
     conceptKey: "length-of-tangent-from-external-point",
@@ -157,6 +161,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 10, page: 148 },
   },
   {
     conceptKey: "number-of-tangents-from-a-point",
@@ -169,6 +174,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 10, page: 147 },
   },
 
   // --- areas-related-to-circles ---
@@ -201,6 +207,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 11, page: 155 },
   },
   {
     conceptKey: "area-of-a-sector",
@@ -213,6 +220,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 11, page: 156 },
   },
   {
     conceptKey: "area-of-a-segment",
@@ -225,6 +233,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 11, page: 157 },
   },
   {
     conceptKey: "area-of-combinations-of-plane-figures",
@@ -262,6 +271,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 12, page: 162 },
   },
 
   // --- trigonometry ---
@@ -277,6 +287,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 8, page: 121 },
   },
   {
     conceptKey: "pythagorean-identities",
@@ -289,6 +300,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 8, page: 128 },
   },
   {
     conceptKey: "heights-and-distances-setup",
@@ -321,6 +333,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "The spec's own figure asset fig_distance_plane is a generator spec that does not exist on disk — not referenced.",
+    ncertPage: { subject: "maths", chapter: 7, page: 100 },
   },
   {
     conceptKey: "section-formula-internal-division",
@@ -334,6 +347,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "The spec's fig_section_divide is a generator spec that does not exist on disk — not referenced.",
+    ncertPage: { subject: "maths", chapter: 7, page: 106 },
   },
   {
     conceptKey: "midpoint-formula",
@@ -347,6 +361,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 7, page: 107 },
   },
   {
     conceptKey: "area-of-a-triangle-from-coordinates",
@@ -379,6 +394,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 9, page: 143 },
   },
   {
     conceptKey: "lens-formula-and-magnification",
@@ -392,6 +408,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 9, page: 155 },
   },
   {
     conceptKey: "sign-convention-new-cartesian",
@@ -403,6 +420,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No bank figure depicts the convention itself — notes figure is the sole fit.",
+    ncertPage: { subject: "physics", chapter: 9, page: 142 },
   },
   {
     conceptKey: "ray-diagrams-mirror-and-lens",
@@ -417,6 +435,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 9, page: 140 },
   },
 
   // --- human-eye-and-colourful-world ---
@@ -431,6 +450,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 10, page: 162 },
   },
   {
     conceptKey: "defects-of-vision-and-correction",
@@ -444,6 +464,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 10, page: 162 },
   },
   {
     conceptKey: "lens-power-dioptre",
@@ -457,6 +478,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 9, page: 157 },
   },
   {
     conceptKey: "prism-refraction-and-dispersion",
@@ -469,6 +491,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 10, page: 166 },
   },
   {
     conceptKey: "atmospheric-refraction",
@@ -485,6 +508,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 10, page: 168 },
   },
   {
     conceptKey: "scattering-of-light",
@@ -500,6 +524,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 10, page: 169 },
   },
 
   // --- electricity ---
@@ -514,6 +539,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 11, page: 175 },
   },
   {
     conceptKey: "resistors-in-series",
@@ -527,6 +553,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 11, page: 182 },
   },
   {
     conceptKey: "resistors-in-parallel",
@@ -539,6 +566,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 11, page: 185 },
   },
   {
     conceptKey: "electrical-power",
@@ -550,6 +578,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No static figure exists for the power concept — interactive-only.",
+    ncertPage: { subject: "physics", chapter: 11, page: 191 },
   },
   {
     conceptKey: "joules-heating",
@@ -561,6 +590,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No static heating figure exists — interactive-only; candidate for AI gap-fill (heating element / fuse).",
+    ncertPage: { subject: "physics", chapter: 11, page: 189 },
   },
 
   // --- magnetic-effects-of-electric-current ---
@@ -575,6 +605,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 12, page: 199 },
   },
   {
     conceptKey: "solenoid-as-a-bar-magnet",
@@ -588,6 +619,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "physics", chapter: 12, page: 201 },
   },
   {
     conceptKey: "force-on-a-conductor-flemings-left-hand-rule",
@@ -601,6 +633,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "The 'Electric Motor and Generator' interactive matches NO boardEssentials row and is OUT of the trimmed 2026-27 chapter — do not attach it to any concept.",
+    ncertPage: { subject: "physics", chapter: 12, page: 202 },
   },
 
   // --- carbon-and-its-compounds ---
@@ -616,6 +649,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No dedicated catenation/chain figure; methane electron-dot covers tetravalency, the table covers catenation — no single asset covers both.",
+    ncertPage: { subject: "chemistry", chapter: 4, page: 62 },
   },
   {
     conceptKey: "homologous-series",
@@ -626,6 +660,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 4, page: 66 },
   },
   {
     conceptKey: "functional-groups",
@@ -641,6 +676,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: true,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 4, page: 66 },
   },
   {
     conceptKey: "reactions-of-ethanol-and-ethanoic-acid",
@@ -656,6 +692,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 4, page: 71 },
   },
   {
     conceptKey: "soaps-vs-detergents",
@@ -666,6 +703,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     alternates: [],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 4, page: 74 },
   },
 
   // --- life-processes ---
@@ -681,6 +719,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 5, page: 84 },
   },
   {
     conceptKey: "respiration",
@@ -694,6 +733,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No figure for the aerobic-vs-anaerobic pathway comparison (notes c4 figure_ref: null) — that half is table-only.",
+    ncertPage: { subject: "biology", chapter: 5, page: 87 },
   },
   {
     conceptKey: "transportation-heart-and-double-circulation",
@@ -706,6 +746,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 5, page: 91 },
   },
   {
     conceptKey: "excretion-nephron",
@@ -718,6 +759,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 5, page: 96 },
   },
   {
     conceptKey: "transport-in-plants-xylem-phloem",
@@ -729,6 +771,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No dedicated xylem-vs-phloem transport figure exists (notes c6 figure_ref: null); best served by the two-column comparison table. Leaf-section fit is partial — flag for owner.",
+    ncertPage: { subject: "biology", chapter: 5, page: 94 },
   },
 
   // --- control-and-coordination ---
@@ -743,6 +786,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 6, page: 102 },
   },
   {
     conceptKey: "structure-of-a-neuron",
@@ -755,6 +799,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     ],
     gap: false,
     vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 6, page: 101 },
   },
   {
     conceptKey: "endocrine-glands-and-hormones",
@@ -766,6 +811,7 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No interactive covers endocrine glands; the notes formula_strip (Table 6.1) is the text alternate.",
+    ncertPage: { subject: "biology", chapter: 6, page: 109 },
   },
   {
     conceptKey: "tropisms-in-plants",
@@ -780,6 +826,266 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     gap: false,
     vocabSource: "boardEssentials",
     scopeCaveat: "No figure exists for hydrotropism/chemotropism (text-only in the formula_strip) — the two static figures cover only photo/geo.",
+    ncertPage: { subject: "biology", chapter: 6, page: 107 },
+  },
+
+  // ===========================================================================
+  // COVERAGE EXPANSION 2026-07-16 — topics whose shipped notes already carry a real
+  // NCERT figure but which had no catalogue row, so the tutor showed nothing.
+  // Same discipline as the original 54: exact boardEssentials label, precision over
+  // coverage (a concept with no genuinely fitting figure gets NO row — see GAPS.md).
+  // ===========================================================================
+
+  // --- heredity ---
+  {
+    conceptKey: "monohybrid-cross",
+    topicKey: "heredity",
+    subject: "science",
+    conceptLabel: "Mendel's monohybrid cross (3:1 phenotypic ratio in F₂)",
+    best: { kind: "notes-figure", ref: "heredity/fig_monohybrid_cross.webp", why: "NCERT Fig 8.3 — the canonical monohybrid cross: TT × tt gives an all-tall F₁ (Tt), and the F₁ × F₁ Punnett gives the 3 tall : 1 short F₂ this row names." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 8, page: 130 },
+  },
+  {
+    conceptKey: "dominant-vs-recessive",
+    topicKey: "heredity",
+    subject: "science",
+    conceptLabel: "Dominant vs recessive traits",
+    best: { kind: "notes-figure", ref: "heredity/fig_monohybrid_cross.webp", why: "NCERT Fig 8.3 — dominance IS what this figure demonstrates: the F₁ is uniformly tall (Tt), so T is dominant and t recessive; the recessive short reappears only in the F₂ tt." },
+    alternates: [
+      { kind: "notes-figure", ref: "heredity/fig_earlobes.webp", why: "NCERT Fig 8.2 — free vs attached earlobes; an inherited-trait contrast, but it does not itself show dominance." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 8, page: 130 },
+  },
+  {
+    conceptKey: "genotype-vs-phenotype",
+    topicKey: "heredity",
+    subject: "science",
+    conceptLabel: "Genotype vs phenotype",
+    best: { kind: "notes-figure", ref: "heredity/fig_monohybrid_cross.webp", why: "NCERT Fig 8.3 — the F₂ Punnett prints the genotypes (TT, Tt, Tt, tt) directly above their phenotypes (Tall, Tall, Tall, Short): the 1:2:1 genotypic vs 3:1 phenotypic contrast this row is about." },
+    alternates: [
+      { kind: "notes-figure", ref: "heredity/fig_dihybrid_cross.webp", why: "NCERT Fig 8.5 — the dihybrid F₂ makes the same genotype/phenotype split over two traits (9:3:3:1)." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "The words 'genotype' and 'phenotype' do not appear anywhere in the rationalised 2026-27 Ch8 — the concept row is editorial vocabulary. The figure shows the distinction, so no NCERT page is offered (an honest absence rather than a page that never uses the terms).",
+  },
+  {
+    conceptKey: "sex-determination",
+    topicKey: "heredity",
+    subject: "science",
+    conceptLabel: "Sex determination in humans (XX vs XY)",
+    best: { kind: "notes-figure", ref: "heredity/fig_sex_determination.webp", why: "NCERT Fig 8.6 — exactly this row: the mother contributes only X, the father X or Y, so the zygote is XX (girl) or XY (boy)." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 8, page: 132 },
+  },
+
+  // --- how-do-organisms-reproduce ---
+  {
+    conceptKey: "asexual-reproduction-modes",
+    topicKey: "how-do-organisms-reproduce",
+    subject: "science",
+    conceptLabel: "Asexual reproduction modes (fission, budding, fragmentation, regeneration, spore formation, vegetative propagation)",
+    best: { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_binary_fission_amoeba.webp", why: "NCERT Fig 7.1(a) — binary fission in Amoeba, the first and most-drawn of the modes this row lists." },
+    alternates: [
+      { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_budding_hydra.webp", why: "NCERT Fig 7.4 — budding in Hydra." },
+      { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_multiple_fission_plasmodium.webp", why: "NCERT Fig 7.2 — multiple fission in Plasmodium." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "No single NCERT figure covers all six modes — the best shows fission only; budding and multiple fission are offered as alternates, and fragmentation / regeneration / spore formation / vegetative propagation have no extracted figure.",
+    ncertPage: { subject: "biology", chapter: 7, page: 115 },
+  },
+  {
+    conceptKey: "sexual-reproduction-in-a-flower",
+    topicKey: "how-do-organisms-reproduce",
+    subject: "science",
+    conceptLabel: "Sexual reproduction in a flower — parts of a flower, pollination, fertilisation",
+    best: { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_flower_ls.webp", why: "NCERT Fig 7.7 — the longitudinal section labelling exactly the parts this row names: pistil (stigma, style, ovary) and stamen (anther, filament), with petal and sepal." },
+    alternates: [
+      { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_pollen_germination.webp", why: "NCERT Fig 7.8 — pollen germinating on the stigma and the tube carrying the male germ-cell to the ovary: the pollination→fertilisation half of the row." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 7, page: 120 },
+  },
+  {
+    conceptKey: "human-reproductive-system",
+    topicKey: "how-do-organisms-reproduce",
+    subject: "science",
+    conceptLabel: "Human reproductive system (male & female) and its functions",
+    best: { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_male_repro.webp", why: "NCERT Fig 7.10 — the labelled male system (testis, vas deferens, seminal vesicle, prostate, urethra)." },
+    alternates: [
+      { kind: "notes-figure", ref: "how-do-organisms-reproduce/fig_female_repro.webp", why: "NCERT Fig 7.11 — the labelled female system (ovary, oviduct, uterus, cervix, vagina)." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "NCERT draws the male and female systems as two separate figures (7.10 and 7.11, both on p.123); the best shows the male, the female rides as the alternate.",
+    ncertPage: { subject: "biology", chapter: 7, page: 123 },
+  },
+
+  // --- our-environment ---
+  {
+    conceptKey: "food-chains-webs-trophic-levels",
+    topicKey: "our-environment",
+    subject: "science",
+    conceptLabel: "Food chains, food webs and trophic levels",
+    best: { kind: "notes-figure", ref: "our-environment/fig_food_chain.webp", why: "NCERT Fig 13.1 — three food chains (forest, grassland, pond), each read from its producer: the chain half of this row." },
+    alternates: [
+      { kind: "notes-figure", ref: "our-environment/fig_food_web.webp", why: "NCERT Fig 13.3 — many chains interlinked into a web." },
+      { kind: "notes-figure", ref: "our-environment/fig_trophic_pyramid.webp", why: "NCERT Fig 13.2 — the four trophic levels stacked as a pyramid." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 13, page: 210 },
+  },
+  {
+    conceptKey: "ten-percent-law",
+    topicKey: "our-environment",
+    subject: "science",
+    conceptLabel: "Ten percent law of energy flow (only ~10% passes to the next level)",
+    best: { kind: "notes-figure", ref: "our-environment/fig_energy_flow.webp", why: "NCERT Fig 13.4 — each bar shorter than the one below it (Sunlight → Producers → Herbivores → Carnivores), which is the 10%-per-level loss this row states." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "biology", chapter: 13, page: 211 },
+  },
+
+  // --- metals-and-non-metals ---
+  {
+    conceptKey: "extraction-of-metals",
+    topicKey: "metals-and-non-metals",
+    subject: "science",
+    conceptLabel: "Extraction of metals — roasting, calcination, reduction, electrolytic refining",
+    best: { kind: "notes-figure", ref: "metals-and-non-metals/fig_extraction_steps.webp", why: "NCERT Fig 3.10 — the extraction flowchart branching on the activity series, which is the route this row summarises." },
+    alternates: [
+      { kind: "notes-figure", ref: "metals-and-non-metals/fig_electrolytic_refining.webp", why: "NCERT Fig 3.12 — electrolytic refining of copper (impure anode → pure cathode), the row's last step." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 3, page: 51 },
+  },
+  {
+    conceptKey: "corrosion-and-prevention",
+    topicKey: "metals-and-non-metals",
+    subject: "science",
+    conceptLabel: "Corrosion & its prevention (rusting needs both air and moisture)",
+    best: { kind: "notes-figure", ref: "metals-and-non-metals/fig_iron_rusting.webp", why: "NCERT Fig 3.13 (Activity 3.14) — the three-test-tube control that proves the row's exact claim: only the nail with BOTH air and water rusts." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 3, page: 53 },
+  },
+  {
+    conceptKey: "ionic-bond-and-properties",
+    topicKey: "metals-and-non-metals",
+    subject: "science",
+    conceptLabel: "Ionic (electrovalent) bond & properties of ionic compounds (e.g. Na → Na⁺ + e⁻)",
+    best: { kind: "notes-figure", ref: "metals-and-non-metals/fig_nacl_formation.webp", why: "NCERT Fig 3.5 — sodium (2,8,1) loses an electron to chlorine (2,8,7) giving Na⁺ and Cl⁻: literally the Na → Na⁺ + e⁻ this row cites." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 3, page: 46 },
+  },
+
+  // --- chemical-reactions-and-equations ---
+  {
+    conceptKey: "types-of-reactions",
+    topicKey: "chemical-reactions-and-equations",
+    subject: "science",
+    conceptLabel: "Types of reactions (combination, decomposition, displacement, double displacement)",
+    best: { kind: "notes-figure", ref: "chemical-reactions-and-equations/fig_electrolysis_water.webp", why: "NCERT Fig 1.6 — electrolysis of water, NCERT's worked decomposition example (H₂:O₂ = 2:1)." },
+    alternates: [
+      { kind: "notes-figure", ref: "chemical-reactions-and-equations/fig_precipitation_baso4.webp", why: "NCERT Fig 1.9 — the BaSO₄ precipitate: the double-displacement type." },
+      { kind: "notes-figure", ref: "chemical-reactions-and-equations/fig_mg_ribbon_burning.webp", why: "NCERT Fig 1.1 — burning magnesium ribbon: the combination type." },
+    ],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "No single NCERT figure covers all four types — the best shows decomposition, with combination and double displacement as alternates; displacement has no extracted figure.",
+    ncertPage: { subject: "chemistry", chapter: 1, page: 6 },
+  },
+  {
+    conceptKey: "oxidation-and-reduction",
+    topicKey: "chemical-reactions-and-equations",
+    subject: "science",
+    conceptLabel: "Oxidation and reduction (redox)",
+    best: { kind: "notes-figure", ref: "chemical-reactions-and-equations/fig_mg_ribbon_burning.webp", why: "NCERT Fig 1.1 — Mg + O₂ → MgO, the chapter's own redox example: magnesium is oxidised as it burns." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 1, page: 12 },
+  },
+
+  // --- acids-bases-and-salts ---
+  {
+    conceptKey: "ph-scale",
+    topicKey: "acids-bases-and-salts",
+    subject: "science",
+    conceptLabel: "pH scale (0–14)",
+    best: { kind: "notes-figure", ref: "acids-bases-and-salts/fig_ph_scale.webp", why: "NCERT Fig 2.6 — the 0–14 scale itself: acidic toward 0 (rising H⁺), basic toward 14 (rising OH⁻), 7 neutral." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "chemistry", chapter: 2, page: 25 },
+  },
+  {
+    conceptKey: "properties-of-acids-and-bases",
+    topicKey: "acids-bases-and-salts",
+    subject: "science",
+    conceptLabel: "Properties of acids and bases",
+    best: { kind: "notes-figure", ref: "acids-bases-and-salts/fig_zinc_acid_h2.webp", why: "NCERT Fig 2.1 — zinc + dilute H₂SO₄ giving hydrogen that burns with a pop: the acid-with-metal property and its standard test." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "Shows the acid-with-metal property only; NCERT has no single extracted figure covering the bases' properties, so the panel is honest about the half it depicts.",
+    ncertPage: { subject: "chemistry", chapter: 2, page: 18 },
+  },
+
+  // --- polynomials ---
+  {
+    conceptKey: "geometrical-meaning-of-zeroes",
+    topicKey: "polynomials",
+    subject: "maths",
+    conceptLabel: "Geometrical meaning of zeroes (graph cuts the x-axis)",
+    best: { kind: "notes-figure", ref: "polynomials/fig_parabola_zeroes.webp", why: "NCERT Fig 2.2 — y = x² − 3x − 4 cutting the x-axis at −1 and 4: the two crossings ARE the zeroes, which is exactly this row." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    ncertPage: { subject: "maths", chapter: 2, page: 11 },
+  },
+
+  // --- pair-of-linear-equations ---
+  {
+    conceptKey: "graphical-method",
+    topicKey: "pair-of-linear-equations",
+    subject: "maths",
+    conceptLabel: "Graphical method (two lines: intersecting → unique, parallel → none, coincident → infinite)",
+    best: { kind: "notes-figure", ref: "pair-of-linear-equations/fig_graph_31.webp", why: "NCERT Fig 3.1 — x + 3y = 6 and 2x − 3y = 12 meeting at B(6, 0): the intersecting / unique-solution case of this row." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "Depicts the intersecting (unique-solution) case only — the parallel and coincident cases have no extracted figure (the spec's fig_line_pair_cases is a generator spec that does not exist on disk).",
+    ncertPage: { subject: "maths", chapter: 3, page: 25 },
+  },
+
+  // --- statistics ---
+  {
+    conceptKey: "mean-of-grouped-data",
+    topicKey: "statistics",
+    subject: "maths",
+    conceptLabel: "Mean of grouped data — direct, assumed-mean & step-deviation (x̄ = Σfᵢxᵢ/Σfᵢ)",
+    best: { kind: "notes-figure", ref: "statistics/fig_mean_table_133.webp", why: "NCERT Table 13.3 — the class-mark xᵢ and fᵢxᵢ columns summing to Σfᵢxᵢ = 1860 over Σfᵢ = 30, i.e. the x̄ = Σfᵢxᵢ/Σfᵢ this row states." },
+    alternates: [],
+    gap: false,
+    vocabSource: "boardEssentials",
+    scopeCaveat: "Table 13.3 works the DIRECT method only; the assumed-mean and step-deviation variants this row also names have no extracted figure.",
+    ncertPage: { subject: "maths", chapter: 13, page: 171 },
   },
 ];
 
