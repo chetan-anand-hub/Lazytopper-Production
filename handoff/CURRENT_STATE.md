@@ -1,5 +1,50 @@
 # LazyTopper â€” Current State
 
+## #451 merged — CHECK & IMPROVE: the upload guard that never existed — **owner LIVE-VERIFIED** — trunk `c132f27`
+
+**Post-merge trunk: `c132f27` (squash of #451) on top of `13fc1b0` (#450 docs) and `0e42e16` (#448). Re-derive the tip after this docs PR merges — never trust a written SHA. #451's branch went stale MID-BUILD when docs #450 landed (the 10th such catch), and **THIS DOCS PR then went stale under #452 while being written (the 11th)** — rebased onto `a9798e7` (tutor 404 fix; product-only, zero overlap with these six files). ⇒ **the live trunk at merge is `a9798e7`+, NOT `c132f27`; `c132f27` is #451's own squash SHA and nothing more.** *Two catches in one lane, an hour apart: this is not bad luck, it is the normal condition of a shared trunk.*
+
+**3 files (`uploadLimits.ts` +70 · `DesktopCheckImprovePage.tsx` +51/−6 · `CheckImprove.tsx` +54/−6). PR 1 of 2** — the sound base [FU-QR-CI-WIRE] rides on.
+
+**Check & Improve had NO client-side upload guard at ALL — not a wrong ceiling, NO ceiling.** Neither page read `file.size`, neither imported `uploadLimits`, and all four file inputs went straight to `FileReader` → base64 → grader. **Live on real students, desktop AND mobile, entirely independent of QR.** Two ways a submission died *after* the student believed they were done:
+- **SIZE** — a 10 MB PDF base64'd fine, travelled, hit `readJson`'s 5 MB body cap → *"Request body too large"*.
+- **TYPE** — every input declares `accept="image/*,application/pdf"` but the server takes **exactly** `{image/jpeg, image/png, application/pdf}` (`mentorImageSupport.cjs:3` ALLOWED_MIME_TYPES) ⇒ a WEBP/GIF/BMP passed the picker and died server-side. ★ **`accept` is a HINT, not a guard** — every OS dialog offers an "All files" escape — so the check must exist independently of it.
+
+Both are the forbidden **"uploaded, then dead"**. Now refused at the picker, naming what is wrong AND what to do, copy + constants identical to the panels #443 fixed.
+
+### ★★ THE FINDING THAT MATTERS — a targeted check can only find what it was aimed at
+The carried-forward instruction was **"look for a THIRD copy of the 5 MB constant."** **There was no third constant — and that was the CORRECT result of a REAL bug.** The check found "nothing" because the bug had a *different shape*: not a wrong ceiling, but **no guard whatsoever**. An agent running that check literally would have found nothing and concluded *"C&I is clean."*
+★ **The question that worked was "what does C&I ENFORCE?", not "does C&I have a 5 MB constant?"** *A check that names its expected answer can only confirm or deny THAT answer — it cannot find a bug of a shape you didn't predict.* **This is the false-negative trap, and it nearly closed a live bug as a clean pass.**
+
+### ★ ALL FOUR call sites — the question photo kills a submission just as dead
+`handleFileChosen` + `handleQuestionFile` (desktop) · `handleFileChange` + `handleQuestionFile` (mobile). The **question photo rides the SAME request to the SAME body cap** as the answer.
+
+### ★ Shared helper, NOT four more inline copies — [FU-UPLOAD-GUARD-CONVERGE]
+`checkUploadFile()` lives in `uploadLimits.ts` because that file's own mandate is literally *"THE ONE PLACE … so the number and the words a student reads can never drift apart again"* — and a guard copy-pasted per surface is exactly how they drift ([FU-STEPMARKCHIP-EXTRACTION] is the standing lament for that pattern). **Behaviour + copy are verbatim** from the sibling panels; only the duplication is not. `ChapterTestUploadPanel` + `WorksheetGradePanel` **keep their inline copies** — converging them is behaviour-neutral and would widen a bug-fix PR ⇒ **[FU-UPLOAD-GUARD-CONVERGE]**.
+
+### ★ `subject` is REQUIRED with NO default — the copy-follows-the-host lesson, third occurrence
+`checkUploadFile(file, subject: "answers" | "question")`. **Two of the four sites are QUESTION inputs**, so the sibling panels' verbatim *"…photo of your answers."* would have told a student to photograph **the wrong thing**. Deliberately mirrors `QrAnswerHandoff`'s `mode` contract — same failure mode, same cure: **a host must decide consciously rather than silently inherit the wrong noun.**
+
+### ★★ THE REFUSAL MUST NOT REUSE THE GRADE-FAILURE CHANNEL
+Desktop's `errorMessage` surface **hard-codes** *"No score has been generated. **Press Retry to call the grader again.**"* — a file refused at the picker **never reached the grader**, so that sub-line would be a **lie** and "Retry" would re-run a call that never happened. ⇒ dedicated `answerFileError` / `questionFileError` on both pages, rendered beside the input that refused. *Two different failures, two different truths, two different states.*
+
+### ★ C&I is stale-closure IMMUNE — and the reason matters
+[FU-SOLUTIONCHECKER-STALE-ANSWERTAB] asked whether C&I's tab-gate shares the defect. **It does not.** Both grade paths are **plain `async function handleGrade()`, NOT `useCallback`** ⇒ they re-read `tab` from the current render scope every call; there is no dep array to omit. The only `useCallback` in either file is `loadCiRecords`, which never reads `tab`. ⇒ **[FU-SOLUTIONCHECKER-STALE-ANSWERTAB] is SolutionChecker-SPECIFIC, not a family.** ★ **C&I is safe not by design or vigilance but because it never reached for memoization — SolutionChecker's bug is the price of an optimisation C&I didn't make.**
+
+### Two unrequested fixes inside the same four functions (owner byte-reviewed + approved)
+- **`reader.onerror` silently nulled state with NO message** on all four — a read failure showed the student **nothing**. Each now surfaces its file-error. *A silent failure inside a PR about honest refusal would have undercut its own point.*
+- **`setImageMime` now takes the guard's VALIDATED mime** instead of re-deriving it from the data-URL prefix with an `|| "image/jpeg"` fallback that could **mislabel a file and let it die server-side**.
+
+### ★ OWNER BYTE-REVIEWED the pushed diff, then LIVE-VERIFIED — all clean
+Byte-review confirmed line-by-line: the verbatim claim vs `ChapterTestUploadPanel:50-76`; `UploadSubject` a strict union with no default and all four call sites passing it correctly; error isolation (separate hooks, each rendering only beside its own input, zero overlap with `setErrorMessage`); both unrequested fixes justified against the **pre-PR** code. Live-verify: **oversized PDF + WEBP refused honestly on both inputs, both pages — including the WEBP-on-mobile case flagged as the sharpest risk — and a valid file still grades unchanged.**
+
+### Lane status after #451
+- **NEXT: [FU-QR-CI-WIRE] (PR 2 of 2)** — the QR wire on top of this sound base, **DESKTOP-ONLY**. `QrAnswerHandoff` is desktop-only by design (`useIsDesktop()` → renders null <1024px): **a QR on a phone is meaningless — the camera is already there** ⇒ **mobile `CheckImprove.tsx` gets this guard and NO QR affordance.** Confirmed, not assumed.
+- **No COMPLETION cell moves** — C&I was already ✅ across the board; this is §2a bug-fix DEPTH on an existing surface.
+- **Branch cleanup remains ON HOLD** at the owner's instruction (CLAUDE.md §3: branch deletion is NEVER auto-approved).
+
+---
+
 ## #448 merged — TUTOR STAGE 3: THE EXPLANATION PANEL is LIVE (D-TUT-13 complete) — trunk `0e42e16`
 
 **Post-merge trunk: `0e42e16` (squash of #448) on top of `fc17569` (#449 docs) / `d99c14d` (#447). Re-derive the tip after this docs PR merges — never trust a written SHA. #448 is the 9th stale-base catch: based on `acf3092`, trunk moved FOUR commits underneath it mid-build (#445, #446, #447, #449).**

@@ -2,6 +2,36 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-16 — ✅ CHECK & IMPROVE: THE UPLOAD GUARD THAT NEVER EXISTED (#451 `c132f27`) — a student's file is refused at the picker, not killed at the grader
+
+  [x] **#451 — 3 files. PR 1 of 2** (`uploadLimits.ts` +70 · `DesktopCheckImprovePage.tsx` +51/−6 · `CheckImprove.tsx`
+      +54/−6). **Owner BYTE-REVIEWED the pushed diff, then LIVE-VERIFIED:** oversized PDF + WEBP refused honestly on
+      both inputs on both pages (incl. WEBP-on-mobile); a valid file still grades unchanged.
+  [x] **C&I had NO client-side guard AT ALL — not a wrong ceiling, NO ceiling.** Neither page read `file.size`,
+      neither imported `uploadLimits`; all four inputs went straight to FileReader→base64→grader. **SIZE:** a 10 MB
+      PDF hit `readJson`'s 5 MB body cap. **TYPE:** `accept="image/*,application/pdf"` vs the server's exact
+      `{jpeg,png,pdf}` ⇒ a WEBP/GIF/BMP passed the picker and died server-side. Both = "uploaded, then dead".
+  [x] **★ `accept` is a HINT, not a guard** — every OS dialog offers an "All files" escape ⇒ the check must exist
+      independently of it. **No `accept` change, no server change, no new number.**
+  [x] **ALL FOUR call sites** — the question photo rides the SAME request to the SAME body cap.
+  [x] **★ Shared `checkUploadFile()` in `uploadLimits.ts`, not 4 more inline copies** — that file's mandate is "THE ONE
+      PLACE … so the number and the words a student reads can never drift apart". Behaviour+copy verbatim; duplication
+      not. ⇒ **[FU-UPLOAD-GUARD-CONVERGE]** for CT/Worksheet's inline copies (behaviour-neutral, own PR).
+  [x] **★ `subject` REQUIRED, no default** (mirrors `QrAnswerHandoff`'s `mode`) — 2 of 4 sites are QUESTION inputs, so
+      verbatim "…photo of your answers." would have told a student to photograph the wrong thing.
+  [x] **★★ The refusal does NOT reuse the grade-failure channel** — desktop's `errorMessage` hard-codes "Press Retry to
+      call the grader again."; a picker refusal never reached the grader ⇒ dedicated per-input error states.
+  [x] Gates: tsc · mojibake · scope:guard · root matrix **190/190** · ops matrix incl. QR channel 46/46 · CI green.
+      **10th stale-base catch** (docs #450 mid-build) → rebased onto `13fc1b0`, gates **re-run**.
+
+- **★★ THE LESSON — carry the QUESTION forward, never the expected answer.** The instruction was *"look for a THIRD
+  copy of the 5 MB constant."* **There was none — and that was the CORRECT result of a REAL bug**, because the bug had
+  a different SHAPE (no guard at all). Run that check literally ⇒ find nothing ⇒ report "C&I is clean" ⇒ **close a live
+  bug as a pass.** The question that worked: *"what does C&I ENFORCE?"*
+- **NEXT: [FU-QR-CI-WIRE] (PR 2 of 2)** — the last wire, **DESKTOP-ONLY** (mobile gets the guard, no QR).
+  **[FU-SOLUTIONCHECKER-STALE-ANSWERTAB]'s C&I question ANSWERED: C&I is IMMUNE** (plain `async function`, not
+  `useCallback`) ⇒ that FU is SolutionChecker-specific, not a family. Live lanes: Fable bank expansion · #452.
+
 ## 2026-07-16 — ✅ QR PR-2: SCAN-TO-SEND on QUICK PRACTICE + HPQ + TOPIC HUB (#447 `d99c14d`) — the desktop→phone handoff now reaches the surfaces students practise on most
 
   [x] **#447 — ONE file (`SolutionChecker.tsx`, +62/−7), ONE wire, THREE surfaces.** QP + HPQ + TopicHub all render
@@ -83,10 +113,14 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
   [x] **PR-2 [FU-QR-SOLUTIONCHECKER-WIRE] — ✅ DONE: #447 `d99c14d`, owner LIVE-VERIFIED** (full entry at the TOP of
       this file). One wire → **Quick Practice + HPQ + TopicHub** (**NOT C&I**). ★ This "BLOCKED" line is exactly why
       `SolutionChecker`'s own 5 MB constant outlived #443 — **the contract WORKING, not a miss**; PR-2 closed both.
-  [ ] **[FU-QR-CI-WIRE] — the LAST wire.** C&I needs its OWN (`DesktopCheckImprovePage` + mobile `CheckImprove`),
-      `mode="photo"`; #436 touched both → check lane-overlap first. ⚠ **Assume nothing, twice:** (1) look for a THIRD
-      copy of the 5 MB constant — do NOT inherit "the lie is gone everywhere" as a fact twice in one lane; (2) if C&I
-      has its own tab-gate, check it for the same **stale-closure** shape as [FU-SOLUTIONCHECKER-STALE-ANSWERTAB].
+  [ ] **[FU-QR-CI-WIRE] — the LAST wire. ⚠ BOTH "assume nothing" checks below are now SPENT — see #451 at the TOP.**
+      C&I needs its OWN wire, `mode="photo"`, **DESKTOP-ONLY** (`QrAnswerHandoff` → `useIsDesktop()` → null <1024px ⇒
+      a QR in mobile `CheckImprove.tsx` could never render; the phone already has a camera). **Mobile gets NO QR.**
+      ~~(1) look for a THIRD copy of the 5 MB constant~~ → **SPENT + WRONG-SHAPED: there was no third constant; C&I had
+      NO guard at all. #451 (`c132f27`) fixed it. Do not re-run — it can only find a bug that no longer exists.**
+      ~~(2) if C&I has its own tab-gate, check it for the stale-closure shape~~ → **ANSWERED: C&I is IMMUNE** (both
+      grade paths are plain `async function`, not `useCallback`) ⇒ [FU-SOLUTIONCHECKER-STALE-ANSWERTAB] is
+      SolutionChecker-specific. ★ **The lesson that replaces them: carry the QUESTION, never the expected answer.**
   [ ] **[FU-QR-STORAGE-LIFECYCLE] (OWNER INFRA)** — 24h lifecycle rule on `qr-uploads/` (console/gsutil; not code).
   [ ] **[FU-GRADER-5MB-COPY]** — the grader still says "Keep the PDF under 5 MB" (impossible). Forbidden file → own PR.
 

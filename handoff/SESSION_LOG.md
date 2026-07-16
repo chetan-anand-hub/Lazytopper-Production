@@ -1,5 +1,43 @@
 ---
 
+## 2026-07-16 -- #451: CHECK & IMPROVE — the upload guard that never existed — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED** — trunk `c132f27`
+
+**#451 (`c132f27`, 3 files: `uploadLimits.ts` +70 · `DesktopCheckImprovePage.tsx` +51/−6 · `CheckImprove.tsx` +54/−6). Isolated worktree `LT-worktrees/ci-size-guard`, branch `feat/desktop-pr-ci-upload-size-type-guard`. PR 1 of 2 — the sound base [FU-QR-CI-WIRE] rides on. Process: re-derive tip → collision map → read the real code → pre-flight → owner ruling → build → gates → push → OWNER BYTE-REVIEW of the pushed diff → owner live-verify → owner merge. Never self-merged.**
+
+**C&I had NO client-side upload guard at ALL — not a wrong ceiling, NO ceiling.** Neither page read `file.size`, neither imported `uploadLimits`; all four inputs went straight to `FileReader` → base64 → grader. Live on real students, desktop AND mobile, independent of QR. **SIZE:** a 10 MB PDF hit `readJson`'s 5 MB cap → *"Request body too large"*. **TYPE:** `accept="image/*,application/pdf"` vs the server's exact `{jpeg, png, pdf}` ⇒ a WEBP/GIF/BMP passed the picker and died server-side. Both = the forbidden **"uploaded, then dead."**
+
+### ★★ THE LESSON — a targeted check can only find what it was aimed at
+The instruction I myself carried forward was **"look for a THIRD copy of the 5 MB constant."** **There was no third constant — and that was the CORRECT result of a REAL bug.** The bug had a different SHAPE: no guard at all. Running that check literally ⇒ find nothing ⇒ report *"C&I is clean"* ⇒ **close a live bug as a pass.** ★ **The question that worked was "what does C&I ENFORCE?", not "does C&I have a 5 MB constant?"** **Carry the QUESTION forward, never the expected answer.** *(The docs pass that recorded this also had to go BACK and correct the old instruction in place — a stale instruction is worse than none, because it looks like diligence.)*
+
+### ★ `accept` is a HINT, not a guard
+Every OS dialog offers an "All files" escape, and `accept="image/*"` matches WEBP/GIF/BMP the server refuses. The check must exist **independently of `accept`** — which is why #451 changed no `accept` attribute.
+
+### ★ Shared helper, not four more inline copies — and why that beat "verbatim"
+The owner said *mirror the sibling panels verbatim*. I put the guard in **`checkUploadFile()` in `uploadLimits.ts`** instead, because that file's own mandate is *"THE ONE PLACE … so the number and the words a student reads can never drift apart again"* — four more inline copies (six total) is exactly the drift it exists to prevent. **Behaviour + copy verbatim; duplication not.** Reported as a deviation rather than done silently; owner byte-verified the verbatim claim line-by-line and approved. CT/Worksheet keep their copies ⇒ **[FU-UPLOAD-GUARD-CONVERGE]**.
+
+### ★ `subject` REQUIRED, no default — copy-follows-the-host, 3rd occurrence in this lane
+Two of the four sites are **question** inputs ⇒ the siblings' verbatim *"…photo of your answers."* would tell a student to photograph **the wrong thing**. Mirrors `QrAnswerHandoff`'s `mode` contract exactly.
+
+### ★★ The refusal must NOT reuse the grade-failure channel
+Desktop's `errorMessage` hard-codes *"No score has been generated. **Press Retry to call the grader again.**"* — a picker refusal never reached the grader ⇒ that sub-line is a **lie** and Retry re-runs a call that never happened. Dedicated `answerFileError`/`questionFileError`, each beside its own input.
+
+### ★ C&I is stale-closure IMMUNE — and the REASON is the point
+Both C&I grade paths are **plain `async function`, not `useCallback`** ⇒ nothing to omit from a dep array. **[FU-SOLUTIONCHECKER-STALE-ANSWERTAB] is SolutionChecker-SPECIFIC, not a family.** ★ **C&I is safe not by design or vigilance but because it never reached for memoization — SolutionChecker's bug is the price of an optimisation C&I didn't make.**
+
+### Two unrequested fixes, flagged not smuggled (owner byte-reviewed both against the PRE-PR code)
+`reader.onerror` silently nulled state with **no message** on all four sites (a silent failure inside a PR about honest refusal). And `setImageMime` now takes the guard's **validated** mime rather than a data-URL-prefix derivation with an `|| "image/jpeg"` fallback that could mislabel a file and let it die server-side.
+
+### ★ THE OWNER'S PROCESS POINT — approval of a PLAN is not approval of CODE
+The owner approved the reasoning, then explicitly refused to approve the implementation until it was **pushed and readable**: *"none of it exists on any remote branch yet… my approval so far is of your PLAN, not your CODE."* Then byte-reviewed the real diff — verbatim claim vs `ChapterTestUploadPanel:50-76`, the strict `UploadSubject` union with no default at all four call sites, error-state isolation, and both unrequested fixes justified **against the pre-PR code** (the only place a claim about what the code *used to* do is falsifiable). **Nothing gets approved as "done" from a self-report.**
+
+### Gates
+tsc · mojibake · scope:guard (product) · root matrix **28 suites / 190 pass / 0 fail** · ops matrix incl. **QR channel 46/46** · diff-check clean · **zero forbidden files** · CI `quality-gate` + `lane-overlap` + Vercel green. **10th stale-base catch:** docs #450 landed MID-BUILD; rebased onto `13fc1b0` and **re-ran the gates rather than trusting the pre-rebase greens**.
+
+### NEXT
+**[FU-QR-CI-WIRE] (PR 2 of 2)** — the QR wire on this sound base, **DESKTOP-ONLY** (`QrAnswerHandoff` → `useIsDesktop()` → null <1024px; a QR on a phone is meaningless). **Mobile C&I gets the guard and no QR.** ⚠ **Do NOT re-run the spent "third 5 MB constant" check.**
+
+---
+
 ## 2026-07-16 -- #448: TUTOR STAGE 3 — THE EXPLANATION PANEL — **merged** — trunk `0e42e16`
 
 **#448 (`0e42e16`, 20 files, +2047/−18). Isolated worktree `LT-worktrees/tutor-stage3`, branch `feat/tutor-stage3-explanation-panel`. Process: read handoff → re-derive the tip → re-verify EVERY dispatched claim against live code → pre-flight report → STOP for owner approval (4 rulings) → build → gates → push → CI green → owner byte-review → owner merge. Never self-merged. CI `quality-gate` + `lane-overlap` + Vercel all green.**
