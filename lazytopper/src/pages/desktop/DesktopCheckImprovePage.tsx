@@ -17,6 +17,7 @@ import { recordAttempt, type DetectionOverrideLog } from "../../services/practic
 import { useAuth } from "../../context/AuthContext";
 import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile } from "../../services/uploadLimits";
+import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
@@ -1828,6 +1829,52 @@ const DesktopCheckImprovePage: React.FC = () => {
                       </>
                     )}
                   </button>
+
+                  {/* Solved it on paper? Send it from your phone instead of emailing it
+                      to yourself. A QR handoff produces a FILE — the same
+                      imageBase64/imageMime/imageName tuple handleFileChosen fills — so
+                      it is a SUB-MODE OF UPLOAD, attached inside this panel and never a
+                      third peer beside the Upload/Type control.
+
+                      Desktop-only + signed-in-only; renders nothing otherwise, so when
+                      QR is unused this panel behaves exactly as it did before. Hidden
+                      once a file exists, so the QR session cannot outlive its own
+                      purpose: delivery unmounts it (its cleanup cancels polling) and
+                      `clearImage` remounts a fresh idle instance. */}
+                  {!imageBase64 && (
+                    <QrAnswerHandoff
+                      /* ★ C&I IS BIMODAL — the ONE host so far that is not a single
+                         shape, so a fixed mode would misdescribe one of its two real
+                         states.
+                           multi-question -> "document": the answers to a WHOLE PAPER,
+                             one multi-page PDF. Camera-first copy here is precisely the
+                             failure QrAnswerHandoff's `mode` exists to prevent — its own
+                             docblock: "'photograph your answer' makes a student shoot
+                             page 1 of a 20-question mock and walk away believing they
+                             are done."
+                           single-question -> "photo": one handwritten answer; the photo
+                             IS the answer.
+                         `isMultiQuestion` derives from the QUESTION upload's detection,
+                         which settles BEFORE the answer upload is reachable — so this
+                         always holds a real value by the time the QR renders. */
+                      mode={isMultiQuestion ? "document" : "photo"}
+                      disabled={status === "loading"}
+                      onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
+                        // C&I's dropzone renders a glyph + filename for ANY accepted
+                        // type — there is no `!isPdf`-gated <img> here — so a delivered
+                        // PDF needs no extra state. (SolutionChecker DID need a
+                        // five-field tuple for exactly that reason: do not assume a
+                        // sibling wire's shape transfers, in either direction.)
+                        setAnswerFileError(null);
+                        setImageBase64(b64);
+                        setImageMime(mime);
+                        setImageName(
+                          mime === "application/pdf" ? "PDF from your phone" : "Photo from your phone",
+                        );
+                      }}
+                    />
+                  )}
+
                   {imageBase64 && (
                     <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
                       <button type="button" onClick={clearImage} style={buttonOutline}>

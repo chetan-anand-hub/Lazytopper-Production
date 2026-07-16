@@ -7,7 +7,8 @@
 // The tutor NEVER grades (D-TUT-8): the return-opener's numbers come straight from
 // the durable sessionRecord written by C&I/Practice; this module only READS + phrases.
 
-import type { SessionRecord } from "../../services/sessionRecords";
+import type { SessionRecord, SessionPerQuestionPayload } from "../../services/sessionRecords";
+import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import type { PracticeAttempt } from "../../services/practiceInsights";
 import type { TutorPendingMarker } from "../../services/tutorSessionStore";
 
@@ -109,11 +110,188 @@ export function matchReturningAttempts(
   );
 }
 
+/**
+ * The SessionRecord surface a "practice" marker's session is written under.
+ *
+ * These are TWO DIFFERENT VOCABULARIES and the gap between them is deliberate, not a
+ * typo to tidy up:
+ *   · `TutorPendingMarker.surface` = "practice"       — the tutor's own route-out vocabulary;
+ *   · `SessionRecord.surface`      = "quick-practice" — the SessionSurface contract's.
+ * The marker is LIVE, PERSISTED state (tutorSessions/{uid}/topics/{topicKey}) in real
+ * student threads, so renaming its value would strand every in-flight round-trip mid-flight.
+ * The map goes here instead. `matchReturningRecord`'s bare `r.surface === pending.surface`
+ * can therefore NEVER match a QP record — hence this separate matcher.
+ */
+const PRACTICE_RECORD_SURFACE = "quick-practice";
+
+/**
+ * The PRACTICE leg's returning graded RECORD (the richer of the two practice sources —
+ * see `composePracticeRecordReturnOpener`). Mirrors `matchReturningRecord` with two
+ * deliberate differences:
+ *
+ *  1. the surface MAP above (marker "practice" → record "quick-practice");
+ *  2. topic overlap compares through the caller's `slugMatches`, NOT raw `includes` —
+ *     QP stores `resolveCanonicalSlug(topicSlug)` while the marker carries the tutor's
+ *     own topicKey, and comparing raw strings silently matches nothing
+ *     ([FU-PROG-TOPIC-KEY-MISMATCH]). Same guard the attempts leg already takes.
+ *
+ * An EMPTY `topicKeys` is NOT treated as a wildcard here (it is in `matchReturningRecord`,
+ * where a multi-topic C&I paper legitimately resolves to none). A QP record's topic comes
+ * from the route the tutor itself chose, so empty means slug resolution failed — matching
+ * on it would be a guess. It falls through to the attempts leg instead, which is honest.
+ * Pure — the caller supplies the records + the matcher.
+ */
+export function matchReturningPracticeRecord(
+  records: SessionRecord[],
+  pending: TutorPendingMarker,
+  slugMatches: (a: string, b: string) => boolean,
+): SessionRecord | null {
+  if (pending.surface !== "practice") return null;
+  const candidates = records
+    .filter((r) => r.surface === PRACTICE_RECORD_SURFACE)
+    .filter((r) => typeof r.gradedAt === "number" && r.gradedAt > pending.departureTs)
+    .filter((r) => {
+      const topicOverlap = (r.topicKeys || []).some((k) => slugMatches(k, pending.topicKey));
+      const qOverlap = !!pending.questionId && (r.questionIds || []).includes(pending.questionId);
+      return topicOverlap || qOverlap;
+    })
+    .sort((a, b) => b.gradedAt - a.gradedAt);
+  return candidates[0] ?? null;
+}
+
 /** The reframed return-opener (D-TUT-6): name the marks, collapse to one root cause,
  *  separate method from presentation, hand back the choice. All facts from the record. */
 export interface ReturnOpener {
   text: string;
   follow?: { label: string; send: string };
+}
+
+/** Trim a grader annotation to one sentence's worth of opener copy — the tutor quotes
+ *  the marker, it does not paste a paragraph. Never rewords: truncation only, so the
+ *  words in the opener stay the grader's own. */
+function shortAnnotation(raw: string): string {
+  const clean = String(raw || "").replace(/\s+/g, " ").trim();
+  if (clean.length <= 140) return clean;
+  const cut = clean.slice(0, 140);
+  const lastStop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("; "));
+  return (lastStop > 60 ? cut.slice(0, lastStop) : cut.trimEnd()) + "…";
+}
+
+/** How a faulty step reads in the opener. `missing` is a step never written, which is a
+ *  different fact from one written wrongly — the copy must not conflate them. */
+function stepFaultPhrase(status: CheckSolutionAnnotatedStep["status"]): string {
+  if (status === "missing") return "never got written";
+  if (status === "partial") return "only half landed";
+  return "is where it turned";
+}
+
+/** The first step the grader did NOT mark correct, in question then step order, that
+ *  carries a real annotation to quote. null → the payload has no quotable fault. */
+function firstFaultyStep(
+  payload: SessionPerQuestionPayload,
+): { qNumber: number; step: CheckSolutionAnnotatedStep } | null {
+  const results = [...(payload.response?.results || [])].sort((a, b) => a.qNumber - b.qNumber);
+  for (const r of results) {
+    if (r.couldNotRead || !r.annotatedSteps?.length) continue;
+    const steps = [...r.annotatedSteps].sort((a, b) => a.stepNumber - b.stepNumber);
+    for (const step of steps) {
+      if (step.status === "correct") continue;
+      if (!String(step.teacherAnnotation || "").trim()) continue;
+      return { qNumber: r.qNumber, step };
+    }
+  }
+  return null;
+}
+
+/**
+ * The PRACTICE return-opener, RECORD leg (this FU — closing the gap between the two
+ * round-trip legs). Quick Practice now writes its own durable, NON-COUNTING session
+ * record (#436) whose `perQuestionRef` payload carries the SAME grader's per-step
+ * detail C&I's opener already reads — `status`, `teacherAnnotation`, `mistakeType`,
+ * `correctedWorking` — because QP's written-working path runs the SAME grader. So the
+ * tutor can finally name WHERE it went wrong on the practice leg, not just how many.
+ *
+ * Returns null — deliberately, rather than a thinner opener — whenever the record
+ * cannot beat the marks-only line. The caller then falls back to
+ * `composePracticeReturnOpener` (the attempts leg), which stays the honest floor:
+ *
+ *   · MCQ-only session → a bare click shows NO reasoning, so there are no
+ *     `annotatedSteps` and no `mistakeSummary` to read (D-PROG-2's shipped invariant).
+ *     There is nothing richer to say and we do not manufacture it.
+ *   · no quotable faulty step → same rule.
+ *   · a record with no marks → same rule.
+ *
+ * NEVER quotes a step's MARKS. On an `objective` question the grader zeroes every
+ * per-step mark BY DESIGN (the whole mark lives at answer level, PR-348/#445) — so a
+ * step's "0 marks" is a clamp artifact, not a student who scored nothing. The
+ * annotations stay real and quotable either way, which is exactly what the C&I and
+ * worksheet views already do (suppress the mark chip, keep the annotation).
+ *
+ * Read-only (D-TUT-8): every number and every quoted word comes from the record /
+ * payload Practice itself wrote. The tutor never grades and never paraphrases a grade.
+ */
+export function composePracticeRecordReturnOpener(
+  record: SessionRecord,
+  payload: SessionPerQuestionPayload | null,
+  topicLabel: string,
+): ReturnOpener | null {
+  const awarded = typeof record.marksAwarded === "number" ? record.marksAwarded : null;
+  const total = typeof record.marksTotal === "number" ? record.marksTotal : null;
+  if (awarded == null || total == null || total <= 0) return null;
+
+  const lost = Math.max(0, total - awarded);
+
+  // A clean set, with real working behind it — worth saying, because "the method held
+  // up" is a fact here (every step was marked correct), not a compliment we invented.
+  if (lost === 0) {
+    const hasWorking = (payload?.response?.results || []).some(
+      (r) => !r.couldNotRead && !!r.annotatedSteps?.length,
+    );
+    if (!hasWorking) return null; // MCQ-only clean set — the attempts line already says this.
+    return {
+      text: `${awarded} out of ${total} on ${topicLabel} — clean, every one, and the working held up step for step. That's landing now. Want a harder one to stretch on, or leave it here?`,
+      follow: { label: "A harder one", send: "Give me a harder one to try." },
+    };
+  }
+
+  if (!payload) return null;
+  const fault = firstFaultyStep(payload);
+  if (!fault) return null; // No visible reasoning to point at → the marks-only line is the honest one.
+
+  const { qNumber, step } = fault;
+  const ft = record.fourType || { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  const method = (ft.conceptual || 0) + (ft.calculation || 0);
+  const presLed = (ft.presentation || 0) + (ft.silly || 0);
+  const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
+
+  // One root cause, from the record's own four-type totals — the same method-vs-
+  // presentation doctrine the C&I opener uses, now on the same grader's data.
+  let rootCause: string;
+  let fix: string;
+  if (presLed > method && presLed > 0) {
+    // Careless/presentation is NOT a weakness (MI doctrine) — say so plainly.
+    rootCause = `and the ${marks} came off the presentation, not your maths`;
+    fix = `You know this; it's the finish costing you. Want to tighten just the write-up, or something else?`;
+  } else if (method > 0) {
+    const calcLed = (ft.calculation || 0) >= (ft.conceptual || 0);
+    rootCause = calcLed
+      ? `and the ${marks} slipped in the working — the approach was right, the arithmetic wasn't`
+      : `and the ${marks} came off the method itself — the setup needs a tweak`;
+    fix = `Want to fix just that, or something else?`;
+  } else {
+    rootCause = `and ${marks} slipped`;
+    fix = `Want to go through it, or something else?`;
+  }
+
+  const where = `On Q${qNumber}, step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)}`;
+
+  return {
+    text: `You scored ${awarded} out of ${total} on that ${topicLabel} set, ${rootCause}. ${where} ${fix}`,
+    follow: {
+      label: "Go through that step",
+      send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
+    },
+  };
 }
 
 /**
