@@ -176,7 +176,14 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     conceptKey: "circumference-and-area-recap",
     topicKey: "areas-related-to-circles",
     subject: "maths",
-    conceptLabel: "Circumference & area recap (C = 2πr, A = πr²)",
+    // Renamed 2026-07-16 (owner ruling, lockstep with boardEssentials): the old name
+    // "Circumference & area recap (C = 2πr, A = πr²)" pointed at the "Perimeter and Area of a
+    // Circle — A Review" section, which the 2026-27 reprint DELETED (ch.11 now opens at 11.1
+    // Sector/Segment; "circumference" survives only in Exercise 11.1 Q2, p158). The SKILL is
+    // still taught and tested — it's what Ex 11.1 Q2 asks — so the row stays and is renamed to
+    // the skill. conceptKey is intentionally NOT renamed: it is persisted as the figure signal
+    // in durable tutor sessions, so changing it would silently blank the panel on old threads.
+    conceptLabel: "Radius from a given circumference, diameter or area",
     best: { kind: "none", ref: "", why: "No notes/interactive figure targets bare C=2πr / A=πr²; bank ARC images are decorative context photos." },
     alternates: [],
     gap: true,
@@ -624,7 +631,12 @@ export const conceptFigureCatalogue: ConceptFigureRow[] = [
     conceptKey: "functional-groups",
     topicKey: "carbon-and-its-compounds",
     subject: "science",
-    conceptLabel: "Functional groups (–OH, –CHO, –COOH, >C=O, –X)",
+    // Renamed 2026-07-16 (owner ruling, lockstep with boardEssentials): "–X" was a lone
+    // over-reach — NCERT Table 4.3 (p66) lists only —Cl and —Br (never a generic –X, never F/I),
+    // and the bank already writes the concrete "–Cl, haloalkane". ">C=O" is deliberately KEPT:
+    // it is standard carbonyl shorthand and is shared vocabulary with student-facing bank
+    // answers, so narrowing it here alone would desync the hub from what students read.
+    conceptLabel: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)",
     best: { kind: "none", ref: "", why: "No notes figure and no bank figure for functional groups (only a keyword-heuristic concept stub)." },
     alternates: [],
     gap: true,

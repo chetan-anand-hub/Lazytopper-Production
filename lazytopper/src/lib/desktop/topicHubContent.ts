@@ -681,7 +681,7 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Tetravalency and catenation of carbon", oneLineUse: "Explain why carbon forms so many compounds.", marks: "1–2" },
       { name: "Homologous series (general formula, e.g. CₙH₂ₙ₊₂)", oneLineUse: "Predict the next member's formula and properties trend.", marks: "2–3" },
-      { name: "Functional groups (–OH, –CHO, –COOH, >C=O, –X)", oneLineUse: "Identify and name the group; predict typical reactions.", marks: "2–3" },
+      { name: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)", oneLineUse: "Identify and name the group; predict typical reactions.", marks: "2–3" },
       { name: "Reactions of ethanol and ethanoic acid", oneLineUse: "Write esterification and oxidation equations precisely.", marks: "2–3" },
       { name: "Soaps vs detergents (cleansing action)", oneLineUse: "Describe micelle formation and hard-water behaviour.", marks: "2–3" },
     ],
@@ -1028,7 +1028,7 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward the correct θ/360 fraction, keeping π symbolic until the last step (then substituting 22/7 or 3.14 exactly as told), subtracting the triangle for a minor segment, and clean cm² units.",
     },
     boardEssentials: [
-      { name: "Circumference & area recap (C = 2πr, A = πr²)", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2" },
+      { name: "Radius from a given circumference, diameter or area", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2" },
       { name: "Length of an arc of a sector (l = (θ/360)×2πr)", oneLineUse: "Find arc length or the sector's perimeter (arc + two radii) in one step.", marks: "1–3" },
       { name: "Area of a sector (A = (θ/360)×πr²)", oneLineUse: "Turn a central angle and radius straight into the sector's area.", marks: "2–3" },
       { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Subtract the triangle from the sector to get a minor segment; add for the major.", marks: "3–5" },
