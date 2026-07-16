@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { callTutor, type TutorBrief, type TutorTurn } from "../../ai/tutorClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
 import type { AuthUser } from "../../context/AuthContext";
-import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
+import { getSessionRecordsFromCloud, getSessionPerQuestion } from "../../services/sessionRecords";
 import { getAttemptsFromCloud } from "../../services/practiceInsights";
 import { canonicalSlugMatches } from "../../data/syllabus/canonicalTopicSlug";
 import {
@@ -35,8 +35,10 @@ import {
   buildQuickPracticeRoundTripHref,
   composeReturnOpener,
   composePracticeReturnOpener,
+  composePracticeRecordReturnOpener,
   matchReturningRecord,
   matchReturningAttempts,
+  matchReturningPracticeRecord,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
 import { catalogueFiguresForTopic } from "./conceptVisualCatalogue";
@@ -196,8 +198,9 @@ export function useTutorSession({
   );
 
   // Poll for the returning result and inject the reframed opener (D-TUT-6). The PRACTICE
-  // leg watches `practiceInsights` attempts (Fix 1); the C&I / legacy-worksheet leg watches
-  // graded `sessionRecords` (Fix 6 — unchanged). `explicit` = the student tapped "I'm back":
+  // leg reads QP's graded session record first and falls back to `practiceInsights`
+  // attempts (see the chain inside); the C&I / legacy-worksheet leg watches graded
+  // `sessionRecords` (Fix 6 — unchanged). `explicit` = the student tapped "I'm back":
   // if nothing is found we then unblock honestly (Fix 2), rather than leaving a stuck banner.
   const resolvePendingRoundTrip = useCallback(
     async (marker: TutorPendingMarker, explicit = false) => {
@@ -210,6 +213,33 @@ export function useTutorSession({
 
       for (let attempt = 0; attempt < 4; attempt++) {
         if (marker.surface === "practice") {
+          // The practice leg reads TWO sources, richest-first — they have different
+          // reach and neither subsumes the other:
+          //
+          //  1. QP's own durable session record (#436) + its perQuestion payload —
+          //     carries the SAME grader's per-step detail C&I's opener reads, so the
+          //     tutor can name WHERE it slipped. But QP writes it ONLY when the
+          //     scorecard appears (`sessionFinished || allDone`, no unmount hook): a
+          //     student who does 2 of 5 and taps "Back to your tutor" has NO record.
+          //  2. `practiceInsights` attempts — written on EVERY answer, so they cover
+          //     the unfinished-set case the record cannot, at marks-only depth.
+          //
+          // Hence ADDITIVE, never a replacement: record → attempts → nothing. The
+          // composer returns null whenever the record can't actually beat the
+          // marks-only line (MCQ-only, no quotable step), and we fall through rather
+          // than dress up thin data.
+          const records = await getSessionRecordsFromCloud(uid);
+          if (!mountedRef.current) return;
+          const qpRecord = matchReturningPracticeRecord(records, marker, canonicalSlugMatches);
+          if (qpRecord) {
+            const payload = await getSessionPerQuestion(uid, qpRecord.perQuestionRef);
+            if (!mountedRef.current) return;
+            const rich = composePracticeRecordReturnOpener(qpRecord, payload, topicLabel);
+            if (rich) {
+              injectReturn(rich);
+              return;
+            }
+          }
           const attempts = await getAttemptsFromCloud(uid, { start: marker.departureTs });
           if (!mountedRef.current) return;
           const mine = matchReturningAttempts(attempts, marker, canonicalSlugMatches);
