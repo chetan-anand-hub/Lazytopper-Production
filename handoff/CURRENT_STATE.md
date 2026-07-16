@@ -1,5 +1,36 @@
 # LazyTopper â€” Current State
 
+## #445 merged — GRADER `objective` FLAG (§2) + ATTEMPT-DEDUP `mode` DROP (§4b) — **owner LIVE-VERIFIED** — trunk `ad2a9b2`
+
+**Post-merge trunk: `ad2a9b2` (squash of #445) on top of `acf3092` (#444 docs). Re-derive the tip after this docs PR merges — never trust a written SHA. (#445's own pre-flight caught a handoff written against a tip FOUR commits stale, and a shared checkout that was too.)**
+
+**Two bugs, ONE root — nothing client-side could tell an objective question from a subjective one.** That is why the "+0 marks" chip and the attempt double-count both existed, and why they shipped as one PR.
+
+- **§2 — the grader now SAYS a question is objective.** It has always (PR-348) zeroed per-step marks on an objective question BY DESIGN — the whole 0-or-full mark lives at **answer level** — but never emitted that fact. So five render sites printed **"0 marks / +0" on every step of an MCQ under a "Full marks 1/1" header**, reading as *the student scored 0 on every step*. Fix: **one additive `objective` field from BOTH grader functions** (`handleCheckSolution` + `normaliseStructuredResult` — the keep-in-sync pair, **patched together**), threaded to the five chip sites, which **suppress the chip and KEEP the annotation**. **Gated at the VIEW, not grade-time** (stored scorecards froze the old 0s; a grade-time fix could not reach them, and rewriting storage was never wanted). **No score change; subjective questions byte-identical.**
+- **§4b — the live double-count, cured at the durable layer.** `attemptDedupKey` included `ctx.mode`, and **★ the key IS the Firestore doc id** (`practiceInsights.ts` → `doc(..., "attempts", attemptId)` + `setDoc({merge:true})`) — so the dedup window is **all-time and cross-device**, not the 400-entry local ring (that ring is only a fast pre-check). A wrong-MCQ-click (`mode:"mcq"`, 0/1) then a graded typed answer (`mode:"graded"`, 0/1) on the same question minted **TWO permanent attempt docs** → progress counted the question twice, forever, on every device. Dropping `mode` collapses exactly that pair into one doc. **The score stays in the key (`${scored}/${available}`), so 0/1 vs 1/1 never collapse.** `mode` still persists in the attempt **DOCUMENT** (display/analytics) — only the identity key changed.
+
+### ★ OWNER LIVE-VERIFIED on the deployed app (not merely CI-green)
+1. MCQ typed-answer → the **"+0 marks" chip is gone, the annotation is kept**.
+2. A 5-mark subjective question → **per-step marks still shown** — proves the objective gate did **not** leak into the subjective path.
+3. Click-wrong-then-grade on one MCQ → **attempt count +1, not +2**.
+
+### ★ THE UNBLOCK — `SolutionChecker.tsx` IS NOW VACATED
+#445 was the **last lane holding `SolutionChecker.tsx`**. Collision-clear was confirmed three ways: no branch or open PR touched the file (its only history was #436, already merged), the file contained **zero** QR references, and CI **`lane-overlap` PASSED**. **[FU-QR-SOLUTIONCHECKER-WIRE] (QR PR-2) is UNBLOCKED and is now DISPATCHED to a fresh agent.** ⚠ **Line numbers in `SolutionChecker.tsx` MOVED in #445** (dead banner deleted, chip gate added, `AnnotatedStepCard` gained an `objective` prop) — **re-derive them; do not trust any line number written before `ad2a9b2`.**
+
+### ★ Notes for the QR PR-2 agent (from #445's context; not recorded elsewhere)
+- **The file is yours — no lane contends for it.** One wire covers **QP + HPQ + TopicHub** (`PracticeQuestionCard:607` · `HighlyProbableQuestions:2037` · `TopicHub:1439`) — **NOT C&I**, which owns its own upload code (already recorded; re-verified true at `ad2a9b2`).
+- **Do not disturb the new `objective` prop threading** — `AnnotatedStepCard({ step, objective })`, call site passes `result.objective`. Display-only; QR touches the upload path, so they should not meet.
+- **★ `[FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE]` sits directly in QR PR-2's path.** The client is `hasText && !hasImage` **and** the grader route branches the same way — a QR upload sets the IMAGE, so if the student has also typed, **one of the two is ignored at BOTH layers**. Decide that interaction deliberately; do not assume they compose.
+- **The real upload ceiling is ~3.5 MB, not 5 MB** — `src/services/uploadLimits.ts` (base64 inflates ×4/3 against `readJson`'s 5 MB cap). Already unified + guarded in `test:qr:channel`.
+- **`lazytopper.checkResult.v1.` (the cached graded result, `SolutionChecker.tsx:8`) has NO version bump across shape changes** — if QR PR-2 changes the result shape, consider whether a stale cached entry can render it.
+- **§4b consequence:** a QR-uploaded → graded answer records `mode:"graded"` and now **dedups against an MCQ click at the same score on the same question** (one attempt doc). Intended — it is the same question-outcome.
+
+### Lane status after #445
+- **QR PR-2** — UNBLOCKED, **dispatched to a fresh agent** (this lane's window closed at #445).
+- **§7 — the PAYWALL PR — REMAINS UN-DISPATCHED**, waiting its own turn. Its **§7.7 test is drafted and PARKED** at `scratchpad/PR2-paywall-7.7-test-DRAFT.mjs`: it pins that a **re-check spends AGAIN** (a second Gemini call → paywall counter **+2**) while the attempt stream still holds **ONE** doc. ★ **That is the one place "the same fix for two problems" would be WRONG:** the attempt key counts **distinct question-outcomes**; the paywall counter counts **API spend events**. **Do NOT dedupe the paywall counter against the attempt key — it under-bills every re-check.** Baseline still true: **`recordQuestionAnswered` has NO caller**, so the daily counter ticks for nobody; §7's wiring re-arms the gate for the first time. §7 must also stay OFF `subscriptionService.ts` / `AuthContext.tsx` / `featureGates.ts` (the urgent cloud-auth lane owns those).
+
+---
+
 ## #441 + #443 merged — QR DESKTOP→MOBILE ANSWER UPLOAD is LIVE — trunk `5aaaeec`
 
 **Post-merge trunk: `5aaaeec` (squash of #443) on top of `e07c757` (#436 QP sessions) and `9ebb87c` (squash of #441, the QR PR-1). Re-derive the tip after this docs PR merges — the tip moved FOUR times across this lane (#435 → #438/#439/#440 → #441 → #436 → #443). Never trust a written SHA.**

@@ -2,6 +2,37 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-16 — ✅ GRADER `objective` FLAG + ATTEMPT-DEDUP `mode` DROP (#445 `ad2a9b2`) — the grader stops printing "+0 marks" on a correct MCQ, and one question stops counting twice
+
+  [x] **#445 — §2 + §4b as ONE PR (they share ONE root: nothing client-side could tell an objective question from a
+      subjective one).** 11 files (9 modified + 2 new). **Owner LIVE-VERIFIED on the deployed app**, not merely CI-green.
+  [x] **§2 — the additive `objective` flag.** The grader has always (PR-348) zeroed per-step marks on an objective
+      question BY DESIGN — the whole 0-or-full mark lives at ANSWER level — but never emitted that fact, so five render
+      sites printed "0 marks / +0" per step under a "Full marks 1/1" header. **One additive field from BOTH grader
+      functions** (`handleCheckSolution` + `normaliseStructuredResult`, the keep-in-sync pair, patched together) →
+      five chip sites **suppress the chip, KEEP the annotation**. **Gated at the VIEW, not grade-time** (stored
+      scorecards froze the old 0s and are never rewritten). No score change; subjective byte-identical.
+      ★ The flag had to reach FURTHER than the five chips — through the TYPES they render (`WorksheetQuestionGrade`,
+      `CiGradedQuestion` + four print-props builders); the client parse is a generic passthrough, so **no
+      grade-service edit**. Dead 1-mark banner deleted **with the corrected reason** (dead by DATA invariant +
+      surface gates, NOT by the clamp — which only runs `if (questionIsObjective)`).
+  [x] **§4b — `mode` dropped from `attemptDedupKey`.** The key **IS the Firestore doc id**, so dedup is all-time +
+      cross-device; a wrong-click then a graded typed answer on the same question minted **TWO permanent attempt
+      docs** and progress counted it twice forever. The score stays in the key ⇒ 0/1 vs 1/1 never collapse. `mode`
+      still lives in the attempt DOCUMENT. Key + hash extracted to a **dependency-free** `attemptDedupKey.ts` so the
+      CI gate imports the REAL function (transpile-then-require), never a text scan.
+  [x] **CI-gated proof, not vitest.** `scripts/ops/objective_dedup_acceptance.mjs` wired into lazytopper
+      `test:matrix:all` — node, so it runs **on Windows AND in CI** ([FU-CI-GATE-VITEST]: vitest is not CI-gated).
+      **16 checks incl. TWO negative controls** (the OLD mode-in-key formula provably diverges; a subjective question
+      keeps its per-step mark). Gates: tsc · mojibake · scope:guard · root matrix 190/190 · linux build via CI.
+
+- **Lane CLOSED — nothing follows from it.** ★ **UNBLOCKED by this PR: `SolutionChecker.tsx` is VACATED** ⇒
+  **[FU-QR-SOLUTIONCHECKER-WIRE] (QR PR-2) dispatched to a fresh agent** (⚠ its line numbers MOVED — re-derive).
+  **§7 (the paywall PR) remains UN-DISPATCHED**, its §7.7 test parked at `scratchpad/PR2-paywall-7.7-test-DRAFT.mjs`.
+  New: [FU-STEPMARKCHIP-EXTRACTION] (deliberate — inline over extraction so two lanes weren't held for a
+  behaviour-neutral refactor) · [FU-BANK-SUBJECTIVE-FORMAT-IN-SECTION-A].
+  Live lanes: QR PR-2 (dispatched) · Fable bank expansion.
+
 ## 2026-07-15 — ✅ QR DESKTOP→MOBILE ANSWER UPLOAD LIVE (#441 `9ebb87c` + #443 `5aaaeec`) — desktop practice no longer costs a self-email
 
   [x] **#441 — PR-1: the channel + the phone route + the desktop affordance.** Firebase Storage blob + a Firestore
