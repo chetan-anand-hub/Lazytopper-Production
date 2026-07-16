@@ -2,6 +2,31 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-15 — ✅ QR DESKTOP→MOBILE ANSWER UPLOAD LIVE (#441 `9ebb87c` + #443 `5aaaeec`) — desktop practice no longer costs a self-email
+
+  [x] **#441 — PR-1: the channel + the phone route + the desktop affordance.** Firebase Storage blob + a Firestore
+      coordination doc, both written server-side via firebase-admin; the phone never touches Firebase. 4 endpoints,
+      a `/u/:token` bare full-screen phone page, `<QrAnswerHandoff/>`, and the 3 owner-approved `App.tsx` lines.
+      **NO rules change, NO deploy step, NO new dependency, NO new env var, NO Vercel/Railway change.**
+      *(The spec's recommended Postgres channel rested on a FALSE premise — `DATABASE_URL` is unset, so the C&I
+      "cache" no-ops in production. Harmless for a cache; fatal for a delivery channel.)*
+  [x] **ONE wire lit THREE surfaces** — `ChapterTestUploadPanel` (→ CT in-test, CT result, **Full Mock**) +
+      `WorksheetGradePanel`. *Wire the shared component, not each page.*
+  [x] **#443 — copy follows the HOST SURFACE + the real ceiling + a refusal a student can act on.** Also fixed a
+      **live PRE-EXISTING** bug: "PDF up to 5 MB" was never spendable on **either** path (base64 ×4/3 ⇒ 6.67 MB vs
+      `readJson`'s 5 MB cap — a 4-5 MB PDF attached on the DESKTOP passed the picker and died at the grader).
+      Measured true ceiling ≈3.68 MB; limits unified in `src/services/uploadLimits.ts`.
+  [x] **Guarded, not asserted:** `scripts/ops/qr_upload_channel_acceptance.mjs` (**46/46**) in `test:matrix:all` —
+      write-only · single-use · delete-on-pickup · TTL · per-uid isolation · hashed tokens · fail-closed · PDF
+      byte-identity · variant round-trip · **negative-tested cap arithmetic**. (vitest cannot host this: linux-pinned,
+      and CI runs the MATRICES, not vitest — a vitest file would never block a merge.)
+  [ ] **PR-2 [FU-QR-SOLUTIONCHECKER-WIRE] — BLOCKED until the QP lane vacates `SolutionChecker.tsx`.** One wire there
+      covers **Quick Practice + HPQ + TopicHub** (**NOT C&I** — corrected; C&I owns its own upload code). Seam: QR
+      attaches **inside the upload panel, never as a third peer** (360px CTA math). Use `mode="photo"`.
+  [ ] **[FU-QR-CI-WIRE]** — C&I needs its OWN wire (`DesktopCheckImprovePage` + mobile `CheckImprove`).
+  [ ] **[FU-QR-STORAGE-LIFECYCLE] (OWNER INFRA)** — 24h lifecycle rule on `qr-uploads/` (console/gsutil; not code).
+  [ ] **[FU-GRADER-5MB-COPY]** — the grader still says "Keep the PDF under 5 MB" (impossible). Forbidden file → own PR.
+
 ## 2026-07-15 — ✅ MATHTEXT COMMAND CORRUPTION CLOSED + OWNER LIVE-VERIFIED (#435, `fd57db1`) — the shared renderer is sound
 
 **[FU-MATHTEXT-COMMAND-CORRUPTION] CLOSED.** The app's single shared maths renderer (`MathText`, 13 consumers) no longer mangles bare LaTeX commands. Owner live-verified: the tutor renders `\cos²A` / `\sin²A` as real maths; every consumer surface renders exactly as before. **This retires the most visible student-facing rendering defect** — students were seeing broken LaTeX source (`\co`, `\si`) inside a **maths** tutor, which destroys credibility on contact.
