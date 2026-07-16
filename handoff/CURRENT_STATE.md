@@ -1,5 +1,66 @@
 # LazyTopper â€” Current State
 
+## #448 merged — TUTOR STAGE 3: THE EXPLANATION PANEL is LIVE (D-TUT-13 complete) — trunk `0e42e16`
+
+**Post-merge trunk: `0e42e16` (squash of #448) on top of `fc17569` (#449 docs) / `d99c14d` (#447). Re-derive the tip after this docs PR merges — never trust a written SHA. #448 is the 9th stale-base catch: based on `acf3092`, trunk moved FOUR commits underneath it mid-build (#445, #446, #447, #449).**
+
+**The tutor could teach trigonometry without ever showing a triangle. Now it shows the right diagram — or honestly shows none.** D-TUT-13's second panel, wired to Fable's curated concept→figure catalogue. Stage 1 left a closed `<aside>` scaffold with split/overlay CSS already in place; Stage 3 filled it. **Tutor Stage 1 + 2 + 3 are now all live.**
+
+### What shipped
+- **`ExplanationPanel.tsx`** — splits on desktop, overlays on mobile. Renders ONE resolved visual: a real notes/bank figure, an **offer** to explore a chapter interactive, or an honest gap state. Inline "See the diagram" chip per figure-bearing turn + a header "Diagram" reopen; `NcertPageModal` wired (dormant until a curated `ncertPage` lands).
+- **`conceptVisualCatalogue.ts`** — the resolver. **Exact-match-or-nothing (D-TUT-15):** an unknown concept → `null`, never a substring guess or `concepts[0]` (the `findVisualForConcept` bug this replaces). Reuses the product's primitives (`getNoteAssetUrl` / `getFiguresForQuestion` / `getAllConceptsList`) — the registry **DATA**, never its matcher (D-TUT-12).
+- **The figure sentinel** — `[[figure:<conceptKey>]]`, mirroring the proven `[[offer:…]]` pattern: the model emits a key from the **closed curated set**; `tutor.cjs` strips + validates against exactly that set ⇒ a hallucinated key yields **no panel**, never a wrong figure. The token is the stored `conceptKey` (a regex-safe slug) because one `conceptLabel` contains `]` and would break a label-keyed tag.
+- **The seam** — `buildTutorPath` gained an OPTIONAL `questionId` (omitted ⇒ byte-identical; the QP lane's call untouched). It also powers D-TUT-14 #2 (an in-play question's real exam figure outranks the generic one) — **but only for the ARRIVAL concept**, never a mismatched question's figure.
+- **5 of 7 hard gaps filled** as committed `.svg` under `notes/assets/` (`getNoteAssetUrl` already globs svg ⇒ same path as the 66 shipped figures). Styled on the product's own grammar (`tokens.ts` + `NoteGeneratedFigure`'s print-safe palette) — no new visual language.
+- **Interactives are an OFFER, never auto-embedded** — 19 of 54 rows' best asset is a whole-chapter interactive; dumping one on a single-concept question is not an explanation (D-TUT-14 #3 / D-TUT-5).
+- **`[FU-TUTOR-BACKLABEL-COUNT]` closed** — the practice round-trip now passes `backLabel:"Back to your tutor"` + a short `count`.
+
+### ★★ THE CATCH THAT SHAPED THE BUILD — a data file's own header lied
+The curated artefact's header states `conceptKey = slugified conceptLabel`. **It is FALSE for 46 of 54 rows** — the keys are *editorial abbreviations* (`"Pythagoras theorem (a² + b² = c²)"` → `pythagoras-theorem`, which slugifies to `pythagoras-theorem-a-b-c`). A resolver that slugified the live label to find a key would have **silently blanked 85% of concepts** — **[FU-PROG-TOPIC-KEY-MISMATCH] reproduced in a new lane**. ⇒ The lookup key is **(canonical topicKey, EXACT conceptLabel)** / the **stored** conceptKey — *never a re-derived slug*. *A header comment describing data is not data — derive the claim against the real module.* (Same class as the MCQ "34 keys" that were really 13.)
+
+### ★★ D-TUT-16 was SPECIFIED BUT DELIBERATELY NOT BUILT — and that was the right call
+D-TUT-16 mandates an AI-diagram cache mirroring the C&I scheme-first cache. **That cache no-ops in production**: `stepSolution.cjs`'s `getPool()` returns null with `DATABASE_URL` unset, and `step_solutions` has **no migration at all**. Built as specified it would have **passed every gate while regenerating a fresh, unreviewed diagram for every student** — the exact fabrication D-TUT-16 exists to prevent. **A green gate that ships silent fabrication is worse than a red one.** The hard gaps are a *bounded static list*, so they were authored offline, owner-verified, and committed as ordinary rows: no cache, no Postgres, no unreviewed figure ever reaching a student. *When a spec's mechanism is dead, satisfying the spec's INTENT beats implementing its letter.*
+
+### ★★ "HARD GAP" ≠ "NCERT HAS NO FIGURE" — the provenance trace caught SIX errors
+`GAPS.md`'s "hard gap" means *nothing fits in OUR catalogue* — **not** that NCERT lacks a figure. The owner required tracing all 7 against the **official 2026-27 NCERT PDFs** before commit. It caught six fidelity errors in the drafts:
+1. **Esterification arrow said "conc. H₂SO₄"** — NCERT's equation says only **"Acid"**; conc. H₂SO₄ appears solely in Activity 4.8's reagent list. **And the reaction is REVERSIBLE (⇌)** — it had been drawn one-way.
+2. **Functional groups used `>C=O` and `–X (F,Cl,Br,I)`** — NCERT Table 4.3 writes **neither**: only **—Cl, —Br** + 4 oxygen classes (never F/I).
+3. **Atmospheric refraction had TWO real NCERT figures** (Fig 10.9 star + Fig 10.10 Earth-disc/atmosphere-annulus, p168) — a flat-horizon sketch had been **invented where a real figure existed to trace**.
+4. **Tangent length:** NCERT **never writes** ℓ=√(d²−r²) — it states `PQ² = OP² − OQ²` (Remark, p149). Fig 10.7 is the honest base to adapt.
+5. **Scattering:** NCERT's rule is **particle-SIZE** based, and reddening-of-the-Sun has no subsection and no figure — the draft over-weighted it.
+6. **Area recap:** the 2026-27 reprint **DELETED** the "Perimeter and Area of a Circle — A Review" section (see the ruling below).
+⇒ **3 TRACED/adapted (#1,#4,#6) vs 4 ORIGINAL (#2,#3,#5,#7)** — every figure declares which, because *"NCERT drew it" and "we drew it" are different claims and must never be framed the same.*
+
+### ★ NCERT SOURCE OF TRUTH — how to trace (reusable)
+Local PDFs: `C:\Users\Chetan\OneDrive\Desktop\NCERT Books\{Mathematics,Science} class 10\_unzipped\`. **They use the OLD 2018-19 numbering — MAP BY CONTENT, never the filename.** Verified map: `jemh110`=Circles(p144-153) · `jemh111`=Areas Related to Circles(p154-160) · `jesc104`=Carbon(p58-78) · `jesc109`=Light(p134-160) · `jesc110`=Human Eye(p161-170). **Use pymupdf (`import fitz`); pdfplumber is BANNED** (cannot decode CBSE subset fonts). **Method gotcha:** NCERT figures are **vector drawings over a full-page raster** ⇒ `get_images()` returns the whole page; extract via **clipped page renders at the figure bbox**.
+
+### ★ TWO owner rulings, both needing a FORBIDDEN file — reported, then granted
+Both boardEssentials labels live in `src/lib/desktop/topicHubContent.ts` (**forbidden**) ⇒ STOP + report per §4. The owner then granted a **one-time, exact, 2-line exception** (same discipline as a firestore.rules grant); the file returns to forbidden after:
+- **areas-related-to-circles — RENAMED, not retired.** "Circumference & area recap (C = 2πr, A = πr²)" → **"Radius from a given circumference, diameter or area"**. The board deleted the *review section* (ch.11 now opens at 11.1 Sector/Segment; "circumference" survives only in **Exercise 11.1 Q2, p158**) — but the **SKILL is still tested there**, and the in-scope rows *literally embed the facts* (arc = (θ/360)×**2πr**, sector = (θ/360)×**πr²**), so a student cannot do sector/segment without them. Retiring would have lost real tested content to fix a *naming* problem. Only the name moved; `oneLineUse` already described the skill correctly. **No "prerequisite recall folded into an adjacent row" precedent exists** — `boardEssentials` is a flat `{name, oneLineUse, marks}`; "recall" elsewhere means exam-recall.
+- **carbon — aligned `–X` only; KEPT `>C=O`.** `–X` was a lone over-reach (the bank already writes concrete "–Cl, haloalkane", NCERT-aligned). **`>C=O` is SHARED student-facing vocabulary** (`carbonCompounds.pack1.ts:259`, `carbonCompounds.exemplar.ts:226` — standard carbonyl shorthand) — narrowing the hub alone would desync the label from the answers students read in their own graded work. *A shared vocabulary is not one row's to narrow;* unifying it (if ever) spans forbidden bank content and is its own call.
+
+### ★ conceptKey NOT renamed when the label changed — deliberately
+`conceptKey` is an editorial id, never derived from the label, **and it is persisted as the figure signal in durable tutor sessions**. Renaming it because its *display label* changed would silently blank the panel on existing threads. *Separate "what the student sees" from "what a live session already stored" — a stale-LOOKING identifier can be load-bearing.* Documented in both files so the next reader doesn't "fix" it into a real bug.
+
+### ★ The new CI gate — and proof it is a real gate
+`scripts/ops/tutor_visual_catalogue_acceptance.mjs`, chained into the lazytopper ops matrix (**plain Node — vitest is still NOT CI-gated and cannot run on win32, [FU-CI-GATE-VITEST]**). Fails the build on **label drift** vs live `boardEssentials`, a **missing figure**, or a bad/duplicate conceptKey. **Proven twice, not assumed:** removing a committed figure → `MISSING NOTES ASSET`; reverting one label → `LABEL DRIFT … the panel would silently blank this concept`. Interactive refs are warn-only **by design** (computed ids aren't literal in registry text, and a stale one degrades to an honest gap, never a broken image).
+
+### ★ The package.json collision is STRUCTURAL, not incidental
+#447 and #448 each added an ops script + appended to `test:matrix:all` — **the same two lines**. **Any two lanes that add an ops check will always collide there.** It is **always additive** (keep both scripts, chain both) — a known, expected conflict class, **not a real collision**. Do not re-diagnose it next time.
+
+### Still open on this surface
+- **2 gaps stay honest** (functional groups, radius-from-circumference) — their figures were held pending the label rulings; now unblocked as a small follow-up.
+- **`[FU-TUTOR-LEGACY-RETIRE]` BLOCKED — those files are NOT dead** (the dispatch's premise was wrong). `mentor.cjs` has 3 live routes off `index.cjs`; `ConceptTeachDrawer` is still mounted by `ConceptSpine.tsx:692` + `TopicHub.tsx:1789`; `TeachFlow` is mounted by ConceptTeachDrawer. **Only `TutorDrawerV2` is dead** (zero code importers; 6 ungated ops scripts read it as text). D-TUT-12 cannot close until the old Topic Hub tutor is retired. **`TutorPage.tsx` is NOT an importer** — its line 3 is a comment (the grep-hit-isn't-an-import trap, hit twice this session).
+- **`[FU-TUTOR-INCHAT-QUESTION-UPLOAD]`**, **`[FU-TUTOR-READ-QP-RECORD]`**, **`[FU-TUTOR-SUBREGION-FOCUS]`** — all still queued.
+- **`<EquationInput>` into the tutor composer** — deliberately deferred (a real composer-UX change; kept the PR focused).
+
+### Gates + process
+Isolated worktree `LT-worktrees/tutor-stage3`, branch `feat/tutor-stage3-explanation-panel`. Pre-flight report → **STOP for owner approval** → 4 rulings → build → gates → push → CI green → owner byte-review → owner merge. **Never self-merged.** tsc · lazytopper ops matrix (incl. the new guard AND #445's objective-dedup, both chained) · root matrix **190/190** · mojibake · `scope:guard --mode mixed` · `git diff --check` · CI `quality-gate` + `lane-overlap` + Vercel all green. Forbidden files untouched beyond the granted 2 lines.
+
+**Owner live-verify:** the two figures named — **atmospheric refraction** (the 2-panel NCERT trace) and **the reactions scheme** (the "Acid" vs conc. H₂SO₄ fix).
+
+---
+
 ## #447 merged — QR PR-2: SCAN-TO-SEND on QUICK PRACTICE + HPQ + TOPIC HUB — **owner LIVE-VERIFIED** — trunk `d99c14d`
 
 **Post-merge trunk: `d99c14d` (squash of #447) on top of `c2db430` (#446 docs) and `ad2a9b2` (#445). Re-derive the tip after this docs PR merges — never trust a written SHA. #447's own run is the live example: docs #446 merged MID-SESSION and the branch went stale underneath it (the 9th stale-base catch in this project).**

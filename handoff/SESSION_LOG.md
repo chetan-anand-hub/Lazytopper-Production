@@ -1,5 +1,40 @@
 ---
 
+## 2026-07-16 -- #448: TUTOR STAGE 3 — THE EXPLANATION PANEL — **merged** — trunk `0e42e16`
+
+**#448 (`0e42e16`, 20 files, +2047/−18). Isolated worktree `LT-worktrees/tutor-stage3`, branch `feat/tutor-stage3-explanation-panel`. Process: read handoff → re-derive the tip → re-verify EVERY dispatched claim against live code → pre-flight report → STOP for owner approval (4 rulings) → build → gates → push → CI green → owner byte-review → owner merge. Never self-merged. CI `quality-gate` + `lane-overlap` + Vercel all green.**
+
+**D-TUT-13's second panel. The tutor could teach trigonometry without ever showing a triangle; now it shows the right diagram or honestly shows none. Tutor Stage 1 + 2 + 3 all live.**
+
+### What shipped
+`ExplanationPanel.tsx` (split desktop / overlay mobile; image · interactive-OFFER · honest gap; inline "See the diagram" chip + header reopen; `NcertPageModal` wired but dormant) · `conceptVisualCatalogue.ts` (**exact-match-or-nothing, D-TUT-15** — unknown concept → null, never `concepts[0]`) · the `[[figure:<conceptKey>]]` sentinel mirroring `[[offer:…]]` (validated server-side against the topic's closed curated set ⇒ a hallucinated key yields no panel, never a wrong figure) · `buildTutorPath`'s **optional** `questionId` seam (omitted ⇒ byte-identical) · **5 of 7 hard gaps** filled as committed `.svg` · `[FU-TUTOR-BACKLABEL-COUNT]` closed.
+
+### Round 1 — pre-flight caught three dispatch premises that were wrong
+1. **The catalogue's own header lied.** It claims `conceptKey = slugified conceptLabel`; **false for 46/54 rows** (editorial abbreviations). Slugifying the live label to find a key would have **silently blanked 85% of concepts** — [FU-PROG-TOPIC-KEY-MISMATCH] in a new lane. ⇒ lookup on (canonical topicKey, EXACT conceptLabel) / the STORED conceptKey, never a re-derived slug.
+2. **D-TUT-16's cache mirrors a cache that doesn't run.** `stepSolution.cjs` no-ops in prod (`DATABASE_URL` unset; `step_solutions` has no migration). Building it as specified would **pass every gate while regenerating an unreviewed diagram per student** — the exact fabrication it exists to prevent. ⇒ NOT built; the 7 gaps are a bounded static list, authored offline instead.
+3. **[FU-TUTOR-LEGACY-RETIRE]'s "dead files" are LIVE.** `mentor.cjs` has 3 routes; `ConceptTeachDrawer` is mounted by ConceptSpine + TopicHub. Only `TutorDrawerV2` is dead. Also **`TutorPage.tsx` is NOT a ConceptTeachDrawer importer** — line 3 is a comment (the grep-hit-isn't-an-import trap, hit twice; the owner raised then self-corrected it).
+
+### ★★ Round 2 — the owner demanded NCERT provenance, and it caught SIX errors
+*"'Hard gap' in GAPS.md means no fitting asset in OUR catalogue — it does NOT mean NCERT has no such figure."* Tracing all 7 against the **official 2026-27 PDFs** (pymupdf; pdfplumber BANNED; **map by CONTENT — the files use OLD 2018-19 numbering**) found:
+- **esterification: "conc. H₂SO₄" → NCERT says only "Acid"** (conc. H₂SO₄ is Activity 4.8's reagent, not the equation's) **and the reaction is REVERSIBLE** — it had been drawn one-way;
+- **functional groups: `>C=O` and `–X (F,Cl,Br,I)` are NOT NCERT notation** (Table 4.3 = —Cl/—Br + 4 oxygen classes);
+- **atmospheric refraction: TWO real NCERT figures exist** (10.9 + 10.10, p168) — a flat-horizon sketch had been **invented where a real figure existed to trace**;
+- **tangent length: NCERT never writes ℓ=√(d²−r²)** — it states `PQ² = OP² − OQ²` (Remark p149);
+- **scattering: the rule is particle-SIZE based**, and reddening-of-the-Sun has no subsection/figure — the draft over-weighted it;
+- **area recap: the reprint DELETED that whole review section.**
+⇒ **3 TRACED vs 4 ORIGINAL**, each labelled — *"NCERT drew it" and "we drew it" are different claims.* Visual pass reused `tokens.ts` + `NoteGeneratedFigure`'s print-safe palette (no new visual language); discovered **`getNoteAssetUrl` already globs `.svg`** ⇒ the figures commit down the same path as the 66 shipped ones, no new plumbing.
+
+### ★ Round 3 — two rulings needed a FORBIDDEN file; reported, then granted
+Both labels live in `src/lib/desktop/topicHubContent.ts` ⇒ STOP + report (§4). Owner granted an exact 2-line exception: **rename** the area row to "Radius from a given circumference, diameter or area" (the board deleted the review SECTION, but Ex 11.1 Q2 still tests the SKILL and the in-scope formulas literally embed 2πr/πr² — retiring would lose real content to fix a naming problem); **align `–X`→`–Cl, –Br` but KEEP `>C=O`** (shared student-facing vocabulary in two bank answers — narrowing the hub alone would desync it from what students read). **`conceptKey` deliberately NOT renamed** — it is persisted as the figure signal in durable sessions; renaming a load-bearing identifier because its display label changed would blank the panel on live threads.
+
+### ★ The guard proved itself twice
+New `tutor_visual_catalogue_acceptance.mjs` (plain Node — vitest still isn't CI-gated and can't run on win32). Removing a figure → `MISSING NOTES ASSET`; reverting one label → `LABEL DRIFT … the panel would silently blank this concept`. A gate, not decoration.
+
+### ★ The 9th stale-base — and a NEW structural conflict class
+Based on `acf3092`; trunk moved FOUR commits underneath (#445/#446/#447/#449). The conflict was **one file, `package.json`**: #447 and #448 each added an ops script + appended to `test:matrix:all`. **Any two lanes adding an ops check will ALWAYS collide on those same two lines — always additive (keep both, chain both), never a real collision.** Do not re-diagnose it next time.
+
+---
+
 ## 2026-07-16 -- #447: QR PR-2 — SCAN-TO-SEND on QUICK PRACTICE + HPQ + TOPIC HUB — **merged + owner LIVE-VERIFIED** — trunk `d99c14d`
 
 **#447 (`d99c14d`, 1 file, +62/−7). Isolated worktree `LT-worktrees/qr-pr2`, branch `feat/desktop-pr-qr2-solutionchecker-wire`. Process: read handoff → re-derive the tip → re-verify EVERY dispatched claim against live code → pre-flight report → STOP for owner approval → build → gates → push → CI green → owner live-verify → owner merge. Never self-merged. CI `quality-gate` + `lane-overlap` + Vercel all green.**
