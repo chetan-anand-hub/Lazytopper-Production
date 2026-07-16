@@ -53,3 +53,73 @@ export function formatUploadLimit(bytes: number): string {
 /** The one sentence describing what a student may send. Used by every upload
  *  affordance so the promise is identical everywhere. */
 export const UPLOAD_LIMIT_SENTENCE = `PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)} · or a JPG/PNG photo up to ${formatUploadLimit(MAX_UPLOAD_IMAGE_BYTES)}`;
+
+// ── THE PICKER GUARD ─────────────────────────────────────────────────────────────
+//
+// The server accepts EXACTLY {image/jpeg, image/png, application/pdf}
+// (`server/mentorImageSupport.cjs` ALLOWED_MIME_TYPES) and caps the body at 5 MB.
+// Every picker in the product must therefore refuse the same two things — a wrong
+// TYPE and an oversized FILE — *before* the student believes they are done.
+//
+// This lives here rather than inline at each call site because this file's whole
+// mandate is that "the number and the words a student reads can never drift apart".
+// A guard copy-pasted per surface is exactly how they drift. (The repo already
+// carries [FU-STEPMARKCHIP-EXTRACTION] as the standing lament for that pattern.)
+//
+// NOTE — ChapterTestUploadPanel + WorksheetGradePanel still inline their own
+// byte-identical copies of this logic. Converging them is behaviour-neutral and
+// deliberately NOT done here: this is a bug-fix PR for Check & Improve, and
+// rewriting two working panels would widen it for no student-visible gain.
+// See [FU-UPLOAD-GUARD-CONVERGE].
+
+/** What the student is being asked for. **REQUIRED, no default** — deliberately
+ *  mirroring `QrAnswerHandoff`'s `mode` contract, and for the same reason: a host
+ *  that silently inherits the wrong noun tells a student to photograph the wrong
+ *  thing. "answers" = their written working; "question" = the printed question. */
+export type UploadSubject = "answers" | "question";
+
+export type UploadCheck =
+  | { ok: true; isPdf: boolean; mimeType: "image/jpeg" | "image/png" | "application/pdf" }
+  | { ok: false; message: string };
+
+/**
+ * Refuse — honestly, at the picker — anything the grader would reject anyway.
+ *
+ * Both refusals name what is wrong AND what to do about it. That is the whole point:
+ * a student who cannot act on a refusal has been told "no" twice (once here, once by
+ * the grader) and helped zero times.
+ *
+ * The picker's own `accept` attribute is a HINT, not a guard — every OS file dialog
+ * offers an "All files" escape, and `accept="image/*"` matches WEBP/GIF/BMP that the
+ * server does not take. So this check must exist independently of `accept`.
+ */
+export function checkUploadFile(file: File, subject: UploadSubject): UploadCheck {
+  const isPdf = file.type === "application/pdf";
+  const isImage = file.type === "image/jpeg" || file.type === "image/png";
+
+  if (!isPdf && !isImage) {
+    return {
+      ok: false,
+      message:
+        subject === "answers"
+          ? "Upload a PDF (recommended) or a JPG/PNG photo of your answers."
+          : "Upload a JPG/PNG photo of your question, or a PDF.",
+    };
+  }
+
+  const max = isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES;
+  if (file.size > max) {
+    return {
+      ok: false,
+      message:
+        `That file is ${formatUploadLimit(file.size)} — the limit is ${formatUploadLimit(max)}. ` +
+        `Try scanning at a lower quality, or split it into two.`,
+    };
+  }
+
+  return {
+    ok: true,
+    isPdf,
+    mimeType: isPdf ? "application/pdf" : file.type === "image/png" ? "image/png" : "image/jpeg",
+  };
+}

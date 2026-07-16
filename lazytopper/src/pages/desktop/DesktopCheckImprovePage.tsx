@@ -16,6 +16,7 @@ import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
 import { EquationInput, EquationRender } from "../../components/equation";
+import { checkUploadFile } from "../../services/uploadLimits";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
@@ -680,6 +681,14 @@ const DesktopCheckImprovePage: React.FC = () => {
   // correct it). `editing` toggles the inline correction.
   const [detecting, setDetecting] = useState<boolean>(false);
   const [detectError, setDetectError] = useState<string | null>(null);
+
+  // Picker refusals — DELIBERATELY separate from `errorMessage` (the grade-failure
+  // channel). `errorMessage`'s surface hard-codes "No score has been generated. Press
+  // Retry to call the grader again." A file refused HERE never reached the grader, so
+  // that sub-line would be a lie and "Retry" would re-run a call that never happened.
+  // Two different failures, two different truths, two different states.
+  const [answerFileError, setAnswerFileError] = useState<string | null>(null);
+  const [questionFileError, setQuestionFileError] = useState<string | null>(null);
   const [detected, setDetected] = useState<ConfirmedDetection | null>(null);
   const [confirmed, setConfirmed] = useState<ConfirmedDetection | null>(null);
   const [editing, setEditing] = useState<boolean>(false);
@@ -756,18 +765,29 @@ const DesktopCheckImprovePage: React.FC = () => {
     status !== "loading";
 
   function handleFileChosen(file: File) {
+    // Refuse what the grader would refuse anyway, HERE, while the student can still
+    // act on it. Before this guard there was NO ceiling at all on this input: a 10 MB
+    // PDF base64'd fine, travelled, and died at the grader ("Request body too large")
+    // after the student believed they were done.
+    const check = checkUploadFile(file, "answers");
+    if (!check.ok) {
+      setAnswerFileError(check.message);
+      return;
+    }
+    setAnswerFileError(null);
+
     const reader = new FileReader();
     reader.onload = () => {
       const data = reader.result as string;
-      const [prefix, b64] = data.split(",");
-      const mime = prefix.match(/:(.*?);/)?.[1] || file.type || "image/jpeg";
+      const [, b64] = data.split(",");
       setImageBase64(b64 || null);
-      setImageMime(mime);
+      setImageMime(check.mimeType);
       setImageName(file.name);
     };
     reader.onerror = () => {
       setImageBase64(null);
       setImageName("");
+      setAnswerFileError("We couldn't read that file — please try another.");
     };
     reader.readAsDataURL(file);
   }
@@ -775,24 +795,35 @@ const DesktopCheckImprovePage: React.FC = () => {
   function clearImage() {
     setImageBase64(null);
     setImageName("");
+    setAnswerFileError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   // Question photo → base64. Reading a new question invalidates any prior detection.
   function handleQuestionFile(file: File) {
+    // The question photo is as capable of killing a submission as the answer file —
+    // it rides the SAME request to the SAME body cap — so it gets the same guard.
+    // "question" (not "answers"): the copy must name what THIS input actually wants.
+    const check = checkUploadFile(file, "question");
+    if (!check.ok) {
+      setQuestionFileError(check.message);
+      return;
+    }
+    setQuestionFileError(null);
+
     const reader = new FileReader();
     reader.onload = () => {
       const data = reader.result as string;
-      const [prefix, b64] = data.split(",");
-      const mime = prefix.match(/:(.*?);/)?.[1] || file.type || "image/jpeg";
+      const [, b64] = data.split(",");
       setQImageBase64(b64 || null);
-      setQImageMime(mime);
+      setQImageMime(check.mimeType);
       setQImageName(file.name);
       clearDetection();
     };
     reader.onerror = () => {
       setQImageBase64(null);
       setQImageName("");
+      setQuestionFileError("We couldn't read that file — please try another.");
     };
     reader.readAsDataURL(file);
   }
@@ -1546,6 +1577,12 @@ const DesktopCheckImprovePage: React.FC = () => {
               {detectError && (
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{detectError}</div>
               )}
+              {/* Picker refusal for the QUESTION photo — mirrors detectError's shape so
+                  the two read as one voice. Deliberately NOT the grade-failure channel:
+                  nothing was graded, so "Retry the grader" would be a lie. */}
+              {questionFileError && (
+                <div style={{ fontSize: 12.5, color: DANGER_FG }}>{questionFileError}</div>
+              )}
 
               {/* Multi-question summary chip — N questions detected; grade the whole
                   paper. Replaces the single-question correctable chip in this mode. */}
@@ -1807,6 +1844,14 @@ const DesktopCheckImprovePage: React.FC = () => {
                   rows={8}
                   ariaLabel="Type your answer"
                 />
+              )}
+
+              {/* Picker refusal for the ANSWER file. Sits ABOVE the grade-failure box
+                  and is a separate state on purpose — this file never reached the
+                  grader, so it must not borrow that box's "Press Retry to call the
+                  grader again." No score was attempted; there is nothing to retry. */}
+              {answerFileError && (
+                <div style={{ fontSize: 12.5, color: DANGER_FG }}>{answerFileError}</div>
               )}
 
               {errorMessage && (
