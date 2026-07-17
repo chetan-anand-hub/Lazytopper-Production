@@ -1,5 +1,25 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-16 (post-PR **#456 — THE TUTOR READS QP'S GRADED WORKING.** Squash `dfe3144`; **live trunk `084442b`** because **#457 landed on top mid-docs-write — the 12th stale-base catch, the second in two hours; #457's docs are owed by THAT lane.** Owner BYTE-REVIEWED the pushed diff, then LIVE-VERIFIED: ***"it does correctly identify the mistakes I made."*** The tutor's practice return-opener now names **where** a mark went, sourced from QP's own durable session record (#436) whose payload carries the **same grader's** per-step detail — QP's written-working path runs the **same grader as C&I**. ★ **Squash-merged ⇒ branch SHA `433135a` is NOT in trunk's ancestry — verify the CODE (`tutorRoundTrip.ts:125`), not the commit graph.**)
+# Updated: 2026-07-17 (post-PR **#460 — A STUDENT WHO ASKS TO PRACTISE GETS THE HAND-OFF.** Trunk `be200cb`. Owner BYTE-REVIEWED, then LIVE-VERIFIED **all three probes**: direct ask → CTA · *"Can you give me an example?"* → **taught, NO CTA (the boundary held)** · offer→agree → CTA unregressed. **1 file, PROMPT TEXT ONLY.** ★★ **The dispatch pointed at a gate that does not exist** — `useTutorSession.ts` only ATTACHES the tag (`:345`); the real gate is **`TutorPage.tsx:356`**, firing on **tag PRESENCE** with no agreement-state condition ⇒ the restriction lived **entirely in the prompt's English**, and editing `useTutorSession.ts` as instructed would have **invented a client-side coupling the design deliberately kept server-side**. ⚠ **#457 (`084442b`) + #459 (`27e6ec2`) are MERGED + LIVE with NO handoff docs — the catalogue lane owes them.**)
+
+## ⏭️ IMMEDIATE NEXT — [FU-TUTOR-NCERT-PROACTIVE-MENTION], **UNBLOCKED**, off trunk `be200cb`
+
+**The goal:** when a signalled figure's concept **has a real NCERT page**, the model should **proactively SAY so in plain words a student would understand** (*"there's also the real textbook page for this"*). ★ **NEVER make the student ask — a 15-year-old will not know the trigger phrase.**
+
+**★ `hasNcertPage` is VERIFIED PRESENT IN CODE** (checked, not inferred from *"#457 landed"* — a landed PR is never proof a field shipped):
+`conceptVisualCatalogue.ts:226` (on `CatalogueFigureOption`) → `:253` (`Boolean(row.ncertPage)`) → `tutorClient.ts:50` (wire) → **`tutor.cjs:111`** (rebuilt + coerced `=== true`).
+
+**★★ The code names its own seam — `tutor.cjs:101`:** *"`hasNcertPage` is plumbing only today: `figurePanelBlock()` does not read it yet, so this changes nothing the model sees. Using it is the tutor-round-trip lane's sequenced task."*
+⇒ **The work is in `figurePanelBlock()` (`tutorSystemPrompt.cjs:226`)**, which today filters options to **key/label only** and lists them as `- <key>: <label>`.
+
+⚠ **`normalizeFigures` (`tutor.cjs:104`) is the TRUST BOUNDARY and REBUILDS each option** — its own comment: *"every new option field must be whitelisted HERE as well, or it is silently dropped and can never reach `buildTutorSystemPrompt`."* `hasNcertPage` **is** already whitelisted; remember this for any future field.
+
+**Re-derive all of the above from the code before starting — do not trust these line numbers.** #457/#459 moved this area and it may move again.
+
+**★★ HELD — do NOT build (unchanged):** the hardcoded **`count: 5`** and the **"tutor is waiting" banner / scorecard-return-row**, both pending the **overlay-architecture investigation** (QP + C&I may become **in-tutor overlays reusing the real pages verbatim** ⇒ the round-trip banner/count-link mechanism becomes **secondary**). *A HOLD with a reason — do not "just fix" them because they look like one-liners.*
+
+---
+
+# (superseded) Updated: 2026-07-16 (post-PR **#456 — THE TUTOR READS QP'S GRADED WORKING.** Squash `dfe3144`; **live trunk `084442b`** because **#457 landed on top mid-docs-write — the 12th stale-base catch, the second in two hours; #457's docs are owed by THAT lane.** Owner BYTE-REVIEWED the pushed diff, then LIVE-VERIFIED: ***"it does correctly identify the mistakes I made."*** The tutor's practice return-opener now names **where** a mark went, sourced from QP's own durable session record (#436) whose payload carries the **same grader's** per-step detail — QP's written-working path runs the **same grader as C&I**. ★ **Squash-merged ⇒ branch SHA `433135a` is NOT in trunk's ancestry — verify the CODE (`tutorRoundTrip.ts:125`), not the commit graph.**)
 
 ## ⏭️ IMMEDIATE NEXT — tutor CTA + prompt work (post-#456), off trunk `084442b`
 

@@ -2,6 +2,20 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-17 — ✅ A STUDENT WHO **ASKS** TO PRACTISE GETS THE HAND-OFF (#460 `be200cb`) — the CTA no longer waits for the tutor to think of it first
+
+**Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED (all 3 probes).** 1 file, `tutorSystemPrompt.cjs`, **+13/−2 — prompt text only**.
+
+`[[offer:practice]]` fired on exactly one turn: the tutor's own offer. A student who said *"I want to try a few questions"* got a reply and **no button**. Now it fires on **(a)** the offer turn **or (b)** the turn answering a direct ask. *The ask is stronger evidence of readiness than the offer ever was.*
+
+- ★★ **The dispatch pointed at a gate that does not exist** — `useTutorSession.ts` only attaches the tag; **`TutorPage.tsx:356`** gates on **presence alone**. The restriction lived entirely in the prompt's English ⇒ prompt-only. Editing the named file would have **invented a client-side coupling the design kept server-side**.
+- ★★ **The boundary defended — #442: QP practises, the Tutor teaches.** A request to SEE something solved is a **teaching** request and stays the tutor's job; **ambiguity fails closed** (no tag). *A missing CTA costs one more sentence; a wrong CTA pushes someone who wanted an explanation into a practice set.*
+- ★ **Every gate would have passed if the wording were terrible** — none of them read English. **A prompt is only verified by a model reading it.**
+
+**Follows:** **[FU-TUTOR-NCERT-PROACTIVE-MENTION] — UNBLOCKED** (`hasNcertPage` **verified in code**; the seam is `figurePanelBlock()`, named as such by `tutor.cjs:101`). ⚠ **#457/#459 are live but undocumented — the catalogue lane owes those docs.** **HELD:** `count: 5` + the "tutor is waiting" banner, pending the overlay-architecture investigation.
+
+---
+
 ## 2026-07-16 — ✅ THE TUTOR READS QUICK PRACTICE'S GRADED WORKING (#456 `dfe3144`) — the two round-trip legs are level; the practice opener names the step, not just the score
 
 **Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED** (*"it does correctly identify the mistakes I made"*). Live trunk at docs-write: `084442b` (**#457 landed on top mid-write** — its docs are owed by that lane).
