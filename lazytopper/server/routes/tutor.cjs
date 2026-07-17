@@ -87,9 +87,19 @@ function extractFigureTag(raw, validKeys) {
 }
 
 /**
- * Stage 3 — normalize the optional client-supplied figure options to `{ key, label }[]`.
- * These are the concepts in THIS topic that have a curated visual; the prompt lists them and
- * the model picks one to signal. Anything malformed is dropped; [] → no figure signalling.
+ * Stage 3 — normalize the optional client-supplied figure options to
+ * `{ key, label, hasNcertPage }[]`. These are the concepts in THIS topic that have a curated
+ * visual; the prompt lists them and the model picks one to signal. Anything malformed is
+ * dropped; [] → no figure signalling.
+ *
+ * ★ This REBUILDS each option rather than passing the client's object through — deliberate:
+ * it is the trust boundary, so unvalidated client fields never reach the prompt. The
+ * consequence is that every new option field must be whitelisted HERE as well, or it is
+ * silently dropped and can never reach buildTutorSystemPrompt. `hasNcertPage` is coerced with
+ * `=== true` so a truthy-but-junk client value cannot turn into prompt text downstream.
+ *
+ * NOTE `hasNcertPage` is plumbing only today: figurePanelBlock() does not read it yet, so this
+ * changes nothing the model sees. Using it is the tutor-round-trip lane's sequenced task.
  */
 function normalizeFigures(input) {
   if (!Array.isArray(input)) return [];
@@ -97,7 +107,9 @@ function normalizeFigures(input) {
   for (const f of input) {
     const key = f && typeof f.key === 'string' ? f.key.trim() : '';
     const label = f && typeof f.label === 'string' ? f.label.trim() : '';
-    if (/^[a-z0-9-]+$/.test(key) && label) out.push({ key, label });
+    if (/^[a-z0-9-]+$/.test(key) && label) {
+      out.push({ key, label, hasNcertPage: f.hasNcertPage === true });
+    }
   }
   return out.slice(0, 40); // a topic has a handful; cap defensively
 }

@@ -7,12 +7,34 @@
 //   - image        : a real, correctly-grained notes/bank figure (the workhorse).
 //   - interactive  : an OFFER (owner ruling) — a whole-chapter interactive is NEVER
 //                    auto-embedded; the student opts in, then it loads in its own dark card.
+//   - ncert        : the exact NCERT page, INLINE (owner ruling 2026-07-17). It outranks the
+//                    interactive now, so a page can be the panel's primary content.
 //   - gap          : an honest "no diagram yet" — never a stretched/wrong figure.
-// An exact NCERT page (when curated) is offered ALONGSIDE the body as the authoritative
-// source link (D-TUT-14 #1), opening the shared NcertPageModal.
+// When a figure won the body, the NCERT page is still offered ALONGSIDE it as the
+// authoritative source link (D-TUT-14 #1), opening the shared NcertPageModal.
+//
+// ★★ `ncert` is the ONE body kind whose asset is not proven to exist before render. An image
+// ref is gated on disk by CI (tutor_visual_catalogue_acceptance.mjs); an NCERT page is fetched
+// from Firebase Storage at render time and can be missing, unhosted, CORS-blocked, or simply
+// unconfigured (no VITE_FIREBASE_STORAGE_BUCKET — the case on every local dev build). So this
+// panel FAILS CLOSED: it probes first and renders the honest `gap` body on any failure. It
+// must never show a dead frame, and must never turn a working "no diagram yet" into a broken
+// one. Disk/URL existence is only ever a proxy for reachability — #448 shipped a live 404
+// through a fully green guard, and this is the same class of gap.
 
 import { useEffect, useState } from "react";
+import { buildNcertPdfUrl } from "../../components/notes/NcertPageModal";
 import type { ResolvedVisual, NcertPageRefData } from "./conceptVisualCatalogue";
+
+/** Student-facing chapter subject label. Deliberately local: NcertPageModal keeps its own
+ *  copy module-private, and exporting it would widen a notes component's API for four
+ *  strings. If a third consumer ever needs it, promote it to a shared module then. */
+const NCERT_SUBJECT_LABEL: Record<NcertPageRefData["subject"], string> = {
+  physics: "Physics",
+  chemistry: "Chemistry",
+  biology: "Biology",
+  maths: "Maths",
+};
 
 interface ExplanationPanelProps {
   visual: ResolvedVisual;
@@ -29,6 +51,42 @@ export default function ExplanationPanel({ visual, onClose, onOpenNcert }: Expla
   }, [visual.conceptLabel, visual.body.kind]);
 
   const { body } = visual;
+
+  // The inline NCERT page: build the URL, then PROVE it loads before embedding it.
+  const ncertUrl = body.kind === "ncert" ? buildNcertPdfUrl(body.page) : null;
+  const [ncertStatus, setNcertStatus] = useState<"probing" | "ready" | "unavailable">("probing");
+
+  useEffect(() => {
+    if (body.kind !== "ncert") return;
+    // No URL at all (no Storage bucket configured) → fail closed immediately, no request.
+    if (!ncertUrl) {
+      setNcertStatus("unavailable");
+      return;
+    }
+    setNcertStatus("probing");
+    let cancelled = false;
+    // HEAD-probe before embedding, mirroring NcertPageModal: a 404 / missing bucket / CORS
+    // rejection must degrade to the honest gap, never render a broken frame at the student.
+    fetch(ncertUrl, { method: "HEAD" })
+      .then((r) => {
+        if (!cancelled) setNcertStatus(r.ok ? "ready" : "unavailable");
+      })
+      .catch(() => {
+        if (!cancelled) setNcertStatus("unavailable");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [body.kind, ncertUrl]);
+
+  // ONE definition of the honest gap, rendered both by a real `gap` body and by an `ncert`
+  // body whose page turned out to be unreachable — so the fail-closed path is byte-identical
+  // to the real thing and the two can never drift into different promises.
+  const gapBody = (
+    <div className="lt-exp__gap">
+      <p>No diagram for this one yet — I&rsquo;ll explain it in words, and you can check the exact figure in your NCERT.</p>
+    </div>
+  );
 
   return (
     <div className="lt-exp">
@@ -80,13 +138,48 @@ export default function ExplanationPanel({ visual, onClose, onOpenNcert }: Expla
           </div>
         )}
 
-        {body.kind === "gap" && (
+        {body.kind === "gap" && gapBody}
+
+        {body.kind === "ncert" && ncertStatus === "probing" && (
           <div className="lt-exp__gap">
-            <p>No diagram for this one yet — I&rsquo;ll explain it in words, and you can check the exact figure in your NCERT.</p>
+            <p>Opening the exact NCERT page&hellip;</p>
           </div>
         )}
 
-        {visual.ncertPage && (
+        {/* Fail closed: the page could not be reached, so tell the same honest truth the
+            gap body tells. Never a broken frame, never a "coming soon" dead end here. */}
+        {body.kind === "ncert" && ncertStatus === "unavailable" && gapBody}
+
+        {body.kind === "ncert" && ncertStatus === "ready" && ncertUrl && (
+          <figure className="lt-exp__fig">
+            <div className="lt-exp__ncert-frame">
+              <iframe
+                className="lt-exp__ncert-embed"
+                src={ncertUrl}
+                title={`NCERT ${NCERT_SUBJECT_LABEL[body.page.subject]} chapter ${body.page.chapter}, page ${body.page.page}`}
+                loading="lazy"
+              />
+            </div>
+            <figcaption className="lt-exp__cap">
+              The exact page this comes from in your NCERT book.
+            </figcaption>
+            <div className="lt-exp__src">
+              NCERT &middot; {NCERT_SUBJECT_LABEL[body.page.subject]} &middot; Chapter {body.page.chapter} &middot; Page{" "}
+              {body.page.page}
+            </div>
+            <button
+              type="button"
+              className="lt-exp__ncert"
+              onClick={() => onOpenNcert(body.page)}
+            >
+              <span aria-hidden="true">&#128196;</span> View it larger
+            </button>
+          </figure>
+        )}
+
+        {/* The alongside source-link (D-TUT-14 #1) — only when the page is NOT already the
+            body, otherwise it would duplicate the "View it larger" button above. */}
+        {visual.ncertPage && body.kind !== "ncert" && (
           <button
             type="button"
             className="lt-exp__ncert"
@@ -220,9 +313,25 @@ const EXP_CSS = `
   cursor: pointer;
 }
 .lt-exp__ncert:hover { background: var(--lt-green-tint); }
+/* The inline NCERT page, when it won the body. Framed like a figure (not like the dark
+   interactive card) because it IS the source document, not a tool to go play with. */
+.lt-exp__ncert-frame {
+  border: 1px solid var(--lt-line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+.lt-exp__ncert-embed {
+  display: block;
+  width: 100%;
+  height: 420px;
+  border: none;
+  background: #fff;
+}
 
-/* Interactive gets more height on a roomy viewport. */
+/* Interactive + the NCERT page get more height on a roomy viewport. */
 @media (min-width: 1024px) {
   .lt-exp__iframe { height: 480px; }
+  .lt-exp__ncert-embed { height: 520px; }
 }
 `;
