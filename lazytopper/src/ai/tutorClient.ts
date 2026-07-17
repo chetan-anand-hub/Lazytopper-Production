@@ -37,6 +37,17 @@ export interface TutorTurn {
 export interface TutorFigureOption {
   key: string;
   label: string;
+  /** True when the concept also has a curated, exact NCERT page the panel can show.
+   *
+   *  The wire copy of `hasNcertPage` on CatalogueFigureOption (pages/tutor/conceptVisualCatalogue.ts)
+   *  — the two are mirrored types either side of the request and must stay in step.
+   *
+   *  ★ Plumbing only: NOTHING in the prompt reads this yet, so the model still does not know
+   *  NCERT pages exist (hence its flat "I cannot open NCERT pages" even when one is curated).
+   *  Teaching it to mention the page is the tutor-round-trip lane's sequenced task.
+   *  ★★ `normalizeFigures` (server/routes/tutor.cjs) rebuilds each option server-side and drops
+   *  anything it does not explicitly copy — this field only arrives because it whitelists it. */
+  hasNcertPage?: boolean;
 }
 
 /**

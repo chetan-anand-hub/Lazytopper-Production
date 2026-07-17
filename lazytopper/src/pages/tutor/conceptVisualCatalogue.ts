@@ -28,17 +28,31 @@ export type { NcertPageRefData } from "./conceptVisualCatalogue.data";
 
 /** The panel body a resolved concept renders as. `interactive` is an OFFER, never an
  *  auto-embedded whole-chapter iframe (owner ruling, D-TUT-14 #3 / D-TUT-5). `gap` is the
- *  honest "no diagram yet" state (D-TUT-15) — shown, never faked. */
+ *  honest "no diagram yet" state (D-TUT-15) — shown, never faked.
+ *
+ *  `ncert` (owner ruling 2026-07-17) — an exact NCERT page rendered INLINE as the panel's
+ *  primary content. It used to be permanently second-class ("offered ALONGSIDE the body...
+ *  NOT as the body itself"), which meant a generic whole-chapter interactive outranked an
+ *  exact page for the concept even when the page was plainly the better answer. It now
+ *  COMPETES like every other kind — see resolveConceptVisual's priority.
+ *
+ *  ★ The panel MUST fail closed on this kind: the page is fetched from Firebase Storage at
+ *  render time, so if the probe fails it renders the `gap` body instead — never a dead frame.
+ *  A body kind is a claim that something is showable; for `ncert` that claim is only settled
+ *  in the browser (see ExplanationPanel). */
 export type VisualBody =
   | { kind: "image"; url: string; caption: string; source: "notes" | "bank" }
   | { kind: "interactive"; url: string; title: string }
+  | { kind: "ncert"; page: NcertPageRefData }
   | { kind: "gap" };
 
 export interface ResolvedVisual {
   conceptLabel: string;
   body: VisualBody;
-  /** D-TUT-14 #1 — an exact NCERT page, offered ALONGSIDE the body (as the prototype's
-   *  "open the exact NCERT page" link), when the row carries a curated page. */
+  /** D-TUT-14 #1 — the exact NCERT page. Offered ALONGSIDE the body as a source link when a
+   *  figure won the body; when NOTHING better existed it IS the body (`body.kind === "ncert"`)
+   *  and the panel renders it inline rather than only behind a modal click-through. Always
+   *  populated when the row carries a page, so the alongside-link stays available either way. */
   ncertPage?: NcertPageRefData;
   /** Curation's honest note when the concept sits outside 2026-27 chapter scope, or an
    *  asset is unavailable — surfaced quietly so the panel never implies false completeness. */
@@ -126,11 +140,25 @@ function resolveBest(row: ConceptFigureRow): VisualBody {
 
 /**
  * The panel's single visual for a concept, looked up by stored conceptKey (the sentinel
- * token) OR exact conceptLabel — whichever the caller has. Priority (D-TUT-14):
+ * token) OR exact conceptLabel — whichever the caller has.
+ *
+ * Priority (D-TUT-14, as amended by the owner ruling of 2026-07-17):
  *   0. questionId in play → that question's REAL exam figure (bank) outranks the generic one.
- *   1. NCERT page — offered alongside the body (rides on `ncertPage`, not as the body itself).
- *   2. the curated `best` (notes/bank figure = workhorse; interactive = OFFER).
- *   3. gap — honest "no diagram yet", never a stretched figure.
+ *   1. a real figure — the curated `best` when it resolves to an image (notes/bank). The
+ *      workhorse: a concept-exact diagram beats everything.
+ *   2. the NCERT page, INLINE. ★ This is the amendment: it now outranks `interactive`.
+ *      Rationale — an `interactive` is a WHOLE-CHAPTER tool (the panel's own copy tells the
+ *      student "use it to play, not as a single answer"), so for one specific concept an exact
+ *      NCERT page is the better answer. Previously the page could never win at any fit, which
+ *      is the second-class status this ruling removes.
+ *   3. interactive — the opt-in OFFER (still never auto-embedded).
+ *   4. gap — honest "no diagram yet", never a stretched figure.
+ *
+ * NOTE the asymmetry with #1: an image is proven to exist at build time (CI's
+ * tutor_visual_catalogue_acceptance.mjs checks the asset is on disk), whereas an `ncert` body
+ * is only a CLAIM until the browser probes Storage. That is why the panel must fail closed to
+ * `gap` — see the VisualBody doc. Resolution stays pure/sync; reachability is the panel's job.
+ *
  * Returns null ONLY when the concept isn't in the catalogue at all (nothing to show).
  */
 export function resolveConceptVisual(args: {
@@ -154,7 +182,16 @@ export function resolveConceptVisual(args: {
     const url = firstBankFigureUrl(args.questionId);
     if (url) body = { kind: "image", url, caption: "The figure from this question.", source: "bank" };
   }
-  if (!body) body = resolveBest(row);
+  if (!body) {
+    // A real figure wins outright; otherwise the NCERT page outranks an interactive/gap.
+    // `resolveBest` already degrades a curated ref whose asset is missing to `gap`, so this
+    // also promotes the page over that degraded state rather than showing "no diagram yet"
+    // when we do in fact have the exact page.
+    const best = resolveBest(row);
+    if (best.kind === "image") body = best;
+    else if (row.ncertPage) body = { kind: "ncert", page: row.ncertPage };
+    else body = best;
+  }
 
   return {
     conceptLabel: row.conceptLabel,
@@ -176,14 +213,32 @@ export interface CatalogueFigureOption {
   key: string;
   /** Human label shown to the model so it knows what each key means. */
   label: string;
+  /** True when this concept has a curated, exact NCERT page the panel can show.
+   *
+   *  ★ DATA ONLY — this field exists so the prompt CAN eventually say so; nothing in the
+   *  prompt reads it yet. Until it does, the model still has no idea the capability exists,
+   *  which is why it flatly answers "I cannot open NCERT pages" even for a concept that has
+   *  one. Writing that copy is the tutor-round-trip lane's sequenced task, not this one's.
+   *
+   *  ★★ This field is only useful if it SURVIVES the wire: `normalizeFigures` in
+   *  server/routes/tutor.cjs rebuilds each option as a fresh object, so a field added here
+   *  and nowhere else is silently dropped before the prompt is built. Keep the two in step. */
+  hasNcertPage: boolean;
 }
 
 /**
- * The (key, label) options for a topic that have SOMETHING to show (best.kind !== "none").
- * Passed to the model so it emits `[[figure:<key>]]` chosen from a CLOSED set — the only
- * robust way to keep the client-side lookup an exact match (never fuzzy, D-TUT-15). The key
- * is a clean slug (regex-safe even when the label carries "[]"/symbols). Gap rows are
- * excluded: signalling a figure that resolves to an empty panel is pointless.
+ * The options for a topic that have SOMETHING to show. Passed to the model so it emits
+ * `[[figure:<key>]]` chosen from a CLOSED set — the only robust way to keep the client-side
+ * lookup an exact match (never fuzzy, D-TUT-15). The key is a clean slug (regex-safe even when
+ * the label carries "[]"/symbols).
+ *
+ * ★ "Something to show" is NOT the same as "best.kind !== 'none'" any more. A gap row that
+ * carries an NCERT page now resolves to a real `ncert` body (owner ruling 2026-07-17), so
+ * excluding it would hide the one concept whose ONLY visual is the page — the model could
+ * never signal it, the panel could never open, and the promotion would be dead code for
+ * exactly the row it was built for (carbon · "Functional groups" is that row today). The
+ * old rationale ("signalling a figure that resolves to an empty panel is pointless") held
+ * only while the page could not fill the panel; it now can.
  */
 export function catalogueFiguresForTopic(args: {
   subject: "maths" | "science" | "";
@@ -194,8 +249,8 @@ export function catalogueFiguresForTopic(args: {
   for (const row of conceptFigureCatalogue) {
     if (canon(row.topicKey) !== topic) continue;
     if (args.subject && row.subject !== args.subject) continue;
-    if (row.best.kind === "none") continue;
-    out.push({ key: row.conceptKey, label: row.conceptLabel });
+    if (row.best.kind === "none" && !row.ncertPage) continue; // nothing at all to show
+    out.push({ key: row.conceptKey, label: row.conceptLabel, hasNcertPage: Boolean(row.ncertPage) });
   }
   return out;
 }
