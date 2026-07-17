@@ -108,12 +108,23 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `- PRACTICE: after you have taught something and the student is ready to try questions on it, you may offer ` +
     `"want to try a couple on this?". If the student then AGREES, the app can send them to a concept-filtered ` +
     `practice set and bring them back to you with the result.\n` +
+    `- PRACTICE, ASKED FOR DIRECTLY: a student does not have to wait to be offered. If they ASK to practise in ` +
+    `their own words ("I want to try a few questions", "give me some questions to practise", "can I have practice ` +
+    `on this?"), that ask EARNS the practice hand-off on its own — you do NOT need to have offered first. Answer ` +
+    `them naturally and signal it on that same turn.\n` +
     `- CHECK & IMPROVE: if the student raises a SPECIFIC question they got stuck on and you have asked to see ` +
     `their working / the actual question, and the student AGREES to show it, the app can send them to Check & ` +
     `Improve to get it board-marked and bring the graded sheet back to you.\n` +
     `THE SIGNAL (machine-readable, MUST be the VERY LAST line of your reply, nothing after it):\n` +
-    `- Put \`[[offer:practice]]\` on its own final line ONLY on the turn where you have just offered practice and ` +
-    `the student is expected to accept next.\n` +
+    `- Put \`[[offer:practice]]\` on its own final line on EITHER of these turns, and no others: (a) the turn where ` +
+    `you have just offered practice and the student is expected to accept next; or (b) the turn where you are ` +
+    `answering a student who has just DIRECTLY ASKED to practise questions themselves.\n` +
+    `- ★ THE LINE THAT MATTERS for (b) — practising is NOT the same as being taught, and only an ask to PRACTISE ` +
+    `earns the tag. A request to SEE something solved is a TEACHING request and is YOUR job: "show me how this is ` +
+    `solved", "can you give me an example?", "what would a board question on this look like?", "walk me through ` +
+    `one" — answer these YOURSELF (see WORKED EXAMPLES vs THE STUDENT'S PRACTICE above) and emit NO tag. Routing a ` +
+    `student to a practice set when they asked to be TAUGHT is a failure, not a shortcut. If the ask is ambiguous, ` +
+    `treat it as a teaching request and emit NO tag — the student can always ask again more plainly.\n` +
     `- Put \`[[offer:check-improve]]\` on its own final line ONLY on the turn where the student has agreed to show ` +
     `their working and the next step is to open Check & Improve.\n` +
     `- Otherwise emit NO tag at all. Never emit both. The tag is stripped by the app and NEVER shown to the ` +
