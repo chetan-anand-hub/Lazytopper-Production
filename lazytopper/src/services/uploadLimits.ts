@@ -51,8 +51,16 @@ export function formatUploadLimit(bytes: number): string {
 }
 
 /** The one sentence describing what a student may send. Used by every upload
- *  affordance so the promise is identical everywhere. */
-export const UPLOAD_LIMIT_SENTENCE = `PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)} · or a JPG/PNG photo up to ${formatUploadLimit(MAX_UPLOAD_IMAGE_BYTES)}`;
+ *  affordance so the promise is identical everywhere.
+ *
+ *  NOUN — "image", not "photo" (D4, 2026-07-17). A student can send a screenshot, a
+ *  scan, or an exported page; "photo" told them to point a camera at it, which is
+ *  wrong for three of those four and needlessly narrow. The noun changes HERE rather
+ *  than per-surface precisely because this file's mandate is that the number and the
+ *  words a student reads can never drift apart — and a noun is part of the promise.
+ *  This is one line and it propagates to every surface that renders the sentence
+ *  (WorksheetGradePanel, SolutionChecker, ChapterTestUploadPanel), which is the point. */
+export const UPLOAD_LIMIT_SENTENCE = `PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)} · or a JPG/PNG image up to ${formatUploadLimit(MAX_UPLOAD_IMAGE_BYTES)}`;
 
 // ── THE PICKER GUARD ─────────────────────────────────────────────────────────────
 //
@@ -102,8 +110,8 @@ export function checkUploadFile(file: File, subject: UploadSubject): UploadCheck
       ok: false,
       message:
         subject === "answers"
-          ? "Upload a PDF (recommended) or a JPG/PNG photo of your answers."
-          : "Upload a JPG/PNG photo of your question, or a PDF.",
+          ? "Upload a PDF (recommended) or a JPG/PNG image of your answers."
+          : "Upload a JPG/PNG image of your question, or a PDF.",
     };
   }
 
