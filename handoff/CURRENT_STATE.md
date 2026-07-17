@@ -1,5 +1,44 @@
 # LazyTopper â€” Current State
 
+## #464 merged — ★★ THE TUTOR SAYS THE REAL NCERT PAGE IS THERE — **owner BYTE-REVIEWED + LIVE-VERIFIED (all 4 probes)** — trunk `50783e7`
+
+**1 file, `server/prompts/tutorSystemPrompt.cjs`, +56/−7. PROMPT TEXT ONLY.** The NCERT-page arc is now COMPLETE: **#457** filled the data (65 rows carry `ncertPage`) → **#459** let the page WIN the panel → **#464 makes the tutor SAY it.** ★ *An affordance nobody knows about is not an affordance* — the page sat behind a button a 15-year-old had no reason to look for, on a concept they had no reason to think had one.
+
+`hasNcertPage` had reached the prompt layer since #457 and **nothing read it** — the code said so itself at `routes/tutor.cjs:101`. `figurePanelBlock` now marks each option that carries one, and a directive tells the tutor to say it **unprompted**, in plain words (*"the real NCERT page for this is right there in the panel if you want to see it"*):
+
+```
+    - refraction-through-prism: How light bends through a glass prism [real NCERT page available]
+    - human-eye-defects: Myopia and hypermetropia corrected by lenses
+```
+
+### ⚠️ [FU-TUTOR-CJS-STALE-PLUMBING-COMMENT] — **OPEN, and #464 SHOULD have closed it**
+**`routes/tutor.cjs:101` is now FALSE on trunk:** *"`hasNcertPage` is **plumbing only today: figurePanelBlock() does not read it yet**, so this changes nothing the model sees. Using it is the tutor-round-trip lane's sequenced task."* **#464 made `figurePanelBlock` read it** (`tutorSystemPrompt.cjs:264` + `:269`) ⇒ that comment is a **SPENT INSTRUCTION LEFT IN PLACE** — and it is **the very comment that dispatched this task**. A future agent greps `hasNcertPage`, lands on it, and concludes the work is undone. ★★ **This is EXACTLY the #451/#454 ruling: strike a spent check IN PLACE — a stale instruction is worse than none because it LOOKS LIKE DILIGENCE.** It should have been struck inside #464; it is a **product file**, so it cannot ride this docs-only PR (§8). **Comment-only fix, needs an owner-approved product PR.** *(Found by re-verifying #464 on trunk before writing these docs — not by review.)*
+
+### ★★ Two rails carry the design — both verified against the CLIENT, not assumed
+1. **MENTION IT ONLY ALONGSIDE THE `[[figure:<key>]]` SIGNAL.** The page renders **inside** the explanation panel (`ExplanationPanel:182` — its button, or the panel body itself), and `TutorPage:185` gates that panel on **`showPanel = panelOpen && !!resolvedVisual`**, which derives from **the model's own figure signal**. A mention without the signal describes **a button that is not on the student's screen** — a **fake affordance**, the species this codebase refuses everywhere. Coupling is the only way the mention is true **100%** of the time. ★ *This coupling was NOT in the dispatch — it came from tracing the affordance to the UI.*
+2. **NEVER STATE A PAGE NUMBER, CHAPTER, OR LINK — the more important rail.** The model is told only **THAT** a page exists, never **WHICH**: `normalizeFigures` whitelists exactly `{key, label, hasNcertPage}`; `resolveConceptVisual` alone decides `kind: "ncert"`. ★ **Telling a model a page exists is an open invitation to guess its number, and a plausible-but-wrong number is WORSE than no mention — it sends a student hunting through their real textbook for something that is not there.** **Do NOT pass the page data through "to be more helpful"** — that inverts a deliberate split this lane has protected repeatedly.
+
+**Wording holds whichever body wins:** `resolveConceptVisual` attaches `ncertPage` to the resolved visual **regardless of the body**, so the page is reachable as the panel's **body** (page-only row) **or** its **button** (beside a figure) — and the model **cannot know which** ⇒ *"the page is right there in the panel"* (true in both), never *"there's **also** a page"* (odd when the page IS the panel).
+
+**One honesty fix, one line above the edit:** the block claimed these concepts *"have a curated, NCERT-aligned diagram"* — **false for page-only rows** (`catalogueFiguresForTopic` admits a row with a page and no figure). Now *"a diagram, the actual page, or both"*. *Leaving a sentence just proven false two lines above the fix was not an option.*
+
+### ★★ THE HARNESS CAUGHT A BUG A RENDERED CASE COULD NOT
+The directive was first emitted **UNCONDITIONALLY**. On a topic where **nothing** has a page, the prompt would describe a `[real NCERT page available]` marker **appearing nowhere in its own list** — inviting the model to hunt for a thing that does not exist: **the fake-affordance bug ONE LAYER DOWN, built in while congratulating ourselves for catching the first one.** Now gated on `list.some(f => f.hasNcertPage === true)` (`:269`). ★ **Reading the block would never have caught it — the MIXED case rendered perfectly.** *One rendered example is not coverage; assert the ABSENT cases too.* **Owner probe 4 confirmed the gate live.**
+
+### Verification — what it proved, and what it could not
+Block **rendered** through `buildTutorSystemPrompt` + read · **14/14 structural harness** (marked vs unmarked · no URL and no `page NN` can leak · absent `hasNcertPage` ⇒ no marker · truthy-but-junk ⇒ no marker, mirroring `normalizeFigures`' `=== true` · no marked row ⇒ no directive) · tsc PASS · root matrix 190/190 · ops matrix PASS (73 rows) · mojibake PASS · `scope:guard` `lanes=product` · `diff --check` clean.
+★★ **EVERY ONE OF THOSE WOULD PASS IDENTICALLY IF THE WORDING WERE TERRIBLE — they do not read English.** The render proves it *renders*; the harness proves *structure*; **neither proves the model behaves.** ⚠ **A first tsc run printed a FALSE GREEN (`TSC EXIT: 0`) because `$?` after a pipe reports `tail`'s status, not tsc's** — re-run bare: real exit 0. *The 4th green-that-proved-nothing this session, and this one was self-inflicted.*
+**Owner LIVE-VERIFIED all 4 probes:** (1) marked concept → page mentioned **unprompted, on the same turn as the signal**; (2) unmarked concept → **total silence**; (3) **no invented page number/chapter/link** — only *"is there in the panel"*; (4) topic with **zero** pages → **no NCERT reference of any kind** (the gate, live).
+
+### Lane status after #464
+- **[FU-TUTOR-NCERT-PROACTIVE-MENTION] CLOSED**, live-verified. **The NCERT-page arc (#457 → #459 → #464) is COMPLETE.**
+- **NO COMPLETION CELL MOVES** — the Tutor row was already ✅ Built; §2a **DEPTH**. **The Tutor's `Verified` cell is NOT re-claimed** (this pass covered the NCERT mention, not the Tutor's whole checklist — the standing **#444 precedent**).
+- ⚠ **NEW: [FU-TUTOR-CJS-STALE-PLUMBING-COMMENT]** — see above. Comment-only, product file, owner-approved PR.
+- **★ NEXT SESSION (written up in full, NOT tonight's):** **Quick Practice + Check & Improve as IN-TUTOR OVERLAYS** reusing the real pages verbatim. ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] remain HELD** — that architecture would make the round-trip banner/count-link mechanism **secondary**. *A HOLD with a reason; do not "just fix" them.*
+- **Branch cleanup: the owner does ONE sweep** across everything accumulated tonight — **no agent action** (§3).
+
+---
+
 ## #460 merged — A STUDENT WHO **ASKS** TO PRACTISE GETS THE HAND-OFF — **owner BYTE-REVIEWED + LIVE-VERIFIED (all 3 probes)** — trunk `be200cb`
 
 **#460's squash is `be200cb`. The live trunk is `7be651d`.** ✅ **#457 + #459 ARE DOCUMENTED — by #461 (`d364d03`), the section directly below.**

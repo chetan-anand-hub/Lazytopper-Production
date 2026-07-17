@@ -1,5 +1,33 @@
 ---
 
+## 2026-07-17 -- #464: ★★ THE TUTOR SAYS THE REAL NCERT PAGE IS THERE — the NCERT arc is COMPLETE — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED (all 4 probes)** — trunk `50783e7`
+
+**#464 (`50783e7`, 1 file, +56/−7, PROMPT TEXT ONLY). Isolated worktree `LT-worktrees/tutor-ncert-mention`, branch `feat/desktop-pr-tutor-ncert-proactive-mention` @ `9422ee0`. Process: re-derive tip → trace `hasNcertPage` end-to-end AND the affordance to the UI → pre-flight → owner ruling on both rails → build → harness → gates → DRAFT PR for byte-review → owner byte-review → owner live-verify (4 probes) → owner merge. Never self-merged.**
+
+**#457 (data) → #459 (the page can win the panel) → #464 (the tutor SAYS it). ARC COMPLETE.** ★ *An affordance nobody knows about is not an affordance.*
+
+### ⚠️ [FU-TUTOR-CJS-STALE-PLUMBING-COMMENT] — OPEN. **#464 should have closed it.**
+**`routes/tutor.cjs:101` is now FALSE on trunk:** *"plumbing only today: `figurePanelBlock()` does not read it yet… Using it is the tutor-round-trip lane's sequenced task."* **#464 made it read it.** ⇒ a **spent instruction left in place** — and **the very comment that dispatched this task**. A future agent greps `hasNcertPage`, lands there, and concludes the work is undone. ★★ **The #451/#454 ruling, verbatim: STRIKE A SPENT CHECK IN PLACE — a stale instruction is worse than none, it LOOKS LIKE DILIGENCE.** Should have been struck inside #464. **Product file ⇒ cannot ride a docs-only PR (§8); comment-only, owner-approved product PR.** *Found by re-verifying #464 on trunk before writing these docs — **not** by review.* ★ *Third time tonight the lesson repeated: #451/#454 (product instructions), #462/#463 (a docs claim), now a code comment. **The disease does not care which file it lives in.***
+
+### ★★ Two rails, both verified against the CLIENT rather than assumed
+1. **Mention ONLY alongside the `[[figure:<key>]]` signal.** The page renders **inside** the panel (`ExplanationPanel:182`), and `TutorPage:185` gates it: **`showPanel = panelOpen && !!resolvedVisual`** ← the model's own signal. A mention without the signal describes **a button not on the screen** — a **fake affordance**. ★ **Not in the dispatch; found by tracing the affordance to the UI.**
+2. **NEVER a page number/chapter/link — the more important rail.** Told **THAT**, never **WHICH** (`normalizeFigures` whitelists `{key,label,hasNcertPage}`; `resolveConceptVisual` decides). ★ **Telling a model a page exists invites it to guess the number; a plausible-but-wrong number is WORSE than silence — it sends a student hunting through a real textbook for nothing.**
+
+**Wording holds whichever body wins** (`resolveConceptVisual` attaches `ncertPage` regardless of body; the model cannot know which) ⇒ *"right there in the panel"*, never *"there's ALSO a page"*. **Plus an honesty fix one line up:** *"have a curated, NCERT-aligned diagram"* was **false for page-only rows** → *"a diagram, the actual page, or both"*.
+
+### ★★ THE HARNESS CAUGHT A BUG A RENDERED CASE COULD NOT — the finding of this PR
+The directive was first emitted **unconditionally** ⇒ on a topic with **no** pages, the prompt would describe a marker **appearing nowhere in its own list** — **the fake-affordance bug ONE LAYER DOWN, built in while congratulating ourselves for catching the first one.** Gated on `list.some(f => f.hasNcertPage === true)`. ★ **Reading the block would never have caught it — the MIXED case rendered perfectly.** ⇒ ***one rendered example is not coverage: assert the ABSENT cases too.*** Owner **probe 4** confirmed the gate live.
+
+### Verification — and its ceiling
+Rendered + read · **14/14 structural harness** · tsc PASS · root 190/190 · ops PASS (73 rows) · mojibake · `scope:guard lanes=product` · `diff --check` clean. ★★ **All of it would pass identically on terrible wording — none of it reads English.** ⚠ **A first tsc run printed a FALSE GREEN (`TSC EXIT: 0`): `$?` after a pipe reports `tail`'s status.** *4th green-that-proved-nothing tonight — self-inflicted.* **Owner live-verified 4/4:** unprompted mention on the signal turn · silence when unmarked · **no invented page number** · **no NCERT talk at all on a page-less topic**.
+
+### Session close
+- **[FU-TUTOR-NCERT-PROACTIVE-MENTION] CLOSED.** No completion cell moves (§2a depth); **Tutor `Verified` NOT re-claimed** (#444 precedent).
+- **NEXT SESSION (specced, not tonight's):** **QP + C&I as IN-TUTOR OVERLAYS** reusing the real pages verbatim ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] stay HELD** (that architecture makes the banner/count mechanism **secondary**).
+- **Branch cleanup: ONE owner sweep** across everything accumulated tonight — no agent action (§3).
+
+---
+
 ## 2026-07-17 -- #460: A STUDENT WHO **ASKS** TO PRACTISE GETS THE HAND-OFF — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED (all 3 probes)** — trunk `be200cb`
 
 **#460 (`be200cb`, 1 file, +13/−2, PROMPT TEXT ONLY). Isolated worktree `LT-worktrees/tutor-cta-direct-ask`, branch `feat/desktop-pr-tutor-cta-direct-ask` @ `25f0064`. Process: re-derive tip → trace the sentinel END-TO-END (prompt → server strip → client attach → CTA render) → pre-flight → owner ruling on the boundary → build → gates → push → DRAFT PR for byte-review → owner byte-review → owner live-verify (3 probes) → owner merge. Never self-merged.**
