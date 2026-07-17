@@ -16,8 +16,10 @@ import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
 import { EquationInput, EquationRender } from "../../components/equation";
-import { checkUploadFile } from "../../services/uploadLimits";
+import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
 import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
+import MobileShell from "../../components/mobile/MobileShell";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
@@ -48,6 +50,7 @@ import {
 import {
   ensureCheckImproveSessionCode,
   getSessionRecordsFromCloud,
+  getSessionPerQuestion,
   type SessionRecord,
   type SessionTopicSource,
 } from "../../services/sessionRecords";
@@ -81,7 +84,7 @@ import CheckImproveHistoryPanel from "../../components/checkimprove/CheckImprove
  *     canonical `topics.ts` vocabulary (`CANONICAL_TOPIC_VOCAB`) passed so the
  *     detected topic is a real key. The detected topic is canonicalised via
  *     `desktopTopicForWeakAreaKey` before storing, keeping MI attribution clean.
- *   - Answer-method tabs: Upload photo (real `<input type="file">` +
+ *   - Answer-method tabs: Upload image (real `<input type="file">` +
  *     `FileReader` -> `imageBase64` + MIME) and Type answer (textarea ->
  *     `textAnswer`).
  *   - Grade CTA is disabled until a question and an answer (image or text)
@@ -123,6 +126,27 @@ const SECONDARY_BG = "hsl(150, 35%, 94%)";
 
 const ACCENT_FG = "hsl(152, 55%, 35%)";
 const ACCENT_SOFT = "hsl(150, 60%, 92%)";
+
+/* ── CONVERGENCE (§2.1) — the fluid layout constants ─────────────────────────
+   This surface renders at EVERY width from one component: there is no desktop /
+   mobile twin any more, and no window-derived value drives layout. It reflows
+   because the BOX runs out of room, never because something asked the window how
+   wide it is — which is why it survives being rendered inside an 820px overlay
+   panel, not just at 820px of window.
+
+   CARD_BASIS is the whole mechanism. 340 is not arbitrary: the shell sidebar is
+   260px (DesktopShell.tsx:203) and this page adds 64px of padding, so at a 1024px
+   window the content box is 1024 − 260 − 64 = 700px. Two cards + a 16px gap must
+   fit in 700 ⇒ basis ≤ 342. At 420 (the first draft) the cards needed a 1180px
+   window and STACKED on every 1024/1152 laptop — the opposite of the intent.
+
+   NOTE on clamp(): `vw` is window-relative, so type/padding scale to the window
+   even inside an overlay panel. That is deliberate and harmless — it sizes TYPE,
+   not structure. The LAYOUT (which card sits where, and when they wrap) is driven
+   only by flex-basis against the real container. */
+const CARD_BASIS = 340;
+const CARD_GAP = 16;
+const PAGE_PADDING = "clamp(20px, 3vw, 32px) clamp(16px, 3vw, 32px) 56px";
 const WARNING_FG = "hsl(35, 80%, 35%)";
 const WARNING_SOFT = "hsl(43, 90%, 92%)";
 const DANGER_FG = "hsl(0, 70%, 45%)";
@@ -301,8 +325,10 @@ const PageHeader: React.FC<{
   showBack?: boolean;
   onBack?: () => void;
   actions?: React.ReactNode;
-  isNarrow: boolean;
-}> = ({ eyebrow, title, description, showBack, onBack, actions, isNarrow }) => (
+}> = ({ eyebrow, title, description, showBack, onBack, actions }) => (
+  // Fluid: the actions block wraps under the title when the ROW runs out of room.
+  // `flexWrap` measures this box, not the window — so it reflows identically inside
+  // an 820px overlay panel and at 820px of window. (Convergence rule, §2.1.)
   <div
     style={{
       display: "flex",
@@ -310,7 +336,7 @@ const PageHeader: React.FC<{
       justifyContent: "space-between",
       gap: 24,
       marginBottom: 24,
-      flexDirection: isNarrow ? "column" : "row",
+      flexWrap: "wrap",
     }}
   >
     <div style={{ minWidth: 0, flex: 1 }}>
@@ -354,7 +380,7 @@ const PageHeader: React.FC<{
         style={{
           margin: 0,
           fontFamily: FONT_DISPLAY,
-          fontSize: isNarrow ? 24 : 30,
+          fontSize: "clamp(24px, 2.6vw, 30px)",
           fontWeight: 600,
           lineHeight: 1.2,
           color: TEXT_FG,
@@ -642,20 +668,38 @@ const DesktopCheckImprovePage: React.FC = () => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ── responsive layout ────────────────────────────────────────────
-  const [isNarrow, setIsNarrow] = useState<boolean>(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(max-width: 960px)");
-    const apply = () => setIsNarrow(mq.matches);
-    apply();
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", apply);
-      return () => mq.removeEventListener("change", apply);
-    }
-    mq.addListener(apply);
-    return () => mq.removeListener(apply);
-  }, []);
+  // ── DEVICE CAPABILITY — not layout (§2.1) ────────────────────────
+  // This replaced a `matchMedia("(max-width: 960px)")` listener that drove an
+  // `isNarrow` flag through 13 sites, including BOTH layout grids. That flag asked
+  // the WINDOW, so the page rendered a two-column grid inside an 820px overlay
+  // panel on a 1440px screen — it could not see the box it was actually in. Layout
+  // is now fluid (flex-wrap + clamp) and measures the container.
+  //
+  // What survives here is the ONLY question that is genuinely about the device and
+  // not about the box: does this thing have a camera worth offering, and who owns
+  // the chrome? A phone gets Camera/Files and MobileShell; a desktop gets the QR
+  // affordance and DesktopShell. Both are true regardless of how wide the render
+  // box happens to be — which is exactly what makes them legitimate.
+  const isDesktop = useIsDesktop();
+
+  // CHROME OWNERSHIP — the same convention ExamTrendsRanked established when it
+  // converged (pages/ExamTrendsRanked.tsx:1274-1282), and the reason App.tsx needs
+  // no chrome change: "/check-improve" is ALREADY in `isMobileSelfChromedRoute`
+  // (App.tsx:217), which suppresses the old global brand bar for routes whose page
+  // owns its own header. The retired twin owned that header; now this page does.
+  //
+  // Desktop: bare — DesktopShell already wraps this route (isDesktopShellRoute:536).
+  // Mobile: this page carries the shared MobileShell header (the app-wide account
+  // avatar-dropdown), REUSED and never forked. Back is left to the in-page
+  // PageHeader, which already has it, so a student never meets two back controls.
+  const withChrome = (body: React.ReactNode, subtitle: string) =>
+    isDesktop ? (
+      <>{body}</>
+    ) : (
+      <MobileShell title="Check & Improve" subtitle={subtitle} showNav>
+        {body}
+      </MobileShell>
+    );
 
   // ── input form state ─────────────────────────────────────────────
   // Subject / topic / marks are NO LONGER student-picked — the grader determines
@@ -727,6 +771,15 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [ciRecordsLoading, setCiRecordsLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
+  // ABSORBED FROM THE RETIRED TWIN — and the reason matters. The two twins had
+  // DRIFTED here, and the mobile one was AHEAD: it lazily loaded a re-opened paper's
+  // per-question payload so the by-topic lens could render on re-open (C&I PR-2
+  // item A/B), while this file never fetched it and silently showed no lens.
+  // Converging on the desktop file wholesale would therefore have REGRESSED a
+  // student on a phone. The richer path wins — honest-null until the payload
+  // arrives, and `storedCheckImproveScorecardVariant` omits the lens when it is
+  // absent rather than inventing one.
+  const [reopenResponse, setReopenResponse] = useState<WorksheetGradeResponse | null>(null);
 
   const loadCiRecords = useCallback(async () => {
     try {
@@ -1441,15 +1494,31 @@ const DesktopCheckImprovePage: React.FC = () => {
     navigate(withQuery("/login", params));
   }
 
+  // Re-open a stored checked paper read-only; lazily load its per-question payload so
+  // the by-topic lens can render on re-open (C&I PR-2 item A/B) — honest-null until it
+  // arrives, and honestly ABSENT if the fetch fails. Absorbed verbatim in behaviour
+  // from the retired mobile twin, which was ahead of this file here.
+  async function openReopen(r: SessionRecord) {
+    setPanelOpen(false);
+    setReopen(r);
+    setReopenResponse(null);
+    try {
+      const payload = await getSessionPerQuestion(user?.uid, r.perQuestionRef);
+      setReopenResponse(payload?.response ?? null);
+    } catch {
+      setReopenResponse(null);
+    }
+  }
+
   /* ────────────────── INPUT VIEW ────────────────── */
 
   if (status !== "ready" || (!wsResult && (!result || !resultCtx))) {
-    return (
+    return withChrome(
       <div
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: isNarrow ? "20px 16px 56px" : "32px 32px 64px",
+          padding: PAGE_PADDING,
           fontFamily: FONT_SANS,
           minWidth: 0,
         }}
@@ -1458,7 +1527,6 @@ const DesktopCheckImprovePage: React.FC = () => {
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
         <PageHeader
-          isNarrow={isNarrow}
           eyebrow="Check & Improve"
           title="Grade your answer, examiner-style"
           description="Upload a photo of your handwritten work or type it out. We send it to our examiner-style grader and show exactly where marks were lost — no fake scores, no shortcuts."
@@ -1477,10 +1545,7 @@ const DesktopCheckImprovePage: React.FC = () => {
             records={ciRecords}
             loading={ciRecordsLoading}
             defaultSubject={ciRecords[0]?.subject ?? "maths"}
-            onOpen={(r) => {
-              setPanelOpen(false);
-              setReopen(r);
-            }}
+            onOpen={(r) => void openReopen(r)}
             onClose={() => setPanelOpen(false)}
           />
         )}
@@ -1492,25 +1557,91 @@ const DesktopCheckImprovePage: React.FC = () => {
                 month: "short",
                 year: "numeric",
               }),
-              onDone: () => setReopen(null),
+              onDone: () => {
+                setReopen(null);
+                setReopenResponse(null);
+              },
+              response: reopenResponse,
             })}
-            onClose={() => setReopen(null)}
+            onClose={() => {
+              setReopen(null);
+              setReopenResponse(null);
+            }}
           />
         )}
 
-        <div
+        {/* ── HOW IT WORKS — collapsible (§2.2). Permanent rail space was being
+            spent on a one-time need; it now opens on demand and defaults open only
+            for a student who has never checked a paper. The anti-fabrication
+            promise that used to live in this card has MOVED to the grade bar, where
+            the decision to spend effort actually happens (§2.2, F5). */}
+        <details
+          open={ciRecords.length === 0}
           style={{
-            display: "grid",
-            gridTemplateColumns: isNarrow ? "minmax(0, 1fr)" : "minmax(0, 7fr) minmax(0, 5fr)",
-            gap: 24,
+            ...cardStyle,
+            padding: "12px 20px",
+            marginBottom: 16,
             minWidth: 0,
           }}
         >
-          {/* LEFT — input panel */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
-            {/* STEP 1 — the question (type / paste / upload a photo of the QUESTION) */}
-            <div style={{ ...cardStyle, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={sectionEyebrow}>1 · The question</div>
+          <summary
+            style={{
+              ...sectionEyebrow,
+              cursor: "pointer",
+              listStyle: "none",
+              padding: "6px 0",
+            }}
+          >
+            How it works
+          </summary>
+          <ol
+            style={{
+              margin: "8px 0 12px",
+              paddingLeft: 18,
+              fontSize: 13,
+              lineHeight: 1.65,
+              color: TEXT_FG,
+            }}
+          >
+            <li>Add the question (type, paste, or an image) and tap “Read the question”.</li>
+            <li>Check what we read — marks, subject, chapter — and change it if it’s off.</li>
+            <li>Upload an image of your written answer or type it out, then grade.</li>
+            <li>
+              We call our examiner-style grader and show the real score,
+              annotated steps and where marks were lost.
+            </li>
+          </ol>
+        </details>
+
+        {/* ★★ THE CONVERGENCE (§2.1) — one fluid row, rendered at every width.
+            DOM order is QUESTION then ANSWER, always. The inverted-flow bug the
+            mobile twin shipped (answer above question) is now STRUCTURALLY
+            IMPOSSIBLE: there is only one order, and no branch that could reverse
+            it. The cards sit side by side while they fit and wrap when they do
+            not — because flex-basis ran out of room in THIS box, not because
+            anything asked the window. */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: CARD_GAP,
+            alignItems: "flex-start",
+            minWidth: 0,
+          }}
+        >
+          {/* 1 · THE QUESTION — always first in the DOM */}
+          <section
+            style={{
+              ...cardStyle,
+              flex: `1 1 ${CARD_BASIS}px`,
+              minWidth: 0,
+              padding: 20,
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+            }}
+          >
+            <div style={sectionEyebrow}>1 · The question</div>
               <div style={{ display: "flex", gap: 8 }}>
                 {(["type", "upload"] as const).map((t) => {
                   const active = questionTab === t;
@@ -1546,7 +1677,12 @@ const DesktopCheckImprovePage: React.FC = () => {
                   <input
                     ref={qFileInputRef}
                     type="file"
-                    accept="image/*,application/pdf"
+                    /* Tight accept, matching QrAnswerUploadPage:163 and the guard's real
+                       contract. `image/*` OFFERED a student's iPhone picker HEIC, which
+                       checkUploadFile then refused — an avoidable refusal manufactured by
+                       our own hint. accept is a HINT, not a guard: checkUploadFile below
+                       is unchanged and still refuses type AND size at the picker (§2.5). */
+                    accept="image/jpeg,image/png,application/pdf"
                     style={{ display: "none" }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
@@ -1554,10 +1690,10 @@ const DesktopCheckImprovePage: React.FC = () => {
                     }}
                   />
                   <button type="button" style={buttonOutline} onClick={() => qFileInputRef.current?.click()}>
-                    {qImageName ? `Question file: ${qImageName}` : "Upload question paper (image or PDF)"}
+                    {qImageName ? `Question file: ${qImageName}` : "Upload question paper — PDF or image"}
                   </button>
                   <div style={{ fontSize: 12, color: TEXT_MUTED }}>
-                    Upload a photo or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.
+                    Upload an image or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.
                   </div>
                 </div>
               )}
@@ -1717,11 +1853,23 @@ const DesktopCheckImprovePage: React.FC = () => {
                   )}
                 </div>
               )}
-            </div>
+          </section>
 
-            {/* STEP 2 — the answer (upload a photo of YOUR work, or type it) */}
-            <div style={{ ...cardStyle, padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={sectionEyebrow}>2 · Your answer</div>
+          {/* 2 · YOUR ANSWER — always second in the DOM (upload an image of YOUR
+              work, or type it). Same fluid basis as the question, so the two share
+              the row evenly and wrap together. */}
+          <section
+            style={{
+              ...cardStyle,
+              flex: `1 1 ${CARD_BASIS}px`,
+              minWidth: 0,
+              padding: 20,
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+            }}
+          >
+            <div style={sectionEyebrow}>2 · Your answer</div>
               <div
                 style={{
                   display: "flex",
@@ -1753,7 +1901,7 @@ const DesktopCheckImprovePage: React.FC = () => {
                         boxShadow: active ? "0 1px 2px rgba(15,23,42,0.06)" : "none",
                       }}
                     >
-                      {t === "upload" ? "Upload photo" : "Type answer"}
+                      {t === "upload" ? "Upload image" : "Type answer"}
                     </button>
                   );
                 })}
@@ -1767,8 +1915,9 @@ const DesktopCheckImprovePage: React.FC = () => {
                     /* C&I PR-2 (item C) — the solution upload now accepts a PDF for
                        BOTH single- and multi-question, mirroring the question upload.
                        handleFileChosen already derives the PDF mime from the file, and
-                       /check-solution reads a PDF natively (same as SolutionChecker). */
-                    accept="image/*,application/pdf"
+                       /check-solution reads a PDF natively (same as SolutionChecker).
+                       Tight accept per §2.5 — see the question input above. */
+                    accept="image/jpeg,image/png,application/pdf"
                     style={{ display: "none" }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
@@ -1821,10 +1970,16 @@ const DesktopCheckImprovePage: React.FC = () => {
                       <>
                         <UploadGlyph />
                         <div style={{ fontSize: 14, fontWeight: 600, color: TEXT_FG }}>
-                          Choose a photo of your answer
+                          Choose your answer — PDF or image
                         </div>
+                        {/* The canonical promise, rendered from the constant that the
+                            guard enforces — never hand-written. This box used to say
+                            "PNG or JPG", which hid PDF: the very path checkUploadFile's
+                            own refusal calls RECOMMENDED. A student with a 3-page
+                            solution read that and concluded PDF was not allowed.
+                            [FU-CI-UPLOAD-COPY-CANONICAL] */}
                         <div style={{ fontSize: 12, color: TEXT_MUTED }}>
-                          PNG or JPG · clear lighting works best
+                          {UPLOAD_LIMIT_SENTENCE}
                         </div>
                       </>
                     )}
@@ -1875,6 +2030,44 @@ const DesktopCheckImprovePage: React.FC = () => {
                     />
                   )}
 
+                  {/* CAMERA / FILES — absorbed from the retired mobile twin (which
+                      owned this and the desktop twin never had it). This is the ONE
+                      legitimate use of useIsDesktop in this file's answer path: it
+                      asks "does this DEVICE have a camera worth offering?", which is
+                      a question about the device, not about how wide this box is.
+                      A touch student taps Camera and shoots their working; the same
+                      input, the same handleFileChosen, the same guard — `capture` only
+                      changes which picker the OS opens. Hidden once a file exists, so
+                      it cannot compete with "Remove image". */}
+                  {!isDesktop && !imageBase64 && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                      {([
+                        { label: "Camera", capture: true },
+                        { label: "Files", capture: false },
+                      ] as const).map(({ label, capture }) => (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => {
+                            const el = fileInputRef.current;
+                            if (!el) return;
+                            if (capture) el.setAttribute("capture", "environment");
+                            else el.removeAttribute("capture");
+                            el.click();
+                          }}
+                          style={{
+                            ...buttonOutline,
+                            flex: 1,
+                            height: 40,
+                            justifyContent: "center",
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {imageBase64 && (
                     <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
                       <button type="button" onClick={clearImage} style={buttonOutline}>
@@ -1901,144 +2094,142 @@ const DesktopCheckImprovePage: React.FC = () => {
                 <div style={{ fontSize: 12.5, color: DANGER_FG }}>{answerFileError}</div>
               )}
 
-              {errorMessage && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 10,
-                    padding: "12px 14px",
-                    borderRadius: 10,
-                    background: DANGER_SOFT,
-                    border: `1px solid ${DANGER_SOFT}`,
-                    color: DANGER_FG,
-                    fontSize: 13,
-                  }}
-                >
-                  <AlertGlyph color={DANGER_FG} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, marginBottom: 2 }}>{errorMessage}</div>
-                    <div style={{ fontSize: 12, color: DANGER_FG, opacity: 0.85 }}>
-                      No score has been generated. Press Retry to call the grader again.
-                    </div>
-                  </div>
-                </div>
-              )}
-
+              {/* THE TIP — inline at the uploader. The rail used to hold this; on
+                  this ONE detail the retired mobile twin was the northstar, because
+                  advice about photographing a page belongs beside the thing that
+                  takes the photo, not in a column the student's eye never reaches.
+                  Carries the multi-page line (§2.4 / D5): the honest, true promise —
+                  PDF is the multi-page path, and a phone's own scan feature is how a
+                  student makes one. Building an image→PDF merge is [FU-CI-MULTIPAGE-CAPTURE]
+                  and is deliberately NOT built here. */}
               <div
                 style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  flexWrap: "wrap",
-                }}
-              >
-                {!canGrade && status !== "loading" && (
-                  <span style={{ fontSize: 12, color: TEXT_MUTED }}>
-                    {!confirmed
-                      ? "Read the question first (step 1)"
-                      : "Add an answer (image or text) to continue"}
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={handleGrade}
-                  disabled={!canGrade}
-                  style={{
-                    ...buttonAccent,
-                    background: canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)",
-                    border: `1px solid ${canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)"}`,
-                    cursor: canGrade ? "pointer" : "not-allowed",
-                    opacity: canGrade ? 1 : 0.85,
-                    paddingLeft: 18,
-                    paddingRight: 18,
-                  }}
-                >
-                  {status === "loading" ? (
-                    <>
-                      <SpinnerGlyph color="#ffffff" /> Grading…
-                    </>
-                  ) : status === "error" ? (
-                    <>Retry grading <ChevronRightGlyph /></>
-                  ) : (
-                    <>Grade my answer <ChevronRightGlyph /></>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT — help + save state */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
-            <div style={{ ...cardStyle, padding: 20 }}>
-              <div style={sectionEyebrow}>How it works</div>
-              <ol
-                style={{
-                  margin: "12px 0 0",
-                  paddingLeft: 18,
-                  fontSize: 13,
-                  lineHeight: 1.65,
+                  borderRadius: 9,
+                  padding: "9px 11px",
+                  background: INFO_SOFT,
+                  border: `1px solid ${INFO_SOFT}`,
+                  fontSize: 12,
+                  lineHeight: 1.5,
                   color: TEXT_FG,
                 }}
               >
-                <li>Add the question (type, paste, or photo) and tap “Read the question”.</li>
-                <li>Check what we read — marks, subject, chapter — and change it if it’s off.</li>
-                <li>Upload a photo of your written answer or type it out, then grade.</li>
-                <li>
-                  We call our examiner-style grader and show the real score,
-                  annotated steps and where marks were lost.
-                </li>
-              </ol>
-              <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.55 }}>
-                We never invent a score. If grading fails, you'll see an honest
-                error and can retry.
-              </p>
-            </div>
+                <strong style={{ color: INFO_FG }}>Tip:</strong> even lighting and a
+                flat page give the grader the best chance. Include each working step,
+                not just the final answer — examiners reward method.
+                <br />
+                More than one page? Use your phone&rsquo;s scan feature to send it as one PDF.
+              </div>
+          </section>
+        </div>
 
-            <div
-              style={{
-                ...cardStyle,
-                padding: 20,
-                background: user ? SECONDARY_BG : MUTED_BG,
-                borderColor: user ? ACCENT_SOFT : BORDER,
-              }}
-            >
-              <div style={sectionEyebrow}>Mistake history</div>
-              {user ? (
-                <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_FG, lineHeight: 1.55 }}>
-                  Signed in as{" "}
-                  <strong>{user.displayName || user.email || "your account"}</strong>.
-                  Each successful grading is saved to your mistake history so we
-                  can spot patterns over time.
-                </p>
-              ) : (
-                <>
-                  <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_FG, lineHeight: 1.55 }}>
-                    Sign in to save mistake history. Without an account we'll
-                    still grade your answer, but the result won't be remembered
-                    after you leave.
-                  </p>
-                  <div style={{ marginTop: 12 }}>
-                    <button type="button" style={buttonOutline} onClick={gotoLogin}>
-                      Sign in to save history <ChevronRightGlyph />
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+        {/* ── THE GRADE BAR ───────────────────────────────────────────────
+            The action, and the two things a student deserves to read AT the moment
+            they decide to spend effort — not in a rail beside it.
 
-            <div style={{ ...cardStyle, padding: 20 }}>
-              <div style={sectionEyebrow}>Tip</div>
-              <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_FG, lineHeight: 1.55 }}>
-                Photos with even lighting and a flat page give the grader the
-                best chance. Include each working step, not just the final
-                answer — examiners reward method.
-              </p>
+            "We never invent a score" moved here from the How-it-works card (§2.2):
+            it is the anti-fabrication promise, and it means most where the score is
+            about to be produced.
+
+            The signed-out disclosure + the only gotoLogin on this surface also moved
+            here — owner decision (c), 2026-07-17. The rail card that held them is
+            deleted. This matters more than it looks: the QR affordance is
+            desktop-AND-signed-in only (QrAnswerHandoff:192), so without this a
+            signed-out student on desktop would meet no QR and no way to sign in —
+            a dead end. It renders only when signed out, and it never blocks grading:
+            we still grade for a signed-out student, and say so plainly. */}
+        <div
+          style={{
+            ...cardStyle,
+            marginTop: 16,
+            padding: "14px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            flexWrap: "wrap",
+            minWidth: 0,
+          }}
+        >
+          <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+            <div style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+              <strong style={{ color: ACCENT_FG }}>We never invent a score.</strong>{" "}
+              If grading fails, you&rsquo;ll see an honest error and can retry.
+            </div>
+            {!user && (
+              <div style={{ marginTop: 8, fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+                Sign in to save mistake history. Without an account we&rsquo;ll still
+                grade your answer, but the result won&rsquo;t be remembered after you
+                leave.
+              </div>
+            )}
+          </div>
+
+          {!user && (
+            <button type="button" style={buttonOutline} onClick={gotoLogin}>
+              Sign in to save history <ChevronRightGlyph />
+            </button>
+          )}
+
+          {!canGrade && status !== "loading" && (
+            <span style={{ fontSize: 12, color: TEXT_MUTED }}>
+              {!confirmed
+                ? "Read the question first (step 1)"
+                : "Add an answer (image or text) to continue"}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleGrade}
+            disabled={!canGrade}
+            style={{
+              ...buttonAccent,
+              background: canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)",
+              border: `1px solid ${canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)"}`,
+              cursor: canGrade ? "pointer" : "not-allowed",
+              opacity: canGrade ? 1 : 0.85,
+              paddingLeft: 18,
+              paddingRight: 18,
+            }}
+          >
+            {status === "loading" ? (
+              <>
+                <SpinnerGlyph color="#ffffff" /> Grading…
+              </>
+            ) : status === "error" ? (
+              <>Retry grading <ChevronRightGlyph /></>
+            ) : (
+              <>Grade my answer <ChevronRightGlyph /></>
+            )}
+          </button>
+        </div>
+
+        {/* The grade-failure box — beside the action that failed, and unchanged:
+            no score was invented, and Retry calls the grader again. */}
+        {errorMessage && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+              marginTop: 12,
+              padding: "12px 14px",
+              borderRadius: 10,
+              background: DANGER_SOFT,
+              border: `1px solid ${DANGER_SOFT}`,
+              color: DANGER_FG,
+              fontSize: 13,
+            }}
+          >
+            <AlertGlyph color={DANGER_FG} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, marginBottom: 2 }}>{errorMessage}</div>
+              <div style={{ fontSize: 12, color: DANGER_FG, opacity: 0.85 }}>
+                No score has been generated. Press Retry to call the grader again.
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        )}
+      </div>,
+      "Board-style examiner grading",
     );
   }
 
@@ -2046,18 +2237,17 @@ const DesktopCheckImprovePage: React.FC = () => {
 
   if (wsResult) {
     const ws = wsResult;
-    return (
+    return withChrome(
       <div
         style={{
           maxWidth: 1100,
           margin: "0 auto",
-          padding: isNarrow ? "20px 16px 56px" : "32px 32px 64px",
+          padding: PAGE_PADDING,
           fontFamily: FONT_SANS,
           minWidth: 0,
         }}
       >
         <PageHeader
-          isNarrow={isNarrow}
           showBack
           onBack={resetToInput}
           eyebrow="Check & Improve · Graded paper"
@@ -2283,7 +2473,8 @@ const DesktopCheckImprovePage: React.FC = () => {
             Sign in to save these mistakes to your progress.
           </div>
         )}
-      </div>
+      </div>,
+      "Graded paper",
     );
   }
 
@@ -2306,18 +2497,17 @@ const DesktopCheckImprovePage: React.FC = () => {
   };
   const lostSteps = result.annotatedSteps.filter((s) => s.status !== "correct");
 
-  return (
+  return withChrome(
     <div
       style={{
         maxWidth: 1500,
         margin: "0 auto",
-        padding: isNarrow ? "20px 16px 56px" : "32px 32px 64px",
+        padding: PAGE_PADDING,
         fontFamily: FONT_SANS,
         minWidth: 0,
       }}
     >
       <PageHeader
-        isNarrow={isNarrow}
         showBack
         onBack={resetToInput}
         eyebrow="Check & Improve · Graded result"
@@ -2366,16 +2556,23 @@ const DesktopCheckImprovePage: React.FC = () => {
         />
       )}
 
+      {/* The RESULT view reflows on the same rule as the input view (§2.1): fluid,
+          container-relative, no window-derived value. The 7:5 proportion the old grid
+          had is preserved by flex-GROW (7 vs 5) while both bases fit; when they do
+          not, the summary rail wraps under the score instead of being crushed.
+          Unlike the input view, this rail STAYS — it carries the mistake summary and
+          the save state (§4.8), which are the student's result, not help text. */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: isNarrow ? "minmax(0, 1fr)" : "minmax(0, 7fr) minmax(0, 5fr)",
+          display: "flex",
+          flexWrap: "wrap",
           gap: 24,
+          alignItems: "flex-start",
           minWidth: 0,
         }}
       >
         {/* LEFT — score + annotated steps + teacher note */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
+        <div style={{ display: "flex", flex: "7 1 400px", flexDirection: "column", gap: 20, minWidth: 0 }}>
           <div style={{ ...cardStyle, padding: 24 }}>
             <div
               style={{
@@ -2494,7 +2691,7 @@ const DesktopCheckImprovePage: React.FC = () => {
         </div>
 
         {/* RIGHT — mistake summary + save status + next actions */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
+        <div style={{ display: "flex", flex: "5 1 260px", flexDirection: "column", gap: 20, minWidth: 0 }}>
           <div style={{ ...cardStyle, padding: 24 }}>
             <div
               style={{
@@ -2727,7 +2924,8 @@ const DesktopCheckImprovePage: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    "Your result",
   );
 };
 

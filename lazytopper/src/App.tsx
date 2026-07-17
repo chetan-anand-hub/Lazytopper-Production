@@ -72,7 +72,12 @@ const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 // Mobile baseline pages (#437 — real implementations)
 const Intent            = lazy(() => import("./pages/app/Intent"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
-const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
+// pages/app/CheckImprove — the RETIRED C&I mobile twin. Un-routed by the Option-B
+// convergence (see the /check-improve route below); the file deliberately REMAINS on
+// disk so the rollback is restoring one route element, not restoring a deleted file.
+// Its import is removed so tsc noUnusedLocals stays green — the same convention the
+// other retired twins follow. PR-2 deletes the file, on the owner's say-so after
+// live-verify.
 const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
 const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 
@@ -1085,18 +1090,28 @@ export default function App() {
             }
           />
 
-          {/* Check & Improve — Desktop Phase 5: at desktop width (>=1024px)
-              this renders the locked DesktopCheckImprovePage inside DesktopShell
-              (the conditional shell wrap is applied above by isDesktopShellRoute).
-              At mobile width, the existing CheckImprove (mobile uploader → real
-              AI grading) renders unchanged. */}
+          {/* Check & Improve — Option-B convergence: ONE responsive component
+              renders at every width, finishing the pattern Exam Trends and Topic
+              Hub already shipped. The mobile twin (pages/app/CheckImprove) had
+              DRIFTED — it rendered the answer ABOVE the question, so a student
+              uploaded their solution and then met a disabled button telling them
+              to read a question that sat below it. A twin split is what let that
+              drift go unnoticed. There is now one component and one DOM order, so
+              that class of bug is structurally impossible rather than just fixed.
+
+              At desktop width it mounts inside DesktopShell (isDesktopShellRoute
+              keeps "/check-improve" shell-wrapped); at mobile width the page owns
+              the shared MobileShell header itself (isMobileSelfChromedRoute
+              already suppresses the old global brand bar for this route) and
+              reflows fluidly — no window-derived value drives its layout.
+
+              ROLLBACK: restore the `isDesktop ? <DesktopCheckImprovePage /> :
+              <CheckImprove />` ternary here. The retired twin is deliberately left
+              in the tree, unrouted, so that revert is this one element. PR-2
+              deletes it, after owner live-verify. */}
           <Route
             path="/check-improve"
-            element={
-              isDesktop
-                ? withRouteSuspense(<DesktopCheckImprovePage />)
-                : withRouteSuspense(<CheckImprove />)
-            }
+            element={withRouteSuspense(<DesktopCheckImprovePage />)}
           />
 
           {/* ── #438 — Mobile destination repairs ────────────────────────
