@@ -1,3 +1,21 @@
+## 2026-07-17 -- #460: A STUDENT WHO ASKS TO PRACTISE GETS THE HAND-OFF (trunk `be200cb`), owner byte-reviewed + live-verified (3 probes)
+
+**[FU-TUTOR-CTA-DIRECT-ASK] — CLOSED.** `[[offer:practice]]` now fires on **either** the tutor's offer turn **or** the turn answering a **direct student ask**. Prompt-only (1 file). Owner probes all pass, including the boundary one. Do NOT redo.
+
+### ⚠ DOCS DEBT — not this lane's to pay
+**#457 (`084442b`) and #459 (`27e6ec2`) are MERGED and LIVE with NO handoff docs.** They belong to the **catalogue lane**. Logged here only so the gap is **visible rather than silently lost** — #460's docs do **not** speak for them.
+
+### ★★ [FU-TUTOR-NCERT-PROACTIVE-MENTION] — **UNBLOCKED. Next.**
+**`hasNcertPage` VERIFIED PRESENT IN CODE** (checked, not inferred from *"#457 landed"* — ★ *a landed PR is never proof a specific field shipped*): `conceptVisualCatalogue.ts:226` → `:253` (`Boolean(row.ncertPage)`) → `tutorClient.ts:50` → **`tutor.cjs:111`** (rebuilt + coerced `=== true`).
+★★ **The code names its own seam, `tutor.cjs:101`:** *"plumbing only today: `figurePanelBlock()` does not read it yet."* ⇒ the work is **`figurePanelBlock()`** (`tutorSystemPrompt.cjs:226`) — today **key/label only**.
+⚠ **`normalizeFigures` REBUILDS each option at the TRUST BOUNDARY** — *"every new option field must be whitelisted HERE as well, or it is silently dropped."*
+★ **Never make the student ask for the page — a 15-year-old will not know the trigger phrase.** Re-derive the line numbers; #457/#459 moved this area.
+
+### ★ The prompt-verification gap this PR exposed (feeds [FU-CI-GATE-VITEST]'s case)
+**Every gate passed and none of them read English.** tsc, both matrices and mojibake are blind to prompt wording; the only check with power was **rendering the block through `buildTutorSystemPrompt` and reading it** — proving it *renders*, not that it *works*. ★ **A prompt is only verified by a model reading it** ⇒ prompt changes need live-verify MORE than code changes, not less. *Third instance tonight of the same species: a green gate that proves less than it appears to.* (The other two: an unrun test suite, and `scope:guard` returning `no changes` on a clean tree. Note the contrast — here `scope:guard` returned `lanes=product` and **did** inspect a real diff. Same gate, opposite evidentiary value.)
+
+### Carried, unchanged
+- **★ [FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] — HELD, do NOT build.** Pending the **overlay-architecture investigation** (QP + C&I may become in-tutor overlays reusing the real pages verbatim ⇒ the banner/count-link mechanism becomes **secondary**). *A HOLD with a reason.*
 ## 2026-07-17 -- #457 + #459: ★★ THE NCERT PAGE ARC — dormant → live → winnable (trunk `27e6ec2`), owner byte-reviewed ×2 + live-verified ×3
 
 **[FU-TUTOR-NCERT-PAGE-DATA] / the catalogue coverage lane — CLOSED.** 54→**73 rows**, **65** with a verified `ncertPage`, coverage 13→22 topics. **[FU-TOPICHUB-LENSPOWER-ANCHOR] — CONFIRMED, not closed:** NCERT defines lens power/dioptre in **Light ch.9 §9.3.8 p.157**, so that row's page is a deliberate **cross-chapter** ref; the *hub row's filing* is still the open question.

@@ -1,5 +1,27 @@
 ---
 
+## 2026-07-17 -- #460: A STUDENT WHO **ASKS** TO PRACTISE GETS THE HAND-OFF — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED (all 3 probes)** — trunk `be200cb`
+
+**#460 (`be200cb`, 1 file, +13/−2, PROMPT TEXT ONLY). Isolated worktree `LT-worktrees/tutor-cta-direct-ask`, branch `feat/desktop-pr-tutor-cta-direct-ask` @ `25f0064`. Process: re-derive tip → trace the sentinel END-TO-END (prompt → server strip → client attach → CTA render) → pre-flight → owner ruling on the boundary → build → gates → push → DRAFT PR for byte-review → owner byte-review → owner live-verify (3 probes) → owner merge. Never self-merged.**
+
+⚠ **#457 (`084442b`) and #459 (`27e6ec2`) are MERGED + LIVE with NO handoff docs — the catalogue lane owes them; this entry does not speak for them.** (#459 = "the NCERT page can win the panel", owner live-verified electricity · Ohm's law in prod.)
+
+### What it does
+A student who said *"I want to try a few questions"* got a helpful reply and **no button**. The tag fired only on the turn where **the tutor** had just offered and the student was expected to accept — so the app could route them, but only if the tutor thought of it first. ★ **The ask is stronger evidence of readiness than the offer ever was.** Now: **(a)** the existing offer turn **or (b)** the turn answering a direct ask. *Same mechanism, wider firing condition.*
+
+### ★★ THE DISPATCH POINTED AT A GATE THAT DOES NOT EXIST
+*"…wherever the sentinel is currently gated in `useTutorSession.ts`"* — **there is no gate there.** `useTutorSession.ts:345` only **attaches** the tag; the real gate is **`TutorPage.tsx:356`** and it fires on **tag PRESENCE** (`latestOffer === "practice"`), with **no agreement-state condition anywhere**. ⇒ the restriction lived **entirely in the prompt's English** ⇒ **prompt-only, one file.** ★ **Editing `useTutorSession.ts` as instructed would have INVENTED a client-side coupling the design deliberately kept server-side.** *A real instance of carry-the-question-not-the-expected-answer — not the phrase, the thing. The owner verified both claims in the code before approving.*
+
+### ★★ THE BOUNDARY — #442: **QP practises, the Tutor teaches**
+Loose widening **inverts it** the first time a student asks *"what would a question on this look like?"* and gets pushed to Quick Practice instead of an answer. Drawn narrowly, and the prompt **says why**: only an ask to **PRACTISE** earns the tag; **a request to SEE something solved is a TEACHING request and stays the tutor's job** — teaching phrasings **enumerated by example** (they are the ones that read as practice-adjacent), **cross-referencing** the existing `WORKED EXAMPLES vs THE STUDENT'S PRACTICE` block so the two **cannot drift apart**. ★ **Ambiguity fails CLOSED** — *"treat it as a teaching request and emit NO tag; the student can always ask again more plainly."* **A missing CTA costs one more sentence; a wrong CTA pushes someone who wanted an explanation into a practice set.** *#456's honest-or-silent ruling, applied to a prompt rule.*
+
+### ★★ EVERY GATE WOULD HAVE PASSED IF THE WORDING WERE TERRIBLE
+tsc / both matrices / mojibake **do not read English.** The only check with power: **rendering the prompt through `buildTutorSystemPrompt` and reading the real block** — which proves it *renders*, not that it *works*. ★ **A prompt is only verified by a model reading it.** **Owner's 3 probes ALL PASS:** (1) direct ask → **CTA**; (2) *"Can you give me an example?"* → **taught, NO CTA — the boundary held**; (3) offer→agree → **CTA, unregressed**. *(Note: `scope:guard` returned `lanes=product` here — it inspected a REAL working-tree diff, unlike #456's post-rebase `no changes` false-PASS. Same gate, opposite evidentiary value: the difference is whether a diff existed to inspect.)*
+
+### Follow-ups
+- **[FU-TUTOR-CTA-DIRECT-ASK] CLOSED.**
+- **NEXT — [FU-TUTOR-NCERT-PROACTIVE-MENTION] UNBLOCKED.** ★ **`hasNcertPage` VERIFIED IN CODE, not inferred from "#457 landed"**: `conceptVisualCatalogue.ts:226`/`:253` → `tutorClient.ts:50` → **`tutor.cjs:111`** (coerced `=== true`). ★★ **The code names the seam itself — `tutor.cjs:101`: _"plumbing only today: `figurePanelBlock()` does not read it yet"_** ⇒ the work is **`figurePanelBlock()`** (`tutorSystemPrompt.cjs:226`), today key/label only. ⚠ **`normalizeFigures` REBUILDS each option at the trust boundary — a new field not whitelisted there is silently dropped.** ★ Never make the student **ask** for the page — *a 15-year-old will not know the trigger phrase.*
+- **★ HELD, do NOT build:** `count: 5` · the "tutor is waiting" banner / scorecard-return-row — pending the **overlay-architecture investigation** (QP + C&I may become **in-tutor overlays reusing the real pages verbatim** ⇒ the mechanism becomes **secondary**).
 ## 2026-07-17 -- #457 + #459: ★★ THE NCERT PAGE ARC — DORMANT → LIVE → **WINNABLE** — **merged + owner BYTE-REVIEWED ×2 + LIVE-VERIFIED ×3** — trunk `27e6ec2`
 
 **Two PRs, one arc, both merged after an owner byte-review of the PUSHED diff. This entry also pays #457's docs debt — #458 recorded it as "OWED BY THAT LANE".**
