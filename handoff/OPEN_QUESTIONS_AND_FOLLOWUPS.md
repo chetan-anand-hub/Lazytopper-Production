@@ -1,3 +1,34 @@
+## 2026-07-17 -- #464: THE TUTOR SAYS THE REAL NCERT PAGE IS THERE (trunk `50783e7`), owner byte-reviewed + live-verified (4 probes)
+
+**[FU-TUTOR-NCERT-PROACTIVE-MENTION] — CLOSED.** The NCERT arc **#457 (data) → #459 (the page can win the panel) → #464 (the tutor says it)** is **COMPLETE**. Do NOT redo.
+
+### ⚠️ NEW — **[FU-TUTOR-CJS-STALE-PLUMBING-COMMENT]** — OPEN. **#464 should have closed it.**
+**`lazytopper/server/routes/tutor.cjs:101` is FALSE on trunk:** *"`hasNcertPage` is plumbing only today: `figurePanelBlock()` does not read it yet… Using it is the tutor-round-trip lane's sequenced task."* **#464 made it read it** (`tutorSystemPrompt.cjs:264` + the `:269` `anyNcertPage` gate). ⇒ **a spent instruction left in place — and the very comment that dispatched #464.** **Grep `hasNcertPage` → land there → conclude the work is undone → possibly redo it.** ★★ **The #451/#454 ruling applies verbatim: STRIKE A SPENT CHECK IN PLACE. A stale instruction is worse than none because it LOOKS LIKE DILIGENCE.**
+- **Fix:** comment-only, strike/replace in place. **PRODUCT file** ⇒ **owner-approved product PR** (it could not ride the docs-only PR that logged it, §8).
+- **Found by re-verifying #464 on trunk before writing its docs — not by review.**
+- ★ **Third instance tonight of the same disease, in a third medium:** #451/#454 (a carried product instruction) → #462/#463 (a cross-lane docs claim) → #464 (a code comment). ***The disease does not care which file it lives in.***
+
+### ★★ [FU-CI-GATE-VITEST] — still ESCALATED; #464 adds a **fourth** instance to its case
+**A green gate can prove nothing**, and tonight produced four distinct shapes of it:
+1. **An unrun suite** — vitest is not CI-gated and cannot run on win32 ⇒ tests that execute **nowhere**.
+2. **`scope:guard` returning `SCOPE_GUARD_OK (mode=product, no changes)`** on a rebased clean tree — **green from a gate that inspected nothing**.
+3. **Prompt gates that do not read English** — tsc/matrices/mojibake pass identically on terrible wording (#460, #464).
+4. ⚠ **NEW: `TSC EXIT: 0` printed while tsc was not even installed** — `$?` after a pipe reports **`tail`'s** status. ***Run tsc bare and read its own exit code.*** *(Self-inflicted, caught immediately, recorded because the next agent will do it too.)*
+
+### ★★ NEW STANDING LESSON — **one rendered example is not coverage**
+#464's harness caught a real bug **reading could not**: the NCERT directive was first emitted **unconditionally**, so on a topic with **no** pages the prompt described a `[real NCERT page available]` marker **absent from its own list** — **the fake-affordance bug one layer down, built in while congratulating ourselves for catching the first one.** The **mixed case rendered perfectly.** ⇒ **assert the ABSENT cases** (no marked row ⇒ no directive; absent field ⇒ no marker; truthy-but-junk ⇒ no marker). Owner **probe 4** confirmed the gate live.
+
+### ★ CARRY THE QUESTION, NOT THE EXPECTED ANSWER — **twice in a row now; watch for a third**
+Two consecutive dispatches named the **wrong location**, both **right line number / wrong file**:
+- **#460:** *"the sentinel's gate in `useTutorSession.ts`"* — **there is no gate there** (`:345` only ATTACHES); the real gate is **`TutorPage.tsx:356`**.
+- **#464:** *"`figurePanelBlock` … at `tutor.cjs:226`"* — it is at **`tutorSystemPrompt.cjs:226`**; `tutor.cjs:226` is an **unrelated canned model turn**.
+⇒ **Never copy a line number without re-confirming which file it came from.** Harmless both times **only because the location was re-derived**. ⚠ **A third occurrence means a convention problem, not luck.**
+
+### Carried — HELD, unchanged
+- **★ [FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] — do NOT build.** Next session's **QP + C&I as in-tutor overlays** (reusing the real pages verbatim) would make the round-trip **banner/count-link mechanism secondary**. *A HOLD with a reason.*
+
+---
+
 ## 2026-07-17 -- #460: A STUDENT WHO ASKS TO PRACTISE GETS THE HAND-OFF (trunk `be200cb`), owner byte-reviewed + live-verified (3 probes)
 
 **[FU-TUTOR-CTA-DIRECT-ASK] — CLOSED.** `[[offer:practice]]` now fires on **either** the tutor's offer turn **or** the turn answering a **direct student ask**. Prompt-only (1 file). Owner probes all pass, including the boundary one. Do NOT redo.

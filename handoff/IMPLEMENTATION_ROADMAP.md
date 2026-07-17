@@ -2,6 +2,23 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-17 — ★★ ✅ THE NCERT PAGE ARC IS COMPLETE (#464 `50783e7`) — the tutor SAYS the real textbook page is there, and a student never has to know to ask
+
+**Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED (all 4 probes).** 1 file, `tutorSystemPrompt.cjs`, **+56/−7 — prompt text only**.
+
+**#457** filled the data (65 rows carry `ncertPage`) → **#459** let the page **win the panel** → **#464** makes the tutor **say it, unprompted**. ★ *An affordance nobody knows about is not an affordance* — the page sat behind a button a 15-year-old had no reason to look for. `hasNcertPage` had reached the prompt layer since #457 and **nothing read it**; `figurePanelBlock` now marks each option carrying one (`[real NCERT page available]`) and tells the tutor to say so in plain words.
+
+- ★★ **Rail 1 — mention ONLY alongside the `[[figure:<key>]]` signal.** The page lives **inside** the panel, and `TutorPage:185` gates that panel on the model's own signal ⇒ a mention without it describes **a button not on the screen** (a **fake affordance**). *Not in the dispatch — found by tracing the affordance to the UI.*
+- ★★ **Rail 2 — never a page number/chapter/link.** Told **THAT** a page exists, never **WHICH**. *A plausible-but-wrong page number is worse than silence — it sends a student hunting through a real textbook for nothing.*
+- ★★ **The harness caught a bug reading could not** — the directive was first emitted **unconditionally**, describing a marker absent from its own list on page-less topics. **One rendered example is not coverage: assert the ABSENT cases.**
+- ★ **Every gate would pass on terrible wording** — none read English. Owner's 4 live probes are what verified it.
+
+⚠ **Left open: [FU-TUTOR-CJS-STALE-PLUMBING-COMMENT]** — `routes/tutor.cjs:101` still says `figurePanelBlock()` *"does not read it yet"*, **now false**; comment-only, product file, **owner-approved PR**. *#464 should have struck it in place (#451/#454 ruling).*
+
+**Follows (next session, specced):** **QP + C&I as IN-TUTOR OVERLAYS** reusing the real pages verbatim ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] stay HELD** (that architecture makes the banner/count mechanism **secondary**).
+
+---
+
 ## 2026-07-17 — ✅ A STUDENT WHO **ASKS** TO PRACTISE GETS THE HAND-OFF (#460 `be200cb`) — the CTA no longer waits for the tutor to think of it first
 
 **Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED (all 3 probes).** 1 file, `tutorSystemPrompt.cjs`, **+13/−2 — prompt text only**.
