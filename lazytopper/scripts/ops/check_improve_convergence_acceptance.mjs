@@ -281,6 +281,22 @@ check('LAYOUT: CARD_BASIS is 340 (≤342, so Q+A sit side by side at a 1024px wi
 check('LAYOUT: both cards share the same fluid basis',
   (converged.match(/flex: `1 1 \$\{CARD_BASIS\}px`/g) || []).length === 2);
 
+// ★ HEADER title block has a NON-ZERO flex-basis (Fix A, 2026-07-18). This is the whole
+// bug, one level up from CARD_BASIS: the title block was on `flex: 1` (= basis 0%), so
+// it never demanded width, so `flexWrap` on the header row could NEVER fire and the
+// 30px title wrapped to five lines at 360px. Assert the PROPERTY (a real basis exists
+// and is used), not a proxy — a grep for `flexWrap` would have passed the buggy code,
+// and a count would not have caught it either. Guard both directions: a real constant,
+// used on the title block, and `flex: 1` never reintroduced as the title's flex.
+const headerBasisMatch = converged.match(/const HEADER_TITLE_BASIS = (\d+);/);
+const headerBasis = headerBasisMatch ? Number(headerBasisMatch[1]) : 0;
+check('LAYOUT: HEADER_TITLE_BASIS is a real non-zero basis (the header wrap can now fire)',
+  headerBasis > 0 && headerBasis <= 526,
+  `found ${headerBasis} — must be >0 (else the wrap is unreachable) and ≤526 (else the header stacks on the 1024px desktop the owner verified)`);
+check('LAYOUT: the title block USES that basis, not `flex: 1`',
+  /flex: `1 1 \$\{HEADER_TITLE_BASIS\}px`/.test(converged) &&
+  !/<div style=\{\{ minWidth: 0, flex: 1 \}\}>/.test(converged));
+
 // DOM order: the inverted-flow bug is structurally impossible when there is one order.
 const qIdx = convergedRaw.indexOf('1 · The question');
 const aIdx = convergedRaw.indexOf('2 · Your answer');

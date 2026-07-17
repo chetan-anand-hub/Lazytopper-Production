@@ -147,6 +147,22 @@ const ACCENT_SOFT = "hsl(150, 60%, 92%)";
 const CARD_BASIS = 340;
 const CARD_GAP = 16;
 const PAGE_PADDING = "clamp(20px, 3vw, 32px) clamp(16px, 3vw, 32px) 56px";
+
+/* HEADER_TITLE_BASIS — the same mechanism as CARD_BASIS, one level up, fixing the
+   same class of bug. The header row (title block | actions) had the title block on
+   `flex: 1`, which is `flex: 1 1 0%` — a ZERO basis never demands width, so the row
+   can never overflow and `flexWrap` is unreachable. The title just shrank to whatever
+   was left after "Your papers · N ⌄" took its ~140px; at 360px that starved it to
+   ~190px and the 30px display face wrapped to five lines.
+
+   A real basis makes the wrap reachable. The row wraps when
+     TITLE_BASIS + actions(~140) + gap(24) > content width.
+   Content width per breakpoint (page padding is ~16px each side at 360, sidebar only
+   at ≥1024): 360→~328 · 768→~722 · 820 overlay→~756 · 1024→~700 · 1440→~1116.
+   Any basis in (154, 526] wraps at 360 (actions drop below, title gets the full row)
+   AND stays one row at ≥768 including the 1024 desktop the owner verified. 320 sits
+   mid-window with margin on both ends — desktop is provably UNCHANGED (484 ≤ 700). */
+const HEADER_TITLE_BASIS = 320;
 const WARNING_FG = "hsl(35, 80%, 35%)";
 const WARNING_SOFT = "hsl(43, 90%, 92%)";
 const DANGER_FG = "hsl(0, 70%, 45%)";
@@ -321,7 +337,7 @@ const SpinnerGlyph = ({ color = PRIMARY_GREEN }: { color?: string }) => (
 const PageHeader: React.FC<{
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   showBack?: boolean;
   onBack?: () => void;
   actions?: React.ReactNode;
@@ -329,6 +345,8 @@ const PageHeader: React.FC<{
   // Fluid: the actions block wraps under the title when the ROW runs out of room.
   // `flexWrap` measures this box, not the window — so it reflows identically inside
   // an 820px overlay panel and at 820px of window. (Convergence rule, §2.1.)
+  // The title block carries HEADER_TITLE_BASIS, NOT `flex: 1`: a zero-basis item
+  // never demands width, so the wrap could never actually fire (see the constant).
   <div
     style={{
       display: "flex",
@@ -339,7 +357,7 @@ const PageHeader: React.FC<{
       flexWrap: "wrap",
     }}
   >
-    <div style={{ minWidth: 0, flex: 1 }}>
+    <div style={{ minWidth: 0, flex: `1 1 ${HEADER_TITLE_BASIS}px` }}>
       {showBack && (
         <button
           type="button"
@@ -380,7 +398,17 @@ const PageHeader: React.FC<{
         style={{
           margin: 0,
           fontFamily: FONT_DISPLAY,
-          fontSize: "clamp(24px, 2.6vw, 30px)",
+          // Floor 22, TWO lines at 360px — owner ruling, and the measurement is why.
+          // Fitting ONE line at 360px needs ~16px (headless Chromium, Fraunces 600: the
+          // title is 270px at 16px; the real content is 288px — 360 − MobileShell's
+          // 20px×2 − this page's 16px×2, the 40px the first estimate missed). But 16px
+          // EQUALS MobileShell's own 16px chrome title directly above it, so the page H1
+          // stops reading as a title and becomes a label — a display serif rendered at
+          // body size. The owner's complaint was "extending in a paragraph form" (five
+          // lines); two lines at 22px cures that, and Fix A + the deleted lede reclaim
+          // the fold regardless. MAX stays 30 (hit at ≥500px viewport) so 768 / 820 /
+          // 1024 / 1440 are pinned at 30 and desktop is byte-for-byte UNCHANGED.
+          fontSize: "clamp(22px, 6vw, 30px)",
           fontWeight: 600,
           lineHeight: 1.2,
           color: TEXT_FG,
@@ -388,18 +416,20 @@ const PageHeader: React.FC<{
       >
         {title}
       </h1>
-      <p
-        style={{
-          margin: "10px 0 0",
-          fontFamily: FONT_SANS,
-          fontSize: 14,
-          lineHeight: 1.55,
-          color: TEXT_MUTED,
-          maxWidth: 720,
-        }}
-      >
-        {description}
-      </p>
+      {description && (
+        <p
+          style={{
+            margin: "10px 0 0",
+            fontFamily: FONT_SANS,
+            fontSize: 14,
+            lineHeight: 1.55,
+            color: TEXT_MUTED,
+            maxWidth: 720,
+          }}
+        >
+          {description}
+        </p>
+      )}
     </div>
     {actions && (
       <div
@@ -770,6 +800,11 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [ciRecords, setCiRecords] = useState<SessionRecord[]>([]);
   const [ciRecordsLoading, setCiRecordsLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
+  // "How it works" open state, controlled so the chevron can reflect it (this file is
+  // inline-styles only — there is no CSS `details[open]` selector to lean on). `null`
+  // = untouched, so it falls back to the first-run default (open when no papers yet);
+  // once the student toggles, their choice sticks.
+  const [howItWorksOpen, setHowItWorksOpen] = useState<boolean | null>(null);
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   // ABSORBED FROM THE RETIRED TWIN — and the reason matters. The two twins had
   // DRIFTED here, and the mobile one was AHEAD: it lazily loaded a re-opened paper's
@@ -1526,10 +1561,15 @@ const DesktopCheckImprovePage: React.FC = () => {
         {/* The return ticket's contextual strip (Section C) — a quiet line, never a
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
+        {/* No lede here — deleted at both widths (owner-decided). Every clause it
+            carried already ships better elsewhere: "How it works" step 3 says the same
+            with the D4 noun ("image", not "photo"), step 4 names annotated steps, and
+            "We never invent a score" sits under the Grade CTA where the decision to
+            spend effort happens. Dropping this "photo" plus the QR-delivery label
+            below (the two remaining student-visible "photo"s) completes D4. */}
         <PageHeader
           eyebrow="Check & Improve"
           title="Grade your answer, examiner-style"
-          description="Upload a photo of your handwritten work or type it out. We send it to our examiner-style grader and show exactly where marks were lost — no fake scores, no shortcuts."
           actions={
             <button type="button" style={buttonOutline} onClick={() => setPanelOpen(true)}>
               Your papers · {ciRecordsLoading ? "…" : ciRecords.length} ⌄
@@ -1574,11 +1614,23 @@ const DesktopCheckImprovePage: React.FC = () => {
             spent on a one-time need; it now opens on demand and defaults open only
             for a student who has never checked a paper. The anti-fabrication
             promise that used to live in this card has MOVED to the grade bar, where
-            the decision to spend effort actually happens (§2.2, F5). */}
+            the decision to spend effort actually happens (§2.2, F5).
+
+            Fix D (2026-07-18): it was white-on-near-white AND `listStyle:"none"`
+            stripped the disclosure triangle without replacing it — invisible, and it
+            didn't even look expandable, worst of all for the RETURNING student who
+            sees it collapsed. Now it wears the file's own informational tint
+            (SECONDARY_BG / ACCENT_SOFT / ACCENT_FG — the same pairing the deleted
+            Mistake-history card used) and carries the existing ChevronRightGlyph,
+            rotated 90° when open. No new token, no native triangle: the accent green
+            is the CTA weight, so an explainer gets the TINT, never the full accent. */}
         <details
-          open={ciRecords.length === 0}
+          open={howItWorksOpen ?? ciRecords.length === 0}
+          onToggle={(e) => setHowItWorksOpen(e.currentTarget.open)}
           style={{
             ...cardStyle,
+            background: SECONDARY_BG,
+            borderColor: ACCENT_SOFT,
             padding: "12px 20px",
             marginBottom: 16,
             minWidth: 0,
@@ -1587,12 +1639,28 @@ const DesktopCheckImprovePage: React.FC = () => {
           <summary
             style={{
               ...sectionEyebrow,
+              color: ACCENT_FG,
               cursor: "pointer",
               listStyle: "none",
               padding: "6px 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
             }}
           >
             How it works
+            <span
+              aria-hidden="true"
+              style={{
+                display: "inline-flex",
+                color: ACCENT_FG,
+                transition: "transform 0.15s ease",
+                transform: (howItWorksOpen ?? ciRecords.length === 0) ? "rotate(90deg)" : "rotate(0deg)",
+              }}
+            >
+              <ChevronRightGlyph size={15} />
+            </span>
           </summary>
           <ol
             style={{
@@ -2024,7 +2092,11 @@ const DesktopCheckImprovePage: React.FC = () => {
                         setImageBase64(b64);
                         setImageMime(mime);
                         setImageName(
-                          mime === "application/pdf" ? "PDF from your phone" : "Photo from your phone",
+                          // "Image", not "Photo" (D4). This is the filename label the
+                          // dropzone renders after a QR delivery — a SECOND
+                          // student-visible "photo" the header spec's D4 audit missed.
+                          // The lede is not the last one; this is. Now it is complete.
+                          mime === "application/pdf" ? "PDF from your phone" : "Image from your phone",
                         );
                       }}
                     />
