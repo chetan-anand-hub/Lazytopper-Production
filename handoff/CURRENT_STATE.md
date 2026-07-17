@@ -1,5 +1,47 @@
 # LazyTopper â€” Current State
 
+## #456 merged — THE TUTOR READS QUICK PRACTICE'S GRADED WORKING — **owner BYTE-REVIEWED + LIVE-VERIFIED** — squash `dfe3144`
+
+**Live trunk when this docs PR was written: `084442b` — NOT `dfe3144`.** `dfe3144` is #456's own squash SHA and nothing more: **#457** (the tutor catalogue's NCERT-page lane, 54→73 figure rows) landed on top **while this docs PR was being written — the 12th stale-base catch, and the second in two hours.** ⇒ **#457's own docs are OWED BY THAT LANE, not this one** — this section does not speak for it. Re-derive the tip after this merges; never trust a written SHA.
+
+★ **#456 squash-merged, so the branch SHA `433135a` is NOT in trunk's ancestry.** Verify the CODE on trunk, not the commit graph — `git branch --contains` will tell you it never landed. It did: `PRACTICE_RECORD_SURFACE = "quick-practice"` is live at `tutorRoundTrip.ts:125`, used at `:151`.
+
+### What changed — the two round-trip legs were uneven, and now aren't
+C&I's return-opener reads the real graded `sessionRecord` and can say **where** a mark went. The practice leg had only `practiceInsights` attempts — correctness + marks, **no working** — so the best it could say was *"you got 2 of 3."* **The detail already existed and nothing was reading it:** #436 shipped QP's own durable (non-counting) session record, and its `perQuestionRef` payload carries the **same grader's** per-step detail (`status` · `teacherAnnotation` · `mistakeType` · `correctedWorking`) **because QP's written-working path runs the same grader as C&I.** The opener now names the step. Owner live-verify, verbatim: ***"it does correctly identify the mistakes I made."***
+
+3 files, all `pages/tutor/`: `tutorRoundTrip.ts` (+180, new `matchReturningPracticeRecord` + `composePracticeRecordReturnOpener`, both pure) · `useTutorSession.ts` (+36, the fallback chain) · `tutorRoundTrip.test.ts` (+205).
+
+### ★★ TWO SURFACES, TWO VOCABULARIES — a silent zero-match with every gate green
+The pending marker says **`"practice"`**; the record says **`"quick-practice"`**. So `matchReturningRecord`'s bare `r.surface === pending.surface` **can never match a QP record** — it would have found nothing, forever, while tsc and every matrix stayed green. Mapped via a documented `PRACTICE_RECORD_SURFACE` constant in a **separate** matcher. ★ **The marker value is NOT renamed and must never be:** it is **live, persisted state** in `tutorSessions/{uid}/topics/{topicKey}` — renaming it strands every in-flight round-trip mid-flight. *(Same species as the `conceptKey` rule from #448: a durable-state string is not yours to tidy.)*
+
+### ★★ THE RECORD IS NOT ALWAYS WRITTEN — so it can never REPLACE the attempts leg
+QP writes its record **only when the scorecard appears** (`sessionFinished || allDone`; **no unmount/beforeunload hook, by owner ruling**) — so a student who does 2 of 5 and taps **"Back to your tutor"** has **no record at all**, while `practiceInsights` attempts were written on **every** answer. **Record = richer. Attempts = further reach. Neither subsumes the other.** ⇒ the chain is **ADDITIVE: record → attempts → nothing**, and `composePracticeReturnOpener` is **byte-unchanged** as the honest floor. **Owner ruling, generalised beyond this case:** *any composed opener that has to reach for something to say about incomplete data is manufacturing insight the data doesn't support — honest-or-silent beats a softened fabrication.* The composer therefore returns **`null`** on every thin-data path (MCQ-only · no quotable step · no marks · no payload · unreadable question) and lets the marks line stand.
+
+### ★ A STEP'S MARKS ARE NEVER QUOTED — the #445 clamp would read as "you scored nothing"
+On an **objective** question the grader zeroes **every** per-step mark **by design** (the mark lives at answer level). Quoting one would tell a student they scored nothing when they didn't. The opener keeps the **annotations** and never the step marks — **exactly what the C&I and worksheet views already do** (drop the chip, keep the annotation). A bare MCQ click carries no `annotatedSteps` and no `mistakeSummary` at all (D-PROG-2's shipped invariant) ⇒ `null` ⇒ the floor.
+
+Topic overlap goes through **`canonicalSlugMatches`**, never raw `topicKeys.includes()` ([FU-PROG-TOPIC-KEY-MISMATCH]'s exact class). Empty `topicKeys` is **not** a wildcard here (it is in `matchReturningRecord`, where a mixed C&I paper legitimately resolves to none) — for QP it means slug resolution failed, so matching on it would be a guess.
+
+### ★★ TWO GATES THAT READ **PASS** WHILE PROVING NOTHING — the same species, not two issues
+**Owner ruling: this stays in the [FU-CI-GATE-VITEST] case as a second instance, not a footnote.**
+- **vitest ran NOWHERE.** Windows cannot (`@rollup/rollup-win32-x64-msvc` stripped by the linux pin) **and vitest is not CI-gated** ⇒ the 18 added cases execute nowhere, automatically, indefinitely. ★ **The danger is not that tests break — it is that a test file borrows the authority of a passing suite without ever being run, in every diff, every review, every handoff doc.** *Rather than pass off unrun tests as evidence*, `tutorRoundTrip.ts` (**`import type` deps only ⇒ emits standalone**) was compiled with `tsc --outDir <scratch>` and driven through the same **24 assertions from a plain node script: 24/24**. ★ **That escape hatch was LUCK, not a strategy** — most of this repo's logic has real runtime deps and no such route, so it ships **on argument rather than execution**.
+- **`scope:guard` returned `SCOPE_GUARD_OK (mode=product, no changes)`** post-rebase — **a green string from a gate that inspected nothing**, because it reads the **working-tree** diff and a committed tree is clean. ★ **A suite nobody runs and a guard with nothing to guard both read PASS in a report while proving nothing.** The real scope evidence is the **three-dot** diff.
+
+### ★★ TWO-DOT `git diff` AGAINST A MOVED TRUNK SHOWS OTHER LANES' WORK AS *YOUR* DELETION
+Cost a false scope-contamination scare here: `git diff origin/base... origin/my-branch` (**two-dot**) listed QR's `DesktopCheckImprovePage.tsx` at **−47** — #454's merged work, reported as if this branch had deleted it. ⇒ **always three-dot (`origin/base/approved-thru-437...my-branch`) to review your own scope.** *(Flagged proactively, then the owner verified it himself rather than accept the explanation — which is what confirmed there was no contamination, not the explanation.)*
+
+### Process — clean, and the force-push is the point
+Pre-flight → owner ruling → build → gates → push → **owner BYTE-REVIEW of the pushed diff** → **rebase onto the moved trunk + re-run every gate** → **owner-approved `--force-with-lease`** → PR **#456** → **CI green (`quality-gate` PASS — the linux prod build Windows can't run)** → **owner LIVE-VERIFY** → owner merge. Never self-merged. ★ **The rebase force-push was NOT inferred from "rebase and open the PR"** — §3 marks `push --force` *never auto-approve*, so it was asked for explicitly and the owner verified the remote state before approving. **That is the one place the doctrine says never assume.**
+
+### Lane status after #456
+- **The core FU is CLOSED and live-verified.** No COMPLETION cell moves — the tutor was already ✅; this is §2a cross-surface depth.
+- **NEXT (dispatched):** widen the `[[offer:practice]]` CTA trigger so a student who **directly asks** to practise fires the same sentinel — today it fires only when the tutor offered first.
+- **BLOCKED on the catalogue lane:** the NCERT proactive-mention prompt fix — waits on `hasNcertPage` reaching `catalogueFiguresForTopic`'s options. **#457 has landed; confirm the field exists before starting.**
+- **★ HELD — do NOT build:** the hardcoded `count: 5` fix and the **"tutor is waiting" banner / scorecard-return-row**. Both wait on a **separate overlay-architecture investigation** (QP and C&I may become **in-tutor overlays reusing the real pages verbatim**, which would make the banner/count-link mechanism **secondary**). Building either now risks throwing it away.
+- **Branch cleanup:** `feat/desktop-pr-tutor-qp-graded-record` + its worktree — owner-approved for deletion **once this docs PR merges**.
+
+---
+
 ## #454 merged — ★★ THE QR LANE IS COMPLETE — **owner BYTE-REVIEWED + LIVE-VERIFIED** — trunk `a8be752`
 
 **Post-merge trunk: `a8be752` (squash of #454). Re-derive after this docs PR merges — never trust a written SHA. This lane produced TWO stale-base catches an hour apart (#450 took #451 mid-build; #452 took the #451 docs PR mid-WRITE) — 10th and 11th. *That is the normal condition of a shared trunk, not bad luck.***
