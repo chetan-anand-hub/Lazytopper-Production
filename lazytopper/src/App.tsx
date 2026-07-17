@@ -72,12 +72,6 @@ const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 // Mobile baseline pages (#437 — real implementations)
 const Intent            = lazy(() => import("./pages/app/Intent"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
-// pages/app/CheckImprove — the RETIRED C&I mobile twin. Un-routed by the Option-B
-// convergence (see the /check-improve route below); the file deliberately REMAINS on
-// disk so the rollback is restoring one route element, not restoring a deleted file.
-// Its import is removed so tsc noUnusedLocals stays green — the same convention the
-// other retired twins follow. PR-2 deletes the file, on the owner's say-so after
-// live-verify.
 const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
 const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 
@@ -1105,10 +1099,10 @@ export default function App() {
               already suppresses the old global brand bar for this route) and
               reflows fluidly — no window-derived value drives its layout.
 
-              ROLLBACK: restore the `isDesktop ? <DesktopCheckImprovePage /> :
-              <CheckImprove />` ternary here. The retired twin is deliberately left
-              in the tree, unrouted, so that revert is this one element. PR-2
-              deletes it, after owner live-verify. */}
+              The mobile twin (pages/app/CheckImprove.tsx) is DELETED as of the
+              convergence's PR-2, after live-verify — it was kept on disk through
+              PR-1 purely so the rollback stayed a one-line route revert while the
+              surface was still unproven. Reverting now means reverting the PRs. */}
           <Route
             path="/check-improve"
             element={withRouteSuspense(<DesktopCheckImprovePage />)}

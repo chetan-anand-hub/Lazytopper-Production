@@ -249,11 +249,17 @@ check('ROUTE: the twin ternary is gone (no <CheckImprove /> element in App)',
 check('ROUTE: the retired twin is NOT imported (tsc noUnusedLocals stays green)',
   !/lazy\(\(\) => import\("\.\/pages\/app\/CheckImprove"\)\)/.test(app));
 
-// ★ ROLLBACK IS ONE ROUTE ELEMENT — and that is only true while the twin still exists
-// on disk. PR-2 deletes it, on the owner's say-so, after live-verify. Until then this
-// check is what keeps the rollback cheap.
-check('ROLLBACK: the retired twin is still on disk, unrouted (rollback = restore one route element)',
-  existsSync(RETIRED_TWIN));
+// ★ THE TWIN IS GONE (PR-2, after live-verify). Through PR-1 this asserted the exact
+// OPPOSITE — that the file still EXISTED — because the cheap one-line rollback
+// depended on it. That check was spent the moment the deletion landed, and it is
+// struck in the same PR that spent it rather than left to rot into a false green.
+// What replaces it is the inverse invariant, which is the one that matters from here:
+// the twin must never come BACK, because a second C&I component is how the drift
+// started in the first place.
+check('DELETED: the retired mobile twin is gone from the tree (PR-2)',
+  !existsSync(RETIRED_TWIN));
+check('DELETED: nothing imports the retired twin',
+  !/pages\/app\/CheckImprove"/.test(app));
 
 /* ══════════════════════════════════════════════════════════════════════════
    3 · THE UPLOAD PROMISE + THE GUARD (§2.3 / §2.5 / item 2)
@@ -322,8 +328,11 @@ section('4 · The purple (§5.6 / F2)');
 // (MistakeIntelligencePanel.tsx:29) and Section E (l2/PaperBlueprint.tsx:34). It was
 // painting the primary CTAs on a mistake-grading surface.
 //
-// ★ Scoped to the CONVERGED FILE on purpose: the retired twin keeps its purple until
-// PR-2 deletes it, so a tree-wide assertion would fail for a reason that is not a bug.
+// ★ Still scoped to the CONVERGED FILE — but the REASON changed at PR-2 and the note
+// changes with it. Through PR-1 the scope existed because the retired twin still held
+// all five purples on disk. The twin is now deleted, and the scope survives for a
+// different reason: hsl(280) is CORRECT where it lives (the presentation-mistake chip
+// and Section E). A tree-wide assertion would go red on the two files that are right.
 check('BRAND: zero hsl(280 in the converged file',
   !/hsl\(280/.test(convergedRaw));
 // ★ THE FIFTH. Killing "all 4 hsl(280)" left rgba(139,92,246,0.25) — #8b5cf6, the
