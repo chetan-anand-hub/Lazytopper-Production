@@ -2,6 +2,21 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-16 — ✅ THE TUTOR READS QUICK PRACTICE'S GRADED WORKING (#456 `dfe3144`) — the two round-trip legs are level; the practice opener names the step, not just the score
+
+**Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED** (*"it does correctly identify the mistakes I made"*). Live trunk at docs-write: `084442b` (**#457 landed on top mid-write** — its docs are owed by that lane).
+
+C&I's opener could always say **where** a mark went; the practice leg could only say **how many**. #436 shipped QP's own durable (non-counting) session record, whose `perQuestionRef` payload carries the **same grader's** per-step detail — **QP's written-working path runs the same grader as C&I** — so the detail existed and nothing read it. Now: `matchReturningPracticeRecord` + `composePracticeRecordReturnOpener` (both pure) + an **additive** `record → attempts → nothing` chain. 3 files, all `pages/tutor/`, +417/−4.
+
+- ★★ **Two vocabularies:** marker `"practice"` vs record `"quick-practice"` ⇒ the existing matcher could **never** match a QP record, silently, with every gate green. Mapped, **never renamed** — the marker is live persisted state.
+- ★★ **The record is not always written** (scorecard only; no unmount hook) ⇒ it can **never replace** the attempts leg. Record = richer, attempts = further reach ⇒ **additive**, `composePracticeReturnOpener` byte-unchanged as the honest floor.
+- ★ **A step's marks are never quoted** — the #445 objective clamp zeroes them by design; keep the annotation, drop the mark (what the C&I/worksheet views already do).
+- ★★ **Owner ruling, general:** *honest-or-silent beats a softened fabrication* — the composer returns `null` on every thin-data path rather than dress up incomplete data.
+
+**Follows:** the `[[offer:practice]]` direct-ask widening (dispatched) → the NCERT proactive-mention prompt fix (**blocked on `hasNcertPage`; #457 landed, confirm the field**). **HELD pending the overlay-architecture investigation:** the `count: 5` fix and the "tutor is waiting" banner / scorecard-return-row.
+
+---
+
 ## 2026-07-16 — ★★ ✅ THE QR LANE IS COMPLETE (#454 `a8be752`) — desktop practice no longer costs a self-email, on EVERY graded surface
 
   **The arc, in one place — do NOT redo any of it:**

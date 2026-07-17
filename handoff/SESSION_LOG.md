@@ -1,5 +1,53 @@
 ---
 
+## 2026-07-16 -- #456: THE TUTOR READS QP'S GRADED WORKING — the two round-trip legs are level — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED** — squash `dfe3144`
+
+**#456 (`dfe3144`, 3 files, +417/−4, all `pages/tutor/`). Isolated worktree `LT-worktrees/tutor-qp-record`, branch `feat/desktop-pr-tutor-qp-graded-record` @ `433135a`. Process: re-derive tip → read the CURRENT code of both files + the QP record's REAL shape → pre-flight → owner ruling → build → gates → push → OWNER BYTE-REVIEW of the pushed diff → rebase + re-run gates → owner-approved `--force-with-lease` → PR → CI green → owner LIVE-VERIFY → owner merge. Never self-merged.**
+
+**Live trunk when this was written: `084442b`, not `dfe3144` — #457 (the catalogue lane) landed on top mid-write. The 12th stale-base catch, the second in two hours. #457's docs are owed by THAT lane.** ★ **Squash-merged ⇒ `433135a` is NOT in trunk's ancestry — verify the CODE on trunk (`tutorRoundTrip.ts:125`), not the commit graph.**
+
+### What it does
+The tutor's practice return-opener now names **where** a mark went, not just how many. Owner live-verify, verbatim: ***"it does correctly identify the mistakes I made."*** Real output from the verification run:
+
+> *"You scored 3 out of 5 on that Trigonometry set, and the 2 marks slipped in the working — the approach was right, the arithmetic wasn't. On Q1, step 2 — 'Substitute into the identity' — is where it turned: The identity equals 1, not 2. Want to fix just that, or something else?"*
+
+Every number and every quoted word comes from the record **Practice** wrote; the annotation is **truncated, never reworded** — the words stay the grader's own. The tutor still never grades (D-TUT-8).
+
+### ★★ THE DETAIL ALREADY EXISTED AND NOTHING WAS READING IT
+This FU was **BLOCKED** until #436 shipped QP's own durable (non-counting) session record. Its `perQuestionRef` payload carries the **same grader's** per-step detail — `status` · `teacherAnnotation` · `mistakeType` · `correctedWorking` — **because QP's written-working path runs the SAME grader as C&I.** The pre-flight's job was to **verify that**, not assume it: the brief's premise was right this time, but it was checked (`getSessionPerQuestion`, local-first→cloud ⇒ cross-device works) before a line was written. *(Cf. the Z3 golden slice, where the brief's premise was wrong.)*
+
+### ★★ THE FOUR TRAPS — every one a silent failure, every one caught in PRE-FLIGHT
+1. **Two vocabularies.** Marker `"practice"` vs record `"quick-practice"` ⇒ `matchReturningRecord`'s `r.surface === pending.surface` **matches ZERO QP records, forever, with every gate green.** Mapped in a separate matcher via a documented constant. ★ **Never rename the marker — live persisted state** (`tutorSessions/{uid}/topics/{topicKey}`); renaming strands in-flight round-trips. Same species as #448's `conceptKey` rule.
+2. **Topic matching.** Raw `topicKeys.includes()` would match nothing (record stores a canonical slug, marker carries the tutor's key) — [FU-PROG-TOPIC-KEY-MISMATCH]'s exact class. Goes through `canonicalSlugMatches`, the attempts leg's existing precedent. Empty `topicKeys` deliberately **not** a wildcard for QP (it is for a mixed C&I paper) — here it means resolution failed, so matching would be a guess.
+3. **The record is not always written.** Only at the scorecard (`sessionFinished || allDone`; **no unmount hook, by owner ruling**) ⇒ a student who does 2 of 5 and taps back has **none**, while attempts exist for **every** answer. **Record = richer, attempts = further reach, neither subsumes the other** ⇒ **ADDITIVE: record → attempts → nothing.** `composePracticeReturnOpener` **byte-unchanged** as the floor.
+4. **Objective/MCQ.** A step's marks are **never quoted** — the #445 clamp zeroes them **by design**, so quoting one reads as *"you scored nothing."* Keep the annotation, drop the mark — what the C&I/worksheet views already do. A bare click carries no `annotatedSteps` at all (D-PROG-2) ⇒ `null` ⇒ the floor.
+
+★★ **The owner independently verified all four in the real code before approving** — and independently verified the three-dot diff rather than accepting the explanation of it. *That is what confirmed there was no scope contamination; not the explanation.*
+
+### ★★ OWNER RULING — generalise it past this one case
+*"Any composed opener that has to reach for something to say about incomplete data is manufacturing insight the data doesn't support. **Honest-or-silent beats a softened fabrication every time.**"* ⇒ the composer returns **`null`** on every thin-data path rather than dress up thin data, and the marks-only line stands unchanged for the unfinished set.
+
+### ★★ TWO GATES THAT READ **PASS** WHILE PROVING NOTHING — one species, owner-ruled
+- **vitest ran nowhere** — Windows can't (`@rollup/rollup-win32-x64-msvc` stripped by the linux pin) **and it is not CI-gated** ⇒ 18 new cases execute **nowhere, automatically, indefinitely.** ★ *The danger isn't that tests break — it's that **a test file borrows the authority of a passing suite without ever being run**, in every diff, every review, every handoff doc.* **Workaround:** `tutorRoundTrip.ts` has **`import type` deps only** ⇒ `tsc <file> --outDir <scratch>` emits a **standalone** module; drove it from plain node — **24/24**. ★ **Luck, not a strategy:** most of this repo's logic has real runtime deps and no such hatch ⇒ **ships on argument, not execution.**
+- **`scope:guard` = `SCOPE_GUARD_OK (mode=product, no changes)`** post-rebase — **a green string from a gate that inspected nothing** (it reads the *working-tree* diff; a committed tree is clean). ★ **Owner ruling: this is a SECOND INSTANCE OF THE SAME SPECIES, staying in the [FU-CI-GATE-VITEST] case, not a footnote.** *A gate that returns green without inspecting the thing you think it inspected doesn't merely fail to prove — it pays out the feeling of proof.*
+
+### ★ TWO-DOT `git diff` VS A MOVED TRUNK REPORTS OTHER LANES' WORK AS *YOUR* DELETION
+Two-dot against the new tip listed QR's `DesktopCheckImprovePage.tsx` at **−47** — #454's merged work, shown as if this branch deleted it. **Always three-dot for own-scope review.** Trunk moved **three times** across this one lane (`ba44ada` → `a8be752` → `a88f22c` → `084442b`).
+
+### ★ THE FORCE-PUSH WAS ASKED FOR, NOT INFERRED
+The rebase needed `--force-with-lease`. **§3 marks `push --force` *never auto-approve*** — *"rebase and open the PR"* does **not** authorise it by implication. Asked explicitly; the owner verified the remote was still at the pre-rebase SHA, that nothing was based on the branch, and that no PR referenced it, **then** approved. ★ **Force-push is the one place the doctrine says never assume.**
+
+### Live-verify — step 4 was the whole point
+Static gates pass **whether or not the real path binds.** The sequence: written working (**not** a bare MCQ click — that path produces the `annotatedSteps`) → reach the scorecard → tap back ⇒ **a step-level opener**. ★ **A marks-only opener there would have meant the surface-map or slug-match silently missed against real Firestore data with every gate green** — and the diagnostic split was pre-registered: *written working present + marks-only = a real binding bug; written working absent + marks-only = the composer's honest `null` and the floor doing its job.* **Same screen, opposite causes.** It bound. **PASS.**
+
+### Follow-ups
+- **[FU-CI-GATE-VITEST] — ESCALATED.** Owner: *"no longer hygiene debt"*, wants **its own priority conversation**, not another ledger line. **Two verification paths blocked in one night**, plus `scope:guard` as the second instance of the same species.
+- **NEXT (dispatched):** widen the `[[offer:practice]]` trigger — a student who **directly asks** to practise should fire the same sentinel; today it needs the tutor to have offered first.
+- **BLOCKED:** the NCERT proactive-mention prompt fix — waits on `hasNcertPage` reaching `catalogueFiguresForTopic`. **#457 landed; confirm the field before starting.**
+- **★ HELD, do NOT build:** hardcoded `count: 5` · the "tutor is waiting" banner / scorecard-return-row. Both wait on a **separate overlay-architecture investigation** (QP + C&I may become **in-tutor overlays reusing the real pages verbatim** ⇒ the banner/count-link mechanism becomes **secondary**). Building now risks throwing it away.
+
+---
+
 ## 2026-07-16 -- #454: ★★ THE QR LANE IS COMPLETE — the last wire (Check & Improve) — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED** — trunk `a8be752`
 
 **#454 (`a8be752`, 1 file, +47/−0, purely additive). Isolated worktree `LT-worktrees/qr-ci-wire`, branch `feat/desktop-pr-qr-ci-wire`. PR 2 of 2 (after #451's guard). Process: re-derive tip → fresh collision map → read C&I's CURRENT code → pre-flight → owner ruling → build → gates → push → OWNER BYTE-REVIEW of the pushed diff → owner live-verify → owner merge. Never self-merged.**

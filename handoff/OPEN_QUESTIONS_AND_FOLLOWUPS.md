@@ -1,3 +1,21 @@
+## 2026-07-16 -- #456: THE TUTOR READS QP'S GRADED WORKING (squash `dfe3144`; live trunk `084442b`), owner byte-reviewed + live-verified
+
+**[FU-TUTOR-QP-GRADED-RETURN] — CLOSED.** The practice return-opener reads QP's durable session record (#436) and names the step. Owner live-verify: ***"it does correctly identify the mistakes I made."*** Do NOT redo.
+
+### ★★ [FU-CI-GATE-VITEST] — **ESCALATED. Owner: "no longer hygiene debt"; wants its OWN priority conversation, not another ledger line.**
+**Two verification paths blocked in one night, and `scope:guard` is a SECOND INSTANCE OF THE SAME SPECIES — owner-ruled to live INSIDE this FU's case, not as a footnote.**
+- **The danger is not that tests break.** It is that **a test file borrows the authority of a passing suite without ever being run** — in every diff, every review, every handoff doc, **indefinitely**. #456 added 18 cases that execute **nowhere**.
+- **`scope:guard` post-rebase returns `SCOPE_GUARD_OK (mode=product, no changes)`** — **a green string from a gate that inspected nothing** (it reads the *working-tree* diff; a committed tree is clean). ★ *A gate that returns green without inspecting the thing you think it inspected doesn't merely fail to prove — **it pays out the feeling of proof.*** **A suite nobody runs and a guard with nothing to guard both read PASS in a report.**
+- **The workaround that worked, and why it does NOT generalise:** `tutorRoundTrip.ts` has **`import type` deps only** ⇒ `tsc <file> --outDir <scratch>` emits a **standalone** module drivable from plain node (**24/24** against the real compiled logic; emit errors from transitively-typed files are noise, the JS still emits). ★ **That was LUCK, not a strategy** — most of this repo's logic has real runtime deps and no such hatch, so **it ships on argument rather than execution.**
+
+### New / carried
+- **[FU-TUTOR-CTA-DIRECT-ASK] — DISPATCHED (next).** `[[offer:practice]]` fires **only** when the tutor offers and the student agrees. Widen it: a **direct student ask** (*"I want to try a few questions"*) fires the **same sentinel**, no prior offer required. `tutorSystemPrompt.cjs` + the sentinel's gate in `useTutorSession.ts`. **Re-derive the current gating from code.**
+- **[FU-TUTOR-NCERT-PROACTIVE-MENTION] — SEQUENCED/BLOCKED** on `hasNcertPage` reaching `catalogueFiguresForTopic`'s options. The model should **proactively say** *"there's also the real NCERT page for this"* in **plain words** — ★ **never require the student to ask: a 15-year-old will not know the trigger phrase.** **#457 landed — CONFIRM the field exists in code before starting** (a landed PR is not proof a specific field shipped).
+- **★ [FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] — HELD, do NOT build.** The hardcoded `count: 5` in the practice href and the "tutor is waiting" banner / scorecard-return-row both wait on a **separate overlay-architecture investigation** (QP + C&I may become **in-tutor overlays reusing the real pages verbatim** ⇒ the banner/count-link mechanism becomes **secondary**). **Building either now risks throwing it away.** *A HOLD with a reason — do not "just fix" them because they look like one-liners.*
+- **[FU-QP-RECORD-UNFINISHED-SESSION]** — NOT a bug, recorded so nobody "fixes" it: QP writes its record **only at the scorecard** (`sessionFinished || allDone`; **no unmount hook, by owner ruling**) ⇒ an unfinished set has **no record** and the tutor falls back to the marks-only attempts line **by design**. **Owner ruling: honest-or-silent beats a softened fabrication** — do not add partial-set commentary.
+
+---
+
 ## 2026-07-16 -- #454: ★★ THE QR LANE IS COMPLETE (trunk `a8be752`), owner byte-reviewed + live-verified
 
 ### ✅ RESOLVED BY #454 — AND THE LANE IS CLOSED
@@ -155,8 +173,8 @@ The QR spec (and a later owner note) said `SolutionChecker.tsx` is consumed by C
   - Generalise: when a rule is a **proxy** for the property you actually care about, the proxy is where the bug hides. State the real property (*can the fallback render it*) and test against inputs designed to separate the two.
 
 ### NEW (opened by #435)
-- **★ [FU-CI-GATE-VITEST] — FOUR vitest suites exist and NONE of them run, anywhere. Fix before soft launch.**
-  - **The ungated suites, by name:**
+- **★★ [FU-CI-GATE-VITEST] — ESCALATED at #456 (2026-07-16): owner ruled it is "no longer hygiene debt" and wants its OWN priority conversation. See the #456 section at the TOP of this file for the full case — the "borrows the authority of a passing suite without ever being run" framing, and `scope:guard` as a SECOND INSTANCE OF THE SAME SPECIES. FOUR suites exist and NONE of them run, anywhere. Fix before soft launch.**
+  - **The ungated suites, by name:** *(#456 added 18 cases to suite 3 — they execute nowhere)*
     1. `lazytopper/src/components/question/MathText.test.tsx` — guards the app's **shared maths renderer** (13 consumers).
     2. `lazytopper/src/components/equation/EquationInput.test.tsx` — guards the **equation widget**.
     3. `lazytopper/src/pages/tutor/tutorRoundTrip.test.ts` — guards the **tutor round-trip**.
