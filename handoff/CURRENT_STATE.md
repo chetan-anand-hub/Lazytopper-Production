@@ -2,7 +2,9 @@
 
 ## #460 merged — A STUDENT WHO **ASKS** TO PRACTISE GETS THE HAND-OFF — **owner BYTE-REVIEWED + LIVE-VERIFIED (all 3 probes)** — trunk `be200cb`
 
-**Trunk `be200cb`.** ⚠ **#457 (`084442b`) and #459 (`27e6ec2`) are BOTH MERGED AND LIVE BUT HAVE NO HANDOFF DOCS** — they are the **catalogue lane's**, and that lane owes them; this section does **not** speak for them. *(Recorded so the gap is visible, not silently lost. #459 = "the NCERT page can win the panel"; owner live-verified electricity · Ohm's law in production.)*
+**#460's squash is `be200cb`. The live trunk is `7be651d`.** ✅ **#457 + #459 ARE DOCUMENTED — by #461 (`d364d03`), the section directly below.**
+
+> ⚠️ **CORRECTED BY #463 — READ THIS, IT IS THE LESSON.** This line originally read: *"#457 and #459 are BOTH MERGED AND LIVE BUT HAVE NO HANDOFF DOCS — the catalogue lane owes them."* **That was TRUE when written and FALSE within the hour:** #461 merged **mid-write** and paid exactly that debt. The correction was written **but never published** — it sat on an unpushed local commit behind a `--force-with-lease` approval that was requested and not yet granted, while the conflict was resolved in the GitHub UI from the **pre-correction** commit and merged. ⇒ **the false claim went live and sat on trunk in SIX files.** ★★ **The failure was not the stale claim — that was honest and unavoidable. The failure was holding a KNOWN correction locally and letting the stale version merge without shouting that the fix was unpublished.** *A correction that is not pushed does not exist.* ★ **The 13th stale-base catch, and the first DOCS-vs-DOCS one** — two docs lanes prepending to the same six files; **a new collision class**, expect it whenever two lanes finish within the hour, and **re-verify every cross-lane claim AT REBASE.** *A stale claim is worse than none: it looks like diligence.*
 
 **1 file, `lazytopper/server/prompts/tutorSystemPrompt.cjs`, +13/−2. PROMPT TEXT ONLY — no client change, and that is the finding.**
 

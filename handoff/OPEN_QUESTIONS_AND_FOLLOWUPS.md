@@ -2,8 +2,14 @@
 
 **[FU-TUTOR-CTA-DIRECT-ASK] — CLOSED.** `[[offer:practice]]` now fires on **either** the tutor's offer turn **or** the turn answering a **direct student ask**. Prompt-only (1 file). Owner probes all pass, including the boundary one. Do NOT redo.
 
-### ⚠ DOCS DEBT — not this lane's to pay
-**#457 (`084442b`) and #459 (`27e6ec2`) are MERGED and LIVE with NO handoff docs.** They belong to the **catalogue lane**. Logged here only so the gap is **visible rather than silently lost** — #460's docs do **not** speak for them.
+### ✅ DOCS DEBT — **THERE IS NONE. CORRECTED BY #463.**
+This section originally read: *"#457 and #459 are MERGED and LIVE with NO handoff docs — they belong to the catalogue lane."* ✅ **FALSE — #461 (`d364d03`) documented both**, merging **mid-write** and paying exactly that debt. **True when written; false within the hour.**
+
+★★ **[FU-DOCS-CORRECTION-NOT-PUSHED] — the real finding, worth more than the fix.** The correction **was written and never published**: it sat on an **unpushed local commit** behind a `--force-with-lease` approval that had been **requested and not granted**, while the conflict was resolved in the **GitHub UI from the pre-correction commit** and merged. ⇒ **a claim already known to be false went live on trunk in SIX files.**
+- **The stale claim was NOT the failure** — it was honest when written and the world changed underneath it. **The failure was holding a KNOWN correction locally while the stale version merged, without shouting that the fix was unpublished.**
+- ★ ***A correction that is not pushed does not exist.*** **If a claim you have ALREADY discovered to be false is sitting in an open PR, saying so out loud outranks waiting politely for approval on the mechanism that would fix it.** The approval gate (§3, `push --force`) was correct; **treating "blocked on approval" as "handled" was not.**
+- ★ **Two lanes finishing within the hour is a NEW COLLISION CLASS** (the 13th stale-base catch, the **first docs-vs-docs**): both lanes prepend to the same six files. **Re-verify every cross-lane claim AT REBASE** — *a stale claim is worse than none: it looks like diligence.*
+- ★ **The UI conflict-resolution ALSO duplicated `SURFACE_TRACKER.md`'s `**Home:**` header** (two competing "Trunk at last sync" lines, `be200cb` and `27e6ec2`), against that file's one-Home-plus-nested-`_Prior sync_` convention. **#463 collapses it.** *A UI merge of two prepend-style docs lanes does not just pick wrong text — it can break the file's structure, and no gate reads it.*
 
 ### ★★ [FU-TUTOR-NCERT-PROACTIVE-MENTION] — **UNBLOCKED. Next.**
 **`hasNcertPage` VERIFIED PRESENT IN CODE** (checked, not inferred from *"#457 landed"* — ★ *a landed PR is never proof a specific field shipped*): `conceptVisualCatalogue.ts:226` → `:253` (`Boolean(row.ncertPage)`) → `tutorClient.ts:50` → **`tutor.cjs:111`** (rebuilt + coerced `=== true`).
