@@ -75,17 +75,58 @@ const converged = stripComments(convergedRaw);
 const appRaw = read(APP);
 const app = stripComments(appRaw);
 
-// The base ref, resolved once. Several checks compare against the commit this branch
-// forked from rather than trusting a number typed into this file. If the ref is absent
-// (a shallow clone, a bare tarball) those checks SAY they were skipped — a check that
-// quietly no-ops is worse than no check, because it reads as green.
-let base = null;
-for (const ref of ['origin/base/approved-thru-437', 'base/approved-thru-437']) {
+// ── REF RESOLUTION — the honest version (2026-07-18 gate fix) ────────────────
+// Two checks below compare against git history, and they have DIFFERENT needs, so the
+// original single `base` ref was wrong for both:
+//
+//   • The MI moat (item 0) is PERMANENT. The 52 lines that survived the convergence
+//     must survive byte-identical FOREVER — so it is anchored to a FIXED SHA (the
+//     commit PR-1 forked from), never a moving branch ref. Anchoring it to
+//     `origin/base/...` was the bug: once #466 merged, that ref IS trunk, so the file
+//     was compared to ITSELF (55→54, "0 gone" → false red); and on CI's shallow
+//     checkout the ref was absent entirely, so the whole check SILENTLY SKIPPED —
+//     green build, moat unguarded, on every run including the "fully green" one.
+//
+//   • FORBIDDEN is PR-SCOPED. checkSolution.cjs may legitimately change in a DIFFERENT
+//     lane later, so "did THIS change set touch it?" is a question about the PR, not
+//     about all of history — answered by the merge-base with the PR's target branch.
+//     On a push-to-trunk run there is no PR to scope against, so it reports N/A rather
+//     than the old vacuous green (base===HEAD ⇒ empty diff ⇒ everything "passes").
+//
+// ★ THE LOAD-BEARING RULE: in CI, a ref we NEED but cannot resolve is a HARD FAILURE,
+// never a skip. A check that can silently not-run is not a check. This exact gate
+// skipped its hardest checks on every CI run because `quality-gate.yml` did a depth-1
+// checkout that hid the refs. That workflow now fetches depth-0 + the base branch; THIS
+// half of the fix makes the gate REFUSE TO PASS if that ever regresses. The predecessor
+// workflow "never ran" for a sibling reason (wrong directory) — a check silently not
+// running is a repeat failure mode in this repo, so it is now designed against.
+const IN_CI = !!process.env.CI;
+const EVENT = process.env.GITHUB_EVENT_NAME || null;   // 'pull_request' | 'push' | null
+const PR_TARGET = process.env.GITHUB_BASE_REF || null; // set ONLY on pull_request events
+
+// The convergence's PR-1 base. Verified an ancestor of trunk (`git merge-base
+// --is-ancestor e8f75af origin/base/approved-thru-437`), so it is durable — full SHA,
+// not an abbreviation, so it stays unambiguous as history grows.
+const MI_ANCHOR = 'e8f75af2b17815c0dac924821abefb2d9c4fb226';
+
+function hasRef(ref) {
   try {
-    execFileSync('git', ['rev-parse', '--verify', ref], { cwd: ROOT, stdio: 'pipe' });
-    base = ref;
-    break;
-  } catch { /* try the next candidate */ }
+    execFileSync('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], { cwd: ROOT, stdio: 'pipe' });
+    return true;
+  } catch { return false; }
+}
+
+// The PR-scoped base for the FORBIDDEN diff: the PR's target branch on a pull_request,
+// the integration branch on a local run, and NOTHING on a push-to-trunk run (no PR).
+function resolveForbiddenBase() {
+  if (PR_TARGET) {
+    for (const r of [`origin/${PR_TARGET}`, PR_TARGET]) if (hasRef(r)) return r;
+    return null; // pull_request but the target ref is unreachable — handled as a CI failure below
+  }
+  if (!IN_CI) {
+    for (const r of ['origin/base/approved-thru-437', 'base/approved-thru-437']) if (hasRef(r)) return r;
+  }
+  return null; // push-to-trunk (or unknown CI event) — N/A, not a pass
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -160,10 +201,10 @@ const DELETED_EXPECTED = [
   'Each successful grading is saved to your mistake history so we',
   "Sign in to save mistake history. Without an account we'll",
 ];
-if (base) {
+if (hasRef(MI_ANCHOR)) {
   const norm = (s) => s.split('\n').map((l) => l.trim()).filter((l) => /mistake/i.test(l));
   const baseFile = execFileSync(
-    'git', ['show', `${base}:lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx`],
+    'git', ['show', `${MI_ANCHOR}:lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx`],
     { cwd: ROOT, maxBuffer: 1024 * 1024 * 16 },
   ).toString();
   const baseLines = norm(baseFile);
@@ -175,16 +216,29 @@ if (base) {
     const i = nowSet.indexOf(l);
     if (i >= 0) { nowSet.splice(i, 1); survived.push(l); } else { gone.push(l); }
   }
-  check('MI: the base commit had 55 "mistake" lines (re-derived, not remembered)',
+  check('MI: the anchor e8f75af had 55 "mistake" lines (re-derived from the SHA, not remembered)',
     baseLines.length === 55, `found ${baseLines.length}`);
-  check('MI: exactly 52 of them survive BYTE-IDENTICAL',
+  // ★ THE MOAT, made permanent. Anchored to the FIXED SHA, this is no longer a one-shot
+  // "the convergence didn't touch MI" — it is a standing guarantee that those 52 lines
+  // survive byte-identical in EVERY future commit. Any lane that alters one goes red.
+  check('MI: all 52 survivors are still present BYTE-IDENTICAL (permanent moat guard)',
     survived.length === 52, `found ${survived.length}`);
-  check('MI: exactly 3 are gone, and they are EXACTLY the deleted rail card\'s 3',
+  check('MI: exactly the deleted rail card\'s 3 lines are gone — no more, no fewer',
     gone.length === 3 && DELETED_EXPECTED.every((d) => gone.some((g) => g === d)),
     `gone(${gone.length}): ${JSON.stringify(gone)}`);
+} else if (IN_CI) {
+  // ★ HARD FAILURE, by design. In CI the anchor MUST be reachable; if it is not, the
+  // moat check could not run, and a check that silently did not run reads as green.
+  // This is the single most important line in the file.
+  check('MI: the e8f75af moat anchor is reachable in CI (fetch-depth must be 0)',
+    false,
+    'anchor commit absent from the checkout — the 52-survivor moat check COULD NOT RUN. '
+    + 'This is a hard failure on purpose: quality-gate.yml must fetch full history so the '
+    + 'anchor is present. A check that cannot run is not a check.');
 } else {
-  console.log('  ~~  SKIPPED: no base ref — the 52-survivor byte-comparison was NOT run here.');
-  console.log('      (Not a pass. The absence checks below still hold.)');
+  console.log('  ~~  SKIPPED (local, non-CI): anchor e8f75af is not in this clone.');
+  console.log('      Run `git fetch origin base/approved-thru-437` to enable the full MI moat check.');
+  console.log('      (A local skip is fine — CI is where this MUST run, and there its absence FAILS.)');
 }
 
 // The relocated disclosure + the only login path on the surface. Decision (c) exists
@@ -407,17 +461,33 @@ const FORBIDDEN = [
   'lazytopper/src/components/desktop/DesktopShell.tsx',
 ];
 
-// Uses the base ref resolved at the top. Same honesty rule: skipped is not passed.
-if (base) {
-  const changed = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], { cwd: ROOT })
+// PR-scoped (not anchored): "did THIS change set touch a forbidden path?" On a push to
+// trunk there is no PR, so it reports N/A — never the old vacuous green.
+const forbiddenBase = resolveForbiddenBase();
+if (forbiddenBase) {
+  // `A...HEAD` diffs from merge-base(A, HEAD) to HEAD — exactly the PR's own changes.
+  const changed = execFileSync('git', ['diff', '--name-only', `${forbiddenBase}...HEAD`], { cwd: ROOT })
     .toString().split('\n').map((s) => s.trim()).filter(Boolean);
   for (const f of FORBIDDEN) {
-    check(`FORBIDDEN: ${f} shows zero changes`, !changed.includes(f),
+    check(`FORBIDDEN: ${f} shows zero changes (vs ${forbiddenBase})`, !changed.includes(f),
       changed.includes(f) ? 'THIS FILE WAS MODIFIED' : '');
   }
+} else if (EVENT === 'push') {
+  // Push-to-trunk: legitimately no PR to scope against. NOT a check and NOT a pass —
+  // the diff would be empty and "pass" every forbidden path without examining one.
+  console.log('  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.');
+  console.log('      (The PR that introduced the change was gated on ITS own run. Not counted as a pass.)');
+} else if (IN_CI) {
+  // A pull_request (or other CI event) whose base ref we could not resolve. Same rule
+  // as the MI anchor: in CI, a needed-but-missing ref FAILS rather than skips.
+  check('FORBIDDEN: the PR base ref is reachable in CI (fetch-depth must be 0)',
+    false,
+    `could not resolve the PR target ref${PR_TARGET ? ` (origin/${PR_TARGET})` : ''} — `
+    + 'the forbidden-path diff could not be scoped. Hard failure by design; quality-gate.yml '
+    + 'must fetch the base branch.');
 } else {
-  console.log('  ~~  SKIPPED: no base ref available — forbidden-path diff NOT checked here.');
-  console.log('      (Not a pass. CI always has the ref; a local run may not.)');
+  console.log('  ~~  SKIPPED (local, non-CI): no base ref — forbidden-path diff not checked.');
+  console.log('      (A local skip is fine; the PR run scopes it against the real base.)');
 }
 
 console.log('');
