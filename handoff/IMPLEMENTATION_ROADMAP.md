@@ -12,7 +12,7 @@ This roadmap preserves the staged implementation plan after PR #82 merge.
 - ★★ **The boundary defended — #442: QP practises, the Tutor teaches.** A request to SEE something solved is a **teaching** request and stays the tutor's job; **ambiguity fails closed** (no tag). *A missing CTA costs one more sentence; a wrong CTA pushes someone who wanted an explanation into a practice set.*
 - ★ **Every gate would have passed if the wording were terrible** — none of them read English. **A prompt is only verified by a model reading it.**
 
-**Follows:** **[FU-TUTOR-NCERT-PROACTIVE-MENTION] — UNBLOCKED** (`hasNcertPage` **verified in code**; the seam is `figurePanelBlock()`, named as such by `tutor.cjs:101`). ⚠ **#457/#459 are live but undocumented — the catalogue lane owes those docs.** **HELD:** `count: 5` + the "tutor is waiting" banner, pending the overlay-architecture investigation.
+**Follows:** **[FU-TUTOR-NCERT-PROACTIVE-MENTION] — UNBLOCKED** (`hasNcertPage` **verified in code**; the seam is `figurePanelBlock()`, named as such by `tutor.cjs:101`). ✅ **#457/#459 ARE documented — by #461 (`d364d03`).** *(**Corrected by #463.** This line originally read "live but undocumented": **true when written, false within the hour** — #461 merged mid-write. The correction was written but **never pushed**, so the false claim merged. ★ **A correction that is not pushed does not exist.**)* **Live trunk `7be651d`, not `be200cb`.** **HELD:** `count: 5` + the "tutor is waiting" banner, pending the overlay-architecture investigation.
 
 ---
 ## 2026-07-17 — ★★ ✅ THE NCERT PAGE ARC COMPLETE (#457 `084442b` + #459 `27e6ec2`) — the page went dormant → live → **winnable**; the tutor can now show the real book, not just cite it
