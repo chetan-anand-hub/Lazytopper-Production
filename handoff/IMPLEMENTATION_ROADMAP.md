@@ -2,6 +2,18 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-17 — ★★ ✅ THE NCERT PAGE ARC COMPLETE (#457 `084442b` + #459 `27e6ec2`) — the page went dormant → live → **winnable**; the tutor can now show the real book, not just cite it
+
+**Owner BYTE-REVIEWED both pushed diffs + LIVE-VERIFIED ×3** (maths p.11 · science p.132 · electricity·Ohm's law inline). **Also pays #457's docs debt** — #458 recorded it as owed by this lane.
+
+- **#457 — data only.** The affordance was **BUILT AND DORMANT, not missing**: `ExplanationPanel` already rendered the NCERT button whenever a row carried `ncertPage`, and **zero of 54 rows had one**. Now **54→73 rows** (of 112 boardEssentials concepts), **65** carrying a page, coverage **13→22 topics**. `data.ts` was **`306 added / 0 deleted`** — git *proving* the 54 originals untouched.
+- **#459 — the ceiling removed.** `resolveConceptVisual`'s own comment: *"offered ALONGSIDE the body ... NOT as the body itself"* ⇒ a **whole-chapter interactive outranked an exact page at ANY fit**. New priority: **in-play exam figure → real figure → NCERT page → interactive → gap** (owner ruling, Q1 Option A). **15 of 73 rows change**; the 52 figure rows are untouched and the page still rides alongside them. Plus `hasNcertPage` plumbed to the prompt builder's doorstep (**prompt text byte-identical** — the model still doesn't know pages exist; that copy is the round-trip lane's task).
+- **★★ The catalogue is TWO files and only ONE ships** (`handoff/curation/…curated.ts` is imported by nobody) — **and they had already drifted**. ⇒ **[FU-CATALOGUE-SYNC-GUARD]**.
+- **★★ The repo's own NCERT page data is untrustworthy** (`page_pdf` 0-/1-based per spec; Light's plain wrong; `source_ledger` misplaces electricity) ⇒ **every page verified against the official PDF: folio AND section heading**.
+- **★★ Photosynthesis is a VOCABULARY gap, not a coverage gap** — no such `boardEssentials` row exists; the CI label gate did its job **by refusing**. 39 concepts checked and **refused**. ⇒ **[FU-TUTOR-VOCAB-BRAIN-ROW]**.
+- **★★ [FU-CI-GATE-VITEST] re-scoped: CHEAP, not hard** — vitest **runs on Windows** (drop the stripped rollup binary); the real blocker is a **missing step in the linux CI job that already works**. Ran **92/92** and **mutation-tested** the new cases (guarded tests can pass vacuously).
+- **Stage status:** Tutor Stage 1+2+3 remain ✅; this is §2a **depth** on an existing surface — **no COMPLETION cell moves**, and the Tutor's `Verified` cell is **not** re-claimed (#444 precedent).
+
 ## 2026-07-16 — ✅ THE TUTOR READS QUICK PRACTICE'S GRADED WORKING (#456 `dfe3144`) — the two round-trip legs are level; the practice opener names the step, not just the score
 
 **Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED** (*"it does correctly identify the mistakes I made"*). Live trunk at docs-write: `084442b` (**#457 landed on top mid-write** — its docs are owed by that lane).
