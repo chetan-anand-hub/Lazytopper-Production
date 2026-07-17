@@ -22,6 +22,56 @@ tsc / both matrices / mojibake **do not read English.** The only check with powe
 - **[FU-TUTOR-CTA-DIRECT-ASK] CLOSED.**
 - **NEXT — [FU-TUTOR-NCERT-PROACTIVE-MENTION] UNBLOCKED.** ★ **`hasNcertPage` VERIFIED IN CODE, not inferred from "#457 landed"**: `conceptVisualCatalogue.ts:226`/`:253` → `tutorClient.ts:50` → **`tutor.cjs:111`** (coerced `=== true`). ★★ **The code names the seam itself — `tutor.cjs:101`: _"plumbing only today: `figurePanelBlock()` does not read it yet"_** ⇒ the work is **`figurePanelBlock()`** (`tutorSystemPrompt.cjs:226`), today key/label only. ⚠ **`normalizeFigures` REBUILDS each option at the trust boundary — a new field not whitelisted there is silently dropped.** ★ Never make the student **ask** for the page — *a 15-year-old will not know the trigger phrase.*
 - **★ HELD, do NOT build:** `count: 5` · the "tutor is waiting" banner / scorecard-return-row — pending the **overlay-architecture investigation** (QP + C&I may become **in-tutor overlays reusing the real pages verbatim** ⇒ the mechanism becomes **secondary**).
+## 2026-07-17 -- #457 + #459: ★★ THE NCERT PAGE ARC — DORMANT → LIVE → **WINNABLE** — **merged + owner BYTE-REVIEWED ×2 + LIVE-VERIFIED ×3** — trunk `27e6ec2`
+
+**Two PRs, one arc, both merged after an owner byte-review of the PUSHED diff. This entry also pays #457's docs debt — #458 recorded it as "OWED BY THAT LANE".**
+**#457** (`084442b`, 3 files, +854/−118; worktree `LT-worktrees/tutor-catalogue-ncert`, branch `content/tutor-catalogue-ncert-coverage` @ `8b2b29d`) — the catalogue's NCERT-page data + coverage.
+**#459** (`27e6ec2`, 5 files, +314/−29; worktree `LT-worktrees/tutor-ncert-body-kind`, branch `feat/tutor-ncert-winnable-body` @ `cf8c6e8`) — the page becomes a **winnable body kind**.
+**Live-verified ×3:** maths **p.11** (polynomials) · science **p.132** (heredity) · **electricity · Ohm's law** (the inline `ncert` body). *Different subjects, different Storage paths, different offset entries ⇒ the pipe is reachable **generally**, not for one lucky chapter.*
+
+### What they do
+The tutor could cite an exact NCERT page and never show one. #457 filled the data — **54→73 rows** (of 112 boardEssentials concepts), **65** carrying `ncertPage`, coverage **13→22 topics**. #459 removed the page's second-class status: it now **competes** for the panel body. Owner rulings taken, not inferred — **Q1 Option A** (outrank `interactive`; 15 rows change) · **Q2** build-now-fail-closed with **merge gated on the clicks** · **Q3 Option A** (server plumbing in scope, prompt copy out) · **the filter fix approved as a prerequisite**.
+
+### ★★ THE BRIEF WAS IMPOSSIBLE AS WRITTEN — the deliverable would have been INERT
+It scoped edits to `handoff/curation/**` and forbade `pages/tutor/**`. But **`conceptFigureCatalogue.curated.ts` is imported by NOBODY** (the app tsconfig only includes `src`); the WIRED copy is `conceptVisualCatalogue.data.ts` — what the resolver reads and what CI gates. ⇒ **curating only the allowed file ships zero student-visible change.** Stopped and reported per §4 rather than routing around it; the owner granted a **narrow, one-time, now-EXPIRED** grant to touch the data file (rows only). ★ *A scope rule that makes the task inert is one to escalate, not satisfy literally.*
+
+### ★★ THE "BYTE-FAITHFUL COPY" WAS ALREADY FALSE, BEFORE ANYONE TOUCHED IT
+#448's owner-approved gap-fill rows + the 2026-07-16 label corrections (`>C=O, –X`→`–Cl, –Br`; "Circumference & area recap"→"Radius from a given circumference…") existed **only in `data.ts`**. *The owner verified this himself on trunk before trusting the rest of the report.* ⇒ re-synced **curated ← data** (the direction that ships and gates) — which is why curated's diff is large. ★ **Nothing enforces the contract ⇒ [FU-CATALOGUE-SYNC-GUARD]; it rotted in ONE PR cycle and will again.**
+
+### ★★ THE REPO'S OWN NCERT PAGE DATA IS UNTRUSTWORTHY — the verification IS the work
+All 65 pages verified against the official 2026-27 chapter PDFs (**pymupdf**) requiring **BOTH** the printed folio **AND** the section heading/caption on that page — **never derived from a spec field**. Caught, before students:
+- **`page_pdf` is 0-based in some specs and 1-based in others** (25/62 off by one). **Light's is plain wrong** — `fig_99` says `page_pdf: 10` ⇒ derives p.144; Fig 9.9's caption is p.**143**.
+- **`source_ledger` misplaces electricity** — series p.192 (§11.6.1 = p.**182**), parallel p.186 (p.**185**), Ohm's law p.176 (p.**175**).
+- The page field is named **three ways** (`printed_page` | `page_printed` | `ncert_page`) ⇒ reading one makes real data look absent.
+- **Figure page ≠ concept page** (xylem/phloem §5.4.2 p.94 vs its figure p.82) — `ncertPage` points at the **concept**. **Lens power is defined in Light ch.9 §9.3.8 p.157**, not the eye chapter ⇒ a deliberate cross-chapter ref (confirms [FU-TOPICHUB-LENSPOWER-ANCHOR]).
+★ *The clicks landing on correct CONTENT validated the method behind all 65 — not just the two rows clicked.*
+
+### ★★ PHOTOSYNTHESIS IS A **VOCABULARY** GAP — the CI gate did its job by REFUSING
+The live miss that started the lane is unfixable by a catalogue row: **no photosynthesis row exists in `boardEssentials`**, and CI hard-fails any label that isn't live. life-processes was already **5/5**. Same shape for the **human brain** (Fig 6.3 p.104 — extracted, board-heavy, no row) ⇒ **[FU-TUTOR-VOCAB-BRAIN-ROW]**. **39 concepts checked and REFUSED** — our-environment's trophic pyramid shows *feeding levels*, not "ecosystem components" (no decomposers, no abiotic): the tempting stretch, refused. 8 rows honestly carry no page (out-of-scope ×6 · no `maths/ch9` offset ⇒ [FU-NCERT-OFFSETS-MATHS-CH9] · **ch.8 never uses "genotype"/"phenotype"**).
+
+### ★★ THE PREREQUISITE WAS THE WHOLE BALLGAME
+`catalogueFiguresForTopic` excluded **every** `best.kind === "none"` row ⇒ carbon · "Functional groups", **the ONE row whose only visual is the page**, was hidden from the model's option set ⇒ no sentinel ⇒ no panel ⇒ **the promotion would have been dead code for exactly the row it was built for.** Now `best.kind === "none" && !row.ncertPage`; options **71→72**. ★ *Its old rationale was TRUE WHEN WRITTEN and rotted the moment the page could fill the panel — the same species as #451's "third 5 MB constant".*
+
+### ★★ `normalizeFigures` DROPS UNKNOWN FIELDS BY CONSTRUCTION
+It **rebuilds** each option as `{key,label}` at the trust boundary ⇒ client-only plumbing ships a field that **provably never arrives**. Chain: `CatalogueFigureOption` → `TutorFigureOption` (a **second, mirrored** type in `ai/tutorClient.ts`) → `normalizeFigures` → `figurePanelBlock`. **Prompt text byte-identical** (renders only `` `- ${f.key}: ${f.label}` ``; `figures` is never `JSON.stringify`'d) ⇒ **the model still does not know NCERT pages exist** — exactly why it flatly says *"I cannot open NCERT pages."* `figurePanelBlock` **deliberately untouched** — the round-trip lane's task.
+
+### ★ FAIL-CLOSED, and why a LOCAL test can never prove it
+`ncert` is the only body kind whose asset isn't proven before render (images are disk-gated by CI; a page is fetched from Storage **at render time**). The panel HEAD-probes → renders the honest gap on any failure, from **ONE shared definition** so the fallback can't drift from the real thing. ★ **No `.env` in the repo ⇒ every LOCAL dev build has no bucket and ALWAYS takes the fallback — "coming soon" locally is expected, not a bug.**
+
+### ★★ THE VITEST CEILING WAS WRONG — the most useful correction of the night
+Three lanes recorded *"Windows can't run vitest"* as the ceiling and shipped **on argument rather than execution**. **It is false.** The linux-x64 pin strips `@rollup/rollup-win32-x64-msvc`; drop the matching binary into rollup's own `node_modules` and vitest runs — **92/92, ~11s** (local only, **nothing committed, no lockfile change**). ⇒ **[FU-CI-GATE-VITEST] is a MISSING WORKFLOW STEP, not a platform limitation — CI is linux, where vitest would work today.** Hard → **cheap**. *Flag loudly when that conversation happens.*
+
+### ★ MUTATION-TESTING MY OWN TESTS — a guarded test that passes is worse than an honest "unverified"
+The new cases carry `if (!row) return` guards ⇒ a vacuous pass when the `find` misses. Reverting the priority failed **exactly 3** (outranks-interactive · fills-the-gap · option-set); the 2 that stayed green pin the half the ruling does **not** change. Restored **byte-exact** (empty diff vs HEAD), re-verified 92/92. **The old tests were updated, not bent** — `find(best.kind === "interactive")`'s first hit (triangles · BPT) carries a page and now resolves to `ncert`, so they'd have failed **by design**; re-pointed at page-less rows so they still pin the #448 base-path bug.
+
+### ★ `data.ts` was `306 added / 0 DELETED` — git proving the claim the review turned on
+Zero deletion lines ⇒ the 54 existing rows are **provably** untouched. That is the strongest form of *"I altered nothing existing"* available, and it made the byte-review cheap. *The owner grepped for deletions directly rather than accept the assertion.*
+
+### Gates
+tsc · root matrix (28 suites / 190 tests, 0 fail) · lazytopper ops matrix · `tutor_visual_catalogue_acceptance` (73 rows) · mojibake · `git diff --check` · row-array **byte-identity** (57,983 bytes each) · **per-topic** label check (**stricter than CI's flat one** — CI matches `name:` across the WHOLE file, so a label from another topic would pass) · **vitest 92/92, really run**. **`scope:guard`:** FAILED **benignly** on #457 — every lane in `repo_boundary_policy.json` is relative to `lazytopper/`, so repo-root `handoff/` is `[unclassified]`; the near-miss that hides this is **`_handoff/`** (leading underscore) under `generatedEvidence` ⇒ **[FU-SCOPE-GUARD-HANDOFF-LANE]**. It passed **meaningfully** on #459 (`SCOPE_GUARD_OK`, product-only — `server/` IS in the product lane).
+
+### Stale-base
+**#457's base moved mid-task** (`ba44ada` → `a88f22c`, the QR lane #454/#455) — **the 13th catch**; no collision, proven by three-dot diff + `merge-tree`, not assumed. **#457 was squash-merged ⇒ `8b2b29d` is NOT in trunk's ancestry** — `git branch --contains` says it never landed. **Verify the CODE on trunk** (73 rows + 65 `ncertPage`), not the commit graph.
 
 ---
 
