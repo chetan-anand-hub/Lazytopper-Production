@@ -216,12 +216,38 @@ function briefBlock(brief) {
 }
 
 /**
- * Stage 3 — the visual-panel directive. Lists the concepts in this topic that have a curated
- * diagram (each with its exact sentinel key) and tells the tutor to signal ONE via
- * `[[figure:<key>]]` when — and only when — a diagram genuinely helps the point this turn.
+ * Stage 3 — the visual-panel directive. Lists the concepts in this topic that have something real
+ * to show (each with its exact sentinel key) and tells the tutor to signal ONE via
+ * `[[figure:<key>]]` when — and only when — it genuinely helps the point this turn.
  * Empty/absent list → no block (the tutor never invents a figure or references a panel).
  * Anti-fabrication: the app shows ONLY a curated, verified asset for a signalled key; the
  * tutor must never describe a diagram it has not signalled, and never signal a key not listed.
+ *
+ * ── The NCERT page mention ───────────────────────────────────────────────────
+ * An option carrying `hasNcertPage` is marked "[real NCERT page available]" so the model can
+ * tell, PER CONCEPT, which ones have the student's actual textbook page — and is told to say so
+ * unprompted (a 15-year-old never knows to ask). Three properties this block is load-bearing for,
+ * each verified against the client rather than assumed:
+ *
+ *  1. THE MENTION IS COUPLED TO THE SIGNAL. The page renders inside the explanation panel
+ *     (`ExplanationPanel` NCERT button, or the panel body itself), and `TutorPage`'s
+ *     `showPanel = panelOpen && !!resolvedVisual` means the panel exists ONLY once the model has
+ *     signalled that concept's figure. A mention without the signal points at a button that is
+ *     not on screen — a fake affordance. Hence "mention it ONLY together with the signal".
+ *  2. THE MODEL GETS A BOOLEAN, NEVER THE PAGE. `normalizeFigures` (routes/tutor.cjs) whitelists
+ *     exactly {key, label, hasNcertPage}; `resolveConceptVisual` alone decides `kind: "ncert"` and
+ *     which page renders. Do NOT "help" by passing the page number/URL through — that inverts a
+ *     deliberate split. The prompt therefore bans stating a page/chapter/link: told THAT, not WHICH.
+ *  3. THE WORDING HOLDS WHICHEVER BODY WINS. `resolveConceptVisual` attaches `ncertPage` to the
+ *     resolved visual REGARDLESS of the body, so the page is reachable either as the panel's own
+ *     body (a page-only row) or as its button beside a figure — and the model cannot know which.
+ *     So the copy says the page "is right there in the panel", true in both, never "there's ALSO
+ *     a page" (odd when the page IS the panel).
+ *
+ * The list is deliberately NOT all-diagram: `catalogueFiguresForTopic` admits a row with a page
+ * and no figure (`best.kind === "none" && !row.ncertPage` is the only skip), so the header says
+ * "a diagram, the actual page, or both" — the older "have a curated diagram" wording was false
+ * for page-only rows.
  */
 function figurePanelBlock(figures) {
   const list = Array.isArray(figures)
@@ -234,11 +260,33 @@ function figurePanelBlock(figures) {
       `"the figure beside us" — teach in words. Never invent or describe a diagram that is not shown.`
     );
   }
-  const items = list.map((f) => `    - ${f.key}: ${f.label}`).join('\n');
+  const items = list
+    .map((f) => `    - ${f.key}: ${f.label}${f.hasNcertPage === true ? ' [real NCERT page available]' : ''}`)
+    .join('\n');
+  // The page directive is emitted ONLY when a listed key actually carries a page. With none, it
+  // would describe a marker that appears nowhere in the list above — telling the model to look
+  // for a thing that does not exist is the same fabrication risk the rest of this block guards.
+  const anyNcertPage = list.some((f) => f.hasNcertPage === true);
+  const ncertPageDirective = !anyNcertPage
+    ? ''
+    : `\nTHE NCERT PAGE — SAY IT, DON'T WAIT TO BE ASKED: a key marked ` +
+      `"[real NCERT page available]" above has the ACTUAL page from the student's own NCERT textbook, ` +
+      `and the app puts it in that same panel. On the turn where you signal that key, TELL THE STUDENT ` +
+      `it is there, in plain words a 15-year-old would use — e.g. "the real NCERT page for this is ` +
+      `right there in the panel if you want to see it." ★ Do this UNPROMPTED, every time. A student ` +
+      `does not know the page exists and will never think to ask for it; waiting to be asked means it ` +
+      `is never seen. ★ Mention it ONLY together with that key's \`[[figure:<key>]]\` signal — the page ` +
+      `lives in the panel, and the panel only opens when you signal; mentioning it on any other turn ` +
+      `points the student at something that is not on their screen. ★ NEVER state a page number, a ` +
+      `chapter number, or a link. You are told only THAT a real page exists — never WHICH one — and ` +
+      `the app resolves and shows the correct page itself. A guessed page number sends a student ` +
+      `hunting through their textbook for something that is not there: WORSE than saying nothing. ` +
+      `★ For a key WITHOUT that marker, say nothing about any NCERT page — there is none to show.`;
   return (
     `\nVISUAL PANEL (a real diagram can appear beside the chat — READ CAREFULLY)\n` +
-    `These concepts in this topic have a curated, NCERT-aligned diagram the app can show in a ` +
-    `side panel. Each is listed as "<key>: <what it shows>":\n` +
+    `These concepts in this topic have something REAL the app can show in a side panel — a curated, ` +
+    `NCERT-aligned diagram, the actual page from the NCERT textbook, or both. Each is listed as ` +
+    `"<key>: <what it shows>":\n` +
     items + `\n` +
     `THE SIGNAL (machine-readable, on its OWN line): when — and ONLY when — one of these diagrams ` +
     `genuinely helps the point you are making THIS turn, put \`[[figure:<key>]]\` on its own line, ` +
@@ -247,7 +295,8 @@ function figurePanelBlock(figures) {
     `what you are explaining, emit NO figure tag and do NOT mention a diagram. NEVER signal a key ` +
     `that is not in the list, and NEVER describe a figure you have not signalled — the app shows ` +
     `only the real curated asset for the key you emit. The tag is stripped and never shown; if you ` +
-    `also emit an offer tag, put each on its own separate line (order does not matter to the app).`
+    `also emit an offer tag, put each on its own separate line (order does not matter to the app).` +
+    ncertPageDirective
   );
 }
 
