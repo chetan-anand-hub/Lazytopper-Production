@@ -1,5 +1,27 @@
 ---
 
+## 2026-07-18 -- #473 + #472: ★★ C&I QUESTION-SIDE PARITY — the question side gains the answer side's hands, and a FROZEN SITE-MAP is caught one site short — **merged, owner byte-verified** — trunk `0649e20`
+
+**Two PRs since #471.** **#473 `8656147`** — cofounder method skill v2.1 (green-board trap, doc culture, `ls-remote`/appendix corrections; dropped the vestigial `cofounder-skill/references/`). *Skill self-knowledge, not product; logged here so the skill's own version history is traceable.* **#472 `0649e20`** — the feature.
+
+**#472 — the question uploader gained everything the answer uploader had.** Four mirrors in `DesktopCheckImprovePage.tsx`: plain `<input>` → **`<EquationInput>`** (math palette; `clearDetection` preserved) · a **`<QrAnswerHandoff>`** in a new `"question"` mode · mobile **Camera/Files** on the existing `qFileInputRef` · **paste** on both card `<section>`s (file-only; text paste untouched). Both textareas **auto-grow** via a new `autoGrow` prop, **default OFF** so `SolutionChecker` is byte-identical (its test passed untouched — run under vitest, 8/8). `ResultsScorecard` + `SolutionChecker` **wired into the acceptance FORBIDDEN set** (owner: "must not change"). Gate **92/92**, qr channel **47/47**, CI `quality-gate` green.
+
+### ★★ THE LESSON — a FROZEN site-map can still be incomplete; the round-trip trace, not the spec, closed it
+`mode="document"` copy is answer-shaped (*"pick the PDF of your answers"*), so a third `QrHandoffMode` value **`"question"`** was folded in (v1.2 → v1.3 of the dispatch). The owner's frozen map named **FIVE** sites — the client type, both COPY maps, the phone "Sent" line, the read-backs. But the value is validated **server-side too**: `qrUploadChannel.cjs` had `VARIANTS = new Set(['document','photo'])` and `slotVariant = VARIANTS.has(variant) ? variant : 'document'` — so a `"question"` mint was **silently coerced to `'document'` on the wire**, and the phone would show a QUESTION student *"your answers."* **The five client sites alone were cosmetic-only.** The **6th site** was found not by reading the spec but by tracing the round-trip (mint → `peekSlot`) and asking "does it read back as `question`?" — it did not until `VARIANT_QUESTION` was added, then a channel-test `mint→peek` assertion proved it (the +1 that made qr channel 47/47). ★ **A site-map frozen by the owner is a strong prior, not a completeness proof — trace the value end-to-end before trusting the enumeration.** Additive throughout ⇒ `document`/`photo` byte-identical ⇒ the answer QR + SolutionChecker untouched; `Record<QrHandoffMode>` made **tsc enforce exhaustiveness** across every COPY site (it refused to compile until each had the key).
+
+### Also this PR
+- **autoGrow is JS, not CSS `field-sizing`** (no Safari ⇒ a by-browser twin split, the exact species the convergence arc killed); off-path is byte-identical (className string literal + a layout effect that early-returns before any DOM touch).
+- **Measured, not assumed:** a throwaway headless-chromium rig showed the two min-3 boxes are identical (75.6px) at 360/768/820/1024/1440; a 10px box-top offset is **pre-existing** (the answer's padded tab-pill vs the question's bare tab row), not this PR.
+- ⚠ **`EquationInput.test.tsx` passing untouched is the autoGrow safety proof, but vitest is NOT gated in CI** — the guard is unenforced on merge (same silent-skip family as #469's gate). ⇒ **[FU-EQUATIONINPUT-TEST-NOT-CI-GATED].**
+
+### Follow-ups
+[FU-CI-QUESTION-SIDE-PARITY] **CLOSED** · [FU-QRH-DOCUMENT-COPY-NEUTRAL] **RESOLVED** (the `"question"` mode) · [FU-EQUATIONINPUT-AUTOGROW-SOLUTIONCHECKER] (new — audit SolutionChecker's container, then decide flipping autoGrow on there) · [FU-EQUATIONINPUT-TEST-NOT-CI-GATED] (new) · [FU-CLAUDE-MD-SESSION-START-SHA] (logged — §2's HEAD==recorded-SHA check is unsatisfiable after every docs PR).
+
+### Surfaces that did NOT move
+Tutor, Quick Practice, Worksheet, HPQ, Full Test, Topic Hub, Progress/Me, Exam Trends, Home, Chapter Test, Full Mock — untouched. Only **Check & Improve** moved (its question side reached full input parity with the answer side).
+
+---
+
 ## 2026-07-18 -- #466 → #470: ★★ THE CHECK & IMPROVE CONVERGENCE ARC — one responsive surface, the twin deleted, the gate that never ran now runs — **all merged, owner LIVE-VERIFIED** — trunk `2c59dd2`
 
 **Four product PRs + this docs-only handoff.** C&I was two components (`DesktopCheckImprovePage.tsx` 2,734L + `pages/app/CheckImprove.tsx` 1,656L, switched by a route ternary on `isDesktop`) → **ONE fluid responsive component**, twin deleted.

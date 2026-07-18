@@ -2,6 +2,18 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-18 — ★★ ✅ C&I QUESTION-SIDE PARITY IS COMPLETE (#472, trunk `0649e20`) — the question uploader gained the answer uploader's hands
+
+**Stage COMPLETE — owner byte-verified.** The convergence arc made C&I one fluid component; this PR closes the input-parity gap it flagged. The **question** uploader now has everything the **answer** side had: `<EquationInput>` (math palette, replacing the plain `<input>`), a `<QrAnswerHandoff>` in a NEW `"question"` mode, mobile camera/files, and paste. Both textareas auto-grow (`autoGrow` prop, **default OFF** — SolutionChecker byte-identical). 9 files; convergence acceptance **92/92**; qr channel **47/47**; CI green.
+
+- ★★ **A frozen five-site map was one site short** — the new `"question"` `QrHandoffMode` also had to pass the **server** allow-list (`qrUploadChannel.cjs` `VARIANTS`), which coerced any unknown mint to `'document'`. The five client sites alone would have shown a QUESTION student *"your answers"* on the phone. Caught by tracing the round-trip (mint → `peekSlot`), not by the spec; proven with a channel-test `mint→peek` assertion. **A frozen enumeration is a strong prior, not a completeness proof.**
+- **ResultsScorecard + SolutionChecker** are now wired into the acceptance FORBIDDEN set (owner: "must not change").
+- Also landed since #471: **#473 `8656147`** — cofounder skill v2.1 (self-knowledge, not product).
+
+**Follows:** **the tutor overlay** — the goal the whole arc served. ⚠ Its investigation spec needs a **v1.2**: #466 made C&I ONE fluid container-relative component, which falsifies the two-component premise the v1.1 spec rested on (see `NEXT_ACTION.md`).
+
+---
+
 ## 2026-07-18 — ★★ ✅ THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE (#466 → #470, trunk `2c59dd2`) — one responsive surface, the twin deleted, the gate that never ran now runs
 
 **Stage COMPLETE — owner LIVE-VERIFIED at 360 / 768 / 820 / 1024 / 1440.** C&I was two components chosen by a route ternary on `isDesktop` (`DesktopCheckImprovePage.tsx` 2,734L + `pages/app/CheckImprove.tsx` 1,656L). It is now **ONE fluid responsive component at every width**; the mobile twin is **deleted**.
