@@ -1,5 +1,34 @@
 ---
 
+## 2026-07-18 -- #466 → #470: ★★ THE CHECK & IMPROVE CONVERGENCE ARC — one responsive surface, the twin deleted, the gate that never ran now runs — **all merged, owner LIVE-VERIFIED** — trunk `2c59dd2`
+
+**Four product PRs + this docs-only handoff.** C&I was two components (`DesktopCheckImprovePage.tsx` 2,734L + `pages/app/CheckImprove.tsx` 1,656L, switched by a route ternary on `isDesktop`) → **ONE fluid responsive component**, twin deleted.
+
+**#466 `f895306`** the convergence · **#468 `fd00377`** the twin deleted (re-land of the orphaned #467) · **#469 `7786966`** the gate that never ran · **#470 `2c59dd2`** the mobile header. Gate on trunk: **63/63, MI moat check EXECUTING** — first time in this repo's history.
+
+**★ WHY — the thread, not a cleanup:** the tutor is to host **Quick Practice + Check & Improve as in-tutor OVERLAYS**. C&I could not live in an 820px overlay because `useIsDesktop()` measures the **window, not the container** — an 820px panel on a 1440px window would have mounted the 2,734-line desktop twin inside it. **The convergence was a PREREQUISITE for the overlay.** Process for every PR: re-derive tip via `git ls-remote` → three-way diff from `git merge-base` → build → committed acceptance script (the gate, not prose) → gates → owner byte-review + live-verify → owner merge (product PRs never self-merged). This docs PR self-merged (owner-authorized, `handoff/` only).
+
+### ★★ LESSON 1 — the stacked-PR ORPHAN TRAP fired THREE times in one session
+Squash-merge + a stacked PR = a silent orphan. Trunk gets a NEW commit; the stacked PR still targets the (now-dead) base; GitHub only auto-retargets if that base is **deleted** — so the merge **succeeds into a branch nobody will ever see.** GitHub says "Merged", CI is green, **and nothing lands.** #467 is still marked Merged and always will be; its deletion never reached trunk until re-landed as #468. Only `git merge-base --is-ancestor pr/N origin/base/approved-thru-437` caught it. ★ **A retarget via `gh pr edit --base` fires `pull_request:edited`, which `quality-gate.yml` IGNORES — a retargeted PR keeps its GREEN check from the OLD base** (found on #470; close/reopen was the workaround → **[FU-CI-RETARGET-NO-GATE]**). **Root cause: auto-delete-head-branches is OFF** — ask the owner to enable it.
+
+### ★★ LESSON 2 — the gate had never run its hardest checks, and SAID SO in a log nobody read
+The MI + FORBIDDEN checks silently skipped on every CI run — including #466's "fully green" — because `quality-gate.yml` checked out at `actions/checkout@v5`'s default **depth 1**, so `origin/base/approved-thru-437` was absent and the script took its skip branch. The honest skip was written *specifically* to prevent a silent no-op (*"a check that quietly no-ops is worse than no check, it reads as green"*), and its own comment had the world inverted: *"CI always has the ref; a local run may not"* — **CI is the one that never had it.** **An honest skip in CI is still a green build. If a check matters, its ABSENCE must fail** (the fix hard-fails a missing ref in CI). **This repo had been bitten before** — `quality-gate.yml`'s own header records the predecessor workflow *"lived in `lazytopper/.github/workflows/` and therefore never ran."* **Second time. A pattern.** ⇒ **[FU-CLAUDE-MD-SUITE-COUNTS]** is the same family (§6 hardcodes counts its own rule forbids).
+
+### ★★ LESSON 3 — naming a failure mode does not immunise you against it
+The agent catalogued A14 twice in a report that then committed A14 a third time. Claude wrote A15 into the specs and hit it five times. The spec was wrong **nine times** across the lane — the flex-basis, the title floor (estimated `~18-19px`; measured `~16px` because MobileShell adds 20px each side the estimate missed → owner ruled 2-line-22px), the **D4 "last photo" claim** (made by eye off grep output, *immediately after* instructing the agent to read instead of grep — A14 from the author of the A14 warning). **Every single correction came from someone RUNNING A COMMAND instead of reasoning.** Only mechanism holds — committed acceptance scripts, not prose discipline. The MI moat is now a permanent guard anchored to the fixed SHA `e8f75af`; assert the IDENTITY (52 lines survive byte-identical via `git show`), never a count.
+
+### Scope discovered (⇒ DECISION_LOG + SURFACE_TRACKER §2a, C&I Scope = Settling)
+- **13 `matchMedia("(max-width:960px)")` layout sites** in the "desktop" twin (`isNarrow`) — the convergence was structurally larger than "delete a twin"; the rule was rewritten from "never `useIsDesktop`" (a named hook) to "no window-derived value drives layout" (a behaviour) so a rename can't evade it.
+- **The CI gate that never ran** — a whole class of green-proves-nothing, now closed with a hard-fail-on-missing-ref.
+
+### Follow-ups recorded
+[FU-CI-QUESTION-SIDE-PARITY] (new) · [FU-CI-RETARGET-NO-GATE] (new) · [FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED] · [FU-QP-PROGRESSIVE-DISCLOSURE] · [FU-QP-WEAK-AREAS-PRESET] · [FU-QP-FILTER-SYSTEM-AUDIT] · [FU-CLAUDE-MD-SUITE-COUNTS]. **Branch hygiene this session:** five stale branches deleted (local + remote) under owner authorization; owner asked to enable auto-delete-head-branches.
+
+### Surfaces that did NOT move
+Tutor, Quick Practice, Worksheet, HPQ, Full Test, Topic Hub, Progress/Me — untouched. Only **Check & Improve** moved.
+
+---
+
 ## 2026-07-17 -- #464: ★★ THE TUTOR SAYS THE REAL NCERT PAGE IS THERE — the NCERT arc is COMPLETE — **merged + owner BYTE-REVIEWED + LIVE-VERIFIED (all 4 probes)** — trunk `50783e7`
 
 **#464 (`50783e7`, 1 file, +56/−7, PROMPT TEXT ONLY). Isolated worktree `LT-worktrees/tutor-ncert-mention`, branch `feat/desktop-pr-tutor-ncert-proactive-mention` @ `9422ee0`. Process: re-derive tip → trace `hasNcertPage` end-to-end AND the affordance to the UI → pre-flight → owner ruling on both rails → build → harness → gates → DRAFT PR for byte-review → owner byte-review → owner live-verify (4 probes) → owner merge. Never self-merged.**

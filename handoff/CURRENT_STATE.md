@@ -1,5 +1,26 @@
 # LazyTopper â€” Current State
 
+## [CURRENT] #466 → #470 merged — ★★ THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE — **owner LIVE-VERIFIED at 360 / 768 / 820 / 1024 / 1440** — trunk `2c59dd2`
+
+**Four product PRs, one CI fix, all merged.** C&I shipped as two components — `DesktopCheckImprovePage.tsx` (2,734L) and `pages/app/CheckImprove.tsx` (1,656L) — chosen by a route ternary on `isDesktop`. It is now **ONE fluid responsive component at every width**, and the mobile twin is **deleted**.
+
+**★ WHY THE ARC EXISTED — this is the thread, not a cleanup:** the tutor is to host **Quick Practice + Check & Improve as in-tutor OVERLAYS**, so a student never leaves the tutor. C&I could not live in an 820px overlay panel because `useIsDesktop()` measures the **window, not the container** — an 820px panel on a 1440px window would have mounted the 2,734-line desktop twin inside it. **The convergence was a PREREQUISITE for the overlay, not tidy-up.**
+
+| PR | Squash | What it did |
+|---|---|---|
+| **#466** | `f895306` | **The convergence.** Killed the inverted mobile order (answer-above-question), 5 purples → `PRIMARY_GREEN`, false "PNG or JPG" copy → canonical `UPLOAD_LIMIT_SENTENCE`. **F13:** removed all **13 `isNarrow` sites** the file drove off its OWN `matchMedia("(max-width:960px)")` — that flag asked the WINDOW, so the 820px overlay was already broken. `CARD_BASIS = 340` (measured: sidebar 260 + padding 64 ⇒ 420 stacked on every 1024/1152 laptop). |
+| **#468** | `fd00377` | **The twin deleted** (1,656L). **#467 had merged into an ORPHANED branch and never reached trunk** (§the-trap below); re-landed via cherry-pick of `4039a87`. The acceptance script's rollback check was **inverted in the same PR** — the twin must never come BACK. |
+| **#469** | `7786966` | **The gate that never ran.** `quality-gate.yml` used `actions/checkout@v5` at default **depth 1** ⇒ `origin/base/approved-thru-437` absent in CI ⇒ the MI + FORBIDDEN checks **silently skipped on every run, including #466's "fully green".** Post-merge it was incoherent the other way (base ref = trunk ⇒ MI compared the file to itself = false red; FORBIDDEN diffed base-against-itself = vacuous green). Fixed: `fetch-depth: 0`; MI anchored to the **fixed SHA `e8f75af`** (a permanent moat guard); FORBIDDEN PR-scoped, N/A on push; **a needed-but-missing ref now HARD-FAILS in CI instead of skipping.** |
+| **#470** | `2c59dd2` | **The mobile header.** `PageHeader`'s `flex: 1` = `flex-basis: 0%` ⇒ the `flexWrap` already written there **could never fire** ⇒ the title starved to ~190px and wrapped to **five lines**. `HEADER_TITLE_BASIS = 320`. Lede **deleted at both widths** (covered by How-it-works steps 3/4 + the relocated "We never invent a score"). Title → `clamp(22px, 6vw, 30px)` (2 lines at 22px; the measured 16px one-line option was **rejected** — it equalled MobileShell's own chrome title). "How it works" recoloured (`SECONDARY_BG`/`ACCENT_SOFT`/`ACCENT_FG` + `ChevronRightGlyph`; `listStyle:"none"` had deleted its disclosure triangle). **D4 completed** — `"Photo from your phone"` → `"Image from your phone"`. |
+
+**★★ THE GATE NOW RUNS.** On trunk today the convergence acceptance gate reports **63/63 with `MI: all 52 survivors are still present BYTE-IDENTICAL (permanent moat guard)` executing** — the first time in this repo's history that check has run. #470's own PR gate ran it PR-scoped (`vs origin/base/approved-thru-437`), confirmed green.
+
+**Scope discovered this arc** (logged in `DECISION_LOG` + `SURFACE_TRACKER` §2a): (1) the **13 `matchMedia` layout sites** in the "desktop" twin — the convergence was structurally larger than "delete a twin"; (2) **the CI gate that never ran** — a whole class of "green proves nothing". C&I Scope = **Settling**.
+
+**NEXT:** (1) **C&I question-side parity** (the question uploader lacks `<EquationInput>` + `<QrAnswerHandoff>` that the answer side has — see `NEXT_ACTION.md`); (2) then **the tutor overlay** the whole arc served. **Branch cleanup + this docs PR self-merged this session** (owner-authorized).
+
+---
+
 ## #464 merged — ★★ THE TUTOR SAYS THE REAL NCERT PAGE IS THERE — **owner BYTE-REVIEWED + LIVE-VERIFIED (all 4 probes)** — trunk `50783e7`
 
 **1 file, `server/prompts/tutorSystemPrompt.cjs`, +56/−7. PROMPT TEXT ONLY.** The NCERT-page arc is now COMPLETE: **#457** filled the data (65 rows carry `ncertPage`) → **#459** let the page WIN the panel → **#464 makes the tutor SAY it.** ★ *An affordance nobody knows about is not an affordance* — the page sat behind a button a 15-year-old had no reason to look for, on a concept they had no reason to think had one.
@@ -450,7 +471,7 @@ The reported *"PDF lands but the grader can't read it"* was **disproven at file:
 - **Gates:** tsc · mojibake · scope:guard product · root matrix **181/181** · lazytopper ops matrix 8/8 · `git diff --check` clean · **CI quality-gate green** (incl. the linux build) · lane-overlap green. **vitest NOT run — it is NOT gated anywhere → [FU-CI-GATE-VITEST].** Local stand-in: the **real** promote code, mechanically extracted from the committed file, run under Node 22 type-stripping against a **29-case corpus — all green**. Reports: `Desktop/diff/report-mathtext-command-corruption-{preflight,pr435}-2026-07-15.md`.
 - **★ NEW [FU-CI-GATE-VITEST] — FOUR vitest suites exist and NONE run: `MathText.test.tsx` (shared renderer), `EquationInput.test.tsx` (equation widget), `tutorRoundTrip.test.ts` (tutor round-trip), `WorksheetPrintDoc.test.tsx` (worksheet print doc).** `quality-gate.yml` = root guard matrix → mojibake → build → ops matrix. **No vitest.** The prior "vitest runs in CI" claim was a misread of the **root** matrix — Node's **built-in** runner printing `# tests 181 / # pass 181`, which scrolls past looking exactly like a suite. **A test that never executes is decoration. Fix before soft launch.** Also new: [FU-MATHTEXT-MULTILETTER-BASE], [FU-MATHTEXT-RENDER-GATE-RATIONALE] (do NOT delete `katexCanRender` as redundant).
 - **NEXT = nothing from this lane; it is CLOSED.** Three lanes are live and file-disjoint: **QP-sessions (#436, being widened with the fetch fix)** · **QR desktop→mobile upload** · **Fable bank expansion**. Do NOT start anything new here.
-## [CURRENT] #438 merged — bank data-quality: [FU-BANK-UNRESOLVABLE-MCQ-KEYS] CLOSED (13 rows withheld, not 34; ZERO were key-fixes) — base trunk `a5691a7`
+## #438 merged — bank data-quality: [FU-BANK-UNRESOLVABLE-MCQ-KEYS] CLOSED (13 rows withheld, not 34; ZERO were key-fixes) — base trunk `a5691a7`
 
 **PR #438 (`fix/desktop-pr-mcq-key-repair`, worktree-isolated, branched from live trunk `a5691a7`). 1 file, +29/-1, data-only. Awaiting owner byte-review + merge (`src/data/**` is CODEOWNERS — never self-merged).** First of the bank-completion sequence: MCQ repair -> then 4 expansion PRs (3 topics each).
 

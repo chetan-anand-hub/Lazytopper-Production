@@ -1,7 +1,25 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-17 (post-PR **#464 — ★★ THE TUTOR SAYS THE REAL NCERT PAGE IS THERE; the NCERT arc #457→#459→#464 is COMPLETE.** Trunk `50783e7`. Owner BYTE-REVIEWED, then LIVE-VERIFIED **all four probes**: marked concept → page mentioned **unprompted on the signal turn** · unmarked → **silence** · **no invented page number** · page-less topic → **no NCERT talk at all**. **1 file, PROMPT TEXT ONLY.** ★ *An affordance nobody knows about is not an affordance.*)
+# Updated: 2026-07-18 (post-arc **#466 → #470 — THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE.** Trunk `2c59dd2`. Owner LIVE-VERIFIED at 360/768/820/1024/1440. One responsive C&I component; twin deleted; the CI gate that never ran now runs its MI moat check. **The arc was a prerequisite for the tutor overlay, not a cleanup.**)
 
-## ⏭️ SESSION CLOSED — 2026-07-17. Read this block first.
+## ⏭️ NEXT — 2026-07-18. Read this block first.
+
+**The C&I arc closed (#466→#470); this session did branch hygiene + this docs handoff.** Two things are next, in order:
+
+### (1) C&I QUESTION-SIDE PARITY — record it, it is not built
+The **answer** side has `<EquationInput>` (`DesktopCheckImprovePage.tsx:2152`) and `<QrAnswerHandoff>` (`:2068`); the **question** side (`:1712-1780`) has **neither** — a plain input and an upload button. A desktop student whose question paper is on their phone must email it to themselves, download, save, upload. **Both components already ship and are reusable:** `EquationInput`'s docblock says *"drop-in for a textarea"* and `components/question/SolutionChecker.tsx:652` is the second-consumer precedent; `QrAnswerHandoff.onImageReceived` is field-agnostic **by design** (*"the caller owns what happens next"*) and `label` is already a prop. **Open copy decision, owner-owned:** the QR's default label *"Solved it on paper?"* is answer-copy and would be wrong on the question side. ⇒ **[FU-CI-QUESTION-SIDE-PARITY]**, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. Coordinates are owner-verified but **re-derive them before building** — this file rot.
+
+### (2) THE TUTOR OVERLAY — the goal the whole arc served
+Quick Practice + Check & Improve as **in-tutor overlays**, reusing the real pages verbatim. C&I is now overlay-ready (container-relative, no `useIsDesktop` for layout). ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] REMAIN HELD** — that architecture makes the round-trip banner/count-link mechanism secondary; a HOLD with a reason, do not "just fix" them.
+
+### ★ DOCTRINE TO CARRY (earned across this arc — not decoration)
+- **Re-derive trunk EVERY session** via `git ls-remote origin base/approved-thru-437`. It moved seven times in one session. Never trust a written SHA.
+- **Three-way diffs from `git merge-base`**, never two-dot — a two-dot diff against a moved trunk shows other lanes' work as your deletion.
+- **Verify by RUNNING, not reading.** Every correction this arc came from someone running a command. A green gate that does not read English (or does not run) proves nothing — see the three lessons in `SESSION_LOG.md`.
+- **`git merge-base --is-ancestor pr/N origin/base/approved-thru-437`** before believing a stacked PR merged — the orphan trap fired THREE times this arc.
+
+---
+
+## ⏭️ SESSION CLOSED — 2026-07-17. (Prior — the NCERT tutor arc.)
 
 ### ⚠️ [FU-TUTOR-CJS-STALE-PLUMBING-COMMENT] — **the one open item #464 left**
 **`lazytopper/server/routes/tutor.cjs:101` is FALSE on trunk right now:** *"`hasNcertPage` is **plumbing only today: figurePanelBlock() does not read it yet**, so this changes nothing the model sees. **Using it is the tutor-round-trip lane's sequenced task.**"* — **#464 made `figurePanelBlock` read it** (`tutorSystemPrompt.cjs:264` + the `:269` gate). ⇒ **a SPENT INSTRUCTION LEFT IN PLACE, and it is the very comment that dispatched #464.** ★★ **Grep `hasNcertPage`, land there, and you will conclude the work is undone and possibly redo it.** **It is done. Live. Owner-verified.** **Fix = strike/replace that comment IN PLACE** (the #451/#454 ruling: *a stale instruction is worse than none — it looks like diligence*). **Comment-only; PRODUCT file ⇒ needs an owner-approved product PR** (it could not ride the docs-only PR that logged it, §8).
