@@ -1,3 +1,21 @@
+## 2026-07-19 -- #476: THE TUTOR ⇄ C&I OVERLAY IS LIVE (trunk `cca0a5d`), owner byte-verified
+
+**[FU-TUTOR-OVERLAY-BUILD-A] — CLOSED.** The C&I overlay shipped (Option A). Do NOT redo.
+
+### ★ NEW — **[FU-TUTOR-OVERLAY-QUESTION-TO-MODEL]** — the question reaches the host, not yet the model
+#476 hands the raw question to the tutor **host** in-memory via the `onClose` payload (`{text, imageBase64}` from C&I's live state) and holds it in `overlayQuestionRef` — the seam. But **feeding it into the MODEL's context** (so the tutor can reference the *specific* question the student just graded) is a separate **prompt-eval lane** — it needs the tutor-eval pass, exactly like the proactive-offer prompt. Until it lands: the score returns cleanly and the tutor names *where* it slipped (from the record), but it won't NAME the specific question. **Not a bug; a scoped deferral** (the `hasNcertPage` plumbing-first precedent). Grader / record / `composeReturnOpener` stay byte-identical.
+
+### ★ NEW — **[FU-CI-QUESTION-PROVENANCE-IN-RECORD]** — a persisted question field on SessionRecord (only if Me/Progress needs it)
+A persisted `question` field on `SessionRecord` so Me/Progress could show the actual question, not just `questionIds` / bank refs. **Deliberately NOT built in #476** — the in-memory handoff avoids touching the durable record (that is *why* the record stays byte-identical). Only build if Me/Progress needs it — **additive-optional, never backfilled** (the `worksheetId`/`topicSource` precedent).
+
+### ★ NEW — **[FU-TUTOR-OVERLAY-OUTBOUND-CTAS]** — the 8 post-grade outbound CTAs still navigate the app away
+In overlay mode, the scorecard's outbound deep-links (practice / worksheet / topic-hub / exam-trends / Me) still `navigate()` the whole app away, unmounting the tutor+overlay. **MVP leaves them navigating** (a student who taps "See your progress" *chose* to leave; the primary "Back to your tutor →" delivers the never-leave promise for the main flow). A stricter variant — suppress or route them through `onClose` first — is a one-line-per-site follow-up, all `overlay`-gated. Not a blocker.
+
+### ⚠ STATUS CHANGE — **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER]** — now PRACTICE-LEG ONLY
+These were HELD because the overlay would make the round-trip banner/count-link mechanism secondary. #476 **retired the navigate/poll/banner for the check-improve leg** (the overlay replaced it) — so they no longer apply there. The **practice** leg still routes out via `routeOut` and keeps `count:5` + the "tutor is waiting" banner. **Still HELD for the practice leg**, to be retired by the QP overlay — do NOT "just fix" them.
+
+---
+
 ## 2026-07-18 -- #472: C&I QUESTION-SIDE PARITY COMPLETE (trunk `0649e20`), owner byte-verified
 
 **[FU-CI-QUESTION-SIDE-PARITY] — CLOSED.** The question uploader now has `<EquationInput>` (math palette), a `<QrAnswerHandoff>` in a new `"question"` mode, mobile camera/files, and paste. Both textareas auto-grow (default OFF). Do NOT redo.

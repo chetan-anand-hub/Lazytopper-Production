@@ -1,5 +1,29 @@
 ---
 
+## 2026-07-19 -- #476: ★★ THE TUTOR ⇄ C&I OVERLAY — the student grades without leaving the thread, and a frozen premise about a hook's scope is caught — **merged, owner byte-verified** — trunk `cca0a5d`
+
+**One product PR (#476 `cca0a5d`) + this docs handoff.** The tutor's "Get my attempt marked" CTA no longer navigates to `/check-improve` — it opens the **real `DesktopCheckImprovePage` as an in-tree panel over the dimmed light tutor** (Option A, props-optional; desktop/tablet right-slide `min(88%,920px)`, mobile full-screen `100dvh` sheet). The student grades, reads the scorecard **in-panel**, taps **"Back to your tutor →"**, and the graded record is handed straight back via the **existing `composeReturnOpener`** — poll-free, no waiting banner, at every width. This completes the **C&I side** of the two-overlay goal the entire arc served (QP overlay is the twin, next). Two PRs, distinct: BUILD **#476** (merged) + DRAFT **#475** (`invts/tutor-overlay-investigation`, reference-only, never merges).
+
+**The invariants held — the owner's non-negotiable line held mechanically:** `overlay===undefined` ⇒ C&I byte-identical (direct-visit still `navigate()`s, empty question), asserted by the new `check_improve_overlay_additive_acceptance.mjs` (**24/24**, in the lazytopper matrix). Grader / `SessionRecord` / `ResultsScorecard` / MI 52-anchor / `tutorRoundTrip.ts` / `composeReturnOpener` — **all byte-identical** (git-scoped zero-diff). Convergence **92/92** (`:320` + MI moat green), `tsc` clean, CI `quality-gate` green (the linux `vite build`+vitest), Vercel deployed.
+
+**The graded record is built IN-PROCESS** via `buildCheckImproveSessionRecord` imported from `sessionRecords.ts` (**NOT** the forbidden `checkImproveGradeService.ts`) and is **NOT re-persisted** — the durable copy was already written at grade time. This is how the tutor gets the numbers without a cloud re-read while the grade services stay untouched. The raw question reaches the tutor **host** in-memory via the `onClose` payload (`{text, imageBase64}`), never persisted.
+
+### ★★ THE LESSON — a frozen spec premise about a hook's scope was incomplete; tracing what the hook ACTUALLY gated closed it
+The dispatch (§5) said `useIsDesktop` in C&I "gates camera-vs-QR, NOT layout." **Incomplete.** `DesktopCheckImprovePage.tsx`'s `withChrome` **also** gates `MobileShell` — the app's own account header **and bottom nav**. A full-screen mobile overlay sheet with that shell inside would have handed the student a way to **navigate OUT of the tutor mid-overlay** (defeating the whole point). The agent traced what the hook gated and added a **4th overlay-gated hunk** (`overlay ? bare : isDesktop ? bare : MobileShell`, byte-identical off) rendering C&I bare inside the overlay so "no shell to escape" is literally true. ★ **The same species as #472's 6th QR site: an owner-frozen enumeration/premise is a strong prior, not a completeness proof — trace the value/behaviour end-to-end.** Two other corrections: dropped a stale spec §7.5 ("mobile still navigates") that contradicted the locked responsive ruling; and separated the in-memory question **host** handoff (done) from feeding it to the **model** (a prompt-eval lane, deferred).
+
+### Also this PR
+- **The close chrome is PAGE-rendered, not host-rendered** — the overlay prop is `{onClose}` only, so only the page has `scorecardOpen` + the record + question. The pinned ✕ AND the scorecard's "Back to your tutor →" both hand `onClose(record, question)`; the host is a pure frame (Esc = bare escape; backdrop does NOT close — the marksheet is too valuable to dismiss on a stray tap).
+- **`lane-overlap` RED on #476 was benign** — it flagged the DRAFT #475 sharing the same files by design; a never-merge draft has no lane to sequence against, and it did not block the manual merge. **CI never auto-merges.**
+- ⚠ `scope:guard` for a product+tooling change needs **`-- --mode mixed`** (`--mode product` flags the `package.json` matrix-wiring + the acceptance `.mjs` as out-of-lane).
+
+### Follow-ups
+[FU-TUTOR-OVERLAY-QUESTION-TO-MODEL] (new) · [FU-CI-QUESTION-PROVENANCE-IN-RECORD] (new) · [FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] **still HELD, now for the PRACTICE leg only** (#476 retired them for the check-improve leg; the QP overlay retires them for practice).
+
+### Surfaces that did NOT move
+Quick Practice, Worksheet, HPQ, Full Test, Topic Hub, Progress/Me, Exam Trends, Home, Chapter Test, Full Mock, Landing, Login, Notes — untouched. Only **Tutor** (now hosts C&I as an overlay) and **Check & Improve** (gained an additive overlay-host prop) moved.
+
+---
+
 ## 2026-07-18 -- #473 + #472: ★★ C&I QUESTION-SIDE PARITY — the question side gains the answer side's hands, and a FROZEN SITE-MAP is caught one site short — **merged, owner byte-verified** — trunk `0649e20`
 
 **Two PRs since #471.** **#473 `8656147`** — cofounder method skill v2.1 (green-board trap, doc culture, `ls-remote`/appendix corrections; dropped the vestigial `cofounder-skill/references/`). *Skill self-knowledge, not product; logged here so the skill's own version history is traceable.* **#472 `0649e20`** — the feature.
