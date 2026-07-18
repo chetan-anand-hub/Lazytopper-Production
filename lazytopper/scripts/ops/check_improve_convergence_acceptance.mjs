@@ -44,6 +44,10 @@ const APP = path.join(LAZY, 'src', 'App.tsx');
 const UPLOAD_LIMITS = path.join(LAZY, 'src', 'services', 'uploadLimits.ts');
 const DETECTION = path.join(LAZY, 'src', 'utils', 'checkImproveDetection.ts');
 const EQUATION_INPUT = path.join(LAZY, 'src', 'components', 'equation', 'EquationInput.tsx');
+const QR_HANDOFF = path.join(LAZY, 'src', 'components', 'qr', 'QrAnswerHandoff.tsx');
+const QR_UPLOAD_PAGE = path.join(LAZY, 'src', 'pages', 'QrAnswerUploadPage.tsx');
+const QR_SERVICE = path.join(LAZY, 'src', 'services', 'qrUploadService.ts');
+const QR_CHANNEL = path.join(LAZY, 'server', 'services', 'qrUploadChannel.cjs');
 
 let pass = 0;
 const failures = [];
@@ -555,12 +559,13 @@ check('PARITY-1: the old single-line <input type="text"> is gone from the surfac
 check('PARITY-1: the question edit STILL fires clearDetection (no stale chip on an edited question)',
   /setQuestion\(v\);\s*clearDetection\(\)/.test(converged));
 
-// MIRROR 2 — the QR handoff for the question. Assert the PROP mode="document" (a static
-// document-mode mount), NOT a bare grep for "document": the answer's bimodal
-// mode={isMultiQuestion ? "document" : "photo"} also contains that word but is `mode={`,
-// not `mode="`. There must now be TWO QrAnswerHandoff mounts (answer + question).
-check('PARITY-2: a second <QrAnswerHandoff> is mounted with the static prop mode="document"',
-  /mode="document"/.test(converged));
+// MIRROR 2 — the QR handoff for the question. Assert the PROP mode="question" (its OWN
+// third mode, §2a — NOT the answer's "document", whose copy says "your answers"). The
+// answer's bimodal mode={isMultiQuestion ? "document" : "photo"} is `mode={`, not `mode="`,
+// so this static-question-mode literal identifies the question mount uniquely. There must
+// now be TWO QrAnswerHandoff mounts (answer + question).
+check('PARITY-2: a second <QrAnswerHandoff> is mounted with the static prop mode="question"',
+  /mode="question"/.test(converged));
 const qrMounts = (converged.match(/<QrAnswerHandoff/g) || []).length;
 check('PARITY-2: exactly two QrAnswerHandoff mounts now exist (answer + question)',
   qrMounts === 2, `found ${qrMounts}`);
@@ -601,6 +606,49 @@ check('AUTOGROW: the question EquationInput opts in at min-3, max-8',
 check('AUTOGROW: the answer EquationInput opts in at min-3, max-14',
   /rows=\{3\}\s*\n\s*autoGrow\s*\n\s*maxRows=\{14\}/.test(converged));
 
+/* ══════════════════════════════════════════════════════════════════════════
+   7b · QR "question" MODE (§2a) — a NEW third mode value, threaded through the
+   client type, both COPY maps, the phone "Sent" line, AND the server allowlist.
+   Additive: the answer side's document/photo behaviour is byte-identical.
+   These read raw source (the copy strings are code, not comments).
+   ══════════════════════════════════════════════════════════════════════════ */
+section('7b · QR "question" mode threading (§2a)');
+
+const qrHandoff = read(QR_HANDOFF);
+const qrUploadPage = read(QR_UPLOAD_PAGE);
+const qrService = read(QR_SERVICE);
+const qrChannel = read(QR_CHANNEL);
+
+// The type carries the new value AND still the old two (exhaustiveness forces every
+// Record<QrHandoffMode> site to add the key — tsc is the real guard; this pins the shape).
+check('QRMODE: QrHandoffMode is "document" | "photo" | "question"',
+  /QrHandoffMode\s*=\s*"document"\s*\|\s*"photo"\s*\|\s*"question"/.test(qrService));
+
+// The question mount uses its own mode; the ANSWER mount is byte-identical (still bimodal).
+check('QRMODE: the answer QR is UNCHANGED — still mode={isMultiQuestion ? "document" : "photo"}',
+  /mode=\{isMultiQuestion \? "document" : "photo"\}/.test(converged));
+
+// COPY key ADDED in both maps; the document/photo entries stay byte-identical (v1.3 §5).
+check('QRMODE: QrAnswerHandoff COPY gained a question key (question-voice link)',
+  /Send the question paper — PDF or photo — from your phone/.test(qrHandoff));
+check('QRMODE: QrAnswerHandoff document + photo copy is UNCHANGED (answer side byte-identical)',
+  /link: "Send the PDF — or a photo — from your phone"/.test(qrHandoff) &&
+  /Photograph your written answer on your phone/.test(qrHandoff));
+check('QRMODE: QrAnswerUploadPage COPY gained a question key (question-voice head)',
+  /head: "Send the question paper"/.test(qrUploadPage));
+check('QRMODE: QrAnswerUploadPage document + photo copy is UNCHANGED (answer side byte-identical)',
+  /head: "Send your answers"/.test(qrUploadPage) && /head: "Send your answer"/.test(qrUploadPage));
+check('QRMODE: the phone "Sent" line reads "your question paper" for a question',
+  /"your question paper"/.test(qrUploadPage));
+
+// ★ THE DATA-LAYER SITE the frozen 5-site list missed — the SERVER allowlist. Without it a
+// "question" mint is coerced to "document" on the wire (VARIANTS.has → false → default), so
+// the phone shows answer copy and the whole copy fix is cosmetic-only. This is the branch
+// that makes the round-trip real; the qr_upload_channel acceptance mint→peek asserts it runs.
+check('QRMODE: server allowlist includes VARIANT_QUESTION (round-trip is real, not cosmetic-only)',
+  /const VARIANT_QUESTION = 'question';/.test(qrChannel) &&
+  /VARIANTS = new Set\(\[VARIANT_DOCUMENT, VARIANT_PHOTO, VARIANT_QUESTION\]\)/.test(qrChannel));
+
 console.log('');
 if (failures.length > 0) {
   console.error(`Check & Improve convergence acceptance FAILED — ${failures.length} failing:`);
@@ -611,5 +659,6 @@ console.log(`Check & Improve convergence acceptance PASSED — ${pass}/${pass} c
 console.log('  MI untouched (52 survive + 1 relocated) · one component · zero matchMedia · basis 340 ·');
 console.log('  question-before-answer · canonical sentence · tight accept · guard on both inputs ·');
 console.log('  five purples gone · QR + camera + Your-papers intact · SHOW_DETECTION_META unflipped ·');
-console.log('  question-side parity: EquationInput + QR(document) + camera + paste · autoGrow default-off ·');
+console.log('  question-side parity: EquationInput + QR(question mode) + camera + paste · autoGrow default-off ·');
+console.log('  QR "question" mode threaded (client type + both COPY maps + server allowlist; answer byte-identical) ·');
 console.log('  ResultsScorecard + SolutionChecker now guarded\n');

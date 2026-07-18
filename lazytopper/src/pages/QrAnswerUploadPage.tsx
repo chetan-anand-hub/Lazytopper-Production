@@ -54,6 +54,15 @@ const COPY: Record<QrHandoffMode, { head: string; lead: string; cta: string; hin
     cta: "Take a photo",
     hint: "Fit the whole page in the frame, with the writing in focus.",
   },
+  // The C&I QUESTION-side handoff: a saved or screenshotted QUESTION paper. Same file
+  // types as "document" (PDF or photo), question-voice words. The one-photo-is-one-page
+  // warning still applies — a question paper can be multi-page too — so the hint is kept.
+  question: {
+    head: "Send the question paper",
+    lead: "Pick the PDF of the question paper — or photograph it. It goes straight to your laptop, with no need to email it to yourself.",
+    cta: "Choose PDF or photo",
+    hint: `You can send ONE file. For a full paper, send a single PDF with every page — one photo sends only one page. PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)}.`,
+  },
 };
 
 export default function QrAnswerUploadPage() {
@@ -179,7 +188,13 @@ export default function QrAnswerUploadPage() {
             <p className="lt-qru__tick" aria-hidden="true">✓</p>
             <h1 className="lt-qru__h">Sent</h1>
             <p className="lt-qru__d">
-              Head back to your laptop — {mode === "document" ? "your file" : "your answer"} is there.
+              Head back to your laptop —{" "}
+              {mode === "question"
+                ? "your question paper"
+                : mode === "document"
+                  ? "your file"
+                  : "your answer"}{" "}
+              is there.
             </p>
             <p className="lt-qru__hint">You can close this page.</p>
           </>

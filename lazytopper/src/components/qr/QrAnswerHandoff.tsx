@@ -55,6 +55,13 @@ const COPY: Record<QrHandoffMode, { link: string; head: string; body: string }> 
     head: "Scan with your phone camera",
     body: "Photograph your written answer on your phone — it lands here automatically. No need to email it to yourself.",
   },
+  // The C&I QUESTION-side handoff. Same shape as "document" (PDF or photo of a paper),
+  // but question-voice — a student sending a QUESTION must never read "your answers".
+  question: {
+    link: "Send the question paper — PDF or photo — from your phone",
+    head: "Scan with your phone camera",
+    body: "Then pick the PDF of the question paper — or photograph it. It lands here automatically, with no need to email it to yourself.",
+  },
 };
 
 export default function QrAnswerHandoff({

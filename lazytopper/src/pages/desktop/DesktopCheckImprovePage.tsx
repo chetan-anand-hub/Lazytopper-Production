@@ -1800,13 +1800,15 @@ const DesktopCheckImprovePage: React.FC = () => {
                       (:2068). A desktop student whose question paper is on their phone no
                       longer has to email it to themselves: scan, pick the file, and it
                       lands in the same qImageBase64 tuple handleQuestionFile fills.
-                      mode="document" (NOT "photo"): a saved paper / screenshot opens the
-                      file picker, and "photo" is the wrong verb AND noun for a question.
+                      mode="question" — its OWN mode (not "document", whose copy says "your
+                      answers"): question-voice words, PDF-or-photo file picker (no
+                      camera-first). It mints/persists/round-trips through the server
+                      (qrUploadChannel accepts "question"), so the phone reads question copy.
                       Desktop-AND-signed-in gating is inherited free (QrAnswerHandoff:192)
                       — NO useIsDesktop branch here. Retires once the file lands. */}
                   {!qImageBase64 && (
                     <QrAnswerHandoff
-                      mode="document"
+                      mode="question"
                       label="Question paper on your phone?"
                       disabled={detecting}
                       onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {

@@ -252,6 +252,13 @@ console.log('\nQR upload channel — acceptance\n');
   const photo = await ch.mintSlot('uid-v2', 'photo');
   check('variant: "photo" round-trips', photo.variant === 'photo' && (await ch.peekSlot(photo.uploadToken)).variant === 'photo');
 
+  // The C&I question-side handoff. Without the server allowlisting "question", this coerces
+  // back to "document" and the phone shows a question student "your answers" — the exact bug
+  // the third mode exists to kill. Mint AND peek must both read "question".
+  const question = await ch.mintSlot('uid-vq', 'question');
+  check('variant: "question" round-trips (C&I question-side QR reads back as itself, not "document")',
+    question.variant === 'question' && (await ch.peekSlot(question.uploadToken)).variant === 'question');
+
   const junk = await ch.mintSlot('uid-v3', 'nonsense');
   check('variant: unknown input defaults to the SAFER "document" wording', junk.variant === 'document');
   const bare = await ch.mintSlot('uid-v4');
