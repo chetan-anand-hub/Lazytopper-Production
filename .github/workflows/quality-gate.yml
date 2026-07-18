@@ -24,6 +24,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          # fetch-depth: 0 = FULL history. Required, and it closes a silent hole: the
+          # C&I convergence acceptance gate anchors its MISTAKE-INTELLIGENCE moat check
+          # to a FIXED commit (e8f75af — the convergence's PR-1 base). A depth-1 checkout
+          # did not contain that commit, so the gate's hardest checks SILENTLY SKIPPED on
+          # every run, including "fully green" ones. The anchor is a permanent SHA and
+          # recedes as trunk advances, so no fixed shallow depth reaches it durably —
+          # only full history does. Cost: this repo is ~1,400 commits / ~170 MB; the
+          # extra fetch is a few seconds on the linux runner, paid once per run.
+          fetch-depth: 0
+
+      # On a pull_request the merge ref is checked out but the TARGET branch is not a
+      # named remote-tracking ref. The convergence gate scopes its forbidden-path diff
+      # to the PR's own changes (merge-base with the target), so make that ref exist.
+      # Skipped on push-to-trunk, where github.base_ref is empty and the gate correctly
+      # reports the forbidden diff as N/A (there is no PR to scope against).
+      - name: Fetch PR base branch (for the convergence gate's PR-scoped diff)
+        if: github.event_name == 'pull_request'
+        run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
 
       - name: Enable pnpm (corepack)
         # Repo is a pnpm workspace (lockfileVersion 9.0); npm install is blocked
