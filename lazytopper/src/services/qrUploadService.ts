@@ -33,8 +33,15 @@ const TARGET_LONG_EDGE = 1600;
  *   "document" — Chapter Test / Full Mock / Worksheet: ONE multi-page PDF of a paper.
  *                One photo is ONE page, so camera-first copy here misleads.
  *   "photo"    — a single handwritten answer, where one photo IS the whole answer.
+ *   "question" — the C&I QUESTION-side handoff: a saved/screenshotted QUESTION paper.
+ *                Same file types as "document" (PDF or photo) but question-voice copy —
+ *                a student sending a QUESTION must never read "your answers".
+ *
+ * The value is MINTED, PERSISTED and ROUND-TRIPPED through the server
+ * (server/services/qrUploadChannel.cjs validates it against its own allowlist), so a new
+ * value must be added THERE too or it is silently coerced back to "document" on the wire.
  */
-export type QrHandoffMode = "document" | "photo";
+export type QrHandoffMode = "document" | "photo" | "question";
 
 export interface QrSlot {
   uploadToken: string;
@@ -90,7 +97,8 @@ export async function mintQrSlot(idToken: string, mode: QrHandoffMode): Promise<
       uploadToken: String(data.uploadToken),
       pickupToken: String(data.pickupToken),
       expiresAt: Number(data.expiresAt) || 0,
-      variant: data.variant === "photo" ? "photo" : "document",
+      variant:
+        data.variant === "photo" ? "photo" : data.variant === "question" ? "question" : "document",
     };
   } catch {
     return null;
@@ -107,8 +115,10 @@ export async function peekQrSlot(
     const res = await fetch(`${API_BASE}/qr-upload/${encodeURIComponent(uploadToken)}/status`);
     const data = await res.json().catch(() => null);
     // Absent/unknown -> "document": the safer wording (it never tells a student that
-    // one photo is enough when the paper needs a PDF).
-    const mode: QrHandoffMode = data?.variant === "photo" ? "photo" : "document";
+    // one photo is enough when the paper needs a PDF). "question" is an explicit branch —
+    // the server persists it, so it must survive the read-back or the phone shows answer copy.
+    const mode: QrHandoffMode =
+      data?.variant === "photo" ? "photo" : data?.variant === "question" ? "question" : "document";
     if (res.status === 503) return { state: "unavailable", mode };
     if (!res.ok) return { state: data?.reason === "used" ? "used" : "expired", mode };
     return { state: data?.state === "pending" ? "pending" : "used", mode };

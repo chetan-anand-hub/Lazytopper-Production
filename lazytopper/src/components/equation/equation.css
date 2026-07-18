@@ -35,6 +35,11 @@
   resize: vertical;
   outline: none;
 }
+/* Auto-grow variant (opt-in via the `autoGrow` prop): JS sets the height and toggles
+   overflow, so the manual drag-handle would only fight it — disable it. Height/min/max
+   are owned entirely by the effect in EquationInput; nothing here forces a size, so a
+   non-autoGrow textarea is completely unaffected. */
+.lt-eq__textarea--grow { resize: none; }
 .lt-eq__textarea:focus {
   border-color: var(--lt-eq-accent);
   box-shadow: 0 0 0 3px hsla(152, 55%, 45%, 0.12);

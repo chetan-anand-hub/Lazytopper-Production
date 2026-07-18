@@ -91,6 +91,12 @@ const STATUS_READY = 'ready';
  *                20-question mock and believes they are done.
  *   'photo'    — a single handwritten answer (Check & Improve / SolutionChecker),
  *                where one photo genuinely IS the whole answer.
+ *   'question' — the C&I QUESTION-side handoff: a saved/screenshotted QUESTION paper.
+ *                Same shape as 'document' (PDF or photo of a paper) but question-voice
+ *                copy on the phone — a student sending a QUESTION must never read
+ *                "your answers". ADDITIVE: 'document'/'photo' behaviour is unchanged; the
+ *                only effect is that a mint with variant 'question' now PERSISTS as
+ *                'question' instead of being coerced to 'document' below.
  *
  * This rides on the SLOT rather than the QR URL because the phone page is reached by
  * token alone and would otherwise have no idea which surface minted it. It carries NO
@@ -98,7 +104,8 @@ const STATUS_READY = 'ready';
  */
 const VARIANT_DOCUMENT = 'document';
 const VARIANT_PHOTO = 'photo';
-const VARIANTS = new Set([VARIANT_DOCUMENT, VARIANT_PHOTO]);
+const VARIANT_QUESTION = 'question';
+const VARIANTS = new Set([VARIANT_DOCUMENT, VARIANT_PHOTO, VARIANT_QUESTION]);
 
 function sha256(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex');
@@ -345,6 +352,7 @@ module.exports = {
   MAX_PENDING_PER_UID,
   VARIANT_DOCUMENT,
   VARIANT_PHOTO,
+  VARIANT_QUESTION,
   VARIANTS,
   // Exported for tests only — production code never calls these directly.
   __internals: { sha256, resolveBucketName, extensionFor },

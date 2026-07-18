@@ -43,6 +43,11 @@ const RETIRED_TWIN = path.join(LAZY, 'src', 'pages', 'app', 'CheckImprove.tsx');
 const APP = path.join(LAZY, 'src', 'App.tsx');
 const UPLOAD_LIMITS = path.join(LAZY, 'src', 'services', 'uploadLimits.ts');
 const DETECTION = path.join(LAZY, 'src', 'utils', 'checkImproveDetection.ts');
+const EQUATION_INPUT = path.join(LAZY, 'src', 'components', 'equation', 'EquationInput.tsx');
+const QR_HANDOFF = path.join(LAZY, 'src', 'components', 'qr', 'QrAnswerHandoff.tsx');
+const QR_UPLOAD_PAGE = path.join(LAZY, 'src', 'pages', 'QrAnswerUploadPage.tsx');
+const QR_SERVICE = path.join(LAZY, 'src', 'services', 'qrUploadService.ts');
+const QR_CHANNEL = path.join(LAZY, 'server', 'services', 'qrUploadChannel.cjs');
 
 let pass = 0;
 const failures = [];
@@ -475,7 +480,30 @@ const FORBIDDEN = [
   'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
   'lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx',
   'lazytopper/src/components/desktop/DesktopShell.tsx',
+  // ★ Added by the question-side-parity PR. The owner named these directly: "the
+  // solution checker engine, the scorecard and other important features and fixes we
+  // have done so far shouldn't at all be changed." They were protected by nothing but
+  // good intentions before — now the gate refuses any PR that touches them.
+  //   ResultsScorecard — C&I mounts it (the graded-result view).
+  //   SolutionChecker  — shares EquationInput; the whole autoGrow default-off proof
+  //                      exists so THIS file can stay byte-identical.
+  // NOTE: EquationInput.tsx is deliberately NOT here — it legitimately gains `autoGrow`;
+  // its guard is the default-off assertion in §7, not a forbidden-path entry.
+  'lazytopper/src/components/results/ResultsScorecard.tsx',
+  'lazytopper/src/components/question/SolutionChecker.tsx',
 ];
+
+// ★ MEMBERSHIP, asserted UNCONDITIONALLY (not gated on a resolvable git base). The
+// git-diff loop below only runs when a base ref is present (a PR, or a local full clone);
+// on a shallow checkout it skips. So the guarantee "these two files are guarded at all"
+// is pinned here, where nothing can skip it — a shallow checkout that could not run the
+// diff still proves the guard is WIRED.
+check('FORBIDDEN(wired): ResultsScorecard.tsx is in the guarded set (owner: the scorecard must not change)',
+  FORBIDDEN.includes('lazytopper/src/components/results/ResultsScorecard.tsx'));
+check('FORBIDDEN(wired): SolutionChecker.tsx is in the guarded set (shares EquationInput; must stay byte-identical)',
+  FORBIDDEN.includes('lazytopper/src/components/question/SolutionChecker.tsx'));
+check('FORBIDDEN(wired): EquationInput.tsx is NOT guarded (it legitimately gains autoGrow; §7 proves it stays default-off)',
+  !FORBIDDEN.some((f) => f.endsWith('equation/EquationInput.tsx')));
 
 // PR-scoped (not anchored): "did THIS change set touch a forbidden path?" On a push to
 // trunk there is no PR, so it reports N/A — never the old vacuous green.
@@ -488,6 +516,13 @@ if (forbiddenBase) {
     check(`FORBIDDEN: ${f} shows zero changes (vs ${forbiddenBase})`, !changed.includes(f),
       changed.includes(f) ? 'THIS FILE WAS MODIFIED' : '');
   }
+  // ★ §7.4 — the existing EquationInput test must pass UNTOUCHED. vitest is not gated in
+  // CI, so "passes" is asserted as its strongest scriptable proxy: the test file shows
+  // ZERO diff. Unchanged + green-before ⇒ green-now, since the component change is proven
+  // behaviour-neutral when autoGrow is off (the default the test relies on).
+  check('EQ-TEST: EquationInput.test.tsx shows zero changes (the autoGrow proof — it passes untouched)',
+    !changed.includes('lazytopper/src/components/equation/EquationInput.test.tsx'),
+    changed.includes('lazytopper/src/components/equation/EquationInput.test.tsx') ? 'THE TEST FILE WAS MODIFIED' : '');
 } else if (EVENT === 'push') {
   // Push-to-trunk: legitimately no PR to scope against. NOT a check and NOT a pass —
   // the diff would be empty and "pass" every forbidden path without examining one.
@@ -506,6 +541,114 @@ if (forbiddenBase) {
   console.log('      (A local skip is fine; the PR run scopes it against the real base.)');
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   7 · QUESTION-SIDE PARITY — the question side gains the answer side's hands.
+   Four mirrors (math · QR · camera/files · paste) + the one shared-component
+   change (autoGrow), which MUST default off so SolutionChecker is untouched.
+   ══════════════════════════════════════════════════════════════════════════ */
+section('7 · Question-side parity (the four mirrors + autoGrow)');
+
+// MIRROR 1 — the question's math input. The plain single-line <input type="text"> is
+// gone; the `type` branch now mounts <EquationInput> (the same palette the answer uses),
+// and it STILL calls clearDetection on every edit so an edited question drops its stale
+// detection chip. Assert the PROPERTY, comment-stripped.
+check('PARITY-1: the question `type` branch mounts <EquationInput> (ariaLabel "Type the question")',
+  /ariaLabel="Type the question"/.test(converged));
+check('PARITY-1: the old single-line <input type="text"> is gone from the surface',
+  !/<input\s+type="text"/.test(converged));
+check('PARITY-1: the question edit STILL fires clearDetection (no stale chip on an edited question)',
+  /setQuestion\(v\);\s*clearDetection\(\)/.test(converged));
+
+// MIRROR 2 — the QR handoff for the question. Assert the PROP mode="question" (its OWN
+// third mode, §2a — NOT the answer's "document", whose copy says "your answers"). The
+// answer's bimodal mode={isMultiQuestion ? "document" : "photo"} is `mode={`, not `mode="`,
+// so this static-question-mode literal identifies the question mount uniquely. There must
+// now be TWO QrAnswerHandoff mounts (answer + question).
+check('PARITY-2: a second <QrAnswerHandoff> is mounted with the static prop mode="question"',
+  /mode="question"/.test(converged));
+const qrMounts = (converged.match(/<QrAnswerHandoff/g) || []).length;
+check('PARITY-2: exactly two QrAnswerHandoff mounts now exist (answer + question)',
+  qrMounts === 2, `found ${qrMounts}`);
+check('PARITY-2: the question QR carries the question-voice label, not the answer default',
+  /label="Question paper on your phone\?"/.test(converged));
+
+// MIRROR 3 — Camera/Files for the question, device-gated on !isDesktop && !qImageBase64,
+// toggling capture on the EXISTING qFileInputRef (no second file input, so the tight-accept
+// count in §3 stays 2). Distinct gate from the answer's !imageBase64.
+check('PARITY-3: the question camera/files pair is device-gated (!isDesktop && !qImageBase64)',
+  /!isDesktop && !qImageBase64/.test(converged) && /qFileInputRef\.current/.test(converged));
+
+// MIRROR 4 — paste on BOTH cards, via the EXISTING file handlers (so checkUploadFile still
+// refuses a bad pasted file) and gated on a clipboard FILE being present (so text paste is
+// untouched — return without preventDefault).
+check('PARITY-4: both cards bind onPaste to the shared handler (question + answer)',
+  /onPaste=\{\(e\) => handleCardPaste\(e, "question"\)\}/.test(converged) &&
+  /onPaste=\{\(e\) => handleCardPaste\(e, "answer"\)\}/.test(converged));
+check('PARITY-4: paste only acts on a clipboard FILE (text paste falls through untouched)',
+  /const file = e\.clipboardData\?\.files\?\.\[0\];\s*if \(!file\) return;/.test(converged));
+check('PARITY-4: pasted files ride the existing guarded handlers (handleQuestionFile / handleFileChosen)',
+  /handleCardPaste[\s\S]*?handleQuestionFile\(file\)[\s\S]*?handleFileChosen\(file\)/.test(converged));
+
+// AUTOGROW — the ONE shared-component change. It MUST default false so every existing
+// consumer (SolutionChecker) is byte-identical. Assert against the COMMENT-STRIPPED
+// EquationInput source (a comment there mentions autoGrow — strip first, §9.6).
+const eqInputSrc = stripComments(read(EQUATION_INPUT));
+check('AUTOGROW: EquationInput declares an optional `autoGrow?: boolean` prop',
+  /autoGrow\?:\s*boolean/.test(eqInputSrc));
+check('AUTOGROW: `autoGrow` DEFAULTS TO false (SolutionChecker, which never passes it, is unchanged)',
+  /autoGrow\s*=\s*false/.test(eqInputSrc));
+check('AUTOGROW: the grow path is JS (height from scrollHeight), never CSS field-sizing (no Safari)',
+  /scrollHeight/.test(eqInputSrc) && !/field-sizing/.test(eqInputSrc));
+// Both C&I mounts opt in at the SAME min-3 (owner's "clean initial look"); question grows
+// to 8, answer to 14.
+check('AUTOGROW: the question EquationInput opts in at min-3, max-8',
+  /rows=\{3\}\s*\n\s*autoGrow\s*\n\s*maxRows=\{8\}/.test(converged));
+check('AUTOGROW: the answer EquationInput opts in at min-3, max-14',
+  /rows=\{3\}\s*\n\s*autoGrow\s*\n\s*maxRows=\{14\}/.test(converged));
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7b · QR "question" MODE (§2a) — a NEW third mode value, threaded through the
+   client type, both COPY maps, the phone "Sent" line, AND the server allowlist.
+   Additive: the answer side's document/photo behaviour is byte-identical.
+   These read raw source (the copy strings are code, not comments).
+   ══════════════════════════════════════════════════════════════════════════ */
+section('7b · QR "question" mode threading (§2a)');
+
+const qrHandoff = read(QR_HANDOFF);
+const qrUploadPage = read(QR_UPLOAD_PAGE);
+const qrService = read(QR_SERVICE);
+const qrChannel = read(QR_CHANNEL);
+
+// The type carries the new value AND still the old two (exhaustiveness forces every
+// Record<QrHandoffMode> site to add the key — tsc is the real guard; this pins the shape).
+check('QRMODE: QrHandoffMode is "document" | "photo" | "question"',
+  /QrHandoffMode\s*=\s*"document"\s*\|\s*"photo"\s*\|\s*"question"/.test(qrService));
+
+// The question mount uses its own mode; the ANSWER mount is byte-identical (still bimodal).
+check('QRMODE: the answer QR is UNCHANGED — still mode={isMultiQuestion ? "document" : "photo"}',
+  /mode=\{isMultiQuestion \? "document" : "photo"\}/.test(converged));
+
+// COPY key ADDED in both maps; the document/photo entries stay byte-identical (v1.3 §5).
+check('QRMODE: QrAnswerHandoff COPY gained a question key (question-voice link)',
+  /Send the question paper — PDF or photo — from your phone/.test(qrHandoff));
+check('QRMODE: QrAnswerHandoff document + photo copy is UNCHANGED (answer side byte-identical)',
+  /link: "Send the PDF — or a photo — from your phone"/.test(qrHandoff) &&
+  /Photograph your written answer on your phone/.test(qrHandoff));
+check('QRMODE: QrAnswerUploadPage COPY gained a question key (question-voice head)',
+  /head: "Send the question paper"/.test(qrUploadPage));
+check('QRMODE: QrAnswerUploadPage document + photo copy is UNCHANGED (answer side byte-identical)',
+  /head: "Send your answers"/.test(qrUploadPage) && /head: "Send your answer"/.test(qrUploadPage));
+check('QRMODE: the phone "Sent" line reads "your question paper" for a question',
+  /"your question paper"/.test(qrUploadPage));
+
+// ★ THE DATA-LAYER SITE the frozen 5-site list missed — the SERVER allowlist. Without it a
+// "question" mint is coerced to "document" on the wire (VARIANTS.has → false → default), so
+// the phone shows answer copy and the whole copy fix is cosmetic-only. This is the branch
+// that makes the round-trip real; the qr_upload_channel acceptance mint→peek asserts it runs.
+check('QRMODE: server allowlist includes VARIANT_QUESTION (round-trip is real, not cosmetic-only)',
+  /const VARIANT_QUESTION = 'question';/.test(qrChannel) &&
+  /VARIANTS = new Set\(\[VARIANT_DOCUMENT, VARIANT_PHOTO, VARIANT_QUESTION\]\)/.test(qrChannel));
+
 console.log('');
 if (failures.length > 0) {
   console.error(`Check & Improve convergence acceptance FAILED — ${failures.length} failing:`);
@@ -515,4 +658,7 @@ if (failures.length > 0) {
 console.log(`Check & Improve convergence acceptance PASSED — ${pass}/${pass} checks green.`);
 console.log('  MI untouched (52 survive + 1 relocated) · one component · zero matchMedia · basis 340 ·');
 console.log('  question-before-answer · canonical sentence · tight accept · guard on both inputs ·');
-console.log('  five purples gone · QR + camera + Your-papers intact · SHOW_DETECTION_META unflipped\n');
+console.log('  five purples gone · QR + camera + Your-papers intact · SHOW_DETECTION_META unflipped ·');
+console.log('  question-side parity: EquationInput + QR(question mode) + camera + paste · autoGrow default-off ·');
+console.log('  QR "question" mode threaded (client type + both COPY maps + server allowlist; answer byte-identical) ·');
+console.log('  ResultsScorecard + SolutionChecker now guarded\n');
