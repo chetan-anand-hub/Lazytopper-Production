@@ -1,6 +1,22 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #466 → #470 merged — ★★ THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE — **owner LIVE-VERIFIED at 360 / 768 / 820 / 1024 / 1440** — trunk `2c59dd2`
+## [CURRENT] #472 merged — ★★ C&I QUESTION-SIDE PARITY IS COMPLETE — the question side gained the answer side's hands — **owner byte-verified** — trunk `0649e20`
+
+**#472 `0649e20` (question-side parity) + #473 `8656147` (cofounder skill v2.1) landed since the #471 handoff.** The convergence arc (#466→#470) made C&I one fluid component; **this PR gives its QUESTION uploader everything the answer uploader had.** 9 files, all gates green (convergence acceptance **92/92**, qr channel **47/47**), CI `quality-gate` green.
+
+**The four mirrors** (`DesktopCheckImprovePage.tsx`): the plain `<input>` → **`<EquationInput>`** (the math palette, `clearDetection` preserved) · a **`<QrAnswerHandoff>`** in a NEW `"question"` mode · mobile **Camera/Files** on the existing `qFileInputRef` · **paste** on both card `<section>`s (file-only; text paste untouched). Both textareas now **auto-grow** (new `autoGrow` prop, **default OFF** — SolutionChecker stays byte-identical; its test passed untouched, run under vitest 8/8). Answer/question boxes start at the same min-3 height (measured symmetric, 75.6px at every width).
+
+**★★ THE 6TH SITE THE FROZEN SPEC MISSED — caught before it shipped.** `mode="document"` copy is answer-shaped (*"pick the PDF of your answers"*), so a third `QrHandoffMode` value **`"question"`** was folded in. The spec's map named **five** client sites; the value is also validated **server-side** — `qrUploadChannel.cjs` had `VARIANTS = new Set(['document','photo'])` and coerced any unknown mint to `'document'`. **The five client sites alone would have shipped a silent coerce-to-document: the phone shows a QUESTION student "your answers".** The round-trip trace (mint → `peekSlot`), not the spec, found it; added `VARIANT_QUESTION` (the 6th site) and proved the round-trip with a channel-test `mint→peek` assertion (47/47). *A frozen site-map can still be incomplete — verify the round-trip, don't trust the enumeration.* **Additive throughout ⇒ `document`/`photo` byte-identical ⇒ the answer QR + SolutionChecker are untouched;** `Record<QrHandoffMode>` made tsc enforce exhaustiveness across every site.
+
+**★ ResultsScorecard + SolutionChecker are now WIRED into the acceptance FORBIDDEN set** (owner: *"must not change"*) — previously protected by nothing but good intentions.
+
+**#473** (`8656147`) is skill self-knowledge, not product: cofounder method v2.1 (green-board trap, doc culture, `ls-remote`/appendix corrections; dropped the vestigial `cofounder-skill/references/`). Noted here for traceability; no product surface moved.
+
+**NEXT:** **the tutor overlay** — the goal the whole C&I arc served. ⚠ Its investigation spec needs a **v1.2**: #466 made C&I ONE fluid container-relative component, which **falsifies the two-component premise** the v1.1 spec rested on. See `NEXT_ACTION.md`.
+
+---
+
+## #466 → #470 merged — ★★ THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE — **owner LIVE-VERIFIED at 360 / 768 / 820 / 1024 / 1440** — trunk `2c59dd2`
 
 **Four product PRs, one CI fix, all merged.** C&I shipped as two components — `DesktopCheckImprovePage.tsx` (2,734L) and `pages/app/CheckImprove.tsx` (1,656L) — chosen by a route ternary on `isDesktop`. It is now **ONE fluid responsive component at every width**, and the mobile twin is **deleted**.
 

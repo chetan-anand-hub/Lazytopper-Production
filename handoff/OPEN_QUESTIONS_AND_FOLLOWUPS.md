@@ -1,3 +1,19 @@
+## 2026-07-18 -- #472: C&I QUESTION-SIDE PARITY COMPLETE (trunk `0649e20`), owner byte-verified
+
+**[FU-CI-QUESTION-SIDE-PARITY] — CLOSED.** The question uploader now has `<EquationInput>` (math palette), a `<QrAnswerHandoff>` in a new `"question"` mode, mobile camera/files, and paste. Both textareas auto-grow (default OFF). Do NOT redo.
+
+**[FU-QRH-DOCUMENT-COPY-NEUTRAL] — RESOLVED in #472.** `mode="document"` copy was answer-shaped (*"pick the PDF of your answers"*). Fixed by a THIRD `QrHandoffMode` value `"question"` with its own question-voice copy in both COPY maps + the phone "Sent" line. **The catch:** the value is also validated **server-side** (`qrUploadChannel.cjs` `VARIANTS`), a 6th site the frozen five-site map missed — without it a `"question"` mint coerced to `'document'` on the wire. Added `VARIANT_QUESTION`; round-trip proven by a channel-test `mint→peek` assertion (qr channel 47/47).
+
+### ★ NEW — **[FU-EQUATIONINPUT-AUTOGROW-SOLUTIONCHECKER]** — decide whether SolutionChecker wants autoGrow
+`EquationInput` gained `autoGrow` (default OFF) for C&I. `SolutionChecker.tsx:652` is the other consumer and stays byte-identical (never passes the prop), but **nobody has read its container/layout** — a growing textarea might push something out of a constrained space. A deferral with a plan: **audit SolutionChecker's layout, then decide whether to flip autoGrow on there.** Inference-without-verification is the failure mode to avoid; do not flip it blind.
+
+### ★ NEW — **[FU-EQUATIONINPUT-TEST-NOT-CI-GATED]** — the autoGrow safety proof is UNENFORCED on merge
+The guarantee "autoGrow default-OFF keeps SolutionChecker byte-identical" rests on `EquationInput.test.tsx` passing untouched. **But vitest is not gated in CI** (CI runs the matrices, not vitest), so nothing on the merge path actually runs that test — it was verified locally (8/8, via the Windows rollup-binary drop) and the acceptance script only asserts the test file is UNCHANGED, not that it PASSES. **Same silent-skip family as #469** (a check that does not run reads as green). Fix: gate vitest in the linux CI job (it already works there) — the standing **[FU-CI-GATE-VITEST]** is the parent. Doc/CI-config only.
+
+**[FU-CI-RETARGET-NO-GATE] — still OPEN** (confirmed present, recorded under the #466→#470 section below). Unrelated to #472; no change.
+
+---
+
 ## 2026-07-18 -- #466 → #470: THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE (trunk `2c59dd2`), owner live-verified
 
 **[FU-CI-MULTIPAGE-CAPTURE], [FU-CI-UPLOAD-COPY-CANONICAL] — closed earlier in the arc.** The convergence, the twin deletion, the gate fix and the mobile header are all merged and live-verified. Do NOT redo.

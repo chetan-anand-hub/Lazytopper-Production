@@ -1,15 +1,19 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-18 (post-arc **#466 → #470 — THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE.** Trunk `2c59dd2`. Owner LIVE-VERIFIED at 360/768/820/1024/1440. One responsive C&I component; twin deleted; the CI gate that never ran now runs its MI moat check. **The arc was a prerequisite for the tutor overlay, not a cleanup.**)
+# Updated: 2026-07-18 (post-**#472 — C&I QUESTION-SIDE PARITY IS COMPLETE.** Trunk `0649e20`. Owner byte-verified. The question uploader gained the answer uploader's hands — EquationInput, a QR handoff in a new `"question"` mode, mobile camera/files, and paste. **The question-side gap the convergence arc flagged is now closed; only the tutor overlay remains.**)
 
 ## ⏭️ NEXT — 2026-07-18. Read this block first.
 
-**The C&I arc closed (#466→#470); this session did branch hygiene + this docs handoff.** Two things are next, in order:
+**C&I question-side parity shipped (#472); this session is its docs handoff.** ONE thing is next: **the tutor overlay** — the goal the entire C&I arc served.
 
-### (1) C&I QUESTION-SIDE PARITY — record it, it is not built
-The **answer** side has `<EquationInput>` (`DesktopCheckImprovePage.tsx:2152`) and `<QrAnswerHandoff>` (`:2068`); the **question** side (`:1712-1780`) has **neither** — a plain input and an upload button. A desktop student whose question paper is on their phone must email it to themselves, download, save, upload. **Both components already ship and are reusable:** `EquationInput`'s docblock says *"drop-in for a textarea"* and `components/question/SolutionChecker.tsx:652` is the second-consumer precedent; `QrAnswerHandoff.onImageReceived` is field-agnostic **by design** (*"the caller owns what happens next"*) and `label` is already a prop. **Open copy decision, owner-owned:** the QR's default label *"Solved it on paper?"* is answer-copy and would be wrong on the question side. ⇒ **[FU-CI-QUESTION-SIDE-PARITY]**, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. Coordinates are owner-verified but **re-derive them before building** — this file rot.
+### ★ (1) THE TUTOR OVERLAY — the goal the whole arc served
+Quick Practice + Check & Improve as **in-tutor overlays**, reusing the real pages verbatim, so a student never leaves the tutor. **The convergence was the prerequisite** — an overlay cannot host a component that measures the *window* (`useIsDesktop`); #466 made C&I one fluid **container-relative** component, and #472 completed its input surface. C&I is now overlay-ready.
 
-### (2) THE TUTOR OVERLAY — the goal the whole arc served
-Quick Practice + Check & Improve as **in-tutor overlays**, reusing the real pages verbatim. C&I is now overlay-ready (container-relative, no `useIsDesktop` for layout). ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] REMAIN HELD** — that architecture makes the round-trip banner/count-link mechanism secondary; a HOLD with a reason, do not "just fix" them.
+**⚠ THE INVESTIGATION SPEC NEEDS A v1.2 BEFORE BUILDING.** The v1.1 spec was written on a **two-component** premise (a desktop twin + a mobile twin, chosen by `isDesktop`). **#466 FALSIFIES that premise** — C&I is now ONE fluid container-relative component. So:
+- The v1.1 framing "which twin does the overlay mount, and how do we stop it measuring the window" is **obsolete** — there is no twin, and nothing measures the window.
+- The **in-tree panel** the v1.1 spec framed as the *risky* option is now the **likely answer**: mount the one real component inside the overlay container, which already lays out container-relative.
+- Re-derive the spec against the post-#472 code before dispatching. **Do not build off v1.1.**
+
+⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] REMAIN HELD** — the overlay architecture makes the round-trip banner/count-link mechanism secondary; a HOLD with a reason, do not "just fix" them.
 
 ### ★ DOCTRINE TO CARRY (earned across this arc — not decoration)
 - **Re-derive trunk EVERY session** via `git ls-remote origin base/approved-thru-437`. It moved seven times in one session. Never trust a written SHA.
