@@ -1,0 +1,48 @@
+/* tutorCheckImproveOverlay.css — INVESTIGATION PROTOTYPE (Option A host).
+   New component ⇒ CSS classes, not inline styles (CLAUDE.md §7). */
+
+.lt-ci-overlay__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+  background: hsl(220, 30%, 12%, 0.55); /* dimmed navy — the tutor stays visible behind */
+}
+
+/* Container-relative width. C&I reflows to whatever this panel is (post-#466 there is no
+   window-measuring matchMedia left in its layout), so these widths drive the real reflow
+   the investigation reports at 360 / 768 / 820 / 1024 / 1440. */
+.lt-ci-overlay__panel {
+  position: relative;
+  width: 100%;
+  max-width: 900px;      /* ≈820–900px working panel on desktop; shrinks with the viewport */
+  margin: 0 auto;
+  border-radius: 16px;
+  background: hsl(0, 0%, 100%);
+  box-shadow: 0 24px 64px hsl(220, 40%, 8%, 0.4);
+  min-height: 240px;
+  padding-top: 44px;     /* room for the close bar */
+}
+
+.lt-ci-overlay__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 1;
+  border: none;
+  background: none;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: hsl(152, 55%, 35%); /* the green accent, matching ReturnTicketStrip */
+}
+
+@media (max-width: 480px) {
+  .lt-ci-overlay__backdrop { padding: 0; }
+  .lt-ci-overlay__panel { max-width: 100%; border-radius: 0; min-height: 100vh; }
+}

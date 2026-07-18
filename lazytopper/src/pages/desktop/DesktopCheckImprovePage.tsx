@@ -685,15 +685,44 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?:
 
 /* ────────────────── page ────────────────── */
 
-const DesktopCheckImprovePage: React.FC = () => {
+/** INVESTIGATION PROTOTYPE (TutorOverlay v1.2, Option A). Present ONLY when the page is
+ *  mounted inside the tutor overlay; ABSENT on every direct /check-improve route visit,
+ *  where the page is byte-identical to today. See report §2 + §5.1. */
+export interface CheckImproveOverlayProps {
+  /** Honest MVP: usually undefined — the tutor holds no clean question text at offer time
+   *  (report §3). The seam exists (via #472's `question` state) for a future prompt lane
+   *  that carries the question; seeding it here is byte-identical when undefined. */
+  seedQuestion?: string;
+  /** Cosmetic breadcrumb only (mirrors the existing ?topic= param). C&I derives the real
+   *  topic from the question; this is never a functional topic input. */
+  seedTopicSlug?: string;
+  /** Overlay-mode return: called INSTEAD of navigate() on the two return-home paths. */
+  onClose: (outcome?: CheckImproveOverlayOutcome) => void;
+}
+export interface CheckImproveOverlayOutcome {
+  /** The code C&I minted for the grade just completed — handed back so the tutor resolves
+   *  the round-trip without a cloud poll (report §6.4). */
+  ciCode?: string | null;
+}
+
+const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => {
   const navigate = useNavigate();
   // The return ticket (Section C). Null on a direct visit — this page then renders
   // exactly as it always has. ROUTE_CTX below is the OUTBOUND context this page hands
   // to the surfaces it links to; it is not, and was never, a way back INTO here.
   const returnTicket = useReturnTicket();
   const returnTicketInput = useMemo(
-    () => (returnTicket ? { label: returnTicket.label, onReturn: () => navigate(returnTicket.path) } : undefined),
-    [returnTicket, navigate],
+    () =>
+      // OVERLAY MODE: the way back is closing the panel, not navigating. Byte-identical
+      // when `overlay` is undefined — the original expression is the else-branch verbatim.
+      // (The ciCode hand-back for the round-trip's poll-free path is wired at the scorecard
+      //  close, where ciCode is in scope — NOT here, which renders before ciCode exists.)
+      overlay
+        ? { label: "Back to your tutor", onReturn: () => overlay.onClose() }
+        : returnTicket
+          ? { label: returnTicket.label, onReturn: () => navigate(returnTicket.path) }
+          : undefined,
+    [overlay, returnTicket, navigate],
   );
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -737,7 +766,10 @@ const DesktopCheckImprovePage: React.FC = () => {
   // answer; the detected values come back on the graded result.
   // Question input — type/paste OR upload a photo of the QUESTION (distinct from
   // the answer photo). The photo lets the grader read the printed "[3]" directly.
-  const [question, setQuestion] = useState<string>("");
+  // BYTE-IDENTICAL DEFAULT-OFF (report §5.1 guard #1): `overlay?.seedQuestion` is undefined
+  // on every direct visit ⇒ `?? ""` ⇒ exactly `useState<string>("")`. Same proof shape that
+  // protected autoGrow default-off and the document/photo QR copy.
+  const [question, setQuestion] = useState<string>(overlay?.seedQuestion ?? "");
   const [questionTab, setQuestionTab] = useState<"type" | "upload">("type");
   const [qImageBase64, setQImageBase64] = useState<string | null>(null);
   const [qImageMime, setQImageMime] = useState<string>("image/jpeg");
