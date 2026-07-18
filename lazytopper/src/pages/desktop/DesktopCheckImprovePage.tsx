@@ -48,6 +48,7 @@ import {
 // scorecard variant + the history panel. The detection/correction/MI paths above
 // this seam are byte-unchanged; these imports only ADD persistence around them.
 import {
+  buildCheckImproveSessionRecord,
   ensureCheckImproveSessionCode,
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
@@ -685,7 +686,36 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?:
 
 /* ────────────────── page ────────────────── */
 
-const DesktopCheckImprovePage: React.FC = () => {
+/**
+ * The tutor⇄C&I overlay host contract (build v1.1, Option A). This prop is present ONLY
+ * when the page is mounted inside the tutor overlay (`TutorCheckImproveOverlay`); it is
+ * ABSENT on every direct `/check-improve` route visit, where the page is byte-identical to
+ * today. The additive guarantee (default-off) is asserted by
+ * `scripts/ops/check_improve_overlay_additive_acceptance.mjs`.
+ *
+ * There is NO `seedQuestion` — GAP-1 is topicKey-only at offer time (the tutor holds no
+ * clean question text and has no image channel; investigation report §3), so the panel
+ * opens with the question field EMPTY and the student enters it, exactly as on the direct
+ * page. A true pre-fill is a future prompt lane.
+ */
+export interface CheckImproveOverlayProps {
+  /**
+   * Overlay-mode close/return — called INSTEAD of navigate() on the return-home paths.
+   * Post-grade it carries the freshly-BUILT SessionRecord (constructed in-process via the
+   * same `buildCheckImproveSessionRecord` the persist path uses, so the tutor injects the
+   * reframed return-opener WITHOUT a cloud re-read — the record is NOT re-persisted here)
+   * and the RAW question the student entered (`text`/`imageBase64`, read from this page's
+   * OWN live state). The question is IN-MEMORY only — never persisted, never added to
+   * SessionRecord, so `checkSolution.cjs` / the grader / the record shape stay byte-identical
+   * (owner ruling (a)). Pre-grade (escape) it carries neither.
+   */
+  onClose: (
+    gradedRecord?: SessionRecord,
+    question?: { text: string; imageBase64: string | null },
+  ) => void;
+}
+
+const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => {
   const navigate = useNavigate();
   // The return ticket (Section C). Null on a direct visit — this page then renders
   // exactly as it always has. ROUTE_CTX below is the OUTBOUND context this page hands
@@ -723,7 +753,31 @@ const DesktopCheckImprovePage: React.FC = () => {
   // avatar-dropdown), REUSED and never forked. Back is left to the in-page
   // PageHeader, which already has it, so a student never meets two back controls.
   const withChrome = (body: React.ReactNode, subtitle: string) =>
-    isDesktop ? (
+    overlay ? (
+      // OVERLAY MODE (build v1.1): the tutor host owns the sheet frame, so render the page
+      // BARE — no MobileShell, even at mobile width. A MobileShell here would put the app's
+      // account header + bottom NAV inside a full-screen sheet, giving the student a way to
+      // navigate OUT of the tutor mid-overlay; suppressing it is what makes "no shell to
+      // escape" true. This branch is overlay-GATED: when `overlay` is undefined the two
+      // branches below are byte-identical to today (isDesktop alone decides chrome), so the
+      // direct-visit path is unchanged (additive guarantee). `useIsDesktop` still governs
+      // camera-vs-QR in the body — a phone in the overlay correctly gets Camera/Files. The
+      // pinned bar carries the ✕; its handler is payload-aware off `scorecardOpen` (§4.1).
+      <>
+        <div style={overlayCloseBarStyle}>
+          <span style={overlayCloseEyebrowStyle}>Check &amp; Improve</span>
+          <button
+            type="button"
+            style={overlayCloseButtonStyle}
+            aria-label="Close and return to your tutor"
+            onClick={overlayReturn}
+          >
+            &times;
+          </button>
+        </div>
+        {body}
+      </>
+    ) : isDesktop ? (
       <>{body}</>
     ) : (
       <MobileShell title="Check & Improve" subtitle={subtitle} showNav>
@@ -795,6 +849,82 @@ const DesktopCheckImprovePage: React.FC = () => {
   const [ciSaved, setCiSaved] = useState(false);
   // The 5th <ResultsScorecard> variant, opened on every completed grade.
   const [scorecardOpen, setScorecardOpen] = useState(false);
+
+  // ── OVERLAY RETURN (tutor⇄C&I overlay, build v1.1) — present only when hosted ──────
+  // Build the just-graded SessionRecord IN-PROCESS with the SAME builder the persist path
+  // uses, from whichever grade is on screen (whole-paper `wsResult` or single `result`),
+  // mirroring EXACTLY the args the scorecard variant already computes. This record is handed
+  // straight back to the tutor host — it is NOT re-persisted (C&I's own persist already
+  // wrote the durable copy at grade time), so nothing about SessionRecord / the grader
+  // changes. Returns undefined until a grade + code exist (defensive; then close = a bare
+  // escape). `overlay`-gated end to end: never runs on a direct visit.
+  const buildOverlayReturnRecord = (): SessionRecord | undefined => {
+    if (!overlay || !user?.uid || !ciCode) return undefined;
+    if (wsResult && confirmed) {
+      return buildCheckImproveSessionRecord({
+        code: ciCode,
+        title: ciName ?? ciCode,
+        subject: toSessionSubject(confirmed.subject),
+        topicSlug: confirmed.topicSlug,
+        topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
+        response: wsResult,
+        uid: user.uid,
+      });
+    }
+    if (result && resultCtx) {
+      return buildCheckImproveSessionRecord({
+        code: ciCode,
+        title: ciName ?? ciCode,
+        subject: toSessionSubject(resultCtx.subject),
+        topicSlug: resultCtx.topicSlug,
+        topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),
+        response: singleCheckToWorksheetResponse(result),
+        uid: user.uid,
+      });
+    }
+    return undefined;
+  };
+  // The single close path for the overlay (the pinned ✕ AND the scorecard's "Back to your
+  // tutor" both call this). Keyed off the page's OWN `scorecardOpen` (never a new signal,
+  // §4.1): post-grade hands back the record + the in-memory question; pre-grade is a bare
+  // escape with no payload. The tutor NEVER grades (D-TUT-8) — it just receives the numbers.
+  const overlayReturn = () => {
+    if (!overlay) return;
+    if (scorecardOpen) {
+      overlay.onClose(buildOverlayReturnRecord(), { text: question, imageBase64: qImageBase64 });
+    } else {
+      overlay.onClose();
+    }
+  };
+  // Pinned close-bar chrome for the overlay-hosted page (inline styles: this file is
+  // inline-styled throughout — the "no inline styles" rule is for NEW component files).
+  const overlayCloseBarStyle: React.CSSProperties = {
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "10px clamp(14px, 4vw, 24px)",
+    background: "#fff",
+    borderBottom: `1px solid ${BORDER}`,
+  };
+  const overlayCloseEyebrowStyle: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+    color: TEXT_MUTED,
+  };
+  const overlayCloseButtonStyle: React.CSSProperties = {
+    border: "none",
+    background: "none",
+    padding: "2px 8px",
+    fontSize: 22,
+    lineHeight: 1,
+    cursor: "pointer",
+    color: TEXT_MUTED,
+  };
   // "Your checked papers" — durable cross-device records + the overlay panel +
   // the read-only stored-scorecard reopen.
   const [ciRecords, setCiRecords] = useState<SessionRecord[]>([]);
@@ -2444,7 +2574,9 @@ const DesktopCheckImprovePage: React.FC = () => {
         {scorecardOpen && confirmed && ciCode && (
           <ResultsScorecard
             variant={checkImproveScorecardVariant({
-              returnTicket: returnTicketInput,
+              returnTicket: overlay
+                ? { label: "Back to your tutor", onReturn: overlayReturn }
+                : returnTicketInput,
               topicName: confirmed.topicName,
               code: ciCode,
               topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
@@ -2714,7 +2846,9 @@ const DesktopCheckImprovePage: React.FC = () => {
       {scorecardOpen && ciCode && (
         <ResultsScorecard
           variant={checkImproveScorecardVariant({
-              returnTicket: returnTicketInput,
+              returnTicket: overlay
+                ? { label: "Back to your tutor", onReturn: overlayReturn }
+                : returnTicketInput,
             topicName: resultCtx.topicName,
             code: ciCode,
             topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),

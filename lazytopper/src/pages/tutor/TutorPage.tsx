@@ -21,6 +21,7 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { MathText } from "../../components/question/MathText";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
 import { useTutorSession } from "./useTutorSession";
+import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
 import { safeInternalReturnTo } from "./tutorPath";
 import ExplanationPanel from "./ExplanationPanel";
 import {
@@ -100,7 +101,9 @@ export default function TutorPage() {
     returnFollow,
     send,
     retry,
-    routeToCheckImprove,
+    openCheckImproveOverlay,
+    checkImproveOverlayOpen,
+    closeCheckImprove,
     routeToPractice,
     recheckPending,
     dismissPending,
@@ -362,7 +365,7 @@ export default function TutorPage() {
           )}
           {!pending && latestOffer === "check-improve" && (
             <div className="lt-tutor__actions">
-              <button type="button" className="lt-tutor__action" onClick={routeToCheckImprove}>
+              <button type="button" className="lt-tutor__action" onClick={openCheckImproveOverlay}>
                 Get my attempt marked
               </button>
             </div>
@@ -413,6 +416,13 @@ export default function TutorPage() {
 
       {/* Exact NCERT page (D-TUT-14 #1) — the shared modal, opened from the panel. */}
       <NcertPageModal pageRef={ncertRef} onClose={() => setNcertRef(null)} />
+
+      {/* Tutor⇄C&I overlay (build v1.1). The "Get my attempt marked" CTA opens the REAL
+          DesktopCheckImprovePage as an in-tree panel over the dimmed tutor — the student
+          never leaves the thread. On close it hands the graded record + the in-memory
+          question straight back (closeCheckImprove → the poll-free return-opener). Fixed
+          positioning means it renders above the tutor shell regardless of its overflow. */}
+      <TutorCheckImproveOverlay open={checkImproveOverlayOpen} onClose={closeCheckImprove} />
     </div>
   );
 }
