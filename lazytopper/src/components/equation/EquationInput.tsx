@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { MathText } from "../question/MathText";
 import "./equation.css";
 
@@ -35,8 +35,22 @@ export interface EquationInputProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
-  /** Textarea row count (parity with the textareas being replaced). */
+  /** Textarea row count. With `autoGrow`, this is the MIN (starting) height. */
   rows?: number;
+  /**
+   * Grow the textarea with its content, from `rows` (min) up to `maxRows` (max), then
+   * scroll internally. OPT-IN and default OFF: with it off the control is byte-for-byte
+   * what it has always been (fixed `rows`, `resize: vertical`), so every existing
+   * consumer — SolutionChecker included — is unaffected and unaware the prop exists.
+   *
+   * IMPLEMENTED IN JS, never the CSS `field-sizing: content`: that property has no Safari
+   * support, so a CSS-only auto-grow would silently split iPhone students (stuck on the
+   * fixed box) from Chrome (growing) — a twin split by BROWSER, the exact species the
+   * Check & Improve convergence arc just spent four PRs removing.
+   */
+  autoGrow?: boolean;
+  /** Cap for `autoGrow`, in rows. Ignored when `autoGrow` is off. Past it, scroll. */
+  maxRows?: number;
   /** Optional extra class on the wrapper for consumer layout. */
   className?: string;
   /** Accessible label for the textarea. */
@@ -166,11 +180,38 @@ export function EquationInput({
   placeholder,
   disabled = false,
   rows = 4,
+  autoGrow = false,
+  maxRows,
   className,
   ariaLabel,
 }: EquationInputProps) {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // AUTO-GROW — measured, not guessed: read the element's real computed metrics so the
+  // clamp is correct whatever the rem/font resolves to, then set an explicit height.
+  // Keyed on `value` (not an onInput handler) because the control is CONTROLLED — every
+  // change (typing, a palette insert, a paste, an external clear) flows through `value`,
+  // so this one effect covers them all; an onInput listener would miss the programmatic
+  // ones. useLayoutEffect runs before paint, so the box is already sized on first frame
+  // (no flash). Early-returns when off ⇒ zero effect for every non-autoGrow consumer.
+  useLayoutEffect(() => {
+    if (!autoGrow) return;
+    const el = taRef.current;
+    if (!el) return;
+    const cs = window.getComputedStyle(el);
+    const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.5 || 20;
+    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const borderY = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    const minH = rows * lh + padY + borderY;
+    const maxH = (maxRows ?? rows) * lh + padY + borderY;
+    el.style.height = "auto";
+    // box-sizing:border-box ⇒ scrollHeight is content+padding (no border); add it back so
+    // the border-box height fits the content exactly, then clamp to [min, max].
+    const contentH = el.scrollHeight + borderY;
+    el.style.height = `${Math.min(Math.max(contentH, minH), maxH)}px`;
+    el.style.overflowY = contentH > maxH ? "auto" : "hidden";
+  }, [value, autoGrow, rows, maxRows]);
 
   const insert = useCallback(
     (tpl: string) => {
@@ -204,7 +245,7 @@ export function EquationInput({
     <div className={className ? `lt-eq ${className}` : "lt-eq"}>
       <textarea
         ref={taRef}
-        className="lt-eq__textarea"
+        className={autoGrow ? "lt-eq__textarea lt-eq__textarea--grow" : "lt-eq__textarea"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

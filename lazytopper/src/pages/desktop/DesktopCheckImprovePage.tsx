@@ -888,6 +888,29 @@ const DesktopCheckImprovePage: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  // MIRROR 4 — paste, on BOTH cards. A desktop student who screenshotted their question
+  // (Win+Shift+S) or answer can drop it straight in with Ctrl/Cmd+V, no save-then-upload
+  // detour. It reuses the EXISTING file handlers, so checkUploadFile refuses a bad
+  // type/size pasted file EXACTLY as a picked one — the guard is untouched. Text paste is
+  // deliberately left alone: with no file on the clipboard we return WITHOUT
+  // preventDefault, so pasting text into an EquationInput textarea behaves normally. Bound
+  // at the CARD level: the `paste` event bubbles from whatever is focused inside, and the
+  // focused card disambiguates which side the file belongs to — the one genuine upside of
+  // two cards sharing one screen. Switches to the upload tab so the pasted file is visible
+  // and gradeable (on the type tab, hasQuestion/hasAnswer read the textarea, not the file).
+  function handleCardPaste(e: React.ClipboardEvent, target: "question" | "answer") {
+    const file = e.clipboardData?.files?.[0];
+    if (!file) return; // text / non-file paste — let the browser handle it normally
+    e.preventDefault();
+    if (target === "question") {
+      setQuestionTab("upload");
+      handleQuestionFile(file);
+    } else {
+      setTab("upload");
+      handleFileChosen(file);
+    }
+  }
+
   // Question photo → base64. Reading a new question invalidates any prior detection.
   function handleQuestionFile(file: File) {
     // The question photo is as capable of killing a submission as the answer file —
@@ -1699,6 +1722,7 @@ const DesktopCheckImprovePage: React.FC = () => {
         >
           {/* 1 · THE QUESTION — always first in the DOM */}
           <section
+            onPaste={(e) => handleCardPaste(e, "question")}
             style={{
               ...cardStyle,
               flex: `1 1 ${CARD_BASIS}px`,
@@ -1733,12 +1757,20 @@ const DesktopCheckImprovePage: React.FC = () => {
               </div>
 
               {questionTab === "type" ? (
-                <input
-                  type="text"
+                // MIRROR 1 — the question gets the answer's hands: the plain single-line
+                // <input> becomes <EquationInput>, the same math-palette control the
+                // answer already uses (:2152). A CBSE question is as full of powers,
+                // roots and fractions as its answer, and had no way to type them.
+                // clearDetection() STILL fires on every edit — an edited question must
+                // drop its stale detection chip, exactly as before.
+                <EquationInput
                   value={question}
-                  onChange={(e) => { setQuestion(e.target.value); clearDetection(); }}
+                  onChange={(v) => { setQuestion(v); clearDetection(); }}
                   placeholder="e.g. Find the 10th term of the AP 3, 7, 11, … [3]"
-                  style={inputStyle}
+                  rows={3}
+                  autoGrow
+                  maxRows={8}
+                  ariaLabel="Type the question"
                 />
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1763,6 +1795,66 @@ const DesktopCheckImprovePage: React.FC = () => {
                   <div style={{ fontSize: 12, color: TEXT_MUTED }}>
                     Upload an image or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.
                   </div>
+
+                  {/* MIRROR 2 — QR handoff for the QUESTION, mirroring the answer's
+                      (:2068). A desktop student whose question paper is on their phone no
+                      longer has to email it to themselves: scan, pick the file, and it
+                      lands in the same qImageBase64 tuple handleQuestionFile fills.
+                      mode="document" (NOT "photo"): a saved paper / screenshot opens the
+                      file picker, and "photo" is the wrong verb AND noun for a question.
+                      Desktop-AND-signed-in gating is inherited free (QrAnswerHandoff:192)
+                      — NO useIsDesktop branch here. Retires once the file lands. */}
+                  {!qImageBase64 && (
+                    <QrAnswerHandoff
+                      mode="document"
+                      label="Question paper on your phone?"
+                      disabled={detecting}
+                      onImageReceived={({ imageBase64: b64, imageMimeType: mime }) => {
+                        setQuestionFileError(null);
+                        setQImageBase64(b64);
+                        setQImageMime(mime);
+                        // "Image", not "Photo" (D4) — the noun stays complete across the
+                        // surface now that the question side has a delivery of its own.
+                        setQImageName(
+                          mime === "application/pdf" ? "PDF from your phone" : "Image from your phone",
+                        );
+                      }}
+                    />
+                  )}
+
+                  {/* MIRROR 3 — Camera / Files for the QUESTION on a touch device,
+                      mirroring the answer's (:2114). Same two buttons toggling
+                      capture="environment" on the EXISTING hidden qFileInputRef input —
+                      no second file input. Device-gated (!isDesktop), hidden once a file
+                      exists, so it never competes with the chosen-file state. */}
+                  {!isDesktop && !qImageBase64 && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                      {([
+                        { label: "Camera", capture: true },
+                        { label: "Files", capture: false },
+                      ] as const).map(({ label, capture }) => (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => {
+                            const el = qFileInputRef.current;
+                            if (!el) return;
+                            if (capture) el.setAttribute("capture", "environment");
+                            else el.removeAttribute("capture");
+                            el.click();
+                          }}
+                          style={{
+                            ...buttonOutline,
+                            flex: 1,
+                            height: 40,
+                            justifyContent: "center",
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1927,6 +2019,7 @@ const DesktopCheckImprovePage: React.FC = () => {
               work, or type it). Same fluid basis as the question, so the two share
               the row evenly and wrap together. */}
           <section
+            onPaste={(e) => handleCardPaste(e, "answer")}
             style={{
               ...cardStyle,
               flex: `1 1 ${CARD_BASIS}px`,
@@ -2153,7 +2246,13 @@ const DesktopCheckImprovePage: React.FC = () => {
                   value={textAnswer}
                   onChange={setTextAnswer}
                   placeholder="Type your answer here. Include each step on a new line — examiners award method marks even when the final answer slips."
-                  rows={8}
+                  // Both boxes now START at the same min-3 height (owner: "the default
+                  // untyped box sizes same — this makes the initial look clean"). Typing
+                  // is the minority path, so the old fixed 8-row rectangle over-provisioned
+                  // the rare case. It grows with the answer up to 14 rows, then scrolls.
+                  rows={3}
+                  autoGrow
+                  maxRows={14}
                   ariaLabel="Type your answer"
                 />
               )}
