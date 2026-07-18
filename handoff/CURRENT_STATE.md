@@ -1,6 +1,25 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #472 merged — ★★ C&I QUESTION-SIDE PARITY IS COMPLETE — the question side gained the answer side's hands — **owner byte-verified** — trunk `0649e20`
+## [CURRENT] #476 merged — ★★ THE TUTOR ⇄ C&I OVERLAY IS LIVE — the student grades without leaving the thread — **owner byte-verified** — trunk `cca0a5d`
+
+**#476 `cca0a5d` (the tutor⇄C&I overlay, Option A, responsive all sizes).** The C&I side of the two-overlay goal the whole arc served is **COMPLETE.** The tutor's "Get my attempt marked" CTA no longer navigates to `/check-improve` — it opens the **real `DesktopCheckImprovePage` as an in-tree panel over the dimmed light tutor** (desktop/tablet right-slide `min(88%,920px)`; mobile full-screen `100dvh` sheet). The student grades, reads the scorecard **in-panel**, taps **"Back to your tutor →"**, and the graded record is handed straight back via the **existing `composeReturnOpener`** — no navigate, no poll, no waiting banner, at any width.
+
+**The invariants held (this is the point):**
+- **Additive guarantee:** `overlay===undefined` ⇒ C&I byte-identical to today; a direct `/check-improve` visit still `navigate()`s and opens with an empty question. Enforced by the new `check_improve_overlay_additive_acceptance.mjs` (**24/24**, wired into the lazytopper matrix).
+- **Grader (`checkSolution.cjs`), `SessionRecord`, `ResultsScorecard`, MI (52-anchor), `tutorRoundTrip.ts`, `composeReturnOpener` — ALL byte-identical** (git-scoped zero-diff, asserted). Convergence gate **92/92** (`:320` + MI moat green). The owner's non-negotiable line ("don't change the grader or C&I") held mechanically.
+- **The in-memory question handoff:** the tutor receives the raw question via the `onClose` payload (`{text, imageBase64}` from C&I's live state) — **never persisted**, so the record is untouched.
+- **The mobile navigate/poll/banner round-trip for check-improve was RETIRED** (the overlay replaces it at every width) — not orphaned. `routeToCheckImprove` was the ONLY creator of a `surface:"check-improve"` marker; the **practice** leg still routes out and keeps its banner + `count:5`.
+- `tsc` clean, **CI `quality-gate` green** (the linux `vite build` + vitest a Windows box can't run), Vercel deployed.
+
+**Two PRs, distinct:** BUILD **#476** (merged) + the DRAFT **#475** (`invts/tutor-overlay-investigation`) — the investigation artifact, reference-only, **never merged**.
+
+**Three spec corrections the build made (durable lessons — see SESSION_LOG):** (1) **`useIsDesktop` gates `MobileShell` too, not just camera/QR** — a mobile overlay would have contained the app's own escape-the-tutor nav; a 4th overlay-gated hunk renders C&I bare inside the overlay. (2) Dropped a stale spec §7.5 ("mobile still navigates") that contradicted the locked responsive ruling. (3) The in-memory question reaches the tutor **host**, but feeding it into the **model's context** is a separate prompt-eval lane — `[FU-TUTOR-OVERLAY-QUESTION-TO-MODEL]`.
+
+**NEXT:** **the Quick Practice overlay** — the second of the two overlays the whole line of work serves (its groundwork was mapped this session; see `NEXT_ACTION.md`).
+
+---
+
+## #472 merged — ★★ C&I QUESTION-SIDE PARITY IS COMPLETE — the question side gained the answer side's hands — **owner byte-verified** — trunk `0649e20`
 
 **#472 `0649e20` (question-side parity) + #473 `8656147` (cofounder skill v2.1) landed since the #471 handoff.** The convergence arc (#466→#470) made C&I one fluid component; **this PR gives its QUESTION uploader everything the answer uploader had.** 9 files, all gates green (convergence acceptance **92/92**, qr channel **47/47**), CI `quality-gate` green.
 

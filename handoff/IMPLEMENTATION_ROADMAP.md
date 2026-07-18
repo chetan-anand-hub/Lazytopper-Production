@@ -2,6 +2,19 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-19 — ★★ ✅ THE TUTOR ⇄ C&I OVERLAY IS COMPLETE (#476, trunk `cca0a5d`) — the student grades without leaving the thread
+
+**Stage COMPLETE — owner byte-verified.** The C&I side of the two-overlay goal the whole arc served is done. The tutor's "Get my attempt marked" CTA opens the **real `DesktopCheckImprovePage` as an in-tree panel over the dimmed light tutor** (Option A, responsive: right-slide `min(88%,920px)` desktop/tablet, full-screen `100dvh` sheet mobile); the student grades, reads the scorecard in-panel, and the record is handed back via the **existing `composeReturnOpener`** — no navigate, no poll, no banner. Overlay gate **24/24**, convergence **92/92**, `tsc` clean, CI green.
+
+- ★★ **Additive guarantee held:** `overlay===undefined` ⇒ C&I byte-identical; grader / `SessionRecord` / `ResultsScorecard` / MI 52-anchor / `tutorRoundTrip.ts` / `composeReturnOpener` all **byte-identical** (git-scoped zero-diff). The record is built in-process (`buildCheckImproveSessionRecord`), NOT re-persisted.
+- ★★ **A frozen spec premise was one step short again** — `useIsDesktop` gates `MobileShell` (header+nav), not just camera/QR; a 4th overlay-gated hunk renders C&I bare inside the overlay so the mobile sheet has no app-nav to escape the tutor. Same species as #472's 6th site. (Full lessons in `SESSION_LOG.md`.)
+- **The check-improve navigate/poll/banner round-trip was RETIRED** (the overlay replaces it at every width); the **practice** leg still routes out.
+- Two PRs: BUILD **#476** merged + DRAFT **#475** (`invts/tutor-overlay-investigation`, reference-only, never merges).
+
+**Follows:** **the Quick Practice overlay** — the C&I overlay's twin (its groundwork was mapped this session; see `NEXT_ACTION.md`). QP is already overlay-ready in most respects (ONE component, auto-builds on tutor entry, has a scorecard, streams a return payload); the pieces still needed are staged there.
+
+---
+
 ## 2026-07-18 — ★★ ✅ C&I QUESTION-SIDE PARITY IS COMPLETE (#472, trunk `0649e20`) — the question uploader gained the answer uploader's hands
 
 **Stage COMPLETE — owner byte-verified.** The convergence arc made C&I one fluid component; this PR closes the input-parity gap it flagged. The **question** uploader now has everything the **answer** side had: `<EquationInput>` (math palette, replacing the plain `<input>`), a `<QrAnswerHandoff>` in a NEW `"question"` mode, mobile camera/files, and paste. Both textareas auto-grow (`autoGrow` prop, **default OFF** — SolutionChecker byte-identical). 9 files; convergence acceptance **92/92**; qr channel **47/47**; CI green.
