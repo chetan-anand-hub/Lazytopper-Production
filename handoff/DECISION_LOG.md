@@ -1,3 +1,25 @@
+## 2026-07-18 - Check & Improve convergence arc (#466 → #470, trunk `2c59dd2`)
+
+Decisions ruled by the owner across the arc, and the scope it discovered after C&I was first planned.
+
+### Owner decisions
+- **The convergence is a PREREQUISITE, not a cleanup.** The tutor is to host Quick Practice + Check & Improve as **in-tutor overlays**. C&I could not live in an 820px overlay panel because `useIsDesktop()` measures the **window, not the container** — an 820px panel on a 1440px window would have mounted the 2,734-line desktop twin inside it. So the twin split had to collapse into one container-relative component *before* the overlay work. Sequenced deliberately ahead of it.
+- **Northstar = the desktop file; the mobile twin is discarded, then deleted.** #466 converged onto `DesktopCheckImprovePage.tsx` and left the twin unrouted for a one-line rollback; #468 deleted it once live-verified. A pure deletion stays separately revertible.
+- **The mobile title: 2 lines at 22px, NOT one line at 16px.** The agent measured (headless Chromium) that one line needs ~16px — which equals MobileShell's own 16px chrome title, turning the page H1 into a label. Owner ruled the two-line 22px treatment (`clamp(22px, 6vw, 30px)`); the 30px desktop max is unchanged.
+- **The lede is deleted at both widths** (not shrunk, not mobile-only) — every clause already ships in How-it-works steps 3/4 + the relocated "We never invent a score".
+- **The anchored MI moat check is a HARD gate, not advisory** — a moat guard that can be skipped is not one. #469 anchors it to the fixed SHA `e8f75af` so the 52 surviving MI lines must stay byte-identical forever; a legitimate future change must consciously re-anchor.
+
+### Scope discovered (⇒ SURFACE_TRACKER §2a; C&I Scope stays Settling)
+- **13 `matchMedia("(max-width:960px)")` layout sites** in the "desktop" twin (an `isNarrow` flag through both grids). The convergence was structurally larger than "delete a twin" — and the file satisfied the old rule ("never `useIsDesktop`") while committing its exact sin via a hand-rolled `matchMedia`. The rule was rewritten from a named hook to a behaviour ("no window-derived value drives layout") so a rename can't evade it.
+- **The CI acceptance gate had never run its hardest checks.** `quality-gate.yml` used `actions/checkout@v5` at default depth 1, so the base ref was absent in CI and the MI + FORBIDDEN checks silently skipped on every run — including #466's "fully green". Fixed: `fetch-depth: 0`, a fixed-SHA MI anchor, PR-scoped FORBIDDEN, and **a needed-but-missing ref now HARD-FAILS in CI instead of skipping**. This is the second gate in this repo to silently never run (the predecessor lived in the wrong directory).
+
+### Corrections the arc forced (a spec is a CLAIM, not evidence — every fix came from running a command)
+- **The `flex-basis`.** `flex: 1` = `flex-basis: 0%`; a zero-basis title block never demands width, so the `flexWrap` already written in the header could never fire. Found by reading the computed style, not the source.
+- **The title floor.** The spec's `~18-19px` estimate assumed 328px content; the real content at 360px is **288px** (MobileShell adds 20px each side the estimate missed), so one line needs ~16px. Measured with Playwright.
+- **The D4 "last photo" claim.** The spec asserted the lede was the last student-visible "photo"; `"Photo from your phone"` (the QR-delivery label the dropzone renders) was a second one — classified by eye off grep output, immediately after instructing the agent to read instead of grep. Found by reading the lines.
+
+---
+
 ## 2026-07-16 - Grader `objective` flag + attempt-dedup `mode` drop (#445, trunk `ad2a9b2`)
 
 Decisions (owner, at #445's pre-flight STOP) + the corrections the pre-flight forced.

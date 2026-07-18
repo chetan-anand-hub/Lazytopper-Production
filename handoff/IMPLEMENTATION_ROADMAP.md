@@ -2,6 +2,25 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-18 — ★★ ✅ THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE (#466 → #470, trunk `2c59dd2`) — one responsive surface, the twin deleted, the gate that never ran now runs
+
+**Stage COMPLETE — owner LIVE-VERIFIED at 360 / 768 / 820 / 1024 / 1440.** C&I was two components chosen by a route ternary on `isDesktop` (`DesktopCheckImprovePage.tsx` 2,734L + `pages/app/CheckImprove.tsx` 1,656L). It is now **ONE fluid responsive component at every width**; the mobile twin is **deleted**.
+
+**★ WHY — a prerequisite, not a cleanup:** the tutor is to host **QP + C&I as in-tutor OVERLAYS**. C&I could not live in an 820px overlay because `useIsDesktop()` measures the **window, not the container** — an 820px panel on a 1440px window would have mounted the 2,734-line desktop twin inside it. The convergence unblocks the overlay.
+
+- **#466 `f895306`** — the convergence. Inverted mobile order killed, 5 purples → `PRIMARY_GREEN`, false "PNG or JPG" → canonical `UPLOAD_LIMIT_SENTENCE`. **F13:** removed **13 `isNarrow` sites** the file drove off its own `matchMedia("(max-width:960px)")` (asked the WINDOW ⇒ the 820px overlay was broken). `CARD_BASIS = 340`.
+- **#468 `fd00377`** — the twin deleted (1,656L). Re-land of the orphaned #467 via cherry-pick of `4039a87`; the acceptance script's rollback check inverted in the same PR (the twin must never come BACK).
+- **#469 `7786966`** — the gate that never ran. `checkout@v5` default depth 1 ⇒ base ref absent ⇒ MI + FORBIDDEN checks silently skipped on every run. Fixed: `fetch-depth: 0`; MI anchored to the fixed SHA `e8f75af` (permanent moat guard); FORBIDDEN PR-scoped; **a missing ref now HARD-FAILS in CI, not skips.**
+- **#470 `2c59dd2`** — the mobile header. `flex: 1` = basis 0% ⇒ the `flexWrap` could never fire ⇒ 5-line title. `HEADER_TITLE_BASIS = 320`; title `clamp(22px, 6vw, 30px)` (2 lines at 22px, measured); lede deleted both widths; "How it works" recoloured + chevron; D4 completed (`"Photo from your phone"` → `"Image"`).
+
+- ★★ **The gate now RUNS** — `MI: all 52 survivors are still present BYTE-IDENTICAL (permanent moat guard)` executes on trunk (63/63), first time in repo history.
+- ★★ **The stacked-PR orphan trap fired three times** — squash-merge + a live stacked base = a merge into a branch nobody sees. `git merge-base --is-ancestor` is the only detector.
+- ★★ **A green gate proves nothing if it does not run or does not read English** — nine spec corrections this arc, every one from running a command.
+
+**Follows:** **(1)** C&I question-side parity (**[FU-CI-QUESTION-SIDE-PARITY]**) → **(2)** the tutor overlay this arc served.
+
+---
+
 ## 2026-07-17 — ★★ ✅ THE NCERT PAGE ARC IS COMPLETE (#464 `50783e7`) — the tutor SAYS the real textbook page is there, and a student never has to know to ask
 
 **Stage COMPLETE — owner byte-reviewed + LIVE-VERIFIED (all 4 probes).** 1 file, `tutorSystemPrompt.cjs`, **+56/−7 — prompt text only**.

@@ -1,3 +1,30 @@
+## 2026-07-18 -- #466 → #470: THE CHECK & IMPROVE CONVERGENCE ARC IS COMPLETE (trunk `2c59dd2`), owner live-verified
+
+**[FU-CI-MULTIPAGE-CAPTURE], [FU-CI-UPLOAD-COPY-CANONICAL] — closed earlier in the arc.** The convergence, the twin deletion, the gate fix and the mobile header are all merged and live-verified. Do NOT redo.
+
+### ★ NEW — **[FU-CI-QUESTION-SIDE-PARITY]** — the question uploader lags the answer uploader
+The **answer** side has `<EquationInput>` (`DesktopCheckImprovePage.tsx:2152`) and `<QrAnswerHandoff>` (`:2068`); the **question** side (`:1712-1780`) has **neither** — a plain input + an upload button. A desktop student whose question paper is on their phone must email → download → save → upload. **Both components already ship and are reusable:** `EquationInput`'s docblock says *"drop-in for a textarea"* (`SolutionChecker.tsx:652` is the second-consumer precedent); `QrAnswerHandoff.onImageReceived` is field-agnostic **by design** (*"the caller owns what happens next"*), `label` already a prop. **Open copy decision, owner-owned:** the QR default label *"Solved it on paper?"* is answer-copy, wrong on the question side. **Not built — record it.** Coordinates owner-verified but **re-derive before building** (this file rots).
+
+### ★ NEW — **[FU-CI-RETARGET-NO-GATE]** — a retargeted PR keeps its green check from the old base
+`gh pr edit --base` fires `pull_request:edited`, which `quality-gate.yml` **ignores** (default types = opened/synchronize/reopened), so a retargeted PR **carries its GREEN check forward from the OLD base** — a stale pass. Discovered on #470; **close/reopen** (fires `reopened`) was the workaround. **This matters MORE once auto-delete-head-branches is on**, because that auto-retargets stacked PRs. **Fix:** add `edited` to the workflow's `pull_request` types, OR document the close/reopen ritual.
+
+### **[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED]** — multi-topic scope silently dropped, differently per CTA
+Practice Hub offers Single / Multiple / Full-subject scope. **Multi-topic is SILENTLY DROPPED:** `DesktopPracticePage.tsx:2029-2032` Quick Practice passes `topic: selectedTopicSlugs[0]` — **FIRST TOPIC ONLY**; `:2046-2050` Timed drill passes `undefined` — **WHOLE SUBJECT**. `buildLegacyPracticePath` takes `topic?: string` (singular); `PracticePage.tsx` has **zero** occurrences of `"topics"`. Full-subject (`{}`) is correct. **Worksheet / HPQ / Full-Test paths UNAUDITED — verify, do not infer.** Owner wants a **THOROUGH AUDIT** of the hub→surface context handoff, not a point fix.
+
+### **[FU-QP-PROGRESSIVE-DISCLOSURE]** — QP asks six filter decisions before question one
+Marks / Style / Source / Difficulty / MarksRange / Count, each doubled (pending/committed). Design done (A1 mockup, owner-approved shape): **presets primary + a "Customise" drawer** — the pattern already shipped in `WorksheetGenerator.tsx` (`type Mode = "preset"|"custom"` :68, `PRESETS` :80, defaults preset :258 / closed :267, drawer :942). **Presentation ONLY** — zero MI, zero engine, zero `practiceQuestionBuilder`. Not built.
+
+### **[FU-QP-WEAK-AREAS-PRESET]** — a 4th "My weak areas" preset, topic-contextual
+**GATED** on student-QA signal AND a dedicated audit of the weak-area/progress engines (owner: read-only until then). ★ **CORRECT PATH VERIFIED:** `services/weakAreaAggregator.ts` ALREADY EXISTS — `getWeakAreas({subject, limit})` fusing SEVEN sources, and `WeakArea.weakConcepts: string[]` is ALREADY concept-granular. **Do NOT** derive weak areas from `getMistakeLogs` + a questionId→bank→subtopic join — that would be a THIRD parallel definition of "weak" (`practiceInsights.ts:60 PracticeWeakConcept` is the second). **Read the engine; never re-implement it.**
+
+### **[FU-QP-FILTER-SYSTEM-AUDIT]** — the whole hub→surface filter/context handoff
+Deliberately unscoped until student QA.
+
+### **[FU-CLAUDE-MD-SUITE-COUNTS]** — CLAUDE.md §6 hardcodes counts its own rule forbids
+§6 says **6 suites** (there are **11**, 12 with the convergence gate) and **"5 suites"** for the root matrix (reports **28**) — while §6's own text says *"count GROWS over time; verify, do NOT hardcode a number."* Also worth adding: `scope:guard` needs `-- --mode mixed` (npm swallows a bare `--mode`). Doc-only; not built.
+
+---
+
 ## 2026-07-17 -- #464: THE TUTOR SAYS THE REAL NCERT PAGE IS THERE (trunk `50783e7`), owner byte-reviewed + live-verified (4 probes)
 
 **[FU-TUTOR-NCERT-PROACTIVE-MENTION] — CLOSED.** The NCERT arc **#457 (data) → #459 (the page can win the panel) → #464 (the tutor says it)** is **COMPLETE**. Do NOT redo.
