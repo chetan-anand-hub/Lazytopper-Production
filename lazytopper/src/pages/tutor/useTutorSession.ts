@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { callTutor, type TutorBrief, type TutorTurn } from "../../ai/tutorClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
 import type { AuthUser } from "../../context/AuthContext";
-import { getSessionRecordsFromCloud, getSessionPerQuestion } from "../../services/sessionRecords";
+import { getSessionRecordsFromCloud, getSessionPerQuestion, type SessionRecord } from "../../services/sessionRecords";
 import { getAttemptsFromCloud } from "../../services/practiceInsights";
 import { canonicalSlugMatches } from "../../data/syllabus/canonicalTopicSlug";
 import {
@@ -31,7 +31,6 @@ import {
   type TutorSessionDoc,
 } from "../../services/tutorSessionStore";
 import {
-  buildCheckImproveRoundTripHref,
   buildQuickPracticeRoundTripHref,
   composeReturnOpener,
   composePracticeReturnOpener,
@@ -80,7 +79,17 @@ export interface UseTutorSession {
   returnFollow: TutorFork | null;
   send: (text: string) => void;
   retry: () => void;
-  routeToCheckImprove: () => void;
+  /** Open Check & Improve as an in-tree overlay over the tutor (build v1.1). The
+   *  check-improve leg NO LONGER navigates/polls; closing the panel IS the return. */
+  openCheckImproveOverlay: () => void;
+  /** True while the C&I overlay panel is open (TutorPage mounts the host). */
+  checkImproveOverlayOpen: boolean;
+  /** Close the overlay. Poll-free: a graded record injects the reframed opener directly
+   *  (D-TUT-6); the raw question is held in-memory only (never persisted). */
+  closeCheckImprove: (
+    record?: SessionRecord,
+    question?: { text: string; imageBase64: string | null },
+  ) => void;
   routeToPractice: () => void;
   /** Re-poll for a pending round-trip's result (student says "I'm back"). Honest +
    *  non-blocking: clears the holding state whether or not a result is found (Fix 2). */
@@ -132,6 +141,16 @@ export function useTutorSession({
     () => loadTutorSessionLocal(uid, topicKey)?.pending ?? null,
   );
   const [returnFollow, setReturnFollow] = useState<TutorFork | null>(null);
+
+  // ── C&I OVERLAY (build v1.1) — the check-improve leg opens an in-tree panel over the
+  // tutor instead of navigating out. No pending marker, no away-cue, no poll, no waiting
+  // banner (all RETIRED for this leg; the practice leg still routes out and keeps them).
+  const [checkImproveOverlayOpen, setCheckImproveOverlayOpen] = useState(false);
+  // The raw question the student entered in the overlay, handed back on close. IN-MEMORY
+  // only — never persisted, never added to the SessionRecord (owner ruling (a)). Held as
+  // the seam a future prompt lane consumes so the model can reference what was asked
+  // ([FU-TUTOR-OVERLAY-QUESTION-TO-MODEL]); the marks already reach the model via injectReturn.
+  const overlayQuestionRef = useRef<{ text: string; imageBase64: string | null } | null>(null);
 
   // Mirror `pending` in a ref so callbacks persist the CURRENT marker, never a stale
   // closure copy (Fix 2 — clearing on re-engage must not be undone by an in-flight
@@ -400,13 +419,30 @@ export function useTutorSession({
     [messages, persist, navigate, updatePending],
   );
 
-  const routeToCheckImprove = useCallback(() => {
-    routeOut(
-      { surface: "check-improve", topicKey, departureTs: Date.now(), note: "Check & Improve" },
-      `Holding your place - open Check & Improve, upload your attempt and get it marked, then come straight back and we'll go through exactly where it slipped.`,
-      buildCheckImproveRoundTripHref({ returnTo: selfHref, topicSlug: topicKey }),
-    );
-  }, [routeOut, topicKey, selfHref]);
+  // ── C&I OVERLAY (build v1.1) — replaces the navigate/marker/poll leg ──────────────
+  // Opening the overlay writes NO pending marker and NO away-cue: the student never leaves
+  // the thread, so there is no "away" state to hold and no banner to show. The navigate
+  // round-trip for THIS leg — and its pending-marker poll + "tutor is waiting" banner —
+  // is retired at EVERY width; the practice leg still uses routeOut and keeps them.
+  // (Verified at trunk: routeToCheckImprove was the ONLY creator of a
+  //  surface:"check-improve" pending marker, so nothing is left firing.)
+  const openCheckImproveOverlay = useCallback(() => {
+    setCheckImproveOverlayOpen(true);
+  }, []);
+
+  // Overlay close — the poll-free return path (report §6.4). The freshly-graded record is
+  // handed straight in, so the tutor injects the SAME reframed opener the navigate path
+  // would (composeReturnOpener, D-TUT-6) — no cloud poll, no marker match, no latency. The
+  // tutor NEVER grades (D-TUT-8): every number is the record C&I wrote. The raw question
+  // is held in-memory only (never persisted, never in the SessionRecord).
+  const closeCheckImprove = useCallback(
+    (record?: SessionRecord, question?: { text: string; imageBase64: string | null }) => {
+      setCheckImproveOverlayOpen(false);
+      if (question) overlayQuestionRef.current = question;
+      if (record) injectReturn(composeReturnOpener(record, topicLabel, "check-improve"));
+    },
+    [injectReturn, topicLabel],
+  );
 
   const routeToPractice = useCallback(() => {
     routeOut(
@@ -451,7 +487,9 @@ export function useTutorSession({
     returnFollow,
     send,
     retry,
-    routeToCheckImprove,
+    openCheckImproveOverlay,
+    checkImproveOverlayOpen,
+    closeCheckImprove,
     routeToPractice,
     recheckPending,
     dismissPending,
