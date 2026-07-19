@@ -797,6 +797,34 @@ const PracticePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [builtParam, isBuilt]);
 
+  // The top-left breadcrumb "Back" CTA — a SEPARATE path from #485's browser-back history
+  // logic (that's why the gesture was fixed but this still hard-jumped to the hub). Mirror
+  // the pop-reset: from a built set in the hub flow, return to the preset CHOOSER (drop
+  // isBuilt + strip the built=1 marker so the URL matches the chooser), exactly like the
+  // browser-back pop / the stale-marker strip above. From the chooser — or a tutor/targeted
+  // auto-build entry, which has NO chooser step — navigate to the hub/parent as before.
+  const handleBreadcrumbBack = useCallback(() => {
+    if (isBuilt && !arrivedTargeted) {
+      setIsBuilt(false);
+      if (builtParam) {
+        const next = new URLSearchParams(location.search);
+        next.delete(QP_BUILT_PARAM);
+        setSearchParams(next, { replace: true });
+      }
+      return;
+    }
+    navigate(practiceBackTo);
+  }, [isBuilt, arrivedTargeted, builtParam, location.search, setSearchParams, navigate, practiceBackTo]);
+
+  // The breadcrumb label follows its behaviour: a built hub-flow set returns to the CHOOSER,
+  // so it reads "Back to quick practice" — but only the DEFAULT /practice-hub label changes;
+  // an explicit nav-state / query override (Topic Hub concept-row "Back to Trigonometry",
+  // which is arrivedTargeted and still goes to the parent) is preserved.
+  const breadcrumbBackLabel =
+    isBuilt && !arrivedTargeted && !navState.backLabel && !queryBackLabel
+      ? "Back to quick practice"
+      : backLabel;
+
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
 
   // PR-E1 FINAL-BUG FIX — derive BOTH the displayed set AND the post-build "N
@@ -1774,7 +1802,7 @@ const packTopicKey = useMemo(() => {
         >
           <button
             type="button"
-            onClick={() => navigate(practiceBackTo)}
+            onClick={handleBreadcrumbBack}
             style={{
               border: "1px solid hsl(220, 18%, 90%)",
               background: "#ffffff",
@@ -1787,7 +1815,7 @@ const packTopicKey = useMemo(() => {
               boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
             }}
           >
-            {backLabel}
+            {breadcrumbBackLabel}
           </button>
           <span aria-hidden="true">/</span>
           <span style={{ fontWeight: 700, color: "hsl(220, 25%, 12%)" }}>Practice</span>

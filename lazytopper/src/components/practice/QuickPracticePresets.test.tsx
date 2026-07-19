@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   createMemoryRouter,
   RouterProvider,
+  useNavigate,
   useSearchParams,
 } from "react-router-dom";
 
@@ -86,16 +87,23 @@ describe("entry gate — presets bypass on tutor/targeted entry", () => {
 // real createMemoryRouter and asserts the built entry is genuinely pushed and poppable.
 //
 // The harness MIRRORS PracticePage's exact wiring (search-param push + transition-guarded
-// reset via the real shouldResetBuiltOnPop) so it validates the mechanism, not a mock.
-function BackNavHarness() {
+// reset via the real shouldResetBuiltOnPop, plus the breadcrumb handler) so it validates the
+// mechanism, not a mock. `arrivedTargeted` models a tutor/auto-build entry (starts built,
+// never a chooser step). `practiceBackTo` is where the breadcrumb goes when NOT built.
+function BackNavHarness({
+  arrivedTargeted = false,
+  practiceBackTo = "/hub",
+}: { arrivedTargeted?: boolean; practiceBackTo?: string }) {
   const [sp, setSp] = useSearchParams();
+  const navigate = useNavigate();
   const builtParam = sp.get(QP_BUILT_PARAM) === "1";
-  const [isBuilt, setIsBuilt] = useState(false);
+  const [isBuilt, setIsBuilt] = useState(arrivedTargeted); // auto-build lands already built
   const prev = useRef(builtParam);
   useEffect(() => {
     const wasBuilt = prev.current;
     prev.current = builtParam;
-    if (wasBuilt && shouldResetBuiltOnPop(isBuilt, false, builtParam)) {
+    if (arrivedTargeted) return;
+    if (wasBuilt && shouldResetBuiltOnPop(isBuilt, arrivedTargeted, builtParam)) {
       setIsBuilt(false);
       return;
     }
@@ -112,10 +120,23 @@ function BackNavHarness() {
     n.set(QP_BUILT_PARAM, "1");
     setSp(n, { replace: false });
   };
+  const breadcrumbBack = () => {
+    if (isBuilt && !arrivedTargeted) {
+      setIsBuilt(false);
+      if (builtParam) {
+        const n = new URLSearchParams(sp);
+        n.delete(QP_BUILT_PARAM);
+        setSp(n, { replace: true });
+      }
+      return;
+    }
+    navigate(practiceBackTo);
+  };
   return (
     <div>
       <div>{isBuilt ? "RUNNER" : "CHOOSER"}</div>
       <button onClick={build}>build</button>
+      <button onClick={breadcrumbBack}>breadcrumb</button>
     </div>
   );
 }
@@ -157,6 +178,50 @@ describe("back-nav wiring — the built entry is a real, poppable history step",
     await act(async () => {
       router.navigate(-1);
     });
+    expect(router.state.location.pathname).toBe("/hub");
+  });
+
+  // The in-app breadcrumb "Back" CTA (top-left) — a SEPARATE path from the browser-back
+  // history logic (why #485 fixed the gesture but the CTA still hard-jumped to the hub).
+  it("breadcrumb CTA: built set → chooser (marker gone, same topic), NOT the hub", async () => {
+    const router = createMemoryRouter(
+      [
+        { path: "/hub", element: <div>HUB</div> },
+        { path: "/practice/:grade/:subject", element: <BackNavHarness practiceBackTo="/hub" /> },
+      ],
+      { initialEntries: ["/hub", "/practice/10/Maths?source=practice&topic=polynomials"], initialIndex: 1 },
+    );
+    render(<RouterProvider router={router} />);
+
+    await act(async () => fireEvent.click(screen.getByText("build")));
+    expect(screen.getByText("RUNNER")).toBeTruthy();
+    expect(router.state.location.search).toContain(`${QP_BUILT_PARAM}=1`);
+
+    // Breadcrumb from a built set → the CHOOSER (marker stripped), still on /practice.
+    await act(async () => fireEvent.click(screen.getByText("breadcrumb")));
+    expect(screen.getByText("CHOOSER")).toBeTruthy();
+    expect(router.state.location.pathname).toBe("/practice/10/Maths");
+    expect(router.state.location.search).not.toContain(`${QP_BUILT_PARAM}=1`);
+    expect(router.state.location.search).toContain("topic=polynomials"); // scope preserved
+
+    // Breadcrumb again from the chooser → the hub (as before).
+    await act(async () => fireEvent.click(screen.getByText("breadcrumb")));
+    expect(router.state.location.pathname).toBe("/hub");
+  });
+
+  it("breadcrumb CTA: tutor/targeted auto-build → straight to the hub (no chooser step), byte-identical", async () => {
+    const router = createMemoryRouter(
+      [
+        { path: "/hub", element: <div>HUB</div> },
+        { path: "/practice/:grade/:subject", element: <BackNavHarness arrivedTargeted practiceBackTo="/hub" /> },
+      ],
+      { initialEntries: ["/hub", "/practice/10/Maths?source=tutor&topic=polynomials"], initialIndex: 1 },
+    );
+    render(<RouterProvider router={router} />);
+
+    expect(screen.getByText("RUNNER")).toBeTruthy(); // auto-build lands already built
+    // Breadcrumb on an auto-build entry → the hub directly (no chooser to return to).
+    await act(async () => fireEvent.click(screen.getByText("breadcrumb")));
     expect(router.state.location.pathname).toBe("/hub");
   });
 });
