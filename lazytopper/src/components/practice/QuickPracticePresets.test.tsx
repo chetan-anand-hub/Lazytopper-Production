@@ -23,11 +23,26 @@ afterEach(cleanup);
 
 // ── 1 · Presets are DIRECT-VISIT only — bypassed on tutor/targeted entry ──────
 describe("entry gate — presets bypass on tutor/targeted entry", () => {
-  it("deriveArrivedTargeted: an explicit non-generic topic OR targeted=1 is targeted", () => {
-    expect(deriveArrivedTargeted("trigonometry", false)).toBe(true); // Topic Hub / tutor hand-off
-    expect(deriveArrivedTargeted("", true)).toBe(true);              // Fix-My-Mistakes targeted=1
-    expect(deriveArrivedTargeted("GENERIC", false)).toBe(false);    // generic sentinel
-    expect(deriveArrivedTargeted("", false)).toBe(false);           // bare direct visit
+  it("deriveArrivedTargeted: source discriminates — hub (source=practice) → presets, tutor/CTAs → auto-build", () => {
+    // THE FIX — the hub Quick-Practice CTA carries source=practice AND a topic, yet
+    // must land on the preset chooser (arrivedTargeted=false), not auto-build.
+    expect(deriveArrivedTargeted("polynomials", false, "practice")).toBe(false);
+    // Hub full-subject (source=practice, no topic) → presets too.
+    expect(deriveArrivedTargeted("", false, "practice")).toBe(false);
+    // THE ADDITIVE GUARANTEE — the tutor hand-off (source=tutor) still auto-builds,
+    // byte-identical; it carries a topic and is NOT source=practice.
+    expect(deriveArrivedTargeted("trigonometry", false, "tutor")).toBe(true);
+    // Every other topic-bearing CTA (Topic Hub source=topicHub, weak-area/Me source=me,
+    // Dashboard/HPQ/Chapter-Test with no source) keeps auto-building.
+    expect(deriveArrivedTargeted("trigonometry", false, "me")).toBe(true);
+    expect(deriveArrivedTargeted("trigonometry", false, null)).toBe(true);
+    // Fix-My-Mistakes targeted=1 ALWAYS auto-builds — a scoped drill is never trapped
+    // behind the chooser (precedence 1), even in the impossible source=practice combo.
+    expect(deriveArrivedTargeted("", true, null)).toBe(true);
+    expect(deriveArrivedTargeted("trigonometry", true, "practice")).toBe(true);
+    // generic sentinel / bare deep-link → presets (the closest thing to a direct visit).
+    expect(deriveArrivedTargeted("GENERIC", false, null)).toBe(false);
+    expect(deriveArrivedTargeted("", false, null)).toBe(false);
   });
 
   it("shouldShowPresetEntry: ONLY a direct visit in preset mode shows presets", () => {
