@@ -1,3 +1,22 @@
+## 2026-07-19 -- #481: QUICK PRACTICE A1 — PROGRESSIVE-DISCLOSURE ENTRY + TIMER (trunk `ec3275c`), owner LIVE-VERIFIED
+
+**[FU-QP-PROGRESSIVE-DISCLOSURE] — RESOLVED by #481.** The QP entry now opens on four preset cards + a Customise drawer (the full five-dimension filter incl. Source), replacing the raw six-filter wall. Presentation-only (a preset = a bundle of the existing `setCommitted*` setters). (Original `###` entry below in this file.)
+
+**[FU-QP-TIMER] — add-then-RESOLVED by #481.** (Never on this board — recorded here for reconciliation, A15.) #481 shipped the optional student-toggled timer on QP, reusing the ChapterTest pattern (`formatClock` + a 1.2-min/mark budget); off by default, countdown in the runner, **no auto-submit** (QP finish is student-driven).
+
+### ★ NEW — **[FU-QP-PRESETS-UNREACHABLE]** — #481's presets shipped correct-but-unreachable; Piece-1 fix IN FLIGHT
+#481's preset screen is gated on a "direct visit, no `topic` param" state, but **production has no topic-less QP entry** — every route is hub → pick topic → CTA, which always carries `topic=`, tripping `arrivedTargeted` → auto-build → **the presets never render.** The code is byte-correct; the entrypoint is not. **Owner LIVE-VERIFY caught it; the green gates could not** (they prove structure, not reachability). **Fix in flight:** Piece 1 (`feat/desktop-pr-qp-presets-hub-reachable`) re-gates the entry on `source` (`source=practice` → presets; `source=tutor` → auto-build). ★ Durable lesson: *a spec that scopes a feature to an unreachable URL state ships something invisible — live-verify reachability, not just correctness.*
+
+**[FU-QP-WEAK-AREAS-PRESET] — KEPT (unchanged).** The 5th "My weak areas" card stays gated ("Soon", a no-op click) — ships visible-but-disabled.
+
+**[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED] — KEPT (still parked); Piece 2 of the QP arc will UN-PARK it** (multi-topic presets, batched with Piece 1 in a combined handoff).
+
+**[FU-CI-GATE-VITEST] — KEPT OPEN (do not close).** #481's acceptance test (`QuickPracticePresets.test.tsx`, 13/13) and the existing rotation test (23/23) ran **LOCALLY only** (via the Windows rollup-binary drop); **CI still does not run vitest**, so these tests do not gate the PR. Another instance of the same species.
+
+> **Handoff batching (owner ruling):** Piece 1 + Piece 2 (the two QP fixes) get a **combined handoff later**. This handoff closes **#481 only**.
+
+---
+
 ## 2026-07-19 -- #478 + #479: THE TUTOR READS THE GRADED WORK (trunk `a198bf1`), owner LIVE-VERIFIED + a real 28-call eval
 
 **[FU-TUTOR-OVERLAY-QUESTION-TO-MODEL] — RESOLVED by #478.** The seam #476 left (the question reached the tutor host in `overlayQuestionRef` but not the model) is closed: the question now reaches the MODEL as one-shot `returnedWork` context (a new `TutorRequest.returnedWork`, rebuilt at the server trust boundary, rendered by `returnedWorkBlock`). Text-only MVP — an image-question is described, never transcribed. Do NOT redo.

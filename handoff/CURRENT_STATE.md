@@ -1,6 +1,18 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #478 + #479 merged — ★★ THE TUTOR READS THE GRADED WORK — question + per-step digest reach the model; the C&I overlay + graded-context arc COMPLETE — **owner LIVE-VERIFIED + a real 28-call rubric-2 eval** — trunk `a198bf1`
+## [CURRENT] #481 merged — ★★ QUICK PRACTICE A1: THE PROGRESSIVE-DISCLOSURE ENTRY + OPTIONAL TIMER IS LIVE — **owner LIVE-VERIFIED** — trunk `ec3275c`
+
+**Quick Practice no longer opens on a raw six-filter wall.** A direct/hub visit now lands on **four stylised preset cards** — Quick drill / **Board mix** (default, competency-inclusive) / Competency / High-marks — plus a **gated "My weak areas"** 5th, with the **full five-dimension filter (incl. Source)** one tap behind **Customise**, an **optional student-toggled timer**, and a **mobile swipe carousel**. **Presentation-only.** 4 product files (`PracticePage.tsx` +199/−15 + 3 new practice files: `QuickPracticePresets.tsx`, `quickPracticeEntryStyles.ts`, `QuickPracticePresets.test.tsx`).
+
+**Verified invariants (byte-reviewed):**
+- **A preset = a bundle of the EXISTING `setCommitted*` setters + `setIsBuilt(true)`** — byte-identical to `PracticeControls.onBuildSet`, just with forced values. The **reshuffle/rotation engine, the filter wiring, `practiceQuestionBuilder`, `practiceSetGenerator` and `persistQuickPracticeSession` are ALL ZERO-DIFF** — a revisit still reshuffles (seeded per session), seen questions still deprioritise, and the tutor still receives QP's graded work via the same `perQuestionRef` path as C&I.
+- **Difficulty stays `"all"` on every preset** (the marks bucket carries the band via `DIFF_COMPAT_BY_MARKS`); **Competency = case-based** (single-select can't do case+AR) and **gates honestly per topic** against the real bank (`buildPracticeQuestionsFromEngine(boardPattern:"E")` returns `[]` when empty — never fabricated). Timer reuses ChapterTest's `formatClock` + 1.2-min/mark budget; QP **never auto-submits**. Carousel is pure CSS `@media`, no `useIsDesktop`.
+
+**★★ THE LESSON — presets shipped correct-but-UNREACHABLE.** The code was right; the entrypoint was not. The preset screen was gated on a "direct visit, no `topic` param" state — but **production has no topic-less QP entry**: every route is hub → pick topic → CTA, which always carries `topic=`, tripping `arrivedTargeted` → auto-build → **the presets never showed.** **Owner LIVE-VERIFY caught this; the green gates did not** (gates prove structure; only walking the real navigation proves REACHABILITY). **Fix in flight:** Piece 1 (`feat/desktop-pr-qp-presets-hub-reachable`) re-gates the entry on `source` (`source=practice` → presets; `source=tutor` → auto-build). Logged found-and-fix-in-flight. See `[FU-QP-PRESETS-UNREACHABLE]`.
+
+---
+
+## #478 + #479 merged — ★★ THE TUTOR READS THE GRADED WORK — question + per-step digest reach the model; the C&I overlay + graded-context arc COMPLETE — **owner LIVE-VERIFIED + a real 28-call rubric-2 eval** — trunk `a198bf1`
 
 **The tutor is no longer half-blind on return.** Before: *"you got 4/5."* After it names the question the student worked AND the actual lost step — *"the 1 mark came off the presentation, not your maths — on step 4 you left off the unit, write 20√3 m."* This closes the half-blindness the #476 C&I overlay left ([FU-TUTOR-OVERLAY-QUESTION-TO-MODEL]).
 

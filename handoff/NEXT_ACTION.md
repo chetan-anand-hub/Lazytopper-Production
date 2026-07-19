@@ -1,4 +1,25 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-19 (post-**#481 — QUICK PRACTICE A1: PROGRESSIVE-DISCLOSURE ENTRY + OPTIONAL TIMER.** Trunk `ec3275c`. Owner LIVE-VERIFIED. QP now opens on four preset cards + Customise (full five-dim filter incl. Source) + optional timer + mobile carousel — presentation-only, engine/rotation/persistence byte-identical. ★★ **But the presets shipped correct-but-UNREACHABLE** — gated on a topic-less "direct visit" state that production never produces (every route carries `topic=` → auto-build) — **owner live-verify caught what green gates could not.** The hub-reachability fix (Piece 1) is in flight.)
+
+## ⏭️ NEXT — 2026-07-19. Read this block first.
+
+**#481 shipped the QP A1 entry; this session is its docs handoff.** Three things, in order — the first two are BATCHED into a combined handoff later (owner ruling); this handoff closes **#481 only**:
+
+### ★ (1) QP HUB-REACHABILITY FIX — Piece 1 (dispatched, `feat/desktop-pr-qp-presets-hub-reachable`)
+Re-gate the preset entry on **`source`**, not on the absence of a `topic` param: `source=practice` (hub/direct) → show presets; `source=tutor` (the tutor hand-off) → auto-build and bypass. #481's presets are correct but never render in production because every real QP route carries `topic=` (hub → pick topic → CTA) → `arrivedTargeted` → auto-build. ⇒ `[FU-QP-PRESETS-UNREACHABLE]`.
+
+### ★ (2) MULTI-TOPIC PRESETS — Piece 2 (un-parks `[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED]`)
+Let the preset entry carry a multi-topic scope (the hub can pass more than one topic) rather than collapsing to a single topic. Batched with Piece 1 in the combined handoff.
+
+### ★ (3) THE QUICK PRACTICE OVERLAY — the C&I overlay's twin
+The overlay MECHANISM (hosting the real `PracticePage` over the tutor, reused verbatim) — the second of the two in-tutor overlays. Carry the graded-context doctrine: a change to the model's input ships on a LIVE eval, and QP already hands the tutor its graded work via `perQuestionRef` (the C&I `returnedWork` block is the reference impl).
+
+### ★★ DOCTRINE TO CARRY (earned this arc)
+- **LIVE-VERIFY REACHABILITY, NOT JUST CORRECTNESS.** A spec that scopes a feature to an unreachable URL state ships something invisible. Green gates prove the code is *right*; only walking the real navigation proves the entry condition ever *occurs*. #481's presets were byte-correct and never appeared. ⇒ `[FU-QP-PRESETS-UNREACHABLE]`.
+- **Re-derive trunk EVERY session** via `git ls-remote`; **three-way diffs**; **`merge-base --is-ancestor`** before believing a stacked PR landed.
+
+---
+
 # Updated: 2026-07-18 (post-**#478 + #479 — THE TUTOR READS THE GRADED WORK.** Trunk `a198bf1`. Owner LIVE-VERIFIED + a real 28-call rubric-2 eval. On C&I overlay return the tutor now names the question AND the actual lost step (question + per-step digest reach the model via `returnedWork`); #479 flipped `RETURNED_WORK_DIGEST_ENABLED` ON after the live eval showed the digest CLOSES a confabulation path. **The C&I overlay + graded-context arc is COMPLETE; the QP loop overlay is its twin, and it is next.**)
 
 ## ⏭️ NEXT — 2026-07-18. Read this block first.
