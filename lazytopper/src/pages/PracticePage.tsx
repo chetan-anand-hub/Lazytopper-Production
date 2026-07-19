@@ -288,17 +288,33 @@ const formatClock = (totalSeconds: number): string => {
 };
 
 /**
- * Direct-visit vs targeted/tutor entry (QP A1). A TARGETED arrival — an explicit,
- * non-"generic" topic in the URL (Topic Hub, a "practise where you lose marks" CTA, the
- * tutor's hand-off) or a Fix-My-Mistakes `targeted=1` session — auto-builds and MUST
- * bypass the preset screen (§1/§3). Byte-identical to the didInitFromUrl effect's own
- * inline check; exported (pure) so the bypass is unit-pinned.
+ * Preset chooser vs auto-build entry (QP A1). The hub's Quick-Practice CTA is the ONE
+ * entry that lands on the preset screen; every other topic-bearing entry auto-builds a
+ * scoped set. The discriminator is `source` (the purpose-built signal), NOT `topic` —
+ * both the hub and the tutor carry a topic, so keying on topic alone collapses them (the
+ * reachability bug this fix closes: the hub could never reach the presets).
+ *
+ * Precedence (order matters):
+ *   1. `targeted=1` (Fix-My-Mistakes) ALWAYS auto-builds — a deliberate scoped drill must
+ *      never be trapped behind a chooser (§3 edge-case 1). Absolute.
+ *   2. `source=practice` (the hub CTA — the SOLE producer of that value, emitted by the
+ *      responsive DesktopPracticePage on both mobile and desktop) → preset chooser.
+ *   3. Otherwise: an explicit non-"generic" topic (tutor `source=tutor`, Topic Hub, the
+ *      weak-area / Me / HPQ / Dashboard / Chapter-Test practice CTAs) auto-builds —
+ *      BYTE-IDENTICAL to before, since none of those carry `source=practice`.
+ *
+ * Exported (pure) and called from BOTH the render-scope gate and the didInitFromUrl
+ * auto-build effect, so the two can never drift.
  */
 export const deriveArrivedTargeted = (
   rawTopicParam: string,
   isTargetedSession: boolean,
-): boolean =>
-  (!!rawTopicParam && rawTopicParam.toLowerCase() !== "generic") || isTargetedSession;
+  sourceParam: string | null,
+): boolean => {
+  if (isTargetedSession) return true;
+  if (sourceParam === "practice") return false;
+  return !!rawTopicParam && rawTopicParam.toLowerCase() !== "generic";
+};
 
 /**
  * The progressive-disclosure preset entry shows ONLY on a direct visit (not yet built,
@@ -549,8 +565,8 @@ const PracticePage: React.FC = () => {
   // byte-identical there; this render-scope copy gates ONLY the entry UI (§3 additive
   // guarantee: the auto-build path is untouched).
   const arrivedTargeted = useMemo(
-    () => deriveArrivedTargeted(rawTopicParam, isTargetedSession),
-    [rawTopicParam, isTargetedSession],
+    () => deriveArrivedTargeted(rawTopicParam, isTargetedSession, qpSource),
+    [rawTopicParam, isTargetedSession, qpSource],
   );
 
   const didInitFromUrlRef = useRef(false);
@@ -689,15 +705,20 @@ const PracticePage: React.FC = () => {
     setCommittedCount(initialPracticeDefaults.recommendedCount);
     setPendingMarksRange(conceptMarksRange);
     setCommittedMarksRange(conceptMarksRange);
-    // Gap-B auto-serve: a TARGETED arrival — an explicit topic in the URL (from
-    // a "practise where you lose marks" CTA, Topic Hub, or the desktop hub's
-    // "Start quick practice") or a Fix-My-Mistakes session (targeted=1) — should
-    // land the student IN a ready, scoped set rather than behind the builder.
-    // The generate effect already fetches on mount; flipping isBuilt surfaces it.
-    // A bare subject-level arrival (no explicit topic) keeps the manual builder,
-    // and "Edit filters" remains available to refine a served set.
-    const arrivedTargeted =
-      (!!rawTopicParam && rawTopicParam.toLowerCase() !== "generic") || isTargetedSession;
+    // Gap-B auto-serve: a TARGETED arrival — an explicit topic from the tutor
+    // hand-off, Topic Hub, or a "practise where you lose marks" CTA, or a
+    // Fix-My-Mistakes session (targeted=1) — should land the student IN a ready,
+    // scoped set rather than behind the builder. The generate effect already
+    // fetches on mount; flipping isBuilt surfaces it. The ONE exception is the
+    // hub's own Quick-Practice CTA (source=practice): it lands on the preset
+    // chooser instead (deriveArrivedTargeted returns false for it), so the auto-
+    // build is skipped and the presets show. Same helper as the render-scope gate
+    // above — they cannot drift.
+    const arrivedTargeted = deriveArrivedTargeted(
+      rawTopicParam,
+      isTargetedSession,
+      qpSource,
+    );
     if (arrivedTargeted) {
       setIsBuilt(true);
     }
