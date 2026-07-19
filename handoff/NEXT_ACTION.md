@@ -1,4 +1,23 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-19 (post-**#488 — QP MULTI-TOPIC PRESETS LIVE.** Trunk `9edb939`. Owner LIVE-VERIFIED, both Maths & Science. A ≥2-topic hub selection now produces a genuine pooled-and-shuffled mixed set (shape 3c: per-topic fan-out + merge). Single-topic byte-identical, zero engine edits, `sessionRecords.ts` byte-identical. **The QP SURFACE arc is COMPLETE — reachable, navigable, single + multi-topic.**)
+
+## ⏭️ NEXT — 2026-07-19 (post-#488). Read this block first.
+
+**#488 shipped Piece 2 (multi-topic); this is its docs handoff.** The QP surface is done end-to-end (entry, reachable, navigable, single + multi-topic). What remains, in order:
+
+### ★ (1) THE QP OVERLAY ON THE TUTOR — the C&I overlay's twin — dispatch as an INVESTIGATION lane FIRST
+Host the real `PracticePage` over the tutor (reused verbatim), retiring the navigate/poll for the practice leg — the second of the two in-tutor overlays. **Investigation first:** does `PracticePage` render cleanly in a tutor panel? how does the **chooser→built** flow behave in a panel vs a page (the QP entry redesign AND multi-topic both live in that one component now)? ★ The graded-context READ is **already done** for QP — `composePracticeRecordReturnOpener` is the reference impl C&I's `returnedWork` block copied — so the overlay is only the HOSTING work. ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] STILL HELD for the practice leg** — the QP overlay is what retires them; a HOLD with a reason, do not "just fix."
+
+### ★ (2) [FU-QP-MULTITOPIC-EXAM-WEIGHT] — the small fast-follow
+Swap `topicShare()` from bank-availability to exam-trends weight — a one-function edit by design (needs `getTopicWeight()` exposed, currently private in `predictionScoring.ts`). Do after the overlay, or as filler.
+
+### ★★ DOCTRINE TO CARRY (earned #488)
+- **AN INVESTIGATION LANE EARNS ITS KEEP BY FALSIFYING THE SPEC'S FRAMING FROM THE CODE, not just answering its questions.** #488's spec offered a 3a/3b fork; the investigation proved **3b structurally impossible** (`focusBankIds` only re-orders a pool already hard-scoped to one `topicKey` at `practiceSetGenerator.ts:287`) and found **3c** (mirror the shipped per-section fan-out, keyed on topic) — reusing the working machinery per-topic beat both spec options with **zero engine edits**.
+- **A FORBIDDEN-FILE GUARD THAT DIFFS `base...HEAD` (three-dot) PASSES FALSELY ON UNCOMMITTED WORK.** #488's first cut edited `sessionRecords.ts` (on lane #476's forbidden list); the ops-matrix guard went green because the change wasn't committed yet. Caught by reasoning about the guard, not by the guard. ⇒ COMMIT before trusting a git-scoped guard; keep the additive change OUT of the forbidden file (moved `topicKeys` to the non-forbidden QP service). Strengthens `[FU-CI-GATE-VITEST]` — the new suites (pure 18/18 + router 4/4) ran locally only.
+- **Re-derive trunk EVERY session** via `git ls-remote`; ⚠ CLAUDE.md §2's HEAD==`CURRENT_STATE`-SHA check is structurally unsatisfiable after a docs PR advances trunk (`[FU-CLAUDE-MD-SESSION-START-SHA]`) — verify HEAD is trunk and proceed, don't stop.
+
+---
+
 # Updated: 2026-07-19 (post-**#483 → #486 — THE QP A1 ENTRY REDESIGN NOW WORKS.** Trunk `889ab6d`. All four owner LIVE-VERIFIED. The #481 presets are now reachable from the hub (#483, source-keyed gate) AND navigable both ways — browser-back (#485, real `built=1` history entry) and the breadcrumb "Back" CTA (#486) both return to the preset chooser. **The honest two-step: #484 shipped a broken no-op push that passed every gate + CI + 14/14 [the test never mounted a router], owner live-verify caught it, #485 fixed it with a real search param + a router-mounted test.** Engine/presets/persistence/hub byte-identical throughout.)
 
 ## ⏭️ NEXT — 2026-07-19 (post-arc). Read this block first.

@@ -1,3 +1,19 @@
+## 2026-07-19 -- #488: QP MULTI-TOPIC PRESETS (Piece 2, shape 3c, trunk `9edb939`), owner LIVE-VERIFIED — FU reconciliation
+
+**[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED] — RESOLVED by #488** (the investigation/build lane called it `[FU-PRACTICEHUB-MULTITOPIC]` — same FU). A `≥2 topics` hub selection no longer collapses to `topic=<first>`: the QP nav builder emits `topics=a,b,c` (mirrors the HPQ sibling), `PracticePage` reads it into a resolved multi-topic list, and the fetch fans out one unchanged `buildPracticeQuestionsWithAiTopup` per topic → merged, pooled-and-shuffled, competency-floored. Multi-topic reaches the questions, both Maths and Science (owner live-verified).
+
+**[FU-QP-MULTITOPIC-EXAM-WEIGHT] — LOGGED (fast-follow).** Swap `topicShare()` (the single proportional driver, v1 = bank availability) from availability to exam-trends weight. Needs `getTopicWeight(topicKey)` exposed as an importable helper — currently private in `predictionScoring.ts`. Designed as a **one-function edit** (the driver is deliberately isolated). Small; do after the QP overlay or as filler.
+
+**[FU-QP-MULTITOPIC-SECTION-SHARES] — LOGGED (owner-accepted; revisit only on request).** The merged multi-topic set enforces the **competency %** and the **topic split**, drawing from per-topic board-shaped fetches, but does NOT re-assert exact section percentages (A30/B20/C20/D20/E10) across the merged pool. Re-enforcing would be the **forbidden topics×sections nesting** — owner ruled competency% + split + pooled-shuffle are the ratios that matter. Revisit only if exact per-section shares are wanted across a mixed pool.
+
+**[FU-CI-GATE-VITEST] — KEPT OPEN (do NOT close).** #488's new suites — the pure composition core (`multiTopicPractice.test.ts`, 18/18) and the router-mounted nav test (`multiTopicNav.test.tsx`, 4/4) — ran **LOCALLY ONLY** (Windows rollup-win32 binary drop). CI still does not run vitest, so they do not gate the PR. Same silent-skip species; the fix remains to gate vitest in the linux CI job.
+
+**[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] — STILL HELD (for the practice leg).** Untouched by #488; the QP overlay lane (next) is what retires them.
+
+> **Batching note:** #488 closes Piece 2 and the QP SURFACE arc (entry, reachable, navigable, single + multi-topic). The **QP overlay mechanism** is a NEW lane (investigation-first) — separate future handoff.
+
+---
+
 ## 2026-07-19 -- #483 → #486: THE QP A1 FIX-ARC (trunk `889ab6d`), all four owner LIVE-VERIFIED — FU reconciliation
 
 **[FU-QP-PRESETS-UNREACHABLE] — RESOLVED by #483.** The presets are now reachable: `deriveArrivedTargeted` is keyed on `source` (`source=practice` hub CTA → presets; `source=tutor`/`targeted=1` → auto-build). The fix was the *inverse* of the spec's literal `source==="tutor"` rule — ~21 topic-bearing entrypoints (Topic Hub, `MentorSolveDrawer`, HPQ, Me/Dashboard/Chapter-Test) carry a topic without `source=tutor` and would have been dumped on the chooser by the literal rule.

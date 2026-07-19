@@ -2,6 +2,20 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-19 — ★★ ✅ QUICK PRACTICE MULTI-TOPIC (Piece 2, shape 3c) COMPLETE — THE QP SURFACE ARC IS DONE END-TO-END (#488, trunk `9edb939`) — owner LIVE-VERIFIED both Maths & Science
+
+**Stage COMPLETE.** The last gap in the QP surface: the hub could select multiple topics but the QP CTA collapsed to `topic=<first>` before the questions. #488 (shape 3c) makes a `≥2 topics` selection fan out **one unchanged `buildPracticeQuestionsWithAiTopup` per chosen topic** and merge into one pooled-and-shuffled mixed set.
+
+- **Owner rulings:** POOLED-AND-SHUFFLED · **50% competency floor HARD (wins every conflict)** with the topic split SOFT (bends when the floor needs room; per-topic ~50% fill spreads competency so no topic is squeezed out, then a global top-up) · topic split **proportional-to-availability, ≥2 floor, shortfall→richer, never fabricated** via the single swappable `topicShare()` (v1 = availability) · **FLATTEN not nest**.
+- **Byte-reviewed invariants:** single-topic **byte-identical** (ternary-wrapped, gated `≥2 topics`; only fetch-conditional change is `if(committedMarks==="all")`→`else if`, zero body removals) · **zero engine-service edits** (reuses `buildPracticeQuestionsWithAiTopup`/`generatePracticeSet`/`getLikelyQuestionsForConcept`/`selectInRangeFromPool` per-topic) · **`sessionRecords.ts` byte-identical** (a forbidden-file touch caught + reverted; `topicKeys` moved to the QP service). Composition core = NEW pure module `multiTopicPractice.ts`.
+- **Owner-ratified design calls:** competency-HARD/topic-SOFT with per-topic spreading; section proportions NOT re-enforced post-merge (that would be the forbidden topics×sections nesting).
+
+**★★ Two durable lessons (full text in SESSION_LOG):** (1) an investigation lane earns its keep by **falsifying the spec's framing from the code** — it killed the spec's 3a/3b fork (3b structurally impossible) and found 3c; (2) a forbidden-file guard that diffs `base...HEAD` (three-dot) **passes falsely on uncommitted work** — commit before trusting a git-scoped guard.
+
+**QP SURFACE ARC COMPLETE** — reachable, navigable, single + multi-topic. **Remaining (NEW lanes, not this arc):**
+- **QP overlay mechanism** — the C&I overlay's twin: host the real `PracticePage` over the tutor, reused verbatim; retires the navigate/poll for the practice leg (`[FU-TUTOR-ROUNDTRIP-COUNT-5]` + `[FU-TUTOR-WAITING-BANNER]` held). Investigation-first.
+- **`[FU-QP-MULTITOPIC-EXAM-WEIGHT]`** — swap `topicShare()` to exam-trends weight (one-function fast-follow).
+
 ## 2026-07-19 — ★★ ✅ QUICK PRACTICE A1 ENTRY IS REACHABLE + NAVIGABLE — THE FIX-ARC IS COMPLETE (#483 → #486, trunk `889ab6d`) — all four owner LIVE-VERIFIED
 
 **Stage COMPLETE.** #481 shipped the QP preset entry correct-but-invisible; this four-PR arc made it genuinely usable — reachable from the hub and escapable back to the chooser both ways.
