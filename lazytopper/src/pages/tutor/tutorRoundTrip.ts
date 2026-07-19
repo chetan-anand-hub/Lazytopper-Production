@@ -8,9 +8,10 @@
 // the durable sessionRecord written by C&I/Practice; this module only READS + phrases.
 
 import type { SessionRecord, SessionPerQuestionPayload } from "../../services/sessionRecords";
-import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
+import type { CheckSolutionAnnotatedStep, WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
 import type { PracticeAttempt } from "../../services/practiceInsights";
 import type { TutorPendingMarker } from "../../services/tutorSessionStore";
+import type { TutorReturnedWork } from "../../ai/tutorClient";
 
 /** Encode a query object into a `?a=b` suffix (URLSearchParams — safe-encodes). */
 function query(params: Record<string, string | undefined>): string {
@@ -186,12 +187,14 @@ function stepFaultPhrase(status: CheckSolutionAnnotatedStep["status"]): string {
 }
 
 /** The first step the grader did NOT mark correct, in question then step order, that
- *  carries a real annotation to quote. null → the payload has no quotable fault. */
-function firstFaultyStep(
-  payload: SessionPerQuestionPayload,
+ *  carries a real annotation to quote — read straight off a `WorksheetGradeResponse.results`
+ *  array. null → no quotable fault. The C&I overlay leg has the response in-hand (Option 2b),
+ *  so it reads it directly; `firstFaultyStep` wraps this for the QP payload leg. */
+function firstFaultyStepInResults(
+  results: WorksheetQuestionGrade[] | undefined | null,
 ): { qNumber: number; step: CheckSolutionAnnotatedStep } | null {
-  const results = [...(payload.response?.results || [])].sort((a, b) => a.qNumber - b.qNumber);
-  for (const r of results) {
+  const sorted = [...(results || [])].sort((a, b) => a.qNumber - b.qNumber);
+  for (const r of sorted) {
     if (r.couldNotRead || !r.annotatedSteps?.length) continue;
     const steps = [...r.annotatedSteps].sort((a, b) => a.stepNumber - b.stepNumber);
     for (const step of steps) {
@@ -201,6 +204,14 @@ function firstFaultyStep(
     }
   }
   return null;
+}
+
+/** The first quotable faulty step for the QP RECORD leg, off the persisted payload.
+ *  Unchanged behaviour — delegates to `firstFaultyStepInResults`. */
+function firstFaultyStep(
+  payload: SessionPerQuestionPayload,
+): { qNumber: number; step: CheckSolutionAnnotatedStep } | null {
+  return firstFaultyStepInResults(payload.response?.results);
 }
 
 /**
@@ -292,6 +303,149 @@ export function composePracticeRecordReturnOpener(
       send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
     },
   };
+}
+
+/**
+ * The CHECK & IMPROVE overlay's RICH return-opener (build lane — the tutor sees the graded
+ * work). `composePracticeRecordReturnOpener` re-flavoured for the C&I surface: QP and C&I run
+ * the SAME grader, so the `WorksheetGradeResponse.results` shape is identical and the same
+ * `firstFaultyStep` + four-type doctrine apply. Two differences only: the lead copy ("the board
+ * marked … sheet" vs "you scored … set") and the clean-set line.
+ *
+ * Takes the graded `WorksheetGradeResponse` IN-HAND (Option 2b — it is already in the C&I page's
+ * `wsResult` state at overlay close and rides the same `onClose` channel as the question), so
+ * there is NO cloud re-read and it survives an honest-failure persist skip (report §1). The
+ * marks/four-type come from the freshly-built `SessionRecord`; every quoted word comes from the
+ * grader's own annotation (`shortAnnotation` truncates, never rewords) — the tutor NEVER grades
+ * (D-TUT-8).
+ *
+ * Returns null — deliberately, so the caller falls back to the UNCHANGED thin `composeReturnOpener`
+ * (the honest floor) — whenever the response cannot beat the marks-only line: no marks / total ≤ 0
+ * (couldn't-read sheet), a clean set with no legible working (MCQ-only), or no quotable faulty step
+ * (MCQ-only / blank annotations). NEVER quotes a step's marks (an objective step's 0 is a clamp
+ * artifact, PR-348/#445 — the annotation is quotable, the mark is not).
+ */
+export function composeCheckImproveRichReturnOpener(
+  record: SessionRecord,
+  response: WorksheetGradeResponse | null | undefined,
+  topicLabel: string,
+): ReturnOpener | null {
+  const awarded = typeof record.marksAwarded === "number" ? record.marksAwarded : null;
+  const total = typeof record.marksTotal === "number" ? record.marksTotal : null;
+  if (awarded == null || total == null || total <= 0) return null;
+
+  const lost = Math.max(0, total - awarded);
+
+  // A clean sheet with real working behind it — worth saying, because "the working held up"
+  // is a fact here (every step marked correct), not a compliment we invented.
+  if (lost === 0) {
+    const hasWorking = (response?.results || []).some(
+      (r) => !r.couldNotRead && !!r.annotatedSteps?.length,
+    );
+    if (!hasWorking) return null; // MCQ-only clean sheet — the thin opener already says this.
+    return {
+      text: `${awarded} out of ${total} on that ${topicLabel} sheet — clean, and the working held up step for step. That's landing now. Want a harder one to stretch on, or leave it here?`,
+      follow: { label: "A harder one", send: "Give me a harder one to try." },
+    };
+  }
+
+  const fault = firstFaultyStepInResults(response?.results);
+  if (!fault) return null; // No visible reasoning to point at → the marks-only line is the honest one.
+
+  const { qNumber, step } = fault;
+  const ft = record.fourType || { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  const method = (ft.conceptual || 0) + (ft.calculation || 0);
+  const presLed = (ft.presentation || 0) + (ft.silly || 0);
+  const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
+
+  // One root cause, from the record's own four-type totals — the SAME method-vs-presentation
+  // doctrine the thin C&I opener uses, now naming the exact step the grader flagged.
+  let rootCause: string;
+  let fix: string;
+  if (presLed > method && presLed > 0) {
+    // Careless/presentation is NOT a weakness (MI doctrine) — say so plainly.
+    rootCause = `and the ${marks} came off the presentation, not your maths`;
+    fix = `You know this; it's the finish costing you. Want to tighten just the write-up, or something else?`;
+  } else if (method > 0) {
+    const calcLed = (ft.calculation || 0) >= (ft.conceptual || 0);
+    rootCause = calcLed
+      ? `and the ${marks} slipped in the working — the approach was right, the arithmetic wasn't`
+      : `and the ${marks} came off the method itself — the setup needs a tweak`;
+    fix = `Want to fix just that, or something else?`;
+  } else {
+    rootCause = `and ${marks} slipped`;
+    fix = `Want to go through it, or something else?`;
+  }
+
+  const where = `On Q${qNumber}, step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)}`;
+
+  return {
+    text: `The board marked that ${topicLabel} sheet ${awarded} out of ${total}, ${rootCause}. ${where} ${fix}`,
+    follow: {
+      label: "Go through that step",
+      send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
+    },
+  };
+}
+
+/**
+ * ★ THE §6.3 PER-STEP DIGEST GATE (eval-gated — build spec §2 Seam 3).
+ *
+ * The digest lets the tutor say what was RIGHT ("your ratio and substitution held up"), not only
+ * the ONE faulty step the opener names — but more correct-step structure is more surface for the
+ * model to OVER-READ. Per the spec it ships ONLY once a LIVE rubric-2 eval shows the model stays
+ * grounded WITH it; if it tempts invention, the build falls back to question-only.
+ *
+ * This is that fallback, as ONE flag — flip to `true` and the digest ships; nothing else changes.
+ * It defaults to `false` (question-only) because the live rubric-2 eval REQUIRES a provider key
+ * this build environment lacks (report §4 / §5.4) — so the digest is NOT yet proven grounded and
+ * must not ship on unverified trust. Even OFF, the rich opener + the question context already turn
+ * "you got 4/5" into "you dropped step 4 on units". Flip only after the owner's live eval clears
+ * rubric-2. [FU-TUTOR-RETURNED-WORK-DIGEST].
+ */
+export const RETURNED_WORK_DIGEST_ENABLED = false;
+
+/**
+ * Build the one-shot `returnedWork` model-context object handed to `callTutor` on the return turn
+ * (Piece 1 + the §6.3 digest). Pulls the verbatim question (quotable CONTEXT, never a student turn)
+ * and — when the digest flag is on — a compact per-step status digest (`{q,n,description,status}`
+ * only: NO marks, NO free text) from the graded response. An image-only question carries no text
+ * (there is no image channel to the tutor model — text-only MVP); it is flagged so the prompt
+ * DESCRIBES it and never transcribes it. Returns null when there is nothing usable to send (a
+ * bare pre-grade escape), so the ref clears itself.
+ */
+export interface TutorReturnedWorkInput {
+  question?: { text: string; imageBase64: string | null };
+  response?: WorksheetGradeResponse | null;
+  includeDigest?: boolean;
+}
+export function buildReturnedWork({
+  question,
+  response,
+  includeDigest,
+}: TutorReturnedWorkInput): TutorReturnedWork | null {
+  const text = (question?.text || "").trim();
+  const hasImageQuestion = !text && !!question?.imageBase64;
+
+  const steps: TutorReturnedWork["steps"] = [];
+  if (includeDigest) {
+    const results = [...(response?.results || [])].sort((a, b) => a.qNumber - b.qNumber);
+    for (const r of results) {
+      if (r.couldNotRead || !r.annotatedSteps?.length) continue;
+      for (const s of [...r.annotatedSteps].sort((a, b) => a.stepNumber - b.stepNumber)) {
+        const description = String(s.description || "").trim();
+        if (!description) continue;
+        steps.push({ q: r.qNumber, n: s.stepNumber, description, status: s.status });
+      }
+    }
+  }
+
+  if (!text && !hasImageQuestion && steps.length === 0) return null;
+  const out: TutorReturnedWork = {};
+  if (text) out.question = text;
+  if (hasImageQuestion) out.hasImageQuestion = true;
+  if (steps.length) out.steps = steps;
+  return out;
 }
 
 /**

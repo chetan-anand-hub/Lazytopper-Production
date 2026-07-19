@@ -10,11 +10,15 @@
  * WHAT IT PROVES — the additive guarantee (report §5.1) made enforceable, plus the overlay
  * wiring the convergence gate does not cover:
  *   · the DIRECT /check-improve visit is byte-identical (the `overlay` prop is default-off);
- *   · the overlay's 4 page hunks are each `overlay`-GATED;
- *   · the poll-free return path is wired to the EXISTING composeReturnOpener (the tutor
- *     never grades) and the check-improve navigate/marker leg is RETIRED;
- *   · the grader, the round-trip internals, the scorecard, and the record shape are
- *     UNTOUCHED (git-diff scoped, exactly like the convergence gate).
+ *   · the overlay's page hunks are each `overlay`-GATED — incl. the graded response now handed
+ *     in-hand on close (Option 2b, the tutor-graded-context build);
+ *   · the poll-free return path composes the RICH return-opener when the graded response is in
+ *     hand, with the EXISTING (byte-identical) composeReturnOpener as the honest floor (the tutor
+ *     never grades), and the check-improve navigate/marker leg is RETIRED;
+ *   · the graded question + the eval-gated per-step digest reach the model as one-shot returnedWork
+ *     context (never persisted); the digest ships only behind RETURNED_WORK_DIGEST_ENABLED;
+ *   · the grader, the scorecard, the record shape, and the THIN composeReturnOpener (the honest
+ *     floor) are UNTOUCHED — the rich composer is ADDED BESIDE, never edited.
  *
  * METHOD: source assertions run against COMMENT-STRIPPED source (a grep hit in a comment is
  * not a usage). The forbidden-path diff is PR-scoped and, in CI, HARD-FAILS on an
@@ -131,7 +135,17 @@ check(
 );
 check(
   "HUNK B: overlayReturn is keyed off the page's OWN scorecardOpen (no new signal invented)",
-  /const overlayReturn = \(\) => \{[\s\S]*?if \(scorecardOpen\) \{[\s\S]*?overlay\.onClose\(buildOverlayReturnRecord\(\), \{ text: question, imageBase64: qImageBase64 \}\)/.test(page),
+  /const overlayReturn = \(\) => \{[\s\S]*?if \(scorecardOpen\) \{[\s\S]*?overlay\.onClose\(\s*buildOverlayReturnRecord\(\),\s*\{ text: question, imageBase64: qImageBase64 \},/.test(page),
+);
+// HUNK B2 (tutor-graded-context) — the graded response is handed in-hand on close (Option 2b),
+// built in exact lock-step with the record so the two never diverge, and NOT re-persisted.
+check(
+  "HUNK B2: the close passes the graded response in-hand (buildOverlayReturnResponse — Option 2b)",
+  /overlay\.onClose\(\s*buildOverlayReturnRecord\(\),\s*\{ text: question, imageBase64: qImageBase64 \},\s*buildOverlayReturnResponse\(\),\s*\)/.test(page),
+);
+check(
+  "HUNK B2: buildOverlayReturnResponse mirrors the record's whole-paper-vs-single split (no divergence)",
+  /const buildOverlayReturnResponse = \(\): WorksheetGradeResponse \| undefined => \{[\s\S]*?if \(wsResult && confirmed\) return wsResult;[\s\S]*?if \(result && resultCtx\) return singleCheckToWorksheetResponse\(result\);/.test(page),
 );
 
 // HUNK C — the scorecard's "Back to your tutor" forks on overlay to hand back the record +
@@ -173,10 +187,21 @@ check(
   'RETIRED: the check-improve navigate/marker leg is gone (no `surface: "check-improve"` marker in the hook)',
   !/surface: "check-improve"/.test(hook),
 );
-// The close injects the EXISTING reframed opener (the tutor never grades; poll-free).
+// The close composes the RICH opener when the graded response is in hand, with the EXISTING
+// (byte-identical) thin composeReturnOpener as the honest floor (the tutor never grades; poll-free).
 check(
-  "RETURN: closeCheckImprove injects the EXISTING composeReturnOpener (poll-free, D-TUT-6)",
-  /const closeCheckImprove = useCallback\(\s*\(record\?: SessionRecord[\s\S]*?if \(record\) injectReturn\(composeReturnOpener\(record, topicLabel, "check-improve"\)\);/.test(hook),
+  "RETURN: closeCheckImprove composes the RICH opener with the thin composeReturnOpener as the floor",
+  /const rich = gradedResponse\s*\?\s*composeCheckImproveRichReturnOpener\(record, gradedResponse, topicLabel\)\s*:\s*null;[\s\S]*?injectReturn\(rich \?\? composeReturnOpener\(record, topicLabel, "check-improve"\)\);/.test(hook),
+);
+// The graded question + eval-gated digest are assembled into one-shot returnedWork model context.
+check(
+  "RETURN: closeCheckImprove assembles one-shot returnedWork (question + eval-gated digest) via buildReturnedWork",
+  /returnedWorkRef\.current = buildReturnedWork\(\{[\s\S]*?includeDigest: RETURNED_WORK_DIGEST_ENABLED,/.test(hook),
+);
+// The returnedWork context is passed to the model on the return turn (Piece 1 reaches the model).
+check(
+  "RETURN: returnedWork is passed to callTutor (the question reaches the MODEL, not just the host)",
+  /returnedWork: returnedWorkRef\.current,/.test(hook),
 );
 // The in-memory question is held (the seam), never persisted.
 check(
@@ -200,6 +225,30 @@ check(
     /<DesktopCheckImprovePage overlay=\{\{ onClose \}\} \/>/.test(host),
 );
 
+/* ── The honest floor stays (tutor-graded-context) — tutorRoundTrip.ts is ADDED-BESIDE, not
+      edited. The file-level forbidden ban is superseded (this lane legitimately adds the rich
+      composer + buildReturnedWork), so the real invariant is re-expressed as source assertions:
+      the THIN composeReturnOpener is byte-present and unchanged, and the rich composer sits
+      BESIDE it (never replacing it). This is the §4 HARD constraint made enforceable. */
+const roundTrip = stripComments(read("src/pages/tutor/tutorRoundTrip.ts"));
+check(
+  "FLOOR: the thin composeReturnOpener keeps its exact 3-arg signature (added-beside, not edited)",
+  /export function composeReturnOpener\(\s*record: SessionRecord,\s*topicLabel: string,\s*surface: "check-improve" \| "worksheet" = "check-improve",\s*\): ReturnOpener \{/.test(roundTrip),
+);
+check(
+  "FLOOR: the thin composeReturnOpener honest-floor line is byte-identical (no marks → generic opener)",
+  /You're back with your graded \$\{topicLabel\} \$\{source\}\. Want to go through where it slipped, together\?/.test(roundTrip),
+);
+check(
+  "BESIDE: composeCheckImproveRichReturnOpener is added as a SEPARATE export (never replaces the thin one)",
+  /export function composeCheckImproveRichReturnOpener\(/.test(roundTrip) &&
+    /export function composeReturnOpener\(/.test(roundTrip),
+);
+check(
+  "DIGEST: the per-step digest is eval-gated behind a single default-off flag (question-only ships)",
+  /export const RETURNED_WORK_DIGEST_ENABLED = false;/.test(roundTrip),
+);
+
 /* ══════════════════════════════════════════════════════════════════════════
    4 · FORBIDDEN — the grader, round-trip internals, scorecard, record: zero diff.
    ══════════════════════════════════════════════════════════════════════════ */
@@ -211,7 +260,9 @@ const PR_TARGET = process.env.GITHUB_BASE_REF || null;
 
 const FORBIDDEN = [
   "server/routes/checkSolution.cjs", // the grader — the tutor never grades
-  "lazytopper/src/pages/tutor/tutorRoundTrip.ts", // composeReturnOpener + matchReturningRecord internals
+  // tutorRoundTrip.ts is NO LONGER file-level forbidden: the tutor-graded-context lane ADDS the
+  // rich composer + buildReturnedWork BESIDE the thin composeReturnOpener. The real invariant (the
+  // thin floor stays byte-identical) is enforced by the FLOOR/BESIDE source assertions in §3.
   "lazytopper/src/components/results/ResultsScorecard.tsx", // the overlay shows it, never restyles it
   "lazytopper/src/services/sessionRecords.ts", // SessionRecord shape (we only IMPORT the builder)
   "lazytopper/src/services/checkImproveGradeService.ts", // the persist seam
@@ -265,6 +316,7 @@ if (failures.length > 0) {
 }
 console.log(`Tutor ⇄ C&I overlay acceptance PASSED — ${pass}/${pass} checks green.`);
 console.log("  additive: default-off question + optional prop + route :320 ·");
-console.log("  hunks overlay-gated: chrome-suppress · pinned ✕ · scorecard Back · in-process record (no re-persist) ·");
-console.log("  poll-free return via the EXISTING composeReturnOpener · check-improve navigate/marker leg retired ·");
-console.log("  forbidden zero-diff: grader · tutorRoundTrip · ResultsScorecard · sessionRecords · gradeService · App\n");
+console.log("  hunks overlay-gated: chrome-suppress · pinned ✕ · scorecard Back · in-process record (no re-persist) · graded response in-hand (Option 2b) ·");
+console.log("  poll-free return: RICH opener with the thin composeReturnOpener as the honest floor · question+digest reach the model as one-shot returnedWork · navigate/marker leg retired ·");
+console.log("  honest floor: thin composeReturnOpener byte-identical (rich ADDED BESIDE) · digest eval-gated (default off) ·");
+console.log("  forbidden zero-diff: grader · ResultsScorecard · sessionRecords · gradeService · App\n");
