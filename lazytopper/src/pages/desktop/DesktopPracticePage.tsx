@@ -1929,6 +1929,9 @@ export default function DesktopPracticePage() {
   const buildLegacyPracticePath = (params: {
     timed?: boolean;
     topic?: string;
+    /** Comma-joined slug SET for a multi-topic quick-practice set ([FU-PRACTICEHUB-MULTITOPIC]).
+     *  Mirrors the HPQ sibling builder's `topics=` — PracticePage fans out per topic. */
+    topics?: string;
     subtopicHint?: string;
     focus?: string;
     section?: string;
@@ -1939,6 +1942,10 @@ export default function DesktopPracticePage() {
   }): string => {
     const sp = new URLSearchParams();
     if (params.topic) sp.set("topic", params.topic);
+    // Multi-topic: emit the SET (reused convention). PracticePage keys `isMultiTopic` on
+    // `topics=` having 2+ members and takes the fan-out branch; a single/absent `topics`
+    // never engages it, so the single-topic path stays byte-identical.
+    if (params.topics) sp.set("topics", params.topics);
     if (params.timed) sp.set("timed", "1");
     if (params.subtopicHint) sp.set("subtopicHint", params.subtopicHint);
     if (params.focus) sp.set("focus", params.focus);
@@ -2026,11 +2033,15 @@ export default function DesktopPracticePage() {
         })
       : scope.scope === "full-subject"
         ? buildLegacyPracticePath({})
-        : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length > 0
+        : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length >= 2
           ? buildLegacyPracticePath({
-              topic: scope.selectedTopicSlugs[0],
+              // The full SET, not selectedTopicSlugs[0] — the old collapse was the
+              // [FU-PRACTICEHUB-MULTITOPIC] gap. PracticePage fans out per topic.
+              topics: scope.selectedTopicSlugs.join(","),
             })
-          : buildLegacyPracticePath({});
+          : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length === 1
+            ? buildLegacyPracticePath({ topic: scope.selectedTopicSlugs[0] })
+            : buildLegacyPracticePath({});
 
   const timedDrillPath: string | null = !validScope
     ? null
