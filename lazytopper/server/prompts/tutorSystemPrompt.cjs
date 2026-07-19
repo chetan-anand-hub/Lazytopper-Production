@@ -32,9 +32,14 @@
  * @param {Array<{key:string,label:string}>} [args.figures] Stage 3 — the concepts in THIS
  *   topic that have a curated diagram the app can show in the side panel, each with the exact
  *   sentinel key. The tutor signals one via `[[figure:<key>]]` when a diagram helps the turn.
+ * @param {object|null} [args.returnedWork] Build lane — the work the student JUST had board-marked
+ *   in the Check & Improve overlay, handed as return-turn CONTEXT so the tutor can reference the
+ *   question and (when the §6.3 digest ships) which steps held up. `{ question?, hasImageQuestion?,
+ *   steps?[] }` — already rebuilt at the trust boundary (routes/tutor.cjs normalizeReturnedWork).
+ *   Absent on every non-return turn → no block. READ context only; the marks are FINAL (D-TUT-8).
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork } = {}) {
   const topic = (topicLabel && String(topicLabel).trim()) || 'this topic';
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   const lang = (language && String(language).trim()) || 'English';
@@ -159,6 +164,8 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
   }
 
   lines.push(briefBlock(brief));
+
+  lines.push(returnedWorkBlock(returnedWork));
 
   lines.push(
     `\nRIGHT NOW\n` +
@@ -324,6 +331,81 @@ function demoQuestionDirective(demoQuestion) {
     `Do not alter or "correct" the question; if it looks off, it is not — solve it as written. Present the ` +
     `question to the student first, then the step-marked solution.`
   );
+}
+
+/**
+ * Build lane (the tutor sees the graded work) — the return-turn CONTEXT block. Modelled on
+ * `demoQuestionDirective` + `figurePanelBlock`'s anti-fabrication discipline: honest-or-silent
+ * (emits '' when absent) and railed hard against the two failure modes richer input tempts —
+ * INVENTING per-step detail, and CONTRADICTING the board's marks.
+ *
+ * It renders the verbatim question (Piece 1 — quotable context, NOT a student turn) and, when the
+ * §6.3 digest is present (client flag on), the per-step status list (status ONLY — no marks, no
+ * annotation text). An image-only question is DESCRIBED, never transcribed (text-only MVP — there
+ * is no image channel to this model). The rails (report §6.4) are non-negotiable: quote ONLY what
+ * is here, never re-grade, stay concise. The tutor never grades (D-TUT-8) — this is teaching
+ * context, and the board's marks are final.
+ */
+function returnedWorkBlock(returnedWork) {
+  const rw = returnedWork && typeof returnedWork === 'object' ? returnedWork : null;
+  if (!rw) return '';
+  const question = typeof rw.question === 'string' ? rw.question.trim() : '';
+  const hasImage = rw.hasImageQuestion === true;
+  const steps = Array.isArray(rw.steps)
+    ? rw.steps.filter((s) => s && typeof s.description === 'string' && typeof s.status === 'string')
+    : [];
+  if (!question && !hasImage && steps.length === 0) return '';
+
+  const subject = question
+    ? `the exact question they worked${steps.length ? `, and which steps the board found correct or not` : ''}`
+    : steps.length
+      ? `which steps the board found correct or not on the question they uploaded`
+      : `the work the board marked`;
+  const parts = [
+    `\nTHE WORK THE STUDENT JUST HAD BOARD-MARKED (context to teach from — nobody in the chat said this)`,
+    `The student has just come back from Check & Improve, where their answer was board-marked. Below is ` +
+      `${subject}. This is CONTEXT to help you teach the fix — the marks are FINAL and NOT yours to change.`,
+  ];
+
+  if (question) {
+    parts.push(
+      `- The question the student worked (refer to it naturally; do NOT re-pose it as if you are asking it):\n` +
+        `    "${question.slice(0, 600)}"`,
+    );
+  } else if (hasImage) {
+    parts.push(
+      `- The student's question was an uploaded image; its text is NOT available to you. Do NOT guess or ` +
+        `transcribe it — refer to it as "the question you uploaded" and work from the graded steps below.`,
+    );
+  }
+
+  if (steps.length) {
+    const list = steps
+      .map((s) => {
+        const q = Number.isFinite(s.q) ? `Q${s.q} ` : '';
+        const n = Number.isFinite(s.n) ? `step ${s.n}` : 'step';
+        return `    - ${q}${n}: "${String(s.description).slice(0, 200)}" — ${s.status}`;
+      })
+      .join('\n');
+    parts.push(
+      `- What the board found, step by step (status ONLY — no marks; use it to say honestly what held up ` +
+        `and where it slipped, e.g. "your setup and substitution were fine; the unit was the leak"):\n${list}`,
+    );
+  }
+
+  parts.push(
+    `RAILS FOR THIS CONTEXT (READ CAREFULLY):\n` +
+      `- Ground every claim here. Reference the question and the specific step naturally, but quote ONLY ` +
+      `what is written above — NEVER describe a step, mistake, diagram, number, or working that is not in ` +
+      `this block. If a detail is not here, you do NOT know it: say so or move on. Do not invent a step.\n` +
+      `- You did NOT grade this and you never will — you are a doubt-clarifier, not a grader (see WHAT YOU ` +
+      `WILL NOT DO). Do NOT re-judge, revise, defend, or contradict the board's marks — not even "that was ` +
+      `close enough, I'd have given it to you". Teach the fix, not the grade.\n` +
+      `- Stay concise (a few short lines, per HOW YOU TALK) — teach the one thing that slipped; do NOT read ` +
+      `the whole marksheet back.`,
+  );
+
+  return parts.join('\n');
 }
 
 module.exports = { buildTutorSystemPrompt };

@@ -708,10 +708,17 @@ export interface CheckImproveOverlayProps {
    * OWN live state). The question is IN-MEMORY only — never persisted, never added to
    * SessionRecord, so `checkSolution.cjs` / the grader / the record shape stay byte-identical
    * (owner ruling (a)). Pre-grade (escape) it carries neither.
+   *
+   * `gradedResponse` (build lane — the tutor sees the graded work) is the SAME whole-paper
+   * `WorksheetGradeResponse` this page just graded (Option 2b — already in `wsResult` state and
+   * already the record's `.response`), handed in-hand so the tutor composes the RICH return-opener
+   * and the returnedWork context WITHOUT a cloud re-read. Read-only: it is NOT re-persisted and
+   * changes no grading/record/payload (byte-identical). Absent on a pre-grade escape.
    */
   onClose: (
     gradedRecord?: SessionRecord,
     question?: { text: string; imageBase64: string | null },
+    gradedResponse?: WorksheetGradeResponse,
   ) => void;
 }
 
@@ -884,14 +891,29 @@ const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> 
     }
     return undefined;
   };
+  // The SAME WorksheetGradeResponse `buildOverlayReturnRecord` fed to the builder as `.response`
+  // — handed in-hand so the tutor composes the rich opener + returnedWork with no cloud re-read
+  // (Option 2b). Kept in exact lock-step with the record above (same whole-paper-vs-single split,
+  // same guards) so the response and the record never diverge. Read-only; not re-persisted.
+  const buildOverlayReturnResponse = (): WorksheetGradeResponse | undefined => {
+    if (!overlay || !user?.uid || !ciCode) return undefined;
+    if (wsResult && confirmed) return wsResult;
+    if (result && resultCtx) return singleCheckToWorksheetResponse(result);
+    return undefined;
+  };
   // The single close path for the overlay (the pinned ✕ AND the scorecard's "Back to your
   // tutor" both call this). Keyed off the page's OWN `scorecardOpen` (never a new signal,
-  // §4.1): post-grade hands back the record + the in-memory question; pre-grade is a bare
-  // escape with no payload. The tutor NEVER grades (D-TUT-8) — it just receives the numbers.
+  // §4.1): post-grade hands back the record + the in-memory question + the graded response;
+  // pre-grade is a bare escape with no payload. The tutor NEVER grades (D-TUT-8) — it just
+  // receives the numbers.
   const overlayReturn = () => {
     if (!overlay) return;
     if (scorecardOpen) {
-      overlay.onClose(buildOverlayReturnRecord(), { text: question, imageBase64: qImageBase64 });
+      overlay.onClose(
+        buildOverlayReturnRecord(),
+        { text: question, imageBase64: qImageBase64 },
+        buildOverlayReturnResponse(),
+      );
     } else {
       overlay.onClose();
     }

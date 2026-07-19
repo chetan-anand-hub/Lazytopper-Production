@@ -90,6 +90,10 @@ export interface TutorRequest {
   /** Stage 3 — the concepts in this topic that have a curated diagram (the closed set the
    *  model picks from to signal a figure). Absent/empty → the tutor signals no figure. */
   figures?: TutorFigureOption[];
+  /** The just-board-marked C&I work handed as return-turn CONTEXT (build lane — the tutor sees
+   *  the graded work). Absent on every non-return turn → the prompt renders nothing. One-shot;
+   *  never persisted. The server rebuilds it at the trust boundary before it reaches the prompt. */
+  returnedWork?: TutorReturnedWork | null;
 }
 
 /** The minimal shape of a verified bank question passed for the demonstration (Fix 4). */
@@ -97,6 +101,28 @@ export interface TutorDemoQuestion {
   questionText: string;
   marks?: number;
   solutionSteps?: string[];
+}
+
+/**
+ * The graded work the student just had board-marked in the Check & Improve overlay, handed to
+ * the model as CONTEXT for the return turn so the tutor can reference the question AND (when the
+ * §6.3 digest ships) which steps held up — closing "you got 4/5" into "you dropped step 4 on
+ * units" (build lane — the tutor sees the graded work). ONE-SHOT + ephemeral: assembled in-memory
+ * on overlay close, never persisted to the thread, never a student turn.
+ *
+ * - `question`  — the verbatim question text (quotable context). Absent for an image-only upload.
+ * - `hasImageQuestion` — true when the question was an uploaded image and its text is NOT available
+ *   (there is no image channel to the tutor model — text-only MVP). The prompt DESCRIBES it, never
+ *   transcribes it.
+ * - `steps` — the §6.3 per-step status digest (`{q,n,description,status}` ONLY — NO marks, NO free
+ *   text), so the model can honestly say what was right, not only the fault. EVAL-GATED: populated
+ *   only when `RETURNED_WORK_DIGEST_ENABLED` (tutorRoundTrip.ts) is on. The server rebuilds this at
+ *   the trust boundary (normalizeReturnedWork) and renders nothing when absent.
+ */
+export interface TutorReturnedWork {
+  question?: string;
+  hasImageQuestion?: boolean;
+  steps?: { q: number; n: number; description: string; status: string }[];
 }
 
 export interface TutorReply {

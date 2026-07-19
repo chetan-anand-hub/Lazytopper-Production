@@ -16,7 +16,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { callTutor, type TutorBrief, type TutorTurn } from "../../ai/tutorClient";
+import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork } from "../../ai/tutorClient";
+import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
 import type { AuthUser } from "../../context/AuthContext";
 import { getSessionRecordsFromCloud, getSessionPerQuestion, type SessionRecord } from "../../services/sessionRecords";
@@ -32,12 +33,15 @@ import {
 } from "../../services/tutorSessionStore";
 import {
   buildQuickPracticeRoundTripHref,
+  buildReturnedWork,
   composeReturnOpener,
+  composeCheckImproveRichReturnOpener,
   composePracticeReturnOpener,
   composePracticeRecordReturnOpener,
   matchReturningRecord,
   matchReturningAttempts,
   matchReturningPracticeRecord,
+  RETURNED_WORK_DIGEST_ENABLED,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
 import { catalogueFiguresForTopic } from "./conceptVisualCatalogue";
@@ -85,10 +89,13 @@ export interface UseTutorSession {
   /** True while the C&I overlay panel is open (TutorPage mounts the host). */
   checkImproveOverlayOpen: boolean;
   /** Close the overlay. Poll-free: a graded record injects the reframed opener directly
-   *  (D-TUT-6); the raw question is held in-memory only (never persisted). */
+   *  (D-TUT-6). With the graded response in-hand (Option 2b) the opener is the RICH one
+   *  (names the actual lost step) and the question + digest are held as one-shot model
+   *  context (build lane). The raw question is held in-memory only (never persisted). */
   closeCheckImprove: (
     record?: SessionRecord,
     question?: { text: string; imageBase64: string | null },
+    gradedResponse?: WorksheetGradeResponse,
   ) => void;
   routeToPractice: () => void;
   /** Re-poll for a pending round-trip's result (student says "I'm back"). Honest +
@@ -151,6 +158,12 @@ export function useTutorSession({
   // the seam a future prompt lane consumes so the model can reference what was asked
   // ([FU-TUTOR-OVERLAY-QUESTION-TO-MODEL]); the marks already reach the model via injectReturn.
   const overlayQuestionRef = useRef<{ text: string; imageBase64: string | null } | null>(null);
+  // The one-shot returnedWork model-context assembled on overlay close (build lane — the tutor
+  // sees the graded work): the verbatim question (Piece 1) + the eval-gated per-step digest
+  // (Piece 2 / §6.3). Passed to `callTutor` on the return turn so the model can reference the
+  // question AND, when the digest ships, what held up. EPHEMERAL — a ref, never persisted to the
+  // thread; cleared to null on a bare pre-grade escape. [FU-TUTOR-OVERLAY-QUESTION-TO-MODEL].
+  const returnedWorkRef = useRef<TutorReturnedWork | null>(null);
 
   // Mirror `pending` in a ref so callbacks persist the CURRENT marker, never a stale
   // closure copy (Fix 2 — clearing on re-engage must not be undone by an in-flight
@@ -350,6 +363,10 @@ export function useTutorSession({
           language,
           demoQuestion,
           figures,
+          // The one-shot graded-work context from the last overlay close (build lane). A ref, so
+          // it rides every turn while set without re-triggering runModel; null on any non-return
+          // session. The server rebuilds it at the trust boundary before it reaches the prompt.
+          returnedWork: returnedWorkRef.current,
         });
         if (!mountedRef.current) return;
         setMessages((prev) => {
@@ -430,16 +447,34 @@ export function useTutorSession({
     setCheckImproveOverlayOpen(true);
   }, []);
 
-  // Overlay close — the poll-free return path (report §6.4). The freshly-graded record is
-  // handed straight in, so the tutor injects the SAME reframed opener the navigate path
-  // would (composeReturnOpener, D-TUT-6) — no cloud poll, no marker match, no latency. The
-  // tutor NEVER grades (D-TUT-8): every number is the record C&I wrote. The raw question
-  // is held in-memory only (never persisted, never in the SessionRecord).
+  // Overlay close — the poll-free return path (report §6.4). The freshly-graded record AND the
+  // graded response are handed straight in (Option 2b — no cloud poll, no marker match, no
+  // latency). With the response, the tutor injects the RICH reframed opener that names the actual
+  // lost step (composeCheckImproveRichReturnOpener); when the response is thin/absent it falls back
+  // to the UNCHANGED thin `composeReturnOpener` (the honest floor). The question + eval-gated digest
+  // are assembled into the one-shot returnedWork model-context. The tutor NEVER grades (D-TUT-8):
+  // every number is the record C&I wrote. The raw question is held in-memory only (never persisted).
   const closeCheckImprove = useCallback(
-    (record?: SessionRecord, question?: { text: string; imageBase64: string | null }) => {
+    (
+      record?: SessionRecord,
+      question?: { text: string; imageBase64: string | null },
+      gradedResponse?: WorksheetGradeResponse,
+    ) => {
       setCheckImproveOverlayOpen(false);
       if (question) overlayQuestionRef.current = question;
-      if (record) injectReturn(composeReturnOpener(record, topicLabel, "check-improve"));
+      // Assemble the return-turn model context (Piece 1 + the eval-gated §6.3 digest). Null when
+      // there is nothing usable (a bare pre-grade escape) — which clears any stale prior context.
+      returnedWorkRef.current = buildReturnedWork({
+        question,
+        response: gradedResponse ?? null,
+        includeDigest: RETURNED_WORK_DIGEST_ENABLED,
+      });
+      if (record) {
+        const rich = gradedResponse
+          ? composeCheckImproveRichReturnOpener(record, gradedResponse, topicLabel)
+          : null;
+        injectReturn(rich ?? composeReturnOpener(record, topicLabel, "check-improve"));
+      }
     },
     [injectReturn, topicLabel],
   );

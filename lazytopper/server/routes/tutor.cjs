@@ -130,6 +130,48 @@ function normalizeDemoQuestion(input) {
   return out;
 }
 
+/**
+ * Build lane (the tutor sees the graded work) — normalize the optional client-supplied
+ * `returnedWork` (the just-board-marked C&I work handed as return-turn context) to the minimal
+ * shape the prompt consumes. Like `normalizeFigures`, this REBUILDS at the trust boundary: no
+ * unvalidated client field reaches the prompt, and every new field must be whitelisted HERE.
+ *
+ * - `question` — trimmed, length-capped verbatim text (quotable context; never a student turn).
+ * - `hasImageQuestion` — coerced `=== true` (an image-only upload with no readable text).
+ * - `steps` — the §6.3 per-step status digest: `{q,n,description,status}` ONLY. NO marks and NO
+ *   free text are copied — a step's marks are a clamp artifact on objective questions, and free
+ *   text is the confabulation surface the rails guard. `status` is whitelisted to the grader's
+ *   four values so junk can never reach prompt copy.
+ *
+ * Anything malformed is dropped; nothing usable → null (the prompt renders no block).
+ */
+function normalizeReturnedWork(input) {
+  const rw = input && typeof input === 'object' ? input : null;
+  if (!rw) return null;
+  const question = typeof rw.question === 'string' ? rw.question.trim().slice(0, 1200) : '';
+  const hasImageQuestion = rw.hasImageQuestion === true;
+  const STATUS = new Set(['correct', 'partial', 'incorrect', 'missing']);
+  const steps = [];
+  if (Array.isArray(rw.steps)) {
+    for (const s of rw.steps) {
+      if (!s || typeof s !== 'object') continue;
+      const description = typeof s.description === 'string' ? s.description.trim().slice(0, 200) : '';
+      const status = typeof s.status === 'string' && STATUS.has(s.status) ? s.status : '';
+      if (!description || !status) continue;
+      const q = Number.isFinite(s.q) ? s.q : null;
+      const n = Number.isFinite(s.n) ? s.n : null;
+      steps.push({ q, n, description, status });
+      if (steps.length >= 60) break; // a paper has a handful of steps; cap defensively
+    }
+  }
+  if (!question && !hasImageQuestion && steps.length === 0) return null;
+  const out = {};
+  if (question) out.question = question;
+  if (hasImageQuestion) out.hasImageQuestion = true;
+  if (steps.length) out.steps = steps;
+  return out;
+}
+
 function createTutorRoute(deps) {
   const {
     sendJson,
@@ -169,6 +211,11 @@ function createTutorRoute(deps) {
     // returned key against exactly this set so only a real, curated figure can surface.
     const figures = normalizeFigures(payload.figures);
     const figureKeys = new Set(figures.map((f) => f.key));
+    // Build lane: the just-board-marked C&I work handed as return-turn context (Piece 1 + the
+    // eval-gated §6.3 digest). Additive + optional — rebuilt at the trust boundary; null when
+    // absent or malformed, and the prompt then renders no block. The tutor never grades (D-TUT-8):
+    // this is READ context to teach from, and the rails forbid re-judging the board's marks.
+    const returnedWork = normalizeReturnedWork(payload.returnedWork);
 
     // Map the conversation to Gemini turns (user | model), dropping empties and
     // capping both history length and per-turn size.
@@ -197,7 +244,7 @@ function createTutorRoute(deps) {
       });
     }
 
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures });
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -268,4 +315,5 @@ module.exports = {
   extractFigureTag,
   normalizeDemoQuestion,
   normalizeFigures,
+  normalizeReturnedWork,
 };
