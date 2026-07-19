@@ -5,6 +5,8 @@ import { QuickPracticePresets, QP_PRESETS } from "./QuickPracticePresets";
 import {
   deriveArrivedTargeted,
   shouldShowPresetEntry,
+  shouldResetBuiltOnPop,
+  QP_HISTORY_STEP_BUILT,
   selectInRangeFromPool,
   questionMatchesFilters,
 } from "../../pages/PracticePage";
@@ -54,6 +56,20 @@ describe("entry gate — presets bypass on tutor/targeted entry", () => {
     expect(shouldShowPresetEntry(true, false, "preset")).toBe(false);
     // Customise drawer open → the full filter, not presets.
     expect(shouldShowPresetEntry(false, false, "custom")).toBe(false);
+  });
+
+  // Back-nav: built set → [browser back] → preset chooser → [back] → hub.
+  it("shouldResetBuiltOnPop: back off the built entry drops to the chooser; not a trap, not for auto-build", () => {
+    // Built set on screen, back popped to the entry BELOW (no built marker) → drop to chooser.
+    expect(shouldResetBuiltOnPop(true, false, undefined)).toBe(true);
+    expect(shouldResetBuiltOnPop(true, false, null)).toBe(true);
+    // Still ON the built history entry (marker present) → do NOT reset (this is the build itself).
+    expect(shouldResetBuiltOnPop(true, false, QP_HISTORY_STEP_BUILT)).toBe(false);
+    // Already at the chooser (not built) → nothing to reset; the SECOND back reaches the hub.
+    expect(shouldResetBuiltOnPop(false, false, undefined)).toBe(false);
+    // Auto-build (tutor/targeted) NEVER pushed a built entry → never intercepted → back goes to hub.
+    expect(shouldResetBuiltOnPop(true, true, undefined)).toBe(false);
+    expect(shouldResetBuiltOnPop(true, true, QP_HISTORY_STEP_BUILT)).toBe(false);
   });
 });
 
