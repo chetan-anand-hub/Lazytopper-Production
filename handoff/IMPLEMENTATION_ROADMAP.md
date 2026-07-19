@@ -2,6 +2,22 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-19 — ★★ ✅ QUICK PRACTICE A1 ENTRY IS REACHABLE + NAVIGABLE — THE FIX-ARC IS COMPLETE (#483 → #486, trunk `889ab6d`) — all four owner LIVE-VERIFIED
+
+**Stage COMPLETE.** #481 shipped the QP preset entry correct-but-invisible; this four-PR arc made it genuinely usable — reachable from the hub and escapable back to the chooser both ways.
+
+- **#483** — presets reachable: re-key `deriveArrivedTargeted` on **`source`** (`source=practice` → presets; `source=tutor`/`targeted=1` → auto-build). Agent correctly deviated from the spec's literal `source==="tutor"` rule after mapping ~21 topic-bearing entrypoints it would have regressed. `[FU-QP-PRESETS-UNREACHABLE]` resolved.
+- **#484 → #485** — back-nav, the honest two-step: #484's `navigate(pathname+search,{state})` was a same-URL replace/no-op (RR #5362) → no poppable entry → back skipped to the hub; it passed all gates + CI + 14/14 because the test never mounted a router. #485 fixed it with a real **`built=1` search param** + stale-marker strip + a `createMemoryRouter` test.
+- **#486** — breadcrumb "Back" CTA made `isBuilt`-aware (mirrors #485's reset); label "Back to quick practice". `[FU-QP-BACK-NAV]` resolved (#485 gesture + #486 CTA). 17/17.
+
+Engine / presets / persistence / hub byte-identical across all four; tutor/targeted auto-build byte-identical.
+
+**★★ Two durable lessons (full text in SESSION_LOG):** (1) gates prove structure, live-verify proves reachability + the gesture — #481 and #484 both shipped broken through green gates; (2) a router/history claim needs a router-mounted test, never a pure-helper test alone — both strengthen `[FU-CI-GATE-VITEST]`.
+
+**Remaining QP arc (staged — do NOT bundle):**
+- **Piece 2 — multi-topic presets** (un-parks `[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED]`): carry a multi-topic scope instead of collapsing to `topic=<first>`. **Investigation lane first** (fetch fork + rotation-across-topics semantics unverified). NEW lane, separate handoff.
+- **QP overlay mechanism** — the C&I overlay's twin: host the real `PracticePage` over the tutor, reused verbatim; retires the navigate/poll for the practice leg (`[FU-TUTOR-ROUNDTRIP-COUNT-5]` + `[FU-TUTOR-WAITING-BANNER]` held for that leg).
+
 ## 2026-07-19 — ★★ ✅ QUICK PRACTICE A1: PROGRESSIVE-DISCLOSURE ENTRY + OPTIONAL TIMER COMPLETE (#481, trunk `ec3275c`) — the QP entry redesign; the overlay MECHANISM is still ahead
 
 **Stage COMPLETE (entry) — owner LIVE-VERIFIED.** The first of the QP-overlay-readiness lane: the QP *surface* is now pleasant. A direct/hub visit opens on four stylised preset cards (Quick drill / Board mix [default] / Competency / High-marks) + a gated "My weak areas" 5th, the full five-dimension filter (incl. Source) behind Customise, an optional timer, and a mobile swipe carousel. **Presentation-only** — a preset = a bundle of the existing `setCommitted*` setters; the reshuffle engine, filter wiring and `persistQuickPracticeSession` are byte-identical.
