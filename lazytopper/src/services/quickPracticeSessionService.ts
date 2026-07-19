@@ -203,15 +203,19 @@ export function persistQuickPracticeSession(args: {
   user: AuthUser | null | undefined;
   title: string;
   subject: SessionSubject;
-  /** The canonical slug for this session's topic. */
+  /** The canonical slug for this session's topic. For a multi-topic set this is the
+   *  joined identity slug ("mixed:a+b"); `topicKeys` then carries the real per-topic list. */
   topicSlug: string;
+  /** Multi-topic ONLY: every chosen topic's canonical slug, so the record carries each
+   *  real topic. Omit for single-topic → the record derives `[topicSlug]` as before. */
+  topicKeys?: string[];
   /** Stable string of the committed filters — part of the session identity. */
   filterSignature: string;
   /** When this VISIT began (ms epoch) — a new visit is a new session. */
   startedAt: number;
   entries: QuickPracticeEntry[];
 }): PersistQuickPracticeOutcome {
-  const { user, title, subject, topicSlug, filterSignature, startedAt, entries } = args;
+  const { user, title, subject, topicSlug, topicKeys, filterSignature, startedAt, entries } = args;
 
   const response = buildQuickPracticeResponse(entries);
   // Nothing attempted → no record. An opened-and-abandoned set leaves no history.
@@ -234,7 +238,20 @@ export function persistQuickPracticeSession(args: {
       startedAt,
       uid,
     });
-    writeSessionRecord(user, record);
+    // Multi-topic: carry EVERY chosen topic on the record. Done HERE (not in the record
+    // builder) so `sessionRecords.ts` stays byte-unchanged — it is on the Tutor⇄C&I overlay
+    // lane's forbidden-zero-diff guard (check_improve_overlay_additive_acceptance.mjs), and
+    // the builder's single-`[slug]` default is the correct single-topic shape anyway. The
+    // canonical-slug resolution mirrors the builder's own. Single-topic → untouched.
+    const multiTopicKeys =
+      topicKeys && topicKeys.length > 0
+        ? Array.from(new Set(topicKeys.map((k) => resolveCanonicalSlug(k)).filter(Boolean)))
+        : null;
+    const finalRecord =
+      multiTopicKeys && multiTopicKeys.length > 0
+        ? { ...record, topicKeys: multiTopicKeys }
+        : record;
+    writeSessionRecord(user, finalRecord);
     writeSessionPerQuestion(user, {
       ref: record.perQuestionRef,
       code,

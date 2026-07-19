@@ -398,6 +398,14 @@ import {
   parseBooleanFlag,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
+import {
+  parseTopicsParam,
+  topicSetKey,
+  composeBoardMultiTopicSet,
+  mergeMultiTopicDeep,
+  multiTopicSessionIdentity,
+  MULTI_TOPIC_MIN_TOPICS,
+} from "../components/practice/multiTopicPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
@@ -459,6 +467,40 @@ const PracticePage: React.FC = () => {
     ? rawTopicParam
     : (subjectKey === "Science" ? "chemical-reactions-and-equations" : "real-numbers");
   const topicKeyParam = qp.get("topicKey");
+
+  // ── QP MULTI-TOPIC (Piece 2 · [FU-PRACTICEHUB-MULTITOPIC]) ──────────────────
+  // The hub emits `topics=a,b,c` (the SAME convention it already uses for HPQ). 2+
+  // members → a multi-topic set: the fetch effect fans out ONE unchanged single-topic
+  // fetch per topic and merges (shape "3c"). 0/1 members → `isMultiTopic` is false and
+  // every single-topic derivation below is byte-unchanged (the additive guarantee).
+  // Resolved HERE, before `rotationOffset`, so the rotation seed can key on the topic SET.
+  const multiTopicSlugsRaw = useMemo(() => parseTopicsParam(qp.get("topics")), [qp]);
+  const multiTopics = useMemo(() => {
+    if (multiTopicSlugsRaw.length < MULTI_TOPIC_MIN_TOPICS) return [];
+    const subjLower = String(subjectKey).toLowerCase();
+    const seen = new Set<string>();
+    const out: Array<{ rawSlug: string; canonicalSlug: string; label: string; packKey: string }> = [];
+    for (const raw of multiTopicSlugsRaw) {
+      const canonicalSlug =
+        resolveCanonicalTopicKey({ subjectKey: subjLower, topicParam: raw, topicKey: raw }) || raw;
+      if (!canonicalSlug || seen.has(canonicalSlug)) continue; // collapse alias dupes
+      seen.add(canonicalSlug);
+      out.push({
+        rawSlug: raw,
+        canonicalSlug,
+        label: resolveTopicDisplayName(subjectKey, canonicalSlug),
+        packKey: resolvePracticePackKey({ subjectKey, topicParam: raw, explicitTopicKey: raw }),
+      });
+    }
+    return out;
+  }, [multiTopicSlugsRaw, subjectKey]);
+  const isMultiTopic = multiTopics.length >= MULTI_TOPIC_MIN_TOPICS;
+  // Order-independent seed so a revisit reshuffles across ALL chosen topics.
+  const multiTopicRotationKey = useMemo(
+    () => topicSetKey(multiTopics.map((t) => t.canonicalSlug)),
+    [multiTopics],
+  );
+
   const journeyMentorMode = String(qp.get("journeyMentor") || "").trim().toLowerCase();
   const isTargetedSession = qp.get("targeted") === "1";
   const targetMistakeType = qp.get("targetMistakeType") || "";
@@ -699,9 +741,16 @@ const PracticePage: React.FC = () => {
   // `topicParam` rather than `canonicalTopicKey` purely for declaration order (the
   // canonical key is derived further down, after this memo); sessionRotationOffset
   // canonicalises whatever it is given, so both spellings land on the same offset.
+  // Multi-topic seeds on the topic-SET key (so revisits reshuffle across ALL chosen
+  // topics); single-topic seeds on `topicParam` exactly as before (byte-identical).
   const rotationOffset = useMemo(
-    () => sessionRotationOffset(topicParam, filterSignature, sessionStartedAt),
-    [topicParam, filterSignature, sessionStartedAt],
+    () =>
+      sessionRotationOffset(
+        isMultiTopic ? multiTopicRotationKey : topicParam,
+        filterSignature,
+        sessionStartedAt,
+      ),
+    [isMultiTopic, multiTopicRotationKey, topicParam, filterSignature, sessionStartedAt],
   );
   // Load-bearing scorecard trigger: the student DECLARES completion (partial or
   // full) by tapping "Finish session", which sets this true and surfaces the
@@ -957,15 +1006,26 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
   // biases the draw less well — it never produces a wrong or fabricated question.
   useEffect(() => {
     let cancelled = false;
-    const topicForSeen = canonicalTopicKey || topicParam;
-    if (!topicForSeen) return;
-    setSeenQuestionIds(buildSeenQuestionIds(getAttempts(), topicForSeen));
+    // Multi-topic: UNION the seen-set across every chosen topic, so a question from ANY
+    // of them is recognised as seen and deprioritised. Single-topic: the one topic, exactly
+    // as before. `buildSeenQuestionIds` is per-topic, so we fold it over the set.
+    const topicsForSeen = isMultiTopic
+      ? multiTopics.map((t) => t.canonicalSlug)
+      : [canonicalTopicKey || topicParam];
+    const seedTopics = topicsForSeen.filter(Boolean);
+    if (seedTopics.length === 0) return;
+    const unionOver = (attempts: Parameters<typeof buildSeenQuestionIds>[0]) => {
+      const u = new Set<string>();
+      for (const t of seedTopics) for (const id of buildSeenQuestionIds(attempts, t)) u.add(id);
+      return u;
+    };
+    setSeenQuestionIds(unionOver(getAttempts()));
     const uid = authUserForJourney?.uid;
     if (!uid || authUserForJourney?.isLocalSession) return;
     void getAttemptsFromCloud(uid)
       .then((cloudAttempts) => {
         if (cancelled) return;
-        const fromCloud = buildSeenQuestionIds(cloudAttempts, topicForSeen);
+        const fromCloud = unionOver(cloudAttempts);
         setSeenQuestionIds((local) => {
           const union = new Set(local);
           for (const id of fromCloud) union.add(id);
@@ -978,7 +1038,7 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
     return () => {
       cancelled = true;
     };
-  }, [canonicalTopicKey, topicParam, authUserForJourney?.uid, authUserForJourney?.isLocalSession]);
+  }, [canonicalTopicKey, topicParam, isMultiTopic, multiTopics, authUserForJourney?.uid, authUserForJourney?.isLocalSession]);
 
   // ── Hand a question's concept to the TUTOR (2026-07-15) ────────────────────
   // Replaces QP's own ConceptTeachDrawer mount ("Revise this topic") and the inline
@@ -1107,17 +1167,24 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
   // hard-returns [] on zero candidates and its top-up draws only from the already
   // Section-E-filtered pool — no fabrication, no cross-section fill). >=1 => Competency is
   // live; 0 => the card renders gated ("coming soon for this chapter"). Never source-scanned.
+  // Multi-topic: competency is live if ANY chosen topic has real Section-E competency
+  // questions (the merged pool can draw them from any topic — anti-fabrication holds per
+  // topic). Single-topic: the one topic, exactly as before.
   const competencyAvailable = useMemo(() => {
-    if (!topicLabel || topicLabel.toLowerCase() === "generic") return false;
-    const drawn = buildPracticeQuestionsFromEngine({
-      subjectKey,
-      topicKey: topicLabel,
-      count: 200,
-      difficulty: "All",
-      boardPattern: "E", // Section E == the case-based competency slice the preset serves
-    });
-    return drawn.some((q) => questionMatchesFilters(q, "4", "case", "all", "all", null));
-  }, [subjectKey, topicLabel]);
+    const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
+    for (const label of labels) {
+      if (!label || label.toLowerCase() === "generic") continue;
+      const drawn = buildPracticeQuestionsFromEngine({
+        subjectKey,
+        topicKey: label,
+        count: 200,
+        difficulty: "All",
+        boardPattern: "E", // Section E == the case-based competency slice the preset serves
+      });
+      if (drawn.some((q) => questionMatchesFilters(q, "4", "case", "all", "all", null))) return true;
+    }
+    return false;
+  }, [subjectKey, topicLabel, isMultiTopic, multiTopics]);
 
   useEffect(() => {
     const slug = canonicalTopicKey || topicParam;
@@ -1160,17 +1227,24 @@ const packTopicKey = useMemo(() => {
     // "31 available" for the same unchanged bank), which reads as the bank shrinking and
     // is a broken product promise. The seen-set belongs on the two SET-BUILDING fetches
     // only. Pinned by a test.
-    const bankQuestions = buildPracticeQuestionsFromEngine({
-      subjectKey,
-      topicKey: topicLabel,
-      count: 200,
-      difficulty: "All",
-      boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
-    });
-    return bankQuestions.filter((q) =>
-      questionMatchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange)
-    ).length;
-  }, [subjectKey, topicLabel, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange]);
+    // Multi-topic: SUM the honest per-topic availability (the merged pool spans them all);
+    // single-topic: the one topic, byte-identical.
+    const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
+    let total = 0;
+    for (const label of labels) {
+      const bankQuestions = buildPracticeQuestionsFromEngine({
+        subjectKey,
+        topicKey: label,
+        count: 200,
+        difficulty: "All",
+        boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
+      });
+      total += bankQuestions.filter((q) =>
+        questionMatchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange)
+      ).length;
+    }
+    return total;
+  }, [subjectKey, topicLabel, isMultiTopic, multiTopics, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange]);
 
   const bankAvailableCount = isBuilt
     ? committedPoolSelection.available
@@ -1245,7 +1319,96 @@ const packTopicKey = useMemo(() => {
 
         let next: PracticeQuestion[];
 
-        if (committedMarks === "all") {
+        if (isMultiTopic) {
+          // ── QP MULTI-TOPIC fan-out (shape "3c") ────────────────────────────
+          // Fan out ONE unchanged single-topic fetch per chosen topic, then merge +
+          // pool-and-shuffle. FLATTEN, not nest: each per-topic fetch already carries the
+          // board blueprint (~50/20/30) INTERNALLY; the per-topic split only decides HOW
+          // MANY each topic contributes. Two levels, never multiplied. The engine service
+          // is untouched — this reuses `buildPracticeQuestionsWithAiTopup` verbatim.
+          const mtExclude =
+            previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined;
+          if (committedMarks === "all") {
+            // BOARD preset — each topic runs the section blueprint internally (board-shaped,
+            // deep), then composeBoardMultiTopicSet enforces the ~50% competency floor
+            // (HARD, wins) + the per-topic split (SOFT, bends) + pool-and-shuffle.
+            const MT_BLUEPRINT: Array<{ section: "A" | "B" | "C" | "D" | "E"; share: number }> = [
+              { section: "A", share: 0.30 },
+              { section: "B", share: 0.20 },
+              { section: "C", share: 0.20 },
+              { section: "D", share: 0.20 },
+              { section: "E", share: 0.10 },
+            ];
+            const pools = await Promise.race([
+              Promise.all(
+                multiTopics.map(async (t) => {
+                  const sectionResults = await Promise.all(
+                    MT_BLUEPRINT.map(({ section, share }) =>
+                      buildPracticeQuestionsWithAiTopup({
+                        grade,
+                        subjectKey,
+                        topicLabel: t.label,
+                        packTopicKey: t.packKey,
+                        count: Math.max(1, Math.round(questionCount * share)),
+                        difficulty,
+                        subtopicHint,
+                        focusBankIds,
+                        strictFocus,
+                        sectionFilter: section,
+                        adaptiveMix,
+                        priorityConceptKeys,
+                        marksFilter: engineMarksFilter,
+                        pyqOnly: committedSource === "pyq" || undefined,
+                        excludeKeys: mtExclude,
+                        seenQuestionIds,
+                      }),
+                    ),
+                  );
+                  // Deep, board-shaped, NOT trimmed to a per-topic share — the composer does
+                  // the selection so it can honour the competency floor across topics.
+                  return { key: t.canonicalSlug, questions: sectionResults.flat() };
+                }),
+              ),
+              timeout,
+            ]);
+            next = composeBoardMultiTopicSet({
+              pools,
+              total: questionCount,
+              offset: rotationOffset,
+            });
+          } else {
+            // NARROW preset (a specific mark bucket / style the student chose) — one deep
+            // single-topic fetch per topic, merged + interleaved so the head spans topics;
+            // selectInRangeFromPool then applies the committed filter and slices.
+            const pools = await Promise.race([
+              Promise.all(
+                multiTopics.map(async (t) => ({
+                  key: t.canonicalSlug,
+                  questions: await buildPracticeQuestionsWithAiTopup({
+                    grade,
+                    subjectKey,
+                    topicLabel: t.label,
+                    packTopicKey: t.packKey,
+                    count: engineCount,
+                    difficulty,
+                    subtopicHint,
+                    focusBankIds,
+                    strictFocus,
+                    sectionFilter: engineSectionFilter,
+                    adaptiveMix,
+                    priorityConceptKeys,
+                    marksFilter: engineMarksFilter,
+                    pyqOnly: committedSource === "pyq" || undefined,
+                    excludeKeys: mtExclude,
+                    seenQuestionIds,
+                  }),
+                })),
+              ),
+              timeout,
+            ]);
+            next = mergeMultiTopicDeep({ pools, offset: rotationOffset });
+          }
+        } else if (committedMarks === "all") {
           // CBSE Class 10 board paper blueprint:
           //   Section A (1mk) 30% · B (2mk) 20% · C (3mk) 20% · D (5mk) 20% · E (4mk) 10%
           // Fan out one engine call per section so the returned mix mirrors
@@ -1392,6 +1555,10 @@ const packTopicKey = useMemo(() => {
     committedMarksRange,
     committedSource,
     regenerationKey,
+    // Multi-topic fan-out deps (the single-topic path never reads these).
+    isMultiTopic,
+    multiTopics,
+    rotationOffset,
   ]);
 
   useEffect(() => {
@@ -1740,11 +1907,27 @@ const packTopicKey = useMemo(() => {
       };
     });
 
+    // Multi-topic: a mixed set has no single topic — build an honest joined identity
+    // ("mixed:a+b" slug, "Mixed: A, B · Practice set" title, ALL topicKeys). Per-question
+    // attribution to the tutor still flows through each question's own `q.topicKey` on the
+    // live objects (see askTutorAboutQuestion) — this is the session-level label only.
+    const mtIdentity = isMultiTopic
+      ? multiTopicSessionIdentity(
+          multiTopics.map((t) => ({ slug: t.canonicalSlug, label: t.label })),
+        )
+      : null;
     persistQuickPracticeSession({
       user: authUserForJourney,
-      title: topicLabel ? `${topicLabel} · Practice set` : "Practice set",
+      title: mtIdentity
+        ? mtIdentity.title
+        : topicLabel
+          ? `${topicLabel} · Practice set`
+          : "Practice set",
       subject: toSessionSubject(subjectKey),
-      topicSlug: canonicalTopicKey || topicParam,
+      topicSlug: mtIdentity ? mtIdentity.topicSlug : canonicalTopicKey || topicParam,
+      // Carry EVERY chosen topic on the record (single-topic → undefined → the record's
+      // existing `[slug]` default, byte-identical).
+      topicKeys: mtIdentity ? mtIdentity.topicKeys : undefined,
       filterSignature,
       startedAt: sessionStartedAt,
       entries,
@@ -1752,7 +1935,7 @@ const packTopicKey = useMemo(() => {
   }, [
     showScorecard, committedPoolSelection.displayed, gradedResults, mcqResults,
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
-    filterSignature, sessionStartedAt,
+    filterSignature, sessionStartedAt, isMultiTopic, multiTopics,
   ]);
 
   const activeQuestionStrategyDetails = useMemo(
