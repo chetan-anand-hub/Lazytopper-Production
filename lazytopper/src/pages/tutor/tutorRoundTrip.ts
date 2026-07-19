@@ -396,14 +396,17 @@ export function composeCheckImproveRichReturnOpener(
  * model to OVER-READ. Per the spec it ships ONLY once a LIVE rubric-2 eval shows the model stays
  * grounded WITH it; if it tempts invention, the build falls back to question-only.
  *
- * This is that fallback, as ONE flag — flip to `true` and the digest ships; nothing else changes.
- * It defaults to `false` (question-only) because the live rubric-2 eval REQUIRES a provider key
- * this build environment lacks (report §4 / §5.4) — so the digest is NOT yet proven grounded and
- * must not ship on unverified trust. Even OFF, the rich opener + the question context already turn
- * "you got 4/5" into "you dropped step 4 on units". Flip only after the owner's live eval clears
- * rubric-2. [FU-TUTOR-RETURNED-WORK-DIGEST].
+ * ON as of the live rubric-2 eval (REPORT_tutor_graded_context_halfB_eval_2026-07-18.md): run against
+ * the real Gemini 2.5 Flash tutor, 12/12 digest-ON runs stayed grounded — zero invented steps, zero
+ * grade contradictions, including the clean-sheet invent-a-mistake trap and the described-image rail.
+ * The eval also showed the digest REMOVES a risk the question-only path leaves open: without it the
+ * model re-derives and ASSUMES which steps were right; with it, it states what held up from the
+ * `status` list. So the flag ships ON. [FU-TUTOR-RETURNED-WORK-DIGEST] resolved.
+ *
+ * Kept as a single flag so the fallback stays one line: set it back to `false` to revert to
+ * question-only (the honest floor is unchanged either way — the opener still names the faulty step).
  */
-export const RETURNED_WORK_DIGEST_ENABLED = false;
+export const RETURNED_WORK_DIGEST_ENABLED = true;
 
 /**
  * Build the one-shot `returnedWork` model-context object handed to `callTutor` on the return turn

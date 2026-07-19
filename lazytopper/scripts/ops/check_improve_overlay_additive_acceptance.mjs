@@ -245,8 +245,8 @@ check(
     /export function composeReturnOpener\(/.test(roundTrip),
 );
 check(
-  "DIGEST: the per-step digest is eval-gated behind a single default-off flag (question-only ships)",
-  /export const RETURNED_WORK_DIGEST_ENABLED = false;/.test(roundTrip),
+  "DIGEST: the per-step digest ships ON via the single flag (live rubric-2 eval cleared it — Half B)",
+  /export const RETURNED_WORK_DIGEST_ENABLED = true;/.test(roundTrip),
 );
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -318,5 +318,5 @@ console.log(`Tutor ⇄ C&I overlay acceptance PASSED — ${pass}/${pass} checks 
 console.log("  additive: default-off question + optional prop + route :320 ·");
 console.log("  hunks overlay-gated: chrome-suppress · pinned ✕ · scorecard Back · in-process record (no re-persist) · graded response in-hand (Option 2b) ·");
 console.log("  poll-free return: RICH opener with the thin composeReturnOpener as the honest floor · question+digest reach the model as one-shot returnedWork · navigate/marker leg retired ·");
-console.log("  honest floor: thin composeReturnOpener byte-identical (rich ADDED BESIDE) · digest eval-gated (default off) ·");
+console.log("  honest floor: thin composeReturnOpener byte-identical (rich ADDED BESIDE) · digest ships ON (live rubric-2 eval cleared it) ·");
 console.log("  forbidden zero-diff: grader · ResultsScorecard · sessionRecords · gradeService · App\n");
