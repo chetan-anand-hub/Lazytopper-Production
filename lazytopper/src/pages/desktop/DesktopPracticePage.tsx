@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
@@ -10,7 +10,6 @@ import {
 } from "../../components/desktop/l2/ScopeBuilder";
 import {
   buildDesktopCheckPath,
-  buildDesktopMePath,
   buildDesktopWorksheetPath,
   withQuery,
   type DesktopActionSource,
@@ -23,23 +22,11 @@ import {
   desktopTopicBySlug,
   displayDesktopTopicNames,
 } from "../../lib/desktop/topics";
-import { desktopTopicHubContentBySlug } from "../../lib/desktop/topicHubContent";
 import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { type PracticeQuestion } from "../../data/predictionDataService";
-import {
-  getHighlyProbableQuestions,
-  type HPQTopicBucket,
-  type HPQQuestion,
-  type HPQStream,
-} from "../../data/highlyProbableQuestions";
-import { normalizeTopicKey } from "../../utils/topicResolver";
-import {
-  getRuntimeTopicCandidates,
-  normalizeTopicSlug,
-} from "../../data/syllabus/topicAliasMap";
 import {
   LEARNING_SIGNAL_HONESTY_RULES,
   assertLearningSignalKindForMode,
@@ -117,10 +104,6 @@ const CARD_BG = "#ffffff";
 const SECTION_BG = "hsl(210, 40%, 98%)";
 const PILL_BG = "hsl(210, 33%, 96%)";
 const PILL_FG = "hsl(220, 25%, 22%)";
-const ACCENT_SOFT = "hsl(43, 90%, 92%)";
-const ACCENT_FG = "hsl(35, 80%, 35%)";
-const INFO_SOFT = "hsl(215, 75%, 95%)";
-const INFO_FG = "hsl(215, 65%, 32%)";
 const DANGER_FG = "hsl(0, 65%, 42%)";
 
 const FONT_DISPLAY =
@@ -129,6 +112,22 @@ const FONT_BODY =
   '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
 // ── Inline SVG glyphs ─────────────────────────────────────────────────────
+// Navy is a PRIMARY in the redesign: structure (step numbers, headings) and
+// the Mistake-Intelligence surface. Green stays the ACTION colour (CTAs).
+const NAVY = "hsl(222, 47%, 24%)";
+const NAVY_DARK = "hsl(222, 47%, 16%)";
+const NAVY_TINT = "hsl(222, 45%, 96%)";
+const NAVY_LINE = "hsl(222, 35%, 84%)";
+
+// Per-mode accents for the four "How to practise" cards.
+type ModeAccent = "quick" | "worksheet" | "hpq" | "full";
+const MODE_ACCENT: Record<ModeAccent, { accent: string; tint: string }> = {
+  quick: { accent: PRIMARY_GREEN, tint: PRIMARY_GREEN_SOFT },
+  worksheet: { accent: "hsl(205, 70%, 52%)", tint: "hsl(205, 70%, 95%)" },
+  hpq: { accent: "hsl(255, 50%, 58%)", tint: "hsl(255, 60%, 96%)" },
+  full: { accent: "hsl(340, 62%, 56%)", tint: "hsl(340, 70%, 96%)" },
+};
+
 const IconStroke: React.CSSProperties = {
   fill: "none",
   stroke: "currentColor",
@@ -182,12 +181,17 @@ function IconTimer({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
-function IconScroll({ size = 18 }: { size?: number }) {
+function IconChevronDown({ size = 14 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
-      <path d="M8 3h11a2 2 0 0 1 2 2v3H8" />
-      <path d="M3 8h13v11a2 2 0 0 1-2 2H6a3 3 0 0 1-3-3V8z" />
-      <path d="M21 8v8a3 3 0 0 1-3 3" />
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable="false" style={IconStroke}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+function IconCheck({ size = 11 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable="false" style={IconStroke}>
+      <path d="M20 6L9 17l-5-5" />
     </svg>
   );
 }
@@ -342,104 +346,380 @@ function resolveBack(returnTo: string | null, source: string | null): BackInfo {
   return { to: "/", label: "Back to Home" };
 }
 
-// ── PrimaryCard — used for both main 4 and the accordion 3 ────────────────
-interface PrimaryCardProps {
+// ── TopicDropdown (page-local) ────────────────────────────────────────────
+// ONE dropdown pattern for BOTH scopes — single-select (radio) and
+// multi-select (checklist + removable pills). It is a new INPUT for the
+// EXISTING state: it writes the same `topicSlug` / `selectedTopicSlugs` the
+// chips wrote, so every downstream URL is unchanged.
+//
+// The panel renders INLINE (in normal flow, not absolutely positioned) so it
+// can never be clipped by an ancestor's overflow — the hub's rail and the
+// mobile carousel both clip.
+interface TopicDropdownProps {
+  topics: ReturnType<typeof desktopTopicsBySubject>;
+  multi: boolean;
+  /** Single-select: the chosen slug (or null). Ignored when `multi`. */
+  topicSlug: string | null;
+  /** Multi-select: the chosen slug SET. Ignored when not `multi`. */
+  selectedSlugs: string[];
+  onPickSingle: (slug: string) => void;
+  onToggle: (slug: string) => void;
+  label: string;
+}
+function TopicDropdown({
+  topics,
+  multi,
+  topicSlug,
+  selectedSlugs,
+  onPickSingle,
+  onToggle,
+  label,
+}: TopicDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  // Close on an outside click / Escape — the panel is inline, so it must not
+  // linger once the learner moves on.
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (!wrapRef.current) return;
+      if (!wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  if (topics.length === 0) {
+    return (
+      <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED }}>
+        No topics available for this subject/stream combination.
+      </p>
+    );
+  }
+
+  const selectedNames = topics
+    .filter((t) => selectedSlugs.includes(t.slug))
+    .map((t) => ({ slug: t.slug, name: t.name }));
+  const buttonLabel = multi
+    ? selectedSlugs.length > 0
+      ? `${selectedSlugs.length} topic${selectedSlugs.length > 1 ? "s" : ""} selected`
+      : label
+    : topics.find((t) => t.slug === topicSlug)?.name ?? label;
+  const hasValue = multi ? selectedSlugs.length > 0 : !!topicSlug;
+
+  return (
+    <div ref={wrapRef} style={{ position: "relative", maxWidth: 340 }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        style={{
+          appearance: "none",
+          WebkitAppearance: "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          width: "100%",
+          fontFamily: FONT_BODY,
+          fontSize: 12.5,
+          padding: "9px 13px",
+          borderRadius: 9,
+          border: `1px solid ${open ? NAVY : BORDER}`,
+          background: CARD_BG,
+          color: hasValue ? NAVY : TEXT_MUTED,
+          fontWeight: hasValue ? 500 : 400,
+          cursor: "pointer",
+          textAlign: "left",
+        }}
+      >
+        <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {buttonLabel}
+        </span>
+        <IconChevronDown />
+      </button>
+
+      {open ? (
+        <div
+          role="listbox"
+          aria-multiselectable={multi}
+          style={{
+            marginTop: 8,
+            width: "100%",
+            background: CARD_BG,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 11,
+            boxShadow: "0 6px 18px rgba(20, 40, 80, 0.10)",
+            padding: 6,
+            maxHeight: 240,
+            overflowY: "auto",
+          }}
+        >
+          {topics.map((t) => {
+            const on = multi ? selectedSlugs.includes(t.slug) : topicSlug === t.slug;
+            return (
+              <div
+                key={t.slug}
+                role="option"
+                aria-selected={on}
+                tabIndex={0}
+                onClick={() => {
+                  if (multi) {
+                    onToggle(t.slug);
+                  } else {
+                    onPickSingle(t.slug);
+                    setOpen(false);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter" && e.key !== " ") return;
+                  e.preventDefault();
+                  if (multi) {
+                    onToggle(t.slug);
+                  } else {
+                    onPickSingle(t.slug);
+                    setOpen(false);
+                  }
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 9,
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                  color: TEXT_FG,
+                }}
+              >
+                {multi ? (
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 17,
+                      height: 17,
+                      borderRadius: 5,
+                      border: `1.5px solid ${on ? NAVY : BORDER}`,
+                      background: on ? NAVY : "transparent",
+                      color: "#fff",
+                      flex: "0 0 auto",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {on ? <IconCheck /> : null}
+                  </span>
+                ) : (
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      border: `1.5px solid ${on ? NAVY : BORDER}`,
+                      flex: "0 0 auto",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {on ? (
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: NAVY,
+                          display: "block",
+                        }}
+                      />
+                    ) : null}
+                  </span>
+                )}
+                {t.name}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {multi && selectedNames.length > 0 ? (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 9 }}>
+          {selectedNames.map((t) => (
+            <span
+              key={t.slug}
+              style={{
+                fontSize: 11,
+                padding: "4px 9px",
+                borderRadius: 7,
+                background: NAVY_TINT,
+                color: NAVY,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              {t.name}
+              <button
+                type="button"
+                aria-label={`Remove ${t.name}`}
+                onClick={() => onToggle(t.slug)}
+                style={{
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  cursor: "pointer",
+                  color: NAVY,
+                  opacity: 0.6,
+                  fontWeight: 600,
+                  fontSize: 12,
+                  lineHeight: 1,
+                }}
+              >
+                &#215;
+              </button>
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ── StepHeader (page-local) ───────────────────────────────────────────────
+function StepHeader({ n, title, aside }: { n: number; title: string; aside?: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 12 }}>
+      <span
+        aria-hidden
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          background: NAVY,
+          color: "#fff",
+          fontSize: 12,
+          fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flex: "0 0 auto",
+        }}
+      >
+        {n}
+      </span>
+      <h2
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: "1.06rem",
+          fontWeight: 600,
+          color: NAVY_DARK,
+          margin: 0,
+        }}
+      >
+        {title}
+      </h2>
+      {aside ? (
+        <span className="lt-step-aside" style={{ fontSize: 12, color: TEXT_MUTED, marginLeft: "auto" }}>
+          {aside}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+// ── ModeCard (page-local) ─────────────────────────────────────────────────
+// One of the four "How to practise" cards. Accent-coloured, icon tile,
+// hover-lift. It only RENDERS — the href it fires is computed by the frozen
+// builders in the page component and handed in as `to`.
+interface ModeCardProps {
+  accent: ModeAccent;
   icon: React.ReactElement;
   title: string;
   desc: string;
-  preview: string;
+  chips: string[];
   cta: string;
   to: string | null;
-  ctaTone?: "primary" | "secondary";
   disabledHint?: string;
+  onActivate: (to: string) => void;
   extra?: React.ReactNode;
-  onActivate?: (to: string) => void;
-  external?: boolean; // honest "Premium" / "Sign-in" lock chip
-  lockChip?: string;
-  /**
-   * Optional honest sub-line shown beneath the CTA, e.g. "Opens the
-   * existing worksheet builder with this scope." Helps the learner know
-   * whether the next click is locked-prototype parity or a hand-off to
-   * an existing production engine.
-   */
-  honestNote?: string;
 }
-function PrimaryCard({
+function ModeCard({
+  accent,
   icon,
   title,
   desc,
-  preview,
+  chips,
   cta,
   to,
-  ctaTone = "primary",
   disabledHint,
-  extra,
   onActivate,
-  lockChip,
-  honestNote,
-}: PrimaryCardProps) {
+  extra,
+}: ModeCardProps) {
   const [hover, setHover] = useState(false);
+  const tone = MODE_ACCENT[accent];
   const disabled = !to;
-  const handleClick = () => {
-    if (!to) return;
-    if (onActivate) onActivate(to);
-  };
-  const cardStyle: React.CSSProperties = {
-    background: CARD_BG,
-    border: `1px solid ${BORDER}`,
-    borderRadius: 14,
-    padding: 18,
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-    transition:
-      "transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease",
-    transform: hover && !disabled ? "translateY(-2px)" : "translateY(0)",
-    boxShadow:
-      hover && !disabled
-        ? "0 8px 24px -12px rgba(15, 23, 42, 0.18)"
-        : "0 1px 2px rgba(15, 23, 42, 0.04)",
-    borderColor: hover && !disabled ? "hsl(220, 18%, 80%)" : BORDER,
-    opacity: disabled ? 0.65 : 1,
-  };
-  const ctaStyle: React.CSSProperties = {
-    appearance: "none",
-    WebkitAppearance: "none",
-    background:
-      ctaTone === "primary" ? PRIMARY_GREEN : "transparent",
-    border:
-      ctaTone === "primary"
-        ? "1px solid transparent"
-        : `1px solid ${BORDER}`,
-    color: ctaTone === "primary" ? "#fff" : TEXT_FG,
-    padding: "8px 14px",
-    borderRadius: 10,
-    fontSize: "0.83rem",
-    fontWeight: 600,
-    cursor: disabled ? "not-allowed" : "pointer",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    alignSelf: "flex-start",
-  };
   return (
     <article
-      style={cardStyle}
+      className="lt-mode-card"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      style={{
+        position: "relative",
+        background: `linear-gradient(180deg, ${CARD_BG}, hsl(220, 25%, 99%))`,
+        border: `1px solid ${hover && !disabled ? tone.accent : BORDER}`,
+        borderRadius: 16,
+        padding: 18,
+        overflow: "hidden",
+        textAlign: "left",
+        display: "flex",
+        flexDirection: "column",
+        transition: "transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease",
+        transform: hover && !disabled ? "translateY(-2px)" : "translateY(0)",
+        boxShadow:
+          hover && !disabled
+            ? "0 8px 22px rgba(20, 40, 80, 0.09)"
+            : "0 2px 8px -4px hsla(220, 30%, 40%, 0.10)",
+        opacity: disabled ? 0.65 : 1,
+      }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: 4,
+          height: "100%",
+          background: tone.accent,
+          opacity: 0.9,
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 9 }}>
         <span
           style={{
-            display: "inline-flex",
-            width: 28,
-            height: 28,
-            borderRadius: 8,
-            background: PRIMARY_GREEN_SOFT,
-            color: PRIMARY_GREEN,
+            width: 40,
+            height: 40,
+            borderRadius: 11,
+            background: tone.tint,
+            color: tone.accent,
+            display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            flexShrink: 0,
+            flex: "0 0 auto",
           }}
         >
           {icon}
@@ -447,184 +727,87 @@ function PrimaryCard({
         <h3
           style={{
             fontFamily: FONT_DISPLAY,
-            fontSize: "1.02rem",
+            fontSize: "1.06rem",
             fontWeight: 600,
-            color: TEXT_FG,
+            color: NAVY_DARK,
             margin: 0,
-            letterSpacing: "-0.005em",
           }}
         >
           {title}
         </h3>
-        {lockChip ? (
+      </div>
+      <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED, lineHeight: 1.5 }}>{desc}</p>
+      {chips.length > 0 ? (
+        <div style={{ marginTop: 11, display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {chips.map((c) => (
+            <span
+              key={c}
+              style={{
+                fontSize: 10.5,
+                fontWeight: 500,
+                padding: "4px 9px",
+                borderRadius: 7,
+                background: tone.tint,
+                color: tone.accent,
+              }}
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {extra}
+      <div style={{ marginTop: "auto", paddingTop: 13 }}>
+        {disabled ? (
           <span
+            aria-disabled
+            title={disabledHint}
             style={{
-              marginLeft: "auto",
               display: "inline-flex",
               alignItems: "center",
-              gap: 4,
-              padding: "2px 8px",
-              borderRadius: 999,
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              background: ACCENT_SOFT,
-              color: ACCENT_FG,
-              border: `1px solid hsla(35, 80%, 35%, 0.25)`,
+              gap: 6,
+              fontSize: 12.5,
+              fontWeight: 600,
+              color: TEXT_MUTED,
             }}
           >
-            <IconLock /> {lockChip}
+            {disabledHint ?? cta}
           </span>
-        ) : null}
+        ) : (
+          <button
+            type="button"
+            onClick={() => onActivate(to)}
+            style={{
+              appearance: "none",
+              WebkitAppearance: "none",
+              border: "none",
+              background: "transparent",
+              padding: 0,
+              fontFamily: FONT_BODY,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 12.5,
+              fontWeight: 600,
+              color: tone.accent,
+              cursor: "pointer",
+            }}
+          >
+            {cta}
+            <IconArrowRight />
+          </button>
+        )}
       </div>
-      <p
-        style={{
-          fontSize: "0.79rem",
-          lineHeight: 1.5,
-          color: TEXT_MUTED,
-          margin: 0,
-        }}
-      >
-        {desc}
-      </p>
-      <div
-        style={{
-          fontSize: "0.78rem",
-          color: PILL_FG,
-          background: PILL_BG,
-          borderRadius: 8,
-          padding: "8px 10px",
-          lineHeight: 1.45,
-          flex: 1,
-          minHeight: 32,
-        }}
-      >
-        {preview}
-      </div>
-      {extra}
-      {disabled ? (
-        <span
-          style={{
-            ...ctaStyle,
-            background: "transparent",
-            border: `1px dashed ${BORDER}`,
-            color: TEXT_MUTED,
-            cursor: "not-allowed",
-          }}
-          aria-disabled
-          title={disabledHint}
-        >
-          {disabledHint ?? cta}
-        </span>
-      ) : (
-        <button type="button" onClick={handleClick} style={ctaStyle}>
-          {cta}
-          <IconArrowRight />
-        </button>
-      )}
-      {honestNote ? (
-        <span
-          style={{
-            fontSize: 11,
-            color: TEXT_MUTED,
-            lineHeight: 1.4,
-            marginTop: -2,
-          }}
-        >
-          {honestNote}
-        </span>
-      ) : null}
     </article>
   );
 }
 
-// ── PracticeContextBar (page-local; chips-first parity with prototype) ───
-interface PracticeChip {
-  label: string;
-  tone: "neutral" | "accent" | "info";
-}
-interface PracticeContextBarProps {
-  title: string;
-  subtitle: string;
-  chips: PracticeChip[];
-}
-function PracticeContextBar({ title, subtitle, chips }: PracticeContextBarProps) {
-  const chipColor = (tone: PracticeChip["tone"]) => {
-    if (tone === "accent") return { bg: ACCENT_SOFT, fg: ACCENT_FG };
-    if (tone === "info") return { bg: INFO_SOFT, fg: INFO_FG };
-    return { bg: PILL_BG, fg: TEXT_MUTED };
-  };
-  return (
-    <header
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        marginBottom: 4,
-      }}
-    >
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-        {chips.map((c, i) => {
-          const { bg, fg } = chipColor(c.tone);
-          return (
-            <span
-              key={`${c.label}-${i}`}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "3px 10px",
-                borderRadius: 999,
-                fontSize: 11,
-                fontWeight: 500,
-                background: bg,
-                color: fg,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {c.label}
-            </span>
-          );
-        })}
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <h1
-          style={{
-            fontFamily: FONT_DISPLAY,
-            fontSize: "1.65rem",
-            fontWeight: 600,
-            color: TEXT_FG,
-            margin: 0,
-            letterSpacing: "-0.01em",
-            lineHeight: 1.2,
-          }}
-        >
-          {title}
-        </h1>
-        <p
-          style={{
-            margin: 0,
-            fontSize: "0.86rem",
-            color: TEXT_MUTED,
-            maxWidth: 640,
-            lineHeight: 1.5,
-          }}
-        >
-          {subtitle}
-        </p>
-      </div>
-    </header>
-  );
-}
-
-// ── PracticeScopeBuilder (page-local; compact 3-col selector + topic chips)
+// ── PracticeScopeBuilder (page-local; subject / stream / scope + topic dropdown)
 interface PracticeScopeBuilderProps {
   value: DesktopScopeValue;
   onChange: (next: DesktopScopeValue) => void;
   topics: ReturnType<typeof desktopTopicsBySubject>;
   summary: string;
-  helper?: string;
 }
 const SCOPE_OPTIONS: { value: DesktopPaperScope; label: string }[] = [
   { value: "topic", label: "Single topic" },
@@ -670,47 +853,11 @@ function PillButton({
   );
 }
 
-function ChipToggle({
-  active,
-  multi,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  multi?: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        appearance: "none",
-        WebkitAppearance: "none",
-        cursor: "pointer",
-        background: active ? (multi ? ACCENT_SOFT : PRIMARY_GREEN_SOFT) : CARD_BG,
-        color: active ? (multi ? ACCENT_FG : PRIMARY_GREEN_DARK) : TEXT_FG,
-        border: `1px solid ${active ? (multi ? "hsla(35, 80%, 35%, 0.35)" : PRIMARY_GREEN_RING) : BORDER}`,
-        padding: "5px 10px",
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: active ? 600 : 500,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {multi && active ? "✓ " : multi ? "+ " : ""}
-      {children}
-    </button>
-  );
-}
-
 function PracticeScopeBuilder({
   value,
   onChange,
   topics,
   summary,
-  helper,
 }: PracticeScopeBuilderProps) {
   const setSubject = (subject: DesktopSubject) =>
     onChange({
@@ -741,392 +888,126 @@ function PracticeScopeBuilder({
         : [...value.selectedTopicSlugs, slug],
     });
   };
-  const clearSelected = () => onChange({ ...value, selectedTopicSlugs: [] });
+
+  const fieldLabel: React.CSSProperties = {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
+    color: TEXT_MUTED,
+    marginBottom: 7,
+  };
 
   return (
     <section
       style={{
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        padding: 18,
-        display: "flex",
-        flexDirection: "column",
-        gap: 16,
+        position: "relative",
+        background: `linear-gradient(170deg, ${CARD_BG}, hsl(222, 40%, 99%))`,
+        border: `1px solid ${NAVY_LINE}`,
+        borderRadius: 16,
+        padding: "18px 16px 16px",
+        boxShadow: "0 6px 20px -10px hsla(222, 45%, 30%, 0.16)",
+        overflow: "hidden",
       }}
+      aria-label="What to work on"
     >
-      <div
+      <span
+        aria-hidden
         style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 12,
-          flexWrap: "wrap",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: `linear-gradient(90deg, ${NAVY}, ${PRIMARY_GREEN})`,
+          opacity: 0.85,
         }}
-      >
-        <div style={{ minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: TEXT_MUTED,
-            }}
-          >
-            What do you want to work on?
-          </div>
-          <div
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: "1.08rem",
-              fontWeight: 600,
-              color: TEXT_FG,
-              marginTop: 2,
-              letterSpacing: "-0.005em",
-            }}
-          >
-            Choose subject, stream, scope
-          </div>
-        </div>
-        <div
-          style={{
-            background: PILL_BG,
-            color: TEXT_FG,
-            padding: "6px 12px",
-            borderRadius: 8,
-            fontSize: 12.5,
-            fontWeight: 500,
-            maxWidth: 360,
-            lineHeight: 1.4,
-          }}
-        >
-          {summary}
+      />
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={fieldLabel}>Subject</div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {SUBJECT_OPTIONS.map((s) => (
+            <PillButton key={s} active={value.subject === s} onClick={() => setSubject(s)}>
+              {s}
+            </PillButton>
+          ))}
         </div>
       </div>
 
-      <div className="lt-practice-scope-grid">
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <label
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: TEXT_MUTED,
-            }}
-          >
-            Subject
-          </label>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {SUBJECT_OPTIONS.map((s) => (
-              <PillButton
-                key={s}
-                active={value.subject === s}
-                onClick={() => setSubject(s)}
-              >
-                {s}
-              </PillButton>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <label
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: TEXT_MUTED,
-            }}
-          >
-            Science stream
-          </label>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      {value.subject === "Science" ? (
+        <div style={{ marginBottom: 14 }}>
+          <div style={fieldLabel}>Stream</div>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
             {STREAM_OPTIONS.map((s) => (
-              <PillButton
-                key={s}
-                active={value.stream === s}
-                disabled={value.subject !== "Science"}
-                onClick={() => setStream(s)}
-              >
+              <PillButton key={s} active={value.stream === s} onClick={() => setStream(s)}>
                 {s}
               </PillButton>
             ))}
           </div>
-          {value.subject !== "Science" ? (
-            <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-              Streams apply only to Science.
-            </div>
-          ) : null}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <label
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: TEXT_MUTED,
-            }}
-          >
-            Scope
-          </label>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {SCOPE_OPTIONS.map((s) => (
-              <PillButton
-                key={s.value}
-                active={value.scope === s.value}
-                onClick={() => setScope(s.value)}
-              >
-                {s.label}
-              </PillButton>
-            ))}
-          </div>
+      ) : null}
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={fieldLabel}>Scope</div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {SCOPE_OPTIONS.map((s) => (
+            <PillButton key={s.value} active={value.scope === s.value} onClick={() => setScope(s.value)}>
+              {s.label}
+            </PillButton>
+          ))}
         </div>
       </div>
 
       {value.scope === "topic" ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: TEXT_MUTED,
-            }}
-          >
-            Pick a topic
-          </div>
-          {topics.length === 0 ? (
-            <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED }}>
-              No topics available for this subject/stream combination.
-            </p>
-          ) : (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {topics.map((t) => (
-                <ChipToggle
-                  key={t.slug}
-                  active={value.topicSlug === t.slug}
-                  onClick={() => setSingleTopic(t.slug)}
-                >
-                  {t.name}
-                </ChipToggle>
-              ))}
-            </div>
-          )}
+        <div>
+          <div style={fieldLabel}>Pick a topic</div>
+          <TopicDropdown
+            topics={topics}
+            multi={false}
+            topicSlug={value.topicSlug}
+            selectedSlugs={[]}
+            onPickSingle={setSingleTopic}
+            onToggle={setSingleTopic}
+            label="Choose a topic"
+          />
         </div>
       ) : null}
 
       {value.scope === "multi-topic" ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: TEXT_MUTED,
-              }}
-            >
-              Combine topics (pick 2 or more)
-            </div>
-            {value.selectedTopicSlugs.length > 0 ? (
-              <button
-                type="button"
-                onClick={clearSelected}
-                style={{
-                  appearance: "none",
-                  WebkitAppearance: "none",
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  fontSize: 11,
-                  color: TEXT_MUTED,
-                  textDecoration: "underline",
-                  padding: 0,
-                }}
-              >
-                Clear all
-              </button>
-            ) : null}
-          </div>
-          {topics.length === 0 ? (
-            <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED }}>
-              No topics available for this subject/stream combination.
-            </p>
-          ) : (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {topics.map((t) => (
-                <ChipToggle
-                  key={t.slug}
-                  active={value.selectedTopicSlugs.includes(t.slug)}
-                  multi
-                  onClick={() => toggleTopic(t.slug)}
-                >
-                  {t.name}
-                </ChipToggle>
-              ))}
-            </div>
-          )}
+        <div>
+          <div style={fieldLabel}>Pick topics</div>
+          <TopicDropdown
+            topics={topics}
+            multi
+            topicSlug={null}
+            selectedSlugs={value.selectedTopicSlugs}
+            onPickSingle={setSingleTopic}
+            onToggle={toggleTopic}
+            label="Select topics"
+          />
           {value.selectedTopicSlugs.length < 2 ? (
-            <p style={{ margin: 0, fontSize: 11, color: TEXT_MUTED }}>
-              Pick at least <strong style={{ color: TEXT_FG, fontWeight: 600 }}>2 topics</strong> to enable multi-topic study.
+            <p style={{ margin: "9px 0 0 0", fontSize: 11, color: TEXT_MUTED }}>
+              Pick at least{" "}
+              <strong style={{ color: TEXT_FG, fontWeight: 600 }}>2 topics</strong> to combine them.
             </p>
           ) : null}
         </div>
       ) : null}
 
       {value.scope === "full-subject" ? (
-        <div
-          style={{
-            background: PILL_BG,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 10,
-            padding: "10px 12px",
-            fontSize: 12.5,
-            color: TEXT_FG,
-            lineHeight: 1.5,
-          }}
-        >
-          <strong style={{ fontWeight: 600 }}>Full {value.subject} subject</strong> — questions are drawn across all{" "}
-          {value.subject === "Science" && value.stream !== "All" ? `${value.stream} ` : ""}topics in proportion to exam weight. Use this for full 80-mark mocks or full-subject predicted papers.
+        <div>
+          <div style={fieldLabel}>Scope</div>
+          <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED, lineHeight: 1.5 }}>
+            The whole subject &mdash; questions drawn across all{" "}
+            {value.subject === "Science" && value.stream !== "All" ? `${value.stream} ` : ""}
+            chapters in proportion to exam weight.
+          </p>
         </div>
       ) : null}
 
-      {helper ? (
-        <p
-          style={{
-            margin: 0,
-            fontSize: 11,
-            color: TEXT_MUTED,
-            lineHeight: 1.5,
-          }}
-        >
-          {helper}
-        </p>
-      ) : null}
-    </section>
-  );
-}
-
-// ── PracticePaperBlueprint (page-local; 5-section subject-level grid) ─────
-interface PracticePaperBlueprintProps {
-  subject: DesktopSubject;
-  stream: DesktopStream;
-}
-function PracticePaperBlueprint({ subject, stream }: PracticePaperBlueprintProps) {
-  const sections: { id: string; marks: number; hint: string }[] = [
-    { id: "A", marks: 20, hint: "MCQ + Assertion-Reason (1m × 20)" },
-    { id: "B", marks: 10, hint: "Short Answer I (2m × 5)" },
-    { id: "C", marks: 18, hint: "Short Answer II (3m × 6)" },
-    { id: "D", marks: 20, hint: "Long Answer (5m × 4)" },
-    { id: "E", marks: 12, hint: "Case-based (4m × 3)" },
-  ];
-  const subjectLine =
-    subject === "Maths"
-      ? "All questions from CBSE Class 10 Maths topics."
-      : stream && stream !== "All"
-        ? `Questions from CBSE Class 10 ${stream} only.`
-        : "Mix of Physics + Chemistry + Biology — proportional to exam weight.";
-  return (
-    <section
-      style={{
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        padding: 18,
-        display: "flex",
-        flexDirection: "column",
-        gap: 14,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span
-          style={{
-            display: "inline-flex",
-            width: 28,
-            height: 28,
-            borderRadius: 8,
-            background: ACCENT_SOFT,
-            color: ACCENT_FG,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <IconGraduation size={14} />
-        </span>
-        <div style={{ minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: "1.0rem",
-              fontWeight: 600,
-              color: TEXT_FG,
-              letterSpacing: "-0.005em",
-            }}
-          >
-            Paper blueprint preview
-          </div>
-          <div style={{ fontSize: 11.5, color: TEXT_MUTED, lineHeight: 1.4 }}>
-            {subject} full mock · 80 marks · 3 hours · {subjectLine}
-          </div>
-        </div>
-      </div>
-      <div className="lt-practice-blueprint-grid">
-        {sections.map((s) => (
-          <div
-            key={s.id}
-            style={{
-              background: PILL_BG,
-              border: `1px solid ${BORDER}`,
-              borderRadius: 10,
-              padding: 12,
-              textAlign: "center",
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 9.5,
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: TEXT_MUTED,
-              }}
-            >
-              Section {s.id}
-            </div>
-            <div
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontSize: "1.5rem",
-                fontWeight: 600,
-                color: TEXT_FG,
-                lineHeight: 1.1,
-              }}
-            >
-              {s.marks}
-              <span style={{ fontSize: 11, color: TEXT_MUTED, fontWeight: 500 }}> m</span>
-            </div>
-            <div style={{ fontSize: 10, color: TEXT_MUTED, lineHeight: 1.35 }}>{s.hint}</div>
-          </div>
-        ))}
-      </div>
-      <div
-        style={{
-          fontSize: 11,
-          color: TEXT_MUTED,
-          borderTop: `1px solid ${BORDER}`,
-          paddingTop: 10,
-        }}
-      >
-        Total: 80 marks · Duration: 3 hours · Reference blueprint, not a learner-specific paper.
-      </div>
+      <p style={{ margin: "14px 0 0 0", fontSize: 11.5, color: TEXT_MUTED, lineHeight: 1.5 }}>
+        {summary}
+      </p>
     </section>
   );
 }
@@ -1156,6 +1037,179 @@ function BackToParent() {
   );
 }
 
+
+// ── Mistake trend (real data — same getMistakeLogs history the buckets use) ─
+// Marks lost per DAY across the 7-day window, oldest → newest. This is a
+// straight read of `timestamp` + `marksLost` on real entries; nothing is
+// interpolated or invented. Fewer than two days with data is not a trend, so
+// we return null and the card does not render (honest empty state).
+interface MistakeTrendPoint {
+  day: string;
+  marksLost: number;
+}
+interface MistakeTrend {
+  points: MistakeTrendPoint[];
+  /** Percent change first → last. null when the first day has no marks lost. */
+  changePct: number | null;
+}
+function buildMistakeTrend(entries: MistakeLogEntry[]): MistakeTrend | null {
+  const byDay = new Map<string, number>();
+  for (const e of entries) {
+    const raw = (e?.timestamp ?? "").trim();
+    if (!raw) continue;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) continue;
+    const lost =
+      typeof e.marksLost === "number" && Number.isFinite(e.marksLost) && e.marksLost > 0
+        ? e.marksLost
+        : 0;
+    const key = d.toISOString().slice(0, 10);
+    byDay.set(key, (byDay.get(key) ?? 0) + lost);
+  }
+  const points = Array.from(byDay.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-6)
+    .map(([day, marksLost]) => ({ day, marksLost }));
+  if (points.length < 2) return null;
+  const first = points[0].marksLost;
+  const last = points[points.length - 1].marksLost;
+  const changePct = first > 0 ? Math.round(((last - first) / first) * 100) : null;
+  return { points, changePct };
+}
+
+/**
+ * Marks (not mistake COUNTS) attributable to one bucket, read from real
+ * `stepDetails`. Returns 0 when entries carry no step detail — the caller
+ * then omits the "marks to reclaim" line rather than inventing a number.
+ */
+function marksLostForBucket(entries: MistakeLogEntry[], bucket: BucketKey): number {
+  let total = 0;
+  for (const e of entries) {
+    for (const s of e?.stepDetails ?? []) {
+      const type = (s?.mistakeType ?? "").toLowerCase();
+      const marks = typeof s?.marksDeducted === "number" ? s.marksDeducted : 0;
+      if (type.includes(bucket) && Number.isFinite(marks) && marks > 0) total += marks;
+    }
+  }
+  return Math.round(total * 2) / 2;
+}
+
+// ── MistakeTrendCard — DESKTOP-ONLY rail card, real series only ───────────
+function MistakeTrendCard({ trend }: { trend: MistakeTrend | null }) {
+  if (!trend) return null;
+  const { points, changePct } = trend;
+  const W = 260;
+  const H = 76;
+  const PAD = 4;
+  const max = Math.max(...points.map((p) => p.marksLost), 1);
+  const coords = points.map((p, i) => ({
+    x: PAD + (i * (W - PAD * 2)) / (points.length - 1),
+    y: PAD + (1 - p.marksLost / max) * (H - PAD * 2 - 8),
+  }));
+  const line = coords
+    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`)
+    .join(" ");
+  const area = `${line} L${coords[coords.length - 1].x.toFixed(1)},${H} L${coords[0].x.toFixed(1)},${H} Z`;
+  const improving = changePct !== null && changePct < 0;
+  const headline =
+    changePct === null
+      ? "Marks lost per day"
+      : improving
+        ? "Marks lost — trending down"
+        : changePct > 0
+          ? "Marks lost — trending up"
+          : "Marks lost — holding steady";
+
+  return (
+    <section
+      className="lt-trend-card"
+      aria-label="Mistake marks trend"
+      style={{
+        background: `linear-gradient(180deg, ${CARD_BG}, hsl(152, 30%, 99%))`,
+        border: `1px solid ${improving ? "hsl(152, 50%, 82%)" : BORDER}`,
+        borderRadius: 16,
+        padding: 16,
+        boxShadow: "0 4px 14px -8px hsla(152, 45%, 30%, 0.14)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+        <span
+          style={{
+            width: 26,
+            height: 26,
+            borderRadius: 8,
+            background: NAVY_TINT,
+            color: NAVY,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flex: "0 0 auto",
+          }}
+        >
+          <IconTarget />
+        </span>
+        <h3
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: 14,
+            fontWeight: 600,
+            color: NAVY_DARK,
+            margin: 0,
+          }}
+        >
+          {headline}
+        </h3>
+      </div>
+      <p style={{ margin: "0 0 12px 0", fontSize: 11.5, color: TEXT_MUTED }}>
+        Your mistake-marks per day over the last {points.length}
+        {changePct !== null ? (
+          <>
+            {" · "}
+            <b style={{ color: improving ? PRIMARY_GREEN_DARK : TEXT_FG }}>
+              {improving ? "down" : changePct > 0 ? "up" : "flat"}{" "}
+              {Math.abs(changePct)}%
+            </b>
+          </>
+        ) : null}
+      </p>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={`Marks lost across the last ${points.length} days with recorded mistakes`}
+        style={{ width: "100%", height: 76, display: "block" }}
+      >
+        <defs>
+          <linearGradient id="lt-trend-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={PRIMARY_GREEN} stopOpacity="0.28" />
+            <stop offset="100%" stopColor={PRIMARY_GREEN} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#lt-trend-fill)" />
+        <path
+          d={line}
+          fill="none"
+          stroke="hsl(152, 55%, 42%)"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx={coords[0].x} cy={coords[0].y} r={3} fill="hsl(222, 47%, 40%)" />
+        <circle
+          cx={coords[coords.length - 1].x}
+          cy={coords[coords.length - 1].y}
+          r={4}
+          fill="hsl(152, 55%, 42%)"
+        />
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: TEXT_MUTED, marginTop: 5 }}>
+        <span>{points.length} days ago</span>
+        <span>latest</span>
+      </div>
+    </section>
+  );
+}
+
 // ── MistakeIntelligencePanel (3 honest states) ────────────────────────────
 interface MistakePanelProps {
   isSignedIn: boolean;
@@ -1163,10 +1217,10 @@ interface MistakePanelProps {
   buckets: ReturnType<typeof aggregateBuckets>;
   weakTopic: string | null;
   drillTopicSlug: string | null;
-  grade: string;
-  subject: "Maths" | "Science";
+  /** Real marks attributable to the top bucket, or 0 when entries carry no
+   *  step detail. 0 means the "marks to reclaim" line is omitted, never faked. */
+  reclaimableMarks: number;
   worksheetMistakeAwarePath: string;
-  mockPath: string;
   checkPath: string;
   drillPath: string;
   /** Current Practice page URL (path + query). Used to preserve scope/focus
@@ -1174,26 +1228,36 @@ interface MistakePanelProps {
    *  "Start free trial" CTA. */
   currentPracticeUrl: string;
 }
+
+/** Bar colours for the 4 buckets, in rank order (top bucket = green). */
+const MI_BAR_COLOURS = [
+  "linear-gradient(90deg, hsl(152, 60%, 55%), hsl(152, 55%, 45%))",
+  "hsl(255, 60%, 70%)",
+  "hsl(205, 70%, 62%)",
+  "hsl(220, 15%, 60%)",
+];
+
 function MistakeIntelligencePanel({
   isSignedIn,
   loading,
   buckets,
   weakTopic,
   drillTopicSlug,
+  reclaimableMarks,
   worksheetMistakeAwarePath,
-  mockPath,
   checkPath,
   drillPath,
   currentPracticeUrl,
 }: MistakePanelProps) {
-  // ── State 1 — logged out
+  // States 1 and 2 stay honest and unchanged in substance — a learner with no
+  // saved attempts is told so, and never shown a fabricated weak area.
   if (!isSignedIn) {
     return (
       <section
         style={{
           background: CARD_BG,
-          border: `1px solid ${BORDER}`,
-          borderRadius: 14,
+          border: `1px solid ${NAVY_LINE}`,
+          borderRadius: 16,
           padding: 18,
           display: "flex",
           flexDirection: "column",
@@ -1207,8 +1271,8 @@ function MistakeIntelligencePanel({
               width: 28,
               height: 28,
               borderRadius: 8,
-              background: PILL_BG,
-              color: TEXT_MUTED,
+              background: NAVY_TINT,
+              color: NAVY,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -1220,7 +1284,7 @@ function MistakeIntelligencePanel({
               fontFamily: FONT_DISPLAY,
               fontSize: "1.02rem",
               fontWeight: 600,
-              color: TEXT_FG,
+              color: NAVY_DARK,
               margin: 0,
             }}
           >
@@ -1250,21 +1314,18 @@ function MistakeIntelligencePanel({
         >
           <IconSparkles size={14} /> Start free trial
         </Link>
-        <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-          Recommended, not required.
-        </div>
+        <div style={{ fontSize: 11, color: TEXT_MUTED }}>Recommended, not required.</div>
       </section>
     );
   }
 
-  // ── State 2 — signed in, no data yet (or still loading)
   if (loading || !buckets.topRow) {
     return (
       <section
         style={{
           background: CARD_BG,
-          border: `1px solid ${BORDER}`,
-          borderRadius: 14,
+          border: `1px solid ${NAVY_LINE}`,
+          borderRadius: 16,
           padding: 18,
           display: "flex",
           flexDirection: "column",
@@ -1278,8 +1339,8 @@ function MistakeIntelligencePanel({
               width: 28,
               height: 28,
               borderRadius: 8,
-              background: ACCENT_SOFT,
-              color: ACCENT_FG,
+              background: NAVY_TINT,
+              color: NAVY,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -1291,7 +1352,7 @@ function MistakeIntelligencePanel({
               fontFamily: FONT_DISPLAY,
               fontSize: "1.02rem",
               fontWeight: 600,
-              color: TEXT_FG,
+              color: NAVY_DARK,
               margin: 0,
             }}
           >
@@ -1306,11 +1367,7 @@ function MistakeIntelligencePanel({
               Grade an answer in{" "}
               <Link
                 to={checkPath}
-                style={{
-                  color: PRIMARY_GREEN,
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
+                style={{ color: PRIMARY_GREEN, fontWeight: 600, textDecoration: "none" }}
               >
                 Check &amp; Improve
               </Link>{" "}
@@ -1318,100 +1375,151 @@ function MistakeIntelligencePanel({
             </>
           )}
         </p>
-        <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-          Recommended, not required.
-        </div>
+        <div style={{ fontSize: 11, color: TEXT_MUTED }}>Recommended, not required.</div>
       </section>
     );
   }
 
-  // ── State 3 — signed in, has data
+  // ── State 3 — signed in, real data. The navy intelligence surface.
   const total = buckets.total;
+  const top = buckets.topRow;
   return (
     <section
+      className="lt-mi-card"
+      aria-label="Your latest weak area"
       style={{
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
+        position: "relative",
+        borderRadius: 18,
+        background: `linear-gradient(165deg, ${NAVY} 0%, ${NAVY_DARK} 100%)`,
         padding: 18,
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
+        color: "#fff",
+        boxShadow: "0 12px 30px -8px hsla(222, 47%, 20%, 0.45)",
+        overflow: "hidden",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span
-            style={{
-              display: "inline-flex",
-              width: 28,
-              height: 28,
-              borderRadius: 8,
-              background: ACCENT_SOFT,
-              color: ACCENT_FG,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <IconSparkles size={14} />
-          </span>
-          <h3
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: "1.02rem",
-              fontWeight: 600,
-              color: TEXT_FG,
-              margin: 0,
-            }}
-          >
-            Your latest weak area
-          </h3>
-        </div>
+      <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          top: -40,
+          right: -40,
+          width: 130,
+          height: 130,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, hsla(152, 55%, 55%, 0.22), transparent 70%)",
+        }}
+      />
+
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12, position: "relative" }}>
         <span
           style={{
-            display: "inline-flex",
+            width: 30,
+            height: 30,
+            borderRadius: 9,
+            background: `linear-gradient(135deg, ${PRIMARY_GREEN}, ${PRIMARY_GREEN_DARK})`,
+            color: "#fff",
+            display: "flex",
             alignItems: "center",
-            padding: "2px 8px",
-            borderRadius: 999,
-            background: ACCENT_SOFT,
-            color: ACCENT_FG,
-            border: `1px solid hsla(35, 80%, 35%, 0.25)`,
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.04em",
-            textTransform: "uppercase",
+            justifyContent: "center",
+            boxShadow: "0 3px 10px hsla(152, 55%, 35%, 0.5)",
+            flex: "0 0 auto",
           }}
         >
-          Last 7 days
+          <IconSparkles size={15} />
+        </span>
+        <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 14, fontWeight: 600, margin: 0 }}>
+          Your latest weak area
+        </h3>
+        <span
+          style={{
+            marginLeft: "auto",
+            fontSize: 9,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            color: "hsl(152, 55%, 80%)",
+            background: "hsla(152, 55%, 55%, 0.16)",
+            padding: "3px 8px",
+            borderRadius: 6,
+          }}
+        >
+          7 days
         </span>
       </div>
 
-      <div>
-        <div style={{ fontSize: "0.92rem", color: TEXT_FG }}>
-          <strong style={{ fontWeight: 700 }}>
-            {weakTopic ?? "Across your saved attempts"}
-          </strong>
-          {" — "}
-          <span style={{ color: PILL_FG }}>{buckets.topRow.label} mistakes</span>
-        </div>
-        <div style={{ fontSize: "0.78rem", color: TEXT_MUTED, marginTop: 4 }}>
-          {buckets.topRow.count} of {total} tagged mistake
-          {total === 1 ? "" : "s"} were classed as {buckets.topRow.label.toLowerCase()}.
-        </div>
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: 19,
+          fontWeight: 600,
+          lineHeight: 1.15,
+          marginBottom: 3,
+          position: "relative",
+        }}
+      >
+        {weakTopic ?? "Across your saved attempts"}{" "}
+        <span style={{ color: "hsl(152, 60%, 68%)" }}>{top.label.toLowerCase()}</span>
       </div>
+      <p
+        style={{
+          margin: "0 0 13px 0",
+          fontSize: 12,
+          color: "hsl(220, 25%, 80%)",
+          lineHeight: 1.45,
+          position: "relative",
+        }}
+      >
+        {top.count} of {total} tagged mistake{total === 1 ? "" : "s"} in the last 7 days were
+        classed as {top.label.toLowerCase()}.
+      </p>
 
-      {/* 4-bucket distribution mini-bar — read straight from real entries */}
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-        {buckets.rows.map((r) => {
+      {/* Only shown when real step-level marks exist — never a derived guess. */}
+      {reclaimableMarks > 0 ? (
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "baseline",
+            gap: 5,
+            background: "hsla(152, 55%, 55%, 0.16)",
+            color: "hsl(152, 60%, 80%)",
+            borderRadius: 8,
+            padding: "6px 11px",
+            fontSize: 11.5,
+            marginBottom: 14,
+            position: "relative",
+          }}
+        >
+          <b style={{ fontFamily: FONT_DISPLAY, fontSize: 16, color: "#fff" }}>
+            {reclaimableMarks} mark{reclaimableMarks === 1 ? "" : "s"}
+          </b>{" "}
+          lost to {top.label.toLowerCase()} slips
+        </div>
+      ) : null}
+
+      <ul
+        style={{
+          listStyle: "none",
+          margin: "0 0 14px 0",
+          padding: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 9,
+          position: "relative",
+        }}
+      >
+        {buckets.rows.map((r, i) => {
           const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
           return (
-            <li key={r.key} style={{ display: "grid", gridTemplateColumns: "100px 1fr 36px", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 12, color: TEXT_FG, fontWeight: 500 }}>{r.label}</span>
+            <li key={r.key} style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 11.5 }}>
+              <span className="lt-mi-bar-label" style={{ width: 78, color: "hsl(220, 20%, 86%)", flex: "0 0 auto" }}>
+                {r.label}
+              </span>
               <span
                 style={{
-                  height: 6,
-                  background: PILL_BG,
-                  borderRadius: 999,
+                  flex: 1,
+                  height: 7,
+                  borderRadius: 4,
+                  background: "hsla(220, 30%, 60%, 0.25)",
                   overflow: "hidden",
                   display: "block",
                 }}
@@ -1421,12 +1529,21 @@ function MistakeIntelligencePanel({
                     display: "block",
                     width: `${pct}%`,
                     height: "100%",
-                    background: PRIMARY_GREEN,
-                    borderRadius: 999,
+                    borderRadius: 4,
+                    background: MI_BAR_COLOURS[Math.min(i, MI_BAR_COLOURS.length - 1)],
                   }}
                 />
               </span>
-              <span style={{ fontSize: 11, color: TEXT_MUTED, textAlign: "right" }}>
+              <span
+                style={{
+                  width: 16,
+                  textAlign: "right",
+                  fontWeight: 700,
+                  flex: "0 0 auto",
+                  fontFamily: FONT_DISPLAY,
+                  color: "#fff",
+                }}
+              >
                 {r.count}
               </span>
             </li>
@@ -1434,152 +1551,55 @@ function MistakeIntelligencePanel({
         })}
       </ul>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <Link
-          to={drillPath}
-          style={{
-            background: PRIMARY_GREEN,
-            color: "#fff",
-            padding: "7px 12px",
-            borderRadius: 10,
-            fontSize: "0.78rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-          aria-label={drillTopicSlug ? "Run targeted drill on weak topic" : "Run targeted drill"}
-        >
-          <IconTarget /> Run targeted drill
-        </Link>
-        <Link
-          to={worksheetMistakeAwarePath}
-          style={{
-            background: "transparent",
-            color: TEXT_FG,
-            padding: "7px 12px",
-            borderRadius: 10,
-            fontSize: "0.78rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            border: `1px solid ${BORDER}`,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <IconClipboard size={14} /> Mistake-aware worksheet
-        </Link>
-        <Link
-          to={mockPath}
-          style={{
-            background: "transparent",
-            color: TEXT_FG,
-            padding: "7px 12px",
-            borderRadius: 10,
-            fontSize: "0.78rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            border: `1px solid ${BORDER}`,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <IconGraduation size={14} /> Open Full Test
-        </Link>
-        <Link
-          to={checkPath}
-          style={{
-            background: "transparent",
-            color: PRIMARY_GREEN_DARK,
-            padding: "7px 12px",
-            borderRadius: 10,
-            fontSize: "0.78rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            border: `1px solid ${PRIMARY_GREEN_RING}`,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          Open Check &amp; Improve
-        </Link>
-      </div>
+      {/* Hero action — the frozen weak-area drill URL. */}
+      <Link
+        to={drillPath}
+        aria-label={drillTopicSlug ? "Run targeted drill on weak topic" : "Run targeted drill"}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 7,
+          background: `linear-gradient(135deg, ${PRIMARY_GREEN}, ${PRIMARY_GREEN_DARK})`,
+          color: "#fff",
+          fontSize: 13.5,
+          fontWeight: 600,
+          padding: 12,
+          borderRadius: 11,
+          textDecoration: "none",
+          boxShadow: "0 4px 14px hsla(152, 55%, 30%, 0.4)",
+          position: "relative",
+        }}
+      >
+        <IconTarget /> Run targeted drill
+      </Link>
+
+      {/* Quiet secondary — the mistake-aware worksheet keeps its home here. */}
+      <Link
+        to={worksheetMistakeAwarePath}
+        style={{
+          display: "block",
+          textAlign: "center",
+          marginTop: 10,
+          fontSize: 11.5,
+          fontWeight: 500,
+          color: "hsl(220, 25%, 80%)",
+          textDecoration: "none",
+          position: "relative",
+        }}
+      >
+        Or build a mistake-aware worksheet
+      </Link>
     </section>
   );
 }
 
 // ── PR-C2.1 helpers — real-data resolution for in-page Quick Practice + HPQ tabs ──
 
-/**
- * Build an ordered list of topic-key candidates to try against the
- * production question bank. Desktop starter slugs (e.g. "acids-bases-salts",
- * "trigonometry-heights-distances", "light-reflection-refraction") do not
- * always equal canonical hyphen slugs used by the unified bank. We try, in
- * order: canonical (`normalizeTopicKey`), runtime aliases, and finally the
- * raw slug — never invent a key. Order matters because
- * `generatePracticeQuestions` returns the first non-empty pool.
- */
-function buildTopicKeyCandidates(rawSlug: string): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  const push = (key: string) => {
-    const clean = (key ?? "").trim();
-    if (!clean || seen.has(clean)) return;
-    seen.add(clean);
-    out.push(clean);
-  };
-  push(normalizeTopicKey(rawSlug));
-  for (const candidate of getRuntimeTopicCandidates(rawSlug)) push(candidate);
-  push(normalizeTopicSlug(rawSlug));
-  push(rawSlug);
-  return out;
-}
-
-/**
- * Locate a real Highly-Probable-Questions bucket for a given desktop topic
- * slug, by matching the bucket's `topic` (display name) against the slug's
- * canonical / alias / normalized forms. Returns `null` when no bucket
- * matches — the UI then shows an honest empty state instead of repurposing
- * topicHubContent reference highlights as "predicted questions".
- */
-function findHpqBucketForSlug(
-  buckets: HPQTopicBucket[],
-  rawSlug: string,
-): HPQTopicBucket | null {
-  if (!rawSlug) return null;
-  const candidates = new Set<string>();
-  for (const c of buildTopicKeyCandidates(rawSlug)) candidates.add(c);
-  for (const b of buckets) {
-    const bucketSlugs = [
-      normalizeTopicSlug(b.topic),
-      normalizeTopicKey(b.topic),
-      ...buildTopicKeyCandidates(b.topic),
-    ];
-    if (bucketSlugs.some((s) => candidates.has(s))) return b;
-  }
-  return null;
-}
-
-/**
- * Map a `DesktopStream` ("All" | "Physics" | "Chemistry" | "Biology") onto
- * the HPQ stream filter (HPQ uses `undefined` for "no stream filter").
- */
-function toHpqStream(stream: DesktopStream): HPQStream | undefined {
-  if (stream === "Physics" || stream === "Chemistry" || stream === "Biology") {
-    return stream;
-  }
-  return undefined;
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────
 const RETURN_TO = "/practice-hub";
 const SOURCE: DesktopActionSource = "practice";
 
-type TabId = "topic" | "selected" | "full";
 
 const HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH = false;
 
@@ -1712,7 +1732,23 @@ export default function DesktopPracticePage() {
 
   // Parity options (local UI checkboxes).
   const [worksheetMistakeMini, setWorksheetMistakeMini] = useState(false);
-  const [drillTargeted, setDrillTargeted] = useState(false);
+
+  // The retired "Timed Drill" card folds into Quick Practice as a toggle. It
+  // adds `timed=1` to the SAME buildLegacyPracticePath the Quick Practice CTA
+  // already uses, so the learner's chosen scope (topic= / topics= / focus) is
+  // carried through — the old separate card dropped multi-topic and focus.
+  const [timerOn, setTimerOn] = useState(false);
+
+  // Mobile mode-card carousel — page dots track scroll position. Desktop
+  // renders a 2x2 grid and never scrolls, so the index simply stays at 0.
+  const modeScrollRef = useRef<HTMLDivElement | null>(null);
+  const [modeIndex, setModeIndex] = useState(0);
+  const handleModeScroll = () => {
+    const el = modeScrollRef.current;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const perCard = el.scrollWidth / 4;
+    setModeIndex(Math.max(0, Math.min(3, Math.round(el.scrollLeft / perCard))));
+  };
 
   // PR-C2.1 legacy in-page Quick Practice panel state. K2G routes the primary
   // "Start quick practice" CTA directly to the full Practice workspace, so
@@ -1872,6 +1908,14 @@ export default function DesktopPracticePage() {
   }, [user?.uid]);
 
   const buckets = useMemo(() => aggregateBuckets(mistakes), [mistakes]);
+  // Desktop rail trend — real per-day marks-lost series, or null (no card).
+  const mistakeTrend = useMemo(() => buildMistakeTrend(mistakes), [mistakes]);
+  // Real marks behind the top bucket; 0 when entries carry no step detail, in
+  // which case the MI card omits the line rather than inventing a number.
+  const reclaimableMarks = useMemo(
+    () => (buckets.topRow ? marksLostForBucket(mistakes, buckets.topRow.key) : 0),
+    [mistakes, buckets.topRow],
+  );
   const weakTopic = useMemo(() => topMistakeTopic(mistakes), [mistakes]);
   // Best-effort slug for the targeted-drill CTA — only when the topic name
   // matches our curated catalogue. We never fabricate a topic.
@@ -1888,42 +1932,12 @@ export default function DesktopPracticePage() {
   const validScope = isDesktopScopeValueValid(scope);
   const selectedTopic = scope.topicSlug ? desktopTopicBySlug(scope.topicSlug) : undefined;
 
-  // PR-C2.1 — Real HPQ buckets for the current subject + Science stream.
-  // Recomputed only when subject/stream changes; small list, no perf risk.
-  const hpqBuckets = useMemo<HPQTopicBucket[]>(
-    () => getHighlyProbableQuestions(scope.subject, toHpqStream(scope.stream)),
-    [scope.subject, scope.stream],
-  );
-
-  // Real HPQ bucket for the single-topic scope, when one matches the
-  // production HPQ catalogue. Otherwise `null` — the UI shows an honest
-  // empty state and never recycles topicHubContent highlights as HPQs.
-  const selectedTopicHpqBucket = useMemo<HPQTopicBucket | null>(
-    () =>
-      scope.scope === "topic" && scope.topicSlug
-        ? findHpqBucketForSlug(hpqBuckets, scope.topicSlug)
-        : null,
-    [hpqBuckets, scope.scope, scope.topicSlug],
-  );
-
   // Reset the Quick Practice panel whenever scope changes — stale questions
   // for a different topic would be misleading.
   useEffect(() => {
     setQuickPracticePanel(null);
     resetQuickPracticeRunState();
   }, [scope.subject, scope.stream, scope.scope, scope.topicSlug, scope.selectedTopicSlugs]);
-
-  // Blueprint preview source: chosen single topic, first selected topic of a
-  // multi-mix, or the first catalogue topic of the subject for full-subject.
-  const blueprintTopicSlug =
-    scope.scope === "topic"
-      ? scope.topicSlug
-      : scope.scope === "multi-topic"
-        ? scope.selectedTopicSlugs[0] ?? null
-        : topics[0]?.slug ?? null;
-  const blueprintContent = blueprintTopicSlug
-    ? desktopTopicHubContentBySlug(blueprintTopicSlug)
-    : undefined;
 
   // ── Path builders (every CTA → existing production route) ──────────────
   const buildLegacyPracticePath = (params: {
@@ -1977,15 +1991,6 @@ export default function DesktopPracticePage() {
     sp.set("returnTo", returnTo);
     return withQuery(`/full-mock/${grade}/${scope.subject}`, sp);
   };
-  const buildChapterTestPath = (topicSlug: string): string => {
-    const sp = new URLSearchParams();
-    sp.set("source", SOURCE);
-    sp.set("returnTo", returnTo);
-    return withQuery(
-      `/chapter-test/${grade}/${scope.subject}/${encodeURIComponent(topicSlug)}`,
-      sp,
-    );
-  };
   // Worksheet path — uses the real L2 helper that already targets
   // /practice/worksheets and forwards scope to that page.
   const worksheetPath = useMemo(() => {
@@ -2030,48 +2035,26 @@ export default function DesktopPracticePage() {
           topic: scope.topicSlug,
           subtopicHint: subtopicHintParam || undefined,
           focus: focusParam || undefined,
+          timed: timerOn || undefined,
         })
       : scope.scope === "full-subject"
-        ? buildLegacyPracticePath({})
+        ? buildLegacyPracticePath({ timed: timerOn || undefined })
         : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length >= 2
           ? buildLegacyPracticePath({
               // The full SET, not selectedTopicSlugs[0] — the old collapse was the
               // [FU-PRACTICEHUB-MULTITOPIC] gap. PracticePage fans out per topic.
               topics: scope.selectedTopicSlugs.join(","),
+              timed: timerOn || undefined,
             })
           : scope.scope === "multi-topic" && scope.selectedTopicSlugs.length === 1
-            ? buildLegacyPracticePath({ topic: scope.selectedTopicSlugs[0] })
-            : buildLegacyPracticePath({});
-
-  const timedDrillPath: string | null = !validScope
-    ? null
-    : !isSignedIn && drillTargeted
-      ? loginUrl(
-          "mistake-aware",
-          buildLegacyPracticePath({
-            timed: true,
-            topic:
-              scope.scope === "topic" && scope.topicSlug ? scope.topicSlug : undefined,
-          }),
-        )
-      : buildLegacyPracticePath({
-          timed: true,
-          topic:
-            scope.scope === "topic" && scope.topicSlug ? scope.topicSlug : undefined,
-        });
-
-  const chapterTestPath: string | null = (() => {
-    const topicForChapter =
-      scope.scope === "topic" && scope.topicSlug
-        ? scope.topicSlug
-        : scope.scope === "multi-topic" && scope.selectedTopicSlugs[0]
-          ? scope.selectedTopicSlugs[0]
-          : null;
-    if (!topicForChapter) return null;
-    return buildChapterTestPath(topicForChapter);
-  })();
+            ? buildLegacyPracticePath({
+                topic: scope.selectedTopicSlugs[0],
+                timed: timerOn || undefined,
+              })
+            : buildLegacyPracticePath({ timed: timerOn || undefined });
 
   // Quick-links paths — Check / Progress / Worksheet (sign-in-aware).
+  // Check path — still used by the MI panel's no-data pointer.
   const checkLinkPath = isSignedIn
     ? buildDesktopCheckPath(scope.topicSlug ?? undefined, {
         source: SOURCE,
@@ -2084,9 +2067,6 @@ export default function DesktopPracticePage() {
           returnTo,
         }),
       );
-  const meLinkPath = isSignedIn
-    ? buildDesktopMePath({ source: SOURCE, returnTo })
-    : loginUrl("open-progress", buildDesktopMePath({ source: SOURCE, returnTo }));
 
   // Mistake-aware-worksheet target for the right-rail panel — auth-aware.
   const mistakeAwareWorksheetPath = (() => {
@@ -2117,8 +2097,6 @@ export default function DesktopPracticePage() {
     return isSignedIn ? target : loginUrl("mistake-aware", target);
   })();
 
-  // ── Preview lines ─────────────────────────────────────────────────────
-  const selectedNames = displayDesktopTopicNames(scope.selectedTopicSlugs);
   const topicHubFocusContext =
     sourceParam === "topicHub" && (focusParam.length > 0 || subtopicHintParam.length > 0);
   // Quick Practice CTA target — when a signed-out learner arrived with focus
@@ -2129,70 +2107,6 @@ export default function DesktopPracticePage() {
     !isSignedIn && topicHubFocusContext && quickPracticePath
       ? loginUrl("start-focused-practice", currentPracticeUrl)
       : quickPracticePath;
-  const previewLine = (mode: "practice-set" | "worksheet" | "predicted" | "full-mock" | "timed" | "chapter-test"): string => {
-    if (mode === "practice-set" && topicHubFocusContext && focusParam) {
-      return `practice set from ${selectedTopic?.name ?? scope.subject} - focus: ${focusParam}`;
-    }
-    if (mode === "full-mock") {
-      return `Full ${scope.subject} board paper · 3 hours · 80 marks · Sections A–E`;
-    }
-    if (mode === "worksheet" && worksheetMistakeMini && buckets.topRow) {
-      const scopePart =
-        scope.scope === "full-subject"
-          ? `${scope.subject} full-subject`
-          : scope.scope === "multi-topic"
-            ? "Selected-topic"
-            : selectedTopic?.name ?? "—";
-      return `${scopePart} worksheet · + mistake-focus mini-section`;
-    }
-    if (mode === "timed" && drillTargeted && buckets.topRow) {
-      return `Targeted drill on ${weakTopic ?? "your last weak area"} · ${buckets.topRow.label.toLowerCase()} mistakes`;
-    }
-    const baseLabel = mode.replace(/-/g, " ");
-    if (scope.scope === "full-subject") return `${scope.subject} full-subject ${baseLabel}`;
-    if (scope.scope === "multi-topic") {
-      return `${baseLabel} from ${selectedNames.join(" + ") || "selected topics"}`;
-    }
-    return `${baseLabel} from ${selectedTopic?.name ?? "—"}`;
-  };
-
-  // ── Tabs ───────────────────────────────────────────────────────────────
-  const initialTab: TabId =
-    scope.scope === "full-subject" ? "full" : scope.scope === "multi-topic" ? "selected" : "topic";
-  const [tab, setTab] = useState<TabId>(initialTab);
-  useEffect(() => {
-    setTab(initialTab);
-  }, [initialTab]);
-
-  // ── Header chips (compact + showMode parity) ──────────────────────────
-  const scopeChipLabel =
-    scope.scope === "full-subject"
-      ? `${scope.subject} full subject`
-      : scope.scope === "multi-topic"
-        ? `${scope.selectedTopicSlugs.length} topics selected`
-        : selectedTopic?.name ?? "No topic";
-  const modeChipLabel = (() => {
-    // Mode is implied by the most-recent CTA the learner is set up for.
-    if (drillTargeted) return "timed (targeted)";
-    if (worksheetMistakeMini) return "worksheet (mistake-aware)";
-    return "intent-first";
-  })();
-  const chips: PracticeChip[] = [
-    { label: `Class ${grade}`, tone: "neutral" },
-    {
-      label:
-        scope.subject === "Science" && scope.stream !== "All"
-          ? `${scope.subject} · ${scope.stream}`
-          : scope.subject,
-      tone: "neutral",
-    },
-    { label: `Scope: ${scopeChipLabel}`, tone: "neutral" },
-    { label: `Mode: ${modeChipLabel}`, tone: "info" },
-  ];
-  if (topicHubFocusContext && focusParam) {
-    chips.push({ label: `Focus: ${focusParam}`, tone: "info" });
-  }
-
   // ── ScopeBuilder summary (parity with prototype) ─────────────────────
   const scopeSummary = (() => {
     if (scope.scope === "full-subject") {
@@ -2213,16 +2127,15 @@ export default function DesktopPracticePage() {
     } — ${selectedTopic?.name ?? "pick a topic"}`;
   })();
 
-  // ── Sample preview ─────────────────────────────────────────────────────
-  const samplePreview = blueprintContent
-    ? {
-        topicName: blueprintContent.topic.name,
-        marks: blueprintContent.topic.marks,
-        blurb: blueprintContent.topic.blurb,
-        highlights: blueprintContent.highlights,
-        resources: blueprintContent.resources.slice(0, 3),
-      }
-    : null;
+  // Step-1 aside — a compact echo of the current scope.
+  const scopeStepAside =
+    scope.scope === "full-subject"
+      ? `${scope.subject} · full subject`
+      : scope.scope === "multi-topic"
+        ? `${scope.subject} · ${scope.selectedTopicSlugs.length || "pick"} topic${
+            scope.selectedTopicSlugs.length === 1 ? "" : "s"
+          }`
+        : `${scope.subject} · ${selectedTopic?.name ?? "pick a topic"}`;
 
   // ── Render ─────────────────────────────────────────────────────────────
   const pageBody = (
@@ -2246,11 +2159,35 @@ export default function DesktopPracticePage() {
       >
         <BackToParent />
 
-        <PracticeContextBar
-          title="Practice"
-          subtitle="Pick a scope, then choose what to do."
-          chips={chips}
-        />
+        <div>
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: NAVY,
+              fontWeight: 600,
+            }}
+          >
+            Practice
+          </div>
+          <h1
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 600,
+              fontSize: "clamp(22px, 3vw, 30px)",
+              margin: "4px 0 3px",
+              letterSpacing: "-0.01em",
+              color: NAVY_DARK,
+            }}
+          >
+            What shall we practise?
+          </h1>
+          <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
+            Pick what to work on, then choose how — a quick set, a worksheet, the
+            predicted questions, or a full paper.
+          </p>
+        </div>
 
         {topicHubFocusContext ? (
           <section
@@ -2297,73 +2234,77 @@ export default function DesktopPracticePage() {
           </section>
         ) : null}
 
-        <PracticeScopeBuilder
-          value={scope}
-          onChange={setScope}
-          topics={topics}
-          summary={scopeSummary}
-          helper="Showing a starter set of high-yield topics from the desktop bridge — not the full chapter list. Use the existing chapter pages for anything outside this short list."
-        />
+        <section>
+          <StepHeader n={1} title="What to work on" aside={scopeStepAside} />
+          <PracticeScopeBuilder
+            value={scope}
+            onChange={setScope}
+            topics={topics}
+            summary={scopeSummary}
+          />
+        </section>
 
         <div className="lt-practice-main-grid">
           {/* ───────────────────── MAIN COLUMN ───────────────────── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {/* Choose what to do — 4 primary cards */}
-            <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <h2
-                  style={{
-                    fontFamily: FONT_DISPLAY,
-                    margin: 0,
-                    fontSize: "1.18rem",
-                    fontWeight: 600,
-                    color: TEXT_FG,
-                    letterSpacing: "-0.005em",
-                  }}
-                >
-                  Choose what to do
-                </h2>
-                <p
-                  style={{
-                    margin: "2px 0 0 0",
-                    fontSize: "0.82rem",
-                    color: TEXT_MUTED,
-                  }}
-                >
-                  Every option routes to your existing production flows — nothing
-                  generates a new paper on its own.
-                </p>
-              </div>
-              <div className="lt-practice-card-grid">
-                <PrimaryCard
+            <section>
+              <StepHeader n={2} title="How to practise" />
+              <div
+                className="lt-mode-grid"
+                ref={modeScrollRef}
+                onScroll={handleModeScroll}
+              >
+                <ModeCard
+                  accent="quick"
                   icon={<IconLayers />}
                   title="Quick Practice"
-                  desc="A short, focused set of real questions in the full Practice workspace."
-                  preview={previewLine("practice-set")}
+                  desc="A short, focused set of real questions — presets or your own filters."
+                  chips={["Presets", "Board mix"]}
                   cta="Start quick practice"
                   to={quickPracticeTarget}
-                  disabledHint="Pick a scope above first"
+                  disabledHint="Pick a topic above first"
                   onActivate={(to) => navigate(to)}
-                  honestNote="Opens the full Practice workspace with this scope."
-                />
-                <PrimaryCard
-                  icon={<IconClipboard />}
-                  title="Worksheet"
-                  desc="Sectioned worksheet, ready for screen or print."
-                  preview={previewLine("worksheet")}
-                  cta="Open worksheet builder"
-                  to={worksheetPath}
-                  disabledHint="Pick a scope above first"
-                  onActivate={(to) => navigate(to)}
-                  honestNote="Opens the existing worksheet builder (/practice/worksheets) with this scope."
                   extra={
                     <label
                       style={{
-                        display: "inline-flex",
+                        marginTop: 11,
+                        display: "flex",
                         alignItems: "center",
-                        gap: 6,
-                        fontSize: 11,
-                        color: buckets.topRow ? TEXT_FG : TEXT_MUTED,
+                        gap: 8,
+                        fontSize: 11.5,
+                        color: TEXT_MUTED,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={timerOn}
+                        onChange={(e) => setTimerOn(e.target.checked)}
+                        style={{ accentColor: PRIMARY_GREEN }}
+                      />
+                      <IconTimer size={14} /> Add a timer
+                    </label>
+                  }
+                />
+                <ModeCard
+                  accent="worksheet"
+                  icon={<IconClipboard />}
+                  title="Worksheet"
+                  desc="A sectioned worksheet, ready for screen or print."
+                  chips={["Printable", "Sectioned"]}
+                  cta="Open worksheet builder"
+                  to={worksheetPath}
+                  disabledHint="Pick a topic above first"
+                  onActivate={(to) => navigate(to)}
+                  extra={
+                    <label
+                      style={{
+                        marginTop: 11,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        fontSize: 11.5,
+                        color: buckets.topRow ? TEXT_MUTED : "hsl(220, 15%, 62%)",
                         cursor: buckets.topRow ? "pointer" : "not-allowed",
                       }}
                       title={
@@ -2383,29 +2324,44 @@ export default function DesktopPracticePage() {
                     </label>
                   }
                 />
-                <PrimaryCard
+                <ModeCard
+                  accent="hpq"
                   icon={<IconSparkles />}
-                  title="Predicted / HPQs"
-                  desc="Highly probable questions for your scope, sourced from the production HPQ catalogue."
-                  preview={previewLine("predicted")}
-                  cta="Open Highly Probable Questions"
+                  title="Predicted (HPQs)"
+                  desc="The questions most likely to appear — from the highly-probable catalogue."
+                  chips={["Most likely", "Board-pattern"]}
+                  cta="Open highly probable"
                   to={buildPredictedPath()}
                   onActivate={(to) => navigate(to)}
-                  honestNote="Opens the existing /highly-probable page with this scope. Real matched HPQ rows are also previewed in the Predicted-questions tabs below."
                 />
-                <PrimaryCard
+                <ModeCard
+                  accent="full"
                   icon={<IconGraduation />}
                   title="Full Test"
                   desc="3-hour board paper · 80 marks."
-                  preview={previewLine("full-mock")}
-                  cta="Open Full Test"
+                  chips={["3 hours", "80 marks"]}
+                  cta="Open full test"
                   to={buildFullTestPath()}
                   onActivate={(to) => navigate(to)}
-                  honestNote={`Opens the Full Test — the full board-pattern ${scope.subject} paper (Sections A–E). The 3-hour clock starts on that page, not here.`}
                 />
               </div>
+              {/* Mobile carousel page dots — desktop renders a 2×2 grid. */}
+              <div className="lt-mode-dots" aria-hidden>
+                {[0, 1, 2, 3].map((i) => (
+                  <span
+                    key={i}
+                    style={{
+                      width: i === modeIndex ? 16 : 6,
+                      height: 6,
+                      borderRadius: i === modeIndex ? 3 : "50%",
+                      background: i === modeIndex ? NAVY : BORDER,
+                      transition: "all 200ms ease",
+                      display: "block",
+                    }}
+                  />
+                ))}
+              </div>
             </section>
-
             {/* PR-C2.1 legacy generated quick practice panel.
                 K2G's main Start quick practice CTA bypasses this panel.
                 Renders real questions from the production unified bank via
@@ -3006,663 +2962,6 @@ export default function DesktopPracticePage() {
               </section>
             ) : null}
 
-            {/* More practice options — accordion (native <details>) */}
-            <details
-              style={{
-                background: CARD_BG,
-                border: `1px solid ${BORDER}`,
-                borderRadius: 14,
-                padding: "10px 16px",
-              }}
-            >
-              <summary
-                style={{
-                  cursor: "pointer",
-                  listStyle: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontSize: "0.9rem",
-                  fontWeight: 600,
-                  color: TEXT_FG,
-                  padding: "6px 0",
-                }}
-              >
-                More practice options
-                <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                  Timed · Chapter Test
-                </span>
-              </summary>
-              <div className="lt-practice-more-grid">
-                <PrimaryCard
-                  icon={<IconTimer />}
-                  title="Timed Drill"
-                  desc="Short focused drill with a timer."
-                  preview={previewLine("timed")}
-                  cta={drillTargeted ? "Start targeted drill" : "Start timed drill"}
-                  to={timedDrillPath}
-                  disabledHint="Pick a scope above first"
-                  onActivate={(to) => navigate(to)}
-                  extra={
-                    <label
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        fontSize: 11,
-                        color: buckets.topRow ? TEXT_FG : TEXT_MUTED,
-                        cursor: buckets.topRow ? "pointer" : "not-allowed",
-                      }}
-                      title={
-                        buckets.topRow
-                          ? "Routes the timer at your top mistake topic"
-                          : "Available after you save a graded answer in Check & Improve"
-                      }
-                    >
-                      <input
-                        type="checkbox"
-                        checked={drillTargeted && !!buckets.topRow}
-                        onChange={(e) => setDrillTargeted(e.target.checked)}
-                        disabled={!buckets.topRow}
-                        style={{ accentColor: PRIMARY_GREEN }}
-                      />
-                      Make this a targeted drill
-                    </label>
-                  }
-                />
-                <PrimaryCard
-                  icon={<IconScroll />}
-                  title="Chapter Test"
-                  desc="Single-chapter test on the topic you picked."
-                  preview={previewLine("chapter-test")}
-                  cta="Open existing chapter test"
-                  to={chapterTestPath}
-                  disabledHint="Pick a single topic above to enable"
-                  onActivate={(to) => navigate(to)}
-                  ctaTone="secondary"
-                  honestNote="Opens the existing /chapter-test engine on the topic you picked."
-                />
-              </div>
-            </details>
-
-            {/* PaperBlueprint — 5-section board paper preview (subject-level) */}
-            <PracticePaperBlueprint subject={scope.subject} stream={scope.stream} />
-
-            {/* Predicted questions — 3 honest tabs */}
-            <section
-              style={{
-                background: CARD_BG,
-                border: `1px solid ${BORDER}`,
-                borderRadius: 16,
-                padding: 20,
-                display: "flex",
-                flexDirection: "column",
-                gap: 14,
-              }}
-            >
-              <div>
-                <h3
-                  style={{
-                    fontFamily: FONT_DISPLAY,
-                    fontSize: "1.05rem",
-                    fontWeight: 600,
-                    color: TEXT_FG,
-                    margin: 0,
-                  }}
-                >
-                  Predicted questions
-                </h3>
-                <p style={{ margin: "2px 0 0 0", fontSize: "0.8rem", color: TEXT_MUTED }}>
-                  Topic HPQs · Selected-topic predictions · Full-subject prediction.
-                </p>
-              </div>
-              <div
-                role="tablist"
-                style={{
-                  display: "inline-flex",
-                  gap: 6,
-                  background: PILL_BG,
-                  padding: 4,
-                  borderRadius: 10,
-                  alignSelf: "flex-start",
-                }}
-              >
-                {([
-                  { id: "topic", label: "Topic HPQs" },
-                  { id: "selected", label: "Selected topics" },
-                  { id: "full", label: "Full subject" },
-                ] as { id: TabId; label: string }[]).map((t) => {
-                  const active = tab === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() => setTab(t.id)}
-                      style={{
-                        appearance: "none",
-                        WebkitAppearance: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        background: active ? CARD_BG : "transparent",
-                        color: active ? TEXT_FG : TEXT_MUTED,
-                        boxShadow: active
-                          ? "0 1px 2px rgba(15, 23, 42, 0.10)"
-                          : "none",
-                        padding: "6px 12px",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: active ? 700 : 500,
-                      }}
-                    >
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Topic HPQs tab — PR-C2.1: real HPQ rows from getHighlyProbableQuestions */}
-              {tab === "topic" ? (
-                selectedTopic ? (
-                  selectedTopicHpqBucket && selectedTopicHpqBucket.questions.length > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{ fontSize: 13, color: TEXT_FG }}>
-                        <strong>{selectedTopic.name}</strong> —{" "}
-                        <span style={{ color: TEXT_MUTED }}>
-                          {selectedTopicHpqBucket.questions.length} highly-probable
-                          question{selectedTopicHpqBucket.questions.length === 1 ? "" : "s"} from
-                          the production catalogue
-                        </span>
-                      </div>
-                      <ol
-                        style={{
-                          margin: 0,
-                          padding: 0,
-                          paddingLeft: 22,
-                          listStyle: "decimal",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 8,
-                        }}
-                      >
-                        {selectedTopicHpqBucket.questions.slice(0, 5).map((q: HPQQuestion) => (
-                          <li
-                            key={q.id}
-                            style={{
-                              background: PILL_BG,
-                              border: `1px solid ${BORDER}`,
-                              borderRadius: 10,
-                              padding: "10px 12px",
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 6,
-                                marginBottom: 6,
-                              }}
-                            >
-                              <span
-                                style={{
-                                  padding: "2px 8px",
-                                  borderRadius: 999,
-                                  background: CARD_BG,
-                                  border: `1px solid ${BORDER}`,
-                                  fontSize: 10.5,
-                                  color: TEXT_MUTED,
-                                  fontWeight: 700,
-                                  letterSpacing: "0.04em",
-                                  textTransform: "uppercase",
-                                }}
-                              >
-                                Section {q.section} · {q.marks}m
-                              </span>
-                              <span
-                                style={{
-                                  padding: "2px 8px",
-                                  borderRadius: 999,
-                                  background: CARD_BG,
-                                  border: `1px solid ${BORDER}`,
-                                  fontSize: 10.5,
-                                  color: TEXT_MUTED,
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {q.type}
-                              </span>
-                              <span
-                                style={{
-                                  padding: "2px 8px",
-                                  borderRadius: 999,
-                                  background: CARD_BG,
-                                  border: `1px solid ${BORDER}`,
-                                  fontSize: 10.5,
-                                  color: TEXT_MUTED,
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {q.difficulty} · {q.likelihood}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 13,
-                                color: TEXT_FG,
-                                lineHeight: 1.5,
-                              }}
-                            >
-                              {q.question}
-                            </div>
-                          </li>
-                        ))}
-                      </ol>
-                      <Link
-                        to={buildPredictedPath()}
-                        style={{
-                          alignSelf: "flex-start",
-                          background: PRIMARY_GREEN,
-                          color: "#fff",
-                          padding: "7px 12px",
-                          borderRadius: 10,
-                          fontSize: "0.78rem",
-                          fontWeight: 600,
-                          textDecoration: "none",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        <IconSparkles size={14} /> Open full HPQ page for {selectedTopic.name}
-                      </Link>
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <p style={{ margin: 0, fontSize: 13, color: TEXT_FG }}>
-                        <strong>{selectedTopic.name}</strong> isn&apos;t in the
-                        Highly-Probable-Questions catalogue yet.
-                      </p>
-                      <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED, lineHeight: 1.5 }}>
-                        We don&apos;t fabricate predicted questions from
-                        reference material — open the live HPQ page to see the
-                        full ranked list across topics that are covered.
-                      </p>
-                      <Link
-                        to={buildPredictedPath()}
-                        style={{
-                          alignSelf: "flex-start",
-                          background: PRIMARY_GREEN,
-                          color: "#fff",
-                          padding: "7px 12px",
-                          borderRadius: 10,
-                          fontSize: "0.78rem",
-                          fontWeight: 600,
-                          textDecoration: "none",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        <IconSparkles size={14} /> Open Highly Probable Questions
-                      </Link>
-                    </div>
-                  )
-                ) : (
-                  <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
-                    Pick a single topic in the scope builder to see its
-                    Highly Probable Questions from the live catalogue.
-                  </p>
-                )
-              ) : null}
-
-              {/* Selected topics tab — PR-C2.1: real HPQ rows per selected topic */}
-              {tab === "selected" ? (
-                scope.selectedTopicSlugs.length >= 2 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {scope.selectedTopicSlugs.map((slug) => {
-                      const t = desktopTopicBySlug(slug);
-                      if (!t) return null;
-                      const bucket = findHpqBucketForSlug(hpqBuckets, slug);
-                      const topQ = bucket?.questions[0];
-                      return (
-                        <div
-                          key={slug}
-                          style={{
-                            background: PILL_BG,
-                            border: `1px solid ${BORDER}`,
-                            borderRadius: 10,
-                            padding: 12,
-                          }}
-                        >
-                          <div style={{ fontSize: 13, fontWeight: 600, color: TEXT_FG }}>
-                            {t.name}{" "}
-                            <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>
-                              · {t.marks}
-                            </span>
-                            {bucket ? (
-                              <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>
-                                {" "}· {bucket.questions.length} HPQ
-                                {bucket.questions.length === 1 ? "" : "s"} in catalogue
-                              </span>
-                            ) : null}
-                          </div>
-                          {topQ ? (
-                            <div style={{ marginTop: 6 }}>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 6,
-                                  marginBottom: 4,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    padding: "1px 7px",
-                                    borderRadius: 999,
-                                    background: CARD_BG,
-                                    border: `1px solid ${BORDER}`,
-                                    fontSize: 10,
-                                    color: TEXT_MUTED,
-                                    fontWeight: 700,
-                                    letterSpacing: "0.04em",
-                                    textTransform: "uppercase",
-                                  }}
-                                >
-                                  Section {topQ.section} · {topQ.marks}m
-                                </span>
-                                <span
-                                  style={{
-                                    padding: "1px 7px",
-                                    borderRadius: 999,
-                                    background: CARD_BG,
-                                    border: `1px solid ${BORDER}`,
-                                    fontSize: 10,
-                                    color: TEXT_MUTED,
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {topQ.type} · {topQ.likelihood}
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: 12.5,
-                                  color: TEXT_FG,
-                                  lineHeight: 1.5,
-                                }}
-                              >
-                                {topQ.question}
-                              </div>
-                            </div>
-                          ) : (
-                            <p
-                              style={{
-                                margin: "4px 0 0 0",
-                                fontSize: 12,
-                                color: TEXT_MUTED,
-                                lineHeight: 1.5,
-                              }}
-                            >
-                              No HPQ catalogue match for this topic — open the
-                              live page for ranked predictions across covered
-                              topics.
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })}
-                    <Link
-                      to={buildPredictedPath()}
-                      style={{
-                        alignSelf: "flex-start",
-                        background: PRIMARY_GREEN,
-                        color: "#fff",
-                        padding: "7px 12px",
-                        borderRadius: 10,
-                        fontSize: "0.78rem",
-                        fontWeight: 600,
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <IconSparkles size={14} /> Open Highly Probable Questions
-                    </Link>
-                  </div>
-                ) : (
-                  <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
-                    Switch scope to <strong style={{ color: TEXT_FG }}>Multi-topic</strong>{" "}
-                    and pick 2 or more topics to compare predicted Qs side-by-side.
-                  </p>
-                )
-              ) : null}
-
-              {/* Full subject tab */}
-              {tab === "full" ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <div
-                    style={{
-                      background: PILL_BG,
-                      border: `1px solid ${BORDER}`,
-                      borderRadius: 10,
-                      padding: 14,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                    }}
-                  >
-                    <div style={{ fontSize: 13, fontWeight: 600, color: TEXT_FG }}>
-                      {scope.subject} 80-mark predicted paper outline
-                    </div>
-                    <ul
-                      style={{
-                        margin: 0,
-                        paddingLeft: 18,
-                        fontSize: 12,
-                        color: TEXT_FG,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 4,
-                        lineHeight: 1.55,
-                      }}
-                    >
-                      <li>
-                        <strong>Section A</strong> (1m × 20): MCQ + Assertion-Reason from
-                        high-trend topics
-                      </li>
-                      <li>
-                        <strong>Section B</strong> (2m × 5): Short answers from
-                        high-frequency chapters
-                      </li>
-                      <li>
-                        <strong>Section C</strong> (3m × 6): Short reasoning + numerical
-                        problems
-                      </li>
-                      <li>
-                        <strong>Section D</strong> (5m × 4): Long-answer + diagram /
-                        derivation problems
-                      </li>
-                      <li>
-                        <strong>Section E</strong> (4m × 3): Case-based questions
-                      </li>
-                    </ul>
-                    <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                      Sample preview · the live{" "}
-                      <Link
-                        to={buildPredictedPath()}
-                        style={{ color: PRIMARY_GREEN, textDecoration: "none", fontWeight: 600 }}
-                      >
-                        Highly Probable
-                      </Link>{" "}
-                      page generates the actual ranked list.
-                    </span>
-                  </div>
-                  <Link
-                    to={buildPredictedPath()}
-                    style={{
-                      alignSelf: "flex-start",
-                      background: PRIMARY_GREEN,
-                      color: "#fff",
-                      padding: "7px 12px",
-                      borderRadius: 10,
-                      fontSize: "0.78rem",
-                      fontWeight: 600,
-                      textDecoration: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <IconSparkles size={14} /> View {scope.subject} full predicted paper
-                  </Link>
-                </div>
-              ) : null}
-            </section>
-
-            {/* Topic reference — PR-C2.1: honestly labelled curated highlights.
-                Previously called "Sample preview" with fabricated Section A/B/C
-                chips that implied a paper layout. The chips are removed and the
-                copy makes clear these are reference points (study cues), not
-                generated questions. Real generated questions now open in the
-                full Practice workspace or the Predicted-questions tabs above. */}
-            {samplePreview && samplePreview.highlights.length > 0 ? (
-              <section
-                style={{
-                  background: CARD_BG,
-                  border: `1px solid ${BORDER}`,
-                  borderRadius: 14,
-                  padding: 18,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
-                    <h3
-                      style={{
-                        fontFamily: FONT_DISPLAY,
-                        fontSize: "1.0rem",
-                        fontWeight: 600,
-                        color: TEXT_FG,
-                        margin: 0,
-                        letterSpacing: "-0.005em",
-                      }}
-                    >
-                      Topic reference
-                    </h3>
-                    <p
-                      style={{
-                        margin: "2px 0 0 0",
-                        fontSize: 11.5,
-                        color: TEXT_MUTED,
-                        lineHeight: 1.45,
-                      }}
-                    >
-                      Curated study cues for this topic — not generated
-                      questions. For real questions, use Quick Practice above
-                      or the Predicted tabs.
-                    </p>
-                  </div>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      padding: "2px 10px",
-                      borderRadius: 999,
-                      background: PILL_BG,
-                      color: PILL_FG,
-                      border: `1px solid ${BORDER}`,
-                      fontSize: 11,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {samplePreview.topicName} · {samplePreview.marks}
-                  </span>
-                </div>
-                {samplePreview.blurb ? (
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 12.5,
-                      color: PILL_FG,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {samplePreview.blurb}
-                  </p>
-                ) : null}
-                <ul
-                  style={{
-                    listStyle: "none",
-                    margin: 0,
-                    padding: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                  }}
-                >
-                  {samplePreview.highlights.slice(0, 3).map((h) => (
-                    <li
-                      key={h.id}
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        alignItems: "flex-start",
-                        padding: "10px 12px",
-                        background: PILL_BG,
-                        border: `1px solid ${BORDER}`,
-                        borderRadius: 10,
-                      }}
-                    >
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: TEXT_FG,
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {h.label}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: TEXT_MUTED,
-                            marginTop: 2,
-                            lineHeight: 1.45,
-                          }}
-                        >
-                          {h.rationale}
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                  Reference cues only — no faux paper sections. The live{" "}
-                  <Link
-                    to={buildPredictedPath()}
-                    style={{ color: PRIMARY_GREEN_DARK, textDecoration: "none", fontWeight: 600 }}
-                  >
-                    Highly Probable
-                  </Link>{" "}
-                  page produces the actual ranked questions for your scope.
-                </span>
-              </section>
-            ) : null}
           </div>
 
           {/* ───────────────────── ASIDE COLUMN ───────────────────── */}
@@ -3673,89 +2972,17 @@ export default function DesktopPracticePage() {
               buckets={buckets}
               weakTopic={weakTopic}
               drillTopicSlug={weakTopicSlug}
-              grade={grade}
-              subject={scope.subject}
+              reclaimableMarks={reclaimableMarks}
               worksheetMistakeAwarePath={mistakeAwareWorksheetPath}
-              mockPath={buildFullTestPath()}
               checkPath={checkLinkPath}
               drillPath={drillFromMistakePath}
               currentPracticeUrl={currentPracticeUrl}
             />
 
-            {/* Quick links */}
-            <section
-              style={{
-                background: CARD_BG,
-                border: `1px solid ${BORDER}`,
-                borderRadius: 14,
-                padding: 18,
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-              }}
-            >
-              <h3
-                style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontSize: "1.02rem",
-                  fontWeight: 600,
-                  color: TEXT_FG,
-                  margin: 0,
-                  marginBottom: 4,
-                }}
-              >
-                Quick links
-              </h3>
-              {worksheetPath ? (
-                <Link
-                  to={worksheetPath}
-                  style={{
-                    fontSize: 13,
-                    color: PRIMARY_GREEN_DARK,
-                    textDecoration: "none",
-                    fontWeight: 500,
-                    padding: "4px 0",
-                  }}
-                >
-                  → Open worksheet with same scope
-                </Link>
-              ) : (
-                <span
-                  style={{
-                    fontSize: 13,
-                    color: TEXT_MUTED,
-                    padding: "4px 0",
-                  }}
-                  title="Pick a scope above first"
-                >
-                  → Open worksheet with same scope
-                </span>
-              )}
-              <Link
-                to={checkLinkPath}
-                style={{
-                  fontSize: 13,
-                  color: PRIMARY_GREEN_DARK,
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  padding: "4px 0",
-                }}
-              >
-                → Check your own answer
-              </Link>
-              <Link
-                to={meLinkPath}
-                style={{
-                  fontSize: 13,
-                  color: PRIMARY_GREEN_DARK,
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  padding: "4px 0",
-                }}
-              >
-                → See progress dashboard
-              </Link>
-            </section>
+            {/* Progress trend — DESKTOP ONLY (cramped and low-value at 390px).
+                Reads the SAME real getMistakeLogs history the buckets do, and
+                renders nothing at all when there is no honest series. */}
+            {isDesktop ? <MistakeTrendCard trend={mistakeTrend} /> : null}
           </aside>
         </div>
 
@@ -3774,51 +3001,58 @@ export default function DesktopPracticePage() {
           }
           @media (min-width: 1024px) {
             .lt-practice-main-grid {
-              grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+              grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
             }
           }
-          .lt-practice-card-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
+
+          /* ── Step 2 mode cards ─────────────────────────────────────────
+             Desktop/tablet: a 2x2 grid. Mobile: a true full-width swipe
+             carousel with snap — one whole card in view, the next peeking
+             just enough to invite the swipe (never a cut card). */
+          .lt-mode-grid {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
             gap: 12px;
+            margin: 0 -16px;
+            padding: 2px 16px 12px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .lt-mode-grid::-webkit-scrollbar { height: 0; }
+          .lt-mode-grid > .lt-mode-card {
+            scroll-snap-align: center;
+            flex: 0 0 calc(100% - 26px);
+          }
+          .lt-mode-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 2px;
           }
           @media (min-width: 768px) {
-            .lt-practice-card-grid {
+            .lt-mode-grid {
+              display: grid;
               grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 14px;
+              margin: 0;
+              padding: 0;
+              overflow-x: visible;
             }
+            .lt-mode-grid > .lt-mode-card { flex: initial; }
+            /* Dots belong to the carousel only. */
+            .lt-mode-dots { display: none; }
           }
-          .lt-practice-more-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 12px;
-            padding-top: 12px;
-            padding-bottom: 6px;
-          }
-          @media (min-width: 768px) {
-            .lt-practice-more-grid {
-              grid-template-columns: repeat(3, minmax(0, 1fr));
+          @media (max-width: 767px) {
+            /* The step-header aside is redundant beside the scope card. */
+            .lt-step-aside { display: none; }
+            /* Hard-constrain the MI card to the viewport — no horizontal cut. */
+            .lt-mi-card,
+            .lt-mi-card * {
+              max-width: 100%;
+              box-sizing: border-box;
             }
-          }
-          .lt-practice-scope-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 16px;
-          }
-          @media (min-width: 768px) {
-            .lt-practice-scope-grid {
-              grid-template-columns: repeat(3, minmax(0, 1fr));
-              gap: 20px;
-            }
-          }
-          .lt-practice-blueprint-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-          }
-          @media (min-width: 768px) {
-            .lt-practice-blueprint-grid {
-              grid-template-columns: repeat(5, minmax(0, 1fr));
-            }
+            .lt-mi-bar-label { width: 70px; }
           }
           .lt-practice-quick-grid {
             display: grid;
