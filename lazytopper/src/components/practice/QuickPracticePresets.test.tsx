@@ -1,12 +1,18 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, cleanup, fireEvent, screen } from "@testing-library/react";
+import { render, cleanup, fireEvent, screen, act } from "@testing-library/react";
+import { useEffect, useRef, useState } from "react";
+import {
+  createMemoryRouter,
+  RouterProvider,
+  useSearchParams,
+} from "react-router-dom";
 
 import { QuickPracticePresets, QP_PRESETS } from "./QuickPracticePresets";
 import {
   deriveArrivedTargeted,
   shouldShowPresetEntry,
   shouldResetBuiltOnPop,
-  QP_HISTORY_STEP_BUILT,
+  QP_BUILT_PARAM,
   selectInRangeFromPool,
   questionMatchesFilters,
 } from "../../pages/PracticePage";
@@ -59,17 +65,99 @@ describe("entry gate — presets bypass on tutor/targeted entry", () => {
   });
 
   // Back-nav: built set → [browser back] → preset chooser → [back] → hub.
-  it("shouldResetBuiltOnPop: back off the built entry drops to the chooser; not a trap, not for auto-build", () => {
-    // Built set on screen, back popped to the entry BELOW (no built marker) → drop to chooser.
-    expect(shouldResetBuiltOnPop(true, false, undefined)).toBe(true);
-    expect(shouldResetBuiltOnPop(true, false, null)).toBe(true);
-    // Still ON the built history entry (marker present) → do NOT reset (this is the build itself).
-    expect(shouldResetBuiltOnPop(true, false, QP_HISTORY_STEP_BUILT)).toBe(false);
+  it("shouldResetBuiltOnPop: built marker ABSENT while built → drop to chooser; not a trap, not for auto-build", () => {
+    // Built set on screen, back popped to the entry BELOW (built marker gone) → drop to chooser.
+    expect(shouldResetBuiltOnPop(true, false, false)).toBe(true);
+    // Still ON the built entry (marker present) → do NOT reset (this is the build itself).
+    expect(shouldResetBuiltOnPop(true, false, true)).toBe(false);
     // Already at the chooser (not built) → nothing to reset; the SECOND back reaches the hub.
-    expect(shouldResetBuiltOnPop(false, false, undefined)).toBe(false);
-    // Auto-build (tutor/targeted) NEVER pushed a built entry → never intercepted → back goes to hub.
-    expect(shouldResetBuiltOnPop(true, true, undefined)).toBe(false);
-    expect(shouldResetBuiltOnPop(true, true, QP_HISTORY_STEP_BUILT)).toBe(false);
+    expect(shouldResetBuiltOnPop(false, false, false)).toBe(false);
+    // Auto-build (tutor/targeted) NEVER added the marker → never intercepted → back goes to hub.
+    expect(shouldResetBuiltOnPop(true, true, false)).toBe(false);
+    expect(shouldResetBuiltOnPop(true, true, true)).toBe(false);
+  });
+});
+
+// ── 1b · Back-nav in a REAL router (the #484 regression: the entry must be POPPABLE) ──
+// The pure helper above is necessary but NOT sufficient — it's what let #484 ship broken:
+// it proves "IF back pops off a built entry, reset fires" but never that the entry gets
+// CREATED. #484 pushed via navigate(samePath+search, {state}) — RR treats that as a
+// replace/no-op, so no chooser entry existed and back skipped to the hub. This mounts a
+// real createMemoryRouter and asserts the built entry is genuinely pushed and poppable.
+//
+// The harness MIRRORS PracticePage's exact wiring (search-param push + transition-guarded
+// reset via the real shouldResetBuiltOnPop) so it validates the mechanism, not a mock.
+function BackNavHarness() {
+  const [sp, setSp] = useSearchParams();
+  const builtParam = sp.get(QP_BUILT_PARAM) === "1";
+  const [isBuilt, setIsBuilt] = useState(false);
+  const prev = useRef(builtParam);
+  useEffect(() => {
+    const wasBuilt = prev.current;
+    prev.current = builtParam;
+    if (wasBuilt && shouldResetBuiltOnPop(isBuilt, false, builtParam)) {
+      setIsBuilt(false);
+      return;
+    }
+    if (!isBuilt && builtParam) {
+      const n = new URLSearchParams(sp);
+      n.delete(QP_BUILT_PARAM);
+      setSp(n, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [builtParam, isBuilt]);
+  const build = () => {
+    setIsBuilt(true); // set BEFORE the push (mirrors PracticePage) so the strip can't fire
+    const n = new URLSearchParams(sp);
+    n.set(QP_BUILT_PARAM, "1");
+    setSp(n, { replace: false });
+  };
+  return (
+    <div>
+      <div>{isBuilt ? "RUNNER" : "CHOOSER"}</div>
+      <button onClick={build}>build</button>
+    </div>
+  );
+}
+
+describe("back-nav wiring — the built entry is a real, poppable history step", () => {
+  it("hub → build → [back] → chooser (same URL, marker gone) → [back] → hub", async () => {
+    const router = createMemoryRouter(
+      [
+        { path: "/hub", element: <div>HUB</div> },
+        { path: "/practice/:grade/:subject", element: <BackNavHarness /> },
+      ],
+      { initialEntries: ["/hub", "/practice/10/Maths?source=practice&topic=polynomials"], initialIndex: 1 },
+    );
+    render(<RouterProvider router={router} />);
+
+    // 1) Landed on the chooser; no built marker yet.
+    expect(screen.getByText("CHOOSER")).toBeTruthy();
+    expect(router.state.location.search).not.toContain(`${QP_BUILT_PARAM}=1`);
+
+    // 2) Build → runner, and the URL now carries built=1 (a genuinely different URL → PUSH).
+    await act(async () => {
+      fireEvent.click(screen.getByText("build"));
+    });
+    expect(screen.getByText("RUNNER")).toBeTruthy();
+    expect(router.state.location.search).toContain(`${QP_BUILT_PARAM}=1`);
+    expect(router.state.location.pathname).toBe("/practice/10/Maths");
+
+    // 3) Browser BACK → the PRESET CHOOSER (same topic), NOT the hub. If the push had been
+    //    a replace/no-op (#484), this back would land on /hub — this assertion catches it.
+    await act(async () => {
+      router.navigate(-1);
+    });
+    expect(screen.getByText("CHOOSER")).toBeTruthy();
+    expect(router.state.location.pathname).toBe("/practice/10/Maths");
+    expect(router.state.location.search).toContain("topic=polynomials"); // scope preserved
+    expect(router.state.location.search).not.toContain(`${QP_BUILT_PARAM}=1`);
+
+    // 4) A SECOND back leaves for the hub (no trap).
+    await act(async () => {
+      router.navigate(-1);
+    });
+    expect(router.state.location.pathname).toBe("/hub");
   });
 });
 

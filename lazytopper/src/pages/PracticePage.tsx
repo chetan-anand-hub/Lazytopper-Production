@@ -1,7 +1,7 @@
 // src/pages/PracticePage.tsx
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
 import {
@@ -329,26 +329,30 @@ export const shouldShowPresetEntry = (
 ): boolean => !isBuilt && !arrivedTargeted && entryMode === "preset";
 
 /**
- * The `location.state.qpStep` marker a preset/manual build pushes onto history so the
- * built set becomes a REAL history entry (not just a `useState` flip). Back then pops
- * built → chooser → hub, one UI step at a time.
+ * The SEARCH-PARAM marker a hub-flow build adds to the URL so the built set becomes a
+ * REAL, poppable history entry. It MUST live in the search (not just location.state):
+ * React Router treats a navigate to an identical path+search as a replace/no-op (RR
+ * #5362), so a state-only push never created a chooser entry beneath the built one and
+ * browser-back skipped straight to the hub (the #484 live-verify failure). Changing the
+ * search genuinely changes the URL → RR pushes a distinct entry that back pops off.
  */
-export const QP_HISTORY_STEP_BUILT = "built" as const;
+export const QP_BUILT_PARAM = "built" as const;
 
 /**
- * Back-navigation reset (QP A1). True when a browser/gesture BACK has popped OFF the
- * built set's history entry (which carries qpStep:"built") onto the entry below it — so
- * the built set must drop back to the preset chooser (one UI step) rather than the page
- * unmounting straight to the hub. Only for the hub/chooser flow: an auto-build
- * (tutor/targeted) entry never pushed a built entry, so it is NOT intercepted and its
- * back goes to the hub exactly as before. Pure + exported so the pop-reset invariant is
- * unit-pinned, not a claim.
+ * Back-navigation reset (QP A1). True when the "built" SEARCH marker is absent while the
+ * built set is still on screen — i.e. a browser/gesture BACK has popped off the built
+ * entry onto the chooser entry below it — so the built set must drop back to the preset
+ * chooser (one UI step) rather than the page unmounting straight to the hub. Only for the
+ * hub/chooser flow: an auto-build (tutor/targeted) entry never added the marker, so it is
+ * NOT intercepted and its back goes to the hub exactly as before. Pure + exported so the
+ * pop-reset invariant is unit-pinned; the CALLER also gates on a true→false marker
+ * transition so a build (false→true) can never trip it (see the effect).
  */
 export const shouldResetBuiltOnPop = (
   isBuilt: boolean,
   arrivedTargeted: boolean,
-  historyStep: string | null | undefined,
-): boolean => isBuilt && !arrivedTargeted && historyStep !== QP_HISTORY_STEP_BUILT;
+  builtParamPresent: boolean,
+): boolean => isBuilt && !arrivedTargeted && !builtParamPresent;
 import {
   getQuestionFamiliesForTopic,
   getQuestionMeta,
@@ -432,6 +436,7 @@ const FIRST_PRACTICE_KEY = "lazytopper.first_practice_tracked";
 const PracticePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [, setSearchParams] = useSearchParams();
   const params = useParams<{ grade?: string; subject?: string }>();
   const { user: authUserForJourney } = useAuth();
 
@@ -749,34 +754,48 @@ const PracticePage: React.FC = () => {
 
   // ── QP back-nav: built set → [browser back] → preset chooser → [back] → hub ──────
   // The chooser→built transition is a pure useState flip (setIsBuilt), so the whole
-  // chooser→built→runner journey lives on ONE URL and browser/gesture back skips past
-  // the chooser straight to the hub. Fix (Approach A — the built state SHOULD be a real
-  // history entry): every hub-flow build pushes a same-URL history entry marked
-  // qpStep:"built" using the app's own navigate + location-state convention (see the
-  // return-ticket navigate below and the L2 `back` state) — NOT an invented query param.
-  // A same-URL push is safe here: no effect keys on location.key/pathname/search (the
-  // fetch effect keys on committed filters + regenerationKey), so nothing re-fetches or
-  // loses scope on the push or the pop.
+  // chooser→built→runner journey lived on ONE URL and browser/gesture back skipped past
+  // the chooser straight to the hub. Fix: every hub-flow build adds a `built=1` SEARCH
+  // param, which genuinely changes the URL so React Router pushes a REAL, poppable entry.
+  // (#484 tried a same-path+search navigate with only location.state — RR treats that as
+  // a replace/no-op, so no chooser entry was ever created: the live-verify failure.)
+  // Safe here: `built` is a history marker only — no effect keys on it (the fetch effect
+  // keys on committed filters + regenerationKey; every qp-derived value reads specific
+  // params, never `built`), so nothing re-fetches or loses scope on the add or the pop.
+  const builtParam = qp.get(QP_BUILT_PARAM) === "1";
   const pushBuiltHistoryEntry = useCallback(() => {
     if (arrivedTargeted) return; // auto-build (tutor/targeted) has no chooser step to insert
-    navigate(location.pathname + location.search, {
-      state: { ...((location.state as Record<string, unknown> | null) ?? {}), qpStep: QP_HISTORY_STEP_BUILT },
-    });
-  }, [arrivedTargeted, navigate, location.pathname, location.search, location.state]);
+    const next = new URLSearchParams(location.search);
+    next.set(QP_BUILT_PARAM, "1");
+    // replace:false → PUSH a distinct entry; preserve location.state (the hub return ticket).
+    setSearchParams(next, { replace: false, state: location.state });
+  }, [arrivedTargeted, setSearchParams, location.search, location.state]);
 
-  // When back pops OFF the built entry (onto the entry below, which has no built marker)
-  // while the built set is still on screen, drop to the chooser instead of unmounting to
-  // the hub. The SECOND back has no built entry to catch and leaves for the hub as before.
-  // Keyed on location.key ONLY (fires once per push/pop, when isBuilt and location.state
-  // are committed together): isBuilt must NOT be a dep, or the reset would fire mid-build
-  // before the push commits. Auto-build is excluded via shouldResetBuiltOnPop.
+  // Pop-reset + stale-marker strip, driven by the `built` search marker. A ref tracks the
+  // marker's PREVIOUS value so the reset fires ONLY on a true→false transition (a real
+  // back-pop), never on a build's false→true — this makes it immune to setIsBuilt/
+  // setSearchParams commit ordering. Auto-build is excluded (it never adds the marker).
+  const prevBuiltParamRef = useRef(builtParam);
   useEffect(() => {
-    const step = (location.state as { qpStep?: string } | null)?.qpStep;
-    if (shouldResetBuiltOnPop(isBuilt, arrivedTargeted, step)) {
+    const wasBuilt = prevBuiltParamRef.current;
+    prevBuiltParamRef.current = builtParam;
+    if (arrivedTargeted) return;
+    // Back popped the marker off (built entry → chooser entry) while the set is on screen.
+    if (wasBuilt && shouldResetBuiltOnPop(isBuilt, arrivedTargeted, builtParam)) {
       setIsBuilt(false);
+      return;
+    }
+    // A `built` marker lingering while NOT built — after an in-app "Edit filters", a
+    // forward-nav, or a refresh landed on the built entry. Strip it (replace, no history
+    // noise) so the NEXT build genuinely changes the search and RR pushes a real entry
+    // (setting built=1 onto a URL that already has it would be a no-op → back would break).
+    if (!isBuilt && builtParam) {
+      const next = new URLSearchParams(location.search);
+      next.delete(QP_BUILT_PARAM);
+      setSearchParams(next, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.key]);
+  }, [builtParam, isBuilt]);
 
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
 
