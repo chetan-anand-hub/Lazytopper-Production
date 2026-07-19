@@ -327,6 +327,28 @@ export const shouldShowPresetEntry = (
   arrivedTargeted: boolean,
   entryMode: "preset" | "custom",
 ): boolean => !isBuilt && !arrivedTargeted && entryMode === "preset";
+
+/**
+ * The `location.state.qpStep` marker a preset/manual build pushes onto history so the
+ * built set becomes a REAL history entry (not just a `useState` flip). Back then pops
+ * built → chooser → hub, one UI step at a time.
+ */
+export const QP_HISTORY_STEP_BUILT = "built" as const;
+
+/**
+ * Back-navigation reset (QP A1). True when a browser/gesture BACK has popped OFF the
+ * built set's history entry (which carries qpStep:"built") onto the entry below it — so
+ * the built set must drop back to the preset chooser (one UI step) rather than the page
+ * unmounting straight to the hub. Only for the hub/chooser flow: an auto-build
+ * (tutor/targeted) entry never pushed a built entry, so it is NOT intercepted and its
+ * back goes to the hub exactly as before. Pure + exported so the pop-reset invariant is
+ * unit-pinned, not a claim.
+ */
+export const shouldResetBuiltOnPop = (
+  isBuilt: boolean,
+  arrivedTargeted: boolean,
+  historyStep: string | null | undefined,
+): boolean => isBuilt && !arrivedTargeted && historyStep !== QP_HISTORY_STEP_BUILT;
 import {
   getQuestionFamiliesForTopic,
   getQuestionMeta,
@@ -724,6 +746,37 @@ const PracticePage: React.FC = () => {
     }
     didInitFromUrlRef.current = true;
   }, [initialPracticeDefaults]);
+
+  // ── QP back-nav: built set → [browser back] → preset chooser → [back] → hub ──────
+  // The chooser→built transition is a pure useState flip (setIsBuilt), so the whole
+  // chooser→built→runner journey lives on ONE URL and browser/gesture back skips past
+  // the chooser straight to the hub. Fix (Approach A — the built state SHOULD be a real
+  // history entry): every hub-flow build pushes a same-URL history entry marked
+  // qpStep:"built" using the app's own navigate + location-state convention (see the
+  // return-ticket navigate below and the L2 `back` state) — NOT an invented query param.
+  // A same-URL push is safe here: no effect keys on location.key/pathname/search (the
+  // fetch effect keys on committed filters + regenerationKey), so nothing re-fetches or
+  // loses scope on the push or the pop.
+  const pushBuiltHistoryEntry = useCallback(() => {
+    if (arrivedTargeted) return; // auto-build (tutor/targeted) has no chooser step to insert
+    navigate(location.pathname + location.search, {
+      state: { ...((location.state as Record<string, unknown> | null) ?? {}), qpStep: QP_HISTORY_STEP_BUILT },
+    });
+  }, [arrivedTargeted, navigate, location.pathname, location.search, location.state]);
+
+  // When back pops OFF the built entry (onto the entry below, which has no built marker)
+  // while the built set is still on screen, drop to the chooser instead of unmounting to
+  // the hub. The SECOND back has no built entry to catch and leaves for the hub as before.
+  // Keyed on location.key ONLY (fires once per push/pop, when isBuilt and location.state
+  // are committed together): isBuilt must NOT be a dep, or the reset would fire mid-build
+  // before the push commits. Auto-build is excluded via shouldResetBuiltOnPop.
+  useEffect(() => {
+    const step = (location.state as { qpStep?: string } | null)?.qpStep;
+    if (shouldResetBuiltOnPop(isBuilt, arrivedTargeted, step)) {
+      setIsBuilt(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key]);
 
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
 
@@ -1339,6 +1392,7 @@ const packTopicKey = useMemo(() => {
     setCommittedCount(f.count);
     setDifficulty(f.engineDifficulty);
     setIsBuilt(true);
+    pushBuiltHistoryEntry(); // built set becomes a history entry → back returns to the chooser
     regenerateQuestions();
   };
 
@@ -1867,6 +1921,7 @@ const packTopicKey = useMemo(() => {
             setCommittedMarksRange(pendingMarksRange);
             setCommittedCount(questionCount);
             setIsBuilt(true);
+            pushBuiltHistoryEntry(); // built set becomes a history entry → back returns to the entry
             regenerateQuestions();
           }}
           isBuilt={isBuilt}
