@@ -1,5 +1,19 @@
 ---
 
+## 2026-07-19 -- #481: ★★ QUICK PRACTICE A1 — PROGRESSIVE-DISCLOSURE ENTRY + OPTIONAL TIMER, and presets that shipped CORRECT-BUT-UNREACHABLE — **merged, owner LIVE-VERIFIED** — trunk `ec3275c`
+
+**One product PR opens Quick Practice on a friendlier entry.** A direct/hub visit now lands on **four stylised preset cards** (Quick drill / Board mix [default, competency-inclusive] / Competency / High-marks) + a **gated "My weak areas"** 5th, with the **full five-dimension filter incl. Source** one tap behind **Customise**, an **optional student-toggled timer**, and a **mobile swipe carousel**. **Presentation-only** — 4 product files (`PracticePage.tsx` +199/−15 + 3 new practice files).
+
+**Verified invariants (byte-reviewed).** A preset = a bundle of the EXISTING `setCommitted*` setters + `setIsBuilt(true)` (byte-identical to `PracticeControls.onBuildSet`). The reshuffle/rotation engine, the filter wiring, `practiceQuestionBuilder`, `practiceSetGenerator` and `persistQuickPracticeSession` are **ZERO-DIFF** — revisits still reshuffle (seeded per session), seen questions still deprioritise, the tutor still gets QP's graded work via `perQuestionRef`. Difficulty stays `"all"` on every preset (the marks bucket carries the band via `DIFF_COMPAT_BY_MARKS`); Competency = case-based (single-select can't do case+AR) and gates honestly per topic against the real bank (`buildPracticeQuestionsFromEngine(boardPattern:"E")` returns `[]` when empty — never fabricated); timer reuses ChapterTest's `formatClock` + 1.2-min/mark, no auto-submit; carousel pure-CSS `@media`, no `useIsDesktop`. Gates green: tsc, acceptance 13/13, existing rotation test 23/23, mojibake, scope:guard `lanes=product`, root matrix 190/190, ops matrix.
+
+### ★★ THE LESSON — a spec that scopes a feature to an unreachable URL state ships something INVISIBLE
+#481's code was right; its **entrypoint** was not. The preset screen was gated on a "direct visit, no `topic` param" state — but **production has no topic-less QP entry**: every route is hub → pick topic → CTA, which always carries `topic=`, which trips `arrivedTargeted` → auto-build → **the presets never showed.** **Owner LIVE-VERIFY caught this; the green gates did not.** Gates prove the code is *structurally right*; only walking the real navigation surfaces that the entry condition never occurs. ★ **Live-verify REACHABILITY, not just correctness.** The fix is in flight — Piece 1 (`feat/desktop-pr-qp-presets-hub-reachable`) re-gates the entry on `source` (`source=practice` → presets; `source=tutor` → auto-build). Found-and-fix-in-flight.
+
+### Follow-ups
+RESOLVE [FU-QP-PROGRESSIVE-DISCLOSURE] (#481 shipped the preset entry) · LOG+RESOLVE [FU-QP-TIMER] (#481 shipped the optional timer) · LOG [FU-QP-PRESETS-UNREACHABLE] (correct-but-unreachable; Piece-1 fix in flight) · KEEP [FU-QP-WEAK-AREAS-PRESET] (the 5th card stays gated) · KEEP [FU-CI-GATE-VITEST] (the acceptance test ran LOCALLY only — CI still doesn't run vitest). **★ Next two QP PRs (Piece 1 + Piece 2) get a COMBINED handoff later; this handoff closes #481 only.**
+
+---
+
 ## 2026-07-19 -- #478 + #479: ★★ THE TUTOR READS THE GRADED WORK — question + per-step digest reach the model, and a MODEL-input change ships on a LIVE eval — **merged, owner LIVE-VERIFIED + a real 28-call rubric-2 eval** — trunk `a198bf1`
 
 **Two product PRs close the graded-context arc.** After #476 put C&I in an overlay, the tutor still saw only a headline on return (*"you got 4/5"*). Now it names the question the student worked AND the actual lost step — *"the 1 mark came off presentation, not your maths — on step 4 you left off the unit, write 20√3 m."*
