@@ -1,6 +1,26 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #483 → #486 merged — ★★ THE QP A1 ENTRY REDESIGN IS NOW GENUINELY USABLE — reachable (from the hub) AND navigable (browser-back + breadcrumb CTA both return to the chooser) — **all four owner LIVE-VERIFIED** — trunk `889ab6d`
+## [CURRENT] #488 merged — ★★ QP MULTI-TOPIC PRESETS ARE LIVE — a ≥2-topic selection now produces a genuine mixed set spanning all chosen topics (both Maths & Science) — **owner LIVE-VERIFIED** — trunk `9edb939`
+
+**The QP SURFACE arc is COMPLETE — Quick Practice is reachable, navigable, single- AND multi-topic.** #481→#486 made the preset entry usable single-topic; #488 (shape 3c) closes the last gap: the hub could select multiple topics but the QP CTA **collapsed to the first** before the questions. Now a `≥2 topics` selection fans out per-topic and merges into one **pooled-and-shuffled mixed set**. **Owner LIVE-VERIFIED: multi-topic works, both Maths and Science. Docs-only handoff; zero product files here.**
+
+- **Shape 3c (per-topic fan-out + merge + pool-and-shuffle)** — mirror the shipped per-SECTION `marks="all"` fan-out (`PracticePage.tsx`), keyed on **topic** instead of section: fan out ONE unchanged `buildPracticeQuestionsWithAiTopup` per chosen topic, merge, pool-and-shuffle. **The composition core is a NEW pure module (`multiTopicPractice.ts`) — no React/engine/IO.**
+- **Owner rulings (locked):** POOLED-AND-SHUFFLED; **50% competency floor HARD (`COMPETENCY_FLOOR=0.5`), wins every conflict** — enforced on the merged pool, the topic split SOFT and bends when the floor needs room (per-topic ~50% fill spreads competency so no topic is squeezed out — a naive global pick DID squeeze a third topic, **a test caught it** — then a global top-up if still short); **topic split proportional-to-availability, ≥2 floor, shortfall→richer, never fabricated**, via the single swappable `topicShare()` (v1 = bank availability). **FLATTEN not nest** — each per-topic fetch runs the board blueprint internally; the split only decides how many each contributes.
+
+**Verified invariants (byte-reviewed on the committed diff):**
+- **Single-topic BYTE-IDENTICAL** — gated behind `≥2 topics`; single-topic paths are ternary-wrapped (`isMultiTopic ? new : original`), evaluating to the exact trunk expression when false. The ONLY fetch-conditional change is `if(committedMarks==="all")` → `else if`, with **zero body removals** in either existing block. The additive guarantee.
+- **ZERO engine-service edits** — `buildPracticeQuestionsWithAiTopup` / `generatePracticeSet` / `getLikelyQuestionsForConcept` / `selectInRangeFromPool` untouched; multi-topic REUSES them per-topic.
+- **`sessionRecords.ts` byte-identical** — a forbidden-file touch was caught (the three-dot forbidden-guard **false-passes on UNCOMMITTED work**), reverted, and the `topicKeys` logic moved to the non-forbidden QP service via a post-build override.
+
+**Two owner-ratified design calls:** competency-HARD/topic-SOFT with per-topic spreading; section proportions NOT re-enforced post-merge (re-enforcing would be the forbidden topics×sections nesting — competency% + split + pooled-shuffle are the ratios that matter).
+
+**★★ THE DURABLE LESSON (full text in SESSION_LOG):** the investigation lane **falsified the spec's 3a/3b fork from the code** — **3b is structurally impossible** (`focusBankIds` only re-orders a pool already hard-scoped to one `topicKey` at `practiceSetGenerator.ts:287`) — and found **3c** by mirroring the shipped per-section fan-out. Reusing the working machinery per-topic (zero engine edits) beat both of the spec's options. **An investigation earns its keep by falsifying the spec's framing, not just answering its questions.**
+
+**NEXT:** **the QP OVERLAY on the tutor** (the C&I overlay's twin) — dispatched as an INVESTIGATION first (does `PracticePage` render in a tutor panel? how does chooser→built behave in a panel vs a page?). ★ The graded-context read is **already done** for QP (`composePracticeRecordReturnOpener` — QP is the reference impl C&I copied), so the overlay is only the HOSTING work. Then `[FU-QP-MULTITOPIC-EXAM-WEIGHT]` (swap `topicShare` to exam-weight) as a small fast-follow. See `NEXT_ACTION.md`.
+
+---
+
+## #483 → #486 merged — ★★ THE QP A1 ENTRY REDESIGN IS NOW GENUINELY USABLE — reachable (from the hub) AND navigable (browser-back + breadcrumb CTA both return to the chooser) — **all four owner LIVE-VERIFIED** — trunk `889ab6d`
 
 **#481 shipped the QP preset entry correct-but-invisible; this four-PR arc made it actually work — both directions, both controls.** Quick Practice's redesign is now reachable in production and you can get *out* of a built set back to the preset chooser by either the browser back button or the top-left breadcrumb. **All four PRs owner LIVE-VERIFIED. Docs-only handoff; zero product files here.**
 
