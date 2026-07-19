@@ -279,6 +279,38 @@ const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" 
   if (ui === "4") return "E";
   return "All";
 };
+
+/** m:ss, clamped at 0 — mirrors ChapterTestPage.formatClock, the reused timer pattern
+ *  (§2.3 optional QP timer). Presentation-only; QP has no auto-submit. */
+const formatClock = (totalSeconds: number): string => {
+  const s = Math.max(0, Math.round(totalSeconds));
+  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+};
+
+/**
+ * Direct-visit vs targeted/tutor entry (QP A1). A TARGETED arrival — an explicit,
+ * non-"generic" topic in the URL (Topic Hub, a "practise where you lose marks" CTA, the
+ * tutor's hand-off) or a Fix-My-Mistakes `targeted=1` session — auto-builds and MUST
+ * bypass the preset screen (§1/§3). Byte-identical to the didInitFromUrl effect's own
+ * inline check; exported (pure) so the bypass is unit-pinned.
+ */
+export const deriveArrivedTargeted = (
+  rawTopicParam: string,
+  isTargetedSession: boolean,
+): boolean =>
+  (!!rawTopicParam && rawTopicParam.toLowerCase() !== "generic") || isTargetedSession;
+
+/**
+ * The progressive-disclosure preset entry shows ONLY on a direct visit (not yet built,
+ * not targeted) in preset mode. On a tutor/targeted entry (arrivedTargeted) it is bypassed
+ * entirely and the set auto-builds. Pure + exported so "presets bypass on tutor entry" is
+ * a pinned invariant, not a claim.
+ */
+export const shouldShowPresetEntry = (
+  isBuilt: boolean,
+  arrivedTargeted: boolean,
+  entryMode: "preset" | "custom",
+): boolean => !isBuilt && !arrivedTargeted && entryMode === "preset";
 import {
   getQuestionFamiliesForTopic,
   getQuestionMeta,
@@ -327,6 +359,8 @@ import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { buildTutorPath } from "./tutor/tutorPath";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
+import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
+import { QP_ENTRY_CSS } from "../components/practice/quickPracticeEntryStyles";
 import { PracticeHero } from "../components/practice/PracticeHero";
 import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPanel";
 import { PracticeQuestionList } from "../components/practice/PracticeQuestionList";
@@ -509,6 +543,16 @@ const PracticePage: React.FC = () => {
     return raw || null;
   }, [qp]);
 
+  // Direct-visit vs targeted/tutor entry — derived from the URL SYNCHRONOUSLY so the
+  // preset screen never flashes on a targeted entry (the didInitFromUrl effect only flips
+  // isBuilt AFTER first paint). Mirrors that effect's own arrivedTargeted, which is kept
+  // byte-identical there; this render-scope copy gates ONLY the entry UI (§3 additive
+  // guarantee: the auto-build path is untouched).
+  const arrivedTargeted = useMemo(
+    () => deriveArrivedTargeted(rawTopicParam, isTargetedSession),
+    [rawTopicParam, isTargetedSession],
+  );
+
   const didInitFromUrlRef = useRef(false);
   const didAutoOpenJourneyMentorRef = useRef(false);
 
@@ -567,6 +611,19 @@ const PracticePage: React.FC = () => {
     () => conceptMarksRange
   );
   const [isBuilt, setIsBuilt] = useState<boolean>(false);
+
+  // ── Progressive-disclosure entry (QP A1) — PRESENTATION-ONLY ───────────────
+  // The direct-visit entry shows preset cards (entryMode "preset") with the full
+  // five-dimension advanced filter one tap away (entryMode "custom"). A preset applies
+  // the EXISTING setCommitted* setters via applyPreset — no new engine, no new filter
+  // logic, no rotation/persistence touch. Tutor/targeted entry (arrivedTargeted below)
+  // auto-builds and NEVER sees this screen (the render gate).
+  const [entryMode, setEntryMode] = useState<"preset" | "custom">("preset");
+  const [selectedPresetKey, setSelectedPresetKey] = useState<string>("board");
+  // Optional, student-toggled countdown for the runner (off by default). Reuses the
+  // ChapterTest timer pattern (formatClock + 1.2 min/mark); QP never auto-submits.
+  const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
 
   // ── QP SESSION IDENTITY + THE SEEN-SET (unique sets, 2026-07-15) ───────────
   // When this VISIT began. Captured once per mount: a new visit is a new session, so
@@ -702,6 +759,10 @@ const PracticePage: React.FC = () => {
 
   const handleEditFilters = useCallback(() => {
     setIsBuilt(false);
+    // "Edit filters" always opens the FULL advanced filter (pre-filled from committed),
+    // never the preset picker — even for a set that was built from a preset. The student
+    // is refining a concrete set, so the five-dimension filter is the right surface.
+    setEntryMode("custom");
     setPendingMarks(committedMarks);
     setPendingStyle(committedStyle);
     setPendingSource(committedSource);
@@ -917,6 +978,25 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
     if (!topicParam || topicParam.toLowerCase() === "generic") return topicParam;
     return resolveTopicDisplayName(subjectKey, canonicalTopicKey || topicParam);
   }, [subjectKey, canonicalTopicKey, topicParam]);
+
+  // ── Competency preset availability (§2.4 anti-fabrication) ─────────────────
+  // Runtime-authoritative check for REAL case-based (Section E) bank questions on this
+  // topic, drawn the SAME honest way as the "N available" hint: buildPracticeQuestionsFromEngine
+  // returns only real bank rows and yields [] when the section is empty (generatePracticeSet
+  // hard-returns [] on zero candidates and its top-up draws only from the already
+  // Section-E-filtered pool — no fabrication, no cross-section fill). >=1 => Competency is
+  // live; 0 => the card renders gated ("coming soon for this chapter"). Never source-scanned.
+  const competencyAvailable = useMemo(() => {
+    if (!topicLabel || topicLabel.toLowerCase() === "generic") return false;
+    const drawn = buildPracticeQuestionsFromEngine({
+      subjectKey,
+      topicKey: topicLabel,
+      count: 200,
+      difficulty: "All",
+      boardPattern: "E", // Section E == the case-based competency slice the preset serves
+    });
+    return drawn.some((q) => questionMatchesFilters(q, "4", "case", "all", "all", null));
+  }, [subjectKey, topicLabel]);
 
   useEffect(() => {
     const slug = canonicalTopicKey || topicParam;
@@ -1205,6 +1285,58 @@ const packTopicKey = useMemo(() => {
     setRegenerationKey((prev) => prev + 1);
   };
 
+  // ── A preset = a bundle of the EXISTING setCommitted* setters + setIsBuilt(true) ──
+  // The SAME build mechanism as PracticeControls' onBuildSet (below) — it just forces the
+  // preset's verified filter values instead of the pending chips, then regenerates. Plain
+  // function (not useCallback), like onBuildSet, so it closes over the current-render
+  // regenerateQuestions/questions. PRESENTATION-ONLY: the rotation/seen-set draw, the
+  // persistence path and the grader are all untouched.
+  const applyPreset = (presetKey: string) => {
+    const preset = QP_PRESETS.find((p) => p.key === presetKey);
+    if (!preset || !preset.filters || preset.gated) return;
+    if (preset.key === "comp" && !competencyAvailable) return; // gated: never build empty
+    const f = preset.filters;
+    trackUxEvent("practice_regenerate_click", "practice", {
+      action: "build_set",
+      preset: preset.key,
+      topic: topicParam,
+      subject: subjectKey,
+      questionCount: f.count,
+    });
+    // Pending mirrors committed so a later "Edit filters" pre-fills the chips correctly.
+    setPendingMarks(f.marks);
+    setPendingStyle(f.style);
+    setPendingSource(f.source);
+    setPendingDifficulty(f.committedDifficulty);
+    setPendingMarksRange(null);
+    setCommittedMarks(f.marks);
+    setCommittedStyle(f.style);
+    setCommittedSource(f.source);
+    setCommittedDifficulty(f.committedDifficulty);
+    setCommittedMarksRange(null);
+    setQuestionCount(f.count);
+    setCommittedCount(f.count);
+    setDifficulty(f.engineDifficulty);
+    setIsBuilt(true);
+    regenerateQuestions();
+  };
+
+  // ── Optional runner timer (§2.3) — reuses the ChapterTest pattern ──────────
+  // A soft, exam-realistic budget (1.2 min per mark, same formula as ChapterTest) for the
+  // built set. PRESENTATION-ONLY: it never grades, never auto-submits (QP finish is
+  // student-driven) — it only paces. Counts down while the runner is open and the timer
+  // is on; formatClock clamps the display at 0:00 and the tick stops at the budget.
+  const timerBudgetSeconds = useMemo(() => {
+    const totalMarks = filteredQuestions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
+    return Math.max(5, Math.round(totalMarks * 1.2)) * 60;
+  }, [filteredQuestions]);
+
+  // Fresh clock on every (re)build — keyed off regenerationKey, which every build path
+  // (preset, onBuildSet, Refresh set) bumps.
+  useEffect(() => {
+    setElapsedSeconds(0);
+  }, [regenerationKey]);
+
   const handleDownloadWorksheet = async () => {
     const scope = uiMarksToSectionScope(committedMarks);
     await downloadWorksheet({
@@ -1441,6 +1573,19 @@ const packTopicKey = useMemo(() => {
   const showScorecard =
     (sessionFinished || allDone) && questions.length > 0 && !scorecardDismissed;
 
+  // Optional runner countdown tick (§2.3). Runs 1/s only while the runner is open, the
+  // timer is on, and the session isn't finished. Functional guard stops the tick at the
+  // budget (no runaway); `elapsedSeconds` is intentionally NOT a dep so the interval is
+  // created once per (isBuilt/timerEnabled/scorecard/budget) change, not per second.
+  const showRunnerClock = isBuilt && timerEnabled && filteredQuestions.length > 0;
+  useEffect(() => {
+    if (!showRunnerClock || showScorecard) return;
+    const id = setInterval(() => {
+      setElapsedSeconds((e) => (e >= timerBudgetSeconds ? e : e + 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [showRunnerClock, showScorecard, timerBudgetSeconds]);
+
   // ── The QP session record (LOCKED §1a as amended — NON-COUNTING) ───────────
   // Written when the scorecard FIRST appears, not on the "Finish session" click alone:
   // `showScorecard` is (sessionFinished || allDone), so a student who answers every
@@ -1511,6 +1656,9 @@ const packTopicKey = useMemo(() => {
         paddingBottom: "80px",
       } as React.CSSProperties}
     >
+      {/* Scoped entry styles (preset cards, mobile carousel, runner clock) — one injected
+          stylesheet, class-driven, @media reflow; no useIsDesktop, no inline-style objects (§7). */}
+      <style>{QP_ENTRY_CSS}</style>
       <div
         style={{
           maxWidth: "1280px",
@@ -1626,6 +1774,43 @@ const packTopicKey = useMemo(() => {
           );
         })())}
 
+        {/* Progressive-disclosure entry (§2): a DIRECT visit in preset mode shows the
+            preset picker; the full five-dimension filter (PracticeControls) is one tap
+            behind "Customise" (entryMode "custom"). A targeted/tutor entry (arrivedTargeted)
+            or an already-built set falls straight through to PracticeControls — its
+            auto-build path is byte-identical (§3). */}
+        {shouldShowPresetEntry(isBuilt, arrivedTargeted, entryMode) ? (
+          <QuickPracticePresets
+            presets={QP_PRESETS}
+            selectedKey={selectedPresetKey}
+            onSelect={setSelectedPresetKey}
+            competencyAvailable={competencyAvailable}
+            onStart={() => applyPreset(selectedPresetKey)}
+            onCustomise={() => setEntryMode("custom")}
+            timerEnabled={timerEnabled}
+            onToggleTimer={() => setTimerEnabled((p) => !p)}
+          />
+        ) : (
+        <>
+        {!isBuilt && !arrivedTargeted && entryMode === "custom" && (
+          <div className="qp-entry">
+            <div className="qp-custom-toprow">
+              <button type="button" className="qp-back-picks" onClick={() => setEntryMode("preset")}>
+                ← Back to quick picks
+              </button>
+              {/* Same optional timer as the preset screen — kept reachable in the drawer. */}
+              <button
+                type="button"
+                className="qp-timer-toggle"
+                aria-pressed={timerEnabled}
+                onClick={() => setTimerEnabled((p) => !p)}
+              >
+                <span className={`qp-switch${timerEnabled ? " on" : ""}`} aria-hidden="true" />
+                Timer <span className="qp-timer-muted">(optional)</span>
+              </button>
+            </div>
+          </div>
+        )}
         <PracticeControls
           pendingMarks={pendingMarks}
           pendingStyle={pendingStyle}
@@ -1680,6 +1865,8 @@ const packTopicKey = useMemo(() => {
           hasQuestions={filteredQuestions.length > 0}
           visibleQuestionCount={filteredQuestions.length}
         />
+        </>
+        )}
 
         {isWhyThisQuestionEnabled && (
           <WhyThisQuestionPanel
@@ -1729,21 +1916,30 @@ const packTopicKey = useMemo(() => {
               step solutions are for comparison and learning.
             </p>
           </div>
-          {filteredQuestions.length > 0 && (
-            <span
-              style={{
-                borderRadius: 999,
-                border: "1px solid hsl(220, 18%, 90%)",
-                background: "hsl(210, 33%, 96%)",
-                color: "hsl(220, 15%, 42%)",
-                padding: "4px 10px",
-                fontSize: "0.75rem",
-                fontWeight: 700,
-              }}
-            >
-              {filteredQuestions.length} visible question{filteredQuestions.length === 1 ? "" : "s"}
-            </span>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {/* Optional countdown (§2.3) — presentation-only pacing; never auto-submits.
+                "low" tints the last two minutes, mirroring ChapterTest. */}
+            {showRunnerClock && (
+              <span className={`qp-run-clock${timerBudgetSeconds - elapsedSeconds < 120 ? " low" : ""}`}>
+                {"⏱ "}{formatClock(timerBudgetSeconds - elapsedSeconds)}
+              </span>
+            )}
+            {filteredQuestions.length > 0 && (
+              <span
+                style={{
+                  borderRadius: 999,
+                  border: "1px solid hsl(220, 18%, 90%)",
+                  background: "hsl(210, 33%, 96%)",
+                  color: "hsl(220, 15%, 42%)",
+                  padding: "4px 10px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                }}
+              >
+                {filteredQuestions.length} visible question{filteredQuestions.length === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
         </section>
         )}
 
