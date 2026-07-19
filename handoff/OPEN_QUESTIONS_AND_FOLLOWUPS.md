@@ -1,3 +1,19 @@
+## 2026-07-19 -- #478 + #479: THE TUTOR READS THE GRADED WORK (trunk `a198bf1`), owner LIVE-VERIFIED + a real 28-call eval
+
+**[FU-TUTOR-OVERLAY-QUESTION-TO-MODEL] — RESOLVED by #478.** The seam #476 left (the question reached the tutor host in `overlayQuestionRef` but not the model) is closed: the question now reaches the MODEL as one-shot `returnedWork` context (a new `TutorRequest.returnedWork`, rebuilt at the server trust boundary, rendered by `returnedWorkBlock`). Text-only MVP — an image-question is described, never transcribed. Do NOT redo.
+
+**[FU-TUTOR-CI-RICH-OPENER] — add-then-RESOLVED by #478.** (Logged in the build report + memory, never on this board — recorded here for reconciliation, A15.) The C&I overlay return now composes `composeCheckImproveRichReturnOpener` (QP's `composePracticeRecordReturnOpener` re-flavoured), added BESIDE the byte-identical thin `composeReturnOpener`; `null` on thin data ⇒ the thin honest floor. Do NOT redo.
+
+**[FU-TUTOR-RETURNED-WORK-DIGEST] — add-then-RESOLVED by #479.** (Same reconciliation note.) The per-step digest was BUILT OFF in #478 behind one flag, then flipped ON in #479 (`RETURNED_WORK_DIGEST_ENABLED true`) after a **live rubric-2 eval**: 28 real `gemini-2.5-flash` calls, digest OFF vs ON, **12/12 digest-ON runs grounded, 0 invented steps, 0 grade contradictions**. ★ The eval found ON is *safer* than OFF — question-only, the model re-derives and ASSUMES which steps were right; the digest lets it read the `status` list, closing a latent confabulation path. Do NOT redo; to revert, set the one flag back to `false` (the honest floor is unchanged either way).
+
+### ★ NEW — **[FU-TUTOR-THINKING-BUDGET-TRUNCATION]** — gemini-2.5-flash thinking tokens can truncate tutor replies
+The #479 eval saw 3 of 28 replies end mid-sentence: `gemini-2.5-flash` thinking tokens consuming the `maxOutputTokens: 900` budget (`tutor.cjs:232`). **Pre-existing and orthogonal to the digest** — it hit thin/OFF runs too (S4b carries no digest). Not a blocker for the digest, and not this lane's fix. Candidate remedies: a `thinkingConfig` budget cap (the detect-question call already uses `{ thinkingBudget: 0 }`) or a higher output cap. Product-file change ⇒ needs an owner-approved product PR, its own lane.
+
+### **[FU-TUTOR-POLL-LEG-RICH-SYMMETRY]** — optional, unchanged
+The legacy worksheet poll leg (`useTutorSession.ts:275`) could get the same rich-opener treatment #478 gave the overlay leg. Optional, off the main path; not scheduled.
+
+---
+
 ## 2026-07-19 -- #476: THE TUTOR ⇄ C&I OVERLAY IS LIVE (trunk `cca0a5d`), owner byte-verified
 
 **[FU-TUTOR-OVERLAY-BUILD-A] — CLOSED.** The C&I overlay shipped (Option A). Do NOT redo.

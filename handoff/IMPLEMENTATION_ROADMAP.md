@@ -2,6 +2,18 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-19 — ★★ ✅ THE GRADED-CONTEXT ARC IS COMPLETE (#478 + #479, trunk `a198bf1`) — the tutor reads the graded work and teaches from it
+
+**Stage COMPLETE — owner LIVE-VERIFIED + a real 28-call rubric-2 eval.** After #476 put C&I in an overlay, the tutor still saw only *"you got 4/5"* on return. It now names the question the student worked AND the actual lost step, grounded in the graded per-step detail.
+
+- **#478 `b7042b2`** — three additive, overlay-gated seams: **Option 2b** (graded `WorksheetGradeResponse` handed in-hand on `onClose`, no cloud re-read), the **rich opener** (`composeCheckImproveRichReturnOpener` added BESIDE the byte-identical thin `composeReturnOpener`; `null` → thin floor), and the **`returnedWork` block** (question + digest reach the model as one one-shot context object via a server trust-boundary rebuild, §6.4 rails). Swap point corrected to `closeCheckImprove`. Overlay gate **evolved 24 → 31/31**; grader / `SessionRecord` / MI 52-anchor / `ResultsScorecard` / thin opener byte-identical; text-only MVP (image described, never transcribed).
+- **#479 `a198bf1`** — the digest flag `RETURNED_WORK_DIGEST_ENABLED false → true`, decided by a **live rubric-2 eval** (28 real `gemini-2.5-flash` calls, `isStubMode → false`, digest OFF vs ON): **12/12 digest-ON runs grounded, 0 invented steps, 0 grade contradictions.** Zero logic touched.
+- ★★ **A MODEL-input change ships on a LIVE eval, not a byte-diff** — and the eval found the flag ON is *safer*: question-only, the model re-derives and ASSUMES which steps were right; the digest lets it read the `status` list, closing a latent confabulation path. (Full lessons in `SESSION_LOG.md`.)
+
+**Follows:** **the Quick Practice loop overlay** — the C&I overlay's twin (its groundwork was mapped this session; see `NEXT_ACTION.md`). Carry the graded-context doctrine: when the QP overlay feeds its own graded work to the model, gate it with the same live eval.
+
+---
+
 ## 2026-07-19 — ★★ ✅ THE TUTOR ⇄ C&I OVERLAY IS COMPLETE (#476, trunk `cca0a5d`) — the student grades without leaving the thread
 
 **Stage COMPLETE — owner byte-verified.** The C&I side of the two-overlay goal the whole arc served is done. The tutor's "Get my attempt marked" CTA opens the **real `DesktopCheckImprovePage` as an in-tree panel over the dimmed light tutor** (Option A, responsive: right-slide `min(88%,920px)` desktop/tablet, full-screen `100dvh` sheet mobile); the student grades, reads the scorecard in-panel, and the record is handed back via the **existing `composeReturnOpener`** — no navigate, no poll, no banner. Overlay gate **24/24**, convergence **92/92**, `tsc` clean, CI green.
