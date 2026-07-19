@@ -1,3 +1,23 @@
+## 2026-07-19 -- #483 → #486: THE QP A1 FIX-ARC (trunk `889ab6d`), all four owner LIVE-VERIFIED — FU reconciliation
+
+**[FU-QP-PRESETS-UNREACHABLE] — RESOLVED by #483.** The presets are now reachable: `deriveArrivedTargeted` is keyed on `source` (`source=practice` hub CTA → presets; `source=tutor`/`targeted=1` → auto-build). The fix was the *inverse* of the spec's literal `source==="tutor"` rule — ~21 topic-bearing entrypoints (Topic Hub, `MentorSolveDrawer`, HPQ, Me/Dashboard/Chapter-Test) carry a topic without `source=tutor` and would have been dumped on the chooser by the literal rule.
+
+**[FU-QP-BACK-NAV] — RESOLVED by #485 + #486.** Both back paths now return the built set to the preset chooser: the browser/gesture back (#485, via a real `built=1` search-param history entry — #484's state-only same-URL navigate was a replace/no-op, RR #5362, and shipped broken through all gates + 14/14) and the top-left breadcrumb "Back" CTA (#486, made `isBuilt`-aware, mirroring #485's reset; label "Back to quick practice"). Router-mounted tests (`createMemoryRouter`), 17/17.
+
+**[FU-CI-GATE-VITEST] — KEPT OPEN + STRENGTHENED (do NOT close).** The #484 miss is its sharpest case yet: a broken history push passed CI *and* 14/14 vitest because the test never mounted a router, and the #485/#486 `createMemoryRouter` tests that catch it **only ran locally** (Windows rollup-binary drop) — CI still doesn't run vitest, so they don't gate PRs. Same silent-skip species; fix is to gate vitest in the linux CI job.
+
+**[FU-QP-FULLSUBJECT-PRESET-SCOPE] — KEPT.** Full-subject hub arrival (`source=practice`, no topic) shows presets scoped to the *default* topic (`topicParam` defaults when absent) — a pre-existing #481 condition surfaced and logged during #483, not introduced by the arc. Not subject-wide; small follow-up if the owner wants full-subject on the manual builder or subject-wide presets.
+
+**[FU-QP-WEAK-AREAS-PRESET] — KEPT (gated).** The 5th "My weak areas" card stays gated ("Soon", no-op) — untouched by the arc.
+
+**[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED] — KEPT (parked); Piece 2 will UN-PARK it** as a NEW investigation lane (multi-topic presets; the QP path currently collapses multi-topic to `topic=<first>`). Separate future handoff — not part of this arc.
+
+**[FU-QP-BACKNAV-FORWARD-ONE-DIRECTIONAL] — LOGGED (known / won't-fix unless revisited).** The pop-reset is one-directional: forward-after-back shows the chooser, not the built set. A bidirectional sync was rejected because it conflicts with the in-app "Edit filters" (which drops `isBuilt` without a history change). Owner-accepted.
+
+> **Batching note:** this closes the QP fix-arc. **Piece 2 (multi-topic) is a NEW lane** — separate future handoff.
+
+---
+
 ## 2026-07-19 -- #481: QUICK PRACTICE A1 — PROGRESSIVE-DISCLOSURE ENTRY + TIMER (trunk `ec3275c`), owner LIVE-VERIFIED
 
 **[FU-QP-PROGRESSIVE-DISCLOSURE] — RESOLVED by #481.** The QP entry now opens on four preset cards + a Customise drawer (the full five-dimension filter incl. Source), replacing the raw six-filter wall. Presentation-only (a preset = a bundle of the existing `setCommitted*` setters). (Original `###` entry below in this file.)

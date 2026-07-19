@@ -1,4 +1,24 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-19 (post-**#483 → #486 — THE QP A1 ENTRY REDESIGN NOW WORKS.** Trunk `889ab6d`. All four owner LIVE-VERIFIED. The #481 presets are now reachable from the hub (#483, source-keyed gate) AND navigable both ways — browser-back (#485, real `built=1` history entry) and the breadcrumb "Back" CTA (#486) both return to the preset chooser. **The honest two-step: #484 shipped a broken no-op push that passed every gate + CI + 14/14 [the test never mounted a router], owner live-verify caught it, #485 fixed it with a real search param + a router-mounted test.** Engine/presets/persistence/hub byte-identical throughout.)
+
+## ⏭️ NEXT — 2026-07-19 (post-arc). Read this block first.
+
+**The QP fix-arc (#483→#486) is COMPLETE and this is its combined docs handoff.** The QP A1 entry is now reachable and navigable. Two things remain in the QP line of work, in order:
+
+### ★ (1) PIECE 2 — MULTI-TOPIC PRESETS — dispatch as an INVESTIGATION lane FIRST (un-parks `[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED]`)
+Let the preset entry carry a multi-topic scope rather than collapsing to a single topic (today the hub's multi-topic selection arrives as `topic=<first>` and the presets build against the first topic only). **Do NOT jump to a build** — the fetch fork (3a/3b) and **rotation-across-topics** semantics (how `seenQuestionIds`/`sessionRotationOffset` behave across a multi-topic pool) are **unverified**. Investigation first, then a staged build. This is a **NEW lane with its own future handoff** — not part of this arc.
+
+### ★ (2) THE QUICK PRACTICE OVERLAY — the C&I overlay's twin (groundwork mapped earlier this arc)
+Host the real `PracticePage` over the tutor (reused verbatim), retiring the navigate/poll for the practice leg — the second of the two in-tutor overlays. Carry the graded-context doctrine: a change to the model's input ships on a LIVE eval, and QP already hands the tutor its graded work via `perQuestionRef` (the C&I `returnedWork` block is the reference impl). ⇒ **[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] STILL HELD for the practice leg** — the QP overlay is what retires them; a HOLD with a reason, do not "just fix."
+
+### ★★ DOCTRINE TO CARRY (earned this arc — the two lessons)
+- **LIVE-VERIFY REACHABILITY AND THE GESTURE, not just correctness.** #481 shipped unreachable; #484 shipped a broken back-gesture. BOTH passed every green gate and CI. Green gates prove the code is *structurally right*; only walking the real navigation on the stable link proves the entry condition *occurs* and the gesture *works*. ⇒ `[FU-QP-PRESETS-UNREACHABLE]` (#483), `[FU-QP-BACK-NAV]` (#485/#486).
+- **A ROUTER/HISTORY claim needs a ROUTER-MOUNTED test, never a pure-helper test alone.** #484's 14/14 asserted the decision logic in isolation but never mounted a router to prove the history entry is *created and poppable* — that is exactly what let it ship broken. #485/#486 use `createMemoryRouter` harnesses. **Strengthens `[FU-CI-GATE-VITEST]`** — these router tests only ran locally (Windows rollup workaround); CI doesn't run vitest, so they don't gate PRs yet. Do NOT close it.
+- **When a spec keys a gate on a discriminator, map EVERY producer of that URL before trusting the spec's enumeration** — #483's "only tutor carries a topic" premise was wrong (~21 entrypoints did); the correct fix was the inverse of the spec's literal rule.
+- **Re-derive trunk EVERY session** via `git ls-remote`; ⚠ CLAUDE.md §2's HEAD==`CURRENT_STATE`-SHA check is structurally unsatisfiable after a docs PR advances trunk (`[FU-CLAUDE-MD-SESSION-START-SHA]`) — verify HEAD is trunk and proceed, don't stop.
+
+---
+
 # Updated: 2026-07-19 (post-**#481 — QUICK PRACTICE A1: PROGRESSIVE-DISCLOSURE ENTRY + OPTIONAL TIMER.** Trunk `ec3275c`. Owner LIVE-VERIFIED. QP now opens on four preset cards + Customise (full five-dim filter incl. Source) + optional timer + mobile carousel — presentation-only, engine/rotation/persistence byte-identical. ★★ **But the presets shipped correct-but-UNREACHABLE** — gated on a topic-less "direct visit" state that production never produces (every route carries `topic=` → auto-build) — **owner live-verify caught what green gates could not.** The hub-reachability fix (Piece 1) is in flight.)
 
 ## ⏭️ NEXT — 2026-07-19. Read this block first.
