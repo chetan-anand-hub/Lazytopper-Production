@@ -1,6 +1,30 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #476 merged — ★★ THE TUTOR ⇄ C&I OVERLAY IS LIVE — the student grades without leaving the thread — **owner byte-verified** — trunk `cca0a5d`
+## [CURRENT] #478 + #479 merged — ★★ THE TUTOR READS THE GRADED WORK — question + per-step digest reach the model; the C&I overlay + graded-context arc COMPLETE — **owner LIVE-VERIFIED + a real 28-call rubric-2 eval** — trunk `a198bf1`
+
+**The tutor is no longer half-blind on return.** Before: *"you got 4/5."* After it names the question the student worked AND the actual lost step — *"the 1 mark came off the presentation, not your maths — on step 4 you left off the unit, write 20√3 m."* This closes the half-blindness the #476 C&I overlay left ([FU-TUTOR-OVERLAY-QUESTION-TO-MODEL]).
+
+**#478 `b7042b2` — three additive, overlay-gated seams (byte-verified):**
+1. **Option 2b** — `onClose` carries the graded `WorksheetGradeResponse` **in-hand** (built lock-step with the record via `buildOverlayReturnResponse`), so no cloud re-read and it survives an honest-failure persist skip. Overlay-gated ⇒ a direct `/check-improve` visit stays byte-identical (#476 additive guarantee held).
+2. **Rich opener** — `composeCheckImproveRichReturnOpener` (QP's `composePracticeRecordReturnOpener` re-flavoured) **added BESIDE** the byte-identical thin `composeReturnOpener`; returns `null` on thin data ⇒ falls through to the thin honest floor.
+3. **`returnedWork` block** — the question + per-step digest reach the model as **one one-shot context object** (`TutorRequest.returnedWork`), rebuilt at the server trust boundary (`normalizeReturnedWork`, mirroring `normalizeFigures`), rendered by `returnedWorkBlock` with §6.4 anti-confabulation rails. **Swap point corrected to `closeCheckImprove`** — the spec's `:275` was the retired navigate leg.
+   - **Invariants held:** grader (`checkSolution.cjs`) / `SessionRecord` / MI (52-anchor) / `ResultsScorecard` / the thin `composeReturnOpener` — **byte-identical**; the #476 additive guarantee stayed; the overlay acceptance gate **evolved 24 → 31/31** (now asserts the new seams + the FLOOR/BESIDE invariant).
+   - **Text-only MVP:** an image-question is **described** ("the question you uploaded"), never transcribed — there is no image channel to the tutor model.
+
+**#479 `a198bf1` — the digest flag flipped ON, on REAL evidence (byte-verified one-line flip):**
+- `RETURNED_WORK_DIGEST_ENABLED false → true` (`tutorRoundTrip.ts:406`) + the gate assertion pinning the ON value + doc comment. **Zero logic touched** — pure flag.
+- **The eval was REAL, not a simulation:** 28 live `gemini-2.5-flash` calls through the actual `handleTutorRequest` path (`isStubMode → false`), digest OFF vs ON, temp 0.55. **Rubric-2 clean: 12/12 digest-ON runs grounded — 0 invented steps, 0 grade contradictions**, including the clean-sheet invent-a-mistake trap and the described-image rail.
+- **★ The finding that tipped it from "safe" to "better":** digest OFF, the model *re-derives and ASSUMES* which steps were right (an assumption it was never given); digest ON, it reads the `status` list. **The digest CLOSES a latent confabulation path** the question-only version left open — ON is safer, not just warmer.
+
+**Owner-verified live:** the overlay round-trip on the stable link — *"the tutor can now read the graded answer."*
+
+**★ Durable lesson (see SESSION_LOG):** a change to the **model's input** ships on a **LIVE eval**, not a byte-diff — and here the live eval found the flag ON to be **safer** than OFF, not merely nicer.
+
+**NEXT:** **the Quick Practice loop overlay** — the twin of the C&I overlay (its groundwork was mapped this session; QP is already more overlay-ready than C&I was). See `NEXT_ACTION.md`.
+
+---
+
+## #476 merged — ★★ THE TUTOR ⇄ C&I OVERLAY IS LIVE — the student grades without leaving the thread — **owner byte-verified** — trunk `cca0a5d`
 
 **#476 `cca0a5d` (the tutor⇄C&I overlay, Option A, responsive all sizes).** The C&I side of the two-overlay goal the whole arc served is **COMPLETE.** The tutor's "Get my attempt marked" CTA no longer navigates to `/check-improve` — it opens the **real `DesktopCheckImprovePage` as an in-tree panel over the dimmed light tutor** (desktop/tablet right-slide `min(88%,920px)`; mobile full-screen `100dvh` sheet). The student grades, reads the scorecard **in-panel**, taps **"Back to your tutor →"**, and the graded record is handed straight back via the **existing `composeReturnOpener`** — no navigate, no poll, no waiting banner, at any width.
 

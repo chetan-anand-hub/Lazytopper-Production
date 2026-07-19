@@ -1,5 +1,29 @@
 ---
 
+## 2026-07-19 -- #478 + #479: ★★ THE TUTOR READS THE GRADED WORK — question + per-step digest reach the model, and a MODEL-input change ships on a LIVE eval — **merged, owner LIVE-VERIFIED + a real 28-call rubric-2 eval** — trunk `a198bf1`
+
+**Two product PRs close the graded-context arc.** After #476 put C&I in an overlay, the tutor still saw only a headline on return (*"you got 4/5"*). Now it names the question the student worked AND the actual lost step — *"the 1 mark came off presentation, not your maths — on step 4 you left off the unit, write 20√3 m."*
+
+**#478 `b7042b2` — three additive, overlay-gated seams (byte-verified).** (1) **Option 2b:** `onClose` carries the graded `WorksheetGradeResponse` in-hand (`buildOverlayReturnResponse`, lock-step with the record) — no cloud re-read, survives an honest-failure persist skip, overlay-gated. (2) **Rich opener:** `composeCheckImproveRichReturnOpener` (QP's `composePracticeRecordReturnOpener` re-flavoured) added **BESIDE** the byte-identical thin `composeReturnOpener`; `null` on thin data ⇒ the thin honest floor. (3) **`returnedWork` block:** question + per-step digest reach the model as ONE one-shot context object, rebuilt at the server trust boundary (`normalizeReturnedWork`), rendered by `returnedWorkBlock` with §6.4 anti-confabulation rails. **Swap point corrected to `closeCheckImprove`** — the spec's `:275` was the retired navigate leg. Invariants held: grader / `SessionRecord` / MI 52-anchor / `ResultsScorecard` / thin `composeReturnOpener` **byte-identical**; #476 additive guarantee stayed; the overlay acceptance gate **evolved 24 → 31/31** (now asserts the seams + the FLOOR/BESIDE invariant). Text-only MVP: an image-question is described, never transcribed.
+
+**#479 `a198bf1` — the digest flag flipped ON, on REAL evidence (byte-verified one-line flip).** `RETURNED_WORK_DIGEST_ENABLED false → true` (`tutorRoundTrip.ts:406`) + the gate assertion + doc comment; zero logic touched.
+
+### ★★ THE LESSON — a MODEL-input change ships on a LIVE eval, not a byte-diff; and the eval found the flag ON is *safer*, not just nicer
+#478 built the digest but shipped it **OFF**, behind one flag, because its gate is a live eval and the build environment had no provider key. #479 ran that eval **for real**: 28 live `gemini-2.5-flash` calls through the actual `handleTutorRequest` path (`isStubMode → false`), digest OFF vs ON, temp 0.55. **Rubric-2 clean: 12/12 digest-ON runs grounded — 0 invented steps, 0 grade contradictions**, including the clean-sheet invent-a-mistake trap and the described-image rail. ★ **The finding that tipped it:** digest OFF, the model *re-derives and ASSUMES* which steps were right (an assumption it was never given — a latent confabulation path); digest ON, it reads the `status` list. **So the digest CLOSES a risk the question-only version left open — ON is safer, not merely warmer.** A byte-review could never have surfaced that; only the live model run did. ★ One examined NO-GO candidate — 3 truncated replies — was `gemini-2.5-flash` thinking tokens vs `maxOutputTokens:900`, pre-existing and hitting thin/OFF runs too, orthogonal to the digest → logged, not a blocker.
+
+### Also this arc
+- **Eval-harness recipe (reusable):** load `.env` from the MAIN checkout, `require` server `.cjs` from the WORKTREE (pure node, no `node_modules`), drive the real `handleTutorRequest`; openers/payloads are the deterministic acceptance-script values — don't re-run the model to get them.
+- **Strike-the-spent-check, in the PR that spends it:** the #476 overlay gate hard-coded the thin-only close, a 2-arg `onClose`, and `tutorRoundTrip.ts` as file-level forbidden — all superseded by #478. The build evolved the gate in the same PR (removed the file-level ban, added FLOOR/BESIDE source assertions). #479 then flipped the one assertion pinning the flag value so CI stayed green and now asserts the digest ships.
+- ⚠ `scope:guard` for these product+tooling changes needs **`-- --mode mixed`**.
+
+### Follow-ups
+RESOLVED [FU-TUTOR-RETURNED-WORK-DIGEST] (#479 shipped it ON after the live eval) · RESOLVED [FU-TUTOR-OVERLAY-QUESTION-TO-MODEL] (#478 feeds the question to the model) · RESOLVED [FU-TUTOR-CI-RICH-OPENER] (#478) · NEW [FU-TUTOR-THINKING-BUDGET-TRUNCATION] (gemini-2.5-flash thinking tokens truncate replies at maxOutputTokens:900; pre-existing, orthogonal) · [FU-TUTOR-POLL-LEG-RICH-SYMMETRY] still optional.
+
+### Surfaces that did NOT move
+Quick Practice, Worksheet, HPQ, Full Test, Topic Hub, Progress/Me, Exam Trends, Home, Chapter Test, Full Mock, Landing, Login, Notes — untouched. Only **Tutor** (its C&I return-opener now carries the question + graded per-step digest) and **Check & Improve** (its overlay `onClose` gained the graded-response arg) moved.
+
+---
+
 ## 2026-07-19 -- #476: ★★ THE TUTOR ⇄ C&I OVERLAY — the student grades without leaving the thread, and a frozen premise about a hook's scope is caught — **merged, owner byte-verified** — trunk `cca0a5d`
 
 **One product PR (#476 `cca0a5d`) + this docs handoff.** The tutor's "Get my attempt marked" CTA no longer navigates to `/check-improve` — it opens the **real `DesktopCheckImprovePage` as an in-tree panel over the dimmed light tutor** (Option A, props-optional; desktop/tablet right-slide `min(88%,920px)`, mobile full-screen `100dvh` sheet). The student grades, reads the scorecard **in-panel**, taps **"Back to your tutor →"**, and the graded record is handed straight back via the **existing `composeReturnOpener`** — poll-free, no waiting banner, at every width. This completes the **C&I side** of the two-overlay goal the entire arc served (QP overlay is the twin, next). Two PRs, distinct: BUILD **#476** (merged) + DRAFT **#475** (`invts/tutor-overlay-investigation`, reference-only, never merges).
