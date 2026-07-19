@@ -2,6 +2,17 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-19 — ★★ ✅ QUICK PRACTICE A1: PROGRESSIVE-DISCLOSURE ENTRY + OPTIONAL TIMER COMPLETE (#481, trunk `ec3275c`) — the QP entry redesign; the overlay MECHANISM is still ahead
+
+**Stage COMPLETE (entry) — owner LIVE-VERIFIED.** The first of the QP-overlay-readiness lane: the QP *surface* is now pleasant. A direct/hub visit opens on four stylised preset cards (Quick drill / Board mix [default] / Competency / High-marks) + a gated "My weak areas" 5th, the full five-dimension filter (incl. Source) behind Customise, an optional timer, and a mobile swipe carousel. **Presentation-only** — a preset = a bundle of the existing `setCommitted*` setters; the reshuffle engine, filter wiring and `persistQuickPracticeSession` are byte-identical.
+
+- ★★ **Correct-but-unreachable caveat:** the presets shipped gated on a topic-less "direct visit" state that production never produces (every route carries `topic=` → auto-build). Owner live-verify caught it; the fix (Piece 1, re-gate on `source`) is **in flight** (`feat/desktop-pr-qp-presets-hub-reachable`).
+
+**Remaining QP arc (staged — do NOT bundle):**
+- **Piece 1 — hub-reachability fix** (in flight): gate the entry on `source` (`practice` → presets, `tutor` → auto-build).
+- **Piece 2 — multi-topic presets**: carry a multi-topic scope (un-parks `[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED]`). Batched with Piece 1 in a combined handoff.
+- **QP overlay mechanism** — the C&I overlay's twin: host the real `PracticePage` over the tutor, reused verbatim.
+
 ## 2026-07-19 — ★★ ✅ THE GRADED-CONTEXT ARC IS COMPLETE (#478 + #479, trunk `a198bf1`) — the tutor reads the graded work and teaches from it
 
 **Stage COMPLETE — owner LIVE-VERIFIED + a real 28-call rubric-2 eval.** After #476 put C&I in an overlay, the tutor still saw only *"you got 4/5"* on return. It now names the question the student worked AND the actual lost step, grounded in the graded per-step detail.
