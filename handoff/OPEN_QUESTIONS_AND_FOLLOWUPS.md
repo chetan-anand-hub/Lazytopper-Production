@@ -1,3 +1,21 @@
+## 2026-07-20 -- NEW FOLLOW-UP raised by the owner at the hub-lane close (trunk `6d991c0`)
+
+**[FU-MOCKBUILDER-FULL-DELETE] — LOGGED, a FUTURE lane. Not actioned.** #498 deleted the mock-builder PAGE (`lazytopper/src/pages/MockBuilder.tsx`, 946 lines, zero module imports), which discharges `PR-G-deletion-pending` **for that file only**. The owner has raised the FULL feature deletion (PR-G-backed) as its own future lane.
+
+**What #498 deliberately KEPT, and why — this is the actual scope of the remaining work.** The audit for #498 found the spec's assumption ("the `navigateToMockBuilder` plumbing is also dead") was **false**. All of the following are LIVE and route through the `/mock-builder` → `/practice-hub` redirect; removing any of them without a plan would break a working entry point:
+
+- `services/commandPaletteConfig.ts:52-54` — the **"Build a Mock Paper"** command-palette entry (user-facing).
+- `App.tsx:639` (`case 'navigateToMockBuilder'`) — that handler navigates **straight to `/practice-hub`**; it never reached the deleted page.
+- `utils/buildUrl.ts:70` (`buildMockBuilderUrl`) — called from `StudyPlanPage.tsx:218` and `HighlyProbableQuestions.tsx:593`.
+- `App.tsx:966-967` — the `/mock-builder` and `/mock-builder/:grade/:subject` redirects themselves.
+- `scripts/ops/repo_deep_audit.mjs` — the `/mock-builder/:grade/:subject` ROUTE match (the file entries were removed in #498; the route match stays because the redirect is live).
+
+**The real question for that lane is a PRODUCT one, not a cleanup one:** what should "Build a Mock Paper" (and the Study-Plan / HPQ entries) DO now that the mock-builder page is gone? Today they all land on `/practice-hub`, which is a reasonable destination but means the palette entry's LABEL promises something the product no longer has. Options: retire the palette entry and the two callers outright; or relabel them to what they now do (open the Practice hub); or point them at Full Test, which is the closest surviving capability. **Deleting the plumbing without answering that would silently remove a user-facing command.**
+
+**Do NOT treat this as a mechanical delete.** The page was safe to remove precisely because nothing imported it; the plumbing is the opposite — nothing imports the page, but real UI still calls the URL.
+
+---
+
 ## 2026-07-20 -- #492 → #494 → #496 → #498: THE PRACTICE-HUB v6 REDESIGN (trunk `6d991c0`), owner LIVE-VERIFIED — FU reconciliation
 
 **[FU-HUB-CARD-ALIVENESS-GUARD] — RESOLVED by #496.** The #492 grey-out passed every gate — tsc, both matrices, all three routing tests — with the cards fully dimmed. `DesktopPracticePage.aliveness.test.tsx` now asserts the ARRIVAL state (signed-out, no topic picked): no mode card or scope card carries `opacity < 1`; all four cards AGREE on opacity; each renders a stripe with a DISTINCT accent; and the gated CTA is still an inert `<span>`. **Mutation-verified** — re-introducing `opacity: disabled ? 0.65 : 1` turns it red.
