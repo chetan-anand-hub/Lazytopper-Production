@@ -1,4 +1,4 @@
-## 2026-07-20 -- #492 → #494 → #496 (+ #498 open): THE PRACTICE-HUB v6 REDESIGN (trunk `e560792`), owner LIVE-VERIFIED — FU reconciliation
+## 2026-07-20 -- #492 → #494 → #496 → #498: THE PRACTICE-HUB v6 REDESIGN (trunk `6d991c0`), owner LIVE-VERIFIED — FU reconciliation
 
 **[FU-HUB-CARD-ALIVENESS-GUARD] — RESOLVED by #496.** The #492 grey-out passed every gate — tsc, both matrices, all three routing tests — with the cards fully dimmed. `DesktopPracticePage.aliveness.test.tsx` now asserts the ARRIVAL state (signed-out, no topic picked): no mode card or scope card carries `opacity < 1`; all four cards AGREE on opacity; each renders a stripe with a DISTINCT accent; and the gated CTA is still an inert `<span>`. **Mutation-verified** — re-introducing `opacity: disabled ? 0.65 : 1` turns it red.
 

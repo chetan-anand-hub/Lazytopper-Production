@@ -1,13 +1,13 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-07-20 — ★★ ✅ THE PRACTICE-HUB v6 REDESIGN COMPLETE (#492 → #494 → #496, trunk `e560792`; #498 open) — owner LIVE-VERIFIED
+## 2026-07-20 — ★★ ✅ THE PRACTICE-HUB v6 REDESIGN COMPLETE (#492 → #494 → #496 → #498, trunk `6d991c0`) — owner LIVE-VERIFIED
 
 **Stage COMPLETE — the app's highest-connectivity page was rebuilt and not one URL moved.** `/practice-hub` carries 7 outbound route families, 22 inbound caller files and the `/mock-builder` redirect; the redesign is presentation + flow only.
 
 - **#492** — the rebuild (net −766 lines): two-step flow, INLINE dropdown topic selection for both scopes, four accent mode cards, navy MI rail, NEW desktop-only real trend sparkline. Cut: blueprint, predicted tabs, More-options, quick links, topic reference, all developer language.
 - **#494** — the cards arrive alive: a whole-card `opacity: 0.65` was dimming every descendant (and only 2 of 4 cards, since Predicted/Full Test always have a `to`).
 - **#496** — vivid + guarded: accent-tinted resting borders, 5px full-opacity stripes, deeper tints, and the **mutation-verified aliveness guard**.
-- **#498 (open)** — deletes the dead `pages/MockBuilder.tsx` (946 lines, zero imports; PR-G's deletion, finally done) and rewrites the stale `DesktopPracticePage.tsx` header. **`PR-G-deletion-pending` is now discharged for MockBuilder.**
+- **#498 (`6d991c0`)** — deletes the dead `pages/MockBuilder.tsx` (946 lines, zero imports; PR-G's deletion, finally done) and rewrites the stale `DesktopPracticePage.tsx` header. **`PR-G-deletion-pending` is now discharged for MockBuilder.**
 
 **Routing proof:** a capture harness run against trunk AND the redesign, diffed — **25 URLs, diff EMPTY** — now pinned in `routingParity.test.tsx`. One owner-approved relaxation: the timer toggle adds `timed=1` to the scoped builder (trunk's `timedDrillPath` dropped multi-topic + focus).
 
@@ -15,7 +15,7 @@
 
 **⚠ OPEN, not shipped:** `[FU-HUB-DROPDOWN-ZINDEX]` (blocked on a FORBIDDEN-list decision) · `[FU-QP-SCORECARD-ATTEMPTS-WIPED]` (diagnosed, deliberately not fixed).
 
-**NEXT:** merge #498 → the hub lane is CLOSED.
+**NEXT:** the hub lane is CLOSED.
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 

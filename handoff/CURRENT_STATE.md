@@ -1,13 +1,13 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #492 → #494 → #496 (+ #498 open) — ★★ THE PRACTICE-HUB v6 REDESIGN IS LIVE — **owner LIVE-VERIFIED** — trunk `e560792`
+## [CURRENT] #492 → #494 → #496 → #498 — ★★ THE PRACTICE-HUB v6 REDESIGN IS LIVE — **owner LIVE-VERIFIED** — trunk `6d991c0`
 
 **`/practice-hub` is rebuilt to the locked v6 design, and the routing never moved.** The hub is the app's highest-connectivity page — 7 outbound route families, 22 inbound caller files, plus the `/mock-builder` redirect — so the whole risk was that a re-render quietly changed a URL. It did not. **Owner LIVE-VERIFIED (#492, #494, #496). Docs-only handoff; zero product files here.**
 
 - **#492 (`1938634`) — the rebuild.** Two-step flow ("what to work on" → "how to practise"), topic selection as a DROPDOWN for both scopes (single-select radio / multi-select checklist + removable pills, rendered INLINE so no ancestor `overflow` can clip it), four accent-coloured mode cards, a navy Mistake-Intelligence rail, and a NEW desktop-only trend sparkline. Cut from the UI (routes untouched, render removed): the blueprint preview, the predicted-questions tabs, the More-options accordion, the quick links, the topic-reference panel, and **all developer language** ("intent-first mode", "the desktop bridge", "nothing generates a new paper"). One responsive component — desktop and mobile in the same file.
 - **#494 (`3e7b7ad`) — the cards arrive alive.** #492 shipped `opacity: 0.65` on the mode-card `<article>` whenever no topic was picked. Because that sits on the card it multiplied EVERY descendant — the accent stripe, the icon tile, the chips — so the section arrived greyed out. It was also PATCHY: Predicted and Full Test always have a `to`, so two cards rendered full-strength beside two dimmed ones.
 - **#496 (`e560792`) — vivid + guarded.** Accent-tinted resting borders (`MODE_ACCENT.line`), a 5px full-opacity stripe, deeper ~92% tints, the prototype's page surface — plus the **aliveness guard** that makes the #492 class impossible to ship silently again.
-- **#498 (OPEN)** — deletes the dead `pages/MockBuilder.tsx` (946 lines, zero imports) and rewrites the stale `DesktopPracticePage.tsx` header, which still described the pre-#492 design.
+- **#498 (`6d991c0`)** — deletes the dead `pages/MockBuilder.tsx` (946 lines, zero imports) and rewrites the stale `DesktopPracticePage.tsx` header, which still described the pre-#492 design.
 
 **★★ THE ROUTING PROOF — a before/after capture diff, not an inspection.** One capture harness whose CTA regexes match BOTH vocabularies (trunk's "Open Highly Probable Questions" and the redesign's "Open highly probable") was run against the redesign, then against `git checkout <trunk> -- DesktopPracticePage.tsx`, and the two outputs diffed. **25 URLs — 5 scope scenarios × 5 CTA families — diff EMPTY.** Those captured strings are now pinned in `DesktopPracticePage.routingParity.test.tsx`, so drift in a builder, in `source`/`returnTo`, or in the scope→param mapping fails there first.
 
@@ -17,7 +17,7 @@
 
 **⚠ KNOWN OPEN, NOT SHIPPED:** the avatar dropdown is occluded by the hub cards (`[FU-HUB-DROPDOWN-ZINDEX]`) — the fix is known and correct but touches a FORBIDDEN path; and the QP scorecard "0 of 50" report (`[FU-QP-SCORECARD-ATTEMPTS-WIPED]`) — diagnosed, mechanism reproduced, deliberately NOT fixed. Both in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` with full evidence.
 
-**NEXT:** merge #498, then the hub lane is CLOSED. See `NEXT_ACTION.md`.
+**NEXT:** the hub lane is CLOSED. Both remaining items are follow-ups, not lane work. See `NEXT_ACTION.md`.
 
 ---
 

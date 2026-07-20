@@ -1,9 +1,9 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-20 (post-**#492 → #494 → #496 — THE PRACTICE-HUB v6 REDESIGN IS LIVE.** Trunk `e560792`. Owner LIVE-VERIFIED. #498 open: deletes the dead MockBuilder page + the stale header comment.)
+# Updated: 2026-07-20 (post-**#492 → #494 → #496 — THE PRACTICE-HUB v6 REDESIGN IS LIVE.** Trunk `6d991c0`. Owner LIVE-VERIFIED. #498 deleted the dead MockBuilder page + the stale header comment.)
 
 ## ⏭️ NEXT — 2026-07-20 (post-hub-redesign). Read this block first.
 
-**The practice-hub lane is one merge from CLOSED.** #492 (rebuild, routing frozen) → #494 (the grey-out) → #496 (vivid + the aliveness guard) are all merged and owner live-verified. **#498 is open** — delete `pages/MockBuilder.tsx` + rewrite the stale header. Merge it and the lane is done.
+**The practice-hub lane is CLOSED.** #492 (rebuild, routing frozen) → #494 (the grey-out) → #496 (vivid + the aliveness guard) are all merged and owner live-verified. **#498 (`6d991c0`)** deleted `pages/MockBuilder.tsx` (946 lines) and rewrote the stale header. The lane is done.
 
 ### ★ (1) The two OPEN follow-ups — read these before touching the hub again
 - **`[FU-HUB-DROPDOWN-ZINDEX]` — BLOCKED ON AN OWNER DECISION, not on engineering.** The avatar dropdown is occluded by the hub cards. The root cause is verified (`DesktopShell`'s header sets `backdrop-filter: blur(12px)`, which **creates a stacking context** and traps the menu's `zIndex: 50` inside the header) and the fix is known and byte-reviewed (`position: relative; zIndex: 55` on the header — bounded `> 50` page content, `< 60` the full-screen drawers). **It cannot ship as things stand:** `DesktopShell.tsx` is an ABSOLUTE entry in the `FORBIDDEN` list of `check_improve_convergence_acceptance.mjs`, which runs on every PR with no lane-scoping and no exception mechanism — and there is no fix from outside the file, because the dropdown LIVES in `DesktopShell`. Two honest options only: amend the FORBIDDEN list as its own reviewed decision, or leave it deferred (it is cosmetic). **Do NOT silence the gate.**

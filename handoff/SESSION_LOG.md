@@ -1,13 +1,13 @@
 ---
 
-## 2026-07-20 -- #492 → #494 → #496 (+ #498 open): ★★ THE PRACTICE-HUB v6 REDESIGN — rebuilt, and the routing never moved — trunk `e560792`
+## 2026-07-20 -- #492 → #494 → #496 → #498: ★★ THE PRACTICE-HUB v6 REDESIGN — rebuilt, and the routing never moved — trunk `6d991c0`
 
 **`/practice-hub` now opens on a two-step "pick what, then pick how" flow with a navy Mistake-Intelligence rail.** The hub is the app's highest-connectivity page — **7 outbound route families, 22 inbound caller files, plus the `/mock-builder` redirect** — so the entire risk of a presentation rebuild was that a re-render quietly changed an emitted URL. It did not, and that was proven rather than asserted.
 
 - **#492 (`1938634`) — the rebuild.** Net **−766 lines**. Topic selection became a DROPDOWN for both scopes (single-select radio / multi-select checklist + removable pills) rendered INLINE, because both the rail and the mobile carousel clip. It is a new INPUT for the EXISTING state — it writes the same `topicSlug` / `selectedTopicSlugs` the chips wrote, which is *why* the URLs could stay identical. Four accent mode cards; desktop 2×2, mobile a full-width snap carousel with page dots. The MI card took the navy identity, and a NEW desktop-only trend sparkline reads the SAME `getMistakeLogs` history — with fewer than two days of data it returns null and does not render, rather than drawing a fake line.
 - **#494 (`3e7b7ad`) — the cards arrive alive.** #492 had `opacity: 0.65` on the card `<article>` when no topic was picked; sitting on the card, it multiplied every descendant, so the accent was rendered and then dimmed.
 - **#496 (`e560792`) — vivid + guarded.** Accent-tinted resting borders, 5px full-opacity stripes, deeper tints, the prototype's page surface — plus the aliveness guard.
-- **#498 (open)** — deletes `pages/MockBuilder.tsx` (946 lines, zero imports) and rewrites the stale `DesktopPracticePage.tsx` header comment.
+- **#498 (`6d991c0`)** — deletes `pages/MockBuilder.tsx` (946 lines, zero imports) and rewrites the stale `DesktopPracticePage.tsx` header comment.
 
 ### ★★ LESSON 1 — to prove "no URL moved", CAPTURE BOTH SIDES AND DIFF THEM
 Inspection cannot prove a 25-URL contract. One capture harness was written whose CTA regexes match BOTH vocabularies (trunk's "Open Highly Probable Questions" and the redesign's "Open highly probable"), so the SAME harness runs unmodified against either build. It was run against the redesign, then against `git checkout <trunk> -- DesktopPracticePage.tsx`, and the outputs diffed: **5 scope scenarios × 5 CTA families = 25 URLs, diff EMPTY** — same paths, same param ORDER, same encoding, same `source`/`returnTo`. Those exact strings are now pinned in `routingParity.test.tsx`.
