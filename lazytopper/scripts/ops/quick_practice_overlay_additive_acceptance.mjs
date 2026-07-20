@@ -146,6 +146,25 @@ check(
   /overlayMode\?: boolean;/.test(variants) && /overlayMode = false,/.test(variants),
 );
 
+// HUNK E — THE WAY HOME, named. Closing the panel was always the return, but a bare ✕ made the
+// student infer it. Both the scorecard row and the close-bar label now say so — and BOTH are
+// overlay-gated, so a direct / hub visit is byte-identical (no ticket, no label).
+check(
+  "HUNK E: the scorecard return ticket is overlay-GATED (absent on a direct/hub visit)",
+  /returnTicket: overlay\s*\?\s*\{ label: "Back to your tutor", onReturn: overlay\.onClose \}\s*:\s*undefined/.test(page),
+);
+check(
+  "HUNK E: returnTicket is an OPTIONAL variant input, rendered via the SHARED returnTicketAction",
+  /returnTicket\?: \{ label: string; onReturn: \(\) => void \};[\s\S]*?const floor: MenuId\[\]/.test(variants) &&
+    /\.\.\.\(returnTicket \? \[returnTicketAction\(returnTicket\)\] : \[\]\)/.test(variants),
+);
+check(
+  "HUNK E: the overlay close-bar carries a NAMED return beside the ✕, both calling overlayReturn",
+  /Back to your tutor &rarr;/.test(page) &&
+    (page.match(/onClick=\{overlayReturn\}/g) || []).length === 2,
+  "the named label and the ✕ must both route through overlayReturn",
+);
+
 /* ══════════════════════════════════════════════════════════════════════════
    3 · THE HOST — seeded WITHOUT a nested Router + nav containment + tutor wiring.
    ══════════════════════════════════════════════════════════════════════════ */

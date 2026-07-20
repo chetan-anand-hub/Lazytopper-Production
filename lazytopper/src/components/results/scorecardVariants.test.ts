@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import type { SessionRecord } from "../../services/sessionRecords";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
@@ -145,6 +145,36 @@ describe("quickPracticeScorecardVariant", () => {
     expect(v.score).toEqual({ kind: "attempts", attempted: 4, ofN: 8, mcqAnswered: 3, mcqCorrect: 2 });
     expect(v.stackActions).toBe(true);
     expect(v.footnote).toMatch(/saved to your progress/);
+  });
+
+  // ── The way home (tutor⇄QP overlay). Closing the panel already returned the student; these
+  // pin that it is now NAMED in the menu, and ONLY when hosted in the overlay. ──────────────
+  it("overlay: the menu carries a 'Back'-tagged 'Back to your tutor' row that fires onReturn", () => {
+    const onReturn = vi.fn();
+    const v = quickPracticeScorecardVariant({
+      ...base,
+      attempted: 5, totalInSet: 5, mcqAnswered: 3, mcqCorrect: 3, allDone: true,
+      overlayMode: true,
+      returnTicket: { label: "Back to your tutor", onReturn },
+    });
+    const back = v.actions.find((a) => a.tag === "Back");
+    expect(back).toBeDefined();
+    expect(back!.label).toBe("Back to your tutor");
+    // Secondary on purpose: the session's own next step keeps the primary slot.
+    expect(back!.tone).toBe("secondary");
+    back!.onClick();
+    expect(onReturn).toHaveBeenCalledTimes(1);
+    // In the panel the app-navigation items stay omitted — the return is the only way out.
+    expect(v.actions.map((a) => a.label)).not.toContain("Chapter Test");
+  });
+
+  it("a normal (direct/hub) visit gets NO return row — the menu is unchanged", () => {
+    const v = quickPracticeScorecardVariant({
+      ...base,
+      attempted: 5, totalInSet: 5, mcqAnswered: 3, mcqCorrect: 3, allDone: true,
+    });
+    expect(v.actions.find((a) => a.tag === "Back")).toBeUndefined();
+    expect(v.actions.map((a) => a.label)).toContain("Chapter Test");
   });
 
   it("0-attempted shows the honest empty state and the floor menu (no-signal → keep)", () => {

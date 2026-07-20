@@ -267,6 +267,12 @@ export interface QuickPracticeVariantInput {
    *  Only the in-panel-safe items (Keep practicing / Fresh set) remain. Default false ⇒ the
    *  full menu, byte-identical for every existing (hub / direct) caller. */
   overlayMode?: boolean;
+  /** The way home, rendered as the menu's "Back"-tagged secondary row — the SAME machinery the
+   *  C&I variant uses (`returnTicketAction`). Present ONLY when Quick Practice is hosted in the
+   *  tutor overlay, where it reads "Back to your tutor" and closes the panel, so the student
+   *  never has to infer that the bare ✕ is the return. Omitted (a direct / hub visit) ⇒ the
+   *  what-next menu is byte-identical to today. */
+  returnTicket?: { label: string; onReturn: () => void };
 }
 
 type MenuId = "keep" | "fresh" | "chapter" | "predicted" | "study";
@@ -293,6 +299,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     onPredicted,
     onStudy,
     overlayMode = false,
+    returnTicket,
   } = input;
 
   const mcqMissed = Math.max(0, mcqAnswered - mcqCorrect);
@@ -368,6 +375,9 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
   const actions: ScorecardAction[] = [
     toAction(primaryId, "primary"),
     ...floor.filter((id) => id !== primaryId).map((id) => toAction(id, "secondary")),
+    // The way home last, as the "Back"-tagged secondary row — same placement and tone the C&I
+    // variant uses, so the session's own next step keeps the primary slot. Overlay-only.
+    ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
   ];
 
   return {
