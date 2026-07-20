@@ -1,5 +1,22 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-20 — ★★ ✅ THE PRACTICE-HUB v6 REDESIGN COMPLETE (#492 → #494 → #496 → #498, trunk `6d991c0`) — owner LIVE-VERIFIED
+
+**Stage COMPLETE — the app's highest-connectivity page was rebuilt and not one URL moved.** `/practice-hub` carries 7 outbound route families, 22 inbound caller files and the `/mock-builder` redirect; the redesign is presentation + flow only.
+
+- **#492** — the rebuild (net −766 lines): two-step flow, INLINE dropdown topic selection for both scopes, four accent mode cards, navy MI rail, NEW desktop-only real trend sparkline. Cut: blueprint, predicted tabs, More-options, quick links, topic reference, all developer language.
+- **#494** — the cards arrive alive: a whole-card `opacity: 0.65` was dimming every descendant (and only 2 of 4 cards, since Predicted/Full Test always have a `to`).
+- **#496** — vivid + guarded: accent-tinted resting borders, 5px full-opacity stripes, deeper tints, and the **mutation-verified aliveness guard**.
+- **#498 (`6d991c0`)** — deletes the dead `pages/MockBuilder.tsx` (946 lines, zero imports; PR-G's deletion, finally done) and rewrites the stale `DesktopPracticePage.tsx` header. **`PR-G-deletion-pending` is now discharged for MockBuilder.**
+
+**Routing proof:** a capture harness run against trunk AND the redesign, diffed — **25 URLs, diff EMPTY** — now pinned in `routingParity.test.tsx`. One owner-approved relaxation: the timer toggle adds `timed=1` to the scoped builder (trunk's `timedDrillPath` dropped multi-topic + focus).
+
+**Doctrine earned:** capture-and-diff beats inspection for a URL contract · "strictly frozen" can itself be the regression · MEASURE the rendered style before "restoring" it (2 of 3 specced fixes were already done) · a z-index needs BOTH bounds, and `backdrop-filter` creates a stacking context · **a commit-scoped gate needs a COMMIT** (a pre-commit matrix run gave a false green) · a spec can scope a forbidden file, but only the gate decides what merges.
+
+**⚠ OPEN, not shipped:** `[FU-HUB-DROPDOWN-ZINDEX]` (blocked on a FORBIDDEN-list decision) · `[FU-QP-SCORECARD-ATTEMPTS-WIPED]` (diagnosed, deliberately not fixed).
+
+**NEXT:** the hub lane is CLOSED.
+
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
 ## 2026-07-20 — ★★ ✅ THE QP OVERLAY ON THE TUTOR COMPLETE — THE TUTOR⇄QP ARC IS DONE (#490 → #491 → #493 → #495, trunk `273cfe8`) — owner LIVE-VERIFIED

@@ -1,9 +1,21 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-20 (post-**#490 → #491 → #493 → #495 — THE QP OVERLAY IS LIVE; the tutor⇄QP arc is COMPLETE.** Trunk `273cfe8`. Owner LIVE-VERIFIED. The arc survived a production break: #490 shipped a nested `<MemoryRouter>` inside the app's `<BrowserRouter>` → error page for every student → reverted (#491, byte-identical to healthy `0b22ee7`) → fixed (#493, context-reset seeding, no nested Router) → the named return (#495).)
+# Updated: 2026-07-20 (post-**#492 → #494 → #496 — THE PRACTICE-HUB v6 REDESIGN IS LIVE.** Trunk `6d991c0`. Owner LIVE-VERIFIED. #498 deleted the dead MockBuilder page + the stale header comment.)
 
-## ⏭️ NEXT — 2026-07-20 (post-arc). Read this block first.
+## ⏭️ NEXT — 2026-07-20 (post-hub-redesign). Read this block first.
 
-**The tutor⇄QP arc is COMPLETE — entry → reachable → navigable → multi-topic → overlay → the named return. Stand down the tutor agent.** This is its closing docs handoff.
+**The practice-hub lane is CLOSED.** #492 (rebuild, routing frozen) → #494 (the grey-out) → #496 (vivid + the aliveness guard) are all merged and owner live-verified. **#498 (`6d991c0`)** deleted `pages/MockBuilder.tsx` (946 lines) and rewrote the stale header. The lane is done.
+
+### ★ (1) The two OPEN follow-ups — read these before touching the hub again
+- **`[FU-HUB-DROPDOWN-ZINDEX]` — BLOCKED ON AN OWNER DECISION, not on engineering.** The avatar dropdown is occluded by the hub cards. The root cause is verified (`DesktopShell`'s header sets `backdrop-filter: blur(12px)`, which **creates a stacking context** and traps the menu's `zIndex: 50` inside the header) and the fix is known and byte-reviewed (`position: relative; zIndex: 55` on the header — bounded `> 50` page content, `< 60` the full-screen drawers). **It cannot ship as things stand:** `DesktopShell.tsx` is an ABSOLUTE entry in the `FORBIDDEN` list of `check_improve_convergence_acceptance.mjs`, which runs on every PR with no lane-scoping and no exception mechanism — and there is no fix from outside the file, because the dropdown LIVES in `DesktopShell`. Two honest options only: amend the FORBIDDEN list as its own reviewed decision, or leave it deferred (it is cosmetic). **Do NOT silence the gate.**
+- **`[FU-QP-SCORECARD-ATTEMPTS-WIPED]` — a real bug with an OPEN trigger.** The QP scorecard showed "0 of 50" after ~5 MCQs. The score MODEL is fine (`kind:"attempts"` always; `50` is `COUNT_SOFT_MAX`) — the defect is the **0 attempted**. It does NOT reproduce on either path (real `PracticePage` at the overlay seed, and the real overlay at production nesting depth, both render "3 of 5 attempted · 1/3 MCQs correct"). The MECHANISM does reproduce: "Refresh set" clears `mcqSelections`/`gradedResults` (`PracticePage:1580-1590`) and a later Finish shows "0 of N". **Whether the set self-regenerated (correctness bug) or was refreshed (UX-honesty gap) is unresolved — fix the right branch, not the convenient one.**
+
+### ★★ DOCTRINE TO CARRY (earned this lane)
+- **To prove a URL contract didn't move, CAPTURE BOTH SIDES AND DIFF.** One harness whose selectors match both vocabularies, run against trunk and the rebuild. Inspection cannot prove 25 URLs.
+- **"Strictly frozen" can itself BE the regression** — reusing an existing builder that silently drops scope is not preservation.
+- **MEASURE the rendered style before "restoring" it.** Two of three specced visual fixes were already present; the whole defect was one `opacity` line multiplying every descendant.
+- **A commit-scoped gate needs a COMMIT.** The forbidden-path check diffs `base...HEAD`; a matrix run BEFORE committing prints a truthful-but-useless green. `scope:guard` is the mirror-image exception — it reads the working tree, so it runs pre-commit.
+- **A spec can scope a forbidden file; only the gate decides what merges.**
+- **Mutation-test every guard, and don't over-tighten it.** The aliveness guard's stripe check is a floor (≥ 0.8), not an equality — the strict form would have failed trunk AND the prototype.
 
 ### ★ SCOPE BOUNDARY — the practice-hub redesign is a SEPARATE lane
 #492 (v6 redesign) + #494 (the opacity fix) are merged and a closing hub PR is open. **That lane gets its OWN handoff, written when it closes** — do NOT fold it into the tutor arc. ⚠ **Do NOT delete `feat/desktop-pr-hub-polish-close`** — it is unmerged work belonging to that lane.

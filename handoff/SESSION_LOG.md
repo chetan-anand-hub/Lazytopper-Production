@@ -1,5 +1,40 @@
 ---
 
+## 2026-07-20 -- #492 → #494 → #496 → #498: ★★ THE PRACTICE-HUB v6 REDESIGN — rebuilt, and the routing never moved — trunk `6d991c0`
+
+**`/practice-hub` now opens on a two-step "pick what, then pick how" flow with a navy Mistake-Intelligence rail.** The hub is the app's highest-connectivity page — **7 outbound route families, 22 inbound caller files, plus the `/mock-builder` redirect** — so the entire risk of a presentation rebuild was that a re-render quietly changed an emitted URL. It did not, and that was proven rather than asserted.
+
+- **#492 (`1938634`) — the rebuild.** Net **−766 lines**. Topic selection became a DROPDOWN for both scopes (single-select radio / multi-select checklist + removable pills) rendered INLINE, because both the rail and the mobile carousel clip. It is a new INPUT for the EXISTING state — it writes the same `topicSlug` / `selectedTopicSlugs` the chips wrote, which is *why* the URLs could stay identical. Four accent mode cards; desktop 2×2, mobile a full-width snap carousel with page dots. The MI card took the navy identity, and a NEW desktop-only trend sparkline reads the SAME `getMistakeLogs` history — with fewer than two days of data it returns null and does not render, rather than drawing a fake line.
+- **#494 (`3e7b7ad`) — the cards arrive alive.** #492 had `opacity: 0.65` on the card `<article>` when no topic was picked; sitting on the card, it multiplied every descendant, so the accent was rendered and then dimmed.
+- **#496 (`e560792`) — vivid + guarded.** Accent-tinted resting borders, 5px full-opacity stripes, deeper tints, the prototype's page surface — plus the aliveness guard.
+- **#498 (`6d991c0`)** — deletes `pages/MockBuilder.tsx` (946 lines, zero imports) and rewrites the stale `DesktopPracticePage.tsx` header comment.
+
+### ★★ LESSON 1 — to prove "no URL moved", CAPTURE BOTH SIDES AND DIFF THEM
+Inspection cannot prove a 25-URL contract. One capture harness was written whose CTA regexes match BOTH vocabularies (trunk's "Open Highly Probable Questions" and the redesign's "Open highly probable"), so the SAME harness runs unmodified against either build. It was run against the redesign, then against `git checkout <trunk> -- DesktopPracticePage.tsx`, and the outputs diffed: **5 scope scenarios × 5 CTA families = 25 URLs, diff EMPTY** — same paths, same param ORDER, same encoding, same `source`/`returnTo`. Those exact strings are now pinned in `routingParity.test.tsx`.
+
+### ★★ LESSON 2 — "strictly frozen" can itself BE the regression
+The timer toggle could have reused trunk's existing `timedDrillPath` — maximally "frozen". But that path only carried `topic` for single-topic scope, so flipping the timer would have **silently collapsed a multi-topic selection** and dropped focus context. Freeze is the means; not breaking behaviour is the end. The toggle adds `timed=1` to the same scoped builder instead, and the proof was restated honestly: byte-identical with the timer OFF, scope-preserving when ON.
+
+### ★★ LESSON 3 — MEASURE the rendered style before "restoring" it
+The #494 brief named three fixes. Dumping the four cards' ACTUAL inline styles proved **two were already done** — stripe, resting shadow, gradients, the scope-card top stripe and the trend-card shadow all already matched the prototype. The whole defect was one `opacity` line. Re-applying the other two would have been churn with regression risk, so they were left alone and the reason recorded.
+
+### ★★ LESSON 4 — a z-index needs BOTH bounds, and `backdrop-filter` creates a stacking context
+The avatar dropdown is occluded by the hub cards. The brief blamed the cards' always-on `translateY(0)`; the real cause is that `DesktopShell`'s header sets `backdrop-filter: blur(12px)`, which **creates a stacking context** — trapping the menu's `zIndex: 50` inside the header. So the brief's proposed alternative (drop the card transform) would NOT have fixed it: the scope card's plain `position: relative` still occludes. The correct fix is `position: relative; zIndex: 55` on the header — and 55 is bounded on BOTH sides: `> 50` (the highest z-index any page inside `<main>` uses) and `< 60` (the full-screen fixed drawers that must still cover the header). **A first pass used 100 and would have punched the header through an open tutor drawer.**
+
+### ★★ LESSON 5 — a commit-scoped gate needs a COMMIT
+#496's first revision carried the z-index fix and passed `test:matrix:all` locally. The forbidden-path check diffs `${base}...HEAD` — **commits** — and the matrix was run BEFORE committing, so the `DesktopShell` edit sat in the working tree, invisible to it. The gate printed a truthful-but-useless green; re-running it after committing turned it red immediately. **This is the second time this trap has bitten** (the multi-topic lane hit the same guard). Matrix runs belong AFTER the commit — `scope:guard` is the mirror-image exception, since it reads the working tree.
+
+### ★ LESSON 6 — a spec can scope a file; only the gate decides what merges
+The #496 brief explicitly scoped `DesktopShell.tsx` for the z-index fix. It is an ABSOLUTE entry in the FORBIDDEN list of `check_improve_convergence_acceptance.mjs`, which runs on every PR — flat, no lane-scoping, no exception mechanism. Splitting the PR does not help (a shell-only PR fails the identical gate), and there is no fix from outside the file because **the dropdown lives in `DesktopShell`**, so even portaling it to `document.body` touches it. The change was removed and logged rather than the gate silenced.
+
+### ★ LESSON 7 — mutation-test the guard, and don't over-tighten it
+The aliveness guard only counts because re-introducing `opacity: disabled ? 0.65 : 1` turns it RED, naming the card. It asserts the ARRIVAL state: no card dimmed, **all four AGREE on opacity** (#492 was patchy), **four DISTINCT stripe accents** (identity, not a count — a build painting every stripe the same colour would still "have four stripes"), and the gated CTA is still an inert `<span>` so the routing gate cannot be lost to a styling change. Its stripe check was deliberately relaxed from "no opacity < 1" to a **floor of ≥ 0.8** — the strict form would have failed trunk AND the v6 prototype, which both legitimately use `.9`.
+
+### ★ The QP scorecard "0/50" — diagnosed, NOT fixed (see `[FU-QP-SCORECARD-ATTEMPTS-WIPED]`)
+The reported "renders marks instead of attempts" was disproven: `quickPracticeScorecardVariant` always emits `kind:"attempts"` and **no `kind:"marks"` path exists for quick practice anywhere**. The `50` is `COUNT_SOFT_MAX`. So "0/50" is the attempts hero rendering "0 of 50" — the defect is the **0 attempted**. Driving the REAL `PracticePage` inside the REAL overlay renders correctly ("3 of 5 attempted · 1/3 MCQs correct"), so it does not reproduce on either path. The mechanism WAS reproduced: "Refresh set" clears `mcqSelections`/`gradedResults`, and a later Finish shows "0 of N". Whether the owner's set self-regenerated (correctness bug) or was refreshed (UX-honesty gap) is the open question — and fixing the wrong branch would be worse than logging it precisely.
+
+---
+
 ## 2026-07-20 -- #490 → #491 → #493 → #495: ★★ THE QP OVERLAY ON THE TUTOR — the tutor⇄QP arc is COMPLETE, and it survived a production break — trunk `273cfe8`
 
 **A student in the tutor taps "Practise this" and a scoped Quick Practice opens AS AN OVERLAY over the thread** (the C&I overlay's twin) — filtered to the microconcept, scorecard in the panel, and closing returns to the tutor, which quotes the real score. Additive throughout: **overlay absent ⇒ every touched surface byte-identical.** This arc is recorded with its failure intact, because the failure is the valuable part.
