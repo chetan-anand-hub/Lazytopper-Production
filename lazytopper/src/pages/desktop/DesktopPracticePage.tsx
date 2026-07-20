@@ -101,7 +101,7 @@ const TEXT_FG = "hsl(220, 25%, 12%)";
 const TEXT_MUTED = "hsl(220, 15%, 42%)";
 const BORDER = "hsl(220, 18%, 90%)";
 const CARD_BG = "#ffffff";
-const SECTION_BG = "hsl(210, 40%, 98%)";
+const SECTION_BG = "hsl(220, 20%, 97%)";
 const PILL_BG = "hsl(210, 33%, 96%)";
 const PILL_FG = "hsl(220, 25%, 22%)";
 const DANGER_FG = "hsl(0, 65%, 42%)";
@@ -121,11 +121,30 @@ const NAVY_LINE = "hsl(222, 35%, 84%)";
 
 // Per-mode accents for the four "How to practise" cards.
 type ModeAccent = "quick" | "worksheet" | "hpq" | "full";
-const MODE_ACCENT: Record<ModeAccent, { accent: string; tint: string }> = {
-  quick: { accent: PRIMARY_GREEN, tint: PRIMARY_GREEN_SOFT },
-  worksheet: { accent: "hsl(205, 70%, 52%)", tint: "hsl(205, 70%, 95%)" },
-  hpq: { accent: "hsl(255, 50%, 58%)", tint: "hsl(255, 60%, 96%)" },
-  full: { accent: "hsl(340, 62%, 56%)", tint: "hsl(340, 70%, 96%)" },
+const MODE_ACCENT: Record<
+  ModeAccent,
+  { accent: string; tint: string; line: string }
+> = {
+  quick: {
+    accent: PRIMARY_GREEN,
+    tint: "hsl(152, 55%, 92%)",
+    line: "hsl(152, 50%, 80%)",
+  },
+  worksheet: {
+    accent: "hsl(205, 70%, 52%)",
+    tint: "hsl(205, 70%, 92%)",
+    line: "hsl(205, 60%, 80%)",
+  },
+  hpq: {
+    accent: "hsl(255, 50%, 58%)",
+    tint: "hsl(255, 60%, 93%)",
+    line: "hsl(255, 50%, 83%)",
+  },
+  full: {
+    accent: "hsl(340, 62%, 56%)",
+    tint: "hsl(340, 70%, 93%)",
+    line: "hsl(340, 60%, 84%)",
+  },
 };
 
 const IconStroke: React.CSSProperties = {
@@ -680,7 +699,7 @@ function ModeCard({
       style={{
         position: "relative",
         background: `linear-gradient(180deg, ${CARD_BG}, hsl(220, 25%, 99%))`,
-        border: `1px solid ${hover ? tone.accent : BORDER}`,
+        border: `1px solid ${hover ? tone.accent : tone.line}`,
         borderRadius: 16,
         padding: 18,
         overflow: "hidden",
@@ -700,10 +719,9 @@ function ModeCard({
           position: "absolute",
           top: 0,
           left: 0,
-          width: 4,
+          width: 5,
           height: "100%",
           background: tone.accent,
-          opacity: 0.9,
         }}
       />
       <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 9 }}>
