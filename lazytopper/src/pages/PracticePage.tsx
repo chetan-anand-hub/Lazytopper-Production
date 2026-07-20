@@ -1925,19 +1925,29 @@ const packTopicKey = useMemo(() => {
     ]);
     const localMcqAnswered = Object.keys(mcqSelections).length;
     return {
-      total: questions.length,
+      // The set the student WORKS is `filteredQuestions` (the committed pool sliced to
+      // the chosen count), NOT the raw `questions` pool. The engine deliberately
+      // over-fetches when a marks/section/range filter is active (engineCount = count*5,
+      // cap 100), so `questions.length` is the POOL (varies — the owner's screenshot was
+      // 75), while the student only ever sees `filteredQuestions.length` (the chosen 5).
+      // Reading the pool here reported a 5-question session as "of 75"
+      // ([FU-QP-SCORECARD-ATTEMPTS-WIPED]).
+      total: filteredQuestions.length,
       attemptedInSet: attemptedIds.size,
       localMcqAnswered,
       localMcqCorrect: Object.values(mcqResults).filter((r) => r === "correct").length,
     };
-  }, [questions.length, mcqSelections, gradedResults, mcqResults]);
+  }, [filteredQuestions.length, mcqSelections, gradedResults, mcqResults]);
 
   // Scorecard trigger. `sessionFinished` (the explicit "Finish session" tap) is
   // the primary, always-available trigger; `allDone` (every question attempted)
-  // is a convenience auto-offer. Either surfaces the same scorecard.
-  const allDone = questions.length > 0 && sessionStats.attemptedInSet >= questions.length;
+  // is a convenience auto-offer. Either surfaces the same scorecard. Both count the
+  // DISPLAYED set (`filteredQuestions`), never the over-fetched pool — otherwise the
+  // auto-offer could never fire (attempts of the 5 shown never reach the pool's 50).
+  const allDone =
+    filteredQuestions.length > 0 && sessionStats.attemptedInSet >= filteredQuestions.length;
   const showScorecard =
-    (sessionFinished || allDone) && questions.length > 0 && !scorecardDismissed;
+    (sessionFinished || allDone) && filteredQuestions.length > 0 && !scorecardDismissed;
 
   // Optional runner countdown tick (§2.3). Runs 1/s only while the runner is open, the
   // timer is on, and the session isn't finished. Functional guard stops the tick at the
@@ -2385,7 +2395,7 @@ const packTopicKey = useMemo(() => {
                   topic: topicParam,
                   subject: subjectKey,
                   attempted: sessionStats.attemptedInSet,
-                  total: questions.length,
+                  total: filteredQuestions.length, // the DISPLAYED set, not the pool
                 });
                 setScorecardDismissed(false);
                 setSessionFinished(true);
@@ -2424,7 +2434,10 @@ const packTopicKey = useMemo(() => {
     <ResultsScorecard
       variant={quickPracticeScorecardVariant({
         attempted: sessionStats.attemptedInSet,
-        totalInSet: questions.length,
+        // The DISPLAYED set the student worked (committed pool sliced to the chosen
+        // count) — never the over-fetched `questions` pool, which reported "of 75" for
+        // a chosen-5 session (the owner's screenshot: [FU-QP-SCORECARD-ATTEMPTS-WIPED]).
+        totalInSet: filteredQuestions.length,
         mcqAnswered: sessionStats.localMcqAnswered,
         mcqCorrect: sessionStats.localMcqCorrect,
         allDone,
