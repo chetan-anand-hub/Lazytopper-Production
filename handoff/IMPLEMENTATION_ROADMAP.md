@@ -1,5 +1,15 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-20 - THE QP SCORECARD DENOMINATOR BUG COMPLETE (#501, trunk `7979a89`) - owner LIVE-VERIFIED
+
+**Stage COMPLETE - a graded-surface correctness fix, feed-only.** The Quick Practice scorecard's "of N" read `questions.length` (the OVER-FETCHED engine pool) instead of `filteredQuestions.length` (the DISPLAYED set the student works). Owner screenshot: a full-page 5-MCQ set showed "5 of 75 attempted" - attempts counted correctly (5 of 5), the denominator wrong. Any marks/section filter over-fetches (`engineCount = chosen count x5`, cap 100), so the pool varies while the student only sees the chosen count.
+
+- **#501 (`7979a89`)** - all FIVE scorecard-facing reads in `PracticePage.tsx` now use `filteredQuestions.length`: `totalInSet`, `sessionStats.total`, `allDone`, the `showScorecard` guard, and the finish telemetry. The `questions.length === 0` pool-empty guard is correct and unchanged. Forbidden `ResultsScorecard.tsx` / `scorecardVariants.ts` untouched (they read right). Bonus: the all-attempted auto-offer now fires when the DISPLAYED set is complete (it previously compared against the pool, so it never triggered on a filtered set).
+
+**Proof:** the regression test (`PracticePage.scorecardFeed.test.tsx`) mounts the REAL `PracticePage` on the FULL-PAGE preset path (`source=practice` - not the tutor overlay's `arrivedTargeted` bypass, which is why a prior "does not reproduce" was a false negative) and reproduces the owner's exact screenshot: "5 of 5 - 1/5 MCQs correct - 20% accuracy" (was "5 of 75"). Mutation-verified. `[FU-QP-SCORECARD-ATTEMPTS-WIPED]` RESOLVED; the written-answer gap re-scoped as the product lane `[FU-QP-WRITTEN-BINARY-CHECK]` (subjective answers graded binary 0/1, that check produces the attempt signal).
+
+---
+
 ## 2026-07-20 — ★★ ✅ THE PRACTICE-HUB v6 REDESIGN COMPLETE (#492 → #494 → #496 → #498, trunk `6d991c0`) — owner LIVE-VERIFIED
 
 **Stage COMPLETE — the app's highest-connectivity page was rebuilt and not one URL moved.** `/practice-hub` carries 7 outbound route families, 22 inbound caller files and the `/mock-builder` redirect; the redesign is presentation + flow only.

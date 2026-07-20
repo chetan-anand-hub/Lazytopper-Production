@@ -1,6 +1,22 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #492 → #494 → #496 → #498 — ★★ THE PRACTICE-HUB v6 REDESIGN IS LIVE — **owner LIVE-VERIFIED** — trunk `6d991c0`
+## [CURRENT] #501 - THE QP SCORECARD DENOMINATOR BUG IS FIXED - owner LIVE-VERIFIED ("5 of 5") - trunk `7979a89`
+
+**The Quick Practice scorecard now counts the set the student SEES, not the engine's over-fetched pool.** A full-page 5-MCQ session showed "5 of 75 attempted" (owner screenshot): attempts were counted CORRECTLY (5 of 5), but the denominator read `questions.length` (the OVER-FETCHED pool) instead of `filteredQuestions.length` (the DISPLAYED set). Any marks/section filter over-fetches (`engineCount = chosen count x5`, cap 100), so the pool varies (50/75/100...) while the student only ever sees the chosen count. **Owner LIVE-VERIFIED: "5 of 5" confirmed. Docs-only handoff; zero product files here.**
+
+- **The fix (feed-only, `PracticePage.tsx`)** - all FIVE scorecard-facing reads now use the DISPLAYED set `filteredQuestions.length`: `totalInSet` (the denominator), `sessionStats.total`, `allDone`, the `showScorecard` guard, and the finish telemetry. The pool-empty guard (`questions.length === 0`, inside `committedPoolSelection`) is correct and left unchanged.
+- **FORBIDDEN files untouched** - `ResultsScorecard.tsx` and `scorecardVariants.ts` READ the fields correctly; the bug was the FEED. Verified zero-diff.
+- **Bonus from the same root cause** - the all-attempted auto-offer now FIRES when the displayed set is complete. It previously compared against the pool, so on any filtered/over-fetched set it could never trigger.
+
+**THE FRAMING WAS CORRECTED MID-LANE.** The first investigation constructed a WRITTEN set with no attempt signal to get "0 of N" and mis-framed "attempted=0" as half of "the" bug. The owner's screenshot proved otherwise: the real bug is the DENOMINATOR only; MCQ attempts were always counted. The written "0 of N" survives ONLY as a labeled test control (the denominator is independent of the attempt count) - NOT the owner's bug, NOT a wipe.
+
+**THE PROOF - the REAL PracticePage on the full-page path.** The regression test (`PracticePage.scorecardFeed.test.tsx`) mounts the actual `PracticePage` on the full-page preset path (`source=practice` - NOT the tutor overlay's `arrivedTargeted` bypass, which is why a prior "does not reproduce" was a false negative) and reproduces the owner's exact screenshot: "5 of 5 - 1/5 MCQs correct - 20% accuracy" (was "5 of 75"). Mutation-verified: reverting only the `totalInSet` line reproduces "5 of 75".
+
+**NEXT:** the scorecard lane is CLOSED. `[FU-QP-SCORECARD-ATTEMPTS-WIPED]` RESOLVED by #501; the re-scoped `[FU-QP-WRITTEN-BINARY-CHECK]` (subjective answers checkable + graded binary 0/1, and that check produces the attempt signal - a product-behaviour lane) is logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. See `NEXT_ACTION.md`.
+
+---
+
+## #492 → #494 → #496 → #498 — ★★ THE PRACTICE-HUB v6 REDESIGN IS LIVE — **owner LIVE-VERIFIED** — trunk `6d991c0`
 
 **`/practice-hub` is rebuilt to the locked v6 design, and the routing never moved.** The hub is the app's highest-connectivity page — 7 outbound route families, 22 inbound caller files, plus the `/mock-builder` redirect — so the whole risk was that a re-render quietly changed a URL. It did not. **Owner LIVE-VERIFIED (#492, #494, #496). Docs-only handoff; zero product files here.**
 
@@ -15,7 +31,7 @@
 
 **★★ THE DURABLE LESSON — MEASURE THE RENDERED STYLE BEFORE "RESTORING" IT.** The #494 brief listed three fixes. A diagnostic that dumped the four cards' ACTUAL inline styles proved **two of the three were already done**: the 4px accent stripe, the resting box-shadow, the gradients, the scope-card top stripe and the trend-card shadow were all present and already matched the prototype. Re-applying them would have been pure churn with regression risk. The entire defect was the one `opacity` line — the accent WAS rendered, then multiplied down.
 
-**⚠ KNOWN OPEN, NOT SHIPPED:** the avatar dropdown is occluded by the hub cards (`[FU-HUB-DROPDOWN-ZINDEX]`) — the fix is known and correct but touches a FORBIDDEN path; and the QP scorecard "0 of 50" report (`[FU-QP-SCORECARD-ATTEMPTS-WIPED]`) — diagnosed, mechanism reproduced, deliberately NOT fixed. Both in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` with full evidence.
+**⚠ KNOWN OPEN, NOT SHIPPED:** the avatar dropdown is occluded by the hub cards (`[FU-HUB-DROPDOWN-ZINDEX]`) — the fix is known and correct but touches a FORBIDDEN path; and the QP scorecard denominator report (`[FU-QP-SCORECARD-ATTEMPTS-WIPED]`) — at the time diagnosed but deferred (now **RESOLVED by #501** — see the topmost entry above). Both in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` with full evidence.
 
 **NEXT:** the hub lane is CLOSED. Both remaining items are follow-ups, not lane work. See `NEXT_ACTION.md`.
 

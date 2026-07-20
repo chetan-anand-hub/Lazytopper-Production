@@ -1,5 +1,21 @@
 ---
 
+## 2026-07-20 -- #501: THE QP SCORECARD DENOMINATOR - counts the DISPLAYED set, not the over-fetched pool - **merged, owner LIVE-VERIFIED ("5 of 5")** - trunk `7979a89`
+
+**A full-page 5-MCQ Quick Practice showed "5 of 75 attempted" (owner screenshot).** The attempts were counted CORRECTLY (5 of 5, 1/5 MCQs correct); the DENOMINATOR was wrong. The scorecard's "of N" read `questions.length` - the engine's OVER-FETCHED pool - instead of `filteredQuestions.length` - the DISPLAYED set the student works. Any marks/section filter over-fetches (`engineCount = chosen count x5`, cap 100), so the pool varies (50/75/100...) while the student only sees + answers the chosen count (`selectInRangeFromPool` slices `matched` to `committedCount`; `PracticeQuestionList` renders `filteredQuestions`).
+
+- **The fix (feed-only, `PracticePage.tsx`)** - all FIVE scorecard-facing reads now use `filteredQuestions.length`: `totalInSet` (the denominator), `sessionStats.total` (+ memo dep), `allDone`, the `showScorecard` guard, and the finish telemetry. The `questions.length === 0` pool-empty guard (inside `committedPoolSelection`) is correct and unchanged.
+- **FORBIDDEN files untouched** - `ResultsScorecard.tsx` / `scorecardVariants.ts` read the fields correctly; the bug was the feed. Zero-diff verified.
+- **Bonus from the same root cause** - the all-attempted auto-offer now FIRES when the DISPLAYED set is complete; it previously compared against the pool, so it never triggered on a filtered/over-fetched set.
+
+### LESSON - reproduce the path the OWNER used, not the one that's easy to mount
+A prior investigation reported "does not reproduce" - but it only drove the OVERLAY seed (`source=tutor`, which bypasses preset-entry via `arrivedTargeted`). The owner's bug is the FULL-PAGE preset path (`source=practice`), which goes through the over-fetch - a different code path, and where the bug lived. The overlay working was a FALSE NEGATIVE. The regression test (`PracticePage.scorecardFeed.test.tsx`) mounts the REAL `PracticePage` on the full-page path and reproduces the owner's exact screenshot: "5 of 5 - 1/5 MCQs correct - 20% accuracy" (was "5 of 75"). Mutation-verified: reverting only the `totalInSet` line reproduces "5 of 75".
+
+### LESSON - correct the framing when the evidence corrects it
+The first pass constructed a WRITTEN set with no attempt signal to produce "0 of N" and mis-framed "attempted=0" as half of "the" bug. The owner's screenshot proved the real bug is the DENOMINATOR only - MCQ attempts were always counted. The written "0 of N" survives ONLY as a labeled test control (the denominator is displayed-independent of the attempt count), NOT the owner's bug and NOT a wipe. The genuine written gap was re-scoped as a separate product lane, `[FU-QP-WRITTEN-BINARY-CHECK]`: subjective answers should be checkable + graded BINARY 0/1 (no step-marks, per the owner's ruling), and THAT check produces the attempt signal. Never fabricate attempts.
+
+---
+
 ## 2026-07-20 -- #492 → #494 → #496 → #498: ★★ THE PRACTICE-HUB v6 REDESIGN — rebuilt, and the routing never moved — trunk `6d991c0`
 
 **`/practice-hub` now opens on a two-step "pick what, then pick how" flow with a navy Mistake-Intelligence rail.** The hub is the app's highest-connectivity page — **7 outbound route families, 22 inbound caller files, plus the `/mock-builder` redirect** — so the entire risk of a presentation rebuild was that a re-render quietly changed an emitted URL. It did not, and that was proven rather than asserted.

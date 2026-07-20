@@ -1,4 +1,22 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-20 (post-**#501 - THE QP SCORECARD DENOMINATOR BUG IS FIXED.** Trunk `7979a89`. Owner LIVE-VERIFIED "5 of 5". The scorecard "of N" now counts the DISPLAYED set, not the over-fetched pool.)
+
+## NEXT - 2026-07-20 (post-#501). Read this block first.
+
+**The QP scorecard lane is CLOSED - this was the last task on it.** #501 fixed the denominator (feed-only, `PracticePage.tsx`; forbidden `ResultsScorecard.tsx` / `scorecardVariants.ts` untouched); owner LIVE-VERIFIED "5 of 5". `[FU-QP-SCORECARD-ATTEMPTS-WIPED]` RESOLVED. The written-answer gap is re-scoped to the product lane `[FU-QP-WRITTEN-BINARY-CHECK]` (subjective answers checkable + graded BINARY 0/1 - that check produces the attempt signal; never fabricate attempts).
+
+**The next Wave-1 lanes go to FRESH agents, in parallel - NOT this one:**
+- `[FU-CI-GATE-VITEST]` - wire vitest into CI (it runs on linux, where it works today; nobody has added the step). The routing / aliveness / scorecard tests run locally only.
+- `[FU-MOCKBUILDER-FULL-DELETE]` - the FULL mock-builder feature deletion. A PRODUCT question (what should "Build a Mock Paper" DO now the page is gone?), not a mechanical delete - see OPEN_QUESTIONS.
+- bank mis-banding - a content-lane item.
+
+### DOCTRINE TO CARRY (earned this lane)
+- **Reproduce the path the OWNER used, not the one that's easy to mount.** A prior "does not reproduce" only drove the overlay seed (`source=tutor`, which bypasses preset-entry via `arrivedTargeted`); the bug lived on the FULL-PAGE path (`source=practice`). The overlay working was a false negative.
+- **Correct the framing when the evidence corrects it.** An "attempted=0" written case constructed during investigation was mis-framed as half the bug; the owner's MCQ screenshot proved the bug was the DENOMINATOR only. The written "0 of N" survives only as a labeled test control.
+- **Feed-only fixes stay feed-only; mutation-verify the guard.** The scorecard READ side (`ResultsScorecard` / `scorecardVariants`) was correct and FORBIDDEN; the bug was the FEED. Reverting only the `totalInSet` line reproduces "5 of 75".
+
+---
+
 # Updated: 2026-07-20 (post-**#492 → #494 → #496 — THE PRACTICE-HUB v6 REDESIGN IS LIVE.** Trunk `6d991c0`. Owner LIVE-VERIFIED. #498 deleted the dead MockBuilder page + the stale header comment.)
 
 ## ⏭️ NEXT — 2026-07-20 (post-hub-redesign). Read this block first.
@@ -7,7 +25,7 @@
 
 ### ★ (1) The two OPEN follow-ups — read these before touching the hub again
 - **`[FU-HUB-DROPDOWN-ZINDEX]` — BLOCKED ON AN OWNER DECISION, not on engineering.** The avatar dropdown is occluded by the hub cards. The root cause is verified (`DesktopShell`'s header sets `backdrop-filter: blur(12px)`, which **creates a stacking context** and traps the menu's `zIndex: 50` inside the header) and the fix is known and byte-reviewed (`position: relative; zIndex: 55` on the header — bounded `> 50` page content, `< 60` the full-screen drawers). **It cannot ship as things stand:** `DesktopShell.tsx` is an ABSOLUTE entry in the `FORBIDDEN` list of `check_improve_convergence_acceptance.mjs`, which runs on every PR with no lane-scoping and no exception mechanism — and there is no fix from outside the file, because the dropdown LIVES in `DesktopShell`. Two honest options only: amend the FORBIDDEN list as its own reviewed decision, or leave it deferred (it is cosmetic). **Do NOT silence the gate.**
-- **`[FU-QP-SCORECARD-ATTEMPTS-WIPED]` — a real bug with an OPEN trigger.** The QP scorecard showed "0 of 50" after ~5 MCQs. The score MODEL is fine (`kind:"attempts"` always; `50` is `COUNT_SOFT_MAX`) — the defect is the **0 attempted**. It does NOT reproduce on either path (real `PracticePage` at the overlay seed, and the real overlay at production nesting depth, both render "3 of 5 attempted · 1/3 MCQs correct"). The MECHANISM does reproduce: "Refresh set" clears `mcqSelections`/`gradedResults` (`PracticePage:1580-1590`) and a later Finish shows "0 of N". **Whether the set self-regenerated (correctness bug) or was refreshed (UX-honesty gap) is unresolved — fix the right branch, not the convenient one.**
+- **`[FU-QP-SCORECARD-ATTEMPTS-WIPED]` — RESOLVED by #501 (see the top block).** ⚠ The diagnosis recorded here was WRONG and is kept only as historical record: the bug was the **DENOMINATOR**, not "0 attempted" and not a Refresh-set wipe, and `50` was the over-fetched POOL size (which varies), not `COUNT_SOFT_MAX`. The "not reproduced" claim was a false negative from testing only the overlay seed. The scorecard "of N" read `questions.length` (the pool) instead of `filteredQuestions.length` (the displayed set); fixed feed-only. Do NOT act on the superseded text below.
 
 ### ★★ DOCTRINE TO CARRY (earned this lane)
 - **To prove a URL contract didn't move, CAPTURE BOTH SIDES AND DIFF.** One harness whose selectors match both vocabularies, run against trunk and the rebuild. Inspection cannot prove 25 URLs.
