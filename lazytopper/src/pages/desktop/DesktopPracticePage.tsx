@@ -680,7 +680,7 @@ function ModeCard({
       style={{
         position: "relative",
         background: `linear-gradient(180deg, ${CARD_BG}, hsl(220, 25%, 99%))`,
-        border: `1px solid ${hover && !disabled ? tone.accent : BORDER}`,
+        border: `1px solid ${hover ? tone.accent : BORDER}`,
         borderRadius: 16,
         padding: 18,
         overflow: "hidden",
@@ -688,12 +688,10 @@ function ModeCard({
         display: "flex",
         flexDirection: "column",
         transition: "transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease",
-        transform: hover && !disabled ? "translateY(-2px)" : "translateY(0)",
-        boxShadow:
-          hover && !disabled
-            ? "0 8px 22px rgba(20, 40, 80, 0.09)"
-            : "0 2px 8px -4px hsla(220, 30%, 40%, 0.10)",
-        opacity: disabled ? 0.65 : 1,
+        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hover
+          ? "0 8px 22px rgba(20, 40, 80, 0.09)"
+          : "0 2px 8px -4px hsla(220, 30%, 40%, 0.10)",
       }}
     >
       <span
@@ -736,7 +734,17 @@ function ModeCard({
           {title}
         </h3>
       </div>
-      <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED, lineHeight: 1.5 }}>{desc}</p>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 12.5,
+          color: TEXT_MUTED,
+          lineHeight: 1.5,
+          minHeight: 38,
+        }}
+      >
+        {desc}
+      </p>
       {chips.length > 0 ? (
         <div style={{ marginTop: 11, display: "flex", gap: 6, flexWrap: "wrap" }}>
           {chips.map((c) => (
@@ -768,10 +776,14 @@ function ModeCard({
               gap: 6,
               fontSize: 12.5,
               fontWeight: 600,
-              color: TEXT_MUTED,
+              color: tone.accent,
+              background: tone.tint,
+              padding: "6px 12px",
+              borderRadius: 9,
             }}
           >
             {disabledHint ?? cta}
+            <IconArrowRight />
           </span>
         ) : (
           <button
@@ -2262,7 +2274,7 @@ export default function DesktopPracticePage() {
                   chips={["Presets", "Board mix"]}
                   cta="Start quick practice"
                   to={quickPracticeTarget}
-                  disabledHint="Pick a topic above first"
+                  disabledHint="Pick a topic to start"
                   onActivate={(to) => navigate(to)}
                   extra={
                     <label
@@ -2294,7 +2306,7 @@ export default function DesktopPracticePage() {
                   chips={["Printable", "Sectioned"]}
                   cta="Open worksheet builder"
                   to={worksheetPath}
-                  disabledHint="Pick a topic above first"
+                  disabledHint="Pick a topic to start"
                   onActivate={(to) => navigate(to)}
                   extra={
                     <label
