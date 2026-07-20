@@ -22,6 +22,7 @@ import { MathText } from "../../components/question/MathText";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
 import { useTutorSession } from "./useTutorSession";
 import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
+import TutorQuickPracticeOverlay from "./TutorQuickPracticeOverlay";
 import { safeInternalReturnTo } from "./tutorPath";
 import ExplanationPanel from "./ExplanationPanel";
 import {
@@ -104,7 +105,10 @@ export default function TutorPage() {
     openCheckImproveOverlay,
     checkImproveOverlayOpen,
     closeCheckImprove,
-    routeToPractice,
+    openQuickPracticeOverlay,
+    quickPracticeOverlayOpen,
+    closeQuickPractice,
+    quickPracticeHref,
     recheckPending,
     dismissPending,
   } = useTutorSession({
@@ -358,7 +362,7 @@ export default function TutorPage() {
               D-TUT-4/5). Rendered only when the model's latest turn earned it. */}
           {!pending && latestOffer === "practice" && (
             <div className="lt-tutor__actions">
-              <button type="button" className="lt-tutor__action" onClick={routeToPractice}>
+              <button type="button" className="lt-tutor__action" onClick={openQuickPracticeOverlay}>
                 Practise this
               </button>
             </div>
@@ -423,6 +427,17 @@ export default function TutorPage() {
           question straight back (closeCheckImprove → the poll-free return-opener). Fixed
           positioning means it renders above the tutor shell regardless of its overflow. */}
       <TutorCheckImproveOverlay open={checkImproveOverlayOpen} onClose={closeCheckImprove} />
+
+      {/* Tutor⇄Quick-Practice overlay (the C&I overlay's twin). The "Practise this" CTA opens
+          the REAL PracticePage as an in-tree panel over the dimmed tutor — a nested MemoryRouter
+          seeded with the round-trip URL, so the student practises a scoped set WITHOUT leaving the
+          thread. On close the tutor reads back the graded set (closeQuickPractice → the shipped
+          composePracticeRecordReturnOpener storage round-trip). */}
+      <TutorQuickPracticeOverlay
+        open={quickPracticeOverlayOpen}
+        onClose={closeQuickPractice}
+        seedUrl={quickPracticeHref}
+      />
     </div>
   );
 }

@@ -15,7 +15,6 @@
 // computed here.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork } from "../../ai/tutorClient";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
@@ -97,7 +96,19 @@ export interface UseTutorSession {
     question?: { text: string; imageBase64: string | null },
     gradedResponse?: WorksheetGradeResponse,
   ) => void;
-  routeToPractice: () => void;
+  /** Open Quick Practice as an in-tree overlay over the tutor (the C&I overlay's twin). The
+   *  practice leg NO LONGER navigates; closing the panel triggers the graded read-back over the
+   *  EXISTING pending-marker round-trip (storage — QP is the reference impl composePracticeRecordReturnOpener). */
+  openQuickPracticeOverlay: () => void;
+  /** True while the QP overlay panel is open (TutorPage mounts the host). */
+  quickPracticeOverlayOpen: boolean;
+  /** Close the QP overlay + read back the graded record (poll-with-retries handles the
+   *  persist→read race). A partial set with no record keeps the holding banner, exactly as the
+   *  navigate leg did. */
+  closeQuickPractice: () => void;
+  /** The seed URL for the overlay's MemoryRouter — the SAME buildQuickPracticeRoundTripHref
+   *  string the navigate leg used, so the hosted PracticePage sees a real tutor→QP visit. */
+  quickPracticeHref: string;
   /** Re-poll for a pending round-trip's result (student says "I'm back"). Honest +
    *  non-blocking: clears the holding state whether or not a result is found (Fix 2). */
   recheckPending: () => void;
@@ -135,7 +146,6 @@ export function useTutorSession({
   selfHref,
 }: UseTutorSessionArgs): UseTutorSession {
   const uid = user?.uid ?? null;
-  const navigate = useNavigate();
 
   // Hydrate the thread synchronously from the local mirror (instant on same-device
   // return); the mount effect reconciles the cloud copy.
@@ -153,6 +163,11 @@ export function useTutorSession({
   // tutor instead of navigating out. No pending marker, no away-cue, no poll, no waiting
   // banner (all RETIRED for this leg; the practice leg still routes out and keeps them).
   const [checkImproveOverlayOpen, setCheckImproveOverlayOpen] = useState(false);
+  // ── QP OVERLAY (the C&I overlay's twin) — the practice leg opens an in-tree panel over the
+  // tutor instead of navigating out. Unlike the C&I leg it KEEPS the pending marker + holding
+  // banner: the graded read-back is the shipped storage round-trip (QP persists at its scorecard;
+  // the tutor reads it via composePracticeRecordReturnOpener), so the marker is still the key.
+  const [quickPracticeOverlayOpen, setQuickPracticeOverlayOpen] = useState(false);
   // The raw question the student entered in the overlay, handed back on close. IN-MEMORY
   // only — never persisted, never added to the SessionRecord (owner ruling (a)). Held as
   // the seam a future prompt lane consumes so the model can reference what was asked
@@ -423,26 +438,17 @@ export function useTutorSession({
     void runModel(messages);
   }, [messages, runModel]);
 
-  // ── Round-trip route-out (offered, never forced — D-TUT-5) ──────────────────
-  const routeOut = useCallback(
-    (marker: TutorPendingMarker, cueText: string, href: string) => {
-      updatePending(marker);
-      const cue: TutorTurn = { role: "tutor", content: cueText, kind: "away-cue" };
-      const next: TutorTurn[] = [...messages, cue];
-      setMessages(next);
-      persist(next, marker); // sync local write BEFORE navigating, so the marker survives
-      navigate(href);
-    },
-    [messages, persist, navigate, updatePending],
-  );
-
-  // ── C&I OVERLAY (build v1.1) — replaces the navigate/marker/poll leg ──────────────
-  // Opening the overlay writes NO pending marker and NO away-cue: the student never leaves
-  // the thread, so there is no "away" state to hold and no banner to show. The navigate
-  // round-trip for THIS leg — and its pending-marker poll + "tutor is waiting" banner —
-  // is retired at EVERY width; the practice leg still uses routeOut and keeps them.
-  // (Verified at trunk: routeToCheckImprove was the ONLY creator of a
-  //  surface:"check-improve" pending marker, so nothing is left firing.)
+  // ── C&I + QP OVERLAYS — both practice-adjacent round-trips now open an IN-TREE PANEL over
+  // the tutor instead of navigating out (the C&I leg, #476; the QP leg, its twin, here). The old
+  // `routeOut` navigate helper is fully retired: routeToCheckImprove (removed #476) and
+  // routeToPractice (removed here) were its ONLY callers, so nothing is left navigating away.
+  //
+  // The two legs differ ONLY in how the graded work returns:
+  //   · C&I opens with NO marker + NO away-cue and hands the record back IN-MEMORY on close
+  //     (Option 2b, poll-free) — the student never leaves, so there is no "away" state.
+  //   · QP keeps the shipped STORAGE round-trip: openQuickPracticeOverlay writes the pending
+  //     marker (below), QP persists at its scorecard, and closeQuickPractice reads it back via
+  //     the existing composePracticeRecordReturnOpener chain — so the marker + holding banner stay.
   const openCheckImproveOverlay = useCallback(() => {
     setCheckImproveOverlayOpen(true);
   }, []);
@@ -479,21 +485,48 @@ export function useTutorSession({
     [injectReturn, topicLabel],
   );
 
-  const routeToPractice = useCallback(() => {
-    routeOut(
-      { surface: "practice", topicKey, departureTs: Date.now(), note: "practice set" },
-      `Holding your place - here's a short practice set on ${concept ? `"${concept}"` : "this"}. Do it, then come back and we'll read the result together.`,
-      // [FU-TUTOR-BACKLABEL-COUNT]: name the back button "Back to your tutor" + a short set.
+  // ── QP OVERLAY (the C&I overlay's twin) — replaces the navigate leg for the practice CTA ──
+  // The seed URL is the SAME one the navigate leg built (buildQuickPracticeRoundTripHref):
+  // source=tutor + topic + microconcept(subtopicHint) + a short count + backLabel. The overlay
+  // host mounts PracticePage in a MemoryRouter seeded with it, so the page sees a real tutor→QP
+  // visit (byte-identical params) without navigating away. Graded read-back is UNCHANGED.
+  const quickPracticeHref = useMemo(
+    () =>
       buildQuickPracticeRoundTripHref({
         returnTo: selfHref,
         subject,
         topicKey,
         concept,
+        // [FU-TUTOR-BACKLABEL-COUNT]: name the back button "Back to your tutor" + a short set.
         backLabel: "Back to your tutor",
         count: 5,
       }),
-    );
-  }, [routeOut, topicKey, subject, concept, selfHref]);
+    [selfHref, subject, topicKey, concept],
+  );
+
+  // Open the panel + write the pending marker (NO navigate, NO away-cue: the student never
+  // leaves). The marker is the read-back key on close AND the holding-banner fallback if the
+  // student closes a partial set with no graded record (mirrors the navigate leg's behaviour).
+  const openQuickPracticeOverlay = useCallback(() => {
+    setQuickPracticeOverlayOpen(true);
+    const marker: TutorPendingMarker = {
+      surface: "practice",
+      topicKey,
+      departureTs: Date.now(),
+      note: "practice set",
+    };
+    updatePending(marker);
+    persist(messages, marker);
+  }, [topicKey, updatePending, persist, messages]);
+
+  // Close the panel + resolve the graded round-trip (poll-with-retries absorbs the persist→read
+  // race). On success the reframed opener is injected (composePracticeRecordReturnOpener) and the
+  // marker cleared; a partial set with no record keeps the marker → the holding banner (unchanged).
+  const closeQuickPractice = useCallback(() => {
+    setQuickPracticeOverlayOpen(false);
+    const marker = pendingRef.current;
+    if (marker && marker.surface === "practice") void resolvePendingRoundTrip(marker);
+  }, [resolvePendingRoundTrip]);
 
   const recheckPending = useCallback(() => {
     if (pendingRef.current) void resolvePendingRoundTrip(pendingRef.current, true);
@@ -525,7 +558,10 @@ export function useTutorSession({
     openCheckImproveOverlay,
     checkImproveOverlayOpen,
     closeCheckImprove,
-    routeToPractice,
+    openQuickPracticeOverlay,
+    quickPracticeOverlayOpen,
+    closeQuickPractice,
+    quickPracticeHref,
     recheckPending,
     dismissPending,
   };
