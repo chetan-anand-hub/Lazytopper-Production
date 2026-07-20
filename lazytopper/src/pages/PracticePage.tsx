@@ -921,6 +921,26 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     cursor: "pointer",
     color: "hsl(220, 15%, 42%)",
   };
+  // The NAMED return, beside the ✕. Both call overlayReturn — this only signposts the return
+  // that already works, so a student never has to infer that ✕ means "back to my tutor". Styled
+  // as the tutor's own action chip (green tint) so the way home reads as part of that thread.
+  const overlayCloseActionsStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  };
+  const overlayReturnLabelStyle: React.CSSProperties = {
+    fontFamily: "inherit",
+    fontSize: "0.78rem",
+    fontWeight: 700,
+    color: "hsl(152, 60%, 30%)",
+    background: "hsl(152, 50%, 96%)",
+    border: "1px solid hsl(152, 42%, 86%)",
+    borderRadius: 9,
+    padding: "6px 11px",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+  };
 
   // The breadcrumb label follows its behaviour: a built hub-flow set returns to the CHOOSER,
   // so it reads "Back to quick practice" — but only the DEFAULT /practice-hub label changes;
@@ -2024,14 +2044,19 @@ const packTopicKey = useMemo(() => {
       {overlay && (
         <div style={overlayCloseBarStyle}>
           <span style={overlayCloseEyebrowStyle}>Quick Practice</span>
-          <button
-            type="button"
-            style={overlayCloseButtonStyle}
-            aria-label="Close and return to your tutor"
-            onClick={overlayReturn}
-          >
-            &times;
-          </button>
+          <div style={overlayCloseActionsStyle}>
+            <button type="button" style={overlayReturnLabelStyle} onClick={overlayReturn}>
+              Back to your tutor &rarr;
+            </button>
+            <button
+              type="button"
+              style={overlayCloseButtonStyle}
+              aria-label="Close and return to your tutor"
+              onClick={overlayReturn}
+            >
+              &times;
+            </button>
+          </div>
         </div>
       )}
       {/* Scoped entry styles (preset cards, mobile carousel, runner clock) — one injected
@@ -2410,10 +2435,16 @@ const packTopicKey = useMemo(() => {
         onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
         onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
         onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
-        // Overlay (tutor panel): the three app-navigation what-next items would leave the
-        // tutor thread (and dead-end in the isolated MemoryRouter), so they are omitted —
-        // only Keep-practicing / Fresh-set (pure in-panel state) remain, plus the pinned ✕.
+        // Overlay (tutor panel): the three app-navigation what-next items would leave the tutor
+        // thread, so they are omitted — only Keep-practicing / Fresh-set (pure in-panel state)
+        // remain, alongside the return row below.
         overlayMode: !!overlay,
+        // The way home, overlay-ONLY: closing the panel IS the return (the tutor then reads the
+        // graded set back), but a bare ✕ made the student infer that. This names it. On a direct
+        // or hub visit no ticket is passed and the menu is byte-identical to today.
+        returnTicket: overlay
+          ? { label: "Back to your tutor", onReturn: overlay.onClose }
+          : undefined,
       })}
       onClose={() => {
         setScorecardDismissed(true);
