@@ -1,3 +1,17 @@
+## 2026-07-20 -- #490 → #491 → #493 → #495: THE QP OVERLAY ON THE TUTOR (trunk `273cfe8`), owner LIVE-VERIFIED — FU reconciliation
+
+**[FU-TUTOR-ROUNDTRIP-COUNT-5] + [FU-TUTOR-WAITING-BANNER] — RESOLVED for the practice leg by #493.** These were HELD pending the QP overlay. The practice leg no longer navigates out: `routeToPractice`/`routeOut` are retired and the panel opens in-tree. The pending marker + holding banner are deliberately KEPT for QP (unlike the C&I leg, which went marker-free) because QP's graded read-back is the storage round-trip — the marker is its key, and it is also the honest fallback when a student closes a partial set with no record.
+
+**[FU-QP-OVERLAY-INMEMORY-HANDBACK] — LOGGED (fast-follow).** The overlay hands the graded set back over the shipped storage round-trip (QP persists at its scorecard; `closeQuickPractice` runs the existing `resolvePendingRoundTrip` → `composePracticeRecordReturnOpener`). Mirroring C&I's in-memory Option 2b would remove the persist→read race entirely, but needs a small in-process record+payload builder — QP's persist writes without returning the composed record. Deliberately deferred: v1 reuses a proven chain unchanged.
+
+**[FU-CI-OVERLAY-NAMED-RETURN] — LOGGED (parity, small).** #495 gave QP's overlay a named "Back to your tutor →" in the close-bar. **C&I's overlay close-chrome is still a bare ✕** (eyebrow + `aria-label` only — verified live; the `ReturnTicketStrip` at `DesktopCheckImprovePage:1738` is the app-level, path-based ticket in the page body, not overlay chrome). Give C&I the same named return for parity. NOT done in #495 on purpose — the hard constraint was C&I byte-identical.
+
+**[FU-QP-OVERLAY-CONTAINED-NAV-LABELS] — LOGGED (polish).** Without a nested router there is no history isolation, so #493 contains navigation with a `NavigationContext` override: any in-panel `push`/`replace`/`go` becomes `onClose` (return to the tutor). This is SAFE and never dead-ends, and it deliberately covers navs nobody enumerated. But the residual controls that trigger it — PracticeControls' "build a worksheet" CTA, PracticeQuestionList's three empty-state links — still carry LABELS naming destinations they no longer reach in overlay mode. Suppress or relabel them when `overlay` is present.
+
+**[FU-CI-GATE-VITEST] — STILL OPEN, reinforced again.** The production-faithful overlay integration test (5 cases incl. the #490 control) and the new scorecard tests run **locally only**; CI runs the matrices, not vitest. The acceptance gates carry the enforceable invariants — including, now, a gate on the TEST HARNESS shape (outer router + control case), which is the structural defence against #490's failure mode.
+
+---
+
 ## 2026-07-19 -- #488: QP MULTI-TOPIC PRESETS (Piece 2, shape 3c, trunk `9edb939`), owner LIVE-VERIFIED — FU reconciliation
 
 **[FU-PRACTICEHUB-MULTITOPIC-CONTEXT-DROPPED] — RESOLVED by #488** (the investigation/build lane called it `[FU-PRACTICEHUB-MULTITOPIC]` — same FU). A `≥2 topics` hub selection no longer collapses to `topic=<first>`: the QP nav builder emits `topics=a,b,c` (mirrors the HPQ sibling), `PracticePage` reads it into a resolved multi-topic list, and the fetch fans out one unchanged `buildPracticeQuestionsWithAiTopup` per topic → merged, pooled-and-shuffled, competency-floored. Multi-topic reaches the questions, both Maths and Science (owner live-verified).

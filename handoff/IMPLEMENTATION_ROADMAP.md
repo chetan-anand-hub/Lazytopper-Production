@@ -2,6 +2,21 @@
 
 This roadmap preserves the staged implementation plan after PR #82 merge.
 
+## 2026-07-20 — ★★ ✅ THE QP OVERLAY ON THE TUTOR COMPLETE — THE TUTOR⇄QP ARC IS DONE (#490 → #491 → #493 → #495, trunk `273cfe8`) — owner LIVE-VERIFIED
+
+**Stage COMPLETE — and it survived a production break.** The tutor hands a student a scoped practice set without losing the thread: "Practise this" opens the real `PracticePage` as an overlay over the tutor, filtered to the microconcept; the scorecard renders in the panel; closing returns and the tutor quotes the real score.
+
+- **#490** — shipped a nested `<MemoryRouter>` inside the app's `<BrowserRouter>` ⇒ Router-in-Router throw ⇒ **error page for every student**. Owner caught it live.
+- **#491** — revert first; trunk verified byte-identical to the healthy pre-overlay `0b22ee7`.
+- **#493** — the fix: `UNSAFE_RouteContext` reset + `<Routes location>` (seed via the EXISTING router, no nested Router) + nav containment via a `NavigationContext` override. Spike-verified against react-router 7.14.0 — the naive `<Routes location>` fix ALSO throws.
+- **#495** — the named return: scorecard `returnTicket` + a "Back to your tutor →" in the close-bar, both overlay-gated.
+
+**Invariants:** `overlay === undefined` ⇒ byte-identical · C&I unregressed (31/31) · engine/fetch-filter/persist/grader/graded-read zero-diff.
+
+**Doctrine earned:** a test for anything rendering inside the app's router/shell must reproduce the production wrapper tree AND carry a control case that reproduces the bug — and check what the GATE asserts (#490's asserted the defect).
+
+**NEXT:** tutor/QP lane CLOSED. The practice-hub redesign is a separate lane with its own handoff.
+
 ## 2026-07-19 — ★★ ✅ QUICK PRACTICE MULTI-TOPIC (Piece 2, shape 3c) COMPLETE — THE QP SURFACE ARC IS DONE END-TO-END (#488, trunk `9edb939`) — owner LIVE-VERIFIED both Maths & Science
 
 **Stage COMPLETE.** The last gap in the QP surface: the hub could select multiple topics but the QP CTA collapsed to `topic=<first>` before the questions. #488 (shape 3c) makes a `≥2 topics` selection fan out **one unchanged `buildPracticeQuestionsWithAiTopup` per chosen topic** and merge into one pooled-and-shuffled mixed set.
