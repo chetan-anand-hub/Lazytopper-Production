@@ -296,6 +296,22 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
           style={{
             height: 64,
             flexShrink: 0,
+            // `backdropFilter` below creates a stacking context, which traps the
+            // account menu's own z-index inside this header. Without an explicit
+            // positioned layer the header paints at z-index 0 and <main> — which
+            // follows it in DOM order — draws its cards over the open menu.
+            // These two lines are what keep the dropdown above page content.
+            //
+            // 55 is bounded on BOTH sides and neither bound is arbitrary:
+            //   > 50 — the highest z-index any page inside <main> uses
+            //          (TrendsPage's filter dropdown), so the header wins.
+            //   < 60 — the full-screen `position: fixed; inset: 0` drawers
+            //          (TutorDrawerV2, MentorSolveDrawer) must still cover the
+            //          header; going above 60 would punch it through their dim
+            //          backdrops while a drawer is open.
+            // Modals (1000+) and the config banner (100) stay above, as intended.
+            position: "relative",
+            zIndex: 55,
             borderBottom: `1px solid ${SURFACE_BORDER}`,
             background: "rgba(255,255,255,0.85)",
             backdropFilter: "blur(12px)",
