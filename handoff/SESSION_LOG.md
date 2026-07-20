@@ -1,5 +1,26 @@
 ---
 
+## 2026-07-20 -- #490 → #491 → #493 → #495: ★★ THE QP OVERLAY ON THE TUTOR — the tutor⇄QP arc is COMPLETE, and it survived a production break — trunk `273cfe8`
+
+**A student in the tutor taps "Practise this" and a scoped Quick Practice opens AS AN OVERLAY over the thread** (the C&I overlay's twin) — filtered to the microconcept, scorecard in the panel, and closing returns to the tutor, which quotes the real score. Additive throughout: **overlay absent ⇒ every touched surface byte-identical.** This arc is recorded with its failure intact, because the failure is the valuable part.
+
+- **#490 (`1f1dbf7`) — SHIPPED A PRODUCTION BREAK.** The host seeded `PracticePage`'s ~36 route reads by mounting a nested `<MemoryRouter>`. The app is ALWAYS inside `<BrowserRouter>` (`main.tsx:17`); react-router forbids Router-in-Router and throws. **Every student who tapped "Practise this" got an error page.** Owner caught it live.
+- **#491 (`5f689b0`) — REVERT FIRST.** Production healed in minutes; the reverted tree was verified **byte-identical to the healthy pre-overlay `0b22ee7`** (`git diff` empty) — a return to a known-good state, not a hand-rolled undo.
+- **#493 (`d4e0569`) — THE FIX.** Seed the location with the EXISTING router: a `UNSAFE_RouteContext` reset (zero matches) + `<Routes location={seedUrl}>`. `useRoutes(routes, locationArg)` wraps its output in a `LocationContext.Provider`, so `useLocation` — and `useSearchParams`, which derives from it — resolve to the seed; matching runs against the seed so `useParams` does too. **Nav containment** replaces the isolation the nested router had given for free: a `NavigationContext` override whose `push`/`replace`/`go` call `onClose`, containing every in-panel navigation (including unenumerated ones) with **zero edits to shared child components**.
+- **#495 (`273cfe8`) — THE NAMED RETURN.** Closing was always the return, but a bare ✕ made the student infer it. The scorecard now carries a "Back"-tagged `returnTicket` row and the close-bar a named "Back to your tutor →" — both overlay-gated, both calling `overlay.onClose`.
+
+### ★★ LESSON 1 — a test for anything that renders INSIDE the app's router/shell must reproduce the production wrapper tree
+#490 passed every gate and CI because its integration test rendered the overlay **in isolation** — its nested router was the only router in the test tree, which is legal. Production always has an outer router, so nesting a second one throws. The assertion was fine; **the harness was the defect.** Worse, the ops gate asserted `<MemoryRouter initialEntries=…>` was mounted — **it asserted the defect itself**, so structure-green and behaviour-broken agreed with each other. The fix's test mounts an **outer router with the host inside a matched `/tutor/…` route**, and leads with a **CONTROL case asserting the nested router THROWS**; mutation-verified (remove the outer router and the control stops throwing — #490's false green on demand). The gate now also **gates the harness shape**, so reverting the test to isolation fails CI.
+
+### ★★ LESSON 2 — spike a proposed fix against the real library before building it
+The obvious candidate — `<Routes location>` on its own — **also throws** here: it asserts the seed pathname begins with the parent-matched pathname, and the host renders under the tutor's own matched route, so `/practice/…` under `/tutor/…` fails that invariant. Only *executing* it against react-router 7.14.0 revealed that. Reasoning about an API's behaviour would have shipped a **second** broken build; running it produced the working shape (context reset first).
+
+### ★ LESSON 3 — "not green until I've made it fail"
+Every load-bearing assertion in #493/#495 was mutation-verified. That discipline also caught a **bad mutation test of my own**: my first attempt to break the no-nested-Router guard "passed" because the anchor string I mutated also appears in a header comment, and the gate strips comments — the mutation never landed in code. Verify the mutation actually applied before trusting its result.
+
+### ★ LESSON 4 — revert-first is a judgement call with a clear bar
+With production broken and the fix carrying a genuine unknown, the right move was to heal first and investigate second. The bar: **if the fix is not quick AND certain, revert.** It was not certain — and the spike then proved the obvious fix would have broken production a second time.
+
 ## 2026-07-19 -- #488: ★★ QP MULTI-TOPIC PRESETS (shape 3c) — a ≥2-topic selection now produces a genuine pooled-and-shuffled mixed set — **merged, owner LIVE-VERIFIED both Maths & Science** — trunk `9edb939`
 
 **The QP surface is now complete end-to-end** — #481→#486 made the preset entry usable single-topic; #488 closes the last gap. The hub could select multiple topics but the QP CTA collapsed to the first before the questions reached the page. Now a `≥2 topics` selection fans out **one unchanged `buildPracticeQuestionsWithAiTopup` per chosen topic** and merges into one pooled-and-shuffled mixed set. The composition core is a NEW pure module (`multiTopicPractice.ts` — no React/engine/IO); the fetch/rotation/persistence changes live in `PracticePage.tsx`, the nav builder in `DesktopPracticePage.tsx`, the multi-topic session identity in the (non-forbidden) QP service.

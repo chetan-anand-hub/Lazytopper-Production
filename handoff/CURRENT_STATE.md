@@ -1,6 +1,25 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #488 merged — ★★ QP MULTI-TOPIC PRESETS ARE LIVE — a ≥2-topic selection now produces a genuine mixed set spanning all chosen topics (both Maths & Science) — **owner LIVE-VERIFIED** — trunk `9edb939`
+## [CURRENT] #490 → #491 → #493 → #495 — ★★ THE QP OVERLAY ON THE TUTOR IS LIVE — the tutor⇄QP arc is COMPLETE — **owner LIVE-VERIFIED** — trunk `273cfe8`
+
+**The tutor can now hand a student a scoped practice set without losing the thread.** "Practise this" opens the real `PracticePage` **as an overlay over the tutor** (the C&I overlay's twin), filtered to the microconcept; the scorecard renders in the panel; closing returns to the thread and the tutor quotes the real score. **Owner LIVE-VERIFIED. Docs-only handoff; zero product files here.**
+
+**⚠ This arc shipped a production break and is recorded with it intact (full text in SESSION_LOG).** #490 mounted a nested `<MemoryRouter>` inside the app's always-present `<BrowserRouter>`; react-router throws Router-in-Router, so **every student who tapped "Practise this" got an error page**. Owner caught it live. Response: **revert first** (#491, verified byte-identical to the healthy pre-overlay `0b22ee7`), then fix forward (#493) after **spiking three approaches against react-router 7.14.0**.
+
+- **#493 — the fix.** Seed the route with the EXISTING router: `UNSAFE_RouteContext` reset (zero matches) + `<Routes location={seedUrl}>`. `useRoutes(routes, locationArg)` wraps its output in a `LocationContext.Provider`, so `useSearchParams`/`useLocation`/`useParams` all resolve to the seed — `PracticePage`'s ~36 route reads are UNCHANGED. **No nested Router.**
+- **Nav containment** — dropping the nested router dropped history isolation, so a `NavigationContext` override routes `push`/`replace`/`go` to `onClose`. That contains every in-panel navigation (including ones nobody enumerated) with **zero edits to shared child components**, so their non-overlay behaviour is byte-identical *by construction*.
+- **#495 — the named return.** Scorecard `returnTicket` ("Back"-tagged secondary row, via the shared `returnTicketAction`) + a named "Back to your tutor →" beside the ✕. Both overlay-gated, both calling `overlay.onClose`.
+- **Kept throughout:** the shared `tutorOverlay.css` frame (C&I byte-identical; QP's own 760px width knob), the storage round-trip graded hand-back (`composePracticeRecordReturnOpener` — NOT rebuilt), single-topic + filtered-to by construction.
+
+**Verified invariants (byte-reviewed on the committed diff):** `overlay === undefined` ⇒ `PracticePage` + its scorecard **byte-identical** (every hunk gated; the scorecard ticket passed only in overlay mode) · **C&I unregressed** (31/31, blank diff) · engine / fetch-filter / persistence / grader / graded-read **zero-diff** · gates re-run **post-commit**, where the three-dot forbidden-diff is real.
+
+**★★ THE DURABLE LESSON:** **a test for anything that renders inside the app's router/shell must reproduce the production wrapper tree — and carry a CONTROL case that reproduces the bug.** #490's test mounted the overlay in isolation (legal there, illegal in production) and its ops gate asserted the *defect itself*. The fix's test mounts an outer router at the real nesting depth, leads with a control asserting the nested router throws, and the gate now **gates the harness shape** so isolation cannot come back.
+
+**NEXT:** the tutor/QP lane is CLOSED — stand down. The **practice-hub redesign** (#492/#494 merged, closing PR open) is a SEPARATE lane with its own handoff. See `NEXT_ACTION.md`.
+
+---
+
+## #488 merged — ★★ QP MULTI-TOPIC PRESETS ARE LIVE — a ≥2-topic selection now produces a genuine mixed set spanning all chosen topics (both Maths & Science) — **owner LIVE-VERIFIED** — trunk `9edb939`
 
 **The QP SURFACE arc is COMPLETE — Quick Practice is reachable, navigable, single- AND multi-topic.** #481→#486 made the preset entry usable single-topic; #488 (shape 3c) closes the last gap: the hub could select multiple topics but the QP CTA **collapsed to the first** before the questions. Now a `≥2 topics` selection fans out per-topic and merges into one **pooled-and-shuffled mixed set**. **Owner LIVE-VERIFIED: multi-topic works, both Maths and Science. Docs-only handoff; zero product files here.**
 

@@ -1,4 +1,29 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-20 (post-**#490 → #491 → #493 → #495 — THE QP OVERLAY IS LIVE; the tutor⇄QP arc is COMPLETE.** Trunk `273cfe8`. Owner LIVE-VERIFIED. The arc survived a production break: #490 shipped a nested `<MemoryRouter>` inside the app's `<BrowserRouter>` → error page for every student → reverted (#491, byte-identical to healthy `0b22ee7`) → fixed (#493, context-reset seeding, no nested Router) → the named return (#495).)
+
+## ⏭️ NEXT — 2026-07-20 (post-arc). Read this block first.
+
+**The tutor⇄QP arc is COMPLETE — entry → reachable → navigable → multi-topic → overlay → the named return. Stand down the tutor agent.** This is its closing docs handoff.
+
+### ★ SCOPE BOUNDARY — the practice-hub redesign is a SEPARATE lane
+#492 (v6 redesign) + #494 (the opacity fix) are merged and a closing hub PR is open. **That lane gets its OWN handoff, written when it closes** — do NOT fold it into the tutor arc. ⚠ **Do NOT delete `feat/desktop-pr-hub-polish-close`** — it is unmerged work belonging to that lane.
+
+### ★ (1) The open follow-ups from this arc (all small, none blocking)
+- `[FU-QP-OVERLAY-INMEMORY-HANDBACK]` — the overlay uses the storage round-trip hand-back; mirror C&I's in-memory Option 2b (needs a small in-process record+payload builder).
+- `[FU-CI-OVERLAY-NAMED-RETURN]` — C&I's overlay chrome is still a bare ✕ (aria-label only); give it the named return QP got in #495, for parity. Deliberately not done in #495 to keep C&I byte-identical.
+- `[FU-QP-OVERLAY-CONTAINED-NAV-LABELS]` — the contained navigator turns residual in-panel navs into "return to the tutor" (safe, never dead-ends), but those controls' LABELS still name destinations they no longer reach in overlay mode. Suppress or relabel them in overlay mode.
+- `[FU-QP-MULTITOPIC-EXAM-WEIGHT]` — swap `topicShare()` from bank-availability to exam-trends weight (a one-function edit by design; needs `getTopicWeight()` exposed).
+
+### ★★ DOCTRINE TO CARRY (earned the hard way this arc)
+- **A test for anything that renders inside the app's router/shell MUST reproduce the production wrapper tree** — an outer router at the real nesting depth — **and include a CONTROL case that reproduces the bug.** Mounting in isolation proves structure, not production. And check what your GATE asserts: #490's gate asserted the defect (that a nested router was mounted).
+- **Gates prove the machinery; only live-verify proves the experience.** #481 shipped unreachable, #484 a broken gesture, #490 an illegal router — all green on gates and CI, all caught by the owner's live eyes. A novel render/routing pattern gets live-verified on the Vercel preview BEFORE merge.
+- **Spike a proposed fix against the real library before building it.** The obvious `<Routes location>` fix ALSO threw (parent-base invariant); only running it revealed that. Don't reason about an API — execute it.
+- **Mutation-verify load-bearing assertions** — "not green until I've made it fail" — and verify the mutation actually landed in CODE (mine once landed in a comment the gate strips, and falsely "passed").
+- **Re-run git-scoped gates POST-COMMIT** — a three-dot `base...HEAD` forbidden-diff passes falsely on uncommitted work.
+- **Revert-first when production is broken and the fix isn't quick AND certain.**
+
+---
+
 # Updated: 2026-07-19 (post-**#488 — QP MULTI-TOPIC PRESETS LIVE.** Trunk `9edb939`. Owner LIVE-VERIFIED, both Maths & Science. A ≥2-topic hub selection now produces a genuine pooled-and-shuffled mixed set (shape 3c: per-topic fan-out + merge). Single-topic byte-identical, zero engine edits, `sessionRecords.ts` byte-identical. **The QP SURFACE arc is COMPLETE — reachable, navigable, single + multi-topic.**)
 
 ## ⏭️ NEXT — 2026-07-19 (post-#488). Read this block first.
