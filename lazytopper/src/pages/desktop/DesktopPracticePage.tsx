@@ -41,45 +41,59 @@ import {
  *
  * Reference (final desktop prototype):
  *   chetan-anand-hub/topic-focus-lite — src/pages/PracticePage.tsx
- *   (intent-first practice hub: BackToParent + ContextBar + ScopeBuilder
- *    + 4 primary cards + "More options" accordion + PaperBlueprint
- *    + predicted-questions tabs + sample preview, with a right-rail
- *    MistakeIntelligencePanel + Quick Links aside.)
+ *   (the v6 practice hub: a two-step "pick what, then pick how" flow with a
+ *    Mistake-Intelligence rail.)
  *
  * Composition (top → bottom):
  *   1. BackToParent — uses ?returnTo / ?source from URL, falls back to "/".
- *   2. ContextBar (compact + showMode) — Class 10 / Subject(+stream) / Scope
- *      / Mode chips, intent-first title.
- *   3. ScopeBuilder — subject · stream · scope · topic(s) selection.
- *   4. Two-column grid (main + aside):
+ *   2. Page header — eyebrow / "What shall we practise?" / lede.
+ *   3. Topic-Hub focus banner — only when arriving with ?focus / ?subtopicHint.
+ *   4. Two-column grid (main + rail):
  *      MAIN
- *        a. "Choose what to do" — 4 primary cards:
- *           Quick Practice / Worksheet / Predicted-HPQs / Full Test
- *        b. "More practice options" accordion (native <details>):
- *           Timed Drill / Chapter Test
- *        c. PaperBlueprint preview (when a topic is in scope or
- *           full-subject is chosen).
- *        d. Predicted questions — 3 tabs (Topic HPQs / Selected /
- *           Full subject).
- *        e. Sample preview (curated highlights from the chosen topic).
- *      ASIDE
- *        f. MistakeIntelligencePanel — three honest states:
+ *        Step 1 "What to work on" — the scope card: subject · stream · scope,
+ *          then the topic picker as a DROPDOWN for both scopes (single-select
+ *          radio / multi-select checklist + removable pills). The dropdown is a
+ *          new INPUT for the SAME state the old chips wrote (topicSlug /
+ *          selectedTopicSlugs), so every emitted URL is unchanged.
+ *        Step 2 "How to practise" — four accent-coloured mode cards:
+ *          Quick Practice (green, with the timer toggle) / Worksheet (sky, with
+ *          the mistake-focus mini-section) / Predicted-HPQs (violet) / Full Test
+ *          (rose). Desktop renders a 2x2 grid; mobile a full-width snap carousel
+ *          with page dots. A card stays full-colour when no topic is picked —
+ *          only its CTA is gated (an inert <span>, never a navigable button).
+ *      RAIL
+ *        MistakeIntelligencePanel — navy, three honest states:
  *             - logged-out → "Mistake-aware practice needs saved
  *               attempts" + start-trial CTA.
  *             - logged-in, no data → "Grade an answer in Check &
  *               Improve" pointer.
  *             - logged-in, has data → real 4-bucket aggregation from
- *               getMistakeLogs(uid, 7) + four targeted CTAs.
- *        g. Quick links — Open worksheet / Check / Progress.
+ *               getMistakeLogs(uid, 7), the weak-area drill CTA, and a
+ *               mistake-aware-worksheet secondary.
+ *        MistakeTrendCard — DESKTOP ONLY. Real marks-lost-per-day from the SAME
+ *          getMistakeLogs history; renders nothing when there is no honest
+ *          series (fewer than two days with data is not a trend).
+ *
+ * Retired in the v6 rebuild (#492) — the ROUTES live on, only the render went:
+ *   the ContextBar chips, the "More practice options" accordion (Timed Drill
+ *   folded into Quick Practice as a toggle; Chapter Test lives on Topic Hub),
+ *   the PaperBlueprint preview (FullMockPage owns it), the predicted-questions
+ *   tabs (the HPQ mode card replaces them), the topic-reference panel, and the
+ *   Quick-links aside.
  *
  * Routing reuse — every CTA points at an existing production route:
- *   - /practice/:grade/:subject (PracticePage)        — Quick / Timed
+ *   - /practice/:grade/:subject (PracticePage)        — Quick Practice
+ *                                                       (+ timed=1 when the
+ *                                                        card's timer is on)
  *   - /practice/worksheets       (DesktopWorksheetsPage / mobile)
  *   - /highly-probable/:grade/:subject                — Predicted/HPQs
  *   - /full-mock/:grade/:subject                      — Full Test
- *   - /chapter-test/:grade/:subject/:topicKey         — Chapter Test
+ *   - /practice/:grade/:subject?topic=…               — MI weak-area drill
  *   - /check-improve / /me / /login (?reason=&redirect=)
  * All carry source=practice and returnTo=/practice-hub for back-nav.
+ * The hub no longer emits /chapter-test — that card moved to Topic Hub in the
+ * v6 rebuild. This contract is pinned by DesktopPracticePage.routingParity.test
+ * .tsx, whose expected URLs were captured from trunk BEFORE the rebuild.
  *
  * Production constraints:
  *   - Inline styles only (no Tailwind, no shadcn classes).
