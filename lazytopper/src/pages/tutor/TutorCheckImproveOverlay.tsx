@@ -16,13 +16,14 @@
 //
 // Responsive (owner-ruled, ALL sizes): a right-slide panel on desktop/tablet, a full-screen
 // 100dvh sheet on mobile (the page suppresses its own MobileShell in overlay mode, so the
-// sheet has no app nav to escape the tutor through). See tutorCheckImproveOverlay.css.
+// sheet has no app nav to escape the tutor through). See tutorOverlay.css (the SHARED frame,
+// now used by both this host and TutorQuickPracticeOverlay — one source of truth).
 
 import { useEffect } from "react";
 import DesktopCheckImprovePage, {
   type CheckImproveOverlayProps,
 } from "../desktop/DesktopCheckImprovePage";
-import "./tutorCheckImproveOverlay.css";
+import "./tutorOverlay.css";
 
 export interface TutorCheckImproveOverlayProps {
   open: boolean;
@@ -54,9 +55,9 @@ export default function TutorCheckImproveOverlay({ open, onClose }: TutorCheckIm
   if (!open) return null;
 
   return (
-    <div className="lt-ci-overlay__backdrop" role="presentation">
+    <div className="lt-tutor-overlay__backdrop" role="presentation">
       <div
-        className="lt-ci-overlay__panel"
+        className="lt-tutor-overlay__panel"
         role="dialog"
         aria-modal="true"
         aria-label="Check & Improve"
