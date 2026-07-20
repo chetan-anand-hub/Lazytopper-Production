@@ -611,7 +611,6 @@ function domainRows(fileSet, routes) {
       files: [
         "src/pages/TrendsPage.tsx",
         "src/pages/PredictivePapers.tsx",
-        "src/pages/MockBuilder.tsx",
         "src/pages/MockPaper.tsx",
         "src/pages/HighlyProbableQuestions.tsx",
       ],
@@ -872,7 +871,7 @@ async function main() {
   mdLines.push("   - `src/pages/WeeklyWrappedPage.tsx` + `src/components/WeeklyWrappedCarousel.tsx` use `src/services/weeklyWrappedGenerator.ts`.");
   mdLines.push("");
   mdLines.push("5. Predictive and exam surfaces");
-  mdLines.push("   - `src/pages/TrendsPage.tsx`, `src/pages/PredictivePapers.tsx`, `src/pages/MockBuilder.tsx`, and `src/pages/HighlyProbableQuestions.tsx` use prediction datasets under `src/data/` and smart learning store logic under `src/engine/`.");
+  mdLines.push("   - `src/pages/TrendsPage.tsx`, `src/pages/PredictivePapers.tsx`, and `src/pages/HighlyProbableQuestions.tsx` use prediction datasets under `src/data/` and smart learning store logic under `src/engine/`.");
   mdLines.push("");
 
   mdLines.push("## Graph Artifact");
