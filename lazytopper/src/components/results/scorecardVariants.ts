@@ -262,6 +262,11 @@ export interface QuickPracticeVariantInput {
   onChapterTest: () => void;
   onPredicted: () => void;
   onStudy: () => void;
+  /** Tutor⇄QP overlay host: when true, the three app-navigation what-next items (Chapter Test
+   *  / Predicted / Study) are omitted — inside the tutor panel they would leave the thread.
+   *  Only the in-panel-safe items (Keep practicing / Fresh set) remain. Default false ⇒ the
+   *  full menu, byte-identical for every existing (hub / direct) caller. */
+  overlayMode?: boolean;
 }
 
 type MenuId = "keep" | "fresh" | "chapter" | "predicted" | "study";
@@ -287,6 +292,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     onChapterTest,
     onPredicted,
     onStudy,
+    overlayMode = false,
   } = input;
 
   const mcqMissed = Math.max(0, mcqAnswered - mcqCorrect);
@@ -336,9 +342,8 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
   const floor: MenuId[] = [
     ...(!allDone && onKeepPracticing ? (["keep"] as MenuId[]) : []),
     "fresh",
-    "chapter",
-    "predicted",
-    "study",
+    // Overlay (tutor panel) omits the app-navigation items — they would leave the tutor thread.
+    ...(overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
   ];
 
   // Personalized primary, from the REAL signal only:
@@ -347,7 +352,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
   //   otherwise / no-signal   → the floor default (keep practicing, else fresh set)
   const floorDefault: MenuId = floor.includes("keep") ? "keep" : "fresh";
   let primaryId: MenuId = floorDefault;
-  if (accuracy !== null && mcqAnswered >= 3) {
+  if (!overlayMode && accuracy !== null && mcqAnswered >= 3) {
     if (accuracy >= 0.8) primaryId = "chapter";
     else if (accuracy < 0.5) primaryId = "study";
   }

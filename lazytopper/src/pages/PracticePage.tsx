@@ -441,7 +441,26 @@ interface PracticeNavState {
 
 const FIRST_PRACTICE_KEY = "lazytopper.first_practice_tracked";
 
-const PracticePage: React.FC = () => {
+/**
+ * Tutor⇄Quick-Practice overlay host contract (the C&I overlay's twin). Present ONLY when
+ * PracticePage is mounted inside `TutorQuickPracticeOverlay` (via a nested MemoryRouter seeded
+ * with the tutor round-trip URL); ABSENT on every direct `/practice/:grade/:subject` route
+ * visit, where the page is byte-identical to today (the additive guarantee, asserted by
+ * `scripts/ops/quick_practice_overlay_additive_acceptance.mjs`). Its only effects: the page
+ * suppresses its own breadcrumb + app-navigation CTAs (a panel has no back-stack to manage —
+ * it CLOSES), renders a pinned ✕ close-bar, and routes "back" through `onClose`. The graded
+ * hand-back is NOT rebuilt here — closing the panel triggers the EXISTING pending-marker
+ * round-trip (QP already persists; the tutor already reads it via composePracticeRecordReturnOpener).
+ */
+export interface PracticeOverlayProps {
+  /** Close the panel and return to the tutor. Called by the pinned ✕, and (via the host's
+   *  nav-guard) by any in-panel navigation away from the practice route. Payload-free: the
+   *  tutor reads the graded record back over storage, not over this channel (v1 — see
+   *  [FU-QP-OVERLAY-INMEMORY-HANDBACK]). */
+  onClose: () => void;
+}
+
+const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
@@ -864,6 +883,44 @@ const PracticePage: React.FC = () => {
     }
     navigate(practiceBackTo);
   }, [isBuilt, arrivedTargeted, builtParam, location.search, setSearchParams, navigate, practiceBackTo]);
+
+  // ── OVERLAY RETURN (tutor⇄QP overlay) — present only when hosted in the tutor panel ──────
+  // The single close path for the overlay (the pinned ✕ calls it). Payload-free: the tutor
+  // reads the graded record back over the EXISTING pending-marker round-trip (QP already
+  // persisted it when the scorecard appeared), so there is nothing to hand over here — closing
+  // is the whole gesture. `overlay`-gated: never runs on a direct visit. Unlike the C&I overlay
+  // (in-memory Option 2b), QP keeps the storage round-trip (v1 — [FU-QP-OVERLAY-INMEMORY-HANDBACK]).
+  const overlayReturn = () => overlay?.onClose();
+  // Pinned close-bar chrome for the overlay-hosted page (inline styles: this file is
+  // inline-styled throughout — the "no inline styles" rule is for NEW component files). Mirrors
+  // DesktopCheckImprovePage's overlay close-bar so the two panels read identically.
+  const overlayCloseBarStyle: React.CSSProperties = {
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "10px clamp(14px, 4vw, 24px)",
+    background: "#fff",
+    borderBottom: "1px solid hsl(220, 18%, 90%)",
+  };
+  const overlayCloseEyebrowStyle: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+    color: "hsl(220, 15%, 42%)",
+  };
+  const overlayCloseButtonStyle: React.CSSProperties = {
+    border: "none",
+    background: "none",
+    padding: "2px 8px",
+    fontSize: 22,
+    lineHeight: 1,
+    cursor: "pointer",
+    color: "hsl(220, 15%, 42%)",
+  };
 
   // The breadcrumb label follows its behaviour: a built hub-flow set returns to the CHOOSER,
   // so it reads "Back to quick practice" — but only the DEFAULT /practice-hub label changes;
@@ -1961,6 +2018,22 @@ const packTopicKey = useMemo(() => {
         paddingBottom: "80px",
       } as React.CSSProperties}
     >
+      {/* Overlay-mode pinned close-bar (tutor⇄QP overlay). Sticky to the panel top; its ✕
+          returns to the tutor via overlayReturn. overlay-GATED — absent on a direct visit, so
+          the page is byte-identical there (additive guarantee). */}
+      {overlay && (
+        <div style={overlayCloseBarStyle}>
+          <span style={overlayCloseEyebrowStyle}>Quick Practice</span>
+          <button
+            type="button"
+            style={overlayCloseButtonStyle}
+            aria-label="Close and return to your tutor"
+            onClick={overlayReturn}
+          >
+            &times;
+          </button>
+        </div>
+      )}
       {/* Scoped entry styles (preset cards, mobile carousel, runner clock) — one injected
           stylesheet, class-driven, @media reflow; no useIsDesktop, no inline-style objects (§7). */}
       <style>{QP_ENTRY_CSS}</style>
@@ -1971,6 +2044,9 @@ const packTopicKey = useMemo(() => {
           padding: "28px clamp(20px, 4vw, 32px) 56px",
         }}
       >
+        {/* Breadcrumb — suppressed in overlay mode: a panel has no back-stack to manage, the
+            pinned ✕ is the only "back". overlay-GATED (direct visit renders it, unchanged). */}
+        {!overlay && (
         <nav
           aria-label="Practice context"
           style={{
@@ -2005,6 +2081,7 @@ const packTopicKey = useMemo(() => {
           <span aria-hidden="true">/</span>
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
+        )}
 
         {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
             ONLY: shown when this session arrived from the Topic Hub with an exact
@@ -2269,7 +2346,7 @@ const packTopicKey = useMemo(() => {
           onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
-          onAskTutor={askTutorAboutQuestion}
+          onAskTutor={overlay ? undefined : askTutorAboutQuestion}
           onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
         )}
@@ -2333,6 +2410,10 @@ const packTopicKey = useMemo(() => {
         onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
         onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
         onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
+        // Overlay (tutor panel): the three app-navigation what-next items would leave the
+        // tutor thread (and dead-end in the isolated MemoryRouter), so they are omitted —
+        // only Keep-practicing / Fresh-set (pure in-panel state) remain, plus the pinned ✕.
+        overlayMode: !!overlay,
       })}
       onClose={() => {
         setScorecardDismissed(true);
