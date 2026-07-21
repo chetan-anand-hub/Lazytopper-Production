@@ -1,7 +1,22 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-21 (post-**#509 - "BUILD A FRESH SET" IS ACTUALLY FRESH + THE VITEST GATE IS FULLY STRICT.** Trunk `41277c1`. Owner byte-reviewed both sections + merged; fresh-set LIVE-VERIFIED. 7 files, +451/-34; [FU-PRACTICE-FRESH-SET-NOT-FRESH] + all 4 red-suite FUs RESOLVED; 3 new FUs opened.)
+# Updated: 2026-07-21 (post-**#511 - THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS.** Trunk `856d556`. Owner byte-reviewed the pushed diff + merged. 87 files, +831/-356; [FU-BANK-SCARCE-BAND-MISBANDING] Class (b) RESOLVED — the whole mis-banding lane is now CLOSED; 1 new FU opened.)
 
-## NEXT - 2026-07-21 (post-#509). Read this block first.
+## NEXT - 2026-07-21 (post-#511). Read this block first.
+
+**The bank mis-banding lane is CLOSED end-to-end.** Class (a) by `#504` (44 rows relabelled off a bogus 5-mark Section-D), Class (b) by `#511` (`856d556`) — 223 genuine D/E rows that were *correctly banded all along* but whose `solutionSteps` had never been broken into the CBSE per-step scheme now carry `[N mark]` prefixes summing exactly to their marks. Validator: thin 220→**0**, bad-sum 3→**0**, compliant 1,137→**1,360**. **Do not re-open either class.**
+
+**★★ The one thing to carry forward from #511:** the anti-fabrication guarantee was proven by **deep-comparing the assembled `canonicalQuestionBank` export at trunk vs post-edit, field-by-field across all 8,584 rows** — not by grepping the diff. Result: `forbiddenFieldChanges []`, `changesOutsideThe223 []`. **Any future data lane that must promise "I changed only field X" should prove it this way.** A diff grep shows which lines *look* touched; it cannot prove a question is unchanged.
+
+**★ And the finding nobody expected:** forcing the per-step structure **exposed real content wrongness the collapsed one-line format had hidden** — two rows carried the solution to an entirely different question, one had an unbalanced equation, one had a source equation that ignored Pythagoras, plus an arithmetic error, a rounding slip, and one row whose whole solution was the string `"[Sample Paper 2010]"`. All fixed in #511. **Treat "the solution is one run-on paragraph" as a correctness smell, not a formatting nit.**
+
+**The one follow-up this opened:**
+- **`[FU-BANK-GARBLED-ANSWER-CLASS]`** — ~15 rows whose raw `answer` field is still OCR garbage (SAV/STAT/PROB/QE PYQ rows; their `finalAnswer` is now clean), plus **`PYQ-M-2026-CG-002`**, whose `questionText` welds a circle/tangent problem to an unrelated parallelogram proof. **Correctly out of #511's scope: that lane authors SOLUTIONS, these are QUESTION-defects and need their own pass** with the source papers (pymupdf; `pdfplumber` remains BANNED). See `OPEN_QUESTIONS_AND_FOLLOWUPS.md` for the full row list.
+
+**Still in flight from earlier waves** (untouched by #511): `[FU-PRACTICE-CONTROLS-REFRESH-STALE]`, `[FU-TSCONFIG-EXCLUDES-TESTS]`, `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`, `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`, `[FU-HPQ-PREDICTED-MOCK]`, `[FU-QP-WRITTEN-BINARY-CHECK]`.
+
+---
+
+## (superseded) NEXT - 2026-07-21 (post-#509).
 
 **Wave-2 is CLOSED — one PR, two commit-sections, one handoff.** `#509` (`41277c1`) fixed the owner-reported fresh-set bug (**LIVE-VERIFIED**) and repaired all four red vitest suites, deleting **every** `--exclude` from `quality-gate.yml`. The gate is now **fully strict**: 60 files / 789 tests, no exclusions, a red suite fails CI. **Do not add a new `--exclude` — the list only ever shrinks.**
 

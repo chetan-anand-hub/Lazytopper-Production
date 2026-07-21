@@ -1,5 +1,35 @@
 ---
 
+## 2026-07-21 -- #511: THE 223 UNDER-STEPPED D/E ROWS GET REAL CBSE STEP-MARKED SOLUTIONS - **owner byte-reviewed the pushed diff + merged** - trunk `856d556`
+
+**Data-only, ONE PR, 87 files (86 `data/questionBanks/**` + 1 provenance line), +831/-356. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b); the whole mis-banding lane is now CLOSED (Class a = #504, Class b = #511).** Authored by 10 subagents running in parallel on **file-disjoint** batches inside ONE worktree; none of them committed (they shared a git index) — the orchestrator ran the audit, the proof, the gates, and the single commit.
+
+**The defect, precisely:** these 223 rows were **always correctly banded** — genuine 5-mark Section-D long answers and 4-mark Section-E case-based items. Unlike Class (a), nothing needed *relabelling*. What was missing was the **marking scheme**: `solutionSteps` collapsed (109 rows held their whole solution in ONE run-on step), below the CBSE §13 minimum depth, or with per-step marks that did not sum. All 223 now carry `[N mark]` prefixes summing exactly to marks. Validator: thin 220→**0**, bad-sum 3→**0**, compliant 1,137→**1,360**; the 807-row untagged-but-full-depth class deliberately untouched.
+
+### ★★ LESSON 1 - to prove "I changed only field X", compare the ASSEMBLED EXPORT, not the diff
+A diff grep shows which *lines* look touched; it cannot prove a question is unchanged, and on an 87-file data PR nobody can eyeball it. The lane instead dumped the real `canonicalQuestionBank` export to JSON at trunk (throwaway detached worktree) and again post-edit, then deep-compared **every field of all 8,584 rows**: `changedRows 223`, `changedFields {solutionSteps:223, finalAnswer:70}`, **`forbiddenFieldChanges []`**, **`changesOutsideThe223 []`**, `idsAdded/Removed []`, `targetsUnchanged []`. That last one matters as much as the others — it proves no approved row was silently *skipped*. **The owner byte-verified the same property independently against the pushed diff; the two agreed.** This is the reusable shape for any future data lane making a scope promise.
+
+### ★★ LESSON 2 - a collapsed one-line solution HIDES WRONGNESS; it is a correctness smell, not a formatting nit
+The pass was scoped as formatting work. Restructuring exposed genuine defects invisible inside run-on paragraphs, **all fixed in this PR**:
+- **`SCQ-S-ELEC-036` and `PYQ-M-2026-AP-001` carried the solution to an ENTIRELY DIFFERENT QUESTION** — a series-circuit experiment stored on an I-V graph question; a statistics mean/mode solve stored on an A.P. kolam question.
+- **`SCQ-S-CHEM-038`** — unbalanced combustion equation, corrected to CH4 + 2O2.
+- **`PYQ-M-2026-CIRC-006`** — the source's embedded equation `(12-x)=x+8` was mathematically wrong (ignored Pythagoras); corrected to AB = 20/3 cm, PA = 26/3 cm. **Independently corroborated** — a different batch solving the same geometry from `PYQ-M-2026-CG-002` reached identical values, which is the only reason this correction is trustworthy rather than one agent's opinion.
+- **`PYQ-M-2025-AP-002`** — arithmetic error (2550 m, not the OCR'd 2250 m). **`STAT-N-EXEM-13-LA-001`** — rounding slip (Rs 170.18, not 170.20).
+- **`SCQ-S-HERED-042`** — the entire solution was the literal string `"[Sample Paper 2010]"`.
+- `WWW.CBSE.ONLINE` disclaimer junk stripped from inside `solutionSteps` on several rows.
+
+### ★ LESSON 3 - the estimate was ~178; the truth was 223, and the gap is the METHOD
+The prior figure came from a regex file-scan. The in-memory audit of the real export found **220 thin + 3 bad-sum = 223**. Against the recorded 254 total D+E violators, the 31-row remainder is exactly the Class-a/already-compliant set, correctly excluded. **When a count disagrees with a recorded estimate, re-derive it from the assembled artifact before assuming either number is wrong.**
+
+### ★ LESSON 4 - a STALE RE-ISSUE of a dispatch is not a re-scope; ask before discarding completed work
+Mid-lane, a reworded dispatch arrived shaped as a fresh start ("scan ONE topic, list, stop"), written blind to the fact that IDENTIFY was already owner-approved and all 223 rows were already authored. Following it literally would have thrown away verified work. The lane **stopped and asked** rather than either obeying or ignoring it; the owner confirmed it was a stale re-issue caused by a safeguard block, not a re-scope. **A contradiction between an instruction and established session state is a question, not a silent judgment call.**
+
+**Mechanics worth keeping:** trunk moved mid-lane (`a4e0353` → `41277c1`, #509 code-only); the worktree fast-forwarded clean with zero overlap against this data-only lane. Provenance: 223 ids pinned in `CLASS_B_STEPPED_SOLUTION_IDS` spread into `AI_GENERATED_SOLUTION_IDS` (the one line outside `data/questionBanks/**`, flagged *before* authoring and confirmed in advance). Temp audit/dump harnesses deleted before the gate run, so they never entered the diff.
+
+**VALIDATION (matrices re-run POST-COMMIT — commit-scoped guards diff `base...HEAD`):** tsc PASS · mojibake PASS · `scope:guard --mode product` PASS (pre-commit, where it must run) · lazytopper ops matrix PASS · root guard matrix **190/190** · `git diff --check` clean · step-mark validator **223/223**. Opens `[FU-BANK-GARBLED-ANSWER-CLASS]` — ~15 rows with OCR-garbled `answer` fields + `PYQ-M-2026-CG-002`'s welded `questionText`, correctly out of scope here because **this lane authors solutions, not questions.**
+
+---
+
 ## 2026-07-21 -- #509: "BUILD A FRESH SET" IS ACTUALLY FRESH + EVERY VITEST `--exclude` DELETED - **owner byte-reviewed both sections + merged, LIVE-VERIFIED** - trunk `41277c1`
 
 **Wave-2. ONE PR, TWO file-disjoint commit-sections, ONE handoff (this one). 7 files, +451/-34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` + all four red-suite FUs.** Two subagents ran in parallel on disjoint allowlists inside ONE worktree; neither committed (they shared a git index) — the orchestrator staged and committed each section separately, so Task 1 and Task 2 are independently reviewable and revertable. **The single-PR/single-handoff shape is the structural fix for the recurring docs-vs-docs collision: there is no second handoff to collide with, and `lane-overlap` was green by construction.**
