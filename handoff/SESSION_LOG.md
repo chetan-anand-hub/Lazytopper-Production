@@ -1,5 +1,62 @@
 ---
 
+## 2026-07-21 -- #512: THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME - **owner byte-reviewed the pushed diff + LIVE-VERIFIED all 5 checks + merged** - trunk `e19b2d1`
+
+**PR-1 of 2. BEHAVIOR ONLY - 7 files, +102/-110, ZERO file deletions.** Three commit-sections (referral · tutor · auth), each independently reviewable. **PR-2 (deletions + the ~27-script ops sweep) has NOT started.**
+
+### ★★ LESSON 1 - RE-VERIFY AN AUDIT AGAINST TRUNK BEFORE BUILDING ON IT. THIS ONE WAS WRONG THREE TIMES.
+The retirement was specced as ONE PR on the strength of a prior audit. Re-checking every claim at trunk found three material errors, one of which changed the shape of the work:
+
+| Audit claim | Reality |
+|---|---|
+| "**2** ops scripts break on deletion" | **16 hard-`readText` a to-be-deleted path** (~15 npm entries); ~27 files reference them. **This forced the PR split.** |
+| `ConceptSpine.test.tsx` asserts "Teach me" in **2** places | **THREE** - it missed `:107-110` inside "learn-first concept rows" and mis-numbered the other block (`:254-281`, not `:224-252`). **A PR following it verbatim lands RED.** |
+| deleting `pages/TopicHub.tsx` is optional ("delete IF dead") | **FORCED** - it imports `ConceptTeachDrawer`, so retiring the old tutor breaks `tsc` unless it goes. **There is no cheap variant**, which is precisely why the ops fallout could not be dodged. |
+
+The audit was not careless - it was a good document written against a different SHA. **The transferable rule: an audit is a starting hypothesis, not a spec. Re-derive its load-bearing counts before you plan around them.**
+
+### ★★ LESSON 2 - "A CI GATE NAMES THE FILE I'M DELETING" IS NOT THE SAME AS "CI WILL BREAK"
+`topickey_guard_acceptance.mjs:115` lists `pages/TopicHub.tsx`, and it **is** inside the CI-gated `test:matrix:all`. That looked like a hard blocker. Reading *how* it is used dissolved it: the entry sits in `B_ALLOW`, a **skip**-list consulted via `B_ALLOW.has(rel)` while walking files that **actually exist**. A deleted file is never walked, so the entry simply goes unused - no `readFileSync`, no ENOENT, no failure. All 14 matrix scripts were then enumerated and **zero** of the 16 affected ops scripts are among them. **Read the usage, not the grep hit.**
+
+### ★★ LESSON 3 - THE REJECTED FIX IS THE INTERESTING ONE: VACUOUS GREEN
+The cheapest way to absorb 16 broken scripts was to make their `readText` return `""` on ENOENT. **Rejected by the owner on exactly the right grounds:** every assertion about the deleted surface would then pass *because there is nothing left to check*. That is the same false-green class already recorded twice in this project (*"a test with a data guard passes while asserting NOTHING"*, *"an honest skip in CI is still green"*). **A green that survives the deletion of the thing under test is not a green.** PR-2 will retire the wholly-dead scripts and surgically fix the mixed ones instead - a content decision, deliberately owner-reviewed.
+
+### ★★ LESSON 4 - A DELETE-ONLY TEST EDIT PROVES NOTHING; MUTATION-TEST THE REPLACEMENT
+Removing the "Teach me" button meant deleting the suite that asserted it worked. Deleting coverage silently leaves a removal unguarded. The replacement guard asserts the **ABSENT** case *together with* the **POSITIVE** case:
+- "Teach me" is gone as **text, as `button`, AND as `link`** - so a delete that merely demoted it to an anchor still fails;
+- **every** row still exposes a `Stuck? Ask` **link** carrying *that row's* concept - so a row that lost **both** affordances cannot pass.
+
+**The harness had to be given `tutorHrefForConcept` first.** The real page (`DesktopTopicHubPage:246`) supplies it; the test did not. Without that the "positive" half would have asserted against a **strawman row that never had the replacement affordance** - a guard that looked strong and proved nothing. **Then it was mutation-tested: re-injecting a "Teach me" button turns it RED, green again on restore (23/23).**
+
+### ★ LESSON 5 - THE REFERRAL IDENTIFIER WAS A LATENT BUG, NOT A NAMING CHOICE
+The relocation was specced as "switch to the real uid". It is more than hygiene: `addReferralToCode:88` dedups on `referrals.includes(friendIdentifier)`, and the old argument was a **fresh `Date.now()` string on every call** - it can never match an existing entry, so **the dedup was inert and the same student could be credited twice**. The stable `uid` makes the existing dedup actually work. **When a spec says "use a better identifier", check what depends on identifier stability.**
+
+### ★ LESSON 6 - THE DEAD KEY THAT MADE EVERY LOGIN HIT THE ONBOARDING PAGE
+`Login.tsx` gated its redirect on `hasProfile`, reading the **bare** key `lazytopper.profile.v2`. `studentCloudStore.ts:23` only ever writes the **uid-suffixed** `lazytopper.profile.v2:<uid>`. So `hasProfile` was **permanently false** and *every* login - returning students included - was routed to `/onboarding`. That is the off-brand dark screen students were reporting. The gate was deleted rather than repointed, because it carried no information. **The bare-vs-prefixed storage-key mismatch is a bug CLASS worth grepping for elsewhere.**
+
+### What shipped
+**1 · `fix(referral)`** - `creditPendingReferral` had exactly ONE caller (`Onboarding.tsx:99`); capture stays live at `App.tsx:558`, so retiring the page without this would leave referrals **captured but never credited**, silently. Moved into the auth-success effects of **both** `Login.tsx` and `SignUpPage.tsx` - necessary because `AuthContext` exposes **no new-user signal** (`signInWithGoogle` is a bare `signInWithPopup`; `signUpWithEmailPassword` discards the credential), so a Google-first signup can complete on either page. Safe because the function self-guards twice.
+
+**2 · `feat(tutor)`** - the drawer was **LIVE, not latent**: an *unconditional* "Teach me" on every concept row, sitting beside the new "Stuck? Ask". A **product removal**. Four surgical hunks; new-tutor entries byte-identical. Two further hunks removed the dead `.lt-spine__btn--teach` CSS and doc-comments still claiming "Teach me stays LIVE as the fallback".
+
+**3 · `fix(auth)`** - all **four** live `/onboarding` inbounds cut (`Login`, `SignUpPage`, `DesktopHome`, `MobileHome`). The audit named only one; a Login-only fix would still have stranded signups arriving via `/sign-up` or either home page's start-trial CTA.
+
+`Login.tsx` and `SignUpPage.tsx` carry changes from two sections, so they were **split by hunk** rather than lumped - each section stands alone.
+
+### App.tsx: Option B, verified against COMMITS not the working tree
+Route + `pages/Onboarding.tsx` left **inert on disk**; `App.tsx` byte-untouched. **Both overlay gates were re-run AFTER committing** - they diff `base...HEAD`, so the pre-commit run inspected an empty range and was a truthful-but-useless green. Post-commit: `ok FORBIDDEN: lazytopper/src/App.tsx shows zero changes`, C&I 31/31, QP 41/41.
+
+### Validation
+tsc PASS (exit 0, `noUnusedLocals` clean - confirms every removed import/usage pair matched) · `ConceptSpine.test.tsx` **23/23** · **guard mutation-test RED-on-mutant** · `check:mojibake` PASS · `scope:guard --mode product` PASS (pre-commit, where it must run) · lazytopper `test:matrix:all` **all 14** · root guard matrix **190/190** · `git diff --check` clean · linux CI `quality-gate` **pass**, `lane-overlap` **pass**.
+
+**Trunk moved mid-work** (`41277c1` → `856d556`; #510 docs, #511 bank). A two-dot diff against the new trunk looked alarming (100 files) until checked - the true three-dot PR diff was exactly the 7 reviewed files. **No overlap, so no rebase.** *(Watch for this: `git diff <moved-base> --stat` is not your PR.)*
+
+**Owner LIVE-VERIFIED all five:** Topic Hub keeps `/tutor` + "Teach me" gone · new signup → home (both `/sign-up` and Google-from-`/login`) · returning login → home · both start-trial CTAs → home · **referral credits exactly once** - the silent-failure path, and the one check no static gate could have covered.
+
+**Deliberately untouched:** `topicHubMastery` (owner holding), `/api/mentor` + `MentorSolveDrawer` (LIVE in PracticePage), the new `/tutor` stack, and `[FU-SIGNUP-UNSAFE-REDIRECT]` (pre-existing; an auth-security fix does not belong in a retirement PR).
+
+---
+
 ## 2026-07-21 -- #511: THE 223 UNDER-STEPPED D/E ROWS GET REAL CBSE STEP-MARKED SOLUTIONS - **owner byte-reviewed the pushed diff + merged** - trunk `856d556`
 
 **Data-only, ONE PR, 87 files (86 `data/questionBanks/**` + 1 provenance line), +831/-356. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b); the whole mis-banding lane is now CLOSED (Class a = #504, Class b = #511).** Authored by 10 subagents running in parallel on **file-disjoint** batches inside ONE worktree; none of them committed (they shared a git index) — the orchestrator ran the audit, the proof, the gates, and the single commit.

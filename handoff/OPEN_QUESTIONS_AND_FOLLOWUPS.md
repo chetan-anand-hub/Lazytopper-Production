@@ -1,3 +1,44 @@
+## 2026-07-21 -- #512: OLD TUTOR RETIRED + ONBOARDING→HOME - 2 FUs resolved, 1 HALF-resolved, 3 opened (trunk `e19b2d1`)
+
+### ✅ RESOLVED BY #512
+
+**[FU-LOGIN-HASPROFILE-DEAD-KEY] — ✅ RESOLVED.** `Login.tsx` gated its post-login redirect on `hasProfile`, which read the **bare** key `lazytopper.profile.v2`; `studentCloudStore.ts:23` only ever writes the **uid-suffixed** `lazytopper.profile.v2:<uid>`. The flag was **permanently `false`**, so `return hasProfile ? "/" : "/onboarding"` **always** returned `/onboarding` — for returning students as well as new ones. That is the off-brand dark screen students reported. The gate is deleted (not repointed) because it carried no information; the fallback is now unconditionally `/`.
+**★ Record the CLASS, not just the fix:** a bare key read against a prefixed key that is only ever written with a suffix fails **silently and permanently** — no error, no warning, just a flag that is always falsy. Worth grepping for the same shape elsewhere.
+
+**[FU-REFERRAL-CREDIT-ORPHAN] — ✅ RESOLVED, and it turned out to be TWO defects.**
+1. *The orphan:* `creditPendingReferral` had exactly one caller — `Onboarding.tsx:99`, inside the page being retired — while capture stayed live at `App.tsx:558`. Retiring the page would have left referrals **captured but never credited**, with no error surface. Relocated to the auth-success effects of **both** `Login.tsx` and `SignUpPage.tsx`.
+2. **★★ *The latent double-credit:*** the old argument was a fresh `` `user_${Date.now()}` `` string. `addReferralToCode:88` dedups on `referrals.includes(friendIdentifier)` — **a fresh timestamp can never match an existing entry, so the dedup was inert and one student could be credited more than once.** The real Firebase `uid` is stable, so the existing dedup now actually holds. **This was not in the brief; "use a better identifier" turned out to be a correctness fix.**
+
+**Why BOTH pages, not just SignUpPage:** `AuthContext` exposes **no new-user signal** — `signInWithGoogle` is a bare `signInWithPopup` and `signUpWithEmailPassword` discards the credential, so `additionalUserInfo.isNewUser` is not plumbed anywhere. A Google-first signup can complete on either page. Covering both is what makes "credits once per signup" true; the function's own two guards make it safe. **Owner live-verified the credits-once path.**
+
+### 🟡 HALF-RESOLVED BY #512
+
+**[FU-TUTOR-LEGACY-RETIRE] — 🟡 HALF DONE. Behaviour shipped; the deletions are PR-2 and have NOT started.**
+The old `ConceptTeachDrawer` "Teach me" entry is **gone from the live product** — it was **LIVE, not latent** (an unconditional button on every Topic Hub concept row, beside the new "Stuck? Ask"), so this half was a **product removal, not a cleanup**. The **files remain on disk**, now imported only by each other.
+**PR-2 remit:** delete `ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract` **and `pages/TopicHub.tsx`** (forced — it imports `ConceptTeachDrawer`), then retire/repair the ops scripts. **KEEP** `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (LIVE in `PracticePage`) and the new `/tutor` stack.
+
+### 🆕 NEW FOLLOW-UPS
+
+**[FU-OPS-SCRIPTS-PATH-COUPLING] — 🆕 OPENED (and it is far bigger than the prior audit estimated).**
+**16 `scripts/ops/*.mjs` hard-`readText` a to-be-deleted path** (~15 npm entries); ~27 files reference one. `readText` is `fs.readFile` ⇒ **ENOENT throw** the moment a target is deleted. **None are CI-gated**, so they rot invisibly — which is exactly why the coupling went unnoticed until a deletion was attempted.
+- **Wholly-dead** (assert only on the retired surface): `topichub_doc_alignment_acceptance`, `triangles_human_tutor_acceptance`, `topichub_human_tutor_all_topics_acceptance`, `topichub_intended_functionality_acceptance`, `topic_grind_contracts_acceptance`, `student_bots/*` (×6), `tutor_bots/*` (×2).
+- **Mixed** (retired-surface hunks inside otherwise-live scripts): `backlog_1_19_acceptance`, `ux_priority_step_acceptance`, `student_bots_product_experience_acceptance`, `feature_file_matrix`, `agent3_uiux_guard`, `triangles_audit`, `repo_deep_audit`.
+- **★★ DO NOT "fix" this by hardening `readText` to return `""` on ENOENT.** Owner-rejected: every assertion on the deleted surface would pass **vacuously**. PR-2 retires the dead and surgically fixes the mixed — a content decision, owner-reviewed.
+- **★ Verified NOT a CI problem:** all 14 `test:matrix:all` scripts were enumerated; **zero** overlap. `topickey_guard_acceptance.mjs:115` names `pages/TopicHub.tsx` but only as a `B_ALLOW` **skip**-list entry consulted while walking files that *exist* — a deleted file is never walked, so no read and no ENOENT. (Stale allowlist line worth a 1-line tidy in PR-2; nothing asserts on `B_ALLOW.size`.)
+
+**[FU-APP-TSX-FROZEN-RESIDUE] — 🆕 OPENED. ★ Should be MERGED with `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]` into ONE item.**
+The inert `/onboarding` route, its `import Onboarding`, and `pages/Onboarding.tsx` itself survive **only** because `App.tsx` is frozen zero-diff by `check_improve_overlay_additive_acceptance` + `quick_practice_overlay_additive_acceptance`, both inside the CI-gated `test:matrix:all`. Identical in shape to the inert `navigateToMockBuilder` case left by #505. **Two lanes have now each left residue behind the same over-broad freeze — that is the argument for narrowing it** (from "App.tsx zero-diff" to "the relevant route elements unchanged") in one deliberate, owner-approved PR.
+*Silver lining, and the reason Option B is not merely a dodge:* because `Onboarding.tsx` survives, `backlog_1_19_acceptance.mjs:120` — which hard-reads it — keeps working.
+
+**[FU-MASTERY-WRITE-ORPHAN] — 🆕 OPENED (informational; OWNER IS HOLDING THE DECISION).**
+`TeachFlow` was the last live caller of `saveTopicMasterySnapshot` (the only other writers, `DailyMissionPage`/`DailyMixPage`, are retired). After #512 the old tutor's mastery **write** is unreachable ⇒ topic mastery is **write-never, read-only-empty**. **Nothing breaks** — every reader already tolerates empty, since the page-writers died earlier — and an empty snapshot is an honest empty state, not fabricated data. **`topicHubMastery` is NOT deleted and NOT unwired; do not touch it in PR-2.** A separate mastery-retirement audit already exists for when the owner rules.
+
+### ⏸ CONFIRMED STILL OPEN — deliberately NOT fixed in #512
+
+**[FU-SIGNUP-UNSAFE-REDIRECT]** — `SignUpPage.tsx:52` returns `st.from` **without** `isSafeInternalPath`, unlike `Login.tsx:865-868`. Doctrine says "safe redirects always", so this is a real violation — but **pre-existing, and an auth-security fix does not belong inside a retirement PR** where it would be reviewed as a redirect tweak. Its own small PR. Noted in-code so the next reader sees it is known, not missed.
+
+---
+
 ## 2026-07-21 -- #511: THE 223 UNDER-STEPPED D/E SOLUTIONS STEP-MARKED - Class (b) RESOLVED, 1 new FU opened (trunk `856d556`)
 
 ### ✅ RESOLVED BY #511
