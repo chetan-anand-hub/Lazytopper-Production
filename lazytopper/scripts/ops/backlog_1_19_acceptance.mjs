@@ -173,15 +173,6 @@ async function run() {
     "Progress store should track mastery, attempts, activity, and streak."
   );
 
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
-  addCheck(
-    checks,
-    "14",
-    "PRG-02 competency visibility lane",
-    topicHubText.toLowerCase().includes("competency"),
-    "TopicHub should expose competency-focused content/actions."
-  );
-
   addCheck(
     checks,
     "15",

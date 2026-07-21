@@ -39,7 +39,6 @@ async function run() {
 
   const appText = await readText("src/App.tsx");
   const topicHubHomeText = await readText("src/pages/TopicHubHome.tsx");
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
   const navText = await readText("src/navigation/practiceNavigation.ts");
 
   addCheck(
@@ -79,13 +78,7 @@ async function run() {
     topicHubHomeText.includes("loadTopicMasterySnapshot"),
     "Launcher should show weakest/progress hint from local mastery."
   );
-  addCheck(
-    checks,
-    "topichub_persists_last_route",
-    topicHubText.includes("TOPICHUB_LAST_ROUTE_KEY") &&
-      topicHubText.includes("window.localStorage.setItem(TOPICHUB_LAST_ROUTE_KEY"),
-    "TopicHub should persist last visited topic route."
-  );
+  // RETIREMENT PR-2: dropped - asserted on a file deleted with the old tutor.
   addCheck(
     checks,
     "practice_navigation_supports_section_filter",

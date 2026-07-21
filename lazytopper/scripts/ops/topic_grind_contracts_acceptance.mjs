@@ -170,24 +170,12 @@ async function run() {
   const port = Number(process.env.MENTOR_TEST_PORT || 3052);
   const baseUrl = `http://localhost:${port}`;
 
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
   const serverText = await readText("server/index.cjs");
   const mathTrendsText = await readText("src/data/class10MathTopicTrends.ts");
   const scienceTrendsText = await readText("src/data/class10ScienceTopicTrends.ts");
   const trendTopicEntries = buildTrendTopicEntries(mathTrendsText, scienceTrendsText);
 
-  addCheck(
-    checks,
-    "topic_hub_grind_topic_mode_wired",
-    topicHubText.includes("grind_topic_v1"),
-    "TopicHub Grind drawer should call grind_topic_v1 for non-triangles."
-  );
-  addCheck(
-    checks,
-    "topic_hub_priority_grind_keys_removed",
-    !topicHubText.includes("PRIORITY_TOPIC_GRIND_KEYS"),
-    "TopicHub should not gate grind contracts to a hard-coded priority list."
-  );
+  // RETIREMENT PR-2: dropped - asserted on a file deleted with the old tutor.
   addCheck(
     checks,
     "server_topic_grind_contract_handler_present",

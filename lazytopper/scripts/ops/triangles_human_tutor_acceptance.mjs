@@ -65,57 +65,10 @@ async function run() {
   const baseUrl = `http://localhost:${port}`;
 
   // Static UX wiring checks across Learn / Grind / Resources.
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
-  const tutorText = await readText("src/components/tutor/TutorDrawerV2.tsx");
   const serverText = await readText("server/index.cjs");
   const masteryText = await readText("src/services/topicHubMastery.ts");
 
-  addCheck(
-    checks,
-    "topic_tabs_locked_to_learn_grind_resources",
-    topicHubText.includes("setActiveTab('learn')") &&
-      topicHubText.includes("setActiveTab('grind')") &&
-      topicHubText.includes("setActiveTab('resources')"),
-    "Expected only Learn/Grind/Resources top-level tabs."
-  );
-  addCheck(
-    checks,
-    "learn_uses_human_tutor_drawer",
-    topicHubText.includes("SharedTutorDrawerV2") &&
-      topicHubText.includes("openTutorDrawer({ tab: \"teach\""),
-    "Learn should open shared tutor drawer in teach mode."
-  );
-  addCheck(
-    checks,
-    "teach_soft_gate_present",
-    tutorText.includes("Checkpoint not yet passed for this node.") &&
-      tutorText.includes("Continue anyway"),
-    "Soft gating must warn but allow continue."
-  );
-  addCheck(
-    checks,
-    "grind_inline_doubt_hardened",
-    topicHubText.includes("parseMentorPayload") &&
-      topicHubText.includes("Mentor is rate-limited. Showing fallback guidance."),
-    "Grind doubt flow should tolerate non-JSON and 429."
-  );
-  addCheck(
-    checks,
-    "resources_revision_cockpit_present",
-    topicHubText.includes("resources-revision-cockpit") &&
-      topicHubText.includes("resources-exam-day-pack") &&
-      topicHubText.includes("resources-progression-hints"),
-    "Resources cockpit cards should exist."
-  );
-  addCheck(
-    checks,
-    "resources_human_tutor_ctas_present",
-    topicHubText.includes("Human tutor quick drill") &&
-      topicHubText.includes("Teach this") &&
-      topicHubText.includes("Grind this") &&
-      topicHubText.includes("Practice this"),
-    "Resources should keep Teach/Grind/Practice handoff."
-  );
+  // RETIREMENT PR-2: dropped - asserted on a file deleted with the old tutor.
   addCheck(
     checks,
     "mastery_storage_key_present",

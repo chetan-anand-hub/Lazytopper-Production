@@ -6,7 +6,6 @@ const targets = [
   'docs/session/2026-01-21_CODEX_REPORT_BACK_FINAL.md',
   'docs/session/2026-01-21_CODEX_REPORT_BACK_v2.md',
   'src/pages/PracticePage.tsx',
-  'src/pages/TopicHub.tsx',
 ];
 
 const replacements = {

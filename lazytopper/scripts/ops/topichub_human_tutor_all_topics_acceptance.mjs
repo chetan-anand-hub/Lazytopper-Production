@@ -110,34 +110,7 @@ async function run() {
   const port = Number(process.env.MENTOR_TEST_PORT || 3054);
   const baseUrl = `http://localhost:${port}`;
 
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
-  addCheck(
-    checks,
-    "resources_fallback_mindmap_present",
-    topicHubText.includes("const resourceMindMap = hasMindMapContent(rawMindMap) ? rawMindMap : fallbackResourceMindMap"),
-    "Resource concept-map fallback should exist."
-  );
-  addCheck(
-    checks,
-    "resources_fallback_formulae_present",
-    topicHubText.includes("const resourceFormulae = rawFormulae.length ? rawFormulae : fallbackFormulae"),
-    "Resource formula sheet fallback should exist."
-  );
-  addCheck(
-    checks,
-    "resources_fallback_videos_present",
-    topicHubText.includes("const resourceVideos = useMemo(") &&
-      topicHubText.includes("mergeResourceVideos(rawVideos, fallbackVideos)"),
-    "Resource video fallback should include contextual Khan/YouTube links."
-  );
-  addCheck(
-    checks,
-    "resources_render_uses_fallbacks",
-    topicHubText.includes("mindMap={resourceMindMap}") &&
-      topicHubText.includes("safeArray<any>(resourceFormulae)") &&
-      topicHubText.includes("safeArray<any>(resourceVideos)"),
-    "Resources tab should render fallback-backed datasets."
-  );
+  // RETIREMENT PR-2: dropped - asserted on a file deleted with the old tutor.
 
   const serverProc = spawn(process.execPath, ["server/index.cjs"], {
     cwd: repoRoot,

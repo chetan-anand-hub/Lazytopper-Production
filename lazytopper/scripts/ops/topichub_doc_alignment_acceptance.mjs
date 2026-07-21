@@ -34,97 +34,15 @@ function runScript(relPath, checks, name) {
 async function run() {
   const checks = [];
 
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
-  const tutorDrawerText = await readText("src/components/tutor/TutorDrawerV2.tsx");
   const appText = await readText("src/App.tsx");
   const contentText = await readText("src/data/topicHubV2Full.ts");
 
-  // Document-aligned pedagogical loop and UX checks.
-  addCheck(
-    checks,
-    "loop_learn_grind_resources_present",
-    topicHubText.includes("type TopicTabKey = 'learn' | 'grind' | 'resources';"),
-    "Top-level topic flow should include Learn, Grind, Resources."
-  );
-  addCheck(
-    checks,
-    "soft_gate_message_present",
-    tutorDrawerText.includes("Checkpoint not yet passed for this node."),
-    "Soft-gate warning should be visible before advancing."
-  );
-  addCheck(
-    checks,
-    "soft_gate_ctas_present",
-    tutorDrawerText.includes("Try checkpoint") &&
-      tutorDrawerText.includes("Next hint") &&
-      tutorDrawerText.includes("Practice this node") &&
-      tutorDrawerText.includes("Continue anyway"),
-    "Soft gate should provide checkpoint/hint/practice/continue actions."
-  );
-  addCheck(
-    checks,
-    "checkpoint_prompt_present",
-    tutorDrawerText.includes("Checkpoint = answer the quick check above in your own words."),
-    "Tutor UI should explicitly guide checkpoint behavior."
-  );
-  addCheck(
-    checks,
-    "session_stepper_present",
-    tutorDrawerText.includes('const sessionSteps = ["Learn", "Checkpoint", "Practice", "Mistake Fix", "Exam Drill", "Mastery"];'),
-    "Tutor should show explicit human-tutor session flow."
-  );
-  addCheck(
-    checks,
-    "full_screen_workspace_present",
-    tutorDrawerText.includes('width: "100vw"') &&
-      tutorDrawerText.includes('height: "100vh"') &&
-      tutorDrawerText.includes("position: \"absolute\"") &&
-      tutorDrawerText.includes("inset: 0"),
-    "Tutor should open in full-screen workspace."
-  );
-  addCheck(
-    checks,
-    "primary_action_footer_present",
-    tutorDrawerText.includes("primaryActionLabel") &&
-      tutorDrawerText.includes("More actions"),
-    "Tutor footer should use primary next action with collapsed secondary actions."
-  );
-  addCheck(
-    checks,
-    "deterministic_recovery_pipeline_present",
-    tutorDrawerText.includes("requestWithRecovery") &&
-      tutorDrawerText.includes("buildTutorFallback") &&
-      tutorDrawerText.includes("MENTOR_MAX_ATTEMPTS"),
-    "Tutor should have retry/backoff/local fallback pipeline."
-  );
-  addCheck(
-    checks,
-    "human_grade_coach_panel_present",
-    tutorDrawerText.includes("HumanGradeCoachView") &&
-      tutorDrawerText.includes("<HumanGradeCoachView"),
-    "Tutor should render human-grade coaching surface."
-  );
-  addCheck(
-    checks,
-    "practice_handoff_back_navigation_present",
-    topicHubText.includes("backPath: `/topic-hub/${grade}/${subject}/${topicKey}?tab=${backTab}`") &&
-      topicHubText.includes('backLabel: "Back to TopicHub"'),
-    "Practice handoff should preserve back navigation to TopicHub."
-  );
-  addCheck(
-    checks,
-    "mastery_badges_consistent_across_tabs",
-    topicHubText.includes("const masteryBreakdown = useMemo(() => {") &&
-      topicHubText.includes("Mastery") &&
-      topicHubText.includes("masteryBreakdown[state]"),
-    "TopicHub header should expose consistent mastery chips across Learn/Grind/Resources."
-  );
-  addCheck(
-    checks,
-    "all_topic_grind_mode_present",
-    topicHubText.includes("? 'grind_triangles_v1' : 'grind_topic_v1'"),
-    "Triangles and non-triangles grind contracts should both be supported."
-  );
+  // RETIREMENT PR-2: the 12 document-alignment checks that lived here all read
+  // src/pages/TopicHub.tsx or src/components/tutor/TutorDrawerV2.tsx, both deleted
+  // with the old tutor. They asserted the retired Learn/Grind/Resources lesson flow
+  // and the old mentor drawer's soft-gate/stepper/full-screen chrome - none of which
+  // the product still has. Removed rather than stubbed: an assertion that survives
+  // the deletion of its subject is a vacuous green.
   addCheck(
     checks,
     "topic_launcher_route_present",

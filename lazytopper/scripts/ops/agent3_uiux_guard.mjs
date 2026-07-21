@@ -35,10 +35,9 @@ function run() {
     check(
       "journey_strip_present_on_key_pages",
       has("src/pages/TrendsPage.tsx", /<JourneyStrip/) &&
-        has("src/pages/TopicHub.tsx", /<JourneyStrip/) &&
         has("src/pages/PracticePage.tsx", /<JourneyStrip/) &&
         has("src/pages/HighlyProbableQuestions.tsx", /<JourneyStrip/),
-      "Journey strip should persist across Trends -> TopicHub -> Practice -> HPQ"
+      "Journey strip should persist across Trends -> Practice -> HPQ"
     )
   );
 
@@ -46,7 +45,6 @@ function run() {
     check(
       "return_context_present_on_key_pages",
       has("src/pages/TrendsPage.tsx", /<ReturnContextBar/) &&
-        has("src/pages/TopicHub.tsx", /<ReturnContextBar/) &&
         has("src/pages/PracticePage.tsx", /<ReturnContextBar/) &&
         has("src/pages/HighlyProbableQuestions.tsx", /<ReturnContextBar/),
       "Back context chip should exist on major pages"

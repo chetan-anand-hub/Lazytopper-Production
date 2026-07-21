@@ -692,10 +692,8 @@ Write-JsonFile -RelativePath "reports/question_schema_samples.json" -Object $que
 Write-Info "Collecting TopicHub and content-surface files..."
 
 $topicHubFiles = @(
-  "src/pages/TopicHub.tsx",
   "src/pages/TopicHubHome.tsx",
   "src/components/DiagramBlock.tsx",
-  "src/components/tutor/TutorDrawerV2.tsx",
   "src/utils/getTopicV2Content.ts",
   "src/utils/topicHubV2Store.ts",
   "src/data/topicHubV2Full.ts",

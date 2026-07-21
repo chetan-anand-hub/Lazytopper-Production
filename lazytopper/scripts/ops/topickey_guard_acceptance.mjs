@@ -112,7 +112,6 @@ if (zero.length) {
 const B_ALLOW = new Set([
   "components/worksheet/worksheetModel.ts",     // :586 same-provenance label lookup (key ∈ ws.questions)
   "data/class10TopicRegistry.ts",               // :110 registry self-lookup (both sides registry keys)
-  "pages/TopicHub.tsx",                         // :130 list dedup (r.topicKey !== entry.topicKey)
   "services/learningPathGenerator.ts",          // :72/:367 learning-path area self-match (one vocabulary)
   "services/topicHubMastery.ts",                // :166 persistence guard vs its own normalizeTopicKeyForStorage
 ]);
