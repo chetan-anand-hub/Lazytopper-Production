@@ -2,6 +2,7 @@ import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { creditPendingReferral } from "../services/referralService";
 
 type LocationState = { from?: string };
 
@@ -867,13 +868,19 @@ export default function Login() {
     }
     const st = (location.state || {}) as LocationState;
     if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
-    const hasProfile =
-      typeof window !== "undefined" && !!window.localStorage.getItem("lazytopper.profile.v2");
-    // SEVER PR: post-login fallback re-pointed off the retired /dashboard to "/"
-    // (RootEntry routes to the live home per viewport). ?redirect= / state.from
-    // remain isSafeInternalPath-guarded; a stale severed target now resolves via
-    // the catch-all to "/" (home), never stranding the user.
-    return hasProfile ? "/" : "/onboarding";
+    // RETIREMENT PR-1: the fallback is now unconditionally "/" (RootEntry routes to the
+    // live home per viewport). The /onboarding page is retired — a new signup lands on
+    // the homepage, not the dark onboarding screen.
+    //
+    // The `hasProfile ? "/" : "/onboarding"` gate this replaces was dead anyway: it read
+    // the BARE key "lazytopper.profile.v2", but studentCloudStore only ever writes the
+    // uid-suffixed "lazytopper.profile.v2:<uid>". So hasProfile was permanently false and
+    // EVERY login — new and returning — was routed to /onboarding. Resolves
+    // [FU-LOGIN-HASPROFILE-DEAD-KEY].
+    //
+    // ?redirect= / state.from remain isSafeInternalPath-guarded above; a stale severed
+    // target still resolves via the catch-all to "/", never stranding the user.
+    return "/";
   }, [location.state, searchParams]);
 
   const [method, setMethod] = useState<"email" | "phone">("email");
@@ -898,6 +905,15 @@ export default function Login() {
       trackUxEvent("login_complete", "login", {
         reason: reason ?? "unspecified",
       });
+      // Referral crediting — relocated here from the retired Onboarding page, which
+      // was its only caller. Capture still happens at App.tsx (`?ref=` -> pending key);
+      // this is the first authenticated moment on every Login path (Google / email /
+      // phone OTP all land in this one effect). Self-idempotent: creditPendingReferral
+      // no-ops when there is no pending code and again once REFERRAL_CREDITED_KEY is
+      // set, so it credits at most once ever. Keyed on the real Firebase uid — a
+      // stable identifier the `addReferralToCode` dedup can actually match (the old
+      // `user_${Date.now()}` was fresh on every call and defeated that dedup).
+      creditPendingReferral(user.uid);
       navigate(nextPath, { replace: true });
     }
   }, [user, nextPath, navigate, reason]);

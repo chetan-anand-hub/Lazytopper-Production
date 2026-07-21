@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
-import ConceptTeachDrawer from "../tutor/ConceptTeachDrawer";
 import NoteModal from "../notes/NoteModal";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
@@ -46,11 +45,10 @@ import type {
  *      Honest: no badge where no visual (PR-C hardened that resolver to return null
  *      instead of a wrong concepts[0]).
  *
- * Concept-row actions (unchanged from PR-C):
- *   - "Teach me" opens the concept tutor (`ConceptTeachDrawer` → `TeachFlow` →
- *     /api/mentor `concept_teach`, the EXISTING engine reused unchanged).
- *     ConceptSpine owns the open/close state and passes the clicked concept's
- *     { topicKey, subject, concept } context. One mount covers desktop + mobile.
+ * Concept-row actions:
+ *   - "Stuck? Ask" routes to /tutor with the concept pre-loaded (the sole tutor entry
+ *     since the old "Teach me" side-drawer was retired — RETIREMENT PR-1). Renders
+ *     only where the page supplies tutorHrefForConcept.
  *   - "Practise" routes to the existing per-concept practice target.
  *
  * MI guard (item 9, per #270/#271): Mistake Intel is navy-SIDEBAR chrome ONLY —
@@ -291,23 +289,16 @@ const SPINE_CSS = `
   white-space: nowrap;
   border: 1px solid transparent;
 }
-/* Concept-level "Teach me" + "Practise" — quiet, green-tint secondaries inside
-   the card. Visually distinct from the topic-level solid-primary band button. */
-.lt-spine__btn--teach {
-  background: #ffffff;
-  color: hsl(152, 55%, 28%);
-  border-color: hsl(152, 40%, 78%);
-}
-.lt-spine__btn--teach:hover { background: hsl(152, 55%, 97%); }
+/* Concept-level "Practise" — a quiet, green-tint secondary inside the card.
+   Visually distinct from the topic-level solid-primary band button. */
 .lt-spine__btn--practise {
   background: hsl(152, 55%, 95%);
   color: hsl(152, 55%, 28%);
   border-color: hsl(152, 40%, 80%);
 }
 .lt-spine__btn--practise:hover { background: hsl(152, 55%, 92%); }
-/* Concept-level "Stuck? Ask" -> the fresh /tutor route (Stage 1). Solid green so it
-   reads as the primary concept-level tutor entry; "Teach me" stays the quiet fallback
-   until the new tutor is owner-verified (decision #5). */
+/* Concept-level "Stuck? Ask" -> the /tutor route. Solid green so it reads as the
+   primary — and now sole — concept-level tutor entry. */
 .lt-spine__btn--stuck {
   background: hsl(152, 55%, 45%);
   color: #ffffff;
@@ -430,10 +421,8 @@ export interface ConceptSpineProps {
   chapterTestHref: string;
   /** Builds the existing per-concept (concept + mark band) practice route. */
   practiceHrefForConcept: (concept: BoardConcept) => string;
-  /** Topic-level tutor entry ("Ask the tutor") -> the fresh /tutor route (Stage 1).
-   *  Additive/optional: the sticky Ask renders only when supplied. The "Teach me"
-   *  drawer stays LIVE as the fallback until the new tutor is owner-verified (v2
-   *  D-TUT-12 / decision #5); its demote to "Ask" is a separate later PR. */
+  /** Topic-level tutor entry ("Ask the tutor") -> the /tutor route.
+   *  Additive/optional: the sticky Ask renders only when supplied. */
   askTutorHref?: string;
   /** Per-concept tutor entry ("Stuck? Ask") -> /tutor with the concept pre-loaded. */
   tutorHrefForConcept?: (concept: BoardConcept) => string;
@@ -455,11 +444,6 @@ export function ConceptSpine({
   tutorHrefForConcept,
   topicProgressSlot,
 }: ConceptSpineProps) {
-  // The concept whose tutor drawer is open (null = closed). ConceptSpine owns this
-  // open/close state; opening passes the clicked concept's context to the existing
-  // ConceptTeachDrawer → TeachFlow → /api/mentor `concept_teach` engine. One mount
-  // covers both platforms (the spine renders at every width).
-  const [teachConcept, setTeachConcept] = useState<BoardConcept | null>(null);
   const [tipsOpen, setTipsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
 
@@ -614,9 +598,10 @@ export function ConceptSpine({
                   )}
                 </div>
                 <div className="lt-spine__row-actions">
-                  {/* Fresh tutor (Stage 1) — /tutor with this concept pre-loaded.
-                      Renders only when the page supplies the builder; sits beside the
-                      "Teach me" fallback (kept until the new tutor is owner-verified). */}
+                  {/* The concept tutor — /tutor with this concept pre-loaded. Renders
+                      only when the page supplies the builder. (RETIREMENT PR-1: the old
+                      "Teach me" side-drawer that used to sit beside this is retired; the
+                      new /tutor supersedes it, so this is now the sole tutor entry.) */}
                   {tutorHrefForConcept && (
                     <Link
                       to={tutorHrefForConcept(concept)}
@@ -626,15 +611,6 @@ export function ConceptSpine({
                       Stuck? Ask
                     </Link>
                   )}
-                  {/* Opens the concept tutor (concept_teach) — wired in PR-C */}
-                  <button
-                    type="button"
-                    className="lt-spine__btn lt-spine__btn--teach"
-                    onClick={() => setTeachConcept(concept)}
-                    title={`Teach me: ${concept.name}`}
-                  >
-                    Teach me
-                  </button>
                   {/* Concept-filtered practice (concept + mark band) — built by the page */}
                   <Link
                     to={practiceHrefForConcept(concept)}
@@ -681,25 +657,6 @@ export function ConceptSpine({
           </button>
         </div>
       </div>
-
-      {/* Concept tutor — REUSED engine (ConceptTeachDrawer → TeachFlow → /api/mentor
-          `concept_teach`). Mounted fresh per concept so each gets its own session;
-          questionText is empty (concept-teach, not a question). One mount = both
-          platforms. Teach-first / earned-reveal + the visual/chat split are handled
-          inside TeachFlow. (Mobile full-screen toggle for the tutor interactive is
-          deferred to its own PR — PR-D.1 — per the owner-approved split.) */}
-      {teachConcept && (
-        <ConceptTeachDrawer
-          open
-          onClose={() => setTeachConcept(null)}
-          context={{
-            topicKey: topic.slug,
-            subject: topic.subject,
-            questionText: "",
-            concept: teachConcept.name,
-          }}
-        />
-      )}
     </div>
   );
 }

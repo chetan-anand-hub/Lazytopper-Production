@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
@@ -8,24 +8,11 @@ import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHu
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 
-// Stub the concept tutor drawer: ConceptSpine's responsibility is to OWN the
-// open/close state and pass the clicked concept's context — not the tutor engine
-// itself (which makes /api/mentor network calls). The stub records open + context so
-// we can assert the wiring without dragging TeachFlow's fetch into a unit test.
-vi.mock("../tutor/ConceptTeachDrawer", () => ({
-  default: ({
-    open,
-    context,
-  }: {
-    open: boolean;
-    context: { topicKey: string; subject: string; concept?: string };
-  }) =>
-    open ? (
-      <div data-testid="concept-teach-drawer">
-        {`teach:${context.subject}:${context.topicKey}:${context.concept ?? ""}`}
-      </div>
-    ) : null,
-}));
+// RETIREMENT PR-1: the old "Teach me" side-drawer (ConceptTeachDrawer → TeachFlow →
+// /api/mentor `concept_teach`) is retired — the new /tutor route supersedes it. The
+// vi.mock stub that used to stand in for that drawer is gone with it; ConceptSpine no
+// longer imports it, so there is nothing left to stub. The concept-row tutor entry is
+// now a plain <Link> to /tutor, which needs no mock. See the retirement guard below.
 
 afterEach(cleanup);
 
@@ -87,6 +74,13 @@ function renderSpine(
         practiceHrefForConcept={(c) =>
           `/practice/10/Maths?focus=${encodeURIComponent(c.name)}&marksMin=2&marksMax=3`
         }
+        // The concept-row tutor entry ("Stuck? Ask") -> /tutor with the concept
+        // pre-loaded. The real page (DesktopTopicHubPage) supplies this builder, so the
+        // harness must too — otherwise the row's only tutor affordance is absent from
+        // the test and the retirement guard below would assert against a strawman.
+        tutorHrefForConcept={(c) =>
+          `/tutor/10/Maths/trigonometry?concept=${encodeURIComponent(c.name)}`
+        }
       />
     </MemoryRouter>,
   );
@@ -104,10 +98,11 @@ describe("ConceptSpine — learn-first concept rows", () => {
       expect(screen.getByText(concept.name)).toBeInTheDocument();
     }
 
-    // Every row carries a "Teach me" and a "Practise" action.
+    // Every row carries a "Stuck? Ask" (the /tutor entry) and a "Practise" action.
+    // "Teach me" was the retired old-drawer entry — see the retirement guard below.
     for (const row of Array.from(rows)) {
       const scope = within(row as HTMLElement);
-      expect(scope.getByText("Teach me")).toBeInTheDocument();
+      expect(scope.getByText("Stuck? Ask")).toBeInTheDocument();
       expect(scope.getByText("Practise")).toBeInTheDocument();
     }
   });
@@ -251,32 +246,42 @@ describe("ConceptSpine — receded action band (3 buttons, correct hierarchy)", 
   });
 });
 
-describe("ConceptSpine — tutor wiring (PR-C, preserved)", () => {
-  it("'Teach me' is a LIVE button (no longer inert / aria-disabled)", () => {
+describe("ConceptSpine — old-tutor RETIREMENT guard (PR-1)", () => {
+  // This block replaces the former "tutor wiring (PR-C, preserved)" suite, which
+  // asserted that "Teach me" was a live button opening the ConceptTeachDrawer. Both
+  // are retired. Deleting that coverage alone would prove nothing, so this asserts the
+  // ABSENT case (the old drawer is gone) TOGETHER with the positive case (the /tutor
+  // entry that replaced it still renders on every row) — a row that lost both would
+  // otherwise pass a delete-only edit silently.
+
+  it("the old 'Teach me' drawer entry is GONE — no button, no link, no drawer", () => {
     renderSpine();
-    const teachButtons = screen.getAllByText("Teach me");
-    expect(teachButtons.length).toBe(trigContent.boardEssentials.length);
-    for (const btn of teachButtons) {
-      expect(btn.closest("button")).not.toBeNull();
-      expect(btn.closest("button")).not.toHaveAttribute("aria-disabled");
-    }
-    // It opens a drawer, not a navigation — no "Teach me" anchor exists.
+    // The label is absent in every form: it was a <button>, so a delete that merely
+    // demoted it to an anchor must also fail.
+    expect(screen.queryByText("Teach me")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Teach me" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Teach me" })).toBeNull();
+    // The drawer itself can never mount — nothing sets the state that gated it.
+    expect(screen.queryByTestId("concept-teach-drawer")).toBeNull();
   });
 
-  it("clicking 'Teach me' opens the concept tutor with the row's context", () => {
+  it("every concept row still has its /tutor entry — the replacement, not a hole", () => {
     const { container } = renderSpine();
-    expect(screen.queryByTestId("concept-teach-drawer")).toBeNull();
+    const rows = container.querySelectorAll(".lt-spine__row");
+    expect(rows.length).toBe(trigContent.boardEssentials.length);
+    expect(rows.length).toBeGreaterThan(0);
 
-    const firstRow = container.querySelector(".lt-spine__row") as HTMLElement;
-    const firstConcept = trigContent.boardEssentials[0];
-    fireEvent.click(within(firstRow).getByText("Teach me"));
-
-    const drawer = screen.getByTestId("concept-teach-drawer");
-    expect(drawer).toBeInTheDocument();
-    expect(drawer).toHaveTextContent(
-      `teach:${trig.subject}:${trig.slug}:${firstConcept.name}`,
-    );
+    for (const [i, row] of Array.from(rows).entries()) {
+      const concept = trigContent.boardEssentials[i];
+      const ask = within(row as HTMLElement).getByRole("link", { name: "Stuck? Ask" });
+      // It NAVIGATES to /tutor carrying this row's concept — it is not a drawer
+      // trigger, and it is not a dead link.
+      expect(ask).toHaveAttribute(
+        "href",
+        `/tutor/10/Maths/trigonometry?concept=${encodeURIComponent(concept.name)}`,
+      );
+      expect(ask).not.toHaveAttribute("aria-disabled");
+    }
   });
 });
 
