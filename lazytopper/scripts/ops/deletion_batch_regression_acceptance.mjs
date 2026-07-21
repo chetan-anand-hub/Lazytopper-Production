@@ -6,7 +6,6 @@ import { spawn, spawnSync } from "node:child_process";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "../..");
 const outFile = resolve(repoRoot, ".project_memory/ops/out/deletion_batch_regression_acceptance.json");
-const gapAuditPath = resolve(repoRoot, ".project_memory/ops/out/human_tutor_gap_audit.json");
 const stepwisePath = resolve(repoRoot, ".project_memory/ops/out/safe_delete_stepwise_log.json");
 
 const deletedFiles = [
@@ -164,7 +163,6 @@ async function main() {
   runCmd("lint_ci_after_deletion", ["run", "lint:ci"]);
   runCmd("triangles_human_tutor_after_deletion", ["run", "test:triangles:human-tutor"]);
   runCmd("ux_all_priorities_after_deletion", ["run", "test:ux:all-priorities"]);
-  runCmd("human_tutor_gap_audit_after_deletion", ["run", "test:human-tutor:gaps"]);
 
   const current = readJson(gapAuditPath);
   if (baseline && current?.summary && baseline?.summary) {

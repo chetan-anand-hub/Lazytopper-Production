@@ -59,7 +59,6 @@ async function run() {
   runScript("scripts/ops/half_built_impact_analysis.mjs", checks, "half_built_impact_analysis");
   runScript("scripts/ops/topichub_intended_functionality_acceptance.mjs", checks, "topichub_intended_functionality");
   runScript("scripts/ops/pro_tips_product_acceptance.mjs", checks, "pro_tips_product_acceptance");
-  runScript("scripts/ops/triangles_human_tutor_acceptance.mjs", checks, "triangles_human_tutor");
 
   const failed = checks.filter((c) => !c.ok);
   const report = {

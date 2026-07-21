@@ -58,7 +58,6 @@ async function run() {
     "scripts/ops/phases_1_3_acceptance.mjs",
     "scripts/ops/feature_file_matrix.mjs",
     "scripts/ops/dependency_risk_classification.mjs",
-    "scripts/ops/human_tutor_gap_audit.mjs",
     "scripts/ops/phases_4_6_acceptance.mjs",
   ];
 
@@ -86,7 +85,6 @@ async function run() {
     ".project_memory/ops/out/phases_1_3_acceptance.json",
     ".project_memory/ops/out/feature_file_matrix.json",
     ".project_memory/ops/out/dependency_risk_classification.json",
-    ".project_memory/ops/out/human_tutor_gap_audit.json",
     ".project_memory/ops/out/phases_4_6_acceptance.json",
   ];
   for (const rel of requiredReports) {

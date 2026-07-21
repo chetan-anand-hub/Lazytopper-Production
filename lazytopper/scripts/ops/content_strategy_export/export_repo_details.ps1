@@ -560,7 +560,6 @@ $routesMd.Add("") | Out-Null
 $routesMd.Add("## Mentor Surface Notes") | Out-Null
 $routesMd.Add("") | Out-Null
 $routesMd.Add("- Primary mentor page route resolves to ``src/pages/AiMentorPage.tsx`` via ``/ai-mentor/*`` and ``/mentor/*``.") | Out-Null
-$routesMd.Add("- Embedded mentor surfaces also exist in TopicHub and Practice via ``fetch(""/api/mentor"")`` calls.") | Out-Null
 Write-TextFile -RelativePath "reports/routes_map.md" -Content ($routesMd -join [Environment]::NewLine) -Why "Route inventory and surface detection for TopicHub, Practice, playback, and mentor."
 
 $navigationCandidates = @(
@@ -692,10 +691,8 @@ Write-JsonFile -RelativePath "reports/question_schema_samples.json" -Object $que
 Write-Info "Collecting TopicHub and content-surface files..."
 
 $topicHubFiles = @(
-  "src/pages/TopicHub.tsx",
   "src/pages/TopicHubHome.tsx",
   "src/components/DiagramBlock.tsx",
-  "src/components/tutor/TutorDrawerV2.tsx",
   "src/utils/getTopicV2Content.ts",
   "src/utils/topicHubV2Store.ts",
   "src/data/topicHubV2Full.ts",
@@ -739,7 +736,6 @@ $mentorMd.Add("Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")") | Out-
 $mentorMd.Add("") | Out-Null
 $mentorMd.Add("## Endpoint") | Out-Null
 $mentorMd.Add("") | Out-Null
-$mentorMd.Add("- Primary handler: ``POST /api/mentor`` in ``server/index.cjs``.") | Out-Null
 $mentorMd.Add("- Request normalization supports preferred ``{ mode, payload, persona? }`` and legacy flat fields.") | Out-Null
 $mentorMd.Add("") | Out-Null
 $mentorMd.Add("## Request Payload Shape") | Out-Null
@@ -773,7 +769,6 @@ if ($mentorModes.Count -gt 0) {
 $mentorMd.Add("") | Out-Null
 $mentorMd.Add("## Prompt/Contract Locations") | Out-Null
 $mentorMd.Add("") | Out-Null
-$mentorMd.Add("- ``server/index.cjs`` (mode normalization, prompt builders, schema enforcement, ``/api/mentor`` handler).") | Out-Null
 $mentorMd.Add("- ``src/contracts/tutorContracts.ts`` (structured schema validators + fallbacks).") | Out-Null
 $mentorMd.Add("- ``src/tutor/topicTeachContracts.ts`` (topic-specific teach contracts).") | Out-Null
 $mentorMd.Add("- ``src/data/syllabus/scopePolicy.ts`` (topic scope/policy helpers used by mentor contracts).") | Out-Null

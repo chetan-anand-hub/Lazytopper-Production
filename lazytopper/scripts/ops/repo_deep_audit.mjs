@@ -556,9 +556,7 @@ function domainRows(fileSet, routes) {
       summary: "Concept-map learning, grind drawer, mentor chat/fallback, and topic mastery state.",
       routeMatches: ["/topic-hub", "/topics/:topicKey"],
       files: [
-        "src/pages/TopicHub.tsx",
         "src/pages/TopicHubHome.tsx",
-        "src/components/tutor/TutorDrawerV2.tsx",
         "src/services/topicHubMastery.ts",
         "src/services/mentorServerGate.ts",
         "src/services/sessionLogger.ts",
@@ -857,8 +855,7 @@ async function main() {
   mdLines.push("   - App shell and route gating are controlled in `src/App.tsx` and `src/components/auth/RequireAuth.tsx`.");
   mdLines.push("");
   mdLines.push("2. Topic Hub tutor journey");
-  mdLines.push("   - `src/pages/TopicHub.tsx` + `src/components/tutor/TutorDrawerV2.tsx` drive learn/grind/mentor interactions.");
-  mdLines.push("   - Mentor requests post to `/api/mentor` and fallback through `src/services/mentorServerGate.ts`.");
+  mdLines.push("   - `src/pages/desktop/DesktopTopicHubPage.tsx` (the concept spine) is the routed Topic Hub; the old `TopicHub.tsx` lesson flow and the `TutorDrawerV2` mentor drawer were deleted in the tutor retirement.");
   mdLines.push("   - Backend handling is in `server/index.cjs` and `server/tutorOrchestrator.cjs`.");
   mdLines.push("");
   mdLines.push("3. Practice and active session");

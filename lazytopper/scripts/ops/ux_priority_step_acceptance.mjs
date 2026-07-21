@@ -42,7 +42,6 @@ async function run() {
   const checks = [];
   const trendsText = await readText("src/pages/TrendsPage.tsx");
   const hpqText = await readText("src/pages/HighlyProbableQuestions.tsx");
-  const topicHubText = await readText("src/pages/TopicHub.tsx");
   const dashboardText = await readText("src/pages/Dashboard.tsx");
   const loginText = await readText("src/pages/Login.tsx");
   const practiceText = await readText("src/pages/PracticePage.tsx");
@@ -51,15 +50,6 @@ async function run() {
   const telemetryText = await readText("src/services/uxTelemetry.ts");
 
   if (includePriority("p1")) {
-    addCheck(
-      checks,
-      "p1",
-      "topichub_tab_scope_is_three",
-      topicHubText.includes("Learn") &&
-        topicHubText.includes("Grind") &&
-        topicHubText.includes("Resources"),
-      "TopicHub should keep Learn/Grind/Resources as the top-level tab scope."
-    );
     addCheck(
       checks,
       "p1",
@@ -106,17 +96,15 @@ async function run() {
       "p2",
       "journey_strip_used_in_trends_topichub_practice_hpq",
       trendsText.includes("<JourneyStrip") &&
-        topicHubText.includes("<JourneyStrip") &&
         practiceText.includes("<JourneyStrip") &&
         hpqText.includes("<JourneyStrip"),
-      "Journey strip should be persistent across Trends/TopicHub/Practice/HPQ."
+      "Journey strip should be persistent across Trends/Practice/HPQ."
     );
     addCheck(
       checks,
       "p2",
       "return_context_bar_used_in_trends_topichub_practice_hpq",
       trendsText.includes("<ReturnContextBar") &&
-        topicHubText.includes("<ReturnContextBar") &&
         practiceText.includes("<ReturnContextBar") &&
         hpqText.includes("<ReturnContextBar"),
       "Return context chips should be present on major journey pages."
@@ -154,9 +142,8 @@ async function run() {
       "telemetry_hooks_wired_for_login_trends_topichub_hpq",
       loginText.includes('trackUxEvent("login_google_click"') &&
         trendsText.includes('trackUxEvent("trends_topic_teach_click"') &&
-        topicHubText.includes('trackUxEvent("topichub_open_practice"') &&
         hpqText.includes('trackUxEvent("hpq_open_practice"'),
-      "Telemetry hooks should cover login, trends clicks and topichub->practice flow."
+      "Telemetry hooks should cover login, trends clicks and HPQ->practice flow."
     );
     addCheck(
       checks,

@@ -29,8 +29,6 @@ const tokens = [
   "\u256C"
 ];
 const requiredFiles = [
-  "src/pages/TopicHub.tsx",
-  "src/components/tutor/TutorDrawerV2.tsx",
   "src/data/trianglesGrindMindmap.ts",
   "src/prompts/grind/trianglesGrindContract.ts",
   "src/pages/OpsChecklist.tsx",
@@ -145,23 +143,13 @@ async function checkRequiredFiles() {
   return results;
 }
 
+// RETIREMENT PR-2: runWiringChecks() read src/pages/TopicHub.tsx exclusively - the
+// deleted old lesson flow. Every wiring check tested that file's content, so with the
+// file gone they could only ever report false. Returning an empty summary (rather than
+// leaving four permanently-red checks, or stubbing them green) keeps the gate honest:
+// the wiring_checks gate now asserts nothing because there is nothing left to assert.
 async function runWiringChecks() {
-  const target = path.join(repoRoot, "src/pages/TopicHub.tsx");
-  const summary = [];
-  let content = "";
-  try {
-    content = await fs.readFile(target, "utf8");
-  } catch {
-    // fallback
-  }
-  for (const check of wiringChecks) {
-    summary.push({
-      id: check.id,
-      description: check.description,
-      status: check.test(content)
-    });
-  }
-  return summary;
+  return [];
 }
 
 async function updateChecklistGates(statuses) {

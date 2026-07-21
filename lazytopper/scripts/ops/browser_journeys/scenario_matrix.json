@@ -42,25 +42,6 @@
         }
       }
     ],
-    "mentor_kindness_and_recovery_journey": [
-      {
-        "scenarioId": "new-student-mentor-recovery",
-        "studentState": "new_student",
-        "startingPath": "/practice/10/Maths?topic=trigonometry&count=3&journeyMentor=hint",
-        "expectations": {
-          "requiresConstructiveFallback": true
-        }
-      },
-      {
-        "scenarioId": "doubt-heavy-mentor-recovery",
-        "studentState": "doubt_heavy_student",
-        "startingPath": "/practice/10/Maths?topic=trigonometry&count=3&journeyMentor=hint",
-        "expectations": {
-          "requiresConstructiveFallback": true,
-          "requiresRetryControls": true
-        }
-      }
-    ],
     "board_readiness_journey": [
       {
         "scenarioId": "revision-mode-board-readiness",

@@ -121,7 +121,11 @@ const { getCbseExamDateInfo } = require('./services/cbseExamDate.cjs');
 const { createShareRoutes } = require('./routes/share.cjs');
 const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
-const { createMentorRoute } = require('./routes/mentor.cjs');
+// RETIREMENT PR-2: /api/mentor is deleted. Its route module also re-exported two
+// helpers used by LIVE surfaces, so they are now required from where they are
+// actually defined instead of being passed through the retired mentor route.
+const { ensureDiagramFields } = require('./prompts/promptDiagram.cjs');
+const { buildMoreLikeThisUserPrompt } = require('./prompts/promptLearn.cjs');
 const { createUserProgressRoutes } = require('./routes/userProgress.cjs');
 const { createAiQuestionsRoute } = require('./routes/aiQuestions.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
@@ -195,7 +199,7 @@ const {
   loadTrianglesMentorSeed,
   normalizeLines,
   mergeLines,
-  getEnsureDiagramFields: () => mentorRoute.ensureDiagramFields,
+  getEnsureDiagramFields: () => ensureDiagramFields,
 });
 
 const tutorCache = createTutorCache({
@@ -205,36 +209,6 @@ const tutorCache = createTutorCache({
   DIRECT_GEMINI_API_KEY: config.DIRECT_GEMINI_API_KEY,
 });
 
-const mentorRoute = createMentorRoute({
-  sendJson, sendJsonWithHeaders, readJson, extractJsonObjectFromText,
-  tutorCache,
-  callGemini, callGeminiStream, callClaude, toClaudeMessages, selectModelForRequest,
-  telemetry,
-  CORS_ORIGIN: config.CORS_ORIGIN,
-  GEMINI_MODEL: config.GEMINI_MODEL,
-  GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
-  CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
-  CLAUDE_MODEL_HAIKU: config.CLAUDE_MODEL_HAIKU,
-  ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,
-  STUB_MODE: config.STUB_MODE,
-  HAS_ANTHROPIC_PROXY: config.HAS_ANTHROPIC_PROXY,
-  IS_DEV: config.IS_DEV,
-  TEACH_CACHE_TTL_MS: config.TEACH_CACHE_TTL_MS,
-  MAX_HISTORY_TURNS: config.MAX_HISTORY_TURNS,
-  tryParseJsonStrict,
-  loadTrianglesMentorSeed, normalizeLines, mergeLines,
-  validateTutorStructured, buildTutorFallback, validateAttemptLoop,
-  initHintState, computeNextHint, scoreRubric,
-  retrieveTrianglesSources, getDiagramTemplate, resolveTopicTeachContract,
-  orchestrateTutorResponse,
-  buildTrianglesGrindContractPrompt,
-  buildGeminiImagePart, validateMentorImagePayload,
-  trianglesRubricMap,
-  isStubMode, buildStubTutorStructured, buildStubText,
-  FEEDBACK_DIR: config.FEEDBACK_DIR,
-  FEEDBACK_FILE: config.FEEDBACK_FILE,
-  VISUALS_DIR: config.VISUALS_DIR,
-});
 
 const routeDeps = {
   sendJson, sendJsonWithHeaders, readJson,
@@ -249,7 +223,7 @@ const routeDeps = {
   MANIFEST_PATH: config.MANIFEST_PATH,
   isStubMode,
   buildStubMoreLikeThis,
-  buildMoreLikeThisUserPrompt: mentorRoute.buildMoreLikeThisUserPrompt,
+  buildMoreLikeThisUserPrompt,
   pickFromPool,
   markServed,
   saveToPool,
@@ -281,10 +255,6 @@ async function handleRequest(req, res) {
   if (
     req.method === 'OPTIONS' &&
     (
-      reqPath === '/api/mentor' ||
-      reqPath === '/api/mentor/cache-stats' ||
-      reqPath === '/api/mentor/stream' ||
-      reqPath === '/api/mentor/stream-structured' ||
       reqPath === '/api/tutor' ||
       reqPath === '/api/more-like-this' ||
       reqPath === '/api/step-solution' ||
@@ -441,32 +411,6 @@ async function handleRequest(req, res) {
     }
   }
 
-  if (req.method === 'GET' && reqPath === '/api/mentor/cache-stats') {
-    const adminSecret = process.env.ADMIN_SECRET;
-    const providedSecret = req.headers['x-admin-secret'];
-    const internalAdmin = req.headers['x-internal-admin'];
-    const authedBySecret = adminSecret && providedSecret === adminSecret;
-    const authedByInternal = internalAdmin === '1';
-    if (!authedBySecret && !authedByInternal) {
-      return sendJson(res, 401, { ok: false, error: 'Admin access required' });
-    }
-    try {
-      const stats = tutorCache ? await tutorCache.getStats() : { error: 'Cache not available' };
-      return sendJson(res, 200, { ok: true, stats });
-    } catch (e) {
-      return sendJson(res, 500, { ok: false, error: e.message });
-    }
-  }
-
-  if (req.method === 'POST' && req.url === '/api/mentor') {
-    return mentorRoute.handleMentorRequest(req, res);
-  }
-  if (req.method === 'POST' && req.url === '/api/mentor/stream') {
-    return mentorRoute.handleMentorStreamRequest(req, res);
-  }
-  if (req.method === 'POST' && req.url === '/api/mentor/stream-structured') {
-    return mentorRoute.handleMentorStreamStructuredRequest(req, res);
-  }
   // Tutor surface (Stage 1) — fresh /api/tutor, NOT /api/mentor (D-TUT-12).
   if (req.method === 'POST' && req.url === '/api/tutor') {
     return tutorRoute.handleTutorRequest(req, res);

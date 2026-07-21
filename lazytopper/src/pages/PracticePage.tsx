@@ -9,7 +9,6 @@ import {
   resolveTopicKey as resolveCanonicalTopicKey,
 } from "../utils/topicResolver";
 import { fetchStepSolution, type CheckSolutionResponse, type StepSolutionResponse } from "../ai/aiClient";
-import type { PracticeSectionFilter } from "../navigation/practiceNavigation";
 
 const COUNT_SOFT_MAX = 50;
 const mapEngineMarks = (ui: string): number | undefined => {
@@ -354,7 +353,6 @@ export const shouldResetBuiltOnPop = (
   builtParamPresent: boolean,
 ): boolean => isBuilt && !arrivedTargeted && !builtParamPresent;
 import {
-  getQuestionFamiliesForTopic,
   getQuestionMeta,
   getStrategyPackForTopic,
   isStrategyEnabledForTopic,
@@ -366,9 +364,7 @@ import {
   getWrongConceptsForTopic,
 } from "../services/adaptivePracticeEngine";
 import type {
-  QuestionFamilyOverlay,
 } from "../data/contentStrategy/types";
-import type { StudentMentorIntent } from "../types/studentMentorIntent";
 import { recordDetour } from "../services/guidedJourneyService";
 import { getAttempts, getAttemptsFromCloud } from "../services/practiceInsights";
 import {
@@ -385,9 +381,6 @@ import {
   type QuestionStrategyDetails,
   MIN_QUESTION_COUNT,
   MAX_QUESTION_COUNT,
-  deriveMentorDefaultIntent,
-  buildStrategyContextHeader,
-  buildRubricContextHeader,
   resolvePracticePackKey,
   buildPracticeQuestionsWithAiTopup,
   buildPracticeQuestionsFromEngine,
@@ -407,7 +400,6 @@ import {
   MULTI_TOPIC_MIN_TOPICS,
 } from "../components/practice/multiTopicPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
-import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
 import { QP_ENTRY_CSS } from "../components/practice/quickPracticeEntryStyles";
@@ -520,7 +512,6 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     [multiTopics],
   );
 
-  const journeyMentorMode = String(qp.get("journeyMentor") || "").trim().toLowerCase();
   const isTargetedSession = qp.get("targeted") === "1";
   const targetMistakeType = qp.get("targetMistakeType") || "";
 
@@ -658,7 +649,6 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   );
 
   const didInitFromUrlRef = useRef(false);
-  const didAutoOpenJourneyMentorRef = useRef(false);
 
   const [subtopicHint, setSubtopicHint] = useState<string | undefined>(
     () => initialPracticeDefaults.subtopicHint
@@ -1055,27 +1045,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [practiceSolutionError, setPracticeSolutionError] = useState<Record<string, string | undefined>>({});
 
 
-// Practice Mentor Drawer (Solve With Me / Board Steps)
-const [mentorDrawerOpen, setMentorDrawerOpen] = useState(false);
-const [mentorSolveStyle, setMentorSolveStyle] = useState<"socratic" | "board">("socratic");
-const [mentorSeedExample, setMentorSeedExample] = useState<{
-  title: string;
-  questionId: string;
-  question: string;
-  marks?: number;
-  section?: string;
-  defaultIntent?: StudentMentorIntent;
-  strategyContextHeader?: string;
-  rubricContextHeader?: string;
-  questionFamilyId?: string;
-  questionFamilyLabel?: string;
-  questionTypeId?: string;
-  chapterStep?: string;
-  practiceSectionFilter?: PracticeSectionFilter;
-  suggestedPracticeIds?: string[];
-  theoremFocus?: string[];
-  recommendedDiagramType?: string;
-} | null>(null);
+// RETIREMENT PR-2: the Practice mentor drawer (Solve With Me / Board Steps) is
+// deleted - it was mounted but unreachable (its only trigger prop was received as
+// an unused `_onOpenMentorBoard`), and the ?journeyMentor= auto-open had no producer.
 
 
   const canonicalTopicKey = useMemo(() => {
@@ -1201,42 +1173,6 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
       };
     },
     [isWhyThisQuestionEnabled, strategyPack, strategyCanonicalTopicKey]
-  );
-  const strategyFamilies = useMemo(
-    () => getQuestionFamiliesForTopic(strategyCanonicalTopicKey),
-    [strategyCanonicalTopicKey]
-  );
-  const resolveQuestionFamily = useCallback(
-    (question: PracticeQuestion | null, details: QuestionStrategyDetails | null): QuestionFamilyOverlay | null => {
-      if (!question || strategyFamilies.length === 0) return null;
-      const questionId = String(question.id || "").trim();
-      if (!questionId) return null;
-
-      const exactFocusMatch =
-        strategyFamilies.find((family) =>
-          Array.isArray(family.focusBankIds) &&
-          family.focusBankIds.map((id) => String(id || "").trim()).includes(questionId)
-        ) || null;
-      if (exactFocusMatch) return exactFocusMatch;
-
-      const skillFamily = String(details?.meta.skillFamily || "").trim().toLowerCase();
-      if (skillFamily) {
-        const bySkill =
-          strategyFamilies.find(
-            (family) => String(family.skillFamily || "").trim().toLowerCase() === skillFamily
-          ) || null;
-        if (bySkill) return bySkill;
-      }
-
-      if (/proof/i.test(skillFamily)) {
-        return (
-          strategyFamilies.find((family) => family.familyId === "TRI_FAMILY_PROOF_STRUCTURE") ||
-          null
-        );
-      }
-      return null;
-    },
-    [strategyFamilies]
   );
 
   // Two topic identifiers are used:
@@ -1901,72 +1837,6 @@ const packTopicKey = useMemo(() => {
     }
   };
 
-  const openMentorForQuestion = useCallback(
-    (
-      q: PracticeQuestion,
-      idx: number,
-      entryMode: "auto" | "hint" | "check_cbse",
-      trigger?: EventTarget | null
-    ) => {
-      const strategyDetails = getQuestionStrategyDetails(q);
-      const family = resolveQuestionFamily(q, strategyDetails);
-      const autoIntent = deriveMentorDefaultIntent(strategyDetails?.meta || null);
-      const defaultIntent =
-        entryMode === "auto"
-          ? autoIntent
-          : entryMode === "check_cbse"
-            ? "check_cbse"
-            : "hint";
-      setMentorSeedExample({
-        title: `Q${idx + 1}`,
-        questionId: String(q.id),
-        question: String(q.questionText || ""),
-        marks: Number(q.marks) || undefined,
-        section: String(q.section || ""),
-        defaultIntent,
-        strategyContextHeader: buildStrategyContextHeader(strategyDetails),
-        rubricContextHeader: buildRubricContextHeader(
-          strategyDetails,
-          defaultIntent,
-          strategyCanonicalTopicKey
-        ),
-        questionFamilyId: family?.familyId,
-        questionFamilyLabel: family?.studentLabel || strategyDetails?.meta.skillFamily,
-        questionTypeId: family?.qtypeId,
-        chapterStep: family?.tutorNodeId || undefined,
-        practiceSectionFilter:
-          family?.sectionFilter ||
-          ((String(q.section || "").toUpperCase() as PracticeSectionFilter | "") || undefined),
-        suggestedPracticeIds: family?.focusBankIds,
-        theoremFocus: family ? [family.theoremFamily, family.skillFamily] : undefined,
-        recommendedDiagramType: family?.recommendedDiagramType,
-      });
-      setMentorSolveStyle(defaultIntent === "check_cbse" ? "board" : "socratic");
-      setMentorDrawerOpen(true);
-      if (trigger instanceof HTMLElement) {
-        const detailsEl = trigger.closest("details");
-        if (detailsEl instanceof HTMLDetailsElement) {
-          detailsEl.open = false;
-        }
-      }
-    },
-    [getQuestionStrategyDetails, resolveQuestionFamily, strategyCanonicalTopicKey]
-  );
-
-  useEffect(() => {
-    if (didAutoOpenJourneyMentorRef.current) return;
-    if (!journeyMentorMode || filteredQuestions.length === 0) return;
-    const firstQuestion = filteredQuestions[0];
-    const entryMode =
-      journeyMentorMode === "check_cbse"
-        ? "check_cbse"
-        : journeyMentorMode === "hint"
-          ? "hint"
-          : "auto";
-    setActiveQuestionId(String(firstQuestion.id));
-    openMentorForQuestion(firstQuestion, 0, entryMode);
-    didAutoOpenJourneyMentorRef.current = true;
-  }, [filteredQuestions, journeyMentorMode, openMentorForQuestion]);
 
   const title = useMemo(() => {
     if (!rawTopicParam || rawTopicParam.toLowerCase() === "generic") {
@@ -2461,7 +2331,6 @@ const packTopicKey = useMemo(() => {
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
           onAskTutor={overlay ? undefined : askTutorAboutQuestion}
-          onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
         )}
 
@@ -2547,16 +2416,6 @@ const packTopicKey = useMemo(() => {
   );
 })()}
 
-<MentorSolveDrawer
-  open={mentorDrawerOpen}
-  onClose={() => setMentorDrawerOpen(false)}
-  seed={mentorSeedExample}
-  solveStyle={mentorSolveStyle}
-  grade={Number(grade)}
-
-  subjectTitle={subjectTitle}
-  topicKey={canonicalTopicKey}
-/>
 
       </div>
     </div>

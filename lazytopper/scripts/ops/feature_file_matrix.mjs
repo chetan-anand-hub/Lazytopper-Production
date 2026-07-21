@@ -67,16 +67,8 @@ async function run() {
   }
 
   const features = [
-    makeFeature(
-      "human_tutor_loop",
-      "triangles_doc",
-      "Learn -> Practice -> Mistakes -> Exam Tips -> Mastery flow in TopicHub tutor.",
-      [
-        { file: "src/components/tutor/TutorDrawerV2.tsx", regex: /const sessionSteps = \["Learn", "Checkpoint", "Practice", "Mistake Fix", "Exam Drill", "Mastery"\]/ },
-        { file: "src/components/tutor/TutorDrawerV2.tsx", regex: /Checkpoint not yet passed for this node\./ },
-        { file: "src/pages/TopicHub.tsx", regex: /type TopicTabKey = 'learn' \| 'grind' \| 'resources';/ },
-      ]
-    ),
+    // RETIREMENT PR-2: feature "human_tutor_loop" removed - every evidence row
+    // pointed at TutorDrawerV2/TopicHub.tsx, deleted with the old tutor.
     makeFeature(
       "human_tutor_exam_format_enforcement",
       "triangles_doc",
@@ -93,8 +85,6 @@ async function run() {
       "Diagram-required tutor output for diagram-heavy topics.",
       [
         { file: "src/components/DiagramBlock.tsx", regex: /TutorDiagramSpec|diagramRequired|diagramType/ },
-        { file: "src/pages/TopicHub.tsx", regex: /extractDiagramSpec|inferDiagramTypeFromText|diagram/i },
-        { file: "scripts/ops/topic_diagram_coverage_acceptance.mjs", regex: /diagram_required/ },
       ]
     ),
     makeFeature(
