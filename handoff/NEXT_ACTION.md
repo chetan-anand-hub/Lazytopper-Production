@@ -1,7 +1,20 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-21 (post-**#505 - THE MOCKBUILDER FEATURE IS FULLY DELETED.** Trunk `b810055`. Owner byte-reviewed + merged. 8 files, 474 deletions; [FU-MOCKBUILDER-FULL-DELETE] RESOLVED; 2 new FUs opened.)
+# Updated: 2026-07-21 (post-**#509 - "BUILD A FRESH SET" IS ACTUALLY FRESH + THE VITEST GATE IS FULLY STRICT.** Trunk `41277c1`. Owner byte-reviewed both sections + merged; fresh-set LIVE-VERIFIED. 7 files, +451/-34; [FU-PRACTICE-FRESH-SET-NOT-FRESH] + all 4 red-suite FUs RESOLVED; 3 new FUs opened.)
 
-## NEXT - 2026-07-21 (post-#505). Read this block first.
+## NEXT - 2026-07-21 (post-#509). Read this block first.
+
+**Wave-2 is CLOSED — one PR, two commit-sections, one handoff.** `#509` (`41277c1`) fixed the owner-reported fresh-set bug (**LIVE-VERIFIED**) and repaired all four red vitest suites, deleting **every** `--exclude` from `quality-gate.yml`. The gate is now **fully strict**: 60 files / 789 tests, no exclusions, a red suite fails CI. **Do not add a new `--exclude` — the list only ever shrinks.**
+
+**The three follow-ups this opened, in priority order:**
+1. **`[FU-PRACTICE-CONTROLS-REFRESH-STALE]`** — the tiny fast-follow. `PracticeControls`' "Refresh set" still calls the bare `regenerateQuestions()` and carries the same latent staleness the scorecard CTA had. **Owner's ruling: give it its OWN runtime trace + regression test; do NOT blind-route it through `buildFreshSet`** — it may want different semantics from "build a fresh set".
+2. **`[FU-TSCONFIG-EXCLUDES-TESTS]`** — **nothing typechecks test files** (`tsconfig.app.json` excludes `*.test.ts(x)`), the root reason the four suites rotted silently. Close to free: typechecking the four surfaced exactly one error, the parity test's deliberately-untyped `.cjs` import (`TS7016`). Needs a decision on typing that import, and on a separate tsconfig project vs widening the app one.
+3. **`[FU-PRACTICEINSIGHTS-STALE-COMMENT]`** — one stale comment line at `practiceInsights.ts:292`. Fold into any nearby lane.
+
+**Still in flight from earlier waves** (untouched by #509): `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`, `[FU-HPQ-PREDICTED-MOCK]`, bank mis-banding **Class (b)** (~178 under-stepped genuine-5-mark rows), `[FU-QP-WRITTEN-BINARY-CHECK]`.
+
+---
+
+## (superseded) NEXT - 2026-07-21 (post-#505).
 
 **Wave-1 Lane B (MOCKBUILDER FULL DELETION) is CLOSED.** `[FU-MOCKBUILDER-FULL-DELETE]` RESOLVED - `#505` (`b810055`) removed the whole feature: the HPQ "Mock basket", StudyPlanPage's "Quick mock" button, `buildMockBuilderUrl`, and the command-palette entry, plus A-1 the orphaned `mock_builder` paywall gate (UpgradeModal was advertising a deleted feature), A-2 the dead `utils/mockBuilder.ts` (+ its `syllabusGuard.ts` allowlist entry, root guard matrix re-run 190/190), and A-3 the stale `sitemap.xml` URL. The `/mock-builder`->`/practice-hub` redirect + `:356` nav-check are KEPT. Owner MERGED; routing observed-green on the linux CI run. **Two follow-ups fall out:**
 - `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]` - a dedicated App.tsx-scoped PR: remove the inert dead `navigateToMockBuilder` case AND narrow the two overlay gates (`quick_practice`/`check_improve` `_overlay_additive_acceptance.mjs`) from "App.tsx zero-diff" to "the `/practice` + `/check-improve` route elements unchanged". The freeze is over-broad and blocks any legitimate App.tsx edit; the inert case was left ONLY to keep this deletion CI-green without touching those locked lanes' guards.

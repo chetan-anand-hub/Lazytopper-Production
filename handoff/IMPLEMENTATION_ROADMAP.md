@@ -1,5 +1,18 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-21 - ★★ ✅ FRESH-SET FIXED + THE VITEST GATE IS FULLY STRICT (#509, trunk `41277c1`) - Wave-2 COMPLETE, owner byte-reviewed both sections + merged, fresh-set LIVE-VERIFIED
+
+**Stage COMPLETE - one PR, TWO file-disjoint commit-sections, ONE handoff. 7 files, +451/-34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` + all four red-suite FUs.** The single-PR/single-handoff shape is the structural fix for the recurring docs-vs-docs collision: no second handoff exists to collide with, and `lane-overlap` is green by construction.
+
+- **Section 1 (`55de9bc`) - the fresh-set trigger bug, LIVE-VERIFIED.** "Build a fresh set" returned the SAME questions. **Both** selection inputs were immovable: (A) the rotation seed can't advance in-session (`sessionStartedAt` is a mount-once `useState`), and (B) the seen-set is never **populated** - *not* cleared, as hypothesised - because its loader effect has no `regenerationKey` dep. Fix: a `freshSetNonce` on `rotationOffset` (+0 on every existing path ⇒ the normal build is numerically identical) plus `buildFreshSet()` carrying the just-displayed ids into `seenQuestionIds` (deprioritise, never delete). The step of ONE is deliberate - `n` and `n+1` differ modulo any pool ≥ 2, so an exhausted pool always rotates rather than repeating.
+- **Section 2 (`78e029a`) - all 4 red suites repaired, EVERY `--exclude` deleted.** The step is now plainly `vitest run`. All four were TEST-side defects; no product bug hid behind any of them and no product code was changed to make a test pass. `ConceptSpine` 23 · `parity` 3 · `durable` 6 · `pdfExport` 5.
+
+**Proof:** linux Quality Gate GREEN **including the `vite build`** (the one gate with no local signal), and the log was read for each repaired suite **by name and count** - **60 files / 789 tests** (= the prior 59 + the new fresh-set suite), so the arithmetic proves nothing was dropped as the excludes came out. Matrices re-run POST-COMMIT (the only truthful run for the `base...HEAD` frozen-path gates): root **190/190**, ops matrix green, Tutor⇄QP 41/41, Tutor⇄C&I 31/31, C&I convergence 92/92.
+
+**Doctrine earned:** a red test may be **correctly catching a real bug** - the task must be able to end in "I did not fix it", and the one edit that could hide a bug gets independently re-verified · mutation-testing exists to find **coverage holes**, not just to confirm red-then-green (the parity suite was green, running, and asserted nothing about bracket handling) · a green CI tick is not evidence the tests **ran** - read the log for names and counts · #503's recorded diagnosis for two of the four suites was **wrong**; read the error's own text before adopting the surrounding theory.
+
+---
+
 ## 2026-07-21 - ✅ VITEST GATED IN CI (#503, trunk `579822e`) - Wave-1 Lane A COMPLETE, owner byte-reviewed + merged
 
 **Stage COMPLETE - an infra/quality-gate fix, `[FU-CI-GATE-VITEST]` resolved.** The `src/**/*.test.{ts,tsx}` vitest suites (routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) had NEVER run in CI - `test:matrix:all` gates the ops-acceptance `.mjs` scripts, not vitest, and Windows can't run vitest (rollup-linux pin). Every vitest regression shipped green (the root cause behind #484/#490). 

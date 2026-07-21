@@ -1,6 +1,39 @@
-# LazyTopper â€” Current State
+# LazyTopper — Current State
 
-## [CURRENT] #505 merged — ★★ THE MOCKBUILDER FEATURE IS FULLY DELETED — trunk `b810055`
+## [CURRENT] #509 merged — ★★ "BUILD A FRESH SET" IS ACTUALLY FRESH + THE VITEST GATE IS FULLY STRICT — owner LIVE-VERIFIED — trunk `41277c1`
+
+**Wave-2, ONE PR with TWO file-disjoint commit-sections, 7 files, +451/−34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` AND all four red-suite FUs (`[FU-CONCEPTSPINE-TEST-STALE]`, `[FU-OBJSCORING-PARITY-TEST-RED]`, `[FU-PRACTICEINSIGHTS-DURABLE-RED]`, `[FU-WORKSHEET-PDFEXPORT-TEST-RED]`).** Owner byte-reviewed each section separately, then merged. Docs-only handoff; zero product files here.
+
+### Section 1 (`55de9bc`) — the fresh-set correctness bug — owner LIVE-VERIFIED
+Finishing a Quick Practice set and tapping the scorecard's **"Build a fresh set"** handed back the SAME questions. The machinery (rotation offset + unseen-first draw) existed and was wired — the **TRIGGER** moved neither of its two selection inputs. **Runtime trace on trunk** (real `PracticePage`, 25-question constant pool): `set #1 = [18,19,20,21,22] offset=4154312268 seen=0` → tap → `set #2 = [18,19,20,21,22] offset=4154312268 seen=0`.
+
+**BOTH root causes fired.** **(A)** the rotation seed cannot move in-session — `sessionStartedAt` is a mount-once `useState` and `filterSignature` only changes with the filters, so the rebuild re-derived an identical offset. **(B) — and NOT as the brief predicted:** the seen-set is never **populated**, not *cleared*. Its loader effect has no `regenerationKey` dep, so it runs once per mount; the just-answered questions were still "unseen" at the fresh draw and the unseen-first partition handed them straight back.
+
+**Fix — additive, confined to the fresh-set trigger.** A `freshSetNonce` state added to `rotationOffset` (`+0` on every existing path ⇒ the normal build is numerically identical; `+1` per fresh set), and `buildFreshSet()` unions the just-displayed ids into `seenQuestionIds` — **deprioritise, never delete** (`selectInRangeFromPool` permutes the matched pool, so the "N available" hint is untouched). **★ The step of ONE is load-bearing:** `n` and `n+1` differ modulo *any* pool size ≥ 2, so a fully-exhausted pool always rotates to a different arrangement, where a larger stride can land back on the same residue and repeat identically. Owner's design intent — rotate + add new; reuse seen by rotation only when availability is short — holds, and nothing is fabricated on either path.
+
+### Section 2 (`78e029a`) — the 4 red vitest suites repaired, every `--exclude` deleted
+#503 landed the vitest gate with four suites `--exclude`'d. All four are now fixed and re-included: the step is plainly `pnpm --filter lazytopper exec vitest run`, **no exclusions — the gate is fully strict.** **All four were TEST-side defects; no product bug was hiding behind any of them, and no product code was changed to make a test pass.**
+
+| suite | verdict | before → after |
+|---|---|---|
+| `ConceptSpine` | stale expectation — the trig note is now SEEDED, so Notes opens the real `NoteModal` instead of the "coming soon" placeholder | `1 failed/21 passed` → **23 passed** (both branches now asserted) |
+| `objectiveScoring.parity` | **had never run once** — wrong TS-twin path, born broken in #348 | collection error → **3 passed** |
+| `practiceInsights.durable` | stale — `mode` was deliberately dropped from the dedup key in #445 | `1 failed/5 passed` → **6 passed** |
+| `worksheetPdfExport` | two harness bugs (post-teardown assertion; `restoreAllMocks` stripping the jsPDF stub) | `5 failed` → **5 passed** |
+
+**★★ THE PARITY SUITE HAD NEVER EXECUTED — and the recorded diagnosis was wrong.** #503 booked it as "Vite can't resolve the sibling root `../../server/routes/objectiveScoring.cjs`". The `.cjs` import resolves **fine**; the broken import was the **TypeScript twin's** — from `src/services/`, `../../lib/…` resolves to a nonexistent `lazytopper/lib/` (the file is `src/lib/objectiveScoring.ts`). One path segment fixed it, grader untouched, no mock added, parity property fully intact. (The #503 entry had actually *noticed* the symptom — "the error surfaces on the adjacent `../../lib/objectiveScoring` import" — but attributed it to a `.cjs` gap. **Read the error's own text before adopting the surrounding theory.**)
+
+**★★ MUTATION-TESTING FOUND A REAL COVERAGE HOLE, not just a red-to-green.** Stripping bracket handling from the client twin did **NOT** redden the parity suite — no case in the table contained a bracket. `PICKS` was widened by 7 so every punctuation class both twins strip is represented; under the same mutation all 3 tests now fail. Every repaired suite was mutation-tested (break the behaviour, confirm red, restore, confirm green); several were **strengthened**, not merely un-reddened.
+
+**VALIDATION (matrices re-run POST-COMMIT — the only truthful run for the 3-dot frozen-path gates):** `scope:guard --mode mixed` PASS (pre-commit, where it must run) · `check:mojibake` PASS · tsc PASS · root guard matrix **190/190** · lazytopper ops matrix PASS with every frozen-path zero-diff guard truthfully green (Tutor⇄QP 41/41, Tutor⇄C&I 31/31, C&I convergence 92/92) · `git diff --check` clean · `lane-overlap` GREEN (one PR, no parallel lane). **Linux Quality Gate CI GREEN including the `vite build`** — the one gate with no local signal.
+
+**★ CI GREEN WAS NOT ACCEPTED AS PROOF THE TESTS RAN.** The linux log was read for the named suites and their counts: `objectiveScoring.parity (3)`, `ConceptSpine (23)`, `PracticePage.freshSet (2)`, `worksheetPdfExport (5)`, `practiceInsights.durable (6)`, totalling **60 test files / 789 tests**. 60 = the previous 59 + the new fresh-set suite, so the arithmetic proves nothing was quietly dropped when the excludes came out.
+
+**NEXT:** three follow-ups opened — `[FU-PRACTICE-CONTROLS-REFRESH-STALE]` (the "Refresh set" button carries the same latent staleness; owner ruled it OUT of this PR — it gets its OWN runtime trace + regression test rather than being blind-routed through `buildFreshSet`), `[FU-TSCONFIG-EXCLUDES-TESTS]` (**nothing typechecks test files** — this is *why* the four suites rotted silently), and `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`. All in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
+---
+
+## #505 merged — ★★ THE MOCKBUILDER FEATURE IS FULLY DELETED — trunk `b810055`
 
 **Wave-1 Lane B (MOCKBUILDER FULL DELETION), product deletion, 8 files, 474 deletions. Resolves `[FU-MOCKBUILDER-FULL-DELETE]`.** #498 deleted the orphaned `MockBuilder.tsx` page but KEPT the live plumbing; #505 removes the whole feature. **Gone:** the entire HPQ "Mock basket" sub-feature (state, localStorage persistence, add/clear handlers, the basket panel, the per-stack + per-question "Add to mock" buttons — it existed ONLY to feed the dead builder), StudyPlanPage's un-routed "Quick mock" button, `buildMockBuilderUrl`, and the command-palette "Build a Mock Paper" entry. **KEPT (inbound-link safety net):** the `/mock-builder`→`/practice-hub` redirect (`App.tsx:966-967`) and the `:356` nav-active check. **Owner MERGED #505; verified live on trunk `b810055`.** Docs-only handoff; zero product files here.
 
