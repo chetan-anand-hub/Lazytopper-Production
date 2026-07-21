@@ -1,0 +1,49 @@
+{
+  // TEST-ONLY typecheck project.
+  //
+  // WHY A SEPARATE PROJECT (and not just widening tsconfig.app.json's `exclude`):
+  // tsconfig.app.json is the project `vite build` runs through `tsc -b`. Widening
+  // it would drag test files, the `vitest/globals` and `@testing-library/jest-dom`
+  // ambient types, and (see `allowJs` below) the server `.cjs` sources into the
+  // PRODUCT build's program. Test-only globals leaking into the surface the app is
+  // checked against is exactly the kind of drift that lets a product file compile
+  // against something that does not exist at runtime. The app config stays
+  // byte-for-byte the product bar; this project extends it and adds ONLY what the
+  // tests need.
+  //
+  // `allowJs: true` + `checkJs: false` is how the untyped server modules are
+  // handled. Nine test suites import the REAL CommonJS route/service modules under
+  // `server/` (that is the point — they drive the real route, not a mock). Those
+  // files are plain JavaScript with no declaration files, so under `noImplicitAny`
+  // every such import is a TS7016 (13 of them). `allowJs` makes TS infer the shapes
+  // from the actual implementation — better than a hand-written `.d.ts` shim (which
+  // would rot independently of the code it describes) and better than a blanket
+  // `noImplicitAny: false` (which would also silence implicit-any parameters in the
+  // tests themselves). `checkJs: false` keeps those JS files from being
+  // type-CHECKED here — this project's job is the tests.
+  //
+  // `noUnusedLocals` / `noUnusedParameters` are relaxed for tests only: fixtures and
+  // illustrative imports are legitimately unused in a test file.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "allowJs": true,
+    "checkJs": false,
+    "types": ["vite/client", "node", "vitest/globals", "@testing-library/jest-dom"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src"],
+  // KNOWN HOLE — these two suites do not typecheck yet. Both fail on the same TS
+  // control-flow artifact, NOT on a product bug: a `let captured: {...} | null =
+  // null` that is only ever assigned inside a callback, so TS narrows it to
+  // `null`/`never` at the assertion site. The fix is a one-line annotation change
+  // per declaration (e.g. `let captured = null as { status: number; body: any } |
+  // null;`) and it lives in the test files themselves, which were outside this
+  // change's allowlist. Delete these two entries in the PR that applies that fix —
+  // they are the only files excluded.
+  "exclude": [
+    "src/services/geminiThinkingConfig.test.ts",
+    "src/services/stepSolutionCacheQualityGate.test.ts"
+  ]
+}

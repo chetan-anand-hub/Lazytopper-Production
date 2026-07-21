@@ -10,10 +10,11 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const QUADRATIC_EQUATIONS_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    // Recovered from MS_X_041_Mathematics_30-4-1_2025-26, pp.8-9; the stored text stopped at the page break, dropping 'D = 0' and the conclusion.
     questionText: "Verify that roots of the quadratic equation (p – q)x2 + (q – r)x + (r – p) = 0 are equal when q + r = 2p.",
-    answer: "D = (2p – 2p)2 =",
-    solutionSteps: ["Discriminant (D) = (q − r)2 – 4 (p − q) (r − p) = (q + r – 2p)2 Substituting, q + r = 2p", "D = (2p – 2p)2 ="],
-    finalAnswer: "D = (2p – 2p)2 =",
+    answer: "Discriminant (D) = (q − r)2 – 4 (p − q) (r − p) = (q + r – 2p)2. Substituting q + r = 2p: (2p – 2p)2 = 0 ⇒ D = 0. ∴ Roots of the given equation are equal.",
+    solutionSteps: ["Discriminant (D) = (q − r)2 – 4 (p − q) (r − p) = (q + r – 2p)2.", "Substituting q + r = 2p gives (2p – 2p)2 = 0, so D = 0.", "∴ Roots of the given equation are equal."],
+    finalAnswer: "D = 0, so the roots of the given equation are equal.",
     ncertRef: "PYQ 30/4/1 Q21", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
 ];

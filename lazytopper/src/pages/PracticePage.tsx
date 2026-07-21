@@ -1692,6 +1692,42 @@ const packTopicKey = useMemo(() => {
     regenerateQuestions();
   };
 
+  // ── "Refresh set" — the built-set toolbar's twin of the CTA above ──────────
+  // ([FU-PRACTICE-CONTROLS-REFRESH-STALE].) This button used to call a BARE
+  // `regenerateQuestions()`, which is the exact staleness #509 fixed on the scorecard:
+  // neither selection input moves (`sessionStartedAt` is mount-once, `filterSignature`
+  // only changes when the filters do, and the seen-set loader has no `regenerationKey`
+  // dependency), so the rebuild re-derived the identical draw and handed back the very
+  // same questions. Every OTHER caller of the bare regenerate (`applyPreset`,
+  // `onBuildSet`) moves the committed filters first, which moves `filterSignature` and
+  // therefore the seed — "Refresh set" was the only trigger that moved nothing.
+  //
+  // WHY THE SAME SEMANTICS AS "Build a fresh set", rather than a lighter re-shuffle:
+  //   · the button sits in the BUILT-set toolbar next to "Edit filters". "Edit filters"
+  //     is already the affordance for "different questions because I changed what I
+  //     asked for"; the only meaning left for "Refresh set" is "same filters, questions
+  //     I have not just been looking at".
+  //   · a nonce-only advance is NOT enough to deliver that. `selectInRangeFromPool`
+  //     rotates the unseen partition LEFT by the offset, so +1 on an all-unseen pool
+  //     slides the window by exactly one — 4 of 5 questions come straight back. That
+  //     still reads as a broken button, i.e. it would not close the follow-up.
+  //   · carrying the displayed set into `seenQuestionIds` IS literally true here — the
+  //     student has SEEN those questions on screen (that is the set's name and its job:
+  //     deprioritise, never delete). `available` / "N available" is a count of the
+  //     matched POOL and is provably untouched by the partition, so no number on screen
+  //     moves and nothing is invented. The state is session-local and never persisted.
+  //
+  // So the two triggers share ONE implementation. Nothing else changes: every other
+  // build path still calls the bare `regenerateQuestions()` and is byte-identical.
+  const refreshSet = () => buildFreshSet();
+
+  // Alt+R is the keyboard twin of the same button, but its listener effect is mounted
+  // once (`[]` deps), so it cannot close over the current render's `filteredQuestions`.
+  // A ref refreshed each render gives it the live handler without re-binding the
+  // listener (and without changing the shortcut's behaviour in any other way).
+  const refreshSetRef = useRef<() => void>(() => {});
+  refreshSetRef.current = refreshSet;
+
   // ── A preset = a bundle of the EXISTING setCommitted* setters + setIsBuilt(true) ──
   // The SAME build mechanism as PracticeControls' onBuildSet (below) — it just forces the
   // preset's verified filter values instead of the pending chips, then regenerates. Plain
@@ -1811,7 +1847,7 @@ const packTopicKey = useMemo(() => {
       if (!event.altKey) return;
       if (event.key.toLowerCase() === "r") {
         event.preventDefault();
-        regenerateQuestions();
+        refreshSetRef.current(); // same semantics as the "Refresh set" button
         return;
       }
       const presetMap: Record<string, number> = {
@@ -2317,7 +2353,8 @@ const packTopicKey = useMemo(() => {
               subject: subjectKey,
               questionCount,
             });
-            regenerateQuestions();
+            // NOT a bare regenerate — that returned the identical set. See `refreshSet`.
+            refreshSet();
           }}
           onDownloadPdf={handleDownloadWorksheet}
           onCopyLink={handleCopyLink}
