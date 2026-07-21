@@ -1,7 +1,15 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-21 (post-**#503 - VITEST NOW RUNS IN CI.** Trunk `579822e`. Owner byte-reviewed + merged. The `src/**/*.test.{ts,tsx}` suites are now a required linux gate; 4 pre-existing red suites `--exclude`'d + booked as FUs.)
+# Updated: 2026-07-21 (post-**#505 - THE MOCKBUILDER FEATURE IS FULLY DELETED.** Trunk `b810055`. Owner byte-reviewed + merged. 8 files, 474 deletions; [FU-MOCKBUILDER-FULL-DELETE] RESOLVED; 2 new FUs opened.)
 
-## NEXT - 2026-07-21 (post-#503). Read this block first.
+## NEXT - 2026-07-21 (post-#505). Read this block first.
+
+**Wave-1 Lane B (MOCKBUILDER FULL DELETION) is CLOSED.** `[FU-MOCKBUILDER-FULL-DELETE]` RESOLVED - `#505` (`b810055`) removed the whole feature: the HPQ "Mock basket", StudyPlanPage's "Quick mock" button, `buildMockBuilderUrl`, and the command-palette entry, plus A-1 the orphaned `mock_builder` paywall gate (UpgradeModal was advertising a deleted feature), A-2 the dead `utils/mockBuilder.ts` (+ its `syllabusGuard.ts` allowlist entry, root guard matrix re-run 190/190), and A-3 the stale `sitemap.xml` URL. The `/mock-builder`->`/practice-hub` redirect + `:356` nav-check are KEPT. Owner MERGED; routing observed-green on the linux CI run. **Two follow-ups fall out:**
+- `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]` - a dedicated App.tsx-scoped PR: remove the inert dead `navigateToMockBuilder` case AND narrow the two overlay gates (`quick_practice`/`check_improve` `_overlay_additive_acceptance.mjs`) from "App.tsx zero-diff" to "the `/practice` + `/check-improve` route elements unchanged". The freeze is over-broad and blocks any legitimate App.tsx edit; the inert case was left ONLY to keep this deletion CI-green without touching those locked lanes' guards.
+- `[FU-HPQ-PREDICTED-MOCK]` - the approved HPQ-mock feature: a `rankBy` seam on the shared `drawBalancedSet` + an additive "Predicted paper" toggle on BOTH Full Mock and Chapter Test, ranked by `getAdjustedScore`. Its own PR + a FULL Full Mock live-verify (blueprint AND predicted modes).
+
+**Also merged to trunk `b810055` (documented in CURRENT_STATE / SESSION_LOG):** `#504` (bank Class-(a) mark relabel — [FU-BANK-SCARCE-BAND-MISBANDING] Class-a + [FU-AITIER-MARKS-MISMATCH] RESOLVED; Class-(b) ~178 under-stepped D/E solutions STILL OPEN) and `#503` (the CI-vitest gate, whose 4 `--exclude`'d test-fix FUs remain open — see the historical block below).
+
+### (post-#503) - the CI-vitest lane, now historical (read this block first)
 
 **Wave-1 Lane A (CI-VITEST) is CLOSED.** `[FU-CI-GATE-VITEST]` RESOLVED - `#503` (`579822e`) wired one required `Vitest suites (lazytopper)` step into the repo-root `quality-gate.yml`, linux runner. Infra-only, +24, one file. **The gate immediately paid for itself: 4 suites were already silently RED on trunk** (they rotted because vitest was never gated). They are `--exclude`'d, each its own small product/test lane that ENDS by deleting its `--exclude` line:
 - `[FU-CONCEPTSPINE-TEST-STALE]` - `ConceptSpine.test.tsx`, data-drift stale.
