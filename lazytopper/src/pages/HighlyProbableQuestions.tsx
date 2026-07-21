@@ -43,18 +43,6 @@ type TierFilter = "all" | HPQTier;
 type DifficultyFilter = "all" | HPQDifficulty;
 type TopicFilter = "all" | string;
 
-interface BasketItem {
-  id: string;
-  subject: HPQSubject;
-  topic: string;
-  stream?: HPQStream;
-  marks: number;
-  difficulty?: HPQDifficulty;
-  section?: string;
-  question: string;
-}
-
-const MOCK_BASKET_KEY = "lazyTopperMockBasket_v1";
 const EXAM_TRENDS_PATH = "/exam-trends";
 
 const tierMeta: Record<
@@ -471,8 +459,6 @@ const HighlyProbableQuestions: React.FC = () => {
   const initialTopic: TopicFilter = (topicParam as TopicFilter) || "all";
   const [topicFilter, setTopicFilter] = useState<TopicFilter>(initialTopic);
 
-  // Basket state
-  const [basket, setBasket] = useState<BasketItem[]>([]);
   // Per-chapter expand/collapse state: topic -> expanded?
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>(
     {}
@@ -507,34 +493,6 @@ const HighlyProbableQuestions: React.FC = () => {
   const [solutionLoading, setSolutionLoading] = useState<Record<string, boolean>>({});
   const [solutionError, setSolutionError] = useState<Record<string, string | undefined>>({});
   const [solutionOpen, setSolutionOpen] = useState<Record<string, "solve" | "explain" | undefined>>({});
-
-  const isInBasket = React.useCallback(
-    (id: string) => basket.some((item) => item.id === id),
-    [basket]
-  );
-
-  // Load basket from localStorage once
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(MOCK_BASKET_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as BasketItem[];
-        if (Array.isArray(parsed)) setBasket(parsed);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const persistBasket = (items: BasketItem[]) => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(MOCK_BASKET_KEY, JSON.stringify(items));
-    } catch {
-      // ignore
-    }
-  };
 
   // Subject-level buckets (Maths vs Science) using engine helper
   const subjectBuckets = useMemo(
@@ -590,26 +548,6 @@ const HighlyProbableQuestions: React.FC = () => {
     setActiveStream(next);
   };
 
-  const handleOpenMockBuilder = () => {
-    // save basket and open mock builder with grade & subject in path
-    persistBasket(basket);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("from", "hpq");
-    params.set("backTo", currentURL);
-    const query = params.toString();
-    navigate(`/mock-builder/${encodeURIComponent(grade)}/${encodeURIComponent(subjectKey)}${query ? `?${query}` : ""}`, {
-      state: {
-        back: currentURL,
-        backLabel: "Back to Question Patterns",
-      },
-    });
-  };
-
-  const handleClearBasket = () => {
-    setBasket([]);
-    persistBasket([]);
-  };
-
   const handleOpenTopicHubFromBucket = (bucket: HPQTopicBucket) => {
     trackUxEvent("hpq_open_topic_hub", "hpq", {
       topic: bucket.topic,
@@ -628,55 +566,6 @@ const HighlyProbableQuestions: React.FC = () => {
         },
       }
     );
-  };
-
-  const handleAddTopicStackToBasket = (bucket: HPQTopicBucket) => {
-    setBasket((prev) => {
-      const existingIds = new Set(prev.map((item) => item.id));
-      const additions: BasketItem[] = bucket.questions
-        .filter((q) => !existingIds.has(q.id))
-        .map((q) => ({
-          id: q.id,
-          subject: bucket.subject ?? subjectKey,
-          topic: bucket.topic,
-          stream: bucket.stream,
-          marks: q.marks ?? 0,
-          difficulty: q.difficulty,
-          section: q.section,
-          question: q.question,
-        }));
-
-      if (additions.length === 0) {
-        return prev;
-      }
-
-      const next = [...prev, ...additions];
-      persistBasket(next);
-      return next;
-    });
-  };
-
-
-  const handleAddToBasket = (bucket: HPQTopicBucket, q: HPQQuestion) => {
-    setBasket((prev) => {
-      if (prev.some((b) => b.id === q.id)) return prev;
-      const marks = q.marks ?? 0;
-      const next: BasketItem[] = [
-        ...prev,
-        {
-          id: q.id,
-          subject: bucket.subject ?? subjectKey,
-          topic: bucket.topic,
-          stream: bucket.stream,
-          marks,
-          difficulty: q.difficulty,
-          section: q.section,
-          question: q.question,
-        },
-      ];
-      persistBasket(next);
-      return next;
-    });
   };
 
   const handleToggleAnswerCheck = (qId: string) => {
@@ -764,11 +653,6 @@ const HighlyProbableQuestions: React.FC = () => {
       source: "hpq_similar",
     });
   };
-
-  const totalBasketMarks = useMemo(
-    () => basket.reduce((sum, item) => sum + (item.marks ?? 0), 0),
-    [basket]
-  );
 
   // Clear all filters helper
   const handleClearAllFilters = () => {
@@ -1097,7 +981,7 @@ const HighlyProbableQuestions: React.FC = () => {
             ) : null}
           </div>
 
-          {/* Subject + stream toggles + basket summary */}
+          {/* Subject + stream toggles */}
           <div
             style={{
               display: "flex",
@@ -1146,82 +1030,6 @@ const HighlyProbableQuestions: React.FC = () => {
                   </button>
                 );
               })}
-            </div>
-            {/* Basket summary */}
-            <div
-              style={{
-                marginTop: 12,
-                padding: "12px 14px",
-                borderRadius: 12,
-                background: "hsl(210, 33%, 96%)",
-                border: "1px solid hsl(220, 18%, 90%)",
-                fontSize: "0.75rem",
-                color: "hsl(220, 15%, 42%)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 4,
-                alignItems: "flex-end",
-              }}
-            >
-              <div>
-                Mock basket:{" "}
-                <strong>
-                  {basket.length} Q · {totalBasketMarks} marks
-                </strong>
-              </div>
-              {basket.length === 0 ? (
-                <div
-                  style={{
-                    maxWidth: 220,
-                    textAlign: "right",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  Select questions or stacks to build a mock.
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                    justifyContent: "flex-end",
-                    marginTop: 2,
-                  }}
-                >
-                  <button
-                    onClick={handleOpenMockBuilder}
-                    style={{
-                      borderRadius: 999,
-                      padding: "4px 10px",
-                      border: "1px solid hsl(152, 55%, 45%)",
-                      background: "hsl(152, 55%, 45%)",
-                      color: "#ffffff",
-                      fontSize: "0.7rem",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Build mock
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClearBasket}
-                    style={{
-                      borderRadius: 999,
-                      padding: "4px 10px",
-                      border: "1px solid hsl(220, 18%, 82%)",
-                      background: "#ffffff",
-                      color: "hsl(220, 15%, 42%)",
-                      fontSize: "0.7rem",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </section>
@@ -1524,9 +1332,6 @@ const HighlyProbableQuestions: React.FC = () => {
                 const expanded =
                   expandedTopics[bucket.topic] ??
                   (topicFilter !== "all" ? true : index === 0);
-                const stackInBasket =
-                  bucket.questions.length > 0 &&
-                  bucket.questions.every((q) => isInBasket(q.id));
 
                 return (
                   <div
@@ -1690,29 +1495,6 @@ const HighlyProbableQuestions: React.FC = () => {
                             marginTop: 6,
                           }}
                         >
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleAddTopicStackToBasket(bucket)
-                            }
-                            disabled={stackInBasket}
-                            style={{
-                              borderRadius: 999,
-                              padding: "6px 11px",
-                              border:
-                                "1px solid hsl(152, 55%, 45%)",
-                              background: stackInBasket
-                                ? "hsl(152, 55%, 95%)"
-                                : "hsl(152, 55%, 45%)",
-                              fontSize: "0.75rem",
-                              color: stackInBasket ? "hsl(152, 55%, 28%)" : "#ffffff",
-                              cursor: stackInBasket ? "default" : "pointer",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {stackInBasket ? "Stack in mock" : "Add stack to mock"}
-                          </button>
-
                           <button
                             type="button"
                             onClick={() =>
@@ -1998,32 +1780,6 @@ const HighlyProbableQuestions: React.FC = () => {
                                 }}
                               >
                                 Practice similar
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (!isInBasket(q.id)) {
-                                    handleAddToBasket(bucket, q);
-                                  }
-                                }}
-                                disabled={isInBasket(q.id)}
-                                style={{
-                                  borderRadius: 8,
-                                  border: isInBasket(q.id)
-                                    ? "1px solid hsl(152, 55%, 45%)"
-                                    : "1px solid hsl(220, 18%, 82%)",
-                                  padding: "8px 12px",
-                                  fontSize: "0.78rem",
-                                  background: isInBasket(q.id)
-                                    ? "hsl(152, 55%, 95%)"
-                                    : "#ffffff",
-                                  color: isInBasket(q.id) ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
-                                  cursor: isInBasket(q.id) ? "default" : "pointer",
-                                  opacity: isInBasket(q.id) ? 0.95 : 0.9,
-                                  fontWeight: 600,
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {isInBasket(q.id) ? "In mock" : "Add to mock"}
                               </button>
                             </div>
 

@@ -64,28 +64,6 @@ export function buildHPQUrl(
 }
 
 /**
- * Mock Builder
- * Example: /mock-builder/10/Science?from=trends-topic&topic=Electricity
- */
-export function buildMockBuilderUrl(
-  grade: string,
-  subject: string,
-  options?: { from?: string; topic?: string }
-): string {
-  const base = `/mock-builder/${encodeURIComponent(
-    grade
-  )}/${encodeURIComponent(subject)}`;
-  if (!options) return base;
-
-  const params = new URLSearchParams();
-  if (options.from) params.set("from", options.from);
-  if (options.topic) params.set("topic", options.topic);
-
-  const qs = params.toString();
-  return qs ? `${base}?${qs}` : base;
-}
-
-/**
  * Topic Mock Paper
  * Example: /topic-mock/10/Science/electricity?set=2
  */

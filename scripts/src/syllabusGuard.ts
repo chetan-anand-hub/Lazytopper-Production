@@ -313,7 +313,6 @@ const BOARD_PREP_SURFACES: string[] = [
   "utils/mockBlueprint.ts",
   "utils/mockPaperEngine.ts",
   "utils/mockPaperEngineScience.ts",
-  "utils/mockBuilder.ts",
   // Worksheet generator
   "components/practice/worksheetGenerator.ts",
   "services/worksheetProfileService.ts",

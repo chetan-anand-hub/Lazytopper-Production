@@ -12,8 +12,7 @@ export type FeatureId =
   | "daily_mix"
   | "weak_area_practice"
   | "full_analytics"
-  | "parent_dashboard"
-  | "mock_builder";
+  | "parent_dashboard";
 
 interface FeatureGate {
   requiredTier: "free" | "logged_in" | "premium";
@@ -34,7 +33,6 @@ const FEATURE_GATES: Record<FeatureId, FeatureGate> = {
   weak_area_practice:  { requiredTier: "premium", label: "Weak Area Practice" },
   full_analytics:      { requiredTier: "premium", label: "Full Analytics Dashboard" },
   parent_dashboard:    { requiredTier: "premium", label: "Parent Dashboard" },
-  mock_builder:        { requiredTier: "premium", label: "Mock Builder" },
 };
 
 export function canAccessFeature(
