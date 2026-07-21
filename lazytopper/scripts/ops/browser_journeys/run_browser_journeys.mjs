@@ -12,14 +12,12 @@ import {
 import { writeTaskScopedJsonReport } from "../../../tools/codex/task_evidence_utils.mjs";
 import { journey as topichubGuidedEntryJourney } from "./journeys/topichub_guided_entry_journey.mjs";
 import { journey as practiceHelpEscalationJourney } from "./journeys/practice_help_escalation_journey.mjs";
-import { journey as mentorKindnessJourney } from "./journeys/mentor_kindness_and_recovery_journey.mjs";
 import { journey as boardReadinessJourney } from "./journeys/board_readiness_journey.mjs";
 import { journey as trianglesHumanTutorJourney } from "./journeys/triangles_human_tutor_browser_journey.mjs";
 
 const journeys = [
   topichubGuidedEntryJourney,
   practiceHelpEscalationJourney,
-  mentorKindnessJourney,
   boardReadinessJourney,
   trianglesHumanTutorJourney,
 ];
