@@ -12,8 +12,43 @@ const addImageMock = vi.fn();
 const addPageMock = vi.fn();
 const html2canvasMock = vi.fn();
 
-vi.mock("jspdf", () => ({
-  jsPDF: vi.fn().mockImplementation(() => ({
+/** Sentinel app chrome — the CONTROL for "clean isolation". If the capture target ever
+ *  widened to the live app tree, this string would be inside it. */
+const APP_SENTINEL = "APP-CHROME-SENTINEL";
+
+/**
+ * What the capture target looked like AT CAPTURE TIME.
+ *
+ * `renderElementToPdf` unmounts the React root and removes the offscreen host in its
+ * `finally`, so the element handed to html2canvas is empty and detached by the time any
+ * assertion runs — inspecting the stored reference afterwards proves nothing about the
+ * capture (that timing is what made this suite red). Snapshot the properties while the
+ * export is still holding the host.
+ */
+interface Capture {
+  /** The worksheet print-doc was really rendered into the host. */
+  hasPrintDoc: boolean;
+  /** Nothing BUT the print doc is in the capture target. */
+  childCount: number;
+  kind: string | null;
+  questionCount: string | null;
+  /** Isolation controls: the host is not inside the app tree and carries none of it. */
+  insideAppTree: boolean;
+  containsAppChrome: boolean;
+}
+const captures: Capture[] = [];
+
+/**
+ * The REAL jsPDF surface `worksheetPdfExport.ts` uses: a NAMED `jsPDF` export,
+ * constructed with `new jsPDF({orientation,unit,format})`, then `addPage` / `addImage` /
+ * `save` plus the footer's setDrawColor / setLineWidth / line / setFont / setFontSize /
+ * setTextColor / text. Built by a plain factory (not `vi.fn().mockImplementation`), so
+ * the constructor keeps working after `vi.restoreAllMocks()` — a restored `vi.fn()` has
+ * no implementation, so `new jsPDF()` returned a bare `{}` and every test after the
+ * first died on "pdf.addImage is not a function".
+ */
+function makePdfStub() {
+  return {
     addPage: addPageMock,
     addImage: addImageMock,
     save: saveMock,
@@ -24,9 +59,28 @@ vi.mock("jspdf", () => ({
     setFontSize: vi.fn(),
     setTextColor: vi.fn(),
     text: vi.fn(),
-  })),
+  };
+}
+
+vi.mock("jspdf", () => ({
+  jsPDF: function jsPDF(this: unknown) {
+    return makePdfStub();
+  },
 }));
-vi.mock("html2canvas", () => ({ default: (...args: unknown[]) => html2canvasMock(...args) }));
+vi.mock("html2canvas", () => ({
+  default: (el: HTMLElement, ...rest: unknown[]) => {
+    const doc = el.querySelector(".lt-wsp");
+    captures.push({
+      hasPrintDoc: doc !== null,
+      childCount: el.childElementCount,
+      kind: doc?.getAttribute("data-kind") ?? null,
+      questionCount: doc?.getAttribute("data-question-count") ?? null,
+      insideAppTree: el.closest("#root") !== null,
+      containsAppChrome: (el.textContent ?? "").includes(APP_SENTINEL),
+    });
+    return html2canvasMock(el, ...rest);
+  },
+}));
 
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 
@@ -48,6 +102,10 @@ beforeEach(() => {
   saveMock.mockClear();
   addImageMock.mockClear();
   addPageMock.mockClear();
+  captures.length = 0;
+  // A live app tree, so "the capture is isolated from the app" is a real assertion
+  // and not a vacuous one against an empty document.
+  document.body.innerHTML = `<div id="root"><h1>${APP_SENTINEL}</h1></div>`;
   // Tall captured canvas → multiple A4 pages.
   html2canvasMock.mockReset();
   html2canvasMock.mockResolvedValue({ width: 1520, height: 5000, toDataURL: () => "data:image/jpeg;base64,AAA" });
@@ -70,13 +128,23 @@ describe("exportWorksheetPdf — real file download (Option B)", () => {
 
     // Clean isolation: the capture target is a host containing the print-doc only.
     expect(html2canvasMock).toHaveBeenCalledTimes(1);
-    const captured = html2canvasMock.mock.calls[0][0] as HTMLElement;
-    expect(captured.querySelector(".lt-wsp")).not.toBeNull();
-    // ...and it is detached/offscreen, not the live app tree.
-    expect(captured.closest("#root")).toBeNull();
+    expect(captures).toHaveLength(1);
+    const [cap] = captures;
+    expect(cap.hasPrintDoc).toBe(true);
+    // ...and THIS worksheet's doc, in questions form.
+    expect(cap.kind).toBe("questions");
+    expect(cap.questionCount).toBe(String(ws.questions.length));
+    // Nothing else is in the frame: exactly one child (the print doc), no app chrome,
+    // and the host is offscreen/outside the live app tree.
+    expect(cap.childCount).toBe(1);
+    expect(cap.containsAppChrome).toBe(false);
+    expect(cap.insideAppTree).toBe(false);
 
-    // Pagination: tall canvas → more than one page image added.
-    expect(addImageMock.mock.calls.length).toBeGreaterThanOrEqual(1);
+    // Pagination: the 5000px-tall canvas really spans several A4 pages, and one
+    // addPage is issued per page AFTER the first.
+    const pages = addImageMock.mock.calls.length;
+    expect(pages).toBeGreaterThan(1);
+    expect(addPageMock).toHaveBeenCalledTimes(pages - 1);
 
     // A real file is saved with the questions filename.
     expect(saveMock).toHaveBeenCalledTimes(1);
@@ -88,6 +156,8 @@ describe("exportWorksheetPdf — real file download (Option B)", () => {
     const filename = await exportWorksheetPdf(ws, "answers");
     expect(saveMock).toHaveBeenCalledTimes(1);
     expect(filename).toMatch(/answer-key\.pdf$/);
+    // The captured doc is the answer-key variant, not the questions sheet.
+    expect(captures[0].kind).toBe("answers");
   });
 
   it("FIX D — carries the unique CODE in the filename so worksheets don't collide", async () => {

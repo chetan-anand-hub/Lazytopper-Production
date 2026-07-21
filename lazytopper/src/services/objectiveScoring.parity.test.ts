@@ -7,7 +7,7 @@
 // case table — normaliseOption, resolveOptionIndex, and scoreObjective.
 import { describe, expect, it } from "vitest";
 import * as CJS from "../../server/routes/objectiveScoring.cjs";
-import * as TS from "../../lib/objectiveScoring";
+import * as TS from "../lib/objectiveScoring";
 
 const OPTIONS_CASES: Array<readonly string[]> = [
   ["0", "7", "14", "1"],
@@ -19,6 +19,9 @@ const OPTIONS_CASES: Array<readonly string[]> = [
 const PICKS = [
   "7", "14", "(a)", "(b)", "A", "b", "Acidic solution", "acidic solution",
   "1 : 2", "a) 1 1", "xyz", "", "Both A and R are true, and R is the correct explanation of A.",
+  // Every punctuation class BOTH twins strip must be represented, or a divergence in
+  // the strip set passes unnoticed: brackets/braces, terminal dot, quotes, whitespace.
+  "[b]", "{c}", "d.", "\"A\"", "  B  ", "1.5", "Basic solution!",
 ];
 
 describe("client twin ↔ server module parity", () => {
