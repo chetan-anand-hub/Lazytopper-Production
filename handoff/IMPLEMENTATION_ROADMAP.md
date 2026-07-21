@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-21 - ✅ VITEST GATED IN CI (#503, trunk `579822e`) - Wave-1 Lane A COMPLETE, owner byte-reviewed + merged
+
+**Stage COMPLETE - an infra/quality-gate fix, `[FU-CI-GATE-VITEST]` resolved.** The `src/**/*.test.{ts,tsx}` vitest suites (routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) had NEVER run in CI - `test:matrix:all` gates the ops-acceptance `.mjs` scripts, not vitest, and Windows can't run vitest (rollup-linux pin). Every vitest regression shipped green (the root cause behind #484/#490). 
+
+- **#503 (`579822e`)** - one required `Vitest suites (lazytopper)` step added to the repo-root `.github/workflows/quality-gate.yml`, linux runner. Infra-only, +24, one file, zero product `src/`. A red vitest now fails CI.
+- **4 suites already silently RED on trunk** (added Jul 1-9; rotted because vitest was never gated) are `--exclude`'d so the gate protects the 55 healthy suites without blocking every PR, each booked as a fix-then-delete-the-exclude FU: `[FU-CONCEPTSPINE-TEST-STALE]`, `[FU-OBJSCORING-PARITY-TEST-RED]`, `[FU-PRACTICEINSIGHTS-DURABLE-RED]`, `[FU-WORKSHEET-PDFEXPORT-TEST-RED]`. The exclude list only ever SHRINKS.
+
+**Proof:** first linux run GREEN (55 suites pass), final clean run GREEN (3m15s). The 4 reds' linux status confirmed via a temporary, reverted `continue-on-error` diagnostic step (`Test Files 4 failed / Tests 7 failed | 26 passed`) - all red on linux, none unexpectedly green, so the exclude-list stands. **Doctrine earned:** a single Windows full-run is a flaky oracle (isolate suspects) · a green run that excludes a suite can't report its status (run a reverted diagnostic) · determinism reasoning holds but must be proven on the real runner · put the exclusion in the workflow YAML, not config (`--exclude` merges with defaults) · check the repo ROOT `.github/workflows/` before concluding a workflow is absent.
+
+---
+
 ## 2026-07-20 - THE QP SCORECARD DENOMINATOR BUG COMPLETE (#501, trunk `7979a89`) - owner LIVE-VERIFIED
 
 **Stage COMPLETE - a graded-surface correctness fix, feed-only.** The Quick Practice scorecard's "of N" read `questions.length` (the OVER-FETCHED engine pool) instead of `filteredQuestions.length` (the DISPLAYED set the student works). Owner screenshot: a full-page 5-MCQ set showed "5 of 75 attempted" - attempts counted correctly (5 of 5), the denominator wrong. Any marks/section filter over-fetches (`engineCount = chosen count x5`, cap 100), so the pool varies while the student only sees the chosen count.
