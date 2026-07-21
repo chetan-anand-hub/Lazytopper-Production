@@ -25,7 +25,6 @@ export interface PracticeQuestionListProps {
   onGraded?: (qId: string, result: CheckSolutionResponse) => void;
   /** Hand a question's concept to the Tutor, with a ticket back to this set. */
   onAskTutor?: (q: PracticeQuestion) => void;
-  onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
@@ -34,7 +33,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     expandedAnswers, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
-    onOpenMentorBoard,
   } = props;
 
   return (
@@ -144,7 +142,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onMcqResult={(qId, result) => onMcqResult(qId, result)}
               onGraded={onGraded}
               onAskTutor={onAskTutor}
-              onOpenMentorBoard={(question) => onOpenMentorBoard(question, idx)}
             />
           ))}
         </div>

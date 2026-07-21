@@ -54,7 +54,6 @@ export interface PracticeQuestionCardProps {
   /** Hand this question's concept to the Tutor, with a ticket back to this set.
    *  Optional: a consumer with no tutor route simply omits it and no link renders. */
   onAskTutor?: (q: PracticeQuestion) => void;
-  onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
 const DIFFICULTY_BADGE: Record<string, { color: string; bg: string; border: string }> = {
@@ -119,7 +118,7 @@ export function PracticeQuestionCard({
   isOpen, solutionLoading, solutionError, solutionData,
   mcqSelection, mcqResult, difficultyFilter,
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
-  onAskTutor, onOpenMentorBoard: _onOpenMentorBoard,
+  onAskTutor,
 }: PracticeQuestionCardProps) {
   const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
