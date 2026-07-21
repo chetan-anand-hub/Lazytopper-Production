@@ -1,6 +1,27 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #501 - THE QP SCORECARD DENOMINATOR BUG IS FIXED - owner LIVE-VERIFIED ("5 of 5") - trunk `7979a89`
+## [CURRENT] #503 merged — ★★ VITEST NOW RUNS IN CI — the 59 render/unit suites that never had a gate — trunk `579822e`
+
+**Wave-1 Lane A (CI-VITEST GATE), infra-only, one file (`.github/workflows/quality-gate.yml`, +24), zero product `src/`. Resolves `[FU-CI-GATE-VITEST]`.** For this repo's whole history, `vitest run` (the `src/**/*.test.{ts,tsx}` suites — routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) ran **only on developer machines, and not on Windows at all** (the rollup-linux pin strips the win32 binary). CI gated the two `test:matrix:all` ops-matrices, the build, and mojibake — **never vitest.** So every vitest regression shipped green. **This is the root cause behind the green-but-broken builds (#484, #490): the tests that would have caught them never executed in CI.** #503 adds one required `Vitest suites (lazytopper)` step on the linux runner (where rollup works); a red vitest now fails CI.
+
+**★★ THE GATE'S WORTH WAS PROVEN THE DAY IT LANDED — FOUR SUITES WERE ALREADY SILENTLY RED ON TRUNK.** They had rotted undetected (added Jul 1–9, PRs #321/#337/#348/#349) precisely *because* vitest never ran in CI. Each is `--exclude`'d so the new gate protects the **55 healthy suites now** without blocking every PR, and each is booked as its own fix-then-delete-the-exclude follow-up (product/test lane, NOT infra):
+
+| Excluded suite | Linux status | Cause (deterministic) | Follow-up |
+|---|---|---|---|
+| `topichub/ConceptSpine.test.tsx` | RED | data-drift stale ("Notes coming soon" gone) | `[FU-CONCEPTSPINE-TEST-STALE]` |
+| `services/objectiveScoring.parity.test.ts` | RED | Vite can't resolve sibling root `../../server/routes/objectiveScoring.cjs` | `[FU-OBJSCORING-PARITY-TEST-RED]` |
+| `services/practiceInsights.durable.test.ts` | RED | `firestore down` mock throws | `[FU-PRACTICEINSIGHTS-DURABLE-RED]` |
+| `worksheet/worksheetPdfExport.test.ts` | RED (5) | `pdf.addImage is not a function` — jsPDF is **fully `vi.mock`'d**, so deterministic | `[FU-WORKSHEET-PDFEXPORT-TEST-RED]` |
+
+**★★ THREE DURABLE LESSONS (full text in SESSION_LOG):** (1) **The Windows full-run is a FLAKY ORACLE — not evidence of linux status.** A ~1200s collect fires 5s per-test timeouts on *random* suites each run (two runs disagreed 7-vs-5 red files); *isolation* runs are the reliable signal, and the fast linux runner does not flake. (2) **A green run that EXCLUDES a suite cannot report that suite's status** — to get the linux truth for the 4 excluded, a *temporary* `continue-on-error` diagnostic step ran only them on the real runner (`Test Files 4 failed / Tests 7 failed | 26 passed`), then was reverted (net diff back to +24). All 4 red on linux; none unexpectedly green ⇒ the exclude-list stands as approved, and the cross-platform determinism reasoning (mocks / module-resolution / data-drift are platform-independent) **held on the real runner.** (3) **vitest 3.2.4 `--exclude` MERGES with the defaults** (no `node_modules` leak — verified via `vitest list --filesOnly`), so the exclusion lives entirely in the workflow YAML; local `npm test` still shows all 59 suites to developers.
+
+**Owner byte-reviewed the diff before commit (Lane A discipline: STOP-BEFORE-COMMIT), then merged #503.** First linux run GREEN (the 55 pass), final clean run GREEN (3m15s). ⚠ **Non-blocking:** the runner warns `actions/setup-node@v4` targets deprecated Node 20 — a one-line bump for a future infra pass, not this PR.
+
+**NEXT:** the two other Wave-1 lanes remain in flight (`[FU-MOCKBUILDER-FULL-DELETE]` — a PRODUCT question; and bank mis-banding — a content lane); plus the 4 new test-fix FUs above, each a small product/test lane that ends by deleting its `--exclude` line.
+
+---
+
+## #501 - THE QP SCORECARD DENOMINATOR BUG IS FIXED - owner LIVE-VERIFIED ("5 of 5") - trunk `7979a89`
 
 **The Quick Practice scorecard now counts the set the student SEES, not the engine's over-fetched pool.** A full-page 5-MCQ session showed "5 of 75 attempted" (owner screenshot): attempts were counted CORRECTLY (5 of 5), but the denominator read `questions.length` (the OVER-FETCHED pool) instead of `filteredQuestions.length` (the DISPLAYED set). Any marks/section filter over-fetches (`engineCount = chosen count x5`, cap 100), so the pool varies (50/75/100...) while the student only ever sees the chosen count. **Owner LIVE-VERIFIED: "5 of 5" confirmed. Docs-only handoff; zero product files here.**
 
