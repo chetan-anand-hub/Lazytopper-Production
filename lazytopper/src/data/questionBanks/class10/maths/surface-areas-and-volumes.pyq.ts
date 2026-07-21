@@ -17,8 +17,9 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/2/3 Q6", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3" },
   { id: "PYQ-M-SAV-002", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    // answer reflowed from MS 041_30-4-1 Mathematics 2022-23, p.17. Stacked fractions restored (3/2, 2/3, 22/7, 9/4, 28/3), the dropped pi symbols reinstated, and the trailing mark-column bleed dropped. Final value 66 cm3 unchanged.
     questionText: "A student was asked to make a model shaped like a cylinder with two cones attached to its ends by using a thin aluminium sheet. The diameter of the model is 3 cm and its total length is 12 cm. If each cone has a height of 2 cm, find the volume of air contained in the model.",
-    answer: "Radius of each cone = Radius of cylinder = 2 3 cm Height of each cone 'H' = 2 cm Height of cylinder 'h' = 12 – 4 = 8 cm Volume of air = Volume of cylinder + Volume of 2 cones = r2h + 2 3 1 r2H = r2     + H 3 2 h = 7 22  2 3  2 3     + 2 3 2 8 = 7 22  4 9  3 28 = 66 cm3 1 1 𝟏 𝟐+1",
+    answer: "Radius of each cone = Radius of cylinder = 3/2 cm. Height of each cone 'H' = 2 cm. Height of cylinder 'h' = 12 – 4 = 8 cm. Volume of air = Volume of cylinder + Volume of 2 cones = πr²h + 2 × (1/3)πr²H = πr²[h + (2/3)H] = (22/7) × (3/2) × (3/2) × [8 + (2/3) × 2] = (22/7) × (9/4) × (28/3) = 66 cm³.",
     solutionSteps: [
       "[1 mark] Given: diameter = 3 cm ⇒ radius r = 3/2 cm (same for the cylinder and each cone); height of each cone H = 2 cm.",
       "[1 mark] Height of cylinder h = total length − 2 × cone height = 12 − 2(2) = 8 cm.",
@@ -30,8 +31,9 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/4/1 Q34", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-SAV-003", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Surface Area of Solids", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    // answer reflowed from MS 041_30-4-2 Mathematics 2022-23, p.13. Slant-height radical and 22/7 restored, dropped pi symbols reinstated, trailing mark-column bleed dropped. Final value 1056 cm2 unchanged.
     questionText: "From a solid cylinder of height 20 cm and diameter 12 cm, a conical cavity of height 8 cm and radius 6 cm is hallowed out. Find the total surface area of the remaining solid.",
-    answer: "Height of cylinder h = 20 cm radius of cylinder = 6 cm = Radius of cone Height of cone = 8 cm Slant height l = 2 2 6 8 + = 36 64 + = 10 cm Surface area of remaining solid = CSA of cylinder + CSA of cone + Area of base of cylinder = 2rh + rl + r2 = r[2h + l + r] = 7 22  6[2  20 + 10 + 6] = 7 22  6  56 = 1056 cm2 𝟏 𝟐 1 1+1+1",
+    answer: "Height of cylinder h = 20 cm. Radius of cylinder = 6 cm = Radius of cone. Height of cone = 8 cm. Slant height l = √(8² + 6²) = √(64 + 36) = 10 cm. Surface area of remaining solid = CSA of cylinder + CSA of cone + Area of base of cylinder = 2πrh + πrl + πr² = πr[2h + l + r] = (22/7) × 6[2 × 20 + 10 + 6] = (22/7) × 6 × 56 = 1056 cm².",
     solutionSteps: [
       "[1 mark] Given: cylinder height h = 20 cm, radius r = 12/2 = 6 cm; conical cavity of height 8 cm and radius 6 cm (equal to the cylinder’s radius).",
       "[1 mark] Slant height of cone l = √(r² + 8²) = √(6² + 8²) = √(36 + 64) = 10 cm.",
@@ -43,8 +45,9 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/4/2 Q32", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "2" },
   { id: "PYQ-M-SAV-004", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    // answer reflowed from MS 041_30-4-3 Mathematics 2022-23, pp.15-16. 3.5 = 7/2 restored, dropped pi symbols reinstated, stray '16' and trailing mark-column bleed dropped. Final value 374 cm2 unchanged.
     questionText: "A wooden article was made by scooping out a hemisphere from each end of a solid cylinder, as shown in the figure. If the height of the cylinder is 10 cm and its base is of radius 3.5 cm, find the total surface area of the article.",
-    answer: "Height of cylinder = 10 cm 16  Radius of cylinder = radius of hemisphere = 3·5 = 2 7 cm Total surface area of the article = CSA of cylinder + CSA of 2 hemispheres = 2rh + 2 × 2r2 = 2r(h + 2r) = 2 × 7 22 × 2 7 (10 + 2 × 2 7 ) = 22 × 17 = 374 cm2 1 1 𝟏 𝟐+1",
+    answer: "Height of cylinder = 10 cm. Radius of cylinder = radius of hemisphere = 3·5 = 7/2 cm. Total surface area of the article = CSA of cylinder + CSA of 2 hemispheres = 2πrh + 2 × 2πr² = 2πr(h + 2r) = 2 × (22/7) × (7/2) × (10 + 2 × (7/2)) = 22 × 17 = 374 cm².",
     solutionSteps: [
       "[1 mark] Given: cylinder height h = 10 cm, radius r = 3.5 cm = 7/2 cm (equal to the radius of each hemisphere).",
       "[1 mark] Since a hemisphere is scooped from each flat end, TSA of the article = CSA of cylinder + CSA of 2 hemispheres.",

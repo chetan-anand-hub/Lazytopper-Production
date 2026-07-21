@@ -90,9 +90,10 @@ export const PROBABILITY_PYQ: CanonicalQuestion[] = [
     pyqYear: "2023", pyqSet: "3" },
   { id: "PYQ-M-PROB-011", subject: "Maths", topicKey: "probability", subtopic: "Coin Tossing", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If a fair coin is tossed twice, find the probability of getting 'atmost one head'.",
-    answer: "Total outcomes are HH, HT, TH, TT Favourable outcomes are HT, TH, TT P (at most one head) =",
-    solutionSteps: ["Total outcomes are HH, HT, TH, TT Favourable outcomes are HT, TH, TT P (at most one head) ="],
-    finalAnswer: "Total outcomes are HH, HT, TH, TT Favourable outcomes are HT, TH, TT P (at most one head) =",
+    // Recovered from MS 041_30-4-1 Mathematics 2022-23, p.9 (fraction 3/4 confirmed by glyph bbox).
+    answer: "Total outcomes are HH, HT, TH, TT Favourable outcomes are HT, TH, TT P (at most one head) = 3/4",
+    solutionSteps: ["Total outcomes are HH, HT, TH, TT", "Favourable outcomes are HT, TH, TT", "P (at most one head) = 3/4"],
+    finalAnswer: "P (at most one head) = 3/4",
     ncertRef: "PYQ 30/4/1 Q24", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-PROB-012", subject: "Maths", topicKey: "probability", subtopic: "General", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
