@@ -1,5 +1,47 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-21 (post-**#511 - THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS.** Trunk `856d556`. Owner byte-reviewed the pushed diff + merged. 87 files, +831/-356; [FU-BANK-SCARCE-BAND-MISBANDING] Class (b) RESOLVED — the whole mis-banding lane is now CLOSED; 1 new FU opened.)
+# Updated: 2026-07-21 (post-**#512 - THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME.** Trunk `e19b2d1`. Owner byte-reviewed the pushed diff + LIVE-VERIFIED all 5 checks. 7 files, +102/-110, ZERO deletions; PR-1 of 2 — **PR-2 (deletions + ops sweep) is the remaining half and has NOT started.**)
+
+## NEXT - 2026-07-21 (post-#512). Read this block first.
+
+### ★ THE IMMEDIATE NEXT TASK: PR-2 — DELETIONS + THE OPS-SCRIPT SWEEP
+
+**PR-1 (`#512`) shipped the behaviour; PR-2 ships the dead code.** The split was an owner ruling after the audit's fallout estimate proved an order of magnitude low (2 scripts claimed → **16 hard-`readText`**, ~27 referencing). Behaviour-first / deletions-second, the #505 MockBuilder pattern.
+
+**Precondition — RE-CONFIRMED on trunk `e19b2d1`:** the old-tutor cluster is now **self-referential dead code**. `ConceptTeachDrawer`'s only importer is `pages/TopicHub.tsx`, which itself has **zero importers and zero routes** (the `App.tsx:46` hit is a comment). The live `ConceptSpine` no longer imports it. tsc-clean, and **no ops script is broken yet** because nothing has been deleted.
+
+**PR-2 scope:**
+1. **Delete the dead cluster** — `ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract`, **plus `pages/TopicHub.tsx`** (forced by its `ConceptTeachDrawer` import — not elective).
+2. **The ~27 ops scripts asserting on those files** — **RETIRE the wholly-dead ones, SURGICALLY fix the mixed ones.** This is a *content* decision about what each script should assert now, which is why it needs owner byte-review before anything lands.
+3. **★★ Do NOT harden `readText` to swallow ENOENT.** Explicitly rejected: every assertion on a deleted surface would pass **vacuously** — a false-green, the class this project has been bitten by twice.
+4. **KEEP everything live-shared:** `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (**LIVE in `PracticePage`**), and the whole new `/tutor` stack.
+5. **`topicHubMastery` UNTOUCHED — the owner is still holding that decision.**
+
+**★ STOP BEFORE COMMIT** — report the deletion set + the per-script decisions for byte-review.
+
+**Known landmines for PR-2, already verified so they need not be re-derived:**
+- **A CI-matrix script that NAMES a deleted path is not automatically a break.** `topickey_guard_acceptance.mjs:115` lists `pages/TopicHub.tsx` in `B_ALLOW` — a **skip**-list consulted while walking files that *exist*. Deleting the file leaves the entry merely unused: no read, no ENOENT. **All 14 matrix scripts were enumerated; zero of the 16 affected ops scripts are among them ⇒ CI stays green.** (Cleaning the now-stale allowlist line is a 1-line tidy, zero risk — nothing asserts on `B_ALLOW.size`.)
+- `backlog_1_19_acceptance.mjs:120` hard-reads **`pages/Onboarding.tsx`** — which **survives** (App.tsx is frozen, so the page stays inert on disk). Not a PR-2 problem.
+
+### What #512 actually fixed, for the record
+The old `"Teach me"` drawer was **LIVE on every Topic Hub concept row**, sitting *beside* the new "Stuck? Ask" — students saw both. Retiring it was a **product removal, not a cleanup**. Onboarding is retired for **new AND returning** users (see below). And referral crediting was relocated out of the page being retired, fixing a latent double-credit bug.
+
+**★★ Three things worth carrying forward:**
+1. **The `Date.now()`-string → `user.uid` switch was a CORRECTNESS fix, not an identifier tidy-up.** `addReferralToCode:88` dedups on `referrals.includes(friendIdentifier)`; a fresh timestamp can never match, so **the dedup was inert and a student could be credited twice**.
+2. **The onboarding fix is WIDER than new signups.** `hasProfile` read the **bare** key `lazytopper.profile.v2` while `studentCloudStore.ts:23` only ever writes `lazytopper.profile.v2:<uid>` ⇒ permanently `false` ⇒ **every** login, returning users included, was already hitting `/onboarding`. Resolves `[FU-LOGIN-HASPROFILE-DEAD-KEY]`. **The bare-vs-prefixed key mismatch is a bug CLASS worth watching for elsewhere.**
+3. **A delete-only test edit proves nothing.** The replacement guard asserts the **absent** case (gone as text, `button` **and** `link`) *together with* the **positive** case (every row still has its `/tutor` link) — and was **mutation-tested**: re-injecting the button turns it RED. The harness also had to be given `tutorHrefForConcept`, or the guard would have asserted against a strawman row that never had the replacement.
+
+**The follow-ups this arc opened / left open:**
+- **`[FU-TUTOR-LEGACY-RETIRE]`** — **PR-1 half done (behaviour). PR-2 (deletions) is the remaining half.**
+- **`[FU-MASTERY-WRITE-ORPHAN]`** — after #512 the old tutor's mastery WRITE is unreachable, so `saveTopicMasterySnapshot` has no live caller. Nothing breaks (readers already tolerate empty). **Owner is HOLDING the mastery decision; do not unwire it in PR-2.** A separate mastery-retirement audit already exists.
+- **`[FU-SIGNUP-UNSAFE-REDIRECT]`** — `SignUpPage.tsx:52` uses `st.from` **without** `isSafeInternalPath`, unlike `Login.tsx:865-868`. Doctrine is "safe redirects always". **Pre-existing; deliberately not folded into a retirement PR.** Its own small PR.
+- **`[FU-APP-TSX-FROZEN-RESIDUE]`** — the inert `/onboarding` route + `import Onboarding` + `pages/Onboarding.tsx` survive only because `App.tsx` is gate-frozen. **Same class as `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]` from the MockBuilder lane — these should be merged into ONE "unfreeze App.tsx and sweep the residue" item.**
+- **`[FU-OPS-SCRIPTS-PATH-COUPLING]`** — ~27 `scripts/ops/*.mjs` hard-read product files by path and throw ENOENT when one is deleted. None are CI-gated, so they rot invisibly. **PR-2 addresses the tutor-adjacent ones; the general hardening pass remains open.**
+
+**Still in flight from earlier waves** (untouched by #512): `[FU-BANK-GARBLED-ANSWER-CLASS]`, `[FU-PRACTICE-CONTROLS-REFRESH-STALE]`, `[FU-TSCONFIG-EXCLUDES-TESTS]`, `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`, `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`, `[FU-HPQ-PREDICTED-MOCK]`, `[FU-QP-WRITTEN-BINARY-CHECK]`.
+
+---
+
+## (superseded) NEXT — post-**#511 - THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS.** Trunk `856d556`. 87 files, +831/-356; [FU-BANK-SCARCE-BAND-MISBANDING] Class (b) RESOLVED — the whole mis-banding lane is now CLOSED; 1 new FU opened.
 
 ## NEXT - 2026-07-21 (post-#511). Read this block first.
 

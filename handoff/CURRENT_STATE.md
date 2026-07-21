@@ -1,6 +1,72 @@
 # LazyTopper — Current State
 
-## [CURRENT] #511 merged — ★★ THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS — trunk `856d556`
+## [CURRENT] #512 merged — ★★ THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME — trunk `e19b2d1`
+
+**PR-1 of 2 of the tutor/onboarding retirement. BEHAVIOR ONLY — 7 files, +102/−110, ZERO file deletions.** Owner byte-reviewed the pushed diff and **LIVE-VERIFIED all five checks**, including the referral credits-once path. Docs-only handoff; zero product files here.
+
+**PR-2 (the deletions + the ops-script sweep) is the remaining half and has NOT started.** See `NEXT_ACTION.md`.
+
+### Why this was split into two PRs — the audit undercounted the fallout by an order of magnitude
+The retirement was specced as one PR. Re-verifying the audit (`REPORT_legacy_retirement_audit_2026-07-21.md`) against trunk found **three of its claims wrong**, and one of them changed the shape of the work:
+
+| Audit claim | Reality at trunk |
+|---|---|
+| "2 ops scripts break on deletion" | **16 scripts hard-`readText` a to-be-deleted path** (~15 npm entries); the count of files *referencing* them is **~27** |
+| `ConceptSpine.test.tsx` asserts "Teach me" in **2** places (`:14-27`, `:224-252`) | **THREE** places — it missed `:107-110` inside "learn-first concept rows", and mis-numbered the other block (`:254-281`). A PR following the audit verbatim lands **RED**. |
+| deleting `pages/TopicHub.tsx` is optional ("delete IF dead") | **FORCED** — it imports `ConceptTeachDrawer`, so retiring the old tutor breaks `tsc` unless it goes. There is no cheap variant. |
+
+**Owner ruling: split behavior-first / deletions-second (the #505 MockBuilder pattern).** Bundling a live behaviour change with a ~27-script content cleanup is a mixed-concern PR that delays the user-facing fix. **The alternative — hardening `readText` to swallow ENOENT — was explicitly REJECTED**: every assertion on a deleted surface would then pass *vacuously*, the same false-green class this project has already been bitten by twice.
+
+### What shipped — three commit-sections, each independently reviewable
+`Login.tsx` and `SignUpPage.tsx` carry changes from **two** sections, so they were split by hunk rather than lumped into one commit.
+
+**1 · `fix(referral)` — crediting relocated off the page being retired.** `creditPendingReferral` had exactly ONE caller: `Onboarding.tsx:99`. Capture stays live at `App.tsx:558`, so retiring Onboarding without this would have left referrals **captured but never credited** — silent, no error surface. Moved (not copied) into the auth-success effects of `Login.tsx` **and** `SignUpPage.tsx`.
+
+> **★★ Why BOTH pages:** `AuthContext` exposes **no new-user signal** — `signInWithGoogle` is a bare `signInWithPopup` and `signUpWithEmailPassword` discards the credential, so `additionalUserInfo.isNewUser` is not plumbed anywhere. A Google-first signup can complete on **either** page. Covering both is what makes "credits once per signup" true; `creditPendingReferral`'s own two guards (no pending code → return; `REFERRAL_CREDITED_KEY` set → return) make it safe.
+
+> **★★ The identifier switch was a REAL BUG FIX, not cosmetics.** The old argument was a fresh `Date.now()`-derived string. `addReferralToCode:88` dedups on `referrals.includes(friendIdentifier)` — *a fresh timestamp can never match an existing entry*, so **the dedup was inert and one student could be credited twice**. The real Firebase `uid` is stable, so the dedup now actually holds.
+
+**2 · `feat(tutor)` — the old "Teach me" side-drawer is retired.** It was **LIVE, not latent**: `ConceptSpine` rendered an *unconditional* "Teach me" on **every** concept row, and `DesktopTopicHubPage` supplies the props rendering the new "Stuck? Ask" beside it — so students saw **both** affordances. This was a **product removal, not a cleanup**. Four surgical hunks (import · `teachConcept` state · button · mount); the new-tutor entries are **byte-identical**. Two further same-file hunks removed what those made stale: the dead `.lt-spine__btn--teach` CSS and doc-comments still asserting *"Teach me stays LIVE as the fallback"*.
+
+**3 · `fix(auth)` — a new signup lands on the homepage.** All **four** live inbounds to `/onboarding` cut (`Login.tsx:876`, `SignUpPage.tsx:52`, `DesktopHome.tsx:294`, `MobileHome.tsx:448`). The audit named only the first; a Login-only fix would still have stranded signups arriving via `/sign-up` or either home page's start-trial CTA.
+
+> **★ This fix is WIDER than "new signups".** `hasProfile` was deleted rather than repointed **because it never worked**: `Login.tsx` read the **bare** key `lazytopper.profile.v2`, but `studentCloudStore.ts:23` only ever writes the uid-suffixed `lazytopper.profile.v2:<uid>`. It was permanently `false`, so **every** login — returning users included — was already being routed to `/onboarding`. That is the off-brand dark screen students reported. Resolves `[FU-LOGIN-HASPROFILE-DEAD-KEY]`.
+
+### ★★ THE RETIREMENT GUARD WAS MUTATION-TESTED — a delete-only test edit proves nothing
+The old `"tutor wiring (PR-C, preserved)"` suite asserted "Teach me" was live. Deleting that coverage would have left the removal unguarded. It was replaced by a guard asserting the **ABSENT** case *together with* the **POSITIVE** case:
+- "Teach me" is gone as **text, as `button`, AND as `link`** — so a delete that merely demoted it to an anchor still fails;
+- **every** row still exposes a `Stuck? Ask` **link** carrying *that row's* concept — so a row that lost **both** affordances cannot pass.
+
+The harness had to be given `tutorHrefForConcept` (the real page supplies it); without that the guard would have asserted against a **strawman row that never had the replacement**. **Proof it is not vacuous: re-injecting a "Teach me" button turns the guard RED, and it returns green on restore (23/23).**
+
+### App.tsx: Option B — zero diff, verified against COMMITS
+`App.tsx` is globally forbidden **and** asserted zero-diff by both overlay acceptance scripts inside the CI-gated `test:matrix:all`. The `/onboarding` route and `pages/Onboarding.tsx` stay **inert on disk**. Both gates were **re-run AFTER committing** — they diff `base...HEAD`, so a pre-commit run inspects an empty range and is a truthful-but-useless green:
+
+```
+ok  FORBIDDEN: lazytopper/src/App.tsx shows zero changes (vs origin/base/approved-thru-437)
+Tutor <-> C&I overlay acceptance PASSED - 31/31
+Tutor <-> Quick-Practice overlay acceptance PASSED - 41/41
+```
+
+Leaving the file also keeps `backlog_1_19_acceptance.mjs:120`, which hard-reads it, working.
+
+### ★ A CI-matrix script NAMING a deleted path is not automatically a break — read HOW it uses it
+`topickey_guard_acceptance.mjs:115` lists `pages/TopicHub.tsx`. It looked like a CI blocker for PR-2. It is not: the entry sits in `B_ALLOW`, a **skip**-list consulted via `B_ALLOW.has(rel)` while walking files that **actually exist**. A deleted file is never walked ⇒ no `readFileSync`, no ENOENT. All 14 matrix scripts were enumerated; **zero** of the 16 affected ops scripts are among them. **CI is green under every PR-2 option.**
+
+### Deliberately NOT in scope
+- **All file deletions** → PR-2. The old-tutor cluster stays on disk; after PR-1 it is imported **only by itself** (`ConceptTeachDrawer`'s sole importer is `pages/TopicHub.tsx`, which has zero importers and zero routes), tsc-clean, and **no ops script breaks yet**.
+- **`topicHubMastery` — UNTOUCHED. The owner is still holding that decision.** Only the old tutor's mastery *write* becomes unreachable; the store and every reader are intact. See `[FU-MASTERY-WRITE-ORPHAN]`.
+- **`[FU-SIGNUP-UNSAFE-REDIRECT]`** — `SignUpPage` still uses `st.from` without `isSafeInternalPath`. Pre-existing; an auth-security fix does not belong in a retirement PR. Noted in-code.
+
+**VALIDATION (matrices re-run POST-COMMIT):** tsc PASS (exit 0, `noUnusedLocals` clean) · `ConceptSpine.test.tsx` **23/23** · **guard mutation-test RED-on-mutant** · `check:mojibake` PASS · `scope:guard --mode product` PASS (pre-commit, where it must run) · lazytopper `test:matrix:all` **all 14** · root guard matrix **190/190** · `git diff --check` clean · linux CI `quality-gate` **pass**, `lane-overlap` **pass**. Branched from `41277c1`; trunk moved to `856d556` mid-work (#510 docs, #511 bank) — **no overlap** with the 7 files, so no rebase.
+
+**OWNER LIVE-VERIFIED (all 5):** Topic Hub keeps `/tutor` and "Teach me" is gone · new signup → home (both `/sign-up` and Google-from-`/login`) · returning login → home · both start-trial CTAs → home · **referral credits exactly once** (the silent-failure path).
+
+**NEXT:** **PR-2 — delete the dead old-tutor cluster + `pages/TopicHub.tsx`, and sweep the ~27 ops scripts.** See `NEXT_ACTION.md`.
+
+---
+
+## (superseded) #511 merged — ★★ THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS — trunk `856d556`
 
 **Class (b) of the mis-banding follow-up. Data-only, ONE PR, 87 files, +831/−356. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b) — the lane is now CLOSED end-to-end (Class a by #504, Class b by #511).** Owner byte-reviewed the PUSHED diff and merged. Docs-only handoff; zero product files here.
 

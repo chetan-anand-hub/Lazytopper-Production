@@ -1,3 +1,23 @@
+## 2026-07-21 - Tutor/onboarding retirement, PR-1 of 2 (#512, trunk `e19b2d1`)
+
+Decisions ruled by the owner, and the scope this arc discovered after the retirement was first planned as ONE PR.
+
+### Owner decisions
+- **Retiring "Teach me" is a PRODUCT REMOVAL, not a cleanup.** The drawer was **live** — an unconditional button on every Topic Hub concept row, sitting beside the new "Stuck? Ask". Owner confirmed the new `/tutor` fully supersedes it and it should go.
+- **★★ SPLIT the retirement into two PRs: behaviour first, deletions second** (the #505 MockBuilder pattern). Ruled after re-verification showed the deletion fallout was **16 ops scripts hard-reading a deleted path (~27 referencing), not the 2 the audit claimed**. Rationale: *"bundling a live behavior change with a ~27-script content cleanup is a mixed-concern PR that delays the user-facing fix."* PR-1 is live-verifiable on its own; PR-2 gets its own careful review.
+- **★★ REJECTED: hardening `readText` to swallow ENOENT.** It was the cheapest way to absorb the broken scripts, and it was refused on the right grounds — every assertion about the deleted surface would then pass **vacuously**. *"Vacuous green is the false-green class this project's been bitten by twice."* PR-2 must instead **retire the wholly-dead scripts and surgically fix the mixed ones** — an explicit content decision, owner-reviewed before it lands.
+- **`App.tsx`: Option B — leave the route inert, keep CI green.** Consistent with #505. Removing the route would need an `App.tsx` diff, which two CI-gated overlay guards freeze zero-diff.
+- **Referral relocation is its own concern, done FIRST**, and the identifier switches to the real Firebase `uid`.
+- **`ConceptSpine.test.tsx` is assigned to this lane**, out of the Wave-2 agent's "test files" ownership.
+- **Mastery is ON HOLD — do not touch `topicHubMastery` or the mastery reads in either PR.** The old tutor's mastery *write* becoming unreachable is accepted; the store stays.
+
+### Scope discovered (⇒ SURFACE_TRACKER §2a; Topic Hub and Tutor Scope both stay Settling)
+- **The prior audit was wrong three times, and re-verification at trunk is what caught it.** (a) ops coupling 2 → **16**; (b) `ConceptSpine.test.tsx` asserts "Teach me" in **three** places, not two — the missed one (`:107-110`) would have landed the PR **red**; (c) deleting `pages/TopicHub.tsx` is **forced**, not optional, because it imports `ConceptTeachDrawer`. **An audit is a starting hypothesis, not a spec — re-derive its load-bearing counts before planning around them.**
+- **`[FU-OPS-SCRIPTS-PATH-COUPLING]` is much larger than recorded.** ~27 ops scripts hard-read product files by path; none are CI-gated, so the coupling rots invisibly until a deletion exposes it.
+- **A second lane has now left residue behind the over-broad `App.tsx` freeze** (`[FU-APP-TSX-FROZEN-RESIDUE]`, joining `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`). Two independent lanes blocked by the same guard is the argument for narrowing it from "App.tsx zero-diff" to "the relevant route elements unchanged".
+
+---
+
 ## 2026-07-18 - Check & Improve convergence arc (#466 → #470, trunk `2c59dd2`)
 
 Decisions ruled by the owner across the arc, and the scope it discovered after C&I was first planned.
