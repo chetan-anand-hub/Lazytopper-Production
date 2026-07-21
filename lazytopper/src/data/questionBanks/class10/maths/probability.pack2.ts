@@ -493,8 +493,8 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "probability",
     "subtopic": "Classical Probability",
-    "section": "D",
-    "marks": 5,
+    "section": "B",
+    "marks": 2,
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
@@ -502,10 +502,8 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "7/12",
     "solutionSteps": [
-      "Total balls = 3 + 4 + 5 = 12",
-      "Blue balls = 5",
-      "Non-blue balls = 3 + 4 = 7",
-      "P(not blue) = 7/12"
+      "Total balls = 3 + 4 + 5 = 12; non-blue balls (red + green) = 3 + 4 = 7.",
+      "P(not blue) = favourable/total = 7/12."
     ],
     "finalAnswer": "7/12",
     "visualExplainerId": "maths-probability-classical-probability",

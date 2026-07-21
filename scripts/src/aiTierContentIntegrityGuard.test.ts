@@ -47,28 +47,18 @@ const SECTION_MARKS: Record<string, number> = { A: 1, B: 2, C: 3, D: 5, E: 4 };
 
 // Pack-layer Section-D/5-mark questions still labelled format:"Short".
 // Audit 2026-06-17 found 19; PR1b (2026-06-18) relabelled the 13 genuine
-// long-answers Short->Long (12 from the original Group-A list + nothing added),
-// shrinking this backlog to the 7 below.
+// long-answers Short->Long, shrinking this backlog to 7.
 //
-// These 7 are QUARANTINED - content<->marks mismatch, content-judgment pass
-// pending (NOT a relabel). Each is a SHORT question wrongly tagged 5-mark;
-// relabelling them "Long" would make them more wrong, so the marks/content must
-// be fixed (or the question rewritten) in a later pass, not here. Tracked as
-// [FU-AITIER-MARKS-MISMATCH]. They stay pinned so the guard reports no
-// regression; remove an id only when its marks/content are actually corrected.
+// Wave-1 Lane C (2026-07-21 — [FU-BANK-SCARCE-BAND-MISBANDING] Class (a),
+// resolving the co-tracked [FU-AITIER-MARKS-MISMATCH]) fixed the final 7 by
+// relabelling each to its TRUE CBSE mark value (all -> Section B / 2 marks,
+// each PYQ-grounded) and re-authoring solutionSteps to the 2-mark scheme —
+// the content-judgment pass this backlog was awaiting. Backlog is now EMPTY.
 //
-//   TG3-056  "Find the value of cosec 60°"                         (~1 mark)
-//   TG3-059  "Evaluate: 4 sin30° tan60° - 2 cot60° cos30°"         (~2-3 marks)
-//   ABS2-047 "difference between a salt and a base, one example"   (~2 marks)
-//   CR2-043  "Balance: Al + O2 -> Al2O3, show working"             (~1-2 marks)
-//   MNM2-037 "Name the reducing agent in iron extraction"          (~1 mark)
-//   REP2-039 "Name two contraceptive methods"                      (~1 mark)
-//   PR2-018  "3 red, 4 green, 5 blue: P(not blue)"  -- reclassified from PR1b
-//            Group-A on inspection (single-step 7/12, not a 5-mark long-answer)
-const PACK_5MK_SHORT_BACKLOG: ReadonlySet<string> = new Set([
-  "TG3-056", "TG3-059", "ABS2-047", "CR2-043",
-  "MNM2-037", "REP2-039", "PR2-018",
-]);
+// The guard stays LIVE: it still fails if any NEW pack 5-mark 'Short' offender
+// appears (regression protection), and — were an id ever re-pinned — if a
+// pinned id stops offending (shrink-only).
+const PACK_5MK_SHORT_BACKLOG: ReadonlySet<string> = new Set<string>([]);
 
 interface ParsedQuestion {
   file: string;
