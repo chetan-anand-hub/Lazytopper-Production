@@ -202,19 +202,19 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
   { id: "Z3-QE-004", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Quadratic Functions (Projectile Height Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Height of a Projectile: A projectile is thrown upward with an initial velocity of 176 ft/sec. After t sec, its height h(t) above the ground is given by h(t) = -16t^2 + 176t.\n(i) What is the projectile's height above the ground after 2 sec?\n(ii) How many seconds after it is thrown will the projectile strike the ground?\n(iii) What is the meaning of the two values of t in part (ii)?",
-    solutionSteps: ["[1 mark] (i) h(2) = -16(2)^2 + 176(2) = -64 + 352 = 288 feet.", "[2 marks] (ii) The projectile strikes the ground when h(t) = 0: -16t^2 + 176t = 0 => -16t(t - 11) = 0 => t = 0 or t = 11. So it strikes the ground after 11 sec.", "[1 mark] (iii) t = 0 is the launch instant (projectile at ground level when thrown) and t = 11 sec is when it returns to the ground; the two roots are the two instants the height is zero."],
+    solutionSteps: ["[1 mark] (i) h(2) = -16(2)^2 + 176(2) = -64 + 352 = 288 feet.", "[1 mark] (ii) Set h(t) = 0: -16t^2 + 176t = 0 => -16t(t - 11) = 0.", "[1 mark] (ii) Solve: t = 0 or t = 11, so the projectile strikes the ground after 11 sec.", "[1 mark] (iii) t = 0 is the launch instant (height zero when thrown) and t = 11 sec is when it returns to the ground; the two roots are the two instants the height is zero."],
     finalAnswer: "(i) 288 ft  (ii) t = 0 and t = 11 sec (strikes ground at 11 sec)  (iii) t = 0 is launch, t = 11 sec is landing",
     isCompetencyBased: true, visualExplainerId: "maths-quadratic-equations-fig-z3-qe-004", requiresDiagram: true },
   { id: "Z3-QE-005", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Quadratic Functions (Maximum Area Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Fencing a Backyard: Tina and Shriya have just purchased a German Shepherd and need to fence in their backyard so the dog can run.\n(i) What is the maximum rectangular area they can enclose with 200 ft of fencing if they use fencing along all four sides? What are the dimensions of the rectangle?\n(ii) What is the maximum area if they use the house as one of the sides? What are the dimensions of this rectangle?",
-    solutionSteps: ["[2 marks] (i) Let width = x, then with 2(length + width) = 200 the length = 100 - x. Area A(x) = x(100 - x) = -(x - 50)^2 + 2500, which is maximum at x = 50. Maximum area = 2500 sq ft with dimensions 50 ft x 50 ft.", "[1 mark] (ii) Using the house as one side, fencing covers one length and two widths: L + 2x = 200, so L = 200 - 2x. Area A(x) = x(200 - 2x) = -2(x - 50)^2 + 5000, maximum at x = 50.", "[1 mark] (ii cont.) Maximum area = 5000 sq ft with dimensions width 50 ft and length 100 ft."],
+    solutionSteps: ["[1 mark] (i) Let width = x. With 2(length + width) = 200, length = 100 - x. Area A(x) = x(100 - x) = -(x - 50)^2 + 2500.", "[1 mark] (i) A(x) is maximum at x = 50: maximum area = 2500 sq ft with dimensions 50 ft x 50 ft.", "[1 mark] (ii) Using the house as one side, fencing covers one length and two widths: L + 2x = 200, so L = 200 - 2x. Area A(x) = x(200 - 2x) = -2(x - 50)^2 + 5000.", "[1 mark] (ii) Maximum at x = 50: maximum area = 5000 sq ft with dimensions width 50 ft and length 100 ft."],
     finalAnswer: "(i) max area 2500 sq ft, dimensions 50 ft x 50 ft  (ii) max area 5000 sq ft, dimensions 50 ft x 100 ft (house as one side)",
     isCompetencyBased: true, visualExplainerId: "maths-quadratic-equations-fig-z3-qe-005", requiresDiagram: true },
   { id: "Z3-QE-006", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Quadratic Functions (Maximum Area with Partitions)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Building Sheep Pens: Darsh and Darpan are fencing off a large rectangular area to build holding pens. The large rectangle is partitioned into three smaller, equal-size pens by two internal fences parallel to the shorter side.\n(i) If 384 ft of fencing is available and the maximum area is desired, what will be the dimensions of the larger, outer rectangle?\n(ii) What will be the dimensions of the smaller holding pens?",
-    solutionSteps: ["[1 mark] Let the outer rectangle have length L and width W, with 2 internal partitions parallel to the width. Total fencing = 2 lengths + 4 widths (2 outer + 2 partitions): 2L + 4W = 384, so L = 192 - 2W.", "[2 marks] (i) Area A(W) = W(192 - 2W) = -2(W - 48)^2 + 4608, maximum at W = 48, giving L = 192 - 96 = 96. Outer rectangle dimensions: 48 ft by 96 ft.", "[1 mark] (ii) The 96 ft length is split into 3 equal pens by the 2 partitions, so each smaller pen measures 48 ft by (96/3) = 32 ft."],
+    solutionSteps: ["[1 mark] Let the outer rectangle have length L and width W, with 2 internal partitions parallel to the width. Total fencing = 2 lengths + 4 widths: 2L + 4W = 384, so L = 192 - 2W.", "[1 mark] (i) Area A(W) = W(192 - 2W) = -2(W - 48)^2 + 4608.", "[1 mark] (i) Maximum at W = 48, giving L = 192 - 96 = 96. Outer rectangle dimensions: 48 ft by 96 ft.", "[1 mark] (ii) The 96 ft length is split into 3 equal pens by the 2 partitions, so each smaller pen measures 48 ft by (96/3) = 32 ft."],
     finalAnswer: "(i) outer rectangle 48 ft by 96 ft  (ii) each smaller pen 48 ft by 32 ft",
     isCompetencyBased: true, visualExplainerId: "maths-quadratic-equations-fig-z3-qe-006", requiresDiagram: true },
   { id: "Z3-QE-007", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Quadratic Equations (Area Word Problems)",
@@ -257,8 +257,9 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     questionText: "Arc of a Baby Swing: When Mackenzie's baby swing is started, the first swing (one way) is a 30 inch arc. As the swing slows down, each successive arc is 1.5 inch less than the previous one.\n(i) Find the length of the tenth swing.\n(ii) How far has Mackenzie travelled during the 10 swings?",
     solutionSteps: [
       "[1 mark] The arc lengths form an AP with a = 30 inches and d = -1.5 inches.",
-      "[1 mark] Tenth swing: a10 = a + 9d = 30 + 9(-1.5) = 30 - 13.5 = 16.5 inches.",
-      "[2 marks] Total distance in 10 swings: S10 = 10/2[2a + 9d] = 5[2(30) + 9(-1.5)] = 5[60 - 13.5] = 5(46.5) = 232.5 inches."
+      "[1 mark] (i) Tenth swing: a10 = a + 9d = 30 + 9(-1.5) = 30 - 13.5 = 16.5 inches.",
+      "[1 mark] (ii) Total distance in 10 swings: S10 = 10/2[2a + 9d] = 5[2(30) + 9(-1.5)].",
+      "[1 mark] (ii) = 5[60 - 13.5] = 5(46.5) = 232.5 inches."
     ],
     finalAnswer: "(i) 16.5 inches  (ii) 232.5 inches",
     isCompetencyBased: true, visualExplainerId: "maths-arithmetic-progression-fig-z3-ap-002", requiresDiagram: true },
@@ -267,8 +268,9 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     questionText: "Computer Animations: The animation on a new computer game initially allows the hero to jump a (screen) distance of 10 inch over booby traps and obstacles. Each successive jump is limited to 3/4 inch less than the previous one.\n(i) Find the length of the seventh jump.\n(ii) Find the total distance covered after seven jumps.",
     solutionSteps: [
       "[1 mark] The jump lengths form an AP with a = 10 inches and d = -3/4 = -0.75 inch.",
-      "[1 mark] Seventh jump: a7 = a + 6d = 10 + 6(-0.75) = 10 - 4.5 = 5.5 inches.",
-      "[2 marks] Total distance after 7 jumps: S7 = 7/2[2a + 6d] = 3.5[2(10) + 6(-0.75)] = 3.5[20 - 4.5] = 3.5(15.5) = 54.25 inches."
+      "[1 mark] (i) Seventh jump: a7 = a + 6d = 10 + 6(-0.75) = 10 - 4.5 = 5.5 inches.",
+      "[1 mark] (ii) Total distance after 7 jumps: S7 = 7/2[2a + 6d] = 3.5[2(10) + 6(-0.75)].",
+      "[1 mark] (ii) = 3.5[20 - 4.5] = 3.5(15.5) = 54.25 inches."
     ],
     finalAnswer: "(i) 5.5 inches  (ii) 54.25 inches",
     isCompetencyBased: true, visualExplainerId: "maths-arithmetic-progression-fig-z3-ap-003", requiresDiagram: true },
@@ -309,8 +311,9 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     questionText: "Model Teachers' Earnings: According to the National Teachers Association, teachers in India earned an average of Rs 30,532 in 2000. This amount has increased by approximately Rs 1472 per year.\n(i) Write a formula for the nth term of the arithmetic sequence that models teachers' average earnings n years after 1999.\n(ii) How much will Indian teachers earn, on average, by the year 2030?",
     solutionSteps: [
       "[1 mark] n years after 1999, the year 2000 corresponds to n = 1 with earnings a = 30532; the common difference is d = 1472.",
-      "[2 marks] nth term: an = a + (n-1)d = 30532 + (n-1)(1472) = 30532 + 1472n - 1472 = 1472n + 29060.",
-      "[1 mark] Year 2030 corresponds to n = 2030 - 1999 = 31. a31 = 1472(31) + 29060 = 45632 + 29060 = Rs 74,692."
+      "[1 mark] (i) nth term: an = a + (n-1)d = 30532 + (n-1)(1472).",
+      "[1 mark] (i) = 30532 + 1472n - 1472 = 1472n + 29060.",
+      "[1 mark] (ii) Year 2030 corresponds to n = 2030 - 1999 = 31. a31 = 1472(31) + 29060 = 45632 + 29060 = Rs 74,692."
     ],
     finalAnswer: "(i) an = 1472n + 29060  (ii) Rs 74,692",
     isCompetencyBased: true, visualExplainerId: "maths-arithmetic-progression-fig-z3-ap-007", requiresDiagram: true },
@@ -319,8 +322,9 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     questionText: "Contest Prizes: A contest offers 15 prizes. The 1st prize is Rs 5000, and each successive prize is Rs 250 less than the preceding prize.\n(i) What is the value of the 15th prize?\n(ii) What is the total amount of money distributed in prizes?",
     solutionSteps: [
       "[1 mark] Prize values form an AP with a = 5000, d = -250, n = 15.",
-      "[1 mark] 15th prize: a15 = a + 14d = 5000 + 14(-250) = 5000 - 3500 = Rs 1500.",
-      "[2 marks] Total prize money: S15 = 15/2[2a + 14d] = 7.5[10000 - 3500] = 7.5(6500) = Rs 48,750."
+      "[1 mark] (i) 15th prize: a15 = a + 14d = 5000 + 14(-250) = 5000 - 3500 = Rs 1500.",
+      "[1 mark] (ii) Total prize money: S15 = 15/2[2a + 14d] = 7.5[10000 - 3500].",
+      "[1 mark] (ii) = 7.5(6500) = Rs 48,750."
     ],
     finalAnswer: "(i) Rs 1500  (ii) Rs 48,750",
     isCompetencyBased: true, visualExplainerId: "maths-arithmetic-progression-fig-z3-ap-008", requiresDiagram: true },
@@ -329,8 +333,9 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     questionText: "Bequests to Charity: A mother left Rs 90,000 to her children. Each year the children added Rs 30,000 more to this amount as a lasting memorial. When the balance reaches Rs 4,20,000, all of it goes to charity in her memory.\n(i) What was the balance in the sixth year?\n(ii) In what year was the goal of Rs 4,20,000 met?",
     solutionSteps: [
       "[1 mark] The yearly balance grows by a fixed amount, so balance after n years = 90000 + 30000n (an AP added on to the starting Rs 90,000).",
-      "[1 mark] Balance in the sixth year (n = 6): 90000 + 30000(6) = 90000 + 180000 = Rs 2,70,000.",
-      "[2 marks] Goal: 90000 + 30000n = 420000 => 30000n = 330000 => n = 11. The goal of Rs 4,20,000 was met in the 11th year."
+      "[1 mark] (i) Balance in the sixth year (n = 6): 90000 + 30000(6) = 90000 + 180000 = Rs 2,70,000.",
+      "[1 mark] (ii) Goal: 90000 + 30000n = 420000 => 30000n = 330000.",
+      "[1 mark] (ii) => n = 11. The goal of Rs 4,20,000 was met in the 11th year."
     ],
     finalAnswer: "(i) Rs 2,70,000  (ii) 11 years",
     isCompetencyBased: true, visualExplainerId: "maths-arithmetic-progression-fig-z3-ap-009", requiresDiagram: true },
@@ -654,13 +659,13 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
   { id: "Z3-ARC-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Areas of Circles and Sectors (Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(Take pi = 22/7.) Eshika wants to cover the cushions of her papasan chair. There are seven circular cushions of the same size with diameter 32 cm arranged around one centre cushion of diameter 46 cm. She covers both sides of every cushion and allows an extra 5 cm of fabric around each cushion.\nIn the same living room, Dhriti's pendulum clock has a minute hand 9 cm long and an hour hand 6 cm long; the pendulum is 45 cm long.\n(i) Find the total area of fabric needed to cover both sides of all the cushions (with the 5 cm allowance).\n(ii) Find the area swept by the minute hand in 14 minutes.\n(iii) Find the angle described by the hour hand in 10 minutes.\n(iv) If the tip of the pendulum covers a distance of 66 cm in one complete oscillation, find the angle described by the pendulum at the centre.",
-    solutionSteps: ["[2 marks] (i) With 5 cm allowance, the seven outer cushions have radius 16 + 5 = 21 cm and the centre cushion radius 23 + 5 = 28 cm. Both sides => factor 2. Fabric = 2*[7*pi*21^2 + pi*28^2] = 2*(22/7)*[7*441 + 784] = (44/7)*(3087 + 784) = (44/7)*3871 = 44*553 = 24332 cm^2.", "[1 mark] (ii) Minute hand turns 6 deg/min, so 14 min => 84 deg. Area = (84/360)*pi*9^2 = (84/360)*(22/7)*81 = 59.4 cm^2.", "[1 mark] (iii) Hour hand turns 360 deg in 12 h = 0.5 deg/min, so in 10 min it turns 0.5*10 = 5 degrees. (iv) For the pendulum, 66 = (theta/360)*2*(22/7)*45 => theta = 66*360*7/(2*22*45) = 84 degrees."],
+    solutionSteps: ["[1 mark] (i) With the 5 cm allowance, the seven outer cushions have radius 16 + 5 = 21 cm and the centre cushion radius 23 + 5 = 28 cm. Both sides => factor 2.", "[1 mark] (i) Fabric = 2*[7*pi*21^2 + pi*28^2] = (44/7)*[7*441 + 784] = (44/7)*3871 = 24332 cm^2.", "[1 mark] (ii) Minute hand turns 6 deg/min, so 14 min => 84 deg. Area = (84/360)*(22/7)*9^2 = 59.4 cm^2. (iii) Hour hand turns 0.5 deg/min, so in 10 min it turns 5 degrees.", "[1 mark] (iv) For the pendulum, 66 = (theta/360)*2*(22/7)*45 => theta = 66*360*7/(2*22*45) = 84 degrees."],
     finalAnswer: "(i) 24332 cm^2  (ii) 59.4 cm^2  (iii) 5 degrees  (iv) 84 degrees",
     isCompetencyBased: true, visualExplainerId: "maths-areas-circles-fig-z3-arc-002", requiresDiagram: true },
   { id: "Z3-ARC-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area and Circumference of a Circle (Applications)",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "(Take pi = 22/7.) A circular swimming pool has an area of 616 square metres. The owner wants to replace the tiling at the edge of the pool. The edging is 25 cm wide.\n(i) She plans to use square tiles to form a continuous inner edge around the pool. Find the radius and circumference of the pool, and how many square tiles are needed around the edge.\n(ii) Once the square tiles are in place around the circular edge there will be small extra spaces between adjacent tiles. What shape of tile best fills these gaps, and how many such tiles should she purchase?",
-    solutionSteps: ["[1 mark] Area = pi*r^2 = 616 => r^2 = 616*7/22 = 196 => r = 14 m. Circumference = 2*pi*r = 2*(22/7)*14 = 88 m.", "[1 mark] (i) The square edging tiles are laid end-to-end around the circular edge; with a 25 cm wide edging, the number of square tiles required works out to about 176 tiles.", "[2 marks] (ii) Because the edge is curved, wedge-shaped gaps remain between the straight-sided square tiles; these are best filled with triangular tiles. The number of triangular gap tiles needed is 4 times the number of square tiles = 4*176 = 704 triangular tiles."],
+    solutionSteps: ["[1 mark] Area = pi*r^2 = 616 => r^2 = 616*7/22 = 196 => r = 14 m. Circumference = 2*pi*r = 2*(22/7)*14 = 88 m.", "[1 mark] (i) The square edging tiles are laid end-to-end around the circular edge; with a 25 cm wide edging, the number of square tiles required works out to about 176 tiles.", "[1 mark] (ii) Because the edge is curved, wedge-shaped gaps remain between the straight-sided square tiles; these are best filled with triangular tiles.", "[1 mark] (ii) The number of triangular gap tiles needed is 4 times the number of square tiles = 4*176 = 704 triangular tiles."],
     finalAnswer: "(i) r = 14 m, circumference = 88 m, about 176 square tiles  (ii) triangular tiles, 704 of them",
     isCompetencyBased: true, visualExplainerId: "maths-areas-circles-fig-z3-arc-003", requiresDiagram: true },
   // PENDING OWNER VERIFICATION: two candidate values are unresolved. The border (outer - inner)
@@ -681,7 +686,7 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
   { id: "Z3-SAV-004", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination of a Cone and a Sphere",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(Take pi = 22/7.) A sugar cone is 10 cm deep and has a diameter of 4 cm. A spherical scoop of ice cream with a diameter of 4 cm rests on top of the cone.\n(i) If all the ice cream melts into the cone, will the cone overflow? Explain by comparing the two volumes.\n(ii) If the cone does not overflow, what percent of the cone will be filled?",
-    solutionSteps: ["[2 marks] Cone: radius r = 2 cm, height h = 10 cm. Volume of cone = (1/3)*pi*r^2*h = (1/3)*pi*4*10 = 40*pi/3 cm^3 (approx 41.9 cm^3).", "[1 mark] (i) Sphere of ice cream: radius 2 cm. Volume = (4/3)*pi*r^3 = (4/3)*pi*8 = 32*pi/3 cm^3 (approx 33.5 cm^3). Since 32*pi/3 < 40*pi/3, the ice-cream volume is less than the cone volume, so the cone will NOT overflow.", "[1 mark] (ii) Percent filled = (32*pi/3) / (40*pi/3) * 100 = (32/40)*100 = 80%. The cone will be about 80% filled."],
+    solutionSteps: ["[1 mark] Cone: radius r = 2 cm, height h = 10 cm. Volume of cone = (1/3)*pi*r^2*h = (1/3)*pi*4*10 = 40*pi/3 cm^3 (approx 41.9 cm^3).", "[1 mark] (i) Sphere of ice cream: radius 2 cm. Volume = (4/3)*pi*r^3 = (4/3)*pi*8 = 32*pi/3 cm^3 (approx 33.5 cm^3).", "[1 mark] (i) Since 32*pi/3 < 40*pi/3 (approx 33.5 cm^3 < 41.9 cm^3), the ice-cream volume is less than the cone volume, so the cone will NOT overflow.", "[1 mark] (ii) Percent filled = (32*pi/3) / (40*pi/3) * 100 = (32/40)*100 = 80%. The cone will be about 80% filled."],
     finalAnswer: "(i) No, it will not overflow (33.5 cm^3 < 41.9 cm^3)  (ii) about 80% filled",
     isCompetencyBased: true, visualExplainerId: "maths-surface-areas-volumes-fig-z3-sav-004", requiresDiagram: true,
     diagramDescription: "A right circular cone pointing downward (an ice-cream cone), depth 10 cm and top diameter 4 cm, with a sphere (scoop of ice cream) of diameter 4 cm resting on the open top." },
@@ -733,9 +738,10 @@ export const Z3_COMPETENCY_QUESTIONS: CanonicalQuestion[] = [
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Living Index: A cost of living index compares the expenses an average person can expect to incur for basic needs in different regions. The weekly observations on the cost of living index in a certain city for a particular year are given below.\nCost of Living Index (Number of weeks): 140-150: 5; 150-160: 10; 160-170: 20; 170-180: 9; 180-190: 6; 190-200: 2; Total: 52.\nBased on the above information, answer the following questions.\n(i) What is the approximate mean weekly cost-of-living index?\n(ii) What will be the lower limit of the modal class?\n(iii) What is the upper limit of the median class?",
     solutionSteps: [
-      "[2 marks] Using midpoints x (145, 155, 165, 175, 185, 195): sum(f*x) = 725 + 1550 + 3300 + 1575 + 1110 + 390 = 8650, N = 52. Mean = 8650/52 = 166.35, approximately 166.4.",
-      "[1 mark] Maximum frequency is 20 (class 160-170), so the modal class is 160-170 and its lower limit is 160.",
-      "[1 mark] Cumulative frequencies: 5, 15, 35, 44, 50, 52. N/2 = 26 lies in 160-170, so the median class is 160-170 and its upper limit is 170."
+      "[1 mark] (i) Using midpoints x (145, 155, 165, 175, 185, 195): sum(f*x) = 725 + 1550 + 3300 + 1575 + 1110 + 390 = 8650, N = 52.",
+      "[1 mark] (i) Mean = 8650/52 = 166.35, approximately 166.4.",
+      "[1 mark] (ii) Maximum frequency is 20 (class 160-170), so the modal class is 160-170 and its lower limit is 160.",
+      "[1 mark] (iii) Cumulative frequencies: 5, 15, 35, 44, 50, 52. N/2 = 26 lies in 160-170, so the median class is 160-170 and its upper limit is 170."
     ],
     finalAnswer: "(i) Mean = 166.4 (approx)  (ii) Lower limit of modal class = 160  (iii) Upper limit of median class = 170",
     isCompetencyBased: true, visualExplainerId: "maths-statistics-fig-z3-st-003", requiresDiagram: true,

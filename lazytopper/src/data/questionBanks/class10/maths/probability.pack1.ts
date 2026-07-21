@@ -259,10 +259,11 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
       "(iv) At least one Monday: Total − neither Monday = 36 − 25 = 11. P = 11/36 [1]",
     ], finalAnswer: "(i) 36 (ii) 1/6 (iii) 5/6 (iv) 11/36" , visualExplainerId: "maths-probability-complementary-events", isCompetencyBased: true },
   { id: "PROB-H09", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Five cards — the ten, jack, queen, king and ace of diamonds — are shuffled. One card is drawn. (i) What is the probability that the card is the queen? (ii) If the queen is drawn and put aside, what is the probability that the second card drawn is the ace? (iii) If the ace is drawn first and not replaced, what is the probability of drawing the king next?", solutionSteps: [
-      "Total cards = 5 (10, J, Q, K, A). Number of queens = 1. P(Queen) = 1/5. [2]",
-      "If queen is drawn and put aside, remaining cards = 4. Number of aces = 1. [1]",
-      "Probability of drawing the ace next = 1/4. [1]",
-      "If ace is drawn first and not replaced, remaining cards = 4. Number of kings = 1. P(King next) = 1/4. [1]",
+      "[1 mark] Total cards = 5 (the ten, jack, queen, king and ace of diamonds).",
+      "[1 mark] (i) Number of queens = 1, so P(queen) = 1/5.",
+      "[1 mark] (ii) After the queen is drawn and put aside, remaining cards = 4, of which 1 is the ace.",
+      "[1 mark] So P(ace next) = 1/4.",
+      "[1 mark] (iii) If the ace is drawn first and not replaced, remaining cards = 4 with 1 king, so P(king next) = 1/4.",
     ], finalAnswer: "(i) 1/5, (ii) 1/4, (iii) 1/4" , visualExplainerId: "maths-probability-dice-and-cards-sample-space", isCompetencyBased: true },
   { id: "PROB-H10", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "A die is numbered in such a way that its faces show numbers 1, 2, 2, 3, 3, 6. It is thrown two times and the total score is noted. Find: (i) P(total is even) (ii) P(total is 6) (iii) P(total is at least 6).", solutionSteps: [
       "Total ordered outcomes = 6 × 6 = 36; Face counts: 1 appears 1 time, 2 appears 2 times, 3 appears 2 times, 6 appears 1 time [1]",
@@ -295,10 +296,11 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
       "(iv) New total = 150, ₹1 coins = 80. P = 80/150 = 8/15 [1]",
     ], finalAnswer: "(i) 5/17 (ii) 15/17 (iii) 12/17 (iv) 8/15" , visualExplainerId: "maths-probability-classical-probability", isCompetencyBased: true },
   { id: "PROB-H15", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A bag contains 5 red, 4 blue and 3 green balls. Three balls are drawn one by one without replacement. Find the probability that the first ball is red, the second is blue and the third is green.", solutionSteps: [
-      "P(1st red) = 5/12 [2]",
-      "P(2nd blue | 1st red) = 4/11 [1]",
-      "P(3rd green | first two as above) = 3/10 [1]",
-      "P(all three in sequence) = 5/12 × 4/11 × 3/10 = 60/1320 = 1/22 [1]",
+      "[1 mark] The bag has 5 red + 4 blue + 3 green = 12 balls; three are drawn one by one without replacement.",
+      "[1 mark] P(1st is red) = 5/12.",
+      "[1 mark] P(2nd is blue | 1st red) = 4/11 (11 balls left, 4 blue).",
+      "[1 mark] P(3rd is green | first two drawn) = 3/10 (10 balls left, 3 green).",
+      "[1 mark] P(red then blue then green) = 5/12 × 4/11 × 3/10 = 60/1320 = 1/22.",
     ], finalAnswer: "1/22" , visualExplainerId: "maths-probability-classical-probability", isCompetencyBased: true },
   { id: "PROB-N01", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn at random from a well-shuffled pack of 52 cards. The probability of drawing a red queen is:", options: ["1/26","1/52","1/13","2/13"], answer: "1/26", explanation: "The correct answer is 1/26. There are 2 red queens in 52 cards. P = 2/52 = 1/26.", finalAnswer: "There are 2 red queens in 52 cards. P = 2/52 = 1/26.", isCompetencyBased: false,
     solutionSteps: [

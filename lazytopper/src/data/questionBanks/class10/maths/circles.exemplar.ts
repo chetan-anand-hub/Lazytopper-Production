@@ -139,7 +139,7 @@ export const CIRC_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section D — Long Answer (5 marks) =====
   { id: "CIRC-N-EXEM-10-LA-001", subject: "Maths", topicKey: "circles", subtopic: "Triangle Perimeter", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "From an external point P, two tangents PA and PB are drawn to a circle with centre O. At a point E on the circle, the tangent intersects PA at C and PB at D. If PA = 10 cm, find the perimeter of triangle PCD.",
-    solutionSteps: ["By equal tangents: PA = PB = 10, CA = CE, DB = DE.", "Perimeter(PCD) = PC + CD + DP = PC + (CE + ED) + DP.", "Substitute CE = CA and ED = DB: Perimeter = PC + CA + DB + DP = (PC + CA) + (DP + DB) = PA + PB = 10 + 10 = 20.", "Therefore the perimeter of ∆PCD is 20 cm."],
+    solutionSteps: ["[1 mark] Tangents drawn from an external point are equal, so PA = PB = 10 cm.", "[1 mark] From C the two tangents give CA = CE; from D they give DB = DE (equal tangents from an external point).", "[1 mark] Perimeter(△PCD) = PC + CD + DP = PC + (CE + ED) + DP.", "[1 mark] Substitute CE = CA and ED = DB: = (PC + CA) + (DP + DB) = PA + PB.", "[1 mark] Perimeter = 10 + 10 = 20 cm. Hence the perimeter of △PCD is 20 cm."],
     finalAnswer: "Perimeter of ∆PCD = 20 cm.",
     ncertRef: "Exemplar Ex 9.4 Q3", isCompetencyBased: true,
     strategyHint: "Repeatedly substitute equal-tangent lengths to collapse the perimeter to PA + PB." },

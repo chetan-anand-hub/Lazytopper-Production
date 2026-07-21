@@ -777,7 +777,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "A copper rod of diameter 1 cm and length 8 cm is drawn into a wire of length 18 m of uniform thickness. Find the thickness of the wire.",
     "options": [],
     "answer": "Diameter ≈ 0.067 cm",
-    "solutionSteps": ["Volume of rod = π(0.5)²(8) = 2π cm³", "Volume of wire = π(r)²(1800) = 1800πr²", "1800πr² = 2π → r² = 1/900 → r = 1/30 cm", "Diameter = 2/30 = 1/15 cm ≈ 0.067 cm"],
+    "solutionSteps": ["[1 mark] Volume of the copper rod = πr²h = π(0.5)²(8) = 2π cm³ (radius 0.5 cm, length 8 cm).", "[1 mark] Length of the wire = 18 m = 1800 cm; let its radius be r cm ⟹ volume = π·r²·1800.", "[1 mark] Volume is conserved on drawing the rod into a wire: 1800·π·r² = 2π.", "[1 mark] r² = 2/1800 = 1/900 ⟹ r = 1/30 cm.", "[1 mark] Thickness (diameter) = 2r = 2/30 = 1/15 cm ≈ 0.067 cm."],
     "finalAnswer": "Diameter = 1/15 cm ≈ 0.067 cm",
     "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,

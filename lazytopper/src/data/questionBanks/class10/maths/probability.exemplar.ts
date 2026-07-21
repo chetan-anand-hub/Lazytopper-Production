@@ -150,14 +150,14 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section D — Long Answer (5 marks) =====
   { id: "PROB-N-EXEM-14-LA-001", subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "In a game the entry fee is ₹5. The game consists of tossing a coin 3 times. If one or two heads show, Sweta gets her entry fee back; if she throws 3 heads she gets double the entry fee; otherwise she loses. For tossing a coin three times, find the probability that she (i) loses the entry fee, (ii) gets double the entry fee, (iii) just gets her entry fee back.",
-    solutionSteps: ["Sample space for 3 tosses: 2³ = 8 outcomes — HHH, HHT, HTH, THH, HTT, THT, TTH, TTT.", "(i) Loses ⇒ 0 heads (TTT) → 1 outcome. P(loses) = 1/8.", "(ii) Gets double ⇒ 3 heads (HHH) → 1 outcome. P = 1/8.", "(iii) Gets fee back ⇒ exactly 1 or 2 heads → 8 − 1 (HHH) − 1 (TTT) = 6 outcomes. P = 6/8 = 3/4."],
+    solutionSteps: ["[1 mark] The coin is tossed 3 times, so the sample space has 2³ = 8 equally likely outcomes: HHH, HHT, HTH, THH, HTT, THT, TTH, TTT.", "[1 mark] (i) She loses only when no head shows (0 heads) — outcome TTT, i.e. 1 favourable outcome.", "[1 mark] (i) P(loses the entry fee) = 1/8.", "[1 mark] (ii) She gets double the fee only on 3 heads (HHH) — 1 outcome, so P(gets double) = 1/8.", "[1 mark] (iii) She gets her fee back on exactly 1 or 2 heads = 8 − 1(HHH) − 1(TTT) = 6 outcomes, so P = 6/8 = 3/4."],
     finalAnswer: "(i) 1/8; (ii) 1/8; (iii) 3/4.",
     ncertRef: "Exemplar Ex 13.3 Q38", isCompetencyBased: true,
     strategyHint: "Enumerate the 8 outcomes of 3 coin tosses and group by head-count." },
 
   { id: "PROB-N-EXEM-14-LA-002", subject: "Maths", topicKey: "probability", subtopic: "Word Problem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "A bag contains 24 balls of which x are red, 2x are white and 3x are blue. A ball is selected at random. Find the value of x and then (i) the probability that the ball is not red, (ii) the probability that the ball is white.",
-    solutionSteps: ["Total balls: x + 2x + 3x = 6x = 24 ⇒ x = 4.", "So red = 4, white = 8, blue = 12.", "(i) Non-red balls = 24 − 4 = 20. P(not red) = 20/24 = 5/6.", "(ii) P(white) = 8/24 = 1/3."],
+    solutionSteps: ["[1 mark] Total number of balls = x + 2x + 3x = 6x, and this equals 24.", "[1 mark] Solving 6x = 24 gives x = 4.", "[1 mark] So red = x = 4, white = 2x = 8 and blue = 3x = 12.", "[1 mark] (i) Number of non-red balls = 24 − 4 = 20, so P(not red) = 20/24 = 5/6.", "[1 mark] (ii) Number of white balls = 8, so P(white) = 8/24 = 1/3."],
     finalAnswer: "x = 4; (i) 5/6; (ii) 1/3.",
     ncertRef: "Exemplar Ex 13.3 Q41", isCompetencyBased: true },
 

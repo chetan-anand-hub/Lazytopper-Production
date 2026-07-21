@@ -214,10 +214,11 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
       "Total ≈ 346.7 cm³ ≈ 345 cm³ (approximately correct) [1]",
     ], finalAnswer: "≈ 346.51 cm³ — approximately correct" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-H10", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A wooden article was made by scooping out a hemisphere from each end of a solid cylinder. If the height of the cylinder is 10 cm and its base radius is 3.5 cm, find the total surface area of the article.", solutionSteps: [
-      "CSA of cylinder = 2π(3.5)(10) = 70π = 220 cm² [2]",
-      "Two hemispheres CSA = 2 × 2π(3.5)² = 4π(12.25) = 49π = 154 cm² [1]",
-      "No base circles (scooped out) [1]",
-      "TSA = 220 + 154 = 374 cm² [1]",
+      "[1 mark] Given: a solid cylinder of height h = 10 cm and base radius r = 3.5 cm, with a hemisphere of radius 3.5 cm scooped out from each flat end.",
+      "[1 mark] Curved surface area of the cylinder = 2πrh = 2 × (22/7) × 3.5 × 10 = 220 cm².",
+      "[1 mark] Each scooped hemisphere exposes its curved surface = 2πr²; for the two hemispheres = 2 × 2πr² = 4 × (22/7) × (3.5)² = 154 cm².",
+      "[1 mark] The two flat circular ends of the cylinder are hollowed out, so they are not counted; surface area of the article = CSA of cylinder + CSA of two hemispheres.",
+      "[1 mark] Total surface area = 220 + 154 = 374 cm².",
     ], finalAnswer: "374 cm²" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-H12", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "A canal is 300 cm wide and 120 cm deep. Water in it flows at the rate of 20 km/h. How much area will it irrigate in 20 minutes if 8 cm of standing water is desired?", solutionSteps: [
       "Cross-section = 3 × 1.2 = 3.6 m²; In 20 min: distance = 20 × 20/60 = 20/3 km = 20000/3 m [1]",
@@ -253,10 +254,11 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
   { id: "SAV2P1-R04", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "A toy is in the shape of a cylinder surmounted by a hemisphere. The surface area of the toy does NOT include:", options: ["CSA of cylinder", "CSA of hemisphere", "Base of cylinder", "Base of hemisphere"], answer: "Base of hemisphere", explanation: "TSA = CSA of cylinder + CSA of hemisphere + base of cylinder (bottom). The flat base of the hemisphere is at the internal junction between the hemisphere and cylinder — it is hidden and not part of the external surface area. The bottom circular base of the cylinder IS included in the external TSA. Therefore, the correct answer is Base of hemisphere.", solutionSteps: ["TSA = CSA of cylinder + CSA of hemisphere + base of cylinder (bottom)", "The flat base of the hemisphere is at the internal junction between the hemisphere and cylinder — it is hidden and not part of the external surface area", "The bottom circular base of the cylinder IS included in the external TSA"], finalAnswer: "Base of hemisphere", isCompetencyBased: false },
   { id: "SAV2P1-R05", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Assertion (A): If the radius and height of a cylinder are both doubled, the volume becomes 8 times.\nReason (R): Volume of cylinder = πr²h.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["New V = π(2r)²(2h) = 8πr²h ✓"], finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true },
   { id: "SAV2P1-R06", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "A solid iron pole consists of a cylinder of height 220 cm and base radius 24 cm, surmounted by another cylinder of height 60 cm and radius 8 cm. Find the mass of the pole given 1 cm³ of iron weighs 8 g.", solutionSteps: [
-      "V₁ = π(576)(220) = 126720π cm³ [2]",
-      "V₂ = π(64)(60) = 3840π cm³ [1]",
-      "Total V = 130560π ≈ 410244 cm³ [1]",
-      "Mass = 410244 × 8 g ≈ 3281952 g ≈ 3281.95 kg [1]",
+      "[1 mark] Given: lower cylinder of height H₁ = 220 cm and radius R₁ = 24 cm, upper cylinder of height H₂ = 60 cm and radius R₂ = 8 cm; density of iron = 8 g per cm³.",
+      "[1 mark] Volume of lower cylinder V₁ = πR₁²H₁ = π(24)²(220) = 126720π cm³.",
+      "[1 mark] Volume of upper cylinder V₂ = πR₂²H₂ = π(8)²(60) = 3840π cm³.",
+      "[1 mark] Total volume V = V₁ + V₂ = 130560π ≈ 410244 cm³.",
+      "[1 mark] Mass = volume × density = 410244 × 8 = 3281952 g ≈ 3281.95 kg.",
     ], finalAnswer: "≈ 3281.95 kg", visualExplainerId: "maths-surface-areas-volumes-combination-of-solids", isCompetencyBased: true },
   { id: "SAV2P1-R07", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Water in a canal, 6 m wide and 1.5 m deep, flows at 4 km/h.\n(i) How much water flows in 10 minutes? (ii) If water is used to irrigate land needing 8 cm water, how many hectares can be irrigated in 10 minutes?", solutionSteps: [
       "Length of water flow in 10 min = (4000/60) * 10 = 2000/3 m. [1]",

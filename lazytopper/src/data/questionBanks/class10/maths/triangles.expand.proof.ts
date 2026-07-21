@@ -141,10 +141,11 @@ export const TRI_EXPAND_PROOF: CanonicalQuestion[] = [
     "options": [],
     "answer": "All three similarities proved by AA criterion",
     "solutionSteps": [
-      "[1 mark] GIVEN: AD ⊥ BC and CE ⊥ AB intersect at P. Hence ∠ADB = ∠ADC = 90° and ∠CEA = ∠CEB = 90°.",
-      "[1.5 mark] (i) In △APE and △CPD: ∠AEP = 90° (CE ⊥ AB) and ∠CDP = 90° (AD ⊥ BC), and ∠APE = ∠CPD (vertically opposite angles). By AA similarity, △APE ~ △CPD.",
+      "[1 mark] GIVEN: in △ABC the altitudes AD ⊥ BC and CE ⊥ AB intersect at P. Hence ∠ADB = ∠ADC = 90° and ∠CEA = ∠CEB = 90°.",
+      "[1 mark] (i) In △APE and △CPD: ∠AEP = 90° (CE ⊥ AB) and ∠CDP = 90° (AD ⊥ BC), and ∠APE = ∠CPD (vertically opposite angles). By AA similarity, △APE ~ △CPD.",
       "[1 mark] (ii) In △ABD and △CBE: ∠ADB = ∠CEB = 90° and ∠B is common. By AA similarity, △ABD ~ △CBE.",
-      "[1.5 mark] (iii) In △APE and △ABD: ∠AEP = ∠ADB = 90° and ∠PAE = ∠DAB (the same angle at A, since E lies on AB and P lies on AD). By AA similarity, △APE ~ △ABD. Proved."
+      "[1 mark] (iii) In △APE and △ABD: ∠AEP = ∠ADB = 90° and ∠PAE = ∠DAB (the same angle at A, since E lies on AB and P lies on AD).",
+      "[1 mark] (iii) Therefore, by AA similarity, △APE ~ △ABD. Hence proved."
     ],
     "finalAnswer": "△APE ~ △CPD, △ABD ~ △CBE and △APE ~ △ABD",
     "explanation": "Each pair shares a right angle plus one more equal angle (vertically opposite, common, or the shared vertex angle), giving AA similarity.",

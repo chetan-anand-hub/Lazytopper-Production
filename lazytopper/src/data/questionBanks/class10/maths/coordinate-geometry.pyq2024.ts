@@ -50,8 +50,13 @@ export const COORDINATE_GEOMETRY_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-CG-006", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Ryan, from a very young age, was fascinated by the twinkling of stars and the vastness of space. He always dreamt of becoming an astronaut one day. So he started to sketch his own rocket designs on the graph sheet. One such design is given below : Based on the above, answer the following questions : (i) Find the midpoint of the segment joining F and G. 1 (ii) (a) What is the distance between the points A and C ? 2 OR (b) Find the coordinates of the point which divides the line segment joining the points A and B in the ratio 1 : 3 internally. 2 (iii) What are the coordinates of the point D ?",
     answer: "(3, 7 2) (iii) D(2, 5)",
-    solutionSteps: ["(i) Mid point of FG is ( −3+1 2 , 0+4 2 ) = (−1,2) 1  20 (ii) (a) AC = √(−1 −3)2 + (−2 −4)2 = √52 or 2√13 OR (ii) (b) The coordinates of required point are ( 1×3+3×3 1+3 , 1×2+3×4 1+3 ) i.e.", "(3, 7 2) (iii) D(2, 5)"],
-    finalAnswer: "(3, 7 2) (iii) D(2, 5)",
+    solutionSteps: [
+      "[1 mark] (i) Midpoint of FG = ((−3+1)/2, (0+4)/2) = (−1, 2).",
+      "[1 mark] (ii)(a) Distance AC = √[(−1−3)² + (−2−4)²] = √[16 + 36] = √52.",
+      "[1 mark] (ii)(a) AC = √52 = 2√13 units. [OR (b) the point dividing AB in the ratio 1:3 internally is (3, 7/2).]",
+      "[1 mark] (iii) The coordinates of the point D are (2, 5)."
+    ],
+    finalAnswer: "(i) (−1, 2); (ii)(a) AC = 2√13 units [OR (b) (3, 7/2)]; (iii) D(2, 5).",
     ncertRef: "PYQ 30/4/3 Q38", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "3" },
   { id: "PYQ-M-2024-CG-007", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",

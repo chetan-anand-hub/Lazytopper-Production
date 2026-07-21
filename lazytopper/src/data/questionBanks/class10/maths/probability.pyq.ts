@@ -98,8 +98,13 @@ export const PROBABILITY_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-PROB-012", subject: "Maths", topicKey: "probability", subtopic: "General", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Computer-based learning (CBL) refers to any teaching methodology that makes use of computers for information transmission. At an elementary school level, computer applications can be used to display multimedia lesson plans. A survey was done on 1000 elementary and secondary schools of Assam and they were classified by the number of computers they had. Number of Computers 1 10 11 20 21 50 51 100 101 and more Number of Schools 250 200 290 180 80 One school is chosen at random. Then : (i) Find the probability that the school chosen at random has more than 100 computers. 1 (ii) (a) Find the probability that the school chosen at random has 50 or fewer computers. 2 OR (ii) (b) Find the probability that the school chosen at random has no more than 20 computers. 2 (iii) Find the probability that the school chosen at random has 10 or less than 10 computers.",
     answer: "(i) P (more than 100 computers) = 1000 80 or 0·08 (ii)(a) 50 or fewer computers = 250 + 200 + 290 = 740 Required probability = 1000 740 or 0·74 OR (ii)(b) No more than 20 computers = 250 + 200 = 450 Required probability = 1000 450 or 0·45 (iii) P (10 or less than 10 computer) = 1000 250 or 0·25",
-    solutionSteps: ["(i) P (more than 100 computers) = 1000 80 or 0·08 (ii)(a) 50 or fewer computers = 250 + 200 + 290 = 740 Required probability = 1000 740 or 0·74 OR (ii)(b) No more than 20 computers = 250 + 200 = 450 Required probability = 1000 450 or 0·45 (iii) P (10 or less than 10 computer) = 1000 250 or 0·25"],
-    finalAnswer: "(i) P (more than 100 computers) = 1000 80 or 0·08 (ii)(a) 50 or fewer computers = 250 + 200 + 290 = 740 Required probability = 1000 740 or 0·74 OR (ii)(b) No more than 20 computers = 250 + 200 = 450 Required probability = 1000 450 or 0·45 (iii) P (10 or less than 10 computer) = 1000 250 or 0·25",
+    solutionSteps: [
+      "[1 mark] (i) P(more than 100 computers) = 80/1000 = 0.08.",
+      "[1 mark] (ii)(a) Schools with 50 or fewer computers = 250 + 200 + 290 = 740. [OR (ii)(b) Schools with no more than 20 computers = 250 + 200 = 450.]",
+      "[1 mark] (ii)(a) Required probability = 740/1000 = 0.74. [OR (ii)(b) Required probability = 450/1000 = 0.45.]",
+      "[1 mark] (iii) P(10 or fewer computers) = 250/1000 = 0.25."
+    ],
+    finalAnswer: "(i) 0.08; (ii)(a) 0.74 [OR (b) 0.45]; (iii) 0.25.",
     ncertRef: "PYQ 30/2/1 Q38", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
 ];

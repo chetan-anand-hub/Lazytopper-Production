@@ -19,7 +19,7 @@ export const COORDINATE_GEOMETRY_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-CG-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Midpoint Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "5 cm O PQ PR OP C AB OP = 13 cm , AB PA of 24 (b) Through the midpoint Q of side CD of a parallelogram ABCD, the line AR is drawn which intersects BD at P and produced BC at R. Prove that (i) AQ = QR (ii) AP = 2PQ (iii) PR = 2AP",
     answer: "x = 10 3 AB = 2AC = 20 3 cm or 6.6 cm (approx. ) PA = 12 −10 3 = 26 3 cm or 8.6 cm (approx. )",
-    solutionSteps: ["OP = 13 cm", "OQ = 5 cm ∴PQ = √169 −25 = 12 cm Let AC = x = AQ PC = 13 −5 = 8 cm and PA = 12 −x AC ⊥OP ∴(12 −x)= x+ 8", "x = 10 3 AB = 2AC = 20 3 cm or 6.6 cm (approx. ) PA = 12 −10 3 = 26 3 cm or 8.6 cm (approx. )"],
+    solutionSteps: ["[1 mark] Given: OP = 13 cm (distance from centre O to external point P) and OQ = 5 cm (radius to the chord's midpoint Q), with the chord AB perpendicular to OP.", "[1 mark] In right triangle OQP: PQ = √(OP² − OQ²) = √(13² − 5²) = √(169 − 25) = √144 = 12 cm.", "[1 mark] Let AC = AQ = x. Then PC = OP − OQ = 13 − 5 = 8 cm and PA = PQ − AQ = 12 − x; using the perpendicular-chord relation gives (12 − x) relating to x and PC = 8.", "[1 mark] Solving the resulting equation gives x = 10/3 cm, so AB = 2·AC = 20/3 cm or 6.6 cm (approx.).", "[1 mark] PA = 12 − 10/3 = 26/3 cm or 8.6 cm (approx.)."],
     finalAnswer: "x = 10 3 AB = 2AC = 20 3 cm or 6.6 cm (approx. ) PA = 12 −10 3 = 26 3 cm or 8.6 cm (approx. )",
     ncertRef: "PYQ 30/5/1 Q35", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

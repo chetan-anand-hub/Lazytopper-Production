@@ -256,36 +256,78 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-ELEC-036", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The value of current (I) flowing through a given resistor of resistance (R), for the corresponding values of potential difference (V) across the resistor are as given below : V 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 I 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 Plot a graph between current (I) and potential difference (V) and determine the resistance (R) of the resistor.",
     answer: "96. Draw a labelled circuit diagram showing three resistors R1, R2 and R3 connected in series with a battery (E), a rheostat (Rh), a plug key (K) and an ammeter (A) using standard circuit symbols. Use this circuit to show that the same current flows through every part of the circ",
-    solutionSteps: ["96. Draw a labelled circuit diagram showing three resistors R1, R2 and R3 connected in series with a battery (E), a rheostat (Rh), a plug key (K) and an ammeter (A) using standard circuit symbols. Use this circuit to show that the same current flows through every part of the circuit. List two precautions you would observe while performing the experiment. Ans : [CBSE 2016] By changing the position of ammeter, measure the current in it. Every time the magnitude of current is found same i.e., in series combination the current in every part of the circuit, remains same. Precaution: a. Connect the "],
+    solutionSteps: [
+      "[1 mark] Diagram: Graph — take potential difference V (in volt) along the x-axis and current I (in ampere) along the y-axis, and plot the given points (0.5, 0.1), (1.0, 0.2), (1.5, 0.3), (2.0, 0.4), (2.5, 0.5), (3.0, 0.6), ...",
+      "[1 mark] The plotted points lie on a straight line passing through the origin — I is directly proportional to V, verifying Ohm's law.",
+      "[1 mark] By Ohm's law, the resistance is R = V/I, i.e. the reciprocal of the slope of the I–V line.",
+      "[1 mark] Taking any point on the straight line, R = V/I = 1.0 V / 0.2 A = 5 Ω.",
+      "[1 mark] Hence the resistance of the resistor is R = 5 Ω (the same value is obtained for every point on the linear graph)."
+    ],
+    finalAnswer: "The I–V graph is a straight line through the origin; resistance R = V/I = 5 Ω.",
     ncertRef: "cbjesccq12 Q95", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references given below" },
   // cbjesccq12 Q97 (Section D, 5mk)
   { id: "SCQ-S-ELEC-037", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Derive the formula for the calculation of work done when current flows through a resistor. (b) One electric bulb is rated 40 W and 240 V and other 25 W and 240 V. Which bulb has higher resistance and how many times?",
     answer: "a. Let R is the resistance of the resistor in which I current is passed for a time t by applying a p.d. ( V ) across the resistor. The work done in bringing a charge Q from one end to another of the conductor W QV = But t Q I = Q It = W VIt b. 40 W–240 V 25 W–240 V P1 R V 1 1 2 =",
-    solutionSteps: ["a. Let R is the resistance of the resistor in which I current is passed for a time t by applying a p.d. ( V ) across the resistor. The work done in bringing a charge Q from one end to another of the conductor W QV = But t Q I = Q It = W VIt b. 40 W–240 V 25 W–240 V P1 R V 1 1 2 = R P V 2 2 2 2 = R1 P V 1 1 2 = R 25 240 240 2 # W = R1 40 240 240 # W = R R 2 1 40 25 = or R R 8 5 2 1 = R R < 1 2 i.e., Resistance of 25 W bulb is more than 40 W bulb."],
+    solutionSteps: [
+      "[1 mark] a. Let a resistor of resistance R carry a current I for time t when a potential difference V is applied across it. The work done in moving a charge Q from one end of the resistor to the other is W = QV.",
+      "[1 mark] Since current I = Q/t, the charge that flows is Q = It.",
+      "[1 mark] Therefore work done W = V × It = VIt (and using Ohm's law V = IR, W = I²Rt = V²t/R).",
+      "[1 mark] b. Resistance of a bulb: R = V²/P. For the 40 W bulb, R1 = 240²/40 = 1440 Ω; for the 25 W bulb, R2 = 240²/25 = 2304 Ω.",
+      "[1 mark] R2/R1 = 2304/1440 = 8/5 = 1.6 — the 25 W bulb has the higher resistance, 1.6 times (8/5 times) that of the 40 W bulb."
+    ],
+    finalAnswer: "a. W = VIt. b. The 25 W bulb has the higher resistance — 2304 Ω against 1440 Ω, i.e. 1.6 (8/5) times that of the 40 W bulb.",
     ncertRef: "cbjesccq12 Q97", isCompetencyBased: true },
   // cbjesccq12 Q99 (Section D, 5mk)
   { id: "SCQ-S-ELEC-038", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "(a) Name an instrument that measures electric current in a circuit. Define unit of electric current. (b) What are the following symbols mean in an electric circuit? (i) (ii) (c) Draw a closed circuit diagram consisting of 0.5 m long nichrome wire XY, an , ammeter, a voltmeter, four cells of 1.5 V and a plug key.",
     answer: "a. Ammeter. If IC charge flows in an electric circuit is 1 s then the current is said to be 1 A. b. (i) Rheostat (ii) Closed key c.",
-    solutionSteps: ["a. Ammeter. If IC charge flows in an electric circuit is 1 s then the current is said to be 1 A. b. (i) Rheostat (ii) Closed key c."],
+    solutionSteps: [
+      "[1 mark] a. Electric current in a circuit is measured with an AMMETER, always connected in series in the circuit.",
+      "[1 mark] SI unit of current is the ampere (A): if 1 coulomb of charge flows through a conductor in 1 second, the current is said to be 1 ampere (1 A = 1 C / 1 s).",
+      "[1 mark] b. (i) The symbol represents a rheostat (variable resistance). (ii) The symbol represents a plug key which is closed.",
+      "[1 mark] c. Diagram: a closed series circuit — four cells of 1.5 V each in series (battery of 6 V), a plug key, an ammeter and the 0.5 m long nichrome wire XY, all connected in series.",
+      "[1 mark] Diagram: a voltmeter connected in parallel across the nichrome wire XY, with the correct polarity (+ terminals of ammeter and voltmeter towards the + terminal of the battery)."
+    ],
+    finalAnswer: "a. Ammeter; 1 ampere = 1 coulomb per second. b. (i) Rheostat (ii) Closed plug key. c. Series circuit of battery (4 × 1.5 V), key, ammeter and wire XY, with a voltmeter in parallel across XY.",
     ncertRef: "cbjesccq12 Q99", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references circuit" },
   // cbjesccq12 Q100 (Section D, 5mk)
   { id: "SCQ-S-ELEC-039", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What is meant by resistance of a conductor? Name and define its SI unit. List the factors on which the resistance of a conductor depends. How is the resistance of a wire affected if: a. its length is doubled, b. its radius is doubled?",
     answer: "Property of any conductor by virtue of which it opposes the flow of current in the conductor is called its resistance. SI unit of resistance is Ohm. If by applying a potential difference of 1 volt the current in the conductor is 1 A. Then the resistance of the conductor is said t",
-    solutionSteps: ["Property of any conductor by virtue of which it opposes the flow of current in the conductor is called its resistance. SI unit of resistance is Ohm. If by applying a potential difference of 1 volt the current in the conductor is 1 A. Then the resistance of the conductor is said to be 1 ohm. Factor affecting resistances: a. If length is double then resistance also becomes doubled. b. If radius is doubled then area A r 2 2 p = ^ h becomes 4 times, then the resistance becomes 1/4."],
+    solutionSteps: [
+      "[1 mark] Resistance is the property of a conductor by virtue of which it opposes the flow of current through it; R = V/I.",
+      "[1 mark] SI unit: the ohm (Ω). If a potential difference of 1 volt across a conductor drives a current of 1 ampere through it, its resistance is 1 ohm (1 Ω = 1 V / 1 A).",
+      "[1 mark] Factors: resistance depends on (i) the length of the conductor (R ∝ l), (ii) its area of cross-section (R ∝ 1/A), (iii) the nature of its material, and (iv) its temperature.",
+      "[1 mark] a. If the length is doubled (A unchanged), then since R ∝ l, the resistance also becomes double (2R).",
+      "[1 mark] b. If the radius is doubled, the area A = πr² becomes 4 times, and since R ∝ 1/A the resistance becomes one-fourth (R/4)."
+    ],
+    finalAnswer: "Resistance opposes current flow; SI unit ohm (1 Ω = 1 V/1 A); depends on length, area of cross-section, material and temperature. a. Doubled length → resistance doubles; b. Doubled radius → resistance becomes one-fourth.",
     ncertRef: "cbjesccq12 Q100", isCompetencyBased: true },
   // cbjesccq12 Q101 (Section D, 5mk)
   { id: "SCQ-S-ELEC-040", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What do you mean by heating effect of electric current? Explain the production of heat in a resistor by flow of electric current through it. Name two devices based on heating effect of current.",
     answer: "[All India 2015] When current is passed through a conductor, heat is produced. Production of heat in a conductor on passing the current is called heating effect of current. When a current is passed in a conductor by applying a potential difference, electrons get accelerated and c",
-    solutionSteps: ["[All India 2015] When current is passed through a conductor, heat is produced. Production of heat in a conductor on passing the current is called heating effect of current. When a current is passed in a conductor by applying a potential difference, electrons get accelerated and collide with the atoms of the conductor. During the collision there is a loss of kinetic energy. This loss in K.E. appears in the form of heat energy in the conductor 1. Electric heater, 2. Bulb."],
+    solutionSteps: [
+      "[1 mark] When an electric current is passed through a conductor (resistor), heat is produced in it. This production of heat on passing a current is called the heating effect of electric current (Joule heating).",
+      "[1 mark] When a potential difference is applied across a resistor, the free electrons get accelerated and repeatedly collide with the atoms/ions of the conductor.",
+      "[1 mark] In these collisions the electrons lose kinetic energy; this lost kinetic energy appears as heat energy in the resistor, raising its temperature.",
+      "[1 mark] The heat produced is given by Joule's law of heating: H = I²Rt (heat ∝ square of current × resistance × time).",
+      "[1 mark] Two devices based on the heating effect of current: (1) electric heater, (2) electric bulb (also electric iron, fuse)."
+    ],
+    finalAnswer: "Heat produced in a resistor on passing current is the heating effect; electrons colliding with atoms convert kinetic energy into heat, H = I²Rt. Devices: electric heater and electric bulb.",
     ncertRef: "cbjesccq12 Q101", isCompetencyBased: true },
   // cbjesccq12 Q102 (Section D, 5mk)
   { id: "SCQ-S-ELEC-041", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Name an instrument that measures potential difference between two points in a circuit. Define the unit of potential difference in terms of SI unit of charge and work. Draw the circuit symbols for (i) variable resistor, (ii) a plug key which is closed one. (b) Two electric circuits I and II are shown below \" (i) Which of the two circuits has more resistance? (ii) Through which circuit more current passes? (iii) In which circuit, the potential difference across each resistor is equal? (iv) If R1 > R2 > R3 in which circuit more heat will be produced in R1 as compared to other two resistors?",
     answer: "a. Voltmeter The amount of work done in bringing a unit positive charge from one point to another in an electric field is said to be potential difference V Q W = (i) Variable resistance (ii) Closed key. b. (i) In series combination resistance is more than parallel combination. (i",
-    solutionSteps: ["a. Voltmeter The amount of work done in bringing a unit positive charge from one point to another in an electric field is said to be potential difference V Q W = (i) Variable resistance (ii) Closed key. b. (i) In series combination resistance is more than parallel combination. (ii) Lesser the resistance more the current in circuit i.e., in parallel (II) current is max. (iii) In parallel combination (II) (iv) More heat in (I) across R1."],
+    solutionSteps: [
+      "[1 mark] a. Potential difference between two points is measured with a VOLTMETER (connected in parallel). The potential difference is the work done in bringing a unit positive charge from one point to the other: V = W/Q; 1 volt = 1 joule / 1 coulomb.",
+      "[1 mark] Diagram: circuit symbols — (i) variable resistor (rheostat): a resistor with an arrow across it; (ii) closed plug key: two dots with the plug inserted.",
+      "[1 mark] b. (i) Circuit I (series combination) has more resistance than circuit II (parallel combination).",
+      "[1 mark] (ii) The lesser the resistance, the more the current — so more current passes through circuit II (parallel). (iii) In circuit II (parallel), the potential difference across each resistor is equal.",
+      "[1 mark] (iv) In circuit I (series) more heat is produced in R1 than in the other two: the same current flows through all resistors and H = I²Rt, so with R1 > R2 > R3 the largest resistance R1 produces the most heat."
+    ],
+    finalAnswer: "a. Voltmeter; V = W/Q (1 V = 1 J/C). b. (i) Circuit I; (ii) circuit II; (iii) circuit II; (iv) circuit I — R1 produces the most heat (H = I²Rt).",
     ncertRef: "cbjesccq12 Q102", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
 ];

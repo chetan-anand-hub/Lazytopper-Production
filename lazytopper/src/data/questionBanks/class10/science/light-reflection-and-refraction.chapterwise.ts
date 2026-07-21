@@ -280,36 +280,72 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-LIGHT-039", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "An object of height 4.0 cm is placed at a distance of 30 cm from the optical centre 'O' of a convex lens of focal length 20 cm. Draw a ray diagram to find the position and size of the image formed. Mark optical centre 'O' and principal focus 'F' on the diagram. Also find the approximate ratio of size of the image to the size of the object.",
     answer: "Ray diagram: Position of O and F f 1 v u 1 1 = - v 20 1 1 30 1 & = - - ^ h v 1 20 1 30 1 = - v 1 60 3 2 & = - v 60 = cm m h h o i = u v = h 4 30 60 i & = - ^ h hi 8 =- cm Ratio / h h i o = is approximately 2:1",
-    solutionSteps: ["Ray diagram: Position of O and F f 1 v u 1 1 = - v 20 1 1 30 1 & = - - ^ h v 1 20 1 30 1 = - v 1 60 3 2 & = - v 60 = cm m h h o i = u v = h 4 30 60 i & = - ^ h hi 8 =- cm Ratio / h h i o = is approximately 2:1"],
+    solutionSteps: [
+      "[1 mark] Given: object distance u = −30 cm, focal length f = +20 cm, object height hₒ = 4.0 cm. Lens formula: 1/v − 1/u = 1/f.",
+      "[1 mark] 1/v = 1/f + 1/u = 1/20 + 1/(−30) = (3 − 2)/60 = 1/60 ⟹ v = +60 cm (real image beyond 2F on the other side).",
+      "[1 mark] Magnification m = v/u = 60/(−30) = −2.",
+      "[1 mark] Image height hᵢ = m × hₒ = −2 × 4.0 = −8.0 cm (negative sign ⟹ image is real and inverted).",
+      "[1 mark] Ray diagram: mark optical centre O and principal focus F; the image is real, inverted and magnified. Ratio of image size to object size = 8:4 = 2:1."
+    ],
     ncertRef: "cbjesccq10 Q65", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
   // cbjesccq10 Q66 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-040", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Define real image of an object. (b) Name the mirror that: - can give real as well as virtual image of an object. - will always give virtual image of same size of an object. - will always give virtual and diminished image of an object. - is used by a doctor in examining teeth, (b) With the help of a ray diagram explain the use of concave mirror as solar concentrators.",
     answer: "[All India 2011] a. When the reflected rays after reflection actually meet at a point then real image is formed. b. Concave mirror Plane mirror Convex mirror Concave mirror c. The rays coming from the sun are parallel to principal axis and will concentrate at focus after reflecti",
-    solutionSteps: ["[All India 2011] a. When the reflected rays after reflection actually meet at a point then real image is formed. b. Concave mirror Plane mirror Convex mirror Concave mirror c. The rays coming from the sun are parallel to principal axis and will concentrate at focus after reflection."],
+    solutionSteps: [
+      "[1 mark] (a) Real image: the image formed when reflected rays, after reflection, actually meet at a point — it can be obtained on a screen.",
+      "[1 mark] (b) Mirror that gives a real as well as a virtual image = concave mirror; mirror that always gives a virtual image of the same size = plane mirror.",
+      "[1 mark] (b) Mirror that always gives a virtual and diminished image = convex mirror; mirror used by a doctor to examine teeth = concave mirror.",
+      "[1 mark] (c) Ray diagram: parallel rays coming from the Sun fall on a large concave mirror and converge at its principal focus F, where the material to be heated is placed.",
+      "[1 mark] (c) Since the Sun's rays are parallel to the principal axis, all the solar heat is concentrated at the focus, producing a very high temperature (solar concentrator/furnace)."
+    ],
     ncertRef: "cbjesccq10 Q66", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
   // cbjesccq10 Q67 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-041", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Name the type of mirror used in the following: a. Solar furnace b. Side/rear - view mirror of a vehicle. Draw a labelled ray diagram to show the formation of image in each of the above two cases. Which of these mirrors could also form a magnified and virtual image of an object? Illustrate with the help of a ray diagram.",
     answer: "[All India 2011,2015] a. Concave mirror b. Convex mirror Concave mirror form magnified virtual image of an object. Chap 10 : Light Reflaction and Refraction",
-    solutionSteps: ["[All India 2011,2015] a. Concave mirror b. Convex mirror Concave mirror form magnified virtual image of an object. Chap 10 : Light Reflaction and Refraction"],
+    solutionSteps: [
+      "[1 mark] (a) A solar furnace uses a concave mirror.",
+      "[1 mark] (b) A side/rear-view mirror of a vehicle uses a convex mirror.",
+      "[1 mark] Ray diagram (concave, solar furnace): parallel rays from the Sun converge at the focus F where the object to be heated is placed.",
+      "[1 mark] Ray diagram (convex, rear-view): an object in front gives an erect, virtual, diminished image behind the mirror, providing a wide field of view.",
+      "[1 mark] The concave mirror can also form a magnified virtual image: when the object is placed between the pole P and focus F, the image is virtual, erect and enlarged, formed behind the mirror. Diagram."
+    ],
     ncertRef: "cbjesccq10 Q67", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
   // cbjesccq10 Q68 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-042", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) A thin converging lens forms a - Real magnified image. - Virtual magnified image of an object placed in front of it. Write the positions of the objects in each case. (b) Draw labelled ray diagrams to show the image formation in each case. (c) How will the following be affected on cutting this lens into two halves along the principal axis? - Focal length - Intensity of the image formed by half lens.",
     answer: "[All India 2011,2015] a. When object is placed in between F and 2F(C) of a converging lens it will form a real magnified image. When object is placed in between F1 and optical centre O of a converging lens, it will form a virtual magnified image of the object. b. c. When lens is ",
-    solutionSteps: ["[All India 2011,2015] a. When object is placed in between F and 2F(C) of a converging lens it will form a real magnified image. When object is placed in between F1 and optical centre O of a converging lens, it will form a virtual magnified image of the object. b. c. When lens is cut along the principal axis its focal length remains same but intensity is reduced."],
+    solutionSteps: [
+      "[1 mark] (a) Real magnified image: the object is placed between F and 2F of the converging (convex) lens.",
+      "[1 mark] (a) Virtual magnified image: the object is placed between the focus F₁ and the optical centre O.",
+      "[1 mark] (b) Ray diagram: object between F and 2F → real, inverted, magnified image formed beyond 2F on the other side.",
+      "[1 mark] (b) Ray diagram: object between F and O → virtual, erect, magnified image formed on the same side as the object.",
+      "[1 mark] (c) On cutting the lens into two halves along the principal axis: the focal length remains the same, but the intensity of the image is reduced (each half gathers less light)."
+    ],
     ncertRef: "cbjesccq10 Q68", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
   // cbjesccq10 Q69 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-043", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Define principal focus of a spherical mirror. (b) For what position of the object does a concave mirror form a real, inverted and diminished image of the object? Draw the ray diagram. (c) An object 4 cm high is placed at a distance of 6 cm in front of a concave mirror of focal length 12 cm. Find the position of the image formed.",
     answer: "[All India 2011] a. The point on the principal axis at which the light rays parallel to principal axis after reflection from a concave mirror actually meet or appear to come from in convex mirror on the principal axis is called principal focus. b. In case of a concave mirror, whe",
-    solutionSteps: ["[All India 2011] a. The point on the principal axis at which the light rays parallel to principal axis after reflection from a concave mirror actually meet or appear to come from in convex mirror on the principal axis is called principal focus. b. In case of a concave mirror, when the object is placed beyond 2F(C) then image formed is real, inverted and diminished. c. f 12 =- cm u 6 =- cm v ? = f 1 u v 1 1 = + v 1 12 1 6 1 = - + 12 1 2 = - + 12 1 = v 12 = cm"],
+    solutionSteps: [
+      "[1 mark] (a) Principal focus of a spherical mirror: the point on the principal axis where rays parallel to the principal axis, after reflection, actually meet (concave mirror) or appear to diverge from (convex mirror).",
+      "[1 mark] (b) A concave mirror forms a real, inverted and diminished image when the object is placed beyond the centre of curvature C (beyond 2F). Draw the ray diagram.",
+      "[1 mark] (c) Given: f = −12 cm, u = −6 cm. Mirror formula: 1/v + 1/u = 1/f.",
+      "[1 mark] (c) 1/v = 1/f − 1/u = 1/(−12) − 1/(−6) = −1/12 + 1/6 = 1/12.",
+      "[1 mark] (c) v = +12 cm — the image is formed 12 cm behind the mirror (virtual and erect)."
+    ],
     ncertRef: "cbjesccq10 Q69", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
   // cbjesccq10 Q70 (Section D, 5mk)
   { id: "SCQ-S-LIGHT-044", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "(a) Define optical centre of a spherical lens. (b) You are given a convex lens of focal length 30 cm. Where would you place an object to get a real, inverted and highly enlarged image of the object? Draw a ray diagram showing the image formation, (c) A concave lens has a focal length of 20 cm. At what distance an object should be placed so that it forms an image at 15 cm away from the lens?",
     answer: "[All India 2011] a. Mid point of a lens through which a ray of light passes undeviated. b. At f 30 =+ cm, because when object is kept at fin case of a convex lens then its real, inverted and highly enlarged image is formed c. f 20 =- cm, v 15 =- cm, ? u = Lens formula v u 1 1 - f",
-    solutionSteps: ["[All India 2011] a. Mid point of a lens through which a ray of light passes undeviated. b. At f 30 =+ cm, because when object is kept at fin case of a convex lens then its real, inverted and highly enlarged image is formed c. f 20 =- cm, v 15 =- cm, ? u = Lens formula v u 1 1 - f 1 = u 15 1 1 - - 20 1 = - u 1 - 20 1 15 1 = - + 60 3 4 = - + 60 1 = u 60 =- cm"],
+    solutionSteps: [
+      "[1 mark] (a) Optical centre: the central point of a lens through which a ray of light passes without any deviation.",
+      "[1 mark] (b) For a real, inverted and highly enlarged image with a convex lens of f = 30 cm, place the object just beyond the focus F (a little beyond 30 cm from the lens). Draw the ray diagram.",
+      "[1 mark] (c) Given: f = −20 cm (concave lens), v = −15 cm. Lens formula: 1/v − 1/u = 1/f.",
+      "[1 mark] (c) 1/u = 1/v − 1/f = 1/(−15) − 1/(−20) = −1/15 + 1/20 = (−4 + 3)/60 = −1/60.",
+      "[1 mark] (c) u = −60 cm — the object must be placed 60 cm in front of the concave lens."
+    ],
     ncertRef: "cbjesccq10 Q70", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references ray diagram" },
 ];
