@@ -1,5 +1,30 @@
 ---
 
+## 2026-07-21 -- #503: VITEST NOW RUNS IN CI - the 59 render/unit suites that never had a gate - **owner byte-reviewed + merged** - trunk `579822e`
+
+**Wave-1 Lane A (CI-VITEST GATE). Infra-only: `.github/workflows/quality-gate.yml`, +24, one file, zero product `src/`. Resolves `[FU-CI-GATE-VITEST]`.** `vitest run` (the `src/**/*.test.{ts,tsx}` suites - routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) had NEVER run in CI. The gated `test:matrix:all` runs the ops-acceptance `.mjs` scripts, not vitest; and Windows dev boxes cannot run vitest at all (the rollup-linux pin strips the win32 binary). So every vitest regression shipped green - the root cause behind this repo's green-but-broken builds (#484, #490). #503 adds one required `Vitest suites (lazytopper)` step on the linux runner (where rollup works); a red vitest now fails CI.
+
+**The investigation flipped the spec's premise.** The dispatch claimed "no `.github/workflows/*.yml` tracked." FALSE - three workflows ARE tracked at the **repo ROOT** `.github/workflows/` (quality-gate/lane-overlap/state-board), present on trunk `57ea912`. The spec author had grepped `lazytopper/.github` and missed the root. Lesson: **a predecessor workflow once lived under `lazytopper/.github/` and never registered; GitHub only reads the repo-root path - always check root before concluding a workflow is absent.**
+
+**Four suites were already silently RED on trunk** (added Jul 1-9, PRs #321/#337/#348/#349 - they rotted undetected *because* vitest was never gated). All `--exclude`'d so the gate protects the 55 healthy suites now without blocking every PR; each booked as a fix-then-delete-the-exclude FU (product/test lane, NOT infra):
+- `[FU-CONCEPTSPINE-TEST-STALE]` - `ConceptSpine.test.tsx` (data-drift stale; the known one)
+- `[FU-OBJSCORING-PARITY-TEST-RED]` - `objectiveScoring.parity.test.ts` (Vite can't load sibling root `../../server/routes/objectiveScoring.cjs`)
+- `[FU-PRACTICEINSIGHTS-DURABLE-RED]` - `practiceInsights.durable.test.ts` (`firestore down` mock throws)
+- `[FU-WORKSHEET-PDFEXPORT-TEST-RED]` - `worksheetPdfExport.test.ts` (5 tests; `pdf.addImage is not a function`, jsPDF fully `vi.mock`'d - deterministic)
+
+### ★★ LESSON 1 - the Windows full-run is a FLAKY ORACLE, not evidence of linux status
+Two Windows full-runs disagreed (7 vs 5 red files) because a ~1200s collect fires 5s per-test timeouts on RANDOM suites each run - `WorksheetGenerator.mi` / `multiTopicNav` / `worksheetModel.topickey` each "failed" once and passed 18/18, 4/4, green in isolation. The reliable signal is the ISOLATION run (no collect pressure), and the fast linux CI runner does not flake at all (its clean run is GREEN). Never gate off a single flaky Windows full-run; isolate each suspect first.
+
+### ★★ LESSON 2 - a green run that EXCLUDES a suite cannot report that suite's status; run a REVERTED diagnostic
+The required step excludes the 4 reds, so a green gate says nothing about their individual linux status. To honour the owner's "confirm which of the 4 are red on linux" without weakening the gate, a TEMPORARY `continue-on-error` diagnostic step ran ONLY those 4 on the real linux runner (`Test Files 4 failed (4) / Tests 7 failed | 26 passed`), then was reverted - net diff back to the +24 gate step only. Commit trail: `ba67db3` gate -> `6e10915` diagnostic -> `d7e3875` revert. All 4 red on linux; none unexpectedly green, so no `--exclude` line was removed. **The cross-platform determinism reasoning (mocks / module-resolution / data-drift are platform-independent) HELD on the real runner** - but it was proven, not assumed.
+
+### ★ LESSON 3 - the exclusion belongs in the workflow YAML, not in config
+vitest 3.2.4 `--exclude` MERGES with the default excludes (verified via `vitest list --filesOnly`: the named file drops, `node_modules` stays excluded, 58 others retained). So the 4 excludes live entirely in `quality-gate.yml` - no `vitest.config.ts` change, no `package.json` script, no `src/` touch - and local `npm test` still shows all 59 suites to developers. Each `--exclude` line carries a "DELETE the moment its suite is fixed; never add new ones" instruction.
+
+**Process note:** Lane A ran STOP-BEFORE-COMMIT - the diff + the full red/green audit went to the owner, who byte-reviewed and approved Option A (gate the 55, exclude the 4) before any commit. First linux run GREEN, final clean run GREEN (3m15s). ⚠ Non-blocking runner warning: `actions/setup-node@v4` targets deprecated Node 20 (future one-line bump).
+
+---
+
 ## 2026-07-20 -- #501: THE QP SCORECARD DENOMINATOR - counts the DISPLAYED set, not the over-fetched pool - **merged, owner LIVE-VERIFIED ("5 of 5")** - trunk `7979a89`
 
 **A full-page 5-MCQ Quick Practice showed "5 of 75 attempted" (owner screenshot).** The attempts were counted CORRECTLY (5 of 5, 1/5 MCQs correct); the DENOMINATOR was wrong. The scorecard's "of N" read `questions.length` - the engine's OVER-FETCHED pool - instead of `filteredQuestions.length` - the DISPLAYED set the student works. Any marks/section filter over-fetches (`engineCount = chosen count x5`, cap 100), so the pool varies (50/75/100...) while the student only sees + answers the chosen count (`selectInRangeFromPool` slices `matched` to `committedCount`; `PracticeQuestionList` renders `filteredQuestions`).

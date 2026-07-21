@@ -1,4 +1,27 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-21 (post-**#503 - VITEST NOW RUNS IN CI.** Trunk `579822e`. Owner byte-reviewed + merged. The `src/**/*.test.{ts,tsx}` suites are now a required linux gate; 4 pre-existing red suites `--exclude`'d + booked as FUs.)
+
+## NEXT - 2026-07-21 (post-#503). Read this block first.
+
+**Wave-1 Lane A (CI-VITEST) is CLOSED.** `[FU-CI-GATE-VITEST]` RESOLVED - `#503` (`579822e`) wired one required `Vitest suites (lazytopper)` step into the repo-root `quality-gate.yml`, linux runner. Infra-only, +24, one file. **The gate immediately paid for itself: 4 suites were already silently RED on trunk** (they rotted because vitest was never gated). They are `--exclude`'d, each its own small product/test lane that ENDS by deleting its `--exclude` line:
+- `[FU-CONCEPTSPINE-TEST-STALE]` - `ConceptSpine.test.tsx`, data-drift stale.
+- `[FU-OBJSCORING-PARITY-TEST-RED]` - `objectiveScoring.parity.test.ts`, Vite can't load the sibling root `../../server/routes/objectiveScoring.cjs`.
+- `[FU-PRACTICEINSIGHTS-DURABLE-RED]` - `practiceInsights.durable.test.ts`, `firestore down` mock.
+- `[FU-WORKSHEET-PDFEXPORT-TEST-RED]` - `worksheetPdfExport.test.ts`, `pdf.addImage is not a function` (jsPDF `vi.mock`'d).
+
+**The other two Wave-1 lanes are still in flight (fresh agents, parallel - NOT this one):**
+- `[FU-MOCKBUILDER-FULL-DELETE]` - the FULL mock-builder feature deletion. A PRODUCT question (what should "Build a Mock Paper" DO now the page is gone?), not a mechanical delete - see OPEN_QUESTIONS.
+- bank mis-banding - a content-lane item.
+
+### DOCTRINE TO CARRY (earned this lane)
+- **A single Windows full-run is a FLAKY ORACLE, not evidence of linux status.** A ~1200s collect fires 5s timeouts on random suites; ISOLATE each suspect (or read the fast linux runner) before calling a suite red.
+- **A green run that EXCLUDES a suite cannot report that suite's status.** To confirm the 4 reds on linux, a temporary `continue-on-error` diagnostic step ran only them, then was REVERTED (net diff unchanged). Prove it on the real runner; don't assume.
+- **The determinism reasoning held** - mocks / module-resolution / data-drift failures are platform-independent, so they reproduce on linux. But it was proven, not asserted.
+- **Put the exclusion in the workflow YAML, not config.** vitest 3.2.4 `--exclude` merges with defaults (no `node_modules` leak); local `npm test` keeps showing all 59 suites.
+- **Always check the repo ROOT `.github/workflows/` before concluding a workflow is absent** - a `lazytopper/.github/` predecessor once never registered.
+
+---
+
 # Updated: 2026-07-20 (post-**#501 - THE QP SCORECARD DENOMINATOR BUG IS FIXED.** Trunk `7979a89`. Owner LIVE-VERIFIED "5 of 5". The scorecard "of N" now counts the DISPLAYED set, not the over-fetched pool.)
 
 ## NEXT - 2026-07-20 (post-#501). Read this block first.
