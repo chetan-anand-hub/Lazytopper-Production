@@ -1,5 +1,45 @@
 ---
 
+## 2026-07-21 -- #516: THE TUTOR RETIREMENT COMPLETES - dead cluster + unreachable mentor drawer + /api/mentor all deleted - **owner byte-reviewed the full deletion set + merged** - trunk `a86feda`
+
+**PR-2 of 2. 62 files, +34/-15,239 - the largest deletion this repo has taken.** Four independently reviewable sections. `[FU-TUTOR-LEGACY-RETIRE]` CLOSED end-to-end.
+
+### ★★ LESSON 1 - MOUNT IS NOT LIVENESS. IMPORT IS NOT LIVENESS. ONLY A TRIGGER IS.
+The previous handoff recorded `MentorSolveDrawer` as **"LIVE in PracticePage"** and used that to justify keeping it *and* `/api/mentor`. **It was false.** The drawer was imported, mounted, and gated on state - all the signals that usually mean "live" - but the prop that would set that state was threaded three levels down and landed in an **underscore-prefixed, deliberately-unused binding**:
+
+```
+PracticePage:2427 -> PracticeQuestionList:147 -> PracticeQuestionCard:122
+                                                 onOpenMentorBoard: _onOpenMentorBoard  <-- never called
+```
+
+A second trigger (`useEffect` on `?journeyMentor=`) had **no producer** anywhere in the product; the only emitters were ops test fixtures. **An import proves a file compiles. A mount proves it renders. Only a trigger proves a student can reach it.** Every deletion in this PR was justified by tracing the trigger, and the owner independently live-checked the surface first.
+
+### ★★ LESSON 2 - A MISLEADING FILENAME NEARLY COST THE BUILD
+The brief said to delete `types/mentor.ts` along with the endpoint. **It has 7 importers, and one is `src/ai/aiClient.ts` - which has 33 importers of its own** and feeds SolutionChecker, worksheet grading, ChapterTest and Check & Improve. It is a shared **type** module, not an endpoint-private one; `aiClient` needs `MentorImageMimeType`, `MentorMode`, `MentorGatewayData`. **KEPT.** The lesson: a file named after a subsystem is not necessarily owned by it - check importers before believing the name.
+
+### ★★ LESSON 3 - A DELETED MODULE CAN BE FEEDING SURFACES THAT HAVE NOTHING TO DO WITH IT
+`server/routes/mentor.cjs` was not only the `/api/mentor` handler. It also re-exported `ensureDiagramFields` and `buildMoreLikeThisUserPrompt` into **live** consumers - and `/api/more-like-this` is live (practiceQuestionBuilder, HPQ). Deleting the module as briefed would have broken them. Both helpers are actually defined in `server/prompts/promptDiagram.cjs` / `promptLearn.cjs` and were merely passing through, so `index.cjs` now requires them from their real homes. **Check a module's EXPORTS, not just its route handlers, before deleting it.**
+
+### ★ LESSON 4 - SECOND-ORDER CASCADES: GREP FOR WHO INVOKES, NOT ONLY WHO IMPORTS
+Deleting five mentor-endpoint suites broke **eight** surviving scripts that *spawned* them. Deleting one browser journey broke the runner that *imported* it - which would have taken down four unrelated journeys. Neither is an import in the module-graph sense; both are invocations. Both were caught by grepping for the filename, not the symbol.
+
+### ★ LESSON 5 - THE OPS SWEEP PLAN WAS TOO AGGRESSIVE, AND READING PROVED IT
+The plan was to "retire the ~8 wholly-dead ops scripts". Reading all 23 showed only **one** was mostly-dead; every other - **including all 8 bots** - also asserted on surviving files (`PracticePage`, `centralPersona`, rubrics, `server/index.cjs`, `TopicHubHome`). **Zero retired; all surgically fixed.** Rule applied: *where a deleted file was one conjunct of an AND, keep the surviving conjuncts* - that saved 6 real assertions.
+
+`triangles_audit`'s `runWiringChecks` now returns `[]` - its four checks read `TopicHub.tsx` exclusively and could only ever report false. **A permanently-red gate is as dishonest as a vacuously-green one.** Nothing stubbed green; `readText` never hardened to swallow ENOENT.
+
+### ★ LESSON 6 - THE BOTS COULD NOT HAVE BEEN DELETED PIECEMEAL
+`persona_gate_auditor.mjs` hardcodes all 11 bot paths (no globbing) and treats a missing bot as a **P0 FAIL**. Deleting any single bot would have turned three npm gates red. The cluster had to go whole or not at all - which is what made the owner's "delete the bots too" decision the clean one.
+
+### Validation
+tsc exit 0 · lazytopper matrix **14/14** · root matrix **190/190** · mojibake PASS · `scope:guard --mode mixed` PASS (**`--mode product` correctly REJECTS this PR**) · `node --check` on every modified script · **overlay gates re-run POST-COMMIT** (App.tsx zero-diff; 31/31, 41/41) · CI `quality-gate` + `lane-overlap` pass.
+
+**No gate made worse** - stashed everything and re-ran on clean trunk: agent3 3/7 -> 3/7, backlog 3/19 -> 2/18 failing, ux 8 -> 7 failing. All three were already red at trunk for unrelated reasons.
+
+**Clean grep:** `api/mentor` across `src/ server/ scripts/ tests/ package.json .github/` returns only comments and one `rg` search pattern in a report generator that now matches nothing. **`App.tsx` byte-frozen. `topicHubMastery` UNTOUCHED** (owner holding).
+
+---
+
 ## 2026-07-21 -- #515: WAVE-3 - TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED FROM SOURCE · "REFRESH SET" ACTUALLY REFRESHES - **owner byte-reviewed the pushed diff + merged** - trunk `a40fa75`
 
 **ONE PR, THREE file-disjoint subagent lanes, three independently revertable commit-sections.** 17 files, zero forbidden. CI `quality-gate` PASS (4m2s), `lane-overlap` PASS. Orchestration: one main agent, three subagents on hard file allowlists, run in parallel in a single worktree.
@@ -113,7 +153,7 @@ tsc PASS (exit 0, `noUnusedLocals` clean - confirms every removed import/usage p
 
 **Owner LIVE-VERIFIED all five:** Topic Hub keeps `/tutor` + "Teach me" gone · new signup → home (both `/sign-up` and Google-from-`/login`) · returning login → home · both start-trial CTAs → home · **referral credits exactly once** - the silent-failure path, and the one check no static gate could have covered.
 
-**Deliberately untouched:** `topicHubMastery` (owner holding), `/api/mentor` + `MentorSolveDrawer` (LIVE in PracticePage), the new `/tutor` stack, and `[FU-SIGNUP-UNSAFE-REDIRECT]` (pre-existing; an auth-security fix does not belong in a retirement PR).
+**Deliberately untouched:** `topicHubMastery` (owner holding), `/api/mentor` + `MentorSolveDrawer` — **BOTH DELETED by #516. The "LIVE in PracticePage" claim recorded here was FALSE**: the drawer was MOUNTED but unreachable (its only trigger prop arrived as an unused `_onOpenMentorBoard`), and `/api/mentor` had no product caller left once the old tutor died), the new `/tutor` stack, and `[FU-SIGNUP-UNSAFE-REDIRECT]` (pre-existing; an auth-security fix does not belong in a retirement PR).
 
 ---
 

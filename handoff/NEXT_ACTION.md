@@ -1,4 +1,30 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-21 (post-**#516 — THE TUTOR RETIREMENT IS COMPLETE.** Trunk `a86feda`. Owner byte-reviewed the full deletion set + merged. 62 files, +34/−15,239. `[FU-TUTOR-LEGACY-RETIRE]` CLOSED end-to-end.)
+
+## NEXT — 2026-07-21 (post-#516). Read this block first.
+
+**The tutor retirement lane is CLOSED.** #512 shipped the behaviour (old "Teach me" retired, onboarding→home, referral relocated); #516 deleted the dead code — the old-tutor cluster, the unreachable `MentorSolveDrawer`, `/api/mentor`, and the persona/test-bot cluster. **Do not re-open either half.**
+
+### ★★ CORRECTION carried from the previous handoff
+This file previously said **"KEEP `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (LIVE in PracticePage)"**. `/api/mentor` + `MentorSolveDrawer` — **BOTH DELETED by #516. The "LIVE in PracticePage" claim recorded here was FALSE**: the drawer was MOUNTED but unreachable (its only trigger prop arrived as an unused `_onOpenMentorBoard`), and `/api/mentor` had no product caller left once the old tutor died. **`types/mentor.ts` DOES survive** — but for a completely different reason than recorded: it is a shared type module feeding `aiClient` (33 importers) and the live grading stack, not an `/api/mentor` dependency.
+
+### ★★ The lesson worth carrying into the mastery lane (which is next)
+**Mount is not liveness. Import is not liveness. Only a TRIGGER is liveness.** A prop threaded three levels deep into an unused `_`-prefixed binding looked live at every level except the last. The mastery lane has exactly this shape — reads that *look* wired but may be unreachable — so trace each one to its trigger before assuming it must be preserved. Its audit already flags one such case (`guidedJourneyService`'s read is unreachable — `PracticePage` imports only `recordDetour`, a sibling-function trap).
+
+**And: deleting a file is never just deleting a file.** Grep for who *invokes* it (spawns, npm scripts, runners), not only who *imports* it. #516 hit this twice — eight scripts spawning five deleted suites, and a browser-journey runner importing a deleted journey.
+
+### The immediate candidates
+1. **The MASTERY lane** — its audit is already delivered (`topicHubMastery` unwiring). **Owner has been holding this decision; it is now unblocked by the tutor lane closing.** ⚠ Its audit warns the unwire is a **CONSTANT-FOLD, never a clause deletion** — `weakAreaAggregator:154/:158` must stay as literals or the `>5` gate starts filtering and the live weak-area set changes. `[FU-MASTERY-WRITE-ORPHAN]` (the old tutor was the last live writer) is now real but harmless — readers already tolerate empty.
+2. **`[FU-BANK-GARBLED-ANSWER-CLASS]`** — the question-side twin of the bank lane.
+3. **`[FU-APP-TSX-FROZEN-RESIDUE]` + `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`** — **three** lanes have now left residue behind the same over-broad `App.tsx` freeze (MockBuilder, onboarding, and the tutor cluster's comments). Merge them into ONE "narrow the freeze and sweep the residue" item.
+
+**Still open:** `[FU-SIGNUP-UNSAFE-REDIRECT]`, `[FU-OPS-SCRIPTS-PATH-COUPLING]` (the general hardening pass — #516 cleared only the tutor-adjacent ones), `[FU-PRACTICE-CONTROLS-REFRESH-STALE]`, `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`, `[FU-HPQ-PREDICTED-MOCK]`, `[FU-QP-WRITTEN-BINARY-CHECK]`.
+
+**Residue left deliberately by #516:** `backlog_1_19` keeps an unused `extractMentorStructured` helper (dead but harmless — `.mjs` has no `noUnusedLocals`); an `rg` search pattern in `export_repo_details.ps1` now matches nothing and degrades to an honest empty section; and stale prose in `NoteModal`/`NcertPageModal`/`PracticePage` still cites `ConceptTeachDrawer` as a design reference. All flagged at review, none functional.
+
+---
+
+## (superseded) earlier NEXT blocks
 # Updated: 2026-07-21 (post-**#515 - WAVE-3: TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED · "REFRESH SET" ACTUALLY REFRESHES.** Trunk `a40fa75`. Owner byte-reviewed the pushed diff + merged. ONE PR, three file-disjoint lanes, 17 files, zero forbidden; CI + lane-overlap green. **The tutor PR-2 lane below is UNAFFECTED and remains the immediate next task.**)
 
 ## NEXT - 2026-07-21 (post-#515). Read this block first.
@@ -35,7 +61,7 @@
 1. **Delete the dead cluster** — `ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract`, **plus `pages/TopicHub.tsx`** (forced by its `ConceptTeachDrawer` import — not elective).
 2. **The ~27 ops scripts asserting on those files** — **RETIRE the wholly-dead ones, SURGICALLY fix the mixed ones.** This is a *content* decision about what each script should assert now, which is why it needs owner byte-review before anything lands.
 3. **★★ Do NOT harden `readText` to swallow ENOENT.** Explicitly rejected: every assertion on a deleted surface would pass **vacuously** — a false-green, the class this project has been bitten by twice.
-4. **KEEP everything live-shared:** `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (**LIVE in `PracticePage`**), and the whole new `/tutor` stack.
+4. ~~**KEEP everything live-shared:** `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (**LIVE in `PracticePage`**)~~ — **SUPERSEDED/CORRECTED by #516: `/api/mentor` + `MentorSolveDrawer` — **BOTH DELETED by #516. The "LIVE in PracticePage" claim recorded here was FALSE**: the drawer was MOUNTED but unreachable (its only trigger prop arrived as an unused `_onOpenMentorBoard`), and `/api/mentor` had no product caller left once the old tutor died. `types/mentor.ts` survives only because it feeds `aiClient`.** The new `/tutor` stack is kept.
 5. **`topicHubMastery` UNTOUCHED — the owner is still holding that decision.**
 
 **★ STOP BEFORE COMMIT** — report the deletion set + the per-script decisions for byte-review.

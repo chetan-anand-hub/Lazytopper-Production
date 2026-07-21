@@ -1,6 +1,54 @@
 # LazyTopper — Current State
 
-## [CURRENT] #515 merged — ★★ WAVE-3: TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED FROM SOURCE · "REFRESH SET" ACTUALLY REFRESHES — trunk `a40fa75`
+## [CURRENT] #516 merged — ★★ THE TUTOR RETIREMENT IS COMPLETE: THE DEAD CLUSTER, THE UNREACHABLE MENTOR DRAWER AND `/api/mentor` ARE ALL GONE — trunk `a86feda`
+
+**PR-2 of 2. 62 files, +34 / −15,239 — the largest deletion this repo has taken.** Owner byte-reviewed the full deletion set and merged. `[FU-TUTOR-LEGACY-RETIRE]` is now **CLOSED end-to-end** (#512 behaviour, #516 deletions). Docs-only handoff; zero product files here.
+
+### ★★ CORRECTION TO THIS HANDOFF — "MentorSolveDrawer is LIVE in PracticePage" was **FALSE**
+The previous handoff (post-#512) recorded `MentorSolveDrawer` and `/api/mentor` as **live and must-keep**. **Both were wrong, and the error came from trusting a MOUNT instead of tracing a TRIGGER.** The owner live-checked Quick Practice and HPQ: the only live buttons are "Check my solution" and "Show/Hide steps". Code then confirmed it:
+
+```
+PracticePage:2427  onOpenMentorBoard={... openMentorForQuestion(...)}
+  -> PracticeQuestionList:147  onOpenMentorBoard={(q) => onOpenMentorBoard(q, idx)}
+    -> PracticeQuestionCard:122  onOpenMentorBoard: _onOpenMentorBoard   <-- NEVER CALLED
+```
+
+The prop was threaded three levels deep and landed in an **underscore-prefixed, deliberately-unused binding**. A second trigger — a `useEffect` auto-opening on `?journeyMentor=` — had **no producer**: nothing in the product emits that query param (the only emitters were ops test fixtures). **The drawer was mounted, and unreachable. Mount is not liveness.**
+
+**The transferable rule: an import proves a file compiles; a mount proves it renders; only a TRIGGER proves a student can reach it.** Every deletion in #516 was justified by tracing the trigger.
+
+### What was deleted — four independently reviewable sections
+1. **The old-tutor cluster** (12 files, −10,299): `ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract`, `pages/TopicHub.tsx` — a **closed import graph** whose only entry point had zero importers and zero routes. Plus `MentorSolveDrawer` + `mentorDrawerLogic` and their PracticePage wiring.
+2. **`/api/mentor`** (25 files, −3,212): `server/routes/mentor.cjs`, the four request branches + four CORS paths in `server/index.cjs`, five `scripts/smoke/mentor-*.cjs`, `mentor_runtime_smoke`, `tests/mentor_smoke.spec.ts`, and the five ops suites that existed only to drive the endpoint. Six npm scripts.
+3. **The persona/test-bot cluster** (21 files, −1,700): 6 student bots, 5 tutor bots, `software_testing_bot`, `persona_bot_lib`, `persona_gate_auditor`, `persona_audit_acceptance`, `browser_persona_gate_auditor`, `student_bots_product_experience_acceptance` — **12** npm scripts.
+4. **Surgical ops fixes** (14 scripts): assertions about deleted files removed; **zero scripts retired outright.**
+
+### ★★ TWO PREMISES THAT DID NOT SURVIVE TRACING — and what they cost
+The deletion brief said *"delete `/api/mentor` + `types/mentor.ts`; the only 4 callers are all dying."* Two parts of that were wrong:
+
+- **`types/mentor.ts` is NOT deletable and was KEPT.** It is not an endpoint-private module — it is a shared **TYPE** module with 7 importers, one of which is **`src/ai/aiClient.ts`, which has 33 importers of its own** and feeds the entire live grading stack (SolutionChecker, worksheet grading, ChapterTest, Check & Improve). `aiClient` pulls `MentorImageMimeType`, `MentorMode` and `MentorGatewayData` from it. **The filename is misleading; the contents are not mentor-only.** Deleting it would have broken the build and a large live surface.
+- **`server/routes/mentor.cjs` also fed LIVE surfaces.** It re-exported `ensureDiagramFields` (into `createStubHandlers`) and `buildMoreLikeThisUserPrompt` (into the more-like-this handlers — and **`/api/more-like-this` IS live**, called by `practiceQuestionBuilder` and HPQ). Both are actually **defined** in `server/prompts/promptDiagram.cjs` / `promptLearn.cjs` and were only *passing through* the mentor route, so `index.cjs` now requires them from their real homes. **No behaviour change to either live surface** — but deleting the module wholesale, as briefed, would have broken both.
+
+### ★ A SECOND-ORDER CASCADE the brief could not have seen
+Eight surviving scripts **spawned** the five deleted mentor suites (`topichub_doc_alignment`, `topichub_intended_functionality`, `step2_refactor_connectivity`, `phases_4_6`, `work_buddy_full_auditor`, `deletion_batch_regression`, `feature_file_matrix`, `backlog_1_19`). Deleting the suites alone would have left eight scripts spawning missing files. Same shape as the browser-journey runner in section 3: **deleting a file is never just deleting a file — grep for who *invokes* it, not only who *imports* it.**
+
+### ★ ON THE OPS SWEEP — the earlier plan was too aggressive, and reading proved it
+The post-#512 plan said PR-2 would "retire the ~8 wholly-dead ops scripts". Reading all 23 showed only **one** was mostly-dead; every other script — **including all 8 bots** — also asserted on files that survive. **Zero were retired in section 4**; all were surgically fixed. Governing rule: *where a deleted file was one conjunct of an `AND`, the surviving conjuncts were kept* — that preserved 6 assertions about `TrendsPage`/`PracticePage`/HPQ a blunter sweep would have discarded.
+
+`triangles_audit`'s `runWiringChecks` now returns `[]`: its four checks read `TopicHub.tsx` exclusively, so with the file gone they could only ever report **false**. **A permanently-red gate is as dishonest as a vacuously-green one.** Nothing was stubbed green and `readText` was **not** hardened to swallow ENOENT anywhere.
+
+### VALIDATION
+tsc **exit 0** · lazytopper `test:matrix:all` **all 14** · root guard matrix **190/190** · `check:mojibake` PASS · `scope:guard --mode mixed` PASS (**`--mode product` correctly REJECTS this PR** — it legitimately spans product + tracked tooling) · `node --check` on every modified script PASS · **overlay gates re-run POST-COMMIT** (`ok FORBIDDEN: App.tsx shows zero changes`; C&I 31/31, QP 41/41) · `git diff --check` clean · linux CI `quality-gate` **pass**, `lane-overlap` **pass**.
+
+**No gate was made worse** — verified by stashing all changes and re-running on clean trunk: `agent3` 3/7 → 3/7 identical, `backlog` 3/19 → 2/18 failing, `ux:all-priorities` 8 → 7 failing. Those three were **already red at trunk**; the checks removed were themselves already failing. None is CI-gated.
+
+**`App.tsx` byte-frozen** (its `MentorPanel` comment stays). **`topicHubMastery` UNTOUCHED — the owner is still holding that decision.**
+
+**NEXT:** the mastery lane is the natural successor (its audit is already delivered), plus `[FU-BANK-GARBLED-ANSWER-CLASS]`. See `NEXT_ACTION.md`.
+
+---
+
+## (superseded) [CURRENT] #515 merged — ★★ WAVE-3: TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED FROM SOURCE · "REFRESH SET" ACTUALLY REFRESHES — trunk `a40fa75`
 
 **ONE PR, THREE file-disjoint lanes, three independently revertable commit-sections.** 17 files, zero forbidden files (`App.tsx` / `DesktopShell.tsx` / `canonicalQuestionBank.ts` all absent). Owner byte-reviewed the pushed diff against CBSE maths + the source citations and merged. CI green (`quality-gate` 4m2s, `lane-overlap` pass — zero collision with the tutor PR-2 lane).
 

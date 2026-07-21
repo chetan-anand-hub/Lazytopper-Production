@@ -1,5 +1,21 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-21 - ★★ ✅ TUTOR/ONBOARDING RETIREMENT **COMPLETE** (#516, trunk `a86feda`) - owner byte-reviewed the full deletion set + merged
+
+**STAGE COMPLETE — `[FU-TUTOR-LEGACY-RETIRE]` CLOSED end-to-end** (#512 behaviour, #516 deletions). 62 files, **+34 / −15,239**.
+
+**Deleted in four sections:** the old-tutor cluster + the unreachable `MentorSolveDrawer` (12 files) · `/api/mentor` and its 13 dedicated suites (25 files) · the persona/test-bot cluster (21 files, 12 npm scripts) · surgical ops fixes (14 scripts, **zero retired**).
+
+**★★ Two briefed deletions were REVERSED after tracing:** `types/mentor.ts` is a shared type module feeding `aiClient` (33 importers) and the live grading stack — **KEPT**; and `server/routes/mentor.cjs` re-exported two helpers into live surfaces (`/api/more-like-this` is live), so those are now required from their real homes in `server/prompts/`.
+
+**★ The correction that drove this PR:** the previous handoff recorded `MentorSolveDrawer` as "LIVE in PracticePage". It was **mounted but unreachable** — its trigger prop landed in an unused `_onOpenMentorBoard` binding. **Mount is not liveness.**
+
+**Deliberately untouched:** `topicHubMastery` (**owner still holding**), `App.tsx` (byte-frozen), the new `/tutor` stack.
+
+**Next on this track:** the **mastery lane** — audit already delivered, and unblocked now that the tutor lane is closed.
+
+---
+
 ## 2026-07-21 - ★★ ✅ WAVE-3 **COMPLETE** — TYPECHECK-TESTS · BANK-GARBLED RECOVERY · REFRESH-SET (#515, trunk `a40fa75`) - owner byte-reviewed the pushed diff + merged
 
 **STAGE COMPLETE — three follow-ups closed in ONE PR via three file-disjoint subagent lanes**, each its own independently revertable commit-section. 17 files, zero forbidden. CI `quality-gate` PASS (4m2s); `lane-overlap` PASS (zero collision with the tutor PR-2 lane, which ran in parallel).
@@ -32,7 +48,7 @@
 
 **`App.tsx`: Option B.** Route + `pages/Onboarding.tsx` left inert on disk; `App.tsx` byte-untouched, verified **post-commit** against both overlay gates (they diff `base...HEAD`, so a pre-commit run is a truthful-but-useless green).
 
-**Deliberately untouched:** `topicHubMastery` (**owner is holding that decision**), `/api/mentor` + `MentorSolveDrawer` (LIVE in PracticePage), the new `/tutor` stack.
+**Deliberately untouched:** `topicHubMastery` (**owner is holding that decision**), `/api/mentor` + `MentorSolveDrawer` — **BOTH DELETED by #516. The "LIVE in PracticePage" claim recorded here was FALSE**: the drawer was MOUNTED but unreachable (its only trigger prop arrived as an unused `_onOpenMentorBoard`), and `/api/mentor` had no product caller left once the old tutor died), the new `/tutor` stack.
 
 **Next on this track:** **PR-2** — delete the cluster (`ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract`, `pages/TopicHub.tsx`) and sweep the ops scripts: retire the wholly-dead, surgically fix the mixed. **STOP BEFORE COMMIT for byte-review** — the per-script calls are content decisions.
 
