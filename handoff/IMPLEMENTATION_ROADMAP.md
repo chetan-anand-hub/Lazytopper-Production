@@ -1,5 +1,24 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-21 - ★★ ✅ WAVE-3 **COMPLETE** — TYPECHECK-TESTS · BANK-GARBLED RECOVERY · REFRESH-SET (#515, trunk `a40fa75`) - owner byte-reviewed the pushed diff + merged
+
+**STAGE COMPLETE — three follow-ups closed in ONE PR via three file-disjoint subagent lanes**, each its own independently revertable commit-section. 17 files, zero forbidden. CI `quality-gate` PASS (4m2s); `lane-overlap` PASS (zero collision with the tutor PR-2 lane, which ran in parallel).
+
+**What shipped:**
+1. **Test files are typechecked for the first time** (`[FU-TSCONFIG-EXCLUDES-TESTS]`). `tsconfig.app.json` excluded them, so the `tsc -b` inside `build` never saw one — **the root reason four vitest suites could rot silently**. New **separate** `tsconfig.test.json` (widening the app config would have leaked test globals into the `vite build` program); app config byte-unchanged. Mutation-proven, and confirmed to have RUN in the CI log.
+2. **26 garbled bank rows recovered from source, 1 corrupt duplicate retired** (`[FU-BANK-GARBLED-ANSWER-CLASS]`). **Three questions were UNSOLVABLE as printed** and now are. Every row carries a paper+page citation; 3 rows **withheld rather than guessed**.
+3. **"Refresh set" actually refreshes** (`[FU-PRACTICE-CONTROLS-REFRESH-STALE]`) — plus `Alt+R`, its keyboard twin, which was not in the brief. Normal build path byte-identical; regression suite mutation-proven both ways.
+
+**★★ The corruption class was mis-modelled as OCR.** It is truncated **marking-scheme stacked-fraction glyphs**; recovery had to be coordinate-aware, and a naive line-join would have shipped **4/3 where the paper says 3/4**. **Real scope is 89 rows, not the briefed ~15** → `[FU-BANK-GARBLED-EXPANDED-SCOPE]` (~61 remain). **`check:mojibake` is blind to PUA codepoints** → `[FU-MOJIBAKE-GATE-MISSES-PUA]`.
+
+**★★ Process finding — parallel lanes need an ASSEMBLY gate pass.** All three lanes were green and in-allowlist, yet the PR would have merged with a red local bar: `scope:guard` classifies the **whole working tree** (so it only means anything post-assembly, and is **not in CI**), and the `base...HEAD` matrices are **vacuous pre-commit** (#488, #496, now #515). **The two are mirrors — scope:guard's real run is PRE-commit, the matrices' is POST-commit.**
+
+**Deliberately untouched:** `topicHubMastery` (owner holding), `components/tutor/*` + `scripts/ops/*` (tutor PR-2's lane), `canonicalQuestionBank.ts` (forbidden — see `[FU-CANONICAL-STALE-RETIRED-ID]`).
+
+**Next on this track:** the **26 recovered rows enter the student-QA queue** as the final content gate (owner ruling). `[FU-BANK-GARBLED-EXPANDED-SCOPE]` is the follow-up recovery pass, reusing the proven method rather than re-deriving it.
+
+---
+
 ## 2026-07-21 - ★★ 🟡 TUTOR/ONBOARDING RETIREMENT **PR-1 of 2 COMPLETE (BEHAVIOR)** (#512, trunk `e19b2d1`) - owner byte-reviewed the pushed diff + LIVE-VERIFIED all 5 checks + merged
 
 **STAGE HALF-COMPLETE — `[FU-TUTOR-LEGACY-RETIRE]` is HALF resolved. PR-2 (deletions + the ~27-script ops sweep) is the remaining half and has NOT started.** Behaviour only: 7 files, +102/−110, **zero file deletions**.

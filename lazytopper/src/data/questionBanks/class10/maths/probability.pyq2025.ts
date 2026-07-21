@@ -25,16 +25,20 @@ export const PROBABILITY_PYQ_2025: CanonicalQuestion[] = [
     pyqYear: "2025", pyqSet: "1" },
   { id: "PYQ-M-2025-PROB-003", subject: "Maths", topicKey: "probability", subtopic: "Dice Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two dice are rolled together. Find the probability of getting : (i) a multiple of 2 on one and a multiple of 3 on the other die. (ii) the product of two numbers on the top of the two dice is a perfect square number.",
-    answer: "(3, 2), (3, 4), (3, 6), (4, 3), (4, 6), (6, 2), (6, 3), (6, 4), (6, 6) Number of outcomes having multiple of 2 on one die and a multiple of 3 on other die = 11 Hence, P(E) =",
-    solutionSteps: ["Total outcomes = 36 (i) (2, 3)", "(2, 6)", "(3, 2), (3, 4), (3, 6), (4, 3), (4, 6), (6, 2), (6, 3), (6, 4), (6, 6) Number of outcomes having multiple of 2 on one die and a multiple of 3 on other die = 11 Hence, P(E) ="],
-    finalAnswer: "(3, 2), (3, 4), (3, 6), (4, 3), (4, 6), (6, 2), (6, 3), (6, 4), (6, 6) Number of outcomes having multiple of 2 on one die and a multiple of 3 on other die = 11 Hence, P(E) =",
+    // Recovered from X_MS_041_Mathematics Standard_30-1-3_2024-25, p.10 (outcome lists and both
+    // fractions confirmed word-by-word from glyph bboxes).
+    answer: "Total outcomes = 36 (i) (2, 3), (2, 6), (3, 2), (3, 4), (3, 6), (4, 3), (4, 6), (6, 2), (6, 3), (6, 4), (6, 6) Number of outcomes having multiple of 2 on one die and a multiple of 3 on other die = 11 Hence, P(E) = 11/36 (ii) (1, 1), (2, 2), (3, 3), (1, 4), (4, 1), (4, 4), (5, 5), (6, 6) Number of outcomes having product of two numbers on the top of the dice is a perfect square number = 8 P(E) = 8/36 or 2/9",
+    solutionSteps: ["Total outcomes = 36", "(i) (2, 3), (2, 6), (3, 2), (3, 4), (3, 6), (4, 3), (4, 6), (6, 2), (6, 3), (6, 4), (6, 6)", "Number of outcomes having multiple of 2 on one die and a multiple of 3 on other die = 11 Hence, P(E) = 11/36", "(ii) (1, 1), (2, 2), (3, 3), (1, 4), (4, 1), (4, 4), (5, 5), (6, 6)", "Number of outcomes having product of two numbers on the top of the dice is a perfect square number = 8 P(E) = 8/36 or 2/9"],
+    finalAnswer: "(i) 11/36 (ii) 8/36 or 2/9",
     ncertRef: "PYQ 30/1/3 Q27", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "3" },
   { id: "PYQ-M-2025-PROB-004", subject: "Maths", topicKey: "probability", subtopic: "Coin Tossing", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Three unbiased coins are tossed simultaneously. Find the probability of getting : (a) exactly two tails (b) at least one head (c) at most two heads",
-    answer: "HTH, HTT, THH, THT, TTH, TTT  13 (a) P(exactly two tails) = 3 8 (b) P(atleast one head) = 7 8 (c) P(atmost two heads) =",
-    solutionSteps: ["Possible outcomes are HHH", "HHT", "HTH, HTT, THH, THT, TTH, TTT  13 (a) P(exactly two tails) = 3 8 (b) P(atleast one head) = 7 8 (c) P(atmost two heads) ="],
-    finalAnswer: "HTH, HTT, THH, THT, TTH, TTT  13 (a) P(exactly two tails) = 3 8 (b) P(atleast one head) = 7 8 (c) P(atmost two heads) =",
+    // Recovered from X_MS_041_Mathematics Standard_30-3-1_2024-25, pp.12-13. The stored text had
+    // dropped the leading HHH, HHT from the outcome list and carried a stray "13".
+    answer: "Possible outcomes are HHH, HHT, HTH, HTT, THH, THT, TTH, TTT (a) P(exactly two tails) = 3/8 (b) P(atleast one head) = 7/8 (c) P(atmost two heads) = 7/8",
+    solutionSteps: ["Possible outcomes are HHH, HHT, HTH, HTT, THH, THT, TTH, TTT", "(a) P(exactly two tails) = 3/8", "(b) P(atleast one head) = 7/8", "(c) P(atmost two heads) = 7/8"],
+    finalAnswer: "(a) 3/8 (b) 7/8 (c) 7/8",
     ncertRef: "PYQ 30/3/1 Q30", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },
   { id: "PYQ-M-2025-PROB-005", subject: "Maths", topicKey: "probability", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -60,7 +64,8 @@ export const PROBABILITY_PYQ_2025: CanonicalQuestion[] = [
     pyqYear: "2025", pyqSet: "3" },
   { id: "PYQ-M-2025-PROB-008", subject: "Maths", topicKey: "probability", subtopic: "Card Probability", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Rahul is a lucky charm for his cricket team. He has a jar of cards with numbers from 10 to 74. Before each match, he draws a card from the jar. If the card bears an even number, the team wins. If the number is even and divisible by 5, they win by a big margin. If the number is an odd number less than 30, they win by a small margin. And if the number is a prime number between 50 and 74, they lose. Answer the following questions if Rahul draws a card today : (i) What is the probability that Rahul draws a card with an even number ? 1 (ii) What is the probability that Rahul draws a card with an odd number less than 30 ? 1 (iii) (a) What is the probability that Rahul draws a card with a prime number between 50 and 74 ? 2 OR (b) What is the probability that Rahul draws a card with an even number divisible by 5 ? 2",
-    answer: "(i) Total possible outcomes = 74 – 10 + 1 = 65 P (even number) = 33 65 (ii) P (odd number less than 30) = 10 65 or 2 13 (iii) (a) Favourable outcomes are 53, 59, 61, 67, 71, 73 Number of favourable outcomes = 6 P (prime number between 50 and 74) = 6 65 OR (b) Favourable outcomes are 10, 20, 30, 40, 50, 60, 70 Number of favourble outcomes = 7 P (even number divisble by 5) =",
+    // Recovered from X_MS_041_Mathematics Standard_30-2-1_2024-25, p.17.
+    answer: "(i) Total possible outcomes = 74 – 10 + 1 = 65 P (even number) = 33/65 (ii) P (odd number less than 30) = 10/65 or 2/13 (iii) (a) Favourable outcomes are 53, 59, 61, 67, 71, 73 Number of favourable outcomes = 6 P (prime number between 50 and 74) = 6/65 OR (b) Favourable outcomes are 10, 20, 30, 40, 50, 60, 70 Number of favourble outcomes = 7 P (even number divisble by 5) = 7/65",
     solutionSteps: ["[1 mark] (i) Total possible outcomes = 74 − 10 + 1 = 65. Even numbers 10, 12, …, 74 number 33, so P(even) = 33/65.", "[1 mark] (ii) Odd numbers less than 30 are 11, 13, …, 29 (10 numbers), so P(odd < 30) = 10/65 = 2/13.", "[1 mark] (iii)(a) Prime numbers between 50 and 74 are 53, 59, 61, 67, 71, 73 — 6 favourable outcomes.", "[1 mark] (iii)(a) P(prime between 50 and 74) = 6/65. [OR (b) even numbers divisible by 5 are 10, 20, 30, 40, 50, 60, 70 (7 outcomes), so P = 7/65.]"],
     finalAnswer: "(i) P(even) = 33/65; (ii) P(odd < 30) = 2/13; (iii)(a) P(prime 50–74) = 6/65 OR (b) P(even divisible by 5) = 7/65.",
     ncertRef: "PYQ 30/2/1 Q37", isCompetencyBased: true,

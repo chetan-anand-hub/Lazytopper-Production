@@ -33,9 +33,10 @@ export const PROBABILITY_PYQ_2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "3" },
   { id: "PYQ-M-2024-PROB-004", subject: "Maths", topicKey: "probability", subtopic: "Coin Tossing", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Three unbiased coins are tossed simultaneously. Find the probability of getting : (i) at least one head. (ii) exactly one tail. (iii) two heads and one tail.",
-    answer: "Total number of possible outcomes = 8 (i) P(at least one head) = 7 8 (ii) P (exactly one tail) = 3 8 (iii) P (2 heads and one tail) =",
-    solutionSteps: ["Total number of possible outcomes = 8 (i) P(at least one head) = 7 8 (ii) P (exactly one tail) = 3 8 (iii) P (2 heads and one tail) ="],
-    finalAnswer: "Total number of possible outcomes = 8 (i) P(at least one head) = 7 8 (ii) P (exactly one tail) = 3 8 (iii) P (2 heads and one tail) =",
+    // Recovered from MS 041_30-5-1 Mathematics 2023-24, p.12.
+    answer: "Total number of possible outcomes = 8 (i) P(at least one head) = 7/8 (ii) P (exactly one tail) = 3/8 (iii) P (2 heads and one tail) = 3/8",
+    solutionSteps: ["Total number of possible outcomes = 8", "(i) P(at least one head) = 7/8", "(ii) P (exactly one tail) = 3/8", "(iii) P (2 heads and one tail) = 3/8"],
+    finalAnswer: "(i) 7/8 (ii) 3/8 (iii) 3/8",
     ncertRef: "PYQ 30/5/1 Q30", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-M-2024-PROB-005", subject: "Maths", topicKey: "probability", subtopic: "General", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",

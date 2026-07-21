@@ -16,13 +16,14 @@ export const COORDINATE_GEOMETRY_PYQ_2026: CanonicalQuestion[] = [
     finalAnswer: "PA2 = PB2 ⟹ ( x – 5)2 + (y – 3)2 = ( x – 1)2 + (y – 7)2 ⟹ x2 + 25 – 10x + y2 + 9 – 6y = x2 + 1 – 2x + y2 + 49 – 14y ⟹ x – y = – 2 or x – y + 2 =",
     ncertRef: "PYQ 30(B) Q28", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
-  { id: "PYQ-M-2026-CG-002", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Midpoint Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "5 cm O PQ PR OP C AB OP = 13 cm , AB PA of 24 (b) Through the midpoint Q of side CD of a parallelogram ABCD, the line AR is drawn which intersects BD at P and produced BC at R. Prove that (i) AQ = QR (ii) AP = 2PQ (iii) PR = 2AP",
-    answer: "x = 10 3 AB = 2AC = 20 3 cm or 6.6 cm (approx. ) PA = 12 −10 3 = 26 3 cm or 8.6 cm (approx. )",
-    solutionSteps: ["[1 mark] Given: OP = 13 cm (distance from centre O to external point P) and OQ = 5 cm (radius to the chord's midpoint Q), with the chord AB perpendicular to OP.", "[1 mark] In right triangle OQP: PQ = √(OP² − OQ²) = √(13² − 5²) = √(169 − 25) = √144 = 12 cm.", "[1 mark] Let AC = AQ = x. Then PC = OP − OQ = 13 − 5 = 8 cm and PA = PQ − AQ = 12 − x; using the perpendicular-chord relation gives (12 − x) relating to x and PC = 8.", "[1 mark] Solving the resulting equation gives x = 10/3 cm, so AB = 2·AC = 20/3 cm or 6.6 cm (approx.).", "[1 mark] PA = 12 − 10/3 = 26/3 cm or 8.6 cm (approx.)."],
-    finalAnswer: "x = 10 3 AB = 2AC = 20 3 cm or 6.6 cm (approx. ) PA = 12 −10 3 = 26 3 cm or 8.6 cm (approx. )",
-    ncertRef: "PYQ 30/5/1 Q35", isCompetencyBased: true,
-    pyqYear: "2026", pyqSet: "1" },
+  // RETIRED 2026-07-21 ([FU-BANK-GARBLED-ANSWER-CLASS], owner-approved): "PYQ-M-2026-CG-002".
+  // Its questionText welded two unrelated problems — the Latin remnants of 30/5/1 Q35 (a
+  // circle/tangent problem, whose Hindi half is in a PUA-mapped font that extracts as nothing)
+  // plus the English text of Q33(b) of the same paper (a parallelogram-midpoint proof).
+  // Source (QP 1172-1_30-5-1 (Mathematics Standard).pdf, pp.19-20) proves Q35 is the tangent
+  // problem, and that question is ALREADY served cleanly by PYQ-M-2026-CIRC-006
+  // (circles.pyq2026.ts, ref 30/5/2 Q33) with a correct stem, topicKey and 5-step solution.
+  // Re-keying this row to "circles" would only mint a near-duplicate, so it is retired instead.
   { id: "PYQ-M-2026-CG-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Observe the map of Jaipur city placed on a Cartesian plane. Taking Rambagh Palace as origin, the location of some places are given below : Point A : (–4, 2) Rajasthan High Court Point B : (4, –4) Birla Mandir Point C : (4, 3) Heera Bagh Point D : (–5, –2) Amar Jawan Jyoti Based on the above, answer the following questions : (i) Advocate Rehana stays at Heera Bagh. How much distance she has to cover daily to go to the court and coming back home ? 1 (ii) There is a crossing on Xaxis which divides AD in a certain ratio. Find the ratio. 1 (iii) (a) Is Birla Mandir equidistant from Heera Bagh and Amar Jawan Jyoti ? Justify your answer. 2 OR (b) Using section formula, show that points A, O and B are not collinear.",
     answer: "AP : PD = K :",

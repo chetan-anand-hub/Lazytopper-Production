@@ -89,6 +89,17 @@ jobs:
       - name: Ops matrix (lazytopper test:matrix:all)
         run: pnpm --filter lazytopper run test:matrix:all
 
+      # --- Typecheck of the TEST files ---
+      # tsconfig.app.json EXCLUDES `src/**/*.test.ts(x)` and `src/test/**`, so the
+      # `tsc -b` inside `build` (above) has never typechecked a single test file.
+      # That is the root reason four suites could rot silently: they broke at the
+      # TYPE level long before anyone ran them. tsconfig.test.json extends the app
+      # config and covers the tests; see that file for why it is a separate project
+      # and how the untyped server `.cjs` imports are handled. Unlike vitest this
+      # step also runs on Windows dev boxes (no rollup binary involved).
+      - name: Typecheck test files (lazytopper)
+        run: pnpm --filter lazytopper run typecheck:test
+
       # --- Vitest render/unit suites (the .test.tsx / .test.ts files) ---
       # Runs ONLY here on linux: pnpm-workspace.yaml strips the non-linux rollup
       # binary, so Windows dev boxes cannot run vitest at all (CLAUDE.md section 6).

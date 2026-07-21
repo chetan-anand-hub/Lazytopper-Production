@@ -1,7 +1,29 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-21 (post-**#512 - THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME.** Trunk `e19b2d1`. Owner byte-reviewed the pushed diff + LIVE-VERIFIED all 5 checks. 7 files, +102/-110, ZERO deletions; PR-1 of 2 — **PR-2 (deletions + ops sweep) is the remaining half and has NOT started.**)
+# Updated: 2026-07-21 (post-**#515 - WAVE-3: TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED · "REFRESH SET" ACTUALLY REFRESHES.** Trunk `a40fa75`. Owner byte-reviewed the pushed diff + merged. ONE PR, three file-disjoint lanes, 17 files, zero forbidden; CI + lane-overlap green. **The tutor PR-2 lane below is UNAFFECTED and remains the immediate next task.**)
 
-## NEXT - 2026-07-21 (post-#512). Read this block first.
+## NEXT - 2026-07-21 (post-#515). Read this block first.
+
+### ★ WAVE-3 IS CLOSED — what it leaves behind
+
+`[FU-TSCONFIG-EXCLUDES-TESTS]`, `[FU-PRACTICE-CONTROLS-REFRESH-STALE]` and `[FU-BANK-GARBLED-ANSWER-CLASS]` (26-row subset) are **RESOLVED**. The ~7 stale `[FU-CI-GATE-VITEST]` entries are **tombstone-closed** (resolved by #509 — **do not re-open them**; #515's CI run confirms 61 files / 792 tests).
+
+**Queued out of Wave-3, in priority order:**
+1. **The 26 recovered bank rows go to STUDENT-QA** — owner's ruling that student-QA is the final content gate on question quality.
+2. **`[FU-BANK-GARBLED-EXPANDED-SCOPE]`** — ~61 rows remain of an **89-row** damage class (the briefed "~15" was an order of magnitude low). **Reuse the proven method, do not re-derive it:** coordinate-aware **pymupdf** (`pdfplumber` BANNED — it caused this class), marking schemes at `cbse-papers/gdrive/PYQs/MS/final MS/<year>/MS/` (**not** `PYQ/X question papers/`, which holds question papers and is image-only for 2025/26), per-row paper+page citation, **never guess a distractor or stem**, unrecoverable → WITHHELD. Report the list **before** authoring.
+3. **`[FU-MOJIBAKE-GATE-MISSES-PUA]`** — the gate that should have caught all 89 rows is blind to Private-Use-Area codepoints. Small, and it stops this class recurring. **Mutation-test the extension** (Wave-3's own PUA checker was silently vacuous on v1).
+4. **`[FU-TSCONFIG-TEST-2FILE-HOLE]`** — two suites still `exclude`d from the new typecheck project; the one-line fix lives inside those test files.
+
+> **★★ CARRY THIS INTO ANY MULTI-LANE PR: lane-green ×N is NOT PR-green.** All three Wave-3 lanes were green and inside their allowlists, and the PR would still have merged with a red local bar. **Run an ASSEMBLY gate pass yourself**, because two failures are structurally invisible to a subagent:
+> - **`scope:guard` classifies the WHOLE working tree** — meaningful only once lanes are assembled, and it is **LOCAL-only, not in CI**. It failed on `[unclassified] tsconfig.test.json` because `repo_boundary_policy.json` enumerates tsconfigs **by exact name**; **any NEW tsconfig will hit this again.**
+> - **`base...HEAD` guards are VACUOUS pre-commit** — #488, #496, and now #515. Re-run them **after** committing.
+> - **They are MIRRORS:** `scope:guard`'s meaningful run is **PRE**-commit; the matrices' is **POST**-commit. Ask what range a gate inspects before trusting its green.
+> - **★ A `git add` that warns can kill a chained commit.** Root `.gitignore:49` ignores `lazytopper/docs/project_memory/`, so staging `repo_boundary_policy.json` exits non-zero and short-circuits `&&`. The file **is** tracked (`c7d742f` restored it because untracking it once **disarmed scope:guard**). Verify `git log --oneline -1`.
+
+**Live-verify owed (non-blocking):** one owner tap of **"Refresh set"** and **Alt+R** in Quick Practice. L1 (config/CI) and L2 (bank content) owe none.
+
+---
+
+## The immediate next task (unchanged by #515)
 
 ### ★ THE IMMEDIATE NEXT TASK: PR-2 — DELETIONS + THE OPS-SCRIPT SWEEP
 

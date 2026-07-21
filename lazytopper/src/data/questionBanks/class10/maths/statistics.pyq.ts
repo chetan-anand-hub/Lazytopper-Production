@@ -63,8 +63,9 @@ export const STATISTICS_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/5/2 Q26", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "2" },
   { id: "PYQ-M-STAT-008", subject: "Maths", topicKey: "statistics", subtopic: "Median", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A student noted the number of cars passing through a spot on a road for 100 periods each of 3 minutes and summarised it in the table given below. Find the mean and median of the following data. Number of cars 0 10 10 20 20 30 30 40 40 50 50 60 60 70 70 80 Frequency (periods) 7 14 13 12 20 11 15",
-    answer: "Number of cars xi fi xifi c.f. 0 – 10 5 7 35 7 10 – 20 15 14 210 21 20 – 30 25 13 325 34 30 – 40 35 12 420 46 40 – 50 45 20 900 66 50 – 60 55 11 605 77 60 – 70 65 15 975 92 70 – 80 75 8 600 100 Total 100 4070 Correct table Mean = i i i f f x   = 100 4070 = 40·7 Median class : 40 – 50 Median = 40 + 20 46 – 50 × 10 =",
+    // UNSOLVABLE-AS-PRINTED FIX: questionText listed 8 classes but only 7 frequencies; the 70-80 frequency 8 is restored from MS 041_30-2-1 Mathematics 2022-23, p.15. answer recovered from the same page (Median = 42).
+    questionText: "A student noted the number of cars passing through a spot on a road for 100 periods each of 3 minutes and summarised it in the table given below. Find the mean and median of the following data. Number of cars 0 10 10 20 20 30 30 40 40 50 50 60 60 70 70 80 Frequency (periods) 7 14 13 12 20 11 15 8",
+    answer: "Number of cars xi fi xifi c.f. 0 – 10 5 7 35 7; 10 – 20 15 14 210 21; 20 – 30 25 13 325 34; 30 – 40 35 12 420 46; 40 – 50 45 20 900 66; 50 – 60 55 11 605 77; 60 – 70 65 15 975 92; 70 – 80 75 8 600 100; Total 100 4070. Mean = Σxifi/Σfi = 4070/100 = 40·7. Median class : 40 – 50. Median = 40 + ((50 – 46)/20) × 10 = 42.",
     solutionSteps: [
       "[1 mark] Table — class marks xi: 5, 15, 25, 35, 45, 55, 65, 75; fi: 7, 14, 13, 12, 20, 11, 15, 8; fixi: 35, 210, 325, 420, 900, 605, 975, 600; cumulative frequency: 7, 21, 34, 46, 66, 77, 92, 100. Σfi = 100, Σfixi = 4070.",
       "[1 mark] Mean = Σfixi / Σfi = 4070/100 = 40.7 cars.",
@@ -76,8 +77,9 @@ export const STATISTICS_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/2/1 Q34", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-STAT-009", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    // answer recovered from MS 041_30-2-3 Mathematics 2022-23, p.12 (b = 8).
     questionText: "The mode of the following frequency distribution is 55. Find the missing Class Interval 0 15 15 30 30 45 45 60 60 75 75 90 Total Frequency 6 7 a 15 10 b 51",
-    answer: "Modal Class: 45 – 60 Mode = 55 55 = 45 + ) 10 a( – 30 a – 15 + × 15  a = 5 6 + 7 + a + 15 + 10 + b = 51  a + b = 13  b = 13 – 5 =",
+    answer: "Modal Class: 45 – 60. Mode = 55 ⇒ 55 = 45 + ((15 – a)/(30 – a – 10)) × 15 ⇒ a = 5. 6 + 7 + a + 15 + 10 + b = 51 ⇒ a + b = 13 ⇒ b = 13 – 5 = 8.",
     solutionSteps: [
       "[1 mark] Since the mode 55 lies in the class 45 – 60, the modal class is 45 – 60: l = 45, f1 = 15, f0 = a, f2 = 10, h = 15.",
       "[1 mark] Mode = l + ((f1 − f0)/(2f1 − f0 − f2)) × h ⇒ 55 = 45 + ((15 − a)/(30 − a − 10)) × 15.",
@@ -89,8 +91,9 @@ export const STATISTICS_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/2/3 Q32", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3" },
   { id: "PYQ-M-STAT-010", subject: "Maths", topicKey: "statistics", subtopic: "Median", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
+    // answer reflowed from MS 041_30-4-2 Mathematics 2022-23, pp.13-15; stacked fractions restored and the trailing mark-column bleed ('2 for correct table') dropped. Values unchanged.
     questionText: "The monthly expenditure on milk in 200 families of a Housing Society is given below : Monthly 1000- 1500- 2000- 2500- 3000- 3500- 4000- 4500- Expenditure 1500 2000 2500 3000 3500 4000 4500 5000 (in `) Number of 24 40 33 x 30 22 16 7 families Find the value of x and also, find the median and mean expenditure on milk.",
-    answer: "(in ₹) x fi cf d xifi 1000 – 1500 1250 24 24 – 3 – 72 1500 – 2000 1750 40 64 – 2 – 80 14  2000 – 2500 2250 33 97 – 1 – 33 2500 – 3000 2750 x=28 125 0 0 3000 – 3500 3250 30 155 1 30 3500 – 4000 3750 22 177 2 44 4000 – 4500 4250 16 193 3 48 4500 – 5000 4750 7 200 4 28 Total – 35 172 + x = 200  x = 28 l = lower limit of median class = 2500 2 N = 2 200 = 100 C = 97, f = 28, h = 500 Median = l + h f C – 2 N  = 2500 + 28 97 – 100  500 = 2500 + 28 3  500 = 2553·6 Median Expenditure = ₹ 2553·6 Mean = 2750 – 200 500 35  = 2750 – 87·5 = 2662·5 Mean Expenditure = ₹ 2662·5 2 for correct table",
+    answer: "Monthly Exp. (in ₹) xi fi cf d xifi: 1000 – 1500 1250 24 24 – 3 – 72; 1500 – 2000 1750 40 64 – 2 – 80; 2000 – 2500 2250 33 97 – 1 – 33; 2500 – 3000 2750 x=28 125 0 0; 3000 – 3500 3250 30 155 1 30; 3500 – 4000 3750 22 177 2 44; 4000 – 4500 4250 16 193 3 48; 4500 – 5000 4750 7 200 4 28; Total 28 – 35. 172 + x = 200 ⇒ x = 28. l = lower limit of median class = 2500, N/2 = 200/2 = 100, C = 97, f = 28, h = 500. Median = l + ((N/2 – C)/f) × h = 2500 + ((100 – 97)/28) × 500 = 2500 + (3/28) × 500 = 2553·6. Median Expenditure = ₹ 2553·6. Mean = 2750 – (35 × 500)/200 = 2750 – 87·5 = 2662·5. Mean Expenditure = ₹ 2662·5.",
     solutionSteps: [
       "[1 mark] Σfi = 200 ⇒ 24 + 40 + 33 + x + 30 + 22 + 16 + 7 = 200 ⇒ 172 + x = 200 ⇒ x = 28.",
       "[1 mark] Table — class marks xi: 1250, 1750, 2250, 2750, 3250, 3750, 4250, 4750; cumulative frequency: 24, 64, 97, 125, 155, 177, 193, 200; step deviations di = (xi − 2750)/500 give fidi: −72, −80, −33, 0, 30, 44, 48, 28, so Σfidi = −35.",
