@@ -49,8 +49,12 @@ export default function SignUpPage() {
   }, []);
 
   const nextPath = useMemo(() => {
+    // RETIREMENT PR-1: fallback re-pointed off the retired /onboarding to "/" — a new
+    // signup lands on the homepage. (`st.from` is NOT isSafeInternalPath-guarded here,
+    // unlike Login.tsx; that is pre-existing and tracked as [FU-SIGNUP-UNSAFE-REDIRECT],
+    // deliberately NOT fixed in this retirement PR.)
     const st = (location.state || {}) as LocationState;
-    return st.from || "/onboarding";
+    return st.from || "/";
   }, [location.state]);
 
   const [email, setEmail] = useState("");

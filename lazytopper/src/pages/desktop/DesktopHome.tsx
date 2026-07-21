@@ -289,9 +289,10 @@ export default function DesktopHome() {
   const fallbackGrade = memoryGrade && memoryGrade.trim() ? memoryGrade : "10";
 
   // Right-side header chip — truthful auth/trial state.
+  // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
   const rightChip: React.ReactNode = !isSignedIn ? (
     <Link
-      to={loginUrl("start-trial", "/onboarding")}
+      to={loginUrl("start-trial", "/")}
       style={{
         display: "inline-flex",
         alignItems: "center",

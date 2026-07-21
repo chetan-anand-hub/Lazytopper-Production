@@ -868,13 +868,19 @@ export default function Login() {
     }
     const st = (location.state || {}) as LocationState;
     if (st.from) return isSafeInternalPath(st.from) ? st.from : "/";
-    const hasProfile =
-      typeof window !== "undefined" && !!window.localStorage.getItem("lazytopper.profile.v2");
-    // SEVER PR: post-login fallback re-pointed off the retired /dashboard to "/"
-    // (RootEntry routes to the live home per viewport). ?redirect= / state.from
-    // remain isSafeInternalPath-guarded; a stale severed target now resolves via
-    // the catch-all to "/" (home), never stranding the user.
-    return hasProfile ? "/" : "/onboarding";
+    // RETIREMENT PR-1: the fallback is now unconditionally "/" (RootEntry routes to the
+    // live home per viewport). The /onboarding page is retired — a new signup lands on
+    // the homepage, not the dark onboarding screen.
+    //
+    // The `hasProfile ? "/" : "/onboarding"` gate this replaces was dead anyway: it read
+    // the BARE key "lazytopper.profile.v2", but studentCloudStore only ever writes the
+    // uid-suffixed "lazytopper.profile.v2:<uid>". So hasProfile was permanently false and
+    // EVERY login — new and returning — was routed to /onboarding. Resolves
+    // [FU-LOGIN-HASPROFILE-DEAD-KEY].
+    //
+    // ?redirect= / state.from remain isSafeInternalPath-guarded above; a stale severed
+    // target still resolves via the catch-all to "/", never stranding the user.
+    return "/";
   }, [location.state, searchParams]);
 
   const [method, setMethod] = useState<"email" | "phone">("email");

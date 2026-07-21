@@ -443,9 +443,10 @@ export default function MobileHome() {
   const resumeTo = `${resumeRoute}${resumeRoute.includes("?") ? "&" : "?"}${HOME_QS}`;
 
   // Header trial/affordance chip — honest states only (no fake day counts).
+  // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
   const trialChip = !isSignedIn ? (
     <Link
-      to={loginUrl("start-trial", "/onboarding")}
+      to={loginUrl("start-trial", "/")}
       style={{
         display: "inline-flex",
         alignItems: "center",
