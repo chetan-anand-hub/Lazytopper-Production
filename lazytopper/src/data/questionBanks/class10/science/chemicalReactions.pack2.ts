@@ -1200,8 +1200,8 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "chemical-reactions-and-equations",
     "subtopic": "Balancing Equations",
-    "section": "D",
-    "marks": 5,
+    "section": "B",
+    "marks": 2,
     "format": "Short",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
@@ -1209,13 +1209,8 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "4Al + 3O₂ → 2Al₂O₃",
     "solutionSteps": [
-      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
-      "Step 1: Write unbalanced equation: Al + O₂ → Al₂O₃",
-      "Step 2: Balance Al: 2Al on right, so 2Al on left",
-      "Step 3: Now count O: 2 O atoms on left, 3 on right → need 3 O₂",
-      "Step 4: Balance: 2Al + 3O₂ → Al₂O₃ (but Al still unbalanced)",
-      "Step 5: Multiply Al and Al₂O₃: 4Al + 3O₂ → 2Al₂O₃",
-      "Verify: Al: 4=4 ✓, O: 6=6 ✓"
+      "Balance O using the LCM of 2 (in O₂) and 3 (in Al₂O₃) = 6, giving 3O₂ on the left and 2Al₂O₃ on the right.",
+      "This fixes 4 Al on the right, so write 4Al on the left: 4Al + 3O₂ → 2Al₂O₃ (Al: 4 = 4, O: 6 = 6)."
     ],
     "finalAnswer": "4Al + 3O₂ → 2Al₂O₃",
     "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
