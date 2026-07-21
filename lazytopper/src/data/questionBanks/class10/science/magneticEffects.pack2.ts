@@ -1214,9 +1214,10 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Changes (i), (ii), and (iii) increase electromagnet strength because: (i) more turns increase coil ampere-turns, (ii) reduced resistance allows higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Change (iii) is better because increased voltage with thicker wire allows greater current, directly increasing electromagnetic force; Change (ii) alone doesn't help if current remains 2A.",
     "solutionSteps": [
-      "(a) Change (i): More turns → stronger field; Change (ii): Thicker wire reduces resistance, allows more current → stronger field; Change (iii): Higher voltage increases current → stronger field",
-      "(b) Change (iv) is counterproductive because air gap increases reluctance and weakens the magnetic field due to air's low permeability compared to iron",
-      "(c) If current stays at 2A: Change (ii) doesn't help field strength (no current change), but Change (iii) enables higher current through thicker wire → stronger field"
+      "[1 mark] (a) Change (i) increases strength: doubling the turns (500 → 1000) increases the ampere-turns, so the magnetic field of the electromagnet becomes stronger.",
+      "[1 mark] (a) Changes (ii) and (iii) also increase strength: thicker wire reduces resistance so a larger current can flow, and a higher voltage (24 V) drives a larger current — in both cases more current → stronger magnetic field.",
+      "[1 mark] (b) Change (iv) is counterproductive: an air gap in the soft iron core weakens the magnetic field, because air has a far lower magnetic permeability than soft iron (it increases the reluctance of the magnetic circuit).",
+      "[1 mark] (c) If the current is fixed at 2 A, change (ii) (thicker wire) by itself gives no gain — field strength depends on current and turns, and the current is unchanged; change (iii) (higher voltage) is better since it can actually drive a larger current and so a stronger field."
     ],
     "finalAnswer": "(a) Changes (i), (ii), and (iii) increase electromagnet strength because: (i) more turns increase coil ampere-turns, (ii) reduced resistance allows higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Change (iii) is better because increased voltage with thicker wire allows greater current, directly increasing electromagnetic force; Change (ii) alone doesn't help if current remains 2A.",
     "isCompetencyBased": true,

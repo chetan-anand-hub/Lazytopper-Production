@@ -210,10 +210,11 @@ export const CHEMICAL_REACTIONS_PACK1: CanonicalQuestion[] = [
       "(iv) Displacement reaction; iron is more reactive than copper (higher in reactivity series) [1]",
     ], finalAnswer: "(i) Blue to green (ii) Cu coating (iii) Fe+CuSO₄→FeSO₄+Cu (iv) Displacement" , visualExplainerId: "science-chemical-reactions-balancing-chemical-equations", isCompetencyBased: true },
   { id: "CR-H07", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Oxidation-Reduction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Explain the following with balanced equations:\n(i) Why does the colour of copper sulphate solution change when an iron nail is dipped in it?\n(ii) Why does silver article become black after some time?\n(iii) Why do we store silver chloride in dark-coloured bottles?", solutionSteps: [
-      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides. [2]",
-      "(i) Fe + CuSO₄ → FeSO₄ + Cu. Fe displaces Cu (more reactive). Blue→green. [1]",
-      "(ii) 2Ag + H₂S → Ag₂S + H₂. Silver reacts with H₂S in air forming black Ag₂S (tarnishing/corrosion). [1]",
-      "(iii) 2AgCl →(sunlight) 2Ag + Cl₂. AgCl decomposes in light (photodecomposition). Dark bottles prevent this. [1]",
+      "[1 mark] Method: write the skeletal (unbalanced) equation first, then balance it by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
+      "[1 mark] (i) Iron displaces copper (iron is more reactive): Fe + CuSO₄ → FeSO₄ + Cu; the blue colour of copper sulphate fades to light green (iron sulphate).",
+      "[1 mark] (ii) Silver reacts with H₂S present in air, forming a black coating of silver sulphide (tarnishing/corrosion): 2Ag + H₂S → Ag₂S + H₂.",
+      "[1 mark] (iii) Silver chloride undergoes photodecomposition in sunlight: 2AgCl → 2Ag + Cl₂ (in the presence of sunlight); the grey silver formed darkens it.",
+      "[1 mark] (iii) Storing AgCl in dark-coloured bottles keeps out light and prevents this decomposition.",
     ], finalAnswer: "Three phenomena explained with equations" , visualExplainerId: "science-chemical-reactions-balancing-chemical-equations", isCompetencyBased: true },
   { id: "CR-H08", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Types of Reactions", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "What happens when dilute hydrochloric acid is added to iron filings? Write the chemical equation and identify the type of reaction. Also identify the gas evolved and how to test it.", solutionSteps: [
       "Fe + 2HCl → FeCl₂ + H₂↑; Displacement reaction [1]",

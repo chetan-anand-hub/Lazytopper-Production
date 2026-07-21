@@ -280,36 +280,72 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-039", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Name the type of asexual reproduction demonstrated by the following organisms: a. Amoeba b. Rhizopus c. Planaria d. Plasmodium e. Bryophyllum",
     answer: "[All India 2016-17] a. Binary fission b. Spore formation c. Fragmentation d. Multiple fission e. Vegetative propagation",
-    solutionSteps: ["[All India 2016-17] a. Binary fission b. Spore formation c. Fragmentation d. Multiple fission e. Vegetative propagation"],
+    solutionSteps: [
+      "[1 mark] a. Amoeba — Binary fission: the parent cell divides into two equal daughter cells.",
+      "[1 mark] b. Rhizopus — Spore formation: sporangia produce and release spores that germinate into new individuals.",
+      "[1 mark] c. Planaria — Fragmentation (regeneration): the body breaks into pieces, each of which regenerates into a complete organism.",
+      "[1 mark] d. Plasmodium — Multiple fission: the parent nucleus divides repeatedly, forming many daughter cells simultaneously.",
+      "[1 mark] e. Bryophyllum — Vegetative propagation: adventitious buds on the leaf margins grow into new plants."
+    ],
     ncertRef: "cbjesccq08 Q118", isCompetencyBased: false },
   // cbjesccq08 Q119 (Section D, 5mk)
   { id: "SCQ-S-REPR-040", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Answer the following: a. How is zygote formed? b. State the function of placenta in the mother's body. c. At what interval the egg is formed in human female ovary? d. Name two STDs caused by bacterial infection. e. Why is prenatal sex determination prohibited?",
     answer: "[All India 2017] a. Zygote is formed by the fusion of male and female gamete. b. Placenta is a special tissue through which the developing embryo/foetus gets nutrition from mother's blood. It also transports wastes of the embryo into mother's blood. c. Ovulation releases mature o",
-    solutionSteps: ["[All India 2017] a. Zygote is formed by the fusion of male and female gamete. b. Placenta is a special tissue through which the developing embryo/foetus gets nutrition from mother's blood. It also transports wastes of the embryo into mother's blood. c. Ovulation releases mature ovum from ' the ovary. It happens once during a menstrual cycle that is for roughly 28 days. d. STDs caused by bacterial infection are Gonorrhoea and Syphilis. e. Prenatal sex determination is misused and it may be the reason for female foeticide. Chap 8 : How Do Organisms Reproduce"],
+    solutionSteps: [
+      "[1 mark] a. The zygote is formed by the fusion of the male gamete and the female gamete during fertilisation.",
+      "[1 mark] b. The placenta is a special tissue through which the developing embryo/foetus obtains nutrition and oxygen from the mother's blood, and through which the embryo's wastes are passed into the mother's blood.",
+      "[1 mark] c. One mature ovum is released from the ovary once during each menstrual cycle, i.e. roughly every 28 days (ovulation).",
+      "[1 mark] d. Two STDs caused by bacterial infection are Gonorrhoea and Syphilis.",
+      "[1 mark] e. Prenatal sex determination is prohibited because it is misused for female foeticide, which disturbs the sex ratio in society."
+    ],
     ncertRef: "cbjesccq08 Q119", isCompetencyBased: true },
   // cbjesccq08 Q120 (Section D, 5mk)
   { id: "SCQ-S-REPR-041", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. List two reasons for the appearance of variations among the progeny formed by sexual reproduction. b. (i) Name the part marked A in the diagram. (ii) How does \"A\" reaches part B? (iii) State the importance of , the part C. (iv) What happens to the part marked D after fertilization is over?",
     answer: "[All India 2016] a. Sexual reproduction confers new characteristics on the offspring due to genetic recombination occurring during gamete formation in the sex organs. Moreover it involves union of two gametes coming from two parents which different genetic combination. Thus it en",
-    solutionSteps: ["[All India 2016] a. Sexual reproduction confers new characteristics on the offspring due to genetic recombination occurring during gamete formation in the sex organs. Moreover it involves union of two gametes coming from two parents which different genetic combination. Thus it ensures more diversity in characteristics. b. (i) Pollen (ii) Pollination (iii) Pollen tube carries male gametes to the ovule in ovary. (iv) Ovule turns into seeds."],
+    solutionSteps: [
+      "[1 mark] a. Two reasons for variation: (i) genetic recombination (crossing over) occurs during gamete formation by meiosis in the sex organs; (ii) the fusion of gametes coming from two different parents brings together two different sets of genes.",
+      "[1 mark] b. (i) The part marked A is the Pollen grain.",
+      "[1 mark] b. (ii) A (pollen) reaches part B by the process of Pollination — the transfer of pollen to the stigma.",
+      "[1 mark] b. (iii) The part C is the pollen tube; it is important because it carries the male gametes down to the ovule in the ovary for fertilisation.",
+      "[1 mark] b. (iv) After fertilisation, the part marked D (ovule) develops into the seed."
+    ],
     ncertRef: "cbjesccq08 Q120", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
   // cbjesccq08 Q121 (Section D, 5mk)
   { id: "SCQ-S-REPR-042", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Identify the following methods and giving one example of each: a. Process in which reproduction takes place by breaking up of parent into fragments. b. Process of dividing of organisms into many cells simultaneously. c. Process of reproduction by formation of bud on parent body. d. Process of reproduction by formation of spores. e. Process used by multicellular organisms to reproduce by cutting into many pieces each piece forms a new individual.",
     answer: "a. Fragmentation, Spirogyra b. Multiple fission, Plasmodium c. Budding, Hydra d. Spore formation, Rhizopus e. Regeneration, Planaria.",
-    solutionSteps: ["a. Fragmentation, Spirogyra b. Multiple fission, Plasmodium c. Budding, Hydra d. Spore formation, Rhizopus e. Regeneration, Planaria."],
+    solutionSteps: [
+      "[1 mark] a. Fragmentation — example: Spirogyra (the parent breaks into fragments, each growing into a new individual).",
+      "[1 mark] b. Multiple fission — example: Plasmodium (the parent divides into many daughter cells simultaneously).",
+      "[1 mark] c. Budding — example: Hydra (a bud develops on the parent body and later detaches as a new individual).",
+      "[1 mark] d. Spore formation — example: Rhizopus (spores produced in sporangia germinate into new individuals).",
+      "[1 mark] e. Regeneration — example: Planaria (each cut piece regenerates into a complete organism)."
+    ],
     ncertRef: "cbjesccq08 Q121", isCompetencyBased: true },
   // cbjesccq08 Q122 (Section D, 5mk)
   { id: "SCQ-S-REPR-043", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How does vegetative propagation occur in nature? Explain with four different examples.",
     answer: "There are many plants in which parts like the root, stem and leaves develop into new plants under appropriate conditions. This is called as vegetative propagation. Examples of vegetative propagation: a. Adventitious buds: In Bryophyllum, adventitious buds grow in the notches alon",
-    solutionSteps: ["There are many plants in which parts like the root, stem and leaves develop into new plants under appropriate conditions. This is called as vegetative propagation. Examples of vegetative propagation: a. Adventitious buds: In Bryophyllum, adventitious buds grow in the notches along the leaf margin, which when fall on the soil, develop into new plants. b. Cutting: A piece of stem, root, leaf or even a bulb scale is placed partly under moist soil which grows into a new plant, e.g., rose. c. Layering: A part of the stem is pulled out and buried in the soil. The layered stem grows into a new plant,"],
+    solutionSteps: [
+      "[1 mark] Vegetative propagation is the process in which new plants develop from the vegetative parts (root, stem or leaf) of the parent plant, without the formation of seeds or spores.",
+      "[1 mark] Adventitious buds — Bryophyllum: buds arising in the notches of the leaf margin fall on moist soil and grow into new plants.",
+      "[1 mark] Cutting — rose: a piece of stem bearing buds is planted partly in moist soil, where it develops roots and grows into a new plant.",
+      "[1 mark] Layering — jasmine: a branch of the stem is bent down and covered with soil; it develops roots and later separates as a new plant.",
+      "[1 mark] Grafting — mango/apple: a stem cutting (scion) of one plant is joined to the rooted stock of another so that the two grow together as a single plant."
+    ],
     ncertRef: "cbjesccq08 Q122", isCompetencyBased: true },
   // cbjesccq08 Q123 (Section D, 5mk)
   { id: "SCQ-S-REPR-044", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. (i) Write full form of DNA. (ii) State the role of DNA in the cell nucleus, (iii) What will be the after effect if the information of the DNA is changed. b. Explain the importance of DNA copying in reproduction.",
     answer: "a. (i) Deoxyribo Nucleic Acid. (ii) Informational source for making proteins. (iii) Proteins will be changed. b. Its only due to DNA copying that body designs are similar because DNA cell nucleus carries information for making proteins if DNA copying will not take place then body",
-    solutionSteps: ["a. (i) Deoxyribo Nucleic Acid. (ii) Informational source for making proteins. (iii) Proteins will be changed. b. Its only due to DNA copying that body designs are similar because DNA cell nucleus carries information for making proteins if DNA copying will not take place then body design will change."],
+    solutionSteps: [
+      "[1 mark] a. (i) DNA stands for Deoxyribonucleic Acid.",
+      "[1 mark] a. (ii) The DNA in the cell nucleus is the information source (blueprint) for making proteins, which in turn decide the body design of the organism.",
+      "[1 mark] a. (iii) If the information in the DNA is changed, different proteins will be made, leading to an altered body design (i.e. a variation).",
+      "[1 mark] b. During reproduction, DNA copying makes an exact replica of the DNA so that the offspring inherits the same information for making proteins; this is why the body designs of the offspring resemble those of the parent.",
+      "[1 mark] b. The DNA copying is never perfectly accurate, so small variations arise; these variations are the basis of evolution and help the species survive under changing conditions."
+    ],
     ncertRef: "cbjesccq08 Q123", isCompetencyBased: true },
 ];

@@ -280,36 +280,72 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-LIFE-039", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How are water and minerals absorbed and transported in the plants? [All India 2009]",
     answer: "1. Transpiration is the process of removal of water vapors from the aerial parts of a plant, mainly through stomata in the leaves.",
-    solutionSteps: ["1. Transpiration is the process of removal of water vapors from the aerial parts of a plant, mainly through stomata in the leaves."],
+    solutionSteps: [
+      "[1 mark] Absorption: Water and dissolved minerals are absorbed from the soil by the root hairs of the plant through diffusion and osmosis; the large surface area of the root hairs increases the rate of absorption.",
+      "[1 mark] Root pressure: The absorbed water passes from cell to cell up to the xylem of the roots, developing a positive pressure called root pressure that pushes water a short way up the stem.",
+      "[1 mark] Conducting tissue: Water and minerals are transported upward through the xylem — a continuous system of vessels and tracheids running from the roots through the stem to the leaves.",
+      "[1 mark] Transpiration pull: Loss of water vapour from the leaves through the stomata (transpiration) creates a suction force (negative pressure) that pulls the water column up the xylem; this is the main force acting in tall plants.",
+      "[1 mark] Ascent of sap: The continuous column of water, held together by cohesion, thus rises from the roots to the leaves (ascent of sap), delivering water and minerals to all aerial parts of the plant."
+    ],
     ncertRef: "cbjesccq06 Q79", isCompetencyBased: true },
   // cbjesccq06 Q2 (Section D, 5mk)
   { id: "SCQ-S-LIFE-040", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "There are two conducting tissues of plants: first is xylem and second is phloem. Tracheids and vessels which are two kinds of elements of xylem. 3. Tracheids are found in all vascular plants. They are spindle shaped, have only pits and are not very efficient. 4. Vessels are found in flowering plants, are tube like, have perforation plates and pits making them more efficient. 5. When loss of water in vapour occur from leaves of plants due to transpiration, deficit of water is created in the leaves. Evaporation of water molecules from the cells of a leaf creates a suction force which pulls water from the xylem cells. 6. Water and minerals dissolved in it move up to leaves from root through tracheids and vessels, pulling water and minerals upward through xylem elements-ascent of sap. Thus transpiration helps in upward movement of water from roots to leaves. 7. The roots of a plant absorb water and dissolved substances from the soil, which is needed by the aerial parts of the plants. As such these substances are to be transported from roots up to stem, leaves and flowers. 80. Describe the mechanism of gaseous exchange in tissues and lungs. [Delhi 2015] or How is oxygen and carbon dioxide transported in human being? [CBSE 2016] or How is oxygen and carbon dioxide transported in human being? Explain clearly how the air is inhaled and exhaled during breathing in humans.",
     answer: "[All India 2009] Exchange of gases in tissues: a. Most of oxygen is carried by haemoglobin in blood. On reaching the tissues, it gets diffused into the cells as it is in higher concentration than in the cells. b. The carbon dioxide, which is formed in the cells, gets accumulated ",
-    solutionSteps: ["[All India 2009] Exchange of gases in tissues: a. Most of oxygen is carried by haemoglobin in blood. On reaching the tissues, it gets diffused into the cells as it is in higher concentration than in the cells. b. The carbon dioxide, which is formed in the cells, gets accumulated there in higher concentration as compared in the blood, now diffused into the blood. c. The CO2 mostly dissolved in blood plasma reaches the lungs, from where it is expelled out during exhalation. Mechanism of Inhalation: The thoracic cavity expands when diaphragm and rib muscles contract. The thorax moves upwards and "],
+    solutionSteps: [
+      "[1 mark] Transport of oxygen: Oxygen from the alveoli of the lungs diffuses into the blood and is carried mainly by haemoglobin in the red blood cells as oxyhaemoglobin; in the tissues, where oxygen concentration is lower, it dissociates and diffuses into the cells.",
+      "[1 mark] Transport of carbon dioxide: Carbon dioxide produced in the tissues is at a higher concentration than in the blood, so it diffuses into the blood and is transported mostly dissolved in the blood plasma to the lungs, from where it is expelled during exhalation.",
+      "[1 mark] Inhalation (breathing in): The diaphragm and the rib (intercostal) muscles contract — the diaphragm flattens and the ribs move up and outward — enlarging the thoracic cavity; the pressure inside falls and air rushes into the lungs.",
+      "[1 mark] Exhalation (breathing out): The diaphragm and rib muscles relax, the thoracic cavity decreases in volume, the pressure rises above atmospheric pressure and air is pushed out of the lungs.",
+      "[1 mark] Exchange surface: In the alveoli, the large surface area and rich blood supply allow efficient diffusion of oxygen into the blood and carbon dioxide out of it, completing the exchange of gases."
+    ],
     ncertRef: "cbjesccq06 Q2", isCompetencyBased: true },
   // cbjesccq06 Q81 (Section D, 5mk)
   { id: "SCQ-S-LIFE-041", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "What are the differences between Aerobic and Anaerobic respiration? Name some organisms which use the anaerobic mode of respiration.",
     answer: "[All India 2008] Chap 6 : Life Process Aerobic respiration Anaerobic respiration",
-    solutionSteps: ["[All India 2008] Chap 6 : Life Process Aerobic respiration Anaerobic respiration"],
+    solutionSteps: [
+      "[1 mark] Presence of oxygen: Aerobic respiration takes place in the presence of oxygen, whereas anaerobic respiration occurs in the absence of oxygen.",
+      "[1 mark] Site in the cell: Aerobic respiration is completed partly in the cytoplasm (glycolysis) and partly in the mitochondria; anaerobic respiration is completed entirely in the cytoplasm.",
+      "[1 mark] End products: In aerobic respiration glucose is completely oxidised to carbon dioxide and water; in anaerobic respiration glucose is incompletely broken down to ethanol and carbon dioxide (in yeast) or to lactic acid (in muscles).",
+      "[1 mark] Energy released: Aerobic respiration releases a large amount of energy (more ATP), while anaerobic respiration releases much less energy.",
+      "[1 mark] Examples of anaerobic organisms: Yeast and some bacteria such as Lactobacillus respire anaerobically."
+    ],
     ncertRef: "cbjesccq06 Q81", isCompetencyBased: false },
   // cbjesccq06 Q1 (Section D, 5mk)
   { id: "SCQ-S-LIFE-042", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Presence of air required. Presence of air not required 2. Occur in two steps: 1st Glycolysis in cytoplasm. 2nd in mitochondria. Complete process occurs in cytoplasm. 3. Glucose completely oxidized to CO, and H2O. Glucose incompletely oxidized to either an organic acid or alcohol with CO2. 4. Large amount of energy produced Less energy produced 5 E.g., man, higher plants E.g., yeast, lactobacillus 82. a. Mention any two components of blood. b. Trace the movement of oxygenated blood in the body. c. Write the function of valves present in between atria and ventricles. d. Write one structural difference between the composition of artery and veins. [All India 2018]",
     answer: "a. plasma, blood cells. b. Pulmonary vein from lungs \" left atrium left ventricle \" aorta \" arteries to all organs. c. Valves prevent backflow of blood from ventricles to atria when latter are contracting. d. Arteries have thick, muscular and elastic walls. Veins have thinner,",
-    solutionSteps: ["a. plasma, blood cells. b. Pulmonary vein from lungs \" left atrium left ventricle \" aorta \" arteries to all organs. c. Valves prevent backflow of blood from ventricles to atria when latter are contracting. d. Arteries have thick, muscular and elastic walls. Veins have thinner, less muscular walls but have valves."],
+    solutionSteps: [
+      "[1 mark] (a) Two components of blood: plasma (the fluid matrix) and the blood cells — red blood cells, white blood cells and platelets.",
+      "[1 mark] (b) Path of oxygenated blood — start: Oxygenated blood from the lungs returns through the pulmonary veins to the left atrium and then passes into the left ventricle.",
+      "[1 mark] (b) Path of oxygenated blood — distribution: The thick-walled left ventricle pumps the oxygenated blood into the aorta, from where the arteries carry it to all the organs of the body.",
+      "[1 mark] (c) Function of valves: The valves between the atria and ventricles prevent the backflow of blood from the ventricles into the atria when the ventricles contract.",
+      "[1 mark] (d) Structural difference: Arteries have thick, muscular and elastic walls and carry blood at high pressure without valves, whereas veins have thinner, less muscular walls, carry blood at low pressure and have valves to prevent backflow."
+    ],
     ncertRef: "cbjesccq06 Q1", isCompetencyBased: false },
   // cbjesccq06 Q83 (Section D, 5mk)
   { id: "SCQ-S-LIFE-043", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "a. Define excretion. b. Name the basic filtration unit present in the kidney. c. Draw excretory system in human beings and label the following organs of excretory system which perform following functions: (i) form urine (ii) is a long tube which collects urine from kidney. (iii) store urine until it is passed out.",
     answer: "[All India 2018] a. Throwing out wastes from the living body. b. Nephron. c. (i) kidney (ii) ureter (iii) urinary bladder",
-    solutionSteps: ["[All India 2018] a. Throwing out wastes from the living body. b. Nephron. c. (i) kidney (ii) ureter (iii) urinary bladder"],
+    solutionSteps: [
+      "[1 mark] (a) Excretion is the biological process of removing harmful nitrogenous metabolic waste products (e.g. urea) from the body.",
+      "[1 mark] (b) The basic structural and functional filtration unit of the kidney is the nephron.",
+      "[1 mark] Diagram: Labelled diagram of the human excretory system showing the two kidneys, the ureters, the urinary bladder and the urethra.",
+      "[1 mark] (c) Labels — form and collect urine: (i) the kidney forms urine, and (ii) the ureter is the long tube that collects and carries urine from the kidney to the bladder.",
+      "[1 mark] (c) Label — store urine: (iii) the urinary bladder stores urine until it is passed out through the urethra."
+    ],
     ncertRef: "cbjesccq06 Q83", isCompetencyBased: false },
   // cbjesccq06 Q84 (Section D, 5mk)
   { id: "SCQ-S-LIFE-044", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "a. What are two vital functions of the human kidney? b. Draw labelled diagram of human urinary system.",
     answer: "[Delhi 2017] a. The two vital functions of kidney are —",
-    solutionSteps: ["[Delhi 2017] a. The two vital functions of kidney are —"],
+    solutionSteps: [
+      "[1 mark] (a) Vital function 1 — Excretion: The kidneys filter the blood and remove nitrogenous metabolic wastes such as urea and excess salts, excreting them from the body as urine.",
+      "[1 mark] (a) Vital function 2 — Osmoregulation: The kidneys regulate the water and ionic (electrolyte) balance of the body by adjusting the amount of water and salts reabsorbed and excreted.",
+      "[1 mark] Filtration process: Blood is filtered in the glomerulus of each nephron, and useful substances (glucose, amino acids, some water and salts) are selectively reabsorbed while wastes pass out as urine.",
+      "[1 mark] Diagram: Labelled diagram of the human urinary system showing the two kidneys, the two ureters, the urinary bladder and the urethra.",
+      "[1 mark] Labels: The kidneys produce urine, the ureters carry it to the urinary bladder, which stores it, and the urethra passes it out of the body."
+    ],
     ncertRef: "cbjesccq06 Q84", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references diagram" },
 ];

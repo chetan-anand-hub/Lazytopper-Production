@@ -154,8 +154,8 @@ export const TRIG_SP: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] (a) When the object viewed lies below the horizontal level, the angle formed by the line of sight with the horizontal is called the angle of depression.",
       "[1 mark] (b) tan 60° = height/distance = 42/d → √3 = 42/d → d = 42/√3 = (42√3)/3 = 14√3 m.",
-      "[2 marks] (c) For the tower with shadow 20 m and sun's altitude 60°: tan 60° = h/20 → √3 = h/20 → h = 20√3 m.",
-      "[2 marks] (OR) tan θ = height/distance = 42/42 = 1 → θ = 45°. The angle of elevation is 45°."
+      "[1 mark] (c) For the tower with shadow 20 m and sun's altitude 60°: tan 60° = h/20 → √3 = h/20. [OR: tan θ = height/distance = 42/42 = 1.]",
+      "[1 mark] (c) h = 20√3 m ≈ 34.64 m. [OR: θ = tan⁻¹(1) = 45° — the angle of elevation is 45°.]"
     ],
     "finalAnswer": "(a) Angle of depression; (b) 14√3 m; (c) 20√3 m [OR 45°]",
     "isCompetencyBased": true,

@@ -1,7 +1,35 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-21 (post-**#505 - THE MOCKBUILDER FEATURE IS FULLY DELETED.** Trunk `b810055`. Owner byte-reviewed + merged. 8 files, 474 deletions; [FU-MOCKBUILDER-FULL-DELETE] RESOLVED; 2 new FUs opened.)
+# Updated: 2026-07-21 (post-**#511 - THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS.** Trunk `856d556`. Owner byte-reviewed the pushed diff + merged. 87 files, +831/-356; [FU-BANK-SCARCE-BAND-MISBANDING] Class (b) RESOLVED — the whole mis-banding lane is now CLOSED; 1 new FU opened.)
 
-## NEXT - 2026-07-21 (post-#505). Read this block first.
+## NEXT - 2026-07-21 (post-#511). Read this block first.
+
+**The bank mis-banding lane is CLOSED end-to-end.** Class (a) by `#504` (44 rows relabelled off a bogus 5-mark Section-D), Class (b) by `#511` (`856d556`) — 223 genuine D/E rows that were *correctly banded all along* but whose `solutionSteps` had never been broken into the CBSE per-step scheme now carry `[N mark]` prefixes summing exactly to their marks. Validator: thin 220→**0**, bad-sum 3→**0**, compliant 1,137→**1,360**. **Do not re-open either class.**
+
+**★★ The one thing to carry forward from #511:** the anti-fabrication guarantee was proven by **deep-comparing the assembled `canonicalQuestionBank` export at trunk vs post-edit, field-by-field across all 8,584 rows** — not by grepping the diff. Result: `forbiddenFieldChanges []`, `changesOutsideThe223 []`. **Any future data lane that must promise "I changed only field X" should prove it this way.** A diff grep shows which lines *look* touched; it cannot prove a question is unchanged.
+
+**★ And the finding nobody expected:** forcing the per-step structure **exposed real content wrongness the collapsed one-line format had hidden** — two rows carried the solution to an entirely different question, one had an unbalanced equation, one had a source equation that ignored Pythagoras, plus an arithmetic error, a rounding slip, and one row whose whole solution was the string `"[Sample Paper 2010]"`. All fixed in #511. **Treat "the solution is one run-on paragraph" as a correctness smell, not a formatting nit.**
+
+**The one follow-up this opened:**
+- **`[FU-BANK-GARBLED-ANSWER-CLASS]`** — ~15 rows whose raw `answer` field is still OCR garbage (SAV/STAT/PROB/QE PYQ rows; their `finalAnswer` is now clean), plus **`PYQ-M-2026-CG-002`**, whose `questionText` welds a circle/tangent problem to an unrelated parallelogram proof. **Correctly out of #511's scope: that lane authors SOLUTIONS, these are QUESTION-defects and need their own pass** with the source papers (pymupdf; `pdfplumber` remains BANNED). See `OPEN_QUESTIONS_AND_FOLLOWUPS.md` for the full row list.
+
+**Still in flight from earlier waves** (untouched by #511): `[FU-PRACTICE-CONTROLS-REFRESH-STALE]`, `[FU-TSCONFIG-EXCLUDES-TESTS]`, `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`, `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`, `[FU-HPQ-PREDICTED-MOCK]`, `[FU-QP-WRITTEN-BINARY-CHECK]`.
+
+---
+
+## (superseded) NEXT - 2026-07-21 (post-#509).
+
+**Wave-2 is CLOSED — one PR, two commit-sections, one handoff.** `#509` (`41277c1`) fixed the owner-reported fresh-set bug (**LIVE-VERIFIED**) and repaired all four red vitest suites, deleting **every** `--exclude` from `quality-gate.yml`. The gate is now **fully strict**: 60 files / 789 tests, no exclusions, a red suite fails CI. **Do not add a new `--exclude` — the list only ever shrinks.**
+
+**The three follow-ups this opened, in priority order:**
+1. **`[FU-PRACTICE-CONTROLS-REFRESH-STALE]`** — the tiny fast-follow. `PracticeControls`' "Refresh set" still calls the bare `regenerateQuestions()` and carries the same latent staleness the scorecard CTA had. **Owner's ruling: give it its OWN runtime trace + regression test; do NOT blind-route it through `buildFreshSet`** — it may want different semantics from "build a fresh set".
+2. **`[FU-TSCONFIG-EXCLUDES-TESTS]`** — **nothing typechecks test files** (`tsconfig.app.json` excludes `*.test.ts(x)`), the root reason the four suites rotted silently. Close to free: typechecking the four surfaced exactly one error, the parity test's deliberately-untyped `.cjs` import (`TS7016`). Needs a decision on typing that import, and on a separate tsconfig project vs widening the app one.
+3. **`[FU-PRACTICEINSIGHTS-STALE-COMMENT]`** — one stale comment line at `practiceInsights.ts:292`. Fold into any nearby lane.
+
+**Still in flight from earlier waves** (untouched by #509): `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`, `[FU-HPQ-PREDICTED-MOCK]`, bank mis-banding **Class (b)** (~178 under-stepped genuine-5-mark rows), `[FU-QP-WRITTEN-BINARY-CHECK]`.
+
+---
+
+## (superseded) NEXT - 2026-07-21 (post-#505).
 
 **Wave-1 Lane B (MOCKBUILDER FULL DELETION) is CLOSED.** `[FU-MOCKBUILDER-FULL-DELETE]` RESOLVED - `#505` (`b810055`) removed the whole feature: the HPQ "Mock basket", StudyPlanPage's "Quick mock" button, `buildMockBuilderUrl`, and the command-palette entry, plus A-1 the orphaned `mock_builder` paywall gate (UpgradeModal was advertising a deleted feature), A-2 the dead `utils/mockBuilder.ts` (+ its `syllabusGuard.ts` allowlist entry, root guard matrix re-run 190/190), and A-3 the stale `sitemap.xml` URL. The `/mock-builder`->`/practice-hub` redirect + `:356` nav-check are KEPT. Owner MERGED; routing observed-green on the linux CI run. **Two follow-ups fall out:**
 - `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]` - a dedicated App.tsx-scoped PR: remove the inert dead `navigateToMockBuilder` case AND narrow the two overlay gates (`quick_practice`/`check_improve` `_overlay_additive_acceptance.mjs`) from "App.tsx zero-diff" to "the `/practice` + `/check-improve` route elements unchanged". The freeze is over-broad and blocks any legitimate App.tsx edit; the inert case was left ONLY to keep this deletion CI-green without touching those locked lanes' guards.

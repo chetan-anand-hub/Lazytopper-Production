@@ -41,8 +41,8 @@ export const PROBABILITY_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-PROB-005", subject: "Maths", topicKey: "probability", subtopic: "General", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "In a survey on holidays, 120 people were asked to state which type of transporttheyusedontheirlastholiday.Thefollowingpiechartshows theresultsofthesurvey. Observethepiechartandanswerthefollowingquestions: (i) Ifonepersonisselectedatrandom,findtheprobabilitythathe/she travelledbybusorship. 1 (ii) Which is most favourite mode of transport and how many people usedit? 1 (iii) (a) A person is selected at random.If the probability thathe did notusetrainis4/5,findthenumberofpeoplewhousedtrain. 2 OR (iii) (b) Theprobabilitythatrandomlyselectedpersonusedaeroplaneis 7/60.Findtherevenuecollectedbyaircompanyattherateof` 5,000perperson. 2 ___________ 107 A",
     answer: "Revenue generated= 14 × 5000 = ₹ 70,000 1",
-    solutionSteps: ["(i) P (travelling by bus or ship) = 36+33 360 = 69 360 or 23 120 (ii) Car Number of people who used car = 177 360 × 120 = 59 (iii) (a) P (person used train)= 1 − 4 5 = 1 5", "Number of people who used train = 120 5 = 24 OR (iii) (b) Number of people who used aeroplane = 7 60 × 120 = 14", "Revenue generated= 14 × 5000 = ₹ 70,000 1"],
-    finalAnswer: "Revenue generated= 14 × 5000 = ₹ 70,000 1",
+    solutionSteps: ["[1 mark] (i) P(travelled by bus or ship) = (36 + 33)/360 = 69/360 = 23/120.", "[1 mark] (ii) The most favourite mode of transport is Car; number of people who used car = (177/360) × 120 = 59.", "[1 mark] (iii)(a) P(did not use train) = 4/5 ⇒ P(used train) = 1 − 4/5 = 1/5.   [OR (iii)(b) P(used aeroplane) = 7/60.]", "[1 mark] (iii)(a) Number who used train = (1/5) × 120 = 24.   [OR (iii)(b) number who used aeroplane = (7/60) × 120 = 14, so revenue = 14 × 5000 = ₹70,000.]"],
+    finalAnswer: "(i) 23/120; (ii) Car — 59 people; (iii)(a) 24 people [OR (iii)(b) aeroplane 14 people, revenue ₹70,000]",
     ncertRef: "PYQ 30/2/1 Q38", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
 ];

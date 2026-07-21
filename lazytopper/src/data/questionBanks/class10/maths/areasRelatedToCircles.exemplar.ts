@@ -146,14 +146,14 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section D — Long Answer (5 marks) =====
   { id: "ARC-N-EXEM-11-LA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Major Segment", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A chord of a circle of radius 10 cm subtends an angle of 90° at the centre. Find the area of the corresponding major segment. (Use π = 3.14.)",
-    solutionSteps: ["Major sector angle = 360° − 90° = 270°.", "Area of major sector = (270/360) × π × 100 = (3/4) × 3.14 × 100 = 235.5 cm².", "Triangle OAB (right-angled at O): area = (1/2) × 10 × 10 = 50 cm².", "For the major segment we ADD the triangle to the major sector: 235.5 + 50 = 285.5 cm²."],
+    solutionSteps: ["[1 mark] Setup: chord AB subtends 90° at centre O, radius r = 10 cm, so the major sector angle = 360° − 90° = 270°.", "[1 mark] Area of major sector = (270/360) × πr² = (3/4) × π × 100.", "[1 mark] = (3/4) × 3.14 × 100 = 235.5 cm².", "[1 mark] Triangle OAB (right-angled at O): area = (1/2) × 10 × 10 = 50 cm².", "[1 mark] Area of major segment = area of major sector + area of triangle = 235.5 + 50 = 285.5 cm²."],
     finalAnswer: "Major segment = 285.5 cm².",
     ncertRef: "Exemplar Sample Question 1 (Ex 11.4)", isCompetencyBased: true,
     strategyHint: "For a major segment, add the triangle to the major sector." },
 
   { id: "ARC-N-EXEM-11-LA-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Combinations of Plane Figures", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "With vertices A, B and C of a right triangle ABC (right-angled at B) as centres, arcs of radius 5 cm each are drawn. If AB = 14 cm, BC = 48 cm and CA = 50 cm, find the area of the shaded region inside the triangle but outside the three sectors.",
-    solutionSteps: ["Sum of sector areas: each sector contributes (∠/360) × π × 5². Total angle = ∠A + ∠B + ∠C = 180°.", "So total sector area = (180/360) × π × 25 = (1/2) × π × 25 = 12.5π = 12.5 × 3.14 = 39.25 cm².", "Triangle is right-angled at B (since 14² + 48² = 196 + 2304 = 2500 = 50²). Area = (1/2) × 14 × 48 = 336 cm².", "Shaded area = 336 − 39.25 = 296.75 cm²."],
+    solutionSteps: ["[1 mark] Verification: 14² + 48² = 196 + 2304 = 2500 = 50², so ΔABC is right-angled at B.", "[1 mark] Area of ΔABC = (1/2) × AB × BC = (1/2) × 14 × 48 = 336 cm².", "[1 mark] Each sector contributes (∠/360) × π × 5², and the total angle = ∠A + ∠B + ∠C = 180° (angle sum of a triangle).", "[1 mark] Total sector area = (180/360) × π × 25 = (1/2) × π × 25 = 12.5 × 3.14 = 39.25 cm².", "[1 mark] Shaded area = area of triangle − total sector area = 336 − 39.25 = 296.75 cm²."],
     finalAnswer: "Shaded area = 296.75 cm².",
     ncertRef: "Exemplar Sample Question 2 (Ex 11.4)", isCompetencyBased: true },
 

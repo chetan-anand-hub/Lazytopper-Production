@@ -435,10 +435,11 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "32π cm² or 100.48 cm²",
     "solutionSteps": [
-      "Each sector has central angle = 360°/4 = 90°",
-      "Two opposite sectors means total angle = 90° + 90° = 180°",
-      "Area of two sectors = (180°/360°) × π × 8²",
-      "= (1/2) × π × 64 = 32π ≈ 100.48 cm²"
+      "[1 mark] Given: a circle of radius r = 8 cm divided into 4 equal sectors, with two opposite sectors painted red.",
+      "[1 mark] Central angle of each sector = 360°/4 = 90°.",
+      "[1 mark] Two opposite sectors together subtend a total angle = 90° + 90° = 180°.",
+      "[1 mark] Area of red region = (180°/360°) × πr² = (1/2) × π × 8².",
+      "[1 mark] = (1/2) × π × 64 = 32π ≈ 100.48 cm²."
     ],
     "finalAnswer": "32π cm² or 100.48 cm²",
     "isCompetencyBased": true,

@@ -694,18 +694,20 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "If α and β are the zeroes of the quadratic polynomial f(x) = ax² + bx + c, prove that: (α/β) + (β/α) = (b² − 2ac)/ac.",
     solutionSteps: [
-      "α + β = −b/a, αβ = c/a [2]",
-      "α/β + β/α = (α² + β²)/(αβ) [1]",
-      "α² + β² = (α + β)² − 2αβ = b²/a² − 2c/a = (b² − 2ac)/a² [1]",
-      "So (α² + β²)/(αβ) = [(b² − 2ac)/a²] / (c/a) = (b² − 2ac)/(ac) [1]",
+      "[1 mark] By the coefficient–root relations for f(x) = ax² + bx + c, the sum of the zeroes is α + β = −b/a.",
+      "[1 mark] The product of the zeroes is αβ = c/a.",
+      "[1 mark] Rewrite the required expression over a common denominator: α/β + β/α = (α² + β²)/(αβ).",
+      "[1 mark] α² + β² = (α + β)² − 2αβ = (−b/a)² − 2(c/a) = b²/a² − 2c/a = (b² − 2ac)/a².",
+      "[1 mark] So (α² + β²)/(αβ) = [(b² − 2ac)/a²] ÷ (c/a) = (b² − 2ac)/(ac). Hence proved.",
     ],
     finalAnswer: "Proved: (α/β) + (β/α) = (b² − 2ac)/ac",
     visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true,
   },
   { id: "POLY-ND01", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship Between Zeros", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The zeros of the polynomial p(x) = 2x³ − 5x² − 14x + 8 are α, β, γ. Without finding the zeros, determine the values of: (i) α + β + γ, (ii) αβ + βγ + γα, (iii) αβγ.", solutionSteps: [
-      "For a cubic ax³ + bx² + cx + d with zeros α, β, γ: [2]",
-      "α + β + γ = −b/a = −(−5)/2 = 5/2 [1]",
-      "αβ + βγ + γα = c/a = (−14)/2 = −7 [1]",
-      "αβγ = −d/a = −8/2 = −4 [1]",
+      "[1 mark] For a cubic ax³ + bx² + cx + d with zeros α, β, γ, here a = 2, b = −5, c = −14, d = 8.",
+      "[1 mark] (i) Sum of zeros: α + β + γ = −b/a = −(−5)/2 = 5/2.",
+      "[1 mark] (ii) Sum of products two at a time: αβ + βγ + γα = c/a = (−14)/2 = −7.",
+      "[1 mark] (iii) Product of zeros: αβγ = −d/a = −8/2 = −4.",
+      "[1 mark] Hence α + β + γ = 5/2, αβ + βγ + γα = −7 and αβγ = −4.",
     ], answer: "α + β + γ = 5/2; αβ + βγ + γα = −7; αβγ = −4.", explanation: "See solution steps for full working.", finalAnswer: "α + β + γ = 5/2; αβ + βγ + γα = −7; αβγ = −4.", visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true }
 ];

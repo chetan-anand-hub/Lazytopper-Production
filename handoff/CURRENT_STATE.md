@@ -1,6 +1,99 @@
-# LazyTopper â€” Current State
+# LazyTopper — Current State
 
-## [CURRENT] #505 merged — ★★ THE MOCKBUILDER FEATURE IS FULLY DELETED — trunk `b810055`
+## [CURRENT] #511 merged — ★★ THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS — trunk `856d556`
+
+**Class (b) of the mis-banding follow-up. Data-only, ONE PR, 87 files, +831/−356. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b) — the lane is now CLOSED end-to-end (Class a by #504, Class b by #511).** Owner byte-reviewed the PUSHED diff and merged. Docs-only handoff; zero product files here.
+
+### What the defect actually was — and how it differs from Class (a)
+**These questions were always CORRECTLY BANDED.** Genuine 5-mark Section-D long answers and 4-mark Section-E case-based items — nothing like Class (a), where objective/short rows sat at a bogus `D/5` and needed *relabelling*. **Do not conflate the two.** What Class (b) was missing was the **marking scheme**: `solutionSteps` were collapsed (**109 rows held their entire solution in ONE run-on step**), below the CBSE minimum depth, or carried per-step marks that did not sum to the total.
+
+All 223 now carry `[N mark]`-prefixed steps summing **exactly** to the question's marks, at or above the CLAUDE.md §13 minimums (D = 5 steps, E = 4). **Multi-part rows may exceed those counts — the doctrine numbers are floors, not caps** (several use 6–7 steps summing to 5).
+
+### ★★ THE ANTI-FABRICATION PROOF WAS SEMANTIC, NOT A DIFF GREP
+A grep over the diff cannot prove a question is unchanged — it only shows which lines *look* touched. Instead the assembled `canonicalQuestionBank` **export** was dumped to JSON at trunk (in a throwaway detached worktree) and again post-edit, then deep-compared **field-by-field across all 8,584 rows**:
+
+```
+baseCount 8584 -> nowCount 8584     idsAdded []   idsRemoved []
+changedRows 223
+changedFields { solutionSteps: 223, finalAnswer: 70 }
+forbiddenFieldChanges []      <-- ZERO
+changesOutsideThe223  []      <-- ZERO
+targetsUnchanged      []      <-- all 223 genuinely changed
+```
+
+`questionText`, `options`, `answer`, `correctOption`, `marks`, `section`, `format`, `id`, `topicKey`, `subtopic`, `difficulty` are **byte-identical on every row in the bank**. The 70 `finalAnswer` edits were all fields that were **absent or raw OCR junk**. The owner independently byte-verified the same property against the pushed diff. **This is the reusable shape for any future data lane: compare the ASSEMBLED EXPORT, not the diff text.**
+
+### The validator
+| metric | trunk | post-#511 |
+|---|---|---|
+| D+E rows | 2,167 | 2,167 |
+| THIN (below D=5 / E=4 depth) | **220** | **0** |
+| BAD-SUM (prefixes ≠ marks) | **3** | **0** |
+| fully compliant | 1,137 | **1,360** (+223) |
+| full-depth-but-untagged (excluded class) | 807 | 807 (untouched) |
+
+**The 223 reconciles against the old "~178" estimate:** 220 thin + 3 bad-sum. The estimate came from a regex file-scan; this was an in-memory audit of the real export. 254 total D+E violators = 223 (Class b) + the 31 correctly-excluded Class-a/already-compliant rows.
+
+### ★★ RESTRUCTURING SURFACED REAL CONTENT DEFECTS THE COLLAPSED FORMAT HAD HIDDEN — all fixed in this PR
+The step-marking pass was expected to be formatting work. It was not:
+- **`SCQ-S-ELEC-036` and `PYQ-M-2026-AP-001` carried the solution to an ENTIRELY DIFFERENT QUESTION** — a series-circuit experiment stored on an I–V graph question, and a statistics mean/mode solve stored on an A.P. kolam question. Both replaced with correct solves.
+- **`SCQ-S-CHEM-038`** — an **unbalanced** combustion equation (CH₄ + O₂ → CO₂ + 2H₂O); corrected to CH₄ + 2O₂.
+- **`PYQ-M-2026-CIRC-006`** — the source's own embedded equation `(12−x)=x+8` was **mathematically wrong** (it ignored Pythagoras). Corrected to AB = 20/3 cm, PA = 26/3 cm — and **independently corroborated**: a different batch solving the same geometry from `PYQ-M-2026-CG-002` arrived at identical values.
+- **`PYQ-M-2025-AP-002`** — arithmetic error: S₆ = 3 × (600 + 250) = **2550 m**, not the OCR'd 2250 m.
+- **`STAT-N-EXEM-13-LA-001`** — rounding slip: 18720/110 = **₹170.18**, not ₹170.20.
+- **`SCQ-S-HERED-042`** — the entire solution was the literal string `"[Sample Paper 2010]"`; a full sex-determination answer was authored.
+- `WWW.CBSE.ONLINE` disclaimer junk stripped out of `solutionSteps` on several rows.
+
+**The transferable lesson: a collapsed one-line solution is not just ugly — it HIDES wrongness.** Nobody can see that a run-on paragraph answers a different question. Forcing the per-step structure is what made these visible.
+
+### Provenance
+The 223 ids are pinned in a new `CLASS_B_STEPPED_SOLUTION_IDS` array spread into `AI_GENERATED_SOLUTION_IDS`, so authored schemes rank-demote below authentic ones and stay auditable — the same mechanism as every prior authored batch. **That id-set is the one line outside `data/questionBanks/`**, flagged before authoring began and owner-confirmed in advance.
+
+### Deliberately NOT in scope (all verified untouched)
+- **807 D/E rows** with full-depth solutions but no `[N mark]` tags — a much larger, cosmetic-leaning class. Not this lane.
+- **Class-(a) rows** (#504) and already-compliant rows.
+- **Garbled upstream `answer` / `questionText` fields** — see `[FU-BANK-GARBLED-ANSWER-CLASS]`, newly opened. **This lane authors SOLUTIONS, not QUESTIONS; those are question-defects for a separate pass.**
+
+**VALIDATION (matrices re-run POST-COMMIT — commit-scoped guards diff `base...HEAD`, so a pre-commit run is truthful-but-useless):** tsc PASS · `check:mojibake` PASS · `scope:guard --mode product` PASS (pre-commit, where it must run) · lazytopper ops matrix PASS · root guard matrix **190/190** · `git diff --check` clean · step-mark validator **223/223 sum exactly**. Production build linux-gated by CI.
+
+**NEXT:** `[FU-BANK-GARBLED-ANSWER-CLASS]` opened (~15 rows with OCR-garbled `answer` fields + `PYQ-M-2026-CG-002`'s welded `questionText`). See `NEXT_ACTION.md`.
+
+---
+
+## (superseded) #509 merged — ★★ "BUILD A FRESH SET" IS ACTUALLY FRESH + THE VITEST GATE IS FULLY STRICT — owner LIVE-VERIFIED — trunk `41277c1`
+
+**Wave-2, ONE PR with TWO file-disjoint commit-sections, 7 files, +451/−34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` AND all four red-suite FUs (`[FU-CONCEPTSPINE-TEST-STALE]`, `[FU-OBJSCORING-PARITY-TEST-RED]`, `[FU-PRACTICEINSIGHTS-DURABLE-RED]`, `[FU-WORKSHEET-PDFEXPORT-TEST-RED]`).** Owner byte-reviewed each section separately, then merged. Docs-only handoff; zero product files here.
+
+### Section 1 (`55de9bc`) — the fresh-set correctness bug — owner LIVE-VERIFIED
+Finishing a Quick Practice set and tapping the scorecard's **"Build a fresh set"** handed back the SAME questions. The machinery (rotation offset + unseen-first draw) existed and was wired — the **TRIGGER** moved neither of its two selection inputs. **Runtime trace on trunk** (real `PracticePage`, 25-question constant pool): `set #1 = [18,19,20,21,22] offset=4154312268 seen=0` → tap → `set #2 = [18,19,20,21,22] offset=4154312268 seen=0`.
+
+**BOTH root causes fired.** **(A)** the rotation seed cannot move in-session — `sessionStartedAt` is a mount-once `useState` and `filterSignature` only changes with the filters, so the rebuild re-derived an identical offset. **(B) — and NOT as the brief predicted:** the seen-set is never **populated**, not *cleared*. Its loader effect has no `regenerationKey` dep, so it runs once per mount; the just-answered questions were still "unseen" at the fresh draw and the unseen-first partition handed them straight back.
+
+**Fix — additive, confined to the fresh-set trigger.** A `freshSetNonce` state added to `rotationOffset` (`+0` on every existing path ⇒ the normal build is numerically identical; `+1` per fresh set), and `buildFreshSet()` unions the just-displayed ids into `seenQuestionIds` — **deprioritise, never delete** (`selectInRangeFromPool` permutes the matched pool, so the "N available" hint is untouched). **★ The step of ONE is load-bearing:** `n` and `n+1` differ modulo *any* pool size ≥ 2, so a fully-exhausted pool always rotates to a different arrangement, where a larger stride can land back on the same residue and repeat identically. Owner's design intent — rotate + add new; reuse seen by rotation only when availability is short — holds, and nothing is fabricated on either path.
+
+### Section 2 (`78e029a`) — the 4 red vitest suites repaired, every `--exclude` deleted
+#503 landed the vitest gate with four suites `--exclude`'d. All four are now fixed and re-included: the step is plainly `pnpm --filter lazytopper exec vitest run`, **no exclusions — the gate is fully strict.** **All four were TEST-side defects; no product bug was hiding behind any of them, and no product code was changed to make a test pass.**
+
+| suite | verdict | before → after |
+|---|---|---|
+| `ConceptSpine` | stale expectation — the trig note is now SEEDED, so Notes opens the real `NoteModal` instead of the "coming soon" placeholder | `1 failed/21 passed` → **23 passed** (both branches now asserted) |
+| `objectiveScoring.parity` | **had never run once** — wrong TS-twin path, born broken in #348 | collection error → **3 passed** |
+| `practiceInsights.durable` | stale — `mode` was deliberately dropped from the dedup key in #445 | `1 failed/5 passed` → **6 passed** |
+| `worksheetPdfExport` | two harness bugs (post-teardown assertion; `restoreAllMocks` stripping the jsPDF stub) | `5 failed` → **5 passed** |
+
+**★★ THE PARITY SUITE HAD NEVER EXECUTED — and the recorded diagnosis was wrong.** #503 booked it as "Vite can't resolve the sibling root `../../server/routes/objectiveScoring.cjs`". The `.cjs` import resolves **fine**; the broken import was the **TypeScript twin's** — from `src/services/`, `../../lib/…` resolves to a nonexistent `lazytopper/lib/` (the file is `src/lib/objectiveScoring.ts`). One path segment fixed it, grader untouched, no mock added, parity property fully intact. (The #503 entry had actually *noticed* the symptom — "the error surfaces on the adjacent `../../lib/objectiveScoring` import" — but attributed it to a `.cjs` gap. **Read the error's own text before adopting the surrounding theory.**)
+
+**★★ MUTATION-TESTING FOUND A REAL COVERAGE HOLE, not just a red-to-green.** Stripping bracket handling from the client twin did **NOT** redden the parity suite — no case in the table contained a bracket. `PICKS` was widened by 7 so every punctuation class both twins strip is represented; under the same mutation all 3 tests now fail. Every repaired suite was mutation-tested (break the behaviour, confirm red, restore, confirm green); several were **strengthened**, not merely un-reddened.
+
+**VALIDATION (matrices re-run POST-COMMIT — the only truthful run for the 3-dot frozen-path gates):** `scope:guard --mode mixed` PASS (pre-commit, where it must run) · `check:mojibake` PASS · tsc PASS · root guard matrix **190/190** · lazytopper ops matrix PASS with every frozen-path zero-diff guard truthfully green (Tutor⇄QP 41/41, Tutor⇄C&I 31/31, C&I convergence 92/92) · `git diff --check` clean · `lane-overlap` GREEN (one PR, no parallel lane). **Linux Quality Gate CI GREEN including the `vite build`** — the one gate with no local signal.
+
+**★ CI GREEN WAS NOT ACCEPTED AS PROOF THE TESTS RAN.** The linux log was read for the named suites and their counts: `objectiveScoring.parity (3)`, `ConceptSpine (23)`, `PracticePage.freshSet (2)`, `worksheetPdfExport (5)`, `practiceInsights.durable (6)`, totalling **60 test files / 789 tests**. 60 = the previous 59 + the new fresh-set suite, so the arithmetic proves nothing was quietly dropped when the excludes came out.
+
+**NEXT:** three follow-ups opened — `[FU-PRACTICE-CONTROLS-REFRESH-STALE]` (the "Refresh set" button carries the same latent staleness; owner ruled it OUT of this PR — it gets its OWN runtime trace + regression test rather than being blind-routed through `buildFreshSet`), `[FU-TSCONFIG-EXCLUDES-TESTS]` (**nothing typechecks test files** — this is *why* the four suites rotted silently), and `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`. All in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
+---
+
+## #505 merged — ★★ THE MOCKBUILDER FEATURE IS FULLY DELETED — trunk `b810055`
 
 **Wave-1 Lane B (MOCKBUILDER FULL DELETION), product deletion, 8 files, 474 deletions. Resolves `[FU-MOCKBUILDER-FULL-DELETE]`.** #498 deleted the orphaned `MockBuilder.tsx` page but KEPT the live plumbing; #505 removes the whole feature. **Gone:** the entire HPQ "Mock basket" sub-feature (state, localStorage persistence, add/clear handlers, the basket panel, the per-stack + per-question "Add to mock" buttons — it existed ONLY to feed the dead builder), StudyPlanPage's un-routed "Quick mock" button, `buildMockBuilderUrl`, and the command-palette "Build a Mock Paper" entry. **KEPT (inbound-link safety net):** the `/mock-builder`→`/practice-hub` redirect (`App.tsx:966-967`) and the `:356` nav-active check. **Owner MERGED #505; verified live on trunk `b810055`.** Docs-only handoff; zero product files here.
 

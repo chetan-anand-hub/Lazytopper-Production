@@ -824,9 +824,10 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "C(22, 32); D(16, 26); AC = 12√2 units",
     "solutionSteps": [
-      "(i) Using section formula with m:n = 2:3: C = ((2×40+3×10)/(2+3), (2×50+3×20)/(2+3)) = ((80+30)/5, (100+60)/5) = (22, 32)",
-      "(ii) Midpoint of AC: D = ((10+22)/2, (20+32)/2) = (16, 26)",
-      "(iii) AC = √[(22-10)² + (32-20)²] = √[144+144] = √288 = 12√2"
+      "[1 mark] (i) Using the section formula with m:n = 2:3: C = ((2×40+3×10)/(2+3), (2×50+3×20)/(2+3)) = ((80+30)/5, (100+60)/5) = (22, 32).",
+      "[1 mark] (ii) D is the midpoint of AC: D = ((10+22)/2, (20+32)/2) = (16, 26).",
+      "[1 mark] (iii) Using the distance formula, AC = √[(22−10)² + (32−20)²] = √[144 + 144] = √288.",
+      "[1 mark] (iii) AC = √288 = √(144×2) = 12√2 units."
     ],
     "finalAnswer": "C(22, 32); D(16, 26); AC = 12√2 units",
     "isCompetencyBased": true,

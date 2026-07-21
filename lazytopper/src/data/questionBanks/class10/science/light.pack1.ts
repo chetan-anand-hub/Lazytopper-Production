@@ -208,10 +208,11 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
       "Divide by uvf: 1/f − 1/v = 1/u → 1/v + 1/u = 1/f [1]",
     ], finalAnswer: "Derived: 1/v + 1/u = 1/f using similar triangles" , visualExplainerId: "science-light-mirror-formula-and-magnification", isCompetencyBased: true },
   { id: "LT-H06", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Draw ray diagrams for image formation by a convex lens when the object is: (i) at 2F₁ (ii) between F₁ and optical centre (iii) at infinity. In each case state the position, nature, and size of the image.", solutionSteps: [
-      "Ray Diagram: Draw a convex (converging) lens. Mark the principal axis, optical centre O, foci F₁ and F₂, and the object. Draw the three standard rays to locate the image. [2]",
-      "(i) At 2F₁: image at 2F₂, real, inverted, same size [1]",
-      "(ii) Between F₁ and O: image on same side as object, virtual, erect, magnified [1]",
-      "(iii) At infinity: image at F₂, real, inverted, point-sized (highly diminished) [1]",
+      "[1 mark] Diagram: three ray diagrams for a convex (converging) lens — object at 2F₁, between F₁ and optical centre O, and at infinity — each drawn with two standard rays (ray parallel to the principal axis refracting through F₂; ray through O going undeviated) to locate the image; accuracy of ray paths.",
+      "[1 mark] Diagram: correct labelling in each diagram — principal axis, optical centre O, foci F₁ and F₂, 2F₁/2F₂, object and image with arrows.",
+      "[1 mark] (i) Object at 2F₁: image at 2F₂, real, inverted, same size as the object.",
+      "[1 mark] (ii) Object between F₁ and O: image on the same side as the object, virtual, erect, magnified.",
+      "[1 mark] (iii) Object at infinity: image at focus F₂, real, inverted, point-sized (highly diminished).",
     ], finalAnswer: "Three ray diagrams with image positions and characteristics" , visualExplainerId: "science-light-lens-formula-and-ray-diagrams", isCompetencyBased: true },
   { id: "LT-H07", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why does a swimming pool appear shallower than it actually is? Explain with a ray diagram.", solutionSteps: [
       "Ray Diagram: Draw a concave mirror. Mark the pole P, focus F, and centre of curvature C in front of the mirror. Draw standard rays to construct the image for the given object position.; Light from the bottom of the pool travels from water (denser) to air (rarer) [1]",

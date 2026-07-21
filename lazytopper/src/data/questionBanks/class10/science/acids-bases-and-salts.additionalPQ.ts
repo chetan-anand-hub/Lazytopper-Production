@@ -56,7 +56,7 @@ export const ACIDS_BASES_SALTS_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-ACID-006", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "HCl Formation and Acidic Property of Wet HCl Gas", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "From the chlor-alkali context (X = Cl2, Y = H2): write a balanced chemical reaction that takes place when 'X' and 'Y' react with each other. The product so produced will turn blue litmus red only when wet — why?",
     answer: "H2 + Cl2 → 2 HCl. HCl turns litmus red only when wet because it must dissociate into H+ in water.",
-    solutionSteps: ["H2 and Cl2 combine to form hydrogen chloride gas: H2(g) + Cl2(g) → 2 HCl(g).", "Dry HCl gas does NOT change blue litmus red because there is no water to dissociate it.", "In the presence of moisture (wet litmus), HCl dissolves in water and dissociates: HCl(g) + H2O → H3O+ + Cl-. The H+ (hydronium) ion gives the acidic property — only then does blue litmus turn red."],
+    solutionSteps: ["[1 mark] When hydrogen (Y) and chlorine (X) react, they combine to form hydrogen chloride gas: H2(g) + Cl2(g) → 2 HCl(g).", "[1 mark] Dry HCl gas does NOT turn dry blue litmus red, because in the absence of water it cannot release hydrogen ions.", "[1 mark] In the presence of moisture (wet litmus), HCl dissolves in the water and dissociates: HCl(g) + H2O → H3O+ + Cl−.", "[1 mark] The H+ (hydronium) ions so produced give the solution its acidic character, so only wet HCl turns blue litmus red."],
     finalAnswer: "H2 + Cl2 → 2 HCl; wet HCl furnishes H+ ions ⟹ acidic ⟹ turns blue litmus red.",
     ncertRef: "APQ Science-PQ2 Q37 (OR variant)", isCompetencyBased: true },
 ];

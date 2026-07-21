@@ -48,8 +48,8 @@ export const CIRCLES_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-CIRC-006", subject: "Maths", topicKey: "circles", subtopic: "Tangent to a Circle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "PQ and PR are two tangents to a circle with centre O and radius 5 cm. AB is another tangent to the circle at C which lies on OP. If OP = 13 cm, then find the length AB and PA.",
     answer: "OQ = 5 cm ∴PQ = √169 −25 = 12 cm Let AC = x = AQ PC = 13 −5 = 8 cm and PA = 12 −x AC ⊥OP ∴(12 −x)= x+ 8",
-    solutionSteps: ["OP = 13 cm", "OQ = 5 cm ∴PQ = √169 −25 = 12 cm Let AC = x = AQ PC = 13 −5 = 8 cm and PA = 12 −x AC ⊥OP ∴(12 −x)= x+ 8"],
-    finalAnswer: "OQ = 5 cm ∴PQ = √169 −25 = 12 cm Let AC = x = AQ PC = 13 −5 = 8 cm and PA = 12 −x AC ⊥OP ∴(12 −x)= x+ 8",
+    solutionSteps: ["[1 mark] Given: circle with centre O and radius OQ = 5 cm, external point P with OP = 13 cm; PQ and PR are tangents from P, so PQ = PR and OQ ⊥ PQ.", "[1 mark] Tangent length from P: PQ = √(OP² − OQ²) = √(169 − 25) = √144 = 12 cm.", "[1 mark] C lies on OP and AB is the tangent at C, so OC = radius = 5 cm ⇒ PC = OP − OC = 13 − 5 = 8 cm, and AB ⊥ OP at C.", "[1 mark] Let AC = AQ = x (equal tangents from A). Then PA = PQ − AQ = 12 − x. In right △PCA (right angle at C): PA² = PC² + AC² ⇒ (12 − x)² = 8² + x² ⇒ 144 − 24x = 64 ⇒ x = 10/3.", "[1 mark] Hence AC = 10/3 cm, so AB = 2·AC = 20/3 cm ≈ 6.67 cm and PA = 12 − 10/3 = 26/3 cm ≈ 8.67 cm."],
+    finalAnswer: "AB = 20/3 cm ≈ 6.67 cm and PA = 26/3 cm ≈ 8.67 cm.",
     ncertRef: "PYQ 30/5/2 Q33", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "2" },
 ];

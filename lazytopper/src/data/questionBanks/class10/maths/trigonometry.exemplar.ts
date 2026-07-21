@@ -260,10 +260,11 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
   { id: "TRIG-N-EXMPLR-8-LA-001", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Prove the identity: sec²θ + cosec²θ · √(... )  ⇒ Prove that sec²θ + cosec²θ ≥ tan θ + cot θ, equivalently establish that sec²θ + cosec²θ = (tan θ + cot θ)² · 1 …  [Actually prove:]  Prove √(sec²θ + cosec²θ) = tan θ + cot θ.",
     solutionSteps: [
-      "LHS² = sec²θ + cosec²θ = 1/cos²θ + 1/sin²θ = (sin²θ + cos²θ)/(sin²θ cos²θ) = 1/(sin²θ cos²θ).",
-      "RHS = tan θ + cot θ = sin θ/cos θ + cos θ/sin θ = (sin²θ + cos²θ)/(sin θ cos θ) = 1/(sin θ cos θ).",
-      "RHS² = 1/(sin²θ cos²θ) = LHS². Since both sides are positive for 0 < θ < 90°, LHS = RHS.",
-      "Hence √(sec²θ + cosec²θ) = tan θ + cot θ, i.e., sec²θ + cosec²θ = (tan θ + cot θ)². Proved."
+      "[1 mark] LHS² = sec²θ + cosec²θ = 1/cos²θ + 1/sin²θ.",
+      "[1 mark] Taking LCM: = (sin²θ + cos²θ)/(sin²θ cos²θ) = 1/(sin²θ cos²θ), using the identity sin²θ + cos²θ = 1.",
+      "[1 mark] RHS = tan θ + cot θ = sin θ/cos θ + cos θ/sin θ = (sin²θ + cos²θ)/(sin θ cos θ) = 1/(sin θ cos θ).",
+      "[1 mark] RHS² = 1/(sin²θ cos²θ) = LHS². Since both sides are positive for 0° < θ < 90°, LHS = RHS.",
+      "[1 mark] Hence √(sec²θ + cosec²θ) = tan θ + cot θ, i.e., sec²θ + cosec²θ = (tan θ + cot θ)². Proved."
     ],
     finalAnswer: "sec²θ + cosec²θ = (tan θ + cot θ)² (equivalently their square roots are equal).",
     ncertRef: "Exemplar Ch8 Ex 8.4 Q2", isCompetencyBased: true,
@@ -286,9 +287,11 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
   { id: "TRIG-N-EXMPLR-8-LA-003", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "If tan θ + sec θ = l, prove that sec θ = (l² + 1)/(2l).",
     solutionSteps: [
-      "Given: tan θ + sec θ = l.   …(1)",
-      "Use sec²θ − tan²θ = 1, i.e., (sec θ + tan θ)(sec θ − tan θ) = 1 ⇒ sec θ − tan θ = 1/l.   …(2)",
-      "Add (1) and (2): 2 sec θ = l + 1/l = (l² + 1)/l ⇒ sec θ = (l² + 1)/(2l). Proved."
+      "[1 mark] Given: tan θ + sec θ = l.   …(1)",
+      "[1 mark] Use the identity sec²θ − tan²θ = 1, i.e., (sec θ + tan θ)(sec θ − tan θ) = 1.",
+      "[1 mark] Dividing by (1): sec θ − tan θ = 1/l.   …(2)",
+      "[1 mark] Add (1) and (2): 2 sec θ = l + 1/l = (l² + 1)/l.",
+      "[1 mark] Therefore sec θ = (l² + 1)/(2l). Proved."
     ],
     finalAnswer: "sec θ = (l² + 1)/(2l).",
     ncertRef: "Exemplar Ch8 Ex 8.4 Q9", isCompetencyBased: true,
@@ -425,9 +428,11 @@ export const TRIG_EXEMPLAR: CanonicalQuestion[] = [
   { id: "TRIG-N-EXMPLR-9-LA-004", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The angle of elevation of the top of a tower 30 m high from the foot of another tower in the same plane is 60°, and the angle of elevation of the top of the second tower from the foot of the first is 30°. Find the distance between the two towers and the height of the second tower.",
     solutionSteps: [
-      "Tower 1: height = 30 m. Let tower 2 have height h. Distance between feet = d.",
-      "From foot of Tower 2, elevation of top of Tower 1 = 60°: tan 60° = 30/d ⇒ √3 = 30/d ⇒ d = 30/√3 = 10√3 m.",
-      "From foot of Tower 1, elevation of top of Tower 2 = 30°: tan 30° = h/d ⇒ 1/√3 = h/(10√3) ⇒ h = 10√3/√3 = 10 m."
+      "[1 mark] Diagram: two towers on the same horizontal plane — Tower 1 of height 30 m, Tower 2 of height h, distance between their feet = d.",
+      "[1 mark] From the foot of Tower 2, the elevation of the top of Tower 1 is 60°: tan 60° = 30/d ⇒ √3 = 30/d.",
+      "[1 mark] So d = 30/√3 = 10√3 m ≈ 17.32 m.",
+      "[1 mark] From the foot of Tower 1, the elevation of the top of Tower 2 is 30°: tan 30° = h/d ⇒ 1/√3 = h/(10√3).",
+      "[1 mark] h = 10√3/√3 = 10 m. Hence the distance between the towers is 10√3 m and the height of the second tower is 10 m."
     ],
     finalAnswer: "Distance between towers = 10√3 m ≈ 17.32 m; height of second tower = 10 m.",
     ncertRef: "Exemplar Ch8 Ex 8.4 Q13", isCompetencyBased: true,

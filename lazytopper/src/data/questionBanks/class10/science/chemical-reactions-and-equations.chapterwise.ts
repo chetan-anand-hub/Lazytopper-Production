@@ -248,36 +248,78 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CHEM-035", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Write balanced chemical equation for the following statements: a. NaOH solution is heated with zinc granules. b. Excess of carbon dioxide is passed through lime water. c. Dilute sulphuric acid is added to sodium carbonate. d. Egg shell is dropped in hydrochloric acid, e. Copper (II) oxide reacts with dilute hydrochloric acid.",
     answer: "a. Zn(s) + 2NaOH $ Na2ZnO2 + H2 b. Ca(OH)2 + 2CO2 $ Ca(HCO3)2 c. Na2CO3 + H2SO4 $ Na2SO4 + H2O + CO2 d. CaCO3(s) + 2HCl(dil) $ CaCl2 + H2O + CO2 e. CuO(s) + 2HC1 $ CuCl2 + H2O",
-    solutionSteps: ["a. Zn(s) + 2NaOH $ Na2ZnO2 + H2 b. Ca(OH)2 + 2CO2 $ Ca(HCO3)2 c. Na2CO3 + H2SO4 $ Na2SO4 + H2O + CO2 d. CaCO3(s) + 2HCl(dil) $ CaCl2 + H2O + CO2 e. CuO(s) + 2HC1 $ CuCl2 + H2O"],
+    solutionSteps: [
+      "[1 mark] a. Zn(s) + 2NaOH(aq) → Na2ZnO2(aq) + H2(g) — hot NaOH solution reacts with zinc granules to form sodium zincate and hydrogen gas.",
+      "[1 mark] b. Ca(OH)2(aq) + 2CO2(g) → Ca(HCO3)2(aq) — with excess carbon dioxide, soluble calcium hydrogencarbonate is formed and the milkiness disappears.",
+      "[1 mark] c. Na2CO3(s) + H2SO4(dil) → Na2SO4(aq) + H2O(l) + CO2(g).",
+      "[1 mark] d. CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) — egg shell is mainly calcium carbonate.",
+      "[1 mark] e. CuO(s) + 2HCl(dil) → CuCl2(aq) + H2O(l)."
+    ],
+    finalAnswer: "a. Zn + 2NaOH → Na2ZnO2 + H2; b. Ca(OH)2 + 2CO2 → Ca(HCO3)2; c. Na2CO3 + H2SO4 → Na2SO4 + H2O + CO2; d. CaCO3 + 2HCl → CaCl2 + H2O + CO2; e. CuO + 2HCl → CuCl2 + H2O.",
     ncertRef: "cbjesccq01 Q105", isCompetencyBased: false },
   // cbjesccq01 Q106 (Section D, 5mk)
   { id: "SCQ-S-CHEM-036", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Identify the type of chemical reaction in the following statement and define each of them: a. Digestion of food in our body. b. Rusting of iron. c. Heating of manganese dioxide with aluminium powder. d. Blue colour of copper sulphate solution disappears when iron filings are added to it. e. Dilute hydrochloric acid is added to sodium hydroxide solution to form sodium chloride and water.",
     answer: "a. Decomposition reaction: It is a process in which a compound is broken down into simple substances. b. Oxidation: The process in which oxygen is added or electrons are lost. c. Displacement reaction: The reaction in which a more reactive element can displace a less reactive ele",
-    solutionSteps: ["a. Decomposition reaction: It is a process in which a compound is broken down into simple substances. b. Oxidation: The process in which oxygen is added or electrons are lost. c. Displacement reaction: The reaction in which a more reactive element can displace a less reactive element from its salt solution. Oxidation and Reduction are taking place simultaneously in rusting of iron. d. Displacement reaction: The reaction in which a more reactive element can displace a less reactive element. e. Neutralisation reaction: The reaction in which acid reacts with base to form salt and water."],
+    solutionSteps: [
+      "[1 mark] a. Digestion of food — Decomposition reaction: a reaction in which a compound is broken down into two or more simpler substances.",
+      "[1 mark] b. Rusting of iron — Oxidation: the process in which oxygen is added (or electrons are lost); in rusting, oxidation and reduction take place simultaneously (redox reaction).",
+      "[1 mark] c. Heating of manganese dioxide with aluminium powder — Displacement reaction: a more reactive element (aluminium) displaces a less reactive element (manganese) from its compound.",
+      "[1 mark] d. Iron filings added to copper sulphate solution — Displacement reaction: more reactive iron displaces copper from its salt solution, so the blue colour disappears.",
+      "[1 mark] e. Dilute hydrochloric acid with sodium hydroxide — Neutralisation reaction: an acid reacts with a base to form salt and water."
+    ],
+    finalAnswer: "a. Decomposition; b. Oxidation (redox); c. Displacement; d. Displacement; e. Neutralisation.",
     ncertRef: "cbjesccq01 Q106", isCompetencyBased: true },
   // cbjesccq01 Q107 (Section D, 5mk)
   { id: "SCQ-S-CHEM-037", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Define chemical reaction. State four observations which helps to determine whether a chemical reaction has taken place or not. Write one example of each observation with a balanced chemical equation.",
     answer: "Chemical reaction is a reaction which represents a chemical change. a. Change in colour: ( ) ( ) ( )( ) ( ) Cu s AgNO aq Cu NO aq Ag s 2 2 ( ) ( ) Colourless Blue 3 3 $ + + b. Evolution of gas: ( ) ( ) ( ) CaCO s CaO s CO g ( ) Heat Carbon dioxide gas 3 2 + c. Formation of precip",
-    solutionSteps: ["Chemical reaction is a reaction which represents a chemical change. a. Change in colour: ( ) ( ) ( )( ) ( ) Cu s AgNO aq Cu NO aq Ag s 2 2 ( ) ( ) Colourless Blue 3 3 $ + + b. Evolution of gas: ( ) ( ) ( ) CaCO s CaO s CO g ( ) Heat Carbon dioxide gas 3 2 + c. Formation of precipitate: ( ) ( ) ( ) ( ) Pb NO aq KI PbI s KNO aq 2 2 ( ) Yellow ppt 3 2 2 3 $ + + d. Change in temperature: CaO(s) + H2O(l) $ Ca(OH)2 + Heat"],
+    solutionSteps: [
+      "[1 mark] A chemical reaction is a process involving a chemical change, in which the reactants are converted into new substances (products) with different properties.",
+      "[1 mark] a. Change in colour: Cu(s) + 2AgNO3(aq) (colourless) → Cu(NO3)2(aq) (blue) + 2Ag(s).",
+      "[1 mark] b. Evolution of gas: CaCO3(s) → CaO(s) + CO2(g) (on heating; carbon dioxide gas is evolved).",
+      "[1 mark] c. Formation of precipitate: Pb(NO3)2(aq) + 2KI(aq) → PbI2(s) (yellow precipitate) + 2KNO3(aq).",
+      "[1 mark] d. Change in temperature: CaO(s) + H2O(l) → Ca(OH)2(aq) + Heat (exothermic — the mixture becomes hot)."
+    ],
+    finalAnswer: "Four observations: change in colour, evolution of gas, formation of precipitate and change in temperature — one balanced equation for each as above.",
     ncertRef: "cbjesccq01 Q107", isCompetencyBased: true },
   // cbjesccq01 Q108 (Section D, 5mk)
   { id: "SCQ-S-CHEM-038", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. Define a balanced chemical equation. Why should an equation be balanced? b. Write a balanced chemical equation for the following reactions: (i) Phosphorus burns in the presence of chlorine to form phosphorus pentachloride. (ii) Burning of natural gas. (iii) The process of respiration.",
     answer: "a. Balanced chemical equation is a equation in which number of atoms of various elements are equal on both sides of the equation. The equation should be balanced due to law of conservation of mass. b. (i) 2P(s) + 5Cl2(g) $ 2PCl5(S) (ii) CH4(g) + O2(g) $ CO2(g) + 2H2O(l) (iii) C6H",
-    solutionSteps: ["a. Balanced chemical equation is a equation in which number of atoms of various elements are equal on both sides of the equation. The equation should be balanced due to law of conservation of mass. b. (i) 2P(s) + 5Cl2(g) $ 2PCl5(S) (ii) CH4(g) + O2(g) $ CO2(g) + 2H2O(l) (iii) C6H12O6(s) + 6O2(g) $ 6CO2(g) + 6H2O(l)"],
+    solutionSteps: [
+      "[1 mark] a. A balanced chemical equation is an equation in which the number of atoms of each element is equal on both sides of the equation.",
+      "[1 mark] An equation must be balanced to satisfy the law of conservation of mass — mass can neither be created nor destroyed in a chemical reaction.",
+      "[1 mark] b. (i) 2P(s) + 5Cl2(g) → 2PCl5(s).",
+      "[1 mark] (ii) Burning of natural gas: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l).",
+      "[1 mark] (iii) Respiration: C6H12O6(s) + 6O2(g) → 6CO2(g) + 6H2O(l) + energy."
+    ],
+    finalAnswer: "a. Equal atoms of each element on both sides; balanced due to the law of conservation of mass. b. (i) 2P + 5Cl2 → 2PCl5; (ii) CH4 + 2O2 → CO2 + 2H2O; (iii) C6H12O6 + 6O2 → 6CO2 + 6H2O + energy.",
     ncertRef: "cbjesccq01 Q108", isCompetencyBased: true },
   // cbjesccq01 Q109 (Section D, 5mk)
   { id: "SCQ-S-CHEM-039", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Write one example for each of decomposition reaction carried out with the help of (i) Electricity, (ii) Heat, (iii) Light. (b) Which of the following statement is correct and why? Copper can displace silver from silver nitrate solution and silver can displace copper from copper sulphate solution.",
     answer: "a. (i) CaCO3(s) Heat CaO(s) + CO2(g) (ii) 2AgBr(s) sunlight 2Ag(s) + Br2(g) (iii) 2H2O(l) Electricity 2H2(g) + O2(g) b. Copper can displace Ag from AgNO3(aq) solution because Cu is more reactive than Ag. ( ) ( ) ( ) ( ) ( ) Cu s AgNO aq Cu NO aq Ag s 2 2 3 3 2 $ + +",
-    solutionSteps: ["a. (i) CaCO3(s) Heat CaO(s) + CO2(g) (ii) 2AgBr(s) sunlight 2Ag(s) + Br2(g) (iii) 2H2O(l) Electricity 2H2(g) + O2(g) b. Copper can displace Ag from AgNO3(aq) solution because Cu is more reactive than Ag. ( ) ( ) ( ) ( ) ( ) Cu s AgNO aq Cu NO aq Ag s 2 2 3 3 2 $ + +"],
+    solutionSteps: [
+      "[1 mark] a. (i) Decomposition by electricity (electrolysis of water): 2H2O(l) → 2H2(g) + O2(g).",
+      "[1 mark] (ii) Decomposition by heat: CaCO3(s) → CaO(s) + CO2(g) (on heating).",
+      "[1 mark] (iii) Decomposition by light: 2AgBr(s) → 2Ag(s) + Br2(g) (in sunlight).",
+      "[1 mark] b. The first statement is correct — copper is more reactive than silver, so copper can displace silver from silver nitrate solution; silver cannot displace copper from copper sulphate solution.",
+      "[1 mark] Cu(s) + 2AgNO3(aq) → Cu(NO3)2(aq) + 2Ag(s)."
+    ],
+    finalAnswer: "a. (i) 2H2O → 2H2 + O2 (electricity); (ii) CaCO3 → CaO + CO2 (heat); (iii) 2AgBr → 2Ag + Br2 (light). b. Copper can displace silver from AgNO3 because Cu is more reactive than Ag.",
     ncertRef: "cbjesccq01 Q109", isCompetencyBased: true },
   // cbjesccq01 Q110 (Section D, 5mk)
   { id: "SCQ-S-CHEM-040", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Identify the type of reactions taking place in each of the following: a. Barium chloride solution is mixed with copper sulphate solution and white precipitate is formed. b. On heating copper powder in china dish, the surface of copper powder turns black. c. On heating green coloured ferrous sulphate crystals, raddish brown solid is left and smell of a gas having odour of burning sulphur is experienced. d. Iron nails when left dipped in blue copper sulphate solution become reddish brown in colour and the blue colour of copper sulphate fades away. e. Quick lime reacts vigorously with water releasing a large amount of heat.",
     answer: "a. Double displacement reaction, b. Oxidation, c. Decomposition reaction, d. Displacement reaction, e. Combination reaction. WWW.CBSE.ONLINE Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide fr",
-    solutionSteps: ["a. Double displacement reaction, b. Oxidation, c. Decomposition reaction, d. Displacement reaction, e. Combination reaction. WWW.CBSE.ONLINE Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: [
+      "[1 mark] a. Double displacement (precipitation) reaction — a white precipitate of barium sulphate (BaSO4) is formed: BaCl2 + CuSO4 → BaSO4 + CuCl2.",
+      "[1 mark] b. Oxidation — on heating, copper combines with oxygen to form black copper(II) oxide: 2Cu + O2 → 2CuO.",
+      "[1 mark] c. Decomposition reaction — on heating, 2FeSO4 → Fe2O3 + SO2 + SO3 (reddish brown Fe2O3 is left; SO2 gives the smell of burning sulphur).",
+      "[1 mark] d. Displacement reaction — more reactive iron displaces copper from its salt solution: Fe + CuSO4 → FeSO4 + Cu (blue colour fades).",
+      "[1 mark] e. Combination reaction — quick lime combines with water: CaO + H2O → Ca(OH)2 + Heat (exothermic)."
+    ],
+    finalAnswer: "a. Double displacement; b. Oxidation; c. Decomposition; d. Displacement; e. Combination.",
     ncertRef: "cbjesccq01 Q110", isCompetencyBased: true },
 ];

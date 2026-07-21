@@ -193,10 +193,11 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CC-H01", subject: "Science", topicKey: "control-and-coordination", subtopic: "Nervous System", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw a labelled diagram of the human brain and describe the functions of: (i) Cerebrum (ii) Cerebellum (iii) Medulla oblongata.", solutionSteps: [
-      "Diagram: cerebrum (largest), cerebellum (back-lower), medulla (base), pons, forebrain/midbrain/hindbrain [2]",
-      "(i) Cerebrum: thinking, memory, intelligence, voluntary actions, receives sensory info [1]",
-      "(ii) Cerebellum: balance, posture, coordination of voluntary movements [1]",
-      "(iii) Medulla: controls involuntary actions — breathing, heartbeat, blood pressure, vomiting [1]",
+      "[1 mark] Diagram: labelled human brain showing cerebrum (largest, top), cerebellum (back-lower), medulla oblongata (base, continuing into the spinal cord) and pons.",
+      "[1 mark] Diagram labels: forebrain, midbrain and hindbrain regions correctly marked.",
+      "[1 mark] (i) Cerebrum: seat of thinking, memory, intelligence and voluntary actions; receives and interprets sensory information.",
+      "[1 mark] (ii) Cerebellum: maintains balance and posture and coordinates precise voluntary movements.",
+      "[1 mark] (iii) Medulla oblongata: controls involuntary actions such as breathing, heartbeat, blood pressure and vomiting.",
     ], finalAnswer: "Labelled brain diagram with functions of cerebrum, cerebellum, medulla" , visualExplainerId: "science-control-coordination-nervous-system", isCompetencyBased: true },
   { id: "CC-H02", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "How does the feedback mechanism regulate the level of thyroxine in the blood? Explain.", solutionSteps: [
       "Pituitary gland releases TSH which stimulates thyroid to produce thyroxine; When thyroxine level is high, it inhibits pituitary from releasing more TSH (negative feedback) [1]",
@@ -257,9 +258,10 @@ export const CONTROL_AND_COORDINATION_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CC-D04", subject: "Science", topicKey: "control-and-coordination", subtopic: "Hormones", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the role of hormones in human beings. Describe (i) insulin and glucagon in blood sugar control, (ii) thyroid hormones in metabolism, (iii) adrenaline in emergency response.", solutionSteps: [
-      "Hormones are chemical messengers secreted by endocrine glands into the blood for target organs [2]",
-      "(i) Pancreas: insulin (lowers blood glucose - promotes uptake by cells); glucagon (raises blood glucose - promotes glycogen breakdown). Diabetes mellitus occurs when insulin is insufficient. [1]",
-      "(ii) Thyroid gland: thyroxine controls metabolism rate (BMR); requires iodine; deficiency causes goitre; excess causes hyperthyroidism [1]",
-      "(iii) Adrenal glands: adrenaline released in stress or danger; increases heart rate, blood glucose, blood flow to muscles; prepares body for emergency (emergency hormone) [1]",
+      "[1 mark] Hormones are chemical messengers secreted by endocrine glands directly into the blood, which carries them to specific target organs.",
+      "[1 mark] They coordinate slow but long-lasting responses such as growth, metabolism and emergency reactions.",
+      "[1 mark] (i) Pancreas: insulin lowers blood glucose (promotes uptake by cells) while glucagon raises it (promotes glycogen breakdown); insufficient insulin causes diabetes mellitus.",
+      "[1 mark] (ii) Thyroid gland: thyroxine controls the metabolic rate (BMR) and needs iodine; its deficiency causes goitre.",
+      "[1 mark] (iii) Adrenal glands: adrenaline, the emergency hormone, is released in stress and increases heart rate, blood glucose and blood flow to muscles, preparing the body for action.",
     ], explanation: "Refer to solution steps.", finalAnswer: "Insulin lowers blood glucose; thyroxine controls metabolism; adrenaline prepares body for emergency", isCompetencyBased: true }
 ];

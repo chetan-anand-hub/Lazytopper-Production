@@ -125,7 +125,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
   // ===== Section D — Long Answer (5 marks) =====
   { id: "ARC-N-NCERT-11-LA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Combinations of Plane Figures", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "ABCD is a square of side 14 cm. Semicircles APD and BPC are drawn with AD and BC as diameters. Find the area of the shaded (lens-shaped) region inside the square but outside the two semicircles.",
-    solutionSteps: ["Side of square = 14, so each semicircle has diameter 14 ⇒ radius 7.", "Area of square = 14² = 196 cm².", "Area of two semicircles = 2 × (1/2) × π × 7² = π × 49 = (22/7) × 49 = 154 cm².", "The two semicircles overlap inside the square covering the full inscribed region; subtracting gives the shaded region = 196 − 154 = 42 cm² (NCERT Example 5 result)."],
+    solutionSteps: ["[1 mark] Side of square = 14 cm, so each semicircle drawn on AD and BC has diameter 14 cm ⇒ radius r = 7 cm.", "[1 mark] Area of square ABCD = 14² = 196 cm².", "[1 mark] Area of one semicircle = (1/2)πr² = (1/2) × (22/7) × 7² = 77 cm².", "[1 mark] Area of the two semicircles = 2 × 77 = 154 cm².", "[1 mark] Required shaded area = area of square − area of the two semicircles = 196 − 154 = 42 cm² (NCERT Example 5 result)."],
     finalAnswer: "Shaded region = 42 cm².",
     ncertRef: "NCERT Example 5 (page 233) / Ex 12.3 Q3", isCompetencyBased: true },
 

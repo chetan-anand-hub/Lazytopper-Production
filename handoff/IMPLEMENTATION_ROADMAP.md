@@ -1,5 +1,38 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-21 - ★★ ✅ BANK MIS-BANDING **CLASS (b) COMPLETE** — 223 D/E ROWS STEP-MARKED (#511, trunk `856d556`) - the mis-banding lane is CLOSED END-TO-END, owner byte-reviewed the pushed diff + merged
+
+**STAGE COMPLETE — `[FU-BANK-SCARCE-BAND-MISBANDING]` fully resolved (Class a = #504, Class b = #511).** Data-only, ONE PR, 87 files (86 `data/questionBanks/**` + 1 provenance line), +831/−356.
+
+**What shipped:** 223 genuine Section-D (5-mark) and Section-E (4-mark) rows across 25 topics — **correctly banded all along**, unlike Class (a)'s mis-labelled rows — now carry CBSE `[N mark]`-prefixed `solutionSteps` summing exactly to their marks, at or above the §13 minimums. 109 of them had held their entire solution in a single run-on step.
+
+| validator metric | before | after |
+|---|---|---|
+| THIN (below D=5 / E=4 depth) | 220 | **0** |
+| BAD-SUM (prefixes ≠ marks) | 3 | **0** |
+| fully compliant D/E rows | 1,137 | **1,360** |
+
+**Bank integrity:** 8,584 rows in, 8,584 out — no row added, removed, or re-keyed; every question field byte-identical (proven by field-by-field deep-compare of the assembled export, not a diff grep). Provenance via `CLASS_B_STEPPED_SOLUTION_IDS` → `AI_GENERATED_SOLUTION_IDS`.
+
+**Bank content quality moved too:** the restructuring exposed and fixed real defects the collapsed format had hidden — two rows carrying the solution to a *different question*, an unbalanced equation, a source equation that ignored Pythagoras, an arithmetic error, a rounding slip, and one row whose whole solution was `"[Sample Paper 2010]"`. Full list in `SESSION_LOG` / `OPEN_QUESTIONS_AND_FOLLOWUPS`.
+
+**Still open on the bank track:** `[FU-BANK-GARBLED-ANSWER-CLASS]` (the QUESTION-side twin — ~15 rows with OCR-garbled `answer` fields + `PYQ-M-2026-CG-002`'s welded `questionText`; needs source re-extraction with pymupdf) and the deliberately-excluded **807-row** full-depth-but-untagged class.
+
+---
+
+## 2026-07-21 - ★★ ✅ FRESH-SET FIXED + THE VITEST GATE IS FULLY STRICT (#509, trunk `41277c1`) - Wave-2 COMPLETE, owner byte-reviewed both sections + merged, fresh-set LIVE-VERIFIED
+
+**Stage COMPLETE - one PR, TWO file-disjoint commit-sections, ONE handoff. 7 files, +451/-34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` + all four red-suite FUs.** The single-PR/single-handoff shape is the structural fix for the recurring docs-vs-docs collision: no second handoff exists to collide with, and `lane-overlap` is green by construction.
+
+- **Section 1 (`55de9bc`) - the fresh-set trigger bug, LIVE-VERIFIED.** "Build a fresh set" returned the SAME questions. **Both** selection inputs were immovable: (A) the rotation seed can't advance in-session (`sessionStartedAt` is a mount-once `useState`), and (B) the seen-set is never **populated** - *not* cleared, as hypothesised - because its loader effect has no `regenerationKey` dep. Fix: a `freshSetNonce` on `rotationOffset` (+0 on every existing path ⇒ the normal build is numerically identical) plus `buildFreshSet()` carrying the just-displayed ids into `seenQuestionIds` (deprioritise, never delete). The step of ONE is deliberate - `n` and `n+1` differ modulo any pool ≥ 2, so an exhausted pool always rotates rather than repeating.
+- **Section 2 (`78e029a`) - all 4 red suites repaired, EVERY `--exclude` deleted.** The step is now plainly `vitest run`. All four were TEST-side defects; no product bug hid behind any of them and no product code was changed to make a test pass. `ConceptSpine` 23 · `parity` 3 · `durable` 6 · `pdfExport` 5.
+
+**Proof:** linux Quality Gate GREEN **including the `vite build`** (the one gate with no local signal), and the log was read for each repaired suite **by name and count** - **60 files / 789 tests** (= the prior 59 + the new fresh-set suite), so the arithmetic proves nothing was dropped as the excludes came out. Matrices re-run POST-COMMIT (the only truthful run for the `base...HEAD` frozen-path gates): root **190/190**, ops matrix green, Tutor⇄QP 41/41, Tutor⇄C&I 31/31, C&I convergence 92/92.
+
+**Doctrine earned:** a red test may be **correctly catching a real bug** - the task must be able to end in "I did not fix it", and the one edit that could hide a bug gets independently re-verified · mutation-testing exists to find **coverage holes**, not just to confirm red-then-green (the parity suite was green, running, and asserted nothing about bracket handling) · a green CI tick is not evidence the tests **ran** - read the log for names and counts · #503's recorded diagnosis for two of the four suites was **wrong**; read the error's own text before adopting the surrounding theory.
+
+---
+
 ## 2026-07-21 - ✅ VITEST GATED IN CI (#503, trunk `579822e`) - Wave-1 Lane A COMPLETE, owner byte-reviewed + merged
 
 **Stage COMPLETE - an infra/quality-gate fix, `[FU-CI-GATE-VITEST]` resolved.** The `src/**/*.test.{ts,tsx}` vitest suites (routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) had NEVER run in CI - `test:matrix:all` gates the ops-acceptance `.mjs` scripts, not vitest, and Windows can't run vitest (rollup-linux pin). Every vitest regression shipped green (the root cause behind #484/#490). 

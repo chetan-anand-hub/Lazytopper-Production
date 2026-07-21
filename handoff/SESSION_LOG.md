@@ -1,5 +1,65 @@
 ---
 
+## 2026-07-21 -- #511: THE 223 UNDER-STEPPED D/E ROWS GET REAL CBSE STEP-MARKED SOLUTIONS - **owner byte-reviewed the pushed diff + merged** - trunk `856d556`
+
+**Data-only, ONE PR, 87 files (86 `data/questionBanks/**` + 1 provenance line), +831/-356. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b); the whole mis-banding lane is now CLOSED (Class a = #504, Class b = #511).** Authored by 10 subagents running in parallel on **file-disjoint** batches inside ONE worktree; none of them committed (they shared a git index) — the orchestrator ran the audit, the proof, the gates, and the single commit.
+
+**The defect, precisely:** these 223 rows were **always correctly banded** — genuine 5-mark Section-D long answers and 4-mark Section-E case-based items. Unlike Class (a), nothing needed *relabelling*. What was missing was the **marking scheme**: `solutionSteps` collapsed (109 rows held their whole solution in ONE run-on step), below the CBSE §13 minimum depth, or with per-step marks that did not sum. All 223 now carry `[N mark]` prefixes summing exactly to marks. Validator: thin 220→**0**, bad-sum 3→**0**, compliant 1,137→**1,360**; the 807-row untagged-but-full-depth class deliberately untouched.
+
+### ★★ LESSON 1 - to prove "I changed only field X", compare the ASSEMBLED EXPORT, not the diff
+A diff grep shows which *lines* look touched; it cannot prove a question is unchanged, and on an 87-file data PR nobody can eyeball it. The lane instead dumped the real `canonicalQuestionBank` export to JSON at trunk (throwaway detached worktree) and again post-edit, then deep-compared **every field of all 8,584 rows**: `changedRows 223`, `changedFields {solutionSteps:223, finalAnswer:70}`, **`forbiddenFieldChanges []`**, **`changesOutsideThe223 []`**, `idsAdded/Removed []`, `targetsUnchanged []`. That last one matters as much as the others — it proves no approved row was silently *skipped*. **The owner byte-verified the same property independently against the pushed diff; the two agreed.** This is the reusable shape for any future data lane making a scope promise.
+
+### ★★ LESSON 2 - a collapsed one-line solution HIDES WRONGNESS; it is a correctness smell, not a formatting nit
+The pass was scoped as formatting work. Restructuring exposed genuine defects invisible inside run-on paragraphs, **all fixed in this PR**:
+- **`SCQ-S-ELEC-036` and `PYQ-M-2026-AP-001` carried the solution to an ENTIRELY DIFFERENT QUESTION** — a series-circuit experiment stored on an I-V graph question; a statistics mean/mode solve stored on an A.P. kolam question.
+- **`SCQ-S-CHEM-038`** — unbalanced combustion equation, corrected to CH4 + 2O2.
+- **`PYQ-M-2026-CIRC-006`** — the source's embedded equation `(12-x)=x+8` was mathematically wrong (ignored Pythagoras); corrected to AB = 20/3 cm, PA = 26/3 cm. **Independently corroborated** — a different batch solving the same geometry from `PYQ-M-2026-CG-002` reached identical values, which is the only reason this correction is trustworthy rather than one agent's opinion.
+- **`PYQ-M-2025-AP-002`** — arithmetic error (2550 m, not the OCR'd 2250 m). **`STAT-N-EXEM-13-LA-001`** — rounding slip (Rs 170.18, not 170.20).
+- **`SCQ-S-HERED-042`** — the entire solution was the literal string `"[Sample Paper 2010]"`.
+- `WWW.CBSE.ONLINE` disclaimer junk stripped from inside `solutionSteps` on several rows.
+
+### ★ LESSON 3 - the estimate was ~178; the truth was 223, and the gap is the METHOD
+The prior figure came from a regex file-scan. The in-memory audit of the real export found **220 thin + 3 bad-sum = 223**. Against the recorded 254 total D+E violators, the 31-row remainder is exactly the Class-a/already-compliant set, correctly excluded. **When a count disagrees with a recorded estimate, re-derive it from the assembled artifact before assuming either number is wrong.**
+
+### ★ LESSON 4 - a STALE RE-ISSUE of a dispatch is not a re-scope; ask before discarding completed work
+Mid-lane, a reworded dispatch arrived shaped as a fresh start ("scan ONE topic, list, stop"), written blind to the fact that IDENTIFY was already owner-approved and all 223 rows were already authored. Following it literally would have thrown away verified work. The lane **stopped and asked** rather than either obeying or ignoring it; the owner confirmed it was a stale re-issue caused by a safeguard block, not a re-scope. **A contradiction between an instruction and established session state is a question, not a silent judgment call.**
+
+**Mechanics worth keeping:** trunk moved mid-lane (`a4e0353` → `41277c1`, #509 code-only); the worktree fast-forwarded clean with zero overlap against this data-only lane. Provenance: 223 ids pinned in `CLASS_B_STEPPED_SOLUTION_IDS` spread into `AI_GENERATED_SOLUTION_IDS` (the one line outside `data/questionBanks/**`, flagged *before* authoring and confirmed in advance). Temp audit/dump harnesses deleted before the gate run, so they never entered the diff.
+
+**VALIDATION (matrices re-run POST-COMMIT — commit-scoped guards diff `base...HEAD`):** tsc PASS · mojibake PASS · `scope:guard --mode product` PASS (pre-commit, where it must run) · lazytopper ops matrix PASS · root guard matrix **190/190** · `git diff --check` clean · step-mark validator **223/223**. Opens `[FU-BANK-GARBLED-ANSWER-CLASS]` — ~15 rows with OCR-garbled `answer` fields + `PYQ-M-2026-CG-002`'s welded `questionText`, correctly out of scope here because **this lane authors solutions, not questions.**
+
+---
+
+## 2026-07-21 -- #509: "BUILD A FRESH SET" IS ACTUALLY FRESH + EVERY VITEST `--exclude` DELETED - **owner byte-reviewed both sections + merged, LIVE-VERIFIED** - trunk `41277c1`
+
+**Wave-2. ONE PR, TWO file-disjoint commit-sections, ONE handoff (this one). 7 files, +451/-34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` + all four red-suite FUs.** Two subagents ran in parallel on disjoint allowlists inside ONE worktree; neither committed (they shared a git index) — the orchestrator staged and committed each section separately, so Task 1 and Task 2 are independently reviewable and revertable. **The single-PR/single-handoff shape is the structural fix for the recurring docs-vs-docs collision: there is no second handoff to collide with, and `lane-overlap` was green by construction.**
+
+### Section 1 (`55de9bc`) - the fresh-set trigger bug, owner LIVE-VERIFIED
+Trace on unmodified trunk: `set #1 = [18,19,20,21,22] offset=4154312268 seen=0` -> tap "Build a fresh set" -> `set #2 = [18,19,20,21,22] offset=4154312268 seen=0`. **Both** root causes fired: (A) the rotation seed cannot move in-session (`sessionStartedAt` is a mount-once `useState`), and (B) the seen-set is never **populated** — *not* cleared, as the brief predicted — because its loader effect has no `regenerationKey` dep. Fix: a `freshSetNonce` added to `rotationOffset` (+0 on every existing path) plus `buildFreshSet()` carrying the just-displayed ids into `seenQuestionIds` (deprioritise, never delete).
+
+### Section 2 (`78e029a`) - the 4 red suites repaired, gate now fully strict
+All four were TEST-side defects — **no product bug was hiding behind any of them, and no product code was changed to make a test pass.** ConceptSpine `1 failed/21 passed`->`23 passed`; objectiveScoring.parity collection-error->`3 passed`; practiceInsights.durable `1 failed/5 passed`->`6 passed`; worksheetPdfExport `5 failed`->`5 passed`. Every `--exclude` line deleted; the step is now plainly `vitest run`.
+
+### ★★ LESSON 1 - a red test may be CORRECTLY CATCHING A REAL BUG; the task must be able to end in "I did not fix it"
+The subagent was instructed that fixing 3 and reporting 1 as a product lane was an acceptable outcome, and explicitly forbidden from touching product code to make a test pass. All four turned out to be test-side — but that verdict is only worth something *because* the other verdict was available. The riskiest edit (the dedup-key expectation) was then **independently re-verified in the main loop, not taken on trust**: `attemptDedupKey.ts` documents at length that `mode` is deliberately excluded ("mode is HOW, not WHAT — the wrong axis of identity") and it is pinned in the ops matrix with negative controls. Had that gone the other way, the "fix" would have silenced a real regression. **Verify the one edit that could hide a bug, every time.**
+
+### ★★ LESSON 2 - the parity suite had NEVER run, and #503's recorded diagnosis was wrong
+#503 booked it as "Vite can't resolve the sibling root `../../server/routes/objectiveScoring.cjs`". The `.cjs` resolves fine; the broken import was the **TS twin's** (`../../lib/…` from `src/services/` -> a nonexistent `lazytopper/lib/`; the file is `src/lib/objectiveScoring.ts`). `git log --follow` shows it was added already-broken in #348 and never touched. **The #503 entry had even noticed the symptom** ("the error surfaces on the adjacent `../../lib/objectiveScoring` import") but attributed it to a `.cjs` gap. Read the error's own text before adopting the surrounding theory — a plausible narrative can outlive the evidence sitting inside it.
+
+### ★★ LESSON 3 - mutation-testing found a COVERAGE HOLE, which is the point of doing it
+Stripping bracket handling from the client twin did **not** redden the parity suite: no case in its table contained a bracket. A suite can be green, genuinely running, and still assert nothing about the property you care about. `PICKS` was widened until every punctuation class both twins strip is represented; the same mutation now reddens all 3 tests. Same discipline applied to the fresh-set fix, where the matrix proved **both halves load-bearing** — neutering the nonce reddens the scarcity test, neutering the seen-carry reddens the owner's-bug test (4 of 5 questions repeat, i.e. rotation *alone* is not freshness).
+
+### ★★ LESSON 4 - a green CI tick is not evidence the tests RAN (the honest-skip trap, again)
+After CI went green the linux log was read for each repaired suite **by name and test count** (`parity (3)`, `ConceptSpine (23)`, `freshSet (2)`, `pdfExport (5)`, `durable (6)`; **60 files / 789 tests**). 60 = the prior 59 + the new fresh-set suite — the arithmetic is what proves nothing was silently dropped as the excludes came out. A step that says "success" while running fewer files looks identical from the summary.
+
+### ★ ENV - the main checkout's `node_modules` is STALE, and junctioning it would have faked a red
+`@testing-library/dom@10.4.1` is in the lockfile but **absent** from the main checkout's install, so the usual `mklink /J` shortcut made every render suite die with `Cannot find module '@testing-library/dom'` — a fake red indistinguishable from a broken test. The junctions were torn down (**the LINK only — never `rm -rf`, which would eat the real `node_modules`**) and a genuine `pnpm install --frozen-lockfile` run in the worktree; it **succeeded**, so the recorded `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` gotcha no longer applies. With the `@rollup/rollup-win32-x64-msvc@4.59.0` binary dropped into the worktree's own store, Windows vitest reproduced the exact CI signature (`1 failed | 21 passed`) and became a trustworthy local oracle for these deterministic suites.
+
+### ★ PROCESS - commit-scoped gates were re-run POST-COMMIT, and it mattered
+Pre-commit, the ops-matrix frozen-path guards compare trunk against trunk and print a truthful-but-useless green. Re-run against the two real commits, every `base...HEAD` zero-diff guard was genuinely green (`App.tsx`, `DesktopShell`, `ResultsScorecard`, `quickPracticeSessionService`, `practiceSetGenerator`, `predictionDataService`, `tutorRoundTrip`, `sessionRecords`, `checkSolution.cjs`). `scope:guard` is the mirror image and correctly ran **pre**-commit.
+
+**Three follow-ups opened:** `[FU-PRACTICE-CONTROLS-REFRESH-STALE]` (owner ruled it OUT of this PR — it gets its own trace + test, not a blind re-route), `[FU-TSCONFIG-EXCLUDES-TESTS]` (**nothing typechecks test files** — the root reason these suites rotted silently), `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`.
+
 ## 2026-07-21 -- #505: THE MOCKBUILDER FEATURE IS FULLY DELETED - **owner byte-reviewed + merged** - trunk `b810055`
 
 **Wave-1 Lane B (MOCKBUILDER FULL DELETION). Product deletion: 8 files, 474 deletions, 2 insertions. Resolves `[FU-MOCKBUILDER-FULL-DELETE]`.** #498 removed the orphaned `MockBuilder.tsx` page but KEPT the live plumbing (the "Build a Mock Paper" command just redirected to `/practice-hub` — a command that promised one thing and did another). #505 removes the whole feature: the entire HPQ "Mock basket" (state, localStorage persistence, add/clear handlers, the basket panel, the per-stack + per-question "Add to mock" buttons — it fed only the dead builder), StudyPlanPage's un-routed "Quick mock" button, `buildMockBuilderUrl`, and the command-palette entry. KEPT as the inbound-link safety net: the `/mock-builder`→`/practice-hub` redirect + the `:356` nav-active check.
