@@ -1,5 +1,24 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-21 - ★★ 🟡 TUTOR/ONBOARDING RETIREMENT **PR-1 of 2 COMPLETE (BEHAVIOR)** (#512, trunk `e19b2d1`) - owner byte-reviewed the pushed diff + LIVE-VERIFIED all 5 checks + merged
+
+**STAGE HALF-COMPLETE — `[FU-TUTOR-LEGACY-RETIRE]` is HALF resolved. PR-2 (deletions + the ~27-script ops sweep) is the remaining half and has NOT started.** Behaviour only: 7 files, +102/−110, **zero file deletions**.
+
+**What shipped (three independently reviewable commit-sections):**
+1. **The old "Teach me" side-drawer is retired from the live product.** It was **LIVE, not latent** — an unconditional button on *every* Topic Hub concept row, sitting beside the new "Stuck? Ask", so students saw both. A **product removal, not a cleanup**. The new `/tutor` is now the sole concept-level tutor entry.
+2. **`/onboarding` is retired** — all four live inbounds re-pointed to `/`. **Wider than "new signups": `hasProfile` was permanently `false` (bare-vs-uid-suffixed storage-key mismatch), so every login, returning users included, was already hitting the dark onboarding screen.**
+3. **Referral crediting relocated** off the retiring page onto the live auth-success handlers, keyed on the real Firebase `uid` — **which also fixed a latent double-credit bug** (the old fresh-timestamp identifier could never match `addReferralToCode`'s dedup).
+
+**Why the retirement was SPLIT into two PRs.** The prior audit put the deletion fallout at 2 ops scripts; re-verification at trunk found **16 hard-`readText`** (~27 referencing), and established that deleting `pages/TopicHub.tsx` is **forced**, not optional. Owner ruled behaviour-first / deletions-second (the #505 MockBuilder pattern) rather than bundle a live behaviour change with a ~27-script content cleanup. **The cheap alternative — swallowing ENOENT in `readText` — was rejected as vacuous green.**
+
+**`App.tsx`: Option B.** Route + `pages/Onboarding.tsx` left inert on disk; `App.tsx` byte-untouched, verified **post-commit** against both overlay gates (they diff `base...HEAD`, so a pre-commit run is a truthful-but-useless green).
+
+**Deliberately untouched:** `topicHubMastery` (**owner is holding that decision**), `/api/mentor` + `MentorSolveDrawer` (LIVE in PracticePage), the new `/tutor` stack.
+
+**Next on this track:** **PR-2** — delete the cluster (`ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract`, `pages/TopicHub.tsx`) and sweep the ops scripts: retire the wholly-dead, surgically fix the mixed. **STOP BEFORE COMMIT for byte-review** — the per-script calls are content decisions.
+
+---
+
 ## 2026-07-21 - ★★ ✅ BANK MIS-BANDING **CLASS (b) COMPLETE** — 223 D/E ROWS STEP-MARKED (#511, trunk `856d556`) - the mis-banding lane is CLOSED END-TO-END, owner byte-reviewed the pushed diff + merged
 
 **STAGE COMPLETE — `[FU-BANK-SCARCE-BAND-MISBANDING]` fully resolved (Class a = #504, Class b = #511).** Data-only, ONE PR, 87 files (86 `data/questionBanks/**` + 1 provenance line), +831/−356.
