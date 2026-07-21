@@ -5,7 +5,6 @@ import { daysLeftFromIsoDate, fetchCbseExamDate, CBSE_PHASE2_DATE } from "../ser
 import { cbseDates, formatCbseDate } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { creditPendingReferral } from "../services/referralService";
 
 function formatIsoDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00`);
@@ -96,7 +95,10 @@ export default function Onboarding() {
     checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
     trackUxEvent("onboarding_complete", "onboarding", { target: String(targetPercent) });
-    creditPendingReferral(`user_${Date.now()}`);
+    // RETIREMENT PR-1: referral crediting MOVED OUT of this page to the live
+    // post-signup handlers (Login.tsx / SignUpPage.tsx auth-success effects), keyed on
+    // the real Firebase uid. This page is no longer reachable — every inbound to
+    // /onboarding was re-pointed to "/" — so leaving the credit here would strand it.
     // SEVER PR: post-onboarding landing re-pointed off the retired /dashboard to
     // "/" (RootEntry routes to the live home per viewport: DesktopHome / MobileHome).
     navigate("/");

@@ -2,6 +2,7 @@ import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { creditPendingReferral } from "../services/referralService";
 
 type LocationState = { from?: string };
 
@@ -898,6 +899,15 @@ export default function Login() {
       trackUxEvent("login_complete", "login", {
         reason: reason ?? "unspecified",
       });
+      // Referral crediting — relocated here from the retired Onboarding page, which
+      // was its only caller. Capture still happens at App.tsx (`?ref=` -> pending key);
+      // this is the first authenticated moment on every Login path (Google / email /
+      // phone OTP all land in this one effect). Self-idempotent: creditPendingReferral
+      // no-ops when there is no pending code and again once REFERRAL_CREDITED_KEY is
+      // set, so it credits at most once ever. Keyed on the real Firebase uid — a
+      // stable identifier the `addReferralToCode` dedup can actually match (the old
+      // `user_${Date.now()}` was fresh on every call and defeated that dedup).
+      creditPendingReferral(user.uid);
       navigate(nextPath, { replace: true });
     }
   }, [user, nextPath, navigate, reason]);

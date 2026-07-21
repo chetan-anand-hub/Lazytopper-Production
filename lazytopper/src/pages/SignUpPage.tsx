@@ -1,6 +1,7 @@
 import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { creditPendingReferral } from "../services/referralService";
 
 type LocationState = { from?: string };
 
@@ -59,6 +60,11 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (user) {
+      // Referral crediting — see the matching call in Login.tsx. /sign-up is the
+      // dedicated new-account path, so this is the post-signup moment for Google and
+      // email/password signups. Self-idempotent and keyed on the real Firebase uid;
+      // whichever of the two pages the student completes auth on credits exactly once.
+      creditPendingReferral(user.uid);
       navigate(nextPath, { replace: true });
     }
   }, [user, nextPath, navigate]);
