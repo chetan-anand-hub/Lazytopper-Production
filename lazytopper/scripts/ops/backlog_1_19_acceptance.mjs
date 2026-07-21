@@ -134,14 +134,6 @@ async function run() {
     "Diagnostic placeholder UI should be removed from onboarding."
   );
 
-  const tutorScriptText = await readText("scripts/ops/topichub_human_tutor_all_topics_acceptance.mjs");
-  addCheck(
-    checks,
-    "8",
-    "TUT-04 strict semantic token gate",
-    tutorScriptText.includes("requiredTokens.every"),
-    "Acceptance should require all mandatory semantic anchors."
-  );
 
   const sessionTypesText = await readText("src/services/sessionTypes.ts");
   addCheck(
@@ -234,80 +226,10 @@ async function run() {
   try {
     await waitForServer(baseUrl);
 
-    let topicContractFailures = 0;
-    for (const pair of canonicalPairs) {
-      const resp = await postJson(`${baseUrl}/api/mentor`, {
-        mode: "learn_teach",
-        payload: {
-          subject: pair.subject,
-          grade: 10,
-          topicKey: pair.slug,
-          chapter: pair.slug,
-          section: "learn",
-          subSection: "teach",
-          selectedTab: "teach",
-          selectedMode: "learn_teach",
-          mindmapNodeId: `${pair.slug}_node`,
-          mindmapNodeTitle: `${pair.slug} basics`,
-          mindmapNodeText: `Teach ${pair.slug} in CBSE board-writing format.`,
-          cardTitle: `${pair.slug} core`,
-          cardName: `${pair.slug} core`,
-          questionText: `Teach ${pair.slug} in CBSE board format.`,
-        },
-        messages: [{ role: "user", content: `Teach ${pair.slug}` }],
-      });
-      const structured = extractMentorStructured(resp) || {};
-      const source = String(
-        structured?.contract_source || structured?.teach?.contract_source || ""
-      ).toLowerCase();
-      if (resp.status !== 200 || source !== "topic") topicContractFailures += 1;
-    }
-    addCheck(
-      checks,
-      "5",
-      "TUT-01 canonical topic contract coverage",
-      topicContractFailures === 0,
-      `canonical_pairs=${canonicalPairs.length}, failures=${topicContractFailures}`
-    );
-
-    const triResp = await postJson(`${baseUrl}/api/mentor`, {
-      mode: "learn_teach",
-      payload: {
-        subject: "Maths",
-        grade: 10,
-        topicKey: "triangles",
-        chapter: "triangles",
-        section: "learn",
-        subSection: "teach",
-        selectedTab: "teach",
-        selectedMode: "learn_teach",
-        mindmapNodeId: "triangles_node",
-        mindmapNodeTitle: "triangles basics",
-        mindmapNodeText: "Teach triangles in CBSE board-writing format.",
-        cardTitle: "triangles core",
-        cardName: "triangles core",
-        questionText: "Teach triangles in board-writing format.",
-      },
-      messages: [{ role: "user", content: "Teach triangles" }],
-    });
-    const triStructured = extractMentorStructured(triResp) || {};
-    const triTeach = triStructured?.teach || {};
-    const triBlob = JSON.stringify(triStructured).toLowerCase();
-    const triScopeGuard = String(
-      triStructured?.scope_guard_line || triTeach?.scope_guard_line || ""
-    ).toLowerCase();
-    addCheck(
-      checks,
-      "6",
-      "TUT-02 scope-aware tutor behavior",
-      triResp.status === 200 &&
-        triScopeGuard.includes("scope guard") &&
-        !triBlob.includes("pythagoras theorem"),
-      JSON.stringify({
-        status: triResp.status,
-        hasScopeGuard: triScopeGuard.includes("scope guard"),
-      })
-    );
+    // RETIREMENT PR-2: TUT-01 (canonical topic contract coverage) and TUT-02
+    // (scope-aware tutor behavior) both POSTed to /api/mentor, deleted with the old
+    // tutor. Removed rather than repointed at /api/tutor - the new tutor has a
+    // different contract, so a rewrite would be new coverage, not a port.
 
     const tutorContractsText = await readText("src/contracts/tutorContracts.ts");
     addCheck(

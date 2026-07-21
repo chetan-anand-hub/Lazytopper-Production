@@ -66,14 +66,6 @@ async function run() {
   );
 
   // Execute existing behavior suites that already validate the human tutor contracts deeply.
-  runScript("scripts/ops/triangles_human_tutor_acceptance.mjs", checks, "triangles_human_tutor");
-  runScript("scripts/ops/topic_grind_contracts_acceptance.mjs", checks, "topic_grind_contracts");
-  runScript("scripts/ops/topic_diagram_coverage_acceptance.mjs", checks, "topic_diagram_coverage");
-  runScript(
-    "scripts/ops/topichub_human_tutor_all_topics_acceptance.mjs",
-    checks,
-    "topichub_human_tutor_all_topics"
-  );
   runScript(
     "scripts/ops/topichub_intended_functionality_acceptance.mjs",
     checks,

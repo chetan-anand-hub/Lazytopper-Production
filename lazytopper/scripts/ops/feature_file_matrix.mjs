@@ -85,7 +85,6 @@ async function run() {
       "Diagram-required tutor output for diagram-heavy topics.",
       [
         { file: "src/components/DiagramBlock.tsx", regex: /TutorDiagramSpec|diagramRequired|diagramType/ },
-        { file: "scripts/ops/topic_diagram_coverage_acceptance.mjs", regex: /diagram_required/ },
       ]
     ),
     makeFeature(

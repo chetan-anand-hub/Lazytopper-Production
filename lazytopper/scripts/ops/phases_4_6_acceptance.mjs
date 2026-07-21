@@ -42,11 +42,9 @@ async function run() {
 
   runNode("scripts/ops/feature_file_matrix.mjs", checks, "feature_file_matrix");
   runNode("scripts/ops/dependency_risk_classification.mjs", checks, "dependency_risk_classification");
-  runNode("scripts/ops/human_tutor_gap_audit.mjs", checks, "human_tutor_gap_audit");
 
   const featurePath = ".project_memory/ops/out/feature_file_matrix.json";
   const depPath = ".project_memory/ops/out/dependency_risk_classification.json";
-  const gapPath = ".project_memory/ops/out/human_tutor_gap_audit.json";
 
   addCheck(checks, "phase4_feature_matrix_report_present", await exists(featurePath), featurePath);
   addCheck(checks, "phase4_dependency_report_present", await exists(depPath), depPath);

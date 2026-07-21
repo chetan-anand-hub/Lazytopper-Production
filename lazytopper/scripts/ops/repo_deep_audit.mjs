@@ -856,7 +856,6 @@ async function main() {
   mdLines.push("");
   mdLines.push("2. Topic Hub tutor journey");
   mdLines.push("   - `src/pages/desktop/DesktopTopicHubPage.tsx` (the concept spine) is the routed Topic Hub; the old `TopicHub.tsx` lesson flow and the `TutorDrawerV2` mentor drawer were deleted in the tutor retirement.");
-  mdLines.push("   - Mentor requests post to `/api/mentor` and fallback through `src/services/mentorServerGate.ts`.");
   mdLines.push("   - Backend handling is in `server/index.cjs` and `server/tutorOrchestrator.cjs`.");
   mdLines.push("");
   mdLines.push("3. Practice and active session");

@@ -87,26 +87,6 @@ async function run() {
     "Practice navigation should carry section filter context."
   );
 
-  runNodeScript(
-    "scripts/ops/triangles_human_tutor_acceptance.mjs",
-    checks,
-    "triangles_human_tutor"
-  );
-  runNodeScript(
-    "scripts/ops/topic_grind_contracts_acceptance.mjs",
-    checks,
-    "topic_grind_contracts"
-  );
-  runNodeScript(
-    "scripts/ops/topichub_human_tutor_all_topics_acceptance.mjs",
-    checks,
-    "topichub_human_tutor_all_topics"
-  );
-  runNodeScript(
-    "scripts/ops/topic_diagram_coverage_acceptance.mjs",
-    checks,
-    "topic_diagram_coverage"
-  );
 
   const failed = checks.filter((check) => !check.ok);
   const report = {
