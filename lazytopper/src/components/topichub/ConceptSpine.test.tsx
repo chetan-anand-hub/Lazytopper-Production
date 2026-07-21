@@ -6,6 +6,7 @@ import { ConceptSpine } from "./ConceptSpine";
 import { desktopTopicBySlug, type DesktopTopicSummary } from "../../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHubContent";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
+import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 
 // Stub the concept tutor drawer: ConceptSpine's responsibility is to OWN the
 // open/close state and pass the clicked concept's context — not the tutor engine
@@ -137,11 +138,40 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     expect(screen.getByRole("button", { name: /Notes/ })).toBeInTheDocument();
   });
 
-  it("Notes is an honest 'coming soon' container, collapsed until clicked", () => {
+  // Notes has TWO honest branches (ConceptSpine: `noteSpec ? <NoteModal/> : coming-soon`).
+  // Both are asserted so neither can rot: a seeded topic must open the REAL note as a
+  // modal, an unseeded one must still show the honest placeholder (never a fabricated
+  // note). Every Class-10 topic in notes/specs/ is now seeded, so the placeholder branch
+  // is exercised through the synthetic preview fixture (slug absent from notes/specs/).
+  it("opens the SEEDED chapter note as a modal on a topic that has a note spec", () => {
+    // Guard: if the trigonometry seed is ever pulled this test must fail loudly rather
+    // than silently start asserting the placeholder branch.
+    expect(getNoteSpecForTopic(trig.slug)).not.toBeNull();
     renderSpine();
+
+    const toggle = screen.getByRole("button", { name: /Notes/ });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveAttribute("aria-label", `${trig.name} — notes`);
+    // It is the real <Note> document, not the placeholder.
+    expect(dialog.querySelector(".lt-note")).not.toBeNull();
+    expect(within(dialog).queryByText(/Notes coming soon/)).toBeNull();
+  });
+
+  it("falls back to the honest 'coming soon' panel on a topic with NO note spec", () => {
+    expect(getNoteSpecForTopic(previewTopic.slug)).toBeNull();
+    renderSpine(previewTopic, previewContent);
+
     expect(screen.queryByText(/Notes coming soon/)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
+    // Honest placeholder — and no modal, because there is no note to show.
     expect(screen.getByText(/Notes coming soon/)).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 });
 

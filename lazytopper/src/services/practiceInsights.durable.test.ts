@@ -77,10 +77,14 @@ describe("PR-B Change 1 — durable per-attempt subcollection write", () => {
     expect(calls).toHaveLength(1);
     const { path, data } = calls[0];
     // path: uid then sanitized dedup signature; the "5/5" slash must be gone.
-    expect(path).toBe("practiceInsights/u1/attempts/u1::q-abc::5_5::graded");
+    // `mode` is deliberately NOT part of the id (see attemptDedupKey's doc block +
+    // the ops-matrix objective-dedup acceptance): the same question at the same score
+    // is ONE outcome however it was produced, so an mcq-click→graded round-trip must
+    // not mint two permanent docs. mode still travels in the doc BODY (asserted below).
+    expect(path).toBe("practiceInsights/u1/attempts/u1::q-abc::5_5");
     expect(path).not.toContain("/attempts/u1::q-abc::5/5");
     expect(String(data.id)).not.toContain("/");
-    expect(data.id).toBe("u1::q-abc::5_5::graded");
+    expect(data.id).toBe("u1::q-abc::5_5");
     // Doc carries the PracticeAttempt fields, including mode as an AttemptMode.
     expect(data.mode).toBe("graded");
     expect(data.questionId).toBe("q-abc");
@@ -94,12 +98,17 @@ describe("PR-B Change 1 — durable per-attempt subcollection write", () => {
   it("(b) replaying the SAME ctx (cache restore) dedups and produces no second distinct doc id (idempotent)", () => {
     expect(recordAttempt(user, baseCtx)).toBe("recorded");
     expect(recordAttempt(user, baseCtx)).toBe("duplicate");
+    // Same question, same score, DIFFERENT mode: one outcome, so still a duplicate —
+    // the mcq-click → graded-typed round-trip must never mint a second permanent doc.
+    expect(recordAttempt(user, { ...baseCtx, mode: "mcq" })).toBe("duplicate");
+    // A genuinely different RESULT still keys apart (mode-independent ≠ score-blind).
+    expect(recordAttempt(user, { ...baseCtx, marksScored: 2 })).toBe("recorded");
 
     const calls = attemptSubcolCalls();
-    // The replay short-circuits before the write, so still exactly one write, one id.
-    expect(calls).toHaveLength(1);
+    // The replays short-circuit before the write: 2 writes for the 2 distinct results.
+    expect(calls).toHaveLength(2);
     const distinctIds = new Set(calls.map((c) => c.path));
-    expect(distinctIds.size).toBe(1);
+    expect(distinctIds.size).toBe(2);
   });
 
   it("(c) no user and local session do not write to the subcollection (guard holds, no throw)", () => {

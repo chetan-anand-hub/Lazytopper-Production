@@ -97,18 +97,21 @@ jobs:
       # them never executed. Required gate now — a red vitest fails CI.
       # Resolves [FU-CI-GATE-VITEST].
       #
-      # TRACKED DEBT — four suites are RED on trunk (57ea912) and are EXCLUDED here so
-      # the new gate does not block every PR on pre-existing failures. Each needs its own
-      # fix-and-re-include follow-up (product/test lane, NOT this infra lane):
-      #   [FU-CONCEPTSPINE-TEST-STALE]      ConceptSpine.test.tsx        (1 test)
-      #   [FU-OBJSCORING-PARITY-TEST-RED]   objectiveScoring.parity      (collection error)
-      #   [FU-PRACTICEINSIGHTS-DURABLE-RED] practiceInsights.durable     (1 test)
-      #   [FU-WORKSHEET-PDFEXPORT-TEST-RED] worksheetPdfExport.test.ts   (5 tests)
-      # DELETE an --exclude line the moment its suite is fixed; never add new ones.
+      # TRACKED DEBT — CLEARED. Four suites were RED on trunk (57ea912) when this gate
+      # landed and were EXCLUDED so it could be introduced without blocking every PR on
+      # pre-existing failures. All four have since been repaired and re-included, so the
+      # step now runs the WHOLE suite with no exclusions:
+      #   [FU-CONCEPTSPINE-TEST-STALE]      ConceptSpine.test.tsx       — stale expectation
+      #     (the trigonometry note is now SEEDED, so Notes opens the real NoteModal instead
+      #      of the "coming soon" placeholder); both branches are asserted now.
+      #   [FU-OBJSCORING-PARITY-TEST-RED]   objectiveScoring.parity     — wrong relative
+      #     import path (`../../lib/...` from src/services/); born broken in #348.
+      #   [FU-PRACTICEINSIGHTS-DURABLE-RED] practiceInsights.durable    — stale expectation
+      #     (`mode` was deliberately dropped from the attempt dedup key / doc id in #445).
+      #   [FU-WORKSHEET-PDFEXPORT-TEST-RED] worksheetPdfExport.test.ts  — test-harness bugs
+      #     (asserted the capture host AFTER the exporter had torn it down; and a
+      #      `vi.fn().mockImplementation` jsPDF constructor loses its implementation to
+      #      `vi.restoreAllMocks()`, so every test after the first got a bare `{}`).
+      # NEVER add a new --exclude here: a red vitest suite fails CI, which is the point.
       - name: Vitest suites (lazytopper)
-        run: >
-          pnpm --filter lazytopper exec vitest run
-          --exclude 'src/components/topichub/ConceptSpine.test.tsx'
-          --exclude 'src/services/objectiveScoring.parity.test.ts'
-          --exclude 'src/services/practiceInsights.durable.test.ts'
-          --exclude 'src/components/worksheet/worksheetPdfExport.test.ts'
+        run: pnpm --filter lazytopper exec vitest run

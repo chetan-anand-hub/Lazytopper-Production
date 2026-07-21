@@ -756,20 +756,33 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // cross-device cloud read below. Honest degradation: if the cloud read fails, the
   // set is merely smaller → a less-optimal rotation, never a wrong or invented one.
   const [seenQuestionIds, setSeenQuestionIds] = useState<ReadonlySet<string>>(() => new Set());
+  // How many times the student has asked for a FRESH set within this visit
+  // ([FU-PRACTICE-FRESH-SET-NOT-FRESH]). The session identity deliberately cannot move
+  // in-session — `sessionStartedAt` is captured once and `filterSignature` only changes
+  // when the filters do — so without this counter a rebuild re-derived the IDENTICAL
+  // offset and the unseen-first draw handed back the set the student had just finished.
+  // It advances ONLY on the scorecard's "Build a fresh set" (see `buildFreshSet`); every
+  // other build path leaves it at 0, where the offset below is byte-identical to before.
+  const [freshSetNonce, setFreshSetNonce] = useState<number>(0);
   // Deterministic per-session rotation — NOT Math.random() (CLAUDE.md §7). Seeded from
   // `topicParam` rather than `canonicalTopicKey` purely for declaration order (the
   // canonical key is derived further down, after this memo); sessionRotationOffset
   // canonicalises whatever it is given, so both spellings land on the same offset.
   // Multi-topic seeds on the topic-SET key (so revisits reshuffle across ALL chosen
   // topics); single-topic seeds on `topicParam` exactly as before (byte-identical).
+  // `+ freshSetNonce` is the fresh-set advance: +0 on every existing path (identical
+  // value), and +1 per fresh set — a STEP OF ONE on purpose, because n and n+1 differ
+  // modulo ANY pool size ≥ 2, so even a fully-exhausted pool rotates to a different
+  // arrangement instead of repeating identically (a larger stride can land back on the
+  // same residue). Still deterministic: same visit + same taps ⇒ same offset.
   const rotationOffset = useMemo(
     () =>
       sessionRotationOffset(
         isMultiTopic ? multiTopicRotationKey : topicParam,
         filterSignature,
         sessionStartedAt,
-      ),
-    [isMultiTopic, multiTopicRotationKey, topicParam, filterSignature, sessionStartedAt],
+      ) + freshSetNonce,
+    [isMultiTopic, multiTopicRotationKey, topicParam, filterSignature, sessionStartedAt, freshSetNonce],
   );
   // Load-bearing scorecard trigger: the student DECLARES completion (partial or
   // full) by tapping "Finish session", which sets this true and surfaces the
@@ -1650,6 +1663,35 @@ const packTopicKey = useMemo(() => {
     setRegenerationKey((prev) => prev + 1);
   };
 
+  // ── "Build a fresh set" — the scorecard CTA's OWN trigger ──────────────────
+  // ([FU-PRACTICE-FRESH-SET-NOT-FRESH], owner-reported.) A bare `regenerateQuestions()`
+  // is not fresh: it re-runs the fetch with BOTH selection inputs unmoved — the rotation
+  // seed (session identity never advances in-session) and the seen-set (loaded once per
+  // topic/mount, so the questions just answered are still "unseen") — and the
+  // unseen-first draw therefore returns the very set the student just finished.
+  //
+  // So this moves both, and only here:
+  //   1. the set just worked joins the seen-set, so it sinks to the END of the draw's
+  //      ordering. Deprioritised, never deleted: `selectInRangeFromPool` permutes the
+  //      matched pool, so the "N available" hint is untouched and no question is lost.
+  //   2. the rotation seed advances (see `freshSetNonce`), which is what keeps the SCARCE
+  //      case honest — once everything matching has been seen there is nothing new to
+  //      serve, and the draw becomes a ROTATION of real bank questions rather than an
+  //      identical repeat. Owner's intent: rotate + add new; reuse seen by rotation only
+  //      when availability is short. Nothing is fabricated on either path.
+  //
+  // Plain function (like `applyPreset` / `onBuildSet`) so it closes over the CURRENT
+  // render's `filteredQuestions` and `regenerateQuestions`.
+  const buildFreshSet = () => {
+    setSeenQuestionIds((prev) => {
+      const next = new Set(prev);
+      for (const q of filteredQuestions) next.add(String(q.id));
+      return next;
+    });
+    setFreshSetNonce((n) => n + 1);
+    regenerateQuestions();
+  };
+
   // ── A preset = a bundle of the EXISTING setCommitted* setters + setIsBuilt(true) ──
   // The SAME build mechanism as PracticeControls' onBuildSet (below) — it just forces the
   // preset's verified filter values instead of the pending chips, then regenerates. Plain
@@ -2444,7 +2486,8 @@ const packTopicKey = useMemo(() => {
         // A manual Finish on a partial set must not trap the student — let them
         // return to the same set. The builder omits this on the allDone auto-offer.
         onKeepPracticing: () => setSessionFinished(false),
-        onFreshSet: () => regenerateQuestions(),
+        // NOT a bare regenerate — that returned the identical set. See `buildFreshSet`.
+        onFreshSet: () => buildFreshSet(),
         onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
         onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
         onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
