@@ -88,3 +88,27 @@ jobs:
 
       - name: Ops matrix (lazytopper test:matrix:all)
         run: pnpm --filter lazytopper run test:matrix:all
+
+      # --- Vitest render/unit suites (the .test.tsx / .test.ts files) ---
+      # Runs ONLY here on linux: pnpm-workspace.yaml strips the non-linux rollup
+      # binary, so Windows dev boxes cannot run vitest at all (CLAUDE.md section 6).
+      # These 59 suites were NEVER gated in CI before — the root cause behind this
+      # repo's green-but-broken builds (#484, #490): the tests that would have caught
+      # them never executed. Required gate now — a red vitest fails CI.
+      # Resolves [FU-CI-GATE-VITEST].
+      #
+      # TRACKED DEBT — four suites are RED on trunk (57ea912) and are EXCLUDED here so
+      # the new gate does not block every PR on pre-existing failures. Each needs its own
+      # fix-and-re-include follow-up (product/test lane, NOT this infra lane):
+      #   [FU-CONCEPTSPINE-TEST-STALE]      ConceptSpine.test.tsx        (1 test)
+      #   [FU-OBJSCORING-PARITY-TEST-RED]   objectiveScoring.parity      (collection error)
+      #   [FU-PRACTICEINSIGHTS-DURABLE-RED] practiceInsights.durable     (1 test)
+      #   [FU-WORKSHEET-PDFEXPORT-TEST-RED] worksheetPdfExport.test.ts   (5 tests)
+      # DELETE an --exclude line the moment its suite is fixed; never add new ones.
+      - name: Vitest suites (lazytopper)
+        run: >
+          pnpm --filter lazytopper exec vitest run
+          --exclude 'src/components/topichub/ConceptSpine.test.tsx'
+          --exclude 'src/services/objectiveScoring.parity.test.ts'
+          --exclude 'src/services/practiceInsights.durable.test.ts'
+          --exclude 'src/components/worksheet/worksheetPdfExport.test.ts'
