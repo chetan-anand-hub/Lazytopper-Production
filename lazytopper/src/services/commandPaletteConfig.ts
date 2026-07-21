@@ -47,12 +47,6 @@ export const defaultQuickActions: QuickAction[] = [
     description: 'Attempt a timed mock (exam-style flow)',
     handler: 'navigateToMockTest',
   },
-  {
-    id: 'open-mock-builder',
-    label: 'Build a Mock Paper',
-    description: 'Create a custom mock by subject, chapters, and difficulty',
-    handler: 'navigateToMockBuilder',
-  },
 
   // Content & guidance
   {
@@ -94,7 +88,6 @@ export const quickActionIconMap: Record<string, string> = {
   'start-practice': 'Dumbbell',
   'practice-hpq': 'Target',
   'take-mock-test': 'ClipboardCheck',
-  'open-mock-builder': 'SlidersHorizontal',
 
   // Content & guidance
   'open-topic-hub': 'Library',
@@ -112,7 +105,6 @@ export const quickActionIconMap: Record<string, string> = {
 export const quickActionKeywords: Record<string, string[]> = {
   'practice-hpq': ['hpq', 'highly probable', 'most important', 'imp', 'marks', 'pyq vibes'],
   'take-mock-test': ['mock', 'test', 'timer', 'exam', 'paper'],
-  'open-mock-builder': ['builder', 'custom paper', 'mock builder', 'create mock'],
   'open-topic-hub': ['topichub', 'notes', 'mistakes', 'tips', 'concepts'],
   'open-mentor': ['mentor', 'help', 'explain', 'solve', 'marking', 'plan'],
   'view-stats': ['stats', 'progress', 'accuracy', 'streak', 'match'],

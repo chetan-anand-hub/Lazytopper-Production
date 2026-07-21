@@ -16,7 +16,6 @@ import {
   buildAiMentorUrl,
   buildTopicHubUrl,
   buildHPQUrl,
-  buildMockBuilderUrl,
 } from "../utils/buildUrl";
 import { detectProfileFromDays, getProfileConfig, getProfileSummary, loadPaceProfile } from "../services/paceProfileService";
 
@@ -213,16 +212,6 @@ const StudyPlanPage: React.FC = () => {
       },
     });
   };
-
-  const handleOpenMockBuilder = (subject: SubjectKey) => {
-    navigate(buildMockBuilderUrl(grade, subject), {
-      state: {
-        back: currentURL,
-        backLabel: "Back to study plan",
-      },
-    });
-  };
-
 
   // The dashboard navigation helper was defined but never used.  It is
   // commented out here to avoid unused variable warnings.  If you
@@ -544,21 +533,6 @@ const StudyPlanPage: React.FC = () => {
                           }}
                         >
                           Predicted Questions
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenMockBuilder(subject)}
-                          style={{
-                            borderRadius: 999,
-                            padding: "4px 10px",
-                            fontSize: "0.74rem",
-                            border: "1px solid rgba(88,204,2,0.7)",
-                            backgroundColor: "rgba(34,197,94,0.08)",
-                            color: "#15803d",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Quick mock
                         </button>
                       </div>
                     </div>
