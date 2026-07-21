@@ -1,3 +1,33 @@
+## 2026-07-21 -- #516: TUTOR RETIREMENT COMPLETE - 1 FU closed, 1 corrected, 2 updated (trunk `a86feda`)
+
+### ✅ RESOLVED BY #516
+
+**[FU-TUTOR-LEGACY-RETIRE] — ✅ FULLY RESOLVED. CLOSED end-to-end** (#512 behaviour, #516 deletions). The old-tutor cluster, `MentorSolveDrawer` + `mentorDrawerLogic`, `/api/mentor` and its 13 dedicated test suites, and the persona/test-bot cluster are all deleted. **Do not re-open.**
+
+### ★★ CORRECTION — a FALSE claim this file previously carried
+
+**"KEEP `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (LIVE in `PracticePage`)" was WRONG on two of three.**
+- **`MentorSolveDrawer` was NOT live.** Mounted, imported, state-gated — but its trigger prop was threaded three levels down into an unused `_onOpenMentorBoard` binding, and its second trigger (`?journeyMentor=`) had no producer in the product. **Deleted.**
+- **`/api/mentor` had no product caller** once the old tutor died. **Deleted.**
+- **`types/mentor.ts` DOES survive — but for a different reason than recorded.** Not because `/api/mentor` needs it, but because it is a shared **type** module with 7 importers including `src/ai/aiClient.ts` (33 importers), feeding SolutionChecker / worksheet grading / ChapterTest / C&I.
+
+**Record the CLASS: a mount, an import, and a state gate are all compatible with dead code. Only a trigger proves reachability.**
+
+### 🔄 UPDATED
+
+**[FU-OPS-SCRIPTS-PATH-COUPLING]** — partially addressed. #516 cleared every tutor-adjacent coupling, but **the general hardening pass remains open**: ops scripts still hard-read product files by path and none are CI-gated, so the coupling keeps rotting invisibly. #516 also surfaced a *second* form: scripts that **spawn** other scripts by path (8 found), and a runner that **imports** a journey by path. Any future hardening should cover invocation, not just reads.
+
+**[FU-APP-TSX-FROZEN-RESIDUE]** — now **three** lanes have left residue behind the same over-broad `App.tsx` zero-diff freeze: MockBuilder's inert `navigateToMockBuilder` case, the inert `/onboarding` route, and now the tutor cluster's stale `MentorPanel`/`TeachFlow` comments. **Merge with `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]` into ONE "narrow the freeze and sweep the residue" item** — the argument for narrowing it is now three lanes strong.
+
+**[FU-MASTERY-WRITE-ORPHAN]** — still informational, now definite: the old tutor was the last live writer of `saveTopicMasterySnapshot`, so topic mastery is write-never / read-only-empty. Nothing breaks (readers already tolerate empty). **`topicHubMastery` remains UNTOUCHED — owner is still holding the mastery decision, whose audit is delivered and now unblocked.**
+
+### 📌 KNOWN RESIDUE left deliberately by #516 (all flagged at review, none functional)
+- `backlog_1_19_acceptance.mjs` keeps an unused `extractMentorStructured` helper (`.mjs` has no `noUnusedLocals`).
+- `export_repo_details.ps1` keeps an `rg` search pattern that now matches nothing — degrades to an honest empty report section.
+- `NoteModal.tsx`, `NcertPageModal.tsx` and `PracticePage.tsx` carry prose citing `ConceptTeachDrawer` as an overlay-grammar reference. Left rather than touch live files for comments.
+
+---
+
 ## 2026-07-21 -- #515: WAVE-3 (3 lanes) - 3 FUs resolved, ~7 stale entries TOMBSTONE-CLOSED, 4 opened (trunk `a40fa75`)
 
 ### ✅ RESOLVED BY #515
@@ -68,7 +98,7 @@ Also relaxed for tests and worth restoring: `noUnusedLocals` / `noUnusedParamete
 
 **[FU-TUTOR-LEGACY-RETIRE] — 🟡 HALF DONE. Behaviour shipped; the deletions are PR-2 and have NOT started.**
 The old `ConceptTeachDrawer` "Teach me" entry is **gone from the live product** — it was **LIVE, not latent** (an unconditional button on every Topic Hub concept row, beside the new "Stuck? Ask"), so this half was a **product removal, not a cleanup**. The **files remain on disk**, now imported only by each other.
-**PR-2 remit:** delete `ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract` **and `pages/TopicHub.tsx`** (forced — it imports `ConceptTeachDrawer`), then retire/repair the ops scripts. **KEEP** `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (LIVE in `PracticePage`) and the new `/tutor` stack.
+**PR-2 remit:** delete `ConceptTeachDrawer`, `TeachFlow`, `TutorDrawerV2`, `MentorPanel`, `TutorMessageRenderer`, `tutorStructuredExtract` **and `pages/TopicHub.tsx`** (forced — it imports `ConceptTeachDrawer`), then retire/repair the ops scripts. ~~**KEEP** `/api/mentor` + `types/mentor.ts` + `MentorSolveDrawer` (LIVE in `PracticePage`)~~ — **CORRECTED by #516: `/api/mentor` + `MentorSolveDrawer` — **BOTH DELETED by #516. The "LIVE in PracticePage" claim recorded here was FALSE**: the drawer was MOUNTED but unreachable (its only trigger prop arrived as an unused `_onOpenMentorBoard`), and `/api/mentor` had no product caller left once the old tutor died.** The new `/tutor` stack is kept.
 
 ### 🆕 NEW FOLLOW-UPS
 
