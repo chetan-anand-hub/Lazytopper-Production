@@ -1,5 +1,65 @@
 ---
 
+## 2026-07-21 -- #515: WAVE-3 - TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED FROM SOURCE · "REFRESH SET" ACTUALLY REFRESHES - **owner byte-reviewed the pushed diff + merged** - trunk `a40fa75`
+
+**ONE PR, THREE file-disjoint subagent lanes, three independently revertable commit-sections.** 17 files, zero forbidden. CI `quality-gate` PASS (4m2s), `lane-overlap` PASS. Orchestration: one main agent, three subagents on hard file allowlists, run in parallel in a single worktree.
+
+### ★★ LESSON 1 - THE THREE LANES WERE CLEAN; THE ASSEMBLY WAS NOT. TWO BLOCKERS EXIST ONLY AT THE SEAM.
+Every lane reported green and stayed inside its allowlist. The PR would still have merged with a red local bar, because two failures are **structurally invisible to a subagent**:
+
+- **`scope:guard` FAILED on the assembled tree** - `[unclassified] tsconfig.test.json`. `repo_boundary_policy.json` enumerates tsconfigs **by exact name** in the `product` lane, so a *new* tsconfig matches no rule and `classifyFile` returns `"unknown"`. The guard classifies the **whole working tree**, so it is only meaningful once the lanes are assembled - and it is **LOCAL-only, not in CI**, so nothing downstream would have caught it.
+- **The commit-scoped gates had not truly run.** The `lazytopper` ops matrix diffs `base...HEAD`; the lanes ran it **pre-commit, on zero commits** - trunk vs trunk, a truthful-but-useless green. **Third time this project has been bitten (#488, #496).**
+
+**The transferable rule: a parallel-lane orchestration needs a distinct ASSEMBLY gate pass. Lane-green x3 is not PR-green.**
+
+### ★★ LESSON 2 - THE TWO HALVES OF THE RANGE TRAP FIRED IN THE SAME WAVE
+The matrices needed a **post**-commit run to mean anything. `scope:guard` is the exact mirror: post-commit it reports `SCOPE_GUARD_OK (mode=mixed, no changes)` because it reads the **working tree**, which is empty once you have committed. **Its meaningful verdict is the PRE-commit run; theirs is the POST-commit run.** Both are now on record together. **Ask what range a gate inspects before you trust its green** - "I ran the gate" is not the claim; "I ran it against the range that contains my change" is.
+
+### ★★ LESSON 3 - ENUMERATE BEFORE YOU FIX. THE BOARD'S ERROR COUNT WAS OFF BY 23x.
+`[FU-TSCONFIG-EXCLUDES-TESTS]` recorded that typechecking tests "surfaced exactly one error" (a `TS7016` on one `.cjs` import). L1 was briefed to **enumerate first and report anything else as latent**. Actual: **15 errors / 7 files**, plus **8 more that only appeared after `allowJs` removed the masking `any`** - 13 TS7016 across **6 distinct** untyped server modules, 9 control-flow artifacts, and one genuinely unused import. **None were product bugs.** A lane that had trusted the FU and "fixed the known error" would have shipped a gate that did not compile. **A follow-up's diagnosis is a hypothesis written at a past SHA - re-derive its counts.**
+
+### ★★ LESSON 4 - THE GARBLING WAS NEVER OCR, AND THE WRONG MODEL WOULD HAVE SHIPPED WRONG ANSWERS
+Every corrupted `answer` is a dump of the official CBSE **marking scheme**, which renders fractions as **stacked glyphs** - so a flat extractor stops at the line break and truncates the field at the `=` before the fraction:
+```
+=> Number of yellow balls = 25 x 2     <- extractor kept this
+5 = 10                                 <- ...and dropped this
+```
+Recovery therefore had to be **coordinate-aware** (rebuild fractions from `page.get_drawings()`, numerator = above the bar; discard the mark-allocation column). **This was load-bearing, not fastidious:** in MS 30/4/1 2022-23 Q24 the flat reading order emits `4` before `3`, but the bboxes prove the value is **3/4**. A naive line-join would have written **4/3** - a wrong answer delivered with full confidence as a "fix". **When you model a corruption, verify the mechanism, because the repair method follows from it.**
+
+### ★ LESSON 5 - THE BRIEF'S SOURCE PATH WAS WRONG, AND THE HONEST FAILURE WOULD HAVE BEEN "UNRECOVERABLE"
+The spec pointed at `cbse-papers/PYQ/X question papers/`. That holds **question papers, not marking schemes**, and its 2025/26 maths PDFs are **image-only** (195-450 chars total). The real sources are `cbse-papers/gdrive/PYQs/MS/final MS/<year>/MS/`. A lane that trusted the path would have found nothing extractable and concluded - *correctly, from its evidence* - that the rows could not be recovered. **A confident negative finding is exactly as dependent on the input path as a positive one.**
+
+### ★★ LESSON 6 - SCOPE WAS 89 ROWS, NOT ~15 - AND THE GATE MEANT TO CATCH IT IS BLIND
+Bank-wide there are **89 rows** with Private-Use-Area / U+FFFD glyphs and **82** with dangling-operator answers, across **141 files**. The briefed class was 24. **`check:mojibake` does not detect PUA codepoints at all**, which is why the damage class survived every prior sweep. 26 rows recovered here; the remaining ~61 are `[FU-BANK-GARBLED-EXPANDED-SCOPE]`, deliberately untouched.
+
+### ★★ LESSON 7 - THREE QUESTIONS WERE UNSOLVABLE AS PRINTED
+Not cosmetic corruption - **students could not answer them**: `PYQ-M-STAT-008` (8 classes, 7 frequencies), `PYQ-M-2024-STAT-003` (7 classes, 6 frequencies), and `PYQ-M-2026-PROB-002` (the stem's "4 5 times" is **5/4** by glyph bbox; only 5/4 yields the scheme's `m = 12` - found during application, not in the review table). Also: **`PYQ-M-2024-STAT-004`'s stored solution answered the WRONG QUESTION** - with the stem unreadable, #511 had computed a *mode*; the readable sub-parts ask for the modal-class lower limit, the median class and the empirical relationship. **A garbled question does not just look bad; it silently corrupts the solution authored against it.**
+
+### ★★ LESSON 8 - "WITHHELD" IS A DELIVERABLE. "RETIRE" BEAT "RE-KEY".
+Three rows were **withheld rather than guessed**, including `SCQ-S-ELEC-036`, for which **no source exists** - it cannot be fixed without inventing I-V values, so it stays permanently withheld. And `PYQ-M-2026-CG-002`, whose stem welded 30/5/1 Q35 (circle/tangent) to Q33(b) (parallelogram proof), was **retired, not re-keyed**: Q35 is **already served cleanly by `PYQ-M-2026-CIRC-006`**, so "fixing" it would have minted a near-duplicate. **The obvious repair - correct the text, fix the topicKey - was the wrong one, and only checking for an existing correct twin revealed that.**
+
+### ★ LESSON 9 - MEASURE THE ALTERNATIVE BEFORE YOU REJECT IT (L3)
+The owner forbade blind-routing "Refresh set" through `buildFreshSet`, since it might want lighter semantics. The lane **measured** the lighter option instead of arguing it: `selectInRangeFromPool` rotates the unseen partition LEFT by the offset, so a nonce-only `+1` on an all-unseen 25-pool slides the window by exactly one - **4 of 5 questions return**. That is still a broken button. The evidence, not the preference, chose shared semantics. It also caught **`Alt+R`, the keyboard twin**, which had the identical defect and was not in the brief.
+
+### ★ LESSON 10 - MUTATION-TEST THE CHECKER, NOT ONLY THE CODE
+L2's PUA verifier was **silently vacuous on v1**: its codepoint range collapsed to a literal `-` on write (the known Write/Edit escape-decoding hazard) and its truncation regex matched every `id: "` - so it flagged all 26 rows while asserting nothing. Rebuilt with a **self-test injecting a known U+F0DE and a dangling operator, requiring both to be caught**. Same species as L3's no-regression assertion, which mutation exposed as **insensitive** (`seen.size === 0` can't fail, because `isBuilt` goes false on "Edit filters" and nothing is displayed to sweep) and which was replaced with a set-identity assertion that does go red.
+
+### ★ LESSON 11 - A `git add` THAT WARNS CAN SILENTLY KILL YOUR COMMIT
+Root `.gitignore:49` ignores `lazytopper/docs/project_memory/`, so staging `repo_boundary_policy.json` printed an ignore warning and **exited non-zero**, short-circuiting the `&&`-chained commit - which appeared to succeed. The file **is** tracked; commit `c7d742f` ("restore repo_boundary_policy.json ... accidentally untracked in `2081003`") exists because untracking it once **disarmed scope:guard entirely**. **Verify `git log --oneline -1` after a chained commit.**
+
+### ★ LESSON 12 - READ THE COUNTS, NOT THE TICK
+CI vitest went **60 files / 789 tests -> 61 / 792**: exactly **+1 file and +3 tests**, matching L3's new suite and its three cases. That arithmetic - not the green check - is the evidence the new regression test actually ran on the linux runner. Likewise the new typecheck step was confirmed by finding `> tsc -p tsconfig.test.json --noEmit` in the job log.
+
+### What shipped
+**1 · `fix(ci)` (7f475b0)** - new `tsconfig.test.json` (separate project; `tsconfig.app.json` byte-unchanged so test globals never enter the `vite build` program), `typecheck:test` script, a CI step, and the `repo_boundary_policy.json` one-liner. Honest 2-file exclusion documented in-file.
+**2 · `fix(bank)` (b10f284)** - 26 rows recovered with per-row paper+page citations across 11 files; CG-002 retired; 3 withheld. Syllabus guard re-read at trunk and clean.
+**3 · `fix(practice)` (b2ef0e7)** - `PracticePage.tsx` +39/-2 and a new mutation-proven regression suite; `PracticeControls.tsx` untouched (pure presenter); normal build path byte-identical.
+
+### Follow-ups
+RESOLVED: `[FU-TSCONFIG-EXCLUDES-TESTS]`, `[FU-PRACTICE-CONTROLS-REFRESH-STALE]`, `[FU-BANK-GARBLED-ANSWER-CLASS]` (recovered subset). TOMBSTONE-CLOSED: the ~7 stale `[FU-CI-GATE-VITEST]` entries (resolved by #509). OPENED: `[FU-BANK-GARBLED-EXPANDED-SCOPE]`, `[FU-TSCONFIG-TEST-2FILE-HOLE]`, `[FU-CANONICAL-STALE-RETIRED-ID]`, `[FU-MOJIBAKE-GATE-MISSES-PUA]`. **The 26 recovered rows enter the student-QA queue as the final content gate (owner ruling).**
+
+---
+
 ## 2026-07-21 -- #512: THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME - **owner byte-reviewed the pushed diff + LIVE-VERIFIED all 5 checks + merged** - trunk `e19b2d1`
 
 **PR-1 of 2. BEHAVIOR ONLY - 7 files, +102/-110, ZERO file deletions.** Three commit-sections (referral · tutor · auth), each independently reviewable. **PR-2 (deletions + the ~27-script ops sweep) has NOT started.**

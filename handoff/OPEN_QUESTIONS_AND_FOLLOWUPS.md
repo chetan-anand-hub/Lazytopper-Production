@@ -1,3 +1,56 @@
+## 2026-07-21 -- #515: WAVE-3 (3 lanes) - 3 FUs resolved, ~7 stale entries TOMBSTONE-CLOSED, 4 opened (trunk `a40fa75`)
+
+### ✅ RESOLVED BY #515
+
+**[FU-TSCONFIG-EXCLUDES-TESTS] — ✅ RESOLVED.** Test files are now typechecked, via a **separate `lazytopper/tsconfig.test.json`** (+ `typecheck:test` script + a CI step), not by widening the app config. `tsconfig.app.json` is the project `vite build` runs, so widening it would have pulled the test files, the `vitest/globals` + jest-dom ambients and `allowJs` into the **product** build's program — letting product source compile against globals that do not exist at runtime. The test project `extends` it, so tests still inherit `strict`; the app config is **byte-unchanged**.
+**★★ This FU's own diagnosis was wrong and the correction is the durable part.** It recorded "exactly one error" (a `TS7016` on the parity test's `.cjs` import). Enumerating first found **15 errors across 7 files**, plus **8 more masked until `allowJs` removed the `any`**: 13 × TS7016 across **6 distinct** untyped server modules, 9 control-flow artifacts (`let x: T | null = null` assigned only inside a callback), and one genuinely unused import. **None were product bugs.** A lane that trusted the FU would have shipped a gate that did not compile. **Re-derive a follow-up's load-bearing counts before planning around them.**
+**★ `.d.ts` shim rejected on a hard ground, not taste:** an ambient `declare module` **cannot match a relative specifier** like `"../../server/routes/checkSolution.cjs"`, so a shim would have meant six sibling `.d.cts` files inside `server/`. `allowJs` + `checkJs:false` infers shapes from the real implementation instead.
+**★ Gate mutation-proven** (deliberate `TS2322` → exit 2) and **confirmed to have RUN in CI** by reading the job log, not the tick.
+
+**[FU-PRACTICE-CONTROLS-REFRESH-STALE] — ✅ RESOLVED.** "Refresh set" now routes through `buildFreshSet()`. Root cause confirmed by live trace, not inference: `rotationOffset = sessionRotationOffset(topic, filterSignature, sessionStartedAt) + freshSetNonce`, and the button moved **none** of the three inputs — it was the **only** trigger of a bare regenerate that moved nothing (`applyPreset`/`onBuildSet` commit filters first, moving `filterSignature`). Trace: pool=5, set #1 = set #2 = `[1,2,3,4,0]`.
+**★ The owner's "don't blind-route it" ruling was honoured by MEASURING the alternative.** A nonce-only re-shuffle was tested and rejected with numbers: `selectInRangeFromPool` rotates the unseen partition LEFT by the offset, so `+1` on an all-unseen 25-pool slides the window by exactly one and **4 of 5 questions return** — still a broken button.
+**★ `Alt+R`, the keyboard twin, had the identical defect** and was not in the brief. `PracticeControls.tsx` stayed untouched (pure presenter). Normal build path byte-identical, pinned by a NO-REGRESSION test that mutation exposed as **insensitive** in its first form and which was rebuilt to actually fail.
+
+**[FU-BANK-GARBLED-ANSWER-CLASS] — ✅ RESOLVED for the 26-row recovered subset; 3 rows WITHHELD remain open.**
+**★★ The corruption was never OCR.** Every affected `answer` is a dump of the official CBSE **marking scheme**, which renders fractions as **stacked glyphs** — a flat extractor stops at the line break and truncates at the `=` before the fraction. Recovery had to be **coordinate-aware** (`page.get_drawings()`, numerator = above the bar; mark-allocation column discarded). **Load-bearing:** in MS 30/4/1 2022-23 Q24 the flat reading order emits `4` before `3`, but the bboxes prove **3/4** — a naive line-join would have shipped **4/3**.
+**★★ The brief's source path was wrong** — `PYQ/X question papers/` holds question papers, not marking schemes, and its 2025/26 maths PDFs are image-only. Real sources: `cbse-papers/gdrive/PYQs/MS/final MS/<year>/MS/`.
+**★★ Three questions were UNSOLVABLE as printed** and are now solvable: `PYQ-M-STAT-008` (8 classes / 7 frequencies), `PYQ-M-2024-STAT-003` (7 classes / 6 frequencies; `f = 6` now **source-confirmed**, previously inferred), `PYQ-M-2026-PROB-002` (stem's "4 5 times" is **5/4** by bbox; only 5/4 yields `m = 12`). And **`PYQ-M-2024-STAT-004`'s stored solution answered the WRONG question** — a garbled stem silently corrupts the solution authored against it.
+**★ `PYQ-M-2026-CG-002` RETIRED, not re-keyed** — its stem welded 30/5/1 Q35 (circle/tangent) to Q33(b) (parallelogram proof), and Q35 is **already served cleanly by `PYQ-M-2026-CIRC-006`**, so the obvious repair would have minted a near-duplicate. No tombstone convention exists in this bank, so retirement is row deletion + an in-file pointer comment.
+**★ STILL OPEN — the 3 WITHHELD rows:** `PYQ-S-ELEC-004` (science; not investigated this pass — recoverable in a follow-up) and **`SCQ-S-ELEC-036`, PERMANENTLY withheld** — no PYQ source exists and it cannot be fixed without inventing I-V values. **A withheld row is honest; a guessed one is fabrication.**
+**Owner ruling: the 26 recovered rows enter the STUDENT-QA QUEUE as the final content gate on question quality.**
+
+### 🪦 TOMBSTONE-CLOSED (no code — ledger hygiene)
+
+**[FU-CI-GATE-VITEST] — 🪦 RESOLVED BY #509; all remaining open entries are CLOSED.** The board still carried this item **~7 times** across historical sections, each describing the pre-#509 world ("CI runs the matrices, not vitest"). That has been false since #509 wired a strict `vitest run` with **zero `--exclude`**; the four formerly local-only suites (routingParity, fullTestNav, multiTopicNav, aliveness) run and pass in CI. **#515's own CI run confirms it live: 61 files / 792 tests.** Those ~7 entries are historical record, not open work — **do not re-open them.** The item inflated the backlog and, worse, invited a lane to "fix" something already fixed.
+**★ The genuinely remaining gap was never "run the tests" — it was that nothing TYPECHECKED them.** That is `[FU-TSCONFIG-EXCLUDES-TESTS]`, resolved above.
+
+### 🆕 NEW FOLLOW-UPS
+
+**[FU-BANK-GARBLED-EXPANDED-SCOPE] — 🆕 OPENED (M, PRE-LAUNCH). The real size of the damage class.**
+Bank-wide there are **89 rows** carrying Private-Use-Area / U+FFFD glyphs and **82** with dangling-operator `answer` fields, across **141 files**. #515 recovered 26; **~61 remain.** Includes `PYQ-M-QE-001` and `PYQ-M-QE-002`, confirmed to carry the same garbled-MCQ-options defect (distractors stripped of minus signs and trailing `= 0`) but out of #515's scope.
+**Method is proven and must be reused, not re-derived:** coordinate-aware **pymupdf** (`pdfplumber` remains BANNED — it *caused* this class), marking schemes at `cbse-papers/gdrive/PYQs/MS/final MS/<year>/MS/`, per-row paper+page citation, **never guess a distractor or stem**, unrecoverable → WITHHELD. Report the candidate list **before** authoring; the owner is the NCERT authority. Recovered rows then go to student-QA.
+
+**[FU-MOJIBAKE-GATE-MISSES-PUA] — 🆕 OPENED (S). The gate that should have caught this is blind to it.**
+`check:mojibake` does **not** detect Private-Use-Area codepoints, which is why 89 rows of PUA damage survived every prior sweep while the gate stayed green. Extend it to the PUA range (U+E000–U+F8FF) and U+FFFD.
+**★ Mutation-test the extension.** #515's own PUA checker was **silently vacuous on v1** — its codepoint range collapsed to a literal `-` on write (the Write/Edit escape-decoding hazard) and its truncation regex matched every `id: "`, so it flagged all 26 rows while asserting nothing. The rebuilt version carries a **self-test injecting a known U+F0DE and a dangling operator, requiring both to be caught**. A content gate that cannot be shown to fail is not a gate.
+
+**[FU-TSCONFIG-TEST-2FILE-HOLE] — 🆕 OPENED (S). An honest, documented gap in the new typecheck gate.**
+`src/services/geminiThinkingConfig.test.ts` and `src/services/stepSolutionCacheQualityGate.test.ts` are `exclude`d in `tsconfig.test.json` with a loud in-file comment. Both fail on **one TS control-flow artifact, not a product bug**: a `let captured: {...} | null = null` only ever assigned inside a callback, so TS narrows it to `null`/`never` at the assertion site. Fix is one line per declaration (`let captured = null as { status: number; body: any } | null;`); it lives **inside those test files**, which were outside #515's allowlist. **Delete both `exclude` entries in the same PR that applies the fix.**
+Also relaxed for tests and worth restoring: `noUnusedLocals` / `noUnusedParameters` are off **solely** because `QuickPracticePresets.test.tsx:18` imports `questionMatchesFilters` and never uses it. Clean that and both flags can go back on.
+
+**[FU-CANONICAL-STALE-RETIRED-ID] — 🆕 OPENED (XS, cosmetic). A retired id left in a forbidden file.**
+`PYQ-M-2026-CG-002` is still listed in `CLASS_B_STEPPED_SOLUTION_IDS` at `canonicalQuestionBank.ts:1925`, after the row itself was retired in #515. **Left deliberately** — that file is globally forbidden (CLAUDE.md §4), and the id is **verified inert**: the array only spreads into `AI_GENERATED_SOLUTION_IDS`, a `Set` used for membership lookup (rank demotion), and **nothing in either matrix asserts its members exist**. All gates pass with it present. **Owner endorsed not touching a forbidden file for an inert id.** Sweep it whenever that file is legitimately opened — a natural companion to the merged "unfreeze App.tsx and sweep the residue" item.
+
+### ⚠️ PROCESS ITEM — NOT A CODE FU, BUT IT COST THIS WAVE TWICE
+
+**Parallel-lane orchestration needs its own ASSEMBLY gate pass.** All three #515 lanes reported green and stayed in their allowlists; the PR would still have merged with a red local bar. Two failures are **structurally invisible to a subagent**:
+1. **`scope:guard` classifies the whole working tree**, so it is only meaningful once the lanes are assembled — and it is **LOCAL-only, not in CI**. It failed on `[unclassified] tsconfig.test.json` because `repo_boundary_policy.json` enumerates tsconfigs **by exact name**; any NEW tsconfig will hit this again.
+2. **`base...HEAD` guards are vacuous pre-commit** (#488, #496, now #515 — third time). They must be re-run **after** committing.
+**★★ And these two are MIRRORS: `scope:guard`'s meaningful run is PRE-commit; the matrices' is POST-commit.** Ask what range a gate inspects before trusting its green.
+**★ Related trap:** root `.gitignore:49` ignores `lazytopper/docs/project_memory/`, so `git add` on `repo_boundary_policy.json` warns and **exits non-zero**, silently short-circuiting an `&&`-chained commit. The file **is** tracked — `c7d742f` restored it precisely because untracking it once **disarmed scope:guard**. Verify `git log --oneline -1` after a chained commit.
+
+---
+
 ## 2026-07-21 -- #512: OLD TUTOR RETIRED + ONBOARDING→HOME - 2 FUs resolved, 1 HALF-resolved, 3 opened (trunk `e19b2d1`)
 
 ### ✅ RESOLVED BY #512

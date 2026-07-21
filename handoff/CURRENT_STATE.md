@@ -1,6 +1,117 @@
 # LazyTopper — Current State
 
-## [CURRENT] #512 merged — ★★ THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME — trunk `e19b2d1`
+## [CURRENT] #515 merged — ★★ WAVE-3: TESTS ARE TYPECHECKED · 26 GARBLED BANK ROWS RECOVERED FROM SOURCE · "REFRESH SET" ACTUALLY REFRESHES — trunk `a40fa75`
+
+**ONE PR, THREE file-disjoint lanes, three independently revertable commit-sections.** 17 files, zero forbidden files (`App.tsx` / `DesktopShell.tsx` / `canonicalQuestionBank.ts` all absent). Owner byte-reviewed the pushed diff against CBSE maths + the source citations and merged. CI green (`quality-gate` 4m2s, `lane-overlap` pass — zero collision with the tutor PR-2 lane).
+
+Orchestration: one main agent, three subagents on hard file allowlists, run in parallel in one worktree. The lanes touched genuinely disjoint files, so there was no internal collision — but see the two BLOCKERS below, both of which only became visible **after** the lanes were assembled.
+
+### Section 1 · L1 — `tsc` had NEVER typechecked a single test file (`[FU-TSCONFIG-EXCLUDES-TESTS]` ✅)
+
+`tsconfig.app.json:28` excluded `src/**/*.test.ts(x)` and `src/test/**`, so the `tsc -b` inside `build` never saw a test file. **That is the root reason four vitest suites could rot silently — they broke at the TYPE level long before anyone ran them.** A green `tsc` said nothing about them.
+
+**Approach (b) chosen: a separate `tsconfig.test.json`, NOT widening the app config.** `tsconfig.app.json` is the exact project `vite build` runs (`"build": "tsc -b && vite build"`). Widening it would pull the 60 test files, the `vitest/globals` + `@testing-library/jest-dom` ambient types, and `allowJs` into the **product** build's program — letting product source compile against globals that do not exist at runtime. The test project `extends` the app config, so tests still inherit `strict` and every product rule; **`tsconfig.app.json` is byte-unchanged.**
+
+> **★★ THE BOARD'S PREDICTION WAS WRONG, AND THE HABIT THAT CAUGHT IT IS THE POINT.** The FU said typechecking tests "surfaced exactly one error" — a `TS7016` on the parity test's `.cjs` import. The lane was told to **enumerate before fixing**. Actual: **15 errors across 7 files**, plus **8 more that surfaced only after `allowJs` removed the masking `any`**:
+> - **13 × TS7016** across **6 distinct** untyped `server/**` CJS modules and 8 test files — not one module, six.
+> - 2 × `TS2339` + 7 × `TS18047` — one TS control-flow artifact (`let x: T | null = null` assigned only inside a callback, narrowed to `never` at the assertion site).
+> - 1 × `TS6133` — `questionMatchesFilters` imported and never used in `QuickPracticePresets.test.tsx`. Genuine rot.
+>
+> **None are product bugs; product source typechecks clean.** Had the lane "fixed the one known error" as briefed, it would have shipped a gate that still didn't compile.
+
+**TS7016 handled with `allowJs: true` + `checkJs: false`** — those suites import the **real** CJS routes on purpose, so shapes are inferred from the actual implementation. A `.d.ts` shim was rejected on a hard technical ground, not taste: **an ambient `declare module` cannot match a RELATIVE specifier** like `"../../server/routes/checkSolution.cjs"` at all, so a shim would have meant six sibling `.d.cts` files inside `server/`. A blanket `noImplicitAny: false` would also have silenced implicit-any *parameters* in the tests themselves.
+
+**Gate mutation-proven:** a deliberate `TS2322` in `smoke.test.tsx` takes the new CI step from exit 0 → exit 2. **CI log confirms the step RAN** (`> tsc -p tsconfig.test.json --noEmit`, clean) — a green job is not evidence a new step executed.
+
+**Ships with an honest 2-file hole** (`[FU-TSCONFIG-TEST-2FILE-HOLE]`): `geminiThinkingConfig.test.ts` and `stepSolutionCacheQualityGate.test.ts` are `exclude`d with a loud in-file comment, because the fix lives *inside those test files* — outside the lane's allowlist. Owner accepted the gap rather than force it closed.
+
+> **★ TRAP WORTH REMEMBERING: a glob inside a `/* */` tsconfig comment silently destroys the config.** The `*/` in a path glob **closes the comment early**; `tsc` then parsed garbage, produced an *empty* `compilerOptions`, and emitted a **2.3 MB** error dump that reads as a catastrophic regression. The final file uses `//` line comments only. Detect in seconds with `tsc -p <cfg> --showConfig`.
+
+### Section 2 · L2 — 26 bank rows recovered from source, 1 corrupt duplicate retired (`[FU-BANK-GARBLED-ANSWER-CLASS]` ✅ for the recovered subset)
+
+The QUESTION-side twin of #511. **Editing a question is the fabrication line**, so this lane was run report-first: it produced a page-cited evidence table with **zero files changed** and held for owner NCERT review before authoring anything.
+
+> **★★ THE ROOT CAUSE IS NOT OCR — AND THAT CHANGED THE RECOVERY METHOD.** Every affected `answer` is a verbatim dump of the official CBSE **marking scheme**. Marking schemes render fractions as **stacked glyphs** (numerator / drawn rule / denominator), so a flat extractor stops at the line break and truncates each field at the `=` before a fraction. Proof (2026 MS 30/5/1 p.9):
+> ```
+> => Number of yellow balls = 25 x 2     <- extractor kept this
+> 5 = 10                                 <- ...and dropped this
+> ```
+> Recovery therefore required a **coordinate-aware** pymupdf harness rebuilding fractions from `page.get_drawings()` (numerator = above the bar) and discarding the right-hand mark-allocation column. **This was load-bearing:** in MS 30/4/1 2022-23 Q24 the flat reading order emits `4` before `3`, but the bboxes (`3` at y=122.4, `4` at y=139.4) prove the value is **3/4**. A naive line-join would have shipped **4/3** — a wrong answer, delivered as a fix.
+
+> **★★ THE BRIEF'S SOURCE POINTER WAS WRONG.** `Desktop/diff/cbse-papers/PYQ/X question papers/` holds **question papers, not marking schemes**, and its 2025/26 maths PDFs are **image-only** (195–450 chars total). The real sources are `cbse-papers/gdrive/PYQs/MS/final MS/<year>/MS/`. A lane that trusted the briefed path would have found nothing extractable and concluded the rows were unrecoverable.
+
+**Scope is far larger than the briefed "~15".** The brief class is 24 rows; bank-wide there are **89 rows** carrying Private-Use-Area / U+FFFD glyphs and **82** with dangling-operator `answer` fields across **141 files**. → `[FU-BANK-GARBLED-EXPANDED-SCOPE]` (the remaining ~61, deliberately untouched here).
+
+**★★ `check:mojibake` does NOT catch PUA codepoints** — the existing gate is blind to this whole damage class. → `[FU-MOJIBAKE-GATE-MISSES-PUA]`.
+
+**THREE questions were UNSOLVABLE AS PRINTED and are now solvable** — the highest-value fix in the set, since students literally could not answer them:
+- `PYQ-M-STAT-008` — 8 classes but only 7 frequencies; the 70–80 frequency `8` restored.
+- `PYQ-M-2024-STAT-003` — 7 classes but 6 frequencies; the missing `4` restored (and `f = 6`, previously *inferred* by #511, is now **source-confirmed**).
+- `PYQ-M-2026-PROB-002` — the stem's "4 5 times" is **5/4** by glyph bbox; **only 5/4 yields the scheme's `m = 12`**. Found during application, not in the original table.
+
+**Also corrected:** `PYQ-M-2024-STAT-004`'s stored solution **answered the wrong question** (with the stem unreadable, #511 computed a *mode*; the now-readable sub-parts ask for the modal-class lower limit, the median class and the empirical relationship), and `QE-003`/`QE-004`'s MCQ **options** were garbled too — every distractor had lost its minus sign and trailing `= 0`.
+
+**3 rows WITHHELD, not fabricated** — `PYQ-M-2026-CG-002` (unsound, retired instead), `PYQ-S-ELEC-004` (science, not investigated this pass — the lane declined to report an unverified recovery), and **`SCQ-S-ELEC-036`, for which no PYQ source exists**: it cannot be fixed without inventing I-V values, so it stays **permanently withheld** absent an owner-supplied source. **A withheld row is honest; a guessed one is fabrication.**
+
+**`PYQ-M-2026-CG-002` RETIRED, not re-keyed.** Its stem welded the Latin remnants of 30/5/1 Q35 (a circle/tangent problem) to Q33(b) of the same paper (a parallelogram-midpoint proof). **Q35 is already served cleanly by `PYQ-M-2026-CIRC-006`** with a correct stem, topicKey and 5-step solution — so re-keying would only have minted a near-duplicate. No tombstone convention exists in this bank (checked: no RETIRED marker anywhere in `questionBanks/`; the root matrix's `deletion` suite asserts banned *syllabus topics* are absent, not that ids resolve), so retirement is row deletion with an in-file comment pointing at CIRC-006.
+
+**Syllabus guard re-read at trunk** and checked against the exact `bannedSubtopics` strings (never from memory): **CLEAN** — SAV rows are cylinder+cone / cylinder+hemisphere composites (not frustum/conversion), statistics rows are mean/median/mode (not ogive), and CG-002 was tangent-**length** computation, not tangent **construction**.
+
+**Owner ruling: the 26 recovered rows enter the student-QA queue as the final content gate on question quality.**
+
+### Section 3 · L3 — "Refresh set" handed back the identical questions (`[FU-PRACTICE-CONTROLS-REFRESH-STALE]` ✅)
+
+`PracticeControls.tsx:334`'s button called a bare `regenerateQuestions()` — the exact staleness #509 fixed on the scorecard CTA. `rotationOffset` is seeded from `sessionRotationOffset(topic, filterSignature, sessionStartedAt) + freshSetNonce`, and tapping the button **moved none of them** (`sessionStartedAt` is mount-once, the committed filters didn't change, and the bare regenerate never touches the nonce). Every *other* caller (`applyPreset`, `onBuildSet`) commits filters first, which moves `filterSignature` — **"Refresh set" was the only trigger that moved nothing.** #509's finding that the seen-set loader has **no `regenerationKey` dependency** was re-verified as still true at current code.
+
+Traced live rather than reasoned:
+```
+[TRACE · refresh scarcity] pool=5 · set #1 = [1,2,3,4,0] · set #2 = [1,2,3,4,0]   <- byte-identical
+[TRACE · normal build]     seed #1 = 1693342331 · seed #2 = 1693342331 · seen @ fetch = 0
+                           set #1 = [6,7,8,9,10] · set #2 = [6,7,8,9,10]          <- normal path UNCHANGED
+```
+
+**Owner forbade blind-routing through `buildFreshSet`; the lane investigated and then chose it anyway — with evidence.** The button sits in the built-set toolbar beside "Edit filters", which already owns *"different questions because I changed my request"*, leaving only *"same filters, questions I have not just been staring at"*. **A lighter nonce-only re-shuffle was MEASURED and rejected:** `selectInRangeFromPool` rotates the unseen partition LEFT by the offset, so `+1` on an all-unseen 25-pool slides the window by exactly one — **4 of 5 questions come straight back**, which still reads as a broken button and would not have closed the FU.
+
+**`Alt+R`, the keyboard twin, had the same defect** and was fixed in the same lane — its listener effect is `[]`-deps so it cannot close over the current render; it goes through a per-render ref. **`PracticeControls.tsx` is UNTOUCHED** — it is a pure presenter and the defect was entirely in the handler passed to it.
+
+**Normal build path byte-identical** (only two call-site lines changed; `freshSetNonce` stays 0 on those paths), pinned observably by a NO-REGRESSION test. **The suite is mutation-proven in BOTH directions:** reverting the fix turns the defect + scarcity cases red; applying the fix *globally* (to `onBuildSet` too) turns no-regression red. **An earlier no-regression assertion (`seen.size === 0`) was found INSENSITIVE by mutation** — `isBuilt` goes false on "Edit filters" so nothing is displayed to sweep — and was replaced with a set-identity assertion that does go red.
+
+### ★★ TWO BLOCKERS THAT ONLY APPEAR AT ASSEMBLY — both are process lessons
+
+**BLOCKER 1 — `scope:guard` FAILED on the assembled tree.** `[unclassified] tsconfig.test.json`. `repo_boundary_policy.json` enumerates tsconfigs **by exact name** in the `product` lane, so a *new* tsconfig matches no rule → `classifyFile` returns `"unknown"` → hard-boundary FAIL. **No subagent could have caught this** — the guard classifies the whole working tree, so it only becomes meaningful once the lanes are assembled — **and it is a LOCAL-only gate, not in CI**, so this would have merged with the local bar silently red. Fixed by adding the file to the product lane (owner-authorised scope expansion, outside all three allowlists).
+
+**BLOCKER 2 — the commit-scoped gates had not truly run.** The `lazytopper` ops matrix contains guards that diff `base...HEAD`. The lanes ran them **pre-commit, on zero commits** — trunk vs trunk, a truthful-but-useless green. **The same trap as #488 and #496.** Re-run after committing, the forbidden zero-diff checks finally compared against `origin/base` for real (`predictionDataService`, `practiceSetGenerator`, `quickPracticeSessionService`, `tutorRoundTrip`, `sessionRecords`, **`App.tsx`** — all zero-diff).
+
+> **★★ AND THE MIRROR FIRED IN THE SAME WAVE.** Post-commit, `scope:guard` reports `SCOPE_GUARD_OK (mode=mixed, no changes)` — truthful and useless, because it reads the **working tree**. **Its meaningful verdict is the PRE-commit run; the matrices' meaningful verdict is the POST-commit run.** Both halves of that trap are now on record together: *ask what range a gate inspects before you trust its green.*
+
+> **★ A `git add` that warns can silently kill your commit.** Root `.gitignore:49` ignores `lazytopper/docs/project_memory/`, so staging `repo_boundary_policy.json` emitted an ignore warning and **exited non-zero**, which short-circuited the `&&`-chained commit. The file **is** tracked — commit `c7d742f` ("restore repo_boundary_policy.json … accidentally untracked in `2081003`") exists precisely because untracking it once **disarmed scope:guard**. Check `git log --oneline -1` after a chained commit, not just the add.
+
+> **★ MUTATION-TEST THE CHECKER, NOT JUST THE CODE.** L2's PUA verifier was **silently vacuous on v1**: its codepoint range collapsed to a literal `-` on write (the known Write/Edit escape-decoding hazard) and its truncation regex matched every `id: "`, so it flagged all 26 rows while asserting nothing. Rebuilt with a **self-test that injects a known U+F0DE and a dangling operator and requires both to be caught** — then re-run: zero PUA, zero U+FFFD, zero truncated fields.
+
+### Gates (post-commit + CI)
+
+| Gate | Result |
+|---|---|
+| root `scripts` `test:matrix:all` | PASS — 190 tests / **28 suites** / 0 fail (verified by **suite identity**, not count — CLAUDE.md §6 still says "5 suites") |
+| `lazytopper` `test:matrix:all` | PASS — forbidden zero-diff really compared vs `origin/base`; QP overlay 41/41 |
+| `tsc -p tsconfig.app.json --noEmit` · `tsc -p tsconfig.test.json --noEmit` | PASS · PASS |
+| `check:mojibake` | PASS · residual PUA in touched rows: **zero** |
+| vitest (local) | PASS — refreshSet + freshSet + scorecardFeed, 3 files / 7 tests |
+| **CI `quality-gate`** | **PASS 4m2s** — `vite build` ✓ built in 9.89s (linux-only) · new typecheck step **ran clean** · vitest **61 files / 792 tests** |
+| **CI `lane-overlap`** | **PASS** — zero collision with the tutor PR-2 lane |
+| `scope:guard --mode mixed` | PASS **pre-commit**; vacuous post-commit (see Blocker 2) |
+
+> **★ THE SUITE COUNTS ARE THE PROOF THE NEW TEST RAN IN CI.** vitest went **60 files / 789 tests → 61 / 792**: exactly **+1 file and +3 tests**, matching L3's new suite and its three cases (defect · scarcity · no-regression). *Read names and counts — a green tick is not evidence a suite executed.*
+
+### Known residue — deliberately not touched
+`PYQ-M-2026-CG-002` remains listed in `CLASS_B_STEPPED_SOLUTION_IDS` (`canonicalQuestionBank.ts:1925`) — a **globally forbidden file** (CLAUDE.md §4). Verified **inert**: that array only spreads into `AI_GENERATED_SOLUTION_IDS`, a `Set` used for membership lookup (rank demotion); nothing in either matrix asserts its members exist, and all gates pass with the stale id present. **Owner: right call not to touch a forbidden file for an inert id.** → `[FU-CANONICAL-STALE-RETIRED-ID]`.
+
+### Live-verify status
+**No live owner execution is owed for L1** (config/CI only, zero product `src/`) **or L2** (bank content — the student-QA queue is the content gate). **L3 touches a live round-trip** (`PracticePage` question selection): CI + the mutation-proven regression suite cover it, but a real owner tap of "Refresh set" (and `Alt+R`) is the honest confirmation. Not blocking.
+
+---
+
+## #512 merged — ★★ THE OLD "TEACH ME" TUTOR DRAWER IS RETIRED FROM THE LIVE PRODUCT + ONBOARDING→HOME — trunk `e19b2d1`
 
 **PR-1 of 2 of the tutor/onboarding retirement. BEHAVIOR ONLY — 7 files, +102/−110, ZERO file deletions.** Owner byte-reviewed the pushed diff and **LIVE-VERIFIED all five checks**, including the referral credits-once path. Docs-only handoff; zero product files here.
 
