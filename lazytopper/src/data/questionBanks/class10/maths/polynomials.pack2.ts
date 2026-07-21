@@ -543,9 +543,10 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "Zeroes: -2, -3; Area positive for x > 0",
     "solutionSteps": [
-      "(i) A(x) = x² + 5x + 6 = (x+2)(x+3), zeroes are -2 and -3",
-      "(ii) Zeroes represent values where area = 0, not meaningful for physical width",
-      "(iii) Area > 0 when x > -2 (since x must be positive for width, x > 0)"
+      "[1 mark] (i) Factorise: A(x) = x² + 5x + 6 = (x + 2)(x + 3); setting each factor to zero gives the zeroes x = -2 and x = -3.",
+      "[1 mark] (ii) The zeroes are the values of x at which the area A(x) becomes 0; since a width cannot be negative, these negative zeroes have no physical meaning as an actual width.",
+      "[1 mark] (iii) A(x) = (x + 2)(x + 3) > 0 when both factors have the same sign, i.e. when x > -2 (or algebraically also x < -3).",
+      "[1 mark] (iii) But x represents a physical width, so x must be positive; hence the area is positive for all x > 0 square metres."
     ],
     "finalAnswer": "Zeroes: -2, -3; Area positive for x > 0",
     "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
@@ -568,9 +569,10 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "Zeroes: 0, 4; Sum = 4; Product = 0",
     "solutionSteps": [
-      "(i) h(t) = -16t(t - 4) = 0, so t = 0 or t = 4",
-      "(ii) t = 0: initial time, t = 4: ball returns to ground",
-      "(iii) For -16t² + 64t: Sum = -64/-16 = 4, Product = 0/-16 = 0"
+      "[1 mark] (i) Take out the common factor: h(t) = -16t² + 64t = -16t(t - 4); setting h(t) = 0 gives the zeroes t = 0 and t = 4 seconds.",
+      "[1 mark] (ii) Physically, t = 0 s is the instant the ball is hit (height = 0 at ground) and t = 4 s is when the ball returns to the ground.",
+      "[1 mark] (iii) For -16t² + 64t (a = -16, b = 64, c = 0), sum of zeroes = -b/a = -64/(-16) = 4.",
+      "[1 mark] (iii) Product of zeroes = c/a = 0/(-16) = 0, which agrees with the zeroes 0 and 4."
     ],
     "finalAnswer": "Zeroes: 0, 4; Sum = 4; Product = 0",
     "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",

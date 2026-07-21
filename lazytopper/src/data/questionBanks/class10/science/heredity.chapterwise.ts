@@ -280,30 +280,60 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-HERED-039", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How do Mendel's experiment show that traits are inherited independently?",
     answer: "[All India 2016] Mendel carried out dihybrid crosses by crossing two pea plants differing in contrasting traits of two characters. For example, he crossed a pea plant having yellow colour and round seed characters with another pea plant bearing green colour and wrinkled seed char",
-    solutionSteps: ["[All India 2016] Mendel carried out dihybrid crosses by crossing two pea plants differing in contrasting traits of two characters. For example, he crossed a pea plant having yellow colour and round seed characters with another pea plant bearing green colour and wrinkled seed characters. In the F2 generation, he obtained pea plants with two parental and two recombinant phenotypes as yellow round and green wrinkled (parental) and yellow wrinkled and green round (recombinant). This indicated that traits separated from their original parental combinations and got inherited independently."],
+    solutionSteps: [
+      "[1 mark] Mendel performed a dihybrid cross — crossing two pea plants differing in two pairs of contrasting characters at once, e.g. round-yellow seeds (RRYY) with wrinkled-green seeds (rryy).",
+      "[1 mark] F₁ generation: All the F₁ plants had round and yellow seeds (RrYy), showing that round shape and yellow colour are the dominant traits.",
+      "[1 mark] F₂ generation: On self-pollinating the F₁ plants, the F₂ generation showed four phenotypes — round-yellow, round-green, wrinkled-yellow and wrinkled-green — in the ratio 9 : 3 : 3 : 1.",
+      "[1 mark] New combinations: Besides the two parental types (round-yellow and wrinkled-green), two new recombinant types appeared — round-green and wrinkled-yellow — so seed shape and seed colour did not stay linked together.",
+      "[1 mark] Conclusion: Since the traits reassorted into new combinations independently of one another, each pair of traits is inherited independently — this is Mendel's Law of Independent Assortment."
+    ],
     ncertRef: "cbjesccq09 Q109", isCompetencyBased: true },
   // cbjesccq09 Q113 (Section D, 5mk)
   { id: "SCQ-S-HERED-040", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. What are monohybrid and dihybrid cross? b. How Mendel proved that tallness is the dominant trait and dwarfness is recessive in a pea plant?. Explain with the help of a monohybrid cross.",
     answer: "a. A monohybrid cross is the cross between two homozygous parents, which differ in only one contrasting trait in F2 generation ratio 3:1. A dihybrid cross is a cross between two heterozygous parents which differ in two contrasting traits. This type of cross yields a phenotypic ra",
-    solutionSteps: ["a. A monohybrid cross is the cross between two homozygous parents, which differ in only one contrasting trait in F2 generation ratio 3:1. A dihybrid cross is a cross between two heterozygous parents which differ in two contrasting traits. This type of cross yields a phenotypic ratio of 9 : 3 : 3 : 1 in F2 generation. b. Mendel took pea plants with different characteristics - a tall plant and a short plant, produced progeny from them and calculated the percentage of tall or short progeny. It was found that all plants were tall. This proves that tallness is the dominant trait while dwarfness is "],
+    solutionSteps: [
+      "[1 mark] (a) Monohybrid cross: a cross between two parents differing in a single pair of contrasting characters (one trait); it gives an F₂ phenotypic ratio of 3 : 1.",
+      "[1 mark] (a) Dihybrid cross: a cross between two parents differing in two pairs of contrasting characters (two traits); it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1.",
+      "[1 mark] (b) Cross: Mendel crossed a pure tall pea plant (TT) with a pure dwarf pea plant (tt).",
+      "[1 mark] (b) F₁ result: All the F₁ plants were tall (Tt); the dwarf character did not appear, showing that tallness is dominant and dwarfness is recessive.",
+      "[1 mark] (b) F₂ result: On self-pollinating the F₁ (Tt × Tt), the F₂ generation showed tall and dwarf plants in the ratio 3 : 1 — the reappearance of dwarf plants proves that dwarfness is recessive and was only masked in the F₁."
+    ],
     ncertRef: "cbjesccq09 Q113", isCompetencyBased: true },
   // cbjesccq09 Q119 (Section D, 5mk)
   { id: "SCQ-S-HERED-041", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. What is geographical isolation? b. Illustrate formation of a species with the help of an example where individuals are very different from each other and one capable of reproduction among themselves.",
     answer: "a. Geographical isolation is the isolation of population by physical barriers such as stretches of water or mountain ranges. b. There is a population of red beetles living in a mountain area covered with green bushes. Various sub-population in the large-population exists in the n",
-    solutionSteps: ["a. Geographical isolation is the isolation of population by physical barriers such as stretches of water or mountain ranges. b. There is a population of red beetles living in a mountain area covered with green bushes. Various sub-population in the large-population exists in the neighbourhood. Individuals of a subpopulation reproduce sexually among themselves and numerous variations accumulate in these sub-populations of red beetles. There may be some reproduction among these sub-populations. If a beetle from one sub- population strays into other's area and some individuals from one subpopulati"],
+    solutionSteps: [
+      "[1 mark] (a) Geographical isolation is the separation of a population into groups by a physical barrier such as a river, sea, mountain range or valley, which prevents interbreeding between the groups.",
+      "[1 mark] Example setup: Consider a large population of red beetles living on green bushes, existing as several sub-populations that reproduce sexually among themselves.",
+      "[1 mark] Variation and isolation: Over generations new variations arise, and genes are exchanged only within a group; geographical isolation of a sub-population stops gene flow with the others.",
+      "[1 mark] Accumulation of differences: Independent variations, natural selection and genetic drift accumulate separately in the isolated sub-population, making its members increasingly different from the original population.",
+      "[1 mark] Speciation: Eventually the isolated individuals become so different that they can no longer reproduce with the original population — a new species is formed."
+    ],
     ncertRef: "cbjesccq09 Q119", isCompetencyBased: true },
   // cbjesccq09 Q120 (Section D, 5mk)
   { id: "SCQ-S-HERED-042", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Identify male and female in the figures given below. Also fill in the blanks 3 to 8 and then clarify about the misconception that mother and not father is responsible for bearing daughters and not sons.",
     answer: "[Sample Paper 2010]",
-    solutionSteps: ["[Sample Paper 2010]"],
+    solutionSteps: [
+      "[1 mark] Sex chromosomes: In humans the male has one X and one Y chromosome (XY) and the female has two X chromosomes (XX) — so in the figure the XY individual is the male and the XX individual is the female.",
+      "[1 mark] Gametes of the mother: The mother (XX) produces eggs (ova) that all carry only the X chromosome.",
+      "[1 mark] Gametes of the father: The father (XY) produces two kinds of sperm — half carrying the X chromosome and half carrying the Y chromosome.",
+      "[1 mark] Determination of the child's sex: If an X-bearing sperm fertilises the egg the child is a girl (XX); if a Y-bearing sperm fertilises the egg the child is a boy (XY).",
+      "[1 mark] Clearing the misconception: Since the mother contributes only X, the sex of the child is decided by the type of sperm (X or Y) from the father; therefore the father, not the mother, determines whether a daughter or a son is born."
+    ],
     ncertRef: "cbjesccq09 Q120", isCompetencyBased: false, strategyHint: "REQUIRES-FIGURE: question references in the figure" },
   // cbjesccq09 Q122 (Section D, 5mk)
   { id: "SCQ-S-HERED-043", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Given below is the experiment carried out by Mendel to study inheritance of two traits in garden-pea. a. Fill in the boxes with appropriate answer. b. Why did Mendel carry out an experiment with two traits? c. What were his findings with respect to inheritance of traits in Fj and F2 generations? d. What do you conclude from this experiment?",
     answer: "[Sample Paper 2010] a. Gametes - Ry, rY F1 - RrYy Ratio - 9 : 3 : 3 : 1 b. To study the independent inheritance of two traits in subsequent generation. c. F1 progeny exhibited both the dominant traits. F2 exhibited parental traits along with new mixtures/recombinants.",
-    solutionSteps: ["[Sample Paper 2010] a. Gametes - Ry, rY F1 - RrYy Ratio - 9 : 3 : 3 : 1 b. To study the independent inheritance of two traits in subsequent generation. c. F1 progeny exhibited both the dominant traits. F2 exhibited parental traits along with new mixtures/recombinants."],
+    solutionSteps: [
+      "[1 mark] (a) Gametes and F₁: The gametes formed are RY, Ry, rY and ry; the F₁ progeny is RrYy, and the F₂ phenotypic ratio is 9 : 3 : 3 : 1.",
+      "[1 mark] (b) Purpose: Mendel used two traits together (a dihybrid cross) to find out whether two pairs of characters are inherited independently of each other or stay linked.",
+      "[1 mark] (c) F₁ finding: All the F₁ plants showed both the dominant traits (e.g. round and yellow seeds), the recessive traits being masked.",
+      "[1 mark] (c) F₂ finding: The F₂ generation showed the two parental combinations along with two new recombinant combinations, in the ratio 9 : 3 : 3 : 1.",
+      "[1 mark] (d) Conclusion: The appearance of new recombinant combinations shows that the two pairs of traits are inherited independently — this is Mendel's Law of Independent Assortment."
+    ],
     ncertRef: "cbjesccq09 Q122", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references given below" },
 ];

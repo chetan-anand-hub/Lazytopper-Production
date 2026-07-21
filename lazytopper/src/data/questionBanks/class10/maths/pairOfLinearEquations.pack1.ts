@@ -139,10 +139,11 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "14+3y=53 → y=13 [1]",
     ], finalAnswer: "x = 7, y = 13" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
   { id: "PLE-M08", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying", questionText: "Places A and B are 100 km apart on a highway. One car starts from A and another from B at the same time. If they travel in the same direction, they meet in 5 hours. If they travel towards each other, they meet in 1 hour. Find their speeds.", solutionSteps: [
-      "Let speeds be x, y (x > y) [2]",
-      "Same direction: (x−y)×5 = 100 → x−y = 20 [1]",
-      "Opposite: (x+y)×1 = 100 → x+y = 100 [1]",
-      "x = 60, y = 40 [1]",
+      "[1 mark] Let the speed of the car from A be x km/h and the speed of the car from B be y km/h, with x > y.",
+      "[1 mark] Same direction — relative speed is (x − y); the 100 km gap is covered in 5 h, so (x − y) × 5 = 100 ⇒ x − y = 20.",
+      "[1 mark] Towards each other — relative speed is (x + y); they meet in 1 h, so (x + y) × 1 = 100 ⇒ x + y = 100.",
+      "[1 mark] Adding the two equations: 2x = 120 ⇒ x = 60.",
+      "[1 mark] Substituting back: y = 100 − 60 = 40; so the speeds are 60 km/h and 40 km/h.",
     ], finalAnswer: "60 km/h and 40 km/h" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
   { id: "PLE-M09", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: ax + by = a − b and bx − ay = a + b.", solutionSteps: [
       "Multiply eq 1 by a, eq 2 by b: a²x + aby = a² − ab, b²x − aby = ab + b² [1]",

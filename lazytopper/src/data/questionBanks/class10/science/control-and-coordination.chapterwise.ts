@@ -280,30 +280,60 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CTRL-039", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Draw a labelled diagram of human brain. Discuss functions of cerebrum, cerebellum and medulla. or Draw and describe the role of various parts of human brain.",
     answer: "Human brain has three major parts: a. Fore-Brain contains mainly cerebrum. b. Mid-brain. c. Hind-brain. Functions a. Cerebellum which controls posture, balance of body and accurate voluntary movements. b. Pons regulates respiration c. Medulla oblongata which controls involuntary ",
-    solutionSteps: ["Human brain has three major parts: a. Fore-Brain contains mainly cerebrum. b. Mid-brain. c. Hind-brain. Functions a. Cerebellum which controls posture, balance of body and accurate voluntary movements. b. Pons regulates respiration c. Medulla oblongata which controls involuntary actions like blood pressure, salivation, vomiting etc."],
+    solutionSteps: [
+      "[1 mark] Diagram: labelled diagram of the human brain showing the cerebrum, cerebellum, medulla oblongata, pons and hypothalamus.",
+      "[1 mark] The brain has three major regions — the fore-brain (mainly the cerebrum), the mid-brain, and the hind-brain (cerebellum, pons and medulla).",
+      "[1 mark] Cerebrum: the main thinking part of the brain; it controls voluntary actions, stores memory and is the seat of reasoning, intelligence and sensations (sight, hearing, smell, etc.).",
+      "[1 mark] Cerebellum: controls posture, balance of the body and the precision and coordination of voluntary movements (e.g. walking in a straight line, picking up a pencil).",
+      "[1 mark] Medulla oblongata: controls involuntary actions such as heartbeat, blood pressure, breathing, salivation and vomiting."
+    ],
     ncertRef: "cbjesccq07 Q57", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
   // cbjesccq07 Q58 (Section D, 5mk)
   { id: "SCQ-S-CTRL-040", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Give the function(s) of the following plant hormones: a. Auxins b. Gibberellins c. Cytokinins d. Abscisic acid e. Ethylene",
     answer: "a. Auxins promote cell elongation, root formation, cell division, etc. It also promote fruit growth. b. Gibberellins stimulate stem elongation, seed germination and flowering. c. Cytokinins help in breaking the dormancy of seeds and buds. They delay ageing in leaves. They also pr",
-    solutionSteps: ["a. Auxins promote cell elongation, root formation, cell division, etc. It also promote fruit growth. b. Gibberellins stimulate stem elongation, seed germination and flowering. c. Cytokinins help in breaking the dormancy of seeds and buds. They delay ageing in leaves. They also promote the opening of stomata. d. Abscisic acid promotes falling of leaves and fruits. e. Ethylene promotes ripening of fruits."],
+    solutionSteps: [
+      "[1 mark] a. Auxins: synthesized at the shoot tip, they promote cell elongation and growth towards light; they also help in root formation and cell division.",
+      "[1 mark] b. Gibberellins: stimulate stem/internode elongation, seed germination and flowering.",
+      "[1 mark] c. Cytokinins: promote cell division, help break the dormancy of seeds and buds, and delay the ageing of leaves.",
+      "[1 mark] d. Abscisic acid (a growth inhibitor): inhibits growth, causes wilting, closing of stomata and the falling (abscission) of leaves and fruits.",
+      "[1 mark] e. Ethylene: promotes the ripening of fruits."
+    ],
     ncertRef: "cbjesccq07 Q58", isCompetencyBased: false },
   // cbjesccq07 Q59 (Section D, 5mk)
   { id: "SCQ-S-CTRL-041", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "(a) Draw the structure of a neuron and label the following on it: Nucleus, Dendrite, Cell body and Axon. (b) Name the part of neuron (i) Where information is acquired. (ii) Through which information travels as an electrical impulse.",
     answer: "a. b. (i) Dendrite (ii) Axon.",
-    solutionSteps: ["a. b. (i) Dendrite (ii) Axon."],
+    solutionSteps: [
+      "[1 mark] Diagram: labelled structure of a neuron showing dendrites, cell body (cyton), nucleus, axon and nerve endings.",
+      "[1 mark] The dendrites are the branched fibres that receive stimuli/information from other neurons or receptors.",
+      "[1 mark] The cell body (cyton) contains the nucleus and cytoplasm, and the axon is the single long fibre that carries the impulse away from the cell body.",
+      "[1 mark] b(i) Information is acquired at the dendrite (dendritic tip).",
+      "[1 mark] b(ii) Information travels as an electrical impulse along the axon."
+    ],
     ncertRef: "cbjesccq07 Q59", isCompetencyBased: false },
   // cbjesccq07 Q60 (Section D, 5mk)
   { id: "SCQ-S-CTRL-042", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Describe an activity to illustrate the phenomenon of Chap 7 : Control and Coordination phototropism and explain why does this occur.",
     answer: "a. Take a plant and make such an arrangement that it receives the light coming from a window as shown in the figure and observe it for few days. b. Now, turn the flask so that the shoots are away from light and the roots towards light. Leave it undisturbed in this condition for a",
-    solutionSteps: ["a. Take a plant and make such an arrangement that it receives the light coming from a window as shown in the figure and observe it for few days. b. Now, turn the flask so that the shoots are away from light and the roots towards light. Leave it undisturbed in this condition for a few days. c. Again, observe carefully to find the difference in the movement. d. When growing plants detect light, auxin, synthesized at the shoot tip, helps the cells to grow longer. Auxin always diffuses towards the shady side of the shoot. This concentrations of auxin stimulates the cells to grow longer on the side"],
+    solutionSteps: [
+      "[1 mark] Setup: place a potted plant near a window so that it receives light from one side only, and observe it for a few days.",
+      "[1 mark] Observation: the shoot bends and grows towards the direction of light (positive phototropism), while the root grows away from light.",
+      "[1 mark] Now turn the pot so that the shoot points away from the light; leave it undisturbed for a few more days.",
+      "[1 mark] Observation: the shoot again re-orients and bends to grow towards the light, confirming that the response is caused by the direction of light (phototropism).",
+      "[1 mark] Reason: auxin, synthesized at the shoot tip, diffuses towards the shaded side of the shoot; the higher auxin concentration there makes those cells elongate more, so the shoot bends towards the light."
+    ],
     ncertRef: "cbjesccq07 Q60", isCompetencyBased: true },
   // cbjesccq07 Q61 (Section D, 5mk)
   { id: "SCQ-S-CTRL-043", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) What is phototropism and geotropism? With labelled diagrams describe an activity to show that light and gravity change the direction that plant part grows in. (b) Mention the role of each of the following plant hormones: (i) Auxin (ii) Abscisic acid.",
     answer: "a. Phototropism It is tropic movements in the direction of light or away from it e.g. shoots bends towards light while roots grow away from it. Hence shoot is positively phototropic and root is negatively phototropic. Geotropism: Growth of roots downward towards the earth hence p",
-    solutionSteps: ["a. Phototropism It is tropic movements in the direction of light or away from it e.g. shoots bends towards light while roots grow away from it. Hence shoot is positively phototropic and root is negatively phototropic. Geotropism: Growth of roots downward towards the earth hence positively geotropic whereas stem grows upward, away from earth, hence it is negatively geographic. b. Auxins: Synthesized at the shoot tip, helps the cells to grow longer. Abscisic acid: Inhibits growth, causes wilting and falling of leaves. WWW.CBSE.ONLINE Disclaimer : is not affiliated to Central Board of Secondary E"],
+    solutionSteps: [
+      "[1 mark] a. Phototropism: the tropic (directional) growth movement of a plant part in response to light — shoots bend towards light (positively phototropic) while roots grow away from it (negatively phototropic).",
+      "[1 mark] a. Geotropism: the growth movement of a plant part in response to gravity — roots grow downward towards the earth (positively geotropic) while the stem grows upward away from the earth (negatively geotropic).",
+      "[1 mark] a. Activity with labelled diagram: keep a potted plant with light coming from one side (and/or lay it horizontally); after a few days the shoot is seen bending up and towards the light while the root bends down, showing that light and gravity change the direction of growth.",
+      "[1 mark] b(i) Auxin: synthesized at the shoot tip, it promotes cell elongation and helps the shoot grow and bend towards light.",
+      "[1 mark] b(ii) Abscisic acid: a growth inhibitor that inhibits growth and causes wilting, closing of stomata and the falling of leaves."
+    ],
     ncertRef: "cbjesccq07 Q61", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references diagram" },
 ];

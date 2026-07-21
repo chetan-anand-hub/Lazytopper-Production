@@ -21,8 +21,8 @@ export const AP_SP: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] (a) The times form the sequence 51, 49, 47, 45, … The difference between consecutive terms is constant (a₂ − a₁ = a₃ − a₂ = −2 = d), so it is an AP.",
       "[1 mark] (b) Given aₙ = 2n + 3: a₁ = 2(1) + 3 = 5 and a₂ = 2(2) + 3 = 7. Common difference d = a₂ − a₁ = 7 − 5 = 2.",
-      "[2 marks] (c) Using aₙ = a + (n − 1)d with a = 51, d = −2, aₙ = 31: 31 = 51 + (n − 1)(−2) → −20 = −2n + 2 → −22 = −2n → n = 11. He needs to practice for 11 days.",
-      "[2 marks] (OR) Given n = 9, aₙ = 31, a = 51: 31 = 51 + (9 − 1)d → −20 = 8d → d = −2.5. He should reduce 2.5 s each day."
+      "[1 mark] (c) Using aₙ = a + (n − 1)d with a = 51, d = −2 and aₙ = 31: 31 = 51 + (n − 1)(−2).",
+      "[1 mark] (c) Solve: −20 = −2n + 2 → −22 = −2n → n = 11, so he needs to practice for 11 days. [OR: if he wants the goal in 9 days, 31 = 51 + (9 − 1)d → −20 = 8d → d = −2.5, so he should reduce 2.5 s each day.]"
     ],
     "finalAnswer": "(a) Yes, it is an AP; (b) d = 2; (c) 11 days [OR reduce 2.5 s each day]",
     "isCompetencyBased": true

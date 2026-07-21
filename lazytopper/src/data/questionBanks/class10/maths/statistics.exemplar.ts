@@ -142,14 +142,14 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section D — Long Answer (5 marks) =====
   { id: "STAT-N-EXEM-13-LA-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Daily wages (₹) of 110 workers are tabulated: 100-120 → 10, 120-140 → 15, 140-160 → 20, 160-180 → 22, 180-200 → 18, 200-220 → 12, 220-240 → 13. Compute the mean daily wage.",
-    solutionSteps: ["Class marks: 110, 130, 150, 170, 190, 210, 230. Σfᵢ = 110.", "Σfᵢxᵢ = 10×110 + 15×130 + 20×150 + 22×170 + 18×190 + 12×210 + 13×230 = 1100 + 1950 + 3000 + 3740 + 3420 + 2520 + 2990 = 18720.", "Mean = 18720/110 = ₹170.20."],
-    finalAnswer: "Mean daily wage = ₹170.20.",
+    solutionSteps: ["[1 mark] Take the class mark (midpoint) of each class as xᵢ: 110, 130, 150, 170, 190, 210, 230; the frequencies fᵢ are 10, 15, 20, 22, 18, 12, 13 with Σfᵢ = 110.", "[1 mark] Direct-method formula: mean x̄ = Σfᵢxᵢ / Σfᵢ.", "[1 mark] Compute each fᵢxᵢ: 10×110 = 1100, 15×130 = 1950, 20×150 = 3000, 22×170 = 3740, 18×190 = 3420, 12×210 = 2520, 13×230 = 2990.", "[1 mark] Add them: Σfᵢxᵢ = 1100 + 1950 + 3000 + 3740 + 3420 + 2520 + 2990 = 18720.", "[1 mark] Mean = 18720/110 ≈ ₹170.18 (mean daily wage)."],
+    finalAnswer: "Mean daily wage ≈ ₹170.18.",
     ncertRef: "Exemplar Sample Question 2 (page 163)", isCompetencyBased: true,
     strategyHint: "Direct method since class marks are not too large." },
 
   { id: "STAT-N-EXEM-13-LA-002", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Determine the median percentage of marks from 100 students: 30-35 → 14, 35-40 → 16, 40-45 → 18, 45-50 → 23, 50-55 → 18, 55-60 → 8, 60-65 → 3.",
-    solutionSteps: ["n = 100; n/2 = 50. cf: 14, 30, 48, 71, 89, 97, 100.", "Median class: 45-50 (cf 71 first ≥ 50). l = 45, cf = 48, f = 23, h = 5.", "Median = 45 + ((50 − 48)/23) × 5 = 45 + (2 × 5)/23 = 45 + 10/23 ≈ 45 + 0.43 ≈ 45.4."],
+    solutionSteps: ["[1 mark] Here n = 100, so n/2 = 50.", "[1 mark] Cumulative frequencies (cf): 14, 30, 48, 71, 89, 97, 100.", "[1 mark] Median class is the first class whose cf ≥ 50, i.e. 45-50 (cf 71); so l = 45, cf (of preceding class) = 48, f = 23, h = 5.", "[1 mark] Median formula: Median = l + ((n/2 − cf)/f) × h = 45 + ((50 − 48)/23) × 5.", "[1 mark] = 45 + (2 × 5)/23 = 45 + 10/23 ≈ 45 + 0.43 = 45.4% (median percentage of marks)."],
     finalAnswer: "Median percentage ≈ 45.4%.",
     ncertRef: "Exemplar Sample Question 3 (page 164)", isCompetencyBased: true },
 

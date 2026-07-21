@@ -183,10 +183,11 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
       "(ii) They are excellent conductors of electricity and ductile (can be drawn into wires) [1]",
     ], finalAnswer: "(i) Lustre + non-reactive + malleable (ii) Good conductors + ductile" , isCompetencyBased: false },
   { id: "MNM-H01", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction/Metallurgy", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Describe the steps involved in the extraction of metals of medium reactivity from their sulphide ores. Use zinc as an example.", solutionSteps: [
-      "Step 1: Concentration of ore — froth flotation for sulphide ores [2]",
-      "Step 2: Roasting — 2ZnS + 3O₂ → 2ZnO + 2SO₂ (heating in air) [1]",
-      "Step 3: Reduction — ZnO + C → Zn + CO (carbon reduction) [1]",
-      "Step 4: Refining — electrolytic refining (pure Zn deposited at cathode) [1]",
+      "[1 mark] Concentration of the ore: the sulphide ore (zinc blende, ZnS) is concentrated by the froth flotation method.",
+      "[1 mark] Roasting: the concentrated sulphide ore is heated strongly in excess air to convert it into the oxide. Balanced equation: 2ZnS + 3O₂ → 2ZnO + 2SO₂.",
+      "[1 mark] Reduction: the zinc oxide is reduced to the metal by heating with carbon (coke). Balanced equation: ZnO + C → Zn + CO.",
+      "[1 mark] Refining: the impure zinc obtained is purified by electrolytic refining — pure zinc is deposited at the cathode.",
+      "[1 mark] Summary sequence for metals of medium reactivity (Zn, Fe, Pb …): concentration → roasting → reduction with carbon → electrolytic refining.",
     ], finalAnswer: "Concentration → Roasting → Carbon reduction → Electrolytic refining" , isCompetencyBased: true },
   { id: "MNM-H02", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Ionic Bonding", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Show the formation of MgCl₂ by the transfer of electrons. Why is MgCl₂ a solid with high melting point?", solutionSteps: [
       "Mg (2,8,2) loses 2 electrons → Mg²⁺ (2,8); Each Cl (2,8,7) gains 1 electron → Cl⁻ (2,8,8) [1]",
@@ -269,9 +270,10 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "MNM-D03", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Reactivity Series", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Describe the reactivity series of metals. Explain with reactions how reactivity affects: (i) reaction with oxygen, (ii) reaction with water, (iii) displacement of metals from salt solutions.", answer: "Reactivity series: K>Na>Mg>Al>Zn>Fe>Cu>Ag>Au; determines reactions with O2, water, and acid; more reactive displaces less reactive", solutionSteps: [
-      "Reactivity series (decreasing): K, Na, Ca, Mg, Al, Zn, Fe, Pb, H, Cu, Hg, Ag, Au [2]",
-      "(i) Reaction with oxygen: K, Na burn spontaneously; Mg burns brightly; Fe rusts; Cu forms CuO slowly; Au/Ag barely react [1]",
-      "(ii) Reaction with water: Na reacts violently (Na + H2O → NaOH + H2); Mg reacts with steam; Fe reacts with steam (3Fe + 4H2O → Fe3O4 + 4H2); Cu does not react [1]",
-      "(iii) Displacement from salts: more reactive displaces less reactive; Fe + CuSO4 → FeSO4 + Cu; Cu + 2AgNO3 → Cu(NO3)2 + 2Ag (Cu displaces Ag since Cu is above Ag in the reactivity series); Ag cannot displace Cu from CuSO4 [1]",
+      "[1 mark] Reactivity series (decreasing order): K > Na > Ca > Mg > Al > Zn > Fe > Pb > (H) > Cu > Hg > Ag > Au.",
+      "[1 mark] It arranges metals in decreasing order of their tendency to lose electrons (reactivity); the higher a metal in the series, the more reactive it is.",
+      "[1 mark] (i) Reaction with oxygen: K and Na burn vigorously; Mg burns brightly; Fe forms oxide slowly (rusts); Cu forms CuO only on strong heating; Au and Ag hardly react.",
+      "[1 mark] (ii) Reaction with water: 2Na + 2H₂O → 2NaOH + H₂ (violent); Mg reacts with hot water/steam; 3Fe + 4H₂O → Fe₃O₄ + 4H₂ (with steam); Cu does not react with water.",
+      "[1 mark] (iii) Displacement from salt solutions: a more reactive metal displaces a less reactive one — Fe + CuSO₄ → FeSO₄ + Cu; Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag; Ag cannot displace Cu from CuSO₄.",
     ], explanation: "Reactivity series: K>Na>Mg>Al>Zn>Fe>Cu>Ag>Au; determines reactions with O2, water, and acid; more reactive displaces less reactive — see solution steps for the complete derivation.", finalAnswer: "Reactivity series: K>Na>Mg>Al>Zn>Fe>Cu>Ag>Au; determines reactions with O2, water, and acid; more reactive displaces less reactive", isCompetencyBased: true }
 ];

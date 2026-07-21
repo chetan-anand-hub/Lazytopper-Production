@@ -68,7 +68,7 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRI-007", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem — Statement and Application", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "State and prove Basic proportionality theorem. In ΔABC, if DE ∥ BC, AD = x, DB = x − 2, AE = x + 2 and EC = x − 1, then using the above result, find the value of x.",
     answer: "Statement, proof and x = 4.",
-    solutionSteps: ["Statement: If a line is drawn parallel to one side of a triangle to intersect the other two sides in distinct points, the other two sides are divided in the same ratio.", "Proof: In ΔABC with line DE ∥ BC intersecting AB at D and AC at E. Join BE and CD. Areas: ar(ΔADE)/ar(ΔBDE) = AD/DB (same height from E); ar(ΔADE)/ar(ΔCDE) = AE/EC. But ar(ΔBDE) = ar(ΔCDE) (same base DE and between parallels DE and BC). Therefore AD/DB = AE/EC.", "Application: x/(x − 2) = (x + 2)/(x − 1). Cross-multiply: x(x − 1) = (x + 2)(x − 2) ⟹ x^2 − x = x^2 − 4 ⟹ x = 4."],
+    solutionSteps: ["[1 mark] Statement: If a line is drawn parallel to one side of a triangle to intersect the other two sides in distinct points, then the other two sides are divided in the same ratio.", "[1 mark] Given and construction: In ΔABC, DE ∥ BC meets AB at D and AC at E. Join BE and CD; draw EM ⊥ AB and DN ⊥ AC.", "[1 mark] Proof (areas): ar(ΔADE)/ar(ΔBDE) = AD/DB (triangles on bases AD and DB with the same height EM); similarly ar(ΔADE)/ar(ΔCDE) = AE/EC.", "[1 mark] Since ΔBDE and ΔCDE are on the same base DE and between the same parallels DE and BC, ar(ΔBDE) = ar(ΔCDE). Therefore AD/DB = AE/EC.", "[1 mark] Application: x/(x − 2) = (x + 2)/(x − 1) ⟹ x(x − 1) = (x + 2)(x − 2) ⟹ x² − x = x² − 4 ⟹ x = 4."],
     finalAnswer: "BPT stated and proved; x = 4.",
     ncertRef: "APQ PQ2 Q33", isCompetencyBased: true },
 
@@ -76,7 +76,7 @@ export const TRIANGLES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRI-008", subject: "Maths", topicKey: "triangles", subtopic: "Similarity — Right Triangle Area", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "In the figure, ΔABC is a right-angled triangle, such that: AC = 25 cm, PT ∥ AB and SR ∥ BC. Find the area of ΔPQR.",
     answer: "Area of ΔPQR = 32/3 cm^2.",
-    solutionSteps: ["From figure: RC = 50/5 = 10 cm; PC = 50/3 cm; hence PR = PC − RC = 50/3 − 10 = 20/3 cm.", "ΔPQR ~ ΔPTC by BPT (QR ∥ BC). PR/CR = PQ/QT ⟹ 20/(10·3) = PQ/8 ⟹ PQ = 16/3 cm.", "Using Pythagoras in ΔPQR: QR^2 = (20/3)^2 − (16/3)^2 = (400 − 256)/9 = 144/9 ⟹ QR = 4 cm.", "Area of ΔPQR = ½ × QR × PQ = ½ × 4 × 16/3 = 32/3 cm^2."],
+    solutionSteps: ["[1 mark] From the figure: RC = 50/5 = 10 cm and PC = 50/3 cm, so PR = PC − RC = 50/3 − 10 = 20/3 cm.", "[1 mark] Since QR ∥ BC (as SR ∥ BC), ΔPQR ~ ΔPTC by the Basic Proportionality Theorem, giving PR/CR = PQ/QT.", "[1 mark] Substitute: (20/3)/10 = PQ/8 ⟹ PQ = (20/3) × 8 / 10 = 16/3 cm.", "[1 mark] In right ΔPQR, by Pythagoras QR² = PR² − PQ² = (20/3)² − (16/3)² = (400 − 256)/9 = 144/9 ⟹ QR = 4 cm.", "[1 mark] Area of ΔPQR = ½ × QR × PQ = ½ × 4 × 16/3 = 32/3 cm²."],
     finalAnswer: "Area = 32/3 cm^2.",
     ncertRef: "APQ PQ1 Q33", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: right triangle ABC with internal lines PT and SR." },

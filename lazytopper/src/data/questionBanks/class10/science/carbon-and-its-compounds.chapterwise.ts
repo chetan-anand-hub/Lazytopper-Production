@@ -272,36 +272,72 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CARB-038", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "You are given balls and stick model of six carbon atoms and fourteen hydrogen atoms and sufficient number of sticks. In how many ways one can join the models of six carbon atoms and fourteen hydrogen atoms to form different molecules of C6H14.",
     answer: "There are five ways in which six carbons can be joined with 14 hydrogen atoms. i. ii. Chap 4 : Carbon and Its Compounds iii. iv. v. Check Anser :",
-    solutionSteps: ["There are five ways in which six carbons can be joined with 14 hydrogen atoms. i. ii. Chap 4 : Carbon and Its Compounds iii. iv. v. Check Anser :"],
+    solutionSteps: [
+      "[1 mark] C6H14 is a saturated hydrocarbon (alkane) and has five structural isomers; the first is the straight chain n-hexane: CH3–CH2–CH2–CH2–CH2–CH3.",
+      "[1 mark] Second isomer — 2-methylpentane: a 5-carbon chain with a –CH3 branch on C2, CH3–CH(CH3)–CH2–CH2–CH3.",
+      "[1 mark] Third isomer — 3-methylpentane: a 5-carbon chain with a –CH3 branch on C3, CH3–CH2–CH(CH3)–CH2–CH3.",
+      "[1 mark] Fourth isomer — 2,2-dimethylbutane: a 4-carbon chain with two –CH3 branches on C2, CH3–C(CH3)2–CH2–CH3.",
+      "[1 mark] Fifth isomer — 2,3-dimethylbutane: a 4-carbon chain with one –CH3 branch each on C2 and C3, CH3–CH(CH3)–CH(CH3)–CH3. Hence there are five ways (five isomers) to build C6H14."
+    ],
     ncertRef: "cbjesccq04 Q155", isCompetencyBased: true },
   // cbjesccq04 Q156 (Section D, 5mk)
   { id: "SCQ-S-CARB-039", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Soaps and detergents are both types of salts. State the difference between the two. Write the mechanism of the cleansing action of soaps. Why do soaps not form lather (foam) with hard water? Mention any two problems that arise due to the use of detergents instead of soaps.",
     answer: "a. Soaps are sodium or potassium salts of fatty acids e.g. —COONa. Detergents are sodium or potassium salts of sulphonic acids e.g. —SO3Na or —SO4Na b. Soaps are sodium or potassium salts of fatty acids. They contain —COONa group. Detergents are sodium or potassium salts of sulph",
-    solutionSteps: ["a. Soaps are sodium or potassium salts of fatty acids e.g. —COONa. Detergents are sodium or potassium salts of sulphonic acids e.g. —SO3Na or —SO4Na b. Soaps are sodium or potassium salts of fatty acids. They contain —COONa group. Detergents are sodium or potassium salts of sulphonic acids. They contains —SO3Na or —SO4Na group. Soap has ionic end which is hydrophilic, interacts with water while carbon chain is hydrophobic interacts with oil, grease. The soap molecules orient themselves in a cluster in which hydrophobic tails are inside the cluster and ionic ends face outside. These cluster are"],
+    solutionSteps: [
+      "[1 mark] Difference: soaps are sodium or potassium salts of long-chain fatty acids and contain the –COONa group; detergents are sodium salts of sulphonic acids and contain the –SO3Na (or –SO4Na) group.",
+      "[1 mark] Structure of a soap/detergent molecule: it has a long hydrophobic (water-repelling) hydrocarbon tail and a hydrophilic (water-attracting) ionic head, so one end dissolves in oil/grease and the other in water.",
+      "[1 mark] Cleansing mechanism: the hydrophobic tails attach to the oily dirt while the ionic heads face the water, forming spherical clusters called micelles that trap the grease; agitation lifts the micelles into the water and rinsing carries the dirt away.",
+      "[1 mark] Soaps do not lather with hard water because Ca²⁺ and Mg²⁺ ions in hard water react with the soap to form insoluble calcium/magnesium salts of fatty acids (scum), so the soap is wasted before it can form foam.",
+      "[1 mark] Two problems with detergents: (i) many detergents have non-biodegradable branched hydrocarbon chains that cause water pollution/foaming in rivers, and (ii) they persist in the environment, harming aquatic life."
+    ],
     ncertRef: "cbjesccq04 Q156", isCompetencyBased: true },
   // cbjesccq04 Q157 (Section D, 5mk)
   { id: "SCQ-S-CARB-040", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Why are certain compounds called hydrocarbons? Write the general formula for homologous series of alkanes, alkenes and alkynes and also draw the structure of the first member of each series. Write the name of the reaction which converts alkene into alkane. Also write the chemical equation to show the necessary conditions for the reaction to occur.",
     answer: "Compounds of carbon and hydrogen are called hydrocarbons. Alkane CnH2n+2 Alkene CnH2n Alkyne CnH2n–2 Ethyne Hydrogenation i.e. addition of H2 leads to formation of alkanes from alkenes. CH2 = CH2 + H2 heat Ni CH3 – CH3",
-    solutionSteps: ["Compounds of carbon and hydrogen are called hydrocarbons. Alkane CnH2n+2 Alkene CnH2n Alkyne CnH2n–2 Ethyne Hydrogenation i.e. addition of H2 leads to formation of alkanes from alkenes. CH2 = CH2 + H2 heat Ni CH3 – CH3"],
+    solutionSteps: [
+      "[1 mark] Compounds made up of only carbon and hydrogen are called hydrocarbons.",
+      "[1 mark] Alkanes — general formula CnH2n+2; first member is methane, CH4 (all single C–H and C–C bonds).",
+      "[1 mark] Alkenes — general formula CnH2n; first member is ethene, CH2=CH2 (contains one C=C double bond).",
+      "[1 mark] Alkynes — general formula CnH2n–2; first member is ethyne, CH≡CH (contains one C≡C triple bond).",
+      "[1 mark] The reaction that converts an alkene into an alkane is hydrogenation (addition of H2): CH2=CH2 + H2 →(Ni catalyst, heat) CH3–CH3."
+    ],
     ncertRef: "cbjesccq04 Q157", isCompetencyBased: true },
   // cbjesccq04 Q158 (Section D, 5mk)
   { id: "SCQ-S-CARB-041", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Complete the following chemical equations and write the chemical name of the products formed. a. CH2=CH2 + H2 $ b. CH3COOH + NaOH $ c. CH3CH2OH H SO 2 4 d. HCOOH + Na $ e. C2H5OH Alk MnO4 $",
     answer: "a. CH2= CH2 + H2 CH3– CH3 Ethane b. CH3COOH + NaOH CH3COONa + H2O Sodium ethanoate c. CH3CH2OH . Conc H SO 2 4 D CH2= CH2 + H2O Ethene d. 2HCOOH + 2Na 2HCOONa + H2 Sodium methanoate e. C2H5OH . Alk KMnO4 CH3COOH + H2O Ethanoic acid",
-    solutionSteps: ["a. CH2= CH2 + H2 CH3– CH3 Ethane b. CH3COOH + NaOH CH3COONa + H2O Sodium ethanoate c. CH3CH2OH . Conc H SO 2 4 D CH2= CH2 + H2O Ethene d. 2HCOOH + 2Na 2HCOONa + H2 Sodium methanoate e. C2H5OH . Alk KMnO4 CH3COOH + H2O Ethanoic acid"],
+    solutionSteps: [
+      "[1 mark] a. CH2=CH2 + H2 →(Ni, heat) CH3–CH3; product is ethane.",
+      "[1 mark] b. CH3COOH + NaOH → CH3COONa + H2O; product is sodium ethanoate (sodium acetate).",
+      "[1 mark] c. CH3CH2OH →(conc. H2SO4, 443 K) CH2=CH2 + H2O; product is ethene (dehydration).",
+      "[1 mark] d. 2HCOOH + 2Na → 2HCOONa + H2↑; product is sodium methanoate (sodium formate).",
+      "[1 mark] e. C2H5OH →(alkaline KMnO4, warm) CH3COOH + H2O; product is ethanoic acid (oxidation)."
+    ],
     ncertRef: "cbjesccq04 Q158", isCompetencyBased: false },
   // cbjesccq04 Q159 (Section D, 5mk)
   { id: "SCQ-S-CARB-042", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. Give a chemical test to distinguish between saturated and unsaturated hydrocarbons. b. Name the products formed when ethane burns in air. Write the balanced chemical equation for the reactions showing two types of energies liberated. c. Why is reaction between methane and chlorine in presence of sunlight is considered a substitution reaction.",
     answer: "a. Saturated hydrocarbons will not react with bromine water whereas unsaturated hydrocarbons will decolourise it. b. Carbon dioxide and water will be formed. 2C2H6 + 7O2 $ 4CO2(g) + 6H2O(l) + Heat + Light c. It is because hydrogen atom is substituted by halogen atom, that is why ",
-    solutionSteps: ["a. Saturated hydrocarbons will not react with bromine water whereas unsaturated hydrocarbons will decolourise it. b. Carbon dioxide and water will be formed. 2C2H6 + 7O2 $ 4CO2(g) + 6H2O(l) + Heat + Light c. It is because hydrogen atom is substituted by halogen atom, that is why it is called substitution reaction."],
+    solutionSteps: [
+      "[1 mark] a. Chemical test — add bromine water: unsaturated hydrocarbons decolourise the reddish-brown bromine water (addition), while saturated hydrocarbons do not decolourise it.",
+      "[1 mark] b. When ethane burns in air, the products formed are carbon dioxide and water.",
+      "[1 mark] b. Balanced equation showing two forms of energy liberated: 2C2H6 + 7O2 → 4CO2(g) + 6H2O(l) + Heat + Light.",
+      "[1 mark] c. In the presence of sunlight, chlorine replaces the hydrogen atoms of methane one at a time, e.g. CH4 + Cl2 →(sunlight) CH3Cl + HCl.",
+      "[1 mark] c. Since a hydrogen atom is substituted (replaced) by a chlorine atom, the reaction is called a substitution reaction."
+    ],
     ncertRef: "cbjesccq04 Q159", isCompetencyBased: true },
   // cbjesccq04 Q160 (Section D, 5mk)
   { id: "SCQ-S-CARB-043", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. You have three unlabelled test tubes containing ethanol, ethanoic acid and soap solution. Explain the method you would use to identify the compounds in different test tubes by chemical tests using litmus paper and sodium metal. b. Give reason of formation of scum when soaps are used with hard water.",
     answer: "Chap 4 : Carbon and Its Compounds a. Red litmus paper will become blue in soap solution only. Ethanoic acid will turn blue litmus red only. Ethanol will react with Na metal to form sodium ethoxide and hydrogen gas will be liberated. b. Soaps are sodium or potassium salts of fatty",
-    solutionSteps: ["Chap 4 : Carbon and Its Compounds a. Red litmus paper will become blue in soap solution only. Ethanoic acid will turn blue litmus red only. Ethanol will react with Na metal to form sodium ethoxide and hydrogen gas will be liberated. b. Soaps are sodium or potassium salts of fatty acids which react with Ca2+ and Mg2+ ions in hard water to form calcium or magnesium salts of fatty acids which are insoluble in water called scum."],
+    solutionSteps: [
+      "[1 mark] a. Soap solution is basic, so it turns red litmus paper blue (only the soap solution does this).",
+      "[1 mark] a. Ethanoic acid is acidic, so it turns blue litmus paper red (only the ethanoic acid does this).",
+      "[1 mark] a. Ethanol changes neither litmus; it is identified by adding sodium metal — brisk effervescence of hydrogen gas is seen and sodium ethoxide is formed: 2C2H5OH + 2Na → 2C2H5ONa + H2↑.",
+      "[1 mark] b. Soaps are sodium or potassium salts of fatty acids; in hard water they react with the dissolved Ca²⁺ and Mg²⁺ ions.",
+      "[1 mark] b. This forms insoluble calcium/magnesium salts of fatty acids that separate out as a sticky precipitate called scum, which is why soaps do not clean well in hard water."
+    ],
     ncertRef: "cbjesccq04 Q160", isCompetencyBased: true },
 ];

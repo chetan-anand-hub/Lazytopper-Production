@@ -229,10 +229,11 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A heap of rice is in the form of a cone of diameter 9 m and height 3.5 m. Find the volume of the rice. How much canvas cloth is required to just cover the heap? (Use π = 22/7)",
     solutionSteps: [
-      "Radius r = 4.5 m, height h = 3.5 m.",
-      "V = (1/3)πr²h = (1/3)(22/7)(4.5)²(3.5) = (1/3)(22/7)(20.25)(3.5) = (22 × 20.25 × 3.5)/(21) = 1559.25/21 ≈ 74.25 m³.",
-      "Slant height l = √(r² + h²) = √(20.25 + 12.25) = √32.5 ≈ 5.701 m.",
-      "Canvas needed = CSA = πrl = (22/7)(4.5)(5.701) ≈ 80.62 m² (canvas just covers the heap, no base)."
+      "[1 mark] Given: diameter = 9 m → radius r = 4.5 m, height h = 3.5 m. Formulae: V = (1/3)πr²h and CSA = πrl.",
+      "[1 mark] Substituting: V = (1/3)(22/7)(4.5)²(3.5) = (1/3)(22/7)(20.25)(3.5) = 1559.25/21.",
+      "[1 mark] Volume of rice V ≈ 74.25 m³.",
+      "[1 mark] Slant height l = √(r² + h²) = √(20.25 + 12.25) = √32.5 ≈ 5.701 m.",
+      "[1 mark] Canvas needed = CSA = πrl = (22/7)(4.5)(5.701) ≈ 80.62 m² (canvas just covers the curved heap, no base)."
     ],
     finalAnswer: "Volume ≈ 74.25 m³; canvas required ≈ 80.62 m².",
     ncertRef: "Exemplar Ex 12.4 Q6", isCompetencyBased: true,
@@ -243,10 +244,11 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Medium", bloomSkill: "Applying",
     questionText: "16 glass spheres each of radius 2 cm are packed into a cuboidal box of internal dimensions 16 cm × 8 cm × 8 cm and then the box is filled with water. Find the volume of water filled in the box. (Use π = 22/7)",
     solutionSteps: [
-      "V(box) = 16 × 8 × 8 = 1 024 cm³.",
-      "V(one sphere) = (4/3)π(2)³ = (4/3)(22/7)(8) = 704/21 cm³.",
-      "V(16 spheres) = 16 × (704/21) = 11 264/21 ≈ 536.38 cm³.",
-      "V(water) = V(box) − V(spheres) = 1 024 − 536.38 ≈ 487.62 cm³."
+      "[1 mark] Setup: V(water) = V(cuboidal box) − V(16 spheres); sphere volume formula V = (4/3)πr³.",
+      "[1 mark] V(box) = 16 × 8 × 8 = 1 024 cm³.",
+      "[1 mark] V(one sphere) = (4/3)(22/7)(2)³ = (4/3)(22/7)(8) = 704/21 cm³.",
+      "[1 mark] V(16 spheres) = 16 × (704/21) = 11 264/21 ≈ 536.38 cm³.",
+      "[1 mark] V(water) = 1 024 − 536.38 ≈ 487.62 cm³."
     ],
     finalAnswer: "≈ 487.62 cm³ of water.",
     ncertRef: "Exemplar Ex 12.4 Q11", isCompetencyBased: true },

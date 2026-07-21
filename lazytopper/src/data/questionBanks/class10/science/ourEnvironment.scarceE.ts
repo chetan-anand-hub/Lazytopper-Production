@@ -108,8 +108,9 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "answer": "Small fish = 1,000 J; bird = 10 J; chains are short because ~10% transfer leaves too little energy after a few levels.",
     "solutionSteps": [
       "[1 mark] Algae 1,00,000 J -> water flea 10,000 J -> small fish 1,000 J. The small fish receives 1,000 J.",
-      "[1 mark] Big fish gets 100 J -> bird gets 10 J. The bird receives 10 J.",
-      "[2 marks] Because only about 10% of energy passes to each successive level, the energy decreases sharply; after 3-4 levels so little energy remains that it cannot support a further trophic level, so food chains are short."
+      "[1 mark] Small fish 1,000 J -> big fish 100 J -> bird 10 J. The bird receives 10 J.",
+      "[1 mark] Only about 10% of the energy passes to each successive trophic level, so the available energy decreases sharply at every step.",
+      "[1 mark] After 3-4 levels so little energy remains that it cannot support a further trophic level, so food chains are usually short."
     ],
     "finalAnswer": "Small fish = 1,000 J; bird = 10 J; chains limited to 3-4 levels because energy falls ~10-fold each step.",
     "isCompetencyBased": true,
@@ -177,7 +178,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Biodegradable: banana peels, newspaper, cotton rags. Non-biodegradable: plastic bottles, aluminium can, glass jar.",
       "[1 mark] The biodegradable waste can be composted in a compost pit to make manure.",
-      "[2 marks] Segregation lets biodegradable waste be composted and non-biodegradable waste be recycled; it reduces the load on landfills and prevents non-biodegradable waste from polluting soil and water for a long time."
+      "[1 mark] Segregation lets biodegradable waste be composted and non-biodegradable waste be recycled instead of being dumped together.",
+      "[1 mark] It reduces the load on landfills and prevents non-biodegradable waste from polluting soil and water for a long time."
     ],
     "finalAnswer": "Bio: peels, newspaper, cotton rags; Non-bio: plastic bottles, aluminium can, glass jar; compost the biodegradable; segregation aids composting/recycling and cuts pollution.",
     "isCompetencyBased": true,
@@ -268,7 +270,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Abiotic components mentioned: water, mud and sunlight.",
       "[1 mark] Algae = producer; fish = consumer; bacteria = decomposer.",
-      "[2 marks] It is natural because it forms on its own without human help, and self-sustaining because producers, consumers and decomposers together recycle nutrients while energy flows through the system, so it maintains itself."
+      "[1 mark] It is a natural ecosystem because it forms on its own without human help.",
+      "[1 mark] It is self-sustaining because producers, consumers and decomposers together recycle nutrients while energy flows through the system, so it maintains itself."
     ],
     "finalAnswer": "Abiotic: water, mud, sunlight; algae = producer, fish = consumer, bacteria = decomposer; self-sustaining via nutrient recycling and energy flow.",
     "isCompetencyBased": true,
@@ -290,7 +293,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] The flow of energy is unidirectional because at each trophic level most energy is lost as heat during respiration and cannot be returned to the previous level or reused.",
       "[1 mark] Producers get their energy from the Sun (solar energy) through the process of photosynthesis.",
-      "[2 marks] Grass 10,000 J -> deer 1,000 J (10%) -> lion 100 J (10%). The lion receives 100 J."
+      "[1 mark] Applying the 10% law: grass 10,000 J -> deer 1,000 J (10% of 10,000 J).",
+      "[1 mark] Deer 1,000 J -> lion 100 J (10% of 1,000 J). The lion receives 100 J."
     ],
     "finalAnswer": "Energy is one-way because it is lost as heat and cannot return; producers use solar energy; lion gets 100 J.",
     "isCompetencyBased": true,
@@ -358,7 +362,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Bees and butterflies are pollinators; they help in the pollination of flowers.",
       "[1 mark] With fewer pollinators, pollination decreases, so fruit and seed formation and crop yield fall.",
-      "[2 marks] It shows that all organisms in an ecosystem are interconnected; harming one component (here, the useful insects) upsets the natural balance and affects other organisms and processes too."
+      "[1 mark] It shows that all organisms in an ecosystem are interconnected and depend on one another.",
+      "[1 mark] Harming one component (here, the useful insects) upsets the natural balance and affects other organisms and processes too."
     ],
     "finalAnswer": "They are pollinators; less pollination lowers fruit/seed and crop yield; disturbing one part upsets the whole interconnected ecosystem.",
     "isCompetencyBased": true,
@@ -380,7 +385,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Green bin (biodegradable), e.g. fruit or vegetable peels; blue bin (non-biodegradable), e.g. a plastic wrapper.",
       "[1 mark] Biodegradable waste can be broken down by decomposers, whereas non-biodegradable waste cannot be broken down by them.",
-      "[2 marks] Colour-coded segregation makes it easy to recycle non-biodegradable waste and compost biodegradable waste, reduces the burden on landfills, and keeps the surroundings cleaner."
+      "[1 mark] Colour-coded segregation makes it easy to recycle non-biodegradable waste and compost biodegradable waste.",
+      "[1 mark] It reduces the burden on landfills and keeps the surroundings cleaner."
     ],
     "finalAnswer": "Green: vegetable peel; blue: plastic wrapper; biodegradable decomposes, non-biodegradable does not; segregation eases composting/recycling and cuts landfill load.",
     "isCompetencyBased": true,
@@ -402,7 +408,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] The crop field is the artificial (man-made) ecosystem; the grassland is the natural ecosystem.",
       "[1 mark] The crop field is called artificial because it is created and controlled by humans, who decide which plants grow there.",
-      "[2 marks] A natural grassland is self-sustaining - its decomposers recycle nutrients and it has natural checks and balances; a crop field has mainly one kind of plant and no natural balance, so humans must add nutrients (manure) and control weeds and pests to keep it going."
+      "[1 mark] A natural grassland is self-sustaining - its decomposers recycle nutrients and it has natural checks and balances.",
+      "[1 mark] A crop field has mainly one kind of plant and no natural balance, so humans must add nutrients (manure) and control weeds and pests to keep it going."
     ],
     "finalAnswer": "Crop field = artificial, grassland = natural; artificial as it is human-created/controlled; grassland is self-sustaining while the crop field needs human input for lack of natural balance.",
     "isCompetencyBased": true,
@@ -424,7 +431,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] The producer is grass.",
       "[1 mark] The primary consumers (herbivores) are the grasshopper and the rabbit.",
-      "[2 marks] In the chain Grass -> Grasshopper -> Frog -> Snake -> Hawk, the hawk is at the fifth trophic level (grass = 1st, grasshopper = 2nd, frog = 3rd, snake = 4th, hawk = 5th)."
+      "[1 mark] One food chain in the web is Grass -> Grasshopper -> Frog -> Snake -> Hawk.",
+      "[1 mark] In this chain the hawk is at the fifth trophic level (grass = 1st, grasshopper = 2nd, frog = 3rd, snake = 4th, hawk = 5th)."
     ],
     "finalAnswer": "Producer = grass; primary consumers = grasshopper and rabbit; hawk = 5th trophic level.",
     "isCompetencyBased": true,
@@ -446,7 +454,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Ozone (O3) is a molecule of three oxygen atoms; in the stratosphere it forms when UV rays split oxygen molecules (O2) into free oxygen atoms, which then combine with O2 molecules to form O3.",
       "[1 mark] Phytoplankton are the producers at the base of marine food chains; if they are damaged, the food and energy supply for all higher marine organisms falls.",
-      "[2 marks] Chlorofluorocarbons (CFCs) are mainly responsible; in the stratosphere UV breaks CFCs to release chlorine free radicals, which react with ozone and break it down into oxygen, thinning the ozone layer."
+      "[1 mark] Chlorofluorocarbons (CFCs) are mainly responsible; in the stratosphere UV breaks CFCs to release chlorine free radicals.",
+      "[1 mark] These chlorine radicals react with ozone and break it down into oxygen, thinning the ozone layer."
     ],
     "finalAnswer": "Ozone = O3, formed from UV-split oxygen recombining with O2; phytoplankton are marine producers so their damage starves higher life; CFCs release chlorine that destroys ozone.",
     "isCompetencyBased": true,
@@ -468,7 +477,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Cow dung is biodegradable and is broken down by decomposers within a few weeks, whereas DDT is non-biodegradable and cannot be broken down, so it remains for a very long time.",
       "[1 mark] DDT = non-biodegradable; cow dung = biodegradable.",
-      "[2 marks] Because it is not broken down or excreted, DDT accumulates and its concentration increases at each higher trophic level (biological magnification), harming the top consumers the most."
+      "[1 mark] Because it is not broken down or excreted, DDT accumulates and its concentration increases at each higher trophic level (biological magnification).",
+      "[1 mark] As a result the top consumers (such as the birds) receive the highest concentration and are harmed the most."
     ],
     "finalAnswer": "Cow dung decomposes (biodegradable); DDT persists (non-biodegradable); DDT is dangerous as it accumulates and biomagnifies, hitting top consumers hardest.",
     "isCompetencyBased": true,
@@ -490,7 +500,8 @@ export const OE_SCARCE_E: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Energy comes from the Sun, is captured by producers (green plants), then passes to herbivores (primary consumers) and on to carnivores (higher consumers).",
       "[1 mark] It is called one-way because at each step most energy is lost as heat and is not returned to the previous level or to the Sun, so it cannot be reused or recycled.",
-      "[2 marks] Decomposers (bacteria and fungi) make the cyclic movement of nutrients possible by breaking down dead organisms and wastes and returning simple nutrients to the soil for producers to reuse."
+      "[1 mark] Decomposers (bacteria and fungi) break down dead organisms and wastes.",
+      "[1 mark] In doing so they return simple nutrients to the soil for producers to reuse, which makes the cyclic movement of nutrients possible."
     ],
     "finalAnswer": "Sun -> producers -> herbivores -> carnivores; one-way as energy is lost as heat and not reused; decomposers recycle nutrients.",
     "isCompetencyBased": true,

@@ -38,7 +38,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-STAT-004", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A car assembly unit assembles a limited number of cars daily, depending on the prevailing demand. The table presents an analysis: cars assembled per day (0-4: 33 days, 4-8: 18 days, 8-12: 21 days, 12-16: 11 days, 16-20: 7 days). (i) If the demand of the cars is doubled, estimate how many cars on an average should be assembled per day to meet the increased demand? (ii) At least on how many days, less than average number of cars were assembled?",
     answer: "(i) ~15 cars per day. (ii) At least 33 days.",
-    solutionSteps: ["Class marks: 2, 6, 10, 14, 18. Σfi·xi = 33·2 + 18·6 + 21·10 + 11·14 + 7·18 = 66 + 108 + 210 + 154 + 126 = 664. Σfi = 90.", "Mean = 664/90 ≈ 7.38 cars/day.", "(i) Doubled mean = 2 × 7.38 ≈ 14.76 ≈ 15 cars/day to meet demand.", "(ii) Mean 7.38 lies in class 4-8. All 33 days in class 0-4 had fewer than 7.38 cars assembled. So at least 33 days had below-average production."],
+    solutionSteps: ["[1 mark] Class marks xᵢ: 2, 6, 10, 14, 18; frequencies fᵢ: 33, 18, 21, 11, 7; Σfᵢ = 90.", "[1 mark] Σfᵢ·xᵢ = 33·2 + 18·6 + 21·10 + 11·14 + 7·18 = 66 + 108 + 210 + 154 + 126 = 664.", "[1 mark] Mean = Σfᵢxᵢ/Σfᵢ = 664/90 ≈ 7.38 cars per day.", "[1 mark] (i) For doubled demand, average required = 2 × 7.38 ≈ 14.76 ≈ 15 cars per day.", "[1 mark] (ii) The mean 7.38 lies in class 4-8; all 33 days in class 0-4 had fewer than 7.38 cars assembled, so on at least 33 days production was below average."],
     finalAnswer: "(i) ~15 cars/day; (ii) at least 33 days.",
     ncertRef: "APQ PQ1 Q35", isCompetencyBased: true },
 
@@ -74,7 +74,7 @@ export const STATISTICS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-STAT-008", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data — Two Groups Comparison", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "The pyramid graph shows the ages of 548 Members of Parliament (MPs) in the 17th Lok Sabha. On an average, how much younger is a female MP than a male MP? Round your answer to the nearest whole number.",
     answer: "Female MPs are on average 6 years younger.",
-    solutionSteps: ["Construct frequency distribution tables for male and female MPs from the pyramid graph.", "Mean age of female MPs = 4280 / 80 = 53.5 years.", "Mean age of male MPs = 27980 / 468 ≈ 59.8 years.", "Difference = 59.8 − 53.5 = 6.3 years ≈ 6 years."],
+    solutionSteps: ["[1 mark] From the pyramid graph, construct grouped frequency distribution tables (class marks × frequencies) of ages for male and female MPs separately.", "[1 mark] Female MPs: Σfᵢ = 80, Σfᵢxᵢ = 4280 ⇒ mean age = 4280/80 = 53.5 years.", "[1 mark] Male MPs: Σfᵢ = 468, Σfᵢxᵢ = 27980 ⇒ mean age = 27980/468 ≈ 59.8 years.", "[1 mark] Difference of mean ages = 59.8 − 53.5 = 6.3 years.", "[1 mark] Rounded to the nearest whole number, a female MP is on average ≈ 6 years younger than a male MP."],
     finalAnswer: "≈ 6 years.",
     ncertRef: "APQ PQ_2022 Q35", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: pyramid graph of MP ages by gender." },

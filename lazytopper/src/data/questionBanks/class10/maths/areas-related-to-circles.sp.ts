@@ -45,8 +45,8 @@ export const ARC_SP: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] (a) Radius of Brooch A = 28/2 = 14 mm. Total silver wire = circumference + 4 diameters = 2πr + 4d = 2 × (22/7) × 14 + 4 × 28 = 88 + 112 = 200 mm.",
       "[1 mark] (b) Eight equal sectors → each sector angle θ = 360°/8 = 45°. Area of each sector = (θ/360°) × πr² = (45/360) × (22/7) × 14 × 14 = 77 mm².",
-      "[2 marks] (c) Let the number of revolutions = x. Then x × circumference = distance: x × 2πr = 112π → x = 112π/(2π × 14) = 112/28 = 4. Number of complete revolutions = 4.",
-      "[2 marks] (OR, Brooch B) Circumference of silver part = 44 mm → 2πr₁ = 44 → r₁ = 44 × 7/(2 × 22) = 7 mm. Radius of Brooch B = 7 + 3 = 10 mm. Then x × 2πr = 80π → x = 80π/(2π × 10) = 4. Number of complete revolutions = 4."
+      "[1 mark] (c) Let the number of revolutions = x. Distance covered = x × circumference: x × 2πr = 112π → x = 112π/(2π × 14) = 112/28.",
+      "[1 mark] x = 4, so the brooch must make 4 complete revolutions. [OR, Brooch B: 2πr₁ = 44 → r₁ = 7 mm; radius of Brooch B = 7 + 3 = 10 mm; x × 2π(10) = 80π → x = 4 complete revolutions.]"
     ],
     "finalAnswer": "(a) 200 mm; (b) 77 mm²; (c) 4 complete revolutions",
     "isCompetencyBased": true,

@@ -1184,7 +1184,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "questionText": "The heights of 50 students are recorded as follows:\nHeight (cm): 130–135, 135–140, 140–145, 145–150, 150–155, 155–160\nFrequency: 2, 8, 12, 20, 5, 3\nFind (i) mean using step deviation (ii) modal class and mode (iii) median.",
     "options": [],
     "answer": "(i) ≈145.2 cm (ii) 145-150, mode≈146.74 (iii) ≈145.75",
-    "solutionSteps": ["(i) a = 147.5, h = 5, Σfᵢ=50. dᵢ: -3,-2,-1,0,1,2. Σfᵢdᵢ = -6-16-12+0+5+6 = -23. Mean = 147.5+(-23/50)×5 = 147.5-2.3 = 145.2", "(ii) Modal class: 145-150. f₀=12,f₁=20,f₂=5. Mode = 145+(20-12)/(40-12-5)×5 = 145+1.74 = 146.74", "(iii) n/2=25, CF: 2,10,22,42. Median class: 145-150. Median = 145+(25-22)/20×5 = 145.75"],
+    "solutionSteps": ["[1 mark] (i) Step deviation: a = 147.5, h = 5, Σfᵢ = 50; dᵢ = (xᵢ − a)/h: -3, -2, -1, 0, 1, 2; Σfᵢdᵢ = -6 - 16 - 12 + 0 + 5 + 6 = -23.", "[1 mark] Mean = a + (Σfᵢdᵢ/Σfᵢ) × h = 147.5 + (-23/50) × 5 = 147.5 - 2.3 = 145.2 cm.", "[1 mark] (ii) Modal class = 145-150 (highest frequency 20); f₀ = 12, f₁ = 20, f₂ = 5.", "[1 mark] Mode = 145 + [(20 - 12)/(2×20 - 12 - 5)] × 5 = 145 + 40/23 ≈ 145 + 1.74 = 146.74 cm.", "[1 mark] (iii) n/2 = 25; cumulative frequencies: 2, 10, 22, 42, ... ⇒ median class = 145-150. Median = 145 + [(25 - 22)/20] × 5 = 145.75 cm."],
     "finalAnswer": "(i) ≈145.2 cm (ii) ≈146.74 (iii) ≈145.75",
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,

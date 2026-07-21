@@ -266,7 +266,7 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
   { id: "ELEC-NCERT-11-LA-009", subject: "Science", topicKey: "electricity", subtopic: "Power and Energy", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "An electric motor takes 5 A from a 220 V line. Determine the power of the motor and the energy consumed in 2 h.",
     answer: "Power P = VI = 220 × 5 = 1100 W = 1.1 kW. Energy in 2 h = P × t = 1.1 kW × 2 h = 2.2 kWh = 2.2 × 3.6 × 10⁶ J = 7.92 × 10⁶ J.",
-    solutionSteps: ["Given: V = 220 V, I = 5 A, t = 2 h.", "Power P = V × I = 220 × 5 = 1100 W = 1.1 kW.", "Energy consumed = P × t = 1.1 kW × 2 h = 2.2 kWh.", "Converting to joules: 1 kWh = 3.6 × 10⁶ J ⇒ Energy = 2.2 × 3.6 × 10⁶ = 7.92 × 10⁶ J."],
+    solutionSteps: ["[1 mark] Given: V = 220 V, I = 5 A, t = 2 h. Formula: P = V × I.", "[1 mark] Power P = 220 × 5 = 1100 W = 1.1 kW.", "[1 mark] Energy consumed: E = P × t.", "[1 mark] E = 1.1 kW × 2 h = 2.2 kWh.", "[1 mark] Converting to SI units: 1 kWh = 3.6 × 10⁶ J ⇒ Energy = 2.2 × 3.6 × 10⁶ = 7.92 × 10⁶ J."],
     finalAnswer: "Power = 1100 W = 1.1 kW; Energy = 2.2 kWh = 7.92 × 10⁶ J.",
     ncertRef: "In-text Q2 §11.8", isCompetencyBased: true },
 
@@ -281,7 +281,7 @@ export const ELEC_NCERT: CanonicalQuestion[] = [
   { id: "ELEC-NCERT-11-LA-010", subject: "Science", topicKey: "electricity", subtopic: "Cost of Electricity", section: "D", marks: 5, format: "Long", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "An electric refrigerator rated 400 W operates 8 hour/day. What is the cost of the energy to operate it for 30 days at Rs 3.00 per kW h?",
     answer: "Daily energy = 400 W × 8 h = 3200 Wh = 3.2 kWh. In 30 days = 3.2 × 30 = 96 kWh. Cost = 96 × ₹3.00 = ₹288.00.",
-    solutionSteps: ["Daily energy consumption = power × hours per day = 400 W × 8 h = 3200 Wh = 3.2 kWh.", "Total energy in 30 days = 3.2 kWh × 30 = 96 kWh.", "Tariff = Rs 3.00 per kWh.", "Total cost = 96 kWh × Rs 3.00 = Rs 288.00."],
+    solutionSteps: ["[1 mark] Given: P = 400 W, operating time = 8 h/day for 30 days, tariff = Rs 3.00 per kWh.", "[1 mark] Daily energy consumption = power × hours per day = 400 W × 8 h = 3200 Wh = 3.2 kWh.", "[1 mark] Total energy in 30 days = 3.2 kWh × 30 = 96 kWh.", "[1 mark] Cost = total energy × tariff = 96 kWh × Rs 3.00 per kWh.", "[1 mark] Total cost = Rs 288.00."],
     finalAnswer: "Total cost = Rs 288.00",
     ncertRef: "Example 11.13", isCompetencyBased: true },
 

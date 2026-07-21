@@ -228,7 +228,8 @@ export const LGHT_CFPQ_SQP25: CanonicalQuestion[] = [
     solutionSteps: [
       "[1 mark] A. A CONVEX (converging) lens is used in the DSLR camera.",
       "[1 mark] B. A REAL and INVERTED (and diminished) image is formed on the sensor.",
-      "[2 marks] EITHER C: with f = +50 mm and v = +60 mm, the lens formula gives 1/u = 1/v - 1/f = 1/60 - 1/50 = -1/300, so u = -300 mm - the object is 300 mm in front of the lens. OR D: m = image height / object height = (-20)/80 = -1/4; since m = v/u, v = m × u = (-1/4) × (-150) = +37.5 mm; then 1/f = 1/v - 1/u = 1/37.5 + 1/150 = 5/150, so f = 30 mm."
+      "[1 mark] EITHER C (working): with f = +50 mm and v = +60 mm, the lens formula gives 1/u = 1/v - 1/f = 1/60 - 1/50 = -1/300. [OR D (working): m = image height / object height = (-20)/80 = -1/4; since m = v/u, v = m × u = (-1/4) × (-150) = +37.5 mm.]",
+      "[1 mark] EITHER C (final answer): u = -300 mm — the object is 300 mm in front of the lens. [OR D (final answer): 1/f = 1/v - 1/u = 1/37.5 + 1/150 = 5/150, so f = 30 mm.]"
     ],
     finalAnswer: "A. Convex lens B. Real, inverted C. 300 mm in front of the lens (OR D. f = 30 mm)",
     isCompetencyBased: true, requiresDiagram: true,
