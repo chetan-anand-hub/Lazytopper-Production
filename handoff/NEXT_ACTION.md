@@ -9,9 +9,9 @@
 - `[FU-PRACTICEINSIGHTS-DURABLE-RED]` - `practiceInsights.durable.test.ts`, `firestore down` mock.
 - `[FU-WORKSHEET-PDFEXPORT-TEST-RED]` - `worksheetPdfExport.test.ts`, `pdf.addImage is not a function` (jsPDF `vi.mock`'d).
 
-**The other two Wave-1 lanes are still in flight (fresh agents, parallel - NOT this one):**
-- `[FU-MOCKBUILDER-FULL-DELETE]` - the FULL mock-builder feature deletion. A PRODUCT question (what should "Build a Mock Paper" DO now the page is gone?), not a mechanical delete - see OPEN_QUESTIONS.
-- bank mis-banding - a content-lane item.
+**The other two Wave-1 lanes have since landed:**
+- `[FU-MOCKBUILDER-FULL-DELETE]` - the FULL mock-builder feature deletion. A PRODUCT question (what should "Build a Mock Paper" DO now the page is gone?), not a mechanical delete - see OPEN_QUESTIONS. **(merged #505, trunk tip `b810055` — its own lane/handoff.)**
+- bank mis-banding — **Class (a) SHIPPED (#504, trunk `b810055`, owner LIVE-VERIFIED):** 44 rows relabelled off a bogus 5-mark Section-D (37 MCQ/AR → A/1 format-unchanged binary; 7 short VSA → B/2, PYQ-grounded + re-authored 2-mark steps); `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (a) + `[FU-AITIER-MARKS-MISMATCH]` RESOLVED. **Class (b) (~178 under-stepped genuine-5-mark rows) remains OPEN** — a different defect, its own future content lane.
 
 ### DOCTRINE TO CARRY (earned this lane)
 - **A single Windows full-run is a FLAKY ORACLE, not evidence of linux status.** A ~1200s collect fires 5s timeouts on random suites; ISOLATE each suspect (or read the fast linux runner) before calling a suite red.

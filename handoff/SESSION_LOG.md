@@ -1,5 +1,23 @@
 ---
 
+## 2026-07-21 -- #504: BANK MIS-BANDING (Class a) FIXED - 44 rows relabelled off a bogus 5-mark Section-D - **owner byte-reviewed + merged, LIVE-VERIFIED** - trunk `b810055`
+
+**Wave-1 Lane C (BANK MIS-BANDING). Data-only + one shrink-only guard: 14 files (13 `.pack` + `scripts/src/aiTierContentIntegrityGuard.test.ts`), zero engine/grader/forbidden. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (a) AND the co-tracked `[FU-AITIER-MARKS-MISMATCH]`.** 44 rows sat at `section:"D"/marks:5` while being objective or short-content questions the grader treated as 5-mark long-answers (`TG3-056` "Find cosec 60°" graded as a 5-marker; MCQs surfacing as 5-mark Section-D items in CT/FM). **C-OBJECTIVE (37 MCQ/AR):** `D/5 → A/1`, format unchanged so they stay objective and grade binary 0-or-1 (`test:objective:dedup` PASSED). **C-WRITTEN (7 Short VSA):** all `→ B/2`, each PYQ-grounded at fallback level 1, `solutionSteps` re-authored to the true 2-mark scheme. **Method (IDENTIFY→RELABEL, STOP-BEFORE-COMMIT twice):** an eval-based scan of all 401 bank files (399 parsed, 0 skipped, 8,387 rows) produced the exact 44-row list for byte-review; the 7 written values came from 6 parallel read-only PYQ-research subagents, each returning a cited precedent (`PYQ-M-2024-TRIG-007a`, `PYQ-S-2024-REPR-005`, `PYQ-S-2026-ACID-015`, …). Owner byte-reviewed both the IDENTIFY list and the RELABEL diff before commit, then merged; LIVE-VERIFIED on `b810055`.
+
+### ★★ LESSON 1 - the count was 44, not the spec's ~76, and that gap is the Class-(a)/(b) boundary working
+50 short-*prompt* `Long` D/5 rows ("Prove √2 irrational", "Describe the alimentary canal of man") are GENUINE 5-mark proofs/essays - a concise prompt is not a short question. Folding them in would have crossed into Class (b) and corrupted real questions. The honest exhaustive count under the strict signature is 44; "flag if dramatically more or fewer" fired, and the flag was the boundary, not a miss. **MEASURE the rendered length/kind before relabelling - question text brevity is not mark value.**
+
+### ★★ LESSON 2 - the misband backlog was ALREADY co-tracked in a SHRINK-ONLY guard, so the data fix REQUIRED a companion test edit in the SAME PR
+`aiTierContentIntegrityGuard.test.ts`'s `PACK_5MK_SHORT_BACKLOG` pinned EXACTLY these 7 written ids (audit 2026-06-17, `[FU-AITIER-MARKS-MISMATCH]` - the pending content-judgment pass). A shrink-only guard FAILS the moment a pinned id stops offending, so fixing the bank turned CI red until the pin was emptied. This is the "strike the spent check in the PR that spends it" class: a data-only change legitimately reaches one guard file. Flagged to the owner for explicit sign-off (the one edit outside `data/questionBanks/**`); approved as necessary. The guard stays LIVE - still catches any NEW pack 5-mark `Short` offender.
+
+### ★ LESSON 3 - the two `.pack1` generators are structurally immune; prove it from the code, don't scan
+`triangles.pack1` / `trigonometry.pack1` build every row via `makeQuestion(spec)` where section+marks+format ALL derive from one `cbseFormat` key (`D → 5/"Long"`; triangles' `formatOverride` appears only in its Section-A group). A mis-banded D/5 objective row is therefore impossible there - the eval-scan couldn't parse them (spread from section vars), but static reading settled it. **When a file resists parsing, immunity can still be proven by reading its constructor.**
+
+### ★ Env note - Windows tsc/matrix in a fresh worktree
+Junctioned `node_modules` from the main checkout (`mklink /J`) instead of a full pnpm install - same repo/lockfile, so tsc + both matrices + guards ran locally in seconds. The production `vite build` stayed linux-gated by CI (quality-gate PASS 3m49s, incl. the build).
+
+---
+
 ## 2026-07-21 -- #503: VITEST NOW RUNS IN CI - the 59 render/unit suites that never had a gate - **owner byte-reviewed + merged** - trunk `579822e`
 
 **Wave-1 Lane A (CI-VITEST GATE). Infra-only: `.github/workflows/quality-gate.yml`, +24, one file, zero product `src/`. Resolves `[FU-CI-GATE-VITEST]`.** `vitest run` (the `src/**/*.test.{ts,tsx}` suites - routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) had NEVER run in CI. The gated `test:matrix:all` runs the ops-acceptance `.mjs` scripts, not vitest; and Windows dev boxes cannot run vitest at all (the rollup-linux pin strips the win32 binary). So every vitest regression shipped green - the root cause behind this repo's green-but-broken builds (#484, #490). #503 adds one required `Vitest suites (lazytopper)` step on the linux runner (where rollup works); a red vitest now fails CI.
