@@ -490,7 +490,7 @@ The QR spec (and a later owner note) said `SolutionChecker.tsx` is consumed by C
 - **RULING — magnetic-effects:** chapter RETAINED & EXAMINED (official 2026-27 Unit IV "Effects of Current" = 13 marks); **Motor / Electromagnetic Induction / Electric Generator OUT of board-prep authoring** (assessed "only formatively... without adding to summative assessments"). Honest low stop accepted for that chapter.
 
 ### NEW
-- **[FU-BANK-SCARCE-BAND-MISBANDING] (M-L, PRE-LAUNCH)** — the owner's live "5-mark Section D / Easy = 'Find the value of cosec 60°'" bug. **`TG3-056` is a CANONICAL BANK ROW** (`trigonometry.pack3.ts:1478`, D/5mk/Easy, 3 steps): the bank is served faithfully; **the bank itself is wrong**. Systemic — **CLASS (a): 76 rows with `format: MCQ`/`Assertion-Reasoning` + 4 options sitting at section D / 5 marks** (`isObjectiveType` sees MCQ ⇒ grader clamps **0-or-5**; they reach CT/FM Section D) e.g. `MNM2-012` ("What is corrosion?" as a 5-mark long answer), `PL2-021/022`, `TG3-057`, `ABS2-045`; **CLASS (b): ~178 under-stepped D/E solutions** (legitimately 5-mark multi-part items whose `solutionSteps` were never broken out — a DIFFERENT defect, do not conflate). 254/2,211 D+E rows violate CBSE step-marking; 16 topics. **Own PR(s), data-only, class (a) first. NOT folded into a topic-expansion batch** (touches 8 done topics; would wreck an additive byte-review).
+- **[FU-BANK-SCARCE-BAND-MISBANDING] — ✅ CLASS (a) RESOLVED by #504 (trunk `b810055`, owner LIVE-VERIFIED); CLASS (b) STILL OPEN (M-L, PRE-LAUNCH).** The owner's live "5-mark Section D / Easy = 'Find the value of cosec 60°'" bug: **`TG3-056` was a CANONICAL BANK ROW served faithfully from a wrong bank.** **CLASS (a) — RESOLVED (#504, data-only, own PR):** the mis-banded objective/short rows at `section:"D"/marks:5` were relabelled to their true CBSE value — **the "~76" estimate was actually 44** (37 `MCQ`/`Assertion-Reasoning` → A/1, format unchanged so they stay binary 0-or-1; 7 short VSA → B/2, each PYQ-grounded, `solutionSteps` re-authored to the 2-mark scheme). The gap to 76 is the Class-(a)/(b) boundary working: short-*prompt* genuine-`Long` proofs ("Prove √2 irrational", "Describe the alimentary canal") are correctly banded and correctly excluded. This also resolves the co-tracked `[FU-AITIER-MARKS-MISMATCH]` (its shrink-only `PACK_5MK_SHORT_BACKLOG` is now empty). **CLASS (b) — STILL OPEN:** **~178 under-stepped D/E solutions** (legitimately 5-mark multi-part items whose `solutionSteps` were never broken out — a DIFFERENT defect, do not conflate). 254/2,211 D+E rows violate CBSE step-marking; 16 topics. **Own PR(s), data-only. NOT folded into a topic-expansion batch** (touches done topics; would wreck an additive byte-review).
 - **[FU-BANK-MCQ-REEXTRACT] (S-M)** — recover the 13 withheld rows from the source papers with **pymupdf** (`pdfplumber` BANNED — it caused this damage). Sources present at `Desktop/diff/cbse-papers/PYQ/X question papers/`; pymupdf verified to extract them with 0 `(cid:` artifacts. Recovered ⇒ delete the id from `WITHHELD_QUESTION_IDS`. **Never guess a distractor.** `PYQ-S-2024-MAG-002` stays withheld regardless (positron = out of syllabus).
 - **[FU-TOPICMATCHES-SUBSTRING-CONFLATION] (S)** — `predictionCore.ts:259` `topicMatches` is `q.includes(r) || r.includes(q)`. Swept all 26 slugs: **exactly one colliding pair, `circles` <-> `areas-related-to-circles`** — both return 456 (= 229 + 227) in QP / Worksheet / TopicHub / dailyMission. **CT/FM immune** (`bankQuery` exact `resolveCanonicalSlugSet`). Not blocking, but **both halves are in the remaining 6 Maths topics** — expect it during QA. Engine file ⇒ another lane.
 - **[FU-REACHABILITY-TEST-SCOPE] (S-M)** — `topickey_runtime_proof.mjs` (this lane's mandatory step 6) asserts bank INTEGRITY only (count>5000, 0 dups, canonical slugs, registry coverage) and **never touches a surface**; it would stay green if a surface stopped sourcing the bank. It hid no bug, but cannot catch the regression class its name implies. Add a surface-sourcing assertion.
@@ -1608,7 +1608,7 @@ Batch 7 was a clean large-reservoir topic: two-direction syllabus clean, both sc
   treated as a curated/predicted tier.
 
 ### ↪️ CARRIED (unchanged by #255)
-- **[FU-AITIER-MARKS-MISMATCH]** — the 7 quarantined pack items still need the marks/content pass (out of PR2a scope).
+- **[FU-AITIER-MARKS-MISMATCH] — ✅ RESOLVED by #504** (bank mis-banding Class (a), trunk `b810055`): the 7 quarantined pack items were relabelled to Section B / 2 marks with re-authored 2-mark `solutionSteps`, and `PACK_5MK_SHORT_BACKLOG` in `aiTierContentIntegrityGuard.test.ts` is now empty (guard stays live for new offenders). (was: the 7 quarantined pack items still need the marks/content pass.)
 - **PR2b `pastBoardYear` strip** — now **unblocked** by this stamp (it distinguishes verifiable PYQ years from fabricated
   predicted-layer ones). Owner's immediate next.
 
@@ -1622,13 +1622,14 @@ Batch 7 was a clean large-reservoir topic: two-direction syllabus clean, both sc
   long-answer) → moved to quarantine. Backlog **19 → 7**; count unchanged. Report: `report-aitier-pr1b-pack-retags-2026-06-18.md`.
 
 ### 🐞 NEW follow-up
-- **[FU-AITIER-MARKS-MISMATCH] (owner-authorized-later; content/marks pass).** The **7** quarantined pack items —
+- **[FU-AITIER-MARKS-MISMATCH] — ✅ RESOLVED by #504** (bank mis-banding Class (a), trunk `b810055`, owner LIVE-VERIFIED). The **7** quarantined pack items —
   `TG3-056` ("cosec 60°"), `TG3-059` ("evaluate 4 sin30° tan60° − 2 cot60° cos30°"), `ABS2-047` ("salt vs base"), `CR2-043`
   ("balance Al + O₂ → Al₂O₃"), `MNM2-037` ("name the reducing agent"), `REP2-039` ("name two contraceptives"), `PR2-018`
-  ("P(not blue)") — are SHORT questions wrongly tagged **5-mark**. This is a content↔marks problem, NOT a label problem: PR1b
-  deliberately did NOT relabel them (relabelling to "Long" worsens them). Fix the **marks** (or rewrite to genuinely fit 5 marks),
-  then remove each from `PACK_5MK_SHORT_BACKLOG` in `aiTierContentIntegrityGuard.test.ts`. They stay pinned + annotated so the
-  guard tracks them with no regression. Gated `.pack` edits + content judgment — owner-authorized, separate.
+  ("P(not blue)") — were SHORT questions wrongly tagged **5-mark**. As predicted this was a content↔marks problem, not a label one:
+  #504 set each to its **true value (all Section B / 2 marks, PYQ-grounded at fallback level 1)** and **re-authored `solutionSteps`
+  to the 2-mark scheme** (the padded 5-mark solutions — incl. TG3-059's literal `"Check: May need reworking"` line — are gone), then
+  removed all 7 from `PACK_5MK_SHORT_BACKLOG` in `aiTierContentIntegrityGuard.test.ts` (now empty; the guard stays LIVE for any new
+  offender). Anti-fabrication held — only section/marks + solutionSteps changed; questionText/options/answer untouched.
 
 ## 2026-06-18 — Post-PR #251 (AI-tier PR1 mechanical content-integrity; merged + CI GREEN)
 

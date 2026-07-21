@@ -1,6 +1,26 @@
 # LazyTopper â€” Current State
 
-## [CURRENT] #503 merged — ★★ VITEST NOW RUNS IN CI — the 59 render/unit suites that never had a gate — trunk `579822e`
+## [CURRENT] #504 merged — ★★ THE BANK MIS-BANDING (Class a) IS FIXED — 44 objective/short rows relabelled off a bogus 5-mark Section-D to their true CBSE value — owner LIVE-VERIFIED — trunk `b810055`
+
+**Wave-1 Lane C (BANK MIS-BANDING), data-only + one shrink-only guard, 14 files (13 `.pack` + `scripts/src/aiTierContentIntegrityGuard.test.ts`), zero engine/grader/forbidden. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (a) AND its co-tracked twin `[FU-AITIER-MARKS-MISMATCH]`.** 44 rows were mis-banded `section:"D"/marks:5` — objective or short-content questions the grader treated as 5-mark long-answers (the canonical case: `TG3-056` "Find the value of cosec 60°" grading as a 5-marker; MCQs surfacing as 5-mark Section-D items in Chapter Test / Full Mock). **Owner LIVE-VERIFIED on trunk `b810055`:** TG3-056 now B/2, the 37 objective rows at A/1, the guard backlog emptied. Docs-only handoff; zero product files here.
+
+- **C-OBJECTIVE — 37 MCQ / Assertion-Reasoning:** `D/5 → A/1`, **format unchanged** so they stay objective and grade binary 0-or-1 (an MCQ is a 1-mark item; `scoreObjective` awards 0-or-`totalMarks`, so marks 5→1 keeps it binary — never fractional, never flips objective↔subjective). `test:objective:dedup` PASSED; post-scan **0** objective rows remain at D/5.
+- **C-WRITTEN — 7 Short VSA → all Section B / 2 marks:** each true value **PYQ-grounded at fallback level 1** (a real same-subtopic/same-format precedent at B/2 — e.g. `TG3-056`↔`PYQ-M-2024-TRIG-007a`, `REP2-039`↔`PYQ-S-2024-REPR-005`, `ABS2-047`↔`PYQ-S-2026-ACID-015`, all confirmed section:B/marks:2). The owner "written-response ≥ 2 marks" floor held. `solutionSteps` re-authored to the true 2-mark scheme (the prior 5-mark solutions were PADDED — `TG3-059` carried a literal `"Check: May need reworking"` line). `MNM2-037` convention-scaled to B/2 (no clean depth-twin; bracketed between a 1-mk MCQ and a 3-mk 3-part) — owner-confirmed 2.
+- **The companion guard was REQUIRED, not scope-creep.** `PACK_5MK_SHORT_BACKLOG` in `aiTierContentIntegrityGuard.test.ts` pinned EXACTLY these 7 written ids as a SHRINK-ONLY baseline (audit 2026-06-17 — the pending content-judgment pass). A shrink-only guard FAILS once a pinned id stops offending, so fixing the data forced emptying the pin in the same PR ("strike the spent check in the PR that spends it"). The guard stays LIVE — still fails on any NEW pack 5-mark `Short` offender.
+
+**★★ THE COUNT WAS 44, NOT THE SPEC'S ~76 — and that gap is the Class-(a)/(b) boundary working.** 50 short-*prompt* `Long` D/5 rows ("Prove √2 is irrational", "Describe the alimentary canal of man") are GENUINE 5-mark proofs/essays — a concise prompt is not a short question. They are correctly banded and correctly EXCLUDED. **CLASS (b) — the ~178 under-stepped genuine-5-mark rows (`solutionSteps` never broken out) — is a DIFFERENT defect and remains UNTOUCHED here** (still OPEN under `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b)).
+
+**★ The two `.pack1` generators are structurally immune** (`triangles.pack1`, `trigonometry.pack1`): `makeQuestion` derives section+marks+format all from ONE `cbseFormat` key (`D → 5/"Long"`), so a mis-banded D/5 objective row is impossible there — proven from the code, not scanned.
+
+**Anti-fabrication held:** the diff touches only `section`×44, `marks`×44, and the 7 written rows' `solutionSteps` — ZERO edits to `questionText`/`options`/`answer`/`correctOption`/`finalAnswer`. Every mark value traced to a real PYQ/NCERT/Exemplar precedent; nothing invented.
+
+**Gates (all green; CI `quality-gate` PASS 3m49s on linux incl. the build):** tsc · check:mojibake · scope:guard(product) · lazytopper `test:matrix:all` · root `scripts` `test:matrix:all` **190/190** · `git diff --check` · `lane-overlap` PASS (file-disjoint from the other Wave-1 lanes).
+
+**NEXT:** the bank mis-banding Class-(a) lane is CLOSED. Class (b) (~178 under-stepped genuine-5-mark rows) remains OPEN as a separate content lane. See `NEXT_ACTION.md`. (⚠ trunk tip `b810055` also carries #505 MockBuilder-delete — a SEPARATE lane with its own handoff; the one-commit SHA lag between #504's merge `b799952` and the recorded `b810055` is expected.)
+
+---
+
+## #503 merged — ★★ VITEST NOW RUNS IN CI — the 59 render/unit suites that never had a gate — trunk `579822e`
 
 **Wave-1 Lane A (CI-VITEST GATE), infra-only, one file (`.github/workflows/quality-gate.yml`, +24), zero product `src/`. Resolves `[FU-CI-GATE-VITEST]`.** For this repo's whole history, `vitest run` (the `src/**/*.test.{ts,tsx}` suites — routing, aliveness, scorecardFeed, ConceptSpine, the overlay integration tests) ran **only on developer machines, and not on Windows at all** (the rollup-linux pin strips the win32 binary). CI gated the two `test:matrix:all` ops-matrices, the build, and mojibake — **never vitest.** So every vitest regression shipped green. **This is the root cause behind the green-but-broken builds (#484, #490): the tests that would have caught them never executed in CI.** #503 adds one required `Vitest suites (lazytopper)` step on the linux runner (where rollup works); a red vitest now fails CI.
 
