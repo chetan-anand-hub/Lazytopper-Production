@@ -1,3 +1,40 @@
+## 2026-07-21 -- #511: THE 223 UNDER-STEPPED D/E SOLUTIONS STEP-MARKED - Class (b) RESOLVED, 1 new FU opened (trunk `856d556`)
+
+### ✅ RESOLVED BY #511
+
+**[FU-BANK-SCARCE-BAND-MISBANDING] — ✅ FULLY RESOLVED. Class (a) by #504, Class (b) by #511. The lane is CLOSED end-to-end; do not re-open either class.**
+**Class (b) was a DIFFERENT defect from Class (a) — the distinction is the whole point of the split.** Class (a) rows were *mis-banded* (objective/short items sitting at a bogus `D/5`) and needed **relabelling**. Class (b) rows were **correctly banded all along** — genuine 5-mark Section-D long answers and 4-mark Section-E case-based items — and needed their **marking scheme authored**. 223 rows across 25 topics: `solutionSteps` were collapsed (**109 held their entire solution in ONE run-on step**), below the CBSE §13 minimum depth (D=5, E=4), or carried per-step marks that did not sum. All now carry `[N mark]` prefixes summing exactly to marks; multi-part rows may exceed the minimum counts (floors, not caps).
+- **Validator:** thin 220→**0**, bad-sum 3→**0**, fully compliant 1,137→**1,360** (+223). D+E total 2,167 unchanged.
+- **The count reconciles:** the recorded "~178" was a regex file-scan estimate; the in-memory audit of the real export found 220 thin + 3 bad-sum = 223. Against 254 recorded D+E violators, the 31-row remainder is exactly the Class-a/already-compliant set, correctly excluded.
+- **Anti-fabrication, proven semantically:** the assembled `canonicalQuestionBank` export was dumped at trunk and post-edit and deep-compared field-by-field across **all 8,584 rows** — `changedFields {solutionSteps:223, finalAnswer:70}`, `forbiddenFieldChanges []`, `changesOutsideThe223 []`, `idsAdded/Removed []`, `targetsUnchanged []`. Owner independently byte-verified the same property against the pushed diff.
+- **Provenance:** 223 ids in `CLASS_B_STEPPED_SOLUTION_IDS` → `AI_GENERATED_SOLUTION_IDS` (rank-demoted below authentic, auditable). The one line outside `data/questionBanks/**`, flagged before authoring and owner-confirmed.
+
+**★★ CONTENT DEFECTS SURFACED AND FIXED IN #511 — worth recording, because the collapsed format is what hid them.** These were not formatting problems; a run-on paragraph makes wrongness invisible:
+- **`SCQ-S-ELEC-036`** — stored solution belonged to an **entirely different question** (a series-circuit experiment sitting on an I–V graph question). Replaced with a correct solve (R = 5 Ω).
+- **`PYQ-M-2026-AP-001`** — carried a **statistics mean/mode solution on an A.P. kolam question**. Replaced with the correct A.P. solve (a=4, d=4, Sₙ=220 ⇒ n=10).
+- **`SCQ-S-CHEM-038`** — **unbalanced** combustion equation (CH₄ + O₂ → CO₂ + 2H₂O); corrected to CH₄ + 2O₂.
+- **`PYQ-M-2026-CIRC-006`** — the source's own embedded equation `(12−x)=x+8` was **mathematically wrong** (ignored Pythagoras); corrected to AB = 20/3 cm, PA = 26/3 cm. **Independently corroborated** by a second batch reaching identical values from `PYQ-M-2026-CG-002` — the corroboration is why this is a correction and not one agent's opinion.
+- **`PYQ-M-2025-AP-002`** — arithmetic error: S₆ = 3 × (600 + 250) = **2550 m**, not the OCR'd 2250 m.
+- **`STAT-N-EXEM-13-LA-001`** — rounding slip: 18720/110 = **₹170.18**, not ₹170.20.
+- **`SCQ-S-HERED-042`** — entire solution was the literal string `"[Sample Paper 2010]"`; full sex-determination answer authored.
+- `WWW.CBSE.ONLINE` disclaimer junk stripped from inside `solutionSteps` on several rows.
+
+**[FU-AITIER-MARKS-MISMATCH]** — remains resolved (by #504); untouched here. `PACK_5MK_SHORT_BACKLOG` stays empty and the guard stays live.
+
+### 🆕 NEW FOLLOW-UP
+
+- **[FU-BANK-GARBLED-ANSWER-CLASS] (M, PRE-LAUNCH) — the QUESTION-side twin of what #511 fixed on the SOLUTION side.** #511 could clean `solutionSteps` and `finalAnswer` only; the raw `answer` and `questionText` fields were untouchable by construction, and on ~15 rows they are still OCR garbage. **This is correctly a separate lane: #511 authors SOLUTIONS; these are QUESTION-defects, and editing a question is the fabrication line.** Recovery needs the source papers, **pymupdf** (`pdfplumber` remains BANNED — it caused this damage class), and **never guessing a distractor**.
+  - **Garbled `answer` fields:** SAV / STAT / PROB / QE PYQ rows — chiefly `PYQ-M-SAV-002/003/004/005`, `PYQ-M-2024-STAT-003/004/005`, `PYQ-M-2025-STAT-*`, `PYQ-M-2024-PROB-005`, `PYQ-M-2024-QE-004b/005a/006a`, `PYQ-M-2026-POLY-004`. Their `finalAnswer` is now clean and correct, so **the student-facing answer is fine today** — this is a data-hygiene and future-regrading concern, not a live wrong-answer bug.
+  - **⚑ `PYQ-M-2026-CG-002` — the worst one: `questionText` WELDS TWO UNRELATED PROBLEMS** (a circle/tangent problem + a parallelogram-midpoint proof). The #511 solution was written around the marking-scheme numbers with an explicit grounding doubt recorded. **Re-extract or withhold this row.**
+  - **`PYQ-M-2024-STAT-004`** — questionText parts (ii)/(iii) unreadable; only the evidenced part (modal class, mode ≈ 22.80) could be solved. **`PYQ-M-2024-STAT-003`** — frequency list truncated; the standard CBSE 30/4/3 distribution was *inferred* (yields a clean f = 6 consistent with mean 36.10) — verify against the source. **`PYQ-S-ELEC-004`** — part (a) truncated to `"(a) ."`. **`SCQ-S-ELEC-036`** — the I–V table's last two pairs break the linearity of the first six; likely OCR error.
+  - **Two smaller items found in passing, deliberately NOT fixed** (out of scope, both need an owner ruling): **`PYQ-M-2024-STAT-002`**'s `finalAnswer` says mode 36.81 where the working gives **36.82** (left alone — not "plainly wrong"); and **`PYQ-M-TRI-006`** is filed under `topicKey: triangles` but is a **coordinate-geometry** case study.
+
+### ⚠ CARRY-FORWARD — the excluded class, recorded so nobody "discovers" it as a bug
+
+- **807 D/E rows have full-depth solutions but no `[N mark]` tags.** Deliberately excluded from #511 — a much larger, cosmetic-leaning class (the solutions are complete and correct; only the per-step mark allocation is absent). Verified untouched by #511. **If this is ever taken on, it is its own lane with its own byte-review budget — do not fold it into a topic batch.**
+
+---
+
 ## 2026-07-21 -- #509: FRESH-SET FIXED + ALL 4 RED SUITES REPAIRED - 5 FUs RESOLVED, 3 new FUs opened (trunk `41277c1`)
 
 **[FU-PRACTICE-FRESH-SET-NOT-FRESH] — RESOLVED by #509, owner LIVE-VERIFIED.** (Owner-reported directly; opened and closed in the same wave, so it has no prior entry here.) The scorecard's "Build a fresh set" returned the SAME questions. A TRIGGER bug, not a missing feature — **both** inputs were immovable: (A) the rotation seed cannot advance in-session (`sessionStartedAt` is a mount-once `useState`), and (B) the seen-set is never **populated** — *not* cleared, as first hypothesised — because its loader effect has no `regenerationKey` dep. Fixed by a `freshSetNonce` on `rotationOffset` (+0 on every existing path) plus `buildFreshSet()` carrying the just-displayed ids into `seenQuestionIds`. Full record in `CURRENT_STATE` / `SESSION_LOG`.

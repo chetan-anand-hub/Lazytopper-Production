@@ -1,6 +1,66 @@
 # LazyTopper — Current State
 
-## [CURRENT] #509 merged — ★★ "BUILD A FRESH SET" IS ACTUALLY FRESH + THE VITEST GATE IS FULLY STRICT — owner LIVE-VERIFIED — trunk `41277c1`
+## [CURRENT] #511 merged — ★★ THE 223 UNDER-STEPPED D/E ROWS NOW CARRY REAL CBSE STEP-MARKED SOLUTIONS — trunk `856d556`
+
+**Class (b) of the mis-banding follow-up. Data-only, ONE PR, 87 files, +831/−356. Resolves `[FU-BANK-SCARCE-BAND-MISBANDING]` Class (b) — the lane is now CLOSED end-to-end (Class a by #504, Class b by #511).** Owner byte-reviewed the PUSHED diff and merged. Docs-only handoff; zero product files here.
+
+### What the defect actually was — and how it differs from Class (a)
+**These questions were always CORRECTLY BANDED.** Genuine 5-mark Section-D long answers and 4-mark Section-E case-based items — nothing like Class (a), where objective/short rows sat at a bogus `D/5` and needed *relabelling*. **Do not conflate the two.** What Class (b) was missing was the **marking scheme**: `solutionSteps` were collapsed (**109 rows held their entire solution in ONE run-on step**), below the CBSE minimum depth, or carried per-step marks that did not sum to the total.
+
+All 223 now carry `[N mark]`-prefixed steps summing **exactly** to the question's marks, at or above the CLAUDE.md §13 minimums (D = 5 steps, E = 4). **Multi-part rows may exceed those counts — the doctrine numbers are floors, not caps** (several use 6–7 steps summing to 5).
+
+### ★★ THE ANTI-FABRICATION PROOF WAS SEMANTIC, NOT A DIFF GREP
+A grep over the diff cannot prove a question is unchanged — it only shows which lines *look* touched. Instead the assembled `canonicalQuestionBank` **export** was dumped to JSON at trunk (in a throwaway detached worktree) and again post-edit, then deep-compared **field-by-field across all 8,584 rows**:
+
+```
+baseCount 8584 -> nowCount 8584     idsAdded []   idsRemoved []
+changedRows 223
+changedFields { solutionSteps: 223, finalAnswer: 70 }
+forbiddenFieldChanges []      <-- ZERO
+changesOutsideThe223  []      <-- ZERO
+targetsUnchanged      []      <-- all 223 genuinely changed
+```
+
+`questionText`, `options`, `answer`, `correctOption`, `marks`, `section`, `format`, `id`, `topicKey`, `subtopic`, `difficulty` are **byte-identical on every row in the bank**. The 70 `finalAnswer` edits were all fields that were **absent or raw OCR junk**. The owner independently byte-verified the same property against the pushed diff. **This is the reusable shape for any future data lane: compare the ASSEMBLED EXPORT, not the diff text.**
+
+### The validator
+| metric | trunk | post-#511 |
+|---|---|---|
+| D+E rows | 2,167 | 2,167 |
+| THIN (below D=5 / E=4 depth) | **220** | **0** |
+| BAD-SUM (prefixes ≠ marks) | **3** | **0** |
+| fully compliant | 1,137 | **1,360** (+223) |
+| full-depth-but-untagged (excluded class) | 807 | 807 (untouched) |
+
+**The 223 reconciles against the old "~178" estimate:** 220 thin + 3 bad-sum. The estimate came from a regex file-scan; this was an in-memory audit of the real export. 254 total D+E violators = 223 (Class b) + the 31 correctly-excluded Class-a/already-compliant rows.
+
+### ★★ RESTRUCTURING SURFACED REAL CONTENT DEFECTS THE COLLAPSED FORMAT HAD HIDDEN — all fixed in this PR
+The step-marking pass was expected to be formatting work. It was not:
+- **`SCQ-S-ELEC-036` and `PYQ-M-2026-AP-001` carried the solution to an ENTIRELY DIFFERENT QUESTION** — a series-circuit experiment stored on an I–V graph question, and a statistics mean/mode solve stored on an A.P. kolam question. Both replaced with correct solves.
+- **`SCQ-S-CHEM-038`** — an **unbalanced** combustion equation (CH₄ + O₂ → CO₂ + 2H₂O); corrected to CH₄ + 2O₂.
+- **`PYQ-M-2026-CIRC-006`** — the source's own embedded equation `(12−x)=x+8` was **mathematically wrong** (it ignored Pythagoras). Corrected to AB = 20/3 cm, PA = 26/3 cm — and **independently corroborated**: a different batch solving the same geometry from `PYQ-M-2026-CG-002` arrived at identical values.
+- **`PYQ-M-2025-AP-002`** — arithmetic error: S₆ = 3 × (600 + 250) = **2550 m**, not the OCR'd 2250 m.
+- **`STAT-N-EXEM-13-LA-001`** — rounding slip: 18720/110 = **₹170.18**, not ₹170.20.
+- **`SCQ-S-HERED-042`** — the entire solution was the literal string `"[Sample Paper 2010]"`; a full sex-determination answer was authored.
+- `WWW.CBSE.ONLINE` disclaimer junk stripped out of `solutionSteps` on several rows.
+
+**The transferable lesson: a collapsed one-line solution is not just ugly — it HIDES wrongness.** Nobody can see that a run-on paragraph answers a different question. Forcing the per-step structure is what made these visible.
+
+### Provenance
+The 223 ids are pinned in a new `CLASS_B_STEPPED_SOLUTION_IDS` array spread into `AI_GENERATED_SOLUTION_IDS`, so authored schemes rank-demote below authentic ones and stay auditable — the same mechanism as every prior authored batch. **That id-set is the one line outside `data/questionBanks/`**, flagged before authoring began and owner-confirmed in advance.
+
+### Deliberately NOT in scope (all verified untouched)
+- **807 D/E rows** with full-depth solutions but no `[N mark]` tags — a much larger, cosmetic-leaning class. Not this lane.
+- **Class-(a) rows** (#504) and already-compliant rows.
+- **Garbled upstream `answer` / `questionText` fields** — see `[FU-BANK-GARBLED-ANSWER-CLASS]`, newly opened. **This lane authors SOLUTIONS, not QUESTIONS; those are question-defects for a separate pass.**
+
+**VALIDATION (matrices re-run POST-COMMIT — commit-scoped guards diff `base...HEAD`, so a pre-commit run is truthful-but-useless):** tsc PASS · `check:mojibake` PASS · `scope:guard --mode product` PASS (pre-commit, where it must run) · lazytopper ops matrix PASS · root guard matrix **190/190** · `git diff --check` clean · step-mark validator **223/223 sum exactly**. Production build linux-gated by CI.
+
+**NEXT:** `[FU-BANK-GARBLED-ANSWER-CLASS]` opened (~15 rows with OCR-garbled `answer` fields + `PYQ-M-2026-CG-002`'s welded `questionText`). See `NEXT_ACTION.md`.
+
+---
+
+## (superseded) #509 merged — ★★ "BUILD A FRESH SET" IS ACTUALLY FRESH + THE VITEST GATE IS FULLY STRICT — owner LIVE-VERIFIED — trunk `41277c1`
 
 **Wave-2, ONE PR with TWO file-disjoint commit-sections, 7 files, +451/−34. Resolves `[FU-PRACTICE-FRESH-SET-NOT-FRESH]` AND all four red-suite FUs (`[FU-CONCEPTSPINE-TEST-STALE]`, `[FU-OBJSCORING-PARITY-TEST-RED]`, `[FU-PRACTICEINSIGHTS-DURABLE-RED]`, `[FU-WORKSHEET-PDFEXPORT-TEST-RED]`).** Owner byte-reviewed each section separately, then merged. Docs-only handoff; zero product files here.
 
