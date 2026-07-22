@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -44,10 +44,28 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
  *   Three collapsible bands replace the Sort toggle: Must-crack (open by
  *   default) → High-ROI (collapsed) → Good-to-do (collapsed). Inside each band
  *   the EXISTING row design is reused verbatim (name + tier chip + marks-weight
- *   bar + Open → Topic Hub + "⋯" secondary actions). The row gains an "Expect:"
+ *   bar + Learn → Topic Hub + "⋯" secondary actions). The row gains an "Expect:"
  *   recurring-sub-pattern line (must-crack only — the locked doc supplies these)
  *   and a volatility note on the two highest-but-most-volatile topics. The
  *   Subject + Science-stream filters are kept; only the Sort toggle is removed.
+ *
+ * DESIGN UPLIFT — PRESENTATION ONLY, zero functionality change:
+ *   Rows became cards on a per-band accent (green Must-crack / blue High-ROI /
+ *   violet Good-to-do — the shipped DesktopPracticePage MODE_ACCENT hues; no new
+ *   colour invented). There is deliberately NO grey band: priority reads from
+ *   the numbered badge and the ordering, never from draining colour. The one
+ *   copy change is the per-row primary CTA "Open" → "Learn" (same destination,
+ *   same params). Styling moved to CSS classes (lt-et-*) because §6's responsive
+ *   rules — mobile compaction, the wrapped action row, the two-line Expect:
+ *   clamp — and :hover cannot be expressed as inline style objects at all.
+ *
+ *   The "⋯" menu is a popover ANCHORED TO ITS OWN BUTTON (a position:relative
+ *   wrapper + top:calc(100% + 6px)), and the band carries its accent as a
+ *   border-left rather than a clipped spine element so the band needs no
+ *   overflow:hidden. Both matter: an unanchored absolute menu falls back to its
+ *   static position — below the whole card — and an overflow:hidden ancestor
+ *   clips it. The menu flips upward (bottom:calc(100% + 6px)) when it would
+ *   cross the viewport bottom, measured with getBoundingClientRect() on open.
  *
  * Tier authority (DO NOT re-derive or trust a stale code `tier` field):
  *   LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md — owner-signed-off tiers.
@@ -66,8 +84,11 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
  *     shape (no fake data; nothing re-derived).
  *   - HPQ counts come from getHighlyProbableQuestions only, matched by canonical
  *     topic name; if no bucket matches we render nothing (no invented number).
+ *   - The marks label stays "~N marks" — the real `topic.weight`. The weight BAR
+ *     is normalised to the widest topic for SHAPE only; that ratio is never
+ *     printed, because a bare "100" beside a bar reads as a fake percentage.
  *
- * Routing reuses the production routes the old page used — "Open" → Topic Hub;
+ * Routing reuses the production routes the old page used — "Learn" → Topic Hub;
  * the "⋯" secondary actions → existing Practice / Worksheet / Predicted routes;
  * every CTA preserves source=trends + returnTo=/exam-trends.
  */
@@ -75,23 +96,25 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 // ─── Theme tokens (copied verbatim from the retired DesktopExamTrendsPage —
 //     the shared desktop grammar; do NOT drift) ──────────────────────────────
 const PRIMARY_GREEN = "hsl(152, 55%, 45%)";
-const PRIMARY_GREEN_SOFT = "hsl(152, 55%, 95%)";
 const PRIMARY_GREEN_DEEP = "hsl(152, 60%, 38%)";
 const TEXT_FG = "hsl(220, 25%, 12%)";
 const TEXT_MUTED = "hsl(220, 15%, 42%)";
 const TEXT_TERTIARY = "hsl(220, 14%, 55%)";
 const BORDER = "hsl(220, 18%, 90%)";
 const CARD_BG = "#ffffff";
-const SURFACE_SOFT = "hsl(215, 28%, 96%)";
 // Volatility / "prepare deep" honesty note — reuses the medium-tier amber so it
 // reads as a caution, not a new color in the grammar.
 const CAUTION_FG = "hsl(35, 75%, 32%)";
-const CAUTION_BG = "hsl(43, 90%, 94%)";
+const CAUTION_BG = "hsl(43, 90%, 95%)";
+const CAUTION_LINE = "hsl(40, 60%, 84%)";
 
-const TIER_COLOR: Record<DesktopTrendTier, { fg: string; bg: string }> = {
-  high: { fg: "hsl(152, 60%, 32%)", bg: "hsl(152, 55%, 95%)" },
-  medium: { fg: "hsl(35, 75%, 32%)", bg: "hsl(43, 90%, 94%)" },
-  low: { fg: "hsl(220, 15%, 38%)", bg: "hsl(220, 14%, 94%)" },
+// Tier chips — the semantic mapping is UNCHANGED (high/medium/low). Only the
+// "low" swatch moves off grey onto the Good-to-do violet, so no part of the page
+// reads dead. Never a percentage. The swatches live in CSS (.lt-et-tier--*).
+const TIER_CLASS: Record<DesktopTrendTier, string> = {
+  high: "lt-et-tier--high",
+  medium: "lt-et-tier--medium",
+  low: "lt-et-tier--low",
 };
 const TIER_LABEL: Record<DesktopTrendTier, string> = {
   high: "High",
@@ -211,6 +234,16 @@ const BAND_DISPLAY: Record<
   },
 };
 
+// ─── Band presentation ──────────────────────────────────────────────────────
+// PRESENTATION ONLY. Nothing here decides membership; it only colours and
+// numbers a band that BAND_BY_SLUG has ALREADY assigned. The ordinal is the
+// priority signal that replaces the retired grey-drain treatment.
+const BAND_INDEX: Record<Band, number> = {
+  "must-crack": 1,
+  "high-roi": 2,
+  "good-to-do": 3,
+};
+
 // ─── Inline SVG glyphs (same family as the retired page) ────────────────────
 const ICON: React.CSSProperties = {
   fill: "none",
@@ -303,6 +336,23 @@ function IconChevron({ size = 18, open }: { size?: number; open: boolean }) {
     </svg>
   );
 }
+function IconAward({ size = 13 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5" />
+    </svg>
+  );
+}
+function IconAlert({ size = 13 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
 
 // ─── Honest HPQ matching (lifted verbatim from the retired desktop page) ─────
 const normalize = (value: string) =>
@@ -335,142 +385,545 @@ function countHPQForTopic(topic: DesktopTopicSummary): number {
   return match.questions.length;
 }
 
-// ─── Toggle button (reused pattern: active = green border + soft bg) ────────
-function ToggleButton({
-  active,
-  disabled,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        appearance: "none",
-        border: `1px solid ${active ? PRIMARY_GREEN : BORDER}`,
-        background: active ? PRIMARY_GREEN_SOFT : CARD_BG,
-        color: disabled ? "hsl(220, 14%, 70%)" : active ? PRIMARY_GREEN_DEEP : TEXT_FG,
-        padding: "7px 13px",
-        borderRadius: 999,
-        fontFamily: FONT_BODY,
-        fontSize: 13,
-        fontWeight: 600,
-        whiteSpace: "nowrap",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.55 : 1,
-        transition: "background 160ms ease, border-color 160ms ease, color 160ms ease",
-      }}
-    >
-      {children}
-    </button>
-  );
+// ─── Page stylesheet ─────────────────────────────────────────────────────────
+// CSS classes rather than inline style objects: §6's responsive rules and the
+// hover lifts cannot be expressed inline at all. Same technique already shipping
+// in DesktopPracticePage. Band accents ride CSS custom properties set by the
+// band's modifier class, so a card never needs to know its own colour.
+const STYLES = `
+.lt-et {
+  --fg: ${TEXT_FG};
+  --muted: ${TEXT_MUTED};
+  --tert: ${TEXT_TERTIARY};
+  --border: ${BORDER};
+  --card: ${CARD_BG};
+  --caution-fg: ${CAUTION_FG};
+  --caution-bg: ${CAUTION_BG};
+  --caution-line: ${CAUTION_LINE};
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  box-sizing: border-box;
+  font-family: ${FONT_BODY};
+  color: var(--fg);
+  min-width: 0;
+}
+.lt-et *, .lt-et *::before, .lt-et *::after { box-sizing: border-box; }
+
+/* ── Hero — green→blue→violet wash previewing the three bands ─────────── */
+.lt-et-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(118deg, hsl(152,50%,96%), hsl(205,70%,96%) 52%, hsl(255,60%,96.5%));
+  border: 1px solid hsl(152,42%,85%);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 14px -8px hsla(200,40%,35%,.3);
+}
+.lt-et-cred {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card);
+  border: 1px solid hsl(152,42%,85%);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 750;
+  color: hsl(152,60%,34%);
+  margin-bottom: 10px;
+}
+.lt-et-hero h1 {
+  font-family: ${FONT_DISPLAY};
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 5px;
+  line-height: 1.2;
+}
+.lt-et-hero p {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: hsl(220,20%,32%);
 }
 
-// ─── Action button (same shape/colors as the retired page) ──────────────────
-function ActionButton({
-  variant,
-  onClick,
-  icon,
-  children,
-  fullWidth,
-}: {
-  variant: "primary" | "secondary" | "ghost";
-  onClick: () => void;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-  fullWidth?: boolean;
-}) {
-  const [hover, setHover] = useState(false);
-  const palette = (() => {
-    if (variant === "primary") {
-      return {
-        bg: hover ? PRIMARY_GREEN_DEEP : PRIMARY_GREEN,
-        color: "#fff",
-        border: hover ? PRIMARY_GREEN_DEEP : PRIMARY_GREEN,
-      };
-    }
-    if (variant === "secondary") {
-      return {
-        bg: hover ? SURFACE_SOFT : CARD_BG,
-        color: TEXT_FG,
-        border: BORDER,
-      };
-    }
-    return {
-      bg: hover ? SURFACE_SOFT : "transparent",
-      color: TEXT_MUTED,
-      border: "transparent",
-    };
-  })();
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        appearance: "none",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 6,
-        padding: "8px 12px",
-        borderRadius: 8,
-        border: `1px solid ${palette.border}`,
-        background: palette.bg,
-        color: palette.color,
-        fontFamily: FONT_BODY,
-        fontSize: 12,
-        fontWeight: 600,
-        whiteSpace: "nowrap",
-        cursor: "pointer",
-        transition: "background 160ms ease, color 160ms ease, border-color 160ms ease",
-        width: fullWidth ? "100%" : "auto",
-      }}
-    >
-      {icon}
-      <span>{children}</span>
-    </button>
-  );
+/* ── Filters ──────────────────────────────────────────────────────────── */
+.lt-et-filters {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 15px;
+}
+.lt-et-seg {
+  display: inline-flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 3px;
+  gap: 2px;
+  box-shadow: 0 2px 8px -5px hsla(220,30%,40%,.3);
+}
+.lt-et-seg button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-family: ${FONT_BODY};
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.lt-et-seg button[aria-pressed="true"] {
+  background: linear-gradient(140deg, ${PRIMARY_GREEN}, hsl(152,60%,34%));
+  color: #fff;
+  box-shadow: 0 4px 12px -4px hsla(152,55%,30%,.6);
+}
+.lt-et-chip {
+  appearance: none;
+  border: 1px solid hsl(205,60%,84%);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-family: ${FONT_BODY};
+  font-size: 12px;
+  font-weight: 650;
+  color: hsl(205,72%,36%);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.lt-et-chip[aria-pressed="true"] { background: hsl(205,70%,96%); }
+.lt-et-chip:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Band — the accent is a border-left, NOT a clipped spine element. That
+      is precisely what lets us drop overflow:hidden, which would clip the
+      ⋯ popover (§5 cause 1). ─────────────────────────────────────────── */
+.lt-et-band {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--a-line);
+  border-left: 5px solid var(--a);
+  background: linear-gradient(175deg, var(--a-tint), var(--card) 34%);
+  margin-bottom: 14px;
+  box-shadow: 0 3px 12px -7px hsla(220,30%,40%,.22);
+}
+.lt-et-band--must-crack {
+  --a: ${PRIMARY_GREEN};
+  --a-tint: hsl(152,50%,96%);
+  --a-line: hsl(152,42%,85%);
+  --a-deep: hsl(152,60%,34%);
+  --a-card-line: hsl(152,35%,90%);
+  --a-shadow: hsla(152,55%,30%,.55);
+  --a-bar: hsl(152,60%,58%);
+}
+.lt-et-band--high-roi {
+  --a: hsl(205,70%,52%);
+  --a-tint: hsl(205,70%,96%);
+  --a-line: hsl(205,60%,84%);
+  --a-deep: hsl(205,72%,36%);
+  --a-card-line: hsl(205,45%,91%);
+  --a-shadow: hsla(205,70%,32%,.5);
+  --a-bar: hsl(205,72%,64%);
+}
+.lt-et-band--good-to-do {
+  --a: hsl(255,50%,58%);
+  --a-tint: hsl(255,60%,96.5%);
+  --a-line: hsl(255,50%,87%);
+  --a-deep: hsl(255,45%,45%);
+  --a-card-line: hsl(255,35%,92%);
+  --a-shadow: hsla(255,45%,40%,.5);
+  --a-bar: hsl(255,58%,70%);
+}
+.lt-et-bandhead {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px 18px;
+  cursor: pointer;
+  min-width: 0;
+  font-family: ${FONT_BODY};
+  border-radius: 13px;
+}
+.lt-et-bandnum {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: #fff;
+  font-family: ${FONT_DISPLAY};
+  font-weight: 800;
+  font-size: 15px;
+  background: linear-gradient(140deg, var(--a), var(--a-deep));
+  box-shadow: 0 4px 11px -4px var(--a-shadow);
+}
+.lt-et-bandtxt { flex: 1; min-width: 0; }
+.lt-et-bandtitle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-family: ${FONT_DISPLAY};
+  font-weight: 700;
+  font-size: 16.5px;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+  min-width: 0;
+}
+.lt-et-bandcount {
+  font-family: ${FONT_BODY};
+  font-size: 10.5px;
+  font-weight: 750;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  background: var(--card);
+  color: var(--a-deep);
+  border: 1px solid var(--a-line);
+}
+.lt-et-banddef {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  min-width: 0;
+}
+.lt-et-bandchev { flex: none; display: inline-flex; color: var(--a-deep); }
+.lt-et-rows { display: grid; gap: 10px; padding: 0 12px 12px; min-width: 0; }
+
+/* ── Topic card ───────────────────────────────────────────────────────── */
+.lt-et-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--a-card-line);
+  border-radius: 15px;
+  padding: 14px 15px;
+  min-width: 0;
+  box-shadow: 0 2px 8px -5px hsla(220,30%,40%,.18);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.lt-et-card:hover {
+  border-color: var(--a);
+  box-shadow: 0 11px 24px -13px var(--a-shadow);
+  transform: translateY(-2px);
+}
+.lt-et-card.is-selected { background: var(--a-tint); border-color: var(--a); }
+/* The card with an open menu must out-stack its siblings, or the popover
+   slides underneath the next card. */
+.lt-et-card.is-menuopen { z-index: 40; }
+.lt-et-cardtop { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.lt-et-cardmain { flex: 1; min-width: 0; }
+.lt-et-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.lt-et-title {
+  font-family: ${FONT_DISPLAY};
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lt-et-tier {
+  flex: none;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+/* Semantic mapping unchanged — only "low" moves off grey onto the band violet. */
+.lt-et-tier--high { background: hsl(152,55%,94%); color: hsl(152,60%,30%); border-color: hsl(152,45%,86%); }
+.lt-et-tier--medium { background: hsl(43,90%,93%); color: ${CAUTION_FG}; border-color: hsl(40,60%,84%); }
+.lt-et-tier--low { background: hsl(255,55%,96%); color: hsl(255,45%,45%); border-color: hsl(255,50%,87%); }
+.lt-et-hpq {
+  flex: none;
+  font-size: 9.5px;
+  font-weight: 750;
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  background: var(--card);
+  color: var(--a-deep);
+  border: 1px solid var(--a-line);
+}
+/* The chapter blurb — real catalogue content. Restyled, never removed: silence
+   in a spec is not authorisation to delete rendered content. Single-line
+   ellipsis exactly as trunk rendered it. */
+.lt-et-blurb {
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--tert);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lt-et-weight { margin-top: 10px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.lt-et-bar {
+  flex: 1;
+  min-width: 0;
+  max-width: 220px;
+  height: 8px;
+  border-radius: 999px;
+  background: hsl(220,16%,94%);
+  overflow: hidden;
+}
+.lt-et-barfill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--a-bar), var(--a-deep));
+}
+.lt-et-marks {
+  flex: none;
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lt-et-expect {
+  margin-top: 11px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 0;
+  background: var(--a-tint);
+  border: 1px solid var(--a-line);
+}
+.lt-et-expect-lb {
+  flex: none;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--a-deep);
+}
+.lt-et-expect-tx { min-width: 0; font-size: 12px; line-height: 1.5; color: hsl(220,22%,26%); }
+.lt-et-caution {
+  margin-top: 9px;
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  background: var(--caution-bg);
+  border: 1px solid var(--caution-line);
+  border-radius: 11px;
+  padding: 8px 11px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--caution-fg);
+  min-width: 0;
+}
+.lt-et-caution svg { flex: none; margin-top: 1px; }
+
+/* ── Actions ──────────────────────────────────────────────────────────── */
+.lt-et-actions { display: flex; align-items: center; gap: 7px; flex: none; }
+.lt-et-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 11px;
+  padding: 9px 16px;
+  font-family: ${FONT_BODY};
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: filter 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+.lt-et-btn--primary {
+  background: linear-gradient(140deg, var(--a), var(--a-deep));
+  color: #fff;
+  box-shadow: 0 4px 12px -4px var(--a-shadow);
+}
+.lt-et-btn--primary:hover { filter: brightness(1.08); }
+.lt-et-btn--ghost {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--muted);
+  padding: 9px 12px;
+}
+.lt-et-btn--ghost:hover { border-color: var(--a); color: var(--a-deep); }
+.lt-et-btn--ghost[aria-pressed="true"] {
+  border-color: var(--a);
+  color: var(--a-deep);
+  background: var(--a-tint);
 }
 
-// ─── Page header ─────────────────────────────────────────────────────────────
-function PageHeader() {
+/* ── The ⋯ popover — anchored to ITS OWN button (§5 cause 2) ──────────── */
+.lt-et-mwrap { position: relative; flex: none; display: inline-flex; }
+.lt-et-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 210px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 18px 42px -14px hsla(220,40%,20%,.45);
+  padding: 6px;
+  z-index: 60;
+}
+.lt-et-menu.is-up { top: auto; bottom: calc(100% + 6px); }
+.lt-et-menu button {
+  appearance: none;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: ${FONT_BODY};
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+.lt-et-menu button:hover { background: var(--a-tint); color: var(--a-deep); }
+
+/* ── Selected tray ────────────────────────────────────────────────────── */
+.lt-et-tray {
+  --a: ${PRIMARY_GREEN};
+  --a-deep: ${PRIMARY_GREEN_DEEP};
+  --a-tint: hsl(152,50%,96%);
+  --a-shadow: hsla(152,55%,30%,.6);
+  background: linear-gradient(160deg, var(--card), hsl(152,50%,96%));
+  border: 1px solid hsl(152,42%,85%);
+  border-radius: 18px;
+  padding: 15px 17px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 20px -14px hsla(220,40%,25%,.4);
+  min-width: 0;
+}
+.lt-et-tray-h {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: hsl(152,60%,34%);
+  margin-bottom: 5px;
+}
+.lt-et-tray-n {
+  font-family: ${FONT_DISPLAY};
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  color: var(--fg);
+}
+.lt-et-tray-a { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.lt-et-empty {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.lt-et-foot {
+  margin-top: 18px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--tert);
+  text-align: center;
+  padding: 0 10px;
+}
+
+/* ── Responsive — ONE component at every width, no breakpoint file-swap ─ */
+@media (max-width: 640px) {
+  .lt-et { padding: 16px 13px 56px; }
+  .lt-et-hero { padding: 15px 14px; margin-bottom: 13px; }
+  .lt-et-hero h1 { font-size: 20px; }
+  .lt-et-hero p { font-size: 12.5px; }
+  .lt-et-band { margin-bottom: 11px; }
+  .lt-et-bandhead { padding: 12px 13px; gap: 10px; }
+  .lt-et-bandnum { width: 30px; height: 30px; font-size: 13.5px; border-radius: 10px; }
+  .lt-et-rows { padding: 0 9px 9px; gap: 8px; }
+}
+@media (max-width: 540px) {
+  /* The action row wraps beneath the content; Learn stretches so the primary
+     action stays thumb-sized. Never shrink it. */
+  .lt-et-cardtop { flex-wrap: wrap; }
+  .lt-et-actions { width: 100%; margin-top: 10px; }
+  .lt-et-actions .lt-et-btn--primary { flex: 1; }
+  .lt-et-menu { min-width: 186px; }
+}
+@media (max-width: 520px) {
+  .lt-et-card { padding: 11px 12px; border-radius: 13px; }
+  .lt-et-title { font-size: 13.5px; }
+  .lt-et-bandtitle { font-size: 14.5px; gap: 7px; }
+  .lt-et-banddef { font-size: 11px; margin-top: 2px; }
+  .lt-et-name { gap: 6px; }
+  .lt-et-blurb { font-size: 11px; margin-top: 3px; }
+  .lt-et-tier, .lt-et-hpq { font-size: 9px; padding: 2px 7px; }
+  .lt-et-weight { margin-top: 8px; gap: 8px; }
+  .lt-et-bar { height: 5px; }
+  .lt-et-marks { font-size: 10px; }
+  .lt-et-expect { margin-top: 9px; padding: 8px 10px; gap: 7px; border-radius: 10px; }
+  .lt-et-expect-tx {
+    font-size: 11px;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .lt-et-caution { font-size: 10.5px; padding: 7px 9px; margin-top: 8px; border-radius: 9px; }
+  .lt-et-btn { padding: 9px 14px; font-size: 12px; }
+  .lt-et-tray-a { flex-direction: column; }
+  .lt-et-tray-a .lt-et-btn { width: 100%; }
+}
+`;
+
+// ─── Hero ────────────────────────────────────────────────────────────────────
+function PageHero({ children }: { children: React.ReactNode }) {
   return (
-    <header style={{ marginBottom: 22 }}>
-      <h1
-        style={{
-          margin: "0 0 6px 0",
-          fontFamily: FONT_DISPLAY,
-          fontSize: 22,
-          fontWeight: 600,
-          letterSpacing: "-0.01em",
-          color: TEXT_FG,
-          lineHeight: 1.2,
-        }}
-      >
-        Exam Trends
-      </h1>
-      <p
-        style={{
-          margin: 0,
-          maxWidth: 640,
-          fontFamily: FONT_BODY,
-          fontSize: 13,
-          lineHeight: 1.55,
-          color: TEXT_MUTED,
-        }}
-      >
-        What scores most in CBSE Class 10, grouped by priority. Open a band to see
-        the few topics that matter — and where to spend your time.
+    <header className="lt-et-hero">
+      <span className="lt-et-cred">
+        <IconAward />
+        Ten years of real CBSE papers
+      </span>
+      <h1>Exam Trends</h1>
+      <p>
+        Every chapter ranked into three priority bands. Start at the top — the band
+        is the verdict, so you never have to weigh marks against frequency yourself.
       </p>
+      {children}
     </header>
   );
 }
@@ -489,51 +942,39 @@ function ControlsRow({
 }) {
   const scienceDisabled = subject !== "Science";
   return (
-    <section
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "12px 18px",
-        marginBottom: 18,
-      }}
-    >
-      {/* Subject toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <ToggleButton active={subject === "Maths"} onClick={() => onSubject("Maths")}>
-          Maths
-        </ToggleButton>
-        <ToggleButton active={subject === "Science"} onClick={() => onSubject("Science")}>
-          Science
-        </ToggleButton>
-      </div>
-
-      {/* Science stream sub-filter — de-emphasised (disabled) for Maths */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          flexWrap: "wrap",
-          opacity: scienceDisabled ? 0.55 : 1,
-        }}
-      >
-        {(["All", "Physics", "Chemistry", "Biology"] as DesktopStream[]).map((s) => (
-          <ToggleButton
+    <div className="lt-et-filters">
+      <span className="lt-et-seg">
+        {(["Maths", "Science"] as DesktopSubject[]).map((s) => (
+          <button
             key={s}
-            active={!scienceDisabled && stream === s}
-            disabled={scienceDisabled}
-            onClick={() => onStream(s)}
+            type="button"
+            aria-pressed={subject === s}
+            onClick={() => onSubject(s)}
           >
             {s}
-          </ToggleButton>
+          </button>
         ))}
-      </div>
-    </section>
+      </span>
+      {(["All", "Physics", "Chemistry", "Biology"] as DesktopStream[]).map((s) => (
+        <button
+          key={s}
+          type="button"
+          className="lt-et-chip"
+          aria-pressed={!scienceDisabled && stream === s}
+          disabled={scienceDisabled}
+          onClick={() => onStream(s)}
+        >
+          {s}
+        </button>
+      ))}
+    </div>
   );
 }
 
 // ─── Selected-topic tray — multi-select secondary surface (honest, optional) ─
+// Kept IN FLOW rather than the prototype's sticky-bottom: at mobile width this
+// page renders inside MobileShell with a fixed BottomNav, which a sticky tray
+// would sit underneath.
 function SelectedTopicTray({
   selectedSlugs,
   subject,
@@ -557,82 +998,40 @@ function SelectedTopicTray({
   const subjectLabel =
     subject === "Science" && stream !== "All" ? `Science · ${stream}` : subject;
   return (
-    <section
-      style={{
-        background: CARD_BG,
-        border: `1px solid ${PRIMARY_GREEN}`,
-        borderRadius: 14,
-        padding: 16,
-        marginBottom: 18,
-        boxShadow: "0 6px 20px -14px rgba(15, 23, 42, 0.18)",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 14,
-      }}
-    >
-      <div style={{ minWidth: 0, flex: "1 1 240px" }}>
-        <div
-          style={{
-            fontFamily: FONT_BODY,
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            color: TEXT_MUTED,
-          }}
-        >
-          Selected · {subjectLabel}
-        </div>
-        <div
-          style={{
-            marginTop: 5,
-            fontFamily: FONT_DISPLAY,
-            fontSize: 15,
-            fontWeight: 600,
-            color: TEXT_FG,
-            lineHeight: 1.4,
-          }}
-        >
-          {names.join(" + ")}
-        </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          justifyContent: "flex-end",
-        }}
-      >
-        <ActionButton variant="primary" icon={<IconLayers />} onClick={onPractice}>
+    <section className="lt-et-tray">
+      <div className="lt-et-tray-h">Selected · {subjectLabel}</div>
+      <div className="lt-et-tray-n">{names.join(" + ")}</div>
+      <div className="lt-et-tray-a">
+        <button type="button" className="lt-et-btn lt-et-btn--primary" onClick={onPractice}>
+          <IconLayers />
           Practice selected
-        </ActionButton>
-        <ActionButton variant="secondary" icon={<IconClipboard />} onClick={onWorksheet}>
+        </button>
+        <button type="button" className="lt-et-btn lt-et-btn--ghost" onClick={onWorksheet}>
+          <IconClipboard />
           Worksheet
-        </ActionButton>
-        <ActionButton variant="secondary" icon={<IconSparkles />} onClick={onPredicted}>
+        </button>
+        <button type="button" className="lt-et-btn lt-et-btn--ghost" onClick={onPredicted}>
+          <IconSparkles />
           Predicted Qs
-        </ActionButton>
-        <ActionButton variant="ghost" icon={<IconTrash />} onClick={onClear}>
+        </button>
+        <button type="button" className="lt-et-btn lt-et-btn--ghost" onClick={onClear}>
+          <IconTrash />
           Clear
-        </ActionButton>
+        </button>
       </div>
     </section>
   );
 }
 
-// ─── Topic row (.trow) — the ranked-list unit, reused inside every band ─────
-function TopicRow({
+// ─── Topic card — the ranked-list unit, reused inside every band ────────────
+function TopicCard({
   topic,
   meta,
   maxWeight,
   hpqCount,
   selected,
-  expanded,
-  isLast,
-  onToggleExpand,
+  menuOpen,
+  onToggleMenu,
   onOpen,
   onPractice,
   onWorksheet,
@@ -644,254 +1043,146 @@ function TopicRow({
   maxWeight: number;
   hpqCount: number;
   selected: boolean;
-  expanded: boolean;
-  isLast: boolean;
-  onToggleExpand: () => void;
+  menuOpen: boolean;
+  onToggleMenu: () => void;
   onOpen: () => void;
   onPractice: () => void;
   onWorksheet: () => void;
   onPredicted: () => void;
   onToggleSelect: () => void;
 }) {
-  const tier = TIER_COLOR[topic.trendTier];
   const barPct = Math.min(100, (topic.weight / maxWeight) * 100);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [flipUp, setFlipUp] = useState(false);
+
+  // §5 — a card near the viewport bottom must open its menu UPWARD. Rendered
+  // downward first, measured, then flipped if it would be cut off.
+  useLayoutEffect(() => {
+    if (!menuOpen) {
+      setFlipUp(false);
+      return;
+    }
+    const el = menuRef.current;
+    if (!el || typeof el.getBoundingClientRect !== "function") return;
+    const rect = el.getBoundingClientRect();
+    const viewportH = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.height > 0 && rect.bottom > viewportH - 8) setFlipUp(true);
+  }, [menuOpen]);
+
+  const menuId = `lt-et-menu-${topic.slug}`;
   return (
-    <div
-      style={{
-        borderBottom: isLast ? "none" : `1px solid ${BORDER}`,
-        padding: "14px 16px",
-        background: selected ? PRIMARY_GREEN_SOFT : CARD_BG,
-        transition: "background 160ms ease",
-      }}
+    <article
+      className={`lt-et-card${selected ? " is-selected" : ""}${menuOpen ? " is-menuopen" : ""}`}
+      data-topic-slug={topic.slug}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: 12,
-        }}
-      >
-        {/* Left block — flexes and truncates so long names never overflow */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: 8,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 14,
-                fontWeight: 500,
-                color: TEXT_FG,
-                minWidth: 0,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {topic.name}
-            </span>
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                flexShrink: 0,
-                padding: "2px 8px",
-                borderRadius: 999,
-                background: tier.bg,
-                color: tier.fg,
-                fontFamily: FONT_BODY,
-                fontSize: 10.5,
-                fontWeight: 700,
-                letterSpacing: "0.02em",
-              }}
-            >
+      <div className="lt-et-cardtop">
+        <div className="lt-et-cardmain">
+          <div className="lt-et-name">
+            <span className="lt-et-title">{topic.name}</span>
+            <span className={`lt-et-tier ${TIER_CLASS[topic.trendTier]}`}>
               {TIER_LABEL[topic.trendTier]}
             </span>
-            {meta?.volatile && (
-              <span
-                title="Highest-weight but most volatile — prepare deep, don't bank a fixed mark-total."
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  flexShrink: 0,
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  background: CAUTION_BG,
-                  color: CAUTION_FG,
-                  fontFamily: FONT_BODY,
-                  fontSize: 10.5,
-                  fontWeight: 700,
-                  letterSpacing: "0.02em",
-                }}
-              >
-                Prepare deep · weight varies
+            {/* HPQ chip — the real count only; no bucket match renders nothing. */}
+            {hpqCount > 0 && (
+              <span className="lt-et-hpq">
+                {hpqCount} predicted Q{hpqCount === 1 ? "" : "s"}
               </span>
             )}
           </div>
 
-          <div
-            style={{
-              marginTop: 4,
-              fontFamily: FONT_BODY,
-              fontSize: 11.5,
-              lineHeight: 1.45,
-              color: TEXT_TERTIARY,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {topic.blurb}
+          {/* Real catalogue copy — restyled, never dropped. */}
+          <div className="lt-et-blurb">{topic.blurb}</div>
+
+          {/* Marks-weight bar + the REAL marks label (never the bar's ratio). */}
+          <div className="lt-et-weight">
+            <span className="lt-et-bar">
+              <span className="lt-et-barfill" style={{ width: `${barPct}%` }} />
+            </span>
+            <span className="lt-et-marks">~{topic.weight} marks</span>
           </div>
 
           {/* Recurring sub-pattern — the SHAPE, never a specific question. Renders
               only where the locked doc supplies one (must-crack topics). */}
           {meta?.subPattern && (
-            <div
-              style={{
-                marginTop: 6,
-                display: "flex",
-                alignItems: "baseline",
-                gap: 6,
-                fontFamily: FONT_BODY,
-                fontSize: 11.5,
-                lineHeight: 1.45,
-                color: TEXT_MUTED,
-              }}
-            >
-              <span
-                style={{
-                  flexShrink: 0,
-                  fontWeight: 700,
-                  letterSpacing: "0.02em",
-                  color: PRIMARY_GREEN_DEEP,
-                }}
-              >
-                Expect:
-              </span>
-              <span style={{ minWidth: 0 }}>{meta.subPattern}</span>
+            <div className="lt-et-expect">
+              <span className="lt-et-expect-lb">Expect</span>
+              <span className="lt-et-expect-tx">{meta.subPattern}</span>
             </div>
           )}
 
-          {/* Marks-weight bar + label */}
-          <div
-            style={{
-              marginTop: 8,
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                minWidth: 0,
-                maxWidth: 190,
-                height: 6,
-                borderRadius: 999,
-                background: SURFACE_SOFT,
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${barPct}%`,
-                  height: "100%",
-                  borderRadius: 999,
-                  background: tier.fg,
-                }}
-              />
+          {meta?.volatile && (
+            <div className="lt-et-caution">
+              <IconAlert />
+              <span>
+                Highest-weight but most volatile — prepare deep, don&apos;t bank a fixed
+                mark-total.
+              </span>
             </div>
-            <span
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 11,
-                fontWeight: 600,
-                color: TEXT_MUTED,
-                whiteSpace: "nowrap",
-              }}
-            >
-              ~{topic.weight} marks
-              {hpqCount > 0 ? ` · ${hpqCount} HPQ${hpqCount === 1 ? "" : "s"}` : ""}
-            </span>
-          </div>
+          )}
         </div>
 
-        {/* Right block — Open + ⋯; stays reachable, may wrap under on narrow */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            flexShrink: 0,
-          }}
-        >
-          <ActionButton variant="primary" icon={<IconBook />} onClick={onOpen}>
-            Open
-          </ActionButton>
+        {/* Right block — select, Learn, ⋯; wraps under the content below 540px */}
+        <div className="lt-et-actions">
           <button
             type="button"
-            onClick={onToggleExpand}
-            aria-expanded={expanded}
-            aria-label="More actions"
-            style={{
-              appearance: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 34,
-              height: 34,
-              borderRadius: 8,
-              border: `1px solid ${expanded ? PRIMARY_GREEN : BORDER}`,
-              background: expanded ? PRIMARY_GREEN_SOFT : CARD_BG,
-              color: expanded ? PRIMARY_GREEN_DEEP : TEXT_MUTED,
-              cursor: "pointer",
-              transition: "background 160ms ease, border-color 160ms ease, color 160ms ease",
-            }}
-          >
-            <IconMore />
-          </button>
-        </div>
-      </div>
-
-      {/* Inline secondary-action row — revealed by ⋯, wraps on narrow widths */}
-      {expanded && (
-        <div
-          style={{
-            marginTop: 12,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 8,
-          }}
-        >
-          <ActionButton variant="secondary" icon={<IconLayers />} onClick={onPractice}>
-            Practice
-          </ActionButton>
-          <ActionButton variant="secondary" icon={<IconClipboard />} onClick={onWorksheet}>
-            Worksheet
-          </ActionButton>
-          <ActionButton variant="secondary" icon={<IconSparkles />} onClick={onPredicted}>
-            Predicted Qs
-          </ActionButton>
-          <ActionButton
-            variant={selected ? "primary" : "secondary"}
-            icon={selected ? <IconCheck /> : <IconPlus />}
+            className="lt-et-btn lt-et-btn--ghost"
+            aria-pressed={selected}
+            aria-label={
+              selected
+                ? `Remove ${topic.name} from selection`
+                : `Add ${topic.name} to selection`
+            }
             onClick={onToggleSelect}
           >
-            {selected ? "Added" : "Add to selection"}
-          </ActionButton>
+            {selected ? <IconCheck /> : <IconPlus />}
+          </button>
+          <button type="button" className="lt-et-btn lt-et-btn--primary" onClick={onOpen}>
+            <IconBook />
+            Learn
+          </button>
+          {/* position:relative wrapper — without it the absolute menu falls back
+              to its static position, i.e. below the whole card (§5 cause 2). */}
+          <span className="lt-et-mwrap" data-lt-et-menu-wrap="">
+            <button
+              type="button"
+              className="lt-et-btn lt-et-btn--ghost"
+              aria-label={`More actions for ${topic.name}`}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              aria-controls={menuOpen ? menuId : undefined}
+              onClick={onToggleMenu}
+            >
+              <IconMore />
+            </button>
+            {menuOpen && (
+              <div
+                id={menuId}
+                ref={menuRef}
+                role="menu"
+                className={`lt-et-menu${flipUp ? " is-up" : ""}`}
+              >
+                <button type="button" role="menuitem" onClick={onPractice}>
+                  <IconLayers />
+                  Practice this chapter
+                </button>
+                <button type="button" role="menuitem" onClick={onWorksheet}>
+                  <IconClipboard />
+                  Build a worksheet
+                </button>
+                <button type="button" role="menuitem" onClick={onPredicted}>
+                  <IconSparkles />
+                  Predicted questions
+                </button>
+              </div>
+            )}
+          </span>
         </div>
-      )}
-    </div>
+      </div>
+    </article>
   );
 }
 
-// ─── Priority band — collapsible header + the reused rows ───────────────────
+// ─── Priority band — collapsible header + the reused cards ──────────────────
 function PriorityBand({
   band,
   topics,
@@ -899,9 +1190,9 @@ function PriorityBand({
   maxWeight,
   hpqCounts,
   selectedSlugs,
-  expandedSlug,
+  openMenuSlug,
   onToggleOpen,
-  onToggleExpand,
+  onToggleMenu,
   onOpen,
   onPractice,
   onWorksheet,
@@ -914,9 +1205,9 @@ function PriorityBand({
   maxWeight: number;
   hpqCounts: Map<string, number>;
   selectedSlugs: string[];
-  expandedSlug: string | null;
+  openMenuSlug: string | null;
   onToggleOpen: () => void;
-  onToggleExpand: (slug: string) => void;
+  onToggleMenu: (slug: string) => void;
   onOpen: (topic: DesktopTopicSummary) => void;
   onPractice: (topic: DesktopTopicSummary) => void;
   onWorksheet: (topic: DesktopTopicSummary) => void;
@@ -926,105 +1217,42 @@ function PriorityBand({
   const display = BAND_DISPLAY[band];
   const count = topics.length;
   return (
-    <section
-      style={{
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        overflow: "hidden",
-        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-        marginBottom: 14,
-      }}
-    >
+    <section className={`lt-et-band lt-et-band--${band}`} data-band={band}>
       <button
         type="button"
+        className="lt-et-bandhead"
         onClick={onToggleOpen}
         aria-expanded={open}
-        style={{
-          appearance: "none",
-          width: "100%",
-          textAlign: "left",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: 12,
-          padding: "16px 16px",
-          background: open ? PRIMARY_GREEN_SOFT : CARD_BG,
-          border: "none",
-          borderBottom: open ? `1px solid ${BORDER}` : "none",
-          cursor: "pointer",
-          transition: "background 160ms ease",
-        }}
       >
-        <span
-          style={{
-            flexShrink: 0,
-            marginTop: 1,
-            color: open ? PRIMARY_GREEN_DEEP : TEXT_MUTED,
-            display: "inline-flex",
-          }}
-        >
-          <IconChevron open={open} />
+        <span className="lt-et-bandnum" aria-hidden>
+          {BAND_INDEX[band]}
         </span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              flexWrap: "wrap",
-              gap: 8,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontSize: 16,
-                fontWeight: 600,
-                color: TEXT_FG,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {display.label}
-            </span>
-            <span
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 11.5,
-                fontWeight: 600,
-                color: TEXT_MUTED,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {count} topic{count === 1 ? "" : "s"}
+        <span className="lt-et-bandtxt">
+          <span className="lt-et-bandtitle">
+            {display.label}
+            <span className="lt-et-bandcount">
+              {count} chapter{count === 1 ? "" : "s"}
             </span>
           </span>
-          <span
-            style={{
-              display: "block",
-              marginTop: 3,
-              fontFamily: FONT_BODY,
-              fontSize: 12,
-              lineHeight: 1.45,
-              color: TEXT_TERTIARY,
-            }}
-          >
-            {display.definition}
-          </span>
+          <span className="lt-et-banddef">{display.definition}</span>
+        </span>
+        <span className="lt-et-bandchev">
+          <IconChevron open={open} />
         </span>
       </button>
 
       {open && (
-        <div>
-          {topics.map((topic, idx) => (
-            <TopicRow
+        <div className="lt-et-rows">
+          {topics.map((topic) => (
+            <TopicCard
               key={topic.slug}
               topic={topic}
               meta={BAND_BY_SLUG[topic.slug]}
               maxWeight={maxWeight}
               hpqCount={hpqCounts.get(topic.slug) ?? 0}
               selected={selectedSlugs.includes(topic.slug)}
-              expanded={expandedSlug === topic.slug}
-              isLast={idx === topics.length - 1}
-              onToggleExpand={() => onToggleExpand(topic.slug)}
+              menuOpen={openMenuSlug === topic.slug}
+              onToggleMenu={() => onToggleMenu(topic.slug)}
               onOpen={() => onOpen(topic)}
               onPractice={() => onPractice(topic)}
               onWorksheet={() => onWorksheet(topic)}
@@ -1054,8 +1282,28 @@ export default function ExamTrendsRanked() {
     "good-to-do": BAND_DISPLAY["good-to-do"].defaultOpen,
   }));
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
-  const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
+  const [openMenuSlug, setOpenMenuSlug] = useState<string | null>(null);
   const currentExamTrendsUrl = `${location.pathname}${location.search}`;
+
+  // §5 — a click anywhere outside an open menu closes it. Anchored on the wrapper
+  // (which contains the ⋯ button itself) so re-clicking that button still toggles
+  // rather than close-then-reopen.
+  useEffect(() => {
+    if (!openMenuSlug) return;
+    const onPointerDown = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        typeof target.closest === "function" &&
+        target.closest("[data-lt-et-menu-wrap]")
+      ) {
+        return;
+      }
+      setOpenMenuSlug(null);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [openMenuSlug]);
 
   // Science → Maths resets the stream so the (disabled) toggle is never left
   // pre-selected on a stream when the user toggles back later.
@@ -1105,11 +1353,13 @@ export default function ExamTrendsRanked() {
     );
   };
 
-  const toggleExpand = (slug: string) => {
-    setExpandedSlug((prev) => (prev === slug ? null : slug));
+  const toggleMenu = (slug: string) => {
+    setOpenMenuSlug((prev) => (prev === slug ? null : slug));
   };
 
   const toggleBand = (band: Band) => {
+    // Toggling a band closes any open menu — its anchoring card may unmount.
+    setOpenMenuSlug(null);
     setOpenBands((prev) => ({ ...prev, [band]: !prev[band] }));
   };
 
@@ -1200,25 +1450,17 @@ export default function ExamTrendsRanked() {
   const hasTopics = sortedTopics.length > 0;
 
   const pageBody = (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: 880,
-        margin: "0 auto",
-        padding: "28px 16px 64px 16px",
-        fontFamily: FONT_BODY,
-        color: TEXT_FG,
-        boxSizing: "border-box",
-      }}
-    >
-      <PageHeader />
+    <div className="lt-et">
+      <style>{STYLES}</style>
 
-      <ControlsRow
-        subject={subject}
-        stream={stream}
-        onSubject={handleSubject}
-        onStream={setStream}
-      />
+      <PageHero>
+        <ControlsRow
+          subject={subject}
+          stream={stream}
+          onSubject={handleSubject}
+          onStream={setStream}
+        />
+      </PageHero>
 
       {selectedSlugs.length > 0 && (
         <SelectedTopicTray
@@ -1233,20 +1475,7 @@ export default function ExamTrendsRanked() {
       )}
 
       {!hasTopics ? (
-        <div
-          style={{
-            background: CARD_BG,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 14,
-            padding: 28,
-            textAlign: "center",
-            color: TEXT_MUTED,
-            fontFamily: FONT_BODY,
-            fontSize: 14,
-          }}
-        >
-          No topics match this filter yet.
-        </div>
+        <div className="lt-et-empty">No topics match this filter yet.</div>
       ) : (
         BAND_ORDER.filter((band) => bandedTopics[band].length > 0).map((band) => (
           <PriorityBand
@@ -1257,9 +1486,9 @@ export default function ExamTrendsRanked() {
             maxWeight={maxWeight}
             hpqCounts={hpqCounts}
             selectedSlugs={selectedSlugs}
-            expandedSlug={expandedSlug}
+            openMenuSlug={openMenuSlug}
             onToggleOpen={() => toggleBand(band)}
-            onToggleExpand={toggleExpand}
+            onToggleMenu={toggleMenu}
             onOpen={goTopicHub}
             onPractice={goPracticeTopic}
             onWorksheet={goWorksheetTopic}
@@ -1268,6 +1497,10 @@ export default function ExamTrendsRanked() {
           />
         ))
       )}
+
+      <p className="lt-et-foot">
+        Trend strength shows High / Medium / Low — never an invented percentage.
+      </p>
     </div>
   );
 
