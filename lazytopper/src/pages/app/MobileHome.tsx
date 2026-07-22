@@ -14,6 +14,7 @@ import {
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
+import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import {
   BORDER,
   CARD_BG,
@@ -47,25 +48,41 @@ import {
  * ── Mobile chrome: PRESERVED, not rebuilt ─────────────────────────────────
  * `/browse` is a member of `isMobileSelfChromedRoute` (App.tsx), so the global
  * public navbar is suppressed here and THIS page owns the one top bar. There is
- * no MobileShell wrapper and no account-avatar menu on this surface — adding one
- * would stack two bars. The bottom tab bar is App.tsx's `BottomNav` (5 tabs); it
- * is untouched, and the 96px bottom padding below keeps content clear of it.
- * Tutor is deliberately NOT added to the bottom nav — tutor visibility on mobile
- * comes from the hero card.
+ * still NO MobileShell wrapper — wrapping this route would stack two headers.
+ * The bottom tab bar is App.tsx's `BottomNav` (5 tabs); it is untouched, and the
+ * 96px bottom padding below keeps content clear of it. Tutor is deliberately NOT
+ * added to the bottom nav — tutor visibility on mobile comes from the hero card.
  *
- * ── Mistake-Intel data boundary (PR-D, still in force) ────────────────────
- * Real per-user insights live in `mistakeLogService`, which pulls
- * `firebaseClient` and boots firebase at module load. Importing it here would
- * drag firebase into the mobile chunk for our phone-only majority. So MobileHome
- * stays firebase-free and renders the honest SPEC §4 empty state. This is not a
- * downgrade: the signed-in state on this surface was already an honest "no
- * mistakes logged yet" panel. Real mobile MI is tracked as
- * [FU-MOBILE-MI-REAL-DATA] — a bundle decision that gets its own review.
+ * PR-A2 adds the app-wide account avatar to THIS page's own brand bar. That is a
+ * NEW capability on this surface, not a restored one — /browse never had an
+ * account menu (the prototype showed one, which is where the expectation came
+ * from). It mounts `MobileAccountMenu` directly — extracted out of MobileShell
+ * for exactly this reason — rather than adopting the shell.
+ *
+ * ── Mistake-Intel data boundary — CORRECTED in PR-A2 ──────────────────────
+ * The long-standing claim here was that MobileHome "stays firebase-free", so
+ * importing `mistakeLogService` would drag firebase into the mobile chunk.
+ * **That is false, and was false before PR-A.** Walking the real import graph:
+ *
+ *   MobileHome -> hooks/useSubscription -> services/subscriptionService -> firebase/firestore
+ *   MobileHome -> context/AuthContext   -> services/mistakeLogService   -> firebase/firestore
+ *
+ * firebase — including firestore — and `mistakeLogService` itself are ALREADY
+ * on this page's graph via auth/subscription. Two consequences:
+ *   1. The SAMPLE panel's honesty rests on its LABEL, not on a bundle boundary.
+ *   2. [FU-MOBILE-MI-REAL-DATA]'s bundle argument is void — real logs would add
+ *      no new module here. It is a product/UX decision, not a bundle one.
+ * Pinned by "MobileHome import graph" in MobileHome.test.tsx so the false claim
+ * cannot quietly return.
+ *
+ * What this file DOES still guarantee: it takes no DIRECT dependency on the
+ * mistake data layer, so the sample panel cannot silently become data-backed.
  *
  * Data honesty: routes are the canonical Home destinations from the shared
- * firebase-free `homeDestinations`. Resume state comes from real
- * `landingMemory`; auth/trial state from `useAuth`/`useSubscription`. No
- * invented progress, accuracy, or counts.
+ * `homeDestinations`. Resume state comes from real `landingMemory`; auth/trial
+ * state from `useAuth`/`useSubscription`. No invented progress, accuracy, or
+ * counts — and the one set of illustrative figures on this page is explicitly
+ * badged a SAMPLE.
  */
 
 const HOME_QS = "source=home&returnTo=%2F";
@@ -119,15 +136,28 @@ const MOBILE_HOME_CSS = `
     display: flex; justify-content: center; gap: 6px; margin-top: 2px;
   }
 
+  /* Same "side and edge" treatment as the desktop grid cards, so a carousel
+     card and a grid card are the same object at two widths. Colour lives in the
+     spine + border; the body stays a neutral vertical gradient.
+     ★ GEOMETRY UNCHANGED from c8dab29 — radius 16px, padding 14px, and the
+     flex-basis above are deliberately identical. Colour only. */
   .lt-mhome-card {
     position: relative; overflow: hidden; min-width: 0;
-    border: 1px solid; border-radius: 16px; padding: 14px;
+    border: 1px solid var(--lt-line); border-radius: 16px; padding: 14px;
     display: flex; flex-direction: column; text-align: left;
     text-decoration: none; font: inherit; cursor: pointer;
-    box-shadow: 0 2px 9px -5px hsla(220, 30%, 40%, 0.16);
+    background: linear-gradient(180deg, ${CARD_BG}, hsl(220, 25%, 99%));
+    box-shadow: 0 2px 8px -4px hsla(220, 30%, 40%, 0.10);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+  .lt-mhome-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--lt-accent);
+    box-shadow: 0 8px 22px rgba(20, 40, 80, 0.09);
   }
   .lt-mhome-card::before {
     content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+    background: var(--lt-spine);
   }
   .lt-mhome-card .lt-ic {
     width: 36px; height: 36px; border-radius: 12px; background: #fff;
@@ -155,7 +185,32 @@ const MOBILE_HOME_CSS = `
   .lt-mhome-bks {
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
   }
+  /* SAMPLE preview — the badge and the sample figures share ONE bordered block
+     so the badge visibly scopes the numbers it qualifies. Dashed, to read as
+     illustrative rather than as the student's own record. */
+  .lt-mhome-sample {
+    border: 1px dashed hsl(222, 35%, 78%);
+    border-radius: 14px; padding: 11px; margin-top: 2px;
+    background: hsla(222, 45%, 99%, 0.75); position: relative;
+  }
+  .lt-sample-badge {
+    display: flex; align-items: center; gap: 5px; margin-bottom: 9px;
+    font-size: 8.5px; font-weight: 800; letter-spacing: 0.05em;
+    text-transform: uppercase; color: hsl(222, 47%, 34%);
+  }
+  .lt-sample-read {
+    font-size: 11px; line-height: 1.45; margin: 10px 0 0; padding-top: 9px;
+    color: hsl(222, 47%, 20%);
+    border-top: 1px solid hsl(222, 30%, 88%);
+  }
   .lt-mhome-bk { border-radius: 13px; padding: 11px; border: 1px solid; min-width: 0; }
+  /* Proportion bar — carries what the old MistakeBar conveyed (relative
+     magnitude), restyled into the bucket tile instead of a white-on-navy row. */
+  .lt-mhome-bk .lt-bar {
+    display: block; height: 4px; border-radius: 999px; margin-top: 7px;
+    background: hsla(222, 20%, 40%, 0.14); overflow: hidden;
+  }
+  .lt-mhome-bk .lt-bar > span { display: block; height: 100%; border-radius: 999px; }
   .lt-mhome-bk .lt-n {
     font-family: ${FONT_DISPLAY}; font-size: 19px; font-weight: 800; line-height: 1.05;
   }
@@ -228,11 +283,155 @@ function sectionLabelStyle(): React.CSSProperties {
   };
 }
 
+/** Decorative brain outline behind the Mistake-Intel panel. Recovered from
+ *  45ab803; stroke re-tinted navy because the card is now a light surface (the
+ *  original white stroke was for the old dark-gradient treatment). */
+function BrainArt() {
+  return (
+    <svg
+      viewBox="0 0 80 80"
+      aria-hidden="true"
+      style={{ position: "absolute", right: -6, top: -8, width: 96, height: 96, opacity: 0.09 }}
+    >
+      <path
+        d="M34 14 C20 9 9 20 13 33 C4 39 7 56 21 58 C24 70 44 70 46 58 L46 17 C46 10 48 12 40 14Z M46 14 C60 9 71 20 67 33 C76 39 73 56 59 58 C56 70 44 70 46 58"
+        fill="none"
+        stroke="hsl(222, 47%, 24%)"
+        strokeWidth="2.4"
+      />
+    </svg>
+  );
+}
+
 /**
- * Mistake Intelligence — SPEC §4 empty state.
+ * SAMPLE mix — the illustrative figures recovered verbatim from 45ab803
+ * (Conceptual 45 · Calculation 30 · Silly 15). Presentation is the arithmetic
+ * remainder to 100, not a new invention: the original three summed to 90 and
+ * the four-bucket grammar needs the fourth slot filled.
+ *
+ * These are a DEMONSTRATION, never a claim about this student — which is
+ * exactly why the sample label below is load-bearing.
+ */
+const SAMPLE_MIX: Record<string, number> = {
+  conceptual: 45,
+  calculation: 30,
+  silly: 15,
+  presentation: 10,
+};
+
+/**
+ * Mistake Intelligence — SIGNED-OUT: the clearly-labelled SAMPLE panel.
+ *
+ * Restored in PR-A2. PR-A removed it by reading spec §4's "real data only" as
+ * banning any illustrative figure; the rule actually bans presenting invented
+ * numbers as the student's OWN. A panel explicitly badged a sample is a
+ * demonstration, not a fabrication — and mobile /browse is a conversion
+ * surface, so a signed-out visitor seeing what MI produces is the point.
+ *
+ * ★ THE SAMPLE LABEL IS LOAD-BEARING. It is what makes this honest. Without it
+ * the panel IS a fabrication. It must stay unmistakable, and it must stay
+ * INSIDE the block that wraps the numbers, so the badge visibly scopes the very
+ * figures it is qualifying. Do not move it out, do not soften it.
+ *
+ * Firebase-free by construction: nothing here reads a real log. That boundary
+ * is the whole reason a sample exists on this surface — real per-user MI is
+ * deferred to [FU-MOBILE-MI-REAL-DATA].
+ */
+function SampleMistakeCard() {
+  return (
+    <div className="lt-mhome-mi" data-testid="mobile-home-mistake-panel">
+      <BrainArt />
+      <p
+        style={{
+          fontSize: 9,
+          fontWeight: 800,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: "hsl(222, 47%, 24%)",
+          opacity: 0.8,
+          margin: "0 0 5px",
+        }}
+      >
+        Mistake Intelligence
+      </p>
+      <h3
+        style={{
+          fontFamily: FONT_DISPLAY,
+          margin: "0 0 3px",
+          fontSize: 15,
+          fontWeight: 700,
+          color: "hsl(222, 47%, 16%)",
+          maxWidth: 250,
+        }}
+      >
+        We find the <i>reason</i> — not just the wrong answer.
+      </h3>
+      <p style={{ margin: "0 0 12px", fontSize: 11.5, color: MUTED, maxWidth: 260 }}>
+        Every checked answer is sorted by why you lost the mark:
+      </p>
+
+      {/* The sample badge and the sample numbers live in ONE block — the label
+          must visibly govern the figures it qualifies. */}
+      <div className="lt-mhome-sample">
+        <div className="lt-sample-badge" data-testid="mobile-home-mistake-sample-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: 12, height: 12, stroke: "currentColor", fill: "none", strokeWidth: 2 }}>
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Sample · what your report looks like
+        </div>
+
+        <div className="lt-mhome-bks">
+          {MI_BUCKETS.map((b) => (
+            <div
+              key={b.key}
+              className="lt-mhome-bk"
+              data-testid="mobile-home-mi-bucket"
+              style={{ background: b.bg, color: b.fg, borderColor: b.border }}
+            >
+              <div className="lt-n">{SAMPLE_MIX[b.key]}%</div>
+              <div className="lt-t">{b.label}</div>
+              <span className="lt-bar" aria-hidden>
+                <span style={{ width: `${SAMPLE_MIX[b.key]}%`, background: b.fg }} />
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p className="lt-sample-read">
+          → <b>Most marks lost: Trigonometry, conceptual.</b> We'd build drills to fix exactly that.
+        </p>
+      </div>
+
+      <Link
+        to={loginUrl("mistake-aware", "/practice-hub")}
+        data-testid="mobile-home-mi-sample-cta"
+        style={{
+          marginTop: 13,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "11px 16px",
+          borderRadius: 12,
+          background: "linear-gradient(140deg, hsl(222,47%,24%), hsl(222,47%,16%))",
+          color: "#fff",
+          textDecoration: "none",
+          fontSize: 12.5,
+          fontWeight: 700,
+          boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
+        }}
+      >
+        Start free — find my reasons <ArrowRight />
+      </Link>
+    </div>
+  );
+}
+
+/**
+ * Mistake Intelligence — SIGNED-IN: SPEC §4 empty state. Unchanged from PR-A.
  *
  * Four fixed buckets keeping their semantic colours with a soft em dash where
- * the number goes, so a new student learns what MI will tell them. Never
+ * the number goes, so a student learns what MI will tell them. Never
  * fabricates counts. NO "Ask the tutor about these" CTA — MistakeLogEntry spans
  * many topics while buildTutorPath needs exactly one, so there is no single
  * honest destination (see SPEC §4).
@@ -459,7 +658,15 @@ export default function MobileHome() {
           </span>
           LazyTopper
         </span>
-        {trialChip}
+        {/* Right cluster — mirrors MobileShell's own header cluster. The account
+            avatar is app-wide chrome; this surface is self-chromed (it must NOT
+            be wrapped in MobileShell, which would stack two headers), so it
+            mounts the extracted menu directly. MobileAccountMenu renders nothing
+            when signed out, so the signed-out bar is unchanged. */}
+        <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
+          {trialChip}
+          <MobileAccountMenu />
+        </div>
       </header>
 
       {/* 96px bottom padding clears App.tsx's 60px BottomNav. */}
@@ -536,7 +743,13 @@ export default function MobileHome() {
           {PRIMARY_CARDS.map((c) => {
             const Icon = c.icon;
             const a = HOME_ACCENTS[c.accent];
-            const shell: React.CSSProperties = { background: a.body, borderColor: a.border };
+            // Tones as custom properties — the CSS owns the treatment, this
+            // owns only which accent the card wears. Matches DesktopHome.
+            const shell = {
+              "--lt-spine": a.spine,
+              "--lt-line": a.border,
+              "--lt-accent": a.hover,
+            } as React.CSSProperties;
             const inner = (
               <>
                 <span className="lt-ic" style={{ color: a.ink }}>
@@ -591,7 +804,11 @@ export default function MobileHome() {
 
         {/* ── MI — right below the carousel, not four scrolls down ─ */}
         <div style={sectionLabelStyle()}>Your mistakes, understood</div>
-        <MistakeIntelligenceCard />
+        {/* Signed OUT sees the labelled SAMPLE (this is a conversion surface —
+            showing what MI produces is the point). Signed IN keeps PR-A's
+            honest empty state; real per-user data stays deferred to
+            [FU-MOBILE-MI-REAL-DATA]. Neither path reads a real mistake log. */}
+        {isSignedIn ? <MistakeIntelligenceCard /> : <SampleMistakeCard />}
 
         {/* ── Quick links — collapsed on mobile ───────────────────
             No section label here: the <summary> IS the label, and rendering
