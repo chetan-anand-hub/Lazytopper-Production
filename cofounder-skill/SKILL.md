@@ -40,6 +40,23 @@ If you cannot reach the repo, follow this file — but **say so explicitly in yo
 owner knows you are working from a possibly-stale method rather than the current one.
 
 ## SKILL SYNC (this file lives in TWO places — keep them identical)
+**Version 2.5 · 2026-07-22.** *Supersedes 2.4 (same day). Adds two findings from the #528 stand-down, both learned
+by RUNNING the commands rather than reasoning about them:* **(1) a new GREEN-BOARD-TRAP species — "a derived value
+outlives the facts it was derived from, and nothing re-checks it."** `[FU-HUB-DROPDOWN-ZINDEX]` logged `zIndex: 55`
+as a *"known, byte-reviewed"* fix bounded *">50 and <60"*; both bounds later pointed at **deleted code** while the
+number sat unchanged and still read as verified — and it was wrong by 5. The cure is to **pin the bounds in a test,
+not the number in prose**. **(2) a STAND-DOWN block in GIT DOCTRINE correcting four behaviours** — most importantly
+that **`git branch -d` does NOT refuse a squash-merged branch, it deletes with a warning** (it compares the
+remote-tracking ref), which is the more dangerous shape of the trap because expecting a refusal is what makes
+someone reach for `-D`; and that `gh pr merge --delete-branch`'s worktree error fires **only from the main
+checkout**, not from the lane's own worktree.
+*Also fixes a DOCUMENT-CULTURE drift this file itself warns about: **v2.4 shipped its section without a version
+ledger entry**, leaving this header reading 2.3 while the body carried 2.4. The header now matches the content.*
+
+**Version 2.4 · 2026-07-22.** *Supersedes 2.3 (same day). Added **"★ THIS COPY MAY BE STALE — THE REPO COPY
+SUPERSEDES IT"** (above): the repo copy at `cofounder-skill/SKILL.md` is authoritative, any live/mirrored copy is
+synced by hand and should be assumed behind, and the repo copy wins on every disagreement. Retro-logged here in 2.5.*
+
 **Version 2.3 · 2026-07-22.** *Supersedes 2.2 (same day). Completes the five-defect audit begun in 2.2 — 2.2 fixed
 the merge check and the Appendix-A trunk-SHA wording; **2.3 fixes the remaining three, all verified against trunk
 `61a7030` before drafting:*** **(1) CI DOES run the general vitest suite.** `:203` and the GATES entry both said a
@@ -196,6 +213,26 @@ anti-fabrication holds) were right. So the cure is mechanical, not "try harder":
   `document.fonts.ready` is NOT enough. **Both produce confident, stable, wrong numbers.** Prove the instrument
   before trusting the reading.
 
+- **★★ A DERIVED VALUE OUTLIVES THE FACTS IT WAS DERIVED FROM, AND NOTHING RE-CHECKS IT.** *(2026-07-22, #528.)*
+  `[FU-HUB-DROPDOWN-ZINDEX]` carried a prescription recorded as **"the fix (known, byte-reviewed): `zIndex: 55`"**,
+  explicitly bounded *"> 50 and < 60"* against "every `zIndex` in `src`". By the time it was built **BOTH bounds
+  referenced code that no longer existed** — the floor cited TrendsPage's dropdown (route **retired**), the ceiling
+  cited `TutorDrawerV2` / `MentorSolveDrawer` (**deleted in #516**). The bounds rotted; the number between them never
+  moved, and still read as *verified, byte-reviewed*. It was wrong: the real ceiling was `.command-palette-backdrop`
+  at **50**, so 55 would have punched the header through the very palette its own search box opens.
+  - **This is not a z-index rule.** Any derived constant — a threshold, a timeout, a retry count, a magic number in a
+    comment — decays the same way. **The derivation is recorded in prose; the inputs are deleted by an unrelated PR;
+    nothing connects the two.** It is worse than an un-derived value, because the recorded reasoning *earns* trust.
+  - **THE CURE IS MECHANICAL: PIN THE BOUNDS, NOT THE NUMBER.** Assert the *inequalities* in a test
+    (`expect(z).toBeGreaterThan(30); expect(z).toBeLessThan(50)`), so deleting an input turns a suite **red** instead
+    of leaving prose quietly stale. Mutation-test each bound **at the exact boundary**, and keep a mutation pinned at
+    the value the *wrong* derivation would have produced, so the specific regression is named and cannot silently
+    return.
+  - **A "known, byte-reviewed" fix sitting in a doc is a HYPOTHESIS, not a decision.** Re-derive it against the live
+    tree before shipping, exactly like any other repo claim (LAW 1). **Two** independent derivations of this one were
+    wrong — the FU's, and the spec that superseded it (which said "derive from the full-screen overlay landscape",
+    pointing at ~1100) — before anyone measured.
+
 ## HARD-WON RULES (the 2026-06 grader saga — each cost real, avoidable turns)
 - **A shared FILE is not a shared FUNCTION.** When touching shared infra, grep ALL implementations and call-sites of that behavior and fix + test them in ONE PR. Honor any in-file "keep in sync" comment. *(The grader fix patched one of two grading functions, passed every gate, and shipped a half-fix that only live-verify caught.)*
 - **Test the real path with adversarial data, not a convenient mock.** Drive the actual code path the surface uses; feed the data shape production really produces; include the case where the model fights the rule. A green test against a non-representative mock is false confidence.
@@ -311,6 +348,35 @@ Read the relevant appendix before that kind of work; do not rely on memory for b
   not need the owner for a SHA). Fresh worktree per task. Squash-merge; **delete branch+worktree after — a live
   branch is how the next stacked PR silently orphans** (verify with `git ls-remote`; the Windows node_modules lock
   on worktree dirs is harmless residue).
+
+- **★ STAND-DOWN (closing a lane) — four things that behave differently than expected on THIS repo.**
+  *(Corrected 2026-07-22 against a real stand-down; the first two contradict what was previously assumed.)*
+  1. **`git branch -d` does NOT refuse a squash-merged branch — it DELETES, with a warning.** It compares against
+     the **remote-tracking ref**, which does contain the branch:
+     `warning: deleting branch 'X' that has been merged to 'refs/remotes/origin/X', but not yet merged to HEAD`.
+     **This is the more dangerous shape of the squash trap:** expecting a refusal is what makes someone reach for
+     `-D` reflexively and delete something genuinely unmerged. **Never reach for `-D` on the assumption `-d` will
+     block you.** Establish MERGED first (content-on-trunk, then `--is-ancestor <mergeCommit>`), then plain `-d`.
+  2. **`gh pr merge --delete-branch`'s `fatal: '<trunk>' is already used by worktree` fires only when run from the
+     MAIN CHECKOUT** (gh tries to switch the local checkout to the base branch afterwards). **Run it from the
+     lane's own worktree and it does not fire at all.** It is never a merge failure either way — verify the merge,
+     don't re-run it.
+  3. **`gh pr merge`'s console echo prints the CUMULATIVE PR-RANGE diff, not the squash.** A docs-only PR echoed
+     *"18 files changed, 4757 insertions"* including product files from other PRs. **Always verify the real one:**
+     `git diff --name-only <mergeCommit>^ <mergeCommit>`.
+  4. **Before ANY recursive delete of a pnpm worktree, assert every junction targets INSIDE it** — recursing
+     through a junction that points at the main checkout wipes its `node_modules`:
+     ```powershell
+     $links = Get-ChildItem $wt -Recurse -Force -Attributes ReparsePoint -ErrorAction SilentlyContinue
+     @($links | Where-Object { $_.Target -and ($_.Target | Where-Object { $_ -notlike "$wt*" }) }).Count  # MUST be 0
+     ```
+     A real install yields ~4.1–4.3k reparse points, all internal. `git worktree remove` will error
+     `Directory not empty` but **de-registers anyway** — check `git worktree list`, then clear the residue and
+     confirm the main checkout's `node_modules` survived.
+  - **Then `git remote prune origin`**, and **do not leave the main checkout parked on a merged branch**: once its
+    tracking ref is pruned, `git status` there reports already-merged work as **phantom deletions**, and a stash
+    can land on a stale file version. `git checkout <trunk> && git pull --ff-only` before you walk away.
+
 - **★ AFTER EVERY MERGE YOU CARE ABOUT — verify by CONTENT first, then by SHA.**
   **(1)** `git show <re-derived trunk>:<path>` — confirm what you shipped is actually there.
   **(2)** `gh pr view <N> --json state,mergedAt,mergeCommit`, then
