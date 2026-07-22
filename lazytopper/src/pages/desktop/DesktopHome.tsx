@@ -12,45 +12,54 @@ import {
   resolveResumeRoute,
   type LandingMemory,
 } from "../../lib/desktop/landingMemory";
-import { loginUrl, PRIMARY_CARDS } from "../../lib/desktop/homeDestinations";
+import {
+  HOME_ACCENTS,
+  loginUrl,
+  PRIMARY_CARDS,
+  useTutorPicker,
+} from "../../lib/desktop/homeDestinations";
 
 /**
- * DesktopHome — PR-B2: locked prototype parity with topic-focus-lite/src/pages/HomePage.tsx.
+ * DesktopHome — the Home cockpit at desktop width (and at /browse for a
+ * signed-out desktop visitor).
  *
- * Section mapping (prototype → production):
- *   - prototype ContextBar       → inline ContextBar-style header
- *   - prototype memory strip     → memory strip backed by landingMemory.ts
- *   - prototype lastAttempt card → "Latest saved worksheet" card backed by
- *     readLandingMemory().lastAttempt (saved worksheet PLAN, not a graded score)
- *   - prototype 4 primary cards  → /practice-hub, /practice/worksheets,
- *     /exam-trends, /check-improve
- *   - prototype quick-generate   → /full-mock/{grade}/Maths, /full-mock/
- *     {grade}/Science (Full Test), /exam-trends (predicted),
- *     /practice/worksheets (multi-topic)
- *   - prototype MistakeIntelligencePanel → inline panel with three real
- *     states (logged-out / no real bucket / has real bucket) backed by
- *     getMistakeLogs(uid, 7) aggregation. Does NOT import the PR #17-only
- *     symbols (aggregateErrorCategories, readLocalMistakeLogsSince,
- *     ErrorCategory).
+ * HOME REDESIGN PR-A. Section order now matches the owner-approved prototype
+ * (`LazyTopper_Home_Redesign_prototype_v9_FINAL`):
+ *   greeting band → "Start here" (4 hero cards) → "Your mistakes, understood"
+ *   (MI, full width) → "Jump straight in" (quick strip).
+ *
+ * What changed and why:
+ *   - The Worksheets hero is RETIRED. It and the Practice card carried the
+ *     IDENTICAL destination string (`/practice-hub?source=home&returnTo=%2F`),
+ *     so Home shipped a literally duplicated slot. Worksheets stay reachable at
+ *     the practice hub and via the quick strip's multi-topic worksheet tile.
+ *   - A Tutor card takes the freed slot. It opens the shared pop-card
+ *     (`useTutorPicker`) rather than navigating, because the tutor URL needs a
+ *     subject + chapter the student has to choose.
+ *   - MI moved from a 1/3 sidebar to a full-width card using the shipped
+ *     `MistakeIntelligencePanel` grammar — navy frame + spine, and the VERBATIM
+ *     semantic bucket tones from `MistakeIntelligencePanel.tsx:26-29`.
+ *
+ * Preserved deliberately (NOT in the redesign's scope table): the resume/memory
+ * strip and the "Latest saved worksheet" card. Both are gated on real
+ * `landingMemory`, so a new student sees exactly the prototype's layout; a
+ * returning student keeps the resume affordances the prototype never modelled.
  *
  * Honest copy contract:
- *   - No fake personalised greeting beyond a real account display name.
- *   - Memory strip only renders when hasMeaningfulMemory() is true.
+ *   - Greeting uses a real account display name (or none) — never an invented one.
+ *   - No days-to-boards countdown: the only real source (`cbseExamDate`) is an
+ *     async API whose date may be `"predicted"` rather than `"official"`, and
+ *     students have an existing `hideCountdown` preference. Rendering it here
+ *     would add an API dependency AND override that choice.
+ *   - Mistake intelligence reads real entries via getMistakeLogs(uid, 7);
+ *     anonymous sessions / no entries → honest empty state, never invented counts.
  *   - "Latest saved worksheet" never says "score" / "attempt" — saved
  *     worksheets capture the plan, not a graded result.
- *   - Mistake intelligence reads real entries via getMistakeLogs(uid, 7);
- *     anonymous sessions / no entries → empty-state copy, never invented
- *     counts.
- *   - Auth-required CTAs route through reason-aware /login URLs that
- *     match the PR-LANDING canonical reason set (start-trial,
- *     mistake-aware, mistake-aware-worksheet, open-progress, open-check).
- *     Full Test entries navigate plainly — MockViewGate on /full-mock is
- *     the ONLY gate (it handles signed-out + free-limit itself).
  *
  * Design constraints:
- *   - Inline styles only — no Tailwind / shadcn / Radix.
- *   - Inline SVG only — no lucide-react.
- *   - No new dependencies.
+ *   - No Tailwind / shadcn / Radix. Inline SVG only — no lucide-react.
+ *   - New structures are CSS classes in ONE scoped <style> block (hover + media
+ *     queries cannot be expressed inline); no new dependencies.
  */
 
 // ── LOCKED BASELINE LIGHT TOKENS ────────────────────────────────
@@ -96,25 +105,6 @@ function ArrowRightIcon({ size = 16 }: IconProps) {
     </svg>
   );
 }
-function SparklesIcon({ size = 14 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"
-      strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
-    </svg>
-  );
-}
-function LockIcon({ size = 16 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-      strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
 function TargetIcon({ size = 14 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -140,24 +130,30 @@ function RotateCcwIcon({ size = 14 }: IconProps) {
 // ── MISTAKE BUCKET AGGREGATION (local — no PR #17 symbols) ──────
 type BucketKey = "conceptual" | "calculation" | "silly" | "presentation";
 
-interface BucketRow {
-  key: BucketKey;
-  label: string;
-  count: number;
+/**
+ * VERBATIM from the shipped `MistakeIntelligencePanel.tsx:26-29` — the semantic
+ * bucket grammar. Conceptual blue · calculation amber · silly red ·
+ * presentation purple. Do NOT re-derive these; the panel and this card must
+ * read as one system. Order here is the FIXED render order: the card always
+ * shows all four buckets regardless of history size (SPEC §4,
+ * "clutter-proof by construction").
+ */
+const MI_BUCKETS: {
+  key: BucketKey; bg: string; fg: string; border: string; label: string;
+}[] = [
+  { key: "conceptual", bg: "hsl(215, 75%, 95%)", fg: "hsl(215, 65%, 32%)", border: "hsl(215, 60%, 88%)", label: "Conceptual" },
+  { key: "calculation", bg: "hsl(38, 92%, 95%)", fg: "hsl(38, 65%, 32%)", border: "hsl(38, 70%, 85%)", label: "Calculation" },
+  { key: "silly", bg: "hsl(0, 75%, 96%)", fg: "hsl(0, 60%, 38%)", border: "hsl(0, 60%, 89%)", label: "Silly mistake" },
+  { key: "presentation", bg: "hsl(280, 60%, 96%)", fg: "hsl(280, 50%, 35%)", border: "hsl(280, 45%, 89%)", label: "Presentation" },
+];
+
+interface BucketTotals {
+  total: number;
+  totals: Record<BucketKey, number>;
+  topLabel: string | null;
 }
 
-const BUCKET_LABELS: Record<BucketKey, string> = {
-  conceptual: "Conceptual",
-  calculation: "Calculation",
-  silly: "Silly",
-  presentation: "Presentation",
-};
-
-function aggregateBuckets(entries: MistakeLogEntry[]): {
-  total: number;
-  rows: BucketRow[];
-  topRow: BucketRow | null;
-} {
+function aggregateBuckets(entries: MistakeLogEntry[]): BucketTotals {
   const totals: Record<BucketKey, number> = {
     conceptual: 0,
     calculation: 0,
@@ -172,12 +168,20 @@ function aggregateBuckets(entries: MistakeLogEntry[]): {
     if (typeof c.silly === "number") totals.silly += c.silly;
     if (typeof c.presentation === "number") totals.presentation += c.presentation;
   }
-  const rows: BucketRow[] = (Object.keys(totals) as BucketKey[])
-    .map((key) => ({ key, label: BUCKET_LABELS[key], count: totals[key] }))
-    .sort((a, b) => b.count - a.count);
-  const total = rows.reduce((sum, r) => sum + r.count, 0);
-  const topRow = total > 0 && rows[0].count > 0 ? rows[0] : null;
-  return { total, rows, topRow };
+  const total = MI_BUCKETS.reduce((sum, b) => sum + totals[b.key], 0);
+  let topLabel: string | null = null;
+  if (total > 0) {
+    const top = [...MI_BUCKETS].sort((a, b) => totals[b.key] - totals[a.key])[0];
+    if (totals[top.key] > 0) topLabel = top.label;
+  }
+  return { total, totals, topLabel };
+}
+
+// ── GREETING (real name only — never invented) ──────────────────
+function greetingFor(hour: number): string {
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 // ── DATE FORMAT (saved-on label) ────────────────────────────────
@@ -224,9 +228,89 @@ const chipAccentStyle: React.CSSProperties = {
   color: "hsl(152, 60%, 30%)",
 };
 
-// PRIMARY_CARDS + QuickCard + loginUrl now live in
-// ../../lib/desktop/homeDestinations (single source of truth shared with the
-// mobile Home variant). Render output is unchanged.
+/**
+ * Scoped CSS for the redesigned structures. Hover states and the card spine
+ * (a ::before) cannot be expressed as inline style objects, and CLAUDE.md §7
+ * bars inline style objects in new components.
+ */
+const HOME_CSS = `
+  .lt-home-greet {
+    background: linear-gradient(112deg, hsl(152,50%,96%), hsl(42,80%,97%) 62%, #fff);
+    border: 1px solid hsl(152, 42%, 86%);
+    border-radius: 18px; padding: 18px 20px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .lt-home-sect {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.09em;
+    text-transform: uppercase; color: hsl(220, 15%, 60%); margin: 0;
+  }
+  .lt-home-heroes {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+  }
+  /* Grid children default to min-width:auto, which is what let a card push past
+     the viewport. Pin it to 0 so the grid can actually shrink. */
+  .lt-home-heroes > * { min-width: 0; }
+  .lt-home-card {
+    position: relative; overflow: hidden; min-width: 0;
+    border: 1px solid; border-radius: 18px; padding: 17px;
+    display: flex; flex-direction: column; text-align: left;
+    text-decoration: none; cursor: pointer; font: inherit;
+    box-shadow: 0 2px 9px -5px hsla(220, 30%, 40%, 0.16);
+    transition: transform 0.17s, box-shadow 0.17s, border-color 0.17s;
+  }
+  .lt-home-card:hover { transform: translateY(-3px); }
+  .lt-home-card::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+  }
+  .lt-home-card .lt-ic {
+    width: 37px; height: 37px; border-radius: 12px; background: #fff;
+    display: grid; place-items: center; margin-bottom: 10px;
+  }
+  .lt-home-card .lt-lb {
+    font-family: ${FONT_DISPLAY}; font-size: 15.5px; font-weight: 700;
+    margin: 0 0 3px; color: hsl(220, 25%, 14%);
+  }
+  .lt-home-card .lt-sb {
+    font-size: 12.5px; color: hsl(220, 15%, 42%); line-height: 1.5; margin: 0; flex: 1;
+  }
+  .lt-home-card .lt-go { margin-top: 11px; font-size: 11.5px; font-weight: 750; }
+
+  .lt-home-mi {
+    background: linear-gradient(168deg, hsl(222,45%,96%), #fff 52%);
+    border: 1px solid hsl(222, 35%, 84%); border-radius: 18px; padding: 18px;
+    position: relative; overflow: hidden; min-width: 0;
+    box-shadow: 0 2px 9px -5px hsla(222, 40%, 30%, 0.2);
+  }
+  .lt-home-mi::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+    background: linear-gradient(180deg, hsl(222,47%,24%), hsl(222,47%,16%));
+  }
+  .lt-home-bks {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px;
+  }
+  .lt-home-bk { border-radius: 13px; padding: 12px; border: 1px solid; min-width: 0; }
+  .lt-home-bk .lt-n {
+    font-family: ${FONT_DISPLAY}; font-size: 20px; font-weight: 800; line-height: 1.05;
+  }
+  .lt-home-bk .lt-t { font-size: 10.5px; font-weight: 650; margin-top: 3px; opacity: 0.9; }
+
+  .lt-home-strip {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+  }
+  .lt-home-strip > * { min-width: 0; }
+  .lt-home-q {
+    background: #fff; border: 1px solid hsl(215, 25%, 90%); border-radius: 14px;
+    padding: 13px; text-decoration: none; display: block; min-width: 0;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .lt-home-q:hover {
+    border-color: hsl(152, 42%, 86%); transform: translateY(-1px);
+  }
+`;
+
+// PRIMARY_CARDS + QuickCard + loginUrl + the tutor pop-card live in
+// ../../lib/desktop/homeDestinations (single firebase-free source of truth
+// shared with the mobile Home variant, and with DesktopShell in PR-B).
 
 // ── COMPONENT ──────────────────────────────────────────────────
 export default function DesktopHome() {
@@ -236,6 +320,10 @@ export default function DesktopHome() {
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
   const [mistakes, setMistakes] = useState<MistakeLogEntry[]>([]);
+
+  // The shared pop-card. Auth state is passed in — homeDestinations stays
+  // firebase-free so DesktopShell can mount this same picker in PR-B.
+  const { openTutorPicker, tutorPicker } = useTutorPicker(isSignedIn);
 
   // Read landing memory once on mount — reflects state at arrival.
   useEffect(() => {
@@ -288,6 +376,10 @@ export default function DesktopHome() {
       : "Maths";
   const fallbackGrade = memoryGrade && memoryGrade.trim() ? memoryGrade : "10";
 
+  // Real display name only — no invented personalisation.
+  const firstName = (user?.displayName ?? "").trim().split(/\s+/)[0] || "";
+  const greeting = greetingFor(new Date().getHours());
+
   // Right-side header chip — truthful auth/trial state.
   // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
   const rightChip: React.ReactNode = !isSignedIn ? (
@@ -326,6 +418,7 @@ export default function DesktopHome() {
         padding: "32px 32px 48px",
       }}
     >
+      <style>{HOME_CSS}</style>
       <div
         style={{
           maxWidth: 1280,
@@ -335,62 +428,33 @@ export default function DesktopHome() {
           gap: 24,
         }}
       >
-        {/* ── ContextBar-style header ──────────────────────────── */}
-        <header>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
-            }}
-          >
-            <span style={chipStyle}>Class {fallbackGrade}</span>
-            {memorySubject && (
-              <span style={chipStyle}>{memorySubject}</span>
-            )}
-            <span style={chipStyle}>
-              Scope: {memorySubject ? `${memorySubject} workspace` : "Pick a path"}
-            </span>
+        {/* ── Greeting band ────────────────────────────────────── */}
+        <header className="lt-home-greet">
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h1
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 24,
+                fontWeight: 600,
+                lineHeight: 1.15,
+                color: TEXT,
+                margin: 0,
+                letterSpacing: "-0.015em",
+              }}
+            >
+              {firstName ? `${greeting}, ${firstName}` : greeting}
+            </h1>
+            <p
+              style={{
+                color: TEXT_MUTED,
+                margin: "4px 0 0",
+                fontSize: 12.5,
+              }}
+            >
+              Class {fallbackGrade} · CBSE · Maths &amp; Science
+            </p>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-              gap: 16,
-              flexWrap: "wrap",
-            }}
-          >
-            <div style={{ minWidth: 0 }}>
-              <h1
-                style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontSize: 28,
-                  fontWeight: 600,
-                  lineHeight: 1.15,
-                  color: TEXT,
-                  margin: 0,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Home
-              </h1>
-              <p
-                style={{
-                  color: TEXT_MUTED,
-                  margin: "6px 0 0",
-                  maxWidth: 640,
-                  fontSize: 14,
-                  lineHeight: 1.55,
-                }}
-              >
-                Pick what to do now. LazyTopper softly suggests — never forces.
-              </p>
-            </div>
-            {rightChip}
-          </div>
+          {rightChip}
         </header>
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
@@ -517,11 +581,11 @@ export default function DesktopHome() {
               </div>
             </div>
             <div style={{ minWidth: 0 }}>
-              {buckets.topRow ? (
+              {buckets.topLabel ? (
                 <>
                   <div style={{ fontSize: 13, color: TEXT }}>
                     <span style={{ fontWeight: 600 }}>Most-common slip this week:</span>{" "}
-                    <span style={{ color: "hsl(220, 30%, 28%)" }}>{buckets.topRow.label}</span>
+                    <span style={{ color: "hsl(220, 30%, 28%)" }}>{buckets.topLabel}</span>
                   </div>
                   <div
                     style={{
@@ -610,524 +674,303 @@ export default function DesktopHome() {
           </section>
         )}
 
-        {/* ── 4 primary action cards ───────────────────────────── */}
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            gap: 16,
-          }}
-        >
-          {PRIMARY_CARDS.map((c) => {
-            const Icon = c.icon;
-            return (
+        {/* ── Start here — 4 hero cards ────────────────────────── */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p className="lt-home-sect">Start here</p>
+          <div className="lt-home-heroes">
+            {PRIMARY_CARDS.map((c) => {
+              const Icon = c.icon;
+              const a = HOME_ACCENTS[c.accent];
+              const shell: React.CSSProperties = {
+                background: a.body,
+                borderColor: a.border,
+              };
+              const inner = (
+                <>
+                  <span className="lt-ic" style={{ color: a.ink }}>
+                    <Icon size={19} />
+                  </span>
+                  <p className="lt-lb">{c.label}</p>
+                  <p className="lt-sb">{c.sub}</p>
+                  <span className="lt-go" style={{ color: a.ink }}>
+                    {c.go}
+                  </span>
+                </>
+              );
+              // The tutor card opens the pop-card; it has no destination of its
+              // own because the URL needs a subject + chapter first.
+              return c.kind === "tutor" ? (
+                <button
+                  key={c.label}
+                  type="button"
+                  className="lt-home-card"
+                  data-testid="home-hero-tutor"
+                  style={shell}
+                  onClick={openTutorPicker}
+                >
+                  {inner}
+                </button>
+              ) : (
+                <Link
+                  key={c.label}
+                  to={c.to}
+                  className="lt-home-card"
+                  data-testid="home-hero"
+                  style={shell}
+                >
+                  {inner}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── Your mistakes, understood — MI, full width ───────── */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p className="lt-home-sect">Your mistakes, understood</p>
+          <MistakeIntelligenceCard buckets={buckets} />
+        </section>
+
+        {/* ── Jump straight in — quick strip ───────────────────── */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+            }}
+          >
+            <p className="lt-home-sect">Jump straight in</p>
+            <Link
+              to={`/practice-hub${HOME_QS_LEAD}`}
+              style={{
+                fontSize: 12,
+                color: ACCENT,
+                textDecoration: "none",
+                fontWeight: 600,
+              }}
+            >
+              All practice modes →
+            </Link>
+          </div>
+          <div className="lt-home-strip">
+            {[
+              {
+                // Full Test — the /full-mock surface; MockViewGate on the
+                // route is the ONLY gate, so the tile navigates plainly.
+                to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Maths?${HOME_QS}`,
+                kicker: "Full test",
+                title: "Maths · 80 marks",
+                detail: "3-hour board paper",
+              },
+              {
+                to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Science?${HOME_QS}`,
+                kicker: "Full test",
+                title: "Science · 80 marks",
+                detail: "Phy + Chem + Bio",
+              },
+              {
+                to: `/exam-trends?subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
+                kicker: "Predicted",
+                title: "What's likely in 2027",
+                detail: "Tier-ranked breakdown",
+              },
+              {
+                // Worksheets stay reachable here after the hero card retired.
+                to: `/practice/worksheets?scope=multi-topic&subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
+                kicker: "Worksheet",
+                title: "Multi-topic worksheet",
+                detail: "Pick topics in builder",
+              },
+            ].map((tile) => (
               <Link
-                key={c.label}
-                to={c.to}
-                style={{
-                  ...cardBaseStyle,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                  padding: 20,
-                  textDecoration: "none",
-                  color: TEXT,
-                  transition:
-                    "transform 0.18s, box-shadow 0.18s, border-color 0.18s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = SHADOW_MD;
-                  e.currentTarget.style.borderColor =
-                    "hsla(152, 55%, 45%, 0.35)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "";
-                  e.currentTarget.style.boxShadow = SHADOW_SM;
-                  e.currentTarget.style.borderColor = CARD_BORDER;
-                }}
+                key={tile.title}
+                to={tile.to}
+                className="lt-home-q"
+                data-testid="home-quick-tile"
               >
-                <div style={{ color: ACCENT, display: "inline-flex" }}>
-                  <Icon size={20} />
+                <div
+                  style={{
+                    fontSize: 8.5,
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: TEXT_MUTED,
+                  }}
+                >
+                  {tile.kicker}
                 </div>
                 <div
                   style={{
                     fontFamily: FONT_DISPLAY,
-                    fontSize: 17,
-                    fontWeight: 600,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    marginTop: 3,
                     color: TEXT,
                   }}
                 >
-                  {c.label}
+                  {tile.title}
                 </div>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: TEXT_MUTED,
-                    margin: 0,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {c.sub}
-                </p>
+                <div style={{ fontSize: 10.5, color: TEXT_MUTED, marginTop: 2 }}>
+                  {tile.detail}
+                </div>
               </Link>
-            );
-          })}
+            ))}
+          </div>
         </section>
-
-        {/* ── Quick generate (2/3) + Mistake intelligence (1/3) ── */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)",
-            gap: 24,
-          }}
-        >
-          {/* Quick generate ----------------------------------- */}
-          <section
-            style={{
-              ...cardBaseStyle,
-              padding: 20,
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <h3
-                style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontSize: 17,
-                  fontWeight: 600,
-                  margin: 0,
-                  color: TEXT,
-                }}
-              >
-                Quick generate
-              </h3>
-              <Link
-                to={`/practice-hub${HOME_QS_LEAD}`}
-                style={{
-                  fontSize: 12,
-                  color: ACCENT,
-                  textDecoration: "none",
-                  fontWeight: 600,
-                }}
-              >
-                All practice modes →
-              </Link>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gap: 12,
-              }}
-            >
-              {[
-                {
-                  // Full Test — the NEW /full-mock surface; MockViewGate on the
-                  // route is the ONLY gate, so the tile navigates plainly.
-                  to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Maths?${HOME_QS}`,
-                  kicker: "Full Test",
-                  title: "Maths · 80 marks",
-                  detail: "3-hour board paper · Sections A–E",
-                },
-                {
-                  to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Science?${HOME_QS}`,
-                  kicker: "Full Test",
-                  title: "Science · 80 marks",
-                  detail: "3-hour board paper · Phy + Chem + Bio",
-                },
-                {
-                  to: `/exam-trends?subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-                  kicker: "Predicted paper",
-                  title: `${fallbackSubject} · what's likely`,
-                  detail: "Tier-ranked topics → predicted breakdown",
-                },
-                {
-                  to: `/practice/worksheets?scope=multi-topic&subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-                  kicker: "Worksheet",
-                  title: "Multi-topic worksheet",
-                  detail: "Pick topics in scope builder",
-                },
-              ].map((tile) => (
-                <Link
-                  key={tile.title}
-                  to={tile.to}
-                  style={{
-                    display: "block",
-                    padding: 16,
-                    borderRadius: 12,
-                    background: "hsl(215, 28%, 96%)",
-                    border: `1px solid ${CARD_BORDER}`,
-                    color: TEXT,
-                    textDecoration: "none",
-                    transition: "background 0.15s, border-color 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "hsl(215, 28%, 93%)";
-                    e.currentTarget.style.borderColor =
-                      "hsla(152, 55%, 45%, 0.35)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "hsl(215, 28%, 96%)";
-                    e.currentTarget.style.borderColor = CARD_BORDER;
-                  }}
-                >
-                  <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-                    {tile.kicker}
-                  </div>
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: 14,
-                      marginTop: 2,
-                      color: TEXT,
-                    }}
-                  >
-                    {tile.title}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: TEXT_MUTED,
-                      marginTop: 4,
-                    }}
-                  >
-                    {tile.detail}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Mistake intelligence panel ------------------------ */}
-          <MistakeIntelligencePanel
-            isSignedIn={isSignedIn}
-            buckets={buckets}
-            fallbackSubject={fallbackSubject}
-            fallbackGrade={fallbackGrade}
-          />
-        </div>
       </div>
+      {tutorPicker}
     </div>
   );
 }
 
-// ── INLINE MISTAKE PANEL ───────────────────────────────────────
-interface MistakePanelProps {
-  isSignedIn: boolean;
-  buckets: ReturnType<typeof aggregateBuckets>;
-  fallbackSubject: "Maths" | "Science";
-  fallbackGrade: string;
-}
-
-function MistakeIntelligencePanel({
-  isSignedIn,
-  buckets,
-  fallbackSubject,
-  fallbackGrade,
-}: MistakePanelProps) {
-  // Logged-out state — reason-aware login CTA, never shows fake data.
-  if (!isSignedIn) {
-    return (
-      <aside
-        style={{
-          ...cardBaseStyle,
-          padding: 20,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            color: TEXT_MUTED,
-          }}
-        >
-          <LockIcon size={16} />
-          <h3
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 15,
-              fontWeight: 600,
-              margin: 0,
-              color: TEXT,
-            }}
-          >
-            Mistake-aware practice
-          </h3>
-        </div>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 13,
-            lineHeight: 1.55,
-            color: TEXT_MUTED,
-          }}
-        >
-          Mistake-aware practice needs saved attempts. Start a free trial to
-          unlock targeted drills, mistake-aware worksheets, and weak-area
-          mini-sections inside your mocks.
-        </p>
-        <Link
-          to={loginUrl("mistake-aware", "/practice-hub")}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            alignSelf: "flex-start",
-            padding: "8px 12px",
-            borderRadius: 8,
-            background: PRIMARY,
-            color: "#fff",
-            textDecoration: "none",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
-          <SparklesIcon size={13} /> Start free trial
-        </Link>
-        <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-          Recommended, not required.
-        </div>
-      </aside>
-    );
-  }
-
-  // Signed-in but no real mistake bucket yet — honest empty state.
-  if (!buckets.topRow) {
-    return (
-      <aside
-        style={{
-          ...cardBaseStyle,
-          padding: 20,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            color: ACCENT,
-          }}
-        >
-          <SparklesIcon size={14} />
-          <h3
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 15,
-              fontWeight: 600,
-              margin: 0,
-              color: TEXT,
-            }}
-          >
-            Your mistake insights
-          </h3>
-        </div>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 13,
-            lineHeight: 1.55,
-            color: TEXT_MUTED,
-          }}
-        >
-          Grade an answer in{" "}
-          <Link
-            to={`/check-improve${HOME_QS_LEAD}`}
-            style={{ color: ACCENT, textDecoration: "underline" }}
-          >
-            Check &amp; Improve
-          </Link>{" "}
-          to unlock mistake-aware practice.
-        </p>
-        <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-          Recommended, not required.
-        </div>
-      </aside>
-    );
-  }
-
-  // Signed-in with a real top weak-area bucket — actionable CTAs.
-  const top = buckets.topRow;
+// ── MISTAKE INTELLIGENCE CARD (SPEC §4) ────────────────────────
+//
+// Navy frame + spine, four fixed buckets in the VERBATIM semantic tones of the
+// shipped MistakeIntelligencePanel. Real data only.
+//
+// There is deliberately NO "Ask the tutor about these" CTA. MistakeLogEntry
+// aggregates across many topic/subject values, but buildTutorPath needs exactly
+// ONE subject + ONE topicKey, and `topic` is a display string with no guaranteed
+// slug mapping. There is no single honest destination — adding one would need a
+// disambiguation picker (a new feature) or a guess (dishonest). Omitted.
+function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
+  const hasData = buckets.topLabel !== null;
   return (
-    <aside
-      style={{
-        ...cardBaseStyle,
-        padding: 20,
-        display: "flex",
-        flexDirection: "column",
-        gap: 14,
-      }}
-    >
-      <div
+    <div className="lt-home-mi" data-testid="home-mi-card">
+      <p
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
+          fontSize: 9.5,
+          fontWeight: 800,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: PRIMARY,
+          opacity: 0.8,
+          margin: "0 0 5px",
         }}
       >
+        Mistake Intelligence
+      </p>
+      <h3
+        style={{
+          fontFamily: FONT_DISPLAY,
+          margin: "0 0 3px",
+          fontSize: 16,
+          fontWeight: 700,
+          color: "hsl(222, 47%, 16%)",
+        }}
+      >
+        {hasData
+          ? `${buckets.topLabel} slips are costing you most`
+          : "Your mistake patterns will show here"}
+      </h3>
+      <p style={{ margin: "0 0 14px", fontSize: 12, color: TEXT_MUTED }}>
+        {hasData
+          ? "Last 7 days · from what you've actually attempted"
+          : "Built from your real attempts — never guessed."}
+      </p>
+
+      <div className="lt-home-bks">
+        {MI_BUCKETS.map((b) => (
+          <div
+            key={b.key}
+            className="lt-home-bk"
+            data-testid="home-mi-bucket"
+            style={{ background: b.bg, color: b.fg, borderColor: b.border }}
+          >
+            <div className="lt-n" style={{ opacity: hasData ? 1 : 0.4 }}>
+              {hasData ? buckets.totals[b.key] : "—"}
+            </div>
+            <div className="lt-t">{b.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {hasData ? (
         <div
           style={{
+            marginTop: 14,
             display: "flex",
+            gap: 10,
+            flexWrap: "wrap",
             alignItems: "center",
-            gap: 8,
-            color: ACCENT,
           }}
         >
-          <SparklesIcon size={14} />
-          <h3
+          <Link
+            to={`/weak-area-practice${HOME_QS_LEAD}`}
+            data-testid="home-mi-weak-areas"
             style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 15,
-              fontWeight: 600,
-              margin: 0,
-              color: TEXT,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "10px 15px",
+              borderRadius: 12,
+              background: `linear-gradient(140deg, ${PRIMARY}, hsl(222,47%,16%))`,
+              color: "#fff",
+              textDecoration: "none",
+              fontSize: 12.5,
+              fontWeight: 700,
+              boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
             }}
           >
-            Your latest weak area
-          </h3>
+            <TargetIcon size={13} /> Practise my weak areas
+          </Link>
+          <Link
+            to={`/me${HOME_QS_LEAD}`}
+            data-testid="home-mi-breakdown"
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: PRIMARY,
+              textDecoration: "none",
+              borderBottom: "1px solid hsl(222, 35%, 84%)",
+              paddingBottom: 1,
+            }}
+          >
+            Full breakdown in Me / Progress →
+          </Link>
         </div>
-        <span style={chipAccentStyle}>From last 7 days</span>
-      </div>
-      <div>
-        <div style={{ fontSize: 13, color: TEXT }}>
-          <span style={{ fontWeight: 600 }}>{top.label}</span>
-          <span style={{ color: TEXT_MUTED }}>
-            {" "}
-            — {top.count} flagged{" "}
-            {Math.round((top.count / buckets.total) * 100)}% of recent slips
-          </span>
-        </div>
-        <ul
-          style={{
-            listStyle: "none",
-            margin: "10px 0 0",
-            padding: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-          }}
-        >
-          {buckets.rows
-            .filter((r) => r.count > 0)
-            .map((r) => {
-              const pct = Math.round((r.count / buckets.total) * 100);
-              return (
-                <li key={r.key}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      fontSize: 11,
-                      color: TEXT_MUTED,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <span>{r.label}</span>
-                    <span style={{ fontVariantNumeric: "tabular-nums" }}>
-                      {r.count} · {pct}%
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      height: 5,
-                      borderRadius: 999,
-                      background: "hsl(215, 28%, 92%)",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${pct}%`,
-                        height: "100%",
-                        background: ACCENT,
-                      }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-        </ul>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-        }}
-      >
-        <Link
-          to={`/practice/${encodeURIComponent(fallbackGrade)}/${encodeURIComponent(fallbackSubject)}?focus=mistakes&${HOME_QS}`}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "8px 12px",
-            borderRadius: 8,
-            background: PRIMARY,
-            color: "#fff",
-            textDecoration: "none",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
-          <TargetIcon size={13} /> Run targeted drill
-        </Link>
-        <Link
-          to={`/practice/worksheets?mistakeAware=1&subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "8px 12px",
-            borderRadius: 8,
-            background: CARD_BG,
-            border: `1px solid ${CARD_BORDER}`,
-            color: TEXT,
-            textDecoration: "none",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
-          <ClipboardListIcon size={13} /> Mistake-aware worksheet
-        </Link>
-        <Link
-          to={`/check-improve${HOME_QS_LEAD}`}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "8px 12px",
-            borderRadius: 8,
-            background: "transparent",
-            color: TEXT,
-            textDecoration: "none",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
-          Open Check &amp; Improve
-        </Link>
-      </div>
-      <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-        Recommended, not required.
-      </div>
-    </aside>
+      ) : (
+        <>
+          <div
+            style={{
+              marginTop: 13,
+              background: CARD_BG,
+              border: "1px dashed hsl(222, 35%, 84%)",
+              borderRadius: 12,
+              padding: "11px 13px",
+              fontSize: 12,
+              color: "hsl(222, 47%, 16%)",
+              lineHeight: 1.55,
+              textAlign: "center",
+            }}
+          >
+            Practise a set to see your mistakes.
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <Link
+              to={`/practice-hub${HOME_QS_LEAD}`}
+              data-testid="home-mi-first-set"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "10px 15px",
+                borderRadius: 12,
+                background: `linear-gradient(140deg, ${PRIMARY}, hsl(222,47%,16%))`,
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: 12.5,
+                fontWeight: 700,
+                boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
+              }}
+            >
+              Practise my first set <ArrowRightIcon size={13} />
+            </Link>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
