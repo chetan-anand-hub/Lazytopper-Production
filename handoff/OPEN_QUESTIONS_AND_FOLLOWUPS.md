@@ -1,3 +1,72 @@
+## 2026-07-22 -- #520 + #522: THE HOME REDESIGN ARC - 4 FUs opened (1 born re-scoped, 1 do-not-act), 3 doctrines recorded (trunk `2865432`)
+
+### NEW - `[FU-MOBILE-MI-REAL-DATA]` ★ **OPENED ALREADY RE-SCOPED — its original rationale is VOID**
+**What:** mobile Home shows the SPEC §4 honest empty state for a signed-in student; real per-user MI is not wired.
+
+**★ The reason it was deferred is FALSE, and that is the point of this entry.** The deferral rested on `MobileHome`'s doc comment claiming the page "stays firebase-free", so reading real logs would drag firebase into the mobile chunk for our phone-first audience. A real import-graph walk disproves it:
+
+```
+MobileHome -> hooks/useSubscription -> subscriptionService -> firebase/firestore
+MobileHome -> context/AuthContext   -> mistakeLogService   -> firebase/firestore
+```
+
+firebase — including firestore — **and `mistakeLogService` itself** are already on the graph, and were before #520. **Reading real logs here would add NO new module.** There is no bundle cost, so there is no technical argument either way: this is now **purely a product/UX decision** — does a signed-in student on mobile Home want their real buckets, or does the empty state serve them better until they have attempted enough to be worth showing?
+
+The false comment is corrected in-file and the true state is **pinned by a characterisation test** (`MobileHome import graph` in `MobileHome.test.tsx`) so it cannot quietly return. **Do not re-cite the bundle argument.**
+
+**Where:** `lazytopper/src/pages/app/MobileHome.tsx` (`MistakeIntelligenceCard`).
+
+---
+
+### NEW - `[FU-HOME-BOARD-COUNTDOWN]` — the countdown the prototype showed and #520 deliberately did not build
+**What:** prototype v9's greeting band carries a *"214 days to boards"* counter. Not built.
+
+**Why omitted (owner-endorsed):** the only real source, `fetchCbseExamDate`, is an **async API** (spec §8 bars new API dependencies on Home), and its result may be `source: "predicted"` rather than `"official"`. **Rendering a predicted date as plain fact is the fabrication line.** Separately, students have an existing `hideCountdown` preference (`localStorage "lazytopper.hideCountdown"`, plus a pace-profile default) that an unconditional Home counter would silently override.
+
+**If it is ever built** it must (a) show the `source` honestly when the date is predicted, (b) honour `hideCountdown`, and (c) not add a blocking async dependency to first paint. **The owner recorded that the prototype was wrong to include it.**
+
+**Where:** `lazytopper/src/pages/desktop/DesktopHome.tsx` greeting band · `src/services/cbseExamDate.ts`.
+
+---
+
+### NEW - `[FU-HOME-MEMORY-STRIP-VS-MI]` — kept deliberately; partly duplicates the MI card
+**What:** Home's resume/memory strip and the "Latest saved worksheet" card survived the redesign. Neither was in the spec's change list, so **deleting them would have been scope creep** — but the saved-worksheet card's right column now renders mistake content ("Most-common slip this week") that the new MI card also covers.
+
+**Owner decides after living with it.** Both are gated on real `landingMemory`, so a new student sees exactly the prototype layout and only a returning student sees the overlap. *(Same doctrine #521 established independently: silence in a spec is not authorisation to delete rendered content.)*
+
+**Where:** `lazytopper/src/pages/desktop/DesktopHome.tsx`.
+
+---
+
+### NEW - `[FU-TRUNK-FLAKY-SUITES]` ⚠ **DO NOT SPEND A LANE ON THIS**
+**What:** the full local vitest suite fails a small, **shifting** set of suites on Windows. Four files observed across runs: `WorksheetGenerator.mi.test.tsx` (most consistent), `DesktopPracticePage.multiTopicNav.test.tsx`, `DesktopPracticePage.fullTestNav.test.tsx`, `worksheetModel.topickey.test.ts`. **Treat the set as open-ended, not as those four.**
+
+**All of them pass in isolation**, and the failing pair differs run to run — order/parallelism sensitivity, not broken tests.
+
+★ **They are GREEN on the linux CI runner.** Both #520 and #522 ran 62 files / 814 and 826 tests, all passing. **So this is a local-dev-experience cost, NOT a CI-reliability risk** — the earlier framing ("post-#515 the strict vitest gate means these will redden unrelated PRs at random") was **overstated and is corrected here**.
+
+**The method that matters more than the fix:** before attributing a red to your own branch, **stash to clean trunk and re-run**. That is how this was established both times.
+
+**Where:** local dev only; `lazytopper/` vitest.
+
+---
+
+## ★★ THREE DOCTRINES THIS ARC ESTABLISHED — carry them into every lane
+
+**1. "REAL DATA ONLY" FORBIDS FABRICATED STATS PRESENTED AS A STUDENT'S OWN — NOT A CLEARLY-LABELLED SAMPLE.**
+#520 deleted the signed-out SAMPLE MI panel from a **conversion surface** by over-reading spec §4. The owner recorded that his spec conflated the two and that he confirmed the removal as "no regression" when it was one. **The label is what makes a sample honest** — so make it *structural*, not textual: badge and figures in one containment-asserted block, so the qualification cannot drift away from the numbers it qualifies. Anti-fabrication remains absolute; a demonstration is not a fabrication.
+
+**2. A DOC COMMENT IS A CLAIM, NOT A FACT — and it is more dangerous than a grep hit, because it reads like documentation.**
+The "firebase-free" comment was false when written, survived months, and was cited as evidence by two people. Only walking the **real import graph** disproved it. This is the INFERENCE TRAP with a new face: `grep -l` is not an import, a variable's name is not its source, **and a comment is not a verified fact**.
+
+**3. A TOKEN THAT IS DEFINED BUT NEVER CONSUMED IS INVISIBLE TO EVERY GATE WE RUN.**
+`HOME_ACCENTS.spine` was defined in #520 and never painted, because the `::before` that was supposed to render it had no `background`. **tsc sees a used export; the linter sees a valid rule; the matrices see no behaviour change; tests asserted the value existed, not that anything painted it.** Nothing in the static stack can distinguish "styled" from "styled with a no-op" — **only rendering the surface and measuring the computed style can** (`getComputedStyle(el, "::before")`). Add that measurement whenever a change is *visual by definition*.
+
+**And a corollary on instruments:** the probe that caught the spine bug also produced a **wrong-and-plausible FAIL** — Chrome normalises `linear-gradient(180deg, …)` by dropping the default angle, so matching the literal `"180deg"` can never succeed. It was caught by reading the computed value **before** changing any code. *An empty or surprising result indicts your command, not the world.*
+
+---
+
+
 ## 2026-07-22 -- #521: EXAM TRENDS UPLIFT - 2 FUs opened (1 inverted, 1 do-not-act), 2 method doctrines recorded (trunk `ee5cd640`)
 
 ### 🆕 OPENED BY #521
