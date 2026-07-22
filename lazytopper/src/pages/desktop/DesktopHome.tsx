@@ -250,17 +250,38 @@ const HOME_CSS = `
   /* Grid children default to min-width:auto, which is what let a card push past
      the viewport. Pin it to 0 so the grid can actually shrink. */
   .lt-home-heroes > * { min-width: 0; }
+  /* ── Card colour: the practice-hub "side and edge" treatment ──────────
+     Pattern + values from DesktopPracticePage's lt-mode-card (MODE_ACCENT
+     {accent, tint, line}). Colour lives in the SPINE (side) and the BORDER
+     (edge); the body stays a neutral vertical gradient, so four accents can sit
+     side by side without the page becoming a paintbox.
+
+     Per-card tones arrive as CSS custom properties set inline — that is what
+     lets :hover swap the border with no JS hover handler.
+
+     NOTE: #520 declared this ::before spine but never gave it a background, so
+     HOME_ACCENTS.spine was defined and never consumed — the accent side has
+     never actually rendered. That is why the cards read lifeless.
+
+     ★ GEOMETRY IS UNCHANGED from c8dab29 — border-radius 18px, padding 17px
+     deliberately identical. Colour only; a resized card is a regression. */
   .lt-home-card {
     position: relative; overflow: hidden; min-width: 0;
-    border: 1px solid; border-radius: 18px; padding: 17px;
+    border: 1px solid var(--lt-line); border-radius: 18px; padding: 17px;
     display: flex; flex-direction: column; text-align: left;
     text-decoration: none; cursor: pointer; font: inherit;
-    box-shadow: 0 2px 9px -5px hsla(220, 30%, 40%, 0.16);
-    transition: transform 0.17s, box-shadow 0.17s, border-color 0.17s;
+    background: linear-gradient(180deg, ${CARD_BG}, hsl(220, 25%, 99%));
+    box-shadow: 0 2px 8px -4px hsla(220, 30%, 40%, 0.10);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   }
-  .lt-home-card:hover { transform: translateY(-3px); }
+  .lt-home-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--lt-accent);
+    box-shadow: 0 8px 22px rgba(20, 40, 80, 0.09);
+  }
   .lt-home-card::before {
     content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+    background: var(--lt-spine);
   }
   .lt-home-card .lt-ic {
     width: 37px; height: 37px; border-radius: 12px; background: #fff;
@@ -681,10 +702,13 @@ export default function DesktopHome() {
             {PRIMARY_CARDS.map((c) => {
               const Icon = c.icon;
               const a = HOME_ACCENTS[c.accent];
-              const shell: React.CSSProperties = {
-                background: a.body,
-                borderColor: a.border,
-              };
+              // Tones as custom properties: the CSS owns the treatment (incl.
+              // :hover), this owns only which accent the card wears.
+              const shell = {
+                "--lt-spine": a.spine,
+                "--lt-line": a.border,
+                "--lt-accent": a.hover,
+              } as React.CSSProperties;
               const inner = (
                 <>
                   <span className="lt-ic" style={{ color: a.ink }}>
