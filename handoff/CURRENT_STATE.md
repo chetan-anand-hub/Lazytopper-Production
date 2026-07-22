@@ -1,6 +1,78 @@
 # LazyTopper — Current State
 
-## [CURRENT] #516 merged — ★★ THE TUTOR RETIREMENT IS COMPLETE: THE DEAD CLUSTER, THE UNREACHABLE MENTOR DRAWER AND `/api/mentor` ARE ALL GONE — trunk `a86feda`
+## [CURRENT] #521 merged — ★★ EXAM TRENDS DESIGN UPLIFT: OWNER-SIGNED TIER DATA PROVEN FROZEN BY HASH, AND A SPEC THAT HALLUCINATED ITS OWN BUG — trunk `ee5cd640`
+
+**Presentation-only uplift of `src/pages/ExamTrendsRanked.tsx`.** 2 files, +1150 / −574. Owner byte-reviewed the pushed diff **and independently re-verified the tier authority** rather than taking the agent's hash, then live-verified the merged surface. CI `quality-gate` pass (4m4s), `lane-overlap` pass. Draft PR throughout; never self-marked ready.
+
+> **Handoff bookkeeping:** #519 (ops — DesktopShell ban lifted), **#520 (PR-A, Home redesign)** and **#522 (PR-A2, Home fixes)** all merged without their own handoff entries. **The Home lane's combined handoff covers #520 + #522**; this entry deliberately does not speak for that lane. Trunk moved `45ab803` → `c8dab29` (#520) → `ee5cd640` (#521) → `4bde1a3f` (#522, merged while this handoff was open).
+
+### What shipped
+Zero functionality change — no new route, param, data source, filter, sort or CTA destination. **One copy change: the per-row primary CTA `Open` → `Learn`** (same destination, same params). Rows became cards on a per-band accent (green Must-crack / blue High-ROI / violet Good-to-do — the hues already shipping as `DesktopPracticePage` `MODE_ACCENT`; **no colour invented**). **No grey band**: priority reads from the numbered badge and the ordering, never from draining colour — the old grey/black treatment made the page read dead below the fold. Styling moved to CSS classes (`lt-et-*`) in one `<style>` block, because the responsive rules and `:hover` **cannot** be expressed as inline style objects, which are banned in new components.
+
+### ★★ THE METHOD NOTE — WHY THE OBVIOUS ANTI-RE-TIER GUARD WOULD HAVE BEEN A TAUTOLOGY
+`BAND_BY_SLUG` is owner-signed authority transcribed verbatim from `LazyTopper_LOCKED_ExamTrends_Tiers_2026-06-05.md`. The spec required a test asserting band membership matches it exactly. **The obvious implementation is worthless:**
+
+```
+import { BAND_BY_SLUG } from "./ExamTrendsRanked";
+expect(renderedBands).toEqual(deriveExpected(BAND_BY_SLUG));   // ← ALWAYS GREEN
+```
+
+If someone re-tiers the map, **both sides of that assertion move together** and the guard sails through the exact change it exists to prevent. It tests that rendering is a pure function of the map — never that the map still says what the owner signed.
+
+**What was done instead:** *before a line of the uplift was written*, the **trunk** component was rendered through a throwaway capture harness, its band membership dumped, and that output frozen into the test as `EXPECTED_BANDS` — an **independent transcription** that cannot move when the map does. The harness was then deleted. Golden: **Maths 5 / 5 / 3, Science 6 / 5 / 2**.
+
+> **The transferable rule: a guard over locked data must compare the render against an INDEPENDENT copy of the truth, captured before the change. If the guard reads the same source the code reads, it asserts nothing.** Same shape as the Practice-Hub parity proof (capture trunk, capture the rebuild, diff) and the routing-parity test (every expected string captured from trunk, not hand-written).
+
+**Belt and braces:** the frozen region (`type Band` + `interface BandMeta` + `BAND_BY_SLUG` + `BAND_ORDER` + `BAND_DISPLAY`) was also hashed on both sides — `d470705fda73fd98bdcf32e7`, identical, re-confirmed post-rebase.
+
+**★ The owner did not take either artifact on trust.** He extracted the `BAND_BY_SLUG` block from both sides himself — **70 lines, 2,359 bytes, sha `f3b72f1ce8e3549d1d507bcd` on each, byte-identical** — and checked the counts land on the golden: **11 must-crack / 10 high-ROI / 5 good-to-do = 26 chapters** (= Maths 5/5/3 + Science 6/5/2). Zero re-tiering, zero invented or dropped `subPattern`.
+
+### ★★ THE SPEC DESCRIBED A BUG IN ITS OWN PROTOTYPE AND PRESENTED IT AS A PRODUCT DEFECT
+Spec §5, *"⋯ THE MENU — TWO REAL BUGS, BOTH MUST BE FIXED"*, opened: *"The current implementation opens the menu over the next card at desktop width."* **It does not — because at trunk there was no menu.** `ExamTrendsRanked.tsx` rendered the `⋯` secondary actions as an **inline expansion row in normal flow** beneath the card ("Inline secondary-action row — revealed by ⋯"). There was no `position:absolute` popover anywhere in the file.
+
+- **Cause (1), `overflow:hidden` on the band** — the ingredient was real, but it was clipping nothing, because there was no popover to clip.
+- **Cause (2), "the menu had no `top` anchor"** — there was no absolutely-positioned menu at all.
+
+Both describe **prototype v3's** mispositioned popover. **The owner confirmed this was his error**: a defect in his own mockup, written into the spec as if it were a defect in the shipped page.
+
+**Consequence, and it is not cosmetic:** acceptance §9.4 is a **NEW-BEHAVIOUR check, never an A/B against trunk**. At trunk the menu *could not* overlap the next card, because it was not a popover. Anyone "verifying the fix" by comparing against trunk would be comparing two different things and would conclude the bug was never real.
+
+> **Record the CLASS: a spec author can hallucinate a bug from their own mockup.** A spec sentence of the form *"the current implementation does X"* is a **claim about code**, not an instruction — open the file and check it before building on it. This is the fourth lane in a row where re-deriving a brief's premises changed the work (#515's error count, #516's "LIVE in PracticePage", the legacy-retirement audit's four wrong premises, now this).
+
+The end state was unambiguous regardless, and shipped correct: `border-left: 5px` accent so the band needs no `overflow:hidden`; a `position:relative` wrapper around the `⋯` button with the menu at `top: calc(100% + 6px); right: 0`; `is-menuopen` z-index so the popover cannot slide under the next card; upward flip near the viewport bottom measured with `getBoundingClientRect()`; one menu at a time; outside-click close **anchored on the wrapper** so re-clicking `⋯` toggles rather than close-then-reopen. Owner also credited unprompted a11y work: `aria-haspopup` / `aria-expanded` / `aria-controls`, `role="menu"` / `role="menuitem"`, per-topic labels.
+
+### ★★ SILENCE IN A SPEC IS NOT AUTHORISATION TO DELETE RENDERED CONTENT — doctrine, not incident
+The first cut **dropped `topic.blurb`**, the real per-chapter catalogue copy. The reasoning felt sound: both the prototype and §2's row enumeration (*name · tier chip · marks-weight bar · Expect: · volatility note*) omit it, and it competed with the new `Expect:` inset. It was flagged for review rather than shipped silently — and the owner ruled **RESTORE**:
+
+> *"Neither the prototype nor §2 said 'remove'; the row enumeration described what to RESTYLE, not an exhaustive keep-list. Deleting rendered content is a functionality change, which §0 forbids."*
+
+**A restyle can quietly delete real content, and an omission from a list is not a removal instruction.** Restored with trunk's exact treatment (single-line ellipsis, tertiary colour) plus a mobile rule — **and pinned by a test**, not by anyone remembering: every rendered card's blurb must equal `desktopTopicBySlug(slug).blurb`. Mutation-verified — deleting the element turns exactly that test red.
+
+### TEN YEARS — OWNER RULING, DELIBERATE, ON THE RECORD
+Spec §4.4 required a hero badge reading **"Ten years of real CBSE papers"**, describing it as *"the page's actual credential, currently buried in body text."* Both halves of that premise are false: the phrase is in neither the page body nor anywhere in `src/`, and the repo records **4 years** (`CURRENT_STATE:2509` "PYQs: 760 total — all 4 main years complete"; the HPQ page's owner-approved reframe names *"4 years of papers + official blueprint + examiner-pattern analysis"*).
+
+Raised before building. **The owner ruled: ship it. Ten years is authoritative — he is the authority on the evidence base, it is his data and his call.** This is a **deliberate owner decision recorded as such**, not an unverified attestation and not an agent judgement. The badge ships as specced.
+
+**The inconsistency is real but points the other way** → `[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`, **INVERTED**: since ten is authoritative, the **contradicting surfaces** are the ones to correct — `Welcome.tsx:1867` *"Last 5 years pattern"* (a **live marketing surface**) and `class10ContentConfig.ts:156` *"last 3–5 years of PYQs"*. `Home.tsx` already says 10 in four places, so it is consistent. **Separate lane; nothing touched here.**
+
+### Prototype ⇄ spec conflicts, all resolved SPEC-FIRST (§0 forbids functionality change)
+The prototype is the visual authority; the spec is the behavioural authority and wins on disagreement. Three calls, all endorsed by the owner at review:
+- **The tray keeps its `Worksheet` CTA.** The prototype omits it; §2 marks the tray *unchanged*. Removing a live CTA destination is a functionality change.
+- **The tray stays IN FLOW, not `sticky; bottom:0`.** At mobile width this page renders inside `MobileShell showNav`, whose **fixed `BottomNav`** a sticky tray would sit under. The chrome-less prototype cannot show this — a prototype's layout is only trustworthy where it models the app's actual chrome.
+- **The marks label stays `~N marks`.** The prototype prints the bar's *normalised ratio* as a bare number; `100` beside a bar reads as a percentage — exactly the fake stat §1 forbids. Real `topic.weight` retained.
+
+### VALIDATION
+tsc **exit 0** · new suite **12/12** · blast-radius suites **65/65** · `check:mojibake` PASS · `scope:guard --mode product` PASS (`lanes=product`, **pre-commit** — post-commit it correctly reports `no changes` on a clean tree) · root guard matrix **190/190** · lazytopper ops matrix PASS (C&I 91/91 · tutor⇄C&I 31/31 · tutor⇄QP 41/41; every FORBIDDEN path *zero changes vs origin/base*) · `git diff --check` clean · **commit-scoped matrices re-run POST-COMMIT** · CI `quality-gate` **pass**, `lane-overlap` **pass**, Vercel deployed.
+
+**The CI green tick was verified, not assumed** — the job log shows the suite by name and count (`✓ src/pages/ExamTrendsRanked.test.tsx (12 tests)`, individual test names listed), whole run **63 suite files / 826 tests**. The linux `vite build` emitted `ExamTrendsRanked-B0DbNBnn.js — 29.36 kB (gzip 8.45)`, confirming the production build Windows cannot run.
+
+**Mutation-verified** (a green test is not evidence until it has been seen red): re-tiering `circles` must-crack→high-ROI, reverting `Learn`→`Open`, and deleting the blurb each turn the intended assertion red for the right reason; each restored byte-exact afterwards.
+
+**NEXT:** the mastery lane remains the natural successor (audit delivered, unblocked). See `NEXT_ACTION.md`.
+
+---
+
+## (superseded) [CURRENT] #516 merged — ★★ THE TUTOR RETIREMENT IS COMPLETE: THE DEAD CLUSTER, THE UNREACHABLE MENTOR DRAWER AND `/api/mentor` ARE ALL GONE — trunk `a86feda`
 
 **PR-2 of 2. 62 files, +34 / −15,239 — the largest deletion this repo has taken.** Owner byte-reviewed the full deletion set and merged. `[FU-TUTOR-LEGACY-RETIRE]` is now **CLOSED end-to-end** (#512 behaviour, #516 deletions). Docs-only handoff; zero product files here.
 
