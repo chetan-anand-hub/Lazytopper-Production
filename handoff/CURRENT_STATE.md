@@ -1,6 +1,120 @@
 # LazyTopper — Current State
 
-## [CURRENT] #521 merged — ★★ EXAM TRENDS DESIGN UPLIFT: OWNER-SIGNED TIER DATA PROVEN FROZEN BY HASH, AND A SPEC THAT HALLUCINATED ITS OWN BUG — trunk `ee5cd640`
+## [CURRENT] #520 + #522 merged — ★★ THE HOME REDESIGN ARC: A DUPLICATED HERO RETIRED, THE TUTOR SURFACED, AND THREE FALSE PREMISES CORRECTED (ONE OF THEM A DOCTRINE) — trunk `2865432`
+
+**ONE combined handoff for the Home lane's two PRs.** Sectioned per PR, never blended: **#520 (PR-A)** the redesign, **#522 (PR-A2)** the fixes that followed it. Both owner byte-reviewed; both CI-green; **#522 owner LIVE-VERIFIED**. Draft PRs throughout, never self-marked ready, never self-merged.
+
+Trunk moved `45ab803` → **`c8dab29` (#520)** → `ee5cd640` (#521, Exam Trends — a different lane) → **`4bde1a3f` (#522)** → `2865432` (#523 docs). This entry speaks ONLY for #520 + #522; #519 and #521 are covered elsewhere.
+
+> ⚠ **#520 was merged before its live-verify, by accident.** #522 was live-verified properly. The two defects #522 fixes (below) are exactly the kind a live-verify catches and a byte-review does not — worth remembering the next time a merge feels routine.
+
+---
+
+# SECTION 1 — #520 (PR-A): the Home redesign + tutor surfacing
+
+5 files, **+1563 / −1059**. `src/lib/desktop/homeDestinations.tsx` · `DesktopHome.tsx` · `MobileHome.tsx` · `MobileHome.test.tsx` · a new `homeDestinations.test.tsx`.
+
+### What shipped
+**The Worksheets hero is RETIRED — it was a verified duplicate.** It and the Practice card carried the *identical* destination string `/practice-hub?source=home&returnTo=%2F`; Home shipped a literally duplicated slot. Worksheets stay reachable at the hub and via the quick strip's multi-topic tile (asserted in tests and live).
+
+**Mobile had a duplicate of its own, and the spec was wrong about why.** Spec §1 said `homeDestinations.tsx` was the shared inventory, "not duplicated in two pages". **False for mobile:** `MobileHome` imported only `loginUrl` and hardcoded its titles inline, which is how it grew *"What scores most"* and *"What's likely in 2027"* both resolving to `/exam-trends`. Both Home variants now render the shared `PRIMARY_CARDS`, so they cannot drift again.
+
+**Four cards, journey order:** See what's likely (amber) · Ask your tutor (green) · Practise it (navy) · Check my answer (red).
+
+### ★★ THE §3 LOGIN/RETURN CONTRACT — the one thing that had to be right
+`composeTutorEntry()` composes an **existing** url — byte-identical to what Topic Hub's `askTutorHref` builds today. Chapters come from `desktopTopicsBySubject()`, so `topicKey` is always a real `topics.ts` slug, never a display name.
+
+```
+signed in  ->  /tutor/10/Science/electricity?source=home&returnTo=%2F
+signed out ->  /login?reason=tutor&redirect=%2Ftutor%2F10%2FScience%2Felectricity%3Fsource%3Dhome%26returnTo%3D%252F
+```
+
+The signed-out branch lands on `/login` and **never** on `/tutor`, so `RequirePremium featureLabel="Ask the tutor"` is reached exactly as from every other entry point — the pop-card cannot route around the gate. Asserted across **all 26 topics × both subjects**, and verified live in Chromium on both branches.
+
+**Mutation-verified** (a passing test is not evidence until it has been seen fail): dropping the chapter from `?redirect` turns **3 tests red** (both ★); making signed-out return the tutor path directly turns **5 red**, including the dedicated gate test. Both restored and re-verified.
+
+### The pop-card is SHARED and firebase-free BY DESIGN
+`TutorPickerModal` + `useTutorPicker` live in `homeDestinations.tsx`. Auth arrives as a **prop** — the module never calls `useAuth` — and its transitive graph (`navigation` → 0 imports, `topics`, `tutorPath` → 0 imports) stays clean, **so PR-B can mount the same picker in `DesktopShell`** for the rail entry. Do not add a data-layer import to that module.
+
+### MI, and a deliberate omission
+Navy frame + spine, four fixed buckets in the **verbatim** semantic tones of `MistakeIntelligencePanel.tsx:26-29`. Exactly two CTAs. **No "Ask the tutor about these"** — `MistakeLogEntry` spans many topics while `buildTutorPath` needs exactly one, so there is no single honest destination.
+
+### ★ NO DAYS-TO-BOARDS COUNTDOWN — the prototype showed one; it was not built
+The only real source, `fetchCbseExamDate`, is an **async API** whose date may be `"predicted"` rather than `"official"`, and students have an existing `hideCountdown` preference. Rendering it would present a prediction as fact **and** override that choice. Omitted deliberately → `[FU-HOME-BOARD-COUNTDOWN]`. **The owner endorsed this as the right call and recorded that the prototype was wrong to include it.**
+
+### ★ TWO MORE SPEC PREMISES THAT FAILED RE-DERIVATION
+- **§5's mobile chrome.** It said to preserve *"MobileShell's existing header … avatar / MobileAccountMenu"*. `/browse` is in `isMobileSelfChromedRoute` (App.tsx:179) — there is **no MobileShell wrapper and no avatar** on this surface. "Preserve, don't rebuild" therefore meant keep MobileHome's own brand bar + App.tsx's `BottomNav`, and add no shell.
+- **§5's carousel bleed.** The spec said copy `margin: 0 -16px`. The **rule** is *the negative margin equals the container's padding* — 14px here. Copying the 16 (from `DesktopPracticePage`, a different gutter) would overhang 2px per side: the exact drift class the redesign fixes. **Owner verified the source and confirmed the spec was wrong.**
+
+### Kept, deliberately
+The resume/memory strip and "Latest saved worksheet" were **kept** — neither is in the spec's change list, so deleting them would be scope creep. They now partly duplicate the MI card → `[FU-HOME-MEMORY-STRIP-VS-MI]`, owner decides after living with it. *(Same doctrine #521 established independently: silence in a spec is not authorisation to delete rendered content.)*
+
+---
+
+# SECTION 2 — #522 (PR-A2): the sample panel restored, the cards coloured, the avatar added
+
+5 files, **+877 / −258**. `MobileHome.tsx` · `MobileHome.test.tsx` · `DesktopHome.tsx` · `MobileShell.tsx` · a new `MobileAccountMenu.tsx`.
+
+> **One declared process deviation:** the brief asked for three commits. The sections interleave *inside* `MobileHome.tsx` (one hunk carries both the firebase correction and the avatar note; the CSS hunks mix the sample block with the card treatment) and `git add -p` is interactive/unavailable. Shipped as **one commit with a sectioned message** rather than three hand-authored trees no gate had run against. **The owner ruled this correct: a gate-verified tree beats tidy commits with unverified intermediate states, and declaring the deviation beats doing it quietly.**
+
+### ★★ DOCTRINE — §4's "REAL DATA ONLY" FORBIDS FABRICATED STATS, **NOT** A CLEARLY-LABELLED SAMPLE
+#520 deleted the signed-out **SAMPLE** Mistake-Intelligence panel from mobile `/browse`, reading spec §4's *"real data only"* as banning any illustrative figure. That is an over-read, and **the spec conflated the two**: the rule forbids presenting invented numbers as **a student's OWN**. A panel explicitly badged a sample is a *demonstration*.
+
+`/browse` is a **conversion surface**, so a signed-out visitor seeing what MI produces is the point. This was a live regression for signed-out mobile visitors, shipped green.
+
+**The owner recorded that this was his spec error, and that he confirmed the removal as "no regression" when it was one.** It was caught only because the removal was flagged prominently in the PR description rather than left to be discovered.
+
+**Restored** from `45ab803` (recovered, not re-invented) and restyled into #520's MI grammar — navy frame + spine, four semantic buckets. **Signed-in is untouched**: it keeps the honest empty state.
+
+★ **The label is what makes a sample honest, so it is now STRUCTURAL rather than textual**: the badge and every sample figure share one block, and the test asserts *containment* — a reader cannot see the figures without seeing the badge, and the qualification cannot drift away from the numbers it qualifies. `Presentation 10%` is the arithmetic remainder (the recovered mix was 45/30/15 = 90); not a new invention.
+
+### ★★ THE FALSE "FIREBASE-FREE" COMMENT — a doc comment treated as a verified fact, by everyone
+`MobileHome`'s doc comment claimed the page "stays firebase-free", so real MI would drag firebase into the mobile chunk. Writing the boundary test as a **real import-graph walk** rather than a grep disproved it:
+
+```
+MobileHome -> hooks/useSubscription -> subscriptionService -> firebase/firestore
+MobileHome -> context/AuthContext   -> mistakeLogService   -> firebase/firestore
+```
+
+**firebase — including firestore — and `mistakeLogService` itself were ALREADY on this page's graph**, on trunk, before #520. The comment was **false when written**. The owner independently verified the chains and recorded that he had *repeated the comment back as evidence* when approving the deferral. Only a command against the real graph caught it.
+
+Consequences: the sample's honesty rests on its **label**, not on a bundle boundary — and **`[FU-MOBILE-MI-REAL-DATA]` is RE-SCOPED, its bundle argument VOID**. Comment corrected in-file; the true state **pinned by a characterisation test** so the false claim cannot quietly return.
+
+> **The class: a doc comment is a claim, not a fact.** It is exactly as unverified as a variable name or a grep hit — and it is *more* dangerous, because it reads like documentation. This is the same INFERENCE TRAP the method already names; the new instance is that the false premise survived in a comment for months and was cited by two people as evidence.
+
+### ★★ THE SPINE BUG — a styling regression that shipped GREEN through every gate
+The cards read lifeless. The cause was not the palette: **#520 declared the `::before` accent spine but never gave it a `background`**, so `HOME_ACCENTS.spine` was defined and **never consumed** — the accent side had never rendered at all.
+
+> **Record the CLASS, not the incident: a token that is DEFINED but never CONSUMED is invisible to every gate we run.** tsc sees a used export. The linter sees a valid rule. The matrices see no behaviour change. Tests asserted the *value* was present, not that anything *painted* it. Nothing in the stack can distinguish "styled" from "styled with a no-op". **The only instrument that catches it is rendering the surface and measuring the computed style** — which is what the PR-A2 probe now does (`getComputedStyle(card, "::before")`).
+
+**Fixed with the practice-hub "side and edge" treatment** (pattern + values from `DesktopPracticePage`'s `lt-mode-card` / `MODE_ACCENT`): colour lives in the spine and the border, the body is a neutral vertical gradient. Applied to **both** Home variants.
+
+★ **Colour only — geometry byte-identical.** The owner verified this independently as the highest regression risk: `border-radius: 18px` and `padding: 17px` identical either side, with only `var(--lt-line)` added to the border. Live-measured card width **306px @360** and **336px @390**, matching trunk exactly.
+
+### The account avatar on mobile Home — a NEW capability, not a restored one
+`/browse` **never had** an account menu (pre-#520 count is 0; trunk's only reference was a comment saying so). The prototype showed one, which is where the expectation came from — **recorded so nobody later "restores" a thing that never existed.**
+
+`MobileAccountMenu` was module-private in `MobileShell`; **extracted** to its own component so a self-chromed route can mount it **without adopting the shell** (wrapping `/browse` would stack two headers). The extracted body is **character-identical** to the original (proven by `diff` against `git show c8dab29:…/MobileShell.tsx | sed -n '41,231p'`); MobileShell now imports it and renders it in the same position — **202 removed / 3 added, just the import**, as the owner verified.
+
+★ **The dropdown is not trapped by a stacking context** (`[FU-HUB-DROPDOWN-ZINDEX]` class): verified live via `elementFromPoint` at 360px and 390px, the menu paints **above** the hero and first card *while genuinely overlapping them* — the probe asserts the overlap first, so the check cannot pass vacuously.
+
+### ★ AND A METHOD NOTE — a live assertion can be wrong-and-plausible
+The PR-A2 probe reported "body is a neutral gradient" **FAIL** four times. The CSS was correct; **the assertion was wrong** — Chrome normalises `linear-gradient(180deg, …)` by dropping the default angle, so string-matching `"180deg"` against `getComputedStyle` can never match. Caught by **reading the computed value before touching any code**, then replaced with the property that actually matters: all four card bodies identical (neutral) while all four spines differ (accent). *(Straight instance of the method's "a measurement instrument can be wrong-and-plausible".)*
+
+---
+
+## VALIDATION (both PRs)
+tsc app **exit 0** · tsc test **exit 0** · `check:mojibake` PASS · `scope:guard --mode product` PASS (**pre-commit** — its correct timing) · root guard matrix **190/190** · lazytopper ops matrix **EXIT=0**, zero failure lines (C&I 91/91 · tutor⇄C&I 31/31 · tutor⇄QP 41/41; every FORBIDDEN path *zero changes vs origin/base*) · **commit-scoped matrices re-run POST-COMMIT on both** (`base...HEAD` confirmed non-vacuous first) · CI `quality-gate` pass (#520 4m18s, #522 3m22s) · `lane-overlap` pass · Vercel deployed.
+
+**Both CI greens verified by reading the log, not the tick.** #520: 62 files / **814 tests**. #522: 62 files / **826 tests**, linux `vite build` `✓ built in 8.63s` — the production build Windows cannot run. Arithmetic proof the new tests actually ran: trunk 792 → **814** (#520, +22 = 18 new + 4 amended) → **826** (#522, +12).
+
+**Byte-zero throughout:** `App.tsx` (confirmed both by `git diff` *and* independently by the ops matrix's own `FORBIDDEN: App.tsx shows zero changes` assertion), `DesktopShell.tsx`, `Welcome.tsx`, `main.tsx`, `vite.config.ts`, `firebase.json`, `firestore.rules`; no `src/data/`. #522 additionally left `homeDestinations.tsx` and `homeDestinations.test.tsx` byte-zero — the §3 contract and the shared picker were not disturbed.
+
+
+---
+
+
+## [PREV] #521 merged — ★★ EXAM TRENDS DESIGN UPLIFT: OWNER-SIGNED TIER DATA PROVEN FROZEN BY HASH, AND A SPEC THAT HALLUCINATED ITS OWN BUG — trunk `ee5cd640`
 
 **Presentation-only uplift of `src/pages/ExamTrendsRanked.tsx`.** 2 files, +1150 / −574. Owner byte-reviewed the pushed diff **and independently re-verified the tier authority** rather than taking the agent's hash, then live-verified the merged surface. CI `quality-gate` pass (4m4s), `lane-overlap` pass. Draft PR throughout; never self-marked ready.
 

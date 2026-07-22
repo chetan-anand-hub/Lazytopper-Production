@@ -1,5 +1,15 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-22 - ★★ ✅ THE HOME REDESIGN ARC **COMPLETE** (#520 + #522, trunk `2865432`) - owner byte-reviewed both, LIVE-VERIFIED #522
+
+**#520 (PR-A)** - the duplicated Worksheets hero retired (it and Practice carried the *identical* destination string `/practice-hub?source=home&returnTo=%2F`), the tutor surfaced via a SHARED firebase-free `TutorPickerModal`, MI rebuilt on the verbatim semantic buckets, mobile carousel + collapsed quick links, and the **§3 login/return contract** (`isSignedIn ? tutorPath : loginUrl("tutor", tutorPath)`) with the chosen chapter surviving the round-trip inside `?redirect` and `RequirePremium` never bypassed. 5 files, +1563/−1059.
+
+**#522 (PR-A2)** - the signed-out SAMPLE MI panel RESTORED to the conversion surface (#520 over-read spec §4), the practice-hub "side and edge" card colour treatment (which fixed a spine that had **never rendered**), and `MobileAccountMenu` EXTRACTED so mobile Home can carry the account avatar without adopting `MobileShell`. 5 files, +877/−258.
+
+**Doctrines banked:** "real data only" forbids fabricated stats presented as a student's OWN, **not** a clearly-labelled sample · a **doc comment is a claim, not a fact** (the "firebase-free" boundary was false when written, and cited as evidence by two people) · a token **defined but never consumed** is invisible to every gate we run.
+
+**Still open from this arc:** **PR-B — the `DesktopShell` rail Tutor entry.** Now **unblocked**: #519 lifted the DesktopShell blanket ban, and the shared picker was deliberately built firebase-free (auth arrives as a prop) precisely so the shell can mount it.
+
 ## 2026-07-22 - ★★ ✅ EXAM TRENDS DESIGN UPLIFT **COMPLETE** (#521, trunk `ee5cd640`) - owner byte-reviewed, independently re-verified the tier authority, merged + live-verified
 
 **STAGE COMPLETE — presentation-only uplift of `src/pages/ExamTrendsRanked.tsx`.** 2 files, **+1150 / −574**. Zero functionality change; **one copy change** (`Open` → `Learn`, same destination and params). CI `quality-gate` PASS (4m4s), `lane-overlap` PASS. Draft PR throughout; never self-marked ready.

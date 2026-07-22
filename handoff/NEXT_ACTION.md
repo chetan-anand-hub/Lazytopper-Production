@@ -1,7 +1,44 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-22 (post-**#521 — EXAM TRENDS DESIGN UPLIFT.** Trunk `ee5cd640`. Owner byte-reviewed the pushed diff, independently re-verified the tier authority, merged + live-verified. 2 files, +1150/−574, presentation-only.)
+# Updated: 2026-07-22 (post-**#520 + #522 — THE HOME REDESIGN ARC.** Trunk `2865432`. Owner byte-reviewed both, live-verified #522. 10 files across two PRs, +2440/−1317.)
 
-## NEXT — 2026-07-22 (post-#521). Read this block first.
+## NEXT — 2026-07-22 (post-#520 + #522). Read this block first.
+
+**The Home redesign lane is CLOSED for PR-A and PR-A2.** One piece of it remains, and it is now unblocked — see below.
+
+### ★ THE OBVIOUS NEXT STEP: PR-B — the DesktopShell rail Tutor entry
+This was the *only* blocked half of the original Home spec (§7), and **the block is gone**:
+- **#519 lifted the `DesktopShell.tsx` blanket ban** from the ops FORBIDDEN list, which was the stated blocker.
+- **The picker was built for exactly this.** `TutorPickerModal` + `useTutorPicker` live in `homeDestinations.tsx` and are **firebase-free by construction** — auth arrives as a **prop**, the module never calls `useAuth`, and its transitive graph (`navigation`, `topics`, `tutorPath`) pulls no data layer. The shell can import it as-is.
+- ⚠ **Do not add a data-layer import to `homeDestinations.tsx`** or PR-B stops being possible.
+- ⚠ `DesktopShell` is still a **globally forbidden file** under CLAUDE.md §4 — the lane needs explicit scoping in its brief even though the ops gate no longer blocks it.
+- The `[FU-HUB-DROPDOWN-ZINDEX]` work could reasonably ride the same lane, as the original spec suggested.
+
+### ★★ THREE DOCTRINES THIS ARC ESTABLISHED — carry them into every lane
+1. **"Real data only" forbids fabricated stats presented as a student's OWN — NOT a clearly-labelled sample.** #520 deleted the signed-out SAMPLE MI panel from a **conversion surface** by over-reading spec §4; the owner recorded that the spec conflated the two and that he confirmed the removal as "no regression" when it was one. **The label is what makes a sample honest — so make it structural, not textual** (badge and figures in one containment-asserted block). Anti-fabrication stays absolute; a demonstration is not a fabrication.
+2. **A doc comment is a CLAIM, not a fact — and it is more dangerous than a grep hit, because it reads like documentation.** `MobileHome`'s "stays firebase-free" comment was **false when written**, survived months, and was cited as evidence by two people. Only walking the **real import graph** disproved it.
+3. **A token that is DEFINED but never CONSUMED is invisible to every gate we run.** `HOME_ACCENTS.spine` was defined in #520 and never painted (the `::before` had no `background`). tsc sees a used export; the linter sees a valid rule; the matrices see no behaviour change; the tests asserted the value existed, not that anything painted it. **Only rendering the surface and measuring the computed style catches it** — `getComputedStyle(el, "::before")`. Add that measurement whenever a change is *visual by definition*.
+
+### ⚠ FIVE CONSECUTIVE LANES have now had a load-bearing brief premise fail on re-derivation
+#515 (error count), #516 ("LIVE in PracticePage"), the legacy-retirement audit (four wrong premises), #521 (a bug hallucinated from its own prototype), and this arc (**three**: "the inventory is already shared" — false for mobile; "preserve MobileShell's header/avatar" — there is no shell or avatar on `/browse`; "copy `margin: 0 -16px`" — the rule is *bleed equals container padding*, 14px here).
+
+**This is no longer a run of bad luck; it is the base rate.** Re-derive every load-bearing premise in a brief before building on it, and report the ones that fail — three of the four corrections above came back as owner-confirmed spec errors.
+
+### The immediate candidates
+1. **PR-B (above)** — small, unblocked, and finishes the Home spec.
+2. **The MASTERY lane** — audit delivered, unblocked since the tutor lane closed. ⚠ The unwire is a **CONSTANT-FOLD, never a clause deletion** (`weakAreaAggregator:154/:158` must stay literals or the `>5` gate starts filtering and the live weak-area set changes).
+3. **`[FU-BANK-GARBLED-EXPANDED-SCOPE]`** — ~61 rows remain of the 89-row class. Reuse the proven coordinate-aware method; do not re-derive it.
+4. **`[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`** (from #521, inverted) — ten years is owner-authoritative, so fix the two contradicting surfaces. ⚠ `Welcome.tsx` is a globally forbidden file; that lane needs explicit scoping.
+5. **`[FU-HOME-MEMORY-STRIP-VS-MI]`** — a product call for the owner after living with the redesign, not an engineering task.
+
+### ⚠ THREE things NOT to spend a lane on
+- **`[FU-TRUNK-FLAKY-SUITES]`** — the flaky suites are **GREEN on linux CI** (both #520 and #522 ran 62 files / 814 and 826 tests, all passing). They fail only locally on Windows, the failing set shifts run to run, and all pass in isolation. **A local-dev cost, not a CI-reliability risk.** The earlier "these will redden unrelated PRs at random" framing was overstated and is corrected in the FU. The transferable habit: **stash to clean trunk and re-run before attributing a red to your own branch.**
+- **`[FU-MOBILE-MI-REAL-DATA]` on bundle grounds** — the bundle argument is **VOID** (`mistakeLogService` is already on mobile Home's graph via `AuthContext`). If it is picked up, it is a **product** decision with no technical cost. Do not re-cite the bundle rationale.
+- **Re-opening the Home card geometry** — radius/padding/carousel placement are byte-identical to `c8dab29` and pinned by a test. #522 changed **colour only**, and the owner re-verified that independently.
+
+---
+
+## PREVIOUS NEXT — post-#521 (Exam Trends), retained for context
+
 
 **The Exam Trends uplift lane is CLOSED.** Presentation-only; the owner-signed tier data is byte-frozen and proven so twice over. **Do not re-open it, and above all do not "improve" the band data.**
 

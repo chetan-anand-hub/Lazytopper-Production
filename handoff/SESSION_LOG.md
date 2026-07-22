@@ -1,5 +1,60 @@
 ---
 
+## 2026-07-22 -- #520 + #522: THE HOME REDESIGN ARC - a duplicated hero retired, the tutor surfaced, and THREE false premises corrected (one of them a doctrine) - **owner byte-reviewed both, live-verified #522** - trunk `2865432`
+
+**ONE combined entry for the Home lane's two PRs, sectioned per PR.** #520 (PR-A) the redesign, 5 files +1563/-1059. #522 (PR-A2) the fixes, 5 files +877/-258. Draft PRs throughout; never self-marked ready. CI `quality-gate` pass on both (4m18s, 3m22s), `lane-overlap` pass.
+
+> ⚠ **#520 merged before its live-verify, by accident.** #522 was live-verified properly — and the two defects #522 fixed are precisely the kind live-verify catches and byte-review does not.
+
+### SECTION 1 - #520 (PR-A): the redesign
+**The Worksheets hero was a VERIFIED duplicate** - it and the Practice card carried the identical destination string `/practice-hub?source=home&returnTo=%2F`. Retired; worksheets stay reachable at the hub + the quick-strip tile. **Mobile had a duplicate of its own** (`What scores most` and `What's likely in 2027` both -> `/exam-trends`) because `MobileHome` hardcoded its titles inline while importing only `loginUrl` - spec §1's claim that the inventory was already shared was **false for mobile**. Both variants now render the shared `PRIMARY_CARDS`.
+
+**The §3 login/return contract** composes an existing url, byte-identical to Topic Hub's `askTutorHref`; signed-out goes to `/login` carrying the chapter in `?redirect` and **never** to `/tutor`, so `RequirePremium` is reached normally. Asserted across all 26 topics x both subjects; mutation-verified (breaking the redirect -> 3 red; bypassing login -> 5 red). The pop-card is a SHARED, firebase-free component so **PR-B can mount it in DesktopShell**.
+
+**No days-to-boards countdown** despite the prototype: `fetchCbseExamDate` is async and can return a **PREDICTED** date, and rendering it as fact would also override an existing `hideCountdown` preference. Owner endorsed the omission.
+
+### ★★ LESSON 1 - "REAL DATA ONLY" FORBIDS FABRICATED STATS, NOT A CLEARLY-LABELLED SAMPLE
+#520 deleted the signed-out SAMPLE MI panel from mobile `/browse` by reading spec §4's *"real data only"* as banning any illustrative figure. **The rule bans presenting invented numbers as a student's OWN; a panel explicitly badged a sample is a demonstration.** `/browse` is a conversion surface, so this was a live regression - shipped green, caught only because the removal was flagged prominently in the PR description instead of left to be discovered. The owner recorded that the **spec conflated the two, and that he confirmed the removal as "no regression" when it was one.**
+
+Restored in #522 from `45ab803` (recovered, not re-invented), restyled into the new MI grammar. **The label is what makes a sample honest, so it is now STRUCTURAL rather than textual** - badge and figures share one containment-asserted block, so the qualification cannot drift away from the numbers it qualifies.
+
+### ★★ LESSON 2 - A DOC COMMENT IS A CLAIM, NOT A FACT
+`MobileHome`'s comment said the page "stays firebase-free", so real MI would drag firebase into the mobile chunk. A **real import-graph walk** (not a grep) disproved it:
+
+```
+MobileHome -> hooks/useSubscription -> subscriptionService -> firebase/firestore
+MobileHome -> context/AuthContext   -> mistakeLogService   -> firebase/firestore
+```
+
+firebase - including firestore - **and `mistakeLogService` itself** were already on the graph, on trunk, before #520. **The comment was false when written**, and the owner recorded that he had repeated it back as evidence when approving the deferral. `[FU-MOBILE-MI-REAL-DATA]` is RE-SCOPED - **its bundle argument is VOID**; it is now purely a product decision. Comment corrected and **pinned by a characterisation test**.
+
+> A doc comment is exactly as unverified as a variable name or a grep hit - and *more* dangerous, because it reads like documentation.
+
+### ★★ LESSON 3 - A DEFINED-BUT-NEVER-CONSUMED TOKEN IS INVISIBLE TO EVERY GATE
+The redesigned cards read lifeless. Not the palette: **#520 declared the `::before` accent spine and never gave it a `background`**, so `HOME_ACCENTS.spine` was defined and never consumed - the accent side had **never rendered at all**.
+
+**tsc sees a used export. The linter sees a valid rule. The matrices see no behaviour change. Tests asserted the value was present, not that anything painted it.** Nothing in the stack can distinguish "styled" from "styled with a no-op". The only instrument that catches it is **rendering the surface and measuring the computed style** - which the PR-A2 probe now does (`getComputedStyle(card, "::before")`).
+
+### SECTION 2 - #522 (PR-A2): the fixes
+Sample panel restored (above) - **the practice-hub "side and edge" colour treatment** applied to both Home variants, colour in the spine + border with a neutral body - and the **account avatar added to mobile Home**, a **NEW capability, not a restored one** (`/browse` never had an account menu; the prototype showed one, which is where the expectation came from). `MobileAccountMenu` extracted from `MobileShell` (**202 removed / 3 added**, body character-identical, owner-verified) so a self-chromed route can mount it without adopting the shell. Dropdown proven **not trapped by a stacking context** via `elementFromPoint` at 360/390.
+
+★ **Colour only - geometry byte-identical**, the owner's highest regression risk and independently re-verified by him: radius 18px / padding 17px identical either side, only `var(--lt-line)` added to the border. Live-measured 306px @360, 336px @390, matching trunk.
+
+### ★ AND A METHOD NOTE - a live assertion can be WRONG-AND-PLAUSIBLE
+The PR-A2 probe reported "body is a neutral gradient" FAIL four times. **The CSS was right; the assertion was wrong** - Chrome normalises `linear-gradient(180deg, ...)` by dropping the default angle, so matching the literal `"180deg"` can never succeed. Caught by reading the computed value **before touching any code**, then replaced with the property that matters: all four bodies identical (neutral) while all four spines differ (accent).
+
+### ★ THREE MORE BRIEF PREMISES THAT FAILED RE-DERIVATION
+Spec §5's *"preserve MobileShell's header/avatar"* (there is no shell and no avatar on `/browse` - it is in `isMobileSelfChromedRoute`); spec §5's `margin: 0 -16px` (the **rule** is *bleed equals container padding* = 14px here; copying 16 overhangs 2px per side - the exact drift class being fixed); spec §1's *"the inventory is already shared"*. **That is now five consecutive lanes** with a load-bearing brief premise failing on re-derivation (#515, #516, the legacy-retirement audit, #521, and this one).
+
+### PROCESS - one declared deviation, owner-ratified
+The brief asked for three commits on #522. The sections interleave inside `MobileHome.tsx` and `git add -p` is interactive/unavailable, so it shipped as **one commit with a sectioned message** rather than three hand-authored trees no gate had run against. **Owner ruled this correct** - a gate-verified tree beats tidy commits with unverified intermediate states, and declaring the deviation beats doing it quietly.
+
+### VALIDATION
+tsc app + test **exit 0** - mojibake PASS - `scope:guard` PASS (pre-commit) - root matrix **190/190** - ops matrix **EXIT=0**, zero failure lines - **commit-scoped matrices re-run POST-COMMIT on both** - CI green on both, **verified by reading the log**: 62 files / **814 tests** (#520), **826** (#522), linux `vite build` `✓ built in 8.63s`. Arithmetic proof the new tests ran: 792 -> 814 (+22) -> 826 (+12). `App.tsx` byte-zero, confirmed both by `git diff` and by the ops matrix's own FORBIDDEN assertion.
+
+---
+
+
 ## 2026-07-22 -- #521: EXAM TRENDS DESIGN UPLIFT - tier data proven frozen by an INDEPENDENT golden, and a spec that hallucinated its own bug - **owner byte-reviewed, re-verified the authority himself, merged + live-verified** - trunk `ee5cd640`
 
 **Presentation-only uplift of `ExamTrendsRanked.tsx`.** 2 files, +1150/-574. One copy change (`Open` -> `Learn`); zero functionality change. Draft PR throughout. CI `quality-gate` pass (4m4s), `lane-overlap` pass.
