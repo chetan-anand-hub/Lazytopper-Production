@@ -20,6 +20,25 @@ If a pasted "orientation block" and `CURRENT_STATE.md` ever disagree, **the live
 This is deliberate: durable rules live here (rarely change); volatile state lives in the repo (read fresh each time),
 so nothing goes stale from hand-pasting.
 
+## ★ THIS COPY MAY BE STALE — THE REPO COPY SUPERSEDES IT
+**Added v2.4 · 2026-07-22.** The authoritative version of this skill is **`cofounder-skill/SKILL.md` in the
+repo**. Any other copy — including the live Anthropic skill that auto-loads at session start — is a MIRROR,
+synced BY HAND, with no automation between them. **Assume the copy you are reading is behind.**
+
+**Before acting on anything in this file, fetch the repo copy at the re-derived trunk tip and follow that
+instead.** You are already cloning the repo in step 1 of SESSION BOOTSTRAP — read `cofounder-skill/SKILL.md`
+in the same pass. It costs nothing extra and it is the only way to notice a difference at all: a precedence
+rule that is never compared against anything never fires.
+
+Where the two disagree, **the repo copy wins, always** — including where this file states a rule more
+confidently or more recently. Corrections land in the repo first, because the repo copy is the one agents
+actually read, audit and correct in the course of real work: **five defects in this document were found and
+fixed that way in a single session (v2.2 + v2.3), one of them a merge check that was inverted and would have
+told an agent its correctly-merged PR had been orphaned.** A mirror nobody can audit is always the stale one.
+
+If you cannot reach the repo, follow this file — but **say so explicitly in your first response**, so the
+owner knows you are working from a possibly-stale method rather than the current one.
+
 ## SKILL SYNC (this file lives in TWO places — keep them identical)
 **Version 2.3 · 2026-07-22.** *Supersedes 2.2 (same day). Completes the five-defect audit begun in 2.2 — 2.2 fixed
 the merge check and the Appendix-A trunk-SHA wording; **2.3 fixes the remaining three, all verified against trunk
