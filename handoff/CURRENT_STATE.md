@@ -1,6 +1,71 @@
 # LazyTopper — Current State
 
-## [CURRENT] #520 + #522 merged — ★★ THE HOME REDESIGN ARC: A DUPLICATED HERO RETIRED, THE TUTOR SURFACED, AND THREE FALSE PREMISES CORRECTED (ONE OF THEM A DOCTRINE) — trunk `2865432`
+## [CURRENT] #528 merged — ★★ PR-B2: THE RAIL TUTOR ENTRY, AND A Z-INDEX CEILING THAT WAS 50 AND NOT 9998 — trunk `7998ee4a`
+
+**The Home spec is now COMPLETE end-to-end.** PR-B was its last unbuilt half; this is it. Owner byte-reviewed **and LIVE-VERIFIED**. Draft PR throughout, never self-marked ready, never self-merged. 2 files, **+428 / −24**. CI `quality-gate` PASS (3m18s), `lane-overlap` PASS.
+
+Trunk moved `2865432` → `61a7030` (#525) → `fe91262` (#526) → `c1bc682` (#527, all three docs/skill) → **`7998ee4a` (#528)**.
+
+### What shipped
+**(a) A Tutor entry at rank 2 of the DesktopShell rail** — under Home, above Exam Trends. It **opens the shared `TutorPickerModal`; it does not navigate.** No new route, param or capability: the picker composes the URL via `composeTutorEntry`, so `RequirePremium featureLabel="Ask the tutor"` is reached exactly as from Home. `isSignedIn` arrives as a **prop** from the shell's existing `user` — `homeDestinations` still never calls `useAuth()`, which is the whole reason the shell can mount it.
+
+**(b) The header stacking fix** — `position: relative; zIndex: 35` on `DesktopShell`'s header. `[FU-HUB-DROPDOWN-ZINDEX]` **RESOLVED**.
+
+### ★★ THE CEILING IS 50, NOT 9998 — AND THE FIX THIS FU HAD RECORDED AS "KNOWN, BYTE-REVIEWED" WAS WRONG
+The brief said *"derive the value from the live full-screen-overlay landscape"* (9998–10000). **That derivation points at ~1100, and 1100 punches the header straight through `.command-palette-backdrop`** — `styles.css:6494`, `z-index: 50`, mounted at `App.tsx:821` as a **sibling of the shell**. That is the palette **the header's own search box opens**, so it is a live interaction, not a theoretical one.
+
+**The previously recorded fix in this FU was `zIndex: 55`, and 55 > 50 — it would have shipped the same regression.** Its stated bounds are both dead: the floor (*">50, TrendsPage's filter dropdown"*) is **retired code** (`App.tsx:936` — `/trends` was severed, superseded by `/exam-trends`), and the ceiling (*"<60, `TutorDrawerV2` / `MentorSolveDrawer`"*) was **void from #516**, which deleted both. Two dead bounds that happened to bracket a number.
+
+The real, re-derived bounds:
+
+| Bound | Value | Owner |
+|---|---|---|
+| **FLOOR > 30** | 30 | `Worksheets.tsx:484` — the highest z-index used by page **content** anywhere in the app; every other content value is ≤ 20. Clearing them all also clears the `z-index: auto` positioned cards that are the actual reported bug. |
+| **CEIL < 50** | 50 | `.command-palette-backdrop` (`styles.css:6494`). Staying under 50 also keeps the header under `.lt-tutor-ov` (60) and the 9998–10000 band. |
+
+**Band 31–49 is empty**: the only value there is `.examples-modal-backdrop` (`styles.css:3657`), **dead CSS with zero consumers in `src/`**. Hence **35** — a value that is both correct *and provable*, which "somewhere below 9998" never was. **A mutation test pinned at 1100 exists specifically to catch that regression** and is named as such in the suite.
+
+### ★★ MOBILE AND DESKTOP NEEDED DIFFERENT *SHAPES* OF FIX — state both invariants, never "we fixed the z-index"
+- **Mobile's invariant: "no trap ancestor."** `MobileHome`'s brand bar carries no `backdrop-filter`, so `MobileAccountMenu`'s `zIndex: 50` competes in the ROOT stacking context and wins. Pinned by PR-A2's ancestor-walk test (`MobileHome.test.tsx:483`, `TRAPS = [backdropFilter, webkitBackdropFilter, filter, transform, perspective]`).
+- **Desktop's invariant: "the trap must OUTRANK page content."** It **cannot** be mobile's, because the header's blur is *intended visual design* and cannot be removed. So the header keeps its stacking context and is given a z-index that beats `<main>`.
+
+Same symptom, opposite remedies. Flattened into "we fixed the z-index", this will confuse whoever meets the next instance.
+
+### ★★ THE PICKER MOUNTS AT THE SHELL ROOT — the non-obvious consequence of the fix
+`TutorPickerModal` is mounted as a sibling of `<aside>` and the main column, **deliberately not inside `<header>`**. Mounted inside the header it would have been **trapped under the header's new 35** (`.lt-tutor-ov` is `z-index: 60`, but resolved *inside* the header's context) — **fixing the stacking bug while shipping a fresh instance of it.** The header is also a **containing block for `position: fixed` descendants** (via `backdrop-filter`), so the overlay would additionally have lost its `inset: 0` full-viewport geometry. Pinned by a test asserting `picker.closest("header") === null`.
+
+### The design calls, and why
+- **A discriminated union on `NavItem`, narrowed by `"action" in n`** — not a sibling button. `NAV_ITEMS` renders as `<NavLink key={n.to} to={...}>`, keyed *and* routed by `n.to`, so a destination-less entry cannot be a row in that map. Rank 2 requires **positional interleaving**, and a sibling can only reach rank 2 via a hard-coded split index that silently moves Tutor the moment anyone reorders the list. Keying on a field that already distinguishes the kinds left **the five existing entries byte-unchanged**.
+- **A placeholder `to` was deliberately NOT used** — it ships a real anchor a student can middle-click into a dead route. Pinned by a mutation-tested assertion.
+- **Icon: Lucide `MessageCircleQuestion`** (reads as *ask a question*; `MessagesSquare` reads as inbox).
+- **Active only while the picker is open** — `/tutor` is **not** a `DesktopShell` route, so the rail never renders there and there is no landed-on case.
+- Shared treatment extracted to `navItemStyle(isActive)`, consumed by both branches, so visual parity is structural rather than copy-paste.
+
+### ★ SPEC CORRECTION — do not let this sentence propagate
+The brief said *"the SAME dropdown component (`MobileAccountMenu`) renders on both breakpoints."* **False.** `DesktopShell` has its **own inline dropdown** (`:433-535`); `MobileAccountMenu` is imported only by `MobileShell` and `MobileHome`. They are two *structurally identical* dropdowns (both `position: absolute`, both `zIndex: 50`), so the A/B logic and the fix target were unaffected — **but the sentence is wrong.** Owner confirmed.
+
+### Tests — the other half of the PR-B1 trade
+`DesktopShell` had **neither a ban nor a test**. #519 lifted the blanket ban; this PR pays the other half, and is the file the lifted ban's own comment at `check_improve_convergence_acceptance.mjs:482` explicitly promises. **11 tests**, and CI's job log confirms them **by name** (`✓ DesktopShell.test.tsx (11 tests)`) — a green tick is not evidence a suite ran.
+
+Mutation-tested, each red for the right reason, each restored **byte-exact by `git hash-object`**: Tutor as `<a href>` (the anti-regression test *also* caught `/tutor` leaking into the routed-destination list) · header `position`/`zIndex` removed · `zIndex: 1100` · `zIndex: 5` · `zIndex: 30` (the exact boundary).
+
+### ★★ BOTH MIRROR TRAPS, FROM ONE LANE
+This lane hit **both halves** of the pre/post-commit gate mirror. Most agents meet only one and generalise wrongly:
+
+```
+base...HEAD forbidden gates : VACUOUS pre-commit (trunk vs itself, zero commits)  -> MEANINGFUL post-commit
+scope:guard                 : MEANINGFUL pre-commit (reads the working tree)      -> VACUOUS post-commit
+                              ("SCOPE_GUARD_OK … lanes=product"  ->  "… no changes")
+```
+
+Post-commit the `App.tsx` zero-diff overlay gates pass **for real**, and were re-run and reported as such rather than banked from the vacuous pre-commit pass.
+
+### Verified merged
+Content on trunk (`zIndex: 35` at `DesktopShell.tsx:404`, `action: "tutor"`, the `TutorPickerModal` mount, `DesktopShell.test.tsx` present) **and** `merge-base --is-ancestor 7998ee4a` → exit 0. Checked by content first, then by mergeCommit — never by the PR head, which a squash repo guarantees is never an ancestor.
+
+---
+
+## [PREV] #520 + #522 merged — ★★ THE HOME REDESIGN ARC: A DUPLICATED HERO RETIRED, THE TUTOR SURFACED, AND THREE FALSE PREMISES CORRECTED (ONE OF THEM A DOCTRINE) — trunk `2865432`
 
 **ONE combined handoff for the Home lane's two PRs.** Sectioned per PR, never blended: **#520 (PR-A)** the redesign, **#522 (PR-A2)** the fixes that followed it. Both owner byte-reviewed; both CI-green; **#522 owner LIVE-VERIFIED**. Draft PRs throughout, never self-marked ready, never self-merged.
 

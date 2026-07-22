@@ -1,5 +1,21 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-22 - ★★ ✅ PR-B2 **COMPLETE** — THE HOME SPEC IS NOW DONE END-TO-END (#528, trunk `7998ee4a`) - owner byte-reviewed, LIVE-VERIFIED
+
+**STAGE COMPLETE — the `DesktopShell` rail Tutor entry + the header stacking fix.** 2 files, **+428 / −24**. CI `quality-gate` PASS (3m18s), `lane-overlap` PASS. Draft PR throughout; never self-marked ready, never self-merged. One sectioned commit, declared.
+
+**PR-B was the last unbuilt half of the original Home spec (§7).** With #528 the Home lane is closed in full: #520 (redesign) → #522 (fixes) → #528 (the rail entry).
+
+**What shipped:** a **Tutor entry at rank 2** of the rail that **opens the shared `TutorPickerModal` and does not navigate** — no new route, param or capability, `RequirePremium` reached exactly as from Home, `isSignedIn` passed as a **prop** so `homeDestinations` stays firebase-free; and `position: relative; zIndex: 35` on the header, resolving **`[FU-HUB-DROPDOWN-ZINDEX]`**.
+
+**★★ The reusable finding — the ceiling was 50, not 9998, and the "known, byte-reviewed" fix on record was wrong.** The brief said derive from the full-screen overlay band; that yields ~1100 and punches the header through `.command-palette-backdrop` (`styles.css:6494`, z-index 50, mounted at `App.tsx:821` as a **sibling of the shell**) — the palette the header's **own search box** opens. The FU had recorded `zIndex: 55`, which is **also above 50**. Both its bounds were dead: floor *">50, TrendsPage"* is retired code (`App.tsx:936`); ceiling *"<60, TutorDrawerV2 / MentorSolveDrawer"* was void from #516. Re-derived: **floor >30 · ceiling <50 · band 31–49 empty** ⇒ **35**, and a mutation test pinned at 1100 names the regression.
+
+**★★ Mobile and desktop needed different SHAPES of fix.** Mobile's invariant is *"no trap ancestor"*; desktop's is *"the trap must outrank page content"*, because the header's blur is intended design. Same symptom, opposite remedies — do not flatten to "we fixed the z-index".
+
+**★★ The picker mounts at the SHELL ROOT.** Inside `<header>` its `z-index: 60` would resolve *within* the header's context and be trapped under the new 35 — fixing the bug while shipping a fresh instance of it.
+
+**Doctrine banked:** **both mirror traps from one lane** — `base...HEAD` gates are vacuous PRE-commit and meaningful POST-commit; `scope:guard` is the exact inverse. Most agents meet only one and generalise wrongly.
+
 ## 2026-07-22 - ★★ ✅ THE HOME REDESIGN ARC **COMPLETE** (#520 + #522, trunk `2865432`) - owner byte-reviewed both, LIVE-VERIFIED #522
 
 **#520 (PR-A)** - the duplicated Worksheets hero retired (it and Practice carried the *identical* destination string `/practice-hub?source=home&returnTo=%2F`), the tutor surfaced via a SHARED firebase-free `TutorPickerModal`, MI rebuilt on the verbatim semantic buckets, mobile carousel + collapsed quick links, and the **§3 login/return contract** (`isSignedIn ? tutorPath : loginUrl("tutor", tutorPath)`) with the chosen chapter surviving the round-trip inside `?redirect` and `RequirePremium` never bypassed. 5 files, +1563/−1059.

@@ -1,7 +1,30 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-22 (post-**#520 + #522 — THE HOME REDESIGN ARC.** Trunk `2865432`. Owner byte-reviewed both, live-verified #522. 10 files across two PRs, +2440/−1317.)
+# Updated: 2026-07-22 (post-**#528 — PR-B2, the rail Tutor entry + the header stacking fix.** Trunk `7998ee4a`. Owner byte-reviewed and LIVE-VERIFIED. 2 files, +428/−24.)
 
-## NEXT — 2026-07-22 (post-#520 + #522). Read this block first.
+## NEXT — 2026-07-22 (post-#528). Read this block first.
+
+**The Home spec is COMPLETE end-to-end.** PR-B was its last unbuilt half and it has shipped. **`[FU-HUB-DROPDOWN-ZINDEX]` is RESOLVED** — enumerated every `backdrop-filter` in `src/` and no other surface has a trapped dropdown, so it closes rather than defers.
+
+### ★★ IF YOU TOUCH A Z-INDEX IN THE SHELL, READ THIS FIRST
+**The ceiling is `.command-palette-backdrop` at 50 — NOT the 9998–10000 full-screen band.** The palette (`styles.css:6494`) is mounted at `App.tsx:821` as a **sibling of the shell**, and it is opened by the header's **own search box**. Deriving from the 9998 band alone yields ~1100 and ships a regression. The header sits at **35**: floor **>30** (`Worksheets.tsx:484`, the app-wide page-content max), ceiling **<50**, band 31–49 empty. **A mutation test pinned at 1100 exists to catch exactly that.** Two people derived this wrong before it was measured — the FU itself had recorded `55`, which is above the palette.
+
+### ★★ AND THE TWO INVARIANTS ARE DIFFERENT ON EACH BREAKPOINT
+Mobile: **"no trap ancestor"** (pinned by PR-A2's test at `MobileHome.test.tsx:483`). Desktop: **"the trap must OUTRANK page content"**, because the header's blur is intended design and cannot be removed. Same symptom, opposite remedies. Anyone who reads this as "we fixed the z-index" will mis-fix the next instance.
+
+### The immediate candidates
+1. **The MASTERY lane** — audit delivered, unblocked since the tutor lane closed. ⚠ The unwire is a **CONSTANT-FOLD, never a clause deletion** (`weakAreaAggregator:154/:158` must stay literals or the `>5` gate starts filtering and the live weak-area set changes). **This is now the natural next lane.**
+2. **`[FU-BANK-GARBLED-EXPANDED-SCOPE]`** — ~61 rows remain of the 89-row class. Reuse the proven coordinate-aware method; do not re-derive it.
+3. **`[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`** (from #521, inverted) — ten years is owner-authoritative, so fix the two contradicting surfaces. ⚠ `Welcome.tsx` is a globally forbidden file; that lane needs explicit scoping.
+4. **`[FU-HOME-MEMORY-STRIP-VS-MI]`** — a product call for the owner after living with the redesign, not an engineering task.
+
+### ⚠ Still NOT worth a lane
+- **`[FU-TRUNK-FLAKY-SUITES]`** — now proved rather than argued: **the same tree** had `WorksheetGenerator.mi` fail pre-commit and pass post-commit, and linux CI ran **849/849**. Local-dev cost, not a CI risk.
+- **`[FU-MOBILE-MI-REAL-DATA]` on bundle grounds** — the bundle argument is **VOID**. Product decision only.
+- **`[FU-STALE-WORKTREE-PRUNE]`** — owner-run, logged for visibility.
+
+---
+
+## PREVIOUS NEXT — post-#520 + #522 (the Home redesign arc), retained for context
 
 **The Home redesign lane is CLOSED for PR-A and PR-A2.** One piece of it remains, and it is now unblocked — see below.
 
