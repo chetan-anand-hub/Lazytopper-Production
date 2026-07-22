@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { MistakeIntelCard } from "./MistakeIntelCard";
+import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 
 /**
  * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
@@ -32,11 +33,49 @@ import { MistakeIntelCard } from "./MistakeIntelCard";
  * No Tailwind / no lucide-react in production — inline styles + inline SVG.
  */
 
-interface NavItem {
+/**
+ * A rail entry is EITHER a routed destination or an action that opens
+ * shell-owned UI. They are a discriminated union rather than one shape with an
+ * optional `to`, because the nav map below renders a real <NavLink> for the
+ * routed kind: handing an action entry a placeholder `to` would ship an anchor
+ * a student can middle-click / open-in-new-tab into a dead route.
+ */
+interface NavLinkItem {
   to: string;
   label: string;
   end?: boolean;
   icon: React.ReactNode;
+}
+
+interface NavActionItem {
+  /** The shell action this entry runs. No `to` — it opens a modal, it never navigates. */
+  action: "tutor";
+  label: string;
+  icon: React.ReactNode;
+}
+
+type NavItem = NavLinkItem | NavActionItem;
+
+/**
+ * The rail's ONE visual treatment, shared by the routed entries and the Tutor
+ * action entry so the two can never drift apart. Defined once rather than
+ * copied so "the new item is indistinguishable from its neighbours" is
+ * structural rather than a convention someone has to remember.
+ */
+function navItemStyle(isActive: boolean): React.CSSProperties {
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "10px 12px",
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: isActive ? 600 : 500,
+    color: isActive ? "#fff" : "rgba(255,255,255,0.75)",
+    background: isActive ? "hsl(222, 50%, 20%)" : "transparent",
+    textDecoration: "none",
+    transition: "background 0.15s, color 0.15s",
+  };
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -51,6 +90,22 @@ const NAV_ITEMS: NavItem[] = [
         <rect x="14" y="3" width="7" height="5" rx="1" />
         <rect x="14" y="12" width="7" height="9" rx="1" />
         <rect x="3" y="16" width="7" height="5" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    // Rank 2 — an ACTION, not a route: it opens the shared tutor picker, which
+    // composes the /tutor URL (and the signed-out login round-trip) itself via
+    // composeTutorEntry. The RequirePremium gate on /tutor is therefore reached
+    // exactly as it is from Home; nothing here routes around it.
+    action: "tutor",
+    label: "Tutor",
+    // MessageCircleQuestion
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+        <path d="M12 17h.01" />
       </svg>
     ),
   },
@@ -118,6 +173,7 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [accountOpen, setAccountOpen] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   const initials = user
@@ -258,29 +314,47 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
 
         {/* Nav */}
         <nav style={{ padding: "0 12px", marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
-          {NAV_ITEMS.map((n) => (
-            <NavLink
-              key={n.to}
-              to={!user && n.to === "/" ? "/browse" : n.to}
-              end={n.end}
-              style={({ isActive }) => ({
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "10px 12px",
-                borderRadius: 8,
-                fontSize: 14,
-                fontWeight: isActive ? 600 : 500,
-                color: isActive ? "#fff" : "rgba(255,255,255,0.75)",
-                background: isActive ? "hsl(222, 50%, 20%)" : "transparent",
-                textDecoration: "none",
-                transition: "background 0.15s, color 0.15s",
-              })}
-            >
-              {n.icon}
-              <span>{n.label}</span>
-            </NavLink>
-          ))}
+          {NAV_ITEMS.map((n) =>
+            "action" in n ? (
+              /* The Tutor entry has no route, so it has no NavLink `isActive`.
+                 It reads as active ONLY while its picker is open: the rail's
+                 active state means "this is where you are", and while the modal
+                 is up, that is the tutor. There is no landed-on-/tutor case to
+                 cover — /tutor is not a DesktopShell route, so the rail is not
+                 rendered there at all. */
+              <button
+                key={n.action}
+                type="button"
+                onClick={() => setTutorOpen(true)}
+                aria-haspopup="dialog"
+                aria-expanded={tutorOpen}
+                style={{
+                  ...navItemStyle(tutorOpen),
+                  // Neutralise the <button> UA defaults so it renders identically
+                  // to the <a> its neighbours are. Everything VISUAL still comes
+                  // from navItemStyle above — these only cancel browser chrome.
+                  width: "100%",
+                  border: "none",
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+              >
+                {n.icon}
+                <span>{n.label}</span>
+              </button>
+            ) : (
+              <NavLink
+                key={n.to}
+                to={!user && n.to === "/" ? "/browse" : n.to}
+                end={n.end}
+                style={({ isActive }) => navItemStyle(isActive)}
+              >
+                {n.icon}
+                <span>{n.label}</span>
+              </NavLink>
+            ),
+          )}
         </nav>
 
         {/* Mistake Intel block — pushed to bottom of sidebar via marginTop:auto */}
@@ -292,10 +366,42 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
       {/* ── MAIN COLUMN ────────────────────────────────────────── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         {/* TOP UTILITY HEADER (h=64) — sticky inside right column */}
+        {/* ── HEADER STACKING CONTRACT ([FU-HUB-DROPDOWN-ZINDEX]) ──────────
+            `backdrop-filter` CREATES A STACKING CONTEXT. Without a `position`
+            and `zIndex` of its own, this header painted in the non-positioned
+            layer, so EVERY positioned element inside <main> — even at the
+            default `z-index: auto` — painted over it, and the account dropdown
+            below (zIndex 50) was trapped inside the header's context where that
+            50 could never outrank them. Owner live A/B: the same dropdown works
+            at mobile width, whose brand bar has no backdrop-filter and so
+            creates no context. The defect was the ANCESTOR, not the menu — so
+            the fix is here, and the menu is untouched.
+
+            The value must satisfy TWO bounds, both re-derived from the live
+            landscape (the old "<60" note is VOID — it was justified by
+            TutorDrawerV2 / MentorSolveDrawer, both deleted in #516):
+              FLOOR  > 30 — 30 is the highest z-index used by PAGE CONTENT
+                            anywhere in the app (Worksheets.tsx:484); every
+                            other content value is <= 20. Clearing them all
+                            also clears the `z-index: auto` positioned cards
+                            that caused the reported bug, which is the case
+                            that actually matters.
+              CEIL   < 50 — `.command-palette-backdrop` (styles.css:6505), the
+                            palette THIS header's own search box opens, mounted
+                            as a sibling of the shell (App.tsx:821). It must keep
+                            covering the header. Staying under 50 also keeps the
+                            header under `.lt-tutor-ov` (60, the picker mounted
+                            below) and the 9998-10000 full-screen overlay band
+                            (UpgradeModal, VisualExplainer, BreakReminder, …).
+            Nothing live sits in 31..49: the only value there is
+            `.examples-modal-backdrop` (styles.css:3657), dead CSS with zero
+            consumers in src/. 35 therefore has clearance on both sides. */}
         <header
           style={{
             height: 64,
             flexShrink: 0,
+            position: "relative",
+            zIndex: 35,
             borderBottom: `1px solid ${SURFACE_BORDER}`,
             background: "rgba(255,255,255,0.85)",
             backdropFilter: "blur(12px)",
@@ -568,6 +674,21 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
           {children}
         </main>
       </div>
+
+      {/* Rail Tutor entry's picker. Mounted at the SHELL ROOT, deliberately not
+          inside <header> or <aside>: the header both creates a stacking context
+          AND (via backdrop-filter) is a containing block for `position: fixed`
+          descendants, so an overlay mounted inside it would lose its
+          `inset: 0` full-viewport geometry and have its z-index 60 trapped
+          under the header's 35. Here it competes in the root context, exactly
+          as it does from Home. `isSignedIn` is passed as a PROP from the
+          shell's existing `user` — homeDestinations must stay firebase-free, so
+          it never calls useAuth() itself. Renders null while closed. */}
+      <TutorPickerModal
+        open={tutorOpen}
+        onClose={() => setTutorOpen(false)}
+        isSignedIn={!!user}
+      />
     </div>
   );
 }
