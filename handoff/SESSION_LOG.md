@@ -1,5 +1,51 @@
 ---
 
+## 2026-07-22 -- #521: EXAM TRENDS DESIGN UPLIFT - tier data proven frozen by an INDEPENDENT golden, and a spec that hallucinated its own bug - **owner byte-reviewed, re-verified the authority himself, merged + live-verified** - trunk `ee5cd640`
+
+**Presentation-only uplift of `ExamTrendsRanked.tsx`.** 2 files, +1150/-574. One copy change (`Open` -> `Learn`); zero functionality change. Draft PR throughout. CI `quality-gate` pass (4m4s), `lane-overlap` pass.
+
+> Bookkeeping: #519, **#520 (PR-A Home)** and **#522 (PR-A2 Home fixes)** merged without handoff entries; **the Home lane's combined handoff covers #520 + #522**. This entry does not speak for that lane. Trunk at this entry's merge: `ee5cd640` (#521); #522 landed after, at `4bde1a3f`.
+
+### ★★ LESSON 1 - A GUARD OVER LOCKED DATA MUST COMPARE AGAINST AN INDEPENDENT COPY OF THE TRUTH
+The spec required a test proving band membership still matches the owner-signed `BAND_BY_SLUG`. **The obvious version is a tautology:**
+
+```
+expect(renderedBands).toEqual(deriveExpected(BAND_BY_SLUG));   // ALWAYS GREEN
+```
+
+Re-tier the map and **both sides move together** - the guard passes through the exact change it exists to catch. It proves rendering is a pure function of the map; it says nothing about whether the map still matches what the owner signed.
+
+**Instead:** *before writing any of the uplift*, trunk was rendered through a throwaway capture harness, its band membership dumped, and that output frozen into the test as `EXPECTED_BANDS` - an independent transcription that cannot move with the map. Harness deleted. Golden: **Maths 5/5/3, Science 6/5/2**.
+
+**The rule: capture the truth from the PRE-CHANGE build, freeze it, then assert against the frozen copy. If the guard reads the same source the code reads, it asserts nothing.** Same family as the Practice-Hub parity proof and the routing-parity test (expected strings captured from trunk, never hand-written).
+
+Belt and braces: the frozen region hashed identical on both sides (`d470705fda73fd98bdcf32e7`), re-confirmed post-rebase. **The owner re-verified independently rather than taking the hash** - extracted the `BAND_BY_SLUG` block from both sides, **70 lines / 2,359 bytes / sha `f3b72f1ce8e3549d1d507bcd`, byte-identical**, counts landing on the golden (11 + 10 + 5 = 26 chapters).
+
+### ★★ LESSON 2 - A SPEC AUTHOR CAN HALLUCINATE A BUG FROM THEIR OWN MOCKUP
+Spec §5 - *"THE ⋯ MENU - TWO REAL BUGS, BOTH MUST BE FIXED"* - asserted *"the current implementation opens the menu over the next card at desktop width."* **The shipped page had no menu at all**: the `⋯` toggled an **inline expansion row in normal flow**. So "no `top` anchor" was vacuous, and the band's real `overflow:hidden` was clipping nothing. Both causes described a defect in **prototype v3**. **The owner confirmed the error was his.**
+
+**Consequence:** acceptance §9.4 ("never overlaps the next card") is a **NEW-BEHAVIOUR check, never an A/B against trunk** - at trunk it *couldn't* overlap. Anyone diffing against trunk to "confirm the fix" would compare two different things and conclude the bug was never real.
+
+**A spec sentence of the form "the current implementation does X" is a CLAIM ABOUT CODE, not an instruction. Open the file.** Fourth consecutive lane where re-deriving a brief's premises changed the work (#515's error count, #516's "LIVE in PracticePage", the legacy-retirement audit's four premises, now this).
+
+### ★★ LESSON 3 - SILENCE IN A SPEC IS NOT AUTHORISATION TO DELETE RENDERED CONTENT
+The first cut dropped `topic.blurb` - real per-chapter catalogue copy - because both the prototype and §2's row enumeration omit it. Flagged for review rather than shipped silently; **owner ruled RESTORE**: the enumeration described what to *restyle*, not an exhaustive keep-list, and deleting rendered content is a functionality change (§0 forbids one).
+
+**Doctrine: an omission from a list is not a removal instruction, and a restyle is exactly where content goes missing quietly.** Restored with trunk's treatment, and **pinned by a test** rather than by memory - every card's blurb must equal `desktopTopicBySlug(slug).blurb`, mutation-verified red on deletion.
+
+### ★ LESSON 4 - PROTOTYPE LAYOUT IS ONLY TRUSTWORTHY WHERE IT MODELS THE APP'S CHROME
+The prototype puts the selected-topic tray at `position: sticky; bottom: 0`. At mobile width this page renders inside `MobileShell showNav`, whose **fixed `BottomNav`** a sticky tray would sit under. The chrome-less prototype cannot show that collision, so the tray stayed in flow. Two sibling spec-first calls: the tray keeps its `Worksheet` CTA (removing a live CTA is a functionality change), and the marks label keeps `~N marks` rather than the prototype's bare normalised number, which beside a bar reads as a fake percentage.
+
+### TEN YEARS - OWNER RULING, DELIBERATE, ON THE RECORD
+§4.4's badge premise was false (the phrase is in neither the page body nor `src/`; the repo records **4 years**). Raised before building; **owner ruled ship it - ten is authoritative, his data and his call.** Recorded as a decision, not an attestation. `[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]` is therefore **INVERTED**: the contradicting surfaces are the ones to fix (`Welcome.tsx:1867`, `class10ContentConfig.ts:156`). Separate lane.
+
+### Validation
+tsc 0 · new suite 12/12 · blast-radius 65/65 · mojibake PASS · `scope:guard --mode product` PASS pre-commit · root matrix **190/190** · lazytopper ops matrix PASS (91/91, 31/31, 41/41) · **commit-scoped matrices re-run POST-COMMIT** · `git diff --check` clean · CI `quality-gate` + `lane-overlap` pass.
+
+**Green tick verified, not assumed:** CI log shows `✓ src/pages/ExamTrendsRanked.test.tsx (12 tests)` by name; whole run **63 files / 826 tests**; linux `vite build` emitted `ExamTrendsRanked-B0DbNBnn.js` 29.36 kB. Three mutations (re-tier `circles`, `Learn`->`Open`, drop the blurb) each turned the intended assertion red, then restored byte-exact.
+
+---
+
 ## 2026-07-21 -- #516: THE TUTOR RETIREMENT COMPLETES - dead cluster + unreachable mentor drawer + /api/mentor all deleted - **owner byte-reviewed the full deletion set + merged** - trunk `a86feda`
 
 **PR-2 of 2. 62 files, +34/-15,239 - the largest deletion this repo has taken.** Four independently reviewable sections. `[FU-TUTOR-LEGACY-RETIRE]` CLOSED end-to-end.

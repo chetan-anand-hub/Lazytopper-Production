@@ -1,3 +1,38 @@
+## 2026-07-22 -- #521: EXAM TRENDS UPLIFT - 2 FUs opened (1 inverted, 1 do-not-act), 2 method doctrines recorded (trunk `ee5cd640`)
+
+### 🆕 OPENED BY #521
+
+**[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT] — the product states its evidence base three different ways. ⚠ INVERTED: TEN IS AUTHORITATIVE.**
+Spec §4.4 required an Exam Trends hero badge reading **"Ten years of real CBSE papers"**, justified as *"the page's actual credential, currently buried in body text."* **That premise was false on both halves** — the phrase appears in neither the page body nor anywhere in `src/`, and the repo records **4 years** (`CURRENT_STATE:2509` *"PYQs: 760 total — all 4 main years complete"*; the HPQ page's own owner-approved reframe names *"4 years of papers + official blueprint + examiner-pattern analysis"*).
+
+Raised **before** building. **The owner ruled: ship the badge — ten years is authoritative.** He is the authority on the evidence base; the 4-year figure describes **PYQ extraction into the question bank**, which is a different thing from the trend analysis behind the tiers. **This is a deliberate owner decision on the record, not an unverified attestation.**
+
+**Therefore the FU points the OTHER way: the surfaces that contradict ten are the ones to correct.**
+- `lazytopper/src/pages/Welcome.tsx:1867` — *"Last 5 years pattern"*. ⚠ **A LIVE MARKETING SURFACE**, and `Welcome.tsx` is a **globally forbidden file** — this needs explicit scoping.
+- `lazytopper/src/data/class10ContentConfig.ts:156` — *"last 3–5 years of PYQs"*. ⚠ Under `src/data/`, also globally forbidden.
+- `Home.tsx` already says 10 in four places → **already consistent, leave alone.**
+
+**Separate lane. Nothing was touched by #521.** Small and self-contained, but both target files are forbidden by default, so it cannot be picked up casually.
+
+**[FU-STALE-WORKTREE-PRUNE] — ⚠ LOGGED FOR VISIBILITY ONLY. DO NOT ACT ON IT.**
+Every commit in this repo now prints ~46 lines of `error: failed to delete 'C:/…/.git/worktrees/<name>': Permission denied`. Cause: `git gc` auto-pack trying to prune ~50 **stale worktree registrations** whose directories are gone or Windows-locked. **Pre-existing, inert, purely cosmetic — commits succeed.** Judge a commit by its **exit code and `git log`**, never by the absence of this noise. **Owner-run housekeeping; no agent should spend a lane on it, and no agent should delete `.git/worktrees` entries.**
+
+### 📌 NOT A FOLLOW-UP — the local vitest flakes are a DEV-BOX COST, not a CI RISK
+Recorded so nobody opens an FU for them: the Windows local full `vitest run` produces an **open-ended, run-to-run-varying** set of failures across **4+ suite files** (~1200s collect fires 5s per-test timeouts on random suites). **Every one passes in isolation, and the linux runner is green** — #521's CI: **63 suite files / 826 tests, zero failures.** **Isolation runs are the reliable local signal; the full local run is a flaky oracle.** Diagnose only if CI itself goes red. **Nobody should spend a lane on this.**
+
+### ★★ TWO METHOD DOCTRINES worth more than either FU
+
+**1 · A guard over LOCKED data must compare against an INDEPENDENT copy of the truth.**
+`BAND_BY_SLUG` is owner-signed authority. The obvious guard — `expect(rendered).toEqual(deriveExpected(BAND_BY_SLUG))` — is a **tautology**: re-tier the map and **both sides move together**, so it passes through the exact edit it exists to prevent. It proves rendering is a pure function of the map; it never checks the map still says what the owner signed. **Working pattern:** render the **pre-change** build through a throwaway harness, freeze its output into the test (golden: Maths 5/5/3, Science 6/5/2), delete the harness. Belt and braces, hash the frozen region (`d470705fda73fd98bdcf32e7`; owner re-derived it independently — 70 lines / 2,359 bytes / sha `f3b72f1ce8e3549d1d507bcd`). Same family as the Practice-Hub parity proof and the routing-parity test. **Applies to every locked-data guard in this repo.**
+
+**2 · Silence in a spec is not authorisation to delete rendered content.**
+#521's first cut dropped `topic.blurb` — real catalogue copy — because both the prototype and the spec's row enumeration omitted it. Owner ruled **RESTORE**: the enumeration described what to *restyle*, not an exhaustive keep-list, and deleting rendered content is a functionality change (§0 forbids one). **An omission from a list is not a removal instruction, and a restyle is exactly where content vanishes quietly.** Flag it rather than ship it; when restored, **pin it with a test** rather than relying on the next reader.
+
+### ★★ AND A CLASS TO RECOGNISE — a spec author can hallucinate a bug from their own mockup
+Spec §5 asserted the shipped Exam Trends page mispositioned a `⋯` popover. **It had no popover** — the secondary actions were an inline expansion row. Both "root causes" described **prototype v3**. Owner confirmed the error was his. **Consequence: acceptance §9.4 is a NEW-BEHAVIOUR check, never an A/B against trunk** — at trunk the menu could not overlap anything, so a trunk comparison would wrongly suggest the bug was never real. **A spec sentence of the form "the current implementation does X" is a claim about code — open the file.** Fourth consecutive lane whose brief carried a load-bearing false premise.
+
+---
+
 ## 2026-07-21 -- #516: TUTOR RETIREMENT COMPLETE - 1 FU closed, 1 corrected, 2 updated (trunk `a86feda`)
 
 ### ✅ RESOLVED BY #516

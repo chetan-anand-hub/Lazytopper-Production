@@ -1,4 +1,37 @@
 # LazyTopper — Next Action
+# Updated: 2026-07-22 (post-**#521 — EXAM TRENDS DESIGN UPLIFT.** Trunk `ee5cd640`. Owner byte-reviewed the pushed diff, independently re-verified the tier authority, merged + live-verified. 2 files, +1150/−574, presentation-only.)
+
+## NEXT — 2026-07-22 (post-#521). Read this block first.
+
+**The Exam Trends uplift lane is CLOSED.** Presentation-only; the owner-signed tier data is byte-frozen and proven so twice over. **Do not re-open it, and above all do not "improve" the band data.**
+
+### ★★ TWO METHOD RULES THIS LANE ESTABLISHED — carry them into every lane
+1. **A guard over LOCKED data must compare the render against an INDEPENDENT copy of the truth, captured before the change.** Asserting the render against the same constant the component reads (`expect(rendered).toEqual(deriveExpected(BAND_BY_SLUG))`) is a **tautology**: re-tier the map and both sides move together, so the guard passes through the exact edit it exists to prevent. The working pattern: render the **pre-change** build through a throwaway harness, freeze its output into the test, delete the harness. Golden here: Maths 5/5/3, Science 6/5/2. Belt and braces, hash the frozen region.
+2. **A spec sentence of the form "the current implementation does X" is a CLAIM ABOUT CODE, not an instruction — open the file.** #521's spec described a mispositioned popover as a product bug; the shipped page had **no popover at all** (an inline expansion row). The spec author had hallucinated the bug from his own prototype. **Four consecutive lanes** have now had a load-bearing brief premise fail on re-derivation (#515 error count, #516 "LIVE in PracticePage", the legacy-retirement audit, #521).
+
+### ★★ AND A DOCTRINE: silence in a spec is not authorisation to delete rendered content
+#521's first cut dropped `topic.blurb` because the prototype and the spec's row enumeration both omitted it. **An omission from a list is not a removal instruction.** A restyle is precisely where real content goes missing quietly — so if a redesign leaves something out, flag it rather than ship it, and when it is restored, **pin it with a test** instead of relying on the next reader to notice.
+
+### ⚠ If you verify Exam Trends acceptance §9.4, read this first
+*"The `⋯` popover never overlaps the next card"* is a **NEW-BEHAVIOUR check, NOT an A/B against trunk.** Before #521 the menu was an inline expansion row, so at trunk it could not overlap anything. Comparing against trunk compares two different mechanisms and will wrongly suggest the bug was never real.
+
+### The immediate candidates (unchanged by #521 — it closed no other lane's blocker)
+1. **The MASTERY lane** — audit delivered, unblocked since the tutor lane closed, still the natural successor. ⚠ The unwire is a **CONSTANT-FOLD, never a clause deletion** (`weakAreaAggregator:154/:158` must stay literals or the `>5` gate starts filtering and the live weak-area set changes).
+2. **`[FU-BANK-GARBLED-EXPANDED-SCOPE]`** — ~61 rows remain of the 89-row class. Reuse the proven coordinate-aware method; do not re-derive it.
+3. **`[FU-APP-TSX-FROZEN-RESIDUE]` + `[FU-APP-TSX-DEADCASE-+-OVERLAY-FREEZE]`** — merge into ONE "narrow the freeze and sweep the residue" item; three lanes strong.
+4. **`[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]` (NEW, inverted)** — small and self-contained: ten years is owner-authoritative, so fix the two surfaces that contradict it, `Welcome.tsx:1867` *"Last 5 years pattern"* (**live marketing copy**) and `class10ContentConfig.ts:156` *"last 3–5 years of PYQs"*. `Home.tsx` already says 10. ⚠ `Welcome.tsx` is a **globally forbidden file** — that lane needs explicit scoping.
+
+### ⚠ Two things NOT to spend a lane on
+- **`[FU-STALE-WORKTREE-PRUNE]`** — committing prints ~46 `failed to delete .git/worktrees/<name>: Permission denied` lines. That is `git gc` auto-pack tripping over ~50 stale worktree entries whose directories are gone or Windows-locked. **Pre-existing, inert, cosmetic; commits succeed (check exit code + `git log`, not the noise). Owner-run housekeeping — do not act on it.**
+- **The local vitest flakes** — 4+ suite files, an **open-ended** set that varies run to run. They **all pass in isolation** and are **green on the linux runner** (#521's CI: 63 files / 826 tests, zero failures). This is a **Windows local-dev cost, NOT a CI-reliability risk.** Diagnose only if CI itself goes red; isolation runs are the reliable local signal.
+
+**Still open:** `[FU-SIGNUP-UNSAFE-REDIRECT]`, `[FU-OPS-SCRIPTS-PATH-COUPLING]`, `[FU-PRACTICEINSIGHTS-STALE-COMMENT]`, `[FU-HPQ-PREDICTED-MOCK]`, `[FU-QP-WRITTEN-BINARY-CHECK]`, `[FU-MOJIBAKE-GATE-MISSES-PUA]`, `[FU-TSCONFIG-TEST-2FILE-HOLE]`.
+
+**Handoff bookkeeping:** #519, **#520 (PR-A Home)** and **#522 (PR-A2 Home fixes)** merged without handoff entries — **the Home lane's combined handoff covers #520 + #522.** This block does not speak for that lane.
+
+---
+
+## (superseded) earlier NEXT blocks
 # Updated: 2026-07-21 (post-**#516 — THE TUTOR RETIREMENT IS COMPLETE.** Trunk `a86feda`. Owner byte-reviewed the full deletion set + merged. 62 files, +34/−15,239. `[FU-TUTOR-LEGACY-RETIRE]` CLOSED end-to-end.)
 
 ## NEXT — 2026-07-21 (post-#516). Read this block first.

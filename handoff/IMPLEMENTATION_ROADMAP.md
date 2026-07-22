@@ -1,5 +1,25 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-22 - ★★ ✅ EXAM TRENDS DESIGN UPLIFT **COMPLETE** (#521, trunk `ee5cd640`) - owner byte-reviewed, independently re-verified the tier authority, merged + live-verified
+
+**STAGE COMPLETE — presentation-only uplift of `src/pages/ExamTrendsRanked.tsx`.** 2 files, **+1150 / −574**. Zero functionality change; **one copy change** (`Open` → `Learn`, same destination and params). CI `quality-gate` PASS (4m4s), `lane-overlap` PASS. Draft PR throughout; never self-marked ready.
+
+**What shipped:** rows → cards on a per-band accent (green Must-crack / blue High-ROI / violet Good-to-do — the shipped `DesktopPracticePage` `MODE_ACCENT` hues, **no colour invented**); **no grey band**, priority reads from the numbered badge and the ordering; hero wash + evidence badge; the `⋯` secondary actions became a popover anchored to their own button. Styling moved to CSS classes (`lt-et-*`) because the responsive rules and `:hover` cannot be expressed as inline style objects, which are banned in new components.
+
+**★★ The reusable finding — an anti-re-tier guard that reads the same constant the component reads is a TAUTOLOGY.** `expect(rendered).toEqual(deriveExpected(BAND_BY_SLUG))` stays green through a re-tier, because both sides move together. The working pattern is to render the **pre-change** build through a throwaway harness, freeze its output into the test (golden: **Maths 5/5/3, Science 6/5/2**), and delete the harness. Frozen region also hashed identical (`d470705fda73fd98bdcf32e7`). **The owner re-verified independently rather than taking the hash** — `BAND_BY_SLUG` extracted from both sides, 70 lines / 2,359 bytes / sha `f3b72f1ce8e3549d1d507bcd`, byte-identical, 11+10+5 = 26 chapters.
+
+**★★ The spec described a bug in its own prototype.** §5's *"two real bugs in the `⋯` menu"* asserted the shipped page mispositioned a popover; the shipped page had **no popover** — an inline expansion row. Owner confirmed the error was his. **Acceptance §9.4 is therefore a NEW-BEHAVIOUR check, never an A/B against trunk.**
+
+**★★ Doctrine recorded — silence in a spec is not authorisation to delete rendered content.** The first cut dropped `topic.blurb`; owner ruled **RESTORE** (an omission from a list is not a removal instruction). Now pinned by a mutation-verified test.
+
+**Owner ruling on the record:** the *"Ten years of real CBSE papers"* badge **ships** — ten is authoritative. The surfaces that contradict it are the ones to fix → `[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`, **inverted**, separate lane.
+
+**Bookkeeping:** #519, **#520 (PR-A Home)** and **#522 (PR-A2 Home fixes)** merged without roadmap entries — **the Home lane's combined handoff covers #520 + #522.**
+
+**Next on this track:** the **mastery lane** (audit delivered, still unblocked).
+
+---
+
 ## 2026-07-21 - ★★ ✅ TUTOR/ONBOARDING RETIREMENT **COMPLETE** (#516, trunk `a86feda`) - owner byte-reviewed the full deletion set + merged
 
 **STAGE COMPLETE — `[FU-TUTOR-LEGACY-RETIRE]` CLOSED end-to-end** (#512 behaviour, #516 deletions). 62 files, **+34 / −15,239**.
