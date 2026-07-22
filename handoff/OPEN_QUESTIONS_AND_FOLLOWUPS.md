@@ -1,3 +1,28 @@
+## 2026-07-22 -- #528 (PR-B2): 1 FU RESOLVED, 1 FU upgraded from argument to proof, 2 doctrines recorded (trunk `7998ee4a`)
+
+**No new FUs opened.** The lane closed one and strengthened another.
+
+### RESOLVED - `[FU-HUB-DROPDOWN-ZINDEX]` (full entry further down, with the corrected bounds)
+Fixed on the **header** — `position: relative; zIndex: 35`. **It closes rather than defers** because every `backdrop-filter` in `src/` was enumerated and no other surface has a trapped dropdown.
+
+### ★★ DOCTRINE - A DEAD BOUND STILL BRACKETS A NUMBER, AND THE NUMBER LOOKS VERIFIED
+This FU carried a prescription recorded as *"the fix (known, byte-reviewed): `zIndex: 55`"*, bounded *">50 and <60"*. **By #528 BOTH bounds referenced code that no longer exists** — the floor cited TrendsPage's dropdown (route **retired**, `App.tsx:936`) and the ceiling cited `TutorDrawerV2` / `MentorSolveDrawer` (**deleted in #516**). The bounds rotted; the number between them did not move, and still read as verified. **55 is above the real ceiling of 50** and would have shipped a regression into the command palette.
+
+**The general shape: a derived value outlives the facts it was derived from, and nothing re-checks it.** A z-index, a threshold, a timeout, a magic constant — if the reasoning is recorded but never re-run, deletion of its inputs is silent. The cure used here: **re-derive the bounds from the live landscape, then pin them in a test** (`expect(z).toBeGreaterThan(30)` / `toBeLessThan(50)`) so the next deletion turns a suite red instead of leaving prose stale. Prose is a hope; a check is a fact.
+
+### ★★ DOCTRINE - BOTH MIRROR TRAPS, OBSERVED IN ONE LANE
+Most agents meet one of these and generalise wrongly. Both directions, from the same PR:
+
+```
+base...HEAD forbidden gates : VACUOUS pre-commit (trunk vs itself, zero commits)  ->  MEANINGFUL post-commit
+scope:guard                 : MEANINGFUL pre-commit (reads the WORKING TREE)      ->  VACUOUS post-commit
+                              observed: "SCOPE_GUARD_OK … lanes=product"  ->  "SCOPE_GUARD_OK … no changes"
+```
+
+**Neither prints a warning when it is the vacuous one — both print a truthful green.** Run `scope:guard` **before** committing and the `base...HEAD` matrices **after**, and say which run you are quoting.
+
+---
+
 ## 2026-07-22 -- #520 + #522: THE HOME REDESIGN ARC - 4 FUs opened (1 born re-scoped, 1 do-not-act), 3 doctrines recorded (trunk `2865432`)
 
 ### NEW - `[FU-MOBILE-MI-REAL-DATA]` ★ **OPENED ALREADY RE-SCOPED — its original rationale is VOID**
@@ -46,6 +71,15 @@ The false comment is corrected in-file and the true state is **pinned by a chara
 ★ **They are GREEN on the linux CI runner.** Both #520 and #522 ran 62 files / 814 and 826 tests, all passing. **So this is a local-dev-experience cost, NOT a CI-reliability risk** — the earlier framing ("post-#515 the strict vitest gate means these will redden unrelated PRs at random") was **overstated and is corrected here**.
 
 **The method that matters more than the fix:** before attributing a red to your own branch, **stash to clean trunk and re-run**. That is how this was established both times.
+
+★★ **#528 turned this from an argument into PROOF, without needing a trunk re-run.** The full suite was run **twice against byte-identical content** (pre-commit and post-commit on the same tree):
+
+```
+pre-commit   847/849  -- FAILED: WorksheetGenerator.mi  +  worksheetModel.topickey
+post-commit  848/849  -- FAILED: worksheetModel.topickey  ONLY
+```
+
+**`WorksheetGenerator.mi` failed one run and passed the next on the same bytes.** A regression cannot do that; a flake is the only explanation. Both also passed in **isolation** (2 files / 23 tests), and **linux CI ran 64 files / 849 tests, all passing**. **This is the cheapest available proof — two runs of your own suite, no clean-trunk worktree required** — and it is stronger than isolation runs, which only show the suites *can* pass.
 
 **Where:** local dev only; `lazytopper/` vitest.
 
@@ -330,12 +364,42 @@ Three follow-ups fall out:
 
 **[FU-HUB-CARD-ALIVENESS-GUARD] — RESOLVED by #496.** The #492 grey-out passed every gate — tsc, both matrices, all three routing tests — with the cards fully dimmed. `DesktopPracticePage.aliveness.test.tsx` now asserts the ARRIVAL state (signed-out, no topic picked): no mode card or scope card carries `opacity < 1`; all four cards AGREE on opacity; each renders a stripe with a DISTINCT accent; and the gated CTA is still an inert `<span>`. **Mutation-verified** — re-introducing `opacity: disabled ? 0.65 : 1` turns it red.
 
-**[FU-HUB-DROPDOWN-ZINDEX] — LOGGED, BLOCKED on an owner decision (cosmetic).** The header avatar dropdown renders behind the hub's scope card and first mode card.
+**[FU-HUB-DROPDOWN-ZINDEX] — ★★ RESOLVED by #528 (trunk `7998ee4a`), owner LIVE-VERIFIED.** Fixed on the **header**: `position: relative; zIndex: 35`. `MobileAccountMenu` untouched.
+
+**★★ THE PRESCRIPTION RECORDED BELOW AS "known, byte-reviewed" WAS WRONG — and so were BOTH of its bounds.** It proposed **`zIndex: 55`**. The real ceiling is **`.command-palette-backdrop`** (`styles.css:6494`, **z-index 50**, mounted at `App.tsx:821` as a **sibling of the shell**) — the palette **the header's own search box opens**. **55 > 50**, so that fix would have punched the header through the palette scrim: a live interaction, not a theoretical one. Its stated floor (*">50 — TrendsPage's filter dropdown"*) is **retired code** (`App.tsx:936`; `/trends` was severed for `/exam-trends`), and its stated ceiling (*"<60 — `TutorDrawerV2` / `MentorSolveDrawer`"*) was **void from #516**, which deleted both. **Two dead bounds that happened to bracket a number.** The brief's alternative — *"derive from the live full-screen overlay landscape"* (9998–10000) — points at ~1100 and is worse. **The diagnosis below was right; only the prescription was not.**
+
+**Re-derived bounds (verified, #528):**
+
+| Bound | Owner |
+|---|---|
+| **FLOOR > 30** | `Worksheets.tsx:484` — the highest z-index used by page **content** anywhere in the app; every other content value is ≤ 20. Clearing them all also clears the `z-index: auto` positioned cards that are the actual reported bug. |
+| **CEIL < 50** | `.command-palette-backdrop` (`styles.css:6494`). Staying under it also keeps the header under `.lt-tutor-ov` (60) and the 9998–10000 band. |
+
+**Band 31–49 is EMPTY** — the only value there is `.examples-modal-backdrop` (`styles.css:3657`), **dead CSS with zero consumers in `src/`**. Hence **35**: correct *and provable*, which "somewhere below 9998" never was. **A mutation test pinned at `zIndex: 1100` names that specific regression — do not delete it.**
+
+**★★ MOBILE AND DESKTOP NEEDED DIFFERENT *SHAPES* OF FIX — state both invariants, never "we fixed the z-index".**
+- **Mobile: "no trap ancestor."** `MobileHome`'s brand bar carries no `backdrop-filter`, so `MobileAccountMenu`'s `zIndex: 50` competes in the ROOT context and wins. Pinned by PR-A2's ancestor-walk test (`MobileHome.test.tsx:483`).
+- **Desktop: "the trap must OUTRANK page content."** It **cannot** be mobile's, because the header's blur is **intended visual design** and cannot be removed.
+
+Same symptom, opposite remedies. Whoever meets the next instance needs both sentences, not the outcome.
+
+**★★ AND THE FIX CREATES A NEW TRAP IF ANYTHING IS MOUNTED INSIDE THE HEADER.** #528 mounts `TutorPickerModal` at the **shell root**, deliberately not inside `<header>`: there, `.lt-tutor-ov`'s `z-index: 60` resolves *inside the header's context* and would be **trapped under the header's new 35** — **fixing the stacking bug while shipping a fresh instance of it.** The header is also a **containing block for `position: fixed` descendants** (via `backdrop-filter`), so the overlay would have lost `inset: 0` too. Pinned by `picker.closest("header") === null`.
+
+**★ NO OTHER SURFACE NEEDS THIS — which is what CLOSES this FU rather than deferring it.** Every `backdrop-filter` / `backdropFilter` in `src/` was enumerated and checked for a contained popover: `App.tsx:114` is `RouteFallback` (a loading card) · `Worksheets.tsx:480` and `styles.css:7009` are bottom action bars · `MiniMockPage.tsx:192` has no popover · `SignUpPage.tsx:139` is a card · `BreakReminder` / `BreathingMoment` / `celebrations.css` / `tutorOverlay.css` are self-contained full-screen overlays (intentional) · `MobileHome` has **no `backdropFilter` at all**. **Zero remaining trapped dropdowns.**
+
+**★ The blocker below is gone.** #519 lifted the `DesktopShell.tsx` blanket ban (`check_improve_convergence_acceptance.mjs:482` is now a comment), and **#528 paid the other half of that trade**: the file went from **neither a ban nor a test** to **11 tests**, confirmed by name in CI's job log.
+
+<details><summary><b>Original entry, retained</b> — the diagnosis was right, the prescription was not</summary>
+
 - **Root cause (verified):** `DesktopShell`'s header sets `backdrop-filter: blur(12px)`, and a backdrop-filter other than `none` **creates a stacking context** — so the account menu's `zIndex: 50` only ever ordered it *within the header*. The header is also `position: static`, so its context paints at level 0; `<main>` follows it in DOM order, and the hub's scope card (`position: relative`) and mode cards (`transform`) paint in that same level but LATER.
 - **Not the card transform.** Dropping the cards' resting `translateY(0)` would NOT fix it — the scope card's plain `position: relative` still occludes.
 - **The fix (known, byte-reviewed):** on the header — `position: relative; zIndex: 55`. Bounded on BOTH sides against every `zIndex` in `src`: **> 50** (the highest any page inside `<main>` uses — TrendsPage's filter dropdown) and **< 60** (the full-screen `position: fixed; inset: 0` drawers `TutorDrawerV2` / `MentorSolveDrawer`, which must still cover the header). A first pass used `100` and would have punched the header through those drawers' backdrops.
 - **★ WHY IT IS BLOCKED:** `lazytopper/src/components/desktop/DesktopShell.tsx` is an **ABSOLUTE entry** in the `FORBIDDEN` list of `check_improve_convergence_acceptance.mjs`, which runs on every PR via `test:matrix:all` — a flat "did this PR touch a forbidden path?" with **no lane-scoping and no exception mechanism**. Splitting the PR does not help (an isolated shell-only PR fails the identical gate), and **there is no fix from outside the guarded file — the dropdown itself lives in `DesktopShell` (:435-447)**, so even portaling it to `document.body` touches it (and would be a net-new pattern; the app uses no `createPortal` today).
 - **The only two honest options:** (1) deliberately amend the `FORBIDDEN` list as its own reviewed, documented decision, or (2) leave it deferred. **Not options:** force-merging past the gate, or editing the list inside a product PR to silence it.
+
+*(Option 1 is what happened: #519 amended the list as its own reviewed decision, #528 shipped the fix plus the tests that replace the ban.)*
+
+</details>
 
 **[FU-QP-SCORECARD-ATTEMPTS-WIPED] — RESOLVED by #501 (trunk `7979a89`).** Owner reported the QP scorecard showing a wrong denominator (reported "0/50"; verified on the owner's screenshot as **"5 of 75 attempted"** on a full-page 5-MCQ set).
 - **ACTUAL ROOT CAUSE (corrects the analysis below): the DENOMINATOR, not an attempt wipe.** The scorecard's "of N" read `questions.length` - the OVER-FETCHED engine pool - instead of `filteredQuestions.length` - the DISPLAYED set the student works. Fixed at all FIVE scorecard-facing reads in `PracticePage.tsx` (forbidden `ResultsScorecard.tsx` / `scorecardVariants.ts` untouched - they read right). MCQ attempts were ALWAYS counted correctly (the screenshot's "5 of 5"); there was NO Refresh-set / self-regenerate wipe in the owner's case. The `COUNT_SOFT_MAX` claim below was also wrong - the number is the POOL size, which VARIES with the over-fetch (`engineCount = chosen count x5`, cap 100; 75 in the screenshot), not the count clamp. The bug lives on the FULL-PAGE path (`source=practice`), not the overlay - which is why the "not reproduced" bullet below was a false negative (it only drove the `source=tutor` bypass). Regression test (`PracticePage.scorecardFeed.test.tsx`) reproduces the screenshot; mutation-verified. The re-scoped written-answer follow-up is `[FU-QP-WRITTEN-BINARY-CHECK]` (see the #501 section at the TOP of this file). **The bullets below are retained as the SUPERSEDED original investigation record.**

@@ -1,5 +1,39 @@
 ---
 
+## 2026-07-22 -- #528 (PR-B2): THE RAIL TUTOR ENTRY + THE HEADER STACKING FIX - and a ceiling that was **50, not 9998** - **owner byte-reviewed and LIVE-VERIFIED** - trunk `7998ee4a`
+
+**The Home spec is COMPLETE end-to-end** - PR-B was its last unbuilt half. 2 files, **+428/-24** (`DesktopShell.tsx` + a new `DesktopShell.test.tsx`). Draft PR throughout; never self-marked ready. CI `quality-gate` PASS (3m18s), `lane-overlap` PASS. One sectioned commit, declared.
+
+**What shipped:** (a) a **Tutor entry at rank 2** of the rail that **opens the shared `TutorPickerModal` and does not navigate** - no new route, param or capability; `composeTutorEntry` composes the URL so `RequirePremium` is reached exactly as from Home, and `isSignedIn` arrives as a **prop** (`homeDestinations` still never calls `useAuth()`). (b) `position: relative; zIndex: 35` on the header - **[FU-HUB-DROPDOWN-ZINDEX] RESOLVED**.
+
+### ★★ THE CEILING IS 50, NOT 9998 - and the fix the FU recorded as "known, byte-reviewed" was WRONG
+The brief said *derive from the full-screen overlay landscape* (9998-10000). That points at **~1100**, which punches the header through **`.command-palette-backdrop`** (`styles.css:6494`, `z-index: 50`, mounted at `App.tsx:821` as a **sibling of the shell**) - the palette **the header's own search box opens**. The FU's recorded fix was **`zIndex: 55`**, and **55 > 50**, so it carried the same regression. Both its bounds were dead: the floor (*">50, TrendsPage"*) is **retired code** (`App.tsx:936`), the ceiling (*"<60, TutorDrawerV2 / MentorSolveDrawer"*) was **void from #516**. Two dead bounds that happened to bracket a number.
+
+Re-derived: **floor >30** (`Worksheets.tsx:484`, the app-wide page-content max; everything else <=20) · **ceiling <50** (the palette) · **band 31-49 empty** (only `.examples-modal-backdrop`, `styles.css:3657`, **zero consumers in `src/`**). Hence **35** - correct AND provable, which "somewhere below 9998" never was. **A mutation test pinned at 1100 names that exact regression.**
+
+### ★★ MOBILE AND DESKTOP NEEDED DIFFERENT *SHAPES* OF FIX
+**Mobile's invariant is "no trap ancestor"** (`MobileHome`'s bar has no `backdrop-filter`; pinned by PR-A2's ancestor-walk TRAPS test at `MobileHome.test.tsx:483`). **Desktop's is "the trap must OUTRANK page content"** - it *cannot* be mobile's, because the header's blur is intended design and cannot be removed. Same symptom, opposite remedies. Do not flatten this into "we fixed the z-index".
+
+### ★★ THE PICKER MOUNTS AT THE SHELL ROOT - the non-obvious consequence
+Mounted inside `<header>`, `.lt-tutor-ov`'s `z-index: 60` would resolve *inside the header's context* and be **trapped under the header's new 35** - **fixing the stacking bug while shipping a fresh instance of it.** The header is also a **containing block for `position: fixed`** (via `backdrop-filter`), so the overlay would have lost `inset: 0` too. Pinned by `picker.closest("header") === null`.
+
+### The rail shape
+A **discriminated union** on `NavItem` narrowed by `"action" in n`, not a sibling button: `NAV_ITEMS` renders as `<NavLink key={n.to} to={...}>` (keyed *and* routed by `n.to`), and rank 2 needs **positional interleaving** - a sibling reaches rank 2 only via a hard-coded split index that breaks the moment someone reorders the list. Keying on a field that already distinguishes the kinds left **the five existing entries byte-unchanged**. A placeholder `to` was deliberately not used - it ships a real anchor into a dead route. Icon `MessageCircleQuestion`; active **only while the picker is open** (`/tutor` is not a shell route, so there is no landed-on case).
+
+### ★ SPEC CORRECTION - do not propagate
+*"The same dropdown component renders at both breakpoints"* is **false**: `DesktopShell` has its **own inline dropdown** (`:433-535`); `MobileAccountMenu` is imported only by `MobileShell`/`MobileHome`. Two structurally identical dropdowns - the A/B and fix target were unaffected, but the sentence is wrong. Owner confirmed.
+
+### Tests - the other half of the PR-B1 trade
+`DesktopShell` had **neither a ban nor a test**; #519 lifted the ban, this pays the other half (and is the file `check_improve_convergence_acceptance.mjs:482` explicitly promises). **11 tests**, confirmed **by name in CI's job log** (`✓ DesktopShell.test.tsx (11 tests)`; 64 files / **849 passed** on linux) - a green tick is not evidence a suite ran. Mutations: Tutor as `<a href>` (the anti-regression test *also* caught `/tutor` leaking into the routed-destination list) · `position`/`zIndex` removed · 1100 · 5 · 30 (exact boundary). Each red for the right reason, each restored **byte-exact by `git hash-object`**.
+
+### ★★ BOTH MIRROR TRAPS, FROM ONE LANE
+`base...HEAD` forbidden gates are **vacuous PRE-commit** (trunk vs itself on zero commits) and **meaningful POST-commit**. `scope:guard` is the **exact inverse** - meaningful pre-commit (it reads the working tree), vacuous post-commit (`lanes=product` -> `no changes`). Most agents meet only one and generalise wrongly. The `App.tsx` zero-diff gates were re-run post-commit and reported as real, not banked from the vacuous pass.
+
+### The flake, proved rather than asserted
+Same tree: `WorksheetGenerator.mi` **failed pre-commit and passed post-commit** against byte-identical content (847/849 -> 848/849). Both suites pass in isolation, and **linux CI ran 849/849**. Folded into `[FU-TRUNK-FLAKY-SUITES]`: a local-dev cost, not a CI risk.
+
+---
+
 ## 2026-07-22 -- #520 + #522: THE HOME REDESIGN ARC - a duplicated hero retired, the tutor surfaced, and THREE false premises corrected (one of them a doctrine) - **owner byte-reviewed both, live-verified #522** - trunk `2865432`
 
 **ONE combined entry for the Home lane's two PRs, sectioned per PR.** #520 (PR-A) the redesign, 5 files +1563/-1059. #522 (PR-A2) the fixes, 5 files +877/-258. Draft PRs throughout; never self-marked ready. CI `quality-gate` pass on both (4m18s, 3m22s), `lane-overlap` pass.
