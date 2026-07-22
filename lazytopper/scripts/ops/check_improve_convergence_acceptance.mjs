@@ -479,7 +479,11 @@ const FORBIDDEN = [
   'lazytopper/src/services/checkImproveGradeService.ts',
   'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
   'lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx',
-  'lazytopper/src/components/desktop/DesktopShell.tsx',
+  // DesktopShell.tsx - blanket ban LIFTED (owner decision, PR-B1). The file now has
+  // legitimate, owner-approved reasons to change: the rail's nav items, and the header
+  // stacking context that traps the avatar dropdown. Protection moves from "nobody may
+  // touch it" to targeted regression tests landing in PR-B2 alongside those changes.
+  // Do NOT re-add this entry without a deliberate owner decision.
   // ★ Added by the question-side-parity PR. The owner named these directly: "the
   // solution checker engine, the scorecard and other important features and fixes we
   // have done so far shouldn't at all be changed." They were protected by nothing but
