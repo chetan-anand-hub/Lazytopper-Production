@@ -21,6 +21,16 @@ This is deliberate: durable rules live here (rarely change); volatile state live
 so nothing goes stale from hand-pasting.
 
 ## SKILL SYNC (this file lives in TWO places — keep them identical)
+**Version 2.2 · 2026-07-22.** *Supersedes 2.1 (2026-07-18). Changes: **corrected the post-merge check, which was
+INVERTED on this repo.** `--is-ancestor` was pointed at the PR's HEAD — and a squash merge guarantees the head is
+never an ancestor of trunk, so the rule reported every correctly-merged PR as an orphan (worse, `pr/<N>` is not a
+resolvable ref here at all: `fatal: Not a valid object name`, exit 128, which the old wording read as "did NOT
+land"). Now: **verify by CONTENT on trunk first, then `--is-ancestor` against the PR's `mergeCommit`** — which
+still catches the #467 stacked-PR orphan the rule was written for. Fixed in BOTH places it was stated
+(GREEN-BOARD TRAP + GIT DOCTRINE); leaving one is how it comes back. Also **aligned Appendix A REPO ACCESS with
+SESSION BOOTSTRAP §1** — `git ls-remote` is unauthenticated, the agent derives the trunk SHA itself, the owner
+supplies nothing.*
+
 **Version 2.1 · 2026-07-18.** *Supersedes 2.0 (2026-07-16, never installed). Changes: **corrected two false claims**
 — trunk SHAs do NOT come from the owner (`git ls-remote` is unauthenticated), and the reference files do NOT
 auto-load (the live dir is SKILL.md only; Appendices A/B are the real thing). Added **THE GREEN-BOARD TRAP**
@@ -88,9 +98,25 @@ anti-fabrication holds) were right. So the cure is mechanical, not "try harder":
   **GitHub only auto-retargets if that base is DELETED.** So the merge **succeeds into a branch nobody will ever
   see**: GitHub says **"Merged"**, CI is **green**, and **nothing lands on trunk.** #467 is still marked Merged and
   always will be. The owner did nothing wrong — the button did exactly what it said.
-  - **THE ONLY CHECK THAT WORKS:** `git merge-base --is-ancestor pr/<N> origin/base/approved-thru-437`
-    → **exit 0 = it landed. Non-zero = it did NOT, whatever GitHub says.** Run it after EVERY merge you care about.
-  - **Re-derive the trunk tip after every merge** and confirm the change is actually IN it (`git show <trunk>:<path>`).
+  - **★ THE CHECK — and the REF it must use.** The instinct was right; the **ref** in the old wording was wrong,
+    and wrong in the direction that does damage. **A squash merge creates a NEW commit on trunk, so the PR's HEAD
+    is never an ancestor of trunk.** Testing the head reports every correctly-merged PR as an orphan — and an agent
+    reading that concludes its work vanished and re-pushes or re-merges. Test the PR's **merge commit** instead:
+    ```
+    gh pr view <N> --json state,mergedAt,mergeCommit          # state=MERGED + the squash SHA
+    git merge-base --is-ancestor <mergeCommit> origin/base/approved-thru-437
+    ```
+    → **exit 0 = it landed. Non-zero = it did NOT, whatever GitHub says.**
+    *Receipts (verified on this repo, 2026-07-22):* **#524**, correctly merged — its HEAD `34a33efe` → **exit 1**
+    (a false orphan); its mergeCommit `53c5879` → **exit 0** (correct). **#467**, the real orphan above — GitHub
+    still says `MERGED`, but its mergeCommit `4039a87` is **NOT an ancestor of trunk** ⇒ the replacement still
+    catches the bug this rule exists for. And `pr/<N>` is **not a resolvable ref** in a normal clone (no
+    `refs/pull/*` refspec is configured): it dies `fatal: Not a valid object name` → **exit 128**, which the old
+    wording instructed you to read as "did NOT land".
+  - **★ THE CHECK THAT NEVER LIES — CONTENT ON TRUNK. Prefer it.** The API can say `MERGED` and SHA arithmetic can
+    still mislead you; the content cannot. **Re-derive the trunk tip after every merge and confirm the actual change
+    is IN it** — `git show <trunk>:<path>`, then grep for the thing you shipped. It is the only check immune to
+    merge strategy, retargeting, and a stale local clone.
   - **ROOT CAUSE + FIX:** stale branches stay merge-able. **Enable `Settings → General → Automatically delete head
     branches`.** Then delete leftovers by hand (`git ls-remote --heads origin` to prove it).
   - **Then the SECOND-ORDER trap:** auto-delete AUTO-RETARGETS stacked PRs — and **a retarget fires
@@ -214,8 +240,11 @@ Read the relevant appendix before that kind of work; do not rely on memory for b
 ## REPO ACCESS
 - Repo: `chetan-anand-hub/Lazytopper-Production` · trunk branch `base/approved-thru-437`.
 - Codeload tarball (audits): `https://codeload.github.com/chetan-anand-hub/Lazytopper-Production/tar.gz/<ref>`
-  (`<ref>` = a branch name, or a commit SHA to review a pushed PR). Owner supplies the trunk SHA — codeload
-  doesn't expose it; RE-DERIVE via the owner or the branch tarball, never trust a written SHA.
+  (`<ref>` = a branch name, or a commit SHA to review a pushed PR). **RE-DERIVE the trunk SHA YOURSELF:
+  `git ls-remote origin base/approved-thru-437`. It is UNAUTHENTICATED against the public remote, so the owner
+  supplies nothing and you never need to wait for a SHA.** (Codeload alone doesn't expose it, which is where the
+  old "owner supplies the trunk SHA" wording came from — that was false and cost a round-trip every session; see
+  SESSION BOOTSTRAP §1.) Never trust a written SHA, including one in this file.
 - Owner dir `C:\Projects\Lazytopper-Production` · agent worktrees `C:/Projects/LT-worktrees/` · reports →
   `C:\Users\Chetan\OneDrive\Desktop\diff\`.
 
@@ -245,9 +274,14 @@ Read the relevant appendix before that kind of work; do not rely on memory for b
   not need the owner for a SHA). Fresh worktree per task. Squash-merge; **delete branch+worktree after — a live
   branch is how the next stacked PR silently orphans** (verify with `git ls-remote`; the Windows node_modules lock
   on worktree dirs is harmless residue).
-- **★ AFTER EVERY MERGE YOU CARE ABOUT: `git merge-base --is-ancestor pr/<N> origin/base/approved-thru-437`.**
-  Exit 0 = it landed; non-zero = it did NOT, **whatever GitHub says**. See THE GREEN-BOARD TRAP — this fired three
-  times in one session and "Merged" + green CI meant nothing.
+- **★ AFTER EVERY MERGE YOU CARE ABOUT — verify by CONTENT first, then by SHA.**
+  **(1)** `git show <re-derived trunk>:<path>` — confirm what you shipped is actually there.
+  **(2)** `gh pr view <N> --json state,mergedAt,mergeCommit`, then
+  `git merge-base --is-ancestor <mergeCommit> origin/base/approved-thru-437` → exit 0 = it landed.
+  **★ This repo SQUASH-merges, so NEVER test the PR's HEAD** (`pr/<N>`, or the branch tip): squash makes a new
+  commit, the head is therefore never an ancestor, and the check then reports every correct merge as an orphan.
+  Test the **mergeCommit**. Receipts + the exact exit codes are in THE GREEN-BOARD TRAP. "Merged" + green CI still
+  means nothing on its own — that fired three times in one session.
 - Stage explicitly (never `git add -A`). Co-Authored-By the executing model. Lockfile regen in a Codespace only.
 - Docs-handoff PR AFTER every code PR, as a SEPARATE PR. Docs-only PRs may self-merge (§6a) IF the remote diff is
   strictly `handoff/*.md` (zero code). Docs handoffs edit the SAME files → SERIALIZE them (one fully merged before
