@@ -78,6 +78,14 @@ function navItemStyle(isActive: boolean): React.CSSProperties {
   };
 }
 
+// Quiet legal row appended below "Log out" in the account dropdown — the only
+// reachable inbound link to the /legal/:slug policies for a signed-in session.
+const LEGAL_LINKS: { label: string; slug: string }[] = [
+  { label: "Privacy", slug: "privacy" },
+  { label: "Terms", slug: "terms" },
+  { label: "Refunds", slug: "refund" },
+];
+
 const NAV_ITEMS: NavItem[] = [
   {
     to: "/",
@@ -636,6 +644,47 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
                         >
                           Log out
                         </button>
+                        {/* Quiet legal row — a secondary link row subordinate to
+                            Log out, not menuitem buttons. */}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "2px 12px",
+                            marginTop: 4,
+                            paddingTop: 8,
+                            borderTop: `1px dashed ${SURFACE_BORDER}`,
+                          }}
+                        >
+                          {LEGAL_LINKS.map(({ label, slug }) => (
+                            <button
+                              key={slug}
+                              type="button"
+                              onClick={() => {
+                                setAccountOpen(false);
+                                navigate(`/legal/${slug}`);
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.textDecoration = "underline";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.textDecoration = "none";
+                              }}
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                padding: "2px 0",
+                                fontSize: 11.5,
+                                fontWeight: 500,
+                                color: "hsl(220,12%,58%)",
+                                cursor: "pointer",
+                                textDecoration: "none",
+                              }}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}

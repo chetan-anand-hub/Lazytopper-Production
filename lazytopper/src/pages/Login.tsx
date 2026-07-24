@@ -615,6 +615,17 @@ const LOGIN_CSS = `
     line-height: 1.35;
   }
 
+  .lt-login-terms a {
+    color: var(--lt-ink);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .lt-login-terms a:hover {
+    color: var(--lt-green-dark);
+  }
+
   @media (max-width: 1180px) {
     .lt-login-page {
       grid-template-columns: minmax(0, 0.95fr) minmax(430px, 1.05fr);
@@ -1295,7 +1306,10 @@ export default function Login() {
             <Link to="/" className="lt-login-back-link">
               {isStartTrial ? "<- Back to landing" : "<- Back to home"}
             </Link>
-            <span className="lt-login-terms">By signing in, you agree to our Terms of Service</span>
+            <span className="lt-login-terms">
+              By signing in, you agree to our <Link to="/legal/terms">Terms of Service</Link> and{" "}
+              <Link to="/legal/privacy">Privacy Policy</Link>
+            </span>
           </div>
         </div>
       </section>
