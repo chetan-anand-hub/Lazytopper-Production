@@ -202,6 +202,38 @@ export function MobileAccountMenu() {
               >
                 Log out
               </button>
+              {/* Quiet legal row — a secondary link row subordinate to Log out, not
+                  menuitem buttons. Reachable policies for a data-collecting product. */}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "2px 12px",
+                  marginTop: 4,
+                  paddingTop: 8,
+                  borderTop: "1px dashed var(--mob-card-border)",
+                }}
+              >
+                {LEGAL_LINKS.map(({ label, slug }) => (
+                  <button
+                    key={slug}
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      navigate(`/legal/${slug}`);
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = "underline";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = "none";
+                    }}
+                    style={legalLinkStyle}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -209,6 +241,24 @@ export function MobileAccountMenu() {
     </div>
   );
 }
+
+const LEGAL_LINKS = [
+  { label: "Privacy", slug: "privacy" },
+  { label: "Terms", slug: "terms" },
+  { label: "Refunds", slug: "refund" },
+] as const;
+
+const legalLinkStyle: CSSProperties = {
+  background: "transparent",
+  border: "none",
+  padding: "2px 0",
+  fontSize: 11.5,
+  fontWeight: 500,
+  color: "hsl(220,12%,58%)",
+  cursor: "pointer",
+  textDecoration: "none",
+  WebkitTapHighlightColor: "transparent",
+};
 
 function menuItemStyle(color: string, fontWeight: number): CSSProperties {
   return {
