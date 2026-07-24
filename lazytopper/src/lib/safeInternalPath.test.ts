@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { isSafeInternalPath } from "./safeInternalPath";
 
-// Guard applied to /sign-up's post-auth redirect target ([FU-SIGNUP-UNSAFE-REDIRECT]).
-// These mirror the resolution at SignUpPage.tsx: `isSafeInternalPath(st.from) ? st.from : "/"`.
-// Mutation check: dropping the guard at the call site (returning `st.from || "/"`) makes
-// cases 1 and 2 below resolve to the off-site value instead of "/", failing the test.
+// UTIL-LEVEL tests for the redirect guard ([FU-SIGNUP-UNSAFE-REDIRECT]). These assert
+// isSafeInternalPath's own semantics only — they do NOT prove SignUpPage applies it.
+// The call-site wiring (that SignUpPage actually routes an off-site `from` to "/") is
+// covered separately in pages/SignUpPage.redirect.test.tsx.
+// `resolve` below re-expresses the intended call-site formula purely for readability;
+// mutating THIS util (e.g. `return true`) turns the reject cases red.
 
 const resolve = (from: string | null | undefined) => (isSafeInternalPath(from) ? from : "/");
 
