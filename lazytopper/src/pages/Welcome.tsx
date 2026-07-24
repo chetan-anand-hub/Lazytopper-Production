@@ -1864,7 +1864,7 @@ function ExamTrendsCard() {
         </div>
       ))}
 
-      <div style={{ marginTop: 18, fontWeight: 800, fontSize: 13 }}>Last 5 years pattern</div>
+      <div style={{ marginTop: 18, fontWeight: 800, fontSize: 13 }}>Board paper pattern</div>
       <div style={{ marginTop: 4, color: MUTED, fontSize: 11 }}>Weightage by chapter</div>
       <div className="lt-mini-grid">
         {years.flatMap((year, row) => [
