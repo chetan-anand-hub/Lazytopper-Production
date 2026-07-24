@@ -2,6 +2,7 @@ import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { creditPendingReferral } from "../services/referralService";
+import { isSafeInternalPath } from "../lib/safeInternalPath";
 
 type LocationState = { from?: string };
 
@@ -49,12 +50,11 @@ export default function SignUpPage() {
   }, []);
 
   const nextPath = useMemo(() => {
-    // RETIREMENT PR-1: fallback re-pointed off the retired /onboarding to "/" — a new
-    // signup lands on the homepage. (`st.from` is NOT isSafeInternalPath-guarded here,
-    // unlike Login.tsx; that is pre-existing and tracked as [FU-SIGNUP-UNSAFE-REDIRECT],
-    // deliberately NOT fixed in this retirement PR.)
+    // A new signup lands on the homepage unless a safe internal `st.from` was passed.
+    // `st.from` is guarded by isSafeInternalPath (same semantics as Login.tsx) so an
+    // off-site or scheme-carrying target can never reach navigate() — [FU-SIGNUP-UNSAFE-REDIRECT].
     const st = (location.state || {}) as LocationState;
-    return st.from || "/";
+    return isSafeInternalPath(st.from) ? st.from : "/";
   }, [location.state]);
 
   const [email, setEmail] = useState("");
