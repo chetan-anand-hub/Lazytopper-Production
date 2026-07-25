@@ -27,7 +27,7 @@ import {
   setActiveProgressUser,
 } from "../services/studentProgressStore";
 import { ensureLearnerCloudBaseline } from "../services/studentCloudStore";
-import { activateTrial, hydrateSubscriptionFromCloud } from "../services/subscriptionService";
+import { hydrateSubscriptionFromCloud } from "../services/subscriptionService";
 import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
@@ -229,9 +229,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hydrateMistakeLogsFromCloud(uid).then(() => {
           if (!cancelled) setMistakeLogsHydrated((n) => n + 1);
         }),
-        hydrateSubscriptionFromCloud(uid).then(() => {
-          activateTrial(uid);
-        }),
+        // Hydrate subscription status into the local cache on login. Do NOT activate a
+        // trial here — this unconditional activateTrial(uid) silently started every
+        // student's 7-day trial on login, before they did anything. Trial activation is
+        // user-initiated only (useSubscription.startTrial). The read stays; the write
+        // goes. [FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]
+        hydrateSubscriptionFromCloud(uid),
       ]);
     })();
 
