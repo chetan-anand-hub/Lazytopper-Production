@@ -1,5 +1,50 @@
 ---
 
+## 2026-07-25 -- #531–#535 (LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP): sign-up redirect guarded · legal reachable · evidence caption de-numbered · 12 dead pages deleted · trial auto-start killed (BOTH write sites) + real trial CTA - **#535 owner LIVE-VERIFIED on production** - trunk `7185c5f`
+
+**Five product PRs, one combined docs handoff. Sectioned, never blended.** `7998ee4a` (#528) → `4e3fbf6` (#531) → `39ae276` (#532) → `82b434d` (#533) → `add19d4` (#534) → **`7185c5f` (#535)**. CURRENT_STATE had been stale five PRs (since #528); this repays it.
+
+### PR-1 (#531) — `fix(auth)`: `/sign-up` post-auth redirect guarded — `[FU-SIGNUP-UNSAFE-REDIRECT]`
+Extracted `isSafeInternalPath` **verbatim** from `Login.tsx` into `lib/safeInternalPath.ts`; applied at `SignUpPage.tsx:57`. **Severity honest: defence-in-depth, not a live exploit** (no `?redirect` query param; only input is router `location.state`). ★★ The seed of the whole wave's method: the first test proved the *util*, not that `SignUpPage` *used* it — reverting `:57` left it green. Fixed with a **call-site** test that renders `SignUpPage` through one `MemoryRouter` at production depth and asserts `navigate("/")` for an off-site `from`. **Test the wiring, not the structure** became the standing bar for PR-2 and PR-3.
+
+### Lane C (#532) — `fix(legal)`: policies reachable — `[FU-LEGAL-FOOTER-LINK]` *(parallel agent)*
+Legal reachable from shell/menus; `pages/Home.tsx`'s legal footer is dead code (never imported).
+
+### PR-2 (#533) — evidence caption de-numbered — `[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`
+`Welcome.tsx:1867` "Last 5 years pattern" → **"Board paper pattern"** (text-only). The caption labels a **decorative** 5-row grid (no real weightage), so "ten years" would show 10 over 5 rows — owner ruled drop the number. HPQ "4 years" **left**: the HPQ path does no scoring/year-filtering, so it is provenance copy, not a computed claim → `[FU-HPQ-EVIDENCE-YEARS-UNVERIFIED]`. Screenshot finding: `Welcome` is desktop-only (≥1024px; below → `MobileWelcome`), so 768/390 legitimately don't render the string.
+
+### Lane E (#534) — `chore(dead-pages)`: 12 unrouted pages deleted *(parallel agent)*
+The 8 unrouted pages that are `readFileSync` fixtures for `scripts/ops/**` gates were spared — dead-to-users ≠ dead-to-CI.
+
+### PR-3 (#535) — `fix(subscription)`: auto-trial killed + trial CTA — `[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]` + `[FU-TRIAL-HAS-NO-ACTIVATION-PATH]`
+**★★ TWO auto-activate write sites, not one.** (1) `useSubscription.ts` hydration `.then()`; (2) **`AuthContext.tsx:233`** — unconditional, fired on **every login for every user**, and **outside the original spec's scope**. The hook fix alone would have fixed nothing: the trial still auto-started via AuthContext. Both removed → pure reads. With both gone, `startTrial` had **zero call sites**, so the real CTA was wired into `RequirePremium` (never-trialled → start trial; expired → plans-only, no infinite reset). Each write site's removal is independently mutation-verified (restore either → its own test red).
+
+**PR-3 (#535) — live-verified by owner on production, 2026-07-25. PASS.**
+```
+1. Fresh account → premium surface (Ask the tutor) → 🔒 Premium Feature
+   rendered. Proof the auto-trial is dead: isPremiumAccess() returns true
+   for tier "trial", so had the trial auto-started, RequirePremium would
+   have rendered the tutor and no lock would have appeared.
+2. Copy verified verbatim: "Try everything free for 7 days." · primary
+   "Start my free 7-day trial" · sub-line "then free Basic, upgrade
+   anytime" · secondary "See plans instead". Frozen CTA contract intact.
+3. CTA click → tutor unlocked immediately, no reload, no navigation.
+4. Firestore subscriptions/{uid} after click: tier "trial",
+   plan "trial_7day", trialStartDate 2026-07-25T09:00:58.390Z,
+   trialEndDate 2026-08-01T09:00:58.390Z, premiumSince null,
+   updatedAt ...58.391Z — 1ms after trialStartDate, i.e. the doc was
+   written EXACTLY ONCE. No second activation path fired.
+5. Hard refresh → still premium. Confirms the cloud write survived the
+   hook's change to a pure read (the one plausible regression).
+6. Logout → login → still trial, same trialStartDate. Confirms the
+   AuthContext:233 half: login reads, never re-activates.
+7. Existing premium account → straight through, no lock.
+8. Mobile 390px → correct.
+```
+Expired-trial branch was deliberately NOT live-verified — no real user can be expired for 7 days, and `activateTrial:107-108` refuses to restart when `trialStartDate` is set. Deferred to week one (proven by the RequirePremium test's EXPIRED case, mutation-verified).
+
+---
+
 ## 2026-07-22 -- #528 (PR-B2): THE RAIL TUTOR ENTRY + THE HEADER STACKING FIX - and a ceiling that was **50, not 9998** - **owner byte-reviewed and LIVE-VERIFIED** - trunk `7998ee4a`
 
 **The Home spec is COMPLETE end-to-end** - PR-B was its last unbuilt half. 2 files, **+428/-24** (`DesktopShell.tsx` + a new `DesktopShell.test.tsx`). Draft PR throughout; never self-marked ready. CI `quality-gate` PASS (3m18s), `lane-overlap` PASS. One sectioned commit, declared.

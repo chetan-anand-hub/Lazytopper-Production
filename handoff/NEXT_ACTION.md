@@ -1,7 +1,23 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-22 (post-**#528 — PR-B2, the rail Tutor entry + the header stacking fix.** Trunk `7998ee4a`. Owner byte-reviewed and LIVE-VERIFIED. 2 files, +428/−24.)
+# Updated: 2026-07-25 (post-**#531–#535 — launch-blocker wave + dead-page sweep.** Trunk `7185c5f`. #535 owner LIVE-VERIFIED on production. Combined docs handoff.)
 
-## NEXT — 2026-07-22 (post-#528). Read this block first.
+## NEXT — 2026-07-25 (post-#531–#535). Read this block first.
+
+**The code-side launch-blocker tier as previously scoped is now EMPTY** (#531–#535 closed it). It is replaced at the top by a **cost-exposure tier** the wave surfaced — the AI endpoints are ungated and unmetered. Owner-set order:
+
+1. **Billing cap + budget alert on the Google Cloud / Gemini project** — **owner-run, no code, ~10 min. HIGHEST PRIORITY.** Given `[FU-NO-SERVER-ENTITLEMENT]` and `[FU-CHECKIMPROVE-UNGATED]`, this is the only control that bounds worst-case cost, independent of every entitlement question below.
+2. **`[FU-CHECKIMPROVE-UNGATED]`** — awaiting owner's **RequirePremium vs RequireAuth** ruling (evidence is four-layer, already verified against `7185c5f`; do not re-derive as a condition of acting). `/check-improve` lets a **signed-out** visitor trigger Gemini vision grading from the main nav.
+3. **`[FU-NO-RATE-LIMIT-AI-ENDPOINTS]`** — dispatch **with (2) as one lane**; the per-uid cap is the control that bounds exposure regardless of entitlement correctness.
+4. **`[FU-SIGNUP-NO-NAME]`** — small, **one-way door** (pre-fix accounts can't be backfilled without re-asking); its own PR, separate from any styling work.
+
+Also queued (not top tier): `[FU-SUBSCRIPTION-CLIENT-WRITABLE]` (firestore.rules — sacred-file, its own reviewed PR, absolute blocker before payments), `[FU-WORKSHEET-UNGATED]` (server-side per-day cap), `[FU-DOCTRINE-DRIFT-CLAUDE-MD]` (bring code to doctrine or amend doctrine — a deliberate reviewed change), `[FU-HPQ-EVIDENCE-YEARS-UNVERIFIED]` (owner ruling), `[FU-SAFEPATH-DUPLICATION]` (consolidate the 3 copies — now unblocked, Lane C merged).
+
+### ★★ LAUNCH CONTEXT — the QA gate is being consciously compressed
+Owner is targeting **public launch this weekend**. The plan of record had been a **~50 real-student QA pass first**; that gate is being compressed. Record this as a deliberate owner call, not an oversight: **every genuine bug in this project's history was found by owner live-use of the deployed product, not by a gate.** The billing cap (step 1) is what makes compressing the QA gate survivable.
+
+---
+
+## (superseded) NEXT — 2026-07-22 (post-#528).
 
 **The Home spec is COMPLETE end-to-end.** PR-B was its last unbuilt half and it has shipped. **`[FU-HUB-DROPDOWN-ZINDEX]` is RESOLVED** — enumerated every `backdrop-filter` in `src/` and no other surface has a trapped dropdown, so it closes rather than defers.
 

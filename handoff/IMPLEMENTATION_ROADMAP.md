@@ -1,6 +1,21 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-07-22 - ★★ ✅ PR-B2 **COMPLETE** — THE HOME SPEC IS NOW DONE END-TO-END (#528, trunk `7998ee4a`) - owner byte-reviewed, LIVE-VERIFIED
+## 2026-07-25 - ★★ ✅ LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP **COMPLETE** (#531–#535, trunk `7185c5f`) - #535 owner LIVE-VERIFIED
+
+**STAGES COMPLETE:**
+- ✅ **Launch-blocker sweep** — #531 (`/sign-up` redirect guard), #532 (legal reachable, Lane C), #533 (evidence caption de-numbered).
+- ✅ **Dead-page sweep** — #534 (Lane E): 12 unrouted page files deleted; 8 `scripts/ops/**` content-fixture pages spared.
+- ✅ **Subscription auto-trial fix + trial CTA** — #535: both auto-activate write sites removed (`useSubscription.ts` + `AuthContext.tsx:233`), real trial CTA wired into `RequirePremium`. Owner live-verified on production.
+
+**★★ THE CODE-SIDE LAUNCH-BLOCKER TIER AS PREVIOUSLY SCOPED IS NOW EMPTY.** It is replaced as the top tier by the **cost-exposure items** the wave discovered — the AI endpoints (`/check-improve`, worksheets) are ungated and unmetered, and there is no server-side entitlement or rate limit. See `NEXT_ACTION.md` (owner-set order: **billing cap first**, then the `/check-improve` gating ruling + rate limit as one lane) and `OPEN_QUESTIONS_AND_FOLLOWUPS.md` for the four-layer evidence.
+
+**★★ Reusable finding from the wave — "test the wiring, not the structure."** PR-1's first test proved the util but not that the page used it (reverting the fix left it green). Every PR in the wave then carried a call-site / rendered-surface test whose mutation is the *actual revert of the fix*. This is now the standing bar.
+
+**★★ The subscription bug had TWO write sites; the spec named one.** The unconditional `AuthContext.tsx:233` was outside the original scope and fired on every login — removing only the hook write would have shipped a green PR that fixed nothing. Enumerate the full call surface of the function, not the wrapper.
+
+---
+
+## (superseded) 2026-07-22 - ★★ ✅ PR-B2 **COMPLETE** — THE HOME SPEC IS NOW DONE END-TO-END (#528, trunk `7998ee4a`) - owner byte-reviewed, LIVE-VERIFIED
 
 **STAGE COMPLETE — the `DesktopShell` rail Tutor entry + the header stacking fix.** 2 files, **+428 / −24**. CI `quality-gate` PASS (3m18s), `lane-overlap` PASS. Draft PR throughout; never self-marked ready, never self-merged. One sectioned commit, declared.
 
