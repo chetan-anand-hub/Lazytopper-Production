@@ -1,6 +1,29 @@
 # LazyTopper — Current State
 
-## [CURRENT] #528 merged — ★★ PR-B2: THE RAIL TUTOR ENTRY, AND A Z-INDEX CEILING THAT WAS 50 AND NOT 9998 — trunk `7998ee4a`
+## [CURRENT] #531–#535 merged — ★★ LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP: SIGN-UP REDIRECT GUARDED · LEGAL REACHABLE · EVIDENCE CAPTION DE-NUMBERED · 12 DEAD PAGES DELETED · TRIAL AUTO-START KILLED (BOTH WRITE SITES) + REAL TRIAL CTA — trunk `7185c5f`
+
+**Five product PRs, five sections. All merged; #535 owner LIVE-VERIFIED on production.** Trunk moved `7998ee4a` (#528) → `4e3fbf6` (#531) → `39ae276` (#532) → `82b434d` (#533) → `add19d4` (#534) → **`7185c5f` (#535)**. **Zero open PRs; zero in-flight lane branches.**
+
+**★ DOCS DEBT REPAID.** `CURRENT_STATE.md` had been stale since `7998ee4a` (#528) — **five product PRs merged with no handoff update.** A one-commit lag is expected on this squash-merge repo; a five-PR lag is not. This one docs PR closes all five at once.
+
+### PR-1 · #531 — `fix(auth)`: guard `/sign-up` post-auth redirect · `[FU-SIGNUP-UNSAFE-REDIRECT]`
+`SignUpPage` resolved `location.state.from` with **no** guard, unlike `Login.tsx`. Extracted `isSafeInternalPath` **verbatim** into `lib/safeInternalPath.ts` and applied it. **Severity honest: defence-in-depth, NOT a live exploit** — `SignUpPage` reads no `?redirect` query param, so the only input is router `location.state` (not URL-controllable). Three `isSafeInternalPath` copies remain (`Login`/`HighlyProbableQuestions`/`BackToParent`) → `[FU-SAFEPATH-DUPLICATION]`. A **call-site** test proves the wiring (revert `SignUpPage.tsx:57` → red), not just the util — the PR-1 lesson that seeded the whole wave.
+
+### Lane C · #532 — `fix(legal)`: policies reachable · `[FU-LEGAL-FOOTER-LINK]`
+*(Parallel lane, not built by this agent.)* Legal pages made reachable from the shell/menus. Finding recorded: `pages/Home.tsx` carried a legal footer but is **dead code** (never imported) → `[FU-HOME-TSX-DEAD-FILE]` (largely realised by Lane E, below).
+
+### PR-2 · #533 — evidence-base caption de-numbered · `[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`
+`Welcome.tsx:1867` `"Last 5 years pattern"` → **`"Board paper pattern"`** (text-only; style object byte-identical). The caption sits above a **decorative** 5-row grid (`years` hardcoded 2024–2020; dot colours from index arithmetic — no real weightage), so "ten years" would have put **10 over a visible 5-row grid**. Owner ruled: **drop the number entirely.** HPQ `HighlyProbableQuestions.tsx:950` ("4 years") **deliberately left** — the HPQ path does **no scoring and no year-filtering** (static authored array; `pastBoardYear` is a dead field), so "4 years" is uncorroborated provenance copy, not a computed claim → `[FU-HPQ-EVIDENCE-YEARS-UNVERIFIED]`.
+
+### Lane E · #534 — `chore(dead-pages)`: 12 unrouted page files deleted
+*(Parallel lane, not built by this agent.)* 12 dead page files deleted; the 8 unrouted pages that are `readFileSync` content-fixtures for `scripts/ops/**` gates were **spared** (a page can be dead to users and load-bearing for CI at once).
+
+### PR-3 · #535 — `fix(subscription)`: stop auto-starting trials; add trial CTA · `[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]` + `[FU-TRIAL-HAS-NO-ACTIVATION-PATH]`
+**★★ THE BUG HAD TWO WRITE SITES; the original spec named only one.** (1) `useSubscription.ts` hydration `.then()` and (2) `AuthContext.tsx:233` — the latter **unconditional**, firing on *every login for every user*, and **outside the original scope**. Removing the hook write alone would have fixed nothing a student experienced. Both are now pure reads (`hydrateSubscriptionFromCloud` already returns the right status for premium/active/expired, and a free `defaultStatus()` for a fresh user). With both gone, `startTrial` had **zero call sites** — no student could receive a trial — so the real CTA was wired into `RequirePremium`: never-trialled → "Start my free 7-day trial" → `startTrial()`; **expired → plans path only** (no CTA, else infinite trial reset); active/premium never reach it. **Owner LIVE-VERIFIED all paths on production** (Firestore `subscriptions/{uid}` written exactly once; survives hard-refresh and logout→login). Copy frozen: "then free Basic, upgrade anytime."
+
+**★★ The wave surfaced a cost-exposure tier that now outranks the (empty) code-side launch-blocker tier** — see `OPEN_QUESTIONS_AND_FOLLOWUPS.md`: `[FU-CHECKIMPROVE-UNGATED]`, `[FU-NO-SERVER-ENTITLEMENT]`, `[FU-NO-RATE-LIMIT-AI-ENDPOINTS]`, `[FU-SUBSCRIPTION-CLIENT-WRITABLE]`, `[FU-DOCTRINE-DRIFT-CLAUDE-MD]`, `[FU-WORKSHEET-UNGATED]`, `[FU-SIGNUP-NO-NAME]`, `[FU-COMMIT-SUBJECT-AT]`.
+
+## (superseded) [CURRENT] #528 merged — ★★ PR-B2: THE RAIL TUTOR ENTRY, AND A Z-INDEX CEILING THAT WAS 50 AND NOT 9998 — trunk `7998ee4a`
 
 **The Home spec is now COMPLETE end-to-end.** PR-B was its last unbuilt half; this is it. Owner byte-reviewed **and LIVE-VERIFIED**. Draft PR throughout, never self-marked ready, never self-merged. 2 files, **+428 / −24**. CI `quality-gate` PASS (3m18s), `lane-overlap` PASS.
 

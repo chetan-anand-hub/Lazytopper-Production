@@ -1,3 +1,106 @@
+## 2026-07-25 -- #531–#535 (LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP): 5 FUs tombstoned, 11 opened — incl. a CRITICAL cost-exposure tier (trunk `7185c5f`)
+
+### RESOLVED — tombstoned (closed, not open work)
+- **`[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]`** → #535. **Both** write sites removed (`useSubscription.ts` hydration `.then()` **and** the unconditional `AuthContext.tsx:233`). Each independently mutation-verified.
+- **`[FU-TRIAL-HAS-NO-ACTIVATION-PATH]`** → #535. `startTrial` now has **exactly one** call site (the `RequirePremium` CTA); no auto-write remains.
+- **`[FU-SIGNUP-UNSAFE-REDIRECT]`** → #531. Guarded; severity recorded as **defence-in-depth, not a live exploit** (no URL-controllable input).
+- **`[FU-LEGAL-FOOTER-LINK]`** → #532 (Lane C). Reachable-surface finding: `pages/Home.tsx` carried a legal footer but is dead code (never imported).
+- **`[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`** → #533. Caption de-numbered ("Board paper pattern"). **Residual, separate:** `[FU-HPQ-EVIDENCE-YEARS-UNVERIFIED]` below.
+
+### NEW — lane-discovered (small / bounded)
+```
+[FU-SAFEPATH-DUPLICATION] — three copies of isSafeInternalPath remain
+(Login.tsx:9, HighlyProbableQuestions.tsx:115, BackToParent.tsx:55). PR-1
+added a shared lib/safeInternalPath.ts but consolidating the three was out of
+scope (Login.tsx was Lane C's at the time; Lane C has since merged, so the
+lane collision no longer blocks it). A later consolidation pass.
+
+[FU-HOME-TSX-DEAD-FILE] — pages/Home.tsx is a dead landing page (never
+imported) that carried an unreachable legal footer. Dead-code-sweep candidate;
+largely realised by Lane E (#534).
+
+[FU-HPQ-EVIDENCE-YEARS-UNVERIFIED] — HighlyProbableQuestions.tsx:950 reads
+"drawn from 4 years of papers." Traced empirically: the HPQ page does NO
+scoring and NO year filtering — it renders a static hand-authored array
+(highlyProbableQuestions.ts), subject/topic-filtered, tier badges from the
+locked Exam-Trends table; pastBoardYear is a declared-but-never-consumed dead
+field. So "4 years" is uncorroborated provenance copy with no engine behind
+it — not a computed claim. Owner ruling pending on whether to keep, drop, or
+correct the number. Do not overwrite without a ruling (fabrication risk).
+```
+
+### NEW — ★★ CRITICAL cost-exposure tier (surfaced by the wave; now the top launch tier)
+```
+[FU-CHECKIMPROVE-UNGATED] — CRITICAL, cost exposure. /check-improve has no
+gate at any layer, verified four ways: (1) route App.tsx:1106-1109 is a bare
+self-closing <Route> with no RequirePremium and no RequireAuth — it is the
+only /check-improve route definition in the file; (2) no pathless parent
+layout route exists (every <Route> in App.tsx carries its own path=), so no
+group gate applies; (3) the component DesktopCheckImprovePage imports only
+useAuth, using `user` for mistake logging at :735 — zero useSubscription,
+zero isPremium; (4) the server route checkSolution.cjs has zero hits for
+uid/auth/token/verifyIdToken/premium/subscription/401/403. Net: a SIGNED-OUT
+visitor can trigger Gemini vision grading with no account, no trial, no cap,
+from a link in the main nav (App.tsx:411). checkSolution.cjs runs
+maxOutputTokens 16000 (32000 path in the reliability test) on a thinking
+model, so reasoning tokens bill too. OWNER DECISION PENDING: RequirePremium
+(matches stated design; removes a core hook from free tier) vs RequireAuth
+(keeps the funnel hook, attaches every call to a uid, which is the
+precondition for per-user rate limiting). NOTE: the tutor's C&I OVERLAY
+reuses the component, not the route, so route gating will not affect it.
+
+[FU-NO-SERVER-ENTITLEMENT] — The entire premium gate is RequirePremium, a
+React component. A grep of lazytopper/server/** and artifacts/api-server/**
+for subscription/premium/tier/entitlement returns zero enforcement hits (only
+an unrelated "must-crack" question tier and a Gemini rate-limit comment). Any
+account can call the AI endpoints directly and bypass every gate in the UI.
+
+[FU-NO-RATE-LIMIT-AI-ENDPOINTS] — No rate-limiting library or per-uid cap
+anywhere in the AI server (lazytopper/server/index.cjs is a raw
+http.createServer). Unbounded per-user Gemini cost. This is the control that
+bounds exposure independently of entitlement correctness; it should land
+before or immediately after any gating change.
+
+[FU-SUBSCRIPTION-CLIENT-WRITABLE] — firestore.rules:69-70 allows
+`match /subscriptions/{uid} { allow read, write: if isOwner(uid); }`, so a
+signed-in student can write tier:"premium" into their own doc from devtools.
+activatePremium is also client-callable via upgradeToPremium. PRE-EXISTING —
+not introduced by #535. Absolute blocker before payments go live. Sacred-file
+change: its own reviewed PR.
+
+[FU-DOCTRINE-DRIFT-CLAUDE-MD] — CLAUDE.md:83 ("No fake trial activation —
+trial state must come from server/admin, never client UI") and CLAUDE.md:168
+("No localStorage writes for premium/trial state") describe a state the code
+has never been in: saveSubscription:84 calls saveLocal which writes
+localStorage, and activateTrial is client-callable. Two agents have now cited
+these lines as authority for decisions. Either bring the code to the doctrine
+or amend the doctrine — but as a deliberate reviewed change, never as a side
+effect of a feature lane.
+
+[FU-WORKSHEET-UNGATED] — /practice/worksheets (App.tsx:1079-1084) has no gate;
+WorksheetGenerator imports useAuth only, no useSubscription. Owner wants a
+per-day free cap. Must be enforced server-side — a client-side daily counter
+is as bypassable as the premium flag.
+
+[FU-SIGNUP-NO-NAME] — SignUpPage collects email + password only (state at
+:60-61). Google sign-in supplies displayName; email/password users do not, so
+displayName falls back to the raw EMAIL ADDRESS across App.tsx:793,
+DesktopShell.tsx:188 and :190, MobileAccountMenu.tsx:56 and :57,
+DashboardHeader.tsx:27, and ShareProgressPrompt.tsx:86. AuthContext.tsx:58
+ALREADY accepts an optional displayName parameter — the plumbing exists;
+SignUpPage simply never collects or passes it. ONE-WAY DOOR: accounts created
+before the fix cannot be backfilled without asking users again.
+
+[FU-COMMIT-SUBJECT-AT] — An agent emitted a bare "@" as the first line of the
+commit message on three PRs; it reached trunk on #533 (82b434d) and #535
+(7185c5f), both showing as "@ (#N)" in git log --oneline. The squash dialog
+pre-fills from the COMMIT BODY when a PR has a single commit, so correcting
+the PR title alone does not prevent it. The first line of a commit message is
+the subject. Do not rewrite trunk history to fix the existing two.
+```
+
+---
+
 ## 2026-07-22 -- #528 (PR-B2): 1 FU RESOLVED, 1 FU upgraded from argument to proof, 2 doctrines recorded (trunk `7998ee4a`)
 
 **No new FUs opened.** The lane closed one and strengthened another.
