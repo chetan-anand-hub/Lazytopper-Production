@@ -62,19 +62,44 @@ const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // +05:30, no DST
    nothing requires. If /api/mentor is ever revived it must be added here.
    ──────────────────────────────────────────────────────────────────────────── */
 const PAID_ENDPOINTS = Object.freeze({
-  // Gemini VISION — by far the most expensive class (maxOutputTokens 16000).
+  // Gemini VISION — the expensive class: full-page grading at maxOutputTokens
+  // 16000, roughly $0.013 a call.
   "/api/check-solution": "vision",
-  "/api/detect-question": "vision",
   "/api/grade-worksheet": "vision",
   // Conversational tutor.
   "/api/tutor": "tutor",
   // Per-question help.
   "/api/step-solution": "practice",
   "/api/more-like-this": "practice",
+  // ★ detect-question is a BILLING-BUCKET decision, not a feature one. It runs at
+  // thinkingBudget 0 / 4096 max — about $0.001 against ~$0.013 for a grade — so it
+  // never belonged in the expensive class. It matters because ONE advertised
+  // "solution check" fires detect-question AND check-solution: while both counted
+  // as vision, a vision ceiling of 30 bought only ~15 real checks a day against the
+  // 25/day the pricing page advertises, and the server would have refused what the
+  // product sold. The feature, the marks assessment and the student-correction
+  // affordance are untouched. VISION_CALLS_PER_ADVERTISED_CHECK below is asserted
+  // against this classification, so moving it back turns the suite red.
+  "/api/detect-question": "practice",
   // Diagram / visual generation.
   "/api/generate-diagram": "visual",
   "/api/generate-visual": "visual",
 });
+
+/**
+ * The endpoint sequence ONE advertised "solution check" actually fires, in order.
+ * Exported so the pricing guard can count vision calls per check in the same unit
+ * the pricing page sells in — checks, not raw API calls.
+ */
+const CHECK_IMPROVE_FLOW_ENDPOINTS = Object.freeze([
+  "/api/detect-question", // marks confirmation — cheap, thinkingBudget 0
+  "/api/check-solution", // the grade itself — the expensive one
+]);
+
+/** How many `vision`-class calls one advertised check costs. MUST be 1. */
+const VISION_CALLS_PER_ADVERTISED_CHECK = CHECK_IMPROVE_FLOW_ENDPOINTS.filter(
+  (p) => PAID_ENDPOINTS[p] === "vision",
+).length;
 
 /* ────────────────────────────────────────────────────────────────────────────
    The cap table. ONE object — every tunable number lives here, none are
@@ -422,6 +447,8 @@ module.exports = {
   ADVERTISED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
+  CHECK_IMPROVE_FLOW_ENDPOINTS,
+  VISION_CALLS_PER_ADVERTISED_CHECK,
   ANONYMOUS_CLASS,
   GLOBAL_CLASS,
   istDayKey,

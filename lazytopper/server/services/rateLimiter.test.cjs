@@ -21,6 +21,8 @@ const {
   ADVERTISED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
+  CHECK_IMPROVE_FLOW_ENDPOINTS,
+  VISION_CALLS_PER_ADVERTISED_CHECK,
 } = require("./rateLimiter.cjs");
 
 /* ── fixtures ─────────────────────────────────────────────────────────────── */
@@ -420,18 +422,46 @@ test("one uid's hard ceilings together stay under a fifth of the global day", ()
 
 /* ── 14 · The server must never refuse what the pricing page sells ────────── */
 // Premium advertises 70 solution checks per rolling week with a 25/day sub-cap.
-// If the server's vision ceiling sat at or below that, a paying student doing
-// exactly what they bought would be refused by infrastructure — at which point
-// the server has quietly become the product, and the pricing page is a lie.
-// The server cap is a backstop; it must sit strictly ABOVE the sold allowance.
-// MUTATION: set LT_CAP_VISION_HARD to 25 (or below) ⇒ RED here.
-test("the server's vision ceiling exceeds the advertised daily sub-cap", () => {
-  assert.ok(
-    DEFAULT_LIMITS.vision.hard > ADVERTISED_VISION_DAILY_SUBCAP,
-    `vision hard is ${DEFAULT_LIMITS.vision.hard} but Premium sells ` +
-      `${ADVERTISED_VISION_DAILY_SUBCAP}/day — a paying student would be refused by the ` +
-      "rate limiter while still inside the quota they bought.",
+// If the server refuses a paying student who is still inside the quota they
+// bought, the server has quietly become the product and the pricing page is a lie.
+//
+// ★ SAME UNIT ON BOTH SIDES. The earlier version compared `vision.hard (30) > 25`
+// — raw API calls against advertised CHECKS. Those are different units, so it
+// passed while the product was broken: one advertised check fired BOTH
+// detect-question and check-solution, and while both were classed `vision` a
+// ceiling of 30 bought only 15 real checks against 25 sold. This version converts
+// to checks first, so the comparison means what it says.
+// MUTATION: reclassify "/api/detect-question" back to "vision" ⇒ RED here.
+test("the vision ceiling permits MORE checks per day than Premium advertises", () => {
+  assert.equal(
+    VISION_CALLS_PER_ADVERTISED_CHECK,
+    1,
+    `one advertised check now costs ${VISION_CALLS_PER_ADVERTISED_CHECK} vision calls ` +
+      `(flow: ${CHECK_IMPROVE_FLOW_ENDPOINTS.join(" → ")}). Every extra vision call in the ` +
+      "C&I flow halves the checks a student actually gets, so the ceiling silently stops " +
+      "meaning what the pricing page says.",
   );
+
+  const permittedChecksPerDay = Math.floor(
+    DEFAULT_LIMITS.vision.hard / VISION_CALLS_PER_ADVERTISED_CHECK,
+  );
+
+  assert.ok(
+    permittedChecksPerDay > ADVERTISED_VISION_DAILY_SUBCAP,
+    `the server permits ${permittedChecksPerDay} checks/day ` +
+      `(${DEFAULT_LIMITS.vision.hard} vision calls ÷ ${VISION_CALLS_PER_ADVERTISED_CHECK} per check) ` +
+      `but Premium sells ${ADVERTISED_VISION_DAILY_SUBCAP}/day — a paying student would be ` +
+      "refused by the rate limiter while still inside the quota they bought.",
+  );
+});
+
+// The cheap step must stay cheap-classed, and must NOT be shed with the expensive
+// one — a student mid-check should fail at the grade with a clear message, not at
+// marks confirmation for a call that costs a tenth of a paisa.
+test("detect-question is billed as practice, not vision", () => {
+  assert.equal(PAID_ENDPOINTS["/api/detect-question"], "practice");
+  assert.equal(PAID_ENDPOINTS["/api/check-solution"], "vision");
+  assert.equal(PAID_ENDPOINTS["/api/grade-worksheet"], "vision");
 });
 
 /* ── 15 · Class-aware shed: one feature degrades, not the whole product ───── */
