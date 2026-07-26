@@ -431,6 +431,20 @@ const LOGIN_CSS = `
     margin-bottom: 12px;
   }
 
+  /* Label row that carries a trailing action (e.g. "Forgot password?").
+     Mirrors the plain-label spacing so the field below keeps its rhythm. */
+  .lt-login-field-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .lt-login-field-row + .lt-field {
+    margin-bottom: 12px;
+  }
+
   .lt-field {
     display: flex;
     align-items: center;
@@ -561,6 +575,49 @@ const LOGIN_CSS = `
   .lt-login-linkbtn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+  }
+
+  .lt-login-forgot {
+    margin: 0 0 7px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+
+  .lt-login-reset-lede {
+    margin: 0 0 14px;
+    color: var(--lt-muted);
+    font-size: 0.86rem;
+    line-height: 1.45;
+    font-weight: 600;
+  }
+
+  .lt-login-reset-notice {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin: 12px 0 0;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: var(--lt-green-dark);
+    background: rgba(22, 185, 106, 0.1);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-reset-notice {
+    color: #b6f2d5;
+  }
+
+  .lt-login-reset-back {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    color: var(--lt-muted);
   }
 
   .lt-login-helper {
@@ -805,11 +862,46 @@ const LOGIN_CSS = `
  * - The page stays standalone, without DesktopShell/sidebar chrome.
  * - No guest CTA or fake trial activation is exposed from Login.
  */
+function authErrorCode(err: unknown): string {
+  return typeof err === "object" && err !== null && "code" in err
+    ? String((err as { code?: unknown }).code || "")
+    : "";
+}
+
+/**
+ * The ONE neutral password-reset confirmation.
+ *
+ * ACCOUNT ENUMERATION: this exact string is rendered whether or not the address is
+ * registered. Confirming that an account exists would let anyone probe the address of
+ * a LazyTopper student, and these are minors' accounts. Never branch this copy on the
+ * outcome of the reset call, and never add an "email not found" state.
+ */
+const RESET_NEUTRAL_NOTICE =
+  "If an account exists for that email, we've sent a reset link. Check your inbox and spam.";
+
+/**
+ * Reset failures that may be shown as a DISTINCT message.
+ *
+ * Every one of these describes the REQUEST, not the account: a malformed address is a
+ * property of the string the student typed, and a rate limit / network failure is a
+ * property of the connection. None of them differ between a registered and an
+ * unregistered address, so none of them leak existence.
+ *
+ * Everything else — `auth/user-not-found`, `auth/user-disabled`, the
+ * `auth/invalid-credential` that Firebase's own email-enumeration protection returns,
+ * and any code Firebase adds in future — falls through to RESET_NEUTRAL_NOTICE. The
+ * fallback is deliberately the SAFE side: an unrecognised code can never become an
+ * existence oracle.
+ */
+const RESET_SURFACEABLE_ERRORS: Record<string, string> = {
+  "auth/invalid-email": "Enter a valid email address.",
+  "auth/missing-email": "Enter your email address.",
+  "auth/too-many-requests": "Too many requests. Please try again in a few minutes.",
+  "auth/network-request-failed": "Network error. Check your connection and try again.",
+};
+
 function describeAuthError(err: unknown): string {
-  const code =
-    typeof err === "object" && err !== null && "code" in err
-      ? String((err as { code?: unknown }).code || "")
-      : "";
+  const code = authErrorCode(err);
   switch (code) {
     case "auth/popup-closed-by-user":
     case "auth/cancelled-popup-request":
@@ -852,6 +944,7 @@ export default function Login() {
     user,
     signInWithGoogle,
     signInWithEmailPassword,
+    sendPasswordReset,
     initPhoneRecaptcha,
     sendPhoneOtp,
     verifyPhoneOtp,
@@ -902,6 +995,15 @@ export default function Login() {
   const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Password recovery lives INLINE in the email pane — it is not a route (routes are
+  // owned by App.tsx). Phone accounts have no password, so none of this renders in the
+  // phone pane.
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   const RECAPTCHA_CONTAINER_ID = "lt-login-recaptcha";
 
@@ -958,6 +1060,54 @@ export default function Login() {
     } catch (err) {
       setError(describeAuthError(err));
       setBusy(false);
+    }
+  };
+
+  const closeReset = () => {
+    setResetOpen(false);
+    setResetEmail("");
+    setResetBusy(false);
+    setResetSent(false);
+    setResetError(null);
+  };
+
+  const openReset = () => {
+    if (busy) return;
+    setError(null);
+    setResetSent(false);
+    setResetError(null);
+    setResetEmail(email.trim());
+    setResetOpen(true);
+  };
+
+  const handleResetSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (resetBusy) return;
+    setResetError(null);
+    const trimmedEmail = resetEmail.trim();
+    if (!trimmedEmail) {
+      setResetError("Enter your email address.");
+      return;
+    }
+    setResetBusy(true);
+    try {
+      await sendPasswordReset(trimmedEmail);
+      setResetSent(true);
+    } catch (err) {
+      // ACCOUNT ENUMERATION — the load-bearing branch. Firebase rejects with
+      // `auth/user-not-found` for an address it does not know, so surfacing that
+      // rejection would turn this form into a "does this student have an account?"
+      // oracle. Only request-shaped failures (see RESET_SURFACEABLE_ERRORS) get their
+      // own message; every other outcome — success, unknown address, disabled account,
+      // an unrecognised future code — renders the identical RESET_NEUTRAL_NOTICE.
+      const surfaceable = RESET_SURFACEABLE_ERRORS[authErrorCode(err)];
+      if (surfaceable) {
+        setResetError(surfaceable);
+      } else {
+        setResetSent(true);
+      }
+    } finally {
+      setResetBusy(false);
     }
   };
 
@@ -1139,6 +1289,7 @@ export default function Login() {
                   setError(null);
                   setPhoneStep("number");
                   setOtp("");
+                  closeReset();
                 }}
               >
                 Email
@@ -1151,13 +1302,61 @@ export default function Login() {
                 onClick={() => {
                   setMethod("phone");
                   setError(null);
+                  closeReset();
                 }}
               >
                 Phone
               </button>
             </div>
 
-            {method === "email" ? (
+            {method === "email" && resetOpen ? (
+              <form onSubmit={handleResetSubmit} noValidate aria-label="Reset your password">
+                <p className="lt-login-reset-lede">
+                  Enter the email you signed in with and we'll send you a link to set a
+                  new password.
+                </p>
+                <label className="lt-field-label" htmlFor="lt-login-reset-email">
+                  Email address
+                </label>
+                <div className="lt-field">
+                  <input
+                    id="lt-login-reset-email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={resetEmail}
+                    disabled={resetSent}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                  />
+                </div>
+                {resetError ? (
+                  <p className="lt-login-error" role="alert">
+                    {resetError}
+                  </p>
+                ) : null}
+                {resetSent ? (
+                  <p className="lt-login-reset-notice" role="status">
+                    <span aria-hidden="true">{"✓"}</span>
+                    <span data-testid="lt-reset-notice">{RESET_NEUTRAL_NOTICE}</span>
+                  </p>
+                ) : (
+                  <button className="lt-continue" type="submit" disabled={resetBusy}>
+                    {resetBusy ? "Sending link..." : "Send reset link"}{" "}
+                    <span aria-hidden="true">{"→"}</span>
+                  </button>
+                )}
+                <p className="lt-login-reset-back">
+                  <button
+                    type="button"
+                    className="lt-login-linkbtn"
+                    onClick={closeReset}
+                    disabled={resetBusy}
+                  >
+                    {"<- Back to sign in"}
+                  </button>
+                </p>
+              </form>
+            ) : method === "email" ? (
               <form onSubmit={handleEmailSubmit} noValidate>
                 <label className="lt-field-label" htmlFor="lt-login-email">
                   Email address
@@ -1172,9 +1371,19 @@ export default function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                <label className="lt-field-label" htmlFor="lt-login-password">
-                  Password
-                </label>
+                <div className="lt-login-field-row">
+                  <label className="lt-field-label" htmlFor="lt-login-password">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    className="lt-login-linkbtn lt-login-forgot"
+                    onClick={openReset}
+                    disabled={busy}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="lt-field">
                   <input
                     id="lt-login-password"
