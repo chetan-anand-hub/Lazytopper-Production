@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
+import { MONTHLY_INLINE } from "../../config/pricing";
 
 const MOCK_VIEW_KEY = "lazytopper.weeklyMockViews";
 const FREE_WEEKLY_MOCK_LIMIT = 1;
@@ -186,7 +187,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Free users can take {FREE_WEEKLY_MOCK_LIMIT} mock test per week.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Unlock unlimited mock tests for ₹149/month.
+          Unlock unlimited mock tests for {MONTHLY_INLINE}.
         </p>
         <button
           type="button"

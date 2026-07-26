@@ -2,13 +2,28 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackUxEvent } from "../services/uxTelemetry";
+import {
+  ANNUAL_SAVING_SUBLINE,
+  BILLING_INCREMENT_ANNUAL,
+  BILLING_INCREMENT_MONTHLY,
+  BILLING_UNIT_MONTH,
+  MONTHLY_INLINE,
+  PERIOD_ANNUAL_LABEL,
+  PRICE_ANNUAL_DISPLAY,
+  PRICE_ANNUAL_JSONLD,
+  PRICE_CURRENCY,
+  PRICE_FREE_DISPLAY,
+  PRICE_FREE_JSONLD,
+  PRICE_MONTHLY_DISPLAY,
+  PRICE_MONTHLY_JSONLD,
+} from "../config/pricing";
 import "./home.css";
 
 type MetaAttr = "name" | "property";
 
 const SEO_TITLE = "LazyTopper | Free CBSE Class 10 Exam Prep — AI Tutor, Trends & Predicted Questions";
 const SEO_DESCRIPTION =
-  "Free CBSE Class 10 Maths & Science board exam prep. 10 years of pattern analysis, AI tutoring, predicted questions & mock tests. Start free — upgrade to Premium for ₹149/month.";
+  `Free CBSE Class 10 Maths & Science board exam prep. 10 years of pattern analysis, AI tutoring, predicted questions & mock tests. Start free — upgrade to Premium for ${MONTHLY_INLINE}.`;
 
 const BOARD_EXAM_DATE = new Date("2027-02-15T09:30:00+05:30");
 
@@ -237,11 +252,16 @@ const Home: React.FC = () => {
           name: "LazyTopper",
           applicationCategory: "EducationalApplication",
           operatingSystem: "Web, Android, iOS",
+          // Every value here reads from src/config/pricing.ts. Structured data
+          // is the single most drift-prone price surface in the app — invisible
+          // in the UI, but indexed and displayed by Google — so it is covered by
+          // the no-literal guard rather than exempted from it. Google also flags
+          // structured data that contradicts the rendered page, so these must
+          // stay sourced from the same constants as the visible block below.
           offers: [
-            { "@type": "Offer", name: "Free", price: "0", priceCurrency: "INR" },
-            { "@type": "Offer", name: "Premium Monthly", price: "149", priceCurrency: "INR", billingIncrement: 1, unitCode: "MON" },
-            { "@type": "Offer", name: "Board Season Pack", price: "349", priceCurrency: "INR", description: "3-month board season pack" },
-            { "@type": "Offer", name: "Annual", price: "999", priceCurrency: "INR", billingIncrement: 1, unitCode: "ANN" },
+            { "@type": "Offer", name: "Free", price: PRICE_FREE_JSONLD, priceCurrency: PRICE_CURRENCY },
+            { "@type": "Offer", name: "Premium Monthly", price: PRICE_MONTHLY_JSONLD, priceCurrency: PRICE_CURRENCY, billingIncrement: BILLING_INCREMENT_MONTHLY, unitCode: BILLING_UNIT_MONTH },
+            { "@type": "Offer", name: "Premium Board Year", price: PRICE_ANNUAL_JSONLD, priceCurrency: PRICE_CURRENCY, billingIncrement: BILLING_INCREMENT_ANNUAL, unitCode: BILLING_UNIT_MONTH },
           ],
           description: SEO_DESCRIPTION,
           aggregateRating: {
@@ -474,7 +494,7 @@ const Home: React.FC = () => {
               <div className="lt-pricing__plan-header">
                 <h3>Free</h3>
                 <div className="lt-pricing__price">
-                  <span className="lt-pricing__amount">₹0</span>
+                  <span className="lt-pricing__amount">{PRICE_FREE_DISPLAY}</span>
                   <span className="lt-pricing__period">forever</span>
                 </div>
               </div>
@@ -503,7 +523,7 @@ const Home: React.FC = () => {
               <div className="lt-pricing__plan-header">
                 <h3>Premium</h3>
                 <div className="lt-pricing__price">
-                  <span className="lt-pricing__amount">₹149</span>
+                  <span className="lt-pricing__amount">{PRICE_MONTHLY_DISPLAY}</span>
                   <span className="lt-pricing__period">/month</span>
                 </div>
                 <p className="lt-pricing__anchor">Less than one tuition class</p>
@@ -528,16 +548,17 @@ const Home: React.FC = () => {
             </div>
           </div>
 
+          {/* The 3-month "Board Season" pack was removed: it is not part of the
+              owner's packaging, which is monthly or board-year only. The old
+              "Annual" pack became the board year, priced from the same constants
+              as the JSON-LD above and the /pricing page. */}
           <div className="lt-pricing__packs">
             <div className="lt-pricing__pack">
-              <div className="lt-pricing__pack-badge">Board Season</div>
-              <span className="lt-pricing__pack-price">₹349 for 3 months</span>
-              <span className="lt-pricing__pack-save">Save ₹98 — ~₹116/month</span>
-            </div>
-            <div className="lt-pricing__pack">
-              <div className="lt-pricing__pack-badge">Annual</div>
-              <span className="lt-pricing__pack-price">₹999/year</span>
-              <span className="lt-pricing__pack-save">Save ₹789 — less than ₹3/day</span>
+              <div className="lt-pricing__pack-badge">Board Year</div>
+              <span className="lt-pricing__pack-price">
+                {`${PRICE_ANNUAL_DISPLAY} ${PERIOD_ANNUAL_LABEL}`}
+              </span>
+              <span className="lt-pricing__pack-save">{ANNUAL_SAVING_SUBLINE}</span>
             </div>
           </div>
         </section>

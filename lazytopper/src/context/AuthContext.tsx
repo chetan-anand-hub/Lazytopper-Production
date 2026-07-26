@@ -13,6 +13,7 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   updateProfile,
   onAuthStateChanged,
   signOut as firebaseSignOut,
@@ -57,6 +58,7 @@ type AuthContextType = {
     password: string,
     displayName?: string,
   ) => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
   initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
   sendPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
   verifyPhoneOtp: (code: string) => Promise<void>;
@@ -280,6 +282,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  // Password recovery for email/password accounts. A student who forgets their
+  // password had no way back in at all before this — a new account discards their
+  // progress and Mistake Intelligence evidence.
+  //
+  // This is a THIN wrapper by design: it reports the real Firebase outcome, errors
+  // included. The ACCOUNT-ENUMERATION policy (an unregistered address must be
+  // indistinguishable from a registered one) belongs to the surface that renders the
+  // message — see Login.tsx `handleResetSubmit`. Keeping the swallow in exactly one
+  // place means the branch that protects students is the branch that actually runs in
+  // production, and can be tested there.
+  const sendPasswordReset = useCallback(async (email: string) => {
+    if (!authClient) throw new Error("Firebase Auth is not configured");
+    await sendPasswordResetEmail(authClient, email);
+  }, []);
+
   const initPhoneRecaptcha = useCallback(async (recaptchaContainerId: string) => {
     if (!authClient) throw new Error("Firebase Auth is not configured");
     if (recaptchaVerifierRef.current) return; // idempotent — reuse the live widget
@@ -361,6 +378,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithGoogle,
     signInWithEmailPassword,
     signUpWithEmailPassword,
+    sendPasswordReset,
     initPhoneRecaptcha,
     sendPhoneOtp,
     verifyPhoneOtp,

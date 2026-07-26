@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import {
+  ANNUAL_AT_MONTHLY_RATE_DISPLAY,
+  ANNUAL_SAVING_DISPLAY,
+  ANNUAL_SAVING_SUBLINE,
+  MONTHS_PER_BOARD_YEAR,
+  PERIOD_ANNUAL_LABEL,
+  PERIOD_FREE_LABEL,
+  PRICE_ANNUAL_DISPLAY,
+  PRICE_FREE_DISPLAY,
+  PRICE_MONTHLY_DISPLAY,
+  TUITION_ANCHOR,
+} from "../config/pricing";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -30,13 +42,22 @@ const FREE_FEATURES = [
   { label: "Richer Me / Progress recommendations", included: false },
 ];
 
+// Ordering is deliberate and owner-ruled.
+//   - "Everything in Basic" stays FIRST and unchanged: it is load-bearing
+//     reassurance that the free tier is not being taken away, which matters more
+//     to the paying parent than it does to the student.
+//   - The five below are the differentiators, in moat-first order: lead with the
+//     tutor that knows this student, prove it with the grader, then the
+//     board-shaped execution surfaces.
+//   - Quota / fair-use wording belongs in the FAQ, never here — a plan that
+//     advertises limits reads as rationed.
 const PREMIUM_FEATURES = [
   { label: "Everything in Basic", included: true },
-  { label: "Solution Checker / Check & Improve access", included: true },
-  { label: "Mistake Intelligence from checked evidence", included: true },
-  { label: "Full mocks and predicted-question execution", included: true },
-  { label: "Richer Me / Progress recommendations", included: true },
-  { label: "Stronger practice and worksheet quotas", included: true },
+  { label: "Your AI tutor that actually knows you — your chapters, your mistakes, your pace", included: true },
+  { label: "Mistake Intelligence — why you lose marks, not just where", included: true },
+  { label: "Check & Improve — photograph your handwritten solution, graded like a board examiner", included: true },
+  { label: "Full mocks and predicted-question papers — real board blueprint", included: true },
+  { label: "Progress that tells you what to fix next", included: true },
 ];
 
 const BOARDS_COMING = [
@@ -186,6 +207,13 @@ const PRICING_CSS = `
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--lt-muted);
+  }
+
+  .lt-pricing-price-alt {
+    margin: 0 0 4px;
+    color: var(--lt-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 
   .lt-pricing-price-sub {
@@ -635,6 +663,14 @@ const FAQ_ITEMS = [
     a: "Yes. Basic keeps browse-first access and limited practice tools available without paid activation.",
   },
   {
+    q: "Should I pay monthly or for the board year?",
+    a: `${MONTHS_PER_BOARD_YEAR} months at ${PRICE_MONTHLY_DISPLAY} comes to ${ANNUAL_AT_MONTHLY_RATE_DISPLAY}. The board year is ${PRICE_ANNUAL_DISPLAY}, so you save ${ANNUAL_SAVING_DISPLAY} and stay covered right through your board exams. Monthly is there if you would rather start small.`,
+  },
+  {
+    q: "Are there any usage limits?",
+    a: "Basic includes limited practice and worksheet generation. Premium includes stronger practice and worksheet quotas, subject to fair use.",
+  },
+  {
     q: "What happens after the trial ends?",
     a: "You keep using the free plan. Nothing is charged automatically; you choose when to upgrade.",
   },
@@ -689,8 +725,8 @@ export default function PricingPage() {
           <div className="lt-pricing-card">
             <div className="lt-pricing-plan-label">Basic</div>
             <div className="lt-pricing-price">
-              <span className="lt-pricing-amount">₹0</span>
-              <span className="lt-pricing-period">/ forever</span>
+              <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
+              <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
             </div>
             <p className="lt-pricing-plan-desc">
               Browse the product and use limited learning tools without paid access.
@@ -727,10 +763,13 @@ export default function PricingPage() {
               Premium
             </div>
             <div className="lt-pricing-price">
-              <span className="lt-pricing-amount">₹2,999</span>
-              <span className="lt-pricing-period">/ year</span>
+              <span className="lt-pricing-amount">{PRICE_ANNUAL_DISPLAY}</span>
+              <span className="lt-pricing-period">{PERIOD_ANNUAL_LABEL}</span>
             </div>
-            <p className="lt-pricing-price-sub">~₹250/month · less than one tuition session</p>
+            <p className="lt-pricing-price-alt">
+              {`or ${PRICE_MONTHLY_DISPLAY} / month · ${TUITION_ANCHOR}`}
+            </p>
+            <p className="lt-pricing-price-sub">{ANNUAL_SAVING_SUBLINE}</p>
             <p className="lt-pricing-plan-desc">
               Manual activation during beta. Payment checkout coming soon.
               Premium is not activated automatically.
