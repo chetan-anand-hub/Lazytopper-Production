@@ -141,6 +141,11 @@ const { createQrUploadRoutes } = require('./routes/qrUpload.cjs');
 // Tutor surface (Stage 1) — FRESH engine (D-TUT-12), NOT mentor.cjs. Stateless
 // conversation endpoint; writes nothing to Firestore (honesty guard, D-TUT-8).
 const { createTutorRoute } = require('./routes/tutor.cjs');
+// Anti-catastrophe daily caps on the LLM-backed endpoints. TIER-BLIND by design:
+// the client gates enforce the product rule, this enforces the bill. Soft
+// thresholds alert the owner and let the request through; only the hard ceilings
+// and the global circuit breaker return 429.
+const { createRateLimiter } = require('./services/rateLimiter.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -247,6 +252,7 @@ const adminSolutionCacheRoutes = createAdminSolutionCacheRoutes(routeDeps);
 const qrUploadChannel = createQrUploadChannel(routeDeps);
 const qrUploadRoutes = createQrUploadRoutes({ ...routeDeps, qrUploadChannel });
 const tutorRoute = createTutorRoute(routeDeps);
+const rateLimiter = createRateLimiter({ telemetry });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -292,6 +298,22 @@ async function handleRequest(req, res) {
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
+  }
+
+  // ── Daily caps ───────────────────────────────────────────────────────────────
+  // Placed AFTER the CORS preflight (a 429'd OPTIONS would break the browser
+  // before it ever sent the real request) and BEFORE every route dispatch.
+  //
+  // Scoped to POST because all eight paid endpoints are POST-only — a stray GET
+  // 404s without reaching a model, and must not burn a student's allowance.
+  //
+  // `check` returns allowed:true for every non-paid path, so progress sync,
+  // share tokens, the QR handoff and /health are untouched at any volume.
+  if (req.method === 'POST') {
+    const verdict = rateLimiter.check(req, reqPath);
+    if (!verdict.allowed) {
+      return sendJson(res, verdict.status, verdict.body);
+    }
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;
