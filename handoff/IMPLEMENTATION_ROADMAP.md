@@ -1,6 +1,25 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-07-25 - ★★ ✅ LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP **COMPLETE** (#531–#535, trunk `7185c5f`) - #535 owner LIVE-VERIFIED
+## 2026-07-26 - ★★ ✅ LANE H **COMPLETE** (#538–#540, trunk `1013daa7`) - #538 owner LIVE-VERIFIED end to end
+
+**STAGES COMPLETE:**
+- ✅ **H-3 · forgot-password recovery** — #538. Enumeration-safe by **allowlist**, owner live-verified end to end. **This closed the last code-side launch blocker.**
+- ✅ **H-2 · pricing published from a single source of truth** — #539. ₹599/month + ₹4,999/board year, `src/config/pricing.ts`, five stale price literals removed across four files, two-shape no-literal guard.
+- ✅ **H-1 · Gemini token instrumentation** — #540. Per-call-class token/thinking counters joinable with #537's rate-limit counters.
+
+**★★ THE CODE-SIDE LAUNCH-BLOCKER TIER IS EMPTY.** #537 (Lane G) capped the endpoints; #538 closed password recovery; #539 published the price. The top tier is now the **efficiency/pricing** items, gated behind `[FU-TELEMETRY-NO-READ-PATH]` — #540 measures but nothing reads it, so every thinking-budget and final-pricing decision is blocked until a read endpoint exists.
+
+**★★ Reusable finding — a guard that compares the SHAPE of two things stays green through a defect in their CONTENT.** H-1's cross-lane check originally compared call-class *vocabularies* between the telemetry and the rate limiter. The set `{vision, tutor, practice, visual}` is identical whether or not `detect-question` is billed correctly, so the guard was a **tautology**: it would have passed through the exact defect it existed to catch. Hardened to assert agreement **endpoint by endpoint**. Same family as the anti-re-tier tautology from the Exam Trends lane — capture the assertion from the *other* side, never from the map you render.
+
+**★★ Reusable finding — fail-safe beats exhaustive when the failure mode is disclosure.** H-3's spec listed the error codes to suppress. The agent inverted it to an **allowlist** of codes that may surface, so everything unlisted — including codes Firebase has not shipped yet — defaults to the safe message. A denylist protects only the cases someone thought of. Endorsed over the spec and now the repo's reference implementation for enumeration defence.
+
+**★★ Reusable finding — fix the cause, and make the guard cover the shape you did NOT think of.** H-2 was scoped to one page; the price actually lived in five places across four files, two of them live and route-mounted. The single-constant fix is unremarkable — what matters is that the **most dangerous instance carried no rupee sign at all** (`price: "149"` in JSON-LD, the value Google indexes). A guard written to the literal instruction would have shipped feeling complete while missing it.
+
+**★★ Process finding — parallelism is bounded by RAM, not by file-disjointness.** Three file-disjoint workstreams were dispatched concurrently and two agent sessions were lost when concurrent `test:matrix:all` runs OOM-killed the editor on a 7.8GB machine. The lane finished **sequentially**, one suite at a time, with the full matrices moved to CI. Recorded in `NEXT_ACTION.md` as a standing constraint.
+
+---
+
+## (superseded) 2026-07-25 - ★★ ✅ LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP **COMPLETE** (#531–#535, trunk `7185c5f`) - #535 owner LIVE-VERIFIED
 
 **STAGES COMPLETE:**
 - ✅ **Launch-blocker sweep** — #531 (`/sign-up` redirect guard), #532 (legal reachable, Lane C), #533 (evidence caption de-numbered).

@@ -1,5 +1,36 @@
 ---
 
+## 2026-07-26 -- #538–#540 (LANE H): password reset ships enumeration-safe · ₹599/₹4,999 published from ONE constant · Gemini tokens measured per call class - **#538 owner LIVE-VERIFIED end to end** - trunk `1013daa7`
+
+**Three product PRs, one combined docs handoff. Sectioned, never blended.** `67b45108` (#537, Lane G) → **`694c81b3` (#538)** → **`ff5cb527` (#539)** → **`1013daa7` (#540)**. Three file-disjoint workstreams built in parallel by three subagents, merged in sequence. Zero open PRs at close.
+
+### H-3 (#538) — `feat(auth)`: forgot-password recovery, enumeration-safe
+**The last code-side launch blocker.** Zero `sendPasswordReset` / `forgot.?password` hits existed anywhere in `src/` or `server/`; a student who forgot their password lost their account, their progress and their Mistake Intelligence.
+
+★★ **The agent inverted the spec and the owner endorsed the inversion.** The brief said special-case `auth/user-not-found`; it built an **allowlist** instead — `RESET_SURFACEABLE_ERRORS` holds only request-shaped failures (invalid-email, missing-email, too-many-requests, network-request-failed), and everything else falls through to one neutral notice. **It fails SAFE**: a denylist protects only the cases someone thought of, so an unrecognised *future* Firebase code would leak through it; under the allowlist an unknown code defaults to neutral. That property, not the outcome, is why it is now the repo's reference implementation. Load-bearing test asserts **byte identity** (`toBe` on `textContent`), not `contains`.
+
+Owner live-verified: email arrives, link works, new password signs in, unregistered address returns the identical notice, phone pane carries no reset link. Two FUs fell out of that verification (`[FU-AUTH-EMAIL-BRAND-MISSPELLED]`, `[FU-AUTH-CUSTOM-EMAIL-DOMAIN]`) and one adjacent leak was found on the sign-in path (`[FU-SIGNIN-DISABLED-ACCOUNT-ENUMERATION]`).
+
+### H-2 (#539) — `feat(pricing)`: ₹599/month + ₹4,999/board year, from a single constant
+★★ **The spec asked for one page; the real bug was that the price lived in five places.** Publishing ₹599 on `/pricing` alone would have shown a student ₹599 on the pricing page and **₹149 at the moment of upgrade intent** — `PracticeLimitGate:90` and `MockViewGate:189` are both live and route-mounted. So the fix was the **cause**: `src/config/pricing.ts`, saving **derived** (`599×12−4999`) not hardcoded, every surface reading it, plus a guard.
+
+★★ **The guard's hard case has no rupee sign.** `Home.tsx:242` was `price: "149"` inside JSON-LD — a bare numeric string that `/₹\d/` sails straight past, and the one value Google indexes and displays. Two independent patterns, each mutation-verified **separately**; before showing the second fire, the agent proved the mutated line contained **zero** rupee signs, so a rupee-only guard would demonstrably have missed it. The guard walks all of `src/` (>200 files asserted), not a hand-listed set — a fixed list cannot catch the fifth surface, which is the point.
+
+Also caught: the spec said `PREMIUM_FEATURES` had five entries; trunk had six. Flagged, not silently resolved — owner ruled "Everything in Basic" stays first because it tells a parent the free tier is not being taken away.
+
+### H-1 (#540) — `feat(server)`: measure Gemini token usage per call class
+★★ **Call class must resolve per HANDLER, not per FILE — and the file-level version would have corrupted the exact number the lane exists to produce.** `routes/checkSolution.cjs` holds three endpoints across two classes (`:311` vision, `:585` **practice**, `:1006` vision) because #537 rebilled `detect-question` to `practice`. A file map bills every detect call to `vision`, inflating cost-per-vision and deflating cost-per-practice — invisibly, then feeding a pricing decision. Both lanes independently converged: G1's suite on trunk now carries `# Subtest: detect-question is billed as practice, not vision`.
+
+★★ **The cross-lane guard was a tautology until it was hardened.** Comparing label *vocabularies* stays green through that exact defect, because `{vision, tutor, practice, visual}` never changes. Now asserts agreement **endpoint by endpoint** against `PAID_ENDPOINTS`.
+
+`package.json` was a third file the spec's disjointness table omitted: `vitest.config.ts` includes only `src/**/*.test.{ts,tsx}`, so a `.cjs` server test is not collected and must be wired as `node --test` or it is dead. #537 appended to the same line; resolved append-only and **verified by grep, not by eye**, then re-confirmed on trunk post-squash.
+
+### ★ Method notes worth carrying forward
+- **A green tick is not verification.** Every suite claim here is quoted from the CI log with `# skipped 0  # todo 0`, and each run's `headSha` was matched to the PR's `headRefOid` first. A suite that is present, wired and skipped reports green.
+- **The local/CI test split changed mid-lane.** Two agents running `test:matrix:all` concurrently on a 7.8GB machine exhausted physical memory and OOM-killed the editor, losing two sessions. Full matrices and full vitest now run in CI only; `scope:guard` (working-tree, therefore local-or-nowhere), `tsc`, `check:mojibake` and the agent's own scoped suite run locally. File-disjointness protects the repo; it does nothing for RAM.
+- **Three of the lane's spec premises were wrong and the agents caught all three**: the §0 disjointness table (H-1 needs `package.json`), the telemetry path (`server/telemetry.cjs`, not `server/services/`), and `PREMIUM_FEATURES` having six entries.
+- **A surviving mutation was reported rather than hidden** (H-1's equivalent `contents:` mutation). That is the standard.
+
 ## 2026-07-25 -- #531–#535 (LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP): sign-up redirect guarded · legal reachable · evidence caption de-numbered · 12 dead pages deleted · trial auto-start killed (BOTH write sites) + real trial CTA - **#535 owner LIVE-VERIFIED on production** - trunk `7185c5f`
 
 **Five product PRs, one combined docs handoff. Sectioned, never blended.** `7998ee4a` (#528) → `4e3fbf6` (#531) → `39ae276` (#532) → `82b434d` (#533) → `add19d4` (#534) → **`7185c5f` (#535)**. CURRENT_STATE had been stale five PRs (since #528); this repays it.

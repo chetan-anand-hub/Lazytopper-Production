@@ -1,3 +1,208 @@
+## 2026-07-26 -- #538–#540 (LANE H): 1 FU tombstoned, 15 opened — the efficiency/pricing tier, the auth-email tier, and a guard-coverage tier (trunk `1013daa7`)
+
+### RESOLVED — tombstoned
+- **`[FU-AUTH-NO-PASSWORD-RESET]`** (implicit; never formally opened, closed here for the record) → #538. Password recovery exists, is enumeration-safe, and is **owner live-verified end to end**. This was the last code-side launch blocker.
+
+### ★★ EFFICIENCY / PRICING TIER — these reference a document that is now IN THE REPO
+`handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` is committed alongside this update. The `[FU-EFF-*]` entries below reference conclusions that live **only** in that document — the per-call cost model, the ranked levers, the margin table, and the reasoning for why `maxOutputTokens` must **not** be lowered. Without it they are unactionable.
+
+```
+[FU-EFF-INSTRUMENTATION] — SHIPPED in H-1 (#540). Logs promptTokenCount,
+candidatesTokenCount, thoughtsTokenCount, totalTokenCount and a retry flag
+per call class. PREREQUISITE for all thinking-budget work: every cost figure
+in LazyTopper_Cost_Pricing_Analysis_v1_1.md is an ESTIMATE from prompt
+structure, not a measurement. NOTE: the original text cited the v1.0
+filename (2026-07-25); v1.1 supersedes it and is the one in the repo.
+Blocked from being useful by [FU-TELEMETRY-NO-READ-PATH] below.
+
+[FU-EFF-RESPONSE-SCHEMA] — Gemini responseSchema (constrained decoding) is
+used NOWHERE; only responseMimeType:'application/json', which ASKS for JSON
+rather than constraining it. That is why the once-retry at
+checkSolution.cjs:301 exists. A schema makes malformed output impossible.
+→ Quality: this is the fix for [FU-GRADING-RELIABILITY] /
+[FU-GRADE-CONSISTENCY] — one output shape every time, so MI stops being
+built on noise. Highest quality-per-rupee item on the board. Touches
+checkSolution.cjs, which is FORBIDDEN-listed; needs the same deliberate
+amendment as the batching lane.
+  ★ CORRECTED ON RECORD: the entry as originally drafted justified itself
+  with "mentorResponseBuilder ×7" and "six repair paths" and derived ~8%/day
+  partly from eliminating those retries. Cost analysis v1.1 §1 RETRACTS that:
+  /api/mentor was deleted by Retirement PR-2 (index.cjs:124), the live tutor
+  is /api/tutor, and mentorResponseBuilder.cjs is an ORPHAN — "the repair
+  architecture I costed is dead code". The checkSolution ×3 half stands; the
+  mentorResponseBuilder half and the ~8%/day figure do not. The QUALITY
+  argument is unaffected and remains the reason to do this work. (The
+  original also said "six" while listing seven line numbers.)
+
+[FU-EFF-QUICK-PRACTICE-BATCH] — Route Quick Practice through the batched
+gradeWorksheet path. Five separate checks cost $0.070; batched $0.022 — 69%
+off the largest line, 31% of daily spend. gradeWorksheet is self-described
+surface-agnostic with two proven wrappers (chapterTestGradeService:27,
+fullMockGradeService:26). Flow (owner-locked): student types/uploads per
+question as today → "Finish session" → instant MCQ scorecard (scored
+locally, no API) → prompt to confirm nothing further to upload → on confirm,
+ONE batched grade → graded answersheet + full scorecard. Because capture is
+per-question, bare MCQs (option pick only) are scored locally and EXCLUDED
+from the prompt; MCQs WITH uploaded working are still sent for mistake
+diagnosis (owner ruling: 0/1 always, never step-marked — the diagnosis is
+the point). Product win: the tutor receives one graded answersheet instead
+of five disconnected checks. Requires FORBIDDEN amendment for
+SolutionChecker.tsx and ResultsScorecard.tsx — owner authorised; replace the
+ban with targeted tests per the #519 DesktopShell precedent, do not simply
+delete entries.
+
+[FU-EFF-THINKING-BUDGET] — Thinking bills as output; output is ~90% of
+spend. Only one call sets a budget (checkSolution.cjs:600, thinkingBudget 0
+on detect-question). Plumbing exists at geminiClient.cjs:76-77/:236.
+→ MEASURE FIRST — set budgets at p90 of observed thoughtsTokenCount per
+class, never by guess. Grader first. Tutor deliberately excluded, see next.
+Gated on [FU-TELEMETRY-NO-READ-PATH]: #540 measures, but nothing reads it.
+
+[FU-EFF-TUTOR-COST-ENVELOPE] — Do NOT fix a tutor budget yet. Once H-1 data
+is readable, measure the current tutor token profile, then measure a more
+contextual/humanlike prompt against it, and price the delta. Decide
+generosity from data. Tutor is ~26% of spend and is the moat — the last
+place to cut and a legitimate place to spend more.
+
+[FU-TELEMETRY-NO-READ-PATH] — ★ THE NEXT LANE. #540 records token/thinking
+counters into telemetry and a ring buffer, but nothing serves snapshot() or
+getTokenTelemetry(). A read endpoint needs index.cjs. Until it exists the
+instrumentation MEASURES but does not REPORT, and the owner cannot get the
+token distribution that every thinking-budget and pricing decision depends
+on. Named next lane, not a background item.
+```
+
+### ★★ AUTH / EMAIL TIER — all three from the #538 live verification
+```
+[FU-AUTH-EMAIL-BRAND-MISSPELLED] — RESOLVED IN PART 2026-07-26. Firebase
+auth emails were branded "Lazzyy Topper" in subject, body and signature.
+Owner corrected the Firebase Public-facing name to "LazyTopper" (console
+only, no code). Canonical spelling confirmed from the repo: 75 occurrences
+of "LazyTopper" in src, and index.html uses it in <title>, og:site_name and
+application-name. NOT two words, no space. Remaining and DEFERRED: emails
+still send from noreply@lazzyy-topper.firebaseapp.com — the project ID is
+permanent and cannot be renamed.
+
+[FU-AUTH-CUSTOM-EMAIL-DOMAIN] — DEFERRED post-launch. Two blockers found
+live: (1) must use the APEX lazytopper.com, NOT www — www already carries
+CNAME → cname.vercel-dns.com and a CNAME must be the sole record at its
+name, so adding TXT to www risks undefined resolution on the LIVE
+production hostname; (2) an existing SPF record almost certainly sits at
+apex (GoDaddy email is configured: CNAME email → email.secureserver.net plus
+secureserver DKIM CNAMEs) and a domain may have only ONE SPF record —
+Firebase's include must be MERGED, never added as a second record.
+Registrar/DNS host is GoDaddy (NS → ns75/ns76.domaincontrol.com); Vercel
+receives traffic only via the www CNAME. Verification takes up to 48h.
+Separately: do NOT customise the Action URL — Firebase currently HOSTS the
+password-reset handler page, and repointing it requires building that page
+(parse oobCode, call confirmPasswordReset, handle expired/used codes).
+
+[FU-SIGNIN-DISABLED-ACCOUNT-ENUMERATION] — describeAuthError in Login.tsx
+surfaces auth/user-disabled as "This account has been disabled" (:911-912)
+while correctly grouping user-not-found with wrong-password and
+invalid-credential into one message (:913-916). So on the SIGN-IN path a
+disabled account is distinguishable from a non-existent one — Firebase
+returns user-disabled BEFORE password verification, so an email alone is
+enough. Pre-existing, NOT introduced by #538, small population — but the
+same class of leak the reset flow was built to avoid. Fix: fold
+user-disabled into the generic message. The pattern is already in the same
+file — #538's reset path swallows user-disabled for exactly this reason.
+
+[FU-AUTH-CLUSTER-SEQUENCING] — forgot-password (H-3) is DONE (#538, merged
+and live-verified). The remainder — name-on-signup [FU-SIGNUP-NO-NAME],
+phone-on-signup [FU-SIGNUP-NO-PHONE-OPTION] and Lane F
+[FU-AUTH-PROVIDER-SPLIT-ACCOUNTS] — all touch AuthContext.tsx / Login.tsx /
+SignUpPage.tsx and MUST run sequentially under one agent, never as parallel
+lanes. Remaining order: name-on-signup (one-way door) → phone-on-signup →
+Lane F. [FU-SIGNIN-DISABLED-ACCOUNT-ENUMERATION] belongs in this cluster too
+and is the cheapest of them.
+```
+
+### ★★ PRICING-SURFACE / GUARD TIER
+```
+[FU-PRICE-LITERALS-FIVE-FOUND] — #539 removed FIVE distinct prices from
+Home.tsx JSON-LD alone: ₹149 monthly, ₹349 "Board Season Pack", ₹999
+"Annual", plus ₹149 in the page meta description, alongside ₹149 in
+PracticeLimitGate:90 and MockViewGate:189 and ₹2,999/yr on PricingPage.
+That count is the justification for the no-literal guard existing. The
+guard now scans all of src/ for TWO shapes — ₹-prefixed AND bare numeric in
+structured-data/Offer context — because the most dangerous surface
+(price: "149" in JSON-LD) carries no rupee sign at all.
+
+[FU-HOME-FABRICATED-SOCIAL-PROOF] — ★ PROPOSED ID, owner to confirm or
+rename. Home.tsx publishes fabricated social proof, including as structured
+data: :247-250 aggregateRating { ratingValue: "4.8", reviewCount: "2340" },
+:340 and :549 "12,800+ students", :461 "from 2,340+ student reviews".
+Direct violation of CLAUDE.md §5 ("No fake data", "never invent content").
+The aggregateRating is JSON-LD — Google renders it as stars in search
+results and its structured-data policy prohibits fabricated review markup;
+the penalty is manual action against the site, not a silent ignore. Inert
+only while Home.tsx stays unrouted, exactly as the ₹149 price was inert
+right up until it wasn't. Should precede any public launch.
+
+[FU-JSONLD-OFFER-SHAPE] — ★ PROPOSED ID. billingIncrement and unitCode sit
+FLAT on the schema.org Offer object in Home.tsx. Canonically they belong on
+a priceSpecification / UnitPriceSpecification; Google likely ignores them
+where they are. Found on trunk and deliberately PRESERVED in #539 per owner
+instruction to mirror the existing shape with two entries. A schema
+correctness question, not a price question — separate decision.
+
+[FU-HOME-TSX-DEAD-FILE] — UPDATED. Still unrouted (// LEGACY-RETIRED
+2026-06-08, zero importers) and now carrying corrected prices it does not
+display to anyone. Pinned as a readFileSync fixture by scripts/ops gates
+(agent3_uiux_guard.mjs:93-94, ux_focus_acceptance.mjs:25), so deletion is
+not free. Deleting it is arguably the real fix for both
+[FU-HOME-FABRICATED-SOCIAL-PROOF] and [FU-JSONLD-OFFER-SHAPE]. Its own lane.
+```
+
+### ★ GATE / TEST-INFRASTRUCTURE TIER
+```
+[FU-CI-DOC-UNDERSTATES-GATES] — ★ PROPOSED ID. CLAUDE.md §6a describes CI
+as: root scripts test:matrix:all → lazytopper check:mojibake → build →
+lazytopper test:matrix:all. The actual .github/workflows/quality-gate.yml
+ALSO runs typecheck:test (tsc -p tsconfig.test.json --noEmit) and a full
+"Vitest suites" step (pnpm --filter lazytopper exec vitest run). CI covers
+MORE than documented. Normally low severity — but the new local/CI test
+split (full matrices and full vitest in CI only, because two concurrent
+local runs OOM-killed the editor on a 7.8GB machine) is BUILT on knowing
+exactly what CI covers. A stale description of the gate is now load-bearing.
+Correct §6a.
+
+[FU-WORKSHEET-MI-TEST-TIMEOUT] — ★ PROPOSED ID, low priority.
+WorksheetGenerator.mi.test.tsx uses vitest's default 5s timeout for a heavy
+render. It passes in ISOLATION and fails only under full parallel load;
+EVERY observed failure was "Test timed out in 5000ms", never an assertion.
+Measured on a detached clean-trunk worktree: 74 files / 884 tests / 0 fail.
+It has been absorbed as a "known trunk flake" — that framing is too
+generous, and it gets worse as the suite grows. Raise that suite's timeout.
+
+[FU-OPS-GATES-RED-ON-TRUNK] — ★ PROPOSED ID. Two ops guards are RED ON
+CLEAN TRUNK, proven on a detached worktree, not caused by any Lane H work:
+agent3_uiux_guard.mjs (3/7) and ux_priority_step_acceptance.mjs (7/13).
+Root cause of homepage_marketing_positioning: it requires
+/human-grade|human tutor|predictive/i in Home.tsx, which matches ZERO times
+— Home says "predicted", not "predictive". ★ NEITHER script is inside
+test:matrix:all, so the standard gate chain and CI do NOT catch breakage in
+them. Also note: test:ux:all-priorities runs ux_priority_step_acceptance.mjs,
+NOT ux_focus_acceptance.mjs — different files, easily conflated.
+
+[FU-DROP-APP-BASEPATH] — ⚠ DOUBLE-ASSIGNED TO LANE G AND LANE H. Lane H
+wrote the handoff FIRST and records it here so it cannot be lost. LANE G:
+do NOT duplicate this entry — verify it survived the rebase and skip it.
+Post-launch, cosmetic. The /app URL prefix is a coordinated three-layer
+coupling: vite.config.ts:28 (base:"/app/"), App.tsx:1053 (<BrowserRouter
+basename="/app">, always active), and vercel.json (the / → /app/ redirect
+plus the /app/:path* SPA rewrite). Removing it requires changing all three
+in lockstep. Touches frozen App.tsx (overlay gates) and has site-wide blast
+radius — a base-path error white-screens every route on hard refresh, which
+no gate catches. Standalone lane; live-verify a hard refresh on deep routes
+across both domains and both auth states. Zero functional benefit.
+```
+
+### Live-verify still owed
+- **#540** — additive and provably unable to alter request behaviour, but it sits on the live path of **every** Gemini call. One real production call would confirm the counters populate against `gemini_tokens.*`. Worth one owner check.
+- **#539** — the corrected ₹599 renders on `/practice` and the mock gates in production, not just in a forced-limit test harness.
+
 ## 2026-07-25 -- #531–#535 (LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP): 5 FUs tombstoned, 11 opened — incl. a CRITICAL cost-exposure tier (trunk `7185c5f`)
 
 ### RESOLVED — tombstoned (closed, not open work)
