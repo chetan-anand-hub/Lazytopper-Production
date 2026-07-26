@@ -4,6 +4,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../services/featureGates";
 import { UpgradeModal } from "../UpgradeModal";
 import { Navigate, useLocation } from "react-router-dom";
+import { MONTHLY_INLINE } from "../../config/pricing";
 
 const FREE_DAILY_LIMIT = 10;
 
@@ -87,7 +88,7 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
           You've used your {FREE_DAILY_LIMIT} free questions for today.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Unlock unlimited practice for ₹149/month.
+          Unlock unlimited practice for {MONTHLY_INLINE}.
         </p>
         <button
           type="button"

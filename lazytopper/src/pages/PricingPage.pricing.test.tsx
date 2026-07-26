@@ -58,8 +58,10 @@ describe("PricingPage — published prices (test 1)", () => {
 
     expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe("₹4,999");
     expect(flat(premium.querySelector(".lt-pricing-period"))).toBe("/ board year");
-    expect(flat(premium.querySelector(".lt-pricing-price-alt"))).toBe("or ₹599 / month");
-    expect(flat(premium.querySelector(".lt-pricing-price-sub"))).toBe("Save ₹2,189");
+    expect(flat(premium.querySelector(".lt-pricing-price-alt"))).toBe(
+      "or ₹599 / month · less than one tuition session",
+    );
+    expect(flat(premium.querySelector(".lt-pricing-price-sub"))).toBe("save ₹2,189");
   });
 
   it("keeps the Basic plan at ₹0 / forever", () => {

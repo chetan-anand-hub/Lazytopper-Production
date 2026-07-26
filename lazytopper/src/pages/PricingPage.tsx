@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import {
+  ANNUAL_AT_MONTHLY_RATE_DISPLAY,
+  ANNUAL_SAVING_DISPLAY,
+  ANNUAL_SAVING_SUBLINE,
+  MONTHS_PER_BOARD_YEAR,
+  PERIOD_ANNUAL_LABEL,
+  PERIOD_FREE_LABEL,
+  PRICE_ANNUAL_DISPLAY,
+  PRICE_FREE_DISPLAY,
+  PRICE_MONTHLY_DISPLAY,
+  TUITION_ANCHOR,
+} from "../config/pricing";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -652,7 +664,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Should I pay monthly or for the board year?",
-    a: "Twelve months at ₹599 comes to ₹7,188. The board year is ₹4,999, so you save ₹2,189 and stay covered right through your board exams. Monthly is there if you would rather start small.",
+    a: `${MONTHS_PER_BOARD_YEAR} months at ${PRICE_MONTHLY_DISPLAY} comes to ${ANNUAL_AT_MONTHLY_RATE_DISPLAY}. The board year is ${PRICE_ANNUAL_DISPLAY}, so you save ${ANNUAL_SAVING_DISPLAY} and stay covered right through your board exams. Monthly is there if you would rather start small.`,
   },
   {
     q: "Are there any usage limits?",
@@ -713,8 +725,8 @@ export default function PricingPage() {
           <div className="lt-pricing-card">
             <div className="lt-pricing-plan-label">Basic</div>
             <div className="lt-pricing-price">
-              <span className="lt-pricing-amount">₹0</span>
-              <span className="lt-pricing-period">/ forever</span>
+              <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
+              <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
             </div>
             <p className="lt-pricing-plan-desc">
               Browse the product and use limited learning tools without paid access.
@@ -751,11 +763,13 @@ export default function PricingPage() {
               Premium
             </div>
             <div className="lt-pricing-price">
-              <span className="lt-pricing-amount">₹4,999</span>
-              <span className="lt-pricing-period">/ board year</span>
+              <span className="lt-pricing-amount">{PRICE_ANNUAL_DISPLAY}</span>
+              <span className="lt-pricing-period">{PERIOD_ANNUAL_LABEL}</span>
             </div>
-            <p className="lt-pricing-price-alt">or ₹599 / month</p>
-            <p className="lt-pricing-price-sub">Save ₹2,189</p>
+            <p className="lt-pricing-price-alt">
+              {`or ${PRICE_MONTHLY_DISPLAY} / month · ${TUITION_ANCHOR}`}
+            </p>
+            <p className="lt-pricing-price-sub">{ANNUAL_SAVING_SUBLINE}</p>
             <p className="lt-pricing-plan-desc">
               Manual activation during beta. Payment checkout coming soon.
               Premium is not activated automatically.
