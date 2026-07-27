@@ -133,6 +133,13 @@ const { pickFromPool, markServed, saveToPool } = require('./services/generatedQu
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
+// Admin-gated READ path for the token + rate-limit telemetry. #540 wired the
+// counters and the ring buffer and NOTHING ever served them — the instrumentation
+// measured into a void from the day it merged, so every thinking-budget decision
+// and the subscription price were being modelled from estimates while the real
+// figures sat in memory on Railway. Read-only: computes nothing, stores nothing,
+// changes no limit.
+const { createAdminTelemetryRoutes } = require('./routes/adminTelemetry.cjs');
 // QR answer handoff — carries ONE photo from the student's phone into the desktop
 // session they are already in. DELIVERY ONLY: the image lands in the existing answer
 // box and grades exactly as today; nothing here touches the grader.
@@ -246,6 +253,14 @@ const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
 // C&I PR-3 (Gate 2b): admin-gated eviction/regeneration for the model-solution
 // cache — ADMIN_FIREBASE_UIDS Bearer-token identity, fail-closed (see the route).
 const adminSolutionCacheRoutes = createAdminSolutionCacheRoutes(routeDeps);
+// Same ADMIN_FIREBASE_UIDS Bearer identity, same fail-closed posture. Reads the
+// counters written by #540 (telemetry.snapshot) and the ring buffer's SIZE only.
+const adminTelemetryRoutes = createAdminTelemetryRoutes({
+  sendJson,
+  firebaseAdmin,
+  telemetry,
+  getTokenTelemetry: geminiClientModule.getTokenTelemetry,
+});
 // QR answer handoff. Firestore coordination doc + Storage blob, both written
 // server-side via firebase-admin — no client ever touches either, which is why the
 // deny-all rules on both are correct and unchanged.
@@ -508,6 +523,14 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/admin/solution-cache/regenerate') {
     return adminSolutionCacheRoutes.handleRegenerate(req, res);
+  }
+
+  // Token + rate-limit telemetry read-out (ADMIN_FIREBASE_UIDS Bearer identity,
+  // fail-closed inside the route). Owner tooling only — deliberately NOT in the
+  // browser CORS preflight list above, exactly like the solution-cache admin
+  // routes: it is read with curl, never from the app.
+  if (req.method === 'GET' && reqPath === '/api/admin/token-telemetry') {
+    return adminTelemetryRoutes.handleGetTokenTelemetry(req, res);
   }
 
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {

@@ -78,7 +78,7 @@ const PAID_ENDPOINTS = Object.freeze({
   // as vision, a vision ceiling of 30 bought only ~15 real checks a day against the
   // 25/day the pricing page advertises, and the server would have refused what the
   // product sold. The feature, the marks assessment and the student-correction
-  // affordance are untouched. VISION_CALLS_PER_ADVERTISED_CHECK below is asserted
+  // affordance are untouched. VISION_CALLS_PER_OFFERED_CHECK below is asserted
   // against this classification, so moving it back turns the suite red.
   "/api/detect-question": "practice",
   // Diagram / visual generation.
@@ -97,7 +97,7 @@ const CHECK_IMPROVE_FLOW_ENDPOINTS = Object.freeze([
 ]);
 
 /** How many `vision`-class calls one advertised check costs. MUST be 1. */
-const VISION_CALLS_PER_ADVERTISED_CHECK = CHECK_IMPROVE_FLOW_ENDPOINTS.filter(
+const VISION_CALLS_PER_OFFERED_CHECK = CHECK_IMPROVE_FLOW_ENDPOINTS.filter(
   (p) => PAID_ENDPOINTS[p] === "vision",
 ).length;
 
@@ -202,14 +202,29 @@ const EXPECTED_DAILY_STUDENTS = envInt("LT_EXPECTED_DAILY_STUDENTS", 50);
 const MAX_SINGLE_UID_SHARE_OF_GLOBAL = 0.2;
 
 /**
- * The PRODUCT's advertised Premium allowance, mirrored here for ONE purpose: to
- * assert that the server never refuses what the pricing page sells. The quota
- * itself is enforced client-side in the C&I surface — this constant is not a
- * limit, it is the floor the server's `vision` cap must clear.
+ * The PRODUCT's OFFERED Premium allowance, mirrored here for ONE purpose: to
+ * assert that the server never refuses what the plan sells. The quota itself is
+ * enforced client-side in the C&I surface — this constant is not a limit, it is
+ * the floor the server's `vision` cap must clear.
  *
  * 70 solution checks per rolling week, with a 25/day sub-cap.
+ *
+ * ★ NAMED "OFFERED", NOT "ADVERTISED". Nothing is advertised. `PricingPage.tsx`
+ * rules quota wording out of the plan table outright:
+ *
+ *     "Quota / fair-use wording belongs in the FAQ, never here — a plan that
+ *      advertises limits reads as rationed."
+ *
+ * The guard is right; the old name overstated its provenance, and a constant that
+ * claims to mirror a public promise invites someone to go looking for the promise
+ * and then to "correct" the number when they cannot find it.
+ *
+ * Cited by QUOTE, not by line number, on purpose: #548 moved that comment from
+ * :52-53 to :59-60 within days of this being written. A line reference in a
+ * comment is a derived value that nothing re-checks — the quote is greppable and
+ * cannot go stale silently.
  */
-const ADVERTISED_VISION_DAILY_SUBCAP = 25;
+const OFFERED_VISION_DAILY_SUBCAP = 25;
 
 /**
  * Class-aware circuit breaker. At this fraction of the global ceiling the
@@ -220,7 +235,7 @@ const VISION_SHED_FRACTION = 0.8;
 
 const DEFAULT_LIMITS = Object.freeze({
   // soft = alert only (request passes) · hard = 429
-  // vision hard MUST stay above ADVERTISED_VISION_DAILY_SUBCAP — see the guard.
+  // vision hard MUST stay above OFFERED_VISION_DAILY_SUBCAP — see the guard.
   vision: Object.freeze({ soft: envInt("LT_CAP_VISION_SOFT", 20), hard: envInt("LT_CAP_VISION_HARD", 30) }),
   tutor: Object.freeze({ soft: envInt("LT_CAP_TUTOR_SOFT", 40), hard: envInt("LT_CAP_TUTOR_HARD", 60) }),
   practice: Object.freeze({ soft: envInt("LT_CAP_PRACTICE_SOFT", 40), hard: envInt("LT_CAP_PRACTICE_HARD", 80) }),
@@ -354,6 +369,34 @@ function createRateLimiter(options = {}) {
     const day = rollIfNeeded(nowMs);
     const caller = resolveCaller(req);
 
+    /* ── ANON-KEY SHAPE DIAGNOSTIC ────────────────────────────────────────────
+       The api-server proxies to 127.0.0.1, so by the time a request reaches this
+       gateway `req.socket.remoteAddress` is ALWAYS the api-server. The anonymous
+       bucket therefore depends entirely on `x-forwarded-for` surviving the
+       Vercel -> Railway -> proxy hops (resolveCaller takes .split(",")[0], the
+       client element, which is correct).
+
+       If XFF is ever absent, EVERY signed-out caller collapses into one shared
+       3/day bucket. It fails CLOSED, so there is no billing risk — but it is an
+       invisible outage for signed-out visitors, who can legitimately reach
+       generate-visual / generate-diagram from the free practice surfaces. Nothing
+       in the system would report it; the students would simply see 429s.
+
+       ★ EMITTED HERE, not from index.cjs, on purpose. This is the exact point
+       where the key is decided, so the diagnostic reads the same `caller` the
+       bucket is built from. A copy of this logic anywhere else would be a MIRROR,
+       and a mirror can drift from the thing it mirrors while still looking right.
+
+       ★ SHAPE ONLY — never the key. No IP, no PII: the two possible events are
+       `rate_limit.anon_key.client` and `rate_limit.anon_key.loopback`. Read them
+       back via GET /api/admin/token-telemetry; the first signed-out production
+       request answers the question definitively.
+       ──────────────────────────────────────────────────────────────────────── */
+    if (caller.anonymous) {
+      const forwarded = String(req?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
+      emit(`rate_limit.anon_key.${forwarded ? "client" : "loopback"}`);
+    }
+
     // Signed-out callers collapse into ONE tight bucket spanning every paid
     // endpoint, rather than getting a fresh allowance per class.
     const klass = caller.anonymous ? ANONYMOUS_CLASS : endpointClass;
@@ -444,11 +487,11 @@ module.exports = {
   DEFAULT_LIMITS,
   SPEND_MODEL,
   EXPECTED_DAILY_STUDENTS,
-  ADVERTISED_VISION_DAILY_SUBCAP,
+  OFFERED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
   CHECK_IMPROVE_FLOW_ENDPOINTS,
-  VISION_CALLS_PER_ADVERTISED_CHECK,
+  VISION_CALLS_PER_OFFERED_CHECK,
   ANONYMOUS_CLASS,
   GLOBAL_CLASS,
   istDayKey,
