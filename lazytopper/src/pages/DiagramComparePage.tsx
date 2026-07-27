@@ -163,7 +163,7 @@ function DiagramCompareInner() {
     try {
       const res = await fetch("/api/generate-diagram?compare=true", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await paidJsonHeaders(),
         body: JSON.stringify({ questionText: q, compare: true }),
         signal: AbortSignal.timeout(90000),
       });
@@ -334,6 +334,8 @@ function DiagramCompareInner() {
     </div>
   );
 }
+
+import { paidJsonHeaders } from "../ai/paidCallHeaders";
 
 export default function DiagramComparePage() {
   return (

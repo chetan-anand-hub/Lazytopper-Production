@@ -420,7 +420,7 @@ async function fetchCompare(
 ): Promise<CompareResponse> {
   const res = await fetch("/api/generate-diagram?compare=true", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify({
       questionText: question.question,
       subject: question.subject,
@@ -701,6 +701,8 @@ function DiagramQualityInner() {
     </div>
   );
 }
+
+import { paidJsonHeaders } from "../ai/paidCallHeaders";
 
 export default function DiagramQualityPage() {
   return (

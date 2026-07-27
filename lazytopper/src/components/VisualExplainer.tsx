@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from "react";
+import { paidJsonHeaders } from "../ai/paidCallHeaders";
 
 export interface VisualExplainerHandle {
   highlight: (keywords: string[]) => void;
@@ -160,17 +161,20 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
           setLoading(false);
           return;
         }
-        fetch("/api/generate-visual", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            topic: fallbackTopic,
-            concept: fallbackConcept,
-            subject: subject || "Maths",
-            grade: 10,
-            ...(questionText ? { questionText: questionText.slice(0, 500) } : {}),
-          }),
-        })
+        paidJsonHeaders()
+          .then((headers) =>
+            fetch("/api/generate-visual", {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                topic: fallbackTopic,
+                concept: fallbackConcept,
+                subject: subject || "Maths",
+                grade: 10,
+                ...(questionText ? { questionText: questionText.slice(0, 500) } : {}),
+              }),
+            }),
+          )
           .then((r) => r.json())
           .then((data) => {
             if (cancelled) return;

@@ -7,6 +7,8 @@
 // server-side (D-TUT-8) — persistence + round-trip are Stage 2.
 
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
+import { paidJsonHeaders } from "./paidCallHeaders";
+
 export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
 
 /** One conversation turn. `tutor` = the model's reply; `user` = the student.
@@ -144,7 +146,7 @@ export interface TutorReply {
 export async function callTutor(req: TutorRequest): Promise<TutorReply> {
   const res = await fetch(TUTOR_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
 
