@@ -1,6 +1,87 @@
 # LazyTopper — Current State
 
-## [CURRENT] #531–#535 merged — ★★ LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP: SIGN-UP REDIRECT GUARDED · LEGAL REACHABLE · EVIDENCE CAPTION DE-NUMBERED · 12 DEAD PAGES DELETED · TRIAL AUTO-START KILLED (BOTH WRITE SITES) + REAL TRIAL CTA — trunk `7185c5f`
+## [CURRENT] #538–#540 merged — ★★ LANE H: THE LAST LAUNCH BLOCKER CLOSED (PASSWORD RESET) · ₹599/₹4,999 PUBLISHED FROM ONE CONSTANT · GEMINI TOKENS NOW MEASURED, NOT ESTIMATED — trunk `1013daa7`
+
+**Three product PRs, three sections, file-disjoint, built in parallel and merged in sequence.** Trunk moved `484f5e3c` (#536 docs) → `67b45108` (#537, Lane G) → **`694c81b3` (#538)** → **`ff5cb527` (#539)** → **`1013daa7` (#540)**. **Zero open PRs.** #538 owner **LIVE-VERIFIED end to end**.
+
+All three ran as draft PRs, never self-marked ready, never self-merged. Every squash subject was checked for a leading `@` before merge — `[FU-COMMIT-SUBJECT-AT]` held on all three.
+
+### H-3 · #538 — `feat(auth)`: forgot-password recovery, enumeration-safe
+**This closed the last code-side launch blocker.** At trunk, `sendPasswordReset` / `resetPassword` / `forgot.?password` returned **zero hits** across `lazytopper/src` and `lazytopper/server`. A student who forgot their password was permanently locked out; the only recovery was a new account, which discards their progress and Mistake Intelligence evidence.
+
+`AuthContext` gains `sendPasswordReset(email)` — a thin wrapper over Firebase `sendPasswordResetEmail`, **purely additive (the diff has zero `-` lines)**. `Login` gains an inline reset state in the email pane — **not a route**, so `App.tsx` stays byte-identical.
+
+**★★ THE ENUMERATION DEFENCE IS AN ALLOWLIST, AND THAT IS THE WHOLE POINT — record the reasoning, not just the outcome.** The spec called for special-casing `auth/user-not-found`. The agent built the inverse and the owner endorsed it over his own spec. `RESET_SURFACEABLE_ERRORS` contains **only request-shaped failures** (`invalid-email`, `missing-email`, `too-many-requests`, `network-request-failed`) — each a property of the typed string or the connection, identical for a registered and an unregistered address. **Everything else falls through to one neutral notice**: `user-not-found`, `user-disabled`, the `invalid-credential` Firebase returns when its own enumeration protection is on, **and any code Firebase adds in future**.
+
+**It fails SAFE by construction.** A denylist protects only the cases someone thought of; an unrecognised future error code would have leaked through it. Under the allowlist an unknown code defaults to neutral. These are minors' accounts and the login page must not become a tool for checking which children have one. **This is now the reference implementation for the repo** — see `[FU-SIGNIN-DISABLED-ACCOUNT-ENUMERATION]`, which is the same class of leak on the sign-in path.
+
+The load-bearing test asserts **byte identity** (`toBe` on `textContent`), not `contains`. Mutation — branch the copy on `user-not-found` → red. Phone-only students have no password, so the entry point renders in the email pane only and switching tabs clears any open reset state; a mutation leaking the link into the phone pane also goes red.
+
+**Known tradeoff, deliberate:** the fail-safe fallback also swallows a non-Firebase failure (e.g. "Firebase Auth is not configured"), so a genuine outage renders "we've sent a reset link". That failure is email-independent so it leaks nothing, and privacy beats infra detail — but it sits in tension with the honest-empty-states doctrine and is recorded rather than hidden.
+
+**Owner live-verified:** the reset email arrives, the link works, the new password signs in, an unregistered address returns the identical notice, and the phone pane carries no reset link. Two findings came out of that verification: `[FU-AUTH-EMAIL-BRAND-MISSPELLED]` (resolved in part) and `[FU-AUTH-CUSTOM-EMAIL-DOMAIN]` (deferred, two DNS blockers).
+
+### H-2 · #539 — `feat(pricing)`: publish ₹599/month and ₹4,999/board year, from ONE constant
+Owner-final prices published: **₹599/month** and **₹4,999/board year** as the hero, sub-line "save ₹2,189". Replaces the retired ₹2,999/year block and its stale ~₹250/month sub-line.
+
+`PREMIUM_FEATURES` keeps **"Everything in Basic" first** — it tells a parent the free tier is not being taken away — with five differentiators below it. **The original spec said five entries and trunk had six; the agent flagged the discrepancy rather than silently dropping one, and the owner ruled his five were the ADDITIONS below the first.** `FREE_FEATURES` keeps Check & Improve at `included: false` (the packaging Lane G's gating restores); the manual-activation copy stays, honest until a payment rail exists.
+
+**★★ THE REAL FINDING WAS THAT THE PRICE EXISTED IN FOUR OTHER PLACES, TWO OF THEM LIVE.** Publishing ₹599 on `/pricing` alone would have told a student ₹599 on the pricing page and **₹149 at the exact moment of upgrade intent**:
+
+| surface | was | live? |
+|---|---|---|
+| `PracticeLimitGate.tsx:90` | ₹149/month | **yes** — wraps `/practice` (`App.tsx:1012`) |
+| `MockViewGate.tsx:189` | ₹149/month | **yes** — wraps `/mock-paper`, `/chapter-test`, `/full-mock` |
+| `Home.tsx:506` | ₹149 block (+ ₹349/3mo, ₹999/yr) | unrouted |
+| `Home.tsx:242` | **JSON-LD `Offer` `price: "149"`** | unrouted |
+| `Home.tsx:11` | ₹149 in the meta description | unrouted |
+
+So the fix was **the cause, not the instances**: `src/config/pricing.ts` is now the single source of truth, the saving is **derived** (`599×12−4999`) rather than hardcoded, and all surfaces read it. `[FU-PRICE-LITERALS-FIVE-FOUND]` records the count that justifies the guard existing.
+
+**★★ THE GUARD'S HARD CASE HAS NO RUPEE SIGN.** The instruction was "no rupee price literal in `src/`" — but the most dangerous surface was `price: "149"` inside JSON-LD, a bare numeric string, and a guard matching `/₹\d/` sails straight past the one value Google indexes and displays. `pricing.guard.test.ts` therefore tests **two independent patterns** — Shape A `/₹\s*\d/` and Shape B `/"?\bprice"?\s*:\s*["']?\d/` — each mutation-verified **separately**. The agent proved the point rather than asserting it: before showing Shape B fire, it confirmed the mutated line contained **zero** rupee signs, so a rupee-only guard would demonstrably have missed it. The guard walks all of `src/` (asserted >200 files, five named files reached by path) rather than a hand-listed set — a fixed list cannot catch the fifth surface, which is the entire purpose.
+
+**JSON-LD now publishes BOTH offers** as an array (Monthly ₹599 `MON`/1, Board Year ₹4999 `MON`/12), both from the constant — the schema is exempt from nothing, because it is the file most likely to drift silently. The ₹2,189 saving is **deliberately absent from structured data**: schema.org has no field for it and invented properties are ignored or flagged. Schema states facts; the page makes the argument. A cross-surface test asserts the rendered block and the JSON-LD agree **with each other** and with the constant, mutation-verified by breaking exactly one side.
+
+Removed from `Home.tsx` as not in the packaging: the ₹349 "Board Season Pack" and ₹999 "Annual" tiers. "less than ₹3/day" went with them (derived from ₹999; would be ~₹13.7/day at ₹4,999) and was **not** replaced with an invented figure. "less than one tuition session" was **kept** per owner ruling — still true at ₹599. The Free tier's `price: "0"` Offer was kept; removing it would have contradicted the visible ₹0 tier.
+
+### H-1 · #540 — `feat(server)`: measure Gemini token usage per call class
+Converts the cost model from estimate to measurement. After each `callGemini`, emits `promptTokenCount`, `candidatesTokenCount`, **`thoughtsTokenCount`** (thinking bills at OUTPUT rates), `totalTokenCount`, model, call class, latency and a retry flag. Counter keys are `gemini_tokens.<metric>.<class>`, parallel to #537's `rate_limit.<metric>.<class>`, so the two datasets pivot on the shared class segment. Purely additive; a telemetry failure can never fail a Gemini call.
+
+**★★ CALL CLASS MUST RESOLVE PER HANDLER FUNCTION, NOT PER SOURCE FILE — and getting this wrong would have corrupted the number the lane exists to produce.** #537 as merged reclassified `/api/detect-question` from `vision` to `practice` (`rateLimiter.cjs:83`), a billing-bucket decision. But `routes/checkSolution.cjs` holds **three endpoints across two classes**:
+
+| call site | handler | class |
+|---|---|---|
+| `:311` | `handleCheckSolution` | vision |
+| `:585` | `handleDetectQuestion` | **practice** |
+| `:1006` | `gradeStructuredSet` | vision |
+
+A file-level map would have billed every detect call to `vision`, **inflating cost-per-vision-call and deflating cost-per-practice-call** — invisibly, and then feeding those numbers into a pricing decision. `generateModelSolution` / `getOrCreateModelSolution` are deliberately unmapped (three callers across two classes) so the scan walks past them to the owning handler. Both lanes independently converged on this: G1's suite on trunk now carries `# Subtest: detect-question is billed as practice, not vision`.
+
+**★★ AND THE CROSS-LANE GUARD WAS A TAUTOLOGY BEFORE IT WAS HARDENED.** Comparing label **vocabularies** stays green straight through that exact defect, because the set `{vision, tutor, practice, visual}` never changes. It now asserts agreement **endpoint by endpoint** against `PAID_ENDPOINTS` and fails if a paid endpoint exists the gateway cannot classify.
+
+**No prompt or response content can reach a logged field.** The emit site passes only `data.usageMetadata`, with `finalContents`/`parts`/`text`/`rawText` in scope and deliberately not passed. The builder reads an **explicit named allowlist** — no spread, no `Object.assign`, no key iteration — so a field Google adds tomorrow cannot appear; `model`, the one free-text field, is clamped to `[a-z0-9._-]{,64}`. The test serialises **everything logged** (counter events *and* ring records) and searches for three sentinels, then asserts the record's key set is frozen. **One mutation survived and was reported rather than hidden**: passing `contents:` into the builder alone changes nothing, because the allowlist ignores it — an equivalent mutation, not a coverage gap.
+
+**`package.json` was the collision the spec's disjointness table missed.** H-1 needed a third file: `vitest.config.ts` includes only `src/**/*.test.{ts,tsx}`, so a `.cjs` server test is **not collected by vitest** and must be wired as `node --test` or it is a dead file no gate runs. #537 appended to the same `test:matrix:all` line. Resolved append-only, both preserved, **verified by grep rather than by eye** — and confirmed on trunk after the squash: both names appear twice each, defined and in the chain.
+
+### ★★ ARCHITECTURE NOTE — RAILWAY RUNS ONE SERVICE. This is recorded NOWHERE ELSE in the repo.
+Contributed by Lane G and carried here because it has no other home. Every future server lane needs it, and nobody would rediscover it cheaply.
+
+`Dockerfile` CMD:47 and `railway.json:8` start **`artifacts/api-server/dist/index.mjs`**, which **SPAWNS `lazytopper/server` as a child process** (`artifacts/api-server/src/index.ts:44`) and **PROXIES `/api/*` to it on `127.0.0.1`** (`artifacts/api-server/src/app.ts:45-57`). `vercel.json` rewrites both `/api/*` and `/shared-api/*` to the same Railway host. **There is one Railway service, not two** — the thing that looks like a standalone gateway is a child of the api-server.
+
+`STRIPPED_PROXY_HEADERS` (`app.ts:39-43`) drops `x-internal-auth`, `x-internal-admin` and `x-user-id` — **but NOT `x-lazytopper-uid`**, which is why #537's rate limiter keeps its caller identity across the proxy hop. Verified 2026-07-26. Anything that later adds a header to that strip list can silently break per-uid limiting.
+
+**Two CORS layers, disagreeing by design** once the `app.ts` allowlist lands:
+- **OUTER** — api-server `app.ts:29`, today a bare `app.use(cors())`. The browser-facing front door for both `/shared-api` (`:33`) and the `/api` proxy (`:45`). See `[FU-API-CORS-WIDE-OPEN]`.
+- **INNER** — the gateway's `config.CORS_ORIGIN`, a **single string** (`serverConfig.cjs:59`, default `http://localhost:25246`), emitted as one ACAO value (`httpUtils.cjs:5,13`). It sits behind the proxy on `127.0.0.1` and is **not reachable from a browser at all**. See `[FU-GATEWAY-CORS-ORIGIN-STALE]`.
+
+The consequence worth holding onto: because production reaches the gateway through Vercel's **server-side** rewrite, legitimate traffic can arrive with **no `Origin` header**. Any allowlist that rejects missing-Origin requests kills every API call in production while passing every gate.
+
+### ★ Verification standard used throughout
+Every gate result below is quoted from the **CI log**, not inferred from a green tick — a suite that is present, wired and **skipped** reports green, and this repo has shipped exactly that. Both `node --test` server suites on the #540 run show `# pass N  # fail 0  # skipped 0  # todo 0`, and each CI run's `headSha` was matched against the PR's `headRefOid` before its log was trusted.
+
+**CI covers more than `CLAUDE.md` §6a documents** — the workflow also runs `typecheck:test` and a full `Vitest suites` step. See `[FU-CI-DOC-UNDERSTATES-GATES]`; §6a is now load-bearing because the local/CI test split depends on knowing what CI covers.
+
+## (superseded) [CURRENT] #531–#535 merged — ★★ LAUNCH-BLOCKER WAVE + DEAD-PAGE SWEEP: SIGN-UP REDIRECT GUARDED · LEGAL REACHABLE · EVIDENCE CAPTION DE-NUMBERED · 12 DEAD PAGES DELETED · TRIAL AUTO-START KILLED (BOTH WRITE SITES) + REAL TRIAL CTA — trunk `7185c5f`
 
 **Five product PRs, five sections. All merged; #535 owner LIVE-VERIFIED on production.** Trunk moved `7998ee4a` (#528) → `4e3fbf6` (#531) → `39ae276` (#532) → `82b434d` (#533) → `add19d4` (#534) → **`7185c5f` (#535)**. **Zero open PRs; zero in-flight lane branches.**
 

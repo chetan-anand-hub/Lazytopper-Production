@@ -1,7 +1,39 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-25 (post-**#531–#535 — launch-blocker wave + dead-page sweep.** Trunk `7185c5f`. #535 owner LIVE-VERIFIED on production. Combined docs handoff.)
+# Updated: 2026-07-26 (post-**#538–#540 — Lane H.** Trunk `1013daa7`. #538 owner LIVE-VERIFIED end to end. Combined docs handoff.)
 
-## NEXT — 2026-07-25 (post-#531–#535). Read this block first.
+## NEXT — 2026-07-26 (post-#538–#540). Read this block first.
+
+**The code-side launch-blocker tier is EMPTY.** #538 closed the last one — a student who forgets their password can now recover their account. Lane G (#537) capped the endpoints; Lane H published the price and instrumented the spend.
+
+**★ Read `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` before touching anything in the efficiency tier.** It is committed with this update and is the only place the per-call cost model, the ranked levers and the margin table exist. Two of its v1.1 corrections reverse v1.0 conclusions, and one of them (`mentorResponseBuilder` is an orphan) invalidates part of an FU's stated justification — see the correction note on `[FU-EFF-RESPONSE-SCHEMA]`.
+
+Owner-set order:
+
+1. **`[FU-TELEMETRY-NO-READ-PATH]`** — ★ **the named next lane, APPROVED, and it is a COMBINED PR.** #540 measures token and thinking usage per call class but **nothing serves `snapshot()` or `getTokenTelemetry()`**. Until a read endpoint exists, the instrument records into a void, and **every** thinking-budget and final-pricing decision is blocked behind it — including whether ₹599 can become ₹499.
+   **Owner-approved shape:** combine it with Lane G's `[FU-ANON-BUCKET-XFF-DEPENDENT]` shape diagnostic as **one `index.cjs` PR**. Both lanes reached the "telemetry read path goes first" conclusion independently, and both need the same frozen file, so they must not be two PRs racing for it. `index.cjs` is Lane G's territory — sequence under whoever owns that file, not in parallel.
+2. **`[FU-EFF-QUICK-PRACTICE-BATCH]`** — biggest single saving (69% off the largest line, 31% of daily spend) **and** a product win: the tutor receives one graded answersheet instead of five disconnected checks. Flow is owner-locked. Requires a FORBIDDEN-list amendment for `SolutionChecker.tsx` and `ResultsScorecard.tsx` — owner authorised; **replace the ban with targeted tests per the #519 precedent, do not simply delete entries.**
+3. **`[FU-FORBIDDEN-PATH-PREFIX-BUG]`** — ★★ **BLOCKS (4), and it is a one-line micro-PR.** Both FORBIDDEN arrays list `'server/routes/checkSolution.cjs'` without the `lazytopper/` prefix, while the check is exact array membership against repo-relative paths — so **the grader, the file named directly as untouchable, is protected by an entry that can never fire.** Verified independently by Lane H; the same file at `check_improve_convergence_acceptance.mjs:528` carries a correctly-prefixed sibling entry, which is both the proof and the fix's shape. Its own micro-PR, one line plus a test asserting the entry matches a real path. **Do not fold it into another change.** Lane G, after CORS.
+4. **`[FU-EFF-RESPONSE-SCHEMA]`** — cost *and* the grading-consistency FUs together. Highest quality-per-rupee item on the board: constrained decoding means one output shape every time, so MI stops being built on noise. Touches FORBIDDEN `checkSolution.cjs` — ★ **which is exactly why (3) must land first.** Taking the deliberate FORBIDDEN amendment while the guard cannot match means lifting a protection that was never in force, and the PR then ships whatever it did to the grader while everyone believes the removal was reviewed. A false sense of review is worse than none.
+5. **`[FU-HOME-FABRICATED-SOCIAL-PROOF]`** — ★ **should precede public launch.** `Home.tsx` publishes `aggregateRating 4.8 / reviewCount 2340` as JSON-LD plus "12,800+ students" in prose. Direct §5 doctrine violation, and Google's structured-data policy prohibits fabricated review markup — the penalty is manual action against the site. Inert only while the page stays unrouted, exactly as the ₹149 price was inert right up until it wasn't.
+6. **`[FU-EFF-THINKING-BUDGET]`** — **after** a week of real data from (1). Set budgets at p90 of observed `thoughtsTokenCount` per class, never by guess. Grader first; tutor deliberately excluded (`[FU-EFF-TUTOR-COST-ENVELOPE]`).
+
+**Auth cluster — sequential under ONE agent, never parallel** (`[FU-AUTH-CLUSTER-SEQUENCING]`): H-3 is done; remaining order is name-on-signup (one-way door) → phone-on-signup → Lane F. `[FU-SIGNIN-DISABLED-ACCOUNT-ENUMERATION]` belongs in this cluster and is the cheapest item in it — the fix pattern already exists in the same file.
+
+Also queued: `[FU-AUTH-CUSTOM-EMAIL-DOMAIN]` (post-launch; two DNS blockers documented, do **not** improvise at the registrar), `[FU-OPS-GATES-RED-ON-TRUNK]` (two guards red on clean trunk, neither in `test:matrix:all`), `[FU-CI-DOC-UNDERSTATES-GATES]`, `[FU-JSONLD-OFFER-SHAPE]`, `[FU-WORKSHEET-MI-TEST-TIMEOUT]`.
+
+### ★★ MACHINE CONSTRAINT — READ BEFORE DISPATCHING PARALLEL AGENTS
+The owner's machine has **7.8GB RAM**. Two agents running `test:matrix:all` concurrently exhausted physical memory and **OOM-killed the editor, losing two agent sessions mid-lane**. File-disjointness protects the repo; it does nothing for RAM.
+
+**ONE agent runs a test suite at a time.** Full matrices, full `vitest run`, the convergence/overlay gates and every `base...HEAD` gate run **in CI only**. Locally: `scope:guard` pre-commit (it reads the working tree, so it is local-or-nowhere), `tsc`, `check:mojibake`, and the agent's **own scoped suite**. Any local vitest run uses `--poolOptions.threads.maxThreads=2`.
+
+**The corollary is a new blind spot:** you no longer watch those suites run, and a suite that is present, wired and **skipped** reports green. For every suite relied on, quote from the CI log the invocation line *and* the result line — for `node --test` that is `# pass N  # fail 0  # skipped 0  # todo 0`. The skipped and todo counts are the ones that matter. Match the run's `headSha` to the PR's `headRefOid` before trusting any log.
+
+### ★ Live-verify still owed
+**#540** — additive and provably unable to change request behaviour, but it sits on the live path of *every* Gemini call; one real production call confirms the counters populate. **#539** — confirm ₹599 renders on `/practice` and the mock gates in production, not just under a forced-limit harness.
+
+---
+
+## (superseded) NEXT — 2026-07-25 (post-#531–#535).
 
 **The code-side launch-blocker tier as previously scoped is now EMPTY** (#531–#535 closed it). It is replaced at the top by a **cost-exposure tier** the wave surfaced — the AI endpoints are ungated and unmetered. Owner-set order:
 
