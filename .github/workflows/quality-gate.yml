@@ -133,12 +133,19 @@ jobs:
       # This is a RUNWAY EXTENSION, not a fix — the bank grows with every content
       # lane, and phase 2 adds state boards and Class 12. [FU-VITEST-CI-HEAP-CEILING]
       #
-      # ★ This bump is only safe alongside maxThreads: 2 in vitest.config.ts. The
-      # ubuntu runner has 16 GB and 4 vCPU, so vitest would default to 4 workers;
-      # 4 × 6144 = 24 GB would OOM the RUNNER rather than a worker. Capped at 2 the
-      # worst case is 12 GB, which fits with headroom. Do not raise one without the
-      # other.
+      # ★ This bump is only safe alongside a REAL worker cap (maxWorkers: 2 in
+      # vitest.config.ts). The ubuntu runner has 16 GB and 4 vCPU, so vitest would
+      # default to 4 workers; 4 × 6144 = 24 GB would OOM the RUNNER rather than a
+      # worker. Capped at 2 the worst case is 12 GB. Do not raise one without the
+      # other — and note the first attempt's cap was a silent no-op (it used the
+      # threads key while vitest 3 defaults to the forks pool), which produced
+      # precisely the 24 GB case. See vitest.config.ts.
+      #
+      # --logHeapUsage is DIAGNOSTIC, for one cycle. It prints per-file heap, which
+      # names the suites actually loading the 10.7 MB bank — replacing three cycles
+      # of inference and feeding the durable fix in [FU-VITEST-CI-HEAP-CEILING].
+      # Remove it once those suites are identified.
       - name: Vitest suites (lazytopper)
-        run: pnpm --filter lazytopper exec vitest run
+        run: pnpm --filter lazytopper exec vitest run --logHeapUsage
         env:
           NODE_OPTIONS: --max-old-space-size=6144
