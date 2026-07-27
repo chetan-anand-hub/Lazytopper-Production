@@ -168,13 +168,20 @@ local runs OOM-killed the editor on a 7.8GB machine) is BUILT on knowing
 exactly what CI covers. A stale description of the gate is now load-bearing.
 Correct §6a.
 
-[FU-WORKSHEET-MI-TEST-TIMEOUT] — ★ PROPOSED ID, low priority.
-WorksheetGenerator.mi.test.tsx uses vitest's default 5s timeout for a heavy
-render. It passes in ISOLATION and fails only under full parallel load;
-EVERY observed failure was "Test timed out in 5000ms", never an assertion.
-Measured on a detached clean-trunk worktree: 74 files / 884 tests / 0 fail.
-It has been absorbed as a "known trunk flake" — that framing is too
-generous, and it gets worse as the suite grows. Raise that suite's timeout.
+[FU-WORKSHEET-MI-TEST-TIMEOUT] — ACTION: raise that suite's timeout. Do not
+leave it to flake.
+WorksheetGenerator.mi.test.tsx uses vitest's DEFAULT 5000ms timeout for a
+heavy render. It passes in ISOLATION and fails only under load; EVERY
+observed failure was "Test timed out in 5000ms", never an assertion — so it
+has been absorbed as a "known trunk flake".
+★ THAT FRAMING NOW HAS ARITHMETIC AGAINST IT. On the #541 CI run (a clean
+linux runner, not a loaded dev box) the suite passed in 4304ms against the
+5000ms default — a 14% margin, roughly 700ms from failing IN CI. And the
+vitest suite grew by 37 tests on 2026-07-26 alone (884 → 921), so the margin
+is shrinking as a matter of course. This is not a flake that lives on the
+owner's machine; it is a timeout that trunk will cross on its own.
+Baseline for comparison, measured on a detached clean-trunk worktree before
+Lane H: 74 files / 884 tests / 0 fail.
 
 [FU-OPS-GATES-RED-ON-TRUNK] — ★ PROPOSED ID. Two ops guards are RED ON
 CLEAN TRUNK, proven on a detached worktree, not caused by any Lane H work:
