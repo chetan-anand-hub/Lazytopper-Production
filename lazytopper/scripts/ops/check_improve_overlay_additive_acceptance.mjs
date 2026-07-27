@@ -26,7 +26,7 @@
  *
  * Run from lazytopper/: node scripts/ops/check_improve_overlay_additive_acceptance.mjs
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -259,7 +259,12 @@ const EVENT = process.env.GITHUB_EVENT_NAME || null;
 const PR_TARGET = process.env.GITHUB_BASE_REF || null;
 
 const FORBIDDEN = [
-  "server/routes/checkSolution.cjs", // the grader — the tutor never grades
+  // ★ THE `lazytopper/` PREFIX IS LOAD-BEARING, AND IT WAS MISSING HERE.
+  // `changed.includes(f)` is exact array membership, and `git diff --name-only`
+  // emits repo-root-relative paths, so the unprefixed form could NEVER match.
+  // PROVEN BY A CONTROL CASE: a commit that really did append a line to the
+  // grader passed this gate 31/31 green. See the FORBIDDEN(path) loop below.
+  "lazytopper/server/routes/checkSolution.cjs", // the grader — the tutor never grades
   // tutorRoundTrip.ts is NO LONGER file-level forbidden: the tutor-graded-context lane ADDS the
   // rich composer + buildReturnedWork BESIDE the thin composeReturnOpener. The real invariant (the
   // thin floor stays byte-identical) is enforced by the FLOOR/BESIDE source assertions in §3.
@@ -268,6 +273,19 @@ const FORBIDDEN = [
   "lazytopper/src/services/checkImproveGradeService.ts", // the persist seam
   "lazytopper/src/App.tsx", // routing (:320 stays green)
 ];
+
+// ★ SHAPE, asserted UNCONDITIONALLY — the guard that would have caught the missing
+// `lazytopper/` prefix, and the reason it can never come back. An entry that does not
+// resolve to a real repo-relative file cannot match `git diff --name-only` output and
+// therefore guards NOTHING, while reading as protection to every future reader.
+// Filesystem-only (no subprocess, no git base) so it can never skip the way the diff
+// loop below does when no base ref resolves.
+for (const f of FORBIDDEN) {
+  check(`FORBIDDEN(path): ${f} resolves to a real repo-relative file`,
+    !f.startsWith("/") && !f.includes("\\") && existsSync(path.join(ROOT, f)),
+    "this entry can never match `git diff --name-only` output, so it guards NOTHING "
+    + "— check the lazytopper/ prefix");
+}
 
 function hasRef(ref) {
   try {

@@ -473,7 +473,17 @@ check('CHROME: /check-improve stays in isMobileSelfChromedRoute (old brand bar s
 section('6 · Forbidden paths untouched');
 
 const FORBIDDEN = [
-  'server/routes/checkSolution.cjs',
+  // ★ THE `lazytopper/` PREFIX IS LOAD-BEARING, AND IT WAS MISSING HERE.
+  // The diff check below is `changed.includes(f)` — exact array membership — and
+  // `git diff --name-only` emits paths relative to the REPO ROOT. The real path
+  // is `lazytopper/server/routes/checkSolution.cjs`, so the unprefixed entry
+  // could NEVER match: the grader, the one file the owner named directly as
+  // untouchable, was guarded by an entry that could not fire.
+  // PROVEN BY A CONTROL CASE, not by reading: a commit that really did append a
+  // line to the grader passed this gate 91/91 green, printing
+  // "ok  FORBIDDEN: server/routes/checkSolution.cjs shows zero changes".
+  // The FORBIDDEN(path) loop below makes that shape impossible to reintroduce.
+  'lazytopper/server/routes/checkSolution.cjs',
   'lazytopper/src/services/mistakeIntelligence.ts',
   'lazytopper/src/services/practiceInsights.ts',
   'lazytopper/src/services/checkImproveGradeService.ts',
@@ -508,6 +518,25 @@ check('FORBIDDEN(wired): SolutionChecker.tsx is in the guarded set (shares Equat
   FORBIDDEN.includes('lazytopper/src/components/question/SolutionChecker.tsx'));
 check('FORBIDDEN(wired): EquationInput.tsx is NOT guarded (it legitimately gains autoGrow; §7 proves it stays default-off)',
   !FORBIDDEN.some((f) => f.endsWith('equation/EquationInput.tsx')));
+
+// ★ SHAPE, asserted UNCONDITIONALLY — the guard that would have caught the missing
+// `lazytopper/` prefix, and the reason it can never come back.
+//
+// Membership (above) proves an entry is IN the list. It does not prove the entry can
+// ever MATCH anything: `changed.includes(f)` compares against `git diff --name-only`
+// output, which is repo-relative from the ROOT. An entry that does not resolve to a
+// real file there is protecting nothing, however deliberate and well-commented it
+// looks — and it reads as protection to every future reader, which is worse than an
+// absent entry because it stops anyone from adding a real one.
+//
+// Deliberately filesystem-only (no subprocess, no git base), so this can never skip
+// the way the diff loop below does on a shallow checkout.
+for (const f of FORBIDDEN) {
+  check(`FORBIDDEN(path): ${f} resolves to a real repo-relative file`,
+    !f.startsWith('/') && !f.includes('\\') && existsSync(path.join(ROOT, f)),
+    'this entry can never match `git diff --name-only` output, so it guards NOTHING '
+    + '— check the lazytopper/ prefix');
+}
 
 // PR-scoped (not anchored): "did THIS change set touch a forbidden path?" On a push to
 // trunk there is no PR, so it reports N/A — never the old vacuous green.
