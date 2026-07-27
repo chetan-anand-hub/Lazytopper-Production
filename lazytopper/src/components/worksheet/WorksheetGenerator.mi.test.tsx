@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+﻿import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 
@@ -9,6 +9,17 @@ import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 const useAuthMock = vi.fn();
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => useAuthMock() }));
 vi.mock("../../hooks/useSubjectContext", () => ({ useSubjectContext: () => ({ subject: "Maths" }) }));
+// PR-G2a: WorksheetGenerator's default export is now wrapped in RequirePremium.
+// This suite runs signed out (useAuthMock returns { user: null }), so the gate
+// renders <Navigate to="/login">, MemoryRouter re-renders the same element, and
+// the redirect loops SYNCHRONOUSLY - no timeout can fire because the event loop
+// never yields, and the worker dies at the heap ceiling.
+// Stub the gate: this suite is about Mistake Intelligence, not entitlement.
+// Gate behaviour is covered by components/auth/entitlementGating.render.test.tsx.
+vi.mock("../auth/RequireAuth", () => ({
+  RequirePremium: ({ children }: { children: React.ReactNode }) => children,
+  RequireAuth: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 import WorksheetGenerator from "./WorksheetGenerator";
 
