@@ -63,6 +63,19 @@ A file-level map would have billed every detect call to `vision`, **inflating co
 
 **`package.json` was the collision the spec's disjointness table missed.** H-1 needed a third file: `vitest.config.ts` includes only `src/**/*.test.{ts,tsx}`, so a `.cjs` server test is **not collected by vitest** and must be wired as `node --test` or it is a dead file no gate runs. #537 appended to the same `test:matrix:all` line. Resolved append-only, both preserved, **verified by grep rather than by eye** — and confirmed on trunk after the squash: both names appear twice each, defined and in the chain.
 
+### ★★ ARCHITECTURE NOTE — RAILWAY RUNS ONE SERVICE. This is recorded NOWHERE ELSE in the repo.
+Contributed by Lane G and carried here because it has no other home. Every future server lane needs it, and nobody would rediscover it cheaply.
+
+`Dockerfile` CMD:47 and `railway.json:8` start **`artifacts/api-server/dist/index.mjs`**, which **SPAWNS `lazytopper/server` as a child process** (`artifacts/api-server/src/index.ts:44`) and **PROXIES `/api/*` to it on `127.0.0.1`** (`artifacts/api-server/src/app.ts:45-57`). `vercel.json` rewrites both `/api/*` and `/shared-api/*` to the same Railway host. **There is one Railway service, not two** — the thing that looks like a standalone gateway is a child of the api-server.
+
+`STRIPPED_PROXY_HEADERS` (`app.ts:39-43`) drops `x-internal-auth`, `x-internal-admin` and `x-user-id` — **but NOT `x-lazytopper-uid`**, which is why #537's rate limiter keeps its caller identity across the proxy hop. Verified 2026-07-26. Anything that later adds a header to that strip list can silently break per-uid limiting.
+
+**Two CORS layers, disagreeing by design** once the `app.ts` allowlist lands:
+- **OUTER** — api-server `app.ts:29`, today a bare `app.use(cors())`. The browser-facing front door for both `/shared-api` (`:33`) and the `/api` proxy (`:45`). See `[FU-API-CORS-WIDE-OPEN]`.
+- **INNER** — the gateway's `config.CORS_ORIGIN`, a **single string** (`serverConfig.cjs:59`, default `http://localhost:25246`), emitted as one ACAO value (`httpUtils.cjs:5,13`). It sits behind the proxy on `127.0.0.1` and is **not reachable from a browser at all**. See `[FU-GATEWAY-CORS-ORIGIN-STALE]`.
+
+The consequence worth holding onto: because production reaches the gateway through Vercel's **server-side** rewrite, legitimate traffic can arrive with **no `Origin` header**. Any allowlist that rejects missing-Origin requests kills every API call in production while passing every gate.
+
 ### ★ Verification standard used throughout
 Every gate result below is quoted from the **CI log**, not inferred from a green tick — a suite that is present, wired and **skipped** reports green, and this repo has shipped exactly that. Both `node --test` server suites on the #540 run show `# pass N  # fail 0  # skipped 0  # todo 0`, and each CI run's `headSha` was matched against the PR's `headRefOid` before its log was trusted.
 

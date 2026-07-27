@@ -32,7 +32,14 @@ amendment as the batching lane.
   architecture I costed is dead code". The checkSolution ×3 half stands; the
   mentorResponseBuilder half and the ~8%/day figure do not. The QUALITY
   argument is unaffected and remains the reason to do this work. (The
-  original also said "six" while listing seven line numbers.)
+  original also said "six" while listing seven line numbers.) Lane G reached
+  the same retraction independently and concurs: the tutor half is withdrawn,
+  the figure still holds for checkSolution.cjs and tutor.cjs.
+  ★★ SEQUENCING — [FU-FORBIDDEN-PATH-PREFIX-BUG] MUST LAND BEFORE THIS LANE.
+  The FORBIDDEN entry protecting checkSolution.cjs cannot currently match the
+  real path, so taking a "deliberate amendment" to it beforehand removes a
+  guard that was never in force, and the PR then ships whatever it did to the
+  grader while everyone believes the removal was reviewed.
 
 [FU-EFF-QUICK-PRACTICE-BATCH] — Route Quick Practice through the batched
 gradeWorksheet path. Five separate checks cost $0.070; batched $0.022 — 69%
@@ -70,6 +77,11 @@ getTokenTelemetry(). A read endpoint needs index.cjs. Until it exists the
 instrumentation MEASURES but does not REPORT, and the owner cannot get the
 token distribution that every thinking-budget and pricing decision depends
 on. Named next lane, not a background item.
+★ OWNER-APPROVED SHAPE: combine with Lane G's [FU-ANON-BUCKET-XFF-DEPENDENT]
+shape diagnostic — same file, both readouts, one review. Lane G owns
+index.cjs and runs this AFTER the CORS PR. Both lanes reached "telemetry read
+path goes first" independently, and both need the same frozen file, so they
+must not be two PRs racing for it.
 ```
 
 ### ★★ AUTH / EMAIL TIER — all three from the #538 live verification
@@ -204,6 +216,135 @@ in lockstep. Touches frozen App.tsx (overlay gates) and has site-wide blast
 radius — a base-path error white-screens every route on hard refresh, which
 no gate catches. Standalone lane; live-verify a hard refresh on deep routes
 across both domains and both auth states. Zero functional benefit.
+```
+
+### ★★ LANE G's SET — appended here rather than queued behind this PR (owner ruling)
+Lane G (#537, server rate limiter) had no handoff of its own; its entries are recorded here so the two lanes' work reaches the board once, in one place. Three of Lane G's ten were already present in this update — `[FU-TELEMETRY-NO-READ-PATH]`, `[FU-EFF-RESPONSE-SCHEMA]` and `[FU-DROP-APP-BASEPATH]` — and were **enriched in place rather than duplicated**; the seven below are new.
+
+```
+[FU-FORBIDDEN-PATH-PREFIX-BUG] — ★★ THE GRADER IS PROTECTED BY AN ENTRY THAT
+CANNOT FIRE, AND THIS MUST LAND BEFORE ANY LANE THAT TOUCHES
+checkSolution.cjs. Both FORBIDDEN arrays list 'server/routes/checkSolution.cjs'
+WITHOUT the lazytopper/ prefix every other entry carries
+(check_improve_convergence_acceptance.mjs:476,
+check_improve_overlay_additive_acceptance.mjs:262). The check is
+changed.includes(f) — exact array membership (:520 and :299 respectively) —
+and git diff --name-only emits repo-relative paths, so the real path
+lazytopper/server/routes/checkSolution.cjs can NEVER match.
+  ★ VERIFIED INDEPENDENTLY BY LANE H, and the same file contains the proof:
+  check_improve_convergence_acceptance.mjs:528 checks
+  'lazytopper/src/components/equation/EquationInput.test.tsx' WITH the prefix,
+  in the same array style, and that one does match. So the array is internally
+  inconsistent, and a working sibling entry demonstrates the correct shape.
+  RULING: its own micro-PR (one line + a test asserting the entry matches a
+real repo-relative path). Do NOT fold it into another change. If a later lane
+takes its "deliberate FORBIDDEN amendment" for checkSolution.cjs first, that
+lane lifts a protection which was never in place, and ships whatever it did to
+the grader while everyone believes a guard was knowingly removed. A false
+sense of review is more dangerous than no review.
+
+[FU-ANON-BUCKET-XFF-DEPENDENT] — The api-server proxies to 127.0.0.1
+(app.ts:45-57), so at the gateway req.socket.remoteAddress is ALWAYS the
+api-server. The anonymous rate-limit bucket therefore depends entirely on
+x-forwarded-for surviving the Vercel → Railway → proxy hops (it is not in
+STRIPPED_PROXY_HEADERS). If XFF is absent, or the wrong chain element is
+parsed, every signed-out caller collapses into one shared ip:127.0.0.1 bucket
+of 3/day. FAILS CLOSED — no billing risk — but an invisible outage for
+signed-out visitors, who legitimately reach generate-visual/generate-diagram
+from FREE practice surfaces (VisualExplainer, QuestionVisualAid).
+Environmental: no test can catch it.
+  - The limiter keys on .split(",")[0] — the FIRST chain element, the client.
+    CORRECT. Verified on merged trunk at rateLimiter.cjs:273.
+  - Probe RULED OUT by owner: four anonymous POSTs would consume the shared
+    bucket in exactly the broken case, locking out signed-out visitors until
+    IST midnight on launch weekend.
+  - Logs cannot resolve it: telemetry emits counter NAMES only
+    (rateLimiter.cjs:372-414), never the bucket key, so ip:127.0.0.1 is
+    indistinguishable from a real client IP.
+  - Instrument instead: a 3-line SHAPE diagnostic —
+    rate_limit.anon_key.loopback vs rate_limit.anon_key.client. Emits the
+    shape of the resolved key, never the key. No IP, no PII. The first
+    signed-out production request answers it definitively.
+    → COMBINED into the [FU-TELEMETRY-NO-READ-PATH] index.cjs PR
+    (owner-approved).
+  - Free canary meanwhile: an anon hard_block firing implausibly early is the
+    collapse signature.
+
+[FU-API-CORS-WIDE-OPEN] — artifacts/api-server/src/app.ts:29 is a bare
+app.use(cors()) — every origin allowed. This is the FRONT DOOR for both
+/shared-api (:33) and /api (proxied to the gateway at :45). Lock to an
+env-driven allowlist from CORS_ALLOWED_ORIGINS (already set in Railway).
+★★ TRAP: vercel.json rewrites /api/:path* to Railway SERVER-SIDE, so
+legitimate production traffic may arrive with NO Origin header. An allowlist
+that rejects missing-Origin requests kills every API call in production while
+passing every gate. Missing Origin must be ALLOWED; only a present-but-
+DISALLOWED Origin is refused. → IN PROGRESS, Lane G.
+
+[FU-API-NO-SECURITY-HEADERS] — No helmet on the api-server, so no CSP / HSTS /
+X-Frame-Options. Roughly one line, but CSP may break Firebase/Gemini calls —
+add with CSP tuned or initially off, and verify the app still loads.
+→ folded into the Lane G CORS PR (helmet third).
+
+[FU-GATEWAY-CORS-ORIGIN-STALE] — config.CORS_ORIGIN is pinned to
+lazytopper-production-desktop.vercel.app (observed in live response headers,
+2026-07-26). Single-string by design (serverConfig.cjs:59, httpUtils.cjs:5/13)
+— the gateway supports exactly one origin. HARMLESS TODAY because production
+reaches the gateway via Vercel's server-side rewrite with no Origin, so the
+browser never evaluates it. Would matter if anything ever called the Railway
+host directly from a browser. Low priority. Note that the two CORS layers
+disagree BY DESIGN once the app.ts allowlist lands.
+
+[FU-DEAD-AI-LEARNING-PATH] — generateAILearningPath
+(learningPathGenerator.ts:285) calls callMentor("plan") at :303 → /api/mentor,
+deleted by Retirement PR-2 (index.cjs:124). It therefore ALWAYS fails, and
+WeakAreaPracticePage.tsx:340-343 catches and silently serves the local
+heuristic generateLearningPath (learningPathGenerator.ts:83). NOT a launch
+blocker — no student-visible break. One wasted failed request per "Generate
+path" click, and an AI feature that is dead while the code implies it is live.
+Owner decision: repoint to /api/tutor or delete the AI path. The weak-area →
+practice flow (:325/:331) is pure navigate() with NO API and is unaffected.
+(Supersedes the earlier [FU-WEAKAREA-AI-PATH-404] framing, which wrongly
+called this a launch blocker — that ID is WITHDRAWN by the owner, not
+tombstoned, because the try/catch fallback means it was never a break.)
+
+[FU-DETECT-QUESTION-CACHE] — Do NOT build now. Cache detection by question
+hash (mirroring getOrCreateModelSolution's hash-and-store), and skip detection
+entirely when marks are already known via the tutor entry. Do NOT merge detect
+into the grade call: it saves ~$0.001 and would remove the marks-confirmation
+step at DesktopCheckImprovePage:1133-1136 that step-marking depends on.
+Context: #537 reclassified /api/detect-question from vision to practice
+(billing bucket only — feature untouched), because one advertised check fires
+detect-question AND check-solution, and while both were vision a ceiling of 30
+bought only ~15 real checks against the 25/day advertised.
+```
+
+### ★ Corrections to entries that already existed on this board
+
+```
+[FU-SIGNUP-NO-PHONE-OPTION] — ★ THIS HAD NO BODY ON THE BOARD. Until now the
+ID appeared only as a cross-reference inside [FU-AUTH-CLUSTER-SEQUENCING];
+there was no standalone entry, so a reader saw the name and no description.
+Written out here with Lane G's trigger-traced framing, which is the correct
+one of the two readings in circulation:
+  NOT "phone sign-in is unavailable". Phone sign-in is LIVE at /login → Phone
+  tab (Login.tsx:1152 → :1198 → :1226 → sendPhoneOtp :975). It is /sign-up
+  that has ZERO phone matches. So a phone-only student CAN register — but only
+  by finding the Sign IN page, which no new user would think to do.
+  Technically met, practically broken.
+The distinction matters because the two readings are different bugs with
+different fixes: the first would mean building phone auth, the second means
+surfacing an entry point that already works. Part of the auth cluster; must
+run sequentially with the others, see [FU-AUTH-CLUSTER-SEQUENCING].
+
+[FU-COMMIT-SUBJECT-AT] — COUNT UPDATED: the instance count is now FOUR, not
+the three recorded in the 2026-07-25 entry. Two reached trunk (#533 82b434d,
+#535 7185c5f) and TWO WERE PREVENTED — #537 by an explicit --subject, and
+Lane G's most recent. The 2026-07-25 entry is left as written because "three"
+was true on that date; this is the current count. Prevention is now working,
+which is the useful part: the guard is an explicit subject at commit time, not
+a PR-title fix, because the squash dialog pre-fills from the COMMIT BODY when
+a PR has a single commit. All four Lane H PRs (#538-#541) were checked at
+commit time and none carried it.
 ```
 
 ### Live-verify still owed
