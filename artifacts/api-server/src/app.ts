@@ -1,9 +1,9 @@
 import express, { type Express } from "express";
 import http from "http";
-import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { applySecurityMiddleware } from "./lib/security";
 
 const app: Express = express();
 
@@ -26,7 +26,12 @@ app.use(
     },
   }),
 );
-app.use(cors());
+// CORS allowlist + helmet. Replaces a bare `app.use(cors())` that allowed every
+// origin. Applied at this exact position because it already sits in front of
+// BOTH entry points below — the `/shared-api` router and the `/api` gateway
+// proxy — so nothing needs reordering. See ./lib/security.ts for why a missing
+// Origin is allowed and why a refusal must not be an Error.
+applySecurityMiddleware(app, process.env, (message) => logger.warn(message));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 

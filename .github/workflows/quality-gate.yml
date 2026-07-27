@@ -79,6 +79,30 @@ jobs:
       - name: Root guard matrix (scripts/ test:matrix:all)
         run: pnpm --filter @workspace/scripts run test:matrix:all
 
+      # --- artifacts/api-server: typecheck + edge security tests ---
+      # NEITHER existed before this step. CI ran no gate of any kind over
+      # artifacts/api-server, even though railway.json starts it and vercel.json
+      # rewrites /api/* AND /shared-api/* to it — it is the production FRONT DOOR.
+      # The only thing catching a type error there was the Railway build, i.e. the
+      # deploy itself.
+      #
+      # The ROOT typecheck script is the one to run: it builds the lib/* project
+      # references first (`tsc --build`) and then checks api-server and scripts.
+      # api-server's own typecheck alone fails TS6305, because the referenced
+      # projects have not been emitted yet.
+      - name: Typecheck (root — libs, api-server, scripts)
+        run: pnpm run typecheck
+
+      # Behavioural CORS/helmet tests against a real listening Express app. Fast
+      # (~2 s) and heap-trivial, so the vitest worker cap does not apply.
+      # ★ Asserts OBSERVED RESPONSE HEADERS, never config keys — helmet silently
+      # ignores an option name it does not recognise, so a key alone proves
+      # nothing. The suite exists for the one failure no static gate can catch:
+      # refusing a request that arrives with NO Origin header, which the
+      # server-side Vercel rewrite makes the MAIN production path.
+      - name: Edge security tests (api-server CORS allowlist + helmet)
+        run: pnpm --filter @workspace/api-server run test
+
       # --- lazytopper gates ---
       - name: Mojibake check (lazytopper)
         run: pnpm --filter lazytopper run check:mojibake
