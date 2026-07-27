@@ -57,6 +57,7 @@ export default function SignUpPage() {
     return isSafeInternalPath(st.from) ? st.from : "/";
   }, [location.state]);
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -90,7 +91,25 @@ export default function SignUpPage() {
     event.preventDefault();
     if (busy) return;
     setError(null);
+    const trimmedName = name.trim();
     const trimmedEmail = email.trim();
+    // The name is REQUIRED, not optional, and that is a deliberate call.
+    // Google sign-in supplies `displayName`; email/password sign-up did not, so
+    // `displayName` fell back to the raw email address across the shell
+    // (App.tsx, DesktopShell, MobileAccountMenu, DashboardHeader,
+    // ShareProgressPrompt) — a student's email rendered as their name.
+    //
+    // This is a ONE-WAY DOOR: an account created without a name cannot be
+    // backfilled without asking the student again. An OPTIONAL field would
+    // therefore close the defect only for the students who happened to fill it
+    // in, and permanently re-create it for everyone who skipped — which is the
+    // same bug with a smaller blast radius. One required field at the top of a
+    // three-field form is the cheaper side of that trade, and Google sign-in
+    // remains a one-click path for anyone who does not want to type it.
+    if (!trimmedName) {
+      setError("Enter your name.");
+      return;
+    }
     if (!trimmedEmail || !password) {
       setError("Enter an email and a password.");
       return;
@@ -101,7 +120,7 @@ export default function SignUpPage() {
     }
     setBusy(true);
     try {
-      await signUpWithEmailPassword(trimmedEmail, password);
+      await signUpWithEmailPassword(trimmedEmail, password, trimmedName);
       // Navigation handled by the `user` effect once auth state updates.
     } catch (err) {
       setError(describeAuthError(err));
@@ -230,6 +249,21 @@ export default function SignUpPage() {
         </div>
 
         <form onSubmit={handleEmailSubmit} noValidate>
+          <label
+            htmlFor="lt-su-name"
+            style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text)", marginBottom: 7 }}
+          >
+            Your name
+          </label>
+          <input
+            id="lt-su-name"
+            type="text"
+            autoComplete="name"
+            placeholder="Ananya Sharma"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ ...fieldStyle, marginBottom: 12 }}
+          />
           <label
             htmlFor="lt-su-email"
             style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text)", marginBottom: 7 }}
