@@ -15,6 +15,7 @@ import {
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
+import { RequirePremium } from "../../components/auth/RequireAuth";
 import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
 import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
@@ -722,7 +723,7 @@ export interface CheckImproveOverlayProps {
   ) => void;
 }
 
-const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => {
+const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => {
   const navigate = useNavigate();
   // The return ticket (Section C). Null on a direct visit — this page then renders
   // exactly as it always has. ROUTE_CTX below is the OUTBOUND context this page hands
@@ -3257,5 +3258,39 @@ const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> 
     "Your result",
   );
 };
+
+/**
+ * Entitlement gate — IN-COMPONENT, never route-level.
+ *
+ * `/check-improve` was a bare <Route> and this component read only `useAuth`, so a
+ * SIGNED-OUT visitor could trigger Gemini vision grading — the most expensive call
+ * the product makes — while the pricing page lists "Solution Checker / Check &
+ * Improve" as excluded from Free (PricingPage:39) and sold in Premium (:58). The
+ * product contradicted its own published packaging.
+ *
+ * The gate lives here rather than on the route because `App.tsx` is frozen: two ops
+ * gates assert it shows zero diff against the PR base, and the overlay acceptance
+ * gate pins the route element as a BARE `<DesktopCheckImprovePage />` (GUARD 5).
+ * In-component gating reaches the identical outcome with no `App.tsx` change.
+ *
+ * ★ THE WRAPPER MUST FORWARD `overlay`, and this is not cosmetic. Three gate
+ * assertions constrain the exported symbol, not just its name:
+ *   GUARD 6 — the type is `React.FC<{ overlay?: CheckImproveOverlayProps }>`
+ *   GUARD 5 — App renders `<DesktopCheckImprovePage />` with NO props
+ *   HOST    — TutorCheckImproveOverlay renders `<DesktopCheckImprovePage overlay={{ onClose }} />`
+ * A wrapper that dropped the prop would still satisfy a reading of the spec and
+ * still pass typecheck, but would silently break the tutor's C&I overlay at
+ * runtime by swallowing `onClose`. Forwarding keeps all three green and the
+ * overlay working; the render test below is the proof, not this comment.
+ *
+ * Gating the COMPONENT also gates the overlay, which is correct: the overlay only
+ * opens from the tutor, which is itself premium-gated, so a premium user reaching
+ * it passes this gate too.
+ */
+const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => (
+  <RequirePremium featureLabel="Check & Improve">
+    <DesktopCheckImprovePageInner overlay={overlay} />
+  </RequirePremium>
+);
 
 export default DesktopCheckImprovePage;
