@@ -4,11 +4,16 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, relative, sep } from "node:path";
 
 import {
-  ANNUAL_AT_MONTHLY_RATE_INR,
-  ANNUAL_SAVING_INR,
+  ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR,
+  ANNUAL_AT_MONTHLY_RATE_LIST_INR,
+  ANNUAL_SAVING_FOUNDING_INR,
+  ANNUAL_SAVING_LIST_INR,
+  MONTHLY_INLINE,
   MONTHS_PER_BOARD_YEAR,
-  PRICE_ANNUAL_INR,
-  PRICE_MONTHLY_INR,
+  PRICE_ANNUAL_FOUNDING_INR,
+  PRICE_ANNUAL_LIST_INR,
+  PRICE_MONTHLY_FOUNDING_INR,
+  PRICE_MONTHLY_LIST_INR,
   formatInr,
 } from "./pricing";
 
@@ -145,11 +150,44 @@ describe("pricing guard — no price literals outside the pricing module", () =>
 });
 
 describe("pricing module — the derivation holds", () => {
-  it("derives the saving from the two prices rather than restating it", () => {
-    expect(ANNUAL_AT_MONTHLY_RATE_INR).toBe(PRICE_MONTHLY_INR * MONTHS_PER_BOARD_YEAR);
-    expect(ANNUAL_SAVING_INR).toBe(ANNUAL_AT_MONTHLY_RATE_INR - PRICE_ANNUAL_INR);
-    // The board year must actually be cheaper, or the saving line is a lie.
-    expect(ANNUAL_SAVING_INR).toBeGreaterThan(0);
+  it("derives BOTH savings from their own tier's prices rather than restating them", () => {
+    expect(ANNUAL_AT_MONTHLY_RATE_LIST_INR).toBe(
+      PRICE_MONTHLY_LIST_INR * MONTHS_PER_BOARD_YEAR,
+    );
+    expect(ANNUAL_SAVING_LIST_INR).toBe(
+      ANNUAL_AT_MONTHLY_RATE_LIST_INR - PRICE_ANNUAL_LIST_INR,
+    );
+
+    expect(ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR).toBe(
+      PRICE_MONTHLY_FOUNDING_INR * MONTHS_PER_BOARD_YEAR,
+    );
+    expect(ANNUAL_SAVING_FOUNDING_INR).toBe(
+      ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR - PRICE_ANNUAL_FOUNDING_INR,
+    );
+
+    // Each board year must actually be cheaper than 12 months at its OWN
+    // monthly rate, or that tier's saving line is a lie.
+    expect(ANNUAL_SAVING_LIST_INR).toBeGreaterThan(0);
+    expect(ANNUAL_SAVING_FOUNDING_INR).toBeGreaterThan(0);
+  });
+
+  it("keeps every founding price strictly below its list counterpart", () => {
+    // The entire founding proposition is "you pay less for taking a risk". If a
+    // founding price ever met or exceeded its list price the offer would be
+    // meaningless, and the struck-through list figure beside it would be
+    // actively misleading rather than merely redundant.
+    expect(PRICE_MONTHLY_FOUNDING_INR).toBeLessThan(PRICE_MONTHLY_LIST_INR);
+    expect(PRICE_ANNUAL_FOUNDING_INR).toBeLessThan(PRICE_ANNUAL_LIST_INR);
+  });
+
+  it("quotes the FOUNDING rate at the moment of upgrade intent", () => {
+    // MONTHLY_INLINE is what the practice-limit and mock-view gates render, and
+    // those two files import nothing else from this module. While the cohort is
+    // open the only honest number there is the one actually charged today. This
+    // pins the binding so that a tier rename cannot silently repoint the gates
+    // at the list price without a test going red.
+    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)}/month`);
+    expect(MONTHLY_INLINE).not.toContain(String(PRICE_MONTHLY_LIST_INR));
   });
 
   it("formats with Indian digit grouping and no ICU dependency", () => {

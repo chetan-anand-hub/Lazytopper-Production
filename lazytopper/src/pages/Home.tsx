@@ -4,18 +4,27 @@ import { useNavigate } from "react-router-dom";
 import { trackUxEvent } from "../services/uxTelemetry";
 import {
   ANNUAL_SAVING_SUBLINE,
+  AVAILABILITY_IN_STOCK,
+  AVAILABILITY_LIMITED,
   BILLING_INCREMENT_ANNUAL,
   BILLING_INCREMENT_MONTHLY,
   BILLING_UNIT_MONTH,
+  FOUNDING_COHORT_COPY,
+  FOUNDING_LABEL,
   MONTHLY_INLINE,
   PERIOD_ANNUAL_LABEL,
-  PRICE_ANNUAL_DISPLAY,
-  PRICE_ANNUAL_JSONLD,
+  PERIOD_MONTHLY_LABEL,
+  PRICE_ANNUAL_FOUNDING_DISPLAY,
+  PRICE_ANNUAL_FOUNDING_JSONLD,
+  PRICE_ANNUAL_LIST_DISPLAY,
+  PRICE_ANNUAL_LIST_JSONLD,
   PRICE_CURRENCY,
   PRICE_FREE_DISPLAY,
   PRICE_FREE_JSONLD,
-  PRICE_MONTHLY_DISPLAY,
-  PRICE_MONTHLY_JSONLD,
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_JSONLD,
+  PRICE_MONTHLY_LIST_DISPLAY,
+  PRICE_MONTHLY_LIST_JSONLD,
 } from "../config/pricing";
 import "./home.css";
 
@@ -258,10 +267,18 @@ const Home: React.FC = () => {
           // the no-literal guard rather than exempted from it. Google also flags
           // structured data that contradicts the rendered page, so these must
           // stay sourced from the same constants as the visible block below.
+          // BOTH tiers are published, because both are real and both are
+          // rendered on the page below. The founding pair carries
+          // LimitedAvailability — the standard term for a bounded offer — while
+          // the list pair is InStock. The cohort SIZE and the SAVING are
+          // deliberately absent: schema.org has no field for either, and an
+          // invented Offer property is ignored or flagged rather than indexed.
           offers: [
-            { "@type": "Offer", name: "Free", price: PRICE_FREE_JSONLD, priceCurrency: PRICE_CURRENCY },
-            { "@type": "Offer", name: "Premium Monthly", price: PRICE_MONTHLY_JSONLD, priceCurrency: PRICE_CURRENCY, billingIncrement: BILLING_INCREMENT_MONTHLY, unitCode: BILLING_UNIT_MONTH },
-            { "@type": "Offer", name: "Premium Board Year", price: PRICE_ANNUAL_JSONLD, priceCurrency: PRICE_CURRENCY, billingIncrement: BILLING_INCREMENT_ANNUAL, unitCode: BILLING_UNIT_MONTH },
+            { "@type": "Offer", name: "Free", price: PRICE_FREE_JSONLD, priceCurrency: PRICE_CURRENCY, availability: AVAILABILITY_IN_STOCK },
+            { "@type": "Offer", name: "Founding Member Monthly", price: PRICE_MONTHLY_FOUNDING_JSONLD, priceCurrency: PRICE_CURRENCY, availability: AVAILABILITY_LIMITED, billingIncrement: BILLING_INCREMENT_MONTHLY, unitCode: BILLING_UNIT_MONTH },
+            { "@type": "Offer", name: "Founding Member Board Year", price: PRICE_ANNUAL_FOUNDING_JSONLD, priceCurrency: PRICE_CURRENCY, availability: AVAILABILITY_LIMITED, billingIncrement: BILLING_INCREMENT_ANNUAL, unitCode: BILLING_UNIT_MONTH },
+            { "@type": "Offer", name: "Premium Monthly", price: PRICE_MONTHLY_LIST_JSONLD, priceCurrency: PRICE_CURRENCY, availability: AVAILABILITY_IN_STOCK, billingIncrement: BILLING_INCREMENT_MONTHLY, unitCode: BILLING_UNIT_MONTH },
+            { "@type": "Offer", name: "Premium Board Year", price: PRICE_ANNUAL_LIST_JSONLD, priceCurrency: PRICE_CURRENCY, availability: AVAILABILITY_IN_STOCK, billingIncrement: BILLING_INCREMENT_ANNUAL, unitCode: BILLING_UNIT_MONTH },
           ],
           description: SEO_DESCRIPTION,
           aggregateRating: {
@@ -523,9 +540,18 @@ const Home: React.FC = () => {
               <div className="lt-pricing__plan-header">
                 <h3>Premium</h3>
                 <div className="lt-pricing__price">
-                  <span className="lt-pricing__amount">{PRICE_MONTHLY_DISPLAY}</span>
+                  <span className="lt-pricing__amount">{PRICE_MONTHLY_FOUNDING_DISPLAY}</span>
                   <span className="lt-pricing__period">/month</span>
                 </div>
+                {/* Both tiers are shown, and the struck figure is the LIST price
+                    — live and charged once the cohort fills, not a retired
+                    price. `<s>` renders the strike natively; home.css is outside
+                    this PR's allowlist, so no new class is introduced here. */}
+                <p className="lt-pricing__list-line">
+                  {`${FOUNDING_LABEL} · ${FOUNDING_COHORT_COPY} Regular price `}
+                  <s>{PRICE_MONTHLY_LIST_DISPLAY}</s>
+                  {PERIOD_MONTHLY_LABEL}
+                </p>
                 <p className="lt-pricing__anchor">Less than one tuition class</p>
               </div>
               <ul className="lt-pricing__features">
@@ -556,7 +582,11 @@ const Home: React.FC = () => {
             <div className="lt-pricing__pack">
               <div className="lt-pricing__pack-badge">Board Year</div>
               <span className="lt-pricing__pack-price">
-                {`${PRICE_ANNUAL_DISPLAY} ${PERIOD_ANNUAL_LABEL}`}
+                {`${PRICE_ANNUAL_FOUNDING_DISPLAY} ${PERIOD_ANNUAL_LABEL}`}
+              </span>
+              <span className="lt-pricing__pack-list">
+                {"Regular price "}
+                <s>{PRICE_ANNUAL_LIST_DISPLAY}</s>
               </span>
               <span className="lt-pricing__pack-save">{ANNUAL_SAVING_SUBLINE}</span>
             </div>

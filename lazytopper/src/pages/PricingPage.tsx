@@ -2,15 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import {
-  ANNUAL_AT_MONTHLY_RATE_DISPLAY,
-  ANNUAL_SAVING_DISPLAY,
+  ANNUAL_AT_MONTHLY_RATE_FOUNDING_DISPLAY,
+  ANNUAL_SAVING_FOUNDING_DISPLAY,
   ANNUAL_SAVING_SUBLINE,
+  FOUNDING_COHORT_COPY,
+  FOUNDING_COHORT_SIZE,
+  FOUNDING_LABEL,
+  FOUNDING_LOCK_COPY,
   MONTHS_PER_BOARD_YEAR,
   PERIOD_ANNUAL_LABEL,
   PERIOD_FREE_LABEL,
-  PRICE_ANNUAL_DISPLAY,
+  PERIOD_MONTHLY_LABEL,
+  PRICE_ANNUAL_FOUNDING_DISPLAY,
+  PRICE_ANNUAL_LIST_DISPLAY,
   PRICE_FREE_DISPLAY,
-  PRICE_MONTHLY_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_LIST_DISPLAY,
   TUITION_ANCHOR,
 } from "../config/pricing";
 
@@ -210,17 +217,54 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-price-alt {
-    margin: 0 0 4px;
+    margin: 0 0 2px;
     color: var(--lt-muted);
     font-size: 0.85rem;
     font-weight: 600;
   }
 
   .lt-pricing-price-sub {
-    margin: 0 0 14px;
+    margin: 0 0 10px;
     color: var(--lt-green);
     font-size: 0.82rem;
     font-weight: 700;
+  }
+
+  /* Founding-offer chrome. The flag sits above the price so the number is read
+     as a founding rate rather than as the regular price. */
+  .lt-pricing-founding-flag {
+    margin: 0 0 10px;
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(22, 185, 106, 0.14);
+    border: 1px solid rgba(22, 185, 106, 0.32);
+    color: var(--lt-green);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .lt-pricing-list-line {
+    margin: 0 0 6px;
+    color: var(--lt-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  .lt-pricing-list-line--annual {
+    margin-bottom: 10px;
+  }
+
+  .lt-pricing-founding-note {
+    margin: 0 0 16px;
+    color: var(--lt-ink);
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.45;
   }
 
   .lt-pricing-plan-desc {
@@ -664,7 +708,24 @@ const FAQ_ITEMS = [
   },
   {
     q: "Should I pay monthly or for the board year?",
-    a: `${MONTHS_PER_BOARD_YEAR} months at ${PRICE_MONTHLY_DISPLAY} comes to ${ANNUAL_AT_MONTHLY_RATE_DISPLAY}. The board year is ${PRICE_ANNUAL_DISPLAY}, so you save ${ANNUAL_SAVING_DISPLAY} and stay covered right through your board exams. Monthly is there if you would rather start small.`,
+    a: `${MONTHS_PER_BOARD_YEAR} months at ${PRICE_MONTHLY_FOUNDING_DISPLAY} comes to ${ANNUAL_AT_MONTHLY_RATE_FOUNDING_DISPLAY}. The board year is ${PRICE_ANNUAL_FOUNDING_DISPLAY}, so you save ${ANNUAL_SAVING_FOUNDING_DISPLAY} and stay covered right through your board exams. Monthly is there if you would rather start small.`,
+  },
+  {
+    // The offer's honesty rests entirely on this answer, so it states the close
+    // condition and the lock in the same breath. If a future edit drops either
+    // half, the founding framing stops being true.
+    //
+    // ⚠ THE PROMISE IS SCOPED TO AN ACTIVE SUBSCRIPTION, deliberately.
+    // An earlier draft said "we do not raise anyone's price". That is a claim
+    // about PUBLISHED prices, and it is broader than this product can support —
+    // the board year was ₹4,999 as recently as #539, one day before this PR.
+    // What can be supported without qualification is narrower and is the thing
+    // a subscriber actually cares about: your own rate never moves while your
+    // subscription is active. Do not widen this back out. The broad version is
+    // precisely the sentence a student who saw an older published price would
+    // quote back.
+    q: `What happens after the first ${FOUNDING_COHORT_SIZE} students?`,
+    a: `The founding offer closes. New members then join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL} or ${PRICE_ANNUAL_LIST_DISPLAY} ${PERIOD_ANNUAL_LABEL}, which is what we publish today alongside the founding rate. Your rate is locked. Once you subscribe as a founding member you keep that rate for as long as your subscription stays active. We never change the price of an active subscription.`,
   },
   {
     q: "Are there any usage limits?",
@@ -762,14 +823,32 @@ export default function PricingPage() {
             <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">
               Premium
             </div>
+            <p className="lt-pricing-founding-flag">
+              {`${FOUNDING_LABEL} · ${FOUNDING_COHORT_COPY}`}
+            </p>
             <div className="lt-pricing-price">
-              <span className="lt-pricing-amount">{PRICE_ANNUAL_DISPLAY}</span>
+              <span className="lt-pricing-amount">{PRICE_ANNUAL_FOUNDING_DISPLAY}</span>
               <span className="lt-pricing-period">{PERIOD_ANNUAL_LABEL}</span>
             </div>
+            {/* The list price is struck because it is not what a founding member
+                pays — NOT because it is a retired price. It is live and charged
+                from student 201. `<s>` carries that meaning natively and needs no
+                extra CSS to render the strike. */}
+            <p className="lt-pricing-list-line lt-pricing-list-line--annual">
+              {"Regular price "}
+              <s>{PRICE_ANNUAL_LIST_DISPLAY}</s>
+              {` ${PERIOD_ANNUAL_LABEL}`}
+            </p>
             <p className="lt-pricing-price-alt">
-              {`or ${PRICE_MONTHLY_DISPLAY} / month · ${TUITION_ANCHOR}`}
+              {`or ${PRICE_MONTHLY_FOUNDING_DISPLAY} ${PERIOD_MONTHLY_LABEL} · ${TUITION_ANCHOR}`}
+            </p>
+            <p className="lt-pricing-list-line lt-pricing-list-line--monthly">
+              {"Regular price "}
+              <s>{PRICE_MONTHLY_LIST_DISPLAY}</s>
+              {` ${PERIOD_MONTHLY_LABEL}`}
             </p>
             <p className="lt-pricing-price-sub">{ANNUAL_SAVING_SUBLINE}</p>
+            <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
             <p className="lt-pricing-plan-desc">
               Manual activation during beta. Payment checkout coming soon.
               Premium is not activated automatically.
