@@ -15,6 +15,8 @@
 
 **★★ Reusable finding — fix the cause, and make the guard cover the shape you did NOT think of.** H-2 was scoped to one page; the price actually lived in five places across four files, two of them live and route-mounted. The single-constant fix is unremarkable — what matters is that the **most dangerous instance carried no rupee sign at all** (`price: "149"` in JSON-LD, the value Google indexes). A guard written to the literal instruction would have shipped feeling complete while missing it.
 
+**★★ Reusable finding — a record that is only referenced is not a record.** `[FU-SIGNUP-NO-PHONE-OPTION]` sat on the FU board through a full handoff cycle with **no entry of its own** — the ID appeared only as a cross-reference inside `[FU-AUTH-CLUSTER-SEQUENCING]`. It read as recorded to everyone who saw it, and because there was no body to pin the framing, **two incompatible readings of the bug circulated simultaneously** ("phone sign-in is unavailable" vs "phone sign-in is live but unreachable from `/sign-up`") — different bugs with different fixes. Now a standing rule at the head of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`: **every FU ID must have its own heading and body, never only a mention.** The same shape applies beyond FUs — a decision referenced but never written down is not a decision, it is a memory that happens to still be in someone's head.
+
 **★★ Process finding — parallelism is bounded by RAM, not by file-disjointness.** Three file-disjoint workstreams were dispatched concurrently and two agent sessions were lost when concurrent `test:matrix:all` runs OOM-killed the editor on a 7.8GB machine. The lane finished **sequentially**, one suite at a time, with the full matrices moved to CI. Recorded in `NEXT_ACTION.md` as a standing constraint.
 
 ---

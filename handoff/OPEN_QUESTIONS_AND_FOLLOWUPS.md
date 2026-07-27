@@ -1,3 +1,17 @@
+# STANDING RULES FOR THIS BOARD
+*(Permanent. Above the dated sections deliberately, so they do not scroll away. Added 2026-07-27.)*
+
+**★ 1 · Every FU ID must have its own heading and body. Never only a mention.**
+**An ID that appears only as a cross-reference inside another FU reads as recorded on the board and is effectively unrecorded.** A reader sees the name, assumes it is written up somewhere, and moves on — and the finding behind it is gone. This is not hypothetical: `[FU-SIGNUP-NO-PHONE-OPTION]` sat on this board for a full handoff cycle with no entry of its own, mentioned only inside `[FU-AUTH-CLUSTER-SEQUENCING]`, and two different and incompatible readings of the bug were in circulation the whole time because there was no body to pin the correct one.
+
+The check is cheap and should be standing: for every `[FU-...]` referenced anywhere in this file, confirm a matching definition exists at the head of an entry. A reference without a definition is a silent loss, and silent losses are the failure mode this board exists to prevent.
+
+**2 · When an FU is assigned to two lanes, the lane that writes FIRST records it**, with an explicit "do not duplicate" line naming the other lane. A visible duplicate is recoverable by anyone reading; a silent loss is recoverable by nobody. Prefer the recoverable failure. *(Owner-confirmed as the default rule for FU placement, 2026-07-27.)*
+
+**3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
+
+---
+
 ## 2026-07-26 -- #538–#540 (LANE H): 1 FU tombstoned, 15 opened — the efficiency/pricing tier, the auth-email tier, and a guard-coverage tier (trunk `1013daa7`)
 
 ### RESOLVED — tombstoned
