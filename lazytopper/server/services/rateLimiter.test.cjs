@@ -18,11 +18,12 @@ const {
   PAID_ENDPOINTS,
   DEFAULT_LIMITS,
   SPEND_MODEL,
-  ADVERTISED_VISION_DAILY_SUBCAP,
+  OFFERED_VISION_DAILY_SUBCAP,
   VISION_SHED_FRACTION,
   MAX_SINGLE_UID_SHARE_OF_GLOBAL,
   CHECK_IMPROVE_FLOW_ENDPOINTS,
-  VISION_CALLS_PER_ADVERTISED_CHECK,
+  VISION_CALLS_PER_OFFERED_CHECK,
+  resolveCaller,
 } = require("./rateLimiter.cjs");
 
 /* ── fixtures ─────────────────────────────────────────────────────────────── */
@@ -434,23 +435,23 @@ test("one uid's hard ceilings together stay under a fifth of the global day", ()
 // MUTATION: reclassify "/api/detect-question" back to "vision" ⇒ RED here.
 test("the vision ceiling permits MORE checks per day than Premium advertises", () => {
   assert.equal(
-    VISION_CALLS_PER_ADVERTISED_CHECK,
+    VISION_CALLS_PER_OFFERED_CHECK,
     1,
-    `one advertised check now costs ${VISION_CALLS_PER_ADVERTISED_CHECK} vision calls ` +
+    `one advertised check now costs ${VISION_CALLS_PER_OFFERED_CHECK} vision calls ` +
       `(flow: ${CHECK_IMPROVE_FLOW_ENDPOINTS.join(" → ")}). Every extra vision call in the ` +
       "C&I flow halves the checks a student actually gets, so the ceiling silently stops " +
       "meaning what the pricing page says.",
   );
 
   const permittedChecksPerDay = Math.floor(
-    DEFAULT_LIMITS.vision.hard / VISION_CALLS_PER_ADVERTISED_CHECK,
+    DEFAULT_LIMITS.vision.hard / VISION_CALLS_PER_OFFERED_CHECK,
   );
 
   assert.ok(
-    permittedChecksPerDay > ADVERTISED_VISION_DAILY_SUBCAP,
+    permittedChecksPerDay > OFFERED_VISION_DAILY_SUBCAP,
     `the server permits ${permittedChecksPerDay} checks/day ` +
-      `(${DEFAULT_LIMITS.vision.hard} vision calls ÷ ${VISION_CALLS_PER_ADVERTISED_CHECK} per check) ` +
-      `but Premium sells ${ADVERTISED_VISION_DAILY_SUBCAP}/day — a paying student would be ` +
+      `(${DEFAULT_LIMITS.vision.hard} vision calls ÷ ${VISION_CALLS_PER_OFFERED_CHECK} per check) ` +
+      `but Premium sells ${OFFERED_VISION_DAILY_SUBCAP}/day — a paying student would be ` +
       "refused by the rate limiter while still inside the quota they bought.",
   );
 });
@@ -533,5 +534,100 @@ test("every shipped class has hard strictly above soft", () => {
         "soft alert can never fire before the wall, which is the whole point",
     );
     assert.ok(rules.soft > 0, `${klass}: soft must be positive`);
+  }
+});
+
+/* ── 12 · Anon-key SHAPE diagnostic ───────────────────────────────────────────
+   The api-server proxies to 127.0.0.1, so at this gateway `remoteAddress` is
+   always the api-server. The anonymous bucket therefore rests entirely on
+   `x-forwarded-for` surviving Vercel -> Railway -> proxy. If it does not, every
+   signed-out caller collapses into ONE shared bucket — fails closed, so no
+   billing risk, but an invisible outage for signed-out visitors.
+
+   These pin the SHAPE emit. Mutation-verified: inverting the ternary, dropping
+   the `caller.anonymous` guard, and moving the emit above the `!endpointClass`
+   early return each turn this section RED.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/** A signed-out caller arriving WITH a client address forwarded through the hops. */
+function reqAnonForwarded(clientIp = "203.0.113.55", proxyIp = "127.0.0.1") {
+  return {
+    headers: { "x-forwarded-for": `${clientIp}, 10.0.0.1` },
+    socket: { remoteAddress: proxyIp },
+  };
+}
+
+test("an anonymous caller WITH x-forwarded-for reports the `client` shape", () => {
+  const { rl, telemetry } = limiter();
+  rl.check(reqAnonForwarded(), "/api/generate-visual");
+  assert.equal(telemetry.count("rate_limit.anon_key.client"), 1);
+  assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
+});
+
+test("an anonymous caller WITHOUT x-forwarded-for reports the `loopback` shape", () => {
+  // The alarm case: no XFF means resolveCaller falls back to remoteAddress, which
+  // behind the proxy is the api-server — one bucket for every signed-out student.
+  const { rl, telemetry } = limiter();
+  rl.check(reqAnon("127.0.0.1"), "/api/generate-visual");
+  assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
+  assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
+});
+
+test("a SIGNED-IN caller reports no anon-key shape at all", () => {
+  // The uid keys the bucket; XFF is irrelevant, so an emit here would be noise
+  // that makes the loopback/client ratio unreadable.
+  const { rl, telemetry } = limiter();
+  rl.check(reqWithUid("uid-1"), "/api/generate-visual");
+  assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
+  assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
+});
+
+test("an UNPAID endpoint reports no anon-key shape (it never reaches a bucket)", () => {
+  // /api/user/progress/sync is not in PAID_ENDPOINTS, so check() returns before
+  // resolving a caller. Emitting there would swamp the counter with traffic that
+  // was never rate-limited.
+  const { rl, telemetry } = limiter();
+  rl.check(reqAnon(), "/api/user/progress/sync");
+  assert.equal(telemetry.count("rate_limit.anon_key.client"), 0);
+  assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 0);
+});
+
+test("the shape is reported per request, including the ones that get 429'd", () => {
+  // A denied request still tells us which key shape it was denied UNDER — and a
+  // wrong key shape is the likeliest reason a signed-out caller is being denied
+  // at all, so this is precisely when the diagnostic matters most.
+  const { rl, telemetry } = limiter();
+  for (let i = 0; i < 4; i++) rl.check(reqAnon("127.0.0.1"), "/api/generate-visual");
+  assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 4);
+});
+
+test("the emitted shape agrees with the key resolveCaller actually builds", () => {
+  // Guards the one thing a SHAPE label cannot prove on its own: that it describes
+  // the same decision the bucket is keyed on. If these two ever disagree, the
+  // diagnostic is confidently reporting on something else.
+  const forwarded = reqAnonForwarded("203.0.113.55");
+  const bare = reqAnon("127.0.0.1");
+
+  assert.equal(resolveCaller(forwarded).id, "ip:203.0.113.55", "client element wins");
+  assert.equal(resolveCaller(bare).id, "ip:127.0.0.1", "falls back to the proxy address");
+  assert.ok(resolveCaller(forwarded).anonymous && resolveCaller(bare).anonymous);
+
+  const { rl, telemetry } = limiter();
+  rl.check(forwarded, "/api/generate-visual");
+  rl.check(bare, "/api/generate-visual");
+  assert.equal(telemetry.count("rate_limit.anon_key.client"), 1);
+  assert.equal(telemetry.count("rate_limit.anon_key.loopback"), 1);
+});
+
+test("the shape emit carries no IP and no PII", () => {
+  // SHAPE ONLY. The whole point is that the answer is obtainable without ever
+  // putting a student's address into telemetry.
+  const { rl, telemetry } = limiter();
+  rl.check(reqAnonForwarded("203.0.113.55"), "/api/generate-visual");
+  const serialised = JSON.stringify(telemetry.events);
+  assert.ok(!serialised.includes("203.0.113.55"), "an IP reached telemetry");
+  assert.ok(!serialised.includes("10.0.0.1"), "a proxy hop reached telemetry");
+  for (const e of telemetry.events) {
+    assert.match(e.event, /^[a-z0-9._]+$/, `unexpected free text in event: ${e.event}`);
   }
 });
