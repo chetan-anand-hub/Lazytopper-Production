@@ -53,15 +53,102 @@ function renderPricing() {
 }
 
 describe("PricingPage — published prices (test 1)", () => {
-  it("renders ₹4,999 / board year as the hero price, with ₹599 / month and the saving", () => {
+  it("renders ₹5,999 / board year as the FOUNDING hero price, with ₹599 / month and the saving", () => {
     const { premium } = renderPricing();
 
-    expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe("₹4,999");
+    expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe("₹5,999");
     expect(flat(premium.querySelector(".lt-pricing-period"))).toBe("/ board year");
     expect(flat(premium.querySelector(".lt-pricing-price-alt"))).toBe(
       "or ₹599 / month · less than one tuition session",
     );
-    expect(flat(premium.querySelector(".lt-pricing-price-sub"))).toBe("save ₹2,189");
+    expect(flat(premium.querySelector(".lt-pricing-price-sub"))).toBe("save ₹1,189");
+  });
+
+  /**
+   * BOTH tiers must be visible, and the list figures must be struck.
+   *
+   * This is the assertion the founding offer actually rests on. A page showing
+   * only ₹599 is not a founding offer — it is just a low price, and the claim
+   * "regular price ₹999" becomes unfalsifiable copy. Asserting the `<s>` element
+   * specifically (not merely that the digits appear somewhere) pins the
+   * PRESENTATION: an edit that drops the strike leaves two live prices sitting
+   * side by side with nothing saying which one a student pays.
+   */
+  it("publishes the LIST price for both periods, struck, alongside the founding price", () => {
+    const { premium } = renderPricing();
+
+    const annualList = premium.querySelector(".lt-pricing-list-line--annual");
+    const monthlyList = premium.querySelector(".lt-pricing-list-line--monthly");
+
+    expect(flat(annualList)).toBe("Regular price ₹8,999 / board year");
+    expect(flat(monthlyList)).toBe("Regular price ₹999 / month");
+
+    // The list figure, and only the list figure, is struck through.
+    expect(flat(annualList?.querySelector("s"))).toBe("₹8,999");
+    expect(flat(monthlyList?.querySelector("s"))).toBe("₹999");
+    expect(flat(premium.querySelector(".lt-pricing-amount s"))).toBe("");
+  });
+
+  it("states the founding offer's two load-bearing promises: the lock and the cohort", () => {
+    const { premium } = renderPricing();
+    const card = flat(premium);
+
+    // Without BOTH of these the offer is a discount, not a founding rate — and
+    // "nobody's price ever rises" stops being something the page has said.
+    expect(card).toContain("Locked for as long as you stay subscribed.");
+    expect(card).toContain("First 200 students.");
+    expect(card.toLowerCase()).toContain("founding member");
+  });
+
+  it("answers what happens after the cohort fills, and locks the SUBSCRIBER's rate", () => {
+    const { inner } = renderPricing();
+    const faq = flat(inner.querySelector(".lt-pricing-faq"));
+
+    expect(faq).toContain("What happens after the first 200 students?");
+    // The close condition...
+    expect(faq).toContain("The founding offer closes.");
+    // ...and the lock, which is what makes the close honest rather than a bait.
+    expect(faq).toContain("Your rate is locked.");
+    expect(faq).toContain(
+      "you keep that rate for as long as your subscription stays active",
+    );
+    expect(faq).toContain("We never change the price of an active subscription.");
+    // Both tiers named in the FAQ, so a reader can check the claim.
+    expect(faq).toContain("₹999");
+    expect(faq).toContain("₹8,999");
+    expect(faq).toContain("₹599");
+    expect(faq).toContain("₹5,999");
+  });
+
+  /**
+   * The promise must stay scoped to an ACTIVE SUBSCRIPTION.
+   *
+   * "We do not raise anyone's price" is a claim about PUBLISHED prices, and the
+   * product cannot support it — the board year moved ₹4,999 → ₹5,999 between
+   * #539 and this PR. A reader who saw the older figure would quote the broad
+   * sentence back. This is a copy regression that no type, build or render check
+   * can see, so it is pinned as text: if the narrow claim is ever widened, this
+   * goes red and names the reason.
+   */
+  it("makes no absolute claim about PUBLISHED prices anywhere on the page", () => {
+    const { inner } = renderPricing();
+    const page = flat(inner).toLowerCase();
+
+    for (const overreach of [
+      "we do not raise anyone's price",
+      "we never raise anyone's price",
+      "we will never raise",
+      "price will never change",
+      "prices never change",
+      "price never rises",
+      "locked forever",
+      "lifetime price",
+    ]) {
+      expect(
+        page,
+        `overbroad price promise on the page: "${overreach}" — scope it to an active subscription instead`,
+      ).not.toContain(overreach);
+    }
   });
 
   it("keeps the Basic plan at ₹0 / forever", () => {
@@ -72,7 +159,7 @@ describe("PricingPage — published prices (test 1)", () => {
     expect(flat(basic.querySelector(".lt-pricing-period"))).toBe("/ forever");
   });
 
-  it("the three published premium figures are arithmetically consistent", () => {
+  it("the three published FOUNDING figures are arithmetically consistent", () => {
     const { premium } = renderPricing();
 
     const boardYear = parseRupees(flat(premium.querySelector(".lt-pricing-amount")));
@@ -80,6 +167,31 @@ describe("PricingPage — published prices (test 1)", () => {
     const saving = parseRupees(flat(premium.querySelector(".lt-pricing-price-sub")));
 
     expect(monthly * 12 - boardYear).toBe(saving);
+  });
+
+  it("the LIST tier is internally consistent too — its board year really is cheaper", () => {
+    // The list pair is published, so it carries the same promise the founding
+    // pair does: paying for the board year beats twelve monthly payments. Read
+    // from the DOM rather than the constants so this fails on a rendering bug,
+    // not only on a config edit.
+    const { premium } = renderPricing();
+
+    const listAnnual = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--annual")));
+    const listMonthly = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--monthly")));
+
+    expect(listMonthly * 12).toBeGreaterThan(listAnnual);
+  });
+
+  it("every founding figure undercuts its list counterpart on the rendered page", () => {
+    const { premium } = renderPricing();
+
+    const foundingAnnual = parseRupees(flat(premium.querySelector(".lt-pricing-amount")));
+    const foundingMonthly = parseRupees(flat(premium.querySelector(".lt-pricing-price-alt")));
+    const listAnnual = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--annual")));
+    const listMonthly = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--monthly")));
+
+    expect(foundingAnnual).toBeLessThan(listAnnual);
+    expect(foundingMonthly).toBeLessThan(listMonthly);
   });
 
   it("the FAQ's twelve-month total matches the monthly price and the saving", () => {
