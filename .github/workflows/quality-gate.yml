@@ -124,5 +124,21 @@ jobs:
       #      `vi.fn().mockImplementation` jsPDF constructor loses its implementation to
       #      `vi.restoreAllMocks()`, so every test after the first got a bare `{}`).
       # NEVER add a new --exclude here: a red vitest suite fails CI, which is the point.
+      # HEAP: the suite OOM'd the runner — "Ineffective mark-compacts near heap
+      # limit" — on PR #542, which added only 17 tests. The weight is src/data:
+      # 10.7 MB across 480 files, and vitest gives every worker its own module
+      # registry, so whichever suites import the question bank duplicate that graph
+      # per worker. #542 was the straw, not the weight.
+      #
+      # This is a RUNWAY EXTENSION, not a fix — the bank grows with every content
+      # lane, and phase 2 adds state boards and Class 12. [FU-VITEST-CI-HEAP-CEILING]
+      #
+      # ★ This bump is only safe alongside maxThreads: 2 in vitest.config.ts. The
+      # ubuntu runner has 16 GB and 4 vCPU, so vitest would default to 4 workers;
+      # 4 × 6144 = 24 GB would OOM the RUNNER rather than a worker. Capped at 2 the
+      # worst case is 12 GB, which fits with headroom. Do not raise one without the
+      # other.
       - name: Vitest suites (lazytopper)
         run: pnpm --filter lazytopper exec vitest run
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
