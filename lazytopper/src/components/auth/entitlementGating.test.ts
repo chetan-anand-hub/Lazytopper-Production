@@ -1,3 +1,5 @@
+﻿import path from "node:path";
+import fs from "node:fs";
 // @vitest-environment node
 /**
  * G2a — entitlement wiring, asserted against SOURCE. No DOM is involved, so this
@@ -82,6 +84,77 @@ describe("admin diagram pages already require auth (pinned, not added)", () => {
     const compare = src("pages/DiagramComparePage.tsx");
     const quality = src("pages/DiagramQualityPage.tsx");
     expect(compare + quality).toMatch(/generate-diagram|generateDiagram/);
+  });
+});
+
+/**
+ * ★ BLAST-RADIUS GUARD (added after PR-G2a cost half a day)
+ *
+ * Wrapping a component's default export in RequirePremium/RequireAuth changes what
+ * EVERY existing test rendering it does. A test that renders one signed out hits the
+ * gate's <Navigate>, and inside a MemoryRouter that loops SYNCHRONOUSLY: no timeout
+ * fires because the event loop never yields, and the worker dies at the heap ceiling.
+ * CI shows an OOM with no failing assertion and NO FILE NAME, because vitest only
+ * prints a suite line when the file finishes.
+ *
+ * This guard is source-text only. It runs in milliseconds and NAMES the offending
+ * file, instead of a ten-minute CI hang. It is self-maintaining: gate a new component
+ * and it immediately reports every test that must stub the gate.
+ */
+describe("gated components — every test that renders one must stub the gate", () => {
+  const SRC = path.resolve(__dirname, "..", "..");
+
+  const walk = (dir: string): string[] =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) return e.name === "node_modules" ? [] : walk(p);
+      return [p];
+    });
+
+  const files = walk(SRC);
+
+  it("names every unstubbed test, so a gate change can never hang CI again", () => {
+    // components whose DEFAULT EXPORT is wrapped
+    const gated = files
+      .filter((f) => f.endsWith(".tsx") && !f.includes(".test."))
+      .filter((f) => {
+        const src = fs.readFileSync(f, "utf8");
+        if (!/<RequirePremium|<RequireAuth/.test(src)) return false;
+        // Router files apply gates to ROUTES, not to their own default export.
+        // A test rendering the router lands on whichever route it asks for, so it
+        // is not exposed to the wrap-loop. App.tsx is the case that matters here.
+        if (/<Route\b/.test(src)) return false;
+        return true;
+      })
+      .map((f) => path.basename(f, ".tsx"));
+
+    expect(gated.length).toBeGreaterThan(0); // the guard must have something to guard
+
+    const offenders: string[] = [];
+
+    for (const t of files.filter((f) => f.endsWith(".test.tsx"))) {
+      const src = fs.readFileSync(t, "utf8");
+      if (!/\brender\s*\(/.test(src)) continue;
+
+      const rendersGated = gated.some(
+        (g) => new RegExp(`from\\s+["'][^"']*${g}["']`).test(src),
+      );
+      if (!rendersGated) continue;
+
+      const stubbed =
+        /vi\.mock\(\s*["'][^"']*auth\/RequireAuth["']/.test(src) ||
+        /vi\.mock\(\s*["'][^"']*hooks\/useSubscription["']/.test(src);
+
+      if (!stubbed) offenders.push(path.relative(SRC, t));
+    }
+
+    expect(
+      offenders,
+      `These tests render a gated component without stubbing the gate. ` +
+        `Signed out they will loop synchronously and OOM the worker. ` +
+        `Add vi.mock("../auth/RequireAuth", ...) or mock useSubscription:\n  ` +
+        offenders.join("\n  "),
+    ).toEqual([]);
   });
 });
 
