@@ -87,16 +87,63 @@ export interface MoreLikeThisResponse {
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
 export const MENTOR_ENDPOINT = `${API_BASE}/mentor`;
 
+/**
+ * A daily cap was reached. NOT a failure — the request was well-formed, the
+ * student did nothing wrong, and there is a specific time at which it works
+ * again. It is a distinct type so callers can render the server's own copy
+ * instead of a generic "something went wrong", which is what every AI call in
+ * this file did before the rate limiter shipped (PR #537).
+ *
+ * `resetAt` is the next IST midnight, chosen server-side: the message says "it
+ * resets tomorrow", and for an Indian student that is only true on an IST
+ * boundary.
+ */
+export class DailyLimitError extends Error {
+  readonly limitClass: string;
+  readonly resetAt: string | null;
+
+  constructor(message: string, limitClass: string, resetAt: string | null) {
+    super(message);
+    this.name = "DailyLimitError";
+    this.limitClass = limitClass;
+    this.resetAt = resetAt;
+    // NOTE: no Object.setPrototypeOf here. It is the standard guard for TS's ES5
+    // class-extends-Error downlevel, but tsconfig.app.json targets ES2022, so
+    // classes are native and `instanceof` already works. Adding it would be a line
+    // no test can redden — verified: removing it left the suite green — and an
+    // unpinnable safeguard reads as protection while proving nothing. If the
+    // target is ever lowered, the instanceof test below is what will catch it.
+  }
+}
+
+/** Narrow an unknown caught value to a limit response. */
+export function isDailyLimitError(err: unknown): err is DailyLimitError {
+  return err instanceof DailyLimitError;
+}
+
 async function handleJsonResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
 
   if (!res.ok) {
-    let details: { error?: string; message?: string; raw?: string };
+    let details: { error?: string; message?: string; raw?: string; class?: string; resetAt?: string };
     try {
       details = JSON.parse(text);
     } catch {
       details = { raw: text };
     }
+
+    // ── Daily cap (PR #537). Handled BEFORE the generic branch so a limit never
+    //    reaches a caller as an error: no console.error (a cap is expected
+    //    operation, not a fault worth alarming the console over) and a typed
+    //    throw carrying the server's own message and reset time.
+    if (res.status === 429 && details?.error === "daily_limit") {
+      throw new DailyLimitError(
+        details.message || "You've hit today's limit for this. It resets tomorrow.",
+        details.class || "unknown",
+        details.resetAt || null,
+      );
+    }
+
     console.error("AI API error:", res.status, details);
     throw new Error(details?.error || details?.message || "AI API request failed");
   }

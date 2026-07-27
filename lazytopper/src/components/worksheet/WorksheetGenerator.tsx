@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { RequirePremium } from "../auth/RequireAuth";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import type { LTSubjectKey } from "../../data/predictionTypes";
 import type { DifficultyChoice } from "../../data/predictionDataService";
@@ -194,7 +195,7 @@ function parseEntryContext(search: string): EntryContext {
   return { subject, stream, scope, singleTopic, multiTopics, hasContext };
 }
 
-export default function WorksheetGenerator() {
+function WorksheetGeneratorInner() {
   const { user } = useAuth();
   const ctx = useSubjectContext();
   const location = useLocation();
@@ -1481,3 +1482,26 @@ const WS_CSS = `
   .lt-ws__u-abbr { display: inline; }
 }
 `;
+
+/**
+ * Entitlement gate — IN-COMPONENT, mirroring DesktopCheckImprovePage.
+ *
+ * Worksheet generation reaches `/api/grade-worksheet`, a Gemini VISION call and one
+ * of the three most expensive endpoints the product has. The pricing page lists
+ * "Limited worksheet generation" as a FREE feature (PricingPage:37) — that limit is
+ * the client quota, not free access to AI grading, and nothing enforced the
+ * difference.
+ *
+ * Route-level gating is unavailable: `App.tsx` is frozen by two ops gates that
+ * assert zero diff against the PR base. In-component gating reaches the identical
+ * outcome with no `App.tsx` change.
+ *
+ * Takes no props, so unlike the C&I wrapper there is nothing to forward.
+ */
+export default function WorksheetGenerator() {
+  return (
+    <RequirePremium featureLabel="Worksheets">
+      <WorksheetGeneratorInner />
+    </RequirePremium>
+  );
+}
