@@ -1,6 +1,15 @@
+// @vitest-environment node
 /**
  * G2a — the 429 path. A capped student must see the server's own message, not a
  * generic failure.
+ *
+ * ★ NODE ENVIRONMENT, deliberately. The repo's vitest config sets `environment:
+ * "jsdom"` globally, but nothing here touches the DOM — it is error mapping over
+ * a stubbed fetch. A jsdom environment per test file is the single largest memory
+ * cost in this suite, and the CI runner is already close enough to its heap limit
+ * that adding two default-environment files was enough to OOM it. Opting out where
+ * the DOM is not needed is not a micro-optimisation here; it is what keeps the
+ * suite runnable.
  *
  * Scoped run:
  *   npx vitest run src/ai/dailyLimit.test.ts --poolOptions.threads.maxThreads=2
