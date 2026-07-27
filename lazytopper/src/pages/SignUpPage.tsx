@@ -35,7 +35,19 @@ function describeAuthError(err: unknown): string {
 export default function SignUpPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signInWithGoogle, signUpWithEmailPassword } = useAuth();
+  const {
+    user,
+    signInWithGoogle,
+    signUpWithEmailPassword,
+    initPhoneRecaptcha,
+    sendPhoneOtp,
+    verifyPhoneOtp,
+  } = useAuth();
+
+  // DISTINCT from Login's "lt-login-recaptcha". Two pages now render a verifier
+  // container, and they must never be the same element id — see the container
+  // tracking in AuthContext.initPhoneRecaptcha.
+  const RECAPTCHA_CONTAINER_ID = "lt-signup-recaptcha";
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -62,6 +74,24 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Phone sign-up. Firebase creates the account on first phone sign-in, so a
+  // phone-only student COULD already register — but only by finding the Sign IN
+  // page, which no new user would think to do. Technically met, practically
+  // broken; this pane is the missing entry point.
+  const [method, setMethod] = useState<"email" | "phone">("email");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [phoneStep, setPhoneStep] = useState<"number" | "otp">("number");
+
+  // Warm the invisible reCAPTCHA when the Phone tab opens so the first "Send
+  // OTP" doesn't pay the Google script-load latency.
+  useEffect(() => {
+    if (method !== "phone") return;
+    void initPhoneRecaptcha(RECAPTCHA_CONTAINER_ID).catch(() => {
+      // Surfaced on the actual send attempt; no honest state to show pre-action.
+    });
+  }, [method, initPhoneRecaptcha]);
 
   useEffect(() => {
     if (user) {
@@ -126,6 +156,47 @@ export default function SignUpPage() {
       setError(describeAuthError(err));
       setBusy(false);
     }
+  };
+
+  const handlePhoneSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setError(null);
+    if (phoneStep === "number") {
+      if (phone.length !== 10) {
+        setError("Enter your 10-digit mobile number.");
+        return;
+      }
+      setBusy(true);
+      try {
+        await sendPhoneOtp(`+91${phone}`, RECAPTCHA_CONTAINER_ID);
+        setPhoneStep("otp");
+      } catch (err) {
+        setError(describeAuthError(err));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+    // phoneStep === "otp"
+    if (otp.length !== 6) {
+      setError("Enter the 6-digit code from the SMS.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await verifyPhoneOtp(otp);
+      // Navigation handled by the `user` effect once auth state updates.
+    } catch (err) {
+      setError(describeAuthError(err));
+      setBusy(false);
+    }
+  };
+
+  const switchMethod = (next: "email" | "phone") => {
+    if (busy || next === method) return;
+    setError(null);
+    setMethod(next);
   };
 
   const fieldStyle: CSSProperties = {
@@ -248,6 +319,40 @@ export default function SignUpPage() {
           <span style={{ flex: 1, height: 1, background: "var(--bg-card-border)" }} />
         </div>
 
+        <div
+          role="tablist"
+          aria-label="Sign-up method"
+          style={{ display: "flex", gap: 8, marginBottom: 16 }}
+        >
+          {(["email", "phone"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="tab"
+              aria-selected={method === m}
+              onClick={() => switchMethod(m)}
+              style={{
+                flex: 1,
+                minHeight: 40,
+                borderRadius: 10,
+                border:
+                  method === m
+                    ? "1px solid #16b96a"
+                    : "1px solid var(--bg-card-border)",
+                background: method === m ? "rgba(22,185,106,0.12)" : "transparent",
+                color: "var(--text)",
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: "0.88rem",
+                fontWeight: 800,
+                cursor: busy ? "not-allowed" : "pointer",
+              }}
+            >
+              {m === "email" ? "Email" : "Phone"}
+            </button>
+          ))}
+        </div>
+
+        {method === "email" ? (
         <form onSubmit={handleEmailSubmit} noValidate>
           <label
             htmlFor="lt-su-name"
@@ -320,6 +425,106 @@ export default function SignUpPage() {
             {busy ? "Creating account..." : "Create account"}
           </button>
         </form>
+        ) : (
+        <form onSubmit={handlePhoneSubmit} noValidate>
+          {phoneStep === "number" ? (
+            <>
+              <label
+                htmlFor="lt-su-phone"
+                style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text)", marginBottom: 7 }}
+              >
+                Mobile number
+              </label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <span
+                  style={{
+                    ...fieldStyle,
+                    width: "auto",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    fontWeight: 700,
+                  }}
+                  aria-hidden="true"
+                >
+                  +91
+                </span>
+                <input
+                  id="lt-su-phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  placeholder="10-digit number"
+                  value={phone}
+                  // Digits only, capped at 10 — the +91 prefix is fixed, so a
+                  // pasted "+91..." or a spaced number cannot reach Firebase
+                  // malformed.
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  style={fieldStyle}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <label
+                htmlFor="lt-su-otp"
+                style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--text)", marginBottom: 7 }}
+              >
+                Enter the 6-digit code
+              </label>
+              <input
+                id="lt-su-otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                style={fieldStyle}
+              />
+              <p style={{ margin: "8px 0 0", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                {`Sent to +91${phone}`}
+              </p>
+            </>
+          )}
+          {error ? (
+            <p style={{ margin: "8px 0 0", color: "#c0362c", fontSize: "0.82rem", fontWeight: 600, lineHeight: 1.4 }} role="alert">
+              {error}
+            </p>
+          ) : null}
+          <button
+            type="submit"
+            disabled={busy}
+            style={{
+              width: "100%",
+              marginTop: 16,
+              background: "#071a3d",
+              color: "#ffffff",
+              border: 0,
+              borderRadius: 12,
+              padding: 14,
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: "0.98rem",
+              fontWeight: 800,
+              cursor: busy ? "not-allowed" : "pointer",
+              opacity: busy ? 0.55 : 1,
+            }}
+          >
+            {phoneStep === "number"
+              ? busy
+                ? "Sending code..."
+                : "Send OTP"
+              : busy
+                ? "Verifying..."
+                : "Verify and create account"}
+          </button>
+        </form>
+        )}
+
+        {/* The invisible reCAPTCHA renders here. The id is DISTINCT from
+            Login's, and AuthContext tracks which container the live verifier was
+            rendered into so navigating between the two pages rebuilds rather
+            than reusing a widget bound to an unmounted element. */}
+        <div id={RECAPTCHA_CONTAINER_ID} />
 
         <p style={{ textAlign: "center", margin: "16px 0 0", fontSize: "0.86rem", color: "var(--text-muted)" }}>
           Already have an account?{" "}

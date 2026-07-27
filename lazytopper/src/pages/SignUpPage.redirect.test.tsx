@@ -21,6 +21,9 @@ vi.mock("../context/AuthContext", () => ({
     user: { uid: "test-uid" },
     signInWithGoogle: vi.fn(),
     signUpWithEmailPassword: vi.fn(),
+    initPhoneRecaptcha: vi.fn(async () => {}),
+    sendPhoneOtp: vi.fn(async () => {}),
+    verifyPhoneOtp: vi.fn(async () => {}),
   }),
 }));
 vi.mock("../services/referralService", () => ({ creditPendingReferral: vi.fn() }));

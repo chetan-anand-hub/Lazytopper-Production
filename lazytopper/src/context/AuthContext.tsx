@@ -154,6 +154,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const phoneConfirmationRef = useRef<ConfirmationResult | null>(null);
 
+  // WHICH container the live verifier was actually rendered into.
+  //
+  // The verifier is bound to one specific DOM element. Now that phone sign-in is
+  // reachable from TWO pages (/login and /sign-up), the ref can outlive the
+  // element it points at: `resetPhone` runs only on verify-success, logout and
+  // provider unmount — never on navigation — so walking from /login to /sign-up
+  // leaves a live verifier attached to a container that has since unmounted.
+  //
+  // Tracking the id is what lets `initPhoneRecaptcha` distinguish genuine reuse
+  // (same container, still on screen — which must NOT rebuild) from a stale
+  // widget (which must). Without it the container-id argument is inert: the
+  // early-return below ignored it entirely, so passing a different id from a
+  // second page silently did nothing at all.
+  const recaptchaContainerIdRef = useRef<string | null>(null);
+
   // Tear down the verifier widget only; leaves any pending confirmation intact.
   const teardownRecaptcha = useCallback(() => {
     if (recaptchaVerifierRef.current) {
@@ -164,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       recaptchaVerifierRef.current = null;
     }
+    recaptchaContainerIdRef.current = null;
     setPhoneRecaptchaStatus("idle");
   }, []);
 
@@ -274,6 +290,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (trimmedName && credential.user) {
         try {
           await updateProfile(credential.user, { displayName: trimmedName });
+          // RE-SYNC, and it is load-bearing — [FU-DISPLAYNAME-NOT-VISIBLE-UNTIL-RELOAD].
+          //
+          // `createUserWithEmailAndPassword` already fired `onAuthStateChanged`
+          // with `displayName: null`, and `updateProfile` mutates `currentUser`
+          // IN PLACE without re-emitting an auth-state event. Without this line
+          // the context keeps the null it was handed, every shell surface falls
+          // back to `displayName || email`, and the student sees their raw email
+          // as their name for the whole first session — the exact defect the
+          // sign-up name field was added to fix, surviving the fix.
+          //
+          // `credential.user` is the object updateProfile just mutated, so
+          // re-mapping it needs no reload and no new firebase/auth import. It
+          // also adds no key to the context value, which matters:
+          // AuthContext.passwordReset.test.tsx pins the key set by EXACT
+          // equality and would go red on an addition.
+          setFirebaseUser(mapFirebaseUser(credential.user));
         } catch {
           // Non-blocking: account is created even if the display name fails to set.
         }
@@ -299,7 +331,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const initPhoneRecaptcha = useCallback(async (recaptchaContainerId: string) => {
     if (!authClient) throw new Error("Firebase Auth is not configured");
-    if (recaptchaVerifierRef.current) return; // idempotent — reuse the live widget
+
+    // Reuse the live widget ONLY when it is genuinely reusable — same container,
+    // and that container is still in the document. Both conditions matter:
+    //
+    //  • same container: rebuilding into the SAME element throws "reCAPTCHA has
+    //    already been rendered in this element" (clear() does not free it), so
+    //    the resend path must keep reusing.
+    //  • still attached: after navigating away the element is gone, and the
+    //    verifier bound to it can no longer solve. Reusing it there fails at
+    //    send time with an error that points at the wrong thing.
+    //
+    // Anything else is stale — tear it down and render a fresh one into the
+    // container the caller actually asked for.
+    const live = recaptchaVerifierRef.current;
+    if (live) {
+      const renderedInto = recaptchaContainerIdRef.current;
+      const stillAttached =
+        renderedInto !== null && document.getElementById(renderedInto) !== null;
+      if (renderedInto === recaptchaContainerId && stillAttached) return;
+      teardownRecaptcha();
+    }
+
     // Firebase v12 argument order: auth FIRST, then container, then params.
     const verifier = new RecaptchaVerifier(authClient, recaptchaContainerId, {
       size: "invisible",
@@ -309,6 +362,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await verifier.render();
       recaptchaVerifierRef.current = verifier;
+      recaptchaContainerIdRef.current = recaptchaContainerId;
       setPhoneRecaptchaStatus("ready");
     } catch (err) {
       try {
@@ -319,7 +373,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPhoneRecaptchaStatus("error");
       throw err;
     }
-  }, []);
+    // `teardownRecaptcha` is itself stable (useCallback with no deps), so listing
+    // it keeps this callback's identity stable too — `sendPhoneOtp` depends on it.
+  }, [teardownRecaptcha]);
 
   const sendPhoneOtp = useCallback(
     async (phoneE164: string, recaptchaContainerId: string) => {
