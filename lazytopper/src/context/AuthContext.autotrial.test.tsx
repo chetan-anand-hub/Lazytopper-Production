@@ -24,6 +24,7 @@ vi.mock("firebase/auth", () => ({
     render() {}
   },
   signInWithPhoneNumber: vi.fn(),
+  linkWithPhoneNumber: vi.fn(async () => ({ confirm: vi.fn() })),
   onAuthStateChanged: (_client: unknown, cb: (u: unknown) => void) => {
     cb(FB_USER);
     return () => {};

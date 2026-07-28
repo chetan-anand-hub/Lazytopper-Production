@@ -19,6 +19,7 @@ import {
   signOut as firebaseSignOut,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  linkWithPhoneNumber,
   type User as FirebaseUser,
   type ConfirmationResult,
 } from "firebase/auth";
@@ -39,6 +40,19 @@ export type AuthUser = {
   email: string | null;
   phoneNumber: string | null;
   displayName: string | null;
+  /**
+   * Which sign-in methods are linked to THIS uid, e.g. ["google.com", "phone"].
+   *
+   * Derived from `FirebaseUser.providerData`, not the raw array: `AuthUser` is
+   * serialised to localStorage for the local dev session, so it has to stay
+   * plain JSON. Provider ids are the only part any surface needs.
+   *
+   * ★ READ THIS, never infer from `email`/`phoneNumber`. Those reflect the
+   * PROFILE, not the credentials: a phone-linked account can carry an email
+   * from Google, and a Google account can have a null phoneNumber while a phone
+   * credential is linked. Inferring gets both directions wrong.
+   */
+  providerIds: string[];
   isLocalSession?: boolean;
 };
 
@@ -62,6 +76,8 @@ type AuthContextType = {
   initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
   sendPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
   verifyPhoneOtp: (code: string) => Promise<void>;
+  sendLinkPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
+  confirmLinkPhoneOtp: (code: string) => Promise<void>;
   continueLocalSession: () => void;
   logout: () => Promise<void>;
 };
@@ -75,7 +91,9 @@ function readLocalSession(): AuthUser | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AuthUser;
     if (!parsed || typeof parsed.uid !== "string") return null;
-    return parsed;
+    // Sessions written before `providerIds` existed have no such field; default
+    // it rather than letting every `providerIds.includes(...)` read throw.
+    return { ...parsed, providerIds: parsed.providerIds ?? [] };
   } catch {
     return null;
   }
@@ -99,6 +117,7 @@ function createLocalDevUser(): AuthUser {
     email: null,
     phoneNumber: null,
     displayName: "Local Student",
+    providerIds: [],
     isLocalSession: true,
   };
 }
@@ -123,8 +142,15 @@ function mapFirebaseUser(fbUser: FirebaseUser): AuthUser {
     email: fbUser.email,
     phoneNumber: fbUser.phoneNumber,
     displayName: fbUser.displayName,
+    providerIds: (fbUser.providerData || []).map(p => p.providerId),
   };
 }
+
+// NOTE: `hasPhoneLinked` / `PHONE_PROVIDER_ID` deliberately live in
+// `src/lib/signInMethods.ts`, NOT here. Sixteen test files mock this module with
+// an explicit vi.mock factory, and vitest THROWS on any export a factory omits
+// ("No <name> export is defined on the mock"). A helper exported from here is
+// therefore un-importable by any component those suites render.
 
 async function signOutOfFirebase(): Promise<void> {
   if (!authClient) return;
@@ -153,6 +179,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // only clear() it when the flow is truly done (logout / unmount / verify-success).
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const phoneConfirmationRef = useRef<ConfirmationResult | null>(null);
+
+  // LINKING keeps its OWN pending confirmation, separate from the sign-in one.
+  // They are different operations on different users: `signInWithPhoneNumber`
+  // authenticates somebody new, `linkWithPhoneNumber` attaches a credential to
+  // the CURRENT user. Sharing one ref would let a stale sign-in confirmation be
+  // confirmed by the link flow, or the reverse — silently switching accounts
+  // instead of linking, which is the exact failure this lane exists to prevent.
+  const linkConfirmationRef = useRef<ConfirmationResult | null>(null);
 
   // WHICH container the live verifier was actually rendered into.
   //
@@ -187,6 +221,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPhone = useCallback(() => {
     teardownRecaptcha();
     phoneConfirmationRef.current = null;
+    // A half-finished LINK must not survive a logout: the confirmation is bound
+    // to the user who requested it, and confirming it after a different student
+    // signs in on the same browser would attach their number to the wrong uid.
+    linkConfirmationRef.current = null;
   }, [teardownRecaptcha]);
 
   // Track Firebase Auth state directly: the signed-in Firebase user (Google,
@@ -405,6 +443,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     resetPhone();
   }, [resetPhone]);
 
+  /**
+   * LINK a phone credential to the CURRENT account (does not sign anybody in).
+   *
+   * Reuses `initPhoneRecaptcha` exactly as it exists after PR-B3 — reuse is
+   * conditional on the container being both the one requested AND still
+   * attached — so the modal passes its own container id and gets a verifier
+   * bound to the element actually on screen. There is deliberately no second
+   * verifier lifecycle here: the ref is single-owner, and a competing manager
+   * is the bug class B3 removed.
+   */
+  const sendLinkPhoneOtp = useCallback(
+    async (phoneE164: string, recaptchaContainerId: string) => {
+      if (!authClient) throw new Error("Firebase Auth is not configured");
+      const current = authClient.currentUser;
+      // Linking is only meaningful for a real signed-in Firebase account.
+      if (!current) throw new Error("Sign in before linking a phone number");
+      await initPhoneRecaptcha(recaptchaContainerId);
+      const verifier = recaptchaVerifierRef.current;
+      if (!verifier) throw new Error("reCAPTCHA is not ready");
+      linkConfirmationRef.current = await linkWithPhoneNumber(
+        current,
+        phoneE164,
+        verifier,
+      );
+    },
+    [initPhoneRecaptcha],
+  );
+
+  /**
+   * Confirm the OTP and attach the credential to the CURRENT uid.
+   *
+   * ★ THE UID MUST NOT CHANGE. That is the whole difference between linking and
+   * silently switching accounts, and it is asserted in the tests. `confirm()`
+   * resolves with the same user when linking; if this ever calls a sign-in API
+   * instead, the student is moved to a different account and their work
+   * disappears from their point of view.
+   *
+   * `linkWithPhoneNumber().confirm()` mutates `currentUser` in place and does
+   * NOT re-emit an auth-state event — the same trap as `updateProfile` in
+   * PR-B2/B3 — so the context is re-synced explicitly or `providerIds` stays
+   * stale and the modal keeps offering a link that already succeeded.
+   */
+  const confirmLinkPhoneOtp = useCallback(async (code: string) => {
+    const confirmation = linkConfirmationRef.current;
+    if (!confirmation) throw new Error("Request a code before confirming");
+    await confirmation.confirm(code);
+    linkConfirmationRef.current = null;
+    teardownRecaptcha();
+    if (authClient?.currentUser) {
+      setFirebaseUser(mapFirebaseUser(authClient.currentUser));
+    }
+  }, [teardownRecaptcha]);
+
   const continueLocalSession = () => {
     const devUser = createLocalDevUser();
     setLocalUser(devUser);
@@ -438,6 +529,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initPhoneRecaptcha,
     sendPhoneOtp,
     verifyPhoneOtp,
+    sendLinkPhoneOtp,
+    confirmLinkPhoneOtp,
     continueLocalSession,
     logout,
   };
