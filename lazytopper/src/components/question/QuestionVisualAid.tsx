@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
 import type { VisualConcept } from "../../data/visualConceptRegistry";
+import { paidJsonHeaders } from "../../ai/paidCallHeaders";
 
 export interface QuestionVisualAidProps {
   subject?: string;
@@ -1268,12 +1269,15 @@ function AiDiagramFallback({ questionText }: { questionText: string }): React.Re
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
 
-    fetch("/api/generate-diagram", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ questionText }),
-      signal: controller.signal,
-    })
+    paidJsonHeaders()
+      .then((headers) =>
+        fetch("/api/generate-diagram", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ questionText }),
+          signal: controller.signal,
+        }),
+      )
       .then((res) => {
         if (!res.ok) throw new Error("Failed");
         return res.json();

@@ -84,6 +84,8 @@ export interface MoreLikeThisResponse {
   error?: string;
 }
 
+import { paidJsonHeaders } from "./paidCallHeaders";
+
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
 export const MENTOR_ENDPOINT = `${API_BASE}/mentor`;
 
@@ -187,9 +189,7 @@ export async function generateMoreLikeThis(
 ): Promise<MoreLikeThisResponse> {
   const res = await fetch(`${API_BASE}/more-like-this`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
 
@@ -278,7 +278,7 @@ export async function fetchStepSolution(req: {
 
   const res = await fetch(`${API_BASE}/step-solution`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<StepSolutionResponse>(res);
@@ -369,7 +369,7 @@ export async function checkSolutionImage(req: {
 }): Promise<CheckSolutionResponse> {
   const res = await fetch(`${API_BASE}/check-solution`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<CheckSolutionResponse>(res);
@@ -414,7 +414,7 @@ export async function detectQuestion(req: {
 }): Promise<DetectQuestionResponse> {
   const res = await fetch(`${API_BASE}/detect-question`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<DetectQuestionResponse>(res);
@@ -513,7 +513,7 @@ export async function gradeWorksheet(req: {
 }): Promise<WorksheetGradeResponse> {
   const res = await fetch(`${API_BASE}/grade-worksheet`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<WorksheetGradeResponse>(res);
@@ -596,7 +596,7 @@ export async function generateVisual(
 ): Promise<GenerateVisualResponse> {
   const res = await fetch(`${API_BASE}/generate-visual`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<GenerateVisualResponse>(res);
