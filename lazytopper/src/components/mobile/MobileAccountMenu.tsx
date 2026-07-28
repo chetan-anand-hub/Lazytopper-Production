@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -59,6 +60,7 @@ export function MobileAccountMenu() {
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
   const status = deriveAccountStatus({ tier, isTrialActive, isTrialExpired, daysLeftInTrial });
+  const [linkOpen, setLinkOpen] = useState(false);
 
   const handleLogout = async () => {
     setOpen(false);
@@ -194,6 +196,20 @@ export function MobileAccountMenu() {
               >
                 Manage subscription
               </button>
+              {/* Quiet entry point. Linking is OPTIONAL - this opens a modal and
+                  never gates anything. Closes the dropdown first so the modal is
+                  not rendered underneath an open menu. */}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  setLinkOpen(true);
+                }}
+                style={menuItemStyle("var(--mob-fg)", 600)}
+              >
+                Sign-in methods
+              </button>
               <button
                 type="button"
                 role="menuitem"
@@ -238,6 +254,7 @@ export function MobileAccountMenu() {
           </div>
         )}
       </div>
+      <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />
     </div>
   );
 }

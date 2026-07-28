@@ -44,6 +44,7 @@ vi.mock("firebase/auth", () => ({
     async render() {}
   },
   signInWithPhoneNumber: vi.fn(),
+  linkWithPhoneNumber: vi.fn(async () => ({ confirm: vi.fn() })),
   onAuthStateChanged: (_client: unknown, cb: (u: unknown) => void) => {
     cb(null);
     return () => {};
@@ -109,6 +110,18 @@ const PRE_EXISTING_KEYS = [
   "initPhoneRecaptcha",
   "sendPhoneOtp",
   "verifyPhoneOtp",
+  // ★ ADDED BY LANE F (account linking), as a REVIEWED DECISION.
+  //
+  // This assertion pins the key set by EXACT equality, so it fails on ADDITION
+  // as well as removal — that is deliberate, and it is why these two lines
+  // exist rather than the keys appearing silently. The choice was between
+  // adding them here and avoiding new context keys entirely (as the displayName
+  // re-sync did in PR-B3). Adding won because the alternative was a standalone
+  // hook owning a SECOND reCAPTCHA verifier lifecycle outside AuthContext's
+  // container-aware manager — reintroducing the exact bug class PR-B3 removed.
+  // The verifier ref must stay single-owner.
+  "sendLinkPhoneOtp",
+  "confirmLinkPhoneOtp",
   "continueLocalSession",
   "logout",
 ] as const;

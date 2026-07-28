@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -181,6 +182,7 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [accountOpen, setAccountOpen] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -627,6 +629,29 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
                         >
                           Manage subscription
                         </button>
+                        {/* Quiet entry point. Linking is OPTIONAL - this opens a
+                            modal and never gates anything. Closes the dropdown
+                            first so the modal is not rendered under an open menu. */}
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setAccountOpen(false);
+                            setLinkOpen(true);
+                          }}
+                          style={{
+                            textAlign: "left",
+                            background: "transparent",
+                            border: "none",
+                            borderRadius: 6,
+                            padding: "9px 8px",
+                            color: SURFACE_TEXT,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Sign-in methods
+                        </button>
                         <button
                           type="button"
                           role="menuitem"
@@ -738,6 +763,13 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
         onClose={() => setTutorOpen(false)}
         isSignedIn={!!user}
       />
+
+      {/* Mounted at the SHELL ROOT for the same reason TutorPickerModal is: the
+          header creates a stacking context AND, via backdrop-filter, is a
+          containing block for `position: fixed` descendants. A modal rendered
+          inside the account dropdown would lose its full-viewport geometry and
+          have its z-index trapped beneath the header. Renders null while closed. */}
+      <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />
     </div>
   );
 }

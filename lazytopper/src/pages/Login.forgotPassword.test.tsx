@@ -42,6 +42,7 @@ vi.mock("firebase/auth", () => ({
     async render() {}
   },
   signInWithPhoneNumber: vi.fn(),
+  linkWithPhoneNumber: vi.fn(async () => ({ confirm: vi.fn() })),
   // No signed-in user: Login must stay on the page rather than redirect away.
   onAuthStateChanged: (_client: unknown, cb: (u: unknown) => void) => {
     cb(null);
