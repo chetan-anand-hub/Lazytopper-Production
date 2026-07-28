@@ -361,3 +361,25 @@ test("the anonymous hard-block counter survives the round trip", () => {
   const p = payloadFor({ "rate_limit.hard_block.anonymous": 12 });
   assert.equal(p.rateLimit.byClass.anonymous.hardBlocks, 12);
 });
+
+/* ── 5 · The uid-source migration signal ──────────────────────────────────────
+   Added with the verified-uid change. Surfacing a counter without a reader is
+   the exact failure this endpoint exists to correct, so the read-out is pinned
+   here rather than trusted.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+test("uidSource verified/header/unverified are surfaced", () => {
+  const p = payloadFor({
+    "rate_limit.uid_source.verified": 42,
+    "rate_limit.uid_source.header": 7,
+    "rate_limit.uid_source.unverified": 2,
+  });
+  assert.deepEqual(p.rateLimit.uidSource, { verified: 42, header: 7, unverified: 2 });
+});
+
+test("uidSource reads as zeros before any traffic, never undefined", () => {
+  // A missing key must read 0, not undefined — a cost/ops read-out that prints
+  // `undefined` invites the reader to assume the instrument is broken.
+  const p = payloadFor({});
+  assert.deepEqual(p.rateLimit.uidSource, { verified: 0, header: 0, unverified: 0 });
+});
