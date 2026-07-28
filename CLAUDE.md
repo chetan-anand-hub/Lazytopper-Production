@@ -127,8 +127,16 @@ git diff --check
 git diff --name-only origin/base/approved-thru-437
 ```
 
-NOTE — there are TWO `test:matrix:all` scripts: the root `scripts/` 5-suite guard matrix
-and the `lazytopper/` ops-checks matrix. Run BOTH; they are different.
+NOTE — there are TWO `test:matrix:all` scripts: the root `scripts/` guard matrix
+(SIX suites / 190 checks as of 2026-07-28 — the count GROWS; read it from the run,
+never hardcode it, and note this very line said "5-suite" for several waves after it
+had stopped being true) and the `lazytopper/` ops-checks matrix. Run BOTH; they are
+different.
+
+NOTE — `tsc -p tsconfig.app.json --noEmit` above **EXCLUDES test files**. CI runs a
+SECOND, independent step, `pnpm --filter lazytopper run typecheck:test`
+(`tsconfig.test.json`). A type error in any `.test.ts(x)` is GREEN locally and RED in
+CI, so BOTH configs belong in your local set. See `[FU-TYPECHECK-TEST-SEPARATE-GATE]`.
 
 The production build (`vite build`) is pinned to linux-x64 (the CI linux runner / GitHub
 Codespaces; non-linux platform binaries are stripped in `pnpm-workspace.yaml`). Windows

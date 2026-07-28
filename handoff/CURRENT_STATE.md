@@ -1,6 +1,140 @@
 # LazyTopper — Current State
 
-## [CURRENT] #538–#540 merged — ★★ LANE H: THE LAST LAUNCH BLOCKER CLOSED (PASSWORD RESET) · ₹599/₹4,999 PUBLISHED FROM ONE CONSTANT · GEMINI TOKENS NOW MEASURED, NOT ESTIMATED — trunk `1013daa7`
+## [CURRENT] #546–#552 merged — ★★ WAVE 2: THE FRONT DOOR CLOSED · A GUARD THAT COULD NEVER FIRE · TOKENS FINALLY READABLE · AND EVERY SIGNED-IN STUDENT WAS BEING RATE-LIMITED AS A STRANGER — trunk `e8b15735`
+
+**Seven product PRs across two parallel lanes, file-disjoint by construction, merged in sequence. Zero open PRs at close.** Trunk moved `c2f1793e` → **`9c49287d` (#546, A1)** → **`f0e72ac2` (#548, B1)** → **`302cba35` (#547, A2)** → **`47d765db` (#549, A3)** → **`823460a1` (#550, B2)** → **`52d54fc8` (#551, B3)** → **`e8b15735` (#552, B4)**.
+
+Lane A = `artifacts/api-server/`, `lazytopper/server/`, `lazytopper/scripts/ops/`, CI. Lane B = `lazytopper/src/`. Disjointness was verified by both agents independently before starting, and the three shared-risk files (`pnpm-lock.yaml`, `.github/workflows/quality-gate.yml`, `lazytopper/package.json`) were confirmed byte-identical after each rebase. All seven squash subjects verified clean — no leading `@` (the #533/#535 defect). Every PR ran as a draft, was CI-verified by READING THE LOG rather than the tick, and was merged by the owner. No self-merge.
+
+### ★★ THE WAVE'S REAL FINDING — nine wrong spec premises, every one reported rather than built around
+**Six in Lane B, three in Lane A. Three would have shipped a defect that looked like a fix.** The question that caught every one was the same: **what evidence would show this took effect?**
+
+The two most expensive classes were not wrong lines of code. One was a **gap BETWEEN two individually-correct halves**, which no unit gate can see (#552). The other was a **rule that could not be observed, and therefore could not be tested** (#546).
+
+---
+
+### A1 · #546 — `feat(server)`: CORS allowlist + helmet on the api-server front door
+`artifacts/api-server/src/app.ts` was a bare `app.use(cors())` — every origin allowed — in front of BOTH entry points: the `/shared-api` router and the `/api` gateway proxy. `railway.json` starts this app and `vercel.json` rewrites both prefixes to it, so this is the production **front door**.
+
+- **A missing `Origin` is allowed unconditionally.** The Vercel rewrite is SERVER-SIDE, so legitimate production traffic — same-origin GETs, the Railway healthcheck, the warmup script, admin tooling — arrives with no Origin header at all.
+- **★★ A CORS REFUSAL IS HEADER OMISSION, NOT A BLOCK.** With `cb(null,false)` the request still reaches the handler and returns 200; only the browser enforces anything. So "missing Origin gets refused" is, on its own, harmless to the no-Origin traffic itself. **The mechanism that actually kills production is `cb(new Error(...))`**, which `next(err)`s into Express and 500s every caller — proven by mutation, a real 500. The spec attached the outage to the wrong one of its two rules.
+- **★★ AN UNOBSERVABLE RULE IS UNTESTABLE.** `cors` emits `Access-Control-Allow-Origin` by REFLECTING the request origin, so `cb(null,true)` with no origin to reflect emits **no header at all** — byte-identical to a refusal. "Missing Origin is allowed" would have been unobservable, and a future regression would have passed any test written against it. The no-Origin case therefore returns `"*"`, which is **not** a widening: bare `cors()` already answered `*` to every request.
+- **helmet: CSP OFF and HSTS OFF.** The spec's stated CSP risk was wrong — a CSP header from this service cannot break Firebase/Gemini, because CSP is enforced against the DOCUMENT that carried it and **no document is served from here** (the SPA is Vercel's). It is inert bytes on a JSON response; that is the real reason. **HSTS off is the one that matters and was not in the spec:** MEASURED — with the option removed, helmet 8.3.0 emits `max-age=31536000; includeSubDomains`, a FULL YEAR, and the rewrite pass-through can pin the apex domain and every subdomain client-side, unreversible by deploy.
+- Both asserted as **OBSERVED RESPONSE HEADERS, never config keys** — helmet silently ignores an option name it does not recognise, so a key alone proves nothing.
+- **★ CI HAD ZERO GATES OVER `artifacts/api-server`** — not tests, not even a typecheck. The only thing catching a type error in the production front door was the Railway build, i.e. the deploy. #546 added a root typecheck step and an edge-test step.
+- 16 tests, `# skipped 0`. **Six mutations verified RED**, including "make missing-Origin refuse" and "unmount helmet entirely" (proving the header-absent assertions are not vacuous).
+
+### B1 · #548 — `feat(pricing)`: founding and list tiers from one constant
+List ₹999/mo + ₹8,999/yr from day one; founding ₹599/mo + ₹5,999/yr for the first 200 students, rate locked while subscribed. 6 files, 32 passed (32), 4 mutations fired.
+
+**Two findings changed the shipped copy.** The claim "we do not raise anyone's price" is unsupportable — #539 published ₹4,999/board year ~24h earlier and founding is ₹5,999, a ₹1,000 rise. Owner ruled: **fix the SENTENCE, not the price.** The public claim is now scoped to an active subscription and a guard fails on eight overbroad phrasings. And `FOUNDING_REGULAR_PRICE_COPY` was **exported but never consumed by any surface** — a Standing-Rule-1 silent no-op, removed.
+
+### A2 · #547 — `fix(ci)`: the grader's FORBIDDEN entry could never match
+Both C&I acceptance gates listed the grader as `server/routes/checkSolution.cjs` — **without** the `lazytopper/` prefix every sibling entry carries. The check is `changed.includes(f)` (exact array membership) and `git diff --name-only` emits repo-root-relative paths, so the real path **could never match**.
+
+**★★ PROVEN BY CONTROL CASE, NOT ARGUED — now the standard for any claim that a guard is inert.** A commit that really did append a line to the grader was run against both gates at trunk:
+```
+git diff --name-only origin/base/approved-thru-437...HEAD
+-> lazytopper/server/routes/checkSolution.cjs
+
+ok  FORBIDDEN: server/routes/checkSolution.cjs shows zero changes (...)
+Check & Improve convergence acceptance PASSED — 91/91 checks green.
+ok  FORBIDDEN: server/routes/checkSolution.cjs shows zero changes (...)
+Tutor ⇄ C&I overlay acceptance PASSED — 31/31 checks green.
+```
+The grader was modified and both gates printed **"ok" against the file that had just changed**. The gate did not merely fail to notice — it *asserted the file was untouched*. The same probe against the fixed gates now fails both.
+
+**★★ `FORBIDDEN(wired)` PROVES MEMBERSHIP, NOT MATCHABILITY.** Proving an entry is IN the list cannot notice that the entry can never MATCH anything — and that gap is exactly where this bug lived. A new `FORBIDDEN(path)` loop asserts, unconditionally and once per entry, that the entry resolves to a real repo-relative file. It is **filesystem-only** (no subprocess, no git base) so it can never skip the way the diff loop does — which matters, because the failure it guards *is* a silent-skip failure. Counts 91→99 and 31→36.
+
+### A3 · #549 — `feat(server)`: serve the token telemetry + report the anon-key shape
+**`telemetry.snapshot()` and `getTokenTelemetry()` had NO CALLER ANYWHERE IN THE REPO.** #540 measured into a void from the day it merged, so every thinking-budget decision and the subscription price were modelled from estimates while the real figures sat in memory on Railway. `[FU-TELEMETRY-NO-READ-PATH]` **CLOSED.**
+
+- `GET /api/admin/token-telemetry` — `ADMIN_FIREBASE_UIDS` Bearer identity, fail-closed, read-only: computes nothing, stores nothing, changes no limit.
+- **It reports the rate-limit counters too, including `anonKey`.** Without that the A3b diagnostic would itself measure into a void — the exact failure this endpoint exists to fix. **A diagnostic with no reader is not a diagnostic.**
+- **It states its own window** (`windowNote` + `uptimeSeconds`): counters are process-lifetime and reset on a Railway restart, so a reader diffing two pulls across a restart would otherwise read a drop as a decline in usage.
+- **The anon-key shape emit lives INSIDE `rateLimiter.check()`, not `index.cjs`** — owner adopted this over his own spec. In `index.cjs` it would have to re-derive whether the caller is anonymous and which key was used: a **MIRROR** of `resolveCaller`, and a mirror drifts from the thing it mirrors while still looking right. Inside `check()` it sits two lines after `const caller = resolveCaller(req)` and reads the very object the bucket is keyed from. A test pins the emitted shape against the id `resolveCaller` actually builds.
+- **★★ A REAL BUG CAUGHT BY THE PR'S OWN TEST.** The first version reused the Gemini call-class list for the rate-limiter aggregation. The limiter has a **different vocabulary**: no `unclassified`, plus `anonymous` and `global`, which are buckets rather than call kinds. The effect: **`rate_limit.hard_block.anonymous` was silently dropped** — the signed-out lockout counter, i.e. *precisely the number the anon-key diagnostic exists to surface*. The read-out would have looked complete while omitting the thing the feature is about. Fixed with two separate closed sets, a regression test, and two **anti-drift tests asserting each list against the module that DEFINES the vocabulary** — because a hardcoded list is a derived value, and a derived value nothing re-checks outlives the facts it came from.
+- **The content firewall is preserved on the way OUT.** The payload is not built by walking the counter map; it asks for each (closed-set metric × closed-set class) pair, so no snapshot key is ever copied out. `byModel`, the one dynamic-label surface, is filtered through `/^[a-z0-9._-]{1,64}$/`. Only the ring's SIZE is reported. Tests poison the snapshot with student-shaped text in a counter key, a model label and a top-level key, and assert none reaches the response.
+- Renamed `ADVERTISED_*` → `OFFERED_*` (the sub-cap and its sibling): nothing is advertised — `PricingPage` rules quota wording out of the plan table.
+- 24/24 and 27/27, `# skipped 0`. **Seven mutations verified RED.**
+
+### B2 · #550 — `feat(auth)`: collect the student's name on sign-up
+The name is **REQUIRED** on the email/password path. Deciding argument was the **one-way door**: an optional field closes the defect only for students who fill it in and permanently re-creates it for everyone who skips — the same bug with a smaller blast radius, unfixable afterwards without re-asking. Google sign-in supplies `displayName` itself and is unchanged.
+
+### B3 · #551 — `feat(auth)`: phone sign-up reachable, plus two identity defects
+Phone OTP was already LIVE in `Login` but **unreachable from `/sign-up`** — technically met, practically broken.
+
+**★★ A FIX THAT CANNOT BE SHOWN TO CHANGE BEHAVIOUR IS NOT A FIX.** The brief prescribed "use a distinct container id for the sign-up reCAPTCHA". **That would have done nothing.** `initPhoneRecaptcha` early-returned on `if (recaptchaVerifierRef.current)` and **ignored the container-id argument entirely**, so a second page passing a different id changed nothing at all. Mutation proof, reverting to the old early-return with `lt-signup-recaptcha` requested:
+```
+x REBUILDS when a different container is requested (the /login -> /sign-up walk)
+  -> expected [ 'lt-login-recaptcha' ]
+     to deeply equal [ 'lt-login-recaptcha', 'lt-signup-recaptcha' ]
+x REBUILDS when the same container id was remounted (stale element)
+  -> expected [ 'lt-signup-recaptcha' ]
+     to deeply equal [ 'lt-signup-recaptcha', 'lt-signup-recaptcha' ]
+```
+The REAL mechanism: `resetPhone` runs only on verify-success, logout and provider unmount — **never on navigation** — so walking `/login` → `/sign-up` leaves a live verifier bound to a container that has since unmounted. Reuse is now conditional on the container being BOTH the one requested AND still attached.
+
+Also closed `[FU-DISPLAYNAME-NOT-VISIBLE-UNTIL-RELOAD]` **without adding a context key** — see hazard 2 in §HAZARD MAP below.
+
+### B4 · #552 — `fix(rate-limit)`: identify the caller on every paid endpoint · ★ LAUNCH BLOCKER
+**THE CLIENT NEVER SENT `X-Lazytopper-Uid`.** Zero occurrences in `lazytopper/src`, confirmed two ways: grep, and a HAR capture of a real production `/api/detect-question` call carrying neither `Authorization` nor the uid header.
+
+`resolveCaller` reads that header; absent, it falls to `ip:<addr>` and sets `anonymous: true`. **The anonymous hard cap is 3 PER DAY.** So **every signed-in student was rate-limited as a stranger**, sharing one 3/day bucket with everyone behind the same IP — a household, a school, any NAT. Live since #537 merged, undetected only because nobody is using the product yet.
+
+**★★ IT DEFEATED FOUR PRs OF RATE LIMITING THAT WERE EACH INDIVIDUALLY GREEN — the gap was BETWEEN two correct halves, which no unit gate can see.** Found by a HAR capture, not by a gate.
+
+**★★ AND IT WAS A RECURRENCE.** `[FU-XUSERID-PROXY-STRIP]` logged this exact class in July, it was fixed **in `dbSyncService` only**, and closed. **DOCTRINE: an FU about a cross-cutting concern is not closed until every call site is checked. "Fixed where it was found" is not fixed.**
+
+Identity is centralised in one helper — `paidCallHeaders` / `paidJsonHeaders` in `lazytopper/src/ai/paidCallHeaders.ts` — **not** the single choke point in `aiClient.ts` the spec named, because paid calls originate from six files: `aiClient`, `tutorClient` (**the live tutor**, which the spec would have missed entirely), `VisualExplainer`, `QuestionVisualAid`, and both `/admin` diagram pages. A coverage guard now enforces this from `PAID_ENDPOINTS` on disk.
+
+**★ Second consumer, NOT independently verified:** `sessionHandlers.cjs` also reads `x-lazytopper-uid`, so #552 changes **session attribution** as well as rate-limit classification. Probably an improvement — and "probably" is why it belongs in the live-verify plan rather than being discovered afterwards.
+
+---
+
+## #542 — OWNER-SUPPLIED RECORD (not agent-verified)
+Lane G ran out of context mid-lane and no longer exists, so no agent was left to write this up. The owner byte-reviewed #542 himself and supplied the following. **Recorded as owner-supplied rather than agent-verified, deliberately.**
+
+**#542 (PR-G2a) — in-component entitlement gating + the client half of the limiter.**
+**WHY:** `/check-improve` was a bare `<Route>` and its component read only `useAuth`, so a **signed-out visitor could trigger Gemini vision grading** — the most expensive call the product makes — while #539 had just published a pricing page listing Check & Improve as excluded from Free and sold in Premium. The product contradicted its own published packaging. Separately, #537's limiter was live with **no client handling**, so a capped student saw a generic failure.
+**WHAT:** `RequirePremium` applied **IN-COMPONENT, never route-level**, because `App.tsx` is frozen zero-diff by the overlay gates. C&I uses an inner/outer split forwarding the overlay prop, satisfying the overlay gate's GUARD 5, GUARD 6 and HOST assertions — **a naive wrap would have typechecked and left the tutor's C&I overlay impossible to close.** Same split on `WorksheetGenerator`. Both diagram pages got **regression pins only**: they already carried `RequireAuth` in-component, so editing would have been a no-op dressed as a fix. 429 handling landed as a typed `DailyLimitError` carrying `limitClass` and `resetAt`.
+**COST:** it broke a suite that renders `WorksheetGenerator` signed out — that is `[FU-GATE-BLAST-RADIUS]`, closed by #545's guard. Half a day.
+
+---
+
+## HAZARD MAP — for whoever touches `AuthContext` next (Lane F needs this)
+1. **TWENTY test files mock `AuthContext`.** A `useAuth` member absent from a mock reads `undefined` at the call site and the component **THROWS** — in a file that never mentions the feature. Both `SignUpPage` mocks were updated in B3; **grep before adding any member.**
+2. **★ `AuthContext.passwordReset.test.tsx` asserts the context key set by EXACT EQUALITY** (`Object.keys(ctx).sort()` vs `PRE_EXISTING_KEYS + sendPasswordReset`). **It fails on ADDITION, not omission — the INVERSE of hazard 1.** Adding any context key turns red a file you did not touch. B3 fixed two defects using existing state and existing imports precisely to avoid this, and `AuthContext.signupIdentity.test.tsx` now asserts the ABSENT keys so the constraint is visible from the file most likely to violate it.
+3. **THREE files mount the REAL `AuthProvider` with `firebase/auth` mocked** (`AuthContext.autotrial`, `AuthContext.passwordReset`, `Login.forgotPassword`). A NEW `firebase/auth` export used in `AuthContext` must be added to all three mocks.
+4. **The gate blast radius:** wrapping a default export in `RequirePremium`/`RequireAuth` makes signed-out tests loop synchronously and die at the heap ceiling with **no assertion and no file name**. `entitlementGating.test.ts` catches it in ~30ms and **NAMES** the offender — stub the gate in the file it names; do **not** sign the user in (several tests deliberately assert signed-out behaviour).
+
+---
+
+## VALIDATION (all seven PRs)
+Every run verified by reading the log, not the tick. Representative, #549's run `30263570364`:
+```
+> node --test server/routes/adminTelemetry.test.cjs
+# tests 24  # suites 0  # pass 24  # fail 0  # cancelled 0  # skipped 0  # todo 0
+rateLimiter   # tests 27  # pass 27  # fail 0  # skipped 0
+geminiClient  # tests 23  # pass 23  # fail 0  # skipped 0
+Root guard matrix  # tests 190  # pass 190  # fail 0  # skipped 0
+Check & Improve convergence acceptance PASSED — 99/99 checks green.
+Tutor ⇄ C&I overlay acceptance PASSED — 36/36 checks green.
+Vitest  Test Files 82 passed (82) / Tests 952 passed (952)
+```
+By #552 the vitest total had grown to 83 files / 960 tests. **Zero skips in any run of the wave.**
+
+**★ The root guard matrix is 190 checks across SIX suites** — not the "5 suites, 175/175" written in `.github/workflows/quality-gate.yml:78`, nor the "5-suite guard matrix" in `CLAUDE.md:130`. Both literals are stale; §6a itself already says the count grows and must be verified, which is precisely why the written number rotted. **CLAUDE.md is corrected in this PR.** The workflow comment is a CONFIG file, deliberately left out of a docs-only PR — logged as `[FU-CI-COMMENT-STALE-MATRIX-COUNT]`.
+
+## ⚠ LIVE-VERIFY OWED — the owner's, and no gate can substitute
+1. **A1** — a full graded-question round-trip on the Vercel preview **AND** `lazytopper.com` **AND** `lazytopper.in`, plus confirming `CORS_ALLOWED_ORIGINS` literally holds all five origins. A missing value loses response bodies on that domain while the server still returns 200.
+2. **A3 + B4 together** — `curl -H "Authorization: Bearer <admin-id-token>" https://lazytopper.com/api/admin/token-telemetry`. Confirm `rateLimit.byClass` shows the call under its **real** class and `anonKey.client` does **not** increment for a signed-in user. **One reading verifies both PRs.**
+3. **B3** — one real phone sign-up from `/sign-up`, and a `/login` phone attempt in the SAME session, to confirm no reCAPTCHA throw across the navigation.
+4. **B2/B3** — a real email sign-up: the typed name must appear in the shell IMMEDIATELY, with no page reload.
+
+---
+
+## (superseded) [CURRENT] #538–#540 merged — ★★ LANE H: THE LAST LAUNCH BLOCKER CLOSED (PASSWORD RESET) · ₹599/₹4,999 PUBLISHED FROM ONE CONSTANT · GEMINI TOKENS NOW MEASURED, NOT ESTIMATED — trunk `1013daa7`
 
 **Three product PRs, three sections, file-disjoint, built in parallel and merged in sequence.** Trunk moved `484f5e3c` (#536 docs) → `67b45108` (#537, Lane G) → **`694c81b3` (#538)** → **`ff5cb527` (#539)** → **`1013daa7` (#540)**. **Zero open PRs.** #538 owner **LIVE-VERIFIED end to end**.
 

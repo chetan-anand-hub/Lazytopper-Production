@@ -1,7 +1,43 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-26 (post-**#538–#540 — Lane H.** Trunk `1013daa7`. #538 owner LIVE-VERIFIED end to end. Combined docs handoff.)
+# Updated: 2026-07-28 (post-**#546–#552 — WAVE 2, lanes A + B.** Trunk `e8b15735`. Four owner live-verifies OWED. Combined docs handoff.)
 
-## NEXT — 2026-07-26 (post-#538–#540). Read this block first.
+## NEXT — 2026-07-28 (post-#546–#552). Read this block first.
+
+**The cost-exposure tier is now CLOSED on the server side, and the instrument that measures it is finally readable.** #546 shut the open front door, #547 restored a grader protection that had never actually been in force, #549 gave the token telemetry a reader, and #552 fixed a launch blocker that had every signed-in student rate-limited as an anonymous stranger at 3 calls/day.
+
+### ★ BEFORE ANY NEW LANE — four live-verifies are OWED to the owner
+No gate can see any of these.
+1. **A1 (#546)** — a graded round-trip on the Vercel preview **AND** `lazytopper.com` **AND** `lazytopper.in`; confirm `CORS_ALLOWED_ORIGINS` literally holds all five origins. A missing value loses response bodies on that domain while the server still returns 200.
+2. **A3 + B4 (#549 + #552) — ONE curl settles both.**
+   `curl -H "Authorization: Bearer <admin-id-token>" https://lazytopper.com/api/admin/token-telemetry`
+   Confirm `rateLimit.byClass` shows the call under its **real** class and `anonKey.client` does **not** increment for a signed-in user. If `anonKey.loopback` is non-zero, `x-forwarded-for` is not surviving the Vercel→Railway hops and signed-out visitors are sharing one bucket.
+3. **B3 (#551)** — one real phone sign-up from `/sign-up`, plus a `/login` phone attempt in the SAME session (no reCAPTCHA throw across the navigation).
+4. **B2/B3 (#550/#551)** — a real email sign-up: the typed name must appear in the shell IMMEDIATELY, with no reload.
+
+### Owner-set order after that
+
+1. **★ WAVE 3 — SERVER LANE (named next, Agent A).** Three items, all server-side:
+   - **`[FU-VERIFY-UID-ON-AI-ENDPOINTS]`** — the cheap half is done. #552 now sends `Authorization: Bearer` alongside the uid string at every paid call site, so `resolveCaller` can derive the uid from the **verified token** with no further client change. Until it does, the uid is spoofable. **Take this first.**
+   - **`[FU-EFF-RESPONSE-SCHEMA]`** — Gemini `responseSchema` / constrained decoding. Read `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` first; it is the only place the ranked levers exist.
+   - **Server-side quota counters** — the entitlement half the client gates currently carry alone.
+   **★ Do this lane with the telemetry read-out in hand**, not before: #549 exists precisely so these decisions stop being modelled from estimates.
+
+2. **`[FU-VITEST-CI-HEAP-CEILING]` — the TOP item once Wave 3 closes (owner ruling, 2026-07-27).** It STAYS OPEN and it is prominent for a reason: today's `maxWorkers:2 + 2048 + timeout-minutes:20` is a **runway extension, not a fix**, and the bank grows with every content lane while phase 2 adds state boards and Class 12. The nine bank-importing suites, their per-file MBs and the 292MB peak are all recorded in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` — **do not re-measure them.** Mocking or lazy-loading the bank in those nine buys back 4-worker parallelism AND ~2-minute gates, and it pays for itself every cycle.
+
+3. **`[FU-PRICING-FOUNDING-COHORT]` — a published promise the product cannot enforce.** Nothing counts subscribers or closes the founding offer at 200; it is manual today. This is an **open commitment**, not a nice-to-have.
+
+4. **Small, own-PR items** (each deliberately kept out of this docs PR): `[FU-ADMIN-GATE-DUPLICATED]`, `[FU-CI-COMMENT-STALE-MATRIX-COUNT]`, `[D47]` (the `artifacts/**` scope:guard lane), `[FU-DBSYNC-COMMENT-MISATTRIBUTED]`, `[FU-LOGIN-STALE-RECAPTCHA-COMMENTS]`.
+
+### ★ Read these before touching `AuthContext` — the hazard map is in `CURRENT_STATE.md`
+Twenty test files mock it; one asserts the context key set by **exact equality** and so fails on **addition**, not omission; three mount the real provider with `firebase/auth` mocked. Adding a member can turn red a file you never opened.
+
+### ★ Two corrected doctrine rules now in force
+- **`typecheck:test` is a SEPARATE gate.** `tsc -p tsconfig.app.json` EXCLUDES test files; both configs belong in every agent's local set.
+- **"Matrices are CI-only" is no longer absolute.** When a change adds a NEW IMPORT EDGE into `lazytopper/src/`, run the one root-matrix suite covering the touched area locally first — an import graph is not visible in a diff.
+
+---
+
+## (superseded) NEXT — 2026-07-26 (post-#538–#540).
 
 **The code-side launch-blocker tier is EMPTY.** #538 closed the last one — a student who forgets their password can now recover their account. Lane G (#537) capped the endpoints; Lane H published the price and instrumented the spend.
 
