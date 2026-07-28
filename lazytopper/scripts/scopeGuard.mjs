@@ -144,6 +144,22 @@ function classifyFile(filePath, lanes) {
   if (normalizePath(filePath) === "package.json" && packageJsonHasOnlyScriptChanges()) {
     return "trackedTooling";
   }
+  // ★ [D47]/[D41]. These two lanes cover paths that live OUTSIDE the lazytopper/
+  // anchor, so toPolicyFrame leaves them at their full git-root path and none of
+  // the anchor-relative rules above can ever match them. Before this, EVERY
+  // artifacts/api-server PR and EVERY docs handoff reported
+  // `[unclassified] -> SCOPE_GUARD_FAIL` — not a breach, but a guard crying wolf
+  // on correct work, which is how a gate stops being read.
+  //
+  // ★ ADDING THE LANES TO THE POLICY JSON ALONE IS A SILENT NO-OP. This function
+  // consults lanes BY NAME, so a lane nobody reads classifies nothing — exactly
+  // the shape of the FORBIDDEN-prefix bug (#547): a rule that looks like coverage
+  // and cannot fire. Both halves are required, and the acceptance check
+  // mutation-proves it.
+  //
+  // `|| []` so an older policy file lacking these keys still loads.
+  if (inLane(filePath, lanes.apiServer || [])) return "apiServer";
+  if (inLane(filePath, lanes.docs || [])) return "docs";
   if (inLane(filePath, lanes.product)) return "product";
   if (inLane(filePath, lanes.trackedTooling)) return "trackedTooling";
   return "unknown";
@@ -186,11 +202,17 @@ function main() {
     process.exit(0);
   }
 
+  // ★ Every lane classifyFile can RETURN must have a bucket here, or the push
+  // below throws. Adding a lane is therefore a THREE-part change — policy JSON,
+  // classifyFile, and this object — and the first two alone crash rather than
+  // misbehave, which is the good failure mode. [D47]
   const laneBuckets = {
     product: [],
     trackedTooling: [],
     generatedEvidence: [],
     localOnly: [],
+    apiServer: [],
+    docs: [],
     unknown: [],
   };
 
@@ -218,7 +240,17 @@ function main() {
     ...laneBuckets.unknown.map((file) => ({ lane: "unknown", file })),
   ];
 
-  const changedLanes = ["product", "trackedTooling"].filter((lane) => laneBuckets[lane].length > 0);
+  // ★ DERIVED, NOT LISTED — and this line is why. It previously read
+  // `["product", "trackedTooling"]`, so a lane added to the policy AND to
+  // classifyFile still went unenforced: its files were classified, never checked
+  // against the allowed set, and the run printed OK. A lane that classifies but
+  // is never enforced is a silent no-op — the same class as #547's FORBIDDEN
+  // entry that could not match. Deriving from the buckets means enforcement
+  // follows automatically and cannot be forgotten. [D47]
+  const HARD_BOUNDARY_LANES = new Set(["generatedEvidence", "localOnly", "unknown"]);
+  const changedLanes = Object.keys(laneBuckets)
+    .filter((lane) => !HARD_BOUNDARY_LANES.has(lane))
+    .filter((lane) => laneBuckets[lane].length > 0);
   const disallowedLaneChanges = changedLanes
     .filter((lane) => !allowedLanes.includes(lane))
     .flatMap((lane) => laneBuckets[lane].map((file) => ({ lane, file })));
