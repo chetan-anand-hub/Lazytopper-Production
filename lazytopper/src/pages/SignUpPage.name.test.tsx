@@ -31,6 +31,12 @@ import { MemoryRouter } from "react-router-dom";
 const signUpWithEmailPassword =
   vi.fn(async (_email: string, _password: string, _displayName?: string) => {});
 const signInWithGoogle = vi.fn(async () => {});
+// Phone members: SignUpPage destructures these, so an absent one reads
+// undefined at the call site and the component throws. Kept in step with
+// SignUpPage.redirect.test.tsx, which has the same requirement.
+const initPhoneRecaptcha = vi.fn(async (_containerId: string) => {});
+const sendPhoneOtp = vi.fn(async (_phoneE164: string, _containerId: string) => {});
+const verifyPhoneOtp = vi.fn(async (_code: string) => {});
 
 vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({
@@ -39,6 +45,9 @@ vi.mock("../context/AuthContext", () => ({
     user: null,
     signInWithGoogle,
     signUpWithEmailPassword,
+    initPhoneRecaptcha,
+    sendPhoneOtp,
+    verifyPhoneOtp,
   }),
 }));
 vi.mock("../services/referralService", () => ({ creditPendingReferral: vi.fn() }));
