@@ -32,7 +32,9 @@
       "README.md",
       "CHANGELOG.md",
       "NOTES/",
-      "GPT_CHANGELOG*.md"
+      "GPT_CHANGELOG*.md",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml"
     ],
     "generatedEvidence": [
       ".project_memory/",
@@ -71,6 +73,13 @@
       "tsc_noemit_stdout.txt",
       "tsc_noemit_stderr.txt",
       "set"
+    ],
+    "apiServer": [
+      "artifacts/api-server/"
+    ],
+    "docs": [
+      "handoff/",
+      "CLAUDE.md"
     ]
   },
   "modeToLanes": {
@@ -85,7 +94,15 @@
     ],
     "mixed": [
       "product",
+      "trackedTooling",
+      "apiServer"
+    ],
+    "apiServer": [
+      "apiServer",
       "trackedTooling"
+    ],
+    "docs": [
+      "docs"
     ]
   }
 }
