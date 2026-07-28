@@ -281,13 +281,35 @@ function nextIstMidnightIso(nowMs) {
  * out the world. XFF is spoofable, exactly like the uid header, and accepted on
  * the same v1 terms.
  */
-function resolveCaller(req) {
+/*  ★ TRUST ORDER, AND IT IS A SAFETY PROPERTY RATHER THAN A PREFERENCE.
+ *
+ *   1. `verifiedUid` — derived from a Firebase ID token that firebase-admin
+ *      actually VERIFIED (services/verifiedCaller.cjs). Not spoofable.
+ *   2. the `X-Lazytopper-Uid` header — client-supplied and spoofable, kept as
+ *      the fallback so nothing regresses when no token is present.
+ *   3. the client IP — signed-out callers.
+ *
+ *  A verification FAILURE — expired token, clock skew, firebase-admin
+ *  unavailable — must fall back to the HEADER uid and must NEVER fall through
+ *  to the anonymous IP bucket. The anonymous hard cap is 3/day, so treating an
+ *  unverifiable signed-in student as anonymous would re-create the exact launch
+ *  blocker #552 fixed, this time for anyone whose token refresh hiccups.
+ *  Verified when possible, never worse than before: this change can only
+ *  TIGHTEN identity, never shrink a real student's allowance.
+ *
+ *  `verifiedUid` is optional and second, so every existing single-argument
+ *  caller keeps its exact previous behaviour.
+ */
+function resolveCaller(req, verifiedUid) {
+  const verified = typeof verifiedUid === "string" ? verifiedUid.trim() : "";
+  if (verified) return { id: verified, anonymous: false, verified: true };
+
   const uid = String(req?.headers?.["x-lazytopper-uid"] || "").trim();
-  if (uid) return { id: uid, anonymous: false };
+  if (uid) return { id: uid, anonymous: false, verified: false };
 
   const xff = String(req?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
   const ip = xff || String(req?.socket?.remoteAddress || "").trim() || "unknown";
-  return { id: `ip:${ip}`, anonymous: true };
+  return { id: `ip:${ip}`, anonymous: true, verified: false };
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -358,7 +380,7 @@ function createRateLimiter(options = {}) {
    * A DENIED request commits nothing — being blocked must not push a caller
    * further from their reset.
    */
-  function check(req, reqPath) {
+  function check(req, reqPath, verifiedUid) {
     const nowMs = now();
     const endpointClass = classify(reqPath);
 
@@ -367,7 +389,24 @@ function createRateLimiter(options = {}) {
     if (!endpointClass) return { allowed: true, class: null };
 
     const day = rollIfNeeded(nowMs);
-    const caller = resolveCaller(req);
+    const caller = resolveCaller(req, verifiedUid);
+
+    /* ── UID-SOURCE DIAGNOSTIC ────────────────────────────────────────────────
+       Which identity actually keyed this bucket. Emitted HERE because this is
+       where the choice is made — the same reason the anon-key shape below is
+       emitted here rather than mirrored in index.cjs.
+
+       `verified` vs `header` is the migration signal: while the header count is
+       non-zero, the caps are still advisory for those callers, because a
+       spoofed uid buys a fresh allowance. The third case,
+       `rate_limit.uid_source.unverified` — a token WAS presented and failed to
+       verify — is emitted by verifiedCaller.cjs, which is the only place that
+       knows it happened. Read all three back via GET /api/admin/token-telemetry;
+       a counter with no reader is not a diagnostic.
+       ──────────────────────────────────────────────────────────────────────── */
+    if (!caller.anonymous) {
+      emit(`rate_limit.uid_source.${caller.verified ? "verified" : "header"}`);
+    }
 
     /* ── ANON-KEY SHAPE DIAGNOSTIC ────────────────────────────────────────────
        The api-server proxies to 127.0.0.1, so by the time a request reaches this

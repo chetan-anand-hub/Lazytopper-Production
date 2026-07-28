@@ -153,6 +153,14 @@ const { createTutorRoute } = require('./routes/tutor.cjs');
 // thresholds alert the owner and let the request through; only the hard ceilings
 // and the global circuit breaker return 429.
 const { createRateLimiter } = require('./services/rateLimiter.cjs');
+// Turns those caps from ADVISORY into ENFORCED. The limiter keyed its buckets on
+// the spoofable X-Lazytopper-Uid header; since #552 every paid client call also
+// carries `Authorization: Bearer <id token>`, so the uid can come from a
+// credential firebase-admin actually verified. Closes the server half of
+// [FU-VERIFY-UID-ON-AI-ENDPOINTS].
+// ★ It NEVER decides a caller is anonymous — see verifiedCaller.cjs for why that
+// would re-create #552's launch blocker through the back door.
+const { createVerifiedCaller } = require('./services/verifiedCaller.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -268,6 +276,7 @@ const qrUploadChannel = createQrUploadChannel(routeDeps);
 const qrUploadRoutes = createQrUploadRoutes({ ...routeDeps, qrUploadChannel });
 const tutorRoute = createTutorRoute(routeDeps);
 const rateLimiter = createRateLimiter({ telemetry });
+const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -325,7 +334,15 @@ async function handleRequest(req, res) {
   // `check` returns allowed:true for every non-paid path, so progress sync,
   // share tokens, the QR handoff and /health are untouched at any volume.
   if (req.method === 'POST') {
-    const verdict = rateLimiter.check(req, reqPath);
+    // The ID token is verified HERE, at the edge, rather than inside check():
+    // verification is async and network-adjacent, while the limiter is a
+    // synchronous pure function with 27 tests calling check() directly. Keeping
+    // check() synchronous confines the async concern to the one place already
+    // inside an async handler, and leaves every existing caller and test
+    // untouched. Returns "" — never throws, never blocks — so a verification
+    // fault degrades to the previous header-based behaviour.
+    const verifiedUid = await verifiedCaller.resolveVerifiedUid(req);
+    const verdict = rateLimiter.check(req, reqPath, verifiedUid);
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }

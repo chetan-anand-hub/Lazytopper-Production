@@ -240,6 +240,21 @@ function createAdminTelemetryRoutes(deps) {
           client: toNumber(counters['rate_limit.anon_key.client']),
           loopback: toNumber(counters['rate_limit.anon_key.loopback']),
         },
+        // ★ Which identity actually keyed the bucket — the migration signal for
+        // [FU-VERIFY-UID-ON-AI-ENDPOINTS]. `verified` means the uid came from a
+        // Firebase ID token firebase-admin checked, so the cap is ENFORCED for
+        // that caller. `header` means it came from the spoofable
+        // X-Lazytopper-Uid, so the cap is still only ADVISORY there.
+        // `unverified` means a token WAS presented and failed to verify —
+        // non-zero with a healthy client is the interesting case: expired
+        // tokens, clock skew, or a deploy missing Firebase config.
+        // Surfaced here because a counter with no reader is not a diagnostic,
+        // which is the mistake this whole endpoint exists to correct.
+        uidSource: {
+          verified: toNumber(counters['rate_limit.uid_source.verified']),
+          header: toNumber(counters['rate_limit.uid_source.header']),
+          unverified: toNumber(counters['rate_limit.uid_source.unverified']),
+        },
       },
       recentSampleSize,
     };
