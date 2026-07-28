@@ -1,5 +1,23 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-07-28 - ★★ ✅ WAVE 2 **COMPLETE** (#546–#552, trunk `e8b15735`) - two parallel lanes, seven PRs, four live-verifies OWED
+
+**STAGES COMPLETE:**
+
+- [x] **#546 (A1) — CORS allowlist + helmet on the api-server front door.** Closes `[FU-API-CORS-WIDE-OPEN]`. Missing Origin allowed unconditionally (the Vercel rewrite is server-side); refusal is `cb(null,false)`, never an Error; CSP and HSTS deliberately off. **Also added the FIRST CI gates `artifacts/api-server` has ever had** — a root typecheck step and an edge-test step; before this, the only thing catching a type error in the production front door was the Railway deploy.
+- [x] **#548 (B1) — founding + list pricing from one constant.** List ₹999/₹8,999, founding ₹599/₹5,999 for the first 200. Public honesty claim narrowed to an active subscription (owner ruling: fix the sentence, not the price).
+- [x] **#547 (A2) — the grader's FORBIDDEN entry could never match.** The `lazytopper/` prefix was missing, so `changed.includes(f)` could never fire. Proven by control case: a real modification to the grader passed both gates at 91/91 and 31/31. New filesystem-only `FORBIDDEN(path)` guard; counts 91→99 and 31→36.
+- [x] **#549 (A3) — the token telemetry read path.** Closes `[FU-TELEMETRY-NO-READ-PATH]`, which blocked the entire efficiency tier. `GET /api/admin/token-telemetry`, admin-gated and fail-closed, plus the anon-key shape diagnostic emitted inside `rateLimiter.check()`.
+- [x] **#550 (B2) — the student's name at sign-up**, required rather than optional (the one-way door).
+- [x] **#551 (B3) — phone sign-up reachable from `/sign-up`**, plus two identity defects. Closes `[FU-SIGNUP-NO-PHONE-OPTION]` and `[FU-DISPLAYNAME-NOT-VISIBLE-UNTIL-RELOAD]`.
+- [x] **#552 (B4) — identify the caller on every paid endpoint. ★ LAUNCH BLOCKER.** The client never sent `X-Lazytopper-Uid`, so every signed-in student was rate-limited as anonymous at 3/day, sharing one bucket per IP. Closes `[FU-CLIENT-NEVER-SENDS-UID-HEADER]`; **client half only** — the server half is `[FU-VERIFY-UID-ON-AI-ENDPOINTS]`.
+
+**NOT A STAGE, RECORDED FOR COMPLETENESS:** **#542 (PR-G2a)** — in-component entitlement gating + the client half of the limiter. Lane G ran out of context mid-lane and no agent remained to document it; the record in `CURRENT_STATE.md` is **owner-supplied, not agent-verified**.
+
+**NEXT STAGE:** Wave 3's server lane — `[FU-VERIFY-UID-ON-AI-ENDPOINTS]` (derive the uid from the verified token; the client already sends it), `[FU-EFF-RESPONSE-SCHEMA]`, and server-side quota counters. **To be done with the #549 telemetry read-out in hand**, not from estimates. `[FU-VITEST-CI-HEAP-CEILING]` is the top item once that closes.
+
+---
+
 ## 2026-07-26 - ★★ ✅ LANE H **COMPLETE** (#538–#540, trunk `1013daa7`) - #538 owner LIVE-VERIFIED end to end
 
 **STAGES COMPLETE:**

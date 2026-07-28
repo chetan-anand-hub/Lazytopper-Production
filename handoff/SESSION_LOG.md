@@ -1,5 +1,43 @@
 ---
 
+## 2026-07-28 -- #546–#552 (WAVE 2, LANES A + B): the api-server front door closed · a FORBIDDEN entry that could never fire · the token telemetry finally readable · and every signed-in student was being rate-limited as a stranger - trunk `e8b15735`
+
+**Seven product PRs, two parallel file-disjoint lanes, one combined docs handoff. Sectioned, never blended.** `c2f1793e` → `9c49287d` (#546, A1) → `f0e72ac2` (#548, B1) → `302cba35` (#547, A2) → `47d765db` (#549, A3) → `823460a1` (#550, B2) → `52d54fc8` (#551, B3) → **`e8b15735` (#552, B4)**. Zero open PRs at close. All seven subjects clean of a leading `@`.
+
+Lane A = server/CI (`artifacts/api-server/`, `lazytopper/server/`, `lazytopper/scripts/ops/`). Lane B = client (`lazytopper/src/`). The three shared-risk files were confirmed byte-identical after every rebase.
+
+### ★★ THE WAVE'S FINDING — nine wrong spec premises, all nine reported rather than built around
+Six in Lane B, three in Lane A; three would have shipped a defect that looked like a fix. The question that caught every one: **what evidence would show this took effect?**
+
+### A1 (#546) — `feat(server)`: CORS allowlist + helmet on the front door
+A bare `app.use(cors())` in front of both entry points on the service Railway actually runs. **A missing Origin is allowed** (the Vercel rewrite is server-side, so real traffic arrives without one). ★★ **A refusal is header OMISSION, not a block** — `cb(null,false)` still returns 200; `cb(new Error())` is what 500s every caller, proven by mutation. ★★ **An unobservable rule is untestable**: `cb(null,true)` with no origin to reflect emits no header at all, byte-identical to a refusal, so the no-Origin case returns `"*"`. helmet with CSP off (it governs nothing — no document is served here) and **HSTS off** (measured: `max-age=31536000; includeSubDomains`, a full year, pinnable onto the apex domain via the rewrite). ★ **CI had zero gates over `artifacts/api-server`** — not even a typecheck; both added. 16/16, six mutations RED.
+
+### B1 (#548) — `feat(pricing)`: founding + list tiers from one constant
+List ₹999/₹8,999, founding ₹599/₹5,999 for the first 200. **Owner ruled: fix the SENTENCE, not the price** — "we do not raise anyone's price" was unsupportable after #539's ₹4,999 board year, so the claim is now scoped to an active subscription and a guard fails on eight overbroad phrasings. `FOUNDING_REGULAR_PRICE_COPY` was exported and never consumed — a silent no-op, removed.
+
+### A2 (#547) — `fix(ci)`: the grader's FORBIDDEN entry could never match
+Both C&I gates listed `server/routes/checkSolution.cjs` without the `lazytopper/` prefix, against a `changed.includes(f)` check fed repo-root-relative paths. ★★ **Proven by CONTROL CASE**: a commit that really did modify the grader passed both gates, printing `ok FORBIDDEN: ... shows zero changes` at 91/91 and 31/31. The gate did not fail to notice — it *asserted the file was untouched*. ★★ **`FORBIDDEN(wired)` proves MEMBERSHIP, not MATCHABILITY**; the new filesystem-only `FORBIDDEN(path)` loop cannot skip. 91→99, 31→36.
+
+### A3 (#549) — `feat(server)`: the telemetry read path + the anon-key shape
+`snapshot()` and `getTokenTelemetry()` had **no caller anywhere in the repo**; #540 measured into a void from the day it merged. `[FU-TELEMETRY-NO-READ-PATH]` CLOSED. The endpoint reports the rate-limit counters **including `anonKey`** (a diagnostic with no reader is not a diagnostic) and **states its own window** (counters reset on restart). ★ The shape emit lives **inside `rateLimiter.check()`**, not `index.cjs` — anywhere else is a MIRROR of `resolveCaller`, and a mirror drifts while still looking right; owner adopted this over his own spec. ★★ **A real bug caught by the PR's own test**: reusing the Gemini call-class list for the limiter aggregation silently dropped `rate_limit.hard_block.anonymous` — the signed-out lockout counter, i.e. exactly what the diagnostic exists to surface. Cured by two closed sets plus anti-drift tests against the modules that DEFINE each vocabulary. 24/24 + 27/27, seven mutations RED.
+
+### B2 (#550) — `feat(auth)`: the student's name at sign-up
+REQUIRED, not optional. The deciding argument was the **one-way door**: an optional field permanently re-creates the defect for everyone who skips it.
+
+### B3 (#551) — `feat(auth)`: phone sign-up reachable + two identity defects
+Phone OTP was live in `Login` but unreachable from `/sign-up`. ★★ **A fix that cannot be shown to change behaviour is not a fix** — the brief's "use a distinct container id" would have done nothing, because `initPhoneRecaptcha` early-returned and ignored the container argument entirely. The real mechanism is that `resetPhone` never runs on navigation, so `/login` → `/sign-up` leaves a verifier bound to an unmounted container. Mutation output kept verbatim in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
+### B4 (#552) — `fix(rate-limit)`: identify the caller · ★ LAUNCH BLOCKER
+**The client never sent `X-Lazytopper-Uid`** — zero occurrences in `lazytopper/src`, confirmed by grep and by a HAR capture of a real production call. `resolveCaller` fell to `ip:<addr>` and marked every caller anonymous, hard-capped at **3/day**, so every signed-in student shared one bucket with everyone behind the same IP. ★★ **It defeated four PRs of rate limiting that were each individually green — the gap was BETWEEN two correct halves, which no unit gate can see.** ★★ **And it was a RECURRENCE** of `[FU-XUSERID-PROXY-STRIP]`, fixed in `dbSyncService` only and closed. Identity now lives in one helper used at every paid site across six files — including `tutorClient`, the live tutor, which the spec's "single choke point in aiClient.ts" would have missed.
+
+### #542 — recorded from the OWNER's byte-review, not agent-verified
+Lane G ran out of context mid-lane; no agent remained to write it up. Full record in `CURRENT_STATE.md`, marked owner-supplied.
+
+### Gates
+Every run read from the log. Root guard matrix **190/190 across SIX suites** (the "5 suites, 175/175" comment in `quality-gate.yml:78` and the "5-suite" wording in `CLAUDE.md:130` are both stale; CLAUDE.md fixed here, the workflow logged as `[FU-CI-COMMENT-STALE-MATRIX-COUNT]`). Vitest grew 82/952 → 83/960. **Zero skips in any run of the wave.** Four live-verifies owed to the owner; A3 and B4 are settled by a single curl.
+
+---
+
 ## 2026-07-26 -- #538–#540 (LANE H): password reset ships enumeration-safe · ₹599/₹4,999 published from ONE constant · Gemini tokens measured per call class - **#538 owner LIVE-VERIFIED end to end** - trunk `1013daa7`
 
 **Three product PRs, one combined docs handoff. Sectioned, never blended.** `67b45108` (#537, Lane G) → **`694c81b3` (#538)** → **`ff5cb527` (#539)** → **`1013daa7` (#540)**. Three file-disjoint workstreams built in parallel by three subagents, merged in sequence. Zero open PRs at close.

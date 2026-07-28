@@ -17,6 +17,296 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ### RESOLVED — tombstoned
 - **`[FU-AUTH-NO-PASSWORD-RESET]`** (implicit; never formally opened, closed here for the record) → #538. Password recovery exists, is enumeration-safe, and is **owner live-verified end to end**. This was the last code-side launch blocker.
 
+## 2026-07-28 — Post-Wave-2 (#546–#552, lanes A + B). Trunk `e8b15735`.
+
+### ★★ THREE DOCTRINE RULES ADDED BY THIS WAVE — read before the entries
+
+```
+★ A LINE REFERENCE IS A DERIVED VALUE THAT NOTHING RE-CHECKS. Cite by quoting
+the code or naming the symbol, never by line number alone — in comments, in FU
+entries, and in specs. Three times this wave a citation went stale, once because
+the citing agent itself moved the line:
+  1. #548 moved a PricingPage comment :52-53 -> :59-60; A3's doc comment cited it
+     by line and would have shipped stale ON ARRIVAL. Caught pre-commit and
+     rewritten to quote the rule instead.
+  2. The owner cited the gateway CORS allowlist at index.cjs:291; A3 ITSELF moved
+     it to :312 by inserting lines above.
+  3. Three different counts circulated for one thing in #552 — the owner's "ten",
+     the module's own comment "nine", and the measured 11 invocations across 6
+     files — INCLUDING one inside the PR that created it.
+Record structure, not counts: "identity is centralised in paidCallHeaders /
+paidJsonHeaders", with any count stamped as measured-at-a-SHA.
+
+★ AN FU BODY MUST NEVER BE RECONSTRUCTED FROM ITS ID. When three owed FU texts
+could not be found on disk, they were left marked "TEXT OWED" rather than
+inferred from their titles. This is the product's anti-fabrication rule applied
+to the record itself: A PLAUSIBLE-BUT-WRONG FU IS HARDER TO DETECT THAN A
+MISSING ONE — a missing one is obviously missing, while a confident wrong one
+gets cited. Pairs with Standing Rule 1 above ("a record that is only REFERENCED
+is not a record").
+
+★ AN FU ABOUT A CROSS-CUTTING CONCERN IS NOT CLOSED UNTIL EVERY CALL SITE IS
+CHECKED. "Fixed where it was found" is not fixed. [FU-XUSERID-PROXY-STRIP]
+logged this class in July, was fixed in dbSyncService ONLY, and was closed — and
+came back as the [FU-CLIENT-NEVER-SENDS-UID-HEADER] launch blocker.
+```
+
+### RESOLVED by this wave
+
+```
+[FU-TELEMETRY-NO-READ-PATH] — CLOSED by #549. snapshot() and getTokenTelemetry()
+had NO caller anywhere in the repo; #540 measured into a void from the day it
+merged. GET /api/admin/token-telemetry now serves per-call-class prompt /
+candidates / thoughts / total token counts, call, retry and fallback counts,
+plus the rate-limiter counters INCLUDING anonKey. Admin-gated
+(ADMIN_FIREBASE_UIDS Bearer), fail-closed, read-only. The efficiency tier is
+UNBLOCKED. The first real reading belongs in
+handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md, which is where the estimates
+it replaces currently live.
+
+[FU-API-CORS-WIDE-OPEN] — CLOSED by #546. artifacts/api-server/src/app.ts was a
+bare app.use(cors()) in front of both entry points on the service Railway runs.
+Now an allowlist from CORS_ALLOWED_ORIGINS, plus helmet (CSP off — it governs
+nothing when no document is served here; HSTS off — measured at a FULL YEAR with
+includeSubDomains, pinnable onto the apex domain through the Vercel rewrite).
+A MISSING Origin is allowed unconditionally; only a present-but-disallowed one
+is refused, via cb(null,false) and never cb(new Error()).
+
+[FU-CLIENT-NEVER-SENDS-UID-HEADER] — RESOLVED by #552 (CLIENT HALF ONLY).
+LIVE-VERIFY STILL OWED, and no gate can see it: curl /api/admin/token-telemetry
+after deploy and confirm rateLimit.byClass shows the call under its real class
+and anonKey.client does NOT increment for a signed-in user.
+
+[FU-GATE-BLAST-RADIUS] — CLOSED by the guard in #545, recorded for the
+reasoning. Wrapping a default export in RequirePremium/RequireAuth changes what
+EVERY existing test rendering it does. Signed-out tests hit the gate's
+<Navigate>, loop SYNCHRONOUSLY inside MemoryRouter, and die at the heap ceiling
+— no timeout fires because the event loop never yields, and CI shows an OOM with
+no assertion and NO FILE NAME. Cost half a day. entitlementGating.test.ts now
+names any offender in ~30ms. Router files excluded: they gate ROUTES, not their
+own default export.
+
+[FU-SIGNUP-NO-NAME] — RESOLVED by #550. The field is REQUIRED on the
+email/password path (Google supplies displayName itself and is unchanged).
+One-way door: accounts created BEFORE #550 have no displayName and fall back to
+the raw email across App.tsx:793, DesktopShell:188/:190,
+MobileAccountMenu:56/:57, DashboardHeader:27, ShareProgressPrompt:86.
+
+[FU-SIGNUP-NO-PHONE-OPTION] — RESOLVED by #551. Phone OTP was LIVE at
+Login.tsx:1152/:1198/:1226 -> sendPhoneOtp:975 but unreachable from /sign-up.
+Technically met, practically broken.
+
+[FU-DISPLAYNAME-NOT-VISIBLE-UNTIL-RELOAD] — RESOLVED by #551, and note HOW:
+WITHOUT adding a context key, because AuthContext.passwordReset.test.tsx asserts
+the context key set by EXACT EQUALITY and therefore fails on ADDITION. Fixed by
+re-syncing the mapped user after updateProfile resolves, using existing state
+and existing imports.
+```
+
+### OPEN — top of the queue
+
+```
+[FU-VITEST-CI-HEAP-CEILING] — ★ OWNER RULING 2026-07-27: STAYS OPEN, and it is
+the TOP NEXT_ACTION item after Wave 3. MEASURED, recorded so nobody re-measures.
+Bank-importing suites cost a PERMANENT ~160MB step per worker; heap is
+cumulative and never returns to baseline. Baseline 13-20MB. The nine suites,
+every path verified to exist at trunk:
+    src/services/quickPracticeSessionService.test.ts          177MB (first jump, from 15MB)
+    src/data/bankQuery.test.ts                                161MB
+    src/services/checkImproveGradeService.test.ts             172MB
+    src/components/worksheet/worksheetModel.topickey.test.ts  171MB
+    src/components/results/scorecardVariants.test.ts          185MB
+    src/components/practice/QuickPracticePresets.test.tsx     234MB
+    src/components/worksheet/WorksheetGenerator.mi.test.tsx   251MB
+    src/pages/PracticePage.refreshSet.test.tsx                277MB
+    src/pages/PracticePage.freshSet.test.tsx                  292MB  <- peak
+★ The OOM was NOT heap size — peak is 292MB and 4 workers is ~1.1GB. 6144 made
+V8 lazy about GC, so four workers each willing to reach 6GB exhausted a 16GB
+runner. The WORKER CAP fixed it. Now maxWorkers:2 + 2048 + timeout-minutes:20
+(#545). DURABLE FIX STILL OPEN: mock or lazy-load the bank in those nine suites
+— `collect` is 227s of a 189s wall time, so module loading dominates. That
+restores 4-worker parallelism and ~2-minute gates, and it pays for itself every
+cycle. The bank grows with every content lane and phase 2 adds state boards and
+Class 12, so today's settings are a RUNWAY EXTENSION, not a fix.
+Size at wave close, for comparison: 83 files / 960 tests, ~154s.
+
+[FU-VERIFY-UID-ON-AI-ENDPOINTS] — OPEN, SERVER HALF, and it is now cheap.
+resolveCaller (server/services/rateLimiter.cjs) still trusts a client-supplied
+string. #552 sends Authorization: Bearer alongside the uid header at every paid
+call site, so the server can derive the uid from the VERIFIED token with NO
+further client change. Until it does, the uid is spoofable — the same v1 terms
+the existing XFF comment already accepts. TOP OF WAVE 3'S SERVER LANE.
+
+[FU-PRICING-FOUNDING-COHORT] — ★ A PUBLISHED PROMISE THE PRODUCT CANNOT ENFORCE.
+List Rs 999/mo and Rs 8,999/yr published from day one; founding Rs 599/mo and
+Rs 5,999/yr for the first 200 students, rate locked while subscribed.
+Provisional pending the cost accountant's model; analysis at
+handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md. NEEDS: a mechanism to count
+and close the founding cohort at 200 — currently MANUAL, and NOTHING in the
+product counts subscribers or flips the offer off. This is an OPEN COMMITMENT,
+not a nice-to-have: the promise is published and the product cannot keep it.
+
+[FU-PAID-CALLERS-BEYOND-AICLIENT] — The paid endpoints are called from SIX
+client files, not one. aiClient.ts has six paid fetch sites; tutorClient.ts is
+the LIVE TUTOR; plus VisualExplainer.tsx, QuestionVisualAid.tsx and both /admin
+diagram pages. Any future header/auth change to "the AI client" must cover every
+site. #552's coverage guard now enforces this from PAID_ENDPOINTS on disk.
+(Count stamped measured-at-a-SHA: 11 invocations across 6 files at #552's head.
+Prefer the STRUCTURE — identity is centralised in paidCallHeaders /
+paidJsonHeaders — over the number.)
+
+[FU-ADMIN-GATE-DUPLICATED] — NEW, from #549. The fail-closed
+requireFirebaseAdmin now exists in TWO places — routes/adminSolutionCache.cjs
+and routes/adminTelemetry.cjs — behaviourally identical (same statuses, same
+order, same messages). Duplicating a security check is a real hazard: one gets
+fixed, the other does not. Deliberately NOT unified in #549, because that means
+editing a live, reviewed admin path in a PR about telemetry. Own small PR.
+
+[FU-CI-COMMENT-STALE-MATRIX-COUNT] — NEW. .github/workflows/quality-gate.yml:78
+reads "Root guard matrix: 5 suites, 175/175". It is SIX suites and 190 checks,
+measured on three separate runs this wave. Left out of the Wave-2 docs PR on
+purpose — a workflow YAML is config, and a docs-only PR must carry zero
+config/product changes. One-line fix, own PR. (CLAUDE.md's matching "5-suite"
+wording IS corrected in the docs PR, CLAUDE.md being documentation.)
+
+[FU-DBSYNC-COMMENT-MISATTRIBUTED] — dbSyncService.ts:15-18 blames the
+Vercel->Railway rewrite for dropping X-User-ID. It is OUR OWN api-server:
+artifacts/api-server/src/app.ts lists `x-user-id` in STRIPPED_PROXY_HEADERS
+because it is a privileged server-set header. The Authorization fallback works;
+the X-User-ID fallback is dead in production BY OUR OWN DESIGN. Correct the
+comment — a wrong reason in a comment misleads the next reader, and it did.
+
+[FU-LOGIN-STALE-RECAPTCHA-COMMENTS] — Login.tsx:1149 and :1172 claim sendPhoneOtp
+"rebuilds a fresh verifier each time". False, and contradicted by AuthContext's
+own comment. Left alone (out of B3's allowlist).
+
+[FU-PHONE-SIGNUP-NO-NAME] — Phone sign-up does not collect a name; setting one
+would mean touching verifyPhoneOtp, frozen so the sign-in path stays identical.
+A nameless phone user renders as "Student"/"S" with the phone number as
+sub-label — honest, not an email leak. Later shape: an OPTIONAL trailing
+displayName? on verifyPhoneOtp; Login calling it with one argument stays
+byte-identical.
+
+[FU-ANNUAL-PRICE-ROSE-POST-539] — #539 (2026-07-26 23:30 IST) published
+Rs 4,999/board year; founding is Rs 5,999 — a Rs 1,000 rise ~24h later. No
+payment rail, so nobody transacted. Owner ruled: fix the SENTENCE, not the price.
+The public claim is now scoped to an ACTIVE SUBSCRIPTION and a guard fails on
+eight overbroad phrasings. Do NOT reintroduce "we do not raise anyone's price".
+
+[FU-HOME-JSONLD-NOT-LIVE] — Home.tsx is UNROUTED (zero product importers; the
+live landing page is Welcome.tsx, which publishes no price and no JSON-LD). So
+the product currently ships NO price structured data a crawler can reach. The
+Home Offer graph maintained across #539 and #548 is drift-hygiene, not SEO. If
+rich results are wanted the graph must move to PricingPage.tsx (routed) or
+Welcome.tsx (GLOBALLY FORBIDDEN — needs its own scoped lane).
+
+[FU-RETIRED-PRICE-LIST-COLLIDES-WITH-LIST-PRICE] — Home.priceConsistency.test.tsx
+pinned "999" in a RETIRED-price denylist added by #539, which retired it. Rs 999
+is now the LIST price, so the guard went red on CORRECT behaviour. Class of bug:
+a denylist of retired values is a liability once pricing is reversible. Prefer
+asserting the current published set (allowlist) over absent old ones (denylist).
+Same allowlist-over-denylist rule as Lane H's enumeration defence.
+
+[FU-USER-PROGRESS-503] — LOW (owner-downgraded 2026-07-27). /api/user/progress
+503s in production; userProgress.cjs needs Postgres and there is no DATABASE_URL.
+The 503 is DELIBERATE — the file documents "Gracefully returns 503 when
+DATABASE_URL is not configured". dbSyncService is self-described fire-and-forget
+("All write functions are silent... so they never block or crash the app").
+Firestore (sessionRecords/{uid}/records/{id}) is the durable store; Postgres is a
+third mirror that fails silently by design. NO DATA LOSS.
+THE ONE UNVERIFIED BOUND, and the first thing that lane checks: does Firestore
+cover EVERY field dbSyncService syncs — XP, streak, focus, mastery, mission?
+That answer decides "delete as dead code" vs "finish it". Note that restoreFromDB,
+awaited once at login to hydrate localStorage, currently gets nothing.
+```
+
+### DOCTRINE — two corrected rules for the next agent
+
+```
+[FU-TYPECHECK-TEST-SEPARATE-GATE] — `tsc -p tsconfig.app.json --noEmit` (the
+command in CLAUDE.md §6) EXCLUDES test files. CI runs a SECOND, independent step
+`pnpm --filter lazytopper run typecheck:test` (tsconfig.test.json). A type error
+in any .test.tsx is GREEN locally and RED in CI. BOTH configs belong in every
+agent's local set. Cost a red run on #550: `vi.fn(async () => {})` types
+mock.calls[0] as the EMPTY TUPLE, so calls[0][2] is TS2493. Type mock functions
+to the REAL signature — it fixes the typing AND makes arity part of the
+assertion. SUPERSEDES an earlier note claiming "nothing typechecks test files"
+— an agent's own memory is a derived value that outlives its facts too.
+
+[FU-IMPORT-EDGE-NEEDS-THE-ROOT-MATRIX] — owner-corrected rule, SUPERSEDES
+"matrices are CI-only" as an absolute. Full matrices stay in CI (the reason was
+OOM from parallel FULL-matrix runs, not single suites). BUT when a change adds a
+NEW IMPORT EDGE into lazytopper/src/, run the ONE root-matrix suite covering the
+touched area locally first — it costs seconds and is the only gate that can see
+an import edge. AN IMPORT GRAPH IS NOT VISIBLE IN A DIFF.
+Cost a red run on #552: paidCallHeaders.ts statically imported firebaseClient,
+which reads import.meta.env at module scope; that put it on aiClient's graph, and
+aiClient is reachable from code the root matrix runs under plain Node via tsx.
+Three unrelated subtests in scripts/src/practiceSetGeneratorGuard.test.ts died
+with "Cannot read properties of undefined (reading 'VITE_FIREBASE_API_KEY')".
+Fix: lazy `await import(...)` + a regression guard asserting it STAYS lazy.
+```
+
+### ★ THE WAVE'S STRONGEST FINDING — keep verbatim
+
+```
+A FIX THAT CANNOT BE SHOWN TO CHANGE BEHAVIOUR IS NOT A FIX.
+
+The B3 brief prescribed "use a distinct container id for the sign-up reCAPTCHA".
+That would have done NOTHING. initPhoneRecaptcha early-returned on
+`if (recaptchaVerifierRef.current)` and IGNORED the container-id argument
+entirely, so a second page passing a different id changed nothing at all.
+
+Mutation proof, reverting to the old early-return with 'lt-signup-recaptcha'
+requested:
+
+  x REBUILDS when a different container is requested (the /login -> /sign-up walk)
+    -> expected [ 'lt-login-recaptcha' ]
+       to deeply equal [ 'lt-login-recaptcha', 'lt-signup-recaptcha' ]
+  x REBUILDS when the same container id was remounted (stale element)
+    -> expected [ 'lt-signup-recaptcha' ]
+       to deeply equal [ 'lt-signup-recaptcha', 'lt-signup-recaptcha' ]
+
+The REAL mechanism: resetPhone runs only on verify-success, logout and provider
+unmount — never on navigation — so walking /login -> /sign-up leaves a live
+verifier bound to a container that has since unmounted. Reuse is now conditional
+on the container being BOTH the one requested AND still attached.
+```
+
+### STRUCTURAL — record prominently
+
+```
+[D47] + [D41] — ★ scope:guard has NO `artifacts/**` lane at all. A grep for
+"artifacts" in lazytopper/scripts/scopeGuard.mjs returns ZERO hits, so EVERY PR
+touching artifacts/ fails as `[unclassified] -> SCOPE_GUARD_FAIL`. #546 hit this.
+It is NOT a breach — verify the boundary by hand and say so in the report. Until
+D47 lands, the next agent should not spend a cycle rediscovering it. D47's own
+instruction: fix it in its own small gated PR (add an `apiServer` lane to
+repo_boundary_policy.json); do NOT fold it into a docs PR.
+
+★ THE SAME GAP HITS EVERY DOCS-ONLY PR, including this one. `repo_boundary_policy.json`
+declares four lanes — product, trackedTooling, generatedEvidence, localOnly — all
+anchored to the `lazytopper/` frame. The real `handoff/` directory and root-level
+`CLAUDE.md` are modelled by NONE of them, so a docs handoff reports
+`[unclassified] -> SCOPE_GUARD_FAIL` for all seven of its files. Expected, not a
+breach; the boundary was verified by hand instead (zero product files in the diff).
+Whoever picks up D47 should add a docs lane in the same PR.
+UNVERIFIED OBSERVATION, flagged rather than claimed: generatedEvidence lists
+`"_handoff/"` with a LEADING UNDERSCORE, and no such directory exists. It sits among
+`_debug_bundle/`, `_handover_evidence/`, `_codex_output/`, `_rollback/` — all
+underscore-prefixed scratch dirs — so it is most likely a deliberate entry for a
+generated directory and NOT a typo for `handoff/`. Worth one owner glance while D47
+is open; do not assume either way.
+
+★ THE MAIN CHECKOUT GOES STALE AND WILL PRODUCE CONFIDENT FALSE REPORTS.
+C:\Projects\Lazytopper-Production sat 12 PRs behind trunk during this wave.
+Grepping handoff files there produced an apparent "#541's docs content was lost"
+— it was present at trunk all along; `git log -- <path>` there also silently
+omits newer commits. Read via `git show <trunk-sha>:<path>` or from a fresh
+worktree. Same lesson as the earlier false "the gate is a no-op" report, now hit
+on DOCS as well as product files.
+```
+
 ### ★★ EFFICIENCY / PRICING TIER — these reference a document that is now IN THE REPO
 `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` is committed alongside this update. The `[FU-EFF-*]` entries below reference conclusions that live **only** in that document — the per-call cost model, the ranked levers, the margin table, and the reasoning for why `maxOutputTokens` must **not** be lowered. Without it they are unactionable.
 
