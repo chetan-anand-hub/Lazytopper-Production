@@ -69,6 +69,35 @@ export const PRICE_ANNUAL_FOUNDING_INR = 5999;
  */
 export const FOUNDING_COHORT_SIZE = 200;
 
+/**
+ * Is the founding offer still open?
+ *
+ * This module already carries offer-SHAPED values, not just numbers —
+ * `FOUNDING_COHORT_SIZE`, `FOUNDING_LABEL`, `FOUNDING_LOCK_COPY`,
+ * `FOUNDING_COHORT_COPY` and `AVAILABILITY_LIMITED` all describe the offer
+ * rather than a price — so the flag that says whether that offer is live
+ * belongs beside them. Splitting it into its own module would put the offer's
+ * state one import away from every string that describes it, which is the drift
+ * this file exists to prevent.
+ *
+ * ★★ IT IS A BOOLEAN, AND IT MUST STAY ONE. Never a remaining-seats number.
+ * "First 200 students" is a true claim about the OFFER; "43 places left" is a
+ * claim about DEMAND. A live count that does not move for a month reads as
+ * "nobody is buying" — worse than silence — and a hand-tuned one is fabrication.
+ * Do not widen this to a count, and do not add a sibling that could become one.
+ *
+ * Owner-edited, deliberately: a build-time constant cannot fail at runtime, and
+ * closing the cohort is already a manual operation ([FU-PRICING-FOUNDING-COHORT]
+ * — nothing in the product counts subscribers). A Firestore-backed toggle is a
+ * later change, not this one.
+ *
+ * ⚠ FLIPPING THIS TO `false` IS NOT THE WHOLE SWITCH. `MONTHLY_INLINE` below is
+ * bound to the FOUNDING rate and is NOT derived from this flag — the two gates
+ * that render it would keep quoting a closed price. See the warning on that
+ * constant.
+ */
+export const FOUNDING_OFFER_OPEN = true;
+
 /** A "board year" is a full twelve months of access through the exams. */
 export const MONTHS_PER_BOARD_YEAR = 12;
 
