@@ -18,6 +18,7 @@ import {
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
+import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 
 /**
  * DesktopHome — the Home cockpit at desktop width (and at /browse for a
@@ -477,6 +478,12 @@ export default function DesktopHome() {
           </div>
           {rightChip}
         </header>
+
+        {/* ── One-time phone-linking nudge ──────────────────────
+            Renders null unless the student is signed in with a real account,
+            has no phone credential linked, has not dismissed it, and has
+            RETURNED at least once. All four live inside the component. */}
+        <LinkPhoneNudge />
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (

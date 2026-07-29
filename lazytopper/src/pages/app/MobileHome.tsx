@@ -15,6 +15,7 @@ import {
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
+import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import {
   BORDER,
   CARD_BG,
@@ -684,6 +685,16 @@ export default function MobileHome() {
           <span style={crumbChipStyle()}>Class {fallbackGrade}</span>
           <span style={crumbChipStyle()}>{memorySubject ?? (isSignedIn ? "Continue" : "Pick a path")}</span>
         </div>
+
+        {/* One-time phone-linking nudge. Renders null unless the student is
+            signed in with a real account, has no phone credential linked, has
+            not dismissed it, and has RETURNED at least once — all four
+            conditions live inside the component. */}
+        {/* `spaced` supplies this page's own 13px rhythm. It is a PROP, not a
+            wrapper div: an always-rendered wrapper would push everything below
+            it down by 13px even in the (usual) case where the nudge renders
+            null. */}
+        <LinkPhoneNudge spaced />
 
         {/* Returning / signed-in: resume strip first (real memory only). */}
         {showResume && (
