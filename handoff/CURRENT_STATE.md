@@ -1,6 +1,304 @@
 # LazyTopper — Current State
 
-## [CURRENT] #546–#552 merged — ★★ WAVE 2: THE FRONT DOOR CLOSED · A GUARD THAT COULD NEVER FIRE · TOKENS FINALLY READABLE · AND EVERY SIGNED-IN STUDENT WAS BEING RATE-LIMITED AS A STRANGER — trunk `e8b15735`
+## [CURRENT] #557–#563 merged — ★★ WAVE 3: THREE ROUTES TO FREE PREMIUM CLOSED IN PRODUCTION · A GUARD THAT COULD NOT SEE ITS OWN REPO · A DEPLOY THAT SHIPPED NOTHING AND SAID "Deploy complete!" — trunk `25e995a7`
+
+**Seven product PRs, four lanes, run under a controller + subagent model. Zero open PRs at close.** Trunk moved `eb88bce0` → **`579b6953` (#557, D1)** → **`5b4070ad` (#558, C1)** → **`8e89604d` (#560, GUARD-1)** → **`6bb5bb4f` (#561, SEC-1-REV)** → **`69a39e29` (#559, C2)** → **`0a6a0bf0` (#562, D2)** → **`25e995a7` (#563, SEC-2)**.
+
+```
+#557  D1        phone-linking nudge
+#558  C1        grader FORBIDDEN ban -> targeted tests
+#559  C2        responseSchema (constrained decoding)   [owner live-verified]
+#560  GUARD-1   scope:guard blind spot + boundary lanes
+#561  SEC-1-REV Firestore premium self-grant closed     [deployed + Console-verified]
+#562  D2        client cleanup (three dead things)
+#563  SEC-2     entitlement not forgeable (Routes B+C)  [deployed + Console-verified]
+```
+
+**The Firestore rules are DEPLOYED and read back from the Firebase Console, not merely merged.** Both owner live-verifies (C2's grading round-trip, SEC-2's fresh-student trial) are done. Nothing from this wave is pending.
+
+### ★★ THE WAVE'S FINDING — the mechanism that reports success on work it never did
+
+Every lane found the same shape, at a different layer. A guard that inspected nothing. A rules block that read as a restriction while a permissive block still matched. A schema mutation aimed at a harness that mocks the thing it was supposed to constrain. A backup taken after the change it was meant to undo. And, below every gate this project owns, **a deploy that uploaded nothing and printed `Deploy complete!`**.
+
+> **★★ THE DOCTRINE — GUARD-1's generalisation, verbatim.**
+>
+> **A guard's output must name its subject, not just its verdict.** Every check states what it inspected — which files, which patterns, how many times each fired — and any check whose subject count or match count is **zero is a FAILURE, never a pass**. "Nothing to object to" and "nothing looked at" are the same output otherwise, and a guard is a device for telling those two apart.
+>
+> - **A guard may not verify itself against its own input.** `classified === all.length` proves nothing when the bug shrank `all`. Self-checks need truth from *outside* the thing under test.
+> - **Coverage is proven by the negative case.** A green run establishes only that the guard did not object. Ship the mutation that makes it red, or the guard is decorative.
+> - **A guard nothing runs is not a guard.** Reachability is part of the check, not packaging around it.
+>
+> One line: **a check that cannot be shown to have looked, and to be capable of failing, is not coverage — it is the appearance of coverage, which is worse, because it stops anyone looking.**
+
+### ★★ THE DEPLOY THAT SHIPPED NOTHING — and the two words that were the whole signal
+
+**Merging #561 did not put the security fix in production.** A `firestore:rules` deploy run from the shared checkout redeployed rules **six commits stale** and reported success.
+
+```
+[FU-DEPLOY-FROM-STALE-CHECKOUT] — CONFIRMED, not hypothetical. On 2026-07-29 a
+firestore:rules deploy run from C:\Projects\Lazytopper-Production redeployed rules
+six commits stale (checkout at 47d765db, trunk at 6bb5bb4f) and printed "latest
+version already up to date, skipping upload" followed by "Deploy complete!". The
+security fix was NOT in production despite a successful-looking deploy.
+RULE: before any deploy, `git pull` and GREP THE LOCAL FILE for the expected new
+content. "Deploy complete" is not evidence; "skipping upload" on a file you just
+changed is evidence of the opposite. Verify in the Firebase Console afterwards —
+it is the only authority on what is enforcing.
+Fourth instance of the shared checkout producing a confident wrong result.
+
+[FU-DEPLOYMENT-OUTSIDE-EVERY-GATE] — firestore.rules is the clearest case but not
+the only one: nothing in CI can observe what is actually deployed. A merged rules
+file, a Railway env var, a Firebase console setting — all of them can diverge from
+trunk silently and indefinitely. The stale-checkout deploy above was invisible to
+every gate this project has, and would have stayed invisible until an auditor or a
+student found it. Any lane whose outcome depends on a deploy must carry an explicit
+OWNER-ACTION line in its report AND must not be closed in WAVE_STATE.md until the
+owner confirms the deployed state, not the merged state.
+```
+
+**★★ The two-word difference between `skipping upload` and `uploading rules` is the whole signal.** `6bb5bb4f` in that FU is #561's own merge commit: the deploy ran minutes after the merge, from a checkout that had never seen it. The successful re-deploy printed **`uploading rules`**.
+
+⇒ **STANDING CLOSURE RULE: a lane whose outcome depends on a deploy closes on the DEPLOYED state, never the MERGED state.**
+
+### ★★ A ROLLBACK ARTEFACT MUST BE PROVEN TO CONTAIN THE OLD STATE
+
+The owner's rollback backup was taken **after the merge had already been pulled**, so it captured the **NEW** rules — a useless rollback that looked like insurance. Caught before deploying and replaced with `git show <prev-sha>:firestore.rules`.
+
+> **DOCTRINE — carry verbatim:** *A rollback artefact must be PROVEN to contain the old state.* **Grep it for the thing you are about to add; if the pattern is present, you backed up the wrong version.** Git is a better source than the working tree, because the working tree may already have moved.
+
+Same family as everything else this wave: an artefact that **looked** like protection while containing nothing of the kind — and only a **check of its contents** could tell the difference.
+
+**★ Rollback path, known BEFORE deploying:** Firebase Console → Firestore → Rules → the version dropdown. A previous ruleset republishes in one click. If trial activation had broken after deploy, that was the immediate action — not a hotfix PR.
+
+### ★★ TIGHTENING A WRITE RULE BREAKS EVERY OVER-SENDING WRITER, SILENTLY
+
+SEC-2 applied the "where else?" rule and found that `saveCloud` **spreads `status`** into its payload. That spread would have sent `trialEndDate` and a client-chosen `trialStartDate` — **both refused by the new rules** — so **every cloud write would have failed SILENTLY inside the existing `catch {}`**. The security fix would have quietly disabled subscription persistence, with nothing on screen and nothing in a gate.
+
+> **DOCTRINE — carry verbatim:** **TIGHTENING A WRITE RULE BREAKS EVERY OVER-SENDING WRITER, SILENTLY.** Before changing what a store accepts, **enumerate every writer and check what each actually sends — not what it is supposed to send.** A spread into a payload sends fields nobody listed.
+
+`saveCloud` now builds its payload **field by field**, and tests 8a–8c pin the shape so the regression cannot land quietly.
+
+### ★★ A CI RUN ID IS BOUND TO A COMMIT, NOT TO A PR
+
+The run the controller handed EV-1 for #558 (`30417690715`) was **not #558's final head** — it ran `06692469`, after which the branch took trunk-merge commit `24883eca`. EV-1 pulled run `30418065085` on the real head and re-verified everything green there too. **Had it trusted the assigned run, the merged head would have been unverified.** This was the controller's error, caught by the subagent.
+
+> **Standing rule: derive the run from the head you actually care about; never carry a run id forward across a rebase or a trunk-merge.**
+
+### ★★ THE FIXTURE THAT ENCODED THE DEFECT IT WAS CLOSING
+
+`useSubscription.autotrial.test.ts` had `activeTrial(5) = {start: now, end: now+5d}`, asserting `daysLeft === 5`. Under a **derived** end that is 7, so it went RED: *"expected 7 to be 5."*
+
+★ **That fixture describes a five-day trial that began today — a state the product cannot produce. It was only expressible BECAUSE the trial length was a stored, writable field.** The fixture encoded the very defect being closed, which is the cleanest possible proof SEC-2 fixed the right thing. The helper now derives the start; the test's intent and its assertion are preserved. Test-only, one file, zero product code.
+
+### ★★ SIX PROPOSED MECHANISMS PROVEN INERT — four of them the spec author's own, self-reported
+
+**Derived from the record, not carried forward as a number.** An intermediate spec in this wave said "five"; C2's own report called its instance *"the fourth this wave"* without enumerating the other three. Neither figure can be reconciled against the evidence, so both are recorded and neither is used. What follows is the enumeration, each with the evidence that proved it inert. **A "proposed mechanism proven inert" here means a fix, command or artefact that was put forward as doing something and was then shown to do nothing.**
+
+| # | the proposed mechanism | the evidence that proved it inert | whose |
+|---|---|---|---|
+| 1 | **The SEC-1 spec's §3 Firestore rules fix** | Mutation 2 (`nested-noop`) applied the spec's fix verbatim to the real emulator: `# pass 6 # fail 8`, **byte-identical to the permissive-rule run**, same eight assertions. It did not even stop a `tier:"premium"` write to the parent doc. In `rules_version = '2'` a recursive wildcard matches **zero** or more segments, so the nested `match /{document=**}` also matches `/subscriptions/{uid}` itself — and Firestore **ORs** its match blocks. | spec author's own, self-reported |
+| 2 | **The GUARD-1 spec's literal remedy** (re-frame the `git diff --name-only` calls) | `git diff --name-only` is **root-relative from any cwd** and had already been fixed under `[D47]`/`[D41]`, with comments saying so. Only `git ls-files --others` is cwd-scoped. Applying the spec's remedy would have been "a green suite over an open hole." | spec author's own, self-reported |
+| 3 | **The C2 spec's §2 stated mutation target** (tightening the schema reddens C1's §5) | Under mutation 1, **every C1 §5 test stayed green.** That harness mocks `callGemini`, so no schema ever touches its payloads, and C1's §5 pins the **parser**, which a schema change cannot affect. Had it been taken on trust, the lane's central guarantee would have been unenforced while appearing enforced. | spec author's own, self-reported |
+| 4 | **The cofounder's own verification command** | Two piped `Select-String`s requiring the **same LINE** to match both an invocation pattern and a result pattern — which can never match. It returned empty and looked like evidence that C2's suites had not run. **They had.** `node --test` prints invocation and result on **different lines**. | spec author's own, self-reported |
+| 5 | **The owner's rollback backup** | Taken *after* the merge was pulled, so it contained the NEW rules. Proven by grepping it for the thing about to be added. | owner's, caught pre-deploy |
+| 6 | **The first `firestore:rules` deploy** | `"latest version already up to date, skipping upload"` then `"Deploy complete!"` — six-commit-stale rules re-shipped, production unchanged. | operational |
+
+★ **Instances 1–4 are proposals; 5–6 are an artefact and an operation.** They are listed together because they are one failure class — *something that reports success while inspecting or changing nothing* — and separating them by category would hide that. The count of **proposals** alone is **four**; the count of the **class** this wave proved inert is **six**.
+
+⇒ **Two method rules follow directly:** *run the mutation battery against the SPEC, not only against the code* (instances 1–3), and *a verification command needs its own control — run it against a case you know matches before trusting an empty result* (instance 4). An empty result from an unvalidated command is not evidence of absence; it is no evidence at all.
+
+---
+
+### D1 · #557 — `feat(auth)`: a one-time phone-linking nudge on both Home pages
+
+`LinkPhoneNudge` + 14 tests; both Home pages wired. **★★ The research the spec owed: the returning-session signal DOES NOT EXIST.** Every `lazytopper.*` localStorage key in `lazytopper/src` (~170) was enumerated and each candidate traced to its **writer**. Three candidates, all rejected — `landingMemory.hasProfile` is a dead key (permanently false), `lazytopper.firstVisitOverlayShown` is written only by the **severed** `pages/Dashboard.tsx`, `lazytopper.studySessions` is the activity signal the owner excluded. Firebase `metadata.lastSignInTime` was rejected because persisted sessions freeze it at `creationTime` forever — a silent never-fires — and `mapFirebaseUser` does not map it anyway.
+
+Owner approved the smallest addition: a per-browser distinct-session counter, `lazytopper.homeVisits.v1` + `lazytopper.homeVisit.counted.v1`. Returning ⇔ count ≥ 2. ★ **The sessionStorage flag is load-bearing, not an optimisation** — without it a first-session student walking Home → Practice → Home reaches 2 and is nudged in the session they signed up.
+
+**Two design decisions worth keeping:**
+1. **The modal's lifetime is NOT tied to the nudge's visibility.** A successful link flips `providerIds`, which makes the nudge's condition false — nested, the modal would vanish mid-success and the student would never see the confirmation. It renders whenever `modalOpen`, guarded by `if (!showNudge && !modalOpen) return null`.
+2. **`spaced` is a PROP, not a wrapper div.** An always-rendered wrapper carrying `marginTop` pushes everything below down **even in the usual case where the nudge renders null** — a layout change for every student. The modifier class exists only when the nudge does.
+
+**Hazard cleared, proven by running it, not assumed:** `MobileHome.test.tsx` mocks `AuthContext` with a **bare factory returning only `useAuth`** — the classic wholesale-replacement trap. It still passes, because `useAuth` is the only RUNTIME import on that path (`hasPhoneLinked`'s `AuthUser` is `import type`, erased).
+
+### C1 · #558 — `test(server)`: the grader's blanket ban replaced by targeted tests
+
+`checkSolution.test.cjs`, **32 tests, `# skipped 0`**, five sections. **`checkSolution.cjs` itself is byte-identical to trunk.** Both FORBIDDEN gates lifted the ban in the shape of the **#519 precedent** — commented lift plus asserted replacement, never a bare delete. Convergence gained **three** new checks, overlay its **own two**, deliberately duplicated rather than shared: *"A lift verified in only one gate leaves the other silently protecting nothing."* All checks are **filesystem-only** (no subprocess, no git base) so they can never skip on a shallow checkout. Convergence 97→**100/100**, overlay 34→**36/36**.
+
+**⚠ DECLARED DEVIATION:** `lazytopper/package.json`, to wire `test:server:check-solution` into `test:matrix:all`. *"A test that is not wired into `test:matrix:all` never runs in CI. Shipping the test file without the wiring would produce exactly the silent-no-op this PR exists to prevent."* **Self-policing:** both amended gates now assert the wiring by regex; unwire the test and both go red.
+
+**★ 13 mutations, ALL PROVEN RED.** And the one that first ran green is the lesson:
+
+> **★★ A MUTATION THAT DOES NOT GO RED IS FIRST A CLAIM ABOUT THE MUTATION, NOT ABOUT THE TEST.** M5 reported 32/32 pass. The anchor `.filter((s) => s && s.description)` exists **twice** in the file at **different indentation** — 10 spaces inside `handleCheckSolution`, 6 inside `normaliseStructuredResult`. The 6-space anchor matched (reporting `anchor x1`, which *looked* correct) and patched **the wrong function**. An anchor that matches exactly once still proves nothing about *which* occurrence it matched when the code keeps near-duplicate copies — and this file deliberately maintains two near-identical graders, so it is a repeat trap here.
+
+**Three spec premises died here:** ONE gate bans the grader (there were **two**, and amending only the allowlisted one would have left C2 red on the other while looking like it had unblocked it); "retry-once + the 400-token headroom" is one mechanism (**two unrelated ones in two handlers** — three distinct `generationConfig` objects, and the 400-token story belongs to *detect*, which has no retry); "the retry fires in BOTH graders" (false — `normaliseStructuredResult` is a **pure synchronous normaliser** with no network path).
+
+### C2 · #559 — `feat(server)`: constrain grader output with `responseSchema` · ★ OWNER LIVE-VERIFIED
+
+**THREE parsers ⇒ THREE schemas.** C1's report said "two, not one." It was still one short. Gates: `Array.isArray(p.annotatedSteps)` · `if (!parsed)` · `Array.isArray(p.results)`.
+
+★★ **Schema C (worksheet) deliberately does NOT require `annotatedSteps`** — a `couldNotRead:true` entry legitimately has none. **Reusing Schema A there would have forced the model to fabricate steps for an unreadable answer** — a CLAUDE.md §5 "no invented content" breach shipped as a performance optimisation.
+
+★★ **`mistakeType` is nullable with NO enum**, because grading rules 4/5/6/7 all *require* `null`. **The owner live-verified this specifically**: he graded a real answer on production, then a **fully correct** answer to exercise the null path — full marks, **no spurious mistake type**. That was the failure mode to fear: a schema forcing `mistakeType` to a value would have made **Mistake Intelligence learn from noise**. The decision is now verified rather than argued.
+
+**6 mutations RED**, including a **silent-no-op** one (`buildBody` stops forwarding the schema → the CONTROL reddens) and a regex mutation that reproduced a literal `400 - Unknown name "responseSchema"` outage.
+
+**`tutor.cjs` deliberately left unconstrained (F4).** It sends no `responseMimeType`, its reply is consumed as **prose**, and its only structure is sentinels *stripped by regex*. Constraining it would mean deriving a schema from the prompt (forbidden), flattening teaching prose into a JSON string, and breaking both extractors. It has no parse-miss retry to fix. A reported non-change with reasoning.
+
+**⚠ Near-miss worth keeping:** a cosmetic parameter rename left two dangling references inside `runWithFallback` — **a ReferenceError on every Gemini call.** Caught by the existing 23-test suite within one run. The existing tests earned their keep on a change that looked cosmetic.
+
+### GUARD-1 · #560 — `fix(ops)`: make `scope:guard` see the whole repo
+
+**`scope:guard` ran with `cwd=lazytopper`**, where `git ls-files --others` returns nothing — so an **entire new top-level directory was invisible to it** while modified root files were seen. All enumerations now run from `GIT_ROOT`, and the guard prints a `SCOPE_GUARD_SCOPE:` line naming root, anchor, inspected, untracked and **`anchor_frame_would_miss`** — an independent re-run in the old frame, a genuine second measurement rather than a restatement of `all`. **17 unclassifiable top-level paths → zero.** `firestore` and `repoRoot` lanes wired into `classifyFile` **and** `laneBuckets`.
+
+★ **The old self-check could not catch it:** `classifiedCount !== all.length` compares against the list the omission had already shrunk. **A self-check asserted against its own input is a tautology.**
+
+★ **Contradiction to the spec, deliberate:** GUARD-1 did *not* make a new top-level directory classify into a lane — that re-creates the blind spot with extra steps, waving anything new through. Correct behaviour is *seen, then loudly `[unclassified]`*. The repair is **absent from output → named in output**.
+
+**The new zero-match meta-assertion caught a live one immediately:** `trends_cta_pressure_within_contract` asserts `count <= 12` and was **passing with count = 0** — a ceiling check passing on nothing.
+
+**Spec correction:** `agent3_uiux_guard` was never "silently passing." It exits 1 and scored **3/7 on trunk**. The silence is that **nothing runs it** — RED and unread through three redesigns.
+
+**⚠ Almost none of GUARD-1's work is CI-gated.** Proven, not asserted: grepping the 4,076-line CI log for `blindspot\|repo_boundary\|agent3_uiux\|scopeGuard\|scope:guard` returns **0 matches** — CI executed **none** of the five changed files. Merged on the local run with eyes open. **`[FU-GUARD-1-A]` and `[FU-GUARD-1-B]` are what close that** — see `NEXT_ACTION.md`.
+
+### SEC-1-REV · #561 — `fix(security)`: close the Firestore premium self-grant path · ★ DEPLOYED + CONSOLE-VERIFIED
+
+Route A closed. Rules tests **`# pass 14 # fail 0 # skipped 0 # todo 0`** on a **real emulator** (a portable Temurin 21 JRE was downloaded — no Java on the box; every rules result is emulator output, not reasoning). The nested wildcard block was **DELETED** rather than guarded — no subcollection writer exists repo-wide; the sole writer is `subscriptionService.saveCloud → doc(db,"subscriptions",uid)`, a 2-segment path.
+
+The delivered fix reads via `request.resource.data.get('tier','')` rather than a bare field read — necessary because the client writes with `setDoc(..., {merge:true})`, and **a bare read of an ABSENT field is a rules *error* that would deny ordinary partial merges.** Test 1b is the control that proves it.
+
+**Two allowlist extensions, both forced consequences:** root `package.json` (a lockfile entry cannot exist without a manifest entry) and `.gitignore` (the new gate writes `firestore-debug.log` to the repo root; unignored it dirties every working tree).
+
+**§4(b) "where else?" answered:** all 12 rule collections grant `write: if isOwner(uid)`, but **only `subscriptions` is read as an entitlement**; the rest are the student's own data. Two adjacent finds reported and deliberately not fixed — `users/{uid}` has **no rule at all**, so `ensureLearnerAccountMetadata` writes have **always been silently denied** inside a bare `catch {}`; and the free daily-practice quota is **localStorage-only**, so no rule can gate it.
+
+★★ **It found a THIRD route to premium and proved it green on the emulator (assertion 8).** See below.
+
+### D2 · #562 — `chore(client)`: delete the retired Home page and the dead AI learning path
+
+7 files, **+37/−1107**. `pages/Home.tsx` deleted (with its fabricated JSON-LD social proof), `generateAILearningPath` deleted with `WeakAreaPracticePage` calling the local `generateLearningPath` directly, and the two stale reCAPTCHA comments in `Login.tsx` corrected.
+
+**★★ "Two verified mitigations mean nothing goes red" — FALSE.** `lazytopper/src/config/pricing.guard.test.ts` asserts the price walk **reaches** `src/pages/Home.tsx`. Deleting the file **fails it, and CI runs full vitest** — a hard CI-red that **neither the spec nor GUARD-1 mentioned.** ⇒ **A deadness analysis that enumerates only the fixtures you expected is not an enumeration.**
+
+**★★ GUARD-1 fixed one fixture, not both — "where else?" again.** `lazytopper/scripts/ops/ux_focus_acceptance.mjs` **still** reads `src/pages/Home.tsx` via a bare `readText` with no existence guard. Corroborated independently by the FU board, which already named **both** files. Impact today: zero — no npm script, no workflow, no invoker anywhere. → `[FU-UX-FOCUS-ACCEPTANCE-HOME-FIXTURE]`.
+
+**★ "zero importers" — FALSE.** `Home.priceConsistency.test.tsx` imports it, and **PR-B1 (#548), four commits before trunk, actively updated Home.tsx's prices and wrote that 246-line suite.** A file can be unrouted and still be under active maintenance by a guard that scans all of `src/`.
+
+**⚠ DECLARED DEVIATION, approved:** `pricing.guard.test.ts` (+8/−2). The probe was **repointed** to `src/pages/desktop/DesktopHome.tsx` rather than dropped — the probe's job is proving the walk **recurses**, and Home.tsx sat directly in `src/pages/` beside `PricingPage.tsx`, so deleting the line would leave no probe below the first level. **That preserves the test's PURPOSE rather than its letter.**
+
+**⚠ A trap for the later dead-code sweep:** `scripts/ops/llm_path_audit_acceptance.mjs` **is CI-gated** and requires `rg("generateMoreLikeThis|MENTOR_ENDPOINT") > 0`. Safe today because `generateMoreLikeThis` is live and carries the check alone. **The sweep may delete `MENTOR_ENDPOINT` — but must not delete both.**
+
+### SEC-2 · #563 — `fix(security)`: derive trial expiry from an immutable server-set start · ★ DEPLOYED + CONSOLE-VERIFIED
+
+Routes B and C. Rules `27 passed (27)` on a real emulator, client `27 passed (27)`, **four required mutations RED plus three more isolating one clause each.**
+
+> **★ ENTITLEMENT MUST DERIVE FROM DATA THE CLIENT CANNOT FORGE.**
+> - `tier:"premium"` → **Admin SDK only** (#561)
+> - `tier:"trial"` → the **START** is a server timestamp the rules pin to `request.time`; the **DURATION** is a constant in code; therefore **the END is DERIVED — never stored, never trusted**
+> - `localStorage` → a **cache**, never a grant
+
+**Storing `trialEndDate` at all was the defect.** Rules cannot parse an ISO string, which is why every attempt to *validate* the stored date fails. **Remove the forgeable field rather than guarding it.** ⚠ `isPremiumAccess` was deliberately NOT changed — a trial granting premium is the product design (a 7-day full trial) and is correct; the defect was that the trial's **LENGTH** was forgeable.
+
+**★★ A fourth form, found while speccing:** pinning the start to `request.time` is not sufficient alone — if the client may write `start == request.time` *whenever it likes*, a student re-triggers it daily and holds an infinite trial. So: **create** must equal `request.time`; **update** must equal the existing value; **delete DENIED**, or a student deletes the doc and re-creates to reset the clock. All three emulator-proven.
+
+**★ The pre-hydration flash is a decision, not an accident.** `loadSubscription` stays synchronous and cache-first, so a forged localStorage entitlement **is** briefly visible before hydration. Test 7 pins it **in both directions**: pre-hydration reads premium, the same mount's hydration resolves free, and **the cache is EVICTED so the flash cannot recur.** The alternative — everyone starts free — blanks real subscribers on every mount and breaks the offline case. ★ And hydration on `absent` writes **nothing** to the cloud: *"uploading the cache would launder a forgery into the record of truth."*
+
+**★ `loadCloud` returns `error`, not `absent`, when `firestoreDb` is null.** *"Absent is a positive claim and must never be inferred from a read that never ran."*
+
+**⚠ Honest limits the subagent declared rather than papered over:** migration was **PARTIAL VERIFICATION** — production documents could not be enumerated without Console or Admin credentials, and **no claim was made about a check that was not run**; what *was* verified is that `subscriptionService.ts` is the **sole writer** to `subscriptions` anywhere in the repo. And three rules variants also drop the `trialEndDate` clause, so test 13 reddens under them too — *"contamination, not evidence"*; each clause is pinned by the tests only it breaks.
+
+### ★★ THERE WERE THREE ROUTES TO PREMIUM, NOT TWO — ALL THREE ARE NOW CLOSED IN PRODUCTION
+
+| Route | Mechanism | Closed by |
+|---|---|---|
+| **A — Firestore** | write `tier:"premium"` to `subscriptions/{uid}` | **#561** |
+| **B — localStorage** | `loadSubscription` reads only the local cache; Firestore never consulted when no cloud doc exists | **#563** |
+| **C — forged trial** | `isPremiumAccess()` returns true for `tier:"trial"` exactly as for `"premium"` (surfaced as `isPremium` at 40 sites), and `trialEndDate` was a **client-supplied ISO string** that `applyExpiry` trusted. `{tier:"trial", plan:"trial_7day", trialEndDate:"3000-01-01"}` bought permanent premium-equivalent access. **Proven green on the emulator before it was closed.** | **#563** |
+
+**Verified at the deployed layer, with a fresh student.** Trial started cleanly and survived a reload. The Firestore Console shows:
+
+```
+trialStartDate:  July 29, 2026 at 10:46:51 PM UTC+5:30   ← TIMESTAMP
+updatedAt:       "2026-07-29T17:16:52.809Z"              ← string, quoted
+```
+
+★ **The type difference IS the fix.** `trialStartDate` is a real **server-set Timestamp the rules can pin**; `updatedAt` beside it is still a quoted string, which is exactly what a client-forgeable field looks like. **There is no `trialEndDate` field at all** — expiry is derived, not stored, so there is nothing left to forge.
+
+**⚠ AND EVEN WITH A, B AND C CLOSED, ENTITLEMENT IS STILL CLIENT-SIDE ONLY.** The API server checks **rate limits, not plan**. A student calling the endpoints directly with a valid Firebase token still reaches paid features regardless of tier. After this wave, paid features are protected **in the UI** — a real improvement, and **not** the claim "paid features are protected." → `[FU-VERIFY-UID-ON-AI-ENDPOINTS]`, a different lane.
+
+### ★ SEC-2's live-verify could not happen before merge — and that changes how to read it
+
+**Firestore rules deploy PROJECT-WIDE, not per-preview.** There is no environment where SEC-2's rules could be exercised against the real client before they were live. So the sequence was necessarily **merge → deploy → verify → roll back if wrong**, not verify-then-merge. **Recorded so nobody reads the live-verify as a pre-merge gate that was skipped. It was not skipped; it was unavailable.**
+
+★ **Which is why the emulator proof carries more weight here than usual.** 27/27 rules tests plus four mutations RED on a real emulator was the *only* pre-merge evidence available. It had to be enough, and it was. On this one lane the mutation battery is not belt-and-braces over a live check — **it is the check.**
+
+---
+
+## PROCESS — the controller + subagent model, and what it got wrong
+
+Wave 3 ran under a **controller + subagent** model. **★ CONTROLLER DISCIPLINE, recorded so it is not eroded:** *"The controller reads no product source, runs no builds, reads no CI logs, inspects no diffs. The moment it does, it is a subagent with a plan attached and this model has collapsed back into what it replaced."*
+
+**★ The clearest evidence for the split:** both outgoing agents in the first pass **mislabelled their own PR number**, each reporting the other's, at ~4–7% remaining context. **Neither was wrong about the work — only about which was theirs.** *"The failure was not competence, it was an agent holding the plan while spending its last context on evidence."* Any claim sourced from an agent's final message is re-derived from the repo before it is trusted.
+
+**★ THE CROSS-CHECK THAT WORKED.** The controller relayed SEC-1's `scope:guard` finding to GUARD-1 **with an explicit instruction not to trust it**. GUARD-1 then proved it **half wrong** — `git diff` was already fixed. Had the relay been accepted as settled, GUARD-1 would have "fixed" a call path that was never broken and shipped a green suite over the real hole. ⇒ **Relay evidence between lanes; never relay it as settled.**
+
+**⚠ Two controller assumptions that were wrong, recorded because the same standard applies to the controller:**
+1. **Push serialisation was not required on the ground cited.** `#562` and `#563` were open simultaneously and **`lane-overlap` passed on both** — it keys on genuine file collision, not on a shared tree. **Merge sequencing IS still required, but by branch protection** (each merge forces the next branch to update and re-run CI), which is a different mechanism. ⇒ *Subagents stopping before commit makes build-parallelism free; **merge** order is what needs sequencing.*
+2. **In the first pass, both PRs merged BEFORE the verification lane returned.** The evidence turned out retrospectively clean, so nothing needed reverting — but the gap is real: ***the evidence lane must close before the merge, or it is an audit, not a gate.*** Still an open process question.
+
+**⚠ A precision note D2 volunteered, worth keeping as method.** It had called the unchanged vitest total of 1017 "coincidental"; it then corrected itself — the deletion happened **before** its first full local run, so **there is no pre-deletion baseline in evidence.** The number is consistent across its runs and CI; it is **not** proof that the deleted suite's tests were replaced one-for-one. ⇒ **A number that agrees with itself is not a measurement.** Nobody asked for that correction.
+
+**★ CORRECTION — SUBAGENTS CANNOT WRITE INTO THE REPORTS DIRECTORY.** The harness blocked subagent writes to `C:\Users\Chetan\OneDrive\Desktop\diff\` for the whole wave. Every lane report in that directory was **captured verbatim from the subagent's return message by the controller**. **EV-1's lane has no report file at all** — `handoff/WAVE_STATE_WAVE3_ARCHIVE.md` is its only record, and it is committed with this handoff. ⚠ **It is committed under the ARCHIVE name deliberately.** The controller's live state file is `handoff/WAVE_STATE.md`, which is **untracked scratch memory, now holding WAVE 4**, and its own header says it *“must never appear in a product PR.”* The bytes committed here are the Wave 3 file, verified **md5-identical** to the controller's own `WAVE_STATE_WAVE3_ARCHIVE.md`.
+
+---
+
+## EV-1 — the evidence lane (read-only, PASS)
+
+**The zero-skip proof, all read FROM THE LOG, none confirmed from a report:**
+
+| what | result |
+|---|---|
+| #558 `node --test server/routes/checkSolution.test.cjs` | `# tests 32 / # pass 32 / # fail 0 / # skipped 0 / # todo 0` |
+| #558 `objective_dedup_acceptance.mjs` — **the one nobody could run locally** | **RAN.** 16 `✓` lines, 0 skips, `✅ objective-flag + attempt-dedup acceptance PASSED`. Exercises the REAL route module with two negative controls. Not `node --test`, so no four-counter block — its zero-skip proof is **structural**. |
+| #558 convergence / overlay | `100/100 checks green` · `36/36 checks green` |
+| root guard matrix (both runs) | `# tests 190 / # suites 28 / # pass 190 / # fail 0 / # skipped 0` |
+| #557 vitest | `Test Files 89 passed (89)` · `Tests 1019 passed (1019)` |
+| #559 (C2) | `test:server:check-solution` `# tests 50 # pass 50 # fail 0 # skipped 0`; `test:server:token-instrumentation` `# tests 29 # pass 29 # fail 0 # skipped 0` — both matching local exactly; `objective_dedup_acceptance.mjs` RAN and PASSED against the **modified** route module |
+| #563 (SEC-2) | rules emulator gate `# tests 27 / # pass 27 / # fail 0 / # skipped 0`; `✓ subscriptionService.entitlement.test.ts (17 tests)`, `✓ useSubscription.autotrial.test.ts (5 tests)`; `Tests 1036 passed (1036)` |
+
+**★ Independent corroboration, not just a re-read:** #558's run (no D1 code) shows **88 files / 1005 tests**; #557's shows **89 / 1019** — a delta of **exactly +1 file / +14 tests**. The suite is proven to have run by arithmetic as well as by its own line.
+
+**Screenshots — VERDICT: NO LAYOUT DEFECTS.** Zero horizontal overflow at 390 / 768 / 1024 / 1440. Buttons never wrapped. Dismissed state collapses with **no residual gap** — the `spaced`-as-a-prop decision holds up in the picture. Nudge box **362×113 @390, 740×68 @768, 700×68 @1024, 1116×68 @1440.** Presence asserted by `data-testid` + visibility + exact copy, and **count=0 in all four dismissed shots** — not eyeballed. 8 PNGs + 2 metadata JSON at `C:\Users\Chetan\OneDrive\Desktop\diff\screenshots-D1-2026-07-29\`, **uncommitted**.
+
+**★★ 6 OF THE 12 SCREENSHOT CELLS WERE ARCHITECTURALLY UNREACHABLE.** `useIsDesktop` is `(min-width:1024px)`. Below 1024, `/` redirects to `/browse` (MobileHome); at ≥1024, `/browse` redirects to `/` (DesktopHome). **DesktopHome cannot render at 768 or 390; MobileHome cannot render at 1024.** **Proven by live redirect probes, not by reading code.** The 12-cell matrix was never satisfiable. 8 shots captured: the 6 real cells plus DesktopHome @1440 present/dismissed. ⇒ **write specs against the breakpoint, not against a grid.**
+
+**★ The auto-sign-in hazard is DEV-SERVER-ONLY.** `shouldAutoAnonBootstrap()` requires `import.meta.env.DEV`, **false on a Vercel production build**. The preview does not auto-sign-in, and the auto-created local user would be ineligible anyway (`isLocalSession: true`). The standing note does not generalise to previews.
+
+**⚠ The one thing the pictures do NOT prove:** `providerIds` came from a **seeded local session**, not Firebase server truth (Firestore returned `Missing or insufficient permissions` throughout, as expected). `hasPhoneLinked` against a **real phone-linked Firebase account is unproven by picture** and rests on the 14 unit tests. → `[FU-D1-PROVIDERIDS-UNPROVEN-LIVE]`, still owed.
+
+---
+
+## VALIDATION
+
+| gate | result |
+|---|---|
+| root guard matrix | `# tests 190 / # suites 28 / # pass 190 / # fail 0 / # skipped 0` — **read from the run, never hardcoded** |
+| lazytopper ops matrix | 19 suites, EXIT=0, 152 ok, **skipped 0** |
+| vitest | 1019 → **1036 passed (1036)** by #563 |
+| rules emulator (new this wave) | `# tests 27 / # pass 27 / # fail 0 / # skipped 0`, on a **real** emulator |
+| C&I convergence / overlay | 100/100 · 36/36 |
+| `scope:guard` | rebuilt by #560; now prints `SCOPE_GUARD_SCOPE:` naming what it inspected |
+
+**⚠ `scope:guard` gotcha, confirmed by SEC-2:** `firestore.rules` now classifies as `[firestore]`, not `[unclassified]` — GUARD-1's lane works. **But it FAILS under `--mode product`.** `--mode mixed` is the correct invocation for a product+firestore PR: `SCOPE_GUARD_OK (mode=mixed, lanes=product+firestore)`.
+
+## ⚠ LIVE-VERIFY OWED — one, carried from Wave 3
+
+1. **D1 (#557)** — `hasPhoneLinked` against a **real phone-linked Firebase account**. Neither picture nor unit test can settle it. → `[FU-D1-PROVIDERIDS-UNPROVEN-LIVE]`.
+
+**Done and closed:** C2's grading round-trip including the null-`mistakeType` path, and SEC-2's fresh-student trial with the Console read-back.
+
+---
+
+## (superseded) [CURRENT] #546–#552 merged — ★★ WAVE 2: THE FRONT DOOR CLOSED · A GUARD THAT COULD NEVER FIRE · TOKENS FINALLY READABLE · AND EVERY SIGNED-IN STUDENT WAS BEING RATE-LIMITED AS A STRANGER — trunk `e8b15735`
 
 **Seven product PRs across two parallel lanes, file-disjoint by construction, merged in sequence. Zero open PRs at close.** Trunk moved `c2f1793e` → **`9c49287d` (#546, A1)** → **`f0e72ac2` (#548, B1)** → **`302cba35` (#547, A2)** → **`47d765db` (#549, A3)** → **`823460a1` (#550, B2)** → **`52d54fc8` (#551, B3)** → **`e8b15735` (#552, B4)**.
 

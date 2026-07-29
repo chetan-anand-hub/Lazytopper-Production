@@ -1,3 +1,41 @@
+## 2026-07-29 - Wave 3, four lanes under a controller + subagent model (#557–#563, trunk `25e995a7`)
+
+Decisions ruled by the owner across the wave, and the scope it discovered after each lane was first planned.
+
+### Owner decisions
+- **★★ The localStorage fix is PR-2 of the security lane, not a follow-up.** The owner verified the finding personally: `loadSubscription` read **only** localStorage, and `loadCloud` returned `null` for **both** "no document" and "read failed" — **collapsing those two is what created the hole.** Principle: *localStorage may CACHE a verified tier, never GRANT one.*
+- **★★ Route C — the forged trial — is folded into the same lane, not split off**, because the fix is **one coherent principle**: entitlement must derive from data the client cannot forge. `tier:"premium"` → Admin SDK only; `tier:"trial"` → the START is a server timestamp the rules pin, the DURATION is a constant in code, so the **END is derived, never stored**; localStorage → a cache, never a grant.
+- **★ Do NOT change `isPremiumAccess`.** A trial granting premium **is** the product design (a 7-day full trial) and is correct. **The defect is that the trial's LENGTH was forgeable**, not that a trial grants access.
+- **★★ The deploy is the owner's, and the lane does not close until the Console confirms it.** `firebase deploy --only firestore:rules` after merge. **A merged rules file never deployed is a silent no-op at the infrastructure layer — the one place no gate can see.** Ruled after a deploy from the shared checkout re-shipped six-commit-stale rules and printed `Deploy complete!`.
+- **★ The lockfile is approved in the subagent's recommended shape** — `pnpm-lock.yaml` **plus a dedicated emulator step in `quality-gate.yml`** — and explicitly **NOT** chained into `scripts/` `test:matrix:all`, which would couple an emulator dependency into the content-guard suite. **The subagent was right to refuse to ship the rules test unwired.**
+- **★ `scope:guard`: add the firestore lane, but the `cwd` finding is bigger and gets its own lane.** A boundary guard running with `cwd=lazytopper` cannot see a new top-level directory **at all**. GUARD-1 was required to carry a **mutation-verified** test proving a file OUTSIDE `lazytopper/` is classified.
+- **★ `firestore.rules` is explicitly scoped to the security lanes, overriding CLAUDE.md §4's global ban.** Recorded so no reviewer flags it as a scope breach.
+- **★ Both declared test-only deviations ACCEPTED** — D2's repointed pricing probe and SEC-2's derived trial fixture. In each case the alternative (dropping the probe; honouring the stored end) **leaves a green test that no longer checks the thing it names, which is this wave's entire failure class.**
+- **★ The old SEC-1 worktree is ABANDONED, not rebased.** Stale base, and its fix was proven inert. **Its value is the proof that the fix was inert**, which is inherited into the record.
+- **★ Standing doctrine, restated:** Daily Mix, Daily Mission, Study Plan and Dashboard are OLD DESIGN and not part of the product. **Treat any reference to them as evidence of DEADNESS, never of liveness.** This corrected an agent's premise that `callMentor` still had a live caller.
+- **★ Duplicating a pin across two files creates two places to update and one to forget** — cite the existing pin by name instead. Ruled when C1 found the objective exception was already pinned, and pinned well, by a gate that `require`s the real route module.
+
+### Controller decisions
+- **The controller reads no product source, runs no builds, reads no CI logs, inspects no diffs.** *"The moment it does, it is a subagent with a plan attached and this model has collapsed back into what it replaced."*
+- **Relay evidence between lanes; never relay it as settled.** A finding was relayed to GUARD-1 **with an explicit instruction not to trust it** — and GUARD-1 proved it half wrong. Had it been accepted as established, GUARD-1 would have "fixed" a call path that was never broken and shipped a green suite over the real hole.
+- **Merges are sequenced, not batched** — branch protection requires up-to-date branches, so each merge costs the next a rebase and a CI re-run. ⚠ **Corrected mid-wave:** push serialisation was **not** required on the ground originally cited; `lane-overlap` keys on genuine file collision, not on a shared tree, and two PRs in `lazytopper/src/` passed it simultaneously. **Subagents stopping before commit makes build-parallelism free; only the MERGE order needs sequencing.**
+- **Two open PRs on one manifest is the exact collision this role exists to prevent** — hence the security lane was barred from `lazytopper/package.json`.
+- **Dispatch files send subagent reports to the subagent's scratchpad**, not the reports directory — the harness blocks the latter, which is why several findings this wave survive only as controller-captured return messages.
+
+### Scope discovered (⇒ SURFACE_TRACKER §2a; no Scope cell moves — every affected surface was already Settling)
+- **Entitlement was never one surface, and the routes were miscounted** — three, not two, and the goal spans `firestore.rules` **and** `lazytopper/src/`. **Merging the first PR and calling premium secured would have been false.**
+- **The deploy layer is outside every gate the project owns.** → `[FU-DEPLOYMENT-OUTSIDE-EVERY-GATE]`. A lane whose outcome depends on a deploy **closes on the DEPLOYED state**.
+- **The grading-server allowlist was incomplete twice over** — two gates banned the grader, and the test needed manifest wiring or it would never run in CI.
+- **The ops-gates surface has guards nobody runs** — one RED and unread through three redesigns, one auditing 1 of 13 top-level trees, one reading a file that no longer exists. → `[FU-GUARD-1-A]`/`[FU-GUARD-1-B]`/`[FU-GUARD-1-C]`/`[FU-UX-FOCUS-ACCEPTANCE-HOME-FIXTURE]`.
+- **Home has no returning-visit signal at all**, and `landingMemory.hasProfile` is permanently false — a uid-suffixed key read without its suffix, second instance of that class here. Both need their own scoped work. → `[FU-NO-RETURNING-SESSION-SIGNAL]`, `[FU-LANDINGMEMORY-HASPROFILE-DEAD-KEY]`.
+
+### ⚠ Recorded against the controller, because the same standard applies to it
+- **A CI run id was handed to the evidence lane from an earlier head.** A run id is bound to a **commit**, not a PR. Caught by the subagent; had it been trusted, the merged head would have been unverified.
+- **In the first pass, both PRs merged before the evidence lane returned.** The evidence was retrospectively clean, so nothing needed reverting — but **the evidence lane must close before the merge, or it is an audit, not a gate.** Open process question.
+- **A verification command was issued that could never match** — two piped `Select-String`s requiring one line to satisfy an invocation pattern and a result pattern. It returned empty and read as evidence that a suite had not run. It had. ⇒ **a verification command needs its own control.**
+
+---
+
 ## 2026-07-21 - Tutor/onboarding retirement, PR-1 of 2 (#512, trunk `e19b2d1`)
 
 Decisions ruled by the owner, and the scope this arc discovered after the retirement was first planned as ONE PR.

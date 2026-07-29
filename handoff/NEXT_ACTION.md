@@ -1,7 +1,77 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-28 (post-**#546–#552 — WAVE 2, lanes A + B.** Trunk `e8b15735`. Four owner live-verifies OWED. Combined docs handoff.)
+# Updated: 2026-07-29 (post-**#557–#563 — WAVE 3**, four lanes under a controller + subagent model. Trunk `25e995a7`. Rules DEPLOYED and Console-verified. ONE owner live-verify owed.)
 
-## NEXT — 2026-07-28 (post-#546–#552). Read this block first.
+## NEXT — 2026-07-29 (post-#557–#563). Read this block first.
+
+**All three client-side routes to free premium are closed IN PRODUCTION** — verified by reading the deployed rules and a fresh student's document in the Firebase Console, not by reading trunk. The grader's blanket ban is now 32 targeted tests plus a constrained output schema; the boundary guard can finally see the whole repo.
+
+### ★★ THE LANE THAT ALMOST FELL THROUGH TWICE — TAKE IT FIRST
+
+**`[FU-GUARD-1-A]` + `[FU-GUARD-1-B]` — ONE SMALL COMBINED LANE. Both HIGH. Both need `lazytopper/package.json`, which NO lane's allowlist covered — which is exactly how they slipped the first time.** They came back *inside* GUARD-1's report and went to the FU board rather than to this queue. They are named here so that cannot happen a second time.
+
+- **`[FU-GUARD-1-A]` (High)** — `repo_boundary_acceptance.mjs` still enumerates with `cwd=lazytopper` and keeps a **stale private copy** of `classifyFile`. **It audits 1 of 13 top-level trees.** Fix: enumerate from the git root, import the real `classifyFile` instead of the drifted copy, and wire it into the matrix. *(Either bug alone shows red; the blind spot masked the stale copy, so it reported green on a policy it never fully evaluated.)*
+- **`[FU-GUARD-1-B]` (High)** — `scope_guard_blindspot_acceptance.mjs` is **not wired into CI**.
+
+★★ **GUARD-1's protections are REAL but UNENFORCED until this lands** — and that is an instance of GUARD-1's own doctrine: **a guard nothing runs is not a guard.** This is not speculation: grepping #560's 4,076-line CI log for `blindspot|repo_boundary|agent3_uiux|scopeGuard|scope:guard` returned **0 matches**. CI executed none of the five files that PR changed. It was merged on the local run, with eyes open, on the understanding that these two follow-ups close the gap.
+
+**Recommended shape: one lane, both files plus the `package.json` wiring.** `[FU-GUARD-1-C]` (agent3's three rotted checks + the zero-passing ceiling, then wire green) can ride along or follow; `[FU-GUARD-1-D]` (frame collision — six paths classify correctly *by accident*) is latent and can wait.
+
+### ★ ONE LIVE-VERIFY OWED
+**D1 (#557)** — `hasPhoneLinked` against a **real phone-linked Firebase account**. EV-1's screenshots used a **seeded local session**, so the render path, copy and responsive layout are proven and the suppression path is not. No picture and no unit test can settle it. → `[FU-D1-PROVIDERIDS-UNPROVEN-LIVE]`.
+*(C2's and SEC-2's live-verifies are DONE and closed.)*
+
+### Owner-set order after that
+
+1. **`[FU-VERIFY-UID-ON-AI-ENDPOINTS]` — the remaining half, and it is the honest limit of this wave.** All three client-side self-grant routes are closed, but **the API server checks rate limits, not plan.** A student with a valid Firebase token who calls the endpoints directly still reaches paid features regardless of tier. **After Wave 3, paid features are protected IN THE UI. That is a real improvement and it is NOT the claim "paid features are protected."** Say it that way in any status.
+2. **`[FU-EFF-THINKING-BUDGET]` — now the TOP cost lever, and it OUTRANKS `responseSchema`** (owner re-ranking, on measured data). Thinking is **87.6% of vision output tokens and ~24.5 seconds per grade**, so it is both the largest cost lever **and** a latency fix. ⚠ **DO NOT set a budget from the current sample** — n=2 calls from one session is one paper, one student, one difficulty band. A week of real data, then **p90 PER MARKS-BAND**. Grading genuinely needs reasoning; the lever is to bound it, not remove it. ⚠ Counters are **per-process and reset on redeploy**, so a "week" only accrues if nothing ships — capture a reading before each merge.
+3. **`[FU-C2-PARSE-MISS-NOT-COUNTED]` — a prerequisite, not a nice-to-have.** `retryCount` counts `attempts > 1` **inside one `callGemini`**; the grader's parse-miss retry is a **second invocation**, emitting two records each `attempts:1, retry:false`. **No before/after on parse misses can be honest until that metric exists.**
+4. **`[FU-VITEST-CI-HEAP-CEILING]`** — still open, still the standing scaling item. The nine bank-importing suites, their per-file MBs and the 292MB peak are recorded on the FU board — **do not re-measure them.**
+5. **`[FU-SEC1-USERS-COLLECTION-DENIED]`** — `users/{uid}` has **no rule at all**, so `ensureLearnerAccountMetadata` writes have **always been silently denied**, swallowed by a bare `catch {}`. Nothing has broken because nothing depended on it; that is exactly why it went unnoticed.
+6. **`[FU-PRICING-FOUNDING-COHORT]`** — a published promise the product cannot enforce; nothing counts subscribers or closes the founding offer at 200. An open commitment, not a nice-to-have.
+7. **★ NEW, and it undercuts a gate every lane relies on: `[FU-MOJIBAKE-GATE-CWD-BLIND-SPOT]`.** `check:mojibake` sets its repo root to `lazytopper/` and enumerates `git ls-files` from there, so it inspects **1,379 of the repo’s 1,712 tracked files and ZERO under `handoff/`** — and reports PASS. There is real mojibake in `handoff/CURRENT_STATE.md` today that it has been green over for months. **The same cwd blind spot #560 just fixed in `scope:guard`.** ⚠ **Until it is fixed, a green `check:mojibake` is not evidence about a `handoff/` file** — run the gate’s regex directly over your added lines, with a control.
+8. **Small own-PR items:** `[FU-UX-FOCUS-ACCEPTANCE-HOME-FIXTURE]` (reads a file D2 deleted; zero impact today because nothing runs it), `[FU-ENTITLEMENT-GATE-MATCHES-STRING-LITERALS]`, `[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]`, `[FU-CI-COMMENT-STALE-MATRIX-COUNT]`, `[FU-ADMIN-GATE-DUPLICATED]`, `[FU-PREMIUMSINCE-UNREAD]`, `[FU-2.5-FLASH-DEPRECATION-UNVERIFIED]` (verify before that date drives any roadmap decision).
+9. **A later dead-code sweep** — after D2, `callMentor` + `MENTOR_ENDPOINT` are fully orphaned. ⚠ `scripts/ops/llm_path_audit_acceptance.mjs` **is CI-gated** and requires `rg("generateMoreLikeThis|MENTOR_ENDPOINT") > 0`: the sweep may delete `MENTOR_ENDPOINT`, **but must not delete both.**
+
+### ★★ STANDING DOCTRINE ADDED BY THIS WAVE — in force now
+
+- **A guard's output must name its subject, not just its verdict.** Any check whose subject count or match count is **zero is a FAILURE, never a pass**. One line: *a check that cannot be shown to have looked, and to be capable of failing, is not coverage — it is the appearance of coverage, which is worse, because it stops anyone looking.*
+- **Mutation-verify the SPEC, not only the code.** Three specs this wave proposed a fix that did nothing, and each was found by running the battery against the proposal.
+- **A verification command needs its own control.** Run it against a case you *know* matches before trusting an empty result. An empty result from an unvalidated command is not evidence of absence — it is no evidence at all. (`node --test` prints the invocation and the result on **different lines**, so any filter demanding both on one line matches zero.)
+- **A mutation that does not go red is first a claim about the MUTATION, not about the test.** An anchor that matches exactly once proves nothing about *which* near-duplicate it matched.
+- **A deploy is not a merge.** A lane whose outcome depends on a deploy **closes on the DEPLOYED state**. `git pull`, **grep the local file** for the expected new content, deploy, confirm **`uploading rules`** and not `skipping upload`, then read it back in the **Firebase Console**.
+- **A rollback artefact must be PROVEN to contain the old state.** Grep it for the thing you are about to add; if the pattern is present, you backed up the wrong version. Prefer `git show <prev-sha>:<path>` over the working tree.
+- **Tightening a write rule breaks every over-sending writer, silently.** Enumerate every writer and check what each **actually sends**, not what it is supposed to send. A spread into a payload sends fields nobody listed.
+- **A CI run id is bound to a COMMIT, not a PR.** Never carry one across a rebase or a trunk-merge.
+- **Never reconstruct an FU body from its ID.** A plausible-but-wrong FU is harder to detect than a missing one — it gets cited.
+- **Cite by quote or symbol, never by line number alone.** A line reference is a derived value nothing re-checks.
+- **Write specs against the breakpoint, not against a width grid.**
+- **A reference to Daily Mix / Daily Mission / Study Plan / Dashboard is evidence of DEADNESS, never of liveness.** (owner, standing)
+- **A deadness analysis that enumerates only the fixtures you expected is not an enumeration.**
+- **A number that agrees with itself is not a measurement.**
+- **Relay evidence between lanes; never relay it as settled.**
+- **The evidence lane must close BEFORE the merge, or it is an audit, not a gate.** *(open process question)*
+
+### ★ GATE CHEAT-SHEET — changes this wave
+- **`scope:guard` runs BEFORE `git add`** (it reads the working tree); the `base...HEAD` matrices run **AFTER** committing. Mirrors of each other.
+- **`scope:guard` was rebuilt by #560.** It now enumerates from the git root and prints a `SCOPE_GUARD_SCOPE:` line naming root / anchor / inspected / untracked / `anchor_frame_would_miss`. **Report that line verbatim.** `firestore.rules` classifies as `[firestore]`. ⚠ **It FAILS under `--mode product` for a firestore file — use `--mode mixed`** for a product+firestore PR. It still returns `[unclassified]` for `handoff/` and `artifacts/**` (`[D41]`/`[D47]`) — verify those by hand and say so.
+- **Both typechecks.** `tsc -p tsconfig.app.json --noEmit` **excludes test files**; CI runs a separate `pnpm --filter lazytopper run typecheck:test`.
+- **Root guard matrix is 190 checks / 28 suites — read it from the run, never hardcode.**
+- **A new rules gate exists:** `pnpm run test:firestore-rules` → `firebase emulators:exec --only firestore …`. It needs a JVM. There is **no Java on the owner's box**; both SEC lanes downloaded a **portable Temurin 21 JRE into the scratchpad** to run it for real.
+- **`repo_boundary_policy.json` is TRACKED but sits under a gitignored directory** ⇒ plain `git add <path>` refuses it. Use `git add -u` (ignore rules do not apply to tracked paths) — `[FU-GITIGNORE-SHADOWS-TRACKED-POLICY]`.
+- **A non-`node --test` acceptance script has no four-counter block** — its zero-skip proof is **structural**: count the `✓` lines and the final PASSED line.
+- Full matrices + vitest are **CI-only** (RAM). A green tick is not evidence — **quote the invocation and `# skipped 0`.**
+
+### ★ Controller / subagent process facts
+- **The harness blocks subagent writes to `C:\Users\Chetan\OneDrive\Desktop\diff\`.** Dispatch files must send full reports to the **subagent's scratchpad** and return the absolute path — otherwise the return message is the only copy, which is what happened to **every** lane this wave.
+- **Subagents stopping before commit makes build-parallelism free; only the MERGE order needs sequencing** (branch protection forces each merge to update and re-run the next branch). `lane-overlap` keys on genuine file collision, not on a shared tree.
+- **Two open PRs on one manifest is the exact collision the controller role exists to prevent.**
+
+### ★ Read before touching `AuthContext` — the hazard map is in `CURRENT_STATE.md`
+Twenty test files mock it; one asserts the context key set by **exact equality** and so fails on **addition**, not omission; three mount the real provider with `firebase/auth` mocked.
+
+---
+
+## (superseded) NEXT — 2026-07-28 (post-#546–#552).
 
 **The cost-exposure tier is now CLOSED on the server side, and the instrument that measures it is finally readable.** #546 shut the open front door, #547 restored a grader protection that had never actually been in force, #549 gave the token telemetry a reader, and #552 fixed a launch blocker that had every signed-in student rate-limited as an anonymous stranger at 3 calls/day.
 
