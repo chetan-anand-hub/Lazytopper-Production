@@ -14,7 +14,8 @@
       "tsconfig.json",
       "tsconfig.app.json",
       "tsconfig.node.json",
-      "tsconfig.test.json"
+      "tsconfig.test.json",
+      "vitest.config.ts"
     ],
     "trackedTooling": [
       "scripts/",
@@ -79,7 +80,34 @@
     ],
     "docs": [
       "handoff/",
-      "CLAUDE.md"
+      "CLAUDE.md",
+      "notes/",
+      "cofounder-skill/",
+      "ledger/",
+      "screenshots/",
+      "FIREBASE_SETUP.md",
+      "replit.md"
+    ],
+    "firestore": [
+      "firestore.rules",
+      "firestore.indexes.json",
+      "firebase.json",
+      ".firebaserc",
+      "**/*.rules.test.*",
+      "**/firestore.rules.test.*"
+    ],
+    "repoRoot": [
+      ".agents/",
+      ".canvas/",
+      "artifacts/",
+      "lib/",
+      ".dockerignore",
+      ".npmrc",
+      "Dockerfile",
+      "railway.json",
+      "vercel.json",
+      "tsconfig.base.json",
+      "lazytopper-product-features.docx"
     ]
   },
   "modeToLanes": {
@@ -95,7 +123,17 @@
     "mixed": [
       "product",
       "trackedTooling",
-      "apiServer"
+      "apiServer",
+      "firestore",
+      "repoRoot"
+    ],
+    "firestore": [
+      "firestore",
+      "trackedTooling"
+    ],
+    "infra": [
+      "repoRoot",
+      "trackedTooling"
     ],
     "apiServer": [
       "apiServer",

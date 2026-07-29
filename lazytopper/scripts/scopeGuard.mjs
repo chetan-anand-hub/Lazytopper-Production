@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { pathToFileURL } from "url";
 
 const ROOT = process.cwd();
 const POLICY_PATH = path.join(
@@ -17,20 +18,36 @@ const POLICY_PATH = path.join(
 // prefix so in-anchor files match the rules, while files OUTSIDE the anchor keep their full git-root
 // path and are STILL classified (they land in a real lane or fall to "unknown" -> visible FAIL).
 // We never use `git diff --relative`: that would silently drop out-of-anchor files (false-PASS blind spot).
-function detectAnchorPrefix() {
+//
+// ★ THE ABOVE WAS ONLY HALF THE MECHANISM, AND THE MISSING HALF WAS A REAL BLIND SPOT. [GUARD-1]
+// `git diff` is root-framed from ANY cwd, so the reasoning above holds for TRACKED changes. But
+// `git ls-files --others` (the UNTRACKED enumeration) is CWD-SCOPED: run from lazytopper/ it lists
+// only what lives under lazytopper/, and emits it cwd-relative. A PR that created a NEW top-level
+// directory therefore had its files omitted from `all` entirely — not "unclassified", UNSEEN. The
+// guard printed SCOPE_GUARD_OK on a change it never looked at.
+//
+// ★ And the "no-blind-spot invariant" below could not catch it: it compared the classified count
+// against `all.length`, i.e. against the very list the omission had already shrunk. A self-check
+// asserted against its own input is a TAUTOLOGY — it can only see what its input already contains.
+//
+// The fix is to enumerate from the GIT ROOT (see listFiles) so every command is root-framed, and to
+// PRINT the enumeration scope so a run states what it inspected instead of merely claiming success.
+function detectGitRoot() {
   try {
-    const gitRoot = normalizePath(
-      execSync("git rev-parse --show-toplevel", { encoding: "utf8" })
-    );
-    const anchor = normalizePath(ROOT);
-    if (!gitRoot || anchor === gitRoot) return "";
-    if (anchor.startsWith(`${gitRoot}/`)) {
-      return `${anchor.slice(gitRoot.length + 1)}/`;
-    }
-    return "";
+    return normalizePath(execSync("git rev-parse --show-toplevel", { encoding: "utf8" }));
   } catch {
     return "";
   }
+}
+const GIT_ROOT = detectGitRoot();
+
+function detectAnchorPrefix() {
+  const anchor = normalizePath(ROOT);
+  if (!GIT_ROOT || anchor === GIT_ROOT) return "";
+  if (anchor.startsWith(`${GIT_ROOT}/`)) {
+    return `${anchor.slice(GIT_ROOT.length + 1)}/`;
+  }
+  return "";
 }
 const ANCHOR_PREFIX = detectAnchorPrefix();
 
@@ -55,15 +72,23 @@ function toRule(rule) {
   return normalizePath(rule).toLowerCase();
 }
 
-function listFiles(cmd) {
+// ★ Every enumeration runs with cwd = GIT ROOT so all of them share ONE frame (git-root-relative).
+// This is what closes the untracked blind spot: `git ls-files --others` is cwd-scoped, so running it
+// from the anchor silently omitted every file outside lazytopper/. Do not "simplify" this back to a
+// bare execSync — the omission it prevents is invisible in the output.
+function listFilesFrom(cwd, cmd) {
   try {
-    return execSync(cmd, { encoding: "utf8" })
+    return execSync(cmd, { encoding: "utf8", cwd })
       .split(/\r?\n/)
       .map((line) => normalizePath(line))
       .filter(Boolean);
   } catch {
     return [];
   }
+}
+
+function listFiles(cmd) {
+  return listFilesFrom(GIT_ROOT || ROOT, cmd);
 }
 
 function readJsonSafe(filePath) {
@@ -105,7 +130,7 @@ function packageJsonHasOnlyScriptChanges() {
   }
 }
 
-function readPolicy() {
+export function readPolicy() {
   if (!fs.existsSync(POLICY_PATH)) {
     throw new Error(`scopeGuard: missing policy file at ${normalizePath(POLICY_PATH)}`);
   }
@@ -138,7 +163,7 @@ function inLane(filePath, rules) {
   return rules.some((rule) => matchesRule(filePath, rule));
 }
 
-function classifyFile(filePath, lanes) {
+export function classifyFile(filePath, lanes) {
   if (inLane(filePath, lanes.generatedEvidence)) return "generatedEvidence";
   if (inLane(filePath, lanes.localOnly)) return "localOnly";
   if (normalizePath(filePath) === "package.json" && packageJsonHasOnlyScriptChanges()) {
@@ -160,6 +185,12 @@ function classifyFile(filePath, lanes) {
   // `|| []` so an older policy file lacking these keys still loads.
   if (inLane(filePath, lanes.apiServer || [])) return "apiServer";
   if (inLane(filePath, lanes.docs || [])) return "docs";
+  // ★ [GUARD-1] Root-level lanes. `firestore` and `repoRoot` cover paths that only exist ABOVE the
+  // lazytopper/ anchor. Until they existed, firestore.rules — a security-critical file — classified
+  // as "unknown" and every correct rules PR reported [unclassified] -> SCOPE_GUARD_FAIL. Same
+  // three-part rule as [D47]: policy JSON + this function + laneBuckets, or it is a silent no-op.
+  if (inLane(filePath, lanes.firestore || [])) return "firestore";
+  if (inLane(filePath, lanes.repoRoot || [])) return "repoRoot";
   if (inLane(filePath, lanes.product)) return "product";
   if (inLane(filePath, lanes.trackedTooling)) return "trackedTooling";
   return "unknown";
@@ -191,11 +222,28 @@ function main() {
   // the policy frame. Mapping is total and 1:1, so nothing is ever dropped from what the guard sees.
   const staged = listFiles("git diff --name-only --cached").map(toPolicyFrame);
   const unstaged = listFiles("git diff --name-only").map(toPolicyFrame);
-  const untracked = listFiles("git ls-files --others --exclude-standard").map(toPolicyFrame);
+  const untrackedRaw = listFiles("git ls-files --others --exclude-standard");
+  const untracked = untrackedRaw.map(toPolicyFrame);
   const stagedDeleted = listFiles("git diff --name-only --diff-filter=D --cached").map(toPolicyFrame);
   const unstagedDeleted = listFiles("git diff --name-only --diff-filter=D").map(toPolicyFrame);
   const all = Array.from(new Set([...staged, ...unstaged, ...untracked]));
   const deletedFiles = new Set([...stagedDeleted, ...unstagedDeleted]);
+
+  // ★ [GUARD-1] STATE WHAT WAS INSPECTED. A guard that cannot say what it looked at cannot be
+  // distinguished from a guard that looked at nothing — both print OK. `blindSpotAvoided` is an
+  // INDEPENDENT measurement, not a restatement of `all`: it re-runs the untracked enumeration from
+  // the ANCHOR (the old, broken frame) and reports how many files that frame would have MISSED.
+  // On a repo with a new top-level directory this is > 0, which is the regression alarm.
+  const anchorScopedUntracked = ANCHOR_PREFIX
+    ? listFilesFrom(ROOT, "git ls-files --others --exclude-standard").map(
+        (p) => `${ANCHOR_PREFIX}${p}`
+      )
+    : untrackedRaw;
+  const blindSpotAvoided = untrackedRaw.filter((f) => !anchorScopedUntracked.includes(f)).length;
+  console.log(
+    `SCOPE_GUARD_SCOPE: root=${GIT_ROOT || "(none)"} anchor=${ANCHOR_PREFIX || "(root)"} ` +
+      `inspected=${all.length} untracked=${untrackedRaw.length} anchor_frame_would_miss=${blindSpotAvoided}`
+  );
 
   if (!all.length) {
     console.log(`SCOPE_GUARD_OK (mode=${mode}, no changes)`);
@@ -213,6 +261,8 @@ function main() {
     localOnly: [],
     apiServer: [],
     docs: [],
+    firestore: [],
+    repoRoot: [],
     unknown: [],
   };
 
@@ -287,4 +337,11 @@ function main() {
   process.exit(1);
 }
 
-main();
+// ★ [GUARD-1] Only self-execute when invoked as a CLI. The acceptance test imports `classifyFile`
+// from THIS file so it exercises the REAL classifier — repo_boundary_acceptance.mjs keeps its own
+// copy of classifyFile, and that copy silently drifted (it still lacks the apiServer/docs lanes),
+// which is the same "guard checking something other than the real thing" failure. Never re-copy it.
+const invokedPath = process.argv[1] ? pathToFileURL(process.argv[1]).href : "";
+if (import.meta.url === invokedPath) {
+  main();
+}
