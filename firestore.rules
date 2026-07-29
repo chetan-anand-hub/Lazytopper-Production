@@ -66,12 +66,48 @@ service cloud.firestore {
     }
 
     // Subscription status (trial + premium)
+    //
+    // ★ SECURITY — the client may CACHE an entitlement, it must never GRANT one.
+    // Before this rule, `allow read, write: if isOwner(uid)` let any signed-in
+    // student open devtools and write tier:"premium" into their own document.
+    //
+    // A blanket `allow write: if false` is NOT the fix: subscriptionService's
+    // `activateTrial` writes tier:"trial" / plan:"trial_7day" straight from the
+    // browser and there is no server endpoint for it, so denying all client
+    // writes would break trial activation for every new student.
+    //
+    // The predicate therefore ALLOWLISTS the two tiers and two plans the client is
+    // entitled to write. An allowlist, not a denylist: a denylist of the paid
+    // values would silently admit any tier or plan added later.
+    //
+    // ★ There is deliberately NO nested `match /{document=**}` block here, and one
+    // must never be re-added. In rules_version '2' a recursive wildcard matches
+    // ZERO or more segments, so a nested `/{document=**}` also matches THIS parent
+    // document path — and because Firestore ORs its match blocks, a permissive
+    // nested block re-grants exactly what this block denies. An earlier attempt at
+    // this fix restricted the parent, left the nested block permissive, and was a
+    // complete no-op; it read as a fix, which is the dangerous part.
+    //
+    // Removing the block is safe because nothing writes a subcollection under
+    // subscriptions/{uid}: the only writer in the product is
+    // subscriptionService.saveCloud, which setDoc()s THIS document. Verified across
+    // lazytopper/src, lazytopper/server (firebase-admin) and artifacts/api-server.
+    // Subcollection paths now fall through to the deny-all catch-all at the bottom.
+    //
+    // KNOWN RESIDUAL, tracked as [FU-TRIAL-ENDDATE-CLIENT-FORGEABLE]: isPremiumAccess
+    // treats "trial" as equivalent to "premium", and trialEndDate is a client-supplied
+    // ISO *string*. Rules have no string-to-timestamp parser, so request.time cannot
+    // bound it here. Closing that needs Timestamp-typed dates or server-issued trials.
     match /subscriptions/{uid} {
-      allow read, write: if isOwner(uid);
-
-      match /{document=**} {
-        allow read, write: if isOwner(uid);
+      // The only tier/plan pairs a browser is allowed to put in this document.
+      function clientWritableEntitlement() {
+        return request.resource.data.tier in ['free', 'trial']
+            && request.resource.data.plan in ['none', 'trial_7day'];
       }
+
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid) && clientWritableEntitlement();
+      // No `delete`: nothing in the product deletes a subscription document.
     }
 
     // Practice analytics — written client-side, read for insights panels

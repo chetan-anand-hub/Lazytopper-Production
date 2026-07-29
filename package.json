@@ -10,10 +10,13 @@
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter @workspace/api-server --filter \"./scripts\" --if-present run typecheck",
     "validate:banks": "pnpm --filter @workspace/scripts run validate:banks",
     "check:coverage": "node scripts/checkQuestionBankCoverage.mjs",
-    "deploy:firestore-rules": "node scripts/deploy-firestore-rules.mjs"
+    "deploy:firestore-rules": "node scripts/deploy-firestore-rules.mjs",
+    "test:firestore-rules": "firebase emulators:exec --only firestore --project demo-lazytopper-rules \"node --test firestore-rules-tests/subscriptions.rules.test.mjs\""
   },
   "private": true,
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "firebase": "^12.9.0",
     "firebase-tools": "^15.15.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2"
