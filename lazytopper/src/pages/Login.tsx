@@ -1146,8 +1146,13 @@ export default function Login() {
     }
   };
 
-  // Re-send: the prior invisible verifier is spent, so AuthContext rebuilds a
-  // fresh one inside sendPhoneOtp. Reset the OTP field and re-request.
+  // Re-send: `initPhoneRecaptcha` REUSES the live verifier here rather than
+  // rebuilding it. The rebuild is conditional — it happens only when the widget
+  // is stale (a different container, or one no longer in the document). On this
+  // path neither holds: the host element is always mounted and unchanged, so
+  // reuse is not just an optimisation but required — rendering a second widget
+  // into the same element throws "reCAPTCHA has already been rendered in this
+  // element", and `clear()` does not free it. Reset the OTP field and re-request.
   const handleResendOtp = async () => {
     if (busy) return;
     setError(null);
@@ -1170,8 +1175,11 @@ export default function Login() {
   };
 
   // Warm the invisible reCAPTCHA when the Phone tab opens so the first "Send
-  // OTP" doesn't pay the Google script-load latency (sendPhoneOtp rebuilds a
-  // fresh verifier each time). The bottom-right badge is expected (left for launch).
+  // OTP" doesn't pay the Google script-load latency. Warming is what makes the
+  // later sends cheap: `initPhoneRecaptcha` reuses this widget for as long as it
+  // stays valid (same container, still in the document) and rebuilds only once
+  // it is stale, so the cost is paid here once rather than on every send. The
+  // bottom-right badge is expected (left for launch).
   useEffect(() => {
     if (method !== "phone") return;
     void initPhoneRecaptcha(RECAPTCHA_CONTAINER_ID).catch(() => {

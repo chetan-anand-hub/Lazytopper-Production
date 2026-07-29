@@ -4,7 +4,6 @@ import { getWeakAreas, type WeakArea, type WeakAreaSummary } from "../services/w
 import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
 import {
   generateLearningPath,
-  generateAILearningPath,
   loadLearningPath,
   markDayCompleted,
   checkAndAdaptPath,
@@ -318,7 +317,10 @@ export default function WeakAreaPracticePage() {
 
   const srStats = useMemo(() => getSRStats(), [refreshKey]);
 
-  const [isGenerating, setIsGenerating] = useState(false);
+  // No `isGenerating` state: `generateLearningPath` is synchronous, so React
+  // batches any set-true/set-false pair inside one handler and no render ever
+  // observes the flag. A spinner that provably cannot appear is a no-op, not a
+  // safeguard, so the button stays plain rather than pretending to be busy.
 
   const handlePractice = (area: WeakArea) => {
     const diff = area.masteryPercent < 20 ? "Easy" : area.masteryPercent < 50 ? "Medium" : "Hard";
@@ -331,17 +333,18 @@ export default function WeakAreaPracticePage() {
     navigate(`/practice/10/${weakest.subject}?topic=${encodeURIComponent(weakest.topicKey)}&count=15&difficulty=Easy&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
-  const handleGeneratePath = async () => {
-    setIsGenerating(true);
+  /**
+   * The learning path is built LOCALLY and synchronously.
+   *
+   * A prior AI variant called `callMentor("plan")`, which posts to `/api/mentor`
+   * — a route deleted by Retirement PR-2. Every click therefore paid one
+   * guaranteed-failing network round trip before its `catch` fell back to
+   * exactly the local call below. The fallback was the only branch that ever
+   * produced a path, so it is now the only branch there is.
+   */
+  const handleGeneratePath = () => {
     const subj = subjectFilter === "All" ? undefined : subjectFilter;
-    try {
-      const path = await generateAILearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 });
-      setLearningPath(path);
-    } catch {
-      const path = generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 });
-      setLearningPath(path);
-    }
-    setIsGenerating(false);
+    setLearningPath(generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 }));
     setTab("learning-path");
   };
 
@@ -515,21 +518,20 @@ export default function WeakAreaPracticePage() {
           {summary && summary.weakAreas.length > 0 && (
             <button
               onClick={handleGeneratePath}
-              disabled={isGenerating}
               style={{
                 marginTop: 8,
                 width: "100%",
                 padding: "14px 0",
                 borderRadius: 14,
                 border: "none",
-                background: isGenerating ? "var(--bg-card)" : "linear-gradient(135deg, #1cb0f6, #58cc02)",
+                background: "linear-gradient(135deg, #1cb0f6, #58cc02)",
                 color: "var(--text)",
                 fontWeight: 800,
                 fontSize: 15,
-                cursor: isGenerating ? "wait" : "pointer",
+                cursor: "pointer",
               }}
             >
-              {isGenerating ? "Generating AI Path..." : "Generate AI Learning Path"}
+              Generate Learning Path
             </button>
           )}
         </div>
