@@ -94,10 +94,26 @@ service cloud.firestore {
     // lazytopper/src, lazytopper/server (firebase-admin) and artifacts/api-server.
     // Subcollection paths now fall through to the deny-all catch-all at the bottom.
     //
-    // KNOWN RESIDUAL, tracked as [FU-TRIAL-ENDDATE-CLIENT-FORGEABLE]: isPremiumAccess
-    // treats "trial" as equivalent to "premium", and trialEndDate is a client-supplied
-    // ISO *string*. Rules have no string-to-timestamp parser, so request.time cannot
-    // bound it here. Closing that needs Timestamp-typed dates or server-issued trials.
+    // ★ SEC-2 — [FU-TRIAL-ENDDATE-CLIENT-FORGEABLE] is CLOSED HERE, together with the
+    // subscriptionService change that stops writing/reading trialEndDate.
+    //
+    // The residual PR-1 recorded was: isPremiumAccess() treats "trial" exactly like
+    // "premium" (correct — the trial is a full 7-day trial), while the trial's END was
+    // a client-supplied ISO *string* that the client trusted. Rules have no
+    // string-to-timestamp parser, so the stored end could never be validated here.
+    //
+    // The fix is not to validate the forgeable field, it is to REMOVE it:
+    //   START     server-pinned to request.time, set ONCE, immutable
+    //   DURATION  a constant in code (subscriptionService.TRIAL_DAYS)
+    //   END       derived — never stored, never trusted
+    //
+    // ★★ PINNING THE START IS NOT ENOUGH ON ITS OWN. If a client could write
+    // trialStartDate == request.time whenever it liked, a student would re-trigger it
+    // daily and hold an infinite trial — the same forged-length defect in a new
+    // costume. So the start is pinned on FIRST set and immutable thereafter, and
+    // delete is refused so the document cannot be dropped and re-created to reset the
+    // clock. All three are pinned by emulator tests 9/10/11/12 in
+    // firestore-rules-tests/subscriptions.rules.test.mjs, each mutation-verified.
     match /subscriptions/{uid} {
       // The only tier/plan pairs a browser is allowed to put in this document.
       function clientWritableEntitlement() {
@@ -105,9 +121,57 @@ service cloud.firestore {
             && request.resource.data.plan in ['none', 'trial_7day'];
       }
 
+      // "Unset" means absent OR explicitly null. defaultStatus() carries a null
+      // trialStartDate, so treating a stored null as "set" would deny every
+      // legitimate later activation. Both spellings must mean the same thing.
+      function trialStartUnset(d) {
+        return !('trialStartDate' in d) || d.trialStartDate == null;
+      }
+
+      // request.time is server-set; a client writing serverTimestamp() produces
+      // exactly it, and a client writing any value of its own choosing does not.
+      function trialStartServerPinned() {
+        return trialStartUnset(request.resource.data)
+            || request.resource.data.trialStartDate == request.time;
+      }
+
+      // Once a start exists it may never move — not forward, not backward, and it
+      // may not be erased (writing null over it fails this comparison, and dropping
+      // the field with a non-merge set makes the field access error, which denies).
+      function trialStartImmutable() {
+        return trialStartUnset(resource.data)
+            ? trialStartServerPinned()
+            : ('trialStartDate' in request.resource.data
+               && request.resource.data.trialStartDate == resource.data.trialStartDate);
+      }
+
+      // trialEndDate is the forgeable field this lane removes; the client no longer
+      // writes it. Rules refuse to let any client INTRODUCE or MOVE it. A legacy
+      // document's existing value may ride along unchanged in a merge write (and may
+      // be nulled out), so a pre-existing document is never locked out of the expiry
+      // write-back — it just cannot be used to buy time.
+      function trialEndDateNotForged() {
+        return !('trialEndDate' in request.resource.data)
+            || request.resource.data.trialEndDate == null
+            || (resource != null
+                && 'trialEndDate' in resource.data
+                && request.resource.data.trialEndDate == resource.data.trialEndDate);
+      }
+
       allow read: if isOwner(uid);
-      allow create, update: if isOwner(uid) && clientWritableEntitlement();
-      // No `delete`: nothing in the product deletes a subscription document.
+      allow create: if isOwner(uid)
+                    && clientWritableEntitlement()
+                    && trialStartServerPinned()
+                    && trialEndDateNotForged();
+      allow update: if isOwner(uid)
+                    && clientWritableEntitlement()
+                    && trialStartImmutable()
+                    && trialEndDateNotForged();
+      // ★ Explicit. Nothing in the product deletes a subscription document, and a
+      // student who could would reset their own trial clock by deleting and
+      // re-creating. Stated rather than left to the catch-all so that a later edit
+      // re-adding `write` cannot silently restore delete along with it.
+      allow delete: if false;
     }
 
     // Practice analytics — written client-side, read for insights panels

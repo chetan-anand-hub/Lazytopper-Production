@@ -31,7 +31,7 @@ import {
   assertFails,
   assertSucceeds,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const RULES_PATH = path.resolve(HERE, "..", "firestore.rules");
@@ -42,7 +42,11 @@ const OTHER = "student-bob";
 const DAY = 24 * 60 * 60 * 1000;
 const iso = (ms) => new Date(ms).toISOString();
 
-/** The exact shape `subscriptionService.saveCloud` writes (minus `updatedAt`). */
+/**
+ * A full document body, including the two date fields. After SEC-2 the client no
+ * longer SENDS these — see `clientWrite` — so this helper is now mainly how a FORGERY
+ * is expressed: it is what devtools would put on the wire.
+ */
 const status = (over = {}) => ({
   tier: "free",
   plan: "none",
@@ -51,6 +55,19 @@ const status = (over = {}) => ({
   premiumSince: null,
   ...over,
 });
+
+/**
+ * The exact shape `subscriptionService.saveCloud` writes (minus `updatedAt`).
+ *
+ * ★ It omits BOTH date fields. `trialEndDate` is gone for good; `trialStartDate` is
+ * sent only by `activateTrial`, as `serverTimestamp()`, and omitting it on every other
+ * write is what lets the merge preserve the pinned value — which is precisely what the
+ * rules' immutability clause demands. Any test that writes a hand-picked date here is
+ * testing a forgery, not the product.
+ */
+const clientWrite = (over = {}) => ({ tier: "free", plan: "none", premiumSince: null, ...over });
+
+const merge = { merge: true };
 
 // ---------------------------------------------------------------------------
 // MUTATIONS
@@ -65,6 +82,30 @@ const status = (over = {}) => ({
 //                matches the parent document path, and Firestore ORs its match
 //                blocks — the nested block re-grants everything the parent denies.
 //                A suite that stays green against this one is testing nothing.
+//
+// SEC-2 adds four more, one per clause of the "set ONCE and immutable" property.
+// Pinning the start to request.time is NOT sufficient on its own, and each of these
+// isolates one of the ways that turns out to be true:
+//
+//   start-unpinned  the client picks its own trialStartDate on create — the trial's
+//                   length is forgeable again, just from the other end.
+//   start-movable   ★★ THE INFINITE-TRIAL MUTATION. The start is pinned to
+//                   request.time but may be RE-pinned on every update, so a student
+//                   re-runs activateTrial daily and never expires.
+//   delete-allowed  the start is pinned and immutable, but the document may be
+//                   deleted and re-created — the same reset, one step around.
+//   endDate-allowed a client may re-introduce the forgeable trialEndDate field.
+//
+// ★ READ THE RED LIST, NOT JUST THE RED COUNT. The first three variants also drop the
+// trialEndDate clause, so test 13 reddens under them as well — that is contamination,
+// not evidence. Each clause is pinned by the tests only IT breaks:
+//   start-unpinned  -> 9b, 9c        (the start is server-set)
+//   start-movable   -> 10, 10b, 10c  (★★ the start never moves — the infinite trial)
+//   delete-allowed  -> 7c, 12        (the document cannot be dropped and re-created)
+//   endDate-allowed -> 13 ALONE      (the forgeable field cannot come back)
+// start-movable additionally reddens 7 and 11b, and that is worth knowing rather than
+// tidying away: the naive "pin the start on every write" rule does not merely fail to
+// secure the trial, it BREAKS the legitimate expiry write-back at the same time.
 const MUTATIONS = {
   permissive: `
     match /subscriptions/{uid} {
@@ -84,6 +125,74 @@ const MUTATIONS = {
       match /{document=**} {
         allow read, write: if isOwner(uid);
       }
+    }`,
+  "start-unpinned": `
+    match /subscriptions/{uid} {
+      function ok() {
+        return request.resource.data.tier in ['free', 'trial']
+            && request.resource.data.plan in ['none', 'trial_7day'];
+      }
+      function unset(d) { return !('trialStartDate' in d) || d.trialStartDate == null; }
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && ok();
+      allow update: if isOwner(uid) && ok()
+                    && (unset(resource.data)
+                        || request.resource.data.trialStartDate == resource.data.trialStartDate);
+      allow delete: if false;
+    }`,
+  "start-movable": `
+    match /subscriptions/{uid} {
+      function ok() {
+        return request.resource.data.tier in ['free', 'trial']
+            && request.resource.data.plan in ['none', 'trial_7day'];
+      }
+      function unset(d) { return !('trialStartDate' in d) || d.trialStartDate == null; }
+      function pinned() {
+        return unset(request.resource.data)
+            || request.resource.data.trialStartDate == request.time;
+      }
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && ok() && pinned();
+      allow update: if isOwner(uid) && ok() && pinned();
+      allow delete: if false;
+    }`,
+  "delete-allowed": `
+    match /subscriptions/{uid} {
+      function ok() {
+        return request.resource.data.tier in ['free', 'trial']
+            && request.resource.data.plan in ['none', 'trial_7day'];
+      }
+      function unset(d) { return !('trialStartDate' in d) || d.trialStartDate == null; }
+      function pinned() {
+        return unset(request.resource.data)
+            || request.resource.data.trialStartDate == request.time;
+      }
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && ok() && pinned();
+      allow update: if isOwner(uid) && ok()
+                    && (unset(resource.data)
+                        ? pinned()
+                        : request.resource.data.trialStartDate == resource.data.trialStartDate);
+      allow delete: if isOwner(uid);
+    }`,
+  "endDate-allowed": `
+    match /subscriptions/{uid} {
+      function ok() {
+        return request.resource.data.tier in ['free', 'trial']
+            && request.resource.data.plan in ['none', 'trial_7day'];
+      }
+      function unset(d) { return !('trialStartDate' in d) || d.trialStartDate == null; }
+      function pinned() {
+        return unset(request.resource.data)
+            || request.resource.data.trialStartDate == request.time;
+      }
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && ok() && pinned();
+      allow update: if isOwner(uid) && ok()
+                    && (unset(resource.data)
+                        ? pinned()
+                        : request.resource.data.trialStartDate == resource.data.trialStartDate);
+      allow delete: if false;
     }`,
 };
 
@@ -161,16 +270,10 @@ const subDoc = (db, uid = STUDENT) => doc(db, "subscriptions", uid);
 //     endpoint, so a blanket deny would break every new student.
 // ===========================================================================
 test("1  student CAN write tier:trial / plan:trial_7day to their own doc", async () => {
-  const now = Date.now();
   await assertSucceeds(
     setDoc(
       subDoc(asStudent()),
-      status({
-        tier: "trial",
-        plan: "trial_7day",
-        trialStartDate: iso(now),
-        trialEndDate: iso(now + 7 * DAY),
-      }),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: serverTimestamp() }),
     ),
   );
 });
@@ -253,17 +356,10 @@ test("6  signed-out caller can neither read nor write a subscription doc", async
 //     real client write, so it is pinned.
 // ===========================================================================
 test("7  student CAN write the expired-trial downgrade (tier:free, plan:trial_7day)", async () => {
-  const now = Date.now();
+  // The real write: a MERGE that carries neither date field, so the pinned start
+  // written by test 1 rides through untouched.
   await assertSucceeds(
-    setDoc(
-      subDoc(asStudent()),
-      status({
-        tier: "free",
-        plan: "trial_7day",
-        trialStartDate: iso(now - 10 * DAY),
-        trialEndDate: iso(now - 3 * DAY),
-      }),
-    ),
+    setDoc(subDoc(asStudent()), clientWrite({ tier: "free", plan: "trial_7day" }), merge),
   );
 });
 
@@ -276,29 +372,183 @@ test("7c student CANNOT delete their own subscription doc", async () => {
 });
 
 // ===========================================================================
-// 8 — ★★ KNOWN RESIDUAL, NOT A PASS. [FU-TRIAL-ENDDATE-CLIENT-FORGEABLE]
+// 8 — ★★ [FU-TRIAL-ENDDATE-CLIENT-FORGEABLE] — CLOSED BY SEC-2.
 //
-//     isPremiumAccess() returns true for tier "trial" just as it does for
-//     "premium", and trialEndDate is a client-supplied ISO *string* that
-//     applyExpiry trusts. Rules have no string-to-timestamp parser, so
-//     request.time cannot bound it here — closing this needs Timestamp-typed
-//     dates (subscriptionService) or server-issued trials.
+//     PR-1 left this open and asserted so deliberately: the previous version of
+//     test 8 required that a forged far-future trialEndDate STILL be accepted,
+//     so that PR-1 could not be mistaken for having closed it. That test has now
+//     gone red on purpose and is replaced by its inverse.
 //
-//     This test asserts the hole is STILL OPEN, deliberately, so that neither
-//     PR-1 nor PR-2 can be mistaken for having closed premium self-grant. When
-//     someone does close it, this test goes red — which is the prompt to update
-//     the docs and delete it.
+//     The end date is no longer stored at all — the trial's END is derived from a
+//     server-pinned START plus the TRIAL_DAYS constant in subscriptionService. The
+//     rules therefore have nothing to parse, which is why every earlier attempt to
+//     *validate* the ISO string failed: the field had to go, not be guarded.
 // ===========================================================================
-test("8  KNOWN RESIDUAL — a forged far-future trialEndDate is still accepted", async () => {
-  await assertSucceeds(
+test("8  a forged far-future trialEndDate is now REFUSED at the door", async () => {
+  await assertFails(
     setDoc(
       subDoc(asStudent()),
-      status({
-        tier: "trial",
-        plan: "trial_7day",
-        trialStartDate: iso(Date.now()),
-        trialEndDate: "3000-01-01T00:00:00.000Z",
-      }),
+      status({ tier: "trial", plan: "trial_7day", trialEndDate: "3000-01-01T00:00:00.000Z" }),
     ),
+  );
+});
+
+// ===========================================================================
+// 9 — ★ THE START IS SERVER-PINNED. request.time is set by the server; a client
+//     using serverTimestamp() produces exactly it, and a client picking its own
+//     value produces something else. This is what makes the trial's LENGTH
+//     unforgeable from the near end.
+//     Reddens against SEC1_MUTATION=start-unpinned.
+// ===========================================================================
+const CAROL = "student-carol";
+
+test("9  CONTROL — create with serverTimestamp() as the start is ALLOWED", async () => {
+  await assertSucceeds(
+    setDoc(
+      subDoc(asStudent(CAROL), CAROL),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: serverTimestamp() }),
+    ),
+  );
+});
+
+test("9b ★ create with a client-CHOSEN start is DENIED", async () => {
+  const dave = "student-dave";
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(dave), dave),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() + 300 * DAY) }),
+    ),
+  );
+});
+
+test("9c ★ a start backdated into the PAST is DENIED too — any chosen value, not just future ones", async () => {
+  const erin = "student-erin";
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(erin), erin),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - 30 * DAY) }),
+    ),
+  );
+});
+
+// ===========================================================================
+// 10 — ★★ THE FOURTH FORM. Pinning the start to request.time is NOT sufficient
+//      on its own. If the client may write trialStartDate == request.time
+//      WHENEVER IT LIKES, a student re-triggers activateTrial daily and holds an
+//      infinite trial — the same forged length wearing a new costume.
+//
+//      This is the assertion that reddens against SEC1_MUTATION=start-movable,
+//      and it is the one that would otherwise have been missed: the mutation
+//      passes every other test in this file.
+// ===========================================================================
+test("10 ★★ an update that MOVES the pinned start is DENIED (the infinite trial)", async () => {
+  // Carol already has a start pinned by test 9. Re-running the exact write that
+  // legitimately created it must NOT be allowed to re-pin the clock.
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(CAROL), CAROL),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: serverTimestamp() }),
+      merge,
+    ),
+  );
+});
+
+test("10b an update that replaces the start with a chosen value is DENIED", async () => {
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(CAROL), CAROL),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() + 300 * DAY) }),
+      merge,
+    ),
+  );
+});
+
+test("10c an update that ERASES the start is DENIED — nulling it would un-expire the trial", async () => {
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(CAROL), CAROL),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: null }),
+      merge,
+    ),
+  );
+});
+
+// ===========================================================================
+// 11 — CONTROL. The everyday write must still work, or the fix has broken trial
+//      activation and the expiry write-back instead of securing them.
+// ===========================================================================
+test("11 CONTROL — an update that PRESERVES the start (omits it under merge) is ALLOWED", async () => {
+  await assertSucceeds(
+    setDoc(subDoc(asStudent(CAROL), CAROL), clientWrite({ tier: "free", plan: "trial_7day" }), merge),
+  );
+});
+
+test("11b CONTROL — the start survived that update unchanged", async () => {
+  let stored;
+  await testEnv.withSecurityRulesDisabled(async (ctx) => {
+    const snap = await getDoc(doc(ctx.firestore(), "subscriptions", CAROL));
+    stored = snap.data();
+  });
+  // ★ NAME THE SUBJECT, not just the verdict: assert the document really carries a
+  // server-set Timestamp, so this control cannot pass by looking at nothing.
+  assert.ok(stored, "carol's subscription document is missing");
+  assert.ok(stored.trialStartDate, "carol's trialStartDate was erased by the downgrade write");
+  assert.equal(
+    typeof stored.trialStartDate.toDate,
+    "function",
+    "trialStartDate is not a Firestore Timestamp — a client-chosen string got through",
+  );
+  const startMs = stored.trialStartDate.toDate().getTime();
+  assert.ok(
+    Math.abs(Date.now() - startMs) < 10 * 60 * 1000,
+    `trialStartDate is not the server clock (${new Date(startMs).toISOString()})`,
+  );
+});
+
+// ===========================================================================
+// 12 — ★ DELETE. With the start pinned and immutable, deleting the document and
+//      re-creating it is the last way to reset the clock. (7c already covers the
+//      shipped path; this pins the same property under the mutation harness, where
+//      SEC1_MUTATION=delete-allowed grants delete and everything else stays sound.)
+// ===========================================================================
+test("12 ★ a student CANNOT delete their own subscription doc to reset the trial clock", async () => {
+  await assertFails(deleteDoc(subDoc(asStudent(CAROL), CAROL)));
+});
+
+test("12b ...and the document is still there afterwards", async () => {
+  await assertSucceeds(getDoc(subDoc(asStudent(CAROL), CAROL)));
+});
+
+// ===========================================================================
+// 13 — trialEndDate cannot be re-introduced. The client no longer writes it, so
+//      this is defence in depth against a regression that starts writing it again.
+//      Reddens against SEC1_MUTATION=endDate-allowed.
+// ===========================================================================
+test("13 ★ a client cannot INTRODUCE trialEndDate on an existing document", async () => {
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(CAROL), CAROL),
+      { tier: "free", plan: "trial_7day", trialEndDate: "3000-01-01T00:00:00.000Z" },
+      merge,
+    ),
+  );
+});
+
+test("13b CONTROL — an explicit null trialEndDate is harmless and stays allowed", async () => {
+  await assertSucceeds(
+    setDoc(subDoc(asStudent(CAROL), CAROL), { tier: "free", plan: "trial_7day", trialEndDate: null }, merge),
+  );
+});
+
+// ===========================================================================
+// 14 — REGRESSION. PR-1's premium assertions must still hold for a student who
+//      has been through the whole trial lifecycle above, not only for a fresh doc.
+// ===========================================================================
+test("14 REGRESSION — carol still cannot self-grant premium after all of the above", async () => {
+  await assertFails(
+    setDoc(subDoc(asStudent(CAROL), CAROL), clientWrite({ tier: "premium", plan: "premium_monthly" }), merge),
+  );
+  await assertFails(
+    setDoc(doc(asStudent(CAROL), "subscriptions", CAROL, "override", "x"), { tier: "premium" }),
   );
 });
