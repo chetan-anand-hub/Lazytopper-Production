@@ -473,17 +473,27 @@ check('CHROME: /check-improve stays in isMobileSelfChromedRoute (old brand bar s
 section('6 · Forbidden paths untouched');
 
 const FORBIDDEN = [
-  // ★ THE `lazytopper/` PREFIX IS LOAD-BEARING, AND IT WAS MISSING HERE.
-  // The diff check below is `changed.includes(f)` — exact array membership — and
-  // `git diff --name-only` emits paths relative to the REPO ROOT. The real path
-  // is `lazytopper/server/routes/checkSolution.cjs`, so the unprefixed entry
-  // could NEVER match: the grader, the one file the owner named directly as
-  // untouchable, was guarded by an entry that could not fire.
+  // ★ THE `lazytopper/` PREFIX IS LOAD-BEARING. The diff check below is
+  // `changed.includes(f)` — exact array membership — and `git diff --name-only`
+  // emits paths relative to the REPO ROOT, so an unprefixed entry can NEVER match.
   // PROVEN BY A CONTROL CASE, not by reading: a commit that really did append a
-  // line to the grader passed this gate 91/91 green, printing
+  // line to the grader once passed this gate 91/91 green, printing
   // "ok  FORBIDDEN: server/routes/checkSolution.cjs shows zero changes".
   // The FORBIDDEN(path) loop below makes that shape impossible to reintroduce.
-  'lazytopper/server/routes/checkSolution.cjs',
+  //
+  // ★★ checkSolution.cjs — blanket ban LIFTED (owner decision, Wave 3 PR-C1).
+  // The grader is still the file the owner named directly as untouchable; what
+  // changed is the FORM of the protection, following the #519 precedent that
+  // lifted the DesktopShell.tsx ban. Two lanes now have owner-approved reasons to
+  // edit it — the responseSchema lane (PR-C2) and Quick Practice batch grading —
+  // and a blanket ban would have forced BOTH to amend this file first anyway,
+  // which is a rubber stamp, not a guard.
+  // The replacement is `lazytopper/server/routes/checkSolution.test.cjs`: 32
+  // targeted tests pinning the retry-once paths, the three generationConfig caps,
+  // the no-working/mistakeType-null chain and the parser's full accepted range.
+  // All 13 mutations proven RED. Its PRESENCE AND WIRING are asserted below, so
+  // this lift cannot decay into "no protection at all".
+  // Do NOT re-add the blanket entry without a deliberate owner decision.
   'lazytopper/src/services/mistakeIntelligence.ts',
   'lazytopper/src/services/practiceInsights.ts',
   'lazytopper/src/services/checkImproveGradeService.ts',
@@ -518,6 +528,24 @@ check('FORBIDDEN(wired): SolutionChecker.tsx is in the guarded set (shares Equat
   FORBIDDEN.includes('lazytopper/src/components/question/SolutionChecker.tsx'));
 check('FORBIDDEN(wired): EquationInput.tsx is NOT guarded (it legitimately gains autoGrow; §7 proves it stays default-off)',
   !FORBIDDEN.some((f) => f.endsWith('equation/EquationInput.tsx')));
+
+// ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED GRADER BAN (PR-C1).
+// Lifting a blanket ban is only safe if the thing replacing it actually runs. A
+// deleted FORBIDDEN entry plus a test file nobody invokes is strictly WORSE than the
+// old broken-prefix entry — that at least read as an intention. So both halves are
+// asserted: the tests EXIST, and they are WIRED into the matrix that CI runs.
+// Filesystem-only (no subprocess, no git base) so it can never skip the way the diff
+// loop below does on a shallow checkout.
+check('GRADER-TESTS: the targeted grader tests exist (the replacement for the lifted blanket ban)',
+  existsSync(path.join(ROOT, 'lazytopper/server/routes/checkSolution.test.cjs')),
+  'the blanket FORBIDDEN entry was lifted in favour of these tests — without them the grader is unguarded');
+check('GRADER-TESTS: they are WIRED into lazytopper test:matrix:all (a test nobody runs guards nothing)',
+  /test:server:check-solution/.test(read(path.join(ROOT, 'lazytopper/package.json'))) &&
+  /"test:matrix:all":[^\n]*test:server:check-solution/.test(read(path.join(ROOT, 'lazytopper/package.json'))),
+  'present but unwired — add `npm run test:server:check-solution` to test:matrix:all');
+check('GRADER-TESTS: the OBJECTIVE EXCEPTION stays pinned by objective_dedup_acceptance.mjs (not duplicated)',
+  /handleCheckSolution: objective === true for a Section-A question/
+    .test(read(path.join(ROOT, 'lazytopper/scripts/ops/objective_dedup_acceptance.mjs'))));
 
 // ★ SHAPE, asserted UNCONDITIONALLY — the guard that would have caught the missing
 // `lazytopper/` prefix, and the reason it can never come back.

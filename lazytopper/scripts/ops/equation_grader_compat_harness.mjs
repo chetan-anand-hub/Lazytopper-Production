@@ -20,7 +20,12 @@
  *   Gemini's actual grade on a raw \(...\) string equals its grade on the plain string.
  *   That is non-deterministic (a live model call) and is verified once by the owner:
  *   type a math answer on Practice + Check & Improve, confirm it grades the same + renders.
- *   The grader (checkSolution.cjs) is FORBIDDEN and never modified — the format adapts to it.
+ *   The direction of adaptation is unchanged: THE FORMAT ADAPTS TO THE GRADER, never the
+ *   reverse. (Stale-reason fix, PR-C1: this line used to justify that with "the grader
+ *   (checkSolution.cjs) is FORBIDDEN and never modified". That claim stopped being true
+ *   when the blanket ban was lifted in the two C&I acceptance gates in favour of targeted
+ *   tests — see server/routes/checkSolution.test.cjs. The RULE still holds; only its dead
+ *   reason is removed, so nobody plans against a protection that is no longer there.)
  */
 
 // ── Curated paired answers: same student answer, plain vs \(...\)-serialized ──────────
