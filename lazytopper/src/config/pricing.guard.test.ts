@@ -123,7 +123,13 @@ describe("pricing guard — no price literals outside the pricing module", () =>
     expect(scanned.length).toBeGreaterThan(200);
     for (const mustReach of [
       "src/pages/PricingPage.tsx",
-      "src/pages/Home.tsx",
+      // Was src/pages/Home.tsx until Lane D2 deleted that dead landing page.
+      // Replaced rather than dropped: this probe's job is to prove the walk
+      // RECURSES, and Home.tsx sat directly in src/pages/ alongside
+      // PricingPage.tsx, so removing it outright would have left no probe below
+      // the first level. DesktopHome.tsx is one directory deeper AND is the live
+      // surface that replaced Home.tsx.
+      "src/pages/desktop/DesktopHome.tsx",
       "src/components/auth/PracticeLimitGate.tsx",
       "src/components/auth/MockViewGate.tsx",
       "src/config/pricing.ts",
