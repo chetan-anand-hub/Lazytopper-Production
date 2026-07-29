@@ -65,6 +65,16 @@ jobs:
           node-version: '22'
           cache: pnpm
 
+      # The Firestore emulator is a Java process, and the rules gate below cannot run
+      # without it. ubuntu-latest currently ships a JDK, but that is an image detail
+      # which has changed before — pin it rather than inherit it, or the security gate
+      # silently stops running one day and still reports green.
+      - name: Set up Java (runtime for the Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       # The lazytopper ops-matrix acceptance scripts (llm_path_audit, bsre_spike, etc.)
       # shell out to `rg` (ripgrep) and have no fallback — ubuntu-latest does not ship it.
       # Install it so those audits behave as they do locally / in the Codespace.
@@ -74,6 +84,24 @@ jobs:
 
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
+
+      # --- firestore.rules: the premium self-grant gate ---
+      # Runs the REAL Firestore emulator against the REAL firestore.rules via
+      # @firebase/rules-unit-testing. Nothing else in the product enforces entitlement
+      # server-side, so `subscriptions/{uid}` is the whole paywall: before this gate the
+      # rule was `allow read, write: if isOwner(uid)` and any signed-in student could
+      # write tier:"premium" into their own document from devtools.
+      #
+      # ★ DELIBERATELY A DEDICATED STEP, not chained into the scripts/ guard matrix —
+      # that would couple a Java/emulator dependency into the content-guard suite.
+      #
+      # ★ MERGING THIS DOES NOT DEPLOY IT. firestore.rules ships only via
+      # `firebase deploy --only firestore:rules` (root script: deploy:firestore-rules),
+      # an owner action outside CI. A green tick here means the rules file is correct,
+      # NOT that production is protected.
+      - name: Firestore rules tests (subscriptions premium self-grant)
+        timeout-minutes: 10
+        run: pnpm run test:firestore-rules
 
       # --- Root guard matrix: 5 suites, 175/175 ---
       - name: Root guard matrix (scripts/ test:matrix:all)

@@ -37,6 +37,12 @@ yarn-error.log
 testem.log
 /typings
 
+# Firebase emulator scratch output. `pnpm run test:firestore-rules`
+# (firebase emulators:exec) writes these into the repo root.
+firestore-debug.log
+firebase-debug.log
+ui-debug.log
+
 # System Files
 .DS_Store
 Thumbs.db
