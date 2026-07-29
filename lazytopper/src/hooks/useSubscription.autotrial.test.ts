@@ -32,9 +32,16 @@ const activateSpy = svc.activateTrial as unknown as ReturnType<typeof vi.fn>;
 
 const DAY = 24 * 60 * 60 * 1000;
 const FREE: SubscriptionStatus = { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null };
+// SEC-2: a trial's END is DERIVED from its START plus the TRIAL_DAYS constant and is
+// no longer stored, so a fixture may only set the START. The previous version of this
+// helper set a start of "now" AND an end of now + daysLeft — i.e. a 5-day trial that
+// began today, which is not a state the product can produce. That inconsistency was
+// only expressible because the length was a stored, client-writable field, which is
+// the defect SEC-2 removed. A trial with `daysLeft` remaining is one that started
+// (TRIAL_DAYS - daysLeft) days ago.
 function activeTrial(daysLeft: number): SubscriptionStatus {
-  const now = Date.now();
-  return { tier: "trial", plan: "trial_7day", trialStartDate: new Date(now).toISOString(), trialEndDate: new Date(now + daysLeft * DAY).toISOString(), premiumSince: null };
+  const startedAgo = (svc.TRIAL_DAYS - daysLeft) * DAY;
+  return { tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - startedAgo).toISOString(), trialEndDate: null, premiumSince: null };
 }
 const EXPIRED: SubscriptionStatus = { tier: "free", plan: "none", trialStartDate: new Date(Date.now() - 10 * DAY).toISOString(), trialEndDate: new Date(Date.now() - 3 * DAY).toISOString(), premiumSince: null };
 const PREMIUM: SubscriptionStatus = { tier: "premium", plan: "premium_monthly", trialStartDate: null, trialEndDate: null, premiumSince: new Date().toISOString() };
