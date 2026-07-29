@@ -85,11 +85,18 @@ async function run() {
     `lanes=${Object.keys(lanes).join(",")}`
   );
 
+  // ★ Deliberately HARDCODED, never derived from `policy.modeToLanes`. Asserting the map against
+  // itself would be a tautology that passes for any value — this list is an INDEPENDENT statement of
+  // what the modes are supposed to be, so widening a mode has to be a conscious edit in two places.
+  // (It had gone stale: `mixed` gained apiServer and this expectation was never updated, so the
+  // check sat RED on trunk. Nothing runs this file, which is why nobody noticed — see [FU-GUARD-1-C].)
   const expectedModes = {
     tooling: ["trackedTooling"],
     tutor: ["product"],
     product: ["product"],
-    mixed: ["product", "trackedTooling"],
+    mixed: ["product", "trackedTooling", "apiServer", "firestore", "repoRoot"],
+    firestore: ["firestore", "trackedTooling"],
+    docs: ["docs"],
   };
   const modeMismatches = Object.entries(expectedModes).filter(([mode, expected]) => {
     const got = modeToLanes[mode] || [];
