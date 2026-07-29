@@ -11,6 +11,282 @@ const {
   applyObjectiveMistakeGuard,
 } = require('./objectiveScoring.cjs');
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RESPONSE SCHEMAS — constrained decoding (PR-C2)
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   ★★ THE ONE RULE THESE SCHEMAS OBEY: **exactly as loose as the parser, NEVER
+   tighter.** A schema tighter than the parser does not merely reject a response —
+   it CONSTRAINS THE MARKING ITSELF. A required field the parser defaults, a closed
+   enum where the parser needs range, a non-nullable `mistakeType`: each silently
+   changes what marks a student can receive, in exchange for a format saving. That
+   trade is not available.
+
+   Every field below was derived by READING THE PARSER, not the prompt and not a
+   sample response. The provenance comment on each field names the line it came
+   from. If a field cannot point at the parser, it does not belong here.
+
+   ★ THERE ARE THREE SCHEMAS BECAUSE THERE ARE THREE PARSERS. This module exports
+   three endpoints and they do NOT share a parse gate:
+       handleCheckSolution  -> `Array.isArray(p.annotatedSteps)`   (the grade gate)
+       handleDetectQuestion -> `!!parsed`                          (truthy object only)
+       gradeStructuredSet   -> `Array.isArray(p.results)`          (the worksheet gate)
+   `checkSolution.test.cjs` §2.3 pins that the two grade gates are not
+   interchangeable. One shared schema would have been wrong in the direction that
+   changes marks — see WORKSHEET_RESPONSE_SCHEMA's note on `annotatedSteps`.
+
+   ★ THE PARSER'S FALLBACKS ARE ALL KEPT, and deliberately so. Schema enforcement
+   belongs to the API, not to us, and the structured-output retry in geminiClient
+   legitimately STRIPS the schema when a backend rejects it — at which point every
+   coercion and default in the parser is load-bearing again. A schema is a second
+   line of defence here, never a replacement for the first.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// Shared with the parser's own validation, so the schema and the code that coerces
+// it cannot drift apart silently.
+const STEP_STATUS_VALUES = ['correct', 'partial', 'incorrect', 'missing'];
+const MARKS_SOURCE_VALUES = ['stated', 'inferred'];
+
+function deepFreeze(value) {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const key of Object.keys(value)) deepFreeze(value[key]);
+  }
+  return value;
+}
+
+/**
+ * One entry of `annotatedSteps` — the shape BOTH grade parsers normalise.
+ *
+ * Provenance (checkSolution.cjs, per-question path — the worksheet path applies the
+ * IDENTICAL normalisation at :727-737):
+ *   :369  `.filter((s) => s && s.description)`  -> `description` is the ONLY
+ *         structurally required step field. A step without one is DROPPED, and its
+ *         marks are dropped with it — so requiring it here PROTECTS marks rather
+ *         than constraining them.
+ *   :371  `stepNumber: i + 1`                   -> the model's numbering is
+ *         DISCARDED and re-indexed; optional and inert.
+ *   :372  `String(s.studentWork || '')`         -> optional.
+ *   :374  status coerced to 'partial' otherwise -> the enum is EXACTLY the parser's
+ *         accepted set. Not required and not nullable, so the model may still omit
+ *         it and land on the same 'partial' default. No range is lost; the enum only
+ *         stops the model inventing a fifth value that the parser would silently
+ *         flatten to 'partial' (test §5.3 shows 'brilliant' -> 'partial').
+ *   :375  `Number(s.marksAwarded || 0)`         -> optional.
+ *   :376  `Number(s.marksDeducted || 0)`        -> optional.
+ *   :377  `String(s.teacherAnnotation || '')`   -> optional.
+ *   :378  `VALID_MISTAKE_TYPES.has(...) ? ... : null` -> NULLABLE. See below.
+ *   :379  `s.correctedWorking ? ... : null`     -> NULLABLE.
+ *
+ * ★★ WHY `mistakeType` IS `nullable` WITH NO `enum`. The parser ALREADY enforces the
+ * four-value set at :378, so adding the enum here buys exactly nothing. Against that
+ * zero benefit sits a real, unverifiable-from-here risk: if the API does not honour
+ * `nullable` on an enum field, the model would be FORCED to pick a mistake type.
+ * Grading rules 4, 5, 6 and 7 (:184-:187) EVERY ONE depend on null being reachable —
+ * a correct step, a missing step, an error carried forward and a no-working answer
+ * are all required to be `mistakeType: null`, and Mistake Intelligence is built on
+ * that output. Forcing a value there would corrupt MI at source to save a retry.
+ * Nullable-without-enum degrades safely in both directions: a stray value is nulled
+ * by the parser exactly as it is today. See [FU-C2-MISTAKETYPE-NULL-LIVE-VERIFY].
+ *
+ * ★ NO minItems / maxItems ANYWHERE. The step count must stay free — test §5.8 pins
+ * that 1 step and 9 steps are both valid for the same 3-mark question. Pinning a
+ * count would trade grading quality for format.
+ *
+ * Returns a FRESH object per call so the three schemas never alias one another.
+ */
+function annotatedStepSchema() {
+  return {
+    type: 'OBJECT',
+    properties: {
+      stepNumber: { type: 'INTEGER', nullable: true },
+      description: { type: 'STRING' },
+      studentWork: { type: 'STRING', nullable: true },
+      status: { type: 'STRING', enum: STEP_STATUS_VALUES.slice() },
+      marksAwarded: { type: 'NUMBER', nullable: true },
+      marksDeducted: { type: 'NUMBER', nullable: true },
+      teacherAnnotation: { type: 'STRING', nullable: true },
+      mistakeType: { type: 'STRING', nullable: true },
+      correctedWorking: { type: 'STRING', nullable: true },
+    },
+    // Ordering hint only — mirrors the order of the prompt's own JSON example
+    // (:213-:223) so the model describes a step before it judges it. Carries no
+    // constraint on values or presence.
+    propertyOrdering: [
+      'stepNumber', 'description', 'studentWork', 'status',
+      'marksAwarded', 'marksDeducted', 'teacherAnnotation',
+      'mistakeType', 'correctedWorking',
+    ],
+    required: ['description'],
+  };
+}
+
+/** `mistakeSummary` — optional at :432 (`parsed.mistakeSummary || {}`), each counter
+ *  optional at :439 (`Number(rawSummary[cat] || 0)`). Nothing is required. */
+function mistakeSummarySchema() {
+  return {
+    type: 'OBJECT',
+    nullable: true,
+    properties: {
+      conceptual: { type: 'NUMBER', nullable: true },
+      calculation: { type: 'NUMBER', nullable: true },
+      silly: { type: 'NUMBER', nullable: true },
+      presentation: { type: 'NUMBER', nullable: true },
+    },
+    propertyOrdering: ['conceptual', 'calculation', 'silly', 'presentation'],
+  };
+}
+
+/**
+ * SCHEMA A — the per-question grade (`handleCheckSolution`).
+ *
+ * `required: ['annotatedSteps']` and NOTHING ELSE, because :314 — the parse gate —
+ * is `Array.isArray(p.annotatedSteps)` and that is the whole structural contract.
+ * Test §5.7 states it once: `{ annotatedSteps: [{ description }] }` alone is a
+ * COMPLETE valid grade, and marking any other field required turns it red.
+ *
+ * The auto-detect fields are present but OPTIONAL: they are only ever read when the
+ * caller sets `detectMarks` (:342), and test §5.10 pins that they are absent on the
+ * trusted-marks path — one fixed schema serves both, so it cannot require them.
+ *   :343 detectedMarks / totalMarks — `totalMarks` is read ONLY as the autoDetect
+ *        fallback; on the trusted-marks path it is never read at all (:338).
+ *   :346 marksSource  -> enum is exactly `'stated'` vs everything-else-is-inferred.
+ *   :354 detectedSubject -> nullable; matched by regex, so NO enum.
+ *   :359 detectedTopic   -> nullable; the vocabulary is per-request and the parser
+ *        even tolerates the literal string "null", so NO enum.
+ *
+ * `marksAwarded` at top level is declared because the prompt asks for it (:211) but
+ * carries no `required`: the parser NEVER reads it — the total is recomputed from
+ * the per-step sum at :415-:416.
+ */
+const GRADE_RESPONSE_SCHEMA = deepFreeze({
+  type: 'OBJECT',
+  properties: {
+    detectedSubject: { type: 'STRING', nullable: true },
+    detectedTopic: { type: 'STRING', nullable: true },
+    detectedMarks: { type: 'NUMBER', nullable: true },
+    marksSource: { type: 'STRING', enum: MARKS_SOURCE_VALUES.slice() },
+    totalMarks: { type: 'NUMBER', nullable: true },
+    marksAwarded: { type: 'NUMBER', nullable: true },
+    annotatedSteps: { type: 'ARRAY', items: annotatedStepSchema() },
+    mistakeSummary: mistakeSummarySchema(),
+    teacherNote: { type: 'STRING', nullable: true },
+  },
+  propertyOrdering: [
+    'detectedSubject', 'detectedTopic', 'detectedMarks', 'marksSource',
+    'totalMarks', 'marksAwarded', 'annotatedSteps', 'mistakeSummary', 'teacherNote',
+  ],
+  required: ['annotatedSteps'],
+});
+
+/**
+ * SCHEMA B — question detection (`handleDetectQuestion`).
+ *
+ * NO top-level `required` at all: the gate at :603 is only `if (!parsed)`, so a bare
+ * `{}` is an accepted parse (every field then degrades through its own documented
+ * fallback — marks to 3 with `marksSource:'fallback'` at :617-:619).
+ *
+ *   :611 detectedMarks     -> optional; out-of-band values fall back honestly.
+ *   :616 marksSource       -> enum exactly matches the parser's stated/inferred.
+ *   :621 detectedSubject   -> nullable, regex-matched, NO enum.
+ *   :626 detectedTopic     -> nullable, NO enum (per-request vocabulary).
+ *   :635 detectedObjective -> BOOLEAN. The parser also tolerates the STRING 'true';
+ *        typing it boolean removes only a defensive tolerance for a wrong-typed
+ *        value — `true` itself stays fully expressible, so no outcome reachable
+ *        before is unreachable now.
+ *   :644 questions         -> optional array.
+ *   :659 questions[].questionText -> REQUIRED: `.filter((q) => q.questionText.length > 0)`
+ *        DROPS a textless entry, so requiring it prevents silent question loss.
+ *   :652 questionNumber    -> optional (falls back to index+1).
+ *   :649 marks             -> optional (falls back to detectedMarks).
+ *
+ * ★ NOTE: detect is the ONE path with no retry (test §3.5) — a parse miss costs the
+ * student the whole read. That makes a guaranteed shape worth more here than
+ * anywhere else, and makes the geminiClient strip-and-retry ladder essential.
+ */
+const DETECT_RESPONSE_SCHEMA = deepFreeze({
+  type: 'OBJECT',
+  properties: {
+    detectedMarks: { type: 'NUMBER', nullable: true },
+    marksSource: { type: 'STRING', enum: MARKS_SOURCE_VALUES.slice() },
+    detectedSubject: { type: 'STRING', nullable: true },
+    detectedTopic: { type: 'STRING', nullable: true },
+    detectedObjective: { type: 'BOOLEAN', nullable: true },
+    questions: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          questionNumber: { type: 'INTEGER', nullable: true },
+          questionText: { type: 'STRING' },
+          marks: { type: 'NUMBER', nullable: true },
+          marksSource: { type: 'STRING', enum: MARKS_SOURCE_VALUES.slice() },
+          objective: { type: 'BOOLEAN', nullable: true },
+        },
+        propertyOrdering: ['questionNumber', 'questionText', 'marks', 'marksSource', 'objective'],
+        required: ['questionText'],
+      },
+    },
+  },
+  propertyOrdering: [
+    'detectedMarks', 'marksSource', 'detectedSubject', 'detectedTopic',
+    'detectedObjective', 'questions',
+  ],
+});
+
+/**
+ * SCHEMA C — the whole-worksheet structured grade (`gradeStructuredSet`).
+ *
+ * `required: ['results']` matches the worksheet gate at :1009. Per entry,
+ * `required: ['qNumber']` matches :1040 — `if (r && r.qNumber != null) byNumber.set(...)`
+ * discards an entry without one ENTIRELY, and the question it belonged to then falls
+ * through to couldNotRead. Requiring it protects grades rather than constraining them.
+ *
+ * ★★ `annotatedSteps` IS NOT REQUIRED HERE, AND THAT IS THE WHOLE REASON THIS IS A
+ * SEPARATE SCHEMA. In SCHEMA A it is the parse gate; here :725 reads
+ * `Array.isArray(raw.annotatedSteps) ? raw.annotatedSteps : []` — optional — because
+ * a `couldNotRead: true` entry legitimately has NO steps (:714-:723, pinned by test
+ * §5.11). Requiring it would have forced the model to FABRICATE steps for an answer
+ * it could not read, in direct breach of the anti-fabrication rule the prompt states
+ * at :963 ("NEVER guess a mark, and NEVER record an unreadable/absent answer as 0").
+ * Reusing SCHEMA A here would have shipped exactly that bug.
+ *
+ *   :714 couldNotRead -> optional BOOLEAN (parser also tolerates the string 'true').
+ *   :720 note         -> optional.
+ *   :789 mistakeSummary / :813 teacherNote -> optional.
+ *   :1045 summary     -> optional.
+ *   marksAwarded per entry is declared for the prompt's benefit (:975) but is NEVER
+ *   read: the total is recomputed from the step sum at :780-:781.
+ */
+const WORKSHEET_RESPONSE_SCHEMA = deepFreeze({
+  type: 'OBJECT',
+  properties: {
+    results: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          qNumber: { type: 'INTEGER' },
+          couldNotRead: { type: 'BOOLEAN', nullable: true },
+          note: { type: 'STRING', nullable: true },
+          marksAwarded: { type: 'NUMBER', nullable: true },
+          annotatedSteps: { type: 'ARRAY', nullable: true, items: annotatedStepSchema() },
+          mistakeSummary: mistakeSummarySchema(),
+          teacherNote: { type: 'STRING', nullable: true },
+        },
+        propertyOrdering: [
+          'qNumber', 'couldNotRead', 'note', 'marksAwarded',
+          'annotatedSteps', 'mistakeSummary', 'teacherNote',
+        ],
+        required: ['qNumber'],
+      },
+    },
+    summary: { type: 'STRING', nullable: true },
+  },
+  propertyOrdering: ['results', 'summary'],
+  required: ['results'],
+});
+
 function createCheckSolutionRoute(deps) {
   const {
     sendJson,
@@ -305,6 +581,13 @@ function createCheckSolutionRoute(deps) {
         temperature: 0.05,
         maxOutputTokens: 16000,
         responseMimeType: 'application/json',
+        // Constrained decoding (PR-C2). Derived from THIS path's parser — see
+        // GRADE_RESPONSE_SCHEMA. The retry below is deliberately KEPT: a schema
+        // should make it fire less, and proving that is a measurement, not a
+        // deletion. It also still guards the case a schema cannot: this call's
+        // documented dominant failure is TRUNCATION at maxOutputTokens (see the
+        // comment above), which constrained decoding does not prevent.
+        responseSchema: GRADE_RESPONSE_SCHEMA,
       };
 
       const gradeOnce = async () => {
@@ -593,6 +876,11 @@ function createCheckSolutionRoute(deps) {
         // upper bound.)
         maxOutputTokens: 4096,
         responseMimeType: 'application/json',
+        // Constrained decoding (PR-C2) — DETECT_RESPONSE_SCHEMA, derived from this
+        // handler's own parser (:603 onward), which is far looser than the grader's:
+        // a bare `{}` is an accepted parse. Worth most here of the three, because
+        // detect is the ONE path with no retry (test §3.5).
+        responseSchema: DETECT_RESPONSE_SCHEMA,
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
         // leaving 1-5 tokens for the JSON → truncated → "couldn't read the question".
@@ -1001,7 +1289,16 @@ function createCheckSolutionRoute(deps) {
     // it room and, like the per-question grader, retry ONCE on a parse miss
     // (most often a maxOutputTokens truncation). Large worksheets may still
     // truncate → [FU-ASYNC-GRADING] (sync now, async deferred — design decision (c)).
-    const genConfig = { temperature: 0.05, maxOutputTokens: 32000, responseMimeType: 'application/json' };
+    // Constrained decoding (PR-C2) — WORKSHEET_RESPONSE_SCHEMA, a SEPARATE schema
+    // from the per-question grader's. Its parse gate is `results` (not
+    // `annotatedSteps`) and, critically, `annotatedSteps` is OPTIONAL here so a
+    // couldNotRead entry is never forced to fabricate steps.
+    const genConfig = {
+      temperature: 0.05,
+      maxOutputTokens: 32000,
+      responseMimeType: 'application/json',
+      responseSchema: WORKSHEET_RESPONSE_SCHEMA,
+    };
     const gradeOnce = async () => {
       const r = await callGemini(GEMINI_MODEL, contents, genConfig);
       return { reply: r, parsed: extractJsonObjectFromText(r.text) };
@@ -1151,4 +1448,12 @@ function createCheckSolutionRoute(deps) {
   return { handleCheckSolution, handleDetectQuestion, handleGradeWorksheet };
 }
 
-module.exports = { createCheckSolutionRoute };
+module.exports = {
+  createCheckSolutionRoute,
+  // Exported so the schemas can be asserted AGAINST THE PARSER they were derived
+  // from (checkSolution.test.cjs §6). A schema that is only reachable through a
+  // genConfig can be checked for presence but not for looseness.
+  GRADE_RESPONSE_SCHEMA,
+  DETECT_RESPONSE_SCHEMA,
+  WORKSHEET_RESPONSE_SCHEMA,
+};

@@ -342,7 +342,7 @@ function createGeminiClient(cfg) {
       );
     }
 
-    const buildBody = (includeMimeType) => {
+    const buildBody = (includeStructuredOutput) => {
       const body = {
         contents: finalContents,
         generationConfig: {
@@ -357,12 +357,39 @@ function createGeminiClient(cfg) {
         },
       };
       if (
-        includeMimeType &&
+        includeStructuredOutput &&
         config &&
         typeof config.responseMimeType === 'string' &&
         config.responseMimeType.trim()
       ) {
         body.generationConfig.responseMimeType = config.responseMimeType.trim();
+      }
+      // Constrained decoding (additive, opt-in — PR-C2). Forwarded ONLY when the
+      // caller passes a responseSchema object. INVARIANT, identical to the
+      // thinkingConfig one above: when no responseSchema is supplied (the tutor,
+      // diagrams, the warm pool — every caller but the three grading paths) the body
+      // is byte-identical to before; this only ever ADDS the key.
+      //
+      // ★ WHY IT SHARES THE `includeStructuredOutput` GATE WITH responseMimeType, AND
+      // IS NOT A SECOND INDEPENDENT FLAG. Two reasons, both load-bearing:
+      //
+      //   1. The API requires responseMimeType 'application/json' FOR a responseSchema.
+      //      Sending a schema on the retry that just stripped the mime type would be a
+      //      request that cannot succeed — it would turn today's WORKING recovery into a
+      //      guaranteed second failure.
+      //   2. That retry (see retryStructuredOutputRegex below) is the ladder that keeps
+      //      this project working across TWO backends — the direct Google endpoint and
+      //      the Replit proxy. When one of them rejects a structured-output field, the
+      //      call is re-issued WITHOUT it. Dropping both together means a
+      //      schema-hostile backend degrades to EXACTLY the pre-PR-C2 request, which is
+      //      known-good, rather than failing every grading call with no recovery.
+      if (
+        includeStructuredOutput &&
+        config &&
+        config.responseSchema &&
+        typeof config.responseSchema === 'object'
+      ) {
+        body.generationConfig.responseSchema = config.responseSchema;
       }
       // Thinking control (additive, opt-in). Forwarded ONLY when the caller passes
       // a thinkingConfig object — e.g. the detect-question call sets
@@ -376,10 +403,16 @@ function createGeminiClient(cfg) {
       return body;
     };
 
-    const doRequest = async (includeMimeType, reqUrl, apiKey) => {
+    const doRequest = async (includeStructuredOutput, reqUrl, apiKey) => {
       // One increment per HTTP request actually issued for this logical call.
-      // >1 means the call was retried (429 backoff, responseMimeType retry, or a
+      // >1 means the call was retried (429 backoff, a structured-output retry, or a
       // proxy fallback) — that is what `record.retry` reports.
+      //
+      // ★ NOTE FOR ANYONE READING `retryCount` IN THE TELEMETRY: this counter does NOT
+      // see the GRADER's parse-miss retry. That retry is a second, separate
+      // `callGemini` invocation (checkSolution.cjs `gradeOnce()`), so it emits a
+      // SECOND record with attempts:1 / retry:false rather than incrementing this one.
+      // See [FU-C2-PARSE-MISS-NOT-COUNTED].
       telemetryAttempts += 1;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
@@ -390,7 +423,7 @@ function createGeminiClient(cfg) {
             'Content-Type': 'application/json',
             'x-goog-api-key': apiKey,
           },
-          body: JSON.stringify(buildBody(includeMimeType)),
+          body: JSON.stringify(buildBody(includeStructuredOutput)),
           signal: controller.signal,
         });
         const rawText = await response.text();
@@ -426,15 +459,31 @@ function createGeminiClient(cfg) {
     const fallbackUrl = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? proxyUrl : null;
     const fallbackKey = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : null;
 
-    const retryMimeRegex =
-      /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
+    // ★ WIDENED BY PR-C2 to cover responseSchema as well as responseMimeType. Both are
+    // `generationConfig` structured-output fields, both are stripped together by the
+    // same retry, and both can be rejected by a backend that does not implement them.
+    // Before this widened, a backend replying `Unknown name "responseSchema"` would
+    // have matched NOTHING here: the retry would never fire, and every grading call
+    // would fail with no recovery. The retry re-sends the same body, so an
+    // unrecognised field is not self-healing — it has to be named here to be dropped.
+    const retryStructuredOutputRegex =
+      /responseMimeType|response_mime_type|responseSchema|response_schema|Unknown name.*response(MimeType|Schema)/i;
 
-    const runWithFallback = async (includeMimeType) => {
+    // Was any structured-output field actually sent? The retry is only meaningful if
+    // there is something for the second attempt to strip. Reads BOTH fields, so a
+    // future caller that passes a schema without a mime type still gets the recovery.
+    const sentStructuredOutput = Boolean(
+      config &&
+        ((typeof config.responseMimeType === 'string' && config.responseMimeType.trim()) ||
+          (config.responseSchema && typeof config.responseSchema === 'object'))
+    );
+
+    const runWithFallback = async (includeStructuredOutput) => {
       let response, rawText;
 
       try {
         ({ response, rawText } = await withRetry(() =>
-          doRequest(includeMimeType, primaryUrl, primaryKey)
+          doRequest(includeStructuredOutput, primaryUrl, primaryKey)
         ));
       } catch (primaryErr) {
         if (primaryErr.status === 429 || !fallbackUrl) {
@@ -443,7 +492,7 @@ function createGeminiClient(cfg) {
         console.warn(
           `[callGemini] Primary threw (${primaryErr.status || primaryErr.message}), falling back to proxy`
         );
-        ({ response, rawText } = await doRequest(includeMimeType, fallbackUrl, fallbackKey));
+        ({ response, rawText } = await doRequest(includeStructuredOutput, fallbackUrl, fallbackKey));
         return { response, rawText, usedFallback: true };
       }
 
@@ -454,10 +503,8 @@ function createGeminiClient(cfg) {
 
     if (
       !response.ok &&
-      config &&
-      typeof config.responseMimeType === 'string' &&
-      config.responseMimeType.trim() &&
-      retryMimeRegex.test(rawText)
+      sentStructuredOutput &&
+      retryStructuredOutputRegex.test(rawText)
     ) {
       const activeUrl = usedFallback ? fallbackUrl : primaryUrl;
       const activeKey = usedFallback ? fallbackKey : primaryKey;
@@ -484,10 +531,8 @@ function createGeminiClient(cfg) {
       ({ response, rawText } = await doRequest(true, fallbackUrl, fallbackKey));
       if (
         !response.ok &&
-        config &&
-        typeof config.responseMimeType === 'string' &&
-        config.responseMimeType.trim() &&
-        retryMimeRegex.test(rawText)
+        sentStructuredOutput &&
+        retryStructuredOutputRegex.test(rawText)
       ) {
         ({ response, rawText } = await doRequest(false, fallbackUrl, fallbackKey));
       }
