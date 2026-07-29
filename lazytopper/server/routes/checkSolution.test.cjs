@@ -427,3 +427,306 @@ test('§5.12 worksheet: a question the model OMITTED becomes couldNotRead, never
   const r2 = h.body().results.find((r) => r.qNumber === 2);
   assert.equal(r2.couldNotRead, true);
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §6 · ★★ THE responseSchema CONTRACT, MADE EXECUTABLE (PR-C2)
+
+   §5 above states, in prose and in behaviour, what the PARSER accepts. This section
+   asserts that the SCHEMA accepts it too. The link between them is `validate()`
+   below: every payload §5 proves the parser takes is run THROUGH the schema, so
+   "exactly as loose as the parser, never tighter" stops being a sentence in a spec
+   and becomes a thing that goes red.
+
+   ★ MUTATION TARGET. Tighten any schema past its parser — add a `required`, drop a
+   `nullable`, bound the step count — and §6 fails. Each mutation and its observed
+   failure is recorded in the PR report.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const {
+  GRADE_RESPONSE_SCHEMA,
+  DETECT_RESPONSE_SCHEMA,
+  WORKSHEET_RESPONSE_SCHEMA,
+} = require('./checkSolution.cjs');
+
+/**
+ * A minimal validator for the subset of the Gemini responseSchema dialect these
+ * schemas use: type / nullable / enum / properties / items / required.
+ *
+ * It is deliberately STRICT about the two things that matter to this lane — a
+ * missing `required` key and a null in a non-nullable field — because those are
+ * exactly the ways a schema silently narrows the marking. Returns an array of
+ * human-readable errors; empty means valid.
+ */
+function validate(schema, value, path = '$') {
+  const errs = [];
+  if (value === null || value === undefined) {
+    if (!schema.nullable) errs.push(`${path}: null/absent but schema is not nullable`);
+    return errs;
+  }
+  switch (schema.type) {
+    case 'OBJECT': {
+      if (typeof value !== 'object' || Array.isArray(value)) {
+        errs.push(`${path}: expected OBJECT, got ${Array.isArray(value) ? 'ARRAY' : typeof value}`);
+        break;
+      }
+      for (const key of schema.required || []) {
+        if (!Object.prototype.hasOwnProperty.call(value, key) || value[key] === undefined) {
+          errs.push(`${path}.${key}: REQUIRED by the schema but absent from the payload`);
+        }
+      }
+      for (const [key, sub] of Object.entries(schema.properties || {})) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) {
+          errs.push(...validate(sub, value[key], `${path}.${key}`));
+        }
+      }
+      break;
+    }
+    case 'ARRAY': {
+      if (!Array.isArray(value)) { errs.push(`${path}: expected ARRAY`); break; }
+      if (schema.minItems != null && value.length < schema.minItems) {
+        errs.push(`${path}: ${value.length} items < minItems ${schema.minItems}`);
+      }
+      if (schema.maxItems != null && value.length > schema.maxItems) {
+        errs.push(`${path}: ${value.length} items > maxItems ${schema.maxItems}`);
+      }
+      value.forEach((v, i) => errs.push(...validate(schema.items, v, `${path}[${i}]`)));
+      break;
+    }
+    case 'STRING':
+      if (typeof value !== 'string') errs.push(`${path}: expected STRING, got ${typeof value}`);
+      else if (schema.enum && !schema.enum.includes(value)) {
+        errs.push(`${path}: "${value}" is not in enum [${schema.enum.join(', ')}]`);
+      }
+      break;
+    case 'NUMBER':
+      if (typeof value !== 'number') errs.push(`${path}: expected NUMBER, got ${typeof value}`);
+      break;
+    case 'INTEGER':
+      if (!Number.isInteger(value)) errs.push(`${path}: expected INTEGER, got ${value}`);
+      break;
+    case 'BOOLEAN':
+      if (typeof value !== 'boolean') errs.push(`${path}: expected BOOLEAN, got ${typeof value}`);
+      break;
+    default:
+      errs.push(`${path}: unknown schema type ${schema.type}`);
+  }
+  return errs;
+}
+
+const schemaAccepts = (schema, payload, why) =>
+  assert.deepEqual(validate(schema, payload), [], `${why} — schema is TIGHTER than the parser`);
+
+/* ── 6a · CONTROL: the validator can actually fail ─────────────────────────────
+   A validator that returned [] for everything would make all of §6 vacuous. */
+test('§6.0 CONTROL: validate() rejects a payload the schema really does forbid', () => {
+  const errs = validate(GRADE_RESPONSE_SCHEMA, { teacherNote: 'no steps here' });
+  assert.equal(errs.length, 1, `expected exactly one error, got ${JSON.stringify(errs)}`);
+  assert.match(errs[0], /annotatedSteps: REQUIRED/);
+  // ...and a null in a non-nullable slot is caught too.
+  assert.match(
+    validate(GRADE_RESPONSE_SCHEMA, { annotatedSteps: [{ description: null }] }).join(),
+    /description: null\/absent but schema is not nullable/,
+  );
+});
+
+/* ── 6b · every shape §5 proves the PARSER accepts must pass the SCHEMA ──────── */
+
+test('§6.1 (mirrors §5.7/§5.1) `{annotatedSteps:[{description}]}` alone validates', () => {
+  schemaAccepts(GRADE_RESPONSE_SCHEMA, { annotatedSteps: [{ description: 'Bare step' }] },
+    'the parser calls this a complete grade');
+});
+
+test('§6.2 ★ (mirrors §5.4) `mistakeType: null` validates — rules 4/5/6/7 need it', () => {
+  schemaAccepts(GRADE_RESPONSE_SCHEMA, { annotatedSteps: [
+    { description: 'right', studentWork: 'w', status: 'correct', marksAwarded: 1,
+      mistakeType: null, correctedWorking: null },
+  ] }, 'a non-nullable mistakeType would constrain the marking itself');
+  assert.equal(GRADE_RESPONSE_SCHEMA.properties.annotatedSteps.items
+    .properties.mistakeType.nullable, true);
+});
+
+test('§6.3 ★ mistakeType carries NO enum — a nullable enum risks forcing a value', () => {
+  const mt = GRADE_RESPONSE_SCHEMA.properties.annotatedSteps.items.properties.mistakeType;
+  assert.equal(mt.enum, undefined,
+    'the parser already enforces the four types at :378, so an enum here buys nothing ' +
+    'and risks the model being forced to pick one — see [FU-C2-MISTAKETYPE-NULL-LIVE-VERIFY]');
+});
+
+test('§6.4 (mirrors §5.6/§5.10) every OPTIONAL top-level field is optional in the schema', () => {
+  // mistakeSummary, teacherNote, totalMarks, marksAwarded and all four auto-detect
+  // fields are absent here — the parser defaults every one of them.
+  schemaAccepts(GRADE_RESPONSE_SCHEMA, { annotatedSteps: [{ description: 'only field present' }] },
+    'the parser defaults all of these');
+  assert.deepEqual(GRADE_RESPONSE_SCHEMA.required, ['annotatedSteps'],
+    'the parse gate at :314 is the ONLY structural requirement');
+});
+
+test('§6.5 (mirrors §5.8/§1.4) the step COUNT is unbounded — no minItems/maxItems', () => {
+  for (const n of [1, 9]) {
+    schemaAccepts(GRADE_RESPONSE_SCHEMA, { annotatedSteps: Array.from({ length: n },
+      (_, i) => ({ description: `s${i}`, studentWork: 'w', status: 'correct', marksAwarded: 0 })) },
+      `step count ${n} must validate`);
+  }
+  const arr = GRADE_RESPONSE_SCHEMA.properties.annotatedSteps;
+  assert.equal(arr.minItems, undefined, 'a pinned step count would trade marking for format');
+  assert.equal(arr.maxItems, undefined);
+  // §1.4's empty-array case is a GOOD parse — it must validate too.
+  schemaAccepts(GRADE_RESPONSE_SCHEMA, { annotatedSteps: [] }, 'an empty steps array is a good parse');
+});
+
+test('§6.6 the four step statuses are EXACTLY the parser\'s accepted set', () => {
+  const status = GRADE_RESPONSE_SCHEMA.properties.annotatedSteps.items.properties.status;
+  assert.deepEqual(status.enum.slice().sort(), ['correct', 'incorrect', 'missing', 'partial'],
+    'the enum must mirror :374 exactly — no more, no fewer');
+  for (const s of ['correct', 'partial', 'incorrect', 'missing']) {
+    schemaAccepts(GRADE_RESPONSE_SCHEMA, { annotatedSteps: [{ description: 'd', status: s }] },
+      `status "${s}" is accepted by the parser`);
+  }
+  // ...and status is NOT required — the parser defaults a missing one to 'partial'.
+  assert.equal((GRADE_RESPONSE_SCHEMA.properties.annotatedSteps.items.required || [])
+    .includes('status'), false);
+});
+
+test('§6.7 (mirrors §5.9/§5.10) the auto-detect payload validates, and so does its absence', () => {
+  schemaAccepts(GRADE_RESPONSE_SCHEMA, {
+    detectedSubject: 'Maths', detectedTopic: 'quadratic-equations', detectedMarks: 3,
+    marksSource: 'stated', totalMarks: 3, marksAwarded: 2,
+    annotatedSteps: [{ description: 'd' }],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    teacherNote: 'Good.',
+  }, 'the full auto-detect grade');
+  // detectedTopic null is the documented "none clearly fits" case (:359-:363).
+  schemaAccepts(GRADE_RESPONSE_SCHEMA, { detectedTopic: null, detectedSubject: null,
+    annotatedSteps: [{ description: 'd' }] }, 'null topic/subject are parser-accepted');
+});
+
+/* ── 6c · the WORKSHEET schema is a DIFFERENT schema, for a load-bearing reason ─ */
+
+test('§6.8 ★★ (mirrors §5.11) worksheet: `{qNumber, couldNotRead}` validates with NO steps', () => {
+  schemaAccepts(WORKSHEET_RESPONSE_SCHEMA, { results: [{ qNumber: 1, couldNotRead: true }], summary: 's' },
+    'requiring annotatedSteps here would FORCE FABRICATION for an unreadable answer');
+  const entry = WORKSHEET_RESPONSE_SCHEMA.properties.results.items;
+  assert.deepEqual(entry.required, ['qNumber'],
+    'qNumber only — :1040 discards an entry without it, so requiring it PROTECTS grades');
+});
+
+test('§6.9 ★★ the two grade schemas are NOT interchangeable (the §2.3 property, in schema form)', () => {
+  // annotatedSteps: REQUIRED in the per-question schema, OPTIONAL in the worksheet one.
+  assert.ok(GRADE_RESPONSE_SCHEMA.required.includes('annotatedSteps'));
+  assert.ok(!(WORKSHEET_RESPONSE_SCHEMA.properties.results.items.required || [])
+    .includes('annotatedSteps'));
+  // A worksheet-shaped payload must FAIL the per-question schema and vice versa.
+  assert.ok(validate(GRADE_RESPONSE_SCHEMA, { results: [] }).length > 0,
+    'worksheet JSON is not a valid per-question grade');
+  assert.ok(validate(WORKSHEET_RESPONSE_SCHEMA, { annotatedSteps: [] }).length > 0,
+    'per-question JSON is not a valid worksheet grade');
+});
+
+test('§6.10 worksheet: a full graded entry validates, and `summary` stays optional', () => {
+  schemaAccepts(WORKSHEET_RESPONSE_SCHEMA, { results: [{ qNumber: 1, couldNotRead: false, marksAwarded: 1,
+    annotatedSteps: [{ description: 'step', studentWork: 'w', status: 'correct', marksAwarded: 1 }],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    teacherNote: 't' }] }, 'summary omitted — :1045 defaults it');
+});
+
+/* ── 6d · the DETECT schema ────────────────────────────────────────────────── */
+
+test('§6.11 detect: a bare `{}` validates — the gate at :603 is only `if (!parsed)`', () => {
+  schemaAccepts(DETECT_RESPONSE_SCHEMA, {}, 'every field degrades through its own fallback');
+  assert.equal(DETECT_RESPONSE_SCHEMA.required, undefined,
+    'detect has NO structural requirement at all');
+});
+
+test('§6.12 detect: the multi-question array validates; questionText is the one thing required', () => {
+  schemaAccepts(DETECT_RESPONSE_SCHEMA, { detectedMarks: 3, marksSource: 'inferred', detectedSubject: 'Maths',
+    detectedTopic: null, detectedObjective: false,
+    questions: [{ questionNumber: 1, questionText: 'Q1', marks: 3, marksSource: 'stated', objective: true }] },
+    'the documented detect payload');
+  assert.deepEqual(DETECT_RESPONSE_SCHEMA.properties.questions.items.required, ['questionText'],
+    ':659 DROPS a textless entry, so requiring it prevents silent question loss');
+});
+
+/* ── 6e · ★ THE ANTI-TIGHTENING SWEEP ──────────────────────────────────────────
+   A generic walk over all three schemas. Any `required` added anywhere in future —
+   in a field nobody thought to write a test for — turns this red on its own. This is
+   the assertion that keeps the contract enforced after everyone has forgotten it. */
+
+test('§6.13 ★ NO schema requires anything beyond the five parser-derived gates', () => {
+  const found = [];
+  const walk = (node, path) => {
+    if (!node || typeof node !== 'object') return;
+    for (const key of node.required || []) found.push(`${path}.required:${key}`);
+    if (node.minItems != null) found.push(`${path}.minItems`);
+    if (node.maxItems != null) found.push(`${path}.maxItems`);
+    for (const [k, v] of Object.entries(node.properties || {})) walk(v, `${path}.${k}`);
+    if (node.items) walk(node.items, `${path}[]`);
+  };
+  walk(GRADE_RESPONSE_SCHEMA, 'grade');
+  walk(DETECT_RESPONSE_SCHEMA, 'detect');
+  walk(WORKSHEET_RESPONSE_SCHEMA, 'worksheet');
+
+  assert.deepEqual(found.sort(), [
+    'detect.questions[].required:questionText', // :659 textless entries are dropped
+    'grade.annotatedSteps[].required:description', // :369 description-less steps are dropped
+    'grade.required:annotatedSteps', // :314 the per-question parse gate
+    'worksheet.required:results', // :1009 the worksheet parse gate
+    // :727 — the worksheet path applies the IDENTICAL `.filter((s) => s && s.description)`
+    // as :369, because it reuses the same step schema. Found by this sweep, not by a
+    // hand-written test: it is the entry the author forgot to enumerate.
+    'worksheet.results[].annotatedSteps[].required:description',
+    'worksheet.results[].required:qNumber', // :1040 entries without one are discarded
+  ], 'EVERY entry here must name the parser line that makes it structural. ' +
+     'A new one means the schema now demands something the parser does not — which ' +
+     'constrains the marking. Justify it against the parser or remove it.');
+});
+
+/* ── 6f · the schema actually reaches the model call ───────────────────────────
+   Presence in the genConfig. The stronger CONTROL — that it reaches the outgoing
+   HTTP BODY — lives in geminiClient.test.cjs, because that is where the body is
+   built and where a silent drop would actually happen. */
+
+test('§6.14 all three grading calls carry their OWN schema in the genConfig', async () => {
+  const grade = buildRoute({ replies: [GOOD_GRADE] });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(grade.calls[0].genConfig.responseSchema, GRADE_RESPONSE_SCHEMA);
+
+  const detect = buildRoute({ replies: [{ detectedMarks: 3 }] });
+  await detect.route.handleDetectQuestion({ question: 'q' }, {});
+  assert.equal(detect.calls[0].genConfig.responseSchema, DETECT_RESPONSE_SCHEMA);
+
+  const ws = buildRoute({ replies: [WS_GOOD] });
+  await ws.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1' }]), {});
+  assert.equal(ws.calls[0].genConfig.responseSchema, WORKSHEET_RESPONSE_SCHEMA);
+
+  // ★ THREE DISTINCT SCHEMAS — the mirror of §3.4's three-distinct-caps assertion.
+  // One shared schema would fail this, and §6.9 says why that would be a bug.
+  assert.equal(new Set([grade.calls[0].genConfig.responseSchema,
+    detect.calls[0].genConfig.responseSchema, ws.calls[0].genConfig.responseSchema]).size, 3);
+});
+
+test('§6.15 the caps and the mime type are UNCHANGED by PR-C2 (additive only)', async () => {
+  const grade = buildRoute({ replies: [GOOD_GRADE] });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(grade.calls[0].genConfig.maxOutputTokens, 16000);
+  assert.equal(grade.calls[0].genConfig.responseMimeType, 'application/json');
+  assert.equal(grade.calls[0].genConfig.thinkingConfig, undefined);
+});
+
+test('§6.16 ★ the retry path SURVIVES the schema — a parse miss still retries exactly once', async () => {
+  // The schema is not a licence to delete the safety net: it cannot prevent a
+  // MAX_TOKENS truncation, which the grader documents as the DOMINANT parse-miss
+  // cause. Removing the retry in the same PR that changes the output contract is
+  // how you find that out in production.
+  const h = buildRoute({ replies: [PARSE_MISS, GOOD_GRADE] });
+  await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(h.calls.length, 2, 'the retry must still fire');
+  assert.equal(h.calls[1].genConfig.responseSchema, GRADE_RESPONSE_SCHEMA,
+    'and the RETRY must carry the schema too');
+  assert.equal(h.body().ok, true);
+});
+
+test('§6.17 the schemas are deep-frozen — one request cannot mutate the next request\'s schema', () => {
+  assert.ok(Object.isFrozen(GRADE_RESPONSE_SCHEMA));
+  assert.ok(Object.isFrozen(GRADE_RESPONSE_SCHEMA.properties.annotatedSteps.items.properties));
+  assert.ok(Object.isFrozen(WORKSHEET_RESPONSE_SCHEMA.properties.results.items));
+});

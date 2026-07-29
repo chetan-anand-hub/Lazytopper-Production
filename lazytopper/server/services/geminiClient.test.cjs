@@ -653,3 +653,136 @@ test('the record ring is bounded at 200 and keeps the most recent calls', async 
     f.restore();
   }
 });
+
+/* ── 11 · responseSchema — constrained decoding (PR-C2) ─────────────────────────
+   ★★ THE CONTROL THAT MATTERS. A `responseSchema` that is built, passed into
+   `callGemini` and then silently dropped by `buildBody` is a SILENT NO-OP — the
+   exact failure class that has cost this project a full day before. Asserting that
+   a variable exists, or that a genConfig carries a key, proves nothing about what
+   Google receives. Every assertion below reads the OUTGOING REQUEST BODY.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+const SCHEMA = {
+  type: 'OBJECT',
+  properties: { annotatedSteps: { type: 'ARRAY', items: { type: 'OBJECT',
+    properties: { description: { type: 'STRING' } }, required: ['description'] } } },
+  required: ['annotatedSteps'],
+};
+
+test('★ CONTROL: responseSchema reaches the OUTGOING REQUEST BODY, not just the config', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, {
+      responseMimeType: 'application/json',
+      responseSchema: SCHEMA,
+      callClass: 'vision',
+    });
+    assert.equal(f.seen.length, 1);
+    const gc = f.seen[0].body.generationConfig;
+    assert.deepEqual(gc.responseSchema, SCHEMA,
+      'the schema must survive JSON.stringify into the wire body — this is the ' +
+      'assertion a silent drop in buildBody cannot pass');
+    assert.equal(gc.responseMimeType, 'application/json',
+      'a responseSchema without a JSON mime type is a request that cannot succeed');
+  } finally {
+    f.restore();
+  }
+});
+
+test('★ byte-identical when UNSET: no responseSchema key at all in the body', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { temperature: 0.05, maxOutputTokens: 900 });
+    const gc = f.seen[0].body.generationConfig;
+    // Key-level, not value-level: `responseSchema: undefined` would serialise away
+    // but would still be a behaviour change waiting to happen.
+    assert.deepEqual(Object.keys(gc), ['temperature', 'maxOutputTokens'],
+      'a caller that passes no schema must get the pre-PR-C2 body exactly');
+    assert.equal('responseSchema' in gc, false);
+  } finally {
+    f.restore();
+  }
+});
+
+test('a non-object responseSchema is IGNORED — it can never reach the wire as junk', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { responseSchema: 'not-a-schema' });
+    assert.equal('responseSchema' in f.seen[0].body.generationConfig, false);
+  } finally {
+    f.restore();
+  }
+});
+
+test('★★ a backend that REJECTS responseSchema is recovered from — the retry strips BOTH fields', async () => {
+  // Before PR-C2 widened `retryStructuredOutputRegex`, this rejection matched
+  // NOTHING: the retry never fired and every grading call would have failed with no
+  // recovery, because re-sending the same body re-sends the same rejected field.
+  // MUTATION-VERIFIED: narrowing the regex back to /responseMimeType/ makes this
+  // test fail on the `f.seen.length === 2` assertion.
+  const reject = jsonResponse({ error: 'Unknown name "responseSchema" at generation_config' }, 400);
+  const f = stubFetch([reject, jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const out = await client.callGemini('gemini-2.5-flash', CONTENTS, {
+      responseMimeType: 'application/json',
+      responseSchema: SCHEMA,
+      callClass: 'vision',
+    });
+    assert.equal(f.seen.length, 2, 'the rejection must trigger exactly one strip-and-retry');
+
+    const first = f.seen[0].body.generationConfig;
+    assert.deepEqual(first.responseSchema, SCHEMA, 'attempt 1 carries the schema');
+
+    const second = f.seen[1].body.generationConfig;
+    assert.equal('responseSchema' in second, false, 'the retry must DROP the schema');
+    assert.equal('responseMimeType' in second, false,
+      'and the mime type with it — the known-good fallback is the exact ' +
+      'pre-PR-C2 request, not a half-stripped one');
+    assert.deepEqual(Object.keys(second), ['temperature', 'maxOutputTokens'],
+      'the retry body is byte-identical to what this call sent before PR-C2 existed');
+
+    assert.ok(out && typeof out.text === 'string', 'and the call SUCCEEDS after the strip');
+  } finally {
+    f.restore();
+  }
+});
+
+test('NEGATIVE CONTROL: an unrelated 400 does NOT trigger the strip-and-retry', async () => {
+  // The regex must be specific. If any 400 stripped the structured-output fields,
+  // a transient error would silently downgrade grading to unconstrained decoding.
+  const unrelated = jsonResponse({ error: 'API key not valid' }, 400);
+  const f = stubFetch([unrelated, jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await assert.rejects(
+      () => client.callGemini('gemini-2.5-flash', CONTENTS, {
+        responseMimeType: 'application/json', responseSchema: SCHEMA,
+      }),
+      /API key not valid/,
+    );
+    assert.equal(f.seen.length, 1, 'no retry for an error unrelated to structured output');
+  } finally {
+    f.restore();
+  }
+});
+
+test('the schema survives a 429 backoff retry unchanged (the ladders do not interfere)', async () => {
+  const rateLimited = { ok: false, status: 429, statusText: 'Too Many Requests',
+    headers: { get: () => null }, text: async () => 'rate limited' };
+  const f = stubFetch([rateLimited, jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, {
+      responseMimeType: 'application/json', responseSchema: SCHEMA, callClass: 'vision',
+    });
+    assert.equal(f.seen.length, 2);
+    assert.deepEqual(f.seen[1].body.generationConfig.responseSchema, SCHEMA,
+      'a 429 is not a structured-output rejection — the schema must be re-sent intact');
+  } finally {
+    f.restore();
+  }
+});
