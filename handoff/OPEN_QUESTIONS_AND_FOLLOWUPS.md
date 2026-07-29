@@ -12,6 +12,457 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-07-29 — Post-Wave-3 (#557–#563, four lanes). Trunk `25e995a7`.
+
+> **★ PROVENANCE WARNING FOR THIS WHOLE SECTION.** The harness blocked **every** subagent this wave from writing report files to disk. Each lane's report in `C:\Users\Chetan\OneDrive\Desktop\diff\` was **captured verbatim by the controller from the subagent's return message**. **EV-1's lane has no report at all** — `handoff/WAVE_STATE_WAVE3_ARCHIVE.md` is its only record, and it is committed with this handoff. ⚠ **It is committed under the ARCHIVE name deliberately.** The controller's live state file is `handoff/WAVE_STATE.md`, which is **untracked scratch memory, now holding WAVE 4**, and its own header says it *“must never appear in a product PR.”* The bytes committed here are the Wave 3 file, verified **md5-identical** to the controller's own `WAVE_STATE_WAVE3_ARCHIVE.md`. Bodies below are copied, never reconstructed. Where a body could not be found it says so and says where the search ran.
+>
+> **★ Standing Rule 3 of this board is observed:** dated entries above are **not** rewritten to match today's facts. Corrections, closures and amendments to older entries are recorded **here**, in this section.
+
+### ★★ FIVE DOCTRINE RULES ADDED BY THIS WAVE — read before the entries
+
+```
+★ 1 · A GUARD'S OUTPUT MUST NAME ITS SUBJECT, NOT JUST ITS VERDICT. (GUARD-1,
+verbatim.) Every check states what it inspected — which files, which patterns,
+how many times each fired — and any check whose subject count or match count is
+ZERO is a FAILURE, never a pass. "Nothing to object to" and "nothing looked at"
+are the same output otherwise, and a guard is a device for telling those two
+apart.
+  · A guard may not verify itself against its own input. `classified ===
+    all.length` proves nothing when the bug shrank `all`. Self-checks need truth
+    from OUTSIDE the thing under test.
+  · Coverage is proven by the negative case. A green run establishes only that
+    the guard did not object. Ship the mutation that makes it red, or the guard
+    is decorative.
+  · A guard nothing runs is not a guard. Reachability is part of the check, not
+    packaging around it.
+One line: A CHECK THAT CANNOT BE SHOWN TO HAVE LOOKED, AND TO BE CAPABLE OF
+FAILING, IS NOT COVERAGE — IT IS THE APPEARANCE OF COVERAGE, WHICH IS WORSE,
+BECAUSE IT STOPS ANYONE LOOKING.
+
+★ 2 · MUTATION-VERIFY THE SPEC, NOT ONLY THE CODE. Three specs this wave
+proposed a fix that did nothing. Each was caught by running the battery against
+the PROPOSAL. All three were the spec author's own and all three were
+self-reported.
+
+★ 3 · A VERIFICATION COMMAND NEEDS ITS OWN CONTROL. Run it against a case you
+KNOW matches before trusting an empty result. An empty result from an
+unvalidated command is not evidence of absence — it is no evidence at all.
+(`node --test` prints the invocation and the result on DIFFERENT LINES, so any
+filter demanding both on one line matches zero.)
+
+★ 4 · A ROLLBACK ARTEFACT MUST BE PROVEN TO CONTAIN THE OLD STATE. Grep it for
+the thing you are about to add; if the pattern is present, you backed up the
+wrong version. Git is a better source than the working tree, because the working
+tree may already have moved.
+
+★ 5 · TIGHTENING A WRITE RULE BREAKS EVERY OVER-SENDING WRITER, SILENTLY.
+Before changing what a store accepts, enumerate every writer and check what each
+ACTUALLY SENDS — not what it is supposed to send. A spread into a payload sends
+fields nobody listed.
+```
+
+**Also in force, restated because each was earned again this wave:** *a mutation that does not go red is first a claim about the MUTATION, not about the test*; *a CI run id is bound to a COMMIT, not a PR*; *never reconstruct an FU body from its ID*; *cite by quote or symbol, never by line number alone*; *write specs against the breakpoint, not against a width grid*; *a deadness analysis that enumerates only the fixtures you expected is not an enumeration*; *a number that agrees with itself is not a measurement*; *relay evidence between lanes, never relay it as settled*.
+
+---
+
+### ★★ SIX PROPOSED MECHANISMS PROVEN INERT — the count DERIVED, not carried
+
+**How this figure was reached, because a count carried forward is exactly the kind of derived value this board keeps catching.** An intermediate spec in this wave said **"five"**. C2's report called its own instance **"the fourth this wave"** without enumerating the other three. **Neither figure can be reconciled against the evidence, so both are recorded and neither is used.** The enumeration below is built from the lane reports and the Wave 3 state file (committed here as `WAVE_STATE_WAVE3_ARCHIVE.md`), each with the evidence that proved the mechanism inert.
+
+| # | the proposed mechanism | evidence | whose |
+|---|---|---|---|
+| 1 | the SEC-1 spec's §3 Firestore rules fix | mutation 2 (`nested-noop`) applied it verbatim on the real emulator: `# pass 6 # fail 8`, **byte-identical to the permissive-rule run**, same eight assertions; it did not even stop a `tier:"premium"` write to the parent doc | spec author's own, self-reported |
+| 2 | the GUARD-1 spec's literal remedy (re-frame the `git diff --name-only` calls) | `git diff --name-only` is root-relative from any cwd and was **already fixed** under `[D47]`/`[D41]`, with comments saying so; only `git ls-files --others` is cwd-scoped. *"A green suite over an open hole."* | spec author's own, self-reported |
+| 3 | the C2 spec's §2 mutation target (tightening the schema reddens C1's §5) | under mutation 1 **every C1 §5 test stayed green** — that harness mocks `callGemini`, and §5 pins the **parser**, which a schema change cannot affect | spec author's own, self-reported |
+| 4 | the cofounder's own verification command | two piped `Select-String`s requiring the **same LINE** to match both an invocation and a result pattern — impossible; it returned empty and read as evidence that C2's suites had not run. **They had.** | spec author's own, self-reported |
+| 5 | the owner's rollback backup | taken *after* the merge was pulled, so it contained the NEW rules; proven by grepping it for the thing about to be added | owner's, caught pre-deploy |
+| 6 | the first `firestore:rules` deploy | `"latest version already up to date, skipping upload"` then `"Deploy complete!"` — six-commit-stale rules re-shipped, production unchanged | operational |
+
+★ **1–4 are proposals; 5–6 are an artefact and an operation.** They are one failure class — *something that reports success while inspecting or changing nothing* — and separating them by category would hide that. **The count of proposals alone is four; the count of the class is six.**
+
+---
+
+### ★★ CORRECTIONS OWED TO THE WRITTEN RECORD — because the wave's standard applies to its own record
+
+**1 · The cost-analysis line.** `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` attributed **“$2.95 / 48%”** to `responseSchema`. **Not supportable** — the dominant parse-miss cause is **truncation at `maxOutputTokens`**, which constrained decoding does not prevent; the saving is the **shape-variance share only, and it is unquantified**. **Corrected in that file in this PR**, with the row struck rather than deleted so the change is visible to anyone who cited it. ★ **In the same breath: the QUALITY argument stands and is the sound reason #559 shipped** — it is now verified rather than argued. → `[FU-C2-TRUNCATION-VS-SHAPE-SPLIT]`, and `[FU-C2-PARSE-MISS-NOT-COUNTED]` as the prerequisite metric.
+
+**2 · A diffstat in a captured report was wrong by one, in its prose.** The SEC-2 report records `useSubscription.autotrial.test.ts` as **`+11/-3`**. **Verified against trunk `25e995a7`:** `git show --numstat` gives **`9  2`** — **9 added, 2 deleted.** The `+11` agrees with the `11 +-` shortstat total; **the deletion count was off by one in the report's prose only.** The file's *content* was untouched by the error, and the deviation itself was approved on its merits. Recorded because *a number in a report is a claim, and this board's own rule is that a wrong entry is harder to detect than a missing one.*
+
+**3 · The cofounder's own verification command could not fire.** Two piped `Select-String`s requiring the **same LINE** to match both an invocation pattern and a result pattern — impossible. It returned empty and looked like evidence that C2's suites had not run. **They had.** `node --test` prints the invocation and the result on **different lines**; use two separate greps, or `-Context`. ⇒ **A verification command needs its own control: run it against a case you know matches before trusting an empty result.** *Authored while writing the doctrine against exactly this.*
+
+**4 · And one from this handoff lane itself.** Writing the `[FU-MOJIBAKE-GATE-CWD-BLIND-SPOT]` entry, this lane reproduced the mojibake sequence **literally** as an illustration — which would have committed the very defect the FU describes into the repo. Caught by scanning its **own added lines** with the gate's regex rather than trusting the gate's green exit code, and replaced with a codepoint description. ⇒ **the check that catches you is the one you run over what you actually wrote.**
+
+### RESOLVED / CLOSED THIS WAVE
+
+- **`[FU-EFF-RESPONSE-SCHEMA]` → CLOSED by #559.** Three schemas, not one. ⚠ **Its cost justification does not survive** — see `[FU-C2-TRUNCATION-VS-SHAPE-SPLIT]`. The **quality** argument is what carried it, and it is now **verified rather than argued** by the owner's live-verify of the null-`mistakeType` path.
+- **`[FU-DEAD-AI-LEARNING-PATH]` → CLOSED by #562.** Owner ruling: **delete the AI path**; `WeakAreaPracticePage` calls the local `generateLearningPath` directly. Rejected alternatives: repointing to `/api/tutor` (a different contract, real integration work for a feature nobody asked for) and leave-and-document (wastes a request per click).
+  ⚠ **TWO BODIES EXISTED FOR THIS ID, AND ONE CONTAINED A CLAIM THE OWNER CORRECTED.** A payload body carried a `NOTE:` sentence asserting that **`callMentor` had a second LIVE caller in `DailyMixPage`**. **That sentence is FALSE and is deliberately NOT carried here.** `DailyMixPage` is **RETIRED** — `/daily-mix` is severed in App.tsx's SEVER-PR block with no `<Route>`, and every navigation to it originates in `Dashboard.tsx` / `DailyMixPreview`, themselves retired. Verified independently by D2 at trunk. The two bodies were **not merged**; the dated entry above is left as written per Standing Rule 3.
+  ✔ **One genuinely new observation from that payload is worth keeping:** the only surviving reference to `/api/mentor` anywhere is `artifacts/api-server/src/routes/admin.ts` → `callGateway("/api/mentor/cache-stats")`, an **admin telemetry proxy, not the generation endpoint**.
+  ⇒ **After #562, `callMentor` + `MENTOR_ENDPOINT` are fully orphaned** (`callMentor`'s only remaining caller is dead code) — a dead-code sweep for a later lane. ⚠ **`scripts/ops/llm_path_audit_acceptance.mjs` is CI-gated** and requires `rg("generateMoreLikeThis|MENTOR_ENDPOINT") > 0`; safe today because `generateMoreLikeThis` is live and carries the check alone. **The sweep may delete `MENTOR_ENDPOINT` — but must not delete both.**
+- **`[FU-LOGIN-STALE-RECAPTCHA-COMMENTS]` → CLOSED by #562 (D2c).** The count of **two** was exact. Both sat in `pages/Login.tsx` and both asserted an unconditional rebuild: above `handleResendOtp` (*"the prior invisible verifier is spent, so AuthContext rebuilds a fresh one inside sendPhoneOtp"*) and above the phone-tab warm `useEffect` (*"sendPhoneOtp rebuilds a fresh verifier each time"*). **False since PR-F1/B3.** AuthContext's own comment above `recaptchaContainerIdRef` states the real contract: tracking the container id *"lets `initPhoneRecaptcha` distinguish genuine reuse (same container, still on screen — which must NOT rebuild) from a stale widget (which must)."* ⚠ **The older entry's `:1149`/`:1172` citations were line references — a derived value nothing re-checks. Anchor by the two symbols above instead.**
+- **`[FU-HOME-FABRICATED-SOCIAL-PROOF]`, `[FU-JSONLD-OFFER-SHAPE]`, `[FU-HOME-TSX-DEAD-FILE]` → DISCHARGED by #562** — `lazytopper/src/pages/Home.tsx` is deleted, and with it the JSON-LD `aggregateRating`, the "12,800+ students" prose and the offer shape.
+- **`[FU-RETIRE-LEGACY-HOME]` → DISCHARGED by #562** (opened and closed inside this wave; body below for the record).
+- **`[FU-SEC1-SCOPEGUARD-NO-FIRESTORE-LANE]` → CLOSED by #560** — the `firestore` lane exists; SEC-2 confirmed `firestore.rules` classifies as `[firestore]`, not `[unclassified]`.
+- **`[FU-SEC1-SCOPEGUARD-UNTRACKED-BLINDSPOT]` → CLOSED by #560** — all enumerations now run from `GIT_ROOT`; mutation-verified RED.
+- **`[FU-SEC1-CI-LOCKFILE]` → CLOSED by #561** — the owner approved the subagent's recommended shape: `pnpm-lock.yaml` **plus a dedicated emulator step in `quality-gate.yml`**, and explicitly **not** chained into `scripts/` `test:matrix:all`, which would couple an emulator dependency into the content-guard suite.
+- **`[FU-SEC1-EMULATOR-LOG-UNIGNORED]` → CLOSED by #561** — `firestore-debug.log` is in `.gitignore`.
+- **`[FU-SEC1-LOCALSTORAGE-PREMIUM]` (Route B) → CLOSED by #563.** localStorage is now a **cache**, never a grant.
+- **`[FU-TRIAL-ENDDATE-CLIENT-FORGEABLE]` / `[FU-SEC1-TRIAL-SELF-EXTEND]` (Route C) → CLOSED by #563.** PR-1 had pinned Route C as an explicit **labelled characterisation test** asserting it was open; #563 inverted that test, exactly as it instructed.
+- **`[FU-SUBSCRIPTION-CLIENT-WRITABLE]` → CLOSED across #561 + #563** (Firestore half then client half). ⚠ **Neither PR alone closed it, and saying otherwise would have been false at the time.**
+- **`[FU-C2-MISTAKETYPE-NULL-LIVE-VERIFY]` → CLOSED.** The owner graded a real answer on production, then a **fully correct** one specifically to exercise the null path: full marks, **no spurious mistake type**.
+
+**⚠ NOT CLOSED, and the distinction matters:** `[FU-VERIFY-UID-ON-AI-ENDPOINTS]`'s remaining half. **The API server checks rate limits, not plan.** After this wave paid features are protected **in the UI** — a real improvement, and **not** the claim "paid features are protected."
+
+---
+
+### ★★ NEW — the deploy layer, which sits below every gate this project owns
+
+**`[FU-DEPLOY-FROM-STALE-CHECKOUT]`** — ★★ **carried verbatim from the Wave 3 state file (`WAVE_STATE_WAVE3_ARCHIVE.md`, committed here).**
+```
+[FU-DEPLOY-FROM-STALE-CHECKOUT] — CONFIRMED, not hypothetical. On 2026-07-29 a
+firestore:rules deploy run from C:\Projects\Lazytopper-Production redeployed rules
+six commits stale (checkout at 47d765db, trunk at 6bb5bb4f) and printed "latest
+version already up to date, skipping upload" followed by "Deploy complete!". The
+security fix was NOT in production despite a successful-looking deploy.
+RULE: before any deploy, `git pull` and GREP THE LOCAL FILE for the expected new
+content. "Deploy complete" is not evidence; "skipping upload" on a file you just
+changed is evidence of the opposite. Verify in the Firebase Console afterwards —
+it is the only authority on what is enforcing.
+Fourth instance of the shared checkout producing a confident wrong result.
+```
+★★ **The two-word difference between `skipping upload` and `uploading rules` is the whole signal.** `6bb5bb4f` above is **#561's own merge commit**: the deploy ran minutes after the merge, from a checkout that had never seen it. The successful re-deploy printed **`uploading rules`**.
+
+**The exact procedure, third time of asking:**
+```
+1. git pull   in whatever checkout you deploy from
+2. GREP the local firestore.rules for the expected new content
+   (this wave: `trialStartImmutable` AND `allow delete: if false`)
+3. npx firebase-tools deploy --only firestore:rules --project lazzyy-topper
+4. Confirm "uploading rules", NOT "skipping upload"
+5. Read the deployed rules in the FIREBASE CONSOLE, not the repo file
+```
+★ **Step 2 is not optional.** ★ **Rollback path, know it BEFORE deploying:** Firebase Console → Firestore → Rules → the version dropdown; a previous ruleset republishes in one click. If trial activation breaks after a deploy, **that is the immediate action, not a hotfix PR.**
+
+**`[FU-DEPLOYMENT-OUTSIDE-EVERY-GATE]`** — ★★ **carried verbatim.**
+```
+[FU-DEPLOYMENT-OUTSIDE-EVERY-GATE] — firestore.rules is the clearest case but not
+the only one: nothing in CI can observe what is actually deployed. A merged rules
+file, a Railway env var, a Firebase console setting — all of them can diverge from
+trunk silently and indefinitely. The stale-checkout deploy above was invisible to
+every gate this project has, and would have stayed invisible until an auditor or a
+student found it. Any lane whose outcome depends on a deploy must carry an explicit
+OWNER-ACTION line in its report AND must not be closed in WAVE_STATE.md until the
+owner confirms the deployed state, not the merged state.
+```
+
+---
+
+### ★★ NEW — GUARD-1 (bodies from `report-guard1-scope-blind-spot-2026-07-29.md`)
+
+**`[FU-GUARD-1-A]`** *(High)* — `repo_boundary_acceptance.mjs`: enumerate from git root; import `classifyFile` instead of the drifted private copy; wire into matrix.
+**Supporting evidence, carried with the id:** it runs `git ls-files` with `cwd=lazytopper/` — **auditing 1 of 13 top-level trees** — *and* keeps a private **stale copy** of `classifyFile` still missing `apiServer`/`docs`. **Either bug alone shows red; the blind spot masked the stale copy**, and it reported green on a policy it never fully evaluated. Also absent from `test:matrix:all`. It was **RED on trunk (2 failed/5)**; #560 took it to 5/5 with an in-allowlist fix, but the cwd scoping and the duplicated classifier remain.
+
+**`[FU-GUARD-1-B]`** *(High)* — wire `scope_guard_blindspot_acceptance.mjs` into `test:matrix:all`/CI — needs `lazytopper/package.json`, outside GUARD-1's allowlist.
+★★ **GUARD-1's protections are real but UNENFORCED until this lands** — an instance of its own doctrine. **Proven, not asserted:** grepping #560's 4,076-line CI log for `blindspot|repo_boundary|agent3_uiux|scopeGuard|scope:guard` returns **0 matches** — CI executed **none** of the five changed files.
+
+**`[FU-GUARD-1-C]`** *(Medium)* — agent3: re-point or retire the three rotted checks + the zero-passing ceiling, then wire green.
+**⚠ Spec correction carried with it:** `agent3_uiux_guard` was **never "silently passing."** It exits 1 and scored **3/7 on trunk** — now 4/8. **The silence is that nothing runs it**: RED and unread through three redesigns. Its new zero-match meta-assertion immediately caught a live one — `trends_cta_pressure_within_contract` asserts `count <= 12` and was **passing with count = 0**, a ceiling check passing on nothing.
+
+**`[FU-GUARD-1-D]`** *(Medium, latent)* — frame collision: root vs `lazytopper/` paths are indistinguishable after `toPolicyFrame` for `docs/`, `scripts/`, `package.json`, `tsconfig.json`, `.github/`, `pnpm-lock.yaml`. **Those six classify correctly by accident.** Needs frame-tagged rules.
+
+**`[FU-GUARD-1-E]`** — `scope:guard` stays out of CI by design (CLAUDE.md §6a); the new acceptance suite has no such limit and would have caught this.
+
+**`[FU-MOJIBAKE-GATE-CWD-BLIND-SPOT]`** — ★★ **NEW, found by the handoff lane itself. The SAME cwd blind spot GUARD-1 fixed in `scope:guard`, still live in `check:mojibake`.** `lazytopper/scripts/check-mojibake.cjs` sets `repoRoot = path.resolve(__dirname, '..')` — i.e. `lazytopper/` — and enumerates with `execSync('git ls-files', { cwd: repoRoot })`. **It therefore cannot see any file outside `lazytopper/`.** Measured at trunk `25e995a7`: the gate enumerates **1,379** tracked files, of which **ZERO** are under `handoff/`, while the repo has **1,712** tracked files and **20** markdown files in `handoff/` alone. **333 tracked files — every handoff document, every root config, and all of `scripts/`, `artifacts/`, `firestore-rules-tests/` and `lib/` — are outside its reach, and it reports PASS.**
+**This is not theoretical: there IS mojibake in `handoff/CURRENT_STATE.md` today** — the classic UTF-8-read-as-CP1252 em-dash sequence (codepoints U+00E2 U+20AC U+201D) runs through the old “Previously (post-PR #2xx…)” lines, far below the current sections, **and the gate has been green over it for months.** *(The sequence is described by codepoint rather than reproduced: writing the example into the repo would itself be the defect — this lane caught itself doing exactly that and removed it before committing.)* ⚠ **Consequence for any docs lane: a green `check:mojibake` is not evidence about a `handoff/` file.** This lane therefore ran the gate’s own regex directly over its **1,029 added lines** plus all **1,011 lines of the committed Wave 3 state archive** — **0 hits, with a control string proving the regex fires** — because *a check that cannot be shown to have looked is not coverage*. **Distinct from `[FU-MOJIBAKE-GATE-MISSES-PUA]`, which is about the PATTERN; this is about the SCOPE.** Fix: enumerate from the git root, and print an `inspected=` count so a zero-subject run cannot read as a pass.
+
+**`[FU-GITIGNORE-SHADOWS-TRACKED-POLICY]`** — `lazytopper/docs/project_memory/` is matched by root `.gitignore`, so plain `git add <path>` **refuses `repo_boundary_policy.json` even though the file is tracked**. `git add -u` works (ignore rules do not apply to tracked paths). **Pre-existing, not introduced by GUARD-1. This will bite the next agent who edits the boundary policy** — and it fails as a **refusal**, which at least is loud, unlike the silent class this wave has been chasing.
+
+---
+
+### ★★ NEW — the entitlement lanes (SEC-1-REV #561, SEC-2 #563)
+
+**`[FU-SEC1-USERS-COLLECTION-DENIED]`** — ★ **OPEN.**
+```
+[FU-SEC1-USERS-COLLECTION-DENIED] — `users/{uid}` has no rule; writes always silently denied.
+```
+**Supporting evidence:** `users/{uid}` has **no rule at all** ⇒ `ensureLearnerAccountMetadata` writes have **always been silently denied**, swallowed by a bare `catch {}`. Found while answering the spec's "where else?"; reported and deliberately not fixed.
+
+**`[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]`** — ★ **OPEN.**
+```
+[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE] — free daily quota is localStorage-only; no rule can gate it.
+```
+
+**`[FU-PREMIUMSINCE-UNREAD]`** — ★ **OPEN (low).** `premiumSince` is read by **no production code**, only test fixtures, so the rule deliberately does not constrain it — constraining it adds breakage risk and zero security.
+
+**`[FU-SEC1-LOCALSTORAGE-PREMIUM]`** — **CLOSED by #563**, body kept because the reasoning outlives the fix:
+```
+[FU-SEC1-LOCALSTORAGE-PREMIUM] — ★★ the lane's stated goal is NOT met by the rules fix
+alone; premium is still self-grantable via localStorage. Needs a D-lane PR.
+```
+**Supporting evidence:** `loadSubscription` read **localStorage first**; `hydrateSubscriptionFromCloud` overrode it **only when a cloud doc existed**. A student with **no** subscription document who set `lazytopper.subscription.v1:<uid>` to `{tier:"premium"}` got premium UI **with Firestore never consulted.**
+
+**`[FU-SEC1-CI-LOCKFILE]`** — **CLOSED by #561**, body kept:
+```
+[FU-SEC1-CI-LOCKFILE] — the rules test cannot reach CI without `pnpm-lock.yaml`.
+```
+**Supporting evidence:** the emulator **can** run in CI (`ubuntu-latest` ships a JVM; `firebase-tools` was already a root devDep). **The blocker was never the emulator** — it was `@firebase/rules-unit-testing`, which requires `pnpm-lock.yaml`, outside the then-allowlist, and CI's `--frozen-lockfile` hard-fails without it. The subagent stopped rather than ship the test unwired, which would have been the silent-skip failure the lane exists to prevent.
+
+**`[FU-SEC1-TRIAL-SELF-EXTEND]`** — **SUPERSEDED and CLOSED by #563**, body kept:
+```
+[FU-SEC1-TRIAL-SELF-EXTEND] — `trialEndDate` is an ISO string; a rules-level bound is awkward.
+Logged deliberately, not attempted.
+```
+⇒ The resolution was not to bound it but to **remove it**: *storing `trialEndDate` at all was the defect.* Rules cannot parse an ISO string, which is why every attempt to *validate* the stored date fails.
+
+**`[FU-TRIAL-ENDDATE-CLIENT-FORGEABLE]`** — **Route C. CLOSED by #563.** `isPremiumAccess()` returned true for `tier:"trial"` exactly as for `"premium"` (surfaced as `isPremium` at **40 sites**), and `trialEndDate` was a client-supplied ISO **string** that `applyExpiry` trusted: `{tier:"trial", plan:"trial_7day", trialEndDate:"3000-01-01"}` bought permanent premium-equivalent access. **Proven green on the real emulator (assertion 8)** before it was closed. ⚠ **`isPremiumAccess` was deliberately NOT changed** — a trial granting premium is the product design (a 7-day full trial) and is correct; the defect was that the trial's **LENGTH** was forgeable.
+
+**★★ The design principle to keep, verbatim:**
+> **ENTITLEMENT MUST DERIVE FROM DATA THE CLIENT CANNOT FORGE.**
+> - `tier:"premium"` → **Admin SDK only**
+> - `tier:"trial"` → the **START** is a server timestamp the rules pin to `request.time`; the **DURATION** is a constant in code; therefore **the END is DERIVED — never stored, never trusted**
+> - `localStorage` → a **cache**, never a grant
+
+**★★ And pinning the start is not sufficient alone.** If the client may write `trialStartDate == request.time` *whenever it likes*, a student re-triggers it daily and holds an infinite trial. So: **create** must equal `request.time`; **update** must equal the **existing** value; **delete DENIED**, or a student deletes the doc and re-creates to reset the clock. All three emulator-proven.
+
+**★ The Console read-back is the proof, and the type difference IS the fix:**
+```
+trialStartDate:  July 29, 2026 at 10:46:51 PM UTC+5:30   ← TIMESTAMP
+updatedAt:       "2026-07-29T17:16:52.809Z"              ← string, quoted
+```
+`trialStartDate` is a real **server-set Timestamp the rules can pin**; `updatedAt` beside it is still a quoted string, which is exactly what a client-forgeable field looks like. **There is no `trialEndDate` field at all.**
+
+**★ Decisions inside SEC-2 worth keeping:**
+- **The field is `trialStartDate`, not `trialStartedAt`.** Renaming would have forced edits outside the allowlist. **The security property is that the start is server-set and immutable; its name is not load-bearing.**
+- **The `trialEndDate` slot was KEPT on the type (`@deprecated`)** — deleting it breaks compilation of two out-of-allowlist test files. Removed from every read and write, **and** the rules additionally forbid introducing or moving it. Belt-and-braces because *"the field being unread is a property of code that a future regression can undo silently, whereas the rule is enforced server-side."*
+- **`pricing.ts` is NOT the right home for `TRIAL_DAYS`** — it is the pricing *display* surface, pinned by `pricing.guard.test.ts`, and outside the allowlist. The constant stays beside the only code that derives an expiry from it.
+- **`loadCloud` returns `error`, not `absent`, when `firestoreDb` is null.** *"Absent is a positive claim and must never be inferred from a read that never ran."*
+- **The pre-hydration flash is a decision, not an accident.** `loadSubscription` stays synchronous and cache-first, so a forged localStorage entitlement **is** briefly visible before hydration. Test 7 pins it in **both** directions and the cache is **evicted** so the flash cannot recur. The alternative — everyone starts free — blanks real subscribers on every mount and breaks the offline case. ★ Hydration on `absent` writes **nothing** to the cloud: *"uploading the cache would launder a forgery into the record of truth."*
+- **⚠ Migration: PARTIAL VERIFICATION, declared rather than papered over.** Production documents could not be enumerated without Console or Admin credentials, and **no claim was made about a check that was not run.** What *was* verified: `subscriptionService.ts` is the **sole writer** to `subscriptions` anywhere in the repo.
+- **⚠ Mutation contamination, self-reported:** three rules variants also drop the `trialEndDate` clause, so test 13 reddens under them too — *"contamination, not evidence."* Each clause is pinned by the tests only it breaks.
+- **★ Premium is activated MANUALLY VIA THE FIREBASE CONSOLE** — the Admin SDK path, which bypasses rules entirely. So the rules change cannot break activation, and **any client-written premium is by definition forged.** That answer is what removed the migration risk.
+
+---
+
+### ★★ NEW — C2 (bodies from `report-c2-response-schema-2026-07-29.md`)
+
+**`[FU-C2-TRUNCATION-VS-SHAPE-SPLIT]`** — ★ **OPEN, and it corrects a number written elsewhere as fact.** The dominant parse-miss cause documented in the grader itself is **truncation at `maxOutputTokens`**, which constrained decoding **does not prevent**. #559 can only reduce the **shape-variance** share. ⇒ **the `$2.95 / 48%` line in `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` is NOT validated by #559** and must not be cited as if it were. **That line is corrected in this handoff PR.** ★ **The QUALITY argument stands and is the sound reason #559 shipped** — and it is now verified rather than argued.
+
+**`[FU-C2-PARSE-MISS-NOT-COUNTED]`** — ★★ **OPEN. A PREREQUISITE, NOT A NICE-TO-HAVE.** `retryCount` ← `gemini_tokens.retry.<class>` ← `attempts > 1`, and `telemetryAttempts` is scoped **inside** a single `callGemini` (429 / mime / fallback only). **The grader's parse-miss retry is a SECOND `callGemini` invocation**, so it emits two records each `attempts:1, retry:false`. **A before/after read will show no signal whatever happens.** ⇒ **No before/after claim about parse misses can be honest until that metric exists.** The subagent correctly did not add the counter (its spec said report, don't tune).
+
+**★ The C2 parser contract, kept because the executable form does not carry the reasoning.** `checkSolution.test.cjs` §5 *is* this contract in code; the *why* exists only here.
+- **Structurally required:** top-level `annotatedSteps`; per-step `description` (a description-less step is **dropped with its marks**, so requiring it protects marks).
+- **Must be NULLABLE:** `mistakeType` and `correctedWorking`. **Grading rules 4, 5, 6 and 7 all *require* `null`** — a non-nullable enum would forbid the null and thereby **CONSTRAIN THE MARKING ITSELF**. `mistakeType` therefore carries **no enum at all**: the parser already enforces the four values, so an enum buys zero while risking the null path.
+- **Free:** the step **COUNT**. A schema pinning a fixed count would trade grading quality for output format.
+- **Conditional:** the detect-only fields exist **only** when `autoDetect` is on; one fixed schema marking them required would force meaningless values on the trusted-marks path.
+- **★★ THREE schemas, not one — and C1's "two, not one" was still one short.** The three parsers gate on different top-level keys and **fail differently**. **Schema C (worksheet) deliberately does NOT require `annotatedSteps`** — a `couldNotRead:true` entry legitimately has none, and **reusing Schema A there would have forced the model to fabricate steps for an unreadable answer**: a CLAUDE.md §5 "no invented content" breach shipped as a performance optimisation.
+- **`tutor.cjs` deliberately left unconstrained.** It sends no `responseMimeType`, its reply is consumed as **prose**, and its only structure is sentinels *stripped by regex*. Constraining it would mean deriving a schema from the prompt (forbidden), flattening teaching prose into a JSON string, and breaking both extractors. It has no parse-miss retry to fix.
+
+---
+
+### ★★ NEW — the cost / model entries (Lane C)
+
+> ⚠ **PROVENANCE, PRESERVED DELIBERATELY.** Three of the four bodies below were reported as **`BODY NOT FOUND`** by the handoff-prep pass: their source file, `AGENT_C_Wave3_server.md`, **does not exist on disk** (searched `Desktop/**`, `Downloads` and the git index) and the ids appear **zero times on trunk**. It **correctly refused to reconstruct them.** They were later **transcribed verbatim** from a copy of that spec supplied in-session, into `C:\Users\Chetan\OneDrive\Desktop\diff\LANE_C_FU_BODIES-2026-07-29.md`. **Transcription, not reconstruction.** ⚠ **If a copy of `AGENT_C_Wave3_server.md` ever turns up on disk, that file wins** — a transcription is a derived artefact.
+
+```
+[FU-EFF-THINKING-BUDGET] — ★ NOW THE TOP COST LEVER, MEASURED. First production
+telemetry (2026-07-28, n=2 vision calls, NOT a distribution):
+  vision  2 calls · prompt 4,932 · candidates 1,408 · thoughts 9,961 · 48,928ms
+  practice 2 calls · prompt 2,754 · candidates  250 · thoughts     0
+Thinking is 87% of vision output tokens and ~24.5 SECONDS per grade. It is both
+the largest cost lever AND a latency fix. Rates CONFIRMED from Google's pricing
+page: gemini-2.5-flash $0.30 input / $2.50 output, header states "Output price
+(including thinking tokens)". Measured $0.0150/vision call.
+→ DO NOT set a budget from n=2. Needs a week of real student data, then p90 PER
+MARKS BAND — a 5-mark long answer and a 1-mark MCQ are different distributions,
+and one global budget would strangle the former or leave the latter untouched.
+→ Counters are per-process and reset on redeploy, so a "week" only accrues if
+nothing ships. Capture a reading before each merge.
+
+[FU-FLEX-TIER-UNUSABLE] — Gemini's Flex tier is 50% off but targets 1-15 MINUTE
+latency and is sheddable (503/429 under load, no server-side fallback). Every paid
+call in this product is student-facing, so Flex is not usable. Batch API is also
+50% off but asynchronous up to 24h — same conclusion. Recorded so nobody
+rediscovers the discount and misses the latency.
+
+[FU-MODEL-SWITCH-NOT-A-LEVER] — Newer Flash models are MORE expensive
+(3.6-flash $7.50 output, 3.5-flash $9.00 vs our $2.50). The Flash-Lite line is
+cheaper because it is weaker — Google describes it as for "simple data
+processing". The grader reads handwritten maths and awards step-marks; that is
+not simple data processing. No model switch. GEMINI_TUTOR_MODEL is already a
+separate env var if the tutor is ever A/B'd.
+
+[FU-2.5-FLASH-DEPRECATION-UNVERIFIED] — an earlier claim that gemini-2.5-flash
+retires 2026-10-16 could NOT be confirmed: the pricing page carries deprecation
+warnings for 2.0 Flash and 2.0 Flash-Lite but NOT for 2.5 Flash. Verify against
+the deprecations page before that date drives any roadmap decision.
+```
+
+**★ THREE AMENDMENTS OWED TO `[FU-EFF-THINKING-BUDGET]`'s OLDER BOARD ENTRY** — recorded here, not by editing the dated entry (Standing Rule 3):
+1. **Its gate is LIFTED.** `[FU-TELEMETRY-NO-READ-PATH]` was resolved in #549 and the owner has taken a real read-out. **It is no longer blocked on a read path; it is blocked only on SAMPLE SIZE.**
+2. **The owner re-ranked it.** *"Thinking is 87.6% of vision output tokens and 24.5 seconds per grade. That makes `[FU-EFF-THINKING-BUDGET]` both the largest cost lever AND a latency fix — it OUTRANKS `responseSchema`, which was previously ranked above it."*
+3. **C1 located the spend precisely.** The grading call (`gradingGenConfig` in `handleCheckSolution`) **sets no thinking cap at all** — dynamic and uncapped. *"That is where the measured ~4,980 thought-tokens and ~24.5 s per vision grade are being spent. The test now records this as deliberate, so a future budget is a conscious change rather than an accident."*
+⚠ The older entry's *"only one call sets a budget (checkSolution.cjs:600…)"* is a **line citation**. **Anchor it by symbol instead: `handleDetectQuestion` / `thinkingConfig: { thinkingBudget: 0 }`.**
+
+**★ FIRST MEASURED COST DATA — owner live-verify 2026-07-28. It was NOT in the repo before this handoff.** One owner curl of `GET /api/admin/token-telemetry` after the Wave 2 deploy. **n = 2 vision calls, 2 practice calls, ONE session.**
+```
+vision    2 calls · prompt 4,932 · candidates 1,408 · thoughts 9,961 · 48,928 ms
+practice  2 calls · prompt 2,754 · candidates   250 · thoughts     0
+anonKey   client 0 / loopback 0     (across four SIGNED-IN calls)
+
+per call, derived:
+vision    prompt 2,466 · candidates 704 · thoughts 4,980 · 24.46 s   ~= $0.0150
+practice  prompt 1,377 · candidates 125 · thoughts     0             ~= $0.00073
+```
+Measured $0.0150/vision call against the $0.0130 estimate ⇒ **the model is ~15% pessimistic, not wrong.** ★ **It also validates #537's billing-bucket decision with data** — the comment justifying moving detect-question out of `vision` estimated *"about $0.001 against ~$0.013 for a grade"*; measured, **$0.00073 vs $0.0150** — and `thoughts: 0` on practice **independently confirms detect-question really does run at `thinkingBudget: 0`.**
+
+**⚠ DO NOT SET A THINKING BUDGET FROM THIS SAMPLE — owner ruling, verbatim:**
+> Two calls from one session is one paper, one student, one difficulty band. Thinking tokens on a grader should scale with how much working there is to follow, so the variance that matters is exactly what a single session cannot show. A week of data, then **p90 — and p90 PER MARKS-BAND**, since a 5-mark long answer and a 1-mark MCQ are not the same distribution. Grading genuinely needs reasoning; the lever is to bound it, not remove it.
+
+⚠ **UNVERIFIED at the time of the Wave-2 reading:** Google's per-token rates were not checked against the live price list. *(Lane C's `[FU-EFF-THINKING-BUDGET]` body above records them as subsequently **CONFIRMED** from the pricing page — $0.30 input / $2.50 output, header stating "Output price (including thinking tokens)". The two statements are kept side by side rather than merged, because they were made at different times with different evidence.)*
+
+---
+
+### ★★ NEW — Lane D research (bodies from `LANE_D_FU_PAYLOAD-2026-07-29.md`, verbatim)
+
+**`[FU-LANDINGMEMORY-HASPROFILE-DEAD-KEY]`** — ★★ **THIS ENTRY EXISTS TO CURE A DANGLING CITATION.** The id appears on trunk in exactly one place — a source comment in `lazytopper/src/components/auth/LinkPhoneNudge.tsx` (the `landingMemory →` line in its header block) — **while the board had no such entry.** A merged source file was citing an FU that did not exist. Verified again at trunk `25e995a7`: one hit, that file only.
+```
+[FU-LANDINGMEMORY-HASPROFILE-DEAD-KEY] — ★ NEW, found in Lane D research.
+`lib/desktop/landingMemory.ts` `hasProfileFlag()` reads the BARE localStorage keys
+"lazytopper.profile.v2" and "lazytopper.profile". Nothing writes them: studentCloudStore
+writes only the uid-suffixed "lazytopper.profile.v2:<uid>" via localProfileKey(uid).
+`hasProfile` is therefore PERMANENTLY FALSE, and the module's own doc comment
+("presence indicates the user has been here before") is a CLAIM, not a fact.
+
+This is the identical dead-key defect already cured in pages/Login.tsx and closed as
+[FU-LOGIN-HASPROFILE-DEAD-KEY] — the cure was never propagated to landingMemory.ts.
+
+BLAST RADIUS IS SMALL BUT REAL: hasProfile is the third disjunct of
+`hasMeaningfulMemory` (`if (memory.hasProfile) return true`) and the third branch of
+`resolveResumeRoute`. Both are consumed by DesktopHome AND MobileHome. Today a
+returning student whose ONLY trace is a profile gets the first-time-visitor layout.
+Fixing it is a behaviour CHANGE on two live Home pages, so it needs its own scoped PR
+with screenshots — NOT a drive-by inside the nudge PR.
+
+★ DOCTRINE: this is the second instance of the same bug class in one codebase. A
+uid-suffixed key read without its suffix fails SILENTLY as "false", never as an error,
+so no gate can see it. Any future `getItem("lazytopper.<x>")` on a key that
+studentCloudStore/studentDataService namespaces per-uid deserves the same audit.
+```
+
+**`[FU-NO-RETURNING-SESSION-SIGNAL]`** — ★ **NEW, and NOT closed by #557.**
+```
+[FU-NO-RETURNING-SESSION-SIGNAL] — ★ NEW. The product has NO returning-visit signal.
+The three plausible candidates are dead (landingMemory.hasProfile), orphaned by a
+retired page (lazytopper.firstVisitOverlayShown, written only by the severed
+pages/Dashboard.tsx), or an ACTIVITY signal the owner explicitly excluded
+(lazytopper.studySessions). AuthUser does not carry Firebase's metadata.creationTime /
+lastSignInTime either. Any future feature gated on "has returned" — not just the phone
+nudge — has to add this. Recommend it be added ONCE, as a shared helper, rather than
+per-feature.
+```
+⚠ **Status:** #557 added a *local* signal for its own use only (`lazytopper.homeVisits.v1` + `lazytopper.homeVisit.counted.v1`, living inside `LinkPhoneNudge.tsx`). **The FU is therefore NOT closed** — it asks for a shared helper, and what shipped is per-feature. ★ Also rejected during that research: Firebase `metadata.lastSignInTime`, because **persisted sessions freeze it at `creationTime` forever** → a silent never-fires, and `mapFirebaseUser` does not map it anyway.
+
+**`[FU-RETIRE-LEGACY-HOME]`** — **DISCHARGED by #562**; body kept because the *defusal proof* is the reusable part.
+```
+[FU-RETIRE-LEGACY-HOME] — pages/Home.tsx (LEGACY-RETIRED 2026-06-08, zero product
+importers, unrouted) publishes FABRICATED social proof: JSON-LD aggregateRating
+ratingValue "4.8" / reviewCount "2340" (:284-287), "12,800+ students" (:377, :600) and
+"from 2,340+ student reviews" (:498). CLAUDE.md §5 violation; as structured data it is
+exposed to Google's fabricated-review policy (penalty = manual action). Inert only while
+unrouted — exactly as the ₹149 price was inert until it wasn't.
+
+★ THE OPS-FIXTURE PIN IS REAL AND THE SPEC'S WARNING WAS CORRECT.
+`lazytopper/scripts/ops/agent3_uiux_guard.mjs` reads it in the
+`homepage_marketing_positioning` check:
+    has("src/pages/Home.tsx", /human-grade|human tutor|predictive/i) &&
+      has("src/pages/Home.tsx", /Class 10|CBSE/i)
+`has()` calls `read()` = bare `readFileSync`, with NO existence guard. Deleting Home.tsx
+makes the whole script THROW ENOENT, not merely fail one check.
+
+★★ BUT TWO FACTS DEFUSE IT, BOTH VERIFIED:
+  1. THE CHECK ALREADY FAILS TODAY. Home.tsx matches the second pattern 12 times but the
+     FIRST pattern ZERO times (`grep -cE "human-grade|human tutor|predictive"` → 0), so
+     the `&&` is already false. The guard is asserting a property the file lost.
+  2. THE SCRIPT IS NOT A GATE. `test:agent3:uiux` exists in lazytopper/package.json but
+     is absent from `test:matrix:all` (18 sub-scripts, enumerated — it is not among them)
+     and appears in NO workflow file. Repo-wide grep for "agent3_uiux_guard" returns only
+     its own package.json script entry and its own source. Nothing in CI runs it.
+  So deleting Home.tsx turns an ALREADY-FAILING check in an UNWIRED script into a
+  crashing UNWIRED script. No gate goes red either way.
+
+⚠ LANE COLLISION: repairing the guard means editing `lazytopper/scripts/ops/…`, which is
+outside Lane D's allowlist AND inside Agent C's declared lane (`scripts/ops/`). Escalated
+to the owner rather than resolved unilaterally.
+```
+⚠ **The "nothing goes red either way" conclusion was TRUE of the ops fixtures and FALSE of the wider tree** — see `[FU-UX-FOCUS-ACCEPTANCE-HOME-FIXTURE]` and D2's `pricing.guard.test.ts` finding below. **A deadness analysis that enumerates only the fixtures you expected is not an enumeration.**
+★ **Owner's added finding, standing:** an ops guard whose pattern matches **zero** times has been silently passing on nothing — **third instance of the class in one week**. **Any such repair must include a "this pattern matched at least once" assertion**, or the fix restores a guard that still cannot fail. #560 added exactly that meta-assertion, and it caught a live one on its first run.
+
+---
+
+### ★★ NEW — D2 and EV-1
+
+**`[FU-UX-FOCUS-ACCEPTANCE-HOME-FIXTURE]`** — ★ **OPEN, handed to GUARD-1's successor.** `lazytopper/scripts/ops/ux_focus_acceptance.mjs` reads the now-deleted `src/pages/Home.tsx` via a bare `readText` with **no existence guard**, so the script throws. **GUARD-1 fixed one fixture, not both** — corroborated independently by this board, which already named **both** files in an older entry. **Impact today: zero** — no npm script, no workflow, no invoker anywhere; its three Home checks are now unfixable by construction. Recommend the same treatment `agent3_uiux_guard.mjs` got — delete the dead Home checks and add the zero-match assertion — **or delete the script, since nothing can run it.**
+
+**`[FU-ENTITLEMENT-GATE-MATCHES-STRING-LITERALS]`** — ★ **OPEN.** `entitlementGating.test.ts` builds `new RegExp('from\\s+["\'][^"\']*' + basename + '["\']')` and tests it against **raw file text**, so it matches a module path inside a **string literal or a comment**, not just a real import. It flagged D2's new test **twice** for `TopicHubHome`: once from a fixture string, **then again from the comment explaining the first.** Fix: match only genuine import/`from` statements, and anchor the basename at a path boundary (`/` or start) so `PracticePage` cannot match `WeakAreaPracticePage`. **Blast radius: every future test that quotes a module path.**
+
+**`[FU-D1-PROVIDERIDS-UNPROVEN-LIVE]`** — ★ **OPEN. THE ONE LIVE-VERIFY THIS WAVE STILL OWES.**
+```
+[FU-D1-PROVIDERIDS-UNPROVEN-LIVE] — the nudge's phone-linked suppression path is proven
+by unit test and by seeded session, never against a real Firebase phone-linked account.
+```
+**Supporting evidence:** `providerIds` came from a **seeded local session**, not Firebase server truth — Firestore returned `Missing or insufficient permissions` throughout, as expected. The render path, copy and responsive layout are faithfully exercised; **`hasPhoneLinked` against a real phone-linked Firebase account is unproven by picture** and rests on the 14 unit tests.
+
+**`[FU-HOME-BREAKPOINT-EXCLUSIVITY]`** — ★ **NEW (EV-1).**
+```
+[FU-HOME-BREAKPOINT-EXCLUSIVITY] — DesktopHome and MobileHome are mutually unreachable
+across the 1024px boundary by redirect. Any future "both Home pages at width W" requirement is
+unsatisfiable for half its cells; write specs against the breakpoint, not against a grid.
+```
+**Supporting evidence:** `useIsDesktop` is `(min-width:1024px)`; below 1024 `/` redirects to `/browse`, at ≥1024 `/browse` redirects to `/`. **Proven by live redirect probes, not by reading code.** The spec's 12-cell screenshot matrix **was never satisfiable**; 8 shots were captured instead — the 6 real cells plus DesktopHome @1440 present/dismissed, recovering the desktop coverage the matrix loses.
+
+**★ EV-1's other two corrections, recorded because their only home was a report that was never written:**
+- **A CI RUN ID IS BOUND TO A COMMIT, NOT TO A PR.** The run handed to EV-1 for #558 (`30417690715`) ran commit `06692469`; the branch then took trunk-merge commit `24883eca`. EV-1 pulled `30418065085` on the real head. **Had it trusted the assigned run, the merged head would have been unverified.**
+- **The auto-sign-in hazard is DEV-SERVER-ONLY.** `shouldAutoAnonBootstrap()` requires `import.meta.env.DEV`, **false on a Vercel production build**; the auto-created local user would be ineligible anyway (`isLocalSession: true`). The standing note **does not generalise to previews**.
+
+---
+
+### ★★ CARRIED FORWARD FROM WAVE 2 — it existed ONLY in a handover file and in PR bodies
+
+> Wave 2's handover said it plainly: *"Both Wave 3 findings above, plus the standing rule in §5, exist ONLY here and in the PR bodies. Whoever writes the next handoff must carry them."* **If this section is omitted they are lost.** They are recorded here for the first time.
+
+**★ THE STANDING RULE — owner-approved for the top of this board, drafted and committed nowhere until now. Verbatim:**
+> **★ THE ALARMING READING IS OFTEN AVAILABLE AND WRONG — VERIFY THE STATE BEFORE YOU NAME THE FAILURE.** Two instances in one wave, pointing in opposite directions:
+> · **Don't claim a bug that isn't there.** `repo_boundary_policy.json` lists `"_handoff/"` and no such directory exists — a perfect match for the stale-reference class we had just spent a day naming. It sits among `_debug_bundle/`, `_codex_output/`, `_rollback/`, all underscore-prefixed scratch dirs, so it is most likely deliberate and unrelated. Recorded as an unverified observation, not a finding.
+> · **Don't claim a collision that already resolved.** Going to merge the handoff PR, trunk had moved AND the new commit touched all seven of its files — the exact shape of the stale-base clobber. It was that PR itself, already merged; the overlap was its own content.
+> Both are the same discipline: **pattern-matching to a failure mode you have recently learned is when you are most likely to file a false one.** Check the state — the PR's, the file's, the directory's — before writing the finding down. **A wrong entry on this board is harder to detect than a missing one, because it gets cited.**
+
+**★ #555 — the verified-uid safety property, and it is the whole design.**
+> It is tempting to treat "token missing or invalid" as "not signed in". **The anonymous hard cap is 3/day**, so an expired token, clock skew, a transient firebase-admin failure or an unconfigured deploy would drop a real signed-in student into the anonymous bucket — precisely the defect #552 fixed, re-entering through the back door and visible only to whoever was unlucky. So `verifiedCaller` **never** decides a caller is anonymous: it returns a uid or `""`, and `resolveCaller` falls back to the header exactly as before. **The change can only TIGHTEN identity, never shrink a real allowance.** Mutation-proven RED.
+
+*Why the await is at the edge and not in `check()`:* verification is async; the limiter is a synchronous pure function with **27 existing tests calling `check()` directly**. `verifiedUid` is an optional **third** parameter and the await lives in `index.cjs`, already async. All 27 pass untouched. *Diagnostic:* `rate_limit.uid_source.{verified,header,unverified}`, surfaced as `rateLimit.uidSource` and **pinned by tests** — *"I initially added the counter without a read-out test, which is the silent-no-op class, and fixed it."*
+
+**★ #556 — `[D47]` scope:guard lanes: TWO no-op traps, one of them the agent's own.**
+- *"Add a lane to `repo_boundary_policy.json`"* **alone classifies nothing** — `classifyFile` consults lanes **by name**. Mutation-proven: JSON present, `classifyFile` lines removed, the target file still `[unclassified]`.
+- **The first fix then looked right and was not:** `changedLanes` was **hardcoded** to `["product","trackedTooling"]`, so a lane wired into `classifyFile` was **classified but never enforced** — bucketed, never compared, and the run printed OK. **"The control case caught it, reading the code did not."**
+⇒ **Adding a lane is a THREE-PART change: policy JSON → `classifyFile` → `laneBuckets`.**
+★ **`docs` is deliberately NOT in `mixed`** — CLAUDE.md §8 requires product PRs to carry zero handoff changes, and folding it in would silently retire that rule. Verified: a handoff file makes `--mode mixed` FAIL with `[docs] handoff/CURRENT_STATE.md`.
+⚠ **GOTCHA:** `repo_boundary_policy.json` is TRACKED but sits under a gitignored directory, so plain `git add` refuses it — **use `git add -f`** (or `git add -u`). This silently aborted a commit attempt once: the `&&` chain short-circuited and only the push ran, leaving the branch at base with no commit.
+
+**★ Wave 2 design decisions — *"the why is the part that dies otherwise"*:** `"*"` and not `true` for the no-Origin CORS case (with no origin to reflect, `true` emits **no header at all** — byte-identical to a refusal, so the rule would have been unobservable and therefore untestable); **HSTS off**, because the Vercel rewrite is a pass-through and helmet 8.3.0's `max-age=31536000; includeSubDomains` would pin the apex **and every subdomain** client-side, unreversible by deploy; **CSP off** because it is **inert bytes on a JSON response** — no document is served from that service; a **`FORBIDDEN(path)` loop rather than only fixing two strings**, filesystem-only, *"because the failure it guards is itself a silent-skip failure — a guard that can skip cannot guard against skipping"*; the anon-key emit **inside `rateLimiter.check()`** because anywhere else is a **mirror of `resolveCaller`, and a mirror drifts while still looking right**.
+
+**★ CORS live-verify PASSED in production, and it resolves an open question rather than leaving it owed:** grades render on `www.lazytopper.com` and on the Vercel preview; **`.in` REDIRECTS to `.com`, so it never issues API calls under its own origin — CORS for `.in` is structurally moot.** The COOP console warnings observed are **not helmet** — the HAR shows `apis.google.com` and `fonts.gstatic.com`, Google's own OAuth infrastructure. Helmet's COOP does reach `/api/*` responses and survives the proxy, but **it is inert there: COOP governs browsing contexts and a JSON response has none.** No action.
+
+---
+
+### ⚠ UNCOMMITTED ARTEFACTS ON DISK THAT ARE NOT IN GIT
+
+- **D1's screenshots** — `C:\Users\Chetan\OneDrive\Desktop\diff\screenshots-D1-2026-07-29\`, 8 PNGs + 2 metadata JSON.
+- **The lane reports** — `report-{sec1rev,guard1,c2,d2,sec2}-*.md` and the source pack in the same directory. They are the only copies of several findings above.
+- **A `@rollup/rollup-win32-x64-msvc` binary** hand-dropped into a worktree's `node_modules` to make vitest run on Windows (`npm pack @rollup/rollup-win32-x64-msvc@4.59.0`, then copy `package.json` + the `.node` file into `<worktree>/node_modules/.pnpm/rollup@<v>/node_modules/@rollup/rollup-win32-x64-msvc/`). Untracked, inside `node_modules`, invisible to git. **Do NOT commit it.**
+- **The abandoned SEC-1 worktree** at `C:/Projects/LT-worktrees/wave3-sec1` — superseded, not rebased; **do not merge it.** Its value is the *proof its own fix was inert*, which is recorded above.
+
+---
+
 ## 2026-07-26 -- #538–#540 (LANE H): 1 FU tombstoned, 15 opened — the efficiency/pricing tier, the auth-email tier, and a guard-coverage tier (trunk `1013daa7`)
 
 ### RESOLVED — tombstoned
