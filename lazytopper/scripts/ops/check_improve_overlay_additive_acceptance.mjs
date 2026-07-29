@@ -259,12 +259,21 @@ const EVENT = process.env.GITHUB_EVENT_NAME || null;
 const PR_TARGET = process.env.GITHUB_BASE_REF || null;
 
 const FORBIDDEN = [
-  // ★ THE `lazytopper/` PREFIX IS LOAD-BEARING, AND IT WAS MISSING HERE.
-  // `changed.includes(f)` is exact array membership, and `git diff --name-only`
-  // emits repo-root-relative paths, so the unprefixed form could NEVER match.
-  // PROVEN BY A CONTROL CASE: a commit that really did append a line to the
-  // grader passed this gate 31/31 green. See the FORBIDDEN(path) loop below.
-  "lazytopper/server/routes/checkSolution.cjs", // the grader — the tutor never grades
+  // ★ THE `lazytopper/` PREFIX IS LOAD-BEARING. `changed.includes(f)` is exact array
+  // membership, and `git diff --name-only` emits repo-root-relative paths, so an
+  // unprefixed form could NEVER match. PROVEN BY A CONTROL CASE: a commit that really
+  // did append a line to the grader passed this gate 31/31 green. See the
+  // FORBIDDEN(path) loop below.
+  //
+  // ★★ checkSolution.cjs — blanket ban LIFTED (owner decision, Wave 3 PR-C1), in step
+  // with the identical entry in check_improve_convergence_acceptance.mjs. THE GRADER
+  // WAS BANNED IN TWO GATES, NOT ONE — lifting it in only one would have left the
+  // responseSchema lane (PR-C2) red here while looking unblocked there. Protection
+  // changes FORM, not existence (the #519 DesktopShell precedent): the replacement is
+  // `lazytopper/server/routes/checkSolution.test.cjs`, whose presence and wiring are
+  // asserted below. The invariant THIS gate cares about is unchanged and still holds:
+  // the tutor never grades — it reads graded work, it does not produce it.
+  // Do NOT re-add the blanket entry without a deliberate owner decision.
   // tutorRoundTrip.ts is NO LONGER file-level forbidden: the tutor-graded-context lane ADDS the
   // rich composer + buildReturnedWork BESIDE the thin composeReturnOpener. The real invariant (the
   // thin floor stays byte-identical) is enforced by the FLOOR/BESIDE source assertions in §3.
@@ -286,6 +295,18 @@ for (const f of FORBIDDEN) {
     "this entry can never match `git diff --name-only` output, so it guards NOTHING "
     + "— check the lazytopper/ prefix");
 }
+
+// ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED GRADER BAN (PR-C1). Asserted here too,
+// deliberately: this gate ran its own independent ban on the grader, so it needs its
+// own independent proof that something replaced it. A lift verified in only one of the
+// two gates would leave this one silently protecting nothing.
+check("GRADER-TESTS: the targeted grader tests exist (the replacement for the lifted blanket ban)",
+  existsSync(path.join(ROOT, "lazytopper/server/routes/checkSolution.test.cjs")),
+  "the blanket FORBIDDEN entry was lifted in favour of these tests — without them the grader is unguarded");
+check("GRADER-TESTS: they are WIRED into lazytopper test:matrix:all (a test nobody runs guards nothing)",
+  /"test:matrix:all":[^\n]*test:server:check-solution/
+    .test(readFileSync(path.join(ROOT, "lazytopper/package.json"), "utf8")),
+  "present but unwired — add `npm run test:server:check-solution` to test:matrix:all");
 
 function hasRef(ref) {
   try {
