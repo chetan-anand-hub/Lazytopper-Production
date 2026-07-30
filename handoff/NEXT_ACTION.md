@@ -5,6 +5,40 @@
 
 **All three client-side routes to free premium are closed IN PRODUCTION** — verified by reading the deployed rules and a fresh student's document in the Firebase Console, not by reading trunk. The grader's blanket ban is now 32 targeted tests plus a constrained output schema; the boundary guard can finally see the whole repo.
 
+### ★★ HARD GATE — `[FU-FOUNDING-FLAG-NOT-WIRED-TO-MONTHLY-INLINE]`. BLOCKS A BUSINESS ACTION.
+
+**★ DO NOT SET `FOUNDING_OFFER_OPEN = false` UNTIL THIS LANE HAS LANDED.**
+
+This is recorded here, and not only on the FU board, on the owner's ruling: it is the one
+open item that can make the live product contradict its own published pricing, and it is
+triggered by a **business** decision rather than by a code change — so it must be visible
+to whoever makes that decision, not only to whoever reads the board.
+
+Flipping `FOUNDING_OFFER_OPEN` to `false` does **not** repoint `MONTHLY_INLINE`, which is
+hard-bound to the founding rate in `lazytopper/src/config/pricing.ts` (it is a template
+literal over `PRICE_MONTHLY_FOUNDING_DISPLAY`, with no reference to the flag) and rendered by
+`PracticeLimitGate` ("Unlock unlimited practice for …") and `MockViewGate` ("Unlock
+unlimited mock tests for …"). The day the founding cohort is closed, those two gates keep
+quoting the founding monthly price while the pricing page quotes the list price — the
+product contradicting its own published packaging **at the moment of upgrade intent**,
+which is the exact defect PR-G2a existed to fix.
+
+**THE FIX:** `MONTHLY_INLINE` should **DERIVE** from `FOUNDING_OFFER_OPEN` rather than
+being hard-bound. The two gates then read the correct value with **no change to their own
+files** — they import nothing else from the module. It is still not a one-line change:
+⚠ **the doc comment on `MONTHLY_INLINE` claims "this one line is the entire switch" and
+that claim is false.** `pricing.guard.test.ts` pins the binding to the founding tier
+(`expect(MONTHLY_INLINE).toBe(...PRICE_MONTHLY_FOUNDING_INR...)` and
+`.not.toContain(String(PRICE_MONTHLY_LIST_INR))`), so the change reaches beyond
+`pricing.ts` and must correct that comment too. *(Checked: neither gate has a test file of
+its own, so `pricing.guard.test.ts` is the only pin.)* It is its own small lane, named
+**MONTHLY-INLINE**.
+
+Found by **AUTH-1 (#566)**, which correctly refused to widen its own scope. Harmless while
+the offer is open; fires exactly once, at the worst moment. Sits alongside
+`[FU-PRICING-FOUNDING-COHORT]` below — that one is the *closing mechanism*, this one is the
+*consequence of closing*; neither substitutes for the other.
+
 ### ★★ THE LANE THAT ALMOST FELL THROUGH TWICE — TAKE IT FIRST
 
 **`[FU-GUARD-1-A]` + `[FU-GUARD-1-B]` — ONE SMALL COMBINED LANE. Both HIGH. Both need `lazytopper/package.json`, which NO lane's allowlist covered — which is exactly how they slipped the first time.** They came back *inside* GUARD-1's report and went to the FU board rather than to this queue. They are named here so that cannot happen a second time.
