@@ -102,8 +102,77 @@ The model below predicts $0.156/day for one engaged student. Same order of magni
 |---|---|---|
 | Today | $4.68 | **17%** |
 | + quick-practice batching | $3.24 | 42% |
-| + `responseSchema` | $2.95 | 48% |
-| **+ grader thinking budget** | **$2.35** | **58%** ✓ |
+| + `responseSchema` | ~~$2.95~~ | ~~48%~~ **← CORRECTED 2026-07-29, see below** |
+| **+ grader thinking budget** | **$2.35** | **58%** ✓ **← now the TOP lever, on measured data** |
+
+### ⚠ CORRECTION 2026-07-29 — the `$2.95 / 48%` row is NOT attributable to `responseSchema`
+
+**`responseSchema` shipped as #559 and the saving above is not supportable.** The dominant
+parse-miss cause documented in the grader itself is **truncation at `maxOutputTokens`**, and
+**constrained decoding does not prevent truncation.** The change can only reduce the
+**shape-variance** share of parse misses. **That share is unquantified**, and it cannot be
+quantified today — see the metric note below. The struck row is left visible rather than deleted,
+because it was cited elsewhere as fact and a silently corrected number is harder to detect than a
+struck one. → `[FU-C2-TRUNCATION-VS-SHAPE-SPLIT]`.
+
+**★ IN THE SAME BREATH: THE QUALITY ARGUMENT STANDS, AND IT IS THE SOUND REASON #559 SHIPPED.**
+This correction is **not** a reason not to have shipped it. Constrained decoding means one output
+shape every time, so Mistake Intelligence stops being built on shape noise — and that argument is
+now **verified rather than argued**: the owner graded a real answer on production, then a **fully
+correct** answer specifically to exercise the null path, and got full marks with **no spurious
+mistake type**. A schema that forced `mistakeType` to a value would have made MI learn from noise;
+making it **nullable with no enum** is what prevented that.
+
+**⚠ AND NO BEFORE/AFTER CAN BE HONEST UNTIL A METRIC EXISTS.** `retryCount` counts `attempts > 1`
+**inside a single `callGemini`** (429 / mime / fallback only). The grader's parse-miss retry is a
+**second `callGemini` invocation**, so it emits two records each `attempts:1, retry:false`. **A
+before/after read will show no signal whatever happens.** → `[FU-C2-PARSE-MISS-NOT-COUNTED]`, a
+**prerequisite, not a nice-to-have.**
+
+### ★ FIRST MEASURED FIGURES — 2026-07-28, owner live-verify. n = 2 vision calls, ONE session.
+
+**These are the first MEASURED numbers in a document that is otherwise all estimates. Each carries
+its own date, n, and limit deliberately** — measured figures dropped in beside estimates decay into
+"settled" otherwise, which is the same failure class as every stale derived value this project
+keeps finding.
+
+Source: one owner curl of `GET /api/admin/token-telemetry` after the Wave 2 deploy.
+
+```
+vision    2 calls · prompt 4,932 · candidates 1,408 · thoughts 9,961 · 48,928 ms
+practice  2 calls · prompt 2,754 · candidates   250 · thoughts     0
+anonKey   client 0 / loopback 0   (across four SIGNED-IN calls)
+
+per call, derived:
+vision    prompt 2,466 · candidates 704 · thoughts 4,980 · 24.46 s   ~= $0.0150
+practice  prompt 1,377 · candidates 125 · thoughts     0             ~= $0.00073
+```
+
+**★ THINKING IS ~87% OF VISION OUTPUT TOKENS AND ~24.5 SECONDS PER GRADE.** Owner ruling: that
+makes **`[FU-EFF-THINKING-BUDGET]` both the largest cost lever AND a latency fix — it OUTRANKS
+`responseSchema`**, which was previously ranked above it. Rates confirmed from Google's pricing
+page: `gemini-2.5-flash` $0.30 input / $2.50 output, the header stating *"Output price (including
+thinking tokens)"*.
+
+Measured $0.0150/vision call against the $0.0130 estimate ⇒ **the model is ~15% pessimistic, not
+wrong.** It also **validates #537's billing-bucket decision with data**: the comment justifying
+moving detect-question out of `vision` estimated *"about $0.001 against ~$0.013 for a grade"*;
+measured, **$0.00073 vs $0.0150**. And `thoughts: 0` on practice **independently confirms
+detect-question really does run at `thinkingBudget: 0`.**
+
+**⚠ THIS IS NOT A DISTRIBUTION — DO NOT DERIVE A BUDGET FROM IT.** Owner ruling, verbatim:
+
+> Two calls from one session is one paper, one student, one difficulty band. Thinking tokens on a
+> grader should scale with how much working there is to follow, so the variance that matters is
+> exactly what a single session cannot show. A week of data, then **p90 — and p90 PER MARKS-BAND**,
+> since a 5-mark long answer and a 1-mark MCQ are not the same distribution. Grading genuinely
+> needs reasoning; the lever is to bound it, not remove it.
+
+⚠ **Counters are per-process and reset on redeploy**, so a "week" only accrues if nothing ships —
+capture a reading before each merge. ⚠ **The grading call sets no thinking cap at all**
+(`gradingGenConfig` in `handleCheckSolution`); that is where the measured ~4,980 thought-tokens and
+~24.5 s per vision grade are spent, and #558's tests now record the absence as **deliberate**, so a
+future budget is a conscious change rather than an accident.
 
 **₹599 is viable today and comfortable after three changes.** No price increase is required.
 A later reduction to ₹499 becomes possible — and a reduction is a marketing moment, whereas an

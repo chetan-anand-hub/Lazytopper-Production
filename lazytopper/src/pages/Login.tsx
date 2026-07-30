@@ -1,6 +1,7 @@
 import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import OfferStrip, { AfterTrialLine } from "../components/auth/OfferStrip";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 
@@ -1242,6 +1243,12 @@ export default function Login() {
               Mistake Intelligence evidence
             </div>
           </div>
+
+          {/* The after-trial line. "Free trial" reads to a parent as "a card gets
+              charged in seven days"; naming what happens next is what removes
+              that. It is rendered again inside the gate for <1024px, where this
+              whole panel is display:none — see AfterTrialLine. */}
+          <AfterTrialLine variant="panel" />
         </div>
 
         <div className="lt-login-loop" aria-label="LazyTopper product loop">
@@ -1501,6 +1508,12 @@ export default function Login() {
               Don't have an account? <Link to="/sign-up">Sign up</Link>
             </p>
           </div>
+
+          {/* What the student is actually joining, stated under the primary
+              action. Every figure reads from src/config/pricing.ts; the strip
+              never renders a remaining-seats count. */}
+          <OfferStrip />
+          <AfterTrialLine variant="mobile" />
 
           {/*
             Invisible reCAPTCHA host — always mounted (NOT inside the conditional
