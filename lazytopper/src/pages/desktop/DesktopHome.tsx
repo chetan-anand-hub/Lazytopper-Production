@@ -19,6 +19,7 @@ import {
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
+import FirstSession from "../../components/home/FirstSession";
 
 /**
  * DesktopHome — the Home cockpit at desktop width (and at /browse for a
@@ -484,6 +485,14 @@ export default function DesktopHome() {
             has no phone credential linked, has not dismissed it, and has
             RETURNED at least once. All four live inside the component. */}
         <LinkPhoneNudge />
+
+        {/* ── First session — the start card ─────────────────────
+            Renders ONLY for a signed-in uid whose graded-session history has
+            been READ and came back empty. Tri-state inside the component: it
+            stays silent while that read is in flight, so a returning student
+            mid-hydration is never greeted as new. Sits above "Start here"
+            because it IS the one next action; the hero grid stays the menu. */}
+        <FirstSession uid={user?.uid ?? null} />
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (
