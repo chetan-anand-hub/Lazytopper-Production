@@ -48,7 +48,7 @@ function lenientExtract(text) {
  *                 string is sent verbatim (use for unparseable text); an object is
  *                 JSON-stringified. The LAST entry repeats if more calls are made.
  */
-function buildRoute({ replies = [{}], stub = false } = {}) {
+function buildRoute({ replies = [{}], stub = false, depOverrides = {} } = {}) {
   const calls = [];
   let captured = null;
   const deps = {
@@ -66,6 +66,9 @@ function buildRoute({ replies = [{}], stub = false } = {}) {
     extractJsonObjectFromText: lenientExtract,
     buildGeminiImagePart: () => ({ inlineData: {} }),
     validateMentorImagePayload: () => ({ ok: true }),
+    // BATCH-1 (§7) needs an image part that CARRIES its base64, and a validator it
+    // can make fail. Every other suite passes no overrides and is unaffected.
+    ...depOverrides,
   };
   return { route: createCheckSolutionRoute(deps), calls, body: () => captured && captured.body,
     status: () => captured && captured.status };
@@ -729,4 +732,266 @@ test('§6.17 the schemas are deep-frozen — one request cannot mutate the next 
   assert.ok(Object.isFrozen(GRADE_RESPONSE_SCHEMA));
   assert.ok(Object.isFrozen(GRADE_RESPONSE_SCHEMA.properties.annotatedSteps.items.properties));
   assert.ok(Object.isFrozen(WORKSHEET_RESPONSE_SCHEMA.properties.results.items));
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §7 · BATCH-1 · PER-QUESTION ANSWER IMAGES IN THE BATCH GRADER
+   ★★ THE PATH UNDER TEST IS THE ONE FOUR LIVE SURFACES ALREADY USE. `gradeWorksheet`
+      → handleGradeWorksheet → gradeStructuredSet is the grade path for WORKSHEETS,
+      CHAPTER TESTS, FULL MOCKS *and* multi-question CHECK & IMPROVE
+      (DesktopCheckImprovePage calls gradeWorksheet directly). A regression here is a
+      regression in four shipped surfaces at once, which is why §7.1 — "no `uploads`
+      ⇒ byte-identical `contents`" — is the acceptance test for the whole change and
+      not a nicety.
+   ★ NOTHING IS STITCHED. Each answer photo is its OWN part immediately after its own
+      question's block. The model is never asked to FIND a question number inside a
+      document, so there is no locate step to get wrong.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const crypto = require('node:crypto');
+
+// An image part that CARRIES its payload, so a test can prove WHICH image landed
+// where. The shape mirrors the real `buildGeminiImagePart`.
+const REAL_SHAPE_IMAGE_PART = ({ mimeType, base64 }) => ({ inline_data: { mime_type: mimeType, data: base64 } });
+
+const buildImageRoute = (opts = {}) =>
+  buildRoute({ ...opts, depOverrides: { buildGeminiImagePart: REAL_SHAPE_IMAGE_PART, ...(opts.depOverrides || {}) } });
+
+const Q = (n, extra = {}) => ({ qNumber: n, marks: 1, questionText: 'Q' + n + ' text', ...extra });
+const UP = (n, data) => ({ qNumber: n, imageBase64: data || ('IMG' + n), imageMimeType: 'image/jpeg' });
+
+const WS_OK = (nums) => ({
+  results: nums.map((n) => ({ qNumber: n, annotatedSteps: [{ description: 's', studentWork: 'w', status: 'correct', marksAwarded: 1 }] })),
+  summary: 'ok',
+});
+
+const partsOf = (h) => h.calls[0].contents[0].parts;
+const isImage = (p) => Boolean(p && p.inline_data);
+const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+
+// ── §7.1 · THE ACCEPTANCE TEST ────────────────────────────────────────────────
+
+// The SHA-256 of `JSON.stringify(contents)` for a fixed no-uploads request, taken
+// from `checkSolution.cjs` AS IT STOOD ON TRUNK BEFORE BATCH-1. It is not a
+// decoration: it is the only assertion that can see a one-character drift in the
+// worksheet prompt, and a one-character drift there reaches worksheets, chapter
+// tests, full mocks and multi-question C&I simultaneously.
+//
+// ⚠ IF THIS GOES RED you have changed the prompt EVERY EXISTING SURFACE sends.
+// That may be intentional — but it must be intentional. Re-pin it only in a PR
+// whose title says it is changing the worksheet grading prompt.
+const NO_UPLOADS_CONTENTS_SHA256 = 'a7f85f477093976ecac3e9922e8e9ca8943fe310d4f6063ed34db9e85a75eb64';
+
+const PINNED_REQ = () => ({
+  worksheetId: 'ws-pin',
+  imageBase64: 'PINNEDBASE64',
+  imageMimeType: 'application/pdf',
+  subject: 'Maths',
+  questions: [
+    { qNumber: 1, marks: 3, questionText: 'Find the roots of x^2 - 2x - 8 = 0.', topicLabel: 'Quadratic Equations',
+      solutionSteps: ['Factorise [1]', 'Solve [1]', 'State both roots [1]'], finalAnswer: 'x = 4, x = -2' },
+    { qNumber: 2, marks: 1, questionText: 'Which of these is irrational?', section: 'A',
+      options: ['2', 'root 2'], answer: 'root 2' },
+  ],
+});
+
+test('§7.1 ★★ ACCEPTANCE — the batch path with NO `uploads` builds BYTE-IDENTICAL `contents`', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(PINNED_REQ(), {});
+  const sha = crypto.createHash('sha256').update(JSON.stringify(h.calls[0].contents)).digest('hex');
+  assert.equal(sha, NO_UPLOADS_CONTENTS_SHA256,
+    'the no-uploads worksheet prompt has changed — see the comment above this constant');
+});
+
+test('§7.2 an ABSENT `uploads` and an EMPTY `uploads: []` build the SAME contents', async () => {
+  // The empty array must NOT flip the branch: a client that always sends the key
+  // and sometimes has nothing to send is the likeliest real-world shape.
+  const a = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await a.route.handleGradeWorksheet(PINNED_REQ(), {});
+  const b = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await b.route.handleGradeWorksheet({ ...PINNED_REQ(), uploads: [] }, {});
+  assert.deepEqual(b.calls[0].contents, a.calls[0].contents);
+});
+
+test('§7.3 CONTROL — with no uploads the prompt still says LOCATE, and says nothing about per-question images', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1)]), {});
+  const text = textOf(h);
+  assert.ok(text.includes('locate that numbered answer in the PDF'), 'rule 1 must be unchanged');
+  assert.ok(text.includes("CANNOT confidently locate or read a question's answer in the upload"), 'rule 6 must be unchanged');
+  assert.ok(!text.includes('followed IMMEDIATELY by the image'), 'the batch wording must not leak into the PDF path');
+  assert.equal(partsOf(h).length, 2, 'one text part + one image part, exactly as before');
+});
+
+// ── §7.4–§7.7 · THE INTERLEAVE — nothing is stitched ──────────────────────────
+
+test("§7.4 ★ each image is its OWN part IMMEDIATELY after its own question's block", async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2, 3])] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1), Q(2), Q(3)]), uploads: [UP(1), UP(2), UP(3)] }, {});
+  const parts = partsOf(h);
+  // header, [Q1 block, img1], [Q2 block, img2], [Q3 block, img3], footer
+  assert.equal(parts.length, 8);
+  for (const n of [1, 2, 3]) {
+    const i = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q' + n + ' text'));
+    assert.ok(i > 0, 'Q' + n + ' block must be its own part');
+    assert.ok(isImage(parts[i + 1]), 'Q' + n + "'s image must be the VERY NEXT part");
+    assert.equal(parts[i + 1].inline_data.data, 'IMG' + n,
+      'Q' + n + ' must carry its OWN image — an off-by-one here IS the stitching bug this design exists to prevent');
+  }
+});
+
+test("§7.5 ★ a question with NO upload gets NO image — the next question's image never slides up to it", async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1), Q(2)]), uploads: [UP(2)] }, {});
+  const parts = partsOf(h);
+  const i1 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q1 text'));
+  assert.ok(!isImage(parts[i1 + 1]), 'Q1 photographed nothing, so nothing follows its block');
+  const i2 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q2 text'));
+  assert.equal(parts[i2 + 1].inline_data.data, 'IMG2');
+  assert.equal(parts.filter(isImage).length, 1, 'exactly one image was sent');
+});
+
+test('§7.6 the four batch prompt strings are present, and the LOCATE wording is gone', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet({ ...WORKSHEET_REQ([Q(1)]), uploads: [UP(1)] }, {});
+  const text = textOf(h);
+  assert.ok(text.includes("followed IMMEDIATELY by the image of the student's handwritten answer to THAT question"));
+  assert.ok(text.includes("using the image that immediately follows that question's block"));
+  assert.ok(text.includes('CANNOT confidently READ the image supplied for a question'));
+  assert.ok(text.includes('followed by exactly one image of that answer, in the order listed'));
+  assert.ok(!text.includes('locate that numbered answer in the PDF'),
+    'telling the model to LOCATE is exactly what this shape must not do');
+  assert.ok(!text.includes('CANNOT confidently locate or read'));
+});
+
+test('§7.7 N uploads still cost exactly ONE model call — this is a batch, not a fan-out', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2, 3, 4])] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1), Q(2), Q(3), Q(4)]), uploads: [UP(1), UP(2), UP(3), UP(4)] }, {});
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.body().results.length, 4);
+});
+
+// ── §7.8 · M2, REWRITTEN (owner ruling, 2026-07-31) ───────────────────────────
+
+test('§7.8 ★★ the result set is built from the SENT questions, never from what the model returned', async () => {
+  // ★ WHAT THIS PROTECTS, quoted from `gradeStructuredSet`:
+  //     const results = questions.map((q) =>
+  //       normaliseStructuredResult(q, byNumber.get(Number(q.qNumber)) || null),
+  //     );
+  // The output is built by mapping over the KNOWN set, so a qNumber the model
+  // invented lands in `byNumber` and is never read, and a question the model
+  // dropped still appears — as couldNotRead, never silently zeroed.
+  //
+  // ★★ THIS ASSERTION IS UNCONDITIONALLY TRUE TODAY, AND THAT IS THE POINT. It is
+  // not here to prove the property holds; it is here to FAIL WHEN SOMEONE REMOVES
+  // THE STRUCTURE THAT MAKES IT HOLD. Mutate the map DIRECTION — iterate
+  // `parsed.results` instead of `questions` — and this test goes red. A guarantee
+  // that holds structurally still needs a test.
+  const strayAndMissing = {
+    results: [
+      { qNumber: 1, annotatedSteps: [{ description: 's', studentWork: 'w', status: 'correct', marksAwarded: 1 }] },
+      { qNumber: 99, annotatedSteps: [{ description: 'hallucinated', studentWork: 'x', status: 'correct', marksAwarded: 1 }] },
+    ],
+    summary: 'ok',
+  };
+  const h = buildImageRoute({ replies: [strayAndMissing] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1), Q(2)]), uploads: [UP(1), UP(2)] }, {});
+  const nums = h.body().results.map((r) => Number(r.qNumber)).sort((a, b) => a - b);
+  assert.deepEqual(nums, [1, 2], 'exactly the SENT set — the stray 99 is absent and the dropped Q2 is present');
+  assert.equal(h.body().results.find((r) => Number(r.qNumber) === 2).couldNotRead, true,
+    'a question the model omitted is honestly pending, never a silent zero');
+});
+
+// ── §7.9 · INCLUSION IS BY EVIDENCE, NEVER BY TYPE ────────────────────────────
+
+test('§7.9 ★★ an OBJECTIVE question with a photo gets its image; a SUBJECTIVE one without a photo gets none', async () => {
+  // Batch inclusion answers ONE question — "is there written working saved for
+  // this question?" — and never "what type is it?". Nothing in the request path
+  // reads section/format/objective to decide what to attach, and this pins that:
+  // a Section-A MCQ the student showed working for is photographed and graded like
+  // anything else, and a subjective question with nothing saved is not.
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet({
+    ...WORKSHEET_REQ([
+      Q(1, { section: 'A', format: 'mcq', objective: true, options: ['a', 'b'], answer: 'b' }),
+      Q(2, { marks: 3 }),
+    ]),
+    uploads: [UP(1)],
+  }, {});
+  const parts = partsOf(h);
+  const i1 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q1 text'));
+  assert.equal(parts[i1 + 1].inline_data.data, 'IMG1', 'the objective question DID have working saved — it is in the batch');
+  const i2 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q2 text'));
+  assert.ok(!isImage(parts[i2 + 1]), 'the subjective question had nothing saved — no image, no fabrication');
+  assert.equal(h.body().results.length, 2, 'both questions are still GRADED — inclusion decides the IMAGE, not the grade');
+});
+
+// ── §7.10–§7.14 · THE REQUEST GUARDS ──────────────────────────────────────────
+
+test('§7.10 an upload for an UNKNOWN question number is dropped, never sent', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet({ ...WORKSHEET_REQ([Q(1)]), uploads: [UP(1), UP(7)] }, {});
+  const images = partsOf(h).filter(isImage);
+  assert.equal(images.length, 1);
+  assert.equal(images[0].inline_data.data, 'IMG1');
+});
+
+test('§7.11 a DUPLICATE qNumber sends exactly one image (the first), never two', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1)]), uploads: [UP(1, 'FIRST'), UP(1, 'SECOND')] }, {});
+  const images = partsOf(h).filter(isImage);
+  assert.equal(images.length, 1, 'two images after one question block would break the position-IS-the-pairing invariant');
+  assert.equal(images[0].inline_data.data, 'FIRST');
+});
+
+test('§7.12 an uploads-ONLY request is accepted; a request with NEITHER upload form is refused', async () => {
+  const ok = buildImageRoute({ replies: [WS_OK([1])] });
+  await ok.route.handleGradeWorksheet(
+    { worksheetId: 'w', subject: 'Maths', questions: [Q(1)], uploads: [UP(1)] }, {});
+  assert.equal(ok.body().ok, true);
+  assert.equal(ok.calls.length, 1);
+
+  const none = buildImageRoute({ replies: [WS_OK([1])] });
+  await none.route.handleGradeWorksheet({ worksheetId: 'w', subject: 'Maths', questions: [Q(1)] }, {});
+  assert.equal(none.status(), 400);
+  assert.equal(none.calls.length, 0, 'a request with nothing to grade must never reach the model');
+});
+
+test('§7.13 more than 12 answer photos is REFUSED with a clear message, never silently truncated', async () => {
+  const many = Array.from({ length: 13 }, (_, i) => i + 1);
+  const h = buildImageRoute({ replies: [WS_OK(many)] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ(many.map((n) => Q(n))), uploads: many.map((n) => UP(n)) }, {});
+  assert.equal(h.status(), 400);
+  assert.match(h.body().error, /at most 12/);
+  assert.equal(h.calls.length, 0, 'a partial grade presented as complete is the failure mode this prevents');
+  // CONTROL: exactly 12 is accepted, so the cap is a boundary and not a blanket ban.
+  const at = buildImageRoute({ replies: [WS_OK(many.slice(0, 12))] });
+  await at.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ(many.slice(0, 12).map((n) => Q(n))), uploads: many.slice(0, 12).map((n) => UP(n)) }, {});
+  assert.equal(at.body().ok, true);
+});
+
+test('§7.14 EVERY per-question upload goes through the image validator — one bad photo refuses the batch', async () => {
+  const seen = [];
+  const h = buildImageRoute({
+    replies: [WS_OK([1, 2])],
+    depOverrides: {
+      validateMentorImagePayload: (p) => {
+        seen.push(p.imageBase64);
+        return p.imageBase64 === 'IMG2' ? { ok: false, error: 'Image is too large. Max size is 3 MB.' } : { ok: true };
+      },
+    },
+  });
+  await h.route.handleGradeWorksheet(
+    { worksheetId: 'w', subject: 'Maths', questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)] }, {});
+  assert.equal(h.status(), 400);
+  assert.equal(h.body().error, 'Image is too large. Max size is 3 MB.');
+  assert.deepEqual(seen, ['IMG1', 'IMG2'], 'each photo is validated in turn — not just the first');
+  assert.equal(h.calls.length, 0);
 });
