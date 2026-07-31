@@ -12,6 +12,385 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-07-31 — Post-Wave-4 (#566–#575, ten PRs). Trunk `fcdbfa65`.
+
+> **★ PROVENANCE FOR THIS SECTION.** Bodies below are authored from the controller's state file and
+> the subagents' returned reports, which the controller captured verbatim. **Nothing here is
+> reconstructed from an FU id alone** — where only an id was held, it says so. **Standing Rule 3 is
+> observed:** dated sections below are not rewritten; closures and corrections to older entries are
+> recorded **here**.
+
+### ★★ THE WAVE'S SUBJECT — four guards that reported success while inspecting nothing
+
+**Read these four as ONE finding, not four incidents.** They are the same defect class at four
+layers, and the generalisation is GUARD-1's own doctrine turned back on the tooling that enforces it.
+
+1. **`check:mojibake`** framed its repo root at `lazytopper/` — **`handoff/` was invisible, and the
+   gate was green for months over 616 corrupt lines.** (#570 + #571)
+2. **`scope_guard_blindspot_acceptance` + `repo_boundary_acceptance`** existed and passed, and **CI
+   ran neither** — grepping a 4,076-line run for their filenames returned **0 matches**. (#568)
+3. **`react-hooks/rules-of-hooks`** reported **"0 violations" while running nothing** — the rule that
+   exists precisely to catch React #310, which is the live crash this wave shipped.
+   (`[FU-ESLINT-UNRUNNABLE-IN-WORKTREE]`)
+4. **The GitHub `trunk-protection` ruleset** was **Active**, *"Block force pushes"* **enabled**, and
+   correctly targeted — and **its Bypass list exempted the only person who could trigger it.**
+
+> ★★ **A check that cannot be shown to have looked, and to be capable of failing, is not coverage —
+> it is the APPEARANCE of coverage, which is worse, because it stops anyone looking.**
+> ★★ **A PROTECTION WITH A BYPASS IS ONLY AS STRONG AS ITS BYPASS LIST.** *"Enabled"* describes the
+> rule; it says nothing about **who it applies to.** **Read the exemptions before the setting.**
+
+---
+
+### `[FU-SQUASH-CARRIES-REBASED-BASE]` — NEW, HIGH. A squash re-carried a force-pushed-away commit, and no gate saw it.
+
+**What happened.** AUTH-1 was rebased onto `937c88f` (#564) while that was trunk. A force push then
+reverted trunk to `25e995a7`, dropping #564 and #565. When AUTH-1 was **squash**-merged as **#566**,
+its squash diff was computed against the **reverted** base — so it landed **13 files: its own 4
+product files plus all 9 of #564's handoff files (+2053/−6).**
+
+**Verified, not inferred:** `git show --stat 937c88f8` lists nine `handoff/` paths;
+`git diff --stat 937c88f8 <trunk> -- handoff/` differs in only three files, each accounted for
+(#570's mojibake re-encode in `CURRENT_STATE.md` and `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; #567's
++34/−0 hard gate in `NEXT_ACTION.md`). ⇒ **every line of #564 is on trunk.**
+
+> ★★ **THE RULE: a squash merge's diff is computed against the base at MERGE time, not against the
+> base the branch was built on.** Rewrite the base under a rebased branch and the squash will
+> **silently re-carry everything the rewrite removed.** **Here it was a repair. It could just as
+> easily have restored a revert, or re-landed a reverted security hole.**
+
+**And it breached a rule invisibly.** CLAUDE.md §8 requires that *"product PRs must contain zero
+handoff doc changes."* **#566 breached it and nothing caught it** — `scope:guard` reads the
+**working tree**, where AUTH-1 correctly saw and reported four files. ★ **The guard was right about
+what it inspected and blind to what would ship.** *(A fifth instance of this wave's subject, in the
+same shape.)*
+
+**ACTION:** after any force push or base rewrite, **audit the file list of the NEXT squash merge
+against what that PR claims to change** — `gh pr view <n> --json files` compared to the lane's
+allowlist. **Unassigned.** ⚠ A gate for this would need to compare the merge-time squash set against
+the PR's own declared scope, which nothing currently does.
+
+### `[FU-NO-MERGE-BASE-FILELIST-RECONCILE]` — NEW, HIGH. Nothing reconciles what a PR CLAIMS to change with what it WILL LAND.
+
+**This is the gate `[FU-SQUASH-CARRIES-REBASED-BASE]` needs, recorded as a follow-up rather than a lane.**
+
+Every existing scope check inspects either the **working tree** (`scope:guard`) or a `base...HEAD`
+commit range that assumes the base is stable. **Neither answers the question that actually matters at
+merge time: "what will this squash put on trunk?"** #566 declared and gated four files and landed
+thirteen, and **no gate in this repo could have noticed.**
+
+> ★ **The owner's framing, and it is the sharpest description of the class: the other four instances
+> this wave were guards that LOOKED AT NOTHING. This one LOOKED AT THE WRONG THING, CORRECTLY.**
+
+**The data already exists on both sides and nothing joins them:**
+```
+gh pr view <n> --json files                  <- what the PR declares
+git diff --name-only <merge-base>..<head>    <- what the squash will actually land
+```
+⇒ **reconcile the two before merge, and fail on any path present in the second but absent from the
+first.** ★ **Cheap, and it needs no new information** — only a comparison nobody is making.
+
+⚠ **Scope note for whoever takes it:** it must run against the **merge base**, not the branch's
+original base, because those two differ **precisely when it matters** — after a force push, a reset,
+or a base rewrite under a rebased branch. **Unassigned.**
+
+### `[FU-SUBAGENT-REPORT-TO-DISK-BEFORE-RETURN]` — NEW, HIGH (process). A return message is the only copy.
+
+**This wave's subagents were blocked from writing report files to disk**, so each lane's report
+existed **only** as a return message the controller captured verbatim. ⇒ **a lost or truncated relay
+is a lost report**, with no second copy anywhere.
+
+★ **This is not hypothetical.** Wave 3's **EV-1 lane has no report at all** — its only surviving
+record is `handoff/WAVE_STATE_WAVE3_ARCHIVE.md`. The same wave saw two agents at ~4–7% remaining
+context **each mislabel their own PR number**, which is exactly the condition under which a return
+message is least reliable and a written artefact matters most.
+
+> ★ **RECOMMENDATION for the next controller, to be written into every dispatch file: require every
+> subagent to write its full report to `C:\Users\Chetan\OneDrive\Desktop\diff\` as its FIRST action
+> AFTER its gates pass and BEFORE composing its return message.**
+> **Report first, then summarise.** A summary is a lossy derivative of a report; producing the
+> derivative first and the original never is the wrong order — **and it is the order that low
+> context forces**, which is why it has to be an instruction rather than a habit.
+
+⚠ **Verify the harness actually permits the write before relying on it** — the block was real in
+Wave 3 and the correction was issued mid-flight. If it is still blocked, the fallback is the
+subagent's scratchpad **with the absolute path returned in the report.** **Unassigned.**
+
+### `[FU-TRIAL-DAYS-LOST-TO-P0]` — NEW, MEDIUM. The repair restores the flag but not the entitlement.
+
+#574's `repairInterruptedTrial()` re-derives the trial window from the **original, server-pinned**
+`trialStartDate` — **by design, because moving it would break the immutability SEC-2 exists to
+enforce.** ⇒ **a student wrongly on `free` for two days gets five days of trial, not seven.**
+
+> ★★ **That is correct behaviour for the fix and wrong for the student, and the two are not the same
+> thing. A fix that restores the flag but not the entitlement is a partial fix that looks total —
+> the repair reports success while the student is quietly short of days, and NOBODY WOULD THINK TO
+> LOOK.**
+
+**Handled for now:** the owner reset the affected handful manually in the Firebase Console. **No
+code.** ⚠ **At volume this needs a script, and that script MUST go through a SERVER/ADMIN path,
+never a client one** — a manual Console reset is an Admin SDK write that bypasses rules;
+`trialStartImmutable()` denies the client equivalent, and reopening that would undo SEC-2.
+
+### `[FU-ESLINT-UNRUNNABLE-IN-WORKTREE]` — NEW, HIGH. The lint rule that would have caught #575 protects nothing.
+
+`npx eslint src` **dies with a module-resolution error in a fresh worktree**, so
+**`react-hooks/rules-of-hooks` reports "0 violations" while running nothing.** That is the rule whose
+entire purpose is catching a hook after an early return — **exactly the defect that shipped as the
+live mobile crash (#575), introduced by #554 and undetected for a full release cycle.**
+
+★ **Proven by CONTROL, not by quoting the clean result:** the subagent mutated the file so a real
+violation existed and the linter still reported zero. ⇒ **zero protection today, in the repo's fresh
+worktrees — which is where every lane in this operating model does its work.**
+
+**Unassigned. This is the highest-value item on the guard backlog**, because the class it covers has
+already cost a production outage once.
+
+### `[FU-DEV-BROWSER-CANNOT-REPRO-AUTH-TIMING]` — NEW, MEDIUM. The dev app cannot produce the failing order.
+
+`/browse` is a **lazy route**, and in the dev server auth resolves **before** that chunk mounts — so
+`MobileAccountMenu` never renders with `user === null` and **React #310 cannot be reproduced
+locally.** In production, Firebase's IndexedDB restore is **slower than the chunk**, which is the
+entire bug.
+
+★ **Consequence, stated rather than papered over:** #575's "before" screenshot **does not show the
+error page**, and the subagent said so plainly rather than letting a picture stand in for proof.
+The decisive evidence is the vitest harness plus mutation M1, ★ **whose two surviving green tests
+are the CONTROLS** (clean state; user present at first render), proving the suite is not green for
+the wrong reason.
+
+⇒ **Any auth-timing defect must be reproduced in a harness, never in the dev browser.** Unassigned.
+
+### `[FU-RETENTION-ALREADY-MINIMAL]` — NEW, RESOLVED AS A QUESTION. No deletion policy is owed.
+
+**The question asked was "are we keeping too much?" The answer is "we are keeping the right things,
+and losing one the student wanted."**
+
+- **No answer image is persisted anywhere.** Images travel as **base64 in the request body** and are
+  **discarded**. Nothing writes them to Storage or Firestore.
+- Firestore holds only `SessionRecord` **summaries** — four-type breakdown, section breakdown, topic
+  keys, focus aggregates — **which is exactly the scorecard the product needs.**
+- The graded-sheet artefact is rebuilt from a **local** cache and is **already ephemeral**.
+- ⇒ **NO DELETION POLICY IS NEEDED. Do not write a lane for one.**
+
+> ★★ **THE GAP RUNS THE OTHER WAY: the download DISAPPEARS when the local cache is evicted, so a
+> student loses their graded sheet WITHOUT EVER CHOOSING TO.** ⇒ **the actionable fix is to OFFER
+> THE PDF AT GRADING TIME**, rather than depending on a cache that will not survive.
+
+★ **And "last 7 days" was never retention.** `getActivitySummary` computes
+`cutoff = Date.now() - sinceDays * DAY_MS` **at READ time** — a **display window**. **Records stay;
+the query narrows.** ⇒ **a student promoted from trial to premium needs NOTHING done**, and widening
+the window is a display change, not a data recovery. *(Losing that distinction would have produced a
+migration lane that never needed to exist.)* The only TTLs in the repo are a 6-hour exam-date cache
+and a 5-minute QR upload slot — both operational, neither touching student data.
+
+### `[FU-RETENTION-UNBOUNDED-UNBUDGETED]` — NEW, COST. Read volume, not stored size.
+
+Nothing is ever deleted, so the corpus grows monotonically. ⚠ **CORRECTION TO AN EARLIER FRAMING:
+storage is NOT the driver** — per `[FU-RETENTION-ALREADY-MINIMAL]`, Firestore holds **text summaries
+only**, so stored bytes stay small. **The unmodelled cost is READ VOLUME at scale**: Firestore
+charges per document read, and at ~1,000 students across a board year of daily attempts the read
+counts are real money that **nobody has modelled.**
+
+⇒ **Belongs in `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md`, NOT a code lane.** Unassigned.
+
+### `[FU-NO-DELETION-OR-EXPORT-PATH]` — NEW, LEGAL, PRIORITY ONE.
+
+**There is no account deletion path and no data export path.** For a **minor-user product** this is a
+**DPDP Act** question, and it is already priority one on the external audit brief.
+
+★ **Note the connection to `[FU-RETENTION-ALREADY-MINIMAL]`, because it cuts both ways: minimal
+retention LOWERS the deletion exposure and does NOTHING for export.** And *"offer the PDF at grading
+time"* is **the nearest thing to an export path the product would have** — which makes it a legal
+item as well as a UX one. Unassigned.
+
+### `[FU-AUTH-NAME-PROMPT]` — NEW, MEDIUM. Deferred by #569, and the absence is pinned.
+
+AUTH-2's name prompt was **deliberately deferred**: `AuthContextType` exposes **no `displayName`
+write path**, and the sole `updateProfile` call sits inside `signUpWithEmailPassword`. Adding one
+adds a context key, and `AuthContext.passwordReset.test.tsx` **pins the context shape by exact
+equality — so it goes RED on an ADDITION**, and roughly 20 `vi.mock` factories would need updating.
+
+★ **The absence is pinned by two tests, so this is a recorded decision rather than a silent gap.**
+Its natural home is the `NAME+LINK` lane, which is specced and not started.
+
+### `[FU-MOBILE-WELCOME-BACK-FIRST-SESSION]` — NEW, LOW. Copy contradiction on one viewport.
+
+`MobileHome` greets a zero-attempt student **"Welcome back"** directly above a card headed
+**"FIRST SESSION"** — both visible in one viewport. It was inside #569's allowlist, but the copy is
+unscoped and existing tests assert on it, so it was **left alone and reported** rather than changed
+opportunistically. Unassigned.
+
+### `[FU-SHELL-GREETING-SMALL-HOURS]` — NEW, LOW. Honest but blunt, and pre-existing.
+
+`greetingFor(new Date().getHours())` resolves `<12` morning / `<17` afternoon / else evening, so **a
+2am student is greeted "Good morning."** #573 moved the function **verbatim and unchanged** and did
+not alter the behaviour. Open only if 00:00–04:00 should read differently. Unassigned.
+
+### `[FU-AUTH2FU-LINKPHONENUDGE-ALLOWLIST]` — NEW. A declared deviation, and a copy collision with a live guard.
+
+#573 changed one line in `lazytopper/src/components/auth/LinkPhoneNudge.tsx`, **which was not on its
+allowlist**, because the §5 card-copy ruling lived only there. **It flagged the deviation for
+explicit confirmation rather than absorbing it**; revert is a single hunk.
+
+★ **The substantive half is a doctrine collision the owner still owes a ruling on.** §5's literal
+sentence ends *"— same account, same progress."* Lane F has a **live doctrine guard**:
+`expect(el.textContent).not.toMatch(/progress/i)` on that card. ⇒ **restoring the literal wording
+means DELETING that guard.** #573 **kept the guard** and closed the sentence with the owner's own
+phrase from the modal sentence in the same ruling: *"— same account, everything you've done."*
+
+> ★ **It did not silently delete a guard to make a copy string fit — which is the move that would
+> have passed unnoticed.** ⇒ **Ruling owed: accept the substitution, or delete the Lane F guard.**
+
+### `[FU-MOBILE-SIGNED-IN-PILL-REDUNDANT]` — ✅ CLOSED by #573.
+
+`MobileHome` rendered a plain **"Signed in"** pill immediately left of the account avatar — the exact
+redundancy the desktop ruling had removed. **Only that branch was deleted**; `Trial active`,
+`Premium`, `Trial expired` and the signed-out `Start free` are untouched, **because those carry
+information the avatar does not.** *(The redundancy was the defect, not the component.)* Removed with
+three controls, including a positive control proving the slot still shows `Trial active`.
+
+### `[FU-FIRSTSESSION-ACT-WARNINGS]` — NEW, LOW. Noise introduced into someone else's suite.
+
+CI stderr carries three `An update to FirstSession inside a test was not wrapped in act(...)`
+warnings, sourced from the **pre-existing `MobileHome.test.tsx`** — noise #569 introduced into a
+suite it did not own. **No gate is affected.** Self-reported, unprompted. Unassigned.
+
+### BATCH-1's findings — recorded because the lane is BLOCKED and re-deriving them costs a whole lane
+
+**`[FU-BATCH1-BATCH-PATH-BLAST-RADIUS]` — HIGH.** The spec attached its blast-radius constraint to
+the **wrong path**. It protected *"the existing SINGLE-IMAGE worksheet path"* — a path the change
+does not touch. **Verified:** `DesktopCheckImprovePage.tsx` calls `gradeWorksheet` **directly** for
+multi-question C&I, so **worksheets, chapter tests, full mocks AND multi-question C&I — four live
+surfaces — all route through the BATCH path, the path being edited.** ⇒ the load-bearing guard is
+**"batch path with no `uploads` present builds byte-identical `contents`."**
+★ *This SHARPENS the constraint rather than softening it.*
+
+**`[FU-BATCH1-M2-STRUCTURAL]` — HIGH.** Mutation 2 **cannot go red as written**, because the
+assertion is already unconditionally true: `gradeStructuredSet` ends by mapping over the **SENT**
+set, so a model-returned `qNumber` that was never sent lands in the lookup map and **is never read.**
+> ★ **The guarantee lives in the map DIRECTION, not in a pairing check.** A test feeding a stray
+> `qNumber` passes today **and against almost any pairing mutation.**
+⇒ either mutate the direction (iterate the parsed results instead of the questions), **or drop M2 and
+state the property is structural, quoting the code.** *Correct assertion, wrong stated reason —
+"never trust the pairing" implies a runtime check that neither exists nor is needed.*
+
+**`[FU-BATCH1-DETECT-THIRD-IMAGE-SITE]` — MEDIUM.** There are **three** image call sites, not two:
+single-image grade, **single-image DETECT (the one the brief missed)**, and the batch call. A fourth
+lives in `mentorResponseBuilder.cjs`, out of lane.
+
+**Also established, so nobody re-derives it:** **ZERO schemas need extending** — the change is
+**request-only** (`contents[].parts`), every response shape is untouched, so `WORKSHEET_RESPONSE_
+SCHEMA` stays byte-identical and the C2 `responseSchema` rule is not engaged. ★ **Do not tighten
+`qNumber`: a schema cannot express set membership.** And **the recording path needs no change** —
+`buildQuickPracticeSessionRecord`, `quickPracticeCode` and `qpTopicToken` already exist, so the
+wrapper can follow `chapterTestGradeService` exactly.
+
+⚠ **The lane wrote nothing, gated nothing and removed its worktree.** ★ **Correct discipline for a
+blocked lane: no half-built diff left for someone to find and trust.**
+
+---
+
+### CLOSURES AND CORRECTIONS TO EARLIER ENTRIES
+
+- **`[FU-GUARD-1-A]` — ✅ CLOSED by #568.** `repo_boundary_acceptance.mjs` enumerates from the git
+  root and imports the **real** `classifyFile`. ★ **The stale private copy was missing FOUR lanes,
+  not the two the spec named** (`apiServer`, `docs`, **and `firestore` + `repoRoot`, added by
+  GUARD-1 itself**) — and ★ **the two defects were far worse together than stated: with enumeration
+  fixed, the stale copy leaves 158 tracked files unclassified.** *The blind spot did not merely hide
+  the stale copy — it hid its magnitude.*
+- **`[FU-GUARD-1-B]` — ✅ CLOSED by #568, and closed the way it was required to be closed.** The CI
+  log now carries `> node scripts/ops/scope_guard_blindspot_acceptance.mjs` /
+  `PASSED (6/6)` and `REPO_BOUNDARY_SUBJECT ... tracked=1715 outside_anchor=334`. **#560's equivalent
+  grep returned zero.** ★ **The counter names its subject — 334 files it previously could not see** —
+  which is *"a guard's output must name its subject"* satisfied in the log itself. ★ **Linux was
+  verified by EXECUTION** (first run of the temp-git-repo suite on the ubuntu runner), not argued
+  away.
+- **`[FU-MOJIBAKE-GATE-CWD-BLIND-SPOT]` — ✅ CLOSED by #571.** The gate now frames at the git root:
+  `tracked=1717 scanned=1456`. It **ENFORCES** on product trees and every other tracked tree **by
+  default** and **reports-without-failing** on `handoff/`.
+- **`[FU-MOJIBAKE-SPECIMEN-LINES]` — ✅ RESOLVED BY SCOPING. Both proposed options REJECTED.**
+  The plan assumed `616 → 0`; **the true floor is 8**, so a hard root-framed gate would be **red on a
+  correct repo.** ❌ *Escaped codepoints* — *"preserves the INFORMATION and destroys the LESSON;
+  someone reading the FU needs to SEE what the corruption looks like to recognise it in the wild."*
+  ❌ *A gate-honoured pragma* — *"a file allowlist with better manners; the next person adds one to
+  silence a real hit."* ❌ *A file allowlist* — never proposed, correctly.
+  > ★★ **THE RULING, and the reasoning IS the specification: the gate was asking the wrong question.**
+  > Mojibake is a **DEFECT** in product text and a legitimate **SUBJECT** in documentation about
+  > mojibake. **A gate that cannot tell those apart is not detecting a bug — it is banning a
+  > character.** *"The gate's job is 'no mojibake reaches a student', not 'no such byte exists in the
+  > repository'."*
+  ★ **NOT softening:** the gate **still SEES `handoff/`** and would still report if 616 lines
+  reappeared. ★★ **The COUNT is what makes it monitoring rather than exemption** — `MOJIBAKE_SCOPE`
+  and `MOJIBAKE_REPORT_ONLY` print on **every** run including a clean one, enforced by an assertion,
+  *because a silent skip is indistinguishable from a blind spot.*
+  ⚠ **DO NOT "TIDY" THE RESIDUAL 8 AND DO NOT RE-ENFORCE `handoff/`.**
+- **`[FU-HANDOFF-MOJIBAKE-LEGACY]` — ✅ ABSORBED into the ruling above.** ★ **The repo already held
+  this doctrine and nobody had connected it:** that entry already said of its own hit — *"a
+  **deliberate** mojibake example inside a lesson about mojibake — leave it."*
+- **`[FU-GUARD-3-TOOLINGDOCS-MODE]` — ✅ CLOSED BY AVOIDANCE.** GUARD-3/PR-1 was `trackedTooling` +
+  `docs` and no policy mode covered the pair. Ruled: **split the `CLAUDE.md` hunk into its own docs
+  PR (#572)** rather than invent a `toolingDocs` mode.
+  > ★ **A mode invented to let one PR pass its own guard is a bypass with a nicer name.**
+  > ★★ **And the fact that GUARD-3's PR could not pass GUARD-3's own new guard is THE GUARD WORKING.**
+- **`[FU-GUARD-3-REPOBOUNDARY-ROOT-ENUM]` and `[FU-GUARD-3-CLASSIFYFILE-DUPLICATE]` — ✅ WITHDRAWN**,
+  both fixed by #568.
+- **`[FU-GUARD-2-WORKFLOW-COMMENT-STALE]` — PARTIALLY CLOSED.** #572 corrected root `CLAUDE.md`
+  (**5 suites → 6**; the sixth is `aiTierContentIntegrityGuard`; true count **190 tests / 28
+  sub-suites / 0 skipped**, read from the run). ⚠ **`quality-gate.yml`'s comment still says "5
+  suites, 175/175"** and remains open as `[FU-GUARD-3-CI-COMMENT-STALE]`.
+  > ★★ **The artefact was the CONTRADICTION, not the number: `CLAUDE.md` contradicted itself fifteen
+  > lines apart**, and **the correct line was already documenting its own past staleness** while the
+  > stale line sat above it. The *"count GROWS / do NOT hardcode"* warning was kept **byte-identical**
+  > — the warning is the durable part, and the contradiction is proof of why it exists.
+- **`[FU-FOUNDING-FLAG-NOT-WIRED-TO-MONTHLY-INLINE]` — STILL OPEN, STILL A HARD GATE.** Its
+  authoritative body is in `NEXT_ACTION.md` (landed as #567) and is **deliberately not duplicated
+  here.** ⚠ **Do NOT set `FOUNDING_OFFER_OPEN = false` until the MONTHLY-INLINE lane has landed.**
+  ★ **A second, independent way it fires was found while writing it:** `pricing.ts`'s own doc comment
+  on `MONTHLY_INLINE` asserts *"this one line is the entire switch"*, and **that is false** —
+  `pricing.guard.test.ts` pins the binding, so the one-line change goes red. **An incorrect in-code
+  instruction, on the very constant, read at exactly the moment someone is closing the cohort under
+  time pressure.**
+- **`[FU-DEPLOY-FROM-STALE-CHECKOUT]` — CARRIED, CONFIRMED, and now joined by a sibling.** Its body is
+  in the Wave 3 section and is not duplicated. ★ **The two-word difference between `"skipping
+  upload"` and `"uploading rules"` is the whole signal** — *"skipping upload" on a file you just
+  changed is evidence of the opposite of success.* Before any deploy: `git pull`, **grep the local
+  file for the expected new content**, then verify in the Firebase Console afterwards.
+  ⚠ **The sibling is this wave's force push:** the same shared checkout, the same class of confident
+  wrong result, one layer up. **NEVER READ OR PUSH FROM `C:\Projects\Lazytopper-Production`.**
+- **`[FU-GUARD-1-C]` (agent3_uiux_guard wired nowhere), `[FU-GUARD-3-POLICY-MODES-UNASSERTED]`
+  (`infra` and `apiServer` asserted by nothing), `[FU-GUARD-3-MOJIBAKE-REGEX-DUP]`
+  (`mojibake_acceptance.mjs` duplicates the checker's regex and the two can diverge silently),
+  `[FU-GUARD-3-CWD-FRAMED-GATES]` (9 gates framed on `process.cwd()`, correct only because
+  `pnpm --filter` sets it — latent, not active), `[FU-GUARD-3-MOJIBAKE-CLEANER-FRAME]`
+  (`ops/mojibake_cleaner.mjs` cannot see `handoff/`, so a "0 fixed" result from it is a FALSE zero),
+  `[FU-GUARD-2-TOPOLICYFRAME-COPY]`, `[FU-GUARD-2-PKGJSON-CLASSIFY-NONDETERMINISM]`,
+  `[FU-GUARD-2-ROOT-GITIGNORE-UNCHECKED]` (the boundary suite still reads only
+  `lazytopper/.gitignore` — ★ *the same cwd blind spot, one layer down, inside the suite built to
+  catch it*), `[FU-GUARD-2-MATRIX-CHAIN-MASKS-DOWNSTREAM]` (the two new suites sit in an `&&` chain
+  where one red guard masks ~19 downstream suites)** — **ALL STILL LIVE AND UNASSIGNED.** Bodies as
+  previously recorded; none is reconstructed here.
+
+---
+
+### ★ TWO METHOD RULES THIS WAVE ADDED TO THIS BOARD
+
+- ★★ **A CORRECT OUTCOME REACHED BY A FALSE PREMISE STILL POISONS THE RECORD.** Twice: the "dead"
+  Home search box **was not dead** (it opened a working CommandPalette — the ruling survived on the
+  better ground the subagent supplied itself, that the palette **returns no topic, chapter or
+  question**, so the placeholder *"Search topics, chapters, questions…"* **is a control that lies
+  about what it returns**); and the P0 chain's link 2 named `trialStartMs` when the sentinel never
+  reaches it, **so a fix written to the brief's line would have gone in the wrong file.**
+  ⇒ **the wrong reason is what a later lane inherits.**
+- ★★ **A CONTROLLER AMPLIFIES.** A subagent's minor, explicitly out-of-allowlist side finding became
+  the headline **and** a mutation requirement that would have broken a **working** metric. **A
+  finding the controller has restated is harder to reject than one reported raw.** ⇒ **pass findings
+  through with provenance intact** — *"the subagent reports X"* is not the claim *"X"* — **and when
+  one is retracted, check whether the amplified version reached the repo, the state file, or a
+  dispatched instruction.** *(Checked here: it reached none of them.)*
+
+---
+
 ## 2026-07-29 — Post-Wave-3 (#557–#563, four lanes). Trunk `25e995a7`.
 
 > **★ PROVENANCE WARNING FOR THIS WHOLE SECTION.** The harness blocked **every** subagent this wave from writing report files to disk. Each lane's report in `C:\Users\Chetan\OneDrive\Desktop\diff\` was **captured verbatim by the controller from the subagent's return message**. **EV-1's lane has no report at all** — `handoff/WAVE_STATE_WAVE3_ARCHIVE.md` is its only record, and it is committed with this handoff. ⚠ **It is committed under the ARCHIVE name deliberately.** The controller's live state file is `handoff/WAVE_STATE.md`, which is **untracked scratch memory, now holding WAVE 4**, and its own header says it *“must never appear in a product PR.”* The bytes committed here are the Wave 3 file, verified **md5-identical** to the controller's own `WAVE_STATE_WAVE3_ARCHIVE.md`. Bodies below are copied, never reconstructed. Where a body could not be found it says so and says where the search ran.

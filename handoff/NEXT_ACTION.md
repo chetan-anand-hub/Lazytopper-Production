@@ -1,5 +1,90 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-29 (post-**#557–#563 — WAVE 3**, four lanes under a controller + subagent model. Trunk `25e995a7`. Rules DEPLOYED and Console-verified. ONE owner live-verify owed.)
+# Updated: 2026-07-31 (post-**#566–#575 — WAVE 4**, ten PRs under a controller + subagent model. Trunk `fcdbfa65`. TWO owner live-verifies owed, one of which is the only proof of the mobile hotfix. Three lanes are SPECCED AND DELIBERATELY NOT STARTED — see below.)
+
+## NEXT — 2026-07-31 (post-#566–#575). Read this block first.
+
+**Ten PRs on trunk: #566 #567 #568 #569 #570 #571 #572 #573 #574 #575.** A launch-blocking P0 (no new student could get a trial) and a live mobile crash are both fixed and **both owe a live-verify**. The wave's own subject is recorded in `CURRENT_STATE.md`: **four guards and gates that reported success while inspecting nothing.**
+
+⚠ **The Wave 3 block below is NOT superseded. Its `[FU-FOUNDING-FLAG-NOT-WIRED-TO-MONTHLY-INLINE]` HARD GATE is still in force, unchanged, and is deliberately not restated here** — read it there. *(Restating it would create two copies that can drift; the board's own Standing Rule 2 prefers one authoritative entry.)* **In one line: DO NOT SET `FOUNDING_OFFER_OPEN = false` until the MONTHLY-INLINE lane has landed.**
+
+### 🛑 1 · OWNER LIVE-VERIFY QUEUE — the top of the list, and one item is not substitutable
+
+Two merged fixes are **not closed** until a human runs them on the real product. **No gate can settle either**, and for #575 that is a structural fact, not a scheduling one.
+
+1. **#574 — a FRESH SIGNUP lands on `tier: "trial"`.** The P0 was that every new student silently downgraded to free.
+2. **#574 — an EXISTING BROKEN ACCOUNT repairs to `"trial"` on next open, with `trialStartDate` UNMOVED.** The repair is read-back normalisation and must be seen to self-heal. ⚠ **`trialStartDate` unmoved is the assertion** — if it moves, the immutability SEC-2 exists to enforce has been broken by the repair.
+3. ★★ **#575 — mobile `/browse` as a RETURNING student, WITHOUT CLEARING SITE DATA.** Close the tab, reopen, and let Firebase restore the session from IndexedDB.
+   > **THIS IS THE ONLY PATH THAT PROVES #575.** A fresh sign-in NAVIGATES to `/browse` with the user already present and **never crosses the boundary that crashes.** Clearing site data does not "reset the test" — **it removes the test.**
+
+★ **And the general rule this wave earned: LIVE-VERIFY MEANS BOTH SURFACES, AND AT LEAST ONE SESSION WITH EXISTING STATE.** Every automated test in this repo starts from clean state, so a bug that needs accumulated state is invisible to all 1,082 of them.
+
+*(Carried, still owed: **D1 (#557)** — `hasPhoneLinked` against a real phone-linked Firebase account. → `[FU-D1-PROVIDERIDS-UNPROVEN-LIVE]`.)*
+
+### ★★ 2 · THREE LANES ARE SPECCED, FILES ON DISK, AND DELIBERATELY NOT STARTED
+
+**`AUTH-3`** (`SUBAGENT_AUTH3_one_door_verified.md` — one door + blocking email verification), **`BATCH-2`**, and **`NAME+LINK`**. All three have instruction files written and ready in `C:\Users\Chetan\OneDrive\Desktop\diff\`.
+
+> ★★ **WHY THEY WERE NOT STARTED — THIS IS A DECISION, NOT AN OVERSIGHT. Read it before assuming the wave ran out of things to do.**
+>
+> **Starting a lane at 40% remaining context and stranding it mid-way is the exact failure this operating model exists to prevent. It has already cost this project three agents.** A half-built lane is worse than an unstarted one: it leaves a diff on disk that the next reader will find and trust, and its author is gone before anyone can ask what it was doing. ⇒ **the three lanes were left whole, specced, and unstarted for a FRESH controller with full context.**
+>
+> ★ Corroborated twice in the written record: two Wave 3 agents at ~4–7% remaining context **each mislabelled their own PR number**, reporting the other's — *"the failure was not competence, it was an agent holding the plan while spending its last context on evidence."* And this wave, a blocked lane (BATCH-1) **wrote nothing, gated nothing and removed its worktree**, which is the correct discipline: *no half-built diff left for someone to find and trust.*
+
+**`AUTH-3` is unblocked and is the natural first pick.** Its deciding empirical question is **answered**: `accounts:signUp` against an existing address returns **`EMAIL_EXISTS` (HTTP 400)**, so a create attempt is still distinguishable even though `signInWithEmailAndPassword` returns the ambiguous `INVALID_LOGIN_CREDENTIALS` for both wrong-password and no-account under Email Enumeration Protection. ⇒ **the flow INVERTS: sign-in first, then create-as-probe**, and because step 2 is a **COMMITMENT rather than a probe**, the *"no account found — create one?"* confirmation is **dropped** — it would disclose non-existence and reopen by hand the leak Enumeration Protection closes.
+⚠ **Do NOT build against `LazyTopper_Auth_Onboarding_Spec_LOCKED.md` §3.2 — it is superseded** by the above. ⚠ **STILL OPEN for that lane:** whether `App.tsx`'s zero-diff freeze can accommodate a route change; if not, the `/app/sign-up` redirect must live inside the existing element.
+⚠ **Two prototype files exist and they are different artefacts.** The authority for this arc is `LazyTopper_OneDoor_auth_prototype.html` (title *"One door"*). `LazyTopper_Auth_Onboarding_prototype.html` is an **earlier, different** prototype. **And remember the wave's own lesson: the prototype is not the product** — it is authoritative when a lane INVENTS visual language, wrong when a lane must MATCH it.
+
+### 🛑 3 · `BATCH-1` — BLOCKED ON AN OWNER RULING. Its findings must not be re-derived.
+
+Per-question images in the batch grader. **Zero files written**, worktree removed. **Two rulings owed:**
+
+**A · How the client transport gets built.** The only client transport to `POST /api/grade-worksheet` is `gradeWorksheet()` in `lazytopper/src/ai/aiClient.ts`, whose request type carries a single `imageBase64: string`. Per-question uploads need an additive field there, and **that file was outside the lane's allowance, so it stopped.**
+- **(A) Widen the allowlist by exactly `aiClient.ts`** — ~6 lines, `uploads?` absent by default. **Subagent's recommendation and the controller's.**
+- **(B) Hand-roll a fetch and bypass it** — mechanically available, and the lane **argued against it**: `handleJsonResponse<T>` is module-private and **owns the shared error contract**, so a bypass creates **a second, diverging transport to one endpoint** while all four existing callers keep the old one.
+- **(C) Split into BATCH-1a (server) / BATCH-1b (client).**
+
+**B · Is M2 rewritten or dropped?** See below — **as written it can never go red.**
+
+**★★ THE FOUR FINDINGS THAT MUST SURVIVE, because re-deriving them costs a whole lane:**
+- ★★ **The spec attached its blast-radius constraint to the WRONG PATH.** It said *"the existing SINGLE-IMAGE worksheet path must behave identically"*, protecting worksheets, chapter tests and full mocks **on a path this PR does not touch.** Verified: `DesktopCheckImprovePage.tsx` calls `gradeWorksheet` **directly** for multi-question C&I, so **worksheets, chapter tests, full mocks AND multi-question C&I — four live surfaces — all route through the BATCH path, the path this PR edits.** ⇒ the load-bearing guard is **"batch path with no `uploads` present builds byte-identical `contents`."** ★ *This SHARPENS the constraint rather than softening it.* → `[FU-BATCH1-BATCH-PATH-BLAST-RADIUS]`
+- ★★ **M2 cannot go red as written.** `gradeStructuredSet` ends by mapping over the **SENT** set, so a model-returned `qNumber` we never sent lands in the lookup and **is never read.** **The guarantee lives in the map DIRECTION, not in a pairing check** — a test feeding a stray `qNumber` passes today and against almost any pairing mutation. ⇒ either mutate the direction (iterate the parsed results instead of the questions), or **drop M2 and state the property is structural, quoting the code.** *Correct assertion, wrong stated reason.* → `[FU-BATCH1-M2-STRUCTURAL]`
+- **THREE image call sites, not two** — single-image grade, single-image **DETECT** (the one the brief missed), and the batch call. A fourth lives in `mentorResponseBuilder.cjs`, out of lane. → `[FU-BATCH1-DETECT-THIRD-IMAGE-SITE]`
+- **ZERO schemas need extending.** The change is **request-only**; every response shape is untouched, so the C2 `responseSchema` rule is not engaged. ★ **Do not tighten `qNumber`: a schema cannot express set membership** — and per the finding above it does not need to. **The recording path needs no change either** — `buildQuickPracticeSessionRecord`, `quickPracticeCode` and `qpTopicToken` already exist.
+
+### ★ 4 · THE COST / LEGAL ITEMS THAT ARE NOT CODE LANES
+
+- **`[FU-RETENTION-ALREADY-MINIMAL]` — the retention question is ANSWERED and NO DELETION POLICY IS OWED.** **No answer image is persisted anywhere**; Firestore holds only `SessionRecord` summaries. ★★ **The gap runs the other way: the graded-sheet download is rebuilt from a LOCAL cache, so a student loses their sheet on eviction without ever choosing to.** ⇒ **the actionable item is "offer the PDF AT GRADING TIME"**, not a deletion policy.
+- **`[FU-RETENTION-UNBOUNDED-UNBUDGETED]`** — ⚠ **storage is NOT the driver.** The concern is **READ VOLUME at scale**, and nobody has modelled it. Belongs in `LazyTopper_Cost_Pricing_Analysis_v1_1.md`, **not a code lane**.
+- **`[FU-NO-DELETION-OR-EXPORT-PATH]`** — no account deletion and no data export. **DPDP Act, minor users, priority one on the external audit brief.** ★ Minimal retention **lowers the deletion exposure and does not answer export** — and *"offer the PDF at grading time"* is the nearest thing to an export path the product would have.
+- **`[FU-TRIAL-DAYS-LOST-TO-P0]`** — the P0 repair restores the flag but **not the lost days**. Owner reset the affected handful in the Console. ⚠ **At volume this needs a script, and that script MUST go through a SERVER/ADMIN path, never a client one.**
+
+### ★ 5 · THE GUARD BACKLOG — what this wave fixed, and what it left named
+
+**Closed:** `[FU-GUARD-1-A]`, `[FU-GUARD-1-B]` (#568 — CI-grep-proven, linux verified by execution), `[FU-MOJIBAKE-GATE-CWD-BLIND-SPOT]` and `[FU-MOJIBAKE-SPECIMEN-LINES]` (#570 + #571, **resolved by SCOPING**), the CLAUDE.md half of the stale-count problem (#572), `[FU-GUARD-3-TOOLINGDOCS-MODE]` (closed by avoidance — ★ *a mode invented to let one PR pass its own guard is a bypass with a nicer name*).
+
+**Still open and unassigned:** `[FU-ESLINT-UNRUNNABLE-IN-WORKTREE]` (★ **the highest-value one — `react-hooks/rules-of-hooks` is the rule that would have caught #575 and it currently protects nothing**), `[FU-GUARD-1-C]` (`agent3_uiux_guard` wired nowhere), `[FU-GUARD-3-POLICY-MODES-UNASSERTED]`, `[FU-GUARD-3-MOJIBAKE-REGEX-DUP]`, `[FU-GUARD-3-CWD-FRAMED-GATES]`, `[FU-GUARD-3-CI-COMMENT-STALE]`, `[FU-GUARD-3-MOJIBAKE-CLEANER-FRAME]`, `[FU-GUARD-2-TOPOLICYFRAME-COPY]`, `[FU-GUARD-2-PKGJSON-CLASSIFY-NONDETERMINISM]`, `[FU-GUARD-2-ROOT-GITIGNORE-UNCHECKED]`, `[FU-GUARD-2-MATRIX-CHAIN-MASKS-DOWNSTREAM]`, and new this wave `[FU-SQUASH-CARRIES-REBASED-BASE]` and `[FU-DEV-BROWSER-CANNOT-REPRO-AUTH-TIMING]`.
+
+### ★★ 6 · GIT AND PROCESS DISCIPLINE — added by this wave, in force now
+
+- **NEVER READ FROM OR PUSH FROM THE SHARED CHECKOUT `C:\Projects\Lazytopper-Production`.** A push from it dropped two merged PRs on 2026-07-30. **Every lane cuts its own worktree from a freshly derived trunk SHA** (CLAUDE.md §2a), and that is now a push rule as well as a work rule.
+- ★★ **AND IT APPLIES TO THE CONTROLLER TOO, NOT ONLY TO SUBAGENTS.** This wave a controller told **three separate lanes** that `handoff/WAVE_STATE_WAVE3_ARCHIVE.md` was *"untracked scratch that exists only in the shared checkout."* **It is tracked on trunk** — it reads as `??` there only because that checkout is stale. Nothing was damaged (all three lanes left it alone, and the third checked and reported the claim false), **but a repo fact was asserted three times without being checked.** ⇒ **A controller reads git metadata rather than product source, and git metadata from a stale checkout is exactly as wrong as stale source: `git status` there reports a TRACKED file as UNTRACKED — a false negative that looks like a fact.** ★ Same checkout as the force push, and as Wave 3's stale `firestore:rules` deploy: **three incidents, one root, across two waves.**
+- ★ **REQUIRE EVERY SUBAGENT TO WRITE ITS REPORT TO DISK BEFORE COMPOSING ITS RETURN MESSAGE.** A return message is the **only copy**, so a lost relay is a lost report — Wave 3's EV-1 lane has **no report at all**. **Report first, then summarise.** → `[FU-SUBAGENT-REPORT-TO-DISK-BEFORE-RETURN]`
+- ★ **RECONCILE THE MERGE-BASE DIFF AGAINST THE PR'S DECLARED FILE LIST BEFORE MERGE** — `gh pr view <n> --json files` versus `git diff --name-only <merge-base>..<head>`. **Nothing does this today**, which is how #566 declared four files and landed thirteen. → `[FU-NO-MERGE-BASE-FILELIST-RECONCILE]`
+- **`--force-with-lease` IS NOT PROTECTION AGAINST YOUR OWN STALE BRANCH.** The lease asks only whether the remote moved since **your last fetch** — a fetch seconds earlier satisfies it. **It guards against someone else's push and nothing more.**
+- **READ THE EXEMPTIONS BEFORE THE SETTING.** A protection with a bypass is only as strong as its bypass list. The branch ruleset is now *"For pull requests only."*
+- **A FRESH SHA IS NOT A GROWING HISTORY.** After any merge you are told landed, verify **ancestry AND a content-path `git log`**. ⚠ **Squash gotcha:** `merge-base --is-ancestor` on a PR **head** reports *not-ancestor* for a squash-merged PR — **the content-path check is authoritative.**
+- **AFTER ANY FORCE PUSH, AUDIT THE FILE LIST OF THE NEXT SQUASH MERGE** against what that PR claims to change. A squash diff is computed against the base at **merge** time, not the base the branch was built on. → `[FU-SQUASH-CARRIES-REBASED-BASE]`
+- **A CI RUN ID IS BOUND TO A COMMIT, NOT A PR.** Re-derive from the current head; a run captured before a rebase verifies a tree that is not the one being merged, **and it looks like proof.**
+- **NEVER RECONSTRUCT AN FU BODY FROM ITS ID.** If you hold only an id, record the id and mark the body not recovered. **A plausible-but-wrong FU is harder to detect than a missing one** — it gets cited.
+- **CITE BY QUOTE OR SYMBOL, NEVER BY LINE NUMBER.** A line reference is a derived value nothing re-checks.
+- **A CONTROLLER AMPLIFIES.** Pass a subagent's finding through **with its provenance intact** — *"the subagent reports X"* is not the claim *"X"*. When one is retracted, check whether the amplified version reached the repo, the state file, or a dispatched instruction.
+- **A SUBAGENT THAT ENDS ITS TURN WHILE "WAITING" HAS ENDED THE LANE.** Block on the run, or return with `CI: IN FLIGHT, not read` and every other line filled in. **A report with one gap beats another cycle.**
+- **RE-DERIVE TRUNK BEFORE EVERY DISPATCH *AND* BEFORE EVERY DECISION REQUEST.** The model file said "every dispatch"; that is insufficient as written — a controller asked the owner to approve work that had already landed. **A state file is only as fresh as its last re-derive.**
+- ⚠ **`scope:guard --mode docs` for a handoff PR.** The bare form now auto-detects correctly since #571 (`mode=auto:docs, lanes=docs`) — run both; it is a free confirmation. **`scope:guard` runs BEFORE `git add`** (it reads the working tree); the `base...HEAD` matrices run **AFTER** committing.
+- ⚠ **A green `check:mojibake` says almost nothing about a `handoff/` file.** Scan your own added lines with the scanner's own regex **extracted from source, not re-typed**, and **inject a sequence to prove it fires.** Report `ADDED_LINES=n MOJIBAKE_HITS=0 CONTROL_INJECTED_DETECTED=true`.
+- ⚠ **DO NOT "TIDY" THE 8 MOJIBAKE SPECIMENS in `handoff/`, and do not re-enforce that tree.** They are quoted examples inside lessons about mojibake. **`[FU-MOJIBAKE-SPECIMEN-LINES]` is RESOLVED BY SCOPING**, and the code comment in `check-mojibake.cjs` says so.
+
+---
 
 ## NEXT — 2026-07-29 (post-#557–#563). Read this block first.
 
