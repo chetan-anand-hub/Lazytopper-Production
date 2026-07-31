@@ -1,4 +1,5 @@
 import { promises as fs } from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawnSync } from "child_process";
@@ -61,6 +62,85 @@ async function run() {
     "repo_scan_passes",
     checker.status === 0,
     `${String(checker.stdout || "").trim()} ${String(checker.stderr || "").trim()}`.trim()
+  );
+
+  // ★★ [GUARD-3] THE FRAME AND THE SCOPING, PROVEN ON A DISPOSABLE REPO — NOT ASSERTED.
+  //
+  // Everything above this point is a self-check against the LIVE tree, which proves only that the
+  // live tree happens to be clean. It says nothing about WHAT THE GATE CAN SEE — and "cannot see"
+  // is the entire defect class this lane exists to close (six instances, `check:mojibake` the
+  // sixth). Before GUARD-3 the checker resolved its root as `lazytopper/`, so `handoff/` was
+  // structurally invisible and `repo_scan_passes` was green for months over 616 corrupt lines.
+  //
+  // So build a throwaway git repo with a KNOWN-BAD line in each of the two frames and assert the
+  // gate's behaviour in BOTH directions. These three checks are what make the scoping falsifiable:
+  // point the gate back at `lazytopper/` and #1 goes red; drop the report-only carve-out and #2
+  // goes red; make the carve-out a SILENT skip and #3 goes red.
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "mojibake-frame-"));
+  let frame = { stdout: "", status: null };
+  try {
+    const g = (args) => spawnSync("git", args, { cwd: tmp, encoding: "utf8" });
+    g(["init", "-q"]);
+    g(["config", "user.email", "gate@example.com"]);
+    g(["config", "user.name", "gate"]);
+    // ★ ESCAPED, NOT LITERAL — and the distinction is the whole ruling in miniature. In a handoff
+    // RECORD a specimen must stay literal, because a reader has to SEE the corruption to recognise
+    // it. Here it is a FIXTURE: nobody reads it to learn what mojibake looks like, so the escape
+    // costs nothing and keeps this enforced file honest under its own gate. (It was literal on the
+    // first draft and `check:mojibake` failed on it — the gate catching its own author, correctly.)
+    const BAD = `smart quote artifact: ${String.fromCharCode(0x00E2, 0x20AC, 0x201D)} here`;
+    await fs.mkdir(path.join(tmp, "handoff"), { recursive: true });
+    await fs.mkdir(path.join(tmp, "lazytopper", "src"), { recursive: true });
+    await fs.writeFile(path.join(tmp, "handoff", "SESSION_LOG.md"), `${BAD}\n`, "utf8");
+    await fs.writeFile(path.join(tmp, "lazytopper", "src", "Probe.ts"), `// ${BAD}\n`, "utf8");
+    g(["add", "-A"]);
+    frame = spawnSync("node", [path.join(repoRoot, "scripts", "check-mojibake.cjs")], {
+      cwd: tmp,
+      encoding: "utf8",
+    });
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+  const frameOut = String(frame.stdout || "");
+  const scopeLine = frameOut.split("\n").find((l) => l.startsWith("MOJIBAKE_SCOPE")) || "no line";
+  const reportLine =
+    frameOut.split("\n").find((l) => l.startsWith("MOJIBAKE_REPORT_ONLY")) || "no line";
+
+  // ── 1 ── The gate ENUMERATES FROM THE GIT ROOT, so it SEES both frames. `handoff/SESSION_LOG.md`
+  // appearing at all is the proof: under the old `lazytopper/`-anchored root it could not be
+  // listed by `git ls-files`, and no verdict about it was possible in either direction.
+  addCheck(
+    checks,
+    "gate_sees_handoff_tree_from_git_root",
+    frameOut.includes("handoff/SESSION_LOG.md"),
+    `${scopeLine} || ${reportLine}`
+  );
+
+  // ── 2 ── ★★ THE SCOPING, BOTH DIRECTIONS IN ONE RUN. The identical byte sequence sits in
+  // `lazytopper/src/` and in `handoff/`. Product mojibake must FAIL (exit 1, listed as an enforced
+  // hit); record mojibake must be REPORTED and must NOT change the verdict. This is the assertion
+  // that stops the carve-out becoming a bypass: if someone widened REPORT_ONLY_PREFIXES to cover
+  // `lazytopper/` — or to `''` — the exit code would drop to 0 and this goes red.
+  addCheck(
+    checks,
+    "product_mojibake_fails_and_record_mojibake_only_reports",
+    frame.status === 1 &&
+      frameOut.includes("lazytopper/src/Probe.ts") &&
+      /enforced_hits=1\b/.test(frameOut) &&
+      /MOJIBAKE_REPORT_ONLY: handoff\/: 1 non-enforced hits/.test(frameOut),
+    `status=${frame.status} || ${scopeLine} || ${reportLine}`
+  );
+
+  // ── 3 ── ★★ THE COUNT IS VISIBLE ON A CLEAN RUN TOO. A carve-out that printed nothing when the
+  // record tree is clean would be indistinguishable from the pre-GUARD-3 blind spot — which is the
+  // exact thing being fixed. The live-tree run above (`repo_scan_passes`, green) must ALSO carry
+  // the count line, so the number is monitoring rather than exemption.
+  const liveOut = String(checker.stdout || "");
+  addCheck(
+    checks,
+    "report_only_count_is_printed_on_a_passing_run",
+    /^MOJIBAKE_REPORT_ONLY: handoff\/: \d+ non-enforced hits/m.test(liveOut),
+    liveOut.split("\n").find((l) => l.startsWith("MOJIBAKE_REPORT_ONLY")) || "NO COUNT LINE"
   );
 
   const failed = checks.filter((item) => !item.ok);

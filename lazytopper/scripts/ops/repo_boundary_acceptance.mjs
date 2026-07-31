@@ -39,7 +39,28 @@ const policyPath = path.join(
   "governance",
   "repo_boundary_policy.json"
 );
-const gitignorePath = path.join(repoRoot, ".gitignore");
+// ★ [GUARD-3] BOTH .gitignore FILES, NOT JUST lazytopper/'s. THIS IS THE THIRD DEFECT IN THIS FILE.
+// GUARD-2 (above) fixed the enumeration frame and the copied classifier. It did not touch this line.
+// `gitignore_hard_boundary_rules_present` read ONLY lazytopper/.gitignore, while this is a monorepo
+// and the ROOT .gitignore is equally in force — it is what makes `git add
+// lazytopper/docs/project_memory/...` refuse. Ignore state is the UNION of the two files.
+//
+// ⚠ BE HONEST ABOUT WHAT THE UNION BUYS, WHICH IS LESS THAN IT LOOKS. Measured on this tree:
+// lazytopper/.gitignore already contains every one of the 16 required rules, and the root file
+// contains none of them in the `**`-suffixed spelling the substring test uses (it writes
+// `.project_memory/`, not `.project_memory/**`). So the union changes `missingIgnoreRules` by
+// ZERO today — and structurally it can only ever SHRINK that list, i.e. it is permissive-only and
+// can never turn a green red. A permissive widening that nothing can fail is a silent no-op, and
+// this comment says so rather than letting a future reader mistake it for a tightening.
+// Its real, mutation-proven value is the two checks below: `gitignore_sources_read` names the
+// subject and fails if the root file goes unread, and `root_gitignore_covers_anchor_project_memory`
+// asserts the one root-only boundary that genuinely governs a path inside the anchor.
+// A missing file degrades to "" rather than throwing, because a checkout without a root
+// .gitignore should not error the whole gate.
+const gitignorePaths = [
+  path.resolve(repoRoot, "..", ".gitignore"),
+  path.join(repoRoot, ".gitignore"),
+];
 const outDir = path.join(repoRoot, ".project_memory", "ops", "out");
 const outPath = path.join(outDir, "repo_boundary_acceptance.json");
 
@@ -95,7 +116,24 @@ async function run() {
   const policy = JSON.parse(await fs.readFile(policyPath, "utf8"));
   const lanes = policy?.lanes || {};
   const modeToLanes = policy?.modeToLanes || {};
-  const gitignoreText = (await fs.readFile(gitignorePath, "utf8")).toLowerCase();
+  const gitignoreTexts = await Promise.all(
+    gitignorePaths.map((p) => fs.readFile(p, "utf8").catch(() => ""))
+  );
+  const gitignoreText = gitignoreTexts.join("\n").toLowerCase();
+  // ★ NAME THE SUBJECT. A union read that silently resolved to "" in both files would still pass
+  // every `includes()` check that happens to be satisfied elsewhere — and pass silently. State
+  // which files were actually consulted and how many bytes came from each.
+  addCheck(
+    checks,
+    "gitignore_sources_read",
+    gitignoreTexts.every((t) => t.length > 0),
+    gitignorePaths
+      .map(
+        (p, i) =>
+          `${normalizePath(path.basename(path.dirname(p)))}/.gitignore=${gitignoreTexts[i].length}b`
+      )
+      .join(" ")
+  );
 
   const requiredLaneKeys = ["product", "trackedTooling", "generatedEvidence", "localOnly"];
   addCheck(
@@ -157,6 +195,54 @@ async function run() {
     "gitignore_hard_boundary_rules_present",
     missingIgnoreRules.length === 0,
     missingIgnoreRules.join(",")
+  );
+
+  // ★ [GUARD-3] THE ONE ROOT-ONLY BOUNDARY THAT GOVERNS A PATH INSIDE THE ANCHOR.
+  // `lazytopper/docs/project_memory/` is ignored by the ROOT .gitignore and by nothing under
+  // lazytopper/. It is why `git add lazytopper/docs/project_memory/...` refuses and why `git add -u`
+  // is the documented workaround. Deleting that root line would silently make a whole tracked
+  // governance tree addable again, and every check in this file that reads only the anchor's
+  // .gitignore would stay green. This is the check that goes red instead — and unlike the union
+  // above it is a TIGHTENING, not a widening.
+  const rootGitignoreText = gitignoreTexts[0];
+  addCheck(
+    checks,
+    "root_gitignore_covers_anchor_project_memory",
+    /^lazytopper\/docs\/project_memory\/?\s*$/m.test(rootGitignoreText),
+    rootGitignoreText.length
+      ? "root .gitignore read; looked for the lazytopper/docs/project_memory/ rule"
+      : "root .gitignore was empty or unreadable"
+  );
+
+  // ★ [GUARD-3] THE GUARD SELF-TESTS MUST BE WIRED, AND MUST SIT AT THE TAIL OF test:matrix:all.
+  // Without this check, "we moved them to the tail" is a comment, and a comment is a claim, not a
+  // fact. `test:matrix:all` is an && chain, so whatever runs FIRST masks everything after it on
+  // failure. GUARD-2 wired scope-guard:blindspot and repo-boundary at the HEAD; these are the
+  // newest and least battle-tested suites in the chain, and front-loading them lets a wobble in
+  // guard tooling hide ~19 established content and server gates. The fail-fast argument does not
+  // apply: these are ACCEPTANCE SUITES FOR THE GUARDS THEMSELVES, not checks on the PR's scope —
+  // the real scope check is `scope:guard`, which runs pre-commit and separately.
+  // This also fails when a suite is absent from the chain entirely (idx === -1), which is how
+  // `test:mojibake` sat on trunk with an npm script nothing invoked. DO NOT FRONT-LOAD A SELF-TEST.
+  const matrixChain = JSON.parse(await fs.readFile(path.join(repoRoot, "package.json"), "utf8"))
+    .scripts["test:matrix:all"]
+    .split("&&")
+    .map((s) => s.trim());
+  const SELF_TESTS = ["test:scope-guard:blindspot", "test:repo-boundary", "test:mojibake"];
+  const tailStart = Math.floor((matrixChain.length * 2) / 3);
+  const selfTestIdx = SELF_TESTS.map((name) =>
+    matrixChain.findIndex((step) => step.endsWith(` ${name}`))
+  );
+  const frontLoaded = SELF_TESTS.filter(
+    (_name, i) => selfTestIdx[i] === -1 || selfTestIdx[i] < tailStart
+  );
+  addCheck(
+    checks,
+    "guard_self_tests_run_at_matrix_tail",
+    frontLoaded.length === 0,
+    frontLoaded.length
+      ? `not in tail (or unwired): ${frontLoaded.join(",")}`
+      : `chain=${matrixChain.length} steps, tailStart=${tailStart}, self-tests at ${selfTestIdx.join(",")}`
   );
 
   // ★ ENUMERATE FROM THE GIT ROOT. `git ls-files` is cwd-scoped; running it from the anchor made

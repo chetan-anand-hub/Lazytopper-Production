@@ -62,7 +62,7 @@ function toPolicyFrame(filePath) {
 
 const rawArgs = process.argv.slice(2);
 const modeIdx = rawArgs.indexOf("--mode");
-const mode = modeIdx !== -1 && rawArgs[modeIdx + 1] ? rawArgs[modeIdx + 1] : "tooling";
+const explicitMode = modeIdx !== -1 && rawArgs[modeIdx + 1] ? rawArgs[modeIdx + 1] : "";
 
 function normalizePath(filePath) {
   return String(filePath || "").replace(/\\/g, "/").replace(/^\.\//, "").trim();
@@ -209,11 +209,37 @@ function printList(header, files) {
   for (const file of files) console.log(` - ${file}`);
 }
 
+// ★ [GUARD-3] MODE AUTO-DETECTION — and why it is NOT a rubber stamp.
+//
+// The bare invocation `pnpm run scope:guard` used to hardcode mode="tooling", whose only allowed
+// lane is `trackedTooling`. So the single most common change in this repo — a docs-only handoff
+// edit — reported `[docs]` LANE VIOLATIONS on correct work, while `--mode docs` passed on the
+// IDENTICAL tree. A guard that reddens the ordinary case trains people to stop reading it, and an
+// ignored guard is a dead guard.
+//
+// ⚠ THE TRAP: auto-detecting by "allow whatever lanes changed" would make the lane check
+// unfailable — a permissive auto-detect is worse than a wrong one, because it still prints OK.
+// So this does NOT invent an allowance. It picks the NARROWEST DECLARED mode from the policy whose
+// lane set COVERS the changed lanes, and FAILS when no declared mode covers them. The sanctioned
+// lane COMBINATIONS are exactly the ones an author wrote into `modeToLanes`; a combination nobody
+// sanctioned (e.g. product + docs in one commit) has no covering mode and is still rejected.
+// Hard-boundary lanes (generatedEvidence / localOnly / unknown) are unaffected — they fail in
+// every mode, detected or explicit.
+function detectMode(changedLanes, modeToLanes) {
+  const HARD = new Set(["generatedEvidence", "localOnly", "unknown"]);
+  const needed = changedLanes.filter((lane) => !HARD.has(lane));
+  if (!needed.length) return { mode: "tooling", detected: true };
+  const candidates = Object.entries(modeToLanes)
+    .filter(([, allowed]) => needed.every((lane) => allowed.includes(lane)))
+    .sort((a, b) => a[1].length - b[1].length || a[0].localeCompare(b[0]));
+  if (!candidates.length) return { mode: "", detected: true, needed };
+  return { mode: candidates[0][0], detected: true };
+}
+
 function main() {
   const { lanes, modeToLanes } = readPolicy();
-  const allowedLanes = modeToLanes[mode];
-  if (!Array.isArray(allowedLanes) || !allowedLanes.length) {
-    console.log(`SCOPE_GUARD_FAIL: unknown mode "${mode}"`);
+  if (explicitMode && !Array.isArray(modeToLanes[explicitMode])) {
+    console.log(`SCOPE_GUARD_FAIL: unknown mode "${explicitMode}"`);
     console.log(`Known modes: ${Object.keys(modeToLanes).join(", ")}`);
     process.exit(1);
   }
@@ -234,19 +260,35 @@ function main() {
   // INDEPENDENT measurement, not a restatement of `all`: it re-runs the untracked enumeration from
   // the ANCHOR (the old, broken frame) and reports how many files that frame would have MISSED.
   // On a repo with a new top-level directory this is > 0, which is the regression alarm.
+  //
+  // ★★ [GUARD-3] THE COUNTER MEASURES UNTRACKED FILES ONLY — AND THAT IS CORRECT, NOT A GAP.
+  // It was named `anchor_frame_would_miss`, which reads as "everything the old frame would miss".
+  // It never measured that, so a reader could take `=0` as "the old frame caught everything" —
+  // a stronger claim than the number supports. The name now states its scope.
+  //
+  // ⚠ DO NOT "COMPLETE" THIS BY MAKING IT COUNT TRACKED-MODIFIED FILES OUTSIDE THE ANCHOR.
+  // That change has been proposed once and rejected on inspection. `git diff --name-only` emits
+  // GIT-ROOT-RELATIVE paths from ANY cwd, so a tracked-modified file outside the anchor was
+  // returned by the old frame too and was NEVER missed. Counting it here would report a miss that
+  // does not occur — turning a correct metric into a permanent false alarm. Untracked enumeration
+  // (`git ls-files --others`) is the only cwd-scoped command of the set, and therefore the only
+  // blind spot there ever was. The name is the defect; the measurement is right.
   const anchorScopedUntracked = ANCHOR_PREFIX
     ? listFilesFrom(ROOT, "git ls-files --others --exclude-standard").map(
         (p) => `${ANCHOR_PREFIX}${p}`
       )
     : untrackedRaw;
-  const blindSpotAvoided = untrackedRaw.filter((f) => !anchorScopedUntracked.includes(f)).length;
+  const untrackedMissedByAnchorFrame = untrackedRaw.filter(
+    (f) => !anchorScopedUntracked.includes(f)
+  ).length;
   console.log(
     `SCOPE_GUARD_SCOPE: root=${GIT_ROOT || "(none)"} anchor=${ANCHOR_PREFIX || "(root)"} ` +
-      `inspected=${all.length} untracked=${untrackedRaw.length} anchor_frame_would_miss=${blindSpotAvoided}`
+      `inspected=${all.length} untracked=${untrackedRaw.length} ` +
+      `anchor_frame_would_miss_untracked=${untrackedMissedByAnchorFrame}`
   );
 
   if (!all.length) {
-    console.log(`SCOPE_GUARD_OK (mode=${mode}, no changes)`);
+    console.log(`SCOPE_GUARD_OK (mode=${explicitMode || "auto"}, no changes)`);
     process.exit(0);
   }
 
@@ -301,6 +343,25 @@ function main() {
   const changedLanes = Object.keys(laneBuckets)
     .filter((lane) => !HARD_BOUNDARY_LANES.has(lane))
     .filter((lane) => laneBuckets[lane].length > 0);
+  // Resolve the mode only now — auto-detection needs the classified lanes. An explicit --mode
+  // always wins and is never widened; auto-detect only chooses among modes the policy declares.
+  let mode = explicitMode;
+  let allowedLanes = explicitMode ? modeToLanes[explicitMode] : null;
+  let uncoveredLanes = null;
+  if (!explicitMode) {
+    const detected = detectMode(changedLanes, modeToLanes);
+    if (!detected.mode) {
+      // No declared mode covers this lane combination. Report it, allow NOTHING, and let the
+      // normal lane-violation path below print every offending file with its lane.
+      uncoveredLanes = detected.needed;
+      mode = "auto(uncovered)";
+      allowedLanes = [];
+    } else {
+      mode = `auto:${detected.mode}`;
+      allowedLanes = modeToLanes[detected.mode];
+    }
+  }
+
   const disallowedLaneChanges = changedLanes
     .filter((lane) => !allowedLanes.includes(lane))
     .flatMap((lane) => laneBuckets[lane].map((file) => ({ lane, file })));
@@ -315,7 +376,13 @@ function main() {
 
   console.log("SCOPE_GUARD_FAIL");
   console.log(`mode: ${mode}`);
-  console.log(`allowed lanes: ${allowedLanes.join(", ")}`);
+  console.log(`allowed lanes: ${allowedLanes.length ? allowedLanes.join(", ") : "(none)"}`);
+  if (uncoveredLanes) {
+    console.log(
+      `no declared mode covers this lane combination: ${uncoveredLanes.join("+")} ` +
+        `— declared modes: ${Object.keys(modeToLanes).join(", ")}`
+    );
+  }
 
   if (hardBoundaryViolations.length) {
     console.log("hard-boundary violations:");
