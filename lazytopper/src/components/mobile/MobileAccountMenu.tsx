@@ -39,6 +39,25 @@ export function MobileAccountMenu() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  // ★★ EVERY HOOK IN THIS COMPONENT MUST SIT ABOVE `if (!user) return null`.
+  //
+  // `linkOpen` used to be declared BELOW that early return, which made the
+  // signed-out render call one fewer hook than the signed-in one. That is only
+  // safe if a mounted instance never crosses the boundary — and on `/browse` it
+  // does, on every visit by a RETURNING student: Firebase restores a persisted
+  // session from IndexedDB asynchronously, so the first paint has `user === null`
+  // and a later render of the SAME instance has a user. React threw #310
+  // ("Rendered more hooks than during the previous render") and the page
+  // error-paged after rendering for a moment.
+  //
+  // A student with cleared site data never crossed it — they are signed out, and
+  // after signing in they NAVIGATE here, mounting fresh with the user already
+  // present. That is why clearing site data "fixed" it and why 1082 green tests
+  // never saw it: every one of them starts from clean state.
+  //
+  // Pinned by MobileAccountMenu.persistedSession.test.tsx, which drives the
+  // null → user transition through the real AuthProvider.
+  const [linkOpen, setLinkOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -60,7 +79,6 @@ export function MobileAccountMenu() {
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
   const status = deriveAccountStatus({ tier, isTrialActive, isTrialExpired, daysLeftInTrial });
-  const [linkOpen, setLinkOpen] = useState(false);
 
   const handleLogout = async () => {
     setOpen(false);
