@@ -16,6 +16,7 @@ import {
 } from "../../lib/desktop/homeDestinations";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
+import FirstSession from "../../components/home/FirstSession";
 import {
   BORDER,
   CARD_BG,
@@ -695,6 +696,14 @@ export default function MobileHome() {
             it down by 13px even in the (usual) case where the nudge renders
             null. */}
         <LinkPhoneNudge spaced />
+
+        {/* First session — the start card. Same component, same conditions as
+            DesktopHome: signed-in uid, graded-session history READ and empty.
+            `spaced` supplies this page's 13px rhythm as a PROP for the same
+            reason LinkPhoneNudge does — it usually renders null.
+            It cannot collide with the resume strip below: that needs meaningful
+            landing memory, which a zero-attempt student does not have. */}
+        <FirstSession uid={user?.uid ?? null} spaced />
 
         {/* Returning / signed-in: resume strip first (real memory only). */}
         {showResume && (
