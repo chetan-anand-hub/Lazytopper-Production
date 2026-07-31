@@ -45,6 +45,11 @@ const {
 // Shared with the parser's own validation, so the schema and the code that coerces
 // it cannot drift apart silently.
 const STEP_STATUS_VALUES = ['correct', 'partial', 'incorrect', 'missing'];
+// BATCH-1 · the most per-question answer photos one batch grade will accept. An
+// ALLOWLIST-shaped cap (fails safe): the request is refused with a clear message
+// rather than silently truncated, so a student never gets a partial grade
+// presented as complete. The real byte ceiling is still readJson's body cap.
+const MAX_BATCH_UPLOADS = 12;
 const MARKS_SOURCE_VALUES = ['stated', 'inferred'];
 
 function deepFreeze(value) {
@@ -1163,8 +1168,36 @@ function createCheckSolutionRoute(deps) {
   // Returns { ok, results } where results is one normalised entry per known
   // question (graded OR couldNotRead). Throws nothing — returns { ok:false } on a
   // whole-PDF failure so the caller renders a clean error, not a partial grade.
-  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject }) {
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads }) {
     const isPdf = imageMimeType === 'application/pdf';
+
+    // ── BATCH-1 · per-question answer images (ADDITIVE) ──────────────────────
+    // A surface where the student photographs EACH answer separately (Quick
+    // Practice) has no one labelled document to search. Rather than stitching the
+    // photos into a synthetic PDF and asking the model to find "Q6" inside it,
+    // each image is sent as its OWN part IMMEDIATELY AFTER its own question's
+    // block — the position IS the pairing, so there is nothing to mis-locate.
+    //
+    // ★ THE LOAD-BEARING PROPERTY: `uploads` is absent from every existing
+    // caller's payload — worksheets, chapter tests, full mocks AND multi-question
+    // Check & Improve all post one `imageBase64` — so `hasUploads` is false for
+    // all four and the `contents` built below is BYTE-IDENTICAL to before. Every
+    // prompt change in this function is conditioned on `hasUploads`; that
+    // condition is not cosmetic, it is the regression guard. See §7 of
+    // checkSolution.test.cjs.
+    //
+    // ★ INCLUSION IS BY EVIDENCE, NEVER BY TYPE: a question gets its image if an
+    // upload was sent for it. Nothing here inspects `section`/`format`/`objective`
+    // — the objective exception stays exactly where it already lives (the
+    // scheme-cache filter above and the deterministic 0/full clamp), so an
+    // objective question the student DID show working for is photographed and
+    // graded like any other.
+    const uploadByNumber = new Map();
+    for (const u of Array.isArray(uploads) ? uploads : []) {
+      const n = Number(u && u.qNumber);
+      if (n > 0 && u.imageBase64 && !uploadByNumber.has(n)) uploadByNumber.set(n, u);
+    }
+    const hasUploads = uploadByNumber.size > 0;
 
     if (isStubMode()) {
       const stub = buildStructuredStub(questions);
@@ -1218,15 +1251,19 @@ function createCheckSolutionRoute(deps) {
       );
     }
 
-    const systemPrompt =
-      "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
-      'The attached PDF contains the student\'s handwritten answers to ALL the questions below, ' +
-      'with each answer labelled by its question number (Q1, Q2 …). ' +
-      'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
-      'Respond ONLY with valid JSON, no markdown fences.';
+    const systemPrompt = hasUploads
+      ? "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
+        'Each question below is followed IMMEDIATELY by the image of the student\'s handwritten answer to THAT question. ' +
+        'The image directly after a question\'s block IS that question\'s answer — do not search for question numbers inside the images, and never match an image to a different question. ' +
+        'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
+        'Respond ONLY with valid JSON, no markdown fences.'
+      : "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
+        'The attached PDF contains the student\'s handwritten answers to ALL the questions below, ' +
+        'with each answer labelled by its question number (Q1, Q2 …). ' +
+        'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
+        'Respond ONLY with valid JSON, no markdown fences.';
 
-    const questionBlocks = questions
-      .map((q) => {
+    const blockFor = (q) => {
         const scheme = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
           ? '\n     Marking scheme:\n' +
             q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
@@ -1238,17 +1275,33 @@ function createCheckSolutionRoute(deps) {
           '     ' + String(q.questionText || '').replace(/\n/g, ' ') +
           scheme
         );
-      })
-      .join('\n\n');
+    };
+
+    const questionBlocks = questions.map(blockFor).join('\n\n');
+
+    // Rule 1 — the LOCATE instruction is wrong for per-question images: there is
+    // nothing to locate, and telling the model to look would invite it to match an
+    // image to a different question. Adopted verbatim from the BATCH-1 findings.
+    const rule1 = hasUploads
+      ? '1. Grade each question against ITS OWN scheme using the image that immediately follows that question\'s block. A question with no image following it has no photographed answer — grade the typed answer given in its block if one is shown. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n'
+      : '1. For EACH question Q1…QN, locate that numbered answer in the PDF and grade it against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n';
+
+    // Rule 6 — same reason, one clause only: "locate or read … in the upload"
+    // becomes "READ the image supplied for a question". The whole anti-fabrication
+    // tail (the Don't-know exception, the crossed-out exception) is byte-identical
+    // on both branches; splitting the head from the tail is what keeps it so.
+    const rule6Head = hasUploads
+      ? '6. HONEST READ — anti-fabrication: if you CANNOT confidently READ the image supplied for a question, set "couldNotRead": true for THAT question and OMIT a grade.'
+      : '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade.';
 
     const rules =
       'GRADING RULES:\n' +
-      '1. For EACH question Q1…QN, locate that numbered answer in the PDF and grade it against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n' +
+      rule1 +
       '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
       '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
       '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ERROR-CARRIED-FORWARD (ECF) MARKING. When a step is wrong ONLY because it correctly applied the right method to a value carried from an earlier mistake: award that step its method/process marks and do NOT treat it as a fresh mistake (mistakeType null). Withhold ONLY the mark(s) attributable to reaching the correct FINAL answer — so a wrong final answer NEVER earns full marks, but correct method NEVER earns zero. On a single-mark question there are no separate method marks, so a wrong answer scores 0. Award marks in HALF-MARK units (½ is the smallest unit; no finer). Awarded marks must sum to a ½-multiple not exceeding the question\'s total, allocated to the ACTUAL steps — never invented to hit a number.\n' +
       '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
-      '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade. NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read. IMPORTANT EXCEPTION: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — it is NOT couldNotRead. Grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Never set couldNotRead for a clearly-written non-attempt phrase. Similarly, an answer that is clearly and completely crossed out with no replacement written is a NO-ATTEMPT — grade it as: status "incorrect", marks deducted = question marks, mistakeType null. Never set couldNotRead for a clearly crossed-out answer with no replacement.\n' +
+      rule6Head + ' NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read. IMPORTANT EXCEPTION: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — it is NOT couldNotRead. Grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Never set couldNotRead for a clearly-written non-attempt phrase. Similarly, an answer that is clearly and completely crossed out with no replacement written is a NO-ATTEMPT — grade it as: status "incorrect", marks deducted = question marks, mistakeType null. Never set couldNotRead for a clearly crossed-out answer with no replacement.\n' +
       '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).\n' +
       '8. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.\n' +
       '9. QUESTION MISCOPY: if the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as \'silly\'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.';
@@ -1279,10 +1332,42 @@ function createCheckSolutionRoute(deps) {
       'Read ALL pages carefully and grade every question you can read.\n\n' +
       jsonSchema + '\n\n' + rules;
 
-    const parts = [
-      { text: systemPrompt + '\n\n' + userPrompt },
-      buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 }),
-    ];
+    // ★ THE INTERLEAVE (BATCH-1). Nothing is stitched: each answer photo is its OWN
+    // part placed IMMEDIATELY after the text block that names its question, so the
+    // model is never asked to FIND "Q6" inside a document. A question with no
+    // upload simply has no image after it — that is the honest signal that nothing
+    // was photographed for it, and rule 1 tells the model exactly that.
+    const buildUploadParts = () => {
+      const p = [
+        {
+          text: systemPrompt + '\n\n' +
+            'Grade this student\'s worksheet. There are ' + questions.length + ' questions.\n\n' +
+            'QUESTIONS AND MARKING SCHEMES:',
+        },
+      ];
+      for (const q of questions) {
+        p.push({ text: '\n' + blockFor(q) });
+        const up = uploadByNumber.get(Number(q.qNumber));
+        if (up) {
+          p.push(buildGeminiImagePart({
+            mimeType: String(up.imageMimeType || 'image/jpeg'),
+            base64: String(up.imageBase64),
+          }));
+        }
+      }
+      p.push({
+        text: '\n\nEvery question above that has a photographed answer is followed by exactly one image of that answer, in the order listed.\n\n' +
+          jsonSchema + '\n\n' + rules,
+      });
+      return p;
+    };
+
+    const parts = hasUploads
+      ? buildUploadParts()
+      : [
+        { text: systemPrompt + '\n\n' + userPrompt },
+        buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 }),
+      ];
     const contents = [{ role: 'user', parts }];
 
     // A whole worksheet of structured grades is far larger than one question — give
@@ -1398,16 +1483,60 @@ function createCheckSolutionRoute(deps) {
     if (questions.length === 0) {
       return sendJson(res, 400, { ok: false, error: 'No worksheet questions supplied to grade against.' });
     }
-    if (!imageBase64) {
+
+    // BATCH-1 (additive): per-question answer images. Absent from every existing
+    // caller's payload, so `uploads` is [] for all four live surfaces and each
+    // branch below falls through to exactly the pre-existing behaviour.
+    //
+    // ★ INCLUSION IS BY EVIDENCE, NEVER BY TYPE. Which questions appear here is the
+    // CLIENT's decision and it must be "is there written working saved for this
+    // question?" — never the question's type. Nothing in this handler filters on
+    // section/format/objective, and it must stay that way: an objective question
+    // the student showed working for belongs in the batch, and one with no working
+    // saved does not, whatever its type.
+    const knownNumbers = new Set(questions.map((q) => q.qNumber));
+    const seenUpload = new Set();
+    const uploads = (Array.isArray(payload.uploads) ? payload.uploads : [])
+      .map((u) => ({
+        qNumber: Number(u && u.qNumber) || 0,
+        imageBase64: String((u && u.imageBase64) || '').trim(),
+        imageMimeType: String((u && u.imageMimeType) || 'image/jpeg').trim(),
+      }))
+      .filter((u) => {
+        if (!(u.qNumber > 0) || !u.imageBase64) return false;
+        if (!knownNumbers.has(u.qNumber)) return false;
+        if (seenUpload.has(u.qNumber)) return false;
+        seenUpload.add(u.qNumber);
+        return true;
+      });
+
+    if (uploads.length > MAX_BATCH_UPLOADS) {
+      return sendJson(res, 400, {
+        ok: false,
+        error: 'Too many answer photos in one grade — send at most ' + MAX_BATCH_UPLOADS + '.',
+      });
+    }
+    if (!imageBase64 && uploads.length === 0) {
       return sendJson(res, 400, { ok: false, error: 'Upload one PDF of your answers to grade.' });
     }
-    const imgCheck = validateMentorImagePayload(payload);
-    if (!imgCheck || !imgCheck.ok) {
-      return sendJson(res, 400, { ok: false, error: imgCheck ? imgCheck.error : 'Invalid upload' });
+    if (imageBase64) {
+      const imgCheck = validateMentorImagePayload(payload);
+      if (!imgCheck || !imgCheck.ok) {
+        return sendJson(res, 400, { ok: false, error: imgCheck ? imgCheck.error : 'Invalid upload' });
+      }
+    }
+    for (const u of uploads) {
+      const upCheck = validateMentorImagePayload({
+        imageBase64: u.imageBase64,
+        imageMimeType: u.imageMimeType,
+      });
+      if (!upCheck || !upCheck.ok) {
+        return sendJson(res, 400, { ok: false, error: upCheck ? upCheck.error : 'Invalid upload' });
+      }
     }
 
     try {
-      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject });
+      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads });
       if (!graded.ok) {
         return sendJson(res, 200, {
           ok: false,

@@ -502,14 +502,37 @@ export interface WorksheetGradeResponse {
   error?: string;
 }
 
+/** BATCH-1 (additive, absent by default) — ONE answer photo for ONE question, for a
+ *  surface where the student photographs each answer separately instead of scanning
+ *  a single labelled worksheet PDF. The server sends each image as its own part
+ *  IMMEDIATELY after that question's block, so the model never has to FIND a
+ *  question number inside a document.
+ *
+ *  ★ INCLUSION IS BY EVIDENCE, NEVER BY TYPE. A caller builds this list from
+ *  "is there written working saved for this question?" — never from the question's
+ *  type. An objective question the student showed working for belongs here; a
+ *  subjective one with nothing saved does not. */
+export interface WorksheetGradeUpload {
+  qNumber: number;
+  imageBase64: string;
+  imageMimeType?: string;
+}
+
 /** Grade a whole worksheet from ONE uploaded PDF against its known question set,
- *  in a single structured call (spec §6). */
+ *  in a single structured call (spec §6).
+ *
+ *  `uploads` is the per-question alternative (BATCH-1). Omit it — as all four
+ *  existing callers do — and both this request and the prompt the server builds
+ *  from it are byte-identical to the single-PDF path. `imageBase64` is optional
+ *  ONLY so an uploads-only caller is expressible; the server still rejects a
+ *  request carrying neither. */
 export async function gradeWorksheet(req: {
   worksheetId: string;
   subject?: string;
   questions: WorksheetGradeQuestionInput[];
-  imageBase64: string;
+  imageBase64?: string;
   imageMimeType?: string;
+  uploads?: WorksheetGradeUpload[];
 }): Promise<WorksheetGradeResponse> {
   const res = await fetch(`${API_BASE}/grade-worksheet`, {
     method: "POST",
