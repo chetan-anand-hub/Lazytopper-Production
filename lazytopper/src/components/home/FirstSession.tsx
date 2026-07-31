@@ -56,13 +56,13 @@ import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
  *   1. The kicker is "First session", not the prototype's "Start here" — the
  *      live Home already owns a "Start here" section label immediately below
  *      this card, and two of them stutter.
- *   2. The prototype's two mini-cards ("Exam Trends" / "Practice") are folded
- *      into ONE sentence with inline links instead of two tiles. The prototype
- *      had no hero row; the live Home renders BOTH of those destinations as
- *      hero cards directly beneath this card. Shipping tiles here would
- *      reproduce the duplicated-destination defect the Home redesign removed.
- *      The sentence keeps what the tiles actually carried — that these two work
- *      on day one, with no history.
+ *   2. The prototype's two mini-cards ("Exam Trends" / "Practice") are not
+ *      tiles. The prototype had no hero row; the live Home renders BOTH of
+ *      those destinations as hero cards, so tiles here would reproduce the
+ *      duplicated-destination defect the Home redesign removed. Practice is a
+ *      SECONDARY CTA beside the primary one (AUTH-2-FU §3 — Mistake
+ *      Intelligence is fed by five surfaces, so one door would misdescribe it),
+ *      and Exam Trends stays an inline link in the day-one sentence.
  *
  * ── NAME PROMPT: NOT HERE ─────────────────────────────────────────────────
  * The prototype's "What should I call you?" card is deliberately absent. Saving
@@ -106,12 +106,26 @@ const FIRST_SESSION_CSS = `
     font-size: 13.5px; color: rgba(255,255,255,0.78); margin: 0 0 16px;
     line-height: 1.55; max-width: 46ch;
   }
+  .lt-first .lt-first-ctas {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
   .lt-first .lt-first-cta {
     display: inline-flex; align-items: center; gap: 7px;
     background: hsl(152, 55%, 45%); color: #fff; text-decoration: none;
     border-radius: 10px; padding: 11px 19px; font-size: 14px; font-weight: 700;
   }
   .lt-first .lt-first-cta:hover { background: hsl(152, 57%, 40%); }
+  /* Secondary door. MI fills from FIVE surfaces (practice · C&I · chapter tests
+     · full mocks · worksheets — recordMistake has five callers), so a single
+     CTA would misdescribe how a student actually starts. Styled as an outline
+     button so it reads as an alternative, never as a second primary. */
+  .lt-first .lt-first-cta2 {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: transparent; color: rgba(255,255,255,0.92);
+    border: 1px solid rgba(255,255,255,0.34); text-decoration: none;
+    border-radius: 10px; padding: 10px 17px; font-size: 13.5px; font-weight: 700;
+  }
+  .lt-first .lt-first-cta2:hover { border-color: rgba(255,255,255,0.6); }
   .lt-first .lt-first-day1 {
     font-size: 12.5px; line-height: 1.55; margin: 15px 0 0;
     padding-top: 13px; border-top: 1px solid rgba(255,255,255,0.16);
@@ -127,7 +141,8 @@ const FIRST_SESSION_CSS = `
     .lt-first { padding: 19px 17px; border-radius: 14px; }
     .lt-first .lt-first-h { font-size: 19.5px; }
     .lt-first .lt-first-p { font-size: 13px; margin-bottom: 14px; }
-    .lt-first .lt-first-cta {
+    .lt-first .lt-first-ctas { flex-direction: column; align-items: stretch; gap: 9px; }
+    .lt-first .lt-first-cta, .lt-first .lt-first-cta2 {
       display: flex; justify-content: center; width: 100%;
       box-sizing: border-box; font-size: 13.5px;
     }
@@ -160,9 +175,28 @@ export interface FirstSessionProps {
    *  always-rendered wrapper would push the page down even when this renders
    *  null, which is the usual case. Mirrors `LinkPhoneNudge`. */
   spaced?: boolean;
+  /**
+   * ★ WHAT OCCUPIES THIS SLOT WHEN THE CARD DOES NOT.
+   *
+   * AUTH-2 mounted this card ABOVE Home's empty Mistake-Intelligence state, so a
+   * zero-attempt student was told the same thing twice, in two cards, on one
+   * screen. Both were honest; together they were noise.
+   *
+   * The fix is a SLOT, not a stack: Home passes its MI card as `fallback`, and
+   * exactly one of the two ever renders. This deliberately adds NO state — the
+   * tri-state below is untouched, and every non-"none" branch (no uid, read in
+   * flight, read returned rows, read threw) renders the fallback, which is
+   * precisely what Home rendered before this component existed. In particular
+   * the "loading" window still shows MI, so nothing flickers into place.
+   */
+  fallback?: React.ReactNode;
 }
 
-export default function FirstSession({ uid, spaced = false }: FirstSessionProps) {
+export default function FirstSession({
+  uid,
+  spaced = false,
+  fallback = null,
+}: FirstSessionProps) {
   const [activity, setActivity] = useState<ActivityState>("loading");
 
   useEffect(() => {
@@ -187,8 +221,9 @@ export default function FirstSession({ uid, spaced = false }: FirstSessionProps)
     };
   }, [uid]);
 
-  if (!uid) return null;
-  if (activity !== "none") return null;
+  // Tri-state UNCHANGED — only what fills the slot in the other branches is new.
+  if (!uid) return <>{fallback}</>;
+  if (activity !== "none") return <>{fallback}</>;
 
   return (
     /* The <style> is a SIBLING of the card, not a child: as a child its CSS text
@@ -210,19 +245,28 @@ export default function FirstSession({ uid, spaced = false }: FirstSessionProps)
           photograph it. That single check is what builds everything else on this
           page.
         </p>
-        <Link className="lt-first-cta" to={CHECK_TO} data-testid="first-session-cta">
-          Check my first answer <ArrowRight />
-        </Link>
+        <div className="lt-first-ctas">
+          <Link className="lt-first-cta" to={CHECK_TO} data-testid="first-session-cta">
+            Check my first answer <ArrowRight />
+          </Link>
+          {/* ★ TWO DOORS, DELIBERATELY. Mistake Intelligence is fed by FIVE
+              surfaces (recordMistake has five callers: practice, Check &
+              Improve, chapter tests, full mocks, worksheets). Offering only the
+              grading door would describe the product wrongly. */}
+          <Link
+            className="lt-first-cta2"
+            to={PRACTICE_TO}
+            data-testid="first-session-practice"
+          >
+            Or practise a set
+          </Link>
+        </div>
         <p className="lt-first-day1" data-testid="first-session-day-one">
           Nothing here is locked until then —{" "}
           <Link to={TRENDS_TO} data-testid="first-session-trends">
             Exam Trends
           </Link>{" "}
-          and{" "}
-          <Link to={PRACTICE_TO} data-testid="first-session-practice">
-            Practice
-          </Link>{" "}
-          both work right now, with no history needed.
+          works right now, with no history needed.
         </p>
       </section>
     </>

@@ -102,17 +102,32 @@ describe("1 · the start card appears for a zero-attempt student", () => {
     expect(cta.getAttribute("href")).toBe("/check-improve?source=home&returnTo=%2F");
   });
 
-  it("says what already works on day one — Exam Trends and Practice", async () => {
+  it("says what already works on day one — Exam Trends", async () => {
     renderIn(<FirstSession uid="test-uid" />);
 
     const dayOne = await screen.findByTestId("first-session-day-one");
-    expect(dayOne).toHaveTextContent("both work right now, with no history needed");
+    expect(dayOne).toHaveTextContent("works right now, with no history needed");
     expect(screen.getByTestId("first-session-trends").getAttribute("href")).toBe(
       "/exam-trends?source=home&returnTo=%2F",
     );
-    expect(screen.getByTestId("first-session-practice").getAttribute("href")).toBe(
-      "/practice-hub?source=home&returnTo=%2F",
-    );
+  });
+
+  // ── ASSERTION 5 · BOTH doors, and the mutation that proves it ────────────
+  //
+  // ★ Mistake Intelligence is fed by FIVE surfaces (recordMistake has five
+  // callers), so a single CTA would describe the product wrongly. M3 for this
+  // lane is "drop the secondary CTA" — it goes red here.
+  it("★ offers BOTH CTAs — check an answer, or practise a set", async () => {
+    renderIn(<FirstSession uid="test-uid" />);
+    await screen.findByTestId("first-session-card");
+
+    const primary = screen.getByTestId("first-session-cta");
+    expect(primary).toHaveTextContent("Check my first answer");
+    expect(primary.getAttribute("href")).toBe("/check-improve?source=home&returnTo=%2F");
+
+    const secondary = screen.getByTestId("first-session-practice");
+    expect(secondary).toHaveTextContent("Or practise a set");
+    expect(secondary.getAttribute("href")).toBe("/practice-hub?source=home&returnTo=%2F");
   });
 
   it("invents nothing — no counts, no progress, no percentages", async () => {
@@ -183,7 +198,11 @@ describe("3+4 · the name prompt is deliberately absent (see [FU-AUTH-NAME-PROMP
 
 // ── 5 · The MI panel says what it is waiting for, not zeroes ───────────────
 describe("5 · Mistake Intelligence shows a waiting message, never hollow zeroes", () => {
+  // AUTH-2-FU §3: MI and the first-session card now share ONE slot, so the MI
+  // empty state is what a student WITH graded attempts but no logged mistakes
+  // sees. `records = ONE_RECORD` puts the page in exactly that state.
   it("DesktopHome: em-dash placeholders and an explicit waiting message", async () => {
+    sessions.records = ONE_RECORD;
     renderIn(<DesktopHome />);
     const mi = await screen.findByTestId("home-mi-card");
 
@@ -204,6 +223,7 @@ describe("5 · Mistake Intelligence shows a waiting message, never hollow zeroes
   });
 
   it("MobileHome: same contract on the signed-in empty state", async () => {
+    sessions.records = ONE_RECORD;
     renderIn(<MobileHome />);
     const mi = await screen.findByTestId("mobile-home-mistake-panel");
 
@@ -322,5 +342,133 @@ describe("7 · behaviour during hydration", () => {
     cleanup();
     renderIn(<FirstSession uid="test-uid" />);
     expect(await screen.findByTestId("first-session-card")).toBeTruthy();
+  });
+});
+
+// ── 8 · ★★ ONE CARD, ONE SLOT (AUTH-2-FU §3) ───────────────────────────────
+//
+// THE DEFECT THIS LANE EXISTS TO FIX. AUTH-2 mounted the first-session card
+// ABOVE Home's empty Mistake-Intelligence state, so a zero-attempt student was
+// told the same thing twice, in two cards, on one screen.
+//
+// ★ THESE ASSERT A COUNT, NOT AN EXISTENCE. `getByTestId(...)` is satisfied by
+// one card whether or not a second is stacked above it; only a count can see
+// the defect. M1 for this lane — re-render the MI card alongside the
+// first-session card — turns these red and nothing else in the suite.
+function homeCardCount(): number {
+  return (
+    screen.queryAllByTestId("first-session-card").length +
+    screen.queryAllByTestId("home-mi-card").length +
+    screen.queryAllByTestId("mobile-home-mistake-panel").length
+  );
+}
+
+describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
+  it("★ DesktopHome · zero attempts → count is 1, and it is the first-session card", async () => {
+    sessions.records = [];
+    renderIn(<DesktopHome />);
+    await screen.findByTestId("first-session-card");
+    await waitFor(() => expect(sessions.reads).toBe(1));
+
+    expect(homeCardCount()).toBe(1);
+    expect(screen.queryByTestId("home-mi-card")).toBeNull();
+  });
+
+  it("★ DesktopHome · with attempts → count is STILL 1, now the MI card", async () => {
+    sessions.records = ONE_RECORD;
+    renderIn(<DesktopHome />);
+    await screen.findByTestId("home-mi-card");
+    await waitFor(() => expect(sessions.reads).toBe(1));
+
+    expect(homeCardCount()).toBe(1);
+    expect(screen.queryByTestId("first-session-card")).toBeNull();
+  });
+
+  it("★ MobileHome · zero attempts → count is 1, and it is the first-session card", async () => {
+    sessions.records = [];
+    renderIn(<MobileHome />);
+    await screen.findByTestId("first-session-card");
+    await waitFor(() => expect(sessions.reads).toBe(1));
+
+    expect(homeCardCount()).toBe(1);
+    expect(screen.queryByTestId("mobile-home-mistake-panel")).toBeNull();
+  });
+
+  it("★ MobileHome · with attempts → count is STILL 1, now the MI card", async () => {
+    sessions.records = ONE_RECORD;
+    renderIn(<MobileHome />);
+    await screen.findByTestId("mobile-home-mistake-panel");
+    await waitFor(() => expect(sessions.reads).toBe(1));
+
+    expect(homeCardCount()).toBe(1);
+    expect(screen.queryByTestId("first-session-card")).toBeNull();
+  });
+
+  // ── SAME SLOT, not merely "one of each somewhere on the page" ────────────
+  //
+  // ★ A count alone cannot tell "replaced the empty state" from "replaced
+  // something else and deleted MI". This pins the POSITION: whichever card
+  // renders, it is the SAME DOM position — between the hero grid and the quick
+  // strip on desktop, and between the hero dots and the quick links on mobile.
+  it("★ DesktopHome · both states occupy the SAME slot — after the heroes, before the quick strip", async () => {
+    sessions.records = [];
+    const zero = renderIn(<DesktopHome />);
+    const firstCard = await screen.findByTestId("first-session-card");
+    const heroZero = screen.getAllByTestId("home-hero")[0];
+    const quickZero = screen.getAllByTestId("home-quick-tile")[0];
+    // Node.DOCUMENT_POSITION_FOLLOWING === 4
+    expect(heroZero.compareDocumentPosition(firstCard) & 4).toBe(4);
+    expect(firstCard.compareDocumentPosition(quickZero) & 4).toBe(4);
+    zero.unmount();
+    cleanup();
+
+    sessions.reads = 0;
+    sessions.records = ONE_RECORD;
+    renderIn(<DesktopHome />);
+    const miCard = await screen.findByTestId("home-mi-card");
+    const heroSome = screen.getAllByTestId("home-hero")[0];
+    const quickSome = screen.getAllByTestId("home-quick-tile")[0];
+    expect(heroSome.compareDocumentPosition(miCard) & 4).toBe(4);
+    expect(miCard.compareDocumentPosition(quickSome) & 4).toBe(4);
+  });
+
+  it("★ MobileHome · both states occupy the SAME slot — after the heroes, before the quick links", async () => {
+    sessions.records = [];
+    const zero = renderIn(<MobileHome />);
+    const firstCard = await screen.findByTestId("first-session-card");
+    const heroZero = screen.getAllByTestId("mobile-home-destination")[0];
+    const quickZero = screen.getAllByTestId("mobile-home-quick-link")[0];
+    expect(heroZero.compareDocumentPosition(firstCard) & 4).toBe(4);
+    expect(firstCard.compareDocumentPosition(quickZero) & 4).toBe(4);
+    zero.unmount();
+    cleanup();
+
+    sessions.reads = 0;
+    sessions.records = ONE_RECORD;
+    renderIn(<MobileHome />);
+    const miCard = await screen.findByTestId("mobile-home-mistake-panel");
+    const heroSome = screen.getAllByTestId("mobile-home-destination")[0];
+    const quickSome = screen.getAllByTestId("mobile-home-quick-link")[0];
+    expect(heroSome.compareDocumentPosition(miCard) & 4).toBe(4);
+    expect(miCard.compareDocumentPosition(quickSome) & 4).toBe(4);
+  });
+
+  // ── ASSERTION 2 · the greeting is not on the page body any more ──────────
+  //
+  // It moved INLINE into DesktopShell's header (§1/§2). This page must not
+  // render a second one — DesktopShell.test.tsx owns the positive assertion
+  // that the header carries it.
+  // ★ CONTROL: the page IS rendered (the heroes prove it), so the negative is
+  // not the vacuous pass of a page that failed to mount.
+  it("★ DesktopHome renders NO greeting of its own — the header owns it now", async () => {
+    sessions.records = ONE_RECORD;
+    renderIn(<DesktopHome />);
+    await screen.findByTestId("home-mi-card");
+
+    expect(screen.getAllByTestId("home-hero").length).toBeGreaterThan(0); // CONTROL
+    expect(screen.queryByText(/Good (morning|afternoon|evening)/)).toBeNull();
+    // The card's other two elements went with it.
+    expect(screen.queryByText(/CBSE · Maths & Science/)).toBeNull();
+    expect(screen.queryByText(/^Signed in$/)).toBeNull();
   });
 });

@@ -255,8 +255,11 @@ export default function LinkPhoneNudge({ spaced = false }: { spaced?: boolean } 
           </span>
           <div className="lt-linknudge__body">
             <p className="lt-linknudge__title">Studying on your phone too?</p>
+            {/* AUTH-2-FU §5 — the card copy the owner ruled: say what linking
+                BUYS (one account, same progress), not merely what it does. */}
             <p className="lt-linknudge__sub">
-              Add your number so you can sign in either way.
+              Add your number and either one signs you in — same account, same
+              progress.
             </p>
           </div>
           <div className="lt-linknudge__actions">

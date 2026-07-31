@@ -22,14 +22,35 @@ vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({ user: authState.user, logout: authState.logout }),
 }));
 // MobileAccountMenu (PR-A2) additionally reads tier + daysLeftInTrial.
-vi.mock("../../hooks/useSubscription", () => ({
-  useSubscription: () => ({
+// AUTH-2-FU: made MUTABLE — the values it defaults to are byte-identical to the
+// fixed object it replaces, so every pre-existing test sees exactly what it saw
+// before. Mutability exists for ONE reason: the header status pill has to be
+// exercised in a state where it MUST render, or "no 'Signed in' pill" would be
+// a vacuous negative that also passes when the header stops rendering at all.
+const FREE_SUBSCRIPTION = {
+  tier: "free",
+  isTrialActive: false,
+  isPremium: false,
+  isTrialExpired: false,
+  daysLeftInTrial: 0,
+};
+const subscriptionState = vi.hoisted(() => ({
+  value: {
     tier: "free",
     isTrialActive: false,
     isPremium: false,
     isTrialExpired: false,
     daysLeftInTrial: 0,
-  }),
+  } as {
+    tier: string;
+    isTrialActive: boolean;
+    isPremium: boolean;
+    isTrialExpired: boolean;
+    daysLeftInTrial: number;
+  },
+}));
+vi.mock("../../hooks/useSubscription", () => ({
+  useSubscription: () => subscriptionState.value,
 }));
 
 import MobileHome from "./MobileHome";
@@ -39,6 +60,7 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 afterEach(() => {
   cleanup();
   authState.user = null; // never leak signed-in state into a later test
+  subscriptionState.value = { ...FREE_SUBSCRIPTION }; // nor trial/premium state
 });
 
 function renderMobileHome() {
@@ -532,6 +554,73 @@ describe("MobileShell — unchanged by the MobileAccountMenu extraction", () => 
       </MemoryRouter>,
     );
     expect(screen.queryByRole("button", { name: /open account menu/i })).toBeNull();
+  });
+});
+
+/**
+ * AUTH-2-FU §2 (owner-ruled scope EXTENSION) — the mobile brand bar used to
+ * render a "Signed in" pill next to the account avatar. That is the SAME
+ * redundancy this lane deleted from the desktop greeting card. Leaving it would
+ * have left the two surfaces disagreeing about whether that pill is noise.
+ *
+ * ★ Every assertion below that something is ABSENT is paired with a CONTROL in
+ * which the very same query FINDS something — otherwise a renamed pill, a
+ * header that stopped rendering, or a component that threw would all pass.
+ */
+describe("★ AUTH-2-FU · MobileHome brand bar — the redundant 'Signed in' pill is gone", () => {
+  it("signed in on a free account: NO 'Signed in' pill — CONTROL: the bar and the avatar still render", () => {
+    setMatchMediaMatches(false);
+    signIn();
+    renderMobileHome();
+
+    // CONTROL 1 — the brand bar really did render, so the negative below is
+    // not the vacuous pass of a page that failed to mount.
+    expect(screen.getByText("LazyTopper")).toBeInTheDocument();
+    // CONTROL 2 — the avatar, which is the thing that ALREADY says "signed in",
+    // is present. The pill's whole justification is that this is redundant.
+    expect(screen.getByRole("button", { name: /open account menu/i })).toBeInTheDocument();
+
+    // THE ASSERTION.
+    expect(screen.queryByText(/^Signed in$/)).toBeNull();
+    expect(screen.queryByTestId("mobile-home-status-pill")).toBeNull();
+  });
+
+  it("★ CONTROL: the pill element itself is alive — a trialling student still sees 'Trial active' in that slot", () => {
+    setMatchMediaMatches(false);
+    signIn();
+    subscriptionState.value = {
+      ...FREE_SUBSCRIPTION,
+      isTrialActive: true,
+      daysLeftInTrial: 5,
+    };
+    renderMobileHome();
+
+    const pill = screen.getByTestId("mobile-home-status-pill");
+    expect(pill).toHaveTextContent("Trial active");
+    // ...and it is still "Signed in"-free: the deletion removed one BRANCH, not
+    // the pill. If a future edit reinstated the branch, the test above goes red.
+    expect(screen.queryByText(/^Signed in$/)).toBeNull();
+  });
+
+  it("the two other informative states survive — 'Premium' and 'Trial expired' were never the redundancy", () => {
+    setMatchMediaMatches(false);
+    signIn();
+    subscriptionState.value = { ...FREE_SUBSCRIPTION, tier: "premium", isPremium: true };
+    renderMobileHome();
+    expect(screen.getByTestId("mobile-home-status-pill")).toHaveTextContent("Premium");
+    cleanup();
+
+    signIn();
+    subscriptionState.value = { ...FREE_SUBSCRIPTION, isTrialExpired: true };
+    renderMobileHome();
+    expect(screen.getByTestId("mobile-home-status-pill")).toHaveTextContent("Trial expired");
+  });
+
+  it("signed OUT is untouched — the 'Start free' call to action still occupies the slot", () => {
+    setMatchMediaMatches(false);
+    renderMobileHome();
+    expect(screen.getByText("Start free")).toBeInTheDocument();
+    expect(screen.queryByText(/^Signed in$/)).toBeNull();
   });
 });
 
