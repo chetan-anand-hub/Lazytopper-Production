@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useSubscription } from "../../hooks/useSubscription";
 import {
   getMistakeLogs,
   type MistakeLogEntry,
@@ -14,7 +13,6 @@ import {
 } from "../../lib/desktop/landingMemory";
 import {
   HOME_ACCENTS,
-  loginUrl,
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
@@ -25,10 +23,13 @@ import FirstSession from "../../components/home/FirstSession";
  * DesktopHome — the Home cockpit at desktop width (and at /browse for a
  * signed-out desktop visitor).
  *
- * HOME REDESIGN PR-A. Section order now matches the owner-approved prototype
- * (`LazyTopper_Home_Redesign_prototype_v9_FINAL`):
- *   greeting band → "Start here" (4 hero cards) → "Your mistakes, understood"
- *   (MI, full width) → "Jump straight in" (quick strip).
+ * Section order (AUTH-2-FU §4 — owner ruling):
+ *   phone-linking nudge → "Start here" (4 hero cards) → the MERGED card
+ *   (first-session OR MI, one slot) → resume strip → latest saved worksheet →
+ *   "Jump straight in" (quick strip).
+ * The heroes come before the merged card so a new student sees WHAT THE PRODUCT
+ * DOES before being told what to do; the nudge stays on top because it is an
+ * action we want taken, not a suggestion.
  *
  * What changed and why:
  *   - The Worksheets hero is RETIRED. It and the Practice card carried the
@@ -48,7 +49,8 @@ import FirstSession from "../../components/home/FirstSession";
  * returning student keeps the resume affordances the prototype never modelled.
  *
  * Honest copy contract:
- *   - Greeting uses a real account display name (or none) — never an invented one.
+ *   - The greeting is no longer on this page at all — it is inline in
+ *     DesktopShell's header, which wraps every entry to this page.
  *   - No days-to-boards countdown: the only real source (`cbseExamDate`) is an
  *     async API whose date may be `"predicted"` rather than `"official"`, and
  *     students have an existing `hideCountdown` preference. Rendering it here
@@ -71,7 +73,6 @@ const CARD_BORDER = "hsl(215, 25%, 90%)";  // --border
 const TEXT = "hsl(220, 45%, 14%)";         // --foreground
 const TEXT_MUTED = "hsl(220, 15%, 45%)";   // --muted-foreground
 const ACCENT = "hsl(152, 55%, 45%)";       // --accent (teal-green)
-const ACCENT_SOFT = "hsla(152, 55%, 45%, 0.10)";
 const PRIMARY = "hsl(222, 47%, 24%)";      // --primary (deep navy)
 const SHADOW_SM = "0 1px 2px hsla(222, 40%, 20%, 0.04)";
 const SHADOW_MD = "0 12px 28px -12px hsla(222, 40%, 20%, 0.18)";
@@ -179,13 +180,6 @@ function aggregateBuckets(entries: MistakeLogEntry[]): BucketTotals {
   return { total, totals, topLabel };
 }
 
-// ── GREETING (real name only — never invented) ──────────────────
-function greetingFor(hour: number): string {
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
-
 // ── DATE FORMAT (saved-on label) ────────────────────────────────
 function formatSavedOn(iso: string): string | null {
   try {
@@ -209,39 +203,12 @@ const cardBaseStyle: React.CSSProperties = {
   boxShadow: SHADOW_SM,
 };
 
-const chipStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 6,
-  padding: "4px 10px",
-  borderRadius: 999,
-  background: "hsl(215, 28%, 95%)",
-  border: `1px solid ${CARD_BORDER}`,
-  color: TEXT_MUTED,
-  fontSize: 11,
-  fontWeight: 600,
-  letterSpacing: "0.02em",
-};
-
-const chipAccentStyle: React.CSSProperties = {
-  ...chipStyle,
-  background: ACCENT_SOFT,
-  borderColor: "hsla(152, 55%, 45%, 0.30)",
-  color: "hsl(152, 60%, 30%)",
-};
-
 /**
  * Scoped CSS for the redesigned structures. Hover states and the card spine
  * (a ::before) cannot be expressed as inline style objects, and CLAUDE.md §7
  * bars inline style objects in new components.
  */
 const HOME_CSS = `
-  .lt-home-greet {
-    background: linear-gradient(112deg, hsl(152,50%,96%), hsl(42,80%,97%) 62%, #fff);
-    border: 1px solid hsl(152, 42%, 86%);
-    border-radius: 18px; padding: 18px 20px;
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-  }
   .lt-home-sect {
     font-size: 10.5px; font-weight: 800; letter-spacing: 0.09em;
     text-transform: uppercase; color: hsl(220, 15%, 60%); margin: 0;
@@ -338,7 +305,6 @@ const HOME_CSS = `
 // ── COMPONENT ──────────────────────────────────────────────────
 export default function DesktopHome() {
   const { user } = useAuth();
-  const { isTrialActive, isPremium, isTrialExpired } = useSubscription();
   const isSignedIn = !!user;
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
@@ -399,40 +365,6 @@ export default function DesktopHome() {
       : "Maths";
   const fallbackGrade = memoryGrade && memoryGrade.trim() ? memoryGrade : "10";
 
-  // Real display name only — no invented personalisation.
-  const firstName = (user?.displayName ?? "").trim().split(/\s+/)[0] || "";
-  const greeting = greetingFor(new Date().getHours());
-
-  // Right-side header chip — truthful auth/trial state.
-  // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
-  const rightChip: React.ReactNode = !isSignedIn ? (
-    <Link
-      to={loginUrl("start-trial", "/")}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "10px 16px",
-        borderRadius: 10,
-        background: PRIMARY,
-        color: "#fff",
-        textDecoration: "none",
-        fontSize: 13,
-        fontWeight: 600,
-      }}
-    >
-      Start free trial <ArrowRightIcon size={14} />
-    </Link>
-  ) : isTrialActive ? (
-    <span style={chipAccentStyle}>Trial active</span>
-  ) : isPremium ? (
-    <span style={chipAccentStyle}>Premium</span>
-  ) : isTrialExpired ? (
-    <span style={chipStyle}>Trial expired</span>
-  ) : (
-    <span style={chipStyle}>Signed in</span>
-  );
-
   return (
     <div
       style={{
@@ -451,34 +383,15 @@ export default function DesktopHome() {
           gap: 24,
         }}
       >
-        {/* ── Greeting band ────────────────────────────────────── */}
-        <header className="lt-home-greet">
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <h1
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontSize: 24,
-                fontWeight: 600,
-                lineHeight: 1.15,
-                color: TEXT,
-                margin: 0,
-                letterSpacing: "-0.015em",
-              }}
-            >
-              {firstName ? `${greeting}, ${firstName}` : greeting}
-            </h1>
-            <p
-              style={{
-                color: TEXT_MUTED,
-                margin: "4px 0 0",
-                fontSize: 12.5,
-              }}
-            >
-              Class {fallbackGrade} · CBSE · Maths &amp; Science
-            </p>
-          </div>
-          {rightChip}
-        </header>
+        {/* ── The greeting band is GONE (AUTH-2-FU §1/§2) ────────
+            The greeting itself moved INLINE into DesktopShell's header, which
+            wraps this page at every entry ("/" signed-in and "/browse", both
+            via isDesktopShellRoute) — so it did not lose a home. What was
+            deleted outright is the card's other two elements: the
+            "Class 10 · CBSE · Maths & Science" subtext (a student using this
+            product already knows what it is) and the "Signed in" pill (the
+            header avatar already says so). Trial/premium state remains
+            truthfully stated by the shell's own account chip. */}
 
         {/* ── One-time phone-linking nudge ──────────────────────
             Renders null unless the student is signed in with a real account,
@@ -486,13 +399,81 @@ export default function DesktopHome() {
             RETURNED at least once. All four live inside the component. */}
         <LinkPhoneNudge />
 
-        {/* ── First session — the start card ─────────────────────
-            Renders ONLY for a signed-in uid whose graded-session history has
-            been READ and came back empty. Tri-state inside the component: it
-            stays silent while that read is in flight, so a returning student
-            mid-hydration is never greeted as new. Sits above "Start here"
-            because it IS the one next action; the hero grid stays the menu. */}
-        <FirstSession uid={user?.uid ?? null} />
+        {/* ── Start here — 4 hero cards ──────────────────────────
+            AUTH-2-FU §4: the heroes now come BEFORE the merged card, so a new
+            student sees WHAT THE PRODUCT DOES before being told what to do. */}
+        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p className="lt-home-sect">Start here</p>
+          <div className="lt-home-heroes">
+            {PRIMARY_CARDS.map((c) => {
+              const Icon = c.icon;
+              const a = HOME_ACCENTS[c.accent];
+              // Tones as custom properties: the CSS owns the treatment (incl.
+              // :hover), this owns only which accent the card wears.
+              const shell = {
+                "--lt-spine": a.spine,
+                "--lt-line": a.border,
+                "--lt-accent": a.hover,
+              } as React.CSSProperties;
+              const inner = (
+                <>
+                  <span className="lt-ic" style={{ color: a.ink }}>
+                    <Icon size={19} />
+                  </span>
+                  <p className="lt-lb">{c.label}</p>
+                  <p className="lt-sb">{c.sub}</p>
+                  <span className="lt-go" style={{ color: a.ink }}>
+                    {c.go}
+                  </span>
+                </>
+              );
+              // The tutor card opens the pop-card; it has no destination of its
+              // own because the URL needs a subject + chapter first.
+              return c.kind === "tutor" ? (
+                <button
+                  key={c.label}
+                  type="button"
+                  className="lt-home-card"
+                  data-testid="home-hero-tutor"
+                  style={shell}
+                  onClick={openTutorPicker}
+                >
+                  {inner}
+                </button>
+              ) : (
+                <Link
+                  key={c.label}
+                  to={c.to}
+                  className="lt-home-card"
+                  data-testid="home-hero"
+                  style={shell}
+                >
+                  {inner}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── ★ THE MERGED CARD — ONE slot, content by state ─────
+            AUTH-2-FU §3, the defect this lane exists to fix. AUTH-2 mounted the
+            first-session card ABOVE this slot while the empty MI state still
+            rendered inside it, so a zero-attempt student was told the same
+            thing twice, in two cards, on one screen.
+
+            Now there is ONE card in ONE position: `FirstSession` renders here
+            when the graded-history read has completed and returned zero rows,
+            and its `fallback` — the real MI card — renders in every other case,
+            which is exactly what this slot showed before. The tri-state
+            hydration handling inside FirstSession is untouched.
+
+            The old "Your mistakes, understood" section label is gone with it: a
+            label cannot be right for both states, and each card already carries
+            its own kicker ("Mistake Intelligence" / "First session"). */}
+        <FirstSession
+          uid={user?.uid ?? null}
+          fallback={<MistakeIntelligenceCard buckets={buckets} />}
+        />
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (
@@ -710,66 +691,6 @@ export default function DesktopHome() {
             </div>
           </section>
         )}
-
-        {/* ── Start here — 4 hero cards ────────────────────────── */}
-        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p className="lt-home-sect">Start here</p>
-          <div className="lt-home-heroes">
-            {PRIMARY_CARDS.map((c) => {
-              const Icon = c.icon;
-              const a = HOME_ACCENTS[c.accent];
-              // Tones as custom properties: the CSS owns the treatment (incl.
-              // :hover), this owns only which accent the card wears.
-              const shell = {
-                "--lt-spine": a.spine,
-                "--lt-line": a.border,
-                "--lt-accent": a.hover,
-              } as React.CSSProperties;
-              const inner = (
-                <>
-                  <span className="lt-ic" style={{ color: a.ink }}>
-                    <Icon size={19} />
-                  </span>
-                  <p className="lt-lb">{c.label}</p>
-                  <p className="lt-sb">{c.sub}</p>
-                  <span className="lt-go" style={{ color: a.ink }}>
-                    {c.go}
-                  </span>
-                </>
-              );
-              // The tutor card opens the pop-card; it has no destination of its
-              // own because the URL needs a subject + chapter first.
-              return c.kind === "tutor" ? (
-                <button
-                  key={c.label}
-                  type="button"
-                  className="lt-home-card"
-                  data-testid="home-hero-tutor"
-                  style={shell}
-                  onClick={openTutorPicker}
-                >
-                  {inner}
-                </button>
-              ) : (
-                <Link
-                  key={c.label}
-                  to={c.to}
-                  className="lt-home-card"
-                  data-testid="home-hero"
-                  style={shell}
-                >
-                  {inner}
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── Your mistakes, understood — MI, full width ───────── */}
-        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p className="lt-home-sect">Your mistakes, understood</p>
-          <MistakeIntelligenceCard buckets={buckets} />
-        </section>
 
         {/* ── Jump straight in — quick strip ───────────────────── */}
         <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>

@@ -170,13 +170,37 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+/**
+ * Time-of-day greeting, from the device clock.
+ *
+ * MOVED VERBATIM from `DesktopHome`'s deleted greeting card (AUTH-2-FU §1/§2) —
+ * the thresholds are the ones that already shipped, not new ones. It is a REAL
+ * reading of `new Date().getHours()`, so a student on the app at 02:00 is
+ * greeted "Good morning": that is the shipped behaviour, it is not invented,
+ * and this lane deliberately did not change it. See the report's
+ * [FU-SHELL-GREETING-SMALL-HOURS] if it should say something else at 00:00-04:00.
+ */
+function greetingFor(hour: number): string {
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 interface DesktopShellProps {
   children: ReactNode;
-  /** Optional handler so the top-bar Search box can open the existing CommandPalette. */
+  /**
+   * Optional handler that opened the header's search box.
+   *
+   * ★ RETAINED, DELIBERATELY UNUSED. The box it drove was a fake affordance and
+   * is gone (§1); the prop stays so App.tsx — frozen to zero-diff by the overlay
+   * acceptance gates — continues to typecheck against this component. The
+   * CommandPalette keeps its own live triggers (Ctrl/Cmd+K and App.tsx's mobile
+   * header button), so nothing became unreachable.
+   */
   onOpenSearch?: () => void;
 }
 
-export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
+export function DesktopShell({ children }: DesktopShellProps) {
   const { user, logout } = useAuth();
   const { tier, isTrialActive, isTrialExpired, daysLeftInTrial } = useSubscription();
   const navigate = useNavigate();
@@ -190,6 +214,10 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
     ? (user.displayName || user.email || "S").charAt(0).toUpperCase()
     : null;
   const identityLabel = user?.displayName || user?.email || "Student";
+  // Real account display name only — never an invented one. A student with no
+  // displayName gets the bare greeting, exactly as the deleted Home card did.
+  const greetingName = (user?.displayName ?? "").trim().split(/\s+/)[0] || "";
+  const greeting = greetingFor(new Date().getHours());
   const identitySubLabel = user?.email || user?.phoneNumber || "Signed in account";
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   const manageSubscriptionUrl = `/pricing?source=account-menu&returnTo=${encodeURIComponent(returnTo)}`;
@@ -250,7 +278,8 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
   const SURFACE_TEXT_MUTED = "hsl(220, 15%, 45%)"; // --muted-foreground
   const SURFACE_CARD = "hsl(0, 0%, 100%)";        // --card
   const SURFACE_BORDER = "hsl(215, 25%, 90%)";    // --border
-  const SURFACE_MUTED_BG = "hsl(215, 28%, 95%)";  // --muted (search rest state)
+  // SURFACE_MUTED_BG deleted with the header search box it was the rest state
+  // for (AUTH-2-FU §1). No other consumer existed.
 
   return (
     <div
@@ -423,51 +452,37 @@ export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
             color: SURFACE_TEXT,
           }}
         >
-          {/* Search input — opens CommandPalette on focus/click */}
-          <div style={{ position: "relative", flex: 1, maxWidth: 480 }}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {/* ── Greeting — the header's left-hand content (AUTH-2-FU §1) ──
+              A `readOnly` search box used to sit here, promising "Search
+              topics, chapters, questions…". It DID open something — App.tsx's
+              CommandPalette — but that palette searches a fixed list of seven
+              quick actions, never a topic, chapter or question. A control that
+              names three things it cannot find is the interaction form of the
+              fake-data defect CLAUDE.md §5 bans, and it sat on the first screen
+              a student sees. Deleted rather than repaired: real search is its
+              own lane.
+
+              The palette is NOT orphaned by this — it keeps its Ctrl/Cmd+K
+              binding and the "Search" button in App.tsx's mobile header. The
+              `onOpenSearch` prop stays on the interface so App.tsx (frozen to
+              zero-diff by the overlay acceptance gates) still typechecks. */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p
+              data-testid="shell-greeting"
               style={{
-                position: "absolute",
-                left: 12,
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: SURFACE_TEXT_MUTED,
-                pointerEvents: "none",
-              }}
-              aria-hidden="true"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
-            <input
-              type="search"
-              placeholder="Search topics, chapters, questions…"
-              readOnly
-              onFocus={onOpenSearch}
-              onClick={onOpenSearch}
-              style={{
-                width: "100%",
-                height: 36,
-                padding: "0 12px 0 36px",
-                borderRadius: 8,
-                background: SURFACE_MUTED_BG,
-                border: "1px solid transparent",
-                outline: "none",
-                fontSize: 14,
+                margin: 0,
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 17,
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
                 color: SURFACE_TEXT,
-                cursor: "pointer",
-                transition: "background 0.15s, border-color 0.15s",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
-              aria-label="Search (opens command palette)"
-            />
+            >
+              {greetingName ? `${greeting}, ${greetingName}` : greeting}
+            </p>
           </div>
 
           {/* Right utility cluster — restrained per baseline */}

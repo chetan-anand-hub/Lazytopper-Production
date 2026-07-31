@@ -36,9 +36,10 @@ import {
  * renders at `/browse`. It is the per-platform counterpart to `DesktopHome`
  * (the route branches `isDesktop ? <DesktopHome/> : <MobileHome/>`).
  *
- * HOME REDESIGN PR-A. Order now matches the owner-approved prototype v9:
- *   brand bar → greeting → hero CAROUSEL + dots → MI card → collapsed quick
- *   links. MI sits near the top instead of four scrolls down.
+ * Order (AUTH-2-FU §4 — owner ruling):
+ *   brand bar → greeting → phone-linking nudge → hero CAROUSEL + dots → the
+ *   MERGED card (first-session OR MI, ONE slot) → resume strip → collapsed
+ *   quick links.
  *
  * ── Card inventory is now genuinely SHARED ────────────────────────────────
  * This page used to hardcode its own titles inline while importing only
@@ -590,6 +591,15 @@ export default function MobileHome() {
 
   // Header trial/affordance chip — honest states only (no fake day counts).
   // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
+  //
+  // AUTH-2-FU §2 (scope EXTENSION, owner-ruled): the plain signed-in branch used
+  // to render a "Signed in" pill. That is the SAME redundancy this lane deleted
+  // from the desktop greeting card — the account avatar sitting next to it
+  // already says the student is signed in — so it renders nothing here now.
+  // The three states that carry information a student cannot otherwise see
+  // (Trial active / Premium / Trial expired) are UNCHANGED, as is the
+  // signed-out "Start free" call to action. Deleting those would be an honest
+  // information loss, not a de-duplication.
   const trialChip = !isSignedIn ? (
     <Link
       to={loginUrl("start-trial", "/")}
@@ -608,8 +618,9 @@ export default function MobileHome() {
     >
       Start free
     </Link>
-  ) : (
+  ) : isTrialActive || isPremium || isTrialExpired ? (
     <span
+      data-testid="mobile-home-status-pill"
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -622,9 +633,9 @@ export default function MobileHome() {
         whiteSpace: "nowrap",
       }}
     >
-      {isTrialActive ? "Trial active" : isPremium ? "Premium" : isTrialExpired ? "Trial expired" : "Signed in"}
+      {isTrialActive ? "Trial active" : isPremium ? "Premium" : "Trial expired"}
     </span>
-  );
+  ) : null;
 
   return (
     <div
@@ -696,53 +707,6 @@ export default function MobileHome() {
             it down by 13px even in the (usual) case where the nudge renders
             null. */}
         <LinkPhoneNudge spaced />
-
-        {/* First session — the start card. Same component, same conditions as
-            DesktopHome: signed-in uid, graded-session history READ and empty.
-            `spaced` supplies this page's 13px rhythm as a PROP for the same
-            reason LinkPhoneNudge does — it usually renders null.
-            It cannot collide with the resume strip below: that needs meaningful
-            landing memory, which a zero-attempt student does not have. */}
-        <FirstSession uid={user?.uid ?? null} spaced />
-
-        {/* Returning / signed-in: resume strip first (real memory only). */}
-        {showResume && (
-          <Link
-            to={resumeTo}
-            data-testid="mobile-home-resume"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              textDecoration: "none",
-              color: FG,
-              background: "linear-gradient(135deg,hsl(152,55%,95%),hsl(152,50%,90%))",
-              border: "1px solid hsl(152,45%,80%)",
-              borderRadius: 16,
-              padding: 13,
-              marginTop: 13,
-              minWidth: 0,
-            }}
-          >
-            <span style={{ width: 42, height: 42, borderRadius: 12, background: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", boxShadow: "0 3px 9px rgba(20,120,70,.15)" }}>
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ width: 22, height: 22, stroke: GREEN_DARK, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }}>
-                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                <path d="M3 3v5h5" />
-              </svg>
-            </span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 9, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: GREEN_DARK }}>
-                Last time
-              </span>
-              <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: FG, marginTop: 1 }}>
-                {resumeTopicLabel}
-              </span>
-            </span>
-            <span style={{ background: GREEN, color: "#fff", borderRadius: 10, padding: "9px 13px", fontSize: 11, fontWeight: 700, flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 4, boxShadow: "0 3px 9px rgba(20,120,70,.25)" }}>
-              Resume <ArrowRight />
-            </span>
-          </Link>
-        )}
 
         {/* ── Hero carousel — the SHARED four cards ─────────────── */}
         <div style={sectionLabelStyle()}>Start here</div>
@@ -822,13 +786,72 @@ export default function MobileHome() {
           ))}
         </div>
 
-        {/* ── MI — right below the carousel, not four scrolls down ─ */}
-        <div style={sectionLabelStyle()}>Your mistakes, understood</div>
-        {/* Signed OUT sees the labelled SAMPLE (this is a conversion surface —
-            showing what MI produces is the point). Signed IN keeps PR-A's
-            honest empty state; real per-user data stays deferred to
-            [FU-MOBILE-MI-REAL-DATA]. Neither path reads a real mistake log. */}
-        {isSignedIn ? <MistakeIntelligenceCard /> : <SampleMistakeCard />}
+        {/* ── ★ THE MERGED CARD — ONE slot, content by state ─────
+            AUTH-2-FU §3. AUTH-2 mounted the first-session card ABOVE this slot
+            while the empty MI state still rendered inside it, so a zero-attempt
+            student was told the same thing twice, in two cards, on one screen.
+
+            `FirstSession` now renders HERE when the graded-history read has
+            completed and returned zero rows; its `fallback` renders in every
+            other case and is exactly what this slot showed before — the
+            labelled SAMPLE when signed out (this is a conversion surface, so
+            showing what MI produces is the point) and PR-A's honest empty state
+            when signed in. Real per-user data stays deferred to
+            [FU-MOBILE-MI-REAL-DATA]; neither fallback reads a real mistake log.
+
+            The "Your mistakes, understood" section label went with the merge: a
+            label cannot be right for both states, and each card already carries
+            its own kicker. The wrapper supplies the rhythm the label used to —
+            it is safe here (unlike `spaced`) because something ALWAYS renders in
+            this slot. */}
+        <div style={{ marginTop: 20 }}>
+          <FirstSession
+            uid={user?.uid ?? null}
+            fallback={isSignedIn ? <MistakeIntelligenceCard /> : <SampleMistakeCard />}
+          />
+        </div>
+
+        {/* Returning / signed-in: resume strip (real memory only). AUTH-2-FU §4
+            moves it BELOW the merged card — the heroes and the one next action
+            come first for a new student. */}
+        {showResume && (
+          <Link
+            to={resumeTo}
+            data-testid="mobile-home-resume"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              textDecoration: "none",
+              color: FG,
+              background: "linear-gradient(135deg,hsl(152,55%,95%),hsl(152,50%,90%))",
+              border: "1px solid hsl(152,45%,80%)",
+              borderRadius: 16,
+              padding: 13,
+              marginTop: 13,
+              minWidth: 0,
+            }}
+          >
+            <span style={{ width: 42, height: 42, borderRadius: 12, background: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", boxShadow: "0 3px 9px rgba(20,120,70,.15)" }}>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ width: 22, height: 22, stroke: GREEN_DARK, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }}>
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: 9, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: GREEN_DARK }}>
+                Last time
+              </span>
+              <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: FG, marginTop: 1 }}>
+                {resumeTopicLabel}
+              </span>
+            </span>
+            <span style={{ background: GREEN, color: "#fff", borderRadius: 10, padding: "9px 13px", fontSize: 11, fontWeight: 700, flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 4, boxShadow: "0 3px 9px rgba(20,120,70,.25)" }}>
+              Resume <ArrowRight />
+            </span>
+          </Link>
+        )}
+
 
         {/* ── Quick links — collapsed on mobile ───────────────────
             No section label here: the <summary> IS the label, and rendering

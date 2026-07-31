@@ -244,4 +244,22 @@ describe("linking is OPTIONAL — nothing gates on it", () => {
     // ...and says the opposite, explicitly.
     expect(shown).toContain("optional");
   });
+
+  // ── AUTH-2-FU §5 · the sentence that argued against itself ──────────────
+  //
+  // ★ "This is optional — your account works exactly the same without it"
+  // DISCOURAGED the exact action it was asking for. It is the "works exactly
+  // the same without it" clause that goes, NEVER the optionality: Lane F's
+  // ruling stands, and linking must never imply an account is incomplete
+  // without it. Both halves are asserted, because dropping the word "optional"
+  // while removing the clause would trade one defect for a worse one.
+  it("★ states the BENEFIT of linking, and still says it is optional", () => {
+    const { container } = open();
+    const shown = container.textContent ?? "";
+
+    expect(shown).not.toContain("works exactly the same without it");
+    expect(shown.toLowerCase()).toContain("optional");
+    expect(shown).toContain("both bring you to this account");
+    expect(shown).toContain("you can add it any time");
+  });
 });

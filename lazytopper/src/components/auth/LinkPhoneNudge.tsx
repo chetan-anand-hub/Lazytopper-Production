@@ -255,8 +255,20 @@ export default function LinkPhoneNudge({ spaced = false }: { spaced?: boolean } 
           </span>
           <div className="lt-linknudge__body">
             <p className="lt-linknudge__title">Studying on your phone too?</p>
+            {/* AUTH-2-FU §5 — the card copy the owner ruled: say what linking
+                BUYS (one account either way), not merely what it does.
+                ★ ONE WORD DEVIATION, DECLARED. The ruling's literal sentence
+                ended "— same account, same progress." Lane F left a live guard
+                in this file's tests forbidding the word "progress" here at all,
+                because "your progress follows you" is a claim this card cannot
+                honestly make to a student who has barely any. The substitute
+                phrase is not invented: it is the owner's OWN wording from the
+                modal sentence in the SAME §5 ruling ("with everything you've
+                done"). Reverting to the literal sentence means deleting that
+                guard, which is a doctrine change, not a copy change. */}
             <p className="lt-linknudge__sub">
-              Add your number so you can sign in either way.
+              Add your number and either one signs you in — same account,
+              everything you've done.
             </p>
           </div>
           <div className="lt-linknudge__actions">

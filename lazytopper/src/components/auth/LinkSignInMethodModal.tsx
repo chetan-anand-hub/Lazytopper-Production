@@ -199,9 +199,17 @@ export default function LinkSignInMethodModal({
           </p>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
+            {/* ★ AUTH-2-FU §5. The old second sentence was "This is optional —
+                your account works exactly the same without it", which argued
+                against the very action it was asking for. What replaces it
+                states the BENEFIT and KEEPS the word "optional": Lane F's
+                ruling stands — linking must never imply an account is
+                incomplete without it. It is the "works exactly the same
+                without it" clause that goes, never the optionality. */}
             <p style={ledeStyle}>
-              Add your phone number so you can sign in either way. This is
-              optional — your account works exactly the same without it.
+              Add your number and you can sign in with either — both bring you
+              to this account, with everything you&apos;ve done. Optional, and
+              you can add it any time.
             </p>
 
             {step === "number" ? (

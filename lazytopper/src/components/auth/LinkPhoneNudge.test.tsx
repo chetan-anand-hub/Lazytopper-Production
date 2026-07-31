@@ -83,8 +83,11 @@ describe("LinkPhoneNudge — the CONTROL", () => {
     render(<LinkPhoneNudge />);
     const el = screen.getByTestId("link-phone-nudge");
     expect(el.textContent).toContain("Studying on your phone too?");
-    expect(el.textContent).toContain(
-      "Add your number so you can sign in either way.",
+    // AUTH-2-FU §5 — the sentence now says what linking BUYS, not merely what
+    // it does. The `not.toMatch(/progress/i)` guard below is UNCHANGED and was
+    // what caught the first attempt at this copy in CI.
+    expect(el.textContent?.replace(/\s+/g, " ")).toContain(
+      "Add your number and either one signs you in — same account, everything you've done.",
     );
     expect(screen.getByTestId("link-phone-nudge-cta").textContent).toBe(
       "Add my number",

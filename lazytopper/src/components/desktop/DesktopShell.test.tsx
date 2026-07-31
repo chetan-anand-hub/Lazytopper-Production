@@ -281,3 +281,67 @@ describe("DesktopShell header — stacking contract ([FU-HUB-DROPDOWN-ZINDEX])",
     expect(picker.closest("nav")).toBeNull();
   });
 });
+
+// ── AUTH-2-FU §1 · the header search box was a control that LIED ───────────
+//
+// It carried `readOnly` and the placeholder "Search topics, chapters,
+// questions…". Clicking it DID open App.tsx's CommandPalette — but that palette
+// searches a fixed list of seven quick actions and cannot find a topic, a
+// chapter or a question. A control that names three things it cannot return is
+// the interaction form of the fake-data defect CLAUDE.md §5 bans, and it sat on
+// the first screen a student sees.
+describe("DesktopShell header — no fake search affordance (AUTH-2-FU §1)", () => {
+  it("★ renders NO readOnly input anywhere in the header — with a CONTROL", () => {
+    signIn();
+    render(
+      <MemoryRouter>
+        <DesktopShell>
+          {/* ★ CONTROL. A bare `querySelector → null` passes just as happily
+              when the shell failed to render at all, or when <input> stopped
+              being the element used. This one IS in the tree and IS found by
+              the same query shape — so the negative below is about the HEADER,
+              not about the query being broken. */}
+          <input data-testid="control-input" readOnly defaultValue="control" />
+        </DesktopShell>
+      </MemoryRouter>,
+    );
+
+    const header = document.querySelector("header");
+    expect(header).not.toBeNull();
+
+    expect(header!.querySelectorAll("input[readonly]")).toHaveLength(0);
+    expect(header!.querySelectorAll("input")).toHaveLength(0);
+    expect(header!.textContent ?? "").not.toMatch(/Search topics, chapters, questions/);
+    expect(
+      screen.queryByLabelText("Search (opens command palette)"),
+    ).toBeNull();
+
+    // CONTROL fires: the identical query DOES find the readOnly input that is
+    // genuinely present, just outside the header.
+    expect(document.querySelectorAll("input[readonly]")).toHaveLength(1);
+    expect(screen.getByTestId("control-input").closest("header")).toBeNull();
+  });
+
+  it("★ the greeting takes the freed left-hand slot, and appears exactly ONCE", () => {
+    signIn();
+    renderShell();
+
+    const greetings = screen.getAllByText(/^Good (morning|afternoon|evening), Asha$/);
+    expect(greetings).toHaveLength(1);
+    expect(greetings[0].closest("header")).not.toBeNull();
+
+    // It is the header's LEFT-hand content: it precedes the account controls.
+    const avatar = screen.getByRole("button", { name: "Open account menu" });
+    // Node.DOCUMENT_POSITION_FOLLOWING === 4
+    expect(greetings[0].compareDocumentPosition(avatar) & 4).toBe(4);
+  });
+
+  it("invents no name — a student without a displayName gets the bare greeting", () => {
+    authState.user = { uid: "test-uid", email: "asha@example.com" };
+    renderShell();
+
+    expect(screen.getByTestId("shell-greeting").textContent).toMatch(
+      /^Good (morning|afternoon|evening)$/,
+    );
+  });
+});
