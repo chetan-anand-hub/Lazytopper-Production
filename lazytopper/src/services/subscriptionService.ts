@@ -49,7 +49,22 @@ const FIRESTORE_COLLECTION = "subscriptions";
  * localStorage entitlement survive: the two cases need opposite responses.
  */
 type CloudResult =
-  | { kind: "found"; data: SubscriptionStatus }
+  | {
+      kind: "found";
+      data: SubscriptionStatus;
+      /**
+       * True only when the stored `trialStartDate` arrived as a Firestore Timestamp —
+       * the shape a SERVER write produces. firestore.rules pins that field to
+       * `request.time`, so a Timestamp in this document is server-set by construction.
+       * A plain ISO *string* is the shape a client could have written (and is what a
+       * legacy pre-SEC-2 document carries), so it never counts as proof.
+       *
+       * ★ This flag is the whole security boundary of the repair below. It is
+       * deliberately NOT part of `SubscriptionStatus`: the cached copy is client-side
+       * and must never be able to assert it.
+       */
+      startIsServerPinned: boolean;
+    }
   | { kind: "absent" }
   | { kind: "error" };
 
@@ -75,18 +90,44 @@ function toIso(value: unknown): string | null {
   return null;
 }
 
+/** Is this raw Firestore value a Timestamp, i.e. server-written? */
+function isFirestoreTimestamp(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as { toDate?: unknown; seconds?: unknown };
+  return typeof candidate.toDate === "function" || typeof candidate.seconds === "number";
+}
+
+/**
+ * How far AHEAD of the device clock a server-pinned start may sit and still be believed.
+ *
+ * ★ P0-TRIAL — this is the second, quieter half of the activation defect. The start is
+ * `request.time` from Google's clock; the device's clock is whatever the phone says. A
+ * server start is ROUTINELY a few hundred ms ahead of the device, and on a handset with
+ * no time sync it can be minutes. Rejecting every future start therefore downgraded a
+ * live trial for exactly the students whose clocks drift — never on the owner's desktop,
+ * which is why it went unseen.
+ */
+const CLOCK_SKEW_TOLERANCE_MS = 5 * 60 * 1000;
+
 /**
  * The instant the trial began, or null if it cannot be established.
  *
- * A start in the FUTURE is not a start — it is the shape a legacy forged value takes,
- * and honouring it would buy the forger extra days. Treated as unprovable, i.e. expired.
+ * A start beyond the skew tolerance is not a start — that is the shape a legacy forged
+ * value takes, and honouring it would buy the forger extra days. Treated as unprovable,
+ * i.e. expired.
+ *
+ * ★ Within the tolerance the value is CLAMPED to now rather than trusted forward. The
+ * clamp is what keeps the tolerance from being a grant: a start that is ahead of the
+ * device can never extend the window past `now + TRIAL_MS`, so the loosened bound buys
+ * a forger exactly zero extra time while a skewed clock costs a real student nothing.
  */
 function trialStartMs(status: SubscriptionStatus): number | null {
   if (!status.trialStartDate) return null;
   const ms = new Date(status.trialStartDate).getTime();
   if (!Number.isFinite(ms)) return null;
-  if (ms > Date.now()) return null;
-  return ms;
+  const now = Date.now();
+  if (ms > now + CLOCK_SKEW_TOLERANCE_MS) return null;
+  return Math.min(ms, now);
 }
 
 /**
@@ -100,6 +141,42 @@ function applyExpiry(status: SubscriptionStatus): SubscriptionStatus {
   if (start === null) return { ...status, tier: "free" };
   if (start + TRIAL_MS < Date.now()) return { ...status, tier: "free" };
   return status;
+}
+
+/**
+ * ★★ THE REPAIR — for accounts already broken by the activation defect.
+ *
+ * Between SEC-2 shipping and this fix, every new signup was written to Firestore as
+ * `{tier:"free", plan:"trial_7day", trialStartDate:<server timestamp>}`: a trial that
+ * had genuinely begun, recorded as free. Those students will never report it — they
+ * find things locked and assume the trial ran out. Fixing activation alone leaves all
+ * of them behind, so the record is re-derived on every cloud read.
+ *
+ * ★ WHY THIS CANNOT BE CLIENT-FORGED, which is the same property SEC-2 exists to
+ * enforce and must not be reopened while repairing it:
+ *   - it runs ONLY on `loadCloud`'s result, never on the localStorage cache;
+ *   - it requires `startIsServerPinned`, i.e. the start arrived as a Firestore
+ *     Timestamp, which firestore.rules pin to `request.time` — a client-supplied ISO
+ *     string is refused, so a forged cache or a legacy hand-written start repairs
+ *     nothing;
+ *   - it re-derives the window from that same pinned start, so it can only restore a
+ *     trial that is genuinely still running. An elapsed one stays free.
+ *
+ * It is deliberately narrow: only `free` + `trial_7day` + no `premiumSince`, which is
+ * exactly the broken shape. It never invents a plan and never touches premium.
+ */
+function repairInterruptedTrial(
+  status: SubscriptionStatus,
+  startIsServerPinned: boolean,
+): SubscriptionStatus {
+  if (!startIsServerPinned) return status;
+  if (status.tier !== "free") return status;
+  if (status.plan !== "trial_7day") return status;
+  if (status.premiumSince) return status;
+  const start = trialStartMs(status);
+  if (start === null) return status;
+  if (start + TRIAL_MS < Date.now()) return status;
+  return { ...status, tier: "trial" };
 }
 
 function saveLocal(uid: string, status: SubscriptionStatus): void {
@@ -162,7 +239,23 @@ async function loadCloud(uid: string): Promise<CloudResult> {
     const ref = doc(firestoreDb, FIRESTORE_COLLECTION, uid);
     const snap = await getDoc(ref);
     if (!snap.exists()) return { kind: "absent" };
-    const raw = (snap.data() ?? {}) as Record<string, unknown>;
+    // ★★ P0-TRIAL — `{serverTimestamps:"estimate"}` IS THE FIX, and the default was the
+    // bug. `snap.data()` defaults to `serverTimestamps:"none"`, which materialises an
+    // UNACKNOWLEDGED `serverTimestamp()` as **null** — indistinguishable, downstream,
+    // from a document that never had a start. `activateTrial` writes the start as
+    // exactly such a sentinel and this same mount reads the document straight back, so
+    // the trial arrived here with a null start and `applyExpiry` correctly failed it
+    // closed. The trial downgraded during its own activation, and hydration then wrote
+    // that downgrade to Firestore.
+    //
+    // "estimate" resolves a still-pending server timestamp to the SDK's local estimate,
+    // which is the point: a PENDING start is distinguishable from an ABSENT one, and the
+    // client itself just requested it. It is not a grant — the estimate exists only
+    // until the server acknowledges, after which the real `request.time` replaces it,
+    // and the trial WINDOW is still derived from that pinned value. A document with no
+    // start still yields nothing here, so the Route C fail-closed guarantee is untouched.
+    const raw = (snap.data({ serverTimestamps: "estimate" }) ?? {}) as Record<string, unknown>;
+    const startIsServerPinned = isFirestoreTimestamp(raw.trialStartDate);
     const tier = (raw.tier as SubscriptionTier) ?? "free";
     const data: SubscriptionStatus = {
       tier,
@@ -174,7 +267,7 @@ async function loadCloud(uid: string): Promise<CloudResult> {
       trialEndDate: null,
       premiumSince: (raw.premiumSince as string | null) ?? null,
     };
-    return { kind: "found", data };
+    return { kind: "found", data, startIsServerPinned };
   } catch {
     return { kind: "error" };
   }
@@ -216,10 +309,12 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
   const cloud = await loadCloud(uid);
 
   if (cloud.kind === "found") {
-    const resolved = applyExpiry(cloud.data);
+    const resolved = applyExpiry(repairInterruptedTrial(cloud.data, cloud.startIsServerPinned));
     saveLocal(uid, resolved);
     if (resolved.tier !== cloud.data.tier) {
-      // Persist the derived downgrade so the record stops claiming an ended trial.
+      // Persist the derived change — a downgrade, so the record stops claiming an ended
+      // trial, or a repair, so the record stops denying a live one. The write omits
+      // trialStartDate, so the merge preserves the pinned start either way.
       void saveCloud(uid, resolved);
     }
     return resolved;
