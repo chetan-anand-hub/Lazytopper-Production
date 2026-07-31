@@ -82,6 +82,20 @@ function runGuard(anchor, mode) {
   return { stdout: String(r.stdout || ""), status: r.status };
 }
 
+// ★ [GUARD-3] BARE INVOCATION — no `--mode`. This is how a human actually runs `pnpm run
+// scope:guard`, and until GUARD-3 it was the ONE path this suite never exercised: every assertion
+// above passes an explicit mode, so the auto-detect could have been a rubber stamp and the suite
+// would still have reported 7/7 green. (Proven, not assumed: making `detectMode` accept every lane
+// combination left this file passing 7/7.) The two assertions below are the reason that mutation
+// now goes red.
+function runGuardBare(anchor) {
+  const r = spawnSync(process.execPath, ["scripts/scopeGuard.mjs"], {
+    cwd: anchor,
+    encoding: "utf8",
+  });
+  return { stdout: String(r.stdout || ""), status: r.status };
+}
+
 async function run() {
   let guardText = await fs.readFile(guardSrc, "utf8");
 
@@ -131,6 +145,20 @@ async function run() {
     newDir.stdout.split("\n").find((l) => l.startsWith("SCOPE_GUARD_SCOPE")) || "no scope line"
   );
 
+  // ★ [GUARD-3] ...AND THE COUNTER MUST NAME ITS SCOPE.
+  // The counter re-runs `git ls-files --others` — UNTRACKED ONLY — in the old anchor frame. That is
+  // the correct measurement: `git diff --name-only` is git-root-relative from any cwd, so a
+  // tracked-modified file outside the anchor was never missed and must NOT be counted here.
+  // It was called `anchor_frame_would_miss`, which claims more than it measures — a reader could
+  // take `=0` as "the old frame caught everything". This check pins the name to the measurement, so
+  // a future rename back to the over-broad form fails here rather than quietly misleading.
+  addCheck(
+    "blind_spot_counter_name_states_untracked_scope",
+    /anchor_frame_would_miss_untracked=\d+/.test(newDir.stdout) &&
+      !/anchor_frame_would_miss=\d+/.test(newDir.stdout),
+    newDir.stdout.split("\n").find((l) => l.startsWith("SCOPE_GUARD_SCOPE")) || "no scope line"
+  );
+
   await fs.rm(path.join(dir, "newthing"), { recursive: true, force: true });
 
   // ── Assertion 2 ── firestore.rules classifies into its own lane.
@@ -160,6 +188,38 @@ async function run() {
     productRun.stdout.trim().split("\n").slice(-1)[0]
   );
   git(["checkout", "--", "lazytopper/src/App.tsx"], dir);
+
+  // ── [GUARD-3] Assertion 5 ── BARE INVOCATION, PERMISSIVE DIRECTION: a docs-only change PASSES.
+  // Before GUARD-3 the bare invocation hardcoded mode="tooling", whose only lane is trackedTooling,
+  // so the single most common change in this repo — a handoff edit — printed [docs] LANE VIOLATIONS
+  // on correct work while `--mode docs` passed on the IDENTICAL tree. A guard that reddens the
+  // ordinary case trains people to stop reading it.
+  mkdirSync(path.join(dir, "handoff"), { recursive: true });
+  writeFileSync(path.join(dir, "handoff", "CURRENT_STATE.md"), "# docs\n", "utf8");
+  const docsOnly = runGuardBare(anchor);
+  addCheck(
+    "bare_invocation_passes_a_docs_only_change",
+    docsOnly.status === 0 && docsOnly.stdout.includes("SCOPE_GUARD_OK"),
+    `status=${docsOnly.status} ${docsOnly.stdout.trim().split("\n").slice(-1)[0]}`
+  );
+
+  // ── [GUARD-3] Assertion 6 ── BARE INVOCATION, RESTRICTIVE DIRECTION — THE ONE THAT MATTERS.
+  // ★★ A PERMISSIVE AUTO-DETECT IS WORSE THAN A WRONG ONE, because it still prints OK. Auto-detect
+  // must pick the NARROWEST DECLARED mode covering the changed lanes and FAIL when no declared mode
+  // covers them. `product + docs` is exactly such a combination: no entry in `modeToLanes` contains
+  // both, so mixing product code and handoff docs in one commit must still be rejected with no
+  // `--mode` given. Without this assertion the whole auto-detect change is unguarded.
+  writeFileSync(path.join(anchor, "src", "App.tsx"), "export default 3;\n", "utf8");
+  const uncovered = runGuardBare(anchor);
+  addCheck(
+    "bare_invocation_still_rejects_an_uncovered_lane_combination",
+    uncovered.status === 1 &&
+      uncovered.stdout.includes("SCOPE_GUARD_FAIL") &&
+      uncovered.stdout.includes("no declared mode covers this lane combination"),
+    `status=${uncovered.status} ${uncovered.stdout.trim().split("\n").slice(-1)[0]}`
+  );
+  git(["checkout", "--", "lazytopper/src/App.tsx"], dir);
+  await fs.rm(path.join(dir, "handoff"), { recursive: true, force: true });
 
   await fs.rm(dir, { recursive: true, force: true });
 
