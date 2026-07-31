@@ -1,6 +1,445 @@
 # LazyTopper — Current State
 
-## [CURRENT] #557–#563 merged — ★★ WAVE 3: THREE ROUTES TO FREE PREMIUM CLOSED IN PRODUCTION · A GUARD THAT COULD NOT SEE ITS OWN REPO · A DEPLOY THAT SHIPPED NOTHING AND SAID "Deploy complete!" — trunk `25e995a7`
+## [CURRENT] #566–#575 merged — ★★ WAVE 4: FOUR GUARDS THAT REPORTED SUCCESS WHILE INSPECTING NOTHING · A TRIAL THAT DOWNGRADED DURING ITS OWN ACTIVATION · A LIVE MOBILE CRASH NO TEST COULD SEE, BECAUSE EVERY TEST STARTS CLEAN — trunk `fcdbfa65`
+
+**Ten PRs, run under a controller + subagent model. Zero open PRs at close.** Trunk moved
+`25e995a7` → **`3400d908` (#566, AUTH-1)** → **`8caa1a3a` (#567, DOC-HARDGATE)** →
+**`f246ada8` (#568, GUARD-2 restored)** → **`c3d76ecc` (#569, AUTH-2)** →
+**`a22eb429` (#570, GUARD-3/PR-2)** → **`711b93e5` (#571, GUARD-3/PR-1)** →
+**`6ca1daa5` (#572, GUARD-3/PR-1b)** → **`23ed4745` (#573, AUTH-2-FU)** →
+**`59452785` (#574, P0-TRIAL)** → **`fcdbfa65` (#575, HOTFIX-MOBILE)**.
+
+```
+#566  AUTH-1          the offer strip on the sign-in surface       [owner live-verified]
+#567  DOC-HARDGATE    the MONTHLY_INLINE hard gate, in the repo
+#568  GUARD-2         blindspot suite wired into CI + whole-repo audit  (restores #565)
+#569  AUTH-2          first-session start card, honest empty state [owner live-verified]
+#570  GUARD-3/PR-2    616 legacy mojibake lines in handoff/ -> 8
+#571  GUARD-3/PR-1    the cwd-frame sweep + a SCOPED mojibake gate
+#572  GUARD-3/PR-1b   CLAUDE.md's stale suite count, which the file already contradicted
+#573  AUTH-2-FU       one card, one greeting, and a search box that lied
+#574  P0-TRIAL        the trial no longer downgrades during its own activation  [LIVE-VERIFY OWED]
+#575  HOTFIX-MOBILE   hook count stable across the auth restore on /browse      [LIVE-VERIFY OWED]
+```
+
+⚠ **Trunk did NOT move monotonically this wave.** `937c88f` (#564) and `42d82e87` (#565) were
+merged and then **removed from the branch by a force push**. See the incident below. Both are
+recovered: #565's work was re-landed as **#568**, and #564's content is **already whole on trunk**
+(verified below, not assumed).
+
+---
+
+### ★★ THE WAVE'S SUBJECT — one finding, four instances. Read this as ONE thing.
+
+**Four of this wave's findings are guards and gates that reported success while inspecting nothing.**
+They are not four incidents. They are one defect class, found at four different layers, and the
+generalisation is **GUARD-1's own doctrine turned back on the tooling that enforces it.**
+
+| # | the guard | what it reported | what it was actually inspecting |
+|---|---|---|---|
+| 1 | **`check:mojibake`** | PASS, for months | it framed its repo root at `lazytopper/`, so **`handoff/` was invisible** — **616 corrupt lines** sat behind a green gate |
+| 2 | **`scope_guard_blindspot_acceptance` + `repo_boundary_acceptance`** | both suites existed and passed | **CI never ran either** — grepping #560's 4,076-line log for their filenames returned **0 matches** |
+| 3 | **`react-hooks/rules-of-hooks`** | **"0 violations"** | `npx eslint src` dies with a module-resolution error in a fresh worktree, so the rule **ran nothing** — and it is the rule that exists precisely to catch React #310, the live crash this wave shipped |
+| 4 | **the GitHub `trunk-protection` ruleset** | **Active**, *"Block force pushes"* **enabled**, correctly targeting the branch | its **Bypass list read "Repository admin — Always allow"** — it exempted the only person who could trigger it |
+
+> ★★ **THE GENERALISATION: a check that cannot be shown to have looked, and to be capable of
+> failing, is not coverage — it is the APPEARANCE of coverage, which is worse, because it stops
+> anyone looking.**
+
+★ **Instance 4 is the one worth dwelling on**, because it lived in **GitHub settings** — where no
+gate, no test and no agent in this project could see it. It was found only because the base looked
+wrong. ★ And instance 3 was found **by control**, not by quoting the clean result: the subagent
+mutated the file and watched the linter still say zero.
+
+> ★★ **THE BYPASS-LIST DOCTRINE, which is instance 4's transferable half:**
+> **A PROTECTION WITH A BYPASS IS ONLY AS STRONG AS ITS BYPASS LIST.** *"Enabled"* describes the
+> **rule**; it says nothing about **who it applies to**. **READ THE EXEMPTIONS BEFORE THE SETTING.**
+> The setting is what you configured; the exemption list is what actually happens.
+
+The ruleset is now set to *"For pull requests only"* — CLI force pushes blocked, PR-level bypass
+retained.
+
+---
+
+### ★★ THE FORCE-PUSH INCIDENT — from the reflog, not from inference
+
+```
+42d82e87  @2026-07-30 07:29:19  fetch origin: fast-forward     <- #565 merged
+25e995a7  @2026-07-30 07:29:24  update by push                 <- five seconds later
+```
+
+**A push from the SHARED CHECKOUT (`C:\Projects\Lazytopper-Production`) sent its stale local
+`base/approved-thru-437` over the remote, dropping #564 and #565.**
+
+> ★★ **`--force-with-lease` DID NOT PREVENT IT.** The lease asks only *"has the remote moved since
+> my LAST FETCH?"* — and **the fetch five seconds earlier satisfied it.** It protects against
+> someone **else's** push. **It has never protected against your own stale branch.**
+
+★ **Two of the four guards above are visible in this one event**: the ruleset that exempted its
+only trigger (instance 4), and the fact that neither `git ls-remote`, nor a green CI run, nor
+GitHub's own `MERGED` status with a `mergeCommit` SHA detected the loss — **all three agreed, and
+all three were wrong.**
+
+> ★★ **A FRESH SHA IS NOT A GROWING HISTORY.** `ls-remote` catches trunk moving **forward**, never
+> **backward**. ⇒ after any merge you are told landed, verify **both**:
+> `git merge-base --is-ancestor <mergeCommit> <trunk>` **and** `git log <trunk> -- <a path it
+> changed>`.
+> ⚠ **The squash gotcha:** this repo squash-merges, so `--is-ancestor` on a **PR head** reports
+> *not-ancestor* even for a merged PR. **The content-path check is the authoritative one.**
+
+★ **The loss was caught by a subagent, not by the controller.** GUARD-3's report stated flatly
+*"GUARD-2 never landed"* while the controller's own record had #565 as merged, CI-proven and both
+FUs closed. **The subagent's finding beat the controller's record, GitHub's merge status, and a
+green CI run simultaneously.** The lost commits remain at `refs/heads/recovery/lost-trunk-42d82e8`.
+
+---
+
+### ★★ WAVE 3's RECORD IS NOT LOST — IT IS WHOLE ON TRUNK. Verified, and it corrects the plan.
+
+The Wave 4 plan recorded that **#564 (the Wave 3 handoff) was dropped by the force push and would
+be deliberately NOT restored**, its content instead absorbed into this handoff as a *"recovered
+section."* **That premise is false, and re-writing Wave 3's record here would have DUPLICATED a
+record that is already the top entry in all six files.**
+
+**The evidence, from git, not from prose:**
+
+```
+#564 (937c88f8) changed 9 handoff files, +2053 / -6
+git diff --stat 937c88f8 <trunk> -- handoff/
+  handoff/CURRENT_STATE.md                | 1232 ++++----   (= #570's mojibake re-encode)
+  handoff/NEXT_ACTION.md                  |   34 +          (= #567's hard gate, +34/-0)
+  handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md |    4 +-         (= #570's mojibake re-encode)
+```
+
+⇒ **Every one of #564's 2,053 lines is on trunk.** The only differences between #564's tree and
+today's are **#567 and #570 applied on top** — both accounted for line-for-line.
+
+**The mechanism:** AUTH-1 (#566) was rebased onto `937c88f` while #564 was still trunk. The force
+push then reverted trunk to `25e995a7`. When #566 was **squash**-merged, its squash diff was
+computed against that **reverted** base — so the squash carried all nine of #564's handoff files
+back onto trunk alongside AUTH-1's four product files. **#566 landed 13 files, not 4.**
+
+★ **This answers, rather than contradicts, the open question the controller correctly refused to
+settle** (*"how much of #564 rode in that way is UNVERIFIED and is not the controller's to
+determine"*). The answer is: **all of it.**
+
+> ★★ **THE TRANSFERABLE PART, and it is uncomfortable: a squash merge's diff is computed against
+> the base at MERGE time, not against the base the branch was built on.** Rewrite the base under a
+> rebased branch and the squash will silently re-carry everything the rewrite removed. Here that
+> was a **repair** — it restored a record the force push had destroyed. **It could just as easily
+> have restored a revert.** ⇒ **after any force push, audit the file list of the NEXT squash merge
+> against what that PR claims to change.**
+
+⚠ **The consequence for scope discipline, stated plainly:** CLAUDE.md §8 requires that *"product
+PRs must contain zero handoff doc changes."* **#566 breached it, silently, and no gate caught it** —
+because `scope:guard` reads the **working tree**, where AUTH-1 correctly saw and reported its own
+**four** files. **The guard was right about what it inspected and blind to what would ship.** ⇒
+`[FU-SQUASH-CARRIES-REBASED-BASE]`.
+
+⇒ **RECOMMENDED GATE, logged as `[FU-NO-MERGE-BASE-FILELIST-RECONCILE]`, NOT as a lane:** before
+merge, **reconcile the MERGE-BASE diff against the PR's declared file list.** The data already
+exists on both sides — `gh pr view <n> --json files` versus
+`git diff --name-only <merge-base>..<head>` — and **nothing today reconciles them.**
+
+#### ⚠ `handoff/WAVE_STATE_WAVE3_ARCHIVE.md` — RULING: LEAVE IT. But it arrived BY ACCIDENT.
+
+The file **is tracked on trunk.** #564 committed it deliberately, as EV-1's only surviving record,
+under the archive name specifically so it could not be confused with the controller's live
+*untracked* `handoff/WAVE_STATE.md`. **Owner's ruling: leave it.** It is harmless, it is a genuine
+record of Wave 3's controller state, and removing it costs a docs PR and the six-file lock for no
+benefit. **Do not delete it and do not "tidy" it.**
+
+> ⚠ **BUT IT REACHED TRUNK BY ACCIDENT, NOT BY DECISION** — swept in by the same #566 re-carry
+> described above, along with the other eight handoff files. ★ **Its presence is therefore NOT a
+> precedent for committing controller scratch.** The rule is unchanged: the controller's live state
+> file is untracked working memory and must never appear in a PR.
+
+#### ★★ AND A CONTROLLER-SIDE FAILURE, RECORDED BECAUSE THE CAUSE IS THE SAME SHARED CHECKOUT
+
+**The controller told THREE separate lanes that this file was "untracked scratch that exists only in
+the shared checkout."** It is **tracked on trunk**, and it reads as `??` in the shared checkout **only
+because that checkout is stale.** Nothing was damaged — all three lanes left the file alone, and the
+third verified the claim against a fresh worktree and reported it false.
+
+> ★★ **But a controller asserted a repo fact three times without checking it, and the cause was the
+> shared checkout again.** ⇒ **"NEVER READ FROM THE SHARED CHECKOUT" APPLIES TO THE CONTROLLER TOO,
+> NOT ONLY TO SUBAGENTS.** A controller reads git metadata rather than product source, and **git
+> metadata read from a stale checkout is exactly as wrong as stale source** — `git status` there
+> reports a tracked file as untracked, **a false negative that looks like a fact.**
+
+★ **Same shared checkout as the force push, and as Wave 3's stale `firestore:rules` deploy. Three
+incidents, one root, across two waves.**
+
+---
+
+### ★★ THE LIVE MOBILE CRASH — and the four lines that explain the whole week
+
+Mobile `/app/browse` rendered, then error-paged with **React #310** (*"Rendered more hooks than
+during the previous render"*). It looked email-authenticated-only. It "fixed itself" when a student
+cleared site data. **1,082 passing tests, a verified build chunk and mutation-proven assertions all
+shipped it.**
+
+**Root cause (#575):** in `components/mobile/MobileAccountMenu.tsx`,
+`const [linkOpen, setLinkOpen] = useState(false)` sat **BELOW `if (!user) return null`.** A
+signed-out render runs N hooks; a signed-in render runs N+1 — **on the same instance.** Introduced
+by **#554 (PR-F1, phone linking)**. The persisted key is **Firebase auth persistence (IndexedDB)** —
+not localStorage, and **not the subscription cache**.
+
+> ### ★★ #575's OWN COMMENT, QUOTED VERBATIM — the best artefact of the wave
+>
+> *"A student with cleared site data never crossed it — they are signed out, and after signing in
+> they NAVIGATE here, mounting fresh with the user already present. That is why clearing site data
+> 'fixed' it and why 1082 green tests never saw it: every one of them starts from clean state."*
+
+★ **That is the entire week in four lines.** It explains why desktop emulation at 390px came back
+clean, why clearing site data appeared to be a fix, and **why the bug looked email-specific when it
+never was** — a phone session reproduces #310 identically. The real variable was **PERSISTED
+SESSION**; phone and email users differed by **how they ARRIVED**, not by method. ⇒ **do not build
+anything on "email-only."**
+
+> ★★ **THE DOCTRINE: A BUG THAT ONLY APPEARS WITH ACCUMULATED STATE IS INVISIBLE TO EVERY TEST,
+> BECAUSE EVERY TEST STARTS CLEAN.** The first render of a mounted instance is not the only render
+> that matters — **a component that crosses a `null -> value` boundary mid-life is a DIFFERENT
+> COMPONENT from one that mounts with the value already present.**
+>
+> ⇒ **LIVE-VERIFY MEANS BOTH SURFACES, AND AT LEAST ONE SESSION WITH EXISTING STATE.**
+
+★ **The screenshots do not prove it, and the subagent said so.** The local dev app **cannot** produce
+the failing order — `/browse` is a lazy route and dev auth resolves before that chunk mounts, so the
+component never renders with `user === null`. **In production, Firebase's IndexedDB restore is
+slower than the chunk, which is the whole bug.** The decisive evidence is the vitest harness plus
+mutation M1, whose **two surviving green tests are the controls** (clean state; user present at
+first render) — proving the suite is not green for the wrong reason.
+⇒ `[FU-DEV-BROWSER-CANNOT-REPRO-AUTH-TIMING]`.
+
+---
+
+### 🛑 THE P0 — the trial downgraded during its own activation (#574)
+
+**Every new signup silently downgraded to free.** The production fingerprint:
+
+```
+plan: "trial_7day"   tier: "free"   premiumSince: null
+trialStartDate: July 31 2026, 4:40:22 PM IST
+updatedAt:      2026-07-31T11:10:23.593Z   <- ONE SECOND LATER
+```
+
+**The mechanism:** `saveCloud` writes `trialStartDate: serverTimestamp()` — a **sentinel, not a
+value** — and `snap.data()` defaults to `serverTimestamps: "none"`, so the SDK **materialises the
+unacknowledged sentinel as `null` inside `loadCloud`.** `applyExpiry` then fails closed, exactly as
+designed, and hydrate's own write-back sends `tier:"free"` while leaving `plan:"trial_7day"` and the
+pinned start intact. **That is the record the owner observed.**
+
+> ★★ **SEC-2 (#563) IS NOT WRONG, AND THAT IS THE POINT.** *"A trial that cannot prove when it began
+> has not begun"* is correct and it closes Route C. **The defect was the CLIENT evaluating the rule
+> before the proof could exist — and no rules test could ever have caught it, because the emulator
+> never sees the optimistic local write.** ⇒ **a fix that makes `applyExpiry` lenient would be a
+> security regression, not a fix.** `applyExpiry` is UNCHANGED.
+
+**The fix is one argument:** `loadCloud` now reads `snap.data({ serverTimestamps: "estimate" })`.
+★ **An ABSENT field is still absent under `"estimate"`, so Route C is untouched** — proven by
+mutation M2, which makes `applyExpiry` lenient and goes red. A second path (a server timestamp ahead
+of a skewed **device clock** also read as no-start, so it fired for some students and never for the
+owner) is handled by a 5-minute tolerance **with a clamp**: ★ **the clamp is what stops the
+tolerance being a grant** — a future start can never push the window past `now + TRIAL_MS`, so it
+buys a forger zero extra time.
+
+**The already-broken accounts self-heal.** `repairInterruptedTrial()` runs as read-back
+normalisation on every cloud read, is idempotent, needs no migration script, and cannot be forged:
+it runs only on `loadCloud`'s result, keys off a `startIsServerPinned` flag that is a `CloudResult`
+field **deliberately not present on `SubscriptionStatus`** (so the cached copy can never assert it),
+and a client-shaped ISO string start repairs nothing.
+
+> ★ **BUT THE REPAIR PRESERVES `trialStartDate` BY DESIGN, so the 7-day window runs from the
+> ORIGINAL start.** A student wrongly on free for two days gets **five days, not seven.** ★★ **That
+> is correct behaviour for the fix and wrong for the student, and the two are not the same thing.**
+> **A fix that restores the flag but not the entitlement is a partial fix that looks total — the
+> repair reports success while the student is quietly short of days, and nobody would think to
+> look.** ⇒ `[FU-TRIAL-DAYS-LOST-TO-P0]`. Owner reset the affected handful manually in the Console.
+> ⚠ **At volume this needs a script, and that script MUST go through a SERVER/ADMIN path, never a
+> client one** — `trialStartImmutable()` is the rule SEC-2 exists to enforce.
+
+**Owner ruling: NO ACCOUNT WIPE.** Deleting affected accounts would destroy attempts, graded answers
+and MI data to fix a field that repairs itself.
+
+★ **ONE ARCHITECTURAL FACT, so nobody re-derives it: there is no separate mobile backend.**
+`subscriptionService.ts` lives in `src/` and one responsive codebase serves both surfaces, so
+#574 fixes mobile **and** desktop with the same change.
+
+### ★★ #310 AND THE P0 DO NOT SHARE A ROOT CAUSE — recorded as a RESULT, not as a silence
+
+The controller was instructed to test the shared-cause hypothesis **first**. It returned outcome
+**(c) UNRELATED**, and that is recorded here deliberately: *we checked whether one caused the other,
+and it did not.* ★ **The alternative is a dependency nobody questions later.**
+
+| | #310 (mobile crash) | P0 (trial downgrade) |
+|---|---|---|
+| **Root cause** | a `useState` **below** `if (!user) return null` | `snap.data()` defaulting to `serverTimestamps:"none"` |
+| **Trigger** | Firebase auth persistence restoring a tick after first paint | an unacknowledged `serverTimestamp()` read back before the server resolves it |
+| **Introduced by** | **#554** | **#563** |
+| **Surface** | mobile only (the component is mobile-only) | **both** — one responsive codebase |
+
+**How it was proven, not assumed:** #310 reproduces with `useSubscription` mocked to a **constant
+that never flips**, and again with **no subscription record at all**; a repo-wide scan found **no
+component whose hook count depends on tier or premium.** ⇒ **Neither fix affects the other. Both
+were needed.**
+
+---
+
+### ★ RETENTION — asked as *"are we keeping too much?"*, and the answer runs the other way
+
+**`[FU-RETENTION-ALREADY-MINIMAL]` — verified 2026-07-31.** **Nothing is ever deleted, and that is
+fine, because almost nothing is kept.**
+
+- **No answer image is persisted anywhere.** Images travel as base64 in the request body and are
+  **discarded**. Firestore holds only `SessionRecord` **summaries** — the four-type breakdown,
+  section breakdown, topic keys and focus aggregates — **which is exactly the scorecard the product
+  needs.** The graded-sheet artefact is rebuilt from a **local** cache and is already ephemeral.
+- ⇒ **NO DELETION POLICY IS OWED.** Do not plan one.
+- ★★ **THE GAP RUNS THE OTHER WAY, and this is the part worth stating well: the download DISAPPEARS
+  when the local cache is evicted, so a student loses their graded sheet WITHOUT EVER CHOOSING TO.**
+  **The fix is to offer the PDF AT GRADING TIME**, rather than depending on a cache that will not
+  survive.
+
+> ★ **The retention question was asked as "are we keeping too much?" and the answer is "we are
+> keeping the right things, and losing one the student wanted."**
+
+★ **And "last 7 days" was never retention.** `getActivitySummary` computes
+`cutoff = Date.now() - sinceDays * DAY_MS` **at READ time** — it is a **display window**. **Records
+stay; the query narrows.** ⇒ **a student promoted from trial to premium needs NOTHING done**, and
+widening the window is a display change, not a data recovery. *(Losing that distinction would have
+produced a migration lane that never needed to exist.)*
+
+**Two consequences logged, neither a lane today:**
+- `[FU-RETENTION-UNBOUNDED-UNBUDGETED]` — ⚠ **storage is NOT the driver**; Firestore holds text
+  summaries only. The concern is **READ VOLUME at scale**, and nobody has modelled it. Belongs in
+  the **cost analysis**, not a code lane.
+- `[FU-NO-DELETION-OR-EXPORT-PATH]` — still stands. Note the connection: **minimal retention LOWERS
+  the deletion exposure and does NOT answer export**, and *"offer the PDF at grading time"* is the
+  nearest thing to an export path the product would have. **DPDP Act, minor users** — priority one
+  on the external audit brief.
+
+---
+
+### ★ THE OTHER FINDINGS THAT MUST SURVIVE
+
+- ★★ **A CORRECT OUTCOME REACHED BY A FALSE PREMISE STILL POISONS THE RECORD.** Twice this wave.
+  (1) AUTH-2-FU's brief said the Home search box was dead — *"a student can click it and nothing
+  happens."* **False**: it opened a working CommandPalette. **The ruling survived on stronger
+  ground the subagent supplied itself** — the palette filters a fixed list of seven quick actions
+  and can return **no topic, chapter or question**, so a placeholder reading *"Search topics,
+  chapters, questions…"* **is a control that lies about what it returns.** (2) The P0 chain's link 2
+  named `trialStartMs` as the failure point; the sentinel never reaches it, and **a fix written to
+  the brief's line would have gone in the wrong file.** ⇒ *the wrong reason is what a later lane
+  inherits.*
+- ★★ **A CONTROLLER AMPLIFIES.** A subagent's side finding — offered explicitly as minor and outside
+  its allowlist — was promoted to the headline finding **and** to a mutation requirement that would
+  have broken a **working** metric (`anchor_frame_would_miss` is correct; only its NAME is
+  misleading). **A finding the controller has restated is harder to reject than one reported raw.**
+  ⇒ **pass findings through with provenance intact** — *"the subagent reports X"* is not the claim
+  *"X"* — and when one is retracted, **check whether the amplified version reached the repo, the
+  state file, or a dispatched instruction.** *(Checked here: it reached none of them.)*
+- ★ **A TEST PROVES THE CODE WORKS; A CHUNK PROVES IT SHIPS.** #569's CI log carried both
+  `✓ FirstSession.test.tsx (17 tests)` **and** `assets/FirstSession-SPkKUIod.js  9.00 kB` — the
+  second line proves the component is reachable from the **bundle graph**, not merely compiled.
+- ★ **A SUITE THAT ONLY EXERCISES THE EXPLICIT PATH SAYS NOTHING ABOUT THE DEFAULT PATH.** AUTH-1
+  volunteered that its OPEN/CLOSED assertions stayed **green under the flag flip**, because a
+  partial `importActual` mock forced the flag: **they proved the component READS the flag, not its
+  VALUE.** Two decorative tests, found by asking what evidence would show them working — not by a
+  gate.
+- ★ **"LABELLED AS FORCED" IS NOT THE SAME AS "SHOWS WHAT IT CLAIMS."** #573 caught that the prior
+  session's "with-attempts" screenshots were **photographs of the same state twice** — the seeded
+  rows lacked `topicKeys`/`questionIds`, which `isSessionRecord` requires and silently filters. **A
+  label describes the method; only a visible state difference proves the subject.**
+- ★ **A COPY CHANGE HAS A BLAST RADIUS TOO.** #573's first CI run went red on a test file that was
+  never in its local scoped set: *"I never re-derived blast radius from the changed COPY STRING."*
+  **"Where else?" applies to strings, not just symbols.**
+- ★★ **THE PROTOTYPE IS NOT THE PRODUCT** — bit twice. A prototype is authoritative when a lane
+  **INVENTS** visual language and wrong when a lane must **MATCH** existing language. AUTH-1's spec
+  described a mobile fallback for a layout that does not exist (the live `Login.tsx` hides the
+  entire brand panel below 1024px; the prototype's split collapses to one column). ★ **Note the
+  class: not a factual error, a category error about which artefact is authoritative.**
+- ★★ **A SPEC IS A STATEMENT OF INTENT.** #571 was told to write an **enforce**-list of three trees.
+  It wrote a **one-entry EXEMPT list** instead, with everything tracked enforced by default —
+  because *an enumerated enforce-list is defect #4 of this very lane: a new top-level tree would
+  default to INVISIBLE.* **A denylist of exempt trees fails safe.** A better answer than the one it
+  was given, for the lane's own stated reason.
+- ★ **A GATE THAT LETS ITS AUTHOR THROUGH IS THE CLASS TWO WAVES HAVE BEEN SPENT REMOVING.** #571's
+  own draft embedded literal mojibake in its comment and fixture, and its own new gate failed on
+  them. **Fixed rather than exempted** — *a RECORD keeps its specimen literal because a reader must
+  see it; a FIXTURE does not.*
+- ★ **A DOCS-ONLY PR IS THE ONLY RUN THAT SEES THE MERGED WHOLE**, and it is the cheapest full-bar
+  check available. #567 and #572 each paid out; see this entry's own CI note below.
+- ⚠ **A SUBAGENT THAT ENDS ITS TURN WHILE "WAITING" HAS ENDED THE LANE.** P0-TRIAL ended its turn
+  twice holding a complete result, waiting on a run it did not actually block on. **Ending a turn
+  does not pause a wait.** ⇒ block on the run (`gh run watch <id> --exit-status`), or return the
+  report with `CI: IN FLIGHT, not read` and every other line filled in. ★ **A report with one gap
+  beats another cycle.** *(Cost: three round trips on a P0 whose fix was already pushed.)*
+
+### THE THREE CARRIED RULES — still in force, restated because each was re-earned this wave
+
+- **GUARD-1's generalisation, and a guard's WORKING DIRECTORY is part of its blast radius.** Six
+  instances, one cause: every script under `scripts/ops` assumed `cwd = lazytopper`, because that
+  is where the author sat. ★ **One instance was inside the suite built to catch it.**
+- **A CI RUN ID IS BOUND TO A COMMIT, NOT A PR.** Re-derive from the current head. A run captured
+  before a rebase verifies a tree that is not the one being merged — **and it looks like proof.**
+- **TIGHTENING A WRITE RULE BREAKS EVERY OVER-SENDING WRITER, SILENTLY.** Enumerate every writer and
+  check what each **actually sends**, not what it is supposed to send. (Carried from the SEC lane.)
+
+---
+
+### THE MOJIBAKE GATE IS NOW SCOPED — and the 8 survivors are the finding
+
+#570 cleared **616 -> 8**. #571 then made `check:mojibake` **scoped**: it **ENFORCES** on product
+trees (`lazytopper/src/**`, `lazytopper/server/**`, `artifacts/**`) and every other tracked tree by
+default, and **SCANS-AND-REPORTS-WITHOUT-FAILING** on `handoff/`.
+
+> ★★ **THE RULING, and the reasoning IS the specification: the gate was asking the wrong question.**
+> Mojibake is a **DEFECT** in product text and a legitimate **SUBJECT** in documentation about
+> mojibake. **A gate that cannot tell those apart is not detecting a bug — it is banning a
+> character.** *"The gate's job is 'no mojibake reaches a student', not 'no such byte exists in the
+> repository'."*
+
+⚠ **THE RESIDUAL 8 ARE DELIBERATE SPECIMENS AND MUST STAY.** They are corrupted sequences quoted
+**inside handoff entries that are lessons about mojibake** — a reader needs to SEE what the
+corruption looks like to recognise it in the wild. **Do NOT "tidy" them, and do NOT re-enforce
+`handoff/`.** ★ #570 shipped exactly that mistake in its first blanket pass — *the lesson was
+destroyed by the repair* — then caught and reversed it itself before pushing. `escaped codepoints`,
+`a gate-honoured pragma` and `a file allowlist` were all considered and all **rejected**.
+
+★ **It is monitoring, not exemption, and the COUNT is what makes that true.** The gate prints on
+**every** run including a clean one, and an assertion enforces that it prints:
+
+```
+MOJIBAKE_SCOPE: root=... tracked=1717 scanned=1456 enforced_hits=0 report_only_hits=8
+MOJIBAKE_REPORT_ONLY: handoff/: 8 non-enforced hits across 3 files (record tree — deliberate
+  specimens quoted in lessons about mojibake; scanned, not enforced)
+```
+
+> ⚠ **A green `check:mojibake` still says almost NOTHING about a `handoff/` file.** Any docs PR
+> touching `handoff/` must scan its **own added lines** with **the scanner's own regex, extracted
+> from the source rather than re-typed**, and **inject a sequence to prove the matcher can fire.**
+> **A zero from a matcher nobody proved can fire is indistinguishable from a dead matcher.**
+
+---
+
+### VALIDATION — this handoff's own run
+
+**A docs-only PR runs the full bar, and it is the only run that sees the merged whole.** This entry's
+CI run is the first to compose **all ten** Wave 4 merges together — #566, #567, #568, #569, #570,
+#571, #572, #573, #574, #575 — a combination **no product PR's own run has ever seen**, since each
+saw only its own base. Most usefully it composes **#570** (the handoff mojibake cleared) with
+**#571** (the mojibake gate now enforcing repo-wide by default) and **#574 + #575** (the P0 fix and
+the hook-order fix, which were built in parallel against different bases).
+
+---
+
+## #557–#563 merged — ★★ WAVE 3: THREE ROUTES TO FREE PREMIUM CLOSED IN PRODUCTION · A GUARD THAT COULD NOT SEE ITS OWN REPO · A DEPLOY THAT SHIPPED NOTHING AND SAID "Deploy complete!" — trunk `25e995a7`
+
+> ★ **This record is COMPLETE and was never lost.** #564 was removed from the branch by the force
+> push described in the Wave 4 entry above, and **restored in full** by #566's squash. Verified
+> line-for-line against `937c88f8`. **It is not reproduced in the Wave 4 entry — one document, not
+> two.**
 
 **Seven product PRs, four lanes, run under a controller + subagent model. Zero open PRs at close.** Trunk moved `eb88bce0` → **`579b6953` (#557, D1)** → **`5b4070ad` (#558, C1)** → **`8e89604d` (#560, GUARD-1)** → **`6bb5bb4f` (#561, SEC-1-REV)** → **`69a39e29` (#559, C2)** → **`0a6a0bf0` (#562, D2)** → **`25e995a7` (#563, SEC-2)**.
 
