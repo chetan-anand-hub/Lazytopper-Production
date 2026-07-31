@@ -113,7 +113,7 @@ node scripts/verify-production-build.mjs        # post-build bundle verifier
 pnpm run check:mojibake
 pnpm run scope:guard --mode product             # or --mode mixed; works post-#192
 
-# Root guard matrix — 5 suites (syllabus, deletion, reproduction, ops, practice-set); count GROWS over time — verify what the suite reports now, do NOT hardcode a number
+# Root guard matrix — 6 suites (syllabus, deletion, reproduction, ops, practice-set, ai-tier-content-integrity); count GROWS over time — verify what the suite reports now, do NOT hardcode a number
 cd ../scripts
 pnpm run test:matrix:all
 
