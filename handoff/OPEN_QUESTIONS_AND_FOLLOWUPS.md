@@ -105,7 +105,16 @@ record is `handoff/WAVE_STATE_WAVE3_ARCHIVE.md`. The same wave saw two agents at
 context **each mislabel their own PR number**, which is exactly the condition under which a return
 message is least reliable and a written artefact matters most.
 
-> ★ **RECOMMENDATION for the next controller, to be written into every dispatch file: require every
+★★ **AND IT NOW HAS ITS CONCRETE NEAR-MISS, WHICH UPGRADES THIS FU FROM A RECOMMENDATION TO A
+STANDING INSTRUCTION.** **BATCH-1's report survived THREE FAILED RELAYS** before anyone wrote it down,
+and it was **nearly lost together with its worktree** — that lane wrote zero files and removed its
+worktree and branch, so the single file
+`C:\Users\Chetan\OneDrive\Desktop\diff\report-batch1-2026-07-31.md` **is the entire lane.** Had the
+fourth relay failed too, the wave's three best spec defects would have gone with it.
+> ★ **A near-miss is the version people act on; a recommendation is the version they read.** ⇒ the
+> instruction below is no longer advisory — it is in every dispatch file from 2026-07-31 onward.
+
+> ★ **STANDING INSTRUCTION for every controller, written into every dispatch file: require every
 > subagent to write its full report to `C:\Users\Chetan\OneDrive\Desktop\diff\` as its FIRST action
 > AFTER its gates pass and BEFORE composing its return message.**
 > **Report first, then summarise.** A summary is a lossy derivative of a report; producing the
@@ -256,7 +265,23 @@ CI stderr carries three `An update to FirstSession inside a test was not wrapped
 warnings, sourced from the **pre-existing `MobileHome.test.tsx`** — noise #569 introduced into a
 suite it did not own. **No gate is affected.** Self-reported, unprompted. Unassigned.
 
-### BATCH-1's findings — recorded because the lane is BLOCKED and re-deriving them costs a whole lane
+### BATCH-1's findings — ✅ **ALL THREE ADOPTED, 2026-07-31.** The lane is **RULED and re-dispatched**, not blocked.
+
+> **STATUS UPDATE — read before the entries.** The two rulings BATCH-1 was waiting on are made, and the
+> lane has been re-dispatched. **Transport: OPTION A** — widen the allowlist by **exactly**
+> `lazytopper/src/ai/aiClient.ts` for an additive `uploads?` field; the hand-rolled-fetch bypass was
+> **rejected**, because ★★ **a second, diverging transport to one endpoint is a worse outcome than any
+> allowlist breach.** **M2: REWRITTEN, not dropped** — mutate the map DIRECTION so the test can fail;
+> ★★ **a guarantee that holds structurally still needs a test — not to prove it holds today, but to
+> FAIL WHEN SOMEONE REMOVES THE STRUCTURE THAT MAKES IT HOLD.**
+>
+> ★ **The three entries below stand EXACTLY AS WRITTEN and are ADOPTED — they are the spec's
+> corrections, not open questions.** Nothing below is restated elsewhere; `NEXT_ACTION.md` §3 now
+> POINTS here rather than carrying a second copy.
+>
+> ★ **The lane's report is the entire lane** — worktree and branch removed, zero files written. It is on
+> disk at `C:\Users\Chetan\OneDrive\Desktop\diff\report-batch1-2026-07-31.md`, with the rulings at
+> `SUBAGENT_BATCH1_RULINGS_2026-07-31.md` in the same folder. **There is no other copy.**
 
 **`[FU-BATCH1-BATCH-PATH-BLAST-RADIUS]` — HIGH.** The spec attached its blast-radius constraint to
 the **wrong path**. It protected *"the existing SINGLE-IMAGE worksheet path"* — a path the change
