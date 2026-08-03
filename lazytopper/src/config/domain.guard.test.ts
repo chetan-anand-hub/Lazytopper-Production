@@ -180,3 +180,138 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
     expect(html).toContain('name="twitter:image" content="https://lazytopper.com/og-image.png"');
   });
 });
+
+/* ------------------------------------------------------------------------- *
+ * GUARD — the SERP length caps on <title> and <meta name="description">.
+ *
+ * WHY THIS EXISTS
+ * The caps were written down in prose and nothing checked them, so the copy
+ * that shipped alongside them broke both: the title measured 61 against a
+ * stated <=60, and the description 175 against a stated <=155. A character
+ * count asserted in a sentence is a derived value with no test behind it —
+ * which is precisely how a limit and the copy that violates it end up in the
+ * same document. These two assertions turn the next over-length edit into a
+ * red test instead of a description Google silently cuts mid-sentence.
+ *
+ * ★ ENTITIES ARE DECODED BEFORE COUNTING. `&amp;` is FIVE characters of HTML
+ * source and ONE rendered character. Counting the raw source would overstate
+ * this description by 4 and the guard would be measuring the wrong string —
+ * a test that lies about its subject is worse than no test.
+ *
+ * ★ og:* and twitter:* are DELIBERATELY NOT CAPPED HERE. They are not SERP
+ * fields, have no Google truncation limit, and do a different job — one is
+ * scanned in a results list, the other is a card in a WhatsApp group.
+ * ------------------------------------------------------------------------- */
+
+/** Google truncates a title past roughly this width. */
+const TITLE_MAX = 60;
+/** Google cuts a description past roughly this width, mid-sentence. */
+const DESCRIPTION_MAX = 155;
+
+const NAMED_ENTITIES: Record<string, string> = {
+  lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
+  mdash: "—", ndash: "–", hellip: "…",
+  lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”",
+};
+
+/**
+ * Decode HTML entities to the text a search engine actually renders and counts.
+ * ⚠ `&amp;` is decoded LAST and deliberately skipped in the named pass: decoding
+ * it first would turn the source `&amp;lt;` into `<` instead of the correct
+ * `&lt;`, silently under-counting by 3.
+ */
+function decodeEntities(raw: string): string {
+  const once = raw
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, hex: string) =>
+      String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_m, dec: string) =>
+      String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (m: string, name: string) =>
+      name === "amp" ? m : (NAMED_ENTITIES[name] ?? m));
+  return once.replace(/&amp;/g, "&");
+}
+
+/** Rendered length in CODE POINTS — an em-dash is one character, not three bytes. */
+function renderedLength(raw: string): number {
+  return [...decodeEntities(raw)].length;
+}
+
+/**
+ * Both extractors span newlines on purpose: `index.html` wraps its `<meta>`
+ * elements across several lines, and `[^>]` matches a newline while it cannot
+ * cross out of the tag it started in.
+ */
+function extractTitle(html: string): string | null {
+  const m = html.match(/<title>([\s\S]*?)<\/title>/i);
+  return m ? m[1].trim() : null;
+}
+
+function extractDescription(html: string): string | null {
+  // `name="description"` is exact — it does not match `name="twitter:description"`
+  // (different attribute value) nor `property="og:description"` (different attribute).
+  const m = html.match(/<meta\s[^>]*name="description"[^>]*content="([^"]*)"/i);
+  return m ? m[1].trim() : null;
+}
+
+describe("index.html SERP length caps — the counts are pinned, not asserted in prose", () => {
+  const html = readFileSync(INDEX_HTML, "utf8");
+
+  it("the decoder is not dead — an entity counts as the ONE character it renders as", () => {
+    // Without this, a broken decoder would count `&amp;` as 5, the description
+    // would measure long, and someone would "fix" it by cutting real words.
+    expect(renderedLength("a&amp;b")).toBe(3);
+    expect(decodeEntities("Maths &amp; Science")).toBe("Maths & Science");
+    // The order trap: &amp; must be decoded LAST, or this yields "<" (1 char).
+    expect(decodeEntities("&amp;lt;")).toBe("&lt;");
+    // An em-dash is one code point, not one-per-byte.
+    expect(renderedLength("a—b")).toBe(3);
+    // And the extractors must actually find something, or every cap below
+    // would pass vacuously on a reformatted file.
+    expect(extractTitle(html), "no <title> found in index.html").not.toBeNull();
+    expect(extractDescription(html), "no <meta name=\"description\"> found in index.html").not.toBeNull();
+  });
+
+  it(`<title> is at most ${TITLE_MAX} rendered characters`, () => {
+    const raw = extractTitle(html);
+    expect(raw, "no <title> element in index.html").not.toBeNull();
+    const n = renderedLength(raw as string);
+
+    // ★ NAME THE SUBJECT, NOT JUST THE VERDICT. "passed" reads identically
+    // whether it measured the real title or an empty capture group.
+    // eslint-disable-next-line no-console
+    console.log(
+      `SERP_LENGTH_GUARD: field=title rendered=${n} cap=${TITLE_MAX} ` +
+        `raw=${(raw as string).length} value=${JSON.stringify(raw)}`,
+    );
+
+    // A floor as well as a ceiling: an empty or gutted title also satisfies "<=60".
+    expect(n, "title is empty or near-empty — a cap alone does not prove a title exists")
+      .toBeGreaterThan(20);
+    expect(
+      n,
+      `<title> is ${n} rendered characters, over the ${TITLE_MAX}-character cap — ` +
+        `Google truncates it. Value: ${JSON.stringify(raw)}`,
+    ).toBeLessThanOrEqual(TITLE_MAX);
+  });
+
+  it(`<meta name="description"> is at most ${DESCRIPTION_MAX} rendered characters`, () => {
+    const raw = extractDescription(html);
+    expect(raw, 'no <meta name="description"> in index.html').not.toBeNull();
+    const n = renderedLength(raw as string);
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `SERP_LENGTH_GUARD: field=description rendered=${n} cap=${DESCRIPTION_MAX} ` +
+        `raw=${(raw as string).length} entities_decoded=yes value=${JSON.stringify(decodeEntities(raw as string))}`,
+    );
+
+    expect(n, "description is empty or near-empty — a cap alone does not prove one exists")
+      .toBeGreaterThan(60);
+    expect(
+      n,
+      `<meta name="description"> is ${n} rendered characters, over the ` +
+        `${DESCRIPTION_MAX}-character cap — Google cuts it mid-sentence. ` +
+        `Rendered value: ${JSON.stringify(decodeEntities(raw as string))}`,
+    ).toBeLessThanOrEqual(DESCRIPTION_MAX);
+  });
+});

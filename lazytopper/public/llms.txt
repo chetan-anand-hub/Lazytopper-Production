@@ -4,9 +4,7 @@
 ## Main URLs
 - Home: https://lazytopper.com/
 - TopicHub: https://lazytopper.com/topic-hub
-- Trends: https://lazytopper.com/trends/10/Maths
 - HPQ: https://lazytopper.com/highly-probable/10/Maths
-- Predictive Papers: https://lazytopper.com/predictive-papers
 - Practice: https://lazytopper.com/practice/10/Maths
 
 ## Core Capabilities
