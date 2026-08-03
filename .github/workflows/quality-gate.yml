@@ -1,4 +1,4 @@
-﻿name: Quality Gate
+name: Quality Gate
 
 # Workflows are only registered when they live in the REPO ROOT .github/workflows/.
 # (The predecessor lived in lazytopper/.github/workflows/ and therefore never ran.)
@@ -60,7 +60,7 @@ jobs:
           pnpm --version
 
       - name: Use Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: pnpm
