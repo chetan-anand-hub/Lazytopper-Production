@@ -123,11 +123,52 @@ export function isDailyLimitError(err: unknown): err is DailyLimitError {
   return err instanceof DailyLimitError;
 }
 
+/**
+ * A paid feature the student's plan does not include (server 402, GATE-1).
+ *
+ * ★ WHY THIS TYPE EXISTS AT ALL. Without it the generic branch below throws
+ * `new Error(details.error)` — which for a 402 is the literal string
+ * `premium_required`, shown to a fifteen-year-old. Shipping the server gate
+ * without this branch would ship that defect.
+ *
+ * ★ `message` IS ALWAYS THE SERVER'S STUDENT-FACING COPY, never the `error` code.
+ * A locked feature is not a mistake the student made and must not read as one:
+ * no "denied", no "unauthorised", no error code, nothing red. The `feature` and
+ * `tier` fields are for callers to branch on; only `message` is ever rendered.
+ *
+ * Deliberately NO upgrade sheet, pricing copy, component or routing here — that
+ * is GATE-2. This type is the whole client surface of GATE-1.
+ *
+ * (No Object.setPrototypeOf, for the same reason DailyLimitError omits it:
+ * tsconfig.app.json targets ES2022, so `instanceof` already works.)
+ */
+export class PremiumRequiredError extends Error {
+  readonly feature: string;
+  readonly tier: string;
+  readonly trialEndedAt: string | null;
+
+  constructor(message: string, feature: string, tier: string, trialEndedAt: string | null) {
+    super(message);
+    this.name = "PremiumRequiredError";
+    this.feature = feature;
+    this.tier = tier;
+    this.trialEndedAt = trialEndedAt;
+  }
+}
+
+/** Narrow an unknown caught value to a premium-required response. */
+export function isPremiumRequiredError(err: unknown): err is PremiumRequiredError {
+  return err instanceof PremiumRequiredError;
+}
+
 async function handleJsonResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
 
   if (!res.ok) {
-    let details: { error?: string; message?: string; raw?: string; class?: string; resetAt?: string };
+    let details: {
+      error?: string; message?: string; raw?: string; class?: string; resetAt?: string;
+      feature?: string; tier?: string; trialEndedAt?: string;
+    };
     try {
       details = JSON.parse(text);
     } catch {
@@ -143,6 +184,21 @@ async function handleJsonResponse<T>(res: Response): Promise<T> {
         details.message || "You've hit today's limit for this. It resets tomorrow.",
         details.class || "unknown",
         details.resetAt || null,
+      );
+    }
+
+    // ── Premium-gated feature (GATE-1). Handled BEFORE the generic branch for the
+    //    same reason the cap above is: this is expected operation, not a fault, so
+    //    no console.error, and a typed throw carrying the SERVER'S OWN student-facing
+    //    copy. Falling through to the generic branch would surface the raw
+    //    `premium_required` code to a student — the exact defect this branch exists
+    //    to prevent, so the fallback string below is plain English too.
+    if (res.status === 402 && details?.error === "premium_required") {
+      throw new PremiumRequiredError(
+        details.message || "This is a Premium feature. You can unlock it whenever you're ready.",
+        details.feature || "unknown",
+        details.tier || "free",
+        details.trialEndedAt || null,
       );
     }
 

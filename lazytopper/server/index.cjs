@@ -161,6 +161,16 @@ const { createRateLimiter } = require('./services/rateLimiter.cjs');
 // ★ It NEVER decides a caller is anonymous — see verifiedCaller.cjs for why that
 // would re-create #552's launch blocker through the back door.
 const { createVerifiedCaller } = require('./services/verifiedCaller.cjs');
+// GATE-1 — the paid endpoints check rate limits and NOTHING checked PLAN. The
+// entitlement RECORD was already secure (firestore.rules stops a free student
+// writing tier:"premium"); its ENFORCEMENT did not exist, so every paid feature
+// was reachable by any signed-in free account past day 7. featureGates.ts holds
+// the right model and runs in the BROWSER.
+// ★ Gated at the ROUTE BOUNDARY, not inside the handlers — see the module header
+// and applyToRequest for why (64 existing grader tests call the handlers directly).
+// ★ Fails OPEN with a warning AND a counter: a student who paid must never be
+// locked out by an infrastructure blip. Watch `entitlement.fail_open`.
+const { createEntitlementGate } = require('./services/entitlement.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -277,6 +287,7 @@ const qrUploadRoutes = createQrUploadRoutes({ ...routeDeps, qrUploadChannel });
 const tutorRoute = createTutorRoute(routeDeps);
 const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
+const entitlementGate = createEntitlementGate({ adminFirestore, telemetry, sendJson });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -346,6 +357,14 @@ async function handleRequest(req, res) {
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }
+
+    // ── Entitlement (GATE-1) ─────────────────────────────────────────────────
+    // AFTER the caps (a request over its cap costs nothing and must not spend a
+    // Firestore read) and BEFORE every route dispatch. Returns true only when it
+    // has already sent a 402. For /api/step-solution it gates nothing here and
+    // instead attaches a LAZY resolver the handler consults at its generation
+    // branch, so bank-backed and cache-backed steps stay free AND pay for no read.
+    if (await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid)) return;
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;
