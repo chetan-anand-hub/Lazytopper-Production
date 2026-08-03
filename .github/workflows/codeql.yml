@@ -1,0 +1,111 @@
+name: CodeQL
+
+# Static security analysis (CodeQL, javascript-typescript).
+# Lane SUPPLY-1, 2026-08-03. Companion file: .github/dependabot.yml
+#
+# Workflows are only registered when they live in the REPO ROOT
+# .github/workflows/ -- same rule quality-gate.yml documents. Do not move this.
+#
+# ---------------------------------------------------------------------------
+# WHY THIS IS A SEPARATE WORKFLOW AND NOT A STEP IN quality-gate.yml
+# ---------------------------------------------------------------------------
+# quality-gate.yml is the merge bar: if it is red, nothing lands. CodeQL is a
+# security *instrument*, and instruments produce false positives. Folding it
+# into the merge bar means one false positive stops every lane in the wave.
+# Kept separate so it can be red and informative without being blocking.
+#
+# NOT A REQUIRED CHECK. Branch protection was NOT touched by the PR that added
+# this file. Do not add this workflow to required status checks casually: a
+# check that is required but occasionally absent (a skipped run, a fork PR
+# without permissions) leaves a PR permanently stuck on "expected -- waiting
+# for status", unmergeable with no error message anywhere.
+#
+# PRECONDITIONS VERIFIED 2026-08-03, before this file was written:
+#   * Repo visibility is PUBLIC -> code scanning is available at no cost and
+#     needs no GitHub Advanced Security purchase.
+#   * Code scanning DEFAULT SETUP is `not-configured`
+#     (GET /repos/.../code-scanning/default-setup -> state: not-configured).
+#     That matters: default setup and this advanced-setup workflow are mutually
+#     exclusive, and enabling default setup later will disable this workflow.
+#   * Zero prior analyses exist -- CodeQL has never run on this repo.
+
+on:
+  pull_request:
+    branches: [base/approved-thru-437]
+
+  # ★ REQUIRED, and NOT optional decoration. The SUPPLY-1 spec asked for
+  # `schedule` + `pull_request` only. The first run built from that pair
+  # (run 30780475666) succeeded and then emitted:
+  #
+  #   "1 issue was detected with this workflow: Please specify an on.push hook
+  #    to analyze and see code scanning alerts from the default branch on the
+  #    Security tab."
+  #
+  # Code scanning attributes alerts to the DEFAULT BRANCH. Without a push-
+  # triggered analysis of base/approved-thru-437 the Security tab stays empty
+  # and PR runs have no baseline to diff against, so every finding reads as
+  # newly introduced. A CodeQL install with no populated Security tab is the
+  # exact failure this lane exists to prevent: a guard that runs and shows
+  # nothing looks identical to a guard that runs and finds nothing.
+  # Free on this repo -- it is public, so Actions minutes are not billed.
+  push:
+    branches: [base/approved-thru-437]
+
+  # Weekly full scan of the default branch. Catches newly published CVEs and
+  # CodeQL query-pack updates against code that has not changed -- a push-only
+  # trigger would never re-examine a quiet week.
+  # Off-peak and off-hour relative to the Dependabot windows so the three do
+  # not contend for runners.
+  schedule:
+    - cron: "17 3 * * 1"
+
+  # Ad-hoc re-run, e.g. to re-scan after triaging alerts without waiting for
+  # Monday. (The first default-branch baseline no longer depends on this --
+  # the `push` trigger above produces it automatically when this PR merges.)
+  workflow_dispatch:
+
+# A newer push to the same PR/branch supersedes an in-flight run
+# (same convention as quality-gate.yml).
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      # Required: upload the SARIF results to the code scanning API.
+      security-events: write
+      # Required by codeql-action to read workflow run metadata.
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        # NOTE: no `fetch-depth: 0` here, unlike quality-gate.yml. That gate
+        # needs full history because the C&I convergence check anchors to a
+        # fixed historical commit. CodeQL analyses the working tree only, so a
+        # shallow checkout is correct and much faster on this ~170 MB repo.
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          # One language. `javascript-typescript` covers both the lazytopper
+          # React/TS app and the .cjs server under lazytopper/server/.
+          # `actions` is also an available CodeQL language for this repo and is
+          # worth adding later -- deliberately out of scope here so this lane
+          # ships one instrument rather than two untriaged findings streams.
+          # Tracked as [FU-SUPPLY1-CODEQL-ACTIONS-LANG].
+          languages: javascript-typescript
+          # JS/TS needs no compilation. Explicit so nobody adds an autobuild
+          # step later and pulls the pnpm/Vite toolchain into a security scan.
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
