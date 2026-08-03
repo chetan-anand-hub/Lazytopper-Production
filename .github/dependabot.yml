@@ -1,0 +1,136 @@
+# Dependabot VERSION updates for LazyTopper.
+# Lane SUPPLY-1, 2026-08-03. Companion file: .github/workflows/codeql.yml
+#
+# ---------------------------------------------------------------------------
+# WHAT THIS FILE DOES *NOT* DO  — read before assuming the audit item is closed
+# ---------------------------------------------------------------------------
+# This file configures VERSION updates only (routine "a newer release exists"
+# bumps). It does NOT enable, and cannot enable:
+#
+#   * Dependabot ALERTS            — repo Settings > Code security. VERIFIED
+#                                    DISABLED on 2026-08-03 (GET
+#                                    /repos/.../vulnerability-alerts -> 404
+#                                    "Vulnerability alerts are disabled.").
+#   * Dependabot SECURITY updates  — same page, separate toggle. VERIFIED
+#                                    DISABLED on 2026-08-03
+#                                    (security_and_analysis
+#                                     .dependabot_security_updates = disabled).
+#
+# Those two are what turn a published CVE into a PR. They are Settings toggles
+# with no file representation, so merging this file does not switch them on.
+# Until the owner does, this repo gets routine bumps and NO vulnerability
+# response. See the SUPPLY-1 report.
+#
+# ---------------------------------------------------------------------------
+# WHY WEEKLY AND WHY THE LIMITS ARE LOW
+# ---------------------------------------------------------------------------
+# Two independent costs, both real in this repo:
+#
+#  1. CI weight. Every PR runs quality-gate.yml: a Firestore emulator (Java), a
+#     full root typecheck, a Vite build, the root guard matrix, the lazytopper
+#     ops matrix and the whole vitest suite (capped at 2 workers, 20-min
+#     timeout). A daily cadence would run that repeatedly for no added safety.
+#
+#  2. lane-overlap.yml. It fails a PR on a shared changed path against EVERY
+#     other open PR, drafts included. A noisy Dependabot does not merely add
+#     noise -- it would jam the wave-sequencing gate that the parallel product
+#     lanes depend on. Hence weekly, staggered across two days, and
+#     open-pull-requests-limit summing to at most 5 open PRs across all three
+#     ecosystems.
+#
+# Patch+minor are GROUPED so one PR carries many bumps. Major updates stay
+# ungrouped and individual -- they are the ones that need reading.
+#
+# NO AUTOMERGE anywhere in this file, by design. Every PR in this repo is
+# owner-approved and owner-merged; a Dependabot PR is still a PR.
+#
+# `target-branch` is deliberately NOT set. The repo's default branch already IS
+# base/approved-thru-437 (verified 2026-08-03), so Dependabot targets it
+# anyway -- and setting `target-branch` explicitly would SUPPRESS Dependabot
+# security updates for that ecosystem, which is exactly the capability the
+# owner still has to switch on.
+#
+# NOTE on pnpm-workspace.yaml's `minimumReleaseAge: 1440` (the 1-day
+# supply-chain quarantine). Dependabot does not read that setting and may
+# propose a version younger than 24h. Not addressed here on purpose: the
+# `cooldown:` key that would mirror it is not verifiable before merge (see
+# below), and an unparseable dependabot.yml fails SILENTLY. Tracked as
+# [FU-SUPPLY1-DEPENDABOT-COOLDOWN].
+#
+# NOTE on verification. Dependabot reads this file from the DEFAULT BRANCH
+# only. It is therefore NOT parsed while this PR is open, and the Insights >
+# Dependency graph > Dependabot tab cannot report on it until merge. Every key
+# below is restricted to long-stable, documented syntax for that reason.
+# First owner action after merge: check that tab for a parse error.
+
+version: 2
+
+updates:
+  # --- 1. npm / the pnpm workspace -----------------------------------------
+  # ONE entry covers the whole workspace. pnpm-workspace.yaml declares members
+  # artifacts/*, lib/*, lib/integrations/*, scripts and lazytopper; Dependabot
+  # resolves the workspace from the root manifest + pnpm-lock.yaml, so a
+  # per-package entry is not needed and would fight the single lockfile.
+  #
+  # DELIBERATELY ABSENT: a `/lazytopper` entry. lazytopper/package-lock.json is
+  # tracked in git but is a stale npm artifact -- lazytopper is a pnpm
+  # workspace member and CI installs with `pnpm install --frozen-lockfile`.
+  # Pointing an npm directory at it would generate PRs editing a lockfile
+  # nothing installs from. Tracked as [FU-SUPPLY1-STALE-NPM-LOCKFILE].
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    groups:
+      npm-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # --- 2. GitHub Actions ----------------------------------------------------
+  # The workflows themselves are a supply chain: quality-gate.yml,
+  # lane-overlap.yml, state-board.yml and codeql.yml consume third-party
+  # actions pinned by major tag (actions/checkout@v5, actions/setup-node@v4,
+  # actions/setup-java@v4, github/codeql-action/*@v3). A major tag floats, so
+  # these entries surface the MAJOR bumps that a floating tag hides.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # --- 3. Docker ------------------------------------------------------------
+  # Root Dockerfile -- the Railway backend deploy image (`FROM node:24-slim`).
+  # It is the production runtime for artifacts/api-server, so its base image is
+  # in scope for the same reason the npm tree is.
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "chore(deps)"

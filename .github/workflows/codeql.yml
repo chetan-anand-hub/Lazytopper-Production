@@ -1,0 +1,92 @@
+name: CodeQL
+
+# Static security analysis (CodeQL, javascript-typescript).
+# Lane SUPPLY-1, 2026-08-03. Companion file: .github/dependabot.yml
+#
+# Workflows are only registered when they live in the REPO ROOT
+# .github/workflows/ -- same rule quality-gate.yml documents. Do not move this.
+#
+# ---------------------------------------------------------------------------
+# WHY THIS IS A SEPARATE WORKFLOW AND NOT A STEP IN quality-gate.yml
+# ---------------------------------------------------------------------------
+# quality-gate.yml is the merge bar: if it is red, nothing lands. CodeQL is a
+# security *instrument*, and instruments produce false positives. Folding it
+# into the merge bar means one false positive stops every lane in the wave.
+# Kept separate so it can be red and informative without being blocking.
+#
+# NOT A REQUIRED CHECK. Branch protection was NOT touched by the PR that added
+# this file. Do not add this workflow to required status checks casually: a
+# check that is required but occasionally absent (a skipped run, a fork PR
+# without permissions) leaves a PR permanently stuck on "expected -- waiting
+# for status", unmergeable with no error message anywhere.
+#
+# PRECONDITIONS VERIFIED 2026-08-03, before this file was written:
+#   * Repo visibility is PUBLIC -> code scanning is available at no cost and
+#     needs no GitHub Advanced Security purchase.
+#   * Code scanning DEFAULT SETUP is `not-configured`
+#     (GET /repos/.../code-scanning/default-setup -> state: not-configured).
+#     That matters: default setup and this advanced-setup workflow are mutually
+#     exclusive, and enabling default setup later will disable this workflow.
+#   * Zero prior analyses exist -- CodeQL has never run on this repo.
+
+on:
+  pull_request:
+    branches: [base/approved-thru-437]
+
+  # Weekly full scan of the default branch. This is what establishes the
+  # baseline that PR runs diff against: without a default-branch analysis every
+  # finding on every PR is reported as newly introduced.
+  # Off-peak and off-hour relative to the Dependabot windows so the three do
+  # not contend for runners.
+  schedule:
+    - cron: "17 3 * * 1"
+
+  # So the owner can produce that first default-branch baseline immediately on
+  # merge rather than waiting up to seven days for the schedule.
+  workflow_dispatch:
+
+# A newer push to the same PR/branch supersedes an in-flight run
+# (same convention as quality-gate.yml).
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      # Required: upload the SARIF results to the code scanning API.
+      security-events: write
+      # Required by codeql-action to read workflow run metadata.
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        # NOTE: no `fetch-depth: 0` here, unlike quality-gate.yml. That gate
+        # needs full history because the C&I convergence check anchors to a
+        # fixed historical commit. CodeQL analyses the working tree only, so a
+        # shallow checkout is correct and much faster on this ~170 MB repo.
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          # One language. `javascript-typescript` covers both the lazytopper
+          # React/TS app and the .cjs server under lazytopper/server/.
+          # `actions` is also an available CodeQL language for this repo and is
+          # worth adding later -- deliberately out of scope here so this lane
+          # ships one instrument rather than two untriaged findings streams.
+          # Tracked as [FU-SUPPLY1-CODEQL-ACTIONS-LANG].
+          languages: javascript-typescript
+          # JS/TS needs no compilation. Explicit so nobody adds an autobuild
+          # step later and pulls the pnpm/Vite toolchain into a security scan.
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
