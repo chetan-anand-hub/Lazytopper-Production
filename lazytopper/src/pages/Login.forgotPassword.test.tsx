@@ -43,6 +43,15 @@ vi.mock("firebase/auth", () => ({
   },
   signInWithPhoneNumber: vi.fn(),
   linkWithPhoneNumber: vi.fn(async () => ({ confirm: vi.fn() })),
+  // AUTH-3: Login now renders VerifyEmailGate, which imports these. This
+  // factory is a FULL replacement — vitest throws on any export it omits the
+  // moment the importing module touches it — so they belong here even though
+  // this suite never reaches the gate.
+  sendEmailVerification: vi.fn(async () => {}),
+  reload: vi.fn(async () => {}),
+  verifyBeforeUpdateEmail: vi.fn(async () => {}),
+  reauthenticateWithCredential: vi.fn(async () => {}),
+  EmailAuthProvider: { credential: vi.fn(() => ({})) },
   // No signed-in user: Login must stay on the page rather than redirect away.
   onAuthStateChanged: (_client: unknown, cb: (u: unknown) => void) => {
     cb(null);
@@ -114,6 +123,10 @@ async function openResetPane() {
   // default, a 20-character address alone can outrun vitest's 5s budget on a slow box.
   const user = userEvent.setup({ delay: null });
   renderLogin();
+  // ONE DOOR (AUTH-3): the page now opens on the method choice, so the email
+  // form — and with it "Forgot password?" — is one step in. The reset flow
+  // itself is unchanged, and everything below this line still pins it.
+  await user.click(screen.getByRole("button", { name: /Continue with email/ }));
   await user.click(screen.getByRole("button", { name: "Forgot password?" }));
   const form = await screen.findByRole("form", { name: "Reset your password" });
   return { user, form };
@@ -218,37 +231,49 @@ describe("Login — forgot password (test 2: ACCOUNT ENUMERATION — load-bearin
 });
 
 describe("Login — forgot password (test 3: the link belongs to the EMAIL pane only)", () => {
-  it("renders in the email pane and NOT in the phone pane", async () => {
-    const user = userEvent.setup();
+  it("renders in the email step and NOT in the phone step", async () => {
+    const user = userEvent.setup({ delay: null });
     renderLogin();
 
-    // Email is the default pane.
+    // ONE DOOR (AUTH-3): the tabs are gone. The method is a STEP now, so this
+    // walks the door instead of flipping a tab — but the property under test is
+    // unchanged: the reset link belongs to email and must never appear on phone.
+    //
+    // CONTROL — the link is genuinely absent on the DOOR too, not merely
+    // un-found because the page failed to render.
+    expect(screen.queryByRole("button", { name: "Forgot password?" })).toBeNull();
+    expect(screen.getByRole("button", { name: /Continue with email/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
     expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
 
     // Phone accounts have no password — the link must not appear there.
-    await user.click(screen.getByRole("tab", { name: "Phone" }));
+    await user.click(screen.getByRole("button", { name: "<- All sign-in options" }));
+    await user.click(screen.getByRole("button", { name: /Continue with phone/ }));
     expect(screen.queryByRole("button", { name: "Forgot password?" })).toBeNull();
 
-    // ...and the phone pane still works.
+    // ...and the phone step still works.
     expect(screen.getByLabelText("Mobile number")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Send OTP/ })).toBeInTheDocument();
 
     // Back to email restores it.
-    await user.click(screen.getByRole("tab", { name: "Email" }));
+    await user.click(screen.getByRole("button", { name: "<- All sign-in options" }));
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
     expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
   });
 
-  it("switching to the phone pane closes an open reset state", async () => {
-    const user = userEvent.setup();
+  it("leaving the email step closes an open reset state", async () => {
+    const user = userEvent.setup({ delay: null });
     renderLogin();
 
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
     await user.click(screen.getByRole("button", { name: "Forgot password?" }));
     expect(screen.getByRole("button", { name: /Send reset link/ })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: "Phone" }));
+    await user.click(screen.getByRole("button", { name: "<- All sign-in options" }));
     expect(screen.queryByRole("button", { name: /Send reset link/ })).toBeNull();
 
-    await user.click(screen.getByRole("tab", { name: "Email" }));
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
     // Back on the sign-in form, not stranded in the reset pane.
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Send reset link/ })).toBeNull();
