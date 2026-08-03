@@ -1,7 +1,8 @@
 import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, type AuthUser } from "../context/AuthContext";
 import OfferStrip, { AfterTrialLine } from "../components/auth/OfferStrip";
+import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 
@@ -326,6 +327,27 @@ const LOGIN_CSS = `
     backdrop-filter: blur(18px);
   }
 
+  /* ── ONE DOOR: the step heading inside the frame ───────────────────────
+     Every step (choose / email / phone / verify) leads with the same two
+     elements, so the frame's vertical rhythm never jumps as the student
+     moves between them. */
+  .lt-login-stephead {
+    margin: 0 0 4px;
+    color: var(--lt-ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.32rem;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .lt-login-stepsub {
+    margin: 0 0 16px;
+    color: var(--lt-muted);
+    font-size: 0.87rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
   .lt-google {
     width: 100%;
     display: flex;
@@ -352,6 +374,66 @@ const LOGIN_CSS = `
   .lt-google:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  /* PRE-EXISTING dark-theme defect, same class as the .lt-field one below and
+     worse, because this is the PRIMARY action: the button keeps a hard white
+     background while its label inherits color: var(--lt-ink), which the dark
+     block redefines to #f8fafc — white text on a white button. Measured at
+     rgb(248,250,252) on rgb(255,255,255). The background STAYS white on
+     purpose (Google's brand guidance for the sign-in button); it is the INK
+     that has to be pinned dark rather than inherited. */
+  .lt-login-page[data-login-theme="dark"] .lt-google {
+    color: #071a3d;
+  }
+
+  /* The phone and email doors. Deliberately the SAME weight as the Google
+     button — three equal methods, no tabs and no visual hierarchy between
+     them, because the student's right answer depends only on which account
+     they already have. */
+  .lt-method {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    margin-top: 9px;
+    background: #ffffff;
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    padding: 13px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--lt-ink);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .lt-method:hover:not(:disabled) {
+    border-color: rgba(22, 185, 106, 0.45);
+    background: rgba(22, 185, 106, 0.06);
+  }
+
+  .lt-method:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-method {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #f8fafc;
+  }
+
+  .lt-method-icon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    color: var(--lt-muted);
   }
 
   .lt-gmark {
@@ -388,36 +470,49 @@ const LOGIN_CSS = `
     background: var(--lt-line);
   }
 
-  .lt-toggle {
-    display: flex;
-    background: #eef2f8;
-    border-radius: 11px;
-    padding: 4px;
-    margin-bottom: 16px;
-  }
-
-  .lt-toggle button {
-    flex: 1;
+  /* "<- All sign-in options" — the way back out of a chosen method. */
+  .lt-login-backstep {
+    display: inline-flex;
+    align-items: center;
     border: 0;
     background: transparent;
-    border-radius: 8px;
-    padding: 9px;
+    padding: 0;
+    margin: 0 0 12px;
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    color: rgba(7, 26, 61, 0.55);
+    color: var(--lt-muted);
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
   }
 
-  .lt-toggle button.active {
-    background: #ffffff;
+  .lt-login-backstep:hover:not(:disabled) {
     color: var(--lt-ink);
-    box-shadow: 0 1px 2px rgba(7, 26, 61, 0.1);
   }
 
-  .lt-login-page[data-login-theme="dark"] .lt-toggle {
-    background: rgba(255, 255, 255, 0.08);
+  /* The linking warning. Deliberately NEUTRAL grey, not error-red and not the
+     green notice treatment: it is neither a mistake the student has made nor
+     good news, it is a fact about how accounts work that they need before
+     choosing. Red here would read as "you have done something wrong" on a
+     screen where they have not yet done anything. */
+  .lt-login-linkwarn {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--lt-muted);
+    background: rgba(7, 26, 61, 0.04);
+    border: 1px solid var(--lt-line);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .lt-login-linkwarn b {
+    color: var(--lt-ink);
+    font-weight: 800;
   }
 
   .lt-field-label {
@@ -494,6 +589,35 @@ const LOGIN_CSS = `
     cursor: not-allowed;
   }
 
+  /* ⚠ DARK-THEME LEGIBILITY — a PRE-EXISTING defect, found by screenshotting
+     this page rather than by any assertion, and fixed here because this PR
+     makes the email form a deliberate destination rather than a default pane.
+
+     MEASURED, not guessed: with no dark override, .lt-field kept its hard
+     background #ffffff while .lt-field input inherited color: var(--lt-ink),
+     which the dark block redefines to #f8fafc. getComputedStyle reported
+     rgb(248,250,252) text on rgb(255,255,255) — about 1.04:1, i.e. the student
+     could not see what they were typing. The dark theme is what renders when no
+     data-theme attribute is set, so this was the default. */
+  .lt-login-page[data-login-theme="dark"] .lt-field {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-field input::placeholder {
+    color: rgba(248, 250, 252, 0.42);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-field input:disabled {
+    color: rgba(248, 250, 252, 0.45);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-prefix {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(248, 250, 252, 0.72);
+    border-right-color: rgba(255, 255, 255, 0.16);
+  }
+
   .lt-login-error {
     margin: 2px 0 0;
     color: #c0362c;
@@ -542,6 +666,15 @@ const LOGIN_CSS = `
     cursor: not-allowed;
   }
 
+  /* The CTA echoes the typed address, so it must survive a long one without
+     pushing the arrow off the button. */
+  .lt-continue-echo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .lt-signup {
     text-align: center;
     margin: 14px 0 0;
@@ -587,6 +720,28 @@ const LOGIN_CSS = `
     white-space: nowrap;
   }
 
+  /* "Reset my password", offered beside the wrong-password message. A
+     SECONDARY button: the student's first instinct is usually to retype, so
+     the primary action stays "try again". */
+  .lt-login-reset-offer {
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid var(--lt-line);
+    border-radius: 12px;
+    background: transparent;
+    padding: 11px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--lt-ink);
+    cursor: pointer;
+  }
+
+  .lt-login-reset-offer:hover:not(:disabled) {
+    border-color: rgba(22, 185, 106, 0.45);
+    background: rgba(22, 185, 106, 0.06);
+  }
+
   .lt-login-reset-lede {
     margin: 0 0 14px;
     color: var(--lt-muted);
@@ -618,6 +773,93 @@ const LOGIN_CSS = `
     text-align: center;
     margin: 14px 0 0;
     font-size: 0.86rem;
+    color: var(--lt-muted);
+  }
+
+  /* ── VERIFY-EMAIL GATE ─────────────────────────────────────────────────
+     A neutral, expected step — NOT an error. It therefore borrows the offer
+     strip's green-bordered treatment (the same one the reset confirmation
+     uses) and leaves error-red for genuine input mistakes, which on this
+     screen means only a bad address in "change it". */
+  .lt-verify-heading {
+    margin: 0 0 5px;
+    color: var(--lt-ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.32rem;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .lt-verify-lede {
+    margin: 0 0 12px;
+    color: var(--lt-muted);
+    font-size: 0.87rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  .lt-verify-address {
+    margin: 0 0 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--lt-line);
+    background: rgba(7, 26, 61, 0.04);
+    color: var(--lt-ink);
+    font-size: 0.92rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-verify-address {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .lt-verify-spam {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: var(--lt-green-dark);
+    background: rgba(22, 185, 106, 0.1);
+    border: 1px solid rgba(22, 185, 106, 0.24);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-verify-spam {
+    color: #b6f2d5;
+  }
+
+  .lt-verify-notice {
+    margin: 10px 0 0;
+    color: var(--lt-muted);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  .lt-verify-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 0.82rem;
+  }
+
+  .lt-verify-change {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--lt-line);
+  }
+
+  .lt-verify-startover {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 0.82rem;
     color: var(--lt-muted);
   }
 
@@ -839,6 +1081,20 @@ const LOGIN_CSS = `
       border-radius: 18px;
     }
 
+    .lt-login-stephead {
+      font-size: 1.2rem;
+    }
+
+    .lt-verify-heading {
+      font-size: 1.2rem;
+    }
+
+    /* At 390px a wrapped two-line address inside a fixed-height button
+       clipped the arrow. Let the row wrap instead of the label overflow. */
+    .lt-continue {
+      flex-wrap: wrap;
+    }
+
     .lt-login-foot {
       flex-direction: column;
       align-items: center;
@@ -853,15 +1109,31 @@ const LOGIN_CSS = `
 `;
 
 /**
- * Login page (`/login`).
+ * The ONE DOOR (`/login` and `/sign-up`).
  *
- * Production responsibilities preserved:
- * - Native Firebase Auth widget drives sign-in: Google (popup) + email/password.
- *   The Phone (SMS-OTP) pane is present but its handler is wired in PR-4.
- * - Redirect priority stays `?redirect`, `location.state.from`, then
- *   profile/onboarding fallback.
- * - The page stays standalone, without DesktopShell/sidebar chrome.
- * - No guest CTA or fake trial activation is exposed from Login.
+ * ── WHY ONE PAGE ──────────────────────────────────────────────────────────
+ * Verified on trunk: for GOOGLE and PHONE, "sign in" and "sign up" already call
+ * the identical function — `signInWithPopup` and `signInWithPhoneNumber` both
+ * create the account when it does not exist. Only email/password had two
+ * mutually exclusive halves. So the sign-in/sign-up tabs solved a
+ * one-method-in-three problem by making EVERY student classify themselves, and
+ * guessing wrong returned an error instead of the thing they came for.
+ *
+ * ── THE EMAIL FLOW IS INVERTED, AND THAT IS DELIBERATE ────────────────────
+ * Firebase Email Enumeration Protection is ENABLED on this project:
+ *   • `signInWithEmailAndPassword` returns the SAME error for wrong-password and
+ *     no-such-account. Indistinguishable — sign-in cannot tell us which case we
+ *     are in.
+ *   • `createUserWithEmailAndPassword` still returns `auth/email-already-in-use`.
+ *     Distinguishable — create CAN.
+ * So we try sign-in, and on an ambiguous failure we try create. The create call
+ * is the probe AND the commitment: there is no dry run.
+ *
+ * ⚠ There is deliberately NO "no account found — create one?" confirmation.
+ * It would disclose non-existence and re-open by hand the exact leak the owner
+ * enabled Enumeration Protection to close. Typos are mitigated instead by (a)
+ * echoing the address in the CTA — "Continue as you@example.com" — and (b) the
+ * blocking verification gate, which is the real protection.
  */
 function authErrorCode(err: unknown): string {
   return typeof err === "object" && err !== null && "code" in err
@@ -893,6 +1165,11 @@ const RESET_NEUTRAL_NOTICE =
  * and any code Firebase adds in future — falls through to RESET_NEUTRAL_NOTICE. The
  * fallback is deliberately the SAFE side: an unrecognised code can never become an
  * existence oracle.
+ *
+ * ⚠ THE SIGN-IN FORM NOW DISCLOSES MORE (it can say "that password doesn't match").
+ * The RESET flow must NOT follow it. They are different trades: a login form has
+ * always told you your password was wrong, and the student is holding the address
+ * either way; a reset form is the one an outsider would use to probe a stranger.
  */
 const RESET_SURFACEABLE_ERRORS: Record<string, string> = {
   "auth/invalid-email": "Enter a valid email address.",
@@ -900,6 +1177,42 @@ const RESET_SURFACEABLE_ERRORS: Record<string, string> = {
   "auth/too-many-requests": "Too many requests. Please try again in a few minutes.",
   "auth/network-request-failed": "Network error. Check your connection and try again.",
 };
+
+/**
+ * Sign-in failures that MAY fall through to a create attempt.
+ *
+ * ⚠ THIS SET IS LOAD-BEARING AND MUST STAY SMALL. Every code in it means "these
+ * credentials did not match, and Enumeration Protection will not tell us why" —
+ * the genuinely ambiguous case, and the only one where creating an account is
+ * the right next move.
+ *
+ * Everything NOT in this set is a failure we can already explain: a malformed
+ * address, a disabled account, a rate limit, a dead network. Falling through on
+ * those would be actively harmful — `auth/too-many-requests` would answer a
+ * throttle by firing a SECOND write call, and the others would replace an
+ * accurate message with a confusing one.
+ */
+const AMBIGUOUS_SIGN_IN_CODES = new Set([
+  // What Firebase returns for BOTH wrong-password and no-such-account once
+  // Email Enumeration Protection is on. The REST API name is
+  // INVALID_LOGIN_CREDENTIALS; the JS SDK surfaces it as invalid-credential.
+  "auth/invalid-credential",
+  "auth/invalid-login-credentials",
+  // The pre-protection pair, still returned by older projects and the emulator.
+  "auth/user-not-found",
+  "auth/wrong-password",
+]);
+
+/**
+ * The wrong-password message — a CONSCIOUS disclosure, not an inherited default.
+ *
+ * Reaching it means sign-in failed AND create returned `email-already-in-use`,
+ * so we know the account exists. Saying so is the same disclosure every login
+ * form on the internet makes, and the student is already holding the address.
+ * The alternative — a vague "could not sign you in" — would leave a student who
+ * simply mistyped their password with no idea what to do next.
+ */
+const WRONG_PASSWORD_MESSAGE = "That password doesn't match. Try again, or reset it.";
 
 function describeAuthError(err: unknown): string {
   const code = authErrorCode(err);
@@ -911,6 +1224,12 @@ function describeAuthError(err: unknown): string {
       return "Enter a valid email address.";
     case "auth/user-disabled":
       return "This account has been disabled.";
+    case "auth/email-already-in-use":
+      return "An account with this email already exists — sign in instead.";
+    case "auth/weak-password":
+      return "Choose a password with at least 6 characters.";
+    case "auth/operation-not-allowed":
+      return "Email sign-up is not enabled yet. Please try Google.";
     case "auth/user-not-found":
     case "auth/wrong-password":
     case "auth/invalid-credential":
@@ -937,7 +1256,84 @@ function describeAuthError(err: unknown): string {
   }
 }
 
-export default function Login() {
+/**
+ * Does this student have to verify their address before entering?
+ *
+ * ⚠ THE SCOPE IS NARROW ON PURPOSE — check each boundary, do not widen it:
+ *   • GOOGLE — never blocked. Google has already proven the address, so the
+ *     account arrives with `emailVerified: true`.
+ *   • PHONE — never blocked. There is no email to verify and the OTP already
+ *     proved possession. A phone account reports `emailVerified: false`, which
+ *     is exactly why the presence of an ADDRESS and not the flag alone is half
+ *     the test — keying on the flag by itself would strand every phone student
+ *     on a screen asking them to check an inbox they never gave us.
+ *   • RETURNING, ALREADY VERIFIED — never blocked; straight in, forever after.
+ *   • NEW EMAIL/PASSWORD — blocked, once.
+ *
+ * ⚠⚠ WHY THIS READS `email` RATHER THAN `providerIds`, against the advice on
+ * `AuthUser.providerIds` itself. Two reasons, and the first is binding:
+ *
+ *   1. A REPO-WIDE RULING FORBIDS IT. `LinkSignInMethodModal.test.tsx` scans
+ *      every non-test file under `src/` and fails on ANY `providerIds` read
+ *      outside the linking surfaces — the ruling being that linking is optional
+ *      and must never gate a feature. `providerIds.includes("password")` here
+ *      is not link-status gating in spirit, but the guard is textual and the
+ *      ruling is the owner's. Weakening a doctrine guard to fit a feature is
+ *      the wrong direction of fit.
+ *   2. It is EQUIVALENT over every reachable state. The `providerIds` doc warns
+ *      that `email`/`phoneNumber` describe the PROFILE rather than the
+ *      credentials — true, and the case it has in mind is a phone account
+ *      carrying a Google email. That account reports `emailVerified: true`, so
+ *      the first clause already excludes it. The inverse — an address with no
+ *      way to have verified it — needs an email credential added to a
+ *      phone-first account, and NO SUCH PATH EXISTS: AuthContext imports
+ *      `linkWithPhoneNumber` and nothing else, so linking runs one way only.
+ *
+ * → If an email-link path is ever built (the queued NAME+LINK lane), revisit
+ *   this: a phone-first student who adds an unverified email would then start
+ *   matching here, and would be right to.
+ *
+ * `emailVerified === false` (rather than `!== true`) is likewise deliberate: the
+ * field is OPTIONAL on `AuthUser`, and an UNKNOWN value must not block. A local
+ * session stored before the field existed, and every test factory that
+ * hand-builds a user, both read `undefined` — neither should be stranded on a
+ * verification screen for an account we know nothing about. The real path
+ * always populates it, because `mapFirebaseUser` always does.
+ */
+export function needsEmailVerification(user: AuthUser | null | undefined): boolean {
+  if (!user || user.isLocalSession) return false;
+  return Boolean(user.email) && user.emailVerified === false;
+}
+
+type DoorStep = "choose" | "email" | "phone" | "verify";
+
+export type AuthDoorProps = {
+  /**
+   * Which door the student came through. Both render the same three methods —
+   * the intent only changes the framing copy and, for email, whether the form
+   * COLLECTS A NAME.
+   *
+   * ⚠ `intent="create"` keeps the required name field, and that is not
+   * cosmetic. `signUpWithEmailPassword` is the ONLY `updateProfile` call in
+   * product code, so this form is the only place a `displayName` is ever
+   * captured — `FirstSession` deliberately does not ask (it would need a
+   * context key). Dropping it here would silently re-open the defect PR-B2
+   * closed: every new account rendering its raw email address as the student's
+   * name across the shell. See [FU-AUTH-NAME-PROMPT].
+   */
+  intent: "signin" | "create";
+  /**
+   * ⚠ MUST BE UNIQUE PER ROUTE. The reCAPTCHA verifier is bound to one DOM
+   * element and `AuthContext.initPhoneRecaptcha` reuses it when the requested
+   * container id matches AND that id is still in the document. Two routes
+   * sharing an id would satisfy both checks after a navigation while the
+   * verifier was actually bound to the OLD, now-detached element — reuse of a
+   * dead widget, failing at send time pointing at the wrong thing.
+   */
+  recaptchaContainerId: string;
+};
+
+export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -945,11 +1341,15 @@ export default function Login() {
     user,
     signInWithGoogle,
     signInWithEmailPassword,
+    signUpWithEmailPassword,
     sendPasswordReset,
     initPhoneRecaptcha,
     sendPhoneOtp,
     verifyPhoneOtp,
+    logout,
   } = useAuth();
+
+  const isCreate = intent === "create";
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -988,7 +1388,8 @@ export default function Login() {
     return "/";
   }, [location.state, searchParams]);
 
-  const [method, setMethod] = useState<"email" | "phone">("email");
+  const [step, setStep] = useState<DoorStep>("choose");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -996,17 +1397,22 @@ export default function Login() {
   const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [offerReset, setOfferReset] = useState(false);
 
-  // Password recovery lives INLINE in the email pane — it is not a route (routes are
+  // Set once the verify gate reports success. Without it the `user` effect,
+  // which still sees a context user carrying the STALE `emailVerified: false`
+  // (`reload()` mutates the Firebase user in place and re-emits nothing), would
+  // put the student straight back on the gate it just let them off.
+  const [verificationCleared, setVerificationCleared] = useState(false);
+
+  // Password recovery lives INLINE in the email step — it is not a route (routes are
   // owned by App.tsx). Phone accounts have no password, so none of this renders in the
-  // phone pane.
+  // phone step.
   const [resetOpen, setResetOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetBusy, setResetBusy] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
-
-  const RECAPTCHA_CONTAINER_ID = "lt-login-recaptcha";
 
   useEffect(() => {
     trackUxEvent("login_start", "login", {
@@ -1015,22 +1421,38 @@ export default function Login() {
   }, [reason]);
 
   useEffect(() => {
-    if (user) {
-      trackUxEvent("login_complete", "login", {
-        reason: reason ?? "unspecified",
-      });
-      // Referral crediting — relocated here from the retired Onboarding page, which
-      // was its only caller. Capture still happens at App.tsx (`?ref=` -> pending key);
-      // this is the first authenticated moment on every Login path (Google / email /
-      // phone OTP all land in this one effect). Self-idempotent: creditPendingReferral
-      // no-ops when there is no pending code and again once REFERRAL_CREDITED_KEY is
-      // set, so it credits at most once ever. Keyed on the real Firebase uid — a
-      // stable identifier the `addReferralToCode` dedup can actually match (the old
-      // `user_${Date.now()}` was fresh on every call and defeated that dedup).
-      creditPendingReferral(user.uid);
-      navigate(nextPath, { replace: true });
+    if (!user) return;
+    trackUxEvent("login_complete", "login", {
+      reason: reason ?? "unspecified",
+    });
+    // ⚠ THE BLOCK GOES BEFORE THE NAVIGATION, and before the referral credit.
+    // A student whose address is unverified has not finished signing up, so
+    // nothing downstream of entry should fire for them yet.
+    if (!verificationCleared && needsEmailVerification(user)) {
+      setStep("verify");
+      setBusy(false);
+      return;
     }
-  }, [user, nextPath, navigate, reason]);
+    // Referral crediting — relocated here from the retired Onboarding page, which
+    // was its only caller. Capture still happens at App.tsx (`?ref=` -> pending key);
+    // this is the first authenticated moment on every door path (Google / email /
+    // phone OTP all land in this one effect). Self-idempotent: creditPendingReferral
+    // no-ops when there is no pending code and again once REFERRAL_CREDITED_KEY is
+    // set, so it credits at most once ever. Keyed on the real Firebase uid — a
+    // stable identifier the `addReferralToCode` dedup can actually match (the old
+    // `user_${Date.now()}` was fresh on every call and defeated that dedup).
+    creditPendingReferral(user.uid);
+    navigate(nextPath, { replace: true });
+  }, [user, nextPath, navigate, reason, verificationCleared]);
+
+  const goToStep = (next: DoorStep) => {
+    setError(null);
+    setOfferReset(false);
+    setPhoneStep("number");
+    setOtp("");
+    closeReset();
+    setStep(next);
+  };
 
   const handleGoogle = async () => {
     if (busy) return;
@@ -1049,32 +1471,90 @@ export default function Login() {
     event.preventDefault();
     if (busy) return;
     setError(null);
+    setOfferReset(false);
+    const trimmedName = name.trim();
     const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
-      setError("Enter your email and password.");
+
+    if (isCreate && !trimmedName) {
+      // The name is REQUIRED on the create door, not optional, and that is a
+      // deliberate call: it is a ONE-WAY DOOR. An account created without a name
+      // cannot be backfilled without asking the student again, so an OPTIONAL
+      // field would close the defect only for students who happened to fill it in
+      // and permanently re-create it for everyone who skipped.
+      setError("Enter your name.");
       return;
     }
+    if (!trimmedEmail || !password) {
+      setError(isCreate ? "Enter an email and a password." : "Enter your email and password.");
+      return;
+    }
+    if (password.length < 6) {
+      // Checked BEFORE any network call. Firebase has always required six
+      // characters, so no existing account can have fewer — which makes this
+      // honest for a returning student and stops the create branch below from
+      // ever being reached with a password Firebase would reject anyway.
+      setError("Choose a password with at least 6 characters.");
+      return;
+    }
+
     setBusy(true);
+
+    if (isCreate) {
+      try {
+        await signUpWithEmailPassword(trimmedEmail, password, trimmedName);
+        // Navigation (or the verify gate) is handled by the `user` effect.
+      } catch (err) {
+        setError(describeAuthError(err));
+        setBusy(false);
+      }
+      return;
+    }
+
+    // ── TRY-THEN-CREATE ────────────────────────────────────────────────────
     try {
       await signInWithEmailPassword(trimmedEmail, password);
-      // Navigation is handled by the `user` effect once auth state updates.
-    } catch (err) {
-      setError(describeAuthError(err));
+      return; // the `user` effect takes it from here
+    } catch (signInErr) {
+      if (!AMBIGUOUS_SIGN_IN_CODES.has(authErrorCode(signInErr))) {
+        // Explainable failure — report it and STOP. Never probe with a write
+        // call after a rate limit, a dead network or a disabled account.
+        setError(describeAuthError(signInErr));
+        setBusy(false);
+        return;
+      }
+    }
+
+    try {
+      // ⚠ COMMITMENT, NOT A PROBE. If no account exists this CREATES one — there
+      // is no dry run, and asking "create one?" first would disclose
+      // non-existence. The verify gate is what catches the typo.
+      await signUpWithEmailPassword(trimmedEmail, password);
+      // Created. The `user` effect routes to the verification gate.
+    } catch (createErr) {
+      if (authErrorCode(createErr) === "auth/email-already-in-use") {
+        // Sign-in failed AND the address is taken ⇒ the account exists and the
+        // password was wrong. This is the ONE case the two calls can separate.
+        setError(WRONG_PASSWORD_MESSAGE);
+        setOfferReset(true);
+      } else {
+        setError(describeAuthError(createErr));
+      }
       setBusy(false);
     }
   };
 
-  const closeReset = () => {
+  function closeReset() {
     setResetOpen(false);
     setResetEmail("");
     setResetBusy(false);
     setResetSent(false);
     setResetError(null);
-  };
+  }
 
   const openReset = () => {
     if (busy) return;
     setError(null);
+    setOfferReset(false);
     setResetSent(false);
     setResetError(null);
     setResetEmail(email.trim());
@@ -1123,7 +1603,7 @@ export default function Login() {
       }
       setBusy(true);
       try {
-        await sendPhoneOtp(`+91${phone}`, RECAPTCHA_CONTAINER_ID);
+        await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
         setPhoneStep("otp");
       } catch (err) {
         setError(describeAuthError(err));
@@ -1160,7 +1640,7 @@ export default function Login() {
     setOtp("");
     setBusy(true);
     try {
-      await sendPhoneOtp(`+91${phone}`, RECAPTCHA_CONTAINER_ID);
+      await sendPhoneOtp(`+91${phone}`, recaptchaContainerId);
     } catch (err) {
       setError(describeAuthError(err));
     } finally {
@@ -1175,18 +1655,29 @@ export default function Login() {
     setPhoneStep("number");
   };
 
-  // Warm the invisible reCAPTCHA when the Phone tab opens so the first "Send
+  // Warm the invisible reCAPTCHA when the phone step opens so the first "Send
   // OTP" doesn't pay the Google script-load latency. Warming is what makes the
   // later sends cheap: `initPhoneRecaptcha` reuses this widget for as long as it
   // stays valid (same container, still in the document) and rebuilds only once
   // it is stale, so the cost is paid here once rather than on every send. The
   // bottom-right badge is expected (left for launch).
   useEffect(() => {
-    if (method !== "phone") return;
-    void initPhoneRecaptcha(RECAPTCHA_CONTAINER_ID).catch(() => {
+    if (step !== "phone") return;
+    void initPhoneRecaptcha(recaptchaContainerId).catch(() => {
       // Surfaced on the actual send attempt; no honest state to show pre-action.
     });
-  }, [method, initPhoneRecaptcha]);
+  }, [step, initPhoneRecaptcha, recaptchaContainerId]);
+
+  const handleStartOver = async () => {
+    try {
+      await logout();
+    } catch {
+      // Even a failed sign-out should return the student to a usable door.
+    }
+    setVerificationCleared(false);
+    setPassword("");
+    goToStep("choose");
+  };
 
   const themeVars = {
     "--lt-login-bg": isLight ? "#f7fbff" : "#051733",
@@ -1200,6 +1691,28 @@ export default function Login() {
     >
       L
     </span>
+  );
+
+  const trimmedEmail = email.trim();
+  const continueLabel = busy
+    ? isCreate
+      ? "Creating account..."
+      : "Checking..."
+    : isCreate
+      ? "Create my account"
+      : trimmedEmail
+        ? `Continue as ${trimmedEmail}`
+        : "Continue";
+
+  const backToOptions = (
+    <button
+      type="button"
+      className="lt-login-backstep"
+      onClick={() => goToStep("choose")}
+      disabled={busy}
+    >
+      {"<- All sign-in options"}
+    </button>
   );
 
   return (
@@ -1273,240 +1786,327 @@ export default function Login() {
           </Link>
 
           <div className="lt-login-frame">
-            <button
-              type="button"
-              className="lt-google"
-              onClick={handleGoogle}
-              disabled={busy}
-            >
-              <span className="lt-gmark" aria-hidden="true">
-                <svg viewBox="0 0 48 48" width="18" height="18">
-                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                </svg>
-              </span>
-              Continue with Google
-            </button>
-            <p className="lt-onetap">Uses the Google account already signed in to your browser</p>
-
-            <div className="lt-or">or</div>
-
-            <div className="lt-toggle" role="tablist" aria-label="Sign-in method">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={method === "email"}
-                className={method === "email" ? "active" : ""}
-                onClick={() => {
-                  setMethod("email");
-                  setError(null);
-                  setPhoneStep("number");
-                  setOtp("");
-                  closeReset();
-                }}
-              >
-                Email
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={method === "phone"}
-                className={method === "phone" ? "active" : ""}
-                onClick={() => {
-                  setMethod("phone");
-                  setError(null);
-                  closeReset();
-                }}
-              >
-                Phone
-              </button>
-            </div>
-
-            {method === "email" && resetOpen ? (
-              <form onSubmit={handleResetSubmit} noValidate aria-label="Reset your password">
-                <p className="lt-login-reset-lede">
-                  Enter the email you signed in with and we'll send you a link to set a
-                  new password.
+            {step === "verify" ? (
+              <VerifyEmailGate
+                email={user?.email ?? trimmedEmail}
+                knownPassword={password || undefined}
+                onVerified={() => setVerificationCleared(true)}
+                onStartOver={handleStartOver}
+              />
+            ) : step === "choose" ? (
+              <>
+                {/* ── STEP 1 · THE DOOR ────────────────────────────────────
+                    Three equal methods and no tabs. The student is never
+                    asked whether they are new — for Google and phone the
+                    question was always meaningless, and for email the page
+                    now works it out. */}
+                <h2 className="lt-login-stephead">
+                  {isCreate ? "Create your LazyTopper account" : "Sign in to LazyTopper"}
+                </h2>
+                <p className="lt-login-stepsub">
+                  New here? Just continue — your account is created automatically.
                 </p>
-                <label className="lt-field-label" htmlFor="lt-login-reset-email">
-                  Email address
-                </label>
-                <div className="lt-field">
-                  <input
-                    id="lt-login-reset-email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    value={resetEmail}
-                    disabled={resetSent}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                  />
-                </div>
-                {resetError ? (
-                  <p className="lt-login-error" role="alert">
-                    {resetError}
-                  </p>
-                ) : null}
-                {resetSent ? (
-                  <p className="lt-login-reset-notice" role="status">
-                    <span aria-hidden="true">{"✓"}</span>
-                    <span data-testid="lt-reset-notice">{RESET_NEUTRAL_NOTICE}</span>
-                  </p>
-                ) : (
-                  <button className="lt-continue" type="submit" disabled={resetBusy}>
-                    {resetBusy ? "Sending link..." : "Send reset link"}{" "}
-                    <span aria-hidden="true">{"→"}</span>
-                  </button>
-                )}
-                <p className="lt-login-reset-back">
-                  <button
-                    type="button"
-                    className="lt-login-linkbtn"
-                    onClick={closeReset}
-                    disabled={resetBusy}
-                  >
-                    {"<- Back to sign in"}
-                  </button>
-                </p>
-              </form>
-            ) : method === "email" ? (
-              <form onSubmit={handleEmailSubmit} noValidate>
-                <label className="lt-field-label" htmlFor="lt-login-email">
-                  Email address
-                </label>
-                <div className="lt-field">
-                  <input
-                    id="lt-login-email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="lt-login-field-row">
-                  <label className="lt-field-label" htmlFor="lt-login-password">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    className="lt-login-linkbtn lt-login-forgot"
-                    onClick={openReset}
-                    disabled={busy}
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <div className="lt-field">
-                  <input
-                    id="lt-login-password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="Your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
+
+                <button
+                  type="button"
+                  className="lt-google"
+                  onClick={handleGoogle}
+                  disabled={busy}
+                >
+                  <span className="lt-gmark" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" width="18" height="18">
+                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                    </svg>
+                  </span>
+                  Continue with Google
+                </button>
+
+                <button
+                  type="button"
+                  className="lt-method"
+                  onClick={() => goToStep("phone")}
+                  disabled={busy}
+                >
+                  <span className="lt-method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="6" y="2" width="12" height="20" rx="2.5" />
+                      <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
+                    </svg>
+                  </span>
+                  Continue with phone
+                </button>
+
+                <button
+                  type="button"
+                  className="lt-method"
+                  onClick={() => goToStep("email")}
+                  disabled={busy}
+                >
+                  <span className="lt-method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+                      <path d="M3 7l9 6 9-6" />
+                    </svg>
+                  </span>
+                  Continue with email
+                </button>
+
                 {error ? (
                   <p className="lt-login-error" role="alert">
                     {error}
                   </p>
                 ) : null}
-                <button className="lt-continue" type="submit" disabled={busy}>
-                  {busy ? "Signing in..." : "Continue"} <span aria-hidden="true">{"→"}</span>
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handlePhoneSubmit} noValidate>
-                {phoneStep === "number" ? (
-                  <>
-                    <label className="lt-field-label" htmlFor="lt-login-phone">
-                      Mobile number
-                    </label>
-                    <div className="lt-field">
-                      <span className="lt-prefix">+91</span>
-                      <input
-                        id="lt-login-phone"
-                        type="tel"
-                        inputMode="numeric"
-                        autoComplete="tel-national"
-                        maxLength={10}
-                        placeholder="10-digit mobile number"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                      />
-                    </div>
-                    <p className="lt-login-note">
-                      We'll text a 6-digit code to verify this number.
-                    </p>
-                    {error ? (
-                      <p className="lt-login-error" role="alert">
-                        {error}
-                      </p>
-                    ) : null}
-                    <button className="lt-continue" type="submit" disabled={busy}>
-                      {busy ? "Sending code..." : "Send OTP"}{" "}
-                      <span aria-hidden="true">{"→"}</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <label className="lt-field-label" htmlFor="lt-login-otp">
-                      Enter the 6-digit code
-                    </label>
-                    <div className="lt-field">
-                      <input
-                        id="lt-login-otp"
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        maxLength={6}
-                        placeholder="6-digit code"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                      />
-                    </div>
-                    <p className="lt-login-note">
-                      Code sent to +91 {phone}.{" "}
-                      <button
-                        type="button"
-                        className="lt-login-linkbtn"
-                        onClick={handleChangeNumber}
-                        disabled={busy}
-                      >
-                        Change number
-                      </button>
-                    </p>
-                    {error ? (
-                      <p className="lt-login-error" role="alert">
-                        {error}
-                      </p>
-                    ) : null}
-                    <button className="lt-continue" type="submit" disabled={busy}>
-                      {busy ? "Verifying..." : "Verify & continue"}{" "}
-                      <span aria-hidden="true">{"→"}</span>
-                    </button>
-                    <p className="lt-signup">
-                      Didn't get it?{" "}
-                      <button
-                        type="button"
-                        className="lt-login-linkbtn"
-                        onClick={handleResendOtp}
-                        disabled={busy}
-                      >
-                        Resend OTP
-                      </button>
-                    </p>
-                  </>
-                )}
-              </form>
-            )}
 
-            <p className="lt-signup">
-              Don't have an account? <Link to="/sign-up">Sign up</Link>
-            </p>
+                {/*
+                  ⚠ THE COPY STOPS WHERE THE CAPABILITY STOPS.
+                  An earlier draft ended "— you can link both from your account
+                  menu later." That is FALSE for a phone-first student:
+                  AuthContext exposes `sendLinkPhoneOtp`/`confirmLinkPhoneOtp`
+                  and imports `linkWithPhoneNumber` and nothing else, so the
+                  link runs in ONE direction — an email or Google student can
+                  ADD a phone; a phone-first student can never add an email.
+                  This page makes phone prominent, so phone-first students
+                  become common, and promising them a capability that does not
+                  exist is worse than saying nothing.
+                */}
+                <p className="lt-login-linkwarn" data-testid="lt-link-warning">
+                  <b>Use the same method each time.</b> Email and phone are separate
+                  accounts until you link them.
+                </p>
+              </>
+            ) : step === "email" ? (
+              <>
+                {backToOptions}
+                {resetOpen ? (
+                  <form onSubmit={handleResetSubmit} noValidate aria-label="Reset your password">
+                    <h2 className="lt-login-stephead">Reset your password</h2>
+                    <p className="lt-login-reset-lede">
+                      Enter the email you signed in with and we'll send you a link to set a
+                      new password.
+                    </p>
+                    <label className="lt-field-label" htmlFor="lt-login-reset-email">
+                      Email address
+                    </label>
+                    <div className="lt-field">
+                      <input
+                        id="lt-login-reset-email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={resetEmail}
+                        disabled={resetSent}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                      />
+                    </div>
+                    {resetError ? (
+                      <p className="lt-login-error" role="alert">
+                        {resetError}
+                      </p>
+                    ) : null}
+                    {resetSent ? (
+                      <p className="lt-login-reset-notice" role="status">
+                        <span aria-hidden="true">{"✓"}</span>
+                        <span data-testid="lt-reset-notice">{RESET_NEUTRAL_NOTICE}</span>
+                      </p>
+                    ) : (
+                      <button className="lt-continue" type="submit" disabled={resetBusy}>
+                        {resetBusy ? "Sending link..." : "Send reset link"}{" "}
+                        <span aria-hidden="true">{"→"}</span>
+                      </button>
+                    )}
+                    <p className="lt-login-reset-back">
+                      <button
+                        type="button"
+                        className="lt-login-linkbtn"
+                        onClick={closeReset}
+                        disabled={resetBusy}
+                      >
+                        {"<- Back to sign in"}
+                      </button>
+                    </p>
+                  </form>
+                ) : (
+                  <form onSubmit={handleEmailSubmit} noValidate>
+                    <h2 className="lt-login-stephead">Continue with email</h2>
+                    <p className="lt-login-stepsub">
+                      {isCreate
+                        ? "We'll create your account and start your 7-day trial."
+                        : "If you don't have an account yet, we'll create one."}
+                    </p>
+
+                    {isCreate ? (
+                      <>
+                        <label className="lt-field-label" htmlFor="lt-login-name">
+                          Your name
+                        </label>
+                        <div className="lt-field">
+                          <input
+                            id="lt-login-name"
+                            type="text"
+                            autoComplete="name"
+                            placeholder="Ananya Sharma"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                          />
+                        </div>
+                      </>
+                    ) : null}
+
+                    <label className="lt-field-label" htmlFor="lt-login-email">
+                      Email address
+                    </label>
+                    <div className="lt-field">
+                      <input
+                        id="lt-login-email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="lt-login-field-row">
+                      <label className="lt-field-label" htmlFor="lt-login-password">
+                        Password
+                      </label>
+                      <button
+                        type="button"
+                        className="lt-login-linkbtn lt-login-forgot"
+                        onClick={openReset}
+                        disabled={busy}
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                    <div className="lt-field">
+                      <input
+                        id="lt-login-password"
+                        type="password"
+                        autoComplete={isCreate ? "new-password" : "current-password"}
+                        placeholder={isCreate ? "At least 6 characters" : "Your password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+                    {error ? (
+                      <p className="lt-login-error" role="alert">
+                        {error}
+                      </p>
+                    ) : null}
+                    <button className="lt-continue" type="submit" disabled={busy}>
+                      <span className="lt-continue-echo">{continueLabel}</span>
+                      <span aria-hidden="true">{"→"}</span>
+                    </button>
+                    {offerReset ? (
+                      <button
+                        type="button"
+                        className="lt-login-reset-offer"
+                        onClick={openReset}
+                        disabled={busy}
+                      >
+                        Reset my password
+                      </button>
+                    ) : null}
+                  </form>
+                )}
+              </>
+            ) : (
+              <>
+                {backToOptions}
+                <form onSubmit={handlePhoneSubmit} noValidate>
+                  {phoneStep === "number" ? (
+                    <>
+                      <h2 className="lt-login-stephead">Continue with phone</h2>
+                      <p className="lt-login-stepsub">
+                        New or returning — phone works the same either way. No password
+                        to remember.
+                      </p>
+                      <label className="lt-field-label" htmlFor="lt-login-phone">
+                        Mobile number
+                      </label>
+                      <div className="lt-field">
+                        <span className="lt-prefix">+91</span>
+                        <input
+                          id="lt-login-phone"
+                          type="tel"
+                          inputMode="numeric"
+                          autoComplete="tel-national"
+                          maxLength={10}
+                          placeholder="10-digit mobile number"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        />
+                      </div>
+                      <p className="lt-login-note">
+                        We'll text a 6-digit code to verify this number.
+                      </p>
+                      {error ? (
+                        <p className="lt-login-error" role="alert">
+                          {error}
+                        </p>
+                      ) : null}
+                      <button className="lt-continue" type="submit" disabled={busy}>
+                        {busy ? "Sending code..." : "Send OTP"}{" "}
+                        <span aria-hidden="true">{"→"}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="lt-login-stephead">Enter the code</h2>
+                      <label className="lt-field-label" htmlFor="lt-login-otp">
+                        Enter the 6-digit code
+                      </label>
+                      <div className="lt-field">
+                        <input
+                          id="lt-login-otp"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          maxLength={6}
+                          placeholder="6-digit code"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        />
+                      </div>
+                      <p className="lt-login-note">
+                        Code sent to +91 {phone}.{" "}
+                        <button
+                          type="button"
+                          className="lt-login-linkbtn"
+                          onClick={handleChangeNumber}
+                          disabled={busy}
+                        >
+                          Change number
+                        </button>
+                      </p>
+                      {error ? (
+                        <p className="lt-login-error" role="alert">
+                          {error}
+                        </p>
+                      ) : null}
+                      <button className="lt-continue" type="submit" disabled={busy}>
+                        {busy ? "Verifying..." : "Verify & continue"}{" "}
+                        <span aria-hidden="true">{"→"}</span>
+                      </button>
+                      <p className="lt-signup">
+                        Didn't get it?{" "}
+                        <button
+                          type="button"
+                          className="lt-login-linkbtn"
+                          onClick={handleResendOtp}
+                          disabled={busy}
+                        >
+                          Resend OTP
+                        </button>
+                      </p>
+                    </>
+                  )}
+                </form>
+              </>
+            )}
           </div>
 
           {/* What the student is actually joining, stated under the primary
@@ -1516,11 +2116,11 @@ export default function Login() {
           <AfterTrialLine variant="mobile" />
 
           {/*
-            Invisible reCAPTCHA host — always mounted (NOT inside the conditional
-            phone form), so toggling Email/Phone never unmounts the container out
+            Invisible reCAPTCHA host — always mounted (NOT inside the phone
+            step), so moving between steps never unmounts the container out
             from under a live verifier. The bottom-right badge is expected.
           */}
-          <div id={RECAPTCHA_CONTAINER_ID} />
+          <div id={recaptchaContainerId} />
 
           <div className="lt-login-helper">
             <span className="lt-login-helper-icon" aria-hidden="true">
@@ -1545,4 +2145,18 @@ export default function Login() {
       </section>
     </main>
   );
+}
+
+/**
+ * `/login` — the sign-in door.
+ *
+ * Production responsibilities preserved:
+ * - Native Firebase Auth drives sign-in: Google (popup), phone (SMS OTP) and
+ *   email/password, all from ONE page with no sign-in/sign-up tabs.
+ * - Redirect priority stays `?redirect`, `location.state.from`, then "/".
+ * - The page stays standalone, without DesktopShell/sidebar chrome.
+ * - No guest CTA or fake trial activation is exposed from the door.
+ */
+export default function Login() {
+  return <AuthDoor intent="signin" recaptchaContainerId="lt-login-recaptcha" />;
 }
