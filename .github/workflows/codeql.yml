@@ -33,16 +33,35 @@ on:
   pull_request:
     branches: [base/approved-thru-437]
 
-  # Weekly full scan of the default branch. This is what establishes the
-  # baseline that PR runs diff against: without a default-branch analysis every
-  # finding on every PR is reported as newly introduced.
+  # ★ REQUIRED, and NOT optional decoration. The SUPPLY-1 spec asked for
+  # `schedule` + `pull_request` only. The first run built from that pair
+  # (run 30780475666) succeeded and then emitted:
+  #
+  #   "1 issue was detected with this workflow: Please specify an on.push hook
+  #    to analyze and see code scanning alerts from the default branch on the
+  #    Security tab."
+  #
+  # Code scanning attributes alerts to the DEFAULT BRANCH. Without a push-
+  # triggered analysis of base/approved-thru-437 the Security tab stays empty
+  # and PR runs have no baseline to diff against, so every finding reads as
+  # newly introduced. A CodeQL install with no populated Security tab is the
+  # exact failure this lane exists to prevent: a guard that runs and shows
+  # nothing looks identical to a guard that runs and finds nothing.
+  # Free on this repo -- it is public, so Actions minutes are not billed.
+  push:
+    branches: [base/approved-thru-437]
+
+  # Weekly full scan of the default branch. Catches newly published CVEs and
+  # CodeQL query-pack updates against code that has not changed -- a push-only
+  # trigger would never re-examine a quiet week.
   # Off-peak and off-hour relative to the Dependabot windows so the three do
   # not contend for runners.
   schedule:
     - cron: "17 3 * * 1"
 
-  # So the owner can produce that first default-branch baseline immediately on
-  # merge rather than waiting up to seven days for the schedule.
+  # Ad-hoc re-run, e.g. to re-scan after triaging alerts without waiting for
+  # Monday. (The first default-branch baseline no longer depends on this --
+  # the `push` trigger above produces it automatically when this PR merges.)
   workflow_dispatch:
 
 # A newer push to the same PR/branch supersedes an in-flight run
