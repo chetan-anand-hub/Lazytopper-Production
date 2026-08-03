@@ -12,6 +12,340 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-08-03 — Post-Wave-5A (#579–#582, four PRs / five lanes). Trunk `59ba4da2`.
+
+> **★ PROVENANCE FOR THIS SECTION.** Bodies below are authored from the controller's state file, the
+> cofounder's close memo, and the five subagents' returned reports. **Nothing here is reconstructed
+> from an FU id alone.** **Standing Rule 3 is observed:** dated sections below are not rewritten;
+> closures and corrections to older entries are recorded **here**.
+>
+> ⚠ **This section was written by a SUBAGENT, not the controller** — a declared deviation, because
+> the controller was at ~13% context and stranding a six-file handoff mid-way is the exact failure
+> the operating model exists to prevent. **§4's intent is preserved: one lock, one actor, never
+> raced.** Precedent: Wave 4's `HANDOFF-W3` (#564).
+
+### 🛑🛑 THE DEPLOY SPLIT — the wave's own subject, and it sits below every gate
+
+#### `[FU-DEPLOY-SPLIT-RAILWAY-VERCEL-DIVERGENCE]` — ⚠⚠ OPEN, and it is a standing doctrine, not a task
+**GATE-1 merged at 12:46. Vercel never built it. Railway did.** For roughly two hours the **server
+enforced a rule the client had no code to explain**, and a free student pressing "Check my answer"
+saw the raw string **`premium_required` in red** — **the exact defect GATE-1 §3D was written to
+prevent. §3D was correct, was merged, and had not shipped.**
+
+**Caught by fetching the live bundle and grepping it:** `premium_required` and
+`PremiumRequiredError` were **absent from all 65 deployed chunks**; present after a forced rebuild.
+
+> **`MERGED` AND `DEPLOYED` ARE DIFFERENT STATES, AND THIS PRODUCT HAS TWO DEPLOY TARGETS THAT CAN
+> DIVERGE.** Vercel (frontend) and Railway (backend) build independently from the same trunk. A merge
+> confirms neither. **Any change spanning both must have BOTH deployments confirmed before it is
+> called verified** — and the only trustworthy confirmation is asking the running system, not reading
+> a dashboard.
+
+★ **The generalisation:** every lane this wave proved *"a green CI run is evidence only about what it
+EXECUTED."* This proves the sequel — **a merge is evidence only about the REPOSITORY.** GATE-1b's
+grep asked the CI log what it ran; the fix here was to ask the **bundle** what it shipped. *Same
+instrument, one layer out.*
+
+#### `[FU-DEPLOY-HOOK-IS-THE-ONLY-MANUAL-TRIGGER]` — OPEN (owner-owned)
+Two operational facts, both counter-intuitive and both worth never re-deriving:
+- ⚠ **Vercel "Redeploy" rebuilds the ORIGINAL commit, not the branch tip.** It cannot pull in a newer
+  merge, **and it looks like it should.**
+- ⚠ **Branch protection means there is no git-shaped way to trigger a deploy** — a direct push to
+  trunk is refused (`GH013`, correctly). ⇒ **the standing remedy is a Vercel Deploy Hook.** The owner
+  has created one and will rotate it. **Rotation is the open half of this entry.**
+
+### 🛑 LAUNCH-BLOCKING — two, and they are different KINDS of work
+
+#### `[FU-UPGRADE-MODAL-SELLS-RETIRED-FEATURES]` — 🛑 OPEN, launch-blocking. **Belongs in GATE-2's spec.**
+The "Choose a Plan" modal lists **Smart Study Planner, Daily Focus Mix, Full Analytics Dashboard**
+and Chapter Hub. **Study Plan, Daily Mix and Dashboard are RETIRED SURFACES** — the standing rule in
+this project is that a reference to a retired surface is evidence of **deadness, not liveness**.
+
+> ⇒ **The paywall is selling four things the product no longer ships, to a student being asked for
+> ₹599.** *This is the anti-fabrication doctrine applied to commerce* — and **no gate in this project
+> can see it**, because every one of those strings is valid text in a valid component.
+
+⚠ **The fix belongs in GATE-2's SPEC, not a separate lane.** GATE-2 replaces this modal; a separate
+lane would contend for the same file and the second one to land silently wins.
+
+#### `[FU-AUTH-VERIFY-EMAIL-DELIVERABILITY]` — 🛑 OPEN, launch-blocking. **OWNER / DNS WORK, NOT AN AGENT LANE.**
+The verification email landed in **Spam**, and Gmail stated why: *previous messages from
+`lazzyy-topper.firebaseapp.com` were marked as spam.*
+
+> **A domain-reputation problem sitting on a BLOCKING gate.** A new email/password student cannot
+> enter the product until they click a link arriving in a folder they will not check.
+
+⚠ **Google and phone bypass the gate, so this is invisible in owner testing while affecting every
+email student.** Fix = a Firebase **custom action-handler domain on `lazytopper.com`** plus
+authenticated SMTP.
+★ *AUTH-3's spec predicted the spam risk and required the spam-folder prompt. The prompt shipped and
+the deliverability cause did not — **the mitigation was right and insufficient.***
+
+### FOR GATE-2's SPEC
+
+#### `[FU-GATE-COPY-STILL-READS-AS-ERROR]` — OPEN
+The 402 message renders **correct copy in an error-red box**. *"Checking your answer is a Premium
+feature. You can unlock it whenever you're ready."* is right; the pink background and red border are
+not. **A locked feature is not a mistake the student made.** Same defect in the modal's *"Your free
+trial has ended"*, also red.
+★ **The words passed every wording assertion; the STYLING is the defect** — PR-F1's lesson recurring.
+
+#### `[FU-UPGRADE-MODAL-NO-BASIC-EXIT]` — OPEN
+The modal offers only **"Choose Plan"**. There is **no "Keep using Basic"**. It tells a student the
+product is over rather than what they still have — **the single element GATE-2's spec calls most
+important.**
+
+#### `[FU-ENTITLEMENT-TIER-DERIVATION-DUPLICATED]` — OPEN. ⚠ **GATE-2's spec must carry this verbatim.**
+> **The effective tier is NOT the stored `tier` field. It is
+> `applyExpiry(repairInterruptedTrial(...))`, and the order is load-bearing.**
+
+The server gate (`server/services/entitlement.cjs`) and the client (`featureGates.ts` /
+`subscriptionService.ts`) now derive it **independently**. A shared import is **not feasible** —
+`subscriptionService.ts` imports the **browser** firebase SDK at module scope and cannot be required
+from CJS — so this is a **documented** duplication, which the spec explicitly prefers to a silent one.
+
+⚠⚠ **What must stay aligned is the DERIVATION, not the field.** Reading the raw `tier` would have
+produced a gate that **serves every expired trial** (the day-7 hole the lane exists to close) **and
+simultaneously locks out mid-trial students** — both failure directions at once, from one plausible
+reading of the spec. ★ `repairInterruptedTrial` is Wave 4's #574 P0 fix, so **a server gate on the
+raw field would have re-opened that P0 on the server side**, in a component no client test covers.
+⚠ **Both directions are wrong:** an elapsed `tier:"trial"` is effectively free, and an unelapsed
+`{tier:"free", plan:"trial_7day"}` with a server-pinned start is effectively trial — **which is
+exactly what the activation defect writes for every new signup.**
+
+### METHOD — the rules this wave earned
+
+#### `[FU-MUTATION-RESTORE-GIT-BLIND-ON-UNTRACKED]` — ⚠⚠ STANDING RULE, has both a failure and a control
+`git checkout --` and `git diff` are **both no-ops on an untracked file.** GATE-1's first mutation
+harness used exactly those to restore and verify, and `entitlement.cjs` was **new**, therefore
+untracked ⇒ **M1–M3 silently ACCUMULATED while the harness printed `RESTORE VERIFIED: YES`.** The
+lane caught this itself, rebuilt on **byte snapshots + SHA-256**, and re-ran everything.
+
+> ★★ **The verification INSTRUMENT was the silent no-op — not the code under test.** The first such
+> mechanism found *inside a restore-verifier*, i.e. inside the very control the standing rule
+> prescribes. ⇒ **"verify the restore" is INSUFFICIENT AS WRITTEN. Say HOW you verified, not that you
+> did.**
+
+✅ **The control exists:** GATE-1b was the first lane dispatched after this was written, restored by
+SHA (`c0329f27 → ac729484 → c0329f27`), and it worked. **Every future mutation lane on a NEW file
+inherits this trap.**
+
+#### `[FU-CI-WORKFLOW-STALE-MATRIX-COUNT]` — OPEN. ⚠⚠ **Its own Wave 5B PR. DO NOT touch `CLAUDE.md`.**
+`.github/workflows/quality-gate.yml` prints `--- Root guard matrix: 5 suites, 175/175 ---`
+**directly above the step that reports 28 suites / 190 tests**, and a second line says `59 suites`
+where CI now runs **96 test files**.
+
+⚠⚠ **`CLAUDE.md` IS CORRECT AND MUST NOT BE EDITED.** **Three separate lanes this wave reported that
+§6a says "175", and all three were remembering, not looking.** Grepped against trunk, the file
+contains **no `175` anywhere** — it has read `SIX suites / 190 checks … the count GROWS; read it from
+the run, never hardcode it` since **Wave 4's #572**, which is exactly what that PR was for.
+
+> ★★ **THE MAP-FILE LESSON RECURRING: a stale value's ban lives where you LOOK for it, not where you
+> REMEMBER it** — and #572 fixing one copy is *why* the remembered version persisted. **The one lane
+> that actually enumerated found it somewhere else entirely.**
+
+⚠ **It cannot ride a `handoff/**` docs-only PR** (a workflow is not a doc), and it must land **after
+#579 is closed** — SUPPLY-1 was deliberately barred from `quality-gate.yml` because a shared workflow
+reaches every other lane. **Natural home: alongside `CI-DOCS`.**
+★ *Editing `CLAUDE.md` would churn a correct file and, worse, record a correction that never happened.*
+
+#### `[FU-SPEC-STOP-BEFORE-COMMIT-WAS-WRONG]` — RESOLVED, recorded because the line will be rewritten otherwise
+Every Wave 5A lane spec and the dispatch document said *"stop before commit, report, wait."* **Six
+separate passages in the same documents contradict it:** every report template requires a PR number,
+a CI run id bound to the current head, a quoted zero-skip line, and a landed-file reconcile — **none
+of which can exist without a commit and a push.** A third rule sits on trunk: `CLAUDE.md` §3, *"ASK
+before: git commit, git push."*
+
+**Owner ruling, 2026-08-03:** each lane works in its own worktree, runs all local gates, commits,
+pushes a **DRAFT** PR, reads its own CI log, and stops. **Nobody marks a PR ready. Nobody merges. The
+owner merges.**
+
+> ★ **The line is recorded as WRONG, not merely ambiguous.** *A silently-correct value teaches
+> nothing; the next spec author will write the same line again.*
+
+⚠ **Companion trap, carried:** `gh pr edit` **silently un-drafts a draft PR** (recover:
+`gh pr ready --undo`). No Wave 5A lane hit it — all four checked.
+
+### GATE-1 / GATE-1b
+
+#### `[FU-GATE1-TEST-NOT-IN-CI]` — ✅ **CLOSED** by quoted before/after grep **with a control**
+The 43-test entitlement suite passed locally and was **invisible to CI**, proven by
+`grep -c "entitlement.test.cjs"` returning **0** on run `30781159084`. Fixed by two edits to
+`lazytopper/package.json` under an explicit owner allowlist amendment; the same grep returns **1** on
+run `30786131841`, with `# tests 43 # pass 43 # fail 0 # skipped 0`.
+
+★★ **The control is what makes it evidence:** it grepped the **already-wired sibling**
+(`checkSolution` = 1) in the **same before-log, before editing anything** ⇒ the zero was a **missing
+link**, not a log artefact and not a grep that could never match. *That is the difference between
+"the count changed" and "the count changed BECAUSE OF MY EDIT."*
+★ **The subagent STOPPED AND REPORTED rather than absorb an off-allowlist file.** *Extending an
+allowlist is an owner decision, and it was never the subagent's to take.*
+
+#### `[FU-GATE1-ANON-FAILOPEN-BYPASS]` — OPEN as **ACCEPTED POSTURE**, not a defect
+The server gate fails **open** when the bearer header is absent, so **a caller who simply omits the
+header is served.** ⚠ **Bounded, not unbounded:** such callers land in the rate limiter's anonymous
+bucket, capped at **3/day**, and the browser has sent the header on every paid call since #552.
+**Logged deliberately so it is a conscious posture and not a later discovery** — this is the accepted
+cost of failing safe, not a hole in it. ★ Verified on the live deploy: `[entitlement] FAIL-OPEN` is
+**absent** from Railway logs.
+
+#### `[FU-MORE-LIKE-THIS-DEAD]` — OPEN (confirmed dead, as GATE-1's §2 predicted)
+The "more like this" path is dead. Confirmed by the lane's where-else enumeration rather than
+assumed. **No deletion attempted this wave** — it was outside the allowlist.
+
+### AUTH-3
+
+#### `[FU-AUTH-VERIFY-NOT-APP-WIDE]` — ⚠⚠ OPEN, and it is a real limit on what shipped
+**The email-verification gate is PAGE-SCOPED, not app-wide.** `RequireAuth` and `App.tsx` are out of
+AUTH-3's allowlist, so **a restored session bypasses the verification gate entirely.** ★ Stated
+plainly by the lane rather than papered over — **the honest framing is what makes it actionable.**
+Closing it needs an allowlist that includes `App.tsx`, which carries its own zero-diff freezes.
+
+#### `[FU-AUTH-NAME-PROMPT]` — OPEN (carried from Wave 4, and now narrowed)
+`/login` can still create **nameless accounts**. AUTH-3 **kept** the name field on the create door
+(`/sign-up`) rather than reducing `SignUpPage` to a thin render, because ★★ **§6's instruction would
+have DELETED the product's only name capture** — `FirstSession` declines the name on trunk — forcing
+the deletion of **7 guard tests** and **re-opening PR-B2's one-way-door defect**, where accounts with
+no name fall back to the raw email across six surfaces. **The gap that remains is the `/login` door.**
+
+#### `[FU-AUTH-REAUTH-LIVE-UNVERIFIED]` — OPEN
+`verifyBeforeUpdateEmail`'s `requires-recent-login` path was tested **at the code path, not live.**
+It re-authenticates with the just-typed password and retries **once**; a second failure reports; with
+no known password it makes one call and shows an honest message, **no loop.** ★ **Built as a flow,
+not an error string.**
+
+#### `[FU-AUTH-TWO-CALLS-PER-FAILED-SIGNIN]` — OPEN (predicted cost, confirmed)
+The inverted flow (sign-in first, then create-as-probe) costs **two Firebase calls per failed
+sign-in.** This was §1's predicted cost and is confirmed as real. Accepted.
+
+#### `[FU-AUTH-GOOGLE-EMAILVERIFIED-LIVE]` — ✅ **CLOSED**
+**Measured twice:** a live Google ID token decoded to `email_verified: true`, and D1 passed in the
+browser (Google sign-in shows no verify screen).
+★ *AUTH-3 refused to assert this without measurement and named the bounded risk it was taking
+instead — §5.2 forced the predicate onto `email` rather than `providerIds`, so a false value would
+have gated Google users (an extra step, self-resolving; not a lockout). **The measurement now exists
+and agrees.** That refusal was the best judgement in the report.*
+
+### FORBID-1
+
+#### `[FU-CI-TWO-WORKFLOWS-PER-PR]` — ⚠⚠ OPEN, and it changes how every report must be read
+**Two workflows fire on every PR, and only one of them gates.** Run `30781253355` on #581's commit is
+**"Lane Overlap", which gates nothing**; the Quality Gate was `30781253342`.
+> **A controller — or an owner — reading "CI green" off the wrong run learns nothing.** ⇒ **quote the
+> Quality Gate run id specifically**, never "CI passed".
+
+#### `[FU-CONV-GATE-HEADER-STALE-VITEST-CLAIM]` — CORRECTED at the new block; the general risk stays OPEN
+The C&I convergence gate's own header claimed **CI does not run vitest** — **false** since
+`quality-gate.yml` gained a required vitest step. ⚠ **Load-bearing:** it would tell a future reader
+that FORBID-1's replacement protection is worthless. Corrected at the new block, and **the wiring was
+asserted rather than trusted.** *A doc comment is a claim, not a fact.*
+
+#### `[FU-SOLUTIONCHECKER-PROPS-NOT-EXPORTED]` — OPEN (minor)
+`SolutionCheckerProps` is **not exported**; tests must use `ComponentProps<typeof SolutionChecker>`.
+
+#### `[FU-VITEST-CI-HEAP-CEILING]` — OPEN
+The vitest run in CI is approaching a heap ceiling. Recorded by FORBID-1; not yet quantified into a
+threshold.
+
+#### `[FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE]` — OPEN
+`SolutionChecker` accepts text **xor** image, a constraint now pinned by the new contract suite
+rather than by the deleted blanket ban.
+
+> ★★ **Why the FORBID-1 amendment is a strict INCREASE in protection, recorded once here:** the
+> banned-array entry **was the entire protection.** The `AUTOGROW` check regexes `EquationInput.tsx`'s
+> **own source**, and **nothing anywhere asserted one line of `SolutionChecker`'s behaviour.** The ban
+> said *"something must not change"* and never said what — **and there was nothing underneath it.**
+> ★★★ **M2b is the mutation that justifies the whole doctrine:** renaming `--grow` made the **negative
+> assertion go VACUOUS and still pass**, and **only the POSITIVE CONTROL caught it.**
+
+### SUPPLY-1
+
+#### `[FU-SUPPLY1-OWNER-TOGGLES]` — 🛑 OPEN, owner-only. **The highest-value entry in this group.**
+⚠⚠ **The spec's list was wrong in BOTH directions, and the lane caught it.** It named **secret
+scanning** and **push protection** as the outstanding toggles; **both were already ENABLED.**
+
+| Setting | State | Evidence |
+|---|---|---|
+| **Dependabot ALERTS** | ⚠ **DISABLED** | `404 "Vulnerability alerts are disabled."` **and** `403 "Dependabot alerts are disabled for this repository."` — **two different endpoints**, so not a token-scope artefact |
+| **Dependabot SECURITY UPDATES** | ⚠ **DISABLED** | verified |
+| Secret-scanning non-provider patterns | disabled | lower value |
+| Secret-scanning validity checks | disabled | lower value |
+
+> ⚠⚠ **AND THE CONSEQUENCE IS THE POINT: `dependabot.yml` configures VERSION updates only** (*"a
+> newer release exists"*). It **cannot** configure **SECURITY** updates (*"a CVE was published against
+> what you use"*). ⇒ **#579 delivers routine bumps and NO vulnerability response at all** until those
+> two toggles are on. **A green SUPPLY-1 is NOT "supply chain done", and #579 must not be recorded as
+> closing the audit item.**
+
+★★ **Recorded as a SPEC ERROR CORRECTED BY THE LANE, not as a lane finding** — *the distinction is
+what stops the wrong version being carried forward.* **This is the second time a spec's §0 has been
+wrong on a verifiable fact, and both times the lane caught it.** ★ *A checklist derived from memory
+is wrong in both directions at once, and the "already done" half is the more dangerous one, because
+it reads as confirmation.*
+
+#### `[FU-SUPPLY1-DEPENDABOT-PARSE-CHECK]` — ✅ **CLOSED by OBSERVATION, post-merge**
+Dependabot reads `.github/dependabot.yml` from the **default branch only**, so the config was
+**structurally impossible to validate before merge** — and **a malformed file fails SILENTLY**: no
+PR, no error in Actions, nothing. The lane reported this half honestly as `UNVERIFIED`, which was the
+correct outcome rather than a gap, and mitigated with a PyYAML parse (**which caught a real defect —
+the first `codeql.yml` draft was missing the `schedule:` key above `- cron:`**), a no-BOM/CRLF check
+and long-stable syntax only.
+
+✅ **Answered after merge: five Dependabot PRs `#583`–`#587` exist. Five PRs could not exist if the
+config had not parsed.** The design is visibly working as specified: `#585` bumps *"the
+npm-minor-and-patch group with 59 updates"* (grouping confirmed); `#583` (node 24→26-slim) and `#584`
+(setup-node 4→7) are majors raised **individually**; **five open = the 3/1/1 cap.**
+
+⚠ **They are also now the PR-list noise SUPPLY-1's §1 warned about.** `lane-overlap` fails on a
+shared path against **every** open PR. **They do not touch `handoff/**`, so the wave-close handoff was
+clear — but a future `package.json` or workflow lane WILL collide.** ⇒ **triage or close them before
+dispatching Wave 5B's `quality-gate.yml` lane or CI-DOCS.**
+
+#### `[FU-SUPPLY1-STALE-NPM-LOCKFILE]` — OPEN
+`lazytopper/package-lock.json` is a **stale npm artefact tracked in a pnpm-only workspace.**
+`/lazytopper` was **deliberately NOT configured** as a Dependabot ecosystem because of it.
+
+#### `[FU-SUPPLY1-CODEQL-QUERY-SUITE]` — OPEN
+CodeQL's `results=0` was **explicitly not sold as a clean bill of health** — it is the **default
+query suite**, `javascript-typescript` only. ★ *The caveat was volunteered, not extracted.*
+
+#### `[FU-SUPPLY1-CODEQL-V3-DEPRECATION]` · `[FU-SUPPLY1-CODEQL-ACTIONS-LANG]` · `[FU-SUPPLY1-DEPENDABOT-COOLDOWN]` · `[FU-SUPPLY1-PNPM-CATALOG-SUPPORT]` — OPEN (bodies in the SUPPLY-1 report)
+`cooldown:` was **deliberately omitted as unverifiable** rather than guessed. `target-branch` was
+**deliberately left UNSET** — setting it would **SUPPRESS Dependabot security updates.**
+⚠ **Never reconstruct these bodies from their ids** — the full text is in
+`report-supply1-dependabot-codeql-2026-08-03.md`.
+
+⚠ **`on.push` was a real find, not a formality:** with `schedule` + `pull_request` only, CodeQL warned
+*"Please specify an on.push hook to analyze and see code scanning alerts from the default branch on
+the Security tab."* **Without it the Security tab stays empty — a guard that runs and displays
+nothing**, this project's exact silent-no-op class. ★ **Proven fixed by CONTROL CASE:** the
+annotation is **ABSENT** from the later run, rather than the line merely being asserted present.
+
+### CONFIRMED LIVE — previously inferred, now measured
+
+#### `[FU-PG-DEAD-ENDPOINT-LIVE-503]` — OPEN. **PG-1's target, now measured rather than inferred.**
+`/api/user/progress` returns **503 on every real session**, captured in a **production HAR**.
+⚠ **PG-1 must unwire the seven `server/index.cjs` handlers in the SAME ATOMIC PR** as the deletion of
+`userProgress.cjs`, **or the server fails to boot on `require`.** Its `DATABASE_URL` half is owner
+infra.
+
+#### `[FU-META-CANONICAL-DEAD-DOMAIN]` — OPEN. **META-1's target, confirmed in the wild.**
+`<link rel="canonical" href="https://lazytopper.app/">` is **live in production right now**, on a
+domain the project has **never owned.** It is **suppressing search presence today**, which is what
+makes META-1 time-sensitive rather than tidy-up.
+
+### CARRIED FORWARD — unchanged by this wave, restated only as pointers
+`[FU-FOUNDING-FLAG-NOT-WIRED-TO-MONTHLY-INLINE]` (the **HARD GATE**, still in force — read its body in
+the Wave 4 section, do not restate it), `[FU-ESLINT-UNRUNNABLE-IN-WORKTREE]`,
+`[FU-NO-MERGE-BASE-FILELIST-RECONCILE]`, `[FU-SQUASH-CARRIES-REBASED-BASE]`,
+`[FU-D1-PROVIDERIDS-UNPROVEN-LIVE]`, `[FU-SUBAGENT-REPORT-TO-DISK-BEFORE-RETURN]` (**observed by all
+five Wave 5A lanes**; ⚠ note the harness **refuses the `Write` tool for `.md` from a subagent** —
+only the shell works), the BATCH-1 trio, and the DPDP/retention group.
+**Per Standing Rule 2, none of these are duplicated here — their bodies live in the dated sections
+below and this is a pointer, not a second entry.**
+
+---
+
 ## 2026-07-31 — Post-Wave-4 (#566–#575, ten PRs). Trunk `fcdbfa65`.
 
 > **★ PROVENANCE FOR THIS SECTION.** Bodies below are authored from the controller's state file and

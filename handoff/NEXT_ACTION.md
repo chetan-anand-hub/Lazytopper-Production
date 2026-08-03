@@ -1,5 +1,147 @@
 # LazyTopper — Next Action
-# Updated: 2026-07-31 (post-**#566–#575 — WAVE 4**, ten PRs under a controller + subagent model. Trunk `fcdbfa65`. TWO owner live-verifies owed, one of which is the only proof of the mobile hotfix. Three lanes are SPECCED AND DELIBERATELY NOT STARTED — see below.)
+# Updated: 2026-08-03 (post-**#579–#582 — WAVE 5A**, four PRs / five lanes under a controller + subagent model. Trunk `59ba4da2`. **Both live-verifies are DONE** — the paywall and the door are confirmed on the deployed product. **TWO LAUNCH-BLOCKING items are open, and one of them is not an agent lane.** Wave 5B is planned below and **NOT dispatched.**)
+
+## NEXT — 2026-08-03 (post-#579–#582, WAVE 5A). Read this block first.
+
+**Four PRs on trunk: #579 #580 #581 #582.** The P0 server-side paywall is closed and owner
+live-verified; the auth door is one door with a verified email and owner live-verified. The wave's
+own subject is recorded in `CURRENT_STATE.md`: **a merged, green, CORRECT fix that never shipped —
+`MERGED` and `DEPLOYED` are different states.**
+
+⚠ **The Wave 4 and Wave 3 blocks below are NOT superseded.** The `[FU-FOUNDING-FLAG-NOT-WIRED-TO-MONTHLY-INLINE]`
+HARD GATE is still in force, unchanged, and is deliberately not restated here — read it there.
+*(Two copies of a doctrine can drift; the board's own Standing Rule 2 prefers one authoritative entry.)*
+
+### 🛑🛑 0 · BEFORE ANYTHING ELSE — `MERGED` IS NOT `DEPLOYED`
+
+**Vercel (frontend) and Railway (backend) build independently from the same trunk, and this wave they
+diverged for two hours.** A merge confirms neither. **Any change spanning both must have BOTH
+deployments confirmed before it is called verified — by asking the running system, not by reading a
+dashboard.** Fetch the live bundle and grep it; hit the live endpoint.
+
+⚠ **Vercel "Redeploy" rebuilds the ORIGINAL commit, not the branch tip** — it cannot pull in a newer
+merge and *it looks like it should.* ⚠ **Branch protection means a Deploy Hook is the ONLY manual
+trigger** (a direct push to trunk is correctly refused, `GH013`). The owner has created one and will
+rotate it. → `[FU-DEPLOY-SPLIT-RAILWAY-VERCEL-DIVERGENCE]` · `[FU-DEPLOY-HOOK-IS-THE-ONLY-MANUAL-TRIGGER]`
+
+### 🛑 1 · THE TWO LAUNCH-BLOCKING ITEMS. Neither was visible to any gate, and they are not the same kind of work.
+
+1. ⚠⚠ **`[FU-UPGRADE-MODAL-SELLS-RETIRED-FEATURES]` — the paywall is selling four things the product
+   no longer ships.** The "Choose a Plan" modal lists **Smart Study Planner, Daily Focus Mix, Full
+   Analytics Dashboard** and Chapter Hub. **Study Plan, Daily Mix and Dashboard are RETIRED
+   SURFACES** — the standing rule is that a reference to them is evidence of *deadness, not
+   liveness*. **A student is being asked for ₹599 against them.** *This is the anti-fabrication
+   doctrine applied to commerce.*
+   > ⇒ **THE FIX BELONGS IN GATE-2's SPEC, NOT A SEPARATE LANE.** GATE-2 replaces this modal;
+   > a separate lane would collide with it on the same file and land the wrong one second.
+2. ⚠⚠ **`[FU-AUTH-VERIFY-EMAIL-DELIVERABILITY]` — OWNER / DNS WORK, NOT AN AGENT LANE.** The
+   verification mail lands in **Spam**; Gmail cites prior spam reports against
+   `lazzyy-topper.firebaseapp.com`. **A domain-reputation problem sitting on a BLOCKING gate:** a new
+   email/password student cannot enter until they click a link in a folder they will not open.
+   **Google and phone bypass it, so it is invisible in owner testing while affecting every email
+   student.** Fix = a Firebase **custom action-handler domain on `lazytopper.com`** + authenticated
+   SMTP. **Pre-launch blocking. No agent can close this.**
+
+### 2 · WAVE 5B — THE PLAN. **NOT DISPATCHED.** Nothing below is a live instruction.
+
+1. **GATE-2 — the upgrade sheet.** Carries `[FU-UPGRADE-MODAL-SELLS-RETIRED-FEATURES]`,
+   `[FU-UPGRADE-MODAL-NO-BASIC-EXIT]`, `[FU-GATE-COPY-STILL-READS-AS-ERROR]`.
+   > ⚠⚠ **IT MUST *EXTEND* GATE-1's EXISTING 402 BRANCH IN `src/ai/aiClient.ts`, NEVER ADD A SECOND
+   > BESIDE IT** — the second silently wins, and nothing gates that.
+   ⚠ **Its spec must carry GATE-1's two-stage tier derivation VERBATIM** (`repair` first, `expiry`
+   second). **The client half must not re-derive it differently**, and both directions are wrong: an
+   elapsed `tier:"trial"` is effectively free, and an unelapsed `{tier:"free", plan:"trial_7day"}`
+   with a server-pinned start is effectively trial. **FORBID-1 has cleared its `SolutionChecker`
+   blocker.**
+2. **META-1** — `<link rel="canonical" href="https://lazytopper.app/">` is live **right now** on a
+   domain never owned, and is suppressing search presence today.
+3. **PG-1 — delete the dead Postgres layer.** Server-only. ⚠ **The `server/index.cjs` unwiring of its
+   seven handlers must be in the SAME ATOMIC PR** or the server fails to boot on `require`. Its
+   `DATABASE_URL` half is owner infra. `/api/user/progress` **503s on every real session** —
+   confirmed in a production HAR, not inferred.
+4. **`quality-gate.yml` stale counts — its OWN small PR.** ⚠⚠ **DO NOT TOUCH `CLAUDE.md`. It is
+   CORRECT.** Three lanes this wave reported §6a as stale and **all three were remembering, not
+   looking** — the file has read `SIX suites / 190 checks` since #572. The stale copy is
+   `.github/workflows/quality-gate.yml` (`5 suites, 175/175` above a step reporting 28/190, and
+   `59 suites` where CI runs 96 files). **A workflow is not a doc, so it cannot ride a handoff PR.**
+5. **CI-DOCS** — now unblocked; SUPPLY-1 and FORBID-1 are both merged. ⚠ **It SPLITS, it does not
+   TRIM:** a fast path for MID-WAVE handoffs, **the full bar retained deliberately for the
+   WAVE-CLOSING one** — see §4.
+
+⚠ **BATCH-1b remains BLOCKED** behind `FORBID-2` (QP-OVL bans `quickPracticeSessionService.ts` as a
+zero-diff FORBIDDEN entry). **Write `FORBID-2` alongside it, not a wave early** — *lifting a ban a
+wave before the need is the same error as the blanket ban.*
+
+⚠ **TRIAGE THE FIVE DEPENDABOT PRs (#583–#587) BEFORE ANY `package.json` OR WORKFLOW LANE.**
+`lane-overlap` fails on a shared path against **every** open PR. They do not touch `handoff/**`, so
+this handoff was clear — but item 4 and item 5 above **will** collide with them.
+
+### 🛑 3 · OWNER ACTIONS — and the list is NOT what the SUPPLY-1 spec said
+
+⚠⚠ **`#579` DOES NOT CLOSE THE SUPPLY-CHAIN ITEM.** `dependabot.yml` configures **VERSION** updates
+only (*"a newer release exists"*). It **cannot** configure **SECURITY** updates (*"a CVE was
+published against what you use"*). **Until the two toggles below are on, #579 delivers routine bumps
+and NO vulnerability response at all.**
+
+- ⚠ **Settings → Code security → enable Dependabot ALERTS.**
+- ⚠ **Settings → Code security → enable Dependabot SECURITY UPDATES.**
+- *(Lower value: secret-scanning non-provider patterns, secret-scanning validity checks.)*
+
+★ **Secret scanning and push protection — which the spec named as the outstanding pair — were ALREADY
+ENABLED.** ⇒ **recorded as a SPEC ERROR CORRECTED BY THE LANE, not as a lane finding.** *A checklist
+derived from memory is wrong in both directions at once, and the "already done" half is the more
+dangerous one, because it reads as confirmation.*
+
+- **Rotate the Vercel Deploy Hook** when convenient; it is currently the only manual deploy trigger.
+- **`[FU-AUTH-VERIFY-EMAIL-DELIVERABILITY]`** — the DNS/SMTP work in §1.2 above.
+
+### ★★ 4 · THE WAVE-CLOSING HANDOFF PR TAKES THE FULL CI BAR — BY DESIGN, NOT BY OVERSIGHT
+
+**`CI-DOCS` is not built, so no fast path exists — and even once it ships, this PR keeps the full
+bar.** A product PR's CI runs against **its own base**, so lanes built in parallel are **never
+compiled together until something merges both.**
+
+> ★★ **THE WAVE-CLOSING HANDOFF PR IS THIS PROJECT'S ONLY INTEGRATION RUN.** Precedent: #574 and
+> #575 — two P0 fixes — reached production having **never been tested together**; their runs showed
+> **1,091** and **1,088** tests, and the docs PR that followed showed **1,097**, a number neither
+> could produce.
+
+⇒ **Read the vitest and matrix counts on that PR as the integration SIGNAL, and quote them.** If it
+goes red, that is the integration run doing its job.
+
+### ★★ 5 · METHOD RULES THIS WAVE ADDED OR HARDENED — in force now
+
+- **`MERGED` IS NOT `DEPLOYED`, AND TWO TARGETS CAN DIVERGE.** See §0. **Ask the running system.**
+- ★★ **A GREEN CI RUN IS EVIDENCE ONLY ABOUT WHAT IT EXECUTED — and its sequel: A MERGE IS EVIDENCE
+  ONLY ABOUT THE REPOSITORY.** GATE-1's 43-test suite was invisible to CI, proven by a grep returning
+  zero **with a control on an already-wired sibling in the same log.** *"The count changed" is not
+  "the count changed because of my edit."*
+- ★★ **GIT-BASED RESTORE VERIFICATION IS INVALID ON A FILE THE PR IS ITSELF ADDING.**
+  `git checkout --` and `git diff` are **both no-ops on an untracked file** — three mutations
+  accumulated silently while a harness printed `RESTORE VERIFIED: YES`. **Use byte snapshots and
+  SHA comparison, and say HOW you verified, not that you did.**
+- ★★ **TWO WORKFLOWS FIRE PER PR, AND "LANE OVERLAP" GATES NOTHING.** Reading a green tick off the
+  wrong run learns nothing. **Quote the Quality Gate run id.** → `[FU-CI-TWO-WORKFLOWS-PER-PR]`
+- ★★ **A STALE VALUE'S BAN LIVES WHERE YOU LOOK FOR IT, NOT WHERE YOU REMEMBER IT.** Three lanes
+  mis-cited `CLAUDE.md`, which had been correct since #572. The one lane that **enumerated** found
+  the real copy in a workflow nobody had named.
+- ★★ **AN EFFECTIVE TIER IS A DERIVATION, NOT A FIELD.** Reading the raw `tier` would have served
+  every expired trial **and** locked out every mid-trial student — both failure directions at once,
+  from one plausible reading of a spec.
+- ★★ **EVERY ABSENT ASSERTION NEEDS A POSITIVE CONTROL THAT RENDERS THE THING.** Renaming a CSS class
+  made a negative assertion go vacuous **and still pass**; only the control caught it.
+- **A SPEC ERROR CORRECTED BY A LANE IS RECORDED AS A SPEC ERROR**, never absorbed as a lane finding.
+  *The distinction is what stops the wrong version being carried forward.*
+- **AN INSTRUCTION THAT IS WRONG IS RECORDED AS WRONG.** The `stop before commit` line in every Wave
+  5A spec was contradicted by six passages in the same documents. **A silently-correct value teaches
+  nothing; the next spec author writes the same line again.**
+- **A SUBAGENT WRITES ITS FULL REPORT TO DISK BEFORE COMPOSING ITS RETURN MESSAGE** — standing since
+  Wave 4, observed by all five lanes this wave. ⚠ Note the harness **refuses the `Write` tool for
+  `.md` from a subagent**; only the shell works.
+
+---
+
+# (previous) Updated: 2026-07-31 (post-**#566–#575 — WAVE 4**, ten PRs under a controller + subagent model. Trunk `fcdbfa65`. TWO owner live-verifies owed, one of which is the only proof of the mobile hotfix. Three lanes are SPECCED AND DELIBERATELY NOT STARTED — see below.)
 
 ## NEXT — 2026-07-31 (post-#566–#575). Read this block first.
 
