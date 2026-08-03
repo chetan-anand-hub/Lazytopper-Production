@@ -139,7 +139,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitejs/plugin-react": "^5.1.0",
+    "@vitejs/plugin-react": "^6.0.5",
     "baseline-browser-mapping": "^2.9.19",
     "dependency-cruiser": "^17.3.5",
     "eslint": "^9.39.1",
