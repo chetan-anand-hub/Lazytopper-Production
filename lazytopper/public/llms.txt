@@ -2,12 +2,12 @@
 > Human-grade AI tutor for CBSE Class 10 Maths and Science.
 
 ## Main URLs
-- Home: https://lazytopper.app/
-- TopicHub: https://lazytopper.app/topic-hub
-- Trends: https://lazytopper.app/trends/10/Maths
-- HPQ: https://lazytopper.app/highly-probable/10/Maths
-- Predictive Papers: https://lazytopper.app/predictive-papers
-- Practice: https://lazytopper.app/practice/10/Maths
+- Home: https://lazytopper.com/
+- TopicHub: https://lazytopper.com/topic-hub
+- Trends: https://lazytopper.com/trends/10/Maths
+- HPQ: https://lazytopper.com/highly-probable/10/Maths
+- Predictive Papers: https://lazytopper.com/predictive-papers
+- Practice: https://lazytopper.com/practice/10/Maths
 
 ## Core Capabilities
 - Human-like tutoring flow (Teach, checkpoints, hints, next-step guidance)
