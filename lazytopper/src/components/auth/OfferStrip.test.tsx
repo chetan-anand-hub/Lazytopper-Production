@@ -354,13 +354,16 @@ describe("mounted on the auth surface", () => {
     const link = within(strip).getByRole("link", { name: /see plans/i });
     expect(link.getAttribute("href")).toBe("/pricing?source=login");
 
-    // MOUNT ≠ POSITION. The strip must sit AFTER the primary submit button in
+    // MOUNT != POSITION. The strip must sit AFTER the primary action in
     // document order, or it is offering terms the student has already acted on.
-    // Exact name: "Continue with Google" is a DIFFERENT button on this page,
-    // and a /continue/i match would find both and throw.
-    const submit = screen.getByRole("button", { name: "Continue" });
+    //
+    // ONE DOOR (AUTH-3): the page opens on the METHOD CHOICE, so the primary
+    // action is no longer a single "Continue" submit — it is the group of three
+    // method buttons. Anchoring on the LAST of them is the strongest form of
+    // the same claim: the strip follows EVERY primary action, not just one.
+    const lastPrimaryAction = screen.getByRole("button", { name: /Continue with email/ });
     expect(
-      submit.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING,
+      lastPrimaryAction.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING,
       "the offer strip must render after the primary action",
     ).toBeTruthy();
   });
