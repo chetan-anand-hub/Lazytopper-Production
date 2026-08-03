@@ -53,6 +53,27 @@ export type AuthUser = {
    * credential is linked. Inferring gets both directions wrong.
    */
   providerIds: string[];
+  /**
+   * Whether Firebase considers this account's email address proven.
+   *
+   * ★ OPTIONAL ON PURPOSE, and the optionality is load-bearing in two places.
+   *
+   * 1. `AuthUser` is serialised to localStorage for the local dev session, so a
+   *    session written before this field existed reads back `undefined`.
+   * 2. Twenty-five test files replace this module with a `vi.mock` factory that
+   *    hand-builds a user; none of them know about this field.
+   *
+   * Every consumer must therefore treat `undefined` as UNKNOWN and must not act
+   * as though it were `false` — see `needsEmailVerification` in Login.tsx, which
+   * tests `!== false` rather than `=== true` for exactly this reason. The real
+   * path always populates it, because `mapFirebaseUser` always does.
+   *
+   * ★ Adding it here rather than as a context key is also deliberate:
+   * `AuthContext.passwordReset.test.tsx` pins the context key set by EXACT
+   * EQUALITY and would go red on any addition, and all 25 mock factories are
+   * FULL replacements. A field on the user object changes neither.
+   */
+  emailVerified?: boolean;
   isLocalSession?: boolean;
 };
 
@@ -143,6 +164,11 @@ function mapFirebaseUser(fbUser: FirebaseUser): AuthUser {
     phoneNumber: fbUser.phoneNumber,
     displayName: fbUser.displayName,
     providerIds: (fbUser.providerData || []).map(p => p.providerId),
+    // Google sign-in reports TRUE (Google has already proven the address);
+    // a phone-only account reports FALSE because it has no email at all,
+    // which is why the verification gate keys on the `password` provider and
+    // not on this flag alone.
+    emailVerified: Boolean(fbUser.emailVerified),
   };
 }
 

@@ -68,20 +68,43 @@ function renderSignUp() {
   );
 }
 
+/**
+ * ONE DOOR (AUTH-3): `/sign-up` now renders the same door as `/login`, so the
+ * email form sits one step in behind "Continue with email".
+ *
+ * ⚠ THE NAME CONTRACT BELOW IS UNCHANGED, and that is the point of this edit
+ * being a re-route rather than a rewrite. The field is still present, still
+ * first, still required, and still passed as the third argument to
+ * `signUpWithEmailPassword` — which holds the ONLY `updateProfile` call in
+ * product code, making this form the sole place a `displayName` is ever
+ * captured. `FirstSession` deliberately does not ask. See [FU-AUTH-NAME-PROMPT].
+ */
+async function openEmailStep() {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+  return user;
+}
+
 /** Fill the form. `name` omitted entirely means "leave the field untouched". */
 async function fillAndSubmit(opts: { name?: string; email: string; password: string }) {
-  const user = userEvent.setup();
+  const user = await openEmailStep();
   if (opts.name !== undefined && opts.name !== "") {
     await user.type(screen.getByLabelText("Your name"), opts.name);
   }
   await user.type(screen.getByLabelText("Email address"), opts.email);
   await user.type(screen.getByLabelText("Password"), opts.password);
-  await user.click(screen.getByRole("button", { name: /create account/i }));
+  await user.click(screen.getByRole("button", { name: /create my account/i }));
 }
 
 describe("SignUpPage — the name field exists and is labelled", () => {
-  it("renders a labelled name input with a name autocomplete hint", () => {
+  it("renders a labelled name input with a name autocomplete hint", async () => {
     renderSignUp();
+    // CONTROL — the field is genuinely behind the email step, not simply
+    // missing. Without this the assertions below would pass just as happily
+    // against a page that had lost the create form entirely.
+    expect(screen.queryByLabelText("Your name")).toBeNull();
+    await openEmailStep();
+
     const field = screen.getByLabelText("Your name");
 
     expect(field).toBeDefined();
@@ -90,11 +113,36 @@ describe("SignUpPage — the name field exists and is labelled", () => {
     expect(field.getAttribute("autocomplete")).toBe("name");
   });
 
-  it("puts the name FIRST, before email and password", () => {
+  it("puts the name FIRST, before email and password", async () => {
     const { container } = renderSignUp();
+    await openEmailStep();
     const ids = Array.from(container.querySelectorAll("input")).map(i => i.id);
 
-    expect(ids).toEqual(["lt-su-name", "lt-su-email", "lt-su-password"]);
+    // The ids are the shared door's now that /login and /sign-up render the
+    // same component. What this pins is the ORDER, which is the actual
+    // contract: the name is asked for FIRST, so it never reads as an
+    // afterthought a student can scroll past.
+    expect(ids).toEqual(["lt-login-name", "lt-login-email", "lt-login-password"]);
+  });
+
+  it("does NOT ask for a name on the sign-IN door — only the create door", async () => {
+    // The friction win: a returning student types two things, not three. This
+    // is the other half of the name decision and it only holds because the
+    // create door above still asks.
+    const { default: Login } = await import("./Login");
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <Login />
+      </MemoryRouter>,
+    );
+    await userEvent.setup().click(screen.getByRole("button", { name: /Continue with email/ }));
+
+    expect(screen.queryByLabelText("Your name")).toBeNull();
+    // CONTROL — the email form really did render; the absence above is a
+    // decision, not a failed render.
+    expect(screen.getByLabelText("Email address")).toBeDefined();
+    expect(screen.getByLabelText("Password")).toBeDefined();
   });
 });
 

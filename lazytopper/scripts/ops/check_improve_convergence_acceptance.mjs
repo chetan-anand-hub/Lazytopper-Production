@@ -513,21 +513,97 @@ const FORBIDDEN = [
   //                      exists so THIS file can stay byte-identical.
   // NOTE: EquationInput.tsx is deliberately NOT here — it legitimately gains `autoGrow`;
   // its guard is the default-off assertion in §7, not a forbidden-path entry.
+  //
+  // ★★ SolutionChecker.tsx — blanket ban LIFTED 2026-08-03 (owner decision, Wave 5A
+  // lane FORBID-1). WHY NOW: GATE-2 must add a locked Premium affordance to this
+  // component, and this array is PR-scoped with no lane-scoping and no exception
+  // mechanism, so the ban blocked it outright. Same precedent as #519 (DesktopShell.tsx)
+  // and PR-C1 (checkSolution.cjs): THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
+  //
+  // WHAT THE BAN WAS ACTUALLY BUYING, made explicit — because a blanket ban says
+  // "something here must not change" and never says what. This consumer mounts the
+  // shared <EquationInput> passing NO `autoGrow` and NO `maxRows`. If the shared
+  // default ever flipped on, then WITHOUT THIS FILE CHANGING ONE BYTE:
+  //   (a) the textarea gains `lt-eq__textarea--grow`, whose only rule is
+  //       `resize: none` — the student loses the resize handle; and
+  //   (b) the height clamp becomes `[rows, maxRows ?? rows]`, which with no `maxRows`
+  //       collapses to [4, 4] — the box is PINNED at four rows and can never grow.
+  // §7's AUTOGROW checks below assert a REGEX over EquationInput.tsx's own source.
+  // They never asserted anything about THIS file — not its opt-out, not one line of its
+  // rendered behaviour — so until now the FORBIDDEN entry was the whole protection.
+  //
+  // THE REPLACEMENT: `lazytopper/src/components/question/SolutionChecker.contract.test.tsx`
+  // — 20 targeted tests pinning the autoGrow opt-out (with a POSITIVE CONTROL, so the
+  // negative assertion cannot pass vacuously if `--grow` is ever renamed), the public
+  // prop contract, every rendering state, the image-XOR-text grade payload, the
+  // objective-signal omission rule, the versioned localStorage key, and the
+  // recordMistake/recordAttempt persistence twins. All 16 mutations proven RED.
+  // Its PRESENCE AND WIRING are asserted below, so this lift cannot decay into "no
+  // protection at all". Do NOT re-add the blanket entry without a deliberate owner
+  // decision — the absence assertion below will fail if you do.
+  //
+  // → ResultsScorecard.tsx REMAINS BANNED. This is a DELIBERATE one-file amendment and
+  // NOT a precedent for the pair: GATE-2 does not touch the graded-result view, and
+  // lifting a ban a full wave before the need is the same error as the blanket ban —
+  // it unprotects more than the case justifies. BATCH-2 may need it later; that is its
+  // own owner decision at that time, and it would need TWO amendments (this gate AND
+  // check_improve_overlay_additive_acceptance.mjs), not one.
   'lazytopper/src/components/results/ResultsScorecard.tsx',
-  'lazytopper/src/components/question/SolutionChecker.tsx',
 ];
 
 // ★ MEMBERSHIP, asserted UNCONDITIONALLY (not gated on a resolvable git base). The
 // git-diff loop below only runs when a base ref is present (a PR, or a local full clone);
-// on a shallow checkout it skips. So the guarantee "these two files are guarded at all"
+// on a shallow checkout it skips. So the guarantee "the scorecard is guarded at all"
 // is pinned here, where nothing can skip it — a shallow checkout that could not run the
 // diff still proves the guard is WIRED.
 check('FORBIDDEN(wired): ResultsScorecard.tsx is in the guarded set (owner: the scorecard must not change)',
   FORBIDDEN.includes('lazytopper/src/components/results/ResultsScorecard.tsx'));
-check('FORBIDDEN(wired): SolutionChecker.tsx is in the guarded set (shares EquationInput; must stay byte-identical)',
-  FORBIDDEN.includes('lazytopper/src/components/question/SolutionChecker.tsx'));
+// ★ The SolutionChecker.tsx membership check that used to sit here was REMOVED with the
+// entry it asserted (FORBID-1) — leaving it would have failed the gate on its own
+// amendment. It is replaced by the INVERSE assertion, so the lift is itself observable:
+// a silent re-add turns this red and forces the deliberate owner decision the comment
+// above asks for, instead of quietly re-blocking GATE-2.
+check('FORBIDDEN(lifted): SolutionChecker.tsx is NOT in the guarded set (ban replaced by SolutionChecker.contract.test.tsx)',
+  !FORBIDDEN.includes('lazytopper/src/components/question/SolutionChecker.tsx'),
+  're-adding the blanket entry needs an owner decision AND removal of the replacement tests');
 check('FORBIDDEN(wired): EquationInput.tsx is NOT guarded (it legitimately gains autoGrow; §7 proves it stays default-off)',
   !FORBIDDEN.some((f) => f.endsWith('equation/EquationInput.tsx')));
+
+// ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED SolutionChecker BAN (FORBID-1).
+// Identical reasoning to the GRADER-TESTS block below: a deleted FORBIDDEN entry plus a
+// test file nobody invokes is strictly WORSE than the ban it replaced, because it reads
+// as protection. So all three halves are asserted — the tests EXIST, they RUN in CI, and
+// they still contain the assertion the ban was actually buying.
+//
+// ⚠ NOTE FOR FUTURE READERS: this file's own header says "CI runs the MATRICES, not the
+// general vitest suite", which was true when it was written and is NOT true now.
+// `.github/workflows/quality-gate.yml` gained a REQUIRED `vitest run` step over the whole
+// lazytopper suite with no exclusions (resolving [FU-CI-GATE-VITEST]) — which is exactly
+// what makes a .test.tsx a legitimate replacement for a forbidden-path entry today.
+// The wiring is asserted rather than trusted, because that header was right once.
+// Filesystem-only (no subprocess, no git base) so it can never skip.
+const SC_TESTS = 'lazytopper/src/components/question/SolutionChecker.contract.test.tsx';
+check(`SOLUTIONCHECKER-TESTS: ${SC_TESTS} exists (the replacement for the lifted blanket ban)`,
+  existsSync(path.join(ROOT, SC_TESTS)),
+  'the blanket FORBIDDEN entry was lifted in favour of these tests — without them SolutionChecker is unguarded');
+const qualityGate = existsSync(path.join(ROOT, '.github/workflows/quality-gate.yml'))
+  ? read(path.join(ROOT, '.github/workflows/quality-gate.yml'))
+  : '';
+check('SOLUTIONCHECKER-TESTS: they RUN — quality-gate.yml has a required lazytopper `vitest run` step',
+  /pnpm --filter lazytopper exec vitest run/.test(qualityGate),
+  'a test nobody runs guards nothing — the CI vitest step is what executes this suite');
+check('SOLUTIONCHECKER-TESTS: they are COLLECTED — vitest include glob covers src/**/*.test.tsx',
+  /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(read(path.join(LAZY, 'vitest.config.ts'))),
+  'the file exists and CI runs vitest, but the include glob would not pick it up');
+// ★ The suite must still assert the thing the ban existed for. Without this, the suite
+// could be gutted to a single trivial test and every check above would stay green.
+const scTestSrc = existsSync(path.join(ROOT, SC_TESTS)) ? read(path.join(ROOT, SC_TESTS)) : '';
+check('SOLUTIONCHECKER-TESTS: the autoGrow opt-out is still pinned (the ban\'s actual subject)',
+  /lt-eq__textarea--grow/.test(scTestSrc) && /POSITIVE CONTROL/.test(scTestSrc),
+  'the suite no longer asserts the autoGrow relationship, or lost the control that keeps it non-vacuous');
+check('SOLUTIONCHECKER-TESTS: the grade-call payload and the persistence twins are still pinned',
+  /checkSolutionImage\.mock\.calls/.test(scTestSrc) && /recordAttempt\.mock\.calls/.test(scTestSrc),
+  'the suite no longer inspects the grader payload or the recordMistake/recordAttempt twins');
 
 // ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED GRADER BAN (PR-C1).
 // Lifting a blanket ban is only safe if the thing replacing it actually runs. A
@@ -722,4 +798,5 @@ console.log('  question-before-answer · canonical sentence · tight accept · g
 console.log('  five purples gone · QR + camera + Your-papers intact · SHOW_DETECTION_META unflipped ·');
 console.log('  question-side parity: EquationInput + QR(question mode) + camera + paste · autoGrow default-off ·');
 console.log('  QR "question" mode threaded (client type + both COPY maps + server allowlist; answer byte-identical) ·');
-console.log('  ResultsScorecard + SolutionChecker now guarded\n');
+console.log('  ResultsScorecard still guarded · SolutionChecker ban LIFTED (FORBID-1), replaced by');
+console.log('  SolutionChecker.contract.test.tsx — presence, CI execution and subject all asserted\n');

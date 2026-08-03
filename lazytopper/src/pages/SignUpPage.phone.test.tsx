@@ -54,22 +54,36 @@ function renderSignUp() {
   );
 }
 
+/**
+ * ONE DOOR (AUTH-3): the Email/Phone TABS are gone. The method is a step on the
+ * shared door now, so this clicks through it. Everything the suite actually
+ * pins — the E.164 shape, the digit stripping, this page's OWN reCAPTCHA
+ * container, and the fact that phone never touches the email path — is
+ * unchanged, which is why only the navigation moved.
+ */
 async function openPhoneTab() {
   const user = userEvent.setup();
-  await user.click(screen.getByRole("tab", { name: "Phone" }));
+  await user.click(screen.getByRole("button", { name: /Continue with phone/ }));
   return user;
 }
 
 describe("SignUpPage — the phone pane exists and is reachable", () => {
-  it("offers a Phone method alongside Email", () => {
+  it("offers Phone as an EQUAL method beside Google and Email — and no tabs", () => {
     renderSignUp();
-    expect(screen.getByRole("tab", { name: "Email" })).toBeDefined();
-    expect(screen.getByRole("tab", { name: "Phone" })).toBeDefined();
+    expect(screen.getByRole("button", { name: /Continue with phone/ })).toBeDefined();
+    expect(screen.getByRole("button", { name: /Continue with email/ })).toBeDefined();
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeDefined();
+    // The sign-in/sign-up classification is what this redesign removes. If a
+    // tab ever comes back, this fails.
+    expect(screen.queryAllByRole("tab")).toHaveLength(0);
   });
 
-  it("starts on Email and swaps the form when Phone is chosen", async () => {
+  it("swaps the form when Phone is chosen", async () => {
     renderSignUp();
-    expect(screen.getByLabelText("Email address")).toBeDefined();
+    // CONTROL — neither method form is mounted on the door itself, so the
+    // absence asserted after the swap means something.
+    expect(screen.queryByLabelText("Mobile number")).toBeNull();
+    expect(screen.queryByLabelText("Email address")).toBeNull();
 
     await openPhoneTab();
 
@@ -84,7 +98,7 @@ describe("SignUpPage — the phone pane exists and is reachable", () => {
     expect(container.querySelector("#lt-login-recaptcha")).toBeNull();
   });
 
-  it("warms the reCAPTCHA into its OWN container when the tab opens", async () => {
+  it("warms the reCAPTCHA into its OWN container when the phone step opens", async () => {
     renderSignUp();
     expect(initPhoneRecaptcha).not.toHaveBeenCalled();
 
@@ -110,7 +124,7 @@ describe("SignUpPage — the OTP round trip", () => {
 
     // Step 2 — the code.
     await user.type(await screen.findByLabelText("Enter the 6-digit code"), "123456");
-    await user.click(screen.getByRole("button", { name: /verify and create account/i }));
+    await user.click(screen.getByRole("button", { name: /verify & continue/i }));
 
     await waitFor(() => expect(verifyPhoneOtp).toHaveBeenCalledWith("123456"));
   });
@@ -153,7 +167,7 @@ describe("SignUpPage — phone sign-up never branches on email", () => {
     await user.type(screen.getByLabelText("Mobile number"), "9876543210");
     await user.click(screen.getByRole("button", { name: /send otp/i }));
     await user.type(await screen.findByLabelText("Enter the 6-digit code"), "123456");
-    await user.click(screen.getByRole("button", { name: /verify and create account/i }));
+    await user.click(screen.getByRole("button", { name: /verify & continue/i }));
 
     await waitFor(() => expect(verifyPhoneOtp).toHaveBeenCalled());
     expect(signUpWithEmailPassword).not.toHaveBeenCalled();
