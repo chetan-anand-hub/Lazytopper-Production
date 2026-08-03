@@ -568,6 +568,25 @@ function createStepSolutionRoute(deps) {
       return sendJson(res, 200, cached);
     }
 
+    // ── GATE-1 §4: the GENERATION branch, and ONLY the generation branch ──────
+    // Everything above this line stays free for every tier, forever: pre-written
+    // steps from the bank (the common case — PracticeQuestionCard renders
+    // q.solutionSteps directly) and a cache hit both returned already. Reaching
+    // here means the bank had nothing AND the cache missed, so this one request is
+    // about to spend money at Gemini. That is the only part students do not
+    // rightly expect for free.
+    //
+    // ★ The resolver is attached by index.cjs at the route boundary and is LAZY —
+    // no Firestore read happens on the free paths above. Absent resolver => serve,
+    // which is the same fail-open posture as every other branch here: an
+    // unwired gate must never cost a student their steps. The wiring is proven by
+    // a real HTTP request in entitlement.test.cjs rather than assumed.
+    const entitlement = req && req.lazytopperEntitlement;
+    if (entitlement && typeof entitlement.requireForGeneration === 'function') {
+      const denial = await entitlement.requireForGeneration();
+      if (denial) return sendJson(res, 402, denial);
+    }
+
     try {
       const gen = await generateModelSolution(
         { question, marks, subject, topic, qType, section, existingAnswer, existingExplanation, isObjective: isObj },
