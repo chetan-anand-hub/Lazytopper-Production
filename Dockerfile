@@ -10,7 +10,7 @@
 # install WITHOUT a prod-prune, and an explicit cwd. A "build then ship dist only"
 # pipeline would break the gateway on the first /api/* call.
 
-FROM node:24-slim
+FROM node:26-slim
 
 # Pin pnpm to 10.32.1 via corepack. The repo ROOT package.json has no `packageManager`
 # field (tracked follow-up D42); without this pin corepack defaults to pnpm 9.15.9, which
