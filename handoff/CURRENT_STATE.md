@@ -1,6 +1,65 @@
 # LazyTopper — Current State
 
-## [CURRENT] #595–#598 merged — ★★ WAVE 5B: THE RETIRED POSTGRES ENDPOINTS DELETED · CODEQL FIXED ON LIVE SERVER CODE · THE NEVER-OWNED DOMAIN SWEPT · AND A PAYWALL THAT STOPPED SELLING FOUR THINGS THAT DO NOT EXIST — trunk `1adce673`
+## [CURRENT] #601–#604 merged — ★★ WAVE 5C: A BLANKET BAN REPLACED BY TESTS THAT ACTUALLY FIRE · THE LOCKED CTA SHIPPED · 40 DEFECTIVE SOLUTIONS PULLED FROM LIVE STUDENT PATHS · AND A CI FAST PATH THAT SPLITS THE GATE WITHOUT TRIMMING IT — trunk `203fb370`
+
+**Four PRs, four lanes, under the controller + subagent model. OWNER LIVE-VERIFY PASSED.**
+
+```
+203fb370  ci(workflow): a fast path for docs-only PRs, two stale counts retired (CI-DOCS) #604
+0dd5b142      fix(bank): cut the 40 defective Section A questions (BANK-1)                    #603
+8d8259c5      feat(subscription): the locked Check-my-answer CTA (GATE-3)                     #602
+f31f8d40      test(ops): replace the App.tsx blanket ban with targeted tests (FORBID-4)       #601
+```
+**Trunk moved `81d0d53c` → `f31f8d40` → `8d8259c5` → `0dd5b142` → `203fb370`.**
+**Full controller record: `handoff/WAVE_STATE_WAVE5C_ARCHIVE.md`** — both retractions, the two owner
+re-rulings, the controller misroute, and the merge record.
+
+⚠ **`#599` (dependabot, `actions/checkout` 5→7) merged during Wave 5B and was never recorded** in the
+previous `[CURRENT]`. Noted here so the chain is complete.
+
+### ★★ WHAT THE LANES FOUND THAT THEIR SPECS DID NOT KNOW
+- **BANK-1 refuted its own brief's premise.** *"None is imported by anything. No student has ever
+  seen them"* was **FALSE** — all four packs were imported into `canonicalQuestionBank.ts` and
+  consumed by 28 modules. ⇒ **the defective solutions were reaching students, not sitting latent.**
+  It refuted the absence claim **with a control**, not by assertion.
+  ⇒ **Then it overturned the owner's own remedy.** Whole-file deletion rested on *"~22 sound"* and
+  *"surgical means per-question review."* Adjudicating **all 79** showed **48 sound**, and the defect
+  is **100% confined to Section A** — separable by a **mechanical `section` filter**. Owner withdrew
+  whole-file; the cut is **Section-A-only**, keeping **39 verified-sound B/C/D/E questions including
+  the entire 3/5-mark tier.** Root cause: **a solution pool mis-paired against a question pool**
+  (`ME-E07`/`ME-E14` have their solutions **swapped**) — not degraded generation.
+- **★★ FORBID-4's own first-draft guard was a SILENT NO-OP.** `not.toThrow()` **passed** under a
+  nested `<MemoryRouter>` because `App.tsx` wraps `<Routes>` in an `<ErrorBoundary>` — **the app
+  error-pages instead of crashing**, and a throw-assertion cannot tell the difference. **Only
+  mutation testing caught it.** It also found **QP-OVL's GUARD 3 was a COMMENT, not a check** (the
+  propless-`/practice` invariant had **zero executable coverage repo-wide**) and that QP-OVL had **no
+  `FORBIDDEN(path)` loop at all**.
+- **GATE-3 disproved the spec's parent list.** The four named "parents" are `useSubscription`
+  **consumers**, not `SolutionChecker` render sites. **There are TWO render sites and none of the
+  four is one.** It **declined to build the `entitled` prop**: a prop *creates* the mount-not-live
+  risk it was meant to solve, since a third site added later ships un-gated by default. The gate
+  lives in the hook.
+- **CI-DOCS proved `scope:guard` CANNOT go in a CI fast path** — it reads the working tree, a CI
+  checkout is clean, so it measures `inspected=0` and **passes forever**. A silent no-op, in the lane
+  about silent no-ops. Its classifier **replayed over six real merges: `#566` classifies on the 13
+  files that LANDED, not the 4 it reported.**
+
+### ⚠ THE CONTROLLER'S OWN ERRORS THIS WAVE — recorded because near-misses teach more than wins
+1. **I reported a `CLAUDE.md` §5 / `NEXT_ACTION.md` §0 contradiction that did not exist.** §5 already
+   defers to the executable guard; its topic names are an **`e.g.`**, not the list. **I read the
+   example as the list.** Owner struck the parenthetical (this PR).
+2. **I misrouted BANK-1's traffic to CI-DOCS twice** — the second time carrying an instruction to
+   delete files CI-DOCS was **explicitly forbidden** to touch. **CI-DOCS refused and PROVED the
+   misroute** (14 token hits in BANK-1's brief vs 0 in its own; credited with a BLOCKED verdict it
+   never returned). **Only the receiving lane's refusal stood between that and a destructive
+   cross-lane write.** It had flagged the *first* misroute and I did not act on the flag.
+3. **I amplified `[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]` as a live product hole.** Owner-verified
+   correction: the **server** fails open for unauthenticated callers, **but no student path reaches
+   it** — the client login gate fires at every action CTA. **Latent, curl-only, capped 3/day.**
+
+---
+
+## (superseded) [CURRENT] #595–#598 merged — ★★ WAVE 5B: THE RETIRED POSTGRES ENDPOINTS DELETED · CODEQL FIXED ON LIVE SERVER CODE · THE NEVER-OWNED DOMAIN SWEPT · AND A PAYWALL THAT STOPPED SELLING FOUR THINGS THAT DO NOT EXIST — trunk `1adce673`
 
 **Four PRs, six lanes, one scout, under the controller + subagent model. ALL FOUR OWNER
 LIVE-VERIFIED ON PRODUCTION.** *(Wave 5A's handoff had to record verifies as owed. This one does not.)*

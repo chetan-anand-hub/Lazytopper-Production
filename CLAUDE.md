@@ -87,7 +87,8 @@ Globally forbidden across all PRs unless explicitly scoped:
 - Honest empty states — if data is thin, show honest empty state, never invent content
 - MockBuilder is retired — un-routed from the live product (code kept, tagged for PR-G deletion). Mistake Intelligence serves its purpose.
 - Mistake Intelligence is navy-sidebar chrome ONLY — never render MI on a page body (e.g. the Topic Hub page body).
-- Before generating or extracting ANY content, re-read `scripts/src/syllabusGuard.ts` and copy the EXACT banned keywords into the work — never from memory. Deleted/banned topics (e.g. heredity-and-evolution, magnetic-effects) must never appear in question banks or topic lists.
+- Before generating or extracting ANY content, re-read `scripts/src/syllabusGuard.ts` and copy the EXACT banned keywords into the work — never from memory. Topics and sub-topics deleted from the 2026-27 syllabus must never appear in question banks or topic lists.
+  - ⚠ **The guard bans SUB-TOPICS, not chapters.** It matches the `subtopic:` field value — exact, full-string — and has no concept of a banned topicKey or filename. **`Heredity`, `Mendel's contribution`, `Laws of Inheritance` and `Sex Determination` are RETAINED and board-assessed for 2026-27**; it is the **Evolution** sub-topics that are excluded. **A filename that looks like a doctrine violation (`heredity.pack1.ts`) is not one.** `syllabusGuard.ts` is 2026-27 (`year: "2026-27"`, from the official CBSE PDFs).
 
 ---
 

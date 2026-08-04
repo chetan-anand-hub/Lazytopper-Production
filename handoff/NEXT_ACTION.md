@@ -1,7 +1,73 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-04 (post-**#595–#598 — WAVE 5B**, four PRs / six lanes / one scout under the controller + subagent model. Trunk `1adce673`. **ALL FOUR OWNER LIVE-VERIFIED ON PRODUCTION.** Full controller record in `handoff/WAVE_STATE_WAVE5B_ARCHIVE.md`.)
+# Updated: 2026-08-04 (post-**#601–#604 — WAVE 5C**, four PRs / four lanes under the controller + subagent model. Trunk `203fb370`. **OWNER LIVE-VERIFY PASSED.** Full controller record in `handoff/WAVE_STATE_WAVE5C_ARCHIVE.md`.)
 
-## NEXT — 2026-08-04 (post-#595–#598, WAVE 5B). Read this block first.
+## NEXT — 2026-08-04 (post-#601–#604, WAVE 5C). Read this block first.
+
+### 🛑🛑 0 · WAVE 5D — FOUR LANES, NOT SIX. OWNER-RULED.
+
+**`ME-PROGRESS` and `NAME+LINK` were BUILT-READY but deliberately NOT merged in 5C — they HEAD 5D.**
+
+1. **`ME-PROGRESS`** — converge `/me` onto one responsive `MeProgressPage`, deleting `DesktopMePage`
+   and `MobileMePage`. **Its two merge gates are now SATISFIED** (`FORBID-4` #601 and `GATE-3` #602
+   are both on trunk).
+   - ⚠ **`App.tsx` is no longer a forbidden zero-diff — but `lane_overlap.mjs` `GATED_FILES` still
+     holds it under OWNER REVIEW.** The lift changed the *protection*, not the review.
+     `[FU-APPTSX-OWNER-REVIEW-GATE-SURVIVES-LIFT]`
+   - ⚠⚠ **THE SPEC'S §5 GATED-CTA PARAGRAPH IS OUT OF DATE.** It says gated CTAs *"will show their
+     gates — that is correct behaviour."* True in July; **GATE-3 has since shipped the locked CTA.**
+     `/me`'s Topic Hub and Full Mock CTAs must **MATCH GATE-3's shipped treatment**, read from trunk.
+     ★ **The prototype is authoritative where it INVENTS (the progress surface — unchanged) and
+     subordinate where it must MATCH (premium CTAs).**
+   - **Authorities on disk:**
+     `C:/Projects/LT-worktrees/_briefs/wave5c/LazyTopper_MeProgress_Redesign_Spec_v1.0_2026-07-24.md`
+     and `.../MeProgress_Final_prototype.html` (SHA `6e78b572…`). ⚠ **The prototype has three names;
+     `MeProgress Final.dc.html` exists NOWHERE. Give the lane the exact path.**
+2. **`NAME+LINK`** — ⚠ **RUNS ALONE, zero other open PRs.** `AuthContext` is `vi.mock`ed in ~25
+   files, every one a complete replacement, and its key set is pinned by **exact equality** — it
+   fails on **addition**. Carries a live defect: **nothing links to `/sign-up`, so every account is
+   created with no `displayName`.** Ship §1 even if §3 is blocked.
+3. **`[FU-UPGRADE-SHEET-PRICING-BACKNAV]`** — **NEW, from this wave's live-verify.** *"See plans"*
+   navigates to pricing, and **pricing's back button goes HOME**, carrying neither
+   `state:{back,backLabel}` nor `?source=&returnTo=`. **A student two questions into a practice set
+   who declines to buy loses their place.** ⇒ *the "this stopped working" failure GATE-2 exists to
+   prevent, one screen later.* Belongs with GATE-3's follow-ups.
+4. **Owner's pick** — PAY-1/PAY-2 remain blocked on Razorpay test keys **and** the plan-shape
+   decision (one-time "till boards" vs recurring); `lib/*` deletion remains blocked on SCOUT-1.
+
+### 🛑 0a · SYLLABUS DOCTRINE — CORRECTED THIS WAVE, DO NOT RE-LITIGATE
+
+**`CLAUDE.md`:90's parenthetical was STRUCK** in this wave's handoff PR.
+
+★ **THE GUARD BANS SUB-TOPICS, NOT CHAPTERS.** It matches the `subtopic:` field value, **exact and
+full-string**, and has **no concept of a banned topicKey or filename**. **`Heredity`, `Mendel's
+contribution`, `Laws of Inheritance` and `Sex Determination` are RETAINED and board-assessed** for
+2026-27; it is the **Evolution** sub-topics that are excluded. **A filename that looks like a
+doctrine violation (`heredity.pack1.ts`) is not one** — that misreading produced the phrase
+*"banned-topic packs"* and cost a wave of confusion.
+★ **`syllabusGuard.ts` IS 2026-27** (`year: "2026-27"` ×2, from the official CBSE PDFs). **It was
+never on 2025-26.** Recorded so nobody re-asks.
+
+⚠ **`[FU-SYLLABUS-TRUTH-IN-TWO-PLACES]`** (supersedes `[FU-SYLLABUS-GUARD-FORMATIVE-ONLY-BANK-BLINDSPOT]`)
+— **`syllabusGuard.ts`'s `RULES` array is HARDCODED TypeScript and does NOT read
+`cbse10Registry_2026_27.json`.** So 2026-27 syllabus truth lives in **two hand-maintained places, one
+executable and one declarative, with NO test that they agree.** ★ **That is the defect** — not "the
+guard forgot Motor/Induction"; the ~28 board-excluded-but-live questions are a **symptom**.
+**Fix: make the guard DERIVE from the registry.** **Owner-ruled: log it, do not fix mid-wave, and do
+NOT remove those questions by hand** — no executable rule bans them, so removing them would be
+guessing in the opposite direction.
+
+### 🛑 0b · TWO ENTITLEMENT RULINGS — RECORD, DO NOT "FIX"
+
+- **Trial-period grading is INTENDED** — a marketing hook — **and still requires sign-in.** Not a defect.
+- **`[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]` is LATENT, not live.** The **server** fails open for
+  unauthenticated callers (anon POST returns 400 from the handler, not 402), **but no student path
+  reaches it** — the client login gate fires at every action CTA. **curl-only, capped 3/day by the
+  anon cap, Gemini pennies, no revenue.** GATE-3's signed-out carve-out is still correct, for a
+  different reason: it avoids showing 🔒 to a visitor who could sign in and use the feature.
+
+---
+
+## PREVIOUS — 2026-08-04 (post-#595–#598, WAVE 5B). Superseded by the block above.
 
 ### 🛑🛑 0 · THE ONE ITEM THAT IS NOT A CODE LANE — `BANK-1`, AND IT IS THE OWNER'S SUBJECT
 
