@@ -13,6 +13,98 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-04 — WAVE 5C (#601–#604). Full bodies in `handoff/WAVE_STATE_WAVE5C_ARCHIVE.md`.
+
+### `[FU-SYLLABUS-TRUTH-IN-TWO-PLACES]` — ★★ SUPERSEDES `[FU-SYLLABUS-GUARD-FORMATIVE-ONLY-BANK-BLINDSPOT]`
+**`scripts/src/syllabusGuard.ts`'s `RULES` array is HARDCODED TypeScript. It does NOT read
+`lazytopper/src/data/syllabus/cbse10Registry_2026_27.json`.** So 2026-27 syllabus truth lives in
+**two hand-maintained places — one executable, one declarative — with NO test that they agree.**
+★ **That is the defect.** Not *"the guard forgot Motor/Induction/Generator."* The ~28 board-excluded
+but live pack2 questions are a **symptom** of the divergence.
+**Evidence:** the guard's own comment says formative-only Motor / EMI / Generator are enforced *"via
+the SURFACE scan … NOT at the question-bank level"*, and question banks are not among the 23 files
+that scan reads — while the registry's `formative_only_scope_bullets` **does** exclude them.
+**FIX:** make the guard **DERIVE from the registry**, so a registry edit cannot silently fail to
+reach the bank. ⚠ **Owner-ruled: log, do not fix mid-wave, and do NOT remove the ~28 by hand** — no
+executable rule bans them, so removing them would be **guessing in the opposite direction**, the
+exact failure the withhold-in-both-directions test exists to prevent.
+
+### `[FU-UPGRADE-SHEET-PRICING-BACKNAV]` — ★ NEW, FROM THE WAVE 5C LIVE-VERIFY. Wave 5D.
+**"See plans" navigates to pricing, and pricing's back button goes to HOME** rather than the page the
+student came from. It carries **neither** `state:{back,backLabel}` **nor** `?source=&returnTo=`.
+**A student two questions into a practice set who declines to buy loses their place.**
+★ **The "this stopped working" failure GATE-2 exists to prevent, one screen later.** Belongs with
+GATE-3's follow-ups. **Owner-ruled: log, do not fix in 5C.**
+
+### `[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]` — ⚠ REWORDED. OVERSTATED, INCLUDING BY THE CONTROLLER.
+**The SERVER fails open for unauthenticated callers** — anon `POST /api/check-solution` returns
+**400 from the handler, not 402**. **BUT NO STUDENT PATH REACHES IT:** the client login gate fires at
+every action CTA, owner-verified in a browser. ⇒ **LATENT SERVER-SIDE HOLE, NOT A LIVE PRODUCT
+HOLE** — curl-only, bounded **3/day** by the anon cap, Gemini pennies, **no revenue.**
+★ **GATE-3's signed-out carve-out is still correct, for a different reason than the original FU
+gave:** it prevents showing 🔒 to a signed-out visitor **who could sign in and use the feature.**
+
+### `[FU-TRIAL-GRADING-IS-INTENDED]` — ★ OWNER RULING. RECORD SO NOBODY "FIXES" IT.
+**Trial-period grading is INTENDED — a marketing hook — and still requires sign-in.**
+`canAccessFeature` treating `trial` as `premium` is deliberate. **Not a defect.**
+
+### `[FU-APPTSX-OWNER-REVIEW-GATE-SURVIVES-LIFT]`
+`FORBID-4` (#601) lifted `App.tsx` from the CI-OVL and QP-OVL forbidden zero-diff arrays, **but
+`lane_overlap.mjs` `GATED_FILES` still holds it under OWNER REVIEW.** Intended residual control.
+⇒ **ME-PROGRESS must expect an owner review on its `App.tsx` change.** The lift changed the
+*protection*, not the *review*.
+
+### `[FU-SCOPEGUARD-NO-CI-SUBJECT]`
+**`scope:guard` cannot run in CI and must not be added to a CI fast path.** It reads the **working
+tree**; a CI checkout is clean, so it measures `inspected=0 … SCOPE_GUARD_OK` and **exits 0 without
+inspecting anything, forever.** Measured, not theorised. It stays a **local pre-commit gate**;
+CI-DOCS's acceptance suite is what has a real subject in CI. Fixing `scopeGuard.mjs` was outside the
+lane's allowlist and is **not scheduled**.
+
+### `[FU-BANK1-SECTION-A-REAUTHOR]`
+**40 Section A 1-mark questions were cut** from `heredity.pack1` and `magneticEffects.pack1` (#603).
+**9 of them were individually judged SOUND and went anyway**, because the cut is a **mechanical
+`section` filter** — keeping them would reintroduce per-question review and make *"no Section A
+survives"* unpinnable. **They are re-authorable from real papers**, under owner review.
+
+### `[FU-BANK1-SOLUTION-POOL-MISALIGNMENT]`
+The pack1 defect is **not degraded generation** — it is a **systematic mis-pairing of a solution pool
+against a question pool.** `ME-E07` (*"An electric motor converts:"*) carries the **commutator**
+solution; `ME-E14` (*"role of the split ring commutator"*) carries the **motor-converts** solution:
+**their solution sets are swapped.** That is why 100% of the damage landed in the auto-generated
+1-mark tier and none in the hand-written tier. ⇒ **Any future generator run must be checked for this
+class, not just for boilerplate.**
+
+### `[FU-BANK-AR-STEPS-CONTRADICT-KEY]`
+Several Assertion-Reason items **contradict their own keyed answer** — the steps tell the student the
+marked answer is wrong (`HE-E06`, `ME-E06`, `HE-AR05`; plus `ME-AR05`/`ME-M13` evaluating a different
+assertion pair to an opposite conclusion). ★ **`HE-AR05` additionally injected natural-selection
+reasoning into a heredity question via its SOLUTION STEPS** — **board-excluded Evolution content in a
+place no subtopic-based guard can see.** All are among the 40 cut by #603, but **the class can recur
+in any pack**: a guard reading `subtopic:` cannot see content smuggled through steps.
+
+### `[FU-BANK1-PACK2-MISSING-EXPLANATIONS]` and `[FU-BANK1-PACK2-DUPLICATE-FARADAY-STEM]`
+**28 of 97 live pack2 questions have no `explanation` field**, and `ME2-013`/`ME2-037` are an **exact
+duplicate stem** (*"State Faraday's law of electromagnetic induction."*). ⚠ **Owner-ruled: AUTHORING,
+covered by the standing Fable-pass ruling. NOT a lane, and must not delay other work.**
+
+### `[FU-SUBAGENT-REPORT-WRITE-IS-ROLE-BLOCKED]` — ★ AFFECTS EVERY FUTURE DISPATCH BRIEF
+**Subagents cannot write report files at all.** All four Wave 5C lanes hit the same refusal:
+*"Subagents should return findings as text, not write report files."* **The block is on the ROLE, not
+the extension and not the tool** — so the standing brief line *"the `Write` tool refuses `.md`; the
+shell works"* is **wrong in both directions**, and the controller's replacement *"either tool works"*
+was **also wrong** (true only for the controller).
+⇒ **Stop instructing lanes to write reports to disk. Lanes return text; the CONTROLLER files it.**
+Wave 5C reports: `C:\Users\Chetan\OneDrive\Desktop\diff\wave 5c\report\`.
+
+### `[FU-OPS-VALIDATE-VISUAL-IDS-UNINVOKED]`
+`lazytopper/scripts/ops/validate_visual_ids.mjs` **calls itself a CI guard but NOTHING INVOKES IT** —
+absent from every `package.json` script, every workflow and both `test:matrix:all` chains; the only
+references to its name are in its own header comment. It hardcodes paths to the two pack1 files
+without an `existsSync` guard ⇒ **an armed failure for whoever eventually wires it.**
+Same class: `lazytopper/scripts/addDiagramLinks.cjs` also references those paths, but **is**
+`existsSync`-guarded and equally uninvoked.
+
 ## 2026-08-04 — WAVE 5B (#595–#598). Full bodies in `handoff/WAVE_STATE_WAVE5B_ARCHIVE.md`.
 
 ### `[FU-AUTH-SIGNUP-ROUTE-UNREACHABLE]` — ⚠ corrupting real data today

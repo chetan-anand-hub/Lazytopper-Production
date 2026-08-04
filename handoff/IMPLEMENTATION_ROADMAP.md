@@ -1,5 +1,27 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-04 - ★★ ✅ WAVE 5C **COMPLETE** (#601–#604, trunk `203fb370`) - four PRs / four lanes, owner live-verify PASSED, Wave 5D scoped to FOUR lanes and NOT dispatched
+
+**STAGES COMPLETE:**
+- ✅ **`FORBID-4` (#601)** — the `App.tsx` blanket ban replaced by targeted routing tests **in both**
+  overlay gates. `FORBIDDEN(lifted)` added to both so a silent re-add goes red. **Unblocks
+  ME-PROGRESS.**
+- ✅ **`GATE-3` (#602)** — the **visible** paywall layer. A free student now meets the boundary
+  *before* tapping, and the locked CTA **opens the upgrade sheet** rather than doing nothing.
+  ⇒ **The explained / enforced / visible trio GATE-1 and GATE-2 began is now COMPLETE.**
+- ✅ **`BANK-1` (#603)** — 40 defective Section A questions cut from two science packs that were
+  **already live to students**; 39 verified-sound long-form questions kept, including the entire
+  3/5-mark tier. Guarded against silent re-add.
+- ✅ **`CI-DOCS` (#604)** — a docs-only fast path that **splits** the gate without trimming it, with
+  the full bar retained deliberately for the wave-closing handoff as the project's only integration
+  check. Two stale counts retired so they **cannot re-stale**. **Also wired SEC-1's two previously
+  ungated server suites into CI.**
+
+**NOT DISPATCHED — Wave 5D, FOUR lanes (owner-ruled):** `ME-PROGRESS` (built-ready, both merge gates
+now satisfied) · `NAME+LINK` (built-ready, **runs alone**) · `[FU-UPGRADE-SHEET-PRICING-BACKNAV]` ·
+owner's pick. **PAY-1/PAY-2 still blocked** on Razorpay test keys **and** the plan-shape decision;
+**`lib/*` deletion** still blocked on SCOUT-1.
+
 ## 2026-08-03 - ★★ ✅ WAVE 5A **COMPLETE** (#579–#582, trunk `59ba4da2`) - four PRs / five lanes, the P0 server paywall CLOSED and live-verified, the auth door rebuilt and live-verified, TWO LAUNCH-BLOCKING items open, Wave 5B planned and NOT dispatched
 
 **STAGES COMPLETE:**

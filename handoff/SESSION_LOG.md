@@ -1,5 +1,42 @@
 ---
 
+## 2026-08-04 -- #601–#604 (WAVE 5C, four PRs / four lanes under the controller + subagent model): a blanket ban replaced by tests that actually fire · the locked CTA shipped · 40 defective solutions pulled from live student paths · a CI fast path that splits the gate without trimming it - trunk `203fb370`
+
+**Owner live-verify PASSED.** Merge order FORBID-4 → GATE-3 → BANK-1 → CI-DOCS last.
+Full controller record: `handoff/WAVE_STATE_WAVE5C_ARCHIVE.md`.
+
+- **`#601` FORBID-4** — replaced the `App.tsx` forbidden zero-diff ban in **both** overlay gates with
+  `App.routing.contract.test.tsx` (9 tests). `App.tsx` untouched, **verified by SHA against the trunk
+  blob**. Added `FORBIDDEN(lifted)` to both gates so a silent re-add goes red.
+  ★★ **Its own first draft was a silent no-op:** `not.toThrow()` passed under a nested
+  `<MemoryRouter>` because `App.tsx` wraps `<Routes>` in an `<ErrorBoundary>` — the app **error-pages
+  instead of crashing**. Rewritten to assert positively. **Only mutation testing caught it.**
+  ★ Also found **QP-OVL's GUARD 3 was a comment, not a check** (propless-`/practice` had zero
+  executable coverage repo-wide) and that QP-OVL had **no `FORBIDDEN(path)` loop at all**.
+- **`#602` GATE-3** — shipped the **visible** layer GATE-2 could not: the locked 🔒 Premium CTA that
+  **opens the sheet when tapped** rather than doing nothing. Amended **one** over-reaching FORBID-1
+  assertion; `autoGrow`/`maxRows`, payload shape and the `FORBIDDEN(lifted)` inverse all survive and
+  were proven live by mutation. ★ **Two render sites, not the spec's four** — and none of the four
+  named is one. ★ **Declined to build the `entitled` prop**: a prop *creates* the mount-not-live risk
+  it was meant to solve. ★ **Two deliberate carve-outs** — signed-out visitors (who can sign in and
+  use it) and trial students (**intended**, a marketing hook).
+- **`#603` BANK-1** — ★★ **refuted its own brief with a control:** all four packs were **already
+  live**, so the defective solutions were **reaching students**. Cut **40 Section A** questions;
+  **kept 39 verified-sound B/C/D/E** including the whole 3/5-mark tier. Root cause: **a solution pool
+  mis-paired against a question pool** (`ME-E07`/`ME-E14` **swapped**). Guard added to
+  `deletionGuard.test.ts` (already in the root matrix — **no manifest edit**), mutation-verified.
+  Bank index and `DifficultyBreakdownPage` **end at zero diff**.
+- **`#604` CI-DOCS** — split the gate; did **not** trim it. The full bar is **retained deliberately**
+  for the wave-closing handoff, because a product PR's CI runs against its own base and that docs run
+  is the project's **only integration check**. ★ **`scope:guard` cannot go in the fast path** — a
+  clean CI checkout measures `inspected=0` and passes forever. Retired two stale counts so they
+  **cannot re-stale** (the guard caught its own author quoting the old numerals).
+
+**Controller errors, recorded:** a non-existent `CLAUDE.md`/`NEXT_ACTION` contradiction reported and
+retracted; **BANK-1's traffic misrouted to CI-DOCS twice**, the second time carrying an instruction to
+delete files CI-DOCS was forbidden to touch — **it refused and proved the misroute**; and
+`[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]` amplified as live when it is **latent and curl-only**.
+
 ## 2026-08-04 -- #595–#598 (WAVE 5B, four PRs / six lanes / one scout under the controller + subagent model): the retired Postgres endpoints deleted · CodeQL fixed on live server code · the never-owned domain swept and guarded · a paywall that stopped selling four things that do not exist - trunk `1adce673`
 
 **ALL FOUR OWNER LIVE-VERIFIED ON PRODUCTION.** Backend boots; `/api/check-solution` answers 402

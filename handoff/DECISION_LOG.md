@@ -1,3 +1,52 @@
+## 2026-08-04 - Wave 5C, four lanes under a controller + subagent model (#601–#604, trunk `203fb370`)
+
+Owner rulings across the wave, and the scope discovered after each lane was first planned.
+
+**1 · `CLAUDE.md`:90 — the banned-topics parenthetical is STRUCK (deletion, not rewrite).**
+The controller reported a `CLAUDE.md` §5 / `NEXT_ACTION.md` §0 contradiction. **There was none.** §5
+already defers to the executable guard; its topic names are an **`e.g.`**, not the list. ★ **The
+deletion is self-justifying: that sentence's own instruction is "never from memory," and the
+parenthetical is precisely a from-memory copy of a list that has since drifted.** Rejected
+alternatives: amending §5 (treats a symptom), a pack-specific exemption (records an exception to a
+ban that was never correct), holding (leaves a doc claiming a CBSE-assessed chapter is banned, in the
+file every agent reads first).
+★★ **Generalisation, fourth instance this week** (`175` in a comment, `59` in a comment, `103`
+alerts in two documents, now a banned-topics list in prose): **a prose restatement of a
+machine-checkable fact is a derived value with no test behind it, and it will drift. Point at the
+executable authority; do not paraphrase it.**
+
+**2 · BANK-1 — whole-file deletion RULED, then WITHDRAWN by the same owner.**
+Ruled whole-file on two premises: *"~22 sound is a rounding error"* and *"surgical means per-question
+owner review."* BANK-1 adjudicated **all 79** questions and disproved **both** — **48 sound**, and
+every defect confined to **Section A**, separable by a **mechanical `section` filter**.
+★ **Invoking the standing rule "IF THIS SPEC IS WRONG, YOUR VERIFIED FINDING WINS," the owner
+withdrew his own ruling.** Final cut: Section-A-only, **39 sound questions kept.**
+★ **He also rejected "the generator is known-bad, so distrust all its output"** as *reasoning from a
+story rather than from the finding* — the defects cluster by **section**, and pack2 sampled clean.
+**Two conditions imposed** because the cut now rests on a claim rather than on removing everything:
+prove each kept question sound (withhold if unverifiable), and add a mutation-verified guard that no
+Section A item survives.
+
+**3 · The ~30 board-excluded pack2 questions — NOT removed. The withhold test working.**
+Ruled they should fold into the PR on the premise the guard bans them at bank level. **The code said
+otherwise**, and BANK-1 proved it three ways including a control. ★ **Applying the owner's own test —
+*"if a question does NOT match a rule, KEEP it and report it — withhold, never guess, in both
+directions"* — nothing was removable.** Removing them would have been **guessing in the opposite
+direction.** ⇒ `[FU-SYLLABUS-TRUTH-IN-TWO-PLACES]`: the real defect is **two hand-maintained sources
+of syllabus truth with no test that they agree**, not a forgotten entry.
+
+**4 · Trial-period grading is INTENDED** — a marketing hook, and it still requires sign-in. Recorded
+so nobody "fixes" it.
+
+**5 · `ME-PROGRESS` and `NAME+LINK` do NOT merge in 5C — they head Wave 5D. Wave 5D runs FOUR lanes,
+not six.** ★ **New sequencing rule established mid-wave: `GATE-3` must merge BEFORE `ME-PROGRESS`**,
+because the July prototype's gate treatment predates the paywall. **The prototype is authoritative
+where it INVENTS and subordinate where it must MATCH.**
+
+**6 · Scope discovered after planning** — BANK-1's brief premise (*"none is imported"*) was **false**;
+GATE-3's four named parents were **not** render sites (there are two, and none of the four is one);
+`scope:guard` **cannot** live in a CI fast path. All three were **spec errors**, not lane errors.
+
 ## 2026-07-29 - Wave 3, four lanes under a controller + subagent model (#557–#563, trunk `25e995a7`)
 
 Decisions ruled by the owner across the wave, and the scope it discovered after each lane was first planned.
