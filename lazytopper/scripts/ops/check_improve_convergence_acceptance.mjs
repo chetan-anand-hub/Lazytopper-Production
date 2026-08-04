@@ -515,8 +515,9 @@ const FORBIDDEN = [
   // its guard is the default-off assertion in §7, not a forbidden-path entry.
   //
   // ★★ SolutionChecker.tsx — blanket ban LIFTED 2026-08-03 (owner decision, Wave 5A
-  // lane FORBID-1). WHY NOW: GATE-2 must add a locked Premium affordance to this
-  // component, and this array is PR-scoped with no lane-scoping and no exception
+  // lane FORBID-1). WHY NOW: a locked Premium affordance had to be added to this
+  // component — GATE-2 (#598) shipped the 402 catch that opens the sheet, and GATE-3
+  // shipped the pre-emptive locked CTA — and this array is PR-scoped with no exception
   // mechanism, so the ban blocked it outright. Same precedent as #519 (DesktopShell.tsx)
   // and PR-C1 (checkSolution.cjs): THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
   //
@@ -533,7 +534,9 @@ const FORBIDDEN = [
   // rendered behaviour — so until now the FORBIDDEN entry was the whole protection.
   //
   // THE REPLACEMENT: `lazytopper/src/components/question/SolutionChecker.contract.test.tsx`
-  // — 20 targeted tests pinning the autoGrow opt-out (with a POSITIVE CONTROL, so the
+  // — targeted tests (count deliberately NOT recorded here: a carried number goes stale
+  // the first time a test is added, and this comment is not what re-reads it) pinning
+  // the autoGrow opt-out (with a POSITIVE CONTROL, so the
   // negative assertion cannot pass vacuously if `--grow` is ever renamed), the public
   // prop contract, every rendering state, the image-XOR-text grade payload, the
   // objective-signal omission rule, the versioned localStorage key, and the
@@ -604,6 +607,52 @@ check('SOLUTIONCHECKER-TESTS: the autoGrow opt-out is still pinned (the ban\'s a
 check('SOLUTIONCHECKER-TESTS: the grade-call payload and the persistence twins are still pinned',
   /checkSolutionImage\.mock\.calls/.test(scTestSrc) && /recordAttempt\.mock\.calls/.test(scTestSrc),
   'the suite no longer inspects the grader payload or the recordMistake/recordAttempt twins');
+
+// ★★ GATE-3 AMENDMENT — THE REPLACEMENT PROTECTION MUST COVER THE LAYER THAT ARRIVED.
+//
+// The block above was written when the contract suite was the WHOLE replacement for the
+// lifted ban. GATE-3 then added the visible Premium boundary to SolutionChecker — a
+// second, independently-deletable behaviour — and the checks above cannot see it: they
+// assert the autoGrow opt-out, the grade payload and the persistence twins, every one of
+// which stays green with the entire locked CTA ripped out.
+//
+// ★ THE SAME REASONING AS THE BLOCK ABOVE, APPLIED AGAIN: a lifted ban is only safe while
+// something actually asserts the behaviour. Leaving the new layer unasserted would rebuild
+// the exact hole the lift was allowed to open — protection that READS as protection.
+//
+// ⚠ AND ONE MORE THING THE CONTRACT SUITE CANNOT DO. It mocks a PREMIUM student
+// throughout (deliberately — that is what keeps its contract assertions meaning what they
+// meant before). So it is structurally incapable of noticing that the free path broke.
+// The tier matrix needs its own file, and this asserts that file exists and still has
+// teeth.
+const SC_ENTITLEMENT = 'lazytopper/src/components/question/SolutionChecker.entitlement.test.tsx';
+check(`SOLUTIONCHECKER-PREMIUM: ${SC_ENTITLEMENT} exists (the visible Premium boundary, GATE-3)`,
+  existsSync(path.join(ROOT, SC_ENTITLEMENT)),
+  'the locked CTA is a behaviour of a file whose blanket ban was lifted — without these '
+  + 'tests it can be deleted silently');
+const scEntSrc = existsSync(path.join(ROOT, SC_ENTITLEMENT)) ? read(path.join(ROOT, SC_ENTITLEMENT)) : '';
+// ★ TRIAL == PREMIUM. The single easiest thing to get wrong here, and the one with the
+// worst failure mode: a paying-equivalent student told their feature is locked.
+check('SOLUTIONCHECKER-PREMIUM: trial is still asserted to be TREATED AS PREMIUM',
+  /TRIAL: ENABLED/.test(scEntSrc),
+  'the trial==premium case is the one a tier refactor breaks first — it must stay pinned');
+// ★ A DEAD BUTTON IS WORSE THAN A LIVE ONE. The locked CTA must open the sheet, not sit
+// inert, and it must stay in the tab order.
+check('SOLUTIONCHECKER-PREMIUM: the locked CTA is still asserted LIVE and FOCUSABLE',
+  /TAPPING IT OPENS THE SHEET/.test(scEntSrc) && /document\.activeElement/.test(scEntSrc),
+  'without these the lock can decay into an inert, unreachable button and stay green');
+// ★ THE BACKSTOP. GATE-2's 402 catch is what covers a stale client view of entitlement.
+// The pre-emptive lock makes it RARE, not unnecessary — removing it would be a regression.
+check('SOLUTIONCHECKER-PREMIUM: GATE-2\'s 402 catch is still pinned (the lock did not replace it)',
+  /402/.test(scEntSrc) && /PremiumRequiredError/.test(scEntSrc),
+  'the pre-emptive lock is the optimistic layer; the 402 is the backstop for a stale '
+  + 'client view, and both must exist');
+// ★★ MOUNT != LIVE. The lane's entire risk. An assertion against <SolutionChecker> alone
+// proves the component CAN lock, never that a student REACHES the lock.
+check('SOLUTIONCHECKER-PREMIUM: the lock is still proven through a REAL PARENT\'S REAL TRIGGER',
+  /PracticeQuestionCard/.test(scEntSrc) && /MOUNT != LIVE/.test(scEntSrc),
+  'the trigger trace is what separates this from the MentorSolveDrawer defect — imported, '
+  + 'rendered, and dead');
 
 // ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED GRADER BAN (PR-C1).
 // Lifting a blanket ban is only safe if the thing replacing it actually runs. A
