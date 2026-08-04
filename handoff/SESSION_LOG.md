@@ -1,5 +1,46 @@
 ---
 
+## 2026-08-04 -- #595–#598 (WAVE 5B, four PRs / six lanes / one scout under the controller + subagent model): the retired Postgres endpoints deleted · CodeQL fixed on live server code · the never-owned domain swept and guarded · a paywall that stopped selling four things that do not exist - trunk `1adce673`
+
+**ALL FOUR OWNER LIVE-VERIFIED ON PRODUCTION.** Backend boots; `/api/check-solution` answers 402
+free-past-trial and 400 premium; the frontend reaches `/api/*` normally through Vercel's cross-origin
+rewrite after SEC-1's helmet change; a 402 still carries `error: "premium_required"`; the upgrade sheet
+appears instead of the red box and "Keep using Basic" leaves the student on the same URL; the canonical
+reads `https://lazytopper.com/`. Full controller record: `handoff/WAVE_STATE_WAVE5B_ARCHIVE.md`.
+
+**The wave's own subject: two retractions, and both were cheap because they were said out loud.**
+The controller claimed `pricing.guard.test.ts` was untouched on the strength of an unchanged test
+count — but **both observed counts were post-change commits**, so the comparison had the wrong
+baseline; META-1 had extended the file by 70 lines. **A TEST COUNT IS NOT A DIFF.** The cofounder
+then claimed the upgrade sheet had nothing to open it from a 402 — **an inference from an absence**
+(`#598` does not touch `aiClient.ts`) — and withdrew it on reading the diff. **Neither error survived
+contact with the record, and each was corrected by the other party rather than by a gate.**
+
+★ **The lanes repeatedly beat their own specs.** PG-1 found the unwire was FOUR `index.cjs` sites, not
+two. GATE-2 established that Chapter Hub is NOT retired and that FIVE severed surfaces were being sold,
+not four — **and fixed them inside `getPremiumFeatureList()`, which also repairs the live
+`UpgradeModal`, one change for both surfaces.** SEC-1 fixed the stack-trace leak **at the sink, not the
+source**, because the source was another lane's file, and it is the better fix regardless. SCOUT-1
+proved its own brief's cost premise wrong: **deleting every apparently-dead workspace member removes
+211 packages but only 4 of 103 alerts** — killing the lane that finding was meant to justify.
+
+★★ **The guard design of the wave: META-1b's SERP length cap.** The shipped description is 158 raw and
+154 rendered against a cap of 155 — **the two measurements straddle the cap, so a guard counting raw
+source would be red right now. Green is itself the proof that HTML entities are decoded** — a property
+no mutation could demonstrate.
+
+⚠ **GATE-2 shipped its honest half.** The explained layer (the sheet) and the enforced layer (GATE-1's
+402) landed; **the visible layer — a pre-emptive locked CTA — did not**, blocked by a contract test
+that pinned what the file happened to do rather than what the ban protected. **`GATE-3` is one lane in
+Wave 5C; `#598` is not reopened.** `[FU-CONTRACT-TESTS-OVERPIN-CURRENT-BEHAVIOUR]`
+
+⚠ **And the product found what no gate could:** `/sign-up` is linked from nowhere, so every student
+enters through the sign-in intent, **which has no name field — every new account is created with no
+`displayName`.** AUTH-3 preserved the field; the one-door redesign orphaned the route to it.
+`[FU-AUTH-SIGNUP-ROUTE-UNREACHABLE]`
+
+---
+
 ## 2026-08-03 -- #579–#582 (WAVE 5A, four PRs / five lanes under a controller + subagent model): the server-side paywall closed and live-verified · one door and a verified email · a blanket ban replaced by tests that actually assert something · and a merged, green, CORRECT fix that never shipped - trunk `59ba4da2`
 
 **Four PRs. Zero open product PRs at close** (five Dependabot PRs `#583`–`#587` opened after #579 landed, and are dependency manifests, not lanes). `c5570592` → `528abb1` (#581, FORBID-1) → `cd0a6f0` (#580, GATE-1 + the GATE-1b wiring commit `aeae3ebe`) → `8720849` (#582, AUTH-3) → **`59ba4da2` (#579, SUPPLY-1, deliberately last — the moment it lands, CodeQL begins running on every other open PR)**. **The wave base did not move for the whole build phase**; all four lanes were built in parallel from it, disjointness verified from the declared allowlists, no path in two lanes.

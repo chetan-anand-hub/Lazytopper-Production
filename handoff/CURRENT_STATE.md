@@ -1,6 +1,91 @@
 # LazyTopper — Current State
 
-## [CURRENT] #579–#582 merged — ★★ WAVE 5A: THE PAYWALL IS CLOSED ON THE SERVER · ONE DOOR AND A VERIFIED EMAIL · A BLANKET BAN REPLACED BY TESTS · AND A MERGED, GREEN, CORRECT FIX THAT NEVER SHIPPED — trunk `59ba4da2`
+## [CURRENT] #595–#598 merged — ★★ WAVE 5B: THE RETIRED POSTGRES ENDPOINTS DELETED · CODEQL FIXED ON LIVE SERVER CODE · THE NEVER-OWNED DOMAIN SWEPT · AND A PAYWALL THAT STOPPED SELLING FOUR THINGS THAT DO NOT EXIST — trunk `1adce673`
+
+**Four PRs, six lanes, one scout, under the controller + subagent model. ALL FOUR OWNER
+LIVE-VERIFIED ON PRODUCTION.** *(Wave 5A's handoff had to record verifies as owed. This one does not.)*
+
+```
+1adce673  feat(subscription): the upgrade sheet, and stop selling retired surfaces (GATE-2) #598
+429a7b9f  fix(seo): point the whole SEO surface at the owned domain, and guard it (META-1)  #597
+31138c95  fix(security): the CodeQL findings on live server code (SEC-1)                    #596
+d7100a54  feat(server): delete the retired progress endpoints (PG-1)                        #595
+```
+**Trunk moved `59ba4da2` → `d98ff4c` (#593) → `29f3269` (#584) → `d7100a54` → `31138c95` →
+`429a7b9f` → `1adce673`.** ⚠ **This file previously claimed `59ba4da2` — six merges stale.**
+
+**Full controller record: `handoff/WAVE_STATE_WAVE5B_ARCHIVE.md`** — both retractions, the FORBID-3
+ruling, the four approvals, the merge record, the FU ledger.
+
+### ★★ LIVE-VERIFIED ON PRODUCTION — owner-run, browser and API
+- Backend **boots** after PG-1; `/api/check-solution` answers **402** free-past-trial, **400** premium.
+- ★ **The frontend reaches `/api/*` normally after SEC-1's helmet change** — no CORS errors, real page
+  load through Vercel's cross-origin rewrite. **SEC-1's CSP argument holds in practice.**
+- A 402 still carries `error: "premium_required"` and its message.
+- ★ **The upgrade sheet appears instead of the red box.** "Keep using Basic" closes it and leaves the
+  student **on the same URL**; "See plans" navigates. The sheet lists **only** Unlimited Mock Tests,
+  Exam Simulation, Chapter Hub, Weak Area Practice.
+- **The canonical reads `https://lazytopper.com/`** — confirmed by fetching the live page.
+- Premium grading still works end to end.
+
+### ⚠⚠ SAY IT PLAINLY: GATE-2 SHIPPED ITS HONEST HALF
+**The *explained* layer (the sheet) and the *enforced* layer (GATE-1's 402) landed. §1's *visible*
+layer — the pre-emptive locked CTA reading `Premium` before the tap — DID NOT.**
+A blocked student now sees a sheet rather than a red box, which is the improvement; but **a student
+still learns the boundary by bouncing off it, not before tapping.**
+⇒ **`GATE-3` is ONE lane in Wave 5C** — FORBID-3's amendment **+** the `useSubscription` test-setup
+change **+** the `entitled` prop **+ the parents that pass it.** **Shipping any subset produces a
+locked CTA nothing renders. `#598` is NOT reopened.**
+
+### ★★ WHAT THE LANES FOUND THAT THEIR SPECS DID NOT KNOW
+- **PG-1:** the unwire was **FOUR** `index.cjs` sites, not the spec's two — the factory call and seven
+  CORS-preflight arms were unnamed, and the cited line numbers were stale. All **7** handlers removed
+  (incl. `handleMission`). Boot proven by mutation → `MODULE_NOT_FOUND`, restore SHA-verified.
+- **SEC-1:** fixed the stack-trace leak **at the SINK, not the source**, because the source is PG-1's
+  `index.cjs` — *"a per-call-site fix is only ever as complete as the grep behind it,"* **and it is the
+  better fix independent of the lane boundary.** It **mirrored** the rate limiter rather than importing
+  or inventing one, **keying on the server-decoded `req.userId` rather than the spoofable header —
+  strictly better than the mechanism it copied.** ★ **It refused to claim its own CodeQL alerts
+  cleared:** *"An empty result set is not a cleared set."*
+  ⚠ **Alerts `#26`–`#29` are EXPECTED to survive — CodeQL recognises named limiter packages and this
+  one is hand-rolled. THAT IS NOT A FAILURE OF THE LANE.**
+- **META-1:** ★ the `raw=158 / rendered=154 / cap=155` **straddle** — the two measurements sit either
+  side of the cap, so **a guard counting raw source would be red; green is itself the proof that HTML
+  entities are decoded.** A property no mutation could demonstrate.
+- **META-1c:** *"a comment is a claim; the missing `<Route>` is the fact"* — it verified a surface was
+  unreachable by **enumerating all 47 routes**, not by trusting a `DEFERRED-REVIVE` comment.
+- **GATE-2:** corrected its own spec twice — **Chapter Hub is NOT retired** (`/topic-hub` + 2 child
+  routes are live), and **FIVE** severed surfaces were being sold, not four (it caught
+  `parent_dashboard` and `predicted_questions`). ★★ **And it fixed them in a better place than the spec
+  asked: filtering inside `getPremiumFeatureList()` ALSO repairs the live `UpgradeModal`, with no file
+  outside the allowlist. One change, both surfaces — the difference between fixing an instance and
+  fixing a source.** Gating provably unchanged.
+- **GATE-2b:** ⚠ **assertion 8 (429) passes for the wrong reason** — the 429 branch precedes the 402
+  one, so it is protected by **branch ORDERING, not the predicate it appears to test.** **Reordering
+  those two branches is a change no test would catch.**
+- **SCOUT-1 (zero files changed):** ⚠⚠ **it proved its own brief's premise wrong.** Hono/morgan/`re2`
+  resolve through the **root** importer via `firebase-tools`, **not** through any workspace member ⇒
+  **deleting every apparently-dead member removes 211 of 1,417 packages but only 4 of 103 alerts.**
+  A workspace-deletion lane is **not** worth scheduling on supply-chain grounds.
+
+### ⚠ TWO RETRACTIONS THIS WAVE — both recorded, both cheap because they were said out loud
+1. **CONTROLLER:** *"`pricing.guard.test.ts` is untouched — still 9 tests"* was **FALSE**. META-1 had
+   extended it by 70 lines. **Both observed counts were POST-change commits**, so the comparison had
+   the wrong baseline. ⇒ **A TEST COUNT IS NOT A DIFF** — the same shape as `MOUNT ≠ LIVE` and
+   `MERGED ≠ DEPLOYED`. `[FU-CONTROLLER-TEST-COUNT-IS-NOT-A-DIFF]`
+2. **COFOUNDER:** *"the sheet exists and nothing opens it from a 402"* was **FALSE** — an inference from
+   an absence (`#598` does not touch `aiClient.ts`). `SolutionChecker`'s catch detects
+   `PremiumRequiredError` and renders the sheet. **GATE-2's design beats the spec's: one opener,
+   structurally incapable of double-firing, rather than an emitter that could race the catch.**
+
+### ★ LANE-OVERLAP — SETTLED BY EVIDENCE, three runs with real comparators
+**It IS a real gate** (it ran and reported), **and it matches by EXACT FILE LIST, not directory
+prefix** — `files.filter(f => mineSet.has(f))`. PG-1 and SEC-1 shared `lazytopper/server/` and passed.
+⇒ **Directory-sharing lanes may be parallelised.** ⚠ **Do NOT carry "it gates nothing" forward, and do
+not grep `lane_overlap.mjs` for `startsWith` — that hit is in `isGated()`, a non-fatal warn, and
+suggests the opposite conclusion.**
+
+## (superseded) [CURRENT] #579–#582 merged — ★★ WAVE 5A: THE PAYWALL IS CLOSED ON THE SERVER · ONE DOOR AND A VERIFIED EMAIL · A BLANKET BAN REPLACED BY TESTS · AND A MERGED, GREEN, CORRECT FIX THAT NEVER SHIPPED — trunk `59ba4da2`
 
 **Five lanes, four PRs, run under a controller + subagent model. All four merged. All owner
 live-verified on the deployed product.** Trunk moved `c5570592` → **`528abb1` (#581, FORBID-1)** →

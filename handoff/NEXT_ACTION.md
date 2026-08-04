@@ -1,5 +1,93 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-03 (post-**#579–#582 — WAVE 5A**, four PRs / five lanes under a controller + subagent model. Trunk `59ba4da2`. **Both live-verifies are DONE** — the paywall and the door are confirmed on the deployed product. **TWO LAUNCH-BLOCKING items are open, and one of them is not an agent lane.** Wave 5B is planned below and **NOT dispatched.**)
+# Updated: 2026-08-04 (post-**#595–#598 — WAVE 5B**, four PRs / six lanes / one scout under the controller + subagent model. Trunk `1adce673`. **ALL FOUR OWNER LIVE-VERIFIED ON PRODUCTION.** Full controller record in `handoff/WAVE_STATE_WAVE5B_ARCHIVE.md`.)
+
+## NEXT — 2026-08-04 (post-#595–#598, WAVE 5B). Read this block first.
+
+### 🛑🛑 0 · THE ONE ITEM THAT IS NOT A CODE LANE — `BANK-1`, AND IT IS THE OWNER'S SUBJECT
+
+⚠⚠ **`cbse10Registry_2026_27.json` IS THE AUTHORITATIVE SYLLABUS REGISTRY. These students sit the
+2027 boards. `cbse10Registry_2025_26.json` IS THE WRONG FILE.** Owner ruling, 2026-08-04. **Anything
+deriving syllabus scope from the 2025-26 file is deriving it from the wrong year.**
+
+**`BANK-1` — RULED AND SPECCED, WAITING.** Four unimported science packs in `lib/shared-data`:
+- ❌ **DELETE `heredity.pack1` and `magneticEffects.pack1`** — mismatched solution steps, **24 of 42
+  boilerplate explanations.**
+- ✅ **WIRE `heredity.pack2` and `magneticEffects.pack2`** — ~97 questions, sound.
+
+> ⚠ **THIS CORRECTS AN EARLIER FRAMING, AND THE CORRECTION MATTERS.** SCOUT-1 flagged these as
+> *"banned-topic packs on trunk"* against CLAUDE.md §5. **That framing was wrong: the content is IN
+> syllabus for 2026-27.** The real defect was **solutions that do not match their questions.**
+> ⇒ *A file name that looks like a doctrine violation is not one. The owner is the sole content
+> authority and this is exactly why the ruling was his.*
+
+### 1 · THE LANE QUEUE, IN ORDER
+1. **`BANK-1`** — above. Content, owner-specced.
+2. **`CI-DOCS`** — ▶ **ITS GATE IS NOW MET** (#595 and #596 merged and closed). Brief:
+   `C:\Projects\LT-wave5b\specs\SUBAGENT_CIDOCS_docs_fast_path_v1.1.md`.
+   ⚠ **It SPLITS, it does not TRIM** — a fast path for mid-wave docs PRs, **the full bar retained
+   deliberately for the wave-closing one, because that is the project's ONLY integration run.**
+   ⚠⚠ **TRIAGE `#599` FIRST** (dependabot, `actions/checkout` 5→7). It touches `.github/workflows/`.
+   **`lane-overlap` matches EXACT FILE LISTS, so it collides only if `#599` touches
+   `quality-gate.yml` itself — VERIFY THAT, do not assume either way.**
+   ⚠ **Also wire SEC-1's two new `.cjs` suites into the CI chain** — they are green locally and
+   **ungated in CI** because wiring needs `lazytopper/package.json`, which is CI-DOCS'.
+   `[FU-SEC1-CI-WIRE-SERVER-TESTS]`
+3. **`GATE-3`** — ONE lane: FORBID-3's amendment **+** the `useSubscription` test-setup change **+**
+   the `entitled` prop **+ the parents that pass it** (`MockViewGate`, `PracticeLimitGate`,
+   `RequireAuth`, `TrialBanner`, `App.tsx`). **Any subset ships a locked CTA nothing renders — that is
+   MOUNT-NOT-LIVE, the defect the owner caught with `MentorSolveDrawer`.** **`#598` is NOT reopened.**
+4. **`NAME+LINK`** — `[FU-AUTH-SIGNUP-ROUTE-UNREACHABLE]`, below. Small, and it is corrupting real
+   student data every day it stands.
+5. **`ME-PROGRESS`**, then the payment lanes.
+
+### 🛑 2 · `[FU-AUTH-SIGNUP-ROUTE-UNREACHABLE]` — FOUND BY USING THE PRODUCT, NOT BY A GATE
+The name field **exists and works** (`Login.tsx:1943`, rendered when `intent="create"`). **But nothing
+in the product links to `/sign-up`** — it appears in exactly **two** places on trunk: the `App.tsx`
+route and a comment. **`/login` is linked from eight files.**
+⇒ **Every student enters via `intent="signin"`, which has no name field, so EVERY NEW ACCOUNT IS
+CREATED WITH NO `displayName`** — putting a raw email address into the six surfaces PR-B2 fixed.
+> ★ **AUTH-3 correctly PRESERVED the field; the one-door redesign ORPHANED the route to it.**
+> **`MOUNT ≠ LIVE`, one layer up: the component is reachable, the page is not.** Neither lane was
+> wrong on its own terms, and no gate can see a route nobody links to.
+
+### 3 · THREE MORE NEW FINDINGS — none blocking
+- **`[FU-GRADING-LATENCY-17S]`** — a production `check-solution` took **17.3s**, another 7.0s (owner
+  HAR, 139 requests). ⚠ **The batch-grading arc makes this worse before better.**
+- **`[FU-COOP-BLOCKS-POPUP-CLOSED-CHECK]`** — four `Cross-Origin-Opener-Policy would block the
+  window.closed call` errors per session. ⚠ **NOT SEC-1's doing** — the header was present the previous
+  morning. COOP `same-origin` conflicts with Firebase `signInWithPopup`, i.e. **Google sign-in.**
+  Works today; **the kind of thing a browser update breaks.**
+- **`[FU-USER-PROGRESS-BARE-PATH-STILL-ANSWERS]`** — `/api/user/progress` (no subpath) returns **400,
+  not 404**, while `/xp` and `/streak` correctly 404. **Something still answers the bare path; the
+  cofounder explicitly declined to guess what.**
+- ✅ **`[FU-DBSYNC-CLIENT-CALLERS-DEAD]` — CONFIRMED LIVE.** The owner's HAR shows exactly one failure
+  in 139 requests: `POST /api/user/progress/focus → 404`. **PG-1's prediction, observed.** The client
+  still calls deleted routes every session. **The server side is gone; the client still calls it.
+  This is NOT "the Postgres layer is removed."**
+
+### 4 · ⚠ THE BUILD-PATH RULE THAT NOW BINDS EVERY LANE
+`#593` deleted the stale `lazytopper/package-lock.json` — **Dependabot alerts 179 → 103, Clerk 3 → 0,
+finishing the June teardown.** Vercel's install command became `pnpm install --frozen-lockfile`, so
+**all four build paths — Docker, CI, Vercel, local — now install exactly what the lockfile pins.**
+⇒ ⚠⚠ **A MANIFEST CHANGE WITHOUT A MATCHING `pnpm-lock.yaml` UPDATE NOW FAILS THE VERCEL BUILD TOO,
+not just CI.**
+
+### 5 · ⚠ REISSUE THE FORBIDDEN MAP — it is stale
+`LazyTopper_FORBIDDEN_MAP_2026-08-02.md` was derived at `c557059`. **CONV no longer lists
+`SolutionChecker.tsx`** (FORBID-1 landed after); every other row still matches. **SEC-1 and GATE-2
+re-derived it independently and agreed — which is why the staleness cost nothing.**
+⇒ **Reissue at current trunk WITH THE DERIVATION SHA ON ITS FACE.** *A map is a derived value, and a
+derived value outlives the facts it came from.*
+
+### 6 · STILL OWED, OWNER-ONLY
+- ⚠ **`og-image.png` RE-EXPORT.** The SVG rendered `lazytopper.app` **as text inside the image**; the
+  PNG is untouched and **no text scan can verify a bitmap.** If it was exported from that SVG, **every
+  share card still carries the dead domain.** `[FU-OG-IMAGE-PNG-REEXPORT]`
+- **`[FU-AUTH-VERIFY-EMAIL-DELIVERABILITY]`** — verification mail lands in Spam. Needs a Firebase
+  custom action-handler domain on `lazytopper.com` + authenticated SMTP. **Pre-launch blocking, and no
+  agent can close it.**
+
+---
 
 ## NEXT — 2026-08-03 (post-#579–#582, WAVE 5A). Read this block first.
 
