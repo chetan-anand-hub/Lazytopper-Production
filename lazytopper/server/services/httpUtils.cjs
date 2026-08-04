@@ -1,10 +1,78 @@
+/**
+ * ────────────────────────────────────────────────────────────────────────────
+ * ERROR-DETAIL REDACTION  (CodeQL js/stack-trace-exposure)
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ * ★ THE LEAK, TRACED — not guessed. CodeQL's flow for this alert runs:
+ *     index.cjs `err` -> `String(err)` -> `err?.message || String(err)`
+ *       -> `{ ok, error, details }` -> httpUtils `body` -> `JSON.stringify(body)`
+ * i.e. a caught error's own text is serialised straight into a 500 body under a
+ * `details` key. Node's error text routinely carries absolute paths (`ENOENT
+ * ... /app/lazytopper/server/...`), module specifiers and dependency names, so
+ * the response hands an attacker the file layout for free.
+ *
+ * ★ WHY THE FIX IS HERE, AT THE SINK, AND NOT AT THAT CALL SITE. Two reasons,
+ * and the second is the one that matters. First, `sendJson` is the single exit
+ * every route body passes through, so one guard covers all of them. Second, a
+ * per-call-site fix is only ever as complete as the grep behind it: the same
+ * `details:` shape is emitted from FOUR places today (`index.cjs` x2,
+ * `diagrams.cjs`, `moreLikeThis.cjs`), and the next one added would ship
+ * unguarded. A sink-side guard cannot be forgotten by a new caller.
+ *
+ * ★★ THE RESPONSE CONTRACT IS PRESERVED EXACTLY. `aiClient.ts` parses this body
+ * and reads `error`, `message`, `feature`, `tier`, `trialEndedAt`, `class`,
+ * `resetAt`. NONE of those are touched — only the diagnostic keys below are, and
+ * `details` is read by no client in the repo (verified by grep over
+ * `lazytopper/src/`). A 402 therefore still carries `error: "premium_required"`
+ * and its student-facing `message`, which is what the paywall copy renders.
+ */
+const DIAGNOSTIC_KEYS = new Set(['details', 'detail', 'stack', 'stackTrace', 'trace', 'errorStack']);
+
+/** What replaces a diagnostic value. Names nothing: no path, no module, no version. */
+const REDACTED_DETAIL = 'Details omitted. See server logs.';
+
+/** A V8 stack frame: `\n    at fn (/abs/path/file.cjs:1:2)`. */
+const STACK_FRAME = /\n\s+at\s+.*/g;
+
+/**
+ * Strip stack frames from any string that carries them.
+ *
+ * This is the belt to the `DIAGNOSTIC_KEYS` braces: it catches a stack that
+ * arrives under a key nobody thought to list. A genuine student-facing string
+ * can never contain a V8 frame, so this cannot corrupt real copy.
+ */
+function stripStackFrames(text) {
+  // `.replace` with a /g regex always scans from 0 and resets `lastIndex`;
+  // `.test` with a /g regex does NOT, and would alternate true/false across
+  // calls. Hence replace-then-compare rather than test-then-replace.
+  const cleaned = text.replace(STACK_FRAME, '');
+  return cleaned === text ? text : cleaned.trim();
+}
+
+/**
+ * Walk a response body and neutralise error internals.
+ * Structure and every non-diagnostic key are returned untouched.
+ */
+function redactErrorDetails(value, depth = 0) {
+  if (depth > 8) return value;
+  if (typeof value === 'string') return stripStackFrames(value);
+  if (Array.isArray(value)) return value.map((item) => redactErrorDetails(item, depth + 1));
+  if (!value || typeof value !== 'object') return value;
+
+  const out = {};
+  for (const [key, child] of Object.entries(value)) {
+    out[key] = DIAGNOSTIC_KEYS.has(key) ? REDACTED_DETAIL : redactErrorDetails(child, depth + 1);
+  }
+  return out;
+}
+
 function createHttpUtils(corsOrigin) {
   function sendJson(res, status, body) {
     res.writeHead(status, {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': corsOrigin,
     });
-    res.end(JSON.stringify(body));
+    res.end(JSON.stringify(redactErrorDetails(body)));
   }
 
   function sendJsonWithHeaders(res, status, body, extraHeaders) {
@@ -13,7 +81,7 @@ function createHttpUtils(corsOrigin) {
       'Access-Control-Allow-Origin': corsOrigin,
       ...(extraHeaders || {}),
     });
-    res.end(JSON.stringify(body));
+    res.end(JSON.stringify(redactErrorDetails(body)));
   }
 
   return { sendJson, sendJsonWithHeaders };
@@ -77,4 +145,11 @@ function readJson(req, maxBytes = 5 * 1024 * 1024) {
   });
 }
 
-module.exports = { createHttpUtils, extractJsonObjectFromText, readJson };
+module.exports = {
+  createHttpUtils,
+  extractJsonObjectFromText,
+  readJson,
+  redactErrorDetails,
+  DIAGNOSTIC_KEYS,
+  REDACTED_DETAIL,
+};

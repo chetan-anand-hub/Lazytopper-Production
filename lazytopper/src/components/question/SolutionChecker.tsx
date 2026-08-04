@@ -1,5 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
+import {
+  checkSolutionImage,
+  type CheckSolutionResponse,
+  type MistakeType,
+  type PremiumRequiredError,
+} from "../../ai/aiClient";
+import { UpgradeSheet, labelForFeature } from "../subscription/UpgradeSheet";
 import { useAuth } from "../../context/AuthContext";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
@@ -254,6 +260,26 @@ export function SolutionChecker({
   const [isFromCache, setIsFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logStatus, setLogStatus] = useState<LogStatus>("pending");
+  /**
+   * GATE-2 — the Premium boundary, when the server refuses a grade (402).
+   *
+   * ★★ ONE OPENER, DELIBERATELY: `handleCheck`'s catch, and nothing else. An earlier
+   * draft ALSO had aiClient broadcast the refusal to a subscriber here, so one
+   * blocked tap would have opened the sheet twice. Two mechanisms for one event is
+   * how a double-open gets built; there is exactly one, and it is the catch.
+   *
+   * ⚠ AND WHY THE DETECTION IS BY `name`, NOT `isPremiumRequiredError`.
+   * `SolutionChecker.contract.test.tsx` (FORBID-1's replacement for the blanket ban)
+   * mocks `../../ai/aiClient` as a COMPLETE REPLACEMENT exporting only
+   * `checkSolutionImage`. Any new VALUE import from that module throws
+   * "No X export is defined on the mock" in all 19 of its tests — verified, not
+   * assumed — and that suite must pass UNMODIFIED. Type-only imports are erased and
+   * stay safe. So the branch reads the `name` the class already sets, which needs no
+   * runtime import and behaves identically for the real error.
+   */
+  const [premiumBlock, setPremiumBlock] = useState<
+    Pick<PremiumRequiredError, "feature" | "trialEndedAt"> | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backfilledRef = useRef<string | null>(null);
 
@@ -396,7 +422,20 @@ export function SolutionChecker({
         setLogStatus("unavailable");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to check solution");
+      // ★ A LOCKED FEATURE IS NOT A FAULT. GATE-1's copy is correct and kind, but it
+      // used to land in the error box below — red text, red border — which told the
+      // student they had done something wrong at the exact moment they had not.
+      // Owner-verified live. The sheet (opened by the subscription above) carries
+      // this now, so the refusal deliberately sets NO error string.
+      // 429 and 500 are untouched and still render there: rate-limited or broken is
+      // not unentitled, and a student who meets an upgrade sheet during an outage
+      // learns something false about the product.
+      if (err instanceof Error && err.name === "PremiumRequiredError") {
+        const premium = err as PremiumRequiredError;
+        setPremiumBlock({ feature: premium.feature, trialEndedAt: premium.trialEndedAt });
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to check solution");
+      }
       setLogStatus("unavailable");
     } finally {
       setLoading(false);
@@ -677,6 +716,19 @@ export function SolutionChecker({
         >
           {loading ? "Checking your answer..." : "Check my answer"}
         </button>
+      )}
+
+      {/* ── Premium boundary (GATE-2) ──────────────────
+          Mounted ONLY while blocked. `UpgradeSheet` calls router hooks, and this
+          component is rendered by suites that mount no router, so an always-mounted
+          `open={false}` sheet would throw for every one of them. Conditional mount
+          is the contract, not an optimisation. */}
+      {premiumBlock && (
+        <UpgradeSheet
+          featureLabel={labelForFeature(premiumBlock.feature)}
+          trialEndedAt={premiumBlock.trialEndedAt}
+          onClose={() => setPremiumBlock(null)}
+        />
       )}
 
       {/* ── Error ────────────────── */}
