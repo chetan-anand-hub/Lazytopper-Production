@@ -12,6 +12,85 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+
+## 2026-08-04 — WAVE 5B (#595–#598). Full bodies in `handoff/WAVE_STATE_WAVE5B_ARCHIVE.md`.
+
+### `[FU-AUTH-SIGNUP-ROUTE-UNREACHABLE]` — ⚠ corrupting real data today
+The name field exists and works (`Login.tsx:1943`, rendered when `intent="create"`), but **nothing in
+the product links to `/sign-up`** — two occurrences on trunk: the `App.tsx` route and a comment.
+`/login` is linked from eight files. **Every student enters via `intent="signin"`, which has no name
+field, so every new account is created with no `displayName`**, putting a raw email into the six
+surfaces PR-B2 fixed. **AUTH-3 preserved the field; the one-door redesign orphaned the route to it.**
+*Mount ≠ live, one layer up: the component is reachable, the page is not.* → `NAME+LINK`, Wave 5C.
+
+### `[FU-CONTRACT-TESTS-OVERPIN-CURRENT-BEHAVIOUR]` — the generalisation, worth more than its fix
+FORBID-1's contract asserts a **non-entitled student sees an ENABLED** "Check my answer" button. That
+protected none of what the ban protected (`EquationInput`/`autoGrow`, the prop contract, render states,
+payload shape) — **it froze the behaviour that happened to be current the day it was written, and
+thereby silently forbade the next intended change.**
+> **A guard replacing a blanket ban must pin WHAT THE BAN PROTECTED, not WHAT THE FILE DID THAT DAY.**
+> The second is easy to write, passes immediately, and blocks the future. **FORBID-1 was excellent work
+> and still did this** — which is why this is a rule, not a criticism.
+**FORBID-3 = replace that one assertion.** Do not weaken `autoGrow`/`maxRows` or the payload shape.
+
+### `[FU-GATE2-LOCKED-CTA-BLOCKED-BY-CONTRACT]` — and FORBID-3 alone does NOT unblock it
+Two of three blocks survive the amendment: **(2)** `useSubscription` cannot be added under the current
+test setup — no global firebase mock, and the mocked truthy `uid` fires `hydrateSubscriptionFromCloud`
+against real Firestore in jsdom (**test-infrastructure, not a contract amendment**); **(3)** an
+`entitled` prop would have **no caller** — the parents belong to other lanes (**MOUNT-NOT-LIVE**).
+⇒ **`GATE-3` = amendment + test setup + prop + parents, ONE lane.**
+
+### `[FU-CONTROLLER-TEST-COUNT-IS-NOT-A-DIFF]` — controller error, retracted
+"Still 9 tests" was read as "file unchanged". **Both observations were POST-change commits**; META-1
+had added +70 lines. **A count is not a diff** — same shape as `MOUNT ≠ LIVE`, `MERGED ≠ DEPLOYED`.
+
+### `[FU-AICLIENT-402-429-ORDER-UNPINNED]`
+The 429 branch precedes the 402 branch, so the "a 429 does not open the sheet" assertion passes by
+**branch ORDERING, not by the predicate it appears to test. Reordering the two is a change no test
+would catch.**
+
+### `[FU-USER-PROGRESS-BARE-PATH-STILL-ANSWERS]`
+`/api/user/progress` (no subpath) returns **400, not 404**, while `/xp` and `/streak` correctly 404.
+**Something still answers the bare path — not established, and deliberately not guessed at.**
+
+### `[FU-GRADING-LATENCY-17S]`
+A production `check-solution` took **17.3s**; another 7.0s (owner HAR, 139 requests). ⚠ **The
+batch-grading arc makes this worse before better.**
+
+### `[FU-COOP-BLOCKS-POPUP-CLOSED-CHECK]`
+Four `Cross-Origin-Opener-Policy would block the window.closed call` errors per session. ⚠ **Not
+SEC-1's doing** — present the previous morning. COOP `same-origin` vs Firebase `signInWithPopup`
+(**Google sign-in**). Works today; the kind of thing a browser update breaks.
+
+### `[FU-DBSYNC-CLIENT-CALLERS-DEAD]` — ✅ CONFIRMED LIVE
+Owner HAR: exactly one failure in 139 requests, `POST /api/user/progress/focus → 404`. **PG-1's
+prediction, observed.** Server side gone, client still calling. **Not "the Postgres layer is removed."**
+
+### `[FU-SEC1-CI-WIRE-SERVER-TESTS]`
+SEC-1's two new `.cjs` suites are green locally and **ungated in CI** — wiring needs
+`lazytopper/package.json`, which is CI-DOCS'. **Fold into CI-DOCS.**
+
+### `[FU-SCOUT1-ALERTS-ARE-NOT-A-WORKSPACE-PROBLEM]`
+Hono/morgan/`re2` resolve through the **root** importer via `firebase-tools`, not any workspace member.
+**Deleting every apparently-dead member removes 211 of 1,417 packages but only 4 of 103 alerts.** The
+real levers are `firebase-tools` (26 exclusive) and lazytopper's own tree (31). **A workspace-deletion
+lane is not worth scheduling on supply-chain grounds.**
+
+### `[FU-SCOUT1-VALIDATEBANKS-NOT-IN-CI]` — ⚠ green in CI, red on deploy
+CI never runs the root `pnpm run build`, so `validateQuestionBanks` and `syllabusGuard` are gated
+**only by the Railway Docker build.** → CI-DOCS' successor, **not** CI-DOCS itself.
+
+### Also filed
+`[FU-OG-IMAGE-PNG-REEXPORT]` (owner-only; a bitmap cannot be text-scanned) ·
+`[FU-SPA-NO-PER-ROUTE-METADATA]` (all 7 sitemap URLs serve identical metadata; long-tail search is
+structurally unreachable) · `[FU-FORBIDDEN-MAP-STALE-SOLUTIONCHECKER]` (reissue with the derivation SHA
+on its face) · `[FU-SUBAGENT-DISK-WRITE-PATH-OK]` (shell writes to `Desktop\diff\` are **not** blocked;
+only the `Write` tool refuses `.md`) · `[FU-LANE-OVERLAP-FILE-EXACT-NOT-DIRECTORY]` (it **does** gate,
+and matches exact file lists) · `[FU-PREDICTIVE-PAPERS-STRING-IN-TUTOR-DATA]` ·
+`[FU-GATE2-ASSERTIONS-4-AND-11-UNTESTED]` · `[FU-402-INLINE-MESSAGE-ABSENCE-UNPINNED]` ·
+`[FU-FEATUREGATES-RETIRED-ENTRIES]` · `[FU-SEC-DIAGRAMS-SANITISER]` (7 high alerts, deliberately
+excluded) · `[FU-SCOUT1-LIBDB-IS-SCHEMA-OF-RECORD]` · `[FU-DOCKERFILE-STALE-PM-COMMENT]`
+
 ## 2026-08-03 — Post-Wave-5A (#579–#582, four PRs / five lanes). Trunk `59ba4da2`.
 
 > **★ PROVENANCE FOR THIS SECTION.** Bodies below are authored from the controller's state file, the

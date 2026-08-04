@@ -3205,3 +3205,5 @@ Maths chapters pending (all 14):
 real-numbers, polynomials, pair-of-linear-equations-in-two-variables, quadratic-equations, arithmetic-progressions, triangles, coordinate-geometry, trigonometry, areas-related-to-circles, surface-areas-and-volumes, statistics, probability, circles
 
 Exit gate: _validate_pack.py ALL FILES PASS + tsc -p tsconfig.app.json --noEmit PASS + smoke test 5/5 PASS per session
+
+> **2026-08-04 · WAVE 5B COMPLETE (#595-#598, trunk `1adce673`), all four owner live-verified.** PG-1 (retired progress endpoints deleted), SEC-1 (CodeQL on live server code), META-1 (owned-domain sweep + guards), GATE-2 (upgrade sheet - **honest half; the pre-emptive locked CTA is deferred to `GATE-3`, Wave 5C**). **Next: `BANK-1`, then `CI-DOCS` (gate met), `GATE-3`, `NAME+LINK`.**
