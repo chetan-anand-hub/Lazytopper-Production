@@ -32,7 +32,7 @@
  *
  * Run from lazytopper/: node scripts/ops/quick_practice_overlay_additive_acceptance.mjs
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -68,6 +68,7 @@ function section(t) {
 
 const pageRaw = read("src/pages/PracticePage.tsx");
 const page = stripComments(pageRaw);
+const app = stripComments(read("src/App.tsx"));
 const hostRaw = read("src/pages/tutor/TutorQuickPracticeOverlay.tsx");
 const host = stripComments(hostRaw);
 const hook = stripComments(read("src/pages/tutor/useTutorSession.ts"));
@@ -101,7 +102,28 @@ check(
 );
 
 // GUARD 3 — the App route element is untouched (Option A mounts the overlay in the tutor, never
-// via the route). Asserted as a forbidden zero-diff on App.tsx in §4.
+// via the route).
+//
+// ★ THIS USED TO BE A COMMENT AND NOTHING ELSE. It read "Asserted as a forbidden zero-diff on
+// App.tsx in §4" and delegated the WHOLE assertion to that blanket ban — so when FORBID-4 lifted
+// the ban (see §4), this property would have been left with no executable coverage anywhere in
+// the repo. It is now asserted directly, as the twin of the C&I gate's GUARD 5.
+//
+// DELIBERATELY NARROW. It pins ONLY what the ban was buying: the route exists, and PracticePage is
+// mounted PROPLESS. It does NOT pin the wrapper chain (MobileSelfChrome / PracticeLimitGate /
+// SectionErrorBoundary / withRouteSuspense), because none of that is what the overlay contract
+// depends on, and over-pinning a file's incidental shape is how a replacement guard blocks an
+// unrelated lane later. [FU-CONTRACT-TESTS-OVERPIN-CURRENT-BEHAVIOUR]
+check(
+  "GUARD 3: the /practice/:grade/:subject route still exists in App",
+  /path="\/practice\/:grade\/:subject"/.test(app),
+);
+check(
+  "GUARD 3: App mounts <PracticePage /> PROPLESS — no overlay prop via the route (Option A)",
+  /<PracticePage \/>/.test(app) && !/<PracticePage\s+[^/>]/.test(app),
+  "the overlay is mounted inside the tutor by TutorQuickPracticeOverlay, never by the route — "
+  + "an `overlay=` here would put a direct/hub visit into overlay mode",
+);
 
 /* ══════════════════════════════════════════════════════════════════════════
    2 · THE OVERLAY-GATED HUNKS — every behavioural change is behind `overlay`.
@@ -316,13 +338,108 @@ const EVENT = process.env.GITHUB_EVENT_NAME || null;
 const PR_TARGET = process.env.GITHUB_BASE_REF || null;
 
 const FORBIDDEN = [
+  // ★★ App.tsx — blanket ban LIFTED 2026-08-04 (owner decision, Wave 5C lane FORBID-4), in
+  // LOCK-STEP with the identical entry in check_improve_overlay_additive_acceptance.mjs.
+  // APP.TSX WAS BANNED IN TWO GATES, NOT ONE — amending only one would have left the other red
+  // and blocked ME-PROGRESS anyway while looking unblocked. Both were amended in the same PR.
+  // (It is NOT in check_improve_convergence_acceptance.mjs — that array was enumerated to
+  // establish this, not grepped; several documents claimed otherwise and were wrong.)
+  //
+  // WHY NOW: ME-PROGRESS must repoint the `/me` route to a single responsive MeProgressPage,
+  // replacing DesktopMePage + MobileMePage — the Option-B convergence already shipped for Exam
+  // Trends, Topic Hub, Worksheets and Check & Improve. That is a bounded `element=` change, but
+  // this array is PR-scoped with no lane-scoping and no exception mechanism, so the ban blocked it
+  // outright. Precedent: #519 (DesktopShell.tsx), PR-C1 (checkSolution.cjs), #581
+  // (SolutionChecker.tsx). THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
+  //
+  // WHAT THIS GATE'S BAN WAS ACTUALLY BUYING, made explicit — and it was buying MORE here than in
+  // the C&I twin. The entry read only "routing (the /practice route element is untouched)", and
+  // §1's GUARD 3 was a COMMENT with no check behind it that pointed straight back at this ban. So
+  // the Option-A invariant — the route mounts <PracticePage /> PROPLESS, because the overlay is
+  // mounted inside the tutor by TutorQuickPracticeOverlay and never via the route — had NO
+  // executable coverage at all. It also silently covered the premise this whole host is built on:
+  // EXACTLY ONE Router, owned by main.tsx. A second Router in the app tree is #490 verbatim, and
+  // the NO-NESTED-ROUTER check in §3 guards only the HOST, never App.tsx.
+  //
+  // THE REPLACEMENT IS IN TWO HALVES, both of which had to be added:
+  //   1. GUARD 3 in §1 is now a REAL check (route present + PracticePage propless) — the source
+  //      half, in this gate, on every PR.
+  //   2. `lazytopper/src/App.routing.contract.test.tsx` — 9 targeted tests that mount the REAL App
+  //      inside the app's always-present outer router and the full main.tsx provider stack,
+  //      pinning exactly one Router (with a CONTROL that nests a second and must THROW) and that
+  //      both guarded route elements resolve to a mounted page carrying no props. All mutations
+  //      proven RED. Its PRESENCE AND WIRING are asserted below.
+  // Do NOT re-add the blanket entry without a deliberate owner decision — the absence assertion
+  // below will fail if you do.
+  //
+  // → THE OTHER FIVE ENTRIES REMAIN, BY DELIBERATE DECISION. This is a one-file amendment and NOT
+  // a precedent for the set: ME-PROGRESS touches none of the engine, fetch-filter, persistence or
+  // graded-read modules, and lifting a ban before there is a need unprotects more than the case
+  // justifies.
   "lazytopper/src/data/predictionDataService.ts", // the subtopicHint fetch-filter (draw stays)
   "lazytopper/src/data/practiceSetGenerator.ts", // the question draw / count logic
   "lazytopper/src/services/quickPracticeSessionService.ts", // persistQuickPracticeSession
   "lazytopper/src/pages/tutor/tutorRoundTrip.ts", // composePracticeRecordReturnOpener — the graded read
   "lazytopper/src/services/sessionRecords.ts", // the SessionRecord shape / read
-  "lazytopper/src/App.tsx", // routing (the /practice route element is untouched)
 ];
+
+// ★ SHAPE, asserted UNCONDITIONALLY. Ported from the C&I twin, which has carried it since a commit
+// that really did modify a guarded file passed that gate 31/31 green: `changed.includes(f)` is
+// exact array membership and `git diff --name-only` emits REPO-ROOT-relative paths, so an entry
+// missing the `lazytopper/` prefix can NEVER match and guards NOTHING while reading as protection.
+// THIS GATE HAD NO SUCH LOOP AT ALL until FORBID-4 — its five surviving entries were unverified.
+// Filesystem-only, so it can never skip the way the diff loop below does.
+for (const f of FORBIDDEN) {
+  check(`FORBIDDEN(path): ${f} resolves to a real repo-relative file`,
+    !f.startsWith("/") && !f.includes("\\") && existsSync(path.join(ROOT, f)),
+    "this entry can never match `git diff --name-only` output, so it guards NOTHING "
+    + "— check the lazytopper/ prefix");
+}
+
+// ★ MEMBERSHIP, asserted UNCONDITIONALLY — the five surviving entries. The git-diff loop below
+// only runs when a base ref resolves; on a shallow checkout it skips entirely, so "these five are
+// guarded AT ALL" is pinned here where nothing can skip it. Membership is NOT matchability: the
+// FORBIDDEN(path) loop above is what proves an entry can match. The two are complementary.
+for (const f of [
+  "lazytopper/src/data/predictionDataService.ts",
+  "lazytopper/src/data/practiceSetGenerator.ts",
+  "lazytopper/src/services/quickPracticeSessionService.ts",
+  "lazytopper/src/pages/tutor/tutorRoundTrip.ts",
+  "lazytopper/src/services/sessionRecords.ts",
+]) {
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx ONLY)`,
+    FORBIDDEN.includes(f),
+    "the App.tsx lift was a deliberate ONE-FILE amendment — this entry must survive it");
+}
+
+// ★ THE INVERSE ASSERTION — what makes the lift itself OBSERVABLE. A silent re-add of the blanket
+// entry turns this red and forces a deliberate owner decision, instead of quietly re-blocking the
+// next convergence lane with no discussion.
+check("FORBIDDEN(lifted): App.tsx is NOT in the guarded set (ban replaced by GUARD 3 + App.routing.contract.test.tsx)",
+  !FORBIDDEN.includes("lazytopper/src/App.tsx"),
+  "re-adding the blanket entry needs an owner decision AND removal of the replacement tests");
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED App.tsx BAN (FORBID-4), half 2.
+   ══════════════════════════════════════════════════════════════════════════
+   Asserted independently in BOTH overlay gates on purpose: each ran its own ban on App.tsx, so
+   each needs its own proof that something replaced it. A deleted FORBIDDEN entry plus a test file
+   nobody invokes is strictly WORSE than the ban it replaced, because it READS as protection. All
+   three halves are asserted — the tests EXIST, they are COLLECTED by the vitest include glob, and
+   vitest actually RUNS in CI. Filesystem-only, so this can never skip.
+   ══════════════════════════════════════════════════════════════════════════ */
+const APP_CONTRACT_TESTS = "lazytopper/src/App.routing.contract.test.tsx";
+check(`APP-TESTS: ${APP_CONTRACT_TESTS} exists (the replacement for the lifted blanket ban)`,
+  existsSync(path.join(ROOT, APP_CONTRACT_TESTS)),
+  "the blanket FORBIDDEN entry was lifted in favour of these tests — without them App.tsx routing is unguarded");
+check("APP-TESTS: they are COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+  /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/
+    .test(readFileSync(path.join(ROOT, "lazytopper/vitest.config.ts"), "utf8"))
+  && APP_CONTRACT_TESTS.startsWith("lazytopper/src/") && APP_CONTRACT_TESTS.endsWith(".test.tsx"),
+  "the include glob no longer matches the replacement tests — they would never be discovered");
+check("APP-TESTS: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+  /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
+  "no vitest step in CI — a .test.tsx cannot replace a forbidden-path entry that nothing executes");
 
 function hasRef(ref) {
   try {
@@ -375,4 +492,5 @@ console.log("  hunks overlay-gated: pinned ✕ · breadcrumb suppressed · Ask-t
 console.log("  host: NO nested Router (#490 guard) · seed via <Routes location> + RouteContext reset · navigation CONTAINED to onClose · shared --qp frame ·");
 console.log("  harness: the integration test mounts an OUTER router inside a matched /tutor route + a CONTROL case that must throw ·");
 console.log("  wiring: Practise-this opens the overlay · routeToPractice/routeOut retired · graded read-back over the existing storage round-trip ·");
-console.log("  forbidden zero-diff: predictionDataService · practiceSetGenerator · quickPracticeSessionService · tutorRoundTrip · sessionRecords · App\n");
+console.log("  forbidden zero-diff: predictionDataService · practiceSetGenerator · quickPracticeSessionService · tutorRoundTrip · sessionRecords ·");
+console.log("  ban LIFTED, protection re-formed: App.tsx → GUARD 3 (route propless) + App.routing.contract.test.tsx (FORBID-4)\n");
