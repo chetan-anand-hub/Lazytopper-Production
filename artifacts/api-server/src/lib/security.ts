@@ -1,6 +1,6 @@
 import cors, { type CorsOptions } from "cors";
 import helmet from "helmet";
-import type { Express } from "express";
+import type { Express, NextFunction, Request, RequestHandler, Response } from "express";
 
 /**
  * Edge security policy for the api-server — the FRONT DOOR.
@@ -97,16 +97,42 @@ export function buildCorsOptions(allowedOrigins: string[]): CorsOptions {
 }
 
 /**
- * helmet options.
+ * The Content-Security-Policy this service sends — the API form, not the app
+ * form.
  *
- * ★ CSP IS OFF, and the usual reason given for turning it off here is WRONG.
- * A CSP header cannot break the app's Firebase or Gemini calls: CSP is enforced
- * by the browser against the DOCUMENT that carried the header, and no document
- * is ever served from here. The SPA is served by Vercel from `/app/index.html`
- * with its own headers; this service returns JSON to `fetch()`. So a CSP here
- * governs nothing — it is inert bytes on every API response, which is the
- * actual reason to leave it off. If a route ever returns HTML, turn it back on
- * and tune it then.
+ * ★ WHY IT IS ON NOW. It used to be `contentSecurityPolicy: false`, on the
+ * reasoning that a CSP here governs nothing: CSP is enforced by the browser
+ * against the DOCUMENT that carried the header, and this service never serves a
+ * document. That reasoning is CORRECT and was RE-VERIFIED, not assumed — every
+ * route reachable from `app.ts` (`/shared-api` → health, admin, questions) ends
+ * in `res.json(...)`, and `/api` pipes the gateway's JSON straight through. No
+ * HTML, no redirect to HTML, anywhere. The SPA is served by Vercel from
+ * `/app/index.html` with its own headers.
+ *
+ * But "governs nothing" is an argument for the header being HARMLESS, not for
+ * it being ABSENT, and CodeQL `js/insecure-helmet-configuration` flags the
+ * explicit `false` because a disabled protection cannot be told apart from a
+ * protection nobody thought about. So it is enabled, with the two directives
+ * that are meaningful for a JSON endpoint and no others:
+ *
+ *   - `default-src 'none'`   — this origin serves no subresources at all.
+ *   - `frame-ancestors 'none'` — nothing may frame an API response.
+ *
+ * ★ WHAT IS DELIBERATELY *NOT* IN IT, and why each omission is load-bearing:
+ * helmet's DEFAULT CSP also emits `upgrade-insecure-requests`,
+ * `style-src 'unsafe-inline'` and `form-action 'self'`. `upgrade-insecure-requests`
+ * is a TRANSPORT directive, and transport policy belongs to the Vercel edge for
+ * exactly the reason HSTS is off below — the rewrite is a pass-through, so a
+ * directive set here surfaces on a `lazytopper.com` response. `useDefaults:
+ * false` is therefore not tidiness; it is what keeps this a
+ * content policy and not a second, accidental transport policy.
+ *
+ * ★ WHY THIS IS NOT A BROWSER-OBSERVABLE CHANGE FOR THE APP. A CSP header on a
+ * `fetch()` response is not applied by any browser — CSP attaches to documents
+ * and workers, and a JSON body parsed by `fetch()` is neither. The only request
+ * that can ever see this policy is a human typing an `/api/...` URL into the
+ * address bar, where it does nothing but forbid a JSON document from loading
+ * subresources it does not have. **No CORS behaviour is touched.**
  *
  * ★ HSTS IS OFF, deliberately. Vercel already terminates TLS and owns the
  * edge's transport policy. Because the rewrite is a pass-through, an HSTS header
@@ -128,10 +154,113 @@ export function buildCorsOptions(allowedOrigins: string[]): CorsOptions {
  * keys — helmet has renamed options across majors, and a key that no longer
  * exists is silently ignored rather than rejected.
  */
+export const API_CSP_DIRECTIVES: Record<string, string[]> = {
+  defaultSrc: ["'none'"],
+  frameAncestors: ["'none'"],
+};
+
 export const HELMET_OPTIONS: Parameters<typeof helmet>[0] = {
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    // Send EXACTLY the two directives above — see the note on
+    // `upgrade-insecure-requests` for why helmet's defaults are not merged in.
+    useDefaults: false,
+    directives: API_CSP_DIRECTIVES,
+  },
   strictTransportSecurity: false,
 };
+
+/* ────────────────────────────────────────────────────────────────────────────
+   RATE LIMITING — CodeQL js/missing-rate-limiting on admin.ts ×3, questions.ts ×1
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * A per-caller fixed-window limiter for the routes this service handles ITSELF.
+ *
+ * ★ WHY THIS IS NOT `express-rate-limit`. All four build paths (Docker, CI,
+ * Vercel, local) now install exactly what `pnpm-lock.yaml` pins, so a new
+ * dependency is a four-surface change and is out of scope here. It is also not
+ * needed: the mechanism below is the SAME one the product already runs.
+ *
+ * ★ WHAT ALREADY EXISTED, AND WHY THIS MIRRORS IT RATHER THAN REPLACING IT.
+ * `lazytopper/server/services/rateLimiter.cjs` is a real, tested limiter — but
+ * it is IN THE OTHER PROCESS (the AI gateway on 3001) and it limits only
+ * `PAID_ENDPOINTS`, the LLM-backed paths, because the harm it addresses is a
+ * Gemini bill. It is CommonJS in a different package and cannot be imported
+ * here. It also would not cover these routes if it could: `/shared-api/admin/*`
+ * and `/shared-api/questions/report` are answered by THIS process and never
+ * reach that limiter. So this mirrors its three design choices deliberately —
+ * a process-local Map, a caller key, and a refusal that names no internals —
+ * and adds nothing novel.
+ *
+ * ★ THE KEY IS THE VERIFIED FIREBASE UID, NOT THE IP. Every route this is
+ * mounted on runs `requireFirebaseAuth` FIRST, so `req.userId` is a uid the
+ * server itself decoded — not a spoofable header, which is the one weakness the
+ * gateway limiter documents about itself. `req.ip` is only a fallback for a
+ * mount order that has no auth in front of it, and is never the primary key.
+ *
+ * ★ COUNTERS ARE PROCESS-LOCAL. A restart or a second instance resets them, so
+ * the failure mode is "a caller gets more requests than the table says", never
+ * "a caller is locked out". Same trade the gateway limiter makes, same reason.
+ */
+export const ADMIN_RATE_LIMIT = { windowMs: 60_000, max: 30 } as const;
+export const REPORT_RATE_LIMIT = { windowMs: 60_000, max: 12 } as const;
+
+/** The error CODE callers branch on. Never rendered to a student. */
+export const RATE_LIMITED_ERROR = "rate_limited";
+
+/**
+ * The student-facing copy. A caller who is going too fast has not made a
+ * mistake, so this reads as a pause, not as a refusal — no code, no "denied".
+ */
+export const RATE_LIMITED_MESSAGE =
+  "That was a lot of requests in a row. Give it a few seconds and try again.";
+
+/** Stop the counter Map growing without bound on a long-lived process. */
+const MAX_TRACKED_CALLERS = 10_000;
+
+interface RateLimitWindow {
+  count: number;
+  resetAt: number;
+}
+
+export function createRateLimiter(options: {
+  windowMs: number;
+  max: number;
+  now?: () => number;
+}): RequestHandler {
+  const { windowMs, max } = options;
+  const now = options.now ?? Date.now;
+  const windows = new Map<string, RateLimitWindow>();
+
+  return function rateLimit(req: Request, res: Response, next: NextFunction): void {
+    const key = req.userId ?? req.ip ?? "anonymous";
+    const at = now();
+
+    if (windows.size > MAX_TRACKED_CALLERS) {
+      for (const [k, w] of windows) if (at >= w.resetAt) windows.delete(k);
+    }
+
+    const open = windows.get(key);
+    if (!open || at >= open.resetAt) {
+      windows.set(key, { count: 1, resetAt: at + windowMs });
+      next();
+      return;
+    }
+
+    open.count += 1;
+    if (open.count > max) {
+      res.setHeader("Retry-After", String(Math.ceil((open.resetAt - at) / 1000)));
+      res.status(429).json({
+        ok: false,
+        error: RATE_LIMITED_ERROR,
+        message: RATE_LIMITED_MESSAGE,
+      });
+      return;
+    }
+
+    next();
+  };
+}
 
 /**
  * Apply the edge security middleware, in order, to an Express app.

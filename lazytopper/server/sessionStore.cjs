@@ -6,11 +6,31 @@ function toSubjectId(raw) {
   return String(raw || "").toLowerCase().includes("science") ? "science" : "maths";
 }
 
+/**
+ * A session id is a BEARER CREDENTIAL, not a cache key.
+ *
+ * `getSession(sessionId)` is a bare `Map.get` with no ownership check — anyone
+ * holding the id holds the session and its answers. So the id must be
+ * unguessable, and the old fallback made it guessable: `Date.now()` is public
+ * and `Math.random()` is a non-cryptographic PRNG whose internal state can be
+ * recovered from a handful of observed outputs, which is what CodeQL
+ * `js/insecure-randomness` flags. `crypto.randomBytes` has been in Node since
+ * forever, so it is a strictly safer fallback than the one it replaces — the
+ * try/catch only ever existed because `crypto.randomUUID` is newer (Node
+ * 14.17+), and that is the ONLY thing that can throw here.
+ *
+ * ★ NO LIVE SESSION IS INVALIDATED BY THIS. Sessions live in the
+ * process-local `sessionsById` Map above — nothing is persisted, so a deploy
+ * already empties the store on every restart regardless. And the id format is
+ * not coupled to anything: `sess_` appears in exactly one place in the repo,
+ * the two lines below, and every read path is an exact-string Map lookup that
+ * never parses the id. Verified by grep across `server/` and `src/`.
+ */
 function createSessionId() {
   try {
     return `sess_${crypto.randomUUID()}`;
   } catch {
-    return `sess_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    return `sess_${crypto.randomBytes(18).toString("hex")}`;
   }
 }
 

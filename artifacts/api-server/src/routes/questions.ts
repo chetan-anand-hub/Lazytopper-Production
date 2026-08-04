@@ -1,9 +1,18 @@
 import { Router, type IRouter } from "express";
 import http from "http";
 import { requireFirebaseAuth } from "../middlewares/requireFirebaseAuth";
+import { REPORT_RATE_LIMIT, createRateLimiter } from "../lib/security";
 
 const router: IRouter = Router();
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
+
+/**
+ * Report-a-question is STUDENT-FACING, so the budget is deliberately generous:
+ * a real student reports a handful of bad questions in a sitting, never twelve
+ * in a minute. The limit exists so a stuck retry loop cannot flood the reports
+ * table, not to ration a student's ability to flag a mistake.
+ */
+const reportRateLimit = createRateLimiter(REPORT_RATE_LIMIT);
 
 function proxyToGateway(
   path: string,
@@ -40,6 +49,7 @@ function proxyToGateway(
 router.post(
   "/questions/report",
   requireFirebaseAuth,
+  reportRateLimit,
   async (req, res): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
