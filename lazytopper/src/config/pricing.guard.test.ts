@@ -155,6 +155,76 @@ describe("pricing guard — no price literals outside the pricing module", () =>
   });
 });
 
+/**
+ * THE GAP THIS CLOSES — the guard above walks `src/`, and `index.html` is not in
+ * `src/`.
+ *
+ * That single blind spot is why `<meta name="description">` advertised "upgrade
+ * to Premium for ₹149/month" long after ₹149 was retired everywhere else: the
+ * four in-app surfaces were fixed and pinned, and the one surface GOOGLE actually
+ * quotes was outside the pin. A stale price in a meta description is worse than a
+ * stale price in the UI — search engines cache descriptions for weeks, so it is
+ * the figure a student sees BEFORE they ever reach the site, and no in-app fix
+ * can reach it.
+ *
+ * ★ The resolution is to remove the price from metadata ENTIRELY rather than
+ * correct it. The founding rate is deliberately temporary; a number that lives in
+ * a cached description cannot be revised on the timetable the offer needs. The
+ * site is the right place to state a price, and /pricing already does.
+ */
+const INDEX_HTML_REL = "index.html";
+
+/**
+ * Shape C — a bare price figure with no rupee sign, e.g. `149/month`. Only counts
+ * when the same line also carries pricing language, because `index.html` is full
+ * of unrelated integers (font weight axes, og:image dimensions, a CBSE year) that
+ * would otherwise make this pattern fire on a correct file.
+ */
+const BARE_PRICE_FIGURE = /\b(149|599|999|4999|5999|8999)\b/;
+const PRICING_LANGUAGE =
+  /(₹|\brs\.?\b|\binr\b|\bprice\b|\bpricing\b|\bmonth\b|\bmonthly\b|\byear\b|\bannual\b|\bpremium\b|\bupgrade\b|\bsubscri)/i;
+
+describe("pricing guard — index.html carries no price at all", () => {
+  it("has no rupee-form, structured-form or bare price literal in the metadata", () => {
+    const lines = readFileSync(resolve(process.cwd(), INDEX_HTML_REL), "utf8").split(/\r?\n/);
+    const hits: Array<{ line: number; text: string; shape: string }> = [];
+
+    lines.forEach((line, i) => {
+      const push = (shape: string) => hits.push({ line: i + 1, text: line.trim(), shape });
+      if (RUPEE_LITERAL.test(line)) push("A/rupee");
+      if (STRUCTURED_PRICE_LITERAL.test(line)) push("B/structured");
+      if (BARE_PRICE_FIGURE.test(line) && PRICING_LANGUAGE.test(line)) push("C/bare-figure");
+    });
+
+    const rendered = hits.map(h => `  [${h.shape}] ${INDEX_HTML_REL}:${h.line}  ${h.text}`).join("\n");
+    expect(
+      hits,
+      `${INDEX_HTML_REL} must quote NO price — search engines cache it for weeks ` +
+        `and the founding rate is temporary. State the price on /pricing:\n${rendered}`,
+    ).toEqual([]);
+  });
+
+  it("the bare-figure pattern is not dead, and ignores index.html's ordinary integers", () => {
+    // Shape C is the one that needs proving hardest: it is a CONJUNCTION, so it
+    // can be broken by either half and still read as a passing guard.
+    const retired = "Start free — upgrade to Premium for 149/month.";
+    expect(BARE_PRICE_FIGURE.test(retired) && PRICING_LANGUAGE.test(retired)).toBe(true);
+    const founding = 'content="Start free — upgrade to Premium for ₹599/month."';
+    expect(BARE_PRICE_FIGURE.test(founding) && PRICING_LANGUAGE.test(founding)).toBe(true);
+
+    // Real lines from index.html that must NOT trip it: the Google Fonts weight
+    // axes, the og:image dimensions, and the keywords list's "CBSE 2027".
+    const fonts =
+      'href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&display=swap"';
+    expect(BARE_PRICE_FIGURE.test(fonts) && PRICING_LANGUAGE.test(fonts)).toBe(false);
+    expect(BARE_PRICE_FIGURE.test('<meta property="og:image:width" content="1200" />')).toBe(false);
+    expect(BARE_PRICE_FIGURE.test('content="CBSE Class 10, CBSE 2027, mock tests"')).toBe(false);
+
+    // A figure with no pricing language around it is not a price claim.
+    expect(PRICING_LANGUAGE.test('<meta name="x" content="599 questions" />')).toBe(false);
+  });
+});
+
 describe("pricing module — the derivation holds", () => {
   it("derives BOTH savings from their own tier's prices rather than restating them", () => {
     expect(ANNUAL_AT_MONTHLY_RATE_LIST_INR).toBe(
