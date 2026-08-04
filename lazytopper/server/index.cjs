@@ -126,7 +126,6 @@ const { createQuestionRoutes } = require('./routes/questions.cjs');
 // actually defined instead of being passed through the retired mentor route.
 const { ensureDiagramFields } = require('./prompts/promptDiagram.cjs');
 const { buildMoreLikeThisUserPrompt } = require('./prompts/promptLearn.cjs');
-const { createUserProgressRoutes } = require('./routes/userProgress.cjs');
 const { createAiQuestionsRoute } = require('./routes/aiQuestions.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
@@ -264,7 +263,6 @@ const routeDeps = {
 };
 const shareRoutes = createShareRoutes(routeDeps);
 const diagramRoutes = createDiagramRoutes(routeDeps);
-const userProgressRoutes = createUserProgressRoutes(routeDeps);
 const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
@@ -310,13 +308,6 @@ async function handleRequest(req, res) {
       reqPath === '/api/admin/warm-question-pool' ||
       reqPath === '/api/admin/question-reports' ||
       /^\/api\/admin\/question-reports\/\d+\/resolve$/.test(reqPath) ||
-      reqPath === '/api/user/progress' ||
-      reqPath === '/api/user/progress/sync' ||
-      reqPath === '/api/user/progress/xp' ||
-      reqPath === '/api/user/progress/streak' ||
-      reqPath === '/api/user/progress/focus' ||
-      reqPath === '/api/user/progress/mastery' ||
-      reqPath === '/api/user/progress/mission' ||
       reqPath === '/api/ai-questions' ||
       reqPath === '/api/qr-upload/new' ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
@@ -504,27 +495,19 @@ async function handleRequest(req, res) {
     return questionRoutes.handleGradeWorksheet(req, res);
   }
 
-  if (req.method === 'GET' && reqPath === '/api/user/progress') {
-    return userProgressRoutes.handleGet(req, res);
-  }
-  if (req.method === 'POST' && reqPath === '/api/user/progress/sync') {
-    return userProgressRoutes.handleSync(req, res);
-  }
-  if (req.method === 'POST' && reqPath === '/api/user/progress/xp') {
-    return userProgressRoutes.handleXP(req, res);
-  }
-  if (req.method === 'POST' && reqPath === '/api/user/progress/streak') {
-    return userProgressRoutes.handleStreak(req, res);
-  }
-  if (req.method === 'POST' && reqPath === '/api/user/progress/focus') {
-    return userProgressRoutes.handleFocus(req, res);
-  }
-  if (req.method === 'POST' && reqPath === '/api/user/progress/mastery') {
-    return userProgressRoutes.handleMastery(req, res);
-  }
-  if (req.method === 'POST' && reqPath === '/api/user/progress/mission') {
-    return userProgressRoutes.handleMission(req, res);
-  }
+  // The seven /api/user/progress/* routes (get, sync, xp, streak, focus, mastery,
+  // mission) were REMOVED with routes/userProgress.cjs — XP, streaks, Focus Mix,
+  // Study Plan, Daily Mission and Dashboard are retired design, and the endpoints
+  // had been returning 503 in production because DATABASE_URL is unset. They now
+  // fall through to the 404 below. The client-side dbSyncService callers still
+  // fire at these paths and still swallow the failure silently
+  // ([FU-DBSYNC-CLIENT-CALLERS-DEAD]) — a 404 and a 503 are indistinguishable to
+  // them, because every write is `(async()=>{...})().catch(()=>{})` and the only
+  // read does `if (!res.ok) return;`.
+  //
+  // ★ This removal is what makes provisioning DATABASE_URL SAFE: it now powers
+  // only the stepSolution.cjs model-solution cache, and can no longer silently
+  // create and populate a user_progress table for retired features.
 
   if (req.method === 'GET' && reqPath === '/api/ai-questions') {
     return aiQuestionsRoute.handleGet(req, res);
