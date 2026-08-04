@@ -277,11 +277,72 @@ const FORBIDDEN = [
   // tutorRoundTrip.ts is NO LONGER file-level forbidden: the tutor-graded-context lane ADDS the
   // rich composer + buildReturnedWork BESIDE the thin composeReturnOpener. The real invariant (the
   // thin floor stays byte-identical) is enforced by the FLOOR/BESIDE source assertions in §3.
+  //
+  // ★★ App.tsx — blanket ban LIFTED 2026-08-04 (owner decision, Wave 5C lane FORBID-4), in
+  // LOCK-STEP with the identical entry in quick_practice_overlay_additive_acceptance.mjs.
+  // APP.TSX WAS BANNED IN TWO GATES, NOT ONE — exactly the trap the grader hit in PR-C1.
+  // Lifting it in only one would have left ME-PROGRESS red here while looking unblocked there,
+  // so both were amended in the same PR. (It is NOT in check_improve_convergence_acceptance.mjs;
+  // several documents claimed it was and every one of them was wrong — the array was enumerated,
+  // not grepped, to establish that.)
+  //
+  // WHY NOW: the ME-PROGRESS lane must repoint the `/me` route to a single responsive
+  // MeProgressPage, replacing DesktopMePage + MobileMePage — the Option-B convergence already
+  // shipped for Exam Trends, Topic Hub, Worksheets and Check & Improve itself. That is a bounded
+  // `element=` change and nothing else, but this array is PR-scoped with no lane-scoping and no
+  // exception mechanism, so the ban blocked it outright. Precedent: #519 (DesktopShell.tsx),
+  // PR-C1 (checkSolution.cjs), #581 (SolutionChecker.tsx).
+  // THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
+  //
+  // WHAT THIS GATE'S BAN WAS ACTUALLY BUYING, made explicit — the entry read only
+  // "routing (:320 stays green)", i.e. it existed to protect GUARD 5 above, which asserts the
+  // /check-improve route element still renders <DesktopCheckImprovePage /> with NO props (Option A
+  // mounts the C&I overlay inside the tutor, never via the route). GUARD 5 is a SOURCE regex and
+  // it already runs unconditionally, so the ban's marginal contribution here was narrow: it also
+  // covered (a) the same propless invariant expressed BEHAVIOURALLY rather than as source shape,
+  // and (b) the premise both overlay hosts are built on — that there is EXACTLY ONE Router, owned
+  // by main.tsx. A second Router anywhere in the app tree is the #490 defect verbatim.
+  //
+  // THE REPLACEMENT: `lazytopper/src/App.routing.contract.test.tsx` — 9 targeted tests that mount
+  // the REAL App inside the app's always-present outer router and the full main.tsx provider
+  // stack, pinning: exactly one Router (with a CONTROL case that nests a second one and must
+  // THROW, so the assertion cannot pass vacuously), and that BOTH guarded route elements
+  // (/check-improve and /practice/:grade/:subject) still resolve to a mounted page carrying NO
+  // overlay prop and no props at all. All mutations proven RED. Its PRESENCE AND WIRING are
+  // asserted below, so this lift cannot decay into "no protection at all".
+  //
+  // → THE OTHER THREE ENTRIES REMAIN, BY DELIBERATE DECISION. This is a one-file amendment and
+  // NOT a precedent for the set: ME-PROGRESS does not touch the scorecard, the SessionRecord
+  // shape or the persist seam, and lifting a ban before there is a need unprotects more than the
+  // case justifies. Do NOT re-add the App.tsx entry without a deliberate owner decision — the
+  // absence assertion below will fail if you do.
   "lazytopper/src/components/results/ResultsScorecard.tsx", // the overlay shows it, never restyles it
   "lazytopper/src/services/sessionRecords.ts", // SessionRecord shape (we only IMPORT the builder)
   "lazytopper/src/services/checkImproveGradeService.ts", // the persist seam
-  "lazytopper/src/App.tsx", // routing (:320 stays green)
 ];
+
+// ★ MEMBERSHIP, asserted UNCONDITIONALLY — the three surviving entries. The git-diff loop below
+// only runs when a base ref resolves (a PR, or a local full clone); on a shallow checkout it
+// skips entirely, so "these three are guarded AT ALL" is pinned here where nothing can skip it.
+// NOTE: membership is not matchability — a gate can print "shows zero changes" while matching
+// nothing (that is exactly how an unprefixed entry once passed 31/31 green). The FORBIDDEN(path)
+// loop below is what proves matchability; these two assertions are complementary, not redundant.
+for (const f of [
+  "lazytopper/src/components/results/ResultsScorecard.tsx",
+  "lazytopper/src/services/sessionRecords.ts",
+  "lazytopper/src/services/checkImproveGradeService.ts",
+]) {
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx ONLY)`,
+    FORBIDDEN.includes(f),
+    "the App.tsx lift was a deliberate ONE-FILE amendment — this entry must survive it");
+}
+
+// ★ THE INVERSE ASSERTION — what makes the lift itself OBSERVABLE. A silent re-add of the blanket
+// entry turns this red and forces the deliberate owner decision the comment above asks for,
+// instead of quietly re-blocking ME-PROGRESS (or the next convergence lane) with no discussion.
+check("FORBIDDEN(lifted): App.tsx is NOT in the guarded set (ban replaced by App.routing.contract.test.tsx)",
+  !FORBIDDEN.includes("lazytopper/src/App.tsx"),
+  "re-adding the blanket entry needs an owner decision AND removal of the replacement tests");
 
 // ★ SHAPE, asserted UNCONDITIONALLY — the guard that would have caught the missing
 // `lazytopper/` prefix, and the reason it can never come back. An entry that does not
@@ -307,6 +368,34 @@ check("GRADER-TESTS: they are WIRED into lazytopper test:matrix:all (a test nobo
   /"test:matrix:all":[^\n]*test:server:check-solution/
     .test(readFileSync(path.join(ROOT, "lazytopper/package.json"), "utf8")),
   "present but unwired — add `npm run test:server:check-solution` to test:matrix:all");
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED App.tsx BAN (FORBID-4).
+   ══════════════════════════════════════════════════════════════════════════
+   Same reasoning as the GRADER-TESTS block above, and asserted independently in BOTH overlay
+   gates on purpose: each ran its own ban on App.tsx, so each needs its own proof that something
+   replaced it. A deleted FORBIDDEN entry plus a test file nobody invokes is strictly WORSE than
+   the ban it replaced, because it READS as protection. So all three halves are asserted — the
+   tests EXIST, they are COLLECTED by the vitest include glob, and vitest actually RUNS in CI.
+   Filesystem-only (no subprocess, no git base) so this can never skip the way the diff loop can.
+   ══════════════════════════════════════════════════════════════════════════ */
+const APP_CONTRACT_TESTS = "lazytopper/src/App.routing.contract.test.tsx";
+check(`APP-TESTS: ${APP_CONTRACT_TESTS} exists (the replacement for the lifted blanket ban)`,
+  existsSync(path.join(ROOT, APP_CONTRACT_TESTS)),
+  "the blanket FORBIDDEN entry was lifted in favour of these tests — without them App.tsx routing is unguarded");
+// COLLECTED: vitest's include glob is what decides whether the file is even discovered. A test
+// outside the glob is invisible and silently guards nothing.
+check("APP-TESTS: they are COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+  /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/
+    .test(readFileSync(path.join(ROOT, "lazytopper/vitest.config.ts"), "utf8"))
+  && APP_CONTRACT_TESTS.startsWith("lazytopper/src/") && APP_CONTRACT_TESTS.endsWith(".test.tsx"),
+  "the include glob no longer matches the replacement tests — they would never be discovered");
+// RUNS: the vitest step in the root workflow is a REQUIRED gate with no exclusions. If vitest ever
+// stops running in CI, this replacement protection is gone and this gate must say so — that is
+// precisely why the assertion reaches into the workflow rather than trusting a comment.
+check("APP-TESTS: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+  /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
+  "no vitest step in CI — a .test.tsx cannot replace a forbidden-path entry that nothing executes");
 
 function hasRef(ref) {
   try {
@@ -358,4 +447,5 @@ console.log("  additive: default-off question + optional prop + route :320 ·");
 console.log("  hunks overlay-gated: chrome-suppress · pinned ✕ · scorecard Back · in-process record (no re-persist) · graded response in-hand (Option 2b) ·");
 console.log("  poll-free return: RICH opener with the thin composeReturnOpener as the honest floor · question+digest reach the model as one-shot returnedWork · navigate/marker leg retired ·");
 console.log("  honest floor: thin composeReturnOpener byte-identical (rich ADDED BESIDE) · digest ships ON (live rubric-2 eval cleared it) ·");
-console.log("  forbidden zero-diff: grader · ResultsScorecard · sessionRecords · gradeService · App\n");
+console.log("  forbidden zero-diff: ResultsScorecard · sessionRecords · gradeService ·");
+console.log("  bans LIFTED, protection re-formed: grader → checkSolution.test.cjs (PR-C1) · App.tsx → App.routing.contract.test.tsx (FORBID-4)\n");
