@@ -12,6 +12,8 @@
 
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 // The test runner uses Node's native --test with tsx/esm so we can import
 // TypeScript source directly.
@@ -201,4 +203,74 @@ describe("Cross-subject isolation — Science guard does not fire on Maths conte
   test("Science guard effectiveFromYear is 2026", () => {
     assert.equal(SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear, 2026);
   });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BANK-1 — Section A purge of heredity.pack1 / magneticEffects.pack1
+//
+// WHY THIS EXISTS. Both packs shipped with solution steps that did not match
+// their questions: a student pressing "Show steps" was taught something
+// unrelated to the question they got wrong. All 31 defects were confined to the
+// Section A (1-mark MCQ / Assertion-Reasoning) tier — the long-form B/C/D/E
+// questions carry hand-authored, mark-annotated steps and were kept. The
+// Section A tier was removed wholesale.
+//
+// Two failure modes are pinned here:
+//   1. a Section A question reappearing in either pack (a silent re-add), and
+//   2. the boilerplate explanation sentence reappearing anywhere in them —
+//      it is the signature of the generator that produced the defective tier,
+//      so its return means the same failure is back.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BANK_DIR = join(
+  import.meta.dirname,
+  "../../lazytopper/src/data/questionBanks/class10/science"
+);
+
+const PURGED_PACKS = ["heredity.pack1.ts", "magneticEffects.pack1.ts"] as const;
+
+const BOILERPLATE_EXPLANATION =
+  "This is a fundamental result that should be recalled directly from the key concepts of this topic";
+
+/** Split a pack file into its individual question object bodies. */
+function questionBodies(source: string): string[] {
+  return source.split(/\n {2}\{ id: "/).slice(1);
+}
+
+describe("BANK-1 — no Section A question survives in the purged science packs", () => {
+  for (const pack of PURGED_PACKS) {
+    const source = readFileSync(join(BANK_DIR, pack), "utf-8");
+    const bodies = questionBodies(source);
+
+    // CONTROL — if the parser silently matched nothing, every assertion below
+    // would pass vacuously. Anchor it to an independent count of `id:` fields.
+    test(`${pack} — parser sees every question (non-vacuity control)`, () => {
+      const idCount = (source.match(/\bid: "/g) ?? []).length;
+      assert.ok(idCount > 0, `${pack}: no questions found at all — parser or path is wrong`);
+      assert.equal(
+        bodies.length,
+        idCount,
+        `${pack}: parsed ${bodies.length} question bodies but found ${idCount} id fields — the split is not seeing every question`
+      );
+    });
+
+    test(`${pack} — contains no section "A" question`, () => {
+      const offenders = bodies
+        .filter((body) => /\bsection: "A"/.test(body))
+        .map((body) => body.slice(0, body.indexOf('"')));
+      assert.deepEqual(
+        offenders,
+        [],
+        `${pack}: Section A questions were re-added: ${offenders.join(", ")}. ` +
+          `The Section A tier of this pack was removed because its solution steps did not match its questions.`
+      );
+    });
+
+    test(`${pack} — free of the boilerplate explanation signature`, () => {
+      assert.ok(
+        !source.includes(BOILERPLATE_EXPLANATION),
+        `${pack}: the boilerplate explanation sentence is back. It is the signature of the generator that produced the mismatched Section A solutions.`
+      );
+    });
+  }
 });
