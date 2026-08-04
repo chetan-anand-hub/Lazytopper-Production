@@ -6,6 +6,29 @@ name: Quality Gate
 # Gates the full integration bar on a linux runner — the platform the build is
 # pinned to (pnpm-workspace.yaml strips all non-linux-x64 binaries). Mirrors the
 # local gates documented in CLAUDE.md section 6.
+#
+# ★★ TWO PATHS, ONE JOB. A pull request whose every changed path is documentation takes a
+# short path; everything else takes the full bar unchanged. NOTHING WAS REMOVED FROM THE FULL
+# BAR — the fast path is a DIFFERENT path, not a shorter version of the same one.
+#
+# ★★ AND THE FULL BAR IS THIS PROJECT'S ONLY INTEGRATION CHECK, so the classifier is biased
+# hard towards running it. A product PR's CI runs against ITS OWN base, so lanes built in
+# parallel are never compiled and tested together until something merges both — measured in
+# Wave 5A, where three lane runs collected 94/95/96 test files and the wave-closing handoff
+# collected 97. #574 and #575, two P0 live-user fixes, reached production having never been
+# tested together. An unnecessary full run costs about five minutes. A skipped one cost that.
+#
+# So: a push to this branch ALWAYS runs everything (every merge produces one, so the
+# integration check cannot be forgotten); a wave-closing handoff ALWAYS runs everything; and
+# anything the classifier cannot confidently classify runs everything.
+#
+# ★ THE CLASSIFICATION HAPPENS INSIDE THE JOB, DELIBERATELY — never as a workflow-level
+# `paths-ignore`. `quality-gate` is a REQUIRED status check, and a required check that never
+# runs leaves the PR stuck on "expected — waiting for status": unmergeable, with no error.
+#
+# ★ The rules live in lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs, which is also the
+# acceptance suite that pins them. One file on purpose: a second copy of a classifier drifts,
+# and the suite keeps testing the first one.
 
 on:
   pull_request:
@@ -65,11 +88,34 @@ jobs:
           node-version: '22'
           cache: pnpm
 
+      # ★★ THE DECISION. Delegated to the module that is ALSO its own acceptance suite, so the
+      # thing CI runs and the thing the tests pin are literally the same code.
+      #
+      # It derives the changed-file list from `git merge-base origin/<base> HEAD` recomputed HERE,
+      # at run time — not from a working tree, not from the PR's declared file list, and not from
+      # the branch point. This repo SQUASH-merges, and a squash diffs against the base AT MERGE
+      # TIME, so a rebased branch can silently re-carry files: #566 landed 13 files while reporting
+      # 4 and no gate saw it. That is exactly why `fetch-depth: 0` and the base fetch above are
+      # load-bearing for this step too — without them merge-base fails, and a failed merge-base
+      # reports "unresolved", which runs the FULL bar.
+      #
+      # It never exits non-zero. A crashing classifier must fall back to running everything, not
+      # fail the job — and the `!= 'true'` polarity below means even a MISSING output runs
+      # everything. There is no input to this step that can turn a gate off by accident.
+      - name: Classify the change set (docs-only fast path, or the full bar)
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs --classify
+
       # The Firestore emulator is a Java process, and the rules gate below cannot run
       # without it. ubuntu-latest currently ships a JDK, but that is an image detail
       # which has changed before — pin it rather than inherit it, or the security gate
       # silently stops running one day and still reports green.
       - name: Set up Java (runtime for the Firestore emulator)
+        if: steps.classify.outputs.docs_only != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -80,10 +126,25 @@ jobs:
       # Install it so those audits behave as they do locally / in the Codespace.
       # (git/node/npm are already present; no other non-standard tool is on the gate path.)
       - name: Install ripgrep (required by ops-matrix audits)
+        if: steps.classify.outputs.docs_only != 'true'
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
+      # ★ UNGATED ON PURPOSE. It is the cheapest step on the board with a warm cache, and both
+      # fast-path gates below are invoked through pnpm. Making the fast path depend on pnpm
+      # resolving a workspace script with no install would buy a few seconds and cost the one
+      # property that matters here: that the fast path runs the SAME commands the full bar runs.
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
+
+      # ★ THE FAST PATH'S OWN GATE. On the full bar this same suite runs inside the lazytopper
+      # ops matrix, so it is never skipped — it just runs earlier, and alone, when the matrix
+      # does not. It asserts the classifier's rules AND this workflow's wiring: that mojibake is
+      # ungated, that every full-bar step carries the same condition, that there is no
+      # workflow-level paths filter, and that every server .test.cjs on disk is in the matrix
+      # chain. A condition that is wrong is invisible until the day it matters.
+      - name: Docs-lane classifier acceptance (fast path)
+        if: steps.classify.outputs.docs_only == 'true'
+        run: pnpm --filter lazytopper run test:ci:docs-lane
 
       # --- firestore.rules: the premium self-grant gate ---
       # Runs the REAL Firestore emulator against the REAL firestore.rules via
@@ -100,11 +161,22 @@ jobs:
       # an owner action outside CI. A green tick here means the rules file is correct,
       # NOT that production is protected.
       - name: Firestore rules tests (subscriptions premium self-grant)
+        if: steps.classify.outputs.docs_only != 'true'
         timeout-minutes: 10
         run: pnpm run test:firestore-rules
 
-      # --- Root guard matrix: 5 suites, 175/175 ---
+      # --- Root guard matrix ---
+      # ★ NO COUNT IS WRITTEN HERE, ON PURPOSE. Read the totals from this step's own log — the
+      # suite prints them on the run you are actually looking at. The matrix GROWS with every guard
+      # added, so a figure recorded in a comment is a derived value with nothing re-checking it: it
+      # goes stale in silence and is then quoted as fact. This very line did exactly that, carrying
+      # a suite total and a pass ratio that had both moved on several waves earlier — and three
+      # separate lanes went on to accuse CLAUDE.md of the same fault while remembering rather than
+      # looking. CLAUDE.md section 6 already says it: verify what the suite reports NOW.
+      # The docs-lane acceptance suite now asserts this block states no count at all, so the fix
+      # cannot quietly reverse itself. [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
       - name: Root guard matrix (scripts/ test:matrix:all)
+        if: steps.classify.outputs.docs_only != 'true'
         run: pnpm --filter @workspace/scripts run test:matrix:all
 
       # --- artifacts/api-server: typecheck + edge security tests ---
@@ -119,6 +191,7 @@ jobs:
       # api-server's own typecheck alone fails TS6305, because the referenced
       # projects have not been emitted yet.
       - name: Typecheck (root — libs, api-server, scripts)
+        if: steps.classify.outputs.docs_only != 'true'
         run: pnpm run typecheck
 
       # Behavioural CORS/helmet tests against a real listening Express app. Fast
@@ -129,16 +202,26 @@ jobs:
       # refusing a request that arrives with NO Origin header, which the
       # server-side Vercel rewrite makes the MAIN production path.
       - name: Edge security tests (api-server CORS allowlist + helmet)
+        if: steps.classify.outputs.docs_only != 'true'
         run: pnpm --filter @workspace/api-server run test
 
       # --- lazytopper gates ---
+      # ★★ UNGATED, ON EVERY PATH, DELIBERATELY. This is the ONE step in the whole workflow that
+      # has anything to say about a markdown-only change, so it is the one gate a docs PR can
+      # actually fail. It also must keep its exact split: ENFORCED on the tracked tree, REPORT-ONLY
+      # on handoff/, which holds deliberate mojibake specimens quoted inside lessons about
+      # mojibake. Read `enforced_hits` / `report_only_hits` from this step's log — the log printing
+      # a non-zero report-only figure is the whole difference between monitoring and exemption.
+      # DO NOT PUT AN `if:` ON THIS STEP.
       - name: Mojibake check (lazytopper)
         run: pnpm --filter lazytopper run check:mojibake
 
       - name: Build (lazytopper)
+        if: steps.classify.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper run build
 
       - name: Ops matrix (lazytopper test:matrix:all)
+        if: steps.classify.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper run test:matrix:all
 
       # --- Typecheck of the TEST files ---
@@ -150,15 +233,23 @@ jobs:
       # and how the untyped server `.cjs` imports are handled. Unlike vitest this
       # step also runs on Windows dev boxes (no rollup binary involved).
       - name: Typecheck test files (lazytopper)
+        if: steps.classify.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper run typecheck:test
 
       # --- Vitest render/unit suites (the .test.tsx / .test.ts files) ---
       # Runs ONLY here on linux: pnpm-workspace.yaml strips the non-linux rollup
       # binary, so Windows dev boxes cannot run vitest at all (CLAUDE.md section 6).
-      # These 59 suites were NEVER gated in CI before — the root cause behind this
+      # These suites were NEVER gated in CI before — the root cause behind this
       # repo's green-but-broken builds (#484, #490): the tests that would have caught
       # them never executed. Required gate now — a red vitest fails CI.
       # Resolves [FU-CI-GATE-VITEST].
+      #
+      # ★ HOW MANY SUITES, AND HOW MANY TESTS? READ THEM FROM THIS STEP'S LOG — vitest prints
+      # "Test Files ..." and "Tests ..." on the run you are looking at. No figure is written here
+      # on purpose. This comment used to open with a suite count, and that number went on being
+      # quoted long after it had stopped being true; the total rises with every lane that adds a
+      # test. A count in a comment is a derived value with nothing re-checking it.
+      # [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
       #
       # TRACKED DEBT — CLEARED. Four suites were RED on trunk (57ea912) when this gate
       # landed and were EXCLUDED so it could be introduced without blocking every PR on
@@ -198,7 +289,18 @@ jobs:
       # of inference and feeding the durable fix in [FU-VITEST-CI-HEAP-CEILING].
       # Remove it once those suites are identified.
       - name: Vitest suites (lazytopper)
+        if: steps.classify.outputs.docs_only != 'true'
         timeout-minutes: 20
         run: pnpm --filter lazytopper exec vitest run
         env:
           NODE_OPTIONS: --max-old-space-size=2048
+
+      # ★ SAY WHICH PATH THIS RUN TOOK, IN THE RUN. Without this, "CI was green" is ambiguous
+      # between "everything passed" and "almost nothing ran" — and those are the two outcomes a
+      # reader most needs to tell apart. Ungated, so it is present on both paths.
+      - name: Which path did this run take
+        if: always()
+        run: |
+          echo "CI_DOCS_LANE_PATH_TAKEN: ${{ steps.classify.outputs.verdict || 'unclassified (full bar)' }}"
+          echo "CI_DOCS_LANE_PATH_INSPECTED_FILES: ${{ steps.classify.outputs.inspected || 'n/a' }}"
+          echo "CI_DOCS_LANE_PATH_FULL_BAR_RAN: ${{ steps.classify.outputs.docs_only != 'true' }}"
