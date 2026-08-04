@@ -78,6 +78,37 @@ vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({ user: { uid: "test-uid", isLocalSession: false } }),
 }));
 
+/**
+ * ★ GATE-3 — `useSubscription` MUST be mocked here, and this file's student is PREMIUM.
+ *
+ * WHY IT MUST BE MOCKED AT ALL. `SolutionChecker` now reads `useSubscription()` to
+ * decide whether to show the locked CTA. The hook calls `hydrateSubscriptionFromCloud`
+ * for any truthy uid, and the mocked `useAuth` above supplies one — so unmocked, EVERY
+ * test in this file would fire a real Firestore request inside jsdom. This follows the
+ * repo's established precedent: 8 test files render a `useSubscription` consumer and all
+ * 8 mock it (re-counted at trunk 81d0d53c, not carried).
+ *
+ * WHY PREMIUM. This suite's subject is the component's CONTRACT — the EquationInput
+ * relationship, the prop shape, the rendering states, the grade payload, the persistence
+ * twins. Those are the entitled-path behaviours, and they are what the lifted blanket ban
+ * was buying. Mocking premium keeps all of them meaning exactly what they meant before
+ * this change, so the amendment below is the ONLY behavioural edit in the file. The
+ * free/trial/premium matrix is a different subject and lives in
+ * `SolutionChecker.entitlement.test.tsx`.
+ */
+vi.mock("../../hooks/useSubscription", () => ({
+  useSubscription: () => ({
+    tier: "premium",
+    isPremium: true,
+    isTrialActive: false,
+    isTrialExpired: false,
+    daysLeftInTrial: 0,
+    status: { tier: "premium" },
+    startTrial: () => {},
+    upgradeToPremium: () => {},
+  }),
+}));
+
 vi.mock("../../services/mistakeIntelligence", () => ({
   recordMistake: (...args: unknown[]) => recordMistake(...args),
   isSavedOutcome: (outcome: string) => outcome === "logged" || outcome === "duplicate",
@@ -263,9 +294,36 @@ describe("SolutionChecker -- every rendering state still renders", () => {
   it("STATE type + text: the Check CTA appears only once the ACTIVE tab has something to send", () => {
     render(<SolutionChecker {...BASE_PROPS} />);
     openTypeTab();
-    expect(screen.queryByRole("button", { name: "Check my answer" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Check my answer/ })).toBeNull();
     fireEvent.change(typePanelTextarea(), { target: { value: "sin^2 x + cos^2 x = 1" } });
-    expect(screen.getByRole("button", { name: "Check my answer" })).toBeInTheDocument();
+
+    /**
+     * ★★ AMENDED BY GATE-3 — and the reasoning matters more than the edit.
+     *
+     * WAS:  expect(screen.getByRole("button", { name: "Check my answer" })).toBeInTheDocument();
+     *
+     * That exact-name query silently required the ENABLED variant of the CTA, for a
+     * student whose entitlement this file never stated. It therefore froze "the button is
+     * enabled for an unmocked student" as a contract — and that is NOT one of the four
+     * things the lifted blanket ban was protecting (the EquationInput/autoGrow
+     * relationship, the prop contract, the rendering states, the grade payload). It was
+     * the behaviour that happened to be current the day the file was written.
+     *
+     * ★ THE RULE THIS RESTORES: a guard replacing a blanket ban must pin WHAT THE BAN
+     * PROTECTED, not WHAT THE FILE HAPPENED TO DO THAT DAY. The second is easy to write,
+     * passes immediately, and silently forbids the next intended change — which is exactly
+     * what happened: it blocked the locked-CTA layer outright.
+     * [FU-CONTRACT-TESTS-OVERPIN-CURRENT-BEHAVIOUR]
+     *
+     * NOW: the subject is pinned instead — once the active tab has something to send, a
+     * Check CTA EXISTS and is REACHABLE, in whichever state entitlement dictates. The
+     * enabled-vs-locked matrix is asserted where it belongs, against a stated tier, in
+     * `SolutionChecker.entitlement.test.tsx`.
+     */
+    const cta = screen.getByRole("button", { name: /Check my answer/ });
+    expect(cta).toBeInTheDocument();
+    // Reachable: never removed from the tab order, in either entitlement state.
+    expect(cta).not.toHaveAttribute("tabindex", "-1");
   });
 
   it("STATE result: score banner, evidence label, annotated step, examiner note and both CTAs", async () => {

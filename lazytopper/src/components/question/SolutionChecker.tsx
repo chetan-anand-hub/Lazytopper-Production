@@ -7,6 +7,7 @@ import {
 } from "../../ai/aiClient";
 import { UpgradeSheet, labelForFeature } from "../subscription/UpgradeSheet";
 import { useAuth } from "../../context/AuthContext";
+import { useSubscription } from "../../hooks/useSubscription";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
 import { EquationInput, EquationRender } from "../equation";
@@ -81,6 +82,120 @@ interface SolutionCheckerProps {
 // three host panels that were free at the time; this file was deliberately held for
 // PR-2 (the QP lane owned it), so it is fixed here — with the QR path that would
 // otherwise have promised 3.5 MB in the same panel this picker promised 5 MB.
+
+/**
+ * GATE-3 — THE VISIBLE LAYER OF THE PREMIUM BOUNDARY.
+ *
+ * ★★ THE PRINCIPLE: a student should learn the boundary BEFORE tapping, not by
+ * bouncing off it. GATE-2 shipped the EXPLAINED layer (a 402 opens the sheet) and the
+ * ENFORCED layer. Both are correct and both stay. What they could not do is teach: a
+ * free student typed a full answer, waited for a round-trip, and only THEN learned that
+ * grading was never available to them. A locked CTA is both more honest and the better
+ * conversion surface — hiding it teaches nothing, and a student who cannot see that
+ * grading exists cannot want it.
+ *
+ * ★★ THE SERVER'S RULE, MIRRORED — NOT A SECOND RULE INVENTED HERE.
+ * `server/services/entitlement.cjs` decides. Read in full, it does NOT block everyone
+ * who is not premium:
+ *
+ *   • `resolve()` with no verifiable uid returns `failOpen(FAIL_OPEN_NO_CREDENTIAL,
+ *     'no bearer token on the request')` → `{ entitled: true }`. The request is SERVED.
+ *   • `paidCallHeaders()` attaches `Authorization: Bearer …` ONLY when
+ *     `authClient.currentUser` exists. A signed-out visitor, and a local (non-Firebase)
+ *     session, both send no token.
+ *
+ * So a signed-out student CAN grade today. Locking the CTA for them would be a FALSE
+ * LOCK — telling a student a feature is unavailable when the server would have served
+ * it. That is fabrication with a price attached, and it is a regression. The client
+ * therefore locks ONLY the case the server actually denies: a verifiable Firebase
+ * caller whose effective tier is neither premium nor trial.
+ *
+ * ★ TRIAL COUNTS AS PREMIUM, and the behaviour is preserved rather than restated.
+ * `useSubscription().isPremium` is `isPremiumAccess(status)`
+ * (`subscriptionService.ts`), i.e. `status.tier === "premium" || status.tier === "trial"`
+ * — the same disjunction `canAccessFeature` applies for `requiredTier === "premium"`
+ * (`featureGates.ts`) and the same one the server's `isEntitled(tier)` applies. This
+ * file reads that primitive; it does not re-implement it.
+ *
+ * ★ WHY THERE IS NO `check_solution` ENTRY IN `featureGates.ts` TO READ.
+ * That table's `FeatureId` union has no `check_solution` member — grading has always
+ * been gated at the SERVER, and `featureGates.ts` is not in this lane's scope. Rather
+ * than restate the table (which the standing rule forbids) or extend it out of scope,
+ * this reads the SAME tier primitive the table's premium clause reads. The feature CODE
+ * `check_solution` below is not a new table entry: it is the exact string the server
+ * already sends in its 402 body, so the sheet's label resolves through
+ * `labelForFeature` identically whether the sheet was opened pre-emptively or by a 402.
+ *
+ * ★ THE CLIENT IS THE OPTIMISTIC LAYER; THE 402 IS THE BACKSTOP. Deliberately.
+ * The client's view can be stale (a trial that elapsed since hydration still reads
+ * `tier: "trial"` locally, while the server derives `free`). That errs toward SHOWING
+ * the CTA, and GATE-2's catch then explains the refusal. The opposite bias would hide a
+ * feature the student is entitled to. A student should now rarely meet a 402 — but
+ * "rarely" is not "never", which is why that catch is untouched.
+ */
+const PREMIUM_FEATURE_CODE = "check_solution";
+
+/**
+ * ★ NOTHING HERE MAY BE ERROR-RED. A locked feature is not a mistake the student made
+ * — the whole point of the visible layer is that it reads as information, not refusal.
+ * The treatment is the offer green + calm navy `UpgradeSheet` already uses.
+ *
+ * ★ CSS CLASSES, NOT `style={{}}`. Standing rule (CLAUDE.md §7). Follows the
+ * `UpgradeSheet.tsx` / `OfferStrip.tsx` precedent: a `<style>` block plus class names,
+ * so the new affordance adds no new file and no inline style objects.
+ */
+const LOCKED_CTA_CSS = `
+  .lt-sc-lock {
+    margin-top: 10px;
+  }
+  /* ★ NOT the HTML \`disabled\` attribute. \`disabled\` removes the control from the tab
+     order and swallows the click — a dead button, which is worse than a live one. The
+     control stays focusable and clickable; \`aria-disabled\` is what announces it as
+     unavailable, and the click opens the sheet that explains why. */
+  .lt-sc-lock__cta {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(73, 98, 127, 0.3);
+    background: rgba(73, 98, 127, 0.07);
+    color: #0f2743;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .lt-sc-lock__cta:focus-visible {
+    outline: 2px solid #16b96a;
+    outline-offset: 2px;
+  }
+  .lt-sc-lock__icon {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+  /* The Premium label, adjacent to the lock. Offer-green, never warning-amber. */
+  .lt-sc-lock__badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #0b8f50;
+    background: rgba(22, 185, 106, 0.12);
+    border: 1px solid rgba(22, 185, 106, 0.26);
+  }
+  /* ★ Names what Basic KEEPS. A student's real fear at a boundary is losing their own
+     work, so the sentence that answers it comes before the offer, not after. */
+  .lt-sc-lock__note {
+    margin: 8px 0 0;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: #49627f;
+  }
+`;
 
 const STATUS_STYLE: Record<string, { border: string; bg: string; badge: string; badgeBg: string }> = {
   correct:   { border: "rgba(34,197,94,0.35)",  bg: "rgba(34,197,94,0.05)",   badge: "#22c55e", badgeBg: "rgba(34,197,94,0.12)"  },
@@ -245,6 +360,26 @@ export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
+  /**
+   * GATE-3. Read the tier primitive, never a restated table — see PREMIUM_FEATURE_CODE.
+   *
+   * ⚠ THE GATE LIVES HERE, NOT IN A PROP THE PARENTS PASS. An `entitled` prop would be
+   * the `MentorSolveDrawer` defect waiting to happen: with two render sites today
+   * (`PracticeQuestionCard`, `HighlyProbableQuestions`) a third added tomorrow would
+   * silently ship UNGATED, and nothing would fail. Worse, the rule needs BOTH
+   * `useAuth()` and `useSubscription()` — so every call site would have to re-derive the
+   * signed-out and local-session carve-outs, and each is a chance to ship a false lock.
+   * Gating INSIDE the component makes "every render site is gated" true by construction
+   * rather than by everyone remembering.
+   */
+  const { isPremium } = useSubscription();
+  /**
+   * A caller the SERVER can verify. `paidCallHeaders()` sends a bearer token only for a
+   * real Firebase user, and `entitlement.cjs` fails OPEN without one — so signed-out
+   * students and local sessions are served and must NOT be shown a lock.
+   */
+  const verifiableCaller = !!user?.uid && !user.isLocalSession;
+  const locked = verifiableCaller && !isPremium;
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
@@ -441,6 +576,17 @@ export function SolutionChecker({
       setLoading(false);
     }
   }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId, solutionSteps, finalAnswer, section, format, options, answer]);
+
+  /**
+   * The locked CTA's tap. ★ It opens the SAME sheet the 402 opens — same component,
+   * same feature code, so the two paths cannot drift into two different explanations of
+   * one boundary. `trialEndedAt` is null here ON PURPOSE: only the server knows that
+   * date, and `UpgradeSheet` renders the line only when it is known. A date derived
+   * client-side from a local trial start would be a guess printed on a payment surface.
+   */
+  const handleOpenPremium = useCallback(() => {
+    setPremiumBlock({ feature: PREMIUM_FEATURE_CODE, trialEndedAt: null });
+  }, []);
 
   const handleClear = useCallback(() => {
     setImagePreview(null);
@@ -697,8 +843,39 @@ export function SolutionChecker({
         />
       )}
 
+      {/* ── The locked CTA (GATE-3) ──────────────────
+          Rendered for the WHOLE input phase, not only once `canCheck` is true. That is
+          deliberate and it is the point of the lane: gating it behind `canCheck` would
+          mean a free student types a complete answer and only THEN meets the boundary —
+          which is the same "learn it by bouncing off it" failure as the 402, just
+          cheaper. Visible from the moment the panel opens, the boundary is learned
+          before any work is spent.
+
+          NOT `display:none`, NOT removed from the tab order, NOT inert — see
+          LOCKED_CTA_CSS. */}
+      {locked && !result && (
+        <div className="lt-sc-lock">
+          <style>{LOCKED_CTA_CSS}</style>
+          <button
+            type="button"
+            className="lt-sc-lock__cta"
+            aria-disabled="true"
+            data-testid="sc-locked-cta"
+            onClick={handleOpenPremium}
+          >
+            <span className="lt-sc-lock__icon" aria-hidden="true">🔒</span>
+            <span>Check my answer</span>
+            <span className="lt-sc-lock__badge">Premium</span>
+          </button>
+          <p className="lt-sc-lock__note">
+            Marking your working step by step is part of Premium. You can still write or
+            upload your answer here, and everything you&rsquo;ve already done stays yours.
+          </p>
+        </div>
+      )}
+
       {/* ── Check button ────────────────── */}
-      {canCheck && !result && (
+      {canCheck && !result && !locked && (
         <button
           type="button"
           onClick={handleCheck}
