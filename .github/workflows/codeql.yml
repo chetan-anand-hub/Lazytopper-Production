@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         # NOTE: no `fetch-depth: 0` here, unlike quality-gate.yml. That gate
         # needs full history because the C&I convergence check anchors to a
         # fixed historical commit. CodeQL analyses the working tree only, so a
