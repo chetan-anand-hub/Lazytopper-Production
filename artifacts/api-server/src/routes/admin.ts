@@ -1,10 +1,23 @@
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import http from "http";
 import { requireFirebaseAuth } from "../middlewares/requireFirebaseAuth";
+import { ADMIN_RATE_LIMIT, createRateLimiter } from "../lib/security";
 
 const router: IRouter = Router();
 
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
+
+/**
+ * ONE limiter shared by all three admin routes, so the budget is per ADMIN
+ * CALLER rather than per endpoint — three separate instances would let a caller
+ * spend the whole allowance three times over by rotating between them.
+ *
+ * Mounted AFTER `requireFirebaseAuth` (so the key is a verified uid) and BEFORE
+ * `requireAdminRole` (so a NON-admin probing for admin access is limited too —
+ * that caller is the one worth limiting, and a 403 loop is exactly the shape of
+ * an enumeration attempt).
+ */
+const adminRateLimit = createRateLimiter(ADMIN_RATE_LIMIT);
 
 /**
  * Admin role guard.  Requires ADMIN_FIREBASE_UIDS to be set (comma-separated
@@ -70,6 +83,7 @@ function callGateway(
 router.get(
   "/admin/cache-stats",
   requireFirebaseAuth,
+  adminRateLimit,
   async (_req, res): Promise<void> => {
     try {
       const { statusCode, body } = await callGateway("/api/mentor/cache-stats");
@@ -84,6 +98,7 @@ router.get(
 router.get(
   "/admin/question-reports",
   requireFirebaseAuth,
+  adminRateLimit,
   requireAdminRole,
   async (_req, res): Promise<void> => {
     try {
@@ -99,6 +114,7 @@ router.get(
 router.patch(
   "/admin/question-reports/:id/resolve",
   requireFirebaseAuth,
+  adminRateLimit,
   requireAdminRole,
   async (req: Request, res): Promise<void> => {
     try {
