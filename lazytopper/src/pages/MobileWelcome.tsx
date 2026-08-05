@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
 /**
  * MobileWelcome — the mobile (<1024px) public landing for `/welcome`.
@@ -369,6 +370,11 @@ export default function MobileWelcome() {
           </button>
         </p>
       </div>
+
+      {/* [FU-LEGAL-FOOTER-LINK] — the mobile public landing carries no app chrome
+          (isPublicLandingRoute suppresses the global navbar), so this row is the
+          only route from the landing to the policies. */}
+      <PublicLegalFooter />
     </main>
   );
 }
