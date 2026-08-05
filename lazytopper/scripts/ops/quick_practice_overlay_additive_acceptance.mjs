@@ -25,7 +25,11 @@
  *     leg (routeToPractice / routeOut) is RETIRED; closing reads the graded record back over the
  *     EXISTING storage round-trip (composePracticeRecordReturnOpener — untouched, QP is the ref impl);
  *   · the C&I + QP hosts share ONE frame stylesheet (tutorOverlay.css) so the twins can't drift;
- *   · the engine / fetch-filter / persistence / grader / graded-read are UNTOUCHED (git zero-diff).
+ *   · the engine / fetch-filter / graded-read are UNTOUCHED (git zero-diff). ★ THE PERSISTENCE
+ *     MODULE IS NO LONGER ON THAT LIST: quickPracticeSessionService.ts's blanket ban was lifted by
+ *     FORBID-5 (Wave 5D) so BATCH-1b can extend it, and its protection is now
+ *     quickPracticeSessionService.persist.contract.test.ts, asserted present + collected + run in
+ *     §4. The grader (checkSolution.cjs) was never banned by THIS gate at all.
  *
  * METHOD: source assertions run against COMMENT-STRIPPED source (a grep hit in a comment is not a
  * usage). The forbidden-path diff is PR-scoped and, in CI, HARD-FAILS on an unresolvable base.
@@ -376,9 +380,60 @@ const FORBIDDEN = [
   // a precedent for the set: ME-PROGRESS touches none of the engine, fetch-filter, persistence or
   // graded-read modules, and lifting a ban before there is a need unprotects more than the case
   // justifies.
+  //
+  // ★★ quickPracticeSessionService.ts — blanket ban LIFTED 2026-08-05 (owner decision, Wave 5D
+  // lane FORBID-5). THIS GATE IS THE ONLY ONE THAT EVER BANNED IT. The arrays in
+  // check_improve_convergence_acceptance.mjs and check_improve_overlay_additive_acceptance.mjs were
+  // ENUMERATED at trunk a895dbdb to establish that, not grepped, and neither contains it; repo-wide
+  // there are exactly THREE `const FORBIDDEN = [` arrays and all three live in this directory. So
+  // unlike App.tsx and checkSolution.cjs — each of which was banned in TWO gates — this lift is
+  // genuinely one-sided and no twin amendment is owed.
+  //
+  // WHY NOW: BATCH-1b's Ruling 1 mandates extending THIS EXACT FILE to carry Quick Practice batch
+  // grading. This array is PR-scoped with no lane-scoping and no exception mechanism, so the ban
+  // blocked that lane outright. Precedent: #519 (DesktopShell.tsx), PR-C1 (checkSolution.cjs),
+  // #581 (SolutionChecker.tsx), #601 (App.tsx). THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
+  //
+  // WHAT THIS BAN WAS ACTUALLY BUYING, made explicit — because a blanket ban says "something here
+  // must not change" and never says what. The entry read only `// persistQuickPracticeSession`,
+  // inside a section headed "engine, fetch-filter, persistence, grader, graded-read: zero diff".
+  // ★ NOTHING ELSE IN THIS GATE ASSERTS ONE BYTE OF THAT MODULE — no source regex, no import check,
+  // no behavioural check — so the FORBIDDEN entry was its ENTIRE protection here. And the
+  // pre-existing `quickPracticeSessionService.test.ts` covers only the PURE units
+  // (buildSeenQuestionIds / sessionRotationOffset / buildQuickPracticeResponse, plus
+  // buildQuickPracticeSessionRecord called directly): `persistQuickPracticeSession`, the function
+  // the ban's own comment named, had ZERO executable coverage repo-wide. Concretely, the ban was
+  // the only thing standing between the product and:
+  //   (a) THE DOUBLE-WRITE HAZARD — a second writeSessionRecord / writeSessionPerQuestion call per
+  //       finished set surfaces as DUPLICATED attempts in Mistake Intelligence, the store the tutor
+  //       reads;
+  //   (b) a doc id that stops being a pure function of the session's own facts — a counter, a clock
+  //       or Math.random inside it turns every re-finish into a NEW row instead of an overwrite;
+  //   (c) the perQuestion payload drifting off the record it belongs to, which orphans "review my
+  //       answers" silently: no throw, no type error, nothing red;
+  //   (d) the `"quick-practice"` surface marker being renamed on one half only (two surface
+  //       vocabularies exist in this codebase and the record/marker split has bitten before);
+  //   (e) the signed-out / isLocalSession refusal disappearing (CLAUDE.md §7 — no Firestore write
+  //       without an auth check);
+  //   (f) an unattempted question being PADDED with a fabricated 0 instead of omitted.
+  //
+  // THE REPLACEMENT: `lazytopper/src/services/quickPracticeSessionService.persist.contract.test.ts`
+  // — targeted tests over `persistQuickPracticeSession` itself, pinning every item above, with the
+  // REAL record/code builders running and only the two WRITE seams spied. Count deliberately NOT
+  // recorded here: a carried number goes stale the first time a test is added, and this comment is
+  // not what re-reads it. Every mutation proven RED against a green control on the unmodified file.
+  // ★ One first-draft assertion was PROVEN A SILENT NO-OP by that exercise — a two-call equality
+  // check on the doc id stayed 12/12 GREEN while `Date.now()` was appended to the code, because
+  // both calls land in the same millisecond — and was replaced by an IDENTITY assertion against
+  // `quickPracticeCode()` before this ban was lifted. Its PRESENCE AND WIRING are asserted below,
+  // so this lift cannot decay into "no protection at all".
+  //
+  // → THE OTHER FOUR ENTRIES REMAIN, BY DELIBERATE DECISION, and this is NOT a precedent for the
+  // set: BATCH-1b touches neither the draw engine, the fetch-filter, the SessionRecord shape nor
+  // the graded read. Do NOT re-add this entry without a deliberate owner decision — the absence
+  // assertion below will fail if you do.
   "lazytopper/src/data/predictionDataService.ts", // the subtopicHint fetch-filter (draw stays)
   "lazytopper/src/data/practiceSetGenerator.ts", // the question draw / count logic
-  "lazytopper/src/services/quickPracticeSessionService.ts", // persistQuickPracticeSession
   "lazytopper/src/pages/tutor/tutorRoundTrip.ts", // composePracticeRecordReturnOpener — the graded read
   "lazytopper/src/services/sessionRecords.ts", // the SessionRecord shape / read
 ];
@@ -387,8 +442,8 @@ const FORBIDDEN = [
 // that really did modify a guarded file passed that gate 31/31 green: `changed.includes(f)` is
 // exact array membership and `git diff --name-only` emits REPO-ROOT-relative paths, so an entry
 // missing the `lazytopper/` prefix can NEVER match and guards NOTHING while reading as protection.
-// THIS GATE HAD NO SUCH LOOP AT ALL until FORBID-4 — its five surviving entries were unverified.
-// Filesystem-only, so it can never skip the way the diff loop below does.
+// THIS GATE HAD NO SUCH LOOP AT ALL until FORBID-4 — its then-five surviving entries were
+// unverified. Filesystem-only, so it can never skip the way the diff loop below does.
 for (const f of FORBIDDEN) {
   check(`FORBIDDEN(path): ${f} resolves to a real repo-relative file`,
     !f.startsWith("/") && !f.includes("\\") && existsSync(path.join(ROOT, f)),
@@ -396,28 +451,65 @@ for (const f of FORBIDDEN) {
     + "— check the lazytopper/ prefix");
 }
 
-// ★ MEMBERSHIP, asserted UNCONDITIONALLY — the five surviving entries. The git-diff loop below
-// only runs when a base ref resolves; on a shallow checkout it skips entirely, so "these five are
+// ★ MEMBERSHIP, asserted UNCONDITIONALLY — the four surviving entries. The git-diff loop below
+// only runs when a base ref resolves; on a shallow checkout it skips entirely, so "these four are
 // guarded AT ALL" is pinned here where nothing can skip it. Membership is NOT matchability: the
 // FORBIDDEN(path) loop above is what proves an entry can match. The two are complementary.
+// ⚠ THE LIFTED ENTRY'S LINE MUST LEAVE THIS LIST TOO — a removal from FORBIDDEN alone would fail
+// the gate on its own amendment, and the surviving entries' lines must NOT be touched.
 for (const f of [
   "lazytopper/src/data/predictionDataService.ts",
   "lazytopper/src/data/practiceSetGenerator.ts",
-  "lazytopper/src/services/quickPracticeSessionService.ts",
   "lazytopper/src/pages/tutor/tutorRoundTrip.ts",
   "lazytopper/src/services/sessionRecords.ts",
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx ONLY)`,
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx; FORBID-5 lifted quickPracticeSessionService.ts — nothing else)`,
     FORBIDDEN.includes(f),
-    "the App.tsx lift was a deliberate ONE-FILE amendment — this entry must survive it");
+    "both lifts were deliberate ONE-FILE amendments — this entry must survive them");
 }
 
-// ★ THE INVERSE ASSERTION — what makes the lift itself OBSERVABLE. A silent re-add of the blanket
+// ★ THE INVERSE ASSERTIONS — what makes each lift itself OBSERVABLE. A silent re-add of a blanket
 // entry turns this red and forces a deliberate owner decision, instead of quietly re-blocking the
-// next convergence lane with no discussion.
+// next lane with no discussion.
 check("FORBIDDEN(lifted): App.tsx is NOT in the guarded set (ban replaced by GUARD 3 + App.routing.contract.test.tsx)",
   !FORBIDDEN.includes("lazytopper/src/App.tsx"),
   "re-adding the blanket entry needs an owner decision AND removal of the replacement tests");
+check("FORBIDDEN(lifted): quickPracticeSessionService.ts is NOT in the guarded set (ban replaced by quickPracticeSessionService.persist.contract.test.ts)",
+  !FORBIDDEN.includes("lazytopper/src/services/quickPracticeSessionService.ts"),
+  "re-adding the blanket entry needs an owner decision AND removal of the replacement tests — "
+  + "it would also re-block BATCH-1b, whose Ruling 1 mandates extending that exact file");
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED quickPracticeSessionService BAN (FORBID-5).
+   ══════════════════════════════════════════════════════════════════════════
+   Same reasoning as the App.tsx block below: a deleted FORBIDDEN entry plus a test file nobody
+   invokes is strictly WORSE than the ban it replaced, because it READS as protection. So all
+   three halves are asserted — the tests EXIST, they are COLLECTED by the vitest include glob, and
+   vitest actually RUNS in CI. Filesystem-only, so this can never skip the way the diff loop can.
+   ══════════════════════════════════════════════════════════════════════════ */
+const QP_PERSIST_TESTS = "lazytopper/src/services/quickPracticeSessionService.persist.contract.test.ts";
+check(`QP-PERSIST-TESTS: ${QP_PERSIST_TESTS} exists (the replacement for the lifted blanket ban)`,
+  existsSync(path.join(ROOT, QP_PERSIST_TESTS)),
+  "the blanket FORBIDDEN entry was lifted in favour of these tests — without them "
+  + "persistQuickPracticeSession is unguarded and the double-write hazard is unwatched");
+check("QP-PERSIST-TESTS: they are COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+  /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/
+    .test(readFileSync(path.join(LAZY, "vitest.config.ts"), "utf8"))
+  && QP_PERSIST_TESTS.startsWith("lazytopper/src/") && QP_PERSIST_TESTS.endsWith(".test.ts"),
+  "the include glob no longer matches the replacement tests — they would never be discovered");
+check("QP-PERSIST-TESTS: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+  /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
+  "no vitest step in CI — a .test.ts cannot replace a forbidden-path entry that nothing executes");
+// ★ AND THE ASSERTION THE BAN WAS ACTUALLY BUYING IS STILL IN THERE. Presence + wiring alone would
+// pass against an emptied file. The double-write hazard is the load-bearing one, so it is named.
+const qpPersistSrc = existsSync(path.join(ROOT, QP_PERSIST_TESTS))
+  ? readFileSync(path.join(ROOT, QP_PERSIST_TESTS), "utf8")
+  : "";
+check("QP-PERSIST-TESTS: they still pin ONE graded set -> ONE record + ONE payload (the double-write hazard)",
+  /toHaveBeenCalledTimes\(1\)/.test(qpPersistSrc)
+  && /writeSessionRecord/.test(qpPersistSrc) && /writeSessionPerQuestion/.test(qpPersistSrc),
+  "the file exists and runs, but the assertion the ban was buying is gone — that is a "
+  + "replacement in name only");
 
 /* ══════════════════════════════════════════════════════════════════════════
    ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED App.tsx BAN (FORBID-4), half 2.
@@ -492,5 +584,6 @@ console.log("  hunks overlay-gated: pinned ✕ · breadcrumb suppressed · Ask-t
 console.log("  host: NO nested Router (#490 guard) · seed via <Routes location> + RouteContext reset · navigation CONTAINED to onClose · shared --qp frame ·");
 console.log("  harness: the integration test mounts an OUTER router inside a matched /tutor route + a CONTROL case that must throw ·");
 console.log("  wiring: Practise-this opens the overlay · routeToPractice/routeOut retired · graded read-back over the existing storage round-trip ·");
-console.log("  forbidden zero-diff: predictionDataService · practiceSetGenerator · quickPracticeSessionService · tutorRoundTrip · sessionRecords ·");
-console.log("  ban LIFTED, protection re-formed: App.tsx → GUARD 3 (route propless) + App.routing.contract.test.tsx (FORBID-4)\n");
+console.log("  forbidden zero-diff: predictionDataService · practiceSetGenerator · tutorRoundTrip · sessionRecords ·");
+console.log("  ban LIFTED, protection re-formed: App.tsx → GUARD 3 (route propless) + App.routing.contract.test.tsx (FORBID-4) ·");
+console.log("  ban LIFTED, protection re-formed: quickPracticeSessionService.ts → quickPracticeSessionService.persist.contract.test.ts (FORBID-5)\n");
