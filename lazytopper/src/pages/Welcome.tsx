@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
 const NAVY = "#071a3d";
 const NAVY_2 = "#092858";
@@ -60,6 +61,27 @@ export default function Welcome() {
             .lt-landing-stage {
               position: relative;
               z-index: 2;
+            }
+
+            /* [FU-LEGAL-FOOTER-LINK] — per-page contrast for PublicLegalFooter, via
+               the \`className\` hook the component exposes for exactly this. Its
+               default palette is tuned for a light surface; the bottom of this
+               landing is #051733. MEASURED in the browser, not assumed: the default
+               rest colour rgb(118,128,147) scores 4.49:1 (under AA for 12px) and the
+               default hover/:focus-visible colour rgb(32,50,90) scores 1.42:1 — the
+               link VISUALLY DISAPPEARS when hovered or keyboard-focused. Selectors
+               are prefixed with .lt-frozen-landing to out-specify the component's own
+               rules, which would otherwise win the tie on document order. */
+            .lt-frozen-landing .lt-landing-legal {
+              /* Opaque on purpose: an rgba() here would report as "rgba(255,255,255,.58)"
+                 in getComputedStyle, so any future contrast check would measure white
+                 rather than the composited pixel. #969ea9 IS the composited result. */
+              color: #969ea9;
+            }
+
+            .lt-frozen-landing .lt-landing-legal a:hover,
+            .lt-frozen-landing .lt-landing-legal a:focus-visible {
+              color: #ffffff;
             }
 
             .lt-landing-viewport:after {
@@ -1742,6 +1764,21 @@ export default function Welcome() {
           </section>
 
           <BenefitRow />
+
+          {/* [FU-LEGAL-FOOTER-LINK] — the desktop public landing carries no app
+              chrome (isPublicLandingRoute suppresses the global navbar), so this row
+              is the only route from the signed-out front door to the policies.
+
+              ★ PLACEMENT IS LOAD-BEARING. It must sit INSIDE .lt-landing-stage, not
+              after it as a direct child of <main>. At >=1180px this landing is a
+              frozen, non-scrolling screen: html/body/#root and .lt-frozen-landing are
+              all `height:100vh; overflow:hidden`, and .lt-landing-viewport is a grid
+              of `auto auto minmax(0,1fr) auto auto` whose items are the stage's own
+              children (.lt-landing-stage is `display:contents`). Mounted here the
+              footer fills the fifth, previously unused, grid row. Mounted outside the
+              viewport it would be clipped away with no scrollbar to reach it —
+              present in the DOM, unreachable by a student. */}
+          <PublicLegalFooter className="lt-landing-legal" />
         </div>
       </div>
     </main>
