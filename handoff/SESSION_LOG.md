@@ -1,5 +1,56 @@
 ---
 
+## 2026-08-05 -- #606–#609 (WAVE 5D, four lanes + one read-only scout under the controller + subagent model): a legal gap on the signed-out front door · two briefs whose headline items were already shipped · a stacked PR that deadlocked with its own base - trunk `51f7712`
+
+Merge order FORBID-5 → SERVER-1 → COPY-1 → WELCOME-1.
+Full controller record: `handoff/WAVE_STATE_WAVE5D_ARCHIVE.md`.
+
+- **`#606` FORBID-5** — lifted the `quickPracticeSessionService.ts` blanket ban and replaced it with
+  a 12-test persist contract, plus a `FORBIDDEN(lifted)` inverse assertion so a silent re-add reddens
+  the gate. Published the complete forbidden map: **exactly three `const FORBIDDEN = [` arrays**
+  repo-wide — CONV (6), OVL (3), QP-OVL (5→4). ★★ **Its own first draft contained a silent no-op:**
+  an idempotence test comparing two run ids stayed green under `+Date.now()`, because both calls land
+  in the same millisecond and a contaminated id **still equals itself**. Replaced with an identity
+  assertion against the real generator. ★ Proved `checkSolution.cjs` is **not** banned by any gate,
+  with a control. ⚠ **`ResultsScorecard.tsx` still banned by BOTH gates — BATCH-2 blocked.**
+- **`#607` SERVER-1** — pinned the `/api` proxy's privileged-header strip. ★★ **Two of the brief's
+  premises were false.** `responseSchema` (§1) **had shipped in #559/PR-C2**; §3's defect **did not
+  exist** (`app.ts:47` is an entry *inside* `STRIPPED_PROXY_HEADERS`). **The real defect was that the
+  strip had zero coverage — deleting it turned nothing red.** Test-only; `checkSolution.cjs` is
+  byte-identical to trunk. ★ §2 shipped **no** thinking budget: the telemetry is unreachable from a
+  worktree and every grader test stubs the client, so the brief's own quality proof was unobtainable.
+  **It refused to certify a grading-quality property it had not measured.**
+- **`#608` COPY-1** — legal reachable from `/pricing` and mobile `/welcome`; evidence figure unified
+  behind `src/config/evidenceBase.ts`. ★ **All three drift sites the brief named were wrong.** ★ **No
+  slug is empty**, so no policy text was written — the fabrication line never bound. ★ **Its own
+  absence control caught its own error:** `/sign-up`'s whole body is `import { AuthDoor } from
+  "./Login"`, so the footer it inherits is **grep-invisible**.
+- **`#609` WELCOME-1** — the signed-out desktop landing reaches the policies, under a narrow
+  owner-authorised exception to the `Welcome.tsx` ban. ★★ **The controller's own brief was the
+  defect:** "mount it exactly as COPY-1 did" would have shipped a **silent no-op** — clipped outside
+  `.lt-landing-stage` on a `height:100vh; overflow:hidden` landing, with no scrollbar to reach it.
+  Present in the DOM, green on every presence test, invisible to every student. **The lane also added
+  the 1280/1440 captures that made it visible; the specified 1024/390 would have missed it.**
+  ★ Kept ~14 lines of scoped CSS, owner-ratified: the component default measured **1.42:1** on hover
+  and `:focus-visible` — the link **vanishes exactly when a keyboard user selects it**.
+- **SCOUT (no PR)** — settled `responseSchema` on trunk with the chain quoted at every hop, and
+  **wrote nothing.** `[FU-EFF-RESPONSE-SCHEMA]` is closed; the **"MI is built on noise" framing is
+  retired** — grading has been constrained since #559. The wrong claim had reached three documents.
+
+★★ **THE DEADLOCK — the wave's most transferable finding.** `#608` and `#609` could not merge **in
+either order**: `lane_overlap.mjs` compares every open PR against every other, so a **stacked PR and
+its base each see the other** as an open PR sharing the same nine paths. Both correct individually,
+neither mergeable. Resolved without `--admin`: close `#609` → **re-run `#608`'s Lane Overlap**
+(closing a PR does not re-trigger checks on another — same lesson as `#593`) → merge `#608` → reopen
+→ `gh pr update-branch` → merge. ⇒ **DO NOT STACK PRs IN THIS REPO.**
+
+⚠ **THE WARM-POOL INCIDENT.** `DATABASE_URL` was provisioned and removed within ten minutes.
+`WARM_POOL_TOP_UP_INTERVAL_MS=0` was set first as the brake and **was not sufficient** — it disables
+the **recurring** top-up only, while a separate **one-time startup pre-warm is ungated** and began a
+312-combination run. What saved it was an unrelated failure: the schema had never been created, so
+every combination erred at the count step and spend showed no spike. **With a populated schema it
+would have proceeded.** ⇒ `DATABASE_URL` is **no longer an owner task; it is a lane.**
+
 ## 2026-08-04 -- #601–#604 (WAVE 5C, four PRs / four lanes under the controller + subagent model): a blanket ban replaced by tests that actually fire · the locked CTA shipped · 40 defective solutions pulled from live student paths · a CI fast path that splits the gate without trimming it - trunk `203fb370`
 
 **Owner live-verify PASSED.** Merge order FORBID-4 → GATE-3 → BANK-1 → CI-DOCS last.

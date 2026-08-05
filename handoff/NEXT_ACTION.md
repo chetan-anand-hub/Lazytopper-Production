@@ -1,7 +1,110 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-04 (post-**#601–#604 — WAVE 5C**, four PRs / four lanes under the controller + subagent model. Trunk `203fb370`. **OWNER LIVE-VERIFY PASSED.** Full controller record in `handoff/WAVE_STATE_WAVE5C_ARCHIVE.md`.)
+# Updated: 2026-08-05 (post-**#606-#609 -- WAVE 5D**, four lanes + one read-only scout under the controller + subagent model. Trunk `51f7712`. Full controller record in `handoff/WAVE_STATE_WAVE5D_ARCHIVE.md`.)
 
-## NEXT — 2026-08-04 (post-#601–#604, WAVE 5C). Read this block first.
+## NEXT -- 2026-08-05 (post-#606-#609, WAVE 5D). Read this block first.
+
+### 0 - WAVE 5E RUNS FOUR LANES. OWNER-RULED.
+
+Trunk `51f7712`. Zero open PRs. All four Wave 5D lanes verified ON TRUNK BY CONTENT, not by PR state
+(this repo squash-merges, so `merge-base --is-ancestor` on a PR head is the wrong test).
+
+1. **`BATCH-1b`** -- spec coming from the cofounder; `#606` unblocked it by lifting the
+   `quickPracticeSessionService.ts` ban. **Do not improvise the spec.**
+   WARNING for whoever writes it: the ban was buying the **double-write hazard** -- one graded set
+   must produce ONE record and ONE payload. A second writer surfaces as duplicated attempts in
+   Mistake Intelligence, which is the store the tutor reads. That property is now pinned by
+   `quickPracticeSessionService.persist.contract.test.ts`; **do not weaken it.**
+2. **Telemetry instrumentation** -- **GATES `SERVER-1` section 2.** See
+   `[FU-TELEMETRY-NO-CALL-CLASS-NO-PERCENTILES]`. `/api/admin/token-telemetry` answers but returns
+   **totals, not a distribution**, and **83 of 84 calls are `unclassified`** (only `tutor` is tagged).
+   Most of that sample was warm-pool GENERATION, so **budgeting the grader off it budgets the wrong
+   workload.** Needed: per-call-class tagging and **p90 PER MARKS-BAND** -- not p50/p90/p99, and
+   emphatically not a mean, which tells you nothing about the tail.
+   Measured and worth carrying: **average grading latency 17.0 s**, so the 17.3 s in the owner HAR
+   was **the norm, not an outlier**; thinking is **80.9%** of output-rate tokens.
+   WARNING: counters are **per-process and reset on redeploy**, so an accrual window only accrues if
+   nothing ships. Capture a reading before each merge.
+3. **Warm-pool startup gate + schema** -- **GATES `DATABASE_URL`.**
+   `[FU-WARM-POOL-STARTUP-PREWARM-NOT-GATED]`. **`DATABASE_URL` IS NO LONGER AN OWNER TASK. IT IS A
+   LANE.** `WARM_POOL_TOP_UP_INTERVAL_MS=0` disables the **recurring** top-up only; a separate
+   **one-time STARTUP pre-warm is ungated** and began a 312-combination run. Only an unrelated
+   failure (the schema had never been created, so every combination erred at the count step) kept
+   spend flat. **With a populated schema it would have proceeded.** Gate the startup path AND create
+   the schema before any second attempt.
+4. **`AUTH-1` -- ALONE, with zero other open PRs.** `AuthContext` is `vi.mock`ed in ~25 files, every
+   one a complete replacement, and its key set is pinned by **exact equality**, so it fails on
+   **addition** -- reddening files the lane never opens. Three of the 25 are `PracticePage` tests.
+   Carries a live defect: **nothing links to `/sign-up`, so every account is created with no
+   `displayName`.** `[FU-AUTH-SIGNUP-ROUTE-UNREACHABLE]`
+
+**Plus one small owner-directed fix:** `PublicLegalFooter`'s default contrast --
+`[FU-LEGAL-FOOTER-REST-CONTRAST]`, 4.49:1 rest against a 4.5:1 AA threshold and **1.42:1 on hover /
+`:focus-visible`**, where the link vanishes exactly when a keyboard user selects it. **Fix in the
+COMPONENT, not per host** (`#969ea9` = 6.59:1 / 17.84:1), which makes `#609`'s override redundant.
+
+### 0a - PROCESS RULES EARNED IN WAVE 5D. DO NOT RE-LEARN THESE.
+
+- **`gh pr ready` IS THE OWNER'S STEP.** Lanes push DRAFT PRs, read their own CI run, and stop. The
+  model said lanes never mark ready; it never said who does, and **four PRs sat mergeable-but-draft.**
+- **A SUBAGENT COMMITS AND PUSHES A DRAFT. IT NEVER MARKS READY, NEVER MERGES, NEVER PUSHES TO TRUNK,
+  NEVER DELETES A BRANCH.** The operating model contradicts itself here -- its section 1 says "pushes
+  as draft, reads the CI log", its section 6 says "stop before commit". **Section 1 is correct;
+  section 6 should read "stop before MERGE."** Owner-ruled 2026-08-05.
+- **DO NOT STACK PRs IN THIS REPO.** `[FU-LANE-OVERLAP-SYMMETRIC-DEADLOCK-ON-STACKED-PRS]` --
+  `lane_overlap.mjs` compares every open PR against every other, so **a stacked PR and its base each
+  see the other** and **neither can merge, in either order.** Recovery without `--admin`: close the
+  stacked PR, **re-run the base's Lane Overlap** (closing a PR does NOT re-trigger checks on another
+  -- same lesson as `#593`), merge the base, reopen, `gh pr update-branch`, merge.
+  **Either wait for the base to merge, or scope the second lane so it does not need the first's files.**
+- **A MUTATION MUST BE VERIFIED *APPLIED* BEFORE ITS RED/GREEN IS EVIDENCE.** Snapshot the SHA,
+  mutate, **assert mutated-sha != baseline**, run, restore from a byte snapshot, assert sha ==
+  baseline. Most files here are CRLF; a line-anchored pattern ending `\n` **silently matches nothing**,
+  and verifying only the restore cannot catch it. **That failure mode accuses a GOOD test of being
+  fake** -- you delete real coverage on its strength.
+- **`CLAUDE.md`'s "190 checks" is NOT STALE.** It reads "as of 2026-07-28; the count GROWS; read it
+  from the run." Reading 196 is that instruction **working**. Three lanes have now flagged that file
+  and all three were wrong. **Do not edit it.**
+
+### 0b - TWO CLOSED ITEMS. DO NOT RE-SCOPE EITHER.
+
+- **`[FU-EFF-RESPONSE-SCHEMA]` is CLOSED -- it shipped in `#559` (PR-C2) and was never needed.**
+  Verified on trunk with the chain quoted at every hop: constants at `:167`/`:212`/`:266`, wired at
+  `:595`/`:888`/`:1385`, reaching the wire at `geminiClient.cjs:392`; `callGemini` has three call
+  sites and **every one carries a schema**; 18 contract tests, one asserting it is SENT.
+  **The "MI is built on noise" framing is RETIRED. Grading output has been constrained since #559.**
+  The wrong claim reached three documents; it was inferred from `responseMimeType` present without a
+  schema -- **one line read, twelve unread.** Struck, not deleted, per the precedent at
+  `LazyTopper_Cost_Pricing_Analysis_v1_1.md:105-110`.
+- **`checkSolution.cjs` is NOT forbidden by any gate** and has not been since Wave 3 PR-C1. Any
+  document still saying otherwise is stale. The complete map is **three** `const FORBIDDEN = [`
+  arrays, all under `lazytopper/scripts/ops/`: CONV (6), OVL (3), QP-OVL (4).
+  **`ResultsScorecard.tsx` is still banned by BOTH C&I gates, so `BATCH-2` needs two amendments in
+  ONE PR plus a from-scratch component suite** -- it has no component test today.
+
+### 0c - PAY-1 IS BLOCKED ON ONE DECISION ONLY
+
+Razorpay Phase 1 is **done and proven, not merely configured**: test keys generated then **rotated**
+after being exercised; webhook registered and Enabled with its secret set; all three env vars in
+Railway; and **verified by a live `POST /v1/orders`** that returned a real test order.
+**The only blocker is the plan shape** -- one-time "till boards" vs recurring; the owner is taking a
+day. **If one-time: no e-mandate, no Razorpay Subscriptions, and PAY-1 is roughly HALF the originally
+scoped build** -- create-order, a webhook with signature verification and idempotency, and a
+firebase-admin write to `subscriptions/{uid}`. `firestore.rules:117` already restricts browser writes
+to `tier in {free, trial}`, **so only a server write can grant Premium.** The entitlement record needs
+no redesign.
+
+### 0d - A DESIGN CALL THE NEXT LANE MUST NOT UNDO
+
+**`[FU-LEGAL-CONSOLIDATE-UNDER-ONE-ROOF]`.** The owner judges the public-landing footer harmful to a
+designed page and prefers legal under one roof, reached from the avatar and the door. **Merged for
+now; he verifies live, then relocates.** ** The compliance point is the COLLECTION point -- the
+sign-up door, which already links and is pinned by a test.** The landing and pricing footers are
+belt-and-braces. **Whatever the design becomes, the policy must stay reachable from the door before
+the button is pressed.**
+
+---
+
+## PREVIOUS — 2026-08-04 (post-#601–#604, WAVE 5C). Superseded by the block above. NOTE: its section 0 scoped Wave 5D as ME-PROGRESS + NAME+LINK + BACKNAV, A LANE SET THAT NEVER RAN.
 
 ### 🛑🛑 0 · WAVE 5D — FOUR LANES, NOT SIX. OWNER-RULED.
 
@@ -503,7 +606,7 @@ No gate can see any of these.
 
 1. **★ WAVE 3 — SERVER LANE (named next, Agent A).** Three items, all server-side:
    - **`[FU-VERIFY-UID-ON-AI-ENDPOINTS]`** — the cheap half is done. #552 now sends `Authorization: Bearer` alongside the uid string at every paid call site, so `resolveCaller` can derive the uid from the **verified token** with no further client change. Until it does, the uid is spoofable. **Take this first.**
-   - **`[FU-EFF-RESPONSE-SCHEMA]`** — Gemini `responseSchema` / constrained decoding. Read `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` first; it is the only place the ranked levers exist.
+   - **`[FU-EFF-RESPONSE-SCHEMA -- CLOSED 2026-08-05: IT SHIPPED IN #559/PR-C2 AND WAS NEVER NEEDED. DO NOT RE-SCOPE. See OPEN_QUESTIONS_AND_FOLLOWUPS.md]`** — Gemini `responseSchema` / constrained decoding. Read `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` first; it is the only place the ranked levers exist.
    - **Server-side quota counters** — the entitlement half the client gates currently carry alone.
    **★ Do this lane with the telemetry read-out in hand**, not before: #549 exists precisely so these decisions stop being modelled from estimates.
 
@@ -526,7 +629,7 @@ Twenty test files mock it; one asserts the context key set by **exact equality**
 
 **The code-side launch-blocker tier is EMPTY.** #538 closed the last one — a student who forgets their password can now recover their account. Lane G (#537) capped the endpoints; Lane H published the price and instrumented the spend.
 
-**★ Read `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` before touching anything in the efficiency tier.** It is committed with this update and is the only place the per-call cost model, the ranked levers and the margin table exist. Two of its v1.1 corrections reverse v1.0 conclusions, and one of them (`mentorResponseBuilder` is an orphan) invalidates part of an FU's stated justification — see the correction note on `[FU-EFF-RESPONSE-SCHEMA]`.
+**★ Read `handoff/LazyTopper_Cost_Pricing_Analysis_v1_1.md` before touching anything in the efficiency tier.** It is committed with this update and is the only place the per-call cost model, the ranked levers and the margin table exist. Two of its v1.1 corrections reverse v1.0 conclusions, and one of them (`mentorResponseBuilder` is an orphan) invalidates part of an FU's stated justification — see the correction note on `[FU-EFF-RESPONSE-SCHEMA -- CLOSED 2026-08-05: IT SHIPPED IN #559/PR-C2 AND WAS NEVER NEEDED. DO NOT RE-SCOPE. See OPEN_QUESTIONS_AND_FOLLOWUPS.md]`.
 
 Owner-set order:
 
@@ -534,7 +637,7 @@ Owner-set order:
    **Owner-approved shape:** combine it with Lane G's `[FU-ANON-BUCKET-XFF-DEPENDENT]` shape diagnostic as **one `index.cjs` PR**. Both lanes reached the "telemetry read path goes first" conclusion independently, and both need the same frozen file, so they must not be two PRs racing for it. `index.cjs` is Lane G's territory — sequence under whoever owns that file, not in parallel.
 2. **`[FU-EFF-QUICK-PRACTICE-BATCH]`** — biggest single saving (69% off the largest line, 31% of daily spend) **and** a product win: the tutor receives one graded answersheet instead of five disconnected checks. Flow is owner-locked. Requires a FORBIDDEN-list amendment for `SolutionChecker.tsx` and `ResultsScorecard.tsx` — owner authorised; **replace the ban with targeted tests per the #519 precedent, do not simply delete entries.**
 3. **`[FU-FORBIDDEN-PATH-PREFIX-BUG]`** — ★★ **BLOCKS (4), and it is a one-line micro-PR.** Both FORBIDDEN arrays list `'server/routes/checkSolution.cjs'` without the `lazytopper/` prefix, while the check is exact array membership against repo-relative paths — so **the grader, the file named directly as untouchable, is protected by an entry that can never fire.** Verified independently by Lane H; the same file at `check_improve_convergence_acceptance.mjs:528` carries a correctly-prefixed sibling entry, which is both the proof and the fix's shape. Its own micro-PR, one line plus a test asserting the entry matches a real path. **Do not fold it into another change.** Lane G, after CORS.
-4. **`[FU-EFF-RESPONSE-SCHEMA]`** — cost *and* the grading-consistency FUs together. Highest quality-per-rupee item on the board: constrained decoding means one output shape every time, so MI stops being built on noise. Touches FORBIDDEN `checkSolution.cjs` — ★ **which is exactly why (3) must land first.** Taking the deliberate FORBIDDEN amendment while the guard cannot match means lifting a protection that was never in force, and the PR then ships whatever it did to the grader while everyone believes the removal was reviewed. A false sense of review is worse than none.
+4. **`[FU-EFF-RESPONSE-SCHEMA -- CLOSED 2026-08-05: IT SHIPPED IN #559/PR-C2 AND WAS NEVER NEEDED. DO NOT RE-SCOPE. See OPEN_QUESTIONS_AND_FOLLOWUPS.md]`** — cost *and* the grading-consistency FUs together. Highest quality-per-rupee item on the board: constrained decoding means one output shape every time, so MI stops being built on noise. Touches FORBIDDEN `checkSolution.cjs` — ★ **which is exactly why (3) must land first.** Taking the deliberate FORBIDDEN amendment while the guard cannot match means lifting a protection that was never in force, and the PR then ships whatever it did to the grader while everyone believes the removal was reviewed. A false sense of review is worse than none.
 5. **`[FU-HOME-FABRICATED-SOCIAL-PROOF]`** — ★ **should precede public launch.** `Home.tsx` publishes `aggregateRating 4.8 / reviewCount 2340` as JSON-LD plus "12,800+ students" in prose. Direct §5 doctrine violation, and Google's structured-data policy prohibits fabricated review markup — the penalty is manual action against the site. Inert only while the page stays unrouted, exactly as the ₹149 price was inert right up until it wasn't.
 6. **`[FU-EFF-THINKING-BUDGET]`** — **after** a week of real data from (1). Set budgets at p90 of observed `thoughtsTokenCount` per class, never by guess. Grader first; tutor deliberately excluded (`[FU-EFF-TUTOR-COST-ENVELOPE]`).
 

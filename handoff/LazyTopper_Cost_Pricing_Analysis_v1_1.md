@@ -202,13 +202,38 @@ Requires a FORBIDDEN-list amendment (`SolutionChecker.tsx`, `ResultsScorecard.ts
 authorised; replace the ban with targeted tests per the #519 precedent.
 
 ### ★ 2. `responseSchema` (new in v1.1) — cost AND grading consistency
-Constrained decoding is used **nowhere**; only `responseMimeType: 'application/json'`, which
+~~Constrained decoding is used **nowhere**; only `responseMimeType: 'application/json'`, which
 *asks* for JSON rather than constraining it. That is why the retry at `checkSolution.cjs:301`
-exists. A schema makes malformed output impossible.
+exists. A schema makes malformed output impossible.~~
 
 **This is the fix for `[FU-GRADING-RELIABILITY]` / `[FU-GRADE-CONSISTENCY]`** — one output shape
-every time, so MI stops being built on noise. Highest quality-per-rupee item on the board.
-Touches `checkSolution.cjs`, which is FORBIDDEN-listed.
+~~every time, so MI stops being built on noise. Highest quality-per-rupee item on the board.
+Touches `checkSolution.cjs`, which is FORBIDDEN-listed.~~
+
+> **CORRECTION 2026-08-05 (Wave 5D) - THIS ENTIRE ITEM WAS ALREADY SHIPPED AND IS STRUCK ABOVE.**
+> `responseSchema` shipped as **#559 / PR-C2**, before this analysis was written. Independently
+> verified on trunk `51f7712`: `GRADE_RESPONSE_SCHEMA` / `DETECT_RESPONSE_SCHEMA` /
+> `WORKSHEET_RESPONSE_SCHEMA` defined at `:167` / `:212` / `:266`, **wired** into the request
+> config at `:595` / `:888` / `:1385`, and reaching the wire at
+> `services/geminiClient.cjs:392`. `callGemini` has exactly three call sites in that file and
+> **every one carries a schema**. 18 contract tests cover it; one asserts it is *sent*, another that
+> the retry carries it, and a third that it reaches the outgoing request body.
+>
+> **So: "constrained decoding is used nowhere" was FALSE when written, and the**
+> **"MI stops being built on noise" framing is RETIRED - grading output has been constrained since**
+> **#559.** The wrong claim reached three documents and cost a spec error plus a scout to disprove.
+> The mechanism: `responseMimeType` was read as present *without* a schema and "not shipped" was
+> inferred - **one line read, twelve unread.**
+>
+> `[FU-EFF-RESPONSE-SCHEMA]` is CLOSED. Struck, not deleted, per the precedent at lines 105-110 of
+> this file, so anyone who cited it can see the change.
+>
+> **What remains real from this item:** `[FU-GRADER-SCHEMA-STRIP-RETRY-SILENT]` - the retry ladder
+> gates `responseSchema` and `responseMimeType` **together** on `includeStructuredOutput`, so a
+> rejected schema **silently strips both** and grading degrades to pre-#559 output **with no alarm**.
+> A counter or warning on the degraded path would make it observable - the same shape as GATE-1's
+> fail-open witness, which exists precisely because **a correct fallback that cannot be seen firing
+> is indistinguishable from no protection.**
 
 ### 3. Grader thinking budget — **saves ~$0.028/day**
 Thinking bills as output and output is ~90% of cost, yet only one call sets a budget
