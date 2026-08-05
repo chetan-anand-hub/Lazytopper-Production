@@ -1,3 +1,79 @@
+## 2026-08-05 - Wave 5D, four lanes + one scout under a controller + subagent model (#606-#609, trunk `51f7712`)
+
+Owner rulings across the wave, and the scope discovered after each lane was first planned.
+
+**1 - PUSH POLICY: a subagent commits, pushes a DRAFT PR, and reads its own CI run. It never marks
+ready, never merges, never pushes to trunk, never deletes a branch.**
+The operating model contradicted itself: sec1 said a subagent "pushes as draft, reads the CI log";
+sec6 said "subagents stop before commit." **Sec1 is correct; sec6 should read "stop before MERGE."**
+Every Wave 5D brief header carried the same ambiguity, cofounder-acknowledged as his own error.
+Decisive: the bounded report template REQUIRES a PR number and a CI run id with a quoted zero-skip
+line, which only exist after a push; #580, #595-#598 and #601-#604 all reported both; BANK-1, the one
+lane that stopped before commit, cost a round trip and gained nothing; and **only CI can produce the
+vite build (linux-x64 pinned), the Firestore emulator suite, and the full-matrix zero-skip line.**
+Preserved unchanged: a lane may still stop deliberately on a genuine blocker - a contradicted
+premise, an owner decision needed, a forbidden file. **Stopping deliberately differs from stopping by
+default.** Rejected: stop-before-commit (leaves the owner reviewing with no CI evidence at all) and
+ask-per-lane (re-takes one decision five times).
+
+**2 - `gh pr ready` is the OWNER'S step.** The model said lanes push drafts and never mark ready; it
+never said who does. **Four PRs sat mergeable-but-draft.** Recorded in `NEXT_ACTION.md`.
+
+**3 - `Welcome.tsx`: a narrow exception to the CLAUDE.md sec4 global ban, for the legal footer mount
+alone.** CLAUDE.md:67 says "unless explicitly scoped"; this is that. Rejected: deferring it (leaves
+the DPDP exposure open on the signed-out front door, which is the collection funnel) and widening the
+exception (the file is banned for good reasons unrelated to this mount).
+
+**4 - `#609`'s ~14 lines of scoped CSS: KEPT, though they exceed "the import only."**
+The authorization was the import; **the PURPOSE was reachability.** The component default measured
+**1.42:1 on hover and `:focus-visible`** - the link vanishes exactly when a keyboard user selects it.
+Shipping the mount without it delivers a footer that passes every assertion and fails the student.
+Bounded: 2 files, +172/-0, zero deletions, zero existing lines changed, via a documented `className`
+hook. **That is the same defect the lane caught in the controller's brief, one layer down.**
+
+**5 - `#608` merges despite `[FU-LEGAL-FOOTER-REST-CONTRAST]`.** 4.49:1 against 4.5:1 is not worth
+blocking a lane that closes a DPDP exposure on three surfaces. **But fix it in the COMPONENT, not per
+host** - `#969ea9` measured at 6.59:1 rest / 17.84:1 hover - which makes `#609`'s override redundant
+and every future host compliant. Small lane, Wave 5E.
+
+**6 - `[FU-LEGAL-CONSOLIDATE-UNDER-ONE-ROOF]`: owner design call.** He judges the public-landing
+footer harmful to a designed page and prefers legal under one roof, reached from the avatar and the
+door. Merged for now; he verifies live, then relocates. **The compliance point is the COLLECTION
+point** - the sign-up door, which already links and is pinned by a test.
+
+**7 - `CLAUDE.md`'s "190 checks" is NOT stale, and the flag was the drift.** It reads "as of
+2026-07-28; the count GROWS; read it from the run." **Reading 196 is that instruction working.**
+Third lane this session to flag that file; third to be wrong. **Do not edit it; record the pattern.**
+
+**8 - `[FU-EFF-RESPONSE-SCHEMA]` is CLOSED; it shipped in `#559` (PR-C2) and was never needed.**
+The cofounder inferred "not shipped" from `responseMimeType` present without a schema - **one line
+read, twelve unread.** A read-only scout settled it on trunk with the chain quoted at every hop:
+constants at `:167`/`:212`/`:266`, wired at `:595`/`:888`/`:1385`, reaching the wire at
+`geminiClient.cjs:392`, with `callGemini`'s three call sites all carrying a schema and 18 contract
+tests behind it. **The "MI is built on noise" framing is RETIRED - grading has been constrained since
+#559.** The wrong claim had reached three documents. Struck rather than deleted, per the precedent at
+`LazyTopper_Cost_Pricing_Analysis_v1_1.md:105-110`.
+
+**9 - `SERVER-1` sec2 (thinking budget) ships NOTHING, and that was correct.**
+`thoughtsTokenCount` is behind an admin endpoint on the live deploy that a worktree cannot reach, and
+every grader test stubs the Gemini client, so the brief's own quality proof was unobtainable. The
+lane refused to certify a grading-quality property it had not measured. **Cheap wrong grading is
+worse than expensive right grading; the grader feeds MI, and MI is the moat.** The telemetry has
+since been read and **still does not unblock it** - see `[FU-TELEMETRY-NO-CALL-CLASS-NO-PERCENTILES]`.
+
+**10 - `#607`'s `artifacts/api-server/package.json` test-script line: ratified** - one line, no
+dependency, no lockfile change.
+
+**11 - Wave 5E runs FOUR lanes.** Rule 1 stands: cost scales with lane count and the expensive thing
+is re-work. AUTH-1 was never a parallel slot - it runs alone.
+
+**12 - `DATABASE_URL` is no longer an owner task; it is a LANE.** `WARM_POOL_TOP_UP_INTERVAL_MS=0`
+was set as the brake and **was not sufficient** - it disables the recurring top-up only, while a
+separate one-time STARTUP pre-warm is ungated and began a 312-combination run. What saved it was an
+unrelated failure: the schema had never been created, so every combination erred at the count step.
+**With a populated schema it would have proceeded.** Gate the startup pre-warm and create the schema
+BEFORE any second attempt. `[FU-WARM-POOL-STARTUP-PREWARM-NOT-GATED]`
+
 ## 2026-08-04 - Wave 5C, four lanes under a controller + subagent model (#601–#604, trunk `203fb370`)
 
 Owner rulings across the wave, and the scope discovered after each lane was first planned.

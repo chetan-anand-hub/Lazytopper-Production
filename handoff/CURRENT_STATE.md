@@ -1,6 +1,111 @@
 # LazyTopper — Current State
 
-## [CURRENT] #601–#604 merged — ★★ WAVE 5C: A BLANKET BAN REPLACED BY TESTS THAT ACTUALLY FIRE · THE LOCKED CTA SHIPPED · 40 DEFECTIVE SOLUTIONS PULLED FROM LIVE STUDENT PATHS · AND A CI FAST PATH THAT SPLITS THE GATE WITHOUT TRIMMING IT — trunk `203fb370`
+## [CURRENT] #606-#609 merged -- WAVE 5D: THE SIGNED-OUT FRONT DOOR REACHES THE PRIVACY POLICY - TWO BRIEFS WHOSE HEADLINE ITEMS WERE ALREADY SHIPPED - AND A STACKED PR THAT DEADLOCKED WITH ITS OWN BASE -- trunk `51f7712`
+
+**Four lanes and one read-only scout, under the controller + subagent model. Zero failed lanes.**
+
+```
+51f7712a  WELCOME-1  the signed-out desktop front door reaches the policies    #609
+62ad6925  COPY-1     reach the policies from the public surfaces + one figure  #608
+1851559b  SERVER-1   pin the /api proxy's privileged-header strip              #607
+2cd2e13d  FORBID-5   lift the quickPracticeSessionService ban                  #606
+```
+**Trunk moved `a895dbdb` -> `2cd2e13d` -> `1851559b` -> `62ad6925` -> `51f7712a`.**
+Verified ON TRUNK BY CONTENT, not by PR state -- **this repo squash-merges, so
+`merge-base --is-ancestor` on a PR head is the wrong test.**
+**Full controller record: `handoff/WAVE_STATE_WAVE5D_ARCHIVE.md`.**
+
+### WHAT THE LANES FOUND THAT THEIR SPECS DID NOT KNOW
+
+**Every brief was disproved in part** -- 4 findings against FORBID-5's, 7 against SERVER-1's, 7
+against COPY-1's, and **4 against the controller's own.** That is the system working.
+
+- **SERVER-1's brief was wrong on BOTH headline items.** `responseSchema` (section 1) **had already
+  shipped in `#559`/PR-C2**; and section 3's defect **did not exist** -- `app.ts:47` is an entry
+  *inside* `STRIPPED_PROXY_HEADERS`, the opposite of "allows", and `#546` had already fixed the
+  forwarding. **The real defect was the missing PROOF:** the strip had zero coverage on either
+  process, its only other repo-wide references are two prose comments, and **deleting it turned
+  nothing red.** `#607` is therefore a **test-only** PR; `checkSolution.cjs` is byte-identical to
+  trunk, so **no live-verify was required.**
+  It also **refused to ship a thinking budget** (section 2): the telemetry is unreachable from a
+  worktree and every grader test stubs the Gemini client, so the brief's own quality proof was
+  unobtainable. **It declined to certify a grading-quality property it had not measured.**
+- **FORBID-5 caught a SILENT NO-OP in its own first draft.** An idempotence test comparing two run
+  ids stayed **green** under a `+Date.now()` mutation, because both calls land in the same
+  millisecond and a contaminated id **still equals itself**. **A self-comparison is not an identity
+  check.** It also published the complete forbidden map -- **exactly three** `const FORBIDDEN = [`
+  arrays repo-wide -- and proved with a control that **`checkSolution.cjs` is banned by none of them.**
+- **COPY-1's own absence control caught its own error.** `/sign-up` scored 0 on grep, but its entire
+  body is `import { AuthDoor } from "./Login"`, so the legal footer it inherits is **grep-invisible.**
+  It re-checked by component composition and a live browser probe. It also found **all three of its
+  brief's named drift sites were wrong**, and that **no policy slug is empty** -- so no legal text was
+  written and the fabrication line never bound.
+- **WELCOME-1 caught MOUNT != LIVE in the brief written to prevent it.** The controller instructed
+  "mount it exactly as COPY-1 did". At >=1180px the landing is `height:100vh` / `overflow:hidden`
+  with `.lt-landing-stage display:contents`, so a footer mounted **outside** the stage is clipped
+  **with no scrollbar** -- present in the DOM, **green on every presence test, invisible to every
+  student.** **The specified 1024/390 captures would have missed it; the lane added 1280/1440.**
+- **The SCOUT wrote nothing, and that was the correct outcome.** It settled `responseSchema` on trunk
+  with the chain quoted at every hop and closed a lane that would otherwise have been re-scoped.
+
+### DOCTRINE -- the wave's real output
+
+**A CLOSED LANE STILL PITCHED AS OPEN WILL BE RE-SCOPED.** A shipped record and an open FU for the
+same work, in one handoff, is a re-work generator: `CURRENT_STATE` and `IMPLEMENTATION_ROADMAP`
+recorded `#559` as shipped and owner-live-verified while `[FU-EFF-RESPONSE-SCHEMA]` was still carried
+as a top-ranked open lever in three documents. **It cost a spec error and a scout.** **Closing an FU
+is part of shipping it, not bookkeeping afterwards.** Strike rather than delete, per the precedent at
+`LazyTopper_Cost_Pricing_Analysis_v1_1.md:105-110`.
+
+**A MUTATION MUST BE VERIFIED *APPLIED* BEFORE ITS RED/GREEN IS EVIDENCE.** A first mutation run
+reported ALL-GREEN with the mutation "applied": the file is CRLF and the pattern ended `\n`, so it
+**silently matched nothing.** Verifying only the RESTORE cannot catch this, and **the failure mode
+accuses a GOOD test of being fake** -- you delete real coverage on its strength. Protocol: snapshot
+SHA, mutate, **assert mutated-sha != baseline**, run, restore by byte snapshot, assert sha == baseline.
+
+**A SELF-COMPARISON IS NOT AN IDENTITY CHECK.** Assert against the real generator, not against
+another invocation of the thing under test.
+
+**A GREP CONTROL IS NOT SUFFICIENT FOR A COMPOSITION-REACHABLE FEATURE.** `/sign-up` scored zero
+because its whole body is a re-export. **Re-check by component composition and a live probe.**
+
+**A CONTROLLER-AUTHORED BRIEF IS NOT A SAFER BRIEF.** Four findings against the controller's own this
+wave. **That is the property to preserve, not a failing.**
+
+**A UNIQUENESS CHECK IS NOT A COMPLETENESS CHECK.** A whole-file rewrite of the controller state file
+dropped a whole section and survived two passes, because the check asked whether headers appeared
+**once**, not whether they all still **appeared.**
+
+**A SELF-DATING INSTRUCTION IS NOT A STALE FACT.** `CLAUDE.md` section 6's "190 checks as of
+2026-07-28 -- the count GROWS; read it from the run" is **working** when a lane reads 196. **Three
+lanes have now flagged that file and all three were wrong.** Flagging it as stale IS the drift.
+
+**`WARM_POOL_TOP_UP_INTERVAL_MS=0` DISABLES THE RECURRING JOB, NOT THE STARTUP PRE-WARM.**
+**A variable named for a thing may govern only one of its paths. Read what the flag gates, not what
+it is called.**
+
+**A STACKED PR DEADLOCKS WITH ITS OWN BASE.** `lane_overlap.mjs` compares every open PR against every
+other, so a stacked PR and its base each see the other and **neither can merge, in either order.**
+**Do not stack PRs in this repo.**
+
+**`gh pr ready` IS THE OWNER'S STEP.** Lanes push drafts and stop. Four PRs sat mergeable-but-draft
+because the model never said who marks them ready.
+
+### WHAT NEARLY COST REAL MONEY
+
+`DATABASE_URL` was provisioned and removed within ten minutes. `WARM_POOL_TOP_UP_INTERVAL_MS=0` was
+set first, deliberately, as the brake -- **and it was not sufficient.** The deploy log shows the
+recurring top-up correctly disabled and then a **separate, ungated one-time startup pre-warm**
+beginning a **312-combination** run. What saved it was an unrelated failure:
+`relation "generated_questions" does not exist`, so every combination erred at the count step and the
+owner's AI Studio spend showed no spike. **Latent, not realised -- and with a populated schema the
+count would have succeeded and generation would have proceeded.**
+=> **`DATABASE_URL` is no longer an owner task. It is a lane**, behind
+`[FU-WARM-POOL-STARTUP-PREWARM-NOT-GATED]`.
+
+---
+
+## [PREVIOUS] #601–#604 merged — ★★ WAVE 5C: A BLANKET BAN REPLACED BY TESTS THAT ACTUALLY FIRE · THE LOCKED CTA SHIPPED · 40 DEFECTIVE SOLUTIONS PULLED FROM LIVE STUDENT PATHS · AND A CI FAST PATH THAT SPLITS THE GATE WITHOUT TRIMMING IT — trunk `203fb370`
 
 **Four PRs, four lanes, under the controller + subagent model. OWNER LIVE-VERIFY PASSED.**
 
@@ -3104,7 +3209,7 @@ Reports: `Desktop/diff/report-bank-completion-scope-2026-07-15.md` + `report-rea
 - **Gates -- ALL GREEN.** Local: tsc (`tsconfig.app.json`), mojibake, scope:guard `--mode product`, root scripts `test:matrix:all` **181/181**, lazytopper `test:matrix:all` (incl. topickey runtime 7084/0-dup/0-orphan), `git diff --check`. CI: **quality-gate PASS (1m38s)** + **lane-overlap PASS** (disjoint from the notes/`src/data` lanes) + Vercel preview. 6 files (+324/-9); fresh worktree off the re-derived trunk `ebc95d7`. New vitest added (`scorecardVariants` concept-lens + `isBareFullScreenRoute` predicate/behaviour) -- runs in Codespaces/CI, not the Windows-local gate.
 - **The Chapter Test scorecard is now section + concept + four-type, and the test surface is chrome-less full-screen. CT can be flipped live at `MockViewGate` whenever the owner is satisfied** -- the two fast-follows the #374 handoff named as pre-flip work are done. New open item **[FU-RETIRE-OLD-GLOBAL-HEADER]** (product-wide legacy-header retirement -- deliberate, later; `isBareFullScreenRoute` is prefix-structured so `/full-mock` joins with one entry). Report: `Desktop\diff\report-ct-concept-lens-fullscreen-2026-07-12.md`.
 
-## [PREVIOUS] Chapter Test BUILT to the locked spec -- trunk `e54ab8c` (#374), owner live-verified
+## [EARLIER] Chapter Test BUILT to the locked spec -- trunk `e54ab8c` (#374), owner live-verified
 
 **Post-merge code trunk: `e54ab8c` (squash of #374).** The Chapter Test surface is BUILT and owner live-verified (two-phase grading; numbered `CT-{S}-{TOPIC}-{NN}`; navigator / timer / topic-scoped history all working) -- **behind `MockViewGate`** (owner flips it live at launch). This docs PR advances trunk by one commit once merged; re-derive the tip after.
 

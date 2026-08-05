@@ -13,6 +13,87 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-05 — WAVE 5D (#606–#609). Full bodies in `handoff/WAVE_STATE_WAVE5D_ARCHIVE.md`.
+
+**Four lanes, one read-only scout, zero lanes that failed.** Every brief was disproved in part —
+4 findings against FORBID-5's, 7 against SERVER-1's, 7 against COPY-1's, 4 against the
+controller's own. That is the system working.
+
+**NEW — OPEN**
+
+- **`[FU-BATCH2-SCORECARD-BAN-STILL-LIVE]`** — `#606` lifted the Quick Practice service ban ONLY.
+  `ResultsScorecard.tsx` is still banned by **BOTH** C&I gates, so **BATCH-2 needs two amendments in
+  ONE PR** (amending one leaves the other red) **plus a from-scratch component suite** — it has no
+  component test today; `scorecardVariants.test.ts` tests the CONFIG module, not the component.
+- **`[FU-IDEMPOTENCE-TESTS-NEED-AN-IDENTITY-ASSERTION]`** — an idempotence test that runs a function
+  twice and compares the two ids **passes under clock contamination**, because both calls land in the
+  same millisecond and a contaminated id still equals ITSELF. **A self-comparison is not an identity
+  check.** Assert against the real generator. Caught by FORBID-5 in its own first draft.
+- **`[FU-FORBIDDEN-MAP-SHOULD-BE-MACHINE-READABLE]`** — the forbidden map exists only as three
+  hand-maintained `const FORBIDDEN = [` arrays that must be re-derived by reading each gate. A
+  cofounder pattern returned empty for two of them and the map could not be published for a wave.
+- **`[FU-SERVER1-THINKING-BUDGET-TELEMETRY]`** — SERVER-1 §2 cannot ship without a **distribution**.
+  See `[FU-TELEMETRY-NO-CALL-CLASS-NO-PERCENTILES]`, which now supersedes the measurement half.
+- **`[FU-APISERVER-TEST-WIRING-NOT-ENUMERATED]`** — the api-server package's test script had to be
+  wired for its suite to run; that wiring is not enumerated anywhere as a gate surface.
+- **`[FU-LEGAL-FOOTER-REST-CONTRAST]`** — `PublicLegalFooter`'s default measures **4.49:1 rest against
+  a 4.5:1 AA threshold**, and **1.42:1 on hover / `:focus-visible`** — the link **vanishes exactly
+  when a keyboard user selects it**. Affects `/pricing` and mobile `/welcome`, not only the landing.
+  **Fix in the COMPONENT, not per host** — `#969ea9` measured 6.59:1 rest / 17.84:1 hover, which makes
+  `#609`'s per-host override redundant. Owner-directed 5E lane.
+- **`[FU-EVIDENCE-BASE-INTENT-SURFACE-DEAD]`** — `pages/app/Intent.tsx` is route-registered but
+  **unreachable** (`/pricing` 1 inbound nav, `/intent` 0). A dead-surface decision, not a copy fix.
+- **`[FU-LEGAL-CONSOLIDATE-UNDER-ONE-ROOF]`** — **owner design call.** He judges the public-landing
+  footer harmful to a designed page and prefers legal under one roof, reached from the avatar and the
+  door. Merged for now; he verifies live, then relocates. ★ **The compliance point is the COLLECTION
+  point — the sign-up door, which already links and is pinned by a test.** The landing and pricing
+  footers are belt-and-braces. **Whatever the design becomes, the policy must stay reachable from the
+  door before the button is pressed.**
+- **`[FU-GRADER-SCHEMA-STRIP-RETRY-SILENT]`** — `geminiClient`'s retry ladder gates `responseSchema`
+  and `responseMimeType` **together** on `includeStructuredOutput`, so a backend that rejects the
+  schema causes the retry to **silently strip both**, and grading degrades to pre-`#559` unconstrained
+  output **with no alarm**. Shipping is proven; whether the strip is FIRING IN PRODUCTION is a
+  telemetry question. ★ **A counter or warning on the degraded path would make it observable — the
+  same shape as GATE-1's fail-open witness, which exists precisely because a correct fallback that
+  cannot be seen firing is indistinguishable from no protection.**
+- **`[FU-LANE-OVERLAP-SYMMETRIC-DEADLOCK-ON-STACKED-PRS]`** — `lane_overlap.mjs` compares every open
+  PR against every other, so **a stacked PR and its base each see the other** as an open PR sharing
+  the same paths. **Both correct individually, neither mergeable.** Resolved without `--admin`: close
+  the stacked PR → **re-run the base's Lane Overlap** (closing a PR does NOT re-trigger checks on
+  another — same lesson as `#593`) → merge the base → reopen → `gh pr update-branch` → merge.
+  ★★ **THE RULE: DO NOT STACK PRs IN THIS REPO.** Either wait for the base to merge, or scope the
+  second lane so it does not need the first's files.
+- **`[FU-WARM-POOL-STARTUP-PREWARM-NOT-GATED]`** — ★★ **BLOCKS re-provisioning `DATABASE_URL`.**
+  `WARM_POOL_TOP_UP_INTERVAL_MS=0` disables the **recurring** top-up only; a separate **one-time
+  STARTUP pre-warm is ungated** and began a 312-combination run. What saved it was an unrelated
+  failure — `relation "generated_questions" does not exist`, so every combination erred at the count
+  step and spend showed no spike. **With a populated schema it would have proceeded.** Gate the
+  startup pre-warm AND create the schema before any second attempt. ★ **`DATABASE_URL` is no longer
+  an owner task; it is a lane.**
+- **`[FU-RAILWAY-TSX-MODULE-NOT-FOUND]`** — `Cannot find package 'tsx' imported from /app/lazytopper/`
+  on every boot. A side process dies; the main server is unaffected.
+- **`[FU-TELEMETRY-NO-CALL-CLASS-NO-PERCENTILES]`** — ★★ **a small instrumentation lane must PRECEDE
+  SERVER-1 §2.** `/api/admin/token-telemetry` answered (`uptimeSeconds: 485`, `calls: 84`) and gave
+  **average latency 17.0 s** — so the 17.3 s in the owner HAR was **the norm, not an outlier** — and
+  **80.9%** thinking share. But: **(1)** totals, not a distribution, so no p50/p90/p99, and **a mean
+  tells you nothing about the tail**; **(2)** ★ **83 of 84 calls are `unclassified`** — only `tutor`
+  is tagged — so grading, detect-question and worksheet are indistinguishable, and **most of those 83
+  were warm-pool GENERATION. Budgeting the grader off this sample budgets the wrong workload.**
+
+**CLOSED this wave**
+
+- **`[FU-XUSERID-PROXY-STRIP]`** — closed by `#607`. ★ **The defect was not what the brief said.**
+  `app.ts:47` is an entry INSIDE `STRIPPED_PROXY_HEADERS` — the opposite of "allows" — and `#546` had
+  already fixed the forwarding. **The real defect was the missing PROOF:** the strip had zero coverage
+  on either process, its only other references repo-wide are two prose comments, and **deleting it
+  turned nothing red.** `#607` is a test-only PR; `checkSolution.cjs` is byte-identical to trunk.
+- **`[FU-LEGAL-FOOTER-LINK]` / `[FU-LEGAL-WELCOME-LANDING-FOOTER]`** — closed by `#608` + `#609`.
+- **`[FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]`** — closed by `#608`. ★ **All three sites the brief named
+  were wrong**: Welcome's "last 5" was already fixed and pinned, and there is no "3–5" anywhere in
+  `src/config/`. The real drifts were HPQ's "4 years" and Intent's "9 years".
+- **`[FU-EFF-RESPONSE-SCHEMA]`** — **CLOSED. It shipped in `#559` (PR-C2) and was never needed.**
+  See the struck entry below and the correction in `LazyTopper_Cost_Pricing_Analysis_v1_1.md`.
+
 ## 2026-08-04 — WAVE 5C (#601–#604). Full bodies in `handoff/WAVE_STATE_WAVE5C_ARCHIVE.md`.
 
 ### `[FU-SYLLABUS-TRUTH-IN-TWO-PLACES]` — ★★ SUPERSEDES `[FU-SYLLABUS-GUARD-FORMATIVE-ONLY-BANK-BLINDSPOT]`
@@ -1678,6 +1759,26 @@ in LazyTopper_Cost_Pricing_Analysis_v1_1.md is an ESTIMATE from prompt
 structure, not a measurement. NOTE: the original text cited the v1.0
 filename (2026-07-25); v1.1 supersedes it and is the one in the repo.
 Blocked from being useful by [FU-TELEMETRY-NO-READ-PATH] below.
+
+>>> CLOSED 2026-08-05 (Wave 5D). THIS ENTRY IS WRONG AND THE WORK WAS ALREADY DONE. <<<
+  responseSchema SHIPPED in #559 (PR-C2), BEFORE this entry was written. Verified
+  independently on trunk 51f7712 by a read-only scout, chain quoted at every hop:
+  GRADE_/DETECT_/WORKSHEET_RESPONSE_SCHEMA defined at :167/:212/:266, WIRED into the
+  request config at :595/:888/:1385, reaching the wire at geminiClient.cjs:392.
+  callGemini has exactly THREE call sites in that file and EVERY ONE carries a schema.
+  18 contract tests: one asserts it is SENT, one that the RETRY carries it, one that it
+  reaches the OUTGOING REQUEST BODY. mistakeType is nullable with no enum, so null stays
+  reachable. Control run first: the same search found responseMimeType at :588/:883/:1384.
+  ★ HOW THE ERROR HAPPENED: responseMimeType was read as present WITHOUT a schema and
+  "not shipped" inferred - ONE LINE READ, TWELVE UNREAD. It cost a spec error and a scout.
+  ★ "MI is built on noise" is RETIRED. Grading output has been CONSTRAINED since #559.
+  The wrong claim had reached THREE documents; the retraction travels as far as it did.
+  Also stale in this entry: "Touches checkSolution.cjs, which is FORBIDDEN-listed" - that
+  ban was lifted in Wave 3 PR-C1 and no gate has listed it since (FORBID-5 proved it with
+  a control). And the :301 line reference has drifted.
+  ⚠ WHAT REMAINS REAL, as a NEW FU: [FU-GRADER-SCHEMA-STRIP-RETRY-SILENT].
+  Struck, not deleted, per the precedent at LazyTopper_Cost_Pricing_Analysis_v1_1.md:105-110.
+>>> END CLOSED BANNER - the original entry follows, retained for anyone who cited it. <<<
 
 [FU-EFF-RESPONSE-SCHEMA] — Gemini responseSchema (constrained decoding) is
 used NOWHERE; only responseMimeType:'application/json', which ASKS for JSON

@@ -1,5 +1,39 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-05 - ★★ ✅ WAVE 5D **COMPLETE** (#606–#609, trunk `51f7712`) - four lanes + one read-only scout, zero failed lanes, and every brief disproved in part
+
+**STAGES COMPLETE:**
+- ✅ **`FORBID-5` (#606)** — the `quickPracticeSessionService.ts` blanket ban replaced by
+  `quickPracticeSessionService.persist.contract.test.ts` (12 tests), with `FORBIDDEN(lifted)` added so
+  a silent re-add goes red. **Unblocks BATCH-1b.** ★ Its own first-draft idempotence test was a
+  **silent no-op** — two run ids compared to each other stayed green under a `+Date.now()` mutation,
+  because both calls land in the same millisecond and a contaminated id still equals itself.
+  **A self-comparison is not an identity check.** 10 mutations, all red, each after a green control.
+  ⚠ **`ResultsScorecard.tsx` remains banned by BOTH C&I gates — BATCH-2 is still blocked.**
+- ✅ **`SERVER-1` (#607)** — §3 only, and **test-only**: the `/api` proxy's privileged-header strip now
+  has executable coverage. ★★ **The brief was wrong twice.** §1 (`responseSchema`) **had already
+  shipped in #559/PR-C2**, and §3's defect **did not exist** — `app.ts:47` is an entry *inside*
+  `STRIPPED_PROXY_HEADERS`, and `#546` had already fixed the forwarding. **The real defect was the
+  missing proof:** deleting the strip turned nothing red. §2 (thinking budget) **deliberately shipped
+  nothing** — the telemetry is unreachable from a worktree and every grader test stubs the client.
+- ✅ **`COPY-1` (#608)** — legal reachable from `/pricing` and mobile `/welcome`; the evidence-base
+  figure unified behind one constant (`src/config/evidenceBase.ts`). ★ **No slug is empty** — privacy,
+  terms and refund all render content, so no policy text was written. ★ **Its own absence control
+  caught its own error:** `/sign-up` scored 0 on grep because its whole body is
+  `import { AuthDoor } from "./Login"` — the inherited footer is **grep-invisible**.
+- ✅ **`WELCOME-1` (#609)** — the signed-out desktop front door reaches the policies, under a narrow
+  owner-authorised exception to the CLAUDE.md §4 ban on `Welcome.tsx`. ★★ **The controller's own brief
+  was the defect:** mounting the footer as a sibling would have been a **silent no-op** — at ≥1180px
+  the landing is `height:100vh`/`overflow:hidden` with `.lt-landing-stage display:contents`, so a
+  footer outside the stage is clipped **with no scrollbar**: in the DOM, green on every presence test,
+  invisible to every student. **The specified 1024/390 captures would have missed it; the lane added
+  1280/1440.**
+- ✅ **SCOUT (no PR)** — settled `responseSchema` on trunk and **wrote nothing.** The correct outcome.
+
+**NOT SHIPPED, DELIBERATELY:** SERVER-1 §2 (thinking budget) — no distribution exists yet.
+**STILL BLOCKED:** BATCH-2 (two gate amendments + a from-scratch `ResultsScorecard` component suite);
+`DATABASE_URL` (now a lane, not an owner task — the startup pre-warm is ungated).
+
 ## 2026-08-04 - ★★ ✅ WAVE 5C **COMPLETE** (#601–#604, trunk `203fb370`) - four PRs / four lanes, owner live-verify PASSED, Wave 5D scoped to FOUR lanes and NOT dispatched
 
 **STAGES COMPLETE:**
