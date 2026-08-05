@@ -176,8 +176,8 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
     expect(html).toMatch(/<link\s+rel="canonical"\s+href="https:\/\/lazytopper\.com\/"\s*\/>/);
 
     // The share-image URLs must resolve too, or every WhatsApp / X card is blank.
-    expect(html).toContain('property="og:image" content="https://lazytopper.com/og-image.png"');
-    expect(html).toContain('name="twitter:image" content="https://lazytopper.com/og-image.png"');
+    expect(html).toContain('property="og:image" content="https://lazytopper.com/app/og-image.png"');
+    expect(html).toContain('name="twitter:image" content="https://lazytopper.com/app/og-image.png"');
   });
 });
 
