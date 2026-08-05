@@ -316,33 +316,82 @@ const FORBIDDEN = [
   // shape or the persist seam, and lifting a ban before there is a need unprotects more than the
   // case justifies. Do NOT re-add the App.tsx entry without a deliberate owner decision — the
   // absence assertion below will fail if you do.
-  "lazytopper/src/components/results/ResultsScorecard.tsx", // the overlay shows it, never restyles it
+  //
+  // ★★ ResultsScorecard.tsx — blanket ban LIFTED 2026-08-05 (owner decision, Wave 5E lane
+  // FORBID-6), in LOCK-STEP with the identical entry in
+  // check_improve_convergence_acceptance.mjs. THE SCORECARD WAS BANNED IN TWO GATES, NOT ONE —
+  // exactly the trap the grader hit in PR-C1 and App.tsx hit in FORBID-4. Lifting it here only
+  // would have left the batch-grading arc red over there while looking unblocked, so both were
+  // amended in the SAME PR. (It is NOT in quick_practice_overlay_additive_acceptance.mjs — that
+  // array was ENUMERATED at trunk 9717248c to establish this, not grepped; its four entries are
+  // predictionDataService, practiceSetGenerator, tutorRoundTrip and sessionRecords.)
+  //
+  // WHY NOW: the owner has ruled Quick Practice becomes exam-shaped — nothing grades per
+  // question, ONE batched call at Finish, then a scorecard across the set plus per-answer
+  // board-style depth. ResultsScorecard is where those results land, so until this lifted the
+  // batching lane would have removed per-question feedback with NOWHERE to show the grades: a
+  // broken loop, not merely a dead capability. This array is PR-scoped with no lane-scoping and
+  // no exception mechanism, so the ban blocked that lane outright. Precedent: #519
+  // (DesktopShell.tsx), PR-C1 (checkSolution.cjs), #581 (SolutionChecker.tsx), #601 (App.tsx),
+  // #606 (quickPracticeSessionService.ts). THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
+  //
+  // WHAT THIS GATE'S BAN WAS ACTUALLY BUYING, made explicit — and the entry read only
+  // "the overlay shows it, never restyles it". ★ HUNK C above asserts that
+  // DesktopCheckImprovePage BUILDS a `returnTicket` and forks it on `overlay`; it says NOTHING
+  // about whether the scorecard RENDERS it. So the one invariant this gate most depends on —
+  // THE STUDENT GETS BACK TO THE TUTOR IN ONE TAP — had its producer checked and its consumer
+  // unchecked. A shell that dropped an action, dropped the `onClick` wiring, or reordered
+  // `variant.actions` would leave HUNK C green and the overlay IMPOSSIBLE TO CLOSE. ⚠ The
+  // ticket rides BOTH footer layouts: the stacked what-next menu and the flat 2-up row that
+  // C&I's all-pending branch uses — the moment a stranded student most wants the way home.
+  // "Never restyles it" also covered the close affordances (Escape / ✕ / dim close; a click
+  // INSIDE the card must not), the honest states CLAUDE.md §5 requires (no deflated 0 hero
+  // behind allPending, no fabricated "across G of T graded", no invented 0/0 MCQ line, an
+  // attempts hero never rendered as marks/total), and the deferred config-seam guard.
+  //
+  // THE REPLACEMENT:
+  // `lazytopper/src/components/results/ResultsScorecard.contract.test.tsx` — targeted render
+  // tests over the shell itself, every assertion POSITIVE on the rendered result and paired
+  // with a control, all mutations proven RED against a green control on the unmodified file.
+  // ★★ IT DELIBERATELY DOES NOT PIN THE VARIANT SET — the batch-grading lane ADDS a variant,
+  // and a test pinning today's set would forbid exactly the change this lift exists to permit;
+  // its `variant-set openness` block proves a new surface renders and that C&I's output is
+  // unchanged by the addition. Its PRESENCE AND WIRING are asserted below.
+  //
+  // → THE OTHER TWO ENTRIES REMAIN, BY DELIBERATE DECISION: the batching arc touches neither
+  // the SessionRecord shape nor the C&I persist seam. Do NOT re-add this entry without a
+  // deliberate owner decision — the absence assertion below will fail if you do.
   "lazytopper/src/services/sessionRecords.ts", // SessionRecord shape (we only IMPORT the builder)
   "lazytopper/src/services/checkImproveGradeService.ts", // the persist seam
 ];
 
-// ★ MEMBERSHIP, asserted UNCONDITIONALLY — the three surviving entries. The git-diff loop below
+// ★ MEMBERSHIP, asserted UNCONDITIONALLY — the two surviving entries. The git-diff loop below
 // only runs when a base ref resolves (a PR, or a local full clone); on a shallow checkout it
-// skips entirely, so "these three are guarded AT ALL" is pinned here where nothing can skip it.
+// skips entirely, so "these two are guarded AT ALL" is pinned here where nothing can skip it.
 // NOTE: membership is not matchability — a gate can print "shows zero changes" while matching
 // nothing (that is exactly how an unprefixed entry once passed 31/31 green). The FORBIDDEN(path)
 // loop below is what proves matchability; these two assertions are complementary, not redundant.
+// ⚠ THE LIFTED ENTRY'S LINE MUST LEAVE THIS LIST TOO — a removal from FORBIDDEN alone would fail
+// the gate on its own amendment — and the surviving entries' lines must NOT be touched.
 for (const f of [
-  "lazytopper/src/components/results/ResultsScorecard.tsx",
   "lazytopper/src/services/sessionRecords.ts",
   "lazytopper/src/services/checkImproveGradeService.ts",
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx ONLY)`,
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-4 lifted App.tsx; FORBID-6 lifted ResultsScorecard.tsx — nothing else)`,
     FORBIDDEN.includes(f),
-    "the App.tsx lift was a deliberate ONE-FILE amendment — this entry must survive it");
+    "both lifts were deliberate ONE-FILE amendments — this entry must survive them");
 }
 
-// ★ THE INVERSE ASSERTION — what makes the lift itself OBSERVABLE. A silent re-add of the blanket
-// entry turns this red and forces the deliberate owner decision the comment above asks for,
-// instead of quietly re-blocking ME-PROGRESS (or the next convergence lane) with no discussion.
+// ★ THE INVERSE ASSERTIONS — what makes each lift itself OBSERVABLE. A silent re-add of a blanket
+// entry turns this red and forces the deliberate owner decision the comments above ask for,
+// instead of quietly re-blocking the next lane with no discussion.
 check("FORBIDDEN(lifted): App.tsx is NOT in the guarded set (ban replaced by App.routing.contract.test.tsx)",
   !FORBIDDEN.includes("lazytopper/src/App.tsx"),
   "re-adding the blanket entry needs an owner decision AND removal of the replacement tests");
+check("FORBIDDEN(lifted): ResultsScorecard.tsx is NOT in the guarded set (ban replaced by ResultsScorecard.contract.test.tsx)",
+  !FORBIDDEN.includes("lazytopper/src/components/results/ResultsScorecard.tsx"),
+  "re-adding the blanket entry needs an owner decision AND removal of the replacement tests — "
+  + "it would also re-block the Quick Practice batch-grading arc, whose results land in that component");
 
 // ★ SHAPE, asserted UNCONDITIONALLY — the guard that would have caught the missing
 // `lazytopper/` prefix, and the reason it can never come back. An entry that does not
@@ -397,6 +446,42 @@ check("APP-TESTS: vitest actually RUNS in CI (quality-gate.yml has a required `v
   /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
   "no vitest step in CI — a .test.tsx cannot replace a forbidden-path entry that nothing executes");
 
+/* ══════════════════════════════════════════════════════════════════════════
+   ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED ResultsScorecard BAN (FORBID-6).
+   ══════════════════════════════════════════════════════════════════════════
+   Same reasoning as the two blocks above, and asserted independently in BOTH gates that
+   banned the file on purpose: each ran its own ban, so each needs its own proof that
+   something replaced it. All three halves — the tests EXIST, they are COLLECTED by the
+   vitest include glob, and vitest actually RUNS in CI — plus the SUBJECT, because a
+   replacement that stopped asserting what the ban was buying is the silent no-op this whole
+   exercise exists to prevent. Filesystem-only, so it can never skip the way the diff loop can.
+   ══════════════════════════════════════════════════════════════════════════ */
+const RS_CONTRACT_TESTS = "lazytopper/src/components/results/ResultsScorecard.contract.test.tsx";
+check(`RESULTSSCORECARD-TESTS: ${RS_CONTRACT_TESTS} exists (the replacement for the lifted blanket ban)`,
+  existsSync(path.join(ROOT, RS_CONTRACT_TESTS)),
+  "the blanket FORBIDDEN entry was lifted in favour of these tests — without them the scorecard "
+  + "shell is unguarded and HUNK C's return ticket has a checked producer and an unchecked consumer");
+check("RESULTSSCORECARD-TESTS: they are COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
+  /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/
+    .test(readFileSync(path.join(ROOT, "lazytopper/vitest.config.ts"), "utf8"))
+  && RS_CONTRACT_TESTS.startsWith("lazytopper/src/") && RS_CONTRACT_TESTS.endsWith(".test.tsx"),
+  "the include glob no longer matches the replacement tests — they would never be discovered");
+check("RESULTSSCORECARD-TESTS: vitest actually RUNS in CI (quality-gate.yml has a required `vitest run` step)",
+  /vitest run/.test(readFileSync(path.join(ROOT, ".github/workflows/quality-gate.yml"), "utf8")),
+  "no vitest step in CI — a .test.tsx cannot replace a forbidden-path entry that nothing executes");
+const rsContractSrc = existsSync(path.join(ROOT, RS_CONTRACT_TESTS))
+  ? readFileSync(path.join(ROOT, RS_CONTRACT_TESTS), "utf8")
+  : "";
+check("RESULTSSCORECARD-TESTS: they still assert the RETURN TICKET reaches a clickable button",
+  /returnTicket/.test(rsContractSrc) && /onReturn/.test(rsContractSrc)
+  && /toHaveBeenCalledTimes\(1\)/.test(rsContractSrc),
+  "this gate's HUNK C checks the PRODUCER of the ticket — these tests are the only check on the "
+  + "consumer, and without them the overlay can become impossible to close with nothing red");
+check("RESULTSSCORECARD-TESTS: they keep the variant SET open (they must NOT forbid adding a variant)",
+  /variant-set openness/.test(rsContractSrc),
+  "the batch-grading lane ADDS a variant — a replacement that pinned today's set would forbid "
+  + "exactly the change this lift exists to permit");
+
 function hasRef(ref) {
   try {
     execFileSync("git", ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], { cwd: ROOT, stdio: "pipe" });
@@ -447,5 +532,6 @@ console.log("  additive: default-off question + optional prop + route :320 ·");
 console.log("  hunks overlay-gated: chrome-suppress · pinned ✕ · scorecard Back · in-process record (no re-persist) · graded response in-hand (Option 2b) ·");
 console.log("  poll-free return: RICH opener with the thin composeReturnOpener as the honest floor · question+digest reach the model as one-shot returnedWork · navigate/marker leg retired ·");
 console.log("  honest floor: thin composeReturnOpener byte-identical (rich ADDED BESIDE) · digest ships ON (live rubric-2 eval cleared it) ·");
-console.log("  forbidden zero-diff: ResultsScorecard · sessionRecords · gradeService ·");
-console.log("  bans LIFTED, protection re-formed: grader → checkSolution.test.cjs (PR-C1) · App.tsx → App.routing.contract.test.tsx (FORBID-4)\n");
+console.log("  forbidden zero-diff: sessionRecords · gradeService ·");
+console.log("  bans LIFTED, protection re-formed: grader → checkSolution.test.cjs (PR-C1) · App.tsx → App.routing.contract.test.tsx (FORBID-4) ·");
+console.log("  ResultsScorecard → ResultsScorecard.contract.test.tsx (FORBID-6; presence, collection, CI execution and SUBJECT asserted)\n");
