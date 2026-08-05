@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
   ANNUAL_AT_MONTHLY_RATE_FOUNDING_DISPLAY,
   ANNUAL_SAVING_FOUNDING_DISPLAY,
@@ -950,6 +951,11 @@ export default function PricingPage() {
           )}
         </section>
       </div>
+
+      {/* [FU-LEGAL-FOOTER-LINK] — /pricing is a public route with the global navbar
+          suppressed (isPublicLandingRoute), so it had no route to the policies. A
+          pricing surface in particular must reach Refunds and Terms. */}
+      <PublicLegalFooter />
     </main>
   );
 }

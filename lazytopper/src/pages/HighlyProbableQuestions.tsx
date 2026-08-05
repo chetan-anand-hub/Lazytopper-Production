@@ -9,6 +9,7 @@ import {
   useParams,
 } from "react-router-dom";
 
+import { EVIDENCE_BASE_YEARS } from "../config/evidenceBase";
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { resolveCanonicalTopicKey, normalizeTopicSlug, getRuntimeTopicCandidates } from "../data/syllabus/topicAliasMap";
 import {
@@ -947,7 +948,10 @@ const HighlyProbableQuestions: React.FC = () => {
               margin: "0 0 6px",
             }}
           >
-              The question shapes that recur most on CBSE boards — drawn from 4 years of papers, the official blueprint, and examiner-pattern analysis.
+              {/* [FU-EVIDENCE-BASE-CLAIM-INCONSISTENT] — Predicted Questions rests on the
+                  SAME corpus as Exam Trends; it read "4 years" while Exam Trends read
+                  "Ten". Both now read the one authoritative constant. */}
+              The question shapes that recur most on CBSE boards — drawn from {EVIDENCE_BASE_YEARS} years of papers, the official blueprint, and examiner-pattern analysis.
               <br />
               Master these patterns first.
             </p>

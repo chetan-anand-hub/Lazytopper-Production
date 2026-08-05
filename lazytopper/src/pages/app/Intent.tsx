@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
+import { EVIDENCE_BASE_YEARS } from "../../config/evidenceBase";
 
 const MODES = [
   {
@@ -19,7 +20,8 @@ const MODES = [
   {
     key: "trends",
     title: "Exam Trends",
-    sub: "9 years of board data visualised",
+    // [FU-EVIDENCE-BASE-CLAIM-INCONSISTENT] — was a hardcoded "9 years".
+    sub: `${EVIDENCE_BASE_YEARS} years of board data visualised`,
     pill: "Data-driven",
     color: "hsl(217,76%,45%)",
     bg: "rgba(59,130,246,0.08)",

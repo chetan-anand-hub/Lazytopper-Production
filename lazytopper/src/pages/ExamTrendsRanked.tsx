@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { EVIDENCE_BASE_YEARS_WORD } from "../config/evidenceBase";
 import {
   buildDesktopPracticePath,
   buildDesktopTopicHubPath,
@@ -916,7 +917,8 @@ function PageHero({ children }: { children: React.ReactNode }) {
     <header className="lt-et-hero">
       <span className="lt-et-cred">
         <IconAward />
-        Ten years of real CBSE papers
+        {/* [FU-EVIDENCE-BASE-CLAIM-INCONSISTENT] — never a literal; ten is authoritative. */}
+        {EVIDENCE_BASE_YEARS_WORD} years of real CBSE papers
       </span>
       <h1>Exam Trends</h1>
       <p>
